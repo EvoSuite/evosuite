@@ -1,0 +1,11 @@
+<project name="build_agent" default="createCoverageagent" basedir=".">
+
+	<target name="createCoverageagent" description="Create the javaagent for coverage">
+		<echo message="creating javaagent from ant" />
+		 <jar destfile="lib/javaagent.jar" manifest="src/main/resources/MANIFEST.txt">
+			<fileset dir="bin"
+			 includes="**/javaagent/*.class"
+			 />
+		</jar>
+	</target>
+</project>
