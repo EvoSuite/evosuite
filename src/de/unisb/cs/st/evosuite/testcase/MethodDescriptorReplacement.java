@@ -209,7 +209,7 @@ public class MethodDescriptorReplacement {
 	private void getDescriptorMapping() {
 		//String className = System.getProperty("target.class");;
 		//File file = new File(MutationProperties.OUTPUT_DIR+"/"+className+".obj");
-		File dir = new File(Properties.getProperty("OUTPUT_DIR"));
+		File dir = new File(Properties.OUTPUT_DIR);
 
 		FilenameFilter filter = new FilenameFilter() {
 		    public boolean accept(File dir, String name) {

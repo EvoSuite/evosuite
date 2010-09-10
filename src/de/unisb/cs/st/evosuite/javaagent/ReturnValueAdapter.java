@@ -78,7 +78,7 @@ public class ReturnValueAdapter extends MethodAdapter {
 
 		this.visitLdcInsn(className);
 		this.visitLdcInsn(fullMethodName);
-		this.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/javalanche/tester/ExecutionTracer",
+		this.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 				"returnValue", "(ILjava/lang/String;Ljava/lang/String;)V");		
 	}
 
@@ -90,7 +90,7 @@ public class ReturnValueAdapter extends MethodAdapter {
 		this.visitInsn(Opcodes.DUP);
 		this.visitLdcInsn(className);
 		this.visitLdcInsn(fullMethodName);
-		this.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/javalanche/tester/ExecutionTracer",
+		this.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 				"returnValue", "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V");
 	}
 

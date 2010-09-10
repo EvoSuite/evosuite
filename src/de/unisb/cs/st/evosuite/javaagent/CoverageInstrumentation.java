@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.util.TraceClassVisitor;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.string.StringClassAdapter;
@@ -72,11 +73,13 @@ public class CoverageInstrumentation implements ClassFileTransformer {
 
 					ClassVisitor cv = writer;
 					if(classNameWithDots.equals(target_class) || (classNameWithDots.startsWith(target_class+"$"))) {
-						//cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+						if(logger.isDebugEnabled())
+							cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 						cv = new ExecutionPathClassAdapter(cv, className);
 						cv = new StringClassAdapter(cv, className);
 						// cv = new CFGClassAdapter(cv, className);
-						//cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+						if(logger.isDebugEnabled())
+							cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 					}
 						//cv = new CheckClassAdapter(cv);
 					if(static_hack)

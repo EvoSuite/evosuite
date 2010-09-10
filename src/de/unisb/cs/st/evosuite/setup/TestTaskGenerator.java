@@ -697,14 +697,14 @@ public class TestTaskGenerator {
 
 		String makefile = MakefileGenerator.generateMakefile(make_targets);
 		File mfile = new File("Makefile");
-		Io.writeFile(makefile, mfile);
+		//Io.writeFile(makefile, mfile);
 		StringBuffer buffer = new StringBuffer();
 		for(String call : calls) {
 			buffer.append(call);
 			buffer.append("\n");
 		}
 		File cfile = new File("runall.sh");
-		Io.writeFile(buffer.toString(), cfile);
+		//Io.writeFile(buffer.toString(), cfile);
 		logger.info("Created "+num+" tasks out of "+classes.size()+" classes");
 		logger.info("Covering a total of "+num_mutants+" mutations");		
 		//logger.info("Covering a total of "+ids.size()+" mutations");

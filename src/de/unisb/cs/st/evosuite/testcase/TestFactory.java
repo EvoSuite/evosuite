@@ -266,7 +266,7 @@ public class TestFactory {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
-	private VariableReference addConstructor(TestCase test, Constructor<?> constructor, int position, int recursion_depth) throws ConstructionFailedException {
+	public VariableReference addConstructor(TestCase test, Constructor<?> constructor, int position, int recursion_depth) throws ConstructionFailedException {
 		if(recursion_depth > MAX_RECURSION) {
 			logger.debug("Max recursion depth reached");
 			throw new ConstructionFailedException();

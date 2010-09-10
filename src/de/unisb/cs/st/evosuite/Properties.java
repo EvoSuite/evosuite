@@ -38,12 +38,15 @@ public class Properties {
 			}
 			OUTPUT_DIR = properties.getProperty("OUTPUT_DIR");
 			TARGET_CLASS = properties.getProperty("TARGET_CLASS");
-			if(TARGET_CLASS== null) {
+			if(System.getProperty("TARGET_CLASS") != null) {
 				TARGET_CLASS=System.getProperty("TARGET_CLASS");
+			}
+			if(System.getProperty("OUTPUT_DIR") != null) {
+				OUTPUT_DIR=System.getProperty("OUTPUT_DIR");
 			}
 			if(TARGET_CLASS != null)
 				properties.setProperty("TARGET_CLASS", TARGET_CLASS);
-				
+
 			properties.setProperty("PROJECT_PREFIX", PROJECT_PREFIX);
 			properties.setProperty("OUTPUT_DIR", OUTPUT_DIR);
 		} catch (FileNotFoundException e) {
@@ -59,7 +62,7 @@ public class Properties {
 	}
 	
 	public static String getPropertyOrDefault(String property, String default_value) {
-		String result = Properties.getInstance().properties.getProperty(property);
+		String result = getProperty(property);
 		if (result == null) {
 			result = default_value;
 		}
@@ -67,7 +70,7 @@ public class Properties {
 	}
 	
 	public static int getPropertyOrDefault(String property, int default_value) {
-		String result = Properties.getInstance().properties.getProperty(property);
+		String result = getProperty(property);
 		if (result == null) {
 			return default_value;
 		}
@@ -75,7 +78,7 @@ public class Properties {
 	}
 	
 	public static double getPropertyOrDefault(String property, double default_value) {
-		String result = Properties.getInstance().properties.getProperty(property);
+		String result = getProperty(property);
 		if (result == null) {
 			return default_value;
 		}
@@ -83,7 +86,7 @@ public class Properties {
 	}
 	
 	public static boolean getPropertyOrDefault(String property, boolean default_value) {
-		String result = Properties.getInstance().properties.getProperty(property);
+		String result = getProperty(property);
 		if (result == null) {
 			return default_value;
 		}
@@ -91,7 +94,11 @@ public class Properties {
 	}
 	
 	public static String getProperty(String key) {
-		return Properties.getInstance().properties.getProperty(key);
+		String value = System.getProperty(key);
+		if(value == null)
+			return Properties.getInstance().properties.getProperty(key);
+		else
+			return value; // System properties override config file
 	}
 	
 }
