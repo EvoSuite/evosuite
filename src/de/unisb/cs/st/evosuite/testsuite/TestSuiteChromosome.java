@@ -21,6 +21,8 @@ import de.unisb.cs.st.ga.GAProperties;
  */
 public class TestSuiteChromosome extends Chromosome {
 
+	private final static boolean RANK_LENGTH = GAProperties.getPropertyOrDefault("check_rank_length", true);  
+	
 	/** The genes are test cases */
 	List<TestChromosome> tests = new ArrayList<TestChromosome>();
 	
@@ -168,7 +170,7 @@ public class TestSuiteChromosome extends Chromosome {
 	 * If fitness is equal, the shorter chromosome comes first
 	 */
 	public int compareTo(Chromosome o) {
-		if(getFitness() == o.getFitness()) {
+		if(RANK_LENGTH && getFitness() == o.getFitness()) {
 			return (int) Math.signum((length() - ((TestSuiteChromosome)o).length()));
 		}
 		else

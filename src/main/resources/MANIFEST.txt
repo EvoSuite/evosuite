@@ -1,2 +1,5 @@
 Manifest-Version: 1.0
 Premain-Class: de.unisb.cs.st.evosuite.javaagent.TestSuitePreMain
+Rsrc-Class-Path: ./ JavaPlot.jar jutil.jar asm-all-3.3.jar ga-0.1.jar log4j-1.2.16.jar bytecodeTransformer-0.1.jar	 gentyref-1.1.0.jar oumextractor.jar catools.jar guava-r06.jar xpp3-1.1.4c.jar commons-io-1.4.jar jadet.jar commons-lang-2.5.jar javaagent.jar xstream-1.3.1.jar javalanche-mutation-0.3.2.jar ds-util-0.3.1.jar jgrapht-jdk1.6.jar
+Class-Path: .
+Main-Class: de.unisb.cs.st.evosuite.testsuite.TestSuiteGenerator

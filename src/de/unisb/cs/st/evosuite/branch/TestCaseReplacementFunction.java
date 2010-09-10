@@ -5,6 +5,7 @@ package de.unisb.cs.st.evosuite.branch;
 
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.ga.Chromosome;
+import de.unisb.cs.st.ga.GAProperties;
 import de.unisb.cs.st.ga.SelectionFunction;
 import de.unisb.cs.st.ga.SteadyStateReplacementFunction;
 
@@ -15,6 +16,8 @@ import de.unisb.cs.st.ga.SteadyStateReplacementFunction;
  */
 public class TestCaseReplacementFunction extends SteadyStateReplacementFunction {
 
+	private final static boolean BEST_LENGTH = GAProperties.getPropertyOrDefault("check_best_length", true);  
+	
 	public TestCaseReplacementFunction(SelectionFunction selection) {
 		super(selection);
 	}
@@ -41,8 +44,11 @@ public class TestCaseReplacementFunction extends SteadyStateReplacementFunction 
 		double fitness_offspring = getBestFitness((TestChromosome)offspring1, (TestChromosome)offspring2);
 		double fitness_parents   = getBestFitness((TestChromosome)parent1, (TestChromosome)parent2);
 		
-		if(fitness_offspring < fitness_parents || (fitness_offspring == fitness_parents && 
-				getLengthSum((TestChromosome)offspring1, (TestChromosome)offspring2) <= getLengthSum((TestChromosome)parent1, (TestChromosome)parent2))) {
+		if(BEST_LENGTH && (fitness_offspring == fitness_parents && 
+				getLengthSum((TestChromosome)offspring1, (TestChromosome)offspring2) <= getLengthSum((TestChromosome)parent1, (TestChromosome)parent2)))
+			return true;
+		
+		if(fitness_offspring < fitness_parents) {
 			return true;
 		} else {
 			return false;

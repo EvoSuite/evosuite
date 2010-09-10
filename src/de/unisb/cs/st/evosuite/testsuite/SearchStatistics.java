@@ -60,7 +60,9 @@ import de.unisb.cs.st.javalanche.mutation.analyze.html.HtmlAnalyzer;
  */
 public class SearchStatistics implements SearchListener {
 
-	private boolean do_plot = Properties.getPropertyOrDefault("plot", true);
+	private final static boolean do_plot = Properties.getPropertyOrDefault("plot", true);
+
+	private final static boolean do_html = Properties.getPropertyOrDefault("html", true);
 	
 	private static SearchStatistics instance = null;
 	
@@ -480,11 +482,11 @@ public class SearchStatistics implements SearchListener {
 	protected void writeParameterTable(StringBuffer buffer, StatisticEntry entry) {
 		buffer.append("<h2>Search Parameters</h2>\n");
 		buffer.append("<ul>\n");
-		buffer.append("<li>Algorithm: "+System.getProperty("GA.algorithm")+"\n"); // TODO
+		buffer.append("<li>Algorithm: "+GAProperties.getProperty("algorithm")+"\n"); // TODO
 		buffer.append("<li>Population size: "+entry.population_size+"\n");
 		buffer.append("<li>Initial test length: "+entry.chromosome_length+"\n");
-		buffer.append("<li>Stopping condition: "+System.getProperty("GA.stopping_condition")+": " + System.getProperty("GA.generations") +"\n");
-		buffer.append("<li>Bloat control factor: "+GAProperties.getPropertyOrDefault("GA.bloat_factor", "2"));
+		buffer.append("<li>Stopping condition: "+GAProperties.getProperty("stopping_condition")+": " + System.getProperty("GA.generations") +"\n");
+		buffer.append("<li>Bloat control factor: "+GAProperties.getPropertyOrDefault("bloat_factor", "2"));
 		buffer.append("<li>Random seed: "+entry.seed+"\n");
 		buffer.append("</ul>\n");
 	}
@@ -659,6 +661,9 @@ public class SearchStatistics implements SearchListener {
 	 * Write an HTML report
 	 */
 	public void writeReport() {
+		if(!do_html)
+			return;
+		
 		copyFile("prettify.js");
 		copyFile("prettify.css");
 		copyFile("detected.png");
@@ -876,8 +881,10 @@ public class SearchStatistics implements SearchListener {
 	private void makeDirs() {
 		REPORT_DIR.mkdirs();
 		(new File(REPORT_DIR.getAbsolutePath()+"/data")).mkdir(); 
-		(new File(REPORT_DIR.getAbsolutePath()+"/img")).mkdir(); 
-		(new File(REPORT_DIR.getAbsolutePath()+"/html")).mkdir(); 
+		if(do_plot)
+			(new File(REPORT_DIR.getAbsolutePath()+"/img")).mkdir();
+		if(do_html)
+			(new File(REPORT_DIR.getAbsolutePath()+"/html")).mkdir(); 
 	}
 	
 	public void searchFinished(Chromosome result) {

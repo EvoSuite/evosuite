@@ -27,6 +27,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
 import de.unisb.cs.st.ga.ChromosomeFactory;
 import de.unisb.cs.st.ga.CrossOverFunction;
 import de.unisb.cs.st.ga.FitnessFunction;
+import de.unisb.cs.st.ga.GAProperties;
 import de.unisb.cs.st.ga.GeneticAlgorithm;
 import de.unisb.cs.st.ga.MaxFitnessEvaluationsStoppingCondition;
 import de.unisb.cs.st.ga.MaxGenerationStoppingCondition;
@@ -62,6 +63,8 @@ public class TestSuiteGenerator {
 	private StoppingCondition zero_fitness = new ZeroFitnessStoppingCondition();
 	private int num_experiments = 0;
 
+	private final static boolean PARENTS_LENGTH = GAProperties.getPropertyOrDefault("check_parents_length", true);  
+
 	/**
 	 * Do the magic
 	 */
@@ -78,11 +81,11 @@ public class TestSuiteGenerator {
 	 */
 	public void experiment1() {
 		// Set up search algorithm
-		logger.info("Setting up search algorithm for experiment 1");
+		System.out.println("Setting up genetic algorithm");
 		SearchStatistics statistics = SearchStatistics.getInstance();
 		ExecutionTrace.trace_calls = true;
 
-		int max_s = Integer.parseInt(System.getProperty("GA.generations"));
+		int max_s = GAProperties.generations;
 
 		
 		
@@ -122,6 +125,7 @@ public class TestSuiteGenerator {
 					ga.resetStoppingConditions();
 					ga.clearPopulation();
 					
+					System.out.println("Searching for goal "+num);
 					logger.info("Goal "+num+"/"+(total_goals - covered_goals)+": "+goal);
 //					logger.info("Number of statements: "+max_statements.getNumExecutedStatements());
 					//num_statements += MaxStatementsStoppingCondition.getNumExecutedStatements();
@@ -183,7 +187,8 @@ public class TestSuiteGenerator {
 				minimizer.minimize(suite, suite_fitness);
 				logger.info("Finished minimization");
 			}
-			logger.info("Minimized test suite: "+suite.size()+" tests, length "+suite.length());
+			System.out.println("Resulting test suite has fitness "+suite.getFitness());
+			System.out.println("Resulting test suite: "+suite.size()+" tests, length "+suite.length());
 			
 			// Log some stats
 			
@@ -359,7 +364,7 @@ public class TestSuiteGenerator {
 		SelectionFunction selection_function = new RankSelection();
 		selection_function.setMaximize(false);
 
-		String search_algorithm = System.getProperty("GA.algorithm");
+		String search_algorithm = GAProperties.getProperty("algorithm");
 		if(search_algorithm.equals("(1+1)EA")) {
 			logger.info("Chosen search algorithm: (1+1)EA");
 			ga = new OnePlusOneEA(factory);
@@ -382,7 +387,7 @@ public class TestSuiteGenerator {
 		ga.setSelectionFunction(selection_function);
 		
 		String stopping_condition = Properties.getPropertyOrDefault("stopping_condition", "MaxGenerations");
-		logger.warn("Setting stopping condition: "+stopping_condition);
+		logger.info("Setting stopping condition: "+stopping_condition);
 		if(stopping_condition.equals("MaxGenerations"))
 			ga.setStoppingCondition(max_gen);
 		else if(stopping_condition.equals("MaxEvaluations"))
@@ -408,8 +413,15 @@ public class TestSuiteGenerator {
 
 		
 		RelativeLengthBloatControl bloat_control = new RelativeLengthBloatControl();
-		ga.addBloatControl(bloat_control);
-		ga.addListener(bloat_control);
+		  
+
+		if(PARENTS_LENGTH) {
+			logger.debug("Using parent bloat control");
+			ga.addBloatControl(bloat_control);
+			ga.addListener(bloat_control);
+		} else {
+			logger.debug("Not using parent bloat control");
+		}
 		//ga.addBloatControl(new MaxLengthBloatControl());
 	    
 				

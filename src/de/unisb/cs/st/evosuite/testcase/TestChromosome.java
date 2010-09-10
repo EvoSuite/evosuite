@@ -14,7 +14,15 @@ import de.unisb.cs.st.ga.GAProperties;
  */
 public class TestChromosome extends Chromosome {
 	
-
+	private final static boolean RANK_LENGTH = GAProperties.getPropertyOrDefault("check_rank_length", true);  
+	
+	static {
+		if(RANK_LENGTH)
+			logger.debug("Using rank check");
+		else
+			logger.debug("Not using rank check");
+	}
+	
 	/** The test case encoded in this chromosome */
 	public TestCase test = new TestCase();
 	
@@ -90,6 +98,18 @@ public class TestChromosome extends Chromosome {
 		} else if (!test.equals(other.test))
 			return false;
 		return true;
+	}
+	
+	/**
+	 * Determine relative ordering of this chromosome to another chromosome
+	 * If fitness is equal, the shorter chromosome comes first
+	 */
+	public int compareTo(Chromosome o) {
+		if(RANK_LENGTH && getFitness() == o.getFitness()) {
+			return (int) Math.signum((size() - ((TestChromosome)o).size()));
+		}
+		else
+			return (int) Math.signum(getFitness() - o.getFitness());
 	}
 	
 	/**

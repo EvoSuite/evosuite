@@ -5,11 +5,12 @@ package de.unisb.cs.st.evosuite.testsuite;
 
 import org.apache.log4j.Logger;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.OUM.OUMTestChromosomeFactory;
 import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.ga.Chromosome;
 import de.unisb.cs.st.ga.ChromosomeFactory;
-import de.unisb.cs.st.ga.GAProperties;
 
 /**
  * @author Gordon Fraser
@@ -20,7 +21,7 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory {
 	Logger logger = Logger.getLogger(TestSuiteChromosomeFactory.class);
 	
 	/** Desired number of tests*/
-	protected int num_tests   = Integer.parseInt(GAProperties.getPropertyOrDefault("GA.num_tests", "2"));
+	protected int num_tests   = Properties.getPropertyOrDefault("num_tests", 2);
 	
 	/** Factory to manipulate and generate method sequences */
 	private ChromosomeFactory test_factory;
@@ -28,6 +29,7 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory {
 	public TestSuiteChromosomeFactory() {
 		test_factory = new RandomLengthTestFactory();
 //		test_factory = new AllMethodsChromosomeFactory();
+//		test_factory = new OUMTestChromosomeFactory();
 	}
 	
 	public TestSuiteChromosomeFactory(ChromosomeFactory test_factory) {

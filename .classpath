@@ -15,5 +15,6 @@
 	<classpathentry kind="lib" path="lib/ds-util-0.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/xstream-1.2.2.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ga"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/OUMExtractor"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
