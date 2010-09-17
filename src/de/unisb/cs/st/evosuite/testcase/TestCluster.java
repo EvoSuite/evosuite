@@ -542,12 +542,13 @@ public class TestCluster {
 	 *   Map from classname to list of methodnames
 	 */
 	private Map<String, List<String> > getTestObjectsFromFile() {
-		String property = System.getProperty("test.classes");
-		String filename = property;
-		if(property == null || property.equals("${test.classes}")) {
-			property = Properties.TARGET_CLASS;
-			filename = Properties.OUTPUT_DIR+"/"+property+".task";
-		}
+		//String property = System.getProperty("test.classes");
+		String property = Properties.TARGET_CLASS;
+		//String filename = property;
+		//if(property == null || property.equals("${test.classes}")) {
+	//		property = Properties.TARGET_CLASS;
+			String filename = Properties.OUTPUT_DIR+"/"+property+".task";
+		//}
 		logger.info("Reading test methods from "+filename);
 		File file = new File(filename);
 		List<String> lines = Io.getLinesFromFile(file);
@@ -861,11 +862,18 @@ public class TestCluster {
 	  private static Map<String, List<String> > getIncludesFromFile() {
 		  String property = Properties.getProperty("test_includes");
 		  Map<String, List<String> > objs = new HashMap<String, List<String> >();
-		  
-		  File file = new File(property);
-		  if(!file.exists()) {
+		  if(property == null) {
 			  logger.debug("No include file specified");
 			  return objs;
+		  }
+			  
+		  File file = new File(property);
+		  if(!file.exists()) {
+			  file = new File(Properties.OUTPUT_DIR+"/"+property);
+			  if(!file.exists() || !file.isFile()) {
+				  logger.debug("No include file specified");
+				  return objs;
+			  }
 		  }
 		  List<String> lines = Io.getLinesFromFile(file);
 		  for(String line : lines) {
@@ -935,11 +943,18 @@ public class TestCluster {
 	  
 	  private static Map<String, List<String> > getExcludesFromFile() {
 		  String property = Properties.getProperty("test_excludes");
-		  File file = new File(property);
 		  Map<String, List<String> > objs = new HashMap<String, List<String> >();
-		  if(!file.exists()) {
+		  if(property == null) {
 			  logger.debug("No exclude file specified");
-			  return objs;
+			  return objs;			  
+		  }
+		  File file = new File(property);
+		  if(!file.exists()) {
+			  file = new File(Properties.OUTPUT_DIR+"/"+property);
+			  if(!file.exists() || !file.isFile()) {
+				  logger.debug("No exclude file specified");
+				  return objs;
+			  }
 		  }
 
 		  List<String> lines = Io.getLinesFromFile(file);

@@ -15,7 +15,7 @@ import java.util.Set;
  */
 public class AssignmentStatement extends Statement {
 
-	VariableReference parameter;
+	public VariableReference parameter;
 
 	public AssignmentStatement(VariableReference variable, VariableReference value) {
 		this.retval = variable;
@@ -29,6 +29,10 @@ public class AssignmentStatement extends Statement {
 		adjustAssertions(position, delta);
 	}
 
+	public void setArray(VariableReference array) {
+		this.retval = array;
+	}
+	
 	@Override
 	public Statement clone() {
 		AssignmentStatement copy = new AssignmentStatement(retval.clone(), parameter.clone());

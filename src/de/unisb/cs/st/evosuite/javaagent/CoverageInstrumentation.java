@@ -38,7 +38,7 @@ public class CoverageInstrumentation implements ClassFileTransformer {
 	protected boolean static_hack = Properties.getPropertyOrDefault("static_hack", false);
 	
 	static {
-		logger.info("Loading CoverageTransformer");
+		logger.info("Loading CoverageTransformer for "+Properties.PROJECT_PREFIX);
 		//logger.info("Classes to mutate:");
 	}
 	/* (non-Javadoc)
@@ -67,7 +67,6 @@ public class CoverageInstrumentation implements ClassFileTransformer {
 					//classfileBuffer = systemExitTransformer
 					//.transformBytecode(classfileBuffer);
 
-					logger.debug("Transforming: " + classNameWithDots);
 					ClassReader reader = new ClassReader(classfileBuffer);
 					ClassWriter writer = new ClassWriter(org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
 
@@ -76,11 +75,11 @@ public class CoverageInstrumentation implements ClassFileTransformer {
 						if(logger.isDebugEnabled())
 							cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 						cv = new ExecutionPathClassAdapter(cv, className);
-						cv = new StringClassAdapter(cv, className);
 						// cv = new CFGClassAdapter(cv, className);
 						if(logger.isDebugEnabled())
 							cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 					}
+					cv = new StringClassAdapter(cv, className);
 						//cv = new CheckClassAdapter(cv);
 					if(static_hack)
 						cv = new StaticInitializationClassAdapter(cv, className);

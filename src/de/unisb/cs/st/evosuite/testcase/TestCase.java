@@ -69,6 +69,15 @@ public class TestCase {
 	}
 	
 	/**
+	 * 
+	 * @return
+	 *   Number of statements
+	 */
+	public boolean isEmpty() {
+		return statements.isEmpty();
+	}
+	
+	/**
 	 * Remove all statements after a given position
 	 * 
 	 * @param length
@@ -164,7 +173,7 @@ public class TestCase {
 	public List<VariableReference> getObjects(int position) {
 		List<VariableReference> variables = new ArrayList<VariableReference>();
 //		logger.trace("Looking for objects of type "+type +" up to position "+position+" in test with length "+statements.size());
-		for(int i=0; i<position && position < statements.size(); i++) {
+		for(int i=0; i<position && i < statements.size(); i++) {
 			if(statements.get(i).retval == null)
 				continue;
 			variables.add(new VariableReference(statements.get(i).getReturnType(), i));

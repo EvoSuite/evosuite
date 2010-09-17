@@ -9,7 +9,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.string.StringPool;
+import de.unisb.cs.st.evosuite.string.PrimitivePool;
 import de.unisb.cs.st.ga.Randomness;
 
 /**
@@ -20,13 +20,17 @@ import de.unisb.cs.st.ga.Randomness;
  */
 public class PrimitiveStatement<T> extends Statement {
 
-	private static int MAX_STRING = Properties.getPropertyOrDefault("string.length", 20);
+	private static int MAX_STRING = Properties.getPropertyOrDefault("string_length", 20);
 
-	private static double P_pool = Properties.getPropertyOrDefault("string.pool", 0.5);
+	private static int MAX_INT = Properties.getPropertyOrDefault("max_int", 256);
+
+	// TODO: This pool should also be used for ints!
+	private static double P_pool = Properties.getPropertyOrDefault("primitive_pool", 0.5);
+
 
 	private static Randomness randomness = Randomness.getInstance();
 	
-	private static StringPool string_pool = StringPool.getInstance();
+	private static PrimitivePool primitive_pool = PrimitivePool.getInstance();
 	
 	/**
 	 * The value
@@ -44,6 +48,10 @@ public class PrimitiveStatement<T> extends Statement {
 	}
 
 	
+	public T getValue() {
+		return value;
+	}
+	
 	/**
 	 * Create random primitive statement
 	 * @param reference
@@ -55,36 +63,54 @@ public class PrimitiveStatement<T> extends Statement {
 		if(clazz == boolean.class) {
 			return new PrimitiveStatement<Boolean>(reference, randomness.nextBoolean());
 		} else if (clazz == int.class) {
-//			return new PrimitiveStatement<Integer>(reference, randomness.nextInt());
-//		return new PrimitiveStatement<Integer>(reference, new Integer((short) (randomness.nextInt(2 * 32767) - 32767)));
-		return new PrimitiveStatement<Integer>(reference, new Integer((short) (randomness.nextInt(2 * 512) - 512)));
-//			return new PrimitiveStatement<Integer>(reference, new Integer((short) (randomness.nextInt(32767))));
-//			return new PrimitiveStatement<Integer>(reference, new Integer((short) (randomness.nextInt(100)))); // TODO: Parametrize!!
+			if(randomness.nextDouble() >= P_pool )
+				return new PrimitiveStatement<Integer>(reference, new Integer((short) (randomness.nextInt(2 * MAX_INT) - MAX_INT)));
+			else
+				return new PrimitiveStatement<Integer>(reference, primitive_pool.getRandomInt());
+
 		} else if (clazz == char.class) {
 			// Only ASCII chars?
-			return new PrimitiveStatement<Character>(reference, (char)(randomness.nextInt('Z'-'A'+1)+'A'));
+			return new PrimitiveStatement<Character>(reference, (char)(randomness.nextChar()));
 		} else if (clazz == long.class) {
-//			return new PrimitiveStatement<Long>(reference, randomness.nextLong());
-			return new PrimitiveStatement<Long>(reference, new Long((short) (randomness.nextInt(2 * 32767) - 32767)));
-//			return new PrimitiveStatement<Long>(reference, new Long((short) (randomness.nextInt(32767))));
-//			return new PrimitiveStatement<Long>(reference, new Long((short) (randomness.nextInt(100))));
-		} else if (clazz == double.class) {
-			return new PrimitiveStatement<Double>(reference, randomness.nextDouble());
+			int max = Math.min(MAX_INT, 32767);
+			if(randomness.nextDouble() >= P_pool )
+				return new PrimitiveStatement<Long>(reference, new Long((short) (randomness.nextInt(2 * max) - max)));
+			else
+				return new PrimitiveStatement<Long>(reference, primitive_pool.getRandomLong());
+
+		} else if (clazz.equals(double.class)) {
+			if(randomness.nextDouble() >= P_pool )
+				return new PrimitiveStatement<Double>(reference, randomness.nextDouble());
+			else
+				return new PrimitiveStatement<Double>(reference, primitive_pool.getRandomDouble());
+			
 		} else if (clazz == float.class) {
-			return new PrimitiveStatement<Float>(reference, randomness.nextFloat());
+			if(randomness.nextDouble() >= P_pool )
+				return new PrimitiveStatement<Float>(reference, randomness.nextFloat());
+			else
+				return new PrimitiveStatement<Float>(reference, primitive_pool.getRandomFloat());
+				
 		} else if (clazz == short.class) {
-			return new PrimitiveStatement<Short>(reference, new Short((short) (randomness.nextInt(2 * 32767) - 32767)));
+			int max = Math.min(MAX_INT, 32767);
+			if(randomness.nextDouble() >= P_pool )
+				return new PrimitiveStatement<Short>(reference, new Short((short) (randomness.nextInt(2 * max) - max)));
+			else
+				return new PrimitiveStatement<Short>(reference, new Short((short) primitive_pool.getRandomInt()));
+				
 		} else if (clazz == byte.class) {
-			return new PrimitiveStatement<Byte>(reference, new Byte((byte) (randomness.nextInt(256) - 128)));
-		} else if (clazz == String.class) {
+			if(randomness.nextDouble() >= P_pool )
+				return new PrimitiveStatement<Byte>(reference, new Byte((byte) (randomness.nextInt(256) - 128)));
+			else
+				return new PrimitiveStatement<Byte>(reference, new Byte((byte) (primitive_pool.getRandomInt())));
+
+		} else if (clazz.equals(String.class)) {
 			if(randomness.nextDouble() >= P_pool )
 				return new PrimitiveStatement<String>(reference, randomness.nextString(randomness.nextInt(MAX_STRING)));
 			else
-				return new PrimitiveStatement<String>(reference, string_pool.getRandomString());
-		} else {
-			logger.error("Getting unknown type: "+clazz);
+				return new PrimitiveStatement<String>(reference, primitive_pool.getRandomString());
 		}
-		// TODO: Char
+		logger.error("Getting unknown type: "+clazz+" / "+clazz.getClass());
+
 		assert(false);
 		return null;
 	}

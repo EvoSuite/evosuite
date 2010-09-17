@@ -66,7 +66,7 @@ public class CFGClassAdapter extends ClassAdapter {
 		if((access & Opcodes.ACC_PRIVATE) != Opcodes.ACC_PRIVATE) {
 			access = access | Opcodes.ACC_PUBLIC;
 			access = access & ~Opcodes.ACC_PROTECTED;
-			logger.info("Setting class to public: "+className);
+			logger.debug("Setting class to public: "+className);
 		}		
 		super.visit(version, access, name, signature, superName, interfaces);
 	}
@@ -106,7 +106,7 @@ public class CFGClassAdapter extends ClassAdapter {
 
 		if (!exclude) {
 			//mv = new BranchMethodAdapter(className, methodAccess, name, descriptor, signature, exceptions, mv);
-			logger.info("Instrumenting: "+className+"."+name);
+			logger.debug("Instrumenting: "+className+"."+name);
 			if(false) {
 				MutationForRun mm = MutationForRun.getFromDefaultLocation();
 				mv = new CFGMethodAdapter(className, methodAccess, name, descriptor, signature, exceptions, mv, mm.getMutations());
@@ -114,7 +114,8 @@ public class CFGClassAdapter extends ClassAdapter {
 			else {
 				mv = new CFGMethodAdapter(className, methodAccess, name, descriptor, signature, exceptions, mv, new ArrayList<Mutation>());
 			}
-				
+		} else {
+			logger.debug("Not instrumenting: "+className+"."+name);
 		}
 		return mv;
 	}

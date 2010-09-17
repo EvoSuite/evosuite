@@ -858,11 +858,13 @@ public class SearchStatistics implements SearchListener {
 		}
 
 		//entry.total_goals = 2 * CFGMethodAdapter.branch_counter + entry.branchless_methods;
-		entry.total_goals = 2 * entry.total_branches + entry.branchless_methods;
+//		entry.total_goals = 2 * entry.total_branches + entry.branchless_methods;
+		entry.total_goals = 2 * entry.total_branches + entry.total_methods;
 		entry.covered_branches = num_covered;
 		entry.covered_methods = covered_methods.size();
 		entry.covered_goals = num_covered;
-		for(String e : CFGMethodAdapter.branchless_methods) {
+//		for(String e : CFGMethodAdapter.branchless_methods) {
+		for(String e : CFGMethodAdapter.methods) {
 			if(covered_methods.contains(e))
 				entry.covered_goals++;
 			else {

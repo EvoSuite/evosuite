@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.OUM.OUMTestChromosomeFactory;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.mutation.MutationStatistics;
@@ -210,7 +211,7 @@ public class TestSuiteGenerator {
 		SearchStatistics statistics = SearchStatistics.getInstance();
 		ExecutionTrace.trace_calls = true;
 
-		int max_s = Integer.parseInt(System.getProperty("GA.generations"));
+		int max_s = GAProperties.getPropertyOrDefault("generations", 1000);
 		int current_statements = 0;
 
 		
@@ -325,7 +326,7 @@ public class TestSuiteGenerator {
 		List<BranchCoverageGoal> goals = new ArrayList<BranchCoverageGoal>();
 
 		// Branchless methods
-		String class_name = System.getProperty("target.class");
+		String class_name = Properties.TARGET_CLASS;
 		logger.info("Getting branches for "+class_name);
 		for(String method : CFGMethodAdapter.branchless_methods) {
 			goals.add(new BranchCoverageGoal(class_name, method));
@@ -360,6 +361,7 @@ public class TestSuiteGenerator {
 
 		GeneticAlgorithm ga = null;
 		ChromosomeFactory factory = new RandomLengthTestFactory();
+//		ChromosomeFactory factory = new OUMTestChromosomeFactory();
 
 		SelectionFunction selection_function = new RankSelection();
 		selection_function.setMaximize(false);

@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.testcase.Assertion;
-import de.unisb.cs.st.evosuite.testcase.AssertionGenerator;
 import de.unisb.cs.st.evosuite.testcase.AssertionObserver;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;

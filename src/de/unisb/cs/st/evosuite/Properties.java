@@ -6,6 +6,7 @@ package de.unisb.cs.st.evosuite;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 
 /**
  * @author Gordon Fraser
@@ -22,6 +23,8 @@ public class Properties {
 	public static String OUTPUT_DIR = "";
 	
 	public static String TARGET_CLASS= "";
+	
+	private static Class<?> TARGET_CLASS_INSTANCE = null;
 	
 	static {
 		instance = new Properties();
@@ -44,8 +47,9 @@ public class Properties {
 			if(System.getProperty("OUTPUT_DIR") != null) {
 				OUTPUT_DIR=System.getProperty("OUTPUT_DIR");
 			}
-			if(TARGET_CLASS != null)
+			if(TARGET_CLASS != null) {
 				properties.setProperty("TARGET_CLASS", TARGET_CLASS);
+			}
 
 			properties.setProperty("PROJECT_PREFIX", PROJECT_PREFIX);
 			properties.setProperty("OUTPUT_DIR", OUTPUT_DIR);
@@ -59,6 +63,19 @@ public class Properties {
 			instance = new Properties();
 		}
 		return instance;
+	}
+	
+	public static Class<?> getTargetClass() {
+		if(TARGET_CLASS_INSTANCE != null)
+			return TARGET_CLASS_INSTANCE;
+		
+		try {
+			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS);
+			return TARGET_CLASS_INSTANCE;
+		} catch(ClassNotFoundException e) {
+			System.err.println("Could not find class under test "+TARGET_CLASS);
+		}
+		return null;
 	}
 	
 	public static String getPropertyOrDefault(String property, String default_value) {

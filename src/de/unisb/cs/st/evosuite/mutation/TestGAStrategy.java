@@ -3,7 +3,6 @@ package de.unisb.cs.st.evosuite.mutation;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.unisb.cs.st.evosuite.testcase.AssertionGenerator;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseMinimizer;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;

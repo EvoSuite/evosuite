@@ -25,7 +25,7 @@ public class StringClassAdapter extends ClassAdapter {
 	
 	private boolean exclude;
 	
-	private StringPool string_pool = StringPool.getInstance();
+	private PrimitivePool primitive_pool = PrimitivePool.getInstance();
 	/**
 	 * @param arg0
 	 */
@@ -42,7 +42,7 @@ public class StringClassAdapter extends ClassAdapter {
 
 	public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
 		if(value instanceof String) {
-			string_pool.addString((String)value);
+			primitive_pool.add(value);
 		}
 		return super.visitField(access, name, desc, signature, value);
 	}
@@ -59,11 +59,9 @@ public class StringClassAdapter extends ClassAdapter {
 				signature, exceptions);
 
 		String classNameWithDots = className.replace('/', '.');
-		
 		if (!exclude && (classNameWithDots.equals(target_class) || (classNameWithDots.startsWith(target_class+"$")))) {
 			mv = new StringReplacementMethodAdapter(methodAccess, descriptor, mv);
 		}
-		
 		mv = new StringPoolMethodAdapter(mv);
 		
 		return mv;

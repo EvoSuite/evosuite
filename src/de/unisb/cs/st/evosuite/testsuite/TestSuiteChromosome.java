@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.OUM.OUMTestChromosomeFactory;
+import de.unisb.cs.st.evosuite.OUM.OUMTestFactory;
 import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
@@ -123,6 +125,7 @@ public class TestSuiteChromosome extends Chromosome {
 			count++;				
 			// Insert at position as during initialization (i.e., using helper sequences)
 			RandomLengthTestFactory factory = new RandomLengthTestFactory(); //TestChromosomeFactory();
+			//OUMTestChromosomeFactory factory = new OUMTestChromosomeFactory();
 			tests.add((TestChromosome) factory.getChromosome());
 			logger.debug("Adding new test case ");
 		}

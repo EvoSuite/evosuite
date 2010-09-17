@@ -12,7 +12,7 @@ import org.objectweb.asm.MethodVisitor;
  */
 public class StringPoolMethodAdapter extends MethodAdapter {
 
-	private StringPool string_pool = StringPool.getInstance();
+	private PrimitivePool primitive_pool = PrimitivePool.getInstance();
 
 	/**
 	 * @param arg0
@@ -22,11 +22,8 @@ public class StringPoolMethodAdapter extends MethodAdapter {
 		// TODO Auto-generated constructor stub
 	}
 	
-	
 	public void visitLdcInsn(Object cst) {
-		if(cst instanceof String) {
-			string_pool.addString((String)cst);
-		}
+		primitive_pool.add(cst);
 		super.visitLdcInsn(cst);
 	}
 

@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="src" path="/javalanche-src"/>
-	<classpathentry kind="lib" path="lib/asm-all-3.3.jar"/>
 	<classpathentry kind="lib" path="lib/jgrapht-jdk1.6.jar"/>
 	<classpathentry kind="lib" path="lib/JavaPlot.jar"/>
 	<classpathentry kind="lib" path="lib/gentyref-1.1.0.jar"/>
@@ -13,8 +12,8 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/JADET"/>
 	<classpathentry kind="lib" path="/JADET/lib/catools.jar"/>
 	<classpathentry kind="lib" path="lib/ds-util-0.3.1.jar"/>
-	<classpathentry kind="lib" path="lib/xstream-1.2.2.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ga"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OUMExtractor"/>
+	<classpathentry kind="lib" path="lib/asm-all-3.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

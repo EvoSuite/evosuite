@@ -246,6 +246,10 @@ public class GenericClass {
 		return raw_class.getComponentType().getSimpleName();
 	}
 	
+	public String getClassName() {
+		return raw_class.getName();
+	}
+	
 	public String getSimpleName() {
 		
 		if(raw_class.isArray()) {

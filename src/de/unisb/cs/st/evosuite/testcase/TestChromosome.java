@@ -1,12 +1,11 @@
 package de.unisb.cs.st.evosuite.testcase;
 
-import java.lang.reflect.AccessibleObject;
 import java.util.List;
 
 import de.unisb.cs.st.ga.Chromosome;
 import de.unisb.cs.st.ga.ConstructionFailedException;
 import de.unisb.cs.st.ga.GAProperties;
-
+import de.unisb.cs.st.evosuite.OUM.OUMTestFactory;
 /**
  * Chromosome representation of test cases
  * @author Gordon Fraser
@@ -27,13 +26,14 @@ public class TestChromosome extends Chromosome {
 	public TestCase test = new TestCase();
 	
 	/** Factory to manipulate and generate method sequences */
-	private TestFactory test_factory;
+	private AbstractTestFactory test_factory;
 
 	/** True if this leads to an exception */
 	private boolean has_exception = false;
 
 	public TestChromosome() {
 		test_factory = TestFactory.getInstance();
+//		test_factory = OUMTestFactory.getInstance();
 	}
 	
 	public ExecutionResult last_result = null;
@@ -198,26 +198,16 @@ public class TestChromosome extends Chromosome {
 						objects.remove(as.parameter);
 						if(!objects.isEmpty()) {
 							as.parameter = randomness.choice(objects);
+							changed = true;
 						}
 					} else if(as.retval.array_length > 0){
 						as.retval.array_index = randomness.nextInt(as.retval.array_length);
+						changed = true;
 					}
 					//logger.info("After change:");
 					//logger.info(test.toCode());
 				} else {
-					List<VariableReference> objects = test.getObjects(statement.retval.statement);
-					objects.remove(statement.retval);
-					List<AccessibleObject> calls = test_factory.getPossibleCalls(statement.getReturnType(), objects);
-					logger.debug("Got "+calls.size()+" possible calls for "+objects.size()+" objects");
-					AccessibleObject call = randomness.choice(calls);
-					try {
-						test_factory.changeCall(test, statement, call);
-						changed = true;
-					} catch (ConstructionFailedException e) {
-						// Ignore
-						logger.info("Change failed");
-					}
-					
+					changed = test_factory.changeRandomCall(test, statement);
 				}
 			}
 		}

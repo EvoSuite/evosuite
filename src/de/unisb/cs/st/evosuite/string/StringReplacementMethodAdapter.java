@@ -38,7 +38,7 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 	private void insertFlagCode() {
 		// assign the return value to a new local variable
 		int index = newLocal(Type.INT_TYPE);
-		logger.info("Inserting new variable with index "+index+" as replacement for "+nextLocal);
+		logger.debug("Inserting new variable with index "+index+" as replacement for "+nextLocal);
 		//flags.put(index, nextLocal);
 		current_write = index;
 		current_var = nextLocal;
@@ -115,7 +115,7 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 		if((opcode == Opcodes.IFEQ || opcode == Opcodes.IFNE) &&
 				(flags.containsKey(current_var) || current_write >= 0)) {
 			
-			logger.info("Found use of local variable "+current_var);
+			logger.debug("Found use of local variable "+current_var);
 			int var = current_var;
 			//if(flags.get(var) != nextLocal) {
 				// Pop flag from stack
