@@ -16,7 +16,7 @@ fi
 source $BASEPATH/resources/evosuite.properties
 		
 
-java_options="-ea -Xmx2048M"
+java_opts="-ea -Xmx2048M"
 
 java_agent="-javaagent:$BASEPATH/lib/javaagent.jar"
 
@@ -54,6 +54,7 @@ $BASEPATH/lib/evosuite.jar
 ##
 evosuite_suite=de.unisb.cs.st.evosuite.testsuite.TestSuiteGenerator
 evosuite_tests=de.unisb.cs.st.evosuite.branch.TestSuiteGenerator
+evosuite_oum=de.unisb.cs.st.evosuite.OUM.TestSuiteGenerator
 evosuite_scan=de.unisb.cs.st.evosuite.setup.ScanProject
 evosuite_tasks=de.unisb.cs.st.evosuite.setup.TestTaskGenerator
 
@@ -306,11 +307,23 @@ setup ()
     then {
 	    PREFIX=${cmdline_arguments[0]}
 	    SRC=${cmdline_arguments[1]}
+	    first=1
+	    CP="$SRC"
+# 	    for dir in $(echo $SRC | awk 'BEGIN{FS=":"}{for (i=1; i<=NF; i++) print $i}') ; do 
+# 		if [ $first -eq 1 ]; then
+# 		    first=0
+# 		else
+# 		    CP="$CP:"
+# 		fi
+# 		CP="$CP$(cd $(dirname $dir); pwd -P)/$(basename $dir)" ; 
+# 	    done
+
+
 	    javalanche_options=" -Dmutation.package.prefix=$PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PREFIX"
-	    java $java_options -cp "$classpath:$SRC" $java_agent=scan  $javalanche_options $evosuite_scan
-	    java $java_options -cp "$classpath:$SRC" $java_agent=tasks $javalanche_options $evosuite_tasks
-	    setup_javalanche $OUTPUT_DIR $PREFIX $SRC
-	    setup_evosuite $OUTPUT_DIR $PREFIX $SRC
+	    java $java_options -cp "$classpath:$CP" $java_agent=scan  $javalanche_options $evosuite_scan
+	    java $java_options -cp "$classpath:$CP" $java_agent=tasks $javalanche_options $evosuite_tasks
+	    setup_javalanche $OUTPUT_DIR $PREFIX $CP
+	    setup_evosuite $OUTPUT_DIR $PREFIX $CP
 	}
     else {
 	    unknown_parameters "setup" "$@"
@@ -329,7 +342,7 @@ generateSuite ()
 	options_ok=$?
 	if test $options_ok -eq 0;
 	then {
-		BASEDIR="."
+		BASEDIR=$(pwd)
 		TEST_CLASSES=""
 		random_seed="-Drandom.seed=0"
 		for (( i = 0; i < 3; i++ ))
@@ -341,22 +354,25 @@ generateSuite ()
 		    esac
 		done
 
-		OUTPUT_DIR=$BASEDIR/$OUTPUT_DIR
+		pushd .
+		cd $BASEDIR
+		#OUTPUT_DIR=$BASEDIR/$OUTPUT_DIR
 
 		if [ -z "$TEST_CLASSES" ]; then
 		    echo "Looking for testable classes"
 		    TEST_CLASSES=$(for F in $OUTPUT_DIR/*.task; do echo $(basename $F) | sed -e s/\.task// ; done)
 		fi
 		source $OUTPUT_DIR/evosuite.properties
-		CP=$BASEDIR/$CP
+		#CP=$BASEDIR/$CP
 
 		javalanche_options=" -Dmutation.package.prefix=$PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PREFIX"
 		java_options=${cmdline_java_options[*]}
 
 		for test_class in $TEST_CLASSES; do
 		    echo "Current class: $test_class"
-		    java -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate $javalanche_options $random_seed $java_options -DTARGET_CLASS=$test_class $evosuite_suite
+		    java -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate $javalanche_options $random_seed $java_options $java_opts -DTARGET_CLASS=$test_class $evosuite_suite
 		done
+		popd
 	    }
 	else {
 		unknown_parameters "generateSuite" "$@"
@@ -375,7 +391,7 @@ generateTests ()
 	options_ok=$?
 	if test $options_ok -eq 0;
 	then {
-		BASEDIR="."
+		BASEDIR=$(pwd)
 		TEST_CLASSES=""
 		random_seed="-Drandom.seed=0"
 		for (( i = 0; i < 3; i++ ))
@@ -386,25 +402,77 @@ generateTests ()
 			"-class") TEST_CLASSES=${cmdline_options_values[$i]};;
 		    esac
 		done
-
-		echo "Sourcing: $OUTPUT_DIR/evosuite.properties"
-		source $BASEDIR/$OUTPUT_DIR/evosuite.properties
-		OUTPUT_DIR=$BASEDIR/$OUTPUT_DIR
-		echo $OUTPUT_DIR
+		pushd .
+		cd $BASEDIR
+		echo "Sourcing: $BASEDIR/$OUTPUT_DIR/evosuite.properties"
+		source $OUTPUT_DIR/evosuite.properties
+		#OUTPUT_DIR=$BASEDIR/$OUTPUT_DIR
+		#echo $OUTPUT_DIR
 
 		if [ -z "$TEST_CLASSES" ]; then
 		    echo "Looking for testable classes"
 		    TEST_CLASSES=$(for F in $OUTPUT_DIR/*.task; do echo $(basename $F) | sed -e s/\.task// ; done)
 		fi
-		CP=$BASEDIR/$CP
+		#CP=$BASEDIR/$CP
 		javalanche_options=" -Dmutation.package.prefix=$PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PREFIX -DOUTPUT_DIR=$OUTPUT_DIR"
 		java_options=${cmdline_java_options[*]}
 
 		for test_class in $TEST_CLASSES; do
 		    echo "Current class: $test_class"
-		    #echo "java -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate $javalanche_options $random_seed $java_options -DTARGET_CLASS=$test_class $evosuite_tests"
-		    java -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate $javalanche_options $random_seed $java_options -DTARGET_CLASS=$test_class $evosuite_tests
+		    #echo "java -cp \"$OUTPUT_DIR:$classpath:$CP\" $java_agent=generate $javalanche_options $random_seed $java_options $java_opts -DTARGET_CLASS=$test_class $evosuite_tests"
+		    java -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate $javalanche_options $random_seed $java_options $java_opts -DTARGET_CLASS=$test_class $evosuite_tests
 		done
+		popd
+	    }
+	else {
+		unknown_parameters "generateTests" "$@"
+		print_usage
+	    }
+	fi
+}
+
+##
+##
+generateTestsOUM ()
+{
+	allowed_options=("-seed" "-base_dir" "-class")
+	allowed_options_take_values=(1 1 1)
+	parse_command_line "$@"
+	options_ok=$?
+	if test $options_ok -eq 0;
+	then {
+		BASEDIR=$(pwd)
+		TEST_CLASSES=""
+		random_seed="-Drandom.seed=0"
+		for (( i = 0; i < 3; i++ ))
+		do
+		    case ${cmdline_options[$i]} in
+			"-seed") random_seed="-Drandom.seed="${cmdline_options_values[$i]};;
+			"-base_dir") BASEDIR=${cmdline_options_values[$i]};;
+			"-class") TEST_CLASSES=${cmdline_options_values[$i]};;
+		    esac
+		done
+		pushd .
+		cd $BASEDIR
+		echo "Sourcing: $BASEDIR/$OUTPUT_DIR/evosuite.properties"
+		source $OUTPUT_DIR/evosuite.properties
+		#OUTPUT_DIR=$BASEDIR/$OUTPUT_DIR
+		#echo $OUTPUT_DIR
+
+		if [ -z "$TEST_CLASSES" ]; then
+		    echo "Looking for testable classes"
+		    TEST_CLASSES=$(for F in $OUTPUT_DIR/*.task; do echo $(basename $F) | sed -e s/\.task// ; done)
+		fi
+		#CP=$BASEDIR/$CP
+		javalanche_options=" -Dmutation.package.prefix=$PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PREFIX -DOUTPUT_DIR=$OUTPUT_DIR"
+		java_options=${cmdline_java_options[*]}
+
+		for test_class in $TEST_CLASSES; do
+		    echo "Current class: $test_class"
+		    #echo "java -cp \"$OUTPUT_DIR:$classpath:$CP\" $java_agent=generate $javalanche_options $random_seed $java_options $java_opts -DTARGET_CLASS=$test_class $evosuite_tests"
+		    java -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate $javalanche_options $random_seed $java_options $java_opts -DTARGET_CLASS=$test_class $evosuite_oum
+		done
+		popd
 	    }
 	else {
 		unknown_parameters "generateTests" "$@"
@@ -432,6 +500,7 @@ main ()
 				"-setup") setup "$@";;
 				"-generateSuite") generateSuite "$@";;
 				"-generateTests") generateTests "$@";;
+				"-generateTestsOUM") generateTestsOUM "$@";;
 				"-help") print_help "$@";;
 				*) unknown_option $command;;
 			esac

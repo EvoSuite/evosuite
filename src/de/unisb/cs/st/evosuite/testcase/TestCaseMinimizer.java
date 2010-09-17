@@ -27,6 +27,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.ga.ConstructionFailedException;
 
 /**
  * Remove all statements from a test case that do not contribute to the fitness
@@ -171,18 +172,22 @@ public class TestCaseMinimizer {
 		Level old_level3 = logger.getLevel();
 		logger3.setLevel(Level.OFF);
 		
+		/** Factory method that handles statement deletion */
+		TestFactory test_factory = TestFactory.getInstance();
+
 		removeUnusedPrimitives(c.test);
 		fitness = fitness_function.getFitness(c);
 		boolean changed = true;
 		while(changed) {
 			int position = 0;
 			changed = false;
-			
+			/*
 			for(Statement i : c.test.statements) {
 				if(!c.test.hasReferences(i.getReturnValue())) {
 					logger.info("Statement is not referenced: "+i.getCode());
 
 					changed = removeStatement(c, position);
+					*/
 					/*
 					double fitness_without = fitnessWithout(c, position);
 					if(fitness_without >= fitness) {
@@ -199,12 +204,40 @@ public class TestCaseMinimizer {
 						fitness = fitness_without;
 					}
 					*/
+			/*
 				}
 				if(changed)
 					break;
 				
 				position++;
 			}
+			*/
+			for(int i = c.test.size() - 1; i>=0; i--) {
+				logger.debug("Deleting statement "+c.test.getStatement(i).getCode());
+				TestChromosome copy = (TestChromosome) c.clone();
+				try {
+					c.setChanged(true);
+					test_factory.deleteStatementGracefully(c.test, i);
+				} catch (ConstructionFailedException e) {
+					c.setChanged(true);
+					c.test = copy.test;
+					logger.debug("Deleting failed");
+					continue;
+				}
+				
+				double new_fitness = fitness_function.getFitness(c);
+				//logger.info("This change affects the fitness: "+fitness+" -> "+new_fitness);
+				if(new_fitness <= fitness) {
+					fitness = new_fitness;
+					changed = true;
+					break;
+				} else {
+					c.test = copy.test;
+					c.last_result = copy.last_result;
+					c.setChanged(false);
+				}
+			}
+			
 		}
 		logger1.setLevel(old_level1);
 		logger2.setLevel(old_level2);

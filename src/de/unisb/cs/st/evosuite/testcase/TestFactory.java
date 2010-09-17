@@ -24,7 +24,7 @@ import de.unisb.cs.st.ga.Randomness;
  * @author Gordon Fraser
  *
  */
-public class TestFactory {
+public class TestFactory extends AbstractTestFactory {
 
 	private static TestFactory instance = null;
 	
@@ -35,7 +35,7 @@ public class TestFactory {
 	//private int max_attempts  = Integer.parseInt(System.getProperty("GA.max_attempts"));
 	private double object_reuse_probability = Properties.getPropertyOrDefault("object_reuse_probability", 0.9);
 
-	private double null_probability = Properties.getPropertyOrDefault("GA.null_probability", 0.1);
+	private double null_probability = Properties.getPropertyOrDefault("null_probability", 0.1);
 
 	private Randomness randomness = Randomness.getInstance();
 
@@ -355,7 +355,7 @@ public class TestFactory {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
-	private VariableReference addField(TestCase test, Field field, int position) throws ConstructionFailedException {
+	public VariableReference addField(TestCase test, Field field, int position) throws ConstructionFailedException {
 		logger.debug("Adding field "+field.toGenericString());
 
 		VariableReference callee = null;
@@ -425,7 +425,7 @@ public class TestFactory {
 		return parameters;
 	}
 
-	protected void assignArray(TestCase test, VariableReference array, int array_index, int position) throws ConstructionFailedException {
+	public void assignArray(TestCase test, VariableReference array, int array_index, int position) throws ConstructionFailedException {
 		List<VariableReference> objects = test.getObjects(array.getComponentType(), position);
 		Iterator<VariableReference> iterator = objects.iterator();
 		while(iterator.hasNext()) {
@@ -532,7 +532,7 @@ public class TestFactory {
 			return createArray(test, type, position, recursion_depth).clone();
 
 		} else {
-			if(allow_null && randomness.nextDouble() > null_probability) {
+			if(allow_null && randomness.nextDouble() <= null_probability) {
 				return new NullReference(type);
 			}
 			
@@ -864,7 +864,7 @@ public class TestFactory {
 		return true;
 	}
 	// TODO: Return all possible statements that have this return type
-	public List<AccessibleObject> getPossibleCalls(Type return_type, List<VariableReference> objects) {
+	private List<AccessibleObject> getPossibleCalls(Type return_type, List<VariableReference> objects) {
 		List<AccessibleObject> calls = new ArrayList<AccessibleObject>();
 		List<AccessibleObject> all_calls;
 		
@@ -892,6 +892,23 @@ public class TestFactory {
 		// TODO: What if primitive?
 		
 		return calls;
+	}
+	
+	public boolean changeRandomCall(TestCase test, Statement statement) {
+		List<VariableReference> objects = test.getObjects(statement.retval.statement);
+		objects.remove(statement.retval);
+		List<AccessibleObject> calls = getPossibleCalls(statement.getReturnType(), objects);
+		logger.debug("Got "+calls.size()+" possible calls for "+objects.size()+" objects");
+		AccessibleObject call = randomness.choice(calls);
+		try {
+			changeCall(test, statement, call);
+			return true;
+		} catch (ConstructionFailedException e) {
+			// Ignore
+			logger.info("Change failed");
+		}
+		return false;
+
 	}
 
 	

@@ -61,7 +61,7 @@ public class VariableReference {
 	/**
 	 * Index in the array
 	 */
-	protected int array_length = 0;
+	public int array_length = 0;
 
 
 	/**
@@ -114,13 +114,24 @@ public class VariableReference {
 	public String getSimpleClassName() {
 		return type.getSimpleName();
 	}
-	
+
+	/**
+	 * Return class name
+	 */
+	public String getClassName() {
+		return type.getClassName();
+	}
+
 	public String getComponentName() {
 		return type.getComponentName();
 	}
 	
 	public Type getComponentType() {
 		return type.getComponentType();
+	}
+	
+	public VariableReference getArray() {
+		return array;
 	}
 	
 	/**

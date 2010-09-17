@@ -17,7 +17,7 @@
  * along with Javalanche.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.unisb.cs.st.evosuite.testcase;
+package de.unisb.cs.st.evosuite.mutation;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,9 +30,27 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
-import de.unisb.cs.st.evosuite.mutation.MutationStatistics;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMSwitcher;
+import de.unisb.cs.st.evosuite.testcase.Assertion;
+import de.unisb.cs.st.evosuite.testcase.CompareAssertion;
+import de.unisb.cs.st.evosuite.testcase.ComparisonTraceObserver;
+import de.unisb.cs.st.evosuite.testcase.EqualsAssertion;
+import de.unisb.cs.st.evosuite.testcase.ExceptionAssertion;
+import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
+import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
+import de.unisb.cs.st.evosuite.testcase.InspectorAssertion;
+import de.unisb.cs.st.evosuite.testcase.InspectorTraceObserver;
+import de.unisb.cs.st.evosuite.testcase.NullAssertion;
+import de.unisb.cs.st.evosuite.testcase.NullOutputObserver;
+import de.unisb.cs.st.evosuite.testcase.OutputTrace;
+import de.unisb.cs.st.evosuite.testcase.PrimitiveAssertion;
+import de.unisb.cs.st.evosuite.testcase.PrimitiveFieldAssertion;
+import de.unisb.cs.st.evosuite.testcase.PrimitiveFieldTraceObserver;
+import de.unisb.cs.st.evosuite.testcase.PrimitiveOutputTraceObserver;
+import de.unisb.cs.st.evosuite.testcase.StringAssertion;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
@@ -249,8 +267,8 @@ public class AssertionGenerator {
 		int num_null_assertions = 0;
 
 		for(Assertion assertion : assertions) {
-			int statement = assertion.source.statement;
-			test.statements.get(statement).addAssertion(assertion);
+			int statement = assertion.getSource().statement;
+			test.getStatement(statement).addAssertion(assertion);
 			if(assertion instanceof StringAssertion)
 				num_string_assertions++;
 			else if(assertion instanceof InspectorAssertion)
@@ -284,8 +302,8 @@ public class AssertionGenerator {
 			num_exception_assertions = 0;
 			num_null_assertions = 0;
 			for(Assertion assertion : result) {
-				int statement = assertion.source.statement;
-				test.statements.get(statement).addAssertion(assertion);
+				int statement = assertion.getSource().statement;
+				test.getStatement(statement).addAssertion(assertion);
 				if(assertion instanceof StringAssertion)
 					num_string_assertions++;
 				else if(assertion instanceof InspectorAssertion)

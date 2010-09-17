@@ -21,7 +21,7 @@ public class HOMSwitcher {
 		//num_mutants = (int)QueryManager.getNumberOfMutationsWithPrefix(MutationProperties.PROJECT_PREFIX);
 		mutants = MutationForRun.getFromDefaultLocation().getMutations();
 		num_mutants = mutants.size();
-		logger.debug("Got "+num_mutants+" mutations");
+		logger.info("Got "+num_mutants+" mutations");
 		//mutants = QueryManager.getMutationIdListFromDb(num_mutants);
 		assert(num_mutants == mutants.size());
 	}

@@ -44,7 +44,8 @@ public class CFGTransformer implements ClassFileTransformer {
 	 *   Map from classname to list of methodnames
 	 */
 	private static Map<String, List<String> > getTestObjectsFromFile() {
-		String property = System.getProperty("test.classes");
+		//String property = System.getProperty("test.classes");
+		String property= Properties.OUTPUT_DIR+"/"+Properties.TARGET_CLASS+".task";
 		logger.info("Reading test methods to be instrumented from "+property);
 		File file = new File(property);
 		List<String> lines = Io.getLinesFromFile(file);

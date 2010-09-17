@@ -17,7 +17,7 @@ public class MethodStatement extends Statement {
 
 	private final Method method;
 	VariableReference callee;
-	List<VariableReference> parameters;
+	public List<VariableReference> parameters;
 	
 	
 	
@@ -70,6 +70,18 @@ public class MethodStatement extends Statement {
 	
 	public Method getMethod() {
 		return method;
+	}
+	
+	public VariableReference getCallee() {
+		return callee;
+	}
+
+	public void setCallee(VariableReference callee) {
+		this.callee = callee;
+	}
+	
+	public boolean isStatic() {
+		return Modifier.isStatic(method.getModifiers());
 	}
 	
 	private boolean isInstanceMethod() {

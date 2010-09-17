@@ -37,7 +37,7 @@ public class ConstructorStatement extends Statement {
 
 	Constructor<?> constructor;
 	//Object[] parameters;
-	List<VariableReference> parameters;
+	public List<VariableReference> parameters;
 	//private VariableReference retval;
 	
 	/*
@@ -222,6 +222,8 @@ public class ConstructorStatement extends Statement {
 			if(param.equals(var))
 				return true;
 		}
+		if(retval.equals(var))
+			return true;
 		return false;
 
 	}

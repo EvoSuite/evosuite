@@ -179,6 +179,22 @@ public class TestTaskGenerator {
 		return ret;
 	}
 
+	private static boolean isPurelyAbstract(String classname) {
+		
+		List<String> subclasses = getSubClasses(classname);
+		for(String subclass : subclasses) {
+			Class<?> clazz;
+			try {
+				clazz = Class.forName(subclass);
+				if(!Modifier.isAbstract(clazz.getModifiers()))
+					return false;
+			} catch (ClassNotFoundException e) {
+			}					
+		}
+		
+		return true;
+	}
+	
 	/**
 	 * Get all usable subclasses of the given class
 	 * @param classname
@@ -265,7 +281,7 @@ public class TestTaskGenerator {
 */    
     
     if(c.getName().matches(".*\\$\\d+$")) {
-    	logger.warn(c+" looks like an anonymous class, ignoring it");
+    	logger.info(c+" looks like an anonymous class, ignoring it");
     	return false;
 	 }
 
@@ -645,8 +661,8 @@ public class TestTaskGenerator {
 			addObjectMethods(object_methods, classname);
 
 			if(Modifier.isAbstract(clazz.getModifiers())) {
-				if(hierarchy.getAllSubclasses(classname).isEmpty()) {
-					logger.info("Ignoring abstract class without subclasses "+classname);
+				if(hierarchy.getAllSubclasses(classname).isEmpty() || isPurelyAbstract(classname)) {
+					logger.info("Ignoring abstract class without concrete subclasses "+classname);
 					String classfilename = classname.replace("$","_");
 					writeObjectMethods(object_methods, classfilename+".obj");
 					continue;
@@ -705,8 +721,8 @@ public class TestTaskGenerator {
 		}
 		File cfile = new File("runall.sh");
 		//Io.writeFile(buffer.toString(), cfile);
-		logger.info("Created "+num+" tasks out of "+classes.size()+" classes");
-		logger.info("Covering a total of "+num_mutants+" mutations");		
+		System.out.println("Created "+num+" tasks out of "+classes.size()+" classes");
+		//logger.info("Covering a total of "+num_mutants+" mutations");		
 		//logger.info("Covering a total of "+ids.size()+" mutations");
 	}
 	

@@ -24,6 +24,14 @@ public class FieldStatement extends Statement {
 		this.retval = ret_val;
 	}
 
+	public VariableReference getSource() {
+		return source;
+	}
+	
+	public void setSource(VariableReference source) {
+		this.source = source;
+	}
+	
 	@Override
 	public boolean isValid() {
 		return retval.isAssignableFrom(field.getType());

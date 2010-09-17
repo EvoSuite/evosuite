@@ -59,7 +59,9 @@ public abstract class Assertion {
 		return true;
 	}
 
-
+	public VariableReference getSource() {
+		return source;
+	}
 
 	/**
 	 * This method returns the Java Code 
