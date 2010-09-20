@@ -43,6 +43,7 @@ public class HOMSwitcher {
 	}
 	
 	public void switchOn(Mutation m) {
+		logger.debug("Activating "+m.getMutationVariable());
 		System.setProperty(m.getMutationVariable(), "1");
 		System.setProperty(MutationProperties.CURRENT_MUTATION_KEY,	m.getId() + "");	
 	}

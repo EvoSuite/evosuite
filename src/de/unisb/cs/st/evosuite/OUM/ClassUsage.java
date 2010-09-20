@@ -18,6 +18,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -194,6 +195,28 @@ public class ClassUsage {
 		}
 	};
 	
+	private class AOStringNameProvider implements VertexNameProvider<AccessibleObject> {
+
+		/* (non-Javadoc)
+		 * @see org.jgrapht.ext.VertexNameProvider#getVertexName(java.lang.Object)
+		 */
+		@Override
+		public String getVertexName(AccessibleObject o) {
+			if(o instanceof java.lang.reflect.Method) {
+				java.lang.reflect.Method method = (java.lang.reflect.Method)o;
+				return method.getName() + org.objectweb.asm.Type.getMethodDescriptor(method);
+			} else if(o instanceof java.lang.reflect.Constructor<?>) {
+				java.lang.reflect.Constructor<?> constructor = (java.lang.reflect.Constructor<?>)o;
+				return "<init>" + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
+			} else if(o instanceof java.lang.reflect.Field) {
+				java.lang.reflect.Field field = (Field)o;
+				return field.getName();
+			}
+			return null;
+		}
+		
+	};
+	
 	public void writeDOTFile() {
 		try {
 			FileWriter fstream = new FileWriter(class_name+".dot");
@@ -202,7 +225,7 @@ public class ClassUsage {
 			//	DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>();
 			//DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>(new IntegerNameProvider(), nameprovider, new IntegerEdgeNameProvider());
 			//			DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>(new LineNumberProvider(), new LineNumberProvider(), new IntegerEdgeNameProvider());
-			DOTExporter<AccessibleObject, DefaultWeightedEdge> exporter = new DOTExporter<AccessibleObject, DefaultWeightedEdge>(new IntegerNameProvider(), new StringNameProvider(), new WeightNameProvider());
+			DOTExporter<AccessibleObject, DefaultWeightedEdge> exporter = new DOTExporter<AccessibleObject, DefaultWeightedEdge>(new IntegerNameProvider(), new AOStringNameProvider(), new WeightNameProvider());
 			exporter.export(out, usage_model);
 			//exporter.export(out, g.getGraph());
 		} catch (IOException e) {

@@ -10,10 +10,13 @@ import java.util.List;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.OUM.OUMTestChromosomeFactory;
 import de.unisb.cs.st.evosuite.OUM.OUMTestFactory;
+import de.unisb.cs.st.evosuite.testcase.AbstractTestFactory;
 import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
+import de.unisb.cs.st.evosuite.testcase.TestFactory;
 import de.unisb.cs.st.ga.Chromosome;
+import de.unisb.cs.st.ga.ChromosomeFactory;
 import de.unisb.cs.st.ga.ConstructionFailedException;
 import de.unisb.cs.st.ga.GAProperties;
 
@@ -35,6 +38,17 @@ public class TestSuiteChromosome extends Chromosome {
 	
 	/** Rate of test case addition */
 	protected double mutation_rate      = GAProperties.getPropertyOrDefault("mutation_rate", 0.1);
+	
+	/** Factory to manipulate and generate method sequences */
+	private static ChromosomeFactory test_factory = null;
+
+	static {
+		String factory_name = Properties.getPropertyOrDefault("test_factory", "Random");
+		if(factory_name.equals("OUM"))
+			test_factory = new OUMTestChromosomeFactory();
+		else
+			test_factory = new RandomLengthTestFactory();
+	}
 	
 	public void addTest(TestCase test) {
 		TestChromosome c = new TestChromosome();
@@ -124,9 +138,9 @@ public class TestSuiteChromosome extends Chromosome {
 		{
 			count++;				
 			// Insert at position as during initialization (i.e., using helper sequences)
-			RandomLengthTestFactory factory = new RandomLengthTestFactory(); //TestChromosomeFactory();
+			//RandomLengthTestFactory factory = new RandomLengthTestFactory(); //TestChromosomeFactory();
 			//OUMTestChromosomeFactory factory = new OUMTestChromosomeFactory();
-			tests.add((TestChromosome) factory.getChromosome());
+			tests.add((TestChromosome) test_factory.getChromosome());
 			logger.debug("Adding new test case ");
 		}
 

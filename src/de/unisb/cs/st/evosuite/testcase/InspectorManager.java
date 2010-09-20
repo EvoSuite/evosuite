@@ -33,7 +33,7 @@ public class InspectorManager {
 		if(!inspectors.containsKey(clazz))
 			inspectors.put(clazz, new ArrayList<Inspector>());
 		List<Inspector> i = inspectors.get(clazz);
-		i.add(new Inspector(m));
+		i.add(new Inspector(clazz, m));
 	}
 	
 
@@ -49,7 +49,8 @@ public class InspectorManager {
 		int num_old = 0;
 		File basedir = new File(Properties.getProperty("OUTPUT_DIR"));
 		for(File f : basedir.listFiles(inspector_filter)) {
-			String name = f.getName().replaceAll("_\\d+.inspectors$", "").replace("_", "$");
+//			String name = f.getName().replaceAll("_\\d+.inspectors$", "").replace("_", "$");
+			String name = f.getName().replaceAll(".inspectors", "").replace("_", "$");
 			try {
 				Class<?> clazz = Class.forName(name);
 				Scanner scanner = new Scanner(f);
@@ -71,7 +72,7 @@ public class InspectorManager {
 			    		num++;
 			    	}
 			    }
-				logger.debug("Found inspector: "+name+" -> "+(num-num_old));
+				logger.debug("Found inspector: "+name+" -> "+(num-num_old)+" for class "+clazz.getName()+" in file "+name);
 				num_old = num;
 			} catch(FileNotFoundException e) {
 				logger.error("Could not find file "+name);

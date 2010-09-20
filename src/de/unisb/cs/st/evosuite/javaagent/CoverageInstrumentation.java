@@ -71,6 +71,7 @@ public class CoverageInstrumentation implements ClassFileTransformer {
 					ClassWriter writer = new ClassWriter(org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
 
 					ClassVisitor cv = writer;
+					cv = new AccessibleClassAdapter(cv);
 					if(classNameWithDots.equals(target_class) || (classNameWithDots.startsWith(target_class+"$"))) {
 						if(logger.isDebugEnabled())
 							cv = new TraceClassVisitor(cv, new PrintWriter(System.out));

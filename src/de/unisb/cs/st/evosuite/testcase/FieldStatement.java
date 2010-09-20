@@ -14,12 +14,32 @@ import java.util.Set;
  */
 public class FieldStatement extends Statement {
 
-	Field field;
+	transient Field field;
 	VariableReference source;
 	//VariableReference ret_val;
 	
+	String className;
+	String fieldName;
+	
+	private Object readResolve() {
+		try {
+			Class<?> clazz = Class.forName(className);
+			this.field = clazz.getField(fieldName);
+		} 
+		catch(ClassNotFoundException e) {} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchFieldException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return this;
+	}
+	
 	public FieldStatement(Field field, VariableReference source, VariableReference ret_val) {
 		this.field = field;
+		this.className = field.getDeclaringClass().getName();
+		this.fieldName = field.getName();
 		this.source = source;
 		this.retval = ret_val;
 	}
@@ -40,6 +60,8 @@ public class FieldStatement extends Statement {
 	@Override
 	public String getCode() {
 		String cast_str = "";
+		if(field == null)
+			logger.warn("Field is null: "+className+"."+fieldName);
 		if(!retval.getVariableClass().isAssignableFrom(field.getType())) {
 			cast_str = "(" + retval.getSimpleClassName()+ ")";
 		}

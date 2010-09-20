@@ -360,7 +360,9 @@ public class AssertionGenerator {
 		// equals trace - call equals on values of identical classes
 		// compareto trace - call compareto on values of identical classes
 		
+		logger.debug("Running on original");
 		ExecutionResult orig_result = runTest(test);
+		//logger.info("Done");
 		//ComparisonTrace comparison_trace = orig_result.comparison_trace;
 		//PrimitiveOutputTrace primitive_trace = orig_result.primitive_trace;
 		//InspectorTrace inspector_trace = orig_result.inspector_trace;
@@ -384,6 +386,7 @@ public class AssertionGenerator {
 		// Run test case on all mutations
 		for(Mutation m : mutants) {
 			logger.debug("Running on mutation "+m.getId());
+			//logger.info(m.toString());
 
 			ExecutionResult mutant_result = runTest(test, m);
 			
@@ -470,7 +473,7 @@ public class AssertionGenerator {
 		int num_before=0;
 		Set<Long> killed_before = new HashSet<Long>();
 		List<Assertion> assertions = test.getAssertions();
-		//logger.info("Got "+assertions.size()+" assertions");
+		logger.info("Got "+assertions.size()+" assertions");
 		Map<Integer, Set<Long> > kill_map = new HashMap<Integer, Set<Long > >();
 		int num = 0;
 		for(Assertion assertion : assertions) {
@@ -522,7 +525,7 @@ public class AssertionGenerator {
 		logger.info("Mutants killed before / after / should be: "+killed_before.size()+"/"+killed_after.size()+"/"+s2);
 		for(Mutation m : mutants) {
 			if(killed_after.contains(m.getId()) && !m.isKilled())
-				logger.info("Asserted: "+m.getId());
+				logger.debug("Asserted: "+m.getId());
 		}
 	}
 	

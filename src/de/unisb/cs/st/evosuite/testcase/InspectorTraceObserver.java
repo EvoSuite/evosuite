@@ -41,7 +41,7 @@ public class InspectorTraceObserver extends ExecutionObserver {
 		List<Object> result = new ArrayList<Object>();
 		for(Inspector i : inspectors) {
 			result.add(i.getValue(scope.get(retval)));
-			//logger.info("New inspector result: "+i.getValue(scope.get(retval)));
+			//logger.info("New inspector result for variable of type "+retval.getClassName()+"/" + retval.getVariableClass().getName()+": "+i.getClassName()+"."+i.getMethodCall()+" -> "+i.getValue(scope.get(retval)));
 		}
 		
 		trace.inspector_results.put(position, result);

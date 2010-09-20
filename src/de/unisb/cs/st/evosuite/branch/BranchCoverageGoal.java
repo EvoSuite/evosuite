@@ -97,10 +97,14 @@ public class BranchCoverageGoal {
 	
 	private static boolean hasTimeout(ExecutionResult result) {
 		
-		if(result == null)
+		if(result == null) {
 			logger.warn("Result is null!");
-		else if(result.test == null)
+			return false;
+		}
+		else if(result.test == null) {
 			logger.warn("Test is null!");
+			return false;
+		}
 		int size = result.test.size();
 		if(result.exceptions.containsKey(size)) {
 			if(result.exceptions.get(size) instanceof TestCaseExecutor.TimeoutExceeded) {

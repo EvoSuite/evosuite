@@ -91,7 +91,13 @@ public class OUMTestFactory extends AbstractTestFactory {
 					if(!ms.isStatic()) {
 						if(ms.getCallee().equals(variable))
 							return ms.getMethod();
+					} else {
+						//logger.info("Checking static call of class "+ms.getMethod().getDeclaringClass()+" while looking for "+variable.getClassName());
+						if(variable.isAssignableFrom(ms.getMethod().getDeclaringClass())) {
+							return ms.getMethod();
+						}
 					}
+					
 				} else if(s instanceof ConstructorStatement) {
 					if(s.getReturnValue().equals(variable)) {
 						ConstructorStatement cs = (ConstructorStatement)s;

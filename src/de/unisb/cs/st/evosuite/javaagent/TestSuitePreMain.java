@@ -6,6 +6,7 @@ package de.unisb.cs.st.evosuite.javaagent;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 
+import de.unisb.cs.st.evosuite.mutation.HOM.HOMFileTransformer;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.DistanceTransformer;
 
 /**
@@ -24,8 +25,14 @@ public class TestSuitePreMain {
 		
 		if(agentArguments.equals("generate")) {
 			System.out.println("Creating tests");
+//			addClassFileTransformer(instrumentation, new HOMFileTransformer());
 			addClassFileTransformer(instrumentation, new CoverageInstrumentation());
+		} else 	if(agentArguments.equals("assert")) {
+			System.out.println("Creating assertions");
 			
+			addClassFileTransformer(instrumentation, new HOMFileTransformer());
+			//addClassFileTransformer(instrumentation, new CoverageInstrumentation());
+
 		} else if (agentArguments.equals("scan")) {
 			System.out.println("Scanning project for classes");
 			addClassFileTransformer(instrumentation,

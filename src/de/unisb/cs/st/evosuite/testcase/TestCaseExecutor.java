@@ -88,13 +88,13 @@ public class TestCaseExecutor {
 	
 	public Map<Integer,Throwable> runWithTrace(TestCase tc) {
 		StringTraceExecutionObserver obs = new StringTraceExecutionObserver();
-		observers.add(obs);
+		//observers.add(obs);
 		ExecutionTracer.getExecutionTracer().clear();
 		if(static_hack)
 			TestCluster.getInstance().resetStaticClasses();
 		Map<Integer,Throwable> result = run(tc);
 		//tc.exceptionThrown = result;
-		observers.remove(obs);
+		//observers.remove(obs);
 	    //System.out.println(obs.getTrace());
 		
 		trace = obs.getTrace();
@@ -125,7 +125,7 @@ public class TestCaseExecutor {
 	    	runner.join(timeout);
 
 	    	if (!runner.runFinished) {
-	    		logger.warn("Exceeded max wait: aborting test input:");
+	    		logger.warn("Exceeded max wait ("+timeout+"ms): aborting test input:");
 	    		logger.warn(tc.toCode());
 	    		
 	    		runner.interrupt();

@@ -48,6 +48,7 @@ public class TestRunner extends Thread {
 	public static Map<String, Integer> method_count = new HashMap<String, Integer>();
 	public static Map<String, Long> method_time  = new HashMap<String, Long>();
 	
+	public List<ExecutionObserver> observers;
 	
 	public TestRunner(ThreadGroup threadGroup) {
 	    super(threadGroup, "");
@@ -56,6 +57,7 @@ public class TestRunner extends Thread {
 	  public void setup(TestCase tc, Scope scope, List<ExecutionObserver> observers) {
 		  test = tc;
 		  this.scope = scope;
+		  this.observers = observers;
 		  runFinished = false;
 	  }
 
@@ -100,6 +102,11 @@ public class TestRunner extends Thread {
 				long before = System.currentTimeMillis();
 				Throwable exceptionThrown = s.execute(scope, System.out);
 				long after = System.currentTimeMillis();
+				/*
+				for(ExecutionObserver observer : observers) {
+					observer.statement(num, scope, s.getReturnValue());
+				}
+				*/
 				if(logger.isDebugEnabled()) {
 					log(s, after - before);
 					if(after - before > 100)
@@ -117,6 +124,15 @@ public class TestRunner extends Thread {
 					logger.debug("Done statement "+s.getCode());
 				num++;
 			}
+			
+			num--;
+			for(ExecutionObserver observer : observers) {
+				for(Statement s : test.statements) {
+					observer.statement(num, scope, s.getReturnValue());
+				}
+			}
+
+			
 		  } catch (ThreadDeath e) {//can't stop these guys
 			  logger.info("Found error:");
 			  logger.info(test.toCode());

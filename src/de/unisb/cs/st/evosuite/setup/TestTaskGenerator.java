@@ -29,6 +29,7 @@ import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.Excludes;
+import de.unisb.cs.st.javalanche.mutation.properties.MutationProperties;
 
 /**
  * @author Gordon Fraser
@@ -148,6 +149,26 @@ public class TestTaskGenerator {
 			objs.get(parameters[0]).add(parameters[1]);
 		}
 		return objs;
+	}
+	
+	/**
+	 * Get all usable superclasses of the given class
+	 * @param classname
+	 *     Name of given class
+	 * @return
+	 *     All superclasses that are within prefix and not excluded
+	 */
+	private static List<String> getSuperClasses(String classname) {
+		Set<String> superclasses = hierarchy.getAllSupers(classname);
+		List<String> ret = new ArrayList<String>();
+		ret.add(classname);
+		for(String sup : superclasses) {
+			if(sup.startsWith(prefix))
+				if(!excludes.shouldExclude(sup))
+					ret.add(sup);
+		}
+		
+		return ret;
 	}
 	
 	/**
@@ -529,6 +550,38 @@ public class TestTaskGenerator {
 		}		
 	}
 
+
+	/**
+	 * Write set of possible inspector methods to file
+	 * @param classname
+	 * @param filename
+	 */
+	protected static void writeInspectors(String classname, String filename) {
+		StringBuffer sb = new StringBuffer();
+		File file = new File(MutationProperties.OUTPUT_DIR, filename);
+		
+		// TODO: Don't really need super classes here!
+		List<String> classes = getSuperClasses(classname);
+		Set<String> methods = new HashSet<String>();
+		
+		for(String cl : classes) {
+			try {
+				Class<?> clazz = Class.forName(cl);
+				for(Method method : clazz.getMethods()) {
+					if(!Modifier.isProtected(method.getModifiers()) && !Modifier.isPrivate(method.getModifiers()) && method.getReturnType().isPrimitive() && !method.getReturnType().equals(void.class) && method.getParameterTypes().length == 0 && !method.getName().equals("hashCode")) {
+						methods.add(method.getName()+Type.getMethodDescriptor(method));
+					}
+				}
+			} catch (ClassNotFoundException e) {
+			} catch (NoClassDefFoundError e) {
+			}
+		}
+		for(String method : methods) {
+			sb.append(method);
+			sb.append("\n");
+		}
+		Io.writeFile(sb.toString(), file);
+	}
 	
 	/**
 	 * Write test case generation task file
@@ -614,6 +667,7 @@ public class TestTaskGenerator {
 				addObjectMethods(object_methods, classname);
 				String classfilename = classname.replace("$","_");
 				writeObjectMethods(object_methods, classfilename+".obj");
+				writeInspectors(classname, classname.replace("$","_")+".inspectors");
 				continue;				
 			}
 			if(clazz.getDeclaredMethods().length == 0 && clazz.getDeclaredConstructors().length == 0) {
@@ -624,15 +678,18 @@ public class TestTaskGenerator {
 				logger.info("Ignoring member class without public constructors "+classname);
 				List<String> mutant_classes = new ArrayList<String>();
 				mutant_classes.add(classname);
+				writeInspectors(classname, classname.replace("$","_")+".inspectors");
 				//num_mutants += mutationIds.size();
 				continue;								
 			}
 			if(clazz.isMemberClass()) {
 				logger.info("Testing member class "+classname);
+				writeInspectors(classname, classname.replace("$","_")+".inspectors");
 				continue;
 			}
 			if(clazz.isLocalClass()) {
 				logger.info("Testing local class "+classname);
+				writeInspectors(classname, classname.replace("$","_")+".inspectors");
 				continue;
 			}
 			if(clazz.isAnonymousClass()) {
@@ -649,10 +706,12 @@ public class TestTaskGenerator {
 			logger.info("Analyzing dependencies of class "+classname);
 			if(clazz.getEnclosingClass() != null) {
 				logger.info("  defined in "+clazz.getEnclosingClass().getName());
+				writeInspectors(classname, classname.replace("$","_")+".inspectors");
 				continue;
 			}
 			if(clazz.getDeclaringClass() != null) {
 				logger.info("  defined in "+clazz.getDeclaringClass().getName());
+				writeInspectors(classname, classname.replace("$","_")+".inspectors");
 				continue;
 			}
 			List<String> dependencies  = getSubClasses(clazz.getName());
@@ -704,6 +763,9 @@ public class TestTaskGenerator {
 //			writeTask(suggestion, classfilename+"_"+num+".task");
 			writeTask(suggestion, classfilename+".task");
 			writeObjectMethods(object_methods, classfilename+".obj");
+//			writeInspectors(classname, classfilename+"_"+num+".inspectors");
+			writeInspectors(classname, classfilename+".inspectors");
+
 //			make_targets.add(new Target(classfilename, "ant -f javalanche.xml generateSuite -Dtest.classes="+MutationProperties.OUTPUT_DIR+"/"+classfilename+"_"+num+".task -Dtarget.class="+classfilename+" | tee LOG_"+classfilename));
 //			calls.add("ant -f javalanche.xml generateSuite -Dtest.classes="+MutationProperties.OUTPUT_DIR+"/"+classfilename+"_"+num+".task  -Dtarget.class="+classfilename+ "| tee LOG_"+classfilename);
 			make_targets.add(new Target(classfilename, "ant -f evosuite.xml generateSuite -Dtarget.class="+classfilename+" | tee log/"+classfilename));
