@@ -5,9 +5,11 @@ import java.lang.reflect.Method;
 
 public class Inspector {
 
+	Class<?> clazz;
 	Method method;
 	
-	public Inspector(Method m) {
+	public Inspector(Class<?> clazz, Method m) {
+		this.clazz= clazz;
 		method = m;
 	}
 	
@@ -27,6 +29,10 @@ public class Inspector {
 	
 	public String getMethodCall() {
 		return method.getName();
+	}
+	
+	public String getClassName() {
+		return clazz.getName();
 	}
 	
 	public Class<?> getReturnType() {

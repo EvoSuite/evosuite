@@ -24,11 +24,11 @@ public abstract class TestFitnessFunction extends FitnessFunction {
 	private static List<String> ignored_exceptions = null;
 
 	public TestFitnessFunction() {
-		executor.addObserver(primitive_observer);
-		executor.addObserver(comparison_observer);
-		executor.addObserver(inspector_observer);
-		executor.addObserver(field_observer);
-		executor.addObserver(null_observer);
+		//executor.addObserver(primitive_observer);
+		//executor.addObserver(comparison_observer);
+		//executor.addObserver(inspector_observer);
+		//executor.addObserver(field_observer);
+		//executor.addObserver(null_observer);
 		
 		if(ignored_exceptions == null) {
 			ignored_exceptions = new ArrayList<String>();

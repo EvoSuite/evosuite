@@ -5,6 +5,7 @@ import java.util.List;
 import de.unisb.cs.st.ga.Chromosome;
 import de.unisb.cs.st.ga.ConstructionFailedException;
 import de.unisb.cs.st.ga.GAProperties;
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.OUM.OUMTestFactory;
 /**
  * Chromosome representation of test cases
@@ -26,14 +27,19 @@ public class TestChromosome extends Chromosome {
 	public TestCase test = new TestCase();
 	
 	/** Factory to manipulate and generate method sequences */
-	private AbstractTestFactory test_factory;
+	private static AbstractTestFactory test_factory = null;
 
 	/** True if this leads to an exception */
 	private boolean has_exception = false;
 
 	public TestChromosome() {
-		test_factory = TestFactory.getInstance();
-//		test_factory = OUMTestFactory.getInstance();
+		if(test_factory == null) {
+			String factory_name = Properties.getPropertyOrDefault("test_factory", "Random");
+			if(factory_name.equals("OUM"))
+				test_factory = OUMTestFactory.getInstance();
+			else
+				test_factory = TestFactory.getInstance();
+		}
 	}
 	
 	public ExecutionResult last_result = null;

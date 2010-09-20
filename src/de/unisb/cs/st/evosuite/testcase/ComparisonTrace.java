@@ -116,12 +116,13 @@ public class ComparisonTrace extends OutputTrace {
 						assertion.source = return_values.get(line);
 						assertion.dest   = entry.getKey();
 						assertion.value  = entry.getValue();
-						test.statements.get(line).addAssertion(assertion);
-						have_assertion = true;
-						num_assertions++;
 						if(!other.isDetectedBy(assertion)) {
 							logger.error("Invalid comparison assertion generated!");
 							logger.error(assertion.getCode());
+						} else {
+							test.statements.get(line).addAssertion(assertion);
+							have_assertion = true;
+							num_assertions++;							
 						}
 					//} else {
 					//	logger.info("Values equal");
@@ -146,11 +147,12 @@ public class ComparisonTrace extends OutputTrace {
 						assertion.source = return_values.get(line);
 						assertion.dest   = entry.getKey();
 						assertion.value  = entry.getValue();
-						test.statements.get(line).addAssertion(assertion);
-						num_assertions++;
 						if(!other.isDetectedBy(assertion)) {
 							logger.error("Invalid equals assertion generated!");
 							logger.error(assertion.getCode());
+						} else {
+							test.statements.get(line).addAssertion(assertion);
+							num_assertions++;							
 						}
 
 					}

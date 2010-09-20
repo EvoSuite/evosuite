@@ -276,6 +276,8 @@ public class MethodStatement extends Statement {
 			if(param.equals(var))
 				return true;
 		}
+		if(retval.equals(var))
+			return true;
 		return false;
 	}
 

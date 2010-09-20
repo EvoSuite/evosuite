@@ -55,6 +55,7 @@ $BASEPATH/lib/evosuite.jar
 evosuite_suite=de.unisb.cs.st.evosuite.testsuite.TestSuiteGenerator
 evosuite_tests=de.unisb.cs.st.evosuite.branch.TestSuiteGenerator
 evosuite_oum=de.unisb.cs.st.evosuite.OUM.TestSuiteGenerator
+evosuite_assert=de.unisb.cs.st.evosuite.mutation.TestSuiteAsserter
 evosuite_scan=de.unisb.cs.st.evosuite.setup.ScanProject
 evosuite_tasks=de.unisb.cs.st.evosuite.setup.TestTaskGenerator
 
@@ -475,7 +476,57 @@ generateTestsOUM ()
 		popd
 	    }
 	else {
-		unknown_parameters "generateTests" "$@"
+		unknown_parameters "generateTestsOUM" "$@"
+		print_usage
+	    }
+	fi
+}
+
+##
+##
+generateAssertions ()
+{
+	allowed_options=("-seed" "-base_dir" "-class")
+	allowed_options_take_values=(1 1 1)
+	parse_command_line "$@"
+	options_ok=$?
+	if test $options_ok -eq 0;
+	then {
+		BASEDIR=$(pwd)
+		TEST_CLASSES=""
+		random_seed="-Drandom.seed=0"
+		for (( i = 0; i < 3; i++ ))
+		do
+		    case ${cmdline_options[$i]} in
+			"-seed") random_seed="-Drandom.seed="${cmdline_options_values[$i]};;
+			"-base_dir") BASEDIR=${cmdline_options_values[$i]};;
+			"-class") TEST_CLASSES=${cmdline_options_values[$i]};;
+		    esac
+		done
+		pushd .
+		cd $BASEDIR
+		echo "Sourcing: $BASEDIR/$OUTPUT_DIR/evosuite.properties"
+		source $OUTPUT_DIR/evosuite.properties
+		#OUTPUT_DIR=$BASEDIR/$OUTPUT_DIR
+		#echo $OUTPUT_DIR
+
+		if [ -z "$TEST_CLASSES" ]; then
+		    echo "Looking for testable classes"
+		    TEST_CLASSES=$(for F in $OUTPUT_DIR/*.task; do echo $(basename $F) | sed -e s/\.task// ; done)
+		fi
+		#CP=$BASEDIR/$CP
+		javalanche_options=" -Dmutation.package.prefix=$PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PREFIX -DOUTPUT_DIR=$OUTPUT_DIR"
+		java_options=${cmdline_java_options[*]}
+
+		for test_class in $TEST_CLASSES; do
+		    echo "Current class: $test_class"
+		    #echo "java -cp \"$OUTPUT_DIR:$classpath:$CP\" $java_agent=generate $javalanche_options $random_seed $java_options $java_opts -DTARGET_CLASS=$test_class $evosuite_tests"
+		    java -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=assert $javalanche_options $random_seed $java_options $java_opts -DTARGET_CLASS=$test_class $evosuite_assert
+		done
+		popd
+	    }
+	else {
+		unknown_parameters "generateAssertions" "$@"
 		print_usage
 	    }
 	fi
@@ -501,6 +552,7 @@ main ()
 				"-generateSuite") generateSuite "$@";;
 				"-generateTests") generateTests "$@";;
 				"-generateTestsOUM") generateTestsOUM "$@";;
+				"-generateAssertions") generateAssertions "$@";;
 				"-help") print_help "$@";;
 				*) unknown_option $command;;
 			esac

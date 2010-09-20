@@ -81,12 +81,13 @@ public class InspectorTrace extends OutputTrace {
 						assertion.inspector = inspectors.get(i);
 						assertion.num_inspector = i;
 						assertion.result = own_results.get(i);
-						test.statements.get(line).addAssertion(assertion);
-						num_assertions++;
 						if(!other.isDetectedBy(assertion)) {
 							logger.error("Invalid inspector assertion generated!");
 							if(line != assertion.source.statement)
 								logger.error("...because line doesn't match!");
+						} else {
+							test.statements.get(line).addAssertion(assertion);
+							num_assertions++;							
 						}
 
 					}

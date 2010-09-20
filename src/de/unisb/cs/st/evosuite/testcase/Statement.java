@@ -179,7 +179,7 @@ public abstract class Statement {
 		if(assertion == null) {
 			logger.warn("Trying to add null assertion!");
 		} else {
-			logger.info("Adding assertion");
+			logger.debug("Adding assertion");
 			assertions.add(assertion);
 		}
 	}

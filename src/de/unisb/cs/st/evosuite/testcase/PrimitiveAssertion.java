@@ -4,7 +4,9 @@ public class PrimitiveAssertion extends Assertion {
 
 	@Override
 	public String getCode() {
-		if(value.getClass().equals(Long.class)) {
+		if(value == null) {
+			return "null";
+		} else if(value.getClass().equals(Long.class)) {
 			String val = value.toString();
 			return "assertEquals(var"+source.statement+", "+val+"L)";
 		}

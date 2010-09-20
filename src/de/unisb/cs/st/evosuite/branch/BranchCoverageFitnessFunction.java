@@ -5,6 +5,7 @@ package de.unisb.cs.st.evosuite.branch;
 
 import de.unisb.cs.st.evosuite.branch.BranchCoverageGoal.Distance;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
+import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.ga.Chromosome;
@@ -24,7 +25,6 @@ public class BranchCoverageFitnessFunction extends TestFitnessFunction {
 	public BranchCoverageFitnessFunction(BranchCoverageGoal goal) {
 		this.goal = goal;
 	}
-
 	
 	/**
 	 * Calculate approach level + branch distance

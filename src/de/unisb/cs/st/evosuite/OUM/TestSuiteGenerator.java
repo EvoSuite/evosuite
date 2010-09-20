@@ -3,6 +3,9 @@
  */
 package de.unisb.cs.st.evosuite.OUM;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +13,8 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
+
+import com.thoughtworks.xstream.XStream;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.branch.BranchCoverageFitnessFunction;
@@ -150,6 +155,9 @@ public class TestSuiteGenerator {
 					TestChromosome best = (TestChromosome)ga.getBestIndividual();
 					minimizer.minimize(best);
 					suite.addTest(best);
+					logger.info("Test case for goal: "+goal);
+					logger.info(best.test.toCode());
+
 					covered_goals++;
 					covered.add(num);
 				} else {
@@ -172,22 +180,25 @@ public class TestSuiteGenerator {
 		statistics.searchFinished(suite);
 		logger.info("Resulting test suite: "+suite.size()+" tests, length "+suite.length());
 		// Generate a test suite chromosome once all test cases are done?
+		/*
 		if(minimize) {
 			logger.info("Starting minimization");
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer();
 			minimizer.minimize(suite, suite_fitness);
 			logger.info("Finished minimization");
 		}
+		*/
 		System.out.println("Resulting test suite has fitness "+suite.getFitness());
 		System.out.println("Resulting test suite: "+suite.size()+" tests, length "+suite.length());
-
-		Set<Long> killed = new HashSet<Long>();
 		
+		/*
 		AssertionGenerator asserter = new AssertionGenerator();
 		for(TestCase test : suite.getTests()) {
+			Set<Long> killed = new HashSet<Long>();
 			asserter.addAssertions(test, killed);
 		}
-		logger.info("Mutants killed with assertions: "+killed.size());
+		*/
+		//logger.info("Mutants killed with assertions: "+killed.size());
 		
 		// Log some stats
 
@@ -196,6 +207,22 @@ public class TestSuiteGenerator {
 
 		statistics.writeReport();
 		
+		
+		XStream xstream = new XStream();
+		FileWriter fstream;
+		try {
+			fstream = new FileWriter(Properties.TARGET_CLASS+"_tests.xml");
+			BufferedWriter out = new BufferedWriter(fstream);
+
+			xstream.toXML(suite.getTests(), out);
+			String xml = xstream.toXML(suite.getTests());
+			//TestCase copy = (TestCase) xstream.fromXML(xml);
+			//logger.info("After xstream:");
+			//logger.info(copy.toCode());
+		} catch (IOException e) {
+		}
+		
+
 	}
 	
 
@@ -237,8 +264,12 @@ public class TestSuiteGenerator {
 	protected GeneticAlgorithm getGeneticAlgorithm() {
 
 		GeneticAlgorithm ga = null;
-		ChromosomeFactory factory = new RandomLengthTestFactory();
-//		ChromosomeFactory factory = new OUMTestChromosomeFactory();
+		ChromosomeFactory factory = null;
+		String factory_name = Properties.getPropertyOrDefault("test_factory", "Random");
+		if(factory_name.equals("OUM"))
+			factory = new OUMTestChromosomeFactory();
+		else
+			factory = new RandomLengthTestFactory();
 
 		SelectionFunction selection_function = new RankSelection();
 		selection_function.setMaximize(false);

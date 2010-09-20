@@ -356,7 +356,7 @@ public class UsageModel {
 		
 		Class<?> clazz = getClassByName(className);
 		if(clazz == null) {
-			logger.debug("Could not class "+className);
+			logger.debug("Could not find class "+className);
 			return null;
 		}
 		AccessibleObject o = getMethod(clazz, methodName);

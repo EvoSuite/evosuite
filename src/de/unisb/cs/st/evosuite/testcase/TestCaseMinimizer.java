@@ -27,6 +27,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.OUM.OUMTestFactory;
 import de.unisb.cs.st.ga.ConstructionFailedException;
 
 /**
@@ -173,8 +174,14 @@ public class TestCaseMinimizer {
 		logger3.setLevel(Level.OFF);
 		
 		/** Factory method that handles statement deletion */
-		TestFactory test_factory = TestFactory.getInstance();
-
+		
+		AbstractTestFactory test_factory = null;
+		String factory_name = Properties.getPropertyOrDefault("test_factory", "Random");
+		if(factory_name.equals("OUM"))
+			test_factory = OUMTestFactory.getInstance();
+		else
+			test_factory = TestFactory.getInstance();
+		
 		removeUnusedPrimitives(c.test);
 		fitness = fitness_function.getFitness(c);
 		boolean changed = true;

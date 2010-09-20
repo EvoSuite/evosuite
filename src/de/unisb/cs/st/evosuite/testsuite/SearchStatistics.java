@@ -118,6 +118,9 @@ public class SearchStatistics implements SearchListener {
 		/** History of best test length */
 		List<Integer> length_history = new ArrayList<Integer>();
 
+		/** History of average test length */
+		List<Double> average_length_history = new ArrayList<Double>();
+
 		/** History of best test coverage */
 		List<Double> coverage_history = new ArrayList<Double>();
 
@@ -923,6 +926,8 @@ public class SearchStatistics implements SearchListener {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		entry.fitness_history.add(best.getFitness());
 		entry.size_history.add(best.size());	
+		
+		// TODO: Need to get data of average size in here - how? Pass population as parameter?
 		
 		if(best instanceof TestSuiteChromosome) {
 			entry.length_history.add(((TestSuiteChromosome)best).length());

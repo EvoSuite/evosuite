@@ -12,6 +12,8 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.javaagent.AccessibleClassAdapter;
 import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.BytecodeTasks;
 import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.removeSystemExit.RemoveSystemExitTransformer;
 import de.unisb.cs.st.javalanche.mutation.javaagent.MutationForRun;
@@ -80,6 +82,7 @@ public class HOMFileTransformer  implements ClassFileTransformer  {
 			try {
 				String classNameWithDots = className.replace('/', '.');
 				// logger.info(className + " is passed to transformer");
+				/*
 				if (mutationDecision.shouldBeHandled(classNameWithDots)) {
 					logger.debug("Removing calls to System.exit() from class: "
 							+ classNameWithDots);
@@ -98,11 +101,26 @@ public class HOMFileTransformer  implements ClassFileTransformer  {
 					classfileBuffer = BytecodeTasks.integrateTestSuite(
 							classfileBuffer, classNameWithDots);
 				}
+				*/
 				
-				
+				if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)) {
+
+					//logger.debug("Removing calls to System.exit() from class: "
+					//			+ classNameWithDots);
+					//classfileBuffer = systemExitTransformer
+					//.transformBytecode(classfileBuffer);
+
+					ClassReader reader = new ClassReader(classfileBuffer);
+					ClassWriter writer = new ClassWriter(org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
+
+					ClassVisitor cv = writer;
+					cv = new AccessibleClassAdapter(cv);
+					reader.accept(cv, ClassReader.SKIP_FRAMES);
+					classfileBuffer = writer.toByteArray();
+				}
 				
 				if (mutationDecision.shouldBeHandled(classNameWithDots)) {
-					logger.info("Transforming: " + classNameWithDots);
+					logger.info("Mutation transforming: " + classNameWithDots);
 					byte[] transformedBytecode = null;
 					try {
 						mutationTransformer.className = classNameWithDots;
