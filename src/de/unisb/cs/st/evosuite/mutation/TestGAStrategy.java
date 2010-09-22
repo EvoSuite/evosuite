@@ -181,7 +181,8 @@ public class TestGAStrategy extends TestGenerationStrategy {
 					logger.info(best.test.toCode());
 				}
 				asserter.addAssertions(best.test, m);
-				MutationStatistics.getInstance().searchFinished(best);
+//				MutationStatistics.getInstance().searchFinished(best);
+				MutationStatistics.getInstance().searchFinished(ga.getPopulation());
 				test_suite.addTestCase(best.test, m);
 				
 			} else {

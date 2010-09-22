@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -193,11 +194,23 @@ public class UsageModel {
 				logger.debug("Could not find method "+className+"."+call2);
 				return;
 			}
-			logger.debug("Adding usage transition: "+call1+" -> "+call2);
+			logger.debug("Adding usage transition for class "+className+": "+call1+" -> "+call2);
 			usage_models.get(className).addTransition(call1, call2); // TODO: This could be more efficient
 		}
 	}
 	
+	private void updateGenerator(String className, String sourceClass, String sourceCall) {
+		if(ensureClassModel(className)) {
+			AccessibleObject source_call = getMethod(sourceClass, sourceCall);
+			if(source_call == null) {
+				logger.debug("Could not find method "+sourceClass+"."+sourceCall);
+				return;
+			}
+			logger.debug("Adding generator for "+className+": "+source_call);
+			usage_models.get(className).addGenerator(source_call);
+		}
+	}
+	/*
 	private void addGenerator(Transition t) {
 		
 		AccessibleObject call = null;
@@ -225,51 +238,90 @@ public class UsageModel {
 				usage_models.get(className).addGenerator(call);
 		}
 	}
-	
-	private void updateModel(Transition left, Transition right) {
+	*/
+	private void updateModel(String className, Transition left, Transition right) {
 		// TODO: Create a vertex if a method is used, even if we have no parameter/usage data!
 		// TODO: Check if a generator is actually available (e.g. java.text.DateTime.parse)
+		if(!className.startsWith(Properties.PROJECT_PREFIX)) {
+			logger.debug("Ignoring pair outside project prefix: "+left.getShortEventString()+ " -> "+right.getShortEventString());
+			return;
+		}
 		if(right instanceof InvokeMethodTransition) {
 			InvokeMethodTransition t2 = (InvokeMethodTransition)right;
-			if(!t2.getMethodCall().getTypeName().startsWith(Properties.PROJECT_PREFIX) || getClassByName(t2.getMethodCall().getTypeName()) == null) {
-				//logger.debug("Ignoring pair outside project prefix");
-				return;
-			}
-			addGenerator(left);
-			addGenerator(right);
+			//if(!t2.getMethodCall().getTypeName().startsWith(Properties.PROJECT_PREFIX) || getClassByName(t2.getMethodCall().getTypeName()) == null) {
+			//	logger.debug("Ignoring pair outside project prefix: "+left.getShortEventString()+ " -> "+t2.getShortEventString());
+			//	return;
+			//}
 			logger.debug("Current pair: "+left.getShortEventString() + " -> "+right.getShortEventString());
+			//addGenerator(left);
+			//addGenerator(right);
 
+			// It is a generator if:
+			// - RHS Parameter == 0, and
+			// - LHS is a Field, or
+			// - LHS is a ReturnValueMethod, or
+			// - LHS is a Constructor
+			
 			if(left instanceof InvokeMethodTransition) {
 				InvokeMethodTransition t1 = (InvokeMethodTransition)left;
-				int param1 = t1.getParameterIndices().get(0);
-				int param2 = t2.getParameterIndices().get(0);
-				if(t1.getMethodCall().getTypeName().equals(t2.getMethodCall().getTypeName())) {
-					// If pair of method calls -> add usage
-					if(param1 == 0 && param2 == 0) {
-						updateUsageModel(t1.getMethodCall().getTypeName(), t1.getMethodCall().getMethodName(), t2.getMethodCall().getMethodName());
+				int param1 = t1.getParameterIndices().get(0); // TODO: Loop over parameters
+				int param2 = t2.getParameterIndices().get(0); // TODO: Loop over parameters
+				
+				// Parameter 0 on both -> method sequence
+				if(param1 == 0 && param2 == 0) {
+					//						updateUsageModel(t1.getMethodCall().getTypeName(), t1.getMethodCall().getMethodName(), t2.getMethodCall().getMethodName());
+					updateUsageModel(className, t1.getMethodCall().getMethodName(), t2.getMethodCall().getMethodName());
+
+					// If LHS is a constructor this is a generator
+					if(t1.getMethodCall().getMethodName().contains("<init>")) {
+						updateGenerator(className, t1.getMethodCall().getTypeName(), t1.getMethodCall().getMethodName());
 					}
 				}
-				if(param1 == 0 && !t1.getMethodCall().getTypeName().equals("java.lang.Object")) {
+				
+				// Parameter 0 on left side means the callee is used as parameter on right hand side
+				if(param1 == 0 ) { //&& !t1.getMethodCall().getTypeName().equals("java.lang.Object")) {
 				// TODO: param1 should be 0?
-					updateParameterModel(t2.getMethodCall().getTypeName(), t2.getMethodCall().getMethodName(), param2, t1.getMethodCall().getTypeName(), t1.getMethodCall().getMethodName());
+					updateParameterModel(className, t2.getMethodCall().getMethodName(), param2, t1.getMethodCall().getTypeName(), t1.getMethodCall().getMethodName());
+//					updateParameterModel(t2.getMethodCall().getTypeName(), t2.getMethodCall().getMethodName(), param2, t1.getMethodCall().getTypeName(), t1.getMethodCall().getMethodName());
 				}
+				
+				
 			} else if(left instanceof ReturnValueOfMethodTransition) {
 				ReturnValueOfMethodTransition t1 = (ReturnValueOfMethodTransition) left;
 
 				for(int param2 : t2.getParameterIndices()) {
-					updateParameterModel(t2.getMethodCall().getTypeName(), t2.getMethodCall().getMethodName(), param2, t1.getMethodCall().getTypeName(), t1.getMethodCall().getMethodName());
+//					updateParameterModel(t2.getMethodCall().getTypeName(), t2.getMethodCall().getMethodName(), param2, t1.getMethodCall().getTypeName(), t1.getMethodCall().getMethodName());
+					updateParameterModel(className, t2.getMethodCall().getMethodName(), param2, t1.getMethodCall().getTypeName(), t1.getMethodCall().getMethodName());
+
+					// If parameter on RHS == 0, then this is a generator
+					if(param2 == 0) {
+						updateGenerator(className, t1.getMethodCall().getTypeName(), t1.getMethodCall().getMethodName());
+					}
 				}
 			} else if(left instanceof FieldValueTransition) {
 				FieldValueTransition t1 = (FieldValueTransition) left;
 				for(int param2 : t2.getParameterIndices()) {
 					String fullName = t1.getFieldName();
 					int dot = fullName.lastIndexOf(".");
-					String className = fullName.substring(0, dot);
+					String className2 = fullName.substring(0, dot);
 					String fieldName = fullName.substring(dot + 1);
-					updateParameterModel(t2.getMethodCall().getTypeName(), t2.getMethodCall().getMethodName(), param2, className, fieldName);
+//					updateParameterModel(t2.getMethodCall().getTypeName(), t2.getMethodCall().getMethodName(), param2, className, fieldName);
+					updateParameterModel(className, t2.getMethodCall().getMethodName(), param2, className2, fieldName);
+					
+					// If parameter on RHS == 0, then this is a generator
+					if(param2 == 0) {
+						updateGenerator(className, className2, fieldName);
+					}
+
 				}
 			}
 		}
+	}
+	
+	private String getModelClassName(String modelName) {
+		int pos_at = modelName.indexOf("@");
+		int pos_sp = modelName.indexOf(" ", pos_at);
+		return modelName.substring(pos_at+1, pos_sp);
 	}
 	
 	private void generateUsageModel() {
@@ -279,9 +331,12 @@ public class UsageModel {
 			public void visit (int id, Model model, ModelData modelData) {
 				//String fullMethodName = modelData.getClassName () + "." +
 				//	modelData.getMethodName ();
+				String className = getModelClassName(modelData.getModelName());
+				//logger.info("Current model: "+modelData.getModelName()+" generated in "+modelData.getClassName()+"."+modelData.getMethodName());
+				//logger.info("Model class: "+getModelClassName(modelData.getModelName()));
 				Set<EventPair> sca_model = SCAAbstractor.getSCAAbstraction (model, true);
 				for(EventPair pair : sca_model) {
-					updateModel(pair.getLeft(), pair.getRight());
+					updateModel(className, pair.getLeft(), pair.getRight());
 				}
 			}
 		});

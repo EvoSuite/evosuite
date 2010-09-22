@@ -3,6 +3,8 @@
  */
 package de.unisb.cs.st.evosuite.testsuite;
 
+import java.util.List;
+
 import de.unisb.cs.st.ga.Chromosome;
 import de.unisb.cs.st.ga.FitnessFunction;
 import de.unisb.cs.st.ga.SearchListener;
@@ -49,11 +51,11 @@ public class BestChromosomeTracker implements SearchListener {
 	/** 
 	 * Simply remember the current best chromosome
 	 */
-	public void iteration(Chromosome best) {
-		this.best = (TestSuiteChromosome) best;
+	public void iteration(List<Chromosome> population) {
+		this.best = (TestSuiteChromosome) population.get(0);
 	}
 
-	public void searchFinished(Chromosome best) { }
+	public void searchFinished(List<Chromosome> best) { }
 
 	public void searchStarted(FitnessFunction objective) { }
 

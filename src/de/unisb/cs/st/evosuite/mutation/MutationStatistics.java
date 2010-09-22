@@ -687,16 +687,16 @@ public class MutationStatistics implements SearchListener {
 		Io.writeFile(report.toString(), file);
 	}
 	
-	public void iteration(Chromosome best) {
+	public void iteration(List<Chromosome> population) {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
-		entry.fitness_history.add(best.getFitness());
-		entry.length_history.add(best.size());
+		entry.fitness_history.add(population.get(0).getFitness());
+		entry.length_history.add(population.get(0).size());
 	}
 
-	public void searchFinished(Chromosome result) {
+	public void searchFinished(List<Chromosome> result) {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		if(result instanceof TestChromosome) {
-			TestChromosome best = (TestChromosome)result;
+			TestChromosome best = (TestChromosome)result.get(0);
 			entry.test = best.test;
 			entry.has_exception = best.hasException();
 			entry.has_assertion = best.test.hasAssertions();

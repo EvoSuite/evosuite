@@ -3,6 +3,8 @@
  */
 package de.unisb.cs.st.evosuite.testsuite;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.ga.BloatControlFunction;
@@ -53,12 +55,13 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 	/**
 	 * Set current max length to max of best chromosome
 	 */
-	public void iteration(Chromosome best) {
+	public void iteration(List<Chromosome> population) {
+		Chromosome best = population.get(0);
 		current_max = ((TestSuiteChromosome)best).length();
 		best_fitness = best.getFitness();
 	}
 
-	public void searchFinished(Chromosome result) {
+	public void searchFinished(List<Chromosome> result) {
 	}
 
 	public void searchStarted(FitnessFunction objective) {

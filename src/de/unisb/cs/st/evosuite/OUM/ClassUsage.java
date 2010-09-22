@@ -20,11 +20,14 @@ import java.io.IOException;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 /**
  * @author Gordon Fraser
@@ -45,6 +48,11 @@ public class ClassUsage {
 	/** Link method parameters to methods of other classes */
 	Map<AccessibleObject, MethodUsage> method_model = new HashMap<AccessibleObject, MethodUsage>();
 
+	/** How is this class generated? */
+	Map<AccessibleObject, Integer> generators = new HashMap<AccessibleObject, Integer>();
+	
+	int total_generators = 0;
+	
 	public int getNumberOfMethods() {
 		return usage_model.vertexSet().size();
 	}
@@ -116,10 +124,26 @@ public class ClassUsage {
 		return null;
 	}
 
+	/*
+	private boolean isGenerator(AccessibleObject o) {
+		if(o instanceof Field) {
+			
+		} else if(o instanceof Method) {
+			
+		} else if(o instanceof Constructor<?>) {
+			
+		}
+		return false;
+	}
+	*/
+	
 	public AccessibleObject getGenerator() {
+		
+		/*
 		List<AccessibleObject> generators = new ArrayList<AccessibleObject>();
 		for(AccessibleObject o : usage_model.vertexSet()) {
-			if(usage_model.inDegreeOf(o) == 0) {
+			if(usage_model.inDegreeOf(o) == 0 && usage_model.outDegreeOf(o) > 0) {
+				logger.info("Generator for class "+class_name+": "+o);
 				generators.add(o);
 			}
 		}
@@ -127,13 +151,37 @@ public class ClassUsage {
 			return null;
 		else
 			return Randomness.getInstance().choice(generators);
+			*/
+		int index = Randomness.getInstance().nextInt(total_generators);
+		Iterator<Entry<AccessibleObject, Integer>> i = generators.entrySet().iterator();
+
+        while (i.hasNext()) {
+        	Entry<AccessibleObject, Integer> link = i.next();
+            int count = link.getValue();
+
+            if (index < count) {
+                return link.getKey();
+            }
+
+            index -= count;
+        }
+        
+        return null;
 	}
 	
 	public void addGenerator(AccessibleObject call) {
+		/*
 		if(!usage_model.containsVertex(call)) {
 			//logger.info("Adding new method vertex "+call1);
 			usage_model.addVertex(call);
 		}
+		*/
+		if(!generators.containsKey(call))
+			generators.put(call, 1);
+		else
+			generators.put(call, generators.get(call) + 1);
+
+		total_generators++;
 	}
 	
 	public void addTransition(AccessibleObject call1, AccessibleObject call2) {
