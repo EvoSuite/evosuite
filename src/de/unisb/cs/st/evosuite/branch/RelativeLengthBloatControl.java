@@ -3,6 +3,8 @@
  */
 package de.unisb.cs.st.evosuite.branch;
 
+import java.util.List;
+
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.ga.BloatControlFunction;
 import de.unisb.cs.st.ga.Chromosome;
@@ -54,15 +56,15 @@ public class RelativeLengthBloatControl implements BloatControlFunction,
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.javalanche.ga.SearchListener#iteration(de.unisb.cs.st.javalanche.ga.Chromosome)
 	 */
-	public void iteration(Chromosome best) {
-		current_max = ((TestChromosome)best).size();
-		best_fitness = best.getFitness();
+	public void iteration(List<Chromosome> population) {
+		current_max = ((TestChromosome)population.get(0)).size();
+		best_fitness = population.get(0).getFitness();
 	}
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.javalanche.ga.SearchListener#searchFinished(de.unisb.cs.st.javalanche.ga.Chromosome)
 	 */
-	public void searchFinished(Chromosome best) {
+	public void searchFinished(List<Chromosome> best) {
 		// TODO Auto-generated method stub
 
 	}

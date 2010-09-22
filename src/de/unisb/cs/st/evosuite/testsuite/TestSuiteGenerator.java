@@ -76,7 +76,7 @@ public class TestSuiteGenerator {
 		}
 		
 		SearchStatistics statistics = SearchStatistics.getInstance();
-		statistics.iteration(best);
+		statistics.iteration(ga.getPopulation());
 		statistics.minimized(ga.getBestIndividual());
 		statistics.writeReport();
 		resetStoppingConditions();
@@ -135,7 +135,7 @@ public class TestSuiteGenerator {
 				logger.info("Finished minimization ("+best.size()+"/"+best.length()+")");
 			}
 
-			statistics.iteration(best);
+			statistics.iteration(ga.getPopulation());
 			statistics.minimized(ga.getBestIndividual());
 			System.out.println();
 			System.out.println("Bloat rejections: "+SteadyStateGA.rejected_bloat);
@@ -183,7 +183,7 @@ public class TestSuiteGenerator {
 					logger.info("Finished minimization ("+best.size()+"/"+best.length()+")");
 				}
 
-				statistics.iteration(best);
+				statistics.iteration(ga.getPopulation());
 				statistics.minimized(ga.getBestIndividual());
 				resetStoppingConditions();
 			}
@@ -231,7 +231,7 @@ public class TestSuiteGenerator {
 					minimizer.minimize((TestSuiteChromosome) ga.getBestIndividual(), ga.getFitnessFunction());
 					logger.info("Finished minimization ("+best.size()+"/"+best.length()+")");
 				}
-				statistics.iteration(best);
+				statistics.iteration(ga.getPopulation());
 				statistics.minimized(ga.getBestIndividual());
 				resetStoppingConditions();
 			}

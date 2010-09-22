@@ -103,11 +103,14 @@ public class OUMTestFactory extends AbstractTestFactory {
 						ConstructorStatement cs = (ConstructorStatement)s;
 						return cs.getConstructor();
 					}
-				} else if(s instanceof FieldStatement) {
+/*
+  				} else if(s instanceof FieldStatement) {
+ 
 					FieldStatement fs = (FieldStatement)s;
 					if(fs.getSource().equals(variable)) {
 						return fs.getField();
 					}
+					*/
 				}
 			}
 		}
@@ -153,6 +156,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 				logger.debug("Chosen existing object: "+target);
 				AccessibleObject last_call = getLastUse(test, position, target);
 				logger.debug("Last call: "+last_call);
+				logger.info("Getting next call for target object of class: "+target.getClassName());
 				AccessibleObject next_call = usage_model.getNextMethod(target.getClassName(), last_call);
 				logger.debug("Next call: "+next_call);
 				addCallFor(test, target, next_call, position);
@@ -803,6 +807,8 @@ public class OUMTestFactory extends AbstractTestFactory {
 	 * @throws ConstructionFailedException
 	 */
 	public void changeCall(TestCase test, Statement statement, AccessibleObject call) throws ConstructionFailedException {
+		return;
+		/*
 		int position = statement.getReturnValue().statement;
 		
 		if(call instanceof Method) {
@@ -840,6 +846,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 			test.setStatement(f, position);
 	 		
 	 	}
+	 	*/
 	}
 
 	

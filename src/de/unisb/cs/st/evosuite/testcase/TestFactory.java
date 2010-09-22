@@ -532,7 +532,7 @@ public class TestFactory extends AbstractTestFactory {
 			return createArray(test, type, position, recursion_depth).clone();
 
 		} else {
-			if(allow_null && randomness.nextDouble() <= null_probability) {
+			if(allow_null && randomness.nextDouble() > null_probability) {
 				return new NullReference(type);
 			}
 			

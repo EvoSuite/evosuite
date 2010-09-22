@@ -16,6 +16,8 @@ public class TestChromosome extends Chromosome {
 	
 	private final static boolean RANK_LENGTH = GAProperties.getPropertyOrDefault("check_rank_length", true);  
 	
+	private final static boolean CHECK_LENGTH = GAProperties.getPropertyOrDefault("check_max_length", true);
+	
 	static {
 		if(RANK_LENGTH)
 			logger.debug("Using rank check");
@@ -82,7 +84,7 @@ public class TestChromosome extends Chromosome {
 		for(int i=position2; i<other.size(); i++) {
 			test_factory.appendStatement(offspring.test, ((TestChromosome)other).test.getStatement(i));
 		}
-		if(offspring.test.size() <= GAProperties.chromosome_length)
+		if(!CHECK_LENGTH || offspring.test.size() <= GAProperties.chromosome_length)
 			test = offspring.test;
 			//logger.warn("Size exceeded!");
 		setChanged(true);
@@ -230,7 +232,7 @@ public class TestChromosome extends Chromosome {
 		final double ALPHA = 0.5;
 		int count = 1;
 		
-		while(randomness.nextDouble() <= Math.pow(ALPHA, count) && size() < GAProperties.chromosome_length)
+		while(randomness.nextDouble() <= Math.pow(ALPHA, count) && (!CHECK_LENGTH || size() < GAProperties.chromosome_length))
 		{
 			count++;				
 			// Insert at position as during initialization (i.e., using helper sequences)

@@ -4,6 +4,7 @@
 package de.unisb.cs.st.evosuite.OUM;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import de.unisb.cs.st.evosuite.branch.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.branch.RelativeLengthBloatControl;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
+import de.unisb.cs.st.evosuite.junit.JUnitTestSuite;
 import de.unisb.cs.st.evosuite.mutation.AssertionGenerator;
 import de.unisb.cs.st.evosuite.mutation.MutationStatistics;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
@@ -36,6 +38,7 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
+import de.unisb.cs.st.ga.Chromosome;
 import de.unisb.cs.st.ga.ChromosomeFactory;
 import de.unisb.cs.st.ga.CrossOverFunction;
 import de.unisb.cs.st.ga.FitnessFunction;
@@ -76,6 +79,72 @@ public class TestSuiteGenerator {
 
 	private final static boolean PARENTS_LENGTH = GAProperties.getPropertyOrDefault("check_parents_length", true);  
 
+	
+	private void compareAgainstJUnit(TestSuiteChromosome suite) {
+		JUnitTestSuite junit = new JUnitTestSuite();
+		
+		junit.runSuite(Properties.getProperty("junit_tests"));
+		
+		Set<String> junit_covered_true    = junit.getTrueCoveredBranches();
+		Set<String> junit_covered_false   = junit.getFalseCoveredBranches();
+		Set<String> junit_covered_methods = junit.getCoveredMethods();
+
+		junit.runSuite(suite);
+		
+		Set<String> generated_covered_true    = junit.getTrueCoveredBranches();
+		Set<String> generated_covered_false   = junit.getFalseCoveredBranches();
+		Set<String> generated_covered_methods = junit.getCoveredMethods();
+		
+		int total = CFGMethodAdapter.methods.size() + CFGMethodAdapter.branch_counter * 2;
+		int coverage_junit = 0;
+		int coverage_generated = 0;
+		int junit_not_generated = 0;
+		int generated_not_junit = 0;
+		for(String branch : junit_covered_true) {
+			coverage_junit++;
+			if(!generated_covered_true.contains(branch))
+				junit_not_generated++;
+		}
+		for(String branch : junit_covered_false) {
+			coverage_junit++;
+			if(!generated_covered_false.contains(branch))
+				junit_not_generated++;
+		}
+		for(String branch : junit_covered_methods) {
+			coverage_junit++;
+			if(!generated_covered_methods.contains(branch))
+				junit_not_generated++;
+		}
+		for(String branch : generated_covered_true) {
+			coverage_generated++;
+			if(!junit_covered_true.contains(branch))
+				generated_not_junit++;
+		}
+		for(String branch : generated_covered_false) {
+			coverage_generated++;
+			if(!junit_covered_false.contains(branch))
+				generated_not_junit++;
+		}
+		for(String branch : generated_covered_methods) {
+			coverage_generated++;
+			if(!junit_covered_methods.contains(branch))
+				generated_not_junit++;
+		}
+		System.out.println("Branches covered by JUnit but not by generated: "+junit_not_generated);
+		System.out.println("Branches covered by generated but not by JUnit: "+generated_not_junit);
+		try {
+			FileWriter writer = new FileWriter(Properties.OUTPUT_DIR+"/junit_comparison.csv", true);
+			BufferedWriter w = new BufferedWriter(writer);
+			String factory = Properties.getPropertyOrDefault("test_factory", "Random");
+			
+			w.write(factory +","+ Randomness.getInstance().getSeed()+","+Properties.TARGET_CLASS+","+100.0*coverage_junit/total+","+100.0*coverage_generated/total+","+junit_not_generated+","+generated_not_junit+"\n");
+			w.close();
+		} catch(IOException e) {
+			
+		}
+	}
+	
+	
 	/**
 	 * Do the magic
 	 */
@@ -164,7 +233,10 @@ public class TestSuiteGenerator {
 					logger.info("Found no solution");				
 				}
 				suite_fitness.getFitness(suite);
-				statistics.iteration(suite);
+				List<Chromosome> population = new ArrayList<Chromosome>();
+				population.add(suite);
+
+				statistics.iteration(population);
 				current_statements += max_statements.getNumExecutedStatements();
 				if(current_statements > max_s)
 					break;
@@ -177,7 +249,10 @@ public class TestSuiteGenerator {
 			max_statements.reset();
 
 		}
-		statistics.searchFinished(suite);
+		List<Chromosome> population = new ArrayList<Chromosome>();
+		population.add(suite);
+
+		statistics.searchFinished(population);
 		logger.info("Resulting test suite: "+suite.size()+" tests, length "+suite.length());
 		// Generate a test suite chromosome once all test cases are done?
 		/*
@@ -202,11 +277,12 @@ public class TestSuiteGenerator {
 		
 		// Log some stats
 
-		statistics.iteration(suite);
+		//statistics.iteration(population);
 		statistics.minimized(suite);			
 
 		statistics.writeReport();
 		
+		compareAgainstJUnit(suite);
 		
 		XStream xstream = new XStream();
 		FileWriter fstream;

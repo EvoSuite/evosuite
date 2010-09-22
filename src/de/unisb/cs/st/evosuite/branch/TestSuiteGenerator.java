@@ -25,6 +25,7 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
+import de.unisb.cs.st.ga.Chromosome;
 import de.unisb.cs.st.ga.ChromosomeFactory;
 import de.unisb.cs.st.ga.CrossOverFunction;
 import de.unisb.cs.st.ga.FitnessFunction;
@@ -38,6 +39,8 @@ import de.unisb.cs.st.ga.OnePlusOneEA;
 import de.unisb.cs.st.ga.Randomness;
 import de.unisb.cs.st.ga.RankSelection;
 import de.unisb.cs.st.ga.SelectionFunction;
+import de.unisb.cs.st.ga.SinglePointCrossOver;
+import de.unisb.cs.st.ga.SinglePointFixedCrossOver;
 import de.unisb.cs.st.ga.SinglePointRelativeCrossOver;
 import de.unisb.cs.st.ga.StandardGA;
 import de.unisb.cs.st.ga.SteadyStateGA;
@@ -166,7 +169,9 @@ public class TestSuiteGenerator {
 						logger.info("Found no solution");				
 					}
 					suite_fitness.getFitness(suite);
-					statistics.iteration(suite);
+					List<Chromosome> population = new ArrayList<Chromosome>();
+					population.add(suite);
+					statistics.iteration(population);
 					current_statements += max_statements.getNumExecutedStatements();
 					if(current_statements > max_s)
 						break;
@@ -179,7 +184,10 @@ public class TestSuiteGenerator {
 				max_statements.reset();
 
 			}
-			statistics.searchFinished(suite);
+			List<Chromosome> population = new ArrayList<Chromosome>();
+			population.add(suite);
+
+			statistics.searchFinished(population);
 			logger.info("Resulting test suite: "+suite.size()+" tests, length "+suite.length());
 			// Generate a test suite chromosome once all test cases are done?
 			if(minimize) {
@@ -193,7 +201,7 @@ public class TestSuiteGenerator {
 			
 			// Log some stats
 			
-			statistics.iteration(suite);
+			statistics.iteration(population);
 			statistics.minimized(suite);			
 			resetStoppingConditions();
 		}
@@ -290,7 +298,9 @@ public class TestSuiteGenerator {
 						logger.info("Found no solution");				
 					}
 					suite_fitness.getFitness(suite);
-					statistics.iteration(suite);
+					List<Chromosome> population = new ArrayList<Chromosome>();
+					population.add(suite);
+					statistics.iteration(population);
 					current_statements += max_statements.getNumExecutedStatements();
 					logger.info("Adding statements: "+max_statements.getNumExecutedStatements());
 					max_statements.reset();
@@ -301,7 +311,10 @@ public class TestSuiteGenerator {
 				max_statements.reset();
 
 			}
-			statistics.searchFinished(suite);
+			List<Chromosome> population = new ArrayList<Chromosome>();
+			population.add(suite);
+
+			statistics.searchFinished(population);
 			logger.info("Resulting test suite: "+suite.size()+" tests, length "+suite.length());
 			// Generate a test suite chromosome once all test cases are done?
 			if(minimize) {
@@ -314,7 +327,7 @@ public class TestSuiteGenerator {
 			
 			// Log some stats
 			
-			statistics.iteration(suite);
+			statistics.iteration(population);
 			statistics.minimized(suite);			
 			resetStoppingConditions();
 		}
@@ -407,9 +420,24 @@ public class TestSuiteGenerator {
 
 		
 		// Relative position crossover to avoid that size increases
-		CrossOverFunction crossover_function = new SinglePointRelativeCrossOver();
-		ga.setCrossOverFunction(crossover_function);
-
+		String crossover_function = Properties.getPropertyOrDefault("crossover_function", "OnePointRelative"); 
+		if(crossover_function.equals("SinglePointRelative")) {
+			logger.info("Setting relative single point cross over");
+			ga.setCrossOverFunction(new SinglePointRelativeCrossOver());
+		}
+		else if(crossover_function.equals("SinglePointFixed")) {
+			logger.info("Setting fixed single point cross over");
+			ga.setCrossOverFunction(new SinglePointFixedCrossOver());
+		}
+		else if(crossover_function.equals("SinglePoint")) {
+			logger.info("Setting normal single point cross over");
+			ga.setCrossOverFunction(new SinglePointCrossOver());
+		}
+		else {
+			logger.info("Setting relative single point cross over");
+			ga.setCrossOverFunction(new SinglePointRelativeCrossOver());
+		}
+		
 		//MaxLengthBloatControl bloat_control = new MaxLengthBloatControl();
 		//ga.setBloatControl(bloat_control);
 

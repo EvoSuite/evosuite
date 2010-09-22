@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import de.unisb.cs.st.ga.FixedSinglePointCrossOver;
+import de.unisb.cs.st.ga.SinglePointFixedCrossOver;
 import de.unisb.cs.st.ga.GeneticAlgorithm;
 import de.unisb.cs.st.ga.StandardGA;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
@@ -64,7 +64,7 @@ public class HOMGenerator {
 		GeneticAlgorithm ga = new StandardGA(new HOMChromosomeFactory(dead));
 
 		ga.setFitnessFunction(fitness_function);
-		ga.setCrossOverFunction(new FixedSinglePointCrossOver());
+		ga.setCrossOverFunction(new SinglePointFixedCrossOver());
 		
 		// Generate initial population
 		//setRandomPopulation(population_size);

@@ -275,7 +275,7 @@ public class SearchStatistics implements SearchListener {
 			BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
 			int length = Integer.MAX_VALUE;
 			
-			out.write("Generation,Fitness,Coverage,Size,Length,Evaluations,Tests,Statements\n");
+			out.write("Generation,Fitness,Coverage,Size,Length,AverageLength,Evaluations,Tests,Statements\n");
 			for(List<?> d : data) {
 				length = Math.min(length, d.size());
 			}
@@ -433,6 +433,19 @@ public class SearchStatistics implements SearchListener {
 			} else {
 				String filename = writeIntegerChart(run.length_history, run.className+"-"+run.id, "Length");
 				sb.append("<h2>Length</h2>\n");
+				sb.append("<p>");
+				sb.append("<img src=\"../img/");
+				sb.append(filename);
+				sb.append("\">");
+				sb.append("</p>\n");
+			}	
+			
+			// Chart of average length
+			if(run.average_length_history.isEmpty()) {
+				sb.append("<h2>No average length history</h2>\n");
+			} else {
+				String filename = writeDoubleChart(run.average_length_history, run.className+"-"+run.id, "Length");
+				sb.append("<h2>Average Length</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
 				sb.append(filename);
@@ -629,7 +642,8 @@ public class SearchStatistics implements SearchListener {
 				entry.fitness_history, 
 				entry.coverage_history, 
 				entry.size_history, 
-				entry.length_history, 
+				entry.length_history,
+				entry.average_length_history,
 				entry.fitness_evaluations, 
 				entry.tests_executed, 
 				entry.statements_executed);
@@ -892,7 +906,8 @@ public class SearchStatistics implements SearchListener {
 			(new File(REPORT_DIR.getAbsolutePath()+"/html")).mkdir(); 
 	}
 	
-	public void searchFinished(Chromosome result) {
+	public void searchFinished(List<Chromosome> population) {
+		Chromosome result = population.get(0);
 		if(result instanceof TestSuiteChromosome) {
 			TestSuiteChromosome best = (TestSuiteChromosome)result;
 			StatisticEntry entry = statistics.get(statistics.size() - 1);
@@ -922,11 +937,19 @@ public class SearchStatistics implements SearchListener {
 	}
 
 	
-	public void iteration(Chromosome best) {
+	public void iteration(List<Chromosome> population) {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
+		Chromosome best = population.get(0);
 		entry.fitness_history.add(best.getFitness());
-		entry.size_history.add(best.size());	
+		entry.size_history.add(best.size());
+
+		double average = 0.0;
+		for(Chromosome individual : population) {
+			average += individual.size();
+		}
 		
+		entry.average_length_history.add(average / population.size());
+
 		// TODO: Need to get data of average size in here - how? Pass population as parameter?
 		
 		if(best instanceof TestSuiteChromosome) {
