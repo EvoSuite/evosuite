@@ -84,8 +84,9 @@ public class TestChromosome extends Chromosome {
 		for(int i=position2; i<other.size(); i++) {
 			test_factory.appendStatement(offspring.test, ((TestChromosome)other).test.getStatement(i));
 		}
-		if(!CHECK_LENGTH || offspring.test.size() <= GAProperties.chromosome_length)
+		if(!CHECK_LENGTH || offspring.test.size() <= GAProperties.chromosome_length) {
 			test = offspring.test;
+		}
 			//logger.warn("Size exceeded!");
 		setChanged(true);
 	}
@@ -129,7 +130,7 @@ public class TestChromosome extends Chromosome {
 		
 		// Delete
 		if(randomness.nextDouble() <= P) {
-			changed = mutationDelete();
+			//changed = mutationDelete();
 		}
 		
 		// Change

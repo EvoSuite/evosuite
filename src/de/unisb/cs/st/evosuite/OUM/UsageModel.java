@@ -210,8 +210,8 @@ public class UsageModel {
 			usage_models.get(className).addGenerator(source_call);
 		}
 	}
-	/*
-	private void addGenerator(Transition t) {
+	
+	private void addGenerator(String src_className, Transition t) {
 		
 		AccessibleObject call = null;
 		String className = null;
@@ -234,12 +234,38 @@ public class UsageModel {
 			call = getMethod(className, fieldName);
 		}
 		if(className != null && ensureClassModel(className)) {
-			if(call != null)
-				usage_models.get(className).addGenerator(call);
+			if(call != null) {
+				usage_models.get(className).addCall(call);
+			}
+		}
+		
+		call = null;
+		
+		if(t instanceof InvokeMethodTransition) {
+			InvokeMethodTransition t1 = (InvokeMethodTransition)t;
+			call = getMethod(src_className, (((InvokeMethodTransition)t).getMethodCall().getMethodName()));
+
+		} else if(t instanceof ReturnValueOfMethodTransition) {
+			ReturnValueOfMethodTransition t1 = (ReturnValueOfMethodTransition)t;
+			call = getMethod(src_className, (((ReturnValueOfMethodTransition)t).getMethodCall().getMethodName()));
+		} else if(t instanceof FieldValueTransition) {
+			FieldValueTransition t1 = (FieldValueTransition)t;
+			String fullName = t1.getFieldName();
+			int dot = fullName.lastIndexOf(".");
+			String fieldName = fullName.substring(dot + 1);
+			call = getMethod(src_className, fieldName);
+		}
+		if(src_className != null && ensureClassModel(src_className)) {
+			if(call != null) {
+				usage_models.get(src_className).addCall(call);
+			}
 		}
 	}
-	*/
+	
 	private void updateModel(String className, Transition left, Transition right) {
+
+		// TODO: When adding a parameter call or a generator, we need to check that the classusage object of the parameter actually has this vertex as well?
+		
 		// TODO: Create a vertex if a method is used, even if we have no parameter/usage data!
 		// TODO: Check if a generator is actually available (e.g. java.text.DateTime.parse)
 		if(!className.startsWith(Properties.PROJECT_PREFIX)) {
@@ -253,8 +279,8 @@ public class UsageModel {
 			//	return;
 			//}
 			logger.debug("Current pair: "+left.getShortEventString() + " -> "+right.getShortEventString());
-			//addGenerator(left);
-			//addGenerator(right);
+			addGenerator(className, left);
+			addGenerator(className, right);
 
 			// It is a generator if:
 			// - RHS Parameter == 0, and
@@ -332,7 +358,7 @@ public class UsageModel {
 				//String fullMethodName = modelData.getClassName () + "." +
 				//	modelData.getMethodName ();
 				String className = getModelClassName(modelData.getModelName());
-				//logger.info("Current model: "+modelData.getModelName()+" generated in "+modelData.getClassName()+"."+modelData.getMethodName());
+				logger.info("Current model: "+modelData.getModelName()+" generated in "+modelData.getClassName()+"."+modelData.getMethodName());
 				//logger.info("Model class: "+getModelClassName(modelData.getModelName()));
 				Set<EventPair> sca_model = SCAAbstractor.getSCAAbstraction (model, true);
 				for(EventPair pair : sca_model) {

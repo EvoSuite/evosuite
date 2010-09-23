@@ -123,7 +123,7 @@ public class ClassUsage {
 		
 		return null;
 	}
-
+	
 	/*
 	private boolean isGenerator(AccessibleObject o) {
 		if(o instanceof Field) {
@@ -167,6 +167,13 @@ public class ClassUsage {
         }
         
         return null;
+	}
+	
+	public void addCall(AccessibleObject call) {
+		if(!usage_model.containsVertex(call)) {
+			//logger.info("Adding new method vertex "+call1);
+			usage_model.addVertex(call);
+		}		
 	}
 	
 	public void addGenerator(AccessibleObject call) {
