@@ -65,9 +65,11 @@ public class OUMTestFactory extends AbstractTestFactory {
 	 */
 	private Set<Class<?>> current_recursion = new HashSet<Class<?>>();
 
-	private UsageModel usage_model = UsageModel.getInstance();
+	private UsageModel usage_model = null;
 	
-	private OUMTestFactory() { }
+	private OUMTestFactory() { 
+		usage_model = UsageModel.getInstance();
+	}
 	
 	public static OUMTestFactory getInstance() {
 		if(instance == null)
@@ -84,6 +86,41 @@ public class OUMTestFactory extends AbstractTestFactory {
 	 */
 	private AccessibleObject getLastUse(TestCase test, int position, VariableReference variable) {
 		for(int i = Math.min(position, test.size() - 1); i>=variable.statement; i--) {
+			Statement s = test.getStatement(i);
+			if(s.references(variable)) {
+				if(s instanceof MethodStatement) {
+					MethodStatement ms = (MethodStatement)s;
+					if(!ms.isStatic()) {
+						if(ms.getCallee().equals(variable))
+							return ms.getMethod();
+					} else {
+						//logger.info("Checking static call of class "+ms.getMethod().getDeclaringClass()+" while looking for "+variable.getClassName());
+						if(variable.isAssignableFrom(ms.getMethod().getDeclaringClass())) {
+							return ms.getMethod();
+						}
+					}
+					
+				} else if(s instanceof ConstructorStatement) {
+					if(s.getReturnValue().equals(variable)) {
+						ConstructorStatement cs = (ConstructorStatement)s;
+						return cs.getConstructor();
+					}
+/*
+  				} else if(s instanceof FieldStatement) {
+ 
+					FieldStatement fs = (FieldStatement)s;
+					if(fs.getSource().equals(variable)) {
+						return fs.getField();
+					}
+					*/
+				}
+			}
+		}
+		return null;
+	}
+	
+	private AccessibleObject getNextUse(TestCase test, int position, VariableReference variable) {
+		for(int i = position; i < test.size(); i++) {
 			Statement s = test.getStatement(i);
 			if(s.references(variable)) {
 				if(s instanceof MethodStatement) {
@@ -157,9 +194,11 @@ public class OUMTestFactory extends AbstractTestFactory {
 				AccessibleObject last_call = getLastUse(test, position, target);
 				logger.debug("Last call: "+last_call);
 				logger.info("Getting next call for target object of class: "+target.getClassName());
-				AccessibleObject next_call = usage_model.getNextMethod(target.getClassName(), last_call);
+				AccessibleObject next_call = getNextUse(test, position, target);
 				logger.debug("Next call: "+next_call);
-				addCallFor(test, target, next_call, position);
+				AccessibleObject inserted_call = usage_model.getNextMethod(target.getClassName(), last_call);
+				logger.debug("Inserted call: "+inserted_call);
+				addCallFor(test, target, inserted_call, position);
 			}
 
 		} 
@@ -171,7 +210,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 			//VariableReference object = test.getRandomObject(position);
 			List<VariableReference> objects = test.getObjects(position);
 			VariableReference object = randomness.choice(objects);
-			logger.info("Chosen position: "+position+" -> "+object);
+			logger.debug("Chosen position: "+position+" -> "+object);
 			while((object == null || object.isPrimitive()) && !objects.isEmpty()) {
 				logger.debug("Dropping primitive object from choice...");
 				objects.remove(object);
@@ -191,7 +230,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 				} else {
 					logger.debug("Selected "+object);
 					if(!usage_model.hasClass(object.getClassName())) {
-						logger.info("Have no usage information about "+object.getClassName());
+						logger.debug("Have no usage information about "+object.getClassName());
 						return;
 					}
 					AccessibleObject last_call = getLastUse(test, position, object);

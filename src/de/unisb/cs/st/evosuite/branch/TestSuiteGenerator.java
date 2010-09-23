@@ -12,7 +12,6 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.OUM.OUMTestChromosomeFactory;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.mutation.MutationStatistics;
@@ -27,7 +26,6 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
 import de.unisb.cs.st.ga.Chromosome;
 import de.unisb.cs.st.ga.ChromosomeFactory;
-import de.unisb.cs.st.ga.CrossOverFunction;
 import de.unisb.cs.st.ga.FitnessFunction;
 import de.unisb.cs.st.ga.GAProperties;
 import de.unisb.cs.st.ga.GeneticAlgorithm;
@@ -67,7 +65,7 @@ public class TestSuiteGenerator {
 	private StoppingCondition zero_fitness = new ZeroFitnessStoppingCondition();
 	private int num_experiments = 0;
 
-	private final static boolean PARENTS_LENGTH = GAProperties.getPropertyOrDefault("check_parents_length", true);  
+	private final static boolean BEST_LENGTH = GAProperties.getPropertyOrDefault("check_best_length", true);  
 
 	/**
 	 * Do the magic
@@ -90,8 +88,10 @@ public class TestSuiteGenerator {
 		ExecutionTrace.trace_calls = true;
 
 		int max_s = GAProperties.generations;
-
-		
+		if(Properties.getProperty("dynamic_limit") != null) {
+			logger.info("Setting dynamic length limit");
+			max_s = GAProperties.generations * getBranches().size();
+		}
 		
 		for(int current_experiment = 0; current_experiment < num_experiments; current_experiment++) {
 			// Reset everything
@@ -420,7 +420,7 @@ public class TestSuiteGenerator {
 
 		
 		// Relative position crossover to avoid that size increases
-		String crossover_function = Properties.getPropertyOrDefault("crossover_function", "OnePointRelative"); 
+		String crossover_function = Properties.getPropertyOrDefault("crossover_function", "SinglePointRelative"); 
 		if(crossover_function.equals("SinglePointRelative")) {
 			logger.info("Setting relative single point cross over");
 			ga.setCrossOverFunction(new SinglePointRelativeCrossOver());
@@ -445,12 +445,12 @@ public class TestSuiteGenerator {
 		RelativeLengthBloatControl bloat_control = new RelativeLengthBloatControl();
 		  
 
-		if(PARENTS_LENGTH) {
-			logger.debug("Using parent bloat control");
+		if(BEST_LENGTH) {
+			logger.debug("Using best bloat control");
 			ga.addBloatControl(bloat_control);
 			ga.addListener(bloat_control);
 		} else {
-			logger.debug("Not using parent bloat control");
+			logger.debug("Not using best bloat control");
 		}
 		//ga.addBloatControl(new MaxLengthBloatControl());
 	    

@@ -38,6 +38,8 @@ public class RandomLengthTestFactory implements ChromosomeFactory {
 		// Choose a random length in 0 - size
 		Randomness randomness = Randomness.getInstance();
 		int length = randomness.nextInt(size);
+		while(length == 0)
+			length = randomness.nextInt(size);
 
 		// Then add random stuff
 		while(test.size() < length && num < max_attempts) {

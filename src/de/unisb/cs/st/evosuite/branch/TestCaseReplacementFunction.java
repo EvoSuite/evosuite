@@ -16,7 +16,7 @@ import de.unisb.cs.st.ga.SteadyStateReplacementFunction;
  */
 public class TestCaseReplacementFunction extends SteadyStateReplacementFunction {
 
-	private final static boolean BEST_LENGTH = GAProperties.getPropertyOrDefault("check_best_length", true);  
+	private final static boolean PARENT_LENGTH = GAProperties.getPropertyOrDefault("check_parents_length", true);  
 	
 	public TestCaseReplacementFunction(SelectionFunction selection) {
 		super(selection);
@@ -44,9 +44,23 @@ public class TestCaseReplacementFunction extends SteadyStateReplacementFunction 
 		double fitness_offspring = getBestFitness((TestChromosome)offspring1, (TestChromosome)offspring2);
 		double fitness_parents   = getBestFitness((TestChromosome)parent1, (TestChromosome)parent2);
 		
+		if(PARENT_LENGTH) {
+			if((fitness_offspring == fitness_parents && 
+					getLengthSum((TestChromosome)offspring1, (TestChromosome)offspring2) <= getLengthSum((TestChromosome)parent1, (TestChromosome)parent2))) {
+				return true;
+			}			
+		} else {
+			if(fitness_offspring == fitness_parents) {
+				return true;
+			}						
+		}
+		
+		/*
 		if(BEST_LENGTH && (fitness_offspring == fitness_parents && 
-				getLengthSum((TestChromosome)offspring1, (TestChromosome)offspring2) <= getLengthSum((TestChromosome)parent1, (TestChromosome)parent2)))
+				getLengthSum((TestChromosome)offspring1, (TestChromosome)offspring2) <= getLengthSum((TestChromosome)parent1, (TestChromosome)parent2))) {
 			return true;
+		}
+		*/
 		
 		if(fitness_offspring < fitness_parents) {
 			return true;
