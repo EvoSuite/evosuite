@@ -1063,6 +1063,19 @@ public class TestCluster {
 						  // Keep all accessible fields
 						  for(Field field : getFields(toadd)) {
 //							  if(!Modifier.isPrivate(field.getModifiers()) && !Modifier.isProtected(field.getModifiers()) && !Modifier.isProtected(field.getDeclaringClass().getModifiers()) && !Modifier.isPrivate(field.getDeclaringClass().getModifiers())) {
+							  if(test_excludes.containsKey(classname)) {
+								  boolean valid = true;
+								  for(String regex : test_excludes.get(classname)) {
+									  if(field.getName().matches(regex)) {
+										  valid = false;
+										  logger.info("Found excluded field: "+classname+"."+field.getName()+" matches "+regex);
+										  break;
+									  }
+								  }
+								  if(!valid)
+									  continue;
+							  }
+
 							  if(canUse(field)) {
 								  field.setAccessible(true);
 								  calls.add(field);

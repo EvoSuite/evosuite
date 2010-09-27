@@ -72,13 +72,19 @@ public class PrimitivePool {
 		if(object instanceof String) {
 			string_pool.add((String)object);
 		} else if(object instanceof Integer) {
-			int_pool.add((Integer)object);
+			int val = (Integer)object;
+			if(Math.abs(val) < 100 && val != Integer.MAX_VALUE && val != Integer.MIN_VALUE) {
+				int_pool.add((Integer)object);
+			}
 		} else if(object instanceof Float) {
-			float_pool.add((Float)object);
+			if(Math.abs((Float)object) < 100.0)
+				float_pool.add((Float)object);
 		} else if(object instanceof Long) {
-			long_pool.add((Long)object);
+			if(Math.abs((Long)object) < 100)
+				long_pool.add((Long)object);
 		} else if(object instanceof Double) {
-			double_pool.add((Double)object);			
+			if(Math.abs((Double)object) < 100.0) 	
+				double_pool.add((Double)object);			
 		}
 
 	}

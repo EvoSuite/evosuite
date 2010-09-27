@@ -35,6 +35,7 @@ public class AccessibleClassAdapter extends ClassAdapter {
 		super.visit(version, access, name, signature, superName, interfaces);
 	}
 
+	
 	public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
 		if((access & Opcodes.ACC_PRIVATE) != Opcodes.ACC_PRIVATE) {
 			access = access | Opcodes.ACC_PUBLIC;
@@ -44,6 +45,7 @@ public class AccessibleClassAdapter extends ClassAdapter {
 		
 		return super.visitField(access, name, desc, signature, value);
 	}
+	
 	
 	public MethodVisitor visitMethod(int access, String name, String desc,
 			String signature, final String[] exceptions) {

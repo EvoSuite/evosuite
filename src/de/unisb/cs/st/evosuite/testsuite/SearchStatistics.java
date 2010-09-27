@@ -498,6 +498,20 @@ public class SearchStatistics implements SearchListener {
 	protected void writeParameterTable(StringBuffer buffer, StatisticEntry entry) {
 		buffer.append("<h2>Search Parameters</h2>\n");
 		buffer.append("<ul>\n");
+		for(Object property : GAProperties.getKeys()) {
+			buffer.append("<li>"+property+": "+GAProperties.getProperty((String)property)+"\n"); // TODO			
+		}
+		buffer.append("</ul>\n");
+		buffer.append("<h2>EvoSuite Parameters</h2>\n");
+		buffer.append("<ul>\n");
+		for(Object property : Properties.getKeys()) {
+			buffer.append("<li>"+property+": "+Properties.getProperty((String)property)+"\n"); // TODO			
+		}
+		buffer.append("</ul>\n");
+
+		
+		buffer.append("<h2>Old Parameters</h2>\n");
+		buffer.append("<ul>\n");
 		buffer.append("<li>Algorithm: "+GAProperties.getProperty("algorithm")+"\n"); // TODO
 		buffer.append("<li>Population size: "+entry.population_size+"\n");
 		buffer.append("<li>Initial test length: "+entry.chromosome_length+"\n");

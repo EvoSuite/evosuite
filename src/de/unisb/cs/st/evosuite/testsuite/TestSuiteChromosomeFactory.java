@@ -27,7 +27,13 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory {
 	private ChromosomeFactory test_factory;
 	
 	public TestSuiteChromosomeFactory() {
-		test_factory = new RandomLengthTestFactory();
+		String factory_name = Properties.getPropertyOrDefault("test_factory", "Random");
+		if(factory_name.equals("OUM"))
+			test_factory = new OUMTestChromosomeFactory();
+		else
+			test_factory = new RandomLengthTestFactory();
+
+//		test_factory = new RandomLengthTestFactory();
 //		test_factory = new AllMethodsChromosomeFactory();
 //		test_factory = new OUMTestChromosomeFactory();
 	}

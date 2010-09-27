@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.util.Set;
 
 /**
  * @author Gordon Fraser
@@ -65,6 +66,10 @@ public class Properties {
 		return instance;
 	}
 	
+	public static Set<Object> getKeys() {
+		return getInstance().properties.keySet();
+	}
+	
 	public static Class<?> getTargetClass() {
 		if(TARGET_CLASS_INSTANCE != null)
 			return TARGET_CLASS_INSTANCE;
@@ -84,6 +89,10 @@ public class Properties {
 			result = default_value;
 		}
 		return result;
+	}
+	
+	public static void setProperty(String property, String value) {
+		Properties.getInstance().properties.setProperty(property, value);
 	}
 	
 	public static int getPropertyOrDefault(String property, int default_value) {
@@ -114,8 +123,10 @@ public class Properties {
 		String value = System.getProperty(key);
 		if(value == null)
 			return Properties.getInstance().properties.getProperty(key);
-		else
+		else {
+			Properties.setProperty(key, value);
 			return value; // System properties override config file
+		}
 	}
 	
 }

@@ -130,7 +130,7 @@ public class TestChromosome extends Chromosome {
 		
 		// Delete
 		if(randomness.nextDouble() <= P) {
-			//changed = mutationDelete();
+			changed = mutationDelete();
 		}
 		
 		// Change

@@ -64,7 +64,7 @@ public class PrimitiveStatement<T> extends Statement {
 			return new PrimitiveStatement<Boolean>(reference, randomness.nextBoolean());
 		} else if (clazz == int.class) {
 			if(randomness.nextDouble() >= P_pool )
-				return new PrimitiveStatement<Integer>(reference, new Integer((short) (randomness.nextInt(2 * MAX_INT) - MAX_INT)));
+				return new PrimitiveStatement<Integer>(reference, new Integer((randomness.nextInt(2 * MAX_INT) - MAX_INT)));
 			else
 				return new PrimitiveStatement<Integer>(reference, primitive_pool.getRandomInt());
 
@@ -74,7 +74,7 @@ public class PrimitiveStatement<T> extends Statement {
 		} else if (clazz == long.class) {
 			int max = Math.min(MAX_INT, 32767);
 			if(randomness.nextDouble() >= P_pool )
-				return new PrimitiveStatement<Long>(reference, new Long((short) (randomness.nextInt(2 * max) - max)));
+				return new PrimitiveStatement<Long>(reference, new Long((randomness.nextInt(2 * max) - max)));
 			else
 				return new PrimitiveStatement<Long>(reference, primitive_pool.getRandomLong());
 
