@@ -46,6 +46,8 @@ public class OUMTestFactory extends AbstractTestFactory {
 	
 	private final static int MAX_RECURSION = Properties.getPropertyOrDefault("max_recursion", 10);
 
+	private final static double USAGE_RATE = Properties.getPropertyOrDefault("usage_rate", 1.0);
+
 	//private int max_attempts  = Integer.parseInt(System.getProperty("GA.max_attempts"));
 	private double object_reuse_probability = Properties.getPropertyOrDefault("object_reuse_probability", 0.9);
 
@@ -84,7 +86,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 	 * @param variable
 	 * @return
 	 */
-	private AccessibleObject getLastUse(TestCase test, int position, VariableReference variable) {
+	private ConcreteCall getLastUse(TestCase test, int position, VariableReference variable) {
 		for(int i = Math.min(position, test.size() - 1); i>=variable.statement; i--) {
 			Statement s = test.getStatement(i);
 			if(s.references(variable)) {
@@ -92,18 +94,20 @@ public class OUMTestFactory extends AbstractTestFactory {
 					MethodStatement ms = (MethodStatement)s;
 					if(!ms.isStatic()) {
 						if(ms.getCallee().equals(variable))
-							return ms.getMethod();
+							return new ConcreteCall(variable.getClassName(), ms.getMethod());
+						/*
 					} else {
 						//logger.info("Checking static call of class "+ms.getMethod().getDeclaringClass()+" while looking for "+variable.getClassName());
 						if(variable.isAssignableFrom(ms.getMethod().getDeclaringClass())) {
-							return ms.getMethod();
+							return new ConcreteCall(variable.getClassName(), ms.getMethod());
 						}
+						*/
 					}
 					
 				} else if(s instanceof ConstructorStatement) {
 					if(s.getReturnValue().equals(variable)) {
 						ConstructorStatement cs = (ConstructorStatement)s;
-						return cs.getConstructor();
+						return new ConcreteCall(variable.getClassName(), cs.getConstructor());
 					}
 /*
   				} else if(s instanceof FieldStatement) {
@@ -119,7 +123,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 		return null;
 	}
 	
-	private AccessibleObject getNextUse(TestCase test, int position, VariableReference variable) {
+	private ConcreteCall getNextUse(TestCase test, int position, VariableReference variable) {
 		for(int i = position; i < test.size(); i++) {
 			Statement s = test.getStatement(i);
 			if(s.references(variable)) {
@@ -127,18 +131,18 @@ public class OUMTestFactory extends AbstractTestFactory {
 					MethodStatement ms = (MethodStatement)s;
 					if(!ms.isStatic()) {
 						if(ms.getCallee().equals(variable))
-							return ms.getMethod();
+							return new ConcreteCall(variable.getClassName(), ms.getMethod());
 					} else {
 						//logger.info("Checking static call of class "+ms.getMethod().getDeclaringClass()+" while looking for "+variable.getClassName());
 						if(variable.isAssignableFrom(ms.getMethod().getDeclaringClass())) {
-							return ms.getMethod();
+							return new ConcreteCall(variable.getClassName(), ms.getMethod());
 						}
 					}
 					
 				} else if(s instanceof ConstructorStatement) {
 					if(s.getReturnValue().equals(variable)) {
 						ConstructorStatement cs = (ConstructorStatement)s;
-						return cs.getConstructor();
+						return new ConcreteCall(variable.getClassName(), cs.getConstructor());
 					}
 /*
   				} else if(s instanceof FieldStatement) {
@@ -153,7 +157,78 @@ public class OUMTestFactory extends AbstractTestFactory {
 		}
 		return null;
 	}
-		
+	
+	public void appendRandomCall(TestCase test) {
+		int position = test.size();
+		logger.debug("Appending UUT call at position "+position);
+		// add new instance of the UUT -> use on of the initial locations in the markov chart
+		List<VariableReference> vars = test.getObjects(Properties.getTargetClass(), position);
+		if(vars.isEmpty() || randomness.nextDouble() > object_reuse_probability) { // or certain probability - reuse probability?
+			// Generate new
+			logger.debug("Creating new UUT object");
+			ConcreteCall generator = null;
+			if(randomness.nextDouble() <= USAGE_RATE)
+				generator = usage_model.getGenerator(Properties.TARGET_CLASS, Properties.getTargetClass());
+			else {
+				AccessibleObject o;
+				try {
+					o = test_cluster.getRandomGenerator(Properties.getTargetClass());
+//					generator = new ConcreteCall(Properties.TARGET_CLASS, o);
+					generator = getConcreteCall(o);
+
+				} catch (ConstructionFailedException e) {
+					return;
+				}
+			}
+					
+			logger.debug("Chosen generator: "+generator);
+			try {
+				if(generator.isMethod()) {
+					addMethod(test, generator, position, 0);
+				} else if(generator.isConstructor()) {
+					addConstructor(test, generator, position, 0);
+				} else if(generator.isField()) {
+					addField(test, generator, position, 0);
+				} else {
+					logger.error("Encountered unknown type "+generator);
+				}
+			} catch (ConstructionFailedException e) {
+				logger.info("Construction failed: "+generator);
+			}
+		} else {
+			VariableReference target = randomness.choice(vars);
+			if(randomness.nextDouble() <+ USAGE_RATE) {
+				logger.debug("Chosen existing object: "+target);
+				ConcreteCall last_call = getLastUse(test, position, target);
+				logger.debug("Last call: "+last_call);
+				logger.debug("Getting next call for target object of class: "+target.getClassName());
+				ConcreteCall next_call = getNextUse(test, position, target);
+				logger.debug("Next call: "+next_call);
+				ConcreteCall inserted_call = usage_model.getNextMethod(target.getClassName(), last_call);
+				logger.debug("Inserted call: "+inserted_call);
+				addCallFor(test, target, inserted_call, position);
+			} else {
+				List<AccessibleObject> calls = test_cluster.getCallsFor(target.getVariableClass());
+				//List<Method> calls = getMethods(object.getVariableClass());
+				if(!calls.isEmpty()) {
+					AccessibleObject call = calls.get(randomness.nextInt(calls.size()));
+					addCallFor(test, target, new ConcreteCall(target.getClassName(), call), position);
+				}
+			}
+		}	
+	}
+	
+	private ConcreteCall getConcreteCall(AccessibleObject o) {
+		if(o instanceof Method) {
+			return new ConcreteCall(((Method)o).getDeclaringClass().getName(), o);
+		} else if(o instanceof Field) {
+			return new ConcreteCall(((Field)o).getDeclaringClass().getName(), o);
+		} else if(o instanceof Constructor<?>) {
+			return new ConcreteCall(((Constructor<?>)o).getDeclaringClass().getName(), o);			
+		} else
+			return null;
+	}
+	
 	/**
 	 * Insert a random statement at a random position in the test
 	 * @param test
@@ -173,32 +248,57 @@ public class OUMTestFactory extends AbstractTestFactory {
 			if(vars.isEmpty() || randomness.nextDouble() > object_reuse_probability) { // or certain probability - reuse probability?
 				// Generate new
 				logger.debug("Creating new UUT object");
-				AccessibleObject generator = usage_model.getGenerator(Properties.TARGET_CLASS);
+				ConcreteCall generator = null;
+				if(randomness.nextDouble() <= USAGE_RATE)
+					generator = usage_model.getGenerator(Properties.TARGET_CLASS, Properties.getTargetClass());
+				else {
+					AccessibleObject o;
+					try {
+						o = test_cluster.getRandomGenerator(Properties.getTargetClass());
+//						generator = new ConcreteCall(Properties.TARGET_CLASS, o);
+						generator = getConcreteCall(o);
+					} catch (ConstructionFailedException e) {
+						return;
+					}
+				}
+
 				logger.debug("Chosen generator: "+generator);
 				try {
-					if(generator instanceof Method) {
-						addMethod(test, (Method)generator, position, 0);
-					} else if(generator instanceof Constructor<?>) {
-						addConstructor(test, (Constructor<?>)generator, position, 0);
-					} else if(generator instanceof Field) {
-						addField(test, (Field)generator, position);
+					if(generator == null) {
+						logger.debug("Construction failed - found no generator");
+					}
+					else if(generator.isMethod()) {
+						addMethod(test, generator, position, 0);
+					} else if(generator.isConstructor()) {
+						addConstructor(test, generator, position, 0);
+					} else if(generator.isField()) {
+						addField(test, generator, position, 0);
 					} else {
 						logger.error("Encountered unknown type "+generator);
 					}
 				} catch (ConstructionFailedException e) {
-					logger.info("Construction failed: "+generator);
+					logger.debug("Construction failed: "+generator);
 				}
 			} else {
 				VariableReference target = randomness.choice(vars);
-				logger.debug("Chosen existing object: "+target);
-				AccessibleObject last_call = getLastUse(test, position, target);
-				logger.debug("Last call: "+last_call);
-				logger.info("Getting next call for target object of class: "+target.getClassName());
-				AccessibleObject next_call = getNextUse(test, position, target);
-				logger.debug("Next call: "+next_call);
-				AccessibleObject inserted_call = usage_model.getNextMethod(target.getClassName(), last_call);
-				logger.debug("Inserted call: "+inserted_call);
-				addCallFor(test, target, inserted_call, position);
+				if(randomness.nextDouble() <+ USAGE_RATE) {
+					logger.debug("Chosen existing object: "+target);
+					ConcreteCall last_call = getLastUse(test, position, target);
+					logger.debug("Last call: "+last_call);
+					logger.debug("Getting next call for target object of class: "+target.getClassName());
+					ConcreteCall next_call = getNextUse(test, position, target);
+					logger.debug("Next call: "+next_call);
+					ConcreteCall inserted_call = usage_model.getNextMethod(target.getClassName(), last_call);
+					logger.debug("Inserted call: "+inserted_call);
+					addCallFor(test, target, inserted_call, position);
+				} else {
+					List<AccessibleObject> calls = test_cluster.getCallsFor(target.getVariableClass());
+					//List<Method> calls = getMethods(object.getVariableClass());
+					if(!calls.isEmpty()) {
+						AccessibleObject call = calls.get(randomness.nextInt(calls.size()));
+						addCallFor(test, target, new ConcreteCall(target.getClassName(), call), position);
+					}
+				}
 			}
 
 		} 
@@ -228,26 +328,37 @@ public class OUMTestFactory extends AbstractTestFactory {
 					} catch (ConstructionFailedException e) {
 					}
 				} else {
-					logger.debug("Selected "+object);
-					if(!usage_model.hasClass(object.getClassName())) {
-						logger.debug("Have no usage information about "+object.getClassName());
-						return;
-					}
-					AccessibleObject last_call = getLastUse(test, position, object);
-					logger.debug("Last call: "+last_call);
-					/*
+					
+					if(randomness.nextDouble() <= USAGE_RATE) {
+
+						logger.debug("Selected "+object);
+						if(!usage_model.hasClass(object.getClassName())) {
+							logger.debug("Have no usage information about "+object.getClassName());
+							return;
+						}
+						ConcreteCall last_call = getLastUse(test, position, object);
+						logger.debug("Last call: "+last_call);
+						/*
 					  if(last_call == null) {
-					 
+
 						logger.warn("Impossible - no previous call for object at position "+position+" found: "+object.getName() +" in "+test.toCode());
 						return;
 					}
-				*/
-					logger.info("Getting next call for object of type "+object.getClassName()+", last call: "+last_call);
-					AccessibleObject next_call = usage_model.getNextMethod(object.getClassName(), last_call);
-					logger.debug("Next call: "+next_call);
-					
-					if(next_call != null) {
-						addCallFor(test, object, next_call, position);
+						 */
+						logger.debug("Getting next call for object of type "+object.getClassName()+", last call: "+last_call);
+						ConcreteCall next_call = usage_model.getNextMethod(object.getClassName(), last_call);
+						logger.debug("Next call: "+next_call);
+
+						if(next_call != null) {
+							addCallFor(test, object, next_call, position);
+						}
+					} else {
+						List<AccessibleObject> calls = test_cluster.getCallsFor(object.getVariableClass());
+						//List<Method> calls = getMethods(object.getVariableClass());
+						if(!calls.isEmpty()) {
+							AccessibleObject call = calls.get(randomness.nextInt(calls.size()));
+							addCallFor(test, object, new ConcreteCall(object.getClassName(), call), position);
+						}
 					}
 				}
 			}	
@@ -295,17 +406,17 @@ public class OUMTestFactory extends AbstractTestFactory {
 		current_recursion.clear();
 
 		if(statement instanceof ConstructorStatement) {
-			addConstructor(test, ((ConstructorStatement) statement).getConstructor(), test.size(), 0);
+			addConstructor(test, new ConcreteCall(statement.getReturnValue().getClassName(), ((ConstructorStatement) statement).getConstructor()), test.size(), 0);
 		}
 		else if(statement instanceof MethodStatement) {
-			addMethod(test, ((MethodStatement) statement).getMethod(), test.size(), 0);
+			addMethod(test, new ConcreteCall(((MethodStatement) statement).getMethod().getDeclaringClass().getName(), ((MethodStatement) statement).getMethod()), test.size(), 0);
 		}
 		else if(statement instanceof PrimitiveStatement<?>) {
 			addPrimitive(test, (PrimitiveStatement<?>)statement, test.size());
 			//				test.statements.add((PrimitiveStatement) statement);
 		}
 		else if(statement instanceof FieldStatement) {
-			addField(test, ((FieldStatement) statement).getField(), test.size());
+			addField(test, new ConcreteCall(((FieldStatement) statement).getField().getDeclaringClass().getName(), ((FieldStatement) statement).getField()), test.size(), 0);
 		}
 	}
 	
@@ -379,23 +490,6 @@ public class OUMTestFactory extends AbstractTestFactory {
 		deleteStatement(test, position);
 	}
 	
-	public VariableReference addCall(TestCase test, AccessibleObject call, int position, int recursion_depth) throws ConstructionFailedException {
-		if( call == null) {
-			throw new ConstructionFailedException();
-		} else if(call instanceof Field) {
-			VariableReference ret = addField(test, (Field)call, position);
-			return ret.clone();
-		} else if(call instanceof Method) {
-			VariableReference ret = addMethod(test, (Method)call, position, recursion_depth + 1);
-			return ret.clone();
-		} else if(call instanceof Constructor<?>) {
-			VariableReference ret = addConstructor(test, (Constructor<?>)call, position, recursion_depth + 1);
-			return ret.clone();
-		} else {
-			throw new ConstructionFailedException();
-		}
-	}
-	
 	/**
 	 * Add constructor at given position if max recursion depth has not been reached
 	 * @param constructor
@@ -404,19 +498,19 @@ public class OUMTestFactory extends AbstractTestFactory {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
-	public VariableReference addConstructor(TestCase test, Constructor<?> constructor, int position, int recursion_depth) throws ConstructionFailedException {
+	public VariableReference addConstructor(TestCase test, ConcreteCall constructor, int position, int recursion_depth) throws ConstructionFailedException {
 		if(recursion_depth > MAX_RECURSION) {
 			logger.debug("Max recursion depth reached");
 			throw new ConstructionFailedException();
 		}
-		logger.debug("Adding constructor "+constructor.toGenericString());
+		logger.debug("Adding constructor "+constructor);
 
 		int length = test.size();
-		List<VariableReference> parameters = satisfyParameters(test, null, constructor.getDeclaringClass().getName(), constructor, getParameterTypes(constructor), position, recursion_depth);
+		List<VariableReference> parameters = satisfyParameters(test, null, constructor, getParameterTypes(constructor.getConstructor()), position, recursion_depth);
 		int new_length = test.size();
 		position += (new_length - length);
-		VariableReference ret_val = new VariableReference(constructor.getDeclaringClass(), position);
-		test.addStatement(new ConstructorStatement(constructor, ret_val, parameters), position);
+		VariableReference ret_val = new VariableReference(constructor.getCallClass(), position);
+		test.addStatement(new ConstructorStatement(constructor.getConstructor(), ret_val, parameters), position);
 		
 		return ret_val;
 	}
@@ -430,52 +524,58 @@ public class OUMTestFactory extends AbstractTestFactory {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
-	public VariableReference addMethod(TestCase test, Method method, int position, int recursion_depth) throws ConstructionFailedException {
+	public VariableReference addMethod(TestCase test, ConcreteCall method, int position, int recursion_depth) throws ConstructionFailedException {
 		//System.out.println("TG: Looking for callee of type "+method.getDeclaringClass());
 		if(recursion_depth > MAX_RECURSION) {
 			logger.debug("Max recursion depth reached");
 			throw new ConstructionFailedException();
 		}
-		logger.debug("Adding method "+method.toGenericString());
+		logger.debug("Adding method "+method);
 		int length = test.size();
 		VariableReference callee = null;
 		List<VariableReference> parameters = null;
-		String className = method.getDeclaringClass().getName();
+		String className = method.getClassName();
 		if(callee != null)
 			className = callee.getClassName();
 		
-		if(! Modifier.isStatic(method.getModifiers())) { // TODO: Consider reuse probability here?
+		if(! Modifier.isStatic(method.getMethod().getModifiers())) { // TODO: Consider reuse probability here?
 			try {
 				// TODO: Would casting be an option here?
-				callee = test.getRandomObject(method.getDeclaringClass(), position);
-				logger.debug("Found callee of type "+method.getDeclaringClass().getName());
+				callee = test.getRandomObject(method.getCallClass(), position);
+				logger.debug("Found callee of type "+callee.getClassName());
 			} catch(ConstructionFailedException e) {
-				logger.debug("No callee of type "+method.getDeclaringClass().getName()+" found");
+				logger.debug("No callee of type "+method.getClassName()+" found");
 				
 				// Check if we have usage information on how the callee is created: Check for information on parameter 0!
-				if(!usage_model.hasGenerators(className, method, 0)) {
+				if(!usage_model.hasGenerators(className, method, 0) || randomness.nextDouble() > USAGE_RATE) {
 					logger.debug("Generating callee without usage information");
-					callee = attemptGeneration(test, method.getDeclaringClass(), position, recursion_depth, true);
+					callee = attemptGeneration(test, method.getCallClass(), position, recursion_depth, true);
+					if(callee instanceof NullReference)
+						throw new ConstructionFailedException(); // Can't use null as callee, that's just silly
 				} else {
 					logger.debug("Generating callee with usage information");
-					callee = attemptGenerationUsage(test, className, method, 0, position, recursion_depth, true);
+					callee = attemptGenerationUsage(test, method, 0, position, recursion_depth, true);
+					if(!callee.isAssignableTo(method.getCallClass())) {
+						logger.debug("Got to look for return value");
+						callee = test.getRandomObject(method.getCallClass(), position);
+					}
 				}
 //				callee = attemptGeneration(test, method.getDeclaringClass(), position, recursion_depth, false);
 				position += test.size() - length;
 				length = test.size();
 			}
-			parameters = satisfyParameters(test, callee, callee.getClassName(), method, getParameterTypes(callee, method), position, recursion_depth);			
+			parameters = satisfyParameters(test, callee, method, getParameterTypes(callee, method.getMethod()), position, recursion_depth);			
 		} else {
-			parameters = satisfyParameters(test, callee, method.getDeclaringClass().getName(), method, getParameterTypes(callee, method), position, recursion_depth);			
+			parameters = satisfyParameters(test, callee, method, getParameterTypes(callee, method.getMethod()), position, recursion_depth);			
 		}
 
 		int new_length = test.size();
 		position += (new_length - length);
 
 		//VariableReference ret_val = new VariableReference(method.getGenericReturnType(), position);
-		VariableReference ret_val = getReturnVariable(method, callee, position);
+		VariableReference ret_val = getReturnVariable(method.getMethod(), callee, position);
 		
-		test.addStatement(new MethodStatement(method, callee, ret_val, parameters), position);
+		test.addStatement(new MethodStatement(method.getMethod(), callee, ret_val, parameters), position);
 		logger.debug("Success: Adding method "+method);
 
 		return ret_val;
@@ -506,36 +606,41 @@ public class OUMTestFactory extends AbstractTestFactory {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
-	private VariableReference addField(TestCase test, Field field, int position) throws ConstructionFailedException {
-		logger.debug("Adding field "+field.toGenericString());
+	private VariableReference addField(TestCase test, ConcreteCall field, int position, int recursion_depth) throws ConstructionFailedException {
+		logger.debug("Adding field "+field);
+		if(recursion_depth > MAX_RECURSION) {
+			logger.debug("Max recursion depth reached");
+			throw new ConstructionFailedException();
+		}
 
 		VariableReference callee = null;
 		int length = test.size();
 
-		if(!Modifier.isStatic(field.getModifiers())) {
+		if(!Modifier.isStatic(field.getField().getModifiers())) {
 			try {
-				callee = test.getRandomObject(field.getDeclaringClass(), position);
+				callee = test.getRandomObject(field.getCallClass(), position);
 			} catch(ConstructionFailedException e) {
-				logger.debug("No callee of type "+field.getDeclaringClass().getName()+" found");
-				callee = attemptGeneration(test, field.getDeclaringClass(), position, 0, false);
+				logger.debug("No callee of type "+field.getClassName()+" found");
+				// TODO: choose between factory! 
+				callee = attemptGeneration(test, field.getCallClass(), position, recursion_depth, false);
 				position += test.size() - length;
 				length = test.size();
 			}
 		}
-		VariableReference ret_val = new VariableReference(field.getGenericType(), position);
-		test.addStatement(new FieldStatement(field, callee, ret_val), position);
+		VariableReference ret_val = new VariableReference(field.getField().getGenericType(), position);
+		test.addStatement(new FieldStatement(field.getField(), callee, ret_val), position);
 		
 		return ret_val;
 	}
 	
-	private AccessibleObject getCall(TestCase test, VariableReference var) {
+	private ConcreteCall getCall(TestCase test, VariableReference var) {
 		Statement s = test.getStatement(var.statement);
 		if(s instanceof MethodStatement) {
-			return ((MethodStatement)s).getMethod();
+			return new ConcreteCall(var.getClassName(), ((MethodStatement)s).getMethod());
 		} else if(s instanceof ConstructorStatement) {
-			return ((ConstructorStatement)s).getConstructor();
+			return new ConcreteCall(var.getClassName(), ((ConstructorStatement)s).getConstructor());
 		} else if(s instanceof FieldStatement) {
-			return ((FieldStatement)s).getField();
+			return new ConcreteCall(var.getClassName(), ((FieldStatement)s).getField());
 		}
 		return null;
 	}
@@ -550,7 +655,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
-	private List<VariableReference> satisfyParameters(TestCase test, VariableReference callee, String className, AccessibleObject call, List<Type> parameter_types, int position, int recursion_depth) throws ConstructionFailedException {
+	private List<VariableReference> satisfyParameters(TestCase test, VariableReference callee, ConcreteCall call, List<Type> parameter_types, int position, int recursion_depth) throws ConstructionFailedException {
 		List<VariableReference> parameters = new ArrayList<VariableReference>();
 		logger.debug("Trying to satisfy "+parameter_types.size()+" parameters for call "+call);
 		int i = 0;
@@ -560,11 +665,11 @@ public class OUMTestFactory extends AbstractTestFactory {
 
 			// Collect all objects that satisfy the usage constraints
 			List<VariableReference> objects = new ArrayList<VariableReference>();
-			if(usage_model.hasGenerators(className, call, i+1)) {
+			if(randomness.nextDouble() <= USAGE_RATE && usage_model.hasGenerators(call.getClassName(), call, i+1)) {
 				logger.debug("Using information for parameter selection...");
 				for(VariableReference var : test.getObjects(parameter_type, position)) {
-					AccessibleObject generator = getCall(test, var);
-					if(usage_model.hasGenerator(className, call, i + 1, generator)) 
+					ConcreteCall generator = getCall(test, var);
+					if(usage_model.hasGenerator(call.getClassName(), call, i + 1, generator)) 
 						objects.add(var);
 				}
 			} else {
@@ -582,20 +687,17 @@ public class OUMTestFactory extends AbstractTestFactory {
 			} else {
 				logger.debug(" Parameter "+i+": Creating new object of type "+parameter_type);
 				VariableReference reference;
-				if(!usage_model.hasGenerators(className, call, i + 1)) {
-					logger.debug("Have no usage information for this parameter");
-					//logger.debug("Checking for "+className);
-					//logger.debug("Might be found for class: "+call);
-					if(!usage_model.hasClass(className))
-						logger.debug("Don't have ANY usage information for the class!");
-				} 
 				GenericClass clazz = new GenericClass(parameter_type);
 				if(clazz.isPrimitive() || clazz.isString() || clazz.isArray() || 
-						!usage_model.hasGenerators(className, call, i + 1)) {
-					reference = attemptGeneration(test, parameter_type, position, recursion_depth, true);
+						!usage_model.hasGenerators(call.getClassName(), call, i + 1)) {
+					logger.debug("Have no usage information for this parameter");
+					reference = attemptGeneration(test, parameter_type, position, recursion_depth + 1, true);
 				} else {
 					logger.debug("Have usage information for this parameter");
-					reference = attemptGenerationUsage(test, className, call, i + 1, position, recursion_depth, true);
+					if(randomness.nextDouble() <= USAGE_RATE)
+						reference = attemptGenerationUsage(test, call, i + 1, position, recursion_depth + 1, true);
+					else
+						reference = attemptGeneration(test, parameter_type, position, recursion_depth + 1, true);
 				}
 				parameters.add(reference);						
 			}
@@ -712,32 +814,40 @@ public class OUMTestFactory extends AbstractTestFactory {
 			test.addStatement(PrimitiveStatement.getRandomStatement(reference, type), position);
 			return reference.clone();
 		} else if(clazz.isArray()) {
-			return createArray(test, type, position, recursion_depth).clone();
+			return createArray(test, type, position, recursion_depth + 1).clone();
 
 		} else {
 			if(allow_null && randomness.nextDouble() <= null_probability) {
-				logger.info("Using Null!");
+				logger.debug("Using Null!");
 				return new NullReference(type);
 			}
 			
 			//logger.info("Current recursion list: "+current_recursion.size());
 //			AccessibleObject o = mapping.getRandomGenerator(type, (ClassConstraint)constraint);
-			AccessibleObject o = test_cluster.getRandomGenerator(type);
+			//AccessibleObject o = test_cluster.getRandomGenerator(type); // !Problem!!!
+			ConcreteCall o = null;
+			if(randomness.nextDouble() <= USAGE_RATE)
+				o = usage_model.getGenerator(clazz.getClassName(), clazz.getRawClass());
+			else {
+//				o = new ConcreteCall(clazz.getClassName(), test_cluster.getRandomGenerator(type));
+				o = getConcreteCall(test_cluster.getRandomGenerator(type));
+			}
 			if( o == null) {
+				logger.debug("No generators found for type "+type);
 				throw new ConstructionFailedException();
-			} else if(o instanceof Field) {
+			} else if(o.isField()) {
 				logger.debug("Attempting generating of "+type+" via field of type "+type);
-				VariableReference ret = addField(test, (Field)o, position);
+				VariableReference ret = addField(test, o, position, recursion_depth + 1);
 				logger.debug("Success in generating type "+type);
 				return ret.clone();
-			} else if(o instanceof Method) {
-				logger.debug("Attempting generating of "+type+" via method "+((Method)o).getName()+ " of type "+type);
-				VariableReference ret = addMethod(test, (Method)o, position, recursion_depth + 1);
+			} else if(o.isMethod()) {
+				logger.debug("Attempting generating of "+type+" via method "+o+ " of type "+type);
+				VariableReference ret = addMethod(test, o, position, recursion_depth + 1);
 				logger.debug("Success in generating type "+type);
 				return ret.clone();
-			} else if(o instanceof Constructor<?>) {
-				logger.debug("Attempting generating of "+type+" via constructor "+((Constructor<?>)o).getName()+ " of type "+type);
-				VariableReference ret = addConstructor(test, (Constructor<?>)o, position, recursion_depth + 1);
+			} else if(o.isConstructor()) {
+				logger.debug("Attempting generating of "+type+" via constructor "+o+ " of type "+type);
+				VariableReference ret = addConstructor(test, o, position, recursion_depth + 1);
 				logger.debug("Success in generating type "+type);
 				return ret.clone();
 			} else {
@@ -748,23 +858,24 @@ public class OUMTestFactory extends AbstractTestFactory {
 		// TODO: Sometimes we could use null 
 	}
 
-	private VariableReference attemptGenerationUsage(TestCase test, String className, AccessibleObject call, int parameter, int position, int recursion_depth, boolean allow_null) throws ConstructionFailedException {			
-		AccessibleObject o = usage_model.getGenerator(className, call, parameter);
+	private VariableReference attemptGenerationUsage(TestCase test, ConcreteCall call, int parameter, int position, int recursion_depth, boolean allow_null) throws ConstructionFailedException {			
+		ConcreteCall o = usage_model.getGenerator(call.getClassName(), call, parameter);
 		if( o == null) {
 			throw new ConstructionFailedException();
-		} else if(o instanceof Field) {
+		} else if(o.isField()) {
 			logger.debug("Attempting generating of via field "+o);
-			VariableReference ret = addField(test, (Field)o, position);
+			VariableReference ret = addField(test, o, position, recursion_depth + 1);
 			logger.debug("Success in generating type ");
 			return ret.clone();
-		} else if(o instanceof Method) {
-			logger.debug("Attempting generating via method "+((Method)o).getName());
-			VariableReference ret = addMethod(test, (Method)o, position, recursion_depth + 1);
+		} else if(o.isMethod()) {
+			logger.debug("Attempting generating via method "+o.getName());
+			VariableReference ret = addMethod(test, o, position, recursion_depth + 1);
 			logger.debug("Success in generating");
+			logger.debug(test.toCode());
 			return ret.clone();
-		} else if(o instanceof Constructor<?>) {
-			logger.debug("Attempting generating via constructor "+((Constructor<?>)o).getName());
-			VariableReference ret = addConstructor(test, (Constructor<?>)o, position, recursion_depth + 1);
+		} else if(o.isConstructor()) {
+			logger.debug("Attempting generating via constructor "+o.getName());
+			VariableReference ret = addConstructor(test, o, position, recursion_depth + 1);
 			logger.debug("Success in generating type ");
 			return ret.clone();
 		} else {
@@ -779,12 +890,12 @@ public class OUMTestFactory extends AbstractTestFactory {
 	 * @param call
 	 * @param position
 	 */
-	private void addCallFor(TestCase test, VariableReference callee, AccessibleObject call, int position) {
+	private void addCallFor(TestCase test, VariableReference callee, ConcreteCall call, int position) {
 		int previous_length = test.size();
 		current_recursion.clear();
 		try {
-			if(call instanceof Method) {
-				addMethodFor(test, callee, (Method)call, position);
+			if(call.isMethod()) {
+				addMethodFor(test, callee, call, position);
 			} 
 		} catch(ConstructionFailedException e) {
 			// TODO: Check this!
@@ -798,45 +909,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 		}
 	}
 	
-	/**
-	 * Insert a random call at given position
-	 * @param test
-	 * @param position
-	 */
-	private void insertRandomCall(TestCase test, int position) {
-		int previous_length = test.size();
-		String name = "";
-		current_recursion.clear();
-		try { 
-//			AccessibleObject o = mapping.getRandomCall();
-			AccessibleObject o = test_cluster.getRandomTestCall();
-			if(o instanceof Constructor<?>) {
-				Constructor<?> c = (Constructor<?>)o;
-				logger.debug("Adding constructor call "+c.getName());
-				name = c.getName();
-				addConstructor(test, c, position, 0);
-			} else if (o instanceof Method) {
-				Method m = (Method)o;
-				logger.debug("Adding method call "+m.getName());
-				name = m.getName();
-				addMethod(test, m, position, 0);
-			} else {
-				logger.error("Got type other than method or constructor!");
-			}
-		} catch(ConstructionFailedException e) {
-			// TODO: Check this!
-			logger.debug("Inserting statement "+name+" has failed. Removing statements");
-			//System.out.println("TG: Failed");			
-			// TODO: Doesn't work if position != test.size()
-			while(test.size() != previous_length) {
-				logger.debug("  Removing statement: "+test.getStatement(position).getCode());
-				test.remove(position);
-			}
-			
-			//logger.info("Attempting search");
-			//test.chop(previous_length);
-		}
-	}
+	
 	
 	/**
 	 * Replace the statement with a new statement using given call
@@ -921,16 +994,16 @@ public class OUMTestFactory extends AbstractTestFactory {
 		return descriptor_replacement.getParameterTypes(constructor);
 	}
 	
-	public VariableReference addConstructorWith(TestCase test, VariableReference parameter, Constructor<?> constructor, int position) throws ConstructionFailedException {
+	public VariableReference addConstructorWith(TestCase test, VariableReference parameter, ConcreteCall constructor, int position) throws ConstructionFailedException {
 
-		logger.debug("Adding constructor "+constructor.toGenericString());
+		logger.debug("Adding constructor "+constructor);
 
 		int length = test.size();
-		List<VariableReference> parameters = satisfyParameters(test, null, constructor.getDeclaringClass().getName(), constructor, getParameterTypes(constructor), position, 0);
+		List<VariableReference> parameters = satisfyParameters(test, null, constructor, getParameterTypes(constructor.getConstructor()), position, 0);
 		// Force one parameter to be "parameter"
 		if(!parameters.contains(parameter)) {
 			int num = 0;
-			for(Type type: constructor.getGenericParameterTypes()) {
+			for(Type type: constructor.getConstructor().getGenericParameterTypes()) {
 				if(parameter.isAssignableTo(type)) {
 					parameters.set(num, parameter);
 					break;
@@ -940,21 +1013,21 @@ public class OUMTestFactory extends AbstractTestFactory {
 		}
 		int new_length = test.size();
 		position += (new_length - length);
-		VariableReference ret_val = new VariableReference(constructor.getDeclaringClass(), position);
-		test.addStatement(new ConstructorStatement(constructor, ret_val, parameters), position);
+		VariableReference ret_val = new VariableReference(constructor.getCallClass(), position);
+		test.addStatement(new ConstructorStatement(constructor.getConstructor(), ret_val, parameters), position);
 		
 		return ret_val;
 	}
 	
-	public VariableReference addMethodFor(TestCase test, VariableReference callee, Method method, int position) throws ConstructionFailedException {
-		logger.debug("Adding method "+method.toGenericString());
+	public VariableReference addMethodFor(TestCase test, VariableReference callee, ConcreteCall method, int position) throws ConstructionFailedException {
+		logger.debug("Adding method "+method);
 		int length = test.size();
 		List<VariableReference> parameters = null;
-		parameters = satisfyParameters(test, callee, callee.getClassName(), method, getParameterTypes(callee, method), position, 0);
+		parameters = satisfyParameters(test, callee, method, getParameterTypes(callee, method.getMethod()), position, 0);
 		int new_length = test.size();
 		position += (new_length - length);
-		VariableReference ret_val = getReturnVariable(method, callee, position);
-		test.addStatement(new MethodStatement(method, callee, ret_val, parameters), position);
+		VariableReference ret_val = getReturnVariable(method.getMethod(), callee, position);
+		test.addStatement(new MethodStatement(method.getMethod(), callee, ret_val, parameters), position);
 		
 		logger.debug("Success: Adding method "+method);
 		return ret_val;

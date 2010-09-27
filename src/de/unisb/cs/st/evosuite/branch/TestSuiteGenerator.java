@@ -3,9 +3,14 @@
  */
 package de.unisb.cs.st.evosuite.branch;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
@@ -17,6 +22,7 @@ import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.mutation.MutationStatistics;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
+import de.unisb.cs.st.evosuite.testcase.MaxLengthStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.MaxTestsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
@@ -88,10 +94,6 @@ public class TestSuiteGenerator {
 		ExecutionTrace.trace_calls = true;
 
 		int max_s = GAProperties.generations;
-		if(Properties.getProperty("dynamic_limit") != null) {
-			logger.info("Setting dynamic length limit");
-			max_s = GAProperties.generations * getBranches().size();
-		}
 		
 		for(int current_experiment = 0; current_experiment < num_experiments; current_experiment++) {
 			// Reset everything
@@ -101,15 +103,23 @@ public class TestSuiteGenerator {
 			TestSuiteChromosome suite = new TestSuiteChromosome();
 			FitnessFunction suite_fitness = new de.unisb.cs.st.evosuite.testsuite.BranchCoverageFitnessFunction();
 			List<BranchCoverageGoal> goals = getBranches(); 
-			Randomness.getInstance().shuffle(goals);
+			//Randomness.getInstance().shuffle(goals); // FIXXME - uncomment this line !!!!!!!
 			int total_goals = goals.size(); 
 			int covered_goals = 0;
 			int current_statements = 0;
-			
+
+			if(Properties.getProperty("dynamic_limit") != null) {
+				//max_s = GAProperties.generations * getBranches().size();
+				max_s = GAProperties.generations * (CFGMethodAdapter.branchless_methods.size() + CFGMethodAdapter.branch_map.size() * 2);
+				logger.info("Setting dynamic length limit to "+max_s);
+			}
+
 			logger.info("Experiment "+current_experiment+"/"+num_experiments);
 			statistics.searchStarted(suite_fitness);
 
 			Set<Integer> covered = new HashSet<Integer>();
+			
+			Map<Integer, Integer> branch_difficulty = new HashMap<Integer, Integer>();
 			
 			while(current_statements < max_s&& covered_goals < total_goals) {
 				int budget = (max_s - current_statements) / (total_goals - covered_goals);
@@ -125,6 +135,9 @@ public class TestSuiteGenerator {
 						num++;
 						continue;
 					}
+					
+					if(!branch_difficulty.containsKey(num))
+						branch_difficulty.put(num, 0);
 					
 					ga.resetStoppingConditions();
 					ga.clearPopulation();
@@ -168,6 +181,7 @@ public class TestSuiteGenerator {
 					} else {
 						logger.info("Found no solution");				
 					}
+					branch_difficulty.put(num, branch_difficulty.get(num) + max_statements.getNumExecutedStatements());
 					suite_fitness.getFitness(suite);
 					List<Chromosome> population = new ArrayList<Chromosome>();
 					population.add(suite);
@@ -204,8 +218,106 @@ public class TestSuiteGenerator {
 			statistics.iteration(population);
 			statistics.minimized(suite);			
 			resetStoppingConditions();
+			
+			for(int num = 0; num < goals.size(); num++) {
+				if(branch_difficulty.get(num) > 50000) {
+					try {
+						FileWriter writer = new FileWriter(Properties.OUTPUT_DIR+"/"+Properties.TARGET_CLASS+"_branchstats.csv", true);
+						BufferedWriter w = new BufferedWriter(writer);
+						w.write(Randomness.getInstance().getSeed()+","+Properties.TARGET_CLASS+","+covered.contains(num)+","+branch_difficulty.get(num)+"\n");
+						w.close();
+					} catch(IOException e) {
+
+					}
+				}
+				num++;
+			}
 		}
 		statistics.writeReport();
+		
+	}
+	
+	/**
+	 * Experiment 1: 
+	 * Generate test suite x times
+	 */
+	public void experiment2() {
+		// Set up search algorithm
+		System.out.println("Setting up genetic algorithm for experiment 2");
+		SearchStatistics statistics = SearchStatistics.getInstance();
+		ExecutionTrace.trace_calls = true;
+
+		int max_s = GAProperties.generations;
+		if(Properties.getProperty("dynamic_limit") != null) {
+			logger.info("Setting dynamic length limit");
+			max_s = GAProperties.generations * getBranches().size();
+		}
+		
+		final int NUM_GOAL = 3;
+		
+		for(int current_experiment = 0; current_experiment < num_experiments; current_experiment++) {
+			// Reset everything
+			Randomness.getInstance().setSeed(0);
+			
+			GeneticAlgorithm ga = getGeneticAlgorithm();
+			ga.addStoppingCondition(new MaxLengthStoppingCondition());
+			TestSuiteChromosome suite = new TestSuiteChromosome();
+			FitnessFunction suite_fitness = new de.unisb.cs.st.evosuite.testsuite.BranchCoverageFitnessFunction();
+			List<BranchCoverageGoal> goals = getBranches(); 
+			Randomness.getInstance().shuffle(goals);
+			int current_statements = 0;
+			
+			logger.info("Experiment "+current_experiment+"/"+num_experiments);
+			statistics.searchStarted(suite_fitness);
+
+//				max_statements.setMaxExecutedStatements(budget);
+			//int num_statements = 0; //MaxStatementsStoppingCondition.getNumExecutedStatements();
+			BranchCoverageGoal goal = goals.get(NUM_GOAL);
+					
+			System.out.println("Searching for goal number "+NUM_GOAL);
+			zero_fitness.reset();
+			FitnessFunction fitness_function = new BranchCoverageFitnessFunction(goal);
+			ga.setFitnessFunction(fitness_function);
+
+			// Perform search
+			logger.info("Starting evolution for goal "+goal);
+			ga.generateSolution();
+
+			if(ga.getBestIndividual().getFitness() == 0.0) {
+				logger.info("Found solution, adding to test suite");
+				suite.addTest((TestChromosome)ga.getBestIndividual());
+			} else {
+				logger.info("Found no solution");				
+			}
+			suite_fitness.getFitness(suite);
+			List<Chromosome> population = new ArrayList<Chromosome>();
+			population.add(suite);
+			statistics.iteration(population);
+			current_statements += max_statements.getNumExecutedStatements();
+			if(current_statements > max_s)
+				break;
+			logger.info("Adding statements: "+max_statements.getNumExecutedStatements()+" -> "+current_statements+"/"+max_s);
+			max_statements.reset();
+
+			statistics.searchFinished(population);
+			logger.info("Resulting test suite: "+suite.size()+" tests, length "+suite.length());
+			// Generate a test suite chromosome once all test cases are done?
+			if(minimize) {
+				logger.info("Starting minimization");
+				TestSuiteMinimizer minimizer = new TestSuiteMinimizer();
+				minimizer.minimize(suite, suite_fitness);
+				logger.info("Finished minimization");
+			}
+			System.out.println("Resulting test suite has fitness "+suite.getFitness());
+			System.out.println("Resulting test suite: "+suite.size()+" tests, length "+suite.length());
+			
+			// Log some stats
+			
+			statistics.iteration(population);
+			//statistics.minimized(suite);			
+			resetStoppingConditions();
+		}
+		//statistics.writeReport();
 		
 	}
 	
@@ -484,17 +596,23 @@ public class TestSuiteGenerator {
 		TestSuiteGenerator generator = new TestSuiteGenerator();
 		String experiment = System.getProperty("experiment");
 		if(experiment != null && !experiment.equals("none") && !experiment.equals("")) {
+			System.out.println("Experiment: "+experiment);
 			int num = Integer.parseInt(experiment);
 			switch(num) {
 			case 1:
 				generator.num_experiments = Properties.getPropertyOrDefault("num_experiments", 10);
 				generator.experiment1();
 				break;
+			case 2:
+				generator.num_experiments = Properties.getPropertyOrDefault("num_experiments", 10);
+				generator.experiment2();
+				break;
 			default:
 				generator.generateTestSuite();
 					
 			}
 		} else {
+			System.out.println("Regular generation");
 			generator.generateTestSuite();
 		}
 	}

@@ -22,16 +22,16 @@ public class MethodUsage {
 	
 	private static Logger logger = Logger.getLogger(MethodUsage.class);
 	
-	private AccessibleObject call; 
+	private ConcreteCall call; 
 	
 	private class ParameterUsage {
 		//List<ParameterInstance> instances;
 		
-		Map<AccessibleObject, Integer> usage = new HashMap<AccessibleObject, Integer>();
+		Map<ConcreteCall, Integer> usage = new HashMap<ConcreteCall, Integer>();
 		
 		int total = 0;
 		
-		public void add(AccessibleObject call) {
+		public void add(ConcreteCall call) {
 			if(!usage.containsKey(call))
 				usage.put(call, 1);
 			else
@@ -40,12 +40,12 @@ public class MethodUsage {
 			total++;
 		}
 		
-		public AccessibleObject getNextGenerator() {
+		public ConcreteCall getNextGenerator() {
 			int index = Randomness.getInstance().nextInt(total);
-			Iterator<Entry<AccessibleObject, Integer>> i = usage.entrySet().iterator();
+			Iterator<Entry<ConcreteCall, Integer>> i = usage.entrySet().iterator();
 
 	        while (i.hasNext()) {
-	        	Entry<AccessibleObject, Integer> link = i.next();
+	        	Entry<ConcreteCall, Integer> link = i.next();
 	            int count = link.getValue();
 
 	            if (index < count) {
@@ -58,13 +58,13 @@ public class MethodUsage {
 	        return null;
 		}
 		
-		public boolean hasGenerator(AccessibleObject generator) {
+		public boolean hasGenerator(ConcreteCall generator) {
 			return usage.containsKey(generator);
 		}
 		
 		public String toString() {
 			StringBuffer sb = new StringBuffer();
-			for(AccessibleObject o : usage.keySet()) {
+			for(ConcreteCall o : usage.keySet()) {
 				sb.append("      ");
 				sb.append(o);
 				sb.append(": ");
@@ -77,11 +77,11 @@ public class MethodUsage {
 	
 	private Map<Integer, ParameterUsage> parameter_usage = new HashMap<Integer, ParameterUsage>();
 	
-	public MethodUsage(AccessibleObject call) {
+	public MethodUsage(ConcreteCall call) {
 		this.call = call;
 	}
 	
-	public void addUsage(int parameter, AccessibleObject call) {
+	public void addUsage(int parameter, ConcreteCall call) {
 		if(!parameter_usage.containsKey(parameter))
 			parameter_usage.put(parameter, new ParameterUsage());
 		
@@ -93,7 +93,7 @@ public class MethodUsage {
 		return parameter_usage.containsKey(parameter);
 	}
 	
-	public boolean hasUsage(int parameter, AccessibleObject generator) {
+	public boolean hasUsage(int parameter, ConcreteCall generator) {
 		if(parameter_usage.containsKey(parameter)) {
 			return parameter_usage.get(parameter).hasGenerator(generator);
 		}
@@ -101,7 +101,7 @@ public class MethodUsage {
 		return false;
 	}
 	
-	public AccessibleObject getNextGenerator(int parameter) {
+	public ConcreteCall getNextGenerator(int parameter) {
 		return parameter_usage.get(parameter).getNextGenerator();
 	}
 	

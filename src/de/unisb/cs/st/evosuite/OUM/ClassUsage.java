@@ -21,6 +21,7 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,14 +43,14 @@ public class ClassUsage {
 	private String class_name;
 	
 	/** Common usage of method sequences */
-	DefaultDirectedWeightedGraph<AccessibleObject,DefaultWeightedEdge> usage_model 
-		= new DefaultDirectedWeightedGraph<AccessibleObject,DefaultWeightedEdge>(DefaultWeightedEdge.class);
+	DefaultDirectedWeightedGraph<ConcreteCall,DefaultWeightedEdge> usage_model 
+		= new DefaultDirectedWeightedGraph<ConcreteCall,DefaultWeightedEdge>(DefaultWeightedEdge.class);
 
 	/** Link method parameters to methods of other classes */
-	Map<AccessibleObject, MethodUsage> method_model = new HashMap<AccessibleObject, MethodUsage>();
+	Map<ConcreteCall, MethodUsage> method_model = new HashMap<ConcreteCall, MethodUsage>();
 
 	/** How is this class generated? */
-	Map<AccessibleObject, Integer> generators = new HashMap<AccessibleObject, Integer>();
+	Map<ConcreteCall, Integer> generators = new HashMap<ConcreteCall, Integer>();
 	
 	int total_generators = 0;
 	
@@ -57,44 +58,34 @@ public class ClassUsage {
 		return usage_model.vertexSet().size();
 	}
 	
-	public Set<AccessibleObject> getMethods() {
+	public Set<ConcreteCall> getMethods() {
 		return usage_model.vertexSet();
 	}
 	
-	private static String getName(AccessibleObject o) {
-		if(o instanceof java.lang.reflect.Method) {
-			java.lang.reflect.Method method = (java.lang.reflect.Method)o;
-			return method.getName() + org.objectweb.asm.Type.getMethodDescriptor(method);
-		} else if(o instanceof java.lang.reflect.Constructor<?>) {
-			java.lang.reflect.Constructor<?> constructor = (java.lang.reflect.Constructor<?>)o;
-			return "<init>" + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
-		} else if(o instanceof java.lang.reflect.Field) {
-			java.lang.reflect.Field field = (Field)o;
-			return field.getName();
-		}
-		return ""; // TODO
+	public Class<?> getUsedClass() {
+		return clazz;
 	}
 	
-	public AccessibleObject getNextCall(AccessibleObject last) {
+	public ConcreteCall getNextCall(ConcreteCall last) {
 		
 		if(last == null) {
 			return Randomness.getInstance().choice(usage_model.vertexSet());
 		}
 		
 		if(!usage_model.containsVertex(last)) {
-			for(AccessibleObject call : usage_model.vertexSet()) {
-				if(getName(call).equals(getName(last))) {
+			for(ConcreteCall call : usage_model.vertexSet()) {
+				if(call.getName().equals(last.getName())) {
 					logger.info("Found replacement call with same name: "+call);
 					last = call;
 					break;
 				}
 			}
 			if(!usage_model.containsVertex(last)) {
-				logger.error("Error: Class model for class "+class_name+" does not contain vertex for "+last);
-				logger.info("We have the following vertices:");
-				for(AccessibleObject o : usage_model.vertexSet()) {
-					logger.info(o);
-				}
+				logger.error("Error: Class model for class "+class_name+" does not contain vertex for last call "+last);
+				//logger.info("We have the following vertices:");
+				//for(AccessibleObject o : usage_model.vertexSet()) {
+				//	logger.info(o);
+				//}
 				return Randomness.getInstance().choice(usage_model.vertexSet());
 			}
 		}
@@ -136,8 +127,12 @@ public class ClassUsage {
 		return false;
 	}
 	*/
-	
-	public AccessibleObject getGenerator() {
+
+	public boolean hasGenerators() {
+		return total_generators > 0;
+	}
+
+	public ConcreteCall getGenerator() {
 		
 		/*
 		List<AccessibleObject> generators = new ArrayList<AccessibleObject>();
@@ -152,11 +147,33 @@ public class ClassUsage {
 		else
 			return Randomness.getInstance().choice(generators);
 			*/
-		int index = Randomness.getInstance().nextInt(total_generators);
-		Iterator<Entry<AccessibleObject, Integer>> i = generators.entrySet().iterator();
+		int index = 0;
+		if(total_generators > 1)
+			index = Randomness.getInstance().nextInt(total_generators);
+		else if(total_generators == 0) {
+			/*
+			try {
+				Constructor<?> c = clazz.getConstructor(new Class<?>[]{});
+				if(c != null) {
+					generators.put(c, 1);
+					usage_model.addVertex(c);
+				}
+				return c;
+			} catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+			}
+			*/
+			return null;
+		}
+		
+		Iterator<Entry<ConcreteCall, Integer>> i = generators.entrySet().iterator();
 
         while (i.hasNext()) {
-        	Entry<AccessibleObject, Integer> link = i.next();
+        	Entry<ConcreteCall, Integer> link = i.next();
             int count = link.getValue();
 
             if (index < count) {
@@ -169,14 +186,18 @@ public class ClassUsage {
         return null;
 	}
 	
-	public void addCall(AccessibleObject call) {
+	public void addCall(ConcreteCall call) {
+		if(call.isPrivate())
+			return;
 		if(!usage_model.containsVertex(call)) {
 			//logger.info("Adding new method vertex "+call1);
 			usage_model.addVertex(call);
 		}		
 	}
 	
-	public void addGenerator(AccessibleObject call) {
+	public void addGenerator(ConcreteCall call) {
+		if(call.isPrivate())
+			return;
 		/*
 		if(!usage_model.containsVertex(call)) {
 			//logger.info("Adding new method vertex "+call1);
@@ -188,10 +209,19 @@ public class ClassUsage {
 		else
 			generators.put(call, generators.get(call) + 1);
 
+		if(call.getClassName().equals(class_name)) {
+			if(!usage_model.containsVertex(call)) {
+				//logger.info("Adding new method vertex "+call1);
+				usage_model.addVertex(call);
+			}			
+		}
+		
 		total_generators++;
 	}
 	
-	public void addTransition(AccessibleObject call1, AccessibleObject call2) {
+	public void addTransition(ConcreteCall call1, ConcreteCall call2) {
+		if(call1.isPrivate() || call2.isPrivate())
+			return;
 
 		if(usage_model.containsEdge(call1, call2)) {
 			DefaultWeightedEdge edge = usage_model.getEdge(call1, call2);
@@ -217,7 +247,11 @@ public class ClassUsage {
 		this.class_name = clazz.getName();
 	}
 	
-	public void addParameterUsage(AccessibleObject call, int parameter, AccessibleObject source) {
+	public void addParameterUsage(ConcreteCall call, int parameter, ConcreteCall source) {
+		if(call.isPrivate())
+			return;
+		if(source.isPrivate())
+			return;
 		if(!method_model.containsKey(call))
 			method_model.put(call, new MethodUsage(call));
 		
@@ -225,18 +259,18 @@ public class ClassUsage {
 		usage.addUsage(parameter, source);
 	}
 	
-	public AccessibleObject getParameterUsage(AccessibleObject call, int parameter) {
+	public ConcreteCall getParameterUsage(ConcreteCall call, int parameter) {
 		return method_model.get(call).getNextGenerator(parameter);
 	}
 	
-	public boolean hasParameterUsage(AccessibleObject call, int parameter) {
+	public boolean hasParameterUsage(ConcreteCall call, int parameter) {
 		if(!method_model.containsKey(call))
 			return false;
 		
 		return method_model.get(call).hasUsage(parameter);
 	}
 	
-	public boolean hasParameterUsage(AccessibleObject call, int parameter, AccessibleObject generator) {
+	public boolean hasParameterUsage(ConcreteCall call, int parameter, ConcreteCall generator) {
 		if(!hasParameterUsage(call, parameter))
 			return false;
 		
@@ -250,24 +284,14 @@ public class ClassUsage {
 		}
 	};
 	
-	private class AOStringNameProvider implements VertexNameProvider<AccessibleObject> {
+	private class AOStringNameProvider implements VertexNameProvider<ConcreteCall> {
 
 		/* (non-Javadoc)
 		 * @see org.jgrapht.ext.VertexNameProvider#getVertexName(java.lang.Object)
 		 */
 		@Override
-		public String getVertexName(AccessibleObject o) {
-			if(o instanceof java.lang.reflect.Method) {
-				java.lang.reflect.Method method = (java.lang.reflect.Method)o;
-				return method.getName() + org.objectweb.asm.Type.getMethodDescriptor(method);
-			} else if(o instanceof java.lang.reflect.Constructor<?>) {
-				java.lang.reflect.Constructor<?> constructor = (java.lang.reflect.Constructor<?>)o;
-				return "<init>" + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
-			} else if(o instanceof java.lang.reflect.Field) {
-				java.lang.reflect.Field field = (Field)o;
-				return field.getName();
-			}
-			return null;
+		public String getVertexName(ConcreteCall o) {
+			return o.getName();
 		}
 		
 	};
@@ -280,7 +304,7 @@ public class ClassUsage {
 			//	DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>();
 			//DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>(new IntegerNameProvider(), nameprovider, new IntegerEdgeNameProvider());
 			//			DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>(new LineNumberProvider(), new LineNumberProvider(), new IntegerEdgeNameProvider());
-			DOTExporter<AccessibleObject, DefaultWeightedEdge> exporter = new DOTExporter<AccessibleObject, DefaultWeightedEdge>(new IntegerNameProvider(), new AOStringNameProvider(), new WeightNameProvider());
+			DOTExporter<ConcreteCall, DefaultWeightedEdge> exporter = new DOTExporter<ConcreteCall, DefaultWeightedEdge>(new IntegerNameProvider(), new AOStringNameProvider(), new WeightNameProvider());
 			exporter.export(out, usage_model);
 			//exporter.export(out, g.getGraph());
 		} catch (IOException e) {
@@ -290,9 +314,9 @@ public class ClassUsage {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("  Usage model: \n");
-		for(AccessibleObject o : usage_model.vertexSet()) {
+		for(ConcreteCall o : usage_model.vertexSet()) {
 			for(DefaultWeightedEdge e : usage_model.outgoingEdgesOf(o)) {
-				AccessibleObject o2 = usage_model.getEdgeTarget(e);
+				ConcreteCall o2 = usage_model.getEdgeTarget(e);
 				sb.append("    "+o+" -> ");
 				sb.append(usage_model.getEdgeWeight(e));
 				sb.append(" -> ");

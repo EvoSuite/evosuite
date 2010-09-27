@@ -623,7 +623,7 @@ public class TestFactory extends AbstractTestFactory {
 	 * @param test
 	 * @param position
 	 */
-	private void insertRandomCall(TestCase test, int position) {
+	public void insertRandomCall(TestCase test, int position) {
 		int previous_length = test.size();
 		String name = "";
 		current_recursion.clear();

@@ -48,17 +48,20 @@ public class JUnitTestSuite {
 			covered_branches_false = new HashSet<String>();
 			
 			for(Entry<String, Integer> entry : trace.covered_methods.entrySet()) {
-				covered_methods.add(entry.getKey());
+				if(!entry.getKey().contains("$"))
+					covered_methods.add(entry.getKey());
 			}
 
 			for(Entry<String, Double> entry : trace.true_distances.entrySet()) {
 				if(entry.getValue() == 0.0)
-					covered_branches_true.add(entry.getKey());
+					if(!entry.getKey().contains("$"))
+						covered_branches_true.add(entry.getKey());
 			}
 			
 			for(Entry<String, Double> entry : trace.false_distances.entrySet()) {
 				if(entry.getValue() == 0.0)
-					covered_branches_false.add(entry.getKey());
+					if(!entry.getKey().contains("$"))
+						covered_branches_false.add(entry.getKey());
 			}
 
 
@@ -75,17 +78,20 @@ public class JUnitTestSuite {
 		for(TestCase test : chromosome.getTests()) {
 			ExecutionResult result = runTest(test);
 			for(Entry<String, Integer> entry : result.trace.covered_methods.entrySet()) {
-				covered_methods.add(entry.getKey());
+				//if(!entry.getKey().contains("$"))
+					covered_methods.add(entry.getKey());
 			}
 
 			for(Entry<String, Double> entry : result.trace.true_distances.entrySet()) {
 				if(entry.getValue() == 0.0)
-					covered_branches_true.add(entry.getKey());
+					//if(!entry.getKey().contains("$"))
+						covered_branches_true.add(entry.getKey());
 			}
 			
 			for(Entry<String, Double> entry : result.trace.false_distances.entrySet()) {
 				if(entry.getValue() == 0.0)
-					covered_branches_false.add(entry.getKey());
+					//if(!entry.getKey().contains("$"))
+						covered_branches_false.add(entry.getKey());
 			}
 		}
 	}
