@@ -15,9 +15,7 @@ import java.util.Set;
 import com.thoughtworks.xstream.XStream;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.OUM.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
-import de.unisb.cs.st.evosuite.testcase.TestCluster;
 
 /**
  * @author Gordon Fraser

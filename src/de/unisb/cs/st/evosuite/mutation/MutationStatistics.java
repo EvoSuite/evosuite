@@ -25,12 +25,12 @@ import com.panayotis.gnuplot.terminal.FileTerminal;
 import com.panayotis.gnuplot.terminal.GNUPlotTerminal;
 
 import de.unisb.cs.st.ds.util.io.Io;
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.ga.SearchListener;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
-import de.unisb.cs.st.ga.Chromosome;
-import de.unisb.cs.st.ga.FitnessFunction;
-import de.unisb.cs.st.ga.GAProperties;
-import de.unisb.cs.st.ga.SearchListener;
 import de.unisb.cs.st.javalanche.mutation.analyze.html.HtmlAnalyzer;
 import de.unisb.cs.st.javalanche.mutation.properties.MutationProperties;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
@@ -533,7 +533,7 @@ public class MutationStatistics implements SearchListener {
 		buffer.append("<h2>Search Parameters:</h2>\n");
 		buffer.append("<ul>\n");
 		buffer.append("<li>Algorithm: "+System.getProperty("GA.algorithm")+"\n"); // TODO
-		buffer.append("<li>Length: "+GAProperties.chromosome_length+"\n"); // TODO
+		buffer.append("<li>Length: "+Properties.CHROMOSOME_LENGTH+"\n"); // TODO
 		buffer.append("<li>Generations: "+System.getProperty("GA.generations")+"\n");
 		
 		buffer.append("<li>Elite: "+System.getProperty("GA.elite")+"\n");

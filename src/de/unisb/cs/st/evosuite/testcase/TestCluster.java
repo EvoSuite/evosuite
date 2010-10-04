@@ -1,3 +1,23 @@
+/*
+ * Copyright (C) 2010 Saarland University
+ * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser Public License
+ * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.io.File;
@@ -21,15 +41,18 @@ import org.apache.log4j.Logger;
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.ga.Randomness;
 import de.unisb.cs.st.evosuite.javaagent.StaticInitializationClassAdapter;
-import de.unisb.cs.st.ga.ConstructionFailedException;
-import de.unisb.cs.st.ga.Randomness;
 import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
 import de.unisb.cs.st.javalanche.coverage.distance.MethodDescription;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.Excludes;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
+ * The test cluster contains the information about all classes 
+ * and their members in the target package
+ * 
  * @author Gordon Fraser
  *
  */
@@ -593,15 +616,15 @@ public class TestCluster {
 		 }
 
 	    
-	    /*
 	    if(Modifier.isPublic(c.getModifiers()))
 	    	return true;
+	    /*
 
 	    if(Modifier.isProtected(c.getModifiers()))
 	    	return true;
 */
 	    
-	    return true;
+	    return false;
 	}
 
 	private static boolean canUse(Field f) {
@@ -615,17 +638,17 @@ public class TestCluster {
 	    if (f.getDeclaringClass().equals(java.lang.Thread.class))
 	    	return false;//handled here to avoid printing reasons
 
-	    /*
 		if(Modifier.isPublic(f.getModifiers()))
 	    	return true;
 
+	    /*
 		if(Modifier.isProtected(f.getModifiers()))
 	    	return true;
 	    	*/
-
+/*
 	    if(!(Modifier.isPrivate(f.getModifiers()))) // && !(Modifier.isProtected(f.getModifiers())))
 	    	return true;	    
-
+*/
 	    return false;
 	}
 
@@ -681,7 +704,11 @@ public class TestCluster {
 	    	return false;
 	    }
 
-	    return true;
+	    // If default or 
+	    if (Modifier.isPublic(m.getModifiers())) // || Modifier.isProtected(m.getModifiers()))
+	    	return true;
+
+	    return false;
 	  }
 
 	  private static String doNotUseSpecialCase(Method m) {

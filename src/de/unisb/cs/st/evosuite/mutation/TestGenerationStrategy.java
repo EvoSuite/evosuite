@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import de.unisb.cs.st.evosuite.testcase.FailedTestSet;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.javalanche.HOM.HOMSwitcher;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
@@ -53,11 +52,6 @@ public abstract class TestGenerationStrategy {
 	abstract public void generateTests();
 
 	abstract public void writeTestSuite(String filename, String directory);
-
-	public void writeFailedTests(String filename, String directory) {
-		FailedTestSet bugs = FailedTestSet.getInstance();
-		bugs.writeTestSuite(filename, directory);
-	}
 
 	abstract public List<TestCase> getFailedTests();
 	

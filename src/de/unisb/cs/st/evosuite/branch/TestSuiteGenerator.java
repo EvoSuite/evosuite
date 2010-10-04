@@ -4,6 +4,7 @@
 package de.unisb.cs.st.evosuite.branch;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,6 +20,25 @@ import org.apache.log4j.Logger;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
+import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
+import de.unisb.cs.st.evosuite.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
+import de.unisb.cs.st.evosuite.ga.MaxFitnessEvaluationsStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.MaxGenerationStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.MaxTimeStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.MuPlusLambdaGA;
+import de.unisb.cs.st.evosuite.ga.OnePlusOneEA;
+import de.unisb.cs.st.evosuite.ga.Randomness;
+import de.unisb.cs.st.evosuite.ga.RankSelection;
+import de.unisb.cs.st.evosuite.ga.SelectionFunction;
+import de.unisb.cs.st.evosuite.ga.SinglePointCrossOver;
+import de.unisb.cs.st.evosuite.ga.SinglePointFixedCrossOver;
+import de.unisb.cs.st.evosuite.ga.SinglePointRelativeCrossOver;
+import de.unisb.cs.st.evosuite.ga.StandardGA;
+import de.unisb.cs.st.evosuite.ga.SteadyStateGA;
+import de.unisb.cs.st.evosuite.ga.StoppingCondition;
+import de.unisb.cs.st.evosuite.ga.ZeroFitnessStoppingCondition;
 import de.unisb.cs.st.evosuite.mutation.MutationStatistics;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
@@ -30,26 +50,6 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
-import de.unisb.cs.st.ga.Chromosome;
-import de.unisb.cs.st.ga.ChromosomeFactory;
-import de.unisb.cs.st.ga.FitnessFunction;
-import de.unisb.cs.st.ga.GAProperties;
-import de.unisb.cs.st.ga.GeneticAlgorithm;
-import de.unisb.cs.st.ga.MaxFitnessEvaluationsStoppingCondition;
-import de.unisb.cs.st.ga.MaxGenerationStoppingCondition;
-import de.unisb.cs.st.ga.MaxTimeStoppingCondition;
-import de.unisb.cs.st.ga.MuPlusLambdaGA;
-import de.unisb.cs.st.ga.OnePlusOneEA;
-import de.unisb.cs.st.ga.Randomness;
-import de.unisb.cs.st.ga.RankSelection;
-import de.unisb.cs.st.ga.SelectionFunction;
-import de.unisb.cs.st.ga.SinglePointCrossOver;
-import de.unisb.cs.st.ga.SinglePointFixedCrossOver;
-import de.unisb.cs.st.ga.SinglePointRelativeCrossOver;
-import de.unisb.cs.st.ga.StandardGA;
-import de.unisb.cs.st.ga.SteadyStateGA;
-import de.unisb.cs.st.ga.StoppingCondition;
-import de.unisb.cs.st.ga.ZeroFitnessStoppingCondition;
 
 
 
@@ -71,17 +71,130 @@ public class TestSuiteGenerator {
 	private StoppingCondition zero_fitness = new ZeroFitnessStoppingCondition();
 	private int num_experiments = 0;
 
-	private final static boolean BEST_LENGTH = GAProperties.getPropertyOrDefault("check_best_length", true);  
+	private final static boolean BEST_LENGTH = Properties.getPropertyOrDefault("check_best_length", true);  
 
 	/**
 	 * Do the magic
 	 */
 	public void generateTestSuite() {
 		num_experiments = 1;
-		experiment1();
+		if(System.getProperty("branch") != null)
+			generateBranch();
+		else	
+			experiment1();
 	}
 	
 	
+	/**
+	 * Experiment 1: 
+	 * Generate test suite x times
+	 */
+	public void generateBranch() {
+		// Set up search algorithm
+		System.out.println("Setting up genetic algorithm");
+		SearchStatistics statistics = SearchStatistics.getInstance();
+		ExecutionTrace.trace_calls = true;
+
+		int max_s = Properties.GENERATIONS;
+		int num_goal = Properties.getPropertyOrDefault("branch", 0);
+		
+		for(int current_experiment = 0; current_experiment < num_experiments; current_experiment++) {
+			// Reset everything
+			Randomness.getInstance().setSeed(Randomness.getInstance().getSeed() + current_experiment);
+			
+			GeneticAlgorithm ga = getGeneticAlgorithm();
+			ga.addListener(new BloatListener(max_s));
+			TestSuiteChromosome suite = new TestSuiteChromosome();
+			FitnessFunction suite_fitness = new de.unisb.cs.st.evosuite.testsuite.BranchCoverageFitnessFunction();
+			List<BranchCoverageGoal> goals = getBranches();
+			BranchCoverageGoal goal = goals.get(num_goal);
+			//Randomness.getInstance().shuffle(goals); // FIXXME - uncomment this line !!!!!!!
+			int total_goals = goals.size(); 
+			int covered_goals = 0;
+			int current_statements = 0;
+			System.out.println("Searching for goal "+num_goal);
+			FitnessFunction fitness_function = new BranchCoverageFitnessFunction(goal);
+			ga.setFitnessFunction(fitness_function);
+
+			logger.info("Experiment "+current_experiment+"/"+num_experiments);
+			statistics.searchStarted(suite_fitness);
+
+			//int budget = (max_s - current_statements) / (total_goals - covered_goals);
+			//logger.info("Budget: "+budget+"/"+(max_s - current_statements));
+			//logger.info("Statements: "+current_statements+"/"+max_s);
+			//logger.info("Goals covered: "+covered_goals+"/"+total_goals);
+			//max_statements.setMaxExecutedStatements(budget);
+
+			ga.resetStoppingConditions();
+			ga.clearPopulation();
+			zero_fitness.reset();
+
+
+			// Perform search
+			logger.info("Starting evolution for goal "+goal);
+			ga.generateSolution();
+			
+			if(ga.getBestIndividual().getFitness() == 0.0) {
+				logger.info("Found solution");
+				suite.addTest((TestChromosome)ga.getBestIndividual());
+			} else {
+				logger.info("Found no solution");				
+			}
+			suite_fitness.getFitness(suite);
+			List<Chromosome> population = new ArrayList<Chromosome>();
+			population.add(suite);
+			statistics.iteration(population);
+			//current_statements += max_statements.getNumExecutedStatements();
+			//if(current_statements > max_s)
+			//	break;
+			//max_statements.reset();
+
+			statistics.searchFinished(population);
+			logger.info("Resulting test suite: "+suite.size()+" tests, length "+suite.length());
+			// Generate a test suite chromosome once all test cases are done?
+			if(minimize) {
+				logger.info("Starting minimization");
+				TestSuiteMinimizer minimizer = new TestSuiteMinimizer();
+				minimizer.minimize(suite, suite_fitness);
+				logger.info("Finished minimization");
+			}
+			System.out.println("Resulting test suite has fitness "+suite.getFitness());
+			System.out.println("Resulting test suite: "+suite.size()+" tests, length "+suite.length());
+			
+			// Log some stats
+			
+			try {
+				int num_branch = Properties.getPropertyOrDefault("branch", 0); // TODO: read from fitness function
+				String filename = Properties.getPropertyOrDefault("report_dir", "report")+"/"+Properties.TARGET_CLASS+"_branchstats_"+Randomness.getInstance().getSeed()+".csv";
+				File f = new File(filename);
+				boolean header = true;
+				if(f.exists())
+					header = false;
+//				FileWriter writer = new FileWriter(filename, true);
+				FileWriter writer = new FileWriter(f, true);
+				BufferedWriter w = new BufferedWriter(writer);
+				if(header) {
+					w.write("Classname,Seed,Branch,Solution,Length,Statements,Generations,Xover,Rank,Parents,Best,Max,Length\n");
+				}
+				int solution = ga.getBestIndividual().getFitness() == 0.0 ? 1 : 0;
+				String xover = "RPX";
+				if(Properties.getPropertyOrDefault("crossover_function", "SinglePointRelative").equals("SinglePoint"))
+					xover = "TPX";
+				w.write(Properties.TARGET_CLASS+","+Randomness.getInstance().getSeed()+","+num_branch+","+solution+","+suite.length()+","+MaxStatementsStoppingCondition.getNumExecutedStatements()+","+ga.getAge()+",");
+				w.write(xover+","+Properties.getPropertyOrDefault("check_rank_length", "true")+","+Properties.getPropertyOrDefault("check_parents_length", "true")+","+Properties.getPropertyOrDefault("check_best_length", "true")+","+Properties.getPropertyOrDefault("check_max_length", "true")+","+Properties.CHROMOSOME_LENGTH);
+				w.write("\n");
+				w.close();
+			} catch(IOException e) {
+				
+			}
+			
+			statistics.iteration(population);
+			statistics.minimized(suite);			
+			resetStoppingConditions();
+		}
+		statistics.writeReport();
+		
+	}
 	
 	/**
 	 * Experiment 1: 
@@ -93,7 +206,7 @@ public class TestSuiteGenerator {
 		SearchStatistics statistics = SearchStatistics.getInstance();
 		ExecutionTrace.trace_calls = true;
 
-		int max_s = GAProperties.generations;
+		int max_s = Properties.GENERATIONS;
 		
 		for(int current_experiment = 0; current_experiment < num_experiments; current_experiment++) {
 			// Reset everything
@@ -110,7 +223,7 @@ public class TestSuiteGenerator {
 
 			if(Properties.getProperty("dynamic_limit") != null) {
 				//max_s = GAProperties.generations * getBranches().size();
-				max_s = GAProperties.generations * (CFGMethodAdapter.branchless_methods.size() + CFGMethodAdapter.branch_map.size() * 2);
+				max_s = Properties.GENERATIONS * (CFGMethodAdapter.branchless_methods.size() + CFGMethodAdapter.branch_map.size() * 2);
 				logger.info("Setting dynamic length limit to "+max_s);
 			}
 
@@ -224,7 +337,7 @@ public class TestSuiteGenerator {
 					try {
 						FileWriter writer = new FileWriter(Properties.OUTPUT_DIR+"/"+Properties.TARGET_CLASS+"_branchstats.csv", true);
 						BufferedWriter w = new BufferedWriter(writer);
-						w.write(Randomness.getInstance().getSeed()+","+Properties.TARGET_CLASS+","+covered.contains(num)+","+branch_difficulty.get(num)+"\n");
+						w.write(num+","+Randomness.getInstance().getSeed()+","+Properties.TARGET_CLASS+","+covered.contains(num)+","+branch_difficulty.get(num)+"\n");
 						w.close();
 					} catch(IOException e) {
 
@@ -247,10 +360,10 @@ public class TestSuiteGenerator {
 		SearchStatistics statistics = SearchStatistics.getInstance();
 		ExecutionTrace.trace_calls = true;
 
-		int max_s = GAProperties.generations;
+		int max_s = Properties.GENERATIONS;
 		if(Properties.getProperty("dynamic_limit") != null) {
 			logger.info("Setting dynamic length limit");
-			max_s = GAProperties.generations * getBranches().size();
+			max_s = Properties.GENERATIONS * getBranches().size();
 		}
 		
 		final int NUM_GOAL = 3;
@@ -331,7 +444,7 @@ public class TestSuiteGenerator {
 		SearchStatistics statistics = SearchStatistics.getInstance();
 		ExecutionTrace.trace_calls = true;
 
-		int max_s = GAProperties.getPropertyOrDefault("generations", 1000);
+		int max_s = Properties.getPropertyOrDefault("generations", 1000);
 		int current_statements = 0;
 
 		
@@ -447,6 +560,8 @@ public class TestSuiteGenerator {
 		
 	}
 	
+
+	
 	protected List<BranchCoverageGoal> getBranches() {
 		List<BranchCoverageGoal> goals = new ArrayList<BranchCoverageGoal>();
 
@@ -491,7 +606,7 @@ public class TestSuiteGenerator {
 		SelectionFunction selection_function = new RankSelection();
 		selection_function.setMaximize(false);
 
-		String search_algorithm = GAProperties.getProperty("algorithm");
+		String search_algorithm = Properties.getProperty("algorithm");
 		if(search_algorithm.equals("(1+1)EA")) {
 			logger.info("Chosen search algorithm: (1+1)EA");
 			ga = new OnePlusOneEA(factory);

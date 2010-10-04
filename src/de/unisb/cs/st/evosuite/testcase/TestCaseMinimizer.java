@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2009 Saarland University
+ * Copyright (C) 2010 Saarland University
  * 
- * This file is part of Javalanche.
+ * This file is part of EvoSuite.
  * 
- * Javalanche is free software: you can redistribute it and/or modify
+ * EvoSuite is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * Javalanche is distributed in the hope that it will be useful,
+ * EvoSuite is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser Public License
- * along with Javalanche.  If not, see <http://www.gnu.org/licenses/>.
+ * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package de.unisb.cs.st.evosuite.testcase;
@@ -28,7 +28,8 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.OUM.OUMTestFactory;
-import de.unisb.cs.st.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.assertion.StringTraceExecutionObserver;
+import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 
 /**
  * Remove all statements from a test case that do not contribute to the fitness
@@ -180,7 +181,7 @@ public class TestCaseMinimizer {
 		if(factory_name.equals("OUM"))
 			test_factory = OUMTestFactory.getInstance();
 		else
-			test_factory = TestFactory.getInstance();
+			test_factory = DefaultTestFactory.getInstance();
 		
 		removeUnusedPrimitives(c.test);
 		fitness = fitness_function.getFitness(c);

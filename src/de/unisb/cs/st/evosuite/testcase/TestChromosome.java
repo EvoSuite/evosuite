@@ -1,12 +1,32 @@
+/*
+ * Copyright (C) 2010 Saarland University
+ * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser Public License
+ * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.util.List;
 
-import de.unisb.cs.st.ga.Chromosome;
-import de.unisb.cs.st.ga.ConstructionFailedException;
-import de.unisb.cs.st.ga.GAProperties;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.OUM.OUMTestFactory;
+import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+
 /**
  * Chromosome representation of test cases
  * @author Gordon Fraser
@@ -14,9 +34,9 @@ import de.unisb.cs.st.evosuite.OUM.OUMTestFactory;
  */
 public class TestChromosome extends Chromosome {
 	
-	private final static boolean RANK_LENGTH = GAProperties.getPropertyOrDefault("check_rank_length", true);  
+	private final static boolean RANK_LENGTH = Properties.getPropertyOrDefault("check_rank_length", true);  
 	
-	private final static boolean CHECK_LENGTH = GAProperties.getPropertyOrDefault("check_max_length", true);
+	private final static boolean CHECK_LENGTH = Properties.getPropertyOrDefault("check_max_length", true);
 	
 	static {
 		if(RANK_LENGTH)
@@ -40,7 +60,7 @@ public class TestChromosome extends Chromosome {
 			if(factory_name.equals("OUM"))
 				test_factory = OUMTestFactory.getInstance();
 			else
-				test_factory = TestFactory.getInstance();
+				test_factory = DefaultTestFactory.getInstance();
 		}
 	}
 	
@@ -84,7 +104,7 @@ public class TestChromosome extends Chromosome {
 		for(int i=position2; i<other.size(); i++) {
 			test_factory.appendStatement(offspring.test, ((TestChromosome)other).test.getStatement(i));
 		}
-		if(!CHECK_LENGTH || offspring.test.size() <= GAProperties.chromosome_length) {
+		if(!CHECK_LENGTH || offspring.test.size() <= Properties.CHROMOSOME_LENGTH) {
 			test = offspring.test;
 		}
 			//logger.warn("Size exceeded!");
@@ -192,10 +212,12 @@ public class TestChromosome extends Chromosome {
 
 				if(statement instanceof PrimitiveStatement<?>) {
 					//  do some mutation of values with what probability?
+					//logger.info("Old statement: "+statement.getCode());
 					((PrimitiveStatement<?>)statement).delta();
 					
-					int position = statement.retval.statement;
-					test.setStatement(statement, position);
+					//int position = statement.retval.statement;
+					//test.setStatement(statement, position);
+					//logger.info("Changed test: "+test.toCode());
 					changed = true;	
 				} else if(statement instanceof AssignmentStatement) {
 					//logger.info("Before change at:");
@@ -233,7 +255,7 @@ public class TestChromosome extends Chromosome {
 		final double ALPHA = 0.5;
 		int count = 1;
 		
-		while(randomness.nextDouble() <= Math.pow(ALPHA, count) && (!CHECK_LENGTH || size() < GAProperties.chromosome_length))
+		while(randomness.nextDouble() <= Math.pow(ALPHA, count) && (!CHECK_LENGTH || size() < Properties.CHROMOSOME_LENGTH))
 		{
 			count++;				
 			// Insert at position as during initialization (i.e., using helper sequences)

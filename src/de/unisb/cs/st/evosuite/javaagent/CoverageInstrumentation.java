@@ -1,6 +1,22 @@
-/**
+/*
+ * Copyright (C) 2010 Saarland University
  * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser Public License
+ * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package de.unisb.cs.st.evosuite.javaagent;
 
 import java.io.PrintWriter;
@@ -16,11 +32,14 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.string.StringClassAdapter;
+import de.unisb.cs.st.evosuite.primitives.PrimitiveClassAdapter;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.Excludes;
 
 
 /**
+ * The bytecode transformer - transforms bytecode depending on package
+ * and whether it is the class under test
+ * 
  * @author Gordon Fraser
  *
  */
@@ -36,6 +55,8 @@ public class CoverageInstrumentation implements ClassFileTransformer {
 	private static String target_class = Properties.TARGET_CLASS;
 	
 	protected boolean static_hack = Properties.getPropertyOrDefault("static_hack", false);
+	
+	private boolean makeAllAccessible = Properties.getPropertyOrDefault("make_accessible", false);
 	
 	static {
 		logger.info("Loading CoverageTransformer for "+Properties.PROJECT_PREFIX);
@@ -71,16 +92,18 @@ public class CoverageInstrumentation implements ClassFileTransformer {
 					ClassWriter writer = new ClassWriter(org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
 
 					ClassVisitor cv = writer;
-					cv = new AccessibleClassAdapter(cv);
 					if(classNameWithDots.equals(target_class) || (classNameWithDots.startsWith(target_class+"$"))) {
-						if(logger.isDebugEnabled())
+						cv = new AccessibleClassAdapter(cv);
+						//if(logger.isDebugEnabled())
 							cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 						cv = new ExecutionPathClassAdapter(cv, className);
 						// cv = new CFGClassAdapter(cv, className);
 						if(logger.isDebugEnabled())
 							cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+					} else if(makeAllAccessible) {
+						cv = new AccessibleClassAdapter(cv);
 					}
-					cv = new StringClassAdapter(cv, className);
+					cv = new PrimitiveClassAdapter(cv, className);
 						//cv = new CheckClassAdapter(cv);
 					if(static_hack)
 						cv = new StaticInitializationClassAdapter(cv, className);

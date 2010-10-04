@@ -2,12 +2,12 @@ package de.unisb.cs.st.evosuite.mutation;
 
 import org.apache.log4j.Logger;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
-import de.unisb.cs.st.evosuite.testcase.TestFactory;
-import de.unisb.cs.st.ga.Chromosome;
-import de.unisb.cs.st.ga.ChromosomeFactory;
-import de.unisb.cs.st.ga.GAProperties;
+import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 public class MutationTestChromosomeFactory implements ChromosomeFactory {
@@ -21,7 +21,7 @@ public class MutationTestChromosomeFactory implements ChromosomeFactory {
 	protected int max_attempts     = Integer.parseInt(System.getProperty("GA.max_attempts"));
 
 	/** Factory to manipulate and generate method sequences */
-	private TestFactory test_factory = TestFactory.getInstance();
+	private DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 
 	/**
 	 * Constructor
@@ -83,7 +83,7 @@ public class MutationTestChromosomeFactory implements ChromosomeFactory {
 	 */
 	public Chromosome getChromosome() {
 		TestChromosome c = new TestChromosome();
-		c.test = getRandomTestCase(GAProperties.chromosome_length);
+		c.test = getRandomTestCase(Properties.CHROMOSOME_LENGTH);
 		return c;
 	}
 

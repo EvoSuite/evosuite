@@ -1,12 +1,32 @@
 /**
  * 
  */
+/*
+ * Copyright (C) 2010 Saarland University
+ * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser Public License
+ * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
 package de.unisb.cs.st.evosuite.testcase;
 
 import org.apache.log4j.Logger;
 
-import de.unisb.cs.st.ga.GAProperties;
-import de.unisb.cs.st.ga.StoppingCondition;
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.ga.StoppingCondition;
 
 /**
  * @author Gordon Fraser
@@ -18,7 +38,7 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 	private static Logger logger = Logger.getLogger(MaxStatementsStoppingCondition.class);
 	
 	/** Maximum number of iterations */
-	protected static int max_statements = GAProperties.generations;
+	protected static int max_statements = Properties.GENERATIONS;
 
 	/** Maximum number of iterations */
 	protected static int current_statement = 0;

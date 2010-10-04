@@ -1,16 +1,32 @@
-/**
+/*
+ * Copyright (C) 2010 Saarland University
  * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser Public License
+ * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+
 package de.unisb.cs.st.evosuite.testcase;
 
 
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.ga.Chromosome;
-import de.unisb.cs.st.ga.ChromosomeFactory;
-import de.unisb.cs.st.ga.GAProperties;
-import de.unisb.cs.st.ga.Randomness;
+import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
+import de.unisb.cs.st.evosuite.ga.Randomness;
 
 
 /**
@@ -25,7 +41,7 @@ public class RandomLengthTestFactory implements ChromosomeFactory {
 	protected int max_attempts     = Properties.getPropertyOrDefault("max_attempts", 1000);
 
 	/** Factory to manipulate and generate method sequences */
-	private TestFactory test_factory = TestFactory.getInstance();
+	private DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 	
 	/**
 	 * Create a random individual
@@ -57,7 +73,7 @@ public class RandomLengthTestFactory implements ChromosomeFactory {
 	 */
 	public Chromosome getChromosome() {
 		TestChromosome c = new TestChromosome();
-		c.test = getRandomTestCase(GAProperties.chromosome_length);
+		c.test = getRandomTestCase(Properties.CHROMOSOME_LENGTH);
 		return c;
 	}
 

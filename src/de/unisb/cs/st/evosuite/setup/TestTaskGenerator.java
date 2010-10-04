@@ -1,6 +1,22 @@
-/**
+/*
+ * Copyright (C) 2010 Saarland University
  * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser Public License
+ * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package de.unisb.cs.st.evosuite.setup;
 
 import java.io.File;
@@ -23,7 +39,6 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.objectweb.asm.Type;
 
-import de.unisb.cs.st.ds.util.MakefileGenerator;
 import de.unisb.cs.st.ds.util.MakefileGenerator.Target;
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
@@ -636,7 +651,7 @@ public class TestTaskGenerator {
 		//Set<Long> ids = new HashSet<Long>();
 		
 		int num = 0;
-		int num_mutants = 0;
+		//int num_mutants = 0;
 		for(String classname : classes) {
 			Class<?> clazz = null;
 			try {
@@ -773,17 +788,19 @@ public class TestTaskGenerator {
 			num++;
 		}
 
+		/*
 		String makefile = MakefileGenerator.generateMakefile(make_targets);
 		File mfile = new File("Makefile");
-		//Io.writeFile(makefile, mfile);
+		Io.writeFile(makefile, mfile);
 		StringBuffer buffer = new StringBuffer();
 		for(String call : calls) {
 			buffer.append(call);
 			buffer.append("\n");
 		}
 		File cfile = new File("runall.sh");
-		//Io.writeFile(buffer.toString(), cfile);
+		Io.writeFile(buffer.toString(), cfile);
 		System.out.println("Created "+num+" tasks out of "+classes.size()+" classes");
+		*/
 		//logger.info("Covering a total of "+num_mutants+" mutations");		
 		//logger.info("Covering a total of "+ids.size()+" mutations");
 	}

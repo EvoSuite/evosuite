@@ -16,6 +16,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.ga.Randomness;
 import de.unisb.cs.st.evosuite.testcase.AbstractTestFactory;
 import de.unisb.cs.st.evosuite.testcase.ArrayStatement;
 import de.unisb.cs.st.evosuite.testcase.AssignmentStatement;
@@ -30,8 +32,6 @@ import de.unisb.cs.st.evosuite.testcase.Statement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
-import de.unisb.cs.st.ga.ConstructionFailedException;
-import de.unisb.cs.st.ga.Randomness;
 
 /**
  * Handle test case generation
@@ -86,7 +86,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 	 * @param variable
 	 * @return
 	 */
-	private ConcreteCall getLastUse(TestCase test, int position, VariableReference variable) {
+	public ConcreteCall getLastUse(TestCase test, int position, VariableReference variable) {
 		for(int i = Math.min(position, test.size() - 1); i>=variable.statement; i--) {
 			Statement s = test.getStatement(i);
 			if(s.references(variable)) {
@@ -123,7 +123,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 		return null;
 	}
 	
-	private ConcreteCall getNextUse(TestCase test, int position, VariableReference variable) {
+	public ConcreteCall getNextUse(TestCase test, int position, VariableReference variable) {
 		for(int i = position; i < test.size(); i++) {
 			Statement s = test.getStatement(i);
 			if(s.references(variable)) {
@@ -894,7 +894,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 		int previous_length = test.size();
 		current_recursion.clear();
 		try {
-			if(call.isMethod()) {
+			if(call != null && call.isMethod()) {
 				addMethodFor(test, callee, call, position);
 			} 
 		} catch(ConstructionFailedException e) {

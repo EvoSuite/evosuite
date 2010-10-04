@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import de.unisb.cs.st.ga.SinglePointFixedCrossOver;
-import de.unisb.cs.st.ga.GeneticAlgorithm;
-import de.unisb.cs.st.ga.StandardGA;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
+import de.unisb.cs.st.evosuite.ga.SinglePointFixedCrossOver;
+import de.unisb.cs.st.evosuite.ga.StandardGA;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 import de.unisb.cs.st.javalanche.mutation.runtime.testDriver.MutationDriverShutdownHook;
 import de.unisb.cs.st.javalanche.mutation.runtime.testDriver.MutationTestDriver;

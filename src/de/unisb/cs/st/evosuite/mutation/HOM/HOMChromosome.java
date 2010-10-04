@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
-import de.unisb.cs.st.ga.Chromosome;
-import de.unisb.cs.st.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 import de.unisb.cs.st.javalanche.mutation.results.MutationTestResult;
 
