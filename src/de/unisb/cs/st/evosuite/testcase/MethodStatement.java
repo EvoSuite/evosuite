@@ -39,28 +39,6 @@ public class MethodStatement extends Statement {
 	VariableReference callee;
 	public List<VariableReference> parameters;
 	
-	
-	
-	//VariableReference retval;
-	
-	/*
-	public MethodStatement(Gene gene, Scope scope) {
-		super(scope);
-		assert(gene.receiver_id != 0);
-		
-		method = scope.getMethod(gene.method_id);
-		callee = scope.getElement(gene.receiver_id);
-		int num_parameters = method.getParameterTypes().length;
-		parameters = new Object[num_parameters];
-		
-		for(int i=0; i<num_parameters; i++) {
-			parameters[i] = scope.getElement(gene.parameters[i]);
-		}
-		
-		assert(isValid()); // TODO: Only while developing
-	}
-	*/
-	
 	public MethodStatement(Method method, VariableReference callee, VariableReference retval, List<VariableReference> parameters) {
 		this.method = method;
 		this.callee = callee;
@@ -147,41 +125,10 @@ public class MethodStatement extends Statement {
 
 		} catch (Throwable e) {
 	          if (e instanceof java.lang.reflect.InvocationTargetException) {
-	        	  logger.debug("Caught InvocationTargetException");
-		          //System.err.println("Error in reflection execution");
 	              e = e.getCause();
-		    	  logger.debug("Exception thrown in method: "+e);
-		    	  if(method.getName().equals("isLessThan")) {
-		    		  logger.info("Exception thrown in isLessThan :");
-				  }
-	          } else
-		    	  logger.debug("Exception thrown in method: "+e);
+	          } 
+	          logger.debug("Exception thrown in method: "+e);
         	  exceptionThrown = e;
-
-	          /*
-	          Class<?>[] valid_exceptions = method.getExceptionTypes();
-	          boolean declared = false;
-	          for(Class<?> ex : valid_exceptions) {
-	        	  if(ex.equals(e.getClass())) {
-		        	  logger.debug("Caught declared exception");
-	        		  //System.err.println("Declared exception thrown in method "+this.method.getName()+": "+e.getCause());
-	        		  //System.exit(1);
-	        		  declared = true;
-	        		  break;
-	        	  }
-	          }
-	          if(!declared) {
-	        	  exceptionThrown = e;
-	        	  logger.debug("Caught undeclared exception");
-	        	  logger.debug(e.toString() + " in method "+this.method.toString());
-	        	  //e.printStackTrace();
-	          } else {
-	        	  logger.debug("Ignoring declared exception "+e.toString() + " in method "+this.method.toString());	        	  
-	          }
-	          */
-	          //e.printStackTrace();
-	          //System.exit(1);
-
 	      }
 	      return exceptionThrown;
 	}

@@ -930,12 +930,5 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		return false;
 
 	}
-
-	
-	// -------------------------------------
-	// Legacy code from here on
-	// -------------------------------------
-	
-	
 	
 }

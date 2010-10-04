@@ -64,7 +64,6 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 	 * Reset counter
 	 */
 	public void reset() {
-		//logger.info("Resetting current statements");
 		current_statement = 0;
 	}
 	
@@ -72,6 +71,10 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 		return current_statement;
 	}
 	
+	/**
+	 * Set new upper limit
+	 * @param max
+	 */
 	public void setMaxExecutedStatements(int max) {
 		max_statements = max;
 	}

@@ -43,9 +43,7 @@ public class PrimitiveStatement<T> extends Statement {
 
 	private static int MAX_INT = Properties.getPropertyOrDefault("max_int", 256);
 
-	// TODO: This pool should also be used for ints!
 	private static double P_pool = Properties.getPropertyOrDefault("primitive_pool", 0.5);
-
 
 	private static Randomness randomness = Randomness.getInstance();
 	

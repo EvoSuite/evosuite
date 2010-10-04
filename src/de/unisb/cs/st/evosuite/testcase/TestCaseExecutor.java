@@ -144,13 +144,6 @@ public class TestCaseExecutor {
 	    		}
 		    	ExecutionTracer.getExecutionTracer().clear();
 	    		runner.exceptionsThrown.put(tc.size(), new TestCaseExecutor.TimeoutExceeded());
-	    		/*
-	    		 * if(runner.exceptionThrown != null)
-	    		 
-	    			return runner.exceptionsThrown;
-	    		else
-	    			return new TestCaseExecutor.TimeoutExceeded();
-	    			*/
 	    	}
 	    	return runner.exceptionsThrown;
 
@@ -160,10 +153,4 @@ public class TestCaseExecutor {
 	    }
 		
 	}
-
-	
-	//public Trace runWithTrace(TestCase e) {
-	//	
-	//}
-
 }

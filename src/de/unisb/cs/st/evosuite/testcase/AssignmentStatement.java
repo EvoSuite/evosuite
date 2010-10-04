@@ -26,6 +26,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * An assignment statement assigns a variable to another variable.
+ * This is only used to assign to array indices
+ * 
  * @author Gordon Fraser
  *
  */
