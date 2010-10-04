@@ -118,7 +118,6 @@ public class ExecutionTrace {
 	public Map<String, Integer> covered_predicates = Collections.synchronizedMap(new HashMap<String, Integer>());
 	public Map<String, Double> true_distances   = Collections.synchronizedMap(new HashMap<String, Double>());
 	public Map<String, Double> false_distances  = Collections.synchronizedMap(new HashMap<String, Double>());
-	private String current_method = "";
 	
 	public ExecutionTrace() {
 		stack.add(new MethodCall("", "")); // Main method
@@ -132,7 +131,6 @@ public class ExecutionTrace {
 	 */
 	public void enteredMethod(String classname, String methodname) {
 		String id = classname+"."+methodname;
-		current_method = classname;
 		if(!covered_methods.containsKey(id))
 			covered_methods.put(id, 1);
 		else
@@ -226,21 +224,7 @@ public class ExecutionTrace {
 			stack.peek().true_distance_trace.add(true_distance );
 			stack.peek().false_distance_trace.add(false_distance);
 		}
-		
-//		String id = current_method+branch;
-		
-		// TODO: This is a hack to protect against overflows
-		/*
-		if(true_distance < 0)
-			true_distance = Math.abs(true_distance);
-		if(false_distance < 0)
-			false_distance = Math.abs(false_distance);
-			*/
-
-//		if(branch > CFGMethodAdapter.branch_counter) {
-//			logger.warn("AAAAAAAAAAAAAAAAAAH");
-//		}
-		
+				
 		String id = ""+branch;
 		if(!covered_predicates.containsKey(id))
 			covered_predicates.put(id, 1);
@@ -316,14 +300,6 @@ public class ExecutionTrace {
 		String methodname = m.getMethodName();
 		
 		return (coverage.containsKey(classname) && coverage.get(classname).containsKey(methodname));
-/*		
-		for(MethodCall call : finished_calls) {
-			if(classname.equals(call.class_name) && methodname.equals(call.method_name))
-				return true;
-		}
-		
-		return false;
-		*/
 	}
 	
 	public String toString() {

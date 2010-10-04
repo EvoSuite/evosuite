@@ -50,8 +50,6 @@ public class MaxTestsStoppingCondition extends StoppingCondition {
 
 	@Override
 	public boolean isFinished() {
-		//logger.info("Current number of tests executed: "+num_tests);
-		//System.out.println("Current number of tests executed: "+num_tests);
 		return num_tests >= max_tests;
 	}
 

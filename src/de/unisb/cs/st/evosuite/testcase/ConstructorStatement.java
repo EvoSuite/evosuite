@@ -36,27 +36,8 @@ import java.util.Set;
 public class ConstructorStatement extends Statement {
 
 	Constructor<?> constructor;
-	//Object[] parameters;
-	public List<VariableReference> parameters;
-	//private VariableReference retval;
-	
-	/*
-	public ConstructorStatement(Gene gene, Scope scope) {
-		super(scope);
 
-		assert(gene.receiver_id == 0);
-		
-		constructor = scope.getConstructor(gene.method_id);
-		int num_parameters = constructor.getParameterTypes().length;
-		parameters = new Object[num_parameters];
-		
-		for(int i=0; i<num_parameters; i++) {
-			parameters[i] = scope.getElement(gene.parameters[i]);
-		}
-		
-		assert(isValid()); // TODO: Only while developing
-	}
-	*/
+	public List<VariableReference> parameters;	
 	
 	public ConstructorStatement(Constructor<?> constructor, VariableReference retval, List<VariableReference> parameters) {
 		this.constructor = constructor;
@@ -121,44 +102,7 @@ public class ConstructorStatement extends Statement {
 		    	  logger.debug("Exception thrown in constructor: "+e);
         	  exceptionThrown = e;
 
-/*
-	          Class<?>[] valid_exceptions = constructor.getExceptionTypes();
-	          boolean declared = false;
-	          for(Class<?> ex : valid_exceptions) {
-	        	  if(ex.equals(e.getClass())) {
-	        		  //System.out.println("Declared exception thrown in constructor "+this.constructor.getName()+": "+e.getCause());
-	        		  //System.exit(1);
-	        		  declared = true;
-	        		  break;
-	        	  }
-	          }
-	          if(!declared) {
-	        	  exceptionThrown = e;
-	        	  //System.err.println(e.toString() + " in constructor "+this.constructor.toString());
-	          } else {
-	        	  logger.debug("Ignoring declared exception "+e.toString() + " in constructor "+this.constructor.toString());	        	  
-	          }
-	          */
-	          //e.printStackTrace();
-	          //System.exit(1);
-
 	      }
-	      /*
-		} catch (InvocationTargetException e) {
-			System.out.println("InvocationTargetException in Constructor: "+e.getCause());
-			this.exceptionThrown = e.getCause();
-			e.printStackTrace();
-			System.exit(1);
-			//throw e;
-		} catch(Throwable e) {
-			System.out.println("Exception thrown in constructor: "+e);
-			e.printStackTrace();
-			System.exit(1);
-			*/
-		// } finally {
-		      //if (retval != null && exceptionThrown != null)
-		      //  throw new NotCaughtIllegalStateException("cannot have both retval and exception not null");
-		    //}
 	      return exceptionThrown;
 	}
 
@@ -171,7 +115,6 @@ public class ConstructorStatement extends Statement {
 				parameter_string += ", "+parameters.get(i).getName();
 			}
 		}
-//		return ((Class<?>) retval.getType()).getSimpleName() +" "+retval.getName()+ " = new " + constructor.getName() + "(" + parameter_string + ")";
 		return retval.getSimpleClassName() +" "+retval.getName()+ " = new " + constructor.getName() + "(" + parameter_string + ")";
 
 	}

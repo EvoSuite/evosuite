@@ -30,6 +30,8 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Randomness;
 
 /**
+ * An array statement creates a new array
+ * 
  * @author Gordon Fraser
  *
  */

@@ -60,26 +60,18 @@ public class ExecutionTracer {
 	public static void disable() {
 		ExecutionTracer tracer = ExecutionTracer.getExecutionTracer();
 		tracer.disabled = true;
-		//logger.info("** DISABLE ***");
 	}
 	public static void enable() {
 		ExecutionTracer tracer = ExecutionTracer.getExecutionTracer();
 		tracer.disabled = false;
-		//logger.info("** ENABLE ***");
 	}
 	public static boolean isEnabled() {
 		ExecutionTracer tracer = ExecutionTracer.getExecutionTracer();
 		return !tracer.disabled;
 	}
 	
-	//private List<TraceEntry> trace;
 	private ExecutionTrace trace;
 
-	//private List<String> class_access;
-	//private List<String> method_calls;
-//	private List< List<String> > trace;
-	//private List< List<Integer> > trace;
-	
 	public static ExecutionTracer getExecutionTracer() {
 		if(instance == null) {
 			instance = new ExecutionTracer();
@@ -166,14 +158,6 @@ public class ExecutionTracer {
 			ExecutionTracer.disable();
 			tmp = new StringBuilder(value.toString());
 		} catch (Throwable t) {
-			// TODO: Do we need this?
-			/*
-			InstrumentExclude.addExcludeReturn(className, methodName);
-			logger.warn(
-					"To string for return object throws an exception. Class: "
-							+ className + " MethodName: " + methodName, t);
-			InstrumentExclude.save();
-			*/
 			return;
 		} finally {
 			ExecutionTracer.enable();
@@ -238,7 +222,6 @@ public class ExecutionTracer {
 		//logger.info("passedBranch val="+val+", opcode="+opcode+", branch="+branch+", bytecode_id="+bytecode_id);
 		if(tracer.disabled)
 			return;
-
 		
 		//logger.trace("Called passedBranch1 with opcode "+AbstractVisitor.OPCODES[opcode]+" and val "+val+" in branch "+branch);
 		double distance_true  = 0.0;
@@ -247,62 +230,26 @@ public class ExecutionTracer {
 		case Opcodes.IFEQ:
 			distance_true  = Math.abs((double)val); // The greater abs is, the further away from 0
 			distance_false = distance_true == 0 ? 1.0 : 0.0; // Anything but 0 is good
-			if(distance_true == distance_false)
-				logger.error("0 a: True and false distance are equal!");
-			if(distance_true < 0)
-				logger.error("0 a: True distance < 0 "+val);
-			if(distance_false < 0)
-				logger.error("0 a: False distance < 0 "+val);
 			break;
 		case Opcodes.IFNE:
 			distance_false = Math.abs((double)val); // The greater abs is, the further away from 0
 			distance_true  = distance_false == 0 ? 1.0 : 0.0; // Anything but 0 leads to NE
-			if(distance_true == distance_false)
-				logger.error("0 b: True and false distance are equal!");
-			if(distance_true < 0)
-				logger.error("0 b: True distance < 0: "+val);
-			if(distance_false < 0)
-				logger.error("0 b: False distance < 0 "+val);
 			break;
 		case Opcodes.IFLT:
 			distance_true  = val >= 0 ? (double)val + 1.0 : 0.0; // The greater, the further away from < 0 
 			distance_false = val < 0  ? 0.0 - (double)val + 1.0 : 0.0; // The smaller, the further away from < 0 
-			if(distance_true == distance_false)
-				logger.error("0 c: True and false distance are equal!");
-			if(distance_true < 0)
-				logger.error("0 c: True distance < 0!");
-			if(distance_false < 0)
-				logger.error("0 c: False distance < 0!");
 			break;
 		case Opcodes.IFGT:
 			distance_true  = val <= 0 ? 0.0 - (double)val + 1.0: 0.0; 
 			distance_false = val > 0  ? (double)val + 1.0 : 0.0;
-			if(distance_true == distance_false)
-				logger.error("0 d: True and false distance are equal!");
-			if(distance_true < 0)
-				logger.error("0 d: True distance < 0!");
-			if(distance_false < 0)
-				logger.error("0 d: False distance < 0!");
 			break;
 		case Opcodes.IFGE:
 			distance_true  = val < 0 ? 0.0 - (double)val + 1.0: 0.0; 
 			distance_false = val >= 0  ? (double)val + 1.0: 0.0;
-			if(distance_true == distance_false)
-				logger.error("0 e: True and false distance are equal!");
-			if(distance_true < 0)
-				logger.error("0 e: True distance < 0!");
-			if(distance_false < 0)
-				logger.error("0 e: False distance < 0!");
 			break;
 		case Opcodes.IFLE:
 			distance_true  = val > 0 ? (double)val + 1.0: 0.0; // The greater, the further away from < 0 
 			distance_false = val <= 0 ? 0.0 - (double)val + 1.0: 0.0; // The smaller, the further away from < 0 
-			if(distance_true == distance_false)
-				logger.error("0 f: True and false distance are equal!");
-			if(distance_true < 0)
-				logger.error("0 f: True distance < 0!");
-			if(distance_false < 0)
-				logger.error("0 f: False distance < 0!");
 			break;
 		default:
 			logger.error("Unknown opcode: "+opcode);
@@ -311,10 +258,8 @@ public class ExecutionTracer {
 		logger.trace("Branch distance true : "+distance_true);
 		logger.trace("Branch distance false: "+distance_false);
 
-
 		// Add current branch to control trace
 		tracer.trace.branchPassed(branch, bytecode_id, distance_true, distance_false);
-//		tracer.trace.branchPassed(branch, distance_true, distance_false);
 	}
 	
 	/**
@@ -337,60 +282,33 @@ public class ExecutionTracer {
 		case Opcodes.IF_ICMPEQ:
 			distance_true  = Math.abs((double)val1 - (double)val2); // The greater the difference, the further away
 			distance_false = distance_true == 0 ? 1.0 : 0.0; // Anything but 0 is good
-			if(distance_true < 0)
-				logger.error("1 a: True distance < 0!");
-			if(distance_false < 0)
-				logger.error("1 a: False distance < 0!");
 			break;
 		case Opcodes.IF_ICMPNE:
 			distance_false = Math.abs((double)val1 - (double)val2); // The greater abs is, the further away from 0
 			distance_true  = distance_false == 0 ? 1.0 : 0.0; // Anything but 0 leads to NE
-			if(distance_true < 0)
-				logger.error("1 b: True distance < 0!");
-			if(distance_false < 0)
-				logger.error("1 b: False distance < 0!");
 			break;
 		case Opcodes.IF_ICMPLT:  // val1 < val2?
 			distance_true  = val1 >= val2 ? (double)val1 - (double)val2 + 1.0: 0.0; // The greater, the further away from < 0 
 			distance_false = val1 < val2  ? (double)val2 - (double)val1 + 1.0: 0.0; // The smaller, the further away from < 0 
-			if(distance_true < 0)
-				logger.error("1 c: True distance < 0!");
-			if(distance_false < 0)
-				logger.error("1 c: False distance < 0!");
 			break;
 		case Opcodes.IF_ICMPGE:
 			distance_false = val1 >= val2  ? (double)val1 - (double)val2 + 1.0: 0.0; // The greater, the further away from < 0 
 			distance_true  = val1 < val2 ? (double)val2 - (double)val1 + 1.0: 0.0; // The smaller, the further away from < 0 
-			if(distance_true < 0)
-				logger.error("1 d: True distance < 0: "+val1+"/"+val2+" -> "+distance_true);
-			if(distance_false < 0)
-				logger.error("1 d: False distance < 0!");
 			break;
 		case Opcodes.IF_ICMPGT:
 			distance_false = val1 > val2 ? (double)val1 - (double)val2 + 1.0: 0.0; // The greater, the further away from < 0 
 			distance_true  = val1 <= val2 ? (double)val2 - (double)val1  + 1.0: 0.0; // The smaller, the further away from < 0 
-			if(distance_true < 0)
-				logger.error("1 e: True distance < 0!");
-			if(distance_false < 0)
-				logger.error("1 e: False distance < 0!");
 			break;
 		case Opcodes.IF_ICMPLE:
 			distance_true  = val1 > val2  ? (double)val1 - (double)val2 + 1.0: 0.0; // The greater, the further away from < 0 
 			distance_false = val1 <= val2 ? (double)val2 - (double)val1 + 1.0: 0.0; // The smaller, the further away from < 0 
-			if(distance_true < 0)
-				logger.error("1 f: True distance < 0!");
-			if(distance_false < 0)
-				logger.error("1 f: False distance < 0!");
 			break;
 		default:
 			logger.error("Unknown opcode: "+opcode);
 		}
 		logger.trace("Branch distance true: "+distance_true);
 		logger.trace("Branch distance false: "+distance_false);
-
 		
-		if(distance_true == distance_false)
-			logger.error("1: True and false distance are equal!");
 		// Add current branch to control trace
 		tracer.trace.branchPassed(branch, bytecode_id, distance_true, distance_false);
 //		tracer.trace.branchPassed(branch, distance_true, distance_false);
@@ -453,19 +371,9 @@ public class ExecutionTracer {
 		
 		
 		distance_false = distance_true == 0 ? 1.0 : 0.0;
-		logger.trace("Branch distance true: "+distance_true);
-		logger.trace("Branch distance false: "+distance_false);
-		if(distance_true == distance_false)
-			logger.error("2: True and false distance are equal!");
-
-		if(distance_true < 0)
-			logger.error("2: True distance < 0!");
-		if(distance_false < 0)
-			logger.error("2: False distance < 0!");
 
 		// Add current branch to control trace
 		tracer.trace.branchPassed(branch, bytecode_id, distance_true, distance_false);
-//		tracer.trace.branchPassed(branch, distance_true, distance_false);
 	}
 	
 	/**
@@ -480,9 +388,6 @@ public class ExecutionTracer {
 		if(tracer.disabled)
 			return;
 		
-		//logger.warn("Disabling tracer in passedBranch");
-		//disable();
-		//logger.trace("Called passedBranch4 with opcode "+AbstractVisitor.OPCODES[opcode]+", val="+val+" in branch "+branch);
 		double distance_true = 0;
 		double distance_false = 0;
 		switch(opcode) {
@@ -500,16 +405,9 @@ public class ExecutionTracer {
 		
 		logger.trace("Branch distance true: "+distance_true);
 		logger.trace("Branch distance false: "+distance_false);
-		if(distance_true == distance_false)
-			logger.error("3: True and false distance are equal!");
-		if(distance_true < 0)
-			logger.error("3: True distance < 0!");
-		if(distance_false < 0)
-			logger.error("3: False distance < 0!");
 
 		// Add current branch to control trace
 		tracer.trace.branchPassed(branch, bytecode_id, distance_true, distance_false);
-//		tracer.trace.branchPassed(branch, distance_true, distance_false);
 	}
 	
 	public static void statementExecuted() {
@@ -601,27 +499,6 @@ public class ExecutionTracer {
 				logger.error(" -> " + l);
 			}
 		}
-
-		/*
-		if(graphs.get(classname).get(methodname).containsVertex(-1 * mutation.getId().intValue())) 
-			return diameters.get(classname).get(methodname);
-		else {
-			logger.error("Mutated method: "+mutation.getClassName()+"."+methodname+" does not contain mutation "+mutation.getId());
-			logger.error(mutation);
-			Set<Integer> vertices = graphs.get(classname).get(methodname).vertexSet();
-			
-			for(Integer x : vertices) {
-				logger.info("  Method "+methodname+" contains "+x);
-			}
-			for(String cname : graphs.keySet()) {
-				for(String mname : graphs.get(cname).keySet()) {
-					if(graphs.get(cname).get(mname).containsVertex(-1 * mutation.getId().intValue()))
-						logger.info("Method "+cname+"."+mname+" contains the mutant!");
-				}
-			}
-			
-		}
-		*/
 				
 		return Double.POSITIVE_INFINITY;
 	}
@@ -629,9 +506,6 @@ public class ExecutionTracer {
 
 	
 	private ExecutionTracer() {
-		//method_calls = new ArrayList<String>();
-		//class_access = new ArrayList<String>();
-		//trace = new ArrayList<List<Integer> > ();
 		trace = new ExecutionTrace();
 		graphs = new HashMap<String, Map <String, ControlFlowGraph > >();
 		diameters = new HashMap<String, Map <String, Double> > ();

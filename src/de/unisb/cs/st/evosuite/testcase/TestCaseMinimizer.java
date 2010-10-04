@@ -40,13 +40,13 @@ import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 
 public class TestCaseMinimizer {
 
-	Logger logger = Logger.getLogger(TestCaseMinimizer.class);
+	private static Logger logger = Logger.getLogger(TestCaseMinimizer.class);
 	
-	TestFitnessFunction fitness_function;
+	private TestFitnessFunction fitness_function;
 	
-	double fitness = 0.0;
+	private double fitness = 0.0;
 	
-	boolean enabled = Properties.getPropertyOrDefault("minimize", true);
+	private boolean enabled = Properties.getPropertyOrDefault("minimize", true);
 	
 	/**
 	 * Constructor
@@ -115,39 +115,6 @@ public class TestCaseMinimizer {
 		
 		return has_deleted;
 	}
-
-	/**
-	 * Attempt removal of a statement.
-	 * If the statement can be removed without reducing fitness, then the change is kept.
-	 * 
-	 * @param c
-	 *   Chromosome representing the test case
-	 * @param position
-	 *   Position of the statement to be removed
-	 * @return
-	 *   True if statement was deleted
-	 */
-	private boolean removeStatement(TestChromosome c, int position) {
-		logger.info("Trying to remove "+position);
-		TestChromosome copy = (TestChromosome) c.clone();
-		copy.test.remove(position);
-		removeUnusedPrimitives(copy.test);
-		//logger.info("Potential test case is:");
-		//logger.info(copy.test.toCode());
-		double new_fitness = fitness_function.getFitness(copy);
-		//logger.info("This change affects the fitness: "+fitness+" -> "+new_fitness);
-		if(new_fitness - fitness >= -0.03) {
-			logger.info("Keeping reduced version: "+fitness+"/"+new_fitness);
-			c.test = copy.test;
-			//logger.info("Test case after removal:");
-			//logger.info(c.test.toCode());
-			fitness = new_fitness;
-			removeUnusedPrimitives(c.test);
-			return true;
-		}
-		logger.info("Keeping original version: "+fitness+"/"+new_fitness);
-		return false;
-	}
 	
 	/**
 	 * Central minimization function. Loop and try to remove until all statements have been checked.
@@ -158,9 +125,7 @@ public class TestCaseMinimizer {
 			removeUnusedPrimitives(c.test);
 			return;
 		}
-//		logger.info("Minimizing test case for mutation "+fitness_function.current_mutation.getId());
 		logger.info("Minimizing test case");
-		//logger.info(c.test.toCode());
 			
 		Logger logger1 = Logger.getLogger(fitness_function.getClass());
 		Level old_level1 = logger.getLevel();
@@ -187,39 +152,8 @@ public class TestCaseMinimizer {
 		fitness = fitness_function.getFitness(c);
 		boolean changed = true;
 		while(changed) {
-			int position = 0;
 			changed = false;
-			/*
-			for(Statement i : c.test.statements) {
-				if(!c.test.hasReferences(i.getReturnValue())) {
-					logger.info("Statement is not referenced: "+i.getCode());
 
-					changed = removeStatement(c, position);
-					*/
-					/*
-					double fitness_without = fitnessWithout(c, position);
-					if(fitness_without >= fitness) {
-						logger.info("Removing unused statement "+i.retval.statement);
-						logger.info("Test case before removal:");
-						logger.info(c.test.toCode());
-						c.test.remove(position);
-						logger.info("Test case after removal:");
-						logger.info(c.test.toCode());
-						removeUnusedPrimitives(c.test);
-						logger.info("Test case after removing primitives:");
-						logger.info(c.test.toCode());
-						changed = true;
-						fitness = fitness_without;
-					}
-					*/
-			/*
-				}
-				if(changed)
-					break;
-				
-				position++;
-			}
-			*/
 			for(int i = c.test.size() - 1; i>=0; i--) {
 				logger.debug("Deleting statement "+c.test.getStatement(i).getCode());
 				TestChromosome copy = (TestChromosome) c.clone();
@@ -234,7 +168,6 @@ public class TestCaseMinimizer {
 				}
 				
 				double new_fitness = fitness_function.getFitness(c);
-				//logger.info("This change affects the fitness: "+fitness+" -> "+new_fitness);
 				if(new_fitness <= fitness) {
 					fitness = new_fitness;
 					changed = true;
