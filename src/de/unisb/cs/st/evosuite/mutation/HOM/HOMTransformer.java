@@ -9,7 +9,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.javaagent.ExecutionPathClassAdapter;
 import de.unisb.cs.st.evosuite.javaagent.StaticInitializationClassAdapter;
-import de.unisb.cs.st.evosuite.string.StringClassAdapter;
+import de.unisb.cs.st.evosuite.primitives.PrimitiveClassAdapter;
 import de.unisb.st.bytecodetransformer.processFiles.BytecodeTransformer;
 
 public class HOMTransformer extends BytecodeTransformer {

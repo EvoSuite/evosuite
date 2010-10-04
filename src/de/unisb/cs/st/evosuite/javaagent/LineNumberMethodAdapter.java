@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2010 Saarland University
+ * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser Public License
+ * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package de.unisb.cs.st.evosuite.javaagent;
 
 import org.apache.log4j.Logger;
@@ -6,6 +25,13 @@ import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+/**
+ * Instruments classes to call the tracer each time a new line of the source
+ * code is passed.
+ *  
+ * @author Gordon Fraser
+ *
+ */
 public class LineNumberMethodAdapter extends MethodAdapter {
 
 	public static int branch_id = 0;
@@ -22,10 +48,8 @@ public class LineNumberMethodAdapter extends MethodAdapter {
 	public LineNumberMethodAdapter(MethodVisitor mv, String className,
 			String methodName, String desc) {
 		super(mv);
-//		super(mv, className, methodName, null, desc);
 		fullMethodName = methodName + desc;
 		this.className = className;
-		//logger.info("Created ExecutionPathAdapter");
 	}
 
 	
@@ -37,63 +61,5 @@ public class LineNumberMethodAdapter extends MethodAdapter {
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 				"passedLine", "(Ljava/lang/String;Ljava/lang/String;I)V");
 		current_line = line;
-		//logger.info("EPA: Visited Line");
-
 	}
-	/*
-	public void visitLabel(Label l) {
-		super.visitLabel(l);
-		this.visitLdcInsn(l.toString());
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/javalanche/tester/ExecutionTracer",
-				"passedLabel", "(Ljava/lang/String;)V");
-	}
-	*/
-	
-/*
-	public void visitCode() {
-		super.visitCode();
-		this.visitLdcInsn(className);
-		this.visitLdcInsn(fullMethodName);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/javalanche/tester/ExecutionTracer",
-				"enteredMethod", "(Ljava/lang/String;Ljava/lang/String;)V");
-	}
-
-	public void visitEnd() {
-		super.visitEnd();
-		logger.trace("Instrumented "+className+"."+fullMethodName);
-	}
-	*/
-	
-	/*
-	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-		//this.visitLdcInsn(owner);
-		//this.visitLdcInsn(name+desc);
-		//mv.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/javalanche/tester/ExecutionTracer",
-		//		"enteredMethod", "(Ljava/lang/String;Ljava/lang/String;)V");
-		mv.visitMethodInsn(opcode, owner, name, desc);
-		this.visitLdcInsn(owner);
-		this.visitLdcInsn(name+desc);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/javalanche/tester/ExecutionTracer",
-				"leftMethod", "(Ljava/lang/String;Ljava/lang/String;)V");
-	}
-	*/
-	
-	/*
-	public void visitInsn(int opcode) {
-		switch(opcode) {
-		case Opcodes.ARETURN:
-		case Opcodes.IRETURN:
-		case Opcodes.LRETURN:
-		case Opcodes.FRETURN:
-		case Opcodes.DRETURN:
-		case Opcodes.RETURN:
-		case Opcodes.ATHROW:
-			this.visitLdcInsn(className);
-			this.visitLdcInsn(fullMethodName);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/javalanche/tester/ExecutionTracer",
-					"leftMethod", "(Ljava/lang/String;Ljava/lang/String;)V");		
-		}
-		mv.visitInsn(opcode);
-	}
-	*/
 }

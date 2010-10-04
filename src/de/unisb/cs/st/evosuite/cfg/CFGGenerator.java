@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2010 Saarland University
+ * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser Public License
+ * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package de.unisb.cs.st.evosuite.cfg;
 
 import java.util.ArrayList;
@@ -40,10 +59,20 @@ import org.objectweb.asm.Opcodes;
 
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
+/**
+ * This class generates a CFG from a method's bytecode
+ * @author Gordon Fraser
+ *
+ */
 public class CFGGenerator extends Analyzer {
 
 	private static Logger logger = Logger.getLogger(CFGGenerator.class);
 
+	/**
+	 * Node of the control flow graph
+	 * @author Gordon Fraser
+	 *
+	 */
 	public class CFGVertex {
 		
 		AbstractInsnNode node;
@@ -323,17 +352,16 @@ public class CFGGenerator extends Analyzer {
 		return min_graph;
 	}
 	
+	/**
+	 * Called for each non-exceptional cfg edge
+	 */
 	protected void newControlFlowEdge(int src, int dst) {
-		//CFGNode s = (CFGNode) getFrames()[getFrameIndex(src)]; 
-		//s.successors.add((CFGNode) getFrames()[getFrameIndex(dst)]);
 		CFGNode s = (CFGNode) getFrames()[src]; 
 		s.successors.put(dst, (CFGNode) getFrames()[dst]);
 		if(getFrames()[dst] == null) {
 			System.out.println("Control flow edge to null");
 			logger.error("Control flow edge to null");
 		}
-		
-		//current_method.instructions.get(dst).accept(new BranchInstrumenter(current_method, 0));
 		
 		CFGVertex v1 = new CFGVertex(src, current_method.instructions.get(src));
 		CFGVertex v2 = new CFGVertex(dst, current_method.instructions.get(dst));
@@ -343,13 +371,14 @@ public class CFGGenerator extends Analyzer {
 		graph.addEdge(v1, v2);
 	}
 
+	/**
+	 * We also need to keep track of exceptional edges - they are also branches
+	 */
 	protected boolean newControlFlowExceptionEdge(int src, int dst) {
-		//CFGNode s = (CFGNode) getFrames()[getFrameIndex(src)]; 
-		//s.successors.add((CFGNode) getFrames()[getFrameIndex(dst)]);
 		CFGNode s = (CFGNode) getFrames()[src]; 
 		s.successors.put(dst, (CFGNode) getFrames()[dst]);
 
-		// TODO: Make use of information that this is an exception edge
+		// TODO: Make use of information that this is an exception edge?
 		CFGVertex v1 = new CFGVertex(src, current_method.instructions.get(src));
 		CFGVertex v2 = new CFGVertex(dst, current_method.instructions.get(dst));
 		

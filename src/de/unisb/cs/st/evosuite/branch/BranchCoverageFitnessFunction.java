@@ -4,11 +4,10 @@
 package de.unisb.cs.st.evosuite.branch;
 
 import de.unisb.cs.st.evosuite.branch.BranchCoverageGoal.Distance;
+import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
-import de.unisb.cs.st.ga.Chromosome;
 
 /**
  * @author Gordon Fraser

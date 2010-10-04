@@ -1,6 +1,22 @@
-/**
+/*
+ * Copyright (C) 2010 Saarland University
  * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser Public License
+ * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package de.unisb.cs.st.evosuite.testsuite;
 
 import java.util.List;
@@ -8,27 +24,27 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
+import de.unisb.cs.st.evosuite.ga.CrossOverFunction;
+import de.unisb.cs.st.evosuite.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
+import de.unisb.cs.st.evosuite.ga.MaxFitnessEvaluationsStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.MaxGenerationStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.MaxTimeStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.MuPlusLambdaGA;
+import de.unisb.cs.st.evosuite.ga.OnePlusOneEA;
+import de.unisb.cs.st.evosuite.ga.Randomness;
+import de.unisb.cs.st.evosuite.ga.RankSelection;
+import de.unisb.cs.st.evosuite.ga.SelectionFunction;
+import de.unisb.cs.st.evosuite.ga.SinglePointCrossOver;
+import de.unisb.cs.st.evosuite.ga.SinglePointRelativeCrossOver;
+import de.unisb.cs.st.evosuite.ga.StandardGA;
+import de.unisb.cs.st.evosuite.ga.SteadyStateGA;
+import de.unisb.cs.st.evosuite.ga.StoppingCondition;
+import de.unisb.cs.st.evosuite.ga.ZeroFitnessStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.MaxTestsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
-import de.unisb.cs.st.ga.ChromosomeFactory;
-import de.unisb.cs.st.ga.CrossOverFunction;
-import de.unisb.cs.st.ga.FitnessFunction;
-import de.unisb.cs.st.ga.GAProperties;
-import de.unisb.cs.st.ga.GeneticAlgorithm;
-import de.unisb.cs.st.ga.MaxFitnessEvaluationsStoppingCondition;
-import de.unisb.cs.st.ga.MaxGenerationStoppingCondition;
-import de.unisb.cs.st.ga.MaxTimeStoppingCondition;
-import de.unisb.cs.st.ga.MuPlusLambdaGA;
-import de.unisb.cs.st.ga.OnePlusOneEA;
-import de.unisb.cs.st.ga.Randomness;
-import de.unisb.cs.st.ga.RankSelection;
-import de.unisb.cs.st.ga.SelectionFunction;
-import de.unisb.cs.st.ga.SinglePointRelativeCrossOver;
-import de.unisb.cs.st.ga.StandardGA;
-import de.unisb.cs.st.ga.SteadyStateGA;
-import de.unisb.cs.st.ga.StoppingCondition;
-import de.unisb.cs.st.ga.ZeroFitnessStoppingCondition;
 
 /**
  * @author Gordon Fraser
@@ -137,8 +153,6 @@ public class TestSuiteGenerator {
 
 			statistics.iteration(ga.getPopulation());
 			statistics.minimized(ga.getBestIndividual());
-			System.out.println();
-			System.out.println("Bloat rejections: "+SteadyStateGA.rejected_bloat);
 
 			resetStoppingConditions();
 		}
@@ -156,13 +170,13 @@ public class TestSuiteGenerator {
 		
 		int num_experiments = Properties.getPropertyOrDefault("num_experiments", 10);
 		int num_steps       = Properties.getPropertyOrDefault("num_steps", 10);
-		int max_length      = GAProperties.chromosome_length;
+		int max_length      = Properties.CHROMOSOME_LENGTH;
 		SearchStatistics statistics = SearchStatistics.getInstance();
 
 		for(int current_step = 1; current_step <= num_steps; current_step++) {
 			int current_length = current_step * max_length / num_steps;
 
-			GAProperties.chromosome_length = current_length;
+			Properties.CHROMOSOME_LENGTH = current_length;
 			logger.info("Setting length to "+current_length);
 
 			for(int current_experiment = 0; current_experiment < num_experiments; current_experiment++) {
@@ -203,13 +217,13 @@ public class TestSuiteGenerator {
 	
 		int num_experiments = Properties.getPropertyOrDefault("num_experiments", 10);
 		int num_steps       = Properties.getPropertyOrDefault("num_steps", 10);
-		int max_population  = GAProperties.population_size;
+		int max_population  = Properties.POPULATION_SIZE;
 
 		for(int current_step = 1; current_step <= num_steps; current_step++) {
 			int current_pop = current_step * max_population / num_steps;
 			
 			logger.info("Current size: "+current_pop);
-			GAProperties.population_size = current_pop;
+			Properties.POPULATION_SIZE = current_pop;
 
 			for(int current_experiment = 0; current_experiment < num_experiments; current_experiment++) {
 		
@@ -260,7 +274,7 @@ public class TestSuiteGenerator {
 		SelectionFunction selection_function = new RankSelection();
 		selection_function.setMaximize(false);
 
-		String search_algorithm = GAProperties.getProperty("algorithm");
+		String search_algorithm = Properties.getProperty("algorithm");
 		if(search_algorithm.equals("(1+1)EA")) {
 			logger.info("Chosen search algorithm: (1+1)EA");
 			ga = new OnePlusOneEA(factory);
@@ -301,7 +315,8 @@ public class TestSuiteGenerator {
 
 		
 		// Relative position crossover to avoid that size increases
-		CrossOverFunction crossover_function = new SinglePointRelativeCrossOver();
+//		CrossOverFunction crossover_function = new SinglePointRelativeCrossOver();
+		CrossOverFunction crossover_function = new SinglePointCrossOver();
 		ga.setCrossOverFunction(crossover_function);
 
 		FitnessFunction fitness_function = new BranchCoverageFitnessFunction();

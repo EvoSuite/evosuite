@@ -7,12 +7,11 @@ import org.apache.log4j.Logger;
 
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
+import de.unisb.cs.st.evosuite.ga.Randomness;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
-import de.unisb.cs.st.ga.Chromosome;
-import de.unisb.cs.st.ga.ChromosomeFactory;
-import de.unisb.cs.st.ga.GAProperties;
-import de.unisb.cs.st.ga.Randomness;
 
 /**
  * @author Gordon Fraser
@@ -51,7 +50,7 @@ public class OUMTestChromosomeFactory implements ChromosomeFactory {
 	@Override
 	public Chromosome getChromosome() {
 		TestChromosome c = new TestChromosome();
-		c.test = getRandomTestCase(GAProperties.chromosome_length);
+		c.test = getRandomTestCase(Properties.CHROMOSOME_LENGTH);
 		return c;
 	}
 

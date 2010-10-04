@@ -1,6 +1,22 @@
-/**
+/*
+ * Copyright (C) 2010 Saarland University
  * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser Public License
+ * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package de.unisb.cs.st.evosuite.javaagent;
 
 import java.util.ArrayList;
@@ -13,6 +29,9 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
+ * Duplicate static initializers in methods, such that we can explicitly
+ * restore the initial state of classes.
+ * 
  * @author Gordon Fraser
  *
  */
@@ -21,29 +40,13 @@ public class StaticInitializationClassAdapter extends ClassAdapter {
 	
 	private String className;
 	
-//	private boolean exclude;
-
-//	private Excludes e = Excludes.getInstance();
-
 	public static List<String> static_classes = new ArrayList<String>();
 	
 	private static Logger logger = Logger.getLogger(StaticInitializationClassAdapter.class);
 	
-	//private List<String> instrument;
-	
-//	public CFGClassAdapter(ClassVisitor visitor, String className, List<String> instrument_methods) {
 	public StaticInitializationClassAdapter (ClassVisitor visitor, String className) {
 		super(visitor);
-//		instrument = instrument_methods;
 		this.className = className;
-//		String classNameWithDots = className.replace('/', '.');
-		/*
-		if (e.shouldExclude(classNameWithDots) || EXCLUDES.contains(className)) {
-			exclude = true;
-		} else {
-			exclude = false;
-		}
-		*/
 	}
 
 	public MethodVisitor visitMethod(int methodAccess, String name,

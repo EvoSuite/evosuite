@@ -127,6 +127,14 @@ public class UsageModel {
 	}
 
 	
+	public boolean hasUsageTransition(ConcreteCall method1, ConcreteCall method2) {
+		if(method1 == null || method2 == null)
+			return true;
+		if(!usage_models.containsKey(method1.getClassName()))
+			return false;
+		return usage_models.get(method1.getClassName()).hasTransition(method1, method2);
+	}
+	
 	/**
 	 * Return a generator that should be used outside of parameters
 	 * 

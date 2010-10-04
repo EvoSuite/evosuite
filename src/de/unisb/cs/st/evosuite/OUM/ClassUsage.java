@@ -12,7 +12,7 @@ import org.jgrapht.ext.VertexNameProvider;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
-import de.unisb.cs.st.ga.Randomness;
+import de.unisb.cs.st.evosuite.ga.Randomness;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -275,6 +275,10 @@ public class ClassUsage {
 			return false;
 		
 		return method_model.get(call).hasUsage(parameter, generator);
+	}
+	
+	public boolean hasTransition(ConcreteCall call1, ConcreteCall call2) {
+		return usage_model.containsEdge(call1, call2);
 	}
 	
 	private class WeightNameProvider implements EdgeNameProvider<DefaultWeightedEdge> {

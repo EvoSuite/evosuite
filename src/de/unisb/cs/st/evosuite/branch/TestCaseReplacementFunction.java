@@ -3,11 +3,11 @@
  */
 package de.unisb.cs.st.evosuite.branch;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.ga.SelectionFunction;
+import de.unisb.cs.st.evosuite.ga.SteadyStateReplacementFunction;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
-import de.unisb.cs.st.ga.Chromosome;
-import de.unisb.cs.st.ga.GAProperties;
-import de.unisb.cs.st.ga.SelectionFunction;
-import de.unisb.cs.st.ga.SteadyStateReplacementFunction;
 
 
 /**
@@ -16,7 +16,7 @@ import de.unisb.cs.st.ga.SteadyStateReplacementFunction;
  */
 public class TestCaseReplacementFunction extends SteadyStateReplacementFunction {
 
-	private final static boolean PARENT_LENGTH = GAProperties.getPropertyOrDefault("check_parents_length", true);  
+	private final static boolean PARENT_LENGTH = Properties.getPropertyOrDefault("check_parents_length", true);  
 	
 	public TestCaseReplacementFunction(SelectionFunction selection) {
 		super(selection);

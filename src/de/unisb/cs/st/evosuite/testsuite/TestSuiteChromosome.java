@@ -1,5 +1,20 @@
-/**
+/*
+ * Copyright (C) 2010 Saarland University
  * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser Public License
+ * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
  */
 package de.unisb.cs.st.evosuite.testsuite;
 
@@ -9,16 +24,12 @@ import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.OUM.OUMTestChromosomeFactory;
-import de.unisb.cs.st.evosuite.OUM.OUMTestFactory;
-import de.unisb.cs.st.evosuite.testcase.AbstractTestFactory;
+import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
+import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
-import de.unisb.cs.st.evosuite.testcase.TestFactory;
-import de.unisb.cs.st.ga.Chromosome;
-import de.unisb.cs.st.ga.ChromosomeFactory;
-import de.unisb.cs.st.ga.ConstructionFailedException;
-import de.unisb.cs.st.ga.GAProperties;
 
 /**
  * @author Gordon Fraser
@@ -26,7 +37,7 @@ import de.unisb.cs.st.ga.GAProperties;
  */
 public class TestSuiteChromosome extends Chromosome {
 
-	private final static boolean RANK_LENGTH = GAProperties.getPropertyOrDefault("check_rank_length", true);  
+	private final static boolean RANK_LENGTH = Properties.getPropertyOrDefault("check_rank_length", true);  
 	
 	/** The genes are test cases */
 	List<TestChromosome> tests = new ArrayList<TestChromosome>();
@@ -37,7 +48,7 @@ public class TestSuiteChromosome extends Chromosome {
 	protected double coverage = 0.0;
 	
 	/** Rate of test case addition */
-	protected double mutation_rate      = GAProperties.getPropertyOrDefault("mutation_rate", 0.1);
+	protected double mutation_rate      = Properties.getPropertyOrDefault("mutation_rate", 0.1);
 	
 	/** Factory to manipulate and generate method sequences */
 	private static ChromosomeFactory test_factory = null;

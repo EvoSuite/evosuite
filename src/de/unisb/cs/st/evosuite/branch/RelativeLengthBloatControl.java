@@ -5,12 +5,12 @@ package de.unisb.cs.st.evosuite.branch;
 
 import java.util.List;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.ga.BloatControlFunction;
+import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.ga.SearchListener;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
-import de.unisb.cs.st.ga.BloatControlFunction;
-import de.unisb.cs.st.ga.Chromosome;
-import de.unisb.cs.st.ga.FitnessFunction;
-import de.unisb.cs.st.ga.GAProperties;
-import de.unisb.cs.st.ga.SearchListener;
 
 
 /**
@@ -25,7 +25,7 @@ public class RelativeLengthBloatControl implements BloatControlFunction,
 	protected double best_fitness = Double.MAX_VALUE; // FIXXME: Assuming minimizing fitness!
 	
 	/** Factor for bloat control */
-	protected int bloat_factor = GAProperties.getPropertyOrDefault("bloat_factor", 2);
+	protected int bloat_factor = Properties.getPropertyOrDefault("bloat_factor", 2);
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.javalanche.ga.BloatControlFunction#isTooLong(de.unisb.cs.st.javalanche.ga.Chromosome)
 	 */

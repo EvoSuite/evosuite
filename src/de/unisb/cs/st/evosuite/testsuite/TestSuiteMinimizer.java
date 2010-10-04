@@ -1,6 +1,22 @@
-/**
+/*
+ * Copyright (C) 2010 Saarland University
  * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser Public License
+ * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package de.unisb.cs.st.evosuite.testsuite;
 
 import java.util.HashSet;
@@ -11,14 +27,14 @@ import java.util.Map.Entry;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
-import de.unisb.cs.st.evosuite.testcase.TestFactory;
-import de.unisb.cs.st.ga.ConstructionFailedException;
-import de.unisb.cs.st.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 
 
 /**
@@ -31,7 +47,7 @@ public class TestSuiteMinimizer {
 	private Logger logger = Logger.getLogger(TestSuiteMinimizer.class);
 	
 	/** Factory method that handles statement deletion */
-	private TestFactory test_factory = TestFactory.getInstance();
+	private DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 	
 	/** Test execution helper */
 	private TestCaseExecutor executor = new TestCaseExecutor();
@@ -112,7 +128,7 @@ public class TestSuiteMinimizer {
 		Logger logger2 = Logger.getLogger(TestSuiteFitnessFunction.class);
 		Level old_level2 = logger.getLevel();
 		logger2.setLevel(Level.OFF);
-		Logger logger3 = Logger.getLogger(TestFactory.class);
+		Logger logger3 = Logger.getLogger(DefaultTestFactory.class);
 		Level old_level3 = logger.getLevel();
 		logger3.setLevel(Level.OFF);
 		

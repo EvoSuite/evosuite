@@ -1,6 +1,22 @@
-/**
+/*
+ * Copyright (C) 2010 Saarland University
  * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser Public License
+ * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package de.unisb.cs.st.evosuite.testsuite;
 
 import java.io.BufferedWriter;
@@ -37,6 +53,12 @@ import com.panayotis.gnuplot.terminal.GNUPlotTerminal;
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.ga.MaxFitnessEvaluationsStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.Randomness;
+import de.unisb.cs.st.evosuite.ga.SearchListener;
+import de.unisb.cs.st.evosuite.ga.SteadyStateGA;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.MaxStatementsStoppingCondition;
@@ -44,13 +66,6 @@ import de.unisb.cs.st.evosuite.testcase.MaxTestsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
-import de.unisb.cs.st.ga.Chromosome;
-import de.unisb.cs.st.ga.FitnessFunction;
-import de.unisb.cs.st.ga.GAProperties;
-import de.unisb.cs.st.ga.MaxFitnessEvaluationsStoppingCondition;
-import de.unisb.cs.st.ga.Randomness;
-import de.unisb.cs.st.ga.SearchListener;
-import de.unisb.cs.st.ga.SteadyStateGA;
 import de.unisb.cs.st.javalanche.mutation.analyze.html.HtmlAnalyzer;
 
 
@@ -498,8 +513,8 @@ public class SearchStatistics implements SearchListener {
 	protected void writeParameterTable(StringBuffer buffer, StatisticEntry entry) {
 		buffer.append("<h2>Search Parameters</h2>\n");
 		buffer.append("<ul>\n");
-		for(Object property : GAProperties.getKeys()) {
-			buffer.append("<li>"+property+": "+GAProperties.getProperty((String)property)+"\n"); // TODO			
+		for(Object property : Properties.getKeys()) {
+			buffer.append("<li>"+property+": "+Properties.getProperty((String)property)+"\n"); // TODO			
 		}
 		buffer.append("</ul>\n");
 		buffer.append("<h2>EvoSuite Parameters</h2>\n");
@@ -512,11 +527,11 @@ public class SearchStatistics implements SearchListener {
 		
 		buffer.append("<h2>Old Parameters</h2>\n");
 		buffer.append("<ul>\n");
-		buffer.append("<li>Algorithm: "+GAProperties.getProperty("algorithm")+"\n"); // TODO
+		buffer.append("<li>Algorithm: "+Properties.getProperty("algorithm")+"\n"); // TODO
 		buffer.append("<li>Population size: "+entry.population_size+"\n");
 		buffer.append("<li>Initial test length: "+entry.chromosome_length+"\n");
-		buffer.append("<li>Stopping condition: "+GAProperties.getProperty("stopping_condition")+": " + System.getProperty("GA.generations") +"\n");
-		buffer.append("<li>Bloat control factor: "+GAProperties.getPropertyOrDefault("bloat_factor", "2"));
+		buffer.append("<li>Stopping condition: "+Properties.getProperty("stopping_condition")+": " + System.getProperty("GA.generations") +"\n");
+		buffer.append("<li>Bloat control factor: "+Properties.getPropertyOrDefault("bloat_factor", "2"));
 		buffer.append("<li>Random seed: "+entry.seed+"\n");
 		buffer.append("</ul>\n");
 	}
@@ -637,10 +652,6 @@ public class SearchStatistics implements SearchListener {
 			out.write(entry.length_final+",");
 			out.write(entry.size_minimized+",");
 			out.write(entry.length_minimized+",");
-
-			out.write(SteadyStateGA.rejected_bloat+",");
-			out.write(SteadyStateGA.rejected_fitness+",");
-			out.write(SteadyStateGA.accepted_fitness+",");
 
 			out.write(entry.chromosome_length+",");
 			out.write(entry.population_size+",");
@@ -944,8 +955,8 @@ public class SearchStatistics implements SearchListener {
 			entry.id                 = getNumber(entry.className);
 		}
 		entry.start_time        = System.currentTimeMillis();
-		entry.population_size   = GAProperties.population_size;
-		entry.chromosome_length = GAProperties.chromosome_length;
+		entry.population_size   = Properties.POPULATION_SIZE;
+		entry.chromosome_length = Properties.CHROMOSOME_LENGTH;
 		entry.seed = Randomness.getInstance().getSeed();
 		statistics.add(entry);
 	}

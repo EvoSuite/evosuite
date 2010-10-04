@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2009 Saarland University
+ * Copyright (C) 2010 Saarland University
  * 
- * This file is part of Javalanche.
+ * This file is part of EvoSuite.
  * 
- * Javalanche is free software: you can redistribute it and/or modify
+ * EvoSuite is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * Javalanche is distributed in the hope that it will be useful,
+ * EvoSuite is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser Public License
- * along with Javalanche.  If not, see <http://www.gnu.org/licenses/>.
+ * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package de.unisb.cs.st.evosuite.testcase;
@@ -115,6 +115,7 @@ public class TestRunner extends Thread {
 
 				if(exceptionThrown != null) {
 					exceptionsThrown.put(num, exceptionThrown);
+					
 					//exception_statement = num;
 					if(log && logger.isDebugEnabled())
 						logger.debug("Exception thrown in statement: "+s.getCode()+" - "+exceptionThrown.getClass().getName()+" - "+exceptionThrown.getMessage());

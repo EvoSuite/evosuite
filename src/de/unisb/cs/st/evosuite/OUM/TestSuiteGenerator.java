@@ -3,12 +3,18 @@
  */
 package de.unisb.cs.st.evosuite.OUM;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.AccessibleObject;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
@@ -22,43 +28,48 @@ import de.unisb.cs.st.evosuite.branch.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.branch.RelativeLengthBloatControl;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
+import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
+import de.unisb.cs.st.evosuite.ga.CrossOverFunction;
+import de.unisb.cs.st.evosuite.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
+import de.unisb.cs.st.evosuite.ga.MaxFitnessEvaluationsStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.MaxGenerationStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.MaxTimeStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.MuPlusLambdaGA;
+import de.unisb.cs.st.evosuite.ga.OnePlusOneEA;
+import de.unisb.cs.st.evosuite.ga.Randomness;
+import de.unisb.cs.st.evosuite.ga.RankSelection;
+import de.unisb.cs.st.evosuite.ga.SelectionFunction;
+import de.unisb.cs.st.evosuite.ga.SinglePointRelativeCrossOver;
+import de.unisb.cs.st.evosuite.ga.StandardGA;
+import de.unisb.cs.st.evosuite.ga.SteadyStateGA;
+import de.unisb.cs.st.evosuite.ga.StoppingCondition;
+import de.unisb.cs.st.evosuite.ga.ZeroFitnessStoppingCondition;
 import de.unisb.cs.st.evosuite.junit.JUnitTestSuite;
 import de.unisb.cs.st.evosuite.mutation.MutationStatistics;
+import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
+import de.unisb.cs.st.evosuite.testcase.FieldStatement;
 import de.unisb.cs.st.evosuite.testcase.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.MaxTestsStoppingCondition;
+import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
+import de.unisb.cs.st.evosuite.testcase.Statement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestCaseMinimizer;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
-import de.unisb.cs.st.evosuite.testcase.TestFactory;
+import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
+import de.unisb.cs.st.evosuite.testcase.VariableReference;
 import de.unisb.cs.st.evosuite.testsuite.BestChromosomeTracker;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosomeFactory;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteReplacementFunction;
-import de.unisb.cs.st.ga.Chromosome;
-import de.unisb.cs.st.ga.ChromosomeFactory;
-import de.unisb.cs.st.ga.CrossOverFunction;
-import de.unisb.cs.st.ga.FitnessFunction;
-import de.unisb.cs.st.ga.GAProperties;
-import de.unisb.cs.st.ga.GeneticAlgorithm;
-import de.unisb.cs.st.ga.MaxFitnessEvaluationsStoppingCondition;
-import de.unisb.cs.st.ga.MaxGenerationStoppingCondition;
-import de.unisb.cs.st.ga.MaxTimeStoppingCondition;
-import de.unisb.cs.st.ga.MuPlusLambdaGA;
-import de.unisb.cs.st.ga.OnePlusOneEA;
-import de.unisb.cs.st.ga.Randomness;
-import de.unisb.cs.st.ga.RankSelection;
-import de.unisb.cs.st.ga.SelectionFunction;
-import de.unisb.cs.st.ga.SinglePointRelativeCrossOver;
-import de.unisb.cs.st.ga.StandardGA;
-import de.unisb.cs.st.ga.SteadyStateGA;
-import de.unisb.cs.st.ga.StoppingCondition;
-import de.unisb.cs.st.ga.ZeroFitnessStoppingCondition;
 
 /**
  * @author Gordon Fraser
@@ -78,7 +89,7 @@ public class TestSuiteGenerator {
 	private StoppingCondition zero_fitness = new ZeroFitnessStoppingCondition();
 	private int num_experiments = 0;
 
-	private final static boolean PARENTS_LENGTH = GAProperties.getPropertyOrDefault("check_parents_length", true);  
+	private final static boolean PARENTS_LENGTH = Properties.getPropertyOrDefault("check_parents_length", true);  
 
 	
 	private void compareAgainstJUnit(TestSuiteChromosome suite) {
@@ -113,7 +124,7 @@ public class TestSuiteGenerator {
 			coverage_junit++;
 			if(!generated_covered_true.contains(branch))
 				junit_not_generated++;
-			else
+			else 			
 				common_covered_true.add(branch);
 				
 		}
@@ -137,6 +148,7 @@ public class TestSuiteGenerator {
 				generated_not_junit++;
 			else
 				common_covered_true.add(branch);
+				
 		}
 		for(String branch : generated_covered_false) {
 			coverage_generated++;
@@ -158,6 +170,23 @@ public class TestSuiteGenerator {
 		common = common_covered_methods.size();
 		System.out.println("Branches covered by JUnit but not by generated: "+junit_not_generated);
 		System.out.println("Branches covered by generated but not by JUnit: "+generated_not_junit);
+		
+		
+		String P = "1.0";
+		String filename = Properties.getProperty("tests");
+		if(filename.contains("_00.xml"))
+			P = "0.0";
+		else if(filename.contains("_025.xml"))
+			P = "0.25";
+		else if(filename.contains("_05.xml"))
+			P = "0.5";
+		else if(filename.contains("_075.xml"))
+			P = "0.75";
+		else if(filename.contains("_10.xml"))
+			P = "1.0";
+		System.out.println("CSV,"+Properties.TARGET_CLASS+","+P+","+coverage_junit+","+coverage_generated+","+common+","+junit_not_generated+","+generated_not_junit);
+
+/*		
 		try {
 			FileWriter writer = new FileWriter(Properties.OUTPUT_DIR+"/junit_comparison.csv", true);
 			BufferedWriter w = new BufferedWriter(writer);
@@ -168,6 +197,7 @@ public class TestSuiteGenerator {
 		} catch(IOException e) {
 			
 		}
+		*/
 	}
 	
 	private double getCoverage(TestSuiteChromosome suite) {
@@ -196,17 +226,17 @@ public class TestSuiteGenerator {
 		ExecutionTrace.trace_calls = true;
 
 		OUMTestFactory oum_factory = OUMTestFactory.getInstance();
-		TestFactory test_factory = TestFactory.getInstance();
+		DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 		logger.info("Experiment 1");
 		num_experiments = Properties.getPropertyOrDefault("num_experiments", 1);
 		
-		GAProperties.chromosome_length = 10000;
+		Properties.CHROMOSOME_LENGTH = 10000;
 		Properties.setProperty("test_factory", "OUM");
 		for(int num = 0; num < num_experiments; num++) {
 			logger.info("Experiment run: "+num);
 			// Generate test
 			TestCase test = new TestCase();
-			while(test.size() < GAProperties.chromosome_length) {
+			while(test.size() < Properties.CHROMOSOME_LENGTH) {
 				oum_factory.appendRandomCall(test);
 			}
 			//logger.info("OUM test");
@@ -221,7 +251,7 @@ public class TestSuiteGenerator {
 			logger.info("Experiment run: "+num);
 			// Generate test
 			TestCase test = new TestCase();
-			while(test.size() < GAProperties.chromosome_length) {
+			while(test.size() < Properties.CHROMOSOME_LENGTH) {
 				test_factory.insertRandomCall(test, test.size());
 			}
 			//logger.info("Random test");
@@ -247,6 +277,10 @@ public class TestSuiteGenerator {
 		int num_experiments = Properties.getPropertyOrDefault("num_experiments", 1);
 		for(int current_experiment = 0; current_experiment < num_experiments; current_experiment++) {
 			// Reset everything
+			Randomness.getInstance().setSeed(Randomness.getInstance().getSeed() + current_experiment);
+			System.out.println("New run with seed "+Randomness.getInstance().getSeed());
+			
+			
 			Properties.setProperty("test_factory", "OUM");
 			GeneticAlgorithm ga = getGeneticAlgorithm_TestSuite();
 
@@ -279,9 +313,32 @@ public class TestSuiteGenerator {
 			double coverage = getCoverage(best);
 			int size = best.size();
 			int length = best.length();
-			System.out.println("UsageCSV,"+Properties.getProperty("usage_models")+","+Properties.getProperty("usage_rate")+","+Properties.TARGET_CLASS+","+coverage+","+size+","+length);
-/*
+			String model = "CLIENT";
+			if(Properties.getProperty("usage_models").contains("model_tests")) {
+				if(Properties.getProperty("usage_models").contains("model_source")) {
+					model = "ALL";
+				} else {
+					model = "TEST";
+				}
+				
+			}
+			System.out.println("UsageCSV,"+Properties.getProperty("usage_models")+","+Properties.getProperty("usage_rate")+","+Randomness.getInstance().getSeed()+","+Properties.TARGET_CLASS+","+coverage+","+size+","+length);
+			XStream xstream = new XStream();
+			FileWriter fstream;
+			try {
+				String rate = Properties.getProperty("usage_rate").replace(".","");
+				fstream = new FileWriter(Properties.TARGET_CLASS+"_tests_"+model+"_"+Randomness.getInstance().getSeed()+"_"+rate+".xml");
+				BufferedWriter out = new BufferedWriter(fstream);
+
+				xstream.toXML(best.getTests(), out);
+				String xml = xstream.toXML(best.getTests());
+				//TestCase copy = (TestCase) xstream.fromXML(xml);
+				//logger.info("After xstream:");
+				//logger.info(copy.toCode());
+			} catch (IOException e) {
+			}
 			resetStoppingConditions();
+			/*
 
 			Properties.setProperty("test_factory", "Random");
 			ga = getGeneticAlgorithm_TestSuite();
@@ -316,6 +373,214 @@ public class TestSuiteGenerator {
 
 	}
 	
+	
+	/**
+	 * Experiment 2: 
+	 * Generate test suites
+	 */
+	public void experiment3() {
+		
+		JUnitTestSuite junit = new JUnitTestSuite();
+		String name = Properties.getProperty("junit_tests");
+		if(name == null)
+			return;
+		
+		junit.runSuite(name);
+		
+		Set<String> junit_covered_true    = junit.getTrueCoveredBranches();
+		Set<String> junit_covered_false   = junit.getFalseCoveredBranches();
+		Set<String> junit_covered_methods = junit.getCoveredMethods();
+
+		int total = CFGMethodAdapter.methods.size() + CFGMethodAdapter.branch_counter * 2 + 2;
+		int coverage_junit = 0;
+		for(String branch : junit_covered_true) {
+			coverage_junit++;				
+		}
+		for(String branch : junit_covered_false) {
+			coverage_junit++;
+		}
+		for(String branch : junit_covered_methods) {
+			coverage_junit++;
+		}
+		System.out.println("COV,"+Properties.TARGET_CLASS+","+(100.0 * coverage_junit / total));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void experiment4() {
+		XStream xstream = new XStream();
+		FileReader fstream;
+		
+		try {
+			fstream = new FileReader(Properties.getProperty("tests"));
+			BufferedReader in = new BufferedReader(fstream);
+
+			ArrayList<TestCase> tests = (ArrayList<TestCase>)xstream.fromXML(in);
+			OUMTestFactory factory = OUMTestFactory.getInstance();
+			UsageModel usage = UsageModel.getInstance();
+			
+			int valid = 0;
+			int invalid = 0;
+			
+			Set<Class<?>> classes = new HashSet<Class<?>>();
+			Set<AccessibleObject> calls = new HashSet<AccessibleObject>();
+			for(TestCase test : tests) {
+				int num = 0;
+				for(Statement s : test.getStatements()) {
+					for(VariableReference var : s.getVariableReferences()) {
+						classes.add(var.getVariableClass());
+					}
+					if(s instanceof MethodStatement) {
+						calls.add(((MethodStatement)s).getMethod());
+					} else if(s instanceof FieldStatement) {
+						calls.add(((FieldStatement)s).getField());
+					} else if(s instanceof ConstructorStatement) {
+						calls.add(((ConstructorStatement)s).getConstructor());
+					}
+					/*
+					ConcreteCall last = factory.getLastUse(test, num, s.getReturnValue());
+					ConcreteCall next = factory.getNextUse(test, num, s.getReturnValue());
+					if(usage.hasUsageTransition(last, next))
+						valid++;
+					else
+						invalid++;
+						*/	
+					num++;
+				}
+			}
+			int total = valid+invalid;
+			String P = "1.0";
+			String filename = Properties.getProperty("tests");
+			if(filename.contains("_00.xml"))
+				P = "0.0";
+			else if(filename.contains("_025.xml"))
+				P = "0.25";
+			else if(filename.contains("_05.xml"))
+				P = "0.5";
+			else if(filename.contains("_075.xml"))
+				P = "0.75";
+			else if(filename.contains("_10.xml"))
+				P = "1.0";
+			System.out.println("Valid: "+valid+"/"+total+" - "+(100.0*valid/total)+"%");
+			System.out.println("Classes accessed: "+classes.size());
+			System.out.println("Calls accessed: "+calls.size());
+			System.out.println("CSV,"+Properties.TARGET_CLASS+","+P+","+classes.size()+","+calls.size());
+
+		} catch(IOException e) {
+			
+		}
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	public void experiment5() {
+		XStream xstream = new XStream();
+		FileReader fstream;
+		
+		try {
+			fstream = new FileReader(Properties.getProperty("tests"));
+			BufferedReader in = new BufferedReader(fstream);
+
+			ArrayList<TestCase> tests = (ArrayList<TestCase>)xstream.fromXML(in);
+			
+			//TestSuiteChromosome suite = new TestSuiteChromosome();
+			TestCaseExecutor executor = new TestCaseExecutor();
+			int num_exceptions = 0;
+			int num_declared = 0;
+			int num_checked = 0;
+			int num_unchecked = 0;
+			int num_relevant = 0;
+			int length = 0;
+			Map<String, Integer> exception_map = new HashMap<String, Integer>();
+			for(TestCase test : tests) {
+				length += test.size();
+				Map<Integer,Throwable> exceptionsThrown = executor.run(test);
+				num_exceptions += exceptionsThrown.size();
+				// TODO: Don't count declared exceptions
+				for(Integer pos : exceptionsThrown.keySet()) {
+					if(exceptionsThrown.get(pos) instanceof RuntimeException) {
+						num_unchecked++;
+						String name = exceptionsThrown.get(pos).getClass().getName();
+						if(!exception_map.containsKey(name))
+							exception_map.put(name, 1);
+						else
+							exception_map.put(name, exception_map.get(name) + 1);
+					}
+					else if(exceptionsThrown.get(pos) instanceof RuntimeException)
+						num_checked++;
+					
+					if(exceptionsThrown.get(pos) instanceof NullPointerException || 
+					   exceptionsThrown.get(pos) instanceof NumberFormatException)
+						num_relevant++;
+					
+					if(test.getStatement(pos) instanceof MethodStatement) {
+						MethodStatement ms = (MethodStatement) test.getStatement(pos);
+						logger.info("Raised exception: "+exceptionsThrown.get(pos));
+						List<Class<?>> declared = Arrays.asList(ms.getMethod().getExceptionTypes());
+						for(Class<?> ex : declared) {
+							logger.info("Declared exception: "+ex);
+						}
+						if(declared.contains(exceptionsThrown.get(pos)))
+							num_declared++;
+					}
+				}
+			}
+			double avg_exceptions = 1.0 * num_exceptions / tests.size();
+			double avg_undeclared = 1.0 * (num_exceptions - num_declared) / tests.size();
+			double avg_exceptions_len = 1.0 * num_exceptions / length;
+			double avg_undeclared_len = 1.0 * (num_exceptions - num_declared) / length;
+			double avg_checked_exceptions = 1.0 * num_checked / length;
+			double avg_unchecked_exceptions = 1.0 * (num_unchecked - num_declared) / length;
+			double avg_relevant = 1.0 * num_relevant / tests.size();
+			double avg_relevant_len = 1.0 * num_relevant / length;
+			
+			//compareAgainstJUnit(suite);
+			// Count undeclared exceptions
+			String P = "1.0";
+			String filename = Properties.getProperty("tests");
+			if(filename.contains("_00.xml"))
+				P = "0.0";
+			else if(filename.contains("_025.xml"))
+				P = "0.25";
+			else if(filename.contains("_05.xml"))
+				P = "0.5";
+			else if(filename.contains("_075.xml"))
+				P = "0.75";
+			else if(filename.contains("_10.xml"))
+				P = "1.0";
+
+			System.out.println("CSV,"+Properties.TARGET_CLASS+","+P+","+num_exceptions+","+(num_exceptions-num_declared)+","+avg_exceptions+","+avg_undeclared+","+avg_exceptions_len+","+avg_undeclared_len+","+num_unchecked+","+num_checked+","+avg_checked_exceptions+","+avg_unchecked_exceptions+","+num_relevant+","+avg_relevant+","+avg_relevant_len);
+			
+			for(String name : exception_map.keySet()) {
+				System.out.println("EXC,"+Properties.TARGET_CLASS+","+P+","+name+","+exception_map.get(name));
+			}
+			
+		} catch(IOException e) {
+			
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void experiment6() {
+		XStream xstream = new XStream();
+		FileReader fstream;
+		
+		try {
+			fstream = new FileReader(Properties.getProperty("tests"));
+			BufferedReader in = new BufferedReader(fstream);
+
+			ArrayList<TestCase> tests = (ArrayList<TestCase>)xstream.fromXML(in);
+			
+			TestSuiteChromosome suite = new TestSuiteChromosome();
+			for(TestCase test : tests) {
+				suite.addTest(test);
+			}
+
+
+		} catch(IOException e) {
+			
+		}
+	}
+	
 	/**
 	 * Do the magic
 	 */
@@ -324,7 +589,7 @@ public class TestSuiteGenerator {
 		SearchStatistics statistics = SearchStatistics.getInstance();
 		ExecutionTrace.trace_calls = true;
 
-		int max_s = GAProperties.generations;
+		int max_s = Properties.GENERATIONS;
 
 
 		GeneticAlgorithm ga = getGeneticAlgorithm_TestCases();
@@ -458,7 +723,8 @@ public class TestSuiteGenerator {
 		XStream xstream = new XStream();
 		FileWriter fstream;
 		try {
-			fstream = new FileWriter(Properties.TARGET_CLASS+"_tests.xml");
+			String rate = Properties.getProperty("usage_rate").replace(".","");
+			fstream = new FileWriter(Properties.TARGET_CLASS+"_tests_"+Randomness.getInstance().getSeed()+"_"+rate+".xml");
 			BufferedWriter out = new BufferedWriter(fstream);
 
 			xstream.toXML(suite.getTests(), out);
@@ -521,7 +787,7 @@ public class TestSuiteGenerator {
 		SelectionFunction selection_function = new RankSelection();
 		selection_function.setMaximize(false);
 
-		String search_algorithm = GAProperties.getProperty("algorithm");
+		String search_algorithm = Properties.getProperty("algorithm");
 		if(search_algorithm.equals("(1+1)EA")) {
 			logger.info("Chosen search algorithm: (1+1)EA");
 			ga = new OnePlusOneEA(factory);
@@ -611,7 +877,7 @@ public class TestSuiteGenerator {
 		SelectionFunction selection_function = new RankSelection();
 		selection_function.setMaximize(false);
 
-		String search_algorithm = GAProperties.getProperty("algorithm");
+		String search_algorithm = Properties.getProperty("algorithm");
 		if(search_algorithm.equals("(1+1)EA")) {
 			logger.info("Chosen search algorithm: (1+1)EA");
 			ga = new OnePlusOneEA(factory);
@@ -694,10 +960,11 @@ public class TestSuiteGenerator {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		System.out.println("Creating coverage test suite.");
+		System.out.println("Creating coverage test suite");
 		TestSuiteGenerator generator = new TestSuiteGenerator();
 		String experiment = System.getProperty("experiment");
 		if(experiment != null && !experiment.equals("none") && !experiment.equals("")) {
+			System.out.println("Starting experiment: "+experiment);
 			int num = Integer.parseInt(experiment);
 			switch(num) {
 			case 1:
@@ -705,6 +972,15 @@ public class TestSuiteGenerator {
 				break;
 			case 2:
 				generator.experiment2();
+				break;
+			case 3:
+				generator.experiment3();
+				break;
+			case 4:
+				generator.experiment4();
+				break;
+			case 5:
+				generator.experiment5();
 				break;
 			default:
 				generator.generateTestSuite();

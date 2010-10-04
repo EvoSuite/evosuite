@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2009 Saarland University
+ * Copyright (C) 2010 Saarland University
  * 
- * This file is part of Javalanche.
+ * This file is part of EvoSuite.
  * 
- * Javalanche is free software: you can redistribute it and/or modify
+ * EvoSuite is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * Javalanche is distributed in the hope that it will be useful,
+ * EvoSuite is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser Public License
- * along with Javalanche.  If not, see <http://www.gnu.org/licenses/>.
+ * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package de.unisb.cs.st.evosuite.testcase;
@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+
+import de.unisb.cs.st.evosuite.assertion.Assertion;
 
 /**
  * Abstract superclass of test case statements
@@ -166,16 +168,6 @@ public abstract class Statement {
 	 *   Assertion to be added
 	 */
 	public void addAssertion(Assertion assertion) {
-		/*
-		for(Assertion a: assertions) {
-			if(a.equals(assertion)) {
-				logger.info("Already have this assertion!");
-				logger.info(assertion.getCode());
-				logger.info(a.getCode());
-				return;
-			}
-		}
-		*/
 		if(assertion == null) {
 			logger.warn("Trying to add null assertion!");
 		} else {
@@ -208,7 +200,7 @@ public abstract class Statement {
 	public void adjustAssertions(int position, int delta) {
 		for(Assertion a : assertions) {
 			if(a != null)
-				a.source.adjust(delta, position);
+				a.getSource().adjust(delta, position);
 		}
 	}	
 	
@@ -217,5 +209,12 @@ public abstract class Statement {
 	 */
 	public void removeAssertions() {
 		assertions.clear();
+	}
+	
+	/**
+	 * Return list of assertions
+	 */
+	public List<Assertion> getAssertions() {
+		return assertions;
 	}
 }

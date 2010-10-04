@@ -123,7 +123,7 @@ public class TestGenerator {
 		String[] parts = test_class_name.split("/");
 		String suite_name = parts[parts.length - 1].replaceAll("_\\d+.task$", "").replace(".","_");
 		strategy.writeTestSuite("TestSuite_"+suite_name, output_dir);
-		strategy.writeFailedTests("Failed_"+suite_name, bug_dir);
+		//strategy.writeFailedTests("Failed_"+suite_name, bug_dir);
 		
 		MutationStatistics statistics = MutationStatistics.getInstance();
 		//statistics.logStatistics();

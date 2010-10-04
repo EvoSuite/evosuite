@@ -3,18 +3,18 @@ package de.unisb.cs.st.evosuite.mutation;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
+import de.unisb.cs.st.evosuite.ga.OnePlusOneEA;
+import de.unisb.cs.st.evosuite.ga.Randomness;
+import de.unisb.cs.st.evosuite.ga.RankSelection;
+import de.unisb.cs.st.evosuite.ga.SelectionFunction;
+import de.unisb.cs.st.evosuite.ga.StandardGA;
+import de.unisb.cs.st.evosuite.ga.SteadyStateGA;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseMinimizer;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.FixedLengthTestChromosomeFactory;
-import de.unisb.cs.st.ga.ChromosomeFactory;
-import de.unisb.cs.st.ga.GeneticAlgorithm;
-import de.unisb.cs.st.ga.OnePlusOneEA;
-import de.unisb.cs.st.ga.Randomness;
-import de.unisb.cs.st.ga.RankSelection;
-import de.unisb.cs.st.ga.SelectionFunction;
-import de.unisb.cs.st.ga.StandardGA;
-import de.unisb.cs.st.ga.SteadyStateGA;
 
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
