@@ -23,11 +23,10 @@ import org.apache.log4j.Logger;
 import com.thoughtworks.xstream.XStream;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.branch.BranchCoverageFitnessFunction;
-import de.unisb.cs.st.evosuite.branch.BranchCoverageGoal;
-import de.unisb.cs.st.evosuite.branch.RelativeLengthBloatControl;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
+import de.unisb.cs.st.evosuite.coverage.BranchCoverageFitnessFunction;
+import de.unisb.cs.st.evosuite.coverage.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.CrossOverFunction;
@@ -56,6 +55,7 @@ import de.unisb.cs.st.evosuite.testcase.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.MaxTestsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
+import de.unisb.cs.st.evosuite.testcase.RelativeLengthBloatControl;
 import de.unisb.cs.st.evosuite.testcase.Statement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
@@ -795,7 +795,7 @@ public class TestSuiteGenerator {
 		} else if(search_algorithm.equals("SteadyStateGA")) {
 			logger.info("Chosen search algorithm: SteadyStateGA");
 			ga = new SteadyStateGA(factory);
-			((SteadyStateGA)ga).setReplacementFunction(new de.unisb.cs.st.evosuite.branch.TestCaseReplacementFunction(selection_function));
+			((SteadyStateGA)ga).setReplacementFunction(new de.unisb.cs.st.evosuite.testcase.TestCaseReplacementFunction(selection_function));
 
 		} else if(search_algorithm.equals("MuPlusLambdaGA")) {
 			logger.info("Chosen search algorithm: MuPlusLambdaGA");

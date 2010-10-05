@@ -103,7 +103,25 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 		return result;
 	}
 
-	
+	protected static boolean hasTimeout(ExecutionResult result) {
+		
+		if(result == null) {
+			return false;
+		}
+		else if(result.test == null) {
+			return false;
+		}
+		int size = result.test.size();
+		if(result.exceptions.containsKey(size)) {
+			if(result.exceptions.get(size) instanceof TestCaseExecutor.TimeoutExceeded) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+
 	@Override
 	protected void updateIndividual(Chromosome individual, double fitness) {
 		individual.setFitness(fitness);

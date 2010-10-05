@@ -27,10 +27,9 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
-import de.unisb.cs.st.evosuite.branch.BranchCoverageGoal;
-import de.unisb.cs.st.evosuite.branch.TestCaseReplacementFunction;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
+import de.unisb.cs.st.evosuite.coverage.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.CrossOverFunction;
@@ -59,6 +58,7 @@ import de.unisb.cs.st.evosuite.testcase.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.MaxTestsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCaseReplacementFunction;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testsuite.BranchCoverageFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.RelativeLengthBloatControl;
@@ -206,7 +206,7 @@ public class TestSuiteGenerator {
 					continue;
 				}
 
-				FitnessFunction fitness_function = new de.unisb.cs.st.evosuite.branch.BranchCoverageFitnessFunction(goal);
+				FitnessFunction fitness_function = new de.unisb.cs.st.evosuite.coverage.BranchCoverageFitnessFunction(goal);
 				ga.setFitnessFunction(fitness_function);
 
 				// Perform search
@@ -405,7 +405,7 @@ public class TestSuiteGenerator {
 			ga.addBloatControl(bloat_control);
 			ga.addListener(bloat_control);
 		} else {
-			de.unisb.cs.st.evosuite.branch.RelativeLengthBloatControl bloat_control = new de.unisb.cs.st.evosuite.branch.RelativeLengthBloatControl();
+			de.unisb.cs.st.evosuite.testcase.RelativeLengthBloatControl bloat_control = new de.unisb.cs.st.evosuite.testcase.RelativeLengthBloatControl();
 			ga.addBloatControl(bloat_control);
 			ga.addListener(bloat_control);
 		}

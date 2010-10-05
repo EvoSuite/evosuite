@@ -28,8 +28,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 
-import de.unisb.cs.st.javalanche.mutation.javaagent.MutationForRun;
-import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.Excludes;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
@@ -45,10 +43,6 @@ public class CFGClassAdapter extends ClassAdapter {
 	/** Current class */
 	private String className;
 	
-	private Excludes e = Excludes.getInstance();
-	
-	private boolean exclude;
-
 	/**
 	 * Constructor
 	 * @param visitor
@@ -57,15 +51,6 @@ public class CFGClassAdapter extends ClassAdapter {
 	public CFGClassAdapter(ClassVisitor visitor, String className) {
 		super(visitor);
 		this.className = className;
-		String classNameWithDots = className.replace('/', '.');
-		/*
-		if (e.shouldExclude(classNameWithDots)) {
-			exclude = true;
-		} else {
-			exclude = false;
-		}
-		*/
-		
 	}
 
 	/*
