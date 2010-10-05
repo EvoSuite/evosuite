@@ -164,6 +164,8 @@ public class ConstructorStatement extends Statement {
 		for(VariableReference param : parameters) {
 			if(param.equals(var))
 				return true;
+			if(param.isArrayIndex() && param.array.equals(var))
+				return true;
 		}
 		if(retval.equals(var))
 			return true;

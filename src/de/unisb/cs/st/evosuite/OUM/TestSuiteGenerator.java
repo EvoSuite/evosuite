@@ -64,7 +64,6 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
-import de.unisb.cs.st.evosuite.testsuite.BestChromosomeTracker;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosomeFactory;
@@ -938,7 +937,7 @@ public class TestSuiteGenerator {
 				
 		ga.addListener(SearchStatistics.getInstance());
 		//ga.addListener(MutationStatistics.getInstance());
-		ga.addListener(BestChromosomeTracker.getInstance());
+		//ga.addListener(BestChromosomeTracker.getInstance());
 		
 		// Possibly change stopping condition
 		//ga.addStoppingCondition(MaxStatementsStoppingCondition.getInstance());

@@ -30,15 +30,17 @@ import java.util.Set;
  */
 public class Properties {
 
+
 	/** Singleton instance */
 	private static Properties instance = null;
 
 	/**
 	 * Always load properties at startup
 	 */
-	static {
-		instance = new Properties();
-	}
+	//static {
+	//	if(instance == null)
+	//		instance = new Properties();
+	//}
 
 	/** Internal properties hashmap */
 	private java.util.Properties properties;
@@ -53,10 +55,15 @@ public class Properties {
 	/** Class under test */
 	public static String TARGET_CLASS= "";
 
-	/** Directory in which to put generated filed */
+	/** Directory in which to put generated files */
 	public static String OUTPUT_DIR = "";
 	
-	
+	/** Directory in which to put generated test cases */
+	public static String TEST_DIR = getPropertyOrDefault("test_dir", "evosuite-tests");
+
+	/** Directory in which to put HTML/CSV reports */
+	public static String REPORT_DIR = getPropertyOrDefault("report_dir", "evosuite-report");
+
 	/** Maximum length of chromosomes during search */ 
 	public static int CHROMOSOME_LENGTH = getPropertyOrDefault("chromosome_length", 100);
 
@@ -66,6 +73,11 @@ public class Properties {
 	/** Maximum search duration */
 	public static int GENERATIONS  = getPropertyOrDefault("generations", 1000);
 
+	/** Minimize test suite after generation */
+	public static boolean MINIMIZE = getPropertyOrDefault("minimize", true);
+	
+	/** Whole test suite optimization vs. single branch strategy */
+	public static String STRATEGY = getPropertyOrDefault("strategy", "EvoSuite");
 	
 	private Properties() {
 		properties = new java.util.Properties();
@@ -89,9 +101,12 @@ public class Properties {
 			}
 
 			properties.setProperty("PROJECT_PREFIX", PROJECT_PREFIX);
-			properties.setProperty("OUTPUT_DIR", OUTPUT_DIR);
+			properties.setProperty("output_dir", OUTPUT_DIR);
+			System.err.println("* Properties loaded from configuration file evosuite.properties");
 		} catch (FileNotFoundException e) {
+			System.err.println("Error: Could not find configuration file evosuite.properties");
 		} catch (IOException e) {
+			System.err.println("Error: Could not find configuration file evosuite.properties");
 		}
 	}
 	

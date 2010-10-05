@@ -437,7 +437,6 @@ public class BranchCoverageFitnessFunction extends TestSuiteFitnessFunction {
 				missing_methods += 1;
 			}
 		}
-
 		
 		//logger.info("Fitness after missing methods: "+fitness);
 		

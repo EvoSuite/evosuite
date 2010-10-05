@@ -37,7 +37,7 @@ public class AccessibleClassAdapter extends ClassAdapter {
 
 	
 	/**
-	 * @param arg0
+	 * @param Parent class visitor
 	 */
 	public AccessibleClassAdapter(ClassVisitor cv) {
 		super(cv);

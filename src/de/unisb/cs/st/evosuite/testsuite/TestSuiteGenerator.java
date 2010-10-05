@@ -333,7 +333,7 @@ public class TestSuiteGenerator {
 				
 		ga.addListener(SearchStatistics.getInstance());
 		//ga.addListener(MutationStatistics.getInstance());
-		ga.addListener(BestChromosomeTracker.getInstance());
+		//ga.addListener(BestChromosomeTracker.getInstance());
 		
 		// Possibly change stopping condition
 		//ga.addStoppingCondition(MaxStatementsStoppingCondition.getInstance());

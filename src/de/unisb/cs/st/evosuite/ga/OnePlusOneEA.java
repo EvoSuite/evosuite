@@ -27,7 +27,7 @@ package de.unisb.cs.st.evosuite.ga;
  */
 public class OnePlusOneEA extends GeneticAlgorithm {
 
-	private OnePlusOneEAReplacementFunction replacement_function;
+	private ReplacementFunction replacement_function;
 	
 	/**
 	 * Constructor
@@ -35,10 +35,10 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 	 */
 	public OnePlusOneEA(ChromosomeFactory factory) {
 		super(factory);
-		setReplacementFunction(new FitnessOnePlusOneEAReplacementFunction(selection_function));
+		setReplacementFunction(new FitnessReplacementFunction(selection_function));
 	}
 	
-	public void setReplacementFunction(OnePlusOneEAReplacementFunction replacement_function) {
+	public void setReplacementFunction(ReplacementFunction replacement_function) {
 		this.replacement_function = replacement_function;
 	}
 	

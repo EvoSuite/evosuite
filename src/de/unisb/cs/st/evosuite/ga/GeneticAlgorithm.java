@@ -413,4 +413,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 		}
 	}
 
+	public void setStoppingConditionLimit(int value) {
+		for(StoppingCondition c : stopping_conditions) {
+			c.setLimit(value);
+		}
+	}
 }

@@ -75,23 +75,23 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 		if(owner.equals("java/lang/String")) {
 			if(name.equals("equals")) {
-				logger.info("Replacing string call equals!");
-				String replacement_owner = "de/unisb/cs/st/evosuite/string/StringReplacementFunctions";
+				logger.debug("Replacing string call equals!");
+				String replacement_owner = "de/unisb/cs/st/evosuite/primitives/StringReplacementFunctions";
 				String replacement_name = "equalsDistance";
 				String replacement_desc = "(Ljava/lang/String;Ljava/lang/String;)I";
 				super.visitMethodInsn(Opcodes.INVOKESTATIC, replacement_owner, replacement_name, replacement_desc);
 				insertFlagCode();
 
 			} else if(name.equals("equalsIgnoreCase")) {
-				logger.info("Replacing string call equalsignorecase!");
-				String replacement_owner = "de/unisb/cs/st/evosuite/string/StringReplacementFunctions";
+				logger.debug("Replacing string call equalsignorecase!");
+				String replacement_owner = "de/unisb/cs/st/evosuite/primitives/StringReplacementFunctions";
 				String replacement_name = "equalsIgnoreCaseDistance";
 				String replacement_desc = "(Ljava/lang/String;Ljava/lang/String;)I";
 				super.visitMethodInsn(Opcodes.INVOKESTATIC, replacement_owner, replacement_name, replacement_desc);				
 				insertFlagCode();
 				
 			} else {
-				logger.info("Not replacing string call: "+owner+" - "+name);
+				logger.debug("Not replacing string call: "+owner+" - "+name);
 				super.visitMethodInsn(opcode, owner, name, desc);				
 			}
 		} else {
@@ -131,7 +131,6 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 		if((opcode == Opcodes.IFEQ || opcode == Opcodes.IFNE) &&
 				(flags.containsKey(current_var) || current_write >= 0)) {
 			
-			logger.debug("Found use of local variable "+current_var);
 			int var = current_var;
 			//if(flags.get(var) != nextLocal) {
 				// Pop flag from stack

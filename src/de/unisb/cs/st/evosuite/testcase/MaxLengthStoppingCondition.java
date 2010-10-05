@@ -37,7 +37,7 @@ public class MaxLengthStoppingCondition extends StoppingCondition {
 
 	private double average_length = 0.0;
 	
-	private final static double MAX_LENGTH = Properties.getPropertyOrDefault("max_length", 1000.0); 
+	private static double MAX_LENGTH = Properties.getPropertyOrDefault("max_length", 1000.0); 
 	
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.ga.StoppingCondition#isFinished()
@@ -64,4 +64,20 @@ public class MaxLengthStoppingCondition extends StoppingCondition {
 		}
 		average_length = avg / population.size();
 	}
+
+	/* (non-Javadoc)
+     * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
+     */
+    @Override
+    public int getCurrentValue() {
+    	return (int)average_length;
+    }
+
+	/* (non-Javadoc)
+     * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
+     */
+    @Override
+    public void setLimit(int limit) {
+    	MAX_LENGTH = limit;
+    }
 }

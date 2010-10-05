@@ -237,10 +237,17 @@ public class MethodStatement extends Statement {
 
 	@Override
 	public boolean references(VariableReference var) {
-		if(isInstanceMethod() && callee.equals(var))
-			return true;
+		if(isInstanceMethod()) {
+			if(callee.equals(var))
+				return true;
+			if(callee.isArrayIndex() && callee.array.equals(var))
+				return true;
+		}
+
 		for(VariableReference param : parameters) {
 			if(param.equals(var))
+				return true;
+			if(param.isArrayIndex() && param.array.equals(var))
 				return true;
 		}
 		if(retval.equals(var))

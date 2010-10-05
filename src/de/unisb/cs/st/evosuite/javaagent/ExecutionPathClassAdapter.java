@@ -56,10 +56,12 @@ public class ExecutionPathClassAdapter extends ClassAdapter {
 		}
 	}
 
+	/*
 	public void visit(int version, int access, String name, String signature,
 			String superName, String[] interfaces) {
 		super.visit(version, access, name, signature, superName, interfaces);
 	}
+	*/
 
 	
 	/*
@@ -81,6 +83,7 @@ public class ExecutionPathClassAdapter extends ClassAdapter {
 		if (!exclude) {
 			mv = new MethodEntryAdapter(mv, methodAccess, className, name, descriptor);
 			mv = new LineNumberMethodAdapter(mv, className, name, descriptor);
+			mv = new ReturnValueAdapter(mv, className, name, descriptor);
 		}
 		return mv;
 	}

@@ -75,4 +75,20 @@ public class MaxGenerationStoppingCondition extends StoppingCondition {
 		
 	}
 
+	/* (non-Javadoc)
+     * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
+     */
+    @Override
+    public void setLimit(int limit) {
+    	max_iterations = limit;
+    }
+
+	/* (non-Javadoc)
+     * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
+     */
+    @Override
+    public int getCurrentValue() {
+    	return current_iteration;
+    }
+
 }

@@ -148,10 +148,13 @@ public class FieldStatement extends Statement {
 
 	@Override
 	public boolean references(VariableReference var) {
-		if(!Modifier.isStatic(field.getModifiers()))
-			return source.equals(var);
-		else
-			return false;
+		if(!Modifier.isStatic(field.getModifiers())) {
+			if(source.equals(var))
+				return true;
+			if(source.isArrayIndex() && source.array.equals(var))
+				return true;
+		}
+		return false;
 	}
 
 	@Override

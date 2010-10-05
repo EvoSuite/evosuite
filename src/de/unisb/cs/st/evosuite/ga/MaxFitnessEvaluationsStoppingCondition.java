@@ -84,4 +84,20 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingCondition {
 		// TODO Auto-generated method stub
 		
 	}
+
+	/* (non-Javadoc)
+     * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
+     */
+    @Override
+    public void setLimit(int limit) {
+    	max_evaluations = limit;
+    }
+
+	/* (non-Javadoc)
+     * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
+     */
+    @Override
+    public int getCurrentValue() {
+    	return current_evaluation;
+    }
 }

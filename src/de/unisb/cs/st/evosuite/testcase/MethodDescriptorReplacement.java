@@ -126,7 +126,7 @@ public class MethodDescriptorReplacement {
 		
 		if(hasKey(className, method.getName(), org.objectweb.asm.Type.getMethodDescriptor(method))) {
 			String replacement = descriptors.get(className+"."+method.getName() + org.objectweb.asm.Type.getMethodDescriptor(method));
-			logger.debug("Found replacement: "+replacement);
+			logger.debug("Found replacement: "+className+"."+method.getName()+" -> "+replacement);
 			List<Type> parameters = new ArrayList<Type>();
 			for(org.objectweb.asm.Type asm_param : org.objectweb.asm.Type.getArgumentTypes(replacement)) {
 				parameters.add(getType(asm_param));				
@@ -149,7 +149,7 @@ public class MethodDescriptorReplacement {
 		
 		if(hasKey(className, "<init>", org.objectweb.asm.Type.getConstructorDescriptor(constructor))) {
 			String replacement = descriptors.get(className+".<init>" + org.objectweb.asm.Type.getConstructorDescriptor(constructor));
-			logger.debug("Found replacement: "+replacement);
+			logger.debug("Found replacement: "+className+".<init>"+" -> "+replacement);
 			List<Type> parameters = new ArrayList<Type>();
 			for(org.objectweb.asm.Type asm_param : org.objectweb.asm.Type.getArgumentTypes(replacement)) {
 				parameters.add(getType(asm_param));				

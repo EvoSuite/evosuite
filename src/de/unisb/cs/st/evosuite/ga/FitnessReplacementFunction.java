@@ -20,13 +20,13 @@
 package de.unisb.cs.st.evosuite.ga;
 
 /**
- * Replacement function for steady state GA that only looks at the fitness
+ * Replacement function that only looks at the fitness
  * 
  * @author Gordon Fraser
  *
  */
 public class FitnessReplacementFunction extends
-		SteadyStateReplacementFunction {
+		ReplacementFunction {
 
 	
 	/**
@@ -47,5 +47,13 @@ public class FitnessReplacementFunction extends
 
 		return isBetter(best_offspring, best_parent);
 	}
+
+	/* (non-Javadoc)
+     * @see de.unisb.cs.st.evosuite.ga.ReplacementFunction#keepOffspring(de.unisb.cs.st.evosuite.ga.Chromosome, de.unisb.cs.st.evosuite.ga.Chromosome)
+     */
+    @Override
+    public boolean keepOffspring(Chromosome parent, Chromosome offspring) {
+	    return isBetter(offspring, parent);
+    }
 
 }

@@ -67,7 +67,7 @@ public class InspectorManager {
 		
 		int num = 0;
 		int num_old = 0;
-		File basedir = new File(Properties.getProperty("OUTPUT_DIR"));
+		File basedir = new File(Properties.OUTPUT_DIR);
 		for(File f : basedir.listFiles(inspector_filter)) {
 //			String name = f.getName().replaceAll("_\\d+.inspectors$", "").replace("_", "$");
 			String name = f.getName().replaceAll(".inspectors", "").replace("_", "$");

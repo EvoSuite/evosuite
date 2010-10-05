@@ -35,22 +35,20 @@ public class TestSuitePreMain {
 	 * Decides which transformers to add depending on the {@link RunMode}.
 	 * 
 	 */
-	public static void premain(String agentArguments,
-			Instrumentation instrumentation) {
+	public static void premain(String agentArguments, Instrumentation instrumentation) {
 		System.out.println("EvoSuite rocks!");
 		
 		if(agentArguments.equals("generate")) {
-			System.out.println("Creating tests");
+			System.out.println("* Instrumenting bytecode for test generation");
 //			addClassFileTransformer(instrumentation, new HOMFileTransformer());
-			addClassFileTransformer(instrumentation, new CoverageInstrumentation());
+			addClassFileTransformer(instrumentation, new BytecodeInstrumentation());
 		} else 	if(agentArguments.equals("assert")) {
-			System.out.println("Creating assertions");
-			
+			System.out.println("* Instrumenting bytecode for assertion generation");
 			addClassFileTransformer(instrumentation, new HOMFileTransformer());
 			//addClassFileTransformer(instrumentation, new CoverageInstrumentation());
 
 		} else if (agentArguments.equals("scan")) {
-			System.out.println("Scanning project for classes");
+			System.out.println("* Scanning project for classes");
 			addClassFileTransformer(instrumentation,
 					new DistanceTransformer());
 			//addClassFileTransformer(instrumentation,

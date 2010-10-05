@@ -160,11 +160,13 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	 * @throws ConstructionFailedException
 	 */
 	public void deleteStatement(TestCase test, int position) throws ConstructionFailedException {
-		logger.trace("Delete Statement - "+position);
+		logger.trace("Deleting Statement - "+position);
+		//logger.info(test.toCode());
 
 		List<VariableReference> references = test.getReferences(test.getReturnValue(position));
 		List<Integer> positions = new ArrayList<Integer>();
 		Set<Integer> p = new HashSet<Integer>();
+		p.add(position);
 		for(VariableReference var : references) {
 			p.add(var.statement);
 			//positions.add(var.statement);
@@ -172,13 +174,14 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		positions.addAll(p);		
 		Collections.sort(positions, Collections.reverseOrder());
 		for(Integer pos : positions) {
-			logger.trace("Deleting statement: "+pos);
+			//logger.info("Deleting statement: "+pos);
 			test.remove(pos);
 		} 
 		
 //		logger.trace("DeleteStatement mutation: Var is not referenced, deleting");
-		logger.trace("Deleting statement: "+position);
-		test.remove(position);
+		//logger.info("Deleting statement: "+position);
+		//test.remove(position);
+		//logger.info(test.toCode());
 	}
 
 	
@@ -217,6 +220,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			deleteStatement(test, position);
 			return;
 		}
+		
 		List<VariableReference> alternatives = test.getObjects(var.getType(), position);
 		alternatives.remove(var);
 		
@@ -227,17 +231,33 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				if(s.references(var)) {
 					if(s instanceof MethodStatement) {
 						MethodStatement ms = (MethodStatement)s;
-						if(ms.callee != null && ms.callee.equals(var)) {
-							VariableReference r = randomness.choice(alternatives);
-							ms.callee = r.clone();
-							logger.trace("Replacing callee in method call");
-						}
+						if(ms.callee != null) {
+							if(ms.callee.equals(var)) {
+								VariableReference r = randomness.choice(alternatives);
+								ms.callee = r.clone();
+								logger.trace("Replacing callee in method call");
+							} else if(var.equals(ms.callee.array)) {
+								VariableReference r = randomness.choice(alternatives);
+								ms.callee.array = r.clone();
+								if(r.array_length > 1)
+									ms.callee.array_index = randomness.nextInt(r.array_length);
+								else
+									ms.callee.array_index = 0;
+							}
+						} 
 						for(int pos = 0; pos<ms.parameters.size(); pos++) {
 							if(ms.parameters.get(pos).equals(var)) {
 								VariableReference r = randomness.choice(alternatives);
 								ms.parameters.set(pos, r.clone());
 								logger.trace("Replacing parameter in method call");
-							}	
+							} else if(var.equals(ms.parameters.get(pos).array)) {
+								VariableReference r = randomness.choice(alternatives);
+								ms.parameters.get(pos).array = r.clone();
+								if(r.array_length > 1)
+									ms.parameters.get(pos).array_index = randomness.nextInt(r.array_length);
+								else
+									ms.parameters.get(pos).array_index = 0;
+							}
 						}
 					} else if(s instanceof ConstructorStatement) {
 						ConstructorStatement cs = (ConstructorStatement)s;
@@ -246,6 +266,13 @@ public class DefaultTestFactory extends AbstractTestFactory {
 								VariableReference r = randomness.choice(alternatives);
 								cs.parameters.set(pos, r.clone());
 								logger.trace("Replacing parameter in constructor call");
+							} else if(var.equals(cs.parameters.get(pos).array)) {
+								VariableReference r = randomness.choice(alternatives);
+								cs.parameters.get(pos).array = r.clone();
+								if(r.array_length > 1)
+									cs.parameters.get(pos).array_index = randomness.nextInt(r.array_length);
+								else
+									cs.parameters.get(pos).array_index = 0;
 							}	
 						}
 					} else if(s instanceof FieldStatement) {
@@ -254,6 +281,13 @@ public class DefaultTestFactory extends AbstractTestFactory {
 							VariableReference r = randomness.choice(alternatives);
 							fs.source = r.clone();
 							logger.trace("Replacing field source");
+						} else if(var.equals(fs.source.array)) {
+							VariableReference r = randomness.choice(alternatives);
+							fs.source.array = r.clone();
+							if(r.array_length > 1)
+								fs.source.array_index = randomness.nextInt(r.array_length);
+							else
+								fs.source.array_index = 0;
 						}
 					} else if(s instanceof AssignmentStatement) {
 						AssignmentStatement as = (AssignmentStatement)s;
@@ -262,12 +296,26 @@ public class DefaultTestFactory extends AbstractTestFactory {
 							VariableReference r = randomness.choice(alternatives);
 							as.retval = r.clone();
 							logger.trace("Replacing array source");
+						} else if(var.equals(as.retval.array)) {
+							VariableReference r = randomness.choice(alternatives);
+							as.retval.array = r.clone();
+							if(r.array_length > 1)
+								as.retval.array_index = randomness.nextInt(r.array_length);
+							else
+								as.retval.array_index = 0;
 						}
 						if(as.parameter != null && as.parameter.equals(var))
 						{
 							VariableReference r = randomness.choice(alternatives);
 							as.parameter = r.clone();
 							logger.trace("Replacing array parameter");
+						} else if(var.equals(as.parameter.array)) {
+							VariableReference r = randomness.choice(alternatives);
+							as.parameter.array = r.clone();
+							if(r.array_length > 1)
+								as.parameter.array_index = randomness.nextInt(r.array_length);
+							else
+								as.parameter.array_index = 0;
 						}
 					}
 				}

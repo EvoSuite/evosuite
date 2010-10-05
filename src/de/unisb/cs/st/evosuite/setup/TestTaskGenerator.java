@@ -62,6 +62,8 @@ public class TestTaskGenerator {
 	
 	static Map<String, List<String> > method_excludes = getExcludesFromFile();
 	
+	private static final boolean CREATE_OBJECTFILES = Properties.getProperty("generate_objects") != null;
+	
 	/**
 	 * Get the set of public/default constructors
 	 * @param clazz
@@ -139,7 +141,7 @@ public class TestTaskGenerator {
 	 *   Map from classname to methods that should not be used
 	 */
 	public static Map<String, List<String> > getExcludesFromFile() {
-		String property = System.getProperty("test.excludes");
+		String property = System.getProperty("test_excludes");
 		Map<String, List<String> > objs = new HashMap<String, List<String> >();
 		if(property == null)
 			return objs;
@@ -605,7 +607,7 @@ public class TestTaskGenerator {
 	 */
 	protected static void writeTask(Set<String> candidates, String filename) {
 		StringBuffer sb = new StringBuffer();
-		File file = new File(Properties.getProperty("OUTPUT_DIR"), filename);
+		File file = new File(Properties.OUTPUT_DIR, filename);
 		for (String dep : candidates) {
 			sb.append(dep);
 			sb.append("\n");
@@ -615,7 +617,7 @@ public class TestTaskGenerator {
 	
 	protected static void writeObjectMethods(Set<String> methods, String filename) {
 		StringBuffer sb = new StringBuffer();
-		File file = new File(Properties.getProperty("OUTPUT_DIR"), filename);
+		File file = new File(Properties.OUTPUT_DIR, filename);
 		for (String method: methods) {
 			sb.append(method);
 			/*
@@ -777,7 +779,8 @@ public class TestTaskGenerator {
 			String classfilename = classname.replace("$","_");
 //			writeTask(suggestion, classfilename+"_"+num+".task");
 			writeTask(suggestion, classfilename+".task");
-			writeObjectMethods(object_methods, classfilename+".obj");
+			if(CREATE_OBJECTFILES)
+				writeObjectMethods(object_methods, classfilename+".obj");
 //			writeInspectors(classname, classfilename+"_"+num+".inspectors");
 			writeInspectors(classname, classfilename+".inspectors");
 

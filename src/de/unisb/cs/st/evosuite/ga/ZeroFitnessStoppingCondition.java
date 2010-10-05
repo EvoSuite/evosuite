@@ -55,5 +55,21 @@ public class ZeroFitnessStoppingCondition extends StoppingCondition {
 		last_fitness = Double.MAX_VALUE;
 	}
 
+	/* (non-Javadoc)
+     * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
+     */
+    @Override
+    public void setLimit(int limit) {
+    	// Do nothing
+    }
+
+	/* (non-Javadoc)
+     * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
+     */
+    @Override
+    public int getCurrentValue() {
+	    return 0;
+    }
+
 
 }

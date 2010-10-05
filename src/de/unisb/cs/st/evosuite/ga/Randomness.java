@@ -46,8 +46,10 @@ public class Randomness {
 		if(seed_parameter != null) {
 			try {
 				seed = Long.parseLong(seed_parameter);
+				random = new MersenneTwister(seed);
 			} catch(Exception e) {
-				seed = 0;
+				seed = System.currentTimeMillis();
+				random = new MersenneTwister();
 			}
 		}
 		logger.info("Random seed: "+seed);
