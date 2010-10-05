@@ -255,7 +255,7 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
         super(System.currentTimeMillis());    /* pick something at random just in case */
         setSeed(array);
         }
-
+    
     /**
      * Initalize the pseudo random number generator.  Don't
      * pass in a long that's bigger than an int (Mersenne Twister

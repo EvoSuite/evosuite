@@ -57,14 +57,6 @@ public class ExecutionPathClassAdapter extends ClassAdapter {
 	}
 
 	/*
-	public void visit(int version, int access, String name, String signature,
-			String superName, String[] interfaces) {
-		super.visit(version, access, name, signature, superName, interfaces);
-	}
-	*/
-
-	
-	/*
 	 * Set default access rights to public access rights
 	 * 
 	 * @see org.objectweb.asm.ClassAdapter#visitMethod(int, java.lang.String,
