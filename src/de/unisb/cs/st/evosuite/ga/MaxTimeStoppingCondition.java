@@ -85,4 +85,21 @@ public class MaxTimeStoppingCondition extends StoppingCondition {
 		
 	}
 
+	/* (non-Javadoc)
+     * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
+     */
+    @Override
+    public void setLimit(int limit) {
+    	max_seconds = limit;
+    }
+
+	/* (non-Javadoc)
+     * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
+     */
+    @Override
+    public int getCurrentValue() {
+		long current_time = System.currentTimeMillis();
+		return (int)(current_time - start_time);
+    }
+
 }

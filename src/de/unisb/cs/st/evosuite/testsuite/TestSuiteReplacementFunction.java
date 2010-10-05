@@ -22,7 +22,7 @@ package de.unisb.cs.st.evosuite.testsuite;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.SelectionFunction;
-import de.unisb.cs.st.evosuite.ga.SteadyStateReplacementFunction;
+import de.unisb.cs.st.evosuite.ga.ReplacementFunction;
 
 
 /**
@@ -30,7 +30,7 @@ import de.unisb.cs.st.evosuite.ga.SteadyStateReplacementFunction;
  *
  */
 public class TestSuiteReplacementFunction extends
-		SteadyStateReplacementFunction {
+		ReplacementFunction {
 
 	private final static boolean BEST_LENGTH = Properties.getPropertyOrDefault("check_best_length", true);  
 
@@ -39,6 +39,14 @@ public class TestSuiteReplacementFunction extends
 	 */
 	public TestSuiteReplacementFunction(SelectionFunction selectionFunction) {
 		super(selectionFunction);
+	}
+	
+	public TestSuiteReplacementFunction(boolean maximize) {
+		super(maximize);
+	}
+	
+	public TestSuiteReplacementFunction() {
+		super(false);
 	}
 
 	public int getLengthSum(TestSuiteChromosome chromosome1, TestSuiteChromosome chromosome2) {
@@ -73,5 +81,13 @@ public class TestSuiteReplacementFunction extends
 		}
 		
 	}
+
+	/* (non-Javadoc)
+     * @see de.unisb.cs.st.evosuite.ga.ReplacementFunction#keepOffspring(de.unisb.cs.st.evosuite.ga.Chromosome, de.unisb.cs.st.evosuite.ga.Chromosome)
+     */
+    @Override
+    public boolean keepOffspring(Chromosome parent, Chromosome offspring) {
+    	return isBetter(offspring, parent);
+    }
 
 }

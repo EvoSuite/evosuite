@@ -184,9 +184,11 @@ public class TestChromosome extends Chromosome {
 			if(randomness.nextDouble() <= pl) {
 				//if(!test.hasReferences(test.getStatement(num).getReturnValue())) {
 					try {
+						TestCase copy = test.clone();
 //						test_factory.deleteStatement(test, num);
 						changed = true;
-						test_factory.deleteStatementGracefully(test, num);
+						test_factory.deleteStatementGracefully(copy, num);
+						test = copy;
 
 					} catch (ConstructionFailedException e) {
 						logger.warn("Deletion of statement failed: "+test.getStatement(num).getCode());

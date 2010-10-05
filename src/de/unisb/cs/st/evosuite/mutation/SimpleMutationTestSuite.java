@@ -12,9 +12,9 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 import de.unisb.cs.st.evosuite.assertion.AssertionObserver;
+import de.unisb.cs.st.evosuite.junit.TestSuite;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
-import de.unisb.cs.st.evosuite.testcase.TestSuite;
 import de.unisb.cs.st.javalanche.HOM.HOMObserver;
 import de.unisb.cs.st.javalanche.HOM.HOMSwitcher;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;

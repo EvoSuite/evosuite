@@ -119,7 +119,7 @@ public class SearchStatistics implements SearchListener {
 		
 		int covered_goals;
 
-		Set<Integer> coverage;
+		Set<Integer> coverage = new HashSet<Integer>();
 		
 		/** Resulting test cases */
 		List<TestCase> tests = null;

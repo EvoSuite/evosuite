@@ -146,6 +146,12 @@ public class PrimitiveStatement<T> extends Statement {
 		else if(retval.getVariableClass().equals(String.class)) {
 			return ((Class<?>) retval.getType()).getSimpleName() + " "+retval.getName() + " = \"" + StringEscapeUtils.escapeJava((String) value) +"\"";
 		}
+		else if(retval.getVariableClass().equals(float.class)) {
+			return ((Class<?>) retval.getType()).getSimpleName() + " "+retval.getName() + " = " + value +"F";
+		}
+		else if(retval.getVariableClass().equals(long.class)) {
+			return ((Class<?>) retval.getType()).getSimpleName() + " "+retval.getName() + " = " + value +"L";
+		}
 		else
 			return ((Class<?>) retval.getType()).getSimpleName() + " " +retval.getName() + " = " + value;
 	}

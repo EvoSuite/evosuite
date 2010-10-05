@@ -6,20 +6,28 @@ package de.unisb.cs.st.evosuite.branch;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.SelectionFunction;
-import de.unisb.cs.st.evosuite.ga.SteadyStateReplacementFunction;
+import de.unisb.cs.st.evosuite.ga.ReplacementFunction;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 
 
 /**
- * @author fraser
+ * @author Gordon Fraser
  *
  */
-public class TestCaseReplacementFunction extends SteadyStateReplacementFunction {
+public class TestCaseReplacementFunction extends ReplacementFunction {
 
 	private final static boolean PARENT_LENGTH = Properties.getPropertyOrDefault("check_parents_length", true);  
 	
 	public TestCaseReplacementFunction(SelectionFunction selection) {
 		super(selection);
+	}
+	
+	public TestCaseReplacementFunction(boolean maximize) {
+		super(maximize);
+	}
+	
+	public TestCaseReplacementFunction() {
+		super(false);
 	}
 	
 	public int getLengthSum(TestChromosome chromosome1, TestChromosome chromosome2) {
@@ -69,5 +77,13 @@ public class TestCaseReplacementFunction extends SteadyStateReplacementFunction 
 		}
 		
 	}
+
+	/* (non-Javadoc)
+     * @see de.unisb.cs.st.evosuite.ga.ReplacementFunction#keepOffspring(de.unisb.cs.st.evosuite.ga.Chromosome, de.unisb.cs.st.evosuite.ga.Chromosome)
+     */
+    @Override
+    public boolean keepOffspring(Chromosome parent, Chromosome offspring) {
+	    return isBetter(offspring, parent);
+    }
 
 }

@@ -12,7 +12,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/JADET"/>
 	<classpathentry kind="lib" path="/JADET/lib/catools.jar"/>
 	<classpathentry kind="lib" path="lib/ds-util-0.3.1.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/ga"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OUMExtractor"/>
 	<classpathentry kind="lib" path="lib/asm-all-3.3.jar"/>
 	<classpathentry kind="lib" path="/Users/fraser/Documents/Source/javalanche-src/lib/xstream-1.2.2.jar"/>

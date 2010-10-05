@@ -34,7 +34,7 @@ import de.unisb.cs.st.evosuite.Properties;
 public class SteadyStateGA extends GeneticAlgorithm {
 
 
-	protected SteadyStateReplacementFunction replacement_function;
+	protected ReplacementFunction replacement_function;
 	
 	/**
 	 * Constructor
@@ -183,11 +183,11 @@ public class SteadyStateGA extends GeneticAlgorithm {
 		notifySearchFinished();
 	}
 
-	public void setReplacementFunction(SteadyStateReplacementFunction replacement_function) {
+	public void setReplacementFunction(ReplacementFunction replacement_function) {
 		this.replacement_function = replacement_function;
 	}
 
-	public SteadyStateReplacementFunction getReplacementFunction() {
+	public ReplacementFunction getReplacementFunction() {
 		return replacement_function;
 	}
 

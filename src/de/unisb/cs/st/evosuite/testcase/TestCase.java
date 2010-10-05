@@ -143,7 +143,16 @@ public class TestCase {
 		for(int i=0; i<position && i < size(); i++) {
 			if(statements.get(i).retval == null)
 				continue;
-			if(statements.get(i).retval.isAssignableTo(type)) {
+			if(statements.get(i).retval.isArray() && GenericClass.isAssignable(type, statements.get(i).retval.getComponentType())) {
+				// Add components
+				//variables.add(new VariableReference(statements.get(i).retval.clone(), Randomness.getInstance().nextInt(MAX_ARRAY), i));
+				//ArrayStatement as = (ArrayStatement)statements.get(i);
+				for(int index = 0; index < statements.get(i).retval.array_length; index++) {
+					variables.add(new VariableReference(statements.get(i).retval.clone(), index, statements.get(i).retval.array_length, i));
+				}
+			} else if(statements.get(i).retval.isArrayIndex() && GenericClass.isAssignable(type, statements.get(i).retval.array.getComponentType())) {
+				// Don't need to add this
+			} else if(statements.get(i).retval.isAssignableTo(type)) {
 	//			if(constraint == null || constraint.isValid(statements.get(i).getReturnValue()))
 				variables.add(new VariableReference(statements.get(i).getReturnType(), i));
 //				else
@@ -151,14 +160,7 @@ public class TestCase {
 				//variables.add(new VariableReference(type, i));
 //			} else if(logger.isTraceEnabled()){
 //				logger.trace(statements.get(i).retval.getSimpleClassName()+" is NOT assignable to "+type);				
-			} else if(statements.get(i).retval.isArray() && GenericClass.isAssignable(type, statements.get(i).retval.getComponentType())) {
-				// Add components
-				//variables.add(new VariableReference(statements.get(i).retval.clone(), Randomness.getInstance().nextInt(MAX_ARRAY), i));
-				//ArrayStatement as = (ArrayStatement)statements.get(i);
-				for(int index = 0; index < statements.get(i).retval.array_length; index++) {
-					variables.add(new VariableReference(statements.get(i).retval.clone(), index, statements.get(i).retval.array_length, i));
-				}
-			}
+			} 
 		}
 		logger.trace("Found "+variables.size()+" variables of type "+type);
 		return variables;
@@ -567,6 +569,8 @@ public class TestCase {
 					Class<?> clazz = var.getVariableClass();
 					while(clazz.isMemberClass())
 						clazz = clazz.getEnclosingClass();
+					while(clazz.isArray())
+						clazz = clazz.getComponentType();
 					accessed_classes.add(clazz);
 				}
 			}

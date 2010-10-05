@@ -41,7 +41,7 @@ public class NullReference extends VariableReference {
 	 * @return
 	 */
 	public String getName() {
-		return "null";
+		return "("+type.getSimpleName()+") null";
 	}
 	
 	/**

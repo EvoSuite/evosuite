@@ -53,4 +53,20 @@ public class MaxTestsStoppingCondition extends StoppingCondition {
 		return num_tests >= max_tests;
 	}
 
+	/* (non-Javadoc)
+     * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
+     */
+    @Override
+    public int getCurrentValue() {
+    	return num_tests;
+    }
+
+	/* (non-Javadoc)
+     * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
+     */
+    @Override
+    public void setLimit(int limit) {
+    	max_tests = limit;
+    }
+
 }

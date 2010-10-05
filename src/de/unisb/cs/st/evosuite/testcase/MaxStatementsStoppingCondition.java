@@ -79,4 +79,20 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 		max_statements = max;
 	}
 
+	/* (non-Javadoc)
+     * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
+     */
+    @Override
+    public int getCurrentValue() {
+    	return current_statement;
+    }
+
+	/* (non-Javadoc)
+     * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
+     */
+    @Override
+    public void setLimit(int limit) {
+    	max_statements = limit;
+    }
+
 }

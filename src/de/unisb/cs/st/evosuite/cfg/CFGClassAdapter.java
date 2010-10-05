@@ -58,11 +58,13 @@ public class CFGClassAdapter extends ClassAdapter {
 		super(visitor);
 		this.className = className;
 		String classNameWithDots = className.replace('/', '.');
+		/*
 		if (e.shouldExclude(classNameWithDots)) {
 			exclude = true;
 		} else {
 			exclude = false;
 		}
+		*/
 		
 	}
 
@@ -81,7 +83,9 @@ public class CFGClassAdapter extends ClassAdapter {
 		if( (methodAccess & Opcodes.ACC_SYNTHETIC) > 0 || (methodAccess & Opcodes.ACC_BRIDGE) > 0) {
 			return mv;
 		}
-
+		String classNameWithDots = className.replace('/', '.');
+		mv = new CFGMethodAdapter(classNameWithDots, methodAccess, name, descriptor, signature, exceptions, mv, new ArrayList<Mutation>());
+/*
 		if (!exclude) {
 			if(false) {
 				MutationForRun mm = MutationForRun.getFromDefaultLocation();
@@ -91,6 +95,7 @@ public class CFGClassAdapter extends ClassAdapter {
 				mv = new CFGMethodAdapter(className, methodAccess, name, descriptor, signature, exceptions, mv, new ArrayList<Mutation>());
 			}
 		}
+		*/
 		return mv;
 	}
 }

@@ -62,7 +62,22 @@ public abstract class StoppingCondition implements SearchListener {
 		// TODO Auto-generated method stub
 		
 	}
-	
+
+	/**
+	 * Reset everything
+	 */
 	public abstract void reset();
+	
+	/**
+	 * Set new upper limit of resources
+	 * @param limit
+	 */
+	public abstract void setLimit(int limit);
+	
+	/**
+	 * How much of the budget have we used up
+	 * @return
+	 */
+	public abstract int getCurrentValue();
 
 }
