@@ -87,7 +87,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	protected int elite_size            = Properties.getPropertyOrDefault("elite", 1);
 	protected double mutation_rate      = Properties.getPropertyOrDefault("mutation_rate", 0.5);
 	protected double crossover_rate     = Properties.getPropertyOrDefault("crossover_rate", 0.5);
-	protected double kincompensation    = Properties.getPropertyOrDefault("kincompensation", 0.5);
+	protected double kincompensation    = Properties.getPropertyOrDefault("kincompensation", 1.0);
 	
 	private boolean shuffleBeforeSort   = Properties.getPropertyOrDefault("shuffle_sort", true);
 	

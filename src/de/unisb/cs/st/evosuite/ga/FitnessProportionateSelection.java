@@ -59,8 +59,8 @@ public class FitnessProportionateSelection extends SelectionFunction {
 					rnd -= max_fitness - population.get(index).getFitness();					
 				}
 			}
-			if(index < 1)
-				continue;
+			if(index >= 1)
+				valid = true;
 		}
         return (index - 1);
 	}

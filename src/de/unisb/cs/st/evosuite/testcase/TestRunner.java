@@ -123,16 +123,19 @@ public class TestRunner extends Thread {
 				}
 				if(logger.isDebugEnabled())
 					logger.debug("Done statement "+s.getCode());
+				for(ExecutionObserver observer : observers) {
+					observer.statement(num, scope, s.getReturnValue());
+				}
 				num++;
 			}
 			
-			num--;
+/*			num--;
 			for(ExecutionObserver observer : observers) {
 				for(Statement s : test.statements) {
 					observer.statement(num, scope, s.getReturnValue());
 				}
 			}
-
+*/
 			
 		  } catch (ThreadDeath e) {//can't stop these guys
 			  logger.info("Found error:");

@@ -25,6 +25,9 @@ import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.MutationMarker;
+
 /**
  * Instruments classes to call the tracer each time a new line of the source
  * code is passed.
@@ -37,7 +40,7 @@ public class LineNumberMethodAdapter extends MethodAdapter {
 	public static int branch_id = 0;
 	
 	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(LineNumberMethodAdapter.class);
+    private static Logger logger = Logger.getLogger(LineNumberMethodAdapter.class);
 	
 	private String fullMethodName;
 	
@@ -55,11 +58,21 @@ public class LineNumberMethodAdapter extends MethodAdapter {
 	
 	public void visitLineNumber(int line, Label start) {
 		super.visitLineNumber(line, start);
+		if(Properties.MUTATION) {
+			Label mutationStartLabel = new Label();
+			mutationStartLabel.info = new MutationMarker(true);
+			mv.visitLabel(mutationStartLabel);
+		}
 		this.visitLdcInsn(className);
 		this.visitLdcInsn(fullMethodName);
 		this.visitLdcInsn(line);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 				"passedLine", "(Ljava/lang/String;Ljava/lang/String;I)V");
 		current_line = line;
+		if(Properties.MUTATION) {
+			Label mutationEndLabel = new Label();
+			mutationEndLabel.info = new MutationMarker(false);
+			mv.visitLabel(mutationEndLabel);
+		}
 	}
 }

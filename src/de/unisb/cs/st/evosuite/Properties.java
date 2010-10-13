@@ -78,6 +78,11 @@ public class Properties {
 	
 	/** Whole test suite optimization vs. single branch strategy */
 	public static String STRATEGY = getPropertyOrDefault("strategy", "EvoSuite");
+
+	/** Minimize test suite after generation */
+	public static String CRITERION = getPropertyOrDefault("criterion", "BranchCoverage");
+
+	public static boolean MUTATION = getPropertyOrDefault("criterion", "BranchCoverage").equalsIgnoreCase("mutation") ? true : false;
 	
 	private Properties() {
 		properties = new java.util.Properties();

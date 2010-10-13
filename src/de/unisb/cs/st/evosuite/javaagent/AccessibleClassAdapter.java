@@ -63,7 +63,7 @@ public class AccessibleClassAdapter extends ClassAdapter {
 		if((access & Opcodes.ACC_PRIVATE) != Opcodes.ACC_PRIVATE) {
 			access = access | Opcodes.ACC_PUBLIC;
 			access = access & ~Opcodes.ACC_PROTECTED;
-			System.out.println("Setting field to public: "+name);
+			//System.out.println("Setting field to public: "+name);
 		}
 		
 		return super.visitField(access, name, desc, signature, value);

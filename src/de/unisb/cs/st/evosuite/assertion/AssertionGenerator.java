@@ -17,7 +17,7 @@
  * along with Javalanche.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.unisb.cs.st.evosuite.mutation;
+package de.unisb.cs.st.evosuite.assertion;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,20 +30,7 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
-import de.unisb.cs.st.evosuite.assertion.Assertion;
-import de.unisb.cs.st.evosuite.assertion.CompareAssertion;
-import de.unisb.cs.st.evosuite.assertion.ComparisonTraceObserver;
-import de.unisb.cs.st.evosuite.assertion.EqualsAssertion;
-import de.unisb.cs.st.evosuite.assertion.ExceptionAssertion;
-import de.unisb.cs.st.evosuite.assertion.InspectorAssertion;
-import de.unisb.cs.st.evosuite.assertion.InspectorTraceObserver;
-import de.unisb.cs.st.evosuite.assertion.NullAssertion;
-import de.unisb.cs.st.evosuite.assertion.NullOutputObserver;
-import de.unisb.cs.st.evosuite.assertion.PrimitiveAssertion;
-import de.unisb.cs.st.evosuite.assertion.PrimitiveFieldAssertion;
-import de.unisb.cs.st.evosuite.assertion.PrimitiveFieldTraceObserver;
-import de.unisb.cs.st.evosuite.assertion.PrimitiveOutputTraceObserver;
-import de.unisb.cs.st.evosuite.assertion.StringAssertion;
+import de.unisb.cs.st.evosuite.mutation.MutationStatistics;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMSwitcher;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;

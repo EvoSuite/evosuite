@@ -43,6 +43,7 @@ public class ScanProject {
         }
         File[] files = directory.listFiles();
         for (File file : files) {
+        	System.out.println("* File: "+file);
             if (file.isDirectory()) {
                 assert !file.getName().contains(".");
                 classes.addAll(findClasses(file, packageName + "." + file.getName()));
@@ -53,6 +54,8 @@ public class ScanProject {
             		System.out.println("Cannot access class "+packageName + '.' + file.getName().substring(0, file.getName().length() - 6));
             	} catch(NoClassDefFoundError e) {
             		System.out.println("Cannot find class "+packageName + '.' + file.getName().substring(0, file.getName().length() - 6));
+            	} catch(ExceptionInInitializerError e) {
+            		System.out.println("Exception in initializer of "+packageName + '.' + file.getName().substring(0, file.getName().length() - 6));
             	}
             }
         }
@@ -70,6 +73,7 @@ public class ScanProject {
 			URL resource = resources.nextElement();
 			dirs.add(new File(resource.getFile()));
 		}
+		
 		ArrayList<Class<? >> classes = new ArrayList<Class<? >>();
 		for (File directory : dirs) {
 			classes.addAll(findClasses(directory, packageName));
@@ -83,10 +87,10 @@ public class ScanProject {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		System.out.println("Scanning project for test suite generation.");
+		//System.out.println("Scanning project for test suite generation.");
 		//MutationProperties.checkProperty(MutationProperties.PROJECT_PREFIX_KEY);
 		prefix = Properties.PROJECT_PREFIX;
-		System.out.println("Project prefix: "+prefix);
+		System.out.println("* Project prefix: "+prefix);
 		try {
 			getClasses(prefix);
 			//TestDetector.scanForTests(prefix);

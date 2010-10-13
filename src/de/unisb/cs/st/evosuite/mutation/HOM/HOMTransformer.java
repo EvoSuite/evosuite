@@ -1,22 +1,15 @@
 package de.unisb.cs.st.evosuite.mutation.HOM;
 
-import java.io.PrintWriter;
-
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.util.TraceClassVisitor;
 
-import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.javaagent.ExecutionPathClassAdapter;
-import de.unisb.cs.st.evosuite.javaagent.StaticInitializationClassAdapter;
-import de.unisb.cs.st.evosuite.primitives.PrimitiveClassAdapter;
 import de.unisb.st.bytecodetransformer.processFiles.BytecodeTransformer;
 
 public class HOMTransformer extends BytecodeTransformer {
 
 	String className = "";
 	
-	protected boolean static_hack = Properties.getPropertyOrDefault("static_hack", false);
+	//protected boolean static_hack = Properties.getPropertyOrDefault("static_hack", false);
 
 	@Override
 	protected ClassVisitor classVisitorFactory(ClassWriter cw) {
@@ -25,9 +18,8 @@ public class HOMTransformer extends BytecodeTransformer {
 //			cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 //		}
 		//cv = new CFGClassAdapter(cv, "dummy");
-		System.out.println("Aha!");
-		ClassVisitor cv = new TraceClassVisitor(cw, new PrintWriter(System.out));
-		cv = new HOMClassAdapter(cv);
+		//ClassVisitor cv = new TraceClassVisitor(cw, new PrintWriter(System.out));
+		ClassVisitor cv = new HOMClassAdapter(cw);
 		
 		//cv = new ExecutionPathClassAdapter(cv, className);
 		//cv = new StringClassAdapter(cv, className);

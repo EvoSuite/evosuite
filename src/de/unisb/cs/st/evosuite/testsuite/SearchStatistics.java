@@ -53,12 +53,12 @@ import com.panayotis.gnuplot.terminal.GNUPlotTerminal;
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.coverage.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.MaxFitnessEvaluationsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.Randomness;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
-import de.unisb.cs.st.evosuite.ga.SteadyStateGA;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.MaxStatementsStoppingCondition;
@@ -946,8 +946,8 @@ public class SearchStatistics implements SearchListener {
 
 	public void searchStarted(FitnessFunction objective) {
 		StatisticEntry entry = new StatisticEntry();
-		if(objective instanceof BranchCoverageFitnessFunction) {
-			BranchCoverageFitnessFunction fitness = (BranchCoverageFitnessFunction)objective;
+		if(objective instanceof BranchCoverageSuiteFitness) {
+			BranchCoverageSuiteFitness fitness = (BranchCoverageSuiteFitness)objective;
 			entry.total_branches     = fitness.total_branches;
 			entry.branchless_methods = fitness.branchless_methods;
 			entry.total_methods      = fitness.total_methods;

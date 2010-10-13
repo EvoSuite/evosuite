@@ -17,7 +17,7 @@
  * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.unisb.cs.st.evosuite.testsuite;
+package de.unisb.cs.st.evosuite.coverage;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,16 +29,18 @@ import org.apache.log4j.Logger;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
-import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
+import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
+import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 
 
 /**
+ * Fitness function for a whole test suite for all branches
+ * 
  * @author Gordon Fraser
  *
  */
-public class BranchCoverageFitnessFunction extends TestSuiteFitnessFunction {
+public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static Logger logger = Logger.getLogger(TestSuiteFitnessFunction.class);
 	
@@ -56,7 +58,7 @@ public class BranchCoverageFitnessFunction extends TestSuiteFitnessFunction {
 		
 	public final int total_goals = 2 * total_branches + branchless_methods;
 	
-	public BranchCoverageFitnessFunction() {
+	public BranchCoverageSuiteFitness() {
 		logger.info("Total goals: "+total_goals);
 		logger.info("Total branches: "+total_branches);
 	}
@@ -85,7 +87,7 @@ public class BranchCoverageFitnessFunction extends TestSuiteFitnessFunction {
 		for(ExecutionResult result : results) {
 			 if(hasTimeout(result)) {
 				updateIndividual(individual, total_branches*2 + total_methods);
-				suite.coverage = 0.0;
+				suite.setCoverage(0.0);
 				logger.info("Test case has timed out, setting fitness to max value "+(total_branches*2 + total_methods));
 				return total_branches*2 + total_methods;
 			}
@@ -210,14 +212,14 @@ public class BranchCoverageFitnessFunction extends TestSuiteFitnessFunction {
 			logger.info("Executing tests took    : "+(eend-estart)+"ms");
 			logger.info("Calculating fitness took: "+(end-start)+"ms");
 		}
-		suite.coverage = num_covered;
+		double coverage = num_covered;
 		for(String e : CFGMethodAdapter.branchless_methods) {
 			if(call_count.keySet().contains(e))
-				suite.coverage += 1.0;
+				coverage += 1.0;
 			
 		}
 		
-		suite.coverage = suite.coverage / total_goals;
+		suite.setCoverage(coverage / total_goals);
 				
 		return fitness;
 	}

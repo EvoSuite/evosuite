@@ -20,6 +20,9 @@
 
 package de.unisb.cs.st.evosuite.cfg;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +30,10 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.DijkstraShortestPath;
+import org.jgrapht.ext.DOTExporter;
+import org.jgrapht.ext.IntegerEdgeNameProvider;
+import org.jgrapht.ext.IntegerNameProvider;
+import org.jgrapht.ext.StringNameProvider;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 
@@ -42,6 +49,7 @@ public class ControlFlowGraph {
 
 	public ControlFlowGraph(DirectedGraph<CFGVertex,DefaultEdge> cfg) {
 		graph = cfg;
+		setDiameter();
 
 		// Calculate mutation distances
 		logger.trace("Calculating mutation distances");
@@ -50,12 +58,15 @@ public class ControlFlowGraph {
 				for(Long id : m.getMutationIds()) {
 					for(CFGVertex v : cfg.vertexSet()) {
 						DijkstraShortestPath<CFGVertex,DefaultEdge> d = new DijkstraShortestPath<CFGVertex,DefaultEdge>(graph, v, m);
-						v.setDistance(id, (int)Math.round(d.getPathLength()));
+						int distance = (int)Math.round(d.getPathLength());
+						if(distance >= 0)
+							v.setDistance(id, distance);
+						else
+							v.setDistance(id, diameter);
 					}
 				}
 			}
 		}
-		setDiameter();
 	}
 
 
@@ -68,7 +79,7 @@ public class ControlFlowGraph {
 		diameter = (int) f.getDiameter();
 	}
 	
-	private CFGVertex getMutation(long id) {
+	public CFGVertex getMutation(long id) {
 		for(CFGVertex v : graph.vertexSet()) {
 			if(v.isMutation()) {
 				if(v.hasMutation(id)) {
@@ -122,18 +133,26 @@ public class ControlFlowGraph {
 	 */
 	public int getControlDistance(List<Integer> path, long mutation) {
 		CFGVertex m = getMutation(mutation);
-		if(m == null)
+		if(m == null) {
+			logger.warn("Could not find mutation");
 			return 0;
+		}
 		
 		int min = Integer.MAX_VALUE;
 		for(Integer i : path) {
-			CFGVertex v = getBranchVertex(i);
+//			CFGVertex v = getBranchVertex(i);
+			CFGVertex v = getVertex(i);
 			if(v != null) {
 				int distance = v.getDistance(mutation);
+				//logger.info("Distance from "+i+": "+distance);
 				if(distance < min) {
 					min = distance;
 				}
-
+			} else {
+				logger.warn("Could not find vertex "+i);
+				for(CFGVertex vertex : graph.vertexSet()) {
+					logger.warn("  -> "+vertex.toString());
+				}
 			}
 		}
 		
@@ -247,10 +266,59 @@ public class ControlFlowGraph {
 		
 		return dist;
 	}
+		
+	public boolean isSuccessor(CFGVertex v1, CFGVertex v2) {
+		return (graph.containsEdge(v1, v2) && graph.inDegreeOf(v2) == 1);
+	}
 	
 	public int getDistance(CFGVertex v1, CFGVertex v2) {
 		DijkstraShortestPath<CFGVertex,DefaultEdge> d = new DijkstraShortestPath<CFGVertex,DefaultEdge>(graph, v1, v2);
 		return (int)Math.round(d.getPathLength());
+	}
+	
+	public int getInitialDistance(CFGVertex v) {
+		int minimum = diameter;
+		
+		for(CFGVertex node : graph.vertexSet()) {
+			if(graph.inDegreeOf(node) == 0) {
+				DijkstraShortestPath<CFGVertex,DefaultEdge> d = new DijkstraShortestPath<CFGVertex,DefaultEdge>(graph, node, v);
+				int distance = (int)Math.round(d.getPathLength());
+				if(distance < minimum)
+					minimum = distance;
+			}
+		}
+		return minimum;		
+	}
+	
+
+	
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		for(DefaultEdge e : graph.edgeSet()) {
+			sb.append(graph.getEdgeSource(e)+" -> "+graph.getEdgeTarget(e));
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
+	
+	public void toDot(String filename) {
+
+		try {
+			
+			FileWriter fstream = new FileWriter(filename);
+	        BufferedWriter out = new BufferedWriter(fstream);
+	    	if(!graph.vertexSet().isEmpty()) {
+	    		//FrameVertexNameProvider nameprovider = new FrameVertexNameProvider(mn.instructions);
+	    		//	DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>();
+	    		//DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>(new IntegerNameProvider(), nameprovider, new IntegerEdgeNameProvider());
+	    		//			DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>(new LineNumberProvider(), new LineNumberProvider(), new IntegerEdgeNameProvider());
+	    		DOTExporter<CFGVertex, DefaultEdge> exporter = new DOTExporter<CFGVertex, DefaultEdge>(new IntegerNameProvider(), new StringNameProvider(), new IntegerEdgeNameProvider());
+	    		exporter.export(out, graph);
+	    	}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 }

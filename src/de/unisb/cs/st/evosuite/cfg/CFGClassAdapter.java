@@ -20,6 +20,7 @@
 package de.unisb.cs.st.evosuite.cfg;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassAdapter;
@@ -28,6 +29,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.mutation.HOM.HOMSwitcher;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
@@ -69,7 +72,14 @@ public class CFGClassAdapter extends ClassAdapter {
 			return mv;
 		}
 		String classNameWithDots = className.replace('/', '.');
-		mv = new CFGMethodAdapter(classNameWithDots, methodAccess, name, descriptor, signature, exceptions, mv, new ArrayList<Mutation>());
+		List<Mutation> mutants = new ArrayList<Mutation>();
+		if(Properties.MUTATION) {
+			HOMSwitcher switcher = new HOMSwitcher();
+			mutants = switcher.getMutants();
+		}
+
+		
+		mv = new CFGMethodAdapter(classNameWithDots, methodAccess, name, descriptor, signature, exceptions, mv, mutants);
 /*
 		if (!exclude) {
 			if(false) {

@@ -220,4 +220,12 @@ public class TestSuiteChromosome extends Chromosome {
 		}
 		return testcases;
 	}
+	
+	public double getCoverage() {
+		return coverage;
+	}
+	
+	public void setCoverage(double coverage) {
+		this.coverage = coverage;
+	}
 }

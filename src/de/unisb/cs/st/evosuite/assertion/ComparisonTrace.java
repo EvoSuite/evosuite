@@ -240,4 +240,8 @@ public class ComparisonTrace extends OutputTrace {
 
 	}
 
+	public String toString() {
+		return "Comparison trace of length "+equals_map.size();
+	}
+	
 }

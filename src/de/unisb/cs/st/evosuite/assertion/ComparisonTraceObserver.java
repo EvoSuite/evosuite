@@ -47,7 +47,6 @@ public class ComparisonTraceObserver extends ExecutionObserver {
 	public void statement(int position, Scope scope, VariableReference retval) {
 		if(retval == null || retval.isEnum() || retval.isPrimitive())
 			return;
-		
 		Object object = scope.get(retval);
 		if(object == null) {
 			//logger.info("Statement adds null value");

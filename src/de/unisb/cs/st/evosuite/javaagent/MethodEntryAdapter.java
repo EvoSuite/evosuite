@@ -20,9 +20,13 @@
 package de.unisb.cs.st.evosuite.javaagent;
 
 import org.apache.log4j.Logger;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
+
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.MutationMarker;
 
 /**
  * Instrument classes to keep track of method entry and exit
@@ -50,17 +54,40 @@ public class MethodEntryAdapter extends AdviceAdapter{
 	
 	public void onMethodEnter() {
 		super.onMethodEnter();
+
+		if(Properties.MUTATION) {
+			Label mutationStartLabel = new Label();
+			mutationStartLabel.info = new MutationMarker(true);
+			mv.visitLabel(mutationStartLabel);
+		}
+
 		mv.visitLdcInsn(className);
 		mv.visitLdcInsn(fullMethodName);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 				"enteredMethod", "(Ljava/lang/String;Ljava/lang/String;)V");
+
+		if(Properties.MUTATION) {
+			Label mutationEndLabel = new Label();
+			mutationEndLabel.info = new MutationMarker(false);
+			mv.visitLabel(mutationEndLabel);
+		}
 	}
 
 	public void onMethodExit(int opcode) {
+		if(Properties.MUTATION) {
+			Label mutationStartLabel = new Label();
+			mutationStartLabel.info = new MutationMarker(true);
+			mv.visitLabel(mutationStartLabel);
+		}
 		mv.visitLdcInsn(className);
 		mv.visitLdcInsn(fullMethodName);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 				"leftMethod", "(Ljava/lang/String;Ljava/lang/String;)V");
 		super.onMethodExit(opcode);
+		if(Properties.MUTATION) {
+			Label mutationEndLabel = new Label();
+			mutationEndLabel.info = new MutationMarker(false);
+			mv.visitLabel(mutationEndLabel);
+		}
 	}
 }
