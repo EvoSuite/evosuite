@@ -24,11 +24,11 @@
       </includes>
     </fileSet>
     <fileSet>
-      <directory>${project.build.directory}</directory>
+      <directory>src/main/assembly</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-	<include>src/main/assembly/evosuite.properties</include>
-	<include>src/main/assembly/EvoSuite</include>
+	<include>evosuite.properties</include>
+	<include>EvoSuite</include>
       </includes>
     </fileSet>
     <fileSet>
