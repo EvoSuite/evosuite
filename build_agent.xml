@@ -3,7 +3,7 @@
 	<target name="createCoverageagent" description="Create the javaagent for coverage">
 		<echo message="creating javaagent from ant" />
 		 <jar destfile="lib/javaagent.jar" manifest="src/main/resources/MANIFEST_agent.txt">
-			<fileset dir="bin"
+			<fileset dir="target/classes"
 			 includes="**/javaagent/*.class"
 			 />
 		</jar>
@@ -12,7 +12,7 @@
 	<target name="createJar" description="Create full jar">
 		<echo message="creating from ant" />
 		 <jar destfile="lib/evosuite.jar" manifest="src/main/resources/MANIFEST.txt">
-			<fileset dir="bin" includes="**/*.class"/>
+			<fileset dir="target/classes" includes="**/*.class"/>
 			<zipgroupfileset dir="lib" includes="*.jar">
 			   <exclude name="evosuite.jar"/>
 			   <exclude name="javaagent.jar"/>
