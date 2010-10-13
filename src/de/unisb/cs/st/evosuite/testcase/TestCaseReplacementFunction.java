@@ -59,8 +59,8 @@ public class TestCaseReplacementFunction extends ReplacementFunction {
 	}
 	
 	/**
-	 * min(d(O1),d(O2)) < min(d(P1),d(P2))Ê ||
-     * ( min(d(O1),d(O2)) == min(d(P1),d(P2))ÊÊ &&ÊÊ Z= (l(O1)+l(O2) <= l(P1)+l(P2)) ) 
+	 * min(d(O1),d(O2)) < min(d(P1),d(P2)) or
+     * ( min(d(O1),d(O2)) == min(d(P1),d(P2)) and Z= (l(O1)+l(O2) <= l(P1)+l(P2)) ) 
 	 */
 	public boolean keepOffspring(Chromosome parent1, Chromosome parent2,
 			Chromosome offspring1, Chromosome offspring2) {
