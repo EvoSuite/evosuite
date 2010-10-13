@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.unisb.cs.st.evosuite.mutation;
+package de.unisb.cs.st.evosuite.assertion;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

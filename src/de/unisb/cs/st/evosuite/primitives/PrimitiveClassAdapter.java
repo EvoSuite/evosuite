@@ -37,6 +37,8 @@ public class PrimitiveClassAdapter extends ClassAdapter {
 	
 	private static String target_class = Properties.TARGET_CLASS;
 	
+	private static final boolean REPLACE_STRING = Properties.getPropertyOrDefault("string_replacement", true);
+	
 	private Excludes e = Excludes.getInstance();
 	
 	private boolean exclude;
@@ -75,7 +77,7 @@ public class PrimitiveClassAdapter extends ClassAdapter {
 				signature, exceptions);
 
 		String classNameWithDots = className.replace('/', '.');
-		if (!exclude && (classNameWithDots.equals(target_class) || (classNameWithDots.startsWith(target_class+"$")))) {
+		if (!exclude && REPLACE_STRING && (classNameWithDots.equals(target_class) || (classNameWithDots.startsWith(target_class+"$")))) {
 			mv = new StringReplacementMethodAdapter(methodAccess, descriptor, mv);
 		}
 		mv = new PrimitivePoolMethodAdapter(mv);

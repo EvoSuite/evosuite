@@ -14,8 +14,6 @@ import org.objectweb.asm.ClassWriter;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.javaagent.AccessibleClassAdapter;
-import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.BytecodeTasks;
-import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.removeSystemExit.RemoveSystemExitTransformer;
 import de.unisb.cs.st.javalanche.mutation.javaagent.MutationForRun;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.MutationDecision;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.MutationDecisionFactory;
@@ -54,7 +52,7 @@ public class HOMFileTransformer  implements ClassFileTransformer  {
 
 	private static Collection<String> classesToMutate = mm.getClassNames();
 
-	private static RemoveSystemExitTransformer systemExitTransformer = new RemoveSystemExitTransformer();
+	//private static RemoveSystemExitTransformer systemExitTransformer = new RemoveSystemExitTransformer();
 	
 	static {
 		logger.info("Loading HOMFileTransformer");

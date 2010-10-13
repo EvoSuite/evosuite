@@ -29,7 +29,6 @@ import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.util.TraceClassVisitor;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGClassAdapter;
@@ -95,8 +94,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 					ClassVisitor cv = writer;
 					
 					// Print out bytecode if debug is enabled
-					if(logger.isDebugEnabled())
-						cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+					//if(logger.isDebugEnabled())
+					//	cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 
 					// Apply transformations to class under test and its owned classes
 					if(classNameWithDots.equals(target_class) || (classNameWithDots.startsWith(target_class+"$"))) {
@@ -117,8 +116,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 						cv = new StaticInitializationClassAdapter(cv, className);
 					
 					// Print out bytecode if debug is enabled
-					if(logger.isDebugEnabled())
-						cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+					//if(logger.isDebugEnabled())
+					//	cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 					
 					reader.accept(cv, ClassReader.SKIP_FRAMES);
 					classfileBuffer = writer.toByteArray();

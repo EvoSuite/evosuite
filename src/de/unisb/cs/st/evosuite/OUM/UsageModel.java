@@ -28,7 +28,6 @@ import org.softevo.oumextractor.modelcreator1.ModelData;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
-import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
 
 /**
  * A usage model for the entire API
@@ -55,8 +54,6 @@ public class UsageModel {
 		
 		return instance;
 	}
-	
-	private Hierarchy hierarchy = Hierarchy.readFromDefaultLocation();
 	
 	/** Map from classname to class usage markov model */
 	private Map<String, ClassUsage> usage_models = new HashMap<String, ClassUsage>();
@@ -232,59 +229,6 @@ public class UsageModel {
 			usage_models.get(className).addGenerator(source_call);
 			if(ensureClassModel(sourceClass)) 
 				usage_models.get(sourceClass).addCall(source_call);
-		}
-	}
-	
-	private void addGenerator(String src_className, Transition t) {
-		
-		ConcreteCall call = null;
-		String className = null;
-		
-		if(t instanceof InvokeMethodTransition) {
-			InvokeMethodTransition t1 = (InvokeMethodTransition)t;
-			className = t1.getMethodCall().getTypeName();
-			call = getMethod(className, (((InvokeMethodTransition)t).getMethodCall().getMethodName()));
-
-		} else if(t instanceof ReturnValueOfMethodTransition) {
-			ReturnValueOfMethodTransition t1 = (ReturnValueOfMethodTransition)t;
-			className = t1.getMethodCall().getTypeName();
-			call = getMethod(className, (((ReturnValueOfMethodTransition)t).getMethodCall().getMethodName()));
-		} else if(t instanceof FieldValueTransition) {
-			FieldValueTransition t1 = (FieldValueTransition)t;
-			String fullName = t1.getFieldName();
-			int dot = fullName.lastIndexOf(".");
-			className = fullName.substring(0, dot);
-			String fieldName = fullName.substring(dot + 1);
-			call = getMethod(className, fieldName);
-		}
-		if(className != null && ensureClassModel(className)) {
-			if(call != null) {
-				//logger.info("Adding call for "+className+": "+call);
-				usage_models.get(className).addCall(call);
-			}
-		}
-		
-		call = null;
-		
-		if(t instanceof InvokeMethodTransition) {
-			InvokeMethodTransition t1 = (InvokeMethodTransition)t;
-			call = getMethod(src_className, (((InvokeMethodTransition)t).getMethodCall().getMethodName()));
-
-		} else if(t instanceof ReturnValueOfMethodTransition) {
-			ReturnValueOfMethodTransition t1 = (ReturnValueOfMethodTransition)t;
-			call = getMethod(src_className, (((ReturnValueOfMethodTransition)t).getMethodCall().getMethodName()));
-		} else if(t instanceof FieldValueTransition) {
-			FieldValueTransition t1 = (FieldValueTransition)t;
-			String fullName = t1.getFieldName();
-			int dot = fullName.lastIndexOf(".");
-			String fieldName = fullName.substring(dot + 1);
-			call = getMethod(src_className, fieldName);
-		}
-		if(src_className != null && ensureClassModel(src_className)) {
-			if(call != null) {
-				//logger.info("Adding call for "+src_className+": "+call);
-				usage_models.get(src_className).addCall(call);
-			}
 		}
 	}
 	

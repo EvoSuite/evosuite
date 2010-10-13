@@ -99,7 +99,7 @@ public class TestCase {
 	 *   Code as string
 	 */
 	public String toCode() {
-		String code = new String("");
+		String code = "";
 		for(Statement s: statements) {
 			code += s.getCode() + "\n";
 			code += s.getAssertionCode();
@@ -114,7 +114,7 @@ public class TestCase {
 	 *   Code as string
 	 */
 	public String toCode(Map<Integer, Throwable> exceptions) {
-		String code = new String("");
+		String code = "";
 		for(int i = 0; i < size(); i++) {
 			Statement s = statements.get(i);
 			if(exceptions.containsKey(i)) {

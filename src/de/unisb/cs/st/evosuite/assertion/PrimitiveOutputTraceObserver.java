@@ -46,7 +46,7 @@ public class PrimitiveOutputTraceObserver extends ExecutionObserver {
 			return;
 
 		Object object = scope.get(retval);
-		if(object == null || object.getClass().isPrimitive() || object.getClass().isEnum() || isWrapperType(object.getClass())) {
+		if(object == null || object.getClass().isPrimitive() || object.getClass().isEnum() || isWrapperType(object.getClass()) || object instanceof String) {
 			trace.trace.put(position, object);
 			/*
 			if(object == null)

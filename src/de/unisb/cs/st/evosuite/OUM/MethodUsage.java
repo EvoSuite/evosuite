@@ -3,10 +3,8 @@
  */
 package de.unisb.cs.st.evosuite.OUM;
 
-import java.lang.reflect.AccessibleObject;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -20,7 +18,8 @@ import de.unisb.cs.st.javalanche.ga.Randomness;
  */
 public class MethodUsage {
 	
-	private static Logger logger = Logger.getLogger(MethodUsage.class);
+	@SuppressWarnings("unused")
+    private static Logger logger = Logger.getLogger(MethodUsage.class);
 	
 	private ConcreteCall call; 
 	

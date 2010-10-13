@@ -135,7 +135,7 @@ public class MethodStatement extends Statement {
 
 	@Override
 	public String getCode() {
-		String parameter_string = new String("");
+		String parameter_string = "";
 		if(!parameters.isEmpty()) {
 			parameter_string += parameters.get(0).getName();
 			for(int i=1; i<parameters.size(); i++) {
@@ -170,7 +170,7 @@ public class MethodStatement extends Statement {
 		}
 		result += "try {\n";
 		
-		String parameter_string = new String("");
+		String parameter_string = "";
 		if(!parameters.isEmpty()) {
 			parameter_string += parameters.get(0).getName();
 			for(int i=1; i<parameters.size(); i++) {

@@ -1141,7 +1141,7 @@ public class TestCluster {
 	  public void resetStaticClasses() {
 		  for(Method m : static_initializers) {
 			  try {
-				m.invoke(null, null);
+				m.invoke(null, (Object[])null);
 			} catch (IllegalArgumentException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -1159,7 +1159,7 @@ public class TestCluster {
 		  for(String classname : StaticInitializationClassAdapter.static_classes) {
 			  try {
 				  Class<?> clazz = Class.forName(classname);
-				  Method m = clazz.getMethod("__STATIC_RESET", null);
+				  Method m = clazz.getMethod("__STATIC_RESET", (Class<?>[])null);
 				  m.setAccessible(true);
 				  static_initializers.add(m);
 				  logger.info("Adding static class: "+classname);

@@ -25,7 +25,7 @@ import com.thoughtworks.xstream.XStream;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
-import de.unisb.cs.st.evosuite.coverage.BranchCoverageFitnessFunction;
+import de.unisb.cs.st.evosuite.coverage.BranchCoverageTestFitness;
 import de.unisb.cs.st.evosuite.coverage.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
@@ -113,7 +113,6 @@ public class TestSuiteGenerator {
 		Set<String> common_covered_false   = junit.getFalseCoveredBranches();
 		Set<String> common_covered_methods = junit.getCoveredMethods();
 
-		int total = CFGMethodAdapter.methods.size() + CFGMethodAdapter.branch_counter * 2;
 		int coverage_junit = 0;
 		int coverage_generated = 0;
 		int junit_not_generated = 0;
@@ -208,16 +207,7 @@ public class TestSuiteGenerator {
 		Set<String> generated_covered_false   = junit.getFalseCoveredBranches();
 		Set<String> generated_covered_methods = junit.getCoveredMethods();
 		int total = CFGMethodAdapter.methods.size() + CFGMethodAdapter.branch_counter * 2;
-		int coverage_generated = 0;
-		for(String branch : generated_covered_true) {
-			coverage_generated++;
-		}
-		for(String branch : generated_covered_false) {
-			coverage_generated++;
-		}
-		for(String branch : generated_covered_methods) {
-			coverage_generated++;
-		}
+		int coverage_generated = generated_covered_true.size() + generated_covered_false.size() + generated_covered_methods.size();
 		return 100.0*coverage_generated/total;		
 	}
 	
@@ -312,7 +302,10 @@ public class TestSuiteGenerator {
 			double coverage = getCoverage(best);
 			int size = best.size();
 			int length = best.length();
-			String model = "CLIENT";
+
+			System.out.println("UsageCSV,"+Properties.getProperty("usage_models")+","+Properties.getProperty("usage_rate")+","+Randomness.getInstance().getSeed()+","+Properties.TARGET_CLASS+","+coverage+","+size+","+length);
+			/*
+			 * 			String model = "CLIENT";
 			if(Properties.getProperty("usage_models").contains("model_tests")) {
 				if(Properties.getProperty("usage_models").contains("model_source")) {
 					model = "ALL";
@@ -321,7 +314,6 @@ public class TestSuiteGenerator {
 				}
 				
 			}
-			System.out.println("UsageCSV,"+Properties.getProperty("usage_models")+","+Properties.getProperty("usage_rate")+","+Randomness.getInstance().getSeed()+","+Properties.TARGET_CLASS+","+coverage+","+size+","+length);
 			XStream xstream = new XStream();
 			FileWriter fstream;
 			try {
@@ -336,6 +328,7 @@ public class TestSuiteGenerator {
 				//logger.info(copy.toCode());
 			} catch (IOException e) {
 			}
+			*/
 			resetStoppingConditions();
 			/*
 
@@ -391,16 +384,8 @@ public class TestSuiteGenerator {
 		Set<String> junit_covered_methods = junit.getCoveredMethods();
 
 		int total = CFGMethodAdapter.methods.size() + CFGMethodAdapter.branch_counter * 2 + 2;
-		int coverage_junit = 0;
-		for(String branch : junit_covered_true) {
-			coverage_junit++;				
-		}
-		for(String branch : junit_covered_false) {
-			coverage_junit++;
-		}
-		for(String branch : junit_covered_methods) {
-			coverage_junit++;
-		}
+		int coverage_junit = junit_covered_true.size() + junit_covered_false.size() + junit_covered_methods.size();
+
 		System.out.println("COV,"+Properties.TARGET_CLASS+","+(100.0 * coverage_junit / total));
 	}
 	
@@ -414,8 +399,6 @@ public class TestSuiteGenerator {
 			BufferedReader in = new BufferedReader(fstream);
 
 			ArrayList<TestCase> tests = (ArrayList<TestCase>)xstream.fromXML(in);
-			OUMTestFactory factory = OUMTestFactory.getInstance();
-			UsageModel usage = UsageModel.getInstance();
 			
 			int valid = 0;
 			int invalid = 0;
@@ -593,7 +576,7 @@ public class TestSuiteGenerator {
 
 		GeneticAlgorithm ga = getGeneticAlgorithm_TestCases();
 		TestSuiteChromosome suite = new TestSuiteChromosome();
-		FitnessFunction suite_fitness = new de.unisb.cs.st.evosuite.testsuite.BranchCoverageFitnessFunction();
+		FitnessFunction suite_fitness = new de.unisb.cs.st.evosuite.coverage.BranchCoverageSuiteFitness();
 		List<BranchCoverageGoal> goals = getBranches(); 
 		Randomness.getInstance().shuffle(goals);
 		int total_goals = goals.size(); 
@@ -646,7 +629,7 @@ public class TestSuiteGenerator {
 						break;
 					}
 				 */
-				FitnessFunction fitness_function = new BranchCoverageFitnessFunction(goal);
+				FitnessFunction fitness_function = new BranchCoverageTestFitness(goal);
 				ga.setFitnessFunction(fitness_function);
 
 				// Perform search
@@ -672,10 +655,10 @@ public class TestSuiteGenerator {
 				population.add(suite);
 
 				statistics.iteration(population);
-				current_statements += max_statements.getNumExecutedStatements();
+				current_statements += MaxStatementsStoppingCondition.getNumExecutedStatements();
 				if(current_statements > max_s)
 					break;
-				logger.info("Adding statements: "+max_statements.getNumExecutedStatements()+" -> "+current_statements+"/"+max_s);
+				logger.info("Adding statements: "+MaxStatementsStoppingCondition.getNumExecutedStatements()+" -> "+current_statements+"/"+max_s);
 				max_statements.reset();
 				num++;
 
@@ -727,7 +710,7 @@ public class TestSuiteGenerator {
 			BufferedWriter out = new BufferedWriter(fstream);
 
 			xstream.toXML(suite.getTests(), out);
-			String xml = xstream.toXML(suite.getTests());
+			//String xml = xstream.toXML(suite.getTests());
 			//TestCase copy = (TestCase) xstream.fromXML(xml);
 			//logger.info("After xstream:");
 			//logger.info(copy.toCode());
@@ -923,7 +906,7 @@ public class TestSuiteGenerator {
 		CrossOverFunction crossover_function = new SinglePointRelativeCrossOver();
 		ga.setCrossOverFunction(crossover_function);
 
-		FitnessFunction fitness_function = new de.unisb.cs.st.evosuite.testsuite.BranchCoverageFitnessFunction();
+		FitnessFunction fitness_function = new de.unisb.cs.st.evosuite.coverage.BranchCoverageSuiteFitness();
 		ga.setFitnessFunction(fitness_function);
 
 		//MaxLengthBloatControl bloat_control = new MaxLengthBloatControl();

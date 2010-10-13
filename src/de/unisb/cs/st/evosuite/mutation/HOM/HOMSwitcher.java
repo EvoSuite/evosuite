@@ -12,18 +12,20 @@ public class HOMSwitcher {
 
 	private Logger logger = Logger.getLogger(HOMSwitcher.class);
 	
-	int num_mutants;
+	static int num_mutants;
 	
-	List<Mutation> mutants;
+	static List<Mutation> mutants = null;
 	
 	public HOMSwitcher() {
 		// TODO: All mutants?
 		//num_mutants = (int)QueryManager.getNumberOfMutationsWithPrefix(MutationProperties.PROJECT_PREFIX);
-		mutants = MutationForRun.getFromDefaultLocation().getMutations();
-		num_mutants = mutants.size();
-		logger.info("Got "+num_mutants+" mutations");
+			if(mutants == null) {
+				mutants = MutationForRun.getFromDefaultLocation().getMutations();
+				num_mutants = mutants.size();
+				logger.info("Got "+num_mutants+" mutations");
+				assert(num_mutants == mutants.size());
+			}
 		//mutants = QueryManager.getMutationIdListFromDb(num_mutants);
-		assert(num_mutants == mutants.size());
 	}
 
 	public void switchOn(HOMChromosome hom) {

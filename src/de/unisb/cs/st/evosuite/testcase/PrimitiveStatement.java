@@ -287,7 +287,7 @@ public class PrimitiveStatement<T> extends Statement {
 		double delta = 40.0 * randomness.nextDouble() - 20.0;
 		
 		if(value instanceof Boolean) {
-			value = (T) new Boolean(!((Boolean)value).booleanValue());
+			value = (T) Boolean.valueOf(!((Boolean)value).booleanValue());
 		} else if(value instanceof Integer) {
 			value = (T) new Integer(((Integer)value).intValue() + (int)delta);
 		} else if(value instanceof Character) {
@@ -311,7 +311,7 @@ public class PrimitiveStatement<T> extends Statement {
 	@SuppressWarnings("unchecked")
 	public void increment() {
 		if(value instanceof Boolean) {
-			value = (T) new Boolean(!((Boolean)value).booleanValue());
+			value = (T) Boolean.valueOf(!((Boolean)value).booleanValue());
 		} else if(value instanceof Integer) {
 			value = (T) new Integer(((Integer)value).intValue() +1);
 		} else if(value instanceof Character) {
@@ -332,7 +332,7 @@ public class PrimitiveStatement<T> extends Statement {
 	@SuppressWarnings("unchecked")
 	public void decrement() {
 		if(value instanceof Boolean) {
-			value = (T) new Boolean(!((Boolean)value).booleanValue());
+			value = (T) Boolean.valueOf(!((Boolean)value).booleanValue());
 		} else if(value instanceof Integer) {
 			value = (T) new Integer(((Integer)value).intValue() -1);
 		} else if(value instanceof Character) {
@@ -353,7 +353,7 @@ public class PrimitiveStatement<T> extends Statement {
 	@SuppressWarnings("unchecked")
 	public void zero() {
 		if(value instanceof Boolean) {
-			value = (T) new Boolean(false);
+			value = (T) Boolean.FALSE;
 		} else if(value instanceof Integer) {
 			value = (T) new Integer(0);
 		} else if(value instanceof Character) {

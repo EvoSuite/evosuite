@@ -23,13 +23,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
+import de.unisb.cs.st.evosuite.assertion.AssertionGenerator;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
-import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
-import de.unisb.cs.st.evosuite.coverage.BranchCoverageGoal;
+import de.unisb.cs.st.evosuite.coverage.BranchCoverageFactory;
+import de.unisb.cs.st.evosuite.coverage.BranchCoverageSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.CrossOverFunction;
@@ -53,14 +54,16 @@ import de.unisb.cs.st.evosuite.ga.StoppingCondition;
 import de.unisb.cs.st.evosuite.ga.TournamentSelection;
 import de.unisb.cs.st.evosuite.ga.ZeroFitnessStoppingCondition;
 import de.unisb.cs.st.evosuite.junit.TestSuite;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
+import de.unisb.cs.st.evosuite.mutation.MutationGoalFactory;
+import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.MaxTestsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCaseMinimizer;
 import de.unisb.cs.st.evosuite.testcase.TestCaseReplacementFunction;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
-import de.unisb.cs.st.evosuite.testsuite.BranchCoverageFitnessFunction;
+import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.RelativeLengthBloatControl;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
@@ -97,6 +100,14 @@ public class TestSuiteGenerator {
 		else
 			tests = generateIndividualTests();
 		
+		if(Properties.MUTATION) {
+			Set<Long> killed = new HashSet<Long>();
+			AssertionGenerator asserter = new AssertionGenerator();
+			for(TestCase test : tests) {
+				asserter.addAssertions(test, killed);
+			}
+		}
+		
 		TestSuite suite = new TestSuite(tests);
 		String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".")+1);
 		System.out.println("* Writing JUnit test cases to "+Properties.TEST_DIR);
@@ -117,7 +128,7 @@ public class TestSuiteGenerator {
 		long start_time = System.currentTimeMillis() * 1000;
 		
 		// What's the search target
-		FitnessFunction fitness_function = new BranchCoverageFitnessFunction();
+		FitnessFunction fitness_function = new BranchCoverageSuiteFitness();
 		ga.setFitnessFunction(fitness_function);
 
 		// Perform search
@@ -140,25 +151,40 @@ public class TestSuiteGenerator {
 		return best.getTests();
 	}
 	
+	private TestFitnessFactory getFitnessFactory() {
+		if(Properties.CRITERION.equalsIgnoreCase("Mutation")) {
+			System.out.println("* Test criterion: Mutation testing");
+			return new MutationGoalFactory();
+		}
+		else {
+			System.out.println("* Test criterion: Branch coverage");
+			return new BranchCoverageFactory();
+		}
+	}
+	
 	/**
 	 * Use the OneBranch approach (One branch at a time)
 	 * @return
 	 */
 	private List<TestCase> generateIndividualTests() {
 		// Set up search algorithm
-		System.out.println("* Setting up search algorithm for single branch generation");
+		System.out.println("* Setting up search algorithm for individual test generation");
+		ExecutionTrace.enableTraceCalls();
 		GeneticAlgorithm ga = setup();
 		long start_time = System.currentTimeMillis() * 1000;
+		
 
 		// Each generated test case is put into a test suite
 		TestSuiteChromosome suite = new TestSuiteChromosome();
-		FitnessFunction suite_fitness = new de.unisb.cs.st.evosuite.testsuite.BranchCoverageFitnessFunction();
+		// TODO: Minimize individual tests instead?
+		FitnessFunction suite_fitness = new de.unisb.cs.st.evosuite.coverage.BranchCoverageSuiteFitness();
 		
 		// Get list of goals
 		// TODO: This needs to be replacable by other coverage criteria
-		List<BranchCoverageGoal> goals = getBranches(); 
-		
-		
+		TestFitnessFactory goal_factory = getFitnessFactory();
+		List<TestFitnessFunction> goals = goal_factory.getCoverageGoals(); 
+		System.out.println("* Total number of test goals: "+goals.size());
+
 		Randomness.getInstance().shuffle(goals);
 		int total_goals = goals.size(); 
 		int covered_goals = 0;
@@ -185,7 +211,7 @@ public class TestSuiteGenerator {
 
 			int num = 0;
 			//int num_statements = 0; //MaxStatementsStoppingCondition.getNumExecutedStatements();
-			for(BranchCoverageGoal goal : goals) {
+			for(TestFitnessFunction fitness_function : goals) {
 				
 				if(covered.contains(num)){
 					num++;
@@ -195,10 +221,10 @@ public class TestSuiteGenerator {
 				ga.resetStoppingConditions();
 				ga.clearPopulation();
 				
-				System.out.println("* Searching for goal "+num);
-				logger.info("Goal "+num+"/"+(total_goals - covered_goals)+": "+goal);
+				System.out.println("* Searching for goal "+num+": "+fitness_function.toString());
+				logger.info("Goal "+num+"/"+(total_goals - covered_goals)+": "+fitness_function);
 
-				if(goal.isCovered(suite.getTests())) {
+				if(fitness_function.isCovered(suite.getTests())) {
 					logger.info("Skipping goal because it is already covered");
 					covered.add(num);
 					covered_goals++;
@@ -206,16 +232,23 @@ public class TestSuiteGenerator {
 					continue;
 				}
 
-				FitnessFunction fitness_function = new de.unisb.cs.st.evosuite.coverage.BranchCoverageFitnessFunction(goal);
+				//FitnessFunction fitness_function = new de.unisb.cs.st.evosuite.coverage.BranchCoverageTestFitness(goal);
 				ga.setFitnessFunction(fitness_function);
 
 				// Perform search
-				logger.info("Starting evolution for goal "+goal);
+				logger.info("Starting evolution for goal "+fitness_function);
 				ga.generateSolution();
 
 				if(ga.getBestIndividual().getFitness() == 0.0) {
 					logger.info("Found solution, adding to test suite");
-					suite.addTest((TestChromosome)ga.getBestIndividual());
+					TestChromosome best = (TestChromosome)ga.getBestIndividual();
+					if(Properties.MINIMIZE) {
+						TestCaseMinimizer minimizer = new TestCaseMinimizer((TestFitnessFunction) fitness_function);
+						minimizer.minimize(best);
+					}
+					suite.addTest(best);
+					
+					//suite.addTest((TestChromosome)ga.getBestIndividual());
 					covered_goals++;
 					covered.add(num);
 				} else {
@@ -240,13 +273,16 @@ public class TestSuiteGenerator {
 		statistics.searchFinished(population);
 		long end_time = System.currentTimeMillis() * 1000;
 		System.out.println("* Search finished after "+(end_time-start_time)+"s, best individual has fitness "+suite.getFitness());
+		System.out.println("* Covered "+covered_goals+"/"+goals.size()+" goals");
 		logger.info("Resulting test suite: "+suite.size()+" tests, length "+suite.length());
 		// Generate a test suite chromosome once all test cases are done?
+		/*
 		if(Properties.MINIMIZE) {
 			System.out.println("* Minimizing result");
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer();
 			minimizer.minimize(suite, suite_fitness);
 		}
+		*/
 		//System.out.println("Resulting test suite has fitness "+suite.getFitness());
 		System.out.println("* Resulting test suite: "+suite.size()+" tests, length "+suite.length());
 		
@@ -258,7 +294,7 @@ public class TestSuiteGenerator {
 		return suite.getTests();
 	}
 	
-	
+	/*
 	protected List<BranchCoverageGoal> getBranches() {
 		List<BranchCoverageGoal> goals = new ArrayList<BranchCoverageGoal>();
 
@@ -289,6 +325,7 @@ public class TestSuiteGenerator {
 		
 		return goals;
 	}
+	*/
 	
 	protected StoppingCondition getStoppingCondition() {
 		String stopping_condition = Properties.getPropertyOrDefault("stopping_condition", "MaxGenerations");

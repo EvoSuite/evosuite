@@ -20,14 +20,8 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import de.unisb.cs.st.evosuite.assertion.ComparisonTraceObserver;
-import de.unisb.cs.st.evosuite.assertion.InspectorTraceObserver;
-import de.unisb.cs.st.evosuite.assertion.NullOutputObserver;
-import de.unisb.cs.st.evosuite.assertion.PrimitiveFieldTraceObserver;
-import de.unisb.cs.st.evosuite.assertion.PrimitiveOutputTraceObserver;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 
@@ -39,56 +33,6 @@ import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 public abstract class TestFitnessFunction extends FitnessFunction {
 
 	protected TestCaseExecutor executor = new TestCaseExecutor();
-	
-	protected List<ExecutionObserver> observers;
-	
-	protected PrimitiveOutputTraceObserver primitive_observer = new PrimitiveOutputTraceObserver();
-	protected ComparisonTraceObserver comparison_observer     = new ComparisonTraceObserver();
-	protected InspectorTraceObserver inspector_observer       = new InspectorTraceObserver();
-	protected PrimitiveFieldTraceObserver field_observer      = new PrimitiveFieldTraceObserver();
-	protected NullOutputObserver null_observer                = new NullOutputObserver();
-	
-	private static List<String> ignored_exceptions = null;
-
-	public TestFitnessFunction() {
-		//executor.addObserver(primitive_observer);
-		//executor.addObserver(comparison_observer);
-		//executor.addObserver(inspector_observer);
-		//executor.addObserver(field_observer);
-		//executor.addObserver(null_observer);
-		
-		if(ignored_exceptions == null) {
-			ignored_exceptions = new ArrayList<String>();
-			String property = System.getProperty("test.ignore.exceptions");
-			if(property != null) {
-				for(String ignore : property.split(",")) {
-					String i = ignore.trim();
-					if(!i.equals("")) {
-						logger.info("Will ignore: "+i);
-						ignored_exceptions.add(i);
-					}
-				}
-			}
-		}
-	}
-	
-	/**
-	 * Reset observers for new execution
-	 */
-	public void resetObservers() {
-		executor.newObservers();
-		primitive_observer = new PrimitiveOutputTraceObserver();
-		comparison_observer     = new ComparisonTraceObserver();
-		inspector_observer       = new InspectorTraceObserver();
-		field_observer      = new PrimitiveFieldTraceObserver();
-		null_observer       = new NullOutputObserver();
-		executor.addObserver(primitive_observer);
-		executor.addObserver(comparison_observer);
-		executor.addObserver(inspector_observer);
-		executor.addObserver(field_observer);
-		executor.addObserver(null_observer);
-
-	}
 	
 	/**
 	 * Execute a test case
@@ -110,11 +54,13 @@ public abstract class TestFitnessFunction extends FitnessFunction {
 			executor.setLogging(true);
 			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
 			result.output_trace = executor.getTrace();
+			/*
 			result.comparison_trace = comparison_observer.getTrace();
 			result.primitive_trace = primitive_observer.getTrace();
 			result.inspector_trace = inspector_observer.getTrace();
 			result.field_trace = field_observer.getTrace();
 			result.null_trace = null_observer.getTrace();
+			*/
 			
 			int num = test.size();
 			/*
@@ -174,5 +120,24 @@ public abstract class TestFitnessFunction extends FitnessFunction {
 		updateIndividual(c, fitness);
 		
 		return c.getFitness();
+	}
+	
+	/**
+	 * Determine if there is an existing test case covering this goal
+	 * @return
+	 */
+	public boolean isCovered(List<TestCase> tests) {
+		for(TestCase test : tests) {
+			if(isCovered(test))
+				return true;
+		}
+		return false;
+	}
+	
+	public boolean isCovered(TestCase test) {
+		ExecutionResult result = runTest(test);
+		TestChromosome c = new TestChromosome();
+		c.test = test;
+		return getFitness(c, result) == 0.0;
 	}
 }

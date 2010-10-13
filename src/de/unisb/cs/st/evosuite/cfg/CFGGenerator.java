@@ -80,6 +80,8 @@ public class CFGGenerator extends Analyzer {
 		int id;
 		int line_no = 0;
 		List<Long> mutations = new ArrayList<Long>();
+		boolean mutationBranch = false;
+		boolean mutatedBranch = false;
 		
 		Map<Long, Integer> mutant_distance = new HashMap<Long,Integer>(); // Calculate distance to each mutation 
 
@@ -128,6 +130,23 @@ public class CFGGenerator extends Analyzer {
 			*/
 		}
 		
+		public boolean isMutationBranch() {
+			return isBranch() && mutationBranch;
+		}
+		
+		public void setMutationBranch() {
+			mutationBranch = true;
+		}
+
+		public void setMutatedBranch() {
+			mutatedBranch = true;
+		}
+		
+		public boolean isMutatedBranch() {
+			// Mutated if HOMObserver of MutationObserver are called
+			return isBranch() && mutatedBranch;
+		}
+		
 		public boolean isBranchLabel() {
 			if(node instanceof LabelNode && ((LabelNode)node).getLabel().info instanceof Integer) {
 				logger.info("!!!!! Found branch!");
@@ -143,6 +162,29 @@ public class CFGGenerator extends Analyzer {
 		public int getBranchId() {
 			//return ((Integer)((LabelNode)node).getLabel().info).intValue();
 			return line_no;
+		}
+		
+		public boolean isIfNull() {
+			if (node instanceof JumpInsnNode) {
+				return (node.getOpcode() == Opcodes.IFNULL);
+			}
+			return false;
+		}
+		
+		public boolean isMethodCall() {
+			return node instanceof MethodInsnNode;
+		}
+		
+		public boolean isMethodCall(String methodName) {
+			if (node instanceof MethodInsnNode) {
+				MethodInsnNode mn = (MethodInsnNode)node;
+				return mn.name.equals(methodName);
+			}
+			return false;
+		}
+		
+		public String getMethodName() {
+			return ((MethodInsnNode)node).name;
 		}
 		
 		public List<Long >getMutationIds() {
@@ -167,6 +209,18 @@ public class CFGGenerator extends Analyzer {
 		}
 		
 		public String toString() {
+			
+			if(isMutation()) {
+				String ids = "Mutations: ";
+				for(long l : mutations) {
+					ids += " "+l;
+				}
+				return ids;
+			}
+			
+			if(isBranch()) {
+				return "Branch "+id+" - "+((JumpInsnNode)node).label.getLabel();
+			}
 			
 			String type = "";
 			String opcode = "";
@@ -292,11 +346,34 @@ public class CFGGenerator extends Analyzer {
 				for(CFGVertex v : graph.vertexSet()) {
 					if(v.isLineNumber() && v.getLineNumber() == m.getLineNumber()) {
 						v.setMutation(m.getId());
+						// TODO: What if there are several mutations with the same line number?
 					}
 				}
 			}
 		}
-		
+
+		for(CFGVertex v : graph.vertexSet()) {
+			if(v.isIfNull()) {
+				for(DefaultEdge e : graph.incomingEdgesOf(v)) {
+					CFGVertex v2 = graph.getEdgeSource(e);
+					if(v2.isMethodCall("getProperty")) {
+						v.setMutationBranch();
+					}
+				}
+			} else if(v.isBranch()) {
+				for(DefaultEdge e : graph.incomingEdgesOf(v)) {
+					CFGVertex v2 = graph.getEdgeSource(e);
+					if(v2.isMethodCall("touch")) {
+						logger.info("Found mutated branch!");
+						v.setMutatedBranch();
+					} else {
+						if(v2.isMethodCall())
+							logger.info("Edgesource: "+v2.getMethodName());
+					}
+				}
+			}
+		}
+
 		for(CFGVertex vertex : graph.vertexSet()) {
 			if(current == null)
 				current = vertex;
@@ -307,8 +384,9 @@ public class CFGGenerator extends Analyzer {
 			// Add end nodes
 			else if(graph.outDegreeOf(vertex) == 0)
 				min_graph.addVertex(vertex);
-			else if(vertex.isJump() && !vertex.isGoto())
+			else if(vertex.isJump() && !vertex.isGoto()) {
 				min_graph.addVertex(vertex);
+			}
 			else if(vertex.isMutation()) 
 				min_graph.addVertex(vertex);
 			/*
@@ -334,13 +412,13 @@ public class CFGGenerator extends Analyzer {
 
 		for(CFGVertex vertex : min_graph.vertexSet()) {
 			Set<DefaultEdge> handled = new HashSet<DefaultEdge>();
+			
 			Queue<DefaultEdge> queue = new LinkedList<DefaultEdge>();
 			queue.addAll(graph.outgoingEdgesOf(vertex));
 			while(!queue.isEmpty()) {
 				DefaultEdge edge = queue.poll();
 				if(handled.contains(edge))
 					continue;
-
 				handled.add(edge);
 				if(min_graph.containsVertex(graph.getEdgeTarget(edge))) {
 					min_graph.addEdge(vertex, graph.getEdgeTarget(edge));

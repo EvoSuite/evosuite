@@ -33,8 +33,6 @@ import org.objectweb.asm.util.AbstractVisitor;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.FloydWarshall;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
-import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
  * This class collects information about chosen branches/paths at runtime
@@ -44,9 +42,6 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 public class ExecutionTracer {
 	
 	private static Logger logger = Logger.getLogger(ExecutionTracer.class);
-	
-	private final int CLASS_DISTANCE = 1000;
-	private final int METHOD_DISTANCE = 100;
 	
 	private static ExecutionTracer instance = null;
 	
@@ -136,6 +131,7 @@ public class ExecutionTracer {
 	 */
 	public static void returnValue(int value, String className, String methodName) {
 		ExecutionTracer tracer = getExecutionTracer();
+		logger.info("Return value: "+value);
 		tracer.trace.returnValue(className, methodName, value);
 	}
 
@@ -419,90 +415,6 @@ public class ExecutionTracer {
 	public int getNumStatementsExecuted() {
 		return num_statements;
 	}
-
-	
-	public int getApproachLevel(Mutation mutation, ExecutionTrace trace) {
-		String classname = mutation.getClassName().replace('.','/');
-		String methodname = mutation.getMethodName();
-		if(!graphs.containsKey(classname)) {
-			return CLASS_DISTANCE;
-		}
-		int min = METHOD_DISTANCE;
-
-		for(MethodCall m : trace.finished_calls) {
-			if(m.class_name.equals(classname) && m.method_name.equals(methodname)) {
-				int distance = graphs.get(classname).get(methodname).getControlDistance(m.branch_trace, mutation.getId());
-				if(distance < min) {
-					min = distance;
-				}
-			}
-		}
-		return min;
-	}
-
-	public double getBranchDistance(Mutation mutation, ExecutionTrace trace) {
-		String classname = mutation.getClassName().replace('.','/');
-		String methodname = mutation.getMethodName();
-		if(!graphs.containsKey(classname)) {
-			return CLASS_DISTANCE;
-		}
-		double min = METHOD_DISTANCE;
-
-		for(MethodCall m : trace.finished_calls) {
-			if(m.class_name.equals(classname) && m.method_name.equals(methodname)) {
-				// TODO: Which one is the point of diversion?
-				double distance = graphs.get(classname).get(methodname).getBranchDistance(m.branch_trace, m.true_distance_trace, mutation.getId());
-				if(distance < min) {
-					min = distance;
-				}
-			}
-		}
-		
-		return min;
-	}
-
-	
-	public void checkMutations() {
-		int total = 0;
-		
-		for(Map<String,ControlFlowGraph> classgraphs : graphs.values()) {
-			for(ControlFlowGraph g : classgraphs.values()) {
-				total += g.getMutations().size();
-			}
-		}
-		logger.info("Found a total of "+total+" mutations");
-	}
-	
-	// TODO: Also need method name?
-	public double getDiameter(Mutation mutation) {
-		String classname = mutation.getClassName(); //replace('.','/');
-		if(!graphs.containsKey(classname)) {
-			logger.error("Cannot find mutated class: "+classname);
-			return Double.POSITIVE_INFINITY;
-		}
-
-		String methodname = mutation.getMethodName();
-		if(methodname == null)
-			methodname = "<init>";
-
-		if(!graphs.get(classname).containsKey(methodname)) {
-			logger.error("Cannot find mutated method: "+methodname);
-			logger.error(mutation);
-			return Double.POSITIVE_INFINITY;
-		}
-		
-		if(graphs.get(classname).get(methodname).containsMutation(mutation.getId()))
-			return diameters.get(classname).get(methodname);
-		else {
-			logger.error("Mutated method: "+mutation.getClassName()+"."+methodname+" does not contain mutation "+mutation.getId());
-			for(Long l : graphs.get(classname).get(methodname).getMutations()) {
-				logger.error(" -> " + l);
-			}
-		}
-				
-		return Double.POSITIVE_INFINITY;
-	}
-	
 
 	
 	private ExecutionTracer() {

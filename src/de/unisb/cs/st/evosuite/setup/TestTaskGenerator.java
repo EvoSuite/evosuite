@@ -44,7 +44,6 @@ import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.Excludes;
-import de.unisb.cs.st.javalanche.mutation.properties.MutationProperties;
 
 /**
  * @author Gordon Fraser
@@ -575,7 +574,7 @@ public class TestTaskGenerator {
 	 */
 	protected static void writeInspectors(String classname, String filename) {
 		StringBuffer sb = new StringBuffer();
-		File file = new File(MutationProperties.OUTPUT_DIR, filename);
+		File file = new File(Properties.OUTPUT_DIR, filename);
 		
 		// TODO: Don't really need super classes here!
 		List<String> classes = getSuperClasses(classname);

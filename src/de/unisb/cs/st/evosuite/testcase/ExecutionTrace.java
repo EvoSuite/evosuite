@@ -45,6 +45,14 @@ public class ExecutionTrace {
 	
 	public static boolean trace_calls = false;
 	
+	public static void disableTraceCalls() {
+		trace_calls = false;
+	}
+
+	public static void enableTraceCalls() {
+		trace_calls = true;
+	}
+
 	public class MethodCall {
 		public String class_name;
 		public String method_name;
@@ -137,7 +145,7 @@ public class ExecutionTrace {
 			covered_methods.put(id, covered_methods.get(id) + 1);
 		
 		if(trace_calls) {
-			logger.debug("Entered method "+classname+"/"+methodname);
+			logger.trace("Entered method "+classname+"/"+methodname);
 			stack.push(new MethodCall(classname, methodname));
 		}
 	}
@@ -205,10 +213,14 @@ public class ExecutionTrace {
 		if(!return_data.get(className).containsKey(methodName))
 			return_data.get(className).put(methodName, new HashMap<Integer, Integer>());
 		
-		if(!return_data.get(className).get(methodName).containsKey(value))
+		if(!return_data.get(className).get(methodName).containsKey(value)) {
+			logger.info("Got return value "+value);
 			return_data.get(className).get(methodName).put(value, 1);
-		else
+		}
+		else {
+			logger.info("Got return value again "+value);
 			return_data.get(className).get(methodName).put(value, return_data.get(className).get(methodName).get(value) + 1);
+		}
 	}
 	
 	/**
@@ -289,9 +301,10 @@ public class ExecutionTrace {
 	}
 	
 	public void finishCalls() {
-		while(!stack.isEmpty()) {
-	//		logger.info("Adding "+stack.peek().method_name);
-			finished_calls.add(stack.pop());
+		synchronized (stack) {
+			while(!stack.isEmpty()) {
+				finished_calls.add(stack.pop());
+			}
 		}
 	}
 	

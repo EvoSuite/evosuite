@@ -140,7 +140,7 @@ public class StringOutputTrace extends OutputTrace {
 	}
 	
 	public String toString() {
-		String ret = new String("");
+		String ret = "";
 		for(String line : trace.values()) {
 			ret += line + "\n";
 		}
