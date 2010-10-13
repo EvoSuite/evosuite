@@ -1,0 +1,6 @@
+syntax: glob
+*~
+target/*
+
+syntax: regexp
+^lib/evosuite\.jar$
