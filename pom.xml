@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>de.unisb.cs.st</groupId>
+    <artifactId>evosuite</artifactId>
+    <name>EvoSuite</name>
+    <description>n/a</description>
+    <version>0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <url>http://www.st.cs.uni-saarland.de/</url>
+    <inceptionYear>2010</inceptionYear>
+
+    <developers>
+        <developer>
+            <id>fraser</id>
+            <name>Gordon Fraser</name>
+            <email>fraser@cs.uni-saarland.de</email>
+            <url>http://www.st.cs.uni-saarland.de/~fraser/</url>
+            <organization>Software Engineering Group at Saarland University</organization>
+            <organizationUrl>http://www.st.cs.uni-saarland.de/</organizationUrl>
+            <timezone>2</timezone>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:hg:https://hg.st.cs.uni-saarland.de/hg/evosuite</connection>
+        <developerConnection>scm:hg:https://fraser@https://hg.st.cs.uni-saarland.de/hg/evosuite</developerConnection>
+        <url>https://hg.st.cs.uni-saarland.de/hg/evosuite</url>
+    </scm>
+
+    <organization>
+        <name>Software Engineering Group at Saarland University</name>
+        <url>http://www.st.cs.uni-saarland.de/</url>
+    </organization>
+
+    <dependencyManagement/>
+
+    <dependencies>
+      <dependency>
+	<groupId>log4j</groupId>
+	<artifactId>log4j</artifactId>
+	<version>1.2.16</version>
+      </dependency>
+      <dependency>
+	<groupId>junit</groupId>
+	<artifactId>junit</artifactId>
+	<version>4.8.1</version>
+      </dependency>
+      <dependency>
+	<groupId>asm</groupId>
+	<artifactId>asm-all</artifactId>
+	<version>3.3</version>
+      </dependency>
+      <dependency>
+	<groupId>com.googlecode.gentyref</groupId>
+	<artifactId>gentyref</artifactId>
+	<version>1.1.0</version>
+      </dependency>
+      <dependency>
+	<groupId>org.jgrapht</groupId>
+	<artifactId>jgrapht-jdk1.5</artifactId>
+	<version>0.7.3</version>
+      </dependency>
+      <dependency>
+	<groupId>com.panayotis</groupId>
+	<artifactId>JavaPlot</artifactId>
+	<version>0.4.0</version>
+      </dependency>
+      <dependency>
+	<groupId>org.softevo</groupId>
+	<artifactId>jadet</artifactId>
+	<version>0.1.0</version>
+      </dependency>
+      <dependency>
+	<groupId>de.unisb.cs.st</groupId>
+	<artifactId>javalanche</artifactId>
+	<version>0.3.2-EvoSuite</version>
+      </dependency>
+
+      <!-- Dependencies needed by javalanche -->
+      <dependency>
+	<groupId>antlr</groupId>
+	<artifactId>antlr</artifactId>
+	<version>2.7.7</version>
+      </dependency>
+      <dependency>
+	<groupId>c3p0</groupId>
+	<artifactId>c3p0</artifactId>
+	<version>0.9.1.2</version>
+      </dependency>
+      <dependency>
+	<groupId>cglib</groupId>
+	<artifactId>cglib</artifactId>
+	<version>2.2_beta1</version>
+      </dependency>
+      <dependency>
+	<groupId>commons-collections</groupId>
+	<artifactId>commons-collections</artifactId>
+	<version>3.2.1</version>
+      </dependency>
+      <dependency>
+	<groupId>commons-lang</groupId>
+	<artifactId>commons-lang</artifactId>
+	<version>2.5</version>
+      </dependency>
+      <dependency>
+	<groupId>commons-logging</groupId>
+	<artifactId>commons-logging</artifactId>
+	<version>1.1.1</version>
+      </dependency>
+      <dependency>
+	<groupId>commons-io</groupId>
+	<artifactId>commons-io</artifactId>
+	<version>1.4</version>
+      </dependency>
+      <dependency>
+	<groupId>dom4j</groupId>
+	<artifactId>dom4j</artifactId>
+	<version>1.6.1</version>
+      </dependency>
+      <dependency>
+	<groupId>com.google.guava</groupId>
+	<artifactId>guava</artifactId>
+	<version>r07</version>
+      </dependency>
+      <dependency>
+	<groupId>javax.transaction</groupId>
+	<artifactId>jta</artifactId>
+	<version>1.1</version>
+      </dependency>
+      <dependency>
+	<groupId>mysql</groupId>
+	<artifactId>mysql-connector-java</artifactId>
+	<version>5.1.9</version>
+      </dependency>
+      <dependency>
+	<groupId>com.thoughtworks.xstream</groupId>
+	<artifactId>xstream</artifactId>
+	<version>1.2.2</version>
+	<type>pom</type>
+      </dependency>      
+      <dependency>
+	<groupId>org.hibernate</groupId>
+	<artifactId>hibernate</artifactId>
+	<version>3.2.2.ga</version>
+	<exclusions>
+	  <exclusion>
+	    <groupId>asm</groupId>
+	    <artifactId>asm</artifactId>
+	  </exclusion>
+	  <exclusion>
+	    <groupId>asm</groupId>
+	    <artifactId>asm-attrs</artifactId>
+	  </exclusion>
+	</exclusions>
+      </dependency>
+      
+      <dependency>
+	<groupId>org.hibernate</groupId>
+	<artifactId>hibernate-annotations</artifactId>
+	<version>3.3.0.ga</version>
+      </dependency>
+      <dependency>
+	<groupId>org.hibernate</groupId>
+	<artifactId>hibernate-commons-annotations</artifactId>
+	<version>3.3.0.ga</version>
+      </dependency>
+      
+      <dependency>
+	<groupId>org.hibernate</groupId>
+	<artifactId>hibernate-tools</artifactId>
+	<version>3.2.0.beta9a</version>
+      </dependency>
+      
+      
+      <dependency>
+	<groupId>hsqldb</groupId>
+	<artifactId>hsqldb</artifactId>
+	<version>1.8.0.1</version>
+      </dependency>
+      
+      <dependency>
+	<groupId>org.prefuse</groupId>
+	<artifactId>prefuse</artifactId>
+	<version>beta-20060220</version>
+      </dependency>
+      
+      <dependency>
+	<groupId>de.unisb</groupId>
+	<artifactId>bytecodeTransformer</artifactId>
+	<version>0.1</version>
+      </dependency>
+      
+      <dependency>
+	<groupId>de.unisb.cs.st.javalanche.invariants</groupId>
+	<artifactId>invariants</artifactId>
+	<version>0.1</version>
+      </dependency>
+
+      <dependency>
+	<groupId>de.st.cs.unisb.ds</groupId>
+	<artifactId>ds-util</artifactId>
+	<version>0.2</version>
+      </dependency>
+      
+      <dependency>
+	<groupId>com.google.code.google-collections</groupId>
+	<artifactId>google-collect</artifactId>
+	<version>snapshot-20080530</version>
+      </dependency>
+
+<!--      
+      <dependency>
+	<groupId>de.unisb.cs.st</groupId>
+	<artifactId>adabu2-tracer</artifactId>
+	<version>0.4-modified</version>
+      </dependency>
+
+      
+      <dependency>
+	<groupId>java2html</groupId>
+	<artifactId>j2h</artifactId>
+	<version>1.3.1</version>
+      </dependency>
+-->    
+  
+      <dependency>
+	<groupId>org.softevo</groupId>
+	<artifactId>util</artifactId>
+	<version>0.1</version>
+	<exclusions>
+	  <exclusion>
+	    <groupId>asm</groupId>
+	    <artifactId>asm</artifactId>
+	  </exclusion>
+	  <exclusion>
+	    <groupId>asm</groupId>
+	    <artifactId>asm-attrs</artifactId>
+	  </exclusion>
+	</exclusions>
+      </dependency>
+      
+      <dependency>
+	<groupId>org.easymock</groupId>
+	<artifactId>easymock</artifactId>
+	<version>2.3</version>
+	<!--scope>test</scope-->
+      </dependency>
+      
+      <dependency>
+	<groupId>org.hamcrest</groupId>
+	<artifactId>hamcrest-all</artifactId>
+	<version>1.1</version>
+      </dependency>
+      
+
+
+
+    </dependencies>
+    <repositories>
+      <repository>
+	<releases>
+	  <enabled>true</enabled>
+	  <checksumPolicy>warn</checksumPolicy>
+	</releases>
+	<snapshots>
+	  <enabled>true</enabled>
+	  <updatePolicy>never</updatePolicy>
+	  <checksumPolicy>fail</checksumPolicy>
+	</snapshots>
+	<id>titaniaPublic</id>
+	<name>Titania Public Repositories</name>
+	<url>http://titania.fs.uni-saarland.de/nexus/content/groups/public/</url>
+	<layout>default</layout>
+      </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+           <id>codehaus-m2-repository</id>
+           <name>Codehaus Maven 2.x Repository</name>
+           <url>http://repository.codehaus.org</url>
+       </pluginRepository>
+    </pluginRepositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-eclipse-plugin</artifactId>
+                <configuration>
+                    <downloadSources>true</downloadSources>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                </configuration>
+            </plugin>
+            <!-- TODO Update URL. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <tagBase>https://svn.st.cs.uni-sb.de/svn/st/projects/adabu2/tags</tagBase>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <!-- We still use Beta 5 because of various bugs:
+                         http://jira.codehaus.org/ - MSITE-262, MSITE-293, MSITE-297 -->
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>2.0-beta-5</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <!-- See: http://wiki.st.cs.uni-sb.de/wiki/Maven_Archiva -->
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+</project>
