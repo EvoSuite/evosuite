@@ -8,46 +8,25 @@ BASEPATH=$(dirname $0)
 if [ ! -z "$EVOSUITE_HOME" ]; then
     BASEPATH=$EVOSUITE_HOME
 fi
-if [ ! -e $BASEPATH/resources/evosuite.properties ]; then
+if [ ! -e $BASEPATH/evosuite.properties ]; then
     echo "EVOSUITE_HOME is not set correctly"
     exit -1
 fi
 
-source $BASEPATH/resources/evosuite.properties
+source $BASEPATH/evosuite.properties
 		
 
 java_opts="-ea -Xmx2048M"
 
-java_agent="-javaagent:$BASEPATH/lib/javaagent.jar"
+java_agent="-javaagent:$BASEPATH/javaagent.jar"
 
 ##
 ## Classpath part to be used in all invocations of Java
 ##
-classpath=$BASEPATH/bin:\
-$BASEPATH/src/main/resources:\
-$BASEPATH/resources:\
-$BASEPATH/lib/evosuite.jar
-
-# $BASEPATH/lib/JavaPlot.jar:\
-# $BASEPATH/lib/commons-lang-2.5.jar:\
-# $BASEPATH/lib/commons-io-1.4.jar:\
-# $BASEPATH/lib/jgrapht-jdk1.6.jar:\
-# $BASEPATH/lib/asm-all-3.3.jar:\
-# $BASEPATH/lib/xpp3-1.1.4c.jar:\
-# $BASEPATH/lib/ds-util-0.3.1.jar:\
-# $BASEPATH/lib/log4j-1.2.16.jar:\
-# $BASEPATH/lib/bytecodeTransformer-0.1.jar:\
-# $BASEPATH/lib/gentyref-1.1.0.jar:\
-# $BASEPATH/lib/javalanche-mutation-0.3.2.jar:\
-# $BASEPATH/lib/ga-0.1.jar:\
-# $BASEPATH/lib/guava-r06.jar:\
-# $BASEPATH/lib/xstream-1.3.1.jar:\
-# $BASEPATH/lib/oumextractor.jar:\
-# $BASEPATH/lib/jadet.jar:\
-# $BASEPATH/lib/jutil.jar:\
-# $BASEPATH/lib/catools.jar
-
-#javalanche dependency
+classpath=$BASEPATH:$BASEPATH/${project.artifactId}-${project.version}.jar
+for JAR in $BASEPATH/lib/*.jar; do
+    classpath="$classpath:$JAR"
+done
 
 ##
 ## Main class of EvoSuite
@@ -300,7 +279,7 @@ setup_evosuite ()
 	    SRC=${cmdline_arguments[2]}
 	    echo "PREFIX=$PREFIX" > $OUTPUT_DIR/evosuite.properties
 	    echo "CP=$SRC" >> $OUTPUT_DIR/evosuite.properties
-	    cat $BASEPATH/resources/evosuite.properties >> $OUTPUT_DIR/evosuite.properties
+	    cat $BASEPATH/evosuite.properties >> $OUTPUT_DIR/evosuite.properties
 #	    cp $BASEPATH/resources/GA.properties $OUTPUT_DIR
 	}
     else {
@@ -367,7 +346,7 @@ generateSuite ()
 		BASEDIR=$(pwd)
 		TEST_CLASSES=""
 		STRATEGY="OneBranch"
-		CRITERION="-Dcriterion=branch"
+		CRITERION="branch"
 		random_seed="-Drandom.seed=0"
 		for (( i = 0; i < ${#cmdline_options[@]}; i++ )) 
 		do
@@ -377,7 +356,7 @@ generateSuite ()
 			"-class") TEST_CLASSES=${cmdline_options_values[$i]};;
 			"-OneBranch") STRATEGY="OneBranch";;
 			"-EvoSuite") STRATEGY="EvoSuite";;
-			"-criterion") CRITERION="-Dcriterion="${cmdline_options_values[$i]};;
+			"-criterion") CRITERION=${cmdline_options_values[$i]};;
 		    esac
 		done
 
@@ -398,11 +377,11 @@ generateSuite ()
 		for test_class in $TEST_CLASSES; do
 		    #echo "Current class: $test_class"
 		    MUTANTS="-Dmutation.file=$OUTPUT_DIR/${test_class}.mutants"
-		    if [ ! -e $OUTPUT_DIR/${test_class}.mutants ]; then
+		    if [ ! -e $OUTPUT_DIR/${test_class}.mutants -a $CRITERION = "mutation" ]; then
 			echo "No mutant file found for class ${test_class} - please run EvoSuite -mutants first"
 			continue
 	            fi
-		    java -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate $javalanche_options $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION $MUTANTS -DTARGET_CLASS=$test_class $evosuite_suite
+		    java -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate $javalanche_options $random_seed $java_options $java_opts -Dstrategy=$STRATEGY -Dcriterion=$CRITERION $MUTANTS -DTARGET_CLASS=$test_class $evosuite_suite
 		done
 		popd > /dev/null
 	    }

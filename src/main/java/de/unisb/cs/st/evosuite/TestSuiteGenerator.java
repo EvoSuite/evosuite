@@ -121,7 +121,7 @@ public class TestSuiteGenerator {
 	 * Use the EvoSuite approach (Whole test suite generation)
 	 * @return
 	 */
-	private List<TestCase> generateWholeSuite() {
+	public List<TestCase> generateWholeSuite() {
 		// Set up search algorithm
 		System.out.println("* Setting up search algorithm for whole suite generation");
 		GeneticAlgorithm ga = setup();
@@ -166,7 +166,7 @@ public class TestSuiteGenerator {
 	 * Use the OneBranch approach (One branch at a time)
 	 * @return
 	 */
-	private List<TestCase> generateIndividualTests() {
+	public List<TestCase> generateIndividualTests() {
 		// Set up search algorithm
 		System.out.println("* Setting up search algorithm for individual test generation");
 		ExecutionTrace.enableTraceCalls();
@@ -327,7 +327,7 @@ public class TestSuiteGenerator {
 	}
 	*/
 	
-	protected StoppingCondition getStoppingCondition() {
+	private StoppingCondition getStoppingCondition() {
 		String stopping_condition = Properties.getPropertyOrDefault("stopping_condition", "MaxGenerations");
 		logger.info("Setting stopping condition: "+stopping_condition);
 		if(stopping_condition.equals("MaxGenerations")) {
@@ -351,7 +351,7 @@ public class TestSuiteGenerator {
 		}
 	}
 	
-	protected CrossOverFunction getCrossoverFunction() {
+	private CrossOverFunction getCrossoverFunction() {
 		String crossover_function = Properties.getPropertyOrDefault("crossover_function", "SinglePoint");
 		if(crossover_function.equals("SinglePointFixed"))
 			return new SinglePointFixedCrossOver();
@@ -361,7 +361,7 @@ public class TestSuiteGenerator {
 			return new SinglePointCrossOver();
 	}
 	
-	protected SelectionFunction getSelectionFunction() {
+	private SelectionFunction getSelectionFunction() {
 		String selection_function = Properties.getPropertyOrDefault("selection_function", "Rank");
 		if(selection_function.equals("Roulette"))
 			return new FitnessProportionateSelection();
@@ -371,14 +371,14 @@ public class TestSuiteGenerator {
 			return new RankSelection();
 	}
 	
-	protected ChromosomeFactory getChromosomeFactory() {
+	private ChromosomeFactory getChromosomeFactory() {
 		if(Properties.STRATEGY.equals("EvoSuite"))
 			return new TestSuiteChromosomeFactory();
 		else
 			return new RandomLengthTestFactory();
 	}
 	
-	protected GeneticAlgorithm getGeneticAlgorithm(ChromosomeFactory factory) {
+	private GeneticAlgorithm getGeneticAlgorithm(ChromosomeFactory factory) {
 		String search_algorithm = Properties.getProperty("algorithm");
 		if(search_algorithm.equals("(1+1)EA")) {
 			logger.info("Chosen search algorithm: (1+1)EA");
@@ -413,7 +413,7 @@ public class TestSuiteGenerator {
 	 * Factory method for search algorithm
 	 * @return
 	 */
-	protected GeneticAlgorithm setup() {
+	private GeneticAlgorithm setup() {
 
 		ChromosomeFactory factory = getChromosomeFactory();
 		GeneticAlgorithm ga = getGeneticAlgorithm(factory);
