@@ -332,20 +332,21 @@
             	<groupId>org.apache.maven.plugins</groupId>
             	<artifactId>maven-assembly-plugin</artifactId>
             	<configuration>
-                    <descriptors>
-                        <descriptor>src/main/assembly/bin.xml</descriptor>
-                    </descriptors>
-                </configuration>
-                <executions>
-                        <execution>
-                            <id>make-assembly</id> <!-- this is used for inheritance merges -->
-                            <phase>package</phase> <!-- append to the packaging phase. -->
-                            <goals>
-                                <goal>single</goal> <!-- goals == mojos -->
-                            </goals>
-                        </execution>
-                </executions>
-            </plugin>
+		  <descriptors>
+		    <descriptor>src/main/assembly/dependencies.xml</descriptor>
+		    <descriptor>src/main/assembly/bin.xml</descriptor>
+		  </descriptors>
+		</configuration>
+		<executions>
+		  <execution>
+		    <id>make-assembly</id> <!-- this is used for inheritance merges -->
+		    <phase>package</phase> <!-- append to the packaging phase. -->
+		    <goals>
+		      <goal>single</goal> <!-- goals == mojos -->
+		    </goals>
+		  </execution>
+		</executions>
+	    </plugin>
 	    <plugin>
 	      <artifactId>maven-antrun-plugin</artifactId>
 	      <executions>

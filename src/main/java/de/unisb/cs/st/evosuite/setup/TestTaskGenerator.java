@@ -682,7 +682,8 @@ public class TestTaskGenerator {
 				Set<String> object_methods = new HashSet<String>();
 				addObjectMethods(object_methods, classname);
 				String classfilename = classname.replace("$","_");
-				writeObjectMethods(object_methods, classfilename+".obj");
+				if(CREATE_OBJECTFILES)
+					writeObjectMethods(object_methods, classfilename+".obj");
 				writeInspectors(classname, classname.replace("$","_")+".inspectors");
 				continue;				
 			}
@@ -739,7 +740,8 @@ public class TestTaskGenerator {
 				if(hierarchy.getAllSubclasses(classname).isEmpty() || isPurelyAbstract(classname)) {
 					logger.info("Ignoring abstract class without concrete subclasses "+classname);
 					String classfilename = classname.replace("$","_");
-					writeObjectMethods(object_methods, classfilename+".obj");
+					if(CREATE_OBJECTFILES)
+						writeObjectMethods(object_methods, classfilename+".obj");
 					continue;
 				}
 			}

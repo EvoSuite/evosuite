@@ -18,7 +18,7 @@
  */
 
 
-package de.unisb.cs.st.evosuite.coverage;
+package de.unisb.cs.st.evosuite.coverage.lcsaj;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -26,12 +26,12 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
 /**
- * Evaluate fitness of a single test case with respect to one def-use pair
+ * Evaluate fitness of a single test case with respect to a single LCSAJ
  * 
  * @author 
  *
  */
-public class DefUseCoverageTestFitness extends TestFitnessFunction {
+public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestFitnessFunction#getFitness(de.unisb.cs.st.evosuite.testcase.TestChromosome, de.unisb.cs.st.evosuite.testcase.ExecutionResult)

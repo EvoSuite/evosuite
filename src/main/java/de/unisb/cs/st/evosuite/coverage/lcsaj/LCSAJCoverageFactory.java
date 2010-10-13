@@ -18,26 +18,26 @@
  */
 
 
-package de.unisb.cs.st.evosuite.coverage;
+package de.unisb.cs.st.evosuite.coverage.lcsaj;
 
-import de.unisb.cs.st.evosuite.ga.Chromosome;
-import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
+import java.util.List;
+
+import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
+import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
 /**
- * Evaluate fitness of a test suite with respect to all of its def-use pairs
- * 
  * @author 
  *
  */
-public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
+public class LCSAJCoverageFactory implements TestFitnessFactory {
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#getFitness(de.unisb.cs.st.evosuite.ga.Chromosome)
+	 * @see de.unisb.cs.st.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
 	 */
 	@Override
-	public double getFitness(Chromosome individual) {
+	public List<TestFitnessFunction> getCoverageGoals() {
 		// TODO Auto-generated method stub
-		return 0;
+		return null;
 	}
 
 }

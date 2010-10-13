@@ -17,7 +17,7 @@
  * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.unisb.cs.st.evosuite.coverage;
+package de.unisb.cs.st.evosuite.coverage.branch;
 
 import java.util.HashMap;
 import java.util.List;

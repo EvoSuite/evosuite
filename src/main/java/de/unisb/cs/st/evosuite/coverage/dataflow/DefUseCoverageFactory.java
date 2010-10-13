@@ -18,37 +18,26 @@
  */
 
 
-package de.unisb.cs.st.evosuite.coverage;
+package de.unisb.cs.st.evosuite.coverage.dataflow;
 
-import de.unisb.cs.st.evosuite.ga.Chromosome;
-import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.TestChromosome;
+import java.util.List;
+
+import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
 /**
- * Evaluate fitness of a single test case with respect to a single LCSAJ
- * 
  * @author 
  *
  */
-public class LCSAJCoverageTestFitness extends TestFitnessFunction {
+public class DefUseCoverageFactory implements TestFitnessFactory {
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestFitnessFunction#getFitness(de.unisb.cs.st.evosuite.testcase.TestChromosome, de.unisb.cs.st.evosuite.testcase.ExecutionResult)
+	 * @see de.unisb.cs.st.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
 	 */
 	@Override
-	public double getFitness(TestChromosome individual, ExecutionResult result) {
+	public List<TestFitnessFunction> getCoverageGoals() {
 		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#updateIndividual(de.unisb.cs.st.evosuite.ga.Chromosome, double)
-	 */
-	@Override
-	protected void updateIndividual(Chromosome individual, double fitness) {
-		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 }

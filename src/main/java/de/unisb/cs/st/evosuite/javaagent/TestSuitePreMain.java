@@ -44,8 +44,10 @@ public class TestSuitePreMain {
 			System.out.println("* Instrumenting bytecode for test generation");
 			//addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
 
-			if(Properties.MUTATION)
+			if(Properties.MUTATION) {
+				System.out.println("* Mutating byte code");
 				addClassFileTransformer(instrumentation, new HOMFileTransformer());
+			}
 			
 			addClassFileTransformer(instrumentation, new BytecodeInstrumentation());
 

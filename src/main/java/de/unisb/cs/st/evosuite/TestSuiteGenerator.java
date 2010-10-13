@@ -28,9 +28,13 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.assertion.AssertionGenerator;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
-import de.unisb.cs.st.evosuite.coverage.BranchCoverageFactory;
-import de.unisb.cs.st.evosuite.coverage.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
+import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
+import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.CrossOverFunction;
@@ -55,6 +59,7 @@ import de.unisb.cs.st.evosuite.ga.TournamentSelection;
 import de.unisb.cs.st.evosuite.ga.ZeroFitnessStoppingCondition;
 import de.unisb.cs.st.evosuite.junit.TestSuite;
 import de.unisb.cs.st.evosuite.mutation.MutationGoalFactory;
+import de.unisb.cs.st.evosuite.mutation.MutationSuiteFitness;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.MaxTestsStoppingCondition;
@@ -68,6 +73,7 @@ import de.unisb.cs.st.evosuite.testsuite.RelativeLengthBloatControl;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosomeFactory;
+import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteReplacementFunction;
 
@@ -128,7 +134,8 @@ public class TestSuiteGenerator {
 		long start_time = System.currentTimeMillis() * 1000;
 		
 		// What's the search target
-		FitnessFunction fitness_function = new BranchCoverageSuiteFitness();
+		// TODO: Support multiple coverage criteria
+		FitnessFunction fitness_function = getFitnessFunction();
 		ga.setFitnessFunction(fitness_function);
 
 		// Perform search
@@ -151,10 +158,37 @@ public class TestSuiteGenerator {
 		return best.getTests();
 	}
 	
+	private TestSuiteFitnessFunction getFitnessFunction() {
+		if(Properties.CRITERION.equalsIgnoreCase("mutation")) {
+			System.out.println("* Test criterion: Mutation testing");
+			return new MutationSuiteFitness();
+		}
+		else if(Properties.CRITERION.equalsIgnoreCase("lcsaj")) {
+			System.out.println("* Test criterion: LCSAJ");
+			return new LCSAJCoverageSuiteFitness();
+		}
+		else if(Properties.CRITERION.equalsIgnoreCase("defuse")) {
+			System.out.println("* Test criterion: All DU Pairs");
+			return new DefUseCoverageSuiteFitness();
+		}
+		else {
+			System.out.println("* Test criterion: Branch coverage");
+			return new BranchCoverageSuiteFitness();
+		}	
+	}
+	
 	private TestFitnessFactory getFitnessFactory() {
-		if(Properties.CRITERION.equalsIgnoreCase("Mutation")) {
+		if(Properties.CRITERION.equalsIgnoreCase("mutation")) {
 			System.out.println("* Test criterion: Mutation testing");
 			return new MutationGoalFactory();
+		}
+		else if(Properties.CRITERION.equalsIgnoreCase("lcsaj")) {
+			System.out.println("* Test criterion: LCSAJ");
+			return new LCSAJCoverageFactory();
+		}
+		else if(Properties.CRITERION.equalsIgnoreCase("defuse")) {
+			System.out.println("* Test criterion: All DU Pairs");
+			return new DefUseCoverageFactory();
 		}
 		else {
 			System.out.println("* Test criterion: Branch coverage");
@@ -177,7 +211,7 @@ public class TestSuiteGenerator {
 		// Each generated test case is put into a test suite
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		// TODO: Minimize individual tests instead?
-		FitnessFunction suite_fitness = new de.unisb.cs.st.evosuite.coverage.BranchCoverageSuiteFitness();
+		FitnessFunction suite_fitness = new de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness();
 		
 		// Get list of goals
 		// TODO: This needs to be replacable by other coverage criteria
