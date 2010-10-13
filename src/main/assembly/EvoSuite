@@ -417,7 +417,6 @@ generateAssertions ()
 		done
 		pushd .
 		cd $BASEDIR
-		echo "Sourcing: $BASEDIR/$OUTPUT_DIR/evosuite.properties"
 		source $OUTPUT_DIR/evosuite.properties
 		#OUTPUT_DIR=$BASEDIR/$OUTPUT_DIR
 		#echo $OUTPUT_DIR

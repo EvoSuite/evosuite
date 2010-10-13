@@ -8,25 +8,36 @@ BASEPATH=$(dirname $0)
 if [ ! -z "$EVOSUITE_HOME" ]; then
     BASEPATH=$EVOSUITE_HOME
 fi
-if [ ! -e $BASEPATH/resources/evosuite.properties ]; then
+if [ ! -e $BASEPATH/src/main/assembly/evosuite.properties ]; then
     echo "EVOSUITE_HOME is not set correctly"
     exit -1
 fi
 
-source $BASEPATH/resources/evosuite.properties
-		
+source $BASEPATH/src/main/assembly/evosuite.properties
 
+if [ ! -e $BASEPATH/target/evosuite-0.1-SNAPSHOT-dependencies.jar ]; then
+    echo "Call mvn package first to create dependency jar"
+    exit -1
+fi
+
+
+if [ ! -e $BASEPATH/target/javaagent.jar ]; then
+    echo "Could not find javaagent.jar"
+    exit -1
+fi
+
+#java_opts="-ea -Xmx2048M -Xrunhprof:heap=sites,cpu=times,depth=10"
 java_opts="-ea -Xmx2048M"
 
-java_agent="-javaagent:$BASEPATH/lib/javaagent.jar"
+java_agent="-javaagent:$BASEPATH/target/javaagent.jar"
 
 ##
 ## Classpath part to be used in all invocations of Java
 ##
-classpath=$BASEPATH/bin:\
+classpath=$BASEPATH/target/classes:\
 $BASEPATH/src/main/resources:\
-$BASEPATH/resources:\
-$BASEPATH/lib/evosuite.jar
+$BASEPATH/src/main/assembly:\
+$BASEPATH/target/evosuite-0.1-SNAPSHOT-dependencies.jar
 
 # $BASEPATH/lib/JavaPlot.jar:\
 # $BASEPATH/lib/commons-lang-2.5.jar:\
@@ -300,7 +311,7 @@ setup_evosuite ()
 	    SRC=${cmdline_arguments[2]}
 	    echo "PREFIX=$PREFIX" > $OUTPUT_DIR/evosuite.properties
 	    echo "CP=$SRC" >> $OUTPUT_DIR/evosuite.properties
-	    cat $BASEPATH/resources/evosuite.properties >> $OUTPUT_DIR/evosuite.properties
+	    cat $BASEPATH/src/main/assembly/evosuite.properties >> $OUTPUT_DIR/evosuite.properties
 #	    cp $BASEPATH/resources/GA.properties $OUTPUT_DIR
 	}
     else {
@@ -398,7 +409,7 @@ generateSuite ()
 		for test_class in $TEST_CLASSES; do
 		    #echo "Current class: $test_class"
 		    MUTANTS="-Dmutation.file=$OUTPUT_DIR/${test_class}.mutants"
-		    if [ ! -e $OUTPUT_DIR/${test_class}.mutants ]; then
+		    if [ ! -e $OUTPUT_DIR/${test_class}.mutants -a $CRITERION = "mutation" ]; then
 			echo "No mutant file found for class ${test_class} - please run EvoSuite -mutants first"
 			continue
 	            fi
@@ -438,7 +449,6 @@ generateAssertions ()
 		done
 		pushd .
 		cd $BASEDIR
-		echo "Sourcing: $BASEDIR/$OUTPUT_DIR/evosuite.properties"
 		source $OUTPUT_DIR/evosuite.properties
 		#OUTPUT_DIR=$BASEDIR/$OUTPUT_DIR
 		#echo $OUTPUT_DIR

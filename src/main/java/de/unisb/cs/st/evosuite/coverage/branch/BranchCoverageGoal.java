@@ -18,12 +18,13 @@
  */
 
 
-package de.unisb.cs.st.evosuite.coverage;
+package de.unisb.cs.st.evosuite.coverage.branch;
 
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;

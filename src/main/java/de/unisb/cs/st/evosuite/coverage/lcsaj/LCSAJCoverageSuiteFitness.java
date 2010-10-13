@@ -18,7 +18,7 @@
  */
 
 
-package de.unisb.cs.st.evosuite.coverage;
+package de.unisb.cs.st.evosuite.coverage.lcsaj;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;

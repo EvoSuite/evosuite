@@ -53,7 +53,7 @@ import com.panayotis.gnuplot.terminal.GNUPlotTerminal;
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
-import de.unisb.cs.st.evosuite.coverage.BranchCoverageSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.MaxFitnessEvaluationsStoppingCondition;

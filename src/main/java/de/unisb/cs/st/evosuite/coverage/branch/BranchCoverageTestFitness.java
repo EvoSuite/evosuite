@@ -18,9 +18,9 @@
  */
 
 
-package de.unisb.cs.st.evosuite.coverage;
+package de.unisb.cs.st.evosuite.coverage.branch;
 
-import de.unisb.cs.st.evosuite.coverage.BranchCoverageGoal.Distance;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal.Distance;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;

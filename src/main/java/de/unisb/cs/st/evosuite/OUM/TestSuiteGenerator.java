@@ -25,8 +25,8 @@ import com.thoughtworks.xstream.XStream;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
-import de.unisb.cs.st.evosuite.coverage.BranchCoverageTestFitness;
-import de.unisb.cs.st.evosuite.coverage.BranchCoverageGoal;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.CrossOverFunction;
@@ -576,7 +576,7 @@ public class TestSuiteGenerator {
 
 		GeneticAlgorithm ga = getGeneticAlgorithm_TestCases();
 		TestSuiteChromosome suite = new TestSuiteChromosome();
-		FitnessFunction suite_fitness = new de.unisb.cs.st.evosuite.coverage.BranchCoverageSuiteFitness();
+		FitnessFunction suite_fitness = new de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness();
 		List<BranchCoverageGoal> goals = getBranches(); 
 		Randomness.getInstance().shuffle(goals);
 		int total_goals = goals.size(); 
@@ -906,7 +906,7 @@ public class TestSuiteGenerator {
 		CrossOverFunction crossover_function = new SinglePointRelativeCrossOver();
 		ga.setCrossOverFunction(crossover_function);
 
-		FitnessFunction fitness_function = new de.unisb.cs.st.evosuite.coverage.BranchCoverageSuiteFitness();
+		FitnessFunction fitness_function = new de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness();
 		ga.setFitnessFunction(fitness_function);
 
 		//MaxLengthBloatControl bloat_control = new MaxLengthBloatControl();
