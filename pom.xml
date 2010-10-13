@@ -26,6 +26,7 @@
         </developer>
     </developers>
 
+
     <scm>
         <connection>scm:hg:https://hg.st.cs.uni-saarland.de/hg/evosuite</connection>
         <developerConnection>scm:hg:https://fraser@https://hg.st.cs.uni-saarland.de/hg/evosuite</developerConnection>
