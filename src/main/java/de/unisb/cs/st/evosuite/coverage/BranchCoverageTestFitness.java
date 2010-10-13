@@ -66,5 +66,9 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	protected void updateIndividual(Chromosome individual, double fitness) {
 		individual.setFitness(fitness);
 	}
+	
+	public String toString() {
+		return goal.toString();
+	}
 
 }
