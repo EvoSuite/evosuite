@@ -129,7 +129,7 @@ public class ExecutionTracer {
 	public static void enteredMethod(String classname, String methodname) throws TestCaseExecutor.TimeoutExceeded{
 		ExecutionTracer tracer = getExecutionTracer();
 		if(tracer.killSwitch) {
-			logger.info("Raising TimeoutException as kill switch is active");
+			logger.info("Raising TimeoutException as kill switch is active - enteredMethod");
 			throw new TestCaseExecutor.TimeoutExceeded();
 		}
 		logger.trace("Entering method "+classname+"."+methodname);
@@ -215,6 +215,11 @@ public class ExecutionTracer {
 	 */
 	public static void passedLine(String className, String methodName, int line) {
 		ExecutionTracer tracer = getExecutionTracer();
+		if(tracer.killSwitch) {
+			logger.info("Raising TimeoutException as kill switch is active - passedLine");
+			throw new TestCaseExecutor.TimeoutExceeded();
+		}
+
 		if(tracer.disabled)
 			return;
 		
