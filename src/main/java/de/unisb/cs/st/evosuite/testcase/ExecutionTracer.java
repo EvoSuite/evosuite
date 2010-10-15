@@ -48,7 +48,11 @@ public class ExecutionTracer {
 	private Map<String, Map <String, ControlFlowGraph > > graphs;
 	private Map<String, Map <String, Double > > diameters;
 		
+	/** We need to disable the execution tracer sometimes, e.g. when calling equals in the branch distance function */
 	private boolean disabled = false;
+	
+	/** Flag that is used to kill threads that are stuck in endless loops */
+	private boolean killSwitch = false;
 	
 	private int num_statements = 0;
 	
@@ -64,6 +68,12 @@ public class ExecutionTracer {
 		ExecutionTracer tracer = ExecutionTracer.getExecutionTracer();
 		return !tracer.disabled;
 	}
+	
+	public static void setKillSwitch(boolean value) {
+		ExecutionTracer tracer = ExecutionTracer.getExecutionTracer();
+		tracer.killSwitch = value;
+	}
+	
 	
 	private ExecutionTrace trace;
 
@@ -116,8 +126,12 @@ public class ExecutionTracer {
 	 * @param classname
 	 * @param methodname
 	 */
-	public static void enteredMethod(String classname, String methodname) {
+	public static void enteredMethod(String classname, String methodname) throws TestCaseExecutor.TimeoutExceeded{
 		ExecutionTracer tracer = getExecutionTracer();
+		if(tracer.killSwitch) {
+			logger.info("Raising TimeoutException as kill switch is active");
+			throw new TestCaseExecutor.TimeoutExceeded();
+		}
 		logger.trace("Entering method "+classname+"."+methodname);
 		tracer.trace.enteredMethod(classname, methodname);
 	}
