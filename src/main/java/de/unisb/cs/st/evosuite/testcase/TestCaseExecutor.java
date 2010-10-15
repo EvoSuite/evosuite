@@ -127,6 +127,7 @@ public class TestCaseExecutor {
 	    	runner.join(timeout);
 
 	    	if (!runner.runFinished) {
+	    		ExecutionTracer.setKillSwitch(true);
 	    		logger.warn("Exceeded max wait ("+timeout+"ms): aborting test input:");
 	    		logger.warn(tc.toCode());
 	    		
@@ -143,6 +144,7 @@ public class TestCaseExecutor {
 	    			ExecutionTracer.enable();
 	    		}
 		    	ExecutionTracer.getExecutionTracer().clear();
+	    		ExecutionTracer.setKillSwitch(false);
 	    		runner.exceptionsThrown.put(tc.size(), new TestCaseExecutor.TimeoutExceeded());
 	    	}
 	    	return runner.exceptionsThrown;
