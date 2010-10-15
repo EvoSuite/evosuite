@@ -312,7 +312,7 @@ public class ControlFlowGraph {
 	    		//	DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>();
 	    		//DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>(new IntegerNameProvider(), nameprovider, new IntegerEdgeNameProvider());
 	    		//			DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>(new LineNumberProvider(), new LineNumberProvider(), new IntegerEdgeNameProvider());
-	    		DOTExporter<CFGVertex, DefaultEdge> exporter = new DOTExporter<CFGVertex, DefaultEdge>(new IntegerNameProvider(), new StringNameProvider(), new IntegerEdgeNameProvider());
+	    		DOTExporter<CFGVertex, DefaultEdge> exporter = new DOTExporter<CFGVertex, DefaultEdge>(new IntegerNameProvider<CFGVertex>(), new StringNameProvider<CFGVertex>(), new IntegerEdgeNameProvider<DefaultEdge>());
 	    		exporter.export(out, graph);
 	    	}
 		} catch (IOException e) {

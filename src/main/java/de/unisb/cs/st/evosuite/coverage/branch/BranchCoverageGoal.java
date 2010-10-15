@@ -83,7 +83,7 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 		this.cfg = cfg;
 		this.className = className;
 		this.methodName = methodName;
-		cfg.toDot(className+"."+methodName.replace("/",".").replace(";",".").replace("(",".").replace(")",".")+".dot");
+		//cfg.toDot(className+"."+methodName.replace("/",".").replace(";",".").replace("(",".").replace(")",".")+".dot");
 	}
 
 	public BranchCoverageGoal(String className, String methodName) {

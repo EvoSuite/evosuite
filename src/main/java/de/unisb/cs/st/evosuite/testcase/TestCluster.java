@@ -920,10 +920,26 @@ public class TestCluster {
 		  return objs;
 	  }
 	  
+	  private void addStandardIncludes() {
+		  try {
+			calls.add(Integer.class.getConstructor(int.class));
+			calls.add(Double.class.getConstructor(double.class));
+			calls.add(Float.class.getConstructor(float.class));  
+			calls.add(Long.class.getConstructor(long.class));  
+			calls.add(Short.class.getConstructor(short.class));  
+			calls.add(Character.class.getConstructor(char.class));  
+			calls.add(Boolean.class.getConstructor(boolean.class));  
+		  } catch (SecurityException e) {
+		  } catch (NoSuchMethodException e) {
+		  }
+	  }
+	  
 	  /**
 	   * Add all classes that are explicitly requested by the user
 	   */
 	  private void addIncludes() {
+		  addStandardIncludes();
+		  
 		  Map<String, List<String> > include_map = getIncludesFromFile();
 		  int num = 0;
 		  for(String classname : include_map.keySet()) {
