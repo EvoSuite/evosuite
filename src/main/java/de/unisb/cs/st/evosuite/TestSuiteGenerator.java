@@ -131,7 +131,7 @@ public class TestSuiteGenerator {
 		// Set up search algorithm
 		System.out.println("* Setting up search algorithm for whole suite generation");
 		GeneticAlgorithm ga = setup();
-		long start_time = System.currentTimeMillis() * 1000;
+		long start_time = System.currentTimeMillis() / 1000;
 		
 		// What's the search target
 		// TODO: Support multiple coverage criteria
@@ -143,7 +143,7 @@ public class TestSuiteGenerator {
 		ga.generateSolution();
 
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		long end_time = System.currentTimeMillis() * 1000;
+		long end_time = System.currentTimeMillis() / 1000;
 		System.out.println("* Search finished after "+(end_time-start_time)+"s, best individual has fitness "+best.getFitness());
 		
 		if(Properties.MINIMIZE) {
@@ -205,7 +205,7 @@ public class TestSuiteGenerator {
 		System.out.println("* Setting up search algorithm for individual test generation");
 		ExecutionTrace.enableTraceCalls();
 		GeneticAlgorithm ga = setup();
-		long start_time = System.currentTimeMillis() * 1000;
+		long start_time = System.currentTimeMillis() / 1000;
 		
 
 		// Each generated test case is put into a test suite
@@ -305,7 +305,7 @@ public class TestSuiteGenerator {
 		population.add(suite);
 
 		statistics.searchFinished(population);
-		long end_time = System.currentTimeMillis() * 1000;
+		long end_time = System.currentTimeMillis() / 1000;
 		System.out.println("* Search finished after "+(end_time-start_time)+"s, best individual has fitness "+suite.getFitness());
 		System.out.println("* Covered "+covered_goals+"/"+goals.size()+" goals");
 		logger.info("Resulting test suite: "+suite.size()+" tests, length "+suite.length());

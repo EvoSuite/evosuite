@@ -107,7 +107,7 @@ public class Properties {
 
 			properties.setProperty("PROJECT_PREFIX", PROJECT_PREFIX);
 			properties.setProperty("output_dir", OUTPUT_DIR);
-			System.err.println("* Properties loaded from configuration file evosuite.properties");
+			System.out.println("* Properties loaded from configuration file evosuite.properties");
 		} catch (FileNotFoundException e) {
 			System.err.println("Error: Could not find configuration file evosuite.properties");
 		} catch (IOException e) {
