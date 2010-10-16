@@ -49,7 +49,7 @@ public class TestSuite {
 	{
 	  public boolean accept( File f, String s )
 	  {
-	    return s.toLowerCase().endsWith( ".java" ) && s.startsWith("TestSuite");
+	    return s.toLowerCase().endsWith( ".java" ) && s.startsWith("Test");
 	  }
 	}
 

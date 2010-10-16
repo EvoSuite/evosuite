@@ -87,6 +87,7 @@
 	<groupId>org.softevo</groupId>
 	<artifactId>util</artifactId>
 	<version>0.3</version>
+<!--
 	<exclusions>
 	  <exclusion>
 	    <groupId>asm</groupId>
@@ -97,6 +98,7 @@
 	    <artifactId>asm-attrs</artifactId>
 	  </exclusion>
 	</exclusions>
+-->
       </dependency>
       <dependency>
 	<groupId>de.unisb.st</groupId>
@@ -168,6 +170,7 @@
 	<groupId>org.hibernate</groupId>
 	<artifactId>hibernate</artifactId>
 	<version>3.2.2.ga</version>
+<!--
 	<exclusions>
 	  <exclusion>
 	    <groupId>asm</groupId>
@@ -178,6 +181,7 @@
 	    <artifactId>asm-attrs</artifactId>
 	  </exclusion>
 	</exclusions>
+-->
       </dependency>
       
       <dependency>
