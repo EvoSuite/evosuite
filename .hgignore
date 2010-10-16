@@ -1,6 +1,11 @@
 syntax: glob
 *~
 target/*
+evosuite-files
+evosuite-report
+evosuite-tests
+build
+.DS_Store
 
 syntax: regexp
 ^lib/evosuite\.jar$
