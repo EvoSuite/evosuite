@@ -21,6 +21,7 @@ package de.unisb.cs.st.evosuite.testcase;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -573,6 +574,10 @@ public class TestCase {
 						clazz = clazz.getComponentType();
 					accessed_classes.add(clazz);
 				}
+			}
+			if(s instanceof MethodStatement) {
+				MethodStatement ms = (MethodStatement)s;
+				accessed_classes.addAll(Arrays.asList(ms.getMethod().getExceptionTypes()));
 			}
 		}		
 		return accessed_classes;

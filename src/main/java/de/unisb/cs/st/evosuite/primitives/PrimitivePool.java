@@ -89,7 +89,10 @@ public class PrimitivePool {
 		
 	public void add(Object object) {
 		// Integer, a Float, a Long, a Double a
-		if(object instanceof String) {
+		
+		if(object == null)
+			return;
+		else if(object instanceof String) {
 			string_pool.add((String)object);
 		} else if(object instanceof Integer) {
 			int val = (Integer)object;
