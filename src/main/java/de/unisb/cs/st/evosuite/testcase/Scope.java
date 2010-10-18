@@ -59,8 +59,12 @@ public class Scope {
 		pool.put(reference, o);
 		
 		// Learn some dynamic information about this object
-		if(reference.isArray())
-			reference.array_length = Array.getLength(o);
+		if(reference.isArray()) {
+			if(o != null)
+				reference.array_length = Array.getLength(o);
+			else
+				reference.array_length = 0;
+		}
 	}
 
 	/**

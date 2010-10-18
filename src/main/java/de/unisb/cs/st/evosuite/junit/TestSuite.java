@@ -236,7 +236,8 @@ public class TestSuite {
 		for(String line : test_cases.get(id).toCode().split("\\r?\\n")) {
 			builder.append("      ");
 			builder.append(line);
-			builder.append(";\n");
+//			builder.append(";\n");
+			builder.append("\n");
 		}
 		builder.append("   }\n");
 		return builder.toString();

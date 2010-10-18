@@ -87,9 +87,9 @@ public class FieldStatement extends Statement {
 		}
 
 		if(!Modifier.isStatic(field.getModifiers()))
-			return retval.getSimpleClassName() +" "+ retval.getName() + " = " + cast_str + source.getName() + "." + field.getName();
+			return retval.getSimpleClassName() +" "+ retval.getName() + " = " + cast_str + source.getName() + "." + field.getName()+";";
 		else
-			return retval.getSimpleClassName() +" "+ retval.getName() + " = " + cast_str + field.getDeclaringClass().getSimpleName()+"." + field.getName();
+			return retval.getSimpleClassName() +" "+ retval.getName() + " = " + cast_str + field.getDeclaringClass().getSimpleName()+"." + field.getName()+";";
 	}
 
 

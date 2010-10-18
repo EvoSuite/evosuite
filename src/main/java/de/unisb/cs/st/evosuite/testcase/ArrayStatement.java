@@ -106,7 +106,7 @@ public class ArrayStatement extends Statement {
 
 	@Override
 	public String getCode() {
-		return retval.getComponentName() + "[] " +retval.getName() + " = new " + retval.getComponentName() + "["+length+"]";	
+		return retval.getComponentName() + "[] " +retval.getName() + " = new " + retval.getComponentName() + "["+length+"];";	
 	}
 
 	@Override

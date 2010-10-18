@@ -115,7 +115,7 @@ public class ConstructorStatement extends Statement {
 				parameter_string += ", "+parameters.get(i).getName();
 			}
 		}
-		return retval.getSimpleClassName() +" "+retval.getName()+ " = new " + constructor.getName() + "(" + parameter_string + ")";
+		return retval.getSimpleClassName() +" "+retval.getName()+ " = new " + constructor.getName() + "(" + parameter_string + ");";
 
 	}
 	

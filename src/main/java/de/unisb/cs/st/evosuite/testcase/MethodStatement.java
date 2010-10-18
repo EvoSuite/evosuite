@@ -135,6 +135,19 @@ public class MethodStatement extends Statement {
 
 	@Override
 	public String getCode() {
+		
+		String result = "";
+		if(method.getExceptionTypes().length > 0) {
+			if(retval.getType() != Void.TYPE) {
+				result = retval.getSimpleClassName() +" "+retval.getName() + " = null;\n";	
+			}
+			result += "try {\n";
+		} else {
+			if(retval.getType() != Void.TYPE) {
+				result = retval.getSimpleClassName() +" "+retval.getName() + " = ";				
+			}
+		}
+		
 		String parameter_string = "";
 		if(!parameters.isEmpty()) {
 			parameter_string += parameters.get(0).getName();
@@ -153,12 +166,24 @@ public class MethodStatement extends Statement {
 		} else {
 			callee_str += callee.getName();
 		}
-		
+
+		if(method.getExceptionTypes().length > 0)
+			result += "  ";
 		if(retval.getType() == Void.TYPE) {
-			return callee_str + "." + method.getName() + "(" + parameter_string + ")";			
+			result += callee_str + "." + method.getName() + "(" + parameter_string + ");\n";
 		} else {
-			return retval.getSimpleClassName() +" "+retval.getName() + " = " + callee_str + "." + method.getName() + "(" + parameter_string + ")";
+			result += retval.getName() + " = " + callee_str + "." + method.getName() + "(" + parameter_string + ");\n";
 		}
+
+		if(method.getExceptionTypes().length > 0)
+			result += "}\n";
+
+		for(Class<?> exception : method.getExceptionTypes()) {
+			result += "catch("+exception.getSimpleName()+" e) {} // Declared exception";
+		}
+		
+		return result;
+
 	}
 	
 	@Override
@@ -195,8 +220,13 @@ public class MethodStatement extends Statement {
 			result += "  "+retval.getName() + " = " + callee_str + "." + method.getName() + "(" + parameter_string + ");\n";
 		}
 		
-		result += "} catch("+exception.getClass().getSimpleName()+" e) {}";
+		result += "} catch("+exception.getClass().getSimpleName()+" e) {} // Raised exception";
 		
+		for(Class<?> ex : method.getExceptionTypes()) {
+			if(!ex.equals(exception.getClass()))
+				result += "catch("+ex.getSimpleName()+" e) {} // Declared exception";
+		}
+
 		return result;
 	}
 

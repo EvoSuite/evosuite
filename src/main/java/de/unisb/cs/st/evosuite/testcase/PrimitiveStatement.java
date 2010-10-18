@@ -142,18 +142,18 @@ public class PrimitiveStatement<T> extends Statement {
 	@Override
 	public String getCode() {
 		if(retval.getVariableClass().equals(char.class) || retval.getVariableClass().equals(Character.class))
-			return ((Class<?>) retval.getType()).getSimpleName() + " "+retval.getName() + " = '" + value +"'";
+			return ((Class<?>) retval.getType()).getSimpleName() + " "+retval.getName() + " = '" + value +"';";
 		else if(retval.getVariableClass().equals(String.class)) {
-			return ((Class<?>) retval.getType()).getSimpleName() + " "+retval.getName() + " = \"" + StringEscapeUtils.escapeJava((String) value) +"\"";
+			return ((Class<?>) retval.getType()).getSimpleName() + " "+retval.getName() + " = \"" + StringEscapeUtils.escapeJava((String) value) +"\";";
 		}
 		else if(retval.getVariableClass().equals(float.class)) {
-			return ((Class<?>) retval.getType()).getSimpleName() + " "+retval.getName() + " = " + value +"F";
+			return ((Class<?>) retval.getType()).getSimpleName() + " "+retval.getName() + " = " + value +"F;";
 		}
 		else if(retval.getVariableClass().equals(long.class)) {
-			return ((Class<?>) retval.getType()).getSimpleName() + " "+retval.getName() + " = " + value +"L";
+			return ((Class<?>) retval.getType()).getSimpleName() + " "+retval.getName() + " = " + value +"L;";
 		}
 		else
-			return ((Class<?>) retval.getType()).getSimpleName() + " " +retval.getName() + " = " + value;
+			return ((Class<?>) retval.getType()).getSimpleName() + " " +retval.getName() + " = " + value +";";
 	}
 
 	@Override
