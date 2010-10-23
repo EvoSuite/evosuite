@@ -157,10 +157,10 @@ print_usage ()
 	echo
 	echo "EvoSuite -setup [-object] PREFIX CLASSPATH"
 	echo "    (to setup EvoSuite for the package PREFIX in the current directory)"
-	echo "EvoSuite -generateSuite [-seed SEED] [CLASS]"
-	echo "    (to generate a test suite for CLASS, or all classes)"
-	echo "EvoSuite -generateTests [-seed SEED] [CLASS]"
-	echo "    (to generate a test suite for CLASS, or all classes)"
+	echo "EvoSuite -generateSuite [-seed SEED] [-class CLASS] [-criterion CRITERION]"
+	echo "    (to generate a test suite for CLASS, or all classes, default criterion is branch coverage)"
+	echo "EvoSuite -generateTests [-seed SEED] [-class CLASS] [-criterion CRITERION]"
+	echo "    (to generate a test suite for CLASS, or all classes, default criterion is branch coverage)"
 	echo "EvoSuite -help"
 	echo "    (to print help on options)"
 	echo
@@ -274,11 +274,11 @@ setup_javalanche ()
     allowed_options_take_values=(0)
     parse_command_line "$@"
     options_ok=$?
-    if test ${#cmdline_arguments[@]} -eq 3 && test $options_ok -eq 0;
+    if test ${#cmdline_arguments[@]} -ge 3 && test $options_ok -eq 0;
     then {
 	    OUTPUT_DIR=${cmdline_arguments[0]}
 	    PREFIX=${cmdline_arguments[1]}
-	    SRC=${cmdline_arguments[2]}
+	    SRC=${cmdline_arguments[@]:2:${#cmdline_arguments[@]}}
 	    echo "<project name=\"Testsuite Evolution\">" > $OUTPUT_DIR/javalanche.xml
 	    echo "  <property name=\"prefix\" value=\"$PREFIX\"/>" >> $OUTPUT_DIR/javalanche.xml
 	    echo "  <property name=\"cp\" value=\"$SRC\"/>" >> $OUTPUT_DIR/javalanche.xml
@@ -288,7 +288,7 @@ setup_javalanche ()
 	    echo "</project>" >> $OUTPUT_DIR/javalanche.xml
 	}
     else {
-	    unknown_parameters "setup" "$@"
+	    unknown_parameters "setup_javalanche" "$@"
 	    print_usage
 	}
     fi
@@ -304,18 +304,18 @@ setup_evosuite ()
     allowed_options_take_values=(0)
     parse_command_line "$@"
     options_ok=$?
-    if test ${#cmdline_arguments[@]} -eq 3 && test $options_ok -eq 0;
+    if test ${#cmdline_arguments[@]} -ge 3 && test $options_ok -eq 0;
     then {
 	    OUTPUT_DIR=${cmdline_arguments[0]}
 	    PREFIX=${cmdline_arguments[1]}
-	    SRC=${cmdline_arguments[2]}
+	    SRC=${cmdline_arguments[@]:2:${#cmdline_arguments[@]}}
 	    echo "PREFIX=$PREFIX" > $OUTPUT_DIR/evosuite.properties
-	    echo "CP=$SRC" >> $OUTPUT_DIR/evosuite.properties
+	    echo "CP=\"$SRC\"" >> $OUTPUT_DIR/evosuite.properties
 	    cat $BASEPATH/src/main/assembly/evosuite.properties >> $OUTPUT_DIR/evosuite.properties
 #	    cp $BASEPATH/resources/GA.properties $OUTPUT_DIR
 	}
     else {
-	    unknown_parameters "setup" "$@"
+	    unknown_parameters "setup_evosuite" "$@"
 	    print_usage
 	}
     fi
@@ -348,10 +348,8 @@ setup ()
 		esac
 	    done
 	    PREFIX=${cmdline_arguments[0]}
-	    SRC=${cmdline_arguments[1]}
+	    CP="${cmdline_arguments[@]:1:${#cmdline_arguments[@]}}"
 	    first=1
-	    CP="$SRC"
-
 	    javalanche_options=" -Dmutation.package.prefix=$PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PREFIX"
 	    java $java_options -cp "$classpath:$CP" $java_agent=scan  $javalanche_options $evosuite_scan
 	    java $java_options -cp "$classpath:$CP" $java_agent=tasks $javalanche_options $OBJECT $evosuite_tasks
