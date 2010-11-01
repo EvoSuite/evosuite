@@ -85,7 +85,7 @@ public class PrimitiveOutputTrace extends OutputTrace {
 			*/
 			
 			if((trace.containsKey(i) && other.trace.containsKey(i) && trace.get(i) == null && other.trace.get(i) != null)) {
-				//logger.info("Found primitive assertion");
+				logger.info("Found primitive assertion: null vs "+other.trace.get(i));
 				Assertion assertion = new PrimitiveAssertion();
 				assertion.source = test.getReturnValue(i);
 				assertion.value = trace.get(i);
@@ -96,7 +96,7 @@ public class PrimitiveOutputTrace extends OutputTrace {
 				num_assertions++;
 			}
 			else if((trace.containsKey(i) && other.trace.containsKey(i) && trace.get(i) != null && other.trace.get(i) == null)) {
-				//logger.info("Found primitive assertion");
+				logger.info("Found primitive assertion: "+trace.get(i)+" vs null (2)");
 				Assertion assertion = new PrimitiveAssertion();
 				assertion.source = test.getReturnValue(i);
 				assertion.value = trace.get(i);
@@ -110,7 +110,7 @@ public class PrimitiveOutputTrace extends OutputTrace {
 				//logger.info("Null in both traces");
 				continue;
 			} else if((trace.containsKey(i) && other.trace.containsKey(i) && !trace.get(i).equals(other.trace.get(i)))) {
-				//logger.info("Found primitive assertion");
+				logger.info("Found primitive assertion (non-null): "+trace.get(i)+" / "+other.trace.get(i));
 				Assertion assertion = new PrimitiveAssertion();
 				assertion.source = test.getReturnValue(i);
 				if(assertion.source.statement != i) {

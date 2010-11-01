@@ -169,17 +169,13 @@ public class MethodStatement extends Statement {
 
 		if(method.getExceptionTypes().length > 0)
 			result += "  ";
-		if(retval.getType() == Void.TYPE) {
-			result += callee_str + "." + method.getName() + "(" + parameter_string + ");\n";
-		} else {
-			result += retval.getName() + " = " + callee_str + "." + method.getName() + "(" + parameter_string + ");\n";
-		}
+		result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
 
 		if(method.getExceptionTypes().length > 0)
-			result += "}\n";
+			result += "\n}";
 
 		for(Class<?> exception : method.getExceptionTypes()) {
-			result += "catch("+exception.getSimpleName()+" e) {} // Declared exception";
+			result += "\ncatch("+exception.getSimpleName()+" e) {} // Declared exception";
 		}
 		
 		return result;

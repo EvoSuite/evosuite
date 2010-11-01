@@ -189,10 +189,15 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	public void visitEnd() {
 
 		//super.visitEnd();
-		
+
 		// Generate CFG of method
 		MethodNode mn = (MethodNode) mv;
 		
+		if(plain_name.equals("<clinit>")) {
+			mn.accept(next);
+			return;
+		}
+
 		if(EXCLUDE.contains(methodName)) {
 			mn.accept(next);
 			return;

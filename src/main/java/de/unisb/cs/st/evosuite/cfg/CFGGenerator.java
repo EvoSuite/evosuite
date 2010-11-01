@@ -364,7 +364,7 @@ public class CFGGenerator extends Analyzer {
 				for(DefaultEdge e : graph.incomingEdgesOf(v)) {
 					CFGVertex v2 = graph.getEdgeSource(e);
 					if(v2.isMethodCall("touch")) {
-						logger.info("Found mutated branch!");
+						logger.info("Found mutated branch ");
 						v.setMutatedBranch();
 					} else {
 						if(v2.isMethodCall())

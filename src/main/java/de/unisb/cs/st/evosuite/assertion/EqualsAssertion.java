@@ -39,9 +39,9 @@ public class EqualsAssertion extends Assertion {
 	@Override
 	public String getCode() {
 		if(((Boolean)value).booleanValue())
-			return "assertTrue("+source.getName()+".equals("+dest.getName()+"))";
+			return "assertTrue("+source.getName()+".equals("+dest.getName()+"));";
 		else
-			return "assertFalse("+source.getName()+".equals("+dest.getName()+"))";
+			return "assertFalse("+source.getName()+".equals("+dest.getName()+"));";
 	}
 
 	@Override

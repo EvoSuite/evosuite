@@ -19,8 +19,14 @@
 
 package de.unisb.cs.st.evosuite.mutation;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.mutation.HOM.HOMSwitcher;
+import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
+import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
  * @author Gordon Fraser
@@ -28,6 +34,17 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
  */
 public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
+	private List<TestFitnessFunction> getCoverageGoals() {
+		HOMSwitcher hom_switcher = new HOMSwitcher();
+		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
+		System.out.println("* Created "+hom_switcher.getNumMutants()+" mutants");
+		for(Mutation mutation : hom_switcher.getMutants()) {
+			goals.add(new MutationTestFitness(mutation));
+		}
+		
+		return goals;
+	}
+	
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#getFitness(de.unisb.cs.st.evosuite.ga.Chromosome)
 	 */

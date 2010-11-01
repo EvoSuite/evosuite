@@ -50,7 +50,7 @@ public class CompareAssertion extends Assertion {
 	 */
 	@Override
 	public String getCode() {
-		return "assertEquals("+source.getName()+".compareTo("+dest.getName()+"), "+(Integer)value+")";
+		return "assertEquals("+source.getName()+".compareTo("+dest.getName()+"), "+(Integer)value+");";
 	}
 
 	/**

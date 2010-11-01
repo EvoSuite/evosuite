@@ -22,6 +22,8 @@ package de.unisb.cs.st.evosuite.assertion;
 
 import java.lang.reflect.Field;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import de.unisb.cs.st.evosuite.testcase.Scope;
 
 public class PrimitiveFieldAssertion extends Assertion {
@@ -30,7 +32,19 @@ public class PrimitiveFieldAssertion extends Assertion {
 	
 	@Override
 	public String getCode() {
-		return "assertEquals("+source.getName()+"."+field.getName()+", "+value+")";
+		if(value == null) {
+			return "assertNull("+source.getName()+"."+field.getName()+");";
+		} else if(value.getClass().equals(Long.class)) {
+			String val = value.toString();
+			return "assertEquals("+source.getName()+"."+field.getName()+", "+val+"L);";
+		} else if(value.getClass().equals(Float.class)) {
+			String val = value.toString();
+			return "assertEquals("+source.getName()+"."+field.getName()+", "+val+"F);";
+		} else if(value.getClass().equals(String.class)) {
+			return "assertEquals("+source.getName()+"."+field.getName()+", \""+StringEscapeUtils.escapeJava((String) value)+"\");";
+		}
+		else
+			return "assertEquals("+source.getName()+"."+field.getName()+", "+value+");";
 	}
 
 	@Override
