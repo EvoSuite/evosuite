@@ -93,7 +93,8 @@ public class PrimitivePool {
 		if(object == null)
 			return;
 		else if(object instanceof String) {
-			string_pool.add((String)object);
+			if(!((String)object).startsWith("mutationId"))
+				string_pool.add((String)object);
 		} else if(object instanceof Integer) {
 			int val = (Integer)object;
 			if(Math.abs(val) < MAX_INT && val != Integer.MAX_VALUE && val != Integer.MIN_VALUE) {

@@ -71,7 +71,9 @@ public class ExecutionPathClassAdapter extends ClassAdapter {
 		if( (methodAccess & Opcodes.ACC_SYNTHETIC) > 0 || (methodAccess & Opcodes.ACC_BRIDGE) > 0) {
 			return mv;
 		}
-
+		if(name.equals("<clinit>"))
+			return mv;
+		
 		if (!exclude) {
 			mv = new MethodEntryAdapter(mv, methodAccess, className, name, descriptor);
 			mv = new LineNumberMethodAdapter(mv, className, name, descriptor);

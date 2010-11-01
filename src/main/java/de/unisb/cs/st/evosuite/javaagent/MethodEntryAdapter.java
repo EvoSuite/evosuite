@@ -55,6 +55,9 @@ public class MethodEntryAdapter extends AdviceAdapter{
 	public void onMethodEnter() {
 		super.onMethodEnter();
 
+		if(methodName.equals("<clinit>"))
+			return;
+		
 		if(Properties.MUTATION) {
 			Label mutationStartLabel = new Label();
 			mutationStartLabel.info = new MutationMarker(true);

@@ -16,7 +16,7 @@ import de.unisb.cs.st.javalanche.mutation.runtime.testDriver.MutationTestDriver;
 
 /**
  * Perform exhaustive analysis of second order mutants
- * @author fraser
+ * @author Gordon Fraser
  *
  */
 public class SOMAnalysis {

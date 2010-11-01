@@ -145,7 +145,7 @@ public class ExecutionTracer {
 	 */
 	public static void returnValue(int value, String className, String methodName) {
 		ExecutionTracer tracer = getExecutionTracer();
-		logger.info("Return value: "+value);
+		logger.trace("Return value: "+value);
 		tracer.trace.returnValue(className, methodName, value);
 	}
 

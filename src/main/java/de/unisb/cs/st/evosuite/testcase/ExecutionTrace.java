@@ -214,11 +214,11 @@ public class ExecutionTrace {
 			return_data.get(className).put(methodName, new HashMap<Integer, Integer>());
 		
 		if(!return_data.get(className).get(methodName).containsKey(value)) {
-			logger.info("Got return value "+value);
+			//logger.info("Got return value "+value);
 			return_data.get(className).get(methodName).put(value, 1);
 		}
 		else {
-			logger.info("Got return value again "+value);
+			//logger.info("Got return value again "+value);
 			return_data.get(className).get(methodName).put(value, return_data.get(className).get(methodName).get(value) + 1);
 		}
 	}

@@ -125,7 +125,9 @@ public class MutationGoal extends TestCoverageGoal {
 		CFGVertex m = cfg.getMutation(mutation.getId()); 
 		ControlFlowDistance d = new ControlFlowDistance();
 		if(m == null) {
-			logger.error("Could not find mutant node ");
+			logger.error("Could not find mutant node "+mutation.getId());
+			for(Long mi : cfg.getMutations())
+				logger.error("Have mutation: "+mi);
 			return d;
 		}
 		

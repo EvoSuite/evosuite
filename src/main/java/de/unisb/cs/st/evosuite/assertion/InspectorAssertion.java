@@ -45,7 +45,7 @@ public class InspectorAssertion extends Assertion {
 				return "assertFalse(var"+value.statement+"."+inspector.getMethodCall()+"())";
 		} else {
 		*/
-		return "assertEquals("+source.getName()+"."+inspector.getMethodCall()+"(), "+result+")";			
+		return "assertEquals("+source.getName()+"."+inspector.getMethodCall()+"(), "+result+");";			
 		
 	}
 
