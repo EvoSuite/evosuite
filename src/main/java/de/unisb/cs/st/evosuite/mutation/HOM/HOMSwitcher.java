@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import de.unisb.cs.st.javalanche.mutation.javaagent.MutationForRun;
 import de.unisb.cs.st.javalanche.mutation.properties.MutationProperties;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
@@ -14,17 +13,17 @@ public class HOMSwitcher {
 	
 	static int num_mutants;
 	
-	static List<Mutation> mutants = null;
+	public final static List<Mutation> mutants = HOMFileTransformer.mm.getMutations(); //MutationForRun.getFromDefaultLocation().getMutations();
 	
 	public HOMSwitcher() {
 		// TODO: All mutants?
 		//num_mutants = (int)QueryManager.getNumberOfMutationsWithPrefix(MutationProperties.PROJECT_PREFIX);
-			if(mutants == null) {
-				mutants = MutationForRun.getFromDefaultLocation().getMutations();
+//			if(mutants == null) {
+//				mutants = MutationForRun.getFromDefaultLocation().getMutations();
 				num_mutants = mutants.size();
-				logger.info("Got "+num_mutants+" mutations");
-				assert(num_mutants == mutants.size());
-			}
+//				logger.info("Got "+num_mutants+" mutations");
+//				assert(num_mutants == mutants.size());
+//§			}
 		//mutants = QueryManager.getMutationIdListFromDb(num_mutants);
 	}
 

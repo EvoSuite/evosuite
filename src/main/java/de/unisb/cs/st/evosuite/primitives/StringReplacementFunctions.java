@@ -225,4 +225,9 @@ public class StringReplacementFunctions {
 		return equalsDistance(first.toLowerCase(), second.toLowerCase());
 	}
 	
+	public static int startsWith(String value, String prefix) {
+		int len = Math.min(prefix.length(), value.length());
+		return equalsDistance(value.substring(0, len), prefix);
+	}
+	
 }

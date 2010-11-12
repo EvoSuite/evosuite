@@ -27,6 +27,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.GeneratorAdapter;
+import org.objectweb.asm.commons.Method;
+
 /**
  * This statement represents a constructor call
  * 
@@ -223,4 +227,15 @@ public class ConstructorStatement extends Statement {
 		}
 	}	
 	
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.Statement#getBytecode(org.objectweb.asm.commons.GeneratorAdapter)
+	 */
+	@Override
+	public void getBytecode(GeneratorAdapter mg) {
+		for(VariableReference parameter : parameters) {
+			parameter.loadBytecode(mg);
+		}
+		mg.invokeConstructor(Type.getType(retval.getVariableClass()), Method.getMethod(constructor));
+		retval.storeBytecode(mg);
+	}
 }

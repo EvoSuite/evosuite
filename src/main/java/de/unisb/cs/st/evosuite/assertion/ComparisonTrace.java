@@ -76,7 +76,8 @@ public class ComparisonTrace extends OutputTrace {
 				if(!other_map.containsKey(entry.getKey()))
 					continue;
 				if(other_map.get(entry.getKey()) == null)
-					return (entry.getValue() != null);
+					if (entry.getValue() != null)
+						return true;
 				if(!other_map.get(entry.getKey()).equals(entry.getValue())) {
 					return true;
 				}
@@ -87,7 +88,8 @@ public class ComparisonTrace extends OutputTrace {
 				if(!other_map2.containsKey(entry.getKey()))
 					continue;
 				if(other_map.get(entry.getKey()) == null)
-					return (entry.getValue() != null);
+					if(entry.getValue() != null)
+						return true;
 				if(!other_map2.get(entry.getKey()).equals(entry.getValue())) {
 					return true;
 				}
@@ -112,7 +114,7 @@ public class ComparisonTrace extends OutputTrace {
 				Map<VariableReference, Integer> other_map2 = other.compare_map.get(line);
 				for(Entry<VariableReference, Integer> entry : compare_map.get(line).entrySet()) {
 					if(!other_map2.containsKey(entry.getKey())) {
-						//logger.info("Other map does not contain this result.");
+						logger.info("Other map does not contain this result.");
 						continue;
 					}
 					if(!other_map2.get(entry.getKey()).equals(entry.getValue())) {
@@ -178,26 +180,33 @@ public class ComparisonTrace extends OutputTrace {
 		
 		for(Entry<Integer, Map<VariableReference, Integer > > entry : compare_map.entrySet()) {
 			if(other.compare_map.containsKey(entry.getKey())) {
-				if(entry.getValue() == null && other.compare_map.get(entry.getKey()) != null) {
-					num++;
-				}
-				else if(entry.getValue() != null) {
+				//if(entry.getValue() == null && other.compare_map.get(entry.getKey()) != null) {
+				//	num++;
+				//}
+				//else 
+				if(entry.getValue() != null) {
 					for(Entry<VariableReference, Integer> centry : entry.getValue().entrySet()) {
-						if(!centry.getValue().equals(other.compare_map.get(entry.getKey()).get(centry.getKey())))
+						if(other.compare_map.get(entry.getKey()).containsKey(centry.getKey()) && !centry.getValue().equals(other.compare_map.get(entry.getKey()).get(centry.getKey()))) {
+							logger.debug("Retval of "+entry.getKey()+" comparing with "+centry.getKey());
+							logger.debug("CompareTo: "+centry.getValue()+"/"+other.compare_map.get(entry.getKey()).get(centry.getKey()));
 							num++;
+						}
 					}
 				}
 			}			
 		}
 		for(Entry<Integer, Map<VariableReference, Boolean > > entry : equals_map.entrySet()) {
-			if(other.compare_map.containsKey(entry.getKey())) {
-				if(entry.getValue() == null && other.equals_map.get(entry.getKey()) != null) {
-					num++;
-				}
-				else if(entry.getValue() != null) {
+			if(other.equals_map.containsKey(entry.getKey())) {
+				//if(entry.getValue() == null && other.equals_map.get(entry.getKey()) != null) {
+				//	num++;
+				//}
+				//else 
+				if(entry.getValue() != null) {
 					for(Entry<VariableReference, Boolean> centry : entry.getValue().entrySet()) {
-						if(!centry.getValue().equals(other.equals_map.get(entry.getKey()).get(centry.getKey())))
+						if(other.equals_map.get(entry.getKey()).containsKey(centry.getKey()) && !centry.getValue().equals(other.equals_map.get(entry.getKey()).get(centry.getKey()))) {
+							logger.debug("Equals: "+centry.getValue()+"/"+other.equals_map.get(entry.getKey()).get(centry.getKey()));
 							num++;
+						}
 					}
 				}
 			}			

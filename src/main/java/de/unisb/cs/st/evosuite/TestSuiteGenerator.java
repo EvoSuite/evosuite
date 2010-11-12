@@ -107,9 +107,9 @@ public class TestSuiteGenerator {
 			tests = generateIndividualTests();
 		
 		if(Properties.MUTATION) {
-			Set<Long> killed = new HashSet<Long>();
 			AssertionGenerator asserter = new AssertionGenerator();
 			for(TestCase test : tests) {
+				Set<Long> killed = new HashSet<Long>();
 				asserter.addAssertions(test, killed);
 			}
 		}
@@ -211,7 +211,8 @@ public class TestSuiteGenerator {
 		// Each generated test case is put into a test suite
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		// TODO: Minimize individual tests instead?
-		FitnessFunction suite_fitness = new de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness();
+		FitnessFunction suite_fitness = getFitnessFunction();
+		//FitnessFunction suite_fitness = new de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness();
 		
 		// Get list of goals
 		// TODO: This needs to be replacable by other coverage criteria

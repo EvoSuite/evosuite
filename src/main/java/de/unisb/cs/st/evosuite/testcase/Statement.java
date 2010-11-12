@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 
@@ -82,6 +83,12 @@ public abstract class Statement {
 	 * @return
 	 */
 	public abstract String getCode(Throwable exception);
+	
+	/**
+	 * Generate bytecode by calling method generator
+	 * @param mg
+	 */
+	public abstract void getBytecode(GeneratorAdapter mg);
 	
 	/**
 	 * 

@@ -83,6 +83,10 @@ public class Properties {
 	public static String CRITERION = getPropertyOrDefault("criterion", "BranchCoverage");
 
 	public static boolean MUTATION = getPropertyOrDefault("criterion", "BranchCoverage").equalsIgnoreCase("mutation") ? true : false;
+
+	public static boolean INSTRUMENT_PARENT = getPropertyOrDefault("instrument_parent", false);
+
+	public static int GENERATOR_TOURNAMENT = getPropertyOrDefault("generator_tournament", 1); 
 	
 	private Properties() {
 		properties = new java.util.Properties();

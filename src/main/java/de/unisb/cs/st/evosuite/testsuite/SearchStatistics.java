@@ -59,6 +59,7 @@ import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.MaxFitnessEvaluationsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.Randomness;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
+import de.unisb.cs.st.evosuite.mutation.MutationSuiteFitness;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.MaxStatementsStoppingCondition;
@@ -770,7 +771,7 @@ public class SearchStatistics implements SearchListener {
 	private ExecutionTrace executeTest(TestCase test, String className) {
 		ExecutionTrace trace = null;
 		try {
-			logger.trace(test.toCode());
+			//logger.trace(test.toCode());
 			TestCaseExecutor executor = new TestCaseExecutor();
 			Map<Integer,Throwable> result = executor.runWithTrace(test);
 			StatisticEntry entry = statistics.get(statistics.size() - 1);
@@ -951,9 +952,16 @@ public class SearchStatistics implements SearchListener {
 			entry.total_branches     = fitness.total_branches;
 			entry.branchless_methods = fitness.branchless_methods;
 			entry.total_methods      = fitness.total_methods;
-			entry.className          = Properties.TARGET_CLASS;
-			entry.id                 = getNumber(entry.className);
+		} else if(objective instanceof MutationSuiteFitness) {
+			MutationSuiteFitness fitness = (MutationSuiteFitness)objective;
+			entry.total_branches = fitness.getNumGoals();
+			entry.total_methods = 0;
+			entry.branchless_methods = 0;
 		}
+		
+		entry.className          = Properties.TARGET_CLASS;
+		entry.id                 = getNumber(entry.className);			
+		
 		entry.start_time        = System.currentTimeMillis();
 		entry.population_size   = Properties.POPULATION_SIZE;
 		entry.chromosome_length = Properties.CHROMOSOME_LENGTH;

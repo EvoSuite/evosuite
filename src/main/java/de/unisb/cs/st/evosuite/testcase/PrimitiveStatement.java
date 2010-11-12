@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Randomness;
@@ -146,10 +147,10 @@ public class PrimitiveStatement<T> extends Statement {
 		else if(retval.getVariableClass().equals(String.class)) {
 			return ((Class<?>) retval.getType()).getSimpleName() + " "+retval.getName() + " = \"" + StringEscapeUtils.escapeJava((String) value) +"\";";
 		}
-		else if(retval.getVariableClass().equals(float.class)) {
+		else if(retval.getVariableClass().equals(float.class) || retval.getVariableClass().equals(Float.class)) {
 			return ((Class<?>) retval.getType()).getSimpleName() + " "+retval.getName() + " = " + value +"F;";
 		}
-		else if(retval.getVariableClass().equals(long.class)) {
+		else if(retval.getVariableClass().equals(long.class) || retval.getVariableClass().equals(Long.class)) {
 			return ((Class<?>) retval.getType()).getSimpleName() + " "+retval.getName() + " = " + value +"L;";
 		}
 		else
@@ -383,5 +384,30 @@ public class PrimitiveStatement<T> extends Statement {
 		if(retval.equals(oldVar))
 			retval = newVar;
 		
+	}
+	
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.Statement#getBytecode(org.objectweb.asm.commons.GeneratorAdapter)
+	 */
+	@Override
+	public void getBytecode(GeneratorAdapter mg) {
+		if(retval.getVariableClass().equals(Boolean.class))
+			mg.push(((Boolean)value).booleanValue());
+		else if(retval.getVariableClass().equals(Character.class))
+			mg.push(((Character)value).charValue());
+		else if(retval.getVariableClass().equals(Integer.class))
+			mg.push(((Integer)value).intValue());
+		else if(retval.getVariableClass().equals(Short.class))
+			mg.push(((Short)value).shortValue());
+		else if(retval.getVariableClass().equals(Long.class))
+			mg.push(((Long)value).longValue());
+		else if(retval.getVariableClass().equals(Float.class))
+			mg.push(((Float)value).floatValue());
+		else if(retval.getVariableClass().equals(Double.class))
+			mg.push(((Float)value).doubleValue());
+		else if(retval.getVariableClass().equals(String.class))
+			mg.push(((String)value));
+		
+		mg.storeLocal(retval.statement);
 	}
 }

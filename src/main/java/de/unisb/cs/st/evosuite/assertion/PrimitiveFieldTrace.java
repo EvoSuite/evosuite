@@ -89,13 +89,22 @@ public class PrimitiveFieldTrace extends OutputTrace {
 				List<Object> list1 = trace.get(i);
 				List<Object> list2 = other.trace.get(i);
 				if(list1.size() != list2.size()) {
-					logger.error("Size of lists does not match!");
+					logger.error("Size of lists does not match: ");
+					for(Object o1 : list1) {
+						logger.error(" -> "+o1);
+					}
+					logger.error("List2");
+					for(Object o1 : list2) {
+						logger.error(" -> "+o1);
+					}
 				} else {
 					for(int j = 0; j<list1.size();j++) {
 						if(!list1.get(j).equals(list2.get(j))) {
 							if(!fields.containsKey(test.getReturnValue(i).getType()))
 								logger.error("Have no records of field");
 							else {
+								logger.debug("Generated primitive field assertion");
+
 								PrimitiveFieldAssertion assertion = new PrimitiveFieldAssertion();
 								assertion.source = test.getReturnValue(i);
 								assertion.value  = list1.get(j);

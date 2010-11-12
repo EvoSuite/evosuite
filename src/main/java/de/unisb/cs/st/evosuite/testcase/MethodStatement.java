@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.GeneratorAdapter;
 
 
 public class MethodStatement extends Statement {
@@ -121,8 +122,6 @@ public class MethodStatement extends Statement {
 	        Object ret = this.method.invoke(callee_object, inputs);
 			System.setOut(old_out);
 	        scope.set(retval, ret);
-			
-
 		} catch (Throwable e) {
 	          if (e instanceof java.lang.reflect.InvocationTargetException) {
 	              e = e.getCause();
@@ -141,11 +140,13 @@ public class MethodStatement extends Statement {
 			if(retval.getType() != Void.TYPE) {
 				result = retval.getSimpleClassName() +" "+retval.getName() + " = null;\n";	
 			}
-			result += "try {\n";
-		} else {
-			if(retval.getType() != Void.TYPE) {
-				result = retval.getSimpleClassName() +" "+retval.getName() + " = ";				
-			}
+			result += "try {\n  ";
+		} 
+		else if(retval.getType() != Void.TYPE) {
+			result += retval.getSimpleClassName() +" ";
+		}
+		if(retval.getType() != Void.TYPE) {
+			result += retval.getName() + " = ";
 		}
 		
 		String parameter_string = "";
@@ -167,8 +168,6 @@ public class MethodStatement extends Statement {
 			callee_str += callee.getName();
 		}
 
-		if(method.getExceptionTypes().length > 0)
-			result += "  ";
 		result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
 
 		if(method.getExceptionTypes().length > 0)
@@ -350,4 +349,21 @@ public class MethodStatement extends Statement {
 			callee = newVar;	
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.Statement#getBytecode(org.objectweb.asm.commons.GeneratorAdapter)
+	 */
+	@Override
+	public void getBytecode(GeneratorAdapter mg) {
+		if(!isStatic()) {
+			callee.loadBytecode(mg);
+		}
+		for(VariableReference parameter : parameters) {
+			parameter.loadBytecode(mg);
+		}
+		if(isStatic())
+			mg.invokeStatic(Type.getType(method.getDeclaringClass()), org.objectweb.asm.commons.Method.getMethod(method));
+		else
+			mg.invokeVirtual(Type.getType(method.getDeclaringClass()), org.objectweb.asm.commons.Method.getMethod(method));
+		retval.storeBytecode(mg);
+	}
 }

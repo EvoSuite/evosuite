@@ -27,6 +27,9 @@ import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.GeneratorAdapter;
+
 /**
  * Statement that accesses an instance/class field
  * @author Gordon Fraser
@@ -75,6 +78,10 @@ public class FieldStatement extends Statement {
 	@Override
 	public boolean isValid() {
 		return retval.isAssignableFrom(field.getType());
+	}
+	
+	public boolean isStatic() {
+		return Modifier.isStatic(field.getModifiers());
 	}
 
 	@Override
@@ -204,5 +211,20 @@ public class FieldStatement extends Statement {
 			source = newVar;
 		
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.Statement#getBytecode(org.objectweb.asm.commons.GeneratorAdapter)
+	 */
+	@Override
+	public void getBytecode(GeneratorAdapter mg) {
+		if(!isStatic()) {
+			source.loadBytecode(mg);
+		}
+		if(isStatic())
+			mg.getStatic(Type.getType(field.getDeclaringClass()), field.getName(), Type.getType(field.getType()));
+		else
+			mg.getField(Type.getType(field.getDeclaringClass()), field.getName(), Type.getType(field.getType()));
+
+		retval.storeBytecode(mg);
+	}
 }

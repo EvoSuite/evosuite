@@ -29,10 +29,12 @@ import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.util.TraceClassVisitor;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGClassAdapter;
 import de.unisb.cs.st.evosuite.primitives.PrimitiveClassAdapter;
+import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.Excludes;
 
 
@@ -45,6 +47,13 @@ import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutation
  */
 public class BytecodeInstrumentation implements ClassFileTransformer {
 
+	private static Hierarchy hierarchy;
+	
+	static {
+		if(Properties.INSTRUMENT_PARENT) 
+			hierarchy = Hierarchy.readFromDefaultLocation();
+	}
+
 	protected static Logger logger = Logger
 	.getLogger(BytecodeInstrumentation.class);
 
@@ -55,6 +64,19 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	protected boolean static_hack = Properties.getPropertyOrDefault("static_hack", false);
 	
 	private boolean makeAllAccessible = Properties.getPropertyOrDefault("make_accessible", false);
+	
+	private boolean isTargetClass(String className) {
+		if(className.equals(target_class) || (className.startsWith(target_class+"$"))) {
+			return true;
+		}
+
+		if(Properties.INSTRUMENT_PARENT) {
+			return hierarchy.getAllSupers(target_class).contains(className);
+		}
+		
+		
+		return false;
+	}
 	
 	static {
 		logger.info("Loading bytecode transformer for "+Properties.PROJECT_PREFIX);
@@ -95,10 +117,10 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 					
 					// Print out bytecode if debug is enabled
 					//if(logger.isDebugEnabled())
-					//	cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+						//cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 
 					// Apply transformations to class under test and its owned classes
-					if(classNameWithDots.equals(target_class) || (classNameWithDots.startsWith(target_class+"$"))) {
+					if(isTargetClass(classNameWithDots)) {
 						cv = new AccessibleClassAdapter(cv);
 						cv = new ExecutionPathClassAdapter(cv, className);
 						cv = new CFGClassAdapter(cv, className);
@@ -109,7 +131,9 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 					}
 					
 					// Collect constant values for the value pool
-					cv = new PrimitiveClassAdapter(cv, className);
+					if(!Properties.MUTATION) {
+						cv = new PrimitiveClassAdapter(cv, className);
+					}
 					
 					// If we need to reset static constructors, make them explicit methods
 					if(static_hack)
@@ -117,7 +141,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 					
 					// Print out bytecode if debug is enabled
 					//if(logger.isDebugEnabled())
-					//	cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+						//cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 					
 					reader.accept(cv, ClassReader.SKIP_FRAMES);
 					classfileBuffer = writer.toByteArray();

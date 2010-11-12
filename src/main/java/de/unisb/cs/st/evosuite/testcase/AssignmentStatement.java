@@ -25,6 +25,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.GeneratorAdapter;
+
 /**
  * An assignment statement assigns a variable to another variable.
  * This is only used to assign to array indices
@@ -163,4 +166,14 @@ public class AssignmentStatement extends Statement {
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.Statement#getBytecode(org.objectweb.asm.commons.GeneratorAdapter)
+	 */
+	@Override
+	public void getBytecode(GeneratorAdapter mg) {
+		retval.array.loadBytecode(mg);
+		mg.push(retval.array_index);
+		parameter.loadBytecode(mg);
+		mg.arrayStore(Type.getType(parameter.getVariableClass()));
+	}
 }

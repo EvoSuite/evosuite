@@ -475,7 +475,7 @@ public class TestSuiteGenerator {
 			Map<String, Integer> exception_map = new HashMap<String, Integer>();
 			for(TestCase test : tests) {
 				length += test.size();
-				Map<Integer,Throwable> exceptionsThrown = executor.run(test);
+				Map<Integer,Throwable> exceptionsThrown = executor.runWithTrace(test);
 				num_exceptions += exceptionsThrown.size();
 				// TODO: Don't count declared exceptions
 				for(Integer pos : exceptionsThrown.keySet()) {

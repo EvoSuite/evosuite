@@ -25,9 +25,15 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.Collection;
+import java.util.HashSet;
 
 import org.apache.log4j.Logger;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.primitives.PrimitiveClassAdapter;
 import de.unisb.cs.st.javalanche.mutation.javaagent.MutationForRun;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.MutationDecision;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.MutationDecisionFactory;
@@ -62,18 +68,20 @@ public class HOMFileTransformer  implements ClassFileTransformer  {
 	private static HOMTransformer mutationTransformer = new HOMTransformer();
 
 //	protected static MutationForRun mm = MutationForRun.getAllMutants();
-	protected static MutationForRun mm = MutationForRun.getFromDefaultLocation();
+	public final static MutationForRun mm = MutationForRun.getFromDefaultLocation();
 
-	private static Collection<String> classesToMutate = mm.getClassNames();
+	public final static Collection<String> classesToMutate = mm.getClassNames();
+	//public final static Collection<String> classesToMutate = new HashSet<String>();
 
 	//private static RemoveSystemExitTransformer systemExitTransformer = new RemoveSystemExitTransformer();
 	
 	static {
 		logger.info("Loading HOMFileTransformer");
-		logger.info("Classes to mutate:");
-		for(String classname : classesToMutate) {
-			logger.info("  "+classname);
-		}
+		classesToMutate.add(Properties.TARGET_CLASS);
+		//logger.info("Classes to mutate:");
+		//for(String classname : classesToMutate) {
+		//	logger.info("  "+classname);
+		//}
 	}
 
 	private static MutationDecision mutationDecision = MutationDecisionFactory
@@ -93,6 +101,15 @@ public class HOMFileTransformer  implements ClassFileTransformer  {
 		if (className != null) {
 			try {
 				String classNameWithDots = className.replace('/', '.');
+				
+				if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)) {
+					ClassReader reader = new ClassReader(classfileBuffer);
+					ClassWriter writer = new ClassWriter(org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
+					ClassVisitor cv = writer;
+					cv = new PrimitiveClassAdapter(cv, className);
+					reader.accept(cv, ClassReader.SKIP_FRAMES);
+					classfileBuffer = writer.toByteArray();
+				}
 				
 				if (mutationDecision.shouldBeHandled(classNameWithDots)) {
 					logger.info("Mutation transforming: " + classNameWithDots);

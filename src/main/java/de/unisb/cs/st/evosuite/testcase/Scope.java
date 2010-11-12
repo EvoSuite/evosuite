@@ -38,13 +38,10 @@ public class Scope {
 
 	Map<VariableReference, Object> pool;
 	
-	Map<Type, List<VariableReference>> references;
-	
 	/**
 	 * Constructor
 	 */
 	public Scope() {
-		references = Collections.synchronizedMap(new HashMap<Type, List<VariableReference> >());
 		pool = Collections.synchronizedMap(new HashMap<VariableReference, Object>());
 	}
 		
@@ -56,7 +53,6 @@ public class Scope {
 	 *   Value
 	 */
 	public synchronized void set(VariableReference reference, Object o) {
-		pool.put(reference, o);
 		
 		// Learn some dynamic information about this object
 		if(reference.isArray()) {
@@ -65,6 +61,11 @@ public class Scope {
 			else
 				reference.array_length = 0;
 		}
+		
+		if(o != null && !o.getClass().equals(reference.getVariableClass())) {
+			reference.setType(o.getClass());
+		}
+		pool.put(reference, o);
 	}
 
 	/**
@@ -86,7 +87,12 @@ public class Scope {
 	 */
 	public synchronized Object get(VariableReference reference) {
 		if(reference.isArrayIndex()) {
-			return Array.get(pool.get(reference.array), reference.array_index);
+			Object array = pool.get(reference.array);
+			if(array != null) {
+				return Array.get(array, reference.array_index);
+			} else {
+				return null;
+			}
 		} else
 			return pool.get(reference);	
 	}
@@ -100,11 +106,19 @@ public class Scope {
 	 */
 	public List<VariableReference> getElements(Type type) {
 		List<VariableReference> refs = new ArrayList<VariableReference>();
-		for(VariableReference ref : pool.keySet()) {
+		for(Entry<VariableReference, Object> entry : pool.entrySet()) {
+			if(type.equals(entry.getKey().getType()) ||
+				(entry.getValue() != null && type.equals(entry.getValue().getClass())))
+				refs.add(entry.getKey());
+		}
+/*
+ 		for(VariableReference ref : pool.keySet()) {
+ 
 			// TODO: Exact match because it is used for comparison only at the moment
 			if(ref.getType().equals(type))
 				refs.add(ref);
 		}
+		*/
 		return refs;
-	}	
+	}
 }

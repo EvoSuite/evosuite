@@ -78,11 +78,11 @@ public class AssertionGenerator {
 	
 	public void resetObservers() {
 		executor.newObservers();
-		primitive_observer = new PrimitiveOutputTraceObserver();
-		comparison_observer     = new ComparisonTraceObserver();
-		inspector_observer       = new InspectorTraceObserver();
+		primitive_observer  = new PrimitiveOutputTraceObserver();
+		comparison_observer = new ComparisonTraceObserver();
+		inspector_observer  = new InspectorTraceObserver();
 		field_observer      = new PrimitiveFieldTraceObserver();
-		null_observer = new NullOutputObserver();
+		null_observer       = new NullOutputObserver();
 		executor.addObserver(primitive_observer);
 		executor.addObserver(comparison_observer);
 		executor.addObserver(inspector_observer);
@@ -134,9 +134,7 @@ public class AssertionGenerator {
 				result.exception = ex;
 			}
 			*/
-			if(mutant != null && HOMObserver.wasTouched(mutant.getId())) {
-				result.touched = true;
-			}
+			result.touched = HOMObserver.getTouched();
 		} catch(Exception e) {
 			System.out.println("TG: Exception caught: "+e);
 			e.printStackTrace();
@@ -184,10 +182,10 @@ public class AssertionGenerator {
 			//logger.info("Have to kill "+to_kill.size());
 			List<Pair> a = new ArrayList<Pair>();
 			for(Entry<Integer, Set<Long>> entry : kill_map.entrySet()) {
-				if(assertions.get(entry.getKey()) instanceof StringAssertion)
-					continue;
-				if(assertions.get(entry.getKey()) instanceof ExceptionAssertion)
-					continue;
+				//if(assertions.get(entry.getKey()) instanceof StringAssertion)
+				//	continue;
+				//if(assertions.get(entry.getKey()) instanceof ExceptionAssertion)
+				//	continue;
 				int num = 0;
 				for(Long m : entry.getValue()) {
 					if(!killed.contains(m))
@@ -244,7 +242,7 @@ public class AssertionGenerator {
 		// sort by number of assertions killed
 		// pick assertion that kills most
 		// remove all mutations that are already killed
-		logger.info("Minimized assertions from "+assertions.size()+" to "+result.size());
+		logger.debug("Minimized assertions from "+assertions.size()+" to "+result.size());
 		int num_string_assertions = 0;
 		int num_inspector_assertions = 0;
 		int num_field_assertions = 0;
@@ -277,7 +275,7 @@ public class AssertionGenerator {
 
 		}
 		// TODO: List exception assertion
-		logger.info("Assertions before minimization: "+test.getAssertions().size()+","+num_string_assertions+","+num_inspector_assertions+","+num_field_assertions+","+num_comparison_assertions+","+num_primitive_assertions+","+num_exception_assertions);
+		logger.debug("Assertions before minimization: "+test.getAssertions().size()+","+num_string_assertions+","+num_inspector_assertions+","+num_field_assertions+","+num_comparison_assertions+","+num_primitive_assertions+","+num_exception_assertions);
 
 		if(!result.isEmpty()) {
 			test.removeAssertions();
@@ -314,12 +312,11 @@ public class AssertionGenerator {
 			logger.info("Not removing assertions because no new assertions were found");
 		}
 		// TODO: List exception assertion
-		logger.info("Assertions after minimization: "+test.getAssertions().size()+","+num_string_assertions+","+num_inspector_assertions+","+num_field_assertions+","+num_comparison_assertions+","+num_primitive_assertions+","+num_exception_assertions);
+		logger.debug("Assertions after minimization: "+test.getAssertions().size()+","+num_string_assertions+","+num_inspector_assertions+","+num_field_assertions+","+num_comparison_assertions+","+num_primitive_assertions+","+num_exception_assertions);
 	}
 	
 	
 	public void addAssertions(TestCase test, Mutation mutant) {
-		logger.info("Generating assertions");
 		ExecutionResult orig_result = runTest(test);
 		ExecutionResult mutant_result = runTest(test, mutant);
 	
@@ -330,7 +327,7 @@ public class AssertionGenerator {
 		orig_result.field_trace.getAssertions(test, mutant_result.field_trace);
 		orig_result.null_trace.getAssertions(test, mutant_result.null_trace);
 		
-		logger.info("Generated "+test.getAssertions().size()+" assertions");
+		logger.debug("Generated "+test.getAssertions().size()+" assertions");
 	}
 	
 	public void addAssertions(TestCase test, Set<Long> killed) {
@@ -392,6 +389,7 @@ public class AssertionGenerator {
 			traces.add(mutant_result.inspector_trace);
 			traces.add(mutant_result.field_trace);
 			traces.add(mutant_result.output_trace);
+			traces.add(mutant_result.null_trace);
 			//traces.add(mutant_exception_trace); // TODO!
 			mutation_traces.put(m, traces);
 			
@@ -444,6 +442,12 @@ public class AssertionGenerator {
 			}
 			//logger.info("String: Potentially "+orig_result.output_trace.numDiffer(mutant_result.output_trace));
 			num_killed += orig_result.field_trace.getAssertions(test, mutant_result.field_trace);
+			if(num_killed > last_num) {
+				//logger.info("Added "+num_killed+" field assertions for mutation: "+m.getId());
+				last_num = num_killed;
+			}
+
+			num_killed += orig_result.null_trace.getAssertions(test, mutant_result.null_trace);
 			if(num_killed > last_num) {
 				//logger.info("Added "+num_killed+" field assertions for mutation: "+m.getId());
 				last_num = num_killed;
@@ -509,7 +513,7 @@ public class AssertionGenerator {
 			num2++;
 		}
 		int s2 = killed.size() - s1;
-		logger.info("Mutants killed before / after / should be: "+killed_before.size()+"/"+killed_after.size()+"/"+s2);
+		logger.debug("Mutants killed before / after / should be: "+killed_before.size()+"/"+killed_after.size()+"/"+s2);
 		for(Mutation m : mutants) {
 			if(killed_after.contains(m.getId()) && !m.isKilled())
 				logger.debug("Asserted: "+m.getId());

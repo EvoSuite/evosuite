@@ -69,7 +69,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	/**
 	 * Keep track of objects we are already trying to generate
 	 */
-	private Set<Class<?>> current_recursion = new HashSet<Class<?>>();
+	private Set<AccessibleObject> current_recursion = new HashSet<AccessibleObject>();
 
 	private DefaultTestFactory() { }
 	
@@ -98,7 +98,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	 */
 	public void insertRandomStatement(TestCase test) {
 		int position = randomness.nextInt(test.size() + 1);
-		final double P = 1d/2d;
+		final double P = 1d/3d;
 		
 		double r = randomness.nextDouble();
 		
@@ -112,14 +112,15 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			// add call on existing object
 			VariableReference object = test.getRandomObject(position);
 			if(object != null) {
-				if(object.isArray() && object.array_length > 0) {
+				if(object.isArray()) {
+					if(object.array_length > 0) {
 					//ArrayStatement as = (ArrayStatement) test.getStatement(object.statement);
 //					AssignmentStatement as = new AssignmentStatement(object);
 					//if(as.size() > 0) {
 						//logger.info("Inserting array thingy");
 						int index = randomness.nextInt(object.array_length);
 						//logger.info("Array statement: "+as.getCode());
-						//logger.info("Inserting array index "+index+" at position "+position);
+						logger.info("Inserting array index "+index+" at position "+position+" for array with length "+object.array_length+": "+object.getArray().getName());
 						//logger.info("Array thinks it's at position: "+as.retval.statement);
 						try {
 							assignArray(test, object, index, position);
@@ -128,7 +129,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 						} catch (ConstructionFailedException e) {
 							//logger.info("Failed!");
 						}
-					//}
+					}
 				} else {
 					List<AccessibleObject> calls = test_cluster.getCallsFor(object.getVariableClass());
 					//List<Method> calls = getMethods(object.getVariableClass());
@@ -362,6 +363,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	 */
 	public VariableReference addMethod(TestCase test, Method method, int position, int recursion_depth) throws ConstructionFailedException {
 		//System.out.println("TG: Looking for callee of type "+method.getDeclaringClass());
+		logger.debug("Recursion depth: "+recursion_depth);
 		if(recursion_depth > MAX_RECURSION) {
 			logger.debug("Max recursion depth reached");
 			throw new ConstructionFailedException();
@@ -513,7 +515,6 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			// TODO:
 			// Do we need a special "[Array]AssignmentStatement"?
 			test.addStatement(new AssignmentStatement(index, randomness.choice(objects).clone()), position);
-			
 		} else {
 			// Assign a new value
 			// Need a primitive, method, constructor, or field statement where retval is set to index
@@ -606,7 +607,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			
 			//logger.info("Current recursion list: "+current_recursion.size());
 //			AccessibleObject o = mapping.getRandomGenerator(type, (ClassConstraint)constraint);
-			AccessibleObject o = test_cluster.getRandomGenerator(type);
+//			AccessibleObject o = test_cluster.getRandomGenerator(type);
+			AccessibleObject o = test_cluster.getRandomGenerator(type, current_recursion);
+			current_recursion.add(o);
 			if( o == null) {
 				throw new ConstructionFailedException();
 			} else if(o instanceof Field) {
@@ -856,7 +859,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				callee = test.getRandomObject(method.getDeclaringClass(), position);
 				logger.debug("Found callee of type "+method.getDeclaringClass().getName());
 			} catch(ConstructionFailedException e) {
-				logger.debug("No callee of type "+method.getDeclaringClass().getName()+" found");
+				logger.debug("No callee of type "+method.getDeclaringClass().getName()+" found at position "+position);
 				callee = attemptGeneration(test, method.getDeclaringClass(), position, 0, false);
 				position += test.size() - length;
 				length = test.size();
