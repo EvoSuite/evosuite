@@ -89,6 +89,7 @@ public class TestRunner extends Thread {
 	  private void executeTestCase() {
 		  int num = 0;
 		  try {
+			  		  
 //			  exceptionsThrown = test.execute(scope, observers, !log);
 			for(Statement s : test.statements) {
 				if(isInterrupted()) {
@@ -98,10 +99,18 @@ public class TestRunner extends Thread {
 				if(logger.isDebugEnabled())
 					logger.debug("Executing statement "+s.getCode());
 				ExecutionTracer.statementExecuted();
-
+				VariableReference returnValue = s.getReturnValue().clone();
+				
 				long before = System.currentTimeMillis();
 				Throwable exceptionThrown = s.execute(scope, System.out);
 				long after = System.currentTimeMillis();
+				
+				if(!s.getReturnValue().equals(returnValue)) {
+					for(int pos = num; pos < test.statements.size(); pos++) {
+						test.statements.get(pos).replace(returnValue, s.getReturnValue().clone());
+					}
+				}
+				
 				/*
 				for(ExecutionObserver observer : observers) {
 					observer.statement(num, scope, s.getReturnValue());

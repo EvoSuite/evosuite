@@ -82,7 +82,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		Map<String, Integer> call_count = new HashMap<String, Integer>();
 
 		for(ExecutionResult result : results) {
-			 if(hasTimeout(result)) {
+			if(hasTimeout(result)) {
 				updateIndividual(individual, total_branches*2 + total_methods);
 				suite.setCoverage(0.0);
 				logger.info("Test case has timed out, setting fitness to max value "+(total_branches*2 + total_methods));

@@ -126,6 +126,7 @@ public class TestCaseMinimizer {
 			return;
 		}
 		logger.info("Minimizing test case");
+		//logger.info(c.test.toCode());
 			
 		Logger logger1 = Logger.getLogger(fitness_function.getClass());
 		Level old_level1 = logger.getLevel();
@@ -150,6 +151,7 @@ public class TestCaseMinimizer {
 		
 		removeUnusedPrimitives(c.test);
 		fitness = fitness_function.getFitness(c);
+		logger.debug("Start fitness value: "+fitness);
 		boolean changed = true;
 		while(changed) {
 			changed = false;
@@ -168,11 +170,15 @@ public class TestCaseMinimizer {
 				}
 				
 				double new_fitness = fitness_function.getFitness(c);
-				if(new_fitness <= fitness) {
+				
+				logger.debug("New fitness is "+new_fitness);
+				if(new_fitness <= fitness) { // TODO: Check whether fitness should be maximized or minimized
+					logger.debug("Keeping shorter version");
 					fitness = new_fitness;
 					changed = true;
 					break;
 				} else {
+					logger.debug("Keeping original version");
 					c.test = copy.test;
 					c.last_result = copy.last_result;
 					c.setChanged(false);
@@ -183,6 +189,11 @@ public class TestCaseMinimizer {
 		logger1.setLevel(old_level1);
 		logger2.setLevel(old_level2);
 		logger3.setLevel(old_level3);
+		if(logger.isDebugEnabled()) {
+			logger.debug("Minimized test case: ");
+			logger.debug(c.test.toCode());
+		}
+
 	}
 	
 }

@@ -20,7 +20,9 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.unisb.cs.st.evosuite.assertion.ComparisonTrace;
@@ -47,7 +49,7 @@ public class ExecutionResult {
 	public InspectorTrace inspector_trace;
 	public PrimitiveFieldTrace field_trace;
 	public NullOutputTrace null_trace;
-	public boolean touched = false;
+	public List<Long> touched = new ArrayList<Long>();
 
 	public ExecutionResult(TestCase t, Mutation m) {
 		exception = null;

@@ -149,7 +149,6 @@ public class CFGGenerator extends Analyzer {
 		
 		public boolean isBranchLabel() {
 			if(node instanceof LabelNode && ((LabelNode)node).getLabel().info instanceof Integer) {
-				logger.info("!!!!! Found branch!");
 				return true;
 			}
 			return false;
@@ -364,11 +363,11 @@ public class CFGGenerator extends Analyzer {
 				for(DefaultEdge e : graph.incomingEdgesOf(v)) {
 					CFGVertex v2 = graph.getEdgeSource(e);
 					if(v2.isMethodCall("touch")) {
-						logger.info("Found mutated branch ");
+						logger.debug("Found mutated branch ");
 						v.setMutatedBranch();
 					} else {
 						if(v2.isMethodCall())
-							logger.info("Edgesource: "+v2.getMethodName());
+							logger.debug("Edgesource: "+v2.getMethodName());
 					}
 				}
 			}

@@ -47,7 +47,7 @@ public class TestCaseExecutor {
 	
 	private List<ExecutionObserver> observers;
 	
-	protected boolean static_hack = Properties.getPropertyOrDefault("static.hack", false);
+	protected boolean static_hack = Properties.getPropertyOrDefault("static_hack", false);
 
 	public TestCaseExecutor() {
 		observers = new ArrayList<ExecutionObserver>();
@@ -109,7 +109,7 @@ public class TestCaseExecutor {
 	}
 	
 	@SuppressWarnings("deprecation")
-	public Map<Integer,Throwable> run(TestCase tc) {
+	private Map<Integer,Throwable> run(TestCase tc) {
 		resetObservers();
 		
 	    TestRunner runner = new TestRunner(null);

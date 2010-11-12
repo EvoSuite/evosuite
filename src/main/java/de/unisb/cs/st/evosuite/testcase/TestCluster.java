@@ -164,6 +164,62 @@ public class TestCluster {
 		return randomness.choice(generators.get(type));
 	}
 	
+	/**
+	 * Randomly select one generator
+	 * @param type
+	 * @return
+	 * @throws ConstructionFailedException
+	 */
+	public AccessibleObject getRandomGenerator(Type type, Set<AccessibleObject> excluded) throws ConstructionFailedException {
+		cacheGeneratorType(type);
+		if(!generators.containsKey(type))
+			return null;
+		
+		List<AccessibleObject> choice = new ArrayList<AccessibleObject>(generators.get(type));
+		logger.debug("Removing "+excluded.size()+" from "+choice.size()+" generators");
+		choice.removeAll(excluded);
+		if(choice.isEmpty())
+			return null;
+		
+		int num = 0;
+        int param = 1000;
+        for(int i = 0; i < Properties.GENERATOR_TOURNAMENT; i++) {
+        	int new_num = randomness.nextInt(choice.size());
+        	AccessibleObject o = choice.get(new_num);
+        	if(o instanceof Constructor<?>) {
+        		Constructor<?> c = (Constructor<?>)o;
+        		if(c.getParameterTypes().length < param) {
+        			param = c.getParameterTypes().length;
+        			num = new_num;
+        		}
+        		else if(o instanceof Method) {
+        			Method m = (Method)o;
+        			int p = m.getParameterTypes().length;
+        			if(!Modifier.isStatic(m.getModifiers()))
+        				p++;
+        			if(p < param) {
+        				param = p;
+        				num = new_num;
+        			}
+        		}
+        		else if(o instanceof Field) {
+//        			param = 2;
+ //       			num = new_num;
+        			Field f = (Field)o;
+        			int p = 0;
+        			if(!Modifier.isStatic(f.getModifiers()))
+        				p++;
+        			if(p < param) {
+        				param = p;
+        				num = new_num;
+        			}
+        		}
+        	}
+        }
+        return choice.get(num);
+//		return randomness.choice(choice);
+	}
+	
 	private void cacheSuperGeneratorType(Type type, List<AccessibleObject> g) {
 		//if(generators.containsKey(type))
 		//	return;
@@ -453,7 +509,7 @@ public class TestCluster {
 	 * @param clazz
 	 * @return
 	 */
-	private static Set<Constructor<?>> getConstructors(Class<?> clazz) {
+	public static Set<Constructor<?>> getConstructors(Class<?> clazz) {
 		Map<String,Constructor<?>> helper = new HashMap<String,Constructor<?>>();
 		
 		Set<Constructor<?>> constructors = new HashSet<Constructor<?>>();
@@ -489,7 +545,7 @@ public class TestCluster {
 	 * @param clazz
 	 * @return
 	 */
-	private static Set<Method> getMethods(Class<?> clazz) {
+	public static Set<Method> getMethods(Class<?> clazz) {
 		
 		Map<String,Method> helper = new HashMap<String,Method>();
 		Set<Method> methods = new HashSet<Method>();
@@ -1157,7 +1213,7 @@ public class TestCluster {
 	  public void resetStaticClasses() {
 		  for(Method m : static_initializers) {
 			  try {
-				m.invoke(null, (Object[])null);
+				  m.invoke(null, (Object[])null);
 			} catch (IllegalArgumentException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

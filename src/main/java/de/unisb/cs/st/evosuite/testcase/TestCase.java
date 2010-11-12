@@ -122,7 +122,7 @@ public class TestCase {
 				code += s.getCode(exceptions.get(i)) + "\n";
 				code += s.getAssertionCode();
 			} else {
-				code += s.getCode() + ";\n";
+				code += s.getCode() + "\n";
 				code += s.getAssertionCode();		// TODO: Handle semicolons properly		
 			}
 		}
@@ -578,6 +578,10 @@ public class TestCase {
 			if(s instanceof MethodStatement) {
 				MethodStatement ms = (MethodStatement)s;
 				accessed_classes.addAll(Arrays.asList(ms.getMethod().getExceptionTypes()));
+				accessed_classes.add(ms.getMethod().getDeclaringClass());
+			} else if(s instanceof FieldStatement) {
+				FieldStatement fs = (FieldStatement)s;
+				accessed_classes.add(fs.getField().getDeclaringClass());
 			}
 		}		
 		return accessed_classes;
@@ -636,6 +640,7 @@ public class TestCase {
 		for(Statement s : statements) {
 			s.removeAssertions();
 		}
+
 	}
 	
 	/**

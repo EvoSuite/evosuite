@@ -43,7 +43,6 @@ public class TestSuitePreMain {
 		if(agentArguments.equals("generate")) {
 			System.out.println("* Instrumenting bytecode for test generation");
 			//addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
-
 			if(Properties.MUTATION) {
 				System.out.println("* Mutating byte code");
 				addClassFileTransformer(instrumentation, new HOMFileTransformer());

@@ -584,7 +584,7 @@ public class TestTaskGenerator {
 			try {
 				Class<?> clazz = Class.forName(cl);
 				for(Method method : clazz.getMethods()) {
-					if(!Modifier.isProtected(method.getModifiers()) && !Modifier.isPrivate(method.getModifiers()) && method.getReturnType().isPrimitive() && !method.getReturnType().equals(void.class) && method.getParameterTypes().length == 0 && !method.getName().equals("hashCode")) {
+					if(!Modifier.isProtected(method.getModifiers()) && !Modifier.isPrivate(method.getModifiers()) && (method.getReturnType().isPrimitive() || method.getReturnType().equals(String.class)) && !method.getReturnType().equals(void.class) && method.getParameterTypes().length == 0 && !method.getName().equals("hashCode")) {
 						methods.add(method.getName()+Type.getMethodDescriptor(method));
 					}
 				}

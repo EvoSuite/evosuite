@@ -39,6 +39,10 @@ $BASEPATH/src/main/resources:\
 $BASEPATH/src/main/assembly:\
 $BASEPATH/target/evosuite-0.1-SNAPSHOT-dependencies.jar
 
+for I in $BASEPATH/target/jpf*.jar; do
+  classpath="$classpath:$I"
+done
+
 # $BASEPATH/lib/JavaPlot.jar:\
 # $BASEPATH/lib/commons-lang-2.5.jar:\
 # $BASEPATH/lib/commons-io-1.4.jar:\

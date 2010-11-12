@@ -29,6 +29,9 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.MutationMarker;
+
 /**
  * @author Gordon Fraser
  *
@@ -64,12 +67,25 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 		// then put a converted boolean on the stack
 		Label l = new Label();
 		Label l2 = new Label();
+		if(Properties.MUTATION) {
+			Label mutationStartLabel = new Label();
+			mutationStartLabel.info = new MutationMarker(true);
+			super.visitLabel(mutationStartLabel);
+		}
+
 		super.visitJumpInsn(Opcodes.IFNE, l);
 		super.visitInsn(Opcodes.ICONST_1);
 		super.visitJumpInsn(Opcodes.GOTO, l2);
 		super.visitLabel(l);
 		super.visitInsn(Opcodes.ICONST_0);
 		super.visitLabel(l2);
+		
+		if(Properties.MUTATION) {
+			Label mutationEndLabel = new Label();
+			mutationEndLabel.info = new MutationMarker(false);
+			super.visitLabel(mutationEndLabel);
+		}
+
 	}
 	
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
@@ -86,6 +102,14 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 				logger.debug("Replacing string call equalsignorecase!");
 				String replacement_owner = "de/unisb/cs/st/evosuite/primitives/StringReplacementFunctions";
 				String replacement_name = "equalsIgnoreCaseDistance";
+				String replacement_desc = "(Ljava/lang/String;Ljava/lang/String;)I";
+				super.visitMethodInsn(Opcodes.INVOKESTATIC, replacement_owner, replacement_name, replacement_desc);				
+				insertFlagCode();
+				
+			} else if(name.equals("startsWith")) {
+				logger.debug("Replacing string call startsWith!");
+				String replacement_owner = "de/unisb/cs/st/evosuite/primitives/StringReplacementFunctions";
+				String replacement_name = "startsWith";
 				String replacement_desc = "(Ljava/lang/String;Ljava/lang/String;)I";
 				super.visitMethodInsn(Opcodes.INVOKESTATIC, replacement_owner, replacement_name, replacement_desc);				
 				insertFlagCode();

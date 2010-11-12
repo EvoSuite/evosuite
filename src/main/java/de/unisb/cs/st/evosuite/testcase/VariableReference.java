@@ -23,6 +23,7 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.lang.reflect.Type;
 
 import org.apache.log4j.Logger;
+import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
  * This class represents a variable in a test case 
@@ -319,4 +320,26 @@ public class VariableReference {
 		else
 			return "var"+statement;
 	}
+	
+	public void loadBytecode(GeneratorAdapter mg) {
+		if(array == null)
+			mg.loadLocal(statement);
+		else {
+			array.loadBytecode(mg);
+			mg.push(array_index);
+			mg.arrayLoad(org.objectweb.asm.Type.getType(type.getRawClass()));
+		}
+	}
+	
+	public void storeBytecode(GeneratorAdapter mg) {
+		if(array == null)
+			mg.storeLocal(statement);
+		else {
+			array.loadBytecode(mg);
+			mg.push(array_index);
+			mg.arrayStore(org.objectweb.asm.Type.getType(type.getRawClass()));
+		}
+		
+	}
+
 }
