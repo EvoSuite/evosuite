@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import de.unisb.cs.st.evosuite.assertion.AssertionGenerator;
 import de.unisb.cs.st.evosuite.assertion.ComparisonTraceObserver;
 import de.unisb.cs.st.evosuite.assertion.InspectorTraceObserver;
 import de.unisb.cs.st.evosuite.assertion.NullOutputObserver;
