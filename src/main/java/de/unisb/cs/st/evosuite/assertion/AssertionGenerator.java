@@ -30,7 +30,6 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
-import de.unisb.cs.st.evosuite.mutation.MutationStatistics;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMSwitcher;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -337,7 +336,7 @@ public class AssertionGenerator {
 	public void addAssertions(TestCase test, Set<Long> killed, List<Mutation> mutants) { 
 	
 		logger.info("Generating assertions");
-		MutationStatistics statistics = MutationStatistics.getInstance();
+		//MutationStatistics statistics = MutationStatistics.getInstance();
 		int s1 = killed.size();
 		// Get additional traces from observers directly:
 		// Primitive trace - trace primitive values
