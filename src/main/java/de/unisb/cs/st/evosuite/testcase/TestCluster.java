@@ -110,6 +110,7 @@ public class TestCluster {
 		*/
 		
 		getStaticClasses();
+		ExecutionTracer.enable();
 	}
 	
 	/**
@@ -1015,7 +1016,7 @@ public class TestCluster {
 					  for(Constructor<?> c : getConstructors(clazz)) {
 						  String signature = "<init>"+org.objectweb.asm.Type.getConstructorDescriptor(c);
 						  if(canUse(c) && signature.matches(methodname)) {
-							  logger.trace("Adding included constructor "+c);
+							  logger.trace("Adding included constructor "+c+" "+signature);
 							  calls.add(c);
 							  num++;
 							  found = true;
@@ -1093,12 +1094,12 @@ public class TestCluster {
 				  //Not excluded?
 				  if(!excludes.shouldExclude(classname)) {
 					  try {
+						  logger.trace("Current class: "+classname);
 						  Class<?> toadd = Class.forName(classname);
 						  if(!canUse(toadd)) {
 							  logger.debug("Not using class "+classname);
 							  continue;
 						  }
-						  logger.trace("Current class: "+classname);
 
 						  // Keep all accessible constructors
 						  for(Constructor<?> constructor : getConstructors(toadd)) {
@@ -1211,6 +1212,7 @@ public class TestCluster {
 	  
 	  
 	  public void resetStaticClasses() {
+		  ExecutionTracer.disable();
 		  for(Method m : static_initializers) {
 			  try {
 				  m.invoke(null, (Object[])null);
@@ -1225,6 +1227,7 @@ public class TestCluster {
 				e.printStackTrace();
 			};
 		  }
+		  ExecutionTracer.enable();
 	  }
 	  
 	  private void getStaticClasses() {

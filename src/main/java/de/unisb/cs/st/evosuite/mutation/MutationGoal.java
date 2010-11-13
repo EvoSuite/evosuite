@@ -30,7 +30,6 @@ import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
-import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
@@ -59,7 +58,7 @@ public class MutationGoal extends TestCoverageGoal {
 	private Class<?> methodSource = null;
 	
 	private Class<?>[] parameters = null;
-	
+		
 	public MutationGoal(Mutation mutation) {
 		this.mutation = mutation;
 		this.className = mutation.getClassName();
@@ -93,6 +92,10 @@ public class MutationGoal extends TestCoverageGoal {
 		} catch(ClassNotFoundException e) {
 			logger.error("Could not find mutated method");
 		}
+	}
+	
+	public Mutation getMutation() {
+		return mutation;
 	}
 	
 	private int getMethodDistance(ExecutionResult result) {

@@ -49,7 +49,7 @@ public class ExecutionTracer {
 	private Map<String, Map <String, Double > > diameters;
 		
 	/** We need to disable the execution tracer sometimes, e.g. when calling equals in the branch distance function */
-	private boolean disabled = false;
+	private boolean disabled = true;
 	
 	/** Flag that is used to kill threads that are stuck in endless loops */
 	private boolean killSwitch = false;
@@ -132,6 +132,8 @@ public class ExecutionTracer {
 			logger.info("Raising TimeoutException as kill switch is active - enteredMethod");
 			throw new TestCaseExecutor.TimeoutExceeded();
 		}
+		if(tracer.disabled)
+			return;
 		logger.trace("Entering method "+classname+"."+methodname);
 		tracer.trace.enteredMethod(classname, methodname);
 	}
@@ -145,6 +147,9 @@ public class ExecutionTracer {
 	 */
 	public static void returnValue(int value, String className, String methodName) {
 		ExecutionTracer tracer = getExecutionTracer();
+		if(tracer.disabled)
+			return;
+
 		logger.trace("Return value: "+value);
 		tracer.trace.returnValue(className, methodName, value);
 	}
@@ -157,6 +162,9 @@ public class ExecutionTracer {
 	 * @param value
 	 */
 	public static void returnValue(Object value, String className, String methodName) {
+		if(!ExecutionTracer.isEnabled())
+			return;
+
 		if (value == null) {
 			returnValue(0, className, methodName);
 			return;
@@ -205,6 +213,9 @@ public class ExecutionTracer {
 	 */
 	public static void leftMethod(String classname, String methodname) {
 		ExecutionTracer tracer = getExecutionTracer();
+		if(tracer.disabled)
+			return;
+
 		tracer.trace.exitMethod(classname, methodname);		
 		logger.trace("Left method "+classname+"."+methodname);
 	}

@@ -329,6 +329,12 @@ public class MutationTestFitness extends TestFitnessFunction {
 			logger.warn(result.test.toCode());
 			logger.warn(cfg_distance.approach+"/"+cfg_distance.branch);
 		}
+		
+		if(MutationGoal.hasTimeout(mutant_result)) {
+			logger.debug("Found timeout in mutant!");
+			MutationTimeoutStoppingCondition.timeOut(target_mutation);
+		}
+		
 //		if(!hasAssertions(result, mutant_result)) 
 		if(getNumAssertions(result, mutant_result) == 0) {
 			double impact = getSumDistance(result.trace, mutant_result.trace);

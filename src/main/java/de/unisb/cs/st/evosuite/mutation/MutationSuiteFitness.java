@@ -146,7 +146,10 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 			TestChromosome chromosome = new TestChromosome();
 			chromosome.test = result.test;
 			for(TestFitnessFunction goal : goals) {
-				fitness += goal.getFitness(chromosome, result);
+				if(!MutationTimeoutStoppingCondition.isDisabled(((MutationTestFitness)goal).getTargetMutation()))
+					fitness += goal.getFitness(chromosome, result);
+				else
+					logger.debug("Skipping timed out mutation");
 			}
 		}
 		
