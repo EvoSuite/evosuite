@@ -60,6 +60,7 @@ import de.unisb.cs.st.evosuite.ga.ZeroFitnessStoppingCondition;
 import de.unisb.cs.st.evosuite.junit.TestSuite;
 import de.unisb.cs.st.evosuite.mutation.MutationGoalFactory;
 import de.unisb.cs.st.evosuite.mutation.MutationSuiteFitness;
+import de.unisb.cs.st.evosuite.mutation.MutationTimeoutStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.MaxTestsStoppingCondition;
@@ -463,6 +464,8 @@ public class TestSuiteGenerator {
 		ga.setStoppingCondition(stopping_condition);
 		ga.addListener(stopping_condition);		
 		ga.addStoppingCondition(zero_fitness);
+		if(Properties.MUTATION)
+			ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
 
 		// How to cross over
 		CrossOverFunction crossover_function = getCrossoverFunction();

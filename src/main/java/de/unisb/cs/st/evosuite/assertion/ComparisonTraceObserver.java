@@ -31,7 +31,6 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class ComparisonTraceObserver extends ExecutionObserver {
 
-	@SuppressWarnings("unused")
 	private Logger logger = Logger.getLogger(ComparisonTraceObserver.class);
 	
 	private ComparisonTrace trace = new ComparisonTrace();

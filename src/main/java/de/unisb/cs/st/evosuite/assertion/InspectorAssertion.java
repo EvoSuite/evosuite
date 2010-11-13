@@ -53,4 +53,42 @@ public class InspectorAssertion extends Assertion {
 	public boolean evaluate(Scope scope) {
 		return inspector.getValue(scope.get(source)).equals(result);
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result
+				+ ((inspector == null) ? 0 : inspector.hashCode());
+		result = prime * result + num_inspector;
+		result = prime * result
+				+ ((this.result == null) ? 0 : this.result.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		InspectorAssertion other = (InspectorAssertion) obj;
+		if (inspector == null) {
+			if (other.inspector != null)
+				return false;
+		} else if (!inspector.equals(other.inspector))
+			return false;
+		if (num_inspector != other.num_inspector)
+			return false;
+		if (result == null) {
+			if (other.result != null)
+				return false;
+		} else if (!result.equals(other.result))
+			return false;
+		return true;
+	}
+	
+	
 }

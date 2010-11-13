@@ -23,6 +23,7 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -43,7 +44,7 @@ public abstract class Statement {
 
 	VariableReference retval = null;
 	
-	protected List<Assertion> assertions = new ArrayList<Assertion>();
+	protected Set<Assertion> assertions = new HashSet<Assertion>();
 	
 	protected Throwable exceptionThrown = null;
 
@@ -141,8 +142,8 @@ public abstract class Statement {
 	 * @return
 	 *   List of the assertion copies
 	 */
-	protected List<Assertion> cloneAssertions() {
-		List<Assertion> copy = new ArrayList<Assertion>();
+	protected Set<Assertion> cloneAssertions() {
+		Set<Assertion> copy = new HashSet<Assertion>();
 		for(Assertion a: assertions) {
 			if(a == null) {
 				logger.info("Assertion is null!");
@@ -221,7 +222,7 @@ public abstract class Statement {
 	/**
 	 * Return list of assertions
 	 */
-	public List<Assertion> getAssertions() {
+	public Set<Assertion> getAssertions() {
 		return assertions;
 	}
 }
