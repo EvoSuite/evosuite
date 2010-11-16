@@ -269,7 +269,20 @@ public class TestSuite implements Opcodes {
 		builder.append(getInformation(id));
 		builder.append("\n   public void test");
 		builder.append(id);
-		builder.append("() {\n");
+		builder.append("() ");
+		Set<Class<?>> exceptions = test_cases.get(id).getDeclaredExceptions();
+		if(!exceptions.isEmpty()) {
+			builder.append("throws ");
+			boolean first = true;
+			for(Class<?> exception : exceptions) {
+				if(first)
+					first = false;
+				else
+					builder.append(", ");
+				builder.append(exception.getSimpleName());
+			}
+		}
+		builder.append(" {\n");
 		for(String line : test_cases.get(id).toCode().split("\\r?\\n")) {
 			builder.append("      ");
 			builder.append(line);

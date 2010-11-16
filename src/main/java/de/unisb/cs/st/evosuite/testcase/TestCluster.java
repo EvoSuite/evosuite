@@ -30,6 +30,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1214,17 +1215,17 @@ public class TestCluster {
 	  public void resetStaticClasses() {
 		  ExecutionTracer.disable();
 		  for(Method m : static_initializers) {
-			  try {
+			  try {	  
 				  m.invoke(null, (Object[])null);
 			} catch (IllegalArgumentException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
 			} catch (IllegalAccessException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
 			} catch (InvocationTargetException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
 			};
 		  }
 		  ExecutionTracer.enable();

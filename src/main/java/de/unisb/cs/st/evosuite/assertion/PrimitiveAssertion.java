@@ -56,4 +56,5 @@ public class PrimitiveAssertion extends Assertion {
 		return scope.get(source).equals(value);
 	}
 
+	
 }

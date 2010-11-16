@@ -117,6 +117,7 @@ public class ExecutionTracer {
 	}
 	
 	public ControlFlowGraph getCFG(String classname, String methodname) {
+		logger.debug("Getting CFG for "+classname+" "+methodname);
 		return graphs.get(classname).get(methodname);
 	}
 	

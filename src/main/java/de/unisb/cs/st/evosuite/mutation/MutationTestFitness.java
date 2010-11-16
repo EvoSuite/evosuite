@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
 import java.util.Map.Entry;
 
 import de.unisb.cs.st.evosuite.assertion.ComparisonTraceObserver;
@@ -108,6 +109,7 @@ public class MutationTestFitness extends TestFitnessFunction {
 			executor.setLogging(true);
 			if(mutant != null) 
 				hom_switcher.switchOff(mutant);
+			
 			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
 			result.output_trace = executor.getTrace();
 			result.comparison_trace = comparison_observer.getTrace();
@@ -121,7 +123,8 @@ public class MutationTestFitness extends TestFitnessFunction {
 			MaxStatementsStoppingCondition.statementsExecuted(num);
 			result.touched.addAll(HOMObserver.getTouched());
 		} catch(Exception e) {
-			System.out.println("TG: Exception caught: "+e);
+			logger.fatal("MutationTestFitness: Exception caught: "+e);
+			logger.fatal(test.toCode());
 			e.printStackTrace();
 			System.exit(1);
 		}

@@ -41,6 +41,7 @@ import de.unisb.cs.st.evosuite.ga.CrossOverFunction;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.FitnessProportionateSelection;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
+import de.unisb.cs.st.evosuite.ga.GlobalTimeStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.MaxFitnessEvaluationsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.MaxGenerationStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.MaxTimeStoppingCondition;
@@ -222,6 +223,7 @@ public class TestSuiteGenerator {
 		System.out.println("* Total number of test goals: "+goals.size());
 
 		Randomness.getInstance().shuffle(goals);
+		GlobalTimeStoppingCondition global_time = new GlobalTimeStoppingCondition();
 		int total_goals = goals.size(); 
 		int covered_goals = 0;
 		int current_budget = 0;
@@ -238,7 +240,7 @@ public class TestSuiteGenerator {
 
 		Set<Integer> covered = new HashSet<Integer>();
 		
-		while(current_budget < total_budget&& covered_goals < total_goals) {
+		while(current_budget < total_budget && covered_goals < total_goals && !global_time.isFinished()) {
 			int budget = (total_budget - current_budget) / (total_goals - covered_goals);
 			logger.info("Budget: "+budget+"/"+(total_budget - current_budget));
 			logger.info("Statements: "+current_budget+"/"+total_budget);
@@ -462,11 +464,14 @@ public class TestSuiteGenerator {
 		// When to stop the search
 		stopping_condition = getStoppingCondition();
 		ga.setStoppingCondition(stopping_condition);
-		ga.addListener(stopping_condition);		
+		ga.addListener(stopping_condition);
 		ga.addStoppingCondition(zero_fitness);
+		ga.addStoppingCondition(new GlobalTimeStoppingCondition());
 		if(Properties.MUTATION)
 			ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
 
+		
+		
 		// How to cross over
 		CrossOverFunction crossover_function = getCrossoverFunction();
 		ga.setCrossOverFunction(crossover_function);

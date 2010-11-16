@@ -25,6 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -136,16 +137,8 @@ public class MethodStatement extends Statement {
 	public String getCode() {
 		
 		String result = "";
-		if(method.getExceptionTypes().length > 0) {
-			if(retval.getType() != Void.TYPE) {
-				result = retval.getSimpleClassName() +" "+retval.getName() + " = null;\n";	
-			}
-			result += "try {\n  ";
-		} 
-		else if(retval.getType() != Void.TYPE) {
-			result += retval.getSimpleClassName() +" ";
-		}
 		if(retval.getType() != Void.TYPE) {
+			result += retval.getSimpleClassName() +" ";
 			result += retval.getName() + " = ";
 		}
 		
@@ -170,13 +163,6 @@ public class MethodStatement extends Statement {
 
 		result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
 
-		if(method.getExceptionTypes().length > 0)
-			result += "\n}";
-
-		for(Class<?> exception : method.getExceptionTypes()) {
-			result += "\ncatch("+exception.getSimpleName()+" e) {} // Declared exception";
-		}
-		
 		return result;
 
 	}
@@ -365,5 +351,16 @@ public class MethodStatement extends Statement {
 		else
 			mg.invokeVirtual(Type.getType(method.getDeclaringClass()), org.objectweb.asm.commons.Method.getMethod(method));
 		retval.storeBytecode(mg);
+	}
+	
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.Statement#getDeclaredExceptions()
+	 */
+	@Override
+	public Set<Class<?>> getDeclaredExceptions() {
+		Set<Class<?>> ex = super.getDeclaredExceptions();
+		for(Class<?> t : method.getExceptionTypes())
+			ex.add(t);
+		return ex;
 	}
 }

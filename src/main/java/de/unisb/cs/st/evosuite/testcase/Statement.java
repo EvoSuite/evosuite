@@ -223,4 +223,9 @@ public abstract class Statement {
 	public Set<Assertion> getAssertions() {
 		return assertions;
 	}
+	
+	public Set<Class<?>> getDeclaredExceptions() {
+		Set<Class<?>> ex = new HashSet<Class<?>>();
+		return ex;
+	}
 }

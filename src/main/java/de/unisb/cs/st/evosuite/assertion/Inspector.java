@@ -36,6 +36,9 @@ public class Inspector {
 	public Object getValue(Object object) {
 		try {
 			Object ret = this.method.invoke(object);
+			if(ret instanceof String) {
+				ret = ((String)ret).replaceAll("@[abcdef\\d]+", "");
+			}
 			return ret;
 			
 		} catch (IllegalArgumentException e) {
