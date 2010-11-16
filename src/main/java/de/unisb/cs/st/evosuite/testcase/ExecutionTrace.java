@@ -302,7 +302,9 @@ public class ExecutionTrace {
 	
 	public void finishCalls() {
 		synchronized (stack) {
+			logger.trace("Calls left on stack: "+stack.size());
 			while(!stack.isEmpty()) {
+				logger.trace("Call: "+stack.peek());
 				finished_calls.add(stack.pop());
 			}
 		}

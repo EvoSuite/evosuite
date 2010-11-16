@@ -658,4 +658,12 @@ public class TestCase {
 		}
 		return true;
 	}
+	
+	public Set<Class<?>> getDeclaredExceptions() {
+		Set<Class<?>> exceptions = new HashSet<Class<?>>();
+		for(Statement statement : statements) {
+			exceptions.addAll(statement.getDeclaredExceptions());
+		}
+		return exceptions;
+	}
 }

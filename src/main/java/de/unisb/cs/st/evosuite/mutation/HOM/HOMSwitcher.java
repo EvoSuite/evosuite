@@ -23,7 +23,7 @@ public class HOMSwitcher {
 				num_mutants = mutants.size();
 //				logger.info("Got "+num_mutants+" mutations");
 //				assert(num_mutants == mutants.size());
-//§			}
+//			}
 		//mutants = QueryManager.getMutationIdListFromDb(num_mutants);
 	}
 

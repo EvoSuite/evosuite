@@ -11,7 +11,7 @@ import de.unisb.cs.st.evosuite.ga.StoppingCondition;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
- * @author Gordon F§raser
+ * @author Gordon Fraser
  *
  */
 public class MutationTimeoutStoppingCondition extends StoppingCondition {

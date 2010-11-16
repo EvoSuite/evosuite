@@ -238,4 +238,15 @@ public class ConstructorStatement extends Statement {
 		mg.invokeConstructor(Type.getType(retval.getVariableClass()), Method.getMethod(constructor));
 		retval.storeBytecode(mg);
 	}
+	
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.Statement#getDeclaredExceptions()
+	 */
+	@Override
+	public Set<Class<?>> getDeclaredExceptions() {
+		Set<Class<?>> ex = super.getDeclaredExceptions();
+		for(Class<?> t : constructor.getExceptionTypes())
+			ex.add(t);
+		return ex;
+	}
 }
