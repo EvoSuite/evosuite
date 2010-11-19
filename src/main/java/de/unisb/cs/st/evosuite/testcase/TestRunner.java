@@ -25,6 +25,9 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.sandbox.MSecurityManager;
+
 /**
  * A runner thread in which a test case is executed and can be killed
  * 
@@ -89,7 +92,15 @@ public class TestRunner extends Thread {
 	  private void executeTestCase() {
 		  int num = 0;
 		  try {
-			  		  
+			
+			  // Current SecurityManager used by default 
+			  SecurityManager oldManager = System.getSecurityManager();
+			  // Mocked SecurityManager that forbids all access to I/O, Network etc
+			  SecurityManager newManager = new MSecurityManager(); 
+			  
+			  // if SecurityManager should be changed
+			  boolean changeSM = Properties.SANDBOX;
+			  
 //			  exceptionsThrown = test.execute(scope, observers, !log);
 			for(Statement s : test.statements) {
 				if(isInterrupted()) {
@@ -102,7 +113,15 @@ public class TestRunner extends Thread {
 				VariableReference returnValue = s.getReturnValue().clone();
 				
 				long before = System.currentTimeMillis();
+				
+				// check if SecurityManager should be changed to mocked SecurityManager
+				if(changeSM)
+					System.setSecurityManager(newManager);
 				Throwable exceptionThrown = s.execute(scope, System.out);
+				
+				// check if default SecurityManager should be set
+				if(changeSM)
+					System.setSecurityManager(oldManager);
 				long after = System.currentTimeMillis();
 				
 				if(!s.getReturnValue().equals(returnValue)) {

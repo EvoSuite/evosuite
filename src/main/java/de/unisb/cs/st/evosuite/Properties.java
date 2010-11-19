@@ -81,7 +81,10 @@ public class Properties {
 
 	/** Minimize test suite after generation */
 	public static String CRITERION = getPropertyOrDefault("criterion", "BranchCoverage");
-
+	
+	/** Sandbox for the classes under test */
+	public static boolean SANDBOX = getPropertyOrDefault("sandbox", false);
+	
 	public static boolean MUTATION = getPropertyOrDefault("criterion", "BranchCoverage").equalsIgnoreCase("mutation") ? true : false;
 
 	public static boolean INSTRUMENT_PARENT = getPropertyOrDefault("instrument_parent", false);
