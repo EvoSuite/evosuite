@@ -79,7 +79,7 @@
       <dependency>
 	<groupId>de.unisb.cs.st</groupId>
 	<artifactId>javalanche</artifactId>
-	<version>0.3.2-EvoSuite</version>
+	<version>0.3.7-EvoSuite</version>
       </dependency>
 
       <!-- Dependencies needed by javalanche -->
@@ -179,9 +179,9 @@
 	<groupId>mysql</groupId>
 	<artifactId>mysql-connector-java</artifactId>
 	<version>5.1.9</version>
-	<!--
+	<!--	
 	<version>5.1.13</version>
-	-->
+	-->	
       </dependency>
       <dependency>
 	<groupId>com.thoughtworks.xstream</groupId>
@@ -253,9 +253,9 @@
       </dependency>
       
       <dependency>
-	<groupId>com.google.code.google-collections</groupId>
-	<artifactId>google-collect</artifactId>
-	<version>snapshot-20080530</version>
+	<groupId>com.google.collections</groupId>
+	<artifactId>google-collections</artifactId>
+	<version>1.0</version>
       </dependency>
 
 <!--      
