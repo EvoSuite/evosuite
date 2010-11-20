@@ -24,10 +24,5 @@ public class Triangle
 			else
 				return 2;
 		}
-	}
-	
-	public static void main(String[] args) {
-	  Triangle t = new Triangle();
-	  t.exe(2,2,2);
-	}
+	}	
 }
