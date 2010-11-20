@@ -85,36 +85,6 @@ public class TestCaseMinimizer {
 		
 		return has_deleted;
 	}
-
-	/**
-	 * Remove all unreferenced primitive variables
-	 * @param t
-	 *   The test case
-	 * @return
-	 *   True if something was removed
-	 */
-	private boolean removeUnusedPrimitives(TestCase t) {
-		List<Integer> to_delete = new ArrayList<Integer>();
-		boolean has_deleted = false;
-		
-		int num = 0;
-		for(Statement s : t.statements) {
-			if(s instanceof PrimitiveStatement<?>) {
-				VariableReference var = s.getReturnValue();
-				if(!t.hasReferences(var)) {
-					to_delete.add(num);
-					has_deleted = true;			
-				}
-			}
-			num++;
-		}
-		Collections.sort(to_delete, Collections.reverseOrder());
-		for(Integer position : to_delete) {
-			t.remove(position);
-		}
-		
-		return has_deleted;
-	}
 	
 	/**
 	 * Central minimization function. Loop and try to remove until all statements have been checked.
@@ -122,7 +92,6 @@ public class TestCaseMinimizer {
 	 */
 	public void minimize(TestChromosome c) {
 		if(!enabled) {
-			removeUnusedPrimitives(c.test);
 			return;
 		}
 		logger.info("Minimizing test case");
@@ -149,7 +118,6 @@ public class TestCaseMinimizer {
 		else
 			test_factory = DefaultTestFactory.getInstance();
 		
-		removeUnusedPrimitives(c.test);
 		fitness = fitness_function.getFitness(c);
 		logger.debug("Start fitness value: "+fitness);
 		boolean changed = true;

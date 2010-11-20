@@ -264,27 +264,6 @@ public class TestCase {
 		return variables.get(num).clone();
 	}
 
-	/**
-	 * Return the last object in the test case that matches type
-	 * 
-	 * @param type
-	 *    Class of object we are looking for
-	 * @return
-	 *    Last object
-	 * @throws ConstructionFailedException
-	 *    If there is no object of this type
-	 */
-	public VariableReference getLastObject(Type type) throws ConstructionFailedException {
-		if(statements.isEmpty()) { 
-			for(int i=statements.size() - 1; i<=0; i--) {
-				logger.info("Checking statement "+i);
-				if(statements.get(i).retval.isAssignableTo(type)) {
-					return new VariableReference(type, i);
-				}
-			}
-		}
-		throw new ConstructionFailedException();
-	}
 
 	/**
 	 * Get actual object represented by a variable for a given execution scope

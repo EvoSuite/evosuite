@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
-import de.unisb.cs.st.javalanche.ga.Randomness;
+import de.unisb.cs.st.evosuite.ga.Randomness;
 
 /**
  * @author Gordon Fraser

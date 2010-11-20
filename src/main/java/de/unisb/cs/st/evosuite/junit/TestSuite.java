@@ -37,8 +37,12 @@ import org.objectweb.asm.commons.Method;
 
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
+import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
+import de.unisb.cs.st.evosuite.testcase.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.Statement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 
 /**
  * Abstract test suite class.
@@ -51,6 +55,8 @@ public class TestSuite implements Opcodes {
 	private Logger logger = Logger.getLogger(TestSuite.class);
 	
 	protected List<TestCase> test_cases = new ArrayList<TestCase>();
+	
+	protected TestCaseExecutor executor = new TestCaseExecutor();
 	
 	class TestFilter implements FilenameFilter
 	{
@@ -67,6 +73,23 @@ public class TestSuite implements Opcodes {
 	public TestSuite(List<TestCase> tests) {
 		for(TestCase test : tests)
 			insertTest(test);
+	}
+	
+	public ExecutionResult runTest(TestCase test) {
+		
+		ExecutionResult result = new ExecutionResult(test, null);
+		
+		try {
+	        logger.debug("Executing test");
+			result.exceptions = executor.runWithTrace(test);
+			executor.setLogging(true);			
+		} catch(Exception e) {
+			System.out.println("TG: Exception caught: "+e);
+			e.printStackTrace();
+			System.exit(1);
+		}
+
+		return result;
 	}
 	
 	/**
@@ -263,6 +286,8 @@ public class TestSuite implements Opcodes {
 	 *   String representation of test case
 	 */
 	protected String testToString(int id) {
+		ExecutionResult result = runTest(test_cases.get(id));
+		
 		StringBuilder builder = new StringBuilder();
 		builder.append("\n");
 		builder.append("   //");
@@ -283,7 +308,7 @@ public class TestSuite implements Opcodes {
 			}
 		}
 		builder.append(" {\n");
-		for(String line : test_cases.get(id).toCode().split("\\r?\\n")) {
+		for(String line : test_cases.get(id).toCode(result.exceptions).split("\\r?\\n")) {
 			builder.append("      ");
 			builder.append(line);
 //			builder.append(";\n");

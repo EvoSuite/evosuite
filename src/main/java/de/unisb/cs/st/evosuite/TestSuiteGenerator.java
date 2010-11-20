@@ -114,6 +114,7 @@ public class TestSuiteGenerator {
 				Set<Long> killed = new HashSet<Long>();
 				asserter.addAssertions(test, killed);
 			}
+			asserter.writeStatistics();
 		}
 		
 		TestSuite suite = new TestSuite(tests);

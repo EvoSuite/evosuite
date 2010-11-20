@@ -39,9 +39,11 @@ public class ExecutionResult {
 	public Outcome result;
 	public TestCase test;
 	public Mutation mutation;
-	public Throwable exception;
 	public int exception_statement = 0;
+	
+	/** Map statement number to raised exception */
 	public Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
+	
 	public ExecutionTrace trace;
 	public StringOutputTrace output_trace;
 	public ComparisonTrace comparison_trace;
@@ -52,7 +54,6 @@ public class ExecutionResult {
 	public List<Long> touched = new ArrayList<Long>();
 
 	public ExecutionResult(TestCase t, Mutation m) {
-		exception = null;
 		exception_statement = 0;
 		trace = null;
 		mutation = m;

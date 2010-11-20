@@ -60,22 +60,19 @@ public abstract class Statement {
 	 * @return
 	 *   True if var is referenced
 	 */
-	public abstract boolean references(VariableReference var);
+	public boolean references(VariableReference var) {
+		return getVariableReferences().contains(var);
+	}
 
 	public abstract Throwable execute(Scope scope, PrintStream out) throws InvocationTargetException, IllegalArgumentException, IllegalAccessException, InstantiationException;
-	
-	/**
-	 * RepOK function
-	 * @return
-	 *   True if this is a valid statement
-	 */
-	public abstract boolean isValid();
 	
 	/**
 	 * Get Java representation of statement
 	 * @return
 	 */
-	public abstract String getCode();
+	public String getCode() {
+		return getCode(null);
+	}
 	
 	/**
 	 * Get Java representation of statement

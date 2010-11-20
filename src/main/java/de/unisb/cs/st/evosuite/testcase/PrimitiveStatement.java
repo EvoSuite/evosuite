@@ -133,15 +133,8 @@ public class PrimitiveStatement<T> extends Statement {
 		return null;
 	}
 
-	
 	@Override
-	public boolean isValid() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-	@Override
-	public String getCode() {
+	public String getCode(Throwable exception) {
 		if(retval.getVariableClass().equals(char.class) || retval.getVariableClass().equals(Character.class))
 			return ((Class<?>) retval.getType()).getSimpleName() + " "+retval.getName() + " = '" + value +"';";
 		else if(retval.getVariableClass().equals(String.class)) {
@@ -175,11 +168,6 @@ public class PrimitiveStatement<T> extends Statement {
 	public void adjustVariableReferences(int position, int delta) {
 		retval.adjust(delta, position);
 		adjustAssertions(position, delta);
-	}
-
-	@Override
-	public boolean references(VariableReference var) {
-		return false;
 	}
 
 	@Override
@@ -371,12 +359,6 @@ public class PrimitiveStatement<T> extends Statement {
 			value = (T) new Byte((byte) 0);
 		
 		}
-	}
-
-	@Override
-	public String getCode(Throwable exception) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
