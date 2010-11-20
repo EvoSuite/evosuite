@@ -266,10 +266,10 @@ public class TGTaskCreator extends MutationTaskCreator {
 		for(String classname : classes) {
 			List<Mutation> ms = QueryManager.getMutationsForClass(classname);
 			for(Mutation m : ms) {
-				if(!m.isClassInit()) {
+				//if(!m.isClassInit()) {
 					mutations.add(m.getId());
 					logger.debug(" Mutation in "+m.getClassName()+"."+m.getMethodName()+":"+m.getLineNumber());
-				}
+				//}
 			}		
 		}
 		logger.info("Got " + mutations.size() + " mutations");

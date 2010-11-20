@@ -83,14 +83,8 @@ public class AssignmentStatement extends Statement {
 	}
 
 	@Override
-	public String getCode() {
-		return retval.getName() + " = " + parameter.getName()+";";
-	}
-
-	@Override
 	public String getCode(Throwable exception) {
-		// TODO
-		return null;
+		return retval.getName() + " = " + parameter.getName()+";";
 	}
 
 	@Override
@@ -111,29 +105,6 @@ public class AssignmentStatement extends Statement {
 		int result = prime + retval.hashCode() +
 				+ ((parameter == null) ? 0 : parameter.hashCode());
 		return result;
-	}
-
-	@Override
-	public boolean isValid() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-	@Override
-	public boolean references(VariableReference var) {
-		if(retval.equals(var) || parameter.equals(var))
-			return true;	
-		if(var.isArray()) {
-			if(retval.isArrayIndex()) {
-				if(retval.array.equals(var))
-					return true;
-			}
-			if(parameter.isArrayIndex()) {
-				if(parameter.array.equals(var))
-					return true;
-			}
-		}
-		return false;
 	}
 
 	@Override

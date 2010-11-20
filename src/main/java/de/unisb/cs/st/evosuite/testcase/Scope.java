@@ -62,7 +62,7 @@ public class Scope {
 				reference.array_length = 0;
 		}
 		
-		if(o != null && !o.getClass().equals(reference.getVariableClass())) {
+		if(o != null && !o.getClass().equals(reference.getVariableClass()) && !reference.isPrimitive()) {
 			reference.setType(o.getClass());
 		}
 		pool.put(reference, o);

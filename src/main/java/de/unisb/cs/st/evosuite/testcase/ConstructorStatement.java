@@ -54,22 +54,6 @@ public class ConstructorStatement extends Statement {
 		return constructor;
 	}
 	
-	public boolean isValid() {
-
-		Class<?>[] param_types = constructor.getParameterTypes();
-		
-		if(parameters.size() != param_types.length)
-			return false;
-		
-		// Check parameters
-		for(int i=0; i<parameters.size(); i++) {
-			if(!param_types[i].isInstance(parameters.get(i).getType()))
-				return false;
-		}
-		
-		return true;
-	}
-	
 	// TODO: Handle inner classes (need instance parameter for newInstance)
 	@Override
 	public Throwable execute(Scope scope, PrintStream out) throws InvocationTargetException, IllegalArgumentException, InstantiationException, IllegalAccessException {
@@ -109,23 +93,11 @@ public class ConstructorStatement extends Statement {
 	      }
 	      return exceptionThrown;
 	}
-
-	@Override
-	public String getCode() {
-		String parameter_string = "";
-		if(!parameters.isEmpty()) {
-			parameter_string += parameters.get(0).getName();
-			for(int i=1; i<parameters.size(); i++) {
-				parameter_string += ", "+parameters.get(i).getName();
-			}
-		}
-		return retval.getSimpleClassName() +" "+retval.getName()+ " = new " + constructor.getName() + "(" + parameter_string + ");";
-
-	}
 	
 	@Override
 	public String getCode(Throwable exception) {
 		String parameter_string = "";
+		String result = "";
 		if(!parameters.isEmpty()) {
 			parameter_string += parameters.get(0).getName();
 			for(int i=1; i<parameters.size(); i++) {
@@ -133,10 +105,15 @@ public class ConstructorStatement extends Statement {
 			}
 		}
 //		String result = ((Class<?>) retval.getType()).getSimpleName() +" "+retval.getName()+ " = null;\n";
-		String result = retval.getSimpleClassName() +" "+retval.getName()+ " = null;\n";
-		result += "try {\n";
-		result += "  "+ retval.getName()+ " = new " + constructor.getName() + "(" + parameter_string + ");\n";
-		result += "} catch("+exception.getClass().getSimpleName()+" e) {}";
+		if(exception != null) {
+			result = retval.getSimpleClassName() +" "+retval.getName()+ " = null;\n";
+			result += "try {\n  ";
+		} else {
+			result += retval.getSimpleClassName() +" ";
+		}
+		result += retval.getName()+ " = new " + constructor.getName() + "(" + parameter_string + ");";
+		if(exception != null)
+			result += "\n} catch("+exception.getClass().getSimpleName()+" e) {}";
 		
 		return result;
 	}
@@ -164,24 +141,14 @@ public class ConstructorStatement extends Statement {
 	}
 
 	@Override
-	public boolean references(VariableReference var) {
-		for(VariableReference param : parameters) {
-			if(param.equals(var))
-				return true;
-			if(param.isArrayIndex() && param.array.equals(var))
-				return true;
-		}
-		if(retval.equals(var))
-			return true;
-		return false;
-
-	}
-
-	@Override
 	public Set<VariableReference> getVariableReferences() {
 		Set<VariableReference> references = new HashSet<VariableReference>();
 		references.add(retval);
 		references.addAll(parameters);
+		for(VariableReference param : parameters) {
+			if(param.isArrayIndex())
+				references.add(param.array);
+		}
 		return references;
 	}
 

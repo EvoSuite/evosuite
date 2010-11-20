@@ -28,7 +28,7 @@ public class FragilityFitnessFunction extends HOMFitnessFunction {
 		
 		List<Mutation> mutants = hom_switcher.getMutants();
 		boolean old_value = MutationProperties.STOP_AFTER_FIRST_FAIL;
-		MutationProperties.STOP_AFTER_FIRST_FAIL = false;
+		// TODO MutationProperties.STOP_AFTER_FIRST_FAIL = false;
 		int num = 0;
 		for(Mutation m : mutants) {
 			logger.info("Analyzing mutant "+num+"/"+mutants.size());
@@ -53,7 +53,7 @@ public class FragilityFitnessFunction extends HOMFitnessFunction {
 			fragility.add(f);
 			logger.debug("Fragility of FOM "+f);
 		}
-		MutationProperties.STOP_AFTER_FIRST_FAIL = old_value;
+		// TODO: MutationProperties.STOP_AFTER_FIRST_FAIL = old_value;
 
 		return dead_mutants;
 	}

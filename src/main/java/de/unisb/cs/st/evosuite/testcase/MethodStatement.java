@@ -25,7 +25,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -46,26 +45,6 @@ public class MethodStatement extends Statement {
 		this.callee = callee;
 		this.retval = retval;
 		this.parameters = parameters;
-	}
-	
-	public boolean isValid() {
-
-		Class<?>[] param_types = method.getParameterTypes();
-		
-		if(parameters.size() != param_types.length)
-			return false;
-		
-		// Check callee
-		if(method.getClass().isAssignableFrom((Class<?>) callee.getType()))
-			return false;
-		
-		// Check parameters
-		for(int i=0; i<parameters.size(); i++) {
-			if(!param_types[i].isInstance(parameters.get(i)))
-				return false;
-		}
-		
-		return true;
 	}
 	
 	public Method getMethod() {
@@ -133,48 +112,19 @@ public class MethodStatement extends Statement {
 	      return exceptionThrown;
 	}
 
-	@Override
-	public String getCode() {
-		
-		String result = "";
-		if(retval.getType() != Void.TYPE) {
-			result += retval.getSimpleClassName() +" ";
-			result += retval.getName() + " = ";
-		}
-		
-		String parameter_string = "";
-		if(!parameters.isEmpty()) {
-			parameter_string += parameters.get(0).getName();
-			for(int i=1; i<parameters.size(); i++) {
-				parameter_string += ", " + parameters.get(i).getName();
-			}
-		}
-		
-		String callee_str = "";
-		if(!retval.getVariableClass().isAssignableFrom(method.getReturnType())) {
-			callee_str = "(" + retval.getSimpleClassName()+ ")";
-		}
-		
-		if(Modifier.isStatic(method.getModifiers())) {
-			callee_str += method.getDeclaringClass().getName();
-		} else {
-			callee_str += callee.getName();
-		}
-
-		result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
-
-		return result;
-
-	}
 	
 	@Override
 	public String getCode(Throwable exception) {
 		
 		String result = "";
 		if(retval.getType() != Void.TYPE) {
-			result = retval.getSimpleClassName() +" "+retval.getName() + " = null;\n";	
+			if(exception != null)
+				result = retval.getSimpleClassName() +" "+retval.getName() + " = null;\n";
+			else
+				result = retval.getSimpleClassName() +" ";
 		}
-		result += "try {\n";
+		if(exception != null)
+			result += "try {  \n";
 		
 		String parameter_string = "";
 		if(!parameters.isEmpty()) {
@@ -196,16 +146,17 @@ public class MethodStatement extends Statement {
 		}
 		
 		if(retval.getType() == Void.TYPE) {
-			result += "  "+callee_str + "." + method.getName() + "(" + parameter_string + ");\n";
+			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
 		} else {
-			result += "  "+retval.getName() + " = " + callee_str + "." + method.getName() + "(" + parameter_string + ");\n";
+			result += retval.getName() + " = " + callee_str + "." + method.getName() + "(" + parameter_string + ");";
 		}
 		
-		result += "} catch("+exception.getClass().getSimpleName()+" e) {} // Raised exception";
-		
-		for(Class<?> ex : method.getExceptionTypes()) {
-			if(!ex.equals(exception.getClass()))
-				result += "catch("+ex.getSimpleName()+" e) {} // Declared exception";
+		if(exception != null) {
+			result += "\n} catch("+exception.getClass().getSimpleName()+" e) {} // Raised exception";		
+			//for(Class<?> ex : method.getExceptionTypes()) {
+			//	if(!ex.equals(exception.getClass()))
+			//		result += "catch("+ex.getSimpleName()+" e) {} // Declared exception";
+			//}
 		}
 
 		return result;
@@ -247,32 +198,19 @@ public class MethodStatement extends Statement {
 	}
 
 	@Override
-	public boolean references(VariableReference var) {
-		if(isInstanceMethod()) {
-			if(callee.equals(var))
-				return true;
-			if(callee.isArrayIndex() && callee.array.equals(var))
-				return true;
-		}
-
-		for(VariableReference param : parameters) {
-			if(param.equals(var))
-				return true;
-			if(param.isArrayIndex() && param.array.equals(var))
-				return true;
-		}
-		if(retval.equals(var))
-			return true;
-		return false;
-	}
-
-	@Override
 	public Set<VariableReference> getVariableReferences() {
 		Set<VariableReference> references = new HashSet<VariableReference>();
 		references.add(retval);
-		if(isInstanceMethod())
+		if(isInstanceMethod()) {
 			references.add(callee);
+			if(callee.isArrayIndex())
+				references.add(callee.array);
+		}
 		references.addAll(parameters);
+		for(VariableReference param : parameters) {
+			if(param.isArrayIndex())
+				references.add(param.array);
+		}
 		return references;
 
 	}

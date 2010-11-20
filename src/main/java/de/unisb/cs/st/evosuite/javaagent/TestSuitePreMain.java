@@ -26,6 +26,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMFileTransformer;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.DistanceTransformer;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.MutationScanner;
+import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.ScanVariablesTransformer;
 
 /**
  * @author Gordon Fraser
@@ -61,6 +62,8 @@ public class TestSuitePreMain {
 			System.out.println("* Scanning project for classes");
 			addClassFileTransformer(instrumentation,
 					new DistanceTransformer());
+			addClassFileTransformer(instrumentation,
+					new ScanVariablesTransformer());
 			//addClassFileTransformer(instrumentation,
 			//		new ScanProjectTransformer());			
 		} else if (agentArguments.equals("tasks")) {

@@ -75,46 +75,30 @@ public class FieldStatement extends Statement {
 		this.source = source;
 	}
 	
-	@Override
-	public boolean isValid() {
-		return retval.isAssignableFrom(field.getType());
-	}
-	
 	public boolean isStatic() {
 		return Modifier.isStatic(field.getModifiers());
 	}
 
 	@Override
-	public String getCode() {
-		String cast_str = "";
-		if(field == null)
-			logger.warn("Field is null: "+className+"."+fieldName);
-		if(!retval.getVariableClass().isAssignableFrom(field.getType())) {
-			cast_str = "(" + retval.getSimpleClassName()+ ")";
-		}
-
-		if(!Modifier.isStatic(field.getModifiers()))
-			return retval.getSimpleClassName() +" "+ retval.getName() + " = " + cast_str + source.getName() + "." + field.getName()+";";
-		else
-			return retval.getSimpleClassName() +" "+ retval.getName() + " = " + cast_str + field.getDeclaringClass().getSimpleName()+"." + field.getName()+";";
-	}
-
-
-	@Override
 	public String getCode(Throwable exception) {
 		String cast_str = "  ";
+		String result = "";
 		if(!retval.getVariableClass().isAssignableFrom(field.getType())) {
 			cast_str += "(" + retval.getSimpleClassName()+ ")";
 		}
 
-		
-		String result = retval.getSimpleClassName() +" "+ retval.getName() + " = null;\n";
-		result += "try {\n";
+		if(exception != null) {
+			result = retval.getSimpleClassName() +" "+ retval.getName() + " = null;\n";
+			result += "try {\n  ";
+		} else {
+			result = retval.getSimpleClassName() +" ";			
+		}
 		if(!Modifier.isStatic(field.getModifiers()))
-			result += cast_str + source.getName() + "." + field.getName()+";\n";
+			result += retval.getName()+ " = " + cast_str + source.getName() + "." + field.getName()+";\n";
 		else
-			result += cast_str + field.getDeclaringClass().getSimpleName()+"." + field.getName()+";\n";
-		result += "} catch("+exception.getClass().getSimpleName()+" e) {}";
+			result += retval.getName()+ " = " + cast_str + field.getDeclaringClass().getSimpleName()+"." + field.getName()+";\n";
+		if(exception != null)
+			result += "} catch("+exception.getClass().getSimpleName()+" e) {}";
 		
 		return result;
 	}
@@ -154,22 +138,14 @@ public class FieldStatement extends Statement {
 	}
 
 	@Override
-	public boolean references(VariableReference var) {
-		if(!Modifier.isStatic(field.getModifiers())) {
-			if(source.equals(var))
-				return true;
-			if(source.isArrayIndex() && source.array.equals(var))
-				return true;
-		}
-		return false;
-	}
-
-	@Override
 	public Set<VariableReference> getVariableReferences() {
 		Set<VariableReference> references = new HashSet<VariableReference>();
 		references.add(retval);
-		if(!Modifier.isStatic(field.getModifiers()))
+		if(!Modifier.isStatic(field.getModifiers())) {
 			references.add(source);
+			if(source.isArrayIndex())
+				references.add(source.array);
+		}
 		return references;
 
 	}

@@ -108,14 +108,8 @@ public class ArrayStatement extends Statement {
 	}
 
 	@Override
-	public String getCode() {
-		return retval.getComponentName() + "[] " +retval.getName() + " = new " + retval.getComponentName() + "["+length+"];";	
-	}
-
-	@Override
 	public String getCode(Throwable exception) {
-		// This should not be possible?
-		return null;
+		return retval.getComponentName() + "[] " +retval.getName() + " = new " + retval.getComponentName() + "["+length+"];";	
 	}
 	
 	@Override
@@ -123,19 +117,6 @@ public class ArrayStatement extends Statement {
 		Set<VariableReference> references = new HashSet<VariableReference>();
 		references.add(retval);
 		return references;
-	}
-
-
-	// TODO: Remove this method alltogether from Statement?
-	@Override
-	public boolean isValid() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-	@Override
-	public boolean references(VariableReference var) {
-		return false;
 	}
 
 	@Override
