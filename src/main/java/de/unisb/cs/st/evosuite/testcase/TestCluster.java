@@ -728,13 +728,16 @@ public class TestCluster {
 	        return false;
 	    }
 
-	    if (Modifier.isPrivate(m.getModifiers())) // || Modifier.isProtected(m.getModifiers()))
-	    	return false;
+	   // if(!Modifier.isPublic(m.getModifiers()))
+	   // 	return false;
+	    
+	    //if (Modifier.isPrivate(m.getModifiers())) // || Modifier.isProtected(m.getModifiers()))
+	    //	return false;
 
 	    //TODO?
 //		if(Modifier.isProtected(m.getDeclaringClass().getModifiers()) || Modifier.isPrivate(m.getDeclaringClass().getModifiers()))
-		if(Modifier.isPrivate(m.getDeclaringClass().getModifiers()))
-			return false;
+		//if(Modifier.isPrivate(m.getDeclaringClass().getModifiers()))
+		//	return false;
 
 	    //TODO we could enable some methods from Object, like getClass
 		
@@ -810,10 +813,10 @@ public class TestCluster {
 	    	return false;//handled here to avoid printing reasons
 
 	    
-	    //if (Modifier.isPublic(c.getModifiers()))
-	     // return true;    
-	    if (!Modifier.isPrivate(c.getModifiers())) // && !Modifier.isProtected(c.getModifiers()))
-		      return true;
+	    if (Modifier.isPublic(c.getModifiers()))
+	      return true;    
+	    //if (!Modifier.isPrivate(c.getModifiers())) // && !Modifier.isProtected(c.getModifiers()))
+		//      return true;
 	    return false;
 	  }
 	  

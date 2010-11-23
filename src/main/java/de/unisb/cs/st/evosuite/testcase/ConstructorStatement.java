@@ -22,14 +22,18 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.ClassUtils;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
+
+import de.unisb.cs.st.evosuite.Properties;
 
 /**
  * This statement represents a constructor call
@@ -104,9 +108,13 @@ public class ConstructorStatement extends Statement {
 		} else {
 			result += retval.getSimpleClassName() +" ";
 		}
-		result += retval.getName()+ " = new " + constructor.getName() + "(" + parameter_string + ");";
-		if(exception != null)
-			result += "\n} catch("+exception.getClass().getSimpleName()+" e) {}";
+		result += retval.getName()+ " = new " + ClassUtils.getShortClassName(constructor.getDeclaringClass()) + "(" + parameter_string + ");";
+		if(exception != null) {
+			Class<?> ex = exception.getClass();
+			while(!Modifier.isPublic(ex.getModifiers()))
+				ex = ex.getSuperclass();
+			result += "\n} catch("+ClassUtils.getShortClassName(ex)+" e) {}";
+		}
 		
 		return result;
 	}

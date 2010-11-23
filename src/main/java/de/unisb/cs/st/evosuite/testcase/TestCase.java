@@ -144,14 +144,16 @@ public class TestCase {
 		for(int i=0; i<position && i < size(); i++) {
 			if(statements.get(i).retval == null)
 				continue;
-			if(statements.get(i).retval.isArray() && GenericClass.isAssignable(type, statements.get(i).retval.getComponentType())) {
-				// Add components
-				//variables.add(new VariableReference(statements.get(i).retval.clone(), Randomness.getInstance().nextInt(MAX_ARRAY), i));
-				//ArrayStatement as = (ArrayStatement)statements.get(i);
-				for(int index = 0; index < statements.get(i).retval.array_length; index++) {
-					variables.add(new VariableReference(statements.get(i).retval.clone(), index, statements.get(i).retval.array_length, i));
+			if(statements.get(i).retval.isArray()) {
+				if(GenericClass.isAssignable(type, statements.get(i).retval.getComponentType())) {
+					// Add components
+					//variables.add(new VariableReference(statements.get(i).retval.clone(), Randomness.getInstance().nextInt(MAX_ARRAY), i));
+					//ArrayStatement as = (ArrayStatement)statements.get(i);
+					for(int index = 0; index < statements.get(i).retval.array_length; index++) {
+						variables.add(new VariableReference(statements.get(i).retval.clone(), index, statements.get(i).retval.array_length, i));
+					}
 				}
-			} else if(statements.get(i).retval.isArrayIndex() && GenericClass.isAssignable(type, statements.get(i).retval.array.getComponentType())) {
+			} else if(statements.get(i).retval.isArrayIndex()) { // && GenericClass.isAssignable(type, statements.get(i).retval.array.getComponentType())) {
 				// Don't need to add this
 			} else if(statements.get(i).retval.isAssignableTo(type)) {
 	//			if(constraint == null || constraint.isValid(statements.get(i).getReturnValue()))
@@ -558,9 +560,14 @@ public class TestCase {
 				MethodStatement ms = (MethodStatement)s;
 				accessed_classes.addAll(Arrays.asList(ms.getMethod().getExceptionTypes()));
 				accessed_classes.add(ms.getMethod().getDeclaringClass());
+				accessed_classes.add(ms.getMethod().getReturnType());
 			} else if(s instanceof FieldStatement) {
 				FieldStatement fs = (FieldStatement)s;
 				accessed_classes.add(fs.getField().getDeclaringClass());
+				accessed_classes.add(fs.getField().getType());
+			} else if(s instanceof ConstructorStatement) {
+				ConstructorStatement cs = (ConstructorStatement)s;
+				accessed_classes.add(cs.getConstructor().getDeclaringClass());
 			}
 		}		
 		return accessed_classes;

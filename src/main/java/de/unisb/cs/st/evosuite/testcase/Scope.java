@@ -20,6 +20,7 @@
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,7 +64,8 @@ public class Scope {
 		}
 		
 		if(o != null && !o.getClass().equals(reference.getVariableClass()) && !reference.isPrimitive()) {
-			reference.setType(o.getClass());
+			if(Modifier.isPublic(o.getClass().getModifiers()))
+				reference.setType(o.getClass());
 		}
 		pool.put(reference, o);
 	}

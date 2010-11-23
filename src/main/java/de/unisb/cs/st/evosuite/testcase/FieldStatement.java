@@ -27,6 +27,7 @@ import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.ClassUtils;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
@@ -94,11 +95,15 @@ public class FieldStatement extends Statement {
 			result = retval.getSimpleClassName() +" ";			
 		}
 		if(!Modifier.isStatic(field.getModifiers()))
-			result += retval.getName()+ " = " + cast_str + source.getName() + "." + field.getName()+";\n";
+			result += retval.getName()+ " = " + cast_str + source.getName() + "." + field.getName()+";";
 		else
-			result += retval.getName()+ " = " + cast_str + field.getDeclaringClass().getSimpleName()+"." + field.getName()+";\n";
-		if(exception != null)
-			result += "} catch("+exception.getClass().getSimpleName()+" e) {}";
+			result += retval.getName()+ " = " + cast_str + field.getDeclaringClass().getSimpleName()+"." + field.getName()+";";
+		if(exception != null) {
+			Class<?> ex = exception.getClass();
+			while(!Modifier.isPublic(ex.getModifiers()))
+				ex = ex.getSuperclass();
+			result += "\n} catch("+ClassUtils.getShortClassName(ex)+" e) {}";
+		}
 		
 		return result;
 	}

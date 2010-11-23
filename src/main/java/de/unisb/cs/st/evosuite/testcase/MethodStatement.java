@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.ClassUtils;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
@@ -126,8 +127,12 @@ public class MethodStatement extends Statement {
 		
 		String parameter_string = "";
 		if(!parameters.isEmpty()) {
+			if(!method.getParameterTypes()[0].equals(parameters.get(0).getVariableClass()) && parameters.get(0).isArray())
+				parameter_string += "(" + method.getParameterTypes()[0].getSimpleName() + ")";
 			parameter_string += parameters.get(0).getName();
 			for(int i=1; i<parameters.size(); i++) {
+				if(!method.getParameterTypes()[i].equals(parameters.get(i).getVariableClass()) && parameters.get(i).isArray())
+					parameter_string += "(" + method.getParameterTypes()[i].getSimpleName() + ")";
 				parameter_string += ", " + parameters.get(i).getName();
 			}
 		}
@@ -150,11 +155,10 @@ public class MethodStatement extends Statement {
 		}
 		
 		if(exception != null) {
-			result += "\n} catch("+exception.getClass().getSimpleName()+" e) {} // Raised exception";		
-			//for(Class<?> ex : method.getExceptionTypes()) {
-			//	if(!ex.equals(exception.getClass()))
-			//		result += "catch("+ex.getSimpleName()+" e) {} // Declared exception";
-			//}
+			Class<?> ex = exception.getClass();
+			while(!Modifier.isPublic(ex.getModifiers()))
+				ex = ex.getSuperclass();
+			result += "\n} catch("+ClassUtils.getShortClassName(ex)+" e) {}";
 		}
 
 		return result;
