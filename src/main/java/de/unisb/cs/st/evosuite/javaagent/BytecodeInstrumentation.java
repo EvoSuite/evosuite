@@ -120,13 +120,13 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 					// Apply transformations to class under test and its owned classes
 					if(isTargetClass(classNameWithDots)) {
-						cv = new AccessibleClassAdapter(cv);
+						cv = new AccessibleClassAdapter(cv, className);
 						cv = new ExecutionPathClassAdapter(cv, className);
 						cv = new CFGClassAdapter(cv, className);
 
 					} else if(makeAllAccessible) {
 						// Convert protected/default access to public access
-						cv = new AccessibleClassAdapter(cv);
+						cv = new AccessibleClassAdapter(cv, className);
 					}
 					
 					// Collect constant values for the value pool

@@ -37,6 +37,8 @@ import org.apache.log4j.Logger;
 
 import com.googlecode.gentyref.GenericTypeReflector;
 
+import de.unisb.cs.st.evosuite.Properties;
+
 public class GenericClass {
 
 	@SuppressWarnings("unused")
@@ -157,15 +159,15 @@ public class GenericClass {
 		//	return isAssignable(lhsType, (WildcardType) rhsType);
 		//}
 		if(lhsType instanceof GenericArrayType && rhsType instanceof GenericArrayType) {
-			//logger.info("Checking generic array");
+			//logger.warn("Checking generic array 1 "+lhsType+"/"+rhsType);
 			return isAssignable(((GenericArrayType)lhsType).getGenericComponentType(), ((GenericArrayType)rhsType).getGenericComponentType());
 		}
 		if(lhsType instanceof Class<?> && ((Class<?>)lhsType).isArray() && rhsType instanceof GenericArrayType) {
-			//logger.info("Checking generic array");
+			//logger.warn("Checking generic array 2 "+lhsType+"/"+rhsType);
 			return isAssignable(((Class<?>)lhsType).getComponentType(), ((GenericArrayType)rhsType).getGenericComponentType());
 		}
 		if(rhsType instanceof Class<?> && ((Class<?>)rhsType).isArray() && lhsType instanceof GenericArrayType) {
-			//logger.info("Checking generic array");
+			//logger.warn("Checking generic array 3 "+lhsType+"/"+rhsType);
 			return isAssignable(((GenericArrayType)lhsType).getGenericComponentType(), ((Class<?>)rhsType).getComponentType());
 		}
 		String message = "Not assignable: ";
@@ -271,26 +273,7 @@ public class GenericClass {
 	}
 	
 	public String getSimpleName() {
-		
-		if(raw_class.isArray()) {
-			return raw_class.getComponentType().getSimpleName().replace('$', '.')+"[]";
-			/*
-			if(raw_class.getComponentType().getPackage() != null)
-//				return raw_class.getComponentType().getName().replaceFirst(raw_class.getComponentType().getPackage().getName()+".", "").replace('$', '.')+"[]";
-				return raw_class.getComponentType().getSimpleName().replace('$', '.')+"[]";
-			else
-				return raw_class.getComponentType().getName().replace('$', '.')+"[]";
-				*/
-		}
-		else
-			return raw_class.getSimpleName().replace('$', '.');
-/*
-		else if(raw_class.getPackage() != null)
-//			return raw_class.getName().replaceFirst(raw_class.getPackage().getName()+".", "").replace('$', '.');
-			return raw_class.getSimpleName().replace('$', '.');
-		else
-			return raw_class.getName().replace('$', '.');
-	*/	
+		return ClassUtils.getShortClassName(raw_class);
 	}
 
 	@Override

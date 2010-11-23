@@ -25,6 +25,8 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+import de.unisb.cs.st.evosuite.Properties;
+
 /**
  * Turn protected / default access rights to public access rights.
  * This is necessary because EvoSuite is not in the same package as the UUT,
@@ -35,12 +37,18 @@ import org.objectweb.asm.Opcodes;
  */
 public class AccessibleClassAdapter extends ClassAdapter {
 
+	private boolean exclude = false;
 	
 	/**
 	 * @param Parent class visitor
 	 */
-	public AccessibleClassAdapter(ClassVisitor cv) {
+	public AccessibleClassAdapter(ClassVisitor cv, String className) {
 		super(cv);
+		className = className.replace('/', '.');
+		className = className.substring(0, className.lastIndexOf('.'));
+		if(!className.equals(Properties.CLASS_PREFIX)) {
+			exclude = true;
+		}
 	}
 	
 	/**
@@ -49,7 +57,7 @@ public class AccessibleClassAdapter extends ClassAdapter {
 	@Override
 	public void visit(int version, int access, String name, String signature,
 			String superName, String[] interfaces) {
-		if((access & Opcodes.ACC_PRIVATE) != Opcodes.ACC_PRIVATE) {
+		if(!exclude && (access & Opcodes.ACC_PRIVATE) != Opcodes.ACC_PRIVATE) {
 			access = access | Opcodes.ACC_PUBLIC;
 			access = access & ~Opcodes.ACC_PROTECTED;
 		}	
@@ -60,7 +68,7 @@ public class AccessibleClassAdapter extends ClassAdapter {
 	 * Change fields to public
 	 */
 	public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-		if((access & Opcodes.ACC_PRIVATE) != Opcodes.ACC_PRIVATE) {
+		if(!exclude && (access & Opcodes.ACC_PRIVATE) != Opcodes.ACC_PRIVATE) {
 			access = access | Opcodes.ACC_PUBLIC;
 			access = access & ~Opcodes.ACC_PROTECTED;
 			//System.out.println("Setting field to public: "+name);
@@ -75,7 +83,7 @@ public class AccessibleClassAdapter extends ClassAdapter {
 	public MethodVisitor visitMethod(int access, String name, String desc,
 			String signature, final String[] exceptions) {
 		
-		if((access & Opcodes.ACC_PRIVATE) != Opcodes.ACC_PRIVATE) {
+		if(!exclude && (access & Opcodes.ACC_PRIVATE) != Opcodes.ACC_PRIVATE) {
 			access = access | Opcodes.ACC_PUBLIC;
 			access = access & ~Opcodes.ACC_PROTECTED;
 		}

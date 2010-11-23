@@ -105,6 +105,7 @@ public class VariableReference {
 		if(array != null) {
 			copy.array = array.clone();
 			copy.array_index = array_index;
+			copy.array_length = array_length;
 		}
 		return copy;
 	}
@@ -352,6 +353,8 @@ public class VariableReference {
 				return "0.0F";
 			else if(type.getRawClass().equals(long.class))
 				return "0L";
+			else if(type.getRawClass().equals(boolean.class))
+				return "false";
 			else
 				return "0";
 		} else
