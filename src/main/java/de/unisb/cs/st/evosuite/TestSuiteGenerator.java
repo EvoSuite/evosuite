@@ -200,7 +200,11 @@ public class TestSuiteGenerator {
 	}
 	
 	/**
-	 * Use the OneBranch approach (One branch at a time)
+	 * Use the OneBranch approach: The budget for the search is split 
+	 * equally among all test goals, and then search is attempted for each 
+	 * goal. If a goal is covered, the remaining budget will be used in the
+	 * next iteration.
+	 * 
 	 * @return
 	 */
 	public List<TestCase> generateIndividualTests() {
@@ -213,16 +217,14 @@ public class TestSuiteGenerator {
 
 		// Each generated test case is put into a test suite
 		TestSuiteChromosome suite = new TestSuiteChromosome();
-		// TODO: Minimize individual tests instead?
 		FitnessFunction suite_fitness = getFitnessFunction();
-		//FitnessFunction suite_fitness = new de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness();
 		
 		// Get list of goals
-		// TODO: This needs to be replacable by other coverage criteria
 		TestFitnessFactory goal_factory = getFitnessFactory();
 		List<TestFitnessFunction> goals = goal_factory.getCoverageGoals(); 
 		System.out.println("* Total number of test goals: "+goals.size());
 
+		// Need to shuffle goals because the order may make a difference
 		Randomness.getInstance().shuffle(goals);
 		GlobalTimeStoppingCondition global_time = new GlobalTimeStoppingCondition();
 		int total_goals = goals.size(); 
@@ -268,6 +270,11 @@ public class TestSuiteGenerator {
 					covered.add(num);
 					covered_goals++;
 					num++;
+					continue;
+				}
+				
+				if(global_time.isFinished()) {
+					logger.info("Skipping goal because time is up");
 					continue;
 				}
 

@@ -121,10 +121,12 @@ public class HOMFileTransformer implements ClassFileTransformer  {
 				//	classfileBuffer = systemExitTransformer
 				//			.transformBytecode(classfileBuffer);
 				//}
+				/*
 				if (BytecodeTasks.shouldIntegrate(classNameWithDots)) {
 					classfileBuffer = BytecodeTasks.integrateTestSuite(
 							classfileBuffer, classNameWithDots);
 				}
+				*/
 				if (mutationDecision.shouldBeHandled(classNameWithDots)) {
 					logger.info("Transforming: " + classNameWithDots);
 					byte[] transformedBytecode = null;
@@ -135,7 +137,7 @@ public class HOMFileTransformer implements ClassFileTransformer  {
 						logger.info("Exception thrown: " + e);
 						e.printStackTrace();
 					}
-					
+					/*
 					AsmUtil.checkClass2(transformedBytecode);
 					logger.debug("Class transformed: " + classNameWithDots);
 					String checkClass = AsmUtil.checkClass(transformedBytecode);
@@ -144,7 +146,7 @@ public class HOMFileTransformer implements ClassFileTransformer  {
 								+ classNameWithDots);
 						logger.warn("Message: " + checkClass);
 					}
-					
+					*/
 					return transformedBytecode;
 				}
 			} catch (Throwable t) {

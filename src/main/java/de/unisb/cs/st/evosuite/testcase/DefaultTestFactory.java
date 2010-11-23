@@ -282,7 +282,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 							VariableReference r = randomness.choice(alternatives);
 							fs.source = r.clone();
 							logger.trace("Replacing field source");
-						} else if(var.equals(fs.source.array)) {
+						} else if(fs.source != null && var.equals(fs.source.array)) {
 							VariableReference r = randomness.choice(alternatives);
 							fs.source.array = r.clone();
 							if(r.array_length > 1)

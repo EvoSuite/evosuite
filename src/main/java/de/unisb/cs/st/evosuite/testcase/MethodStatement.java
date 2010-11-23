@@ -72,16 +72,16 @@ public class MethodStatement extends Statement {
 		logger.trace("Executing method "+method.getName());
         exceptionThrown = null;
         Object[] inputs = new Object[parameters.size()];
+		PrintStream old_out = System.out;
+		PrintStream old_err = System.err;
+		System.setOut(out);
+		System.setErr(out);
+
 		try {
-		for(int i=0; i<parameters.size(); i++) {
-			inputs[i] = scope.get(parameters.get(i));
-			if(inputs[i] == null)
-				logger.debug("Null input as parameter "+i+" of method call "+method.getName()+"!");
-			//else {
-			//	logger.debug("Parameter "+i+": "+inputs[i].getClass()+" - "+inputs[i]);
-			//}
-			//else {
-		}
+			for(int i=0; i<parameters.size(); i++) {
+				inputs[i] = scope.get(parameters.get(i));
+			}
+
 			Object callee_object = null;
 			if(!Modifier.isStatic(method.getModifiers())) {
 				callee_object = scope.get(callee);
@@ -91,16 +91,10 @@ public class MethodStatement extends Statement {
 					for(Entry<VariableReference, Object> entry : scope.pool.entrySet()) {
 						logger.debug("Pool: "+entry.getKey().statement+", "+entry.getKey().getType()+" : "+entry.getValue());
 					}
-					
-				//} else {
-				//	logger.debug("Callee: "+callee_object);
 				}
 			}
-						
-			PrintStream old_out = System.out;
-			System.setOut(out);
+
 	        Object ret = this.method.invoke(callee_object, inputs);
-			System.setOut(old_out);
 	        scope.set(retval, ret);
 		} catch (Throwable e) {
 	          if (e instanceof java.lang.reflect.InvocationTargetException) {
@@ -108,8 +102,11 @@ public class MethodStatement extends Statement {
 	          } 
 	          logger.debug("Exception thrown in method: "+e);
         	  exceptionThrown = e;
-	      }
-	      return exceptionThrown;
+		} finally {
+			System.setOut(old_out);
+			System.setErr(old_err);			
+		}
+		return exceptionThrown;
 	}
 
 	
@@ -118,13 +115,14 @@ public class MethodStatement extends Statement {
 		
 		String result = "";
 		if(retval.getType() != Void.TYPE) {
-			if(exception != null)
-				result = retval.getSimpleClassName() +" "+retval.getName() + " = null;\n";
+			if(exception != null) {
+				result = retval.getSimpleClassName() +" "+retval.getName() + " = " + retval.getDefaultValueString()+";\n";
+			}
 			else
 				result = retval.getSimpleClassName() +" ";
 		}
 		if(exception != null)
-			result += "try {  \n";
+			result += "try {\n  ";
 		
 		String parameter_string = "";
 		if(!parameters.isEmpty()) {

@@ -42,7 +42,9 @@ public class MutationGoalFactory implements TestFitnessFactory {
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
 		System.out.println("* Created "+hom_switcher.getNumMutants()+" mutants");
 		for(Mutation mutation : hom_switcher.getMutants()) {
-			goals.add(new MutationTestFitness(mutation));
+			if(!mutation.getMethodName().equals("<clinit>()V")) {
+				goals.add(new MutationTestFitness(mutation));
+			}
 		}
 		
 		return goals;

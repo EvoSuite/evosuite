@@ -38,6 +38,19 @@ public class PrimitivePoolMethodAdapter extends MethodAdapter {
 		super(mv);
 	}
 	
+	/**
+	 * This is a hack to avoid deadlocks because we are only testing
+	 * single threaded stuff. This will be replaced with something
+	 * nicer once Sebastian has found a solution
+	 */
+	public void visitInsn(int opcode) {
+		if(opcode != Opcodes.MONITORENTER && opcode != Opcodes.MONITOREXIT)
+			super.visitInsn(opcode);
+		else
+			super.visitInsn(Opcodes.POP);
+			
+	}
+	
 	public void visitIntInsn(int opcode, int operand) {
 		if(opcode == Opcodes.BIPUSH || opcode == Opcodes.SIPUSH) {
 			primitive_pool.add(operand);

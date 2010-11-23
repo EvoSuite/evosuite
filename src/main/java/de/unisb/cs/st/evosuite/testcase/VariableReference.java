@@ -342,4 +342,19 @@ public class VariableReference {
 		
 	}
 
+	public String getDefaultValueString() {
+		if(isVoid())
+			return "";
+		else if(type.isString())
+			return "\"\"";
+		else if(isPrimitive()) {
+			if(type.getRawClass().equals(float.class))
+				return "0.0F";
+			else if(type.getRawClass().equals(long.class))
+				return "0L";
+			else
+				return "0";
+		} else
+			return "null";	
+	}	
 }

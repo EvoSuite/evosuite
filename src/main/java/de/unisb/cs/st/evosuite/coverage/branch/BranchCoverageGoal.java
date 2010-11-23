@@ -62,6 +62,13 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 		//cfg.toDot(className+"."+methodName.replace("/",".").replace(";",".").replace("(",".").replace(")",".")+".dot");
 	}
 
+	/**
+	 * Methods that have no branches don't need a cfg,
+	 * so we just set the cfg to null
+	 * 
+	 * @param className
+	 * @param methodName
+	 */
 	public BranchCoverageGoal(String className, String methodName) {
 		this.branch_id = 0;
 		this.bytecode_id = 0;
@@ -98,6 +105,19 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 			return d;
 		}
 	
+		// Methods that have no cfg have no branches
+		if(cfg == null) {
+			for(MethodCall call : result.trace.finished_calls) {
+				if(call.class_name.equals(""))
+					continue;
+				if((call.class_name+"."+call.method_name).equals(methodName)) {
+					return d;
+				}
+			}
+			d.approach = 1;
+			return d;
+		}
+
 		d.approach = cfg.getDiameter() + 1;
 		
 		// Minimal distance between target node and path

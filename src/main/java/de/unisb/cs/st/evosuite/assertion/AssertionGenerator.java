@@ -387,7 +387,7 @@ public class AssertionGenerator {
 			logger.debug("Running on mutation "+m.getId());
 			//logger.info(m.toString());
 
-			ExecutionResult mutant_result = runTest(test, m);
+			ExecutionResult mutant_result = runTest(test.clone(), m);
 			List<OutputTrace> traces = new ArrayList<OutputTrace>();
 			traces.add(mutant_result.comparison_trace);
 			traces.add(mutant_result.primitive_trace);

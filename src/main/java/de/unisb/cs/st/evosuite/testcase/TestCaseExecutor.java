@@ -129,19 +129,23 @@ public class TestCaseExecutor {
 	    	if (!runner.runFinished) {
 	    		logger.warn("Exceeded max wait ("+timeout+"ms): aborting test input:");
 	    		logger.warn(tc.toCode());
-	    		
 	    		runner.interrupt();
 	        
 	    		if(runner.isAlive()) {
 	    			// If test doesn't finish in time, suspend it.
 		    		logger.info("Thread ignored interrupt, using killswitch");
 		    		ExecutionTracer.setKillSwitch(true);
-	    			runner.join(timeout);
+	    			runner.join(timeout / 2);
 	    			if (!runner.runFinished) {
 			    		logger.info("Trying thread.stop()");
+			    		for(StackTraceElement element : runner.getStackTrace()) {
+			    			logger.info(element.toString());
+			    		}
 	    				runner.stop();// We use this deprecated method because it's the only way to
 	    				// stop a thread no matter what it's doing.
 	    				//return runner.exceptionsThrown;
+	    		    	runner.join(timeout / 2);
+
 		    			if(runner.isAlive()) {		    				
 				    		logger.warn("Thread ignored stop()! All is lost!");
 		    			}
