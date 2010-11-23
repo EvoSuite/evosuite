@@ -6,14 +6,15 @@ package de.unisb.cs.st.evosuite.ga;
 import de.unisb.cs.st.evosuite.Properties;
 
 /**
- * @author fraser
+ * @author Gordon Fraser
  *
  */
 public class GlobalTimeStoppingCondition extends StoppingCondition {
 
-	/** Maximum number of seconds */
+	/** Maximum number of seconds. 0 = infinite time */
 	protected static int max_seconds = Properties.getPropertyOrDefault("global_timeout", 600);
 
+	/** Assume the search has not started until start_time != 0 */
 	protected static long start_time = 0L;
 	
 	public void searchStarted(FitnessFunction objective) {

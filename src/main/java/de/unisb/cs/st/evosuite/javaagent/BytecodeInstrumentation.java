@@ -65,7 +65,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	private boolean makeAllAccessible = Properties.getPropertyOrDefault("make_accessible", false);
 	
 	private boolean isTargetClass(String className) {
-		if(className.equals(target_class) || (className.startsWith(target_class+"$"))) {
+		if(className.equals(target_class) || className.startsWith(target_class+"$")) {
 			return true;
 		}
 

@@ -52,6 +52,12 @@ public class Properties {
 	/** Package name of target package */
 	public static String PROJECT_PREFIX = "";
 
+	/** Package name of target class (might be a subpackage) */
+	public static String CLASS_PREFIX = "";
+	
+	/** Sub-package name of target class */
+	public static String SUB_PREFIX = "";
+
 	/** Class under test */
 	public static String TARGET_CLASS= "";
 
@@ -114,6 +120,9 @@ public class Properties {
 
 			properties.setProperty("PROJECT_PREFIX", PROJECT_PREFIX);
 			properties.setProperty("output_dir", OUTPUT_DIR);
+			CLASS_PREFIX = TARGET_CLASS.substring(0,TARGET_CLASS.lastIndexOf('.'));
+			SUB_PREFIX = CLASS_PREFIX.replace(PROJECT_PREFIX+".", "");
+			
 			System.out.println("* Properties loaded from configuration file evosuite.properties");
 		} catch (FileNotFoundException e) {
 			System.err.println("Error: Could not find configuration file evosuite.properties");

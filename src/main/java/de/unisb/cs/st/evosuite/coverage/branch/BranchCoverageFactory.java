@@ -23,6 +23,9 @@ package de.unisb.cs.st.evosuite.coverage.branch;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
+
+import org.apache.log4j.lf5.LogLevel;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;

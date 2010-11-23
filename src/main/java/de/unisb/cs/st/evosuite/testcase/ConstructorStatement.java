@@ -57,32 +57,22 @@ public class ConstructorStatement extends Statement {
 	// TODO: Handle inner classes (need instance parameter for newInstance)
 	@Override
 	public Throwable execute(Scope scope, PrintStream out) throws InvocationTargetException, IllegalArgumentException, InstantiationException, IllegalAccessException {
+		PrintStream old_out = System.out;
+		PrintStream old_err = System.err;
+		System.setOut(out);
+		System.setErr(out);
 		try {
 	        logger.trace("Executing constructor "+constructor.toString());
 	        exceptionThrown = null;
 			Object[] inputs = new Object[parameters.size()];
 			for(int i=0; i<parameters.size(); i++) {
 				inputs[i] = scope.get(parameters.get(i));
-				//System.out.println("Adding parameter of type "+parameters.get(i).getType());
 			}
-			//System.out.println("TG: Got "+inputs.length+" parameters");
-			//for(Object o : inputs) {
-			//	System.out.println(o.getClass()+": "+o);
-			//}
-			PrintStream old_out = System.out;
-			System.setOut(out);
+
 			Object ret = this.constructor.newInstance(inputs);
-			System.setOut(old_out);
-			if(ret == null) {
-				logger.warn("Constructor returned null: "+this.constructor);
-			}
-			//System.out.println("TG: Constructed object");
 			scope.set(retval, ret);
-			//System.out.println("TG: Added to scope");
-			//for(ExecutionObserver obs : observers) {
-			//	obs.constructorExecuted(constructor, inputs, ret);
-			//}
-	      } catch (Throwable e) {
+
+		} catch (Throwable e) {
 	          if (e instanceof java.lang.reflect.InvocationTargetException) {
 	              e = e.getCause();
 		    	  logger.debug("Exception thrown in constructor: "+e);
@@ -90,8 +80,11 @@ public class ConstructorStatement extends Statement {
 		    	  logger.debug("Exception thrown in constructor: "+e);
         	  exceptionThrown = e;
 
-	      }
-	      return exceptionThrown;
+		} finally {
+			System.setOut(old_out);
+			System.setErr(old_err);			
+		}
+		return exceptionThrown;
 	}
 	
 	@Override

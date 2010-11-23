@@ -25,9 +25,13 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -38,8 +42,6 @@ import org.objectweb.asm.commons.Method;
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
-import de.unisb.cs.st.evosuite.testcase.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.Statement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
@@ -58,11 +60,21 @@ public class TestSuite implements Opcodes {
 	
 	protected TestCaseExecutor executor = new TestCaseExecutor();
 	
-	class TestFilter implements FilenameFilter
+	class TestFilter implements IOFileFilter
 	{
 	  public boolean accept( File f, String s )
 	  {
-	    return s.toLowerCase().endsWith( ".java" ) && s.startsWith("Test");
+		  System.out.println("Checking "+s);
+		  return s.toLowerCase().endsWith( ".java" ) && s.startsWith("Test");
+	  }
+
+	  /* (non-Javadoc)
+	   * @see org.apache.commons.io.filefilter.IOFileFilter#accept(java.io.File)
+	   */
+	  @Override
+	  public boolean accept(File file) {
+		  System.out.println("Checking "+file.getAbsolutePath());
+		  return file.getName().toLowerCase().endsWith( ".java" ) && file.getName().startsWith("Test");
 	  }
 	}
 
@@ -203,7 +215,8 @@ public class TestSuite implements Opcodes {
 		 * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
 		 */
 		builder.append("package ");
-		builder.append(Properties.PROJECT_PREFIX);
+		builder.append(Properties.CLASS_PREFIX);
+		//builder.append(Properties.PROJECT_PREFIX);
 
 		//String target_class = System.getProperty("test.classes").replace("_\\d+.task", "").replace('_', '.');
 //		String package_string = Properties.PROJECT_PREFIX.replace('_','.').replaceFirst("TestSuite.", "").replaceFirst("\\.[^\\.]+$", "");
@@ -324,13 +337,26 @@ public class TestSuite implements Opcodes {
 	 * @return
 	 */
 	protected String makeDirectory(String directory) {
-		String dirname = directory+"/"+Properties.PROJECT_PREFIX.replace('.', '/'); //+"/GeneratedTests";
+		String dirname = directory+"/"+Properties.CLASS_PREFIX.replace('.', '/'); //+"/GeneratedTests";
 		File dir = new File(dirname);
 		logger.debug("Target directory: "+dirname);
 		dir.mkdirs();
 		return dirname;
 	}
 	
+	/**
+	 * Create subdirectory for package in test directory
+	 * @param directory
+	 * @return
+	 */
+	protected String mainDirectory(String directory) {
+		String dirname = directory+"/"+Properties.PROJECT_PREFIX.replace('.', '/'); //+"/GeneratedTests";
+		File dir = new File(dirname);
+		logger.debug("Target directory: "+dirname);
+		dir.mkdirs();
+		return dirname;
+	}
+
 	/**
 	 * Update/create the main file of the test suite.
 	 * The main test file simply includes all automatically generated test suites in the same directory
@@ -352,26 +378,43 @@ public class TestSuite implements Opcodes {
 		builder.append("import junit.framework.TestCase;\n");
         builder.append("import junit.framework.TestSuite;\n\n");
         builder.append("import java.io.File;\n");
-        builder.append("import java.io.FilenameFilter;\n\n");
-/*
-        builder.append("class TestFilter implements FilenameFilter\n");
-        builder.append("{\n");
-        builder.append("  public boolean accept( File f, String s )\n");
-        builder.append("  {\n");
-        builder.append("    return s.toLowerCase().endsWith( \".java\" ) && s.toLowerCase().startsWith(\"Test\");\n");
-        builder.append("  }\n");
-        builder.append("}\n\n");
-        */
+        builder.append("import java.io.FilenameFilter;\n");
+
+        
+        List<String> suites = new ArrayList<String>();
+        
+		File basedir = new File(directory);
+		Iterator<File> i = FileUtils.iterateFiles(basedir, new TestFilter(), TrueFileFilter.INSTANCE);
+		while(i.hasNext()) {
+			File f = i.next();
+			String name = f.getPath().replace(directory, "").replace(".java", "").replace("/", "."); 
+			suites.add(name.substring(name.lastIndexOf(".") + 1));
+			builder.append("import ");
+			builder.append(Properties.PROJECT_PREFIX);
+			builder.append(name);
+			builder.append(";\n");
+		}
+		builder.append("\n");
+		
         builder.append("public class GeneratedTestSuite extends TestCase {\n");
 		builder.append("  public static Test suite() {\n");
 		builder.append("    TestSuite suite = new TestSuite();\n");
-		File basedir = new File(directory);
+		for(String suite : suites) {
+			builder.append("    suite.addTestSuite(");
+			builder.append(suite);
+			builder.append(".class);\n");	
+		}
+		/*
 		for(File f : basedir.listFiles(new TestFilter())) {
 			builder.append("    suite.addTestSuite(");
+			if(!Properties.SUB_PREFIX.equals("")) {
+				builder.append(Properties.SUB_PREFIX);
+				builder.append(".");
+			}
 			builder.append(f.getName().replace(".java", ""));
 			builder.append(".class);\n");
 	    }
-
+*/
 		/*
 		builder.append("    File basedir = new File(\"");
 		builder.append(directory);
@@ -398,9 +441,12 @@ public class TestSuite implements Opcodes {
 	 */
 	public void writeTestSuite(String name, String directory) {
 		String dir = makeDirectory(directory);
-		writeTestSuiteMainFile(dir);
 		File file = new File(dir+"/"+name+".java");
 		Io.writeFile(getUnitTest(name), file);
+
+		dir = mainDirectory(directory);
+		writeTestSuiteMainFile(dir);
+
 	}
 	
 	
