@@ -784,10 +784,10 @@ public class TestCluster {
 
 	    // Special case 2: 
 	    //hashCode is bad in general but String.hashCode is fair game
-//	    if (m.getName().equals("hashCode") && ! m.getDeclaringClass().equals(String.class))
-//	      return "hashCode";
-	    if (m.getName().equals("hashCode") && m.getDeclaringClass().equals(Object.class))
-		      return "hashCode";
+	    if (m.getName().equals("hashCode") && ! m.getDeclaringClass().equals(String.class))
+	      return "hashCode";
+//	    if (m.getName().equals("hashCode") && m.getDeclaringClass().equals(Object.class))
+//		      return "hashCode";
 
 	    // Special case 3: (just clumps together a bunch of hashCodes, so skip it)
 	    if (m.getName().equals("deepHashCode") && m.getDeclaringClass().equals(Arrays.class))
@@ -812,6 +812,11 @@ public class TestCluster {
 	    if (c.getDeclaringClass().equals(java.lang.Thread.class))
 	    	return false;//handled here to avoid printing reasons
 
+	    if(c.getDeclaringClass().isAnonymousClass())
+	    	return false;
+
+	    if(c.getDeclaringClass().isMemberClass())
+	    	return false;
 	    
 	    if (Modifier.isPublic(c.getModifiers()))
 	      return true;    
@@ -1084,7 +1089,6 @@ public class TestCluster {
 	  private void analyzeTarget() {
 		  logger.info("Getting list of classes");
 		  Hierarchy hierarchy = Hierarchy.readFromDefaultLocation();
-		  String prefix = Properties.getProperty("PROJECT_PREFIX");
 
 		  Set<String> all_classes = hierarchy.getAllClasses();
 		  Set<Class<?>> dependencies = new HashSet<Class<?>>();
@@ -1093,7 +1097,7 @@ public class TestCluster {
 		  // Analyze each class
 		  for(String classname : all_classes) {
 			  // In prefix?
-			  if(classname.startsWith(prefix)) {
+			  if(classname.startsWith(Properties.PROJECT_PREFIX)) {
 				  //Not excluded?
 				  if(!excludes.shouldExclude(classname)) {
 					  try {

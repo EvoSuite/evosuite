@@ -160,26 +160,19 @@ public class ExecutionTrace {
 		if(trace_calls) {
 
 			if(!stack.isEmpty() && !(stack.peek().method_name.equals(methodname))) {
-				logger.info("Expecting "+stack.peek().method_name+", got "+methodname);
+				logger.debug("Expecting "+stack.peek().method_name+", got "+methodname);
 				if(stack.peek().method_name.equals("") && !stack.peek().branch_trace.isEmpty()) {
 					logger.info("Found main method");
 					finished_calls.add(stack.pop());
 				} else {
-					stack.peek();
-					//stack.pop();
+					// Usually, this happens if we use mutation testing and the mutation
+					// causes an unexpected exception or timeout 
+					stack.pop();
 				}
 			} else {
-				//assert(stack.peek().method_name.equals(methodname));
-				//logger.info("Tracing call to: "+stack.peek().method_name);
 				finished_calls.add(stack.pop());
 			}
 		}
-//		if(!(stack.peek().class_name.equals(classname) && stack.peek().method_name.equals(methodname))) {
-//			logger.info("Expecting "+stack.peek().class_name+"."+stack.peek().method_name+", got "+classname+"."+methodname);
-//		} else {
-//			assert(stack.peek().class_name.equals(classname) && stack.peek().method_name.equals(methodname));
-//			finished_calls.add(stack.pop());
-//		}
 	}
 	
 	/**

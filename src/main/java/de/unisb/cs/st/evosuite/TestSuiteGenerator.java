@@ -137,7 +137,6 @@ public class TestSuiteGenerator {
 		long start_time = System.currentTimeMillis() / 1000;
 		
 		// What's the search target
-		// TODO: Support multiple coverage criteria
 		FitnessFunction fitness_function = getFitnessFunction();
 		ga.setFitnessFunction(fitness_function);
 
@@ -200,6 +199,25 @@ public class TestSuiteGenerator {
 	}
 	
 	/**
+	 * Cover the easy targets first with a set of random tests, so that
+	 * the actual search can focus on the non-trivial test goals
+	 * @return
+	 */
+	private TestSuiteChromosome bootstrapRandomSuite(FitnessFunction fitness) {
+
+		System.out.println("* Bootstrapping initial random test suite");
+
+		TestSuiteChromosomeFactory factory = new TestSuiteChromosomeFactory();
+		factory.setNumberOfTests(Properties.getPropertyOrDefault("random_tests", 100));
+		TestSuiteChromosome chromosome = (TestSuiteChromosome) factory.getChromosome();
+		TestSuiteMinimizer minimizer = new TestSuiteMinimizer();
+		minimizer.minimize((TestSuiteChromosome) chromosome, fitness);
+		System.out.println("* Initial test suite contains "+chromosome.size()+" tests");
+
+		return chromosome;
+	}
+	
+	/**
 	 * Use the OneBranch approach: The budget for the search is split 
 	 * equally among all test goals, and then search is attempted for each 
 	 * goal. If a goal is covered, the remaining budget will be used in the
@@ -213,35 +231,41 @@ public class TestSuiteGenerator {
 		ExecutionTrace.enableTraceCalls();
 		GeneticAlgorithm ga = setup();
 		long start_time = System.currentTimeMillis() / 1000;
-		
-
-		// Each generated test case is put into a test suite
-		TestSuiteChromosome suite = new TestSuiteChromosome();
-		FitnessFunction suite_fitness = getFitnessFunction();
-		
+				
 		// Get list of goals
 		TestFitnessFactory goal_factory = getFitnessFactory();
 		List<TestFitnessFunction> goals = goal_factory.getCoverageGoals(); 
 		System.out.println("* Total number of test goals: "+goals.size());
 
+		// Bootstrap with random testing to cover easy goals
+		FitnessFunction suite_fitness = getFitnessFunction();
+		statistics.searchStarted(suite_fitness);
+
+		TestSuiteChromosome suite = bootstrapRandomSuite(suite_fitness);
+		Set<Integer> covered = new HashSet<Integer>();
+		int covered_goals = 0;
+		int num = 0;
+
+		for(TestFitnessFunction fitness_function : goals) {
+			if(fitness_function.isCovered(suite.getTests())) {
+				covered.add(num);
+				covered_goals++;
+				num++;
+			}
+		}
+		if(covered_goals > 0) {
+			System.out.println("* Random bootstrapping covered "+covered_goals+" test goals");
+		}
+		
 		// Need to shuffle goals because the order may make a difference
 		Randomness.getInstance().shuffle(goals);
 		GlobalTimeStoppingCondition global_time = new GlobalTimeStoppingCondition();
 		int total_goals = goals.size(); 
-		int covered_goals = 0;
 		int current_budget = 0;
 
 		int total_budget = Properties.GENERATIONS;
-		
-		if(Properties.getProperty("dynamic_limit") != null) {
-			//max_s = GAProperties.generations * getBranches().size();
-			total_budget = Properties.GENERATIONS * (CFGMethodAdapter.branchless_methods.size() + CFGMethodAdapter.branch_map.size() * 2);
-			logger.info("Setting dynamic length limit to "+total_budget);
-		}
 
-		statistics.searchStarted(suite_fitness);
 
-		Set<Integer> covered = new HashSet<Integer>();
 		
 		while(current_budget < total_budget && covered_goals < total_goals && !global_time.isFinished()) {
 			int budget = (total_budget - current_budget) / (total_goals - covered_goals);
@@ -250,7 +274,7 @@ public class TestSuiteGenerator {
 			logger.info("Goals covered: "+covered_goals+"/"+total_goals);
 			stopping_condition.setLimit(budget);
 
-			int num = 0;
+			num = 0;
 			//int num_statements = 0; //MaxStatementsStoppingCondition.getNumExecutedStatements();
 			for(TestFitnessFunction fitness_function : goals) {
 				
@@ -477,8 +501,6 @@ public class TestSuiteGenerator {
 		ga.addStoppingCondition(new GlobalTimeStoppingCondition());
 		if(Properties.MUTATION)
 			ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
-
-		
 		
 		// How to cross over
 		CrossOverFunction crossover_function = getCrossoverFunction();
@@ -504,6 +526,13 @@ public class TestSuiteGenerator {
 			ga.addListener(SearchStatistics.getInstance());
 		//ga.addListener(MutationStatistics.getInstance());
 		//ga.addListener(BestChromosomeTracker.getInstance());
+		
+		if(Properties.getPropertyOrDefault("dynamic_limit", false)) {
+			//max_s = GAProperties.generations * getBranches().size();
+			Properties.GENERATIONS = Properties.GENERATIONS * (CFGMethodAdapter.branchless_methods.size() + CFGMethodAdapter.branch_map.size() * 2);
+			stopping_condition.setLimit(Properties.GENERATIONS);
+			logger.info("Setting dynamic length limit to "+Properties.GENERATIONS);
+		}
 		
 		return ga;
 	}

@@ -173,14 +173,15 @@ public class MethodStatement extends Statement {
 		
 		MethodStatement m;
 		if(Modifier.isStatic(method.getModifiers()))
+			// FIXXME: If callee is an array index, this will return an invalid copy of the cloned variable!
 			m = new MethodStatement(method,
 					null,
-					new VariableReference(retval.getType(), retval.statement),
+					retval.clone(),
 					new_params);
 		else
 			m = new MethodStatement(method,
-					new VariableReference(callee.getType(), callee.statement),
-					new VariableReference(retval.getType(), retval.statement),
+					callee.clone(),
+					retval.clone(),
 					new_params);
 
 		m.assertions = cloneAssertions();

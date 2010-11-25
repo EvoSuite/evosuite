@@ -152,7 +152,7 @@ public class PrimitiveStatement<T> extends Statement {
 
 	@Override
 	public Statement clone() {
-		return new PrimitiveStatement<T>(new VariableReference(retval.getType(), retval.statement), value);
+		return new PrimitiveStatement<T>(retval.clone(), value);
 	}
 
 	@Override

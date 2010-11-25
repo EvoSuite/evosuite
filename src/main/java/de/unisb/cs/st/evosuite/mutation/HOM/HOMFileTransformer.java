@@ -150,8 +150,7 @@ public class HOMFileTransformer implements ClassFileTransformer  {
 					return transformedBytecode;
 				}
 			} catch (Throwable t) {
-				logger.fatal(
-						"Transformation of class " + className + " failed", t);
+				logger.fatal("Transformation of class " + className + " failed", t);
 				StringWriter writer = new StringWriter();
 				t.printStackTrace(new PrintWriter(writer));
 				logger.fatal(writer.getBuffer().toString());

@@ -116,12 +116,12 @@ public class Properties {
 			}
 			if(TARGET_CLASS != null) {
 				properties.setProperty("TARGET_CLASS", TARGET_CLASS);
+				CLASS_PREFIX = TARGET_CLASS.substring(0,TARGET_CLASS.lastIndexOf('.'));
+				SUB_PREFIX = CLASS_PREFIX.replace(PROJECT_PREFIX+".", "");
 			}
 
 			properties.setProperty("PROJECT_PREFIX", PROJECT_PREFIX);
 			properties.setProperty("output_dir", OUTPUT_DIR);
-			CLASS_PREFIX = TARGET_CLASS.substring(0,TARGET_CLASS.lastIndexOf('.'));
-			SUB_PREFIX = CLASS_PREFIX.replace(PROJECT_PREFIX+".", "");
 			
 			System.out.println("* Properties loaded from configuration file evosuite.properties");
 		} catch (FileNotFoundException e) {

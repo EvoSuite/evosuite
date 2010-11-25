@@ -126,7 +126,7 @@ public class ConstructorStatement extends Statement {
 			new_params.add(r.clone());
 		}
 		Statement copy = new ConstructorStatement(constructor,
-				new VariableReference(retval.getType(), retval.statement),
+				retval.clone(),
 				new_params);
 		copy.assertions = cloneAssertions();
 		return copy;
