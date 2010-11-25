@@ -183,7 +183,6 @@ public class TestCase {
 		for(int i=0; i<position && i < statements.size(); i++) {
 			if(statements.get(i).retval == null)
 				continue;
-			variables.add(new VariableReference(statements.get(i).getReturnType(), i));
 			// TODO: Need to support arrays that were not self-created
 			if(statements.get(i).retval.isArray()) { // && statements.get(i).retval.array != null) {
 				// Add a single component
@@ -194,8 +193,11 @@ public class TestCase {
 				//	variables.add(new VariableReference(as.retval.clone(), index, as.size(), i));
 				//}
 				for(int index = 0; index < statements.get(i).retval.array_length; index++) {
+//					variables.add(new VariableReference(statements.get(i).retval.clone(), index, statements.get(i).retval.array_length, i));
 					variables.add(new VariableReference(statements.get(i).retval.clone(), index, statements.get(i).retval.array_length, i));
 				}
+			} else if(!statements.get(i).retval.isArrayIndex()) { 
+				variables.add(new VariableReference(statements.get(i).getReturnType(), i));
 			}
 			//logger.trace(statements.get(i).retval.getSimpleClassName());				
 		}
@@ -325,10 +327,9 @@ public class TestCase {
 	 * @return
 	 *   Return value of statement
 	 */
-	public VariableReference addStatement(Statement statement, int position) {
+	public void addStatement(Statement statement, int position) {
 		fixVariableReferences(position, 1);
 		statements.add(position, statement);
-		return new VariableReference(statement.getReturnType(), position); // TODO: -1? 
 	}
 
 	/**
@@ -338,9 +339,8 @@ public class TestCase {
 	 * @return
 	 *   VariableReference of return value
 	 */
-	public VariableReference addStatement(Statement statement) {
+	public void addStatement(Statement statement) {
 		statements.add(statement);
-		return new VariableReference(statement.getReturnType(), statements.size() - 1); // TODO: -1? 
 	}
 	
 	/**

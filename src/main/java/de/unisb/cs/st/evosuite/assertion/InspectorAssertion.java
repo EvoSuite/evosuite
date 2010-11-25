@@ -20,6 +20,8 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import de.unisb.cs.st.evosuite.testcase.Scope;
 
 public class InspectorAssertion extends Assertion {
@@ -45,8 +47,20 @@ public class InspectorAssertion extends Assertion {
 				return "assertFalse(var"+value.statement+"."+inspector.getMethodCall()+"())";
 		} else {
 		*/
-		return "assertEquals("+source.getName()+"."+inspector.getMethodCall()+"(), "+result+");";			
-		
+		if(result.getClass().equals(Long.class)) {
+			String val = result.toString();
+			return "assertEquals("+source.getName()+"."+inspector.getMethodCall()+"(), "+val+"L);";
+		} else if(result.getClass().equals(Float.class)) {
+			String val = result.toString();
+			return "assertEquals("+source.getName()+"."+inspector.getMethodCall()+"(), "+val+"F);";
+		} else if(result.getClass().equals(Character.class)) {
+			String val = result.toString();
+			return "assertEquals("+source.getName()+"."+inspector.getMethodCall()+"(), '"+val+"');";
+		} else if(result.getClass().equals(String.class)) {
+			return "assertEquals("+source.getName()+"."+inspector.getMethodCall()+"(), \""+StringEscapeUtils.escapeJava((String) result)+"\");";
+		}
+		else
+			return "assertEquals("+source.getName()+", "+result+");";		
 	}
 
 	@Override

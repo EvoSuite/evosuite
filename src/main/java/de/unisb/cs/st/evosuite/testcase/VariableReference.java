@@ -85,10 +85,10 @@ public class VariableReference {
 	 *        The statement in the test case that declares this variable
 	 */
 	public VariableReference(VariableReference array, int index, int length, int position) {
-		this.type = new GenericClass(array.getComponentType());
-		statement = position;
-		this.array = array;
-		this.array_index = index;
+		this.type         = new GenericClass(array.getComponentType());
+		this.statement    = position;
+		this.array        = array;
+		this.array_index  = index;
 		this.array_length = length;
 	}
 	

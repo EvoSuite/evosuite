@@ -233,7 +233,7 @@ public class TestChromosome extends Chromosome {
 							as.parameter = randomness.choice(objects);
 							changed = true;
 						}
-					} else if(as.retval.array_length > 0){
+					} else if(as.retval.array_length > 0) {
 						as.retval.array_index = randomness.nextInt(as.retval.array_length);
 						changed = true;
 					}

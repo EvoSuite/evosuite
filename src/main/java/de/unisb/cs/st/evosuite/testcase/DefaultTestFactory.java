@@ -145,10 +145,18 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			// add call that uses existing object as parameter (consider all possible calls)
 			VariableReference object = test.getRandomObject(position);
 			if(object != null) {
-				List<AccessibleObject> calls = test_cluster.getTestCallsWith(object.getType());
-				if(!calls.isEmpty()) {
-					AccessibleObject call = calls.get(randomness.nextInt(calls.size()));
-					addCallWith(test, object, call, position);
+				if(object.isArrayIndex()) {
+					List<AccessibleObject> calls = test_cluster.getTestCallsWith(object.getType());
+					if(!calls.isEmpty()) {
+						AccessibleObject call = calls.get(randomness.nextInt(calls.size()));
+						addCallWith(test, object, call, position);
+					}					
+				} else {
+					List<AccessibleObject> calls = test_cluster.getTestCallsWith(object.getType());
+					if(!calls.isEmpty()) {
+						AccessibleObject call = calls.get(randomness.nextInt(calls.size()));
+						addCallWith(test, object, call, position);
+					}
 				}
 			}
 		}		
@@ -667,15 +675,15 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	 * @param call
 	 * @param position
 	 */
-	private void addCallWith(TestCase test, VariableReference callee, AccessibleObject call, int position) {
+	private void addCallWith(TestCase test, VariableReference parameter, AccessibleObject call, int position) {
 		int previous_length = test.size();
 		current_recursion.clear();
 		try {
 			if(call instanceof Method) {
-				addMethodWith(test, callee, (Method)call, position);
+				addMethodWith(test, parameter, (Method)call, position);
 			} 
 			else if(call instanceof Constructor<?>) {
-				addConstructorWith(test, callee, (Constructor<?>)call, position);
+				addConstructorWith(test, parameter, (Constructor<?>)call, position);
 			}
 		} catch(ConstructionFailedException e) {
 			// TODO: Check this!
@@ -864,15 +872,13 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				position += test.size() - length;
 				length = test.size();
 			}
-			parameters = satisfyParameters(test, callee, getParameterTypes(callee, method), position, 0);			
-		} else {
-			parameters = satisfyParameters(test, callee, getParameterTypes(callee, method), position, 0);			
 		}
+		parameters = satisfyParameters(test, callee, getParameterTypes(callee, method), position, 0);			
 		
 		// Force one parameter to be "parameter"
 		if(!parameters.contains(parameter)) {
 			int num = 0;
-			for(Type type: method.getGenericParameterTypes()) {
+			for(Type type: getParameterTypes(callee, method)) {
 				if(parameter.isAssignableTo(type)) {
 					parameters.set(num, parameter);
 					break;
@@ -882,14 +888,13 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		}
 		//System.out.println("TG: Found callee for method call "+method.getName());
 		//System.out.println("TG: Found parameters for method call "+method.getName());
-		int new_length = test.size();
-		position += (new_length - length);
+		position += (test.size() - length);
 
 		//VariableReference ret_val = new VariableReference(method.getGenericReturnType(), position);
 		VariableReference ret_val = getReturnVariable(method, callee, position);
 		test.addStatement(new MethodStatement(method, callee, ret_val, parameters), position);
+		
 		logger.debug("Success: Adding method "+method);
-
 		return ret_val;
 	}
 
