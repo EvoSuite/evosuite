@@ -28,7 +28,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.sandbox.MSecurityManager;
+import de.unisb.cs.st.evosuite.sandbox.MSecurityManager;
 
 /**
  * A runner thread in which a test case is executed and can be killed
