@@ -17,7 +17,7 @@
  * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.unisb.cs.st.sandbox;
+package de.unisb.cs.st.evosuite.sandbox;
 
 import java.security.Permission;
 import de.unisb.cs.st.evosuite.Properties;;
