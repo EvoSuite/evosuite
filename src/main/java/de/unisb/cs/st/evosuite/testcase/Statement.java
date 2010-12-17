@@ -21,8 +21,10 @@ package de.unisb.cs.st.evosuite.testcase;
 
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -84,7 +86,7 @@ public abstract class Statement {
 	 * Generate bytecode by calling method generator
 	 * @param mg
 	 */
-	public abstract void getBytecode(GeneratorAdapter mg);
+	public abstract void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception);
 	
 	/**
 	 * 
@@ -224,5 +226,13 @@ public abstract class Statement {
 	public Set<Class<?>> getDeclaredExceptions() {
 		Set<Class<?>> ex = new HashSet<Class<?>>();
 		return ex;
+	}
+	
+	public static Class<?> getExceptionClass(Throwable t) {
+		Class<?> clazz = t.getClass();
+		while(!Modifier.isPublic(clazz.getModifiers())) {
+			clazz = clazz.getSuperclass();
+		}
+		return clazz;
 	}
 }

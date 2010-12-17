@@ -41,7 +41,7 @@ public class PrimitiveFieldAssertion extends Assertion {
 			String val = value.toString();
 			return "assertEquals("+source.getName()+"."+field.getName()+", "+val+"F);";
 		} else if(value.getClass().equals(Character.class)) {
-			String val = value.toString();
+			String val = StringEscapeUtils.escapeJava(((Character) value).toString());
 			return "assertEquals("+source.getName()+"."+field.getName()+", '"+val+"');";
 		} else if(value.getClass().equals(String.class)) {
 			return "assertEquals("+source.getName()+"."+field.getName()+", \""+StringEscapeUtils.escapeJava((String) value)+"\");";

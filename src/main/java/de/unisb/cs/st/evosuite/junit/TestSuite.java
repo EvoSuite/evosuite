@@ -21,22 +21,32 @@
 package de.unisb.cs.st.evosuite.junit;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.log4j.Logger;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
+import org.objectweb.asm.util.CheckClassAdapter;
+import org.objectweb.asm.util.TraceClassVisitor;
 
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
@@ -110,6 +120,10 @@ public class TestSuite implements Opcodes {
 		return test_cases.isEmpty();
 	}
 	
+	public int size() {
+		return test_cases.size();
+	}
+	
 	/**
 	 * Check if test suite has a test case that is a prefix of test.
 	 * 
@@ -157,6 +171,11 @@ public class TestSuite implements Opcodes {
 		}
 		test_cases.add(test);
 		return test_cases.size() - 1;
+	}
+	
+	public void insertTests(List<TestCase> tests) {
+		for(TestCase test : tests)
+			insertTest(test);
 	}
 	
 	/**
@@ -463,40 +482,77 @@ public class TestSuite implements Opcodes {
 	}
 	
 	
-	private void testToBytecode(TestCase test, GeneratorAdapter mg) {
-		
+	private void testToBytecode(TestCase test, GeneratorAdapter mg, Map<Integer, Throwable> exceptions) {
+		Map<Integer, Integer> locals = new HashMap<Integer, Integer>();
+		mg.visitAnnotation("Lorg/junit/Test;", true);
+		int num = 0;
 		for(Statement statement : test.getStatements()) {
-			statement.getBytecode(mg);
+			logger.debug("Current statement: "+statement.getCode());
+			statement.getBytecode(mg, locals, exceptions.get(num));
+			num++;
 		}
-		
+		mg.visitInsn(Opcodes.RETURN);
 		mg.endMethod();
 
 	}
 	
-	public void getBytecode(String name) {
-		ClassWriter cw = new ClassWriter(0);
-		
-		cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, "ncs/TestTriangle2", null, "java/lang/Object", null);
+	public byte[] getBytecode(String name) {
+		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+		String prefix = Properties.TARGET_CLASS.substring(0, Properties.TARGET_CLASS.lastIndexOf(".")).replace(".", "/");
+		cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, prefix+"/"+name, null, "junit/framework/TestCase", null);
 
 		Method m = Method.getMethod("void <init> ()");
 		GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
 		mg.loadThis();
-		mg.invokeConstructor(Type.getType(Object.class), m);
+		mg.invokeConstructor(Type.getType(junit.framework.TestCase.class), m);
 		mg.returnValue();
 		mg.endMethod();
-
+		
 		int num = 0;
 		for(TestCase test : test_cases) {
+			ExecutionResult result = runTest(test);
 			m = Method.getMethod("void test"+num+" ()");
 			mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
-			testToBytecode(test, mg);
+			testToBytecode(test, mg, result.exceptions);
 			num++;
 		}
 
-		// TODO: Return bytecode or write to file
+		// main method
+		m = Method.getMethod("void main (String[])");
+		mg = new GeneratorAdapter(ACC_PUBLIC + ACC_STATIC, m, null, null, cw);
+		mg.push(1);
+		mg.newArray(Type.getType(String.class));
+		mg.dup();
+		mg.push(0);
+		mg.push(Properties.CLASS_PREFIX+"."+name);
+		mg.arrayStore(Type.getType(String.class));
+//		mg.invokeStatic(Type.getType(org.junit.runner.JUnitCore.class), Method.getMethod("void main (String[])"));
+		mg.invokeStatic(Type.getType(junit.textui.TestRunner.class), Method.getMethod("void main (String[])"));
+		mg.returnValue();
+		mg.endMethod();
+		
+		cw.visitEnd();
+		return cw.toByteArray();
 	}
 	
 	public void writeTestSuiteClass(String name, String directory) {
-		getBytecode(name);
+		String dir = makeDirectory(directory);
+		File file = new File(dir+"/"+name+".class");
+		byte[] bytecode = getBytecode(name);
+		try {
+			FileOutputStream stream = new FileOutputStream(file);
+			stream.write(bytecode);
+		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
+		}
+
+		/*
+		ClassReader reader = new ClassReader(bytecode);
+		ClassVisitor cv = new TraceClassVisitor(new PrintWriter(System.out));
+		cv = new CheckClassAdapter(cv);
+		reader.accept(cv, ClassReader.SKIP_FRAMES);
+		*/
+		
+		//getBytecode(name);
 	}
 }

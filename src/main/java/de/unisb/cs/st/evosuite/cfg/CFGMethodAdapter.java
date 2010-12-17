@@ -30,6 +30,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DirectedMultigraph;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -44,6 +45,7 @@ import org.objectweb.asm.tree.analysis.AnalyzerException;
 
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
+import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.AbstractMutationAdapter;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
@@ -216,7 +218,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		}
 
 
-		ExecutionTracer.getExecutionTracer().addCFG(className, methodName, g.getMinimalGraph());
+		addCFG(className, methodName, g.getMinimalGraph());
 
 		//if(!Properties.MUTATION) {
 		Graph<CFGVertex, DefaultEdge> graph = g.getGraph();
@@ -259,9 +261,29 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	}
 	
 	private boolean isUsable() {
-		return !((this.access & Opcodes.ACC_SYNTHETIC) > 0 || (this.access & Opcodes.ACC_BRIDGE) > 0 || (this.access & Opcodes.ACC_ABSTRACT) > 0) 
+		return !((this.access & Opcodes.ACC_SYNTHETIC) > 0 || (this.access & Opcodes.ACC_BRIDGE) > 0 ) 
 				&& !methodName.contains("<clinit>")
 				&& !(methodName.contains("<init>") && (access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE);
 		
+	}
+	
+	private static Map<String, Map <String, ControlFlowGraph > > graphs = new HashMap<String, Map <String, ControlFlowGraph > >();
+	private static Map<String, Map <String, Double > > diameters = new HashMap<String, Map <String, Double> > ();
+		
+	public static void addCFG(String classname, String methodname, DirectedMultigraph<CFGVertex, DefaultEdge> graph) {
+		if(!graphs.containsKey(classname)) {
+			graphs.put(classname, new HashMap<String, ControlFlowGraph >());
+			diameters.put(classname, new HashMap<String, Double>());
+		}
+		Map<String, ControlFlowGraph > methods = graphs.get(classname);
+        logger.debug("Added CFG for class "+classname+" and method "+methodname);
+		methods.put(methodname, new ControlFlowGraph(graph));
+		FloydWarshall<CFGVertex,DefaultEdge> f = new FloydWarshall<CFGVertex,DefaultEdge>(graph);
+		diameters.get(classname).put(methodname, f.getDiameter());
+        logger.debug("Calculated diameter for "+classname+": "+f.getDiameter());
+	}
+	
+	public static ControlFlowGraph getCFG(String classname, String methodname) {
+		return graphs.get(classname).get(methodname);
 	}
 }

@@ -42,7 +42,10 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.OutputTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
+import de.unisb.cs.st.javalanche.mutation.javaagent.MutationsForRun;
+import de.unisb.cs.st.javalanche.mutation.properties.MutationProperties;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
+import de.unisb.cs.st.javalanche.mutation.results.Mutation.MutationType;
 
 /**
  * This class executes a test case on a unit and all mutants 
@@ -72,6 +75,12 @@ public class AssertionGenerator {
 	private Map<TestCase, Map<Class<?>, Integer>> assertion_statistics_min  = new HashMap<TestCase, Map<Class<?>, Integer>>();
 
 	private Map<TestCase, Map<Class<?>, Integer>> assertion_statistics_killed = new HashMap<TestCase, Map<Class<?>, Integer>>();
+	
+	private MutationsForRun m_VRO = new MutationsForRun(MutationProperties.MUTATION_FILE_NAME.replace(".mutants", "_VRO.mutants"), true);
+	
+	private Set<Long> killed_ALL = new HashSet<Long>();
+	
+	private Set<Long> killed_VRO = new HashSet<Long>();
 
 	/**
 	 * Default constructor 
@@ -84,6 +93,14 @@ public class AssertionGenerator {
 		executor.addObserver(null_observer);
 
 		mutants = hom_switcher.getMutants();
+	}
+	
+	public int numMutants() {
+		int num = 0;
+		for(Mutation m : mutants)
+			if(!m.getMutationType().equals(MutationType.REPLACE_VARIABLE))
+				num++;
+		return num;
 	}
 	
 	public void resetObservers() {
@@ -384,6 +401,9 @@ public class AssertionGenerator {
 		// TODO: We can do this much nicer
 		// Run test case on all mutations
 		for(Mutation m : mutants) {
+			if(m.getMutationType().equals(MutationType.REPLACE_VARIABLE))
+				continue;
+			
 			logger.debug("Running on mutation "+m.getId());
 			//logger.info(m.toString());
 
@@ -465,10 +485,14 @@ public class AssertionGenerator {
 		for(Assertion assertion : assertions) {
 			Set<Long> killed_mutations = new HashSet<Long>();
 			for(Mutation m : mutants) {
+				if(m.getMutationType().equals(MutationType.REPLACE_VARIABLE))
+					continue;
+
 				boolean is_killed = false;
 				for(OutputTrace trace : mutation_traces.get(m)) {
 					is_killed = trace.isDetectedBy(assertion);
 					if(is_killed) {
+						killed_ALL.add(m.getId());
 						killed_before.add(m.getId());
 						break;
 					}
@@ -495,6 +519,9 @@ public class AssertionGenerator {
 			assertion_statistics_min.get(test).put(assertion.getClass(), assertion_statistics_min.get(test).get(assertion.getClass())+ 1);
 			
 			for(Mutation m : mutants) {
+				if(m.getMutationType().equals(MutationType.REPLACE_VARIABLE))
+					continue;
+
 				boolean is_killed = false;
 				for(OutputTrace trace : mutation_traces.get(m)) {
 					is_killed = trace.isDetectedBy(assertion);
@@ -516,6 +543,38 @@ public class AssertionGenerator {
 			if(killed_after.contains(m.getId()) && !m.isKilled())
 				logger.debug("Asserted: "+m.getId());
 		}
+		
+		for(Mutation m : mutants) {
+			if(!m.getMutationType().equals(MutationType.REPLACE_VARIABLE))
+				continue;
+
+			ExecutionResult mutant_result = runTest(test.clone(), m);
+			List<OutputTrace> traces = new ArrayList<OutputTrace>();
+			traces.add(mutant_result.comparison_trace);
+			traces.add(mutant_result.primitive_trace);
+			traces.add(mutant_result.inspector_trace);
+			traces.add(mutant_result.field_trace);
+			traces.add(mutant_result.output_trace);
+			traces.add(mutant_result.null_trace);
+			
+			for(Assertion assertion : assertions) {
+				boolean is_killed = false;
+				for(OutputTrace trace : traces) {
+					is_killed = trace.isDetectedBy(assertion);
+					if(is_killed) {
+						killed_VRO.add(m.getId());
+						break;
+					}
+				}
+			}
+		}
+	}
+	
+	public boolean isKilled(Mutation mutation, TestCase test) {
+		
+		
+		
+		return false;
 	}
 	
 	public void writeStatistics() {
@@ -547,9 +606,34 @@ public class AssertionGenerator {
 				out.write(assertion_statistics_killed.get(test).get(InspectorAssertion.class)+",");
 				out.write(assertion_statistics_killed.get(test).get(PrimitiveAssertion.class)+",");
 				out.write(assertion_statistics_killed.get(test).get(PrimitiveFieldAssertion.class)+",");
-				out.write(assertion_statistics_killed.get(test).get(NullAssertion.class)+"\n");
+				out.write(assertion_statistics_killed.get(test).get(NullAssertion.class)+",");
+				
+				out.write(killed_ALL.size()+","); // number of mutants killed out of target mutants
+				out.write(killed_VRO.size()+"\n"); // number of mutants killed out of VRO mutants
 			}
 			out.close();
+			f = new File(Properties.REPORT_DIR+"/statistics_mutation.csv");
+			out = new BufferedWriter(new FileWriter(f, true));
+			if(f.length() == 0L) {
+				out.write("Class,Total,NonVRO,VRO,Killed,KilledVRO,Score,ScoreVRO\n");
+			}
+			int num = numMutants();
+			out.write(Properties.TARGET_CLASS+",");
+			out.write(mutants.size()+","); // number of mutants killed out of target mutants
+			out.write(num+","); // number of mutants killed out of target mutants
+			out.write((mutants.size() - num)+","); // number of mutants killed out of target mutants
+			out.write(killed_ALL.size()+","); // number of mutants killed out of target mutants
+			out.write(killed_VRO.size()+","); // number of mutants killed out of VRO mutants
+			if(mutants.size() > 0)
+				out.write((1.0*killed_ALL.size()/num)+","); // number of mutants killed out of VRO mutants
+			else
+				out.write("1.0,"); 
+			if(mutants.size() > num)
+				out.write((1.0*killed_VRO.size())/(mutants.size() - num)+"\n"); // number of mutants killed out of VRO mutants
+			else
+				out.write("1.0\n"); // number of mutants killed out of VRO mutants
+			out.close();
+			
 		} catch (IOException e) { 
 		
 		}

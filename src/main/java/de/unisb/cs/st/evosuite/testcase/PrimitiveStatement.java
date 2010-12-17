@@ -23,6 +23,7 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -136,7 +137,7 @@ public class PrimitiveStatement<T> extends Statement {
 	@Override
 	public String getCode(Throwable exception) {
 		if(retval.getVariableClass().equals(char.class) || retval.getVariableClass().equals(Character.class))
-			return ((Class<?>) retval.getType()).getSimpleName() + " "+retval.getName() + " = '" + value +"';";
+			return ((Class<?>) retval.getType()).getSimpleName() + " "+retval.getName() + " = '" + StringEscapeUtils.escapeJava(((Character) value).toString()) +"';";
 		else if(retval.getVariableClass().equals(String.class)) {
 			return ((Class<?>) retval.getType()).getSimpleName() + " "+retval.getName() + " = \"" + StringEscapeUtils.escapeJava((String) value) +"\";";
 		}
@@ -372,24 +373,29 @@ public class PrimitiveStatement<T> extends Statement {
 	 * @see de.unisb.cs.st.evosuite.testcase.Statement#getBytecode(org.objectweb.asm.commons.GeneratorAdapter)
 	 */
 	@Override
-	public void getBytecode(GeneratorAdapter mg) {
-		if(retval.getVariableClass().equals(Boolean.class))
+	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception) {
+		Class<?> clazz = retval.getVariableClass();
+		if(clazz.equals(Boolean.class) || clazz.equals(boolean.class))
 			mg.push(((Boolean)value).booleanValue());
-		else if(retval.getVariableClass().equals(Character.class))
+		else if(clazz.equals(Character.class) || clazz.equals(char.class))
 			mg.push(((Character)value).charValue());
-		else if(retval.getVariableClass().equals(Integer.class))
+		else if(clazz.equals(Integer.class) || clazz.equals(int.class))
 			mg.push(((Integer)value).intValue());
-		else if(retval.getVariableClass().equals(Short.class))
+		else if(clazz.equals(Short.class) || clazz.equals(short.class))
 			mg.push(((Short)value).shortValue());
-		else if(retval.getVariableClass().equals(Long.class))
+		else if(clazz.equals(Long.class) || clazz.equals(long.class))
 			mg.push(((Long)value).longValue());
-		else if(retval.getVariableClass().equals(Float.class))
+		else if(clazz.equals(Float.class) || clazz.equals(float.class))
 			mg.push(((Float)value).floatValue());
-		else if(retval.getVariableClass().equals(Double.class))
+		else if(clazz.equals(Double.class) || clazz.equals(double.class))
 			mg.push(((Float)value).doubleValue());
-		else if(retval.getVariableClass().equals(String.class))
+		else if(clazz.equals(Byte.class) || clazz.equals(byte.class))
+			mg.push(((Byte)value).byteValue());
+		else if(clazz.equals(String.class))
 			mg.push(((String)value));
-		
-		mg.storeLocal(retval.statement);
+		else
+			logger.fatal("Found primitive of unknown type: "+clazz.getName());
+		retval.storeBytecode(mg, locals);
+//		mg.storeLocal(retval.statement);
 	}
 }

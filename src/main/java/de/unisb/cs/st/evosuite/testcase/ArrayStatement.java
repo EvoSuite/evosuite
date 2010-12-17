@@ -24,6 +24,7 @@ import java.io.PrintStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.objectweb.asm.Type;
@@ -137,9 +138,9 @@ public class ArrayStatement extends Statement {
 	 * @see de.unisb.cs.st.evosuite.testcase.Statement#getBytecode(org.objectweb.asm.commons.GeneratorAdapter)
 	 */
 	@Override
-	public void getBytecode(GeneratorAdapter mg) {
+	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception) {
 		mg.push(length);
 		mg.newArray(Type.getType((Class<?>)retval.getComponentType()));
-		retval.storeBytecode(mg);
+		retval.storeBytecode(mg, locals);
 	}
 }

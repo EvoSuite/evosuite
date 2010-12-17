@@ -148,6 +148,9 @@ public class TestCaseExecutor {
 
 		    			if(runner.isAlive()) {		    				
 				    		logger.warn("Thread ignored stop()! All is lost!");
+				    		for(StackTraceElement element : runner.getStackTrace()) {
+				    			logger.warn(element.toString());
+				    		}
 		    			}
 	    			}
 	    			

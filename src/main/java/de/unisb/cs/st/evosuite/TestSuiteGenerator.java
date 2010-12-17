@@ -78,6 +78,9 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosomeFactory;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteReplacementFunction;
+import de.unisb.cs.st.javalanche.mutation.javaagent.MutationsForRun;
+import de.unisb.cs.st.javalanche.mutation.properties.MutationProperties;
+import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
  * Main entry point
@@ -110,11 +113,13 @@ public class TestSuiteGenerator {
 		
 		if(Properties.MUTATION) {
 			AssertionGenerator asserter = new AssertionGenerator();
+			Set<Long> killed = new HashSet<Long>();
 			for(TestCase test : tests) {
-				Set<Long> killed = new HashSet<Long>();
 				asserter.addAssertions(test, killed);
 			}
 			asserter.writeStatistics();
+			System.out.println("Killed: "+killed.size()+"/"+asserter.numMutants());
+			
 		}
 		
 		TestSuite suite = new TestSuite(tests);
@@ -496,7 +501,7 @@ public class TestSuiteGenerator {
 		// When to stop the search
 		stopping_condition = getStoppingCondition();
 		ga.setStoppingCondition(stopping_condition);
-		ga.addListener(stopping_condition);
+		//ga.addListener(stopping_condition);
 		ga.addStoppingCondition(zero_fitness);
 		ga.addStoppingCondition(new GlobalTimeStoppingCondition());
 		if(Properties.MUTATION)

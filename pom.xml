@@ -79,7 +79,7 @@
       <dependency>
 	<groupId>de.unisb.cs.st</groupId>
 	<artifactId>javalanche</artifactId>
-	<version>0.3.7-EvoSuite</version>
+	<version>0.3.7-EvoSuite-1</version>
       </dependency>
 
       <!-- Dependencies needed by javalanche -->

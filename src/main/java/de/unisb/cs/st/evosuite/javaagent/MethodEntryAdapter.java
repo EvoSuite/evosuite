@@ -53,7 +53,6 @@ public class MethodEntryAdapter extends AdviceAdapter{
 	
 	
 	public void onMethodEnter() {
-		super.onMethodEnter();
 
 		if(methodName.equals("<clinit>"))
 			return;
@@ -74,6 +73,7 @@ public class MethodEntryAdapter extends AdviceAdapter{
 			mutationEndLabel.info = new MutationMarker(false);
 			mv.visitLabel(mutationEndLabel);
 		}
+		super.onMethodEnter();
 	}
 
 	public void onMethodExit(int opcode) {

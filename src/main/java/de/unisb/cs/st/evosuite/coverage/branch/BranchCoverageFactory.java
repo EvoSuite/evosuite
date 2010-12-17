@@ -32,6 +32,7 @@ import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
+import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
 /**
@@ -57,7 +58,8 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 		for(String className : CFGMethodAdapter.branch_map.keySet()) {
 			for(String methodName : CFGMethodAdapter.branch_map.get(className).keySet()) {
 				// Get CFG of method
-				ControlFlowGraph cfg = ExecutionTracer.getExecutionTracer().getCFG(className, methodName);
+//				ControlFlowGraph cfg = ExecutionTracer.getExecutionTracer().getCFG(className, methodName);
+				ControlFlowGraph cfg = CFGMethodAdapter.getCFG(className, methodName);
 				
 				for(Entry<Integer,Integer> entry : CFGMethodAdapter.branch_map.get(className).get(methodName).entrySet()) {
 					// Identify vertex in CFG

@@ -26,6 +26,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
@@ -63,7 +64,8 @@ public class MutationGoal extends TestCoverageGoal {
 		this.mutation = mutation;
 		this.className = mutation.getClassName();
 		this.methodName = mutation.getMethodName();
-		this.cfg = ExecutionTracer.getExecutionTracer().getCFG(className, methodName);
+//		this.cfg = ExecutionTracer.getExecutionTracer().getCFG(className, methodName);
+		this.cfg = CFGMethodAdapter.getCFG(className, methodName);
 		try {
 			Class<?> clazz = Class.forName(className);
 			if(methodName.startsWith("<init>")) {

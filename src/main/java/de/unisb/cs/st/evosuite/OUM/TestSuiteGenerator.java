@@ -62,6 +62,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestCaseMinimizer;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
+import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
@@ -736,7 +737,8 @@ public class TestSuiteGenerator {
 		for(String className : CFGMethodAdapter.branch_map.keySet()) {
 			for(String methodName : CFGMethodAdapter.branch_map.get(className).keySet()) {
 				// Get CFG of method
-				ControlFlowGraph cfg = ExecutionTracer.getExecutionTracer().getCFG(className, methodName);
+//				ControlFlowGraph cfg = ExecutionTracer.getExecutionTracer().getCFG(className, methodName);
+				ControlFlowGraph cfg = CFGMethodAdapter.getCFG(className, methodName);
 				
 				for(Entry<Integer,Integer> entry : CFGMethodAdapter.branch_map.get(className).get(methodName).entrySet()) {
 					// Identify vertex in CFG
