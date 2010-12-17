@@ -79,6 +79,10 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		return instance;
 	}
 	
+	public void resetRecursion() {
+		current_recursion.clear();
+	}
+	
 	public void insertRandomCallOnObject(TestCase test, int position) {
 		// add call on existing object
 		VariableReference object = test.getRandomObject(position);
@@ -844,6 +848,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	
 	public VariableReference addMethodFor(TestCase test, VariableReference callee, Method method, int position) throws ConstructionFailedException {
 		logger.debug("Adding method "+method.toGenericString());
+		current_recursion.clear();
 		int length = test.size();
 		List<VariableReference> parameters = null;
 		parameters = satisfyParameters(test, callee, getParameterTypes(callee, method), position, 0);

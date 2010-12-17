@@ -23,6 +23,7 @@ import java.io.PrintStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.objectweb.asm.Type;
@@ -141,10 +142,10 @@ public class AssignmentStatement extends Statement {
 	 * @see de.unisb.cs.st.evosuite.testcase.Statement#getBytecode(org.objectweb.asm.commons.GeneratorAdapter)
 	 */
 	@Override
-	public void getBytecode(GeneratorAdapter mg) {
-		retval.array.loadBytecode(mg);
+	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception) {
+		retval.array.loadBytecode(mg, locals);
 		mg.push(retval.array_index);
-		parameter.loadBytecode(mg);
+		parameter.loadBytecode(mg, locals);
 		mg.arrayStore(Type.getType(parameter.getVariableClass()));
 	}
 }

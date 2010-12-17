@@ -145,7 +145,6 @@ public class ExecutionTrace {
 			covered_methods.put(id, covered_methods.get(id) + 1);
 		
 		if(trace_calls) {
-			logger.trace("Entered method "+classname+"/"+methodname);
 			stack.push(new MethodCall(classname, methodname));
 		}
 	}
@@ -182,7 +181,7 @@ public class ExecutionTrace {
 	public void linePassed(String className, String methodName, int line) {
 		if(trace_calls) {
 			if(stack.isEmpty()) {
-				logger.warn("Method stack is empty!");
+				logger.warn("Method stack is empty: "+className+"."+methodName);
 			} else {
 				stack.peek().line_trace.add(line);
 			}

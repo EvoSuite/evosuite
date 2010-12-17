@@ -75,11 +75,11 @@ public class ExecutionPathClassAdapter extends ClassAdapter {
 			return mv;
 		
 		if (!exclude) {
-			mv = new LineNumberMethodAdapter(mv, className, name, descriptor);
 			if(Properties.MUTATION) {
 				mv = new ReturnValueAdapter(mv, className, name, descriptor);
 			}
 			mv = new MethodEntryAdapter(mv, methodAccess, className, name, descriptor);
+			mv = new LineNumberMethodAdapter(mv, className, name, descriptor);
 		}
 		return mv;
 	}

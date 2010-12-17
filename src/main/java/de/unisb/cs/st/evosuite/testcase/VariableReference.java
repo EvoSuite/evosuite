@@ -21,8 +21,10 @@ package de.unisb.cs.st.evosuite.testcase;
 
 
 import java.lang.reflect.Type;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
@@ -322,27 +324,54 @@ public class VariableReference {
 			return "var"+statement;
 	}
 	
-	public void loadBytecode(GeneratorAdapter mg) {
-		if(array == null)
-			mg.loadLocal(statement);
+	public void loadBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
+		if(array == null) {
+			logger.debug("Loading variable in bytecode: "+statement);
+			if(statement < 0) {
+				mg.visitInsn(Opcodes.ACONST_NULL);
+			}
+			else
+				mg.loadLocal(locals.get(statement), org.objectweb.asm.Type.getType(type.getRawClass()));
+		}
 		else {
-			array.loadBytecode(mg);
+			array.loadBytecode(mg, locals);
 			mg.push(array_index);
 			mg.arrayLoad(org.objectweb.asm.Type.getType(type.getRawClass()));
 		}
 	}
 	
-	public void storeBytecode(GeneratorAdapter mg) {
-		if(array == null)
-			mg.storeLocal(statement);
+	public void storeBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
+		if(array == null) {
+			logger.debug("Storing variable in bytecode: "+statement+" of type "+org.objectweb.asm.Type.getType(type.getRawClass()));
+			if(!locals.containsKey(statement))
+				locals.put(statement, mg.newLocal(org.objectweb.asm.Type.getType(type.getRawClass())));
+			mg.storeLocal(locals.get(statement), org.objectweb.asm.Type.getType(type.getRawClass()));
+		}
 		else {
-			array.loadBytecode(mg);
+			array.loadBytecode(mg, locals);
 			mg.push(array_index);
 			mg.arrayStore(org.objectweb.asm.Type.getType(type.getRawClass()));
 		}
 		
 	}
 
+	public Object getDefaultValue() {
+		if(isVoid())
+			return null;
+		else if(type.isString())
+			return "";
+		else if(isPrimitive()) {
+			if(type.getRawClass().equals(float.class))
+				return 0.0F;
+			else if(type.getRawClass().equals(long.class))
+				return 0L;
+			else if(type.getRawClass().equals(boolean.class))
+				return false;
+			else
+				return 0;
+		} else
+			return null;	
+	}	
 	public String getDefaultValueString() {
 		if(isVoid())
 			return "";

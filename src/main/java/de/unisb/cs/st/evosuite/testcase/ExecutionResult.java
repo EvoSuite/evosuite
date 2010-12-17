@@ -53,11 +53,32 @@ public class ExecutionResult {
 	public NullOutputTrace null_trace;
 	public List<Long> touched = new ArrayList<Long>();
 
+	public ExecutionResult(TestCase t) {
+		exception_statement = 0;
+		trace = null;
+		mutation = null;
+		test = t;
+	}
+	
 	public ExecutionResult(TestCase t, Mutation m) {
 		exception_statement = 0;
 		trace = null;
 		mutation = m;
 		test = t;
+	}
+	
+	public boolean hasTimeout() {
+		if(test == null)
+			return false;
+		
+		int size = test.size();
+		if(exceptions.containsKey(size)) {
+			if(exceptions.get(size) instanceof TestCaseExecutor.TimeoutExceeded) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	public ExecutionResult clone() {

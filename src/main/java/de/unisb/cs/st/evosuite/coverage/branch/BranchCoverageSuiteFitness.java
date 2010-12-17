@@ -125,6 +125,8 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		//logger.info("Got data for predicates: " + predicate_count.size()+"/"+total_branches);
 		for(String key : predicate_count.keySet()) {
 			//logger.info("Key: "+key);
+			if(!true_distance.containsKey(key) || !false_distance.containsKey(key))
+				continue;
 			int num_executed  = predicate_count.get(key);
 			double df = true_distance.get(key);
 			double dt = false_distance.get(key);
