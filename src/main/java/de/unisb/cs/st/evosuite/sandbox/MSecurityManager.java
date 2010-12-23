@@ -19,7 +19,11 @@
 
 package de.unisb.cs.st.evosuite.sandbox;
 
+import java.io.FilePermission;
+import java.net.SocketPermission;
 import java.security.Permission;
+import java.net.NetPermission;
+
 import de.unisb.cs.st.evosuite.Properties;;
 
 /**
@@ -39,30 +43,80 @@ public class MSecurityManager extends SecurityManager
     @Override
     public void checkPermission(Permission perm) 
     {
-    	// check if access was asked for class under test
-    	// If permission is asked for class under test, then throw an exception 
-    	if(checkCallingMethod())
+    	// check access  
+    	if(checkCallingMethod(perm))
     		throw new SecurityException("Security manager blocks all he can block. You've got served!");
-    	
     	return;
     }
     
     /**
-     * Method for checking if permission was asked by class under test.
+     * Method for checking if requested access, specified by the given permission, 
+     * is not permitted.  
      * 
+     * @param perm  permission for which the security manager is asked 
      * @return
      * 		true if permission was asked by class under test,
      * 		false otherwise
      */
-    private boolean checkCallingMethod(){
+    @SuppressWarnings("unused")
+	private boolean checkCallingMethod(Permission perm){
+    	
     	// get all elements of the stack trace for the current thread 
     	StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
     	
+    	// false if "executeTestCase" method wasn't in a stack trace, true otherwise
+    	boolean testExec = false;
+    	
     	// iterate through all elements and check if name of the calling class contains 
-    	// the name of the class under test.  
-    	for(StackTraceElement e : stackTraceElements)
-    		if(e.getClassName().contains(testPackage))
+    	// the name of the class under test. Also keep track of the "executeTestCase" method 
+    	// call.
+    	for(StackTraceElement e : stackTraceElements){
+    		if(e.getMethodName().contains("executeTestCase"))
+    			testExec = true;
+    		if(e.getClassName().contains(testPackage)){
     			return true;
+    		}
+    	}
+    	
+    	// if permission wasn't asked by class under test and "executeTestCase" method was 
+    	// in a stack trace, then there should be a check for I/O and network permissions
+    	if(testExec){
+    		
+    		// check for java.io.FilePermission
+	    	try{
+	    		 FilePermission fp = (FilePermission)perm;
+	    		 
+	    		 // if cast was successful, then forbid access
+	    		 return true;
+	    	}catch(Exception e){
+	    		// do nothing
+	    	}
+	    	
+	    	// check for java.net.SocketPermission
+	    	try{
+	    		 SocketPermission sp = (SocketPermission)perm;
+	    		 
+	    		 // if cast was successful, then forbid access
+	    		 return true;
+	    	}catch(Exception e){
+	    		// do nothing
+	    	}
+	    	
+	    	// check for java.net.NetPermission
+	    	try{
+	    		 NetPermission np = (NetPermission)perm;
+	    		 
+	    		 // if cast was successful, then forbid access
+	    		 return true;
+	    	}catch(Exception e){
+	    		// do nothing
+	    	}
+	    	
+	    	// check RuntimePermission for IO
+	    	if(perm.getActions().contains("writeFileDescriptor") || 
+	    	   perm.getActions().contains("readFileDescriptor"))
+	    		return true;
+    	}
     	
     	return false;
     }
