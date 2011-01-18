@@ -94,8 +94,8 @@ public class StandardGA extends GeneticAlgorithm {
 			// Determine fitness
 			calculateFitness();
 
-			logger.info("Current population: "+getAge()+"/"+max_iterations);
-			logger.info("Highest fitness: "+getBestIndividual().getFitness());
+			logger.debug("Current population: "+getAge()+"/"+max_iterations);
+			logger.info("Best fitness: "+getBestIndividual().getFitness());
 			
 			this.notifyIteration();
 			evolve();

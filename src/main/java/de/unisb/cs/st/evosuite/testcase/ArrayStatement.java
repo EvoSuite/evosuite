@@ -24,7 +24,11 @@ import java.io.PrintStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Randomness;
@@ -45,7 +49,7 @@ public class ArrayStatement extends Statement {
 	
 	public ArrayStatement(VariableReference ret_val) {
 		this.retval = ret_val;
-		this.length = randomness.nextInt(MAX_ARRAY);
+		this.length = randomness.nextInt(MAX_ARRAY) + 1;
 		this.retval.array_length = this.length;
 	}
 
@@ -105,14 +109,8 @@ public class ArrayStatement extends Statement {
 	}
 
 	@Override
-	public String getCode() {
-		return retval.getComponentName() + "[] " +retval.getName() + " = new " + retval.getComponentName() + "["+length+"]";	
-	}
-
-	@Override
 	public String getCode(Throwable exception) {
-		// This should not be possible?
-		return null;
+		return retval.getComponentName() + "[] " +retval.getName() + " = new " + retval.getComponentName() + "["+length+"];";	
 	}
 	
 	@Override
@@ -120,19 +118,6 @@ public class ArrayStatement extends Statement {
 		Set<VariableReference> references = new HashSet<VariableReference>();
 		references.add(retval);
 		return references;
-	}
-
-
-	// TODO: Remove this method alltogether from Statement?
-	@Override
-	public boolean isValid() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-	@Override
-	public boolean references(VariableReference var) {
-		return false;
 	}
 
 	@Override
@@ -149,5 +134,13 @@ public class ArrayStatement extends Statement {
 		return result;
 	}
 
-
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.Statement#getBytecode(org.objectweb.asm.commons.GeneratorAdapter)
+	 */
+	@Override
+	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception) {
+		mg.push(length);
+		mg.newArray(Type.getType((Class<?>)retval.getComponentType()));
+		retval.storeBytecode(mg, locals);
+	}
 }

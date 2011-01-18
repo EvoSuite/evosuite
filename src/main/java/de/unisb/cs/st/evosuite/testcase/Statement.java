@@ -21,12 +21,14 @@ package de.unisb.cs.st.evosuite.testcase;
 
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 
@@ -42,7 +44,7 @@ public abstract class Statement {
 
 	VariableReference retval = null;
 	
-	protected List<Assertion> assertions = new ArrayList<Assertion>();
+	protected Set<Assertion> assertions = new HashSet<Assertion>();
 	
 	protected Throwable exceptionThrown = null;
 
@@ -60,28 +62,31 @@ public abstract class Statement {
 	 * @return
 	 *   True if var is referenced
 	 */
-	public abstract boolean references(VariableReference var);
+	public boolean references(VariableReference var) {
+		return getVariableReferences().contains(var);
+	}
 
 	public abstract Throwable execute(Scope scope, PrintStream out) throws InvocationTargetException, IllegalArgumentException, IllegalAccessException, InstantiationException;
-	
-	/**
-	 * RepOK function
-	 * @return
-	 *   True if this is a valid statement
-	 */
-	public abstract boolean isValid();
 	
 	/**
 	 * Get Java representation of statement
 	 * @return
 	 */
-	public abstract String getCode();
+	public String getCode() {
+		return getCode(null);
+	}
 	
 	/**
 	 * Get Java representation of statement
 	 * @return
 	 */
 	public abstract String getCode(Throwable exception);
+	
+	/**
+	 * Generate bytecode by calling method generator
+	 * @param mg
+	 */
+	public abstract void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception);
 	
 	/**
 	 * 
@@ -134,8 +139,8 @@ public abstract class Statement {
 	 * @return
 	 *   List of the assertion copies
 	 */
-	protected List<Assertion> cloneAssertions() {
-		List<Assertion> copy = new ArrayList<Assertion>();
+	protected Set<Assertion> cloneAssertions() {
+		Set<Assertion> copy = new HashSet<Assertion>();
 		for(Assertion a: assertions) {
 			if(a == null) {
 				logger.info("Assertion is null!");
@@ -214,7 +219,20 @@ public abstract class Statement {
 	/**
 	 * Return list of assertions
 	 */
-	public List<Assertion> getAssertions() {
+	public Set<Assertion> getAssertions() {
 		return assertions;
+	}
+	
+	public Set<Class<?>> getDeclaredExceptions() {
+		Set<Class<?>> ex = new HashSet<Class<?>>();
+		return ex;
+	}
+	
+	public static Class<?> getExceptionClass(Throwable t) {
+		Class<?> clazz = t.getClass();
+		while(!Modifier.isPublic(clazz.getModifiers())) {
+			clazz = clazz.getSuperclass();
+		}
+		return clazz;
 	}
 }

@@ -23,7 +23,11 @@ import java.io.PrintStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
  * An assignment statement assigns a variable to another variable.
@@ -80,14 +84,8 @@ public class AssignmentStatement extends Statement {
 	}
 
 	@Override
-	public String getCode() {
-		return retval.getName() + " = " + parameter.getName();
-	}
-
-	@Override
 	public String getCode(Throwable exception) {
-		// TODO
-		return null;
+		return retval.getName() + " = " + parameter.getName()+";";
 	}
 
 	@Override
@@ -108,29 +106,6 @@ public class AssignmentStatement extends Statement {
 		int result = prime + retval.hashCode() +
 				+ ((parameter == null) ? 0 : parameter.hashCode());
 		return result;
-	}
-
-	@Override
-	public boolean isValid() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-	@Override
-	public boolean references(VariableReference var) {
-		if(retval.equals(var) || parameter.equals(var))
-			return true;	
-		if(var.isArray()) {
-			if(retval.isArrayIndex()) {
-				if(retval.array.equals(var))
-					return true;
-			}
-			if(parameter.isArrayIndex()) {
-				if(parameter.array.equals(var))
-					return true;
-			}
-		}
-		return false;
 	}
 
 	@Override
@@ -163,4 +138,14 @@ public class AssignmentStatement extends Statement {
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.Statement#getBytecode(org.objectweb.asm.commons.GeneratorAdapter)
+	 */
+	@Override
+	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception) {
+		retval.array.loadBytecode(mg, locals);
+		mg.push(retval.array_index);
+		parameter.loadBytecode(mg, locals);
+		mg.arrayStore(Type.getType(parameter.getVariableClass()));
+	}
 }

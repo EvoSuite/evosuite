@@ -95,7 +95,7 @@ public class TestChromosome extends Chromosome {
 	 * @throws ConstructionFailedException 
 	 */
 	public void crossOver(Chromosome other, int position1, int position2) throws ConstructionFailedException  {
-		
+		logger.debug("Crossover starting");
 		TestChromosome offspring = new TestChromosome();
 		
 		for(int i=0; i<position1; i++) {
@@ -233,12 +233,14 @@ public class TestChromosome extends Chromosome {
 							as.parameter = randomness.choice(objects);
 							changed = true;
 						}
-					} else if(as.retval.array_length > 0){
+					} else if(as.retval.array_length > 0) {
 						as.retval.array_index = randomness.nextInt(as.retval.array_length);
 						changed = true;
 					}
 					//logger.info("After change:");
 					//logger.info(test.toCode());
+				} else if (statement.retval.isArray()) {
+					
 				} else {
 					changed = test_factory.changeRandomCall(test, statement);
 				}

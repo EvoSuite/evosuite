@@ -44,6 +44,8 @@ public class LineNumberMethodAdapter extends MethodAdapter {
 	
 	private String fullMethodName;
 	
+	private String methodName;
+	
 	private String className;
 	
 	int current_line = 0;
@@ -53,11 +55,15 @@ public class LineNumberMethodAdapter extends MethodAdapter {
 		super(mv);
 		fullMethodName = methodName + desc;
 		this.className = className;
+		this.methodName = methodName;
 	}
 
 	
 	public void visitLineNumber(int line, Label start) {
 		super.visitLineNumber(line, start);
+		if(methodName.equals("<clinit>"))
+			return;
+
 		if(Properties.MUTATION) {
 			Label mutationStartLabel = new Label();
 			mutationStartLabel.info = new MutationMarker(true);

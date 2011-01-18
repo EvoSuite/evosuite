@@ -59,7 +59,7 @@ public abstract class TestCoverageGoal {
 		return false;
 	}
 	
-	protected static boolean hasTimeout(ExecutionResult result) {
+	public static boolean hasTimeout(ExecutionResult result) {
 		
 		if(result == null) {
 			logger.warn("Result is null!");

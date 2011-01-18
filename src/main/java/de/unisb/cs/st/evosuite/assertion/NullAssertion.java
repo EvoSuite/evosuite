@@ -44,10 +44,10 @@ public class NullAssertion extends Assertion {
 	@Override
 	public String getCode() {
 		if(((Boolean)value).booleanValue()) {
-			return "assertNull("+source.getName()+")";
+			return "assertNull("+source.getName()+");";
 		}
 		else
-			return "assertNotNull("+source.getName()+")";
+			return "assertNotNull("+source.getName()+");";
 	}
 
 }

@@ -20,9 +20,11 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
@@ -48,8 +50,16 @@ public class InspectorTrace extends OutputTrace {
 	
 	public InspectorTrace clone() {
 		InspectorTrace trace = new InspectorTrace();
-		trace.return_values.putAll(return_values);
-		trace.inspector_results.putAll(inspector_results);
+		
+		Set<Entry<Integer,List<Object>>> set1 = inspector_results.entrySet();
+		for(Entry<Integer,List<Object>> e : set1) 
+			trace.inspector_results.put(e.getKey(), new ArrayList<Object>(e.getValue()));
+		
+		for(Entry<Integer,VariableReference> e : return_values.entrySet())
+			trace.return_values.put(e.getKey(), e.getValue().clone());
+		
+		//trace.return_values.putAll(return_values);
+		//trace.inspector_results.putAll(inspector_results);
 		return trace;
 	}
 	
@@ -87,17 +97,16 @@ public class InspectorTrace extends OutputTrace {
 		
 		InspectorTrace other = (InspectorTrace) other_trace;
 		int num_assertions = 0;
-		
 		for(int line=0; line<test.size(); line++) {
 			if(inspector_results.containsKey(line) && other.inspector_results.containsKey(line)) {
 				
 				List<Object> own_results   = inspector_results.get(line);
 				List<Object> other_results = other.inspector_results.get(line);
 				for(int i = 0; i< other_results.size() && i < own_results.size(); i++) { 
-					if(own_results.get(i) == null) {
-						continue;
-					} else if(!own_results.get(i).equals(other_results.get(i))) {
-						logger.debug("Found inspector assertion");
+					if((own_results.get(i) == null && other_results.get(i) != null) ||
+					   (own_results.get(i) != null && !own_results.get(i).equals(other_results.get(i)))) {
+						logger.debug("Found inspector assertion: ");
+						
 						InspectorAssertion assertion = new InspectorAssertion();
 						assertion.source = return_values.get(line); 
 						List<Inspector> inspectors = manager.getInspectors(assertion.source.getVariableClass());
@@ -109,6 +118,7 @@ public class InspectorTrace extends OutputTrace {
 							logger.error("Invalid inspector assertion generated!");
 							if(line != assertion.source.statement)
 								logger.error("...because line doesn't match!");
+							logger.error(""+own_results.get(i)+" / "+other.inspector_results.get(i));
 						} else {
 							test.getStatement(line).addAssertion(assertion);
 							num_assertions++;							
@@ -130,7 +140,7 @@ public class InspectorTrace extends OutputTrace {
 		for(Entry<Integer, List<Object> > entry : inspector_results.entrySet()) {
 			if(other.inspector_results.containsKey(entry.getKey())) {
 				if(entry.getValue() == null && other.inspector_results.get(entry.getKey()) != null) {
-					num++;
+					num++; // Shouldn't happen
 				}
 				else if(entry.getValue() != null) {
 					List<Object> other_results = other.inspector_results.get(entry.getKey());
@@ -139,8 +149,11 @@ public class InspectorTrace extends OutputTrace {
 					else {
 						int pos = 0;
 						for(Object o : entry.getValue()) {
-							if(o != null && other_results.size() > pos && (other_results.get(pos) == null || !o.equals(other_results.get(pos))))
+//							if(o != null && other_results.size() > pos && (other_results.get(pos) == null || !o.equals(other_results.get(pos))))
+							if(o != null && other_results.size() > pos && (!o.equals(other_results.get(pos)))) {
+								logger.debug("Difference found at "+entry.getKey()+", inspector "+pos+": "+o+"/"+other_results.get(pos));
 								num++;
+							}
 							pos++;
 						}
 					}

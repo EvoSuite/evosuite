@@ -24,5 +24,5 @@ public class Triangle
 			else
 				return 2;
 		}
-	}
+	}	
 }

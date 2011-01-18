@@ -17,7 +17,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
 import de.unisb.cs.st.evosuite.Properties;
 
 /**
- * @author fraser
+ * @author Gordon Fraser
  *
  */
 public class PrintBytecodeTransformer implements ClassFileTransformer {
@@ -41,6 +41,7 @@ public class PrintBytecodeTransformer implements ClassFileTransformer {
 
 				ClassVisitor cv = writer;
 				if(classNameWithDots.equals(target_class) || (classNameWithDots.startsWith(target_class+"$"))) {
+//				if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)) {
 					cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 				}
 				reader.accept(cv, ClassReader.SKIP_FRAMES);

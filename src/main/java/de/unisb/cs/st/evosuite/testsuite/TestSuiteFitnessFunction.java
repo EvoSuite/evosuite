@@ -95,8 +95,15 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 			//}
 		} catch(Exception e) {
 			System.out.println("TG: Exception caught: "+e);
-			e.printStackTrace();
-			System.exit(1);
+			try {
+				Thread.sleep(1000);
+				result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+			} catch (Exception e1) {
+				e.printStackTrace();
+				// TODO: Do some error recovery?
+				System.exit(1);
+			}
+
 		}
 
 		//System.out.println("TG: Killed "+result.getNumKilled()+" out of "+mutants.size());

@@ -20,7 +20,6 @@
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,9 +29,6 @@ import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
 /**
@@ -104,7 +100,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 				for (String fieldName : CFGMethodAdapter.def_map.get(className).get(methodName).keySet()) 
 					for (Entry<Integer, List<CFGVertex>> entry : CFGMethodAdapter.def_map.get(className).get(methodName).get(fieldName).entrySet()) {
 						
-						ControlFlowGraph cfg = ExecutionTracer.getExecutionTracer().getCompleteCFG(className, methodName);
+						ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(className, methodName);
 						CFGVertex v = cfg.getVertex(entry.getKey());
 
 						if (entry.getKey() != -1 && v == null) 
@@ -137,7 +133,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 				for (String varName : CFGMethodAdapter.use_map.get(className).get(methodName).keySet()) 
 					for (Entry<Integer, List<CFGVertex>> entry : CFGMethodAdapter.use_map.get(className).get(methodName).get(varName).entrySet()) {
 
-						ControlFlowGraph cfg = ExecutionTracer.getExecutionTracer().getCompleteCFG(className, methodName);
+						ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(className, methodName);
 						CFGVertex v = cfg.getVertex(entry.getKey());
 
 						if (entry.getKey() != -1 && v == null)
@@ -168,7 +164,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 					for (Entry<Integer, List<CFGVertex>> entry : CFGMethodAdapter.def_map.get(className).get(methodName).get(varName).entrySet()) {
 
 						// cfg of defs method
-						ControlFlowGraph cfg = ExecutionTracer.getExecutionTracer().getCompleteCFG(className, methodName);
+						ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(className, methodName);
 						if(cfg == null) 
 							throw new IllegalStateException("Didnt find complete cfg for "+className+"."+methodName);
 						

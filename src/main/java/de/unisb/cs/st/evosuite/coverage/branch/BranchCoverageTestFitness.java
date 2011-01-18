@@ -20,7 +20,7 @@
 
 package de.unisb.cs.st.evosuite.coverage.branch;
 
-import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal.Distance;
+import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
@@ -49,7 +49,7 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	 */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
-		Distance distance = goal.getDistance(result); 
+		ControlFlowDistance distance = goal.getDistance(result); 
 		double fitness = 0.0; 
 	
 		fitness = distance.approach + normalize(distance.branch);

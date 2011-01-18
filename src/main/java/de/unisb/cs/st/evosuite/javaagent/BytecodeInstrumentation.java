@@ -33,6 +33,7 @@ import org.objectweb.asm.ClassWriter;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGClassAdapter;
 import de.unisb.cs.st.evosuite.primitives.PrimitiveClassAdapter;
+import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.Excludes;
 
 
@@ -45,6 +46,13 @@ import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutation
  */
 public class BytecodeInstrumentation implements ClassFileTransformer {
 
+	private static Hierarchy hierarchy;
+	
+	static {
+		if(Properties.INSTRUMENT_PARENT) 
+			hierarchy = Hierarchy.readFromDefaultLocation();
+	}
+
 	protected static Logger logger = Logger
 	.getLogger(BytecodeInstrumentation.class);
 
@@ -55,6 +63,19 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	protected boolean static_hack = Properties.getPropertyOrDefault("static_hack", false);
 	
 	private boolean makeAllAccessible = Properties.getPropertyOrDefault("make_accessible", false);
+	
+	private boolean isTargetClass(String className) {
+		if(className.equals(target_class) || className.startsWith(target_class+"$")) {
+			return true;
+		}
+
+		if(Properties.INSTRUMENT_PARENT) {
+			return hierarchy.getAllSupers(target_class).contains(className);
+		}
+		
+		
+		return false;
+	}
 	
 	static {
 		logger.info("Loading bytecode transformer for "+Properties.PROJECT_PREFIX);
@@ -72,7 +93,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 				String classNameWithDots = className.replace('/', '.');
 				
 				// Some packages we shouldn't touch - hard-coded
-				if (!classNameWithDots.startsWith("java2.util2") && (classNameWithDots.startsWith("java")
+				if (!classNameWithDots.startsWith(Properties.PROJECT_PREFIX) && (classNameWithDots.startsWith("java")
 						|| classNameWithDots.startsWith("sun")
 						|| classNameWithDots.startsWith("org.aspectj.org.eclipse")
 						|| classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
@@ -95,21 +116,23 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 					
 					// Print out bytecode if debug is enabled
 					//if(logger.isDebugEnabled())
-					//	cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+						//cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 
 					// Apply transformations to class under test and its owned classes
-					if(classNameWithDots.equals(target_class) || (classNameWithDots.startsWith(target_class+"$"))) {
-						cv = new AccessibleClassAdapter(cv);
+					if(isTargetClass(classNameWithDots)) {
+						cv = new AccessibleClassAdapter(cv, className);
 						cv = new ExecutionPathClassAdapter(cv, className);
 						cv = new CFGClassAdapter(cv, className);
 
 					} else if(makeAllAccessible) {
 						// Convert protected/default access to public access
-						cv = new AccessibleClassAdapter(cv);
+						cv = new AccessibleClassAdapter(cv, className);
 					}
 					
 					// Collect constant values for the value pool
-					cv = new PrimitiveClassAdapter(cv, className);
+					if(!Properties.MUTATION) {
+						cv = new PrimitiveClassAdapter(cv, className);
+					}
 					
 					// If we need to reset static constructors, make them explicit methods
 					if(static_hack)
@@ -117,7 +140,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 					
 					// Print out bytecode if debug is enabled
 					//if(logger.isDebugEnabled())
-					//	cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+						//cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 					
 					reader.accept(cv, ClassReader.SKIP_FRAMES);
 					classfileBuffer = writer.toByteArray();

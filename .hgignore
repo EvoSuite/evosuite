@@ -6,6 +6,9 @@ evosuite-report
 evosuite-tests
 build
 .DS_Store
+.project
+.settings
+.classpath
 
 syntax: regexp
 ^lib/evosuite\.jar$

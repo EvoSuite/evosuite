@@ -25,7 +25,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.lang.ClassUtils;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
  * Statement that accesses an instance/class field
@@ -72,42 +79,34 @@ public class FieldStatement extends Statement {
 		this.source = source;
 	}
 	
-	@Override
-	public boolean isValid() {
-		return retval.isAssignableFrom(field.getType());
+	public boolean isStatic() {
+		return Modifier.isStatic(field.getModifiers());
 	}
-
-	@Override
-	public String getCode() {
-		String cast_str = "";
-		if(field == null)
-			logger.warn("Field is null: "+className+"."+fieldName);
-		if(!retval.getVariableClass().isAssignableFrom(field.getType())) {
-			cast_str = "(" + retval.getSimpleClassName()+ ")";
-		}
-
-		if(!Modifier.isStatic(field.getModifiers()))
-			return retval.getSimpleClassName() +" "+ retval.getName() + " = " + cast_str + source.getName() + "." + field.getName();
-		else
-			return retval.getSimpleClassName() +" "+ retval.getName() + " = " + cast_str + field.getDeclaringClass().getSimpleName()+"." + field.getName();
-	}
-
 
 	@Override
 	public String getCode(Throwable exception) {
 		String cast_str = "  ";
+		String result = "";
 		if(!retval.getVariableClass().isAssignableFrom(field.getType())) {
 			cast_str += "(" + retval.getSimpleClassName()+ ")";
 		}
 
-		
-		String result = retval.getSimpleClassName() +" "+ retval.getName() + " = null;\n";
-		result += "try {\n";
+		if(exception != null) {
+			result = retval.getSimpleClassName() +" "+ retval.getName() + " = null;\n";
+			result += "try {\n  ";
+		} else {
+			result = retval.getSimpleClassName() +" ";			
+		}
 		if(!Modifier.isStatic(field.getModifiers()))
-			result += cast_str + source.getName() + "." + field.getName()+";\n";
+			result += retval.getName()+ " = " + cast_str + source.getName() + "." + field.getName()+";";
 		else
-			result += cast_str + field.getDeclaringClass().getSimpleName()+"." + field.getName()+";\n";
-		result += "} catch("+exception.getClass().getSimpleName()+" e) {}";
+			result += retval.getName()+ " = " + cast_str + field.getDeclaringClass().getSimpleName()+"." + field.getName()+";";
+		if(exception != null) {
+			Class<?> ex = exception.getClass();
+			while(!Modifier.isPublic(ex.getModifiers()))
+				ex = ex.getSuperclass();
+			result += "\n} catch("+ClassUtils.getShortClassName(ex)+" e) {}";
+		}
 		
 		return result;
 	}
@@ -125,16 +124,25 @@ public class FieldStatement extends Statement {
 			throws InvocationTargetException, IllegalArgumentException,
 			IllegalAccessException, InstantiationException {
 		Object source_object = null;
-		if(!Modifier.isStatic(field.getModifiers())) {
-			source_object = scope.get(source);
-			if(source_object == null) {
-		        scope.set(retval, null);
-		        return exceptionThrown;
+		try {
+			if(!Modifier.isStatic(field.getModifiers())) {
+				source_object = scope.get(source);
+				if(source_object == null) {
+					scope.set(retval, null);
+					return new NullPointerException();
+				}
+
 			}
-				
+			Object ret = field.get(source_object);
+			scope.set(retval, ret);
+		} catch (Throwable e) {
+	          if (e instanceof java.lang.reflect.InvocationTargetException) {
+	              e = e.getCause();
+		    	  logger.debug("Exception thrown in constructor: "+e);
+	          } else
+		    	  logger.debug("Exception thrown in constructor: "+e);
+      	  exceptionThrown = e;
 		}
-		Object ret = field.get(source_object);
-        scope.set(retval, ret);
         return exceptionThrown;
 	}
 
@@ -147,22 +155,14 @@ public class FieldStatement extends Statement {
 	}
 
 	@Override
-	public boolean references(VariableReference var) {
-		if(!Modifier.isStatic(field.getModifiers())) {
-			if(source.equals(var))
-				return true;
-			if(source.isArrayIndex() && source.array.equals(var))
-				return true;
-		}
-		return false;
-	}
-
-	@Override
 	public Set<VariableReference> getVariableReferences() {
 		Set<VariableReference> references = new HashSet<VariableReference>();
 		references.add(retval);
-		if(!Modifier.isStatic(field.getModifiers()))
+		if(!Modifier.isStatic(field.getModifiers())) {
 			references.add(source);
+			if(source.isArrayIndex())
+				references.add(source.array);
+		}
 		return references;
 
 	}
@@ -204,5 +204,67 @@ public class FieldStatement extends Statement {
 			source = newVar;
 		
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.Statement#getBytecode(org.objectweb.asm.commons.GeneratorAdapter)
+	 */
+	@Override
+	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception) {
+		
+		Label start = mg.newLabel();
+		Label end = mg.newLabel();
+		
+		//if(exception != null)
+			mg.mark(start);
+
+		if(!isStatic()) {
+			source.loadBytecode(mg, locals);
+		}
+		if(isStatic())
+			mg.getStatic(Type.getType(field.getDeclaringClass()), field.getName(), Type.getType(field.getType()));
+		else {
+			if(!source.getVariableClass().isInterface()) {
+				mg.getField(Type.getType(source.getVariableClass()), field.getName(), Type.getType(field.getType()));
+			} else {
+				mg.getField(Type.getType(field.getDeclaringClass()), field.getName(), Type.getType(field.getType()));
+			} 
+		}
+
+		retval.storeBytecode(mg, locals);
+		
+		//if(exception != null) {
+			mg.mark(end);
+			Label l = mg.newLabel();
+			mg.goTo(l);
+//			mg.catchException(start, end, Type.getType(exception.getClass()));
+			mg.catchException(start, end, Type.getType(Throwable.class));
+			mg.pop(); // Pop exception from stack
+			if(!retval.isVoid()) {
+				Class<?> clazz = retval.getVariableClass();
+				if(clazz.equals(boolean.class))
+					mg.push(false);
+				else if(clazz.equals(char.class))
+					mg.push(0);
+				else if(clazz.equals(int.class))
+					mg.push(0);
+				else if(clazz.equals(short.class))
+					mg.push(0);
+				else if(clazz.equals(long.class))
+					mg.push(0L);
+				else if(clazz.equals(float.class))
+					mg.push(0.0F);
+				else if(clazz.equals(double.class))
+					mg.push(0.0);
+				else if(clazz.equals(byte.class))
+					mg.push(0);
+				else if(clazz.equals(String.class))
+					mg.push("");
+				else
+		            mg.visitInsn(Opcodes.ACONST_NULL);
+				
+				retval.storeBytecode(mg, locals);
+			}
+			mg.mark(l);
+		//}
+	}
 }

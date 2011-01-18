@@ -101,6 +101,7 @@
           description="Compile main code">
     <mkdir dir="${build.classes}"/>
     <javac  srcdir="${source.java}"
+    	 target="1.6"
            destdir="${build.classes}"
              debug="${compile.debug}"
        deprecation="${compile.deprecation}"

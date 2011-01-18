@@ -21,6 +21,7 @@ package de.unisb.cs.st.evosuite.testcase;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -121,7 +122,7 @@ public class TestCase {
 				code += s.getCode(exceptions.get(i)) + "\n";
 				code += s.getAssertionCode();
 			} else {
-				code += s.getCode() + ";\n";
+				code += s.getCode() + "\n";
 				code += s.getAssertionCode();		// TODO: Handle semicolons properly		
 			}
 		}
@@ -143,14 +144,16 @@ public class TestCase {
 		for(int i=0; i<position && i < size(); i++) {
 			if(statements.get(i).retval == null)
 				continue;
-			if(statements.get(i).retval.isArray() && GenericClass.isAssignable(type, statements.get(i).retval.getComponentType())) {
-				// Add components
-				//variables.add(new VariableReference(statements.get(i).retval.clone(), Randomness.getInstance().nextInt(MAX_ARRAY), i));
-				//ArrayStatement as = (ArrayStatement)statements.get(i);
-				for(int index = 0; index < statements.get(i).retval.array_length; index++) {
-					variables.add(new VariableReference(statements.get(i).retval.clone(), index, statements.get(i).retval.array_length, i));
+			if(statements.get(i).retval.isArray()) {
+				if(GenericClass.isAssignable(type, statements.get(i).retval.getComponentType())) {
+					// Add components
+					//variables.add(new VariableReference(statements.get(i).retval.clone(), Randomness.getInstance().nextInt(MAX_ARRAY), i));
+					//ArrayStatement as = (ArrayStatement)statements.get(i);
+					for(int index = 0; index < statements.get(i).retval.array_length; index++) {
+						variables.add(new VariableReference(statements.get(i).retval.clone(), index, statements.get(i).retval.array_length, i));
+					}
 				}
-			} else if(statements.get(i).retval.isArrayIndex() && GenericClass.isAssignable(type, statements.get(i).retval.array.getComponentType())) {
+			} else if(statements.get(i).retval.isArrayIndex()) { // && GenericClass.isAssignable(type, statements.get(i).retval.array.getComponentType())) {
 				// Don't need to add this
 			} else if(statements.get(i).retval.isAssignableTo(type)) {
 	//			if(constraint == null || constraint.isValid(statements.get(i).getReturnValue()))
@@ -180,7 +183,6 @@ public class TestCase {
 		for(int i=0; i<position && i < statements.size(); i++) {
 			if(statements.get(i).retval == null)
 				continue;
-			variables.add(new VariableReference(statements.get(i).getReturnType(), i));
 			// TODO: Need to support arrays that were not self-created
 			if(statements.get(i).retval.isArray()) { // && statements.get(i).retval.array != null) {
 				// Add a single component
@@ -191,8 +193,11 @@ public class TestCase {
 				//	variables.add(new VariableReference(as.retval.clone(), index, as.size(), i));
 				//}
 				for(int index = 0; index < statements.get(i).retval.array_length; index++) {
+//					variables.add(new VariableReference(statements.get(i).retval.clone(), index, statements.get(i).retval.array_length, i));
 					variables.add(new VariableReference(statements.get(i).retval.clone(), index, statements.get(i).retval.array_length, i));
 				}
+			} else if(!statements.get(i).retval.isArrayIndex()) { 
+				variables.add(new VariableReference(statements.get(i).getReturnType(), i));
 			}
 			//logger.trace(statements.get(i).retval.getSimpleClassName());				
 		}
@@ -263,27 +268,6 @@ public class TestCase {
 		return variables.get(num).clone();
 	}
 
-	/**
-	 * Return the last object in the test case that matches type
-	 * 
-	 * @param type
-	 *    Class of object we are looking for
-	 * @return
-	 *    Last object
-	 * @throws ConstructionFailedException
-	 *    If there is no object of this type
-	 */
-	public VariableReference getLastObject(Type type) throws ConstructionFailedException {
-		if(statements.isEmpty()) { 
-			for(int i=statements.size() - 1; i<=0; i--) {
-				logger.info("Checking statement "+i);
-				if(statements.get(i).retval.isAssignableTo(type)) {
-					return new VariableReference(type, i);
-				}
-			}
-		}
-		throw new ConstructionFailedException();
-	}
 
 	/**
 	 * Get actual object represented by a variable for a given execution scope
@@ -343,10 +327,9 @@ public class TestCase {
 	 * @return
 	 *   Return value of statement
 	 */
-	public VariableReference addStatement(Statement statement, int position) {
+	public void addStatement(Statement statement, int position) {
 		fixVariableReferences(position, 1);
 		statements.add(position, statement);
-		return new VariableReference(statement.getReturnType(), position); // TODO: -1? 
 	}
 
 	/**
@@ -356,9 +339,8 @@ public class TestCase {
 	 * @return
 	 *   VariableReference of return value
 	 */
-	public VariableReference addStatement(Statement statement) {
+	public void addStatement(Statement statement) {
 		statements.add(statement);
-		return new VariableReference(statement.getReturnType(), statements.size() - 1); // TODO: -1? 
 	}
 	
 	/**
@@ -574,6 +556,19 @@ public class TestCase {
 					accessed_classes.add(clazz);
 				}
 			}
+			if(s instanceof MethodStatement) {
+				MethodStatement ms = (MethodStatement)s;
+				accessed_classes.addAll(Arrays.asList(ms.getMethod().getExceptionTypes()));
+				accessed_classes.add(ms.getMethod().getDeclaringClass());
+				accessed_classes.add(ms.getMethod().getReturnType());
+			} else if(s instanceof FieldStatement) {
+				FieldStatement fs = (FieldStatement)s;
+				accessed_classes.add(fs.getField().getDeclaringClass());
+				accessed_classes.add(fs.getField().getType());
+			} else if(s instanceof ConstructorStatement) {
+				ConstructorStatement cs = (ConstructorStatement)s;
+				accessed_classes.add(cs.getConstructor().getDeclaringClass());
+			}
 		}		
 		return accessed_classes;
 	}
@@ -631,6 +626,7 @@ public class TestCase {
 		for(Statement s : statements) {
 			s.removeAssertions();
 		}
+
 	}
 	
 	/**
@@ -647,5 +643,13 @@ public class TestCase {
 			num++;
 		}
 		return true;
+	}
+	
+	public Set<Class<?>> getDeclaredExceptions() {
+		Set<Class<?>> exceptions = new HashSet<Class<?>>();
+		for(Statement statement : statements) {
+			exceptions.addAll(statement.getDeclaredExceptions());
+		}
+		return exceptions;
 	}
 }

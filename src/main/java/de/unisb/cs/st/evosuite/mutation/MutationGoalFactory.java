@@ -22,10 +22,12 @@ package de.unisb.cs.st.evosuite.mutation;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMSwitcher;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
+import de.unisb.cs.st.javalanche.mutation.results.Mutation.MutationType;
 
 /**
  * @author Gordon Fraser
@@ -41,8 +43,17 @@ public class MutationGoalFactory implements TestFitnessFactory {
 		HOMSwitcher hom_switcher = new HOMSwitcher();
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
 		System.out.println("* Created "+hom_switcher.getNumMutants()+" mutants");
+		boolean VRO = Properties.getPropertyOrDefault("VRO", false);
 		for(Mutation mutation : hom_switcher.getMutants()) {
-			goals.add(new MutationTestFitness(mutation));
+			if(VRO) {
+				if(!mutation.getMethodName().equals("<clinit>()V") && mutation.getMutationType().equals(MutationType.REPLACE_VARIABLE)) {
+					goals.add(new MutationTestFitness(mutation));
+				}				
+			} else {
+				if(!mutation.getMethodName().equals("<clinit>()V") && !mutation.getMutationType().equals(MutationType.REPLACE_VARIABLE)) {
+					goals.add(new MutationTestFitness(mutation));
+				}
+			}
 		}
 		
 		return goals;

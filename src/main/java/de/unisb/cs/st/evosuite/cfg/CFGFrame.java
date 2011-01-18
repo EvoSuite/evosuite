@@ -25,14 +25,14 @@ import java.util.Map;
 
 import org.objectweb.asm.tree.analysis.Frame;
 
-public class CFGNode extends Frame { 
-	Map<Integer, CFGNode> successors = new HashMap<Integer, CFGNode>();
+public class CFGFrame extends Frame { 
+	Map<Integer, CFGFrame> successors = new HashMap<Integer, CFGFrame>();
 	
-	public CFGNode(int nLocals, int nStack) {
+	public CFGFrame(int nLocals, int nStack) {
 		super(nLocals, nStack);
 	}
 	
-	public CFGNode(Frame src) {
+	public CFGFrame(Frame src) {
 		super(src);
 	}
 	

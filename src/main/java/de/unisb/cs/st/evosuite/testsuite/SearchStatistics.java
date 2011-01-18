@@ -59,6 +59,7 @@ import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.MaxFitnessEvaluationsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.Randomness;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
+import de.unisb.cs.st.evosuite.mutation.MutationSuiteFitness;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.MaxStatementsStoppingCondition;
@@ -264,23 +265,18 @@ public class SearchStatistics implements SearchListener {
 		buffer.append("\n</title>\n");
 		
 		buffer.append("<link href=\"prettify.css\" type=\"text/css\" rel=\"stylesheet\" />\n");
+		buffer.append("<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\"/>\n");
 		buffer.append("<script type=\"text/javascript\" src=\"prettify.js\"></script>\n");
-		/*
-		buffer.append("<link type=\"text/css\" rel=\"stylesheet\" href=\"SyntaxHighlighter.css\"></link>\n");
-		buffer.append("<script language=\"javascript\" src=\"shCore.js\"></script>\n");
-		buffer.append("<script language=\"javascript\" src=\"shBrushJava.js\"></script>\n");
-		buffer.append("<script language=\"javascript\">\n");
-		buffer.append("dp.SyntaxHighlighter.HighlightAll('code');\n");
-		buffer.append("</script>\n");
-		*/
 		buffer.append("</head>\n");
 		buffer.append("<body onload=\"prettyPrint()\">\n");
+		buffer.append("<div id=\"wrapper\">\n");
 	}
 
 	/**
 	 * HTML footer
 	 */
 	protected void writeHTMLFooter(StringBuffer buffer) {
+		buffer.append("</div>\n");
 		buffer.append("</body>\n");
 		buffer.append("</html>\n");
 	}
@@ -336,20 +332,22 @@ public class SearchStatistics implements SearchListener {
 		StringBuffer sb = new StringBuffer();
 		writeHTMLHeader(sb, run.className);
 		
+		sb.append("<div id=\"header\"><div id=\"logo\">");
 		sb.append("<h1>");
 		sb.append(run.className);
 		sb.append(": ");
 		sb.append(String.format("%.2f", 100.0*run.covered_goals/run.total_goals));
 		sb.append("%");
-		sb.append("</h1>\n");
+		sb.append("</h1></div></div>\n");
 		sb.append("<p><a href=\"../report-generation.html\">Overview</a></p>\n");
 		
-		writeParameterTable(sb, run);
 		writeResultTable(sb, run);
 		//writeMutationTable(sb);
-		
+		sb.append("<div id=\"page\"><div id=\"page-bgtop\"><div id=\"page-bgbtm\"><div id=\"content\">");
+		sb.append("<div id=\"post\">");
+
 		// Resulting test case
-		sb.append("<h2>Test suite</h2>\n");
+		sb.append("<h2 class=title>Test suite</h2>\n");
 		if(run.tests != null) {
 			int num = 0;
 			for(TestCase test : run.tests) {
@@ -391,6 +389,8 @@ public class SearchStatistics implements SearchListener {
 		} else {
 			sb.append("No test cases generated");
 		}
+		sb.append("</div>");
+		sb.append("<div id=\"post\">");
 
 		// Source code
 		/*
@@ -468,11 +468,12 @@ public class SearchStatistics implements SearchListener {
 				sb.append("</p>\n");
 			}	
 		}
-		
-		
+		sb.append("</div>");
+		sb.append("<div id=\"post\">");
+
 		// Source code
 		Iterable<String> source = html_analyzer.getClassContent(run.className); 
-		sb.append("<h2>Source Code</h2>\n");
+		sb.append("<h2 class=title>Source Code</h2>\n");
 		sb.append("<p>");
 		sb.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">");
 		int linecount = 1;
@@ -494,6 +495,11 @@ public class SearchStatistics implements SearchListener {
 		sb.append("</pre>\n");
 
 		sb.append("</p>\n");
+		sb.append("</div>");
+		sb.append("<div id=\"post\">");
+
+		writeParameterTable(sb, run);
+		sb.append("</div>");
 
 		
 		writeHTMLFooter(sb);
@@ -708,11 +714,13 @@ public class SearchStatistics implements SearchListener {
 		
 		copyFile("prettify.js");
 		copyFile("prettify.css");
+		copyFile("style.css");
 		copyFile("detected.png");
 		copyFile("not_detected.png");
-		//copyFile("SyntaxHighlighter.css");
-		//copyFile("shCore.js");
-		//copyFile("shBrushJava.js");
+		copyFile("img01.jpg");
+		copyFile("img02.jpg");
+		copyFile("img03.jpg");
+		copyFile("img04.png");
 		File file = new File(REPORT_DIR, "report-generation.html");		
 		StringBuffer report = new StringBuffer();
 		
@@ -727,15 +735,19 @@ public class SearchStatistics implements SearchListener {
 		} else {
 		
 			writeHTMLHeader(report, "EvoSuite Report for "+ Properties.getProperty("PROJECT_PREFIX"));
-		
-			report.append("<h1>EvoSuite Report for "+ Properties.getProperty("PROJECT_PREFIX") +"</h1>\n");
+			report.append("<div id=\"header\"><div id=\"logo\">");
+			report.append("<h1 class=title>EvoSuite Report for "+ Properties.getProperty("PROJECT_PREFIX") +"</h1>\n");
+			report.append("</div></div>");
 			try {
-				report.append("<h2>Run on "+java.net.InetAddress.getLocalHost().getHostName()+"</h2>\n");
+				report.append("Run on "+java.net.InetAddress.getLocalHost().getHostName()+"\n");
 			} catch (UnknownHostException e) {
 			}
 		
-			report.append("<h2>Test generation runs:</h2>\n");
-			report.append("<table border=1>");
+			report.append("<div id=\"page\"><div id=\"page-bgtop\"><div id=\"page-bgbtm\"><div id=\"content\">");
+			report.append("<div id=\"post\">");
+			report.append("<h2 class=\"title\">Test generation runs:</h2>\n");
+			report.append("<div style=\"clear: both;\">&nbsp;</div><div class=\"entry\">");
+			report.append("<table border=1 cellspacing=0 cellpadding=3>");
 			report.append("<tr>");
 			report.append("<td>Run</td>");
 			report.append("<td>Date</td>");
@@ -746,6 +758,8 @@ public class SearchStatistics implements SearchListener {
 			report.append("</tr>\n");
 		}
 		writeRunTable(report);
+		report.append("</div></div></div></div></div></div>");
+
 		writeHTMLFooter(report);
 
 		Io.writeFile(report.toString(), file);
@@ -770,7 +784,7 @@ public class SearchStatistics implements SearchListener {
 	private ExecutionTrace executeTest(TestCase test, String className) {
 		ExecutionTrace trace = null;
 		try {
-			logger.trace(test.toCode());
+			//logger.trace(test.toCode());
 			TestCaseExecutor executor = new TestCaseExecutor();
 			Map<Integer,Throwable> result = executor.runWithTrace(test);
 			StatisticEntry entry = statistics.get(statistics.size() - 1);
@@ -780,9 +794,14 @@ public class SearchStatistics implements SearchListener {
 
 		} catch(Exception e) {
 			System.out.println("TG: Exception caught: "+e);
-			e.printStackTrace();
-			System.exit(1);
-		}
+			try {
+				Thread.sleep(1000);
+				trace = ExecutionTracer.getExecutionTracer().getTrace();
+			} catch (Exception e1) {
+				e.printStackTrace();
+				// TODO: Do some error recovery?
+				System.exit(1);
+			}		}
 		return trace;
 	}
 	
@@ -951,9 +970,16 @@ public class SearchStatistics implements SearchListener {
 			entry.total_branches     = fitness.total_branches;
 			entry.branchless_methods = fitness.branchless_methods;
 			entry.total_methods      = fitness.total_methods;
-			entry.className          = Properties.TARGET_CLASS;
-			entry.id                 = getNumber(entry.className);
+		} else if(objective instanceof MutationSuiteFitness) {
+			MutationSuiteFitness fitness = (MutationSuiteFitness)objective;
+			entry.total_branches = fitness.getNumGoals();
+			entry.total_methods = 0;
+			entry.branchless_methods = 0;
 		}
+		
+		entry.className          = Properties.TARGET_CLASS;
+		entry.id                 = getNumber(entry.className);			
+		
 		entry.start_time        = System.currentTimeMillis();
 		entry.population_size   = Properties.POPULATION_SIZE;
 		entry.chromosome_length = Properties.CHROMOSOME_LENGTH;
