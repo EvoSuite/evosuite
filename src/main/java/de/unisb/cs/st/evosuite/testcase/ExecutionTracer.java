@@ -20,16 +20,19 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 //import org.jgrapht.alg.FloydWarshallShortestPaths;
+import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.util.AbstractVisitor;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.FloydWarshall;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
@@ -46,6 +49,7 @@ public class ExecutionTracer {
 	private static ExecutionTracer instance = null;
 	
 	private Map<String, Map <String, ControlFlowGraph > > graphs;
+	private Map<String, Map <String, ControlFlowGraph > > completeGraphs;
 	private Map<String, Map <String, Double > > diameters;
 		
 	/** We need to disable the execution tracer sometimes, e.g. when calling equals in the branch distance function */
@@ -55,6 +59,8 @@ public class ExecutionTracer {
 	private boolean killSwitch = false;
 	
 	private int num_statements = 0;
+	
+	private int duCounter = 0;
 	
 	public static void disable() {
 		ExecutionTracer tracer = ExecutionTracer.getExecutionTracer();
@@ -90,6 +96,7 @@ public class ExecutionTracer {
 	public void clear() {
 		trace = new ExecutionTrace();
 		num_statements = 0;
+		duCounter = 0;
 	}
 	
 	/**
@@ -114,6 +121,19 @@ public class ExecutionTracer {
 		FloydWarshall<CFGVertex,DefaultEdge> f = new FloydWarshall<CFGVertex,DefaultEdge>(graph);
 		diameters.get(classname).put(methodname, f.getDiameter());
         logger.debug("Calculated diameter for "+classname+": "+f.getDiameter());
+	}
+	
+	public void addCompleteCFG(String classname, String methodname, DefaultDirectedGraph<CFGVertex, DefaultEdge> graph) {
+		if(!completeGraphs.containsKey(classname)) {
+			completeGraphs.put(classname, new HashMap<String, ControlFlowGraph >());
+		}
+		Map<String, ControlFlowGraph > methods = completeGraphs.get(classname);
+        logger.debug("Added complete CFG for class "+classname+" and method "+methodname);
+		methods.put(methodname, new ControlFlowGraph(graph));
+	}
+
+	public ControlFlowGraph getCompleteCFG(String classname, String methodname) {
+		return completeGraphs.get(classname).get(methodname);
 	}
 	
 	public ControlFlowGraph getCFG(String classname, String methodname) {
@@ -425,6 +445,35 @@ public class ExecutionTracer {
 		tracer.trace.branchPassed(branch, bytecode_id, distance_true, distance_false);
 	}
 	
+	public static void passedFieldDefinition(String className, String fieldName, String methodName, int branchID, int defID) {
+		
+		ExecutionTracer tracer = getExecutionTracer();
+		if(!tracer.disabled) {
+			HashMap<Integer,Integer> defs = tracer.trace.passedDefs.get(fieldName);
+			if(defs == null)
+				defs = new HashMap<Integer,Integer>();
+			
+			defs.put(tracer.duCounter,defID);
+			tracer.trace.passedDefs.put(fieldName,defs);
+		}
+		
+		tracer.duCounter++;
+	}
+	
+	public static void passedFieldUse(String className, String fieldName, String methodName, int branchID, int useID) {
+		ExecutionTracer tracer = getExecutionTracer();
+		if(!tracer.disabled) {
+			HashMap<Integer,Integer> uses = tracer.trace.passedUses.get(fieldName);
+			if(uses == null)
+				uses = new HashMap<Integer,Integer>();
+			
+			uses.put(tracer.duCounter,useID);
+			tracer.trace.passedUses.put(fieldName,uses);
+		}
+		
+		tracer.duCounter++;
+	}
+
 	public static void statementExecuted() {
 		ExecutionTracer tracer = getExecutionTracer();
 		if(!tracer.disabled)
@@ -440,6 +489,9 @@ public class ExecutionTracer {
 		trace = new ExecutionTrace();
 		graphs = new HashMap<String, Map <String, ControlFlowGraph > >();
 		diameters = new HashMap<String, Map <String, Double> > ();
+		
+		if(Properties.CRITERION.equals("defuse"))
+			completeGraphs = new HashMap<String, Map <String, ControlFlowGraph > >();
 	}
 	
 	

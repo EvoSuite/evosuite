@@ -127,6 +127,9 @@ public class ExecutionTrace {
 	public Map<String, Double> true_distances   = Collections.synchronizedMap(new HashMap<String, Double>());
 	public Map<String, Double> false_distances  = Collections.synchronizedMap(new HashMap<String, Double>());
 	
+	public HashMap<String,HashMap<Integer,Integer>> passedDefs = new HashMap<String,HashMap<Integer,Integer>>();
+	public HashMap<String,HashMap<Integer,Integer>> passedUses = new HashMap<String,HashMap<Integer,Integer>>();
+	
 	public ExecutionTrace() {
 		stack.add(new MethodCall("", "")); // Main method
 	}
@@ -297,6 +300,8 @@ public class ExecutionTrace {
 		copy.false_distances.putAll(false_distances);
 		copy.covered_methods.putAll(covered_methods);
 		copy.covered_predicates.putAll(covered_predicates);
+		copy.passedDefs.putAll(passedDefs);
+		copy.passedUses.putAll(passedUses);
 		return copy;
 	}
 	
