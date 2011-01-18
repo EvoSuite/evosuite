@@ -78,10 +78,16 @@ public class CFGGenerator extends Analyzer {
 		AbstractInsnNode node;
 		Frame frame;
 		int id;
-		int line_no = 0;
+		public int line_no = 0;
 		List<Long> mutations = new ArrayList<Long>();
 		boolean mutationBranch = false;
 		boolean mutatedBranch = false;
+		
+		public int duID = -1;
+		public int branchID = -1;
+		public boolean branchExpressionValue = true;
+		public String methodName;
+		public String className;
 		
 		Map<Long, Integer> mutant_distance = new HashMap<Long,Integer>(); // Calculate distance to each mutation 
 
@@ -181,6 +187,93 @@ public class CFGGenerator extends Analyzer {
 				return mn.name.equals(methodName);
 			}
 			return false;
+		}
+		
+		public int getID() {
+			return id;
+		}
+
+		public boolean isDefinition() {
+			return isFieldDefinition() || isLocalVarDefinition();
+		}
+		
+		public boolean isUse() {
+			return isFieldUse() || isLocalVarUse();
+		}
+		
+		public boolean isFieldDefinition() {
+			return node.getOpcode() == Opcodes.PUTFIELD || node.getOpcode() == Opcodes.PUTSTATIC;
+		}
+		
+		public boolean isFieldUse() {
+			return node.getOpcode() == Opcodes.GETFIELD || node.getOpcode() == Opcodes.GETSTATIC;
+		}
+		
+		public boolean isStaticDU() {
+			return node.getOpcode() == Opcodes.PUTSTATIC || node.getOpcode() == Opcodes.GETSTATIC; 
+		}
+
+		// TODO: what about IINC?
+		public boolean isLocalVarDefinition() {
+			return node.getOpcode() == Opcodes.ISTORE
+					|| node.getOpcode() == Opcodes.LSTORE
+					|| node.getOpcode() == Opcodes.FSTORE
+					|| node.getOpcode() == Opcodes.DSTORE
+					|| node.getOpcode() == Opcodes.ASTORE
+					|| node.getOpcode() == Opcodes.IINC;
+		}
+		
+		public boolean isLocalVarUse() {
+			
+			return node.getOpcode() == Opcodes.ILOAD
+					|| node.getOpcode() == Opcodes.LLOAD
+					|| node.getOpcode() == Opcodes.FLOAD
+					|| node.getOpcode() == Opcodes.DLOAD
+					|| node.getOpcode() == Opcodes.ALOAD
+					|| node.getOpcode() == Opcodes.IINC;
+					// || node.getOpcode() == Opcodes.RET; // TODO ??
+		}
+		
+		public String getFieldName() {
+			return ((FieldInsnNode)node).name;
+		}
+		
+		public int getLocalVar() {
+			if(node instanceof VarInsnNode)
+				return ((VarInsnNode)node).var;
+			else
+				return ((IincInsnNode)node).var;
+		}
+		
+		public String getLocalVarName() {
+			return methodName+"_LV_"+getLocalVar();
+		}
+		
+		public String getDUVariableName() {
+			
+			if(!this.isDU())
+				throw new IllegalStateException("You can only call getDUVariableName() on a local variable or field definition/use");
+			
+			if(this.isFieldDU())
+				return getFieldName();
+			else 
+				return getLocalVarName();
+				
+		}
+		
+		public boolean isDU() {
+			
+			return isLocalDU() || isFieldDU();
+		}
+		
+		public boolean isLocalDU() {
+			
+			return isLocalVarDefinition() || isLocalVarUse();
+		}
+		
+		public boolean isFieldDU() {
+			
+			return isFieldDefinition() || isFieldUse();
 		}
 		
 		public String getMethodName() {
@@ -292,6 +385,10 @@ public class CFGGenerator extends Analyzer {
 			//if (!getOuterType().equals(other.getOuterType()))
 			//	return false;
 			if (id != other.id)
+				return false;
+			if(methodName != null && !methodName.equals(other.methodName))
+				return false;
+			if(className != null && !className.equals(other.className))
 				return false;
 			return true;
 		}
@@ -427,6 +524,7 @@ public class CFGGenerator extends Analyzer {
 				}
 			}
 		}
+		
 		return min_graph;
 	}
 	
@@ -466,4 +564,6 @@ public class CFGGenerator extends Analyzer {
 		
 		return true;
 	}
+
+
 }

@@ -25,6 +25,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 import org.apache.log4j.Logger;
@@ -36,6 +37,7 @@ import org.jgrapht.ext.IntegerNameProvider;
 import org.jgrapht.ext.StringNameProvider;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
+import org.objectweb.asm.tree.FieldInsnNode;
 
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 
@@ -319,6 +321,202 @@ public class ControlFlowGraph {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public List<CFGVertex> getUsesForDef(CFGVertex def) {
+		
+		if(!def.isDefinition())
+			throw new IllegalArgumentException("method expects a field definition");
+		if(!graph.containsVertex(def))
+			throw new IllegalArgumentException("vertex not in graph");
+		
+		return getUsesForDef(def.getDUVariableName(), def);
+	}
+	
+	
+	public boolean hasDefClearPathToMethodEnd(CFGVertex duVertex) {
+		
+		if(!duVertex.isDU())
+			throw new IllegalArgumentException("method expects a du vertex");
+		if(!graph.containsVertex(duVertex))
+			throw new IllegalArgumentException("vertex not in graph");
+		
+		return hasDefClearPathToMethodEnd(duVertex.getDUVariableName(), duVertex);
+	}
+	
+	public boolean hasDefClearPathFromMethodStart(CFGVertex duVertex) {
+		
+		if(!duVertex.isDU())
+			throw new IllegalArgumentException("method expects a du vertex");
+		if(!graph.containsVertex(duVertex))
+			throw new IllegalArgumentException("vertex not in graph");
+		
+		return hasDefClearPathFromMethodStart(duVertex.getDUVariableName(), duVertex);
+	}
+	
+
+	
+	private List<CFGVertex> getUsesForDef(String varName, CFGVertex currentVertex) {
+		
+		if(!graph.containsVertex(currentVertex))
+			throw new IllegalArgumentException("vertex not in graph");
+		
+		ArrayList<CFGVertex> r = new ArrayList<CFGVertex>();
+		
+		Set<DefaultEdge> outgoingEdges = graph.outgoingEdgesOf(currentVertex);
+		if(outgoingEdges.size() == 0)
+			return r;
+		
+		for(DefaultEdge e : outgoingEdges) {
+			
+			CFGVertex edgeTarget = graph.getEdgeTarget(e);
+			if(edgeTarget.isDefinition() && edgeTarget.getDUVariableName().equals(varName)) {
+				continue;
+			}
+			if(edgeTarget.isUse() && edgeTarget.getDUVariableName().equals(varName)) {
+				r.add(edgeTarget);
+			}
+			if(edgeTarget.id > currentVertex.id) // dont follow backedges (loops)
+				r.addAll(getUsesForDef(varName, edgeTarget));
+			
+		}
+		
+		return r;
+	}
+	
+	private boolean hasDefClearPathToMethodEnd(String varName, CFGVertex currentVertex) {
+		
+		if(!graph.containsVertex(currentVertex))
+			throw new IllegalArgumentException("vertex not in graph");
+		
+		Set<DefaultEdge> outgoingEdges = graph.outgoingEdgesOf(currentVertex);
+		if(outgoingEdges.size() == 0) 
+			return true;
+		
+		for(DefaultEdge e : outgoingEdges) {
+			
+			CFGVertex edgeTarget = graph.getEdgeTarget(e);
+			
+			// skip edges going into another def for the same field
+			if(edgeTarget.isDefinition()) {
+				if(edgeTarget.getDUVariableName().equals(varName))
+					continue;
+			}
+			
+			if(edgeTarget.id > currentVertex.id  // dont follow backedges (loops)
+					&& hasDefClearPathToMethodEnd(varName, edgeTarget))
+				return true;
+		}
+
+		return false;
+	}
+	
+
+	
+	private boolean hasDefClearPathFromMethodStart(String varName, CFGVertex currentVertex) {
+		
+		if(!graph.containsVertex(currentVertex))
+			throw new IllegalArgumentException("vertex not in graph");
+		
+		Set<DefaultEdge> incomingEdges = graph.incomingEdgesOf(currentVertex);
+		if(incomingEdges.size() == 0)
+			return true;
+		
+		for(DefaultEdge e : incomingEdges) {
+			
+			CFGVertex edgeStart = graph.getEdgeSource(e);
+			
+			// skip edges coming from a def for the same field
+			if(edgeStart.isDefinition()) {
+				if(edgeStart.getDUVariableName().equals(varName))
+					continue;
+			}
+			
+			if(edgeStart.id < currentVertex.id // dont follow backedges (loops) 
+					&& hasDefClearPathFromMethodStart(varName, edgeStart))
+				return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param branchVertex
+	 */
+	public void markBranchIDs(CFGVertex branchVertex) {
+		
+		if(!branchVertex.isBranch())
+			throw new IllegalArgumentException("branch vertex expected");
+		
+		if(branchVertex.branchID == -1)
+			throw new IllegalArgumentException("expect branchVertex to have branchID set");
+		
+		Set<DefaultEdge> out = graph.outgoingEdgesOf(branchVertex);
+		
+		if(out.size() != 2)
+			throw new IllegalStateException("expect branchVertices to have exactly two outgoing edges");
+		
+		int minID = Integer.MAX_VALUE;
+		int maxID = Integer.MIN_VALUE;
+		
+		for(DefaultEdge e : out) {
+			CFGVertex target = graph.getEdgeTarget(e);
+			if(minID>target.id)
+				minID = target.id;
+			if(maxID<target.id)
+				maxID = target.id;
+		}
+		
+		if(minID < branchVertex.id) {
+//			System.out.println("DO-WHILE BRANCH"+branchVertex.branchID);
+			return;
+		}
+		
+		markNodes(minID,maxID,branchVertex.branchID,true);
+
+		if (isIfBranch(maxID)) {
+//			System.out.println("IF BRANCH: "+branchVertex.branchID);
+			CFGVertex prevVertex = getVertex(maxID-1);
+			if(prevVertex.isGoto()) {
+//				System.out.println("WITH ELSE PART");
+				Set<DefaultEdge> prevOut = graph.outgoingEdgesOf(prevVertex);
+				if(prevOut.size() != 1)
+					throw new IllegalStateException("expect gotos to only have 1 outgoing edge");
+				DefaultEdge elseEnd = null;
+				for(DefaultEdge e : prevOut)
+					elseEnd = e;
+				markNodes(maxID+1,graph.getEdgeTarget(elseEnd).id,branchVertex.branchID, false);
+				
+			}
+		}
+		
+	}
+	
+	private void markNodes(int start, int end, int branchID, boolean branchExpressionValue) {
+		for(int i=start; i<=end; i++) {
+			CFGVertex v = getVertex(i);
+			if(v!=null) {
+				v.branchID = branchID;
+				v.branchExpressionValue = branchExpressionValue;
+			}
+		}		
+	}
+	
+	private boolean isIfBranch(int maxID) {
+		
+		CFGVertex prevVertex = getVertex(maxID-1);
+		
+		Set<DefaultEdge> prevOut = graph.outgoingEdgesOf(prevVertex);
+		if(prevOut.size() != 1) {
+			System.out.println("size != 1");
+			return false;
+		}
+		
+		DefaultEdge backEdge = null;
+		for(DefaultEdge e : prevOut)
+			backEdge = e;
+		
+		return !(graph.getEdgeTarget(backEdge).id < maxID);
 	}
 	
 }
