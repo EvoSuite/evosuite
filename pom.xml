@@ -49,7 +49,7 @@
       <dependency>
 	<groupId>junit</groupId>
 	<artifactId>junit</artifactId>
-	<version>4.8.1</version>
+	<version>4.8.2</version>
       </dependency>
       <dependency>
 	<groupId>asm</groupId>
@@ -79,7 +79,7 @@
       <dependency>
 	<groupId>de.unisb.cs.st</groupId>
 	<artifactId>javalanche</artifactId>
-	<version>0.3.2-EvoSuite</version>
+	<version>0.3.7-EvoSuite-1</version>
       </dependency>
 
       <!-- Dependencies needed by javalanche -->
@@ -87,7 +87,6 @@
 	<groupId>org.softevo</groupId>
 	<artifactId>util</artifactId>
 	<version>0.3</version>
-<!--
 	<exclusions>
 	  <exclusion>
 	    <groupId>asm</groupId>
@@ -97,13 +96,38 @@
 	    <groupId>asm</groupId>
 	    <artifactId>asm-attrs</artifactId>
 	  </exclusion>
+	  <exclusion>
+	    <groupId>asm</groupId>
+	    <artifactId>asm-all</artifactId>
+	  </exclusion>
+	  <exclusion>
+	    <groupId>asm</groupId>
+	    <artifactId>asm-util</artifactId>
+	  </exclusion>
+	  <exclusion>
+	    <groupId>asm</groupId>
+	    <artifactId>asm-tree</artifactId>
+	  </exclusion>
+	  <exclusion>
+	    <groupId>asm</groupId>
+	    <artifactId>asm-commons</artifactId>
+	  </exclusion>
 	</exclusions>
--->
       </dependency>
       <dependency>
-	<groupId>de.unisb.st</groupId>
+	<groupId>de.unisb.cs.st</groupId>
 	<artifactId>bytecodeTransformer</artifactId>
-	<version>0.1</version>
+	<version>0.2</version>
+	<exclusions>
+	  <exclusion>
+	    <groupId>asm</groupId>
+	    <artifactId>asm</artifactId>
+	  </exclusion>
+	  <exclusion>
+	    <groupId>sibrelib</groupId>
+	    <artifactId>sibrelib</artifactId>
+	  </exclusion>                                           
+	</exclusions>
       </dependency>
       <dependency>
 	<groupId>antlr</groupId>
@@ -118,7 +142,13 @@
       <dependency>
 	<groupId>cglib</groupId>
 	<artifactId>cglib</artifactId>
-	<version>2.1_3</version>
+	<version>2.2</version>
+	<exclusions>
+	  <exclusion>
+	    <groupId>asm</groupId>
+	    <artifactId>asm</artifactId>
+	  </exclusion>
+	</exclusions>
       </dependency>
       <dependency>
 	<groupId>commons-collections</groupId>
@@ -159,18 +189,19 @@
 	<groupId>mysql</groupId>
 	<artifactId>mysql-connector-java</artifactId>
 	<version>5.1.9</version>
+	<!--	
+	<version>5.1.13</version>
+	-->	
       </dependency>
       <dependency>
 	<groupId>com.thoughtworks.xstream</groupId>
 	<artifactId>xstream</artifactId>
-	<version>1.2.2</version>
-	<type>pom</type>
+	<version>1.3.1</version>
       </dependency>      
       <dependency>
 	<groupId>org.hibernate</groupId>
 	<artifactId>hibernate</artifactId>
-	<version>3.2.2.ga</version>
-<!--
+	<version>3.2.7.ga</version>
 	<exclusions>
 	  <exclusion>
 	    <groupId>asm</groupId>
@@ -180,8 +211,11 @@
 	    <groupId>asm</groupId>
 	    <artifactId>asm-attrs</artifactId>
 	  </exclusion>
+	  <exclusion>
+	    <groupId>asm</groupId>
+	    <artifactId>asm-all</artifactId>
+	  </exclusion>
 	</exclusions>
--->
       </dependency>
       
       <dependency>
@@ -198,9 +232,8 @@
       <dependency>
 	<groupId>org.hibernate</groupId>
 	<artifactId>hibernate-tools</artifactId>
-	<version>3.2.0.beta9a</version>
+	<version>3.2.3.GA</version> 
       </dependency>
-      
       
       <dependency>
 	<groupId>hsqldb</groupId>
@@ -208,12 +241,13 @@
 	<version>1.8.0.1</version>
       </dependency>
       
+<!--
       <dependency>
 	<groupId>org.prefuse</groupId>
 	<artifactId>prefuse</artifactId>
 	<version>beta-20060220</version>
       </dependency>
-      
+-->      
       <!--
       <dependency>
 	<groupId>de.unisb.cs.st.javalanche.invariants</groupId>
@@ -222,15 +256,16 @@
       </dependency>
       -->
       <dependency>
-	<groupId>de.st.cs.unisb.ds</groupId>
+<!--	<groupId>de.st.cs.unisb.ds</groupId> -->
+	<groupId>de.unisb.cs.st</groupId>
 	<artifactId>ds-util</artifactId>
-	<version>0.2</version>
+	<version>0.3.1</version>
       </dependency>
       
       <dependency>
-	<groupId>com.google.code.google-collections</groupId>
-	<artifactId>google-collect</artifactId>
-	<version>snapshot-20080530</version>
+	<groupId>com.google.collections</groupId>
+	<artifactId>google-collections</artifactId>
+	<version>1.0</version>
       </dependency>
 
 <!--      
@@ -369,6 +404,10 @@
 		</execution>
 	      </executions>
 	    </plugin>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
         </plugins>
         <pluginManagement>
             <plugins>

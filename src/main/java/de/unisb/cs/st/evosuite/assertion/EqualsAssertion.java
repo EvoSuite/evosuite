@@ -39,9 +39,9 @@ public class EqualsAssertion extends Assertion {
 	@Override
 	public String getCode() {
 		if(((Boolean)value).booleanValue())
-			return "assertTrue("+source.getName()+".equals("+dest.getName()+"))";
+			return "assertTrue("+source.getName()+".equals("+dest.getName()+"));";
 		else
-			return "assertFalse("+source.getName()+".equals("+dest.getName()+"))";
+			return "assertFalse("+source.getName()+".equals("+dest.getName()+"));";
 	}
 
 	@Override
@@ -49,4 +49,31 @@ public class EqualsAssertion extends Assertion {
 		return scope.get(source).equals(scope.get(dest));
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((dest == null) ? 0 : dest.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		EqualsAssertion other = (EqualsAssertion) obj;
+		if (dest == null) {
+			if (other.dest != null)
+				return false;
+		} else if (!dest.equals(other.dest))
+			return false;
+		return true;
+	}
+
+	
+	
 }

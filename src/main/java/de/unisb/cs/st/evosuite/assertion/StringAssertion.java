@@ -27,10 +27,10 @@ public class StringAssertion extends Assertion {
 	@Override
 	public String getCode() {		
 		if(source.isPrimitive() || source.isWrapperType())
-			return "assertEquals(\""+value+"\", String.valueOf("+source.getName()+"))";
+			return "assertEquals(\""+value+"\", String.valueOf("+source.getName()+"));";
 		else {
 			String escape = ((String)value).replace("\n", "\\n").replace("\"", "\\\"");
-			return "assertEquals(\""+escape+"\", "+source.getName()+".toString())";
+			return "assertEquals(\""+escape+"\", "+source.getName()+".toString());";
 		}
 	}
 

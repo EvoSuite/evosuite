@@ -31,7 +31,6 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class ComparisonTraceObserver extends ExecutionObserver {
 
-	@SuppressWarnings("unused")
 	private Logger logger = Logger.getLogger(ComparisonTraceObserver.class);
 	
 	private ComparisonTrace trace = new ComparisonTrace();
@@ -54,7 +53,6 @@ public class ComparisonTraceObserver extends ExecutionObserver {
 		}
 		if(isWrapperType(object.getClass()))
 			return;
-		
 		Map<VariableReference, Boolean> eqmap  = new HashMap<VariableReference, Boolean>();
 		Map<VariableReference, Integer> cmpmap = new HashMap<VariableReference, Integer>();
 		
@@ -64,9 +62,21 @@ public class ComparisonTraceObserver extends ExecutionObserver {
 			for(VariableReference other : scope.getElements(retval.getType())) {
 				//logger.info("Found other object of type "+retval.type.getName()+" in scope");
 				Object other_object = scope.get(other);
+				// TODO: Create a matrix of object comparisons?
+				if(other_object == null)
+					continue; // TODO: Don't do this?
+				
 				try {
 					eqmap.put(other, object.equals(other_object));
 				} catch(Throwable t) {
+					logger.debug("Exception during equals: "+t);
+					/*
+					logger.info("Type of retval: "+retval.getType());
+					logger.info(object);
+					logger.info(other_object);
+					logger.info(object.getClass()+": "+object);
+					logger.info(other_object.getClass()+": "+other_object);
+					*/
 					// ignore?
 				}
 				if(object instanceof Comparable<?>) {
@@ -74,6 +84,12 @@ public class ComparisonTraceObserver extends ExecutionObserver {
 					try {
 						cmpmap.put(other, c.compareTo(other_object));
 					} catch(Throwable t) {
+						logger.debug("Exception during compareto: "+t);
+						/*
+						logger.info("Type of retval: "+retval.getType());
+						logger.info(object.getClass()+": "+object);
+						logger.info(other_object.getClass()+": "+other_object);
+						*/
 						// ignore?
 					}
 				}

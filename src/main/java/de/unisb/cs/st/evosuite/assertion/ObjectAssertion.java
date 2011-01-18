@@ -26,7 +26,7 @@ public class ObjectAssertion extends Assertion {
 
 	@Override
 	public String getCode() {
-		return "assert("+source.getName()+".equals("+value+")";
+		return "assert("+source.getName()+".equals("+value+"));";
 	}
 
 	@Override

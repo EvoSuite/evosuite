@@ -22,6 +22,8 @@ package de.unisb.cs.st.evosuite.assertion;
 
 import java.lang.reflect.Field;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import de.unisb.cs.st.evosuite.testcase.Scope;
 
 public class PrimitiveFieldAssertion extends Assertion {
@@ -30,7 +32,22 @@ public class PrimitiveFieldAssertion extends Assertion {
 	
 	@Override
 	public String getCode() {
-		return "assertEquals("+source.getName()+"."+field.getName()+", "+value+")";
+		if(value == null) {
+			return "assertNull("+source.getName()+"."+field.getName()+");";
+		} else if(value.getClass().equals(Long.class)) {
+			String val = value.toString();
+			return "assertEquals("+source.getName()+"."+field.getName()+", "+val+"L);";
+		} else if(value.getClass().equals(Float.class)) {
+			String val = value.toString();
+			return "assertEquals("+source.getName()+"."+field.getName()+", "+val+"F);";
+		} else if(value.getClass().equals(Character.class)) {
+			String val = StringEscapeUtils.escapeJava(((Character) value).toString());
+			return "assertEquals("+source.getName()+"."+field.getName()+", '"+val+"');";
+		} else if(value.getClass().equals(String.class)) {
+			return "assertEquals("+source.getName()+"."+field.getName()+", \""+StringEscapeUtils.escapeJava((String) value)+"\");";
+		}
+		else
+			return "assertEquals("+source.getName()+"."+field.getName()+", "+value+");";
 	}
 
 	@Override
@@ -47,4 +64,28 @@ public class PrimitiveFieldAssertion extends Assertion {
 		return scope.get(source).equals(value);
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((field == null) ? 0 : field.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PrimitiveFieldAssertion other = (PrimitiveFieldAssertion) obj;
+		if (field == null) {
+			if (other.field != null)
+				return false;
+		} else if (!field.equals(other.field))
+			return false;
+		return true;
+	}
 }

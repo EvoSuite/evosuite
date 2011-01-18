@@ -27,10 +27,15 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.ClassUtils;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.GeneratorAdapter;
 
 
 public class MethodStatement extends Statement {
@@ -44,26 +49,6 @@ public class MethodStatement extends Statement {
 		this.callee = callee;
 		this.retval = retval;
 		this.parameters = parameters;
-	}
-	
-	public boolean isValid() {
-
-		Class<?>[] param_types = method.getParameterTypes();
-		
-		if(parameters.size() != param_types.length)
-			return false;
-		
-		// Check callee
-		if(method.getClass().isAssignableFrom((Class<?>) callee.getType()))
-			return false;
-		
-		// Check parameters
-		for(int i=0; i<parameters.size(); i++) {
-			if(!param_types[i].isInstance(parameters.get(i)))
-				return false;
-		}
-		
-		return true;
 	}
 	
 	public Method getMethod() {
@@ -91,16 +76,16 @@ public class MethodStatement extends Statement {
 		logger.trace("Executing method "+method.getName());
         exceptionThrown = null;
         Object[] inputs = new Object[parameters.size()];
+		PrintStream old_out = System.out;
+		PrintStream old_err = System.err;
+		System.setOut(out);
+		System.setErr(out);
+
 		try {
-		for(int i=0; i<parameters.size(); i++) {
-			inputs[i] = scope.get(parameters.get(i));
-			if(inputs[i] == null)
-				logger.debug("Null input as parameter "+i+" of method call "+method.getName()+"!");
-			//else {
-			//	logger.debug("Parameter "+i+": "+inputs[i].getClass()+" - "+inputs[i]);
-			//}
-			//else {
-		}
+			for(int i=0; i<parameters.size(); i++) {
+				inputs[i] = scope.get(parameters.get(i));
+			}
+
 			Object callee_object = null;
 			if(!Modifier.isStatic(method.getModifiers())) {
 				callee_object = scope.get(callee);
@@ -110,70 +95,47 @@ public class MethodStatement extends Statement {
 					for(Entry<VariableReference, Object> entry : scope.pool.entrySet()) {
 						logger.debug("Pool: "+entry.getKey().statement+", "+entry.getKey().getType()+" : "+entry.getValue());
 					}
-					
-				//} else {
-				//	logger.debug("Callee: "+callee_object);
 				}
 			}
-						
-			PrintStream old_out = System.out;
-			System.setOut(out);
-	        Object ret = this.method.invoke(callee_object, inputs);
-			System.setOut(old_out);
-	        scope.set(retval, ret);
-			
 
+	        Object ret = this.method.invoke(callee_object, inputs);
+	        scope.set(retval, ret);
 		} catch (Throwable e) {
 	          if (e instanceof java.lang.reflect.InvocationTargetException) {
 	              e = e.getCause();
 	          } 
 	          logger.debug("Exception thrown in method: "+e);
         	  exceptionThrown = e;
-	      }
-	      return exceptionThrown;
+		} finally {
+			System.setOut(old_out);
+			System.setErr(old_err);			
+		}
+		return exceptionThrown;
 	}
 
-	@Override
-	public String getCode() {
-		String parameter_string = "";
-		if(!parameters.isEmpty()) {
-			parameter_string += parameters.get(0).getName();
-			for(int i=1; i<parameters.size(); i++) {
-				parameter_string += ", " + parameters.get(i).getName();
-			}
-		}
-		
-		String callee_str = "";
-		if(!retval.getVariableClass().isAssignableFrom(method.getReturnType())) {
-			callee_str = "(" + retval.getSimpleClassName()+ ")";
-		}
-		
-		if(Modifier.isStatic(method.getModifiers())) {
-			callee_str += method.getDeclaringClass().getName();
-		} else {
-			callee_str += callee.getName();
-		}
-		
-		if(retval.getType() == Void.TYPE) {
-			return callee_str + "." + method.getName() + "(" + parameter_string + ")";			
-		} else {
-			return retval.getSimpleClassName() +" "+retval.getName() + " = " + callee_str + "." + method.getName() + "(" + parameter_string + ")";
-		}
-	}
 	
 	@Override
 	public String getCode(Throwable exception) {
 		
 		String result = "";
 		if(retval.getType() != Void.TYPE) {
-			result = retval.getSimpleClassName() +" "+retval.getName() + " = null;\n";	
+			if(exception != null) {
+				result = retval.getSimpleClassName() +" "+retval.getName() + " = " + retval.getDefaultValueString()+";\n";
+			}
+			else
+				result = retval.getSimpleClassName() +" ";
 		}
-		result += "try {\n";
+		if(exception != null)
+			result += "try {\n  ";
 		
 		String parameter_string = "";
 		if(!parameters.isEmpty()) {
+			if(!method.getParameterTypes()[0].equals(parameters.get(0).getVariableClass()) && parameters.get(0).isArray())
+				parameter_string += "(" + method.getParameterTypes()[0].getSimpleName() + ")";
 			parameter_string += parameters.get(0).getName();
 			for(int i=1; i<parameters.size(); i++) {
+				if(!method.getParameterTypes()[i].equals(parameters.get(i).getVariableClass()) && parameters.get(i).isArray())
+					parameter_string += "(" + method.getParameterTypes()[i].getSimpleName() + ")";
 				parameter_string += ", " + parameters.get(i).getName();
 			}
 		}
@@ -190,13 +152,18 @@ public class MethodStatement extends Statement {
 		}
 		
 		if(retval.getType() == Void.TYPE) {
-			result += "  "+callee_str + "." + method.getName() + "(" + parameter_string + ");\n";
+			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
 		} else {
-			result += "  "+retval.getName() + " = " + callee_str + "." + method.getName() + "(" + parameter_string + ");\n";
+			result += retval.getName() + " = " + callee_str + "." + method.getName() + "(" + parameter_string + ");";
 		}
 		
-		result += "} catch("+exception.getClass().getSimpleName()+" e) {}";
-		
+		if(exception != null) {
+			Class<?> ex = exception.getClass();
+			while(!Modifier.isPublic(ex.getModifiers()))
+				ex = ex.getSuperclass();
+			result += "\n} catch("+ClassUtils.getShortClassName(ex)+" e) {}";
+		}
+
 		return result;
 	}
 
@@ -209,14 +176,15 @@ public class MethodStatement extends Statement {
 		
 		MethodStatement m;
 		if(Modifier.isStatic(method.getModifiers()))
+			// FIXXME: If callee is an array index, this will return an invalid copy of the cloned variable!
 			m = new MethodStatement(method,
 					null,
-					new VariableReference(retval.getType(), retval.statement),
+					retval.clone(),
 					new_params);
 		else
 			m = new MethodStatement(method,
-					new VariableReference(callee.getType(), callee.statement),
-					new VariableReference(retval.getType(), retval.statement),
+					callee.clone(),
+					retval.clone(),
 					new_params);
 
 		m.assertions = cloneAssertions();
@@ -236,32 +204,19 @@ public class MethodStatement extends Statement {
 	}
 
 	@Override
-	public boolean references(VariableReference var) {
-		if(isInstanceMethod()) {
-			if(callee.equals(var))
-				return true;
-			if(callee.isArrayIndex() && callee.array.equals(var))
-				return true;
-		}
-
-		for(VariableReference param : parameters) {
-			if(param.equals(var))
-				return true;
-			if(param.isArrayIndex() && param.array.equals(var))
-				return true;
-		}
-		if(retval.equals(var))
-			return true;
-		return false;
-	}
-
-	@Override
 	public Set<VariableReference> getVariableReferences() {
 		Set<VariableReference> references = new HashSet<VariableReference>();
 		references.add(retval);
-		if(isInstanceMethod())
+		if(isInstanceMethod()) {
 			references.add(callee);
+			if(callee.isArrayIndex())
+				references.add(callee.array);
+		}
 		references.addAll(parameters);
+		for(VariableReference param : parameters) {
+			if(param.isArrayIndex())
+				references.add(param.array);
+		}
 		return references;
 
 	}
@@ -324,4 +279,93 @@ public class MethodStatement extends Statement {
 			callee = newVar;	
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.Statement#getBytecode(org.objectweb.asm.commons.GeneratorAdapter)
+	 */
+	@Override
+	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception) {
+		Label start = mg.newLabel();
+		Label end = mg.newLabel();
+		
+		//if(exception != null)
+			mg.mark(start);
+		
+		if(!isStatic()) {
+			callee.loadBytecode(mg, locals);
+		}
+		int num = 0;
+		for(VariableReference parameter : parameters) {
+			parameter.loadBytecode(mg, locals);
+			if(method.getParameterTypes()[num].isPrimitive()) {
+				if(!method.getParameterTypes()[num].equals(parameter.getVariableClass())) {
+					logger.debug("Types don't match - casting!");
+					mg.cast(Type.getType(parameter.getVariableClass()), Type.getType(method.getParameterTypes()[num]));
+				}	
+			}
+			num++;
+		}
+		logger.debug("Invoking method");
+		//if(exception != null) {
+		//	
+		//	mg.visitTryCatchBlock(start, end, handler, exception.getClass().getName().replace('.', '/'));
+		//}
+		if(isStatic())
+			mg.invokeStatic(Type.getType(method.getDeclaringClass()), org.objectweb.asm.commons.Method.getMethod(method));
+		else {
+			if(!callee.getVariableClass().isInterface()) {
+				mg.invokeVirtual(Type.getType(callee.getVariableClass()), org.objectweb.asm.commons.Method.getMethod(method));
+			} else {
+				mg.invokeInterface(Type.getType(callee.getVariableClass()), org.objectweb.asm.commons.Method.getMethod(method));
+			}
+		}
+
+		if(!retval.isVoid())
+			retval.storeBytecode(mg, locals);
+		
+		//if(exception != null) {
+			mg.mark(end);
+			Label l = mg.newLabel();
+			mg.goTo(l);
+//			mg.catchException(start, end, Type.getType(getExceptionClass(exception)));
+			mg.catchException(start, end, Type.getType(Throwable.class));
+			mg.pop(); // Pop exception from stack
+			if(!retval.isVoid()) {
+				Class<?> clazz = retval.getVariableClass();
+				if(clazz.equals(Boolean.class) || clazz.equals(boolean.class))
+					mg.push(false);
+				else if(clazz.equals(char.class))
+					mg.push(0);
+				else if(clazz.equals(int.class))
+					mg.push(0);
+				else if(clazz.equals(short.class))
+					mg.push(0);
+				else if(clazz.equals(long.class))
+					mg.push(0L);
+				else if(clazz.equals(float.class))
+					mg.push(0.0F);
+				else if(clazz.equals(double.class))
+					mg.push(0.0);
+				else if(clazz.equals(byte.class))
+					mg.push(0);
+				else if(clazz.equals(String.class))
+					mg.push("");
+				else
+		            mg.visitInsn(Opcodes.ACONST_NULL);
+				
+				retval.storeBytecode(mg, locals);
+			}
+			mg.mark(l);
+		//}
+	}
+	
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.Statement#getDeclaredExceptions()
+	 */
+	@Override
+	public Set<Class<?>> getDeclaredExceptions() {
+		Set<Class<?>> ex = super.getDeclaredExceptions();
+		for(Class<?> t : method.getExceptionTypes())
+			ex.add(t);
+		return ex;
+	}
 }

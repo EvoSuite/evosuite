@@ -40,6 +40,7 @@ import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.Excludes;
 import de.unisb.cs.st.javalanche.mutation.properties.MutationProperties;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
+import de.unisb.cs.st.javalanche.mutation.results.Mutation.MutationType;
 import de.unisb.cs.st.javalanche.mutation.results.persistence.QueryManager;
 import de.unisb.cs.st.javalanche.mutation.run.threaded.task.MutationTaskCreator;
 
@@ -248,6 +249,7 @@ public class TGTaskCreator extends MutationTaskCreator {
 			num_mutants += mutationIds.size();
 			String classfilename = classname.replace("$","_");
 			writeListToFile(classfilename, mutationIds);
+			
 		}
 
 	}
@@ -266,16 +268,14 @@ public class TGTaskCreator extends MutationTaskCreator {
 		for(String classname : classes) {
 			List<Mutation> ms = QueryManager.getMutationsForClass(classname);
 			for(Mutation m : ms) {
-				if(!m.isClassInit()) {
-					mutations.add(m.getId());
-					logger.debug(" Mutation in "+m.getClassName()+"."+m.getMethodName()+":"+m.getLineNumber());
-				}
+				mutations.add(m.getId());
+				logger.debug(" Mutation in "+m.getClassName()+"."+m.getMethodName()+":"+m.getLineNumber());
 			}		
 		}
 		logger.info("Got " + mutations.size() + " mutations");
 		return mutations;
 	}
-	
+		
 	/**
 	 * Entry point - generate task files
 	 * 

@@ -52,6 +52,12 @@ public class Properties {
 	/** Package name of target package */
 	public static String PROJECT_PREFIX = "";
 
+	/** Package name of target class (might be a subpackage) */
+	public static String CLASS_PREFIX = "";
+	
+	/** Sub-package name of target class */
+	public static String SUB_PREFIX = "";
+
 	/** Class under test */
 	public static String TARGET_CLASS= "";
 
@@ -81,8 +87,15 @@ public class Properties {
 
 	/** Minimize test suite after generation */
 	public static String CRITERION = getPropertyOrDefault("criterion", "BranchCoverage");
-
+	
+	/** Sandbox for the classes under test */
+	public static boolean SANDBOX = getPropertyOrDefault("sandbox", false);
+	
 	public static boolean MUTATION = getPropertyOrDefault("criterion", "BranchCoverage").equalsIgnoreCase("mutation") ? true : false;
+
+	public static boolean INSTRUMENT_PARENT = getPropertyOrDefault("instrument_parent", false);
+
+	public static int GENERATOR_TOURNAMENT = getPropertyOrDefault("generator_tournament", 1); 
 	
 	private Properties() {
 		properties = new java.util.Properties();
@@ -103,10 +116,13 @@ public class Properties {
 			}
 			if(TARGET_CLASS != null) {
 				properties.setProperty("TARGET_CLASS", TARGET_CLASS);
+				CLASS_PREFIX = TARGET_CLASS.substring(0,TARGET_CLASS.lastIndexOf('.'));
+				SUB_PREFIX = CLASS_PREFIX.replace(PROJECT_PREFIX+".", "");
 			}
 
 			properties.setProperty("PROJECT_PREFIX", PROJECT_PREFIX);
 			properties.setProperty("output_dir", OUTPUT_DIR);
+			
 			System.out.println("* Properties loaded from configuration file evosuite.properties");
 		} catch (FileNotFoundException e) {
 			System.err.println("Error: Could not find configuration file evosuite.properties");

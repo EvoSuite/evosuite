@@ -19,11 +19,16 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.sandbox.MSecurityManager;
 
 /**
  * A runner thread in which a test case is executed and can be killed
@@ -89,54 +94,61 @@ public class TestRunner extends Thread {
 	  private void executeTestCase() {
 		  int num = 0;
 		  try {
-//			  exceptionsThrown = test.execute(scope, observers, !log);
-			for(Statement s : test.statements) {
-				if(isInterrupted()) {
-					logger.info("Thread interrupted at statement "+num+": "+s.getCode());
-					break;
-				}
-				if(logger.isDebugEnabled())
-					logger.debug("Executing statement "+s.getCode());
-				ExecutionTracer.statementExecuted();
 
-				long before = System.currentTimeMillis();
-				Throwable exceptionThrown = s.execute(scope, System.out);
-				long after = System.currentTimeMillis();
-				/*
-				for(ExecutionObserver observer : observers) {
-					observer.statement(num, scope, s.getReturnValue());
-				}
-				*/
-				if(logger.isDebugEnabled()) {
-					log(s, after - before);
-					if(after - before > 100)
-						logger.info("Statement took "+(after-before)+"ms: "+s.getCode());
-				}
+			  // Current SecurityManager used by default 
+			  SecurityManager oldManager = System.getSecurityManager();
+			  // Mocked SecurityManager that forbids all access to I/O, Network etc
+			  SecurityManager newManager = new MSecurityManager(); 
 
-				if(exceptionThrown != null) {
-					exceptionsThrown.put(num, exceptionThrown);
-					
-					//exception_statement = num;
-					if(log && logger.isDebugEnabled())
-						logger.debug("Exception thrown in statement: "+s.getCode()+" - "+exceptionThrown.getClass().getName()+" - "+exceptionThrown.getMessage());
-					//break;
-				}
-				if(logger.isDebugEnabled())
-					logger.debug("Done statement "+s.getCode());
-				for(ExecutionObserver observer : observers) {
-					observer.statement(num, scope, s.getReturnValue());
-				}
-				num++;
-			}
-			
-/*			num--;
-			for(ExecutionObserver observer : observers) {
-				for(Statement s : test.statements) {
-					observer.statement(num, scope, s.getReturnValue());
-				}
-			}
-*/
-			
+			  // if SecurityManager should be changed
+			  boolean changeSM = Properties.SANDBOX;
+
+			  //			  exceptionsThrown = test.execute(scope, observers, !log);
+			  for(Statement s : test.statements) {
+				  if(isInterrupted()) {
+					  logger.info("Thread interrupted at statement "+num+": "+s.getCode());
+					  break;
+				  }
+				  if(logger.isDebugEnabled())
+					  logger.debug("Executing statement "+s.getCode());
+				  ExecutionTracer.statementExecuted();
+				  VariableReference returnValue = s.getReturnValue().clone();
+
+				  // check if SecurityManager should be changed to mocked SecurityManager
+				  if(changeSM)
+					  System.setSecurityManager(newManager);
+
+				  PrintStream out = new PrintStream(new ByteArrayOutputStream());
+				  Throwable exceptionThrown = s.execute(scope, out);
+
+				  // check if default SecurityManager should be set
+				  if(changeSM)
+					  System.setSecurityManager(oldManager);
+
+				  // During runtime the type of a variable might change
+				  // E.g. if declared Object, after the first run it will 
+				  // be set to the actual class observed at runtime
+				  // If changed, we need to update all references
+				  if(!s.getReturnValue().equals(returnValue)) {
+					  for(int pos = num; pos < test.statements.size(); pos++) {
+						  test.statements.get(pos).replace(returnValue, s.getReturnValue().clone());
+					  }
+				  }
+
+				  if(exceptionThrown != null) {
+					  exceptionsThrown.put(num, exceptionThrown);
+
+					  //exception_statement = num;
+					  if(log && logger.isDebugEnabled())
+						  logger.debug("Exception thrown in statement: "+s.getCode()+" - "+exceptionThrown.getClass().getName()+" - "+exceptionThrown.getMessage());
+				  }
+				  if(logger.isDebugEnabled())
+					  logger.debug("Done statement "+s.getCode());
+				  for(ExecutionObserver observer : observers) {
+					  observer.statement(num, scope, s.getReturnValue());
+				  }
+				  num++;
+			  }
 		  } catch (ThreadDeath e) {//can't stop these guys
 			  logger.info("Found error:");
 			  logger.info(test.toCode());

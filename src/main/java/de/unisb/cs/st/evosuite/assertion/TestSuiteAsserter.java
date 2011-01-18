@@ -23,6 +23,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
  */
 public class TestSuiteAsserter {
 
+	@SuppressWarnings("unchecked")
 	public void generateAssertions() {
 		XStream xstream = new XStream();
 		FileReader fstream;

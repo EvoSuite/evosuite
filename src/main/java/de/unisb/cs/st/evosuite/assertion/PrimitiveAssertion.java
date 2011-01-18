@@ -20,6 +20,8 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import de.unisb.cs.st.evosuite.testcase.Scope;
 
 public class PrimitiveAssertion extends Assertion {
@@ -27,18 +29,21 @@ public class PrimitiveAssertion extends Assertion {
 	@Override
 	public String getCode() {
 		if(value == null) {
-			return "null";
+			return "assertNull("+source.getName()+");";
 		} else if(value.getClass().equals(Long.class)) {
 			String val = value.toString();
-			return "assertEquals("+source.getName()+", "+val+"L)";
+			return "assertEquals("+source.getName()+", "+val+"L);";
 		} else if(value.getClass().equals(Float.class)) {
 			String val = value.toString();
-			return "assertEquals("+source.getName()+", "+val+"F)";
+			return "assertEquals("+source.getName()+", "+val+"F);";
+		} else if(value.getClass().equals(Character.class)) {
+			String val = StringEscapeUtils.escapeJava(((Character) value).toString());
+			return "assertEquals("+source.getName()+", '"+val+"');";
 		} else if(value.getClass().equals(String.class)) {
-			return "assertEquals("+source.getName()+", \""+value+"\")";
+			return "assertEquals("+source.getName()+", \""+StringEscapeUtils.escapeJava((String) value)+"\");";
 		}
 		else
-			return "assertEquals("+source.getName()+", "+value+")";
+			return "assertEquals("+source.getName()+", "+value+");";
 	}
 
 	@Override
@@ -54,4 +59,5 @@ public class PrimitiveAssertion extends Assertion {
 		return scope.get(source).equals(value);
 	}
 
+	
 }

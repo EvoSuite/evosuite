@@ -20,22 +20,12 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
-//import org.jgrapht.alg.FloydWarshallShortestPaths;
-import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DirectedMultigraph;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.util.AbstractVisitor;
 
-import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
-import de.unisb.cs.st.evosuite.cfg.FloydWarshall;
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 
 /**
  * This class collects information about chosen branches/paths at runtime
@@ -47,13 +37,9 @@ public class ExecutionTracer {
 	private static Logger logger = Logger.getLogger(ExecutionTracer.class);
 	
 	private static ExecutionTracer instance = null;
-	
-	private Map<String, Map <String, ControlFlowGraph > > graphs;
-	private Map<String, Map <String, ControlFlowGraph > > completeGraphs;
-	private Map<String, Map <String, Double > > diameters;
 		
 	/** We need to disable the execution tracer sometimes, e.g. when calling equals in the branch distance function */
-	private boolean disabled = false;
+	private boolean disabled = true;
 	
 	/** Flag that is used to kill threads that are stuck in endless loops */
 	private boolean killSwitch = false;
@@ -110,36 +96,6 @@ public class ExecutionTracer {
 		return copy;
 	}
 	
-	public void addCFG(String classname, String methodname, DirectedMultigraph<CFGVertex, DefaultEdge> graph) {
-		if(!graphs.containsKey(classname)) {
-			graphs.put(classname, new HashMap<String, ControlFlowGraph >());
-			diameters.put(classname, new HashMap<String, Double>());
-		}
-		Map<String, ControlFlowGraph > methods = graphs.get(classname);
-        logger.debug("Added CFG for class "+classname+" and method "+methodname);
-		methods.put(methodname, new ControlFlowGraph(graph));
-		FloydWarshall<CFGVertex,DefaultEdge> f = new FloydWarshall<CFGVertex,DefaultEdge>(graph);
-		diameters.get(classname).put(methodname, f.getDiameter());
-        logger.debug("Calculated diameter for "+classname+": "+f.getDiameter());
-	}
-	
-	public void addCompleteCFG(String classname, String methodname, DefaultDirectedGraph<CFGVertex, DefaultEdge> graph) {
-		if(!completeGraphs.containsKey(classname)) {
-			completeGraphs.put(classname, new HashMap<String, ControlFlowGraph >());
-		}
-		Map<String, ControlFlowGraph > methods = completeGraphs.get(classname);
-        logger.debug("Added complete CFG for class "+classname+" and method "+methodname);
-		methods.put(methodname, new ControlFlowGraph(graph));
-	}
-
-	public ControlFlowGraph getCompleteCFG(String classname, String methodname) {
-		return completeGraphs.get(classname).get(methodname);
-	}
-	
-	public ControlFlowGraph getCFG(String classname, String methodname) {
-		return graphs.get(classname).get(methodname);
-	}
-	
 	/**
 	 * Called by instrumented code whenever a new method is called
 	 * 
@@ -152,6 +108,9 @@ public class ExecutionTracer {
 			logger.info("Raising TimeoutException as kill switch is active - enteredMethod");
 			throw new TestCaseExecutor.TimeoutExceeded();
 		}
+		if(tracer.disabled)
+			return;
+		
 		logger.trace("Entering method "+classname+"."+methodname);
 		tracer.trace.enteredMethod(classname, methodname);
 	}
@@ -165,7 +124,10 @@ public class ExecutionTracer {
 	 */
 	public static void returnValue(int value, String className, String methodName) {
 		ExecutionTracer tracer = getExecutionTracer();
-		logger.info("Return value: "+value);
+		if(tracer.disabled)
+			return;
+
+		logger.trace("Return value: "+value);
 		tracer.trace.returnValue(className, methodName, value);
 	}
 
@@ -177,6 +139,9 @@ public class ExecutionTracer {
 	 * @param value
 	 */
 	public static void returnValue(Object value, String className, String methodName) {
+		if(!ExecutionTracer.isEnabled())
+			return;
+
 		if (value == null) {
 			returnValue(0, className, methodName);
 			return;
@@ -225,6 +190,9 @@ public class ExecutionTracer {
 	 */
 	public static void leftMethod(String classname, String methodname) {
 		ExecutionTracer tracer = getExecutionTracer();
+		if(tracer.disabled)
+			return;
+
 		tracer.trace.exitMethod(classname, methodname);		
 		logger.trace("Left method "+classname+"."+methodname);
 	}
@@ -487,12 +455,6 @@ public class ExecutionTracer {
 	
 	private ExecutionTracer() {
 		trace = new ExecutionTrace();
-		graphs = new HashMap<String, Map <String, ControlFlowGraph > >();
-		diameters = new HashMap<String, Map <String, Double> > ();
-		
-		if(Properties.CRITERION.equals("defuse"))
-			completeGraphs = new HashMap<String, Map <String, ControlFlowGraph > >();
 	}
-	
 	
 }

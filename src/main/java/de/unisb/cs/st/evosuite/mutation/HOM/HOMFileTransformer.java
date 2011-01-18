@@ -27,8 +27,13 @@ import java.security.ProtectionDomain;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
 
-import de.unisb.cs.st.javalanche.mutation.javaagent.MutationForRun;
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.primitives.PrimitiveClassAdapter;
+import de.unisb.cs.st.javalanche.mutation.javaagent.MutationsForRun;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.MutationDecision;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.MutationDecisionFactory;
 import de.unisb.cs.st.javalanche.mutation.mutationPossibilities.MutationPossibilityCollector;
@@ -37,7 +42,7 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation.MutationType;
 import de.unisb.cs.st.javalanche.mutation.results.persistence.QueryManager;
 
-public class HOMFileTransformer  implements ClassFileTransformer  {
+public class HOMFileTransformer implements ClassFileTransformer  {
 
 	protected static Logger logger = Logger
 			.getLogger(HOMFileTransformer.class);
@@ -47,7 +52,7 @@ public class HOMFileTransformer  implements ClassFileTransformer  {
 		// program crashes.
 		if (MutationProperties.QUERY_DB_BEFORE_START) {
 			Mutation someMutation = new Mutation("SomeMutationToAddToTheDb",
-					23, 23, MutationType.ARITHMETIC_REPLACE, false);
+					"tm", 23, 23, MutationType.ARITHMETIC_REPLACE);
 			Mutation mutationFromDb = QueryManager
 					.getMutationOrNull(someMutation);
 			if (mutationFromDb == null) {
@@ -59,26 +64,29 @@ public class HOMFileTransformer  implements ClassFileTransformer  {
 
 	}
 
+	//private final BytecodeTransformer mutationTransformer;
 	private static HOMTransformer mutationTransformer = new HOMTransformer();
 
-//	protected static MutationForRun mm = MutationForRun.getAllMutants();
-	protected static MutationForRun mm = MutationForRun.getFromDefaultLocation();
+	public static MutationsForRun mm = MutationsForRun.getFromDefaultLocation();
 
 	private static Collection<String> classesToMutate = mm.getClassNames();
+
 
 	//private static RemoveSystemExitTransformer systemExitTransformer = new RemoveSystemExitTransformer();
 	
 	static {
 		logger.info("Loading HOMFileTransformer");
-		logger.info("Classes to mutate:");
-		for(String classname : classesToMutate) {
-			logger.info("  "+classname);
-		}
+		classesToMutate.add(Properties.TARGET_CLASS);
+		//logger.info("Classes to mutate:");
+		//for(String classname : classesToMutate) {
+		//	logger.info("  "+classname);
+		//}
 	}
 
 	private static MutationDecision mutationDecision = MutationDecisionFactory
 			.getStandardMutationDecision(classesToMutate);
 
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -94,31 +102,52 @@ public class HOMFileTransformer  implements ClassFileTransformer  {
 			try {
 				String classNameWithDots = className.replace('/', '.');
 				
+				if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)) {
+					ClassReader reader = new ClassReader(classfileBuffer);
+					ClassWriter writer = new ClassWriter(org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
+					ClassVisitor cv = writer;
+					cv = new PrimitiveClassAdapter(cv, className);
+					reader.accept(cv, ClassReader.SKIP_FRAMES);
+					classfileBuffer = writer.toByteArray();
+				}
+				
+				// logger.info(className + " is passed to transformer");
+				//if (mutationDecision.shouldBeHandled(classNameWithDots)) {
+				//	logger.debug("Removing calls to System.exit() from class: "
+				//			+ classNameWithDots);
+				//	classfileBuffer = systemExitTransformer
+				//			.transformBytecode(classfileBuffer);
+				//}
+				/*
+				if (BytecodeTasks.shouldIntegrate(classNameWithDots)) {
+					classfileBuffer = BytecodeTasks.integrateTestSuite(
+							classfileBuffer, classNameWithDots);
+				}
+				*/
 				if (mutationDecision.shouldBeHandled(classNameWithDots)) {
-					logger.info("Mutation transforming: " + classNameWithDots);
+					logger.info("Transforming: " + classNameWithDots);
 					byte[] transformedBytecode = null;
 					try {
-						mutationTransformer.className = classNameWithDots;
-						transformedBytecode = mutationTransformer
-								.transformBytecode(classfileBuffer);
+						transformedBytecode = mutationTransformer.transformBytecode(classfileBuffer);
+
 					} catch (Exception e) {
 						logger.info("Exception thrown: " + e);
 						e.printStackTrace();
 					}
+					/*
+					AsmUtil.checkClass2(transformedBytecode);
 					logger.debug("Class transformed: " + classNameWithDots);
-					
-					/* FIXME: Doesn't work with ASM 3.2
-					String checkClass = checkClass(transformedBytecode);
+					String checkClass = AsmUtil.checkClass(transformedBytecode);
 					if (checkClass != null && checkClass.length() > 0) {
-						logger.warn("Check of class failed: " + checkClass);
+						logger.warn("Check of class failed: "
+								+ classNameWithDots);
+						logger.warn("Message: " + checkClass);
 					}
 					*/
-					
 					return transformedBytecode;
 				}
 			} catch (Throwable t) {
-				logger.fatal(
-						"Transformation of class " + className + " failed", t);
+				logger.fatal("Transformation of class " + className + " failed", t);
 				StringWriter writer = new StringWriter();
 				t.printStackTrace(new PrintWriter(writer));
 				logger.fatal(writer.getBuffer().toString());
@@ -129,7 +158,6 @@ public class HOMFileTransformer  implements ClassFileTransformer  {
 		}
 		return classfileBuffer;
 	}
-
 	/*
 	private String checkClass(byte[] transformedBytecode) {
 		ClassReader cr = new ClassReader(transformedBytecode);

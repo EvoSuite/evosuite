@@ -85,36 +85,6 @@ public class TestCaseMinimizer {
 		
 		return has_deleted;
 	}
-
-	/**
-	 * Remove all unreferenced primitive variables
-	 * @param t
-	 *   The test case
-	 * @return
-	 *   True if something was removed
-	 */
-	private boolean removeUnusedPrimitives(TestCase t) {
-		List<Integer> to_delete = new ArrayList<Integer>();
-		boolean has_deleted = false;
-		
-		int num = 0;
-		for(Statement s : t.statements) {
-			if(s instanceof PrimitiveStatement<?>) {
-				VariableReference var = s.getReturnValue();
-				if(!t.hasReferences(var)) {
-					to_delete.add(num);
-					has_deleted = true;			
-				}
-			}
-			num++;
-		}
-		Collections.sort(to_delete, Collections.reverseOrder());
-		for(Integer position : to_delete) {
-			t.remove(position);
-		}
-		
-		return has_deleted;
-	}
 	
 	/**
 	 * Central minimization function. Loop and try to remove until all statements have been checked.
@@ -122,10 +92,10 @@ public class TestCaseMinimizer {
 	 */
 	public void minimize(TestChromosome c) {
 		if(!enabled) {
-			removeUnusedPrimitives(c.test);
 			return;
 		}
 		logger.info("Minimizing test case");
+		//logger.info(c.test.toCode());
 			
 		Logger logger1 = Logger.getLogger(fitness_function.getClass());
 		Level old_level1 = logger.getLevel();
@@ -148,8 +118,8 @@ public class TestCaseMinimizer {
 		else
 			test_factory = DefaultTestFactory.getInstance();
 		
-		removeUnusedPrimitives(c.test);
 		fitness = fitness_function.getFitness(c);
+		logger.debug("Start fitness value: "+fitness);
 		boolean changed = true;
 		while(changed) {
 			changed = false;
@@ -168,11 +138,15 @@ public class TestCaseMinimizer {
 				}
 				
 				double new_fitness = fitness_function.getFitness(c);
-				if(new_fitness <= fitness) {
+				
+				logger.debug("New fitness is "+new_fitness);
+				if(new_fitness <= fitness) { // TODO: Check whether fitness should be maximized or minimized
+					logger.debug("Keeping shorter version");
 					fitness = new_fitness;
 					changed = true;
 					break;
 				} else {
+					logger.debug("Keeping original version");
 					c.test = copy.test;
 					c.last_result = copy.last_result;
 					c.setChanged(false);
@@ -183,6 +157,11 @@ public class TestCaseMinimizer {
 		logger1.setLevel(old_level1);
 		logger2.setLevel(old_level2);
 		logger3.setLevel(old_level3);
+		if(logger.isDebugEnabled()) {
+			logger.debug("Minimized test case: ");
+			logger.debug(c.test.toCode());
+		}
+
 	}
 	
 }

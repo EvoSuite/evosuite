@@ -50,7 +50,7 @@ public class CompareAssertion extends Assertion {
 	 */
 	@Override
 	public String getCode() {
-		return "assertEquals("+source.getName()+".compareTo("+dest.getName()+"), "+(Integer)value+")";
+		return "assertEquals("+source.getName()+".compareTo("+dest.getName()+"), "+(Integer)value+");";
 	}
 
 	/**
@@ -64,5 +64,32 @@ public class CompareAssertion extends Assertion {
 		Comparable<Object> comparable = (Comparable<Object>)scope.get(source);
 		return comparable.compareTo(scope.get(dest)) == (Integer)value;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((dest == null) ? 0 : dest.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CompareAssertion other = (CompareAssertion) obj;
+		if (dest == null) {
+			if (other.dest != null)
+				return false;
+		} else if (!dest.equals(other.dest))
+			return false;
+		return true;
+	}
+	
+	
 
 }

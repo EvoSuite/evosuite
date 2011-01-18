@@ -112,7 +112,7 @@ public class StringOutputTrace extends OutputTrace {
 			if((trace.containsKey(i) && other.trace.containsKey(i) && !trace.get(i).equals(other.trace.get(i))) ||
 			   (trace.containsKey(i) && !other.trace.containsKey(i))) {
 				//||
-			
+				logger.info("Generated string assertion");
 			//   (!trace.containsKey(i) && other.trace.containsKey(i))) {
 					Assertion assertion = new StringAssertion();
 					assertion.source = test.getReturnValue(i);

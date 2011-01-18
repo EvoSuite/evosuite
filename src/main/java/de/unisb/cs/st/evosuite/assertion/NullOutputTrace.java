@@ -66,12 +66,14 @@ public class NullOutputTrace extends OutputTrace {
 		for(int i=0; i<test.size(); i++) {
 			if(trace.containsKey(i) && other.trace.containsKey(i)) {
 				if(!trace.get(i).equals(other.trace.get(i))) {
+					logger.debug("Found null assertion");
+
 					Assertion assertion = new NullAssertion();
 					assertion.source = test.getReturnValue(i);
 					assertion.value = trace.get(i);
 					test.getStatement(i).addAssertion(assertion);
 					if(!other.isDetectedBy(assertion))
-						logger.error("Invalid null assertion generated (A)!");
+						logger.error("Invalid null assertion generated: "+trace.get(i)+"/"+other.trace.get(i));
 
 					num_assertions++;
 				}		
@@ -88,11 +90,7 @@ public class NullOutputTrace extends OutputTrace {
 		
 		NullAssertion p = (NullAssertion)assertion;
 		if(trace.containsKey(p.source.statement)) {
-			if(((Boolean)p.value).booleanValue()) 
-				return (trace.get(p.source.statement) == null);
-			else {
-				return (trace.get(p.source.statement) != null);
-			}
+			return !p.value.equals(trace.get(p.source.statement));
 		}
 		return false;
 	}
@@ -108,6 +106,7 @@ public class NullOutputTrace extends OutputTrace {
 				continue;
 			
 			if(!entry.getValue().equals(other.trace.get(entry.getKey()))) {
+				//logger.info("Difference at: "+entry.getKey()+": "+entry.getValue() +" -> "+other.trace.get(entry.getKey()));
 				num++;
 			}
 			

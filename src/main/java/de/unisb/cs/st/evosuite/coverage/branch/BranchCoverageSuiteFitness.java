@@ -69,9 +69,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public double getFitness(Chromosome individual) {
 		logger.trace("Calculating branch fitness");
 
-		if(total_branches != CFGMethodAdapter.branch_counter)
-			logger.warn("AHAAAAA");
-
 		long start = System.currentTimeMillis();
 		
 		TestSuiteChromosome suite = (TestSuiteChromosome)individual;
@@ -85,7 +82,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		Map<String, Integer> call_count = new HashMap<String, Integer>();
 
 		for(ExecutionResult result : results) {
-			 if(hasTimeout(result)) {
+			if(hasTimeout(result)) {
 				updateIndividual(individual, total_branches*2 + total_methods);
 				suite.setCoverage(0.0);
 				logger.info("Test case has timed out, setting fitness to max value "+(total_branches*2 + total_methods));
@@ -128,16 +125,12 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		//logger.info("Got data for predicates: " + predicate_count.size()+"/"+total_branches);
 		for(String key : predicate_count.keySet()) {
 			//logger.info("Key: "+key);
+			if(!true_distance.containsKey(key) || !false_distance.containsKey(key))
+				continue;
 			int num_executed  = predicate_count.get(key);
 			double df = true_distance.get(key);
 			double dt = false_distance.get(key);
-			if(df < 0.0)
-				logger.warn("DF is less than zero!");
-			if(dt < 0.0)
-				logger.warn("DT is less than zero!");
 			if(num_executed == 1) {
-				if(df != 0.0 && dt != 0.0)
-					logger.warn("WAAAAARGH!");
 				fitness += 1.0; // + normalize(df) + normalize(dt);
 			} else {
 				fitness += normalize(df) + normalize(dt);
@@ -165,10 +158,13 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		int missing_methods = 0;
 		for(String e : CFGMethodAdapter.methods) {
 			if(!call_count.containsKey(e)) {
-				//logger.info("Missing method: "+e);
+				logger.debug("Missing method: "+e);
 				fitness += 1.0;
 				missing_methods += 1;
 			}
+		}
+		for(String method : call_count.keySet()) {
+			logger.debug("Got method: "+method);			
 		}
 		
 		//logger.info("Fitness after missing methods: "+fitness);

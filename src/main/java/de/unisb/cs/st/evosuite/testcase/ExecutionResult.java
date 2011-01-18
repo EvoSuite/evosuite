@@ -20,7 +20,9 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.unisb.cs.st.evosuite.assertion.ComparisonTrace;
@@ -37,9 +39,11 @@ public class ExecutionResult {
 	public Outcome result;
 	public TestCase test;
 	public Mutation mutation;
-	public Throwable exception;
 	public int exception_statement = 0;
+	
+	/** Map statement number to raised exception */
 	public Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
+	
 	public ExecutionTrace trace;
 	public StringOutputTrace output_trace;
 	public ComparisonTrace comparison_trace;
@@ -47,14 +51,34 @@ public class ExecutionResult {
 	public InspectorTrace inspector_trace;
 	public PrimitiveFieldTrace field_trace;
 	public NullOutputTrace null_trace;
-	public boolean touched = false;
+	public List<Long> touched = new ArrayList<Long>();
 
+	public ExecutionResult(TestCase t) {
+		exception_statement = 0;
+		trace = null;
+		mutation = null;
+		test = t;
+	}
+	
 	public ExecutionResult(TestCase t, Mutation m) {
-		exception = null;
 		exception_statement = 0;
 		trace = null;
 		mutation = m;
 		test = t;
+	}
+	
+	public boolean hasTimeout() {
+		if(test == null)
+			return false;
+		
+		int size = test.size();
+		if(exceptions.containsKey(size)) {
+			if(exceptions.get(size) instanceof TestCaseExecutor.TimeoutExceeded) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	public ExecutionResult clone() {

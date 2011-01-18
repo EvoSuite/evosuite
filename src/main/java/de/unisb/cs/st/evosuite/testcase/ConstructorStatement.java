@@ -22,10 +22,21 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.lang.ClassUtils;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.GeneratorAdapter;
+import org.objectweb.asm.commons.Method;
+
+import de.unisb.cs.st.evosuite.Properties;
 
 /**
  * This statement represents a constructor call
@@ -50,51 +61,25 @@ public class ConstructorStatement extends Statement {
 		return constructor;
 	}
 	
-	public boolean isValid() {
-
-		Class<?>[] param_types = constructor.getParameterTypes();
-		
-		if(parameters.size() != param_types.length)
-			return false;
-		
-		// Check parameters
-		for(int i=0; i<parameters.size(); i++) {
-			if(!param_types[i].isInstance(parameters.get(i).getType()))
-				return false;
-		}
-		
-		return true;
-	}
-	
 	// TODO: Handle inner classes (need instance parameter for newInstance)
 	@Override
 	public Throwable execute(Scope scope, PrintStream out) throws InvocationTargetException, IllegalArgumentException, InstantiationException, IllegalAccessException {
+		PrintStream old_out = System.out;
+		PrintStream old_err = System.err;
+		System.setOut(out);
+		System.setErr(out);
 		try {
 	        logger.trace("Executing constructor "+constructor.toString());
 	        exceptionThrown = null;
 			Object[] inputs = new Object[parameters.size()];
 			for(int i=0; i<parameters.size(); i++) {
 				inputs[i] = scope.get(parameters.get(i));
-				//System.out.println("Adding parameter of type "+parameters.get(i).getType());
 			}
-			//System.out.println("TG: Got "+inputs.length+" parameters");
-			//for(Object o : inputs) {
-			//	System.out.println(o.getClass()+": "+o);
-			//}
-			PrintStream old_out = System.out;
-			System.setOut(out);
+
 			Object ret = this.constructor.newInstance(inputs);
-			System.setOut(old_out);
-			if(ret == null) {
-				logger.warn("Constructor returned null: "+this.constructor);
-			}
-			//System.out.println("TG: Constructed object");
 			scope.set(retval, ret);
-			//System.out.println("TG: Added to scope");
-			//for(ExecutionObserver obs : observers) {
-			//	obs.constructorExecuted(constructor, inputs, ret);
-			//}
-	      } catch (Throwable e) {
+
+		} catch (Throwable e) {
 	          if (e instanceof java.lang.reflect.InvocationTargetException) {
 	              e = e.getCause();
 		    	  logger.debug("Exception thrown in constructor: "+e);
@@ -102,26 +87,17 @@ public class ConstructorStatement extends Statement {
 		    	  logger.debug("Exception thrown in constructor: "+e);
         	  exceptionThrown = e;
 
-	      }
-	      return exceptionThrown;
-	}
-
-	@Override
-	public String getCode() {
-		String parameter_string = "";
-		if(!parameters.isEmpty()) {
-			parameter_string += parameters.get(0).getName();
-			for(int i=1; i<parameters.size(); i++) {
-				parameter_string += ", "+parameters.get(i).getName();
-			}
+		} finally {
+			System.setOut(old_out);
+			System.setErr(old_err);			
 		}
-		return retval.getSimpleClassName() +" "+retval.getName()+ " = new " + constructor.getName() + "(" + parameter_string + ")";
-
+		return exceptionThrown;
 	}
 	
 	@Override
 	public String getCode(Throwable exception) {
 		String parameter_string = "";
+		String result = "";
 		if(!parameters.isEmpty()) {
 			parameter_string += parameters.get(0).getName();
 			for(int i=1; i<parameters.size(); i++) {
@@ -129,10 +105,19 @@ public class ConstructorStatement extends Statement {
 			}
 		}
 //		String result = ((Class<?>) retval.getType()).getSimpleName() +" "+retval.getName()+ " = null;\n";
-		String result = retval.getSimpleClassName() +" "+retval.getName()+ " = null;\n";
-		result += "try {\n";
-		result += "  "+ retval.getName()+ " = new " + constructor.getName() + "(" + parameter_string + ");\n";
-		result += "} catch("+exception.getClass().getSimpleName()+" e) {}";
+		if(exception != null) {
+			result = retval.getSimpleClassName() +" "+retval.getName()+ " = null;\n";
+			result += "try {\n  ";
+		} else {
+			result += retval.getSimpleClassName() +" ";
+		}
+		result += retval.getName()+ " = new " + ClassUtils.getShortClassName(constructor.getDeclaringClass()) + "(" + parameter_string + ");";
+		if(exception != null) {
+			Class<?> ex = exception.getClass();
+			while(!Modifier.isPublic(ex.getModifiers()))
+				ex = ex.getSuperclass();
+			result += "\n} catch("+ClassUtils.getShortClassName(ex)+" e) {}";
+		}
 		
 		return result;
 	}
@@ -144,7 +129,7 @@ public class ConstructorStatement extends Statement {
 			new_params.add(r.clone());
 		}
 		Statement copy = new ConstructorStatement(constructor,
-				new VariableReference(retval.getType(), retval.statement),
+				retval.clone(),
 				new_params);
 		copy.assertions = cloneAssertions();
 		return copy;
@@ -160,24 +145,14 @@ public class ConstructorStatement extends Statement {
 	}
 
 	@Override
-	public boolean references(VariableReference var) {
-		for(VariableReference param : parameters) {
-			if(param.equals(var))
-				return true;
-			if(param.isArrayIndex() && param.array.equals(var))
-				return true;
-		}
-		if(retval.equals(var))
-			return true;
-		return false;
-
-	}
-
-	@Override
 	public Set<VariableReference> getVariableReferences() {
 		Set<VariableReference> references = new HashSet<VariableReference>();
 		references.add(retval);
 		references.addAll(parameters);
+		for(VariableReference param : parameters) {
+			if(param.isArrayIndex())
+				references.add(param.array);
+		}
 		return references;
 	}
 
@@ -223,4 +198,80 @@ public class ConstructorStatement extends Statement {
 		}
 	}	
 	
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.Statement#getBytecode(org.objectweb.asm.commons.GeneratorAdapter)
+	 */
+	@Override
+	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception) {
+		logger.debug("Invoking constructor");
+		Label start = mg.newLabel();
+		Label end = mg.newLabel();
+		
+		//if(exception != null)
+			mg.mark(start);
+
+		mg.newInstance(Type.getType(retval.getVariableClass()));
+		mg.dup();
+		int num = 0;
+		for(VariableReference parameter : parameters) {
+			parameter.loadBytecode(mg, locals);
+			if(constructor.getParameterTypes()[num].isPrimitive()) {
+				if(!constructor.getParameterTypes()[num].equals(parameter.getVariableClass())) {
+					logger.debug("Types don't match - casting "+parameter.getVariableClass().getName()+" to "+constructor.getParameterTypes()[num].getName());
+					mg.cast(Type.getType(parameter.getVariableClass()), Type.getType(constructor.getParameterTypes()[num]));
+				}
+			}
+			num++;
+		}
+		mg.invokeConstructor(Type.getType(retval.getVariableClass()), Method.getMethod(constructor));
+		logger.debug("Storing result");
+		retval.storeBytecode(mg, locals);
+		
+		//if(exception != null) {
+			mg.mark(end);
+			Label l = mg.newLabel();
+			mg.goTo(l);
+//			mg.catchException(start, end, Type.getType(getExceptionClass(exception)));
+			mg.catchException(start, end, Type.getType(Throwable.class));
+			mg.pop(); // Pop exception from stack
+			if(!retval.isVoid()) {
+				Class<?> clazz = retval.getVariableClass();
+				if(clazz.equals(boolean.class))
+					mg.push(false);
+				else if(clazz.equals(char.class))
+					mg.push(0);
+				else if(clazz.equals(int.class))
+					mg.push(0);
+				else if(clazz.equals(short.class))
+					mg.push(0);
+				else if(clazz.equals(long.class))
+					mg.push(0L);
+				else if(clazz.equals(float.class))
+					mg.push(0.0F);
+				else if(clazz.equals(double.class))
+					mg.push(0.0);
+				else if(clazz.equals(byte.class))
+					mg.push(0);
+				else if(clazz.equals(String.class))
+					mg.push("");
+				else
+		            mg.visitInsn(Opcodes.ACONST_NULL);
+				
+				retval.storeBytecode(mg, locals);
+			}
+			mg.mark(l);
+		//}
+
+	}
+	
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.Statement#getDeclaredExceptions()
+	 */
+	@Override
+	public Set<Class<?>> getDeclaredExceptions() {
+		Set<Class<?>> ex = super.getDeclaredExceptions();
+		for(Class<?> t : constructor.getExceptionTypes())
+			ex.add(t);
+		return ex;
+	}
 }

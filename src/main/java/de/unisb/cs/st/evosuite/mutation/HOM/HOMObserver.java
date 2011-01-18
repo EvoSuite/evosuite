@@ -55,7 +55,7 @@ public class HOMObserver  {
 	public static void touch(long mutationID) {
 		touchedMutations.add(mutationID);
 		
-		logger.info("Touch called by mutated code for mutation: " + mutationID
+		logger.trace("Touched mutation: " + mutationID
 				+ " Thread " + Thread.currentThread()
 				+ " loaded by class loader "
 				+ HOMObserver.class.getClassLoader());

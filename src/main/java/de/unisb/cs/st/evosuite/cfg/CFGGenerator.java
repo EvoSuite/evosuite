@@ -76,7 +76,7 @@ public class CFGGenerator extends Analyzer {
 	public class CFGVertex {
 		
 		AbstractInsnNode node;
-		Frame frame;
+		CFGFrame frame;
 		int id;
 		public int line_no = 0;
 		List<Long> mutations = new ArrayList<Long>();
@@ -155,7 +155,6 @@ public class CFGGenerator extends Analyzer {
 		
 		public boolean isBranchLabel() {
 			if(node instanceof LabelNode && ((LabelNode)node).getLabel().info instanceof Integer) {
-				logger.info("!!!!! Found branch!");
 				return true;
 			}
 			return false;
@@ -410,14 +409,14 @@ public class CFGGenerator extends Analyzer {
 	}
 
 	protected Frame newFrame(int nLocals, int nStack) { 
-		return new CFGNode(nLocals, nStack);
+		return new CFGFrame(nLocals, nStack);
 	} 
 	
 	protected Frame newFrame(Frame src) {
-		return new CFGNode(src);
+		return new CFGFrame(src);
 	}
 	
-	CFGNode getCFG(String owner, String method, MethodNode node) throws AnalyzerException {
+	CFGFrame getCFG(String owner, String method, MethodNode node) throws AnalyzerException {
 		current_method = node;
 		className = owner;
 		methodName = method;
@@ -426,7 +425,7 @@ public class CFGGenerator extends Analyzer {
 		if(frames.length == 0)
 			return null;
 		
-		return (CFGNode) getFrames()[0];
+		return (CFGFrame) getFrames()[0];
 	}
 
 	public DefaultDirectedGraph<CFGVertex, DefaultEdge> getGraph() {
@@ -461,11 +460,11 @@ public class CFGGenerator extends Analyzer {
 				for(DefaultEdge e : graph.incomingEdgesOf(v)) {
 					CFGVertex v2 = graph.getEdgeSource(e);
 					if(v2.isMethodCall("touch")) {
-						logger.info("Found mutated branch!");
+						logger.debug("Found mutated branch ");
 						v.setMutatedBranch();
 					} else {
 						if(v2.isMethodCall())
-							logger.info("Edgesource: "+v2.getMethodName());
+							logger.debug("Edgesource: "+v2.getMethodName());
 					}
 				}
 			}
@@ -532,8 +531,8 @@ public class CFGGenerator extends Analyzer {
 	 * Called for each non-exceptional cfg edge
 	 */
 	protected void newControlFlowEdge(int src, int dst) {
-		CFGNode s = (CFGNode) getFrames()[src]; 
-		s.successors.put(dst, (CFGNode) getFrames()[dst]);
+		CFGFrame s = (CFGFrame) getFrames()[src]; 
+		s.successors.put(dst, (CFGFrame) getFrames()[dst]);
 		if(getFrames()[dst] == null) {
 			System.out.println("Control flow edge to null");
 			logger.error("Control flow edge to null");
@@ -551,8 +550,8 @@ public class CFGGenerator extends Analyzer {
 	 * We also need to keep track of exceptional edges - they are also branches
 	 */
 	protected boolean newControlFlowExceptionEdge(int src, int dst) {
-		CFGNode s = (CFGNode) getFrames()[src]; 
-		s.successors.put(dst, (CFGNode) getFrames()[dst]);
+		CFGFrame s = (CFGFrame) getFrames()[src]; 
+		s.successors.put(dst, (CFGFrame) getFrames()[dst]);
 
 		// TODO: Make use of information that this is an exception edge?
 		CFGVertex v1 = new CFGVertex(src, current_method.instructions.get(src));

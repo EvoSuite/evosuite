@@ -19,16 +19,24 @@
 
 package de.unisb.cs.st.evosuite.mutation;
 
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.List;
 
+import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
-import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
+import de.unisb.cs.st.evosuite.testcase.MethodStatement;
+import de.unisb.cs.st.evosuite.testcase.Statement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
@@ -46,18 +54,98 @@ public class MutationGoal extends TestCoverageGoal {
 	
 	private String methodName;
 	
+	private AccessibleObject targetMethod = null;
+	
+	private Class<?> methodSource = null;
+	
+	private Class<?>[] parameters = null;
+		
 	public MutationGoal(Mutation mutation) {
 		this.mutation = mutation;
 		this.className = mutation.getClassName();
 		this.methodName = mutation.getMethodName();
-		this.cfg = ExecutionTracer.getExecutionTracer().getCFG(className, methodName);
+//		this.cfg = ExecutionTracer.getExecutionTracer().getCFG(className, methodName);
+		this.cfg = CFGMethodAdapter.getCFG(className, methodName);
+		try {
+			Class<?> clazz = Class.forName(className);
+			if(methodName.startsWith("<init>")) {
+				for(Constructor<?> constructor : TestCluster.getConstructors(clazz)) {
+					String name = "<init>"+org.objectweb.asm.Type.getConstructorDescriptor(constructor);
+					if(name.equals(methodName)) {
+						this.targetMethod = constructor;
+						this.parameters = constructor.getParameterTypes();
+						break;
+					}
+				}
+			} else {
+				for(Method method : TestCluster.getMethods(clazz)) {
+					String name = method.getName()+org.objectweb.asm.Type.getMethodDescriptor(method);
+					if(name.equals(methodName)) {
+						this.targetMethod = method;
+						this.parameters = method.getParameterTypes();
+						if(!Modifier.isStatic(method.getModifiers()))
+							this.methodSource = method.getDeclaringClass();
+						break;
+					}
+				}
+			}
+			if(this.targetMethod == null)
+				logger.error("Could not find method "+methodName);
+		} catch(ClassNotFoundException e) {
+			logger.error("Could not find mutated method");
+		}
+	}
+	
+	public Mutation getMutation() {
+		return mutation;
+	}
+	
+	private int getMethodDistance(ExecutionResult result) {
+		int max = parameters.length;
+		boolean have_callee = false;
+		if(methodSource != null) {
+			max++;
+		} else
+			have_callee = true;
+
+		int num_satisfied = 0;
+        List<Boolean> satisfied = new ArrayList<Boolean>();
+        for(Class<?> c : parameters) {
+        	satisfied.add(false);
+        }
+		
+        int num = 0;
+		for(Statement statement : result.test.getStatements()) {
+			for(int i = 0; i<parameters.length; i++) {
+				if(!satisfied.get(i)) {
+					if(parameters[i].isAssignableFrom(statement.getReturnValue().getVariableClass())) {
+						if(result.exceptions.containsKey(num)) {
+							satisfied.set(i, true);
+							num_satisfied++;
+						}
+					}
+				}
+			}
+			if(!have_callee) {
+				if(methodSource.isAssignableFrom(statement.getReturnValue().getVariableClass())) {
+					if(result.exceptions.containsKey(num)) {
+						have_callee = true;
+						num_satisfied++;
+					}
+				}
+			}
+			num++;
+		}
+		logger.debug("Satisfied "+num_satisfied+" out of "+max+" parameters");
+		return max - num_satisfied; // + result.exceptions.size();
 	}
 	
 	public ControlFlowDistance getDistance(ExecutionResult result) {
 		ControlFlowDistance d = new ControlFlowDistance();
+		logger.debug("Getting distance");
 		
 		if(hasTimeout(result)) {
-			logger.info("Has timeout!");
+			logger.debug("Has timeout!");
 			if(cfg == null) {
 				d.approach = 20;
 			} else {
@@ -66,8 +154,8 @@ public class MutationGoal extends TestCoverageGoal {
 			return d;
 		}
 
-		if(HOMObserver.wasTouched(mutation.getId())) {
-			logger.info("Mutation was touched");
+		if(result.touched.contains(mutation.getId())) {
+			logger.debug("Mutation was touched");
 			return d;
 		}
 		
@@ -113,8 +201,25 @@ public class MutationGoal extends TestCoverageGoal {
 				}
 			}
 		}
-		if(!method_executed)
-			logger.debug("Method not executed by test");
+		if(!method_executed) {
+			logger.debug("Method "+methodName+"not executed by test");
+			boolean found = false;
+			for(Statement s : result.test.getStatements()) {
+				if(s instanceof MethodStatement) {
+					MethodStatement ms = (MethodStatement)s;
+					Method method = ms.getMethod();
+					//logger.info("Comparing with "+className+" . "+methodName);
+					//logger.info(method.getDeclaringClass().getName()+" . "+method.getName());
+					if(methodName.startsWith(method.getName()) && method.getDeclaringClass().getName().equals(className)) {
+						found = true;
+						break;
+					}
+				}
+			}
+			if(!found)
+				d.approach++;
+			d.approach += getMethodDistance(result);
+		}
 		//else
 		//	cfg.toDot(className+"."+methodName.replace(";","").replace("(","").replace(")", "").replace("/",".")+".dot");
 		return d;
@@ -125,13 +230,15 @@ public class MutationGoal extends TestCoverageGoal {
 		CFGVertex m = cfg.getMutation(mutation.getId()); 
 		ControlFlowDistance d = new ControlFlowDistance();
 		if(m == null) {
-			logger.error("Could not find mutant node ");
+			logger.error("Could not find mutant node "+mutation.getId());
+			for(Long mi : cfg.getMutations())
+				logger.error("Have mutation: "+mi);
 			return d;
 		}
 		
 		int min_approach  = cfg.getDiameter();
 		//int min_approach = cfg.getInitialDistance(m);
-		logger.info("Initial distance: "+min_approach);
+		logger.debug("Initial distance: "+min_approach);
 		double min_dist = 0.0;
 		for(int i = 0; i<path.size(); i++) {
 			CFGVertex v = cfg.getVertex(path.get(i));
@@ -140,7 +247,7 @@ public class MutationGoal extends TestCoverageGoal {
 				if(cfg.isSuccessor(m, v))
 					distance = 0;
 				
-				logger.info("B: Path vertex "+i+"("+ v.toString()+") has distance: "+distance+" and branch distance "+Math.max(true_distances.get(i), false_distances.get(i)));
+				logger.debug("B: Path vertex "+i+"("+ v.toString()+") has distance: "+distance+" and branch distance "+Math.max(true_distances.get(i), false_distances.get(i)));
 
 				if(distance <= min_approach && distance >= 0) {
 					double branch_distance = true_distances.get(i) + false_distances.get(i);

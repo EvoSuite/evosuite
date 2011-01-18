@@ -166,7 +166,7 @@ public class MultiMethodVisitor implements MethodVisitor {
 	 */
 	public void visitLineNumber(int arg0, Label arg1) {
 		mv1.visitLineNumber(arg0, arg1);
-		mv2.visitLineNumber(arg0, arg1);
+		//mv2.visitLineNumber(arg0, arg1);
 	}
 
 	/* (non-Javadoc)
