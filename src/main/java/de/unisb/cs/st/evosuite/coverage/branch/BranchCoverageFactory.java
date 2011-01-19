@@ -45,18 +45,16 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 
 		// Branchless methods
 		String class_name = Properties.TARGET_CLASS;
-		for(String method : BranchPool.branchless_methods) {
+		for(String method : BranchPool.getBranchlessMethods()) {
 			goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(class_name, method)));
 		}
-		
 		// Branches
-		for(String className : BranchPool.branch_map.keySet()) {
-			for(String methodName : BranchPool.branch_map.get(className).keySet()) {
+		for(String className : BranchPool.branchMap.keySet()) {
+			for(String methodName : BranchPool.branchMap.get(className).keySet()) {
 				// Get CFG of method
-//				ControlFlowGraph cfg = ExecutionTracer.getExecutionTracer().getCFG(className, methodName);
 				ControlFlowGraph cfg = CFGMethodAdapter.getCFG(className, methodName);
 				
-				for(Branch b : BranchPool.branch_map.get(className).get(methodName)) {
+				for(Branch b : BranchPool.branchMap.get(className).get(methodName)) {
 					// Identify vertex in CFG
 					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(b.getBranchID(), b.getBytecodeID(), true, cfg, className, methodName)));
 					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(b.getBranchID(), b.getBytecodeID(), false, cfg, className, methodName)));

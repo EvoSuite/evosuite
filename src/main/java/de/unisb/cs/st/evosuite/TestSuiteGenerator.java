@@ -544,7 +544,7 @@ public class TestSuiteGenerator {
 		
 		if(Properties.getPropertyOrDefault("dynamic_limit", false)) {
 			//max_s = GAProperties.generations * getBranches().size();
-			Properties.GENERATIONS = Properties.GENERATIONS * (BranchPool.branchless_methods.size() + BranchPool.branch_map.size() * 2);
+			Properties.GENERATIONS = Properties.GENERATIONS * (BranchPool.getBranchlessMethods().size() + BranchPool.branchMap.size() * 2); // TODO question: is branchMap.size() really what wanted here? I think BranchPool.getBranchCount() was intended here
 			stopping_condition.setLimit(Properties.GENERATIONS);
 			logger.info("Setting dynamic length limit to "+Properties.GENERATIONS);
 		}
