@@ -90,18 +90,10 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 	private String methodName, className;
 
-	private void countBranch() {
-			String id = className+"."+methodName;
-			if(!BranchPool.branch_count.containsKey(id)) {
-				BranchPool.branch_count.put(id, 1);
-			}
-			else
-				BranchPool.branch_count.put(id, BranchPool.branch_count.get(id) + 1);
-	}
-	
 	private InsnList getInstrumentation(int opcode, int id) {
 		InsnList instrumentation = new InsnList();
 		
+		String methodID = className+"."+methodName;
 
 		switch(opcode) {
 		case Opcodes.IFEQ:
@@ -117,7 +109,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new LdcInsnNode(id));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(IIII)V"));
-			countBranch();
+			BranchPool.countBranch(methodID);
 			logger.debug("Adding passedBranch val=?, opcode="+opcode+", branch="+BranchPool.getBranchCounter()+", bytecode_id="+id);
 
 			break;
@@ -134,7 +126,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new LdcInsnNode(id));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(IIIII)V"));
-			countBranch();
+			BranchPool.countBranch(methodID);
 
 
 			break;
@@ -147,7 +139,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new LdcInsnNode(id));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(Ljava/lang/Object;Ljava/lang/Object;III)V"));
-			countBranch();
+			BranchPool.countBranch(methodID);
 			break;
 		case Opcodes.IFNULL:
 		case Opcodes.IFNONNULL:
@@ -158,7 +150,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new LdcInsnNode(id));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(Ljava/lang/Object;III)V"));
-			countBranch();
+			BranchPool.countBranch(methodID);
 			break;
 		case Opcodes.GOTO:
 			break;
@@ -170,7 +162,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new LdcInsnNode(id));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(IIII)V"));
-			countBranch();
+			BranchPool.countBranch(methodID);
 			break;
 		case Opcodes.LOOKUPSWITCH:
 			instrumentation.add(new InsnNode(Opcodes.DUP));
@@ -180,7 +172,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new LdcInsnNode(id));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(IIII)V"));
-			countBranch();
+			BranchPool.countBranch(methodID);
 			break;
 		}	
 		return instrumentation;
@@ -226,24 +218,15 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 		// Generate CFG of method
 		MethodNode mn = (MethodNode) mv;
-		boolean inClinit = false;
 
-		if(plain_name.equals("<clinit>")) {
-			if(Properties.CRITERION.equals("defuse")) {
-				inClinit = true;
-			} else {
-				mn.accept(next);
-				return;
-			}
+		if(plain_name.equals("<clinit>") && !Properties.CRITERION.equals("defuse")) {
+			mn.accept(next);
+			return;
 		}
 
-		if(EXCLUDE.contains(methodName)) {
-			if(Properties.CRITERION.equals("defuse") && methodName.equals("<clinit>")) {
-				inClinit = true;
-			} else {
-				mn.accept(next);
-				return;
-			}
+		if(EXCLUDE.contains(methodName) && !Properties.CRITERION.equals("defuse")) {
+			mn.accept(next);
+			return;
 		}
 		
 		//MethodNode mn = new CFGMethodNode((MethodNode)mv);
@@ -280,14 +263,41 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	
 	private void handleBranchlessMethods() {
 		String id = className+"."+methodName;
-		if(!BranchPool.branch_count.containsKey(id)) {
+		if(BranchPool.getBranchCountForMethod(id) == 0) {
 			if(isUsable()) {
 				logger.debug("Method has no branches: "+id);
-				BranchPool.branchless_methods.add(id);
+				BranchPool.addBranchlessMethod(id);
 			}
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	private void analyzeBranchVertices(MethodNode mn,Graph<CFGVertex, DefaultEdge> graph) {
+		
+		Iterator<AbstractInsnNode> j = mn.instructions.iterator(); 
+		while (j.hasNext()) {
+			AbstractInsnNode in = j.next();
+			for(CFGVertex v : graph.vertexSet()) {
+				// updating some information in the CFGVertex
+				if(in.equals(v.node)) {
+					if (v.isLineNumber()) {
+						currentLineNumber = v.getLineNumber();
+					}
+					v.className = className;
+					v.methodName = methodName;
+					v.line_no = currentLineNumber;
+				}				
+				// If this is in the CFG and it's a branch...
+				if(in.equals(v.node) && v.isBranch() && !v.isMutation() && !v.isMutationBranch()) {
+					mn.instructions.insert(v.node.getPrevious(), getInstrumentation(v.node.getOpcode(), v.id));
+					//if(!v.isMutatedBranch()) {
+						BranchPool.addBranch(v);
+					//}
+				}
+			}
+		}
+	}	
+	
 	@SuppressWarnings("unchecked")
 	private void analyzeDefUseVertices(MethodNode mn, Graph<CFGVertex, DefaultEdge> graph) {
 		
@@ -318,37 +328,6 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		
 			}
 		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private void analyzeBranchVertices(MethodNode mn,Graph<CFGVertex, DefaultEdge> graph) {
-		
-		Iterator<AbstractInsnNode> j = mn.instructions.iterator(); 
-		while (j.hasNext()) {
-			AbstractInsnNode in = j.next();
-			for(CFGVertex v : graph.vertexSet()) {
-	
-				// updating some information in the CFGVertex
-				if(in.equals(v.node)) {
-					if (v.isLineNumber()) {
-						currentLineNumber = v.getLineNumber();
-					}
-					v.className = className;
-					v.methodName = methodName;
-					v.line_no = currentLineNumber;
-				}				
-	
-				// If this is in the CFG and it's a branch...
-				if(in.equals(v.node) && v.isBranch() && !v.isMutation() && !v.isMutationBranch()) {
-					mn.instructions.insert(v.node.getPrevious(), getInstrumentation(v.node.getOpcode(), v.id));
-					//if(!v.isMutatedBranch()) {
-	
-						BranchPool.addBranch(v);
-					//}
-				}
-			}
-		}
-		
 	}
 
 	private boolean isUsable() {

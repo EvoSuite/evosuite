@@ -844,10 +844,10 @@ public class TestCluster {
 		logger.info("Target class has " + BranchPool.getBranchCounter()
 				+ " branches");
 		logger.info("Target class has "
-				+ BranchPool.branchless_methods.size()
+				+ BranchPool.getBranchlessMethods().size()
 				+ " methods without branches");
 		logger.info("That means for coverage information: "
-				+ (BranchPool.branchless_methods.size() + 2 * BranchPool.getBranchCounter()));
+				+ (BranchPool.getBranchlessMethods().size() + 2 * BranchPool.getBranchCounter()));
 	}
 
 	private static String getName(AccessibleObject o) {
