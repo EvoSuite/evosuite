@@ -47,6 +47,8 @@ import org.objectweb.asm.tree.analysis.AnalyzerException;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
 import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.AbstractMutationAdapter;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
@@ -68,28 +70,8 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	
 	public static final List<String> EXCLUDE = Arrays.asList("<clinit>", "__STATIC_RESET()V", "__STATIC_RESET");
 	
-	public static Map<String, Integer> branch_count = new HashMap<String, Integer>();
-
-	public static Map<String, Map<String, Map<Integer,Integer>>> branch_map = new HashMap<String, Map<String, Map<Integer,Integer>>>();
-
-	public static Set<String> branchless_methods = new HashSet<String>();
-
 	public static Set<String> methods = new HashSet<String>();
 
-	public static int branch_counter = 0;
-	
-	// maps: classname -> methodName  -> DUVarName -> branchID -> List of Defs as CFGVertex in that branch 
-	public static Map<String, Map<String, Map<String, Map<Integer,List<CFGVertex>>>>> def_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<CFGVertex>>>>>();
-
-	// maps: classname -> methodName  -> DUVarName -> branchID -> List of Defs as CFGVertex in that branch
-	public static Map<String, Map<String, Map<String, Map<Integer,List<CFGVertex>>>>> use_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<CFGVertex>>>>>();	
-	
-	// maps the branch_counter field of this class to its bytecodeID in the CFG
-	public static Map<Integer, Integer> branchCounterToBytecodeID = new HashMap<Integer, Integer>();
-	
-	public static int def_counter = 0;
-	public static int use_counter = 0;
-	
 	private static int currentLineNumber = -1; // TODO should be merged with current_line? (which doesnt work i guess)
 
 	private static Map<String, Map <String, ControlFlowGraph > > completeGraphs = new HashMap<String, Map <String, ControlFlowGraph > >();
@@ -112,11 +94,11 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 	private void countBranch() {
 			String id = className+"."+methodName;
-			if(!branch_count.containsKey(id)) {
-				branch_count.put(id, 1);
+			if(!BranchPool.branch_count.containsKey(id)) {
+				BranchPool.branch_count.put(id, 1);
 			}
 			else
-				branch_count.put(id, branch_count.get(id) + 1);
+				BranchPool.branch_count.put(id, BranchPool.branch_count.get(id) + 1);
 	}
 	
 	private InsnList getInstrumentation(int opcode, int id) {
@@ -133,12 +115,12 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new InsnNode(Opcodes.DUP));
 			instrumentation.add(new LdcInsnNode(opcode));
 //			instrumentation.add(new LdcInsnNode(id));
-			instrumentation.add(new LdcInsnNode(branch_counter));
+			instrumentation.add(new LdcInsnNode(BranchPool.branch_counter));
 			instrumentation.add(new LdcInsnNode(id));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(IIII)V"));
 			countBranch();
-			logger.debug("Adding passedBranch val=?, opcode="+opcode+", branch="+branch_counter+", bytecode_id="+id);
+			logger.debug("Adding passedBranch val=?, opcode="+opcode+", branch="+BranchPool.branch_counter+", bytecode_id="+id);
 
 			break;
 		case Opcodes.IF_ICMPEQ:
@@ -150,7 +132,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new InsnNode(Opcodes.DUP2));
 			instrumentation.add(new LdcInsnNode(opcode));
 //			instrumentation.add(new LdcInsnNode(id));
-			instrumentation.add(new LdcInsnNode(branch_counter));
+			instrumentation.add(new LdcInsnNode(BranchPool.branch_counter));
 			instrumentation.add(new LdcInsnNode(id));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(IIIII)V"));
@@ -163,7 +145,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new InsnNode(Opcodes.DUP2));
 			instrumentation.add(new LdcInsnNode(opcode));
 			//instrumentation.add(new LdcInsnNode(id));
-			instrumentation.add(new LdcInsnNode(branch_counter));
+			instrumentation.add(new LdcInsnNode(BranchPool.branch_counter));
 			instrumentation.add(new LdcInsnNode(id));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(Ljava/lang/Object;Ljava/lang/Object;III)V"));
@@ -174,7 +156,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new InsnNode(Opcodes.DUP));
 			instrumentation.add(new LdcInsnNode(opcode));
 //			instrumentation.add(new LdcInsnNode(id));
-			instrumentation.add(new LdcInsnNode(branch_counter));
+			instrumentation.add(new LdcInsnNode(BranchPool.branch_counter));
 			instrumentation.add(new LdcInsnNode(id));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(Ljava/lang/Object;III)V"));
@@ -186,7 +168,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new InsnNode(Opcodes.DUP));
 			instrumentation.add(new LdcInsnNode(opcode));
 //			instrumentation.add(new LdcInsnNode(id));
-			instrumentation.add(new LdcInsnNode(branch_counter));
+			instrumentation.add(new LdcInsnNode(BranchPool.branch_counter));
 			instrumentation.add(new LdcInsnNode(id));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(IIII)V"));
@@ -196,7 +178,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new InsnNode(Opcodes.DUP));
 			instrumentation.add(new LdcInsnNode(opcode));
 //			instrumentation.add(new LdcInsnNode(id));
-			instrumentation.add(new LdcInsnNode(branch_counter));
+			instrumentation.add(new LdcInsnNode(BranchPool.branch_counter));
 			instrumentation.add(new LdcInsnNode(id));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(IIII)V"));
@@ -221,7 +203,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new LdcInsnNode(v.getDUVariableName()));
 			instrumentation.add(new LdcInsnNode(methodName));
 			instrumentation.add(new LdcInsnNode(currentBranch));
-			instrumentation.add(new LdcInsnNode(def_counter));
+			instrumentation.add(new LdcInsnNode(DefUsePool.def_counter));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedFieldDefinition", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V"));
 			break;
@@ -231,7 +213,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new LdcInsnNode(v.getDUVariableName()));
 			instrumentation.add(new LdcInsnNode(methodName));
 			instrumentation.add(new LdcInsnNode(currentBranch));
-			instrumentation.add(new LdcInsnNode(use_counter));
+			instrumentation.add(new LdcInsnNode(DefUsePool.use_counter));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedFieldUse", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V"));
 			break;			
@@ -270,13 +252,9 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			e.printStackTrace();			
 		}
 
-		// non-minimized cfg needed for defuse-coverage
-		ControlFlowGraph completeCFG = null;
-		if(Properties.CRITERION.equals("defuse")) {
-			addCompleteCFG(className,methodName,g.graph);
-			completeCFG = getCompleteCFG(className, methodName);
-		}
-		
+		// non-minimized cfg needed for defuse-coverage and control dependence calculation
+		addCompleteCFG(className,methodName,g.getGraph());
+		ControlFlowGraph completeCFG = getCompleteCFG(className, methodName);
 
 		addCFG(className, methodName, g.getMinimalGraph());
 
@@ -286,40 +264,9 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		while (j.hasNext()) {
 			AbstractInsnNode in = j.next();
 			for(CFGVertex v : graph.vertexSet()) {
-				
-				// If this is in the CFG and it's a branch...
-				if(in.equals(v.node) && v.isBranch() && !v.isMutation() && !v.isMutationBranch()) {
-					mn.instructions.insert(v.node.getPrevious(), getInstrumentation(v.node.getOpcode(), v.id));
-					//if(!v.isMutatedBranch()) {
-						if(!branch_map.containsKey(className))
-							branch_map.put(className, new HashMap<String, Map<Integer,Integer>>());
-						if(!branch_map.get(className).containsKey(methodName))
-							branch_map.get(className).put(methodName, new HashMap<Integer,Integer>());
-						branch_map.get(className).get(methodName).put(v.id, branch_counter);
 
-						if(Properties.CRITERION.equals("defuse")) {
-							CFGVertex branchVertex = completeCFG.getVertex(v.id);
-							branchVertex.branchID = branch_counter;
-							completeCFG.markBranchIDs(branchVertex);
-							branchCounterToBytecodeID.put(branch_counter, v.id);
-						}
-						
-						logger.debug("Branch "+branch_counter+" at line "+v.id+" - "+current_line);
-						// TODO: Associate branch_counter with v.id?
-						branch_counter++;
-					//}
-				}
-			}
-		}
-		
-		j = mn.instructions.iterator(); 
-		while (j.hasNext()) { // TODO merge with previous while
-			
-			AbstractInsnNode in = j.next();
-			for(CFGVertex v : graph.vertexSet()) {
-				
-
-				if(in.equals(v.node)) { //&& Properties.CRITERION.equals("defuse")) {
+				// updating some information in the CFGVertex
+				if(in.equals(v.node)) {
 					if (v.isLineNumber()) {
 						currentLineNumber = v.getLineNumber();
 					}
@@ -328,46 +275,67 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 					v.methodName = methodName;
 					v.line_no = currentLineNumber;
 					
-				}	
+				}				
+
+				// If this is in the CFG and it's a branch...
+				if(in.equals(v.node) && v.isBranch() && !v.isMutation() && !v.isMutationBranch()) {
+					mn.instructions.insert(v.node.getPrevious(), getInstrumentation(v.node.getOpcode(), v.id));
+					//if(!v.isMutatedBranch()) {
+						if(!BranchPool.branch_map.containsKey(className))
+							BranchPool.branch_map.put(className, new HashMap<String, Map<Integer,Integer>>());
+						if(!BranchPool.branch_map.get(className).containsKey(methodName))
+							BranchPool.branch_map.get(className).put(methodName, new HashMap<Integer,Integer>());
+						BranchPool.branch_map.get(className).get(methodName).put(v.id, BranchPool.branch_counter);
+
+						
+						CFGVertex branchVertex = completeCFG.getVertex(v.id);
+						branchVertex.branchID = BranchPool.branch_counter;
+						completeCFG.markBranchIDs(branchVertex);
+						BranchPool.branchCounterToBytecodeID.put(BranchPool.branch_counter, v.id);
+						
+						
+						logger.debug("Branch "+BranchPool.branch_counter+" at line "+v.id+" - "+current_line);
+						// TODO: Associate branch_counter with v.id?
+						BranchPool.branch_counter++;
+					//}
+				}
+			}
+		}
+		
+		// cannot merge this while with the one above, because all branchIDs have to be set first
+		j = mn.instructions.iterator(); 
+		while (j.hasNext()) { 
+			
+			AbstractInsnNode in = j.next();
+			for(CFGVertex v : graph.vertexSet()) {
+	
+				if(in.equals(v.node)) 
+					v.branchID = completeCFG.getVertex(v.id).branchID;
+				
 				if(Properties.CRITERION.equals("defuse") && in.equals(v.node) && (v.isDU())) {
 
-					v.branchID = completeCFG.getVertex(v.id).branchID;
-					
 					// adding instrumentation for defuse-coverage
 					mn.instructions.insert(v.node.getPrevious(), getInstrumentation(v, v.branchID));
 
-					// keeping track of all defs and uses
+					// keeping track of definitions
 					if(v.isDefinition()) {
 						
-						logger.info("Found Def "+def_counter+" in "+methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+currentLineNumber+")"+" for var "+v.getDUVariableName());
-						
-						List<CFGVertex> defs = initDefUseMap(def_map, className, methodName, v.getDUVariableName(), v.branchID);	
-						defs.add(v);
-						v.duID = def_counter;
-						def_counter++;
+						logger.info("Found Def "+DefUsePool.def_counter+" in "+methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+currentLineNumber+")"+" for var "+v.getDUVariableName());
+						DefUsePool.addDefinition(v);
 					}
-					if(v.isUse()) {
-						
-						if(v.isLocalVarUse() && !hasEntryForVariable(def_map, className, methodName, v.getDUVariableName()))
-							continue; // Not a real local variable
-
-						logger.info("Found Use "+use_counter+" in "+methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+currentLineNumber+")"+" for var "+v.getDUVariableName());
-					
-						List<CFGVertex> uses = initDefUseMap(use_map, className, methodName, v.getDUVariableName(), v.branchID);
-						uses.add(v);						
-						v.duID = use_counter;
-						use_counter++;
-					}
+					// keeping track of uses					
+					if(v.isUse() && DefUsePool.addUse(v))
+						logger.info("Found Use "+DefUsePool.use_counter+" in "+methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+currentLineNumber+")"+" for var "+v.getDUVariableName());
 				}
 		
 			}
 		}
 
 		String id = className+"."+methodName;
-		if(!branch_count.containsKey(id)) {
+		if(!BranchPool.branch_count.containsKey(id)) {
 			if(isUsable()) {
 				logger.debug("Method has no branches: "+id);
-				branchless_methods.add(id);
+				BranchPool.branchless_methods.add(id);
 			}
 		}
 		
@@ -383,40 +351,6 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		return !((this.access & Opcodes.ACC_SYNTHETIC) > 0 || (this.access & Opcodes.ACC_BRIDGE) > 0 ) 
 				&& !methodName.contains("<clinit>")
 				&& !(methodName.contains("<init>") && (access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE);
-	}
-	
-	private List<CFGVertex> initDefUseMap(
-			Map<String, Map<String, Map<String, Map<Integer, List<CFGVertex>>>>> map,
-			String className, String methodName, String varName, Integer branchID) {
-
-		if(!map.containsKey(className))
-			map.put(className, new HashMap<String, Map<String, Map<Integer,List<CFGVertex>>>>());
-		if(!map.get(className).containsKey(methodName)) 
-			map.get(className).put(methodName, new HashMap<String, Map<Integer,List<CFGVertex>>>());
-
-		
-		if(!map.get(className).get(methodName).containsKey(varName))
-			map.get(className).get(methodName).put(varName, new HashMap<Integer,List<CFGVertex>>());
-		if(!map.get(className).get(methodName).get(varName).containsKey(branchID))
-			map.get(className).get(methodName).get(varName).put(branchID, new ArrayList<CFGVertex>());
-		
-		return map.get(className).get(methodName).get(varName).get(branchID);
-	}
-
-	private boolean hasEntryForVariable(
-			Map<String, Map<String, Map<String, Map<Integer, List<CFGVertex>>>>> map,
-			String className, String methodName, String varName) {
-		
-		if(map.get(className) == null)
-			return false;
-		if(map.get(className).get(methodName) == null)
-			return false;
-		if(map.get(className).get(methodName).get(varName) == null)
-			return false;
-		if(map.get(className).get(methodName).get(varName).size() > 0)
-			return true;
-	
-		return false;
 	}
 	
 	public static void addCFG(String classname, String methodname, DirectedMultigraph<CFGVertex, DefaultEdge> graph) {

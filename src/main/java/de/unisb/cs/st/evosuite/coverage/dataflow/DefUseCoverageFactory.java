@@ -95,10 +95,10 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 		
 		ArrayList<TestFitnessFunction> r = new ArrayList<TestFitnessFunction>();
 		
-		for (String className : CFGMethodAdapter.def_map.keySet()) 
-			for (String methodName : CFGMethodAdapter.def_map.get(className).keySet()) 
-				for (String fieldName : CFGMethodAdapter.def_map.get(className).get(methodName).keySet()) 
-					for (Entry<Integer, List<CFGVertex>> entry : CFGMethodAdapter.def_map.get(className).get(methodName).get(fieldName).entrySet()) {
+		for (String className : DefUsePool.def_map.keySet()) 
+			for (String methodName : DefUsePool.def_map.get(className).keySet()) 
+				for (String fieldName : DefUsePool.def_map.get(className).get(methodName).keySet()) 
+					for (Entry<Integer, List<CFGVertex>> entry : DefUsePool.def_map.get(className).get(methodName).get(fieldName).entrySet()) {
 						
 						ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(className, methodName);
 						CFGVertex v = cfg.getVertex(entry.getKey());
@@ -128,10 +128,10 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 
 		HashSet<CFGVertex> r = new HashSet<CFGVertex>();
 		
-		for (String className : CFGMethodAdapter.use_map.keySet()) 
-			for (String methodName : CFGMethodAdapter.use_map.get(className).keySet()) 
-				for (String varName : CFGMethodAdapter.use_map.get(className).get(methodName).keySet()) 
-					for (Entry<Integer, List<CFGVertex>> entry : CFGMethodAdapter.use_map.get(className).get(methodName).get(varName).entrySet()) {
+		for (String className : DefUsePool.use_map.keySet()) 
+			for (String methodName : DefUsePool.use_map.get(className).keySet()) 
+				for (String varName : DefUsePool.use_map.get(className).get(methodName).keySet()) 
+					for (Entry<Integer, List<CFGVertex>> entry : DefUsePool.use_map.get(className).get(methodName).get(varName).entrySet()) {
 
 						ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(className, methodName);
 						CFGVertex v = cfg.getVertex(entry.getKey());
@@ -158,10 +158,10 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 
 		HashSet<CFGVertex> r = new HashSet<CFGVertex>();
 		
-		for (String className : CFGMethodAdapter.def_map.keySet())
-			for (String methodName : CFGMethodAdapter.def_map.get(className).keySet()) 
-				for (String varName : CFGMethodAdapter.def_map.get(className).get(methodName).keySet())
-					for (Entry<Integer, List<CFGVertex>> entry : CFGMethodAdapter.def_map.get(className).get(methodName).get(varName).entrySet()) {
+		for (String className : DefUsePool.def_map.keySet())
+			for (String methodName : DefUsePool.def_map.get(className).keySet()) 
+				for (String varName : DefUsePool.def_map.get(className).get(methodName).keySet())
+					for (Entry<Integer, List<CFGVertex>> entry : DefUsePool.def_map.get(className).get(methodName).get(varName).entrySet()) {
 
 						// cfg of defs method
 						ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(className, methodName);

@@ -45,6 +45,7 @@ import org.jgrapht.graph.DefaultEdge;
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.ga.Randomness;
 import de.unisb.cs.st.evosuite.javaagent.StaticInitializationClassAdapter;
@@ -840,13 +841,13 @@ public class TestCluster {
 			num_defined_methods = getMethods(Properties.getTargetClass())
 					.size();
 		logger.info("Target class has " + num_defined_methods + " functions");
-		logger.info("Target class has " + CFGMethodAdapter.branch_counter
+		logger.info("Target class has " + BranchPool.branch_counter
 				+ " branches");
 		logger.info("Target class has "
-				+ CFGMethodAdapter.branchless_methods.size()
+				+ BranchPool.branchless_methods.size()
 				+ " methods without branches");
 		logger.info("That means for coverage information: "
-				+ (CFGMethodAdapter.branchless_methods.size() + 2 * CFGMethodAdapter.branch_counter));
+				+ (BranchPool.branchless_methods.size() + 2 * BranchPool.branch_counter));
 	}
 
 	private static String getName(AccessibleObject o) {
