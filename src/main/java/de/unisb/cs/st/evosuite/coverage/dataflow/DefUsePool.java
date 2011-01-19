@@ -9,21 +9,36 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 
+/**
+ * This class is supposed to hold all the available information concerning Definitions and Uses.
+ * 
+ * The addDefinition()- and addUse()-Method get called by the CFGMethodAdapter whenever it detects 
+ * a CFGVertex that corresponds to a Definition or Use in the class under test. 
+ * 
+ * @author Andre Mis
+ */
 public class DefUsePool {
 
-	private static Logger logger = Logger.getLogger(DefUsePool.class);
-	
-	// maps: classname -> methodName  -> DUVarName -> branchID -> List of Defs as CFGVertex in that branch 
+	// maps: classname -> methodName  -> DUVarName -> branchID -> List of Definitions in that branch 
 	public static Map<String, Map<String, Map<String, Map<Integer,List<Definition>>>>> def_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<Definition>>>>>();
 
-	// maps: classname -> methodName  -> DUVarName -> branchID -> List of Defs as CFGVertex in that branch
+	// maps: classname -> methodName  -> DUVarName -> branchID -> List of Uses in that branch
 	public static Map<String, Map<String, Map<String, Map<Integer,List<Use>>>>> use_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<Use>>>>>();	
 	
+	// maps all known duIDs to their DefUse
 	private static Map<Integer,DefUse> duIDsToDefUses = new HashMap<Integer,DefUse>();
 	
 	private static int defCounter = 0;
 	private static int useCounter = 0;
 	
+	private static Logger logger = Logger.getLogger(DefUsePool.class);
+	
+	
+	/**
+	 * Gets called by the CFGMethodAdapter whenever it detects a Definition
+	 * 
+	 * @param v CFGVertex corresponding to a Definition
+	 */
 	public static void addDefinition(CFGVertex v) {
 		if(!v.isDefinition())
 			throw new IllegalArgumentException("Vertex of a definition or use expected");
@@ -38,7 +53,12 @@ public class DefUsePool {
 		
 		defCounter++;
 	}
-	
+
+	/**
+	 * Gets called by the CFGMethodAdapter whenever it detects a Use
+	 * 
+	 * @param v CFGVertex corresponding to a Use
+	 */
 	public static boolean addUse(CFGVertex v) {
 		if(!v.isUse()) 
 			throw new IllegalArgumentException("Vertex of a use expected");
@@ -59,10 +79,22 @@ public class DefUsePool {
 		return true;
 	}
 	
+	/**
+	 * Returns the DefUse with the given duID
+	 * 
+	 * @param duID ID of a DefUse
+	 * @return The DefUse with the given duID if such an ID is known, null otherwise
+	 */
 	public static DefUse getDefUse(int duID) {
 		return duIDsToDefUses.get(duID);
 	}
-	
+
+	/**
+	 * Returns the Use with the given duID
+	 * 
+	 * @param duID ID of a Use
+	 * @return The Use with the given duID if such an ID is known for a Use, null otherwise
+	 */
 	public static Use getUse(int duID) {
 		DefUse du = duIDsToDefUses.get(duID);
 		if(du==null)
@@ -75,6 +107,12 @@ public class DefUsePool {
 		return (Use)du;
 	}
 	
+	/**
+	 * Returns the Definition with the given duID
+	 * 
+	 * @param duID ID of a Definition
+	 * @return The Definition with the given duID if such an ID is known for a Definition, null otherwise
+	 */	
 	public static Definition getDefinition(int duID) {
 		DefUse du = duIDsToDefUses.get(duID);
 		if(du == null)
@@ -87,15 +125,24 @@ public class DefUsePool {
 		return (Definition)du;
 	}	
 
+	/**
+	 * Returns the number of currently known Definitions
+	 * 
+	 * @return the number of currently known Definitions
+	 */
 	public static Object getDefCounter() {
-		
 		return defCounter;
 	}
-	
+
+	/**
+	 * Returns the number of currently known Uses
+	 * 
+	 * @return the number of currently known Uses
+	 */	
 	public static Object getUseCounter() {
-		
 		return useCounter;
 	}	
+	
 	
 	private static boolean hasEntryForVariable(
 			Map<String, Map<String, Map<String, Map<Integer, List<Definition>>>>> map, CFGVertex v) {

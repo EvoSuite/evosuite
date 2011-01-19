@@ -1,28 +1,22 @@
 package de.unisb.cs.st.evosuite.coverage.branch;
 
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.coverage.CFGVertexHolder;
 
-public class Branch {
+/**
+ * An object of this class corresponds to a Branch inside the class under test.
+ * 
+ * Branches are created by the CFGMethodAdapter via the BranchPool.
+ * Each Branch holds its corresponding CFGVertex from the ControlFlowGraph.
+ * 
+ * @author Andre Mis
+ */
+public class Branch extends CFGVertexHolder {
 
-	CFGVertex v;
-	
 	public Branch(CFGVertex v) {
 		if(!v.isBranch())
 			throw new IllegalArgumentException("Vertex of a branch expected");
 		
 		this.v = v;
 	}
-	
-	public CFGVertex getCFGVertex() {
-		return v;
-	}
-	
-	public int getBranchID() {
-		return v.branchID;
-	}
-	
-	public int getBytecodeID() {
-		return v.getID();
-	}
-	
 }
