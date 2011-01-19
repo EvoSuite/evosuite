@@ -54,6 +54,7 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.Statement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
+import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
 /**
  * Abstract test suite class.
@@ -195,7 +196,22 @@ public class TestSuite implements Opcodes {
 	 *    Comment for test case
 	 */
 	protected String getInformation(int num) {
-		return "Test case number: "+num;
+		
+		TestCase test = test_cases.get(num);
+		Set<TestFitnessFunction> coveredGoals = test.getCoveredGoals();
+		
+		StringBuilder builder = new StringBuilder();
+		builder.append("Test case number: "+num);
+		
+		if(!coveredGoals.isEmpty()) {
+			builder.append("\n   /* covered goals:");
+			for(TestFitnessFunction goal : coveredGoals) {
+				builder.append("\n    * "+goal.toString());
+			}
+			builder.append("\n   */");
+		}
+		
+		return builder.toString();
 	}
 	
 	/**
