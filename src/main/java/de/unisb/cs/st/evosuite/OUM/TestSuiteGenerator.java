@@ -27,6 +27,7 @@ import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.CrossOverFunction;
@@ -207,7 +208,7 @@ public class TestSuiteGenerator {
 		Set<String> generated_covered_true    = junit.getTrueCoveredBranches();
 		Set<String> generated_covered_false   = junit.getFalseCoveredBranches();
 		Set<String> generated_covered_methods = junit.getCoveredMethods();
-		int total = CFGMethodAdapter.methods.size() + CFGMethodAdapter.branch_counter * 2;
+		int total = CFGMethodAdapter.methods.size() + BranchPool.branch_counter * 2;
 		int coverage_generated = generated_covered_true.size() + generated_covered_false.size() + generated_covered_methods.size();
 		return 100.0*coverage_generated/total;		
 	}
@@ -384,7 +385,7 @@ public class TestSuiteGenerator {
 		Set<String> junit_covered_false   = junit.getFalseCoveredBranches();
 		Set<String> junit_covered_methods = junit.getCoveredMethods();
 
-		int total = CFGMethodAdapter.methods.size() + CFGMethodAdapter.branch_counter * 2 + 2;
+		int total = CFGMethodAdapter.methods.size() + BranchPool.branch_counter * 2 + 2;
 		int coverage_junit = junit_covered_true.size() + junit_covered_false.size() + junit_covered_methods.size();
 
 		System.out.println("COV,"+Properties.TARGET_CLASS+","+(100.0 * coverage_junit / total));
@@ -728,19 +729,19 @@ public class TestSuiteGenerator {
 		// Branchless methods
 		String class_name = Properties.TARGET_CLASS;
 		logger.info("Getting branches for "+class_name);
-		for(String method : CFGMethodAdapter.branchless_methods) {
+		for(String method : BranchPool.branchless_methods) {
 			goals.add(new BranchCoverageGoal(class_name, method));
 			logger.info("Adding new method goal for method "+method);
 		}
 		
 		// Branches
-		for(String className : CFGMethodAdapter.branch_map.keySet()) {
-			for(String methodName : CFGMethodAdapter.branch_map.get(className).keySet()) {
+		for(String className : BranchPool.branch_map.keySet()) {
+			for(String methodName : BranchPool.branch_map.get(className).keySet()) {
 				// Get CFG of method
 //				ControlFlowGraph cfg = ExecutionTracer.getExecutionTracer().getCFG(className, methodName);
 				ControlFlowGraph cfg = CFGMethodAdapter.getCFG(className, methodName);
 				
-				for(Entry<Integer,Integer> entry : CFGMethodAdapter.branch_map.get(className).get(methodName).entrySet()) {
+				for(Entry<Integer,Integer> entry : BranchPool.branch_map.get(className).get(methodName).entrySet()) {
 					// Identify vertex in CFG
 					goals.add(new BranchCoverageGoal(entry.getValue(), entry.getKey(), true, cfg, className, methodName));
 					goals.add(new BranchCoverageGoal(entry.getValue(), entry.getKey(), false, cfg, className, methodName));

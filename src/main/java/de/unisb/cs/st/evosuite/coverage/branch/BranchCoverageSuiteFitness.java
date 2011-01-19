@@ -44,9 +44,9 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static Logger logger = Logger.getLogger(TestSuiteFitnessFunction.class);
 	
-	public final int total_branches = CFGMethodAdapter.branch_counter;
+	public final int total_branches = BranchPool.branch_counter;
 
-	public final int branchless_methods = CFGMethodAdapter.branchless_methods.size();
+	public final int branchless_methods = BranchPool.branchless_methods.size();
 
 	public final int total_methods = TestCluster.getInstance().num_defined_methods; 
 	
@@ -209,7 +209,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			logger.info("Calculating fitness took: "+(end-start)+"ms");
 		}
 		double coverage = num_covered;
-		for(String e : CFGMethodAdapter.branchless_methods) {
+		for(String e : BranchPool.branchless_methods) {
 			if(call_count.keySet().contains(e))
 				coverage += 1.0;
 			

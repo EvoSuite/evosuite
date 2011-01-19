@@ -27,6 +27,7 @@ import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
@@ -71,7 +72,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			r = new BranchCoverageTestFitness(new BranchCoverageGoal(v.className,v.className+"."+v.methodName));
 		} else {
 			ControlFlowGraph cfg = CFGMethodAdapter.getCFG(v.className, v.methodName);
-			int byteIdOfBranch = CFGMethodAdapter.branchCounterToBytecodeID.get(new Integer(v.branchID));
+			int byteIdOfBranch = BranchPool.branchCounterToBytecodeID.get(new Integer(v.branchID));
 			r = new BranchCoverageTestFitness(new BranchCoverageGoal(v.branchID,byteIdOfBranch,v.branchExpressionValue,cfg,v.className,v.methodName));
 		}
 		return r;

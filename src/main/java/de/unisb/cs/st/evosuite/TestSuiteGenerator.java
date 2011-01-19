@@ -31,6 +31,7 @@ import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
@@ -543,7 +544,7 @@ public class TestSuiteGenerator {
 		
 		if(Properties.getPropertyOrDefault("dynamic_limit", false)) {
 			//max_s = GAProperties.generations * getBranches().size();
-			Properties.GENERATIONS = Properties.GENERATIONS * (CFGMethodAdapter.branchless_methods.size() + CFGMethodAdapter.branch_map.size() * 2);
+			Properties.GENERATIONS = Properties.GENERATIONS * (BranchPool.branchless_methods.size() + BranchPool.branch_map.size() * 2);
 			stopping_condition.setLimit(Properties.GENERATIONS);
 			logger.info("Setting dynamic length limit to "+Properties.GENERATIONS);
 		}
