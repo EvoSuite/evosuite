@@ -220,22 +220,30 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		return instrumentation;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void visitEnd() {
 
 		//super.visitEnd();
 
 		// Generate CFG of method
 		MethodNode mn = (MethodNode) mv;
-		
+		boolean inClinit = false;
+
 		if(plain_name.equals("<clinit>")) {
-			mn.accept(next);
-			return;
+			if(Properties.CRITERION.equals("defuse")) {
+				inClinit = true;
+			} else {
+				mn.accept(next);
+				return;
+			}
 		}
 
 		if(EXCLUDE.contains(methodName)) {
-			mn.accept(next);
-			return;
+			if(Properties.CRITERION.equals("defuse") && methodName.equals("<clinit>")) {
+				inClinit = true;
+			} else {
+				mn.accept(next);
+				return;
+			}
 		}
 		
 		//MethodNode mn = new CFGMethodNode((MethodNode)mv);
@@ -252,40 +260,39 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 		// non-minimized cfg needed for defuse-coverage and control dependence calculation
 		addCompleteCFG(className,methodName,g.getGraph());
-		ControlFlowGraph completeCFG = getCompleteCFG(className, methodName);
-
 		addCFG(className, methodName, g.getMinimalGraph());
 
 		//if(!Properties.MUTATION) {
 		Graph<CFGVertex, DefaultEdge> graph = g.getGraph();
-		Iterator<AbstractInsnNode> j = mn.instructions.iterator(); 
-		while (j.hasNext()) {
-			AbstractInsnNode in = j.next();
-			for(CFGVertex v : graph.vertexSet()) {
+		analyzeBranchVertices(mn, graph);
+		analyzeDefUseVertices(mn, graph);
 
-				// updating some information in the CFGVertex
-				if(in.equals(v.node)) {
-					if (v.isLineNumber()) {
-						currentLineNumber = v.getLineNumber();
-					}
-					v.className = className;
-					v.methodName = methodName;
-					v.line_no = currentLineNumber;
-				}				
-
-				// If this is in the CFG and it's a branch...
-				if(in.equals(v.node) && v.isBranch() && !v.isMutation() && !v.isMutationBranch()) {
-					mn.instructions.insert(v.node.getPrevious(), getInstrumentation(v.node.getOpcode(), v.id));
-					//if(!v.isMutatedBranch()) {
-
-						BranchPool.addBranch(v);
-					//}
-				}
+		handleBranchlessMethods();
+		
+		String id = className+"."+methodName;
+		if(isUsable()) {
+			methods.add(id);
+			logger.debug("Counting: "+id);
+		}		
+		
+		mn.accept(next);
+	}
+	
+	private void handleBranchlessMethods() {
+		String id = className+"."+methodName;
+		if(!BranchPool.branch_count.containsKey(id)) {
+			if(isUsable()) {
+				logger.debug("Method has no branches: "+id);
+				BranchPool.branchless_methods.add(id);
 			}
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void analyzeDefUseVertices(MethodNode mn, Graph<CFGVertex, DefaultEdge> graph) {
 		
-		// cannot merge this while with the one above, because all branchIDs have to be set first
-		j = mn.instructions.iterator(); 
+		ControlFlowGraph completeCFG = getCompleteCFG(className, methodName);
+		Iterator<AbstractInsnNode> j =  mn.instructions.iterator(); 
 		while (j.hasNext()) { 
 			
 			AbstractInsnNode in = j.next();
@@ -311,22 +318,38 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		
 			}
 		}
+	}
 
-		String id = className+"."+methodName;
-		if(!BranchPool.branch_count.containsKey(id)) {
-			if(isUsable()) {
-				logger.debug("Method has no branches: "+id);
-				BranchPool.branchless_methods.add(id);
+	@SuppressWarnings("unchecked")
+	private void analyzeBranchVertices(MethodNode mn,Graph<CFGVertex, DefaultEdge> graph) {
+		
+		Iterator<AbstractInsnNode> j = mn.instructions.iterator(); 
+		while (j.hasNext()) {
+			AbstractInsnNode in = j.next();
+			for(CFGVertex v : graph.vertexSet()) {
+	
+				// updating some information in the CFGVertex
+				if(in.equals(v.node)) {
+					if (v.isLineNumber()) {
+						currentLineNumber = v.getLineNumber();
+					}
+					v.className = className;
+					v.methodName = methodName;
+					v.line_no = currentLineNumber;
+				}				
+	
+				// If this is in the CFG and it's a branch...
+				if(in.equals(v.node) && v.isBranch() && !v.isMutation() && !v.isMutationBranch()) {
+					mn.instructions.insert(v.node.getPrevious(), getInstrumentation(v.node.getOpcode(), v.id));
+					//if(!v.isMutatedBranch()) {
+	
+						BranchPool.addBranch(v);
+					//}
+				}
 			}
 		}
 		
-		if(isUsable()) {
-			methods.add(id);
-			logger.debug("Counting: "+id);
-		}		
-		mn.accept(next);
 	}
-	
 
 	private boolean isUsable() {
 		return !((this.access & Opcodes.ACC_SYNTHETIC) > 0 || (this.access & Opcodes.ACC_BRIDGE) > 0 ) 

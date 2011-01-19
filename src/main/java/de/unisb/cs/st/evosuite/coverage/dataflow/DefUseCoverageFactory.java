@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.apache.log4j.Logger;
+
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
@@ -37,6 +39,8 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  */
 public class DefUseCoverageFactory implements TestFitnessFactory {
 
+	private static Logger logger = Logger.getLogger(DefUseCoverageFactory.class);
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -48,13 +52,15 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 
 		// TODO replace this with Reaching-Definitions-Algorithm 
 		
+		logger.info("Starting DefUse-Coverage goal generation");
+		
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
 
 		Set<Definition> freeDefs = getDefsWithClearPathToMethodEnd();
 		Set<Use> freeUses = getUsesWithClearPathFromMethodStart();
 		
-		System.out.println("#defs with clear path to end "+freeDefs.size());
-		System.out.println("#uses with clear path from start "+freeUses.size());
+		logger.info("#defs with clear path to end "+freeDefs.size());
+		logger.info("#uses with clear path from start "+freeUses.size());
 
 		for(Definition def : freeDefs)
 			for(Use use : freeUses)
