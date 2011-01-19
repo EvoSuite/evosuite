@@ -56,10 +56,10 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 //				ControlFlowGraph cfg = ExecutionTracer.getExecutionTracer().getCFG(className, methodName);
 				ControlFlowGraph cfg = CFGMethodAdapter.getCFG(className, methodName);
 				
-				for(Entry<Integer,Integer> entry : BranchPool.branch_map.get(className).get(methodName).entrySet()) {
+				for(Branch b : BranchPool.branch_map.get(className).get(methodName)) {
 					// Identify vertex in CFG
-					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(entry.getValue(), entry.getKey(), true, cfg, className, methodName)));
-					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(entry.getValue(), entry.getKey(), false, cfg, className, methodName)));
+					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(b.getBranchID(), b.getBytecodeID(), true, cfg, className, methodName)));
+					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(b.getBranchID(), b.getBytecodeID(), false, cfg, className, methodName)));
 				}
 			}
 		}

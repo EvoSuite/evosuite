@@ -44,7 +44,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static Logger logger = Logger.getLogger(TestSuiteFitnessFunction.class);
 	
-	public final int total_branches = BranchPool.branch_counter;
+	public final int total_branches = BranchPool.getBranchCounter();
 
 	public final int branchless_methods = BranchPool.branchless_methods.size();
 

@@ -345,12 +345,12 @@ public class TestSuiteGenerator {
 			}
 		}
 		
-//		int c = 0; for testing purposes
-//		for(TestFitnessFunction goal : goals) {
-//			if(!covered.contains(c))
-//				System.out.println("unable to cover goal "+c+" "+goal.toString());
-//			c++;
-//		}
+		int c = 0; // for testing purposes
+		for(TestFitnessFunction goal : goals) {
+			if(!covered.contains(c))
+				System.out.println("unable to cover goal "+c+" "+goal.toString());
+			c++;
+		}
 		
 		List<Chromosome> population = new ArrayList<Chromosome>();
 		population.add(suite);

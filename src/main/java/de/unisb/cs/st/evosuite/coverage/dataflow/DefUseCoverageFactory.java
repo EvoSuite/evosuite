@@ -50,14 +50,14 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 		
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
 
-		Set<CFGVertex> freeDefs = getDefsWithClearPathToMethodEnd();
-		Set<CFGVertex> freeUses = getUsesWithClearPathFromMethodStart();
+		Set<Definition> freeDefs = getDefsWithClearPathToMethodEnd();
+		Set<Use> freeUses = getUsesWithClearPathFromMethodStart();
 		
 		System.out.println("#defs with clear path to end "+freeDefs.size());
 		System.out.println("#uses with clear path from start "+freeUses.size());
 
-		for(CFGVertex def : freeDefs)
-			for(CFGVertex use : freeUses)
+		for(Definition def : freeDefs)
+			for(Use use : freeUses)
 				if(def.getDUVariableName().equals(use.getDUVariableName())) {
 					goals.add(createGoal(def,use));
 				}
@@ -76,7 +76,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 	 * @param use The use of the goal
 	 * @return The created DefUseCoverageGoal
 	 */
-	private TestFitnessFunction createGoal(CFGVertex def, CFGVertex use) {
+	private TestFitnessFunction createGoal(Definition def, Use use) {
 
 		
 		return new DefUseCoverageTestFitness(def, use);
@@ -98,7 +98,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 		for (String className : DefUsePool.def_map.keySet()) 
 			for (String methodName : DefUsePool.def_map.get(className).keySet()) 
 				for (String fieldName : DefUsePool.def_map.get(className).get(methodName).keySet()) 
-					for (Entry<Integer, List<CFGVertex>> entry : DefUsePool.def_map.get(className).get(methodName).get(fieldName).entrySet()) {
+					for (Entry<Integer, List<Definition>> entry : DefUsePool.def_map.get(className).get(methodName).get(fieldName).entrySet()) {
 						
 						ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(className, methodName);
 						CFGVertex v = cfg.getVertex(entry.getKey());
@@ -106,11 +106,11 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 						if (entry.getKey() != -1 && v == null) 
 							 throw new IllegalStateException("no CFG for branch "+entry.getKey()+" in method "+methodName);
 
-						for (CFGVertex def : entry.getValue()) {
+						for (Definition def : entry.getValue()) {
 							
-							List<CFGVertex> uses = cfg.getUsesForDef(def);
+							List<CFGVertex> uses = cfg.getUsesForDef(def.getCFGVertex());
 							for(CFGVertex use : uses) {
-								r.add(createGoal(def, use));
+								r.add(createGoal(def, DefUsePool.getUse(use.duID)));
 							}
 						}
 					}
@@ -124,14 +124,14 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 	 * 
 	 * @return A Set of all the uses for which the above holds
 	 */
-	private Set<CFGVertex> getUsesWithClearPathFromMethodStart() {
+	private Set<Use> getUsesWithClearPathFromMethodStart() {
 
-		HashSet<CFGVertex> r = new HashSet<CFGVertex>();
+		HashSet<Use> r = new HashSet<Use>();
 		
 		for (String className : DefUsePool.use_map.keySet()) 
 			for (String methodName : DefUsePool.use_map.get(className).keySet()) 
 				for (String varName : DefUsePool.use_map.get(className).get(methodName).keySet()) 
-					for (Entry<Integer, List<CFGVertex>> entry : DefUsePool.use_map.get(className).get(methodName).get(varName).entrySet()) {
+					for (Entry<Integer, List<Use>> entry : DefUsePool.use_map.get(className).get(methodName).get(varName).entrySet()) {
 
 						ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(className, methodName);
 						CFGVertex v = cfg.getVertex(entry.getKey());
@@ -139,8 +139,8 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 						if (entry.getKey() != -1 && v == null)
 							 throw new IllegalStateException("no CFG for branch "+entry.getKey()+" in method "+methodName);
 
-						for (CFGVertex use : entry.getValue()) {
-							if (cfg.hasDefClearPathFromMethodStart(use))
+						for (Use use : entry.getValue()) {
+							if (cfg.hasDefClearPathFromMethodStart(use.getCFGVertex()))
 								r.add(use);
 						}
 					}
@@ -154,14 +154,14 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 	 * 
 	 * @return A Set of all the definitions for which the above holds
 	 */
-	private Set<CFGVertex> getDefsWithClearPathToMethodEnd() {
+	private Set<Definition> getDefsWithClearPathToMethodEnd() {
 
-		HashSet<CFGVertex> r = new HashSet<CFGVertex>();
+		HashSet<Definition> r = new HashSet<Definition>();
 		
 		for (String className : DefUsePool.def_map.keySet())
 			for (String methodName : DefUsePool.def_map.get(className).keySet()) 
 				for (String varName : DefUsePool.def_map.get(className).get(methodName).keySet())
-					for (Entry<Integer, List<CFGVertex>> entry : DefUsePool.def_map.get(className).get(methodName).get(varName).entrySet()) {
+					for (Entry<Integer, List<Definition>> entry : DefUsePool.def_map.get(className).get(methodName).get(varName).entrySet()) {
 
 						// cfg of defs method
 						ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(className, methodName);
@@ -174,8 +174,8 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 							 throw new IllegalStateException("no CFG for branch "+entry.getKey()+" in method "+methodName);
 						}
 
-						for (CFGVertex def : entry.getValue()) {
-							if (cfg.hasDefClearPathToMethodEnd(def)) {
+						for (Definition def : entry.getValue()) {
+							if (cfg.hasDefClearPathToMethodEnd(def.getCFGVertex())) {
 								r.add(def);
 							}
 
