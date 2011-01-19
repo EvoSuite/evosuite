@@ -73,7 +73,7 @@ public class BranchPool {
 
 	
 	// TODO can't this just always be called private by addBranch?
-	// TODO why is this called in the getInstrumentation anyways?
+	// TODO why is this called in CFGMethodAdapter.getInstrumentation() anyways?
 	public static void countBranch(String id) {
 		if(!methodBranchCount.containsKey(id)) {
 			methodBranchCount.put(id, 1);

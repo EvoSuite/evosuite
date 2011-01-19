@@ -1,14 +1,15 @@
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.coverage.CFGVertexHolder;
 
-public abstract class DefUse {
+/**
+ * Abstract superclass for all Definitions and Uses 
+ * 
+ * @author Andre Mis
+ */
+public abstract class DefUse extends CFGVertexHolder {
 
-	CFGVertex v;
-	
-	public CFGVertex getCFGVertex() {
-		return v;
-	}
 
 	public String getDUVariableName() {
 		return v.getDUVariableName();
@@ -16,22 +17,6 @@ public abstract class DefUse {
 	
 	public int getDUID() {
 		return v.duID;
-	}
-	
-	public String getMethodName() {
-		return v.methodName;
-	}
-	
-	public String getClassName() {
-		return v.className;
-	}
-	
-	public int getBranchID() {
-		return v.branchID;
-	}
-	
-	public int getLineNumber() {
-		return v.line_no;
 	}
 	
 	public boolean isUse() {
