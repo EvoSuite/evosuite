@@ -423,9 +423,9 @@ public class ExecutionTracer {
 			
 			defs.put(tracer.duCounter,defID);
 			tracer.trace.passedDefs.put(fieldName,defs);
+			
+			tracer.duCounter++;
 		}
-		
-		tracer.duCounter++;
 	}
 	
 	public static void passedFieldUse(String className, String fieldName, String methodName, int branchID, int useID) {
@@ -437,9 +437,9 @@ public class ExecutionTracer {
 			
 			uses.put(tracer.duCounter,useID);
 			tracer.trace.passedUses.put(fieldName,uses);
+			
+			tracer.duCounter++;
 		}
-		
-		tracer.duCounter++;
 	}
 
 	public static void statementExecuted() {

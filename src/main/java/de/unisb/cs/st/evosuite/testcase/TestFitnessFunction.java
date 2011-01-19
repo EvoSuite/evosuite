@@ -128,8 +128,9 @@ public abstract class TestFitnessFunction extends FitnessFunction {
 	 */
 	public boolean isCovered(List<TestCase> tests) {
 		for(TestCase test : tests) {
-			if(isCovered(test))
+			if(isCovered(test)) {
 				return true;
+			}
 		}
 		return false;
 	}
@@ -138,6 +139,9 @@ public abstract class TestFitnessFunction extends FitnessFunction {
 		ExecutionResult result = runTest(test);
 		TestChromosome c = new TestChromosome();
 		c.test = test;
-		return getFitness(c, result) == 0.0;
+		boolean covered = getFitness(c, result) == 0.0;
+		if(covered)
+			test.addCoveredGoal(this);
+		return covered;
 	}
 }

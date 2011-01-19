@@ -239,7 +239,8 @@ public class TestSuiteGenerator {
 				
 		// Get list of goals
 		TestFitnessFactory goal_factory = getFitnessFactory();
-		List<TestFitnessFunction> goals = goal_factory.getCoverageGoals(); 
+		List<TestFitnessFunction> goals = goal_factory.getCoverageGoals();
+		Randomness.getInstance().shuffle(goals);
 		System.out.println("* Total number of test goals: "+goals.size());
 
 		// Bootstrap with random testing to cover easy goals
@@ -255,15 +256,14 @@ public class TestSuiteGenerator {
 			if(fitness_function.isCovered(suite.getTests())) {
 				covered.add(num);
 				covered_goals++;
-				num++;
 			}
+			num++;
 		}
 		if(covered_goals > 0) {
 			System.out.println("* Random bootstrapping covered "+covered_goals+" test goals");
 		}
 		
 		// Need to shuffle goals because the order may make a difference
-		Randomness.getInstance().shuffle(goals);
 		GlobalTimeStoppingCondition global_time = new GlobalTimeStoppingCondition();
 		int total_goals = goals.size(); 
 		int current_budget = 0;
@@ -321,6 +321,7 @@ public class TestSuiteGenerator {
 						TestCaseMinimizer minimizer = new TestCaseMinimizer((TestFitnessFunction) fitness_function);
 						minimizer.minimize(best);
 					}
+					best.test.addCoveredGoal(fitness_function);
 					suite.addTest(best);
 					
 					//suite.addTest((TestChromosome)ga.getBestIndividual());

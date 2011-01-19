@@ -45,6 +45,10 @@ public class TestCase {
 
 	/** The statements */
 	protected List<Statement> statements;
+
+	// a list of all goals this test covers
+	private HashSet<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
+
 		
 	/**
 	 * Constructor
@@ -532,6 +536,7 @@ public class TestCase {
 		for(Statement s : statements) {
 			t.statements.add(s.clone());
 		}
+		t.coveredGoals.addAll(coveredGoals);
 		//t.exception_statement = exception_statement;
 		//t.exceptionThrown = exceptionThrown;
 		return t;
@@ -651,5 +656,13 @@ public class TestCase {
 			exceptions.addAll(statement.getDeclaredExceptions());
 		}
 		return exceptions;
+	}
+
+	public void addCoveredGoal(TestFitnessFunction goal) {
+		coveredGoals.add(goal);
+	}
+	
+	public Set<TestFitnessFunction> getCoveredGoals() {
+		return coveredGoals;
 	}
 }

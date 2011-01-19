@@ -20,6 +20,8 @@
 
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
+import java.util.Map;
+
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
@@ -81,16 +83,21 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 
-//		if(hasMoreThenOneCUTObject(individual))
-//			return getMaxFitness();
+		if(traceCoversGoal(result.trace)) {
+//			System.out.println("i got covered: "+toString());
+//			System.out.println(result.test.toCode());
+			result.test.addCoveredGoal(this);
+			return 0;
+		}
 		
 		double defFitness = defTestFitness.getFitness(individual, result);
 		int lastDef = getLastDef(result.trace);
 		
-		if((lastDef!=def.duID || defFitness != 0) && (!def.isStaticDU())) {
+		
+		if(defFitness != 0 && !(def.isStaticDU())) {
 			return 1+normalize(defFitness);
 		} else {
-			
+
 			if(lastDef == -1 && !def.isStaticDU()) {
 //				System.out.println(result.trace.toString());
 				throw new IllegalStateException("expect definition to be passed if its fitness is 0");
@@ -101,6 +108,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			
 			int defPos = getLastDefPos(result.trace);
 			int usePos = getLastUsePos(result.trace);
+			
 			if(defPos>usePos && !def.isStaticDU())
 				return normalize(getMaxFitness());
 			
@@ -128,6 +136,49 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 //		
 //		return c > 1;
 //	}
+
+	private boolean traceCoversGoal(ExecutionTrace trace) {
+		
+		int defPos = getLastDefPos(trace);
+		int usePos = getLastUsePos(trace);
+		
+		// not both of them reached yet
+		if(defPos == -1 || usePos == -1)
+			return false;
+		// def came after use
+		if(defPos>usePos)
+			return false;
+		
+		// the use for this DUVar is the one of this goal
+		int useID = trace.passedUses.get(use.getDUVariableName()).get(usePos);
+		if(useID!=use.duID)
+			return false;
+		
+		int activeDef = getActiveDefFor(trace, usePos);
+		
+		if(activeDef == def.duID)
+			return true;
+		
+		return false;
+	}
+	
+	private int getActiveDefFor(ExecutionTrace trace, int usePos) {
+
+		Map<Integer,Integer>defMap = trace.passedDefs.get(def.getDUVariableName());
+		if(defMap == null)
+			return -1;
+		
+		int lastDef = -1;
+		
+		for(Integer defPos : defMap.keySet()) {
+			if(defPos>usePos)
+				continue;
+			lastDef = defMap.get(defPos);
+		}
+		
+		return lastDef;
+	}
+
 
 	/**
 	 * @param trace
