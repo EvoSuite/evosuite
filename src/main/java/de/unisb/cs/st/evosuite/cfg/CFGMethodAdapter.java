@@ -19,7 +19,6 @@
 
 package de.unisb.cs.st.evosuite.cfg;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -64,7 +63,6 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	MethodVisitor next;
 	String plain_name;
 	Label last_label = null;
-	static int current_line = 0;
 	List<Mutation> mutants;
 	int access = 0;
 	
@@ -72,7 +70,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	
 	public static Set<String> methods = new HashSet<String>();
 
-	private static int currentLineNumber = -1; // TODO should be merged with current_line? (which doesnt work i guess)
+	private static int currentLineNumber = -1;
 
 	private static Map<String, Map <String, ControlFlowGraph > > completeGraphs = new HashMap<String, Map <String, ControlFlowGraph > >();
 	private static Map<String, Map <String, ControlFlowGraph > > graphs = new HashMap<String, Map <String, ControlFlowGraph > >();
@@ -115,12 +113,12 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new InsnNode(Opcodes.DUP));
 			instrumentation.add(new LdcInsnNode(opcode));
 //			instrumentation.add(new LdcInsnNode(id));
-			instrumentation.add(new LdcInsnNode(BranchPool.branch_counter));
+			instrumentation.add(new LdcInsnNode(BranchPool.getBranchCounter()));
 			instrumentation.add(new LdcInsnNode(id));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(IIII)V"));
 			countBranch();
-			logger.debug("Adding passedBranch val=?, opcode="+opcode+", branch="+BranchPool.branch_counter+", bytecode_id="+id);
+			logger.debug("Adding passedBranch val=?, opcode="+opcode+", branch="+BranchPool.getBranchCounter()+", bytecode_id="+id);
 
 			break;
 		case Opcodes.IF_ICMPEQ:
@@ -132,7 +130,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new InsnNode(Opcodes.DUP2));
 			instrumentation.add(new LdcInsnNode(opcode));
 //			instrumentation.add(new LdcInsnNode(id));
-			instrumentation.add(new LdcInsnNode(BranchPool.branch_counter));
+			instrumentation.add(new LdcInsnNode(BranchPool.getBranchCounter()));
 			instrumentation.add(new LdcInsnNode(id));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(IIIII)V"));
@@ -145,7 +143,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new InsnNode(Opcodes.DUP2));
 			instrumentation.add(new LdcInsnNode(opcode));
 			//instrumentation.add(new LdcInsnNode(id));
-			instrumentation.add(new LdcInsnNode(BranchPool.branch_counter));
+			instrumentation.add(new LdcInsnNode(BranchPool.getBranchCounter()));
 			instrumentation.add(new LdcInsnNode(id));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(Ljava/lang/Object;Ljava/lang/Object;III)V"));
@@ -156,7 +154,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new InsnNode(Opcodes.DUP));
 			instrumentation.add(new LdcInsnNode(opcode));
 //			instrumentation.add(new LdcInsnNode(id));
-			instrumentation.add(new LdcInsnNode(BranchPool.branch_counter));
+			instrumentation.add(new LdcInsnNode(BranchPool.getBranchCounter()));
 			instrumentation.add(new LdcInsnNode(id));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(Ljava/lang/Object;III)V"));
@@ -168,7 +166,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new InsnNode(Opcodes.DUP));
 			instrumentation.add(new LdcInsnNode(opcode));
 //			instrumentation.add(new LdcInsnNode(id));
-			instrumentation.add(new LdcInsnNode(BranchPool.branch_counter));
+			instrumentation.add(new LdcInsnNode(BranchPool.getBranchCounter()));
 			instrumentation.add(new LdcInsnNode(id));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(IIII)V"));
@@ -178,7 +176,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new InsnNode(Opcodes.DUP));
 			instrumentation.add(new LdcInsnNode(opcode));
 //			instrumentation.add(new LdcInsnNode(id));
-			instrumentation.add(new LdcInsnNode(BranchPool.branch_counter));
+			instrumentation.add(new LdcInsnNode(BranchPool.getBranchCounter()));
 			instrumentation.add(new LdcInsnNode(id));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(IIII)V"));
@@ -203,7 +201,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new LdcInsnNode(v.getDUVariableName()));
 			instrumentation.add(new LdcInsnNode(methodName));
 			instrumentation.add(new LdcInsnNode(currentBranch));
-			instrumentation.add(new LdcInsnNode(DefUsePool.def_counter));
+			instrumentation.add(new LdcInsnNode(DefUsePool.getDefCounter()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedFieldDefinition", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V"));
 			break;
@@ -213,7 +211,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new LdcInsnNode(v.getDUVariableName()));
 			instrumentation.add(new LdcInsnNode(methodName));
 			instrumentation.add(new LdcInsnNode(currentBranch));
-			instrumentation.add(new LdcInsnNode(DefUsePool.use_counter));
+			instrumentation.add(new LdcInsnNode(DefUsePool.getUseCounter()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedFieldUse", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V"));
 			break;			
@@ -270,33 +268,17 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 					if (v.isLineNumber()) {
 						currentLineNumber = v.getLineNumber();
 					}
-					
 					v.className = className;
 					v.methodName = methodName;
 					v.line_no = currentLineNumber;
-					
 				}				
 
 				// If this is in the CFG and it's a branch...
 				if(in.equals(v.node) && v.isBranch() && !v.isMutation() && !v.isMutationBranch()) {
 					mn.instructions.insert(v.node.getPrevious(), getInstrumentation(v.node.getOpcode(), v.id));
 					//if(!v.isMutatedBranch()) {
-						if(!BranchPool.branch_map.containsKey(className))
-							BranchPool.branch_map.put(className, new HashMap<String, Map<Integer,Integer>>());
-						if(!BranchPool.branch_map.get(className).containsKey(methodName))
-							BranchPool.branch_map.get(className).put(methodName, new HashMap<Integer,Integer>());
-						BranchPool.branch_map.get(className).get(methodName).put(v.id, BranchPool.branch_counter);
 
-						
-						CFGVertex branchVertex = completeCFG.getVertex(v.id);
-						branchVertex.branchID = BranchPool.branch_counter;
-						completeCFG.markBranchIDs(branchVertex);
-						BranchPool.branchCounterToBytecodeID.put(BranchPool.branch_counter, v.id);
-						
-						
-						logger.debug("Branch "+BranchPool.branch_counter+" at line "+v.id+" - "+current_line);
-						// TODO: Associate branch_counter with v.id?
-						BranchPool.branch_counter++;
+						BranchPool.addBranch(v);
 					//}
 				}
 			}
@@ -318,14 +300,13 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 					mn.instructions.insert(v.node.getPrevious(), getInstrumentation(v, v.branchID));
 
 					// keeping track of definitions
-					if(v.isDefinition()) {
-						
-						logger.info("Found Def "+DefUsePool.def_counter+" in "+methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+currentLineNumber+")"+" for var "+v.getDUVariableName());
+					if(v.isDefinition())
 						DefUsePool.addDefinition(v);
-					}
+					
 					// keeping track of uses					
-					if(v.isUse() && DefUsePool.addUse(v))
-						logger.info("Found Use "+DefUsePool.use_counter+" in "+methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+currentLineNumber+")"+" for var "+v.getDUVariableName());
+					if(v.isUse())
+						DefUsePool.addUse(v);
+						
 				}
 		
 			}

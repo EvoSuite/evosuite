@@ -508,7 +508,6 @@ public class ControlFlowGraph {
 		
 		Set<DefaultEdge> prevOut = graph.outgoingEdgesOf(prevVertex);
 		if(prevOut.size() != 1) {
-			System.out.println("size != 1");
 			return false;
 		}
 		

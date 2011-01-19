@@ -43,20 +43,20 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 public class DefUseCoverageTestFitness extends TestFitnessFunction {
 
 
-	private CFGVertex def;
-	private CFGVertex use;
+	private Definition def;
+	private Use use;
 	private BranchCoverageTestFitness defTestFitness;
 	private BranchCoverageTestFitness useTestFitness;
 	
-	public DefUseCoverageTestFitness(CFGVertex def, CFGVertex use) {
+	public DefUseCoverageTestFitness(Definition def, Use use) {
 
 		if(!def.getDUVariableName().equals(use.getDUVariableName()))
 			throw new IllegalArgumentException("expect def and use to be for the same variable");
 		
 		this.def = def;
 		this.use = use;
-		this.defTestFitness = getTestFitness(def);
-		this.useTestFitness = getTestFitness(use);
+		this.defTestFitness = getTestFitness(def.getCFGVertex());
+		this.useTestFitness = getTestFitness(use.getCFGVertex());
 		
 	}
 
@@ -72,7 +72,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			r = new BranchCoverageTestFitness(new BranchCoverageGoal(v.className,v.className+"."+v.methodName));
 		} else {
 			ControlFlowGraph cfg = CFGMethodAdapter.getCFG(v.className, v.methodName);
-			int byteIdOfBranch = BranchPool.branchCounterToBytecodeID.get(new Integer(v.branchID));
+			int byteIdOfBranch = BranchPool.getBytecodeIDFor(v.branchID);
 			r = new BranchCoverageTestFitness(new BranchCoverageGoal(v.branchID,byteIdOfBranch,v.branchExpressionValue,cfg,v.className,v.methodName));
 		}
 		return r;
@@ -94,23 +94,24 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		double defFitness = defTestFitness.getFitness(individual, result);
 		int lastDef = getLastDef(result.trace);
 		
+		CFGVertex defVertex = def.getCFGVertex();
 		
-		if(defFitness != 0 && !(def.isStaticDU())) {
+		if(defFitness != 0 && !(defVertex.isStaticDU())) {
 			return 1+normalize(defFitness);
 		} else {
 
-			if(lastDef == -1 && !def.isStaticDU()) {
+			if(lastDef == -1 && !defVertex.isStaticDU()) {
 //				System.out.println(result.trace.toString());
 				throw new IllegalStateException("expect definition to be passed if its fitness is 0");
 			}
 			
-			if(lastDef != def.duID && !def.isStaticDU())
+			if(lastDef != defVertex.duID && !defVertex.isStaticDU())
 				return 1+normalize(getMaxFitness());
 			
 			int defPos = getLastDefPos(result.trace);
 			int usePos = getLastUsePos(result.trace);
 			
-			if(defPos>usePos && !def.isStaticDU())
+			if(defPos>usePos && !defVertex.isStaticDU())
 				return normalize(getMaxFitness());
 			
 			double useFitness = useTestFitness.getFitness(individual, result);
@@ -152,12 +153,12 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		
 		// the use for this DUVar is the one of this goal
 		int useID = trace.passedUses.get(use.getDUVariableName()).get(usePos);
-		if(useID!=use.duID)
+		if(useID!=use.getDUID())
 			return false;
 		
 		int activeDef = getActiveDefFor(trace, usePos);
 		
-		if(activeDef == def.duID)
+		if(activeDef == def.getDUID())
 			return true;
 		
 		return false;
@@ -244,7 +245,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	
 	public String toString() {
 		
-		return "DUFitness for "+def.getDUVariableName()+" def "+def.duID+" in "+def.methodName+" branch "+def.branchID+"(l"+def.line_no+") use "+use.duID+" in "+use.methodName+" branch "+use.branchID+" (l"+use.line_no+")";
+		return "DUFitness for "+def.getDUVariableName()+" def "+def.getDUID()+" in "+def.getMethodName()+" branch "+def.getBranchID()+"(l"+def.getLineNumber()+") use "+use.getDUID()+" in "+use.getMethodName()+" branch "+use.getBranchID()+" (l"+use.getLineNumber()+")";
 	}
 
 }
