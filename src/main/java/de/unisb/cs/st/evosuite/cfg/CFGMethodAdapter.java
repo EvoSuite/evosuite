@@ -23,9 +23,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
+import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.jgrapht.Graph;
@@ -41,6 +44,9 @@ import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 
 
@@ -48,6 +54,8 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
+import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJ;
+import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
 import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.AbstractMutationAdapter;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
@@ -249,7 +257,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		Graph<CFGVertex, DefaultEdge> graph = g.getGraph();
 		analyzeBranchVertices(mn, graph);
 		analyzeDefUseVertices(mn, graph);
-
+		analyzeLCSAJs(mn, graph);
 		handleBranchlessMethods();
 		
 		String id = className+"."+methodName;
@@ -328,6 +336,65 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		
 			}
 		}
+	}
+
+	private void analyzeLCSAJs(MethodNode mn, Graph<CFGVertex, DefaultEdge> graph){
+		Queue<InsnList> instr_queue = new LinkedList<InsnList>();
+		Queue<LCSAJ> lcsaj_queue = new LinkedList<LCSAJ>();
+		
+		InsnList li = new InsnList();
+		li.add(mn.instructions.getFirst());
+		instr_queue.add(li);
+		lcsaj_queue.add(new LCSAJ(className,methodName));
+		
+		while (!instr_queue.isEmpty()) {
+			InsnList current_instr = instr_queue.poll();
+			LCSAJ current_lcsaj = lcsaj_queue.poll();
+			
+			int position = mn.instructions.indexOf(current_instr.getLast());
+			if (position + 1 >= mn.instructions.size()) {
+				// New LCSAJ for current + return
+				LCSAJPool.add_lcsaj(className, methodName,current_lcsaj);
+				continue;
+			}
+
+			AbstractInsnNode next = mn.instructions.get(position + 1);
+
+			if (next instanceof JumpInsnNode) {
+				current_instr.add(next);
+				current_lcsaj.addInstruction(position+1, next);
+				JumpInsnNode jump = (JumpInsnNode) next;
+				// New LCSAJ for current + jump to target
+				LCSAJPool.add_lcsaj(className, methodName,current_lcsaj);
+				if (jump.getOpcode()!= Opcodes.GOTO){
+					LabelNode target = jump.label;
+					InsnList new_list = new InsnList();
+					new_list.add(target);
+					instr_queue.add(new_list);
+					lcsaj_queue.add(new LCSAJ(className,methodName));
+				}
+			} else if (next instanceof TableSwitchInsnNode) {
+				TableSwitchInsnNode tswitch = (TableSwitchInsnNode) next;
+				List<LabelNode> allTargets = tswitch.labels;
+				for (LabelNode target : allTargets){
+					InsnList new_list = new InsnList();
+					new_list.add(target);
+					instr_queue.add(new_list);
+					lcsaj_queue.add(new LCSAJ(className,methodName));
+				}
+					
+			} else if (next instanceof InsnNode) {
+				InsnNode insn = (InsnNode) next;
+				if (insn.getOpcode() == Opcodes.ATHROW) {
+					// New LCSAJ for current + throw
+					LCSAJPool.add_lcsaj(className, methodName,current_lcsaj);
+				} 
+			} else {
+				instr_queue.add(current_instr);
+				lcsaj_queue.add(current_lcsaj);
+			}
+		}
+
 	}
 
 	private boolean isUsable() {
