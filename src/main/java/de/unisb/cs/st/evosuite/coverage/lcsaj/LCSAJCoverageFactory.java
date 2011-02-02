@@ -20,9 +20,17 @@
 
 package de.unisb.cs.st.evosuite.coverage.lcsaj;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
+import de.unisb.cs.st.evosuite.coverage.branch.Branch;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
 /**
@@ -30,14 +38,31 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  *
  */
 public class LCSAJCoverageFactory implements TestFitnessFactory {
-
+	
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
 	 */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
-		// TODO Auto-generated method stub
-		return null;
+		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
+
+		// Branchless methods
+		String class_name = Properties.TARGET_CLASS;
+		for(String method : BranchPool.getBranchlessMethods()) {
+			goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(class_name, method)));
+		}
+		// Branches
+		for(String className : BranchPool.branchMap.keySet()) {
+			for(String methodName : BranchPool.branchMap.get(className).keySet()) {
+				// Get CFG of method
+				ControlFlowGraph cfg = CFGMethodAdapter.getCFG(className, methodName);
+				
+				for (LCSAJ lcsaj : LCSAJPool.getLCSAJs(className, methodName))
+					goals.add(new LCSAJCoverageTestFitness(className, methodName, lcsaj, cfg));
+			}
+		}
+		
+		return goals;
 	}
 
 }
