@@ -114,11 +114,11 @@ public class TestRunner extends Thread {
 				  ExecutionTracer.statementExecuted();
 				  VariableReference returnValue = s.getReturnValue().clone();
 
+				  PrintStream out = new PrintStream(new ByteArrayOutputStream());
+				  
 				  // check if SecurityManager should be changed to mocked SecurityManager
 				  if(changeSM)
 					  System.setSecurityManager(newManager);
-
-				  PrintStream out = new PrintStream(new ByteArrayOutputStream());
 				  Throwable exceptionThrown = s.execute(scope, out);
 
 				  // check if default SecurityManager should be set
