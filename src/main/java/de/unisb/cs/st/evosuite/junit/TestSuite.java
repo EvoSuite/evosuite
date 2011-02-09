@@ -3,20 +3,18 @@
  * 
  * This file is part of EvoSuite.
  * 
- * EvoSuite is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * EvoSuite is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser Public License for more details.
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser Public License
- * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 package de.unisb.cs.st.evosuite.junit;
 
@@ -24,7 +22,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,15 +35,11 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.log4j.Logger;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
-import org.objectweb.asm.util.CheckClassAdapter;
-import org.objectweb.asm.util.TraceClassVisitor;
 
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
@@ -60,71 +53,74 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  * Abstract test suite class.
  * 
  * @author Gordon Fraser
- *
+ * 
  */
 public class TestSuite implements Opcodes {
-	
-	private Logger logger = Logger.getLogger(TestSuite.class);
-	
-	protected List<TestCase> test_cases = new ArrayList<TestCase>();
-	
-	protected TestCaseExecutor executor = new TestCaseExecutor();
-	
-	class TestFilter implements IOFileFilter
-	{
-	  public boolean accept( File f, String s )
-	  {
-		  return s.toLowerCase().endsWith( ".java" ) && s.startsWith("Test");
-	  }
 
-	  /* (non-Javadoc)
-	   * @see org.apache.commons.io.filefilter.IOFileFilter#accept(java.io.File)
-	   */
-	  @Override
-	  public boolean accept(File file) {
-		  return file.getName().toLowerCase().endsWith( ".java" ) && file.getName().startsWith("Test");
-	  }
+	private final Logger logger = Logger.getLogger(TestSuite.class);
+
+	protected List<TestCase> test_cases = new ArrayList<TestCase>();
+
+	protected TestCaseExecutor executor = new TestCaseExecutor();
+
+	class TestFilter implements IOFileFilter {
+		@Override
+		public boolean accept(File f, String s) {
+			return s.toLowerCase().endsWith(".java") && s.startsWith("Test");
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * org.apache.commons.io.filefilter.IOFileFilter#accept(java.io.File)
+		 */
+		@Override
+		public boolean accept(File file) {
+			return file.getName().toLowerCase().endsWith(".java")
+			        && file.getName().startsWith("Test");
+		}
 	}
 
 	public TestSuite() {
-		
+
 	}
-	
+
 	public TestSuite(List<TestCase> tests) {
-		for(TestCase test : tests)
+		for (TestCase test : tests)
 			insertTest(test);
 	}
-	
+
 	public ExecutionResult runTest(TestCase test) {
-		
+
 		ExecutionResult result = new ExecutionResult(test, null);
-		
+
 		try {
-	        logger.debug("Executing test");
-			result.exceptions = executor.runWithTrace(test);
-			executor.setLogging(true);			
-		} catch(Exception e) {
-			System.out.println("TG: Exception caught: "+e);
+			logger.debug("Executing test");
+			result.exceptions = executor.run(test);
+			executor.setLogging(true);
+		} catch (Exception e) {
+			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
 			System.exit(1);
 		}
 
 		return result;
 	}
-	
+
 	/**
 	 * Check if there are test cases
-	 * @return
-	 *   True if there are no test cases
+	 * 
+	 * @return True if there are no test cases
 	 */
 	public boolean isEmpty() {
 		return test_cases.isEmpty();
 	}
-	
+
 	public int size() {
 		return test_cases.size();
 	}
-	
+
 	/**
 	 * Check if test suite has a test case that is a prefix of test.
 	 * 
@@ -132,53 +128,54 @@ public class TestSuite implements Opcodes {
 	 * @return
 	 */
 	public boolean hasPrefix(TestCase test) {
-		for(TestCase t : test_cases) {
-			if(t.isPrefix(test))
+		for (TestCase t : test_cases) {
+			if (t.isPrefix(test))
 				return true;
 		}
 		return false;
 	}
-	
+
 	/**
-	 * Add test to suite.
-	 * If the test is a prefix of an existing test, just keep existing test.
-	 * If an existing test is a prefix of the test, replace the existing test.
+	 * Add test to suite. If the test is a prefix of an existing test, just keep
+	 * existing test. If an existing test is a prefix of the test, replace the
+	 * existing test.
 	 * 
 	 * @param test
-	 * @return
-	 *    Index of the test case
+	 * @return Index of the test case
 	 */
 	public int insertTest(TestCase test) {
-		for(int i = 0; i<test_cases.size(); i++) {
-			if(test.isPrefix(test_cases.get(i))) {
-				// It's shorter than an existing one
-				//test_cases.set(i, test);
-				logger.debug("This is a prefix of an existing test");
-				test_cases.get(i).addAssertions(test);
-				return i;
-			} else {
-				// Already have that one...
-				if(test_cases.get(i).isPrefix(test)) {
-					test.addAssertions(test_cases.get(i));
-					test_cases.set(i, test);
-					logger.debug("We have a prefix of this one");
+		if (Properties.getPropertyOrDefault("call_probability", 0.0) <= 0) {
+			for (int i = 0; i < test_cases.size(); i++) {
+				if (test.isPrefix(test_cases.get(i))) {
+					// It's shorter than an existing one
+					// test_cases.set(i, test);
+					logger.debug("This is a prefix of an existing test");
+					test_cases.get(i).addAssertions(test);
 					return i;
+				} else {
+					// Already have that one...
+					if (test_cases.get(i).isPrefix(test)) {
+						test.addAssertions(test_cases.get(i));
+						test_cases.set(i, test);
+						logger.debug("We have a prefix of this one");
+						return i;
+					}
 				}
 			}
 		}
-		if(logger.isDebugEnabled()) {
+		if (logger.isDebugEnabled()) {
 			logger.debug("Adding new test case:");
 			logger.debug(test.toCode());
 		}
 		test_cases.add(test);
 		return test_cases.size() - 1;
 	}
-	
+
 	public void insertTests(List<TestCase> tests) {
-		for(TestCase test : tests)
+		for (TestCase test : tests)
 			insertTest(test);
 	}
-	
+
 	/**
 	 * Get all test cases
 	 * 
@@ -187,13 +184,13 @@ public class TestSuite implements Opcodes {
 	public List<TestCase> getTestCases() {
 		return test_cases;
 	}
-	
+
 	/**
 	 * When writing out the JUnit test file, each test can have a text comment
+	 * 
 	 * @param num
-	 *    Index of test case
-	 * @return
-	 *    Comment for test case
+	 *            Index of test case
+	 * @return Comment for test case
 	 */
 	protected String getInformation(int num) {
 		
@@ -213,7 +210,7 @@ public class TestSuite implements Opcodes {
 		
 		return builder.toString();
 	}
-	
+
 	/**
 	 * JUnit file header
 	 * 
@@ -233,71 +230,77 @@ public class TestSuite implements Opcodes {
 		 * 
 		 * This file is part of EvoSuite.
 		 * 
-		 * EvoSuite is free software: you can redistribute it and/or modify
-		 * it under the terms of the GNU Lesser Public License as published by
-		 * the Free Software Foundation, either version 3 of the License, or
-		 * (at your option) any later version.
+		 * EvoSuite is free software: you can redistribute it and/or modify it
+		 * under the terms of the GNU Lesser Public License as published by the
+		 * Free Software Foundation, either version 3 of the License, or (at
+		 * your option) any later version.
 		 * 
-		 * EvoSuite is distributed in the hope that it will be useful,
-		 * but WITHOUT ANY WARRANTY; without even the implied warranty of
-		 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-		 * GNU Lesser Public License for more details.
+		 * EvoSuite is distributed in the hope that it will be useful, but
+		 * WITHOUT ANY WARRANTY; without even the implied warranty of
+		 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+		 * Lesser Public License for more details.
 		 * 
 		 * You should have received a copy of the GNU Lesser Public License
-		 * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
+		 * along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
 		 */
 		builder.append("package ");
 		builder.append(Properties.CLASS_PREFIX);
-		//builder.append(Properties.PROJECT_PREFIX);
+		// builder.append(Properties.PROJECT_PREFIX);
 
-		//String target_class = System.getProperty("test.classes").replace("_\\d+.task", "").replace('_', '.');
-//		String package_string = Properties.PROJECT_PREFIX.replace('_','.').replaceFirst("TestSuite.", "").replaceFirst("\\.[^\\.]+$", "");
-//		builder.append(package_string);
-		//builder.append(MutationProperties.PROJECT_PREFIX);
-		//builder.append(".GeneratedTests;");
+		// String target_class =
+		// System.getProperty("test.classes").replace("_\\d+.task",
+		// "").replace('_', '.');
+		// String package_string =
+		// Properties.PROJECT_PREFIX.replace('_','.').replaceFirst("TestSuite.",
+		// "").replaceFirst("\\.[^\\.]+$", "");
+		// builder.append(package_string);
+		// builder.append(MutationProperties.PROJECT_PREFIX);
+		// builder.append(".GeneratedTests;");
 		builder.append(";\n\n");
 		builder.append("import junit.framework.Test;\n");
 		builder.append("import junit.framework.TestCase;\n");
-        builder.append("import junit.framework.TestSuite;\n\n");
-        builder.append(getImports(results));
-        
+		builder.append("import junit.framework.TestSuite;\n\n");
+		builder.append(getImports(results));
+
 		builder.append("public class ");
 		builder.append(name);
 		builder.append(" extends TestCase {\n");
-		return builder.toString();		
+		return builder.toString();
 	}
-	
+
 	/**
 	 * Determine packages that need to be imported in the JUnit file
+	 * 
 	 * @return
 	 */
 	protected String getImports(List<ExecutionResult> results) {
 		StringBuilder builder = new StringBuilder();
 		Set<Class<?>> imports = new HashSet<Class<?>>();
-		for(TestCase test : test_cases) {
+		for (TestCase test : test_cases) {
 			imports.addAll(test.getAccessedClasses());
 		}
-		for(ExecutionResult result : results) {
-			for(Throwable t : result.exceptions.values()) 
+		for (ExecutionResult result : results) {
+			for (Throwable t : result.exceptions.values())
 				imports.add(t.getClass());
 		}
 		Set<String> import_names = new HashSet<String>();
-		for(Class<?> imp : imports) {
-			if(imp.isArray())
+		for (Class<?> imp : imports) {
+			if (imp.isArray())
 				imp = imp.getComponentType();
-			if(imp.isPrimitive())
+			if (imp.isPrimitive())
 				continue;
-			if(imp.getName().startsWith("java.lang"))
+			if (imp.getName().startsWith("java.lang"))
 				continue;
-			if(imp.getName().contains("$"))
-				import_names.add(imp.getName().substring(0, imp.getName().indexOf("$")));
-//				import_names.add(imp.getName().replace("$","."));
+			if (imp.getName().contains("$"))
+				import_names.add(imp.getName().substring(0,
+				        imp.getName().indexOf("$")));
+			// import_names.add(imp.getName().replace("$","."));
 			else
 				import_names.add(imp.getName());
 		}
 		List<String> imports_sorted = new ArrayList<String>(import_names);
 		Collections.sort(imports_sorted);
-		for(String imp : imports_sorted) {
+		for (String imp : imports_sorted) {
 			builder.append("import ");
 			builder.append(imp);
 			builder.append(";\n");
@@ -305,9 +308,10 @@ public class TestSuite implements Opcodes {
 		builder.append("\n");
 		return builder.toString();
 	}
-	
+
 	/**
 	 * JUnit file footer
+	 * 
 	 * @return
 	 */
 	protected String getFooter() {
@@ -315,40 +319,40 @@ public class TestSuite implements Opcodes {
 		builder.append("}\n");
 		return builder.toString();
 	}
-	
+
 	/**
 	 * Create JUnit file for given class name
+	 * 
 	 * @param name
-	 *   Name of the class file
-	 * @return
-	 *   String representation of JUnit test file
+	 *            Name of the class file
+	 * @return String representation of JUnit test file
 	 */
 	protected String getUnitTest(String name) {
 		List<ExecutionResult> results = new ArrayList<ExecutionResult>();
-		for(int i = 0; i<test_cases.size(); i++) {
+		for (int i = 0; i < test_cases.size(); i++) {
 			results.add(runTest(test_cases.get(i)));
 		}
 
 		StringBuilder builder = new StringBuilder();
-		
+
 		builder.append(getHeader(name, results));
-		for(int i = 0; i<test_cases.size(); i++) {
+		for (int i = 0; i < test_cases.size(); i++) {
 			builder.append(testToString(i, results.get(i)));
 		}
 		builder.append(getFooter());
-		
+
 		return builder.toString();
 	}
-	
+
 	/**
 	 * Convert one test case to a Java method
+	 * 
 	 * @param id
-	 *   Index of the test case
-	 * @return
-	 *   String representation of test case
+	 *            Index of the test case
+	 * @return String representation of test case
 	 */
 	protected String testToString(int id, ExecutionResult result) {
-		
+
 		StringBuilder builder = new StringBuilder();
 		builder.append("\n");
 		builder.append("   //");
@@ -357,11 +361,11 @@ public class TestSuite implements Opcodes {
 		builder.append(id);
 		builder.append("() ");
 		Set<Class<?>> exceptions = test_cases.get(id).getDeclaredExceptions();
-		if(!exceptions.isEmpty()) {
+		if (!exceptions.isEmpty()) {
 			builder.append("throws ");
 			boolean first = true;
-			for(Class<?> exception : exceptions) {
-				if(first)
+			for (Class<?> exception : exceptions) {
+				if (first)
 					first = false;
 				else
 					builder.append(", ");
@@ -369,73 +373,79 @@ public class TestSuite implements Opcodes {
 			}
 		}
 		builder.append(" {\n");
-		for(String line : test_cases.get(id).toCode(result.exceptions).split("\\r?\\n")) {
+		for (String line : test_cases.get(id).toCode(result.exceptions)
+		        .split("\\r?\\n")) {
 			builder.append("      ");
 			builder.append(line);
-//			builder.append(";\n");
+			// builder.append(";\n");
 			builder.append("\n");
 		}
 		builder.append("   }\n");
 		return builder.toString();
 	}
-	
+
 	/**
 	 * Create subdirectory for package in test directory
+	 * 
 	 * @param directory
 	 * @return
 	 */
 	protected String makeDirectory(String directory) {
-		String dirname = directory+"/"+Properties.CLASS_PREFIX.replace('.', '/'); //+"/GeneratedTests";
+		String dirname = directory + "/"
+		        + Properties.CLASS_PREFIX.replace('.', '/'); // +"/GeneratedTests";
 		File dir = new File(dirname);
-		logger.debug("Target directory: "+dirname);
+		logger.debug("Target directory: " + dirname);
 		dir.mkdirs();
 		return dirname;
 	}
-	
+
 	/**
 	 * Create subdirectory for package in test directory
+	 * 
 	 * @param directory
 	 * @return
 	 */
 	protected String mainDirectory(String directory) {
-		String dirname = directory+"/"+Properties.PROJECT_PREFIX.replace('.', '/'); //+"/GeneratedTests";
+		String dirname = directory + "/"
+		        + Properties.PROJECT_PREFIX.replace('.', '/'); // +"/GeneratedTests";
 		File dir = new File(dirname);
-		logger.debug("Target directory: "+dirname);
+		logger.debug("Target directory: " + dirname);
 		dir.mkdirs();
 		return dirname;
 	}
 
 	/**
-	 * Update/create the main file of the test suite.
-	 * The main test file simply includes all automatically generated test suites in the same directory
+	 * Update/create the main file of the test suite. The main test file simply
+	 * includes all automatically generated test suites in the same directory
 	 * 
 	 * @param directory
-	 *    Directory of generated test files
+	 *            Directory of generated test files
 	 */
 	protected void writeTestSuiteMainFile(String directory) {
-		File file = new File(directory+"/GeneratedTestSuite.java");
-		//if(file.exists())
-		//	return;
-		
+		File file = new File(directory + "/GeneratedTestSuite.java");
+		// if(file.exists())
+		// return;
+
 		StringBuilder builder = new StringBuilder();
 		builder.append("package ");
 		builder.append(Properties.PROJECT_PREFIX);
-		//builder.append(".GeneratedTests;");
+		// builder.append(".GeneratedTests;");
 		builder.append(";\n\n");
 		builder.append("import junit.framework.Test;\n");
 		builder.append("import junit.framework.TestCase;\n");
-        builder.append("import junit.framework.TestSuite;\n\n");
-        builder.append("import java.io.File;\n");
-        builder.append("import java.io.FilenameFilter;\n");
+		builder.append("import junit.framework.TestSuite;\n\n");
+		builder.append("import java.io.File;\n");
+		builder.append("import java.io.FilenameFilter;\n");
 
-        
-        List<String> suites = new ArrayList<String>();
-        
+		List<String> suites = new ArrayList<String>();
+
 		File basedir = new File(directory);
-		Iterator<File> i = FileUtils.iterateFiles(basedir, new TestFilter(), TrueFileFilter.INSTANCE);
-		while(i.hasNext()) {
+		Iterator<File> i = FileUtils.iterateFiles(basedir, new TestFilter(),
+		        TrueFileFilter.INSTANCE);
+		while (i.hasNext()) {
 			File f = i.next();
-			String name = f.getPath().replace(directory, "").replace(".java", "").replace("/", "."); 
+			String name = f.getPath().replace(directory, "")
+			        .replace(".java", "").replace("/", ".");
 			suites.add(name.substring(name.lastIndexOf(".") + 1));
 			builder.append("import ");
 			builder.append(Properties.PROJECT_PREFIX);
@@ -443,67 +453,64 @@ public class TestSuite implements Opcodes {
 			builder.append(";\n");
 		}
 		builder.append("\n");
-		
-        builder.append("public class GeneratedTestSuite extends TestCase {\n");
+
+		builder.append("public class GeneratedTestSuite extends TestCase {\n");
 		builder.append("  public static Test suite() {\n");
 		builder.append("    TestSuite suite = new TestSuite();\n");
-		for(String suite : suites) {
+		for (String suite : suites) {
 			builder.append("    suite.addTestSuite(");
 			builder.append(suite);
-			builder.append(".class);\n");	
+			builder.append(".class);\n");
 		}
 		/*
-		for(File f : basedir.listFiles(new TestFilter())) {
-			builder.append("    suite.addTestSuite(");
-			if(!Properties.SUB_PREFIX.equals("")) {
-				builder.append(Properties.SUB_PREFIX);
-				builder.append(".");
-			}
-			builder.append(f.getName().replace(".java", ""));
-			builder.append(".class);\n");
-	    }
-*/
+		 * for(File f : basedir.listFiles(new TestFilter())) {
+		 * builder.append("    suite.addTestSuite(");
+		 * if(!Properties.SUB_PREFIX.equals("")) {
+		 * builder.append(Properties.SUB_PREFIX); builder.append("."); }
+		 * builder.append(f.getName().replace(".java", ""));
+		 * builder.append(".class);\n"); }
+		 */
 		/*
-		builder.append("    File basedir = new File(\"");
-		builder.append(directory);
-		builder.append("\");\n");
-		builder.append("    for(File f : basedir.listFiles(new TestFilter())) {\n");
-		builder.append("    	try {\n");
-		builder.append("    		Class clazz = Class.forName(f.getAbsolutePath());\n");
-		builder.append("    		suite.addTestSuite(clazz);\n");
-		builder.append("    	} catch (ClassNotFoundException e) {}\n");
-		builder.append("    }\n");
-		*/
+		 * builder.append("    File basedir = new File(\"");
+		 * builder.append(directory); builder.append("\");\n"); builder.append(
+		 * "    for(File f : basedir.listFiles(new TestFilter())) {\n");
+		 * builder.append("    	try {\n"); builder.append(
+		 * "    		Class clazz = Class.forName(f.getAbsolutePath());\n");
+		 * builder.append("    		suite.addTestSuite(clazz);\n");
+		 * builder.append("    	} catch (ClassNotFoundException e) {}\n");
+		 * builder.append("    }\n");
+		 */
 		builder.append("    return suite;\n");
 		builder.append("  }\n");
 		builder.append("}\n");
-		Io.writeFile(builder.toString(), file);		
+		Io.writeFile(builder.toString(), file);
 	}
-	
+
 	/**
 	 * Create JUnit test suite for class
+	 * 
 	 * @param name
-	 *   Name of the class
+	 *            Name of the class
 	 * @param directory
-	 *   Output directory
+	 *            Output directory
 	 */
 	public void writeTestSuite(String name, String directory) {
 		String dir = makeDirectory(directory);
-		File file = new File(dir+"/"+name+".java");
+		File file = new File(dir + "/" + name + ".java");
 		Io.writeFile(getUnitTest(name), file);
 
 		dir = mainDirectory(directory);
 		writeTestSuiteMainFile(dir);
 
 	}
-	
-	
-	private void testToBytecode(TestCase test, GeneratorAdapter mg, Map<Integer, Throwable> exceptions) {
+
+	private void testToBytecode(TestCase test, GeneratorAdapter mg,
+	        Map<Integer, Throwable> exceptions) {
 		Map<Integer, Integer> locals = new HashMap<Integer, Integer>();
 		mg.visitAnnotation("Lorg/junit/Test;", true);
 		int num = 0;
-		for(Statement statement : test.getStatements()) {
-			logger.debug("Current statement: "+statement.getCode());
+		for (Statement statement : test.getStatements()) {
+			logger.debug("Current statement: " + statement.getCode());
 			statement.getBytecode(mg, locals, exceptions.get(num));
 			num++;
 		}
@@ -511,23 +518,26 @@ public class TestSuite implements Opcodes {
 		mg.endMethod();
 
 	}
-	
+
 	public byte[] getBytecode(String name) {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-		String prefix = Properties.TARGET_CLASS.substring(0, Properties.TARGET_CLASS.lastIndexOf(".")).replace(".", "/");
-		cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, prefix+"/"+name, null, "junit/framework/TestCase", null);
+		String prefix = Properties.TARGET_CLASS.substring(0,
+		        Properties.TARGET_CLASS.lastIndexOf(".")).replace(".", "/");
+		cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, prefix + "/" + name, null,
+		        "junit/framework/TestCase", null);
 
 		Method m = Method.getMethod("void <init> ()");
-		GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
+		GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null,
+		        cw);
 		mg.loadThis();
 		mg.invokeConstructor(Type.getType(junit.framework.TestCase.class), m);
 		mg.returnValue();
 		mg.endMethod();
-		
+
 		int num = 0;
-		for(TestCase test : test_cases) {
+		for (TestCase test : test_cases) {
 			ExecutionResult result = runTest(test);
-			m = Method.getMethod("void test"+num+" ()");
+			m = Method.getMethod("void test" + num + " ()");
 			mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
 			testToBytecode(test, mg, result.exceptions);
 			num++;
@@ -540,20 +550,22 @@ public class TestSuite implements Opcodes {
 		mg.newArray(Type.getType(String.class));
 		mg.dup();
 		mg.push(0);
-		mg.push(Properties.CLASS_PREFIX+"."+name);
+		mg.push(Properties.CLASS_PREFIX + "." + name);
 		mg.arrayStore(Type.getType(String.class));
-//		mg.invokeStatic(Type.getType(org.junit.runner.JUnitCore.class), Method.getMethod("void main (String[])"));
-		mg.invokeStatic(Type.getType(junit.textui.TestRunner.class), Method.getMethod("void main (String[])"));
+		// mg.invokeStatic(Type.getType(org.junit.runner.JUnitCore.class),
+		// Method.getMethod("void main (String[])"));
+		mg.invokeStatic(Type.getType(junit.textui.TestRunner.class),
+		        Method.getMethod("void main (String[])"));
 		mg.returnValue();
 		mg.endMethod();
-		
+
 		cw.visitEnd();
 		return cw.toByteArray();
 	}
-	
+
 	public void writeTestSuiteClass(String name, String directory) {
 		String dir = makeDirectory(directory);
-		File file = new File(dir+"/"+name+".class");
+		File file = new File(dir + "/" + name + ".class");
 		byte[] bytecode = getBytecode(name);
 		try {
 			FileOutputStream stream = new FileOutputStream(file);
@@ -563,12 +575,11 @@ public class TestSuite implements Opcodes {
 		}
 
 		/*
-		ClassReader reader = new ClassReader(bytecode);
-		ClassVisitor cv = new TraceClassVisitor(new PrintWriter(System.out));
-		cv = new CheckClassAdapter(cv);
-		reader.accept(cv, ClassReader.SKIP_FRAMES);
-		*/
-		
-		//getBytecode(name);
+		 * ClassReader reader = new ClassReader(bytecode); ClassVisitor cv = new
+		 * TraceClassVisitor(new PrintWriter(System.out)); cv = new
+		 * CheckClassAdapter(cv); reader.accept(cv, ClassReader.SKIP_FRAMES);
+		 */
+
+		// getBytecode(name);
 	}
 }

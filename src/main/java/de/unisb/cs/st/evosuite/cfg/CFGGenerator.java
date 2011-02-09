@@ -32,6 +32,7 @@ import org.apache.log4j.Logger;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FrameNode;
@@ -55,14 +56,13 @@ import org.objectweb.asm.tree.analysis.BasicInterpreter;
 import org.objectweb.asm.tree.analysis.Frame;
 import org.objectweb.asm.util.AbstractVisitor;
 
-import org.objectweb.asm.Opcodes;
-
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
  * This class generates a CFG from a method's bytecode
+ * 
  * @author Gordon Fraser
- *
+ * 
  */
 public class CFGGenerator extends Analyzer {
 
@@ -70,11 +70,12 @@ public class CFGGenerator extends Analyzer {
 
 	/**
 	 * Node of the control flow graph
+	 * 
 	 * @author Gordon Fraser
-	 *
+	 * 
 	 */
 	public class CFGVertex {
-		
+
 		AbstractInsnNode node;
 		CFGFrame frame;
 		int id;
@@ -111,35 +112,37 @@ public class CFGGenerator extends Analyzer {
 			}
 			return false;
 		}
-		
+
 		public boolean isBranch() {
 			return isJump() && !isGoto();
+		}
+
+		public boolean isTableSwitch() {
+			return (node instanceof TableSwitchInsnNode);
 		}
 
 		public void setMutation(long id) {
 			mutations.add(id);
 		}
-		
+
 		public boolean hasMutation(long id) {
 			return mutations.contains(id);
 		}
+
 		public boolean isMutation() {
 			return !mutations.isEmpty();
-/*
- * 			if(node instanceof LdcInsnNode) {
- 
-				if(((LdcInsnNode)node).cst.toString().contains("mutationId")) {
-					logger.info("!!!!! Found mutation!");
-				}
-			}
-			return false;
-			*/
+			/*
+			 * if(node instanceof LdcInsnNode) {
+			 * 
+			 * if(((LdcInsnNode)node).cst.toString().contains("mutationId")) {
+			 * logger.info("!!!!! Found mutation!"); } } return false;
+			 */
 		}
-		
+
 		public boolean isMutationBranch() {
 			return isBranch() && mutationBranch;
 		}
-		
+
 		public void setMutationBranch() {
 			mutationBranch = true;
 		}
@@ -147,42 +150,43 @@ public class CFGGenerator extends Analyzer {
 		public void setMutatedBranch() {
 			mutatedBranch = true;
 		}
-		
+
 		public boolean isMutatedBranch() {
 			// Mutated if HOMObserver of MutationObserver are called
 			return isBranch() && mutatedBranch;
 		}
-		
+
 		public boolean isBranchLabel() {
-			if(node instanceof LabelNode && ((LabelNode)node).getLabel().info instanceof Integer) {
+			if (node instanceof LabelNode
+					&& ((LabelNode) node).getLabel().info instanceof Integer) {
 				return true;
 			}
 			return false;
 		}
-		
+
 		public boolean isLineNumber() {
 			return (node instanceof LineNumberNode);
 		}
-		
+
 		public int getBranchId() {
-			//return ((Integer)((LabelNode)node).getLabel().info).intValue();
+			// return ((Integer)((LabelNode)node).getLabel().info).intValue();
 			return line_no;
 		}
-		
+
 		public boolean isIfNull() {
 			if (node instanceof JumpInsnNode) {
 				return (node.getOpcode() == Opcodes.IFNULL);
 			}
 			return false;
 		}
-		
+
 		public boolean isMethodCall() {
 			return node instanceof MethodInsnNode;
 		}
-		
+
 		public boolean isMethodCall(String methodName) {
 			if (node instanceof MethodInsnNode) {
-				MethodInsnNode mn = (MethodInsnNode)node;
+				MethodInsnNode mn = (MethodInsnNode) node;
 				return mn.name.equals(methodName);
 			}
 			return false;
@@ -276,22 +280,22 @@ public class CFGGenerator extends Analyzer {
 		}
 		
 		public String getMethodName() {
-			return ((MethodInsnNode)node).name;
+			return ((MethodInsnNode) node).name;
 		}
-		
-		public List<Long >getMutationIds() {
+
+		public List<Long> getMutationIds() {
 			return mutations;
-			
-			//String ids = ((LdcInsnNode)node).cst.toString();
-			//return Integer.parseInt(ids.substring(ids.indexOf("_")+1));
+
+			// String ids = ((LdcInsnNode)node).cst.toString();
+			// return Integer.parseInt(ids.substring(ids.indexOf("_")+1));
 		}
-		
+
 		public int getLineNumber() {
-			return ((LineNumberNode)node).line;
+			return ((LineNumberNode) node).line;
 		}
-		
+
 		public int getDistance(long id) {
-			if(mutant_distance.containsKey(id))
+			if (mutant_distance.containsKey(id))
 				return mutant_distance.get(id);
 			return Integer.MAX_VALUE;
 		}
@@ -299,75 +303,97 @@ public class CFGGenerator extends Analyzer {
 		public void setDistance(long id, int distance) {
 			mutant_distance.put(id, distance);
 		}
-		
+
+		@Override
 		public String toString() {
-			
-			if(isMutation()) {
+
+			if (isMutation()) {
 				String ids = "Mutations: ";
-				for(long l : mutations) {
-					ids += " "+l;
+				for (long l : mutations) {
+					ids += " " + l;
 				}
 				return ids;
 			}
-			
-			if(isBranch()) {
-				return "Branch "+id+" - "+((JumpInsnNode)node).label.getLabel();
+
+			if (isBranch()) {
+				return "Branch " + id + " - "
+						+ ((JumpInsnNode) node).label.getLabel();
 			}
-			
+
 			String type = "";
 			String opcode = "";
-			
-			if(node.getOpcode() >= 0 && node.getOpcode() < AbstractVisitor.OPCODES.length)
+
+			if (node.getOpcode() >= 0
+					&& node.getOpcode() < AbstractVisitor.OPCODES.length)
 				opcode = AbstractVisitor.OPCODES[node.getOpcode()];
-			if(node.getType() >= 0 && node.getType() < AbstractVisitor.TYPES.length)
+			if (node.getType() >= 0
+					&& node.getType() < AbstractVisitor.TYPES.length)
 				type = AbstractVisitor.TYPES[node.getType()];
-			
+
 			String stack = "";
-			if(frame == null)
+			if (frame == null)
 				stack = "null";
 			else
-				for(int i = 0; i< frame.getStackSize(); i++) {
-					stack += frame.getStack(i)+",";
+				for (int i = 0; i < frame.getStackSize(); i++) {
+					stack += frame.getStack(i) + ",";
 				}
-			
-			if(node instanceof LabelNode) {
-				return "LABEL "+((LabelNode) node).getLabel().toString() + " Type="+type+", Opcode="+opcode;
+
+			if (node instanceof LabelNode) {
+				return "LABEL " + ((LabelNode) node).getLabel().toString()
+						+ " Type=" + type + ", Opcode=" + opcode;
 			} else if (node instanceof FieldInsnNode)
-				return "Field" + " "+node.getOpcode()  + " Type="+type+", Opcode="+opcode;
+				return "Field" + " " + node.getOpcode() + " Type=" + type
+						+ ", Opcode=" + opcode;
 			else if (node instanceof FrameNode)
-				return "Frame" + " "+node.getOpcode() + " Type="+type+", Opcode="+opcode;
+				return "Frame" + " " + node.getOpcode() + " Type=" + type
+						+ ", Opcode=" + opcode;
 			else if (node instanceof IincInsnNode)
-				return "IINC "+((IincInsnNode)node).var  + " Type="+type+", Opcode="+opcode;
+				return "IINC " + ((IincInsnNode) node).var + " Type=" + type
+						+ ", Opcode=" + opcode;
 			else if (node instanceof InsnNode)
-				return "INSN "+ ((InsnNode)node).toString() + " Type="+type+", Opcode="+opcode;
+				return "INSN " + ((InsnNode) node).toString() + " Type=" + type
+						+ ", Opcode=" + opcode;
 			else if (node instanceof IntInsnNode)
-				return "INT "+((IntInsnNode)node).operand + " Type="+type+", Opcode="+opcode;
+				return "INT " + ((IntInsnNode) node).operand + " Type=" + type
+						+ ", Opcode=" + opcode;
 			else if (node instanceof MethodInsnNode)
-				return "METHOD "+ ((MethodInsnNode)node).name + " Type="+type+", Opcode="+opcode;
+				return "METHOD " + ((MethodInsnNode) node).name + " Type="
+						+ type + ", Opcode=" + opcode;
 			else if (node instanceof JumpInsnNode)
-				return "JUMP " + ((JumpInsnNode)node).label.getLabel()  + " Type="+type+", Opcode="+opcode+", Stack: "+stack+" - Line: "+line_no;
+				return "JUMP " + ((JumpInsnNode) node).label.getLabel()
+						+ " Type=" + type + ", Opcode=" + opcode + ", Stack: "
+						+ stack + " - Line: " + line_no;
 			else if (node instanceof LdcInsnNode)
-				return "LDC "+((LdcInsnNode)node).cst + " Type="+type+", Opcode="+opcode; // cst starts with mutationid if this is location of mutation
+				return "LDC " + ((LdcInsnNode) node).cst + " Type=" + type
+						+ ", Opcode=" + opcode; // cst starts with mutationid if
+												// this is location of mutation
 			else if (node instanceof LineNumberNode)
-				return "LINE " + " "+node.getOpcode() + " Type="+type+", Opcode="+opcode;
+				return "LINE " + " " + node.getOpcode() + " Type=" + type
+						+ ", Opcode=" + opcode;
 			else if (node instanceof LookupSwitchInsnNode)
-				return "LookupSwitchInsnNode" + " "+node.getOpcode()  + " Type="+type+", Opcode="+opcode;
+				return "LookupSwitchInsnNode" + " " + node.getOpcode()
+						+ " Type=" + type + ", Opcode=" + opcode;
 			else if (node instanceof MultiANewArrayInsnNode)
-				return "MULTIANEWARRAY " + " "+node.getOpcode() + " Type="+type+", Opcode="+opcode;
+				return "MULTIANEWARRAY " + " " + node.getOpcode() + " Type="
+						+ type + ", Opcode=" + opcode;
 			else if (node instanceof TableSwitchInsnNode)
-				return "TableSwitchInsnNode" + " "+node.getOpcode() + " Type="+type+", Opcode="+opcode;
+				return "TableSwitchInsnNode" + " " + node.getOpcode()
+						+ " Type=" + type + ", Opcode=" + opcode;
 			else if (node instanceof TypeInsnNode)
-				return "TYPE " + " "+node.getOpcode() + " Type="+type+", Opcode="+opcode;
+				return "TYPE " + " " + node.getOpcode() + " Type=" + type
+						+ ", Opcode=" + opcode;
 			else if (node instanceof VarInsnNode)
-				return "VAR " + ((VarInsnNode)node).var + " Type="+type+", Opcode="+opcode;
-			else return "Unknown node" + " Type="+type+", Opcode="+opcode;
+				return "VAR " + ((VarInsnNode) node).var + " Type=" + type
+						+ ", Opcode=" + opcode;
+			else
+				return "Unknown node" + " Type=" + type + ", Opcode=" + opcode;
 		}
 
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			//result = prime * result + getOuterType().hashCode();
+			// result = prime * result + getOuterType().hashCode();
 			result = prime * result + id;
 			return result;
 		}
@@ -381,8 +407,8 @@ public class CFGGenerator extends Analyzer {
 			if (getClass() != obj.getClass())
 				return false;
 			CFGVertex other = (CFGVertex) obj;
-			//if (!getOuterType().equals(other.getOuterType()))
-			//	return false;
+			// if (!getOuterType().equals(other.getOuterType()))
+			// return false;
 			if (id != other.id)
 				return false;
 			if(methodName != null && !methodName.equals(other.methodName))
@@ -392,155 +418,155 @@ public class CFGGenerator extends Analyzer {
 			return true;
 		}
 
-		//private CFGGenerator getOuterType() {
-		//	return CFGGenerator.this;
-		//}		
+		// private CFGGenerator getOuterType() {
+		// return CFGGenerator.this;
+		// }
 	}
-	
+
 	MethodNode current_method = null;
-	DefaultDirectedGraph<CFGVertex, DefaultEdge> graph = new DefaultDirectedGraph<CFGVertex, DefaultEdge>(DefaultEdge.class);
+	DefaultDirectedGraph<CFGVertex, DefaultEdge> graph = new DefaultDirectedGraph<CFGVertex, DefaultEdge>(
+			DefaultEdge.class);
 	List<Mutation> mutants;
 	String className;
 	String methodName;
-	
+
 	public CFGGenerator(List<Mutation> mutants) {
 		super(new BasicInterpreter());
 		this.mutants = mutants;
 	}
 
-	protected Frame newFrame(int nLocals, int nStack) { 
+	@Override
+	protected Frame newFrame(int nLocals, int nStack) {
 		return new CFGFrame(nLocals, nStack);
-	} 
-	
+	}
+
+	@Override
 	protected Frame newFrame(Frame src) {
 		return new CFGFrame(src);
 	}
-	
-	CFGFrame getCFG(String owner, String method, MethodNode node) throws AnalyzerException {
+
+	CFGFrame getCFG(String owner, String method, MethodNode node)
+			throws AnalyzerException {
 		current_method = node;
 		className = owner;
 		methodName = method;
 		this.analyze(owner, node);
 		Frame[] frames = getFrames();
-		if(frames.length == 0)
+		if (frames.length == 0)
 			return null;
-		
+
 		return (CFGFrame) getFrames()[0];
 	}
 
 	public DefaultDirectedGraph<CFGVertex, DefaultEdge> getGraph() {
 		return graph;
 	}
-	
-	
+
 	public DirectedMultigraph<CFGVertex, DefaultEdge> getMinimalGraph() {
-		DirectedMultigraph<CFGVertex, DefaultEdge> min_graph = new DirectedMultigraph<CFGVertex, DefaultEdge>(DefaultEdge.class);
+		DirectedMultigraph<CFGVertex, DefaultEdge> min_graph = new DirectedMultigraph<CFGVertex, DefaultEdge>(
+				DefaultEdge.class);
 		CFGVertex current = null;
-		
-		for(Mutation m : mutants) {
-			if(m.getMethodName().equals(methodName) && m.getClassName().equals(className)) {
-				for(CFGVertex v : graph.vertexSet()) {
-					if(v.isLineNumber() && v.getLineNumber() == m.getLineNumber()) {
+
+		for (Mutation m : mutants) {
+			if (m.getMethodName().equals(methodName)
+					&& m.getClassName().equals(className)) {
+				for (CFGVertex v : graph.vertexSet()) {
+					if (v.isLineNumber()
+							&& v.getLineNumber() == m.getLineNumber()) {
 						v.setMutation(m.getId());
-						// TODO: What if there are several mutations with the same line number?
+						// TODO: What if there are several mutations with the
+						// same line number?
 					}
 				}
 			}
 		}
 
-		for(CFGVertex v : graph.vertexSet()) {
-			if(v.isIfNull()) {
-				for(DefaultEdge e : graph.incomingEdgesOf(v)) {
+		for (CFGVertex v : graph.vertexSet()) {
+			if (v.isIfNull()) {
+				for (DefaultEdge e : graph.incomingEdgesOf(v)) {
 					CFGVertex v2 = graph.getEdgeSource(e);
-					if(v2.isMethodCall("getProperty")) {
+					if (v2.isMethodCall("getProperty")) {
 						v.setMutationBranch();
 					}
 				}
-			} else if(v.isBranch()) {
-				for(DefaultEdge e : graph.incomingEdgesOf(v)) {
+			} else if (v.isBranch()) {
+				for (DefaultEdge e : graph.incomingEdgesOf(v)) {
 					CFGVertex v2 = graph.getEdgeSource(e);
-					if(v2.isMethodCall("touch")) {
+					if (v2.isMethodCall("touch")) {
 						logger.debug("Found mutated branch ");
 						v.setMutatedBranch();
 					} else {
-						if(v2.isMethodCall())
-							logger.debug("Edgesource: "+v2.getMethodName());
+						if (v2.isMethodCall())
+							logger.debug("Edgesource: " + v2.getMethodName());
 					}
 				}
 			}
 		}
 
-		for(CFGVertex vertex : graph.vertexSet()) {
-			if(current == null)
+		for (CFGVertex vertex : graph.vertexSet()) {
+			if (current == null)
 				current = vertex;
-			
+
 			// Add initial nodes and jump targets
-			if(graph.inDegreeOf(vertex) == 0)
+			if (graph.inDegreeOf(vertex) == 0)
 				min_graph.addVertex(vertex);
 			// Add end nodes
-			else if(graph.outDegreeOf(vertex) == 0)
+			else if (graph.outDegreeOf(vertex) == 0)
 				min_graph.addVertex(vertex);
-			else if(vertex.isJump() && !vertex.isGoto()) {
+			else if (vertex.isJump() && !vertex.isGoto()) {
 				min_graph.addVertex(vertex);
-			}
-			else if(vertex.isMutation()) 
+			} else if (vertex.isMutation())
 				min_graph.addVertex(vertex);
 			/*
-			else if(vertex.isLineNumber()) {
-				boolean keep = false;
-				for(Mutation m : mutants) {
-					if(m.getLineNumber() == vertex.getLineNumber()) {
-						if(m.getMethodName().equals(methodName) && m.getClassName().equals(className)) {
-							vertex.setMutation(m.getId());
-							keep = true;
-							break;
-						}
-					}
-				}
-				if(keep) {
-					min_graph.addVertex(vertex);
-					logger.info("Graph contains mutation "+vertex.getMutationId());
-				}
-			}
-			*/
-			
+			 * else if(vertex.isLineNumber()) { boolean keep = false;
+			 * for(Mutation m : mutants) { if(m.getLineNumber() ==
+			 * vertex.getLineNumber()) { if(m.getMethodName().equals(methodName)
+			 * && m.getClassName().equals(className)) {
+			 * vertex.setMutation(m.getId()); keep = true; break; } } } if(keep)
+			 * { min_graph.addVertex(vertex);
+			 * logger.info("Graph contains mutation "+vertex.getMutationId()); }
+			 * }
+			 */
+
 		}
 
-		for(CFGVertex vertex : min_graph.vertexSet()) {
+		for (CFGVertex vertex : min_graph.vertexSet()) {
 			Set<DefaultEdge> handled = new HashSet<DefaultEdge>();
-			
+
 			Queue<DefaultEdge> queue = new LinkedList<DefaultEdge>();
 			queue.addAll(graph.outgoingEdgesOf(vertex));
-			while(!queue.isEmpty()) {
+			while (!queue.isEmpty()) {
 				DefaultEdge edge = queue.poll();
-				if(handled.contains(edge))
+				if (handled.contains(edge))
 					continue;
 				handled.add(edge);
-				if(min_graph.containsVertex(graph.getEdgeTarget(edge))) {
+				if (min_graph.containsVertex(graph.getEdgeTarget(edge))) {
 					min_graph.addEdge(vertex, graph.getEdgeTarget(edge));
 				} else {
-					queue.addAll(graph.outgoingEdgesOf(graph.getEdgeTarget(edge)));
+					queue.addAll(graph.outgoingEdgesOf(graph
+							.getEdgeTarget(edge)));
 				}
 			}
 		}
 		
 		return min_graph;
 	}
-	
+
 	/**
 	 * Called for each non-exceptional cfg edge
 	 */
+	@Override
 	protected void newControlFlowEdge(int src, int dst) {
-		CFGFrame s = (CFGFrame) getFrames()[src]; 
+		CFGFrame s = (CFGFrame) getFrames()[src];
 		s.successors.put(dst, (CFGFrame) getFrames()[dst]);
-		if(getFrames()[dst] == null) {
+		if (getFrames()[dst] == null) {
 			System.out.println("Control flow edge to null");
 			logger.error("Control flow edge to null");
 		}
-		
+
 		CFGVertex v1 = new CFGVertex(src, current_method.instructions.get(src));
 		CFGVertex v2 = new CFGVertex(dst, current_method.instructions.get(dst));
-		
+
 		graph.addVertex(v1);
 		graph.addVertex(v2);
 		graph.addEdge(v1, v2);
@@ -549,18 +575,19 @@ public class CFGGenerator extends Analyzer {
 	/**
 	 * We also need to keep track of exceptional edges - they are also branches
 	 */
+	@Override
 	protected boolean newControlFlowExceptionEdge(int src, int dst) {
-		CFGFrame s = (CFGFrame) getFrames()[src]; 
+		CFGFrame s = (CFGFrame) getFrames()[src];
 		s.successors.put(dst, (CFGFrame) getFrames()[dst]);
 
 		// TODO: Make use of information that this is an exception edge?
 		CFGVertex v1 = new CFGVertex(src, current_method.instructions.get(src));
 		CFGVertex v2 = new CFGVertex(dst, current_method.instructions.get(dst));
-		
+
 		graph.addVertex(v1);
 		graph.addVertex(v2);
 		graph.addEdge(v1, v2);
-		
+
 		return true;
 	}
 

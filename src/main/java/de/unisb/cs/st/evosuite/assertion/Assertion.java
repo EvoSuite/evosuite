@@ -3,40 +3,41 @@
  * 
  * This file is part of EvoSuite.
  * 
- * EvoSuite is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * EvoSuite is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser Public License for more details.
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser Public License
- * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 package de.unisb.cs.st.evosuite.assertion;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
- * Abstract class of an executable code assertion 
+ * Abstract class of an executable code assertion
  * 
  * @author Gordon Fraser
  * 
  */
 public abstract class Assertion {
-	
+
 	/** Variable on which the assertion is made */
-	VariableReference source;
-	
+	public VariableReference source;
+
 	/** Expected value of variable */
-	Object value;
-	
+	public Object value;
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -73,20 +74,33 @@ public abstract class Assertion {
 	}
 
 	/**
-	 * This method returns the Java Code 
+	 * This method returns the Java Code
 	 */
 	public abstract String getCode();
 
 	/**
-	 * Return a copy of the assertion 
+	 * Return a copy of the assertion
 	 */
+	@Override
 	public abstract Assertion clone();
-	
+
 	/**
 	 * Determine if assertion holds in current scope
+	 * 
 	 * @param scope
-	 *        The scope of the test case execution 
+	 *            The scope of the test case execution
 	 */
 	public abstract boolean evaluate(Scope scope);
-		
+
+	/**
+	 * Return all the variables that are part of this assertion
+	 * 
+	 * @return
+	 */
+	public Set<VariableReference> getReferencedVariables() {
+		Set<VariableReference> vars = new HashSet<VariableReference>();
+		vars.add(source);
+		return vars;
+	}
+
 }

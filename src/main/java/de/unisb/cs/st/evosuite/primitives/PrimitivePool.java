@@ -3,18 +3,17 @@
  * 
  * This file is part of EvoSuite.
  * 
- * EvoSuite is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * EvoSuite is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser Public License for more details.
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser Public License
- * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package de.unisb.cs.st.evosuite.primitives;
@@ -29,21 +28,22 @@ import de.unisb.cs.st.evosuite.ga.Randomness;
 
 /**
  * @author Gordon Fraser
- *
+ * 
  */
 public class PrimitivePool {
 
 	@SuppressWarnings("unused")
-    private static Logger logger = Logger.getLogger(PrimitivePool.class);
-	
+	private static Logger logger = Logger.getLogger(PrimitivePool.class);
+
 	private static PrimitivePool instance = null;
-	
-	private static final int MAX_INT = Properties.getPropertyOrDefault("max_int", 256);
-	
-	private Randomness randomness = Randomness.getInstance();
-	
+
+	private static final int MAX_INT = Properties.getPropertyOrDefault(
+	        "max_int", 256);
+
+	private final Randomness randomness = Randomness.getInstance();
+
 	private Set<String> string_pool = null;
-	
+
 	private Set<Integer> int_pool = null;
 
 	private Set<Double> double_pool = null;
@@ -78,48 +78,69 @@ public class PrimitivePool {
 		double_pool.add(0.0);
 		double_pool.add(1.0);
 		double_pool.add(-1.0);
-}
-	
+	}
+
 	public static PrimitivePool getInstance() {
-		if(instance == null)
+		if (instance == null)
 			instance = new PrimitivePool();
-		
+
 		return instance;
 	}
-		
+
 	public void add(Object object) {
 		// Integer, a Float, a Long, a Double a
-		
-		if(object == null)
+
+		if (object == null)
 			return;
-		else if(object instanceof String) {
-			if(!((String)object).startsWith("mutationId"))
-				string_pool.add((String)object);
-		} else if(object instanceof Integer) {
-			int val = (Integer)object;
-			if(Math.abs(val) < MAX_INT && val != Integer.MAX_VALUE && val != Integer.MIN_VALUE) {
-				int_pool.add((Integer)object);
+		else if (object instanceof String) {
+			if (!((String) object).startsWith("mutationId"))
+				string_pool.add((String) object);
+		} else if (object instanceof Integer) {
+			int val = (Integer) object;
+			if (Math.abs(val) < MAX_INT && val != Integer.MAX_VALUE
+			        && val != Integer.MIN_VALUE) {
+				int_pool.add((Integer) object);
 			}
-		} else if(object instanceof Float) {
-			if(Math.abs((Float)object) < MAX_INT)
-				float_pool.add((Float)object);
-		} else if(object instanceof Long) {
-			if(Math.abs((Long)object) < MAX_INT)
-				long_pool.add((Long)object);
-		} else if(object instanceof Double) {
-			if(Math.abs((Double)object) < MAX_INT) 	
-				double_pool.add((Double)object);			
+		} else if (object instanceof Float) {
+			if (Math.abs((Float) object) < MAX_INT)
+				float_pool.add((Float) object);
+		} else if (object instanceof Long) {
+			if (Math.abs((Long) object) < MAX_INT)
+				long_pool.add((Long) object);
+		} else if (object instanceof Double) {
+			if (Math.abs((Double) object) < MAX_INT)
+				double_pool.add((Double) object);
 		}
 	}
-	
+
+	public Set<String> getStrings() {
+		return string_pool;
+	}
+
+	public Set<Integer> getIntegers() {
+		return int_pool;
+	}
+
+	public Set<Float> getFloats() {
+		return float_pool;
+	}
+
+	public Set<Double> getDoubles() {
+		return double_pool;
+	}
+
+	public Set<Long> getLongs() {
+		return long_pool;
+	}
+
 	public String getRandomString() {
 		return randomness.choice(string_pool);
 	}
-	
+
 	public int getRandomInt() {
 		return randomness.choice(int_pool);
 	}
-	
+
 	public float getRandomFloat() {
 		return randomness.choice(float_pool);
 	}
@@ -131,6 +152,5 @@ public class PrimitivePool {
 	public long getRandomLong() {
 		return randomness.choice(long_pool);
 	}
-
 
 }

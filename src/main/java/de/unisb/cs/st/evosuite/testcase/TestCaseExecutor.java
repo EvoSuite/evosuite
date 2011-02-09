@@ -3,18 +3,17 @@
  * 
  * This file is part of EvoSuite.
  * 
- * EvoSuite is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * EvoSuite is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser Public License for more details.
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser Public License
- * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package de.unisb.cs.st.evosuite.testcase;
@@ -26,42 +25,40 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.assertion.StringOutputTrace;
-import de.unisb.cs.st.evosuite.assertion.StringTraceExecutionObserver;
 
 /**
- * The test case executor manages thread creation/deletion to execute a test case
+ * The test case executor manages thread creation/deletion to execute a test
+ * case
  * 
  * @author Gordon Fraser
- *
+ * 
  */
 public class TestCaseExecutor {
 
-	private Logger logger = Logger.getLogger(TestCaseExecutor.class);
-	
+	private final Logger logger = Logger.getLogger(TestCaseExecutor.class);
+
 	private boolean log = true;
-	
-	public static long timeout = Properties.getPropertyOrDefault("timeout", 5000);
-	
-	private StringOutputTrace trace = null;
-	
+
+	public static long timeout = Properties.getPropertyOrDefault("timeout",
+	        5000);
+
 	private List<ExecutionObserver> observers;
-	
-	protected boolean static_hack = Properties.getPropertyOrDefault("static_hack", false);
+
+	protected boolean static_hack = Properties.getPropertyOrDefault(
+	        "static_hack", false);
 
 	public TestCaseExecutor() {
 		observers = new ArrayList<ExecutionObserver>();
 	}
-	
-	
+
 	public static class TimeoutExceeded extends RuntimeException {
-	    private static final long serialVersionUID = -5314228165430676893L;
-	  }
-	
+		private static final long serialVersionUID = -5314228165430676893L;
+	}
+
 	public void setup() {
 		// start own thread
 	}
-	
+
 	public void pulldown() {
 		// stop thread
 	}
@@ -69,7 +66,7 @@ public class TestCaseExecutor {
 	public void setLogging(boolean value) {
 		log = value;
 	}
-	
+
 	public void addObserver(ExecutionObserver observer) {
 		observers.add(observer);
 	}
@@ -81,91 +78,86 @@ public class TestCaseExecutor {
 	public void newObservers() {
 		observers = new ArrayList<ExecutionObserver>();
 	}
-	
+
 	private void resetObservers() {
-		for(ExecutionObserver observer : observers) {
+		for (ExecutionObserver observer : observers) {
 			observer.clear();
 		}
 	}
-	
-	public Map<Integer,Throwable> runWithTrace(TestCase tc) {
-		StringTraceExecutionObserver obs = new StringTraceExecutionObserver();
-		//observers.add(obs);
-		ExecutionTracer.getExecutionTracer().clear();
-		if(static_hack)
-			TestCluster.getInstance().resetStaticClasses();
-		Map<Integer,Throwable> result = run(tc);
-		//tc.exceptionThrown = result;
-		//observers.remove(obs);
-	    //System.out.println(obs.getTrace());
-		
-		trace = obs.getTrace();
-		
-		return result;
-	}	
-	
-	public StringOutputTrace getTrace() {
-		return trace;
-	}
-	
+
 	@SuppressWarnings("deprecation")
-	private Map<Integer,Throwable> run(TestCase tc) {
+	public Map<Integer, Throwable> run(TestCase tc, Scope scope) {
+		// StringTraceExecutionObserver obs = new
+		// StringTraceExecutionObserver();
+		// observers.add(obs);
+		ExecutionTracer.getExecutionTracer().clear();
+		if (static_hack)
+			TestCluster.getInstance().resetStaticClasses();
 		resetObservers();
-		
-	    TestRunner runner = new TestRunner(null);
-	    runner.setLogging(log);
-	    Scope scope = new Scope();
-	    runner.setup(tc, scope, observers);
-	    MaxTestsStoppingCondition.testExecuted();
-	    //MaxStatementsStoppingCondition.statementsExecuted(tc.size());
-	    
-	    try {
-	    	// Start the test.
-	    	runner.start();
 
-	    	// If test doesn't finish in time, suspend it.
-	    	runner.join(timeout);
+		TestRunner runner = new TestRunner(null);
+		runner.setLogging(log);
+		runner.setup(tc, scope, observers);
+		MaxTestsStoppingCondition.testExecuted();
+		// MaxStatementsStoppingCondition.statementsExecuted(tc.size());
 
-	    	if (!runner.runFinished) {
-	    		logger.warn("Exceeded max wait ("+timeout+"ms): aborting test input:");
-	    		logger.warn(tc.toCode());
-	    		runner.interrupt();
-	        
-	    		if(runner.isAlive()) {
-	    			// If test doesn't finish in time, suspend it.
-		    		logger.info("Thread ignored interrupt, using killswitch");
-		    		ExecutionTracer.setKillSwitch(true);
-	    			runner.join(timeout / 2);
-	    			if (!runner.runFinished) {
-			    		logger.info("Trying thread.stop()");
-			    		for(StackTraceElement element : runner.getStackTrace()) {
-			    			logger.info(element.toString());
-			    		}
-	    				runner.stop();// We use this deprecated method because it's the only way to
-	    				// stop a thread no matter what it's doing.
-	    				//return runner.exceptionsThrown;
-	    		    	runner.join(timeout / 2);
+		try {
+			// Start the test.
+			runner.start();
 
-		    			if(runner.isAlive()) {		    				
-				    		logger.warn("Thread ignored stop()! All is lost!");
-				    		for(StackTraceElement element : runner.getStackTrace()) {
-				    			logger.warn(element.toString());
-				    		}
-		    			}
-	    			}
-	    			
-	    			ExecutionTracer.enable();
-	    		}
-		    	ExecutionTracer.getExecutionTracer().clear();
-	    		ExecutionTracer.setKillSwitch(false);
-	    		runner.exceptionsThrown.put(tc.size(), new TestCaseExecutor.TimeoutExceeded());
-	    	}
-	    	return runner.exceptionsThrown;
+			// If test doesn't finish in time, suspend it.
+			runner.join(timeout);
 
-	    } catch (java.lang.InterruptedException e) {
-	      throw new IllegalStateException("A RunnerThread thread shouldn't be interrupted by anyone! "
-	          + "(this may be a bug in the program; please report it.)");
-	    }
-		
+			if (!runner.runFinished) {
+				logger.warn("Exceeded max wait (" + timeout
+				        + "ms): aborting test input:");
+				logger.warn(tc.toCode());
+				runner.interrupt();
+
+				if (runner.isAlive()) {
+					// If test doesn't finish in time, suspend it.
+					logger.info("Thread ignored interrupt, using killswitch");
+					ExecutionTracer.setKillSwitch(true);
+					runner.join(timeout / 2);
+					if (!runner.runFinished) {
+						logger.info("Trying thread.stop()");
+						for (StackTraceElement element : runner.getStackTrace()) {
+							logger.info(element.toString());
+						}
+						runner.stop();// We use this deprecated method because
+						              // it's the only way to
+						// stop a thread no matter what it's doing.
+						// return runner.exceptionsThrown;
+						runner.join(timeout / 2);
+
+						if (runner.isAlive()) {
+							logger.warn("Thread ignored stop()! All is lost!");
+							for (StackTraceElement element : runner
+							        .getStackTrace()) {
+								logger.warn(element.toString());
+							}
+						}
+					}
+
+					ExecutionTracer.enable();
+				}
+				ExecutionTracer.getExecutionTracer().clear();
+				ExecutionTracer.setKillSwitch(false);
+				runner.exceptionsThrown.put(tc.size(),
+				        new TestCaseExecutor.TimeoutExceeded());
+			}
+			return runner.exceptionsThrown;
+
+		} catch (java.lang.InterruptedException e) {
+			throw new IllegalStateException(
+			        "A RunnerThread thread shouldn't be interrupted by anyone! "
+			                + "(this may be a bug in the program; please report it.)");
+		}
+
+	}
+
+	public Map<Integer, Throwable> run(TestCase tc) {
+		Scope scope = new Scope();
+		return run(tc, scope);
 	}
 }
