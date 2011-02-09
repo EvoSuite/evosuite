@@ -19,12 +19,9 @@
 
 package de.unisb.cs.st.evosuite.sandbox;
 
-import java.io.FilePermission;
-import java.net.SocketPermission;
 import java.security.Permission;
-import java.net.NetPermission;
 
-import de.unisb.cs.st.evosuite.Properties;;
+import de.unisb.cs.st.evosuite.Properties;
 
 /**
  * Mocked Security Manager, which forbids any access to I/O, network, etc.
@@ -44,22 +41,21 @@ public class MSecurityManager extends SecurityManager
     public void checkPermission(Permission perm) 
     {
     	// check access  
-    	if(checkCallingMethod(perm))
+    	if(!allowPermission(perm))
     		throw new SecurityException("Security manager blocks all he can block. You've got served!");
     	return;
     }
     
     /**
      * Method for checking if requested access, specified by the given permission, 
-     * is not permitted.  
+     * is permitted.  
      * 
      * @param perm  permission for which the security manager is asked 
      * @return
-     * 		true if permission was asked by class under test,
-     * 		false otherwise
+     * 		false if access is forbidden,
+     * 		true otherwise
      */
-    @SuppressWarnings("unused")
-	private boolean checkCallingMethod(Permission perm){
+	private boolean allowPermission(Permission perm){
     	
     	// get all elements of the stack trace for the current thread 
     	StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
@@ -68,56 +64,51 @@ public class MSecurityManager extends SecurityManager
     	boolean testExec = false;
     	
     	// iterate through all elements and check if name of the calling class contains 
-    	// the name of the class under test. Also keep track of the "executeTestCase" method 
-    	// call.
-    	for(StackTraceElement e : stackTraceElements){
-    		if(e.getMethodName().contains("executeTestCase"))
+    	// the name of the class under test or "executeTestCase" method call.
+    	// Also check for few special cases, when permission should be granted
+    	for(int elementCounter = 0; elementCounter < stackTraceElements.length;elementCounter++){
+    		StackTraceElement e = stackTraceElements[elementCounter];
+    		if(e.getMethodName().equals("executeTestCase") 
+    				|| e.getClassName().contains(testPackage)){
     			testExec = true;
-    		if(e.getClassName().contains(testPackage)){
-    			return true;
+    			break;
     		}
-    	}
-    	
-    	// if permission wasn't asked by class under test and "executeTestCase" method was 
-    	// in a stack trace, then there should be a check for I/O and network permissions
-    	if(testExec){
+
+    		if(e.getMethodName().equals("setSecurityManager"))
+    			if(stackTraceElements[elementCounter+1].getMethodName().equals("executeTestCase"))
+    				return true;
     		
-    		// check for java.io.FilePermission
-	    	try{
-	    		 FilePermission fp = (FilePermission)perm;
-	    		 
-	    		 // if cast was successful, then forbid access
-	    		 return true;
-	    	}catch(Exception e){
-	    		// do nothing
-	    	}
-	    	
-	    	// check for java.net.SocketPermission
-	    	try{
-	    		 SocketPermission sp = (SocketPermission)perm;
-	    		 
-	    		 // if cast was successful, then forbid access
-	    		 return true;
-	    	}catch(Exception e){
-	    		// do nothing
-	    	}
-	    	
-	    	// check for java.net.NetPermission
-	    	try{
-	    		 NetPermission np = (NetPermission)perm;
-	    		 
-	    		 // if cast was successful, then forbid access
-	    		 return true;
-	    	}catch(Exception e){
-	    		// do nothing
-	    	}
-	    	
-	    	// check RuntimePermission for IO
-	    	if(perm.getActions().contains("writeFileDescriptor") || 
-	    	   perm.getActions().contains("readFileDescriptor"))
-	    		return true;
+    		if(e.getMethodName().equals("setOut") || e.getMethodName().equals("setErr"))
+    			if(stackTraceElements[elementCounter+1].getMethodName().equals("execute"))
+    				return true;
     	}
     	
+    	// if permission was asked during test case execution, then check permission itself
+    	if(testExec){
+    		String permName = perm.getClass().getCanonicalName();
+    		
+    		// Check for allowed permissions.
+    		// Done with chunk of ugly "if-case" code, since it switch statement does not
+    		// support Strings as parameters. Doing it trough Enum is also not an option,
+    		// since java cannot guarantee the unique values returned by hashCode() method.
+    		if(permName.equals("java.lang.reflect.ReflectPermission"))
+    			return true;
+    		if(permName.equals("java.util.PropertyPermission"))
+    			if(perm.getActions().equals("read"))
+    				return true;
+    		
+    		//TODO: -------------------- NEED TO FIND BETTER SOLUTION ----------------------- 
+    		// At the moment this is the only way to allow classes under test define and load 
+    		// other classes, but the way it is done seriously damages security of the program.
+    		//
+    		// Oracle explains risks here
+    		// http://download.oracle.com/javase/6/docs/technotes/guides/security/permissions.html
+    		if(permName.equals("java.lang.RuntimePermission"))
+    			if(perm.getName().equals("getClassLoader") 
+    					|| perm.getName().equals("createClassLoader")
+    					|| perm.getName().contains("accessClassInPackage"))
+    				return true;
+    		}
     	return false;
     }
 }
