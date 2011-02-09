@@ -3,18 +3,17 @@
  * 
  * This file is part of EvoSuite.
  * 
- * EvoSuite is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * EvoSuite is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser Public License for more details.
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser Public License
- * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package de.unisb.cs.st.evosuite.mutation;
@@ -43,117 +42,124 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
  * @author Gordon Fraser
- *
+ * 
  */
 public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
-	private List<TestFitnessFunction> goals;
-	
-	private HOMSwitcher hom_switcher = new HOMSwitcher();
-	
-	protected List<ExecutionObserver> observers;
-	
-	protected PrimitiveOutputTraceObserver primitive_observer = new PrimitiveOutputTraceObserver();
-	protected ComparisonTraceObserver comparison_observer     = new ComparisonTraceObserver();
-	protected InspectorTraceObserver inspector_observer       = new InspectorTraceObserver();
-	protected PrimitiveFieldTraceObserver field_observer      = new PrimitiveFieldTraceObserver();
-	protected NullOutputObserver null_observer                = new NullOutputObserver();
+	private final List<TestFitnessFunction>	goals;
+
+	private final HOMSwitcher	            hom_switcher	    = new HOMSwitcher();
+
+	protected List<ExecutionObserver>	    observers;
+
+	protected PrimitiveOutputTraceObserver	primitive_observer	= new PrimitiveOutputTraceObserver();
+	protected ComparisonTraceObserver	    comparison_observer	= new ComparisonTraceObserver();
+	protected InspectorTraceObserver	    inspector_observer	= new InspectorTraceObserver();
+	protected PrimitiveFieldTraceObserver	field_observer	    = new PrimitiveFieldTraceObserver();
+	protected NullOutputObserver	        null_observer	    = new NullOutputObserver();
 
 	public MutationSuiteFitness() {
 		goals = new ArrayList<TestFitnessFunction>();
-		System.out.println("* Created "+hom_switcher.getNumMutants()+" mutants");
-		for(Mutation mutation : hom_switcher.getMutants()) {
-			if(!mutation.getMethodName().equals("<clinit>()V"))
+		System.out.println("* Created " + hom_switcher.getNumMutants()
+		        + " mutants");
+		for (Mutation mutation : hom_switcher.getMutants()) {
+			if (!mutation.getMethodName().equals("<clinit>()V"))
 				goals.add(new MutationTestFitness(mutation));
 		}
-		
+
 		executor.addObserver(primitive_observer);
 		executor.addObserver(comparison_observer);
 		executor.addObserver(inspector_observer);
 		executor.addObserver(field_observer);
 		executor.addObserver(null_observer);
 	}
-	
+
 	public int getNumGoals() {
 		return goals.size();
 	}
-	
+
+	@Override
 	public ExecutionResult runTest(TestCase test) {
 		return runTest(test, null);
 	}
-	
+
 	/**
 	 * Execute a test case
+	 * 
 	 * @param test
-	 *   The test case to execute
+	 *            The test case to execute
 	 * @param mutant
-	 *   The mutation to active (null = no mutation)
-	 *   
-	 * @return
-	 *   Result of the execution
+	 *            The mutation to active (null = no mutation)
+	 * 
+	 * @return Result of the execution
 	 */
 	public ExecutionResult runTest(TestCase test, Mutation mutant) {
-		
+
 		ExecutionResult result = new ExecutionResult(test, mutant);
-		
+
 		try {
-	        logger.debug("OKExecuting test");
+			logger.debug("OKExecuting test");
 			HOMObserver.resetTouched(); // TODO - is this the right place?
-			if(mutant != null) {
+			if (mutant != null) {
 				hom_switcher.switchOn(mutant);
 				executor.setLogging(false);
 			}
-			result.exceptions = executor.runWithTrace(test);
+			result.exceptions = executor.run(test);
 			executor.setLogging(true);
-			if(mutant != null) 
+			if (mutant != null)
 				hom_switcher.switchOff(mutant);
 			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
-			result.output_trace = executor.getTrace();
+			// result.output_trace = executor.getTrace();
 			result.comparison_trace = comparison_observer.getTrace();
 			result.primitive_trace = primitive_observer.getTrace();
 			result.inspector_trace = inspector_observer.getTrace();
 			result.field_trace = field_observer.getTrace();
 			result.null_trace = null_observer.getTrace();
-			
+
 			int num = test.size();
 
 			MaxStatementsStoppingCondition.statementsExecuted(num);
-			
+
 			result.touched.addAll(HOMObserver.getTouched());
 
-
-		} catch(Exception e) {
-			System.out.println("TG: Exception caught: "+e);
+		} catch (Exception e) {
+			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
 			System.exit(1);
 		}
 
-		//System.out.println("TG: Killed "+result.getNumKilled()+" out of "+mutants.size());
+		// System.out.println("TG: Killed "+result.getNumKilled()+" out of "+mutants.size());
 		return result;
 	}
-	
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#getFitness(de.unisb.cs.st.evosuite.ga.Chromosome)
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.ga.FitnessFunction#getFitness(de.unisb.cs.st.
+	 * evosuite.ga.Chromosome)
 	 */
 	@Override
 	public double getFitness(Chromosome individual) {
-		
+
 		double fitness = 0.0;
 		// execute test on original
-		TestSuiteChromosome suite = (TestSuiteChromosome)individual;
+		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
 		List<ExecutionResult> results = runTestSuite(suite);
-		
-		for(ExecutionResult result : results) {
+
+		for (ExecutionResult result : results) {
 			TestChromosome chromosome = new TestChromosome();
 			chromosome.test = result.test;
-			for(TestFitnessFunction goal : goals) {
-				if(!MutationTimeoutStoppingCondition.isDisabled(((MutationTestFitness)goal).getTargetMutation()))
+			for (TestFitnessFunction goal : goals) {
+				if (!MutationTimeoutStoppingCondition
+				        .isDisabled(((MutationTestFitness) goal)
+				                .getTargetMutation()))
 					fitness += goal.getFitness(chromosome, result);
 				else
 					logger.debug("Skipping timed out mutation");
 			}
 		}
-		
+
 		return fitness;
 	}
 

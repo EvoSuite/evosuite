@@ -95,7 +95,7 @@ public abstract class TestCoverageGoal {
 		
 		try {
 			
-			result.exceptions = executor.runWithTrace(test);
+			result.exceptions = executor.run(test);
 			executor.setLogging(true);
 			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
 		} catch(Exception e) {

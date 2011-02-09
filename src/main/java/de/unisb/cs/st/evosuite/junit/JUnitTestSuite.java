@@ -130,7 +130,7 @@ public ExecutionResult runTest(TestCase test) {
 		ExecutionResult result = new ExecutionResult(test, null);
 		
 		try {
-			result.exceptions = executor.runWithTrace(test);
+			result.exceptions = executor.run(test);
 			executor.setLogging(true);
 			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
 		} catch(Exception e) {
