@@ -55,6 +55,7 @@ import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
 import de.unisb.cs.st.javalanche.coverage.distance.MethodDescription;
 import de.unisb.cs.st.javalanche.coverage.distance.Tuple;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.Excludes;
+import de.unisb.cs.st.testability.TransformationHelper;
 
 /**
  * The test cluster contains the information about all classes and their members
@@ -95,8 +96,7 @@ public class TestCluster {
 
 	private final List<Method> static_initializers = new ArrayList<Method>();
 
-	public static final List<String> EXCLUDE = Arrays.asList("<clinit>",
-	        "__STATIC_RESET");
+	public static final List<String> EXCLUDE = Arrays.asList("<clinit>", "__STATIC_RESET");
 
 	// public int num_defined_methods = 2;
 	public int num_defined_methods = 0;
@@ -185,8 +185,8 @@ public class TestCluster {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
-	public AccessibleObject getRandomGenerator(Type type,
-	        Set<AccessibleObject> excluded) throws ConstructionFailedException {
+	public AccessibleObject getRandomGenerator(Type type, Set<AccessibleObject> excluded)
+	        throws ConstructionFailedException {
 		cacheGeneratorType(type);
 		if (!generators.containsKey(type))
 			return null;
@@ -260,21 +260,13 @@ public class TestCluster {
 			if (o instanceof Constructor<?>) {
 				Constructor<?> c = (Constructor<?>) o;
 				if (GenericClass.isSubclass(c.getDeclaringClass(), type)
-				        && c.getDeclaringClass()
-				                .getName()
-				                .startsWith(
-				                        Properties
-				                                .getProperty("PROJECT_PREFIX"))) {
+				        && c.getDeclaringClass().getName().startsWith(Properties.getProperty("PROJECT_PREFIX"))) {
 					g.add(o);
 				}
 			} else if (o instanceof Method) {
 				Method m = (Method) o;
 				if (GenericClass.isSubclass(m.getGenericReturnType(), type)
-				        && m.getReturnType()
-				                .getName()
-				                .startsWith(
-				                        Properties
-				                                .getProperty("PROJECT_PREFIX"))) {
+				        && m.getReturnType().getName().startsWith(Properties.getProperty("PROJECT_PREFIX"))) {
 					g.add(o);
 				}
 				// else if(m.getReturnType().isAssignableFrom(type) &&
@@ -283,18 +275,13 @@ public class TestCluster {
 			} else if (o instanceof Field) {
 				Field f = (Field) o;
 				if (GenericClass.isSubclass(f.getGenericType(), type)
-				        && f.getType()
-				                .getName()
-				                .startsWith(
-				                        Properties
-				                                .getProperty("PROJECT_PREFIX"))) {
+				        && f.getType().getName().startsWith(Properties.getProperty("PROJECT_PREFIX"))) {
 					g.add(f);
 				}
 			}
 		}
 		if (logger.isDebugEnabled()) {
-			logger.debug("Found " + g.size()
-			        + " generators for superclasses of " + type);
+			logger.debug("Found " + g.size() + " generators for superclasses of " + type);
 			for (AccessibleObject o : g) {
 				logger.debug(o);
 			}
@@ -387,11 +374,9 @@ public class TestCluster {
 			List<Type> parameters = new ArrayList<Type>();
 
 			if (call instanceof Method) {
-				parameters.addAll(Arrays.asList(((Method) call)
-				        .getGenericParameterTypes()));
+				parameters.addAll(Arrays.asList(((Method) call).getGenericParameterTypes()));
 			} else if (call instanceof Constructor<?>) {
-				parameters.addAll(Arrays.asList(((Constructor<?>) call)
-				        .getGenericParameterTypes()));
+				parameters.addAll(Arrays.asList(((Constructor<?>) call).getGenericParameterTypes()));
 			}
 
 			if (parameters.contains(type))
@@ -415,8 +400,7 @@ public class TestCluster {
 		List<AccessibleObject> relevant_calls = new ArrayList<AccessibleObject>();
 		for (AccessibleObject call : calls) {
 			if (call instanceof Method) {
-				if (((Method) call).getDeclaringClass().isAssignableFrom(
-				        (Class<?>) type))
+				if (((Method) call).getDeclaringClass().isAssignableFrom((Class<?>) type))
 					relevant_calls.add(call);
 			}
 		}
@@ -430,8 +414,7 @@ public class TestCluster {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
-	public AccessibleObject getRandomTestCall()
-	        throws ConstructionFailedException {
+	public AccessibleObject getRandomTestCall() throws ConstructionFailedException {
 		int num_methods = test_methods.size();
 		int num_constructors = test_constructors.size();
 
@@ -506,14 +489,12 @@ public class TestCluster {
 		if (clazz.getSuperclass() != null) {
 			// constructors.addAll(getConstructors(clazz.getSuperclass()));
 			for (Constructor<?> c : getConstructors(clazz.getSuperclass())) {
-				helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c),
-				        c);
+				helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c), c);
 			}
 		}
 		for (Class<?> in : clazz.getInterfaces()) {
 			for (Constructor<?> c : getConstructors(in)) {
-				helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c),
-				        c);
+				helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c), c);
 			}
 			// constructors.addAll(getConstructors(in));
 		}
@@ -540,23 +521,16 @@ public class TestCluster {
 	public static Set<Method> getMethods(Class<?> clazz) {
 
 		Map<String, Method> helper = new HashMap<String, Method>();
-		Set<Method> methods = new HashSet<Method>();
 
 		if (clazz.getSuperclass() != null) {
 			// constructors.addAll(getConstructors(clazz.getSuperclass()));
 			for (Method m : getMethods(clazz.getSuperclass())) {
-				helper.put(
-				        m.getName()
-				                + org.objectweb.asm.Type.getMethodDescriptor(m),
-				        m);
+				helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
 			}
 		}
 		for (Class<?> in : clazz.getInterfaces()) {
 			for (Method m : getMethods(in)) {
-				helper.put(
-				        m.getName()
-				                + org.objectweb.asm.Type.getMethodDescriptor(m),
-				        m);
+				helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
 			}
 			// constructors.addAll(getConstructors(in));
 		}
@@ -565,12 +539,22 @@ public class TestCluster {
 		// constructors.add(c);
 		// }
 		for (Method m : clazz.getDeclaredMethods()) {
-			// constructors.add(c);
-			helper.put(
-			        m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m),
-			        m);
+			helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
 		}
+
+		Set<Method> methods = new HashSet<Method>();
 		for (Method m : helper.values()) {
+			String name = m.getName() + "|"
+			        + org.objectweb.asm.Type.getMethodDescriptor(m);
+
+			// If we are using testability transformation, only add the transformed version
+			if (Properties.TESTABILITY_TRANSFORMATION
+			        && TransformationHelper.hasValkyrieMethod(clazz.getName(), name)) {
+				logger.info("Skipping method " + m.getName()
+				        + " in favor of transformed method");
+				continue;
+			}
+
 			methods.add(m);
 		}
 		return methods;
@@ -727,6 +711,11 @@ public class TestCluster {
 			return false;
 		}
 
+		if (!Properties.USE_DEPRECATED && m.getAnnotation(Deprecated.class) != null) {
+			logger.debug("Skipping deprecated method " + m.getName());
+			return false;
+		}
+
 		// if(!Modifier.isPublic(m.getModifiers()))
 		// return false;
 
@@ -779,17 +768,14 @@ public class TestCluster {
 		// the same type as receiver
 		// but the signature does not tell you that
 		if (m.getDeclaringClass().getCanonicalName() != null
-		        && m.getDeclaringClass().getCanonicalName()
-		                .equals("java.lang.Enum")
-		        && m.getName().equals("compareTo")
-		        && m.getParameterTypes().length == 1
+		        && m.getDeclaringClass().getCanonicalName().equals("java.lang.Enum")
+		        && m.getName().equals("compareTo") && m.getParameterTypes().length == 1
 		        && m.getParameterTypes()[0].equals(Enum.class))
 			return "We're skipping compareTo method in enums";
 
 		// Special case 2:
 		// hashCode is bad in general but String.hashCode is fair game
-		if (m.getName().equals("hashCode")
-		        && !m.getDeclaringClass().equals(String.class))
+		if (m.getName().equals("hashCode") && !m.getDeclaringClass().equals(String.class))
 			return "hashCode";
 		// if (m.getName().equals("hashCode") &&
 		// m.getDeclaringClass().equals(Object.class))
@@ -826,6 +812,11 @@ public class TestCluster {
 		if (c.getDeclaringClass().isMemberClass())
 			return false;
 
+		if (!Properties.USE_DEPRECATED && c.getAnnotation(Deprecated.class) != null) {
+			logger.debug("Skipping deprecated method " + c.getName());
+			return false;
+		}
+
 		if (Modifier.isPublic(c.getModifiers()))
 			return true;
 		// if (!Modifier.isPrivate(c.getModifiers())) // &&
@@ -852,28 +843,23 @@ public class TestCluster {
 	private void countTargetFunctions() {
 		num_defined_methods = CFGMethodAdapter.methods.size();
 		if (Properties.INSTRUMENT_PARENT)
-			num_defined_methods = getMethods(Properties.getTargetClass())
-			        .size();
+			num_defined_methods = getMethods(Properties.getTargetClass()).size();
 		logger.info("Target class has " + num_defined_methods + " functions");
-		logger.info("Target class has " + BranchPool.getBranchCounter()
-				+ " branches");
-		logger.info("Target class has "
-				+ BranchPool.getBranchlessMethods().size()
-				+ " methods without branches");
+		logger.info("Target class has " + BranchPool.getBranchCounter() + " branches");
+		logger.info("Target class has " + BranchPool.getBranchlessMethods().size()
+		        + " methods without branches");
 		logger.info("That means for coverage information: "
-				+ (BranchPool.getBranchlessMethods().size() + 2 * BranchPool.getBranchCounter()));
+		        + (BranchPool.getBranchlessMethods().size() + 2 * BranchPool.getBranchCounter()));
 	}
 
 	private static String getName(AccessibleObject o) {
 		if (o instanceof java.lang.reflect.Method) {
 			java.lang.reflect.Method method = (java.lang.reflect.Method) o;
-			return method.getName()
-			        + org.objectweb.asm.Type.getMethodDescriptor(method);
+			return method.getName() + org.objectweb.asm.Type.getMethodDescriptor(method);
 		} else if (o instanceof java.lang.reflect.Constructor<?>) {
 			java.lang.reflect.Constructor<?> constructor = (java.lang.reflect.Constructor<?>) o;
 			return "<init>"
-			        + org.objectweb.asm.Type
-			                .getConstructorDescriptor(constructor);
+			        + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
 		} else if (o instanceof java.lang.reflect.Field) {
 			java.lang.reflect.Field field = (Field) o;
 			return field.getName();
@@ -885,8 +871,7 @@ public class TestCluster {
 		if (methodName.startsWith("<init>")) {
 			for (Constructor<?> c : getConstructors(clazz)) {
 				String name = getName(c);
-				if (name.equals(methodName)
-				        && !Modifier.isPrivate(c.getModifiers())) {
+				if (name.equals(methodName) && !Modifier.isPrivate(c.getModifiers())) {
 					return c;
 				}
 			}
@@ -894,15 +879,13 @@ public class TestCluster {
 			for (Method m : getMethods(clazz)) {
 				String name = getName(m);
 				// logger.info("Comparing "+clazz.getName()+"."+methodName+" with "+clazz.getName()+"."+name);
-				if (name.equals(methodName)
-				        && !Modifier.isPrivate(m.getModifiers())) {
+				if (name.equals(methodName) && !Modifier.isPrivate(m.getModifiers())) {
 					return m;
 				}
 			}
 			for (Field f : clazz.getFields()) {
 				String name = getName(f);
-				if (name.equals(methodName)
-				        && !Modifier.isPrivate(f.getModifiers()))
+				if (name.equals(methodName) && !Modifier.isPrivate(f.getModifiers()))
 					return f;
 			}
 		}
@@ -943,16 +926,14 @@ public class TestCluster {
 		Queue<MethodDescription> queue = new LinkedList<MethodDescription>();
 		for (AccessibleObject call : test_methods) {
 			Method m = (Method) call;
-			MethodDescription md = new MethodDescription(
-			        Properties.TARGET_CLASS, m.getName(),
-			        org.objectweb.asm.Type.getMethodDescriptor(m));
+			MethodDescription md = new MethodDescription(Properties.TARGET_CLASS,
+			        m.getName(), org.objectweb.asm.Type.getMethodDescriptor(m));
 			queue.add(md);
 		}
 		for (AccessibleObject call : test_constructors) {
 			Constructor<?> c = (Constructor<?>) call;
-			MethodDescription md = new MethodDescription(
-			        Properties.TARGET_CLASS, "<init>",
-			        org.objectweb.asm.Type.getConstructorDescriptor(c));
+			MethodDescription md = new MethodDescription(Properties.TARGET_CLASS,
+			        "<init>", org.objectweb.asm.Type.getConstructorDescriptor(c));
 			queue.add(md);
 		}
 		while (!queue.isEmpty()) {
@@ -971,11 +952,11 @@ public class TestCluster {
 		for (MethodDescription md : remoteCalls) {
 			try {
 				Class<?> clazz = Class.forName(md.getClassName());
-				AccessibleObject call = getMethod(clazz, md.getMethodName()
-				        + md.getDesc());
+				AccessibleObject call = getMethod(clazz,
+				                                  md.getMethodName() + md.getDesc());
 				if (call == null) {
-					logger.debug("Cannot use remote call: " + md.getClassName()
-					        + "." + md.getMethodName() + md.getDesc());
+					logger.debug("Cannot use remote call: " + md.getClassName() + "."
+					        + md.getMethodName() + md.getDesc());
 				} else if (call instanceof Method) {
 					logger.info("Adding remote method: " + (call));
 					test_methods.add((Method) call);
@@ -1011,87 +992,57 @@ public class TestCluster {
 				// Add all constructors
 				for (Constructor<?> constructor : getConstructors(clazz)) {
 
-					if (constructor.getDeclaringClass().getName()
-					        .startsWith(target_class)
+					if (constructor.getDeclaringClass().getName().startsWith(target_class)
 					        && !constructor.isSynthetic()
 					        && !Modifier.isAbstract(constructor.getModifiers())) {
-						target_functions.add(constructor.getDeclaringClass()
-						        .getName()
+						target_functions.add(constructor.getDeclaringClass().getName()
 						        + "."
 						        + constructor.getName()
-						        + org.objectweb.asm.Type
-						                .getConstructorDescriptor(constructor));
+						        + org.objectweb.asm.Type.getConstructorDescriptor(constructor));
 						// num_defined_methods++;
 						logger.debug("Keeping track of "
 						        + constructor.getDeclaringClass().getName()
 						        + "."
 						        + constructor.getName()
-						        + org.objectweb.asm.Type
-						                .getConstructorDescriptor(constructor));
+						        + org.objectweb.asm.Type.getConstructorDescriptor(constructor));
 						logger.debug(constructor.getDeclaringClass().getName()
 						        + " starts with " + classname);
 					}
 
-					// if(count &&
-					// !constructor.getDeclaringClass().equals(Object.class)) {
-					/*
-					 * if(constructor.getDeclaringClass().getName().startsWith(
-					 * classname)) {
-					 * logger.debug("Keeping track of "+constructor
-					 * .getDeclaringClass
-					 * ().getName()+"."+constructor.getName()+org
-					 * .objectweb.asm.Type
-					 * .getConstructorDescriptor(constructor));
-					 * logger.debug(constructor
-					 * .getDeclaringClass().getName()+" starts with "
-					 * +classname); num_defined_methods++; }
-					 */
-
 					if (canUse(constructor)
-					        && matches(
-					                "<init>"
-					                        + org.objectweb.asm.Type
-					                                .getConstructorDescriptor(constructor),
-					                restriction)) {
+					        && matches("<init>"
+					                           + org.objectweb.asm.Type.getConstructorDescriptor(constructor),
+					                   restriction)) {
 						logger.debug("Adding constructor "
 						        + classname
 						        + "."
 						        + constructor.getName()
-						        + org.objectweb.asm.Type
-						                .getConstructorDescriptor(constructor));
+						        + org.objectweb.asm.Type.getConstructorDescriptor(constructor));
 						test_constructors.add(constructor);
 						calls.add(constructor);
 
 					} else {
 						if (!canUse(constructor)) {
-							logger.debug("Constructor cannot be used: "
-							        + constructor);
+							logger.debug("Constructor cannot be used: " + constructor);
 						} else {
-							logger.debug("Constructor does not match: "
-							        + constructor);
+							logger.debug("Constructor does not match: " + constructor);
 						}
 					}
 				}
 
 				// Add all methods
 				for (Method method : getMethods(clazz)) {
-					if (method.getDeclaringClass().getName()
-					        .startsWith(target_class)
+					if (method.getDeclaringClass().getName().startsWith(target_class)
 					        && !method.isSynthetic()
 					        && !Modifier.isAbstract(method.getModifiers())) {
-						target_functions.add(method.getDeclaringClass()
-						        .getName()
-						        + "."
+						target_functions.add(method.getDeclaringClass().getName() + "."
 						        + method.getName()
-						        + org.objectweb.asm.Type
-						                .getMethodDescriptor(method));
+						        + org.objectweb.asm.Type.getMethodDescriptor(method));
 						// num_defined_methods++;
 						logger.debug("Keeping track of "
-						        + method.getDeclaringClass().getName()
-						        + "."
+						        + method.getDeclaringClass().getName() + "."
 						        + method.getName()
-						        + org.objectweb.asm.Type
-						                .getMethodDescriptor(method));
+						        + org.objectweb.asm.Type.getMethodDescriptor(method));
 						logger.debug(method.getDeclaringClass().getName()
 						        + " starts with " + target_class);
 					}
@@ -1109,17 +1060,12 @@ public class TestCluster {
 					 * num_defined_methods++; }
 					 */
 					if (canUse(method)
-					        && matches(
-					                method.getName()
-					                        + org.objectweb.asm.Type
-					                                .getMethodDescriptor(method),
-					                restriction)) {
-						logger.debug("Adding method "
-						        + classname
-						        + "."
+					        && matches(method.getName()
+					                           + org.objectweb.asm.Type.getMethodDescriptor(method),
+					                   restriction)) {
+						logger.debug("Adding method " + classname + "."
 						        + method.getName()
-						        + org.objectweb.asm.Type
-						                .getMethodDescriptor(method));
+						        + org.objectweb.asm.Type.getMethodDescriptor(method));
 						test_methods.add(method);
 						calls.add(method);
 					} else {
@@ -1134,16 +1080,14 @@ public class TestCluster {
 				// Add all fields
 				for (Field field : getFields(clazz)) {
 					if (canUse(field) && matches(field.getName(), restriction)) {
-						logger.debug("Adding field " + classname + "."
-						        + field.getName());
+						logger.debug("Adding field " + classname + "." + field.getName());
 						calls.add(field);
 						// addGenerator(field, field.getType());
 					}
 				}
 
 			} catch (ClassNotFoundException e) {
-				logger.error("Class not found: " + classname
-				        + ", ignoring for tests");
+				logger.error("Class not found: " + classname + ", ignoring for tests");
 				continue;
 			}
 		}
@@ -1234,11 +1178,10 @@ public class TestCluster {
 					}
 					for (Constructor<?> c : getConstructors(clazz)) {
 						String signature = "<init>"
-						        + org.objectweb.asm.Type
-						                .getConstructorDescriptor(c);
+						        + org.objectweb.asm.Type.getConstructorDescriptor(c);
 						if (canUse(c) && signature.matches(methodname)) {
-							logger.trace("Adding included constructor " + c
-							        + " " + signature);
+							logger.trace("Adding included constructor " + c + " "
+							        + signature);
 							calls.add(c);
 							num++;
 							found = true;
@@ -1247,32 +1190,28 @@ public class TestCluster {
 					for (Field f : getFields(clazz)) {
 						String signature = f.getName();
 						if (canUse(f) && signature.matches(methodname)) {
-							logger.trace("Adding included field " + f + " "
-							        + signature);
+							logger.trace("Adding included field " + f + " " + signature);
 							calls.add(f);
 							num++;
 							found = true;
 						}
 					}
 					if (!found) {
-						logger.warn("Could not find any methods matching "
-						        + methodname + " in class " + classname);
+						logger.warn("Could not find any methods matching " + methodname
+						        + " in class " + classname);
 						logger.info("Candidates are: ");
 						for (Constructor<?> c : clazz.getConstructors()) {
 							logger.info("<init>"
-							        + org.objectweb.asm.Type
-							                .getConstructorDescriptor(c));
+							        + org.objectweb.asm.Type.getConstructorDescriptor(c));
 						}
 						for (Method m : clazz.getMethods()) {
 							logger.info(m.getName()
-							        + org.objectweb.asm.Type
-							                .getMethodDescriptor(m));
+							        + org.objectweb.asm.Type.getMethodDescriptor(m));
 						}
 					}
 				}
 			} catch (ClassNotFoundException e) {
-				logger.warn("Cannot include class " + classname
-				        + ": Class not found");
+				logger.warn("Cannot include class " + classname + ": Class not found");
 			}
 		}
 		logger.info("Added " + num + " other calls from include file");
@@ -1342,20 +1281,15 @@ public class TestCluster {
 
 						// Keep all accessible constructors
 						for (Constructor<?> constructor : getConstructors(toadd)) {
-							logger.trace("Considering constructor "
-							        + constructor);
+							logger.trace("Considering constructor " + constructor);
 							if (test_excludes.containsKey(classname)) {
 								boolean valid = true;
 								String full_name = "<init>"
-								        + org.objectweb.asm.Type
-								                .getConstructorDescriptor(constructor);
-								for (String regex : test_excludes
-								        .get(classname)) {
+								        + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
+								for (String regex : test_excludes.get(classname)) {
 									if (full_name.matches(regex)) {
 										logger.info("Found excluded constructor: "
-										        + constructor
-										        + " matches "
-										        + regex);
+										        + constructor + " matches " + regex);
 										valid = false;
 										break;
 									}
@@ -1364,18 +1298,15 @@ public class TestCluster {
 									continue;
 							}
 							if (canUse(constructor)) {
-								for (Class<?> clazz : constructor
-								        .getParameterTypes()) {
+								for (Class<?> clazz : constructor.getParameterTypes()) {
 									if (!all_classes.contains(clazz.getName())) {
 										if (clazz.isArray())
-											dependencies.add(clazz
-											        .getComponentType());
+											dependencies.add(clazz.getComponentType());
 										else
 											dependencies.add(clazz);
 									}
 								}
-								logger.trace("Adding constructor "
-								        + constructor);
+								logger.trace("Adding constructor " + constructor);
 								constructor.setAccessible(true);
 								calls.add(constructor);
 							} else {
@@ -1391,15 +1322,12 @@ public class TestCluster {
 							if (test_excludes.containsKey(classname)) {
 								boolean valid = true;
 								String full_name = method.getName()
-								        + org.objectweb.asm.Type
-								                .getMethodDescriptor(method);
-								for (String regex : test_excludes
-								        .get(classname)) {
+								        + org.objectweb.asm.Type.getMethodDescriptor(method);
+								for (String regex : test_excludes.get(classname)) {
 									if (full_name.matches(regex)) {
 										valid = false;
-										logger.info("Found excluded method: "
-										        + classname + "." + full_name
-										        + " matches " + regex);
+										logger.info("Found excluded method: " + classname
+										        + "." + full_name + " matches " + regex);
 										break;
 									}
 								}
@@ -1407,12 +1335,10 @@ public class TestCluster {
 									continue;
 							}
 							if (canUse(method)) {
-								for (Class<?> clazz : method
-								        .getParameterTypes()) {
+								for (Class<?> clazz : method.getParameterTypes()) {
 									if (!all_classes.contains(clazz.getName())) {
 										if (clazz.isArray())
-											dependencies.add(clazz
-											        .getComponentType());
+											dependencies.add(clazz.getComponentType());
 										else
 											dependencies.add(clazz);
 									}
@@ -1433,13 +1359,11 @@ public class TestCluster {
 							// {
 							if (test_excludes.containsKey(classname)) {
 								boolean valid = true;
-								for (String regex : test_excludes
-								        .get(classname)) {
+								for (String regex : test_excludes.get(classname)) {
 									if (field.getName().matches(regex)) {
 										valid = false;
-										logger.info("Found excluded field: "
-										        + classname + "."
-										        + field.getName() + " matches "
+										logger.info("Found excluded field: " + classname
+										        + "." + field.getName() + " matches "
 										        + regex);
 										break;
 									}
@@ -1515,8 +1439,7 @@ public class TestCluster {
 				// TODO Auto-generated catch block
 				// e.printStackTrace();
 			} catch (NoSuchMethodException e) {
-				logger.info("Static: Could not find method clinit in : "
-				        + classname);
+				logger.info("Static: Could not find method clinit in : " + classname);
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

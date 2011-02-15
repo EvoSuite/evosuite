@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -29,14 +30,16 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
-import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
+import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
+import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
 /**
  * @author Gordon Fraser
@@ -53,6 +56,12 @@ public class TestSuiteMinimizer {
 
 	/** Test execution helper */
 	private final TestCaseExecutor executor = new TestCaseExecutor();
+
+	private final List<TestFitnessFunction> goals;
+
+	public TestSuiteMinimizer(TestFitnessFactory factory) {
+		goals = factory.getCoverageGoals();
+	}
 
 	/**
 	 * Execute a single test case
@@ -84,13 +93,53 @@ public class TestSuiteMinimizer {
 		return result;
 	}
 
+	private int getNumCovered(TestSuiteChromosome suite) {
+		Set<TestFitnessFunction> covered = new HashSet<TestFitnessFunction>();
+
+		boolean calls_enabled = ExecutionTrace.trace_calls;
+		if (!calls_enabled)
+			ExecutionTrace.enableTraceCalls();
+
+		int num = 0;
+		for (TestChromosome test : suite.tests) {
+			ExecutionResult result = null;
+			if (test.isChanged() || test.last_result == null) {
+				logger.debug("Executing test " + num);
+				result = runTest(test.test);
+				test.last_result = result.clone();
+				test.setChanged(false);
+			} else {
+				// logger.info("Skipping test " + num);
+				result = test.last_result;
+			}
+			for (TestFitnessFunction goal : goals) {
+				if (!covered.contains(goal)
+				        && goal.getFitness(test, result) == 0.0) { // TODO: 0.0 should not be hardcoded
+					covered.add(goal);
+					test.test.addCoveredGoal(goal);
+				}
+			}
+			num++;
+		}
+		if (!calls_enabled)
+			ExecutionTrace.disableTraceCalls();
+
+		return covered.size();
+	}
+
 	/**
+	 * 
 	 * Calculate the number of covered branches
 	 * 
+	 * 
+	 * 
 	 * @param suite
+	 * 
 	 * @return
 	 */
-	private int getNumCovered(TestSuiteChromosome suite) {
+
+	private int getNumCoveredBranches(TestSuiteChromosome suite) {
+
 		Set<String> covered_true = new HashSet<String>();
 		Set<String> covered_false = new HashSet<String>();
 		Set<String> called_methods = new HashSet<String>();
@@ -113,13 +162,16 @@ public class TestSuiteMinimizer {
 				if (entry.getValue() == 0)
 					covered_true.add(entry.getKey());
 			}
+
 			for (Entry<String, Double> entry : result.trace.false_distances
 			        .entrySet()) {
 				if (entry.getValue() == 0)
 					covered_false.add(entry.getKey());
 			}
+
 			num++;
 		}
+
 		logger.debug("Called methods: " + called_methods.size());
 		return covered_true.size() + covered_false.size()
 		        + called_methods.size();
@@ -131,20 +183,20 @@ public class TestSuiteMinimizer {
 	 * @param suite
 	 * @param fitness_function
 	 */
-	public void minimize(TestSuiteChromosome suite,
-	        FitnessFunction fitness_function) {
+	public void minimize(TestSuiteChromosome suite) {
 
+		boolean branch = Properties.CRITERION.equalsIgnoreCase("branch");
 		CurrentChromosomeTracker.getInstance().modification(suite);
 
 		boolean size = false;
-		String strategy = Properties.getPropertyOrDefault(
-		        "secondary_objectives", "totallength");
+		String strategy = Properties
+		        .getPropertyOrDefault("secondary_objectives", "totallength");
 		if (strategy.contains(":"))
 			strategy = strategy.substring(0, strategy.indexOf(';'));
 		if (strategy.equals("size"))
 			size = true;
 
-		Logger logger1 = Logger.getLogger(fitness_function.getClass());
+		Logger logger1 = Logger.getLogger(TestFitnessFunction.class);
 		Level old_level1 = logger.getLevel();
 		logger1.setLevel(Level.OFF);
 		Logger logger2 = Logger.getLogger(TestSuiteFitnessFunction.class);
@@ -212,9 +264,12 @@ public class TestSuiteMinimizer {
 					// logger.trace("Trying: ");
 					// logger.trace(test.test.toCode());
 
-					// FIXME: Do not measure fitness but _coverage_!
-					// double new_fitness = fitness_function.getFitness(suite);
-					int new_fitness = getNumCovered(suite);
+					int new_fitness = 0;
+					if (false && branch)
+						new_fitness = getNumCoveredBranches(suite);
+					else
+						new_fitness = getNumCovered(suite);
+
 					if (new_fitness >= fitness) {
 						logger.debug("Fitness after removal: " + new_fitness
 						        + " (" + fitness + ")");

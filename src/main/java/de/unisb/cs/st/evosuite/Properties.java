@@ -62,16 +62,14 @@ public class Properties {
 	public static String OUTPUT_DIR = "";
 
 	/** Directory in which to put generated test cases */
-	public static String TEST_DIR = getPropertyOrDefault("test_dir",
-	        "evosuite-tests");
+	public static String TEST_DIR = getPropertyOrDefault("test_dir", "evosuite-tests");
 
 	/** Directory in which to put HTML/CSV reports */
 	public static String REPORT_DIR = getPropertyOrDefault("report_dir",
-	        "evosuite-report");
+	                                                       "evosuite-report");
 
 	/** Maximum length of chromosomes during search */
-	public static int CHROMOSOME_LENGTH = getPropertyOrDefault(
-	        "chromosome_length", 100);
+	public static int CHROMOSOME_LENGTH = getPropertyOrDefault("chromosome_length", 100);
 
 	/** Population size of genetic algorithm */
 	public static int POPULATION_SIZE = getPropertyOrDefault("population", 100);
@@ -86,28 +84,33 @@ public class Properties {
 	public static String STRATEGY = getPropertyOrDefault("strategy", "EvoSuite");
 
 	/** Minimize test suite after generation */
-	public static String CRITERION = getPropertyOrDefault("criterion",
-	        "BranchCoverage");
+	public static String CRITERION = getPropertyOrDefault("criterion", "BranchCoverage");
 
 	/** Sandbox for the classes under test */
 	public static boolean SANDBOX = getPropertyOrDefault("sandbox", false);
 
-	public static boolean MUTATION = getPropertyOrDefault("force_mutation",
-	        false)
-	        || getPropertyOrDefault("criterion", "BranchCoverage")
-	                .equalsIgnoreCase("mutation") ? true : false;
+	public static boolean MUTATION = getPropertyOrDefault("force_mutation", false)
+	        || getPropertyOrDefault("criterion", "BranchCoverage").equalsIgnoreCase("mutation") ? true
+	        : false;
 
-	public static boolean INSTRUMENT_PARENT = getPropertyOrDefault(
-	        "instrument_parent", false);
+	public static boolean TESTABILITY_TRANSFORMATION = getPropertyOrDefault("testability_transformation",
+	                                                                        false);
 
-	public static int GENERATOR_TOURNAMENT = getPropertyOrDefault(
-	        "generator_tournament", 1);
+	public static boolean INSTRUMENT_PARENT = getPropertyOrDefault("instrument_parent",
+	                                                               false);
+
+	public static int GENERATOR_TOURNAMENT = getPropertyOrDefault("generator_tournament",
+	                                                              1);
+
+	public static boolean USE_DEPRECATED = getPropertyOrDefault("use_deprecated", false);
+
+	public static double CONCOLIC_MUTATION = getPropertyOrDefault("concolic_mutation",
+	                                                              0.5);
 
 	private Properties() {
 		properties = new java.util.Properties();
 		try {
-			InputStream in = this.getClass().getClassLoader()
-			        .getResourceAsStream("evosuite.properties");
+			InputStream in = this.getClass().getClassLoader().getResourceAsStream("evosuite.properties");
 			properties.load(in);
 			PROJECT_PREFIX = properties.getProperty("PROJECT_PREFIX");
 			if (PROJECT_PREFIX == null) {
@@ -123,22 +126,18 @@ public class Properties {
 			}
 			if (TARGET_CLASS != null) {
 				properties.setProperty("TARGET_CLASS", TARGET_CLASS);
-				CLASS_PREFIX = TARGET_CLASS.substring(0,
-				        TARGET_CLASS.lastIndexOf('.'));
+				CLASS_PREFIX = TARGET_CLASS.substring(0, TARGET_CLASS.lastIndexOf('.'));
 				SUB_PREFIX = CLASS_PREFIX.replace(PROJECT_PREFIX + ".", "");
 			}
 
 			properties.setProperty("PROJECT_PREFIX", PROJECT_PREFIX);
 			properties.setProperty("output_dir", OUTPUT_DIR);
 
-			System.out
-			        .println("* Properties loaded from configuration file evosuite.properties");
+			System.out.println("* Properties loaded from configuration file evosuite.properties");
 		} catch (FileNotFoundException e) {
-			System.err
-			        .println("Error: Could not find configuration file evosuite.properties");
+			System.err.println("Error: Could not find configuration file evosuite.properties");
 		} catch (IOException e) {
-			System.err
-			        .println("Error: Could not find configuration file evosuite.properties");
+			System.err.println("Error: Could not find configuration file evosuite.properties");
 		}
 	}
 
@@ -176,14 +175,12 @@ public class Properties {
 			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS);
 			return TARGET_CLASS_INSTANCE;
 		} catch (ClassNotFoundException e) {
-			System.err.println("Could not find class under test "
-			        + TARGET_CLASS);
+			System.err.println("Could not find class under test " + TARGET_CLASS);
 		}
 		return null;
 	}
 
-	public static String getPropertyOrDefault(String property,
-	        String default_value) {
+	public static String getPropertyOrDefault(String property, String default_value) {
 		String result = getProperty(property);
 		if (result == null) {
 			result = default_value;
@@ -203,8 +200,7 @@ public class Properties {
 		return Integer.parseInt(result);
 	}
 
-	public static double getPropertyOrDefault(String property,
-	        double default_value) {
+	public static double getPropertyOrDefault(String property, double default_value) {
 		String result = getProperty(property);
 		if (result == null) {
 			return default_value;
@@ -212,8 +208,7 @@ public class Properties {
 		return Double.parseDouble(result);
 	}
 
-	public static boolean getPropertyOrDefault(String property,
-	        boolean default_value) {
+	public static boolean getPropertyOrDefault(String property, boolean default_value) {
 		String result = getProperty(property);
 		if (result == null) {
 			return default_value;

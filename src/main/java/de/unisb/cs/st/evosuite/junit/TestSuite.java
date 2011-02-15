@@ -193,21 +193,21 @@ public class TestSuite implements Opcodes {
 	 * @return Comment for test case
 	 */
 	protected String getInformation(int num) {
-		
+
 		TestCase test = test_cases.get(num);
 		Set<TestFitnessFunction> coveredGoals = test.getCoveredGoals();
-		
+
 		StringBuilder builder = new StringBuilder();
-		builder.append("Test case number: "+num);
-		
-		if(!coveredGoals.isEmpty()) {
+		builder.append("Test case number: " + num);
+
+		if (!coveredGoals.isEmpty()) {
 			builder.append("\n   /* covered goals:");
-			for(TestFitnessFunction goal : coveredGoals) {
-				builder.append("\n    * "+goal.toString());
+			for (TestFitnessFunction goal : coveredGoals) {
+				builder.append("\n    * " + goal.toString());
 			}
-			builder.append("\n   */");
+			builder.append("\n    */");
 		}
-		
+
 		return builder.toString();
 	}
 
@@ -292,8 +292,9 @@ public class TestSuite implements Opcodes {
 			if (imp.getName().startsWith("java.lang"))
 				continue;
 			if (imp.getName().contains("$"))
-				import_names.add(imp.getName().substring(0,
-				        imp.getName().indexOf("$")));
+				import_names
+				        .add(imp.getName()
+				                .substring(0, imp.getName().indexOf("$")));
 			// import_names.add(imp.getName().replace("$","."));
 			else
 				import_names.add(imp.getName());
@@ -441,7 +442,7 @@ public class TestSuite implements Opcodes {
 
 		File basedir = new File(directory);
 		Iterator<File> i = FileUtils.iterateFiles(basedir, new TestFilter(),
-		        TrueFileFilter.INSTANCE);
+		                                          TrueFileFilter.INSTANCE);
 		while (i.hasNext()) {
 			File f = i.next();
 			String name = f.getPath().replace(directory, "")
@@ -521,10 +522,11 @@ public class TestSuite implements Opcodes {
 
 	public byte[] getBytecode(String name) {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-		String prefix = Properties.TARGET_CLASS.substring(0,
-		        Properties.TARGET_CLASS.lastIndexOf(".")).replace(".", "/");
+		String prefix = Properties.TARGET_CLASS
+		        .substring(0, Properties.TARGET_CLASS.lastIndexOf("."))
+		        .replace(".", "/");
 		cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, prefix + "/" + name, null,
-		        "junit/framework/TestCase", null);
+		         "junit/framework/TestCase", null);
 
 		Method m = Method.getMethod("void <init> ()");
 		GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null,
@@ -555,7 +557,7 @@ public class TestSuite implements Opcodes {
 		// mg.invokeStatic(Type.getType(org.junit.runner.JUnitCore.class),
 		// Method.getMethod("void main (String[])"));
 		mg.invokeStatic(Type.getType(junit.textui.TestRunner.class),
-		        Method.getMethod("void main (String[])"));
+		                Method.getMethod("void main (String[])"));
 		mg.returnValue();
 		mg.endMethod();
 

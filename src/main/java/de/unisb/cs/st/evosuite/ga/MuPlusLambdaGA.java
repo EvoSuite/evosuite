@@ -37,15 +37,8 @@ public class MuPlusLambdaGA extends SteadyStateGA {
 
 	private boolean keepOffspring(Chromosome parent1, Chromosome parent2,
 	        Chromosome offspring1, Chromosome offspring2) {
-		for (SecondaryObjective objective : secondaryObjectives) {
-			int c = objective.compareGenerations(parent1, parent2, offspring1,
-			        offspring2);
-			if (c != 0) {
-				return c > 0;
-			}
-		}
-
-		return true;
+		return (isBetter(offspring1, parent1) && isBetter(offspring1, parent2))
+		        || (isBetter(offspring2, parent1) && isBetter(offspring2, parent2));
 	}
 
 	/**

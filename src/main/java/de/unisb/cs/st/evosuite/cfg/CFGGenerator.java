@@ -3,18 +3,17 @@
  * 
  * This file is part of EvoSuite.
  * 
- * EvoSuite is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * EvoSuite is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser Public License for more details.
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser Public License
- * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package de.unisb.cs.st.evosuite.cfg;
@@ -83,14 +82,14 @@ public class CFGGenerator extends Analyzer {
 		List<Long> mutations = new ArrayList<Long>();
 		boolean mutationBranch = false;
 		boolean mutatedBranch = false;
-		
+
 		public int duID = -1;
 		public int branchID = -1;
 		public boolean branchExpressionValue = true;
 		public String methodName;
 		public String className;
-		
-		Map<Long, Integer> mutant_distance = new HashMap<Long,Integer>(); // Calculate distance to each mutation 
+
+		Map<Long, Integer> mutant_distance = new HashMap<Long, Integer>(); // Calculate distance to each mutation 
 
 		public CFGVertex(int id, AbstractInsnNode node) {
 			this.id = id;
@@ -158,7 +157,7 @@ public class CFGGenerator extends Analyzer {
 
 		public boolean isBranchLabel() {
 			if (node instanceof LabelNode
-					&& ((LabelNode) node).getLabel().info instanceof Integer) {
+			        && ((LabelNode) node).getLabel().info instanceof Integer) {
 				return true;
 			}
 			return false;
@@ -191,7 +190,7 @@ public class CFGGenerator extends Analyzer {
 			}
 			return false;
 		}
-		
+
 		public int getID() {
 			return id;
 		}
@@ -199,86 +198,89 @@ public class CFGGenerator extends Analyzer {
 		public boolean isDefinition() {
 			return isFieldDefinition() || isLocalVarDefinition();
 		}
-		
+
 		public boolean isUse() {
 			return isFieldUse() || isLocalVarUse();
 		}
-		
+
 		public boolean isFieldDefinition() {
-			return node.getOpcode() == Opcodes.PUTFIELD || node.getOpcode() == Opcodes.PUTSTATIC;
+			return node.getOpcode() == Opcodes.PUTFIELD
+			        || node.getOpcode() == Opcodes.PUTSTATIC;
 		}
-		
+
 		public boolean isFieldUse() {
-			return node.getOpcode() == Opcodes.GETFIELD || node.getOpcode() == Opcodes.GETSTATIC;
+			return node.getOpcode() == Opcodes.GETFIELD
+			        || node.getOpcode() == Opcodes.GETSTATIC;
 		}
-		
+
 		public boolean isStaticDU() {
-			return node.getOpcode() == Opcodes.PUTSTATIC || node.getOpcode() == Opcodes.GETSTATIC; 
+			return node.getOpcode() == Opcodes.PUTSTATIC
+			        || node.getOpcode() == Opcodes.GETSTATIC;
 		}
 
 		// TODO: what about IINC?
 		public boolean isLocalVarDefinition() {
 			return node.getOpcode() == Opcodes.ISTORE
-					|| node.getOpcode() == Opcodes.LSTORE
-					|| node.getOpcode() == Opcodes.FSTORE
-					|| node.getOpcode() == Opcodes.DSTORE
-					|| node.getOpcode() == Opcodes.ASTORE
-					|| node.getOpcode() == Opcodes.IINC;
+			        || node.getOpcode() == Opcodes.LSTORE
+			        || node.getOpcode() == Opcodes.FSTORE
+			        || node.getOpcode() == Opcodes.DSTORE
+			        || node.getOpcode() == Opcodes.ASTORE
+			        || node.getOpcode() == Opcodes.IINC;
 		}
-		
+
 		public boolean isLocalVarUse() {
-			
-			return node.getOpcode() == Opcodes.ILOAD
-					|| node.getOpcode() == Opcodes.LLOAD
-					|| node.getOpcode() == Opcodes.FLOAD
-					|| node.getOpcode() == Opcodes.DLOAD
-					|| node.getOpcode() == Opcodes.ALOAD
-					|| node.getOpcode() == Opcodes.IINC;
-					// || node.getOpcode() == Opcodes.RET; // TODO ??
+
+			return node.getOpcode() == Opcodes.ILOAD || node.getOpcode() == Opcodes.LLOAD
+			        || node.getOpcode() == Opcodes.FLOAD
+			        || node.getOpcode() == Opcodes.DLOAD
+			        || node.getOpcode() == Opcodes.ALOAD
+			        || node.getOpcode() == Opcodes.IINC;
+			// || node.getOpcode() == Opcodes.RET; // TODO ??
 		}
-		
+
 		public String getFieldName() {
-			return ((FieldInsnNode)node).name;
+			return ((FieldInsnNode) node).name;
 		}
-		
+
 		public int getLocalVar() {
-			if(node instanceof VarInsnNode)
-				return ((VarInsnNode)node).var;
+			if (node instanceof VarInsnNode)
+				return ((VarInsnNode) node).var;
 			else
-				return ((IincInsnNode)node).var;
+				return ((IincInsnNode) node).var;
 		}
-		
+
 		public String getLocalVarName() {
-			return methodName+"_LV_"+getLocalVar();
+			return methodName + "_LV_" + getLocalVar();
 		}
-		
+
 		public String getDUVariableName() {
-			
-			if(!this.isDU())
-				throw new IllegalStateException("You can only call getDUVariableName() on a local variable or field definition/use");
-			
-			if(this.isFieldDU())
+
+			if (!this.isDU())
+				throw new IllegalStateException(
+				        "You can only call getDUVariableName() on a local variable or field definition/use");
+
+			if (this.isFieldDU())
 				return getFieldName();
-			else 
+			else
 				return getLocalVarName();
-				
+
 		}
-		
+
 		public boolean isDU() {
-			
+
 			return isLocalDU() || isFieldDU();
 		}
-		
+
 		public boolean isLocalDU() {
-			
+
 			return isLocalVarDefinition() || isLocalVarUse();
 		}
-		
+
 		public boolean isFieldDU() {
-			
+
 			return isFieldDefinition() || isFieldUse();
 		}
-		
+
 		public String getMethodName() {
 			return ((MethodInsnNode) node).name;
 		}
@@ -316,18 +318,16 @@ public class CFGGenerator extends Analyzer {
 			}
 
 			if (isBranch()) {
-				return "Branch " + id + " - "
-						+ ((JumpInsnNode) node).label.getLabel();
+				return "Branch " + id + " - " + ((JumpInsnNode) node).label.getLabel();
 			}
 
 			String type = "";
 			String opcode = "";
 
 			if (node.getOpcode() >= 0
-					&& node.getOpcode() < AbstractVisitor.OPCODES.length)
+			        && node.getOpcode() < AbstractVisitor.OPCODES.length)
 				opcode = AbstractVisitor.OPCODES[node.getOpcode()];
-			if (node.getType() >= 0
-					&& node.getType() < AbstractVisitor.TYPES.length)
+			if (node.getType() >= 0 && node.getType() < AbstractVisitor.TYPES.length)
 				type = AbstractVisitor.TYPES[node.getType()];
 
 			String stack = "";
@@ -339,52 +339,48 @@ public class CFGGenerator extends Analyzer {
 				}
 
 			if (node instanceof LabelNode) {
-				return "LABEL " + ((LabelNode) node).getLabel().toString()
-						+ " Type=" + type + ", Opcode=" + opcode;
+				return "LABEL " + ((LabelNode) node).getLabel().toString();
 			} else if (node instanceof FieldInsnNode)
-				return "Field" + " " + node.getOpcode() + " Type=" + type
-						+ ", Opcode=" + opcode;
+				return "Field" + " " + node.getOpcode() + " Type=" + type + ", Opcode="
+				        + opcode;
 			else if (node instanceof FrameNode)
-				return "Frame" + " " + node.getOpcode() + " Type=" + type
-						+ ", Opcode=" + opcode;
+				return "Frame" + " " + node.getOpcode() + " Type=" + type + ", Opcode="
+				        + opcode;
 			else if (node instanceof IincInsnNode)
 				return "IINC " + ((IincInsnNode) node).var + " Type=" + type
-						+ ", Opcode=" + opcode;
+				        + ", Opcode=" + opcode;
 			else if (node instanceof InsnNode)
-				return "INSN " + ((InsnNode) node).toString() + " Type=" + type
-						+ ", Opcode=" + opcode;
+				return "" + opcode;
 			else if (node instanceof IntInsnNode)
 				return "INT " + ((IntInsnNode) node).operand + " Type=" + type
-						+ ", Opcode=" + opcode;
+				        + ", Opcode=" + opcode;
 			else if (node instanceof MethodInsnNode)
-				return "METHOD " + ((MethodInsnNode) node).name + " Type="
-						+ type + ", Opcode=" + opcode;
+				return opcode + " " + ((MethodInsnNode) node).name;
 			else if (node instanceof JumpInsnNode)
-				return "JUMP " + ((JumpInsnNode) node).label.getLabel()
-						+ " Type=" + type + ", Opcode=" + opcode + ", Stack: "
-						+ stack + " - Line: " + line_no;
+				return "JUMP " + ((JumpInsnNode) node).label.getLabel() + " Type=" + type
+				        + ", Opcode=" + opcode + ", Stack: " + stack + " - Line: "
+				        + line_no;
 			else if (node instanceof LdcInsnNode)
-				return "LDC " + ((LdcInsnNode) node).cst + " Type=" + type
-						+ ", Opcode=" + opcode; // cst starts with mutationid if
-												// this is location of mutation
+				return "LDC " + ((LdcInsnNode) node).cst + " Type=" + type + ", Opcode="
+				        + opcode; // cst starts with mutationid if
+				                  // this is location of mutation
 			else if (node instanceof LineNumberNode)
-				return "LINE " + " " + node.getOpcode() + " Type=" + type
-						+ ", Opcode=" + opcode;
+				return "LINE " + " " + ((LineNumberNode) node).line;
 			else if (node instanceof LookupSwitchInsnNode)
-				return "LookupSwitchInsnNode" + " " + node.getOpcode()
-						+ " Type=" + type + ", Opcode=" + opcode;
+				return "LookupSwitchInsnNode" + " " + node.getOpcode() + " Type=" + type
+				        + ", Opcode=" + opcode;
 			else if (node instanceof MultiANewArrayInsnNode)
-				return "MULTIANEWARRAY " + " " + node.getOpcode() + " Type="
-						+ type + ", Opcode=" + opcode;
+				return "MULTIANEWARRAY " + " " + node.getOpcode() + " Type=" + type
+				        + ", Opcode=" + opcode;
 			else if (node instanceof TableSwitchInsnNode)
-				return "TableSwitchInsnNode" + " " + node.getOpcode()
-						+ " Type=" + type + ", Opcode=" + opcode;
+				return "TableSwitchInsnNode" + " " + node.getOpcode() + " Type=" + type
+				        + ", Opcode=" + opcode;
 			else if (node instanceof TypeInsnNode)
-				return "TYPE " + " " + node.getOpcode() + " Type=" + type
-						+ ", Opcode=" + opcode;
+				return "NEW " + ((TypeInsnNode) node).desc;
+			//				return "TYPE " + " " + node.getOpcode() + " Type=" + type
+			//						+ ", Opcode=" + opcode;
 			else if (node instanceof VarInsnNode)
-				return "VAR " + ((VarInsnNode) node).var + " Type=" + type
-						+ ", Opcode=" + opcode;
+				return opcode + " " + ((VarInsnNode) node).var;
 			else
 				return "Unknown node" + " Type=" + type + ", Opcode=" + opcode;
 		}
@@ -411,9 +407,9 @@ public class CFGGenerator extends Analyzer {
 			// return false;
 			if (id != other.id)
 				return false;
-			if(methodName != null && !methodName.equals(other.methodName))
+			if (methodName != null && !methodName.equals(other.methodName))
 				return false;
-			if(className != null && !className.equals(other.className))
+			if (className != null && !className.equals(other.className))
 				return false;
 			return true;
 		}
@@ -425,7 +421,7 @@ public class CFGGenerator extends Analyzer {
 
 	MethodNode current_method = null;
 	DefaultDirectedGraph<CFGVertex, DefaultEdge> graph = new DefaultDirectedGraph<CFGVertex, DefaultEdge>(
-			DefaultEdge.class);
+	        DefaultEdge.class);
 	List<Mutation> mutants;
 	String className;
 	String methodName;
@@ -446,7 +442,7 @@ public class CFGGenerator extends Analyzer {
 	}
 
 	CFGFrame getCFG(String owner, String method, MethodNode node)
-			throws AnalyzerException {
+	        throws AnalyzerException {
 		current_method = node;
 		className = owner;
 		methodName = method;
@@ -464,15 +460,14 @@ public class CFGGenerator extends Analyzer {
 
 	public DirectedMultigraph<CFGVertex, DefaultEdge> getMinimalGraph() {
 		DirectedMultigraph<CFGVertex, DefaultEdge> min_graph = new DirectedMultigraph<CFGVertex, DefaultEdge>(
-				DefaultEdge.class);
+		        DefaultEdge.class);
 		CFGVertex current = null;
 
 		for (Mutation m : mutants) {
 			if (m.getMethodName().equals(methodName)
-					&& m.getClassName().equals(className)) {
+			        && m.getClassName().equals(className)) {
 				for (CFGVertex v : graph.vertexSet()) {
-					if (v.isLineNumber()
-							&& v.getLineNumber() == m.getLineNumber()) {
+					if (v.isLineNumber() && v.getLineNumber() == m.getLineNumber()) {
 						v.setMutation(m.getId());
 						// TODO: What if there are several mutations with the
 						// same line number?
@@ -543,12 +538,11 @@ public class CFGGenerator extends Analyzer {
 				if (min_graph.containsVertex(graph.getEdgeTarget(edge))) {
 					min_graph.addEdge(vertex, graph.getEdgeTarget(edge));
 				} else {
-					queue.addAll(graph.outgoingEdgesOf(graph
-							.getEdgeTarget(edge)));
+					queue.addAll(graph.outgoingEdgesOf(graph.getEdgeTarget(edge)));
 				}
 			}
 		}
-		
+
 		return min_graph;
 	}
 
@@ -590,6 +584,5 @@ public class CFGGenerator extends Analyzer {
 
 		return true;
 	}
-
 
 }

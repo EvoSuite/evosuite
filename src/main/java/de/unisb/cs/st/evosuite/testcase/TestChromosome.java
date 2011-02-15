@@ -24,6 +24,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.OUM.OUMTestFactory;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.symbolic.ConcolicMutation;
 import de.unisb.cs.st.evosuite.testsuite.CurrentChromosomeTracker;
 
 /**
@@ -34,11 +35,11 @@ import de.unisb.cs.st.evosuite.testsuite.CurrentChromosomeTracker;
  */
 public class TestChromosome extends Chromosome {
 
-	private final static boolean RANK_LENGTH = Properties.getPropertyOrDefault(
-	        "check_rank_length", true);
+	private final static boolean RANK_LENGTH = Properties.getPropertyOrDefault("check_rank_length",
+	                                                                           true);
 
-	private final static boolean CHECK_LENGTH = Properties
-	        .getPropertyOrDefault("check_max_length", true);
+	private final static boolean CHECK_LENGTH = Properties.getPropertyOrDefault("check_max_length",
+	                                                                            true);
 
 	static {
 		if (RANK_LENGTH)
@@ -58,8 +59,8 @@ public class TestChromosome extends Chromosome {
 
 	public TestChromosome() {
 		if (test_factory == null) {
-			String factory_name = Properties.getPropertyOrDefault(
-			        "test_factory", "Random");
+			String factory_name = Properties.getPropertyOrDefault("test_factory",
+			                                                      "Random");
 			if (factory_name.equals("OUM"))
 				test_factory = OUMTestFactory.getInstance();
 			else
@@ -108,10 +109,9 @@ public class TestChromosome extends Chromosome {
 		}
 		for (int i = position2; i < other.size(); i++) {
 			test_factory.appendStatement(offspring.test,
-			        ((TestChromosome) other).test.getStatement(i));
+			                             ((TestChromosome) other).test.getStatement(i));
 		}
-		if (!CHECK_LENGTH
-		        || offspring.test.size() <= Properties.CHROMOSOME_LENGTH) {
+		if (!CHECK_LENGTH || offspring.test.size() <= Properties.CHROMOSOME_LENGTH) {
 			test = offspring.test;
 		}
 		// logger.warn("Size exceeded!");
@@ -162,14 +162,14 @@ public class TestChromosome extends Chromosome {
 
 		// Change
 		if (randomness.nextDouble() <= P) {
-			changed = changed || mutationChange();
-			// changed = true;
+			if (mutationChange())
+				changed = true;
 		}
 
 		// Insert
 		if (randomness.nextDouble() <= P) {
-			changed = changed || mutationInsert();
-			// changed = true;
+			if (mutationInsert())
+				changed = true;
 		}
 
 		if (changed) {
@@ -225,21 +225,28 @@ public class TestChromosome extends Chromosome {
 
 				if (statement instanceof PrimitiveStatement<?>) {
 					// do some mutation of values with what probability?
-					// logger.info("Old statement: "+statement.getCode());
-					((PrimitiveStatement<?>) statement).delta();
 
-					// int position = statement.retval.statement;
+					logger.debug("Old statement: " + statement.getCode());
+
+					if (randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
+						ConcolicMutation.mutate((PrimitiveStatement) statement, test);
+					} else {
+						((PrimitiveStatement<?>) statement).delta();
+					}
+
+					int position = statement.retval.statement;
 					// test.setStatement(statement, position);
-					// logger.info("Changed test: "+test.toCode());
+					//logger.info("Changed test: " + test.toCode());
+					logger.debug("New statement: "
+					        + test.getStatement(position).getCode());
 					changed = true;
 				} else if (statement instanceof AssignmentStatement) {
 					// logger.info("Before change at:");
 					// logger.info(test.toCode());
 					AssignmentStatement as = (AssignmentStatement) statement;
 					if (randomness.nextDouble() < 0.5) {
-						List<VariableReference> objects = test.getObjects(
-						        statement.retval.getType(),
-						        statement.retval.statement);
+						List<VariableReference> objects = test.getObjects(statement.retval.getType(),
+						                                                  statement.retval.statement);
 						objects.remove(statement.retval);
 						objects.remove(as.parameter);
 						if (!objects.isEmpty()) {
@@ -247,8 +254,7 @@ public class TestChromosome extends Chromosome {
 							changed = true;
 						}
 					} else if (as.retval.array_length > 0) {
-						as.retval.array_index = randomness
-						        .nextInt(as.retval.array_length);
+						as.retval.array_index = randomness.nextInt(as.retval.array_length);
 						changed = true;
 					}
 					// logger.info("After change:");
@@ -273,7 +279,7 @@ public class TestChromosome extends Chromosome {
 	private boolean mutationInsert() {
 		boolean changed = false;
 		final double ALPHA = 0.5;
-		int count = 1;
+		int count = 0;
 
 		while (randomness.nextDouble() <= Math.pow(ALPHA, count)
 		        && (!CHECK_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {

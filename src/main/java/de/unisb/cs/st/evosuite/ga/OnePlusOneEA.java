@@ -59,7 +59,8 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 		notifyEvaluation(offspring);
 
 		// if (replacement_function.keepOffspring(parent, offspring)) {
-		if (keepOffspring(parent, offspring)) {
+		//if (keepOffspring(parent, offspring)) {
+		if (isBetter(offspring, parent)) {
 			logger.debug("Replacing old population");
 			population.set(0, offspring);
 		} else {
@@ -77,12 +78,15 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 		// Only one parent
 		generateRandomPopulation(1);
 		fitness_function.getFitness(population.get(0));
-		logger.debug("Initial fitness: " + population.get(0).getFitness());
+		double fitness = population.get(0).getFitness();
+		logger.info("Initial fitness: " + population.get(0).getFitness());
 
 		while (!isFinished()) {
-			logger.debug("Current population: " + getAge() + "/"
-			        + max_iterations);
-			logger.debug("Best fitness: " + getBestIndividual().getFitness());
+			if (getBestIndividual().getFitness() < fitness) {
+				logger.info("Current population: " + getAge());
+				logger.info("Best fitness: " + getBestIndividual().getFitness());
+				fitness = population.get(0).getFitness();
+			}
 			this.notifyIteration();
 			evolve();
 		}
