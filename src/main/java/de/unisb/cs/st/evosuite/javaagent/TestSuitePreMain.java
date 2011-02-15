@@ -3,18 +3,17 @@
  * 
  * This file is part of EvoSuite.
  * 
- * EvoSuite is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * EvoSuite is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser Public License for more details.
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser Public License
- * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package de.unisb.cs.st.evosuite.javaagent;
@@ -27,10 +26,14 @@ import de.unisb.cs.st.evosuite.mutation.HOM.HOMFileTransformer;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.DistanceTransformer;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.MutationScanner;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.ScanVariablesTransformer;
+import de.unisb.cs.st.testability.BytecodeTransformer;
+import de.unisb.cs.st.testability.ClassTransformer;
+import de.unisb.cs.st.testability.ScanProject;
+import de.unisb.cs.st.testability.TransformationHelper;
 
 /**
  * @author Gordon Fraser
- *
+ * 
  */
 public class TestSuitePreMain {
 
@@ -40,43 +43,53 @@ public class TestSuitePreMain {
 	 */
 	public static void premain(String agentArguments, Instrumentation instrumentation) {
 		System.out.println("EvoSuite rocks!");
-		
-		if(agentArguments.equals("generate")) {
+
+		if (agentArguments.equals("generate")) {
 			System.out.println("* Instrumenting bytecode for test generation");
 			//addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
-			if(Properties.MUTATION) {
+			if (Properties.MUTATION) {
 				System.out.println("* Mutating byte code");
 				addClassFileTransformer(instrumentation, new HOMFileTransformer());
 			}
-			
+
+			// addClassFileTransformer(instrumentation, new
+			// PrintBytecodeTransformer());
+
+			if (Properties.TESTABILITY_TRANSFORMATION) {
+				TransformationHelper.setTestPackage(Properties.PROJECT_PREFIX);
+				ScanProject.searchClasses(Properties.PROJECT_PREFIX);
+				ClassTransformer ct = new ClassTransformer();
+				ct.findAllMethods();
+				ClassFileTransformer cft = new BytecodeTransformer();
+				addClassFileTransformer(instrumentation, cft);
+			}
+
 			addClassFileTransformer(instrumentation, new BytecodeInstrumentation());
 
-			//addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
+			// addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
 
-		} else 	if(agentArguments.equals("assert")) {
+		} else if (agentArguments.equals("assert")) {
 			System.out.println("* Instrumenting bytecode for assertion generation");
 			addClassFileTransformer(instrumentation, new HOMFileTransformer());
-			//addClassFileTransformer(instrumentation, new CoverageInstrumentation());
+			// addClassFileTransformer(instrumentation, new
+			// CoverageInstrumentation());
 
 		} else if (agentArguments.equals("scan")) {
 			System.out.println("* Scanning project for classes");
-			addClassFileTransformer(instrumentation,
-					new DistanceTransformer());
-			addClassFileTransformer(instrumentation,
-					new ScanVariablesTransformer());
-			//addClassFileTransformer(instrumentation,
-			//		new ScanProjectTransformer());			
+			addClassFileTransformer(instrumentation, new DistanceTransformer());
+			addClassFileTransformer(instrumentation, new ScanVariablesTransformer());
+			// addClassFileTransformer(instrumentation,
+			// new ScanProjectTransformer());
 		} else if (agentArguments.equals("tasks")) {
 			// Do nothing?
-		} else if(agentArguments.equals("mutate")) {
+		} else if (agentArguments.equals("mutate")) {
 			System.setProperty("javalanche.ignore.remove.calls", "true");
-			addClassFileTransformer(instrumentation,
-					new MutationScanner());
+			addClassFileTransformer(instrumentation, new MutationScanner());
 		}
 	}
-	
-	private static void addClassFileTransformer(
-			Instrumentation instrumentation, ClassFileTransformer clt) {
+
+	private static void addClassFileTransformer(Instrumentation instrumentation,
+	        ClassFileTransformer clt) {
 		instrumentation.addTransformer(clt);
 	}
 }

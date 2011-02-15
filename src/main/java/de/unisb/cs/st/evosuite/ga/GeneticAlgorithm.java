@@ -85,18 +85,17 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	/** Secondary objectives used during replacement */
 	protected final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();
 
-	protected int max_iterations = Properties.getPropertyOrDefault(
-	        "generations", 100);
+	protected int max_iterations = Properties.getPropertyOrDefault("generations", 100);
 	protected int elite_size = Properties.getPropertyOrDefault("elite", 1);
-	protected double mutation_rate = Properties.getPropertyOrDefault(
-	        "mutation_rate", 0.5);
-	protected double crossover_rate = Properties.getPropertyOrDefault(
-	        "crossover_rate", 0.5);
-	protected double kincompensation = Properties.getPropertyOrDefault(
-	        "kincompensation", 1.0);
+	protected double mutation_rate = Properties
+	        .getPropertyOrDefault("mutation_rate", 0.5);
+	protected double crossover_rate = Properties.getPropertyOrDefault("crossover_rate",
+	                                                                  0.5);
+	protected double kincompensation = Properties.getPropertyOrDefault("kincompensation",
+	                                                                   1.0);
 
-	private final boolean shuffleBeforeSort = Properties.getPropertyOrDefault(
-	        "shuffle_sort", true);
+	private final boolean shuffleBeforeSort = Properties
+	        .getPropertyOrDefault("shuffle_sort", true);
 
 	/**
 	 * Age of the population
@@ -225,8 +224,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	 * Calculate fitness for all individuals
 	 */
 	protected void calculateFitness() {
-		logger.debug("Calculating fitness for " + population.size()
-		        + " individuals");
+		logger.debug("Calculating fitness for " + population.size() + " individuals");
 		int num = 0;
 		double max = 0.0;
 
@@ -287,8 +285,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	 * @param individual
 	 * @param generation
 	 */
-	protected void kinCompensation(Chromosome individual,
-	        List<Chromosome> generation) {
+	protected void kinCompensation(Chromosome individual, List<Chromosome> generation) {
 
 		if (kincompensation >= 1.0)
 			return;
@@ -474,9 +471,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 
 	protected boolean isBetter(Chromosome chromosome1, Chromosome chromosome2) {
 		if (selection_function.isMaximize()) {
-			return chromosome1.compareTo(chromosome2) > 0;
+			return chromosome1.compareTo(chromosome2) >= 0;
 		} else {
-			return chromosome1.compareTo(chromosome2) < 0;
+			return chromosome1.compareTo(chromosome2) <= 0;
 		}
 
 	}

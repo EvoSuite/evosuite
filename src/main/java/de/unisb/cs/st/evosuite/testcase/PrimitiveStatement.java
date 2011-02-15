@@ -43,14 +43,11 @@ import de.unisb.cs.st.evosuite.primitives.PrimitivePool;
  */
 public class PrimitiveStatement<T> extends Statement {
 
-	private static int MAX_STRING = Properties.getPropertyOrDefault(
-	        "string_length", 20);
+	private static int MAX_STRING = Properties.getPropertyOrDefault("string_length", 20);
 
-	private static int MAX_INT = Properties
-	        .getPropertyOrDefault("max_int", 256);
+	private static int MAX_INT = Properties.getPropertyOrDefault("max_int", 256);
 
-	private static double P_pool = Properties.getPropertyOrDefault(
-	        "primitive_pool", 0.5);
+	private static double P_pool = Properties.getPropertyOrDefault("primitive_pool", 0.5);
 
 	private static Randomness randomness = Randomness.getInstance();
 
@@ -83,12 +80,11 @@ public class PrimitiveStatement<T> extends Statement {
 	 * @param clazz
 	 * @return
 	 */
-	public static PrimitiveStatement<?> getRandomStatement(
-	        VariableReference reference, Type clazz) {
+	public static PrimitiveStatement<?> getRandomStatement(VariableReference reference,
+	        Type clazz) {
 
 		if (clazz == boolean.class) {
-			return new PrimitiveStatement<Boolean>(reference,
-			        randomness.nextBoolean());
+			return new PrimitiveStatement<Boolean>(reference, randomness.nextBoolean());
 		} else if (clazz == int.class) {
 			if (randomness.nextDouble() >= P_pool)
 				return new PrimitiveStatement<Integer>(reference, new Integer(
@@ -99,8 +95,7 @@ public class PrimitiveStatement<T> extends Statement {
 
 		} else if (clazz == char.class) {
 			// Only ASCII chars?
-			return new PrimitiveStatement<Character>(reference,
-			        (randomness.nextChar()));
+			return new PrimitiveStatement<Character>(reference, (randomness.nextChar()));
 		} else if (clazz == long.class) {
 			int max = Math.min(MAX_INT, 32767);
 			if (randomness.nextDouble() >= P_pool)
@@ -112,16 +107,14 @@ public class PrimitiveStatement<T> extends Statement {
 
 		} else if (clazz.equals(double.class)) {
 			if (randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Double>(reference,
-				        randomness.nextDouble());
+				return new PrimitiveStatement<Double>(reference, randomness.nextDouble());
 			else
 				return new PrimitiveStatement<Double>(reference,
 				        primitive_pool.getRandomDouble());
 
 		} else if (clazz == float.class) {
 			if (randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Float>(reference,
-				        randomness.nextFloat());
+				return new PrimitiveStatement<Float>(reference, randomness.nextFloat());
 			else
 				return new PrimitiveStatement<Float>(reference,
 				        primitive_pool.getRandomFloat());
@@ -151,8 +144,7 @@ public class PrimitiveStatement<T> extends Statement {
 				return new PrimitiveStatement<String>(reference,
 				        primitive_pool.getRandomString());
 		}
-		logger.error("Getting unknown type: " + clazz + " / "
-		        + clazz.getClass());
+		logger.error("Getting unknown type: " + clazz + " / " + clazz.getClass());
 
 		assert (false);
 		return null;
@@ -162,27 +154,23 @@ public class PrimitiveStatement<T> extends Statement {
 	public String getCode(Throwable exception) {
 		if (retval.getVariableClass().equals(char.class)
 		        || retval.getVariableClass().equals(Character.class))
-			return ((Class<?>) retval.getType()).getSimpleName()
-			        + " "
-			        + retval.getName()
+			return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
 			        + " = '"
-			        + StringEscapeUtils.escapeJava(((Character) value)
-			                .toString()) + "';";
+			        + StringEscapeUtils.escapeJava(((Character) value).toString()) + "';";
 		else if (retval.getVariableClass().equals(String.class)) {
-			return ((Class<?>) retval.getType()).getSimpleName() + " "
-			        + retval.getName() + " = \""
-			        + StringEscapeUtils.escapeJava((String) value) + "\";";
+			return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
+			        + " = \"" + StringEscapeUtils.escapeJava((String) value) + "\";";
 		} else if (retval.getVariableClass().equals(float.class)
 		        || retval.getVariableClass().equals(Float.class)) {
-			return ((Class<?>) retval.getType()).getSimpleName() + " "
-			        + retval.getName() + " = " + value + "F;";
+			return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
+			        + " = " + value + "F;";
 		} else if (retval.getVariableClass().equals(long.class)
 		        || retval.getVariableClass().equals(Long.class)) {
-			return ((Class<?>) retval.getType()).getSimpleName() + " "
-			        + retval.getName() + " = " + value + "L;";
+			return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
+			        + " = " + value + "L;";
 		} else
-			return ((Class<?>) retval.getType()).getSimpleName() + " "
-			        + retval.getName() + " = " + value + ";";
+			return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
+			        + " = " + value + ";";
 	}
 
 	@Override
@@ -322,11 +310,9 @@ public class PrimitiveStatement<T> extends Statement {
 		} else if (value instanceof Float) {
 			value = (T) new Float(((Float) value).floatValue() + delta);
 		} else if (value instanceof Short) {
-			value = (T) new Short(
-			        (short) (((Short) value).shortValue() + (int) delta));
+			value = (T) new Short((short) (((Short) value).shortValue() + (int) delta));
 		} else if (value instanceof Byte) {
-			value = (T) new Byte(
-			        (byte) (((Byte) value).byteValue() + (int) delta));
+			value = (T) new Byte((byte) (((Byte) value).byteValue() + (int) delta));
 		} else if (value instanceof String) {
 			deltaString();
 		}
@@ -340,8 +326,7 @@ public class PrimitiveStatement<T> extends Statement {
 		} else if (value instanceof Integer) {
 			value = (T) new Integer(((Integer) value).intValue() + 1);
 		} else if (value instanceof Character) {
-			value = (T) new Character(
-			        (char) (((Character) value).charValue() + 1));
+			value = (T) new Character((char) (((Character) value).charValue() + 1));
 		} else if (value instanceof Long) {
 			value = (T) new Long(((Long) value).longValue() + 1);
 		} else if (value instanceof Double) {
@@ -362,8 +347,7 @@ public class PrimitiveStatement<T> extends Statement {
 		} else if (value instanceof Integer) {
 			value = (T) new Integer(((Integer) value).intValue() - 1);
 		} else if (value instanceof Character) {
-			value = (T) new Character(
-			        (char) (((Character) value).charValue() - 1));
+			value = (T) new Character((char) (((Character) value).charValue() - 1));
 		} else if (value instanceof Long) {
 			value = (T) new Long(((Long) value).longValue() - 1);
 		} else if (value instanceof Double) {
@@ -462,8 +446,7 @@ public class PrimitiveStatement<T> extends Statement {
 	 * de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
 	@Override
-	public void replaceUnique(VariableReference old_var,
-	        VariableReference new_var) {
+	public void replaceUnique(VariableReference old_var, VariableReference new_var) {
 		if (retval == old_var)
 			retval = new_var;
 		if (retval.array == old_var)

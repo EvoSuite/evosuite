@@ -24,7 +24,6 @@ import org.apache.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.util.AbstractVisitor;
 
-
 /**
  * This class collects information about chosen branches/paths at runtime
  * 
@@ -47,9 +46,9 @@ public class ExecutionTracer {
 	private boolean killSwitch = false;
 
 	private int num_statements = 0;
-	
+
 	private int duCounter = 0;
-	
+
 	public static void disable() {
 		ExecutionTracer tracer = ExecutionTracer.getExecutionTracer();
 		tracer.disabled = true;
@@ -242,22 +241,22 @@ public class ExecutionTracer {
 		switch (opcode) {
 		case Opcodes.IFEQ:
 			distance_true = Math.abs((double) val); // The greater abs is, the
-													// further away from 0
+			                                        // further away from 0
 			distance_false = distance_true == 0 ? 1.0 : 0.0; // Anything but 0
-															 // is good
+			                                                 // is good
 			break;
 		case Opcodes.IFNE:
 			distance_false = Math.abs((double) val); // The greater abs is, the
-													 // further away from 0
+			                                         // further away from 0
 			distance_true = distance_false == 0 ? 1.0 : 0.0; // Anything but 0
-															 // leads to NE
+			                                                 // leads to NE
 			break;
 		case Opcodes.IFLT:
 			distance_true = val >= 0 ? val + 1.0 : 0.0; // The greater, the
-														// further away from < 0
+			                                            // further away from < 0
 			distance_false = val < 0 ? 0.0 - val + 1.0 : 0.0; // The smaller,
-															  // the further
-															  // away from < 0
+			                                                  // the further
+			                                                  // away from < 0
 			break;
 		case Opcodes.IFGT:
 			distance_true = val <= 0 ? 0.0 - val + 1.0 : 0.0;
@@ -269,10 +268,10 @@ public class ExecutionTracer {
 			break;
 		case Opcodes.IFLE:
 			distance_true = val > 0 ? val + 1.0 : 0.0; // The greater, the
-													   // further away from < 0
+			                                           // further away from < 0
 			distance_false = val <= 0 ? 0.0 - val + 1.0 : 0.0; // The smaller,
-															   // the further
-															   // away from < 0
+			                                                   // the further
+			                                                   // away from < 0
 			break;
 		default:
 			logger.error("Unknown opcode: " + opcode);
@@ -283,7 +282,7 @@ public class ExecutionTracer {
 
 		// Add current branch to control trace
 		tracer.trace.branchPassed(branch, bytecode_id, distance_true,
-		        distance_false);
+		                          distance_false);
 	}
 
 	/**
@@ -308,25 +307,25 @@ public class ExecutionTracer {
 		switch (opcode) {
 		case Opcodes.IF_ICMPEQ:
 			distance_true = Math.abs((double) val1 - (double) val2); // The
-																	 // greater
-																	 // the
-																	 // difference,
-																	 // the
-																	 // further
-																	 // away
+			                                                         // greater
+			                                                         // the
+			                                                         // difference,
+			                                                         // the
+			                                                         // further
+			                                                         // away
 			distance_false = distance_true == 0 ? 1.0 : 0.0; // Anything but 0
-															 // is good
+			                                                 // is good
 			break;
 		case Opcodes.IF_ICMPNE:
 			distance_false = Math.abs((double) val1 - (double) val2); // The
-																	  // greater
-																	  // abs is,
-																	  // the
-																	  // further
-																	  // away
-																	  // from 0
+			                                                          // greater
+			                                                          // abs is,
+			                                                          // the
+			                                                          // further
+			                                                          // away
+			                                                          // from 0
 			distance_true = distance_false == 0 ? 1.0 : 0.0; // Anything but 0
-															 // leads to NE
+			                                                 // leads to NE
 			break;
 		case Opcodes.IF_ICMPLT: // val1 < val2?
 			distance_true = val1 >= val2 ? (double) val1 - (double) val2 + 1.0
@@ -360,7 +359,7 @@ public class ExecutionTracer {
 
 		// Add current branch to control trace
 		tracer.trace.branchPassed(branch, bytecode_id, distance_true,
-		        distance_false);
+		                          distance_false);
 		// tracer.trace.branchPassed(branch, distance_true, distance_false);
 
 	}
@@ -423,7 +422,7 @@ public class ExecutionTracer {
 
 		// Add current branch to control trace
 		tracer.trace.branchPassed(branch, bytecode_id, distance_true,
-		        distance_false);
+		                          distance_false);
 	}
 
 	/**
@@ -459,34 +458,38 @@ public class ExecutionTracer {
 
 		// Add current branch to control trace
 		tracer.trace.branchPassed(branch, bytecode_id, distance_true,
-		        distance_false);
+		                          distance_false);
 	}
-	
-	public static void passedFieldDefinition(String className, String fieldName, String methodName, int branchID, int defID) {
-		
+
+	public static void passedFieldDefinition(String className,
+	        String fieldName, String methodName, int branchID, int defID) {
+
 		ExecutionTracer tracer = getExecutionTracer();
-		if(!tracer.disabled) {
-			HashMap<Integer,Integer> defs = tracer.trace.passedDefs.get(fieldName);
-			if(defs == null)
-				defs = new HashMap<Integer,Integer>();
-			
-			defs.put(tracer.duCounter,defID);
-			tracer.trace.passedDefs.put(fieldName,defs);
-			
+		if (!tracer.disabled) {
+			HashMap<Integer, Integer> defs = tracer.trace.passedDefs
+			        .get(fieldName);
+			if (defs == null)
+				defs = new HashMap<Integer, Integer>();
+
+			defs.put(tracer.duCounter, defID);
+			tracer.trace.passedDefs.put(fieldName, defs);
+
 			tracer.duCounter++;
 		}
 	}
-	
-	public static void passedFieldUse(String className, String fieldName, String methodName, int branchID, int useID) {
+
+	public static void passedFieldUse(String className, String fieldName,
+	        String methodName, int branchID, int useID) {
 		ExecutionTracer tracer = getExecutionTracer();
-		if(!tracer.disabled) {
-			HashMap<Integer,Integer> uses = tracer.trace.passedUses.get(fieldName);
-			if(uses == null)
-				uses = new HashMap<Integer,Integer>();
-			
-			uses.put(tracer.duCounter,useID);
-			tracer.trace.passedUses.put(fieldName,uses);
-			
+		if (!tracer.disabled) {
+			HashMap<Integer, Integer> uses = tracer.trace.passedUses
+			        .get(fieldName);
+			if (uses == null)
+				uses = new HashMap<Integer, Integer>();
+
+			uses.put(tracer.duCounter, useID);
+			tracer.trace.passedUses.put(fieldName, uses);
+
 			tracer.duCounter++;
 		}
 	}
