@@ -41,6 +41,11 @@
     <dependencyManagement/>
 
     <dependencies>
+	<dependency>
+	   <groupId>mockit</groupId>
+	   <artifactId>jmockit</artifactId>
+	   <version>0.999.7</version>
+	</dependency>
       <dependency>
 	<groupId>log4j</groupId>
 	<artifactId>log4j</artifactId>
@@ -301,6 +306,11 @@
 
     </dependencies>
     <repositories>
+	<repository>
+	   <id>jmockit-svn</id>
+	   <url>http://jmockit.googlecode.com/svn/maven-repo</url>
+	   <releases><checksumPolicy>ignore</checksumPolicy></releases>
+	</repository>
       <repository>
 	<releases>
 	  <enabled>true</enabled>
@@ -407,6 +417,27 @@
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-dependency-plugin</artifactId>
+		<executions>
+		  <execution>
+		    <id>copy</id>
+		    <phase>compile</phase>
+		    <goals>
+		      <goal>copy</goal>
+		    </goals>
+		    <configuration>
+		      <artifactItems>
+			<artifactItem>
+			  <groupId>mockit</groupId>
+			   <artifactId>jmockit</artifactId>
+			   <version>0.999.7</version>
+			  <overWrite>true</overWrite>
+			  <outputDirectory>target/</outputDirectory>
+			  <destFileName>jmockit.jar</destFileName>
+			</artifactItem>
+		      </artifactItems>
+		    </configuration>
+		  </execution>
+		</executions>
             </plugin>
         </plugins>
         <pluginManagement>
