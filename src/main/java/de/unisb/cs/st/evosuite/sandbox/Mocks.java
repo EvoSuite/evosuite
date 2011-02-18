@@ -60,6 +60,7 @@ public class Mocks {
 			createIODir();
 			setUpFileOutputStreamMock();
 			setUpSystemMock();
+			setUpFileMock();
 			mocksEnabled = true;
 		}
 	}
@@ -70,13 +71,13 @@ public class Mocks {
 	public void tearDownMocks(){
 		if(mocksEnabled){
 			Mockit.tearDownMocks();
-			deleteIODir();
+			deleteIODir(sandboxPath);
 			mocksEnabled = false;
 		}
 	}
 	
 	/**
-	 * Create mocks for the class FileOutputStream
+	 * Create mocks for the class java.io.FileOutputStream
 	 */
 	private void setUpFileOutputStreamMock(){
 		new MockUp<FileOutputStream>()
@@ -84,7 +85,7 @@ public class Mocks {
 			FileOutputStream it;
 			@SuppressWarnings("unused")
 			@Mock
-			// mock constructor - public FileOutputStream(File file, boolean append);
+			// Mock constructor - public FileOutputStream(File file, boolean append);
 			// Current mock is just redirects the original output folder to sandbox 
 			// folder. Private methods and fields are invoked and set through the 
 			// Reflections and jmockit Deencapsulation.
@@ -100,8 +101,9 @@ public class Mocks {
 		        	Deencapsulation.setField(it, "closeLock", new Object());
 		        	
 		        	Constructor<FileDescriptor> c = FileDescriptor.class.getConstructor();
-		        	Object fd = c.newInstance(null);
+		        	Object fd = c.newInstance(null);		 
 					Method fdMethod = fd.getClass().getDeclaredMethod("incrementAndGetUseCount", null);
+					
 					fdMethod.setAccessible(true);
 					fdMethod.invoke(fd, null);
 					fdMethod.setAccessible(false);
@@ -132,19 +134,51 @@ public class Mocks {
 	}
 	
 	/**
-	 * Create mocks for the class System
+	 * Create mocks for the class java.lang.System
 	 */
 	private void setUpSystemMock(){
 		new MockUp<System>()
 		{
 			@SuppressWarnings("unused")
 			@Mock
+			// Mock method public Properties getProperties();
+			// The mocked method returns empty property instance.
 			java.util.Properties getProperties() {
 				return new java.util.Properties();
 			}
 		};
 	}
 	
+	/**
+	 * Create mocks for the class java.io.File
+	 */
+	private void setUpFileMock(){
+		new MockUp<File>()
+		{
+			File it;
+			boolean filePathChanged = false;
+			@SuppressWarnings("unused")
+			@Mock
+			// Mock method public boolean mkdir();
+			// Whenever the mkdir() is called, the path of the File instance 
+			// is changed to sandboxPath + originalPath. Private methods and fields 
+			// are invoked and set through the jmockit Deencapsulation.
+			boolean mkdir(){
+				Object fileSystem = Deencapsulation.getField(it, "fs");
+				
+				// Check if original path was already changed, if not - redirect it
+				if(!filePathChanged){
+					String originalPath = Deencapsulation.getField(it, "path");
+					String changedPath = Deencapsulation.invoke(fileSystem, "normalize", sandboxPath + originalPath);
+					filePathChanged = true;
+					Deencapsulation.setField(it, "path", changedPath);
+				}
+				boolean dirCreated = false;
+				dirCreated = Deencapsulation.invoke(fileSystem, "createDirectory", it);		
+				return dirCreated;
+			}
+		};
+	}
 	/**
 	 * Create directory where all IO should happen
 	 */
@@ -157,12 +191,14 @@ public class Mocks {
 	/**
 	 * Remove files inside sandbox directory and remove directory itself
 	 */
-	private void deleteIODir(){
-		File dir = new File(sandboxPath);
+	private void deleteIODir(String path){
+		File dir = new File(path);
 		if(dir.exists()){
 			String[] children = dir.list();
 			for(String s : children){
 				File f = new File(dir,s);
+				if(f.isDirectory())
+					deleteIODir(f.getAbsolutePath());
 				f.delete();
 			}			
 		}
