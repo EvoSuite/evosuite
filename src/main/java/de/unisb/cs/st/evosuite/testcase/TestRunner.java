@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.sandbox.MSecurityManager;
+import de.unisb.cs.st.evosuite.sandbox.Mocks;
 
 /**
  * A runner thread in which a test case is executed and can be killed
@@ -79,6 +80,7 @@ public class TestRunner extends Thread {
 
 	private void executeTestCase() {
 		int num = 0;
+		Mocks mocks = new Mocks();
 		try {
 
 			// Current SecurityManager used by default
@@ -90,6 +92,7 @@ public class TestRunner extends Thread {
 			// if SecurityManager should be changed
 			boolean changeSM = Properties.SANDBOX;
 
+			mocks.setUpMocks();
 			// exceptionsThrown = test.execute(scope, observers, !log);
 			for (Statement s : test.statements) {
 				if (isInterrupted()) {
@@ -142,6 +145,7 @@ public class TestRunner extends Thread {
 				num++;
 			}
 		} catch (ThreadDeath e) {// can't stop these guys
+			mocks.tearDownMocks();
 			logger.info("Found error:");
 			logger.info(test.toCode());
 			e.printStackTrace();
@@ -158,6 +162,7 @@ public class TestRunner extends Thread {
 			e.printStackTrace();
 			// System.exit(1);
 		}
+		mocks.tearDownMocks();
 	}
 
 }
