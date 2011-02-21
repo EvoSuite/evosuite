@@ -174,7 +174,7 @@ public class Mocks {
 					Deencapsulation.setField(it, "path", changedPath);
 				}
 				boolean dirCreated = false;
-				dirCreated = Deencapsulation.invoke(fileSystem, "createDirectory", it);		
+				dirCreated = (Boolean)Deencapsulation.invoke(fileSystem, "createDirectory", it);		
 				return dirCreated;
 			}
 		};
