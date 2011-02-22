@@ -34,6 +34,9 @@ public class MSecurityManager extends SecurityManager
 	/** package under test */
 	private String testPackage = Properties.PROJECT_PREFIX;
 
+	/** indicates if mocks are enabled */
+	private boolean mocksEnabled = Properties.MOCKS;
+	
 	/**
 	 * Overridden method for checking permissions for any operation.
 	 */
@@ -81,6 +84,8 @@ public class MSecurityManager extends SecurityManager
     		if(e.getMethodName().equals("setOut") || e.getMethodName().equals("setErr"))
     			if(stackTraceElements[elementCounter+1].getMethodName().equals("execute"))
     				return true;
+    		if(e.getClassName().contains("MockingBridge") && this.mocksEnabled)
+    			return true;
     	}
     	
     	// if permission was asked during test case execution, then check permission itself
