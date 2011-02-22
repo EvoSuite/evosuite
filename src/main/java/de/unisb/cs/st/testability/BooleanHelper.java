@@ -115,8 +115,6 @@ public class BooleanHelper<E> {
 	}
 
 	public static void push(int i) {
-		if (!iStack.isEmpty())
-			log.warn("Stack size: " + iStack.size());
 		iStack.push(i);
 	}
 
