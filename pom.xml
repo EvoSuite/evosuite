@@ -62,6 +62,44 @@
 	<version>3.3</version>
       </dependency>
       <dependency>
+        <groupId>choco</groupId>
+        <artifactId>choco</artifactId>
+<!--        <version>2.1.1-SNAPSHOT</version> -->
+        <version>2.1.1-20101108.160635-17</version> 
+      </dependency>
+<!--      
+      <dependency>
+        <groupId>choco</groupId>
+        <artifactId>choco-contribs</artifactId>
+        <version>2.1.1-20101108.160635-17</version> 
+      </dependency>
+      <dependency>
+        <groupId>choco</groupId>
+        <artifactId>choco-visu</artifactId>
+        <version>2.1.1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>choco</groupId>
+        <artifactId>choco-solver</artifactId>
+        <version>2.1.1-SNAPSHOT</version>
+      </dependency>
+    -->  
+      <dependency>
+        <groupId>bcel</groupId>
+        <artifactId>bcel</artifactId>
+        <version>5.2</version>
+      </dependency>
+      <dependency>
+        <groupId>jpf</groupId>
+        <artifactId>jpf-core</artifactId>
+        <version>5.0pre2-EvoSuite</version>
+      </dependency>
+      <dependency>
+        <groupId>de.unisb.cs.st</groupId>
+        <artifactId>jpf-concolic</artifactId>
+        <version>0.1</version>
+      </dependency>      
+      <dependency>
 	<groupId>com.googlecode.gentyref</groupId>
 	<artifactId>gentyref</artifactId>
 	<version>1.1.0</version>
@@ -325,6 +363,10 @@
 	<name>Titania Public Repositories</name>
 	<url>http://titania.fs.uni-saarland.de/nexus/content/groups/public/</url>
 	<layout>default</layout>
+      </repository>
+      <repository>
+        <id>choco.repo</id>
+        <url>http://www.emn.fr/z-info/choco-solver/mvn/repository/</url>
       </repository>
     </repositories>
 

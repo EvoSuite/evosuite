@@ -11,6 +11,11 @@
       <outputDirectory>/</outputDirectory>
       <useProjectArtifact>true</useProjectArtifact>
       <unpack>true</unpack>
+      <unpackOptions>
+        <excludes>
+          <exclude>log4j.xml</exclude>
+        </excludes>
+      </unpackOptions>
       <scope>runtime</scope>
     </dependencySet>
   </dependencySets>

@@ -111,7 +111,7 @@ public class Properties {
 	public static boolean USE_DEPRECATED = getPropertyOrDefault("use_deprecated", false);
 
 	public static double CONCOLIC_MUTATION = getPropertyOrDefault("concolic_mutation",
-	                                                              0.5);
+	                                                              0.0);
 
 	private Properties() {
 		properties = new java.util.Properties();

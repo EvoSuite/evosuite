@@ -236,6 +236,7 @@ public class TestSuiteGenerator {
 		GeneticAlgorithm ga = setup();
 		long start_time = System.currentTimeMillis() / 1000;
 		boolean skip_covered = Properties.getPropertyOrDefault("skip_covered", true);
+		boolean reuse_budget = Properties.getPropertyOrDefault("reuse_budget", true);
 
 		// Get list of goals
 		TestFitnessFactory goal_factory = getFitnessFactory();
@@ -340,7 +341,10 @@ public class TestSuiteGenerator {
 				List<Chromosome> population = new ArrayList<Chromosome>();
 				population.add(suite);
 				statistics.iteration(population);
-				current_budget += stopping_condition.getCurrentValue();
+				if (reuse_budget)
+					current_budget += stopping_condition.getCurrentValue();
+				else
+					current_budget += budget + 1;
 				if (current_budget > total_budget)
 					break;
 				num++;
