@@ -41,16 +41,14 @@ public class SteadyStateGA extends GeneticAlgorithm {
 	public SteadyStateGA(ChromosomeFactory factory) {
 		super(factory);
 
-		setReplacementFunction(new FitnessReplacementFunction(
-		        selection_function));
+		setReplacementFunction(new FitnessReplacementFunction(selection_function));
 	}
 
 	private boolean keepOffspring(Chromosome parent1, Chromosome parent2,
 	        Chromosome offspring1, Chromosome offspring2) {
 
 		return (isBetter(offspring1, parent1) && isBetter(offspring1, parent2))
-		        || (isBetter(offspring2, parent1) && isBetter(offspring2,
-		                parent2));
+		        || (isBetter(offspring2, parent1) && isBetter(offspring2, parent2));
 	}
 
 	@Override
@@ -64,8 +62,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 		// Add random elements
 		// new_generation.addAll(randomism());
 
-		while (new_generation.size() < Properties.POPULATION_SIZE
-		        && !isFinished()) {
+		while (new_generation.size() < Properties.POPULATION_SIZE && !isFinished()) {
 			logger.debug("Generating offspring");
 
 			Chromosome parent1 = selection_function.select(population);
@@ -159,21 +156,21 @@ public class SteadyStateGA extends GeneticAlgorithm {
 		logger.debug("Starting first iteration");
 		while (!isFinished()) {
 			logger.info("Current iteration: " + current_iteration);
-			if (logger.isDebugEnabled()) {
-				double avg = 0.0;
-				int min = Integer.MAX_VALUE;
-				int max = 0;
-				for (Chromosome c : population) {
-					avg += c.size();
-					if (c.size() > max)
-						max = c.size();
-					if (c.size() < min)
-						min = c.size();
-				}
-				avg = avg / population.size();
-				System.out.println("CSV," + current_iteration + "," + min + ","
-				        + avg + "," + max);
-			}
+			//			if (logger.isDebugEnabled()) {
+			//				double avg = 0.0;
+			//				int min = Integer.MAX_VALUE;
+			//				int max = 0;
+			//				for (Chromosome c : population) {
+			//					avg += c.size();
+			//					if (c.size() > max)
+			//						max = c.size();
+			//					if (c.size() < min)
+			//						min = c.size();
+			//				}
+			//				avg = avg / population.size();
+			//				System.out.println("CSV," + current_iteration + "," + min + ","
+			//				        + avg + "," + max);
+			//			}
 			// char esc = 27;
 			// String clear = esc + "[4A";
 			// System.out.println(clear+"Current iteration: "+current_iteration+"                  ");
@@ -182,8 +179,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 			sortPopulation();
 			// System.out.println("Best individual has fitness: "+population.get(0).getFitness()+"       ");
 			// System.out.println("Worst individual has fitness: "+population.get(population.size()-1).getFitness()+"       ");
-			logger.info("Best individual has fitness: "
-			        + population.get(0).getFitness());
+			logger.info("Best individual has fitness: " + population.get(0).getFitness());
 			logger.info("Worst individual has fitness: "
 			        + population.get(population.size() - 1).getFitness());
 		}

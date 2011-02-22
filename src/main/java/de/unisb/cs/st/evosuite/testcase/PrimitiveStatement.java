@@ -73,6 +73,10 @@ public class PrimitiveStatement<T> extends Statement {
 		return value;
 	}
 
+	public void setValue(T val) {
+		this.value = val;
+	}
+
 	/**
 	 * Create random primitive statement
 	 * 
@@ -415,7 +419,7 @@ public class PrimitiveStatement<T> extends Statement {
 		else if (clazz.equals(Float.class) || clazz.equals(float.class))
 			mg.push(((Float) value).floatValue());
 		else if (clazz.equals(Double.class) || clazz.equals(double.class))
-			mg.push(((Float) value).doubleValue());
+			mg.push(((Double) value).doubleValue());
 		else if (clazz.equals(Byte.class) || clazz.equals(byte.class))
 			mg.push(((Byte) value).byteValue());
 		else if (clazz.equals(String.class))

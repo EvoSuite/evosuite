@@ -229,7 +229,8 @@ public class TestChromosome extends Chromosome {
 					logger.debug("Old statement: " + statement.getCode());
 
 					if (randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
-						ConcolicMutation.mutate((PrimitiveStatement) statement, test);
+						ConcolicMutation mutation = new ConcolicMutation();
+						mutation.mutate((PrimitiveStatement) statement, test);
 					} else {
 						((PrimitiveStatement<?>) statement).delta();
 					}
