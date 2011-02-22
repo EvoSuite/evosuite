@@ -26,6 +26,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.assertion.AssertionGenerator;
+import de.unisb.cs.st.evosuite.coverage.FitnessLogger;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
@@ -237,6 +238,11 @@ public class TestSuiteGenerator {
 		long start_time = System.currentTimeMillis() / 1000;
 		boolean skip_covered = Properties.getPropertyOrDefault("skip_covered", true);
 		boolean reuse_budget = Properties.getPropertyOrDefault("reuse_budget", true);
+		boolean log_goals = Properties.getPropertyOrDefault("log_goals", false);
+		FitnessLogger fitness_logger = new FitnessLogger();
+		if (log_goals) {
+			ga.addListener(fitness_logger);
+		}
 
 		// Get list of goals
 		TestFitnessFactory goal_factory = getFitnessFactory();

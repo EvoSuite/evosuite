@@ -1,102 +1,102 @@
 package de.unisb.cs.st.testability;
 
-import org.apache.log4j.Logger;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 /**
- * Created by Yanchuan Li
- * Date: 2/11/11
- * Time: 10:55 PM
+ * Created by Yanchuan Li Date: 2/11/11 Time: 10:55 PM
  */
 public class DBHelper {
 
+	private static PreparedStatement insert;
+	private static PreparedStatement remove;
+	private static Connection connection = null;
+	private static boolean enable = false;
+	private static Logger log = Logger.getLogger(DBHelper.class);
 
-    private static PreparedStatement insert;
-    private static PreparedStatement remove;
-    private static Connection connection = null;
-    private static boolean enable = false;
-    private static Logger log = Logger.getLogger(DBHelper.class);
+	static {
+		String tempStr = System.getProperty("ENABLE_STATISTICS");
+		if (tempStr != null && tempStr.equalsIgnoreCase("true")) {
+			enable = true;
+		}
 
-    static {
-        String tempStr = System.getProperty("ENABLE_STATISTICS");
-        if (tempStr != null && tempStr.equalsIgnoreCase("true")) {
-            enable = true;
-        }
+		if (enable) {
+			try {
+				Class.forName("org.sqlite.JDBC");
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
 
-        if (enable) {
-            try {
-                Class.forName("org.sqlite.JDBC");
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+			try {
+				// create a database connection
+				connection = DriverManager.getConnection("jdbc:sqlite:statistics.db");
 
+				//check if table Statistics exists.
+				//if not, create one
+				Statement statement = connection.createStatement();
+				ResultSet rs = statement.executeQuery("SELECT count(*) FROM sqlite_master WHERE type='table' AND name='Statistics';");
+				int exist = 0;
+				while (rs.next()) {
+					exist = rs.getInt(1);
+				}
 
-            try {
-                // create a database connection
-                connection = DriverManager.getConnection("jdbc:sqlite:statistics.db");
+				if (exist == 0) {
+					statement.executeUpdate("create table Statistics (classname string, methodsignature string, event string, integer count)");
+				}
 
-                //check if table Statistics exists.
-                //if not, create one
-                Statement statement = connection.createStatement();
-                ResultSet rs = statement.executeQuery("SELECT count(*) FROM sqlite_master WHERE type='table' AND name='Statistics';");
-                int exist = 0;
-                while (rs.next()) {
-                    exist = rs.getInt(1);
-                }
+				//compile PreparedStatement for faster batch operation
+				insert = connection.prepareStatement("insert into Statistics values(?,?,?,?);");
+				remove = connection.prepareStatement("delete from Statistics where classname=?");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 
-                if (exist == 0) {
-                    statement.executeUpdate("create table Statistics (classname string, methodsignature string, event string, integer count)");
-                }
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				@Override
+				public void run() {
+					try {
+						if (connection != null)
+							connection.close();
+					} catch (SQLException e) {
+						System.err.println(e);
+					}
+				}
+			});
 
-                //compile PreparedStatement for faster batch operation
-                insert = connection.prepareStatement("insert into Statistics values(?,?,?,?);");
-                remove = connection.prepareStatement("delete from Statistics where classname=?");
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+		}
+	}
 
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-                    try {
-                        if (connection != null)
-                            connection.close();
-                    } catch (SQLException e) {
-                        System.err.println(e);
-                    }
-                }
-            });
+	public static void writeToDB(List<Transformation> records) {
+		if (enable) {
+			try {
+				if (records.size() > 0) {
+					Transformation t = records.get(0);
+					remove.setString(1, t.getClassname());
+				}
+				remove.execute();
 
-        }
-    }
+				for (Transformation t : records) {
 
-    public static void writeToDB(List<Transformation> records) {
-        if (enable) {
-            try {
-                if (records.size() > 0) {
-                    Transformation t = records.get(0);
-                    remove.setString(1, t.getClassname());
-                }
-                remove.execute();
+					insert.setString(1, t.getClassname());
+					insert.setString(2, t.getMethodname());
+					insert.setString(3, t.getEvent());
+					insert.setInt(4, t.getCount());
+					insert.addBatch();
 
-                for (Transformation t : records) {
+				}
+				insert.executeBatch();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 
-                    insert.setString(1, t.getClassname());
-                    insert.setString(2, t.getMethodname());
-                    insert.setString(3, t.getEvent());
-                    insert.setInt(4, t.getCount());
-                    insert.addBatch();
-
-                }
-                insert.executeBatch();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
-
-        }
-    }
-
+		}
+	}
 
 }
