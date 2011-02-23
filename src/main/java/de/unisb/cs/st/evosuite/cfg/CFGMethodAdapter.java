@@ -369,15 +369,14 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	}
 
 	private void analyzeLCSAJs(MethodNode mn, Graph<CFGVertex, DefaultEdge> graph) {
-		
+
 		Queue<LCSAJ> lcsaj_queue = new LinkedList<LCSAJ>();
 
 		LCSAJ a = new LCSAJ(className, methodName);
-		a.addInstruction(0,mn.instructions.getFirst(),true);
+		a.addInstruction(0, mn.instructions.getFirst(), true);
 		lcsaj_queue.add(a);
 
 		while (!lcsaj_queue.isEmpty()) {
-			
 			LCSAJ current_lcsaj = lcsaj_queue.poll();
 
 			int position = mn.instructions.indexOf(current_lcsaj.getLastNodeAccessed());
@@ -388,48 +387,54 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			}
 
 			AbstractInsnNode next = mn.instructions.get(position + 1);
-			current_lcsaj.addInstruction(position+1, next, false);
-			
+			current_lcsaj.addInstruction(position + 1, next, false);
 			if (next instanceof JumpInsnNode) {
 				JumpInsnNode jump = (JumpInsnNode) next;
 				// New LCSAJ for current + jump to target
 				LCSAJPool.add_lcsaj(className, methodName, current_lcsaj);
-				
-				LCSAJ b = new LCSAJ(className, methodName,current_lcsaj);
-				b.addInstruction(position+1, jump, false);
+
+				LCSAJ b = new LCSAJ(className, methodName, current_lcsaj);
+				b.addInstruction(position + 1, jump, false);
 				lcsaj_queue.add(b);
-				
-				if(jump.getOpcode() != Opcodes.GOTO) {
+
+				if (jump.getOpcode() != Opcodes.GOTO) {
 					LabelNode target = jump.label;
-					InsnList new_list = new InsnList();
-					new_list.add(target);
 					LCSAJ c = new LCSAJ(className, methodName);
 					c.addInstruction(mn.instructions.indexOf(target), target, true);
 					lcsaj_queue.add(c);
 				}
-			
+
 			} else if (next instanceof TableSwitchInsnNode) {
 				TableSwitchInsnNode tswitch = (TableSwitchInsnNode) next;
 				List<LabelNode> allTargets = tswitch.labels;
 				for (LabelNode target : allTargets) {
-					InsnList new_list = new InsnList();
-					new_list.add(target);
 					LCSAJ b = new LCSAJ(className, methodName);
-					b.addInstruction(mn.instructions.indexOf(target), target,true);
+					b.addInstruction(mn.instructions.indexOf(target), target, true);
 					lcsaj_queue.add(b);
 				}
 
 			} else if (next instanceof InsnNode) {
 				InsnNode insn = (InsnNode) next;
-				if (insn.getOpcode() == Opcodes.ATHROW) {
+				switch (insn.getOpcode()) {
+				case Opcodes.ATHROW:
+				case Opcodes.RETURN:
+				case Opcodes.ARETURN:
+				case Opcodes.IRETURN:
+				case Opcodes.DRETURN:
+				case Opcodes.LRETURN:
+				case Opcodes.FRETURN:
 					// New LCSAJ for current + throw
 					LCSAJPool.add_lcsaj(className, methodName, current_lcsaj);
+					break;
+				default:
+					lcsaj_queue.add(current_lcsaj);
+
 				}
 			} else {
 				lcsaj_queue.add(current_lcsaj);
 			}
 		}
-
+		logger.info("Found " + LCSAJPool.getSize() + " LCSAJs");
 	}
 
 	private boolean isUsable() {

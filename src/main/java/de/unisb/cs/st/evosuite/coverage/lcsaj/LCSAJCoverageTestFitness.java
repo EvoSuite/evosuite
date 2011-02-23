@@ -43,10 +43,10 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 	LCSAJ lcsaj;
 
 	ControlFlowGraph cfg;
-	
+
 	double approach;
 	double branch;
-	
+
 	public LCSAJCoverageTestFitness(String className, String methodName, LCSAJ lcsaj,
 	        ControlFlowGraph cfg) {
 		this.lcsaj = lcsaj;
@@ -64,6 +64,9 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 		approach = instructions.size();
 		for (Integer i : instructions.keySet()) {
 			CFGVertex c = cfg.getVertex(i);
+			if (c == null) {
+				// Only jump nodes are in minimized CFG!
+			}
 			if (c.branchID != -1 && firstInsn) {
 				BranchCoverageTestFitness b = new BranchCoverageTestFitness(
 				        new BranchCoverageGoal(BranchPool.getBranch(c.branchID), false,
@@ -72,14 +75,14 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 				firstInsn = false;
 				continue;
 			}
-			
-			if (i == lcsaj.getInstructionID(instructions.get(i))){
+
+			if (i == lcsaj.getInstructionID(instructions.get(i))) {
 				branch = result.trace.false_distances.get(c.branchID);
 				if (branch != 0.0)
 					fitness += approach + normalize(branch);
 				break;
 			}
-			
+
 			else {
 				branch = result.trace.true_distances.get(c.branchID);
 				if (branch != 0.0)
