@@ -93,7 +93,7 @@ public class Properties {
 	public static boolean MOCKS = getPropertyOrDefault("mocks", false);
 	
 	/** Folder used for IO, when mocks are enabled */
-	public static String SANDBOX_FOLDER = getPropertyOrDefault("sandbox_folder", null);
+	public static String SANDBOX_FOLDER = getPropertyOrDefault("sandbox_folder", "sandbox/");
 	
 	public static boolean MUTATION = getPropertyOrDefault("force_mutation", false)
 	        || getPropertyOrDefault("criterion", "BranchCoverage").equalsIgnoreCase("mutation") ? true
