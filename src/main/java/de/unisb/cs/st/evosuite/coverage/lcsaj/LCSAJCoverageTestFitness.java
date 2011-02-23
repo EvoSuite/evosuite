@@ -43,7 +43,10 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 	LCSAJ lcsaj;
 
 	ControlFlowGraph cfg;
-
+	
+	double approach;
+	double branch;
+	
 	public LCSAJCoverageTestFitness(String className, String methodName, LCSAJ lcsaj,
 	        ControlFlowGraph cfg) {
 		this.lcsaj = lcsaj;
@@ -58,6 +61,7 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 		double fitness = 0.0;
 		HashMap<Integer, AbstractInsnNode> instructions = lcsaj.getInstructions();
 		boolean firstInsn = true;
+		approach = instructions.size();
 		for (Integer i : instructions.keySet()) {
 			CFGVertex c = cfg.getVertex(i);
 			if (c.branchID != -1 && firstInsn) {
@@ -66,19 +70,25 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 				                cfg, lcsaj.getClassName(), lcsaj.getMethodName()));
 				fitness += b.getFitness(individual, result);
 				firstInsn = false;
+				continue;
 			}
-			BranchCoverageTestFitness b = new BranchCoverageTestFitness(
-			        new BranchCoverageGoal(BranchPool.getBranch(c.branchID), false, cfg,
-			                lcsaj.getClassName(), lcsaj.getMethodName()));
-			if (b.getFitness(individual, result) > 0.0 && !c.isJump())
-				return (fitness += b.getFitness(individual, result));
-			b = new BranchCoverageTestFitness(new BranchCoverageGoal(
-			        BranchPool.getBranch(c.branchID), true, cfg, lcsaj.getClassName(),
-			        lcsaj.getMethodName()));
-			if (b.getFitness(individual, result) > 0.0 && c.isJump())
-				return (fitness += b.getFitness(individual, result));
+			
+			if (i == lcsaj.getInstructionID(instructions.get(i))){
+				branch = result.trace.false_distances.get(c.branchID);
+				if (branch != 0.0)
+					fitness += approach + normalize(branch);
+				break;
+			}
+			
+			else {
+				branch = result.trace.true_distances.get(c.branchID);
+				if (branch != 0.0)
+					fitness += normalize(branch);
+			}
+			approach--;
 		}
-		return 0.0;
+		updateIndividual(individual, fitness);
+		return fitness;
 	}
 
 	/* (non-Javadoc)

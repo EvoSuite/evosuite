@@ -277,7 +277,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		Graph<CFGVertex, DefaultEdge> graph = g.getGraph();
 		analyzeBranchVertices(mn, graph);
 		analyzeDefUseVertices(mn, graph);
-		// analyzeLCSAJs(mn, graph);
+		analyzeLCSAJs(mn, graph);
 		handleBranchlessMethods();
 		logger.info("Analyzing for method " + methodName);
 
@@ -369,19 +369,18 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	}
 
 	private void analyzeLCSAJs(MethodNode mn, Graph<CFGVertex, DefaultEdge> graph) {
-		Queue<InsnList> instr_queue = new LinkedList<InsnList>();
+		
 		Queue<LCSAJ> lcsaj_queue = new LinkedList<LCSAJ>();
 
-		InsnList li = new InsnList();
-		li.add(mn.instructions.getFirst());
-		instr_queue.add(li);
-		lcsaj_queue.add(new LCSAJ(className, methodName));
+		LCSAJ a = new LCSAJ(className, methodName);
+		a.addInstruction(0,mn.instructions.getFirst(),true);
+		lcsaj_queue.add(a);
 
-		while (!instr_queue.isEmpty()) {
-			InsnList current_instr = instr_queue.poll();
+		while (!lcsaj_queue.isEmpty()) {
+			
 			LCSAJ current_lcsaj = lcsaj_queue.poll();
 
-			int position = mn.instructions.indexOf(current_instr.getLast());
+			int position = mn.instructions.indexOf(current_lcsaj.getLastNodeAccessed());
 			if (position + 1 >= mn.instructions.size()) {
 				// New LCSAJ for current + return
 				LCSAJPool.add_lcsaj(className, methodName, current_lcsaj);
@@ -389,28 +388,35 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			}
 
 			AbstractInsnNode next = mn.instructions.get(position + 1);
-
+			current_lcsaj.addInstruction(position+1, next, false);
+			
 			if (next instanceof JumpInsnNode) {
-				current_instr.add(next);
-				current_lcsaj.addInstruction(position + 1, next);
 				JumpInsnNode jump = (JumpInsnNode) next;
 				// New LCSAJ for current + jump to target
 				LCSAJPool.add_lcsaj(className, methodName, current_lcsaj);
-				if (jump.getOpcode() != Opcodes.GOTO) {
+				
+				LCSAJ b = new LCSAJ(className, methodName,current_lcsaj);
+				b.addInstruction(position+1, jump, false);
+				lcsaj_queue.add(b);
+				
+				if(jump.getOpcode() != Opcodes.GOTO) {
 					LabelNode target = jump.label;
 					InsnList new_list = new InsnList();
 					new_list.add(target);
-					instr_queue.add(new_list);
-					lcsaj_queue.add(new LCSAJ(className, methodName));
+					LCSAJ c = new LCSAJ(className, methodName);
+					c.addInstruction(mn.instructions.indexOf(target), target, true);
+					lcsaj_queue.add(c);
 				}
+			
 			} else if (next instanceof TableSwitchInsnNode) {
 				TableSwitchInsnNode tswitch = (TableSwitchInsnNode) next;
 				List<LabelNode> allTargets = tswitch.labels;
 				for (LabelNode target : allTargets) {
 					InsnList new_list = new InsnList();
 					new_list.add(target);
-					instr_queue.add(new_list);
-					lcsaj_queue.add(new LCSAJ(className, methodName));
+					LCSAJ b = new LCSAJ(className, methodName);
+					b.addInstruction(mn.instructions.indexOf(target), target,true);
+					lcsaj_queue.add(b);
 				}
 
 			} else if (next instanceof InsnNode) {
@@ -420,7 +426,6 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 					LCSAJPool.add_lcsaj(className, methodName, current_lcsaj);
 				}
 			} else {
-				instr_queue.add(current_instr);
 				lcsaj_queue.add(current_lcsaj);
 			}
 		}
