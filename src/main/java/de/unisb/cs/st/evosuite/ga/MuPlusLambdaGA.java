@@ -18,6 +18,8 @@
 
 package de.unisb.cs.st.evosuite.ga;
 
+import de.unisb.cs.st.evosuite.Properties;
+
 /**
  * Alternative version of steady state GA
  * 
@@ -25,6 +27,9 @@ package de.unisb.cs.st.evosuite.ga;
  * 
  */
 public class MuPlusLambdaGA extends SteadyStateGA {
+
+	private static boolean parent_check = Properties.getPropertyOrDefault("parent_check",
+	                                                                      true);
 
 	/**
 	 * Generate a new search object
@@ -82,7 +87,7 @@ public class MuPlusLambdaGA extends SteadyStateGA {
 		notifyEvaluation(offspring2);
 
 		// if (replacement_function.keepOffspring(parent1, parent2, offspring1,
-		if (keepOffspring(parent1, parent2, offspring1, offspring2)) {
+		if (!parent_check || keepOffspring(parent1, parent2, offspring1, offspring2)) {
 			logger.debug("Keeping offspring");
 
 			if (!isTooLong(offspring1)) {
