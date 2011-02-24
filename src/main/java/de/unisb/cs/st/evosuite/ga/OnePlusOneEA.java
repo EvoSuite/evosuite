@@ -79,6 +79,7 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 		generateRandomPopulation(1);
 		fitness_function.getFitness(population.get(0));
 		double fitness = population.get(0).getFitness();
+		this.notifyIteration();
 		logger.info("Initial fitness: " + population.get(0).getFitness());
 
 		while (!isFinished()) {
@@ -87,8 +88,8 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 				logger.info("Best fitness: " + getBestIndividual().getFitness());
 				fitness = population.get(0).getFitness();
 			}
-			this.notifyIteration();
 			evolve();
+			this.notifyIteration();
 		}
 		notifySearchFinished();
 	}

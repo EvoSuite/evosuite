@@ -90,17 +90,17 @@ public class StandardGA extends GeneticAlgorithm {
 
 		// Set up initial population
 		generateRandomPopulation(Properties.POPULATION_SIZE);
+		this.notifyIteration();
 
 		while (!isFinished()) {
 			// Determine fitness
 			calculateFitness();
 
-			logger.debug("Current population: " + getAge() + "/"
-			        + max_iterations);
+			logger.debug("Current population: " + getAge() + "/" + max_iterations);
 			logger.info("Best fitness: " + getBestIndividual().getFitness());
 
-			this.notifyIteration();
 			evolve();
+			this.notifyIteration();
 		}
 
 		notifySearchFinished();

@@ -152,33 +152,16 @@ public class SteadyStateGA extends GeneticAlgorithm {
 		generateRandomPopulation(Properties.POPULATION_SIZE);
 		logger.debug("Calculating fitness of initial population");
 		calculateFitness();
+		this.notifyIteration();
 
 		logger.debug("Starting first iteration");
 		while (!isFinished()) {
-			logger.info("Current iteration: " + current_iteration);
-			//			if (logger.isDebugEnabled()) {
-			//				double avg = 0.0;
-			//				int min = Integer.MAX_VALUE;
-			//				int max = 0;
-			//				for (Chromosome c : population) {
-			//					avg += c.size();
-			//					if (c.size() > max)
-			//						max = c.size();
-			//					if (c.size() < min)
-			//						min = c.size();
-			//				}
-			//				avg = avg / population.size();
-			//				System.out.println("CSV," + current_iteration + "," + min + ","
-			//				        + avg + "," + max);
-			//			}
-			// char esc = 27;
-			// String clear = esc + "[4A";
-			// System.out.println(clear+"Current iteration: "+current_iteration+"                  ");
-			this.notifyIteration();
+			logger.info("Population size before: " + population.size());
 			evolve();
 			sortPopulation();
-			// System.out.println("Best individual has fitness: "+population.get(0).getFitness()+"       ");
-			// System.out.println("Worst individual has fitness: "+population.get(population.size()-1).getFitness()+"       ");
+			logger.info("Current iteration: " + current_iteration);
+			this.notifyIteration();
+			logger.info("Population size: " + population.size());
 			logger.info("Best individual has fitness: " + population.get(0).getFitness());
 			logger.info("Worst individual has fitness: "
 			        + population.get(population.size() - 1).getFitness());
