@@ -25,41 +25,45 @@ import java.util.List;
  * 
  * @author Gordon Fraser
  * 
- *         TODO: Can only maximize fitness!
+ *         
  */
 public class FitnessProportionateSelection extends SelectionFunction {
 
-	/** Sum of fitness values */
-	private double fitness_sum = 0.0;
+	/** Sum of fitness values, depending on minimization/maximization of the fitness function */
+	private double sum_value = 0.0;
 
-	/** Maximum fitness */
-	private double max_fitness = 0.0;
 
 	@Override
-	public int getIndex(List<Chromosome> population) {
-		boolean valid = false;
-		int index = 1;
-
-		if (fitness_sum == 0.0) {
-			index = randomness.nextInt(population.size());
-			valid = true;
+	public int getIndex(List<Chromosome> population) 
+	{
+		//special case
+		if(sum_value == 0d)
+		{
+			//here does not matter whether maximize or not.
+			//we need to take at random, otherwise it d be always the first that d be chosen
+			return randomness.nextInt(population.size());
 		}
-		while (!valid) {
+		
+		double rnd = randomness.nextDouble() * sum_value;
 
-			double rnd = randomness.nextDouble() * fitness_sum;
+		for (int i=0; i < population.size(); i++) 
+		{
+			double fit = population.get(i).getFitness();
 
-			for (index = 0; index < population.size() && rnd > 0.0F; index++) {
-				if (maximize) {
-					rnd -= population.get(index).getFitness();
-				} else {
-					// TODO: This hasn't been tested
-					rnd -= max_fitness - population.get(index).getFitness();
-				}
-			}
-			if (index >= 1)
-				valid = true;
+			if(!maximize)
+				fit = invert(fit);
+
+			if(fit >= rnd)
+				return i;
+			else
+				rnd = rnd - fit; 
 		}
-		return (index - 1);
+
+		//now this should never happens, but possible issues with rounding errors in for example "rnd = rnd - fit"
+		//in such a case, we just return a random index and we log it
+
+		logger.debug("ATTENTION: Possible issue in FitnessProportionateSelection");
+		return randomness.nextInt(population.size());
 	}
 
 	/**
@@ -67,15 +71,24 @@ public class FitnessProportionateSelection extends SelectionFunction {
 	 * 
 	 * @param population
 	 */
-	private void setFitnessSum(List<Chromosome> population) {
-		double sum = 0.0;
-		max_fitness = 0.0;
-		for (Chromosome c : population) {
-			sum += c.getFitness();
-			if (c.getFitness() > max_fitness)
-				max_fitness = c.getFitness();
+	private void setSum(List<Chromosome> population) {
+		sum_value = 0;
+		for (Chromosome c : population) 
+		{
+			double v = c.getFitness(); 
+			if(!maximize)
+				v = invert(v);
+
+			sum_value += v;
 		}
-		fitness_sum = sum;
+	}
+
+	/*
+	 * used to handle the case of minimizing the fitness
+	 */
+	private double invert(double x)
+	{
+		return 1d / (x + 1d);
 	}
 
 	/**
@@ -89,7 +102,7 @@ public class FitnessProportionateSelection extends SelectionFunction {
 	@Override
 	public List<Chromosome> select(List<Chromosome> population, int number) {
 
-		setFitnessSum(population);
+		setSum(population);
 		return super.select(population, number);
 	}
 
