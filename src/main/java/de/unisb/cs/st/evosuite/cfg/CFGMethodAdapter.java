@@ -276,8 +276,10 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		// if(!Properties.MUTATION) {
 		Graph<CFGVertex, DefaultEdge> graph = g.getGraph();
 		analyzeBranchVertices(mn, graph);
-		analyzeDefUseVertices(mn, graph);
-		analyzeLCSAJs(mn, graph);
+		if (Properties.CRITERION.equalsIgnoreCase("defuse"))
+			analyzeDefUseVertices(mn, graph);
+		if (Properties.CRITERION.equalsIgnoreCase("lcsaj"))
+			analyzeLCSAJs(mn, graph);
 		handleBranchlessMethods();
 		logger.info("Analyzing for method " + methodName);
 

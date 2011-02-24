@@ -141,9 +141,9 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 					if (Properties.getPropertyOrDefault("TT", false)) {
 						ClassNode cn = new ClassNode();
 						reader.accept(cn, ClassReader.SKIP_FRAMES);
-						//						TestabilityTransformation tt = new TestabilityTransformation(cn);
-						//						cv = new TraceClassVisitor(writer, new PrintWriter(System.out));
-						//						tt.transform().accept(cv);
+						//TestabilityTransformation tt = new TestabilityTransformation(cn);
+						//cv = new TraceClassVisitor(writer, new PrintWriter(System.out));
+						//tt.transform().accept(cv);
 					} else {
 						reader.accept(cv, ClassReader.SKIP_FRAMES);
 					}

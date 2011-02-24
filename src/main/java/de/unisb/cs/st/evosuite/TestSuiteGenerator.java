@@ -123,10 +123,12 @@ public class TestSuiteGenerator {
 
 		}
 
-		TestSuite suite = new TestSuite(tests);
-		String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
-		System.out.println("* Writing JUnit test cases to " + Properties.TEST_DIR);
-		suite.writeTestSuite("Test" + name, Properties.TEST_DIR);
+		if (Properties.getPropertyOrDefault("junit_tests", true)) {
+			TestSuite suite = new TestSuite(tests);
+			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
+			System.out.println("* Writing JUnit test cases to " + Properties.TEST_DIR);
+			suite.writeTestSuite("Test" + name, Properties.TEST_DIR);
+		}
 
 		statistics.writeReport();
 		System.out.println("* Done!");
