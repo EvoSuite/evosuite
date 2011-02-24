@@ -47,8 +47,10 @@ public class SteadyStateGA extends GeneticAlgorithm {
 	private boolean keepOffspring(Chromosome parent1, Chromosome parent2,
 	        Chromosome offspring1, Chromosome offspring2) {
 
-		return (isBetter(offspring1, parent1) && isBetter(offspring1, parent2))
-		        || (isBetter(offspring2, parent1) && isBetter(offspring2, parent2));
+		return (isBetterOrEqual(offspring1, parent1) && isBetterOrEqual(offspring1,
+		                                                                parent2))
+		        || (isBetterOrEqual(offspring2, parent1) && isBetterOrEqual(offspring2,
+		                                                                    parent2));
 	}
 
 	@Override
@@ -91,24 +93,12 @@ public class SteadyStateGA extends GeneticAlgorithm {
 			// The two offspring replace the parents if and only if one of
 			// the offspring is not worse than the best parent.
 
-			// TODO: Change this to comparison < ?
-			// fitness_function.getFitness(parent1);
-			// fitness_function.getFitness(parent2);
 			fitness_function.getFitness(offspring1);
 			notifyEvaluation(offspring1);
 
 			fitness_function.getFitness(offspring2);
 			notifyEvaluation(offspring2);
 
-			/*
-			 * kinCompensation(parent1, new_generation);
-			 * kinCompensation(parent2, new_generation);
-			 * kinCompensation(offspring1, new_generation);
-			 * kinCompensation(offspring2, new_generation);
-			 */
-
-			// if(replacement_function.keepOffspring(parent1, parent2,
-			// offspring1, offspring2)) {
 			if (keepOffspring(parent1, parent2, offspring1, offspring2)) {
 				logger.debug("Keeping offspring");
 

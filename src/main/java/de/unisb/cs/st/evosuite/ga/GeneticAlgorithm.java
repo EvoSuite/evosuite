@@ -87,15 +87,14 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 
 	protected int max_iterations = Properties.getPropertyOrDefault("generations", 100);
 	protected int elite_size = Properties.getPropertyOrDefault("elite", 1);
-	protected double mutation_rate = Properties
-	        .getPropertyOrDefault("mutation_rate", 0.5);
+	protected double mutation_rate = Properties.getPropertyOrDefault("mutation_rate", 0.5);
 	protected double crossover_rate = Properties.getPropertyOrDefault("crossover_rate",
 	                                                                  0.5);
 	protected double kincompensation = Properties.getPropertyOrDefault("kincompensation",
 	                                                                   1.0);
 
-	private final boolean shuffleBeforeSort = Properties
-	        .getPropertyOrDefault("shuffle_sort", true);
+	private final boolean shuffleBeforeSort = Properties.getPropertyOrDefault("shuffle_sort",
+	                                                                          true);
 
 	/**
 	 * Age of the population
@@ -226,19 +225,13 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	protected void calculateFitness() {
 		logger.debug("Calculating fitness for " + population.size() + " individuals");
 		int num = 0;
-		double max = 0.0;
 
 		for (Chromosome c : population) {
-			double fitness = fitness_function.getFitness(c);
+			fitness_function.getFitness(c);
 			notifyEvaluation(c);
-
-			if (fitness > max)
-				max = fitness;
-			kinCompensation(c, population.subList(0, num));
 
 			num++;
 		}
-		logger.debug("Max fitness: " + max);
 
 		// Sort population
 		sortPopulation();
@@ -469,7 +462,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 		Chromosome.clearSecondaryObjectives();
 	}
 
-	protected boolean isBetter(Chromosome chromosome1, Chromosome chromosome2) {
+	protected boolean isBetterOrEqual(Chromosome chromosome1, Chromosome chromosome2) {
 		if (selection_function.isMaximize()) {
 			return chromosome1.compareTo(chromosome2) >= 0;
 		} else {
@@ -479,7 +472,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	}
 
 	protected Chromosome getBest(Chromosome chromosome1, Chromosome chromosome2) {
-		if (isBetter(chromosome1, chromosome2))
+		if (isBetterOrEqual(chromosome1, chromosome2))
 			return chromosome1;
 		else
 			return chromosome2;
