@@ -224,13 +224,10 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	 */
 	protected void calculateFitness() {
 		logger.debug("Calculating fitness for " + population.size() + " individuals");
-		int num = 0;
 
 		for (Chromosome c : population) {
 			fitness_function.getFitness(c);
 			notifyEvaluation(c);
-
-			num++;
 		}
 
 		// Sort population

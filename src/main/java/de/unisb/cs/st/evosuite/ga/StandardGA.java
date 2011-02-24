@@ -73,8 +73,13 @@ public class StandardGA extends GeneticAlgorithm {
 
 			if (!isTooLong(offspring1))
 				new_generation.add(offspring1);
+			else
+				new_generation.add(parent1);
+
 			if (!isTooLong(offspring2))
 				new_generation.add(offspring2);
+			else
+				new_generation.add(parent2);
 		}
 
 		population = new_generation;

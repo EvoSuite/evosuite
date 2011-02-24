@@ -44,9 +44,8 @@ public class SteadyStateGA extends GeneticAlgorithm {
 		setReplacementFunction(new FitnessReplacementFunction(selection_function));
 	}
 
-	private boolean keepOffspring(Chromosome parent1, Chromosome parent2,
+	protected boolean keepOffspring(Chromosome parent1, Chromosome parent2,
 	        Chromosome offspring1, Chromosome offspring2) {
-
 		return (isBetterOrEqual(offspring1, parent1) && isBetterOrEqual(offspring1,
 		                                                                parent2))
 		        || (isBetterOrEqual(offspring2, parent1) && isBetterOrEqual(offspring2,
