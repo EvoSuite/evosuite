@@ -42,8 +42,8 @@ public class MuPlusLambdaGA extends SteadyStateGA {
 
 	private boolean keepOffspring(Chromosome parent1, Chromosome parent2,
 	        Chromosome offspring1, Chromosome offspring2) {
-		return (isBetter(offspring1, parent1) && isBetter(offspring1, parent2))
-		        || (isBetter(offspring2, parent1) && isBetter(offspring2, parent2));
+		return (isBetterOrEqual(offspring1, parent1) && isBetterOrEqual(offspring1, parent2))
+		        || (isBetterOrEqual(offspring2, parent1) && isBetterOrEqual(offspring2, parent2));
 	}
 
 	/**

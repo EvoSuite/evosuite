@@ -35,17 +35,6 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 		super(factory);
 	}
 
-	private boolean keepOffspring(Chromosome parent, Chromosome offspring) {
-		for (SecondaryObjective objective : secondaryObjectives) {
-			int c = objective.compareChromosomes(parent, offspring);
-			if (c != 0) {
-				return c > 0;
-			}
-		}
-
-		return true;
-	}
-
 	@Override
 	protected void evolve() {
 
@@ -53,14 +42,14 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 		Chromosome offspring = parent.clone();
 
 		notifyMutation(offspring);
-		offspring.mutate();
+		do {
+			offspring.mutate();
+		} while (!offspring.changed);
 
 		fitness_function.getFitness(offspring);
 		notifyEvaluation(offspring);
 
-		// if (replacement_function.keepOffspring(parent, offspring)) {
-		//if (keepOffspring(parent, offspring)) {
-		if (isBetter(offspring, parent)) {
+		if (isBetterOrEqual(offspring, parent)) {
 			logger.debug("Replacing old population");
 			population.set(0, offspring);
 		} else {
@@ -83,7 +72,8 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 		logger.info("Initial fitness: " + population.get(0).getFitness());
 
 		while (!isFinished()) {
-			if (getBestIndividual().getFitness() < fitness) {
+			if ((selection_function.isMaximize() && getBestIndividual().getFitness() > fitness)
+			        || (!selection_function.isMaximize() && getBestIndividual().getFitness() < fitness)) {
 				logger.info("Current population: " + getAge());
 				logger.info("Best fitness: " + getBestIndividual().getFitness());
 				fitness = population.get(0).getFitness();
