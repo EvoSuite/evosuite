@@ -66,7 +66,7 @@ public class TestSuitePreMain {
 
 			addClassFileTransformer(instrumentation, new BytecodeInstrumentation());
 
-			addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
+			//addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
 
 		} else if (agentArguments.equals("assert")) {
 			System.out.println("* Instrumenting bytecode for assertion generation");
