@@ -44,7 +44,7 @@ public class TournamentSelection extends SelectionFunction {
 
 		int round = 0;
 
-		while (round < tournament_size) {
+		while (round < tournament_size - 1) {
 			new_num = randomness.nextInt(population.size());
 			Chromosome selected = population.get(new_num);
 
