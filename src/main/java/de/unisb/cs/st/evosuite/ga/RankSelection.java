@@ -47,8 +47,9 @@ public class RankSelection extends SelectionFunction {
 		
 		d = d /2.0 / (rank_bias - 1.0) ;
 
-		if(maximize)
-			d = 1.0 - d; // to do that if we want to have Maximisation
+		//this is not needed because population is sorted based on Maximization
+		//if(maximize)
+		//	d = 1.0 - d; // to do that if we want to have Maximisation
 
 		int index = (int) (length * d);
 		return index;
