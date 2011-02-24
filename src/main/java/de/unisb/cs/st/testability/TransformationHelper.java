@@ -1367,6 +1367,7 @@ public class TransformationHelper {
 		boolean completeSimplePredicateStructureDetected = false;
 		boolean simpleIReturnStructureDetected = false;
 
+		// IFNULL -> ICONST_0/1 -> GOTO -> ICONST_0
 		if (startNode.getOpcode() == Opcodes.IFNULL
 		        || startNode.getOpcode() == Opcodes.IFNONNULL) {
 			AbstractInsnNode iconst0Oriconst1 = startNode.getNext();
