@@ -111,14 +111,18 @@ public class PrimitiveStatement<T> extends Statement {
 
 		} else if (clazz.equals(double.class)) {
 			if (randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Double>(reference, randomness.nextDouble());
+				return new PrimitiveStatement<Double>(reference,
+				        (randomness.nextInt(2 * MAX_INT) - MAX_INT)
+				                + randomness.nextDouble());
 			else
 				return new PrimitiveStatement<Double>(reference,
 				        primitive_pool.getRandomDouble());
 
 		} else if (clazz == float.class) {
 			if (randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Float>(reference, randomness.nextFloat());
+				return new PrimitiveStatement<Float>(reference,
+				        (randomness.nextInt(2 * MAX_INT) - MAX_INT)
+				                + randomness.nextFloat());
 			else
 				return new PrimitiveStatement<Float>(reference,
 				        primitive_pool.getRandomFloat());
@@ -298,25 +302,26 @@ public class PrimitiveStatement<T> extends Statement {
 	@SuppressWarnings("unchecked")
 	public void delta() {
 
-		double delta = 40.0 * randomness.nextDouble() - 20.0;
-
+		//double delta = 40.0 * randomness.nextDouble() - 20.0;
+		int delta = randomness.nextInt(40) - 20;
 		if (value instanceof Boolean) {
 			value = (T) Boolean.valueOf(!((Boolean) value).booleanValue());
 		} else if (value instanceof Integer) {
-			value = (T) new Integer(((Integer) value).intValue() + (int) delta);
+			value = (T) new Integer(((Integer) value).intValue() + delta);
 		} else if (value instanceof Character) {
-			value = (T) new Character(
-			        (char) (((Character) value).charValue() + (int) delta));
+			value = (T) new Character((char) (((Character) value).charValue() + delta));
 		} else if (value instanceof Long) {
-			value = (T) new Long(((Long) value).longValue() + (int) delta);
+			value = (T) new Long(((Long) value).longValue() + delta);
 		} else if (value instanceof Double) {
-			value = (T) new Double(((Double) value).doubleValue() + delta);
+			value = (T) new Double(((Double) value).doubleValue() + delta
+			        + randomness.nextDouble());
 		} else if (value instanceof Float) {
-			value = (T) new Float(((Float) value).floatValue() + delta);
+			value = (T) new Float(((Float) value).floatValue() + delta
+			        + randomness.nextFloat());
 		} else if (value instanceof Short) {
-			value = (T) new Short((short) (((Short) value).shortValue() + (int) delta));
+			value = (T) new Short((short) (((Short) value).shortValue() + delta));
 		} else if (value instanceof Byte) {
-			value = (T) new Byte((byte) (((Byte) value).byteValue() + (int) delta));
+			value = (T) new Byte((byte) (((Byte) value).byteValue() + delta));
 		} else if (value instanceof String) {
 			deltaString();
 		}
