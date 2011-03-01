@@ -29,6 +29,8 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.util.CheckClassAdapter;
+import org.objectweb.asm.util.TraceClassVisitor;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGClassAdapter;
@@ -139,11 +141,14 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 						cv = new StaticInitializationClassAdapter(cv, className);
 
 					if (Properties.getPropertyOrDefault("TT", false)) {
+						logger.info("Transforming " + className);
 						ClassNode cn = new ClassNode();
 						reader.accept(cn, ClassReader.SKIP_FRAMES);
-						//TestabilityTransformation tt = new TestabilityTransformation(cn);
+						TestabilityTransformation tt = new TestabilityTransformation(cn);
 						//cv = new TraceClassVisitor(writer, new PrintWriter(System.out));
-						//tt.transform().accept(cv);
+						cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+						cv = new CheckClassAdapter(cv);
+						tt.transform().accept(cv);
 					} else {
 						reader.accept(cv, ClassReader.SKIP_FRAMES);
 					}
