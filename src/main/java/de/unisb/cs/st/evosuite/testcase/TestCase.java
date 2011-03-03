@@ -694,6 +694,7 @@ public class TestCase {
 
 	public void addCoveredGoal(TestFitnessFunction goal) {
 		coveredGoals.add(goal);
+		// TODO: somehow adds the same goal more than once (fitnessfunction.equals()?)
 	}
 	
 	public Set<TestFitnessFunction> getCoveredGoals() {

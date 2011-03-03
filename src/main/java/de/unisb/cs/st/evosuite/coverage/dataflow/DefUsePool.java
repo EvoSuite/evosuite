@@ -27,9 +27,12 @@ public class DefUsePool {
 	
 	// maps all known duIDs to their DefUse
 	private static Map<Integer,DefUse> duIDsToDefUses = new HashMap<Integer,DefUse>();
+	private static Map<Integer,DefUse> duIDsToDefs = new HashMap<Integer,DefUse>();
+	private static Map<Integer,DefUse> duIDsToUses = new HashMap<Integer,DefUse>();
 	
 	private static int defCounter = 0;
 	private static int useCounter = 0;
+	private static int duCounter = 0;
 	
 	private static Logger logger = Logger.getLogger(DefUsePool.class);
 	
@@ -43,15 +46,21 @@ public class DefUsePool {
 		if(!v.isDefinition())
 			throw new IllegalArgumentException("Vertex of a definition or use expected");
 		
-		v.duID = defCounter;
+		v.defID = defCounter; // IINCs already have duID set do useCounter value
+		defCounter++;
+		if(!v.isUse()) {
+			v.duID = duCounter;
+			duCounter++;
+		}
+		
 		Definition d = new Definition(v);
 		List<Definition> defs = initDefMap(def_map, d);	
 		defs.add(d);
 		duIDsToDefUses.put(d.getDUID(),d);
+		duIDsToDefs.put(d.getDUID(),d);
 		
 		logger.info("Found "+d.toString()+" in "+v.methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+v.line_no+")"+" for var "+v.getDUVariableName());
 		
-		defCounter++;
 	}
 
 	/**
@@ -66,28 +75,32 @@ public class DefUsePool {
 		if(v.isLocalVarUse() && !hasEntryForVariable(def_map, v))
 			return false;
 
-		v.duID = useCounter;
+		v.useID = useCounter;
+		useCounter++;
+		v.duID = duCounter;
+		duCounter++;
+		
 		Use u = new Use(v);
 		List<Use> uses = initUseMap(use_map, u);
 		uses.add(u);
 		duIDsToDefUses.put(u.getDUID(),u);
+		duIDsToUses.put(u.getDUID(),u);
 		
 		logger.info("Found "+u.toString()+" in "+v.methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+v.line_no+")"+" for var "+v.getDUVariableName());
 		
-		useCounter++;
 
 		return true;
 	}
 	
-	/**
-	 * Returns the DefUse with the given duID
-	 * 
-	 * @param duID ID of a DefUse
-	 * @return The DefUse with the given duID if such an ID is known, null otherwise
-	 */
-	public static DefUse getDefUse(int duID) {
-		return duIDsToDefUses.get(duID);
-	}
+//	/**
+//	 * Returns the DefUse with the given duID
+//	 * 
+//	 * @param duID ID of a DefUse
+//	 * @return The DefUse with the given duID if such an ID is known, null otherwise
+//	 */
+//	public static DefUse getDefUse(int duID) {
+//		return duIDsToDefUses.get(duID);
+//	}
 
 	/**
 	 * Returns the Use with the given duID
@@ -96,13 +109,13 @@ public class DefUsePool {
 	 * @return The Use with the given duID if such an ID is known for a Use, null otherwise
 	 */
 	public static Use getUse(int duID) {
-		DefUse du = duIDsToDefUses.get(duID);
+		DefUse du = duIDsToUses.get(duID);
 		if(du==null)
 			return null;
-		if(!du.isUse()) {
-			logger.warn("getUse() called with the duID of a definition");
-			return null;
-		}
+//		if(!du.isUse()) {
+//			logger.warn("getUse() called with the duID of a definition");
+//			return null;
+//		}
 		
 		return (Use)du;
 	}
@@ -114,13 +127,13 @@ public class DefUsePool {
 	 * @return The Definition with the given duID if such an ID is known for a Definition, null otherwise
 	 */	
 	public static Definition getDefinition(int duID) {
-		DefUse du = duIDsToDefUses.get(duID);
+		DefUse du = duIDsToDefs.get(duID);
 		if(du == null)
 			return null;
-		if(!du.isDefinition()) {
-			logger.warn("getDefinition() called with the duID of a use");
-			return null;
-		}
+//		if(!du.isDefinition()) {
+//			logger.warn("getDefinition() called with the duID of a use");
+//			return null;
+//		}
 		
 		return (Definition)du;
 	}	

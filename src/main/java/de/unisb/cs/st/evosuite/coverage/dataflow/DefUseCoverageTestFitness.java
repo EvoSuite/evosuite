@@ -18,6 +18,8 @@
 
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
@@ -43,6 +45,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 
 	private final Definition def;
 	private final Use use;
+	private final String duVarName;
 	private final BranchCoverageTestFitness defTestFitness;
 	private final BranchCoverageTestFitness useTestFitness;
 
@@ -54,6 +57,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 
 		this.def = def;
 		this.use = use;
+		this.duVarName = def.getDUVariableName();
 		this.defTestFitness = getTestFitness(def.getCFGVertex());
 		this.useTestFitness = getTestFitness(use.getCFGVertex());
 
@@ -86,6 +90,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 
+		// TODO detect which definitions and uses were reached on which objects!!!
+		
 //		logger.error("Computing fitness for "+def.toString());
 		
 		if(traceCoversGoal(result.trace)) {
@@ -110,7 +116,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 				        "expect definition to be passed if its fitness is 0");
 			}
 
-			if (lastDef != defVertex.duID && !defVertex.isStaticDU())
+			if (lastDef != defVertex.defID && !defVertex.isStaticDU())
 				return 1 + normalize(getMaxFitness());
 
 			int defPos = getLastDefPos(result.trace);
@@ -146,27 +152,38 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 
 	private boolean traceCoversGoal(ExecutionTrace trace) {
 
-		int defPos = getLastDefPos(trace);
-		int usePos = getLastUsePos(trace);
-
-		// not both of them reached yet
-		if (defPos == -1 || usePos == -1)
-			return false;
-		// def came after use
-		if (defPos > usePos)
-			return false;
-
-		// the use for this DUVar is the one of this goal
-		int useID = trace.passedUses.get(use.getDUVariableName()).get(usePos);
-		if (useID != use.getDUID())
+		// TODO
+		// new idea: look for all the positions of use in trace, for each check active def, if active def is goal def goal is covered
+		
+		ArrayList<Integer> usePositions = getUsePositions(trace);
+		
+		// use not reached
+		if (usePositions.size() == 0)
 			return false;
 
-		int activeDef = getActiveDefFor(trace, usePos);
-
-		if (activeDef == def.getDUID())
-			return true;
+		for(Integer usePos : usePositions) {
+			
+			if (getActiveDefFor(trace, usePos) == def.getDefID())
+				return true;
+		}
 
 		return false;
+	}
+
+	private ArrayList<Integer> getUsePositions(ExecutionTrace trace) {
+		
+		ArrayList<Integer> r = new ArrayList<Integer>();
+		HashMap<Integer,Integer> useMap = trace.passedUses.get(duVarName);
+		
+		if(useMap == null)
+			return r;
+		
+		for(Integer usePos : useMap.keySet()) {
+			if(useMap.get(usePos) == use.getUseID())
+				r.add(usePos);
+		}
+		
+		return r;
 	}
 
 	private int getActiveDefFor(ExecutionTrace trace, int usePos) {
@@ -210,7 +227,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			return -1;
 
 		for (Integer defPos : trace.passedDefs.get(def.getDUVariableName()).keySet()) {
-			lastPos = defPos;
+			if(lastPos<defPos)
+				lastPos = defPos;
 		}
 
 		return lastPos;
@@ -221,8 +239,9 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		if (trace.passedUses.get(def.getDUVariableName()) == null)
 			return -1;
 
-		for (Integer defPos : trace.passedUses.get(def.getDUVariableName()).keySet()) {
-			lastPos = defPos;
+		for (Integer usePos : trace.passedUses.get(def.getDUVariableName()).keySet()) {
+			if(lastPos<usePos)
+				lastPos = usePos;
 		}
 
 		return lastPos;
@@ -251,11 +270,26 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		
 //		return "DUFitness for def "+def.toString()+" in "+def.getMethodName()+" branch "+def.getBranchID()+"(l"+def.getLineNumber()+") use "+use.toString()+" in "+use.getMethodName()+" branch "+use.getBranchID()+" (l"+use.getLineNumber()+")";
 
-		return "DUFitness for " + def.getDUVariableName() + " def " + def.getDUID()
+		return "DUFitness for " + def.getDUVariableName() + " Def " + def.getDefID()
 		        + " in " + def.getMethodName() + " branch " + def.getBranchID() + "(l"
-		        + def.getLineNumber() + ") use " + use.getDUID() + " in "
+		        + def.getLineNumber() + ") Use " + use.getUseID() + " in "
 		        + use.getMethodName() + " branch " + use.getBranchID() + " (l"
 		        + use.getLineNumber() + ")";
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		System.out.println("called"); // TODO: somehow doesnt get called
+		
+		if(!(o instanceof DefUseCoverageTestFitness))
+			return false;
+		
+		try {
+			DefUseCoverageTestFitness t = (DefUseCoverageTestFitness)o;
+			return t.def.equals(this.def) && t.use.equals(this.use);
+		} catch(Exception e) {
+			return false;
+		}
 	}
 
 }

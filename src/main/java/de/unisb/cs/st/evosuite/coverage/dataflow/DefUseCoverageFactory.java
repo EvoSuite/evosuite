@@ -146,8 +146,10 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 							 throw new IllegalStateException("no CFG for branch "+entry.getKey()+" in method "+methodName);
 
 						for (Use use : entry.getValue()) {
-							if (cfg.hasDefClearPathFromMethodStart(use.getCFGVertex()))
+							if (cfg.hasDefClearPathFromMethodStart(use.getCFGVertex())) {
 								r.add(use);
+								System.out.println("use with free path from start: "+use.toString());
+							}
 						}
 					}
 
@@ -183,6 +185,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 						for (Definition def : entry.getValue()) {
 							if (cfg.hasDefClearPathToMethodEnd(def.getCFGVertex())) {
 								r.add(def);
+								System.out.println("def with free path to end: "+def.toString());
 							}
 
 						}

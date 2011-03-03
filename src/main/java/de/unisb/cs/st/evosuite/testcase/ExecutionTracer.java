@@ -461,34 +461,39 @@ public class ExecutionTracer {
 		                          distance_false);
 	}
 
-	public static void passedFieldDefinition(String className,
-	        String fieldName, String methodName, int branchID, int defID) {
+	public static void passedDefinition(String className,
+	        String varName, String methodName, int branchID, int defID) {
 
+		// TODO detect which definitions and uses were reached on which objects!!!
+		
 		ExecutionTracer tracer = getExecutionTracer();
 		if (!tracer.disabled) {
 			HashMap<Integer, Integer> defs = tracer.trace.passedDefs
-			        .get(fieldName);
+			        .get(varName);
 			if (defs == null)
 				defs = new HashMap<Integer, Integer>();
 
 			defs.put(tracer.duCounter, defID);
-			tracer.trace.passedDefs.put(fieldName, defs);
+			tracer.trace.passedDefs.put(varName, defs);
 
 			tracer.duCounter++;
 		}
 	}
 
-	public static void passedFieldUse(String className, String fieldName,
+	public static void passedUse(String className, String varName,
 	        String methodName, int branchID, int useID) {
+		
+		// TODO detect which definitions and uses were reached on which objects!!!
+		
 		ExecutionTracer tracer = getExecutionTracer();
 		if (!tracer.disabled) {
 			HashMap<Integer, Integer> uses = tracer.trace.passedUses
-			        .get(fieldName);
+			        .get(varName);
 			if (uses == null)
 				uses = new HashMap<Integer, Integer>();
 
 			uses.put(tracer.duCounter, useID);
-			tracer.trace.passedUses.put(fieldName, uses);
+			tracer.trace.passedUses.put(varName, uses);
 
 			tracer.duCounter++;
 		}

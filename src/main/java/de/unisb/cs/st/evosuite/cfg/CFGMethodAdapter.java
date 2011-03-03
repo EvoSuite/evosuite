@@ -578,21 +578,6 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		InsnList instrumentation = new InsnList();
 
 
-//		switch(v.node.getOpcode()) {
-//		case Opcodes.PUTFIELD:
-//		case Opcodes.PUTSTATIC:
-		if(v.isDefinition()) {
-			instrumentation.add(new LdcInsnNode(className));
-			instrumentation.add(new LdcInsnNode(v.getDUVariableName()));
-			instrumentation.add(new LdcInsnNode(methodName));
-			instrumentation.add(new LdcInsnNode(currentBranch));
-			instrumentation.add(new LdcInsnNode(DefUsePool.getDefCounter()));
-			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-					"passedFieldDefinition", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V"));
-		}
-//			break;
-//		case Opcodes.GETFIELD:
-//		case Opcodes.GETSTATIC:
 		if(v.isUse()) {
 			instrumentation.add(new LdcInsnNode(className));
 			instrumentation.add(new LdcInsnNode(v.getDUVariableName()));
@@ -600,10 +585,18 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			instrumentation.add(new LdcInsnNode(currentBranch));
 			instrumentation.add(new LdcInsnNode(DefUsePool.getUseCounter()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-					"passedFieldUse", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V"));
+					"passedUse", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V"));
 		}
-//			break;			
-//		}
+
+		if(v.isDefinition()) {
+			instrumentation.add(new LdcInsnNode(className));
+			instrumentation.add(new LdcInsnNode(v.getDUVariableName()));
+			instrumentation.add(new LdcInsnNode(methodName));
+			instrumentation.add(new LdcInsnNode(currentBranch));
+			instrumentation.add(new LdcInsnNode(DefUsePool.getDefCounter()));
+			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+					"passedDefinition", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V"));
+		}
 		
 		return instrumentation;
 	}
@@ -732,13 +725,13 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 					mn.instructions.insert(v.node.getPrevious(),
 					                       getInstrumentation(v, v.branchID));
 
-					// keeping track of definitions
-					if (v.isDefinition())
-						DefUsePool.addDefinition(v);
-
 					// keeping track of uses
 					if (v.isUse())
 						DefUsePool.addUse(v);
+					
+					// keeping track of definitions
+					if (v.isDefinition())
+						DefUsePool.addDefinition(v);
 
 				}
 
