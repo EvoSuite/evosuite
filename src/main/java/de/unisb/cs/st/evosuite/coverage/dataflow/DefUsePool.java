@@ -49,7 +49,7 @@ public class DefUsePool {
 		defs.add(d);
 		duIDsToDefUses.put(d.getDUID(),d);
 		
-		logger.info("Found Def "+defCounter+" in "+v.methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+v.line_no+")"+" for var "+v.getDUVariableName());
+		logger.info("Found "+d.toString()+" in "+v.methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+v.line_no+")"+" for var "+v.getDUVariableName());
 		
 		defCounter++;
 	}
@@ -72,7 +72,7 @@ public class DefUsePool {
 		uses.add(u);
 		duIDsToDefUses.put(u.getDUID(),u);
 		
-		logger.info("Found Use "+DefUsePool.useCounter+" in "+v.methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+v.line_no+")"+" for var "+v.getDUVariableName());
+		logger.info("Found "+u.toString()+" in "+v.methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+v.line_no+")"+" for var "+v.getDUVariableName());
 		
 		useCounter++;
 
