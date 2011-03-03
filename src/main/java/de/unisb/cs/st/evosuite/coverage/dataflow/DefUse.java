@@ -18,6 +18,14 @@ public abstract class DefUse extends CFGVertexHolder {
 		return v.duID;
 	}
 	
+	public int getDefID() {
+		return v.defID;
+	}
+	
+	public int getUseID() {
+		return v.useID;
+	}
+	
 	public boolean isUse() {
 		return v.isUse();
 	}
@@ -31,10 +39,10 @@ public abstract class DefUse extends CFGVertexHolder {
 		String s = "";
 		
 		if(isUse())
-			s+="Use ";
+			s+="Use "+v.useID+" ";
 		if(isDefinition())
-			s+="Definition ";
-		s+=getDUID()+" for var "+getDUVariableName();
+			s+="Definition "+v.defID+" ";
+		s+="duID "+getDUID()+" for var "+getDUVariableName();
 		
 		return s;
 	}

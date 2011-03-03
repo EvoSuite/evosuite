@@ -353,6 +353,8 @@ public class ControlFlowGraph {
 			throw new IllegalArgumentException("method expects a du vertex");
 		if (!graph.containsVertex(duVertex))
 			throw new IllegalArgumentException("vertex not in graph");
+		if(duVertex.isLocalDU())
+			return false;
 
 		return hasDefClearPathToMethodEnd(duVertex.getDUVariableName(), duVertex);
 	}
@@ -363,6 +365,8 @@ public class ControlFlowGraph {
 			throw new IllegalArgumentException("method expects a du vertex");
 		if (!graph.containsVertex(duVertex))
 			throw new IllegalArgumentException("vertex not in graph");
+		if(duVertex.isLocalDU())
+			return false;
 
 		return hasDefClearPathFromMethodStart(duVertex.getDUVariableName(), duVertex);
 	}
@@ -381,13 +385,13 @@ public class ControlFlowGraph {
 		for (DefaultEdge e : outgoingEdges) {
 
 			CFGVertex edgeTarget = graph.getEdgeTarget(e);
-			if (edgeTarget.isDefinition()
-			        && edgeTarget.getDUVariableName().equals(varName)) {
-				continue;
-			}
 			if (edgeTarget.isUse() && edgeTarget.getDUVariableName().equals(varName)) {
 				r.add(edgeTarget);
 			}
+			if (edgeTarget.isDefinition()
+			        && edgeTarget.getDUVariableName().equals(varName)) {
+				continue;
+			}			
 			if (edgeTarget.id > currentVertex.id) // dont follow backedges (loops)
 				r.addAll(getUsesForDef(varName, edgeTarget));
 
