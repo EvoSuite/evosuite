@@ -86,7 +86,9 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 
-		if (traceCoversGoal(result.trace)) {
+//		logger.error("Computing fitness for "+def.toString());
+		
+		if(traceCoversGoal(result.trace)) {
 			//			System.out.println("i got covered: "+toString());
 			//			System.out.println(result.test.toCode());
 			result.test.addCoveredGoal(this);
@@ -246,6 +248,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 
 	@Override
 	public String toString() {
+		
+//		return "DUFitness for def "+def.toString()+" in "+def.getMethodName()+" branch "+def.getBranchID()+"(l"+def.getLineNumber()+") use "+use.toString()+" in "+use.getMethodName()+" branch "+use.getBranchID()+" (l"+use.getLineNumber()+")";
 
 		return "DUFitness for " + def.getDUVariableName() + " def " + def.getDUID()
 		        + " in " + def.getMethodName() + " branch " + def.getBranchID() + "(l"

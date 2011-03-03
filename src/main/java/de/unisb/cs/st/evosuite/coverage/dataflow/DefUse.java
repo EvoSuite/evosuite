@@ -1,6 +1,5 @@
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.CFGVertexHolder;
 
 /**
@@ -25,5 +24,18 @@ public abstract class DefUse extends CFGVertexHolder {
 	
 	public boolean isDefinition() {
 		return v.isDefinition();
-	}	
+	}
+	
+	public String toString() {
+		
+		String s = "";
+		
+		if(isUse())
+			s+="Use ";
+		if(isDefinition())
+			s+="Definition ";
+		s+=getDUID()+" for var "+getDUVariableName();
+		
+		return s;
+	}
 }
