@@ -128,8 +128,8 @@ public class ExecutionTrace {
 	public Map<String, Double> true_distances   = Collections.synchronizedMap(new HashMap<String, Double>());
 	public Map<String, Double> false_distances  = Collections.synchronizedMap(new HashMap<String, Double>());
 	
-	public HashMap<String,HashMap<Integer,Integer>> passedDefs = new HashMap<String,HashMap<Integer,Integer>>();
-	public HashMap<String,HashMap<Integer,Integer>> passedUses = new HashMap<String,HashMap<Integer,Integer>>();
+	public Map<String,HashMap<Integer,HashMap<Integer,Integer>>> passedDefs = Collections.synchronizedMap(new HashMap<String,HashMap<Integer,HashMap<Integer,Integer>>>());
+	public Map<String,HashMap<Integer,HashMap<Integer,Integer>>> passedUses = Collections.synchronizedMap(new HashMap<String,HashMap<Integer,HashMap<Integer,Integer>>>());
 	
 	public ExecutionTrace() {
 		stack.add(new MethodCall("", "")); // Main method
@@ -291,6 +291,10 @@ public class ExecutionTrace {
 		        .synchronizedMap(new HashMap<String, Integer>());
 		covered_predicates = Collections
 		        .synchronizedMap(new HashMap<String, Integer>());
+		passedDefs = Collections
+				.synchronizedMap(new HashMap<String,HashMap<Integer,HashMap<Integer,Integer>>>());
+		passedDefs = Collections
+		.synchronizedMap(new HashMap<String,HashMap<Integer,HashMap<Integer,Integer>>>());
 	}
 
 	/**
@@ -298,6 +302,7 @@ public class ExecutionTrace {
 	 */
 	@Override
 	public ExecutionTrace clone() {
+
 		ExecutionTrace copy = new ExecutionTrace();
 		for (MethodCall call : finished_calls) {
 			copy.finished_calls.add(call.clone());
@@ -341,6 +346,32 @@ public class ExecutionTrace {
 		        .containsKey(methodname));
 	}
 
+	public String toDefUseTraceInformation() {
+		// TODO !!! implement this
+		StringBuffer r = new StringBuffer();
+		r.append("Definitions: \n");
+		for(String var : passedDefs.keySet()) {
+			r.append(" for variable: "+var+":\n");
+			for(Integer objectID : passedDefs.get(var).keySet()) {
+				r.append("  on object "+objectID+":\n");
+				for(Integer duPos : passedDefs.get(var).get(objectID).keySet()) {
+					r.append("   #"+duPos+": Def "+passedDefs.get(var).get(objectID).get(duPos)+"\n");
+				}
+			}
+		}
+		r.append("Uses: \n");
+		for(String var : passedUses.keySet()) {
+			r.append(" for variable: "+var+":\n");
+			for(Integer objectID : passedUses.get(var).keySet()) {
+				r.append("  on object "+objectID+":\n");
+				for(Integer duPos : passedUses.get(var).get(objectID).keySet()) {
+					r.append("   #"+duPos+": Use "+passedUses.get(var).get(objectID).get(duPos)+"\n");
+				}
+			}
+		}		
+		return r.toString();
+	}
+	
 	@Override
 	public String toString() {
 		StringBuffer ret = new StringBuffer();
@@ -411,5 +442,7 @@ public class ExecutionTrace {
 			return false;
 		return true;
 	}
+
+	
 
 }

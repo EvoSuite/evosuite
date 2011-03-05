@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
@@ -47,7 +48,12 @@ public class ExecutionTracer {
 
 	private int num_statements = 0;
 
+	// number of seen Definitions and uses for indexing purposes
 	private int duCounter = 0;
+	// for defuse-coverage it is important to keep track of all the objects that called a trace-method of this class
+	private int objectCounter = 0;
+	public HashMap<Integer,Object> knownObjects = new HashMap<Integer,Object>();
+	
 
 	public static void disable() {
 		ExecutionTracer tracer = ExecutionTracer.getExecutionTracer();
@@ -461,42 +467,67 @@ public class ExecutionTracer {
 		                          distance_false);
 	}
 
-	public static void passedDefinition(String className,
-	        String varName, String methodName, int branchID, int defID) {
+	public static void passedDefinition(String className, String varName, 
+			String methodName, Object caller, int branchID, int defID) {
 
-		// TODO detect which definitions and uses were reached on which objects!!!
+		if(caller==null)
+			logger.error("null caller");
 		
 		ExecutionTracer tracer = getExecutionTracer();
 		if (!tracer.disabled) {
-			HashMap<Integer, Integer> defs = tracer.trace.passedDefs
-			        .get(varName);
+			
+			int objectID = registerObject(caller);
+			
+			if(tracer.trace.passedDefs.get(varName)==null) 
+				tracer.trace.passedDefs.put(varName,new HashMap<Integer,HashMap<Integer,Integer>>());
+			
+			HashMap<Integer, Integer> defs = tracer.trace.passedDefs.get(varName).get(objectID);
 			if (defs == null)
 				defs = new HashMap<Integer, Integer>();
 
 			defs.put(tracer.duCounter, defID);
-			tracer.trace.passedDefs.put(varName, defs);
+			tracer.trace.passedDefs.get(varName).put(objectID, defs);
 
 			tracer.duCounter++;
 		}
 	}
 
-	public static void passedUse(String className, String varName,
-	        String methodName, int branchID, int useID) {
-		
-		// TODO detect which definitions and uses were reached on which objects!!!
+	public static void passedUse(String className, String varName, String methodName, 
+			Object caller, int branchID, int useID) {
 		
 		ExecutionTracer tracer = getExecutionTracer();
 		if (!tracer.disabled) {
-			HashMap<Integer, Integer> uses = tracer.trace.passedUses
-			        .get(varName);
+
+			int objectID = registerObject(caller);
+			
+			if(tracer.trace.passedUses.get(varName)==null) 
+				tracer.trace.passedUses.put(varName,new HashMap<Integer,HashMap<Integer,Integer>>());
+			
+			HashMap<Integer, Integer> uses = tracer.trace.passedUses.get(varName).get(objectID);
 			if (uses == null)
 				uses = new HashMap<Integer, Integer>();
 
 			uses.put(tracer.duCounter, useID);
-			tracer.trace.passedUses.put(varName, uses);
+			tracer.trace.passedUses.get(varName).put(objectID, uses);
 
 			tracer.duCounter++;
 		}
+	}
+	
+	private static int registerObject(Object caller) {
+		if(caller == null)
+			return 0;
+		
+		ExecutionTracer tracer = getExecutionTracer();
+		
+		for(Integer objectID : tracer.knownObjects.keySet()) {
+			if(tracer.knownObjects.get(objectID)==caller)
+				return objectID;
+		}
+		tracer.objectCounter++;
+		tracer.knownObjects.put(tracer.objectCounter, caller);
+		
+		return tracer.objectCounter;
 	}
 
 	public static void statementExecuted() {

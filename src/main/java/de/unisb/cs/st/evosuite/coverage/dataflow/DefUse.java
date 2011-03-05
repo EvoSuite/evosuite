@@ -34,6 +34,10 @@ public abstract class DefUse extends CFGVertexHolder {
 		return v.isDefinition();
 	}
 	
+	public boolean isStaticDU() {
+		return v.isStaticDU();
+	}
+	
 	public String toString() {
 		
 		String s = "";
