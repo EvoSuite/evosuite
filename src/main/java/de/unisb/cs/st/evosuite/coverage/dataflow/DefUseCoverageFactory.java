@@ -41,6 +41,12 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 
 	private static Logger logger = Logger.getLogger(DefUseCoverageFactory.class);
 	
+	// TestSuiteMinimizer seems to call getCoverageGoals() a second time
+	// and since analysis takes a little ...
+	private static boolean called = false;
+	private static List<TestFitnessFunction> goals;
+	
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -52,9 +58,12 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 
 		// TODO replace this with Reaching-Definitions-Algorithm 
 		
+		if(called) 
+			return goals;
+		
 		logger.info("Starting DefUse-Coverage goal generation");
 		
-		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
+		goals = new ArrayList<TestFitnessFunction>();
 
 		Set<Definition> freeDefs = getDefsWithClearPathToMethodEnd();
 		Set<Use> freeUses = getUsesWithClearPathFromMethodStart();
@@ -69,6 +78,8 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 				}
 				
 		goals.addAll(getPairsWithinMethods());
+		
+		called = true;
 		
 		return goals;
 	}
@@ -148,7 +159,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 						for (Use use : entry.getValue()) {
 							if (cfg.hasDefClearPathFromMethodStart(use.getCFGVertex())) {
 								r.add(use);
-								System.out.println("use with free path from start: "+use.toString());
+//								System.out.println("use with free path from start: "+use.toString());
 							}
 						}
 					}
@@ -185,7 +196,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 						for (Definition def : entry.getValue()) {
 							if (cfg.hasDefClearPathToMethodEnd(def.getCFGVertex())) {
 								r.add(def);
-								System.out.println("def with free path to end: "+def.toString());
+//								System.out.println("def with free path to end: "+def.toString());
 							}
 
 						}

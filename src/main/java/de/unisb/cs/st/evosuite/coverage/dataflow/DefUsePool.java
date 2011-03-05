@@ -42,15 +42,15 @@ public class DefUsePool {
 	 * 
 	 * @param v CFGVertex corresponding to a Definition
 	 */
-	public static void addDefinition(CFGVertex v) {
+	public static boolean addDefinition(CFGVertex v) {
 		if(!v.isDefinition())
 			throw new IllegalArgumentException("Vertex of a definition or use expected");
 		
-		v.defID = defCounter; // IINCs already have duID set do useCounter value
 		defCounter++;
+		v.defID = defCounter; // IINCs already have duID set do useCounter value
 		if(!v.isUse()) {
+			duCounter++;			
 			v.duID = duCounter;
-			duCounter++;
 		}
 		
 		Definition d = new Definition(v);
@@ -59,8 +59,9 @@ public class DefUsePool {
 		duIDsToDefUses.put(d.getDUID(),d);
 		duIDsToDefs.put(d.getDUID(),d);
 		
-		logger.info("Found "+d.toString()+" in "+v.methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+v.line_no+")"+" for var "+v.getDUVariableName());
-		
+		logger.info("Found "+d.toString()+" in "+v.methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+v.line_no+")");
+
+		return true;
 	}
 
 	/**
@@ -72,13 +73,13 @@ public class DefUsePool {
 		if(!v.isUse()) 
 			throw new IllegalArgumentException("Vertex of a use expected");
 
-		if(v.isLocalVarUse() && !hasEntryForVariable(def_map, v))
+		if(v.isLocalVarUse() && !hasEntryForVariable(def_map, v)) // TODO was an argument
 			return false;
 
+		useCounter++;		
 		v.useID = useCounter;
-		useCounter++;
-		v.duID = duCounter;
 		duCounter++;
+		v.duID = duCounter;
 		
 		Use u = new Use(v);
 		List<Use> uses = initUseMap(use_map, u);
@@ -86,7 +87,7 @@ public class DefUsePool {
 		duIDsToDefUses.put(u.getDUID(),u);
 		duIDsToUses.put(u.getDUID(),u);
 		
-		logger.info("Found "+u.toString()+" in "+v.methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+v.line_no+")"+" for var "+v.getDUVariableName());
+		logger.info("Found "+u.toString()+" in "+v.methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+v.line_no+")");
 		
 
 		return true;
