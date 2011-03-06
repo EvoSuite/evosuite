@@ -86,6 +86,7 @@ public class BooleanHelper<E> {
 			l = l > 0 ? l : -l;
 			l = l + getK();
 			i = l >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) l;
+            iStack.clear();
 			log.debug("popTrue:" + i);
 			return i;
 		}
@@ -101,6 +102,7 @@ public class BooleanHelper<E> {
 			l = l <= 0 ? l : -l;
 			l = l - getK();
 			i = l <= Integer.MIN_VALUE ? Integer.MIN_VALUE : (int) l;
+            iStack.clear();
 			log.debug("popFalse:" + i);
 			return i;
 		}
