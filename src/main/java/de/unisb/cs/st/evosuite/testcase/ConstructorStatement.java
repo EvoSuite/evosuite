@@ -47,8 +47,8 @@ public class ConstructorStatement extends Statement {
 
 	public List<VariableReference> parameters;
 
-	public ConstructorStatement(Constructor<?> constructor, VariableReference retval,
-	        List<VariableReference> parameters) {
+	public ConstructorStatement(Constructor<?> constructor,
+	        VariableReference retval, List<VariableReference> parameters) {
 		this.constructor = constructor;
 		// this.return_type = constructor.getDeclaringClass();
 		this.parameters = parameters;
@@ -107,19 +107,21 @@ public class ConstructorStatement extends Statement {
 		// String result = ((Class<?>) retval.getType()).getSimpleName()
 		// +" "+retval.getName()+ " = null;\n";
 		if (exception != null) {
-			result = retval.getSimpleClassName() + " " + retval.getName() + " = null;\n";
+			result = retval.getSimpleClassName() + " " + retval.getName()
+			        + " = null;\n";
 			result += "try {\n  ";
 		} else {
 			result += retval.getSimpleClassName() + " ";
 		}
 		result += retval.getName() + " = new "
-		        + ClassUtils.getShortClassName(constructor.getDeclaringClass()) + "("
-		        + parameter_string + ");";
+		        + ClassUtils.getShortClassName(constructor.getDeclaringClass())
+		        + "(" + parameter_string + ");";
 		if (exception != null) {
 			Class<?> ex = exception.getClass();
 			while (!Modifier.isPublic(ex.getModifiers()))
 				ex = ex.getSuperclass();
-			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {}";
+			result += "\n} catch(" + ClassUtils.getShortClassName(ex)
+			        + " e) {}";
 		}
 
 		return result;
@@ -131,7 +133,8 @@ public class ConstructorStatement extends Statement {
 		for (VariableReference r : parameters) {
 			new_params.add(r.clone());
 		}
-		Statement copy = new ConstructorStatement(constructor, retval.clone(), new_params);
+		Statement copy = new ConstructorStatement(constructor, retval.clone(),
+		        new_params);
 		copy.assertions = cloneAssertions();
 		return copy;
 	}
@@ -182,8 +185,10 @@ public class ConstructorStatement extends Statement {
 	public int hashCode() {
 		final int prime = 41;
 		int result = 1;
-		result = prime * result + ((constructor == null) ? 0 : constructor.hashCode());
-		result = prime * result + ((parameters == null) ? 0 : parameters.hashCode());
+		result = prime * result
+		        + ((constructor == null) ? 0 : constructor.hashCode());
+		result = prime * result
+		        + ((parameters == null) ? 0 : parameters.hashCode());
 		return result;
 	}
 
@@ -220,7 +225,8 @@ public class ConstructorStatement extends Statement {
 		for (VariableReference parameter : parameters) {
 			parameter.loadBytecode(mg, locals);
 			if (constructor.getParameterTypes()[num].isPrimitive()) {
-				if (!constructor.getParameterTypes()[num].equals(parameter.getVariableClass())) {
+				if (!constructor.getParameterTypes()[num].equals(parameter
+				        .getVariableClass())) {
 					logger.debug("Types don't match - casting "
 					        + parameter.getVariableClass().getName() + " to "
 					        + constructor.getParameterTypes()[num].getName());
@@ -231,7 +237,7 @@ public class ConstructorStatement extends Statement {
 			num++;
 		}
 		mg.invokeConstructor(Type.getType(retval.getVariableClass()),
-		                     Method.getMethod(constructor));
+		        Method.getMethod(constructor));
 		logger.debug("Storing result");
 		retval.storeBytecode(mg, locals);
 
@@ -314,7 +320,8 @@ public class ConstructorStatement extends Statement {
 	 * de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
 	@Override
-	public void replaceUnique(VariableReference old_var, VariableReference new_var) {
+	public void replaceUnique(VariableReference old_var,
+	        VariableReference new_var) {
 		if (retval == old_var)
 			retval = new_var;
 		if (retval.array == old_var)
