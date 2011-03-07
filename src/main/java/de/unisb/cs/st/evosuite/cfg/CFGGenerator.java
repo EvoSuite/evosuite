@@ -84,6 +84,8 @@ public class CFGGenerator extends Analyzer {
 		boolean mutatedBranch = false;
 
 		public int duID = -1;
+		public int useID = -1;
+		public int defID = -1;
 		public int branchID = -1;
 		public boolean branchExpressionValue = true;
 		public String methodName;

@@ -115,7 +115,7 @@ public class TestSuiteMinimizer {
 			for (TestFitnessFunction goal : goals) {
 				if (!covered.contains(goal) && goal.getFitness(test, result) == 0.0) { // TODO: 0.0 should not be hardcoded
 					covered.add(goal);
-					test.test.addCoveredGoal(goal);
+//					test.test.addCoveredGoal(goal);
 				}
 			}
 			num++;
