@@ -49,8 +49,6 @@ public class MSecurityManager extends SecurityManager {
 		if (!allowPermission(perm))
 			throw new SecurityException(
 			        "Security manager blocks all he can block. You've got served!");
-		else
-			logger.info("Security manager says ok");
 
 		return;
 	}
@@ -65,7 +63,6 @@ public class MSecurityManager extends SecurityManager {
 	 */
 	private boolean allowPermission(Permission perm) {
 
-		logger.info("Checking permission");
 		// get all elements of the stack trace for the current thread 
 		StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
 
