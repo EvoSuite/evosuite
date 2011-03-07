@@ -127,7 +127,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 							
 							List<CFGVertex> uses = cfg.getUsesForDef(def.getCFGVertex());
 							for(CFGVertex use : uses) {
-								r.add(createGoal(def, DefUsePool.getUse(use.duID)));
+								r.add(createGoal(def, DefUsePool.getUseByDUID(use.duID)));
 							}
 						}
 					}

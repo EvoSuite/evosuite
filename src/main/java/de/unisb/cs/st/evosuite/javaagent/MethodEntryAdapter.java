@@ -24,6 +24,8 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.VarInsnNode;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.MutationMarker;
@@ -42,6 +44,7 @@ public class MethodEntryAdapter extends AdviceAdapter{
 	String className;
 	String methodName;
 	String fullMethodName;
+	int access;
 	
 	public MethodEntryAdapter(MethodVisitor mv, int access, String className, String methodName,
 			String desc) {
@@ -49,6 +52,7 @@ public class MethodEntryAdapter extends AdviceAdapter{
 		this.className = className;
 		this.methodName = methodName;
 		this.fullMethodName = methodName+desc;
+		this.access = access;
 	}
 	
 	
@@ -65,8 +69,13 @@ public class MethodEntryAdapter extends AdviceAdapter{
 
 		mv.visitLdcInsn(className);
 		mv.visitLdcInsn(fullMethodName);
+		if((access & Opcodes.ACC_STATIC) > 0) {
+			mv.visitInsn(Opcodes.ACONST_NULL);
+		} else {
+			mv.visitVarInsn(Opcodes.ALOAD, 0);
+		}
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-				"enteredMethod", "(Ljava/lang/String;Ljava/lang/String;)V");
+				"enteredMethod", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V");
 
 		if(Properties.MUTATION) {
 			Label mutationEndLabel = new Label();

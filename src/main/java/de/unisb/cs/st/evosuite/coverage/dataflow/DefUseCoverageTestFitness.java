@@ -98,19 +98,29 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		
 		// TODO detect which LV in which methodCall
 		// TODO cut ExecutionTrace for branch-fitness-evaluation to Trace of current object only
+		// 	subTODO: first mark MethodCalls in ExecutionTracer.finished_calls with a methodID and the current objectID
+		// 			 then kick out all non-static MethodCalls for objects other then the one with current objectID
+		//			 if goalDef is for a LV, also consider MethodCalls individually		
 		// TODO cut ExecutionTrace for branch-fitness-evaluation to Trace of a certain path (between goalDef and overwritingDef)
+		//  subTODO: in a MethodCall from the ExecutionTracer add another list holding information about the current duConter
+		//			 then allow for cutting the ExecutionTrace in a way that it only holds data associated with a duCounter in a given range
 		
 		// TODO idea: 	once def is covered, look at all duCounterPositions of goalDef (goalDefPositions):
 		//				if goalUse is covered any of these goalDefPositions, return 0
 		//				if not return the minimum over all branchUseFitnesses in the trace
 		//				where the trace is cut between the goalDefPosition and the next overwritingDefinition
 		
-		if(result.trace.passedUses.get(this.goalVariable) == null) // trace doesnt even know the variable of this goal
+		if(result.trace.passedUses.get(this.goalVariable) == null) {
+			// trace doesnt even know the variable of this goal
+			if(DEBUG) System.out.println("trace had no use-trace-entry for goalVar");
 			return getMaxFitness();
+		}
 
 		// ASSUMPTION: static definitions in <clinit> are ALWAYS covered!!!
-		if(goalDef.isStaticDU() && goalDef.getCFGVertex().methodName.startsWith("<clinit>"))
+		if(goalDef.isStaticDU() && goalDef.getCFGVertex().methodName.startsWith("<clinit>")) {
+			if(DEBUG) System.out.println("Assume definition from <clinit> to always be covered");
 			return normalize(useTestFitness.getFitness(individual, result));
+		}
 		
 //		if(traceCoversGoal(result.trace)) {
 //			return 0;
@@ -119,7 +129,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		double fitness = getMaxFitness();
 		
 		HashSet<Integer> objectPool = new HashSet<Integer>();
-		objectPool.addAll(result.trace.passedDefs.get(this.goalVariable).keySet());
+		if(result.trace.passedDefs.get(this.goalVariable) != null)
+			objectPool.addAll(result.trace.passedDefs.get(this.goalVariable).keySet());
 		if(goalDef.isStaticDU()) {
 			// in the static case all objects have to be considered
 			objectPool.addAll(result.trace.passedUses.get(this.goalVariable).keySet());
@@ -138,6 +149,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			System.out.println();
 		}
 		
+		ExecutionTrace originalTrace = result.trace;
+		
 		for(Integer objectID : objectPool) {
 		
 			if(DEBUG) System.out.println("current object: "+objectID);
@@ -147,46 +160,47 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 
 			// known bugs: sometimes accepts a test even though the goalDef is overwritten before the goalUse is reached
 			
+			if(!goalDef.isStaticDU()) { // only consider trace of current objectID
+				result.trace = originalTrace.getTraceForObject(objectID); // TODO !!!
+			}
+			
 			double defFitness = defTestFitness.getFitness(individual, result);
+			
+			result.trace = originalTrace;
+			
 			double newFitness = 1 + normalize(defFitness);
 			
 			// definition not reached yet
 			if (defFitness != 0) {
-				if(DEBUG) System.out.println("Definition NOT covered: "+defFitness);
+				if(DEBUG) System.out.println("Definition NOT covered on object"+objectID+": "+defFitness);
 				if(newFitness<fitness)
 					fitness = newFitness;
 				continue;
 			}
+			newFitness = normalize(getMaxFitness());
+			
+			// definition reached on this object?
 			int goalDefPos = getLastGoalDefPos(result.trace,objectID);
 			if(goalDefPos == -1) {
 				if(DEBUG) System.out.println("Definition NOT covered on this object but on another one");
 				// TODO s. cutting ExecutionTrace above
 				continue;
-				
 			}
-			if(DEBUG) System.out.println("Definition covered");
-				
-			newFitness = normalize(getMaxFitness());
+			if(DEBUG) System.out.println("Definition covered at duPos "+goalDefPos);
 			
-			int lastDef = getLastDef(result.trace,objectID);
-			if(goalDef.isStaticDU() && lastDef == -1) {
-				// TODO known bug: static calls seem not to be present in all ExecutionTraces
-				//					maybe trace static calls directly in the ExecutionTracer?
-				lastDef = getLastDef(result.trace,0); // static calls have objectID 0
-			}
-			if (lastDef == -1) { // && !goalDef.isStaticDU()) { // TODO (s. above)
-				throw new IllegalStateException("expect definition to be passed if its fitness is 0");
-			}
-
-			int lastDefPos = getLastDefPos(result.trace,objectID);
-			int goalUsePos = getLastGoalUsePos(result.trace,objectID); // TODO BUG: somehow this doesn't return -1 when the use is only covered on another objectID
-
-			if(lastDefPos == -1 && !goalDef.isStaticDU()) // TODO (s. above)
-				throw new IllegalStateException("expect last definition position to exist when last definition exists");
-			
+			// use covered?
+			int goalUsePos = getLastGoalUsePos(result.trace,objectID);
 			// use not covered yet
 			if(goalUsePos == -1) {
-				double useFitness = useTestFitness.getFitness(individual, result);
+				
+				if(!goalDef.isStaticDU()) { // only consider trace of current objectID
+					result.trace = originalTrace.getTraceForObject(objectID); // TODO !!!
+				}
+				
+				double useFitness = useTestFitness.getFitness(individual, result); // TODO only look at current objectID
+				
+				result.trace = originalTrace;
+				
 				if(DEBUG) System.out.println("Use NOT covered "+useFitness);
 				newFitness = normalize(useFitness);
 				// TODO bug: this fitness can be 0 because the trace in result still contains traces of other objects!
@@ -198,29 +212,50 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 					fitness = newFitness;
 				continue;
 			}
-			if(DEBUG) System.out.println("goalUse covered "+goalUsePos);
+			if(DEBUG) System.out.println("goalUse covered at duPos "+goalUsePos);
+			
+			int activeDefID = getActiveDefIDFor(result.trace,goalUsePos,objectID);
+			int activeDefPos = getActiveDefPosFor(result.trace,goalUsePos, objectID);
+			
+			if(goalDef.isStaticDU() && activeDefID == -1) {
+				// TODO known bug: static calls seem not to be present in all ExecutionTraces
+				//					maybe trace static calls directly in the ExecutionTracer?
+				activeDefID = getActiveDefIDFor(result.trace,goalUsePos,0); // static calls have objectID 0
+				activeDefPos = getActiveDefPosFor(result.trace,goalUsePos,0); // static calls have objectID 0
+			}
+			
 			// definition came after use
 			if (goalDefPos > goalUsePos) {
 				if(DEBUG) System.out.println("Definition came after use");
+				// TODO at this point the ExecutionTrace should be cut such that only traces remain, that came after the goalDefPos
 				if(newFitness < fitness)
 					fitness = newFitness;
 				continue;
 			}
 			//definition was overwritten
-			if (lastDef != goalDef.getDefID() && goalUsePos>lastDefPos) { 
+			// TODO known bug: if goalDef gets overwritten and there is another 
+			// overwriting definition after the goalUsePos this will not be detected
+			if (activeDefID != goalDef.getDefID() && goalUsePos>activeDefPos) { 
 				if(DEBUG) System.out.println("goalDefinition no longer active at covered use");
 				if(newFitness < fitness)
 					fitness = newFitness;
 				continue;
 			}
 			
+			if(!goalDef.isStaticDU()) { // only consider trace of current objectID
+				result.trace = originalTrace.getTraceForObject(objectID); // TODO !!!
+			}
+			
 			double useFitness = useTestFitness.getFitness(individual, result);
+			
+			result.trace = originalTrace;
 			
 			if(useFitness == 0) {
 //				System.out.println("goal covered normally at object "+objectID);
 				if(DEBUG) System.out.println("goal COVERED");
 				if(DEBUG) System.out.println("===============================");
 				this.coveringObjectID = objectID;
+				// TODO: add covering trace information for test comments!!!
 				return 0;
 			}
 			
@@ -263,7 +298,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 
 			for(Integer usePos : usePositions) {
 				
-				if (getActiveDefFor(trace, usePos, objectID) == goalDef.getDefID())
+				if (getActiveDefIDFor(trace, usePos, objectID) == goalDef.getDefID())
 					return true;
 			}
 		}
@@ -293,7 +328,29 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	/**
 	 * Returns the duCounterPosition of the Definition that is active in the given trace at usePos 
 	 */
-	private int getActiveDefFor(ExecutionTrace trace, int usePos, int objectID) {
+	private int getActiveDefPosFor(ExecutionTrace trace, int usePos, int objectID) {
+		if (trace.passedDefs.get(goalDef.getDUVariableName()) == null)
+			return -1;
+		
+		int lastPos = -1;
+
+		Map<Integer, Integer> defMap = trace.passedDefs.get(this.goalVariable).get(objectID);
+		if(defMap != null) {
+			for (Integer defPos : defMap.keySet()) {
+				if (defPos > usePos)
+					continue;
+				if(lastPos<defPos) {
+					lastPos = defPos;
+				}
+			}
+		}
+		return lastPos;
+	}
+	
+	/**
+	 * Returns the defID of the Definition that is active in the given trace at usePos 
+	 */
+	private int getActiveDefIDFor(ExecutionTrace trace, int usePos, int objectID) {
 		if (trace.passedDefs.get(goalDef.getDUVariableName()) == null)
 			return -1;
 		
@@ -312,7 +369,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			}
 		}
 		return lastDef;
-	}
+	}	
 	
 	/**
 	 * Returns the last active Definition for the goalVariable in the given Trace
@@ -410,7 +467,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		        + " in " + goalDef.getMethodName() + " branch " + goalDef.getBranchID() + "(l"
 		        + goalDef.getLineNumber() + ") Use " + goalUse.getUseID() + " in "
 		        + goalUse.getMethodName() + " branch " + goalUse.getBranchID() + " (l"
-		        + goalUse.getLineNumber() + ") covered by "+this.coveringObjectID;
+		        + goalUse.getLineNumber() + ") "+(this.coveringObjectID!=-1?("covered by object "+this.coveringObjectID):"");
 	}
 	
 	@Override

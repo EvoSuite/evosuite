@@ -51,13 +51,6 @@ public class ExecutionTracer {
 
 	private int num_statements = 0;
 
-	// number of seen Definitions and uses for indexing purposes
-	private int duCounter = 0;
-	// for defuse-coverage it is important to keep track of all the objects that called a trace-method of this class
-	private int objectCounter = 0;
-	public HashMap<Integer,Object> knownObjects = new HashMap<Integer,Object>();
-	
-
 	/**
 	 * If a thread of a test case survives for some reason (e.g. long call to
 	 * external library), then we don't want its data in the current trace
@@ -103,7 +96,6 @@ public class ExecutionTracer {
 	public void clear() {
 		trace = new ExecutionTrace();
 		num_statements = 0;
-		duCounter = 0;
 	}
 
 	/**
@@ -126,7 +118,7 @@ public class ExecutionTracer {
 	 * @param classname
 	 * @param methodname
 	 */
-	public static void enteredMethod(String classname, String methodname)
+	public static void enteredMethod(String classname, String methodname, Object caller)
 	        throws TestCaseExecutor.TimeoutExceeded {
 		if (Thread.currentThread() != currentThread)
 			return;
@@ -144,7 +136,7 @@ public class ExecutionTracer {
 			return;
 
 		logger.trace("Entering method " + classname + "." + methodname);
-		tracer.trace.enteredMethod(classname, methodname);
+		tracer.trace.enteredMethod(classname, methodname, caller);
 	}
 
 	/**
@@ -500,73 +492,32 @@ public class ExecutionTracer {
 		tracer.trace.branchPassed(branch, bytecode_id, distance_true, distance_false);
 	}
 
+	/**
+	 * Called by instrumented code each time a variable gets written to (a Definition)  
+	 */
 	public static void passedDefinition(String className, String varName, 
 			String methodName, Object caller, int branchID, int defID) {
 		if (Thread.currentThread() != currentThread)
 			return;
 
-		if(caller==null)
-			logger.error("null caller");
-		
 		ExecutionTracer tracer = getExecutionTracer();
-		if (!tracer.disabled) {
-			
-			int objectID = registerObject(caller);
-			
-			if(tracer.trace.passedDefs.get(varName)==null) 
-				tracer.trace.passedDefs.put(varName,new HashMap<Integer,HashMap<Integer,Integer>>());
-			
-			HashMap<Integer, Integer> defs = tracer.trace.passedDefs.get(varName).get(objectID);
-			if (defs == null)
-				defs = new HashMap<Integer, Integer>();
-
-			defs.put(tracer.duCounter, defID);
-			tracer.trace.passedDefs.get(varName).put(objectID, defs);
-
-			tracer.duCounter++;
-		}
+		if (!tracer.disabled)
+			tracer.trace.definitionPassed(className,varName,methodName,caller,branchID,defID);
 	}
 
+	/**
+	 * Called by instrumented code each time a variable is read from (a Use)
+	 */
 	public static void passedUse(String className, String varName, String methodName, 
 			Object caller, int branchID, int useID) {
 		
 		if (Thread.currentThread() != currentThread)
 			return;
 		ExecutionTracer tracer = getExecutionTracer();
-		if (!tracer.disabled) {
-
-			int objectID = registerObject(caller);
-			
-			if(tracer.trace.passedUses.get(varName)==null) 
-				tracer.trace.passedUses.put(varName,new HashMap<Integer,HashMap<Integer,Integer>>());
-			
-			HashMap<Integer, Integer> uses = tracer.trace.passedUses.get(varName).get(objectID);
-			if (uses == null)
-				uses = new HashMap<Integer, Integer>();
-
-			uses.put(tracer.duCounter, useID);
-			tracer.trace.passedUses.get(varName).put(objectID, uses);
-
-			tracer.duCounter++;
-		}
+		if (!tracer.disabled)
+			tracer.trace.usePassed(className,varName,methodName,caller,branchID,useID);
 	}
 	
-	private static int registerObject(Object caller) {
-		if(caller == null)
-			return 0;
-		
-		ExecutionTracer tracer = getExecutionTracer();
-		
-		for(Integer objectID : tracer.knownObjects.keySet()) {
-			if(tracer.knownObjects.get(objectID)==caller)
-				return objectID;
-		}
-		tracer.objectCounter++;
-		tracer.knownObjects.put(tracer.objectCounter, caller);
-		
-		return tracer.objectCounter;
-	}
-
 	public static void statementExecuted() {
 		if (Thread.currentThread() != currentThread)
 			return;

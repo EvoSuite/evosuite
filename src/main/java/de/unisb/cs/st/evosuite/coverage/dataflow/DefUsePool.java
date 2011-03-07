@@ -27,8 +27,8 @@ public class DefUsePool {
 	
 	// maps all known duIDs to their DefUse
 	private static Map<Integer,DefUse> duIDsToDefUses = new HashMap<Integer,DefUse>();
-	private static Map<Integer,DefUse> duIDsToDefs = new HashMap<Integer,DefUse>();
-	private static Map<Integer,DefUse> duIDsToUses = new HashMap<Integer,DefUse>();
+	private static Map<Integer,Definition> duIDsToDefs = new HashMap<Integer,Definition>();
+	private static Map<Integer,Use> duIDsToUses = new HashMap<Integer,Use>();
 	
 	private static int defCounter = 0;
 	private static int useCounter = 0;
@@ -109,14 +109,10 @@ public class DefUsePool {
 	 * @param duID ID of a Use
 	 * @return The Use with the given duID if such an ID is known for a Use, null otherwise
 	 */
-	public static Use getUse(int duID) {
+	public static Use getUseByDUID(int duID) {
 		DefUse du = duIDsToUses.get(duID);
 		if(du==null)
 			return null;
-//		if(!du.isUse()) {
-//			logger.warn("getUse() called with the duID of a definition");
-//			return null;
-//		}
 		
 		return (Use)du;
 	}
@@ -127,16 +123,30 @@ public class DefUsePool {
 	 * @param duID ID of a Definition
 	 * @return The Definition with the given duID if such an ID is known for a Definition, null otherwise
 	 */	
-	public static Definition getDefinition(int duID) {
+	public static Definition getDefinitionByDUID(int duID) {
 		DefUse du = duIDsToDefs.get(duID);
 		if(du == null)
 			return null;
-//		if(!du.isDefinition()) {
-//			logger.warn("getDefinition() called with the duID of a use");
-//			return null;
-//		}
 		
 		return (Definition)du;
+	}
+	
+	public static Use getUseByUseID(int useID) {
+		
+		for(Use use : duIDsToUses.values()) {
+			if(use.getUseID() == useID)
+				return use;
+		}
+		return null;
+	}
+	
+	public static Definition getDefinitionByDefID(int defID) {
+		
+		for(Definition def : duIDsToDefs.values()) {
+			if(def.getDefID() == defID)
+				return def;
+		}
+		return null;
 	}	
 
 	/**
