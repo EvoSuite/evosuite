@@ -58,7 +58,7 @@ public class TestCallStatement extends Statement {
 	 */
 	public Object runTest(TestCase test) {
 
-		TestCaseExecutor executor = new TestCaseExecutor();
+		TestCaseExecutor executor = TestCaseExecutor.getInstance();
 		try {
 			Scope scope = new Scope();
 			// logger.info("Starting test call " + test.toCode());
@@ -71,8 +71,7 @@ public class TestCallStatement extends Statement {
 			MaxStatementsStoppingCondition.statementsExecuted(num);
 			// logger.info("Finished test call. Getting variables of type: "
 			// + testCall.getReturnType());
-			List<VariableReference> variables = scope.getElements(testCall
-			        .getReturnType());
+			List<VariableReference> variables = scope.getElements(testCall.getReturnType());
 
 			// logger.info("Got " + variables.size());
 			if (!variables.isEmpty()) {
@@ -138,8 +137,8 @@ public class TestCallStatement extends Statement {
 		for (TestCase other : testCall.getSuite().getTests()) {
 			if (test.equals(other))
 				return retval.getSimpleClassName() + " " + retval.getName()
-				        + " = Call to test case: " + num + "...\n"
-				        + test.toCode() + "...\n";
+				        + " = Call to test case: " + num + "...\n" + test.toCode()
+				        + "...\n";
 			num++;
 		}
 
@@ -194,8 +193,7 @@ public class TestCallStatement extends Statement {
 	 */
 	@Override
 	public Statement clone() {
-		TestCallStatement statement = new TestCallStatement(testCall,
-		        retval.clone());
+		TestCallStatement statement = new TestCallStatement(testCall, retval.clone());
 		return statement;
 	}
 
@@ -203,8 +201,7 @@ public class TestCallStatement extends Statement {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-		        + ((testCall == null) ? 0 : testCall.hashCode());
+		result = prime * result + ((testCall == null) ? 0 : testCall.hashCode());
 		return result;
 	}
 
@@ -257,8 +254,7 @@ public class TestCallStatement extends Statement {
 	 * de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
 	@Override
-	public void replaceUnique(VariableReference old_var,
-	        VariableReference new_var) {
+	public void replaceUnique(VariableReference old_var, VariableReference new_var) {
 		// TODO Auto-generated method stub
 
 	}

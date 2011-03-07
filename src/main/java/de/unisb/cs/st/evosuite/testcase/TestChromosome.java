@@ -88,7 +88,7 @@ public class TestChromosome extends Chromosome {
 		c.solution = solution;
 		c.setChanged(isChanged());
 		if (last_result != null)
-			c.last_result = last_result.clone(); // TODO: Clone?
+			c.last_result = last_result; //.clone(); // TODO: Clone?
 
 		return c;
 	}
@@ -220,54 +220,63 @@ public class TestChromosome extends Chromosome {
 		boolean changed = false;
 		double pl = 1d / test.size();
 
-		for (Statement statement : test.getStatements()) {
-			if (randomness.nextDouble() <= pl) {
-
-				if (statement instanceof PrimitiveStatement<?>) {
-					// do some mutation of values with what probability?
-
-					logger.debug("Old statement: " + statement.getCode());
-
-					if (randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
-						ConcolicMutation mutation = new ConcolicMutation();
-						mutation.mutate((PrimitiveStatement) statement, test);
-					} else {
-						((PrimitiveStatement<?>) statement).delta();
-					}
-
-					int position = statement.retval.statement;
-					// test.setStatement(statement, position);
-					//logger.info("Changed test: " + test.toCode());
-					logger.debug("New statement: "
-					        + test.getStatement(position).getCode());
-					changed = true;
-				} else if (statement instanceof AssignmentStatement) {
-					// logger.info("Before change at:");
-					// logger.info(test.toCode());
-					AssignmentStatement as = (AssignmentStatement) statement;
-					if (randomness.nextDouble() < 0.5) {
-						List<VariableReference> objects = test.getObjects(statement.retval.getType(),
-						                                                  statement.retval.statement);
-						objects.remove(statement.retval);
-						objects.remove(as.parameter);
-						if (!objects.isEmpty()) {
-							as.parameter = randomness.choice(objects);
-							changed = true;
-						}
-					} else if (as.retval.array_length > 0) {
-						as.retval.array_index = randomness.nextInt(as.retval.array_length);
-						changed = true;
-					}
-					// logger.info("After change:");
-					// logger.info(test.toCode());
-				} else if (statement.retval.isArray()) {
-
-				} else {
-					changed = test_factory.changeRandomCall(test, statement);
-				}
+		if (randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
+			ConcolicMutation mutation = new ConcolicMutation();
+			changed = mutation.mutate(test);
+			if (changed) {
+				logger.info("Changed test case is: " + test.toCode());
 			}
 		}
 
+		if (!changed) {
+			for (Statement statement : test.getStatements()) {
+				if (randomness.nextDouble() <= pl) {
+
+					if (statement instanceof PrimitiveStatement<?>) {
+						// do some mutation of values with what probability?
+
+						logger.debug("Old statement: " + statement.getCode());
+
+						//if (randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
+						//	ConcolicMutation mutation = new ConcolicMutation();
+						//	mutation.mutate((PrimitiveStatement) statement, test);
+						//} else {
+						((PrimitiveStatement<?>) statement).delta();
+						//}
+
+						int position = statement.retval.statement;
+						// test.setStatement(statement, position);
+						//logger.info("Changed test: " + test.toCode());
+						logger.debug("New statement: "
+						        + test.getStatement(position).getCode());
+						changed = true;
+					} else if (statement instanceof AssignmentStatement) {
+						// logger.info("Before change at:");
+						// logger.info(test.toCode());
+						AssignmentStatement as = (AssignmentStatement) statement;
+						if (randomness.nextDouble() < 0.5) {
+							List<VariableReference> objects = test.getObjects(statement.retval.getType(),
+							                                                  statement.retval.statement);
+							objects.remove(statement.retval);
+							objects.remove(as.parameter);
+							if (!objects.isEmpty()) {
+								as.parameter = randomness.choice(objects);
+								changed = true;
+							}
+						} else if (as.retval.array_length > 0) {
+							as.retval.array_index = randomness.nextInt(as.retval.array_length);
+							changed = true;
+						}
+						// logger.info("After change:");
+						// logger.info(test.toCode());
+					} else if (statement.retval.isArray()) {
+
+					} else {
+						changed = test_factory.changeRandomCall(test, statement);
+					}
+				}
+			}
+		}
 		return changed;
 	}
 

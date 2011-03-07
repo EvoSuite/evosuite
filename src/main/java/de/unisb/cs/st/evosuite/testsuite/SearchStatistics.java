@@ -58,6 +58,7 @@ import de.unisb.cs.st.evosuite.ga.MaxFitnessEvaluationsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.Randomness;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
 import de.unisb.cs.st.evosuite.mutation.MutationSuiteFitness;
+import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.MaxStatementsStoppingCondition;
@@ -73,11 +74,9 @@ import de.unisb.cs.st.javalanche.mutation.analyze.html.HtmlAnalyzer;
  */
 public class SearchStatistics implements SearchListener {
 
-	private final static boolean do_plot = Properties.getPropertyOrDefault(
-	        "plot", true);
+	private final static boolean do_plot = Properties.getPropertyOrDefault("plot", true);
 
-	private final static boolean do_html = Properties.getPropertyOrDefault(
-	        "html", true);
+	private final static boolean do_html = Properties.getPropertyOrDefault("html", true);
 
 	private static SearchStatistics instance = null;
 
@@ -199,8 +198,8 @@ public class SearchStatistics implements SearchListener {
 
 	protected String writeIntegerChart(List<Integer> values, String className,
 	        String title) {
-		File file = new File(REPORT_DIR.getAbsolutePath() + "/img/statistics_"
-		        + title + "_" + className + ".png");
+		File file = new File(REPORT_DIR.getAbsolutePath() + "/img/statistics_" + title
+		        + "_" + className + ".png");
 		JavaPlot plot = new JavaPlot();
 		GNUPlotTerminal terminal = new FileTerminal("png", REPORT_DIR
 		        + "/img/statistics_" + title + "_" + className + ".png");
@@ -226,10 +225,9 @@ public class SearchStatistics implements SearchListener {
 		return file.getName();
 	}
 
-	protected String writeDoubleChart(List<Double> values, String className,
-	        String title) {
-		File file = new File(REPORT_DIR.getAbsolutePath() + "/img/statistics_"
-		        + title + "_" + className + ".png");
+	protected String writeDoubleChart(List<Double> values, String className, String title) {
+		File file = new File(REPORT_DIR.getAbsolutePath() + "/img/statistics_" + title
+		        + "_" + className + ".png");
 		JavaPlot plot = new JavaPlot();
 		GNUPlotTerminal terminal = new FileTerminal("png", REPORT_DIR
 		        + "/img/statistics_" + title + "_" + className + ".png");
@@ -286,8 +284,7 @@ public class SearchStatistics implements SearchListener {
 
 	protected void writeCSVData(String filename, List<?>... data) {
 		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(filename,
-			        true));
+			BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
 			int length = Integer.MAX_VALUE;
 
 			out.write("Generation,Fitness,Coverage,Size,Length,AverageLength,Evaluations,Tests,Statements\n");
@@ -318,13 +315,11 @@ public class SearchStatistics implements SearchListener {
 		};
 		List<String> filenames = new ArrayList<String>();
 
-		File[] files = (new File(REPORT_DIR.getAbsolutePath() + "/data"))
-		        .listFiles(filter);
+		File[] files = (new File(REPORT_DIR.getAbsolutePath() + "/data")).listFiles(filter);
 		if (files != null) {
 			for (File f : files)
 				filenames.add(f.getName());
-			while (filenames.contains("statistics_" + className + "-" + num
-			        + ".csv"))
+			while (filenames.contains("statistics_" + className + "-" + num + ".csv"))
 				num++;
 		}
 
@@ -345,8 +340,7 @@ public class SearchStatistics implements SearchListener {
 		sb.append("<h1>");
 		sb.append(run.className);
 		sb.append(": ");
-		sb.append(String.format("%.2f", 100.0 * run.covered_goals
-		        / run.total_goals));
+		sb.append(String.format("%.2f", 100.0 * run.covered_goals / run.total_goals));
 		sb.append("%");
 		sb.append("</h1></div></div>\n");
 		sb.append("<p><a href=\"../report-generation.html\">Overview</a></p>\n");
@@ -378,9 +372,8 @@ public class SearchStatistics implements SearchListener {
 					code = test.toCode();
 
 				for (String line : code.split("\n")) {
-					sb.append(String
-					        .format("<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
-					                linecount, linecount));
+					sb.append(String.format("<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
+					                        linecount, linecount));
 					/*
 					 * if(test.exceptionsThrown != null &&
 					 * test.exception_statement == test_line)
@@ -423,8 +416,8 @@ public class SearchStatistics implements SearchListener {
 			if (run.fitness_history.isEmpty()) {
 				sb.append("<h2>No fitness history</h2>\n");
 			} else {
-				String filename = writeDoubleChart(run.fitness_history,
-				        run.className + "-" + run.id, "Fitness");
+				String filename = writeDoubleChart(run.fitness_history, run.className
+				        + "-" + run.id, "Fitness");
 				sb.append("<h2>Fitness</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -437,8 +430,8 @@ public class SearchStatistics implements SearchListener {
 			if (run.size_history.isEmpty()) {
 				sb.append("<h2>No size history</h2>\n");
 			} else {
-				String filename = writeIntegerChart(run.size_history,
-				        run.className + "-" + run.id, "Size");
+				String filename = writeIntegerChart(run.size_history, run.className + "-"
+				        + run.id, "Size");
 				sb.append("<h2>Size</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -451,8 +444,8 @@ public class SearchStatistics implements SearchListener {
 			if (run.length_history.isEmpty()) {
 				sb.append("<h2>No length history</h2>\n");
 			} else {
-				String filename = writeIntegerChart(run.length_history,
-				        run.className + "-" + run.id, "Length");
+				String filename = writeIntegerChart(run.length_history, run.className
+				        + "-" + run.id, "Length");
 				sb.append("<h2>Length</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -466,7 +459,7 @@ public class SearchStatistics implements SearchListener {
 				sb.append("<h2>No average length history</h2>\n");
 			} else {
 				String filename = writeDoubleChart(run.average_length_history,
-				        run.className + "-" + run.id, "Length");
+				                                   run.className + "-" + run.id, "Length");
 				sb.append("<h2>Average Length</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -485,9 +478,8 @@ public class SearchStatistics implements SearchListener {
 		sb.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">");
 		int linecount = 1;
 		for (String line : source) {
-			sb.append(String.format(
-			        "<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
-			        linecount, linecount));
+			sb.append(String.format("<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
+			                        linecount, linecount));
 			if (run.coverage.contains(linecount)) {
 				sb.append("<span style=\"background-color: #ffffcc\">");
 				sb.append(StringEscapeUtils.escapeHtml(line));
@@ -540,11 +532,9 @@ public class SearchStatistics implements SearchListener {
 
 		buffer.append("<h2>Old Parameters</h2>\n");
 		buffer.append("<ul>\n");
-		buffer.append("<li>Algorithm: " + Properties.getProperty("algorithm")
-		        + "\n"); // TODO
+		buffer.append("<li>Algorithm: " + Properties.getProperty("algorithm") + "\n"); // TODO
 		buffer.append("<li>Population size: " + entry.population_size + "\n");
-		buffer.append("<li>Initial test length: " + entry.chromosome_length
-		        + "\n");
+		buffer.append("<li>Initial test length: " + entry.chromosome_length + "\n");
 		buffer.append("<li>Stopping condition: "
 		        + Properties.getProperty("stopping_condition") + ": "
 		        + System.getProperty("GA.generations") + "\n");
@@ -564,33 +554,29 @@ public class SearchStatistics implements SearchListener {
 
 		buffer.append("<h2>Statistics</h2>\n");
 		buffer.append("<ul>\n");
-		buffer.append("<li>Start time: "
-		        + sdf.format(new Date(entry.start_time)) + "\n");
-		buffer.append("<li>End time: "
-		        + sdf.format(new Date(entry.minimized_time)) + "\n");
-		buffer.append("<li>Fitness evaluations: "
-		        + entry.result_fitness_evaluations + "\n");
-		buffer.append("<li>Tests executed: " + entry.result_tests_executed
+		buffer.append("<li>Start time: " + sdf.format(new Date(entry.start_time)) + "\n");
+		buffer.append("<li>End time: " + sdf.format(new Date(entry.minimized_time))
 		        + "\n");
-		buffer.append("<li>Statements executed: "
-		        + entry.result_statements_executed + "\n");
+		buffer.append("<li>Fitness evaluations: " + entry.result_fitness_evaluations
+		        + "\n");
+		buffer.append("<li>Tests executed: " + entry.result_tests_executed + "\n");
+		buffer.append("<li>Statements executed: " + entry.result_statements_executed
+		        + "\n");
 		buffer.append("<li>Generations: " + entry.age + "\n");
-		buffer.append("<li>Number of tests before minimization: "
-		        + entry.size_final + "\n");
-		buffer.append("<li>Number of tests after minimization: "
-		        + entry.size_minimized + "\n");
-		buffer.append("<li>Length of tests before minimization: "
-		        + entry.length_final + "\n");
-		buffer.append("<li>Length of tests after minimization: "
-		        + entry.length_minimized + "\n");
-		buffer.append("<li>Total predicates: " + entry.total_branches + "\n");
-		buffer.append("<li>Total branches: " + (2 * entry.total_branches)
+		buffer.append("<li>Number of tests before minimization: " + entry.size_final
 		        + "\n");
+		buffer.append("<li>Number of tests after minimization: " + entry.size_minimized
+		        + "\n");
+		buffer.append("<li>Length of tests before minimization: " + entry.length_final
+		        + "\n");
+		buffer.append("<li>Length of tests after minimization: " + entry.length_minimized
+		        + "\n");
+		buffer.append("<li>Total predicates: " + entry.total_branches + "\n");
+		buffer.append("<li>Total branches: " + (2 * entry.total_branches) + "\n");
 		buffer.append("<li>Covered branches: " + entry.covered_branches + "\n");
 		buffer.append("<li>Total methods: " + entry.total_methods + "\n");
 		buffer.append("<li>Covered methods: " + entry.covered_methods + "\n");
-		buffer.append("<li>Methods without branches: "
-		        + entry.branchless_methods + "\n");
+		buffer.append("<li>Methods without branches: " + entry.branchless_methods + "\n");
 		buffer.append("<li>Total coverage goal: " + entry.total_goals + "\n");
 		buffer.append("<li>Covered goals: " + entry.covered_goals + "\n");
 
@@ -599,13 +585,13 @@ public class SearchStatistics implements SearchListener {
 		long duration_TO = (entry.minimized_time - entry.start_time) / 1000;
 		buffer.append("<li>Time for search: "
 		        + String.format("%d:%02d:%02d", duration_GA / 3600,
-		                (duration_GA % 3600) / 60, (duration_GA % 60)) + "\n");
+		                        (duration_GA % 3600) / 60, (duration_GA % 60)) + "\n");
 		buffer.append("<li>Time for minimization: "
 		        + String.format("%d:%02d:%02d", duration_MI / 3600,
-		                (duration_MI % 3600) / 60, (duration_MI % 60)) + "\n");
+		                        (duration_MI % 3600) / 60, (duration_MI % 60)) + "\n");
 		buffer.append("<li>Total time: "
 		        + String.format("%d:%02d:%02d", duration_TO / 3600,
-		                (duration_TO % 3600) / 60, (duration_TO % 60)) + "\n");
+		                        (duration_TO % 3600) / 60, (duration_TO % 60)) + "\n");
 
 		// buffer.append("<li>Elite: "+System.getProperty("GA.elite")+"\n");
 		// buffer.append("<li>Mutation rate: "+System.getProperty("GA.mutation_rate")+"\n");
@@ -632,11 +618,11 @@ public class SearchStatistics implements SearchListener {
 			long duration_TO = (entry.minimized_time - entry.start_time) / 1000;
 			buffer.append("<td>");
 			buffer.append(String.format("%d:%02d:%02d", duration_TO / 3600,
-			        (duration_TO % 3600) / 60, (duration_TO % 60)));
+			                            (duration_TO % 3600) / 60, (duration_TO % 60)));
 			buffer.append("</td>");
 			buffer.append("<td>");
 			buffer.append(String.format("%.2f",
-			        (100.0 * entry.covered_goals / (1.0 * entry.total_goals))));
+			                            (100.0 * entry.covered_goals / (1.0 * entry.total_goals))));
 			buffer.append("%</td>");
 			buffer.append("<td><a href=\"html/");
 			String filename = writeRunPage(entry);
@@ -645,8 +631,7 @@ public class SearchStatistics implements SearchListener {
 			buffer.append(entry.className);
 			buffer.append("</a></td>");
 			buffer.append("<td><a href=\"");
-			buffer.append("data/statistics_" + entry.className + "-" + entry.id
-			        + ".csv");
+			buffer.append("data/statistics_" + entry.className + "-" + entry.id + ".csv");
 			buffer.append("\">CSV</a></td>");
 			buffer.append("</tr>\n");
 		}
@@ -702,12 +687,12 @@ public class SearchStatistics implements SearchListener {
 			logger.warn("Error while writing statistics: " + e.getMessage());
 		}
 
-		writeCSVData(REPORT_DIR.getAbsolutePath() + "/data/statistics_"
-		        + entry.className + "-" + entry.id + ".csv",
-		        entry.fitness_history, entry.coverage_history,
-		        entry.size_history, entry.length_history,
-		        entry.average_length_history, entry.fitness_evaluations,
-		        entry.tests_executed, entry.statements_executed);
+		writeCSVData(REPORT_DIR.getAbsolutePath() + "/data/statistics_" + entry.className
+		                     + "-" + entry.id + ".csv", entry.fitness_history,
+		             entry.coverage_history,
+		             entry.size_history, entry.length_history,
+		             entry.average_length_history, entry.fitness_evaluations,
+		             entry.tests_executed, entry.statements_executed);
 
 	}
 
@@ -732,8 +717,7 @@ public class SearchStatistics implements SearchListener {
 		URL systemResource = ClassLoader.getSystemResource("report/" + name);
 		logger.debug("Copying from resource: " + systemResource);
 		copyFile(systemResource, new File(REPORT_DIR, name));
-		copyFile(systemResource, new File(REPORT_DIR.getAbsolutePath()
-		        + "/html/" + name));
+		copyFile(systemResource, new File(REPORT_DIR.getAbsolutePath() + "/html/" + name));
 	}
 
 	/**
@@ -765,18 +749,16 @@ public class SearchStatistics implements SearchListener {
 			}
 		} else {
 
-			writeHTMLHeader(
-			        report,
-			        "EvoSuite Report for "
-			                + Properties.getProperty("PROJECT_PREFIX"));
+			writeHTMLHeader(report,
+			                "EvoSuite Report for "
+			                        + Properties.getProperty("PROJECT_PREFIX"));
 			report.append("<div id=\"header\"><div id=\"logo\">");
 			report.append("<h1 class=title>EvoSuite Report for "
 			        + Properties.getProperty("PROJECT_PREFIX") + "</h1>\n");
 			report.append("</div></div>");
 			try {
 				report.append("Run on "
-				        + java.net.InetAddress.getLocalHost().getHostName()
-				        + "\n");
+				        + java.net.InetAddress.getLocalHost().getHostName() + "\n");
 			} catch (UnknownHostException e) {
 			}
 
@@ -804,11 +786,9 @@ public class SearchStatistics implements SearchListener {
 
 	private Set<Integer> getCoveredLines(ExecutionTrace trace, String className) {
 		Set<Integer> covered_lines = new HashSet<Integer>();
-		for (Entry<String, Map<String, Map<Integer, Integer>>> entry : trace.coverage
-		        .entrySet()) {
+		for (Entry<String, Map<String, Map<Integer, Integer>>> entry : trace.coverage.entrySet()) {
 			if (entry.getKey().startsWith(className)) {
-				for (Map<Integer, Integer> methodentry : entry.getValue()
-				        .values()) {
+				for (Map<Integer, Integer> methodentry : entry.getValue().values()) {
 					covered_lines.addAll(methodentry.keySet());
 				}
 			}
@@ -820,12 +800,15 @@ public class SearchStatistics implements SearchListener {
 		ExecutionTrace trace = null;
 		try {
 			// logger.trace(test.toCode());
-			TestCaseExecutor executor = new TestCaseExecutor();
-			Map<Integer, Throwable> result = executor.run(test);
+			TestCaseExecutor executor = TestCaseExecutor.getInstance();
+			ExecutionResult result = executor.execute(test);
+			//		Map<Integer, Throwable> result = executor.run(test);
 			StatisticEntry entry = statistics.get(statistics.size() - 1);
-			entry.results.put(test, result);
+			//			entry.results.put(test, result);
+			entry.results.put(test, result.exceptions);
 
-			trace = ExecutionTracer.getExecutionTracer().getTrace();
+			//			trace = ExecutionTracer.getExecutionTracer().getTrace();
+			trace = result.trace;
 
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
@@ -881,8 +864,7 @@ public class SearchStatistics implements SearchListener {
 				if (!predicate_count.containsKey(e.getKey()))
 					predicate_count.put(e.getKey(), 1);
 				else
-					predicate_count.put(e.getKey(),
-					        predicate_count.get(e.getKey()) + 1);
+					predicate_count.put(e.getKey(), predicate_count.get(e.getKey()) + 1);
 
 				if (!true_distance.containsKey(e.getKey())
 				        || true_distance.get(e.getKey()) > e.getValue()) {
@@ -893,8 +875,7 @@ public class SearchStatistics implements SearchListener {
 				if (!predicate_count.containsKey(e.getKey()))
 					predicate_count.put(e.getKey(), 1);
 				else
-					predicate_count.put(e.getKey(),
-					        predicate_count.get(e.getKey()) + 1);
+					predicate_count.put(e.getKey(), predicate_count.get(e.getKey()) + 1);
 
 				if (!false_distance.containsKey(e.getKey())
 				        || false_distance.get(e.getKey()) > e.getValue()) {
@@ -940,13 +921,12 @@ public class SearchStatistics implements SearchListener {
 		}
 		if (logger.isDebugEnabled()) {
 			if (predicate_count.size() < entry.total_branches) {
-				logger.debug("Missing some predicates: "
-				        + predicate_count.size() + "/"
+				logger.debug("Missing some predicates: " + predicate_count.size() + "/"
 				        + (2 * entry.total_branches));
 			}
 			if (predicate_count.size() > entry.total_branches) {
-				logger.debug("Got too many branches: " + predicate_count.size()
-				        + "/" + (2 * entry.total_branches));
+				logger.debug("Got too many branches: " + predicate_count.size() + "/"
+				        + (2 * entry.total_branches));
 			}
 			if (uncovered > 0)
 				logger.debug("Have not covered " + uncovered + " branches");
@@ -996,10 +976,8 @@ public class SearchStatistics implements SearchListener {
 			entry.size_final = best.size();
 			entry.length_final = best.length();
 			entry.end_time = System.currentTimeMillis();
-			entry.result_tests_executed = MaxTestsStoppingCondition
-			        .getNumExecutedTests();
-			entry.result_statements_executed = MaxStatementsStoppingCondition
-			        .getNumExecutedStatements();
+			entry.result_tests_executed = MaxTestsStoppingCondition.getNumExecutedTests();
+			entry.result_statements_executed = MaxStatementsStoppingCondition.getNumExecutedStatements();
 		}
 	}
 
@@ -1048,13 +1026,9 @@ public class SearchStatistics implements SearchListener {
 		if (best instanceof TestSuiteChromosome) {
 			entry.length_history.add(((TestSuiteChromosome) best).length());
 			entry.coverage_history.add(((TestSuiteChromosome) best).coverage);
-			entry.tests_executed.add(MaxTestsStoppingCondition
-			        .getNumExecutedTests());
-			entry.statements_executed.add(MaxStatementsStoppingCondition
-			        .getNumExecutedStatements());
-			entry.fitness_evaluations
-			        .add(MaxFitnessEvaluationsStoppingCondition
-			                .getNumFitnessEvaluations());
+			entry.tests_executed.add(MaxTestsStoppingCondition.getNumExecutedTests());
+			entry.statements_executed.add(MaxStatementsStoppingCondition.getNumExecutedStatements());
+			entry.fitness_evaluations.add(MaxFitnessEvaluationsStoppingCondition.getNumFitnessEvaluations());
 		}
 		entry.age++;
 	}

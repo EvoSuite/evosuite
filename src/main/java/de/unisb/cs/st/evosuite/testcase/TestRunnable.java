@@ -1,21 +1,6 @@
-/*
- * Copyright (C) 2010 Saarland University
+/**
  * 
- * This file is part of EvoSuite.
- * 
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Lesser Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version.
- * 
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.io.ByteArrayOutputStream;
@@ -23,6 +8,8 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 
@@ -31,17 +18,25 @@ import de.unisb.cs.st.evosuite.sandbox.MSecurityManager;
 import de.unisb.cs.st.evosuite.sandbox.Mocks;
 
 /**
- * A runner thread in which a test case is executed and can be killed
- * 
  * @author Gordon Fraser
  * 
  */
-public class TestRunner extends Thread {
+public class TestRunnable implements Callable<ExecutionResult> {
 
 	private static Logger logger = Logger.getLogger(TestRunner.class);
 
+	private final TestCase test;
+
+	private Scope scope = null;
+
+	private final boolean log = true;
+
+	public boolean runFinished;
+
 	// if SecurityManager should be changed
 	private static boolean changeSM = Properties.SANDBOX;
+
+	private static Mocks mocks = new Mocks();
 
 	private static SecurityManager newManager = new MSecurityManager();
 
@@ -49,49 +44,30 @@ public class TestRunner extends Thread {
 
 	private static PrintStream out = new PrintStream(byteStream);
 
-	private TestCase test;
-
-	private Scope scope = null;
-
-	private boolean log = true;
-
-	public boolean runFinished;
-
 	public Map<Integer, Throwable> exceptionsThrown = new HashMap<Integer, Throwable>();
-
-	public static Map<String, Integer> method_count = new HashMap<String, Integer>();
-	public static Map<String, Long> method_time = new HashMap<String, Long>();
 
 	public List<ExecutionObserver> observers;
 
-	public TestRunner(ThreadGroup threadGroup) {
-		super(threadGroup, "");
-	}
-
-	public void setup(TestCase tc, Scope scope, List<ExecutionObserver> observers) {
+	public TestRunnable(TestCase tc, Scope scope, List<ExecutionObserver> observers) {
 		test = tc;
 		this.scope = scope;
 		this.observers = observers;
 		runFinished = false;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Runnable#run()
+	 */
 	@Override
-	public final void run() {
+	public ExecutionResult call() {
 		runFinished = false;
-		executeTestCase();
-		runFinished = true;
-	}
+		ExecutionResult result = new ExecutionResult(test, null);
 
-	public void setLogging(boolean value) {
-		log = value;
-	}
-
-	private void executeTestCase() {
 		int num = 0;
-		Mocks mocks = new Mocks();
 		try {
 
 			SecurityManager oldManager = null;
+			//SecurityManager newManager = null;
 
 			if (changeSM) {
 				// Current SecurityManager used by default
@@ -103,10 +79,10 @@ public class TestRunner extends Thread {
 			mocks.setUpMocks();
 			// exceptionsThrown = test.execute(scope, observers, !log);
 			for (Statement s : test.statements) {
-				if (isInterrupted()) {
+				if (Thread.currentThread().isInterrupted() || Thread.interrupted()) {
 					logger.info("Thread interrupted at statement " + num + ": "
 					        + s.getCode());
-					break;
+					throw new TimeoutException();
 				}
 				if (logger.isDebugEnabled())
 					logger.debug("Executing statement " + s.getCode());
@@ -117,13 +93,15 @@ public class TestRunner extends Thread {
 				byteStream.reset();
 
 				// check if SecurityManager should be changed to mocked SecurityManager
-				if (changeSM)
+				if (changeSM) {
 					System.setSecurityManager(newManager);
+				}
 				Throwable exceptionThrown = s.execute(scope, out);
 
 				// check if default SecurityManager should be set
-				if (changeSM)
+				if (changeSM) {
 					System.setSecurityManager(oldManager);
+				}
 
 				// During runtime the type of a variable might change
 				// E.g. if declared Object, after the first run it will
@@ -152,12 +130,17 @@ public class TestRunner extends Thread {
 				}
 				num++;
 			}
+			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+
 		} catch (ThreadDeath e) {// can't stop these guys
 			mocks.tearDownMocks();
 			logger.info("Found error:");
 			logger.info(test.toCode());
 			e.printStackTrace();
+			runFinished = true;
 			throw e;
+		} catch (TimeoutException e) {
+			logger.info("Test timed out!");
 		} catch (Throwable e) {
 			logger.info("Exception at statement " + num + "! " + e);
 			logger.info(test.toCode());
@@ -169,8 +152,15 @@ public class TestRunner extends Thread {
 			// exceptionThrown = e;
 			e.printStackTrace();
 			// System.exit(1);
-		}
+
+		} // finally {
+		runFinished = true;
 		mocks.tearDownMocks();
+
+		result.exceptions = exceptionsThrown;
+
+		return result;
+		//}
 	}
 
 }

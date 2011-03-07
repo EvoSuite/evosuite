@@ -49,7 +49,7 @@ public class BranchPool {
 	 *            CFGVertex of a Branch
 	 */
 	public static void addBranch(CFGVertex v) {
-		if (!v.isBranch())
+		if (!(v.isBranch() || v.isTableSwitch() || v.isLookupSwitch()))
 			throw new IllegalArgumentException("CFGVertex of a branch expected");
 
 		Branch b = new Branch(v);

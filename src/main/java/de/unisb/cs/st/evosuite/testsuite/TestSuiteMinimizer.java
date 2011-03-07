@@ -51,11 +51,10 @@ public class TestSuiteMinimizer {
 	private final Logger logger = Logger.getLogger(TestSuiteMinimizer.class);
 
 	/** Factory method that handles statement deletion */
-	private final DefaultTestFactory test_factory = DefaultTestFactory
-	        .getInstance();
+	private final DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 
 	/** Test execution helper */
-	private final TestCaseExecutor executor = new TestCaseExecutor();
+	private final TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
 	private final List<TestFitnessFunction> goals;
 
@@ -74,9 +73,10 @@ public class TestSuiteMinimizer {
 		ExecutionResult result = new ExecutionResult(test, null);
 
 		try {
-			result.exceptions = executor.run(test);
+			result = executor.execute(test);
+			//result.exceptions = executor.run(test);
 			executor.setLogging(true);
-			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+			//result.trace = ExecutionTracer.getExecutionTracer().getTrace();
 
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
@@ -106,15 +106,14 @@ public class TestSuiteMinimizer {
 			if (test.isChanged() || test.last_result == null) {
 				logger.debug("Executing test " + num);
 				result = runTest(test.test);
-				test.last_result = result.clone();
+				test.last_result = result;
 				test.setChanged(false);
 			} else {
 				// logger.info("Skipping test " + num);
 				result = test.last_result;
 			}
 			for (TestFitnessFunction goal : goals) {
-				if (!covered.contains(goal)
-				        && goal.getFitness(test, result) == 0.0) { // TODO: 0.0 should not be hardcoded
+				if (!covered.contains(goal) && goal.getFitness(test, result) == 0.0) { // TODO: 0.0 should not be hardcoded
 					covered.add(goal);
 					test.test.addCoveredGoal(goal);
 				}
@@ -157,14 +156,12 @@ public class TestSuiteMinimizer {
 				result = test.last_result;
 			}
 			called_methods.addAll(result.trace.covered_methods.keySet());
-			for (Entry<String, Double> entry : result.trace.true_distances
-			        .entrySet()) {
+			for (Entry<String, Double> entry : result.trace.true_distances.entrySet()) {
 				if (entry.getValue() == 0)
 					covered_true.add(entry.getKey());
 			}
 
-			for (Entry<String, Double> entry : result.trace.false_distances
-			        .entrySet()) {
+			for (Entry<String, Double> entry : result.trace.false_distances.entrySet()) {
 				if (entry.getValue() == 0)
 					covered_false.add(entry.getKey());
 			}
@@ -173,8 +170,7 @@ public class TestSuiteMinimizer {
 		}
 
 		logger.debug("Called methods: " + called_methods.size());
-		return covered_true.size() + covered_false.size()
-		        + called_methods.size();
+		return covered_true.size() + covered_false.size() + called_methods.size();
 	}
 
 	/**
@@ -189,8 +185,8 @@ public class TestSuiteMinimizer {
 		CurrentChromosomeTracker.getInstance().modification(suite);
 
 		boolean size = false;
-		String strategy = Properties
-		        .getPropertyOrDefault("secondary_objectives", "totallength");
+		String strategy = Properties.getPropertyOrDefault("secondary_objectives",
+		                                                  "totallength");
 		if (strategy.contains(":"))
 			strategy = strategy.substring(0, strategy.indexOf(';'));
 		if (strategy.equals("size"))
@@ -210,8 +206,7 @@ public class TestSuiteMinimizer {
 			// If we want to remove tests, start with shortest
 			Collections.sort(suite.tests, new Comparator<TestChromosome>() {
 				@Override
-				public int compare(TestChromosome chromosome1,
-				        TestChromosome chromosome2) {
+				public int compare(TestChromosome chromosome1, TestChromosome chromosome2) {
 					return chromosome1.size() - chromosome2.size();
 				}
 			});
@@ -219,8 +214,7 @@ public class TestSuiteMinimizer {
 			// If we want to remove the longest test, start with longest
 			Collections.sort(suite.tests, new Comparator<TestChromosome>() {
 				@Override
-				public int compare(TestChromosome chromosome1,
-				        TestChromosome chromosome2) {
+				public int compare(TestChromosome chromosome1, TestChromosome chromosome2) {
 					return chromosome2.size() - chromosome1.size();
 				}
 			});
@@ -246,11 +240,9 @@ public class TestSuiteMinimizer {
 			int num = 0;
 			for (TestChromosome test : suite.tests) {
 				for (int i = test.size() - 1; i >= 0; i--) {
-					logger.debug("Current size: " + suite.size() + "/"
-					        + suite.length());
+					logger.debug("Current size: " + suite.size() + "/" + suite.length());
 					logger.debug("Deleting statement "
-					        + test.test.getStatement(i).getCode()
-					        + " from test " + num);
+					        + test.test.getStatement(i).getCode() + " from test " + num);
 					TestChromosome copy = (TestChromosome) test.clone();
 					try {
 						test.setChanged(true);
@@ -271,8 +263,8 @@ public class TestSuiteMinimizer {
 						new_fitness = getNumCovered(suite);
 
 					if (new_fitness >= fitness) {
-						logger.debug("Fitness after removal: " + new_fitness
-						        + " (" + fitness + ")");
+						logger.debug("Fitness after removal: " + new_fitness + " ("
+						        + fitness + ")");
 						fitness = new_fitness;
 						changed = true;
 
@@ -285,8 +277,8 @@ public class TestSuiteMinimizer {
 						// Restore previous state
 						logger.debug("Can't remove statement "
 						        + copy.test.getStatement(i).getCode());
-						logger.debug("Restoring fitness from " + new_fitness
-						        + " to " + fitness);
+						logger.debug("Restoring fitness from " + new_fitness + " to "
+						        + fitness);
 						test.test = copy.test;
 						test.last_result = copy.last_result;
 						test.setChanged(false);

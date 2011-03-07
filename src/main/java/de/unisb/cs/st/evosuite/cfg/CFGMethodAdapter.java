@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.cfg;
 
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,6 +43,7 @@ import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
@@ -170,28 +172,30 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			break;
 		case Opcodes.GOTO:
 			break;
+		/*
 		case Opcodes.TABLESWITCH:
-			instrumentation.add(new InsnNode(Opcodes.DUP));
-			instrumentation.add(new LdcInsnNode(opcode));
-			// instrumentation.add(new LdcInsnNode(id));
-			instrumentation.add(new LdcInsnNode(BranchPool.getBranchCounter()));
-			instrumentation.add(new LdcInsnNode(id));
-			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedBranch",
-			        "(IIII)V"));
-			BranchPool.countBranch(methodID);
-			break;
+		instrumentation.add(new InsnNode(Opcodes.DUP));
+		instrumentation.add(new LdcInsnNode(opcode));
+		// instrumentation.add(new LdcInsnNode(id));
+		instrumentation.add(new LdcInsnNode(BranchPool.getBranchCounter()));
+		instrumentation.add(new LdcInsnNode(id));
+		instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+		        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedBranch",
+		        "(IIII)V"));
+		BranchPool.countBranch(methodID);
+		break;
 		case Opcodes.LOOKUPSWITCH:
-			instrumentation.add(new InsnNode(Opcodes.DUP));
-			instrumentation.add(new LdcInsnNode(opcode));
-			// instrumentation.add(new LdcInsnNode(id));
-			instrumentation.add(new LdcInsnNode(BranchPool.getBranchCounter()));
-			instrumentation.add(new LdcInsnNode(id));
-			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedBranch",
-			        "(IIII)V"));
-			BranchPool.countBranch(methodID);
-			break;
+		instrumentation.add(new InsnNode(Opcodes.DUP));
+		instrumentation.add(new LdcInsnNode(opcode));
+		// instrumentation.add(new LdcInsnNode(id));
+		instrumentation.add(new LdcInsnNode(BranchPool.getBranchCounter()));
+		instrumentation.add(new LdcInsnNode(id));
+		instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+		        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedBranch",
+		        "(IIII)V"));
+		BranchPool.countBranch(methodID);
+		break;
+		*/
 		}
 		return instrumentation;
 	}
@@ -202,6 +206,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	 */
 	private InsnList getInstrumentation(CFGVertex v, int currentBranch) {
 		InsnList instrumentation = new InsnList();
+		String methodID = className + "." + methodName;
 
 		switch (v.node.getOpcode()) {
 		case Opcodes.PUTFIELD:
@@ -228,6 +233,56 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V"));
 			break;
 		}
+		return instrumentation;
+	}
+
+	private InsnList getInstrumentation(CFGVertex v, MethodNode mn) {
+		InsnList instrumentation = new InsnList();
+
+		String methodID = className + "." + methodName;
+		switch (v.node.getOpcode()) {
+		case Opcodes.TABLESWITCH:
+			TableSwitchInsnNode tsin = (TableSwitchInsnNode) v.node;
+			int num = 0;
+			for (int i = tsin.min; i <= tsin.max; i++) {
+				instrumentation.add(new InsnNode(Opcodes.DUP));
+				instrumentation.add(new LdcInsnNode(i));
+				instrumentation.add(new LdcInsnNode(Opcodes.IF_ICMPEQ));
+				instrumentation.add(new LdcInsnNode(BranchPool.getBranchCounter()));
+				instrumentation.add(new LdcInsnNode(v.id));
+				//instrumentation.add(new LdcInsnNode(
+				//        mn.instructions.indexOf((LabelNode) tsin.labels.get(num))));
+
+				instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+				        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+				        "passedBranch", "(IIIII)V"));
+				BranchPool.countBranch(methodID);
+				BranchPool.addBranch(v);
+				num++;
+			}
+			// Default branch is covered if the last case is false
+			break;
+		case Opcodes.LOOKUPSWITCH:
+			LookupSwitchInsnNode lsin = (LookupSwitchInsnNode) v.node;
+			logger.info("Found lookupswitch with " + lsin.keys.size() + " keys");
+			for (int i = 0; i < lsin.keys.size(); i++) {
+				instrumentation.add(new InsnNode(Opcodes.DUP));
+				instrumentation.add(new LdcInsnNode(
+				        ((Integer) lsin.keys.get(i)).intValue()));
+				instrumentation.add(new LdcInsnNode(Opcodes.IF_ICMPEQ));
+				instrumentation.add(new LdcInsnNode(BranchPool.getBranchCounter()));
+				instrumentation.add(new LdcInsnNode(v.id));
+				//				instrumentation.add(new LdcInsnNode(
+				//				        mn.instructions.indexOf((LabelNode) lsin.labels.get(i))));
+				instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+				        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+				        "passedBranch", "(IIIII)V"));
+				BranchPool.countBranch(methodID);
+				BranchPool.addBranch(v);
+			}
+			// Default branch is covered if the last case is false
+			break;
+		}
 
 		return instrumentation;
 	}
@@ -239,6 +294,11 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 		// Generate CFG of method
 		MethodNode mn = (MethodNode) mv;
+
+		if (plain_name.equals("main") && Modifier.isStatic(access)) {
+			mn.accept(next);
+			return;
+		}
 
 		if (plain_name.equals("<clinit>") && !Properties.CRITERION.equals("defuse")) {
 			mn.accept(next);
@@ -331,6 +391,12 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 					                       getInstrumentation(v.node.getOpcode(), v.id));
 
 					BranchPool.addBranch(v);
+				} else if (in.equals(v.node) && v.isTableSwitch()) {
+					TableSwitchInsnNode n = (TableSwitchInsnNode) in;
+					mn.instructions.insertBefore(v.node, getInstrumentation(v, mn));
+				} else if (in.equals(v.node) && v.isLookupSwitch()) {
+					LookupSwitchInsnNode n = (LookupSwitchInsnNode) in;
+					mn.instructions.insertBefore(v.node, getInstrumentation(v, mn));
 				}
 			}
 		}
@@ -453,7 +519,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		}
 		Map<String, ControlFlowGraph> methods = graphs.get(classname);
 		logger.debug("Added CFG for class " + classname + " and method " + methodname);
-		methods.put(methodname, new ControlFlowGraph(graph));
+		methods.put(methodname, new ControlFlowGraph(graph, true));
 		FloydWarshall<CFGVertex, DefaultEdge> f = new FloydWarshall<CFGVertex, DefaultEdge>(
 		        graph);
 		diameters.get(classname).put(methodname, f.getDiameter());
@@ -468,7 +534,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		Map<String, ControlFlowGraph> methods = completeGraphs.get(classname);
 		logger.debug("Added complete CFG for class " + classname + " and method "
 		        + methodname);
-		methods.put(methodname, new ControlFlowGraph(graph));
+		methods.put(methodname, new ControlFlowGraph(graph, false));
 	}
 
 	public static ControlFlowGraph getCFG(String classname, String methodname) {

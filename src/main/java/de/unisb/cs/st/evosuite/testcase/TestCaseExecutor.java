@@ -21,6 +21,13 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 
@@ -33,22 +40,36 @@ import de.unisb.cs.st.evosuite.Properties;
  * @author Gordon Fraser
  * 
  */
-public class TestCaseExecutor {
+public class TestCaseExecutor implements ThreadFactory {
 
 	private final Logger logger = Logger.getLogger(TestCaseExecutor.class);
 
 	private boolean log = true;
 
-	public static long timeout = Properties.getPropertyOrDefault("timeout",
-	        5000);
+	public static long timeout = Properties.getPropertyOrDefault("timeout", 5000);
+
+	private static TestCaseExecutor instance = null;
+
+	private ExecutorService executor;
+
+	private Thread currentThread = null;
+
+	//private static ExecutorService executor = Executors.newCachedThreadPool();
 
 	private List<ExecutionObserver> observers;
 
-	protected boolean static_hack = Properties.getPropertyOrDefault(
-	        "static_hack", false);
+	protected boolean static_hack = Properties.getPropertyOrDefault("static_hack", false);
 
-	public TestCaseExecutor() {
+	public static TestCaseExecutor getInstance() {
+		if (instance == null)
+			instance = new TestCaseExecutor();
+
+		return instance;
+	}
+
+	private TestCaseExecutor() {
 		observers = new ArrayList<ExecutionObserver>();
+		executor = Executors.newSingleThreadExecutor(this);
 	}
 
 	public static class TimeoutExceeded extends RuntimeException {
@@ -59,8 +80,9 @@ public class TestCaseExecutor {
 		// start own thread
 	}
 
-	public void pulldown() {
-		// stop thread
+	public static void pullDown() {
+		if (instance != null)
+			instance.executor.shutdownNow();
 	}
 
 	public void setLogging(boolean value) {
@@ -82,6 +104,76 @@ public class TestCaseExecutor {
 	private void resetObservers() {
 		for (ExecutionObserver observer : observers) {
 			observer.clear();
+		}
+	}
+
+	public ExecutionResult execute(TestCase tc) {
+		Scope scope = new Scope();
+		return execute(tc, scope);
+	}
+
+	public ExecutionResult execute(TestCase tc, Scope scope) {
+		ExecutionTracer.getExecutionTracer().clear();
+		if (static_hack)
+			TestCluster.getInstance().resetStaticClasses();
+		resetObservers();
+		MaxTestsStoppingCondition.testExecuted();
+
+		TestRunnable callable = new TestRunnable(tc, scope, observers);
+		FutureTask<ExecutionResult> task = new FutureTask<ExecutionResult>(callable);
+		executor.execute(task);
+		try {
+			ExecutionResult result = task.get(timeout, TimeUnit.MILLISECONDS);
+			return result;
+
+		} catch (InterruptedException e1) {
+			logger.info("InterruptedException");
+			ExecutionResult result = new ExecutionResult(tc, null);
+			result.exceptions = callable.exceptionsThrown;
+			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+			ExecutionTracer.getExecutionTracer().clear();
+			return result;
+		} catch (ExecutionException e1) {
+			logger.info("ExecutionException");
+			ExecutionResult result = new ExecutionResult(tc, null);
+			result.exceptions = callable.exceptionsThrown;
+			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+			ExecutionTracer.getExecutionTracer().clear();
+			return result;
+		} catch (TimeoutException e1) {
+
+			logger.info("TimeoutException, need to stop runner");
+			ExecutionTracer.setKillSwitch(true);
+			ExecutionTracer.disable();
+			task.cancel(true);
+
+			if (!callable.runFinished) {
+				logger.info("Run not finished, waiting...");
+				try {
+					executor.awaitTermination(timeout, TimeUnit.MILLISECONDS);
+				} catch (InterruptedException e) {
+					logger.info("Interrupted");
+					e.printStackTrace();
+				}
+				if (!callable.runFinished) {
+					logger.info("Run still not finished, replacing executor.");
+					executor.shutdownNow();
+					currentThread.stop();
+					if (currentThread.isAlive()) {
+						logger.warn("Thread survived - unsafe operation.");
+					}
+					executor = Executors.newSingleThreadExecutor(this);
+				}
+			}
+			ExecutionResult result = new ExecutionResult(tc, null);
+			result.exceptions = callable.exceptionsThrown;
+			result.exceptions.put(tc.size(), new TestCaseExecutor.TimeoutExceeded());
+			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+			ExecutionTracer.getExecutionTracer().clear();
+			ExecutionTracer.setKillSwitch(false);
+			ExecutionTracer.enable();
+
+			return result;
 		}
 	}
 
@@ -109,8 +201,7 @@ public class TestCaseExecutor {
 			runner.join(timeout);
 
 			if (!runner.runFinished) {
-				logger.warn("Exceeded max wait (" + timeout
-				        + "ms): aborting test input:");
+				logger.warn("Exceeded max wait (" + timeout + "ms): aborting test input:");
 				logger.warn(tc.toCode());
 				runner.interrupt();
 
@@ -132,8 +223,7 @@ public class TestCaseExecutor {
 
 						if (runner.isAlive()) {
 							logger.warn("Thread ignored stop()! All is lost!");
-							for (StackTraceElement element : runner
-							        .getStackTrace()) {
+							for (StackTraceElement element : runner.getStackTrace()) {
 								logger.warn(element.toString());
 							}
 						}
@@ -144,7 +234,7 @@ public class TestCaseExecutor {
 				ExecutionTracer.getExecutionTracer().clear();
 				ExecutionTracer.setKillSwitch(false);
 				runner.exceptionsThrown.put(tc.size(),
-				        new TestCaseExecutor.TimeoutExceeded());
+				                            new TestCaseExecutor.TimeoutExceeded());
 			}
 			return runner.exceptionsThrown;
 
@@ -159,5 +249,12 @@ public class TestCaseExecutor {
 	public Map<Integer, Throwable> run(TestCase tc) {
 		Scope scope = new Scope();
 		return run(tc, scope);
+	}
+
+	@Override
+	public Thread newThread(Runnable r) {
+		currentThread = new Thread(r);
+		ExecutionTracer.setThread(currentThread);
+		return currentThread;
 	}
 }

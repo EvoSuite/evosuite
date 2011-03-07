@@ -55,36 +55,33 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation.MutationType;
  */
 public class AssertionGenerator {
 
-	private final List<Mutation>	                    mutants;
+	private final List<Mutation> mutants;
 
-	private final HOMSwitcher	                        hom_switcher	            = new HOMSwitcher();
+	private final HOMSwitcher hom_switcher = new HOMSwitcher();
 
-	private final Logger	                            logger	                    = Logger.getLogger(AssertionGenerator.class);
+	private final Logger logger = Logger.getLogger(AssertionGenerator.class);
 
-	private final TestCaseExecutor	                    executor	                = new TestCaseExecutor();
+	private final TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
-	private PrimitiveOutputTraceObserver	            primitive_observer	        = new PrimitiveOutputTraceObserver();
-	private ComparisonTraceObserver	                    comparison_observer	        = new ComparisonTraceObserver();
-	private InspectorTraceObserver	                    inspector_observer	        = new InspectorTraceObserver();
-	private PrimitiveFieldTraceObserver	                field_observer	            = new PrimitiveFieldTraceObserver();
-	private NullOutputObserver	                        null_observer	            = new NullOutputObserver();
+	private PrimitiveOutputTraceObserver primitive_observer = new PrimitiveOutputTraceObserver();
+	private ComparisonTraceObserver comparison_observer = new ComparisonTraceObserver();
+	private InspectorTraceObserver inspector_observer = new InspectorTraceObserver();
+	private PrimitiveFieldTraceObserver field_observer = new PrimitiveFieldTraceObserver();
+	private NullOutputObserver null_observer = new NullOutputObserver();
 
-	private final Map<TestCase, Map<Class<?>, Integer>>	assertion_statistics_full	= new HashMap<TestCase, Map<Class<?>, Integer>>();
+	private final Map<TestCase, Map<Class<?>, Integer>> assertion_statistics_full = new HashMap<TestCase, Map<Class<?>, Integer>>();
 
-	private final Map<TestCase, Map<Class<?>, Integer>>	assertion_statistics_min	= new HashMap<TestCase, Map<Class<?>, Integer>>();
+	private final Map<TestCase, Map<Class<?>, Integer>> assertion_statistics_min = new HashMap<TestCase, Map<Class<?>, Integer>>();
 
-	private final Map<TestCase, Map<Class<?>, Integer>>	assertion_statistics_killed	= new HashMap<TestCase, Map<Class<?>, Integer>>();
+	private final Map<TestCase, Map<Class<?>, Integer>> assertion_statistics_killed = new HashMap<TestCase, Map<Class<?>, Integer>>();
 
-	private final MutationsForRun	                    m_VRO	                    = new MutationsForRun(
-	                                                                                        MutationProperties.MUTATION_FILE_NAME
-	                                                                                                .replace(
-	                                                                                                        ".mutants",
-	                                                                                                        "_VRO.mutants"),
-	                                                                                        true);
+	private final MutationsForRun m_VRO = new MutationsForRun(
+	        MutationProperties.MUTATION_FILE_NAME.replace(".mutants", "_VRO.mutants"),
+	        true);
 
-	private final Set<Long>	                            killed_ALL	                = new HashSet<Long>();
+	private final Set<Long> killed_ALL = new HashSet<Long>();
 
-	private final Set<Long>	                            killed_VRO	                = new HashSet<Long>();
+	private final Set<Long> killed_VRO = new HashSet<Long>();
 
 	/**
 	 * Default constructor
@@ -193,8 +190,8 @@ public class AssertionGenerator {
 	        List<Assertion> assertions, Map<Integer, Set<Long>> kill_map) {
 
 		class Pair implements Comparable<Object> {
-			Integer	assertion;
-			Integer	num_killed;
+			Integer assertion;
+			Integer num_killed;
 
 			public Pair(int a, int k) {
 				assertion = a;
@@ -315,10 +312,9 @@ public class AssertionGenerator {
 
 		}
 		// TODO: List exception assertion
-		logger.debug("Assertions before minimization: "
-		        + test.getAssertions().size() + "," + num_string_assertions
-		        + "," + num_inspector_assertions + "," + num_field_assertions
-		        + "," + num_comparison_assertions + ","
+		logger.debug("Assertions before minimization: " + test.getAssertions().size()
+		        + "," + num_string_assertions + "," + num_inspector_assertions + ","
+		        + num_field_assertions + "," + num_comparison_assertions + ","
 		        + num_primitive_assertions + "," + num_exception_assertions);
 
 		if (!result.isEmpty()) {
@@ -356,10 +352,9 @@ public class AssertionGenerator {
 			logger.info("Not removing assertions because no new assertions were found");
 		}
 		// TODO: List exception assertion
-		logger.debug("Assertions after minimization: "
-		        + test.getAssertions().size() + "," + num_string_assertions
-		        + "," + num_inspector_assertions + "," + num_field_assertions
-		        + "," + num_comparison_assertions + ","
+		logger.debug("Assertions after minimization: " + test.getAssertions().size()
+		        + "," + num_string_assertions + "," + num_inspector_assertions + ","
+		        + num_field_assertions + "," + num_comparison_assertions + ","
 		        + num_primitive_assertions + "," + num_exception_assertions);
 	}
 
@@ -369,12 +364,9 @@ public class AssertionGenerator {
 
 		// orig_result.output_trace
 		// .getAssertions(test, mutant_result.output_trace);
-		orig_result.comparison_trace.getAssertions(test,
-		        mutant_result.comparison_trace);
-		orig_result.primitive_trace.getAssertions(test,
-		        mutant_result.primitive_trace);
-		orig_result.inspector_trace.getAssertions(test,
-		        mutant_result.inspector_trace);
+		orig_result.comparison_trace.getAssertions(test, mutant_result.comparison_trace);
+		orig_result.primitive_trace.getAssertions(test, mutant_result.primitive_trace);
+		orig_result.inspector_trace.getAssertions(test, mutant_result.inspector_trace);
 		orig_result.field_trace.getAssertions(test, mutant_result.field_trace);
 		orig_result.null_trace.getAssertions(test, mutant_result.null_trace);
 
@@ -385,8 +377,7 @@ public class AssertionGenerator {
 		addAssertions(test, killed, mutants);
 	}
 
-	public void addAssertions(TestCase test, Set<Long> killed,
-	        List<Mutation> mutants) {
+	public void addAssertions(TestCase test, Set<Long> killed, List<Mutation> mutants) {
 
 		logger.info("Generating assertions");
 		assertion_statistics_full.put(test, new HashMap<Class<?>, Integer>());
@@ -396,8 +387,7 @@ public class AssertionGenerator {
 		assertion_statistics_killed.get(test).put(CompareAssertion.class, 0);
 		assertion_statistics_killed.get(test).put(EqualsAssertion.class, 0);
 		assertion_statistics_killed.get(test).put(InspectorAssertion.class, 0);
-		assertion_statistics_killed.get(test).put(
-		        PrimitiveFieldAssertion.class, 0);
+		assertion_statistics_killed.get(test).put(PrimitiveFieldAssertion.class, 0);
 		assertion_statistics_killed.get(test).put(PrimitiveAssertion.class, 0);
 		assertion_statistics_killed.get(test).put(NullAssertion.class, 0);
 
@@ -406,8 +396,7 @@ public class AssertionGenerator {
 		assertion_statistics_min.get(test).put(CompareAssertion.class, 0);
 		assertion_statistics_min.get(test).put(EqualsAssertion.class, 0);
 		assertion_statistics_min.get(test).put(InspectorAssertion.class, 0);
-		assertion_statistics_min.get(test)
-		        .put(PrimitiveFieldAssertion.class, 0);
+		assertion_statistics_min.get(test).put(PrimitiveFieldAssertion.class, 0);
 		assertion_statistics_min.get(test).put(PrimitiveAssertion.class, 0);
 		assertion_statistics_min.get(test).put(NullAssertion.class, 0);
 
@@ -450,17 +439,17 @@ public class AssertionGenerator {
 			// mutant_result.output_trace);
 			// logger.info("String: Potentially "+orig_result.output_trace.numDiffer(mutant_result.output_trace));
 			assertion_statistics_full.get(test).put(StringAssertion.class,
-			        num_killed - last_num);
+			                                        num_killed - last_num);
 			if (num_killed > last_num) {
-				logger.debug("Added " + num_killed
-				        + " string assertions for mutation: " + m.getId());
+				logger.debug("Added " + num_killed + " string assertions for mutation: "
+				        + m.getId());
 				last_num = num_killed;
 			}
 			// logger.info("Comparison: Potentially "+orig_result.comparison_trace.numDiffer(mutant_result.comparison_trace));
 			num_killed += orig_result.comparison_trace.getAssertions(test,
-			        mutant_result.comparison_trace);
+			                                                         mutant_result.comparison_trace);
 			assertion_statistics_full.get(test).put(CompareAssertion.class,
-			        num_killed - last_num);
+			                                        num_killed - last_num);
 			if (num_killed > last_num) {
 				logger.debug("Added " + num_killed
 				        + " comparison assertions for mutation: " + m.getId());
@@ -470,9 +459,9 @@ public class AssertionGenerator {
 			}
 			// logger.info("Primitive: Potentially "+orig_result.primitive_trace.numDiffer(mutant_result.primitive_trace));
 			num_killed += orig_result.primitive_trace.getAssertions(test,
-			        mutant_result.primitive_trace);
+			                                                        mutant_result.primitive_trace);
 			assertion_statistics_full.get(test).put(PrimitiveAssertion.class,
-			        num_killed - last_num);
+			                                        num_killed - last_num);
 			if (num_killed > last_num) {
 				logger.debug("Added " + num_killed
 				        + " primitive assertions for mutation: " + m.getId());
@@ -480,9 +469,9 @@ public class AssertionGenerator {
 			}
 			// logger.info("Inspector: Potentially "+orig_result.inspector_trace.numDiffer(mutant_result.inspector_trace));
 			num_killed += orig_result.inspector_trace.getAssertions(test,
-			        mutant_result.inspector_trace);
+			                                                        mutant_result.inspector_trace);
 			assertion_statistics_full.get(test).put(InspectorAssertion.class,
-			        num_killed - last_num);
+			                                        num_killed - last_num);
 			if (num_killed > last_num) {
 				logger.debug("Added " + num_killed
 				        + " inspector assertions for mutation: " + m.getId());
@@ -492,22 +481,22 @@ public class AssertionGenerator {
 			}
 			// logger.info("String: Potentially "+orig_result.output_trace.numDiffer(mutant_result.output_trace));
 			num_killed += orig_result.field_trace.getAssertions(test,
-			        mutant_result.field_trace);
-			assertion_statistics_full.get(test).put(
-			        PrimitiveFieldAssertion.class, num_killed - last_num);
+			                                                    mutant_result.field_trace);
+			assertion_statistics_full.get(test).put(PrimitiveFieldAssertion.class,
+			                                        num_killed - last_num);
 			if (num_killed > last_num) {
-				logger.debug("Added " + num_killed
-				        + " field assertions for mutation: " + m.getId());
+				logger.debug("Added " + num_killed + " field assertions for mutation: "
+				        + m.getId());
 				last_num = num_killed;
 			}
 
 			num_killed += orig_result.null_trace.getAssertions(test,
-			        mutant_result.null_trace);
+			                                                   mutant_result.null_trace);
 			assertion_statistics_full.get(test).put(NullAssertion.class,
-			        num_killed - last_num);
+			                                        num_killed - last_num);
 			if (num_killed > last_num) {
-				logger.debug("Added " + num_killed
-				        + " field assertions for mutation: " + m.getId());
+				logger.debug("Added " + num_killed + " field assertions for mutation: "
+				        + m.getId());
 				last_num = num_killed;
 			}
 
@@ -559,10 +548,8 @@ public class AssertionGenerator {
 		assertions = test.getAssertions();
 		int num2 = 0;
 		for (Assertion assertion : assertions) {
-			assertion_statistics_min.get(test).put(
-			        assertion.getClass(),
-			        assertion_statistics_min.get(test)
-			                .get(assertion.getClass()) + 1);
+			assertion_statistics_min.get(test).put(assertion.getClass(),
+			                                       assertion_statistics_min.get(test).get(assertion.getClass()) + 1);
 
 			for (Mutation m : mutants) {
 				if (m.getMutationType().equals(MutationType.REPLACE_VARIABLE))
@@ -572,10 +559,8 @@ public class AssertionGenerator {
 				for (OutputTrace trace : mutation_traces.get(m)) {
 					is_killed = trace.isDetectedBy(assertion);
 					if (is_killed) {
-						assertion_statistics_killed.get(test).put(
-						        assertion.getClass(),
-						        assertion_statistics_killed.get(test).get(
-						                assertion.getClass()) + 1);
+						assertion_statistics_killed.get(test).put(assertion.getClass(),
+						                                          assertion_statistics_killed.get(test).get(assertion.getClass()) + 1);
 						killed_after.add(m.getId());
 						break;
 					}
@@ -587,8 +572,8 @@ public class AssertionGenerator {
 			num2++;
 		}
 		int s2 = killed.size() - s1;
-		logger.debug("Mutants killed before / after / should be: "
-		        + killed_before.size() + "/" + killed_after.size() + "/" + s2);
+		logger.debug("Mutants killed before / after / should be: " + killed_before.size()
+		        + "/" + killed_after.size() + "/" + s2);
 		for (Mutation m : mutants) {
 			if (killed_after.contains(m.getId()) && !m.isKilled())
 				logger.debug("Asserted: " + m.getId());
@@ -627,8 +612,7 @@ public class AssertionGenerator {
 
 	public void writeStatistics() {
 		try {
-			File f = new File(Properties.REPORT_DIR
-			        + "/statistics_assertions.csv");
+			File f = new File(Properties.REPORT_DIR + "/statistics_assertions.csv");
 			BufferedWriter out = new BufferedWriter(new FileWriter(f, true));
 			if (f.length() == 0L) {
 				out.write("Class,String,Comparison,Inspector,Primitive,Field,Null,MinString,MinComparison,MinInspector,MinPrimitive,MinField,MinNull,KilledString,KilledComparison,KilledInspector,KilledPrimitive,KilledField,KilledNull\n");
@@ -636,62 +620,43 @@ public class AssertionGenerator {
 
 			for (TestCase test : assertion_statistics_full.keySet()) {
 				out.write(Properties.TARGET_CLASS + ",");
-				out.write(assertion_statistics_full.get(test).get(
-				        StringAssertion.class)
+				out.write(assertion_statistics_full.get(test).get(StringAssertion.class)
 				        + ",");
-				out.write(assertion_statistics_full.get(test).get(
-				        CompareAssertion.class)
+				out.write(assertion_statistics_full.get(test).get(CompareAssertion.class)
 				        + ",");
-				out.write(assertion_statistics_full.get(test).get(
-				        InspectorAssertion.class)
+				out.write(assertion_statistics_full.get(test).get(InspectorAssertion.class)
 				        + ",");
-				out.write(assertion_statistics_full.get(test).get(
-				        PrimitiveAssertion.class)
+				out.write(assertion_statistics_full.get(test).get(PrimitiveAssertion.class)
 				        + ",");
-				out.write(assertion_statistics_full.get(test).get(
-				        PrimitiveFieldAssertion.class)
+				out.write(assertion_statistics_full.get(test).get(PrimitiveFieldAssertion.class)
 				        + ",");
-				out.write(assertion_statistics_full.get(test).get(
-				        NullAssertion.class)
+				out.write(assertion_statistics_full.get(test).get(NullAssertion.class)
 				        + ",");
 
-				out.write(assertion_statistics_min.get(test).get(
-				        StringAssertion.class)
+				out.write(assertion_statistics_min.get(test).get(StringAssertion.class)
 				        + ",");
-				out.write((assertion_statistics_min.get(test).get(
-				        CompareAssertion.class) + assertion_statistics_min.get(
-				        test).get(EqualsAssertion.class))
+				out.write((assertion_statistics_min.get(test).get(CompareAssertion.class) + assertion_statistics_min.get(test).get(EqualsAssertion.class))
 				        + ",");
-				out.write(assertion_statistics_min.get(test).get(
-				        InspectorAssertion.class)
+				out.write(assertion_statistics_min.get(test).get(InspectorAssertion.class)
 				        + ",");
-				out.write(assertion_statistics_min.get(test).get(
-				        PrimitiveAssertion.class)
+				out.write(assertion_statistics_min.get(test).get(PrimitiveAssertion.class)
 				        + ",");
-				out.write(assertion_statistics_min.get(test).get(
-				        PrimitiveFieldAssertion.class)
+				out.write(assertion_statistics_min.get(test).get(PrimitiveFieldAssertion.class)
 				        + ",");
-				out.write(assertion_statistics_min.get(test).get(
-				        NullAssertion.class)
+				out.write(assertion_statistics_min.get(test).get(NullAssertion.class)
 				        + ",");
 
-				out.write(assertion_statistics_killed.get(test).get(
-				        StringAssertion.class)
+				out.write(assertion_statistics_killed.get(test).get(StringAssertion.class)
 				        + ",");
-				out.write((assertion_statistics_killed.get(test).get(
-				        CompareAssertion.class) + assertion_statistics_killed
-				        .get(test).get(EqualsAssertion.class)) + ",");
-				out.write(assertion_statistics_killed.get(test).get(
-				        InspectorAssertion.class)
+				out.write((assertion_statistics_killed.get(test).get(CompareAssertion.class) + assertion_statistics_killed.get(test).get(EqualsAssertion.class))
 				        + ",");
-				out.write(assertion_statistics_killed.get(test).get(
-				        PrimitiveAssertion.class)
+				out.write(assertion_statistics_killed.get(test).get(InspectorAssertion.class)
 				        + ",");
-				out.write(assertion_statistics_killed.get(test).get(
-				        PrimitiveFieldAssertion.class)
+				out.write(assertion_statistics_killed.get(test).get(PrimitiveAssertion.class)
 				        + ",");
-				out.write(assertion_statistics_killed.get(test).get(
-				        NullAssertion.class)
+				out.write(assertion_statistics_killed.get(test).get(PrimitiveFieldAssertion.class)
+				        + ",");
+				out.write(assertion_statistics_killed.get(test).get(NullAssertion.class)
 				        + ",");
 
 				out.write(killed_ALL.size() + ","); // number of mutants killed
@@ -726,8 +691,7 @@ public class AssertionGenerator {
 			else
 				out.write("1.0,");
 			if (mutants.size() > num)
-				out.write((1.0 * killed_VRO.size()) / (mutants.size() - num)
-				        + "\n"); // number of mutants killed out of VRO mutants
+				out.write((1.0 * killed_VRO.size()) / (mutants.size() - num) + "\n"); // number of mutants killed out of VRO mutants
 			else
 				out.write("1.0\n"); // number of mutants killed out of VRO
 				                    // mutants

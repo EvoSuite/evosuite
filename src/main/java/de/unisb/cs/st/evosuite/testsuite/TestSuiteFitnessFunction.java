@@ -40,7 +40,7 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 
 	protected Logger logger = Logger.getLogger(TestSuiteFitnessFunction.class);
 
-	protected TestCaseExecutor executor = new TestCaseExecutor();
+	protected TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
 	/**
 	 * Execute a test case
@@ -57,31 +57,14 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 		ExecutionResult result = new ExecutionResult(test, null);
 
 		try {
-			// logger.debug("Executing test");
-			result.exceptions = executor.run(test);
-			executor.setLogging(true);
-			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
-			// logger.info("Got data about "+result.trace.finished_calls.size()+" calls");
-			// logger.info("Got data about "+result.trace.coverage.size()+" coverage methods");
-
-			int num = test.size();
+			result = executor.execute(test);
 			/*
-			 * if(ex != null) { result.exception = ex;
-			 * result.exception_statement = test.exception_statement; num =
-			 * test.size() - test.exception_statement;
-			 * logger.debug("Exception raised: "+ex);
-			 * logger.debug("Statement: "+
-			 * test.getStatement(test.exception_statement).getCode()); if(ex
-			 * instanceof TestCaseExecutor.TimeoutExceeded) { if(mutant != null)
-			 * logger.info("Mutant timed out!"); else
-			 * logger.info("Program timed out!");
-			 * 
-			 * } }
-			 */
+						result.exceptions = executor.run(test);
+						executor.setLogging(true);
+						result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+			*/
+			int num = test.size();
 			MaxStatementsStoppingCondition.statementsExecuted(num);
-			// for(TestObserver observer : observers) {
-			// observer.testResult(result);
-			// }
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			try {
