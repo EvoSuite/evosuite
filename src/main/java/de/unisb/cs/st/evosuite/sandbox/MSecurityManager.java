@@ -62,7 +62,6 @@ public class MSecurityManager extends SecurityManager {
 	 * @return false if access is forbidden, true otherwise
 	 */
 	private boolean allowPermission(Permission perm) {
-
 		// get all elements of the stack trace for the current thread 
 		StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
 
