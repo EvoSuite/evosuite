@@ -26,8 +26,10 @@ if [ ! -e $BASEPATH/target/javaagent.jar ]; then
     exit -1
 fi
 
-#java_opts="-ea -Xmx2048M -Xrunhprof:heap=sites,cpu=times,depth=10"
-java_opts="-ea -Xmx2048M"
+#java_opts="-ea -Xmx2048M -Xrunhprof:heap=sites,cpu=times,depth=10" #samples
+#java_opts="-ea -Xmx2048M -Xrunhprof:cpu=times,depth=10"
+java_opts="-ea -Xmx1024M"
+#java_opts=""
 
 java_agent="-javaagent:$BASEPATH/target/javaagent.jar"
 
@@ -383,7 +385,7 @@ generateSuite ()
 		TEST_CLASSES=""
 		STRATEGY="OneBranch"
 		CRITERION="-Dcriterion=branch"
-		SANDBOX="-Dsandbox=false"
+		SANDBOX=""
 		random_seed="-Drandom.seed=0"
 		for (( i = 0; i < ${#cmdline_options[@]}; i++ )) 
 		do

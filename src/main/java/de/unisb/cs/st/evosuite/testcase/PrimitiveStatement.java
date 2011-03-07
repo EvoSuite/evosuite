@@ -410,7 +410,11 @@ public class PrimitiveStatement<T> extends Statement {
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
 	        Throwable exception) {
-		Class<?> clazz = retval.getVariableClass();
+		Class<?> clazz = value.getClass();
+		if (!clazz.equals(retval.getVariableClass())) {
+			mg.cast(org.objectweb.asm.Type.getType(clazz),
+			        org.objectweb.asm.Type.getType(retval.getVariableClass()));
+		}
 		if (clazz.equals(Boolean.class) || clazz.equals(boolean.class))
 			mg.push(((Boolean) value).booleanValue());
 		else if (clazz.equals(Character.class) || clazz.equals(char.class))

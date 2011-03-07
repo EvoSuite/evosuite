@@ -31,7 +31,7 @@ import de.unisb.cs.st.evosuite.ga.FitnessFunction;
  */
 public abstract class TestFitnessFunction extends FitnessFunction {
 
-	protected TestCaseExecutor	executor	= new TestCaseExecutor();
+	protected TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
 	/**
 	 * Execute a test case
@@ -49,9 +49,10 @@ public abstract class TestFitnessFunction extends FitnessFunction {
 
 		try {
 			logger.debug("Executing test");
-			result.exceptions = executor.run(test);
+			result = executor.execute(test);
+			//			result.exceptions = executor.run(test);
 			executor.setLogging(true);
-			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+			//			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
 			// result.output_trace = executor.getTrace();
 			/*
 			 * result.comparison_trace = comparison_observer.getTrace();
@@ -88,8 +89,7 @@ public abstract class TestFitnessFunction extends FitnessFunction {
 		return result;
 	}
 
-	public abstract double getFitness(TestChromosome individual,
-	        ExecutionResult result);
+	public abstract double getFitness(TestChromosome individual, ExecutionResult result);
 
 	@Override
 	public double getFitness(Chromosome individual) {
@@ -126,8 +126,8 @@ public abstract class TestFitnessFunction extends FitnessFunction {
 	 * @return
 	 */
 	public boolean isCovered(List<TestCase> tests) {
-		for(TestCase test : tests) {
-			if(isCovered(test)) {
+		for (TestCase test : tests) {
+			if (isCovered(test)) {
 				return true;
 			}
 		}
@@ -139,7 +139,7 @@ public abstract class TestFitnessFunction extends FitnessFunction {
 		TestChromosome c = new TestChromosome();
 		c.test = test;
 		boolean covered = getFitness(c, result) == 0.0;
-		if(covered)
+		if (covered)
 			test.addCoveredGoal(this);
 		return covered;
 	}

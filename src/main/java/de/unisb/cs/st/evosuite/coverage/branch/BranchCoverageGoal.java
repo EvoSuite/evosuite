@@ -101,7 +101,7 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 		ControlFlowDistance d = new ControlFlowDistance();
 
 		if (hasTimeout(result)) {
-			logger.info("Has timeout!");
+			//logger.info("Has timeout!");
 			if (cfg == null) {
 				d.approach = 20;
 			} else {

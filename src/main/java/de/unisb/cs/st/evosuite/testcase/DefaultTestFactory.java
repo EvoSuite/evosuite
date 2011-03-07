@@ -138,10 +138,10 @@ public class DefaultTestFactory extends AbstractTestFactory {
 						// logger.info("Inserting array thingy");
 						int index = randomness.nextInt(object.array_length);
 						// logger.info("Array statement: "+as.getCode());
-						logger.info("Inserting array index " + index + " at position "
-						        + position + " for array with length "
-						        + object.array_length + ": "
-						        + object.getArray().getName());
+						//logger.info("Inserting array index " + index + " at position "
+						//       + position + " for array with length "
+						//       + object.array_length + ": "
+						//      + object.getArray().getName());
 						// logger.info("Array thinks it's at position: "+as.retval.statement);
 						try {
 							assignArray(test, object, index, position);
@@ -697,7 +697,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		GenericClass clazz = new GenericClass(type);
 
 		if (clazz.isPrimitive() || clazz.isString()) {
-			logger.debug("Generating primitive of type " + ((Class<?>) type).getName());
+			if (logger.isDebugEnabled())
+				logger.debug("Generating primitive of type "
+				        + ((Class<?>) type).getName());
 			VariableReference reference = new VariableReference(type, position); // -1;?
 
 			test.addStatement(PrimitiveStatement.getRandomStatement(reference, type),

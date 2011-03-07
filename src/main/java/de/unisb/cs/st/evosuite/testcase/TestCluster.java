@@ -50,6 +50,7 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.ga.Randomness;
 import de.unisb.cs.st.evosuite.javaagent.StaticInitializationClassAdapter;
+import de.unisb.cs.st.evosuite.javaagent.TestabilityTransformation;
 import de.unisb.cs.st.javalanche.coverage.distance.ConnectionData;
 import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
 import de.unisb.cs.st.javalanche.coverage.distance.MethodDescription;
@@ -74,6 +75,8 @@ public class TestCluster {
 
 	/** Classes excluded by Javalanche */
 	private final Excludes excludes = Excludes.getInstance();
+
+	private final boolean TT = Properties.getPropertyOrDefault("TT", false);
 
 	/** Instance variable */
 	private static TestCluster instance = null;
@@ -628,7 +631,23 @@ public class TestCluster {
 			if (!objs.containsKey(parameters[0]))
 				objs.put(parameters[0], new ArrayList<String>());
 
-			objs.get(parameters[0]).add(parameters[1]);
+			String name = parameters[1];
+			if (false && Properties.getPropertyOrDefault("TT", false)) {
+				int split = name.indexOf("(");
+				if (split >= 0) {
+					// TODO: 
+					String methodName = name.substring(0, split);
+					String desc = name.substring(split);
+					String oldDesc = desc;
+					desc = TestabilityTransformation.getTransformedDesc(parameters[0],
+					                                                    methodName, desc);
+					logger.info(methodName + ": Adapting desc from " + oldDesc + " to "
+					        + desc);
+					name = methodName + desc;
+				}
+			}
+
+			objs.get(parameters[0]).add(name);
 		}
 		return objs;
 	}
@@ -749,7 +768,13 @@ public class TestCluster {
 		}
 
 		if (m.getName().equals("__STATIC_RESET")) {
-			logger.info("Ignoring static reset class");
+			logger.debug("Ignoring static reset class");
+			return false;
+		}
+
+		if (m.getName().equals("main") && Modifier.isStatic(m.getModifiers())
+		        && Modifier.isPublic(m.getModifiers())) {
+			logger.debug("Ignoring static main method ");
 			return false;
 		}
 
@@ -991,6 +1016,16 @@ public class TestCluster {
 
 				// Add all constructors
 				for (Constructor<?> constructor : getConstructors(clazz)) {
+					String name = "<init>"
+					        + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
+					if (TT) {
+						String orig = name;
+						name = TestabilityTransformation.getOriginalNameDesc(clazz.getName(),
+						                                                     "<init>",
+						                                                     org.objectweb.asm.Type.getConstructorDescriptor(constructor));
+						logger.info("TT name: " + orig + " -> " + name);
+
+					}
 
 					if (constructor.getDeclaringClass().getName().startsWith(target_class)
 					        && !constructor.isSynthetic()
@@ -1009,10 +1044,7 @@ public class TestCluster {
 						        + " starts with " + classname);
 					}
 
-					if (canUse(constructor)
-					        && matches("<init>"
-					                           + org.objectweb.asm.Type.getConstructorDescriptor(constructor),
-					                   restriction)) {
+					if (canUse(constructor) && matches(name, restriction)) {
 						logger.debug("Adding constructor "
 						        + classname
 						        + "."
@@ -1032,6 +1064,15 @@ public class TestCluster {
 
 				// Add all methods
 				for (Method method : getMethods(clazz)) {
+					String name = method.getName()
+					        + org.objectweb.asm.Type.getMethodDescriptor(method);
+					if (TT) {
+						String orig = name;
+						name = TestabilityTransformation.getOriginalNameDesc(clazz.getName(),
+						                                                     method.getName(),
+						                                                     org.objectweb.asm.Type.getMethodDescriptor(method));
+						logger.info("TT name: " + orig + " -> " + name);
+					}
 					if (method.getDeclaringClass().getName().startsWith(target_class)
 					        && !method.isSynthetic()
 					        && !Modifier.isAbstract(method.getModifiers())) {
@@ -1047,22 +1088,7 @@ public class TestCluster {
 						        + " starts with " + target_class);
 					}
 
-					/*
-					 * if(method.getDeclaringClass().getName().startsWith(classname
-					 * )) { // if(count &&
-					 * !method.getDeclaringClass().equals(Object.class)) {
-					 * logger
-					 * .debug("Keeping track of "+method.getDeclaringClass(
-					 * ).getName()+"."+method.getName()+org.objectweb.asm.Type.
-					 * getMethodDescriptor(method));
-					 * logger.debug(method.getDeclaringClass
-					 * ().getName()+" starts with "+classname);
-					 * num_defined_methods++; }
-					 */
-					if (canUse(method)
-					        && matches(method.getName()
-					                           + org.objectweb.asm.Type.getMethodDescriptor(method),
-					                   restriction)) {
+					if (canUse(method) && matches(name, restriction)) {
 						logger.debug("Adding method " + classname + "."
 						        + method.getName()
 						        + org.objectweb.asm.Type.getMethodDescriptor(method));
@@ -1383,7 +1409,7 @@ public class TestCluster {
 					} catch (ClassNotFoundException e) {
 						logger.debug("Ignoring class " + classname);
 					} catch (ExceptionInInitializerError e) {
-						logger.debug("Problem - ignoring class " + classname);
+						logger.debug("Problem - ignoring class " + classname + ": " + e);
 					}
 				}
 			}

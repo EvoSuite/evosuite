@@ -102,10 +102,8 @@ public class ExecutionTrace {
 			MethodCall copy = new MethodCall(class_name, method_name);
 			copy.line_trace = new ArrayList<Integer>(line_trace);
 			copy.branch_trace = new ArrayList<Integer>(branch_trace);
-			copy.true_distance_trace = new ArrayList<Double>(
-			        true_distance_trace);
-			copy.false_distance_trace = new ArrayList<Double>(
-			        false_distance_trace);
+			copy.true_distance_trace = new ArrayList<Double>(true_distance_trace);
+			copy.false_distance_trace = new ArrayList<Double>(false_distance_trace);
 			return copy;
 		}
 	}
@@ -123,14 +121,19 @@ public class ExecutionTrace {
 	public Map<String, Map<String, Map<Integer, Integer>>> return_data = new HashMap<String, Map<String, Map<Integer, Integer>>>();
 
 	// Refactoring
-	public Map<String, Integer> covered_methods = Collections.synchronizedMap(new HashMap<String, Integer>());
-	public Map<String, Integer> covered_predicates = Collections.synchronizedMap(new HashMap<String, Integer>());
-	public Map<String, Double> true_distances   = Collections.synchronizedMap(new HashMap<String, Double>());
-	public Map<String, Double> false_distances  = Collections.synchronizedMap(new HashMap<String, Double>());
-	
-	public HashMap<String,HashMap<Integer,Integer>> passedDefs = new HashMap<String,HashMap<Integer,Integer>>();
-	public HashMap<String,HashMap<Integer,Integer>> passedUses = new HashMap<String,HashMap<Integer,Integer>>();
-	
+	//	public Map<String, Integer> covered_methods = Collections.synchronizedMap(new HashMap<String, Integer>());
+	//	public Map<String, Integer> covered_predicates = Collections.synchronizedMap(new HashMap<String, Integer>());
+	//	public Map<String, Double> true_distances = Collections.synchronizedMap(new HashMap<String, Double>());
+	//	public Map<String, Double> false_distances = Collections.synchronizedMap(new HashMap<String, Double>());
+
+	public Map<String, Integer> covered_methods = new HashMap<String, Integer>();
+	public Map<String, Integer> covered_predicates = new HashMap<String, Integer>();
+	public Map<String, Double> true_distances = new HashMap<String, Double>();
+	public Map<String, Double> false_distances = new HashMap<String, Double>();
+
+	public HashMap<String, HashMap<Integer, Integer>> passedDefs = new HashMap<String, HashMap<Integer, Integer>>();
+	public HashMap<String, HashMap<Integer, Integer>> passedUses = new HashMap<String, HashMap<Integer, Integer>>();
+
 	public ExecutionTrace() {
 		stack.add(new MethodCall("", "")); // Main method
 	}
@@ -162,8 +165,7 @@ public class ExecutionTrace {
 	public void exitMethod(String classname, String methodname) {
 		if (trace_calls) {
 
-			if (!stack.isEmpty()
-			        && !(stack.peek().method_name.equals(methodname))) {
+			if (!stack.isEmpty() && !(stack.peek().method_name.equals(methodname))) {
 				logger.debug("Expecting " + stack.peek().method_name + ", got "
 				        + methodname);
 				if (stack.peek().method_name.equals("")
@@ -190,49 +192,38 @@ public class ExecutionTrace {
 	public void linePassed(String className, String methodName, int line) {
 		if (trace_calls) {
 			if (stack.isEmpty()) {
-				logger.warn("Method stack is empty: " + className + "."
-				        + methodName);
+				logger.warn("Method stack is empty: " + className + "." + methodName);
 			} else {
 				stack.peek().line_trace.add(line);
 			}
 		}
 		if (!coverage.containsKey(className))
-			coverage.put(className,
-			        new HashMap<String, Map<Integer, Integer>>());
+			coverage.put(className, new HashMap<String, Map<Integer, Integer>>());
 
 		if (!coverage.get(className).containsKey(methodName))
-			coverage.get(className).put(methodName,
-			        new HashMap<Integer, Integer>());
+			coverage.get(className).put(methodName, new HashMap<Integer, Integer>());
 
 		if (!coverage.get(className).get(methodName).containsKey(line))
 			coverage.get(className).get(methodName).put(line, 1);
 		else
-			coverage.get(className)
-			        .get(methodName)
-			        .put(line,
-			                coverage.get(className).get(methodName).get(line) + 1);
+			coverage.get(className).get(methodName).put(line,
+			                                            coverage.get(className).get(methodName).get(line) + 1);
 	}
 
 	public void returnValue(String className, String methodName, int value) {
 		if (!return_data.containsKey(className))
-			return_data.put(className,
-			        new HashMap<String, Map<Integer, Integer>>());
+			return_data.put(className, new HashMap<String, Map<Integer, Integer>>());
 
 		if (!return_data.get(className).containsKey(methodName))
-			return_data.get(className).put(methodName,
-			        new HashMap<Integer, Integer>());
+			return_data.get(className).put(methodName, new HashMap<Integer, Integer>());
 
 		if (!return_data.get(className).get(methodName).containsKey(value)) {
 			// logger.info("Got return value "+value);
 			return_data.get(className).get(methodName).put(value, 1);
 		} else {
 			// logger.info("Got return value again "+value);
-			return_data
-			        .get(className)
-			        .get(methodName)
-			        .put(value,
-			                return_data.get(className).get(methodName)
-			                        .get(value) + 1);
+			return_data.get(className).get(methodName).put(value,
+			                                               return_data.get(className).get(methodName).get(value) + 1);
 		}
 	}
 
@@ -260,14 +251,12 @@ public class ExecutionTrace {
 		if (!true_distances.containsKey(id))
 			true_distances.put(id, true_distance);
 		else
-			true_distances.put(id,
-			        Math.min(true_distances.get(id), true_distance));
+			true_distances.put(id, Math.min(true_distances.get(id), true_distance));
 
 		if (!false_distances.containsKey(id))
 			false_distances.put(id, false_distance);
 		else
-			false_distances.put(id,
-			        Math.min(false_distances.get(id), false_distance));
+			false_distances.put(id, Math.min(false_distances.get(id), false_distance));
 	}
 
 	/**
@@ -283,14 +272,10 @@ public class ExecutionTrace {
 		coverage = new HashMap<String, Map<String, Map<Integer, Integer>>>();
 		return_data = new HashMap<String, Map<String, Map<Integer, Integer>>>();
 
-		true_distances = Collections
-		        .synchronizedMap(new HashMap<String, Double>());
-		false_distances = Collections
-		        .synchronizedMap(new HashMap<String, Double>());
-		covered_methods = Collections
-		        .synchronizedMap(new HashMap<String, Integer>());
-		covered_predicates = Collections
-		        .synchronizedMap(new HashMap<String, Integer>());
+		true_distances = Collections.synchronizedMap(new HashMap<String, Double>());
+		false_distances = Collections.synchronizedMap(new HashMap<String, Double>());
+		covered_methods = Collections.synchronizedMap(new HashMap<String, Integer>());
+		covered_predicates = Collections.synchronizedMap(new HashMap<String, Integer>());
 	}
 
 	/**
@@ -337,8 +322,7 @@ public class ExecutionTrace {
 		String classname = m.getClassName();
 		String methodname = m.getMethodName();
 
-		return (coverage.containsKey(classname) && coverage.get(classname)
-		        .containsKey(methodname));
+		return (coverage.containsKey(classname) && coverage.get(classname).containsKey(methodname));
 	}
 
 	@Override
@@ -370,12 +354,10 @@ public class ExecutionTrace {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-		        + ((coverage == null) ? 0 : coverage.hashCode());
+		result = prime * result + ((coverage == null) ? 0 : coverage.hashCode());
 		result = prime * result
 		        + ((finished_calls == null) ? 0 : finished_calls.hashCode());
-		result = prime * result
-		        + ((return_data == null) ? 0 : return_data.hashCode());
+		result = prime * result + ((return_data == null) ? 0 : return_data.hashCode());
 		result = prime * result + ((stack == null) ? 0 : stack.hashCode());
 		return result;
 	}

@@ -161,7 +161,6 @@ public class BooleanArrayInterpreter extends BasicInterpreter {
 				else if (mn.name.equals("clone") && mn.owner.equals("[B"))
 					return BYTE_ARRAY;
 				else {
-					logger.info("TTT: " + mn.owner + " . " + mn.name);
 					return super.naryOperation(insn, values);
 				}
 			}

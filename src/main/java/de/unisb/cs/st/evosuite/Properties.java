@@ -103,6 +103,27 @@ public class Properties {
 	public static boolean TESTABILITY_TRANSFORMATION = getPropertyOrDefault("testability_transformation",
 	                                                                        false);
 
+	public static boolean TRANSFORM_STRING = false;
+
+	public static boolean TRANSFORM_COMPARISON = false;
+
+	public static boolean TRANSFORM_BOOLEAN = false;
+
+	public static boolean TRANSFORM_ELSE = false;
+
+	public static boolean TT = !getPropertyOrDefault("TT", "").equals("");
+
+	static {
+		String prop = Properties.getPropertyOrDefault("TT", "");
+		if (prop.contains("string"))
+			TRANSFORM_STRING = true;
+		if (prop.contains("comparison"))
+			TRANSFORM_COMPARISON = true;
+		if (prop.contains("boolean"))
+			TRANSFORM_BOOLEAN = true;
+		if (prop.contains("else"))
+			TRANSFORM_ELSE = true;
+	}
 	public static boolean INSTRUMENT_PARENT = getPropertyOrDefault("instrument_parent",
 	                                                               false);
 
@@ -120,26 +141,8 @@ public class Properties {
 			InputStream in = this.getClass().getClassLoader().getResourceAsStream("evosuite.properties");
 			properties.load(in);
 			PROJECT_PREFIX = properties.getProperty("PROJECT_PREFIX");
-			if (PROJECT_PREFIX == null) {
-				PROJECT_PREFIX = System.getProperty("PROJECT_PREFIX");
-			}
 			OUTPUT_DIR = properties.getProperty("OUTPUT_DIR");
 			TARGET_CLASS = properties.getProperty("TARGET_CLASS");
-			if (System.getProperty("TARGET_CLASS") != null) {
-				TARGET_CLASS = System.getProperty("TARGET_CLASS");
-			}
-			if (System.getProperty("OUTPUT_DIR") != null) {
-				OUTPUT_DIR = System.getProperty("OUTPUT_DIR");
-			}
-			if (TARGET_CLASS != null) {
-				properties.setProperty("TARGET_CLASS", TARGET_CLASS);
-				CLASS_PREFIX = TARGET_CLASS.substring(0, TARGET_CLASS.lastIndexOf('.'));
-				SUB_PREFIX = CLASS_PREFIX.replace(PROJECT_PREFIX + ".", "");
-			}
-
-			properties.setProperty("PROJECT_PREFIX", PROJECT_PREFIX);
-			properties.setProperty("output_dir", OUTPUT_DIR);
-
 			System.out.println("* Properties loaded from configuration file evosuite.properties");
 		} catch (FileNotFoundException e) {
 			System.err.println("Error: Could not find configuration file evosuite.properties");
@@ -148,6 +151,23 @@ public class Properties {
 		} catch (Exception e) {
 			System.err.println("Error: Could not find configuration file evosuite.properties");
 		}
+		if (System.getProperty("OUTPUT_DIR") != null) {
+			OUTPUT_DIR = System.getProperty("OUTPUT_DIR");
+		}
+		if (System.getProperty("TARGET_CLASS") != null) {
+			TARGET_CLASS = System.getProperty("TARGET_CLASS");
+		}
+		if (PROJECT_PREFIX == null) {
+			PROJECT_PREFIX = System.getProperty("PROJECT_PREFIX");
+		}
+		if (TARGET_CLASS != null) {
+			properties.setProperty("TARGET_CLASS", TARGET_CLASS);
+			CLASS_PREFIX = TARGET_CLASS.substring(0, TARGET_CLASS.lastIndexOf('.'));
+			SUB_PREFIX = CLASS_PREFIX.replace(PROJECT_PREFIX + ".", "");
+		}
+
+		properties.setProperty("PROJECT_PREFIX", PROJECT_PREFIX);
+		properties.setProperty("output_dir", OUTPUT_DIR);
 	}
 
 	/**

@@ -5,6 +5,7 @@ package de.unisb.cs.st.evosuite.testsuite;
 
 import java.util.List;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
@@ -15,14 +16,16 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
  * @author Gordon Fraser
  * 
  */
-public class CurrentChromosomeTracker<CType extends Chromosome> implements
-        SearchListener {
+public class CurrentChromosomeTracker<CType extends Chromosome> implements SearchListener {
 
 	/** The current chromosome */
 	private CType currentSuite = null;
 
 	/** Singleton instance */
 	private static CurrentChromosomeTracker<?> instance = null;
+
+	private final static double CALL_PROBABILITY = Properties.getPropertyOrDefault("call_probability",
+	                                                                               0.0);
 
 	/**
 	 * Private constructor for singleton
@@ -108,19 +111,21 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements
 		return currentSuite;
 	}
 
+	// TODO: This is very inefficient
 	public void changed(TestChromosome changed) {
-		TestSuiteChromosome suite = (TestSuiteChromosome) currentSuite;
-		for (TestChromosome test : suite.tests) {
-			if (test == changed || changed.test == test.test)
-				continue;
-			for (Statement s : test.test.getStatements()) {
-				if (s instanceof TestCallStatement) {
-					TestCallStatement call = (TestCallStatement) s;
-					if (call.getTest() != null
-					        && call.getTest().equals(changed.test)) {
-						if (!test.isChanged())
-							test.setChanged(true);
-						break;
+		if (CALL_PROBABILITY > 0) {
+			TestSuiteChromosome suite = (TestSuiteChromosome) currentSuite;
+			for (TestChromosome test : suite.tests) {
+				if (test == changed || changed.test == test.test)
+					continue;
+				for (Statement s : test.test.getStatements()) {
+					if (s instanceof TestCallStatement) {
+						TestCallStatement call = (TestCallStatement) s;
+						if (call.getTest() != null && call.getTest().equals(changed.test)) {
+							if (!test.isChanged())
+								test.setChanged(true);
+							break;
+						}
 					}
 				}
 			}

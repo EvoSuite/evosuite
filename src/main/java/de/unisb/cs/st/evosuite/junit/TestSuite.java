@@ -61,7 +61,7 @@ public class TestSuite implements Opcodes {
 
 	protected List<TestCase> test_cases = new ArrayList<TestCase>();
 
-	protected TestCaseExecutor executor = new TestCaseExecutor();
+	protected TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
 	class TestFilter implements IOFileFilter {
 		@Override
@@ -97,7 +97,7 @@ public class TestSuite implements Opcodes {
 
 		try {
 			logger.debug("Executing test");
-			result.exceptions = executor.run(test);
+			result = executor.execute(test);
 			executor.setLogging(true);
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
@@ -292,9 +292,7 @@ public class TestSuite implements Opcodes {
 			if (imp.getName().startsWith("java.lang"))
 				continue;
 			if (imp.getName().contains("$"))
-				import_names
-				        .add(imp.getName()
-				                .substring(0, imp.getName().indexOf("$")));
+				import_names.add(imp.getName().substring(0, imp.getName().indexOf("$")));
 			// import_names.add(imp.getName().replace("$","."));
 			else
 				import_names.add(imp.getName());
@@ -374,8 +372,7 @@ public class TestSuite implements Opcodes {
 			}
 		}
 		builder.append(" {\n");
-		for (String line : test_cases.get(id).toCode(result.exceptions)
-		        .split("\\r?\\n")) {
+		for (String line : test_cases.get(id).toCode(result.exceptions).split("\\r?\\n")) {
 			builder.append("      ");
 			builder.append(line);
 			// builder.append(";\n");
@@ -392,8 +389,7 @@ public class TestSuite implements Opcodes {
 	 * @return
 	 */
 	protected String makeDirectory(String directory) {
-		String dirname = directory + "/"
-		        + Properties.CLASS_PREFIX.replace('.', '/'); // +"/GeneratedTests";
+		String dirname = directory + "/" + Properties.CLASS_PREFIX.replace('.', '/'); // +"/GeneratedTests";
 		File dir = new File(dirname);
 		logger.debug("Target directory: " + dirname);
 		dir.mkdirs();
@@ -407,8 +403,7 @@ public class TestSuite implements Opcodes {
 	 * @return
 	 */
 	protected String mainDirectory(String directory) {
-		String dirname = directory + "/"
-		        + Properties.PROJECT_PREFIX.replace('.', '/'); // +"/GeneratedTests";
+		String dirname = directory + "/" + Properties.PROJECT_PREFIX.replace('.', '/'); // +"/GeneratedTests";
 		File dir = new File(dirname);
 		logger.debug("Target directory: " + dirname);
 		dir.mkdirs();
@@ -445,8 +440,8 @@ public class TestSuite implements Opcodes {
 		                                          TrueFileFilter.INSTANCE);
 		while (i.hasNext()) {
 			File f = i.next();
-			String name = f.getPath().replace(directory, "")
-			        .replace(".java", "").replace("/", ".");
+			String name = f.getPath().replace(directory, "").replace(".java", "").replace("/",
+			                                                                              ".");
 			suites.add(name.substring(name.lastIndexOf(".") + 1));
 			builder.append("import ");
 			builder.append(Properties.PROJECT_PREFIX);
@@ -522,15 +517,14 @@ public class TestSuite implements Opcodes {
 
 	public byte[] getBytecode(String name) {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-		String prefix = Properties.TARGET_CLASS
-		        .substring(0, Properties.TARGET_CLASS.lastIndexOf("."))
-		        .replace(".", "/");
+		String prefix = Properties.TARGET_CLASS.substring(0,
+		                                                  Properties.TARGET_CLASS.lastIndexOf(".")).replace(".",
+		                                                                                                    "/");
 		cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, prefix + "/" + name, null,
 		         "junit/framework/TestCase", null);
 
 		Method m = Method.getMethod("void <init> ()");
-		GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null,
-		        cw);
+		GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
 		mg.loadThis();
 		mg.invokeConstructor(Type.getType(junit.framework.TestCase.class), m);
 		mg.returnValue();

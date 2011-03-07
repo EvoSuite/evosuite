@@ -477,7 +477,7 @@ public class TestSuiteGenerator {
 			ArrayList<TestCase> tests = (ArrayList<TestCase>) xstream.fromXML(in);
 
 			//TestSuiteChromosome suite = new TestSuiteChromosome();
-			TestCaseExecutor executor = new TestCaseExecutor();
+			TestCaseExecutor executor = TestCaseExecutor.getInstance();
 			int num_exceptions = 0;
 			int num_declared = 0;
 			int num_checked = 0;

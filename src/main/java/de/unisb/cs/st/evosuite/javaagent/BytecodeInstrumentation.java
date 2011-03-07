@@ -140,7 +140,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 					if (static_hack)
 						cv = new StaticInitializationClassAdapter(cv, className);
 
-					if (Properties.getPropertyOrDefault("TT", false)) {
+					if (Properties.TT) {
 						logger.info("Transforming " + className);
 						ClassNode cn = new ClassNode();
 						reader.accept(cn, ClassReader.SKIP_FRAMES);

@@ -69,6 +69,7 @@ import de.unisb.cs.st.evosuite.testcase.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.MaxTestsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestCaseMinimizer;
 import de.unisb.cs.st.evosuite.testcase.TestCaseReplacementFunction;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
@@ -130,6 +131,7 @@ public class TestSuiteGenerator {
 			suite.writeTestSuite("Test" + name, Properties.TEST_DIR);
 		}
 
+		TestCaseExecutor.pullDown();
 		statistics.writeReport();
 		System.out.println("* Done!");
 	}

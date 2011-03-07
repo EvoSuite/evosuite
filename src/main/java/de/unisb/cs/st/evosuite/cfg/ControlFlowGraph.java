@@ -46,23 +46,27 @@ public class ControlFlowGraph {
 
 	private int diameter = 0;
 
-	public ControlFlowGraph(DirectedGraph<CFGVertex, DefaultEdge> cfg) {
+	public ControlFlowGraph(DirectedGraph<CFGVertex, DefaultEdge> cfg,
+	        boolean calculateDiameter) {
 		graph = cfg;
-		setDiameter();
 
-		// Calculate mutation distances
-		logger.trace("Calculating mutation distances");
-		for (CFGVertex m : cfg.vertexSet()) {
-			if (m.isMutation()) {
-				for (Long id : m.getMutationIds()) {
-					for (CFGVertex v : cfg.vertexSet()) {
-						DijkstraShortestPath<CFGVertex, DefaultEdge> d = new DijkstraShortestPath<CFGVertex, DefaultEdge>(
-						        graph, v, m);
-						int distance = (int) Math.round(d.getPathLength());
-						if (distance >= 0)
-							v.setDistance(id, distance);
-						else
-							v.setDistance(id, diameter);
+		if (calculateDiameter) {
+			setDiameter();
+
+			// Calculate mutation distances
+			logger.trace("Calculating mutation distances");
+			for (CFGVertex m : cfg.vertexSet()) {
+				if (m.isMutation()) {
+					for (Long id : m.getMutationIds()) {
+						for (CFGVertex v : cfg.vertexSet()) {
+							DijkstraShortestPath<CFGVertex, DefaultEdge> d = new DijkstraShortestPath<CFGVertex, DefaultEdge>(
+							        graph, v, m);
+							int distance = (int) Math.round(d.getPathLength());
+							if (distance >= 0)
+								v.setDistance(id, distance);
+							else
+								v.setDistance(id, diameter);
+						}
 					}
 				}
 			}
@@ -455,7 +459,7 @@ public class ControlFlowGraph {
 	 */
 	public void markBranchIDs(CFGVertex branchVertex) {
 
-		if (!branchVertex.isBranch())
+		if (!(branchVertex.isBranch() || branchVertex.isLookupSwitch() || branchVertex.isTableSwitch()))
 			throw new IllegalArgumentException("branch vertex expected");
 
 		if (branchVertex.branchID == -1)

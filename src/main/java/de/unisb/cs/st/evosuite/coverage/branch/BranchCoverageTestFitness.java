@@ -52,9 +52,9 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 
 		fitness = distance.approach + normalize(distance.branch);
 
-		logger.debug("Approach level: " + distance.approach
-		        + " / branch distance: " + distance.branch + ", fitness = "
-		        + fitness);
+		//logger.debug("Approach level: " + distance.approach
+		//        + " / branch distance: " + distance.branch + ", fitness = "
+		//        + fitness);
 
 		updateIndividual(individual, fitness);
 		return fitness;
