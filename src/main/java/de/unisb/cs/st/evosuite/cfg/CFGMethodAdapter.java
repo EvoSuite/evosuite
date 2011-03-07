@@ -47,6 +47,7 @@ import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
+import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 
 import de.unisb.cs.st.evosuite.Properties;
@@ -204,35 +205,39 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	 * Creates the instrumentation needed to track defs and uses
 	 * 
 	 */
-	private InsnList getInstrumentation(CFGVertex v, int currentBranch) {
+    private InsnList getInstrumentation(CFGVertex v, int currentBranch, boolean staticContext) {
 		InsnList instrumentation = new InsnList();
-		String methodID = className + "." + methodName;
 
-		switch (v.node.getOpcode()) {
-		case Opcodes.PUTFIELD:
-		case Opcodes.PUTSTATIC:
+if(v.isUse()) {
 			instrumentation.add(new LdcInsnNode(className));
 			instrumentation.add(new LdcInsnNode(v.getDUVariableName()));
 			instrumentation.add(new LdcInsnNode(methodName));
-			instrumentation.add(new LdcInsnNode(currentBranch));
-			instrumentation.add(new LdcInsnNode(DefUsePool.getDefCounter()));
-			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-			        "passedFieldDefinition",
-			        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V"));
-			break;
-		case Opcodes.GETFIELD:
-		case Opcodes.GETSTATIC:
-			instrumentation.add(new LdcInsnNode(className));
-			instrumentation.add(new LdcInsnNode(v.getDUVariableName()));
-			instrumentation.add(new LdcInsnNode(methodName));
+			if(staticContext) {
+				instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
+			} else {
+				instrumentation.add(new VarInsnNode(Opcodes.ALOAD, 0));
+			}
 			instrumentation.add(new LdcInsnNode(currentBranch));
 			instrumentation.add(new LdcInsnNode(DefUsePool.getUseCounter()));
-			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedFieldUse",
-			        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V"));
-			break;
+			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+					"passedUse", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;II)V"));
 		}
+
+		if(v.isDefinition()) {
+			instrumentation.add(new LdcInsnNode(className));
+			instrumentation.add(new LdcInsnNode(v.getDUVariableName()));
+			instrumentation.add(new LdcInsnNode(methodName));
+			if(staticContext) {
+				instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
+			} else {
+				instrumentation.add(new VarInsnNode(Opcodes.ALOAD, 0));
+			}
+			instrumentation.add(new LdcInsnNode(currentBranch));
+			instrumentation.add(new LdcInsnNode(DefUsePool.getDefCounter()));
+			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+					"passedDefinition", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;II)V"));
+		}
+		
 		return instrumentation;
 	}
 
@@ -349,6 +354,11 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			logger.debug("Counting: " + id);
 		}
 
+//		System.out.println("finished instrumenting method "+methodName);
+//		for(AbstractInsnNode n : mn.instructions.toArray()) {
+//			System.out.println(n.toString());
+//		}
+		
 		mn.accept(next);
 	}
 
@@ -418,17 +428,22 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 				if (Properties.CRITERION.equals("defuse") && in.equals(v.node)
 				        && (v.isDU())) {
 
-					// adding instrumentation for defuse-coverage
-					mn.instructions.insert(v.node.getPrevious(),
-					                       getInstrumentation(v, v.branchID));
-
+					// keeping track of uses
+					boolean isValidDU = false;
+					if (v.isUse()) 
+						isValidDU = DefUsePool.addUse(v);
+					
 					// keeping track of definitions
 					if (v.isDefinition())
-						DefUsePool.addDefinition(v);
+						isValidDU = DefUsePool.addDefinition(v) || isValidDU;
 
-					// keeping track of uses
-					if (v.isUse())
-						DefUsePool.addUse(v);
+					if (isValidDU) {
+						boolean staticContext = v.isStaticDU() || ((access & Opcodes.ACC_STATIC) > 0);
+						
+						// adding instrumentation for defuse-coverage
+						mn.instructions.insert(v.node.getPrevious(),
+						                       getInstrumentation(v, v.branchID, staticContext));						
+					}
 
 				}
 
