@@ -31,7 +31,7 @@ import de.unisb.cs.st.evosuite.testcase.TestRunnable;
  * @author Andrey Tarasevich
  * 
  */
-public class MSecurityManager extends SecurityManager {
+class MSecurityManager extends SecurityManager {
 	/** package under test */
 	private final String testPackage = Properties.PROJECT_PREFIX;
 
@@ -82,7 +82,8 @@ public class MSecurityManager extends SecurityManager {
 			}
 
 			if (e.getMethodName().equals("setSecurityManager")) {
-				if (stackTraceElements[elementCounter + 1].getMethodName().equals("executeTestCase"))
+				if (stackTraceElements[elementCounter + 1].getMethodName().equals("tearDownMockedSecurityManager")
+					|| stackTraceElements[elementCounter + 1].getMethodName().equals("setUpMockedSecurityManager"))
 					return true;
 				else if (stackTraceElements[elementCounter + 1].getMethodName().equals("call"))
 					return true;

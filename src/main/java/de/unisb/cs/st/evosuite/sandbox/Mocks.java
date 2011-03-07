@@ -39,13 +39,10 @@ import de.unisb.cs.st.evosuite.Properties;
  * @author Andrey Tarasevich
  * 
  */
-public class Mocks {
+class Mocks {
 
 	/** Folder where IO should happen, if mocks are enabled */
 	private final String sandboxPath;
-
-	/** If mocks should be created */
-	private static final boolean mocks = Properties.MOCKS;
 
 	/** If mocks already created */
 	private boolean mocksEnabled = false;
@@ -69,14 +66,12 @@ public class Mocks {
 	 * Initialize mocks in case the MOCKS property is set to true
 	 */
 	public void setUpMocks() {
-		if (mocks) {
-			createIODir();
-			setUpFileOutputStreamMock();
-			setUpSystemMock();
-			setUpFileMock();
-			setUpFileInputStreamMock();
-			mocksEnabled = true;
-		}
+		createIODir();
+		setUpFileOutputStreamMock();
+		setUpSystemMock();
+		setUpFileMock();
+		setUpFileInputStreamMock();
+		mocksEnabled = true;
 	}
 
 	/**
@@ -87,6 +82,7 @@ public class Mocks {
 			Mockit.tearDownMocks();
 			deleteIODir(sandboxPath);
 			mocksEnabled = false;
+			filesAccessed.clear();
 		}
 	}
 

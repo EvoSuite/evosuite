@@ -32,6 +32,7 @@ import java.util.concurrent.TimeoutException;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.sandbox.Sandbox;
 
 /**
  * The test case executor manages thread creation/deletion to execute a test
@@ -127,6 +128,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			return result;
 
 		} catch (InterruptedException e1) {
+			Sandbox.tearDownEverything();
 			logger.info("InterruptedException");
 			ExecutionResult result = new ExecutionResult(tc, null);
 			result.exceptions = callable.exceptionsThrown;
@@ -134,6 +136,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			ExecutionTracer.getExecutionTracer().clear();
 			return result;
 		} catch (ExecutionException e1) {
+			Sandbox.tearDownEverything();
 			logger.info("ExecutionException");
 			ExecutionResult result = new ExecutionResult(tc, null);
 			result.exceptions = callable.exceptionsThrown;
@@ -141,7 +144,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			ExecutionTracer.getExecutionTracer().clear();
 			return result;
 		} catch (TimeoutException e1) {
-
+			Sandbox.tearDownEverything();
 			logger.info("TimeoutException, need to stop runner");
 			ExecutionTracer.setKillSwitch(true);
 			ExecutionTracer.disable();
