@@ -13,9 +13,8 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 
-import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.sandbox.MSecurityManager;
-import de.unisb.cs.st.evosuite.sandbox.Mocks;
+import de.unisb.cs.st.evosuite.sandbox.Sandbox;
+
 
 /**
  * @author Gordon Fraser
@@ -32,13 +31,6 @@ public class TestRunnable implements Callable<ExecutionResult> {
 	private final boolean log = true;
 
 	public boolean runFinished;
-
-	// if SecurityManager should be changed
-	private static boolean changeSM = Properties.SANDBOX;
-
-	private static Mocks mocks = new Mocks();
-
-	private static SecurityManager newManager = new MSecurityManager();
 
 	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
@@ -65,18 +57,7 @@ public class TestRunnable implements Callable<ExecutionResult> {
 
 		int num = 0;
 		try {
-
-			SecurityManager oldManager = null;
-			//SecurityManager newManager = null;
-
-			if (changeSM) {
-				// Current SecurityManager used by default
-				oldManager = System.getSecurityManager();
-				// Mocked SecurityManager that forbids all access to I/O, Network
-				// etc
-			}
-
-			mocks.setUpMocks();
+			Sandbox.setUpMocks();
 			// exceptionsThrown = test.execute(scope, observers, !log);
 			for (Statement s : test.statements) {
 				if (Thread.currentThread().isInterrupted() || Thread.interrupted()) {
@@ -92,16 +73,9 @@ public class TestRunnable implements Callable<ExecutionResult> {
 				out.flush();
 				byteStream.reset();
 
-				// check if SecurityManager should be changed to mocked SecurityManager
-				if (changeSM) {
-					System.setSecurityManager(newManager);
-				}
+				Sandbox.setUpMockedSecurityManager();
 				Throwable exceptionThrown = s.execute(scope, out);
-
-				// check if default SecurityManager should be set
-				if (changeSM) {
-					System.setSecurityManager(oldManager);
-				}
+				Sandbox.tearDownMockedSecurityManager();
 
 				// During runtime the type of a variable might change
 				// E.g. if declared Object, after the first run it will
@@ -133,15 +107,17 @@ public class TestRunnable implements Callable<ExecutionResult> {
 			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
 
 		} catch (ThreadDeath e) {// can't stop these guys
-			mocks.tearDownMocks();
+			Sandbox.tearDownEverything();
 			logger.info("Found error:");
 			logger.info(test.toCode());
 			e.printStackTrace();
 			runFinished = true;
 			throw e;
 		} catch (TimeoutException e) {
+			Sandbox.tearDownEverything();
 			logger.info("Test timed out!");
 		} catch (Throwable e) {
+			Sandbox.tearDownEverything();
 			logger.info("Exception at statement " + num + "! " + e);
 			logger.info(test.toCode());
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
@@ -155,7 +131,7 @@ public class TestRunnable implements Callable<ExecutionResult> {
 
 		} // finally {
 		runFinished = true;
-		mocks.tearDownMocks();
+		Sandbox.tearDownMocks();
 
 		result.exceptions = exceptionsThrown;
 

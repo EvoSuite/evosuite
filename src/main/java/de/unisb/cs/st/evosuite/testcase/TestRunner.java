@@ -26,9 +26,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.sandbox.MSecurityManager;
-import de.unisb.cs.st.evosuite.sandbox.Mocks;
+import de.unisb.cs.st.evosuite.sandbox.Sandbox;
 
 /**
  * A runner thread in which a test case is executed and can be killed
@@ -39,11 +37,6 @@ import de.unisb.cs.st.evosuite.sandbox.Mocks;
 public class TestRunner extends Thread {
 
 	private static Logger logger = Logger.getLogger(TestRunner.class);
-
-	// if SecurityManager should be changed
-	private static boolean changeSM = Properties.SANDBOX;
-
-	private static SecurityManager newManager = new MSecurityManager();
 
 	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
@@ -88,19 +81,8 @@ public class TestRunner extends Thread {
 
 	private void executeTestCase() {
 		int num = 0;
-		Mocks mocks = new Mocks();
 		try {
-
-			SecurityManager oldManager = null;
-
-			if (changeSM) {
-				// Current SecurityManager used by default
-				oldManager = System.getSecurityManager();
-				// Mocked SecurityManager that forbids all access to I/O, Network
-				// etc
-			}
-
-			mocks.setUpMocks();
+			Sandbox.setUpMocks();
 			// exceptionsThrown = test.execute(scope, observers, !log);
 			for (Statement s : test.statements) {
 				if (isInterrupted()) {
@@ -116,15 +98,10 @@ public class TestRunner extends Thread {
 				out.flush();
 				byteStream.reset();
 
-				// check if SecurityManager should be changed to mocked SecurityManager
-				if (changeSM)
-					System.setSecurityManager(newManager);
+				Sandbox.setUpMockedSecurityManager();
 				Throwable exceptionThrown = s.execute(scope, out);
-
-				// check if default SecurityManager should be set
-				if (changeSM)
-					System.setSecurityManager(oldManager);
-
+				Sandbox.tearDownMockedSecurityManager();
+				
 				// During runtime the type of a variable might change
 				// E.g. if declared Object, after the first run it will
 				// be set to the actual class observed at runtime
@@ -153,12 +130,13 @@ public class TestRunner extends Thread {
 				num++;
 			}
 		} catch (ThreadDeath e) {// can't stop these guys
-			mocks.tearDownMocks();
+			Sandbox.tearDownEverything();
 			logger.info("Found error:");
 			logger.info(test.toCode());
 			e.printStackTrace();
 			throw e;
 		} catch (Throwable e) {
+			Sandbox.tearDownEverything();
 			logger.info("Exception at statement " + num + "! " + e);
 			logger.info(test.toCode());
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
@@ -170,7 +148,7 @@ public class TestRunner extends Thread {
 			e.printStackTrace();
 			// System.exit(1);
 		}
-		mocks.tearDownMocks();
+		Sandbox.tearDownMocks();
 	}
 
 }
