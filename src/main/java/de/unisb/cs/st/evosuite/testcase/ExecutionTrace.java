@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
 import de.unisb.cs.st.evosuite.coverage.dataflow.Definition;
 import de.unisb.cs.st.evosuite.coverage.dataflow.Use;
@@ -61,6 +62,7 @@ public class ExecutionTrace {
 		public List<Integer> branch_trace;
 		public List<Double> true_distance_trace;
 		public List<Double> false_distance_trace;
+		public ArrayList<HashMap<String,Integer>> active_definitions_trace; 
 		public int methodID;
 		public int callingObjectID;
 
@@ -73,6 +75,8 @@ public class ExecutionTrace {
 			false_distance_trace = new ArrayList<Double>();
 			this.methodID = methodID;
 			this.callingObjectID = callingObjectID;
+			if(Properties.CRITERION.equals("defuse")) // this might take some memory
+				active_definitions_trace = new ArrayList<HashMap<String,Integer>>();
 		}
 
 		@Override
@@ -113,6 +117,9 @@ public class ExecutionTrace {
 			copy.false_distance_trace = new ArrayList<Double>(false_distance_trace);
 			copy.callingObjectID = callingObjectID;
 			copy.methodID = methodID;
+			if(Properties.CRITERION.equals("defuse"))
+				copy.active_definitions_trace = new ArrayList<HashMap<String,Integer>>(active_definitions_trace); 
+			
 			return copy;
 		}
 	}
@@ -151,6 +158,8 @@ public class ExecutionTrace {
 	
 	private int methodID = 0;
 	
+	public HashMap<Integer,HashMap<String,Integer>> activeDefinitions = new HashMap<Integer, HashMap<String,Integer>>();
+	
 	public ExecutionTrace() {
 		stack.add(new MethodCall("", "",0,0)); // Main method
 	}
@@ -171,7 +180,15 @@ public class ExecutionTrace {
 		if (trace_calls) {
 			int callingObjectID = registerObject(caller);
 			methodID++;
-			stack.push(new MethodCall(classname, methodname,methodID,callingObjectID));
+			MethodCall call = new MethodCall(classname, methodname,methodID,callingObjectID);
+			if(Properties.CRITERION.equals("defuse")) {
+				// TODO	research that this doesn't break BranchFitness Calculation
+				call.branch_trace.add(-1);
+				call.true_distance_trace.add(0.0);
+				call.false_distance_trace.add(1.0);
+				call.active_definitions_trace.add(getCopyOfActiveDefinitions(callingObjectID));
+			}
+			stack.push(call);
 		}
 	}
 
@@ -259,6 +276,9 @@ public class ExecutionTrace {
 			stack.peek().branch_trace.add(bytecode_id);
 			stack.peek().true_distance_trace.add(true_distance);
 			stack.peek().false_distance_trace.add(false_distance);
+			if(Properties.CRITERION.equals("defuse")) {
+				stack.peek().active_definitions_trace.add(getCopyOfActiveDefinitions(stack.peek().callingObjectID));
+			}
 		}
 
 		String id = "" + branch;
@@ -279,29 +299,46 @@ public class ExecutionTrace {
 	}
 	
 	
+	private HashMap<String, Integer> getCopyOfActiveDefinitions(int objectID) {
+		
+		HashMap<String,Integer> r = new HashMap<String,Integer>();
+		if(activeDefinitions.get(objectID) == null)
+			return r;
+		
+		for(String var : activeDefinitions.get(objectID).keySet()) {
+			r.put(var,activeDefinitions.get(objectID).get(var));
+		}
+		return r;
+	}
+
 	public void definitionPassed(String className, String varName,
 			String methodName, Object caller, int branchID, int defID) {
+		
+		Definition def = DefUsePool.getDefinitionByDefID(defID);
+		if(def == null)
+			throw new IllegalStateException("expect DefUsePool to known defIDs that are passed by instrumented code");
 		
 		int objectID = registerObject(caller);
 		// if this is a static variable, treat objectID as zero for consistency in the representation of static data
 		if(objectID != 0) { 		
-			Definition def = DefUsePool.getDefinitionByDefID(defID);
-			if(def == null)
-				throw new IllegalStateException("expect DefUsePool to known defIDs that are passed by instrumented code");
 			if(def.isStaticDU())
 				objectID = 0;
 		}
 		
 		if(passedDefs.get(varName)==null) 
 			passedDefs.put(varName,new HashMap<Integer,HashMap<Integer,Integer>>());
-		
 		HashMap<Integer, Integer> defs = passedDefs.get(varName).get(objectID);
 		if (defs == null)
 			defs = new HashMap<Integer, Integer>();
-
 		defs.put(duCounter, defID);
 		passedDefs.get(varName).put(objectID, defs);
-
+		
+		// TODO objectID = 0 OK for static variables?
+		
+		if(activeDefinitions.get(objectID) == null)
+			activeDefinitions.put(objectID, new HashMap<String,Integer>());
+		activeDefinitions.get(objectID).put(def.getDUVariableName(), defID);
+		
 		duCounter++;
 	}
 	
@@ -354,17 +391,67 @@ public class ExecutionTrace {
 	public ExecutionTrace getTraceForObject(int objectID) {
 		ExecutionTrace r = clone();
 		
+//		System.out.println("cutting trace for object "+objectID);
+//		System.out.println("calls before cutting: "+r.finished_calls.size());
+		
 		// WARNING  this will not affect this.true_distances and other fields of ExecutionTrace
 		// TODO 	research, that this is enough for the fitness-calculation of BranchCoverageTestFitness->getFitness()
-		
+		ArrayList<Integer> removableCalls = new ArrayList<Integer>();
 		for(int i=0; i<r.finished_calls.size();i++) {
-			MethodCall m = r.finished_calls.get(i);
-			if(m.callingObjectID != objectID && m.callingObjectID!=0)
-				r.finished_calls.remove(m);
+			MethodCall call = r.finished_calls.get(i);
+			if(call.callingObjectID != objectID && call.callingObjectID!=0){
+//				System.out.println("want to remove "+i);
+				removableCalls.add(i);
+			}
 		}
+		Collections.sort(removableCalls);
+		for(int i=removableCalls.size()-1; i>=0;i--) {
+//			System.out.println("going to remove "+removableCalls.get(i));
+			Object o = r.finished_calls.remove((int)removableCalls.get(i));
+//			if(o==null)
+//				System.out.println("null returnd");
+		}
+		
+//		System.out.println("calls after cutting: "+r.finished_calls.size());
+//		for(MethodCall call : r.finished_calls) {
+//			System.out.println("  "+call.method_name+" on object "+call.callingObjectID);
+//		}
 		
 		return r;
 	}
+
+	public ExecutionTrace getTraceForDefinition(Definition def) {
+		ExecutionTrace r = clone();
+		
+		// WARNING  this will not affect this.true_distances and other fields of ExecutionTrace
+		// TODO 	research, that this is enough for the fitness-calculation of BranchCoverageTestFitness->getFitness() and doesn't break it
+		
+		ArrayList<Integer> removableCalls = new ArrayList<Integer>();
+		for(int callPos=0;callPos<r.finished_calls.size();callPos++) {
+			MethodCall call = r.finished_calls.get(callPos);
+			ArrayList<Integer> removableIndices = new ArrayList<Integer>();
+			for(int i = 0;i<call.active_definitions_trace.size();i++) {
+				Map<String,Integer> activeDefs = call.active_definitions_trace.get(i);
+				if(activeDefs == null) // this shouldn't happen
+					continue;
+				if(activeDefs.get(def.getDUVariableName()) == null || activeDefs.get(def.getDUVariableName()) != def.getDefID())
+					removableIndices.add(i);
+			}
+			Collections.sort(removableIndices);
+			for(int i=removableIndices.size()-1;i>=0;i--) {
+				call.active_definitions_trace.remove(removableIndices.get(i));
+			}
+			if(call.active_definitions_trace.size() == 0)
+				removableCalls.add(callPos);
+		}
+		Collections.sort(removableCalls);
+		for(int i=removableCalls.size()-1;i>=0;i--) {
+			r.finished_calls.remove(removableCalls.get(i));
+		}
+
+		return r;
+	}
+	
 	
 
 	/**
@@ -383,6 +470,7 @@ public class ExecutionTrace {
 		methodID = 0;
 		duCounter = 0;
 		objectCounter = 0;
+		activeDefinitions = new HashMap<Integer,HashMap<String,Integer>>();
 		knownCallerObjects = new HashMap<Integer,Object>();
 		true_distances = new HashMap<String, Double>();
 		false_distances = new HashMap<String, Double>();
@@ -424,6 +512,7 @@ public class ExecutionTrace {
 		copy.duCounter = duCounter;
 		copy.objectCounter = objectCounter;
 		copy.knownCallerObjects.putAll(knownCallerObjects);
+		copy.activeDefinitions.putAll(activeDefinitions);
 		return copy;
 	}
 
@@ -450,9 +539,9 @@ public class ExecutionTrace {
 		for(String var : passedDefs.keySet()) {
 			r.append(" for variable: "+var+":\n");
 			for(Integer objectID : passedDefs.get(var).keySet()) {
-				r.append("  on object "+objectID+":\n");
+				r.append("   on object "+objectID+":\n");
 				for(Integer duPos : passedDefs.get(var).get(objectID).keySet()) {
-					r.append("   #"+duPos+": Def "+passedDefs.get(var).get(objectID).get(duPos)+"\n");
+					r.append("     #"+duPos+": Def "+passedDefs.get(var).get(objectID).get(duPos)+"\n");
 				}
 			}
 		}
