@@ -10,6 +10,21 @@ import de.unisb.cs.st.evosuite.coverage.CFGVertexHolder;
 public abstract class DefUse extends CFGVertexHolder {
 
 
+	public String getDUVariableType() {
+		if(v.isFieldDU())
+			return "Field";
+		if(v.isParameterUse())
+			return "Parameter";
+		if(v.isLocalDU())
+			return "Local";
+		
+		return "UNKNOWN";
+	}	
+	
+	public int getLocalVarNr() {
+		return v.getLocalVar();
+	}
+	
 	public String getDUVariableName() {
 		return v.getDUVariableName();
 	}
@@ -36,6 +51,10 @@ public abstract class DefUse extends CFGVertexHolder {
 	
 	public boolean isStaticDU() {
 		return v.isStaticDU();
+	}
+	
+	public boolean isLocalDU() {
+		return v.isLocalDU();
 	}
 	
 	public String toString() {

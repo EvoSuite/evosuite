@@ -20,6 +20,7 @@
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -78,6 +79,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 				}
 				
 		goals.addAll(getPairsWithinMethods());
+		goals.addAll(getParameterGoals());
 		
 		called = true;
 		
@@ -95,10 +97,22 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 	 */
 	private TestFitnessFunction createGoal(Definition def, Use use) {
 
-		
 		return new DefUseCoverageTestFitness(def, use);
 	}
 
+	private List<TestFitnessFunction> getParameterGoals() {
+		ArrayList<TestFitnessFunction> r = new ArrayList<TestFitnessFunction>();
+		
+		Set<Use> parameterUses = getParameterUses();
+		for(Use use : parameterUses) {
+			r.add(new DefUseCoverageTestFitness(use));
+		}
+		
+		logger.info("#parameterUses: "+r.size());
+		
+		return r;
+	}
+	
 	/**
 	 * For every definition found by the CFGMethodAdapter this Method checks,
 	 * what uses there are in the same method and for the same field of that definition.
@@ -143,6 +157,27 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 	 */
 	private Set<Use> getUsesWithClearPathFromMethodStart() {
 
+		Set<Use> allUses = getAllUses();
+		Set<Use> r = new HashSet<Use>();
+		for (Use use : allUses) {
+			ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(use.getClassName(), use.getMethodName());
+			if (cfg.hasDefClearPathFromMethodStart(use.getCFGVertex()))
+				r.add(use);
+		}
+		return r;
+	}
+	
+	private Set<Use> getParameterUses() {
+		Set<Use> allUses = getAllUses();
+		Set<Use> r = new HashSet<Use>();
+		for (Use use : allUses) {
+			if (use.isParameterUse())
+				r.add(use);
+		}
+		return r;	
+	}
+	
+	private Set<Use> getAllUses() {
 		HashSet<Use> r = new HashSet<Use>();
 		
 		for (String className : DefUsePool.use_map.keySet()) 
@@ -157,14 +192,11 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 							 throw new IllegalStateException("no CFG for branch "+entry.getKey()+" in method "+methodName);
 
 						for (Use use : entry.getValue()) {
-							if (cfg.hasDefClearPathFromMethodStart(use.getCFGVertex())) {
-								r.add(use);
-//								System.out.println("use with free path from start: "+use.toString());
-							}
+							r.add(use);
 						}
 					}
 
-		return r;
+		return r;		
 	}
 
 	/**

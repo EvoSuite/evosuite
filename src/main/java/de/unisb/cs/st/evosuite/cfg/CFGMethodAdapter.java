@@ -208,7 +208,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
     private InsnList getInstrumentation(CFGVertex v, int currentBranch, boolean staticContext) {
 		InsnList instrumentation = new InsnList();
 
-if(v.isUse()) {
+		if(v.isUse()) {
 			instrumentation.add(new LdcInsnNode(className));
 			instrumentation.add(new LdcInsnNode(v.getDUVariableName()));
 			instrumentation.add(new LdcInsnNode(methodName));
@@ -296,7 +296,6 @@ if(v.isUse()) {
 	public void visitEnd() {
 
 		// super.visitEnd();
-
 		// Generate CFG of method
 		MethodNode mn = (MethodNode) mv;
 
@@ -354,11 +353,6 @@ if(v.isUse()) {
 			logger.debug("Counting: " + id);
 		}
 
-//		System.out.println("finished instrumenting method "+methodName);
-//		for(AbstractInsnNode n : mn.instructions.toArray()) {
-//			System.out.println(n.toString());
-//		}
-		
 		mn.accept(next);
 	}
 
@@ -432,21 +426,17 @@ if(v.isUse()) {
 					boolean isValidDU = false;
 					if (v.isUse()) 
 						isValidDU = DefUsePool.addUse(v);
-					
 					// keeping track of definitions
 					if (v.isDefinition())
 						isValidDU = DefUsePool.addDefinition(v) || isValidDU;
 
 					if (isValidDU) {
 						boolean staticContext = v.isStaticDU() || ((access & Opcodes.ACC_STATIC) > 0);
-						
 						// adding instrumentation for defuse-coverage
 						mn.instructions.insert(v.node.getPrevious(),
 						                       getInstrumentation(v, v.branchID, staticContext));						
 					}
-
 				}
-
 			}
 		}
 	}

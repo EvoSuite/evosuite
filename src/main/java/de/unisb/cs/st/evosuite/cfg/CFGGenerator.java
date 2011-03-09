@@ -87,7 +87,8 @@ public class CFGGenerator extends Analyzer {
 		public int useID = -1;
 		public int defID = -1;
 		public int branchID = -1;
-		public boolean branchExpressionValue = true;
+		public boolean isParameterUse = false; // is set by DefUsePool
+		public boolean branchExpressionValue = true; // TODO this should be false whenever it is true and visa versa
 		public String methodName;
 		public String className;
 
@@ -200,6 +201,37 @@ public class CFGGenerator extends Analyzer {
 		public int getID() {
 			return id;
 		}
+		
+		public boolean isDU() {
+			return isLocalDU() || isFieldDU();
+		}
+
+		public boolean isFieldDU() {
+			return isFieldDefinition() || isFieldUse();
+		}
+		
+		public boolean isLocalDU() {
+			return isLocalVarDefinition() || isLocalVarUse();
+		}		
+		
+		public boolean isLocalVarDefinition() {
+			return node.getOpcode() == Opcodes.ISTORE
+			        || node.getOpcode() == Opcodes.LSTORE
+			        || node.getOpcode() == Opcodes.FSTORE
+			        || node.getOpcode() == Opcodes.DSTORE
+			        || node.getOpcode() == Opcodes.ASTORE
+			        || node.getOpcode() == Opcodes.IINC;
+		}
+
+		public boolean isLocalVarUse() {
+			return node.getOpcode() == Opcodes.ILOAD 
+					|| node.getOpcode() == Opcodes.LLOAD
+			        || node.getOpcode() == Opcodes.FLOAD
+			        || node.getOpcode() == Opcodes.DLOAD
+			        || node.getOpcode() == Opcodes.ALOAD
+			        || node.getOpcode() == Opcodes.IINC;
+			// || node.getOpcode() == Opcodes.RET; // TODO ??
+		}
 
 		public boolean isDefinition() {
 			return isFieldDefinition() || isLocalVarDefinition();
@@ -224,26 +256,10 @@ public class CFGGenerator extends Analyzer {
 			        || node.getOpcode() == Opcodes.GETSTATIC;
 		}
 
-		// TODO: what about IINC?
-		public boolean isLocalVarDefinition() {
-			return node.getOpcode() == Opcodes.ISTORE
-			        || node.getOpcode() == Opcodes.LSTORE
-			        || node.getOpcode() == Opcodes.FSTORE
-			        || node.getOpcode() == Opcodes.DSTORE
-			        || node.getOpcode() == Opcodes.ASTORE
-			        || node.getOpcode() == Opcodes.IINC;
+		public boolean isParameterUse() {
+			return isParameterUse;
 		}
-
-		public boolean isLocalVarUse() {
-
-			return node.getOpcode() == Opcodes.ILOAD || node.getOpcode() == Opcodes.LLOAD
-			        || node.getOpcode() == Opcodes.FLOAD
-			        || node.getOpcode() == Opcodes.DLOAD
-			        || node.getOpcode() == Opcodes.ALOAD
-			        || node.getOpcode() == Opcodes.IINC;
-			// || node.getOpcode() == Opcodes.RET; // TODO ??
-		}
-
+		
 		public String getFieldName() {
 			return ((FieldInsnNode) node).name;
 		}
@@ -260,31 +276,13 @@ public class CFGGenerator extends Analyzer {
 		}
 
 		public String getDUVariableName() {
-
 			if (!this.isDU())
 				throw new IllegalStateException(
 				        "You can only call getDUVariableName() on a local variable or field definition/use");
-
 			if (this.isFieldDU())
 				return getFieldName();
 			else
 				return getLocalVarName();
-
-		}
-
-		public boolean isDU() {
-
-			return isLocalDU() || isFieldDU();
-		}
-
-		public boolean isLocalDU() {
-
-			return isLocalVarDefinition() || isLocalVarUse();
-		}
-
-		public boolean isFieldDU() {
-
-			return isFieldDefinition() || isFieldUse();
 		}
 
 		public String getMethodName() {
