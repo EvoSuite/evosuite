@@ -92,11 +92,11 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 
-		if(DEBUG) {
-			System.out.println();
-			System.out.println("current goal: "+toString());
-			System.out.println();
-		}
+		printFitnessDebugInfo(result);
+		
+		// known bugs:
+		//	- sometimes seems not to detect when the goalDef was already overwritten at goalUsePos :( 
+		//		(s. MeanTestClass Target for def in <init> with use in mean:l45)
 		
 		// TODO IDEA FOR AN EVO-SUITE-FEATURE: given a test(suite) for a class, check whether test achieves coverage-criterion
 		
@@ -130,7 +130,6 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		}
 		
 		HashSet<Integer> objectPool = getObjectPool(result.trace);
-		printFitnessDebugInfo(result);
 		
 		ExecutionTrace originalTrace = result.trace;
 		double fitness = getMaxFitness();
@@ -233,6 +232,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			ExecutionResult result, ExecutionTrace traceForObject,
 			Integer objectID) {
 
+		if(DEBUG) System.out.println(" === DEF-FITNESS-CALCULATION ===");
+		
 		// prepare trace
 		ExecutionTrace originalTrace = result.trace;
 		if(!goalDef.isStaticDU()) // only consider trace of current objectID
@@ -251,12 +252,20 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			ExecutionResult result, ExecutionTrace traceForObject, 
 			Integer objectID) {
 
+		if(DEBUG) System.out.println(" === USE-FITNESS-CALCULATION ===");
+		
 		// prepare trace
 		ExecutionTrace originalTrace = result.trace;
-		if(!goalDef.isStaticDU()) 
-			result.trace = traceForObject.getTraceForDefinition(goalDef); // only consider trace of current objectID
-		else 
-			result.trace = originalTrace.getTraceForDefinition(goalDef);
+		ExecutionTrace fitnessTrace;
+		if(!goalDef.isStaticDU()) {
+			// only consider trace of current objectID
+			fitnessTrace = traceForObject.getTraceForDefinition(goalDef); 
+			result.trace = fitnessTrace;
+		} else { 
+			fitnessTrace = originalTrace.getTraceForDefinition(goalDef);
+			result.trace = fitnessTrace;
+		}
+		if(DEBUG) System.out.println("fitnessTrace:\n"+fitnessTrace.toDefUseTraceInformation());
 		
 		// calculate fitness
 		double useFitness = useTestFitness.getFitness(individual, result);
@@ -266,6 +275,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		
 		// sanity checks
 		if(DEBUG) {
+			System.out.println("goalUseFitness was "+useFitness);
 			int goalUsePos = getLastGoalUsePos(result.trace,objectID);
 			if(goalUsePos == -1) {
 				if(useFitness == 0) // sanity check
@@ -356,8 +366,21 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		return 200; // TODO
 	}
 	
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#updateIndividual(de.unisb.cs.st.evosuite.ga.Chromosome, double)
+	 */
+	@Override
+	protected void updateIndividual(Chromosome individual, double fitness) {
+
+		individual.setFitness(fitness); // TODO ???
+	}
+
 	private void printFitnessDebugInfo(ExecutionResult result) {
 		if(DEBUG) {
+			System.out.println("===================================");
+			System.out.println();
+			System.out.println("current goal: "+toString());
+			System.out.println();
 			System.out.println("current test:\n"+result.test.toCode());
 			System.out.println("current duTrace:\n"+result.trace.toDefUseTraceInformation());
 			printFinishCalls(result);
@@ -379,16 +402,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			}
 		}
 	}	
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#updateIndividual(de.unisb.cs.st.evosuite.ga.Chromosome, double)
-	 */
-	@Override
-	protected void updateIndividual(Chromosome individual, double fitness) {
-
-		individual.setFitness(fitness); // TODO ???
-	}
-
+	
 	@Override
 	public String toString() {
 		return "DUFitness for " + goalDef.getDUVariableName() 
