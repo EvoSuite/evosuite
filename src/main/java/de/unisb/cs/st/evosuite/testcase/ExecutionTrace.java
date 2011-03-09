@@ -137,9 +137,7 @@ public class ExecutionTrace {
 	public Map<String, Map<String, Map<Integer, Integer>>> return_data = new HashMap<String, Map<String, Map<Integer, Integer>>>();
 
 	// Refactoring
-
 	
-	// TODO research: Collections.synchronizedMap with other maps in there
 	// for each Variable-Name these maps hold the data for which objectID which Definition or Use respectively were passed and at which time (duCounter)
 	public Map<String,HashMap<Integer,HashMap<Integer,Integer>>> passedDefs = new HashMap<String,HashMap<Integer,HashMap<Integer,Integer>>>();
 	public Map<String,HashMap<Integer,HashMap<Integer,Integer>>> passedUses = new HashMap<String,HashMap<Integer,HashMap<Integer,Integer>>>();
@@ -156,8 +154,10 @@ public class ExecutionTrace {
 	private int objectCounter = 0;
 	public Map<Integer,Object> knownCallerObjects = Collections.synchronizedMap(new HashMap<Integer,Object>());	
 	
+	// to differentiate between different MethodCalls
 	private int methodID = 0;
 	
+	// this map keeps track of all current activeDefinitions for each defuse-Variable during test execution
 	public HashMap<Integer,HashMap<String,Integer>> activeDefinitions = new HashMap<Integer, HashMap<String,Integer>>();
 	
 	public ExecutionTrace() {
@@ -298,19 +298,13 @@ public class ExecutionTrace {
 			false_distances.put(id, Math.min(false_distances.get(id), false_distance));
 	}
 	
-	
-	private HashMap<String, Integer> getCopyOfActiveDefinitions(int objectID) {
-		
-		HashMap<String,Integer> r = new HashMap<String,Integer>();
-		if(activeDefinitions.get(objectID) == null)
-			return r;
-		
-		for(String var : activeDefinitions.get(objectID).keySet()) {
-			r.put(var,activeDefinitions.get(objectID).get(var));
-		}
-		return r;
-	}
-
+	/**
+	 * Adds Definition-Use-Coverage trace information for the given definition.
+	 *
+	 * Registers the given caller-Object
+	 * Traces the occurrence of the given definition in the passedDefs-field 
+	 * Sets the given definition as the currently active one for the definitionVariable in the activeDefinitions-field
+	 */
 	public void definitionPassed(String className, String varName,
 			String methodName, Object caller, int branchID, int defID) {
 		
@@ -319,12 +313,12 @@ public class ExecutionTrace {
 			throw new IllegalStateException("expect DefUsePool to known defIDs that are passed by instrumented code");
 		
 		int objectID = registerObject(caller);
+		
 		// if this is a static variable, treat objectID as zero for consistency in the representation of static data
 		if(objectID != 0) { 		
 			if(def.isStaticDU())
 				objectID = 0;
 		}
-		
 		if(passedDefs.get(varName)==null) 
 			passedDefs.put(varName,new HashMap<Integer,HashMap<Integer,Integer>>());
 		HashMap<Integer, Integer> defs = passedDefs.get(varName).get(objectID);
@@ -333,19 +327,25 @@ public class ExecutionTrace {
 		defs.put(duCounter, defID);
 		passedDefs.get(varName).put(objectID, defs);
 		
-		// TODO objectID = 0 OK for static variables?
-		
+		// set given Definition to be active
 		if(activeDefinitions.get(objectID) == null)
 			activeDefinitions.put(objectID, new HashMap<String,Integer>());
 		activeDefinitions.get(objectID).put(def.getDUVariableName(), defID);
-		
+//		logger.trace(duCounter+": set active definition for var "+def.getDUVariableName()+" on object "+objectID+" to Def "+defID);
 		duCounter++;
 	}
 	
+	/**
+	 * Adds Definition-Use-Coverage trace information for the given use.
+	 *
+	 * Registers the given caller-Object
+	 * Traces the occurrence of the given use in the passedUses-field
+	 */
 	public void usePassed(String className, String varName, String methodName,
 			Object caller, int branchID, int useID) {
 		
 		int objectID = registerObject(caller);
+		
 		// if this is a static variable, treat objectID as zero for consistency in the representation of static data
 		if(objectID != 0) {
 			Use use = DefUsePool.getUseByUseID(useID);
@@ -354,7 +354,6 @@ public class ExecutionTrace {
 			if(use.isStaticDU())
 				objectID = 0;
 		}		
-		
 		if(passedUses.get(varName)==null) 
 			passedUses.put(varName,new HashMap<Integer,HashMap<Integer,Integer>>());
 		
@@ -364,7 +363,6 @@ public class ExecutionTrace {
 
 		uses.put(duCounter, useID);
 		passedUses.get(varName).put(objectID, uses);
-
 		duCounter++;
 	}	
 	
@@ -386,45 +384,63 @@ public class ExecutionTrace {
 		objectCounter++;
 		knownCallerObjects.put(objectCounter, caller);
 		return objectCounter;
-	}	
+	}
 	
+	private HashMap<String, Integer> getCopyOfActiveDefinitions(int objectID) {
+		
+		HashMap<String,Integer> r = new HashMap<String,Integer>();
+		if(activeDefinitions.get(objectID) == null)
+			return r;
+		
+		for(String var : activeDefinitions.get(objectID).keySet()) {
+			r.put(var,activeDefinitions.get(objectID).get(var));
+		}
+		return r;
+	}
+	
+	/**
+	 * Returns a copy of this trace where all MethodCall-information traced from objects 
+	 * other then the one identified by the given objectID is removed from the finished_calls-field
+	 * 
+	 * WARNING: this will not affect this.true_distances and other fields of ExecutionTrace
+	 * 			this only affects the finished_calls field 
+	 * 			(which should suffice for BranchCoverageFitness-calculation)
+	*/
 	public ExecutionTrace getTraceForObject(int objectID) {
 		ExecutionTrace r = clone();
 		
-//		System.out.println("cutting trace for object "+objectID);
-//		System.out.println("calls before cutting: "+r.finished_calls.size());
-		
-		// WARNING  this will not affect this.true_distances and other fields of ExecutionTrace
-		// TODO 	research, that this is enough for the fitness-calculation of BranchCoverageTestFitness->getFitness()
 		ArrayList<Integer> removableCalls = new ArrayList<Integer>();
 		for(int i=0; i<r.finished_calls.size();i++) {
 			MethodCall call = r.finished_calls.get(i);
 			if(call.callingObjectID != objectID && call.callingObjectID!=0){
-//				System.out.println("want to remove "+i);
 				removableCalls.add(i);
 			}
 		}
+		// remove calls that were not made from the object with the given objectID
 		Collections.sort(removableCalls);
 		for(int i=removableCalls.size()-1; i>=0;i--) {
-//			System.out.println("going to remove "+removableCalls.get(i));
-			Object o = r.finished_calls.remove((int)removableCalls.get(i));
-//			if(o==null)
-//				System.out.println("null returnd");
+			MethodCall removedCall = r.finished_calls.remove((int)removableCalls.get(i));
+			if(removedCall==null)
+				throw new IllegalStateException("Inconsistend state! This should not be possible");
 		}
-		
-//		System.out.println("calls after cutting: "+r.finished_calls.size());
-//		for(MethodCall call : r.finished_calls) {
-//			System.out.println("  "+call.method_name+" on object "+call.callingObjectID);
-//		}
-		
 		return r;
 	}
 
+	/**
+	 * Returns a copy of this trace where all MethodCall-information 
+	 * associated with activeDefinitions for the given Definition-variable 
+	 * other then the given Definition is removed from the finished_calls-MethodCall-traces
+	 * 
+	 * finished_calls-MethodCalls without any point in the trace at which
+	 * the given Definition is active are completely removed from the copy
+	 *  
+	 * 
+	 * WARNING: this will not affect this.true_distances and other fields of ExecutionTrace
+	 * 			this only affects the finished_calls field 
+	 * 			(which should suffice for BranchCoverageFitness-calculation)
+	*/	
 	public ExecutionTrace getTraceForDefinition(Definition def) {
 		ExecutionTrace r = clone();
-		
-		// WARNING  this will not affect this.true_distances and other fields of ExecutionTrace
-		// TODO 	research, that this is enough for the fitness-calculation of BranchCoverageTestFitness->getFitness() and doesn't break it
 		
 		ArrayList<Integer> removableCalls = new ArrayList<Integer>();
 		for(int callPos=0;callPos<r.finished_calls.size();callPos++) {
@@ -432,27 +448,34 @@ public class ExecutionTrace {
 			ArrayList<Integer> removableIndices = new ArrayList<Integer>();
 			for(int i = 0;i<call.active_definitions_trace.size();i++) {
 				Map<String,Integer> activeDefs = call.active_definitions_trace.get(i);
-				if(activeDefs == null) // this shouldn't happen
-					continue;
+				if(activeDefs == null) 
+					throw new IllegalStateException("Inconsistend state! This should not be possible");
 				if(activeDefs.get(def.getDUVariableName()) == null || activeDefs.get(def.getDUVariableName()) != def.getDefID())
 					removableIndices.add(i);
 			}
+			// remove parts from MethodCall-Trace where the given Definition is not active
 			Collections.sort(removableIndices);
 			for(int i=removableIndices.size()-1;i>=0;i--) {
-				call.active_definitions_trace.remove(removableIndices.get(i));
+				int removableIndex = removableIndices.get(i);
+				HashMap<String,Integer> removedMap = call.active_definitions_trace.remove(removableIndex);
+				Integer removedBranch = call.branch_trace.remove(i);
+				Double removedTrue = call.true_distance_trace.remove(i);
+				Double removedFalse = call.false_distance_trace.remove(i);
+				if(removedMap == null || removedBranch == null || removedTrue == null || removedFalse == null)
+					throw new IllegalStateException("Inconsistend state! This should not be possible");
 			}
 			if(call.active_definitions_trace.size() == 0)
 				removableCalls.add(callPos);
 		}
+		// remove MethodCalls where the Definition was never active
 		Collections.sort(removableCalls);
 		for(int i=removableCalls.size()-1;i>=0;i--) {
-			r.finished_calls.remove(removableCalls.get(i));
+			MethodCall removed = r.finished_calls.remove((int)removableCalls.get(i));
+			if(removed==null)
+				throw new IllegalStateException("Inconsistend state! This should not be possible");
 		}
-
 		return r;
 	}
-	
-	
 
 	/**
 	 * Reset to 0
@@ -533,9 +556,14 @@ public class ExecutionTrace {
 		return (coverage.containsKey(classname) && coverage.get(classname).containsKey(methodname));
 	}
 	
+	/**
+	 * Returns a String containing the information in passedDefs and passedUses
+	 * 
+	 * Used for Definition-Use-Coverage-debugging 
+	 */
 	public String toDefUseTraceInformation() {
 		StringBuffer r = new StringBuffer();
-		r.append("Definitions: \n");
+		r.append("Definitions:\n");
 		for(String var : passedDefs.keySet()) {
 			r.append(" for variable: "+var+":\n");
 			for(Integer objectID : passedDefs.get(var).keySet()) {
@@ -545,7 +573,7 @@ public class ExecutionTrace {
 				}
 			}
 		}
-		r.append("Uses: \n");
+		r.append("Uses:\n");
 		for(String var : passedUses.keySet()) {
 			r.append(" for variable: "+var+":\n");
 			for(Integer objectID : passedUses.get(var).keySet()) {
