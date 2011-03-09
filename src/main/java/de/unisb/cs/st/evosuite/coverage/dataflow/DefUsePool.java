@@ -19,10 +19,10 @@ import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
  */
 public class DefUsePool {
 
-	// maps: classname -> methodName  -> DUVarName -> branchID -> List of Definitions in that branch 
+	// maps: className -> methodName  -> DUVarName -> branchID -> List of Definitions in that branch 
 	public static Map<String, Map<String, Map<String, Map<Integer,List<Definition>>>>> def_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<Definition>>>>>();
 
-	// maps: classname -> methodName  -> DUVarName -> branchID -> List of Uses in that branch
+	// maps: className -> methodName  -> DUVarName -> branchID -> List of Uses in that branch
 	public static Map<String, Map<String, Map<String, Map<Integer,List<Use>>>>> use_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<Use>>>>>();	
 	
 	// maps all known duIDs to their DefUse
@@ -43,24 +43,23 @@ public class DefUsePool {
 	 * @param v CFGVertex corresponding to a Definition
 	 */
 	public static boolean addDefinition(CFGVertex v) {
-		if(!v.isDefinition())
-			throw new IllegalArgumentException("Vertex of a definition or use expected");
+		if(!v.isDefinition() && !v.isParameterUse) // TODO
+			throw new IllegalArgumentException("Vertex of a definition expected");
 		
 		defCounter++;
-		v.defID = defCounter; // IINCs already have duID set do useCounter value
+		v.defID = defCounter; 
 		if(!v.isUse()) {
+			// IINCs already have duID set do useCounter value
 			duCounter++;			
 			v.duID = duCounter;
 		}
 		
 		Definition d = new Definition(v);
-		List<Definition> defs = initDefMap(def_map, d);	
-		defs.add(d);
+		addToDefMap(d);	
 		duIDsToDefUses.put(d.getDUID(),d);
 		duIDsToDefs.put(d.getDUID(),d);
 		
-		logger.info("Found "+d.toString()+" in "+v.methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+v.line_no+")");
-
+		logger.info("Added to Definitions: "+d.toString()+" in "+v.methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+v.line_no+")");
 		return true;
 	}
 
@@ -73,8 +72,14 @@ public class DefUsePool {
 		if(!v.isUse()) 
 			throw new IllegalArgumentException("Vertex of a use expected");
 
-		if(v.isLocalVarUse() && !hasEntryForVariable(def_map, v)) // TODO was an argument
-			return false;
+		if(v.isLocalVarUse()) {
+			// was ALOAD_0 ("this")
+			if(v.getLocalVar()==0)
+				return false;
+			// was an argument
+			if(!hasEntryForVariable(def_map, v))
+				v.isParameterUse = true;
+		}
 
 		useCounter++;		
 		v.useID = useCounter;
@@ -82,14 +87,11 @@ public class DefUsePool {
 		v.duID = duCounter;
 		
 		Use u = new Use(v);
-		List<Use> uses = initUseMap(use_map, u);
-		uses.add(u);
+		addToUseMap(u);
 		duIDsToDefUses.put(u.getDUID(),u);
 		duIDsToUses.put(u.getDUID(),u);
 		
-		logger.info("Found "+u.toString()+" in "+v.methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+v.line_no+")");
-		
-
+		logger.info("Added to Uses: "+u.toString()+" in "+v.methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+v.line_no+")");
 		return true;
 	}
 	
@@ -188,8 +190,7 @@ public class DefUsePool {
 	}
 	
 	
-	private static List<Definition> initDefMap(
-			Map<String, Map<String, Map<String, Map<Integer, List<Definition>>>>> map, Definition d) {
+	private static boolean addToDefMap(Definition d) {
 
 		CFGVertex v = d.getCFGVertex();
 		String className = v.className;
@@ -197,20 +198,19 @@ public class DefUsePool {
 		String varName = v.getDUVariableName();
 		int branchID = v.branchID; 
 		
-		if(!map.containsKey(className))
-			map.put(className, new HashMap<String, Map<String, Map<Integer,List<Definition>>>>());
-		if(!map.get(className).containsKey(methodName)) 
-			map.get(className).put(methodName, new HashMap<String, Map<Integer,List<Definition>>>());
-		if(!map.get(className).get(methodName).containsKey(varName))
-			map.get(className).get(methodName).put(varName, new HashMap<Integer,List<Definition>>());
-		if(!map.get(className).get(methodName).get(varName).containsKey(branchID))
-			map.get(className).get(methodName).get(varName).put(branchID, new ArrayList<Definition>());
+		if(!def_map.containsKey(className))
+			def_map.put(className, new HashMap<String, Map<String, Map<Integer,List<Definition>>>>());
+		if(!def_map.get(className).containsKey(methodName)) 
+			def_map.get(className).put(methodName, new HashMap<String, Map<Integer,List<Definition>>>());
+		if(!def_map.get(className).get(methodName).containsKey(varName))
+			def_map.get(className).get(methodName).put(varName, new HashMap<Integer,List<Definition>>());
+		if(!def_map.get(className).get(methodName).get(varName).containsKey(branchID))
+			def_map.get(className).get(methodName).get(varName).put(branchID, new ArrayList<Definition>());
 		
-		return map.get(className).get(methodName).get(varName).get(branchID);
+		return def_map.get(className).get(methodName).get(varName).get(branchID).add(d);
 	}
 	
-	private static List<Use> initUseMap(
-			Map<String, Map<String, Map<String, Map<Integer, List<Use>>>>> map, Use u) {
+	private static boolean addToUseMap(Use u) {
 
 		CFGVertex v = u.getCFGVertex();
 		String className = v.className;
@@ -218,15 +218,15 @@ public class DefUsePool {
 		String varName = v.getDUVariableName();
 		int branchID = v.branchID; 
 		
-		if(!map.containsKey(className))
-			map.put(className, new HashMap<String, Map<String, Map<Integer,List<Use>>>>());
-		if(!map.get(className).containsKey(methodName)) 
-			map.get(className).put(methodName, new HashMap<String, Map<Integer,List<Use>>>());
-		if(!map.get(className).get(methodName).containsKey(varName))
-			map.get(className).get(methodName).put(varName, new HashMap<Integer,List<Use>>());
-		if(!map.get(className).get(methodName).get(varName).containsKey(branchID))
-			map.get(className).get(methodName).get(varName).put(branchID, new ArrayList<Use>());
+		if(!use_map.containsKey(className))
+			use_map.put(className, new HashMap<String, Map<String, Map<Integer,List<Use>>>>());
+		if(!use_map.get(className).containsKey(methodName)) 
+			use_map.get(className).put(methodName, new HashMap<String, Map<Integer,List<Use>>>());
+		if(!use_map.get(className).get(methodName).containsKey(varName))
+			use_map.get(className).get(methodName).put(varName, new HashMap<Integer,List<Use>>());
+		if(!use_map.get(className).get(methodName).get(varName).containsKey(branchID))
+			use_map.get(className).get(methodName).get(varName).put(branchID, new ArrayList<Use>());
 		
-		return map.get(className).get(methodName).get(varName).get(branchID);
+		return use_map.get(className).get(methodName).get(varName).get(branchID).add(u);
 	}	
 }

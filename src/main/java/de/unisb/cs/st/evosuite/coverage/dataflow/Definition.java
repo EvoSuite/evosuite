@@ -15,7 +15,7 @@ public class Definition extends DefUse {
 
 	
 	public Definition(CFGVertex v) {
-		if(!v.isDefinition())
+		if(!v.isDefinition()) // TODO
 			throw new IllegalArgumentException("Vertex of a definition expected");
 		
 		this.v = v;

@@ -471,6 +471,7 @@ public class ControlFlowGraph {
 
 		Set<DefaultEdge> out = graph.outgoingEdgesOf(branchVertex);
 
+		// TODO: this is not correct. FIX THIS! 
 		if (out.size() < 2)
 			throw new IllegalStateException(
 			        "expect branchVertices to have exactly two outgoing edges");

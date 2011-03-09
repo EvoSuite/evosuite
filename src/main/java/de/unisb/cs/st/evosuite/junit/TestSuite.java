@@ -43,6 +43,7 @@ import org.objectweb.asm.commons.Method;
 
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.Statement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
@@ -201,11 +202,26 @@ public class TestSuite implements Opcodes {
 		builder.append("Test case number: " + num);
 
 		if (!coveredGoals.isEmpty()) {
-			builder.append("\n   /* covered goals:");
+			builder.append("\n  /* ");
+			builder.append(coveredGoals.size()+" covered goal");
+			if(coveredGoals.size()!=1)
+				builder.append("s");
+			int nr = 1;
 			for (TestFitnessFunction goal : coveredGoals) {
-				builder.append("\n    * " + goal.toString());
+				builder.append("\n    * " +nr + " " + goal.toString());
+				// TODO only for debugging purposes
+				if(Properties.CRITERION.equals("defuse") && (goal instanceof DefUseCoverageTestFitness)) {
+					DefUseCoverageTestFitness duGoal = (DefUseCoverageTestFitness)goal;
+					if(duGoal.getCoveringTrace() != null) {
+						String traceInformation = duGoal.getCoveringTrace().toDefUseTraceInformation(duGoal.getGoalVariable());
+						traceInformation = traceInformation.replaceAll("\n", "");
+						builder.append("\n      * DUTrace: "+traceInformation);
+					}
+				}
+				nr++;
 			}
-			builder.append("\n    */");
+			
+			builder.append("\n  */");
 		}
 
 		return builder.toString();

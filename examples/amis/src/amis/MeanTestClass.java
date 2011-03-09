@@ -33,10 +33,13 @@ public class MeanTestClass {
 		if(someField == 0) {
 			targetField = 1;
 		} else {
-			if(someOtherField % 13 == 0) {
+			if(someOtherField == 0) {
 				targetField = 2;
 			} else {
-				if(yetAnotherField != someField + someOtherField) {
+				// the following two uses for someField and someOtherField can 
+				// not be paired with their definitions in the constructor
+				if(yetAnotherField != someField + someOtherField) { 
+					// TODO BUG! Stopped here!!! Somehow it is not detected that this definition overwrites the one from <init>
 					targetField = 3;
 				}
 			}

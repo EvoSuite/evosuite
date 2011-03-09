@@ -10,17 +10,11 @@ public class SimpleTestClass {
 	
 	public SimpleTestClass(int anInt) {
 		
-		field = 2;
-		
-		if(anInt==13)
-			field=anInt;
+		field = anInt;
 	}
 	
 	public void setField(int val) {
-		if(val != 13)
-			field = val;
-		else
-			field = val;
+		field = val;
 	}
 	
 	public int getField() {

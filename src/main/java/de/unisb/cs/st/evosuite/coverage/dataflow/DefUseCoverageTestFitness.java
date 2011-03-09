@@ -42,7 +42,7 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 /**
  * Evaluate fitness of a single test case with respect to one def-use pair
  * 
- * @author
+ * @author Andre Mis
  * 
  */
 public class DefUseCoverageTestFitness extends TestFitnessFunction {
@@ -55,6 +55,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	private final BranchCoverageTestFitness defTestFitness;
 	private final BranchCoverageTestFitness useTestFitness;
 	private Integer coveringObjectID = -1;
+	private ExecutionTrace coveringTrace;
 	
 	public DefUseCoverageTestFitness(Definition def, Use use) {
 
@@ -65,17 +66,31 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		this.goalDef = def;
 		this.goalUse = use;
 		this.goalVariable = def.getDUVariableName();
-		this.defTestFitness = getTestFitness(def.getCFGVertex());
-		this.useTestFitness = getTestFitness(use.getCFGVertex());
+		this.defTestFitness = getTestFitness(def);
+		this.useTestFitness = getTestFitness(use);
+	}
+	
+	/**
+	 * Used for Parameter-Uses
+	 */
+	public DefUseCoverageTestFitness(Use use) {
+		if(!use.getCFGVertex().isParameterUse)
+			throw new IllegalArgumentException("this constructor is only for Parameter-Uses");
+
+		goalVariable = use.getDUVariableName();
+		goalDef = null;
+		defTestFitness = null;
+		goalUse = use;
+		useTestFitness = getTestFitness(use);
 	}
 
-	private BranchCoverageTestFitness getTestFitness(CFGVertex v) {
+	private BranchCoverageTestFitness getTestFitness(DefUse du) {
 
 		BranchCoverageTestFitness r;
+		CFGVertex v = du.getCFGVertex();
 
 		if (v.branchID == -1) {
-			r = new BranchCoverageTestFitness(new BranchCoverageGoal(v.className,
-			        v.className + "." + v.methodName));
+			r = getRootBranchTestFitness(du);
 		} else {
 			ControlFlowGraph cfg = CFGMethodAdapter.getCFG(v.className, v.methodName);
 //			int byteIdOfBranch = BranchPool.getBytecodeIDFor(v.branchID);
@@ -86,6 +101,20 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		return r;
 	}
 
+	private BranchCoverageTestFitness getRootBranchTestFitness(DefUse du) {
+		CFGVertex v = du.getCFGVertex();
+		return new BranchCoverageTestFitness(new BranchCoverageGoal(v.className,
+		        v.className + "." + v.methodName));
+	}
+
+	public ExecutionTrace getCoveringTrace() {
+		return coveringTrace;
+	}
+	
+	public String getGoalVariable() {
+		return goalVariable;
+	}
+	
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestFitnessFunction#getFitness(de.unisb.cs.st.evosuite.testcase.TestChromosome, de.unisb.cs.st.evosuite.testcase.ExecutionResult)
 	 */
@@ -124,8 +153,13 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		}
 
 		// ASSUMPTION: static definitions in <clinit> are ALWAYS covered!!!
-		if(goalDef.isStaticDU() && goalDef.getCFGVertex().methodName.startsWith("<clinit>")) {
-			if(DEBUG) System.out.println("Assume definition from <clinit> to always be covered");
+		if(goalDef == null || (goalDef.isStaticDU() && goalDef.getCFGVertex().methodName.startsWith("<clinit>"))) {
+			if(DEBUG) {
+				if(goalDef == null)
+					System.out.println("Assume Parameter-Definition to be covered if the Parameter-Use is covered");
+				else
+					System.out.println("Assume definition from <clinit> to always be covered");
+			}
 			return normalize(useTestFitness.getFitness(individual, result));
 		}
 		
@@ -134,8 +168,6 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		ExecutionTrace originalTrace = result.trace;
 		double fitness = getMaxFitness();
 
-		// TODO: this is only a first heuristic for testing purposes
-		//		see "idea" above for how this is supposed to look like		
 		for(Integer objectID : objectPool) {
 		
 			if(DEBUG) System.out.println("current object: "+objectID);
@@ -168,7 +200,10 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			if(useFitness == 0) {
 				if(DEBUG) System.out.println("goal COVERED by object "+objectID);
 				if(DEBUG) System.out.println("===============================");
-				this.coveringObjectID = objectID;
+				if(objectPool.size() > 1)
+					this.coveringObjectID = objectID;
+				else
+					this.coveringObjectID = -1;
 				updateIndividual(individual, 0); // ???
 				return 0;
 			}
@@ -273,6 +308,9 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		// revert trace changes
 		result.trace = originalTrace;
 		
+		if(useFitness == 0.0)
+			this.coveringTrace = fitnessTrace;
+		
 		// sanity checks
 		if(DEBUG) {
 			System.out.println("goalUseFitness was "+useFitness);
@@ -363,7 +401,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	
 	private double getMaxFitness() {
 
-		return 200; // TODO
+		return 200; // TODO (should be 2)
 	}
 	
 	/* (non-Javadoc)
@@ -405,23 +443,39 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	
 	@Override
 	public String toString() {
-		return "DUFitness for " + goalDef.getDUVariableName() 
-				+ " Def " + goalDef.getDefID() + " in " + goalDef.getMethodName() 
-				+ " branch " + goalDef.getBranchID() + (goalDef.getCFGVertex().branchExpressionValue?"t":"f")
-				+ "(l"+ goalDef.getLineNumber() + ") "
-				+ "Use " + goalUse.getUseID() + " in " + goalUse.getMethodName() 
-				+ " branch " + goalUse.getBranchID() + (goalUse.getCFGVertex().branchExpressionValue?"t":"f")
-				+ "(l"+ goalUse.getLineNumber() + ") "
-				+(this.coveringObjectID!=-1?("covered by object "+this.coveringObjectID):"");
+		
+		StringBuffer r = new StringBuffer();
+		
+		r.append("DUFitness for ");
+		if(goalUse.isStaticDU())
+			r.append("static ");
+		r.append(goalUse.getDUVariableType());
+		r.append("-Variable \"" + this.goalVariable +"\"");
+		if(goalDef == null) {
+			r.append("\n\tParameter-Definition "+goalUse.getLocalVarNr()+" for method "+goalUse.getMethodName());
+		} else {
+			r.append("\n\t");
+			r.append("Def ");
+//			r.append(goalDef.toString());
+			r.append(goalDef.getDefID() + " in " + goalDef.getMethodName()); 
+			r.append(" branch " + goalDef.getBranchID() + (goalDef.getCFGVertex().branchExpressionValue?"t":"f"));
+			r.append(" line "+ goalDef.getLineNumber());
+		}
+		
+		r.append("\n\t");
+		r.append("Use " + goalUse.getUseID() + " in " + goalUse.getMethodName()); 
+		r.append(" branch " + goalUse.getBranchID() + (goalUse.getCFGVertex().branchExpressionValue?"t":"f"));
+		r.append(" line "+ goalUse.getLineNumber());
+		r.append((this.coveringObjectID!=-1?("\n\tcovered by object "+this.coveringObjectID):""));
+		
+		return r.toString();
 	}
 	
 	@Override
 	public boolean equals(Object o) {
 //		System.out.println("called"); // TODO: somehow doesnt get called
-		
 		if(!(o instanceof DefUseCoverageTestFitness))
 			return false;
-		
 		try {
 			DefUseCoverageTestFitness t = (DefUseCoverageTestFitness)o;
 			return t.goalDef.equals(this.goalDef) && t.goalUse.equals(this.goalUse);

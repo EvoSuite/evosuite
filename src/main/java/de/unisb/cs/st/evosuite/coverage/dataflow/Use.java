@@ -20,4 +20,8 @@ public class Use extends DefUse {
 		
 		this.v = v;
 	}
+	
+	public boolean isParameterUse() {
+		return v.isParameterUse();
+	}
 }

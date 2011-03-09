@@ -182,7 +182,6 @@ public class ExecutionTrace {
 			methodID++;
 			MethodCall call = new MethodCall(classname, methodname,methodID,callingObjectID);
 			if(Properties.CRITERION.equals("defuse")) {
-				// TODO	research that this doesn't break BranchFitness Calculation
 				call.branch_trace.add(-1);
 				call.true_distance_trace.add(0.0);
 				call.false_distance_trace.add(1.0);
@@ -330,7 +329,7 @@ public class ExecutionTrace {
 		// set given Definition to be active
 		if(activeDefinitions.get(objectID) == null)
 			activeDefinitions.put(objectID, new HashMap<String,Integer>());
-		activeDefinitions.get(objectID).put(def.getDUVariableName(), defID);
+		activeDefinitions.get(objectID).put(varName, defID);
 //		logger.trace(duCounter+": set active definition for var "+def.getDUVariableName()+" on object "+objectID+" to Def "+defID);
 		duCounter++;
 	}
@@ -567,7 +566,8 @@ public class ExecutionTrace {
 		for(String var : passedDefs.keySet()) {
 			r.append(" for variable: "+var+":\n");
 			for(Integer objectID : passedDefs.get(var).keySet()) {
-				r.append("   on object "+objectID+":\n");
+				if(passedDefs.get(var).keySet().size()>1)
+					r.append("   on object "+objectID+":\n");
 				for(Integer duPos : passedDefs.get(var).get(objectID).keySet()) {
 					r.append("     #"+duPos+": Def "+passedDefs.get(var).get(objectID).get(duPos)+"\n");
 				}
@@ -577,7 +577,8 @@ public class ExecutionTrace {
 		for(String var : passedUses.keySet()) {
 			r.append(" for variable: "+var+":\n");
 			for(Integer objectID : passedUses.get(var).keySet()) {
-				r.append("  on object "+objectID+":\n");
+				if(passedUses.get(var).keySet().size()>1)
+					r.append("  on object "+objectID+":\n");
 				for(Integer duPos : passedUses.get(var).get(objectID).keySet()) {
 					r.append("   #"+duPos+": Use "+passedUses.get(var).get(objectID).get(duPos)+"\n");
 				}
@@ -585,6 +586,37 @@ public class ExecutionTrace {
 		}		
 		return r.toString();
 	}
+	
+	/**
+	 * Returns a String containing the information in passedDefs and passedUses for the given variable
+	 * 
+	 * Used for Definition-Use-Coverage-debugging 
+	 */
+	public String toDefUseTraceInformation(String var) {
+		String[] duTrace = new String[this.duCounter];
+		for(int i=0;i<this.duCounter;i++) {
+			duTrace[i] = "";
+		}
+		
+		for(Integer objectID : passedDefs.get(var).keySet())
+			for(Integer duPos : passedDefs.get(var).get(objectID).keySet())
+				duTrace[duPos] = "Def "+passedDefs.get(var).get(objectID).get(duPos);
+		for(Integer objectID : passedUses.get(var).keySet())
+			for(Integer duPos : passedUses.get(var).get(objectID).keySet())
+				duTrace[duPos] = "Use "+passedUses.get(var).get(objectID).get(duPos);
+
+		StringBuffer r = new StringBuffer();
+		for(String s : duTrace) {
+			r.append(s);
+			if(s.length()>0)
+				r.append(", ");
+		}
+		String traceString = r.toString();
+		if(traceString.length()>2)
+			return traceString.substring(0,traceString.length()-2);
+		
+		return traceString;
+	}	
 	
 	@Override
 	public String toString() {
