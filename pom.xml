@@ -92,7 +92,7 @@
       <dependency>
         <groupId>jpf</groupId>
         <artifactId>jpf-core</artifactId>
-        <version>5.0pre2-EvoSuite</version>
+        <version>5.0pre2-EvoSuite-1</version>
       </dependency>
       <dependency>
         <groupId>de.unisb.cs.st</groupId>

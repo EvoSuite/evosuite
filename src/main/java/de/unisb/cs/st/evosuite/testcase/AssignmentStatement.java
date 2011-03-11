@@ -41,8 +41,7 @@ public class AssignmentStatement extends Statement {
 
 	public VariableReference parameter;
 
-	public AssignmentStatement(VariableReference variable,
-	        VariableReference value) {
+	public AssignmentStatement(VariableReference variable, VariableReference value) {
 		this.retval = variable;
 		this.parameter = value;
 	}
@@ -152,7 +151,13 @@ public class AssignmentStatement extends Statement {
 		retval.array.loadBytecode(mg, locals);
 		mg.push(retval.array_index);
 		parameter.loadBytecode(mg, locals);
-		mg.arrayStore(Type.getType(parameter.getVariableClass()));
+		Class<?> clazz = parameter.getVariableClass();
+		if (!clazz.equals(retval.getVariableClass())) {
+			mg.cast(org.objectweb.asm.Type.getType(clazz),
+			        org.objectweb.asm.Type.getType(retval.getVariableClass()));
+		}
+
+		mg.arrayStore(Type.getType(retval.getVariableClass()));
 	}
 
 	/*
@@ -175,8 +180,7 @@ public class AssignmentStatement extends Statement {
 	 * de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
 	@Override
-	public void replaceUnique(VariableReference old_var,
-	        VariableReference new_var) {
+	public void replaceUnique(VariableReference old_var, VariableReference new_var) {
 		if (retval == old_var)
 			retval = new_var;
 		if (retval.array == old_var)

@@ -96,6 +96,8 @@ public class Properties {
 	public static String SANDBOX_FOLDER = getPropertyOrDefault("sandbox_folder",
 	                                                           "sandbox/");
 
+	public static boolean CHECK_CONTRACTS = getPropertyOrDefault("check_contracts", false);
+
 	public static boolean MUTATION = getPropertyOrDefault("force_mutation", false)
 	        || getPropertyOrDefault("criterion", "BranchCoverage").equalsIgnoreCase("mutation") ? true
 	        : false;

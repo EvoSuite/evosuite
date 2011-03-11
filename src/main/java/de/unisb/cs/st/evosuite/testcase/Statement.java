@@ -92,8 +92,8 @@ public abstract class Statement {
 	 * 
 	 * @param mg
 	 */
-	public abstract void getBytecode(GeneratorAdapter mg,
-	        Map<Integer, Integer> locals, Throwable exception);
+	public abstract void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
+	        Throwable exception);
 
 	/**
 	 * 
@@ -137,8 +137,7 @@ public abstract class Statement {
 
 	public abstract List<VariableReference> getUniqueVariableReferences();
 
-	public abstract void replace(VariableReference old_var,
-	        VariableReference new_var);
+	public abstract void replace(VariableReference old_var, VariableReference new_var);
 
 	public abstract void replaceUnique(VariableReference old_var,
 	        VariableReference new_var);
@@ -242,5 +241,9 @@ public abstract class Statement {
 			clazz = clazz.getSuperclass();
 		}
 		return clazz;
+	}
+
+	public int getPosition() {
+		return retval.statement;
 	}
 }

@@ -96,7 +96,7 @@ public class MethodStatement extends Statement {
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
 				e = e.getCause();
 			}
-			logger.debug("Exception thrown in method: " + e);
+			logger.debug("Exception thrown in method " + method.getName() + ": " + e);
 			exceptionThrown = e;
 		} finally {
 			System.setOut(old_out);
@@ -209,7 +209,10 @@ public class MethodStatement extends Statement {
 				references.add(param.array);
 		}
 		return references;
+	}
 
+	public List<VariableReference> getParameterReferences() {
+		return parameters;
 	}
 
 	@Override
