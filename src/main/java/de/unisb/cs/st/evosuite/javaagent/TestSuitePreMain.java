@@ -52,8 +52,7 @@ public class TestSuitePreMain {
 				addClassFileTransformer(instrumentation, new HOMFileTransformer());
 			}
 
-			// addClassFileTransformer(instrumentation, new
-			// PrintBytecodeTransformer());
+			addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
 
 			if (Properties.TESTABILITY_TRANSFORMATION) {
 				TransformationHelper.setTestPackage(Properties.PROJECT_PREFIX);

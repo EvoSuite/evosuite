@@ -101,7 +101,7 @@ public class TestRunner extends Thread {
 				Sandbox.setUpMockedSecurityManager();
 				Throwable exceptionThrown = s.execute(scope, out);
 				Sandbox.tearDownMockedSecurityManager();
-				
+
 				// During runtime the type of a variable might change
 				// E.g. if declared Object, after the first run it will
 				// be set to the actual class observed at runtime
@@ -125,7 +125,7 @@ public class TestRunner extends Thread {
 				if (logger.isDebugEnabled())
 					logger.debug("Done statement " + s.getCode());
 				for (ExecutionObserver observer : observers) {
-					observer.statement(num, scope, s.getReturnValue());
+					observer.statement(s, scope, exceptionThrown);
 				}
 				num++;
 			}

@@ -74,7 +74,7 @@ public class TestabilityTransformation {
 		}
 	}
 
-	private static DescriptorMapping mapping = new DescriptorMapping();
+	private static DescriptorMapping mapping = DescriptorMapping.getInstance();
 
 	private static Set<JumpInsnNode> flagNodes = new HashSet<JumpInsnNode>();
 
@@ -1625,7 +1625,8 @@ public class TestabilityTransformation {
 
 	public static void pushPredicate(int distance) {
 		//logger.debug("Push: " + distance);
-		distanceStack.push(Math.abs(distance));
+		if (distanceStack != null)
+			distanceStack.push(Math.abs(distance));
 	}
 
 	private static double normalize(int distance) {
@@ -1637,6 +1638,12 @@ public class TestabilityTransformation {
 	}
 
 	public static int getDistance(int original) {
+		if (distanceStack == null) {
+			if (original > 0)
+				return K;
+			else
+				return -K;
+		}
 		int l = distanceStack.size();
 		int distance = K;
 		if (!distanceStack.isEmpty())
