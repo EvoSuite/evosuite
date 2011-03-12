@@ -95,16 +95,6 @@ public class DefUsePool {
 		return true;
 	}
 	
-//	/**
-//	 * Returns the DefUse with the given duID
-//	 * 
-//	 * @param duID ID of a DefUse
-//	 * @return The DefUse with the given duID if such an ID is known, null otherwise
-//	 */
-//	public static DefUse getDefUse(int duID) {
-//		return duIDsToDefUses.get(duID);
-//	}
-
 	/**
 	 * Returns the Use with the given duID
 	 * 
@@ -191,7 +181,6 @@ public class DefUsePool {
 	
 	
 	private static boolean addToDefMap(Definition d) {
-
 		CFGVertex v = d.getCFGVertex();
 		String className = v.className;
 		String methodName = v.methodName;
@@ -211,7 +200,6 @@ public class DefUsePool {
 	}
 	
 	private static boolean addToUseMap(Use u) {
-
 		CFGVertex v = u.getCFGVertex();
 		String className = v.className;
 		String methodName = v.methodName;
