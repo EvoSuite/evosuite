@@ -120,11 +120,16 @@ public class TestCaseExecutor implements ThreadFactory {
 		resetObservers();
 		MaxTestsStoppingCondition.testExecuted();
 
+		TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>(); 
+		
 		TestRunnable callable = new TestRunnable(tc, scope, observers);
-		FutureTask<ExecutionResult> task = new FutureTask<ExecutionResult>(callable);
-		executor.execute(task);
+		//FutureTask<ExecutionResult> task = new FutureTask<ExecutionResult>(callable);
+		//executor.execute(task);
+	
 		try {
-			ExecutionResult result = task.get(timeout, TimeUnit.MILLISECONDS);
+			//ExecutionResult result = task.get(timeout, TimeUnit.MILLISECONDS);
+			//TODO:instead of "false" should use property to check if using CPU timeout
+			ExecutionResult result = handler.execute(callable, executor, timeout, false);
 			return result;
 
 		} catch (InterruptedException e1) {
@@ -148,7 +153,8 @@ public class TestCaseExecutor implements ThreadFactory {
 			logger.info("TimeoutException, need to stop runner");
 			ExecutionTracer.setKillSwitch(true);
 			ExecutionTracer.disable();
-			task.cancel(true);
+			//task.cancel(true);
+			handler.getLastTask().cancel(true);
 
 			if (!callable.runFinished) {
 				logger.info("Run not finished, waiting...");
