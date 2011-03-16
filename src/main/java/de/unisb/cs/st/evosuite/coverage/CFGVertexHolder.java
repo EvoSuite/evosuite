@@ -26,15 +26,15 @@ public abstract class CFGVertexHolder {
 		return v.className;
 	}
 	
-	public int getBranchID() {
-		return v.branchID;
+	public int getBranchId() {
+		return v.branchId;
 	}
 	
 	public int getLineNumber() {
 		return v.line_no;
 	}
 	
-	public int getBytecodeID() {
+	public int getBytecodeId() {
 		return v.getID();
 	}
 }

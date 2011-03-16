@@ -29,16 +29,16 @@ public abstract class DefUse extends CFGVertexHolder {
 		return v.getDUVariableName();
 	}
 	
-	public int getDUID() {
-		return v.duID;
+	public int getDefUseId() {
+		return v.defuseId;
 	}
 	
-	public int getDefID() {
-		return v.defID;
+	public int getDefId() {
+		return v.defId;
 	}
 	
-	public int getUseID() {
-		return v.useID;
+	public int getUseId() {
+		return v.useId;
 	}
 	
 	public boolean isUse() {
@@ -50,7 +50,7 @@ public abstract class DefUse extends CFGVertexHolder {
 	}
 	
 	public boolean isStaticDU() {
-		return v.isStaticDU();
+		return v.isStaticDefUse();
 	}
 	
 	public boolean isLocalDU() {
@@ -62,10 +62,10 @@ public abstract class DefUse extends CFGVertexHolder {
 		String s = "";
 		
 		if(isUse())
-			s+="Use "+v.useID+" ";
+			s+="Use "+v.useId+" ";
 		if(isDefinition())
-			s+="Definition "+v.defID+" ";
-		s+="duID "+getDUID()+" for var "+getDUVariableName();
+			s+="Definition "+v.defId+" ";
+		s+="duID "+getDefUseId()+" for var "+getDUVariableName();
 		
 		return s;
 	}

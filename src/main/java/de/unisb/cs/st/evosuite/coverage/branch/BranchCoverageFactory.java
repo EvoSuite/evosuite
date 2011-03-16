@@ -86,7 +86,7 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 
 				for (Branch b : BranchPool.branchMap.get(className).get(methodName)) {
 
-					if (target_branch >= 0 && b.getBranchID() != target_branch)
+					if (target_branch >= 0 && b.getBranchId() != target_branch)
 						continue;
 
 					// Identify vertex in CFG
