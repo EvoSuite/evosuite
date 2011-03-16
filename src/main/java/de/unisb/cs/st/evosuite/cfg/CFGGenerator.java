@@ -83,10 +83,10 @@ public class CFGGenerator extends Analyzer {
 		boolean mutationBranch = false;
 		boolean mutatedBranch = false;
 
-		public int duID = -1;
-		public int useID = -1;
-		public int defID = -1;
-		public int branchID = -1;
+		public int defuseId = -1;
+		public int useId = -1;
+		public int defId = -1;
+		public int branchId = -1;
 		public boolean isParameterUse = false; // is set by DefUsePool
 		public boolean branchExpressionValue = true; // TODO this should be false whenever it is true and visa versa
 		public String methodName;
@@ -202,7 +202,7 @@ public class CFGGenerator extends Analyzer {
 			return id;
 		}
 		
-		public boolean isDU() {
+		public boolean isDefUse() {
 			return isLocalDU() || isFieldDU();
 		}
 
@@ -251,7 +251,7 @@ public class CFGGenerator extends Analyzer {
 			        || node.getOpcode() == Opcodes.GETSTATIC;
 		}
 
-		public boolean isStaticDU() {
+		public boolean isStaticDefUse() {
 			return node.getOpcode() == Opcodes.PUTSTATIC
 			        || node.getOpcode() == Opcodes.GETSTATIC;
 		}
@@ -276,7 +276,7 @@ public class CFGGenerator extends Analyzer {
 		}
 
 		public String getDUVariableName() {
-			if (!this.isDU())
+			if (!this.isDefUse())
 				throw new IllegalStateException(
 				        "You can only call getDUVariableName() on a local variable or field definition/use");
 			if (this.isFieldDU())

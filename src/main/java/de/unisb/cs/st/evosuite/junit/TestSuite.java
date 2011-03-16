@@ -213,7 +213,7 @@ public class TestSuite implements Opcodes {
 				if(Properties.CRITERION.equals("defuse") && (goal instanceof DefUseCoverageTestFitness)) {
 					DefUseCoverageTestFitness duGoal = (DefUseCoverageTestFitness)goal;
 					if(duGoal.getCoveringTrace() != null) {
-						String traceInformation = duGoal.getCoveringTrace().toDefUseTraceInformation(duGoal.getGoalVariable(),duGoal.getCoveringObjectID());
+						String traceInformation = duGoal.getCoveringTrace().toDefUseTraceInformation(duGoal.getGoalVariable(),duGoal.getCoveringObjectId());
 						traceInformation = traceInformation.replaceAll("\n", "");
 						builder.append("\n      * DUTrace: "+traceInformation);
 					}

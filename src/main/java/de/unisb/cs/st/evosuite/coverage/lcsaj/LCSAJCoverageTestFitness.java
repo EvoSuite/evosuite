@@ -67,9 +67,9 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 			if (c == null) {
 				// Only jump nodes are in minimized CFG!
 			}
-			if (c.branchID != -1 && firstInsn) {
+			if (c.branchId != -1 && firstInsn) {
 				BranchCoverageTestFitness b = new BranchCoverageTestFitness(
-				        new BranchCoverageGoal(BranchPool.getBranch(c.branchID), false,
+				        new BranchCoverageGoal(BranchPool.getBranch(c.branchId), false,
 				                cfg, lcsaj.getClassName(), lcsaj.getMethodName()));
 				fitness += b.getFitness(individual, result);
 				firstInsn = false;
@@ -77,14 +77,14 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 			}
 
 			if (i == lcsaj.getInstructionID(instructions.get(i))) {
-				branch = result.trace.false_distances.get(c.branchID);
+				branch = result.trace.false_distances.get(c.branchId);
 				if (branch != 0.0)
 					fitness += approach + normalize(branch);
 				break;
 			}
 
 			else {
-				branch = result.trace.true_distances.get(c.branchID);
+				branch = result.trace.true_distances.get(c.branchId);
 				if (branch != 0.0)
 					fitness += normalize(branch);
 			}

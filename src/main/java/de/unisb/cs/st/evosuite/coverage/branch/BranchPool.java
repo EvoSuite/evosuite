@@ -34,7 +34,7 @@ public class BranchPool {
 	private static Set<String> branchlessMethods = new HashSet<String>();
 
 	// maps the branch_counter field of this class to its bytecodeID in the CFG
-	private static Map<Integer, Branch> bytecodeIDMap = new HashMap<Integer, Branch>();
+	private static Map<Integer, Branch> bytecodeIdMap = new HashMap<Integer, Branch>();
 
 	// number of known Branches
 	private static int branchCounter = 0;
@@ -55,7 +55,7 @@ public class BranchPool {
 		Branch b = new Branch(v);
 		addBranchToMap(b);
 		markBranchIDs(v);
-		bytecodeIDMap.put(branchCounter, b);
+		bytecodeIdMap.put(branchCounter, b);
 
 		logger.debug("Branch " + branchCounter + " at line " + v.getID() + " - "
 		        + v.line_no);
@@ -110,28 +110,28 @@ public class BranchPool {
 	/**
 	 * Returns the bytecodeID for the branch associated with the given branchID
 	 * 
-	 * @param branchID
+	 * @param branchId
 	 *            The ID of a Branch
 	 * @return If there is a Branch with the given branchID this method returns
 	 *         its bytecodeID, -1 otherwise
 	 */
-	public static int getBytecodeIDFor(int branchID) {
-		Branch branch = bytecodeIDMap.get(branchID);
+	public static int getBytecodeIdFor(int branchId) {
+		Branch branch = bytecodeIdMap.get(branchId);
 		if (branch == null)
 			return -1;
 
-		return branch.getBytecodeID();
+		return branch.getBytecodeId();
 	}
 
 	/**
 	 * Returns the Branch object associated with the given branchID
 	 * 
-	 * @param branchID
+	 * @param branchId
 	 *            The ID of a branch
 	 * @return The branch, or null if it does not exist
 	 */
-	public static Branch getBranch(int branchID) {
-		return bytecodeIDMap.get(branchID);
+	public static Branch getBranch(int branchId) {
+		return bytecodeIdMap.get(branchId);
 	}
 
 	/**
@@ -159,8 +159,8 @@ public class BranchPool {
 		ControlFlowGraph completeCFG = CFGMethodAdapter.getCompleteCFG(v.className,
 		                                                               v.methodName);
 		CFGVertex branchVertex = completeCFG.getVertex(v.getID());
-		branchVertex.branchID = branchCounter;
-		v.branchID = branchCounter;
-		completeCFG.markBranchIDs(branchVertex);
+		branchVertex.branchId = branchCounter;
+		v.branchId = branchCounter;
+		completeCFG.markBranchIds(branchVertex);
 	}
 }
