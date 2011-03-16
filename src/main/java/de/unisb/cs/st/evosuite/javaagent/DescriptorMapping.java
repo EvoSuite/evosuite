@@ -20,13 +20,26 @@ import org.objectweb.asm.tree.MethodNode;
 
 import de.unisb.cs.st.evosuite.Properties;
 
-class DescriptorMapping {
+public class DescriptorMapping {
 
 	private static int id = 0;
 
 	private final Map<String, String> descriptorMapping = new HashMap<String, String>();
 
 	private static Logger logger = Logger.getLogger(DescriptorMapping.class);
+
+	private static DescriptorMapping instance = null;
+
+	private DescriptorMapping() {
+
+	}
+
+	public static DescriptorMapping getInstance() {
+		if (instance == null)
+			instance = new DescriptorMapping();
+
+		return instance;
+	}
 
 	final Map<String, String> original = new HashMap<String, String>();
 
@@ -408,4 +421,24 @@ class DescriptorMapping {
 		}
 	}
 
+	public String getOriginalDescriptor(String className, String methodName, String desc) {
+		String key = className.replace(".", "/") + "." + methodName + desc;
+		if (original.containsKey(key)) {
+			logger.info("Found transformed version of " + className + "." + methodName
+			        + desc);
+			return original.get(key);
+		} else {
+			logger.info("Don't have transformed version of " + className + "."
+			        + methodName + desc);
+			return desc;
+		}
+	}
+
+	public Type[] getOriginalTypes(String className, String methodName, String desc) {
+		String key = className.replace(".", "/") + "." + methodName + desc;
+		if (original.containsKey(key))
+			return org.objectweb.asm.Type.getArgumentTypes(original.get(key));
+		else
+			return org.objectweb.asm.Type.getArgumentTypes(desc);
+	}
 }

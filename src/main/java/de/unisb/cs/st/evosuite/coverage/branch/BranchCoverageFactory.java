@@ -49,18 +49,27 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
 
 		int target_branch = Properties.getPropertyOrDefault("target_branch", -1);
+		String targetMethod = Properties.getPropertyOrDefault("target_method", "");
 
 		// Branchless methods
 		String class_name = Properties.TARGET_CLASS;
 		if (target_branch < 0) {
 			for (String method : BranchPool.getBranchlessMethods()) {
-				goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(
-				        class_name, method)));
+				if (targetMethod.equals("") || method.endsWith(targetMethod))
+					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(
+					        class_name, method.substring(method.lastIndexOf(".") + 1))));
 			}
 		}
 		// Branches
+		logger.info("Getting branches");
 		for (String className : BranchPool.branchMap.keySet()) {
 			for (String methodName : BranchPool.branchMap.get(className).keySet()) {
+
+				if (!targetMethod.equals("") && !methodName.equals(targetMethod)) {
+					logger.info("Method " + methodName + " does not equal target method "
+					        + targetMethod);
+					continue;
+				}
 
 				if (Properties.TESTABILITY_TRANSFORMATION) {
 					String vname = methodName.replace("(", "|(");

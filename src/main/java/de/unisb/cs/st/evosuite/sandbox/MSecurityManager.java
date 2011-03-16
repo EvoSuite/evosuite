@@ -47,8 +47,7 @@ class MSecurityManager extends SecurityManager {
 	public void checkPermission(Permission perm) {
 		// check access  
 		if (!allowPermission(perm))
-			throw new SecurityException(
-			        "Security manager blocks all he can block. You've got served!");
+			throw new SecurityException("Security manager blocks " + perm);
 
 		return;
 	}
@@ -83,7 +82,7 @@ class MSecurityManager extends SecurityManager {
 
 			if (e.getMethodName().equals("setSecurityManager")) {
 				if (stackTraceElements[elementCounter + 1].getMethodName().equals("tearDownMockedSecurityManager")
-					|| stackTraceElements[elementCounter + 1].getMethodName().equals("setUpMockedSecurityManager"))
+				        || stackTraceElements[elementCounter + 1].getMethodName().equals("setUpMockedSecurityManager"))
 					return true;
 				else if (stackTraceElements[elementCounter + 1].getMethodName().equals("call"))
 					return true;
@@ -121,6 +120,16 @@ class MSecurityManager extends SecurityManager {
 				        || perm.getName().equals("createClassLoader")
 				        || perm.getName().contains("accessClassInPackage"))
 					return true;
+
+			if (permName.equals("java.io.FilePermission")
+			        && perm.getActions().equals("read")) {
+				for (StackTraceElement e : stackTraceElements) {
+					if (e.getClassName().startsWith("java.net.URLClassLoader"))
+						return true;
+					if (e.getClassName().startsWith("java.lang.ClassLoader"))
+						return true;
+				}
+			}
 
 		}
 		return false;

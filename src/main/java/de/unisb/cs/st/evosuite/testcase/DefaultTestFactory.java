@@ -533,11 +533,6 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			double reuse = randomness.nextDouble();
 			int previous_length = test.size();
 
-			/*
-			 * if(parameter_types[i].equals(Object.class)) {
-			 * logger.debug("Changing request for Object to Integer");
-			 * parameter_types[i] = Integer.class; }
-			 */
 			List<VariableReference> objects = test.getObjects(parameter_type, position);
 			if (callee != null)
 				objects.remove(callee);

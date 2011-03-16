@@ -239,6 +239,8 @@ public class ConcolicMutation {
 			return false;
 		}
 
+		// pcg.getCondition(...).getName()
+
 		Map<String, Object> values = jpfTest.getPCG().getAlternativePath(c);
 		logger.info("Concolic execution done.");
 		if (values != null && !values.isEmpty()) {
