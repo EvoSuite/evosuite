@@ -66,7 +66,8 @@ public class ExecutionTrace {
 		public List<Integer> branch_trace;
 		public List<Double> true_distance_trace;
 		public List<Double> false_distance_trace;
-		public ArrayList<HashMap<String,Integer>> active_definitions_trace; 
+		public List<HashMap<String,Integer>> active_definitions_trace;
+		public List<Integer> defuse_counter_trace;
 		public int methodID;
 		public int callingObjectID;
 
@@ -79,8 +80,11 @@ public class ExecutionTrace {
 			false_distance_trace = new ArrayList<Double>();
 			this.methodID = methodID;
 			this.callingObjectID = callingObjectID;
-			if(Properties.CRITERION.equals("defuse")) // this might take some memory
+			if(Properties.CRITERION.equals("defuse")) { 
+				// this might take some memory
 				active_definitions_trace = new ArrayList<HashMap<String,Integer>>();
+				defuse_counter_trace = new ArrayList<Integer>();
+			}
 		}
 
 		@Override
@@ -121,8 +125,10 @@ public class ExecutionTrace {
 			copy.false_distance_trace = new ArrayList<Double>(false_distance_trace);
 			copy.callingObjectID = callingObjectID;
 			copy.methodID = methodID;
-			if(Properties.CRITERION.equals("defuse"))
-				copy.active_definitions_trace = new ArrayList<HashMap<String,Integer>>(active_definitions_trace); 
+			if(Properties.CRITERION.equals("defuse")) {
+				copy.active_definitions_trace = new ArrayList<HashMap<String,Integer>>(active_definitions_trace);
+				copy.defuse_counter_trace = new ArrayList<Integer>(defuse_counter_trace);
+			}
 			
 			return copy;
 		}
@@ -190,6 +196,7 @@ public class ExecutionTrace {
 				call.true_distance_trace.add(1.0);
 				call.false_distance_trace.add(0.0);
 				call.active_definitions_trace.add(getCopyOfActiveDefinitions(callingObjectID));
+				call.defuse_counter_trace.add(duCounter);
 			}
 			stack.push(call);
 		}
@@ -276,7 +283,7 @@ public class ExecutionTrace {
 	public void branchPassed(int branch, int bytecode_id, double true_distance,
 	        double false_distance) {
 		
-		updateStackMethodCall(branch,bytecode_id,true_distance,false_distance);
+		updateTopStackMethodCall(branch,bytecode_id,true_distance,false_distance);
 
 		String id = "" + branch;
 		if (!covered_predicates.containsKey(id))
@@ -298,7 +305,7 @@ public class ExecutionTrace {
 	/**
 	 * Adds trace information to the active MethodCall in this.stack 
 	 */
-	private void updateStackMethodCall(int branch, int bytecode_id,
+	private void updateTopStackMethodCall(int branch, int bytecode_id,
 			double true_distance, double false_distance) {
 		
 		if (trace_calls) {
@@ -307,6 +314,7 @@ public class ExecutionTrace {
 			stack.peek().false_distance_trace.add(false_distance);
 			if(Properties.CRITERION.equals("defuse")) {
 				stack.peek().active_definitions_trace.add(getCopyOfActiveDefinitions(stack.peek().callingObjectID));
+				stack.peek().defuse_counter_trace.add(duCounter);
 			}		
 		}
 	}
@@ -332,10 +340,8 @@ public class ExecutionTrace {
 		int objectID = registerObject(caller);
 		
 		// if this is a static variable, treat objectID as zero for consistency in the representation of static data
-		if(objectID != 0) { 		
-			if(def.isStaticDU())
-				objectID = 0;
-		}
+		if(objectID != 0 && def.isStaticDU())
+			objectID = 0;
 		if(passedDefs.get(varName)==null) 
 			passedDefs.put(varName,new HashMap<Integer,HashMap<Integer,Integer>>());
 		HashMap<Integer, Integer> defs = passedDefs.get(varName).get(objectID);
@@ -343,6 +349,8 @@ public class ExecutionTrace {
 			defs = new HashMap<Integer, Integer>();
 		defs.put(duCounter, defID);
 		passedDefs.get(varName).put(objectID, defs);
+
+		addFakeActiveMethodCallInformation(branchID);
 		
 		// set given Definition to be active
 		if(activeDefinitions.get(objectID) == null)
@@ -350,9 +358,6 @@ public class ExecutionTrace {
 		activeDefinitions.get(objectID).put(varName, defID);
 //		logger.trace(duCounter+": set active definition for var "+def.getDUVariableName()+" on object "+objectID+" to Def "+defID);
 		duCounter++;
-		
-
-		addFakeActiveMethodCallInformation(branchID);
 	}
 
 	/**
@@ -366,6 +371,8 @@ public class ExecutionTrace {
 		
 		if(!trace_calls) // TODO ???
 			return;		
+		
+		addFakeActiveMethodCallInformation(branchID);
 		
 		int objectID = registerObject(caller);
 		
@@ -387,8 +394,6 @@ public class ExecutionTrace {
 		uses.put(duCounter, useID);
 		passedUses.get(varName).put(objectID, uses);
 		duCounter++;
-		
-		addFakeActiveMethodCallInformation(branchID);
 	}
 	
 	/**
@@ -410,9 +415,7 @@ public class ExecutionTrace {
 	 *  also see getTraceForDefinition()
 	 */
 	private void addFakeActiveMethodCallInformation(int branchID) {
-		MethodCall activeCall = stack.peek();
-		if(activeCall.branch_trace.get(activeCall.branch_trace.size()-1) != BranchPool.getBytecodeIDFor(branchID))
-			updateStackMethodCall(branchID, BranchPool.getBytecodeIDFor(branchID), 1.0, 0.0);
+		updateTopStackMethodCall(branchID, BranchPool.getBytecodeIDFor(branchID), 1.0, 0.0);
 	}	
 	
 	/**
@@ -520,6 +523,7 @@ public class ExecutionTrace {
 			MethodCall call = r.finished_calls.get(callPos);
 			if(!(call.method_name.equals(use.getMethodName()) && call.class_name.equals(use.getClassName()))) {
 				// wrong method
+				System.out.println("not method for use: "+call.method_name);
 				removableCalls.add(callPos);
 				continue;
 			}
@@ -534,13 +538,13 @@ public class ExecutionTrace {
 				if(!useAlreadyFound && currentBranch==useBranchBytecodeID) {
 					if(use.getCFGVertex().branchExpressionValue) {
 						if(call.false_distance_trace.get(i) == 0) {
-//							System.out.println("found use in "+call.method_name);
+							System.out.println("found use in "+call.method_name);
 							useAlreadyFound = true;
 						}
 					} else {
 						if(call.true_distance_trace.get(i) == 0) {
 							useAlreadyFound = true;
-//							System.out.println("found use in "+call.method_name);
+							System.out.println("found use in "+call.method_name);
 						}
 					}
 				}
@@ -552,11 +556,11 @@ public class ExecutionTrace {
 					
 					removableIndices.add(i);
 					if(currentBranch==useBranchBytecodeID) {
-						boolean defBeforeBranch = def.getBytecodeID()<currentBranch;
-						defBeforeBranch = defBeforeBranch || !(def.getMethodName().equals(call.method_name) && def.getClassName().equals(call.class_name));
-						if(defBeforeBranch && useAlreadyFound) {
+//						boolean defBeforeBranch = def.getBytecodeID()<currentBranch;
+//						defBeforeBranch = defBeforeBranch || !(def.getMethodName().equals(call.method_name) && def.getClassName().equals(call.class_name));
+						if(useAlreadyFound) {//defBeforeBranch && useAlreadyFound) {
 							removableBranches.add(currentBranch);
-//							System.out.println("additionally removing branch: "+currentBranch);
+							System.out.println("additionally removing branch: "+currentBranch);
 						}
 					}
 				}
@@ -565,7 +569,7 @@ public class ExecutionTrace {
 			// there already was trace information for that branch earlier in the trace
 			// also remove that information in order to avoid false positives in the useFitness calculation
 			for(int i=0;i<call.branch_trace.size();i++) {
-				if(removableBranches.contains(-1) || removableBranches.contains(call.branch_trace.get(i)))
+				if(removableBranches.contains(call.branch_trace.get(i)))
 					if(!removableIndices.contains(i))
 						removableIndices.add(i);
 			}
@@ -590,7 +594,7 @@ public class ExecutionTrace {
 			MethodCall removed = r.finished_calls.remove(toRemove);
 			if(removed==null)
 				throw new IllegalStateException("Inconsistend state! This should not be possible");
-//			System.out.println("removed call completely: "+removed.method_name);
+			System.out.println("removed call completely: "+removed.method_name);
 		}
 		return r;
 	}
