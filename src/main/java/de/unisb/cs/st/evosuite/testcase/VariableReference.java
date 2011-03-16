@@ -85,8 +85,7 @@ public class VariableReference implements Comparable<VariableReference> {
 	 * @param position
 	 *            The statement in the test case that declares this variable
 	 */
-	public VariableReference(VariableReference array, int index, int length,
-	        int position) {
+	public VariableReference(VariableReference array, int index, int length, int position) {
 		this.type = new GenericClass(array.getComponentType());
 		this.statement = position;
 		this.array = array;
@@ -250,6 +249,13 @@ public class VariableReference implements Comparable<VariableReference> {
 	}
 
 	/**
+	 * Return raw class of this variable's component
+	 */
+	public Class<?> getComponentClass() {
+		return type.getRawClass().getComponentType();
+	}
+
+	/**
 	 * Add delta to the position of all variables up to a position
 	 * 
 	 * @param delta
@@ -315,8 +321,7 @@ public class VariableReference implements Comparable<VariableReference> {
 		int result = 1;
 		result = prime * result + statement;
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		result = prime * result
-		        + ((array == null) ? 0 : array.hashCode() + array_index);
+		result = prime * result + ((array == null) ? 0 : array.hashCode() + array_index);
 		return result;
 	}
 
@@ -348,7 +353,7 @@ public class VariableReference implements Comparable<VariableReference> {
 				mg.visitInsn(Opcodes.ACONST_NULL);
 			} else
 				mg.loadLocal(locals.get(statement),
-				        org.objectweb.asm.Type.getType(type.getRawClass()));
+				             org.objectweb.asm.Type.getType(type.getRawClass()));
 		} else {
 			array.loadBytecode(mg, locals);
 			mg.push(array_index);
@@ -358,14 +363,13 @@ public class VariableReference implements Comparable<VariableReference> {
 
 	public void storeBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
 		if (array == null) {
-			logger.debug("Storing variable in bytecode: " + statement
-			        + " of type "
+			logger.debug("Storing variable in bytecode: " + statement + " of type "
 			        + org.objectweb.asm.Type.getType(type.getRawClass()));
 			if (!locals.containsKey(statement))
-				locals.put(statement, mg.newLocal(org.objectweb.asm.Type
-				        .getType(type.getRawClass())));
+				locals.put(statement,
+				           mg.newLocal(org.objectweb.asm.Type.getType(type.getRawClass())));
 			mg.storeLocal(locals.get(statement),
-			        org.objectweb.asm.Type.getType(type.getRawClass()));
+			              org.objectweb.asm.Type.getType(type.getRawClass()));
 		} else {
 			array.loadBytecode(mg, locals);
 			mg.push(array_index);

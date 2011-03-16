@@ -632,7 +632,7 @@ public class TestCluster {
 				objs.put(parameters[0], new ArrayList<String>());
 
 			String name = parameters[1];
-			if (false && Properties.getPropertyOrDefault("TT", false)) {
+			if (Properties.TRANSFORM_BOOLEAN) {
 				int split = name.indexOf("(");
 				if (split >= 0) {
 					// TODO: 
@@ -1332,7 +1332,7 @@ public class TestCluster {
 											dependencies.add(clazz);
 									}
 								}
-								logger.trace("Adding constructor " + constructor);
+								logger.debug("Adding constructor " + constructor);
 								constructor.setAccessible(true);
 								calls.add(constructor);
 							} else {
@@ -1371,7 +1371,7 @@ public class TestCluster {
 								}
 								method.setAccessible(true);
 								calls.add(method);
-								logger.trace("Adding method " + method);
+								logger.debug("Adding method " + method);
 							}
 						}
 

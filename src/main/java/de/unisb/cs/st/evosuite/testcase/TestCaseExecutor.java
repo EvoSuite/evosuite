@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import java.util.concurrent.TimeoutException;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.contracts.ContractChecker;
 import de.unisb.cs.st.evosuite.sandbox.Sandbox;
 
 /**
@@ -48,6 +50,14 @@ public class TestCaseExecutor implements ThreadFactory {
 	private boolean log = true;
 
 	public static long timeout = Properties.getPropertyOrDefault("timeout", 5000);
+	
+	public static boolean cpuTimeout = Properties.getPropertyOrDefault("cpu_timeout", false);
+
+	private static boolean logTimeout = Properties.getPropertyOrDefault("log_timeout",
+	                                                                    false);
+
+	private static final PrintStream systemOut = System.out;
+	private static final PrintStream systemErr = System.err;
 
 	private static TestCaseExecutor instance = null;
 
@@ -69,8 +79,8 @@ public class TestCaseExecutor implements ThreadFactory {
 	}
 
 	private TestCaseExecutor() {
-		observers = new ArrayList<ExecutionObserver>();
 		executor = Executors.newSingleThreadExecutor(this);
+		newObservers();
 	}
 
 	public static class TimeoutExceeded extends RuntimeException {
@@ -100,6 +110,10 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	public void newObservers() {
 		observers = new ArrayList<ExecutionObserver>();
+		if (Properties.CHECK_CONTRACTS) {
+			observers.add(new ContractChecker());
+		}
+
 	}
 
 	private void resetObservers() {
@@ -118,6 +132,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		if (static_hack)
 			TestCluster.getInstance().resetStaticClasses();
 		resetObservers();
+		ExecutionObserver.currentTest(tc);
 		MaxTestsStoppingCondition.testExecuted();
 
 		TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>(); 
@@ -128,8 +143,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	
 		try {
 			//ExecutionResult result = task.get(timeout, TimeUnit.MILLISECONDS);
-			//TODO:instead of "false" should use property to check if using CPU timeout
-			ExecutionResult result = handler.execute(callable, executor, timeout, false);
+			ExecutionResult result = handler.execute(callable, executor, timeout, cpuTimeout);
 			return result;
 
 		} catch (InterruptedException e1) {
@@ -150,6 +164,12 @@ public class TestCaseExecutor implements ThreadFactory {
 			return result;
 		} catch (TimeoutException e1) {
 			Sandbox.tearDownEverything();
+			System.setOut(systemOut);
+			System.setErr(systemErr);
+
+			if (logTimeout) {
+				System.err.println("Timeout occurred for " + Properties.TARGET_CLASS);
+			}
 			logger.info("TimeoutException, need to stop runner");
 			ExecutionTracer.setKillSwitch(true);
 			ExecutionTracer.disable();
@@ -195,6 +215,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		if (static_hack)
 			TestCluster.getInstance().resetStaticClasses();
 		resetObservers();
+		ExecutionObserver.currentTest(tc);
 
 		TestRunner runner = new TestRunner(null);
 		runner.setLogging(log);

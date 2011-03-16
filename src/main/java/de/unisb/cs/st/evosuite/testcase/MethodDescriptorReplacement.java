@@ -3,20 +3,18 @@
  * 
  * This file is part of EvoSuite.
  * 
- * EvoSuite is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * EvoSuite is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser Public License for more details.
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser Public License
- * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 package de.unisb.cs.st.evosuite.testcase;
 
@@ -39,7 +37,7 @@ import de.unisb.cs.st.evosuite.Properties;
 
 /**
  * @author Gordon Fraser
- *
+ * 
  */
 public class MethodDescriptorReplacement {
 
@@ -49,14 +47,13 @@ public class MethodDescriptorReplacement {
 	private static Logger logger = Logger.getLogger(MethodDescriptorReplacement.class);
 
 	/** Map from class to method pairs */
-	private Map<String, String > descriptors = new HashMap<String, String >();
+	private final Map<String, String> descriptors = new HashMap<String, String>();
 
-	
-	private Map<Method, Type> return_types = new HashMap<Method, Type>();
-	
-	private Map<Method, List<Type>> method_parameters = new HashMap<Method, List<Type>>();
+	private final Map<Method, Type> return_types = new HashMap<Method, Type>();
 
-	private Map<Constructor<?>, List<Type>> constructor_parameters = new HashMap<Constructor<?>, List<Type>>();
+	private final Map<Method, List<Type>> method_parameters = new HashMap<Method, List<Type>>();
+
+	private final Map<Constructor<?>, List<Type>> constructor_parameters = new HashMap<Constructor<?>, List<Type>>();
 
 	/**
 	 * Private constructor
@@ -64,18 +61,19 @@ public class MethodDescriptorReplacement {
 	private MethodDescriptorReplacement() {
 		getDescriptorMapping();
 	}
-	
+
 	/**
 	 * Singleton accessor
+	 * 
 	 * @return
 	 */
 	public static MethodDescriptorReplacement getInstance() {
-		if(instance == null)
+		if (instance == null)
 			instance = new MethodDescriptorReplacement();
-		
+
 		return instance;
 	}
-	
+
 	/**
 	 * Check if we need to change anything here
 	 * 
@@ -87,84 +85,143 @@ public class MethodDescriptorReplacement {
 	public boolean hasKey(String className, String methodName, String descriptor) {
 		//if(!descriptors.containsKey(className))
 		//	return false;
-		
-		return descriptors.containsKey(className+"."+methodName+descriptor);
+
+		return descriptors.containsKey(className + "." + methodName + descriptor);
 	}
 
 	/**
 	 * Get the actual replacement, if there is one
+	 * 
 	 * @param className
 	 * @param methodName
 	 * @param descriptor
 	 * @return
 	 */
 	public String get(String className, String methodName, String descriptor) {
-		if(hasKey(className, methodName, descriptor))
-			return descriptors.get(className+"."+methodName+descriptor);
+		if (hasKey(className, methodName, descriptor))
+			return descriptors.get(className + "." + methodName + descriptor);
 		else
 			return descriptor;
 	}
-	
-	
-	
+
 	public List<Type> getParameterTypes(Method method) {
 		return getParameterTypes(method.getDeclaringClass(), method);
-	}	
-	
+	}
+
 	public List<Type> getParameterTypes(Type callee, Method method) {
-		if(method_parameters.containsKey(method))
+		if (method_parameters.containsKey(method))
 			return method_parameters.get(method);
 
-		
 		String className = null;
-		if(callee == null) {
+		if (callee == null) {
 			className = method.getDeclaringClass().getName();
 		} else {
 			GenericClass c = new GenericClass(callee);
-			className = c.getRawClass().getName(); 
+			className = c.getRawClass().getName();
 		}
-		
-		if(hasKey(className, method.getName(), org.objectweb.asm.Type.getMethodDescriptor(method))) {
-			String replacement = descriptors.get(className+"."+method.getName() + org.objectweb.asm.Type.getMethodDescriptor(method));
-			logger.debug("Found replacement: "+className+"."+method.getName()+" -> "+replacement);
+
+		/*
+		if (Properties.TRANSFORM_BOOLEAN) {
 			List<Type> parameters = new ArrayList<Type>();
-			for(org.objectweb.asm.Type asm_param : org.objectweb.asm.Type.getArgumentTypes(replacement)) {
-				parameters.add(getType(asm_param));				
+			for (org.objectweb.asm.Type asm_param : DescriptorMapping.getInstance().getOriginalTypes(method.getDeclaringClass().getName(),
+			                                                                                         method.getName(),
+			                                                                                         org.objectweb.asm.Type.getMethodDescriptor(method))) {
+				logger.info("Next type: " + asm_param);
+				parameters.add(getType(asm_param));
+			}
+			return parameters;
+		}
+		*/
+
+		String descriptor = org.objectweb.asm.Type.getMethodDescriptor(method);
+		/*
+		if (Properties.TRANSFORM_BOOLEAN) {
+			descriptor = DescriptorMapping.getInstance().getOriginalDescriptor(className,
+			                                                                   method.getName(),
+			                                                                   descriptor);
+		}
+		*/
+
+		if (hasKey(className, method.getName(), descriptor)) {
+			String replacement = descriptors.get(className + "." + method.getName()
+			        + descriptor);
+			logger.debug("Found replacement: " + className + "." + method.getName()
+			        + " -> " + replacement);
+			List<Type> parameters = new ArrayList<Type>();
+			for (org.objectweb.asm.Type asm_param : org.objectweb.asm.Type.getArgumentTypes(replacement)) {
+				parameters.add(getType(asm_param));
 			}
 			method_parameters.put(method, parameters);
 			return parameters;
-			
+
 		} else {
-			method_parameters.put(method, Arrays.asList(method.getGenericParameterTypes()));
-			return Arrays.asList(method.getGenericParameterTypes());
-		}			
+			List<Type> parameters = Arrays.asList(method.getGenericParameterTypes());
+			/*
+			if (Properties.TRANSFORM_BOOLEAN) {
+				logger.info("Checking " + className + "." + method.getName() + descriptor);
+
+				int num = 0;
+				for (org.objectweb.asm.Type asm_param : DescriptorMapping.getInstance().getOriginalTypes(method.getDeclaringClass().getName(),
+				                                                                                         method.getName(),
+				                                                                                         org.objectweb.asm.Type.getMethodDescriptor(method))) {
+					logger.info("Next type: " + asm_param);
+					parameters.set(num, getType(asm_param));
+					num++;
+				}
+			}
+			*/
+			method_parameters.put(method, parameters);
+			return parameters;
+		}
 	}
 
 	public List<Type> getParameterTypes(Constructor<?> constructor) {
-		if(constructor_parameters.containsKey(constructor))
+		if (constructor_parameters.containsKey(constructor))
 			return constructor_parameters.get(constructor);
 
-		
 		String className = constructor.getDeclaringClass().getName();
-		
-		if(hasKey(className, "<init>", org.objectweb.asm.Type.getConstructorDescriptor(constructor))) {
-			String replacement = descriptors.get(className+".<init>" + org.objectweb.asm.Type.getConstructorDescriptor(constructor));
-			logger.debug("Found replacement: "+className+".<init>"+" -> "+replacement);
+
+		String descriptor = org.objectweb.asm.Type.getConstructorDescriptor(constructor);
+		/*
+		if (Properties.TRANSFORM_BOOLEAN) {
+			descriptor = DescriptorMapping.getInstance().getOriginalDescriptor(className,
+			                                                                   "<init>",
+			                                                                   descriptor);
+		}
+		*/
+		if (hasKey(className, "<init>", descriptor)) {
+			String replacement = descriptors.get(className + ".<init>" + descriptor);
+			logger.debug("Found replacement: " + className + ".<init>" + " -> "
+			        + replacement);
 			List<Type> parameters = new ArrayList<Type>();
-			for(org.objectweb.asm.Type asm_param : org.objectweb.asm.Type.getArgumentTypes(replacement)) {
-				parameters.add(getType(asm_param));				
+			for (org.objectweb.asm.Type asm_param : org.objectweb.asm.Type.getArgumentTypes(replacement)) {
+				parameters.add(getType(asm_param));
 			}
 			constructor_parameters.put(constructor, parameters);
 			return parameters;
-			
+
 		} else {
-			constructor_parameters.put(constructor, Arrays.asList(constructor.getGenericParameterTypes()));
-			return Arrays.asList(constructor.getGenericParameterTypes());
-		}			
+			List<Type> parameters = Arrays.asList(constructor.getGenericParameterTypes());
+			/*
+			if (Properties.TRANSFORM_BOOLEAN) {
+				logger.info("Checking " + className + ".<init>" + descriptor);
+				int num = 0;
+				for (org.objectweb.asm.Type asm_param : DescriptorMapping.getInstance().getOriginalTypes(constructor.getDeclaringClass().getName(),
+				                                                                                         "<init>",
+				                                                                                         org.objectweb.asm.Type.getConstructorDescriptor(constructor))) {
+					logger.info("Next type: " + asm_param);
+					parameters.set(num, getType(asm_param));
+					num++;
+				}
+			}
+			*/
+			constructor_parameters.put(constructor, parameters);
+			return parameters;
+		}
 	}
-	
+
 	private Type getType(org.objectweb.asm.Type asm_type) {
-		switch(asm_type.getSort()) {
+		switch (asm_type.getSort()) {
 		case org.objectweb.asm.Type.BOOLEAN:
 			return boolean.class;
 		case org.objectweb.asm.Type.BYTE:
@@ -187,40 +244,43 @@ public class MethodDescriptorReplacement {
 			//logger.trace("Converting to array of type "+asm_type.getElementType());
 			return Array.newInstance((Class<?>) getType(asm_type.getElementType()), 0).getClass();
 		default:
-				try {
-					Class<?> clazz = Class.forName(asm_type.getClassName());
-					
-					return clazz;
-				} catch (ClassNotFoundException e) {
-					logger.error("Could not find replacement type for "+asm_type);
-				}				
+			try {
+				Class<?> clazz = Class.forName(asm_type.getClassName());
+
+				return clazz;
+			} catch (ClassNotFoundException e) {
+				logger.error("Could not find replacement type for " + asm_type);
+			}
 		}
 		return null;
 
 	}
-	
+
 	/**
 	 * Type of return value of a method
+	 * 
 	 * @param className
 	 * @param method
 	 * @return
 	 */
 	public Type getReturnType(String className, Method method) {
-		if(return_types.containsKey(method))
+		if (return_types.containsKey(method))
 			return return_types.get(method);
-		
-		if(hasKey(className, method.getName(), org.objectweb.asm.Type.getMethodDescriptor(method))) {
-			String replacement = descriptors.get(className+"."+method.getName() + org.objectweb.asm.Type.getMethodDescriptor(method));
-			logger.debug("Found replacement: "+replacement);
+
+		if (hasKey(className, method.getName(),
+		           org.objectweb.asm.Type.getMethodDescriptor(method))) {
+			String replacement = descriptors.get(className + "." + method.getName()
+			        + org.objectweb.asm.Type.getMethodDescriptor(method));
+			logger.debug("Found replacement: " + replacement);
 
 			Type type = getType(org.objectweb.asm.Type.getReturnType(replacement));
 			return_types.put(method, type);
 			return type;
-			
+
 		} else {
 			return_types.put(method, method.getGenericReturnType());
 			return method.getGenericReturnType();
-		}					
+		}
 	}
 
 	private void getDescriptorMapping() {
@@ -229,32 +289,33 @@ public class MethodDescriptorReplacement {
 		File dir = new File(Properties.OUTPUT_DIR);
 
 		FilenameFilter filter = new FilenameFilter() {
-		    public boolean accept(File dir, String name) {
-		        return name.endsWith(".obj"); // && !dir.isDirectory();
-		    }
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.endsWith(".obj"); // && !dir.isDirectory();
+			}
 		};
 		File[] files = dir.listFiles(filter);
-		
-		for(File file : files) {
-			if(file.isDirectory())
+
+		for (File file : files) {
+			if (file.isDirectory())
 				continue;
 			List<String> lines = Io.getLinesFromFile(file);
 			//descriptors.put(className, new HashMap<String, String>());
-			for(String line : lines) {
+			for (String line : lines) {
 				//logger.debug("Read line: "+line);
 				line = line.trim();
 				// Skip comments
-				if(line.startsWith("#"))
+				if (line.startsWith("#"))
 					continue;
-				
+
 				String[] parameters = line.split(",");
-				if(parameters.length == 2) {
-					if(!parameters[0].endsWith(parameters[1])) {
+				if (parameters.length == 2) {
+					if (!parameters[0].endsWith(parameters[1])) {
 						descriptors.put(parameters[0], parameters[1]);
-						logger.debug("Adding descriptor for class "+parameters[0]);
+						logger.debug("Adding descriptor for class " + parameters[0]);
 					}
 				}
-			}	
-		}		
+			}
+		}
 	}
 }

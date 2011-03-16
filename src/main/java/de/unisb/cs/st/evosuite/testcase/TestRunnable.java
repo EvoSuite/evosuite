@@ -15,7 +15,6 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.sandbox.Sandbox;
 
-
 /**
  * @author Gordon Fraser
  * 
@@ -91,6 +90,11 @@ public class TestRunnable implements Callable<ExecutionResult> {
 				if (exceptionThrown != null) {
 					exceptionsThrown.put(num, exceptionThrown);
 
+					if (exceptionThrown instanceof SecurityException) {
+						logger.info("Security exception found");
+						exceptionThrown.printStackTrace();
+					}
+
 					// exception_statement = num;
 					if (log && logger.isDebugEnabled())
 						logger.debug("Exception thrown in statement: " + s.getCode()
@@ -100,7 +104,7 @@ public class TestRunnable implements Callable<ExecutionResult> {
 				if (logger.isDebugEnabled())
 					logger.debug("Done statement " + s.getCode());
 				for (ExecutionObserver observer : observers) {
-					observer.statement(num, scope, s.getReturnValue());
+					observer.statement(s, scope, exceptionThrown);
 				}
 				num++;
 			}

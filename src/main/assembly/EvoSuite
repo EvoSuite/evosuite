@@ -221,7 +221,7 @@ mutate ()
 		pushd .  > /dev/null
 		cd $BASEDIR
 		source $OUTPUT_DIR/evosuite.properties
-		javalanche_options=" -Djavalanche.ignore.replace.variables=true  -Dmutation.package.prefix=$PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PREFIX -Dmutation.test.suite=EvoSuite"
+		javalanche_options=" -Dmutation.package.prefix=$PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PREFIX -Dmutation.test.suite=EvoSuite"
 		java_options=${cmdline_java_options[*]}
 		java -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=mutate $javalanche_options $java_options $java_opts $evosuite_scan
 		java -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=tasks $javalanche_options $java_options $java_opts $evosuite_mutationtasks
@@ -318,7 +318,7 @@ setup ()
 	    CP="${cmdline_arguments[@]:1:${#cmdline_arguments[@]}}"
 	    first=1
 
-	    javalanche_options=" -Djavalanche.ignore.replace.variables=true  -Dmutation.package.prefix=$PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PREFIX"
+	    javalanche_options=" -Dmutation.package.prefix=$PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PREFIX"
 	    java $java_options -cp "$classpath:$CP" $java_agent=scan  $javalanche_options $evosuite_scan
 	    java $java_options -cp "$classpath:$CP" $java_agent=tasks $javalanche_options $OBJECT $evosuite_tasks
 	    setup_javalanche $OUTPUT_DIR $PREFIX $CP
@@ -335,8 +335,8 @@ setup ()
 ##
 generateSuite ()
 {
-	allowed_options=("-EvoSuite" "-OneBranch" "-seed" "-base_dir" "-class" "-criterion")
-	allowed_options_take_values=(0 0 1 1 1 1)
+	allowed_options=("-EvoSuite" "-OneBranch" "-seed" "-base_dir" "-class" "-criterion" "-sandbox")
+	allowed_options_take_values=(0 0 1 1 1 1 0)
 	parse_command_line "$@"
 	options_ok=$?
 	if test $options_ok -eq 0;
@@ -345,6 +345,7 @@ generateSuite ()
 		TEST_CLASSES=""
 		STRATEGY="OneBranch"
 		CRITERION="branch"
+		SANDBOX=""
 		random_seed="-Drandom.seed=0"
 		for (( i = 0; i < ${#cmdline_options[@]}; i++ )) 
 		do
@@ -355,6 +356,7 @@ generateSuite ()
 			"-OneBranch") STRATEGY="OneBranch";;
 			"-EvoSuite") STRATEGY="EvoSuite";;
 			"-criterion") CRITERION=${cmdline_options_values[$i]};;
+			"-sandbox") SANDBOX="-Dsandbox=true";;
 		    esac
 		done
 
@@ -369,7 +371,7 @@ generateSuite ()
 		source $OUTPUT_DIR/evosuite.properties
 		#CP=$BASEDIR/$CP
 
-		javalanche_options=" -Djavalanche.ignore.replace.variables=true  -Dmutation.package.prefix=$PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PREFIX"
+		javalanche_options=" -Dmutation.package.prefix=$PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PREFIX"
 		java_options=${cmdline_java_options[*]}
 
 		for test_class in $TEST_CLASSES; do
@@ -379,7 +381,7 @@ generateSuite ()
 			echo "No mutant file found for class ${test_class} - please run EvoSuite -mutants first"
 			continue
 	            fi
-		    java -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate $javalanche_options $random_seed $java_options $java_opts -Dstrategy=$STRATEGY -Dcriterion=$CRITERION $MUTANTS -DTARGET_CLASS=$test_class $evosuite_suite
+		    java -javaagent:$BASEPATH/jmockit.jar -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate $javalanche_options $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY -Dcriterion=$CRITERION $MUTANTS -DTARGET_CLASS=$test_class $evosuite_suite
 		done
 		popd > /dev/null
 	    }
@@ -424,7 +426,7 @@ generateAssertions ()
 		    TEST_CLASSES=$(for F in $OUTPUT_DIR/*.task; do echo $(basename $F) | sed -e s/\.task// ; done)
 		fi
 		#CP=$BASEDIR/$CP
-		javalanche_options=" -Djavalanche.ignore.replace.variables=true  -Dmutation.package.prefix=$PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PREFIX -DOUTPUT_DIR=$OUTPUT_DIR"
+		javalanche_options=" -Dmutation.package.prefix=$PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PREFIX -DOUTPUT_DIR=$OUTPUT_DIR"
 		java_options=${cmdline_java_options[*]}
 
 		for test_class in $TEST_CLASSES; do
