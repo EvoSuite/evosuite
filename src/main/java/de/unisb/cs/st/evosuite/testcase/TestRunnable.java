@@ -90,11 +90,6 @@ public class TestRunnable implements Callable<ExecutionResult> {
 				if (exceptionThrown != null) {
 					exceptionsThrown.put(num, exceptionThrown);
 
-					if (exceptionThrown instanceof SecurityException) {
-						logger.info("Security exception found");
-						exceptionThrown.printStackTrace();
-					}
-
 					// exception_statement = num;
 					if (log && logger.isDebugEnabled())
 						logger.debug("Exception thrown in statement: " + s.getCode()
