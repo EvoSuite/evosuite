@@ -58,31 +58,26 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 	public List<TestFitnessFunction> getCoverageGoals() {
 
 		// TODO replace this with Reaching-Definitions-Algorithm 
-		
 		if(called) 
 			return goals;
 		
 		logger.info("Starting DefUse-Coverage goal generation");
-		
 		goals = new ArrayList<TestFitnessFunction>();
-
-		Set<Definition> freeDefs = getDefsWithClearPathToMethodEnd();
-		Set<Use> freeUses = getUsesWithClearPathFromMethodStart();
 		
-		logger.info("#defs with clear path to end "+freeDefs.size());
-		logger.info("#uses with clear path from start "+freeUses.size());
-
-		for(Definition def : freeDefs)
-			for(Use use : freeUses)
-				if(def.getDUVariableName().equals(use.getDUVariableName())) {
-					goals.add(createGoal(def,use));
-				}
-				
 		goals.addAll(getPairsWithinMethods());
 		goals.addAll(getParameterGoals());
 		
-		called = true;
+		Set<Definition> freeDefs = getDefinitionsWithClearPathToMethodEnd();
+		Set<Use> freeUses = getUsesWithClearPathFromMethodStart();
+		for(Definition def : freeDefs)
+			for(Use use : freeUses)
+				if(def.getDUVariableName().equals(use.getDUVariableName())) {
+					DefUseCoverageTestFitness newGoal = createGoal(def,use);
+					if(!goals.contains(newGoal))
+						goals.add(newGoal);
+				}
 		
+		called = true;
 		return goals;
 	}
 
@@ -95,21 +90,17 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 	 * @param use The use of the goal
 	 * @return The created DefUseCoverageGoal
 	 */
-	private TestFitnessFunction createGoal(Definition def, Use use) {
+	private DefUseCoverageTestFitness createGoal(Definition def, Use use) {
 
 		return new DefUseCoverageTestFitness(def, use);
 	}
 
-	private List<TestFitnessFunction> getParameterGoals() {
-		ArrayList<TestFitnessFunction> r = new ArrayList<TestFitnessFunction>();
-		
+	private Set<TestFitnessFunction> getParameterGoals() {
+		Set<TestFitnessFunction> r = new HashSet<TestFitnessFunction>();
 		Set<Use> parameterUses = getParameterUses();
-		for(Use use : parameterUses) {
+		for(Use use : parameterUses) 
 			r.add(new DefUseCoverageTestFitness(use));
-		}
-		
-		logger.info("#parameterUses: "+r.size());
-		
+		logger.info("# Parameter-Uses: "+r.size());
 		return r;
 	}
 	
@@ -122,81 +113,24 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 	 * 
 	 * @return A list of all the DefUseCoverageGoals created this way
 	 */
-	private List<TestFitnessFunction> getPairsWithinMethods() {
-		
-		ArrayList<TestFitnessFunction> r = new ArrayList<TestFitnessFunction>();
-		
+	private Set<TestFitnessFunction> getPairsWithinMethods() {
+		Set<TestFitnessFunction> r = new HashSet<TestFitnessFunction>();
 		for (String className : DefUsePool.def_map.keySet()) 
 			for (String methodName : DefUsePool.def_map.get(className).keySet()) 
 				for (String fieldName : DefUsePool.def_map.get(className).get(methodName).keySet()) 
 					for (Entry<Integer, List<Definition>> entry : DefUsePool.def_map.get(className).get(methodName).get(fieldName).entrySet()) {
-						
 						ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(className, methodName);
 						CFGVertex v = cfg.getVertex(entry.getKey());
-
 						if (entry.getKey() != -1 && v == null) 
 							 throw new IllegalStateException("no CFG for branch "+entry.getKey()+" in method "+methodName);
-
 						for (Definition def : entry.getValue()) {
-							
-							List<CFGVertex> uses = cfg.getUsesForDef(def.getCFGVertex());
-							for(CFGVertex use : uses) {
+							Set<CFGVertex> uses = cfg.getUsesForDef(def.getCFGVertex());
+							for(CFGVertex use : uses)
 								r.add(createGoal(def, DefUsePool.getUseByDUID(use.duID)));
-							}
 						}
 					}
-//		System.out.println("#IntraMethod Pairs: "+r.size());
+		logger.info("# DU-Pairs within methods: "+r.size());
 		return r;
-	}
-
-	/**
-	 * For every use found by the CFGMethodAdapter this method checks,
-	 * if there is a defclearpath from the beginning of the uses method to the use itself.
-	 * 
-	 * @return A Set of all the uses for which the above holds
-	 */
-	private Set<Use> getUsesWithClearPathFromMethodStart() {
-
-		Set<Use> allUses = getAllUses();
-		Set<Use> r = new HashSet<Use>();
-		for (Use use : allUses) {
-			ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(use.getClassName(), use.getMethodName());
-			if (cfg.hasDefClearPathFromMethodStart(use.getCFGVertex()))
-				r.add(use);
-		}
-		return r;
-	}
-	
-	private Set<Use> getParameterUses() {
-		Set<Use> allUses = getAllUses();
-		Set<Use> r = new HashSet<Use>();
-		for (Use use : allUses) {
-			if (use.isParameterUse())
-				r.add(use);
-		}
-		return r;	
-	}
-	
-	private Set<Use> getAllUses() {
-		HashSet<Use> r = new HashSet<Use>();
-		
-		for (String className : DefUsePool.use_map.keySet()) 
-			for (String methodName : DefUsePool.use_map.get(className).keySet()) 
-				for (String varName : DefUsePool.use_map.get(className).get(methodName).keySet()) 
-					for (Entry<Integer, List<Use>> entry : DefUsePool.use_map.get(className).get(methodName).get(varName).entrySet()) {
-
-						ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(className, methodName);
-						CFGVertex v = cfg.getVertex(entry.getKey());
-
-						if (entry.getKey() != -1 && v == null)
-							 throw new IllegalStateException("no CFG for branch "+entry.getKey()+" in method "+methodName);
-
-						for (Use use : entry.getValue()) {
-							r.add(use);
-						}
-					}
-
-		return r;		
 	}
 
 	/**
@@ -205,37 +139,71 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 	 * 
 	 * @return A Set of all the definitions for which the above holds
 	 */
-	private Set<Definition> getDefsWithClearPathToMethodEnd() {
-
+	private Set<Definition> getDefinitionsWithClearPathToMethodEnd() {
 		HashSet<Definition> r = new HashSet<Definition>();
-		
 		for (String className : DefUsePool.def_map.keySet())
 			for (String methodName : DefUsePool.def_map.get(className).keySet()) 
 				for (String varName : DefUsePool.def_map.get(className).get(methodName).keySet())
 					for (Entry<Integer, List<Definition>> entry : DefUsePool.def_map.get(className).get(methodName).get(varName).entrySet()) {
-
 						// cfg of defs method
 						ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(className, methodName);
 						if(cfg == null) 
 							throw new IllegalStateException("Didnt find complete cfg for "+className+"."+methodName);
-						
 						CFGVertex v = cfg.getVertex(entry.getKey());
-
-						if (entry.getKey() != -1 && v == null) {
+						if (entry.getKey() != -1 && v == null)
 							 throw new IllegalStateException("no CFG for branch "+entry.getKey()+" in method "+methodName);
-						}
-
 						for (Definition def : entry.getValue()) {
 							if (cfg.hasDefClearPathToMethodEnd(def.getCFGVertex())) {
 								r.add(def);
-//								System.out.println("def with free path to end: "+def.toString());
 							}
-
 						}
 					}
-
+		logger.info("# Definitions with clear path to end "+r.size());
 		return r;
 
+	}	
+	
+	/**
+	 * For every use found by the CFGMethodAdapter this method checks,
+	 * if there is a defclearpath from the beginning of the uses method to the use itself.
+	 * 
+	 * @return A Set of all the uses for which the above holds
+	 */
+	private Set<Use> getUsesWithClearPathFromMethodStart() {
+		Set<Use> allUses = getAllUses();
+		Set<Use> r = new HashSet<Use>();
+		for (Use use : allUses) {
+			ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(use.getClassName(), use.getMethodName());
+			if (cfg.hasDefClearPathFromMethodStart(use.getCFGVertex()))
+				r.add(use);
+		}
+		logger.info("# Uses with clear path from start "+r.size());
+		return r;
 	}
 	
+	private Set<Use> getParameterUses() {
+		Set<Use> allUses = getAllUses();
+		Set<Use> r = new HashSet<Use>();
+		for (Use use : allUses)
+			if (use.isParameterUse())
+				r.add(use);
+		return r;	
+	}
+	
+	private Set<Use> getAllUses() {
+		HashSet<Use> r = new HashSet<Use>();
+		for (String className : DefUsePool.use_map.keySet()) 
+			for (String methodName : DefUsePool.use_map.get(className).keySet()) 
+				for (String varName : DefUsePool.use_map.get(className).get(methodName).keySet()) 
+					for (Entry<Integer, List<Use>> entry : DefUsePool.use_map.get(className).get(methodName).get(varName).entrySet()) {
+						ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(className, methodName);
+						CFGVertex v = cfg.getVertex(entry.getKey());
+						if (entry.getKey() != -1 && v == null)
+							 throw new IllegalStateException("no CFG for branch "+entry.getKey()+" in method "+methodName);
+						for (Use use : entry.getValue())
+							r.add(use);
+					}
+
+		return r;		
+	}
 }

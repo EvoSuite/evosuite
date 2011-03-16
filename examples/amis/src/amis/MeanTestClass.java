@@ -27,9 +27,11 @@ public class MeanTestClass {
 	 * complex path in order to not block the targetUse by another def.
 	 * 
 	 *  Or in other words: Satisfying a DefUse-Pair is as hard as satisfying a specific path.
+	 *  
+	 *  ... turns out this also shows that covering a certain BranchCoverageGoal can be that hard :D
 	 */
 	public void mean() {
-		
+
 		if(someField == 0) {
 			targetField = 1;
 		} else {
