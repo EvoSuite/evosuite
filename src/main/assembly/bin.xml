@@ -30,9 +30,11 @@
       <includes>
 	<include>*.jar</include>
       </includes>
+      <!--
       <excludes>
 	<exclude>evosuite-*-dependencies.jar</exclude>
       </excludes>
+      -->
     </fileSet>
     <fileSet>
       <directory>src/main/assembly</directory>
@@ -53,12 +55,17 @@
       </includes>
     </fileSet>
   </fileSets>
+  <!--
   <dependencySets>
     <dependencySet>
       <outputDirectory>/lib</outputDirectory>
       <useProjectArtifact>true</useProjectArtifact>
       <unpack>false</unpack>
       <scope>runtime</scope>
+      <excludes>
+	<exclude>evosuite-*.jar</exclude>
+      </excludes>
     </dependencySet>
   </dependencySets>
+  -->
 </assembly>
