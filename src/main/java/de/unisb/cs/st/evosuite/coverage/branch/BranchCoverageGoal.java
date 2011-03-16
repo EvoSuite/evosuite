@@ -55,8 +55,8 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 
 	public BranchCoverageGoal(Branch branch, boolean value, ControlFlowGraph cfg,
 	        String className, String methodName) {
-		this.branch_id = branch.getBranchID();
-		this.bytecode_id = branch.getBytecodeID();
+		this.branch_id = branch.getBranchId();
+		this.bytecode_id = branch.getBytecodeId();
 		this.line_number = branch.getLineNumber();
 		this.value = value;
 		this.cfg = cfg;

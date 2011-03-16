@@ -352,7 +352,7 @@ public class ControlFlowGraph {
 	}
 
 	public boolean hasDefClearPathToMethodEnd(CFGVertex duVertex) {
-		if (!duVertex.isDU())
+		if (!duVertex.isDefUse())
 			throw new IllegalArgumentException("method expects a du vertex");
 		if (!graph.containsVertex(duVertex))
 			throw new IllegalArgumentException("vertex not in graph");
@@ -364,7 +364,7 @@ public class ControlFlowGraph {
 
 	public boolean hasDefClearPathFromMethodStart(CFGVertex duVertex) {
 
-		if (!duVertex.isDU())
+		if (!duVertex.isDefUse())
 			throw new IllegalArgumentException("method expects a du vertex");
 		if (!graph.containsVertex(duVertex))
 			throw new IllegalArgumentException("vertex not in graph");
@@ -445,12 +445,12 @@ public class ControlFlowGraph {
 	 * WARNING currently this method is heavily flawed! Only works on very simple (generic) CFGs
 	 * 
 	 */
-	public void markBranchIDs(CFGVertex branchVertex) {
+	public void markBranchIds(CFGVertex branchVertex) {
 		// TODO clean this mess up!
 		if (!(branchVertex.isBranch() || branchVertex.isLookupSwitch() || branchVertex.isTableSwitch()))
 			throw new IllegalArgumentException("branch vertex expected");
 
-		if (branchVertex.branchID == -1)
+		if (branchVertex.branchId == -1)
 			throw new IllegalArgumentException("expect branchVertex to have branchID set");
 
 		Set<DefaultEdge> out = graph.outgoingEdgesOf(branchVertex);
@@ -476,7 +476,7 @@ public class ControlFlowGraph {
 //			return;
 //		}
 
-		markNodes(minID, maxID, branchVertex.branchID, true);
+		markNodes(minID, maxID, branchVertex.branchId, true);
 
 //		if(isWhileBranch(maxID)) // accepts for-loops when they dont have a return
 //			logger.error("WHILE BRANCH");
@@ -495,7 +495,7 @@ public class ControlFlowGraph {
 				for (DefaultEdge e : prevOut)
 					elseEnd = e;
 				markNodes(maxID + 1, graph.getEdgeTarget(elseEnd).id,
-				          branchVertex.branchID, false);
+				          branchVertex.branchId, false);
 
 			}
 		}
@@ -505,7 +505,7 @@ public class ControlFlowGraph {
 		for (int i = start; i <= end; i++) {
 			CFGVertex v = getVertex(i);
 			if (v != null) {
-				v.branchID = branchID;
+				v.branchId = branchID;
 				v.branchExpressionValue = branchExpressionValue;
 			}
 		}
