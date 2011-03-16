@@ -131,9 +131,6 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 		// Minimal distance between target node and path
 		for (MethodCall call : result.trace.finished_calls) {
 			if (call.class_name.equals(className) && call.method_name.equals(methodName)) {
-				if (methodName.contains("createParser")) {
-					logger.debug("Length of trace: " + call.branch_trace.size());
-				}
 				ControlFlowDistance d2;
 				d2 = getDistance(call.branch_trace, call.true_distance_trace,
 				                 call.false_distance_trace, bytecode_id);
