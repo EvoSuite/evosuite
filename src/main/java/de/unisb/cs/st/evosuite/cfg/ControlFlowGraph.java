@@ -22,6 +22,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -341,8 +342,7 @@ public class ControlFlowGraph {
 		}
 	}
 
-	public List<CFGVertex> getUsesForDef(CFGVertex def) {
-
+	public Set<CFGVertex> getUsesForDef(CFGVertex def) {
 		if (!def.isDefinition())
 			throw new IllegalArgumentException("method expects a field definition");
 		if (!graph.containsVertex(def))
@@ -352,7 +352,6 @@ public class ControlFlowGraph {
 	}
 
 	public boolean hasDefClearPathToMethodEnd(CFGVertex duVertex) {
-
 		if (!duVertex.isDU())
 			throw new IllegalArgumentException("method expects a du vertex");
 		if (!graph.containsVertex(duVertex))
@@ -375,37 +374,28 @@ public class ControlFlowGraph {
 		return hasDefClearPathFromMethodStart(duVertex.getDUVariableName(), duVertex);
 	}
 
-	private List<CFGVertex> getUsesForDef(String varName, CFGVertex currentVertex) {
-
+	private Set<CFGVertex> getUsesForDef(String varName, CFGVertex currentVertex) {
 		if (!graph.containsVertex(currentVertex))
 			throw new IllegalArgumentException("vertex not in graph");
 
-		ArrayList<CFGVertex> r = new ArrayList<CFGVertex>();
-
+		Set<CFGVertex> r = new HashSet<CFGVertex>();
 		Set<DefaultEdge> outgoingEdges = graph.outgoingEdgesOf(currentVertex);
 		if (outgoingEdges.size() == 0)
 			return r;
-
 		for (DefaultEdge e : outgoingEdges) {
-
 			CFGVertex edgeTarget = graph.getEdgeTarget(e);
-			if (edgeTarget.isUse() && edgeTarget.getDUVariableName().equals(varName)) {
+			if (edgeTarget.isUse() && edgeTarget.getDUVariableName().equals(varName))
 				r.add(edgeTarget);
-			}
-			if (edgeTarget.isDefinition()
-			        && edgeTarget.getDUVariableName().equals(varName)) {
+			if (edgeTarget.isDefinition() && edgeTarget.getDUVariableName().equals(varName))
 				continue;
-			}			
 			if (edgeTarget.id > currentVertex.id) // dont follow backedges (loops)
 				r.addAll(getUsesForDef(varName, edgeTarget));
 
 		}
-
 		return r;
 	}
 
 	private boolean hasDefClearPathToMethodEnd(String varName, CFGVertex currentVertex) {
-
 		if (!graph.containsVertex(currentVertex))
 			throw new IllegalArgumentException("vertex not in graph");
 
@@ -414,25 +404,19 @@ public class ControlFlowGraph {
 			return true;
 
 		for (DefaultEdge e : outgoingEdges) {
-
 			CFGVertex edgeTarget = graph.getEdgeTarget(e);
-
 			// skip edges going into another def for the same field
-			if (edgeTarget.isDefinition()) {
+			if (edgeTarget.isDefinition())
 				if (edgeTarget.getDUVariableName().equals(varName))
 					continue;
-			}
-
 			if (edgeTarget.id > currentVertex.id // dont follow backedges (loops)
 			        && hasDefClearPathToMethodEnd(varName, edgeTarget))
 				return true;
 		}
-
 		return false;
 	}
 
 	private boolean hasDefClearPathFromMethodStart(String varName, CFGVertex currentVertex) {
-
 		if (!graph.containsVertex(currentVertex))
 			throw new IllegalArgumentException("vertex not in graph");
 
@@ -454,15 +438,15 @@ public class ControlFlowGraph {
 			        && hasDefClearPathFromMethodStart(varName, edgeStart))
 				return true;
 		}
-
 		return false;
 	}
 
 	/**
-	 * @param branchVertex
+	 * WARNING currently this method is heavily flawed! Only works on very simple (generic) CFGs
+	 * 
 	 */
 	public void markBranchIDs(CFGVertex branchVertex) {
-
+		// TODO clean this mess up!
 		if (!(branchVertex.isBranch() || branchVertex.isLookupSwitch() || branchVertex.isTableSwitch()))
 			throw new IllegalArgumentException("branch vertex expected");
 
@@ -487,18 +471,22 @@ public class ControlFlowGraph {
 				maxID = target.id;
 		}
 
-		if (minID < branchVertex.id) {
-			//			System.out.println("DO-WHILE BRANCH"+branchVertex.branchID);
-			return;
-		}
+//		if (minID < branchVertex.id) {
+//			logger.error("DO-WHILE BRANCH"+branchVertex.branchID);
+//			return;
+//		}
 
 		markNodes(minID, maxID, branchVertex.branchID, true);
 
+//		if(isWhileBranch(maxID)) // accepts for-loops when they dont have a return
+//			logger.error("WHILE BRANCH");
+		
+//		logger.error("marking branch ids");
 		if (isIfBranch(maxID)) {
-			//			System.out.println("IF BRANCH: "+branchVertex.branchID);
+//			logger.error("IF BRANCH: "+branchVertex.branchID+" bytecode "+branchVertex.id);
 			CFGVertex prevVertex = getVertex(maxID - 1);
 			if (prevVertex.isGoto()) {
-				//				System.out.println("WITH ELSE PART");
+//				logger.error("WITH ELSE PART");
 				Set<DefaultEdge> prevOut = graph.outgoingEdgesOf(prevVertex);
 				if (prevOut.size() != 1)
 					throw new IllegalStateException(
@@ -511,7 +499,6 @@ public class ControlFlowGraph {
 
 			}
 		}
-
 	}
 
 	private void markNodes(int start, int end, int branchID, boolean branchExpressionValue) {
@@ -525,19 +512,36 @@ public class ControlFlowGraph {
 	}
 
 	private boolean isIfBranch(int maxID) {
-
 		CFGVertex prevVertex = getVertex(maxID - 1);
+		Set<DefaultEdge> prevOut = graph.outgoingEdgesOf(prevVertex);
+		if (prevOut.size() != 1) {
+//			logger.error("size "+prevOut.size());
+//			logger.error(prevVertex.toString());
+			for(DefaultEdge edge : prevOut) {
+//				logger.error(graph.getEdgeSource(edge).toString());
+//				logger.error(graph.getEdgeTarget(edge).toString());
+			}
+			return false;
+		}
+		DefaultEdge backEdge = null;
+		for (DefaultEdge e : prevOut)
+			backEdge = e;
+		// only if-branches have this structure
+		return !(graph.getEdgeTarget(backEdge).id < maxID);
+	}
 
+	private boolean isWhileBranch(int maxID) {
+		CFGVertex prevVertex = getVertex(maxID - 1);
 		Set<DefaultEdge> prevOut = graph.outgoingEdgesOf(prevVertex);
 		if (prevOut.size() != 1) {
 			return false;
 		}
-
 		DefaultEdge backEdge = null;
 		for (DefaultEdge e : prevOut)
 			backEdge = e;
-
-		return !(graph.getEdgeTarget(backEdge).id < maxID);
+		// only while-branches go back up
+		return graph.getEdgeTarget(backEdge).id < maxID;
 	}
-
+	
+	
 }

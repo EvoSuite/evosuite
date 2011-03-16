@@ -50,6 +50,8 @@ public class TestCaseExecutor implements ThreadFactory {
 	private boolean log = true;
 
 	public static long timeout = Properties.getPropertyOrDefault("timeout", 5000);
+	
+	public static boolean cpuTimeout = Properties.getPropertyOrDefault("cpu_timeout", false);
 
 	private static boolean logTimeout = Properties.getPropertyOrDefault("log_timeout",
 	                                                                    false);
@@ -133,17 +135,16 @@ public class TestCaseExecutor implements ThreadFactory {
 		ExecutionObserver.currentTest(tc);
 		MaxTestsStoppingCondition.testExecuted();
 
+		TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>(); 
+		
 		TestRunnable callable = new TestRunnable(tc, scope, observers);
-		FutureTask<ExecutionResult> task = new FutureTask<ExecutionResult>(callable);
-		executor.execute(task);
+		//FutureTask<ExecutionResult> task = new FutureTask<ExecutionResult>(callable);
+		//executor.execute(task);
+	
 		try {
-			if (timeout == 0) {
-				ExecutionResult result = task.get();
-				return result;
-			} else {
-				ExecutionResult result = task.get(timeout, TimeUnit.MILLISECONDS);
-				return result;
-			}
+			//ExecutionResult result = task.get(timeout, TimeUnit.MILLISECONDS);
+			ExecutionResult result = handler.execute(callable, executor, timeout, cpuTimeout);
+			return result;
 
 		} catch (InterruptedException e1) {
 			Sandbox.tearDownEverything();
@@ -172,7 +173,8 @@ public class TestCaseExecutor implements ThreadFactory {
 			logger.info("TimeoutException, need to stop runner");
 			ExecutionTracer.setKillSwitch(true);
 			ExecutionTracer.disable();
-			task.cancel(true);
+			//task.cancel(true);
+			handler.getLastTask().cancel(true);
 
 			if (!callable.runFinished) {
 				logger.info("Run not finished, waiting...");
