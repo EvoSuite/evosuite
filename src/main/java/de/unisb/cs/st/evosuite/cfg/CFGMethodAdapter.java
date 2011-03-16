@@ -304,12 +304,12 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			return;
 		}
 
-		if (plain_name.equals("<clinit>") && !Properties.CRITERION.equals("defuse")) {
+		if (plain_name.equals("<clinit>") && !Properties.CRITERION.equalsIgnoreCase("defuse")) {
 			mn.accept(next);
 			return;
 		}
 
-		if (EXCLUDE.contains(methodName) && !Properties.CRITERION.equals("defuse")) {
+		if (EXCLUDE.contains(methodName) && !Properties.CRITERION.equalsIgnoreCase("defuse")) {
 			mn.accept(next);
 			return;
 		}
@@ -417,10 +417,10 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			for (CFGVertex v : graph.vertexSet()) {
 
 				if (in.equals(v.node))
-					v.branchID = completeCFG.getVertex(v.id).branchID;
+					v.branchId = completeCFG.getVertex(v.id).branchId;
 
 				if (Properties.CRITERION.equals("defuse") && in.equals(v.node)
-				        && (v.isDU())) {
+				        && (v.isDefUse())) {
 
 					// keeping track of uses
 					boolean isValidDU = false;
@@ -431,10 +431,10 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 						isValidDU = DefUsePool.addDefinition(v) || isValidDU;
 
 					if (isValidDU) {
-						boolean staticContext = v.isStaticDU() || ((access & Opcodes.ACC_STATIC) > 0);
+						boolean staticContext = v.isStaticDefUse() || ((access & Opcodes.ACC_STATIC) > 0);
 						// adding instrumentation for defuse-coverage
 						mn.instructions.insert(v.node.getPrevious(),
-						                       getInstrumentation(v, v.branchID, staticContext));						
+						                       getInstrumentation(v, v.branchId, staticContext));						
 					}
 				}
 			}

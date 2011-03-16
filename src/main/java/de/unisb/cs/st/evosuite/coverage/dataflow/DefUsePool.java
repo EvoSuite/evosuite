@@ -26,9 +26,9 @@ public class DefUsePool {
 	public static Map<String, Map<String, Map<String, Map<Integer,List<Use>>>>> use_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<Use>>>>>();	
 	
 	// maps all known duIDs to their DefUse
-	private static Map<Integer,DefUse> duIDsToDefUses = new HashMap<Integer,DefUse>();
-	private static Map<Integer,Definition> duIDsToDefs = new HashMap<Integer,Definition>();
-	private static Map<Integer,Use> duIDsToUses = new HashMap<Integer,Use>();
+	private static Map<Integer,DefUse> defuseIdsToDefUses = new HashMap<Integer,DefUse>();
+	private static Map<Integer,Definition> defuseIdsToDefs = new HashMap<Integer,Definition>();
+	private static Map<Integer,Use> defuseIdsToUses = new HashMap<Integer,Use>();
 	
 	private static int defCounter = 0;
 	private static int useCounter = 0;
@@ -47,19 +47,19 @@ public class DefUsePool {
 			throw new IllegalArgumentException("Vertex of a definition expected");
 		
 		defCounter++;
-		v.defID = defCounter; 
+		v.defId = defCounter; 
 		if(!v.isUse()) {
 			// IINCs already have duID set do useCounter value
 			duCounter++;			
-			v.duID = duCounter;
+			v.defuseId = duCounter;
 		}
 		
 		Definition d = new Definition(v);
 		addToDefMap(d);	
-		duIDsToDefUses.put(d.getDUID(),d);
-		duIDsToDefs.put(d.getDUID(),d);
+		defuseIdsToDefUses.put(d.getDefUseId(),d);
+		defuseIdsToDefs.put(d.getDefUseId(),d);
 		
-		logger.info("Added to Definitions: "+d.toString()+" in "+v.methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+v.line_no+")");
+		logger.info("Added to Definitions: "+d.toString()+" in "+v.methodName+":"+v.branchId+(v.branchExpressionValue?"t":"f")+"("+v.line_no+")");
 		return true;
 	}
 
@@ -82,27 +82,27 @@ public class DefUsePool {
 		}
 
 		useCounter++;		
-		v.useID = useCounter;
+		v.useId = useCounter;
 		duCounter++;
-		v.duID = duCounter;
+		v.defuseId = duCounter;
 		
 		Use u = new Use(v);
 		addToUseMap(u);
-		duIDsToDefUses.put(u.getDUID(),u);
-		duIDsToUses.put(u.getDUID(),u);
+		defuseIdsToDefUses.put(u.getDefUseId(),u);
+		defuseIdsToUses.put(u.getDefUseId(),u);
 		
-		logger.info("Added to Uses: "+u.toString()+" in "+v.methodName+":"+v.branchID+(v.branchExpressionValue?"t":"f")+"("+v.line_no+")");
+		logger.info("Added to Uses: "+u.toString()+" in "+v.methodName+":"+v.branchId+(v.branchExpressionValue?"t":"f")+"("+v.line_no+")");
 		return true;
 	}
 	
 	/**
 	 * Returns the Use with the given duID
 	 * 
-	 * @param duID ID of a Use
+	 * @param duId ID of a Use
 	 * @return The Use with the given duID if such an ID is known for a Use, null otherwise
 	 */
-	public static Use getUseByDUID(int duID) {
-		DefUse du = duIDsToUses.get(duID);
+	public static Use getUseByDefUseId(int duId) {
+		DefUse du = defuseIdsToUses.get(duId);
 		if(du==null)
 			return null;
 		
@@ -112,30 +112,30 @@ public class DefUsePool {
 	/**
 	 * Returns the Definition with the given duID
 	 * 
-	 * @param duID ID of a Definition
+	 * @param duId ID of a Definition
 	 * @return The Definition with the given duID if such an ID is known for a Definition, null otherwise
 	 */	
-	public static Definition getDefinitionByDUID(int duID) {
-		DefUse du = duIDsToDefs.get(duID);
+	public static Definition getDefinitionByDefUseId(int duId) {
+		DefUse du = defuseIdsToDefs.get(duId);
 		if(du == null)
 			return null;
 		
 		return (Definition)du;
 	}
 	
-	public static Use getUseByUseID(int useID) {
+	public static Use getUseByUseId(int useId) {
 		
-		for(Use use : duIDsToUses.values()) {
-			if(use.getUseID() == useID)
+		for(Use use : defuseIdsToUses.values()) {
+			if(use.getUseId() == useId)
 				return use;
 		}
 		return null;
 	}
 	
-	public static Definition getDefinitionByDefID(int defID) {
+	public static Definition getDefinitionByDefId(int defId) {
 		
-		for(Definition def : duIDsToDefs.values()) {
-			if(def.getDefID() == defID)
+		for(Definition def : defuseIdsToDefs.values()) {
+			if(def.getDefId() == defId)
 				return def;
 		}
 		return null;
@@ -185,7 +185,7 @@ public class DefUsePool {
 		String className = v.className;
 		String methodName = v.methodName;
 		String varName = v.getDUVariableName();
-		int branchID = v.branchID; 
+		int branchID = v.branchId; 
 		
 		if(!def_map.containsKey(className))
 			def_map.put(className, new HashMap<String, Map<String, Map<Integer,List<Definition>>>>());
@@ -204,7 +204,7 @@ public class DefUsePool {
 		String className = v.className;
 		String methodName = v.methodName;
 		String varName = v.getDUVariableName();
-		int branchID = v.branchID; 
+		int branchId = v.branchId; 
 		
 		if(!use_map.containsKey(className))
 			use_map.put(className, new HashMap<String, Map<String, Map<Integer,List<Use>>>>());
@@ -212,9 +212,9 @@ public class DefUsePool {
 			use_map.get(className).put(methodName, new HashMap<String, Map<Integer,List<Use>>>());
 		if(!use_map.get(className).get(methodName).containsKey(varName))
 			use_map.get(className).get(methodName).put(varName, new HashMap<Integer,List<Use>>());
-		if(!use_map.get(className).get(methodName).get(varName).containsKey(branchID))
-			use_map.get(className).get(methodName).get(varName).put(branchID, new ArrayList<Use>());
+		if(!use_map.get(className).get(methodName).get(varName).containsKey(branchId))
+			use_map.get(className).get(methodName).get(varName).put(branchId, new ArrayList<Use>());
 		
-		return use_map.get(className).get(methodName).get(varName).get(branchID).add(u);
+		return use_map.get(className).get(methodName).get(varName).get(branchId).add(u);
 	}	
 }
