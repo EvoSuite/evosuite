@@ -39,9 +39,9 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 
-
+/*
 // (0) TODO IDEA FOR AN EVO-SUITE-FEATURE: 
-//		 given a test(suite) for a class, check whether test achieves coverage-criterion
+//		 given a test(suite) for a class, check how many goals of each coverage criterion it covers
 // (1) DONE detect which LV in which methodCall
 //		i don't think this needs to be done anymore. its not possible to cover a use in a method call for a LV without covering a definition first
 // (2) DONE cut ExecutionTrace for branch-fitness-evaluation to Trace of current object only
@@ -60,6 +60,20 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 // (5) DONE:	well that didn't turn out too well. you have to consider all passed definitions
 //				separately as described in (3) and (4) after all - see for example MeanTestClass.mean()
 
+// other things one could/should do:
+//	- display local variable names as in source code
+//	- take different methodIds into account! 
+//	- right now there seems to be a bug when definitions at the end of a method 
+//		are paired with a use at the beginning of it
+//	- inter.method and inter.class data flow analysis
+//	- implement DefUseCoverageSuiteFitness
+//	- various optimizations
+// 	- for example one should reuse tests that reach a certain definition 
+//		when looking for another goal with that definition
+//	- fix control dependencies analysis
+//	- implement real ReachingDefinitions algorithm
+//	- 
+ */
 
 /**
  * Evaluate fitness of a single test case with respect to one Definition-Use pair
@@ -92,8 +106,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		this.goalDefinition = def;
 		this.goalUse = use;
 		this.goalVariable = def.getDUVariableName();
-		this.goalDefinitionBranchTestFitness = getBranchTestFitness(def);
-		this.goalUseBranchTestFitness = getBranchTestFitness(use);
+		this.goalDefinitionBranchTestFitness = getBranchTestFitness(def.getCFGVertex());
+		this.goalUseBranchTestFitness = getBranchTestFitness(use.getCFGVertex());
 	}
 	
 	/**
@@ -109,23 +123,34 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		goalDefinition = null;
 		goalDefinitionBranchTestFitness = null;
 		goalUse = use;
-		goalUseBranchTestFitness = getBranchTestFitness(use);
+		goalUseBranchTestFitness = getBranchTestFitness(use.getCFGVertex());
 	}
 
 	/**
-	 * Creates a BranchCoverageTestFitness for the branch 
-	 * that the given DefUse is control dependent on 
+	 * Creates a BranchCoverageTestFitness for the branch
+	 * that the given CFGVertex is control dependent on 
 	 */
-	private BranchCoverageTestFitness getBranchTestFitness(DefUse du) {
+	private BranchCoverageTestFitness getBranchTestFitness(CFGVertex v) {
+		return getBranchTestFitness(v,!v.branchExpressionValue);
+	}
+	
+	/**
+	 * Creates a BranchCoverageTestFitness for the alternative branch
+	 * of the branch that the given CFGVertex is control dependent on 
+	 */
+	private BranchCoverageTestFitness getAlternativeBranchTestFitness(CFGVertex v) {
+		return getBranchTestFitness(v,v.branchExpressionValue);
+	}
+	
+	private BranchCoverageTestFitness getBranchTestFitness(CFGVertex v, boolean targetExpressionValue) {
 		BranchCoverageTestFitness r;
-		CFGVertex v = du.getCFGVertex();
 		if (v.branchId == -1) {
-			r = getRootBranchTestFitness(du);
+			r = getRootBranchTestFitness(v);
 		} else {
 			ControlFlowGraph cfg = CFGMethodAdapter.getCFG(v.className, v.methodName);
 			Branch b = BranchPool.getBranch(v.branchId);
 			r = new BranchCoverageTestFitness(new BranchCoverageGoal(b,
-			        !v.branchExpressionValue, cfg, v.className, v.methodName));
+			        targetExpressionValue, cfg, v.className, v.methodName));
 		}
 		return r;
 	}
@@ -133,12 +158,13 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	/**
 	 * Creates a BranchCoverageTestFitness for the root-branch of the method of the given DefUse 
 	 */
-	private BranchCoverageTestFitness getRootBranchTestFitness(DefUse du) {
-		CFGVertex v = du.getCFGVertex();
+	private BranchCoverageTestFitness getRootBranchTestFitness(CFGVertex v) {
 		return new BranchCoverageTestFitness(new BranchCoverageGoal(v.className,
 		        v.className + "." + v.methodName));
 	}
 
+	// fitness calculation methods
+	
 	/**
 	 * Calculates the Definition-Use-Coverage fitness for this Definition-Use-Pair on the given ExecutionResult
 	 * 
@@ -179,11 +205,26 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		preFitnessDebugInfo(result);
-		// at first check if goalDefinition was passed at all before considering individual objects
+		// at first handle special cases where definition is assumed to be covered if use is covered:
+		if(isSpecialDefinition()) {
+			double useFitness = calculateUseFitnessForCompleteTrace(individual,result);
+			if(useFitness == 0.0)
+				setCovered(individual,result.trace,-1);
+			return normalize(useFitness);
+		}
+		// Case 1.
+		// now check if goalDefinition was passed at all before considering individual objects
 		double defFitness = calculateDefFitnessForCompleteTrace(individual, result);
 		if (defFitness != 0) {
 			logger.debug("Definition not covered with fitness "+defFitness);
-			return 1 + normalize(defFitness); // Case 1.
+			return 1 + normalize(defFitness);
+		}
+		// Case 2.
+		if(!hasEntriesForId(result.trace.passedUses.get(goalVariable), goalUse.getUseId())) {
+			double useFitness = calculateUseFitnessForCompleteTrace(individual, result);
+			if(useFitness==0.0)
+				throw new IllegalStateException("expect usefitness to be >0 if use wasn't passed");
+			return normalize(useFitness);
 		}
 		// select considerable objects
 		Set<Integer> objectPool = getObjectPool(result.trace);
@@ -191,7 +232,10 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		double fitness = 1;
 		for(Integer objectId : objectPool) {
 			logger.debug("  ===  CURRENT OBJECT "+objectId+"  === ");
-			if(!isSpecialDefinition() && !hasGoalDefinitionEntries(result.trace, objectId)) {
+			if(!isSpecialDefinition() 
+					&& !hasEntriesForId(result.trace.passedDefinitions.get(goalVariable), 
+							objectId, goalDefinition.getDefId())) {
+				
 				logger.debug("Discarded object "+objectId+" - goalDefinition not passed");
 				continue;
 			}
@@ -213,78 +257,147 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		
 		ExecutionTrace objectTrace = result.trace.getTraceForObject(objectId);
 		double fitness = 1;
+		// Case 2.
 		// handle special definition case
 		if(isSpecialDefinition()) {
 			double useFitness = calculateUseFitnessForObject(individual,result,objectTrace,objectId);
 			fitness = normalize(useFitness);
-			return fitness; // Case 2.
+			return fitness; 
 		}
 		// check if goalDefinition is active at any goalUsePosition
 		List<Integer> usePositions = getGoalUsePositions(objectTrace,objectId);
-		List<Integer> defPositions = getGoalDefinitionPositions(objectTrace,objectId);
+		List<Integer> goalDefinitionPositions = getGoalDefinitionPositions(objectTrace,objectId);
 		for(Integer usePos : usePositions) {
 			int activeDefId = getActiveDefIdAt(objectTrace, usePos, objectId);
 			if (activeDefId == goalDefinition.getDefId()) {
+				// Case 3.1.
 				setCovered(individual, objectTrace, objectId);
-				return 0.0; // case 3.1
+				return 0.0;
 			} else {
 				// goalDefinition was not active at usePos
 				// if it was active before, we have a overwriting definition
-				if(hasEntryLowerThan(defPositions, usePos)) {
-					// TODO: Case 3.2.1) calculate fitness for not taking branch of overwriting def
-					int overwritingDefId = getActiveDefPosFor(objectTrace, usePos, objectId);
-					// TODO stopped here!!!
+				if(hasEntryLowerThan(goalDefinitionPositions, usePos)) {
+					// Case 3.2.1 calculate fitness for not taking branch of overwriting definition
+					int lastGoalDUPos = getMaxEntryLowerThan(goalDefinitionPositions,usePos);
+					Set<Integer> overwritingDefIds = getOverwritingDefinitionIdsBetween(objectTrace, lastGoalDUPos+1, usePos, objectId);
+					if(overwritingDefIds.isEmpty())
+						throw new IllegalStateException("if goalDefinition was passed before goalUse but is no longer active there must be an overwriting definition");
+					double alternativeFitness = 0.0; 
+					for(Integer overwritingDefId : overwritingDefIds) {	
+						double overwritingFitness = calculateAlternatveFitnessForOverwritingDefinition(individual, result,
+							objectTrace, objectId, overwritingDefId, lastGoalDUPos, usePos);
+						if(overwritingFitness <= 0.0 || overwritingFitness > 1.0)
+							throw new IllegalStateException("expected this definition to be normalized or 1");
+						alternativeFitness += overwritingFitness;
+					}
+					alternativeFitness = normalize(alternativeFitness);
+					if(alternativeFitness == 0.0)
+						throw new IllegalStateException("this fitness must never be 0");
+					if(alternativeFitness<fitness)
+						fitness = alternativeFitness;
 				}
 			}
 		}
+		// Case 3.2.2
 		// calculate minimal useFitness over all goalDefPositions
 		// TODO: this can be optimized! for example if the goalDef is never overwritten by another 
 		// definition but is passed a lot this causes major overhead that is totally unnecessary
-		for(Integer defPos : defPositions) {
-			double useFitness = calculateUseFitnessForDefPos(individual, result, objectTrace, objectId, defPos);
-			double newFitness = normalize(useFitness);
-			if(newFitness<fitness)
-				fitness=newFitness; // Case 3.2.2
-		}
+		if(goalUse.getBranchId() != -1)
+			for(Integer goalDefinitionPos : goalDefinitionPositions) {
+				double useFitness = calculateUseFitnessForDefinitionPos(individual, result, objectTrace, objectId, goalDefinitionPos);
+				double newFitness = normalize(useFitness);
+				if(newFitness<fitness)
+					fitness=newFitness;
+			}
 		
 		return fitness;
 	}
 		
+	private double calculateAlternatveFitnessForOverwritingDefinition(
+			TestChromosome individual, ExecutionResult result,
+			ExecutionTrace objectTrace, Integer objectId, int overwritingDefId,
+			int lastGoalDuPos, Integer usePos) {
+		
+		Definition overwritingDefinition = DefUsePool.getDefinitionByDefId(overwritingDefId);
+		if(overwritingDefinition==null)
+			throw new IllegalStateException("expect DefUsePool to know definitions traced by instrumented code. defId: "+overwritingDefId);
+		// if the overwritingDefinition is in a root-branch it's not really avoidable
+		if(overwritingDefinition.getBranchId()!=-1) {
+			Branch branchToAvoid = BranchPool.getBranch(overwritingDefinition.getBranchId());
+			if(branchToAvoid==null)
+				throw new IllegalStateException("expect BranchPool to know all non-root-branches");
+			// get alternative branch
+			BranchCoverageTestFitness alternativeBranchFitness = 
+				getAlternativeBranchTestFitness(branchToAvoid.getCFGVertex());
+			// set up duCounter interval to which the trace should be cut
+			int duCounterStart = lastGoalDuPos;
+			int duCounterEnd = usePos;
+			// calculate fitness
+			double newFitness = calculateFitnessForDURange(individual, result, objectTrace, objectId, 
+					alternativeBranchFitness, overwritingDefinition, duCounterStart, duCounterEnd);
+			// TODO research: shouldn't this fitness always be >0 and <1 (because approach level is 0 and branch distance is normalized) 
+			newFitness = normalize(newFitness);
+			return newFitness;
+		}
+		
+		return 1;
+	}
+
 	private double calculateDefFitnessForCompleteTrace(TestChromosome individual, ExecutionResult result) {
 		if(isSpecialDefinition())
 			return 0.0;
 		// check ExecutionTrace.passedDefinitions first, because calculating BranchTestFitness takes time
-		if(hasGoalDefinitionEntries(result.trace))
+		if(hasEntriesForId(result.trace.passedDefinitions.get(goalVariable),goalDefinition.getDefId()))
 			return 0.0;
 		// calculate fitness
 		double defFitness = goalDefinitionBranchTestFitness.getFitness(individual, result);
 		return defFitness;
-	}	
-		
-/*
-//		}
-//		updateIndividual(individual, fitness);
-//		return fitness;
-//	}
-	*/
+	}
 	
-	private double calculateUseFitnessForDefPos(TestChromosome individual, ExecutionResult result, 
-			ExecutionTrace objectTrace, Integer objectId, int defPos) {
-		
-		int overwritingDefPos = getNextOverwritingDefinitionPos(objectTrace,defPos,objectId);
-		if(overwritingDefPos == -1)
-			overwritingDefPos = Integer.MAX_VALUE;
-		
-		ExecutionTrace originalTrace = result.trace;
-		ExecutionTrace cutTrace = objectTrace.getTraceInDUCounterRange(goalUse, defPos,overwritingDefPos);
-		result.trace = cutTrace;
-		double useFitness = goalUseBranchTestFitness.getFitness(individual,result);
-		result.trace = originalTrace;
-		
-		if(useFitness == 0.0)
-			throw new IllegalStateException("use cant have fitness 0 in this cut trace");
-		
+	private double calculateUseFitnessForCompleteTrace(TestChromosome individual,
+			ExecutionResult result) {
+		// check ExecutionTrace.passedUses first, because calculating BranchTestFitness takes time
+		if(hasEntriesForId(result.trace.passedUses.get(goalVariable),goalUse.getUseId()))
+			return 0.0;
+		// calculate fitness
+		double useFitness = goalUseBranchTestFitness.getFitness(individual, result);
 		return useFitness;
+	}
+		
+	private double calculateUseFitnessForDefinitionPos(TestChromosome individual, ExecutionResult result, 
+			ExecutionTrace targetTrace, Integer objectId, int goalDefinitionPos) {
+		
+		int overwritingDefPos = getNextOverwritingDefinitionPos(targetTrace,goalDefinitionPos,objectId);
+		double fitness = calculateFitnessForDURange(individual, result, targetTrace,
+				objectId, goalUseBranchTestFitness, goalUse, goalDefinitionPos, overwritingDefPos);
+
+		return fitness;
+	}
+	
+	private double calculateFitnessForDURange(TestChromosome individual, ExecutionResult result, 
+			ExecutionTrace targetTrace, Integer objectId,
+			BranchCoverageTestFitness targetFitness, DefUse targetDU, 
+			int duCounterStart, int duCounterEnd) {
+		
+		// filter trace
+		ExecutionTrace originalTrace = result.trace;
+		ExecutionTrace cutTrace = targetTrace.getTraceInDUCounterRange(targetDU, duCounterStart,duCounterEnd);
+		result.trace = cutTrace;
+		// calculate fitness
+		double fitness = targetFitness.getFitness(individual,result);
+		// revert changes to result
+		result.trace = originalTrace;
+		// sanity check
+		if(fitness == 0.0) {
+			System.out.println(cutTrace.toDefUseTraceInformation());
+			System.out.println("duPosStart: "+duCounterStart);
+			System.out.println("duPosEnd: "+duCounterEnd);
+			int targetUseBranchBytecode = BranchPool.getBytecodeIdFor(targetDU.getBranchId());
+			System.out.println("targetDU-branch-bytecode: "+targetUseBranchBytecode);
+			printFinishCalls(cutTrace);
+			throw new IllegalStateException("use cant have fitness 0 in this cut trace: "+cutTrace.toDefUseTraceInformation(goalVariable, objectId));
+		}
+		return fitness;		
 	}
 
 	private double calculateUseFitnessForObject(TestChromosome individual, ExecutionResult result, 
@@ -296,6 +409,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		result.trace = originalTrace;
 		return useFitness;
 	}
+	
+	// semi core methods
 	
 	private boolean isSpecialDefinition() {
 		// handle special cases (Parameters and static definitions in <clinit> are always covered)
@@ -346,158 +461,20 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		return objectPool;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#updateIndividual(de.unisb.cs.st.evosuite.ga.Chromosome, double)
-	 */
-	@Override
-	protected void updateIndividual(Chromosome individual, double fitness) {
-		individual.setFitness(fitness);
-	}
+	// trace analysis methods
 
-	private void preFitnessDebugInfo(ExecutionResult result) {
-		logger.debug("==============================================================");
-		logger.debug("current goal: "+toString());
-		logger.debug("current test:");
-		logger.debug(result.test.toCode());
-	}
-	
-	private void postFitnessDebugInfo(Chromosome individual, ExecutionResult result, double fitness) {
-		if(DEBUG) { 
-			if(fitness != 0) {
-				logger.debug("goal NOT COVERED. fitness: "+fitness);
-				logger.debug("==============================================================");
-				if(traceCoversGoal(individual, result.trace))
-					throw new IllegalStateException("calculation flawed. goal was covered but fitness was "+fitness);
-			} else
-				throw new IllegalStateException("inconsistent state. this should have been detected earlier");
-		}
-	}
-	
-
-	/**
-	 * Only a sanity check function for testing purposes
-	 */
-	private boolean traceCoversGoal(Chromosome individual, ExecutionTrace trace) {
-		if(trace.passedUses.get(this.goalVariable)==null)
-			return false;
-		Set<Integer> objectPool = getObjectPool(trace);
-
-		for(Integer objectID : objectPool) {
-			List<Integer> usePositions = getGoalUsePositions(trace,objectID);
-			// use not reached
-			if (usePositions.size() == 0)
-				continue;
-			if(goalUse.isParameterUse())
-				return true;
-			if(goalDefinition.isStaticDU() && goalDefinition.getMethodName().startsWith("<clinit>"))
-				return true;
-			
-			for(Integer usePos : usePositions) {
-				
-				if (getActiveDefIdAt(trace, usePos, objectID) == goalDefinition.getDefId())
-					return true;
-			}
-		}
-
-		return false;
-	}	
-	
-	private void setCovered(Chromosome individual, ExecutionTrace trace, Integer objectId) {
-		if(DEBUG) {
-			logger.debug("goal COVERED by object "+objectId);
-			logger.debug("==============================================================");
-		}
-		this.coveringObjectId = objectId;
-		updateIndividual(individual, 0);
-		
-		if(DEBUG)
-			if(!traceCoversGoal(individual, trace))
-				throw new IllegalStateException("calculation flawed. goal wasn't covered");
-	}
-
-	private boolean hasGoalDefinitionEntries(ExecutionTrace trace) {
-		if(trace.passedDefinitions.get(goalVariable) == null)
-			return false;
-		
-		for(Integer objectId : trace.passedDefinitions.get(goalVariable).keySet())
-			if(hasGoalDefinitionEntries(trace,objectId))
-				return true;
-		
-		return false;
-	}
-
-	private boolean hasGoalDefinitionEntries(ExecutionTrace trace, Integer objectId) {
-		if(trace.passedDefinitions.get(goalVariable) == null)
-			return false;
-		if(trace.passedDefinitions.get(goalVariable).get(objectId) == null)
-			return false;
-		
-		for(Integer defId : trace.passedDefinitions.get(goalVariable).get(objectId).values())
-			if(defId.intValue() == goalDefinition.getDefId())
-				return true;
-		return false;
-	}	
-	
 	private int getNextOverwritingDefinitionPos(ExecutionTrace objectTrace,
 			Integer defPos, Integer objectId) {
 		
-		int lastPos = -1;
+		int lastPos = Integer.MAX_VALUE;
 		Map<Integer,Integer> defMap = objectTrace.passedDefinitions.get(goalVariable).get(objectId);
 		for(Integer duPos : defMap.keySet())
-			if(duPos>defPos && duPos>lastPos && defMap.get(duPos) != goalDefinition.getDefId())
+			if(duPos>defPos && duPos<lastPos && defMap.get(duPos) != goalDefinition.getDefId())
 				lastPos = duPos;
 		
 		return lastPos;
 	}
 
-	
-	/**
-	 * Returns the defID of the Definition that is active in the given trace at usePos 
-	 */
-	private int getActiveDefIdAt(ExecutionTrace trace, int usePos, int objectId) {
-		if (trace.passedDefinitions.get(this.goalVariable) == null)
-			return -1;
-		
-		int lastDef = -1;
-		int lastPos = -1;
-
-		Map<Integer, Integer> defMap = trace.passedDefinitions.get(this.goalVariable).get(objectId);
-		if(defMap != null) {
-			for (Integer defPos : defMap.keySet()) {
-				if (defPos > usePos)
-					continue;
-				if(lastPos<defPos) {
-					lastDef = defMap.get(defPos);
-					lastPos = defPos;
-				}
-			}
-		}
-		return lastDef;
-	}	
-	
-
-	/**
-	 * Returns the duCounterPosition of the Definition that is active in the given trace at usePos 
-	 */
-	private int getActiveDefPosFor(ExecutionTrace trace, int usePos, int objectId) {
-		if (trace.passedDefinitions.get(this.goalVariable) == null)
-			return -1;
-		
-		int lastPos = -1;
-
-		Map<Integer, Integer> defMap = trace.passedDefinitions.get(this.goalVariable).get(objectId);
-		if(defMap != null) {
-			for (Integer defPos : defMap.keySet()) {
-				if (defPos > usePos)
-					continue;
-				if(lastPos<defPos) {
-					lastPos = defPos;
-				}
-			}
-		}
-		return lastPos;
-	}
-	
 	/**
 	 * Returns all the duCounterPositions of the goalUse in the given trace
 	 */
@@ -526,20 +503,179 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 				r.add(defPos);
 		
 		return r;
-	}	
+	}
 	
+	/**
+	 * Returns the set of definitionIds from all definitions that overwrite 
+	 * the goal definition in the given duCounter-range
+	 * 
+	 * This method expects the given ExecutionTrace not to contain any 
+	 * trace information for the goal Definition in the given range.
+	 * If such a trace is detected this method throws an IllegalStateException!
+	 */
+	private Set<Integer> getOverwritingDefinitionIdsBetween(ExecutionTrace trace, int startingDUPos, int endDUPos, int objectId) {
+		if(startingDUPos>endDUPos)
+			throw new IllegalArgumentException("start must be lower or equal end");
+		Set<Integer> r = new HashSet<Integer>();
+		if (trace.passedDefinitions.get(this.goalVariable) == null)
+			return r;
+		Map<Integer, Integer> defMap = trace.passedDefinitions.get(this.goalVariable).get(objectId);
+		if(defMap==null)
+			return r;
+		
+		for (Integer defPos : defMap.keySet()) {
+			if (defPos < startingDUPos || defPos > endDUPos)
+				continue;
+			int defId = defMap.get(defPos);
+			if(defId == goalDefinition.getDefId())
+				throw new IllegalStateException("expect given trace not to have passed goalDefinition in the given duCounter-range");
+			r.add(defId);
+		}
+		return r;
+	}
+	
+	/**
+	 * Returns the defID of the Definition that is active in the given trace at usePos 
+	 */
+	private int getActiveDefIdAt(ExecutionTrace trace, int usePos, int objectId) {
+		if (trace.passedDefinitions.get(this.goalVariable) == null)
+			return -1;
+		
+		int lastDef = -1;
+		int lastPos = -1;
+		Map<Integer, Integer> defMap = trace.passedDefinitions.get(this.goalVariable).get(objectId);
+		if(defMap == null)
+			return -1;
+		for (Integer defPos : defMap.keySet()) {
+			if (defPos > usePos)
+				continue;
+			if(lastPos<defPos) {
+				lastDef = defMap.get(defPos);
+				lastPos = defPos;
+			}
+		}
+		return lastDef;
+	}
 
 	// auxiliary methods
 	
-	private static boolean hasEntryLowerThan(List<Integer> defPositions, Integer usePos) {
-		for(Integer defPos : defPositions)
-			if(defPos<usePos)
+	private static boolean hasEntryLowerThan(List<Integer> list, Integer border) {
+		for(Integer defPos : list)
+			if(defPos<border)
 				return true;
 		return false;
+	}
+	public Integer getMaxEntryLowerThan(List<Integer> list,Integer border) {
+		int lastPos = -1;
+		for(Integer defPos : list)
+			if(defPos<border && defPos>lastPos)
+				lastPos = defPos;
+		return lastPos;
+	}
+	private boolean hasEntriesForId(Map<Integer,HashMap<Integer,Integer>> objectDUMap, int targetId) {
+		if(objectDUMap == null)
+			return false;
+		for(Integer objectId : objectDUMap.keySet())
+			if(hasEntriesForId(objectDUMap,objectId,targetId))
+				return true;
+		
+		return false;
+	}
+	private boolean hasEntriesForId(Map<Integer,HashMap<Integer,Integer>> objectDUMap, Integer objectId, int targetId) {
+		if(objectDUMap == null)
+			return false;
+		if(objectDUMap.get(objectId) == null)
+			return false;
+		for(Integer defId : objectDUMap.get(objectId).values())
+			if(defId.intValue() == targetId)
+				return true;
+		return false;
+	}
+	
+	// debugging methods
+
+	/**
+	 * Only a sanity check function for testing purposes
+	 */
+	private boolean traceCoversGoal(Chromosome individual, ExecutionTrace trace) {
+		if(trace.passedUses.get(this.goalVariable)==null)
+			return false;
+		Set<Integer> objectPool = getObjectPool(trace);
+
+		for(Integer objectID : objectPool) {
+			List<Integer> usePositions = getGoalUsePositions(trace,objectID);
+			// use not reached
+			if (usePositions.size() == 0)
+				continue;
+			if(goalUse.isParameterUse())
+				return true;
+			if(goalDefinition.isStaticDU() && goalDefinition.getMethodName().startsWith("<clinit>"))
+				return true;
+			
+			for(Integer usePos : usePositions) {
+				
+				if (getActiveDefIdAt(trace, usePos, objectID) == goalDefinition.getDefId())
+					return true;
+			}
+		}
+
+		return false;
 	}	
+	private void setCovered(Chromosome individual, ExecutionTrace trace, Integer objectId) {
+		if(DEBUG) {
+			logger.debug("goal COVERED by object "+objectId);
+			logger.debug("==============================================================");
+		}
+		this.coveringObjectId = objectId;
+		updateIndividual(individual, 0);
+		
+		if(DEBUG)
+			if(!traceCoversGoal(individual, trace))
+				throw new IllegalStateException("calculation flawed. goal wasn't covered");
+	}
+	private void preFitnessDebugInfo(ExecutionResult result) {
+		logger.debug("==============================================================");
+		logger.debug("current goal: "+toString());
+		logger.debug("current test:");
+		logger.debug(result.test.toCode());
+	}
+	private void postFitnessDebugInfo(Chromosome individual, ExecutionResult result, double fitness) {
+		if(DEBUG) { 
+			if(fitness != 0) {
+				logger.debug("goal NOT COVERED. fitness: "+fitness);
+				logger.debug("==============================================================");
+				if(traceCoversGoal(individual, result.trace)) {
+					System.out.println("test:\n"+result.test.toCode());
+					throw new IllegalStateException("calculation flawed. goal was covered but fitness was "+fitness);
+				}
+			} else
+				throw new IllegalStateException("inconsistent state. this should have been detected earlier");
+		}
+	}	
+	private void printFinishCalls(ExecutionTrace trace) {
+
+		for (MethodCall call : trace.finished_calls) {
+			System.out.println("Found MethodCall for: " + call.method_name
+					+ " on object " + call.callingObjectID);
+			System.out.println("#passed branches: " + call.branch_trace.size());
+			for (int i = 0; i < call.defuse_counter_trace.size(); i++) {
+				System.out.println(i + ". at Branch "
+						+ call.branch_trace.get(i) + " true_dist: "
+						+ call.true_distance_trace.get(i) + " false_dist: "
+						+ call.false_distance_trace.get(i));
+				System.out.println();
+			}
+		}
+	}
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#updateIndividual(de.unisb.cs.st.evosuite.ga.Chromosome, double)
+	 */
+	@Override
+	protected void updateIndividual(Chromosome individual, double fitness) {
+		individual.setFitness(fitness);
+	}
 	
-	
-	// getter-methods
+	// getter methods
 	
 	public ExecutionTrace getCoveringTrace() {
 		return coveringTrace;
@@ -553,7 +689,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		return coveringObjectId;
 	}
 	
-	// inherited from Object
+	// methods inherited from Object
 	
 	@Override
 	public String toString() {
