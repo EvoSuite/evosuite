@@ -218,6 +218,10 @@ public class TestSuiteGenerator {
 
 		TestSuiteChromosomeFactory factory = new TestSuiteChromosomeFactory();
 		factory.setNumberOfTests(Properties.getPropertyOrDefault("random_tests", 100));
+		if(Properties.CRITERION.equals("defuse")) {
+			System.out.println("* Disabled random bootstraping for DefUseCoverage-Criterion");
+			factory.setNumberOfTests(0);
+		}
 		TestSuiteChromosome chromosome = (TestSuiteChromosome) factory.getChromosome();
 		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goals);
 		minimizer.minimize(chromosome);
@@ -363,10 +367,15 @@ public class TestSuiteGenerator {
 			}
 		}
 
-		int c = 0; // for testing purposes
+		// for testing purposes
+		if(global_time.isFinished())
+			System.out.println("! Timeout reached");
+		if(current_budget>=total_budget)
+			System.out.println("! Budget exceeded");
+		int c = 0; 
 		for (TestFitnessFunction goal : goals) {
 			if (!covered.contains(c))
-				System.out.println("unable to cover goal " + c + " " + goal.toString());
+				System.out.println("! Unable to cover goal " + c + " " + goal.toString());
 			c++;
 		}
 
