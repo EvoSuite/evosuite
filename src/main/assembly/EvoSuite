@@ -23,10 +23,10 @@ java_agent="-javaagent:$BASEPATH/javaagent.jar"
 ##
 ## Classpath part to be used in all invocations of Java
 ##
-classpath=$BASEPATH:$BASEPATH/${project.artifactId}-${project.version}.jar
-for JAR in $BASEPATH/lib/*.jar; do
-    classpath="$classpath:$JAR"
-done
+classpath=$BASEPATH:$BASEPATH/${project.artifactId}-${project.version}.jar:$BASEPATH/${project.artifactId}-${project.version}-dependencies.jar
+#for JAR in $BASEPATH/lib/*.jar; do
+#    classpath="$classpath:$JAR"
+#done
 
 ##
 ## Main class of EvoSuite
