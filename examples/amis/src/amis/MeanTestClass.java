@@ -41,7 +41,6 @@ public class MeanTestClass {
 				// the following two uses for someField and someOtherField can 
 				// not be paired with their definitions in the constructor
 				if((yetAnotherField != someField + someOtherField) || yetAnotherField == 0) {
-					// TODO BUG! Stopped here!!! Somehow it is not detected that this definition overwrites the one from <init>
 					targetField = 3;
 				}
 			}
