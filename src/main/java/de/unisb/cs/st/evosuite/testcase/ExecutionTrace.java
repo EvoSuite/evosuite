@@ -435,17 +435,19 @@ public class ExecutionTrace {
 	 * 			this only affects the finished_calls field 
 	 * 			(which should suffice for BranchCoverageFitness-calculation)
 	*/	
-	public ExecutionTrace getTraceInDUCounterRange(DefUse targetDU, int duCounterStart, int duCounterEnd) {
+	public ExecutionTrace getTraceInDUCounterRange(DefUse targetDU, 
+			boolean wantToCoverTargetDU, int duCounterStart, int duCounterEnd) {
+		
 		if(duCounterStart>duCounterEnd)
 			throw new IllegalArgumentException("start has to be lesser or equal end");
-		
+		/*
 		// DONE: bug
 		// this still has a major flaw: s. MeanTestClass.mean():
 		// right now its like we map branches to activeDefenitions
 		// but especially in the root branch of a method
 		// activeDefenitions change during execution time
 		// FIX: in order to avoid these false positives remove all information 
-		//		for a certain branch some information for that branch is supposed to be removed
+		//		for a certain branch if some information for that branch is supposed to be removed
 		//  subTodo	since branchPassed() only gets called when a branch is passed initially
 		// 			fake calls to branchPassed() have to be made whenever a DU is passed 
 		// 			s. definitionPassed(), usePassed() and addFakeActiveMethodCallInformation()
@@ -453,8 +455,6 @@ public class ExecutionTrace {
 		// DONE: new bug
 		// 	turns out thats an over-approximation that makes it 
 		// 	impossible to cover some potentially coverable goals
-		// FIX	you only have to cut out the other branch-trace-information, if
-		// 		the use comes after the overwriting definition
 		
 		// completely new:
 		// if your definition gets overwritten in a trace
@@ -462,9 +462,10 @@ public class ExecutionTrace {
 		// DONE: in order to do that don't remove older trace information for an overwritten branch
 		// 		 but rather set the true and false distance of that previous branch information to the distance of not taking the overwriting branch
 		// done differently: s. DefUseCoverageTestFitness.getFitness()
+		 */
 		
 		ExecutionTrace r = clone();
-		int targetDUBranchBytecode = BranchPool.getBytecodeIdFor(targetDU.getBranchId());
+		Branch targetDUBranch = BranchPool.getBranch(targetDU.getBranchId());
 		ArrayList<Integer> removableCalls = new ArrayList<Integer>();
 		for(int callPos=0;callPos<r.finished_calls.size();callPos++) {
 			MethodCall call = r.finished_calls.get(callPos);
@@ -478,9 +479,28 @@ public class ExecutionTrace {
 				int currentDUCounter = call.defuse_counter_trace.get(i);
 				int currentBranchBytecode = call.branch_trace.get(i);
 				
-				if(currentDUCounter<duCounterStart || currentDUCounter > duCounterEnd
-						|| currentBranchBytecode == targetDUBranchBytecode)
+				if(currentDUCounter<duCounterStart || currentDUCounter > duCounterEnd)
 					removableIndices.add(i);
+				else if(currentBranchBytecode == targetDUBranch.getBytecodeId()) {
+					// only remove this point in the trace if it would cover targetDU
+					boolean targetExpressionValue = targetDU.getCFGVertex().branchExpressionValue;
+					if(wantToCoverTargetDU)
+						targetExpressionValue = !targetExpressionValue;
+					if(targetExpressionValue) {
+						// TODO as mentioned in CFGVertex.branchExpressionValue-comment: flip it!
+						if(call.true_distance_trace.get(i) == 0.0) {
+							removableIndices.add(i);
+//							System.out.println("kicked out distance: "+call.false_distance_trace.get(i));
+						}
+					} else {
+						if(call.false_distance_trace.get(i) == 0.0) {
+							removableIndices.add(i);
+//							System.out.println("kicked out distance: "+call.true_distance_trace.get(i));
+						}
+					}
+							
+					
+				}
 			}
 			removeFromFinishCall(call,removableIndices);
 			if(call.defuse_counter_trace.size() == 0)

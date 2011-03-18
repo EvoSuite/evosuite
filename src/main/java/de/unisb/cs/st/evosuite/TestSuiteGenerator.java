@@ -219,8 +219,8 @@ public class TestSuiteGenerator {
 		TestSuiteChromosomeFactory factory = new TestSuiteChromosomeFactory();
 		factory.setNumberOfTests(Properties.getPropertyOrDefault("random_tests", 100));
 		if(Properties.CRITERION.equals("defuse")) {
-			System.out.println("* Disabled random bootstraping for DefUseCoverage-Criterion");
-			factory.setNumberOfTests(0);
+			System.out.println("* Tuned down random bootstraping for DefUseCoverage-Criterion");
+			factory.setNumberOfTests(10);
 		}
 		TestSuiteChromosome chromosome = (TestSuiteChromosome) factory.getChromosome();
 		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goals);
@@ -334,6 +334,7 @@ public class TestSuiteGenerator {
 				ga.generateSolution();
 
 				if (ga.getBestIndividual().getFitness() == 0.0) {
+					System.out.println("* Covered!");
 					logger.info("Found solution, adding to test suite");
 					TestChromosome best = (TestChromosome) ga.getBestIndividual();
 					if (Properties.MINIMIZE) {
