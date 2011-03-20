@@ -423,12 +423,15 @@ public class ExecutionTrace {
 	 * the given duCounter range is hit are removed completely
 	 * 
 	 * Also traces for methods other then the one that holds the given targetDU are removed
-	 * as well as trace information for the branch of the given targetDU
+	 * as well as trace information that would pass the branch of the given targetDU
+	 * If wantToCoverTargetDU is false instead those targetDUBranch information is
+	 * removed that would pass the alternative branch of targetDU
+	 * 
 	 * The latter is because this method only gets called when the given targetDU was not active
-	 * in the given duCounter-range, and since useFitness calculation is on branch level
-	 * and the branch of the use can be passed before the use is passed this can lead
-	 * to a flawed useFitness.
-	 * If the targetUse is in the root-branch of a method, all trace-information // TODO
+	 * in the given duCounter-range if and only if wantToCoverTargetDU is set, 
+	 * and since useFitness calculation is on branch level and the branch of the 
+	 * targetDU can be passed before the targetDU is passed this can lead
+	 * to a flawed branchFitness.
 	 *  
 	 * 
 	 * WARNING: this will not affect this.true_distances and other fields of ExecutionTrace
@@ -488,15 +491,11 @@ public class ExecutionTrace {
 						targetExpressionValue = !targetExpressionValue;
 					if(targetExpressionValue) {
 						// TODO as mentioned in CFGVertex.branchExpressionValue-comment: flip it!
-						if(call.true_distance_trace.get(i) == 0.0) {
+						if(call.true_distance_trace.get(i) == 0.0)
 							removableIndices.add(i);
-//							System.out.println("kicked out distance: "+call.false_distance_trace.get(i));
-						}
 					} else {
-						if(call.false_distance_trace.get(i) == 0.0) {
+						if(call.false_distance_trace.get(i) == 0.0)
 							removableIndices.add(i);
-//							System.out.println("kicked out distance: "+call.true_distance_trace.get(i));
-						}
 					}
 							
 					
