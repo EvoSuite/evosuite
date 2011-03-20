@@ -20,7 +20,17 @@
 
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
+import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
+import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
@@ -31,13 +41,70 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
  */
 public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
+	private static DefUseCoverageFactory goalFactory;
+	
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#getFitness(de.unisb.cs.st.evosuite.ga.Chromosome)
 	 */
 	@Override
 	public double getFitness(Chromosome individual) {
-		// TODO Auto-generated method stub
-		return 0;
+		logger.trace("Calculating defuse fitness");
+
+		long start = System.currentTimeMillis();
+		
+		TestSuiteChromosome suite = (TestSuiteChromosome)individual;
+		long estart = System.currentTimeMillis();
+		// this seems odd: why aren't the results calculated once for all suites?
+		//				   seem very inefficient. TODO: talk to gordon i guess, i seem to be missing a point here
+
+		// TODO: gonna stop here for now, see above
+		List<ExecutionResult> results = runTestSuite(suite);
+		long eend = System.currentTimeMillis();
+		double fitness = 0.0;
+
+		// first simple and naive idea: 
+		//  just take each DUGoal, calculate the minimal fitness over all results in the suite
+		//  once a goal is covered don't check for it again
+		//  in the end sum up all those fitness and it's the resulting suite-fitness
+		
+		// guess this is horribly inefficient but it's a start
+		
+		List<TestFitnessFunction> goals = getGoalFactory().getCoverageGoals();
+		
+		for(TestFitnessFunction goal : goals) {
+			double goalFitness = 2;
+			for(ExecutionResult result : results) {
+//				double resultFitness = goal.getFitness(individual, result);
+				// TODO research chromosomes ... can i make the given chromosome to a testchromosome?
+			}
+		}
+		
+//		
+//		//logger.info("Fitness: "+fitness+", size: "+suite.size()+", length: "+suite.length());
+//		updateIndividual(individual, fitness);
+//
+//		long end = System.currentTimeMillis();
+//		if(end-start > 1000) {
+//			logger.info("Executing tests took    : "+(eend-estart)+"ms");
+//			logger.info("Calculating fitness took: "+(end-start)+"ms");
+//		}
+//		double coverage = num_covered;
+//		for(String e : BranchPool.getBranchlessMethods()) {
+//			if(call_count.keySet().contains(e))
+//				coverage += 1.0;
+//			
+//		}
+//		
+//		suite.setCoverage(coverage / total_goals);
+				
+		return fitness;
+	}
+	
+	private DefUseCoverageFactory getGoalFactory() {
+		if(goalFactory==null)
+			goalFactory = new DefUseCoverageFactory();
+		
+		return goalFactory;
 	}
 
 }
