@@ -307,8 +307,9 @@ public class TestSuiteGenerator {
 				ga.resetStoppingConditions();
 				ga.clearPopulation();
 
-				System.out.println("* Searching for goal " + num + ": "
-				        + fitness_function.toString());
+				if(total_goals-covered_goals<5)
+					System.out.println("* Searching for goal " + num + ": "
+					        + fitness_function.toString());
 				logger.info("Goal " + num + "/" + (total_goals - covered_goals) + ": "
 				        + fitness_function);
 
@@ -334,7 +335,8 @@ public class TestSuiteGenerator {
 				ga.generateSolution();
 
 				if (ga.getBestIndividual().getFitness() == 0.0) {
-					System.out.println("* Covered!");
+					if(total_goals-covered_goals<5)
+						System.out.println("* Covered!");
 					logger.info("Found solution, adding to test suite");
 					TestChromosome best = (TestChromosome) ga.getBestIndividual();
 					if (Properties.MINIMIZE) {
@@ -374,11 +376,14 @@ public class TestSuiteGenerator {
 		if(current_budget>=total_budget)
 			System.out.println("! Budget exceeded");
 		int c = 0; 
-		for (TestFitnessFunction goal : goals) {
-			if (!covered.contains(c))
-				System.out.println("! Unable to cover goal " + c + " " + goal.toString());
-			c++;
-		}
+		if(goals.size()-covered.size()<10)
+			for (TestFitnessFunction goal : goals) {
+				if (!covered.contains(c))
+					System.out.println("! Unable to cover goal " + c + " " + goal.toString());
+				c++;
+			}
+		else
+			System.out.println("! At least 10 goals not covered :(");
 
 		List<Chromosome> population = new ArrayList<Chromosome>();
 		population.add(suite);
