@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.sandbox.Sandbox;
 
 /**
@@ -40,7 +41,9 @@ public class TestRunner extends Thread {
 
 	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
-	private static PrintStream out = new PrintStream(byteStream);
+	private static boolean print_to_system = Properties.getPropertyOrDefault("print_to_system", false);
+	
+	private static PrintStream out = (print_to_system?System.out:new PrintStream(byteStream));
 
 	private TestCase test;
 
