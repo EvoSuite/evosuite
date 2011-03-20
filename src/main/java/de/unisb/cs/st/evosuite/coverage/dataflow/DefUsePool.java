@@ -59,7 +59,7 @@ public class DefUsePool {
 		defuseIdsToDefUses.put(d.getDefUseId(),d);
 		defuseIdsToDefs.put(d.getDefUseId(),d);
 		
-		logger.info("Added: "+d.toString()+" in "+v.methodName+":"+v.branchId+(v.branchExpressionValue?"t":"f")+"("+v.line_no+")");
+		logger.debug("Added: "+d.toString());
 		return true;
 	}
 
@@ -91,7 +91,7 @@ public class DefUsePool {
 		defuseIdsToDefUses.put(u.getDefUseId(),u);
 		defuseIdsToUses.put(u.getDefUseId(),u);
 		
-		logger.info("Added: "+u.toString()+" in "+v.methodName+":"+v.branchId+(v.branchExpressionValue?"t":"f")+"("+v.line_no+")");
+		logger.debug("Added: "+u.toString());
 		return true;
 	}
 	
