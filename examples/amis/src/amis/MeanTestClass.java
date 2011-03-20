@@ -15,6 +15,8 @@ public class MeanTestClass {
 	private int yetAnotherField = 0;
 	private int targetField = 0;
 	
+	private static boolean didIt = false;
+	
 	// constructors
 	
 	public MeanTestClass() {
@@ -48,6 +50,9 @@ public class MeanTestClass {
 		
 		if(targetField == 0) { // target Use
 			someField = 3;
+			if(!didIt)
+				System.out.println("Tests covered the mean DUPair!");
+			didIt = true;
 		}
 	}
 	
