@@ -26,6 +26,11 @@ public class BenchmarkTestClass {
 	private int auxField8 = 0;
 	private int auxField9 = 0;
 	
+	private static boolean milestone1=false;
+	private static boolean milestone2=false;
+	private static boolean milestone3=false;
+	private static boolean milestone4=false;
+	
 	// constructors
 	
 	public BenchmarkTestClass() {
@@ -44,6 +49,15 @@ public class BenchmarkTestClass {
 			targetField=2;
 		if(yetAnotherField != someField + someOtherField)
 			targetField=3;
+		
+		// milestone 1
+		if(targetField==0) {
+			yetAnotherField++;
+			if(!milestone1)
+				System.out.println("Tests reached milestone 1!");
+			milestone1=true;
+		}
+		
 		if(auxField0 != yetAnotherField*3+1)
 			targetField=4;
 		if(auxField1 != auxField0-13)
@@ -52,12 +66,30 @@ public class BenchmarkTestClass {
 			targetField=6;
 		if(auxField3 != auxField2+5)
 			targetField=7;
+		
+		// milestone 2
+		if(targetField==0) {
+			someOtherField= -someOtherField;
+			if(!milestone2)
+				System.out.println("Tests reached milestone 2!");
+			milestone2=true;
+		}
+		
 		if(auxField4 != auxField3+2)
 			targetField=8;
 		if(auxField5 != auxField4-auxField2)
 			targetField=9;
 		if(auxField6 != auxField5*someField)
 			targetField=10;
+		
+		// milestone 3
+		if(targetField==0) {
+			auxField2--;
+			if(!milestone3)
+				System.out.println("Tests reached milestone 3!");
+			milestone3=true;
+		}
+		
 		if(auxField7 != auxField6*auxField5)
 			targetField=11;
 		if(auxField8 != auxField7+3*auxField2+13)
@@ -67,8 +99,10 @@ public class BenchmarkTestClass {
 					
 		
 		if(targetField == 0) { // target Use
-			System.out.println("did it");
 			someField = 3;
+			if(!milestone4)
+				System.out.println(" = Tests reached milestone 4! Congratulations! = ");
+			milestone4=true;
 		}
 	}
 	

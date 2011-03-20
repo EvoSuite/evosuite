@@ -26,6 +26,10 @@ public class HardBenchmarkTestClass {
 	private int auxField8 = 0;
 	private int auxField9 = 0;
 	
+	private static boolean milestoneH1=false;
+	private static boolean milestoneH2=false;
+	private static boolean milestoneH4=false;
+	
 	// constructors
 	
 	public HardBenchmarkTestClass() {
@@ -51,30 +55,50 @@ public class HardBenchmarkTestClass {
 			// not be paired with their definitions in the constructor
 		else if((yetAnotherField != someField + someOtherField) || yetAnotherField == 0)
 			targetField=3;
-		else if(auxField0 == 0 || auxField0 != yetAnotherField*3)
-			targetField=4;
-		else if(auxField1 == 0 || auxField1 != auxField0-13)
-			targetField=5;		
-		else if(auxField2 == 0 || auxField2 != auxField1*auxField1)
-			targetField=6;
-		else if(auxField3 == 0 || auxField3 != auxField2+5)
-			targetField=7;
-		else if(auxField4 == 0 || auxField4 != auxField3+2)
-			targetField=8;
-		else if(auxField5 == 0 || auxField5 != auxField4-auxField2)
-			targetField=9;
-		else if(auxField6 == 0 || auxField6 != auxField5*someField)
-			targetField=10;
-		else if(auxField7 == 0 || auxField7 != auxField6*auxField5)
-			targetField=11;
-		else if(auxField8 == 0 || auxField8 != auxField7+3*auxField2+13)
-			targetField=12;
-		else if(auxField9 == 0 || auxField9 != auxField8-13*auxField1*auxField6)
-			targetField=13;
+		else {
+			if(targetField==0) {// milestone 1
+				yetAnotherField = 3;
+				if(!milestoneH1)
+					System.out.println("Tests reached Hard-Milestone 1");
+				milestoneH1 = true;
+			}
+			
+			if(auxField0 == 0 || auxField0 != yetAnotherField*3)
+				targetField=4;
+		   else if(auxField1 == 0 || auxField1 != auxField0-13)
+				targetField=5;		
+			else if(auxField2 == 0 || auxField2 != auxField1*auxField1)
+				targetField=6;
+			else if(auxField3 == 0 || auxField3 != auxField2+5)
+				targetField=7;
+			else {
+				if(targetField==0) { // milestone 2
+					someOtherField = -someOtherField;
+					if(!milestoneH2)
+						System.out.println("Tests reached Hard-Milestone 2");
+					milestoneH2 = true;					
+				}
+				
+				if(auxField4 == 0 || auxField4 != auxField3+2)
+					targetField=8;
+				else if(auxField5 == 0 || auxField5 != auxField4-auxField2)
+					targetField=9;
+				else if(auxField6 == 0 || auxField6 != auxField5*someField)
+					targetField=10;
+				else if(auxField7 == 0 || auxField7 != auxField6*auxField5)
+					targetField=11;
+				else if(auxField8 == 0 || auxField8 != auxField7+3*auxField2+13)
+					targetField=12;
+				else if(auxField9 == 0 || auxField9 != auxField8-13*auxField1*auxField6)
+					targetField=13;
+			}
+		}
 					
 		
 		if(targetField == 0) { // target Use
-			System.out.println("did it");
+			if(!milestoneH4)
+				System.out.println(" = Tests reached Hard-Milestone 4 !!! = ");
+			milestoneH4 = true;
 			someField = 3;
 		}
 	}

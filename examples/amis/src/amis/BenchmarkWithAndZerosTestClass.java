@@ -26,6 +26,11 @@ public class BenchmarkWithAndZerosTestClass {
 	private int auxField8 = 0;
 	private int auxField9 = 0;
 	
+	private static boolean milestoneAZ1=false;
+	private static boolean milestoneAZ2=false;
+	private static boolean milestoneAZ3=false;
+	private static boolean milestoneAZ4=false;
+	
 	// constructors
 	
 	public BenchmarkWithAndZerosTestClass() {
@@ -44,18 +49,36 @@ public class BenchmarkWithAndZerosTestClass {
 			targetField=2;
 		if(yetAnotherField != someField + someOtherField)
 			targetField=3;
+		if(targetField==0) {
+			someOtherField=-someOtherField;
+			if(!milestoneAZ1)
+				System.out.println("Tests reached Zero-And milestone 1");
+			milestoneAZ1=true;
+		}
 		if(auxField0 != yetAnotherField*3 && auxField0!=0)
 			targetField=4;
 		if(auxField1 != auxField0-13 && auxField1!=0)
 			targetField=5;		
 		if(auxField2 != auxField1*auxField1 && auxField2!=0)
 			targetField=6;
+		if(targetField==0) {
+			auxField0=2;
+			if(!milestoneAZ2)
+				System.out.println("Tests reached Zero-And milestone 1");
+			milestoneAZ2=true;
+		}
 		if(auxField3 != auxField2+5 && auxField3!=0)
 			targetField=7;
 		if(auxField4 != auxField3+2 && auxField4!=0)
 			targetField=8;
 		if(auxField5 != auxField4-auxField2 && auxField5!=0)
 			targetField=9;
+		if(targetField==0) {
+			yetAnotherField++;
+			if(!milestoneAZ3)
+				System.out.println("Tests reached Zero-And milestone 1");
+			milestoneAZ3=true;
+		}
 		if(auxField6 != auxField5*someField && auxField6!=0)
 			targetField=10;
 		if(auxField7 != auxField6*auxField5 && auxField7!=0)
@@ -66,8 +89,10 @@ public class BenchmarkWithAndZerosTestClass {
 			targetField=13;
 		
 		if(targetField == 0) { // target Use
-			System.out.println("did it");
 			someField = 3;
+			if(!milestoneAZ4)
+				System.out.println(" = Tests reached Zero-And milestone 4 = ");
+			milestoneAZ4=true;
 		}
 	}
 	

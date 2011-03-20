@@ -26,6 +26,11 @@ public class BenchmarkWithZerosTestClass {
 	private int auxField8 = 0;
 	private int auxField9 = 0;
 	
+	private static boolean milestoneOZ1=false;
+	private static boolean milestoneOZ2=false;
+	private static boolean milestoneOZ3=false;
+	private static boolean milestoneOZ4=false;
+	
 	// constructors
 	
 	public BenchmarkWithZerosTestClass() {
@@ -42,34 +47,52 @@ public class BenchmarkWithZerosTestClass {
 			targetField=1;
 		if(someOtherField == 0)
 			targetField=2;
-		// the following two uses for someField and someOtherField can 
-		// not be paired with their definitions in the constructor
-		if(yetAnotherField != someField + someOtherField || yetAnotherField == 0)
+		if(yetAnotherField != someField + someOtherField)
 			targetField=3;
-		if(auxField0 == 0 || auxField0 != yetAnotherField*3)
+		if(targetField==0) {
+			someOtherField=-someOtherField;
+			if(!milestoneOZ1)
+				System.out.println("Tests reached Zero-Or milestone 1");
+			milestoneOZ1=true;
+		}
+		if(auxField0 != yetAnotherField*3 || auxField0==0)
 			targetField=4;
-		if(auxField1 == 0 || auxField1 != auxField0-13)
+		if(auxField1 != auxField0-13 || auxField1==0)
 			targetField=5;		
-		if(auxField2 == 0 || auxField2 != auxField1*auxField1)
+		if(auxField2 != auxField1*auxField1 || auxField2==0)
 			targetField=6;
-		if(auxField3 == 0 || auxField3 != auxField2+5)
+		if(targetField==0) {
+			auxField0=2;
+			if(!milestoneOZ2)
+				System.out.println("Tests reached Zero-Or milestone 1");
+			milestoneOZ2=true;
+		}
+		if(auxField3 != auxField2+5 || auxField3==0)
 			targetField=7;
-		if(auxField4 == 0 || auxField4 != auxField3+2)
+		if(auxField4 != auxField3+2 || auxField4==0)
 			targetField=8;
-		if(auxField5 == 0 || auxField5 != auxField4-auxField2)
+		if(auxField5 != auxField4-auxField2 || auxField5==0)
 			targetField=9;
-		if(auxField6 == 0 || auxField6 != auxField5*someField)
+		if(targetField==0) {
+			yetAnotherField++;
+			if(!milestoneOZ3)
+				System.out.println("Tests reached Zero-Or milestone 1");
+			milestoneOZ3=true;
+		}
+		if(auxField6 != auxField5*someField || auxField6==0)
 			targetField=10;
-		if(auxField7 == 0 || auxField7 != auxField6*auxField5)
+		if(auxField7 != auxField6*auxField5 || auxField7==0)
 			targetField=11;
-		if(auxField8 == 0 || auxField8 != auxField7+3*auxField2+13)
+		if(auxField8 != auxField7+3*auxField2+13 || auxField8==0)
 			targetField=12;
-		if(auxField9 == 0 || auxField9 != auxField8-13*auxField1*auxField6)
+		if(auxField9 != auxField8-13*auxField1*auxField6 || auxField9==0)
 			targetField=13;
 		
 		if(targetField == 0) { // target Use
-			System.out.println("did it");
 			someField = 3;
+			if(!milestoneOZ4)
+				System.out.println(" = Tests reached Zero-Or milestone 4 = ");
+			milestoneOZ4=true;
 		}
 	}
 	
