@@ -88,6 +88,7 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
  *  	- At least check for all remaining uncovered goals if they are covered by the goal that was just covered
  *  
  *  - DONE: Kick out ControlDependencyTestClass-loops that take forever!
+ *  - handle timeouts in tests
 
  *  
  * things to write about:
