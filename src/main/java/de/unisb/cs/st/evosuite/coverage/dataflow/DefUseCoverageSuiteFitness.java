@@ -55,7 +55,8 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		TestSuiteChromosome suite = (TestSuiteChromosome)individual;
 		long estart = System.currentTimeMillis();
 		// this seems odd: why aren't the results calculated once for all suites?
-		//				   seem very inefficient. TODO: talk to gordon i guess, i seem to be missing a point here
+		//				   seem very inefficient. TODO: talk to Gordon i guess, i seem to be missing a point here
+		// ah ok nvm, a test holds it's last result if it wasn't changed so this is OK
 
 		// TODO: gonna stop here for now, see above
 		List<ExecutionResult> results = runTestSuite(suite);
