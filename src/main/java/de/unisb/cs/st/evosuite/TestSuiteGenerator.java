@@ -151,6 +151,9 @@ public class TestSuiteGenerator {
 		FitnessFunction fitness_function = getFitnessFunction();
 		ga.setFitnessFunction(fitness_function);
 
+		if(Properties.CRITERION.equals("defuse"))
+			ExecutionTrace.enableTraceCalls();
+		
 		// Perform search
 		System.out.println("* Starting evolution");
 		ga.generateSolution();
@@ -218,11 +221,11 @@ public class TestSuiteGenerator {
 
 		TestSuiteChromosomeFactory factory = new TestSuiteChromosomeFactory();
 		int random_tests = Properties.getPropertyOrDefault("random_tests", 100);
-		factory.setNumberOfTests(random_tests);
 		if(Properties.CRITERION.equals("defuse")) {
 			System.out.println("* Tuned down random bootstraping for DefUseCoverage-Criterion");
 			factory.setNumberOfTests(random_tests/10);
-		}
+		} else
+			factory.setNumberOfTests(random_tests);
 		TestSuiteChromosome chromosome = (TestSuiteChromosome) factory.getChromosome();
 		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goals);
 		minimizer.minimize(chromosome);
@@ -378,15 +381,18 @@ public class TestSuiteGenerator {
 			System.out.println("! Timeout reached");
 		if(current_budget>=total_budget)
 			System.out.println("! Budget exceeded");
+		else
+			System.out.println("* Remaining budget: "+(total_budget-current_budget));
 		int c = 0; 
-		if(goals.size()-covered.size()<10)
+		int uncovered_goals = total_goals-covered_goals;
+		if(uncovered_goals<10)
 			for (TestFitnessFunction goal : goals) {
 				if (!covered.contains(c))
 					System.out.println("! Unable to cover goal " + c + " " + goal.toString());
 				c++;
 			}
 		else
-			System.out.println("! At least 10 goals not covered :(");
+			System.out.println("! #Goals that were not covered: "+uncovered_goals);
 
 		List<Chromosome> population = new ArrayList<Chromosome>();
 		population.add(suite);
@@ -609,8 +615,11 @@ public class TestSuiteGenerator {
 
 		if (Properties.getPropertyOrDefault("dynamic_limit", false)) {
 			//max_s = GAProperties.generations * getBranches().size();
+			// TODO: might want to make this dependent on the selected coverage criterion
+			// TODO also, question: is branchMap.size() really intended here? 
+			// I think BranchPool.getBranchCount() was intended
 			Properties.GENERATIONS = Properties.GENERATIONS
-			        * (BranchPool.getBranchlessMethods().size() + BranchPool.branchMap.size() * 2); // TODO question: is branchMap.size() really what wanted here? I think BranchPool.getBranchCount() was intended here
+			        * (BranchPool.getBranchlessMethods().size() + BranchPool.branchMap.size() * 2);
 			stopping_condition.setLimit(Properties.GENERATIONS);
 			logger.info("Setting dynamic length limit to " + Properties.GENERATIONS);
 		}
