@@ -17,9 +17,11 @@
  * along with GA.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.unisb.cs.st.evosuite.ga;
+package de.unisb.cs.st.evosuite.ga.stoppingconditions;
 
 import java.util.List;
+
+import de.unisb.cs.st.evosuite.ga.Chromosome;
 
 /**
  * Stop the search when the fitness has reached 0 (assuming minimization)
@@ -62,13 +64,18 @@ public class ZeroFitnessStoppingCondition extends StoppingCondition {
     public void setLimit(int limit) {
     	// Do nothing
     }
+    
+    @Override
+    public int getLimit() {
+    	return 0;
+    }
 
 	/* (non-Javadoc)
      * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
      */
     @Override
     public int getCurrentValue() {
-	    return 0;
+	    return (int)(last_fitness+0.5);
     }
 
 

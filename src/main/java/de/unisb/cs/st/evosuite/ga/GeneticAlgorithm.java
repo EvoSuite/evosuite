@@ -26,6 +26,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
 
 /**
  * Abstract superclass of genetic algorithms
@@ -434,7 +436,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 			c.setLimit(value);
 		}
 	}
-
+	
 	/**
 	 * Add an additional secondary objective to the end of the list of
 	 * objectives
@@ -473,5 +475,17 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 			return chromosome1;
 		else
 			return chromosome2;
+	}
+
+	
+	/**
+	 * Prints out all information regarding this GAs stopping conditions
+	 * 
+	 * So far only used for testing purposes in TestSuiteGenerator
+	 */
+	public void printBudget() {
+		System.out.println("* GA-Budget:");
+		for(StoppingCondition sc : stopping_conditions)
+			System.out.println("  - "+sc.toString());
 	}
 }
