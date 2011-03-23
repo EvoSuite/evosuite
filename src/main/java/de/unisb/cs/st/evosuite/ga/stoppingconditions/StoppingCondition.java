@@ -22,8 +22,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import sun.security.action.GetLongAction;
-
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
@@ -128,7 +126,7 @@ public abstract class StoppingCondition implements SearchListener {
 			type = type.substring(type.lastIndexOf(".")+1);
 		} catch(Exception e) {}
 		r.append(type);
-		r.append(": "+getCurrentValue()+" / "+getLimit());
+		r.append(": "+getCurrentValue()+"/"+getLimit());
 		if(isFinished())
 			r.append(" - Finished!");
 		

@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -70,13 +71,41 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  *  - care for integer overflows (especially in alternative fitness calculation)
  *  - DONE: private methods don't seem to be a problem at all. they don't need special treatment
  *  - TODO: clean up TestSuiteGenerator! 
- *  	- At least check for all remaining uncovered goals if they are covered by the test that just covered a goal
+ *  	- DONE: At least check for all remaining uncovered goals if 
+ *  			they are covered by the test that just covered a goal
  *  
  *  - DONE: Kick out ControlDependencyTestClass-loops that take forever!
  *  - handle timeouts in tests
  *  - refactor: separate DefUseCoverageGoal and DefUseCoverageTestFitness
  *  - implement hash() functions?
- *  - NoStoppingCondition .. maybe even serialize populations and resume evolving later 
+ *  - NoStoppingCondition .. maybe even serialize populations and resume evolving later
+ *  - now this is more of a theoretical one but still:
+ *   	- how does one find the "perfect" configuration for the GA?
+ *   	- well build another GA to find out, each chromosome is a configuration
+ *   	- mutation and crossovers seems very easy
+ *   	- fitness is calculated depending on covered goals, time needed / goal, consumed resources etc
+ *   ... i would so love to do that :D
+ *   - SearchStatistics ... well ... where to start :D
+ *   	- i think the report is a very essential part of EvoSuite
+ *   	- it's the way users will in the end see EvoSuite and maybe even the way they interact with it (TODO? :) )
+ *   	- there is so much cool stuff one could do:
+ *   	- give a complete analysis of the CUT in terms of different coverage perspectives
+ *   	- provide the user with the possibility to compare different runs
+ *   	- link test run information to analysis
+ *   	- polish test run view: 
+ *   		- jump to different parts (fitness, tests, etc)
+ *   		- make things "expandable" (you know hide/show all test cases with a small -/+ next to it and stuff like that)
+ *   		- show TestCase comments
+ *   		- even better: link tests to goals they cover, see analysis part above
+ *   		- mark where in a test a certain goal is covered:
+ *   			- color lines differently depending on goal one hovers his mouse above in the covered goal description
+ *    		- ... i could go on but i guess one gets the point
+ *    	
+ *    - in order to do all that SearchStatistics should be get a complete refactor-marathon-overhaul:
+ *    	- make distinction between HTML-generation and statistics part, interlink them via .csv-files
+ *    	- encapsulate different HTML-generation-parts in separate classes like one for Code, one for plots etc.
+ *    	- well just come up with a nice class model is all i'm trying to say i guess
+ *    	- srsly though, this SearchStatistcs class is a mess :D and buggy as hell too it seems 
 
  *  
  * things to write about:
@@ -85,17 +114,17 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  *   - more thorough tests
  *   - #times each branch is executed
  *  - infeasible path problem
- *  - extract future work from unfinished todo-list ;)
+ *  - extract future work from unfinished ToDo-list ;)
  *  - why alternative definition
  *   - different modes, pro and cons
  *    - average doesn't take into account how many overwriting definitions there were
  *    - sum seems to be the most reasonable, maybe with stretched single alternative fitness 10? 
- *   -  
+ *  - harder than branch coverage
+ *  	- chromosomes more valuable!
+ *  	- see part above about chromosome pool and initial population and stuff
  *  
  *  Questions:
- *   - s. testSuite
  *   - BranchCoverageGoal also treats root branches with expression value true!
- *   - "134242 WARN  [execute] -  Thread survived - unsafe operation." ???
  */
 
 
@@ -109,7 +138,7 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 public class DefUseCoverageTestFitness extends TestFitnessFunction {
 
 	// debugging flags
-	private final static boolean DEBUG = true;
+	private final static boolean DEBUG = Properties.getPropertyOrDefault("defuse_debug_mode",false);
 	private final static boolean PRINT_DEBUG = false;
 	
 	
@@ -117,6 +146,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	private final String goalVariable;
 	private final Use goalUse;	
 	private final Definition goalDefinition;
+	// TODO make DefUse able to return its control dependent branch fitness
 	private final BranchCoverageTestFitness goalDefinitionBranchFitness;
 	private final BranchCoverageTestFitness goalUseBranchFitness;
 	
@@ -139,8 +169,10 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		this.goalDefinition = def;
 		this.goalUse = use;
 		this.goalVariable = def.getDUVariableName();
-		this.goalDefinitionBranchFitness = DefUseFitnessCalculations.getBranchTestFitness(def.getCFGVertex());
-		this.goalUseBranchFitness = DefUseFitnessCalculations.getBranchTestFitness(use.getCFGVertex());
+		this.goalDefinitionBranchFitness = 
+			DefUseFitnessCalculations.getBranchTestFitness(def.getCFGVertex());
+		this.goalUseBranchFitness = 
+			DefUseFitnessCalculations.getBranchTestFitness(use.getCFGVertex());
 	}
 	
 	/**
