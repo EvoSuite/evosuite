@@ -178,6 +178,16 @@ public class TestSuiteGenerator {
 		
 		System.out.println("* Resulting TestSuite's coverage: "+best.getCoverage());
 		
+		// TODO this is horribly inefficient! 
+		// compute all results once and then ask each goal and put all that in TestSuiteFitnessFuncion
+		List<TestFitnessFunction> singleGoals = getFitnessFactory().getCoverageGoals();
+		int covered = 0;
+		for(TestFitnessFunction singleGoal : singleGoals) {
+			if(singleGoal.isCovered(best.getTests()))
+				covered++;
+		}
+		System.out.println("* Covered "+covered+"/"+singleGoals.size()+" goals");
+		
 		ga.printBudget();;
 		
 		return best.getTests();
@@ -346,9 +356,7 @@ public class TestSuiteGenerator {
 				ga.generateSolution();
 
 				if (ga.getBestIndividual().getFitness() == 0.0) {
-					if(total_goals-covered_goals<5)
-						System.out.println("* Covered!");
-					else
+					if(Properties.getPropertyOrDefault("print_covered_goals", false))
 						System.out.println("* Covered: "+fitness_function.toString());
 					logger.info("Found solution, adding to test suite");
 					TestChromosome best = (TestChromosome) ga.getBestIndividual();
@@ -394,6 +402,13 @@ public class TestSuiteGenerator {
 
 		// for testing purposes
 		ga.printBudget();
+		if (global_time.isFinished())
+			System.out.println("! Timeout reached");
+		if (current_budget >= total_budget)
+			System.out.println("! Budget exceeded");
+		else
+			System.out.println("* Remaining budget: "
+					+ (total_budget - current_budget));
 		int c = 0; 
 		int uncovered_goals = total_goals-covered_goals;
 		if(uncovered_goals<10)
@@ -454,7 +469,8 @@ public class TestSuiteGenerator {
 				continue;
 			if(goal.isCovered(best,result)) {
 				r.add(num);
-				System.out.println("* Additionally covered: "+goal.toString());
+				if(Properties.getPropertyOrDefault("print_covered_goals", false))
+					System.out.println("* Additionally covered: "+goal.toString());
 			}
 		}
 		long end = System.currentTimeMillis();

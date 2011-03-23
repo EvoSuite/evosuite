@@ -29,7 +29,7 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
  */
 public class DefUseFitnessCalculations {
 
-	private final static boolean DEBUG = true;
+	private final static boolean DEBUG = Properties.getPropertyOrDefault("defuse_debug_mode",false);
 	
 	private static Logger logger = Logger.getLogger(DefUseFitnessCalculations.class);
 	
@@ -345,51 +345,51 @@ public class DefUseFitnessCalculations {
 		if(overwritingDefinition==null)
 			throw new IllegalStateException("expect DefUsePool to know definitions traced by instrumented code. defId: "+overwritingDefId);
 		// if the overwritingDefinition is in a root-branch it's not really avoidable
-		if(overwritingDefinition.getBranchId()!=-1) {
-			// get alternative branch
-			BranchCoverageTestFitness alternativeBranchFitness = 
-				getAlternativeBranchTestFitness(overwritingDefinition.getCFGVertex());
-			// set up duCounter interval to which the trace should be cut
-			int duCounterStart = lastGoalDuPos;
-			int duCounterEnd = usePos;
-			// calculate fitness
-			double newFitness = calculateFitnessForDURange(individual, result, objectTrace, 
-					objectId, alternativeBranchFitness, 
-					overwritingDefinition,false,
-					duCounterStart, duCounterEnd);
-			if(newFitness == 0.0) {
-				// debugging purposes
-//				preFitnessDebugInfo(result,false);
-				System.out.println("object trace: ");
-				DefUseExecutionTraceAnalyzer.printFinishCalls(objectTrace);
-				System.out.println();
-				System.out.println("cut trace:");
-				ExecutionTrace cutTrace = objectTrace.getTraceInDUCounterRange(overwritingDefinition,false,duCounterStart,duCounterEnd);
-				DefUseExecutionTraceAnalyzer.printFinishCalls(cutTrace);
-				System.out.println("cut from "+duCounterStart+" to "+duCounterEnd);
-				System.out.println("overwritingDef: "+overwritingDefinition.toString());
-				System.out.println("on object "+objectId);
-				System.out.println("alternative branch fitness: "+alternativeBranchFitness.toString());
-				throw new IllegalStateException("expect fitness to be >0 if trace information that passed the alternative branch should have been removed");
-			}
-				
-			// TODO research: shouldn't this fitness always be >0 and <1 (because approach level is 0 and branch distance is normalized)
-			// thing is i'm pretty sure it should be as described, but since our control dependencies are crap right now
-			// this fitness can be >1, meaning the approach level can be >0 when the overwritingDef was control dependent from more then one Branch
-			// this can for example happen when you have a branch expression with several sub-expressions separated by an ||
-
-			// quick fix: when the fitness is >1 assume it was the flaw described above and only look at branch-distance part of fitness (decimal places)
-			if(newFitness>1) {
-				int approachPart = (int)newFitness;
-				newFitness-=approachPart;
-			}
-			if(newFitness <= 0 || newFitness > 1) {
-				throw new IllegalStateException("single alternative fitness out of expected range: "+newFitness);
-			}
-			return SINGLE_ALTERNATIVE_FITNESS_RANGE*newFitness;
-		}
+		if(overwritingDefinition.getBranchId()==-1)
+			return SINGLE_ALTERNATIVE_FITNESS_RANGE;
 		
-		return SINGLE_ALTERNATIVE_FITNESS_RANGE;
+		// get alternative branch
+		BranchCoverageTestFitness alternativeBranchFitness = 
+			getAlternativeBranchTestFitness(overwritingDefinition.getCFGVertex());
+		// set up duCounter interval to which the trace should be cut
+		int duCounterStart = lastGoalDuPos;
+		int duCounterEnd = usePos;
+		// calculate fitness
+		double newFitness = calculateFitnessForDURange(individual, result, objectTrace, 
+				objectId, alternativeBranchFitness, 
+				overwritingDefinition,false,
+				duCounterStart, duCounterEnd);
+		// debugging stuff
+		if(DEBUG && newFitness == 0.0) {
+			// debugging purposes
+//				preFitnessDebugInfo(result,false);
+			System.out.println("object trace: ");
+			DefUseExecutionTraceAnalyzer.printFinishCalls(objectTrace);
+			System.out.println();
+			System.out.println("cut trace:");
+			ExecutionTrace cutTrace = objectTrace.getTraceInDUCounterRange(overwritingDefinition,false,duCounterStart,duCounterEnd);
+			DefUseExecutionTraceAnalyzer.printFinishCalls(cutTrace);
+			System.out.println("cut from "+duCounterStart+" to "+duCounterEnd);
+			System.out.println("overwritingDef: "+overwritingDefinition.toString());
+			System.out.println("on object "+objectId);
+			System.out.println("alternative branch fitness: "+alternativeBranchFitness.toString());
+			throw new IllegalStateException("expect fitness to be >0 if trace information that passed the alternative branch should have been removed");
+		}
+			
+		// TODO research: shouldn't this fitness always be >0 and <1 (because approach level is 0 and branch distance is normalized)
+		// thing is i'm pretty sure it should be as described, but since our control dependencies are crap right now
+		// this fitness can be >1, meaning the approach level can be >0 when the overwritingDef was control dependent from more then one Branch
+		// this can for example happen when you have a branch expression with several sub-expressions separated by an ||
+
+		// quick fix: when the fitness is >1 assume it was the flaw described above and only look at branch-distance part of fitness (decimal places)
+		if(newFitness>1) {
+			int approachPart = (int)newFitness;
+			newFitness-=approachPart;
+		}
+		if(newFitness <= 0 || newFitness > 1) {
+			throw new IllegalStateException("single alternative fitness out of expected range: "+newFitness);
+		}
+		return SINGLE_ALTERNATIVE_FITNESS_RANGE*newFitness;
 	}
 
 	/**
