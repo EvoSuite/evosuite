@@ -1,9 +1,10 @@
 /**
  * 
  */
-package de.unisb.cs.st.evosuite.ga;
+package de.unisb.cs.st.evosuite.ga.stoppingconditions;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 
 /**
  * @author Gordon Fraser
@@ -62,6 +63,12 @@ public class GlobalTimeStoppingCondition extends StoppingCondition {
 	public void setLimit(int limit) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public int getLimit() {
+		// TODO Auto-generated method stub
+		return max_seconds;
 	}
 
 }

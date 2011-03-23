@@ -135,12 +135,20 @@ public abstract class TestFitnessFunction extends FitnessFunction {
 	}
 
 	public boolean isCovered(TestCase test) {
-		ExecutionResult result = runTest(test);
 		TestChromosome c = new TestChromosome();
 		c.test = test;
-		boolean covered = getFitness(c, result) == 0.0;
+		return isCovered(c);
+	}
+	
+	public boolean isCovered(TestChromosome tc) {
+		ExecutionResult result = runTest(tc.test);
+		return isCovered(tc,result);
+	}
+	
+	public boolean isCovered(TestChromosome individual, ExecutionResult result) {
+		boolean covered = getFitness(individual,result) == 0.0;
 		if (covered)
-			test.addCoveredGoal(this);
-		return covered;
+			individual.test.addCoveredGoal(this);
+		return covered;		
 	}
 }

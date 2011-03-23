@@ -30,6 +30,7 @@ import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
+import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -68,10 +69,13 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		for(DefUseCoverageTestFitness goal : totalGoals) {
 			double goalFitness = 2.0;
 			for(ExecutionResult result : results) {
-				double resultFitness = goal.getFitness(result);
+				TestChromosome tc = new TestChromosome();
+				tc.test = result.test;
+				double resultFitness = goal.getFitness(tc,result);
 				if(resultFitness<goalFitness)
 					goalFitness=resultFitness;
 				if(goalFitness == 0.0) {
+					result.test.addCoveredGoal(goal);
 //					System.out.println(goal.toString());
 //					System.out.println(result.test.toCode());
 //					System.out.println(resultFitness);
@@ -82,7 +86,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			fitness += goalFitness;
 		}
 		
-		suite.setCoverage(totalGoals.size()/(double)coveredGoals.size());
+		suite.setCoverage(coveredGoals.size()/(double)totalGoals.size());
 		updateIndividual(individual, fitness);
 		return fitness;
 	}

@@ -17,11 +17,12 @@
  * along with GA.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.unisb.cs.st.evosuite.ga;
+package de.unisb.cs.st.evosuite.ga.stoppingconditions;
 
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.ga.Chromosome;
 
 /**
  * Stop search after a predefined maximum search depth
@@ -92,6 +93,11 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingCondition {
     public void setLimit(int limit) {
     	max_evaluations = limit;
     }
+    
+	@Override
+	public int getLimit() {
+		return max_evaluations;
+	}
 
 	/* (non-Javadoc)
      * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
@@ -100,4 +106,5 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingCondition {
     public int getCurrentValue() {
     	return current_evaluation;
     }
+
 }

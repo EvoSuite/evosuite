@@ -18,27 +18,12 @@
 
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
-import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
-import de.unisb.cs.st.evosuite.coverage.branch.Branch;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 
 /*
 // (0) TODO IDEA FOR AN EVO-SUITE-FEATURE: 
@@ -83,12 +68,15 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
  *  	- should stretch the range for possible CoverageFitness to something like 0-100 at least
  *      - might want to make a fitness bigger/more precise then double  
  *  - care for integer overflows (especially in alternative fitness calculation)
- *  - private methods?
+ *  - DONE: private methods don't seem to be a problem at all. they don't need special treatment
  *  - TODO: clean up TestSuiteGenerator! 
- *  	- At least check for all remaining uncovered goals if they are covered by the goal that was just covered
+ *  	- At least check for all remaining uncovered goals if they are covered by the test that just covered a goal
  *  
  *  - DONE: Kick out ControlDependencyTestClass-loops that take forever!
  *  - handle timeouts in tests
+ *  - refactor: separate DefUseCoverageGoal and DefUseCoverageTestFitness
+ *  - implement hash() functions?
+ *  - NoStoppingCondition .. maybe even serialize populations and resume evolving later 
 
  *  
  * things to write about:

@@ -26,7 +26,7 @@ package de.unisb.cs.st.evosuite.testcase;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.ga.StoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
 
 /**
  * @author Gordon Fraser
@@ -93,6 +93,11 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
     @Override
     public void setLimit(int limit) {
     	max_statements = limit;
+    }
+
+    @Override
+    public int getLimit() {
+    	return max_statements;
     }
 
 }

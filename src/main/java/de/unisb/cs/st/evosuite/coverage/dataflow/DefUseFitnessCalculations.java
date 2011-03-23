@@ -9,7 +9,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
@@ -21,7 +20,6 @@ import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
-import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
 /**
  * 
@@ -47,7 +45,7 @@ public class DefUseFitnessCalculations {
 		Properties.getPropertyOrDefault("alternative_fitness_calculation_mode", "sum");
 	// if the mode isn't "sum" the following are ignored
 	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT = 
-		Properties.getPropertyOrDefault("penalize_overwriting_definitions_flat", true);
+		Properties.getPropertyOrDefault("penalize_overwriting_definitions_flat", false);
 	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY = 
 		Properties.getPropertyOrDefault("penalize_overwriting_definitions_linearly", true);
 	private static double SINGLE_ALTERNATIVE_FITNESS_RANGE = 

@@ -41,10 +41,6 @@ import de.unisb.cs.st.evosuite.ga.CrossOverFunction;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.FitnessProportionateSelection;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
-import de.unisb.cs.st.evosuite.ga.GlobalTimeStoppingCondition;
-import de.unisb.cs.st.evosuite.ga.MaxFitnessEvaluationsStoppingCondition;
-import de.unisb.cs.st.evosuite.ga.MaxGenerationStoppingCondition;
-import de.unisb.cs.st.evosuite.ga.MaxTimeStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.MinimizeSizeSecondaryObjective;
 import de.unisb.cs.st.evosuite.ga.MuPlusLambdaGA;
 import de.unisb.cs.st.evosuite.ga.OnePlusOneEA;
@@ -57,13 +53,18 @@ import de.unisb.cs.st.evosuite.ga.SinglePointFixedCrossOver;
 import de.unisb.cs.st.evosuite.ga.SinglePointRelativeCrossOver;
 import de.unisb.cs.st.evosuite.ga.StandardGA;
 import de.unisb.cs.st.evosuite.ga.SteadyStateGA;
-import de.unisb.cs.st.evosuite.ga.StoppingCondition;
 import de.unisb.cs.st.evosuite.ga.TournamentSelection;
-import de.unisb.cs.st.evosuite.ga.ZeroFitnessStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxFitnessEvaluationsStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import de.unisb.cs.st.evosuite.junit.TestSuite;
 import de.unisb.cs.st.evosuite.mutation.MutationGoalFactory;
 import de.unisb.cs.st.evosuite.mutation.MutationSuiteFitness;
 import de.unisb.cs.st.evosuite.mutation.MutationTimeoutStoppingCondition;
+import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.MaxTestsStoppingCondition;
@@ -99,6 +100,8 @@ public class TestSuiteGenerator {
 	private final ZeroFitnessStoppingCondition zero_fitness = new ZeroFitnessStoppingCondition();
 
 	private StoppingCondition stopping_condition;
+	
+	private long additional_time = 0l; // experiment
 
 	/**
 	 * Generate a test suite for the target class
@@ -172,7 +175,11 @@ public class TestSuiteGenerator {
 		statistics.minimized(ga.getBestIndividual());
 		System.out.println("* Generated " + best.size() + " tests with total length "
 		        + best.length());
-
+		
+		System.out.println("* Resulting TestSuite's coverage: "+best.getCoverage());
+		
+		ga.printBudget();;
+		
 		return best.getTests();
 	}
 
@@ -356,11 +363,20 @@ public class TestSuiteGenerator {
 					// suite.addTest((TestChromosome)ga.getBestIndividual());
 					covered_goals++;
 					covered.add(num);
+					
+					// experiment:
+					Set<Integer> additional_covered_nums = getAdditionallyCoveredGoals(goals,covered,best);
+					for(Integer covered_num : additional_covered_nums) {
+						covered_goals++;
+						covered.add(covered_num);
+					}
+						
+					
 				} else {
 					logger.info("Found no solution");
 				}
 
-				suite_fitness.getFitness(suite);
+				suite_fitness.getFitness(suite); // ???
 				List<Chromosome> population = new ArrayList<Chromosome>();
 				population.add(suite);
 				statistics.iteration(population);
@@ -377,12 +393,7 @@ public class TestSuiteGenerator {
 		}
 
 		// for testing purposes
-		if(global_time.isFinished())
-			System.out.println("! Timeout reached");
-		if(current_budget>=total_budget)
-			System.out.println("! Budget exceeded");
-		else
-			System.out.println("* Remaining budget: "+(total_budget-current_budget));
+		ga.printBudget();
 		int c = 0; 
 		int uncovered_goals = total_goals-covered_goals;
 		if(uncovered_goals<10)
@@ -393,6 +404,7 @@ public class TestSuiteGenerator {
 			}
 		else
 			System.out.println("! #Goals that were not covered: "+uncovered_goals);
+		System.out.println("* Additional time taken: "+additional_time+" ms");
 
 		List<Chromosome> population = new ArrayList<Chromosome>();
 		population.add(suite);
@@ -420,6 +432,35 @@ public class TestSuiteGenerator {
 		statistics.minimized(suite);
 
 		return suite.getTests();
+	}
+
+	/**
+	 * Returns a list containing all positions of goals in the given goalList
+	 * that are covered by the given test but not already in the given coveredSet
+	 * 
+	 * Used to avoid unnecessary solutionGenerations in generateIndividualTests() 
+	 */
+	private Set<Integer> getAdditionallyCoveredGoals(
+			List<TestFitnessFunction> goals, Set<Integer> covered,
+			TestChromosome best) {
+
+		long start = System.currentTimeMillis();
+		Set<Integer> r = new HashSet<Integer>();
+		ExecutionResult result = TestCaseExecutor.getInstance().execute(best.test);
+		int num = -1;
+		for(TestFitnessFunction goal : goals) {
+			num++;
+			if(covered.contains(num))
+				continue;
+			if(goal.isCovered(best,result)) {
+				r.add(num);
+				System.out.println("* Additionally covered: "+goal.toString());
+			}
+		}
+		long end = System.currentTimeMillis();
+		long took = end-start;
+		additional_time+= took;
+		return r;
 	}
 
 	/*
