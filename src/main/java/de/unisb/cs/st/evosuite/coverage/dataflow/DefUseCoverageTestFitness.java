@@ -19,6 +19,10 @@
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
+import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -158,6 +162,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	private final BranchCoverageTestFitness goalDefinitionBranchFitness;
 	private final BranchCoverageTestFitness goalUseBranchFitness;
 	
+	private int difficulty = -1;
+	
 	// coverage information
 	private Integer coveringObjectId = -1;
 	private ExecutionTrace coveringTrace;
@@ -273,22 +279,47 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 */
 	@Override
 	public int getDifficulty() {
-		int r = 1;
-		r+=goalUseBranchFitness.getDifficulty();
-		if(goalDefinitionBranchFitness!=null) {
-			r+=goalDefinitionBranchFitness.getDifficulty();
-			if(goalDefinition.getMethodName().equals(goalUse.getMethodName()))
-				r--;
-		}
-		
-		return r;
+		if(difficulty==-1)
+			difficulty=calculateDifficulty();
+		return difficulty;
 	}
 	
+
+	private int calculateDifficulty() {
+//		System.out.println("calculating difficulty for "+toString());
+		if(goalDefinitionBranchFitness==null)
+			return goalUseBranchFitness.getDifficulty();
+		
+		// TODO STOPPED HERE!! shit doesn't work as good as expected after all :(
+		// seems as if preordering is less efficient and sometimes even recycling is .. very sad, fix this!
+		
+		int r = goalDefinitionBranchFitness.getDifficulty();
+//		System.out.println("goaldefbranchdiff: "+r);
+		
+		if(!goalUse.getMethodName().equals(goalDefinition.getMethodName())
+				|| goalUse.getVertexId()<goalDefinition.getVertexId())
+			return r+goalUseBranchFitness.getDifficulty();
+		
+		ControlFlowGraph cfg = CFGMethodAdapter.getCFG(goalUse.getClassName(), goalUse.getMethodName());
+//		CFGVertex source = cfg.getVertex(goalDefinition.getVertexId());
+//		CFGVertex target = cfg.getVertex(goalDefinition.getVertexId());
+		Branch defBranch = goalDefinition.getControlDependentBranch();
+		Branch useBranch = goalUse.getControlDependentBranch();
+		if(defBranch==null || useBranch==null)
+			return r+goalUseBranchFitness.getDifficulty();
+		
+		CFGVertex source = cfg.getVertex(defBranch.getVertexId());
+		CFGVertex target = cfg.getVertex(useBranch.getVertexId());
+		int dist = cfg.getDistance(source,target);
+		r+=dist;
+//		System.out.println("returning "+r+" dist was"+dist);
+		return r;
+	}
 
 	// debugging methods
 	
 	public  void setCovered(Chromosome individual, ExecutionTrace trace, Integer objectId) {
-		if(DEBUG) {
+		if(PRINT_DEBUG) {
 			logger.debug("goal COVERED by object "+objectId);
 			logger.debug("==============================================================");
 		}
@@ -349,7 +380,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public String toString() {
 		StringBuffer r = new StringBuffer();
-		r.append("Definition-Use-Pair:");
+		r.append("Definition-Use-Pair - Difficulty "+difficulty);
 		r.append("\n\t");
 		if(goalDefinition == null)
 			r.append("Parameter-Definition "+goalUse.getLocalVarNr()+" for method "+goalUse.getMethodName());

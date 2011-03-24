@@ -544,10 +544,14 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 	public static ControlFlowGraph getCFG(String classname, String methodname) {
 		logger.debug("Getting CFG for class " + classname + " and method " + methodname);
+		if(graphs.get(classname)==null)
+			return null;
 		return graphs.get(classname).get(methodname);
 	}
 
 	public static ControlFlowGraph getCompleteCFG(String classname, String methodname) {
+		if(completeGraphs.get(classname)==null)
+			return null;
 		return completeGraphs.get(classname).get(methodname);
 	}
 }

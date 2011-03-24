@@ -282,6 +282,11 @@ public class TestSuiteGenerator {
 		Randomness.getInstance().shuffle(goals);
 		if(Properties.getPropertyOrDefault("preorder_goals_by_difficulty", true))
 			orderGoalsByDifficulty(goals);
+		else
+			System.out.println("* Goal preordering by difficulty disabled");
+		if(!Properties.getPropertyOrDefault("recycle_chromosomes", true))
+			System.out.println("* ChromosomeRecycler disabled!");
+		
 		System.out.println("* Total number of test goals: " + goals.size());
 
 		// Bootstrap with random testing to cover easy goals
@@ -378,6 +383,7 @@ public class TestSuiteGenerator {
 					
 					// experiment:
 					Set<Integer> additional_covered_nums = getAdditionallyCoveredGoals(goals,covered,best);
+//					System.out.println("Additionally covered: "+additional_covered_nums.size());
 					for(Integer covered_num : additional_covered_nums) {
 						covered_goals++;
 						covered.add(covered_num);

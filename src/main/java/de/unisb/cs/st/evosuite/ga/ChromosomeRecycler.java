@@ -65,7 +65,7 @@ public class ChromosomeRecycler {
 			if(goal.isSimilarTo(testFitnessFunction))
 				r.addAll(chromosomePool.get(goal));
 		}
-//		System.out.println("returned "+r.size()+" recycables for "+fitnessFunction.toString());
+//		System.out.println("returned "+r.size());//+" recycables for "+fitnessFunction.toString());
 		return r;
 	}
 }
