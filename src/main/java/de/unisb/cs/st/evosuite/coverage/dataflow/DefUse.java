@@ -1,5 +1,6 @@
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
+import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.CFGVertexHolder;
 
 /**
@@ -9,6 +10,10 @@ import de.unisb.cs.st.evosuite.coverage.CFGVertexHolder;
  */
 public abstract class DefUse extends CFGVertexHolder {
 
+
+	public DefUse(CFGVertex v) {
+		super(v);
+	}
 
 	public String getDUVariableType() {
 		if(v.isFieldDU())

@@ -1,8 +1,10 @@
 package de.unisb.cs.st.evosuite.coverage;
 
+import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 
 /**
  * Convenience-superclass for classes that hold a CFGVertex.
@@ -12,10 +14,13 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
  * 
  * @author Andre Mis
  */
-public abstract class CFGVertexHolder {
+public class CFGVertexHolder {
 
 	protected CFGVertex v;
 	
+	public CFGVertexHolder(CFGVertex v) {
+		this.v = v;
+	}
 	
 	// TODO: the following methods about control dependence are flawed right now:
 	//			- the CFGVertex of a Branch does not have it's control dependent branchId
@@ -73,9 +78,40 @@ public abstract class CFGVertexHolder {
 	 */
 	public Branch getControlDependentBranch() {
 		// TODO fails if this.v is a branch
+		// quick fix idea: take byteCode instruction directly
+		//		previous to the branch (id-1)
+		//		this is should have correct branchId and branchExpressionValue
+		if(Branch.isActualBranch(v)) {
+			CFGVertex hope = 
+				CFGMethodAdapter.getCompleteCFG(getClassName(), getMethodName()).getVertex(getId()-1);
+			if(hope==null)
+				return null;
+			return new CFGVertexHolder(hope).getControlDependentBranch();
+		}
 		return BranchPool.getBranch(getBranchId());
 	}
 	
+	/**
+	 * Determines the number of branches that have to be passed in order to
+	 * pass this CFGVertex
+	 * 
+	 * Used to determine TestFitness difficulty
+	 */
+	public int getCDGDepth() {
+		Branch current = getControlDependentBranch();
+		int r = 1;
+		while(current!=null) {
+			r++;
+			current = current.getControlDependentBranch();
+		}
+		return r;
+
+	}
+	
+	private int getId() {
+		return v.getID();
+	}
+
 	public CFGVertex getCFGVertex() {
 		return v;
 	}

@@ -14,10 +14,15 @@ import de.unisb.cs.st.evosuite.coverage.CFGVertexHolder;
 public class Branch extends CFGVertexHolder {
 
 	public Branch(CFGVertex v) {
-		if (!(v.isBranch() || v.isLookupSwitch() || v.isTableSwitch()))
+		super(v);
+		if (!isActualBranch(v))
 			throw new IllegalArgumentException("Vertex of a branch expected");
 
 		this.v = v;
+	}
+
+	public static boolean isActualBranch(CFGVertex v) {
+		return v.isBranch() || v.isLookupSwitch() || v.isTableSwitch();
 	}
 
 }

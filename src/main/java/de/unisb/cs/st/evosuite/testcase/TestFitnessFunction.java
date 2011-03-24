@@ -30,7 +30,7 @@ import de.unisb.cs.st.evosuite.ga.FitnessFunction;
  * @author Gordon Fraser
  * 
  */
-public abstract class TestFitnessFunction extends FitnessFunction {
+public abstract class TestFitnessFunction extends FitnessFunction implements Comparable<TestFitnessFunction> {
 
 	protected TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
@@ -127,14 +127,61 @@ public abstract class TestFitnessFunction extends FitnessFunction {
 	 * should be added to the initial population for this TestFitnessFunction
 	 * 
 	 * Each CoverageTestFitness can override this method in order to
-	 * "enable" the ChromosomeRecycling.
+	 * define when two goals are similar to each other in a way that
+	 * tests covering one of them is likely to cover the other one too
+	 * or is at least expected to provide a good fitness for it  
 	 * 
-	 * If this method does not get overwritten it's like ChromosomeRecycling is disabled. 
+	 * If this method does not get overwritten ChromosomeRecycling 
+	 * obviously won't work and disabling it using Properties.recycle_chromosomes
+	 * is encouraged in order to avoid unnecessary performance loss   
 	 */
 	public boolean isSimilarTo(TestFitnessFunction goal) {
 		return false;
 	}
 
+	/**
+	 * This function is used for initial preordering of goals in
+	 * the individual test case generation in TestSuiteGenerator
+	 * 
+	 * The idea is to search for easy goals first and reuse their
+	 * TestChromosomes later when looking for harder goals that
+	 * depend for example on Branches that were already covered by
+	 * the easier goal.
+	 * 
+	 * So the general idea is that a TestFitnessFunction with a
+	 * higher difficulty is concerned with CFGVertices deep down
+	 * in the CDG one with a lower difficulty with vertices
+	 * near the root-branch of their method.
+	 * 
+	 * Each CoverageTestFitness can override this method to define
+	 * which goals should be searched for first (low difficulty)
+	 * and which goals should be postponed initially
+	 * 
+	 * Disclaimer:
+	 * 
+	 * If this method does not get overwritten preordering
+	 * of goals by difficulty obviously won't work and disabling 
+	 * it using Properties.preorder_goals_by_difficulty
+	 * is encouraged in order to avoid unnecessary performance loss
+	 * 
+	 * Also the whole idea of the difficulty value is to boost
+	 * the performance gain in terms of GA-evolutions the
+	 * ChromosomeRecycler is supposed to achieve.
+	 * So if recycling is disabled or not implemented preordering
+	 * should be disabled too.
+	 */
+	public int getDifficulty() {
+		return 0;
+	}
+	
+	/**
+	 * Used to preorder goals by difficulty
+	 */
+	@Override
+	public int compareTo(TestFitnessFunction other) {
+		return new Integer(getDifficulty()).compareTo(other.getDifficulty());
+	}
+	
 	/**
 	 * Determine if there is an existing test case covering this goal
 	 * 
@@ -142,9 +189,8 @@ public abstract class TestFitnessFunction extends FitnessFunction {
 	 */
 	public boolean isCovered(List<TestCase> tests) {
 		for (TestCase test : tests) {
-			if (isCovered(test)) {
+			if (isCovered(test))
 				return true;
-			}
 		}
 		return false;
 	}

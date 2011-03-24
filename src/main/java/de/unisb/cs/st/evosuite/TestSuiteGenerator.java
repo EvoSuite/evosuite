@@ -19,6 +19,7 @@
 package de.unisb.cs.st.evosuite;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -277,7 +278,10 @@ public class TestSuiteGenerator {
 		// Get list of goals
 		TestFitnessFactory goal_factory = getFitnessFactory();
 		List<TestFitnessFunction> goals = goal_factory.getCoverageGoals();
+		// Need to shuffle goals because the order may make a difference
 		Randomness.getInstance().shuffle(goals);
+		if(Properties.getPropertyOrDefault("preorder_goals_by_difficulty", true))
+			orderGoalsByDifficulty(goals);
 		System.out.println("* Total number of test goals: " + goals.size());
 
 		// Bootstrap with random testing to cover easy goals
@@ -301,7 +305,6 @@ public class TestSuiteGenerator {
 			        + " test goals");
 		}
 
-		// Need to shuffle goals because the order may make a difference
 		GlobalTimeStoppingCondition global_time = new GlobalTimeStoppingCondition();
 		int total_goals = goals.size();
 		int current_budget = 0;
@@ -447,6 +450,15 @@ public class TestSuiteGenerator {
 		statistics.minimized(suite);
 
 		return suite.getTests();
+	}
+
+	private void orderGoalsByDifficulty(List<TestFitnessFunction> goals) {
+		
+		Collections.sort(goals);
+//		for(TestFitnessFunction goal : goals) {
+//			System.out.println(goal.toString());
+//			System.out.println("dificulty: "+goal.getDifficulty());
+//		}
 	}
 
 	/**
