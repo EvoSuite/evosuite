@@ -47,7 +47,7 @@ public class DefUseFitnessCalculations {
 	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT = 
 		Properties.getPropertyOrDefault("penalize_overwriting_definitions_flat", false);
 	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY = 
-		Properties.getPropertyOrDefault("penalize_overwriting_definitions_linearly", true);
+		Properties.getPropertyOrDefault("penalize_overwriting_definitions_linearly", false);
 	private static double SINGLE_ALTERNATIVE_FITNESS_RANGE = 
 		Properties.getPropertyOrDefault("alternative_fitness_range", 100.0);
 	// ensure alternative fitness configuration is valid

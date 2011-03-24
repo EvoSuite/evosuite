@@ -83,7 +83,7 @@ public class CFGVertexHolder {
 		//		this is should have correct branchId and branchExpressionValue
 		if(Branch.isActualBranch(v)) {
 			CFGVertex hope = 
-				CFGMethodAdapter.getCompleteCFG(getClassName(), getMethodName()).getVertex(getId()-1);
+				CFGMethodAdapter.getCompleteCFG(getClassName(), getMethodName()).getVertex(getVertexId()-1);
 			if(hope==null)
 				return null;
 			return new CFGVertexHolder(hope).getControlDependentBranch();
@@ -108,7 +108,7 @@ public class CFGVertexHolder {
 
 	}
 	
-	private int getId() {
+	public int getVertexId() {
 		return v.getID();
 	}
 

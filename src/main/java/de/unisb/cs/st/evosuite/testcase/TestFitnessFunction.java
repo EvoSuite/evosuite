@@ -20,6 +20,7 @@ package de.unisb.cs.st.evosuite.testcase;
 
 import java.util.List;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeRecycler;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
@@ -136,6 +137,9 @@ public abstract class TestFitnessFunction extends FitnessFunction implements Com
 	 * is encouraged in order to avoid unnecessary performance loss   
 	 */
 	public boolean isSimilarTo(TestFitnessFunction goal) {
+		if(Properties.getPropertyOrDefault("recycle_chromosomes", true))
+			logger.warn("called default TestFitness.isSimilarTo() though recycling is enabled. " +
+					"possible performance loss. set property recycle_chromosomes to false");
 		return false;
 	}
 
@@ -171,6 +175,9 @@ public abstract class TestFitnessFunction extends FitnessFunction implements Com
 	 * should be disabled too.
 	 */
 	public int getDifficulty() {
+		if(Properties.getPropertyOrDefault("preorder_goals_by_difficulty", true))
+			logger.warn("called default TestFitness.getDifficulty() though preordering is enabled. " +
+					"possible performance loss. set property preorder_goals_by_difficulty to false");
 		return 0;
 	}
 	
