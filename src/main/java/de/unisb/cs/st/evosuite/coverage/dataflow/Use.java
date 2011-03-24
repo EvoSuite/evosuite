@@ -15,6 +15,7 @@ public class Use extends DefUse {
 
 	
 	public Use(CFGVertex v) {
+		super(v);
 		if(!v.isUse())
 			throw new IllegalArgumentException("Vertex of a use expected");
 		

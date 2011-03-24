@@ -235,6 +235,18 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		individual.setFitness(fitness);
 	}
 	
+	/**
+	 * First approximation:
+	 * A DUGoal is similar to another one if the goalDef or goalUse branch
+	 * of this goal is similar to the goalDef or goalUse branch of the other goal
+	 * 
+	 * TODO should be:
+	 * Either make it configurable or choose one:
+	 *  - first approximation as described above
+	 *  - similar if goal definition or use are equal
+	 *  - something really fancy considering potential overwriting definitions and stuff
+	 */
+	@Override
 	public boolean isSimilarTo(TestFitnessFunction goal) {
 		if(goal instanceof BranchCoverageTestFitness) {
 			BranchCoverageTestFitness branchFitness = (BranchCoverageTestFitness)goal;
@@ -250,6 +262,26 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		} catch(ClassCastException e) {
 			return false;
 		}
+	}
+	
+	/**
+	 * First approximation: Add up goalDef and goal Use branch difficulty
+	 * and subtract one if they are in the same method.
+	 * 
+	 * TODO Should be:
+	 * Distance to goalDef + Distance from goalDef to goalUse
+	 */
+	@Override
+	public int getDifficulty() {
+		int r = 1;
+		r+=goalUseBranchFitness.getDifficulty();
+		if(goalDefinitionBranchFitness!=null) {
+			r+=goalDefinitionBranchFitness.getDifficulty();
+			if(goalDefinition.getMethodName().equals(goalUse.getMethodName()))
+				r--;
+		}
+		
+		return r;
 	}
 	
 

@@ -75,6 +75,14 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 			return false;
 		}
 	}
+	
+	@Override
+	public int getDifficulty() {
+		if(goal==null)
+			return 1;
+		else
+			return goal.getDifficulty();
+	}
 
 	/**
 	 * Store information

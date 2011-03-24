@@ -103,6 +103,18 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 		}
 		return branch.isControlDependentOn(goal.branch) || goal.branch.isControlDependentOn(branch) ;
 	}
+	
+	/**
+	 * Returns the number of branches  
+	 */
+	public int getDifficulty() {
+		int r = 1;
+		if(branch!=null) {
+			r+=branch.getCDGDepth();
+		}
+		return r;
+	}
+
 
 	/**
 	 * Determine if there is an existing test case covering this goal
