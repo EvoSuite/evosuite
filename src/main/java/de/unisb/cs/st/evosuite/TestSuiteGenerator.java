@@ -37,6 +37,7 @@ import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
+import de.unisb.cs.st.evosuite.ga.ChromosomeRecycler;
 import de.unisb.cs.st.evosuite.ga.CrossOverFunction;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.FitnessProportionateSelection;
@@ -101,8 +102,6 @@ public class TestSuiteGenerator {
 
 	private StoppingCondition stopping_condition;
 	
-	private long additional_time = 0l; // experiment
-
 	/**
 	 * Generate a test suite for the target class
 	 */
@@ -164,7 +163,7 @@ public class TestSuiteGenerator {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		long end_time = System.currentTimeMillis() / 1000;
 		System.out.println("* Search finished after " + (end_time - start_time)
-		        + "s, best individual has fitness " + best.getFitness());
+		        + "s and "+ga.getAge()+" generations, best individual has fitness " + best.getFitness());
 
 		if (Properties.MINIMIZE) {
 			System.out.println("* Minimizing result");
@@ -178,17 +177,19 @@ public class TestSuiteGenerator {
 		
 		System.out.println("* Resulting TestSuite's coverage: "+best.getCoverage());
 		
-		// TODO this is horribly inefficient! 
-		// compute all results once and then ask each goal and put all that in TestSuiteFitnessFuncion
-		List<TestFitnessFunction> singleGoals = getFitnessFactory().getCoverageGoals();
-		int covered = 0;
-		for(TestFitnessFunction singleGoal : singleGoals) {
-			if(singleGoal.isCovered(best.getTests()))
-				covered++;
+		if(Properties.CRITERION.equals("defuse")) {
+			// TODO this is horribly inefficient! 
+			// compute all results once and then ask each goal individually
+			// ... and put all that in TestSuiteFitnessFuncion
+			List<TestFitnessFunction> singleGoals = getFitnessFactory().getCoverageGoals();
+			int covered = 0;
+			for(TestFitnessFunction singleGoal : singleGoals) {
+				if(singleGoal.isCovered(best.getTests()))
+					covered++;
+			}
+			System.out.println("* Covered "+covered+"/"+singleGoals.size()+" goals");
+			ga.printBudget();;
 		}
-		System.out.println("* Covered "+covered+"/"+singleGoals.size()+" goals");
-		
-		ga.printBudget();;
 		
 		return best.getTests();
 	}
@@ -328,7 +329,7 @@ public class TestSuiteGenerator {
 				ga.resetStoppingConditions();
 				ga.clearPopulation();
 
-				if(total_goals-covered_goals<5)
+				if(Properties.getPropertyOrDefault("print_current_goals", false))
 					System.out.println("* Searching for goal " + num + ": "
 					        + fitness_function.toString());
 				logger.info("Goal " + num + "/" + (total_goals - covered_goals) + ": "
@@ -367,7 +368,7 @@ public class TestSuiteGenerator {
 					}
 					best.test.addCoveredGoal(fitness_function);
 					suite.addTest(best);
-
+					
 					// suite.addTest((TestChromosome)ga.getBestIndividual());
 					covered_goals++;
 					covered.add(num);
@@ -419,7 +420,6 @@ public class TestSuiteGenerator {
 			}
 		else
 			System.out.println("! #Goals that were not covered: "+uncovered_goals);
-		System.out.println("* Additional time taken: "+additional_time+" ms");
 
 		List<Chromosome> population = new ArrayList<Chromosome>();
 		population.add(suite);
@@ -459,7 +459,6 @@ public class TestSuiteGenerator {
 			List<TestFitnessFunction> goals, Set<Integer> covered,
 			TestChromosome best) {
 
-		long start = System.currentTimeMillis();
 		Set<Integer> r = new HashSet<Integer>();
 		ExecutionResult result = TestCaseExecutor.getInstance().execute(best.test);
 		int num = -1;
@@ -473,9 +472,6 @@ public class TestSuiteGenerator {
 					System.out.println("* Additionally covered: "+goal.toString());
 			}
 		}
-		long end = System.currentTimeMillis();
-		long took = end-start;
-		additional_time+= took;
 		return r;
 	}
 

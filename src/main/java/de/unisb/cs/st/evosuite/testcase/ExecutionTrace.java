@@ -183,6 +183,7 @@ public class ExecutionTrace {
 				call.true_distance_trace.add(1.0);
 				call.false_distance_trace.add(0.0);
 				call.defuse_counter_trace.add(duCounter);
+				// TODO line_trace ?
 			}
 			stack.push(call);
 		}
@@ -298,6 +299,7 @@ public class ExecutionTrace {
 			stack.peek().branch_trace.add(bytecode_id);
 			stack.peek().true_distance_trace.add(true_distance);
 			stack.peek().false_distance_trace.add(false_distance);
+			// TODO line_trace ?
 			if(Properties.CRITERION.equals("defuse")) {
 				stack.peek().defuse_counter_trace.add(duCounter);
 			}		
@@ -525,7 +527,7 @@ public class ExecutionTrace {
 	 */
 	private static void removeFromFinishCall(MethodCall call,
 			ArrayList<Integer> removableIndices) {
-		
+		// TODO: line_trace?	
 		//check if call is sane
 		if(!(call.true_distance_trace.size() == call.false_distance_trace.size()
 				&& call.false_distance_trace.size() == call.defuse_counter_trace.size()

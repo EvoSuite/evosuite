@@ -69,7 +69,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 	
 	public static void computeGoals() {
 		// TODO replace this with Reaching-Definitions-Algorithm 
-		logger.info("Starting DefUse-Coverage goal generation");
+		logger.trace("starting DefUse-Coverage goal generation");
 		duGoals = new ArrayList<DefUseCoverageTestFitness>();
 		
 		duGoals.addAll(getPairsWithinMethods());

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -125,6 +126,85 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	@Override
 	public abstract void generateSolution();
 
+	/**
+	 * Fills the population at first with recycled chromosomes
+	 * - for more information see recycleChromosomes() and ChromosomeRecycler -
+	 * and after that, the population is filled with random chromosomes.
+	 * 
+	 * This method guarantees at least a proportion of
+	 * Properties.initially_enforeced_randomness % of random chromosomes 
+	 *  
+	 */
+	protected void generateInitialPopulation(int population_size) {
+		boolean recycle = Properties.getPropertyOrDefault("recycle_chromosomes", true);
+		if(Properties.STRATEGY.equals("EvoSuite")) // recycling only makes sense for single test generation
+			recycle = false;
+		if(recycle)
+			recycleChromosomes(population_size);
+		
+		generateRandomPopulation(population_size-population.size());
+	}
+	
+	/**
+	 * Adds to the current population all chromosomes that had a good performance
+	 * on a goal that was similar to the current fitness_function.
+	 * 
+	 * For more information look at ChromosomeRecycler and TestFitnessFunction.isSimilarTo()
+	 */
+	protected void recycleChromosomes(int population_size) {
+		if(fitness_function==null)
+			return;
+		ChromosomeRecycler recycler = ChromosomeRecycler.getInstance();
+		Set<Chromosome> recycables = recycler.getRecycableChromosomes(fitness_function);
+		for(Chromosome recycable : recycables) {
+			population.add(recycable);
+		}
+		double enforced_randomness = Properties.getPropertyOrDefault("initially_enforced_randomness",0.2);
+		if(enforced_randomness<0.0 || enforced_randomness>1.0) {
+			logger.warn("property \"initially_enforced_randomness\" is supposed to be a percentage in [0.0,1.0]");
+			logger.warn("retaining to default");
+			enforced_randomness = 0.2;
+		}
+		enforced_randomness = 1-enforced_randomness;
+		population_size*=enforced_randomness;
+		starveToLimit(population_size);
+	}
+
+	/**
+	 * This method can be used to kick out chromosomes when the population is possibly overcrowded 
+	 * 
+	 * Depending on the Property "starve_by_fitness" chromosome are either
+	 * kicked out randomly or according to their fitness
+	 */
+	protected void starveToLimit(int limit) {
+		if(Properties.getPropertyOrDefault("starve_by_fitness", false))
+			starveByFitness(limit);
+		else
+			starveRandomly(limit);
+	}
+	
+	/**
+	 * This method can be used to kick out random chromosomes in the current population
+	 * until the given limit is reached again.
+	 */
+	protected void starveRandomly(int limit) {
+		while(population.size()>limit) {
+			int removePos = randomness.nextInt() % population.size();
+			population.remove(removePos);
+		}
+	}
+	
+	/**
+	 * This method can be used to kick out the worst chromosomes in the current population
+	 * until the given limit is reached again.
+	 */
+	protected void starveByFitness(int limit) {
+		calculateFitness();
+		for(int i=population.size()-1;i>=limit;i--) {
+			population.remove(i);
+		}
+	}
+	
 	/**
 	 * Generate random population of given size
 	 * 

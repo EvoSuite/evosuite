@@ -21,6 +21,7 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.ga.ChromosomeRecycler;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 
 /**
@@ -119,6 +120,20 @@ public abstract class TestFitnessFunction extends FitnessFunction {
 
 		return c.getFitness();
 	}
+	
+	/**
+	 * This function is used by the ChromosomeRecycler to determine
+	 * whether an older TestChromosome that covered the given goal
+	 * should be added to the initial population for this TestFitnessFunction
+	 * 
+	 * Each CoverageTestFitness can override this method in order to
+	 * "enable" the ChromosomeRecycling.
+	 * 
+	 * If this method does not get overwritten it's like ChromosomeRecycling is disabled. 
+	 */
+	public boolean isSimilarTo(TestFitnessFunction goal) {
+		return false;
+	}
 
 	/**
 	 * Determine if there is an existing test case covering this goal
@@ -147,8 +162,10 @@ public abstract class TestFitnessFunction extends FitnessFunction {
 	
 	public boolean isCovered(TestChromosome individual, ExecutionResult result) {
 		boolean covered = getFitness(individual,result) == 0.0;
-		if (covered)
+		if (covered) {
+			ChromosomeRecycler.getInstance().testIsInterestingForGoal(individual, this);
 			individual.test.addCoveredGoal(this);
+		}
 		return covered;		
 	}
 }

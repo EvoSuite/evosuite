@@ -64,7 +64,7 @@ public class BenchmarkWithAndZerosTestClass {
 		if(targetField==0) {
 			auxField0=2;
 			if(!milestoneAZ2)
-				System.out.println("Tests reached Zero-And milestone 1");
+				System.out.println("Tests reached Zero-And milestone 2");
 			milestoneAZ2=true;
 		}
 		if(auxField3 != auxField2+5 && auxField3!=0)
@@ -76,7 +76,7 @@ public class BenchmarkWithAndZerosTestClass {
 		if(targetField==0) {
 			yetAnotherField++;
 			if(!milestoneAZ3)
-				System.out.println("Tests reached Zero-And milestone 1");
+				System.out.println("Tests reached Zero-And milestone 3");
 			milestoneAZ3=true;
 		}
 		if(auxField6 != auxField5*someField && auxField6!=0)
