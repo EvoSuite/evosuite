@@ -24,6 +24,9 @@ import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
  */
 public class BranchPool {
 
+	// TODO: root branches should not be special cases
+	//			every root branch should be a branch just like every other branch with it's own branchId and all
+	
 	// maps className -> method inside that class -> list of branches inside that method 
 	public static Map<String, Map<String, List<Branch>>> branchMap = new HashMap<String, Map<String, List<Branch>>>();
 

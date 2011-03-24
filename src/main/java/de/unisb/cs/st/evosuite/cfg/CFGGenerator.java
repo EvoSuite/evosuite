@@ -86,8 +86,9 @@ public class CFGGenerator extends Analyzer {
 		public int defuseId = -1;
 		public int useId = -1;
 		public int defId = -1;
-		public int branchId = -1;
 		public boolean isParameterUse = false; // is set by DefUsePool
+		// TODO: every CFGVertex should hold a reference to it's control dependent Branch
+		public int branchId = -1;
 		public boolean branchExpressionValue = true; // TODO this should be false whenever it is true and visa versa
 		public String methodName;
 		public String className;
@@ -115,6 +116,10 @@ public class CFGGenerator extends Analyzer {
 			return false;
 		}
 
+		// TODO shouldn'tthe following the methods be somehow merged
+		//		to reflect that all three return true on a "Branch"
+		//		in the sense of evosuite.coverage.branch.Branch ?
+		
 		public boolean isBranch() {
 			return isJump() && !isGoto();
 		}

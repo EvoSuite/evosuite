@@ -59,7 +59,9 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 //		when looking for another goal with that definition or use respectively
  * 		idea: implement some sort of chromosome pool for each CUT
  * 			- keep track of "good" chromosomes, that cover defs and uses and 
- * 				use them for initial population when looking for goals concerning these DUs 
+ * 				use them for initial population when looking for goals concerning these DUs
+ *  - also if one would implement the above point it would be very profitable to
+ *  	order the goals such that easy goals are searched for first and for harder ones (deep in the CDG) later  
 //	- fix control dependencies analysis
 //	- implement real ReachingDefinitions algorithm
 //	- even more information in resulting tests?
@@ -77,7 +79,7 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  *  - DONE: Kick out ControlDependencyTestClass-loops that take forever!
  *  - handle timeouts in tests
  *  - refactor: separate DefUseCoverageGoal and DefUseCoverageTestFitness
- *  - implement hash() functions?
+ *  - implement hashCode() functions?
  *  - NoStoppingCondition .. maybe even serialize populations and resume evolving later
  *  - now this is more of a theoretical one but still:
  *   	- how does one find the "perfect" configuration for the GA?
@@ -103,9 +105,14 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  *    	
  *    - in order to do all that SearchStatistics should be get a complete refactor-marathon-overhaul:
  *    	- make distinction between HTML-generation and statistics part, interlink them via .csv-files
- *    	- encapsulate different HTML-generation-parts in separate classes like one for Code, one for plots etc.
+ *    	- maybe dont generate any HTML at all but rather just put all relevant data in 
+ *    		.csv-files together with plots in a special directory which in turn can be 
+ *    		visualized in all kinds of ways. out the top of my head i'd say PHP would be very suited for that
+ *     
+ *    	- maybe encapsulate different HTML-generation-parts in separate classes like one for Code, one for plots etc.
  *    	- well just come up with a nice class model is all i'm trying to say i guess
- *    	- srsly though, this SearchStatistcs class is a mess :D and buggy as hell too it seems 
+ *    	- srsly though, this SearchStatistcs class is a mess :D and buggy as hell too it seems
+ * - found a bug: s. ExceptionTestClass: sometimes passedLine is called before enteredMethod in instrumented code 
 
  *  
  * things to write about:
@@ -125,6 +132,7 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  *  
  *  Questions:
  *   - BranchCoverageGoal also treats root branches with expression value true!
+ *   - why does GA assume population.get(0) to be the best individual?
  */
 
 
@@ -227,6 +235,23 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		individual.setFitness(fitness);
 	}
 	
+	public boolean isSimilarTo(TestFitnessFunction goal) {
+		if(goal instanceof BranchCoverageTestFitness) {
+			BranchCoverageTestFitness branchFitness = (BranchCoverageTestFitness)goal;
+			if(goalDefinitionBranchFitness!=null && branchFitness.isSimilarTo(goalDefinitionBranchFitness))
+				return true;
+			return branchFitness.isSimilarTo(goalUseBranchFitness);
+		}
+		try {
+			DefUseCoverageTestFitness other = (DefUseCoverageTestFitness)goal;
+			if(goalDefinitionBranchFitness != null && goalDefinitionBranchFitness.isSimilarTo(other))
+				return true;
+			return goalUseBranchFitness.isSimilarTo(other);
+		} catch(ClassCastException e) {
+			return false;
+		}
+	}
+	
 
 	// debugging methods
 	
@@ -292,7 +317,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public String toString() {
 		StringBuffer r = new StringBuffer();
-		r.append("DUFitness for:");
+		r.append("Definition-Use-Pair:");
 		r.append("\n\t");
 		if(goalDefinition == null)
 			r.append("Parameter-Definition "+goalUse.getLocalVarNr()+" for method "+goalUse.getMethodName());

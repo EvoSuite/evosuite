@@ -19,6 +19,7 @@
 package de.unisb.cs.st.evosuite.coverage.branch;
 
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
+import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
@@ -57,6 +58,22 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 
 		updateIndividual(individual, fitness);
 		return fitness;
+	}
+	
+	@Override
+	public boolean isSimilarTo(TestFitnessFunction other) {
+		if(other instanceof DefUseCoverageTestFitness) {
+			DefUseCoverageTestFitness duFitness = (DefUseCoverageTestFitness)other;
+			if(duFitness.getGoalDefinitionBranchFitness()!=null && isSimilarTo(duFitness.getGoalDefinitionBranchFitness()))
+				return true;
+			return isSimilarTo(duFitness.getGoalUseBranchFitness());
+		}
+		try {
+			BranchCoverageTestFitness otherFitness = (BranchCoverageTestFitness)other;
+			return goal.isConnectedTo(otherFitness.goal);
+		}catch(ClassCastException e) {
+			return false;
+		}
 	}
 
 	/**
