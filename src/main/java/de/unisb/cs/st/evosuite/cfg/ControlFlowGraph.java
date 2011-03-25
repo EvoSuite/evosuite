@@ -308,6 +308,29 @@ public class ControlFlowGraph {
 		}
 		return minimum;
 	}
+	
+	/**
+	 * Returns the maximal number of byteCode instructions it might
+	 * take to execute from entering the method of this CFG until
+	 * the given CFGVertex is reached.
+	 * 
+	 * This is computed by following all incoming edges to the given
+	 * CFGVertex that have a lower id and taking the maximum over
+	 * all path-lengths computed that way.
+	 */
+	public int getMaximalInitialDistance(CFGVertex v) {
+		Set<DefaultEdge> incomingEdges = graph.incomingEdgesOf(v);
+		int max = 0;
+		for(DefaultEdge incomingEdge : incomingEdges) {
+			CFGVertex source = graph.getEdgeSource(incomingEdge);
+			if(source.getID() >= v.getID())
+				continue;
+			int current = getMaximalInitialDistance(source);
+			if(current>max)
+				max=current;
+		}
+		return 1+max;
+	}
 
 	@Override
 	public String toString() {

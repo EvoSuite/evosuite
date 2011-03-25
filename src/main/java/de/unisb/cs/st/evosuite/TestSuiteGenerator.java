@@ -34,6 +34,7 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -280,9 +281,11 @@ public class TestSuiteGenerator {
 		List<TestFitnessFunction> goals = goal_factory.getCoverageGoals();
 		// Need to shuffle goals because the order may make a difference
 		Randomness.getInstance().shuffle(goals);
-		if(Properties.getPropertyOrDefault("preorder_goals_by_difficulty", true))
+		if(Properties.getPropertyOrDefault("preorder_goals_by_difficulty", true)) {
 			orderGoalsByDifficulty(goals);
-		else
+			System.out.println("* Time taken for difficulty computation: "
+					+ DefUseCoverageTestFitness.difficulty_time+"ms");
+		} else
 			System.out.println("* Goal preordering by difficulty disabled");
 		if(!Properties.getPropertyOrDefault("recycle_chromosomes", true))
 			System.out.println("* ChromosomeRecycler disabled!");
@@ -463,7 +466,6 @@ public class TestSuiteGenerator {
 		Collections.sort(goals);
 //		for(TestFitnessFunction goal : goals) {
 //			System.out.println(goal.toString());
-//			System.out.println("dificulty: "+goal.getDifficulty());
 //		}
 	}
 
