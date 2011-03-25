@@ -253,7 +253,8 @@ public class TestSuiteGenerator {
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goals);
 			minimizer.minimize(chromosome);
 		}
-		System.out.println("* Initial test suite contains " + chromosome.size()
+		if(random_tests>0)
+			System.out.println("* Initial test suite contains " + chromosome.size()
 		        + " tests");
 
 		return chromosome;

@@ -18,6 +18,8 @@
 
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
+import java.util.Set;
+
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
@@ -305,7 +307,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		if(goalDefinitionBranchFitness==null)
 			return useDifficulty;
 		int defDifficulty = calculateDefinitionDifficulty();
-		return useDifficulty*defDifficulty;
+		return useDifficulty+defDifficulty;
 	}
 
 	/**
@@ -320,8 +322,10 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(goalDefinition.getClassName(), 
 				goalDefinition.getMethodName());
 		CFGVertex defVertex = cfg.getVertex(goalDefinition.getVertexId());
-		int defDifficulty = cfg.getPreviousInstructionsInMethodCount(defVertex);
+		int defDifficulty = cfg.getPreviousInstructionsInMethod(defVertex).size();
 		defDifficulty+=goalDefinitionBranchFitness.getDifficulty();
+		// TODO: stopped here! s. ControlFlowGraph.getLaterInstructions for further instructions
+//		Set<CFGVertex> postInstructions = cfg.getLaterInstructionsInMethod(defVertex);
 		difficulty_time+= System.currentTimeMillis()-start;
 		return defDifficulty;
 	}
@@ -338,8 +342,12 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(goalUse.getClassName(), 
 				goalUse.getMethodName());
 		CFGVertex useVertex = cfg.getVertex(goalUse.getVertexId());
-		int useDifficulty = cfg.getPreviousInstructionsInMethodCount(useVertex);
-		useDifficulty*=goalUseBranchFitness.getDifficulty();
+		Set<CFGVertex> previousInstructions = cfg.getPreviousInstructionsInMethod(useVertex);
+		int useDifficulty = previousInstructions.size();
+		useDifficulty+=goalUseBranchFitness.getDifficulty();
+		if(goalDefinition!= null)
+			useDifficulty*=DefUseExecutionTraceAnalyzer.
+				getOverwritingDefinitionsIn(goalDefinition, previousInstructions).size();
 		difficulty_time+= System.currentTimeMillis()-start;
 		return useDifficulty;
 	}

@@ -315,7 +315,7 @@ public class ControlFlowGraph {
 	 * executed from entering the method of this CFG until
 	 * the given CFGVertex is reached.
 	 */
-	public int getPreviousInstructionsInMethodCount(CFGVertex v) {
+	public Set<CFGVertex> getPreviousInstructionsInMethod(CFGVertex v) {
 		Set<CFGVertex> visited = new HashSet<CFGVertex>();
 		PriorityQueue<CFGVertex> queue = new PriorityQueue<CFGVertex>();
 		queue.add(v);
@@ -332,9 +332,35 @@ public class ControlFlowGraph {
 			}
 			visited.add(current);
 		}
-		
-		return visited.size();
+//		System.out.println("l"+v.line_no+": "+visited.size());
+		return visited;
 	}
+	
+//	/** TODO stopped here: implement CFGVertexIdComparator and Reverse version of that to proceed 
+//	 * Returns the number of byteCode instructions that can be
+//	 * executed from entering the method of this CFG until
+//	 * the given CFGVertex is reached.
+//	 */
+//	public Set<CFGVertex> getLaterInstructionsInMethod(CFGVertex v) {
+//		Set<CFGVertex> visited = new HashSet<CFGVertex>();
+//		PriorityQueue<CFGVertex> queue = new PriorityQueue<CFGVertex>();
+//		queue.add(v);
+//		while(queue.peek()!=null) {
+//			CFGVertex current = queue.poll();
+//			if(visited.contains(current))
+//				continue;
+//			Set<DefaultEdge> incomingEdges = graph.incomingEdgesOf(current);
+//			for(DefaultEdge incomingEdge : incomingEdges) {
+//				CFGVertex source = graph.getEdgeSource(incomingEdge);
+//				if(source.getID() >= current.getID())
+//					continue;
+//				queue.add(source);
+//			}
+//			visited.add(current);
+//		}
+////		System.out.println("l"+v.line_no+": "+visited.size());
+//		return visited;
+//	}	
 
 	@Override
 	public String toString() {
