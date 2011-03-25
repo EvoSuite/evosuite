@@ -1,12 +1,14 @@
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 
@@ -131,6 +133,34 @@ public abstract class DefUseExecutionTraceAnalyzer {
 			r.add(defId);
 		}
 		return r;
+	}
+	
+	/**
+	 * Returns a Set containing all elements in the given vertex set that
+	 * are overwriting definitions for the given targetDefinition 
+	 */
+	public static Set<CFGVertex> getOverwritingDefinitionsIn(Definition targetDefinition,
+			Collection<CFGVertex> vertices) {
+		Set<CFGVertex> r = new HashSet<CFGVertex>();
+		for(CFGVertex vertex : vertices) {
+			if(!vertex.isDefinition())
+				continue;
+			Definition currentDefinition = new Definition(vertex) ;
+			if(isOverwritingDefinition(targetDefinition,currentDefinition))
+				r.add(vertex);
+		}
+		return r;
+	}
+
+	/**
+	 * Determines if the two given Definitions refer to the same variable
+	 * but are different 
+	 */
+	public static boolean isOverwritingDefinition(Definition targetDefinition,
+			Definition definition) {
+
+		return targetDefinition.getDUVariableName().equals(definition.getDUVariableName())
+				&& targetDefinition.getDefId()!=definition.getDefId();
 	}
 
 	/**
