@@ -73,7 +73,7 @@ public class CFGGenerator extends Analyzer {
 	 * @author Gordon Fraser
 	 * 
 	 */
-	public class CFGVertex {
+	public class CFGVertex implements Comparable<CFGVertex>{
 
 		AbstractInsnNode node;
 		CFGFrame frame;
@@ -421,6 +421,20 @@ public class CFGGenerator extends Analyzer {
 			if (className != null && !className.equals(other.className))
 				return false;
 			return true;
+		}
+
+		/**
+		 * Orders CFGVertices according to their id
+		 * 
+		 * This is mainly used to put CFGVertex into a PriorityQueue
+		 * in ControlFlowGraph.getMaximalInitialDistance()
+		 */
+		@Override
+		public int compareTo(CFGVertex arg0) {
+			// TODO: might just want to implement a special 
+			// VertexIdComparator instead of defining id as 
+			// the natural order for CFGVertices
+			return new Integer(id).compareTo(arg0.id);
 		}
 
 		// private CFGGenerator getOuterType() {

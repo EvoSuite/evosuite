@@ -237,18 +237,22 @@ public class TestSuiteGenerator {
 	private TestSuiteChromosome bootstrapRandomSuite(FitnessFunction fitness,
 	        TestFitnessFactory goals) {
 
-		System.out.println("* Bootstrapping initial random test suite");
-
-		TestSuiteChromosomeFactory factory = new TestSuiteChromosomeFactory();
 		int random_tests = Properties.getPropertyOrDefault("random_tests", 100);
-		if(Properties.CRITERION.equals("defuse")) {
+		if(random_tests>0)
+			System.out.println("* Bootstrapping initial random test suite");
+		else
+			System.out.println("* Bootstrapping initial random test suite disabled!");
+		TestSuiteChromosomeFactory factory = new TestSuiteChromosomeFactory();
+		if(Properties.CRITERION.equals("defuse") && random_tests>0) {
 			System.out.println("* Tuned down random bootstraping for DefUseCoverage-Criterion");
-			factory.setNumberOfTests(random_tests/10);
-		} else
-			factory.setNumberOfTests(random_tests);
+			random_tests = random_tests/10;
+		}
+		factory.setNumberOfTests(random_tests);
 		TestSuiteChromosome chromosome = (TestSuiteChromosome) factory.getChromosome();
-		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goals);
-		minimizer.minimize(chromosome);
+		if(random_tests>0) {
+			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goals);
+			minimizer.minimize(chromosome);
+		}
 		System.out.println("* Initial test suite contains " + chromosome.size()
 		        + " tests");
 

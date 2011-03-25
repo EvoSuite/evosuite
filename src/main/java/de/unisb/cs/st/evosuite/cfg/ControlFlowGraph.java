@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -310,26 +311,29 @@ public class ControlFlowGraph {
 	}
 	
 	/**
-	 * Returns the maximal number of byteCode instructions it might
-	 * take to execute from entering the method of this CFG until
+	 * Returns the number of byteCode instructions that can be
+	 * executed from entering the method of this CFG until
 	 * the given CFGVertex is reached.
-	 * 
-	 * This is computed by following all incoming edges to the given
-	 * CFGVertex that have a lower id and taking the maximum over
-	 * all path-lengths computed that way.
 	 */
-	public int getMaximalInitialDistance(CFGVertex v) {
-		Set<DefaultEdge> incomingEdges = graph.incomingEdgesOf(v);
-		int max = 0;
-		for(DefaultEdge incomingEdge : incomingEdges) {
-			CFGVertex source = graph.getEdgeSource(incomingEdge);
-			if(source.getID() >= v.getID())
+	public int getPreviousInstructionsInMethodCount(CFGVertex v) {
+		Set<CFGVertex> visited = new HashSet<CFGVertex>();
+		PriorityQueue<CFGVertex> queue = new PriorityQueue<CFGVertex>();
+		queue.add(v);
+		while(queue.peek()!=null) {
+			CFGVertex current = queue.poll();
+			if(visited.contains(current))
 				continue;
-			int current = getMaximalInitialDistance(source);
-			if(current>max)
-				max=current;
+			Set<DefaultEdge> incomingEdges = graph.incomingEdgesOf(current);
+			for(DefaultEdge incomingEdge : incomingEdges) {
+				CFGVertex source = graph.getEdgeSource(incomingEdge);
+				if(source.getID() >= current.getID())
+					continue;
+				queue.add(source);
+			}
+			visited.add(current);
 		}
-		return 1+max;
+		
+		return visited.size();
 	}
 
 	@Override

@@ -320,7 +320,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(goalDefinition.getClassName(), 
 				goalDefinition.getMethodName());
 		CFGVertex defVertex = cfg.getVertex(goalDefinition.getVertexId());
-		int defDifficulty = cfg.getMaximalInitialDistance(defVertex);
+		int defDifficulty = cfg.getPreviousInstructionsInMethodCount(defVertex);
 		defDifficulty+=goalDefinitionBranchFitness.getDifficulty();
 		difficulty_time+= System.currentTimeMillis()-start;
 		return defDifficulty;
@@ -338,7 +338,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(goalUse.getClassName(), 
 				goalUse.getMethodName());
 		CFGVertex useVertex = cfg.getVertex(goalUse.getVertexId());
-		int useDifficulty = cfg.getMaximalInitialDistance(useVertex);
+		int useDifficulty = cfg.getPreviousInstructionsInMethodCount(useVertex);
 		useDifficulty*=goalUseBranchFitness.getDifficulty();
 		difficulty_time+= System.currentTimeMillis()-start;
 		return useDifficulty;
