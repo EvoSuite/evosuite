@@ -109,14 +109,17 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  *    	
  *    - in order to do all that SearchStatistics should be get a complete refactor-marathon-overhaul:
  *    	- make distinction between HTML-generation and statistics part, interlink them via .csv-files
- *    	- maybe dont generate any HTML at all but rather just put all relevant data in 
+ *    	- maybe don't generate any HTML at all but rather just put all relevant data in 
  *    		.csv-files together with plots in a special directory which in turn can be 
  *    		visualized in all kinds of ways. out the top of my head i'd say PHP would be very suited for that
  *     
  *    	- maybe encapsulate different HTML-generation-parts in separate classes like one for Code, one for plots etc.
  *    	- well just come up with a nice class model is all i'm trying to say i guess
  *    	- srsly though, this SearchStatistcs class is a mess :D and buggy as hell too it seems
- * - found a bug: s. ExceptionTestClass: sometimes passedLine is called before enteredMethod in instrumented code 
+ * - found a bug: s. ExceptionTestClass: sometimes passedLine is called before enteredMethod in instrumented code
+ * - so DefUseCoverage goal computation scales pretty badly, why not separate goal analysis part and test creation
+ * 		like with -setup you could run -analyze_goals or something and it would serialize the goals on disc
+ * 		so the computed goals can be reused in later test creations ... srsly analysis takes minutes on bigger CUTs! 
 
  *  
  * things to write about:
@@ -163,6 +166,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	private final BranchCoverageTestFitness goalUseBranchFitness;
 	
 	private int difficulty = -1;
+	
+	public static long difficulty_time = 0l; // experiment 
 	
 	// coverage information
 	private Integer coveringObjectId = -1;
@@ -271,11 +276,15 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	}
 	
 	/**
-	 * First approximation: Add up goalDef and goal Use branch difficulty
-	 * and subtract one if they are in the same method.
+	 * If the goalDefinition is null, meaning the goalVariable is a Parameter-Variable
+	 * this method returns the goalUseDifficulty, otherwise the product of
+	 * goalUseDifficulty and goalDefinitionDicciculty is returned
 	 * 
-	 * TODO Should be:
-	 * Distance to goalDef + Distance from goalDef to goalUse
+	 * Since the computation of DefUSeCoverageTestFitness difficulty takes some time
+	 * the computation takes place only the first time this method is called. On later
+	 * invocations this method returns the stored result from the previous computation.
+	 * 
+	 * consult calculateDifficulty() for more information
 	 */
 	@Override
 	public int getDifficulty() {
@@ -285,35 +294,54 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	}
 	
 
+	/**
+	 * Calculates the difficulty of this DefUseCoverage goal
+	 * 
+	 * If the goalVariable is a parameter, the goalUseDifficulty is returned
+	 * otherwise the product of goalUseDifficulty and goalDefinitionDifficulty
+	 */
 	private int calculateDifficulty() {
-//		System.out.println("calculating difficulty for "+toString());
+		int useDifficulty = calculateUseDifficulty();
 		if(goalDefinitionBranchFitness==null)
-			return goalUseBranchFitness.getDifficulty();
-		
-		// TODO STOPPED HERE!! shit doesn't work as good as expected after all :(
-		// seems as if preordering is less efficient and sometimes even recycling is .. very sad, fix this!
-		
-		int r = goalDefinitionBranchFitness.getDifficulty();
-//		System.out.println("goaldefbranchdiff: "+r);
-		
-		if(!goalUse.getMethodName().equals(goalDefinition.getMethodName())
-				|| goalUse.getVertexId()<goalDefinition.getVertexId())
-			return r+goalUseBranchFitness.getDifficulty();
-		
-		ControlFlowGraph cfg = CFGMethodAdapter.getCFG(goalUse.getClassName(), goalUse.getMethodName());
-//		CFGVertex source = cfg.getVertex(goalDefinition.getVertexId());
-//		CFGVertex target = cfg.getVertex(goalDefinition.getVertexId());
-		Branch defBranch = goalDefinition.getControlDependentBranch();
-		Branch useBranch = goalUse.getControlDependentBranch();
-		if(defBranch==null || useBranch==null)
-			return r+goalUseBranchFitness.getDifficulty();
-		
-		CFGVertex source = cfg.getVertex(defBranch.getVertexId());
-		CFGVertex target = cfg.getVertex(useBranch.getVertexId());
-		int dist = cfg.getDistance(source,target);
-		r+=dist;
-//		System.out.println("returning "+r+" dist was"+dist);
-		return r;
+			return useDifficulty;
+		int defDifficulty = calculateDefinitionDifficulty();
+		return useDifficulty*defDifficulty;
+	}
+
+	/**
+	 * Computes the goalDefinitionDifficulty
+	 * 
+	 *  Results from multiplying the goalDefinition branch difficulty and
+	 *  the maximal distance in byteCode instructions from the beginning
+	 *  of the method to the goalDefinitionVertex
+	 */
+	private int calculateDefinitionDifficulty() {
+		long start = System.currentTimeMillis();
+		ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(goalDefinition.getClassName(), 
+				goalDefinition.getMethodName());
+		CFGVertex defVertex = cfg.getVertex(goalDefinition.getVertexId());
+		int defDifficulty = cfg.getMaximalInitialDistance(defVertex);
+		defDifficulty+=goalDefinitionBranchFitness.getDifficulty();
+		difficulty_time+= System.currentTimeMillis()-start;
+		return defDifficulty;
+	}
+
+	/**
+	 * Computes the goalUseDifficulty
+	 * 
+	 *  Results from multiplying the goalUse branch difficulty and
+	 *  the maximal distance in byteCode instructions from the beginning
+	 *  of the method to the goalUseVertex
+	 */
+	private int calculateUseDifficulty() {
+		long start = System.currentTimeMillis();
+		ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(goalUse.getClassName(), 
+				goalUse.getMethodName());
+		CFGVertex useVertex = cfg.getVertex(goalUse.getVertexId());
+		int useDifficulty = cfg.getMaximalInitialDistance(useVertex);
+		useDifficulty*=goalUseBranchFitness.getDifficulty();
+		difficulty_time+= System.currentTimeMillis()-start;
+		return useDifficulty;
 	}
 
 	// debugging methods
@@ -380,7 +408,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public String toString() {
 		StringBuffer r = new StringBuffer();
-		r.append("Definition-Use-Pair - Difficulty "+difficulty);
+		r.append("Definition-Use-Pair - Difficulty "+getDifficulty());
 		r.append("\n\t");
 		if(goalDefinition == null)
 			r.append("Parameter-Definition "+goalUse.getLocalVarNr()+" for method "+goalUse.getMethodName());

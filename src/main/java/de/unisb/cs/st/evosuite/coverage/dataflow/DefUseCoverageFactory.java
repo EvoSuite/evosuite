@@ -68,7 +68,8 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 	}
 	
 	public static void computeGoals() {
-		// TODO replace this with Reaching-Definitions-Algorithm 
+		// TODO replace this with Reaching-Definitions-Algorithm
+		long start = System.currentTimeMillis();
 		logger.trace("starting DefUse-Coverage goal generation");
 		duGoals = new ArrayList<DefUseCoverageTestFitness>();
 		
@@ -87,7 +88,9 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 		
 		called = true;
 		goals= new ArrayList<TestFitnessFunction>();
-		goals.addAll(duGoals);		
+		goals.addAll(duGoals);
+		long end = System.currentTimeMillis();
+		System.out.println("* Goal computation took: "+(end-start)+"ms");
 	}
 
 	/**

@@ -159,11 +159,11 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 		for(Chromosome recycable : recycables) {
 			population.add(recycable);
 		}
-		double enforced_randomness = Properties.getPropertyOrDefault("initially_enforced_randomness",0.2);
+		double enforced_randomness = Properties.getPropertyOrDefault("initially_enforced_randomness",0.4);
 		if(enforced_randomness<0.0 || enforced_randomness>1.0) {
 			logger.warn("property \"initially_enforced_randomness\" is supposed to be a percentage in [0.0,1.0]");
 			logger.warn("retaining to default");
-			enforced_randomness = 0.2;
+			enforced_randomness = 0.4;
 		}
 		enforced_randomness = 1-enforced_randomness;
 		population_size*=enforced_randomness;
