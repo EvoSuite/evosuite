@@ -159,13 +159,10 @@ public abstract class DefUseExecutionTraceAnalyzer {
 			if(!vertex.isDefinition())
 				continue;
 			CFGVertex vertexInOtherGraph = CFGMethodAdapter.getCompleteCFG(vertex.className, 
-					vertex.methodName).getVertex(vertex.getID());
+					vertex.methodName).getVertex(vertex.getId());
 			Definition currentDefinition = new Definition(vertexInOtherGraph) ;
-			if(isOverwritingDefinition(targetDefinition,currentDefinition)){
-				if(targetDefinition.getDefId()==5)
-					System.out.println("overwritten by "+currentDefinition.toString());
+			if(isOverwritingDefinition(targetDefinition,currentDefinition))
 				r.add(vertex);
-			}
 		}
 		return r;
 	}
@@ -177,6 +174,8 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	public static boolean isOverwritingDefinition(Definition targetDefinition,
 			Definition definition) {
 
+		if(definition.getDefId()==-1)
+			throw new IllegalArgumentException("expect given Definition to have it's defId set");
 		return targetDefinition.getDUVariableName().equals(definition.getDUVariableName())
 				&& targetDefinition.getDefId()!=definition.getDefId();
 	}

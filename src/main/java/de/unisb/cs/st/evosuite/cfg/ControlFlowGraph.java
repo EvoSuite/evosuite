@@ -328,7 +328,7 @@ public class ControlFlowGraph {
 			Set<DefaultEdge> incomingEdges = graph.incomingEdgesOf(current);
 			for(DefaultEdge incomingEdge : incomingEdges) {
 				CFGVertex source = graph.getEdgeSource(incomingEdge);
-				if(source.getID() >= current.getID())
+				if(source.getId() >= current.getId())
 					continue;
 				queue.add(source);
 			}
@@ -356,7 +356,7 @@ public class ControlFlowGraph {
 			Set<DefaultEdge> outgoingEdges = graph.outgoingEdgesOf(current);
 			for(DefaultEdge outgoingEdge : outgoingEdges) {
 				CFGVertex target = graph.getEdgeTarget(outgoingEdge);
-				if(target.getID() < current.getID())
+				if(target.getId() < current.getId())
 					continue;
 				queue.add(target);
 			}

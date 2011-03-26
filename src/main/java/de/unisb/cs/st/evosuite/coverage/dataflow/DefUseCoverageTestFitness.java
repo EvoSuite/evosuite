@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
+import java.text.NumberFormat;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -58,10 +59,8 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 // Other things one could/should do: (TODO-list)
 //	- display local variable names as in source code
 //	- take different methodIds into account! 
-//	- right now there seems to be a bug when definitions at the end of a method 
-//		are paired with a use at the beginning of it
-//	- inter.method and inter.class data flow analysis
-//	- implement DefUseCoverageSuiteFitness
+//	- inter.method and inter.class data flow analysis - want to drop intra-part
+//	- implement DefUseCoverageSuiteFitness - DONE first rudimentary implementation
 //	- various optimizations
 // 	- TODO: for example one should reuse tests that reach a certain definition or use 
 //		when looking for another goal with that definition or use respectively
@@ -140,6 +139,8 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  *  - harder than branch coverage
  *  	- chromosomes more valuable!
  *  	- see part above about chromosome pool and initial population and stuff
+ *  - so it makes sense to recycle chromosomes
+ *  - which leads to difficulty and preordering
  *  
  *  Questions:
  *   - BranchCoverageGoal also treats root branches with expression value true!
@@ -319,7 +320,6 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			throw new IllegalStateException("difficulty out of bounds - overflow?"+overallDifficulty);
 		}
 		int overDefs = getPotentialOverwritingDefinitions().size();
-		System.out.println(overDefs+" overDefs for "+toString());
 		overallDifficulty *= Math.pow(10*overDefs+1, 2);
 		if(overallDifficulty<=0.0)
 			throw new IllegalStateException("difficulty out of bounds - overflow? "+overallDifficulty);
@@ -497,7 +497,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		StringBuffer r = new StringBuffer();
 		r.append("Definition-Use-Pair");
 		if(difficulty!=-1)
-			 r.append("- Difficulty "+difficulty);
+			 r.append("- Difficulty "+NumberFormat.getIntegerInstance().format(difficulty));
 		r.append("\n\t");
 		if(goalDefinition == null)
 			r.append("Parameter-Definition "+goalUse.getLocalVarNr()+" for method "+goalUse.getMethodName());
@@ -510,15 +510,25 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	
 	@Override
 	public boolean equals(Object o) {
-//		System.out.println("called"); // TODO: somehow doesnt get called
+		if(o==this)
+			return true;
+		if(o==null)
+			return false;
 		if(!(o instanceof DefUseCoverageTestFitness))
 			return false;
-		try {
-			DefUseCoverageTestFitness t = (DefUseCoverageTestFitness)o;
-			return t.goalDefinition.equals(this.goalDefinition) && t.goalUse.equals(this.goalUse);
-		} catch(Exception e) {
+		
+		DefUseCoverageTestFitness t = (DefUseCoverageTestFitness)o;
+		if(!t.goalUse.equals(this.goalUse))
 			return false;
+		if(goalDefinition==null) {
+			if(t.goalDefinition==null)
+				return true;
+			else 
+				return false;
 		}
+		if(t.goalDefinition==null)
+			return false;
+		return t.goalDefinition.equals(this.goalDefinition);
 	}	
 	
 }

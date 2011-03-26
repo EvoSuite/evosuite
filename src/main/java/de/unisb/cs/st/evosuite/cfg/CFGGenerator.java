@@ -203,7 +203,7 @@ public class CFGGenerator extends Analyzer {
 			return false;
 		}
 
-		public int getID() {
+		public int getId() {
 			return id;
 		}
 		
@@ -409,7 +409,7 @@ public class CFGGenerator extends Analyzer {
 				return true;
 			if (obj == null)
 				return false;
-			if (getClass() != obj.getClass())
+			if (getClass() != obj.getClass()) // TODO: can Class be compared via == ?
 				return false;
 			CFGVertex other = (CFGVertex) obj;
 			// if (!getOuterType().equals(other.getOuterType()))
