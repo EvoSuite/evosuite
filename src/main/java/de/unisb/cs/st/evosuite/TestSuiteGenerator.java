@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -25,6 +26,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+
+import antlr.StringUtils;
 
 import de.unisb.cs.st.evosuite.assertion.AssertionGenerator;
 import de.unisb.cs.st.evosuite.coverage.FitnessLogger;
@@ -323,6 +326,7 @@ public class TestSuiteGenerator {
 		int current_budget = 0;
 
 		int total_budget = Properties.GENERATIONS;
+		System.out.println("* Budget: "+NumberFormat.getIntegerInstance().format(total_budget));
 
 		while (current_budget < total_budget && covered_goals < total_goals
 		        && !global_time.isFinished()) {
@@ -419,7 +423,6 @@ public class TestSuiteGenerator {
 		}
 
 		// for testing purposes
-		ga.printBudget();
 		if (global_time.isFinished())
 			System.out.println("! Timeout reached");
 		if (current_budget >= total_budget)
@@ -427,6 +430,7 @@ public class TestSuiteGenerator {
 		else
 			System.out.println("* Remaining budget: "
 					+ (total_budget - current_budget));
+		ga.printBudget();
 		int c = 0; 
 		int uncovered_goals = total_goals-covered_goals;
 		if(uncovered_goals<10)

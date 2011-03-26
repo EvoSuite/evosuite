@@ -109,7 +109,7 @@ public class CFGVertexHolder {
 	}
 	
 	public int getVertexId() {
-		return v.getID();
+		return v.getId();
 	}
 
 	public CFGVertex getCFGVertex() {
@@ -137,6 +137,18 @@ public class CFGVertexHolder {
 	}
 	
 	public int getBytecodeId() {
-		return v.getID();
+		return v.getId();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if(o==this)
+			return true;
+		if(o==null)
+			return false;
+		if(!(o instanceof CFGVertexHolder))
+			return false;
+		CFGVertexHolder other = (CFGVertexHolder)o;
+		return v.equals(other.v);
 	}
 }
