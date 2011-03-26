@@ -16,6 +16,8 @@ public class Definition extends DefUse {
 	
 	public Definition(CFGVertex v) {
 		super(v);
+		if(v==null)
+			throw new IllegalArgumentException("null given");
 		if(!v.isDefinition()) // TODO
 			throw new IllegalArgumentException("Vertex of a definition expected");
 		

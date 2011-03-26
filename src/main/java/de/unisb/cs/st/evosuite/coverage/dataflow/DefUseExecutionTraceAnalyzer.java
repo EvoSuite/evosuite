@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
@@ -157,9 +158,14 @@ public abstract class DefUseExecutionTraceAnalyzer {
 		for(CFGVertex vertex : vertices) {
 			if(!vertex.isDefinition())
 				continue;
-			Definition currentDefinition = new Definition(vertex) ;
-			if(isOverwritingDefinition(targetDefinition,currentDefinition))
+			CFGVertex vertexInOtherGraph = CFGMethodAdapter.getCompleteCFG(vertex.className, 
+					vertex.methodName).getVertex(vertex.getID());
+			Definition currentDefinition = new Definition(vertexInOtherGraph) ;
+			if(isOverwritingDefinition(targetDefinition,currentDefinition)){
+				if(targetDefinition.getDefId()==5)
+					System.out.println("overwritten by "+currentDefinition.toString());
 				r.add(vertex);
+			}
 		}
 		return r;
 	}

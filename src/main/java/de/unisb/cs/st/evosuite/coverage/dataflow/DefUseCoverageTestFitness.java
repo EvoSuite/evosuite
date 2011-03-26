@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import de.unisb.cs.st.evosuite.Properties;
@@ -301,7 +302,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * Calculates the difficulty of this DefUseCoverage goal as follows
 	 * 
 	 * goalUseBranchDifficulty * goalDefinitionBranchDifficult * 
-	 *  instructionsInBetween * (10*overwritingDefinitionsInBetween+1)^2
+	 *  (1+instructionsInBetween/10) * (10*overwritingDefinitionsInBetween+1)^2
 	 * 
 	 * Since ordering by difficulty as it stands would result in a deterministic
 	 * order in which the goals will always be searched for. Do have best
@@ -313,11 +314,12 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		long start = System.currentTimeMillis();
 		int overallDifficulty = calculateUseDifficulty();
 		overallDifficulty *= calculateDefinitionDifficulty();
-		overallDifficulty *= getInstructionsInBetweenDU().size()+1;
+		overallDifficulty *= (getInstructionsInBetweenDU().size()/3)+1;
 		if(overallDifficulty<=0.0) {
 			throw new IllegalStateException("difficulty out of bounds - overflow?"+overallDifficulty);
 		}
 		int overDefs = getPotentialOverwritingDefinitions().size();
+		System.out.println(overDefs+" overDefs for "+toString());
 		overallDifficulty *= Math.pow(10*overDefs+1, 2);
 		if(overallDifficulty<=0.0)
 			throw new IllegalStateException("difficulty out of bounds - overflow? "+overallDifficulty);
@@ -403,7 +405,12 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(goalDefinition.getClassName(), 
 				goalDefinition.getMethodName());
 		CFGVertex defVertex = cfg.getVertex(goalDefinition.getVertexId());
-		return cfg.getLaterInstructionsInMethod(defVertex);
+		Set<CFGVertex> r = cfg.getLaterInstructionsInMethod(defVertex);
+		for(CFGVertex v : r) {
+			v.methodName=goalDefinition.getMethodName();
+			v.className=goalDefinition.getClassName();
+		}
+		return r;
 	}
 
 	/**
@@ -416,7 +423,12 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(goalUse.getClassName(), 
 				goalUse.getMethodName());
 		CFGVertex useVertex = cfg.getVertex(goalUse.getVertexId());
-		return cfg.getPreviousInstructionsInMethod(useVertex);
+		Set<CFGVertex> r = cfg.getPreviousInstructionsInMethod(useVertex);
+		for(CFGVertex v : r) {
+			v.methodName=goalUse.getMethodName();
+			v.className=goalUse.getClassName();
+		}
+		return r;
 	}
 
 	// debugging methods
