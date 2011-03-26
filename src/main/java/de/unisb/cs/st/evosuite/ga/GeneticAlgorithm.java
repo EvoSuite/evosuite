@@ -178,7 +178,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	 * kicked out randomly or according to their fitness
 	 */
 	protected void starveToLimit(int limit) {
-		if(Properties.getPropertyOrDefault("starve_by_fitness", false))
+		if(Properties.getPropertyOrDefault("starve_by_fitness", true))
 			starveByFitness(limit);
 		else
 			starveRandomly(limit);

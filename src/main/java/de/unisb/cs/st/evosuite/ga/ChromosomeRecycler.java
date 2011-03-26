@@ -42,6 +42,14 @@ public class ChromosomeRecycler {
 		chromosomePool = new HashMap<TestFitnessFunction,Set<TestChromosome>>();
 	}
 
+	/**
+	 * Can be called whenever a TestChromosome was valuable for a
+	 * given TestFitnessFunction to reuse the TestChromosome later
+	 * when looking for similar goals
+	 * 
+	 * Called by TestFitnessFunction.isCovered() whenever it detects that
+	 * that the testFitness was covered by a test. 
+	 */
 	public void testIsInterestingForGoal(TestChromosome test,
 			TestFitnessFunction fitnessFunction) {
 		
@@ -51,6 +59,13 @@ public class ChromosomeRecycler {
 		chromosomePool.get(fitnessFunction).add(test);
 	}
 
+	/**
+	 * Returns all interesting Chromosomes for fitness functions that are
+	 * similar to the given one in the sense of TestFitnessFunction.isSimilarTo()
+	 * 
+	 * Called by GeneticAlgorithm.recycleChromosomes() whenever a new initial
+	 * population is to be contructed
+	 */
 	public Set<Chromosome> getRecycableChromosomes(
 			FitnessFunction fitnessFunction) {
 		
