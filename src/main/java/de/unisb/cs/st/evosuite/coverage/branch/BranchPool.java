@@ -57,7 +57,7 @@ public class BranchPool {
 
 		Branch b = new Branch(v);
 		addBranchToMap(b);
-		markBranchIDs(v);
+		markBranchIDs(b);
 		bytecodeIdMap.put(branchCounter, b);
 
 		logger.debug("Branch " + branchCounter + " at line " + v.getId() + " - "
@@ -158,12 +158,13 @@ public class BranchPool {
 		branchMap.get(className).get(methodName).add(b);
 	}
 
-	private static void markBranchIDs(CFGVertex v) {
+	private static void markBranchIDs(Branch b) {
+		CFGVertex v = b.getCFGVertex();
 		ControlFlowGraph completeCFG = CFGMethodAdapter.getCompleteCFG(v.className,
 		                                                               v.methodName);
 		CFGVertex branchVertex = completeCFG.getVertex(v.getId());
 		branchVertex.branchId = branchCounter;
 		v.branchId = branchCounter;
-		completeCFG.markBranchIds(branchVertex);
+		completeCFG.markBranchIds(b);
 	}
 }

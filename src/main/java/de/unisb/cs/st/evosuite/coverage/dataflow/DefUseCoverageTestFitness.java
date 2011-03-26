@@ -19,14 +19,12 @@
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
 import java.text.NumberFormat;
-import java.util.HashSet;
 import java.util.Set;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
-import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.Randomness;
@@ -62,12 +60,12 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 //	- inter.method and inter.class data flow analysis - want to drop intra-part
 //	- implement DefUseCoverageSuiteFitness - DONE first rudimentary implementation
 //	- various optimizations
-// 	- TODO: for example one should reuse tests that reach a certain definition or use 
+// 	- DONE: for example one should reuse tests that reach a certain definition or use 
 //		when looking for another goal with that definition or use respectively
  * 		idea: implement some sort of chromosome pool for each CUT
  * 			- keep track of "good" chromosomes, that cover defs and uses and 
  * 				use them for initial population when looking for goals concerning these DUs
- *  - also if one would implement the above point it would be very profitable to
+ *  - DONE also if one would implement the above point it would be very profitable to
  *  	order the goals such that easy goals are searched for first and for harder ones (deep in the CDG) later  
 //	- fix control dependencies analysis
 //	- implement real ReachingDefinitions algorithm
@@ -122,7 +120,9 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  * - found a bug: s. ExceptionTestClass: sometimes passedLine is called before enteredMethod in instrumented code
  * - so DefUseCoverage goal computation scales pretty badly, why not separate goal analysis part and test creation
  * 		like with -setup you could run -analyze_goals or something and it would serialize the goals on disc
- * 		so the computed goals can be reused in later test creations ... srsly analysis takes minutes on bigger CUTs! 
+ * 		so the computed goals can be reused in later test creations ... srsly analysis takes minutes on bigger CUTs!
+ * - look at MultipleControlDependeciesTestClass.test(): 
+ * 		respect that a CFGVertex can have multiple branches it is control dependent on 
 
  *  
  * things to write about:
@@ -144,7 +144,6 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  *  
  *  Questions:
  *   - BranchCoverageGoal also treats root branches with expression value true!
- *   - why does GA assume population.get(0) to be the best individual?
  */
 
 

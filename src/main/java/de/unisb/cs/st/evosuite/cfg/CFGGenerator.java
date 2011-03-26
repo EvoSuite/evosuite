@@ -55,6 +55,7 @@ import org.objectweb.asm.tree.analysis.BasicInterpreter;
 import org.objectweb.asm.tree.analysis.Frame;
 import org.objectweb.asm.util.AbstractVisitor;
 
+import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
@@ -88,6 +89,8 @@ public class CFGGenerator extends Analyzer {
 		public int defId = -1;
 		public boolean isParameterUse = false; // is set by DefUsePool
 		// TODO: every CFGVertex should hold a reference to it's control dependent Branch
+		// ... actually a CFGVertex should hold a set of all branches it is control dependent on
+		// private Set<Branch> controlDependencies = new HashSet<Branch>();
 		public int branchId = -1;
 		public boolean branchExpressionValue = true; // TODO this should be false whenever it is true and visa versa
 		public String methodName;
@@ -116,7 +119,7 @@ public class CFGGenerator extends Analyzer {
 			return false;
 		}
 
-		// TODO shouldn'tthe following the methods be somehow merged
+		// TODO shouldn't the following the methods be somehow merged
 		//		to reflect that all three return true on a "Branch"
 		//		in the sense of evosuite.coverage.branch.Branch ?
 		
@@ -207,6 +210,14 @@ public class CFGGenerator extends Analyzer {
 			return id;
 		}
 		
+//		public void addControlDependentBranch(Branch branch) {
+//			controlDependencies.add(branch);
+//		}
+//		
+//		public Set<Branch> getControlDependencies() {
+//			return controlDependencies;
+//		}
+		
 		public boolean isDefUse() {
 			return isLocalDU() || isFieldDU();
 		}
@@ -235,7 +246,6 @@ public class CFGGenerator extends Analyzer {
 			        || node.getOpcode() == Opcodes.DLOAD
 			        || node.getOpcode() == Opcodes.ALOAD
 			        || node.getOpcode() == Opcodes.IINC;
-			// || node.getOpcode() == Opcodes.RET; // TODO ??
 		}
 
 		public boolean isDefinition() {
@@ -283,7 +293,7 @@ public class CFGGenerator extends Analyzer {
 		public String getDUVariableName() {
 			if (!this.isDefUse())
 				throw new IllegalStateException(
-				        "You can only call getDUVariableName() on a local variable or field definition/use");
+				        "You can only call getDUVariableName() on definitions and uses");
 			if (this.isFieldDU())
 				return getFieldName();
 			else
