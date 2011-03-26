@@ -27,6 +27,7 @@ import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.ga.Randomness;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
@@ -300,8 +301,13 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * Calculates the difficulty of this DefUseCoverage goal as follows
 	 * 
 	 * goalUseBranchDifficulty * goalDefinitionBranchDifficult * 
-	 *  instructionsInBetween * (overwritingDefinitionsInBetween+1)^2
+	 *  instructionsInBetween * (10*overwritingDefinitionsInBetween+1)^2
 	 * 
+	 * Since ordering by difficulty as it stands would result in a deterministic
+	 * order in which the goals will always be searched for. Do have best
+	 * of both worlds one can set the property "randomize_difficulty" to
+	 * randomly multiply the deterministic difficulty by something between 0.5 and 2.0
+	 *  - effectively returning something between the half and two times the difficulty
 	 */
 	private int calculateDifficulty() {
 		long start = System.currentTimeMillis();
@@ -312,10 +318,16 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			throw new IllegalStateException("difficulty out of bounds - overflow?"+overallDifficulty);
 		}
 		int overDefs = getPotentialOverwritingDefinitions().size();
-		overallDifficulty *= Math.pow(overDefs+1, 2);
+		overallDifficulty *= Math.pow(10*overDefs+1, 2);
 		if(overallDifficulty<=0.0)
 			throw new IllegalStateException("difficulty out of bounds - overflow? "+overallDifficulty);
 		difficulty_time+= System.currentTimeMillis()-start;
+		if(Properties.getPropertyOrDefault("randomize_difficulty", true)) {
+			float modifier = 1.5f*Randomness.getInstance().nextFloat()+0.5f;
+			overallDifficulty = Math.round(overallDifficulty*modifier);
+		}
+		if(overallDifficulty<=0.0)
+			throw new IllegalStateException("difficulty out of bounds - overflow? "+overallDifficulty);
 		difficulty=overallDifficulty;
 		return overallDifficulty;
 	}
