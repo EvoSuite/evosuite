@@ -297,59 +297,114 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	
 
 	/**
-	 * Calculates the difficulty of this DefUseCoverage goal
+	 * Calculates the difficulty of this DefUseCoverage goal as follows
 	 * 
-	 * If the goalVariable is a parameter, the goalUseDifficulty is returned
-	 * otherwise the product of goalUseDifficulty and goalDefinitionDifficulty
+	 * goalUseBranchDifficulty * goalDefinitionBranchDifficult * 
+	 *  instructionsInBetween * (overwritingDefinitionsInBetween+1)^2
+	 * 
 	 */
 	private int calculateDifficulty() {
-		int useDifficulty = calculateUseDifficulty();
-		if(goalDefinitionBranchFitness==null)
-			return useDifficulty;
-		int defDifficulty = calculateDefinitionDifficulty();
-		return useDifficulty+defDifficulty;
+		long start = System.currentTimeMillis();
+		int overallDifficulty = calculateUseDifficulty();
+		overallDifficulty *= calculateDefinitionDifficulty();
+		overallDifficulty *= getInstructionsInBetweenDU().size()+1;
+		if(overallDifficulty<=0.0) {
+			throw new IllegalStateException("difficulty out of bounds - overflow?"+overallDifficulty);
+		}
+		int overDefs = getPotentialOverwritingDefinitions().size();
+		overallDifficulty *= Math.pow(overDefs+1, 2);
+		if(overallDifficulty<=0.0)
+			throw new IllegalStateException("difficulty out of bounds - overflow? "+overallDifficulty);
+		difficulty_time+= System.currentTimeMillis()-start;
+		difficulty=overallDifficulty;
+		return overallDifficulty;
 	}
 
 	/**
-	 * Computes the goalDefinitionDifficulty
-	 * 
-	 *  Results from multiplying the goalDefinition branch difficulty and
-	 *  the maximal distance in byteCode instructions from the beginning
-	 *  of the method to the goalDefinitionVertex
+	 * Returns the goalDefinitionBranchDifficulty
 	 */
-	private int calculateDefinitionDifficulty() {
-		long start = System.currentTimeMillis();
-		ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(goalDefinition.getClassName(), 
-				goalDefinition.getMethodName());
-		CFGVertex defVertex = cfg.getVertex(goalDefinition.getVertexId());
-		int defDifficulty = cfg.getPreviousInstructionsInMethod(defVertex).size();
-		defDifficulty+=goalDefinitionBranchFitness.getDifficulty();
-		// TODO: stopped here! s. ControlFlowGraph.getLaterInstructions for further instructions
-//		Set<CFGVertex> postInstructions = cfg.getLaterInstructionsInMethod(defVertex);
-		difficulty_time+= System.currentTimeMillis()-start;
+	public int calculateDefinitionDifficulty() {
+		if(goalDefinitionBranchFitness==null)
+			return 1;
+		int defDifficulty = goalDefinitionBranchFitness.getDifficulty();
 		return defDifficulty;
 	}
 
 	/**
-	 * Computes the goalUseDifficulty
+	 * Returns the goalUseBranchDifficulty
 	 * 
-	 *  Results from multiplying the goalUse branch difficulty and
-	 *  the maximal distance in byteCode instructions from the beginning
-	 *  of the method to the goalUseVertex
 	 */
-	private int calculateUseDifficulty() {
-		long start = System.currentTimeMillis();
+	public int calculateUseDifficulty() {
+		int useDifficulty = goalUseBranchFitness.getDifficulty();
+		return useDifficulty;
+	}
+	
+	/**
+	 * Returns the definitions to the goalVaraible coming after the goalDefinition
+	 * and before the goalUse in their respective methods
+	 */
+	public Set<CFGVertex> getPotentialOverwritingDefinitions() {
+		Set<CFGVertex> instructionsInBetween = getInstructionsInBetweenDU();
+		if(goalDefinition!=null)
+			return DefUseExecutionTraceAnalyzer.
+				getOverwritingDefinitionsIn(goalDefinition, instructionsInBetween);
+		else
+			return DefUseExecutionTraceAnalyzer.
+				getDefinitionsIn(goalVariable, instructionsInBetween);
+	}
+	
+	/**
+	 * Return a set containing all CFGVertices that occur in the complete CFG
+	 * after the goalDefinition and before the goalUse.
+	 * 
+	 * It's pretty much the union of getInstructionsAfterGoalDefinition()
+	 * and getInstructionsBeforeGoalUse(), except if the DU is in one method
+	 * and the goalDefinition comes before the goalUse, then the intersection
+	 * of the two sets is returned.
+	 * 
+	 * If the goalDefinition is a Parameter-Definition only the CFGVertices before
+	 * the goalUse are considered. 
+	 */
+	public Set<CFGVertex> getInstructionsInBetweenDU() {
+		Set<CFGVertex> previousInstructions = getInstructionsBeforeGoalUse();
+		if(goalDefinition!= null) {
+			Set<CFGVertex> laterInstructions = getInstructionsAfterGoalDefinition();
+			if(goalDefinition.getVertexId()<goalUse.getVertexId() 
+					&& goalDefinition.getMethodName().equals(goalUse.getMethodName())) {
+				// they are in the same method and definition comes before use => intersect sets
+				previousInstructions.retainAll(laterInstructions);
+			} else {
+				// otherwise take the union
+				previousInstructions.addAll(laterInstructions);
+			}
+		}
+		return previousInstructions;
+	}
+
+	/**
+	 * Returns a set containing all CFGVertices in the goal definition method
+	 * that come after the definition.
+	 * 
+	 * Look at ControlFlowGraph.getLaterInstructionInMethod() for details 
+	 */
+	public Set<CFGVertex> getInstructionsAfterGoalDefinition() {
+		ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(goalDefinition.getClassName(), 
+				goalDefinition.getMethodName());
+		CFGVertex defVertex = cfg.getVertex(goalDefinition.getVertexId());
+		return cfg.getLaterInstructionsInMethod(defVertex);
+	}
+
+	/**
+	 * Returns a set containing all CFGVertices in the goal use method
+	 * that come before the goal use.
+	 * 
+	 * Look at ControlFlowGraph.getPreviousInstructionInMethod() for details 
+	 */
+	public Set<CFGVertex> getInstructionsBeforeGoalUse() {
 		ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(goalUse.getClassName(), 
 				goalUse.getMethodName());
 		CFGVertex useVertex = cfg.getVertex(goalUse.getVertexId());
-		Set<CFGVertex> previousInstructions = cfg.getPreviousInstructionsInMethod(useVertex);
-		int useDifficulty = previousInstructions.size();
-		useDifficulty+=goalUseBranchFitness.getDifficulty();
-		if(goalDefinition!= null)
-			useDifficulty*=DefUseExecutionTraceAnalyzer.
-				getOverwritingDefinitionsIn(goalDefinition, previousInstructions).size();
-		difficulty_time+= System.currentTimeMillis()-start;
-		return useDifficulty;
+		return cfg.getPreviousInstructionsInMethod(useVertex);
 	}
 
 	// debugging methods
@@ -416,7 +471,9 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public String toString() {
 		StringBuffer r = new StringBuffer();
-		r.append("Definition-Use-Pair - Difficulty "+getDifficulty());
+		r.append("Definition-Use-Pair");
+		if(difficulty!=-1)
+			 r.append("- Difficulty "+difficulty);
 		r.append("\n\t");
 		if(goalDefinition == null)
 			r.append("Parameter-Definition "+goalUse.getLocalVarNr()+" for method "+goalUse.getMethodName());

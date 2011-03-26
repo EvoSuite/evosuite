@@ -143,6 +143,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 			recycleChromosomes(population_size);
 		
 		generateRandomPopulation(population_size-population.size());
+		// TODO: notifyIteration? calculateFitness?
 	}
 	
 	/**
