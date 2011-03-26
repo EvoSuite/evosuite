@@ -291,7 +291,7 @@ public class TestSuiteGenerator {
 			System.out.println("* Time taken for difficulty computation: "
 					+ DefUseCoverageTestFitness.difficulty_time+"ms");
 		} else
-			System.out.println("* Goal preordering by difficulty disabled");
+			System.out.println("* Goal preordering by difficulty disabled!");
 		if(!Properties.getPropertyOrDefault("recycle_chromosomes", true))
 			System.out.println("* ChromosomeRecycler disabled!");
 		
@@ -469,9 +469,8 @@ public class TestSuiteGenerator {
 	private void orderGoalsByDifficulty(List<TestFitnessFunction> goals) {
 		
 		Collections.sort(goals);
-//		for(TestFitnessFunction goal : goals) {
+//		for(TestFitnessFunction goal : goals)
 //			System.out.println(goal.toString());
-//		}
 	}
 
 	/**

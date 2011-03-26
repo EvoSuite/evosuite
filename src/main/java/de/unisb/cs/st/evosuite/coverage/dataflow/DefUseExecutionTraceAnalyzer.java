@@ -135,6 +135,18 @@ public abstract class DefUseExecutionTraceAnalyzer {
 		return r;
 	}
 	
+	public static Set<CFGVertex> getDefinitionsIn(String targetVariable, Set<CFGVertex> vertices) {
+		Set<CFGVertex> r = new HashSet<CFGVertex>();
+		for(CFGVertex vertex : vertices) {
+			if(!vertex.isDefinition())
+				continue;
+			Definition currentDefinition = new Definition(vertex) ;
+			if(currentDefinition.getDUVariableName().equals(targetVariable))
+				r.add(vertex);
+		}
+		return r;
+	}
+	
 	/**
 	 * Returns a Set containing all elements in the given vertex set that
 	 * are overwriting definitions for the given targetDefinition 

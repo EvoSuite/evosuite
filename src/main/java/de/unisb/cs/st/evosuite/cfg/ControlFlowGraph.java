@@ -22,11 +22,13 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
 
+import org.apache.commons.collections.comparators.ReverseComparator;
 import org.apache.log4j.Logger;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.DijkstraShortestPath;
@@ -311,13 +313,13 @@ public class ControlFlowGraph {
 	}
 	
 	/**
-	 * Returns the number of byteCode instructions that can be
+	 * Returns the number of byteCode instructions that can potentially be
 	 * executed from entering the method of this CFG until
 	 * the given CFGVertex is reached.
 	 */
 	public Set<CFGVertex> getPreviousInstructionsInMethod(CFGVertex v) {
 		Set<CFGVertex> visited = new HashSet<CFGVertex>();
-		PriorityQueue<CFGVertex> queue = new PriorityQueue<CFGVertex>();
+		PriorityQueue<CFGVertex> queue = new PriorityQueue<CFGVertex>(graph.vertexSet().size(),new CFGVertexIdComparator());
 		queue.add(v);
 		while(queue.peek()!=null) {
 			CFGVertex current = queue.poll();
@@ -332,35 +334,36 @@ public class ControlFlowGraph {
 			}
 			visited.add(current);
 		}
-//		System.out.println("l"+v.line_no+": "+visited.size());
 		return visited;
 	}
 	
-//	/** TODO stopped here: implement CFGVertexIdComparator and Reverse version of that to proceed 
-//	 * Returns the number of byteCode instructions that can be
-//	 * executed from entering the method of this CFG until
-//	 * the given CFGVertex is reached.
-//	 */
-//	public Set<CFGVertex> getLaterInstructionsInMethod(CFGVertex v) {
-//		Set<CFGVertex> visited = new HashSet<CFGVertex>();
-//		PriorityQueue<CFGVertex> queue = new PriorityQueue<CFGVertex>();
-//		queue.add(v);
-//		while(queue.peek()!=null) {
-//			CFGVertex current = queue.poll();
-//			if(visited.contains(current))
-//				continue;
-//			Set<DefaultEdge> incomingEdges = graph.incomingEdgesOf(current);
-//			for(DefaultEdge incomingEdge : incomingEdges) {
-//				CFGVertex source = graph.getEdgeSource(incomingEdge);
-//				if(source.getID() >= current.getID())
-//					continue;
-//				queue.add(source);
-//			}
-//			visited.add(current);
-//		}
-////		System.out.println("l"+v.line_no+": "+visited.size());
-//		return visited;
-//	}	
+	/**
+	 * Returns the number of byteCode instructions that can potentially be
+	 * executed from passing the given CFVertex until the end of
+	 * the method of this CFG is reached.
+	 */
+	@SuppressWarnings("unchecked")
+	public Set<CFGVertex> getLaterInstructionsInMethod(CFGVertex v) {
+		Set<CFGVertex> visited = new HashSet<CFGVertex>();
+		Comparator<CFGVertex> reverseComp = new ReverseComparator(new CFGVertexIdComparator());
+		PriorityQueue<CFGVertex> queue = new PriorityQueue<CFGVertex>(graph.vertexSet().size(),
+				reverseComp);
+		queue.add(v);
+		while(queue.peek()!=null) {
+			CFGVertex current = queue.poll();
+			if(visited.contains(current))
+				continue;
+			Set<DefaultEdge> outgoingEdges = graph.outgoingEdgesOf(current);
+			for(DefaultEdge outgoingEdge : outgoingEdges) {
+				CFGVertex target = graph.getEdgeTarget(outgoingEdge);
+				if(target.getID() < current.getID())
+					continue;
+				queue.add(target);
+			}
+			visited.add(current);
+		}
+		return visited;
+	}	
 
 	@Override
 	public String toString() {
