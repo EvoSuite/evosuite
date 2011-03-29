@@ -30,6 +30,7 @@ import mockit.Mock;
 import mockit.MockUp;
 import mockit.Mockit;
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.utils.Utils;
 
 /**
  * This class is used for the mocks creation and destruction. The implementation
@@ -66,7 +67,7 @@ class Mocks {
 	 * Initialize mocks in case the MOCKS property is set to true
 	 */
 	public void setUpMocks() {
-		createIODir();
+		Utils.createDir(sandboxPath);
 		setUpFileOutputStreamMock();
 		setUpSystemMock();
 		setUpFileMock();
@@ -80,7 +81,7 @@ class Mocks {
 	public void tearDownMocks() {
 		if (mocksEnabled) {
 			Mockit.tearDownMocks();
-			deleteIODir(sandboxPath);
+			Utils.deleteDir(sandboxPath);
 			mocksEnabled = false;
 			filesAccessed.clear();
 		}
@@ -239,32 +240,6 @@ class Mocks {
 				return false;
 		}
 		return true;
-	}
-
-	/**
-	 * Create directory where all IO should happen
-	 */
-	private void createIODir() {
-		File dir = new File(sandboxPath);
-		if (!dir.exists())
-			dir.mkdir();
-	}
-
-	/**
-	 * Remove files inside sandbox directory and remove directory itself
-	 */
-	private void deleteIODir(String path) {
-		File dir = new File(path);
-		if (dir.exists()) {
-			String[] children = dir.list();
-			for (String s : children) {
-				File f = new File(dir, s);
-				if (f.isDirectory())
-					deleteIODir(f.getAbsolutePath());
-				f.delete();
-			}
-		}
-		dir.delete();
 	}
 
 	public Set<String> getFilesAccessed() {
