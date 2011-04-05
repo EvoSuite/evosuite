@@ -22,13 +22,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.LinkedList;
-import java.util.List;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
@@ -59,17 +52,7 @@ public class ClassFactory {
 	
 	/** Directory with compiled stubs */
 	private String classDir;
-	
-	/**
-	 * Create stub directory. 
-	 * Clean and delete old directory if existed.
-	 */
-	static{
-		File evosuiteFilesDir = new File(stubsDir);
-		if(evosuiteFilesDir.exists())
-			Utils.deleteDir(stubsDir);
-		}
-	
+
 	/**
 	 * Creates class stub for the given abstract class.
 	 * 
@@ -98,7 +81,7 @@ public class ClassFactory {
 		// Return class object.
 		return loadClass();
 	}
-	
+		
 	/**
 	 * Load class into current context.
 	 * 
@@ -106,22 +89,12 @@ public class ClassFactory {
 	 * null otherwise.
 	 */
 	private Class<?> loadClass(){
-		
-		// Create ClassLoader and add stub's class directory to
-		// the class path.
-		URL url = null;
-		try {
-			url = (new File(stubsDir + "/classes/").toURI().toURL());
-		} catch (MalformedURLException e) {
-			return null;
-		} 
-		URLClassLoader cl = new URLClassLoader(new URL[]{url}, Thread.currentThread().getContextClassLoader());
-		
-		// Load stub into current context.
+		Utils.addURL(stubsDir + "/classes/");
 		Class<?> loadedClass = null;
 		try {
-			loadedClass = cl.loadClass(clazz.getPackage().getName() + "." + clazz.getSimpleName() + "Stub");
+			loadedClass = Class.forName(clazz.getPackage().getName() + "." + clazz.getSimpleName() + "Stub");
 		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 			return null;
 		}
 		return loadedClass;
@@ -216,5 +189,9 @@ public class ClassFactory {
 		"// Auto-generated class" + 
 		lineSeparator + lineSeparator;
 		return comment;
+	}
+	
+	public static String getStubDir(){
+		return stubsDir;
 	}
 }

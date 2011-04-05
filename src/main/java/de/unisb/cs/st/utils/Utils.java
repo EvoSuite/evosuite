@@ -20,6 +20,10 @@ package de.unisb.cs.st.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 import com.google.common.io.Files;
 
@@ -85,6 +89,38 @@ public class Utils {
 			return false;
 		}
 		
+		return true;
+	}
+	
+	/**
+	 * Hack for adding URL with stubs to the ClassPath.
+	 * Although the stubs path is on the ClassPath ClassLoader can
+	 * not load stub class if directory does not exist during JVM 
+	 * initialization.
+	 * 
+	 * @param path - path to the folder or jar.
+	 * @return true if ClassPath updated successfully.
+	 */
+	public static boolean addURL(String path) {
+		URL url = null;
+		try {
+			url = (new File(path).toURI().toURL());
+		} catch (MalformedURLException e) {
+			return false;
+		} 
+		
+		URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+		Class<URLClassLoader> sysclass = URLClassLoader.class;
+		
+		try {
+			Class<?>[] parameters = new Class[]{URL.class};
+			Method method = sysclass.getDeclaredMethod("addURL", parameters);
+			method.setAccessible(true);
+			method.invoke(sysloader, new Object[]{url});
+			method.setAccessible(false);
+		} catch (Throwable t) {
+			return false;
+		}
 		return true;
 	}
 }
