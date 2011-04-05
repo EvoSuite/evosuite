@@ -28,6 +28,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.assertion.AssertionGenerator;
+import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
 import de.unisb.cs.st.evosuite.coverage.FitnessLogger;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
@@ -87,6 +88,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosomeFactory;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteReplacementFunction;
+import de.unisb.cs.st.utils.Utils;
 
 /**
  * Main entry point
@@ -108,6 +110,7 @@ public class TestSuiteGenerator {
 	 * Generate a test suite for the target class
 	 */
 	public void generateTestSuite() {
+		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
 		List<TestCase> tests;
 
 		System.out.println("* Generating tests for class " + Properties.TARGET_CLASS);

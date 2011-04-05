@@ -26,7 +26,10 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
+import org.eclipse.jdt.core.dom.Modifier;
+
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
 
 /**
  * @author Gordon Fraser
@@ -48,6 +51,15 @@ public class ScanProject {
                 assert !file.getName().contains(".");
                 classes.addAll(findClasses(file, packageName + "." + file.getName()));
             } else if (file.getName().endsWith(".class")) {
+            	if(Properties.STUBS){
+    				Class<?> clazz = Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6));
+    				if(Modifier.isAbstract(clazz.getModifiers()) && !clazz.isInterface()){
+						ClassFactory cf = new ClassFactory();
+						Class<?> stub = cf.createClass(clazz);
+						if(stub != null)
+							classes.add(stub);
+    				}
+    			}
             	try {
             		classes.add(Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
             	} catch(IllegalAccessError e) {
