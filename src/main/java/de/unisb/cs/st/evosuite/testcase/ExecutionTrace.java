@@ -32,6 +32,7 @@ import org.apache.log4j.Logger;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTracer;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUse;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
 import de.unisb.cs.st.evosuite.coverage.dataflow.Definition;
@@ -57,6 +58,10 @@ public class ExecutionTrace {
 	public static void enableTraceCalls() {
 		trace_calls = true;
 	}
+	
+ 	//used schedule
+	//#TODO steenbuck this should be somewhere else. This is not nice. We should be able to infer from THIS if concurrencyTracer is filled
+	public ConcurrencyTracer concurrencyTracer;
 
 	public class MethodCall {
 		public String class_name;

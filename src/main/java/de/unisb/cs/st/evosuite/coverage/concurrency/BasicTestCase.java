@@ -16,8 +16,10 @@
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.unisb.cs.st.evosuite.testcase;
+package de.unisb.cs.st.evosuite.coverage.concurrency;
 
+import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,21 +30,35 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.objectweb.asm.commons.GeneratorAdapter;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.ga.Randomness;
+import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
+import de.unisb.cs.st.evosuite.testcase.FieldStatement;
+import de.unisb.cs.st.evosuite.testcase.GenericClass;
+import de.unisb.cs.st.evosuite.testcase.MethodStatement;
+import de.unisb.cs.st.evosuite.testcase.Scope;
+import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
+import de.unisb.cs.st.evosuite.testcase.VariableReference;
 import de.unisb.cs.st.evosuite.testsuite.TestCallStatement;
 
 /**
  * A test case is a list of statements
  * 
- * @author Gordon Fraser
+ * @author Sebastian Steenbuck
+ * 
+ * #TODO steenbuck TestCase should be an interface
+ * #TODO steenbuck BasicTestCase should have a more descriptive name
  * 
  */
-public class TestCase implements Iterable<Statement>{
+public class BasicTestCase extends TestCase {
 
-	private static Logger logger = Logger.getLogger(TestCase.class);
+	private static Logger logger = Logger.getLogger(BasicTestCase.class);
 
 	/** The statements */
 	private List<Statement> statements;
@@ -50,21 +66,96 @@ public class TestCase implements Iterable<Statement>{
 	// a list of all goals this test covers
 	private HashSet<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
 
+	
+	private final boolean replaceConst;
 		
 	/**
 	 * Constructor
 	 */
-	public TestCase() {
+	public BasicTestCase() {
+		this(true);
+	}
+	
+	public BasicTestCase(boolean replaceConst){
+		this.replaceConst=replaceConst;
 		statements = new ArrayList<Statement>();
 	}
+	
+	private Statement getPseudoStatement(final Class clazz, int pos){
+		Statement st= new Statement() {
+			
+			@Override
+			public void replaceUnique(VariableReference oldVar, VariableReference newVar) {
+				System.out.println("replace unique references old " + oldVar + " new " + newVar);
+			}
+			
+			@Override
+			public void replace(VariableReference oldVar, VariableReference newVar) {
+				System.out.println("replace references old " + oldVar + " new " + newVar);
+			}
+			
+			@Override
+			public int hashCode() {
+				return 0;
+			}
+			
+			@Override
+			public Set<VariableReference> getVariableReferences() {
+				Set<VariableReference> s = new HashSet<VariableReference>();
+				s.add(retval);
+				return s;
+			}
+			
+			@Override
+			public List<VariableReference> getUniqueVariableReferences() {
+				List<VariableReference> s = new ArrayList<VariableReference>();
+				s.add(retval);
+				return s;
+			}
+			
+			@Override
+			public String getCode(Throwable exception) {
+				return retval.getSimpleClassName() + " " + retval.getName() + " = param0;";
+			}
+			
+			@Override
+			public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
+					Throwable exception) {
+				//System.out.println("BLAAA");
+			}
+			
+			@Override
+			public Throwable execute(Scope scope, PrintStream out)
+					throws InvocationTargetException, IllegalArgumentException,
+					IllegalAccessException, InstantiationException {
+				//#TODO magic number 
+				Object o = scope.get(new VariableReference(retval.getType(), -1));
+				scope.set(retval, o);
+				return null;
+			}
+			
+			@Override
+			public boolean equals(Statement s) {
+				//System.out.println("equals test");
+				return s==this;
+			}
+			
+			@Override
+			public Statement clone() {
+				//System.out.println("clone");
+				return getPseudoStatement(clazz, retval.statement);
+			}
+			
+			@Override
+			public void adjustVariableReferences(int position, int delta) {
+				retval.adjust(delta, position);
+			}
 
-	/**
-	 * Convenience constructor
-	 * 
-	 * @param statements
-	 */
-	public TestCase(List<Statement> statements) {
-		this.statements = statements;
+		};
+		
+		st.SetRetval(new VariableReference(clazz, pos));
+		
+		return st;
 	}
 
 	/**
@@ -109,6 +200,13 @@ public class TestCase implements Iterable<Statement>{
 		return code;
 	}
 
+	
+	
+	public String getThreadCode(Map<Integer, Throwable> exceptions, int id){
+		throw new AssertionError("we should execute the one in concurrentTestCase");
+	}
+	
+	
 	/**
 	 * Get Java code representation of the test case
 	 * 
@@ -119,10 +217,10 @@ public class TestCase implements Iterable<Statement>{
 		for (int i = 0; i < size(); i++) {
 			Statement s = statements.get(i);
 			if (exceptions.containsKey(i)) {
-				code += s.getCode(exceptions.get(i)) + "\n";
+				code += "   " + s.getCode(exceptions.get(i)) + "\n";
 				code += s.getAssertionCode();
 			} else {
-				code += s.getCode() + "\n";
+				code += "   " +  s.getCode() + "\n";
 				code += s.getAssertionCode(); // TODO: Handle semicolons
 				                              // properly
 			}
@@ -138,32 +236,33 @@ public class TestCase implements Iterable<Statement>{
 	 * @return
 	 */
 	public List<VariableReference> getObjects(Type type, int position) {
+		assert(position>=0);
 		List<VariableReference> variables = new ArrayList<VariableReference>();
 		// logger.trace("Looking for objects of type "+type
 		// +" up to position "+position+" in test with length "+statements.size());
 		for (int i = 0; i < position && i < size(); i++) {
-			if (statements.get(i).retval == null)
+			if (statements.get(i).getReturnValue() == null)
 				continue;
-			if (statements.get(i).retval.isArray()) {
+			if (statements.get(i).getReturnValue().isArray()) {
 				if (GenericClass.isAssignable(type,
-				        statements.get(i).retval.getComponentType())) {
+				        statements.get(i).getReturnValue().getComponentType())) {
 					// Add components
 					// variables.add(new
 					// VariableReference(statements.get(i).retval.clone(),
 					// Randomness.getInstance().nextInt(MAX_ARRAY), i));
 					// ArrayStatement as = (ArrayStatement)statements.get(i);
-					for (int index = 0; index < statements.get(i).retval.array_length; index++) {
+					for (int index = 0; index < statements.get(i).getReturnValue().array_length; index++) {
 						variables.add(new VariableReference(
-						        statements.get(i).retval.clone(), index,
-						        statements.get(i).retval.array_length, i));
+						        statements.get(i).getReturnValue().clone(), index,
+						        statements.get(i).getReturnValue().array_length, i));
 					}
 				}
-			} else if (statements.get(i).retval.isArrayIndex()) { // &&
+			} else if (statements.get(i).getReturnValue().isArrayIndex()) { // &&
 				                                                  // GenericClass.isAssignable(type,
 				                                                  // statements.get(i).retval.array.getComponentType()))
 				                                                  // {
 				// Don't need to add this
-			} else if (statements.get(i).retval.isAssignableTo(type)) {
+			} else if (statements.get(i).getReturnValue().isAssignableTo(type)) {
 				// if(constraint == null ||
 				// constraint.isValid(statements.get(i).getReturnValue()))
 				variables.add(new VariableReference(statements.get(i)
@@ -188,14 +287,15 @@ public class TestCase implements Iterable<Statement>{
 	 * @return
 	 */
 	public List<VariableReference> getObjects(int position) {
+		assert(position>=0);
 		List<VariableReference> variables = new ArrayList<VariableReference>();
 		// logger.trace("Looking for objects of type "+type
 		// +" up to position "+position+" in test with length "+statements.size());
 		for (int i = 0; i < position && i < statements.size(); i++) {
-			if (statements.get(i).retval == null)
+			if (statements.get(i).getReturnValue() == null)
 				continue;
 			// TODO: Need to support arrays that were not self-created
-			if (statements.get(i).retval.isArray()) { // &&
+			if (statements.get(i).getReturnValue().isArray()) { // &&
 				                                      // statements.get(i).retval.array
 				                                      // != null) {
 				// Add a single component
@@ -207,17 +307,18 @@ public class TestCase implements Iterable<Statement>{
 				// variables.add(new VariableReference(as.retval.clone(), index,
 				// as.size(), i));
 				// }
-				for (int index = 0; index < statements.get(i).retval.array_length; index++) {
+				for (int index = 0; index < statements.get(i).getReturnValue().array_length; index++) {
 					// variables.add(new
 					// VariableReference(statements.get(i).retval.clone(),
 					// index, statements.get(i).retval.array_length, i));
 					variables.add(new VariableReference(
-					        statements.get(i).retval.clone(), index, statements
-					                .get(i).retval.array_length, i));
+					        statements.get(i).getReturnValue().clone(), index, statements
+					                .get(i).getReturnValue().array_length, i));
 				}
-			} else if (!statements.get(i).retval.isArrayIndex()) {
-				variables.add(new VariableReference(statements.get(i)
-				        .getReturnType(), i));
+			} else if (!statements.get(i).getReturnValue().isArrayIndex()) {
+				VariableReference v=new VariableReference(statements.get(i)
+				        .getReturnType(), i);
+				variables.add(v);
 			}
 			// logger.trace(statements.get(i).retval.getSimpleClassName());
 		}
@@ -248,10 +349,10 @@ public class TestCase implements Iterable<Statement>{
 	 *             if no such object exists
 	 */
 	public VariableReference getRandomObject(int position) {
+		assert(position>=0);
 		List<VariableReference> variables = getObjects(position);
 		if (variables.isEmpty())
 			return null;
-
 		Randomness randomness = Randomness.getInstance();
 		int num = randomness.nextInt(variables.size());
 		return variables.get(num).clone();
@@ -282,6 +383,7 @@ public class TestCase implements Iterable<Statement>{
 	 */
 	public VariableReference getRandomObject(Type type, int position)
 	        throws ConstructionFailedException {
+		assert(position>=0);
 		assert (type != null);
 		List<VariableReference> variables = getObjects(type, position);
 		if (variables.isEmpty())
@@ -294,7 +396,7 @@ public class TestCase implements Iterable<Statement>{
 
 	/**
 	 * Get actual object represented by a variable for a given execution scope
-	 * 
+	 * #TODO steenbuck why does this even exist?
 	 * @param reference
 	 *            Variable
 	 * @param scope
@@ -314,12 +416,15 @@ public class TestCase implements Iterable<Statement>{
 	 *            Value to add to positions
 	 */
 	private void fixVariableReferences(int position, int delta) {
+		assert(position>=0);
 		for (int i = position; i < statements.size(); i++) {
 			statements.get(i).adjustVariableReferences(position, delta);
 		}
 	}
 
 	public void renameVariable(int old_position, int new_position) {
+		assert(new_position>=0);
+		assert(old_position>=0);
 		for (int i = old_position; i < statements.size(); i++) {
 			for (VariableReference var : statements.get(i)
 			        .getVariableReferences()) {
@@ -339,6 +444,8 @@ public class TestCase implements Iterable<Statement>{
 	 * @return Return value of statement
 	 */
 	public VariableReference setStatement(Statement statement, int position) {
+		assert(position>=0);
+		statement = replaceConstructorStatement(statement, position);
 		statements.set(position, statement);
 		return new VariableReference(statement.getReturnType(), position); // TODO:
 		                                                                   // -1?
@@ -354,8 +461,32 @@ public class TestCase implements Iterable<Statement>{
 	 * @return Return value of statement
 	 */
 	public void addStatement(Statement statement, int position) {
+		assert(position>=0);
+		assert(statement.getReturnValue().statement==position);
+		//#TODO steenbuck data duplication
+		statement = replaceConstructorStatement(statement, position);
 		fixVariableReferences(position, 1);
 		statements.add(position, statement);
+	}
+	
+	/**
+	 * Checks if a constructor call should reference a param
+	 * @param statement
+	 * @param position
+	 * @return
+	 */
+	private Statement replaceConstructorStatement(Statement statement, int position){
+		if(replaceConst && statement instanceof ConstructorStatement){
+			ConstructorStatement c = (ConstructorStatement)statement;
+			//#TODO steenbuck we should check if the constructor uses the object we supplied as param (if yes maybe we should let the object be created)
+			//#FIXME steenbuck obviously we need to check for the real class and not for triangle ;)
+			assert(Properties.getTargetClass()!=null);
+			if(Properties.getTargetClass().isAssignableFrom(c.getConstructor().getDeclaringClass())){
+				statement = getPseudoStatement(Properties.getTargetClass(), position);
+			}
+		}
+		
+		return statement;
 	}
 
 	/**
@@ -366,7 +497,8 @@ public class TestCase implements Iterable<Statement>{
 	 * @return VariableReference of return value
 	 */
 	public void addStatement(Statement statement) {
-		statements.add(statement);
+		//statements.add(statement);
+		addStatement(statement, statements.size());
 	}
 
 	/**
@@ -376,6 +508,8 @@ public class TestCase implements Iterable<Statement>{
 	 * @return
 	 */
 	public VariableReference getReturnValue(int position) {
+		assert(position>=0);
+		assert(position<statements.size());
 		return statements.get(position).getReturnValue();
 	}
 
@@ -400,6 +534,7 @@ public class TestCase implements Iterable<Statement>{
 	public List<VariableReference> getReferences(VariableReference var) {
 		List<VariableReference> references = new ArrayList<VariableReference>();
 
+		//TODO steenbuck in which case may it be -1? Looks like a magic number to me
 		if (var == null || var.statement == -1)
 			return references;
 
@@ -421,10 +556,13 @@ public class TestCase implements Iterable<Statement>{
 
 	/**
 	 * Remove statement at position and fix variable references
-	 * 
+	 * Notice that fix in this context means. The variable numbers are changed. If the deleted object was used by some other operation, that operation would fail.
+	 * See DefaultTestFactory.deleteStatementGracefully()
 	 * @param position
 	 */
 	public void remove(int position) {
+		assert(position>=0);
+		assert(position<statements.size());
 		logger.debug("Removing statement " + position);
 		if (position >= size())
 			return;
@@ -443,18 +581,12 @@ public class TestCase implements Iterable<Statement>{
 	 * @return Statement at position
 	 */
 	public Statement getStatement(int position) {
+		assert(position>=0);
+		assert(position<statements.size()) : "tried to access statement " + position + " on a statement list of size " + statements.size();
 		return statements.get(position);
 	}
 
-	/**
-	 * Reveal internal list of statements TODO: This is not nice, needed it as a
-	 * hack for Parametrized tests
-	 * 
-	 * @return
-	 */
-	public List<Statement> getStatements() {
-		return statements;
-	}
+
 
 	/**
 	 * Check if this test case is a prefix of t
@@ -463,12 +595,14 @@ public class TestCase implements Iterable<Statement>{
 	 *            Test case to check against
 	 * @return True if this test is a prefix of t
 	 */
-	public boolean isPrefix(TestCase t) {
+	public boolean isPrefix(BasicTestCase t) {
+		//System.out.println("statements size " + statements.size() + " " + t.size());
 		if (statements.size() > t.size())
 			return false;
 
 		for (int i = 0; i < statements.size(); i++) {
-			if (!statements.get(i).equals(t.statements.get(i))) {
+			
+			if (!getStatement(i).equals(t.getStatement(i))) {
 				return false;
 			}
 		}
@@ -504,7 +638,7 @@ public class TestCase implements Iterable<Statement>{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TestCase other = (TestCase) obj;
+		BasicTestCase other = (BasicTestCase) obj;
 
 		if (statements == null) {
 			if (other.statements != null)
@@ -534,9 +668,9 @@ public class TestCase implements Iterable<Statement>{
 	public boolean hasObject(Type type, int position) {
 		for (int i = 0; i < position; i++) {
 			Statement st = statements.get(i);
-			if (st.retval == null)
+			if (st.getReturnValue() == null)
 				continue; // Nop
-			if (st.retval.isAssignableTo(type)) {
+			if (st.getReturnValue().isAssignableTo(type)) {
 				return true;
 			}
 		}
@@ -545,7 +679,7 @@ public class TestCase implements Iterable<Statement>{
 
 	public boolean hasCastableObject(Type type) {
 		for (Statement st : statements) {
-			if (st.retval.isAssignableFrom(type)) {
+			if (st.getReturnValue().isAssignableFrom(type)) {
 				return true;
 			}
 		}
@@ -556,9 +690,9 @@ public class TestCase implements Iterable<Statement>{
 	 * Create a copy of the test case
 	 */
 	@Override
-	public TestCase clone() {
-		TestCase t = new TestCase();
-		for (Statement s : statements) {
+	public BasicTestCase clone() {
+		BasicTestCase t = new BasicTestCase();
+		for (Statement s : this) {
 			t.statements.add(s.clone());
 		}
 		t.coveredGoals.addAll(coveredGoals);
@@ -610,12 +744,12 @@ public class TestCase implements Iterable<Statement>{
 	 *            The other test case
 	 * 
 	 */
-	public void addAssertions(TestCase other) {
+	public void addAssertions(BasicTestCase other) {
 		for (int i = 0; i < statements.size() && i < other.statements.size(); i++) {
-			for (Assertion a : other.statements.get(i).assertions) {
-				if (!statements.get(i).assertions.contains(a))
+			for (Assertion a : other.statements.get(i).getAssertions()) {
+				if (!statements.get(i).getAssertions().contains(a))
 					if (a != null)
-						statements.get(i).assertions.add(a.clone());
+						statements.get(i).getAssertions().add(a.clone());
 			}
 		}
 	}
@@ -643,7 +777,7 @@ public class TestCase implements Iterable<Statement>{
 	public List<Assertion> getAssertions() {
 		List<Assertion> assertions = new ArrayList<Assertion>();
 		for (Statement s : statements) {
-			assertions.addAll(s.assertions);
+			assertions.addAll(s.getAssertions());
 		}
 		return assertions;
 	}
@@ -666,9 +800,9 @@ public class TestCase implements Iterable<Statement>{
 	public boolean isValid() {
 		int num = 0;
 		for (Statement s : statements) {
-			if (s.retval.statement != num) {
+			if (s.getReturnValue().statement != num) {
 				logger.error("Test case is invalid at statement " + num + " - "
-				        + s.retval.statement);
+				        + s.getReturnValue().statement);
 				return false;
 			}
 			num++;
@@ -709,4 +843,6 @@ public class TestCase implements Iterable<Statement>{
 	public Iterator<Statement> iterator() {
 		return statements.iterator();
 	}
+	
+	
 }

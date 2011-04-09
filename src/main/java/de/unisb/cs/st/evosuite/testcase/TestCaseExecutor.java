@@ -34,6 +34,9 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.contracts.ContractChecker;
+import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyCoverageFactory;
+import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTestCaseFactory;
+import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestRunnable;
 import de.unisb.cs.st.evosuite.sandbox.Sandbox;
 
 /**
@@ -137,7 +140,13 @@ public class TestCaseExecutor implements ThreadFactory {
 
 		TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>(); 
 		
-		TestRunnable callable = new TestRunnable(tc, scope, observers);
+		//#TODO steenbuck could be nicer (TestRunnable should be an interface
+		InterfaceTestRunnable callable;
+		if(Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)){
+			callable = new ConcurrentTestRunnable(tc, scope, observers);
+		}else{
+			callable = new TestRunnable(tc, scope, observers);
+		}
 		//FutureTask<ExecutionResult> task = new FutureTask<ExecutionResult>(callable);
 		//executor.execute(task);
 	
@@ -146,19 +155,25 @@ public class TestCaseExecutor implements ThreadFactory {
 			ExecutionResult result = handler.execute(callable, executor, timeout, cpuTimeout);
 			return result;
 
-		} catch (InterruptedException e1) {
+		}catch (InterruptedException e1) {
 			Sandbox.tearDownEverything();
 			logger.info("InterruptedException");
 			ExecutionResult result = new ExecutionResult(tc, null);
-			result.exceptions = callable.exceptionsThrown;
+			result.exceptions = callable.getExceptionsThrown();
 			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
 			ExecutionTracer.getExecutionTracer().clear();
 			return result;
 		} catch (ExecutionException e1) {
+			if(e1.getCause() instanceof AssertionError && e1.getCause().getStackTrace()[0].getClassName().contains("de.unisb.cs.st.evosuite")){
+				//e1.printStackTrace();
+				logger.warn("Assertion Error in evosuitecode");
+				throw (AssertionError)e1.getCause();
+			}
 			Sandbox.tearDownEverything();
+			e1.printStackTrace();
 			logger.info("ExecutionException");
 			ExecutionResult result = new ExecutionResult(tc, null);
-			result.exceptions = callable.exceptionsThrown;
+			result.exceptions = callable.getExceptionsThrown();
 			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
 			ExecutionTracer.getExecutionTracer().clear();
 			return result;
@@ -176,7 +191,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			//task.cancel(true);
 			handler.getLastTask().cancel(true);
 
-			if (!callable.runFinished) {
+			if (!callable.isRunFinished()) {
 				logger.info("Run not finished, waiting...");
 				try {
 					executor.awaitTermination(timeout, TimeUnit.MILLISECONDS);
@@ -184,7 +199,7 @@ public class TestCaseExecutor implements ThreadFactory {
 					logger.info("Interrupted");
 					e.printStackTrace();
 				}
-				if (!callable.runFinished) {
+				if (!callable.isRunFinished()) {
 					logger.info("Run still not finished, replacing executor.");
 					executor.shutdownNow();
 					currentThread.stop();
@@ -195,7 +210,7 @@ public class TestCaseExecutor implements ThreadFactory {
 				}
 			}
 			ExecutionResult result = new ExecutionResult(tc, null);
-			result.exceptions = callable.exceptionsThrown;
+			result.exceptions = callable.getExceptionsThrown();
 			result.exceptions.put(tc.size(), new TestCaseExecutor.TimeoutExceeded());
 			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
 			ExecutionTracer.getExecutionTracer().clear();

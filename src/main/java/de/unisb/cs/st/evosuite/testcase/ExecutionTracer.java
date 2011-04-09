@@ -26,6 +26,10 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.util.AbstractVisitor;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyCoverageFactory;
+import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencySuitCoverage;
+import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTracer;
+import de.unisb.cs.st.evosuite.coverage.concurrency.LockRuntime;
 import de.unisb.cs.st.evosuite.javaagent.TestabilityTransformation;
 
 /**
@@ -96,8 +100,27 @@ public class ExecutionTracer {
 	public void clear() {
 		trace = new ExecutionTrace();
 		num_statements = 0;
+
+		//#TODO steenbuck: We should be able to register us somewhere, so that we're called before run is executed
+		if(Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)){
+			trace.concurrencyTracer = new ConcurrencyTracer();
+			LockRuntime.tracer = trace.concurrencyTracer;
+		}
 	}
 
+	/**
+	 * Obviously more than one thread is executing during the creation of concurrent TestCases.
+	 * #TODO steenbuck we should test if Thread.currentThread() is in the set of currently executing threads
+	 * @return
+	 */
+	private static boolean isThreadNeqCurrentThread(){
+		if(Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)){
+			return false;
+		}else{
+			return (Thread.currentThread()!=currentThread);
+		}
+	}
+	
 	/**
 	 * Return trace of current execution
 	 * 
@@ -119,8 +142,8 @@ public class ExecutionTracer {
 	 * @param methodname
 	 */
 	public static void enteredMethod(String classname, String methodname, Object caller)
-	        throws TestCaseExecutor.TimeoutExceeded {
-		if (Thread.currentThread() != currentThread)
+	throws TestCaseExecutor.TimeoutExceeded {
+		if (isThreadNeqCurrentThread())
 			return;
 
 		if (Properties.TRANSFORM_BOOLEAN) {
@@ -138,7 +161,7 @@ public class ExecutionTracer {
 		logger.trace("Entering method " + classname + "." + methodname);
 		tracer.trace.enteredMethod(classname, methodname, caller);
 	}
-
+	
 	/**
 	 * Called by instrumented code whenever a return values is produced
 	 * 
@@ -147,7 +170,7 @@ public class ExecutionTracer {
 	 * @param value
 	 */
 	public static void returnValue(int value, String className, String methodName) {
-		if (Thread.currentThread() != currentThread)
+		if (isThreadNeqCurrentThread())
 			return;
 
 		ExecutionTracer tracer = getExecutionTracer();
@@ -166,7 +189,7 @@ public class ExecutionTracer {
 	 * @param value
 	 */
 	public static void returnValue(Object value, String className, String methodName) {
-		if (Thread.currentThread() != currentThread)
+		if (isThreadNeqCurrentThread())
 			return;
 
 		if (!ExecutionTracer.isEnabled())
@@ -197,7 +220,7 @@ public class ExecutionTracer {
 			for (index = position + 1; index < position + 17 && index < tmp.length(); index++) {
 				c = tmp.charAt(index);
 				if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')
-				        || (c >= 'A' && c <= 'F')) {
+						|| (c >= 'A' && c <= 'F')) {
 					found = true;
 				} else {
 					break;
@@ -218,7 +241,7 @@ public class ExecutionTracer {
 	 * @param methodname
 	 */
 	public static void leftMethod(String classname, String methodname) {
-		if (Thread.currentThread() != currentThread)
+		if (isThreadNeqCurrentThread())
 			return;
 
 		if (Properties.TRANSFORM_BOOLEAN) {
@@ -239,7 +262,7 @@ public class ExecutionTracer {
 	 * @param line
 	 */
 	public static void passedLine(String className, String methodName, int line) {
-		if (Thread.currentThread() != currentThread)
+		if (isThreadNeqCurrentThread())
 			return;
 
 		ExecutionTracer tracer = getExecutionTracer();
@@ -262,7 +285,7 @@ public class ExecutionTracer {
 	 * @param line
 	 */
 	public static void passedBranch(int val, int opcode, int branch, int bytecode_id) {
-		if (Thread.currentThread() != currentThread)
+		if (isThreadNeqCurrentThread())
 			return;
 
 		ExecutionTracer tracer = getExecutionTracer();
@@ -276,22 +299,22 @@ public class ExecutionTracer {
 		switch (opcode) {
 		case Opcodes.IFEQ:
 			distance_true = Math.abs((double) val); // The greater abs is, the
-			                                        // further away from 0
+			// further away from 0
 			distance_false = distance_true == 0 ? 1.0 : 0.0; // Anything but 0
-			                                                 // is good
+			// is good
 			break;
 		case Opcodes.IFNE:
 			distance_false = Math.abs((double) val); // The greater abs is, the
-			                                         // further away from 0
+			// further away from 0
 			distance_true = distance_false == 0 ? 1.0 : 0.0; // Anything but 0
-			                                                 // leads to NE
+			// leads to NE
 			break;
 		case Opcodes.IFLT:
 			distance_true = val >= 0 ? val + 1.0 : 0.0; // The greater, the
-			                                            // further away from < 0
+			// further away from < 0
 			distance_false = val < 0 ? 0.0 - val + 1.0 : 0.0; // The smaller,
-			                                                  // the further
-			                                                  // away from < 0
+			// the further
+			// away from < 0
 			break;
 		case Opcodes.IFGT:
 			distance_true = val <= 0 ? 0.0 - val + 1.0 : 0.0;
@@ -303,10 +326,10 @@ public class ExecutionTracer {
 			break;
 		case Opcodes.IFLE:
 			distance_true = val > 0 ? val + 1.0 : 0.0; // The greater, the
-			                                           // further away from < 0
+			// further away from < 0
 			distance_false = val <= 0 ? 0.0 - val + 1.0 : 0.0; // The smaller,
-			                                                   // the further
-			                                                   // away from < 0
+			// the further
+			// away from < 0
 			break;
 		default:
 			logger.error("Unknown opcode: " + opcode);
@@ -328,8 +351,8 @@ public class ExecutionTracer {
 	 * @param line
 	 */
 	public static void passedBranch(int val1, int val2, int opcode, int branch,
-	        int bytecode_id) {
-		if (Thread.currentThread() != currentThread)
+			int bytecode_id) {
+		if (isThreadNeqCurrentThread())
 			return;
 
 		ExecutionTracer tracer = getExecutionTracer();
@@ -337,32 +360,32 @@ public class ExecutionTracer {
 			return;
 
 		logger.trace("Called passedBranch2 with opcode "
-		        + AbstractVisitor.OPCODES[opcode] + ", val1=" + val1 + ", val2=" + val2
-		        + " in branch " + branch);
+				+ AbstractVisitor.OPCODES[opcode] + ", val1=" + val1 + ", val2=" + val2
+				+ " in branch " + branch);
 		double distance_true = 0;
 		double distance_false = 0;
 		switch (opcode) {
 		case Opcodes.IF_ICMPEQ:
 			distance_true = Math.abs((double) val1 - (double) val2); // The
-			                                                         // greater
-			                                                         // the
-			                                                         // difference,
-			                                                         // the
-			                                                         // further
-			                                                         // away
+			// greater
+			// the
+			// difference,
+			// the
+			// further
+			// away
 			distance_false = distance_true == 0 ? 1.0 : 0.0; // Anything but 0
-			                                                 // is good
+			// is good
 			break;
 		case Opcodes.IF_ICMPNE:
 			distance_false = Math.abs((double) val1 - (double) val2); // The
-			                                                          // greater
-			                                                          // abs is,
-			                                                          // the
-			                                                          // further
-			                                                          // away
-			                                                          // from 0
+			// greater
+			// abs is,
+			// the
+			// further
+			// away
+			// from 0
 			distance_true = distance_false == 0 ? 1.0 : 0.0; // Anything but 0
-			                                                 // leads to NE
+			// leads to NE
 			break;
 		case Opcodes.IF_ICMPLT: // val1 < val2?
 			distance_true = val1 >= val2 ? (double) val1 - (double) val2 + 1.0 : 0.0; // The greater, the further away from < 0
@@ -401,8 +424,8 @@ public class ExecutionTracer {
 	 * @param line
 	 */
 	public static void passedBranch(Object val1, Object val2, int opcode, int branch,
-	        int bytecode_id) {
-		if (Thread.currentThread() != currentThread)
+			int bytecode_id) {
+		if (isThreadNeqCurrentThread())
 			return;
 
 		ExecutionTracer tracer = getExecutionTracer();
@@ -410,7 +433,7 @@ public class ExecutionTracer {
 			return;
 
 		logger.trace("Called passedBranch3 with opcode "
-		        + AbstractVisitor.OPCODES[opcode]); // +", val1="+val1+", val2="+val2+" in branch "+branch);
+				+ AbstractVisitor.OPCODES[opcode]); // +", val1="+val1+", val2="+val2+" in branch "+branch);
 		double distance_true = 0;
 		double distance_false = 0;
 		// logger.warn("Disabling tracer: passedBranch with 2 Objects");
@@ -463,7 +486,7 @@ public class ExecutionTracer {
 	 * @param line
 	 */
 	public static void passedBranch(Object val, int opcode, int branch, int bytecode_id) {
-		if (Thread.currentThread() != currentThread)
+		if (isThreadNeqCurrentThread())
 			return;
 
 		ExecutionTracer tracer = getExecutionTracer();
@@ -497,7 +520,7 @@ public class ExecutionTracer {
 	 */
 	public static void passedDefinition(String className, String varName, 
 			String methodName, Object caller, int branchID, int defID) {
-		if (Thread.currentThread() != currentThread)
+		if (isThreadNeqCurrentThread())
 			return;
 
 		ExecutionTracer tracer = getExecutionTracer();
@@ -510,16 +533,16 @@ public class ExecutionTracer {
 	 */
 	public static void passedUse(String className, String varName, String methodName, 
 			Object caller, int branchID, int useID) {
-		
-		if (Thread.currentThread() != currentThread)
+
+		if (isThreadNeqCurrentThread())
 			return;
 		ExecutionTracer tracer = getExecutionTracer();
 		if (!tracer.disabled)
 			tracer.trace.usePassed(className,varName,methodName,caller,branchID,useID);
 	}
-	
+
 	public static void statementExecuted() {
-		if (Thread.currentThread() != currentThread)
+		if (isThreadNeqCurrentThread())
 			return;
 
 		ExecutionTracer tracer = getExecutionTracer();

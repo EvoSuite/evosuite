@@ -71,7 +71,7 @@ public class TestCaseMinimizer {
 		boolean has_deleted = false;
 
 		int num = 0;
-		for (Statement s : t.statements) {
+		for (Statement s : t) {
 			VariableReference var = s.getReturnValue();
 			if (!t.hasReferences(var)) {
 				to_delete.add(num);
