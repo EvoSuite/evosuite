@@ -38,8 +38,10 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LdcInsnNode;
@@ -53,6 +55,8 @@ import org.objectweb.asm.tree.analysis.AnalyzerException;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyCoverageFactory;
+import de.unisb.cs.st.evosuite.coverage.concurrency.LockRuntime;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJ;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
@@ -347,6 +351,10 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		handleBranchlessMethods();
 		logger.info("Analyzing for method " + methodName);
 
+		if(Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)){
+			analyzeConcurrency(mn, graph);
+		}
+		
 		String id = className + "." + methodName;
 		if (isUsable()) {
 			methods.add(id);
@@ -371,6 +379,72 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			}
 		}
 	}
+	
+
+	/**
+	 * To instrument each GET / GETSTATIC
+	 * @param mn
+	 * @param graph
+	 */
+	@SuppressWarnings("unchecked")
+	private void analyzeConcurrency(MethodNode mn, Graph<CFGVertex, DefaultEdge> graph) {
+		ControlFlowGraph completeCFG = getCompleteCFG(className, methodName);
+		Iterator<AbstractInsnNode> instructions = mn.instructions.iterator();
+		while (instructions.hasNext()) {
+			AbstractInsnNode instruction = instructions.next();
+			for (CFGVertex v : graph.vertexSet()) {
+				if (instruction.equals(v.node)){
+					v.branchId = completeCFG.getVertex(v.id).branchId;
+				}
+				//#TODO steenbuck the true should be some command line option to activate the concurrency stuff
+				if (true && 
+						instruction.equals(v.node) && 
+						v.isFieldUse() &&
+						instruction instanceof FieldInsnNode &&
+						 //#FIXME steenbuck we should also instrument fields, which access primitive types.
+						//#FIXME steenbuck apparently some objects (like Boolean, Integer) are not working with this, likely a different Signature (disappears when all getfield/getstatic points are instrumented)
+						((FieldInsnNode)instruction).desc.startsWith("L")) { //we only want objects, as primitive types are passed by value
+					// adding instrumentation for scheduling-coverage
+					mn.instructions.insert(v.node,
+							getConcurrencyInstrumentation(v, v.branchId));
+
+					// keeping track of definitions
+					/*if (v.isDefinition())
+						DefUsePool.addDefinition(v);
+
+					// keeping track of uses
+					if (v.isUse())
+						DefUsePool.addUse(v);*/
+
+				}
+
+			}
+		}
+	}
+	
+	
+	private InsnList getConcurrencyInstrumentation(CFGVertex v, int currentBranch) {
+		InsnList instrumentation = new InsnList();
+		switch (v.node.getOpcode()) {
+		case Opcodes.GETFIELD:
+		case Opcodes.GETSTATIC:
+			//System.out.println("as seen in instrument:" + v.node.getClass() + " branchID: " + currentBranch +  " line " + v.line_no);
+			int accessID = LockRuntime.getFieldAccessID();
+			LockRuntime.mapFieldAccessIDtoCFGid(accessID, currentBranch, v);
+			instrumentation.add(new InsnNode(Opcodes.DUP));
+			instrumentation.add(new IntInsnNode(Opcodes.BIPUSH, accessID));
+			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, 
+					LockRuntime.RUNTIME_CLASS, 
+					LockRuntime.RUNTIME_SCHEDULER_CALL_METHOD,
+					"(Ljava/lang/Object;I)V"));
+			break;
+		default:
+			//Should never be reached. As the method calling this method checks for the opcodes
+			throw new AssertionError();
+		}
+		return instrumentation;
+	}
+	
 
 	@SuppressWarnings("unchecked")
 	private void analyzeBranchVertices(MethodNode mn, Graph<CFGVertex, DefaultEdge> graph) {

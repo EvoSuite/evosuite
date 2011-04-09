@@ -43,6 +43,8 @@ import org.objectweb.asm.commons.Method;
 
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyCoverageFactory;
+import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.Statement;
@@ -79,7 +81,7 @@ public class TestSuite implements Opcodes {
 		@Override
 		public boolean accept(File file) {
 			return file.getName().toLowerCase().endsWith(".java")
-			        && file.getName().startsWith("Test");
+			&& file.getName().startsWith("Test");
 		}
 	}
 
@@ -220,7 +222,7 @@ public class TestSuite implements Opcodes {
 				}
 				nr++;
 			}
-			
+
 			builder.append("\n  */");
 		}
 
@@ -273,6 +275,15 @@ public class TestSuite implements Opcodes {
 		// builder.append(MutationProperties.PROJECT_PREFIX);
 		// builder.append(".GeneratedTests;");
 		builder.append(";\n\n");
+
+		if(Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)){
+			builder.append("import java.util.concurrent.Callable;\n");
+			builder.append("import java.util.concurrent.FutureTask;\n");
+			builder.append("import de.unisb.cs.st.evosuite.coverage.concurrency.LockRuntime;\n");
+			builder.append("import de.unisb.cs.st.evosuite.coverage.concurrency.ControllerRuntime;\n");
+			builder.append("import de.unisb.cs.st.evosuite.coverage.concurrency.SimpleScheduler;\n");
+		}
+
 		builder.append("import junit.framework.Test;\n");
 		builder.append("import junit.framework.TestCase;\n");
 		builder.append("import junit.framework.TestSuite;\n\n");
@@ -388,13 +399,26 @@ public class TestSuite implements Opcodes {
 			}
 		}
 		builder.append(" {\n");
-		for (String line : test_cases.get(id).toCode(result.exceptions).split("\\r?\\n")) {
-			builder.append("      ");
-			builder.append(line);
-			// builder.append(";\n");
-			builder.append("\n");
+		//#TODO steenbuck work around
+		if(Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)){
+			ConcurrentTestCase ctc = (ConcurrentTestCase)test_cases.get(id);
+			for (String line : ctc.getThreadCode(result.exceptions, id).split("\\r?\\n")) {
+				builder.append("      ");
+				builder.append(line);
+				// builder.append(";\n");
+				builder.append("\n");
+			}
+			builder.append("   }\n");
+
+		}else{
+			for (String line : test_cases.get(id).toCode(result.exceptions).split("\\r?\\n")) {
+				builder.append("      ");
+				builder.append(line);
+				// builder.append(";\n");
+				builder.append("\n");
+			}
+			builder.append("   }\n");
 		}
-		builder.append("   }\n");
 		return builder.toString();
 	}
 
@@ -453,11 +477,11 @@ public class TestSuite implements Opcodes {
 
 		File basedir = new File(directory);
 		Iterator<File> i = FileUtils.iterateFiles(basedir, new TestFilter(),
-		                                          TrueFileFilter.INSTANCE);
+				TrueFileFilter.INSTANCE);
 		while (i.hasNext()) {
 			File f = i.next();
 			String name = f.getPath().replace(directory, "").replace(".java", "").replace("/",
-			                                                                              ".");
+			".");
 			suites.add(name.substring(name.lastIndexOf(".") + 1));
 			builder.append("import ");
 			builder.append(Properties.PROJECT_PREFIX);
@@ -517,7 +541,7 @@ public class TestSuite implements Opcodes {
 	}
 
 	private void testToBytecode(TestCase test, GeneratorAdapter mg,
-	        Map<Integer, Throwable> exceptions) {
+			Map<Integer, Throwable> exceptions) {
 		Map<Integer, Integer> locals = new HashMap<Integer, Integer>();
 		mg.visitAnnotation("Lorg/junit/Test;", true);
 		int num = 0;
@@ -534,10 +558,10 @@ public class TestSuite implements Opcodes {
 	public byte[] getBytecode(String name) {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		String prefix = Properties.TARGET_CLASS.substring(0,
-		                                                  Properties.TARGET_CLASS.lastIndexOf(".")).replace(".",
-		                                                                                                    "/");
+				Properties.TARGET_CLASS.lastIndexOf(".")).replace(".",
+				"/");
 		cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, prefix + "/" + name, null,
-		         "junit/framework/TestCase", null);
+				"junit/framework/TestCase", null);
 
 		Method m = Method.getMethod("void <init> ()");
 		GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
@@ -567,7 +591,7 @@ public class TestSuite implements Opcodes {
 		// mg.invokeStatic(Type.getType(org.junit.runner.JUnitCore.class),
 		// Method.getMethod("void main (String[])"));
 		mg.invokeStatic(Type.getType(junit.textui.TestRunner.class),
-		                Method.getMethod("void main (String[])"));
+				Method.getMethod("void main (String[])"));
 		mg.returnValue();
 		mg.endMethod();
 

@@ -20,7 +20,7 @@ import de.unisb.cs.st.evosuite.sandbox.Sandbox;
  * @author Gordon Fraser
  * 
  */
-public class TestRunnable implements Callable<ExecutionResult> {
+public class TestRunnable implements InterfaceTestRunnable {
 
 	private static Logger logger = Logger.getLogger(TestRunner.class);
 
@@ -54,14 +54,18 @@ public class TestRunnable implements Callable<ExecutionResult> {
 	 */
 	@Override
 	public ExecutionResult call() {
+		
 		runFinished = false;
 		ExecutionResult result = new ExecutionResult(test, null);
 
 		int num = 0;
 		try {
+			
 			Sandbox.setUpMocks();
 			// exceptionsThrown = test.execute(scope, observers, !log);
-			for (Statement s : test.statements) {
+			//logger.warn("XXXXXXXXXXXXXXXXXXXXX " + test.size() + test.getClass().getName());
+			for (Statement s : test) {
+				//logger.warn("XXXXXXXXXXXXXXXXXXXXXTTT " );
 				if (Thread.currentThread().isInterrupted() || Thread.interrupted()) {
 					logger.info("Thread interrupted at statement " + num + ": "
 					        + s.getCode());
@@ -84,8 +88,8 @@ public class TestRunnable implements Callable<ExecutionResult> {
 				// be set to the actual class observed at runtime
 				// If changed, we need to update all references
 				if (!s.getReturnValue().equals(returnValue)) {
-					for (int pos = num; pos < test.statements.size(); pos++) {
-						test.statements.get(pos).replace(returnValue,
+					for (int pos = num; pos < test.size(); pos++) {
+						test.getStatement(pos).replace(returnValue,
 						                                 s.getReturnValue().clone());
 					}
 				}
@@ -93,7 +97,7 @@ public class TestRunnable implements Callable<ExecutionResult> {
 				if (exceptionThrown != null) {
 					exceptionsThrown.put(num, exceptionThrown);
 
-					// exception_statement = num;
+					// exception_statement = num; 
 					if (log && logger.isDebugEnabled())
 						logger.debug("Exception thrown in statement: " + s.getCode()
 						        + " - " + exceptionThrown.getClass().getName() + " - "
@@ -139,6 +143,24 @@ public class TestRunnable implements Callable<ExecutionResult> {
 
 		return result;
 		//}
+	}
+	
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.InterfaceTestRunnable#getExceptionsThrown()
+	 */
+	@Override
+	public Map<Integer, Throwable> getExceptionsThrown() {
+		return exceptionsThrown;
+	}
+
+
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.InterfaceTestRunnable#isRunFinished()
+	 */
+	@Override
+	public boolean isRunFinished() {
+		return runFinished;
 	}
 
 }

@@ -48,7 +48,7 @@ public class RandomLengthTestFactory implements ChromosomeFactory {
 	 * @param size
 	 */
 	private TestCase getRandomTestCase(int size) {
-		TestCase test = new TestCase();
+		TestCase test = getNewTestCase();
 		int num = 0;
 		
 		// Choose a random length in 0 - size
@@ -75,6 +75,14 @@ public class RandomLengthTestFactory implements ChromosomeFactory {
 		TestChromosome c = new TestChromosome();
 		c.test = getRandomTestCase(Properties.CHROMOSOME_LENGTH);
 		return c;
+	}
+	
+	/**
+	 * Provided so that subtypes of this factory type can modify the returned TestCase
+	 * @return
+	 */
+	protected TestCase getNewTestCase(){
+		return new TestCase();
 	}
 
 }

@@ -34,6 +34,8 @@ import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyCoverageFactory;
+import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencySuitCoverage;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
@@ -209,6 +211,9 @@ public class TestSuiteGenerator {
 		} else if (Properties.CRITERION.equalsIgnoreCase("defuse")) {
 			System.out.println("* Test criterion: All DU Pairs");
 			return new DefUseCoverageSuiteFitness();
+		}else if(Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)){
+			System.out.println("* Test criterion: Concurrent Test Case *");
+			return new ConcurrencySuitCoverage();
 		} else {
 			System.out.println("* Test criterion: Branch coverage");
 			return new BranchCoverageSuiteFitness();

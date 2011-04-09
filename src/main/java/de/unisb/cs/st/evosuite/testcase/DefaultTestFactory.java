@@ -766,7 +766,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			// TODO: Doesn't work if position != test.size()
 			while (test.size() != previous_length) {
 				logger.debug("  Removing statement: "
-				        + test.statements.get(position).getCode());
+				        + test.getStatement(position).getCode());
 				test.remove(position);
 			}
 		}
@@ -796,7 +796,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			// TODO: Doesn't work if position != test.size()
 			while (test.size() != previous_length) {
 				logger.debug("  Removing statement: "
-				        + test.statements.get(position).getCode());
+				        + test.getStatement(position).getCode());
 				test.remove(position);
 			}
 		}
@@ -836,7 +836,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			// TODO: Doesn't work if position != test.size()
 			while (test.size() != previous_length) {
 				logger.debug("  Removing statement: "
-				        + test.statements.get(position).getCode());
+				        + test.getStatement(position).getCode());
 				test.remove(position);
 			}
 

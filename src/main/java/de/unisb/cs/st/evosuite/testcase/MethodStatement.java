@@ -42,6 +42,9 @@ public class MethodStatement extends Statement {
 
 	public MethodStatement(Method method, VariableReference callee,
 	        VariableReference retval, List<VariableReference> parameters) {
+		assert(Modifier.isStatic(method.getModifiers()) || callee!=null);
+		assert(parameters!=null);
+		assert(method.getParameterTypes().length==parameters.size());
 		this.method = method;
 		this.callee = callee;
 		this.retval = retval;

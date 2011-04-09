@@ -71,6 +71,10 @@ public abstract class Statement {
 	        throws InvocationTargetException, IllegalArgumentException,
 	        IllegalAccessException, InstantiationException;
 
+	public void SetRetval(VariableReference newRetVal){
+		this.retval=newRetVal;
+	}
+	
 	/**
 	 * Get Java representation of statement
 	 * 
