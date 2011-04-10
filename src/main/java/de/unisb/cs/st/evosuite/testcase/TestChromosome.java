@@ -24,7 +24,6 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.OUM.OUMTestFactory;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
-import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTestCaseFactory;
 import de.unisb.cs.st.evosuite.coverage.concurrency.Schedule;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
@@ -53,7 +52,7 @@ public class TestChromosome extends Chromosome {
 	}
 
 	/** The test case encoded in this chromosome */
-	public TestCase test = new TestCase();
+	public TestCase test = new DefaultTestCase();
 
 	/** Factory to manipulate and generate method sequences */
 	private static AbstractTestFactory test_factory = null;

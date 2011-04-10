@@ -17,6 +17,7 @@ import de.unisb.cs.st.evosuite.assertion.Assertion;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testcase.TestRunner;
@@ -26,7 +27,7 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  * @author sebastian steenbuck
  * #TODO in an ideal world TestCase would be an interface
  */
-public class ConcurrentTestCase extends BasicTestCase{
+public class ConcurrentTestCase implements TestCase{
 	private static Logger logger = Logger.getLogger(ConcurrentTestCase.class);
 	
 	//A list of thread IDs
@@ -114,7 +115,6 @@ public class ConcurrentTestCase extends BasicTestCase{
 	}
 
 
-	@Override
 	public String getThreadCode(Map<Integer, Throwable> exceptions, int id){
 		
 		StringBuilder b = new StringBuilder();
@@ -253,13 +253,6 @@ public class ConcurrentTestCase extends BasicTestCase{
 		return test.getStatement(position);
 	}
 
-
-
-	@Override
-	public boolean isPrefix(TestCase t) {
-		return test.isPrefix(t);
-	}
-
 	@Override
 	public boolean hasObject(Type type, int position) {
 		return test.hasObject(type, position);
@@ -273,11 +266,6 @@ public class ConcurrentTestCase extends BasicTestCase{
 	@Override
 	public Set<Class<?>> getAccessedClasses() {
 		return test.getAccessedClasses();
-	}
-
-	@Override
-	public void addAssertions(TestCase other) {
-		test.addAssertions(other);
 	}
 
 	@Override
@@ -322,6 +310,30 @@ public class ConcurrentTestCase extends BasicTestCase{
 	@Override
 	public Iterator<Statement> iterator() {
 		return test.iterator();
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#addAssertions(de.unisb.cs.st.evosuite.testcase.TestCase)
+	 */
+	@Override
+	public void addAssertions(TestCase other) {
+		test.addAssertions(other);
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getStatements()
+	 */
+	@Override
+	public List<Statement> getStatements() {
+		return test.getStatements();
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#isPrefix(de.unisb.cs.st.evosuite.testcase.TestCase)
+	 */
+	@Override
+	public boolean isPrefix(TestCase t) {
+		return isPrefix(t);
 	}
 
 

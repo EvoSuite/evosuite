@@ -82,7 +82,7 @@ public class RandomLengthTestFactory implements ChromosomeFactory {
 	 * @return
 	 */
 	protected TestCase getNewTestCase(){
-		return new TestCase();
+		return new DefaultTestCase();
 	}
 
 }
