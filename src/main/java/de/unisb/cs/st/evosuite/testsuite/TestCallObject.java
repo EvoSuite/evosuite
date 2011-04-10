@@ -43,7 +43,7 @@ public class TestCallObject extends AccessibleObject {
 	 * Properties.getTargetClass(); }
 	 */
 	public TestCase getTest() {
-		CurrentChromosomeTracker tracker = CurrentChromosomeTracker
+		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker
 		        .getInstance();
 		TestSuiteChromosome suite = (TestSuiteChromosome) tracker
 		        .getCurrentChromosome();
@@ -56,7 +56,7 @@ public class TestCallObject extends AccessibleObject {
 	}
 
 	public TestSuiteChromosome getSuite() {
-		CurrentChromosomeTracker tracker = CurrentChromosomeTracker
+		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker
 		        .getInstance();
 		TestSuiteChromosome suite = (TestSuiteChromosome) tracker
 		        .getCurrentChromosome();

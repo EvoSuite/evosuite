@@ -14,7 +14,7 @@ public class TimeoutHandler<T>
 		return task;
 	}
 	
-	public T execute(final Callable testcase, ExecutorService executor, long timeout, boolean timeout_based_on_cpu) throws TimeoutException, InterruptedException, ExecutionException
+	public T execute(final Callable<T> testcase, ExecutorService executor, long timeout, boolean timeout_based_on_cpu) throws TimeoutException, InterruptedException, ExecutionException
 	{
 		ThreadMXBean bean = ManagementFactory.getThreadMXBean( );
 		if(!bean.isCurrentThreadCpuTimeSupported()  && timeout_based_on_cpu)

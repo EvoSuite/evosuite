@@ -80,17 +80,16 @@ public class BasicTestCase implements TestCase {
 		statements = new ArrayList<Statement>();
 	}
 	
+	@SuppressWarnings("unchecked") //we loose the type information during the call to new VariableReference. 
 	private Statement getPseudoStatement(final Class clazz, int pos){
 		Statement st= new Statement() {
 			
 			@Override
 			public void replaceUnique(VariableReference oldVar, VariableReference newVar) {
-				System.out.println("replace unique references old " + oldVar + " new " + newVar);
 			}
 			
 			@Override
 			public void replace(VariableReference oldVar, VariableReference newVar) {
-				System.out.println("replace references old " + oldVar + " new " + newVar);
 			}
 			
 			@Override
@@ -114,13 +113,13 @@ public class BasicTestCase implements TestCase {
 			
 			@Override
 			public String getCode(Throwable exception) {
+				//#TODO steenbuck param0 should not be hardcoded
 				return retval.getSimpleClassName() + " " + retval.getName() + " = param0;";
 			}
 			
 			@Override
 			public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
 					Throwable exception) {
-				//System.out.println("BLAAA");
 			}
 			
 			@Override
@@ -135,13 +134,11 @@ public class BasicTestCase implements TestCase {
 			
 			@Override
 			public boolean equals(Statement s) {
-				//System.out.println("equals test");
 				return s==this;
 			}
 			
 			@Override
 			public Statement clone() {
-				//System.out.println("clone");
 				return getPseudoStatement(clazz, retval.statement);
 			}
 			

@@ -46,6 +46,7 @@ public class ClassTransformer {
 	   2. process the classes who implements or extends the classes in hashmap until cannot proceed.
 
 	*/
+	@SuppressWarnings("unchecked") //access to external lib
 	public void findAllMethods() {
 
 		List<String> unprocessedClassSet = ScanProject.getClassSet();
@@ -62,9 +63,8 @@ public class ClassTransformer {
 			ClassNode cn = parseToClassNode(cu);
 			if (cn.superName.equals(javaLangObject) && cn.interfaces.size() == 0) {
 				List<String> fieldList = new ArrayList<String>();
-				List fieldNodes = cn.fields;
-				for (Object o : fieldNodes) {
-					FieldNode fn = (FieldNode) o;
+				List<FieldNode> fieldNodes = cn.fields;
+				for (FieldNode fn : fieldNodes) {
 					if (fn.desc.equals("Z")) {
 						fieldList.add(fn.name);
 					}
@@ -124,8 +124,7 @@ public class ClassTransformer {
 							                                           mu);
 							methodUnits.put(mu.getOriginalName(), mu);
 							//                            TransformationHelper.methodsMap.put(methodSignature, newMethodSignature);
-							String methodSignature = cu.getClassname() + "|" + mn.name
-							        + "|" + mn.desc;
+							//String methodSignature = cu.getClassname() + "|" + mn.name  + "|" + mn.desc;
 							//                            log.debug("  " + methodSignature + "->" + newMethodSignature);
 						}
 					}
@@ -495,9 +494,9 @@ public class ClassTransformer {
 	public void listLoadedClasses() {
 
 		final ClassLoader[] loaders = ClassScope.getCallerClassLoaderTree();
-		final Class[] classes = ClassScope.getLoadedClasses(loaders);
+		final Class<?>[] classes = ClassScope.getLoadedClasses(loaders);
 		for (int c = 0; c < classes.length; ++c) {
-			final Class cls = classes[c];
+			final Class<?> cls = classes[c];
 			log.info("[" + cls.getName() + "]:" + "  loaded by ["
 			        + cls.getClassLoader().getClass().getName() + "]");
 

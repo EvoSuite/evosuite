@@ -44,7 +44,8 @@ public abstract class ClassScope // this class is not instantiable
 	 * @throws RuntimeException
 	 *             if the "classes" field hack is not possible in this JRE
 	 */
-	public static Class[] getLoadedClasses(final ClassLoader loader) {
+	@SuppressWarnings("unchecked")
+	public static Class<?>[] getLoadedClasses(final ClassLoader loader) {
 		if (loader == null)
 			throw new IllegalArgumentException("null input: loader");
 		if (CLASSES_VECTOR_FIELD == null)
@@ -53,11 +54,11 @@ public abstract class ClassScope // this class is not instantiable
 			        CVF_FAILURE);
 
 		try {
-			final Vector classes = (Vector) CLASSES_VECTOR_FIELD.get(loader);
+			final Vector<Class<?>> classes = (Vector<Class<?>>) CLASSES_VECTOR_FIELD.get(loader);
 			if (classes == null)
 				return EMPTY_CLASS_ARRAY;
 
-			final Class[] result;
+			final Class<?>[] result;
 
 			// note: Vector is synchronized in Java 2, which helps us make
 			// the following into a safe critical section:
@@ -88,22 +89,22 @@ public abstract class ClassScope // this class is not instantiable
 	 * @throws RuntimeException
 	 *             if the "classes" field hack is not possible in this JRE
 	 */
-	public static Class[] getLoadedClasses(final ClassLoader[] loaders) {
+	public static Class<?>[] getLoadedClasses(final ClassLoader[] loaders) {
 		if (loaders == null)
 			throw new IllegalArgumentException("null input: loaders");
 
-		final List /* Class */resultList = new LinkedList();
+		final List<Class<?>> /* Class */resultList = new LinkedList<Class<?>>();
 
 		for (int l = 0; l < loaders.length; ++l) {
 			final ClassLoader loader = loaders[l];
 			if (loader != null) {
-				final Class[] classes = getLoadedClasses(loaders[l]);
+				final Class<?>[] classes = getLoadedClasses(loaders[l]);
 
 				resultList.addAll(Arrays.asList(classes));
 			}
 		}
 
-		final Class[] result = new Class[resultList.size()];
+		final Class<?>[] result = new Class[resultList.size()];
 		resultList.toArray(result);
 
 		return result;
@@ -126,9 +127,9 @@ public abstract class ClassScope // this class is not instantiable
 			        "ClassScope::getCallerClassLoaderTree() cannot be used in this JRE",
 			        CR_FAILURE);
 
-		final Class[] callContext = CALLER_RESOLVER.getClassContext();
+		final Class<?>[] callContext = CALLER_RESOLVER.getClassContext();
 
-		final Set /* ClassLoader */resultSet = new HashSet();
+		final Set<ClassLoader> resultSet = new HashSet<ClassLoader>();
 
 		for (int c = 2; c < callContext.length; ++c) {
 			getClassLoaderTree(callContext[c], resultSet);
@@ -146,7 +147,7 @@ public abstract class ClassScope // this class is not instantiable
 	 * 
 	 * @return URL that points to the class definition [null if not found]
 	 */
-	public static URL getClassLocation(final Class cls) {
+	public static URL getClassLocation(final Class<?> cls) {
 		if (cls == null)
 			throw new IllegalArgumentException("null input: cls");
 
@@ -205,7 +206,7 @@ public abstract class ClassScope // this class is not instantiable
 	 */
 	private static final class CallerResolver extends SecurityManager {
 		@Override
-		protected Class[] getClassContext() {
+		protected Class<?>[] getClassContext() {
 			return super.getClassContext();
 		}
 
@@ -214,7 +215,7 @@ public abstract class ClassScope // this class is not instantiable
 	private ClassScope() {
 	} // this class is not extendible
 
-	private static void getClassLoaderTree(final Class cls, final Set resultSet) {
+	private static void getClassLoaderTree(final Class<?> cls, final Set<ClassLoader> resultSet) {
 		if ((cls != null) && (resultSet != null)) {
 			for (ClassLoader loader = cls.getClassLoader(); loader != null; loader = loader.getParent()) {
 				resultSet.add(loader);
@@ -225,7 +226,7 @@ public abstract class ClassScope // this class is not instantiable
 	private static final Field CLASSES_VECTOR_FIELD; // set in <clinit> [can be null]
 	private static final CallerResolver CALLER_RESOLVER; // set in <clinit> [can be null]
 
-	private static final Class[] EMPTY_CLASS_ARRAY = new Class[0];
+	private static final Class<?>[] EMPTY_CLASS_ARRAY = new Class[0];
 	private static final Throwable CVF_FAILURE, CR_FAILURE; // set in <clinit>
 
 	static {
