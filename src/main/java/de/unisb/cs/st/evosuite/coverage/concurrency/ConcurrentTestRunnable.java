@@ -81,7 +81,7 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 
 
 	//#TODO steenbuck here for some testing
-	private VariableReference getInitialTest(BasicTestCase tc, Class clazz){
+	private VariableReference getInitialTest(BasicTestCase tc, Class<?> clazz){
 		assert(clazz!=null);
 		//TestCase tc = new TestCase();
 		//TestCluster cluster = TestCluster.getInstance();

@@ -538,7 +538,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				objects.remove(callee);
 			// if(test.hasObject(parameter_type, position, constraints.get(i))
 			// && reuse <= object_reuse_probability) {
-			if ((parameter_type instanceof Class)
+			if ((parameter_type instanceof Class<?>)
 			        && ((Class<?>) parameter_type).isPrimitive() && !objects.isEmpty()
 			        && reuse <= PRIMITIVE_REUSE_PROBABILITY) {
 				logger.debug(" Parameter " + i + ": Looking for existing object of type "
