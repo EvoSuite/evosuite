@@ -8,7 +8,6 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
@@ -63,9 +62,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 			
 			Sandbox.setUpMocks();
 			// exceptionsThrown = test.execute(scope, observers, !log);
-			//logger.warn("XXXXXXXXXXXXXXXXXXXXX " + test.size() + test.getClass().getName());
 			for (Statement s : test) {
-				//logger.warn("XXXXXXXXXXXXXXXXXXXXXTTT " );
 				if (Thread.currentThread().isInterrupted() || Thread.interrupted()) {
 					logger.info("Thread interrupted at statement " + num + ": "
 					        + s.getCode());

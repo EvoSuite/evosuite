@@ -14,8 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
-import de.unisb.cs.st.evosuite.testcase.TestCase;
-
 /**
  * 
  * #TODO the different thread contexts should be abstracted away to an access layer 

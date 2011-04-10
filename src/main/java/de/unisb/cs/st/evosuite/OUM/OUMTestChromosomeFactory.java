@@ -10,6 +10,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.Randomness;
+import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 
@@ -28,7 +29,7 @@ public class OUMTestChromosomeFactory implements ChromosomeFactory {
 	private OUMTestFactory test_factory = OUMTestFactory.getInstance();
 	
 	public TestCase getRandomTestCase(int size) {
-		TestCase test = new TestCase();
+		TestCase test = new DefaultTestCase();
 		int num = 0;
 		
 		// Choose a random length in 0 - size

@@ -24,7 +24,6 @@ import java.util.List;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.OUM.OUMTestChromosomeFactory;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyCoverageFactory;
-import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyCoverageGoal;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTestCaseFactory;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;

@@ -40,9 +40,9 @@ import de.unisb.cs.st.evosuite.testsuite.TestCallStatement;
  * @author Gordon Fraser
  * 
  */
-public class TestCase implements Iterable<Statement>{
+public class DefaultTestCase implements TestCase{
 
-	private static Logger logger = Logger.getLogger(TestCase.class);
+	private static Logger logger = Logger.getLogger(DefaultTestCase.class);
 
 	/** The statements */
 	private List<Statement> statements;
@@ -54,7 +54,7 @@ public class TestCase implements Iterable<Statement>{
 	/**
 	 * Constructor
 	 */
-	public TestCase() {
+	public DefaultTestCase() {
 		statements = new ArrayList<Statement>();
 	}
 
@@ -63,43 +63,40 @@ public class TestCase implements Iterable<Statement>{
 	 * 
 	 * @param statements
 	 */
-	public TestCase(List<Statement> statements) {
+	public DefaultTestCase(List<Statement> statements) {
 		this.statements = statements;
 	}
 
-	/**
-	 * 
-	 * @return Number of statements
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#size()
 	 */
+	@Override
 	public int size() {
 		return statements.size();
 	}
 
-	/**
-	 * 
-	 * @return Number of statements
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#isEmpty()
 	 */
+	@Override
 	public boolean isEmpty() {
 		return statements.isEmpty();
 	}
 
-	/**
-	 * Remove all statements after a given position
-	 * 
-	 * @param length
-	 *            Length of the test case after chopping
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#chop(int)
 	 */
+	@Override
 	public void chop(int length) {
 		while (statements.size() > length) {
 			statements.remove(length);
 		}
 	}
 
-	/**
-	 * Get Java code representation of the test case
-	 * 
-	 * @return Code as string
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#toCode()
 	 */
+	@Override
 	public String toCode() {
 		String code = "";
 		for (Statement s : statements) {
@@ -109,11 +106,10 @@ public class TestCase implements Iterable<Statement>{
 		return code;
 	}
 
-	/**
-	 * Get Java code representation of the test case
-	 * 
-	 * @return Code as string
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#toCode(java.util.Map)
 	 */
+	@Override
 	public String toCode(Map<Integer, Throwable> exceptions) {
 		String code = "";
 		for (int i = 0; i < size(); i++) {
@@ -130,13 +126,10 @@ public class TestCase implements Iterable<Statement>{
 		return code;
 	}
 
-	/**
-	 * Get all objects up to position satisfying constraint
-	 * 
-	 * @param type
-	 * @param position
-	 * @return
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getObjects(java.lang.reflect.Type, int)
 	 */
+	@Override
 	public List<VariableReference> getObjects(Type type, int position) {
 		List<VariableReference> variables = new ArrayList<VariableReference>();
 		// logger.trace("Looking for objects of type "+type
@@ -179,14 +172,10 @@ public class TestCase implements Iterable<Statement>{
 		return variables;
 	}
 
-	/**
-	 * Get all objects up to position satisfying constraint
-	 * 
-	 * @param type
-	 * @param position
-	 * @param constraint
-	 * @return
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getObjects(int)
 	 */
+	@Override
 	public List<VariableReference> getObjects(int position) {
 		List<VariableReference> variables = new ArrayList<VariableReference>();
 		// logger.trace("Looking for objects of type "+type
@@ -225,28 +214,18 @@ public class TestCase implements Iterable<Statement>{
 		return variables;
 	}
 
-	/**
-	 * Get a random object matching type
-	 * 
-	 * @param type
-	 *            Class we are looking for
-	 * @return Random object
-	 * @throws ConstructionFailedException
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getRandomObject()
 	 */
+	@Override
 	public VariableReference getRandomObject() {
 		return getRandomObject(statements.size());
 	}
 
-	/**
-	 * Get a random object matching type
-	 * 
-	 * @param type
-	 * @param position
-	 *            Upper bound in test case up to which objects are considered
-	 * @return
-	 * @throws ConstructionFailedException
-	 *             if no such object exists
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getRandomObject(int)
 	 */
+	@Override
 	public VariableReference getRandomObject(int position) {
 		List<VariableReference> variables = getObjects(position);
 		if (variables.isEmpty())
@@ -257,29 +236,19 @@ public class TestCase implements Iterable<Statement>{
 		return variables.get(num).clone();
 	}
 
-	/**
-	 * Get a random object matching type
-	 * 
-	 * @param type
-	 *            Class we are looking for
-	 * @return Random object
-	 * @throws ConstructionFailedException
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getRandomObject(java.lang.reflect.Type)
 	 */
+	@Override
 	public VariableReference getRandomObject(Type type)
 	        throws ConstructionFailedException {
 		return getRandomObject(type, statements.size());
 	}
 
-	/**
-	 * Get a random object matching type
-	 * 
-	 * @param type
-	 * @param position
-	 *            Upper bound in test case up to which objects are considered
-	 * @return
-	 * @throws ConstructionFailedException
-	 *             if no such object exists
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getRandomObject(java.lang.reflect.Type, int)
 	 */
+	@Override
 	public VariableReference getRandomObject(Type type, int position)
 	        throws ConstructionFailedException {
 		assert (type != null);
@@ -292,15 +261,10 @@ public class TestCase implements Iterable<Statement>{
 		return variables.get(num).clone();
 	}
 
-	/**
-	 * Get actual object represented by a variable for a given execution scope
-	 * 
-	 * @param reference
-	 *            Variable
-	 * @param scope
-	 *            Excution scope
-	 * @return Object in scope
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getObject(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.Scope)
 	 */
+	@Override
 	public Object getObject(VariableReference reference, Scope scope) {
 		return scope.get(reference);
 	}
@@ -319,6 +283,10 @@ public class TestCase implements Iterable<Statement>{
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#renameVariable(int, int)
+	 */
+	@Override
 	public void renameVariable(int old_position, int new_position) {
 		for (int i = old_position; i < statements.size(); i++) {
 			for (VariableReference var : statements.get(i)
@@ -329,63 +297,45 @@ public class TestCase implements Iterable<Statement>{
 		}
 	}
 
-	/**
-	 * Set new statement at position
-	 * 
-	 * @param statement
-	 *            New statement
-	 * @param position
-	 *            Position at which to add
-	 * @return Return value of statement
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#setStatement(de.unisb.cs.st.evosuite.testcase.Statement, int)
 	 */
+	@Override
 	public VariableReference setStatement(Statement statement, int position) {
 		statements.set(position, statement);
 		return new VariableReference(statement.getReturnType(), position); // TODO:
 		                                                                   // -1?
 	}
 
-	/**
-	 * Add new statement at position and fix following variable references
-	 * 
-	 * @param statement
-	 *            New statement
-	 * @param position
-	 *            Position at which to add
-	 * @return Return value of statement
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#addStatement(de.unisb.cs.st.evosuite.testcase.Statement, int)
 	 */
+	@Override
 	public void addStatement(Statement statement, int position) {
 		fixVariableReferences(position, 1);
 		statements.add(position, statement);
 	}
 
-	/**
-	 * Append new statement at end of test case
-	 * 
-	 * @param statement
-	 *            New statement
-	 * @return VariableReference of return value
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#addStatement(de.unisb.cs.st.evosuite.testcase.Statement)
 	 */
+	@Override
 	public void addStatement(Statement statement) {
 		statements.add(statement);
 	}
 
-	/**
-	 * Get return value (variable) of statement at position
-	 * 
-	 * @param position
-	 * @return
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getReturnValue(int)
 	 */
+	@Override
 	public VariableReference getReturnValue(int position) {
 		return statements.get(position).getReturnValue();
 	}
 
-	/**
-	 * Check if var is referenced after its definition
-	 * 
-	 * @param var
-	 *            Variable to check for
-	 * @return True if there is a use of var
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#hasReferences(de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
+	@Override
 	public boolean hasReferences(VariableReference var) {
 		if (var == null || var.statement == -1)
 			return false;
@@ -397,6 +347,10 @@ public class TestCase implements Iterable<Statement>{
 		return false;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getReferences(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
 	public List<VariableReference> getReferences(VariableReference var) {
 		List<VariableReference> references = new ArrayList<VariableReference>();
 
@@ -419,11 +373,10 @@ public class TestCase implements Iterable<Statement>{
 		return references;
 	}
 
-	/**
-	 * Remove statement at position and fix variable references
-	 * 
-	 * @param position
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#remove(int)
 	 */
+	@Override
 	public void remove(int position) {
 		logger.debug("Removing statement " + position);
 		if (position >= size())
@@ -435,40 +388,32 @@ public class TestCase implements Iterable<Statement>{
 		// }
 	}
 
-	/**
-	 * Access statement by index
-	 * 
-	 * @param position
-	 *            Index of statement
-	 * @return Statement at position
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getStatement(int)
 	 */
+	@Override
 	public Statement getStatement(int position) {
 		return statements.get(position);
 	}
 
-	/**
-	 * Reveal internal list of statements TODO: This is not nice, needed it as a
-	 * hack for Parametrized tests
-	 * 
-	 * @return
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getStatements()
 	 */
+	@Override
 	public List<Statement> getStatements() {
 		return statements;
 	}
 
-	/**
-	 * Check if this test case is a prefix of t
-	 * 
-	 * @param t
-	 *            Test case to check against
-	 * @return True if this test is a prefix of t
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#isPrefix(de.unisb.cs.st.evosuite.testcase.DefaultTestCase)
 	 */
+	@Override
 	public boolean isPrefix(TestCase t) {
 		if (statements.size() > t.size())
 			return false;
 
 		for (int i = 0; i < statements.size(); i++) {
-			if (!statements.get(i).equals(t.statements.get(i))) {
+			if (!statements.get(i).equals(t.getStatement(i))) {
 				return false;
 			}
 		}
@@ -504,7 +449,7 @@ public class TestCase implements Iterable<Statement>{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TestCase other = (TestCase) obj;
+		DefaultTestCase other = (DefaultTestCase) obj;
 
 		if (statements == null) {
 			if (other.statements != null)
@@ -522,15 +467,10 @@ public class TestCase implements Iterable<Statement>{
 		return true;
 	}
 
-	/**
-	 * Check if the test case has an object of a given class
-	 * 
-	 * @param type
-	 *            Type to look for
-	 * @param position
-	 *            Upper bound up to which the test is checked
-	 * @return True if there is something usable
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#hasObject(java.lang.reflect.Type, int)
 	 */
+	@Override
 	public boolean hasObject(Type type, int position) {
 		for (int i = 0; i < position; i++) {
 			Statement st = statements.get(i);
@@ -543,6 +483,10 @@ public class TestCase implements Iterable<Statement>{
 		return false;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#hasCastableObject(java.lang.reflect.Type)
+	 */
+	@Override
 	public boolean hasCastableObject(Type type) {
 		for (Statement st : statements) {
 			if (st.retval.isAssignableFrom(type)) {
@@ -556,8 +500,8 @@ public class TestCase implements Iterable<Statement>{
 	 * Create a copy of the test case
 	 */
 	@Override
-	public TestCase clone() {
-		TestCase t = new TestCase();
+	public DefaultTestCase clone() {
+		DefaultTestCase t = new DefaultTestCase();
 		for (Statement s : statements) {
 			t.statements.add(s.clone());
 		}
@@ -567,11 +511,10 @@ public class TestCase implements Iterable<Statement>{
 		return t;
 	}
 
-	/**
-	 * Determine the set of classes that are accessed by the test case
-	 * 
-	 * @return Set of accessed classes
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getAccessedClasses()
 	 */
+	@Override
 	public Set<Class<?>> getAccessedClasses() {
 		Set<Class<?>> accessed_classes = new HashSet<Class<?>>();
 		for (Statement s : statements) {
@@ -603,16 +546,13 @@ public class TestCase implements Iterable<Statement>{
 		return accessed_classes;
 	}
 
-	/**
-	 * Copy all the assertions from other test case
-	 * 
-	 * @param other
-	 *            The other test case
-	 * 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#addAssertions(de.unisb.cs.st.evosuite.testcase.DefaultTestCase)
 	 */
+	@Override
 	public void addAssertions(TestCase other) {
-		for (int i = 0; i < statements.size() && i < other.statements.size(); i++) {
-			for (Assertion a : other.statements.get(i).assertions) {
+		for (int i = 0; i < statements.size() && i < other.size(); i++) {
+			for (Assertion a : other.getStatement(i).assertions) {
 				if (!statements.get(i).assertions.contains(a))
 					if (a != null)
 						statements.get(i).assertions.add(a.clone());
@@ -620,11 +560,10 @@ public class TestCase implements Iterable<Statement>{
 		}
 	}
 
-	/**
-	 * Check if there are any assertions
-	 * 
-	 * @return True if there are assertions
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#hasAssertions()
 	 */
+	@Override
 	public boolean hasAssertions() {
 		for (Statement s : statements) {
 			if (s.hasAssertions())
@@ -633,13 +572,10 @@ public class TestCase implements Iterable<Statement>{
 		return false;
 	}
 
-	/**
-	 * Get all assertions that exist for this test case
-	 * 
-	 * @return List of assertions
-	 * 
-	 *         TODO: Also return ExceptionAssertion?
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getAssertions()
 	 */
+	@Override
 	public List<Assertion> getAssertions() {
 		List<Assertion> assertions = new ArrayList<Assertion>();
 		for (Statement s : statements) {
@@ -648,9 +584,10 @@ public class TestCase implements Iterable<Statement>{
 		return assertions;
 	}
 
-	/**
-	 * Remove all assertions from test case
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#removeAssertions()
 	 */
+	@Override
 	public void removeAssertions() {
 		for (Statement s : statements) {
 			s.removeAssertions();
@@ -658,11 +595,10 @@ public class TestCase implements Iterable<Statement>{
 
 	}
 
-	/**
-	 * Check if test case is valid (executable)
-	 * 
-	 * @return
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#isValid()
 	 */
+	@Override
 	public boolean isValid() {
 		int num = 0;
 		for (Statement s : statements) {
@@ -676,6 +612,10 @@ public class TestCase implements Iterable<Statement>{
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getDeclaredExceptions()
+	 */
+	@Override
 	public Set<Class<?>> getDeclaredExceptions() {
 		Set<Class<?>> exceptions = new HashSet<Class<?>>();
 		for (Statement statement : statements) {
@@ -684,6 +624,10 @@ public class TestCase implements Iterable<Statement>{
 		return exceptions;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#hasCalls()
+	 */
+	@Override
 	public boolean hasCalls() {
 		for (Statement s : statements) {
 			if (s instanceof TestCallStatement) {
@@ -693,11 +637,19 @@ public class TestCase implements Iterable<Statement>{
 		return false;
         }
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#addCoveredGoal(de.unisb.cs.st.evosuite.testcase.TestFitnessFunction)
+	 */
+	@Override
 	public void addCoveredGoal(TestFitnessFunction goal) {
 		coveredGoals.add(goal);
 		// TODO: somehow adds the same goal more than once (fitnessfunction.equals()?)
 	}
 	
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getCoveredGoals()
+	 */
+	@Override
 	public Set<TestFitnessFunction> getCoveredGoals() {
 		return coveredGoals;
 	}

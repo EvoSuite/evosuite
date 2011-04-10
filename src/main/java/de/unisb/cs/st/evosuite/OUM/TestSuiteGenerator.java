@@ -49,6 +49,7 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.ZeroFitnessStoppingConditio
 import de.unisb.cs.st.evosuite.junit.JUnitTestSuite;
 import de.unisb.cs.st.evosuite.mutation.MutationStatistics;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
+import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.FieldStatement;
@@ -227,7 +228,7 @@ public class TestSuiteGenerator {
 		for (int num = 0; num < num_experiments; num++) {
 			logger.info("Experiment run: " + num);
 			// Generate test
-			TestCase test = new TestCase();
+			TestCase test = new DefaultTestCase();
 			while (test.size() < Properties.CHROMOSOME_LENGTH) {
 				oum_factory.appendRandomCall(test);
 			}
@@ -242,7 +243,7 @@ public class TestSuiteGenerator {
 		for (int num = 0; num < num_experiments; num++) {
 			logger.info("Experiment run: " + num);
 			// Generate test
-			TestCase test = new TestCase();
+			TestCase test = new DefaultTestCase();
 			while (test.size() < Properties.CHROMOSOME_LENGTH) {
 				test_factory.insertRandomCall(test, test.size());
 			}

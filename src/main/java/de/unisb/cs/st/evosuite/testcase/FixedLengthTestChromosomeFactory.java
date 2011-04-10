@@ -49,7 +49,7 @@ public class FixedLengthTestChromosomeFactory implements ChromosomeFactory {
 	 * @param size
 	 */
 	private TestCase getRandomTestCase(int size) {
-		TestCase test = new TestCase();
+		TestCase test = new DefaultTestCase();
 		int num = 0;
 
 		num = 0;

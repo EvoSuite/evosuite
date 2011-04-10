@@ -4,31 +4,36 @@
 package de.unisb.cs.st.evosuite.coverage.concurrency;
 
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
-import org.omg.CORBA.TCKind;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.sandbox.Sandbox;
-import de.unisb.cs.st.evosuite.testcase.*;
+import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
+import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
+import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
+import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
+import de.unisb.cs.st.evosuite.testcase.InterfaceTestRunnable;
+import de.unisb.cs.st.evosuite.testcase.MethodStatement;
+import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
+import de.unisb.cs.st.evosuite.testcase.Scope;
+import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCluster;
+import de.unisb.cs.st.evosuite.testcase.TestRunnable;
+import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
  * @author Steenbuck
@@ -61,7 +66,7 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 	public List<ExecutionObserver> observers;
 
 
-	public ConcurrentTestRunnable(de.unisb.cs.st.evosuite.testcase.TestCase tc, Scope scope, List<ExecutionObserver> observers) {
+	public ConcurrentTestRunnable(TestCase tc, Scope scope, List<ExecutionObserver> observers) {
 		if(tc instanceof ConcurrentTestCase){
 			test = (ConcurrentTestCase)tc;
 		}else{

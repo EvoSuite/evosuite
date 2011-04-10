@@ -52,11 +52,10 @@ import de.unisb.cs.st.evosuite.testsuite.TestCallStatement;
  * 
  * @author Sebastian Steenbuck
  * 
- * #TODO steenbuck TestCase should be an interface
  * #TODO steenbuck BasicTestCase should have a more descriptive name
  * 
  */
-public class BasicTestCase extends TestCase {
+public class BasicTestCase implements TestCase {
 
 	private static Logger logger = Logger.getLogger(BasicTestCase.class);
 
@@ -162,6 +161,7 @@ public class BasicTestCase extends TestCase {
 	 * 
 	 * @return Number of statements
 	 */
+	@Override
 	public int size() {
 		return statements.size();
 	}
@@ -170,6 +170,7 @@ public class BasicTestCase extends TestCase {
 	 * 
 	 * @return Number of statements
 	 */
+	@Override
 	public boolean isEmpty() {
 		return statements.isEmpty();
 	}
@@ -180,6 +181,7 @@ public class BasicTestCase extends TestCase {
 	 * @param length
 	 *            Length of the test case after chopping
 	 */
+	@Override
 	public void chop(int length) {
 		while (statements.size() > length) {
 			statements.remove(length);
@@ -191,6 +193,7 @@ public class BasicTestCase extends TestCase {
 	 * 
 	 * @return Code as string
 	 */
+	@Override
 	public String toCode() {
 		String code = "";
 		for (Statement s : statements) {
@@ -212,6 +215,7 @@ public class BasicTestCase extends TestCase {
 	 * 
 	 * @return Code as string
 	 */
+	@Override
 	public String toCode(Map<Integer, Throwable> exceptions) {
 		String code = "";
 		for (int i = 0; i < size(); i++) {
@@ -235,6 +239,7 @@ public class BasicTestCase extends TestCase {
 	 * @param position
 	 * @return
 	 */
+	@Override
 	public List<VariableReference> getObjects(Type type, int position) {
 		assert(position>=0);
 		List<VariableReference> variables = new ArrayList<VariableReference>();
@@ -286,6 +291,7 @@ public class BasicTestCase extends TestCase {
 	 * @param constraint
 	 * @return
 	 */
+	@Override
 	public List<VariableReference> getObjects(int position) {
 		assert(position>=0);
 		List<VariableReference> variables = new ArrayList<VariableReference>();
@@ -334,6 +340,7 @@ public class BasicTestCase extends TestCase {
 	 * @return Random object
 	 * @throws ConstructionFailedException
 	 */
+	@Override
 	public VariableReference getRandomObject() {
 		return getRandomObject(statements.size());
 	}
@@ -348,6 +355,7 @@ public class BasicTestCase extends TestCase {
 	 * @throws ConstructionFailedException
 	 *             if no such object exists
 	 */
+	@Override
 	public VariableReference getRandomObject(int position) {
 		assert(position>=0);
 		List<VariableReference> variables = getObjects(position);
@@ -366,6 +374,7 @@ public class BasicTestCase extends TestCase {
 	 * @return Random object
 	 * @throws ConstructionFailedException
 	 */
+	@Override
 	public VariableReference getRandomObject(Type type)
 	        throws ConstructionFailedException {
 		return getRandomObject(type, statements.size());
@@ -381,6 +390,7 @@ public class BasicTestCase extends TestCase {
 	 * @throws ConstructionFailedException
 	 *             if no such object exists
 	 */
+	@Override
 	public VariableReference getRandomObject(Type type, int position)
 	        throws ConstructionFailedException {
 		assert(position>=0);
@@ -403,6 +413,7 @@ public class BasicTestCase extends TestCase {
 	 *            Excution scope
 	 * @return Object in scope
 	 */
+	@Override
 	public Object getObject(VariableReference reference, Scope scope) {
 		return scope.get(reference);
 	}
@@ -422,6 +433,7 @@ public class BasicTestCase extends TestCase {
 		}
 	}
 
+	@Override
 	public void renameVariable(int old_position, int new_position) {
 		assert(new_position>=0);
 		assert(old_position>=0);
@@ -443,6 +455,7 @@ public class BasicTestCase extends TestCase {
 	 *            Position at which to add
 	 * @return Return value of statement
 	 */
+	@Override
 	public VariableReference setStatement(Statement statement, int position) {
 		assert(position>=0);
 		statement = replaceConstructorStatement(statement, position);
@@ -460,6 +473,7 @@ public class BasicTestCase extends TestCase {
 	 *            Position at which to add
 	 * @return Return value of statement
 	 */
+	@Override
 	public void addStatement(Statement statement, int position) {
 		assert(position>=0);
 		assert(statement.getReturnValue().statement==position);
@@ -507,6 +521,7 @@ public class BasicTestCase extends TestCase {
 	 * @param position
 	 * @return
 	 */
+	@Override
 	public VariableReference getReturnValue(int position) {
 		assert(position>=0);
 		assert(position<statements.size());
@@ -520,6 +535,7 @@ public class BasicTestCase extends TestCase {
 	 *            Variable to check for
 	 * @return True if there is a use of var
 	 */
+	@Override
 	public boolean hasReferences(VariableReference var) {
 		if (var == null || var.statement == -1)
 			return false;
@@ -531,6 +547,7 @@ public class BasicTestCase extends TestCase {
 		return false;
 	}
 
+	@Override
 	public List<VariableReference> getReferences(VariableReference var) {
 		List<VariableReference> references = new ArrayList<VariableReference>();
 
@@ -560,6 +577,7 @@ public class BasicTestCase extends TestCase {
 	 * See DefaultTestFactory.deleteStatementGracefully()
 	 * @param position
 	 */
+	@Override
 	public void remove(int position) {
 		assert(position>=0);
 		assert(position<statements.size());
@@ -580,6 +598,7 @@ public class BasicTestCase extends TestCase {
 	 *            Index of statement
 	 * @return Statement at position
 	 */
+	@Override
 	public Statement getStatement(int position) {
 		assert(position>=0);
 		assert(position<statements.size()) : "tried to access statement " + position + " on a statement list of size " + statements.size();
@@ -595,7 +614,8 @@ public class BasicTestCase extends TestCase {
 	 *            Test case to check against
 	 * @return True if this test is a prefix of t
 	 */
-	public boolean isPrefix(BasicTestCase t) {
+	@Override
+	public boolean isPrefix(TestCase t) {
 		//System.out.println("statements size " + statements.size() + " " + t.size());
 		if (statements.size() > t.size())
 			return false;
@@ -665,6 +685,7 @@ public class BasicTestCase extends TestCase {
 	 *            Upper bound up to which the test is checked
 	 * @return True if there is something usable
 	 */
+	@Override
 	public boolean hasObject(Type type, int position) {
 		for (int i = 0; i < position; i++) {
 			Statement st = statements.get(i);
@@ -677,6 +698,7 @@ public class BasicTestCase extends TestCase {
 		return false;
 	}
 
+	@Override
 	public boolean hasCastableObject(Type type) {
 		for (Statement st : statements) {
 			if (st.getReturnValue().isAssignableFrom(type)) {
@@ -706,6 +728,7 @@ public class BasicTestCase extends TestCase {
 	 * 
 	 * @return Set of accessed classes
 	 */
+	@Override
 	public Set<Class<?>> getAccessedClasses() {
 		Set<Class<?>> accessed_classes = new HashSet<Class<?>>();
 		for (Statement s : statements) {
@@ -744,9 +767,10 @@ public class BasicTestCase extends TestCase {
 	 *            The other test case
 	 * 
 	 */
-	public void addAssertions(BasicTestCase other) {
-		for (int i = 0; i < statements.size() && i < other.statements.size(); i++) {
-			for (Assertion a : other.statements.get(i).getAssertions()) {
+	@Override
+	public void addAssertions(TestCase other) {
+		for (int i = 0; i < statements.size() && i < other.size(); i++) {
+			for (Assertion a : other.getStatement(i).getAssertions()) {
 				if (!statements.get(i).getAssertions().contains(a))
 					if (a != null)
 						statements.get(i).getAssertions().add(a.clone());
@@ -759,6 +783,7 @@ public class BasicTestCase extends TestCase {
 	 * 
 	 * @return True if there are assertions
 	 */
+	@Override
 	public boolean hasAssertions() {
 		for (Statement s : statements) {
 			if (s.hasAssertions())
@@ -774,6 +799,7 @@ public class BasicTestCase extends TestCase {
 	 * 
 	 *         TODO: Also return ExceptionAssertion?
 	 */
+	@Override
 	public List<Assertion> getAssertions() {
 		List<Assertion> assertions = new ArrayList<Assertion>();
 		for (Statement s : statements) {
@@ -785,6 +811,7 @@ public class BasicTestCase extends TestCase {
 	/**
 	 * Remove all assertions from test case
 	 */
+	@Override
 	public void removeAssertions() {
 		for (Statement s : statements) {
 			s.removeAssertions();
@@ -797,6 +824,7 @@ public class BasicTestCase extends TestCase {
 	 * 
 	 * @return
 	 */
+	@Override
 	public boolean isValid() {
 		int num = 0;
 		for (Statement s : statements) {
@@ -810,6 +838,7 @@ public class BasicTestCase extends TestCase {
 		return true;
 	}
 
+	@Override
 	public Set<Class<?>> getDeclaredExceptions() {
 		Set<Class<?>> exceptions = new HashSet<Class<?>>();
 		for (Statement statement : statements) {
@@ -818,6 +847,7 @@ public class BasicTestCase extends TestCase {
 		return exceptions;
 	}
 
+	@Override
 	public boolean hasCalls() {
 		for (Statement s : statements) {
 			if (s instanceof TestCallStatement) {
@@ -827,11 +857,13 @@ public class BasicTestCase extends TestCase {
 		return false;
         }
 
+	@Override
 	public void addCoveredGoal(TestFitnessFunction goal) {
 		coveredGoals.add(goal);
 		// TODO: somehow adds the same goal more than once (fitnessfunction.equals()?)
 	}
-	
+
+	@Override
 	public Set<TestFitnessFunction> getCoveredGoals() {
 		return coveredGoals;
 	}
@@ -843,6 +875,15 @@ public class BasicTestCase extends TestCase {
 	public Iterator<Statement> iterator() {
 		return statements.iterator();
 	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getStatements()
+	 */
+	@Override
+	public List<Statement> getStatements() {
+		return statements;
+	}
+
 	
 	
 }
