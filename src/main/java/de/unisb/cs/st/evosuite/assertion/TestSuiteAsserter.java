@@ -40,7 +40,7 @@ public class TestSuiteAsserter {
 			*/
 			
 			
-			AssertionGenerator asserter = new AssertionGenerator();
+			MutationAssertionGenerator asserter = new MutationAssertionGenerator();
 			int num = 0;
 			Set<Long> killed = new HashSet<Long>();
 			for(TestCase test : tests) {

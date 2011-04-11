@@ -40,7 +40,6 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.OutputTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
-import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.javalanche.mutation.javaagent.MutationsForRun;
 import de.unisb.cs.st.javalanche.mutation.properties.MutationProperties;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
@@ -53,21 +52,13 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation.MutationType;
  * @author Gordon Fraser
  * 
  */
-public class AssertionGenerator {
+public class MutationAssertionGenerator extends AssertionGenerator {
 
 	private final List<Mutation> mutants;
 
 	private final HOMSwitcher hom_switcher = new HOMSwitcher();
 
-	private final Logger logger = Logger.getLogger(AssertionGenerator.class);
-
-	private final TestCaseExecutor executor = TestCaseExecutor.getInstance();
-
-	private PrimitiveOutputTraceObserver primitive_observer = new PrimitiveOutputTraceObserver();
-	private ComparisonTraceObserver comparison_observer = new ComparisonTraceObserver();
-	private InspectorTraceObserver inspector_observer = new InspectorTraceObserver();
-	private PrimitiveFieldTraceObserver field_observer = new PrimitiveFieldTraceObserver();
-	private NullOutputObserver null_observer = new NullOutputObserver();
+	private final Logger logger = Logger.getLogger(MutationAssertionGenerator.class);
 
 	private final Map<TestCase, Map<Class<?>, Integer>> assertion_statistics_full = new HashMap<TestCase, Map<Class<?>, Integer>>();
 
@@ -86,13 +77,7 @@ public class AssertionGenerator {
 	/**
 	 * Default constructor
 	 */
-	public AssertionGenerator() {
-		executor.addObserver(primitive_observer);
-		executor.addObserver(comparison_observer);
-		executor.addObserver(inspector_observer);
-		executor.addObserver(field_observer);
-		executor.addObserver(null_observer);
-
+	public MutationAssertionGenerator() {
 		mutants = hom_switcher.getMutants();
 	}
 
@@ -124,7 +109,8 @@ public class AssertionGenerator {
 	 * @param test
 	 *            The test case that should be executed
 	 */
-	private ExecutionResult runTest(TestCase test) {
+	@Override
+	protected ExecutionResult runTest(TestCase test) {
 		return runTest(test, null);
 	}
 
@@ -700,6 +686,15 @@ public class AssertionGenerator {
 		} catch (IOException e) {
 
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.assertion.AssertionGenerator#addAssertions(de.unisb.cs.st.evosuite.testcase.TestCase)
+	 */
+	@Override
+	public void addAssertions(TestCase test) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

@@ -47,7 +47,7 @@ public class NullOutputObserver extends ExecutionObserver {
 	public void statement(Statement statement, Scope scope, Throwable exception) {
 		VariableReference retval = statement.getReturnValue();
 
-		if (retval == null)
+		if (retval == null || retval.isPrimitive())
 			return;
 
 		Object object = scope.get(retval);
