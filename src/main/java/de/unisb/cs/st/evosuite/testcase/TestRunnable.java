@@ -8,18 +8,18 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.sandbox.Sandbox;
 
 /**
  * @author Gordon Fraser
  * 
  */
-public class TestRunnable implements Callable<ExecutionResult> {
+public class TestRunnable implements InterfaceTestRunnable {
 
 	private static Logger logger = Logger.getLogger(TestRunner.class);
 
@@ -33,7 +33,9 @@ public class TestRunnable implements Callable<ExecutionResult> {
 
 	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
-	private static PrintStream out = new PrintStream(byteStream);
+	private static boolean print_to_system = Properties.getPropertyOrDefault("print_to_system", false);
+	
+	private static PrintStream out = (print_to_system?System.out:new PrintStream(byteStream));
 
 	public Map<Integer, Throwable> exceptionsThrown = new HashMap<Integer, Throwable>();
 
@@ -51,14 +53,16 @@ public class TestRunnable implements Callable<ExecutionResult> {
 	 */
 	@Override
 	public ExecutionResult call() {
+		
 		runFinished = false;
 		ExecutionResult result = new ExecutionResult(test, null);
 
 		int num = 0;
 		try {
+			
 			Sandbox.setUpMocks();
 			// exceptionsThrown = test.execute(scope, observers, !log);
-			for (Statement s : test.statements) {
+			for (Statement s : test) {
 				if (Thread.currentThread().isInterrupted() || Thread.interrupted()) {
 					logger.info("Thread interrupted at statement " + num + ": "
 					        + s.getCode());
@@ -81,8 +85,8 @@ public class TestRunnable implements Callable<ExecutionResult> {
 				// be set to the actual class observed at runtime
 				// If changed, we need to update all references
 				if (!s.getReturnValue().equals(returnValue)) {
-					for (int pos = num; pos < test.statements.size(); pos++) {
-						test.statements.get(pos).replace(returnValue,
+					for (int pos = num; pos < test.size(); pos++) {
+						test.getStatement(pos).replace(returnValue,
 						                                 s.getReturnValue().clone());
 					}
 				}
@@ -90,7 +94,7 @@ public class TestRunnable implements Callable<ExecutionResult> {
 				if (exceptionThrown != null) {
 					exceptionsThrown.put(num, exceptionThrown);
 
-					// exception_statement = num;
+					// exception_statement = num; 
 					if (log && logger.isDebugEnabled())
 						logger.debug("Exception thrown in statement: " + s.getCode()
 						        + " - " + exceptionThrown.getClass().getName() + " - "
@@ -136,6 +140,24 @@ public class TestRunnable implements Callable<ExecutionResult> {
 
 		return result;
 		//}
+	}
+	
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.InterfaceTestRunnable#getExceptionsThrown()
+	 */
+	@Override
+	public Map<Integer, Throwable> getExceptionsThrown() {
+		return exceptionsThrown;
+	}
+
+
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.InterfaceTestRunnable#isRunFinished()
+	 */
+	@Override
+	public boolean isRunFinished() {
+		return runFinished;
 	}
 
 }

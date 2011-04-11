@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.sandbox.Sandbox;
 
 /**
@@ -40,7 +41,9 @@ public class TestRunner extends Thread {
 
 	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
-	private static PrintStream out = new PrintStream(byteStream);
+	private static boolean print_to_system = Properties.getPropertyOrDefault("print_to_system", false);
+	
+	private static PrintStream out = (print_to_system?System.out:new PrintStream(byteStream));
 
 	private TestCase test;
 
@@ -84,7 +87,7 @@ public class TestRunner extends Thread {
 		try {
 			Sandbox.setUpMocks();
 			// exceptionsThrown = test.execute(scope, observers, !log);
-			for (Statement s : test.statements) {
+			for (Statement s : test) {
 				if (isInterrupted()) {
 					logger.info("Thread interrupted at statement " + num + ": "
 					        + s.getCode());
@@ -107,8 +110,8 @@ public class TestRunner extends Thread {
 				// be set to the actual class observed at runtime
 				// If changed, we need to update all references
 				if (!s.getReturnValue().equals(returnValue)) {
-					for (int pos = num; pos < test.statements.size(); pos++) {
-						test.statements.get(pos).replace(returnValue,
+					for (int pos = num; pos < test.size(); pos++) {
+						test.getStatement(pos).replace(returnValue,
 						                                 s.getReturnValue().clone());
 					}
 				}

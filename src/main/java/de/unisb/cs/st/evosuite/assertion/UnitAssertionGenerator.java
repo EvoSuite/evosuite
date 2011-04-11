@@ -16,6 +16,9 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
 public class UnitAssertionGenerator extends AssertionGenerator {
 
 	private boolean isRelevant(Statement s, TestCase t) {
+		// Always allow assertions on the last statement
+		if (s.getPosition() == (t.size() - 1))
+			return true;
 		if (s instanceof MethodStatement) {
 			MethodStatement ms = (MethodStatement) s;
 			String declaringClass = ms.getMethod().getDeclaringClass().getName();
@@ -24,10 +27,6 @@ public class UnitAssertionGenerator extends AssertionGenerator {
 
 			if (declaringClass.equals(Properties.TARGET_CLASS))
 				return true;
-			else {
-				logger.warn(ms.getMethod().getDeclaringClass().getName() + " : "
-				        + Properties.TARGET_CLASS);
-			}
 		}
 		return false;
 	}

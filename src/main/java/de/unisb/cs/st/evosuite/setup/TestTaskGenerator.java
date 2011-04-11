@@ -39,11 +39,12 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.objectweb.asm.Type;
 
-import de.unisb.cs.st.ds.util.MakefileGenerator.Target;
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
 import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.Excludes;
+import de.unisb.cs.st.utils.Utils;
 
 /**
  * @author Gordon Fraser
@@ -100,10 +101,6 @@ public class TestTaskGenerator {
 		for(Class<?> in : clazz.getInterfaces()) {
 			methods.addAll(getMethods(in));			
 		}
-
-		//for(Method m : clazz.getMethods()) {
-		//	methods.add(m);			
-		//}
 		for(Method m : clazz.getDeclaredMethods()) {
 			methods.add(m);			
 		}
@@ -128,9 +125,6 @@ public class TestTaskGenerator {
 		for(Field m : clazz.getFields()) {
 			fields.add(m);			
 		}
-		//for(Field m : clazz.getDeclaredFields()) {
-		//	fields.add(m);			
-		//}
 		return fields;
 	}	
 	
@@ -176,6 +170,7 @@ public class TestTaskGenerator {
 	 */
 	private static List<String> getSuperClasses(String classname) {
 		Set<String> superclasses = hierarchy.getAllSupers(classname);
+		
 		List<String> ret = new ArrayList<String>();
 		ret.add(classname);
 		for(String sup : superclasses) {
@@ -265,7 +260,6 @@ public class TestTaskGenerator {
 		logger.info("Number of classes: "+all_classes.size());
 
 		TreeMap<Integer, Set<String> > classes = new TreeMap<Integer, Set<String>>();
-		//hierarchy.calculateInferiors();
 		for(String classname : all_classes) {
 			if(classname.startsWith(prefix)) {
 				if(!excludes.shouldExclude(classname)) {
@@ -300,38 +294,16 @@ public class TestTaskGenerator {
 	 *    Returns true if class is either public or has default access rights
 	 */
 	public static boolean canUse(Class<?> c) {
-//	    return !Modifier.isPrivate(c.getModifiers()) && !Modifier.isProtected(c.getModifiers()) && !c.isAnonymousClass() &&!Exception.class.isAssignableFrom(c);
-//		if(Modifier.isAbstract(c.getModifiers()))
-//		return false;
-	
-	if(Throwable.class.isAssignableFrom(c))
-		return false;
-    if(Modifier.isPrivate(c.getModifiers())) // && !(Modifier.isProtected(c.getModifiers())))
-    	return false;
-
-    /*
-    if(Modifier.isAbstract(c.getModifiers()))
-    	return false;
-
-    if(c.isLocalClass() || c.isAnonymousClass())
-		return false;
-*/    
-    
-    if(c.getName().matches(".*\\$\\d+$")) {
-    	logger.info(c+" looks like an anonymous class, ignoring it");
-    	return false;
-	 }
-
-    
-    /*
-    if(Modifier.isPublic(c.getModifiers()))
-    	return true;
-
-    if(Modifier.isProtected(c.getModifiers()))
-    	return true;
-*/
-    
-    return true;
+		if(Throwable.class.isAssignableFrom(c))
+			return false;
+	    if(Modifier.isPrivate(c.getModifiers()))
+	    	return false;    
+	    if(c.getName().matches(".*\\$\\d+$")) {
+	    	logger.info(c+" looks like an anonymous class, ignoring it");
+	    	return false;
+	    }  
+	    
+	    return true;
 	}
 
 	/**
@@ -359,7 +331,8 @@ public class TestTaskGenerator {
 			return false;
 		}
 
-		if(Modifier.isProtected(m.getDeclaringClass().getModifiers()) || Modifier.isPrivate(m.getDeclaringClass().getModifiers())) {
+		if(Modifier.isProtected(m.getDeclaringClass().getModifiers()) || 
+				Modifier.isPrivate(m.getDeclaringClass().getModifiers())) {
 			logger.debug("Excluding public method from nonpublic superclass "+m.toString());
 			return false;
 		}
@@ -437,13 +410,7 @@ public class TestTaskGenerator {
 	 *    True if constructor is accessible (public/package)
 	 */
 	public static boolean canUse(Constructor<?> c) {
-
 		//synthetic constructors are OK
-
-		//	    if (Modifier.isAbstract(c.getDeclaringClass().getModifiers())) {
-		//	    	logger.info("Not using constructor because declaring class is abstract");
-		//	    	return false;
-		//	    }
 		if (Modifier.isProtected(c.getModifiers()) || Modifier.isPrivate(c.getModifiers())) {
 			logger.debug("Non public constructor in class "+c.getDeclaringClass().getName());
 			return false;
@@ -472,7 +439,8 @@ public class TestTaskGenerator {
 			logger.debug("Adding constructors for class "+classname);				
 			for(Constructor<?> constructor : getConstructors(clazz)) {
 				if(canUse(constructor) && !isExcluded(classname, "<init>"+Type.getConstructorDescriptor(constructor))) {
-					logger.debug("Adding constructor "+classname+"."+constructor.getName()+Type.getConstructorDescriptor(constructor));
+					logger.debug("Adding constructor "+classname+"."+constructor.getName()+
+							Type.getConstructorDescriptor(constructor));
 					candidates.add(classname+","+Pattern.quote("<init>"+Type.getConstructorDescriptor(constructor)));
 				} else {
 					if(!canUse(constructor))
@@ -548,15 +516,13 @@ public class TestTaskGenerator {
 		try {
 			Class<?> clazz = Class.forName(classname);
 			for(Method method : getMethods(clazz)) {
-				if(canUse(method) && !isExcluded(classname, method.getName()+Type.getMethodDescriptor(method)) && !method.getName().equals("clone") && !method.getName().equals("compareTo") && !method.getName().equals("equals")) {
-					//if(method.getReturnType().equals(Object.class) || Arrays.asList(method.getParameterTypes()).contains(Object.class)) {
-						logger.debug("Adding method to signature file "+classname+"."+method.getName()+Type.getMethodDescriptor(method));
-						//String name = classname+"."+method.getName()+Type.getMethodDescriptor(method);
-						candidates.add(classname+"."+method.getName()+Type.getMethodDescriptor(method)+","+Type.getMethodDescriptor(method).replace("Ljava/lang/Object;", "Ljava/lang/Integer;"));
-						//candidates.add(method);
-					//} else {
-					//	logger.debug("NOT adding method t signature file "+classname+"."+method.getName()+Type.getMethodDescriptor(method));
-					//}
+				if(canUse(method) && !isExcluded(classname, method.getName()+Type.getMethodDescriptor(method)) && 
+						!method.getName().equals("clone") && !method.getName().equals("compareTo") && 
+						!method.getName().equals("equals")) {
+					logger.debug("Adding method to signature file "+classname+"."+
+							method.getName()+Type.getMethodDescriptor(method));
+					candidates.add(classname+"."+method.getName()+Type.getMethodDescriptor(method)+
+							","+Type.getMethodDescriptor(method).replace("Ljava/lang/Object;", "Ljava/lang/Integer;"));
 				}
 			}
 		} catch (ClassNotFoundException e) {
@@ -584,7 +550,11 @@ public class TestTaskGenerator {
 			try {
 				Class<?> clazz = Class.forName(cl);
 				for(Method method : clazz.getMethods()) {
-					if(!Modifier.isProtected(method.getModifiers()) && !Modifier.isPrivate(method.getModifiers()) && (method.getReturnType().isPrimitive() || method.getReturnType().equals(String.class)) && !method.getReturnType().equals(void.class) && method.getParameterTypes().length == 0 && !method.getName().equals("hashCode")) {
+					if(!Modifier.isProtected(method.getModifiers()) && 
+							!Modifier.isPrivate(method.getModifiers()) && 
+							(method.getReturnType().isPrimitive() || method.getReturnType().equals(String.class)) && 
+							!method.getReturnType().equals(void.class) && method.getParameterTypes().length == 0 && 
+							!method.getName().equals("hashCode")) {
 						methods.add(method.getName()+Type.getMethodDescriptor(method));
 					}
 				}
@@ -619,18 +589,6 @@ public class TestTaskGenerator {
 		File file = new File(Properties.OUTPUT_DIR, filename);
 		for (String method: methods) {
 			sb.append(method);
-			/*
-			sb.append(method.getName()+Type.getMethodDescriptor(method));
-			sb.append(",");
-			sb.append(method.getName()+Type.getMethodDescriptor(method));
-			*/
-			/*
-			sb.append(method.getReturnType().getCanonicalName());
-			for(Class<?> parameter : method.getParameterTypes()) {
-				sb.append(",");
-				sb.append(parameter.getCanonicalName());
-			}
-			*/
 			sb.append("\n");
 		}
 		Io.writeFile(sb.toString(), file);	
@@ -645,15 +603,10 @@ public class TestTaskGenerator {
 	 */
 	protected static void suggestTasks(String prefix) {
 		List<String> classes = getClasses(prefix);
-		//Set<String> classes = new HashSet<String>();
-		//classes.add("org.joda.time.field.DecoratedDurationField");
-		List<Target> make_targets = new ArrayList<Target>();
-		List<String> calls = new ArrayList<String>();
-		//Set<Long> ids = new HashSet<Long>();
-		
-		int num = 0;
-		//int num_mutants = 0;
-		for(String classname : classes) {
+		for(String classname : classes)
+		{
+			if(classname.endsWith("Stub"))
+				continue;
 			Class<?> clazz = null;
 			try {
 				clazz = Class.forName(classname);
@@ -671,10 +624,9 @@ public class TestTaskGenerator {
 				continue;
 			}
 			if(!canUse(clazz)) {
-				logger.info("Ignoring private or abstract class "+classname);
+				logger.info("Ignoring private class "+classname);
 				List<String> mutant_classes = new ArrayList<String>();
 				mutant_classes.add(classname);
-				//num_mutants += mutationIds.size();
 				continue;				
 			}
 			if(clazz.isInterface()) {
@@ -696,7 +648,6 @@ public class TestTaskGenerator {
 				List<String> mutant_classes = new ArrayList<String>();
 				mutant_classes.add(classname);
 				writeInspectors(classname, classname.replace("$","_")+".inspectors");
-				//num_mutants += mutationIds.size();
 				continue;								
 			}
 			if(clazz.isMemberClass()) {
@@ -730,14 +681,13 @@ public class TestTaskGenerator {
 				logger.info("  defined in "+clazz.getDeclaringClass().getName());
 				writeInspectors(classname, classname.replace("$","_")+".inspectors");
 				continue;
-			}
-			List<String> dependencies  = getSubClasses(clazz.getName());
-			List<String> owned_classes = getOwnedClasses(clazz.getName());
+			}				
+	
 			Set<String> object_methods = new HashSet<String>();
 			addObjectMethods(object_methods, classname);
-
-			if(Modifier.isAbstract(clazz.getModifiers())) {
-				if(hierarchy.getAllSubclasses(classname).isEmpty() || isPurelyAbstract(classname)) {
+	
+			if(Modifier.isAbstract(clazz.getModifiers())){	
+				if(isPurelyAbstract(classname)) {
 					logger.info("Ignoring abstract class without concrete subclasses "+classname);
 					String classfilename = classname.replace("$","_");
 					if(CREATE_OBJECTFILES)
@@ -745,68 +695,37 @@ public class TestTaskGenerator {
 					continue;
 				}
 			}
-
+	
 			Set<String> suggestion = new TreeSet<String>();
-			//suggestion.add(classname+",.*");
 			addConstructors(suggestion, classname);
 			addMethods(suggestion, classname);
 			addFields(suggestion, classname);
 			
+			List<String> dependencies  = getSubClasses(clazz.getName());
 			for(String dependency : dependencies) {
 				if(dependency.equals(classname))
 					continue;
-				//logger.info("  Dependency: "+dependency);
-				//suggestion.add(dependency+",<init>.*");
-				//addObjectMethods(object_methods, dependency);
 				addConstructors(suggestion, dependency);
 				addMethods(suggestion, dependency);
 				addFields(suggestion, dependency);
 			}
+			List<String> owned_classes = getOwnedClasses(clazz.getName());
 			for(String iclass : owned_classes) {
 				if(iclass.equals(classname))
 					continue;
 				addObjectMethods(object_methods, iclass);
 			}
 			
-//			List<Long> mutationIds = getMutations(getSuperClasses(classname));
-			List<String> mutant_classes = new ArrayList<String>();
-			mutant_classes.add(classname);
-//			List<Long> mutationIds = getMutations(getSuperClasses(classname));
 			if(suggestion.isEmpty()) {
 				logger.info("No usable methods found, skipping "+classname);
 				continue;				
 			}
-			//ids.addAll(mutationIds);
 			String classfilename = classname.replace("$","_");
-//			writeTask(suggestion, classfilename+"_"+num+".task");
 			writeTask(suggestion, classfilename+".task");
 			if(CREATE_OBJECTFILES)
 				writeObjectMethods(object_methods, classfilename+".obj");
-//			writeInspectors(classname, classfilename+"_"+num+".inspectors");
 			writeInspectors(classname, classfilename+".inspectors");
-
-//			make_targets.add(new Target(classfilename, "ant -f javalanche.xml generateSuite -Dtest.classes="+MutationProperties.OUTPUT_DIR+"/"+classfilename+"_"+num+".task -Dtarget.class="+classfilename+" | tee LOG_"+classfilename));
-//			calls.add("ant -f javalanche.xml generateSuite -Dtest.classes="+MutationProperties.OUTPUT_DIR+"/"+classfilename+"_"+num+".task  -Dtarget.class="+classfilename+ "| tee LOG_"+classfilename);
-			make_targets.add(new Target(classfilename, "ant -f evosuite.xml generateSuite -Dtarget.class="+classfilename+" | tee log/"+classfilename));
-			calls.add("ant -f evosuite.xml generateSuite -Dtarget.class="+classfilename+ "| tee log/"+classfilename);
-			num++;
 		}
-
-		/*
-		String makefile = MakefileGenerator.generateMakefile(make_targets);
-		File mfile = new File("Makefile");
-		Io.writeFile(makefile, mfile);
-		StringBuffer buffer = new StringBuffer();
-		for(String call : calls) {
-			buffer.append(call);
-			buffer.append("\n");
-		}
-		File cfile = new File("runall.sh");
-		Io.writeFile(buffer.toString(), cfile);
-		System.out.println("Created "+num+" tasks out of "+classes.size()+" classes");
-		*/
-		//logger.info("Covering a total of "+num_mutants+" mutations");		
-		//logger.info("Covering a total of "+ids.size()+" mutations");
 	}
 	
 	/**
@@ -817,9 +736,7 @@ public class TestTaskGenerator {
 	public static void main(String[] args) {
 		prefix = Properties.PROJECT_PREFIX;
 		System.out.println("Creating test files for "+prefix);
-		//MutationProperties.checkProperty(MutationProperties.PROJECT_PREFIX_KEY);
-		//HandleUnsafeMutations.handleUnsafeMutations(HibernateUtil.getSessionFactory());
-		//Set<ClassEntry> entries = XmlIo.get("/Users/fraser/Documents/Source/javalanche-0.3.2/examples/string_test/evosuite/inheritance.xml");
+		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
 		hierarchy.calculateSubclasses();
 		suggestTasks(prefix);
 	}

@@ -50,12 +50,13 @@ public class ClassNodeTransformer {
 		return cn;
 	}
 
-	private void processFields() {
-		List fieldNodes = cn.fields;
+	
+	@SuppressWarnings("unchecked") //See http://asm.ow2.org/asm33/javadoc/user/org/objectweb/asm/tree/ClassNode.html#fields
+	private void processFields() { 
+		List<FieldNode> fieldNodes = cn.fields;
 		log.debug("======================= process field nodes =======================");
 		int i = 0;
-		for (Object o : fieldNodes) {
-			FieldNode fn = (FieldNode) o;
+		for (FieldNode fn : fieldNodes) {
 			//            log.debug("access:" + fn.access + " desc:" + fn.desc + " name:" + fn.name + " signature:" + fn.signature + " value:" + fn.value);
 			if (fn.desc.equals("Z")) {
 				fn.desc = "I";
@@ -69,12 +70,12 @@ public class ClassNodeTransformer {
 		}
 	}
 
+	@SuppressWarnings("unchecked") //See http://asm.ow2.org/asm33/javadoc/user/org/objectweb/asm/tree/ClassNode.html#methods
 	private void processMethods() {
-		List methodNodes = cn.methods;
+		List<MethodNode> methodNodes = cn.methods;
 		List<MethodNode> valkyrieMethods = new ArrayList<MethodNode>();
 
-		for (Object o : methodNodes) {
-			MethodNode mn = (MethodNode) o;
+		for (MethodNode mn : methodNodes) {
 
 			String methodSignature = mn.name + "|" + mn.desc;
 			if (TransformationHelper.methodsMap.containsKey(classNameWithDots)
@@ -143,6 +144,7 @@ public class ClassNodeTransformer {
 		}
 	}
 
+	@SuppressWarnings("unchecked") //See http://asm.ow2.org/asm33/javadoc/user/org/objectweb/asm/tree/MethodNode.html#localVariables
 	private void transformMethod(MethodNode mn) {
 
 		String methodSignature = mn.name + "|" + mn.desc;
@@ -157,11 +159,10 @@ public class ClassNodeTransformer {
 		log.debug("processing method:" + mn.name + " boolean? "
 		        + String.valueOf(isBooleanMethod) + " desc:" + mn.desc);
 
-		List lvs = mn.localVariables;
+		List<LocalVariableNode> lvs = mn.localVariables;
 
 		if (lvs != null) {
-			for (Object oo : lvs) {
-				LocalVariableNode lvn = (LocalVariableNode) oo;
+			for (LocalVariableNode lvn : lvs) {
 				if (lvn.desc.equals("Z")) {
 					lvn.desc = "I";
 					TransformationHelper.localVariableIndex.put(lvn.index, lvn.name);
@@ -997,6 +998,7 @@ public class ClassNodeTransformer {
 		return resultNode;
 	}
 
+	@SuppressWarnings("unchecked") //code from external lib
 	private MethodNode cloneMethodNode(MethodNode method) {
 
 		String[] exceptions = (String[]) method.exceptions.toArray(new String[method.exceptions.size()]);

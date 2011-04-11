@@ -75,19 +75,22 @@ public class CFGGenerator extends Analyzer {
 	 */
 	public class CFGVertex {
 
-		AbstractInsnNode node;
-		CFGFrame frame;
-		int id;
+		private final AbstractInsnNode node;
+		private CFGFrame frame;
+		private final int id;
 		public int line_no = 0;
-		List<Long> mutations = new ArrayList<Long>();
+		private final List<Long> mutations = new ArrayList<Long>();
 		boolean mutationBranch = false;
 		boolean mutatedBranch = false;
 
 		public int defuseId = -1;
 		public int useId = -1;
 		public int defId = -1;
-		public int branchId = -1;
 		public boolean isParameterUse = false; // is set by DefUsePool
+		// TODO: every CFGVertex should hold a reference to it's control dependent Branch
+		// ... actually a CFGVertex should hold a set of all branches it is control dependent on
+		// private Set<Branch> controlDependencies = new HashSet<Branch>();
+		public int branchId = -1;
 		public boolean branchExpressionValue = true; // TODO this should be false whenever it is true and visa versa
 		public String methodName;
 		public String className;
@@ -115,6 +118,10 @@ public class CFGGenerator extends Analyzer {
 			return false;
 		}
 
+		// TODO shouldn't the following the methods be somehow merged
+		//		to reflect that all three return true on a "Branch"
+		//		in the sense of evosuite.coverage.branch.Branch ?
+		
 		public boolean isBranch() {
 			return isJump() && !isGoto();
 		}
@@ -159,6 +166,10 @@ public class CFGGenerator extends Analyzer {
 
 		public boolean hasMutation(long id) {
 			return mutations.contains(id);
+		}
+		
+		public AbstractInsnNode getNode(){
+			return node;
 		}
 
 		public boolean isMutation() {
@@ -224,10 +235,18 @@ public class CFGGenerator extends Analyzer {
 			return false;
 		}
 
-		public int getID() {
+		public int getId() {
 			return id;
 		}
-
+		
+//		public void addControlDependentBranch(Branch branch) {
+//			controlDependencies.add(branch);
+//		}
+//		
+//		public Set<Branch> getControlDependencies() {
+//			return controlDependencies;
+//		}
+		
 		public boolean isDefUse() {
 			return isLocalDU() || isFieldDU();
 		}
@@ -255,7 +274,6 @@ public class CFGGenerator extends Analyzer {
 			        || node.getOpcode() == Opcodes.DLOAD
 			        || node.getOpcode() == Opcodes.ALOAD
 			        || node.getOpcode() == Opcodes.IINC;
-			// || node.getOpcode() == Opcodes.RET; // TODO ??
 		}
 
 		public boolean isDefinition() {
@@ -303,7 +321,7 @@ public class CFGGenerator extends Analyzer {
 		public String getDUVariableName() {
 			if (!this.isDefUse())
 				throw new IllegalStateException(
-				        "You can only call getDUVariableName() on a local variable or field definition/use");
+				        "You can only call getDUVariableName() on definitions and uses");
 			if (this.isFieldDU())
 				return getFieldName();
 			else
@@ -429,7 +447,7 @@ public class CFGGenerator extends Analyzer {
 				return true;
 			if (obj == null)
 				return false;
-			if (getClass() != obj.getClass())
+			if (getClass() != obj.getClass()) // TODO: can Class be compared via == ?
 				return false;
 			CFGVertex other = (CFGVertex) obj;
 			// if (!getOuterType().equals(other.getOuterType()))
@@ -615,5 +633,7 @@ public class CFGGenerator extends Analyzer {
 
 		return true;
 	}
+	
+	
 
 }

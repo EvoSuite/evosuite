@@ -54,7 +54,7 @@ public class PrimePathTestFitness extends TestFitnessFunction {
 				logger.debug(path.toString());
 				for (int i = 0; i < path.getSize(); i++) {
 					if (path.get(i).isBranch())
-						logger.debug(" -> " + path.get(i).getID());
+						logger.debug(" -> " + path.get(i).getId());
 				}
 				logger.debug("Length: " + length);
 				int pos_path = 0;
@@ -67,9 +67,9 @@ public class PrimePathTestFitness extends TestFitnessFunction {
 
 						matches += 1 - (normalize(call.true_distance_trace.get(pos_trace - 1)) + normalize(call.false_distance_trace.get(pos_trace - 1)));
 						break;
-					} else if (path.branches.get(pos_path).vertex.getID() == call.branch_trace.get(pos_trace)) {
+					} else if (path.branches.get(pos_path).vertex.getId() == call.branch_trace.get(pos_trace)) {
 						logger.debug("Found branch match: "
-						        + path.branches.get(pos_path).vertex.getID());
+						        + path.branches.get(pos_path).vertex.getId());
 						matches++;
 						if (path.branches.get(pos_path).value == true) {
 							if (call.true_distance_trace.get(pos_trace) == 0.0) {

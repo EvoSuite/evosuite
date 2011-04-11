@@ -18,30 +18,24 @@
 
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.text.NumberFormat;
 import java.util.Set;
 
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
-import de.unisb.cs.st.evosuite.coverage.branch.Branch;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
+import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.ga.Randomness;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 
-
+/*
 // (0) TODO IDEA FOR AN EVO-SUITE-FEATURE: 
-//		 given a test(suite) for a class, check whether test achieves coverage-criterion
+//		 given a test(suite) for a class, check how many goals of each coverage criterion it covers
 // (1) DONE detect which LV in which methodCall
 //		i don't think this needs to be done anymore. its not possible to cover a use in a method call for a LV without covering a definition first
 // (2) DONE cut ExecutionTrace for branch-fitness-evaluation to Trace of current object only
@@ -60,25 +54,131 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 // (5) DONE:	well that didn't turn out too well. you have to consider all passed definitions
 //				separately as described in (3) and (4) after all - see for example MeanTestClass.mean()
 
+// Other things one could/should do: (TODO-list)
+//	- display local variable names as in source code
+//	- take different methodIds into account! 
+//	- inter.method and inter.class data flow analysis - want to drop intra-part
+//	- implement DefUseCoverageSuiteFitness - DONE first rudimentary implementation
+//	- various optimizations
+// 	- DONE: for example one should reuse tests that reach a certain definition or use 
+//		when looking for another goal with that definition or use respectively
+ * 		idea: implement some sort of chromosome pool for each CUT
+ * 			- keep track of "good" chromosomes, that cover defs and uses and 
+ * 				use them for initial population when looking for goals concerning these DUs
+ *  - DONE also if one would implement the above point it would be very profitable to
+ *  	order the goals such that easy goals are searched for first and for harder ones (deep in the CDG) later  
+//	- fix control dependencies analysis
+//	- implement real ReachingDefinitions algorithm
+//	- even more information in resulting tests?
+ * 		- cool would be to mark the statements in the test that caused the covering hits to goalUse and goalDef!
+ *  - handle exceptions
+ *  - worry about rounding errors: all that normalizing is insane
+ *  	- should stretch the range for possible CoverageFitness to something like 0-100 at least
+ *      - might want to make a fitness bigger/more precise then double  
+ *  - care for integer overflows (especially in alternative fitness calculation)
+ *  - DONE: private methods don't seem to be a problem at all. they don't need special treatment
+ *  - TODO: clean up TestSuiteGenerator! 
+ *  	- DONE: At least check for all remaining uncovered goals if 
+ *  			they are covered by the test that just covered a goal
+ *  
+ *  - DONE: Kick out ControlDependencyTestClass-loops that take forever!
+ *  - handle timeouts in tests
+ *  - refactor: separate DefUseCoverageGoal and DefUseCoverageTestFitness
+ *  - implement hashCode() functions?
+ *  - NoStoppingCondition .. maybe even serialize populations and resume evolving later
+ *  - now this is more of a theoretical one but still:
+ *   	- how does one find the "perfect" configuration for the GA?
+ *   	- well build another GA to find out, each chromosome is a configuration
+ *   	- mutation and crossovers seems very easy
+ *   	- fitness is calculated depending on covered goals, time needed / goal, consumed resources etc
+ *   ... i would so love to do that :D
+ *   - SearchStatistics ... well ... where to start :D
+ *   	- i think the report is a very essential part of EvoSuite
+ *   	- it's the way users will in the end see EvoSuite and maybe even the way they interact with it (TODO? :) )
+ *   	- there is so much cool stuff one could do:
+ *   	- give a complete analysis of the CUT in terms of different coverage perspectives
+ *   	- provide the user with the possibility to compare different runs
+ *   	- link test run information to analysis
+ *   	- polish test run view: 
+ *   		- jump to different parts (fitness, tests, etc)
+ *   		- make things "expandable" (you know hide/show all test cases with a small -/+ next to it and stuff like that)
+ *   		- show TestCase comments
+ *   		- even better: link tests to goals they cover, see analysis part above
+ *   		- mark where in a test a certain goal is covered:
+ *   			- color lines differently depending on goal one hovers his mouse above in the covered goal description
+ *    		- ... i could go on but i guess one gets the point
+ *    	
+ *    - in order to do all that SearchStatistics should be get a complete refactor-marathon-overhaul:
+ *    	- make distinction between HTML-generation and statistics part, interlink them via .csv-files
+ *    	- maybe don't generate any HTML at all but rather just put all relevant data in 
+ *    		.csv-files together with plots in a special directory which in turn can be 
+ *    		visualized in all kinds of ways. out the top of my head i'd say PHP would be very suited for that
+ *     
+ *    	- maybe encapsulate different HTML-generation-parts in separate classes like one for Code, one for plots etc.
+ *    	- well just come up with a nice class model is all i'm trying to say i guess
+ *    	- srsly though, this SearchStatistcs class is a mess :D and buggy as hell too it seems
+ * - found a bug: s. ExceptionTestClass: sometimes passedLine is called before enteredMethod in instrumented code
+ * - so DefUseCoverage goal computation scales pretty badly, why not separate goal analysis part and test creation
+ * 		like with -setup you could run -analyze_goals or something and it would serialize the goals on disc
+ * 		so the computed goals can be reused in later test creations ... srsly analysis takes minutes on bigger CUTs!
+ * - look at MultipleControlDependeciesTestClass.test(): 
+ * 		respect that a CFGVertex can have multiple branches it is control dependent on 
+
+ *  
+ * things to write about:
+ *  - DefUse is just awesome!
+ *   - better chance of passing hard branches (?)
+ *   - more thorough tests
+ *   - #times each branch is executed
+ *  - infeasible path problem
+ *  - extract future work from unfinished ToDo-list ;)
+ *  - why alternative definition
+ *   - different modes, pro and cons
+ *    - average doesn't take into account how many overwriting definitions there were
+ *    - sum seems to be the most reasonable, maybe with stretched single alternative fitness 10? 
+ *  - harder than branch coverage
+ *  	- chromosomes more valuable!
+ *  	- see part above about chromosome pool and initial population and stuff
+ *  - so it makes sense to recycle chromosomes
+ *  - which leads to difficulty and preordering
+ *  
+ *  Questions:
+ *   - BranchCoverageGoal also treats root branches with expression value true!
+ */
+
 
 /**
  * Evaluate fitness of a single test case with respect to one Definition-Use pair
  * 
- * @author Andre Mis
+ * For more information look at the comment from method getDistance()
  * 
+ * @author Andre Mis
  */
 public class DefUseCoverageTestFitness extends TestFitnessFunction {
 
-	private final static boolean DEBUG = true;	
+	// debugging flags
+	private final static boolean DEBUG = Properties.getPropertyOrDefault("defuse_debug_mode",false);
+	private final static boolean PRINT_DEBUG = false;
 	
+	
+	// the Definition-Use pair
 	private final String goalVariable;
 	private final Use goalUse;	
 	private final Definition goalDefinition;
-	private final BranchCoverageTestFitness goalDefinitionBranchTestFitness;
-	private final BranchCoverageTestFitness goalUseBranchTestFitness;
+	// TODO make DefUse able to return its control dependent branch fitness
+	private final BranchCoverageTestFitness goalDefinitionBranchFitness;
+	private final BranchCoverageTestFitness goalUseBranchFitness;
 	
+	private int difficulty = -1;
+	
+	public static long difficulty_time = 0l; // experiment 
+	
+	// coverage information
 	private Integer coveringObjectId = -1;
 	private ExecutionTrace coveringTrace;
+	
+	
+	// constructors
 	
 	/**
 	 * Creates a Definition-Use-Coverage goal for the given
@@ -92,8 +192,10 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		this.goalDefinition = def;
 		this.goalUse = use;
 		this.goalVariable = def.getDUVariableName();
-		this.goalDefinitionBranchTestFitness = getBranchTestFitness(def);
-		this.goalUseBranchTestFitness = getBranchTestFitness(use);
+		this.goalDefinitionBranchFitness = 
+			DefUseFitnessCalculations.getBranchTestFitness(def.getCFGVertex());
+		this.goalUseBranchFitness = 
+			DefUseFitnessCalculations.getBranchTestFitness(use.getCFGVertex());
 	}
 	
 	/**
@@ -107,245 +209,39 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 
 		goalVariable = use.getDUVariableName();
 		goalDefinition = null;
-		goalDefinitionBranchTestFitness = null;
+		goalDefinitionBranchFitness = null;
 		goalUse = use;
-		goalUseBranchTestFitness = getBranchTestFitness(use);
+		goalUseBranchFitness = DefUseFitnessCalculations.getBranchTestFitness(use.getCFGVertex());
 	}
 
-	/**
-	 * Creates a BranchCoverageTestFitness for the branch 
-	 * that the given DefUse is control dependent on 
-	 */
-	private BranchCoverageTestFitness getBranchTestFitness(DefUse du) {
-		BranchCoverageTestFitness r;
-		CFGVertex v = du.getCFGVertex();
-		if (v.branchId == -1) {
-			r = getRootBranchTestFitness(du);
-		} else {
-			ControlFlowGraph cfg = CFGMethodAdapter.getCFG(v.className, v.methodName);
-			Branch b = BranchPool.getBranch(v.branchId);
-			r = new BranchCoverageTestFitness(new BranchCoverageGoal(b,
-			        !v.branchExpressionValue, cfg, v.className, v.methodName));
-		}
-		return r;
-	}
 
 	/**
-	 * Creates a BranchCoverageTestFitness for the root-branch of the method of the given DefUse 
-	 */
-	private BranchCoverageTestFitness getRootBranchTestFitness(DefUse du) {
-		CFGVertex v = du.getCFGVertex();
-		return new BranchCoverageTestFitness(new BranchCoverageGoal(v.className,
-		        v.className + "." + v.methodName));
-	}
-
-	/**
-	 * Calculates the Definition-Use-Coverage fitness for this Definition-Use-Pair on the given ExecutionResult
+	 * Calculates the DefUseCoverage test fitness for this goal
 	 * 
-	 * The fitness is calculated as follows:
-	 * 
-	 * 1.
-	 * If the goalDefinition is not passed in the result at all:
-	 * 	 	This method returns 1 + normalize(goalDefinitionFitness) where goalDefinition equals
-	 * 		the BranchCoverageTestFitness for the Branch that the CFGVertex of
-	 * 		this goals definition is control dependent on (goalDefinitionBranch)
-	 * 
-	 * 2.
-	 * If the goalDefinition is passed, but the goalUse is not passed at all:
-	 * 		This method returns the normalized BranchCoverageTestFitness for the Branch that
-	 * 		the CFGVertex of this goals Use is control dependent on (goalUseBranch)
-	 * 
-	 * 3.
-	 * If both the goalDefinition and the goalUse were passed at least once in the given result:
-	 * 		1.
-	 * 		If and only if at any goalUsePosition the active definition was the goalDefinition the
-	 * 		Definition-Use-Pair of this goal is covered and the method returns 0
-	 * 
-	 * 		2.
-	 * 		Otherwise this method returns the minimum of the following:
-	 * 			1. For all goalUsePositions if there was an overwriting definition the normalized 
-	 * 				BranchCoverageTestFitness of not taking the branch with the overwriting definition
-	 *  
-	 * 			2. For all goalDefPositions the normalized BranchCoverageTestFitness for the goalUseBranch
-	 * 				in the ExecutionTrace where every trace information is filtered out except
-	 * 				the information traced between the occurrence of the goalDefinitionPosition
-	 * 				and the next overwritingDefinitionPosition
-	 * 
-	 * If this goals definition is not a static variable the trace information of 
-	 * all constructed objects of the CUT are handled separately and the minimum over all
-	 * individually calculated fitness is returned   
-	 * 		
+	 * Look at DefUseCoverageCalculations.calculateDUFitness() for more information
 	 */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
-		preFitnessDebugInfo(result);
-		// at first check if goalDefinition was passed at all before considering individual objects
-		double defFitness = calculateDefFitnessForCompleteTrace(individual, result);
-		if (defFitness != 0) {
-			logger.debug("Definition not covered with fitness "+defFitness);
-			return 1 + normalize(defFitness); // Case 1.
-		}
-		// select considerable objects
-		Set<Integer> objectPool = getObjectPool(result.trace);
-		// calculate minimal fitness over all objects
-		double fitness = 1;
-		for(Integer objectId : objectPool) {
-			logger.debug("  ===  CURRENT OBJECT "+objectId+"  === ");
-			if(!isSpecialDefinition() && !hasGoalDefinitionEntries(result.trace, objectId)) {
-				logger.debug("Discarded object "+objectId+" - goalDefinition not passed");
-				continue;
-			}
-			double newFitness = calculateFitnessForObject(individual,result,objectId);
-			if(newFitness<fitness)
-				fitness=newFitness;
-			if(fitness==0.0)
-				return 0.0;
-		}
+		preFitnessDebugInfo(result,true);
+		
+		double fitness = DefUseFitnessCalculations.calculateDUFitness(this, individual, result);
+
 		postFitnessDebugInfo(individual, result, fitness);
+
 		return fitness;
 	}
-		
+	
 	/**
-	 * Only gets called when definition is passed on given objectId or definition is special case
+	 * Used by DefUseCoverageSuiteFitness
+	 * 
+	 * Simply call getFitness(TestChromosome,ExecutionResult) with a dummy TestChromosome
+	 * The chromosome is used only for updateIndividual() anyways. 
 	 */
-	private double calculateFitnessForObject(TestChromosome individual,
-			ExecutionResult result, Integer objectId) {
-		
-		ExecutionTrace objectTrace = result.trace.getTraceForObject(objectId);
-		double fitness = 1;
-		// handle special definition case
-		if(isSpecialDefinition()) {
-			double useFitness = calculateUseFitnessForObject(individual,result,objectTrace,objectId);
-			fitness = normalize(useFitness);
-			return fitness; // Case 2.
-		}
-		// check if goalDefinition is active at any goalUsePosition
-		List<Integer> usePositions = getGoalUsePositions(objectTrace,objectId);
-		List<Integer> defPositions = getGoalDefinitionPositions(objectTrace,objectId);
-		for(Integer usePos : usePositions) {
-			int activeDefId = getActiveDefIdAt(objectTrace, usePos, objectId);
-			if (activeDefId == goalDefinition.getDefId()) {
-				setCovered(individual, objectTrace, objectId);
-				return 0.0; // case 3.1
-			} else {
-				// goalDefinition was not active at usePos
-				// if it was active before, we have a overwriting definition
-				if(hasEntryLowerThan(defPositions, usePos)) {
-					// TODO: Case 3.2.1) calculate fitness for not taking branch of overwriting def
-					int overwritingDefId = getActiveDefPosFor(objectTrace, usePos, objectId);
-					// TODO stopped here!!!
-				}
-			}
-		}
-		// calculate minimal useFitness over all goalDefPositions
-		// TODO: this can be optimized! for example if the goalDef is never overwritten by another 
-		// definition but is passed a lot this causes major overhead that is totally unnecessary
-		for(Integer defPos : defPositions) {
-			double useFitness = calculateUseFitnessForDefPos(individual, result, objectTrace, objectId, defPos);
-			double newFitness = normalize(useFitness);
-			if(newFitness<fitness)
-				fitness=newFitness; // Case 3.2.2
-		}
-		
-		return fitness;
-	}
-		
-	private double calculateDefFitnessForCompleteTrace(TestChromosome individual, ExecutionResult result) {
-		if(isSpecialDefinition())
-			return 0.0;
-		// check ExecutionTrace.passedDefinitions first, because calculating BranchTestFitness takes time
-		if(hasGoalDefinitionEntries(result.trace))
-			return 0.0;
-		// calculate fitness
-		double defFitness = goalDefinitionBranchTestFitness.getFitness(individual, result);
-		return defFitness;
-	}	
-		
-/*
-//		}
-//		updateIndividual(individual, fitness);
-//		return fitness;
-//	}
-	*/
-	
-	private double calculateUseFitnessForDefPos(TestChromosome individual, ExecutionResult result, 
-			ExecutionTrace objectTrace, Integer objectId, int defPos) {
-		
-		int overwritingDefPos = getNextOverwritingDefinitionPos(objectTrace,defPos,objectId);
-		if(overwritingDefPos == -1)
-			overwritingDefPos = Integer.MAX_VALUE;
-		
-		ExecutionTrace originalTrace = result.trace;
-		ExecutionTrace cutTrace = objectTrace.getTraceInDUCounterRange(goalUse, defPos,overwritingDefPos);
-		result.trace = cutTrace;
-		double useFitness = goalUseBranchTestFitness.getFitness(individual,result);
-		result.trace = originalTrace;
-		
-		if(useFitness == 0.0)
-			throw new IllegalStateException("use cant have fitness 0 in this cut trace");
-		
-		return useFitness;
-	}
-
-	private double calculateUseFitnessForObject(TestChromosome individual, ExecutionResult result, 
-			ExecutionTrace objectTrace, Integer objectId) {
-		
-		ExecutionTrace originalTrace = result.trace;
-		result.trace = objectTrace;
-		double useFitness = goalUseBranchTestFitness.getFitness(individual,result);
-		result.trace = originalTrace;
-		return useFitness;
+	public double getFitness(ExecutionResult result) {
+		TestChromosome dummy = new TestChromosome();
+		return getFitness(dummy,result);
 	}
 	
-	private boolean isSpecialDefinition() {
-		// handle special cases (Parameters and static definitions in <clinit> are always covered)
-		if(goalDefinition == null 
-				|| (goalDefinition.isStaticDU() && goalDefinition.getCFGVertex().methodName.startsWith("<clinit>"))) {
-			if(DEBUG) {
-				if(goalDefinition == null)
-					logger.debug("Assume Parameter-Definition to be covered if the Parameter-Use is covered");
-				else
-					logger.debug("Assume definition from <clinit> to always be covered");
-			}
-			return true;
-		}
-		return false;
-	}
-
-	private Set<Integer> getObjectPool(ExecutionTrace trace) {
-		Set<Integer> objectPool = new HashSet<Integer>();
-		if(trace.passedUses.get(this.goalVariable) == null)
-			return objectPool;		
-		if(trace.passedDefinitions.get(this.goalVariable) != null)
-			objectPool.addAll(trace.passedDefinitions.get(this.goalVariable).keySet());
-		if(goalDefinition == null || goalDefinition.isStaticDU()) {
-			// in the static case all objects have to be considered
-			objectPool.addAll(trace.passedUses.get(this.goalVariable).keySet());
-			if(DEBUG) logger.debug("Static-goalVariable! Using all known Objects");
-		} else {
-			// on non-static goalVariables only look at objects that have traces of defs and uses for the goalVariable
-			int oldSize = objectPool.size();
-			objectPool.retainAll(trace.passedUses.get(this.goalVariable).keySet());
-			if(DEBUG) {
-				logger.debug("NON-Static-goalVariable "+this.goalVariable);
-				logger.debug("#unused objects: "+(oldSize-objectPool.size()));
-				Set<Integer> discardedObjects = new HashSet<Integer>();
-				discardedObjects.addAll(trace.passedDefinitions.get(this.goalVariable).keySet());
-				discardedObjects.removeAll(trace.passedUses.get(this.goalVariable).keySet());
-				for(Integer id : discardedObjects) {
-					logger.debug("  discarded object "+id);
-				}
-			}
-		}
-		if(DEBUG) {
-			logger.debug("#considered objects: "+objectPool.size());
-			for(Integer id : objectPool) {
-				logger.debug("  object "+id);
-			}
-		}
-		return objectPool;
-	}
-
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#updateIndividual(de.unisb.cs.st.evosuite.ga.Chromosome, double)
 	 */
@@ -353,57 +249,191 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	protected void updateIndividual(Chromosome individual, double fitness) {
 		individual.setFitness(fitness);
 	}
-
-	private void preFitnessDebugInfo(ExecutionResult result) {
-		logger.debug("==============================================================");
-		logger.debug("current goal: "+toString());
-		logger.debug("current test:");
-		logger.debug(result.test.toCode());
+	
+	/**
+	 * First approximation:
+	 * A DUGoal is similar to another one if the goalDef or goalUse branch
+	 * of this goal is similar to the goalDef or goalUse branch of the other goal
+	 * 
+	 * TODO should be:
+	 * Either make it configurable or choose one:
+	 *  - first approximation as described above
+	 *  - similar if goal definition or use are equal
+	 *  - something really fancy considering potential overwriting definitions and stuff
+	 */
+	@Override
+	public boolean isSimilarTo(TestFitnessFunction goal) {
+		if(goal instanceof BranchCoverageTestFitness) {
+			BranchCoverageTestFitness branchFitness = (BranchCoverageTestFitness)goal;
+			if(goalDefinitionBranchFitness!=null && branchFitness.isSimilarTo(goalDefinitionBranchFitness))
+				return true;
+			return branchFitness.isSimilarTo(goalUseBranchFitness);
+		}
+		try {
+			DefUseCoverageTestFitness other = (DefUseCoverageTestFitness)goal;
+			if(goalDefinitionBranchFitness != null && goalDefinitionBranchFitness.isSimilarTo(other))
+				return true;
+			return goalUseBranchFitness.isSimilarTo(other);
+		} catch(ClassCastException e) {
+			return false;
+		}
 	}
 	
-	private void postFitnessDebugInfo(Chromosome individual, ExecutionResult result, double fitness) {
-		if(DEBUG) { 
-			if(fitness != 0) {
-				logger.debug("goal NOT COVERED. fitness: "+fitness);
-				logger.debug("==============================================================");
-				if(traceCoversGoal(individual, result.trace))
-					throw new IllegalStateException("calculation flawed. goal was covered but fitness was "+fitness);
-			} else
-				throw new IllegalStateException("inconsistent state. this should have been detected earlier");
-		}
+	/**
+	 * If the goalDefinition is null, meaning the goalVariable is a Parameter-Variable
+	 * this method returns the goalUseDifficulty, otherwise the product of
+	 * goalUseDifficulty and goalDefinitionDicciculty is returned
+	 * 
+	 * Since the computation of DefUSeCoverageTestFitness difficulty takes some time
+	 * the computation takes place only the first time this method is called. On later
+	 * invocations this method returns the stored result from the previous computation.
+	 * 
+	 * consult calculateDifficulty() for more information
+	 */
+	@Override
+	public int getDifficulty() {
+		if(difficulty==-1)
+			difficulty=calculateDifficulty();
+		return difficulty;
 	}
 	
 
 	/**
-	 * Only a sanity check function for testing purposes
+	 * Calculates the difficulty of this DefUseCoverage goal as follows
+	 * 
+	 * goalUseBranchDifficulty * goalDefinitionBranchDifficult * 
+	 *  (1+instructionsInBetween/10) * (10*overwritingDefinitionsInBetween+1)^2
+	 * 
+	 * Since ordering by difficulty as it stands would result in a deterministic
+	 * order in which the goals will always be searched for. Do have best
+	 * of both worlds one can set the property "randomize_difficulty" to
+	 * randomly multiply the deterministic difficulty by something between 0.5 and 2.0
+	 *  - effectively returning something between the half and two times the difficulty
 	 */
-	private boolean traceCoversGoal(Chromosome individual, ExecutionTrace trace) {
-		if(trace.passedUses.get(this.goalVariable)==null)
-			return false;
-		Set<Integer> objectPool = getObjectPool(trace);
+	private int calculateDifficulty() {
+		long start = System.currentTimeMillis();
+		int overallDifficulty = calculateUseDifficulty();
+		overallDifficulty *= calculateDefinitionDifficulty();
+		overallDifficulty *= (getInstructionsInBetweenDU().size()/3)+1;
+		if(overallDifficulty<=0.0) {
+			throw new IllegalStateException("difficulty out of bounds - overflow?"+overallDifficulty);
+		}
+		int overDefs = getPotentialOverwritingDefinitions().size();
+		overallDifficulty *= Math.pow(10*overDefs+1, 2);
+		if(overallDifficulty<=0.0)
+			throw new IllegalStateException("difficulty out of bounds - overflow? "+overallDifficulty);
+		difficulty_time+= System.currentTimeMillis()-start;
+		if(Properties.getPropertyOrDefault("randomize_difficulty", true)) {
+			float modifier = 1.5f*Randomness.getInstance().nextFloat()+0.5f;
+			overallDifficulty = Math.round(overallDifficulty*modifier);
+		}
+		if(overallDifficulty<=0.0)
+			throw new IllegalStateException("difficulty out of bounds - overflow? "+overallDifficulty);
+		difficulty=overallDifficulty;
+		return overallDifficulty;
+	}
 
-		for(Integer objectID : objectPool) {
-			List<Integer> usePositions = getGoalUsePositions(trace,objectID);
-			// use not reached
-			if (usePositions.size() == 0)
-				continue;
-			if(goalUse.isParameterUse())
-				return true;
-			if(goalDefinition.isStaticDU() && goalDefinition.getMethodName().startsWith("<clinit>"))
-				return true;
-			
-			for(Integer usePos : usePositions) {
-				
-				if (getActiveDefIdAt(trace, usePos, objectID) == goalDefinition.getDefId())
-					return true;
+	/**
+	 * Returns the goalDefinitionBranchDifficulty
+	 */
+	public int calculateDefinitionDifficulty() {
+		if(goalDefinitionBranchFitness==null)
+			return 1;
+		int defDifficulty = goalDefinitionBranchFitness.getDifficulty();
+		return defDifficulty;
+	}
+
+	/**
+	 * Returns the goalUseBranchDifficulty
+	 * 
+	 */
+	public int calculateUseDifficulty() {
+		int useDifficulty = goalUseBranchFitness.getDifficulty();
+		return useDifficulty;
+	}
+	
+	/**
+	 * Returns the definitions to the goalVaraible coming after the goalDefinition
+	 * and before the goalUse in their respective methods
+	 */
+	public Set<CFGVertex> getPotentialOverwritingDefinitions() {
+		Set<CFGVertex> instructionsInBetween = getInstructionsInBetweenDU();
+		if(goalDefinition!=null)
+			return DefUseExecutionTraceAnalyzer.
+				getOverwritingDefinitionsIn(goalDefinition, instructionsInBetween);
+		else
+			return DefUseExecutionTraceAnalyzer.
+				getDefinitionsIn(goalVariable, instructionsInBetween);
+	}
+	
+	/**
+	 * Return a set containing all CFGVertices that occur in the complete CFG
+	 * after the goalDefinition and before the goalUse.
+	 * 
+	 * It's pretty much the union of getInstructionsAfterGoalDefinition()
+	 * and getInstructionsBeforeGoalUse(), except if the DU is in one method
+	 * and the goalDefinition comes before the goalUse, then the intersection
+	 * of the two sets is returned.
+	 * 
+	 * If the goalDefinition is a Parameter-Definition only the CFGVertices before
+	 * the goalUse are considered. 
+	 */
+	public Set<CFGVertex> getInstructionsInBetweenDU() {
+		Set<CFGVertex> previousInstructions = getInstructionsBeforeGoalUse();
+		if(goalDefinition!= null) {
+			Set<CFGVertex> laterInstructions = getInstructionsAfterGoalDefinition();
+			if(goalDefinition.getVertexId()<goalUse.getVertexId() 
+					&& goalDefinition.getMethodName().equals(goalUse.getMethodName())) {
+				// they are in the same method and definition comes before use => intersect sets
+				previousInstructions.retainAll(laterInstructions);
+			} else {
+				// otherwise take the union
+				previousInstructions.addAll(laterInstructions);
 			}
 		}
+		return previousInstructions;
+	}
 
-		return false;
-	}	
+	/**
+	 * Returns a set containing all CFGVertices in the goal definition method
+	 * that come after the definition.
+	 * 
+	 * Look at ControlFlowGraph.getLaterInstructionInMethod() for details 
+	 */
+	public Set<CFGVertex> getInstructionsAfterGoalDefinition() {
+		ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(goalDefinition.getClassName(), 
+				goalDefinition.getMethodName());
+		CFGVertex defVertex = cfg.getVertex(goalDefinition.getVertexId());
+		Set<CFGVertex> r = cfg.getLaterInstructionsInMethod(defVertex);
+		for(CFGVertex v : r) {
+			v.methodName=goalDefinition.getMethodName();
+			v.className=goalDefinition.getClassName();
+		}
+		return r;
+	}
+
+	/**
+	 * Returns a set containing all CFGVertices in the goal use method
+	 * that come before the goal use.
+	 * 
+	 * Look at ControlFlowGraph.getPreviousInstructionInMethod() for details 
+	 */
+	public Set<CFGVertex> getInstructionsBeforeGoalUse() {
+		ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(goalUse.getClassName(), 
+				goalUse.getMethodName());
+		CFGVertex useVertex = cfg.getVertex(goalUse.getVertexId());
+		Set<CFGVertex> r = cfg.getPreviousInstructionsInMethod(useVertex);
+		for(CFGVertex v : r) {
+			v.methodName=goalUse.getMethodName();
+			v.className=goalUse.getClassName();
+		}
+		return r;
+	}
+
+	// debugging methods
 	
-	private void setCovered(Chromosome individual, ExecutionTrace trace, Integer objectId) {
-		if(DEBUG) {
+	public  void setCovered(Chromosome individual, ExecutionTrace trace, Integer objectId) {
+		if(PRINT_DEBUG) {
 			logger.debug("goal COVERED by object "+objectId);
 			logger.debug("==============================================================");
 		}
@@ -411,191 +441,93 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		updateIndividual(individual, 0);
 		
 		if(DEBUG)
-			if(!traceCoversGoal(individual, trace))
+			if(!DefUseFitnessCalculations.traceCoversGoal(this, individual, trace))
 				throw new IllegalStateException("calculation flawed. goal wasn't covered");
 	}
-
-	private boolean hasGoalDefinitionEntries(ExecutionTrace trace) {
-		if(trace.passedDefinitions.get(goalVariable) == null)
-			return false;
-		
-		for(Integer objectId : trace.passedDefinitions.get(goalVariable).keySet())
-			if(hasGoalDefinitionEntries(trace,objectId))
-				return true;
-		
-		return false;
+	private void preFitnessDebugInfo(ExecutionResult result, boolean respectPrintFlag) {
+		if(PRINT_DEBUG || !respectPrintFlag) {
+			System.out.println("==============================================================");
+			System.out.println("current goal: "+toString());
+			System.out.println("current test:");
+			System.out.println(result.test.toCode());
+		}
 	}
-
-	private boolean hasGoalDefinitionEntries(ExecutionTrace trace, Integer objectId) {
-		if(trace.passedDefinitions.get(goalVariable) == null)
-			return false;
-		if(trace.passedDefinitions.get(goalVariable).get(objectId) == null)
-			return false;
-		
-		for(Integer defId : trace.passedDefinitions.get(goalVariable).get(objectId).values())
-			if(defId.intValue() == goalDefinition.getDefId())
-				return true;
-		return false;
-	}	
-	
-	private int getNextOverwritingDefinitionPos(ExecutionTrace objectTrace,
-			Integer defPos, Integer objectId) {
-		
-		int lastPos = -1;
-		Map<Integer,Integer> defMap = objectTrace.passedDefinitions.get(goalVariable).get(objectId);
-		for(Integer duPos : defMap.keySet())
-			if(duPos>defPos && duPos>lastPos && defMap.get(duPos) != goalDefinition.getDefId())
-				lastPos = duPos;
-		
-		return lastPos;
-	}
-
-	
-	/**
-	 * Returns the defID of the Definition that is active in the given trace at usePos 
-	 */
-	private int getActiveDefIdAt(ExecutionTrace trace, int usePos, int objectId) {
-		if (trace.passedDefinitions.get(this.goalVariable) == null)
-			return -1;
-		
-		int lastDef = -1;
-		int lastPos = -1;
-
-		Map<Integer, Integer> defMap = trace.passedDefinitions.get(this.goalVariable).get(objectId);
-		if(defMap != null) {
-			for (Integer defPos : defMap.keySet()) {
-				if (defPos > usePos)
-					continue;
-				if(lastPos<defPos) {
-					lastDef = defMap.get(defPos);
-					lastPos = defPos;
+	private void postFitnessDebugInfo(Chromosome individual, ExecutionResult result, double fitness) {
+		if(DEBUG) { 
+			if(fitness != 0) {
+				if(PRINT_DEBUG) {
+					System.out.println("goal NOT COVERED. fitness: "+fitness);
+					System.out.println("==============================================================");
 				}
+				if(DefUseFitnessCalculations.traceCoversGoal(this, individual, result.trace))
+					throw new IllegalStateException("calculation flawed. goal was covered but fitness was "+fitness);
 			}
 		}
-		return lastDef;
 	}	
-	
 
-	/**
-	 * Returns the duCounterPosition of the Definition that is active in the given trace at usePos 
-	 */
-	private int getActiveDefPosFor(ExecutionTrace trace, int usePos, int objectId) {
-		if (trace.passedDefinitions.get(this.goalVariable) == null)
-			return -1;
-		
-		int lastPos = -1;
-
-		Map<Integer, Integer> defMap = trace.passedDefinitions.get(this.goalVariable).get(objectId);
-		if(defMap != null) {
-			for (Integer defPos : defMap.keySet()) {
-				if (defPos > usePos)
-					continue;
-				if(lastPos<defPos) {
-					lastPos = defPos;
-				}
-			}
-		}
-		return lastPos;
-	}
-	
-	/**
-	 * Returns all the duCounterPositions of the goalUse in the given trace
-	 */
-	private List<Integer> getGoalUsePositions(ExecutionTrace trace, int objectId) {
-		ArrayList<Integer> r = new ArrayList<Integer>();
-		HashMap<Integer,Integer> useMap = trace.passedUses.get(this.goalVariable).get(objectId);
-		if(useMap == null)
-			return r;
-		for(Integer usePos : useMap.keySet())
-			if(useMap.get(usePos) == goalUse.getUseId())
-				r.add(usePos);
-		
-		return r;
-	}
-	
-	/**
-	 * Returns all the duCounterPositions of the goalUse in the given trace
-	 */
-	private List<Integer> getGoalDefinitionPositions(ExecutionTrace trace, int objectId) {
-		ArrayList<Integer> r = new ArrayList<Integer>();
-		HashMap<Integer,Integer> defMap = trace.passedDefinitions.get(this.goalVariable).get(objectId);
-		if(defMap == null)
-			return r;
-		for(Integer defPos : defMap.keySet()) 
-			if(defMap.get(defPos) == goalDefinition.getDefId())
-				r.add(defPos);
-		
-		return r;
-	}	
-	
-
-	// auxiliary methods
-	
-	private static boolean hasEntryLowerThan(List<Integer> defPositions, Integer usePos) {
-		for(Integer defPos : defPositions)
-			if(defPos<usePos)
-				return true;
-		return false;
-	}	
-	
-	
-	// getter-methods
+	// getter methods
 	
 	public ExecutionTrace getCoveringTrace() {
 		return coveringTrace;
 	}
-	
 	public String getGoalVariable() {
 		return goalVariable;
 	}
-	
 	public int getCoveringObjectId() {
 		return coveringObjectId;
 	}
+	public Definition getGoalDefinition() {
+		return goalDefinition;
+	}
+	public Use getGoalUse() {
+		return goalUse;
+	}
+	public BranchCoverageTestFitness getGoalUseBranchFitness() {
+		return goalUseBranchFitness;
+	}
+	public BranchCoverageTestFitness getGoalDefinitionBranchFitness() {
+		return goalDefinitionBranchFitness;
+	}
 	
-	// inherited from Object
+	// methods inherited from Object
 	
 	@Override
 	public String toString() {
-		
 		StringBuffer r = new StringBuffer();
-		
-		r.append("DUFitness for ");
-		if(goalUse.isStaticDU())
-			r.append("static ");
-		r.append(goalUse.getDUVariableType());
-		r.append("-Variable \"" + this.goalVariable +"\"");
-		if(goalDefinition == null) {
-			r.append("\n\tParameter-Definition "+goalUse.getLocalVarNr()+" for method "+goalUse.getMethodName());
-		} else {
-			r.append("\n\t");
-			r.append("Def ");
-//			r.append(goalDef.toString());
-			r.append(goalDefinition.getDefId() + " in " + goalDefinition.getMethodName()+"."+goalDefinition.getBytecodeId()); 
-			r.append(" branch " + goalDefinition.getBranchId() + (goalDefinition.getCFGVertex().branchExpressionValue?"t":"f"));
-			r.append(" line "+ goalDefinition.getLineNumber());
-		}
-		
+		r.append("Definition-Use-Pair");
+		if(difficulty!=-1)
+			 r.append("- Difficulty "+NumberFormat.getIntegerInstance().format(difficulty));
 		r.append("\n\t");
-		r.append("Use " + goalUse.getUseId() + " in " + goalUse.getMethodName()+"."+goalUse.getBytecodeId()); 
-		r.append(" branch " + goalUse.getBranchId() + (goalUse.getCFGVertex().branchExpressionValue?"t":"f"));
-		r.append(" line "+ goalUse.getLineNumber());
-		r.append((this.coveringObjectId!=-1?("\n\tcovered by object "+this.coveringObjectId):""));
-		
+		if(goalDefinition == null)
+			r.append("Parameter-Definition "+goalUse.getLocalVarNr()+" for method "+goalUse.getMethodName());
+		else
+			r.append(goalDefinition.toString());
+		r.append("\n\t");
+		r.append(goalUse.toString());
 		return r.toString();
 	}
 	
 	@Override
 	public boolean equals(Object o) {
-//		System.out.println("called"); // TODO: somehow doesnt get called
+		if(o==this)
+			return true;
+		if(o==null)
+			return false;
 		if(!(o instanceof DefUseCoverageTestFitness))
 			return false;
-		try {
-			DefUseCoverageTestFitness t = (DefUseCoverageTestFitness)o;
-			return t.goalDefinition.equals(this.goalDefinition) && t.goalUse.equals(this.goalUse);
-		} catch(Exception e) {
+		
+		DefUseCoverageTestFitness t = (DefUseCoverageTestFitness)o;
+		if(!t.goalUse.equals(this.goalUse))
 			return false;
+		if(goalDefinition==null) {
+			if(t.goalDefinition==null)
+				return true;
+			else 
+				return false;
 		}
+		if(t.goalDefinition==null)
+			return false;
+		return t.goalDefinition.equals(this.goalDefinition);
 	}	
 	
 }

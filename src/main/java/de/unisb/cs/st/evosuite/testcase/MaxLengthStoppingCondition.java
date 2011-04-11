@@ -24,7 +24,7 @@ import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
-import de.unisb.cs.st.evosuite.ga.StoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
 
 /**
  * Stop search when a maximum (average) length has been reached.
@@ -79,5 +79,10 @@ public class MaxLengthStoppingCondition extends StoppingCondition {
     @Override
     public void setLimit(int limit) {
     	MAX_LENGTH = limit;
+    }
+    
+    @Override
+    public int getLimit() {
+    	return (int)(MAX_LENGTH+0.5);
     }
 }

@@ -24,6 +24,9 @@ import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
  */
 public class BranchPool {
 
+	// TODO: root branches should not be special cases
+	//			every root branch should be a branch just like every other branch with it's own branchId and all
+	
 	// maps className -> method inside that class -> list of branches inside that method 
 	public static Map<String, Map<String, List<Branch>>> branchMap = new HashMap<String, Map<String, List<Branch>>>();
 
@@ -54,10 +57,10 @@ public class BranchPool {
 
 		Branch b = new Branch(v);
 		addBranchToMap(b);
-		markBranchIDs(v);
+		markBranchIDs(b);
 		bytecodeIdMap.put(branchCounter, b);
 
-		logger.debug("Branch " + branchCounter + " at line " + v.getID() + " - "
+		logger.debug("Branch " + branchCounter + " at line " + v.getId() + " - "
 		        + v.line_no);
 
 		branchCounter++;
@@ -155,12 +158,13 @@ public class BranchPool {
 		branchMap.get(className).get(methodName).add(b);
 	}
 
-	private static void markBranchIDs(CFGVertex v) {
+	private static void markBranchIDs(Branch b) {
+		CFGVertex v = b.getCFGVertex();
 		ControlFlowGraph completeCFG = CFGMethodAdapter.getCompleteCFG(v.className,
 		                                                               v.methodName);
-		CFGVertex branchVertex = completeCFG.getVertex(v.getID());
+		CFGVertex branchVertex = completeCFG.getVertex(v.getId());
 		branchVertex.branchId = branchCounter;
 		v.branchId = branchCounter;
-		completeCFG.markBranchIds(branchVertex);
+		completeCFG.markBranchIds(b);
 	}
 }

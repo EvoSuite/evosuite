@@ -18,7 +18,9 @@
 
 package de.unisb.cs.st.evosuite;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,13 +29,17 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.assertion.AssertionGenerator;
 import de.unisb.cs.st.evosuite.assertion.MutationAssertionGenerator;
+import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
 import de.unisb.cs.st.evosuite.coverage.FitnessLogger;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyCoverageFactory;
+import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencySuitCoverage;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathCoverageFactory;
@@ -44,10 +50,6 @@ import de.unisb.cs.st.evosuite.ga.CrossOverFunction;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.FitnessProportionateSelection;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
-import de.unisb.cs.st.evosuite.ga.GlobalTimeStoppingCondition;
-import de.unisb.cs.st.evosuite.ga.MaxFitnessEvaluationsStoppingCondition;
-import de.unisb.cs.st.evosuite.ga.MaxGenerationStoppingCondition;
-import de.unisb.cs.st.evosuite.ga.MaxTimeStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.MinimizeSizeSecondaryObjective;
 import de.unisb.cs.st.evosuite.ga.MuPlusLambdaGA;
 import de.unisb.cs.st.evosuite.ga.OnePlusOneEA;
@@ -60,13 +62,18 @@ import de.unisb.cs.st.evosuite.ga.SinglePointFixedCrossOver;
 import de.unisb.cs.st.evosuite.ga.SinglePointRelativeCrossOver;
 import de.unisb.cs.st.evosuite.ga.StandardGA;
 import de.unisb.cs.st.evosuite.ga.SteadyStateGA;
-import de.unisb.cs.st.evosuite.ga.StoppingCondition;
 import de.unisb.cs.st.evosuite.ga.TournamentSelection;
-import de.unisb.cs.st.evosuite.ga.ZeroFitnessStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxFitnessEvaluationsStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import de.unisb.cs.st.evosuite.junit.TestSuite;
 import de.unisb.cs.st.evosuite.mutation.MutationGoalFactory;
 import de.unisb.cs.st.evosuite.mutation.MutationSuiteFitness;
 import de.unisb.cs.st.evosuite.mutation.MutationTimeoutStoppingCondition;
+import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.MaxTestsStoppingCondition;
@@ -88,6 +95,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosomeFactory;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteReplacementFunction;
+import de.unisb.cs.st.utils.Utils;
 
 /**
  * Main entry point
@@ -104,11 +112,12 @@ public class TestSuiteGenerator {
 	private final ZeroFitnessStoppingCondition zero_fitness = new ZeroFitnessStoppingCondition();
 
 	private StoppingCondition stopping_condition;
-
+	
 	/**
 	 * Generate a test suite for the target class
 	 */
 	public void generateTestSuite() {
+		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
 		List<TestCase> tests;
 
 		System.out.println("* Generating tests for class " + Properties.TARGET_CLASS);
@@ -160,6 +169,9 @@ public class TestSuiteGenerator {
 		FitnessFunction fitness_function = getFitnessFunction();
 		ga.setFitnessFunction(fitness_function);
 
+		if(Properties.CRITERION.equals("defuse"))
+			ExecutionTrace.enableTraceCalls();
+		
 		// Perform search
 		System.out.println("* Starting evolution");
 		ga.generateSolution();
@@ -167,7 +179,7 @@ public class TestSuiteGenerator {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		long end_time = System.currentTimeMillis() / 1000;
 		System.out.println("* Search finished after " + (end_time - start_time)
-		        + "s, best individual has fitness " + best.getFitness());
+		        + "s and "+ga.getAge()+" generations, best individual has fitness " + best.getFitness());
 
 		if (Properties.MINIMIZE) {
 			System.out.println("* Minimizing result");
@@ -178,7 +190,23 @@ public class TestSuiteGenerator {
 		statistics.minimized(ga.getBestIndividual());
 		System.out.println("* Generated " + best.size() + " tests with total length "
 		        + best.length());
-
+		
+		System.out.println("* Resulting TestSuite's coverage: "+best.getCoverage());
+		
+		if(Properties.CRITERION.equals("defuse")) {
+			// TODO this is horribly inefficient! 
+			// compute all results once and then ask each goal individually
+			// ... and put all that in TestSuiteFitnessFuncion
+			List<TestFitnessFunction> singleGoals = getFitnessFactory().getCoverageGoals();
+			int covered = 0;
+			for(TestFitnessFunction singleGoal : singleGoals) {
+				if(singleGoal.isCovered(best.getTests()))
+					covered++;
+			}
+			System.out.println("* Covered "+covered+"/"+singleGoals.size()+" goals");
+			ga.printBudget();;
+		}
+		
 		return best.getTests();
 	}
 
@@ -195,6 +223,9 @@ public class TestSuiteGenerator {
 		} else if (Properties.CRITERION.equalsIgnoreCase("path")) {
 			System.out.println("* Test criterion: Prime Path");
 			return new PrimePathSuiteFitness();
+		}else if(Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)){
+			System.out.println("* Test criterion: Concurrent Test Case *");
+			return new ConcurrencySuitCoverage();
 		} else {
 			System.out.println("* Test criterion: Branch coverage");
 			return new BranchCoverageSuiteFitness();
@@ -229,14 +260,24 @@ public class TestSuiteGenerator {
 	private TestSuiteChromosome bootstrapRandomSuite(FitnessFunction fitness,
 	        TestFitnessFactory goals) {
 
-		System.out.println("* Bootstrapping initial random test suite");
-
+		int random_tests = Properties.getPropertyOrDefault("random_tests", 100);
+		if(random_tests>0)
+			System.out.println("* Bootstrapping initial random test suite");
+		else
+			System.out.println("* Bootstrapping initial random test suite disabled!");
 		TestSuiteChromosomeFactory factory = new TestSuiteChromosomeFactory();
-		factory.setNumberOfTests(Properties.getPropertyOrDefault("random_tests", 100));
+		if(Properties.CRITERION.equals("defuse") && random_tests>0) {
+			System.out.println("* Tuned down random bootstraping for DefUseCoverage-Criterion");
+			random_tests = random_tests/10;
+		}
+		factory.setNumberOfTests(random_tests);
 		TestSuiteChromosome chromosome = (TestSuiteChromosome) factory.getChromosome();
-		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goals);
-		minimizer.minimize(chromosome);
-		System.out.println("* Initial test suite contains " + chromosome.size()
+		if(random_tests>0) {
+			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goals);
+			minimizer.minimize(chromosome);
+		}
+		if(random_tests>0)
+			System.out.println("* Initial test suite contains " + chromosome.size()
 		        + " tests");
 
 		return chromosome;
@@ -266,7 +307,17 @@ public class TestSuiteGenerator {
 		// Get list of goals
 		TestFitnessFactory goal_factory = getFitnessFactory();
 		List<TestFitnessFunction> goals = goal_factory.getCoverageGoals();
+		// Need to shuffle goals because the order may make a difference
 		Randomness.getInstance().shuffle(goals);
+		if(Properties.getPropertyOrDefault("preorder_goals_by_difficulty", true)) {
+			orderGoalsByDifficulty(goals);
+			System.out.println("* Time taken for difficulty computation: "
+					+ DefUseCoverageTestFitness.difficulty_time+"ms");
+		} else
+			System.out.println("* Goal preordering by difficulty disabled!");
+		if(!Properties.getPropertyOrDefault("recycle_chromosomes", true))
+			System.out.println("* ChromosomeRecycler disabled!");
+		
 		System.out.println("* Total number of test goals: " + goals.size());
 
 		// Bootstrap with random testing to cover easy goals
@@ -290,12 +341,12 @@ public class TestSuiteGenerator {
 			        + " test goals");
 		}
 
-		// Need to shuffle goals because the order may make a difference
 		GlobalTimeStoppingCondition global_time = new GlobalTimeStoppingCondition();
 		int total_goals = goals.size();
 		int current_budget = 0;
 
 		int total_budget = Properties.GENERATIONS;
+		System.out.println("* Budget: "+NumberFormat.getIntegerInstance().format(total_budget));
 
 		while (current_budget < total_budget && covered_goals < total_goals
 		        && !global_time.isFinished()) {
@@ -318,8 +369,9 @@ public class TestSuiteGenerator {
 				ga.resetStoppingConditions();
 				ga.clearPopulation();
 
-				System.out.println("* Searching for goal " + num + ": "
-				        + fitness_function.toString());
+				if(Properties.getPropertyOrDefault("print_current_goals", false))
+					System.out.println("* Searching for goal " + num + ": "
+					        + fitness_function.toString());
 				logger.info("Goal " + num + "/" + (total_goals - covered_goals) + ": "
 				        + fitness_function);
 
@@ -346,6 +398,8 @@ public class TestSuiteGenerator {
 				ga.generateSolution();
 
 				if (ga.getBestIndividual().getFitness() == 0.0) {
+					if(Properties.getPropertyOrDefault("print_covered_goals", false))
+						System.out.println("* Covered: "+fitness_function.toString());
 					logger.info("Found solution, adding to test suite");
 					TestChromosome best = (TestChromosome) ga.getBestIndividual();
 					if (Properties.MINIMIZE) {
@@ -355,15 +409,27 @@ public class TestSuiteGenerator {
 					}
 					best.test.addCoveredGoal(fitness_function);
 					suite.addTest(best);
-
+					
 					// suite.addTest((TestChromosome)ga.getBestIndividual());
 					covered_goals++;
 					covered.add(num);
+					
+					// experiment:
+					if(skip_covered) {
+						Set<Integer> additional_covered_nums = getAdditionallyCoveredGoals(goals,covered,best);
+	//					System.out.println("Additionally covered: "+additional_covered_nums.size());
+						for(Integer covered_num : additional_covered_nums) {
+							covered_goals++;
+							covered.add(covered_num);
+						}
+					}
+						
+					
 				} else {
 					logger.info("Found no solution");
 				}
 
-				suite_fitness.getFitness(suite);
+				suite_fitness.getFitness(suite); // ???
 				List<Chromosome> population = new ArrayList<Chromosome>();
 				population.add(suite);
 				statistics.iteration(population);
@@ -379,12 +445,25 @@ public class TestSuiteGenerator {
 			}
 		}
 
-		int c = 0; // for testing purposes
-		for (TestFitnessFunction goal : goals) {
-			if (!covered.contains(c))
-				System.out.println("unable to cover goal " + c + " " + goal.toString());
-			c++;
-		}
+		// for testing purposes
+		if (global_time.isFinished())
+			System.out.println("! Timeout reached");
+		if (current_budget >= total_budget)
+			System.out.println("! Budget exceeded");
+		else
+			System.out.println("* Remaining budget: "
+					+ (total_budget - current_budget));
+		ga.printBudget();
+		int c = 0; 
+		int uncovered_goals = total_goals-covered_goals;
+		if(uncovered_goals<10)
+			for (TestFitnessFunction goal : goals) {
+				if (!covered.contains(c))
+					System.out.println("! Unable to cover goal " + c + " " + goal.toString());
+				c++;
+			}
+		else
+			System.out.println("! #Goals that were not covered: "+uncovered_goals);
 
 		List<Chromosome> population = new ArrayList<Chromosome>();
 		population.add(suite);
@@ -412,6 +491,39 @@ public class TestSuiteGenerator {
 		statistics.minimized(suite);
 
 		return suite.getTests();
+	}
+
+	private void orderGoalsByDifficulty(List<TestFitnessFunction> goals) {
+		
+		Collections.sort(goals);
+//		for(TestFitnessFunction goal : goals)
+//			System.out.println(goal.toString());
+	}
+
+	/**
+	 * Returns a list containing all positions of goals in the given goalList
+	 * that are covered by the given test but not already in the given coveredSet
+	 * 
+	 * Used to avoid unnecessary solutionGenerations in generateIndividualTests() 
+	 */
+	private Set<Integer> getAdditionallyCoveredGoals(
+			List<TestFitnessFunction> goals, Set<Integer> covered,
+			TestChromosome best) {
+
+		Set<Integer> r = new HashSet<Integer>();
+		ExecutionResult result = TestCaseExecutor.getInstance().execute(best.test);
+		int num = -1;
+		for(TestFitnessFunction goal : goals) {
+			num++;
+			if(covered.contains(num))
+				continue;
+			if(goal.isCovered(best,result)) {
+				r.add(num);
+				if(Properties.getPropertyOrDefault("print_covered_goals", false))
+					System.out.println("* Additionally covered: "+goal.toString());
+			}
+		}
+		return r;
 	}
 
 	/*
@@ -609,6 +721,9 @@ public class TestSuiteGenerator {
 
 		if (Properties.getPropertyOrDefault("dynamic_limit", false)) {
 			//max_s = GAProperties.generations * getBranches().size();
+			// TODO: might want to make this dependent on the selected coverage criterion
+			// TODO also, question: is branchMap.size() really intended here? 
+			// I think BranchPool.getBranchCount() was intended
 			Properties.GENERATIONS = Properties.GENERATIONS
 			        * (BranchPool.getBranchlessMethods().size() + BranchPool.getBranchCounter() * 2); // TODO question: is branchMap.size() really what wanted here? I think BranchPool.getBranchCount() was intended here
 			stopping_condition.setLimit(Properties.GENERATIONS);

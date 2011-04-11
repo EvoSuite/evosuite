@@ -46,8 +46,13 @@ class MSecurityManager extends SecurityManager {
 	@Override
 	public void checkPermission(Permission perm) {
 		// check access  
-		if (!allowPermission(perm))
-			throw new SecurityException("Security manager blocks " + perm);
+		if (!allowPermission(perm)) {
+			String stack = "\n";
+			for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
+				stack += e + "\n";
+			}
+			throw new SecurityException("Security manager blocks " + perm + stack);
+		}
 
 		return;
 	}
@@ -118,7 +123,8 @@ class MSecurityManager extends SecurityManager {
 			if (permName.equals("java.lang.RuntimePermission"))
 				if (perm.getName().equals("getClassLoader")
 				        || perm.getName().equals("createClassLoader")
-				        || perm.getName().contains("accessClassInPackage"))
+				        || perm.getName().contains("accessClassInPackage")
+				        || perm.getName().equals("setContextClassLoader"))
 					return true;
 
 			if (permName.equals("java.io.FilePermission")
@@ -130,8 +136,8 @@ class MSecurityManager extends SecurityManager {
 						return true;
 				}
 			}
-
+			return false;
 		}
-		return false;
+		return true;
 	}
 }

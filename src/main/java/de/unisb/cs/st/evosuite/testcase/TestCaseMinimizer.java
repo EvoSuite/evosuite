@@ -71,7 +71,7 @@ public class TestCaseMinimizer {
 		boolean has_deleted = false;
 
 		int num = 0;
-		for (Statement s : t.statements) {
+		for (Statement s : t) {
 			VariableReference var = s.getReturnValue();
 			if (!t.hasReferences(var)) {
 				to_delete.add(num);
@@ -103,7 +103,7 @@ public class TestCaseMinimizer {
 		Logger logger1 = Logger.getLogger(fitness_function.getClass());
 		Level old_level1 = logger.getLevel();
 		//logger1.setLevel(Level.OFF);
-		Logger logger2 = Logger.getLogger(TestCase.class);
+		Logger logger2 = Logger.getLogger(DefaultTestCase.class);
 		Level old_level2 = logger.getLevel();
 		logger2.setLevel(Level.OFF);
 

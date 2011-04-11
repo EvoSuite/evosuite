@@ -16,11 +16,15 @@
  * GA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.unisb.cs.st.evosuite.ga;
+package de.unisb.cs.st.evosuite.ga.stoppingconditions;
 
 import java.util.List;
 
 import org.apache.log4j.Logger;
+
+import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.ga.SearchListener;
 
 /**
  * Base class of decision functions that stop the search
@@ -97,6 +101,15 @@ public abstract class StoppingCondition implements SearchListener {
 	 * @param limit
 	 */
 	public abstract void setLimit(int limit);
+	
+	/**
+	 * Get upper limit of resources
+	 * 
+	 * Mainly used for toString()
+	 * 
+	 * @return limit
+	 */
+	public abstract int getLimit();
 
 	/**
 	 * How much of the budget have we used up
@@ -104,5 +117,19 @@ public abstract class StoppingCondition implements SearchListener {
 	 * @return
 	 */
 	public abstract int getCurrentValue();
-
+	
+	@Override
+	public String toString() {
+		StringBuilder r = new StringBuilder();
+		String type = getClass().toString();
+		try { // just to make sure
+			type = type.substring(type.lastIndexOf(".")+1);
+		} catch(Exception e) {}
+		r.append(type);
+		r.append(": "+getCurrentValue()+"/"+getLimit());
+		if(isFinished())
+			r.append(" - Finished!");
+		
+		return r.toString();
+	}
 }

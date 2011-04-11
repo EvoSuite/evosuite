@@ -17,11 +17,13 @@
  * along with GA.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.unisb.cs.st.evosuite.ga;
+package de.unisb.cs.st.evosuite.ga.stoppingconditions;
 
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 
 /**
  * Stop search after a predefined amount of time
@@ -91,6 +93,11 @@ public class MaxTimeStoppingCondition extends StoppingCondition {
     @Override
     public void setLimit(int limit) {
     	max_seconds = limit;
+    }
+    
+    @Override
+    public int getLimit() {
+    	return max_seconds;
     }
 
 	/* (non-Javadoc)

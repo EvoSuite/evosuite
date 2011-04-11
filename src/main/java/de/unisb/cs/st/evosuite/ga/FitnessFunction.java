@@ -40,7 +40,7 @@ public abstract class FitnessFunction {
 
 	/**
 	 * Calculate and set fitness function
-	 * 
+	 * #TODO the 'set fitness' part should be done by some abstract super class of all FitnessFunctions
 	 * @param individual
 	 * @return new fitness
 	 */

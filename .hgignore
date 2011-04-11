@@ -9,6 +9,9 @@ build
 .project
 .settings
 .classpath
+examples/mine/
+examples/plot/
+examples/indi_plot/
 
 syntax: regexp
 ^lib/evosuite\.jar$

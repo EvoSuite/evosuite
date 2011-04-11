@@ -33,9 +33,6 @@ import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.CrossOverFunction;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
-import de.unisb.cs.st.evosuite.ga.MaxFitnessEvaluationsStoppingCondition;
-import de.unisb.cs.st.evosuite.ga.MaxGenerationStoppingCondition;
-import de.unisb.cs.st.evosuite.ga.MaxTimeStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.MuPlusLambdaGA;
 import de.unisb.cs.st.evosuite.ga.OnePlusOneEA;
 import de.unisb.cs.st.evosuite.ga.Randomness;
@@ -44,11 +41,15 @@ import de.unisb.cs.st.evosuite.ga.SelectionFunction;
 import de.unisb.cs.st.evosuite.ga.SinglePointRelativeCrossOver;
 import de.unisb.cs.st.evosuite.ga.StandardGA;
 import de.unisb.cs.st.evosuite.ga.SteadyStateGA;
-import de.unisb.cs.st.evosuite.ga.StoppingCondition;
-import de.unisb.cs.st.evosuite.ga.ZeroFitnessStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxFitnessEvaluationsStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import de.unisb.cs.st.evosuite.junit.JUnitTestSuite;
 import de.unisb.cs.st.evosuite.mutation.MutationStatistics;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
+import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.FieldStatement;
@@ -227,7 +228,7 @@ public class TestSuiteGenerator {
 		for (int num = 0; num < num_experiments; num++) {
 			logger.info("Experiment run: " + num);
 			// Generate test
-			TestCase test = new TestCase();
+			TestCase test = new DefaultTestCase();
 			while (test.size() < Properties.CHROMOSOME_LENGTH) {
 				oum_factory.appendRandomCall(test);
 			}
@@ -242,7 +243,7 @@ public class TestSuiteGenerator {
 		for (int num = 0; num < num_experiments; num++) {
 			logger.info("Experiment run: " + num);
 			// Generate test
-			TestCase test = new TestCase();
+			TestCase test = new DefaultTestCase();
 			while (test.size() < Properties.CHROMOSOME_LENGTH) {
 				test_factory.insertRandomCall(test, test.size());
 			}

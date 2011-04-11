@@ -89,12 +89,15 @@ public class Properties {
 	/** Sandbox for the classes under test */
 	public static boolean SANDBOX = getPropertyOrDefault("sandbox", false);
 
-	/** Use of the mocks for the IO, Network etc */
+	/** Usage of the mocks for the IO, Network etc */
 	public static boolean MOCKS = getPropertyOrDefault("mocks", false);
 
 	/** Folder used for IO, when mocks are enabled */
 	public static String SANDBOX_FOLDER = getPropertyOrDefault("sandbox_folder",
 	                                                           "sandbox/");
+	
+	/** Stub generation for the abstract classes. */
+	public static boolean STUBS = getPropertyOrDefault("stubs", false);
 
 	public static boolean CHECK_CONTRACTS = getPropertyOrDefault("check_contracts", false);
 

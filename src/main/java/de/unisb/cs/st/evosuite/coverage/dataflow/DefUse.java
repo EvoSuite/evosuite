@@ -1,5 +1,6 @@
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
+import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.CFGVertexHolder;
 
 /**
@@ -9,6 +10,10 @@ import de.unisb.cs.st.evosuite.coverage.CFGVertexHolder;
  */
 public abstract class DefUse extends CFGVertexHolder {
 
+
+	public DefUse(CFGVertex v) {
+		super(v);
+	}
 
 	public String getDUVariableType() {
 		if(v.isFieldDU())
@@ -58,15 +63,19 @@ public abstract class DefUse extends CFGVertexHolder {
 	}
 	
 	public String toString() {
-		
-		String s = "";
-		
-		if(isUse())
-			s+="Use "+v.useId+" ";
+		StringBuilder r = new StringBuilder();
 		if(isDefinition())
-			s+="Definition "+v.defId+" ";
-		s+="duID "+getDefUseId()+" for var "+getDUVariableName();
-		
-		return s;
+			r.append("Definition "+getDefId());
+		if(isUse())
+			r.append("Use "+getUseId());
+		r.append(" for ");
+		if(isStaticDU())
+			r.append("static ");
+		r.append(getDUVariableType());
+		r.append("-Variable \"" + getDUVariableName() +"\"");
+		r.append(" in " + getMethodName()+"."+getBytecodeId()); 
+		r.append(" branch " + getBranchId() + (getCFGVertex().branchExpressionValue?"t":"f"));
+		r.append(" line "+ getLineNumber());
+		return r.toString();
 	}
 }

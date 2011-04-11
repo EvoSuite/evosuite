@@ -38,6 +38,8 @@ public class PrimitiveFieldTrace extends OutputTrace {
 	public Map<Integer, List<Object>> trace = new HashMap<Integer, List<Object>>();
 	public Map<Type, List<Field>> fields = new HashMap<Type, List<Field>>();
 
+	public Map<Integer, Map<Field, Object>> fieldMap = new HashMap<Integer, Map<Field, Object>>();
+
 	@Override
 	public PrimitiveFieldTrace clone() {
 		PrimitiveFieldTrace t = new PrimitiveFieldTrace();
@@ -53,22 +55,16 @@ public class PrimitiveFieldTrace extends OutputTrace {
 	public boolean differs(OutputTrace other_trace) {
 		PrimitiveFieldTrace other = (PrimitiveFieldTrace) other_trace;
 
-		//if(trace.size() != other.trace.size()) {
-		//	return true;
-		//}
-
 		for (Entry<Integer, List<Object>> entry : trace.entrySet()) {
 			if (!other.trace.containsKey(entry.getKey()))
 				continue;
 
 			if (entry.getValue().size() != other.trace.get(entry.getKey()).size()) {
-				//logger.debug("TG: Traces differ at position "+entry.getKey()+" : "+entry.getValue() + "<->" + other.trace.get(entry.getKey()));
 				return true;
 			}
 
 			for (int i = 0; i < entry.getValue().size(); i++) {
 				if (!entry.getValue().get(i).equals(other.trace.get(entry.getKey()).get(i))) {
-					//logger.debug("TG: Traces differ at position "+entry.getKey()+" : "+entry.getValue() + "<->" + other.trace.get(entry.getKey()));
 					return true;
 				}
 			}
@@ -181,23 +177,17 @@ public class PrimitiveFieldTrace extends OutputTrace {
 		int num_assertions = 0;
 
 		for (int i = 0; i < test.size(); i++) {
-			if (trace.containsKey(i)) {
-				List<Object> list1 = trace.get(i);
-				for (int j = 0; j < list1.size(); j++) {
-					if (!fields.containsKey(test.getReturnValue(i).getType()))
-						logger.error("Have no records of field of type "
-						        + test.getReturnValue(i).getType().toString());
-					else {
-						logger.debug("Generated primitive field assertion");
-
-						PrimitiveFieldAssertion assertion = new PrimitiveFieldAssertion();
-						assertion.source = test.getReturnValue(i);
-						assertion.value = list1.get(j);
-						assertion.field = fields.get(test.getReturnValue(i).getType()).get(j);
-						test.getStatement(i).addAssertion(assertion);
-						num_assertions++;
-					}
+			if (fieldMap.containsKey(i)) {
+				Map<Field, Object> field = fieldMap.get(i);
+				for (Entry<Field, Object> entry : field.entrySet()) {
+					PrimitiveFieldAssertion assertion = new PrimitiveFieldAssertion();
+					assertion.source = test.getReturnValue(i);
+					assertion.value = entry.getValue();
+					assertion.field = entry.getKey();
+					test.getStatement(i).addAssertion(assertion);
+					num_assertions++;
 				}
+
 			}
 		}
 		return num_assertions;
