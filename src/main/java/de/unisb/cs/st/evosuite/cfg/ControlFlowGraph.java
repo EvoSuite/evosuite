@@ -356,7 +356,7 @@ public class ControlFlowGraph {
 			throw new IllegalArgumentException("method expects a du vertex");
 		if (!graph.containsVertex(duVertex))
 			throw new IllegalArgumentException("vertex not in graph");
-		if(duVertex.isLocalDU())
+		if (duVertex.isLocalDU())
 			return false;
 
 		return hasDefClearPathToMethodEnd(duVertex.getDUVariableName(), duVertex);
@@ -368,7 +368,7 @@ public class ControlFlowGraph {
 			throw new IllegalArgumentException("method expects a du vertex");
 		if (!graph.containsVertex(duVertex))
 			throw new IllegalArgumentException("vertex not in graph");
-		if(duVertex.isLocalDU())
+		if (duVertex.isLocalDU())
 			return false;
 
 		return hasDefClearPathFromMethodStart(duVertex.getDUVariableName(), duVertex);
@@ -386,7 +386,8 @@ public class ControlFlowGraph {
 			CFGVertex edgeTarget = graph.getEdgeTarget(e);
 			if (edgeTarget.isUse() && edgeTarget.getDUVariableName().equals(varName))
 				r.add(edgeTarget);
-			if (edgeTarget.isDefinition() && edgeTarget.getDUVariableName().equals(varName))
+			if (edgeTarget.isDefinition()
+			        && edgeTarget.getDUVariableName().equals(varName))
 				continue;
 			if (edgeTarget.id > currentVertex.id) // dont follow backedges (loops)
 				r.addAll(getUsesForDef(varName, edgeTarget));
@@ -442,7 +443,8 @@ public class ControlFlowGraph {
 	}
 
 	/**
-	 * WARNING currently this method is heavily flawed! Only works on very simple (generic) CFGs
+	 * WARNING currently this method is heavily flawed! Only works on very
+	 * simple (generic) CFGs
 	 * 
 	 */
 	public void markBranchIds(CFGVertex branchVertex) {
@@ -456,9 +458,9 @@ public class ControlFlowGraph {
 		Set<DefaultEdge> out = graph.outgoingEdgesOf(branchVertex);
 
 		// TODO: this is not correct. FIX THIS! 
-		if (out.size() < 2)
-			throw new IllegalStateException(
-			        "expect branchVertices to have exactly two outgoing edges");
+		//if (out.size() < 2)
+		//	throw new IllegalStateException(
+		//	        "expect branchVertices to have exactly two outgoing edges");
 
 		int minID = Integer.MAX_VALUE;
 		int maxID = Integer.MIN_VALUE;
@@ -471,22 +473,22 @@ public class ControlFlowGraph {
 				maxID = target.id;
 		}
 
-//		if (minID < branchVertex.id) {
-//			logger.error("DO-WHILE BRANCH"+branchVertex.branchID);
-//			return;
-//		}
+		//		if (minID < branchVertex.id) {
+		//			logger.error("DO-WHILE BRANCH"+branchVertex.branchID);
+		//			return;
+		//		}
 
 		markNodes(minID, maxID, branchVertex.branchId, true);
 
-//		if(isWhileBranch(maxID)) // accepts for-loops when they dont have a return
-//			logger.error("WHILE BRANCH");
-		
-//		logger.error("marking branch ids");
+		//		if(isWhileBranch(maxID)) // accepts for-loops when they dont have a return
+		//			logger.error("WHILE BRANCH");
+
+		//		logger.error("marking branch ids");
 		if (isIfBranch(maxID)) {
-//			logger.error("IF BRANCH: "+branchVertex.branchID+" bytecode "+branchVertex.id);
+			//			logger.error("IF BRANCH: "+branchVertex.branchID+" bytecode "+branchVertex.id);
 			CFGVertex prevVertex = getVertex(maxID - 1);
 			if (prevVertex.isGoto()) {
-//				logger.error("WITH ELSE PART");
+				//				logger.error("WITH ELSE PART");
 				Set<DefaultEdge> prevOut = graph.outgoingEdgesOf(prevVertex);
 				if (prevOut.size() != 1)
 					throw new IllegalStateException(
@@ -513,13 +515,15 @@ public class ControlFlowGraph {
 
 	private boolean isIfBranch(int maxID) {
 		CFGVertex prevVertex = getVertex(maxID - 1);
+		if (!graph.containsVertex(prevVertex))
+			return false;
 		Set<DefaultEdge> prevOut = graph.outgoingEdgesOf(prevVertex);
 		if (prevOut.size() != 1) {
-//			logger.error("size "+prevOut.size());
-//			logger.error(prevVertex.toString());
-			for(DefaultEdge edge : prevOut) {
-//				logger.error(graph.getEdgeSource(edge).toString());
-//				logger.error(graph.getEdgeTarget(edge).toString());
+			//			logger.error("size "+prevOut.size());
+			//			logger.error(prevVertex.toString());
+			for (DefaultEdge edge : prevOut) {
+				//				logger.error(graph.getEdgeSource(edge).toString());
+				//				logger.error(graph.getEdgeTarget(edge).toString());
 			}
 			return false;
 		}
@@ -542,6 +546,5 @@ public class ControlFlowGraph {
 		// only while-branches go back up
 		return graph.getEdgeTarget(backEdge).id < maxID;
 	}
-	
-	
+
 }

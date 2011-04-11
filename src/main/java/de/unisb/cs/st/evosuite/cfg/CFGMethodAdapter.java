@@ -56,6 +56,8 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJ;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
+import de.unisb.cs.st.evosuite.coverage.path.PrimePath;
+import de.unisb.cs.st.evosuite.coverage.path.PrimePathPool;
 import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.AbstractMutationAdapter;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 import de.unisb.cs.st.testability.TransformationHelper;
@@ -205,39 +207,43 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	 * Creates the instrumentation needed to track defs and uses
 	 * 
 	 */
-    private InsnList getInstrumentation(CFGVertex v, int currentBranch, boolean staticContext) {
+	private InsnList getInstrumentation(CFGVertex v, int currentBranch,
+	        boolean staticContext) {
 		InsnList instrumentation = new InsnList();
 
-		if(v.isUse()) {
+		if (v.isUse()) {
 			instrumentation.add(new LdcInsnNode(className));
 			instrumentation.add(new LdcInsnNode(v.getDUVariableName()));
 			instrumentation.add(new LdcInsnNode(methodName));
-			if(staticContext) {
+			if (staticContext) {
 				instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
 			} else {
 				instrumentation.add(new VarInsnNode(Opcodes.ALOAD, 0));
 			}
 			instrumentation.add(new LdcInsnNode(currentBranch));
 			instrumentation.add(new LdcInsnNode(DefUsePool.getUseCounter()));
-			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-					"passedUse", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;II)V"));
+			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedUse",
+			        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;II)V"));
 		}
 
-		if(v.isDefinition()) {
+		if (v.isDefinition()) {
 			instrumentation.add(new LdcInsnNode(className));
 			instrumentation.add(new LdcInsnNode(v.getDUVariableName()));
 			instrumentation.add(new LdcInsnNode(methodName));
-			if(staticContext) {
+			if (staticContext) {
 				instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
 			} else {
 				instrumentation.add(new VarInsnNode(Opcodes.ALOAD, 0));
 			}
 			instrumentation.add(new LdcInsnNode(currentBranch));
 			instrumentation.add(new LdcInsnNode(DefUsePool.getDefCounter()));
-			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-					"passedDefinition", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;II)V"));
+			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+			        "passedDefinition",
+			        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;II)V"));
 		}
-		
+
 		return instrumentation;
 	}
 
@@ -304,12 +310,14 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			return;
 		}
 
-		if (plain_name.equals("<clinit>") && !Properties.CRITERION.equalsIgnoreCase("defuse")) {
+		if (plain_name.equals("<clinit>")
+		        && !Properties.CRITERION.equalsIgnoreCase("defuse")) {
 			mn.accept(next);
 			return;
 		}
 
-		if (EXCLUDE.contains(methodName) && !Properties.CRITERION.equalsIgnoreCase("defuse")) {
+		if (EXCLUDE.contains(methodName)
+		        && !Properties.CRITERION.equalsIgnoreCase("defuse")) {
 			mn.accept(next);
 			return;
 		}
@@ -338,12 +346,14 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		logger.info("Created CFG for method " + methodName);
 
 		// if(!Properties.MUTATION) {
-		Graph<CFGVertex, DefaultEdge> graph = g.getGraph();
+		DefaultDirectedGraph<CFGVertex, DefaultEdge> graph = g.getGraph();
 		analyzeBranchVertices(mn, graph);
 		if (Properties.CRITERION.equalsIgnoreCase("defuse"))
 			analyzeDefUseVertices(mn, graph);
 		if (Properties.CRITERION.equalsIgnoreCase("lcsaj"))
 			analyzeLCSAJs(mn, graph);
+		if (Properties.CRITERION.equalsIgnoreCase("path"))
+			analyzePrimePaths(mn, graph);
 		handleBranchlessMethods();
 		logger.info("Analyzing for method " + methodName);
 
@@ -351,6 +361,9 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		if (isUsable()) {
 			methods.add(id);
 			logger.debug("Counting: " + id);
+			if ((access & Opcodes.ACC_DEPRECATED) == Opcodes.ACC_DEPRECATED) {
+				logger.info("Deprecated. Darn");
+			}
 		}
 
 		mn.accept(next);
@@ -424,17 +437,19 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 					// keeping track of uses
 					boolean isValidDU = false;
-					if (v.isUse()) 
+					if (v.isUse())
 						isValidDU = DefUsePool.addUse(v);
 					// keeping track of definitions
 					if (v.isDefinition())
 						isValidDU = DefUsePool.addDefinition(v) || isValidDU;
 
 					if (isValidDU) {
-						boolean staticContext = v.isStaticDefUse() || ((access & Opcodes.ACC_STATIC) > 0);
+						boolean staticContext = v.isStaticDefUse()
+						        || ((access & Opcodes.ACC_STATIC) > 0);
 						// adding instrumentation for defuse-coverage
 						mn.instructions.insert(v.node.getPrevious(),
-						                       getInstrumentation(v, v.branchId, staticContext));						
+						                       getInstrumentation(v, v.branchId,
+						                                          staticContext));
 					}
 				}
 			}
@@ -510,10 +525,42 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		logger.info("Found " + LCSAJPool.getSize() + " LCSAJs");
 	}
 
+	private void analyzePrimePaths(MethodNode mn,
+	        DefaultDirectedGraph<CFGVertex, DefaultEdge> graph) {
+
+		Queue<PrimePath> path_queue = new LinkedList<PrimePath>();
+		for (CFGVertex vertex : graph.vertexSet()) {
+			if (graph.inDegreeOf(vertex) == 0) {
+				PrimePath initial = new PrimePath(className, methodName);
+				initial.append(vertex);
+				path_queue.add(initial);
+			}
+		}
+		while (!path_queue.isEmpty()) {
+			PrimePath current = path_queue.poll();
+			for (DefaultEdge edge : graph.outgoingEdgesOf(current.getLast())) {
+				if (!current.contains(graph.getEdgeTarget(edge))) {
+					PrimePath next = current.getAppended(graph.getEdgeTarget(edge));
+					path_queue.add(next);
+				}
+			}
+			if (current.getLast().isReturn() || current.getLast().isThrow()) {
+				logger.warn("New path:");
+				for (int i = 0; i < current.getSize(); i++) {
+					if (current.get(i).isBranch() || current.get(i).isLabel())
+						logger.warn(" -> " + current.get(i));
+				}
+				PrimePathPool.add(current);
+			}
+		}
+		logger.info("Found " + PrimePathPool.getSize() + " prime paths");
+	}
+
 	private boolean isUsable() {
 		return !((this.access & Opcodes.ACC_SYNTHETIC) > 0 || (this.access & Opcodes.ACC_BRIDGE) > 0)
 		        && !methodName.contains("<clinit>")
-		        && !(methodName.contains("<init>") && (access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE);
+		        && !(methodName.contains("<init>") && (access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE)
+		        && (Properties.USE_DEPRECATED || (access & Opcodes.ACC_DEPRECATED) != Opcodes.ACC_DEPRECATED);
 	}
 
 	public static void addCFG(String classname, String methodname,
@@ -540,6 +587,8 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		logger.debug("Added complete CFG for class " + classname + " and method "
 		        + methodname);
 		methods.put(methodname, new ControlFlowGraph(graph, false));
+		//ControlFlowGraph cfg = new ControlFlowGraph(graph, false);
+		//cfg.toDot(classname + "_" + methodname + ".dot");
 	}
 
 	public static ControlFlowGraph getCFG(String classname, String methodname) {
