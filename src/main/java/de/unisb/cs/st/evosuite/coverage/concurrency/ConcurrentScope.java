@@ -4,10 +4,9 @@
 package de.unisb.cs.st.evosuite.coverage.concurrency;
 
 import de.unisb.cs.st.evosuite.testcase.Scope;
-import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
- * @author x3k6a2
+ * @author Sebastian Steenbuck
  *
  */
 public class ConcurrentScope extends Scope{
@@ -19,16 +18,9 @@ public class ConcurrentScope extends Scope{
 		assert(objectToTest!=null);
 		this.objectToTest=objectToTest;
 	}
-
-	@Override
-	public synchronized Object get(VariableReference reference){
-		//#TODO steenbuck short term
-		if(reference.statement==-1){
-			//#TODO types should be checked
-			return objectToTest;
-		}else{
-			return super.get(reference);
-		}
+	
+	public synchronized Object getSharedObject(){
+		return objectToTest;
 	}
 
 

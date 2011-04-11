@@ -38,6 +38,9 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
  * A test case is a list of statements
+ * If replaceConst is set to true (default) all occurrences of a constructor, of the class for which tests are generated,
+ * are replaced with a pseudo statement. Which refers to the object which is shared between the threads.
+ * Statements from this testCase should only be executed with a ConcurrentScope
  * 
  * @author Sebastian Steenbuck
  * 
@@ -49,97 +52,106 @@ public class BasicTestCase extends DefaultTestCase {
 	private static Logger logger = Logger.getLogger(BasicTestCase.class);
 
 
-	
+
 	private final boolean replaceConst;
-		
+
 	/**
 	 * Equals BasicTestCase(true)
 	 */
 	public BasicTestCase() {
 		this(true);
 	}
-	
+
 	/**
-	 * If replaceConst is set to true all occurrences of a constructor, of the class for which tests are generated,
-	 * are replaced with a pseudo statement. Which refers to object which is shared between the threads.
 	 * @param replaceConst
 	 */
 	public BasicTestCase(boolean replaceConst){
 		super();
 		this.replaceConst=replaceConst;
 	}
-	
+
+	/**
+	 * The statements returned by this method can only be executed with a concurrentScope
+	 * @param clazz
+	 * @param pos
+	 * @return
+	 */
 	@SuppressWarnings("unchecked") //we loose the type information during the call to new VariableReference. 
 	private Statement getPseudoStatement(final Class clazz, int pos){
 		Statement st= new Statement() {
-			
+
 			@Override
 			public void replaceUnique(VariableReference oldVar, VariableReference newVar) {
 			}
-			
+
 			@Override
 			public void replace(VariableReference oldVar, VariableReference newVar) {
 			}
-			
+
 			@Override
 			public int hashCode() {
 				return 0;
 			}
-			
+
 			@Override
 			public Set<VariableReference> getVariableReferences() {
 				Set<VariableReference> s = new HashSet<VariableReference>();
 				s.add(retval);
 				return s;
 			}
-			
+
 			@Override
 			public List<VariableReference> getUniqueVariableReferences() {
 				List<VariableReference> s = new ArrayList<VariableReference>();
 				s.add(retval);
 				return s;
 			}
-			
+
 			@Override
 			public String getCode(Throwable exception) {
 				//#TODO steenbuck param0 should not be hardcoded
 				return retval.getSimpleClassName() + " " + retval.getName() + " = param0;";
 			}
-			
+
 			@Override
 			public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
 					Throwable exception) {
 			}
-			
+
 			@Override
 			public Throwable execute(Scope scope, PrintStream out)
-					throws InvocationTargetException, IllegalArgumentException,
-					IllegalAccessException, InstantiationException {
-				//#TODO magic number 
-				Object o = scope.get(new VariableReference(retval.getType(), -1));
-				scope.set(retval, o);
+			throws InvocationTargetException, IllegalArgumentException,
+			IllegalAccessException, InstantiationException {
+				if(scope instanceof ConcurrentScope){
+					//Object o = scope.get(new VariableReference(retval.getType(), -1));
+					Object o = ((ConcurrentScope)scope).getSharedObject();
+					assert(retval.getClass().isAssignableFrom(o.getClass()));
+					scope.set(retval, o);
+				}else{
+					throw new AssertionError("Statements from " + BasicTestCase.class.getName() + " should only be executed with a concurrent scope");
+				}
 				return null;
 			}
-			
+
 			@Override
 			public boolean equals(Statement s) {
 				return s==this;
 			}
-			
+
 			@Override
 			public Statement clone() {
 				return getPseudoStatement(clazz, retval.statement);
 			}
-			
+
 			@Override
 			public void adjustVariableReferences(int position, int delta) {
 				retval.adjust(delta, position);
 			}
 
 		};
-		
+
 		st.SetRetval(new VariableReference(clazz, pos));
-		
+
 		return st;
 	}
 
@@ -147,7 +159,7 @@ public class BasicTestCase extends DefaultTestCase {
 	public String getThreadCode(Map<Integer, Throwable> exceptions, int id){
 		throw new AssertionError("we should execute the one in concurrentTestCase");
 	}
-	
+
 
 
 	/**
@@ -182,7 +194,7 @@ public class BasicTestCase extends DefaultTestCase {
 		statement = replaceConstructorStatement(statement, position);
 		super.addStatement(statement, position);
 	}
-	
+
 	/**
 	 * Checks if a constructor call should reference a param
 	 * @param statement
@@ -199,7 +211,7 @@ public class BasicTestCase extends DefaultTestCase {
 				statement = getPseudoStatement(Properties.getTargetClass(), position);
 			}
 		}
-		
+
 		return statement;
 	}
 
