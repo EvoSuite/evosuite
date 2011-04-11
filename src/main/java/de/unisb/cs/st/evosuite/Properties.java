@@ -102,6 +102,8 @@ public class Properties {
 	        || getPropertyOrDefault("criterion", "BranchCoverage").equalsIgnoreCase("mutation") ? true
 	        : false;
 
+	public static boolean ASSERTIONS = getPropertyOrDefault("assertions", false);
+
 	public static boolean TESTABILITY_TRANSFORMATION = getPropertyOrDefault("testability_transformation",
 	                                                                        false);
 
