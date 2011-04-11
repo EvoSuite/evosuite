@@ -18,9 +18,6 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.apache.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.util.AbstractVisitor;
@@ -95,6 +92,7 @@ public class ExecutionTracer {
 	 */
 	public void clear() {
 		trace = new ExecutionTrace();
+		TestabilityTransformation.clearStack();
 		num_statements = 0;
 	}
 
@@ -493,31 +491,34 @@ public class ExecutionTracer {
 	}
 
 	/**
-	 * Called by instrumented code each time a variable gets written to (a Definition)  
+	 * Called by instrumented code each time a variable gets written to (a
+	 * Definition)
 	 */
-	public static void passedDefinition(String className, String varName, 
-			String methodName, Object caller, int branchID, int defID) {
+	public static void passedDefinition(String className, String varName,
+	        String methodName, Object caller, int branchID, int defID) {
 		if (Thread.currentThread() != currentThread)
 			return;
 
 		ExecutionTracer tracer = getExecutionTracer();
 		if (!tracer.disabled)
-			tracer.trace.definitionPassed(className,varName,methodName,caller,branchID,defID);
+			tracer.trace.definitionPassed(className, varName, methodName, caller,
+			                              branchID, defID);
 	}
 
 	/**
 	 * Called by instrumented code each time a variable is read from (a Use)
 	 */
-	public static void passedUse(String className, String varName, String methodName, 
-			Object caller, int branchID, int useID) {
-		
+	public static void passedUse(String className, String varName, String methodName,
+	        Object caller, int branchID, int useID) {
+
 		if (Thread.currentThread() != currentThread)
 			return;
 		ExecutionTracer tracer = getExecutionTracer();
 		if (!tracer.disabled)
-			tracer.trace.usePassed(className,varName,methodName,caller,branchID,useID);
+			tracer.trace.usePassed(className, varName, methodName, caller, branchID,
+			                       useID);
 	}
-	
+
 	public static void statementExecuted() {
 		if (Thread.currentThread() != currentThread)
 			return;

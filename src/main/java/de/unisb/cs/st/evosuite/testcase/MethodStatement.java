@@ -141,7 +141,7 @@ public class MethodStatement extends Statement {
 		}
 
 		if (Modifier.isStatic(method.getModifiers())) {
-			callee_str += method.getDeclaringClass().getName();
+			callee_str += method.getDeclaringClass().getSimpleName();
 		} else {
 			callee_str += callee.getName();
 		}

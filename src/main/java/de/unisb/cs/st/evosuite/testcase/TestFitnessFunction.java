@@ -50,30 +50,9 @@ public abstract class TestFitnessFunction extends FitnessFunction {
 		try {
 			logger.debug("Executing test");
 			result = executor.execute(test);
-			//			result.exceptions = executor.run(test);
 			executor.setLogging(true);
-			//			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
-			// result.output_trace = executor.getTrace();
-			/*
-			 * result.comparison_trace = comparison_observer.getTrace();
-			 * result.primitive_trace = primitive_observer.getTrace();
-			 * result.inspector_trace = inspector_observer.getTrace();
-			 * result.field_trace = field_observer.getTrace(); result.null_trace
-			 * = null_observer.getTrace();
-			 */
 
 			int num = test.size();
-			/*
-			 * if(ex != null) { result.exception = ex;
-			 * result.exception_statement = test.exception_statement; num =
-			 * test.size() - test.exception_statement;
-			 * 
-			 * if(ex instanceof TestCaseExecutor.TimeoutExceeded) { if(mutant !=
-			 * null) logger.info("Mutant timed out!"); else
-			 * logger.info("Program timed out!"); resetObservers();
-			 * 
-			 * } }
-			 */
 			MaxStatementsStoppingCondition.statementsExecuted(num);
 
 			// for(TestObserver observer : observers) {
@@ -97,23 +76,6 @@ public abstract class TestFitnessFunction extends FitnessFunction {
 		TestChromosome c = (TestChromosome) individual;
 		ExecutionResult orig_result = runTest(c.test);
 		double fitness = getFitness(c, orig_result);
-
-		/*
-		 * if(orig_result.exception != null && !ignore(orig_result.exception)) {
-		 * logger.info("Test case yielded exception: "+orig_result.exception);
-		 * if(c.test.statements.size() > orig_result.exception_statement)
-		 * logger.
-		 * info("Exception thrown in statement "+c.test.statements.get(orig_result
-		 * .exception_statement).getCode()); else
-		 * logger.info("Exception thrown in statement outside code ("
-		 * +orig_result.exception_statement+")");
-		 * c.test.chop(orig_result.exception_statement + 1); // TODO: Minimize
-		 * failing test // !!!!! ONLY TEMPORALLY COMMENTED
-		 * failed_tests.addTest(c.test,
-		 * orig_result.exception.toString()+" in statement "
-		 * +c.test.statements.get(orig_result.exception_statement).getCode());
-		 * return Double.NEGATIVE_INFINITY; }
-		 */
 
 		updateIndividual(c, fitness);
 

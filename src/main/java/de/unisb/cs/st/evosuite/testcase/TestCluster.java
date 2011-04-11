@@ -1115,6 +1115,11 @@ public class TestCluster {
 			} catch (ClassNotFoundException e) {
 				logger.error("Class not found: " + classname + ", ignoring for tests");
 				continue;
+			} catch (ExceptionInInitializerError e) {
+				logger.error("Error in static constructor while trying to load class "
+				        + classname + ": " + e.getCause());
+				e.getCause().printStackTrace();
+				continue;
 			}
 		}
 		logger.info("Found " + test_constructors.size() + " constructors");

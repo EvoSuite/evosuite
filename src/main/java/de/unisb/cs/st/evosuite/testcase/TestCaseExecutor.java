@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -45,13 +44,14 @@ import de.unisb.cs.st.evosuite.sandbox.Sandbox;
  */
 public class TestCaseExecutor implements ThreadFactory {
 
-	private final Logger logger = Logger.getLogger(TestCaseExecutor.class);
+	private static final Logger logger = Logger.getLogger(TestCaseExecutor.class);
 
 	private boolean log = true;
 
 	public static long timeout = Properties.getPropertyOrDefault("timeout", 5000);
-	
-	public static boolean cpuTimeout = Properties.getPropertyOrDefault("cpu_timeout", false);
+
+	public static boolean cpuTimeout = Properties.getPropertyOrDefault("cpu_timeout",
+	                                                                   false);
 
 	private static boolean logTimeout = Properties.getPropertyOrDefault("log_timeout",
 	                                                                    false);
@@ -76,6 +76,41 @@ public class TestCaseExecutor implements ThreadFactory {
 			instance = new TestCaseExecutor();
 
 		return instance;
+	}
+
+	/**
+	 * Execute a test case
+	 * 
+	 * @param test
+	 *            The test case to execute
+	 * @param mutant
+	 *            The mutation to active (null = no mutation)
+	 * 
+	 * @return Result of the execution
+	 */
+	public static ExecutionResult runTest(TestCase test) {
+
+		ExecutionResult result = new ExecutionResult(test, null);
+
+		try {
+			TestCaseExecutor executor = getInstance();
+			logger.debug("Executing test");
+			result = executor.execute(test);
+
+			int num = test.size();
+			MaxStatementsStoppingCondition.statementsExecuted(num);
+
+			// for(TestObserver observer : observers) {
+			// observer.testResult(result);
+			// }
+		} catch (Exception e) {
+			System.out.println("TG: Exception caught: " + e);
+			e.printStackTrace();
+			System.exit(1);
+		}
+
+		// System.out.println("TG: Killed "+result.getNumKilled()+" out of "+mutants.size());
+		return result;
 	}
 
 	private TestCaseExecutor() {
@@ -135,15 +170,24 @@ public class TestCaseExecutor implements ThreadFactory {
 		ExecutionObserver.currentTest(tc);
 		MaxTestsStoppingCondition.testExecuted();
 
-		TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>(); 
-		
+		TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>();
+
 		TestRunnable callable = new TestRunnable(tc, scope, observers);
 		//FutureTask<ExecutionResult> task = new FutureTask<ExecutionResult>(callable);
 		//executor.execute(task);
-	
+
 		try {
 			//ExecutionResult result = task.get(timeout, TimeUnit.MILLISECONDS);
-			ExecutionResult result = handler.execute(callable, executor, timeout, cpuTimeout);
+			ExecutionResult result = handler.execute(callable, executor, timeout,
+			                                         cpuTimeout);
+			return result;
+		} catch (ThreadDeath t) {
+			logger.warn("Caught ThreadDeath during test execution");
+			Sandbox.tearDownEverything();
+			ExecutionResult result = new ExecutionResult(tc, null);
+			result.exceptions = callable.exceptionsThrown;
+			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+			ExecutionTracer.getExecutionTracer().clear();
 			return result;
 
 		} catch (InterruptedException e1) {
@@ -186,10 +230,16 @@ public class TestCaseExecutor implements ThreadFactory {
 				}
 				if (!callable.runFinished) {
 					logger.info("Run still not finished, replacing executor.");
-					executor.shutdownNow();
-					currentThread.stop();
-					if (currentThread.isAlive()) {
-						logger.warn("Thread survived - unsafe operation.");
+					try {
+						executor.shutdownNow();
+						if (currentThread.isAlive()) {
+							currentThread.stop();
+							logger.warn("Thread survived - unsafe operation.");
+						}
+					} catch (ThreadDeath t) {
+						logger.info("ThreadDeath.");
+					} catch (Throwable t) {
+						logger.info("Throwable: " + t);
 					}
 					executor = Executors.newSingleThreadExecutor(this);
 				}
