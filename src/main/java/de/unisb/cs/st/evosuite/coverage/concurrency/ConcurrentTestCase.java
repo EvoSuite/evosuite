@@ -11,24 +11,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.Statement;
-import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
-import de.unisb.cs.st.evosuite.testcase.TestRunner;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
+ * A concurrentTestCase wraps a BasicTestCase and enriches it with some additional information.
+ *  - the schedule (which is a list of thread ids)
+ *  - a set of all schedulers, which have been given to other objects
+ *  	- used to invalidate said schedulers at appropriate times.
+ *   	- a set of seenThreadIDs. Which is used to generate new thread ids.
+ *   
  * @author sebastian steenbuck
- * #TODO in an ideal world TestCase would be an interface
  */
 public class ConcurrentTestCase implements TestCase{
-	private static Logger logger = Logger.getLogger(ConcurrentTestCase.class);
 	
 	//A list of thread IDs
 	private List<Integer> schedule;
@@ -47,6 +47,11 @@ public class ConcurrentTestCase implements TestCase{
 		generatedSchedules = new HashSet<Scheduler>();
 	}
 
+	/**
+	 * Returns the schedule of this thread.
+	 * Note that this schedule is unbounded (new thread ids are generated as needed)
+	 * @return
+	 */
 	public Schedule getSchedule(){
 		Scheduler s = new Scheduler(schedule, seenThreadIDs, generatedSchedules);
 		generatedSchedules.add(s);
@@ -333,7 +338,7 @@ public class ConcurrentTestCase implements TestCase{
 	 */
 	@Override
 	public boolean isPrefix(TestCase t) {
-		return isPrefix(t);
+		return test.isPrefix(t);
 	}
 
 
