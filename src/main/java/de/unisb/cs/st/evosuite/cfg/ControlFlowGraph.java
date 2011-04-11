@@ -127,7 +127,7 @@ public class ControlFlowGraph {
 
 	public CFGVertex getVertex(int id) {
 		for (CFGVertex v : graph.vertexSet()) {
-			if (v.id == id) {
+			if (v.getId() == id) {
 				return v;
 			}
 		}
@@ -181,7 +181,7 @@ public class ControlFlowGraph {
 		if (m == null) {
 			logger.warn("Vertex does not exist in graph: " + vertex);
 			for (CFGVertex v : graph.vertexSet()) {
-				logger.info("  Vertex id: " + v.id + ", line number " + v.line_no
+				logger.info("  Vertex id: " + v.getId() + ", line number " + v.line_no
 				        + ", branch id: " + v.getBranchId());
 			}
 			return diameter;
@@ -445,7 +445,7 @@ public class ControlFlowGraph {
 				r.add(edgeTarget);
 			if (edgeTarget.isDefinition() && edgeTarget.getDUVariableName().equals(varName))
 				continue;
-			if (edgeTarget.id > currentVertex.id) // dont follow backedges (loops)
+			if (edgeTarget.getId() > currentVertex.getId()) // dont follow backedges (loops)
 				r.addAll(getUsesForDef(varName, edgeTarget));
 
 		}
@@ -466,7 +466,7 @@ public class ControlFlowGraph {
 			if (edgeTarget.isDefinition())
 				if (edgeTarget.getDUVariableName().equals(varName))
 					continue;
-			if (edgeTarget.id > currentVertex.id // dont follow backedges (loops)
+			if (edgeTarget.getId() > currentVertex.getId() // dont follow backedges (loops)
 			        && hasDefClearPathToMethodEnd(varName, edgeTarget))
 				return true;
 		}
@@ -491,7 +491,7 @@ public class ControlFlowGraph {
 					continue;
 			}
 
-			if (edgeStart.id < currentVertex.id // dont follow backedges (loops) 
+			if (edgeStart.getId() < currentVertex.getId() // dont follow backedges (loops) 
 			        && hasDefClearPathFromMethodStart(varName, edgeStart))
 				return true;
 		}
@@ -517,10 +517,10 @@ public class ControlFlowGraph {
 		int maxID = Integer.MIN_VALUE;
 		for (DefaultEdge e : out) {
 			CFGVertex target = graph.getEdgeTarget(e);
-			if (minID > target.id)
-				minID = target.id;
-			if (maxID < target.id)
-				maxID = target.id;
+			if (minID > target.getId())
+				minID = target.getId();
+			if (maxID < target.getId())
+				maxID = target.getId();
 		}
 //		if (minID < branchVertex.id) {
 //			logger.error("DO-WHILE BRANCH"+branchVertex.branchID);
@@ -542,7 +542,7 @@ public class ControlFlowGraph {
 				DefaultEdge elseEnd = null;
 				for (DefaultEdge e : prevOut)
 					elseEnd = e;
-				markNodes(maxID + 1, graph.getEdgeTarget(elseEnd).id,
+				markNodes(maxID + 1, graph.getEdgeTarget(elseEnd).getId(),
 				          branch, false);
 			}
 		}
@@ -569,7 +569,7 @@ public class ControlFlowGraph {
 		for (DefaultEdge e : prevOut)
 			backEdge = e;
 		// only if-branches have this structure
-		return !(graph.getEdgeTarget(backEdge).id < maxID);
+		return !(graph.getEdgeTarget(backEdge).getId() < maxID);
 	}
 
 	private boolean isWhileBranch(int maxID) {
@@ -582,7 +582,7 @@ public class ControlFlowGraph {
 		for (DefaultEdge e : prevOut)
 			backEdge = e;
 		// only while-branches go back up
-		return graph.getEdgeTarget(backEdge).id < maxID;
+		return graph.getEdgeTarget(backEdge).getId() < maxID;
 	}
 	
 	

@@ -55,7 +55,6 @@ import org.objectweb.asm.tree.analysis.BasicInterpreter;
 import org.objectweb.asm.tree.analysis.Frame;
 import org.objectweb.asm.util.AbstractVisitor;
 
-import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
@@ -76,11 +75,11 @@ public class CFGGenerator extends Analyzer {
 	 */
 	public class CFGVertex {
 
-		AbstractInsnNode node;
-		CFGFrame frame;
-		int id;
+		private final AbstractInsnNode node;
+		private CFGFrame frame;
+		private final int id;
 		public int line_no = 0;
-		List<Long> mutations = new ArrayList<Long>();
+		private final List<Long> mutations = new ArrayList<Long>();
 		boolean mutationBranch = false;
 		boolean mutatedBranch = false;
 
@@ -141,6 +140,10 @@ public class CFGGenerator extends Analyzer {
 
 		public boolean hasMutation(long id) {
 			return mutations.contains(id);
+		}
+		
+		public AbstractInsnNode getNode(){
+			return node;
 		}
 
 		public boolean isMutation() {
@@ -605,5 +608,7 @@ public class CFGGenerator extends Analyzer {
 
 		return true;
 	}
+	
+	
 
 }
