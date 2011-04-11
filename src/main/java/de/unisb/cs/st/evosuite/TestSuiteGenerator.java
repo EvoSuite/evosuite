@@ -399,11 +399,13 @@ public class TestSuiteGenerator {
 					covered.add(num);
 					
 					// experiment:
-					Set<Integer> additional_covered_nums = getAdditionallyCoveredGoals(goals,covered,best);
-//					System.out.println("Additionally covered: "+additional_covered_nums.size());
-					for(Integer covered_num : additional_covered_nums) {
-						covered_goals++;
-						covered.add(covered_num);
+					if(skip_covered) {
+						Set<Integer> additional_covered_nums = getAdditionallyCoveredGoals(goals,covered,best);
+	//					System.out.println("Additionally covered: "+additional_covered_nums.size());
+						for(Integer covered_num : additional_covered_nums) {
+							covered_goals++;
+							covered.add(covered_num);
+						}
 					}
 						
 					
