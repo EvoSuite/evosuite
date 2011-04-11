@@ -17,12 +17,12 @@ public class TimeoutHandler<T> {
 	public FutureTask<T> getLastTask() {
 		return task;
 	}
-
-	public T execute(final Callable testcase, ExecutorService executor, long timeout,
-	        boolean timeout_based_on_cpu) throws TimeoutException, InterruptedException,
-	        ExecutionException {
-		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-		if (!bean.isCurrentThreadCpuTimeSupported() && timeout_based_on_cpu) {
+	
+	public T execute(final Callable<T> testcase, ExecutorService executor, long timeout, boolean timeout_based_on_cpu) throws TimeoutException, InterruptedException, ExecutionException
+	{
+		ThreadMXBean bean = ManagementFactory.getThreadMXBean( );
+		if(!bean.isCurrentThreadCpuTimeSupported()  && timeout_based_on_cpu)
+		{
 			timeout_based_on_cpu = false;
 			Log.warn("Requested to use timeout_based_on_cpu, but it is not supported by the JVM/OS");
 		}

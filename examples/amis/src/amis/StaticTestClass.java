@@ -1,7 +1,7 @@
 package amis;
 
 /**
- * @author ida
+ * @author Andre Mis
  *
  */
 public class StaticTestClass {

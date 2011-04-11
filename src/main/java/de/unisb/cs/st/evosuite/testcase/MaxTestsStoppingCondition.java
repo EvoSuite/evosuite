@@ -21,7 +21,7 @@
 package de.unisb.cs.st.evosuite.testcase;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.ga.StoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
 
 
 /**
@@ -67,6 +67,11 @@ public class MaxTestsStoppingCondition extends StoppingCondition {
     @Override
     public void setLimit(int limit) {
     	max_tests = limit;
+    }
+
+    @Override
+    public int getLimit() {
+    	return max_tests;
     }
 
 }

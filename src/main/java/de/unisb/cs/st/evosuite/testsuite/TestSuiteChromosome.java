@@ -23,6 +23,8 @@ import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.OUM.OUMTestChromosomeFactory;
+import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyCoverageFactory;
+import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTestCaseFactory;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
@@ -53,12 +55,19 @@ public class TestSuiteChromosome extends Chromosome {
 	private static ChromosomeFactory test_factory = null;
 
 	static {
+		
 		String factory_name = Properties.getPropertyOrDefault("test_factory",
 		        "Random");
 		if (factory_name.equals("OUM"))
 			test_factory = new OUMTestChromosomeFactory();
 		else
 			test_factory = new RandomLengthTestFactory();
+	
+		if(Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)){
+			//#TODO steenbuck we should wrap the original factory not replace it.
+			test_factory = new ConcurrencyTestCaseFactory();
+		}
+	
 	}
 
 	public void addTest(TestCase test) {

@@ -57,7 +57,7 @@ public class PrimePath {
 			if (node.isBranch() && position < (nodes.size() - 1)) {
 				PathEntry entry = new PathEntry();
 				entry.vertex = node;
-				if (nodes.get(position + 1).getID() == (node.getID() + 1)) {
+				if (nodes.get(position + 1).getId() == (node.getId() + 1)) {
 					entry.value = false;
 				} else {
 					entry.value = true;
@@ -117,7 +117,7 @@ public class PrimePath {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < nodes.size(); i++) {
-			builder.append(nodes.get(i).getID());
+			builder.append(nodes.get(i).getId());
 			builder.append(" ");
 		}
 		return builder.toString();

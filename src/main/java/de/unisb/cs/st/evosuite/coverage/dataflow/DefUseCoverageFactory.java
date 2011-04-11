@@ -20,7 +20,6 @@
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,8 +44,14 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 	// TestSuiteMinimizer seems to call getCoverageGoals() a second time
 	// and since analysis takes a little ...
 	private static boolean called = false;
+	private static List<DefUseCoverageTestFitness> duGoals;
 	private static List<TestFitnessFunction> goals;
 	
+	public static List<DefUseCoverageTestFitness> getDUGoals() {
+		if(!called) 
+			computeGoals();		
+		return duGoals;
+	}
 	
 	/*
 	 * (non-Javadoc)
@@ -56,16 +61,20 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 	 */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
-
-		// TODO replace this with Reaching-Definitions-Algorithm 
-		if(called) 
-			return goals;
+		if(!called) 
+			computeGoals();
 		
-		logger.info("Starting DefUse-Coverage goal generation");
-		goals = new ArrayList<TestFitnessFunction>();
+		return goals;
+	}
+	
+	public static void computeGoals() {
+		// TODO replace this with Reaching-Definitions-Algorithm
+		long start = System.currentTimeMillis();
+		logger.trace("starting DefUse-Coverage goal generation");
+		duGoals = new ArrayList<DefUseCoverageTestFitness>();
 		
-		goals.addAll(getPairsWithinMethods());
-		goals.addAll(getParameterGoals());
+		duGoals.addAll(getPairsWithinMethods());
+		duGoals.addAll(getParameterGoals());
 		
 		Set<Definition> freeDefs = getDefinitionsWithClearPathToMethodEnd();
 		Set<Use> freeUses = getUsesWithClearPathFromMethodStart();
@@ -73,12 +82,15 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 			for(Use use : freeUses)
 				if(def.getDUVariableName().equals(use.getDUVariableName())) {
 					DefUseCoverageTestFitness newGoal = createGoal(def,use);
-					if(!goals.contains(newGoal))
-						goals.add(newGoal);
+					if(!duGoals.contains(newGoal))
+						duGoals.add(newGoal);
 				}
 		
 		called = true;
-		return goals;
+		goals= new ArrayList<TestFitnessFunction>();
+		goals.addAll(duGoals);
+		long end = System.currentTimeMillis();
+		System.out.println("* Goal computation took: "+(end-start)+"ms");
 	}
 
 	/**
@@ -90,13 +102,13 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 	 * @param use The use of the goal
 	 * @return The created DefUseCoverageGoal
 	 */
-	private DefUseCoverageTestFitness createGoal(Definition def, Use use) {
+	public static DefUseCoverageTestFitness createGoal(Definition def, Use use) {
 
 		return new DefUseCoverageTestFitness(def, use);
 	}
 
-	private Set<TestFitnessFunction> getParameterGoals() {
-		Set<TestFitnessFunction> r = new HashSet<TestFitnessFunction>();
+	public static Set<DefUseCoverageTestFitness> getParameterGoals() {
+		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
 		Set<Use> parameterUses = getParameterUses();
 		for(Use use : parameterUses) 
 			r.add(new DefUseCoverageTestFitness(use));
@@ -113,8 +125,8 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 	 * 
 	 * @return A list of all the DefUseCoverageGoals created this way
 	 */
-	private Set<TestFitnessFunction> getPairsWithinMethods() {
-		Set<TestFitnessFunction> r = new HashSet<TestFitnessFunction>();
+	public static Set<DefUseCoverageTestFitness> getPairsWithinMethods() {
+		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
 		for (String className : DefUsePool.def_map.keySet()) 
 			for (String methodName : DefUsePool.def_map.get(className).keySet()) 
 				for (String fieldName : DefUsePool.def_map.get(className).get(methodName).keySet()) 
@@ -139,7 +151,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 	 * 
 	 * @return A Set of all the definitions for which the above holds
 	 */
-	private Set<Definition> getDefinitionsWithClearPathToMethodEnd() {
+	public static Set<Definition> getDefinitionsWithClearPathToMethodEnd() {
 		HashSet<Definition> r = new HashSet<Definition>();
 		for (String className : DefUsePool.def_map.keySet())
 			for (String methodName : DefUsePool.def_map.get(className).keySet()) 
@@ -169,7 +181,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 	 * 
 	 * @return A Set of all the uses for which the above holds
 	 */
-	private Set<Use> getUsesWithClearPathFromMethodStart() {
+	public static Set<Use> getUsesWithClearPathFromMethodStart() {
 		Set<Use> allUses = getAllUses();
 		Set<Use> r = new HashSet<Use>();
 		for (Use use : allUses) {
@@ -181,7 +193,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 		return r;
 	}
 	
-	private Set<Use> getParameterUses() {
+	public static Set<Use> getParameterUses() {
 		Set<Use> allUses = getAllUses();
 		Set<Use> r = new HashSet<Use>();
 		for (Use use : allUses)
@@ -190,7 +202,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 		return r;	
 	}
 	
-	private Set<Use> getAllUses() {
+	public static Set<Use> getAllUses() {
 		HashSet<Use> r = new HashSet<Use>();
 		for (String className : DefUsePool.use_map.keySet()) 
 			for (String methodName : DefUsePool.use_map.get(className).keySet()) 

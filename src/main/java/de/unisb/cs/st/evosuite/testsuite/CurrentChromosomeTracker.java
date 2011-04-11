@@ -16,6 +16,7 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
  * @author Gordon Fraser
  * 
  */
+@SuppressWarnings("unchecked") //we can't know CType at instantiation type
 public class CurrentChromosomeTracker<CType extends Chromosome> implements SearchListener {
 
 	/** The current chromosome */

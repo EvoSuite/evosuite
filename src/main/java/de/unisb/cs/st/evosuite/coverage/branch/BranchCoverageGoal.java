@@ -20,13 +20,13 @@ package de.unisb.cs.st.evosuite.coverage.branch;
 
 import java.util.List;
 
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
+import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 
 /**
  * A single branch coverage goal Either true/false evaluation of a jump
@@ -37,6 +37,9 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
  */
 public class BranchCoverageGoal extends TestCoverageGoal {
 
+	// TODO: this is really redundant, only the Branch should be referenced as it 
+	//			already holds all the information from branch_id to methodName  
+	
 	Branch branch;
 
 	int branch_id;
@@ -55,6 +58,7 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 
 	public BranchCoverageGoal(Branch branch, boolean value, ControlFlowGraph cfg,
 	        String className, String methodName) {
+		this.branch = branch;
 		this.branch_id = branch.getBranchId();
 		this.bytecode_id = branch.getBytecodeId();
 		this.line_number = branch.getLineNumber();
@@ -73,6 +77,7 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 	 * @param methodName
 	 */
 	public BranchCoverageGoal(String className, String methodName) {
+		this.branch = null;
 		this.branch_id = 0;
 		this.bytecode_id = 0;
 		this.line_number = 0;
@@ -81,6 +86,35 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 		this.className = className;
 		this.methodName = methodName;
 	}
+	
+	/**
+	 * Determines whether this goals is connected to the given goal
+	 * 
+	 * This is the case when this goals target branch is control dependent on
+	 * the target branch of the given goal or visa versa
+	 * 
+	 * This is used in the ChromosomeRecycler to determine if tests produced
+	 * to cover one goal should be used initially when trying to cover the other goal 
+	 */
+	public boolean isConnectedTo(BranchCoverageGoal goal) {
+		if(branch == null || goal.branch == null) {
+			// one of the goals targets a root branch
+			return goal.methodName.equals(methodName) && goal.className.equals(className);
+		}
+		return branch.isControlDependentOn(goal.branch) || goal.branch.isControlDependentOn(branch) ;
+	}
+	
+	/**
+	 * Returns the number of branches  
+	 */
+	public int getDifficulty() {
+		int r = 1;
+		if(branch!=null) {
+			r+=branch.getCDGDepth();
+		}
+		return r;
+	}
+
 
 	/**
 	 * Determine if there is an existing test case covering this goal

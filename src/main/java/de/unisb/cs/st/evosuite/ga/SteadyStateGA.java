@@ -138,7 +138,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 		current_iteration = 0;
 
 		// Set up initial population
-		generateRandomPopulation(Properties.POPULATION_SIZE);
+		generateInitialPopulation(Properties.POPULATION_SIZE);
 		logger.debug("Calculating fitness of initial population");
 		calculateFitness();
 		this.notifyIteration();

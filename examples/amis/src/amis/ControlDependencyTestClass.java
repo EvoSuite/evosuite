@@ -1,7 +1,7 @@
 package amis;
 
 /**
- * @author ida
+ * @author Andre Mis
  *
  */
 public class ControlDependencyTestClass {
@@ -75,8 +75,14 @@ public class ControlDependencyTestClass {
 	
 	public int whileMethod(int anInt) {
 		int i = 0;
+		int c = 0;
 		while(i<anInt) {
 			i++;
+			c++;
+			if(c<15)
+				continue;
+			if(c==10)
+				break;
 		}
 		return i;
 	}
@@ -93,10 +99,16 @@ public class ControlDependencyTestClass {
 
 	public int whileMethodConditionalReturn(int anInt) {
 		int i = 0;
+		int c = 0;
 		while(i<anInt) {
 			i++;
 			if(anInt%2 == 0)
 				return i;
+			c++;
+			if(c>15)
+				continue;
+			if(c>10)
+				break;
 		}
 		return -1;
 	}	
@@ -113,6 +125,7 @@ public class ControlDependencyTestClass {
 	public int doWhileMethodReturn(int anInt) {
 		int i = anInt;
 		do {
+			i++;
 			if(i % 13 == 1)
 				return i;
 		} while(i % 13 != 0);
@@ -122,8 +135,8 @@ public class ControlDependencyTestClass {
 	
 	public int forMethod(int anInt) {
 		int r = 0;
-		for(int i=0;i<anInt;i++) {
-			r = r+i;
+		for(int i=0;i<10;i++) {
+			r = r+i+anInt;
 		}
 		
 		return r;

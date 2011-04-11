@@ -538,7 +538,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				objects.remove(callee);
 			// if(test.hasObject(parameter_type, position, constraints.get(i))
 			// && reuse <= object_reuse_probability) {
-			if ((parameter_type instanceof Class)
+			if ((parameter_type instanceof Class<?>)
 			        && ((Class<?>) parameter_type).isPrimitive() && !objects.isEmpty()
 			        && reuse <= PRIMITIVE_REUSE_PROBABILITY) {
 				logger.debug(" Parameter " + i + ": Looking for existing object of type "
@@ -766,7 +766,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			// TODO: Doesn't work if position != test.size()
 			while (test.size() != previous_length) {
 				logger.debug("  Removing statement: "
-				        + test.statements.get(position).getCode());
+				        + test.getStatement(position).getCode());
 				test.remove(position);
 			}
 		}
@@ -796,7 +796,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			// TODO: Doesn't work if position != test.size()
 			while (test.size() != previous_length) {
 				logger.debug("  Removing statement: "
-				        + test.statements.get(position).getCode());
+				        + test.getStatement(position).getCode());
 				test.remove(position);
 			}
 		}
@@ -836,7 +836,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			// TODO: Doesn't work if position != test.size()
 			while (test.size() != previous_length) {
 				logger.debug("  Removing statement: "
-				        + test.statements.get(position).getCode());
+				        + test.getStatement(position).getCode());
 				test.remove(position);
 			}
 

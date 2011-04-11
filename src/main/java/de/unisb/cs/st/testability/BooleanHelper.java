@@ -206,6 +206,14 @@ public class BooleanHelper<E> {
 		parametersObject.push(o);
 	}
 
+	/**
+	 * Checks if o is assignable to c.
+	 * Note if 
+	 * @param o
+	 * @param c
+	 * @return 1 if c.isAssignable() to o. -1 otherwise 
+	 */
+	@SuppressWarnings("unchecked") //we only use methods of java.lang.Class
 	public static int isInstanceOf(Object o, Class c) {
 		if (o == null) {
 			log.debug("isInstanceOf:-1");

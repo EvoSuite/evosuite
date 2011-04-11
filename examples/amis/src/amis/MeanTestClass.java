@@ -5,7 +5,7 @@ package amis;
 
 
 /**
- * @author ida
+ * @author Andre Mis
  *
  */
 public class MeanTestClass {
@@ -14,6 +14,8 @@ public class MeanTestClass {
 	private int someOtherField = 0;
 	private int yetAnotherField = 0;
 	private int targetField = 0;
+	
+	private static boolean didIt = false;
 	
 	// constructors
 	
@@ -41,7 +43,6 @@ public class MeanTestClass {
 				// the following two uses for someField and someOtherField can 
 				// not be paired with their definitions in the constructor
 				if((yetAnotherField != someField + someOtherField) || yetAnotherField == 0) {
-					// TODO BUG! Stopped here!!! Somehow it is not detected that this definition overwrites the one from <init>
 					targetField = 3;
 				}
 			}
@@ -49,6 +50,9 @@ public class MeanTestClass {
 		
 		if(targetField == 0) { // target Use
 			someField = 3;
+			if(!didIt)
+				System.out.println("Tests covered the mean DUPair!");
+			didIt = true;
 		}
 	}
 	

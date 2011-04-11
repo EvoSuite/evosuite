@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.ga.StoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
@@ -63,6 +63,11 @@ public class MutationTimeoutStoppingCondition extends StoppingCondition {
 	@Override
 	public void setLimit(int limit) {
 		MAX_TIMEOUTS = limit;
+	}
+	
+	@Override
+	public int getLimit() {
+		return MAX_TIMEOUTS;
 	}
 	
 	public static void timeOut(Mutation mutation) {

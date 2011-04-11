@@ -19,8 +19,8 @@
 package de.unisb.cs.st.evosuite.junit;
 
 import java.util.HashSet;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 import org.junit.runner.JUnitCore;

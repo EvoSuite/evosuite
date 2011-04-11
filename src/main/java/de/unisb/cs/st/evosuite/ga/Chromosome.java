@@ -110,8 +110,10 @@ public abstract class Chromosome implements Comparable<Chromosome> {
 		int objective = 0;
 
 		while (c == 0 && objective < secondaryObjectives.size()) {
-			c = secondaryObjectives.get(objective++)
-			        .compareChromosomes(this, o);
+			SecondaryObjective so = secondaryObjectives.get(objective++);
+			if(so == null)
+				break;
+			c = so.compareChromosomes(this, o);
 		}
 		logger.debug("Comparison: " + fitness + "/" + size() + " vs "
 		        + o.fitness + "/" + o.size() + " = " + c);
