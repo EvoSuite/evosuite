@@ -282,6 +282,8 @@ public class TestSuite implements Opcodes {
 			builder.append("import de.unisb.cs.st.evosuite.coverage.concurrency.LockRuntime;\n");
 			builder.append("import de.unisb.cs.st.evosuite.coverage.concurrency.ControllerRuntime;\n");
 			builder.append("import de.unisb.cs.st.evosuite.coverage.concurrency.SimpleScheduler;\n");
+			builder.append("import java.util.Set;\n");
+			builder.append("import java.util.HashSet;\n");
 		}
 
 		builder.append("import junit.framework.Test;\n");
@@ -383,24 +385,9 @@ public class TestSuite implements Opcodes {
 		builder.append("\n");
 		builder.append("   //");
 		builder.append(getInformation(id));
-		builder.append("\n   public void test");
-		builder.append(id);
-		builder.append("() ");
-		Set<Class<?>> exceptions = test_cases.get(id).getDeclaredExceptions();
-		if (!exceptions.isEmpty()) {
-			builder.append("throws ");
-			boolean first = true;
-			for (Class<?> exception : exceptions) {
-				if (first)
-					first = false;
-				else
-					builder.append(", ");
-				builder.append(exception.getSimpleName());
-			}
-		}
-		builder.append(" {\n");
 		//#TODO steenbuck work around
 		if(Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)){
+			builder.append("\n");
 			ConcurrentTestCase ctc = (ConcurrentTestCase)test_cases.get(id);
 			for (String line : ctc.getThreadCode(result.exceptions, id).split("\\r?\\n")) {
 				builder.append("      ");
@@ -411,6 +398,22 @@ public class TestSuite implements Opcodes {
 			builder.append("   }\n");
 
 		}else{
+			builder.append("\n   public void test");
+			builder.append(id);
+			builder.append("() ");
+			Set<Class<?>> exceptions = test_cases.get(id).getDeclaredExceptions();
+			if (!exceptions.isEmpty()) {
+				builder.append("throws ");
+				boolean first = true;
+				for (Class<?> exception : exceptions) {
+					if (first)
+						first = false;
+					else
+						builder.append(", ");
+					builder.append(exception.getSimpleName());
+				}
+			}
+			builder.append(" {\n");
 			for (String line : test_cases.get(id).toCode(result.exceptions).split("\\r?\\n")) {
 				builder.append("      ");
 				builder.append(line);

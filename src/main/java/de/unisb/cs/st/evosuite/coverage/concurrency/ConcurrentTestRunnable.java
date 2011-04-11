@@ -5,11 +5,11 @@ package de.unisb.cs.st.evosuite.coverage.concurrency;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -105,21 +105,6 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 		throw new AssertionError("We need at least one constructor for the object under test");
 	}
 
-	public static volatile int r=0;
-
-	private class ownThreadGroup extends ThreadGroup{
-		public ownThreadGroup(String name){
-			super(name);
-		}
-
-
-		@Override
-		public void uncaughtException(Thread t, Throwable e) {
-			System.out.println("bla uncaught exception handler");
-			e.printStackTrace();
-		}
-	}
-
 
 	/* (non-Javadoc)
 	 * @see java.lang.Runnable#run()
@@ -135,58 +120,40 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 		assert(objectToTest!=null);
 		Scope s = new Scope();
 		Map<Integer, Throwable> m = new HashMap<Integer, Throwable>();
-		
+
 		execute(initialTestCase, s, m);
 		assert(s.get(objectToTest)!=null);
 		assert(m.keySet().size()==0);//TODO steenbuck for testing, in reality exceptions might be thrown.
 
-
-		//	System.out.println(objectToTest.getName());
-		//	System.out.println(initialTestCase.size());
-
-
-		//System.out.println("t" + this.toString());
-
-		UncaughtExceptionHandler uh = new UncaughtExceptionHandler() {
-
-			@Override
-			public void uncaughtException(Thread t, Throwable e) {
-				e.printStackTrace();
-			}
-		};
-
 		//#TODO all the thread start and stopping magic needs to happen here
-		ThreadGroup g1 = new ownThreadGroup("threadsdd");
-		
-		ControllerRuntime controller=new ControllerRuntime(test.getSchedule(), 2);
+
+		ControllerRuntime controller=new ControllerRuntime(test.getSchedule(), ConcurrencyCoverageFactory.THREAD_COUNT);
 		FutureTask<Void> controllerFuture = new FutureTask<Void>(controller);
 		LockRuntime.controller=controller;
-		Thread controllerThread = new Thread(g1, controllerFuture);
+		Thread controllerThread = new Thread(controllerFuture);
 		controllerThread.start();
 
-		TestRunnable t1 = new TestRunnable(addThreadEndCode(addThreadRegistrationStatements(test.clone())), new ConcurrentScope(s.get(objectToTest)), observers);
-		TestRunnable t2 = new TestRunnable(addThreadEndCode(addThreadRegistrationStatements(test.clone())), new ConcurrentScope(s.get(objectToTest)), observers);
-		
-		FutureTask<ExecutionResult> f1 = new FutureTask<ExecutionResult>(t1);
-		FutureTask<ExecutionResult> f2 = new FutureTask<ExecutionResult>(t2);
-		
-		Thread.setDefaultUncaughtExceptionHandler(uh);
-		Thread th1= new Thread(g1, f1);
-		Thread th2= new Thread(g1, f2);
+		Set<FutureTask<ExecutionResult>> testFutures = new HashSet<FutureTask<ExecutionResult>>();
 
-		th1.setUncaughtExceptionHandler(uh);
-		th2.setUncaughtExceptionHandler(uh);
-		th1.start();
-		th2.start();
+		for(int i=0 ; i<ConcurrencyCoverageFactory.THREAD_COUNT ; i++){
+			ConcurrentTestCase testToExecute = addThreadEndCode(addThreadRegistrationStatements(test.clone()));
+			TestRunnable testRunner = new TestRunnable(testToExecute, new ConcurrentScope(s.get(objectToTest)), observers);
+			FutureTask<ExecutionResult> testFuture = new FutureTask<ExecutionResult>(testRunner);
+			Thread testThread = new Thread(testFuture);
+			testThread.start();
+			testFutures.add(testFuture);
+		}
 
 
 		try{
-			
 			//#TODO do we need to combine the execution results? We will if the two threads run on different code
-			f1.get();
-			ExecutionResult e = f2.get();
+			ExecutionResult result=null;
+			for(FutureTask<ExecutionResult> testFuture : testFutures){
+				result = testFuture.get();
+			}
 			controllerFuture.get();
-			return e;
+			assert(result!=null);
+			return result;
 		}catch(Throwable e){
 			e.printStackTrace();
 			System.exit(1);
@@ -251,20 +218,26 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 	 * @return
 	 */
 	private ConcurrentTestCase addThreadRegistrationStatements(ConcurrentTestCase test){
-		Method[] methods = LockRuntime.class.getMethods();
-		Method register=null;
-		//#TODO should use getMethod()
-		for(Method met : methods){
-			if(met.getName().contains("registerThread") && met.getParameterTypes().length==1)
-				register=met;
+		try {
+			
+			Class<?> params[] = {int.class}; 
+			Method register = LockRuntime.class.getMethod(LockRuntime.RUNTIME_REGISTER_THREAD_METHOD, params);
+			
+			VariableReference idRef = new VariableReference(Integer.class, 0);
+			test.addStatement(new PrimitiveStatement<Integer>(idRef, LockRuntime.getUniqueThreadID()),0);
+			
+			List<VariableReference> paramsThreadRegistration = new ArrayList<VariableReference>();
+			paramsThreadRegistration.add(idRef);
+			test.addStatement(new MethodStatement(register, null, new VariableReference(Void.class, 1), paramsThreadRegistration), 1);
+			
+			return test;
+		
+		} catch (Exception e) {
+			logger.warn("Tried to get method " + LockRuntime.RUNTIME_REGISTER_THREAD_METHOD + " but couldn't find such a method");
+			throw new AssertionError(e);
 		}
 
-		VariableReference idRef = new VariableReference(Integer.class, 0);
-		test.addStatement(new PrimitiveStatement<Integer>(idRef, LockRuntime.getUniqueThreadID()),0);
-		List<VariableReference> paramsThreadRegistration = new ArrayList<VariableReference>();
-		paramsThreadRegistration.add(idRef);
-		test.addStatement(new MethodStatement(register, null, new VariableReference(Void.class, 1), paramsThreadRegistration), 1);
-		return test;
+
 	}
 
 	/**
