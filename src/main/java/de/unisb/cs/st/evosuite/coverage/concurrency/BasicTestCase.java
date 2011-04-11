@@ -125,7 +125,7 @@ public class BasicTestCase extends DefaultTestCase {
 				if(scope instanceof ConcurrentScope){
 					//Object o = scope.get(new VariableReference(retval.getType(), -1));
 					Object o = ((ConcurrentScope)scope).getSharedObject();
-					assert(retval.getClass().isAssignableFrom(o.getClass()));
+					assert(retval.getVariableClass().isAssignableFrom(o.getClass())) : "we want an " + retval.getVariableClass() + " but got an " + o.getClass();
 					scope.set(retval, o);
 				}else{
 					throw new AssertionError("Statements from " + BasicTestCase.class.getName() + " should only be executed with a concurrent scope");
