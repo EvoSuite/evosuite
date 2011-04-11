@@ -10,13 +10,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.Statement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
+import de.unisb.cs.st.evosuite.testcase.TestRunnable;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
@@ -152,15 +156,19 @@ public class ConcurrentTestCase implements TestCase{
 		b.toString() + "\n" +
 		"public void test"+id+"(){\n"+
 		"	Triangle var0 = new Triangle();\n"+
-		"	FutureTask<Void> c = new FutureTask<Void>(new ControllerRuntime(new SimpleScheduler(schedule"+id+"), 2));\n"+
-		"	FutureTask<Void> f1 = new FutureTask<Void>(new TestThread"+id+"(var0, 0));\n"+
-		"	FutureTask<Void> f2 = new FutureTask<Void>(new TestThread"+id+"(var0, 1));\n"+
-		"	new Thread(c).start();\n"+
-		"	new Thread(f1).start();\n"+
-		"	new Thread(f2).start();\n"+
-		"	try{\n"+
-		"    f1.get();\n"+
-		"    f2.get();\n"+
+		"	FutureTask<Void> c = new FutureTask<Void>(new ControllerRuntime(new SimpleScheduler(schedule"+id+"), " + ConcurrencyCoverageFactory.THREAD_COUNT + "));\n"+
+		"Set<FutureTask<Void>> testFutures = new HashSet<FutureTask<Void>>();\n" +
+		"for(int i=0 ; i<" + ConcurrencyCoverageFactory.THREAD_COUNT + " ; i++){\n" +
+		"	FutureTask<Void> testFuture = new FutureTask<Void>(new TestThread"+id+"(var0,i));\n"+
+		"	Thread testThread = new Thread(testFuture);\n" +
+		"	testThread.start();\n" +
+		"	testFutures.add(testFuture);\n" +
+		"}\n\n" +
+		
+		"	try{\n\n"+		
+		"		for(FutureTask<Void> testFuture : testFutures){\n"+
+		"		testFuture.get();\n"+
+		"		}\n\n"+
 		"    c.get();\n"+
 		"	}catch(Exception e){\n"+
 		"    e.printStackTrace();\n"+

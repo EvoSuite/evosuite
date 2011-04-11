@@ -36,6 +36,7 @@ public class ConcurrencyCoverageFactory implements TestFitnessFactory {
 	//#TODO should be in some nice place
 	//the string in Properties.CRITERION which signals that concurrent testCases should be created
 	public static final String CONCURRENCY_COVERAGE_CRITERIA="concurrency";
+	public static final int THREAD_COUNT=2;
 	
 	private static Logger logger = Logger.getLogger(ConcurrencyCoverageFactory.class);
 
@@ -47,7 +48,6 @@ public class ConcurrencyCoverageFactory implements TestFitnessFactory {
 	 */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
-		System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
 
 		//#TODO let us assume for a moment, that we only use the true jump of an if()
