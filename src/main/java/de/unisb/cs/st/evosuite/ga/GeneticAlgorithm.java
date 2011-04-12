@@ -20,6 +20,7 @@ package de.unisb.cs.st.evosuite.ga;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -73,17 +74,17 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	/**
 	 * Listeners
 	 */
-	protected List<SearchListener> listeners = new ArrayList<SearchListener>();
+	protected Set<SearchListener> listeners = new HashSet<SearchListener>();
 
 	/**
 	 * List of conditions on which to end the search
 	 */
-	protected List<StoppingCondition> stopping_conditions = new ArrayList<StoppingCondition>();
+	protected Set<StoppingCondition> stopping_conditions = new HashSet<StoppingCondition>();
 
 	/**
 	 * Bloat control, to avoid too long chromosomes
 	 */
-	protected List<BloatControlFunction> bloat_control = new ArrayList<BloatControlFunction>();
+	protected Set<BloatControlFunction> bloat_control = new HashSet<BloatControlFunction>();
 
 	/** Secondary objectives used during replacement */
 	protected final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();

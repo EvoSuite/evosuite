@@ -115,7 +115,7 @@ public class TestSuiteMinimizer {
 			for (TestFitnessFunction goal : goals) {
 				if (!covered.contains(goal) && goal.getFitness(test, result) == 0.0) { // TODO: 0.0 should not be hardcoded
 					covered.add(goal);
-//					test.test.addCoveredGoal(goal);
+					//					test.test.addCoveredGoal(goal);
 				}
 			}
 			num++;
@@ -186,9 +186,9 @@ public class TestSuiteMinimizer {
 
 		boolean size = false;
 		String strategy = Properties.getPropertyOrDefault("secondary_objectives",
-		                                                  "totallength");
+		                                                  "maxlength");
 		if (strategy.contains(":"))
-			strategy = strategy.substring(0, strategy.indexOf(';'));
+			strategy = strategy.substring(0, strategy.indexOf(':'));
 		if (strategy.equals("size"))
 			size = true;
 
@@ -245,10 +245,10 @@ public class TestSuiteMinimizer {
 					        + test.test.getStatement(i).getCode() + " from test " + num);
 					TestChromosome copy = (TestChromosome) test.clone();
 					try {
-						test.setChanged(true);
 						test_factory.deleteStatementGracefully(test.test, i);
-					} catch (ConstructionFailedException e) {
 						test.setChanged(true);
+					} catch (ConstructionFailedException e) {
+						test.setChanged(false);
 						test.test = copy.test;
 						logger.debug("Deleting failed");
 						continue;
@@ -257,14 +257,12 @@ public class TestSuiteMinimizer {
 					// logger.trace(test.test.toCode());
 
 					int new_fitness = 0;
-					if (false && branch)
+					if (branch)
 						new_fitness = getNumCoveredBranches(suite);
 					else
 						new_fitness = getNumCovered(suite);
 
 					if (new_fitness >= fitness) {
-						logger.debug("Fitness after removal: " + new_fitness + " ("
-						        + fitness + ")");
 						fitness = new_fitness;
 						changed = true;
 

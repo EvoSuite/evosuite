@@ -18,9 +18,6 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.apache.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.util.AbstractVisitor;
@@ -99,6 +96,7 @@ public class ExecutionTracer {
 	 */
 	public void clear() {
 		trace = new ExecutionTrace();
+		TestabilityTransformation.clearStack();
 		num_statements = 0;
 
 		//#TODO steenbuck: We should be able to register us somewhere, so that we're called before run is executed
@@ -516,7 +514,8 @@ public class ExecutionTracer {
 	}
 
 	/**
-	 * Called by instrumented code each time a variable gets written to (a Definition)  
+	 * Called by instrumented code each time a variable gets written to (a
+	 * Definition)
 	 */
 	public static void passedDefinition(String className, String varName, 
 			String methodName, Object caller, int branchID, int defID) {
@@ -525,7 +524,8 @@ public class ExecutionTracer {
 
 		ExecutionTracer tracer = getExecutionTracer();
 		if (!tracer.disabled)
-			tracer.trace.definitionPassed(className,varName,methodName,caller,branchID,defID);
+			tracer.trace.definitionPassed(className, varName, methodName, caller,
+			                              branchID, defID);
 	}
 
 	/**
@@ -538,7 +538,8 @@ public class ExecutionTracer {
 			return;
 		ExecutionTracer tracer = getExecutionTracer();
 		if (!tracer.disabled)
-			tracer.trace.usePassed(className,varName,methodName,caller,branchID,useID);
+			tracer.trace.usePassed(className, varName, methodName, caller, branchID,
+			                       useID);
 	}
 
 	public static void statementExecuted() {

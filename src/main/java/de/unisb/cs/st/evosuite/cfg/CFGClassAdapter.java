@@ -39,7 +39,6 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
  */
 public class CFGClassAdapter extends ClassAdapter {
 
-	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(CFGClassAdapter.class);
 
 	/** Current class */
@@ -63,11 +62,11 @@ public class CFGClassAdapter extends ClassAdapter {
 	 * java.lang.String, java.lang.String, java.lang.String[])
 	 */
 	@Override
-	public MethodVisitor visitMethod(int methodAccess, String name,
-	        String descriptor, String signature, String[] exceptions) {
+	public MethodVisitor visitMethod(int methodAccess, String name, String descriptor,
+	        String signature, String[] exceptions) {
 
-		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor,
-		                                     signature, exceptions);
+		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor, signature,
+		                                     exceptions);
 
 		if ((methodAccess & Opcodes.ACC_SYNTHETIC) > 0
 		        || (methodAccess & Opcodes.ACC_BRIDGE) > 0) {
@@ -76,7 +75,7 @@ public class CFGClassAdapter extends ClassAdapter {
 
 		if (!Properties.USE_DEPRECATED
 		        && (methodAccess & Opcodes.ACC_DEPRECATED) == Opcodes.ACC_DEPRECATED) {
-			logger.info("Skipping deprecated method");
+			logger.info("Skipping deprecated method " + name);
 			return mv;
 		}
 		String classNameWithDots = className.replace('/', '.');
@@ -86,8 +85,8 @@ public class CFGClassAdapter extends ClassAdapter {
 			mutants = switcher.getMutants();
 		}
 
-		mv = new CFGMethodAdapter(classNameWithDots, methodAccess, name,
-		        descriptor, signature, exceptions, mv, mutants);
+		mv = new CFGMethodAdapter(classNameWithDots, methodAccess, name, descriptor,
+		        signature, exceptions, mv, mutants);
 		/*
 				if (!exclude) {
 					if(false) {

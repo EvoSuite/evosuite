@@ -20,8 +20,8 @@ package de.unisb.cs.st.evosuite.assertion;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -58,24 +58,28 @@ public class PrimitiveFieldTraceObserver extends ExecutionObserver {
 		Object object = scope.get(retval);
 		if (object != null && !object.getClass().isPrimitive()
 		        && !object.getClass().isEnum() && !isWrapperType(object.getClass())) {
-			List<Object> fields = new ArrayList<Object>();
-			List<Field> valid_fields = new ArrayList<Field>();
+			//List<Object> fields = new ArrayList<Object>();
+			//List<Field> valid_fields = new ArrayList<Field>();
+			Map<Field, Object> fieldMap = new HashMap<Field, Object>();
+
 			for (Field field : retval.getVariableClass().getFields()) {
 				// TODO Check for wrapper types
 				if ((!Modifier.isProtected(field.getModifiers()) && !Modifier.isPrivate(field.getModifiers()))
 				        && !field.getType().equals(void.class)
 				        && field.getType().isPrimitive()) {
 					try {
-						fields.add(field.get(object)); // TODO: Create copy
-						valid_fields.add(field);
+						fieldMap.put(field, field.get(object));
+						//fields.add(field.get(object)); // TODO: Create copy
+						//valid_fields.add(field);
 					} catch (IllegalArgumentException e) {
 					} catch (IllegalAccessException e) {
 					}
 				}
 			}
-			if (!trace.fields.containsKey(statement.getPosition()))
-				trace.fields.put(retval.getType(), valid_fields);
-			trace.trace.put(statement.getPosition(), fields);
+			//if (!trace.fields.containsKey(statement.getPosition()))
+			//	trace.fields.put(retval.getType(), valid_fields);
+			//trace.trace.put(statement.getPosition(), fields);
+			trace.fieldMap.put(statement.getPosition(), fieldMap);
 		}
 	}
 

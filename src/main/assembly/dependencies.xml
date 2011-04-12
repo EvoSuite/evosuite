@@ -10,6 +10,10 @@
     <dependencySet>
       <outputDirectory>/</outputDirectory>
       <useProjectArtifact>true</useProjectArtifact>
+      <excludes>
+        <exclude>jpf:jpf-annotations</exclude>
+        <exclude>jpf:jpf-classes</exclude>
+      </excludes>
       <unpack>true</unpack>
       <unpackOptions>
         <excludes>

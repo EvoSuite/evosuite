@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 /**
  * @author Gordon Fraser
@@ -23,6 +24,8 @@ public class ContractChecker extends ExecutionObserver {
 	private final Set<Contract> contracts = new HashSet<Contract>();
 
 	private final Set<ContractViolation> violations = new HashSet<ContractViolation>();
+
+	private static boolean valid = true;
 
 	public ContractChecker() {
 		contracts.add(new EqualsContract());
@@ -42,15 +45,23 @@ public class ContractChecker extends ExecutionObserver {
 
 	}
 
+	public static void currentTest(TestCase test) {
+		currentTest = test;
+		valid = true;
+	}
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.ExecutionObserver#statement(int, de.unisb.cs.st.evosuite.testcase.Scope, de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	public void statement(Statement statement, Scope scope, Throwable exception) {
-		logger.warn("Checking contracts ");
+		if (!valid)
+			logger.info("Skipping contract checking because test already violated a contract");
+		// TODO: Only check contracts if the test hasn't already violated any other contracts
 		for (Contract contract : contracts) {
 			try {
 				if (!contract.check(statement, scope, exception)) {
+					valid = false;
 					ContractViolation violation = new ContractViolation(contract,
 					        ExecutionObserver.getCurrentTest(), statement, exception);
 					// TODO: A contract violation should not include objects that already violated another contract (i.e., once an object raises a nullpointerexception any further nullpointerexceptions are to be expected)

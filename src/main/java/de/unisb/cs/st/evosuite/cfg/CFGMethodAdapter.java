@@ -48,32 +48,30 @@ import de.unisb.cs.st.testability.TransformationHelper;
 
 /**
  * At the end of each method, create a minimized control flow graph for the
- * method and store it. 
- * In addition, this adapter also adds instrumentation for branch distance measurement
+ * method and store it. In addition, this adapter also adds instrumentation for
+ * branch distance measurement
  * 
- * defUse, concurrency and LCSAJs instrumentation is also added (if the properties are set).
+ * defUse, concurrency and LCSAJs instrumentation is also added (if the
+ * properties are set).
  * 
  * @author Gordon Fraser
  * 
  */
 public class CFGMethodAdapter extends AbstractMutationAdapter {
 
-
-	private MethodVisitor next;
-	private String plain_name;
-	private List<Mutation> mutants;
+	private final MethodVisitor next;
+	private final String plain_name;
+	private final List<Mutation> mutants;
 	private int access = 0;
 
 	public static final List<String> EXCLUDE = Arrays.asList("<clinit>",
-			"__STATIC_RESET()V",
-	"__STATIC_RESET");
+	                                                         "__STATIC_RESET()V",
+	                                                         "__STATIC_RESET");
 
 	/**
-	 * The set of all methods which 
+	 * The set of all methods which
 	 */
 	public static Set<String> methods = new HashSet<String>();
-
-
 
 	private static Map<String, Map<String, ControlFlowGraph>> completeGraphs = new HashMap<String, Map<String, ControlFlowGraph>>();
 	private static Map<String, Map<String, ControlFlowGraph>> graphs = new HashMap<String, Map<String, ControlFlowGraph>>();
@@ -83,12 +81,11 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 	private final String methodName, className;
 
-
 	public CFGMethodAdapter(String className, int access, String name, String desc,
-			String signature, String[] exceptions, MethodVisitor mv,
-			List<Mutation> mutants) {
+	        String signature, String[] exceptions, MethodVisitor mv,
+	        List<Mutation> mutants) {
 		super(new MethodNode(access, name, desc, signature, exceptions), className,
-				name.replace('/', '.'), null, desc);
+		        name.replace('/', '.'), null, desc);
 		this.next = mv;
 		this.className = className; // .replace('/', '.');
 		this.access = access;
@@ -99,7 +96,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 	@Override
 	public void visitEnd() {
-		
+
 		boolean isExcludedMethod = EXCLUDE.contains(methodName);
 		boolean isMainMethod = plain_name.equals("main") && Modifier.isStatic(access);
 
@@ -107,30 +104,32 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 		instrumentations.add(new BranchInstrumentation());
 
-		if(Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)){
+		if (Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)) {
 			instrumentations.add(new ConcurrencyInstrumentation());
-		}else if(Properties.CRITERION.equalsIgnoreCase("lcsaj")){
+		} else if (Properties.CRITERION.equalsIgnoreCase("lcsaj")) {
 			instrumentations.add(new LCSAJsInstrumentation());
-		}else if(Properties.CRITERION.equalsIgnoreCase("defuse")){
+		} else if (Properties.CRITERION.equalsIgnoreCase("defuse")) {
 			instrumentations.add(new DefUseInstrumentation());
+		} else if (Properties.CRITERION.equalsIgnoreCase("path")) {
+			instrumentations.add(new PrimePathInstrumentation());
 		}
 
 		boolean executeOnMain = false;
 		boolean executeOnExcluded = false;
 
-		for(MethodInstrumentation instrumentation : instrumentations){
+		for (MethodInstrumentation instrumentation : instrumentations) {
 			executeOnMain = executeOnMain || instrumentation.executeOnMainMethod();
-			executeOnExcluded = executeOnExcluded || instrumentation.executeOnExcludedMethods();
+			executeOnExcluded = executeOnExcluded
+			        || instrumentation.executeOnExcludedMethods();
 		}
 
 		// super.visitEnd();
 		// Generate CFG of method
 		MethodNode mn = (MethodNode) mv;
-		
+
 		//Only instrument if the method is (not main and not excluded) or (the MethodInstrumentation wants it anyway)
-		if((!isMainMethod || executeOnMain) &&
-				(!isExcludedMethod || executeOnExcluded)){
-			
+		if ((!isMainMethod || executeOnMain) && (!isExcludedMethod || executeOnExcluded)) {
+
 			// MethodNode mn = new CFGMethodNode((MethodNode)mv);
 			// System.out.println("Generating CFG for "+ className+"."+mn.name +
 			// " ("+mn.desc +")");
@@ -140,11 +139,11 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			try {
 				g.getCFG(className, methodName, mn);
 				logger.trace("Method graph for " + className + "." + methodName
-						+ " contains " + g.getGraph().vertexSet().size() + " nodes for "
-						+ g.getFrames().length + " instructions");
+				        + " contains " + g.getGraph().vertexSet().size() + " nodes for "
+				        + g.getFrames().length + " instructions");
 			} catch (AnalyzerException e) {
 				logger.warn("Analyzer exception while analyzing " + className + "."
-						+ methodName);
+				        + methodName);
 				e.printStackTrace();
 			}
 
@@ -157,7 +156,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			// if(!Properties.MUTATION) {
 			Graph<CFGVertex, DefaultEdge> graph = g.getGraph();
 
-			for(MethodInstrumentation instrumentation : instrumentations){
+			for (MethodInstrumentation instrumentation : instrumentations) {
 				instrumentation.analyze(mn, graph, className, methodName, access);
 			}
 
@@ -190,21 +189,15 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		}
 	}
 
-
-	/**
-	 * Returns true if the this method is callable on the object.
-	 * e.g. Object.method(...)
-	 * not an constructor, initializer, synthetic...
-	 * @return
-	 */
 	private boolean isUsable() {
 		return !((this.access & Opcodes.ACC_SYNTHETIC) > 0 || (this.access & Opcodes.ACC_BRIDGE) > 0)
-		&& !methodName.contains("<clinit>")
-		&& !(methodName.contains("<init>") && (access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE);
+		        && !methodName.contains("<clinit>")
+		        && !(methodName.contains("<init>") && (access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE)
+		        && (Properties.USE_DEPRECATED || (access & Opcodes.ACC_DEPRECATED) != Opcodes.ACC_DEPRECATED);
 	}
 
 	public static void addCFG(String classname, String methodname,
-			DirectedMultigraph<CFGVertex, DefaultEdge> graph) {
+	        DirectedMultigraph<CFGVertex, DefaultEdge> graph) {
 		if (!graphs.containsKey(classname)) {
 			graphs.put(classname, new HashMap<String, ControlFlowGraph>());
 			diameters.put(classname, new HashMap<String, Double>());
@@ -213,31 +206,33 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		logger.debug("Added CFG for class " + classname + " and method " + methodname);
 		methods.put(methodname, new ControlFlowGraph(graph, true));
 		FloydWarshall<CFGVertex, DefaultEdge> f = new FloydWarshall<CFGVertex, DefaultEdge>(
-				graph);
+		        graph);
 		diameters.get(classname).put(methodname, f.getDiameter());
 		logger.debug("Calculated diameter for " + classname + ": " + f.getDiameter());
 	}
 
 	public static void addCompleteCFG(String classname, String methodname,
-			DefaultDirectedGraph<CFGVertex, DefaultEdge> graph) {
+	        DefaultDirectedGraph<CFGVertex, DefaultEdge> graph) {
 		if (!completeGraphs.containsKey(classname)) {
 			completeGraphs.put(classname, new HashMap<String, ControlFlowGraph>());
 		}
 		Map<String, ControlFlowGraph> methods = completeGraphs.get(classname);
 		logger.debug("Added complete CFG for class " + classname + " and method "
-				+ methodname);
+		        + methodname);
 		methods.put(methodname, new ControlFlowGraph(graph, false));
+		//ControlFlowGraph cfg = new ControlFlowGraph(graph, false);
+		//cfg.toDot(classname + "_" + methodname + ".dot");
 	}
 
 	public static ControlFlowGraph getCFG(String classname, String methodname) {
 		logger.debug("Getting CFG for class " + classname + " and method " + methodname);
-		if(graphs.get(classname)==null)
+		if (graphs.get(classname) == null)
 			return null;
 		return graphs.get(classname).get(methodname);
 	}
 
 	public static ControlFlowGraph getCompleteCFG(String classname, String methodname) {
-		if(completeGraphs.get(classname)==null)
+		if (completeGraphs.get(classname) == null)
 			return null;
 		return completeGraphs.get(classname).get(methodname);
 	}
