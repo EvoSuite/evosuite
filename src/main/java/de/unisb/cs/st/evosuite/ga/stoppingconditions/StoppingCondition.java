@@ -18,8 +18,10 @@
 
 package de.unisb.cs.st.evosuite.ga.stoppingconditions;
 
+import java.text.NumberFormat;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -36,6 +38,10 @@ public abstract class StoppingCondition implements SearchListener {
 
 	protected static Logger logger = Logger.getLogger(StoppingCondition.class);
 
+	public StoppingCondition() {
+		reset();
+	}
+	
 	public abstract boolean isFinished();
 
 	/*
@@ -125,8 +131,19 @@ public abstract class StoppingCondition implements SearchListener {
 		try { // just to make sure
 			type = type.substring(type.lastIndexOf(".")+1);
 		} catch(Exception e) {}
+		type = type.substring(0,type.length()-17); // cut away "StoppingCondition" suffix
+		type+=" :";
+		type = StringUtils.rightPad(type, 24);
 		r.append(type);
-		r.append(": "+getCurrentValue()+"/"+getLimit());
+//		if(type.length()<27)
+//			r.append("\t");
+//		if(type.length()<31)
+//			r.append("\t");
+		String value = NumberFormat.getIntegerInstance().format(getCurrentValue());
+		value = StringUtils.leftPad(value,12);
+		String limit = NumberFormat.getIntegerInstance().format(getLimit());
+		limit = StringUtils.rightPad(limit,12);
+		r.append(value+" / "+limit);
 		if(isFinished())
 			r.append(" - Finished!");
 		

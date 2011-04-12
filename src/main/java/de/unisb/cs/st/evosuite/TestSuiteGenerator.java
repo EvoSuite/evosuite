@@ -66,6 +66,8 @@ import de.unisb.cs.st.evosuite.ga.TournamentSelection;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxFitnessEvaluationsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
@@ -75,8 +77,6 @@ import de.unisb.cs.st.evosuite.mutation.MutationSuiteFitness;
 import de.unisb.cs.st.evosuite.mutation.MutationTimeoutStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
-import de.unisb.cs.st.evosuite.testcase.MaxStatementsStoppingCondition;
-import de.unisb.cs.st.evosuite.testcase.MaxTestsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
@@ -110,6 +110,8 @@ public class TestSuiteGenerator {
 	private final SearchStatistics statistics = SearchStatistics.getInstance();
 
 	private final ZeroFitnessStoppingCondition zero_fitness = new ZeroFitnessStoppingCondition();
+	
+	private final GlobalTimeStoppingCondition global_time = new GlobalTimeStoppingCondition();
 
 	private StoppingCondition stopping_condition;
 	
@@ -336,13 +338,14 @@ public class TestSuiteGenerator {
 			}
 			num++;
 		}
-		if (covered_goals > 0) {
+		if (covered_goals > 0)
 			System.out.println("* Random bootstrapping covered " + covered_goals
 			        + " test goals");
-		}
-
-		GlobalTimeStoppingCondition global_time = new GlobalTimeStoppingCondition();
+		
 		int total_goals = goals.size();
+		if(covered_goals == total_goals)
+			zero_fitness.setFinished();
+
 		int current_budget = 0;
 
 		int total_budget = Properties.GENERATIONS;
@@ -688,7 +691,7 @@ public class TestSuiteGenerator {
 		// ga.addListener(stopping_condition);
 		if (Properties.getPropertyOrDefault("stop_zero", true))
 			ga.addStoppingCondition(zero_fitness);
-		ga.addStoppingCondition(new GlobalTimeStoppingCondition());
+		ga.addStoppingCondition(global_time);
 		if (Properties.MUTATION)
 			ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
 
