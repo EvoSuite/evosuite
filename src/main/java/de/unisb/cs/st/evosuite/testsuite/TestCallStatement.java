@@ -14,7 +14,7 @@ import java.util.Set;
 
 import org.objectweb.asm.commons.GeneratorAdapter;
 
-import de.unisb.cs.st.evosuite.testcase.MaxStatementsStoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.Statement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;

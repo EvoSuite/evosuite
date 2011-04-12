@@ -37,7 +37,7 @@ public class MaxTimeStoppingCondition extends StoppingCondition {
 	protected int max_seconds = Properties.getPropertyOrDefault("generations", 1000);
 
 	
-	protected long start_time = 0L;
+	protected long start_time;
 	
 	public void searchStarted(FitnessFunction objective) {
 		start_time = System.currentTimeMillis();
@@ -105,7 +105,7 @@ public class MaxTimeStoppingCondition extends StoppingCondition {
      */
     @Override
     public int getCurrentValue() {
-		long current_time = System.currentTimeMillis();
+    	long current_time = System.currentTimeMillis();
 		return (int)((current_time - start_time) / 1000);
     }
 

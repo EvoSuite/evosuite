@@ -20,7 +20,7 @@ public class GlobalTimeStoppingCondition extends StoppingCondition {
 	
 	public void searchStarted(FitnessFunction objective) {
 		if(start_time == 0)
-			start_time = System.currentTimeMillis();
+			reset();
 	}
 	
 	/* (non-Javadoc)
@@ -52,8 +52,7 @@ public class GlobalTimeStoppingCondition extends StoppingCondition {
 	 */
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
-
+		start_time = System.currentTimeMillis();
 	}
 
 	/* (non-Javadoc)

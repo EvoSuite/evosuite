@@ -78,5 +78,8 @@ public class ZeroFitnessStoppingCondition extends StoppingCondition {
 	    return (int)(last_fitness+0.5);
     }
 
+    public void setFinished() {
+    	last_fitness = 0.0;
+    }
 
 }
