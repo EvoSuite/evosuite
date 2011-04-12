@@ -98,11 +98,13 @@
         <groupId>jpf</groupId>
         <artifactId>jpf-annotations</artifactId>
         <version>5.0pre2-EvoSuite-2</version>
+        <scope>runtime</scope>
       </dependency>
       <dependency>
         <groupId>jpf</groupId>
         <artifactId>jpf-classes</artifactId>
         <version>5.0pre2-EvoSuite-2</version>
+        <scope>runtime</scope>
       </dependency>
       <dependency>
         <groupId>de.unisb.cs.st</groupId>
