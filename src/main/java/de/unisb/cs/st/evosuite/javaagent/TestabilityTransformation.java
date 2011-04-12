@@ -830,8 +830,23 @@ public class TestabilityTransformation {
 				// TODO: This doesn't belong in here
 				TypeInsnNode tn = (TypeInsnNode) node;
 				if (tn.getOpcode() == Opcodes.INSTANCEOF) {
-					LdcInsnNode lin = new LdcInsnNode(Type.getType("L" + tn.desc + ";"));
-					mn.instructions.insertBefore(node, lin);
+					Type t = Type.getType("L" + tn.desc + ";");
+					logger.info("Class version " + cn.version);
+					if (cn.version > 49) {
+						LdcInsnNode lin = new LdcInsnNode(Type.getType("L" + tn.desc
+						        + ";"));
+						mn.instructions.insertBefore(node, lin);
+					} else {
+						LdcInsnNode lin = new LdcInsnNode(tn.desc.replace("/", "."));
+						mn.instructions.insertBefore(node, lin);
+						MethodInsnNode n = new MethodInsnNode(
+						        Opcodes.INVOKESTATIC,
+						        Type.getInternalName(Class.class),
+						        "forName",
+						        Type.getMethodDescriptor(Type.getType(Class.class),
+						                                 new Type[] { Type.getType(String.class) }));
+						mn.instructions.insertBefore(node, n);
+					}
 					MethodInsnNode n = new MethodInsnNode(Opcodes.INVOKESTATIC,
 					        Type.getInternalName(TestabilityTransformation.class),
 					        "instanceOf",
@@ -1003,7 +1018,7 @@ public class TestabilityTransformation {
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
 						                                         Type.getType(String.class),
-						                                         Type.getType(String.class) }));
+						                                         Type.getType(Object.class) }));
 						mn.instructions.insertBefore(node, equalCheck);
 						mn.instructions.remove(node);
 
@@ -1020,7 +1035,7 @@ public class TestabilityTransformation {
 						mn.instructions.remove(node);
 
 					} else if (min.name.equals("startsWith")) {
-						if (min.desc.equals("(Ljava/lang/String;I)Z")) {
+						if (min.desc.equals("(Ljava/lang/String;)Z")) {
 							mn.instructions.insertBefore(node, new InsnNode(
 							        Opcodes.ICONST_0));
 						}
@@ -1222,6 +1237,49 @@ public class TestabilityTransformation {
 			logger.info("Changing IFEQ");
 			node.setOpcode(Opcodes.IFLE);
 			flagNodes.add(node);
+		}
+	}
+
+	private void transformBitwiseOperators(MethodNode mn) {
+		AbstractInsnNode node = mn.instructions.getFirst();
+
+		while (node != mn.instructions.getLast()) {
+			AbstractInsnNode next = node.getNext();
+			if (node instanceof InsnNode) {
+				if (isBooleanAssignment(node, mn)) {
+					if (node.getOpcode() == Opcodes.IOR) {
+						MethodInsnNode push = new MethodInsnNode(Opcodes.INVOKESTATIC,
+						        Type.getInternalName(TestabilityTransformation.class),
+						        "IOR", Type.getMethodDescriptor(Type.INT_TYPE,
+						                                        new Type[] {
+						                                                Type.INT_TYPE,
+						                                                Type.INT_TYPE }));
+						mn.instructions.insertBefore(node, push);
+						mn.instructions.remove(node);
+					} else if (node.getOpcode() == Opcodes.IAND) {
+						MethodInsnNode push = new MethodInsnNode(Opcodes.INVOKESTATIC,
+						        Type.getInternalName(TestabilityTransformation.class),
+						        "IAND", Type.getMethodDescriptor(Type.INT_TYPE,
+						                                         new Type[] {
+						                                                 Type.INT_TYPE,
+						                                                 Type.INT_TYPE }));
+						mn.instructions.insertBefore(node, push);
+						mn.instructions.remove(node);
+
+					} else if (node.getOpcode() == Opcodes.IXOR) {
+						MethodInsnNode push = new MethodInsnNode(Opcodes.INVOKESTATIC,
+						        Type.getInternalName(TestabilityTransformation.class),
+						        "IXOR", Type.getMethodDescriptor(Type.INT_TYPE,
+						                                         new Type[] {
+						                                                 Type.INT_TYPE,
+						                                                 Type.INT_TYPE }));
+						mn.instructions.insertBefore(node, push);
+						mn.instructions.remove(node);
+
+					}
+				}
+			}
+			node = next;
 		}
 	}
 
@@ -1569,6 +1627,8 @@ public class TestabilityTransformation {
 			// Change signatures of fields and methods with Booleans
 			transformCalls(mn);
 
+			transformBitwiseOperators(mn);
+
 			transformBooleanReturns(mn);
 
 			// Convert information about local variables (only needed for debugging really)
@@ -1601,6 +1661,44 @@ public class TestabilityTransformation {
 			return o != null ? K : -K;
 	}
 
+	public static int IOR(int a, int b) {
+		int ret = 0;
+		if (a > 0 || b > 0) {
+			// True
+
+			ret = a;
+			if (b > 0 && b < a)
+				ret = b;
+		} else {
+			// False
+
+			ret = a;
+			if (b > a)
+				ret = b;
+		}
+
+		return ret;
+	}
+
+	public static int IAND(int a, int b) {
+		return Math.min(a, b);
+	}
+
+	public static int IXOR(int a, int b) {
+		int ret = 0;
+		if (a > 0 && b <= 0) {
+			// True
+			ret = a;
+		} else if (b > 0 && a <= 0) {
+			ret = b;
+		} else {
+			// False
+			ret = -Math.abs(a - b);
+		}
+
+		return ret;
+	}
+
 	public static int isEqual(Object o1, Object o2, int opcode) {
 		if (opcode == Opcodes.IF_ACMPEQ)
 			return o1 == o2 ? K : -K;
@@ -1621,6 +1719,15 @@ public class TestabilityTransformation {
 	public static void methodLeft() {
 		if (!stackStack.isEmpty())
 			distanceStack = stackStack.pop();
+		else
+			distanceStack = null;
+	}
+
+	public static void clearStack() {
+		if (!stackStack.isEmpty())
+			stackStack.clear();
+		if (distanceStack != null)
+			distanceStack.clear();
 	}
 
 	public static void pushPredicate(int distance) {
@@ -1810,11 +1917,11 @@ public class TestabilityTransformation {
 		return d[n][m];
 	}
 
-	public static int StringEquals(String first, String second) {
+	public static int StringEquals(String first, Object second) {
 		if (first.equals(second))
 			return K; // Identical
 		else {
-			return -editDistance(first, second);
+			return -editDistance(first, second.toString());
 		}
 	}
 
@@ -1824,23 +1931,22 @@ public class TestabilityTransformation {
 
 	public static int StringStartsWith(String value, String prefix, int start) {
 		int len = Math.min(prefix.length(), value.length());
-		return StringEquals(value.substring(start, len), prefix);
+		return StringEquals(value.substring(start, start + len), prefix);
 	}
 
 	public static int StringEndsWith(String value, String suffix) {
 		int len = Math.min(suffix.length(), value.length());
-		String other = value.substring(value.length() - len);
-		if (other.length() != suffix.length())
-			logger.error("Error in string comparison - should subtract - 1");
-		return StringEquals(other, suffix); // TODO: -1?
+		String val1 = value.substring(value.length() - len);
+		return StringEquals(val1, suffix);
 	}
 
 	public static int StringIsEmpty(String value) {
 		int len = value.length();
-		if (len == 0)
+		if (len == 0) {
 			return K;
-		else
+		} else {
 			return -len;
+		}
 	}
 
 	public static int StringRegionMatches(String value, int thisStart, String string,

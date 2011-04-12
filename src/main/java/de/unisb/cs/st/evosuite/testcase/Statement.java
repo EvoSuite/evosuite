@@ -228,6 +228,13 @@ public abstract class Statement {
 	}
 
 	/**
+	 * Delete assertion attached to this statement
+	 */
+	public void removeAssertion(Assertion assertion) {
+		assertions.remove(assertion);
+	}
+
+	/**
 	 * Return list of assertions
 	 */
 	public Set<Assertion> getAssertions() {

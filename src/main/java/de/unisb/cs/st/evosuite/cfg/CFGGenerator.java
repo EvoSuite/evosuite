@@ -126,6 +126,32 @@ public class CFGGenerator extends Analyzer {
 			return isJump() && !isGoto();
 		}
 
+		public boolean isLabel() {
+			return node instanceof LabelNode;
+		}
+
+		public boolean isReturn() {
+			switch (node.getOpcode()) {
+			case Opcodes.RETURN:
+			case Opcodes.ARETURN:
+			case Opcodes.IRETURN:
+			case Opcodes.LRETURN:
+			case Opcodes.DRETURN:
+			case Opcodes.FRETURN:
+				return true;
+			default:
+				return false;
+			}
+		}
+
+		public boolean isThrow() {
+			if (node.getOpcode() == Opcodes.ATHROW) {
+				// TODO: Need to check if this is a caught exception?
+				return true;
+			}
+			return false;
+		}
+
 		public boolean isTableSwitch() {
 			return (node instanceof TableSwitchInsnNode);
 		}
@@ -228,11 +254,11 @@ public class CFGGenerator extends Analyzer {
 		public boolean isFieldDU() {
 			return isFieldDefinition() || isFieldUse();
 		}
-		
+
 		public boolean isLocalDU() {
 			return isLocalVarDefinition() || isLocalVarUse();
-		}		
-		
+		}
+
 		public boolean isLocalVarDefinition() {
 			return node.getOpcode() == Opcodes.ISTORE
 			        || node.getOpcode() == Opcodes.LSTORE
@@ -243,8 +269,7 @@ public class CFGGenerator extends Analyzer {
 		}
 
 		public boolean isLocalVarUse() {
-			return node.getOpcode() == Opcodes.ILOAD 
-					|| node.getOpcode() == Opcodes.LLOAD
+			return node.getOpcode() == Opcodes.ILOAD || node.getOpcode() == Opcodes.LLOAD
 			        || node.getOpcode() == Opcodes.FLOAD
 			        || node.getOpcode() == Opcodes.DLOAD
 			        || node.getOpcode() == Opcodes.ALOAD
@@ -277,7 +302,7 @@ public class CFGGenerator extends Analyzer {
 		public boolean isParameterUse() {
 			return isParameterUse;
 		}
-		
+
 		public String getFieldName() {
 			return ((FieldInsnNode) node).name;
 		}

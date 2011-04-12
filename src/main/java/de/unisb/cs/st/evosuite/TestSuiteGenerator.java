@@ -28,6 +28,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.assertion.AssertionGenerator;
+import de.unisb.cs.st.evosuite.assertion.MutationAssertionGenerator;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
 import de.unisb.cs.st.evosuite.coverage.FitnessLogger;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
@@ -41,6 +42,8 @@ import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.path.PrimePathCoverageFactory;
+import de.unisb.cs.st.evosuite.coverage.path.PrimePathSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.CrossOverFunction;
@@ -81,6 +84,8 @@ import de.unisb.cs.st.evosuite.testcase.TestCaseMinimizer;
 import de.unisb.cs.st.evosuite.testcase.TestCaseReplacementFunction;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
+import de.unisb.cs.st.evosuite.testsuite.MinimizeAverageLengthSecondaryObjective;
+import de.unisb.cs.st.evosuite.testsuite.MinimizeExceptionsSecondaryObjective;
 import de.unisb.cs.st.evosuite.testsuite.MinimizeMaxLengthSecondaryObjective;
 import de.unisb.cs.st.evosuite.testsuite.MinimizeTotalLengthSecondaryObjective;
 import de.unisb.cs.st.evosuite.testsuite.RelativeLengthBloatControl;
@@ -123,14 +128,18 @@ public class TestSuiteGenerator {
 			tests = generateIndividualTests();
 
 		if (Properties.MUTATION) {
-			AssertionGenerator asserter = new AssertionGenerator();
+			MutationAssertionGenerator asserter = new MutationAssertionGenerator();
 			Set<Long> killed = new HashSet<Long>();
 			for (TestCase test : tests) {
 				asserter.addAssertions(test, killed);
 			}
 			asserter.writeStatistics();
 			System.out.println("Killed: " + killed.size() + "/" + asserter.numMutants());
-
+		} else if (Properties.ASSERTIONS) {
+			AssertionGenerator asserter = AssertionGenerator.getDefaultGenerator();
+			for (TestCase test : tests) {
+				asserter.addAssertions(test);
+			}
 		}
 
 		if (Properties.getPropertyOrDefault("junit_tests", true)) {
@@ -211,6 +220,9 @@ public class TestSuiteGenerator {
 		} else if (Properties.CRITERION.equalsIgnoreCase("defuse")) {
 			System.out.println("* Test criterion: All DU Pairs");
 			return new DefUseCoverageSuiteFitness();
+		} else if (Properties.CRITERION.equalsIgnoreCase("path")) {
+			System.out.println("* Test criterion: Prime Path");
+			return new PrimePathSuiteFitness();
 		}else if(Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)){
 			System.out.println("* Test criterion: Concurrent Test Case *");
 			return new ConcurrencySuitCoverage();
@@ -230,6 +242,9 @@ public class TestSuiteGenerator {
 		} else if (Properties.CRITERION.equalsIgnoreCase("defuse")) {
 			System.out.println("* Test criterion: All DU Pairs");
 			return new DefUseCoverageFactory();
+		} else if (Properties.CRITERION.equalsIgnoreCase("path")) {
+			System.out.println("* Test criterion: Prime Path");
+			return new PrimePathCoverageFactory();
 		} else {
 			System.out.println("* Test criterion: Branch coverage");
 			return new BranchCoverageFactory();
@@ -369,7 +384,8 @@ public class TestSuiteGenerator {
 				}
 
 				if (global_time.isFinished()) {
-					logger.info("Skipping goal because time is up");
+					System.out.println("Skipping goal because time is up");
+					num++;
 					continue;
 				}
 
@@ -596,7 +612,9 @@ public class TestSuiteGenerator {
 		else if (name.equalsIgnoreCase("maxlength"))
 			return new MinimizeMaxLengthSecondaryObjective();
 		else if (name.equalsIgnoreCase("averagelength"))
-			return new MinimizeMaxLengthSecondaryObjective();
+			return new MinimizeAverageLengthSecondaryObjective();
+		else if (name.equalsIgnoreCase("exceptions"))
+			return new MinimizeExceptionsSecondaryObjective();
 		else
 			// default: totallength
 			return new MinimizeTotalLengthSecondaryObjective();
@@ -609,7 +627,7 @@ public class TestSuiteGenerator {
 			algorithm.addSecondaryObjective(objective);
 		} else {
 			String objectives = Properties.getPropertyOrDefault("secondary_objectives",
-			                                                    "totallength");
+			                                                    "maxlength");
 			for (String name : objectives.split(":")) {
 				SecondaryObjective objective = getSecondaryObjective(name);
 				Chromosome.addSecondaryObjective(objective);
@@ -707,7 +725,7 @@ public class TestSuiteGenerator {
 			// TODO also, question: is branchMap.size() really intended here? 
 			// I think BranchPool.getBranchCount() was intended
 			Properties.GENERATIONS = Properties.GENERATIONS
-			        * (BranchPool.getBranchlessMethods().size() + BranchPool.branchMap.size() * 2);
+			        * (BranchPool.getBranchlessMethods().size() + BranchPool.getBranchCounter() * 2); // TODO question: is branchMap.size() really what wanted here? I think BranchPool.getBranchCount() was intended here
 			stopping_condition.setLimit(Properties.GENERATIONS);
 			logger.info("Setting dynamic length limit to " + Properties.GENERATIONS);
 		}
