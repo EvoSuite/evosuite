@@ -19,6 +19,8 @@ public class UnitAssertionGenerator extends AssertionGenerator {
 		// Always allow assertions on the last statement
 		if (s.getPosition() == (t.size() - 1))
 			return true;
+
+		// Allow assertions after method calls on the UUT
 		if (s instanceof MethodStatement) {
 			MethodStatement ms = (MethodStatement) s;
 			String declaringClass = ms.getMethod().getDeclaringClass().getName();

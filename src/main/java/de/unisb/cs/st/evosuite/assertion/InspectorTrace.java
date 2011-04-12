@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.OutputTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
@@ -41,9 +42,12 @@ public class InspectorTrace extends OutputTrace {
 	Map<Integer, VariableReference> return_values = new HashMap<Integer, VariableReference>();
 	Map<Integer, List<Object>> inspector_results = new HashMap<Integer, List<Object>>();
 
+	public Map<Integer, Map<Inspector, Object>> calleeMap = new HashMap<Integer, Map<Inspector, Object>>();
+
 	public void clear() {
 		return_values.clear();
 		inspector_results.clear();
+		calleeMap.clear();
 	}
 
 	@Override
@@ -56,6 +60,7 @@ public class InspectorTrace extends OutputTrace {
 
 		for (Entry<Integer, VariableReference> e : return_values.entrySet())
 			trace.return_values.put(e.getKey(), e.getValue().clone());
+		trace.calleeMap.putAll(calleeMap);
 
 		//trace.return_values.putAll(return_values);
 		//trace.inspector_results.putAll(inspector_results);
@@ -125,6 +130,27 @@ public class InspectorTrace extends OutputTrace {
 							num_assertions++;
 						}
 
+					}
+				}
+			}
+			if (calleeMap.containsKey(line) && other.calleeMap.containsKey(line)) {
+				Map<Inspector, Object> own_values = calleeMap.get(line);
+				Map<Inspector, Object> other_values = other.calleeMap.get(line);
+				MethodStatement ms = (MethodStatement) test.getStatement(line);
+				VariableReference callee = ms.getCallee();
+				for (Entry<Inspector, Object> value : own_values.entrySet()) {
+					if (other_values.containsKey(value.getKey())) {
+
+						if ((value.getValue() == null && other_values.get(value.getKey()) != null)
+						        || (value.getValue() != null && !value.getValue().equals(other_values.get(value.getKey())))) {
+
+							InspectorAssertion assertion = new InspectorAssertion();
+							assertion.source = callee;
+							assertion.inspector = value.getKey();
+							assertion.result = value.getValue();
+							test.getStatement(line).addAssertion(assertion);
+							num_assertions++;
+						}
 					}
 				}
 			}
@@ -212,8 +238,20 @@ public class InspectorTrace extends OutputTrace {
 					List<Inspector> inspectors = manager.getInspectors(assertion.source.getVariableClass());
 					//logger.info("Creating inspector assertion for class "+assertion.source.getVariableClass());
 					assertion.inspector = inspectors.get(i);
-					assertion.num_inspector = i;
 					assertion.result = own_results.get(i);
+					test.getStatement(line).addAssertion(assertion);
+					num_assertions++;
+				}
+			}
+			if (calleeMap.containsKey(line)) {
+				Map<Inspector, Object> values = calleeMap.get(line);
+				MethodStatement ms = (MethodStatement) test.getStatement(line);
+				VariableReference callee = ms.getCallee();
+				for (Entry<Inspector, Object> value : values.entrySet()) {
+					InspectorAssertion assertion = new InspectorAssertion();
+					assertion.source = callee;
+					assertion.inspector = value.getKey();
+					assertion.result = value.getValue();
 					test.getStatement(line).addAssertion(assertion);
 					num_assertions++;
 				}

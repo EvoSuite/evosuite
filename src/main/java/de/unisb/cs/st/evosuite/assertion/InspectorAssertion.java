@@ -45,27 +45,26 @@ public class InspectorAssertion extends Assertion {
 		 * ()+"())"; } else {
 		 */
 		if (result == null) {
-			return "assertEquals(" + source.getName() + "."
-			        + inspector.getMethodCall() + "(), null);";
+			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
+			        + "(), null);";
 		} else if (result.getClass().equals(Long.class)) {
 			String val = result.toString();
-			return "assertEquals(" + source.getName() + "."
-			        + inspector.getMethodCall() + "(), " + val + "L);";
+			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
+			        + "(), " + val + "L);";
 		} else if (result.getClass().equals(Float.class)) {
 			String val = result.toString();
-			return "assertEquals(" + source.getName() + "."
-			        + inspector.getMethodCall() + "(), " + val + "F);";
+			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
+			        + "(), " + val + "F);";
 		} else if (result.getClass().equals(Character.class)) {
 			String val = result.toString();
-			return "assertEquals(" + source.getName() + "."
-			        + inspector.getMethodCall() + "(), '" + val + "');";
+			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
+			        + "(), '" + val + "');";
 		} else if (result.getClass().equals(String.class)) {
-			return "assertEquals(" + source.getName() + "."
-			        + inspector.getMethodCall() + "(), \""
-			        + StringEscapeUtils.escapeJava((String) result) + "\");";
+			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
+			        + "(), \"" + StringEscapeUtils.escapeJava((String) result) + "\");";
 		} else
-			return "assertEquals(" + source.getName() + "."
-			        + inspector.getMethodCall() + "(), " + result + ");";
+			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
+			        + "(), " + result + ");";
 	}
 
 	@Override
@@ -85,11 +84,9 @@ public class InspectorAssertion extends Assertion {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result
-		        + ((inspector == null) ? 0 : inspector.hashCode());
+		result = prime * result + ((inspector == null) ? 0 : inspector.hashCode());
 		result = prime * result + num_inspector;
-		result = prime * result
-		        + ((this.result == null) ? 0 : this.result.hashCode());
+		result = prime * result + ((this.result == null) ? 0 : this.result.hashCode());
 		return result;
 	}
 
