@@ -44,11 +44,19 @@ public class HOMObserver  {
 	private static Set<Long> touchedMutations = new HashSet<Long>();
 
 	public static final int LIMIT = MutationProperties.DEFAULT_TIMEOUT_IN_SECONDS * 1000;
-
+	
+	/**
+	 * See 
+	 * public static void touch(long mutationID)
+	 */
+	public static final String NAME_OF_TOUCH_METHOD="touch";
+	
+	
+	//Notice that the name of this method must be saved in NAME_OF_TOUCH_METHOD
 	/**
 	 * This method is called by statements that are added to the mutated code.
 	 * It is called every time the mutated statements get executed.
-	 * 
+	 *  
 	 * @param mutationID
 	 *            the id of the mutation that is executed
 	 */
