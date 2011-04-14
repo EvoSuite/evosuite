@@ -20,15 +20,20 @@ package de.unisb.cs.st.evosuite.classcreation;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
@@ -40,6 +45,7 @@ import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 /**
  * Generates classes from given abstract methods and constructors.
@@ -68,6 +74,12 @@ public class SourceCodeGenerator {
 	/** List of the constructors for original abstract class. */
 	private Constructor<?>[] abstractConstructors;
 	
+	/** Information about stub fields and setters */
+	private Set<StubField> stubFields = new HashSet<StubField>();  
+	
+	/** Current name of the field to generate */
+	private String currentFieldName;
+
 	/**
 	 * @param clazz abstract class for which stub should be generated.
 	 */
@@ -111,15 +123,20 @@ public class SourceCodeGenerator {
 		if(abstractConstructors.length != 0)
 			type.bodyDeclarations().addAll(generateConstructors());
 		
-		// Generate stubs for the abstract methods.
-		type.bodyDeclarations().addAll(generateMethods());
+		// Generate stubs, fields and setters for the abstract methods.
+		List<MethodDeclaration> generatedMethods = generateMethods();
+		List<FieldDeclaration> generatedFields = generateFields();
+		List<MethodDeclaration> generatedSetters = generateSetters();
+		type.bodyDeclarations().addAll(generatedFields);
+		type.bodyDeclarations().addAll(generatedMethods);
+		type.bodyDeclarations().addAll(generatedSetters);
 		
 		// Add class to the compilation unit.
 		unit.types().add(type);
-		
+
 		return unit;
 	}
-	
+
 	/**
 	 * Generates stubs for abstract methods. 
 	 * 
@@ -129,6 +146,7 @@ public class SourceCodeGenerator {
 	private List<MethodDeclaration> generateMethods(){
 		List<MethodDeclaration> generatedMethods = new LinkedList<MethodDeclaration>();
 		for(Method abstractMethod : abstractMethods){
+			generateFieldName(abstractMethod);
 			
 			MethodDeclaration md = ast.newMethodDeclaration();
 			md.setName(ast.newSimpleName(abstractMethod.getName()));
@@ -156,7 +174,7 @@ public class SourceCodeGenerator {
 			
 			// Set default return value.
 			md.setBody(generateMethodBody(abstractMethod.getReturnType()));
-			
+				
 			// Add exceptions thrown by method if any.
 			List<?> exceptions = (generateThrownExceptions(abstractMethod.getExceptionTypes()));
 			if(!exceptions.isEmpty())
@@ -165,6 +183,62 @@ public class SourceCodeGenerator {
 			generatedMethods.add(md);
 		}
 		return generatedMethods;
+	}
+	
+	/**
+	 * Creates setters for the stub fields.
+	 * 
+	 * @return generated setters
+	 */
+	@SuppressWarnings("unchecked")
+	private List<MethodDeclaration> generateSetters(){
+		List<MethodDeclaration> setters = new LinkedList<MethodDeclaration>();
+		for(StubField sf : stubFields){
+			
+			Assignment assignment = ast.newAssignment();
+			assignment.setLeftHandSide(ast.newSimpleName(sf.getFieldName()));
+			assignment.setRightHandSide(ast.newSimpleName("value"));
+			
+			Block block = ast.newBlock();
+			ExpressionStatement es = ast.newExpressionStatement(assignment); 
+			block.statements().add(es);
+			
+			MethodDeclaration md = ast.newMethodDeclaration();
+			md.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD));
+			md.setName(ast.newSimpleName("set_" + sf.getFieldName()));
+			md.setBody(block);
+			
+			SingleVariableDeclaration svd = ast.newSingleVariableDeclaration();
+			svd.setType(sf.getFieldSetterType());
+			svd.setName(ast.newSimpleName("value"));
+			
+			md.parameters().add(svd);
+			
+			setters.add(md);
+		}
+		return setters;
+	}
+
+	/**
+	 * Creates fields for the stub.
+	 * 
+	 * @return generated fields.
+	 */
+	@SuppressWarnings("unchecked")
+	private List<FieldDeclaration> generateFields(){
+		List<FieldDeclaration> fields = new LinkedList<FieldDeclaration>();
+		for(StubField sf : stubFields){			
+			VariableDeclarationFragment vdf = ast.newVariableDeclarationFragment();
+			vdf.setInitializer(sf.getFieldValue());
+			vdf.setName(ast.newSimpleName(sf.getFieldName()));
+			
+			FieldDeclaration fd = ast.newFieldDeclaration(vdf);
+			fd.setType(sf.getFieldType());
+			fd.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PRIVATE_KEYWORD));
+			
+			fields.add(fd);
+		}
+		return fields;
 	}
 	
 	/**
@@ -181,10 +255,10 @@ public class SourceCodeGenerator {
 			cd.setName(ast.newSimpleName(clazz.getSimpleName() + "Stub"));
 			cd.setConstructor(true);
 			
-			// Abstract constructors can only be public. 
+			// Abstract constructors could only be public. 
 			cd.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD));
 			
-			// Generate contructor parameters if any.
+			// Generate constructor parameters if any.
 			List<?> parameters = generateMethodParameters(abstractConstructor.getParameterTypes());
 			if(!parameters.isEmpty())
 				cd.parameters().addAll(parameters);
@@ -228,7 +302,7 @@ public class SourceCodeGenerator {
 	 * Generates thrown exceptions.
 	 * 
 	 * @param thrownExceptions array of exception types in original 
-	 * method.
+	 * method.generateMethodBody
 	 * @return list of exceptions.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -318,11 +392,16 @@ public class SourceCodeGenerator {
 	 */
 	private Expression generateReturnExpression(Class<?> returnType){
 
-		// If return type is String, then set default string literal.
+		// If return type is String, then generate string literal.
 		if(returnType.getName().equals("java.lang.String")){
 			StringLiteral sl = ast.newStringLiteral();
 			sl.setLiteralValue("null_value");
-			return sl;
+			 
+			rememberFieldParams(sl,
+					ast.newSimpleType(ast.newName("java.lang.String")),
+					ast.newSimpleType(ast.newName("java.lang.String")));
+			
+			return ast.newSimpleName(currentFieldName);
 		}
 		
 		// if primitive, then generate primitive expression.
@@ -346,25 +425,101 @@ public class SourceCodeGenerator {
 	private Expression generatePrimitiveExpression(Type type){	
 		PrimitiveType primitiveType = (PrimitiveType)type;
 		
-		// Set boolean default value - false.
-		if(primitiveType.getPrimitiveTypeCode().equals(PrimitiveType.BOOLEAN))
-			return ast.newBooleanLiteral(false);
-		
-		// Set char default value - '0'.
-		if(primitiveType.getPrimitiveTypeCode().equals(PrimitiveType.CHAR)){
-			CharacterLiteral cl = ast.newCharacterLiteral();
-			cl.setCharValue('0');
-			return cl;
-		}
-		
 		// Don't set return type for void.  
 		if(primitiveType.getPrimitiveTypeCode().equals(PrimitiveType.VOID))
 			return null;
 		
-		// Return default value for any numeric primitive type.
-		return ast.newNumberLiteral("0");
+		// Check for all possible primitive types and remember them for 
+		// later use in field generation.
+		if(primitiveType.getPrimitiveTypeCode().equals(PrimitiveType.BOOLEAN)){			
+			rememberFieldParams(ast.newBooleanLiteral(false),
+					ast.newPrimitiveType(PrimitiveType.BOOLEAN),
+					ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+		}
+		
+		if(primitiveType.getPrimitiveTypeCode().equals(PrimitiveType.CHAR)){
+			CharacterLiteral cl = ast.newCharacterLiteral();
+			cl.setCharValue('0');
+			
+			rememberFieldParams(cl, 
+					ast.newPrimitiveType(PrimitiveType.CHAR),
+					ast.newPrimitiveType(PrimitiveType.CHAR));
+		}
+		
+		if(primitiveType.getPrimitiveTypeCode().equals(PrimitiveType.BYTE)){
+			rememberFieldParams(ast.newNumberLiteral("0"),
+					ast.newPrimitiveType(PrimitiveType.BYTE),
+					ast.newPrimitiveType(PrimitiveType.BYTE));
+		}
+		
+		if(primitiveType.getPrimitiveTypeCode().equals(PrimitiveType.DOUBLE)){
+			rememberFieldParams(ast.newNumberLiteral("0.0"),
+					ast.newPrimitiveType(PrimitiveType.DOUBLE),
+					ast.newPrimitiveType(PrimitiveType.DOUBLE));
+		}
+		
+		if(primitiveType.getPrimitiveTypeCode().equals(PrimitiveType.FLOAT)){
+			rememberFieldParams(ast.newNumberLiteral("0.0f"),
+					ast.newPrimitiveType(PrimitiveType.FLOAT),
+					ast.newPrimitiveType(PrimitiveType.FLOAT));
+		}
+		
+		if(primitiveType.getPrimitiveTypeCode().equals(PrimitiveType.INT)){
+			rememberFieldParams(ast.newNumberLiteral("0"),
+					ast.newPrimitiveType(PrimitiveType.INT),
+					ast.newPrimitiveType(PrimitiveType.INT));
+		}
+		
+		if(primitiveType.getPrimitiveTypeCode().equals(PrimitiveType.LONG)){
+			rememberFieldParams(ast.newNumberLiteral("0l"),
+					ast.newPrimitiveType(PrimitiveType.LONG),
+					ast.newPrimitiveType(PrimitiveType.LONG));
+		}
+		
+		if(primitiveType.getPrimitiveTypeCode().equals(PrimitiveType.SHORT)){
+			
+			rememberFieldParams(ast.newNumberLiteral("0"),
+					ast.newPrimitiveType(PrimitiveType.SHORT),
+					ast.newPrimitiveType(PrimitiveType.SHORT));
+		}
+		
+		return ast.newSimpleName(currentFieldName);
 	}
 	
+	/**
+	 * Wrapper method for setting the stub field and setter parameters.
+	 * Although types for setter and field are the same, they should
+	 * be generated twice, since the structure of the AST API does not
+	 * allow to use same AST object for different nodes.
+	 * 
+	 * @param fieldValue value of the field to generate.
+	 * @param fieldType type of the field to generate.
+	 * @param fieldSetterType type of the setter to generate.
+	 */
+	private void rememberFieldParams(Expression fieldValue,
+			Type fieldType, Type fieldSetterType){
+		stubFields.add(new StubField(currentFieldName, fieldValue, 
+				fieldType, fieldSetterType));
+	}
+	
+	/**
+	 * Does some tricky string manipulation to get name of the field.
+	 * 
+	 * @param abstractMethod method for which name should be created.
+	 */
+	private void generateFieldName(Method abstractMethod){
+		String fieldName = abstractMethod.getName();
+		String methodDescriptor = bsh.org.objectweb.asm.Type.getMethodDescriptor(abstractMethod);
+		String[] methodParams = methodDescriptor.replace(')', ';').replace('(', ';').split(";");
+		for(int i = 1; i < methodParams.length-1; i++){
+			String[] temp = methodParams[i].split("/");
+			String paramName = temp[temp.length-1];
+			if(!paramName.equals(""))
+				fieldName+= "_" + paramName;
+		}
+		currentFieldName = fieldName;
+	}
+
 	/**
 	 * Generates simplest constructor calls.
 	 * 
@@ -377,13 +532,26 @@ public class SourceCodeGenerator {
 		// Check if class can be instantiated.
 		if(canInstantiate(clazz)){
 			ClassInstanceCreation cic = ast.newClassInstanceCreation();
-			cic.setType(ast.newSimpleType(ast.newName(clazz.getCanonicalName())));
-			return cic;
+			Type classType = ast.newSimpleType(ast.newName(clazz.getCanonicalName()));
+			Type classType2 = ast.newSimpleType(ast.newName(clazz.getCanonicalName()));
+			cic.setType(classType);
+			
+			rememberFieldParams(cic, classType, classType2);
+			
+			return ast.newSimpleName(currentFieldName);
 		}
 		
 		// Return null literal, if constructor can not be created.
 		return ast.newNullLiteral();
 	}
+	
+	/**
+	 * Check if there are any constructors, that can be used.
+	 * 
+	 * @param clazz class to check for constructors.
+	 * @return true, if it is possible to use constructors,
+	 * false otherwise.
+	 */
 	private boolean canInstantiate(Class<?> clazz){
 		
 		// If class is abstract, then return null, since it's not
