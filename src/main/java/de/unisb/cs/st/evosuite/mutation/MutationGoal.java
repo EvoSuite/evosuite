@@ -65,7 +65,7 @@ public class MutationGoal extends TestCoverageGoal {
 		this.className = mutation.getClassName();
 		this.methodName = mutation.getMethodName();
 //		this.cfg = ExecutionTracer.getExecutionTracer().getCFG(className, methodName);
-		this.cfg = CFGMethodAdapter.getCFG(className, methodName);
+		this.cfg = CFGMethodAdapter.getMinimizedCFG(className, methodName);
 		try {
 			Class<?> clazz = Class.forName(className);
 			if(methodName.startsWith("<init>")) {

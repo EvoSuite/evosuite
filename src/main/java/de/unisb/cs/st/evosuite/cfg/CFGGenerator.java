@@ -508,7 +508,7 @@ public class CFGGenerator extends Analyzer {
 		return (CFGFrame) getFrames()[0];
 	}
 
-	public DefaultDirectedGraph<CFGVertex, DefaultEdge> getGraph() {
+	public DefaultDirectedGraph<CFGVertex, DefaultEdge> getCompleteGraph() {
 		return graph;
 	}
 

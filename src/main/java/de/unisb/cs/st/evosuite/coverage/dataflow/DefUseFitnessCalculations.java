@@ -683,7 +683,7 @@ public class DefUseFitnessCalculations {
 		if (v.branchId == -1) {
 			r = getRootBranchTestFitness(v);
 		} else {
-			ControlFlowGraph cfg = CFGMethodAdapter.getCFG(v.className, v.methodName);
+			ControlFlowGraph cfg = CFGMethodAdapter.getMinimizedCFG(v.className, v.methodName);
 			Branch b = BranchPool.getBranch(v.branchId);
 			r = new BranchCoverageTestFitness(new BranchCoverageGoal(b,
 			        targetExpressionValue, cfg, v.className, v.methodName));

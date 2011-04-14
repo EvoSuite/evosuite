@@ -82,7 +82,7 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 				}
 
 				// Get CFG of method
-				ControlFlowGraph cfg = CFGMethodAdapter.getCFG(className, methodName);
+				ControlFlowGraph cfg = CFGMethodAdapter.getMinimizedCFG(className, methodName);
 
 				for (Branch b : BranchPool.branchMap.get(className).get(methodName)) {
 

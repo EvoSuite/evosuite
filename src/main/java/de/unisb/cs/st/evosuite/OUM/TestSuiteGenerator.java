@@ -759,7 +759,7 @@ public class TestSuiteGenerator {
 			for (String methodName : BranchPool.branchMap.get(className).keySet()) {
 				// Get CFG of method
 				//				ControlFlowGraph cfg = ExecutionTracer.getExecutionTracer().getCFG(className, methodName);
-				ControlFlowGraph cfg = CFGMethodAdapter.getCFG(className, methodName);
+				ControlFlowGraph cfg = CFGMethodAdapter.getMinimizedCFG(className, methodName);
 
 				for (Branch b : BranchPool.branchMap.get(className).get(methodName)) {
 					// Identify vertex in CFG
