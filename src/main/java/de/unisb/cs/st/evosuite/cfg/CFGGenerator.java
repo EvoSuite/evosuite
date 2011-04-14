@@ -55,6 +55,7 @@ import org.objectweb.asm.tree.analysis.BasicInterpreter;
 import org.objectweb.asm.tree.analysis.Frame;
 import org.objectweb.asm.util.AbstractVisitor;
 
+import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
@@ -121,7 +122,7 @@ public class CFGGenerator extends Analyzer {
 		// TODO shouldn't the following the methods be somehow merged
 		//		to reflect that all three return true on a "Branch"
 		//		in the sense of evosuite.coverage.branch.Branch ?
-		
+
 		public boolean isBranch() {
 			return isJump() && !isGoto();
 		}
@@ -167,7 +168,7 @@ public class CFGGenerator extends Analyzer {
 		public boolean hasMutation(long id) {
 			return mutations.contains(id);
 		}
-		
+
 		public AbstractInsnNode getNode(){
 			return node;
 		}
@@ -201,7 +202,7 @@ public class CFGGenerator extends Analyzer {
 
 		public boolean isBranchLabel() {
 			if (node instanceof LabelNode
-			        && ((LabelNode) node).getLabel().info instanceof Integer) {
+					&& ((LabelNode) node).getLabel().info instanceof Integer) {
 				return true;
 			}
 			return false;
@@ -227,9 +228,15 @@ public class CFGGenerator extends Analyzer {
 			return node instanceof MethodInsnNode;
 		}
 
+		/**
+		 * 
+		 * @param methodName
+		 * @return
+		 */
 		public boolean isMethodCall(String methodName) {
 			if (node instanceof MethodInsnNode) {
 				MethodInsnNode mn = (MethodInsnNode) node;
+				//#TODO this is unsafe methods should be identified by a signature not by a name
 				return mn.name.equals(methodName);
 			}
 			return false;
@@ -238,15 +245,15 @@ public class CFGGenerator extends Analyzer {
 		public int getId() {
 			return id;
 		}
-		
-//		public void addControlDependentBranch(Branch branch) {
-//			controlDependencies.add(branch);
-//		}
-//		
-//		public Set<Branch> getControlDependencies() {
-//			return controlDependencies;
-//		}
-		
+
+		//		public void addControlDependentBranch(Branch branch) {
+		//			controlDependencies.add(branch);
+		//		}
+		//		
+		//		public Set<Branch> getControlDependencies() {
+		//			return controlDependencies;
+		//		}
+
 		public boolean isDefUse() {
 			return isLocalDU() || isFieldDU();
 		}
@@ -261,19 +268,19 @@ public class CFGGenerator extends Analyzer {
 
 		public boolean isLocalVarDefinition() {
 			return node.getOpcode() == Opcodes.ISTORE
-			        || node.getOpcode() == Opcodes.LSTORE
-			        || node.getOpcode() == Opcodes.FSTORE
-			        || node.getOpcode() == Opcodes.DSTORE
-			        || node.getOpcode() == Opcodes.ASTORE
-			        || node.getOpcode() == Opcodes.IINC;
+			|| node.getOpcode() == Opcodes.LSTORE
+			|| node.getOpcode() == Opcodes.FSTORE
+			|| node.getOpcode() == Opcodes.DSTORE
+			|| node.getOpcode() == Opcodes.ASTORE
+			|| node.getOpcode() == Opcodes.IINC;
 		}
 
 		public boolean isLocalVarUse() {
 			return node.getOpcode() == Opcodes.ILOAD || node.getOpcode() == Opcodes.LLOAD
-			        || node.getOpcode() == Opcodes.FLOAD
-			        || node.getOpcode() == Opcodes.DLOAD
-			        || node.getOpcode() == Opcodes.ALOAD
-			        || node.getOpcode() == Opcodes.IINC;
+			|| node.getOpcode() == Opcodes.FLOAD
+			|| node.getOpcode() == Opcodes.DLOAD
+			|| node.getOpcode() == Opcodes.ALOAD
+			|| node.getOpcode() == Opcodes.IINC;
 		}
 
 		public boolean isDefinition() {
@@ -286,17 +293,17 @@ public class CFGGenerator extends Analyzer {
 
 		public boolean isFieldDefinition() {
 			return node.getOpcode() == Opcodes.PUTFIELD
-			        || node.getOpcode() == Opcodes.PUTSTATIC;
+			|| node.getOpcode() == Opcodes.PUTSTATIC;
 		}
 
 		public boolean isFieldUse() {
 			return node.getOpcode() == Opcodes.GETFIELD
-			        || node.getOpcode() == Opcodes.GETSTATIC;
+			|| node.getOpcode() == Opcodes.GETSTATIC;
 		}
 
 		public boolean isStaticDefUse() {
 			return node.getOpcode() == Opcodes.PUTSTATIC
-			        || node.getOpcode() == Opcodes.GETSTATIC;
+			|| node.getOpcode() == Opcodes.GETSTATIC;
 		}
 
 		public boolean isParameterUse() {
@@ -321,7 +328,7 @@ public class CFGGenerator extends Analyzer {
 		public String getDUVariableName() {
 			if (!this.isDefUse())
 				throw new IllegalStateException(
-				        "You can only call getDUVariableName() on definitions and uses");
+				"You can only call getDUVariableName() on definitions and uses");
 			if (this.isFieldDU())
 				return getFieldName();
 			else
@@ -372,7 +379,7 @@ public class CFGGenerator extends Analyzer {
 			String opcode = "";
 
 			if (node.getOpcode() >= 0
-			        && node.getOpcode() < AbstractVisitor.OPCODES.length)
+					&& node.getOpcode() < AbstractVisitor.OPCODES.length)
 				opcode = AbstractVisitor.OPCODES[node.getOpcode()];
 			if (node.getType() >= 0 && node.getType() < AbstractVisitor.TYPES.length)
 				type = AbstractVisitor.TYPES[node.getType()];
@@ -389,39 +396,39 @@ public class CFGGenerator extends Analyzer {
 				return "LABEL " + ((LabelNode) node).getLabel().toString();
 			} else if (node instanceof FieldInsnNode)
 				return "Field" + " " + node.getOpcode() + " Type=" + type + ", Opcode="
-				        + opcode;
+				+ opcode;
 			else if (node instanceof FrameNode)
 				return "Frame" + " " + node.getOpcode() + " Type=" + type + ", Opcode="
-				        + opcode;
+				+ opcode;
 			else if (node instanceof IincInsnNode)
 				return "IINC " + ((IincInsnNode) node).var + " Type=" + type
-				        + ", Opcode=" + opcode;
+				+ ", Opcode=" + opcode;
 			else if (node instanceof InsnNode)
 				return "" + opcode;
 			else if (node instanceof IntInsnNode)
 				return "INT " + ((IntInsnNode) node).operand + " Type=" + type
-				        + ", Opcode=" + opcode;
+				+ ", Opcode=" + opcode;
 			else if (node instanceof MethodInsnNode)
 				return opcode + " " + ((MethodInsnNode) node).name;
 			else if (node instanceof JumpInsnNode)
 				return "JUMP " + ((JumpInsnNode) node).label.getLabel() + " Type=" + type
-				        + ", Opcode=" + opcode + ", Stack: " + stack + " - Line: "
-				        + line_no;
+				+ ", Opcode=" + opcode + ", Stack: " + stack + " - Line: "
+				+ line_no;
 			else if (node instanceof LdcInsnNode)
 				return "LDC " + ((LdcInsnNode) node).cst + " Type=" + type + ", Opcode="
-				        + opcode; // cst starts with mutationid if
-				                  // this is location of mutation
+				+ opcode; // cst starts with mutationid if
+			// this is location of mutation
 			else if (node instanceof LineNumberNode)
 				return "LINE " + " " + ((LineNumberNode) node).line;
 			else if (node instanceof LookupSwitchInsnNode)
 				return "LookupSwitchInsnNode" + " " + node.getOpcode() + " Type=" + type
-				        + ", Opcode=" + opcode;
+				+ ", Opcode=" + opcode;
 			else if (node instanceof MultiANewArrayInsnNode)
 				return "MULTIANEWARRAY " + " " + node.getOpcode() + " Type=" + type
-				        + ", Opcode=" + opcode;
+				+ ", Opcode=" + opcode;
 			else if (node instanceof TableSwitchInsnNode)
 				return "TableSwitchInsnNode" + " " + node.getOpcode() + " Type=" + type
-				        + ", Opcode=" + opcode;
+				+ ", Opcode=" + opcode;
 			else if (node instanceof TypeInsnNode)
 				return "NEW " + ((TypeInsnNode) node).desc;
 			//				return "TYPE " + " " + node.getOpcode() + " Type=" + type
@@ -468,7 +475,7 @@ public class CFGGenerator extends Analyzer {
 
 	MethodNode current_method = null;
 	DefaultDirectedGraph<CFGVertex, DefaultEdge> graph = new DefaultDirectedGraph<CFGVertex, DefaultEdge>(
-	        DefaultEdge.class);
+			DefaultEdge.class);
 	List<Mutation> mutants;
 	String className;
 	String methodName;
@@ -488,8 +495,8 @@ public class CFGGenerator extends Analyzer {
 		return new CFGFrame(src);
 	}
 
-	CFGFrame getCFG(String owner, String method, MethodNode node)
-	        throws AnalyzerException {
+	CFGFrame analyze(String owner, String method, MethodNode node)
+	throws AnalyzerException {
 		current_method = node;
 		className = owner;
 		methodName = method;
@@ -505,14 +512,13 @@ public class CFGGenerator extends Analyzer {
 		return graph;
 	}
 
-	public DirectedMultigraph<CFGVertex, DefaultEdge> getMinimalGraph() {
-		DirectedMultigraph<CFGVertex, DefaultEdge> min_graph = new DirectedMultigraph<CFGVertex, DefaultEdge>(
-		        DefaultEdge.class);
-		CFGVertex current = null;
-
+	/**
+	 * Sets the mutation IDs for each node
+	 */
+	private void setMutationIDs(){
 		for (Mutation m : mutants) {
 			if (m.getMethodName().equals(methodName)
-			        && m.getClassName().equals(className)) {
+					&& m.getClassName().equals(className)) {
 				for (CFGVertex v : graph.vertexSet()) {
 					if (v.isLineNumber() && v.getLineNumber() == m.getLineNumber()) {
 						v.setMutation(m.getId());
@@ -522,11 +528,17 @@ public class CFGGenerator extends Analyzer {
 				}
 			}
 		}
+	}
 
+	/**
+	 * This method sets the mutationBranchAttribute on fields.
+	 */
+	private void setMutationBranches(){
 		for (CFGVertex v : graph.vertexSet()) {
 			if (v.isIfNull()) {
 				for (DefaultEdge e : graph.incomingEdgesOf(v)) {
 					CFGVertex v2 = graph.getEdgeSource(e);
+					//#TODO the magic string "getProperty" should be in some String variable, near the getProperty function declaration (which I couldn't find (steenbuck))
 					if (v2.isMethodCall("getProperty")) {
 						v.setMutationBranch();
 					}
@@ -534,7 +546,8 @@ public class CFGGenerator extends Analyzer {
 			} else if (v.isBranch() || v.isTableSwitch() || v.isLookupSwitch()) {
 				for (DefaultEdge e : graph.incomingEdgesOf(v)) {
 					CFGVertex v2 = graph.getEdgeSource(e);
-					if (v2.isMethodCall("touch")) {
+					//#TODO method signature should be used here
+					if (v2.isMethodCall(HOMObserver.NAME_OF_TOUCH_METHOD)) {
 						logger.debug("Found mutated branch ");
 						v.setMutatedBranch();
 					} else {
@@ -544,36 +557,36 @@ public class CFGGenerator extends Analyzer {
 				}
 			}
 		}
+	}
 
+	public DirectedMultigraph<CFGVertex, DefaultEdge> getMinimalGraph() {
+
+		setMutationIDs();
+
+		setMutationBranches();
+
+
+		DirectedMultigraph<CFGVertex, DefaultEdge> min_graph = new DirectedMultigraph<CFGVertex, DefaultEdge>(
+				DefaultEdge.class);
+
+		//Get minimal cfg vertices
 		for (CFGVertex vertex : graph.vertexSet()) {
-			if (current == null)
-				current = vertex;
-
 			// Add initial nodes and jump targets
-			if (graph.inDegreeOf(vertex) == 0)
+			if (graph.inDegreeOf(vertex) == 0){
 				min_graph.addVertex(vertex);
-			// Add end nodes
-			else if (graph.outDegreeOf(vertex) == 0)
+				// Add end nodes
+			}else if (graph.outDegreeOf(vertex) == 0){
 				min_graph.addVertex(vertex);
-			else if (vertex.isJump() && !vertex.isGoto()) {
+			}else if (vertex.isJump() && !vertex.isGoto()) {
 				min_graph.addVertex(vertex);
 			} else if (vertex.isTableSwitch() || vertex.isLookupSwitch()) {
 				min_graph.addVertex(vertex);
-			} else if (vertex.isMutation())
+			} else if (vertex.isMutation()){
 				min_graph.addVertex(vertex);
-			/*
-			 * else if(vertex.isLineNumber()) { boolean keep = false;
-			 * for(Mutation m : mutants) { if(m.getLineNumber() ==
-			 * vertex.getLineNumber()) { if(m.getMethodName().equals(methodName)
-			 * && m.getClassName().equals(className)) {
-			 * vertex.setMutation(m.getId()); keep = true; break; } } } if(keep)
-			 * { min_graph.addVertex(vertex);
-			 * logger.info("Graph contains mutation "+vertex.getMutationId()); }
-			 * }
-			 */
-
+			}
 		}
 
+		//Get minimal cfg edges
 		for (CFGVertex vertex : min_graph.vertexSet()) {
 			Set<DefaultEdge> handled = new HashSet<DefaultEdge>();
 
@@ -633,7 +646,7 @@ public class CFGGenerator extends Analyzer {
 
 		return true;
 	}
-	
-	
+
+
 
 }

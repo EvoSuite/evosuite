@@ -73,8 +73,18 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	 */
 	public static Set<String> methods = new HashSet<String>();
 
-	private static Map<String, Map<String, ControlFlowGraph>> completeGraphs = new HashMap<String, Map<String, ControlFlowGraph>>();
-	private static Map<String, Map<String, ControlFlowGraph>> graphs = new HashMap<String, Map<String, ControlFlowGraph>>();
+	/**
+	 * Complete control flow graph, contains each bytecode instruction, each label and line number node
+	 * Think of the direct Known Subclasses of
+	 * http://asm.ow2.org/asm33/javadoc/user/org/objectweb/asm/tree/AbstractInsnNode.html
+	 * for a complete list of the nodes in this cfg
+	 */
+	private static Map<String, Map<String, ControlFlowGraph>> completeCFGs = new HashMap<String, Map<String, ControlFlowGraph>>();
+	
+	/**
+	 * Minimized control flow graph. This  graph only 
+	 */
+	private static Map<String, Map<String, ControlFlowGraph>> minimizedCFGs = new HashMap<String, Map<String, ControlFlowGraph>>();
 	private static Map<String, Map<String, Double>> diameters = new HashMap<String, Map<String, Double>>();
 
 	private static Logger logger = Logger.getLogger(CFGMethodAdapter.class);
@@ -133,14 +143,14 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			// MethodNode mn = new CFGMethodNode((MethodNode)mv);
 			// System.out.println("Generating CFG for "+ className+"."+mn.name +
 			// " ("+mn.desc +")");
-			CFGGenerator g = new CFGGenerator(mutants);
+			CFGGenerator cfgGenerator = new CFGGenerator(mutants);
 			logger.info("Generating CFG for method " + methodName);
 
 			try {
-				g.getCFG(className, methodName, mn);
+				cfgGenerator.analyze(className, methodName, mn);
 				logger.trace("Method graph for " + className + "." + methodName
-				        + " contains " + g.getGraph().vertexSet().size() + " nodes for "
-				        + g.getFrames().length + " instructions");
+				        + " contains " + cfgGenerator.getGraph().vertexSet().size() + " nodes for "
+				        + cfgGenerator.getFrames().length + " instructions");
 			} catch (AnalyzerException e) {
 				logger.warn("Analyzer exception while analyzing " + className + "."
 				        + methodName);
@@ -149,12 +159,12 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 			// non-minimized cfg needed for defuse-coverage and control dependence
 			// calculation
-			addCompleteCFG(className, methodName, g.getGraph());
-			addCFG(className, methodName, g.getMinimalGraph());
+			addCompleteCFG(className, methodName, cfgGenerator.getGraph());
+			addMinimizedCFG(className, methodName, cfgGenerator.getMinimalGraph());
 			logger.info("Created CFG for method " + methodName);
 
 			// if(!Properties.MUTATION) {
-			Graph<CFGVertex, DefaultEdge> graph = g.getGraph();
+			Graph<CFGVertex, DefaultEdge> graph = cfgGenerator.getGraph();
 
 			for (MethodInstrumentation instrumentation : instrumentations) {
 				instrumentation.analyze(mn, graph, className, methodName, access);
@@ -168,6 +178,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 				methods.add(id);
 				logger.debug("Counting: " + id);
 			}
+			
 		}
 
 		mn.accept(next);
@@ -196,13 +207,13 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		        && (Properties.USE_DEPRECATED || (access & Opcodes.ACC_DEPRECATED) != Opcodes.ACC_DEPRECATED);
 	}
 
-	public static void addCFG(String classname, String methodname,
+	public static void addMinimizedCFG(String classname, String methodname,
 	        DirectedMultigraph<CFGVertex, DefaultEdge> graph) {
-		if (!graphs.containsKey(classname)) {
-			graphs.put(classname, new HashMap<String, ControlFlowGraph>());
+		if (!minimizedCFGs.containsKey(classname)) {
+			minimizedCFGs.put(classname, new HashMap<String, ControlFlowGraph>());
 			diameters.put(classname, new HashMap<String, Double>());
 		}
-		Map<String, ControlFlowGraph> methods = graphs.get(classname);
+		Map<String, ControlFlowGraph> methods = minimizedCFGs.get(classname);
 		logger.debug("Added CFG for class " + classname + " and method " + methodname);
 		methods.put(methodname, new ControlFlowGraph(graph, true));
 		FloydWarshall<CFGVertex, DefaultEdge> f = new FloydWarshall<CFGVertex, DefaultEdge>(
@@ -213,10 +224,10 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 	public static void addCompleteCFG(String classname, String methodname,
 	        DefaultDirectedGraph<CFGVertex, DefaultEdge> graph) {
-		if (!completeGraphs.containsKey(classname)) {
-			completeGraphs.put(classname, new HashMap<String, ControlFlowGraph>());
+		if (!completeCFGs.containsKey(classname)) {
+			completeCFGs.put(classname, new HashMap<String, ControlFlowGraph>());
 		}
-		Map<String, ControlFlowGraph> methods = completeGraphs.get(classname);
+		Map<String, ControlFlowGraph> methods = completeCFGs.get(classname);
 		logger.debug("Added complete CFG for class " + classname + " and method "
 		        + methodname);
 		methods.put(methodname, new ControlFlowGraph(graph, false));
@@ -226,14 +237,14 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 	public static ControlFlowGraph getCFG(String classname, String methodname) {
 		logger.debug("Getting CFG for class " + classname + " and method " + methodname);
-		if (graphs.get(classname) == null)
+		if (minimizedCFGs.get(classname) == null)
 			return null;
-		return graphs.get(classname).get(methodname);
+		return minimizedCFGs.get(classname).get(methodname);
 	}
 
 	public static ControlFlowGraph getCompleteCFG(String classname, String methodname) {
-		if (completeGraphs.get(classname) == null)
+		if (completeCFGs.get(classname) == null)
 			return null;
-		return completeGraphs.get(classname).get(methodname);
+		return completeCFGs.get(classname).get(methodname);
 	}
 }
