@@ -36,7 +36,8 @@ import de.unisb.cs.st.evosuite.testcase.TestRunnable;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
- * @author Steenbuck
+ * @author Sebastian Steenbuck
+ * Note: output for concurrent testcases is not provided at this point in time (read: it is not recorded)
  * #TODO steenbuck an abstract runnable should exist, most of this code is repeated in TestRunnable
  * 
  */
@@ -55,10 +56,12 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 
 	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
-	private static boolean print_to_system = true;//Properties.getPropertyOrDefault("print_to_system", true);
+	private static boolean print_to_system = false;//Properties.getPropertyOrDefault("print_to_system", true);
 
 	private static PrintStream out = (print_to_system?System.out:new PrintStream(byteStream));
-
+	private static final PrintStream sysoutOrg = System.out;
+	private static final PrintStream syserrOrg = System.err;
+	
 	//#TODO steenbuck should be private
 	public Map<Integer, Throwable> exceptionsThrown = new HashMap<Integer, Throwable>();
 
@@ -135,6 +138,9 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 
 		Set<FutureTask<ExecutionResult>> testFutures = new HashSet<FutureTask<ExecutionResult>>();
 
+		
+		System.setOut(out);
+		System.setErr(out);
 		for(int i=0 ; i<ConcurrencyCoverageFactory.THREAD_COUNT ; i++){
 			ConcurrentTestCase testToExecute = addThreadEndCode(addThreadRegistrationStatements(test.clone()));
 			TestRunnable testRunner = new TestRunnable(testToExecute, new ConcurrentScope(s.get(objectToTest)), observers);
@@ -143,8 +149,7 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 			testThread.start();
 			testFutures.add(testFuture);
 		}
-
-
+		
 		try{
 			//#TODO do we need to combine the execution results? We will if the two threads run on different code
 			ExecutionResult result=null;
@@ -158,6 +163,9 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 			e.printStackTrace();
 			System.exit(1);
 			return null;
+		}finally{
+			System.setOut(sysoutOrg);
+			System.setErr(syserrOrg);
 		}
 
 
@@ -213,6 +221,7 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 	}
 
 	/**
+	 * #TODO only executed for the initial test case. Should 
 	 * add thread registration code
 	 * @param test
 	 * @return
