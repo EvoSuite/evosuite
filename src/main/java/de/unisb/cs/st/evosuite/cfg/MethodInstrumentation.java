@@ -21,7 +21,7 @@ public interface MethodInstrumentation {
 	 * @param mn the ASM Node of the method
 	 * @param graph the current CFG
 	 * @param className the name of current class
-	 * @param methodName the name of the current method
+	 * @param methodName the name of the current method. This name includes the description of the method and is therefore unique per class.
 	 * @param access the access of the current method (see org.objectweb.asm.ClassAdapter#visitMethod(int access, String name,
 	        String descriptor, String signature, String[] exceptions))
 	 */
