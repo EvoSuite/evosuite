@@ -7,11 +7,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 
 /**
- * 
+ * This class has two functions:
+ * 1) It holds some static data heavens. Which are used by the concurrency test case generation to map certain values from the instrumentation (premain/javaagent) time to the runtime
+ * 2) It is used as at runtime to conveniently access the controllerRuntime. I.e. static methods are easier to call from bytecode. Therefore we use static methods on this class to map to controller methods. Before each run, this class has to be initialized with a new controllerRuntime object
  * @author Sebastian Steenbuck
  *
  */
@@ -31,10 +32,19 @@ public class LockRuntime {
 	public static volatile ConcurrencyTracer tracer;
 	
 	/**
-	 * Maps fieldAccessID to IDs in the CFG.
+	 * Maps fieldAccessID to branch IDs in the CFG.
 	 */
 	public static final Map<Integer, Integer> fieldAccessIDToCFGBranch = new ConcurrentHashMap<Integer, Integer>();
+	/**
+	 * Maps fieldAccessIDS to a vertex in the CFG
+	 */
 	public static final Map<Integer, CFGVertex> fieldAccessIDToCFGVertex = new ConcurrentHashMap<Integer, CFGVertex>();
+	
+	/**
+	 * Maps fieldAccessID to the ConcurrencyInstrumentation which inserted the scheduling point.
+	 * Is used to transport information from the instrumentation time (like className/MethodName) to the runtime
+	 * #TODO maybe this information can be recovered from the CFGVertices in fieldAccessIDToCFGVertex
+	 */
 	public static final Map<Integer, ConcurrencyInstrumentation> fieldAccToConcInstr = new ConcurrentHashMap<Integer, ConcurrencyInstrumentation>();
 	public static final Set<Integer> threadIDs = new HashSet<Integer>(); //#TODO we make the assumption, that each run will have the same number of threads
 	
@@ -47,9 +57,8 @@ public class LockRuntime {
 	}
 
 	public static void registerThread(int threadID){
-		//if(true)throw new AssertionError("ijdknflkjsdgkjnsdgkjndskjgnksdjng");
-		//logger.warn("XXXXXXXXXXXXXXXXXXXXXX REGISTER THREAD");
-		//if(true)return;
+		assert(controller!=null);
+		logger.trace("The thread " + Thread.currentThread() + " registered itself with the threadID: " + threadID);
 		controller.registerThread(threadID);
 	}
 	
@@ -58,8 +67,9 @@ public class LockRuntime {
 	 * @return
 	 */
 	public static int getUniqueThreadID(){
-		//logger.warn("XXXXXXXXXXXXXXXXXXXXXX GET THREAD ID");
-		int id = controller.getThreadID();
+		assert(controller!=null);
+		logger.trace("A unique thread ID was requested from the lockruntime, by the thread " + Thread.currentThread() + ". Which forwarded the request to the controller " + controller.toString()); 
+		int id = controller.getThreadID(); 
 		threadIDs.add(id);
 		return id;
 	}
@@ -69,6 +79,8 @@ public class LockRuntime {
 	 * @param int the id of the thread 
 	 */
 	public static void threadEnd(){	
+		assert(controller!=null);
+		logger.trace("The thread " + Thread.currentThread() + " signaled that he is about to finish");
 		controller.threadEnd();
 		controller.awake();
 	}
@@ -79,6 +91,7 @@ public class LockRuntime {
 	 * @return int the ID the next field access should have
 	 */
 	public static synchronized int getFieldAccessID(){
+		logger.trace("A unique field accessID was requested from the lockruntime");
 		return fieldAccessID++;
 	}
 	
@@ -94,6 +107,7 @@ public class LockRuntime {
 	 * This method provides the controllerRuntime with an option to stop threads.
 	 * Notice that this code is run in the context of the thread. Therefore we do not need to supply the thread.
 	 * Currently both params are for debugging only
+	 * #TODO this would maybe be better placed in controllerRuntime
 	 * @param requested the object which will be requested for the lock
 	 * @param id the id of this monitorInstruction
 	 */
