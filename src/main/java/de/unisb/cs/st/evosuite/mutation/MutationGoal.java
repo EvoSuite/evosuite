@@ -32,7 +32,6 @@ import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.Statement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
@@ -244,7 +243,7 @@ public class MutationGoal extends TestCoverageGoal {
 			CFGVertex v = cfg.getVertex(path.get(i));
 			if(v != null) {
 				int distance = cfg.getDistance(v, m);
-				if(cfg.isSuccessor(m, v))
+				if(cfg.isDirectSuccessor(m, v))
 					distance = 0;
 				
 				logger.debug("B: Path vertex "+i+"("+ v.toString()+") has distance: "+distance+" and branch distance "+Math.max(true_distances.get(i), false_distances.get(i)));

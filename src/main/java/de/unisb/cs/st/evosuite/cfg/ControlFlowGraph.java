@@ -37,7 +37,6 @@ import org.jgrapht.ext.IntegerEdgeNameProvider;
 import org.jgrapht.ext.IntegerNameProvider;
 import org.jgrapht.ext.StringNameProvider;
 import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DirectedMultigraph;
 
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
@@ -46,14 +45,13 @@ public class ControlFlowGraph {
 
 	private static Logger logger = Logger.getLogger(ControlFlowGraph.class);
 
-	private DirectedGraph<CFGVertex, DefaultEdge> graph = new DirectedMultigraph<CFGVertex, DefaultEdge>(
-	        DefaultEdge.class);
+	private final DirectedGraph<CFGVertex, DefaultEdge> graph;
 
 	private int diameter = 0;
 
 	public ControlFlowGraph(DirectedGraph<CFGVertex, DefaultEdge> cfg,
 	        boolean calculateDiameter) {
-		graph = cfg;
+		this.graph = cfg;
 
 		if (calculateDiameter) {
 			setDiameter();
@@ -78,6 +76,15 @@ public class ControlFlowGraph {
 		}
 	}
 
+	/**
+	 * Get the underlying graph. 
+	 * Note that this is not a clone but the real graph, it SHOULD NOT be modified.
+	 * @return
+	 */
+	public DirectedGraph<CFGVertex, DefaultEdge> getGraph(){
+		return graph;
+	}
+	
 	public int getDiameter() {
 		return diameter;
 	}
@@ -288,7 +295,7 @@ public class ControlFlowGraph {
 		return dist;
 	}
 
-	public boolean isSuccessor(CFGVertex v1, CFGVertex v2) {
+	public boolean isDirectSuccessor(CFGVertex v1, CFGVertex v2) {
 		return (graph.containsEdge(v1, v2) && graph.inDegreeOf(v2) == 1);
 	}
 
