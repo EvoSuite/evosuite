@@ -12,9 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.PostPersist;
-import javax.print.attribute.standard.Finishings;
-
 
 /**
  * @author x3k6a2
@@ -78,10 +75,20 @@ public class ConcurrencyTracer {
 	
 
 	private static final int defDistance = 200;
+	
 	private static int test(List<SchedulingDecisionTuple> goal, List<SchedulingDecisionTuple> run){
 		if(goal.size()>run.size()){
 			return defDistance;
 		}
+		
+		if(goal.size()==1){
+			if(run.contains(goal.get(0))){
+				return 0;
+			}else{
+				return defDistance;
+			}
+		}
+		
 		class searchState{
 			public Integer pos=1;
 			public Integer cost=0;
@@ -91,6 +98,7 @@ public class ConcurrencyTracer {
 		Set<searchState> states = new HashSet<searchState>();
 		for(SchedulingDecisionTuple t : run){
 			for(searchState s : states){
+				//assert(goal.size()>s.pos) : "goal size is only " + goal.size() + " but we will request pos " + s.pos;
 				if(!s.finished && goal.get(s.pos).equals(t)){
 					s.pos++;
 					if(s.pos==goal.size()){

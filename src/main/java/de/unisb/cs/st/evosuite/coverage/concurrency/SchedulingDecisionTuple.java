@@ -4,11 +4,14 @@
 package de.unisb.cs.st.evosuite.coverage.concurrency;
 
 /**
- * @author x3k6a2
+ * @author Sebastian Steenbuck
  *
  */
 public class SchedulingDecisionTuple {
 	public final int threadID;
+	/**
+	 * The ID of the field
+	 */
 	public final int scheduleID;
 	
 	public SchedulingDecisionTuple(int threadID, int scheduleID){

@@ -1,5 +1,6 @@
 package de.unisb.cs.st.evosuite.coverage.concurrency;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,7 +16,7 @@ import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
  *
  */
 public class LockRuntime {
-
+	
 	private static Logger logger = Logger.getLogger(LockRuntime.class);
 
 	
@@ -34,6 +35,8 @@ public class LockRuntime {
 	 */
 	public static final Map<Integer, Integer> fieldAccessIDToCFGBranch = new ConcurrentHashMap<Integer, Integer>();
 	public static final Map<Integer, CFGVertex> fieldAccessIDToCFGVertex = new ConcurrentHashMap<Integer, CFGVertex>();
+	public static final Map<Integer, ConcurrencyInstrumentation> fieldAccToConcInstr = new ConcurrentHashMap<Integer, ConcurrencyInstrumentation>();
+	public static final Set<Integer> threadIDs = new HashSet<Integer>(); //#TODO we make the assumption, that each run will have the same number of threads
 	
 	private volatile static int fieldAccessID=0; //A counter to generate a unique ID for each occurrence of a field (class or object) access. IDs are unique per VM
 
@@ -51,12 +54,14 @@ public class LockRuntime {
 	}
 	
 	/**
-	 * As the method is called at runtime, it is convenient to have access throug a static method. Therefore this thin wrapper exists.
+	 * As the method is called at runtime, it is convenient to have access using a static method. Therefore this thin wrapper exists.
 	 * @return
 	 */
 	public static int getUniqueThreadID(){
 		//logger.warn("XXXXXXXXXXXXXXXXXXXXXX GET THREAD ID");
-		return controller.getThreadID();
+		int id = controller.getThreadID();
+		threadIDs.add(id);
+		return id;
 	}
 	
 	/**

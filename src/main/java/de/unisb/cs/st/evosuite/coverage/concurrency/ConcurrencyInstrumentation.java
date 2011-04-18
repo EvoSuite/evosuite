@@ -27,12 +27,28 @@ import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
  */
 public class ConcurrencyInstrumentation implements MethodInstrumentation{
 	
+	private String className;
+	private String methodName;
+	
+	public String getClassName(){
+		assert(className!=null) : "This should only be called after a call to analyze";
+		return className;
+	}
+	
+	public String getMethodName(){
+		assert(className!=null) : "This should only be called after a call to analyze";
+		return methodName;
+	}
+	
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String, java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void analyze(MethodNode mn, Graph<CFGVertex, DefaultEdge> graph, String className, String methodName, int access) {
+		this.className=className;
+		this.methodName=methodName;
+				
 		ControlFlowGraph completeCFG = CFGMethodAdapter.getCompleteCFG(className, methodName);
 		Iterator<AbstractInsnNode> instructions = mn.instructions.iterator();
 		while (instructions.hasNext()) {
@@ -74,6 +90,8 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 		case Opcodes.GETSTATIC:
 			//System.out.println("as seen in instrument:" + v.node.getClass() + " branchID: " + currentBranch +  " line " + v.line_no);
 			int accessID = LockRuntime.getFieldAccessID();
+			//#TODO all this static communication crap should be in one place
+			LockRuntime.fieldAccToConcInstr.put(accessID, this);
 			LockRuntime.mapFieldAccessIDtoCFGid(accessID, currentBranch, v);
 			instrumentation.add(new InsnNode(Opcodes.DUP));
 			instrumentation.add(new IntInsnNode(Opcodes.BIPUSH, accessID));
