@@ -211,55 +211,30 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 
 		}
 
-		
+
 		//if(fitness==0.0){
-		//#FIXME steenbuck this will only work for very simple test cases. In reality we have to lookup possible combinations in the cfg
+		//#FIXME steenbuck RUNTIME
 		double concurrentFitness=0.0;
 		try{
-		assert(LockRuntime.threadIDs.size()>1) : "We should expect the LockRuntime to know more than 0 threads. But apparently it only knows " + LockRuntime.threadIDs.size();
-		Set<SchedulingDecisionList> goalSchedules = getSchedules(4, LockRuntime.threadIDs);
-		logger.info("We generated " + goalSchedules.size() + " schedules which should be covered");
-		assert(goalSchedules.size()>0) : "it appears odd, that zero goals were generated";
-		for(SchedulingDecisionList goal : goalSchedules){
-			logger.trace("testing for schedule: " + goal.toString());
-			double min=Double.MAX_VALUE;
-			for(List<SchedulingDecisionTuple> seen : schedules){
-				double distance = getDistance(goal, seen);
-				min= Math.min(min, distance/1000000);
+			assert(LockRuntime.threadIDs.size()>1) : "We should expect the LockRuntime to know more than 0 threads. But apparently it only knows " + LockRuntime.threadIDs.size();
+			Set<SchedulingDecisionList> goalSchedules = getSchedules(4, LockRuntime.threadIDs);
+			logger.debug("We generated " + goalSchedules.size() + " schedules which should be covered");
+			assert(goalSchedules.size()>0) : "it appears odd, that zero goals were generated";
+			for(SchedulingDecisionList goal : goalSchedules){
+				logger.trace("testing for schedule: " + goal.toString());
+				double min=Double.MAX_VALUE;
+				for(List<SchedulingDecisionTuple> seen : schedules){
+					double distance = getDistance(goal, seen);
+					min= Math.min(min, distance/1000000);
+				}
+				concurrentFitness+=min;
 			}
-			concurrentFitness+=min;
-		}
 		}catch(Throwable t){
-			//logger.fatal("dsfikujsnglnfgk " + t.getClass());
 			logger.fatal("why?", t);
 			System.exit(1);
 			throw new Error();
 		}
-
-		
-
-		/*for(Integer fieldAccessId :   LockRuntime.fieldAccessIDToCFGBranch.keySet()){
-				for(Integer combination : LockRuntime.fieldAccessIDToCFGBranch.keySet()){
-					for(Integer comb1 : LockRuntime.fieldAccessIDToCFGBranch.keySet()){
-						//#TODO does this makes sense?
-						if(fieldAccessId<combination && combination<comb1){ //No difference if thread 0 runs through point A while 1 waits at B or the other way round
-
-							List<SchedulingDecisionTuple> scheduleIDs = new ArrayList<SchedulingDecisionTuple>();
-							scheduleIDs.add(new SchedulingDecisionTuple(0,fieldAccessId));
-							scheduleIDs.add(new SchedulingDecisionTuple(1, combination));
-							scheduleIDs.add(new SchedulingDecisionTuple(0, comb1));
-
-							double min=Double.MAX_VALUE;
-							for(List<SchedulingDecisionTuple> seen : schedules){
-								double distance = getDistance(scheduleIDs, seen);
-								min= Math.min(min, distance/1000000);
-							}
-							concurrentFitness+=min;
-
-						}
-					}
-				}
-			}*/
+		//System.exit(1);
 		if(concurrentFitness>0.5){
 			concurrentFitness=0.5;
 		}
@@ -269,7 +244,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 		//}else{
 		//System.out.println("not so kicken it " + fitness);
 		//}
-		if(fitness==0.0)System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" + fitness);
+		//if(fitness==0.0)System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" + fitness);
 
 		//		covered_methods  = Math.max(covered_methods,  call_count.size());
 
@@ -313,33 +288,74 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 			}
 			schedules=nextRound;
 		}
-		
+
 		return schedules;
 	}
 
-	private final Set<SchedulingDecisionList> getNextSteps(final SchedulingDecisionList l, final Set<Integer> threadIDs){
+	private final Set<SchedulingDecisionList> getNextSteps(final SchedulingDecisionList history, final Set<Integer> threadIDs){
 
 		Set<SchedulingDecisionList> result = new HashSet<SchedulingDecisionList>();
-		SchedulingDecisionTuple lastDecision = l.get(l.size()-1);
-		for(Integer fieldAccessId :   LockRuntime.fieldAccessIDToCFGBranch.keySet()){	
-			assert(LockRuntime.fieldAccToConcInstr.containsKey(fieldAccessId));
-			String className = LockRuntime.fieldAccToConcInstr.get(fieldAccessId).getClassName();
-			String methodName = LockRuntime.fieldAccToConcInstr.get(fieldAccessId).getMethodName();
-			DirectedGraph<CFGVertex, DefaultEdge> minimizedCFG = CFGMethodAdapter.getCompleteCFG(className, methodName).getGraph();
-			if(isBefore(lastDecision.scheduleID, fieldAccessId, minimizedCFG)){
-				for(Integer threadID : threadIDs){
-					SchedulingDecisionList newList = l.clone();
-					newList.add(new SchedulingDecisionTuple(threadID, fieldAccessId));
-					result.add(newList);
-				}
+		for(SchedulingDecisionTuple nextTuple :   getAllTuples()){	
+			assert(LockRuntime.fieldAccToConcInstr.containsKey(nextTuple.scheduleID));
+			String className = LockRuntime.fieldAccToConcInstr.get(nextTuple.scheduleID).getClassName();
+			String methodName = LockRuntime.fieldAccToConcInstr.get(nextTuple.scheduleID).getMethodName();
+			DirectedGraph<CFGVertex, DefaultEdge> completeCFG = CFGMethodAdapter.getCompleteCFG(className, methodName).getGraph();
+			if(isAfter(nextTuple, history, completeCFG)){
+				SchedulingDecisionList newList = history.clone();
+				newList.add(nextTuple);
+				result.add(newList);
 			}
+
 		}
 		if(result.size()==0){
-			result.add(l);
+			result.add(history);
 		}
 		return result;
 	}
 
+	/**
+	 * Returns true, 
+	 * if tuple is, considering the same thread as tuple, after the last fieldAccessID in history.
+	 * 'is after' is defined by isBefore(...)
+	 * @param tuple
+	 * @param history
+	 * @return
+	 */
+	private boolean isAfter(SchedulingDecisionTuple tuple, SchedulingDecisionList history, final DirectedGraph<CFGVertex, DefaultEdge> completeCFG){
+		for(int i = (history.size()-1) ; i>=0 ; i--){
+			assert(history.size()>i);
+			SchedulingDecisionTuple searchFront = history.get(i);
+			if(searchFront.threadID==tuple.threadID){
+				if(isBefore(searchFront.scheduleID, tuple.scheduleID, completeCFG)){
+					return true;
+				}else{
+					return false; //isBefore is transitive
+				}
+			}
+		}
+
+		return true; //the history doesn't contain this thread
+	}
+
+	/**
+	 * Generates a list of all possible scheduling decision tuples
+	 * #TODO cache
+	 * @return
+	 */
+	private Set<SchedulingDecisionTuple> getAllTuples(){
+		Set<Integer> threadIDs = LockRuntime.threadIDs;
+		Set<Integer> fieldAccessIDs = LockRuntime.fieldAccessIDToCFGBranch.keySet();
+
+		Set<SchedulingDecisionTuple> allTuples = new HashSet<SchedulingDecisionTuple>();
+
+		for(Integer fieldAccessID : fieldAccessIDs){
+			for(Integer threadID : threadIDs){
+				allTuples.add(new SchedulingDecisionTuple(threadID, fieldAccessID));
+			}
+		}
+
+		return allTuples;
+	}
 
 
 	/**
