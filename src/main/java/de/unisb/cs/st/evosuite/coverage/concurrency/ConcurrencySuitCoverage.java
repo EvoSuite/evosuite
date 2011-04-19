@@ -217,8 +217,9 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 		double concurrentFitness=0.0;
 		try{
 			assert(LockRuntime.threadIDs.size()>1) : "We should expect the LockRuntime to know more than 0 threads. But apparently it only knows " + LockRuntime.threadIDs.size();
+			long t1 = System.currentTimeMillis();
 			Set<SchedulingDecisionList> goalSchedules = getSchedules(4, LockRuntime.threadIDs);
-			logger.debug("We generated " + goalSchedules.size() + " schedules which should be covered");
+			logger.warn("We generated " + goalSchedules.size() + " schedules which should be covered. In : " + (System.currentTimeMillis()-t1));
 			assert(goalSchedules.size()>0) : "it appears odd, that zero goals were generated";
 			for(SchedulingDecisionList goal : goalSchedules){
 				logger.trace("testing for schedule: " + goal.toString());
@@ -244,6 +245,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 		//}else{
 		//System.out.println("not so kicken it " + fitness);
 		//}
+		logger.warn("fitness " + fitness);
 		//if(fitness==0.0)System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" + fitness);
 
 		//		covered_methods  = Math.max(covered_methods,  call_count.size());
@@ -265,9 +267,11 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 
 	//#TODO currently we only generate schedules, which can be reached in one run. In one method (that depends on the CFG for multi method stuff) If we allow arbitrarily many calls between reaching a scheduling point, what would change?
 	//generates all schedules which should be covered
+	private Set<SchedulingDecisionList> s = null;
 	private final Set<SchedulingDecisionList> getSchedules(final int synchPointsToConsider, final Set<Integer> threadIDs){
 		assert(synchPointsToConsider>0);
-
+		if(s!=null)
+			return s;
 		Set<SchedulingDecisionList> schedules = new HashSet<SchedulingDecisionList>();
 
 		//init
@@ -288,7 +292,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 			}
 			schedules=nextRound;
 		}
-
+		s=schedules;
 		return schedules;
 	}
 
@@ -337,16 +341,20 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 		return true; //the history doesn't contain this thread
 	}
 
+	private Set<SchedulingDecisionTuple> allTuples=null;
 	/**
 	 * Generates a list of all possible scheduling decision tuples
 	 * #TODO cache
 	 * @return
 	 */
 	private Set<SchedulingDecisionTuple> getAllTuples(){
+		if(allTuples!=null)
+			return allTuples;
+		
 		Set<Integer> threadIDs = LockRuntime.threadIDs;
 		Set<Integer> fieldAccessIDs = LockRuntime.fieldAccessIDToCFGBranch.keySet();
 
-		Set<SchedulingDecisionTuple> allTuples = new HashSet<SchedulingDecisionTuple>();
+		allTuples = new HashSet<SchedulingDecisionTuple>();
 
 		for(Integer fieldAccessID : fieldAccessIDs){
 			for(Integer threadID : threadIDs){
@@ -357,7 +365,8 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 		return allTuples;
 	}
 
-
+	//#TODO move to CFG
+	private Map<Integer, Map<Integer, Map<DirectedGraph<CFGVertex, DefaultEdge>, Boolean>>> isC = new HashMap<Integer, Map<Integer,Map<DirectedGraph<CFGVertex,DefaultEdge>,Boolean>>>();
 	/**
 	 * Tests if scheduleID1 is before scheduleID2. That is: branchID2 can be reached after branchID1 was reached.
 	 * Notice that before(int, int, graph) is not a partial order.
@@ -376,6 +385,18 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 	 * @return
 	 */
 	private final boolean isBefore(final int scheduleID1, final int scheduleID2, final DirectedGraph<CFGVertex, DefaultEdge> completeCFG){
+		if(isC.containsKey(scheduleID1)){
+			if(isC.get(scheduleID1).containsKey(scheduleID2)){
+				if(isC.get(scheduleID1).get(scheduleID2).containsKey(completeCFG)){
+					return isC.get(scheduleID1).get(scheduleID2).get(completeCFG);
+				}
+			}else{
+				isC.get(scheduleID1).put(scheduleID2, new HashMap<DirectedGraph<CFGVertex, DefaultEdge>, Boolean>());
+			}
+		}else{
+			isC.put(scheduleID1, new HashMap<Integer, Map<DirectedGraph<CFGVertex, DefaultEdge>, Boolean>>());
+			isC.get(scheduleID1).put(scheduleID2, new HashMap<DirectedGraph<CFGVertex, DefaultEdge>, Boolean>());
+		}
 		assert(LockRuntime.fieldAccessIDToCFGVertex.containsKey(scheduleID1));
 		assert(LockRuntime.fieldAccessIDToCFGVertex.containsKey(scheduleID1));
 		assert(completeCFG!=null);
@@ -383,6 +404,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 		assert(completeCFG.containsVertex(LockRuntime.fieldAccessIDToCFGVertex.get(scheduleID2)));
 
 		if(scheduleID1==scheduleID2){
+			isC.get(scheduleID1).get(scheduleID2).put(completeCFG, false);
 			return false;
 		}
 
@@ -394,6 +416,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 		while(searchFront.size()>0){
 			CFGVertex current = searchFront.remove(0);
 			if(current.equals(goal)){
+				isC.get(scheduleID1).get(scheduleID2).put(completeCFG, true);
 				return true;
 			}else{
 				for(DefaultEdge e : completeCFG.outgoingEdgesOf(current)){
@@ -405,6 +428,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 				}
 			}
 		}
+		isC.get(scheduleID1).get(scheduleID2).put(completeCFG, false);
 		return false;
 	}
 
