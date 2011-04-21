@@ -10,7 +10,7 @@ import java.util.Set;
 import de.unisb.cs.st.evosuite.ga.Randomness;
 
 /**
- * @author x3k6a2
+ * @author Sebastian Steenbuck
  *
  */
 public class Scheduler implements Schedule{

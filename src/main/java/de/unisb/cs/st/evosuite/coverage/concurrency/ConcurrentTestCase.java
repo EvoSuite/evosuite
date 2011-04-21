@@ -5,6 +5,7 @@ package de.unisb.cs.st.evosuite.coverage.concurrency;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +14,8 @@ import java.util.Set;
 
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
+import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
@@ -31,7 +34,13 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
 public class ConcurrentTestCase implements TestCase{
 	
 	//A list of thread IDs
-	private List<Integer> schedule;
+	private final List<Integer> schedule;
+	/*
+	 * Maps statements to schedule.
+	 * That is if a statment 
+	 */
+	private final Map<StatementInterface, Set<Integer>> statementToSchedule;
+	
 	/**
 	 * Holds all schedules, that might in the future become active
 	 */
@@ -45,6 +54,7 @@ public class ConcurrentTestCase implements TestCase{
 		seenThreadIDs=new HashSet<Integer>();
 		schedule=new ArrayList<Integer>();
 		generatedSchedules = new HashSet<Scheduler>();
+		statementToSchedule = new HashMap<StatementInterface, Set<Integer>>();
 	}
 
 	/**
@@ -234,6 +244,10 @@ public class ConcurrentTestCase implements TestCase{
 
 	@Override
 	public void addStatement(StatementInterface statement) {
+		if(statement instanceof ConstructorStatement ||
+				statement instanceof MethodStatement){
+			statement=new ScheduleLogWrapper(statement);
+		}
 		test.addStatement(statement);
 	}
 
