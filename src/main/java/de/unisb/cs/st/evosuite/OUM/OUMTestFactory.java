@@ -29,6 +29,7 @@ import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.NullReference;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
@@ -88,7 +89,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 	 */
 	public ConcreteCall getLastUse(TestCase test, int position, VariableReference variable) {
 		for(int i = Math.min(position, test.size() - 1); i>=variable.statement; i--) {
-			Statement s = test.getStatement(i);
+			StatementInterface s = test.getStatement(i);
 			if(s.references(variable)) {
 				if(s instanceof MethodStatement) {
 					MethodStatement ms = (MethodStatement)s;
@@ -125,7 +126,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 	
 	public ConcreteCall getNextUse(TestCase test, int position, VariableReference variable) {
 		for(int i = position; i < test.size(); i++) {
-			Statement s = test.getStatement(i);
+			StatementInterface s = test.getStatement(i);
 			if(s.references(variable)) {
 				if(s instanceof MethodStatement) {
 					MethodStatement ms = (MethodStatement)s;
@@ -402,7 +403,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 	 * @param test
 	 * @param s
 	 */
-	public void appendStatement(TestCase test, Statement statement) throws ConstructionFailedException {
+	public void appendStatement(TestCase test, StatementInterface statement) throws ConstructionFailedException {
 		current_recursion.clear();
 
 		if(statement instanceof ConstructorStatement) {
@@ -435,7 +436,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 		if(!alternatives.isEmpty()) {
 			// Change all references to return value at position to something else
 			for(int i = position; i< test.size(); i++) {
-				Statement s = test.getStatement(i);
+				StatementInterface s = test.getStatement(i);
 				if(s.references(var)) {
 					if(s instanceof MethodStatement) {
 						MethodStatement ms = (MethodStatement)s;
@@ -634,7 +635,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 	}
 	
 	private ConcreteCall getCall(TestCase test, VariableReference var) {
-		Statement s = test.getStatement(var.statement);
+		StatementInterface s = test.getStatement(var.statement);
 		if(s instanceof MethodStatement) {
 			return new ConcreteCall(var.getClassName(), ((MethodStatement)s).getMethod());
 		} else if(s instanceof ConstructorStatement) {
@@ -918,7 +919,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 	 * @param call
 	 * @throws ConstructionFailedException
 	 */
-	public void changeCall(TestCase test, Statement statement, AccessibleObject call) throws ConstructionFailedException {
+	public void changeCall(TestCase test, StatementInterface statement, AccessibleObject call) throws ConstructionFailedException {
 		return;
 		/*
 		int position = statement.getReturnValue().statement;
@@ -1106,7 +1107,8 @@ public class OUMTestFactory extends AbstractTestFactory {
 		return calls;
 	}
 	
-	public boolean changeRandomCall(TestCase test, Statement statement) {
+	@Override
+	public boolean changeRandomCall(TestCase test, StatementInterface statement) {
 		List<VariableReference> objects = test.getObjects(statement.getReturnValue().statement);
 		objects.remove(statement.getReturnValue());
 		List<AccessibleObject> calls = getPossibleCalls(statement.getReturnType(), objects);

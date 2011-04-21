@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
-import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 /**
@@ -22,11 +22,11 @@ public class ContractViolation {
 
 	private final TestCase test;
 
-	private final Statement statement;
+	private final StatementInterface statement;
 
 	private final Throwable exception;
 
-	public ContractViolation(Contract contract, TestCase test, Statement statement,
+	public ContractViolation(Contract contract, TestCase test, StatementInterface statement,
 	        Throwable exception) {
 		this.contract = contract;
 		this.test = test.clone();

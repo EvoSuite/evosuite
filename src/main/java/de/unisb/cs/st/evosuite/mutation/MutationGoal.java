@@ -33,7 +33,7 @@ import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
-import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
@@ -114,7 +114,7 @@ public class MutationGoal extends TestCoverageGoal {
         }
 		
         int num = 0;
-		for(Statement statement : result.test.getStatements()) {
+		for(StatementInterface statement : result.test.getStatements()) {
 			for(int i = 0; i<parameters.length; i++) {
 				if(!satisfied.get(i)) {
 					if(parameters[i].isAssignableFrom(statement.getReturnValue().getVariableClass())) {
@@ -203,7 +203,7 @@ public class MutationGoal extends TestCoverageGoal {
 		if(!method_executed) {
 			logger.debug("Method "+methodName+"not executed by test");
 			boolean found = false;
-			for(Statement s : result.test.getStatements()) {
+			for(StatementInterface s : result.test.getStatements()) {
 				if(s instanceof MethodStatement) {
 					MethodStatement ms = (MethodStatement)s;
 					Method method = ms.getMethod();

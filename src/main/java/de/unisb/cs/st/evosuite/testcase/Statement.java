@@ -18,17 +18,12 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
-import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 
@@ -38,7 +33,7 @@ import de.unisb.cs.st.evosuite.assertion.Assertion;
  * @author Gordon Fraser
  * 
  */
-public abstract class Statement {
+public abstract class Statement implements StatementInterface {
 
 	protected static Logger logger = Logger.getLogger(Statement.class);
 
@@ -48,103 +43,53 @@ public abstract class Statement {
 
 	protected Throwable exceptionThrown = null;
 
-	/**
-	 * Adjust all variables up to position by delta
-	 * 
-	 * @param position
-	 * @param delta
-	 */
-	public abstract void adjustVariableReferences(int position, int delta);
 
-	/**
-	 * Check if the statement makes use of var
-	 * 
-	 * @param var
-	 *            Variable we are checking for
-	 * @return True if var is referenced
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#references(de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
 	public boolean references(VariableReference var) {
 		return getVariableReferences().contains(var);
 	}
 
-	public abstract Throwable execute(Scope scope, PrintStream out)
-	        throws InvocationTargetException, IllegalArgumentException,
-	        IllegalAccessException, InstantiationException;
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#SetRetval(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
 	public void SetRetval(VariableReference newRetVal){
 		this.retval=newRetVal;
 	}
 	
-	/**
-	 * Get Java representation of statement
-	 * 
-	 * @return
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getCode()
 	 */
 	public String getCode() {
 		return getCode(null);
 	}
 
-	/**
-	 * Get Java representation of statement
-	 * 
-	 * @return
-	 */
-	public abstract String getCode(Throwable exception);
+	@Override
+	public abstract StatementInterface clone();
 
-	/**
-	 * Generate bytecode by calling method generator
-	 * 
-	 * @param mg
-	 */
-	public abstract void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        Throwable exception);
-
-	/**
-	 * 
-	 * @return Generic type of return value
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getReturnType()
 	 */
 	public Type getReturnType() {
 		return retval.getType();
 	}
 
-	/**
-	 * 
-	 * @return Raw class of return value
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getReturnClass()
 	 */
 	public Class<?> getReturnClass() {
 		return (Class<?>) retval.getType();
 	}
 
-	/**
-	 * Equality check
-	 * 
-	 * @param s
-	 *            Other statement
-	 * @return True if equals
-	 */
-	public abstract boolean equals(Statement s);
-
-	/**
-	 * Generate hash code
-	 */
-	@Override
-	public abstract int hashCode();
-
-	/**
-	 * @return Variable representing return value
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getReturnValue()
 	 */
 	public VariableReference getReturnValue() {
 		return retval;
 	}
-
-	public abstract Set<VariableReference> getVariableReferences();
-
-	public abstract List<VariableReference> getUniqueVariableReferences();
-
-	public abstract void replace(VariableReference old_var, VariableReference new_var);
-
-	public abstract void replaceUnique(VariableReference old_var,
-	        VariableReference new_var);
 
 	/**
 	 * Create copies of all attached assertions
@@ -163,26 +108,15 @@ public abstract class Statement {
 		return copy;
 	}
 
-	/**
-	 * Create deep copy of statement
-	 */
-	@Override
-	public abstract Statement clone();
-
-	/**
-	 * Check if there are assertions
-	 * 
-	 * @return True if there are assertions
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#hasAssertions()
 	 */
 	public boolean hasAssertions() {
 		return !assertions.isEmpty();
 	}
 
-	/**
-	 * Add a new assertion to statement
-	 * 
-	 * @param assertion
-	 *            Assertion to be added
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#addAssertion(de.unisb.cs.st.evosuite.assertion.Assertion)
 	 */
 	public void addAssertion(Assertion assertion) {
 		if (assertion == null) {
@@ -193,10 +127,8 @@ public abstract class Statement {
 		}
 	}
 
-	/**
-	 * Get Java code representation of assertions
-	 * 
-	 * @return String representing all assertions attached to this statement
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getAssertionCode()
 	 */
 	public String getAssertionCode() {
 		String ret_val = "";
@@ -207,11 +139,8 @@ public abstract class Statement {
 		return ret_val;
 	}
 
-	/**
-	 * Fix variable references in assertions
-	 * 
-	 * @param position
-	 * @param delta
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#adjustAssertions(int, int)
 	 */
 	public void adjustAssertions(int position, int delta) {
 		for (Assertion a : assertions) {
@@ -220,27 +149,30 @@ public abstract class Statement {
 		}
 	}
 
-	/**
-	 * Delete all assertions attached to this statement
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#removeAssertions()
 	 */
 	public void removeAssertions() {
 		assertions.clear();
 	}
 
-	/**
-	 * Delete assertion attached to this statement
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#removeAssertion(de.unisb.cs.st.evosuite.assertion.Assertion)
 	 */
 	public void removeAssertion(Assertion assertion) {
 		assertions.remove(assertion);
 	}
 
-	/**
-	 * Return list of assertions
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getAssertions()
 	 */
 	public Set<Assertion> getAssertions() {
 		return assertions;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getDeclaredExceptions()
+	 */
 	public Set<Class<?>> getDeclaredExceptions() {
 		Set<Class<?>> ex = new HashSet<Class<?>>();
 		return ex;
@@ -254,6 +186,9 @@ public abstract class Statement {
 		return clazz;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getPosition()
+	 */
 	public int getPosition() {
 		return retval.statement;
 	}

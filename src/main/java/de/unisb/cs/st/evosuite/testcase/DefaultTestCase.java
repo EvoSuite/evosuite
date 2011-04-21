@@ -45,7 +45,7 @@ public class DefaultTestCase implements TestCase{
 	private static Logger logger = Logger.getLogger(DefaultTestCase.class);
 
 	/** The statements */
-	private List<Statement> statements;
+	private List<StatementInterface> statements;
 
 	// a list of all goals this test covers
 	private HashSet<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
@@ -55,7 +55,7 @@ public class DefaultTestCase implements TestCase{
 	 * Constructor
 	 */
 	public DefaultTestCase() {
-		statements = new ArrayList<Statement>();
+		statements = new ArrayList<StatementInterface>();
 	}
 
 	/**
@@ -63,7 +63,7 @@ public class DefaultTestCase implements TestCase{
 	 * 
 	 * @param statements
 	 */
-	public DefaultTestCase(List<Statement> statements) {
+	public DefaultTestCase(List<StatementInterface> statements) {
 		this.statements = statements;
 	}
 
@@ -99,7 +99,7 @@ public class DefaultTestCase implements TestCase{
 	@Override
 	public String toCode() {
 		String code = "";
-		for (Statement s : statements) {
+		for (StatementInterface s : statements) {
 			code += s.getCode() + "\n";
 			code += s.getAssertionCode();
 		}
@@ -113,7 +113,7 @@ public class DefaultTestCase implements TestCase{
 	public String toCode(Map<Integer, Throwable> exceptions) {
 		String code = "";
 		for (int i = 0; i < size(); i++) {
-			Statement s = statements.get(i);
+			StatementInterface s = statements.get(i);
 			if (exceptions.containsKey(i)) {
 				code += s.getCode(exceptions.get(i)) + "\n";
 				code += s.getAssertionCode();
@@ -135,28 +135,28 @@ public class DefaultTestCase implements TestCase{
 		// logger.trace("Looking for objects of type "+type
 		// +" up to position "+position+" in test with length "+statements.size());
 		for (int i = 0; i < position && i < size(); i++) {
-			if (statements.get(i).retval == null)
+			if (statements.get(i).getReturnValue() == null)
 				continue;
-			if (statements.get(i).retval.isArray()) {
+			if (statements.get(i).getReturnValue().isArray()) {
 				if (GenericClass.isAssignable(type,
-				        statements.get(i).retval.getComponentType())) {
+				        statements.get(i).getReturnValue().getComponentType())) {
 					// Add components
 					// variables.add(new
 					// VariableReference(statements.get(i).retval.clone(),
 					// Randomness.getInstance().nextInt(MAX_ARRAY), i));
 					// ArrayStatement as = (ArrayStatement)statements.get(i);
-					for (int index = 0; index < statements.get(i).retval.array_length; index++) {
+					for (int index = 0; index < statements.get(i).getReturnValue().array_length; index++) {
 						variables.add(new VariableReference(
-						        statements.get(i).retval.clone(), index,
-						        statements.get(i).retval.array_length, i));
+						        statements.get(i).getReturnValue().clone(), index,
+						        statements.get(i).getReturnValue().array_length, i));
 					}
 				}
-			} else if (statements.get(i).retval.isArrayIndex()) { // &&
+			} else if (statements.get(i).getReturnValue().isArrayIndex()) { // &&
 				                                                  // GenericClass.isAssignable(type,
 				                                                  // statements.get(i).retval.array.getComponentType()))
 				                                                  // {
 				// Don't need to add this
-			} else if (statements.get(i).retval.isAssignableTo(type)) {
+			} else if (statements.get(i).getReturnValue().isAssignableTo(type)) {
 				// if(constraint == null ||
 				// constraint.isValid(statements.get(i).getReturnValue()))
 				variables.add(new VariableReference(statements.get(i)
@@ -181,10 +181,10 @@ public class DefaultTestCase implements TestCase{
 		// logger.trace("Looking for objects of type "+type
 		// +" up to position "+position+" in test with length "+statements.size());
 		for (int i = 0; i < position && i < statements.size(); i++) {
-			if (statements.get(i).retval == null)
+			if (statements.get(i).getReturnValue() == null)
 				continue;
 			// TODO: Need to support arrays that were not self-created
-			if (statements.get(i).retval.isArray()) { // &&
+			if (statements.get(i).getReturnValue().isArray()) { // &&
 				                                      // statements.get(i).retval.array
 				                                      // != null) {
 				// Add a single component
@@ -196,15 +196,15 @@ public class DefaultTestCase implements TestCase{
 				// variables.add(new VariableReference(as.retval.clone(), index,
 				// as.size(), i));
 				// }
-				for (int index = 0; index < statements.get(i).retval.array_length; index++) {
+				for (int index = 0; index < statements.get(i).getReturnValue().array_length; index++) {
 					// variables.add(new
 					// VariableReference(statements.get(i).retval.clone(),
 					// index, statements.get(i).retval.array_length, i));
 					variables.add(new VariableReference(
-					        statements.get(i).retval.clone(), index, statements
-					                .get(i).retval.array_length, i));
+					        statements.get(i).getReturnValue().clone(), index, statements
+					                .get(i).getReturnValue().array_length, i));
 				}
-			} else if (!statements.get(i).retval.isArrayIndex()) {
+			} else if (!statements.get(i).getReturnValue().isArrayIndex()) {
 				variables.add(new VariableReference(statements.get(i)
 				        .getReturnType(), i));
 			}
@@ -301,7 +301,7 @@ public class DefaultTestCase implements TestCase{
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#setStatement(de.unisb.cs.st.evosuite.testcase.Statement, int)
 	 */
 	@Override
-	public VariableReference setStatement(Statement statement, int position) {
+	public VariableReference setStatement(StatementInterface statement, int position) {
 		statements.set(position, statement);
 		return new VariableReference(statement.getReturnType(), position); // TODO:
 		                                                                   // -1?
@@ -311,7 +311,7 @@ public class DefaultTestCase implements TestCase{
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#addStatement(de.unisb.cs.st.evosuite.testcase.Statement, int)
 	 */
 	@Override
-	public void addStatement(Statement statement, int position) {
+	public void addStatement(StatementInterface statement, int position) {
 		fixVariableReferences(position, 1);
 		statements.add(position, statement);
 	}
@@ -320,7 +320,7 @@ public class DefaultTestCase implements TestCase{
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#addStatement(de.unisb.cs.st.evosuite.testcase.Statement)
 	 */
 	@Override
-	public void addStatement(Statement statement) {
+	public void addStatement(StatementInterface statement) {
 		statements.add(statement);
 	}
 
@@ -392,7 +392,7 @@ public class DefaultTestCase implements TestCase{
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getStatement(int)
 	 */
 	@Override
-	public Statement getStatement(int position) {
+	public StatementInterface getStatement(int position) {
 		return statements.get(position);
 	}
 
@@ -400,7 +400,7 @@ public class DefaultTestCase implements TestCase{
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getStatements()
 	 */
 	@Override
-	public List<Statement> getStatements() {
+	public List<StatementInterface> getStatements() {
 		return statements;
 	}
 
@@ -473,10 +473,10 @@ public class DefaultTestCase implements TestCase{
 	@Override
 	public boolean hasObject(Type type, int position) {
 		for (int i = 0; i < position; i++) {
-			Statement st = statements.get(i);
-			if (st.retval == null)
+			StatementInterface st = statements.get(i);
+			if (st.getReturnValue() == null)
 				continue; // Nop
-			if (st.retval.isAssignableTo(type)) {
+			if (st.getReturnValue().isAssignableTo(type)) {
 				return true;
 			}
 		}
@@ -488,8 +488,8 @@ public class DefaultTestCase implements TestCase{
 	 */
 	@Override
 	public boolean hasCastableObject(Type type) {
-		for (Statement st : statements) {
-			if (st.retval.isAssignableFrom(type)) {
+		for (StatementInterface st : statements) {
+			if (st.getReturnValue().isAssignableFrom(type)) {
 				return true;
 			}
 		}
@@ -502,7 +502,7 @@ public class DefaultTestCase implements TestCase{
 	@Override
 	public DefaultTestCase clone() {
 		DefaultTestCase t = new DefaultTestCase();
-		for (Statement s : statements) {
+		for (StatementInterface s : statements) {
 			t.statements.add(s.clone());
 		}
 		t.coveredGoals.addAll(coveredGoals);
@@ -517,7 +517,7 @@ public class DefaultTestCase implements TestCase{
 	@Override
 	public Set<Class<?>> getAccessedClasses() {
 		Set<Class<?>> accessed_classes = new HashSet<Class<?>>();
-		for (Statement s : statements) {
+		for (StatementInterface s : statements) {
 			for (VariableReference var : s.getVariableReferences()) {
 				if (var != null && !var.isPrimitive()) {
 					Class<?> clazz = var.getVariableClass();
@@ -552,10 +552,10 @@ public class DefaultTestCase implements TestCase{
 	@Override
 	public void addAssertions(TestCase other) {
 		for (int i = 0; i < statements.size() && i < other.size(); i++) {
-			for (Assertion a : other.getStatement(i).assertions) {
-				if (!statements.get(i).assertions.contains(a))
+			for (Assertion a : other.getStatement(i).getAssertions()) {
+				if (!statements.get(i).getAssertions().contains(a))
 					if (a != null)
-						statements.get(i).assertions.add(a.clone());
+						statements.get(i).getAssertions().add(a.clone());
 			}
 		}
 	}
@@ -565,7 +565,7 @@ public class DefaultTestCase implements TestCase{
 	 */
 	@Override
 	public boolean hasAssertions() {
-		for (Statement s : statements) {
+		for (StatementInterface s : statements) {
 			if (s.hasAssertions())
 				return true;
 		}
@@ -578,8 +578,8 @@ public class DefaultTestCase implements TestCase{
 	@Override
 	public List<Assertion> getAssertions() {
 		List<Assertion> assertions = new ArrayList<Assertion>();
-		for (Statement s : statements) {
-			assertions.addAll(s.assertions);
+		for (StatementInterface s : statements) {
+			assertions.addAll(s.getAssertions());
 		}
 		return assertions;
 	}
@@ -589,7 +589,7 @@ public class DefaultTestCase implements TestCase{
 	 */
 	@Override
 	public void removeAssertions() {
-		for (Statement s : statements) {
+		for (StatementInterface s : statements) {
 			s.removeAssertions();
 		}
 
@@ -601,10 +601,10 @@ public class DefaultTestCase implements TestCase{
 	@Override
 	public boolean isValid() {
 		int num = 0;
-		for (Statement s : statements) {
-			if (s.retval.statement != num) {
+		for (StatementInterface s : statements) {
+			if (s.getReturnValue().statement != num) {
 				logger.error("Test case is invalid at statement " + num + " - "
-				        + s.retval.statement);
+				        + s.getReturnValue().statement);
 				return false;
 			}
 			num++;
@@ -618,7 +618,7 @@ public class DefaultTestCase implements TestCase{
 	@Override
 	public Set<Class<?>> getDeclaredExceptions() {
 		Set<Class<?>> exceptions = new HashSet<Class<?>>();
-		for (Statement statement : statements) {
+		for (StatementInterface statement : statements) {
 			exceptions.addAll(statement.getDeclaredExceptions());
 		}
 		return exceptions;
@@ -629,7 +629,7 @@ public class DefaultTestCase implements TestCase{
 	 */
 	@Override
 	public boolean hasCalls() {
-		for (Statement s : statements) {
+		for (StatementInterface s : statements) {
 			if (s instanceof TestCallStatement) {
 				return true;
 			}
@@ -658,7 +658,7 @@ public class DefaultTestCase implements TestCase{
 	 * @see java.lang.Iterable#iterator()
 	 */
 	@Override
-	public Iterator<Statement> iterator() {
+	public Iterator<StatementInterface> iterator() {
 		return statements.iterator();
 	}
 }

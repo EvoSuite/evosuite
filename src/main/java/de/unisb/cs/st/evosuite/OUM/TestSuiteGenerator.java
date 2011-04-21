@@ -58,7 +58,7 @@ import de.unisb.cs.st.evosuite.testcase.FieldStatement;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
 import de.unisb.cs.st.evosuite.testcase.RelativeLengthBloatControl;
-import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestCaseMinimizer;
@@ -419,7 +419,7 @@ public class TestSuiteGenerator {
 			Set<AccessibleObject> calls = new HashSet<AccessibleObject>();
 			for (TestCase test : tests) {
 				int num = 0;
-				for (Statement s : test.getStatements()) {
+				for (StatementInterface s : test.getStatements()) {
 					for (VariableReference var : s.getVariableReferences()) {
 						classes.add(var.getVariableClass());
 					}

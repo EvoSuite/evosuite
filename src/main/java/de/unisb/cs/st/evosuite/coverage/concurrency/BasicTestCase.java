@@ -34,6 +34,7 @@ import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
@@ -134,12 +135,12 @@ public class BasicTestCase extends DefaultTestCase {
 			}
 
 			@Override
-			public boolean equals(Statement s) {
+			public boolean equals(StatementInterface s) {
 				return s==this;
 			}
 
 			@Override
-			public Statement clone() {
+			public StatementInterface clone() {
 				return getPseudoStatement(clazz, retval.statement);
 			}
 
@@ -172,7 +173,7 @@ public class BasicTestCase extends DefaultTestCase {
 	 * @return Return value of statement
 	 */
 	@Override
-	public VariableReference setStatement(Statement statement, int position) {
+	public VariableReference setStatement(StatementInterface statement, int position) {
 		assert(position>=0);
 		statement = replaceConstructorStatement(statement, position);
 		return super.setStatement(statement, position);
@@ -188,7 +189,7 @@ public class BasicTestCase extends DefaultTestCase {
 	 * @return Return value of statement
 	 */
 	@Override
-	public void addStatement(Statement statement, int position) {
+	public void addStatement(StatementInterface statement, int position) {
 		assert(position>=0);
 		assert(statement.getReturnValue().statement==position);
 		statement = replaceConstructorStatement(statement, position);
@@ -201,7 +202,7 @@ public class BasicTestCase extends DefaultTestCase {
 	 * @param position
 	 * @return
 	 */
-	private Statement replaceConstructorStatement(Statement statement, int position){
+	private StatementInterface replaceConstructorStatement(StatementInterface statement, int position){
 		if(replaceConst && statement instanceof ConstructorStatement){
 			ConstructorStatement c = (ConstructorStatement)statement;
 			//#TODO steenbuck we should check if the constructor uses the object we supplied as param (if yes maybe we should let the object be created)
@@ -234,8 +235,8 @@ public class BasicTestCase extends DefaultTestCase {
 	@Override
 	public BasicTestCase clone() {
 		BasicTestCase t = new BasicTestCase(replaceConst);
-		List<Statement> newStatements = t.getStatements();
-		for (Statement s : this) {
+		List<StatementInterface> newStatements = t.getStatements();
+		for (StatementInterface s : this) {
 			newStatements.add(s.clone());
 		}
 		t.getCoveredGoals().addAll(super.getCoveredGoals());

@@ -58,7 +58,7 @@ public class AssignmentStatement extends Statement {
 	}
 
 	@Override
-	public Statement clone() {
+	public StatementInterface clone() {
 		AssignmentStatement copy = new AssignmentStatement(retval.clone(),
 		        parameter.clone());
 		return copy;
@@ -117,7 +117,7 @@ public class AssignmentStatement extends Statement {
 	}
 
 	@Override
-	public boolean equals(Statement obj) {
+	public boolean equals(StatementInterface obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)

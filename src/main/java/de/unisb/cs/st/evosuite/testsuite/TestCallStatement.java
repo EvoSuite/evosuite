@@ -17,6 +17,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
@@ -192,7 +193,7 @@ public class TestCallStatement extends Statement {
 	 * @see de.unisb.cs.st.evosuite.testcase.Statement#clone()
 	 */
 	@Override
-	public Statement clone() {
+	public StatementInterface clone() {
 		TestCallStatement statement = new TestCallStatement(testCall, retval.clone());
 		return statement;
 	}
@@ -206,7 +207,7 @@ public class TestCallStatement extends Statement {
 	}
 
 	@Override
-	public boolean equals(Statement s) {
+	public boolean equals(StatementInterface s) {
 		if (this == s)
 			return true;
 		if (s == null)

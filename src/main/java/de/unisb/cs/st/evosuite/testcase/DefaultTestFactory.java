@@ -228,7 +228,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	 * @param s
 	 */
 	@Override
-	public void appendStatement(TestCase test, Statement statement)
+	public void appendStatement(TestCase test, StatementInterface statement)
 	        throws ConstructionFailedException {
 		current_recursion.clear();
 
@@ -263,7 +263,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			// Change all references to return value at position to something
 			// else
 			for (int i = position; i < test.size(); i++) {
-				Statement s = test.getStatement(i);
+				StatementInterface s = test.getStatement(i);
 				if (s.references(var)) {
 					if (s instanceof MethodStatement) {
 						MethodStatement ms = (MethodStatement) s;
@@ -854,7 +854,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	 * @throws ConstructionFailedException
 	 */
 	@Override
-	public void changeCall(TestCase test, Statement statement, AccessibleObject call)
+	public void changeCall(TestCase test, StatementInterface statement, AccessibleObject call)
 	        throws ConstructionFailedException {
 		int position = statement.getReturnValue().statement;
 
@@ -1113,9 +1113,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	}
 
 	@Override
-	public boolean changeRandomCall(TestCase test, Statement statement) {
-		List<VariableReference> objects = test.getObjects(statement.retval.statement);
-		objects.remove(statement.retval);
+	public boolean changeRandomCall(TestCase test, StatementInterface statement) {
+		List<VariableReference> objects = test.getObjects(statement.getReturnValue().statement);
+		objects.remove(statement.getReturnValue());
 		List<AccessibleObject> calls = getPossibleCalls(statement.getReturnType(),
 		                                                objects);
 
