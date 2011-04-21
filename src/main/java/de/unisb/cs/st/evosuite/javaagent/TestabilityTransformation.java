@@ -3,17 +3,12 @@
  */
 package de.unisb.cs.st.evosuite.javaagent;
 
-import java.io.IOException;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Queue;
 import java.util.Set;
-import java.util.Stack;
 
 import org.apache.log4j.Logger;
-import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -39,7 +34,6 @@ import org.objectweb.asm.tree.analysis.BasicValue;
 import org.objectweb.asm.tree.analysis.Frame;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.testability.BooleanHelper;
 
 /**
  * @author Gordon Fraser
@@ -52,23 +46,23 @@ public class TestabilityTransformation {
 
 	private final ClassNode cn;
 
-	public static final int K = Properties.getPropertyOrDefault("K",
-	                                                            (Integer.MAX_VALUE - 2));
-
-	private static Stack<Integer> distanceStack = null; //new Stack<Integer>();
-
-	private static Stack<Stack<Integer>> stackStack = new Stack<Stack<Integer>>();
-
 	public static String getTransformedDesc(String className, String methodName,
 	        String desc) {
 		return mapping.getMethodDesc(className, methodName, desc);
 	}
 
+	public static String getTransformedName(String className, String methodName,
+	        String desc) {
+		return mapping.getMethodName(className, methodName, desc);
+	}
+
 	public static String getOriginalNameDesc(String className, String methodName,
 	        String desc) {
 		String key = className.replace(".", "/") + "." + methodName + desc;
-		if (mapping.original.containsKey(key)) {
-			return methodName + mapping.original.get(key);
+		if (mapping.originalDesc.containsKey(key)) {
+
+			return mapping.getOriginalName(className, methodName, desc)
+			        + mapping.originalDesc.get(key);
 		} else {
 			return methodName + desc;
 		}
@@ -76,7 +70,9 @@ public class TestabilityTransformation {
 
 	private static DescriptorMapping mapping = DescriptorMapping.getInstance();
 
-	private static Set<JumpInsnNode> flagNodes = new HashSet<JumpInsnNode>();
+	private static Set<AbstractInsnNode> flagDefs = new HashSet<AbstractInsnNode>();
+
+	private static Set<JumpInsnNode> flagUses = new HashSet<JumpInsnNode>();
 
 	public TestabilityTransformation(ClassNode cn) {
 		this.cn = cn;
@@ -85,6 +81,15 @@ public class TestabilityTransformation {
 	public ClassNode transform() {
 		processFields();
 		processMethods();
+		//for (int i = 0; i < cn.interfaces.size(); i++) {
+		//	String n = (String) cn.interfaces.get(i);
+		//	cn.interfaces.set(i, n.replaceAll(Matcher.quoteReplacement("java/util"),
+		//	                                  "java2/util2"));//
+		//
+		//		}
+		//		cn.superName = cn.superName.replaceAll(Matcher.quoteReplacement("java/util"),
+		//		                                       "java2/util2");
+
 		return cn;
 	}
 
@@ -97,126 +102,37 @@ public class TestabilityTransformation {
 		for (FieldNode fn : fieldNodes) {
 			logger.info("Transforming field " + fn.name + " - " + fn.desc);
 			fn.desc = mapping.getFieldDesc(cn.name, fn.name, fn.desc);
+			//fn.desc = fn.desc.replaceAll(Matcher.quoteReplacement("java/util"),
+			//	                             "java2/util2");
+
 			logger.info("Transformed field: " + fn.desc);
 		}
 	}
 
 	private void processMethods() {
 		List<MethodNode> methodNodes = cn.methods;
+		int count = 0;
+		int defs = flagDefs.size();
 		for (MethodNode mn : methodNodes) {
 			if (Properties.TRANSFORM_BOOLEAN) {
 				// If this method was defined somewhere outside the test package, do not transform signature
 				String desc = mn.desc;
 				mn.desc = mapping.getMethodDesc(cn.name, mn.name, mn.desc);
+				//mn.desc = mn.desc.replaceAll(Matcher.quoteReplacement("java/util"),
+				//                            "java2/util2");
+				//
 				mn.name = mapping.getMethodName(cn.name, mn.name, desc);
 				logger.info("Now going inside " + mn.name + mn.desc);
 				// Actually this should be done automatically by the ClassWriter...
 				// +2 because we might do a DUP2
 				mn.maxStack += 3;
 			}
-			transformMethod(mn);
+			count += transformMethod(mn);
 
 		}
-	}
-
-	private boolean isBooleanField(String desc) {
-		Type type = Type.getType(desc);
-		return type.equals(Type.BOOLEAN_TYPE);
-	}
-
-	private boolean isBooleanMethod(String desc) {
-		Type[] types = Type.getArgumentTypes(desc);
-		for (Type type : types) {
-			if (type.equals(Type.BOOLEAN_TYPE)) {
-				return true;
-			} else if (type.equals(Type.ARRAY)) {
-				if (type.getElementType().equals(Type.BOOLEAN_TYPE)) {
-					return true;
-				}
-			}
-		}
-
-		Type type = Type.getReturnType(desc);
-		if (type.equals(Type.BOOLEAN_TYPE)) {
-			return true;
-		} else if (type.equals(Type.ARRAY)) {
-			if (type.getElementType().equals(Type.BOOLEAN_TYPE)) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	private boolean isBooleanMethod(MethodNode mn) {
-		if (mn.desc.endsWith("Z") || mn.desc.endsWith("[Z")) {
-			logger.info("Method " + mn.name + mn.desc + " is a boolean method");
-			return true;
-		} else {
-			Type[] types = Type.getArgumentTypes(mn.desc);
-			for (Type type : types) {
-				if (type.equals(Type.BOOLEAN_TYPE)) {
-					logger.info("Method " + mn.name + mn.desc + " is a boolean method");
-					return true;
-				} else if (type.equals(Type.ARRAY)) { // TODO: Does this work?
-					if (type.getElementType().equals(Type.BOOLEAN_TYPE)) {
-						logger.info("Method " + mn.name + mn.desc
-						        + " is a boolean method");
-						return true;
-					}
-				}
-			}
-			logger.info("Method " + mn.name + mn.desc + " is not a boolean method");
-		}
-
-		return false;
-	}
-
-	private boolean isOutsideMethod(MethodNode mn) {
-		Set<String> visited = new HashSet<String>();
-		Queue<String> parents = new LinkedList<String>();
-		parents.addAll(cn.interfaces);
-		parents.add(cn.superName);
-
-		while (!parents.isEmpty()) {
-			String name = parents.poll();
-			if (name == null)
-				continue;
-
-			visited.add(name);
-
-			ClassReader reader;
-			try {
-				reader = new ClassReader(name);
-				ClassNode parent = new ClassNode();
-				reader.accept(parent, ClassReader.EXPAND_FRAMES);
-
-				if (!parent.name.startsWith(Properties.PROJECT_PREFIX)) {
-					for (Object o : parent.methods) {
-						MethodNode mn2 = (MethodNode) o;
-						if (mn2.name.equals(mn.name) && mn2.desc.equals(mn.desc)) {
-							logger.info("Method " + mn.name
-							        + " was defined outside the test package");
-							return true;
-						}
-					}
-				}
-				for (Object o : parent.interfaces) {
-					String par = (String) o;
-					if (!visited.contains(par) && !parents.contains(par)) {
-						parents.add(par);
-					}
-				}
-				if (!visited.contains(parent.superName)
-				        && !parents.contains(parent.superName)) {
-					parents.add(parent.superName);
-				}
-			} catch (IOException e) {
-				logger.info("Error reading class " + name);
-			}
-		}
-
-		return false;
+		System.out.println("Flag definitions found for class " + cn.name + ": "
+		        + (flagDefs.size() - defs));
+		System.out.println("Flag uses found for class " + cn.name + ": " + count);
 	}
 
 	private boolean isBooleanAssignment(AbstractInsnNode position, MethodNode mn) {
@@ -296,7 +212,7 @@ public class TestabilityTransformation {
 
 	private void insertPushNull(int opcode, AbstractInsnNode position, InsnList list) {
 		MethodInsnNode nullCheck = new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        Type.getInternalName(TestabilityTransformation.class), "isNull",
+		        Type.getInternalName(BooleanHelper.class), "isNull",
 		        Type.getMethodDescriptor(Type.INT_TYPE,
 		                                 new Type[] { Type.getType(Object.class),
 		                                         Type.INT_TYPE }));
@@ -304,7 +220,7 @@ public class TestabilityTransformation {
 		list.insertBefore(position, new LdcInsnNode(opcode));
 		list.insertBefore(position, nullCheck);
 		MethodInsnNode push = new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        Type.getInternalName(TestabilityTransformation.class), "pushPredicate",
+		        Type.getInternalName(BooleanHelper.class), "pushPredicate",
 		        Type.getMethodDescriptor(Type.VOID_TYPE, new Type[] { Type.INT_TYPE }));
 		list.insertBefore(position, push);
 
@@ -312,7 +228,7 @@ public class TestabilityTransformation {
 
 	private void insertPushEquals(int opcode, AbstractInsnNode position, InsnList list) {
 		MethodInsnNode equalCheck = new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        Type.getInternalName(TestabilityTransformation.class), "isEqual",
+		        Type.getInternalName(BooleanHelper.class), "isEqual",
 		        Type.getMethodDescriptor(Type.INT_TYPE,
 		                                 new Type[] { Type.getType(Object.class),
 		                                         Type.getType(Object.class),
@@ -321,7 +237,7 @@ public class TestabilityTransformation {
 		list.insertBefore(position, new LdcInsnNode(opcode));
 		list.insertBefore(position, equalCheck);
 		MethodInsnNode push = new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        Type.getInternalName(TestabilityTransformation.class), "pushPredicate",
+		        Type.getInternalName(BooleanHelper.class), "pushPredicate",
 		        Type.getMethodDescriptor(Type.VOID_TYPE, new Type[] { Type.INT_TYPE }));
 		list.insertBefore(position, push);
 
@@ -333,7 +249,7 @@ public class TestabilityTransformation {
 		//list.insertBefore(position, new InsnNode(Opcodes.SWAP));
 		//list.insertBefore(position, new InsnNode(Opcodes.ISUB));
 		MethodInsnNode push = new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        Type.getInternalName(TestabilityTransformation.class), "pushPredicate",
+		        Type.getInternalName(BooleanHelper.class), "pushPredicate",
 		        Type.getMethodDescriptor(Type.VOID_TYPE, new Type[] { Type.INT_TYPE }));
 		list.insertBefore(position, push);
 
@@ -343,7 +259,7 @@ public class TestabilityTransformation {
 		list.insertBefore(position, new InsnNode(Opcodes.DUP2));
 		list.insertBefore(position, new InsnNode(Opcodes.ISUB));
 		MethodInsnNode push = new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        Type.getInternalName(TestabilityTransformation.class), "pushPredicate",
+		        Type.getInternalName(BooleanHelper.class), "pushPredicate",
 		        Type.getMethodDescriptor(Type.VOID_TYPE, new Type[] { Type.INT_TYPE }));
 		list.insertBefore(position, push);
 
@@ -351,7 +267,7 @@ public class TestabilityTransformation {
 
 	private void insertGet(AbstractInsnNode position, InsnList list) {
 		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        Type.getInternalName(TestabilityTransformation.class), "getDistance",
+		        Type.getInternalName(BooleanHelper.class), "getDistance",
 		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.INT_TYPE }));
 		list.insert(position, get);
 		//list.remove(position);
@@ -360,7 +276,7 @@ public class TestabilityTransformation {
 	private void insertLongComparison(AbstractInsnNode position, InsnList list) {
 		list.insertBefore(position, new InsnNode(Opcodes.LSUB));
 		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        Type.getInternalName(TestabilityTransformation.class), "fromLong",
+		        Type.getInternalName(BooleanHelper.class), "fromLong",
 		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.LONG_TYPE }));
 		list.insert(position, get);
 		list.remove(position);
@@ -369,7 +285,7 @@ public class TestabilityTransformation {
 	private void insertFloatComparison(AbstractInsnNode position, InsnList list) {
 		list.insertBefore(position, new InsnNode(Opcodes.FSUB));
 		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        Type.getInternalName(TestabilityTransformation.class), "fromFloat",
+		        Type.getInternalName(BooleanHelper.class), "fromFloat",
 		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.FLOAT_TYPE }));
 		list.insert(position, get);
 		list.remove(position);
@@ -378,45 +294,10 @@ public class TestabilityTransformation {
 	private void insertDoubleComparison(AbstractInsnNode position, InsnList list) {
 		list.insertBefore(position, new InsnNode(Opcodes.DSUB));
 		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        Type.getInternalName(TestabilityTransformation.class), "fromDouble",
+		        Type.getInternalName(BooleanHelper.class), "fromDouble",
 		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.DOUBLE_TYPE }));
 		list.insert(position, get);
 		list.remove(position);
-	}
-
-	private String transformMethodDescriptor(String desc) {
-		String new_desc = "(";
-
-		Type[] types = Type.getArgumentTypes(desc);
-		for (Type type : types) {
-			if (type.equals(Type.BOOLEAN_TYPE)) {
-				new_desc += "I";
-			} else if (type.equals(Type.ARRAY)) {
-				if (type.getElementType().equals(Type.BOOLEAN_TYPE)) {
-					new_desc += "[I";
-				} else {
-					new_desc += type.getDescriptor();
-				}
-			} else {
-				new_desc += type.getDescriptor();
-			}
-		}
-		new_desc += ")";
-
-		Type type = Type.getReturnType(desc);
-		if (type.equals(Type.BOOLEAN_TYPE)) {
-			new_desc += "I";
-		} else if (type.equals(Type.ARRAY)) {
-			if (type.getElementType().equals(Type.BOOLEAN_TYPE)) {
-				new_desc += "[I";
-			} else {
-				new_desc += type.getDescriptor();
-			}
-		} else {
-			new_desc += type.getDescriptor();
-		}
-
-		return new_desc;
 	}
 
 	private LocalVariableNode getVariable(int var, MethodNode mn) {
@@ -458,15 +339,13 @@ public class TestabilityTransformation {
 			if (node.getOpcode() == Opcodes.PUTFIELD
 			        || node.getOpcode() == Opcodes.PUTSTATIC) {
 				MethodInsnNode n = new MethodInsnNode(Opcodes.INVOKESTATIC,
-				        Type.getInternalName(TestabilityTransformation.class),
-				        "intToBoolean",
+				        Type.getInternalName(BooleanHelper.class), "intToBoolean",
 				        Type.getMethodDescriptor(Type.BOOLEAN_TYPE,
 				                                 new Type[] { Type.INT_TYPE }));
 				mn.instructions.insertBefore(node, n);
 			} else {
 				MethodInsnNode n = new MethodInsnNode(Opcodes.INVOKESTATIC,
-				        Type.getInternalName(TestabilityTransformation.class),
-				        "booleanToInt",
+				        Type.getInternalName(BooleanHelper.class), "booleanToInt",
 				        Type.getMethodDescriptor(Type.INT_TYPE,
 				                                 new Type[] { Type.BOOLEAN_TYPE }));
 				mn.instructions.insert(node, n);
@@ -499,8 +378,7 @@ public class TestabilityTransformation {
 					//the boolean parameter is the last parameter
 					MethodInsnNode booleanHelperInvoke = new MethodInsnNode(
 					        Opcodes.INVOKESTATIC,
-					        Type.getInternalName(TestabilityTransformation.class),
-					        "intToBoolean",
+					        Type.getInternalName(BooleanHelper.class), "intToBoolean",
 					        Type.getMethodDescriptor(Type.BOOLEAN_TYPE,
 					                                 new Type[] { Type.INT_TYPE }));
 					mn.instructions.insertBefore(node, booleanHelperInvoke);
@@ -548,7 +426,7 @@ public class TestabilityTransformation {
 						if (i == firstBooleanParameterIndex) {
 							MethodInsnNode booleanHelperInvoke = new MethodInsnNode(
 							        Opcodes.INVOKESTATIC,
-							        Type.getInternalName(TestabilityTransformation.class),
+							        Type.getInternalName(BooleanHelper.class),
 							        "intToBoolean",
 							        Type.getMethodDescriptor(Type.BOOLEAN_TYPE,
 							                                 new Type[] { Type.INT_TYPE }));
@@ -639,8 +517,7 @@ public class TestabilityTransformation {
 			}
 			if (Type.getReturnType(node.desc).equals(Type.BOOLEAN_TYPE)) {
 				MethodInsnNode n = new MethodInsnNode(Opcodes.INVOKESTATIC,
-				        Type.getInternalName(TestabilityTransformation.class),
-				        "booleanToInt",
+				        Type.getInternalName(BooleanHelper.class), "booleanToInt",
 				        Type.getMethodDescriptor(Type.INT_TYPE,
 				                                 new Type[] { Type.BOOLEAN_TYPE }));
 				mn.instructions.insert(node, n);
@@ -674,7 +551,7 @@ public class TestabilityTransformation {
 						//the boolean parameter is the last parameter
 						MethodInsnNode booleanHelperInvoke = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(TestabilityTransformation.class),
+						        Type.getInternalName(BooleanHelper.class),
 						        "booleanToInt",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] { Type.BOOLEAN_TYPE }));
@@ -848,16 +725,15 @@ public class TestabilityTransformation {
 						mn.instructions.insertBefore(node, n);
 					}
 					MethodInsnNode n = new MethodInsnNode(Opcodes.INVOKESTATIC,
-					        Type.getInternalName(TestabilityTransformation.class),
-					        "instanceOf",
+					        Type.getInternalName(BooleanHelper.class), "instanceOf",
 					        Type.getMethodDescriptor(Type.INT_TYPE,
 					                                 new Type[] {
 					                                         Type.getType(Object.class),
 					                                         Type.getType(Class.class) }));
 					mn.instructions.insertBefore(node, n);
-					if (next instanceof JumpInsnNode) {
-						flagNodes.add((JumpInsnNode) next);
-					}
+					//if (next instanceof JumpInsnNode) {
+					//	flagNodes.add((JumpInsnNode) next);
+					//}
 					mn.instructions.remove(node);
 				}
 			}
@@ -935,9 +811,11 @@ public class TestabilityTransformation {
 				InsnNode in = (InsnNode) node;
 				if (in.getOpcode() == Opcodes.ICONST_0 && isBooleanAssignment(node, mn)) {
 					insertGet(node, mn.instructions);
+					flagDefs.add(node);
 				} else if (in.getOpcode() == Opcodes.ICONST_1
 				        && isBooleanAssignment(node, mn)) {
 					insertGet(node, mn.instructions);
+					flagDefs.add(node);
 				}
 			} else if (node instanceof VarInsnNode) {
 				// Special case for implicit else branch
@@ -947,6 +825,7 @@ public class TestabilityTransformation {
 					VarInsnNode vn2 = (VarInsnNode) node.getNext();
 					if (vn1.var == vn2.var) {
 						insertGet(node, mn.instructions);
+						flagDefs.add(node);
 					}
 				}
 			} else if (node instanceof FieldInsnNode) {
@@ -958,11 +837,14 @@ public class TestabilityTransformation {
 					if (fn1.owner.equals(fn2.owner) && fn1.name.equals(fn2.name)
 					        && fn1.desc.equals(fn2.desc)) {
 						if (fn1.getOpcode() == Opcodes.GETFIELD
-						        && fn2.getOpcode() == Opcodes.PUTFIELD)
+						        && fn2.getOpcode() == Opcodes.PUTFIELD) {
 							insertGet(node, mn.instructions);
-						else if (fn1.getOpcode() == Opcodes.GETSTATIC
-						        && fn2.getOpcode() == Opcodes.PUTSTATIC)
+							flagDefs.add(node);
+						} else if (fn1.getOpcode() == Opcodes.GETSTATIC
+						        && fn2.getOpcode() == Opcodes.PUTSTATIC) {
 							insertGet(node, mn.instructions);
+							flagDefs.add(node);
+						}
 					}
 				}
 			}
@@ -1013,7 +895,7 @@ public class TestabilityTransformation {
 					if (min.name.equals("equals")) {
 						MethodInsnNode equalCheck = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(TestabilityTransformation.class),
+						        Type.getInternalName(BooleanHelper.class),
 						        "StringEquals",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
@@ -1025,7 +907,7 @@ public class TestabilityTransformation {
 					} else if (min.name.equals("equalsIgnoreCase")) {
 						MethodInsnNode equalCheck = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(TestabilityTransformation.class),
+						        Type.getInternalName(BooleanHelper.class),
 						        "StringEqualsIgnoreCase",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
@@ -1041,7 +923,7 @@ public class TestabilityTransformation {
 						}
 						MethodInsnNode equalCheck = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(TestabilityTransformation.class),
+						        Type.getInternalName(BooleanHelper.class),
 						        "StringStartsWith",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
@@ -1054,7 +936,7 @@ public class TestabilityTransformation {
 					} else if (min.name.equals("endsWith")) {
 						MethodInsnNode equalCheck = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(TestabilityTransformation.class),
+						        Type.getInternalName(BooleanHelper.class),
 						        "StringEndsWith",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
@@ -1066,7 +948,7 @@ public class TestabilityTransformation {
 					} else if (min.name.equals("isEmpty")) {
 						MethodInsnNode equalCheck = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(TestabilityTransformation.class),
+						        Type.getInternalName(BooleanHelper.class),
 						        "StringIsEmpty",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] { Type.getType(String.class) }));
@@ -1158,6 +1040,8 @@ public class TestabilityTransformation {
 			LabelNode target = n.label;
 			if (target.getPrevious() instanceof FieldInsnNode) {
 				FieldInsnNode fn = (FieldInsnNode) target.getPrevious();
+				if (!(fn.getPrevious().getPrevious() instanceof VarInsnNode))
+					return; // TODO: How is this possible? java.math.MutableBigInteger
 				VarInsnNode vn = (VarInsnNode) fn.getPrevious().getPrevious();
 				AbstractInsnNode m = node.getNext();
 				logger.info("Found variable to store: ");
@@ -1200,6 +1084,8 @@ public class TestabilityTransformation {
 
 			JumpInsnNode n = (JumpInsnNode) node;
 			LabelNode target = n.label;
+			if (!(target.getPrevious() instanceof FieldInsnNode))
+				return; // How can that be?
 			FieldInsnNode fn = (FieldInsnNode) target.getPrevious();
 			AbstractInsnNode m = node.getNext();
 			int num = -1;
@@ -1232,11 +1118,11 @@ public class TestabilityTransformation {
 		if (node.getOpcode() == Opcodes.IFNE) {
 			logger.info("Changing IFNE");
 			node.setOpcode(Opcodes.IFGT);
-			flagNodes.add(node);
+			flagUses.add(node);
 		} else if (node.getOpcode() == Opcodes.IFEQ) {
 			logger.info("Changing IFEQ");
 			node.setOpcode(Opcodes.IFLE);
-			flagNodes.add(node);
+			flagUses.add(node);
 		}
 	}
 
@@ -1249,30 +1135,24 @@ public class TestabilityTransformation {
 				if (isBooleanAssignment(node, mn)) {
 					if (node.getOpcode() == Opcodes.IOR) {
 						MethodInsnNode push = new MethodInsnNode(Opcodes.INVOKESTATIC,
-						        Type.getInternalName(TestabilityTransformation.class),
-						        "IOR", Type.getMethodDescriptor(Type.INT_TYPE,
-						                                        new Type[] {
-						                                                Type.INT_TYPE,
-						                                                Type.INT_TYPE }));
+						        Type.getInternalName(BooleanHelper.class), "IOR",
+						        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] {
+						                Type.INT_TYPE, Type.INT_TYPE }));
 						mn.instructions.insertBefore(node, push);
 						mn.instructions.remove(node);
 					} else if (node.getOpcode() == Opcodes.IAND) {
 						MethodInsnNode push = new MethodInsnNode(Opcodes.INVOKESTATIC,
-						        Type.getInternalName(TestabilityTransformation.class),
-						        "IAND", Type.getMethodDescriptor(Type.INT_TYPE,
-						                                         new Type[] {
-						                                                 Type.INT_TYPE,
-						                                                 Type.INT_TYPE }));
+						        Type.getInternalName(BooleanHelper.class), "IAND",
+						        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] {
+						                Type.INT_TYPE, Type.INT_TYPE }));
 						mn.instructions.insertBefore(node, push);
 						mn.instructions.remove(node);
 
 					} else if (node.getOpcode() == Opcodes.IXOR) {
 						MethodInsnNode push = new MethodInsnNode(Opcodes.INVOKESTATIC,
-						        Type.getInternalName(TestabilityTransformation.class),
-						        "IXOR", Type.getMethodDescriptor(Type.INT_TYPE,
-						                                         new Type[] {
-						                                                 Type.INT_TYPE,
-						                                                 Type.INT_TYPE }));
+						        Type.getInternalName(BooleanHelper.class), "IXOR",
+						        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] {
+						                Type.INT_TYPE, Type.INT_TYPE }));
 						mn.instructions.insertBefore(node, push);
 						mn.instructions.remove(node);
 
@@ -1312,6 +1192,12 @@ public class TestabilityTransformation {
 					                                                      me.name,
 					                                                      me.desc)) {
 						transformBooleanIf(jump, mn);
+					} else if (me.owner.equals("de/unisb/cs/st/evosuite/javaagent/BooleanHelper")
+					        && me.name.startsWith("String")) {
+						transformBooleanIf(jump, mn);
+					} else {
+						logger.info("This does not look like a transformable if: "
+						        + me.owner + "." + me.name);
 					}
 				} else if (node instanceof FieldInsnNode) {
 					logger.info("Found IFELSE");
@@ -1538,8 +1424,7 @@ public class TestabilityTransformation {
 				AbstractInsnNode node = iterator.next();
 				if (node.getOpcode() == Opcodes.IRETURN) {
 					MethodInsnNode n = new MethodInsnNode(Opcodes.INVOKESTATIC,
-					        Type.getInternalName(TestabilityTransformation.class),
-					        "intToBoolean",
+					        Type.getInternalName(BooleanHelper.class), "intToBoolean",
 					        Type.getMethodDescriptor(Type.BOOLEAN_TYPE,
 					                                 new Type[] { Type.INT_TYPE }));
 					mn.instructions.insertBefore(node, n);
@@ -1581,17 +1466,19 @@ public class TestabilityTransformation {
 		}
 	}
 
-	private void transformMethod(MethodNode mn) {
+	private int transformMethod(MethodNode mn) {
 		logger.info("Transforming method " + mn.name + mn.desc);
+		int before = flagUses.size();
+
 		MethodInsnNode reset = new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        Type.getInternalName(TestabilityTransformation.class), "clearPredicates",
+		        Type.getInternalName(BooleanHelper.class), "clearPredicates",
 		        Type.getMethodDescriptor(Type.VOID_TYPE, new Type[] {}));
 
 		// First, reset the stack of distance values
 		// TODO: Need to find a better strategy for this
 		// TODO: Only insert this if there is a call to push/get in the method
 		//if (mn.instructions.getFirst() != null && !mn.name.startsWith("<")
-		//       && !mn.name.equals("__STATIC_RESET"))
+		//        && !mn.name.equals("__STATIC_RESET"))
 		//	mn.instructions.insertBefore(mn.instructions.getFirst(), reset);
 
 		if (Properties.TRANSFORM_ELSE) {
@@ -1637,341 +1524,7 @@ public class TestabilityTransformation {
 			// Convert boolean arrays to integer arrays
 			transformArrays(mn);
 		}
-
+		return flagUses.size() - before;
 	}
 
-	public static int instanceOf(Object o, Class<?> c) {
-		if (o == null)
-			return -K;
-		//logger.info("Checking whether " + o.getClass().getName() + " can be assigned to "
-		//        + c.getName());
-		if (c.isAssignableFrom(o.getClass())) {
-			//logger.info("Yes");
-			return K;
-		} else {
-			//logger.info("No");
-			return -K;
-		}
-	}
-
-	public static int isNull(Object o, int opcode) {
-		if (opcode == Opcodes.IFNULL)
-			return o == null ? K : -K;
-		else
-			return o != null ? K : -K;
-	}
-
-	public static int IOR(int a, int b) {
-		int ret = 0;
-		if (a > 0 || b > 0) {
-			// True
-
-			ret = a;
-			if (b > 0 && b < a)
-				ret = b;
-		} else {
-			// False
-
-			ret = a;
-			if (b > a)
-				ret = b;
-		}
-
-		return ret;
-	}
-
-	public static int IAND(int a, int b) {
-		return Math.min(a, b);
-	}
-
-	public static int IXOR(int a, int b) {
-		int ret = 0;
-		if (a > 0 && b <= 0) {
-			// True
-			ret = a;
-		} else if (b > 0 && a <= 0) {
-			ret = b;
-		} else {
-			// False
-			ret = -Math.abs(a - b);
-		}
-
-		return ret;
-	}
-
-	public static int isEqual(Object o1, Object o2, int opcode) {
-		if (opcode == Opcodes.IF_ACMPEQ)
-			return o1 == o2 ? K : -K;
-		else
-			return o1 != o2 ? K : -K;
-	}
-
-	public static void clearPredicates() {
-		distanceStack.clear();
-	}
-
-	public static void methodEntered() {
-		if (distanceStack != null)
-			stackStack.push(distanceStack);
-		distanceStack = new Stack<Integer>();
-	}
-
-	public static void methodLeft() {
-		if (!stackStack.isEmpty())
-			distanceStack = stackStack.pop();
-		else
-			distanceStack = null;
-	}
-
-	public static void clearStack() {
-		if (!stackStack.isEmpty())
-			stackStack.clear();
-		if (distanceStack != null)
-			distanceStack.clear();
-	}
-
-	public static void pushPredicate(int distance) {
-		//logger.debug("Push: " + distance);
-		if (distanceStack != null)
-			distanceStack.push(Math.abs(distance));
-	}
-
-	private static double normalize(int distance) {
-		//		double k = K;
-		double k = Properties.getPropertyOrDefault("max_int", K);
-		double d = distance;
-		return d / (d + 0.5 * k);
-		//return distance / (distance + 1.0);
-	}
-
-	public static int getDistance(int original) {
-		if (distanceStack == null) {
-			if (original > 0)
-				return K;
-			else
-				return -K;
-		}
-		int l = distanceStack.size();
-		int distance = K;
-		if (!distanceStack.isEmpty())
-			distance = distanceStack.peek();
-		distanceStack.clear();
-		/*
-				if (l <= 1) {
-					//distance += K;
-					if (original <= 0)
-						distance = -distance;
-					logger.debug("Distance (2)" + distance);
-					return distance;
-				}
-		*/
-		double val = (1.0 + normalize(distance)) / Math.pow(2.0, l);
-
-		int d = (int) Math.ceil(K * val);
-		//if (d == 0 && val != 0.0)
-		//	d = 1; // TODO: This is a problem if the number of pushes is too big
-		if (original <= 0)
-			d = -d;
-
-		logger.debug("Distance: " + d);
-
-		return d;
-	}
-
-	public static int fromDouble(double d) {
-		//logger.info("Converting double " + d);
-		/*
-		if (d > Integer.MAX_VALUE)
-			return Integer.MAX_VALUE;
-		else if (d < Integer.MIN_VALUE)
-			return Integer.MIN_VALUE;
-		else 
-		*/
-		if (d == 0.0)
-			return 0;
-		else {
-			double d2 = Math.signum(d) * Math.abs(d) / (1.0 + Math.abs(d));
-			//logger.info(" -> " + d2);
-			int d3 = (int) Math.round(Integer.MAX_VALUE * d2);
-			//logger.info(" -> " + d3);
-			return d3;
-		}
-	}
-
-	public static int fromFloat(float d) {
-		//logger.info("Converting float " + d);
-		/*
-		if (d > Integer.MAX_VALUE)
-			return Integer.MAX_VALUE;
-		else if (d < Integer.MIN_VALUE)
-			return Integer.MIN_VALUE;
-		else */
-		if (d == 0.0f)
-			return 0;
-		else {
-			float d2 = Math.signum(d) * Math.abs(d) / (1f + Math.abs(d));
-			//logger.info(" ->" + d2);
-			int d3 = Math.round(Integer.MAX_VALUE * d2);
-			//logger.info(" -> " + d3);
-			return d3;
-		}
-	}
-
-	public static int fromLong(long d) {
-		/*
-		if (d > Integer.MAX_VALUE)
-			return Integer.MAX_VALUE;
-		else if (d < Integer.MIN_VALUE)
-			return Integer.MIN_VALUE;
-			*/
-		//else
-		//	return (int) d;
-		double d2 = Math.signum(d) * Math.abs(d) / (1L + Math.abs(d));
-		int d3 = (int) Math.round(Integer.MAX_VALUE * d2);
-		return d3;
-	}
-
-	public static int booleanToInt(boolean b) {
-		if (b)
-			return K;
-		else
-			return -K;
-	}
-
-	public static boolean intToBoolean(int x) {
-		return x > 0;
-	}
-
-	public static int min(int a, int b, int c) {
-		if (a < b)
-			return Math.min(a, c);
-		else
-			return Math.min(b, c);
-	}
-
-	public static int editDistance(String s, String t) {
-		int d[][]; // matrix
-		int n; // length of s
-		int m; // length of t
-		int i; // iterates through s
-		int j; // iterates through t
-		char s_i; // ith character of s
-		char t_j; // jth character of t
-		int cost; // cost
-
-		int k = 127;
-
-		// Step 1
-
-		n = s.length();
-		m = t.length();
-		if (n == 0) {
-			return m;
-		}
-		if (m == 0) {
-			return n;
-		}
-		d = new int[n + 1][m + 1];
-
-		// Step 2
-
-		for (i = 0; i <= n; i++) {
-			d[i][0] = i;
-		}
-
-		for (j = 0; j <= m; j++) {
-			d[0][j] = j;
-		}
-
-		// Step 3
-
-		for (i = 1; i <= n; i++) {
-
-			s_i = s.charAt(i - 1);
-
-			// Step 4
-
-			for (j = 1; j <= m; j++) {
-
-				t_j = t.charAt(j - 1);
-
-				// Step 5
-
-				if (s_i == t_j) {
-					cost = 0;
-				} else {
-					//					cost = 127/4 + 3 * Math.abs(s_i - t_j)/4;
-					cost = 127;
-				}
-
-				// Step 6
-
-				d[i][j] = min(d[i - 1][j] + k, d[i][j - 1] + k, d[i - 1][j - 1] + cost);
-
-			}
-
-		}
-
-		// Step 7
-
-		return d[n][m];
-	}
-
-	public static int StringEquals(String first, Object second) {
-		if (first.equals(second))
-			return K; // Identical
-		else {
-			return -editDistance(first, second.toString());
-		}
-	}
-
-	public static int StringEqualsIgnoreCase(String first, String second) {
-		return StringEquals(first.toLowerCase(), second.toLowerCase());
-	}
-
-	public static int StringStartsWith(String value, String prefix, int start) {
-		int len = Math.min(prefix.length(), value.length());
-		return StringEquals(value.substring(start, start + len), prefix);
-	}
-
-	public static int StringEndsWith(String value, String suffix) {
-		int len = Math.min(suffix.length(), value.length());
-		String val1 = value.substring(value.length() - len);
-		return StringEquals(val1, suffix);
-	}
-
-	public static int StringIsEmpty(String value) {
-		int len = value.length();
-		if (len == 0) {
-			return K;
-		} else {
-			return -len;
-		}
-	}
-
-	public static int StringRegionMatches(String value, int thisStart, String string,
-	        int start, int length, boolean ignoreCase) {
-		if (value == null || string == null)
-			throw new NullPointerException();
-
-		if (start < 0 || string.length() - start < length) {
-			return -K;
-		}
-
-		if (thisStart < 0 || value.length() - thisStart < length) {
-			return -K;
-		}
-		if (length <= 0) {
-			return K;
-		}
-
-		String s1 = value;
-		String s2 = string;
-		if (ignoreCase) {
-			s1 = s1.toLowerCase();
-			s2 = s2.toLowerCase();
-		}
-
-		return StringEquals(s1.substring(thisStart, length), s2.substring(start, length));
-	}
 }

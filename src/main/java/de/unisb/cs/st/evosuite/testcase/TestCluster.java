@@ -76,8 +76,6 @@ public class TestCluster {
 	/** Classes excluded by Javalanche */
 	private final Excludes excludes = Excludes.getInstance();
 
-	private final boolean TT = Properties.getPropertyOrDefault("TT", false);
-
 	/** Instance variable */
 	private static TestCluster instance = null;
 
@@ -632,15 +630,20 @@ public class TestCluster {
 				objs.put(parameters[0], new ArrayList<String>());
 
 			String name = parameters[1];
-			if (Properties.TRANSFORM_BOOLEAN) {
+			if (false && Properties.TRANSFORM_BOOLEAN) {
 				int split = name.indexOf("(");
 				if (split >= 0) {
 					// TODO: 
 					String methodName = name.substring(0, split);
+					if (methodName.startsWith("\\Q"))
+						methodName = methodName.substring(2);
 					String desc = name.substring(split);
 					String oldDesc = desc;
 					desc = TestabilityTransformation.getTransformedDesc(parameters[0],
 					                                                    methodName, desc);
+					methodName = TestabilityTransformation.getTransformedName(parameters[0],
+					                                                          methodName,
+					                                                          oldDesc);
 					logger.info(methodName + ": Adapting desc from " + oldDesc + " to "
 					        + desc);
 					name = methodName + desc;
@@ -865,6 +868,18 @@ public class TestCluster {
 		return false;
 	}
 
+	private static boolean matchesDebug(String name, List<String> regexs) {
+		for (String regex : regexs) {
+			if (name.matches(regex)) {
+				logger.info(name + " does matches " + regex);
+				return true;
+			} else {
+				logger.info(name + " does not match " + regex);
+			}
+		}
+		return false;
+	}
+
 	private void countTargetFunctions() {
 		num_defined_methods = CFGMethodAdapter.methods.size();
 		if (Properties.INSTRUMENT_PARENT)
@@ -1018,7 +1033,8 @@ public class TestCluster {
 				for (Constructor<?> constructor : getConstructors(clazz)) {
 					String name = "<init>"
 					        + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
-					if (TT) {
+
+					if (Properties.TRANSFORM_BOOLEAN) {
 						String orig = name;
 						name = TestabilityTransformation.getOriginalNameDesc(clazz.getName(),
 						                                                     "<init>",
@@ -1066,13 +1082,15 @@ public class TestCluster {
 				for (Method method : getMethods(clazz)) {
 					String name = method.getName()
 					        + org.objectweb.asm.Type.getMethodDescriptor(method);
-					if (TT) {
+
+					if (Properties.TRANSFORM_BOOLEAN) {
 						String orig = name;
 						name = TestabilityTransformation.getOriginalNameDesc(clazz.getName(),
 						                                                     method.getName(),
 						                                                     org.objectweb.asm.Type.getMethodDescriptor(method));
 						logger.info("TT name: " + orig + " -> " + name);
 					}
+
 					if (method.getDeclaringClass().getName().startsWith(target_class)
 					        && !method.isSynthetic()
 					        && !Modifier.isAbstract(method.getModifiers())) {
@@ -1098,7 +1116,8 @@ public class TestCluster {
 						if (!canUse(method)) {
 							logger.debug("Method cannot be used: " + method);
 						} else {
-							logger.debug("Method does not match: " + method);
+							logger.debug("Method does not match: " + name);
+							matchesDebug(name, restriction);
 						}
 					}
 				}

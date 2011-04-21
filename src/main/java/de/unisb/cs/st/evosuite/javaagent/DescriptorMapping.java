@@ -41,22 +41,24 @@ public class DescriptorMapping {
 		return instance;
 	}
 
-	final Map<String, String> original = new HashMap<String, String>();
+	final Map<String, String> originalDesc = new HashMap<String, String>();
+
+	final Map<String, String> originalName = new HashMap<String, String>();
 
 	private final Map<String, String> nameMapping = new HashMap<String, String>();
 
 	public boolean isTransformedMethod(String className, String methodName, String desc) {
 		getMethodDesc(className, methodName, desc);
-		return original.containsKey(className + "." + methodName + desc);
+		return originalDesc.containsKey(className + "." + methodName + desc);
 	}
 
 	public boolean hasTransformedArguments(String className, String methodName,
 	        String desc) {
 		getMethodDesc(className, methodName, desc);
-		if (!original.containsKey(className + "." + methodName + desc)) {
+		if (!originalDesc.containsKey(className + "." + methodName + desc)) {
 			return false;
 		} else {
-			String newDesc = original.get(className + "." + methodName + desc);
+			String newDesc = originalDesc.get(className + "." + methodName + desc);
 			for (Type type : Type.getArgumentTypes(newDesc)) {
 				if (type.equals(Type.BOOLEAN_TYPE))
 					return true;
@@ -67,7 +69,7 @@ public class DescriptorMapping {
 
 	public boolean isTransformedField(String className, String fieldName, String desc) {
 		getFieldDesc(className, fieldName, desc);
-		return original.containsKey(className + "." + fieldName + desc);
+		return originalDesc.containsKey(className + "." + fieldName + desc);
 	}
 
 	public boolean isTransformedOrBooleanMethod(String className, String methodName,
@@ -76,10 +78,10 @@ public class DescriptorMapping {
 		String new_desc = getMethodDesc(className, methodName, desc);
 		TestabilityTransformation.logger.info("Transformed desc is " + new_desc);
 		String name = className + "." + methodName + desc;
-		if (original.containsKey(name)) {
+		if (originalDesc.containsKey(name)) {
 			TestabilityTransformation.logger.info("Desc is already transformed");
 		}
-		return original.containsKey(name) || isBooleanMethod(desc);
+		return originalDesc.containsKey(name) || isBooleanMethod(desc);
 	}
 
 	private boolean isStringReplacement(String className, String methodName) {
@@ -104,8 +106,8 @@ public class DescriptorMapping {
 		String new_desc = getMethodDesc(className, methodName, desc);
 		TestabilityTransformation.logger.info("Transformed desc is " + new_desc);
 		String name = className + "." + methodName + desc;
-		if (original.containsKey(name)) {
-			return Type.getReturnType(original.get(name)).equals(Type.BOOLEAN_TYPE);
+		if (originalDesc.containsKey(name)) {
+			return Type.getReturnType(originalDesc.get(name)).equals(Type.BOOLEAN_TYPE);
 		} else {
 			return Type.getReturnType(desc).equals(Type.BOOLEAN_TYPE);
 		}
@@ -118,10 +120,10 @@ public class DescriptorMapping {
 		String new_desc = getFieldDesc(className, fieldName, desc);
 		TestabilityTransformation.logger.info("Transformed desc is " + new_desc);
 		String name = className + "." + fieldName + desc;
-		if (original.containsKey(name)) {
+		if (originalDesc.containsKey(name)) {
 			TestabilityTransformation.logger.info("Desc is already transformed");
 		}
-		return original.containsKey(name) || isBooleanField(desc);
+		return originalDesc.containsKey(name) || isBooleanField(desc);
 	}
 
 	private boolean isBooleanMethod(String desc) {
@@ -188,6 +190,12 @@ public class DescriptorMapping {
 							TestabilityTransformation.logger.info("Method " + name
 							        + " was defined outside the test package");
 							return true;
+							//if (!parent.name.startsWith("java/util")
+							//        && !parent.name.startsWith("java2/util2"))
+							//								return true;
+							//							else
+							//								logger.warn("Found descendant of java.util: "
+							//								        + parent.name);
 						}
 					}
 				}
@@ -230,7 +238,8 @@ public class DescriptorMapping {
 				ClassNode parent = new ClassNode();
 				reader.accept(parent, ClassReader.EXPAND_FRAMES);
 
-				if (original.containsKey(className + "." + methodName + transformedDesc)) {
+				if (originalDesc.containsKey(className + "." + methodName
+				        + transformedDesc)) {
 					TestabilityTransformation.logger.info("Method " + methodName
 					        + " has conflicting transformed method");
 					return methodName + "_transformed" + (id++);
@@ -356,6 +365,7 @@ public class DescriptorMapping {
 
 	public String getMethodName(String className, String methodName, String desc) {
 		String old = className + "." + methodName + desc;
+		old = old.replace(".", "/");
 		if (isBooleanMethod(desc)) {
 			getMethodDesc(className, methodName, desc);
 			return nameMapping.get(old);
@@ -370,6 +380,8 @@ public class DescriptorMapping {
 	public String getMethodDesc(String className, String methodName, String desc) {
 		if (isBooleanMethod(desc)) {
 			String old = className + "." + methodName + desc;
+			old = old.replace(".", "/");
+
 			if (!descriptorMapping.containsKey(old)) {
 				if (isOutsideMethod(className, methodName, desc)) {
 					descriptorMapping.put(old, desc);
@@ -388,12 +400,15 @@ public class DescriptorMapping {
 						        + " to "
 						        + descriptorMapping.get(old)
 						        + " with new name " + newName);
-						original.put(className + "." + newName + newDesc, desc);
+						originalDesc.put(className + "." + newName + newDesc, desc);
+						originalName.put(className + "." + newName + newDesc, methodName);
 					} else {
 						descriptorMapping.put(old, desc);
 						nameMapping.put(old, methodName);
 						// toDO: Original?
-						original.put(className + "." + methodName + newDesc, desc);
+						originalDesc.put(className + "." + methodName + newDesc, desc);
+						originalName.put(className + "." + methodName + newDesc,
+						                 methodName);
 					}
 				}
 			}
@@ -406,13 +421,15 @@ public class DescriptorMapping {
 	public String getFieldDesc(String className, String fieldName, String desc) {
 		if (isBooleanField(desc)) {
 			String old = className + "." + fieldName + desc;
+			old = old.replace(".", "/");
+
 			if (!descriptorMapping.containsKey(old)) {
 				if (isOutsideField(className, fieldName, desc)) {
 					descriptorMapping.put(old, desc);
 				} else {
 					descriptorMapping.put(old, transformFieldDescriptor(desc));
-					original.put(className + "." + fieldName + descriptorMapping.get(old),
-					             desc);
+					originalDesc.put(className + "." + fieldName
+					                         + descriptorMapping.get(old), desc);
 				}
 			}
 			return descriptorMapping.get(old);
@@ -421,12 +438,25 @@ public class DescriptorMapping {
 		}
 	}
 
-	public String getOriginalDescriptor(String className, String methodName, String desc) {
+	public String getOriginalName(String className, String methodName, String desc) {
 		String key = className.replace(".", "/") + "." + methodName + desc;
-		if (original.containsKey(key)) {
+		if (originalName.containsKey(key)) {
 			logger.info("Found transformed version of " + className + "." + methodName
 			        + desc);
-			return original.get(key);
+			return originalName.get(key);
+		} else {
+			logger.info("Don't have transformed version of " + className + "."
+			        + methodName + desc);
+			return methodName;
+		}
+	}
+
+	public String getOriginalDescriptor(String className, String methodName, String desc) {
+		String key = className.replace(".", "/") + "." + methodName + desc;
+		if (originalDesc.containsKey(key)) {
+			logger.info("Found transformed version of " + className + "." + methodName
+			        + desc);
+			return originalDesc.get(key);
 		} else {
 			logger.info("Don't have transformed version of " + className + "."
 			        + methodName + desc);
@@ -436,8 +466,8 @@ public class DescriptorMapping {
 
 	public Type[] getOriginalTypes(String className, String methodName, String desc) {
 		String key = className.replace(".", "/") + "." + methodName + desc;
-		if (original.containsKey(key))
-			return org.objectweb.asm.Type.getArgumentTypes(original.get(key));
+		if (originalDesc.containsKey(key))
+			return org.objectweb.asm.Type.getArgumentTypes(originalDesc.get(key));
 		else
 			return org.objectweb.asm.Type.getArgumentTypes(desc);
 	}
