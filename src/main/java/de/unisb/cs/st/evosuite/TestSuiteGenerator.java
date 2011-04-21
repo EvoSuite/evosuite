@@ -35,7 +35,6 @@ import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
-import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencySuitCoverage;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
@@ -216,19 +215,19 @@ public class TestSuiteGenerator {
 	}
 
 	private TestSuiteFitnessFunction getFitnessFunction() {
-		if (Properties.CRITERION.equalsIgnoreCase("mutation")) {
+		if (Properties.CRITERION.equals(Properties.CRITERIA.MUTATION)) {
 			System.out.println("* Test criterion: Mutation testing");
 			return new MutationSuiteFitness();
-		} else if (Properties.CRITERION.equalsIgnoreCase("lcsaj")) {
+		} else if (Properties.CRITERION.equals(Properties.CRITERIA.LCSAJ)) {
 			System.out.println("* Test criterion: LCSAJ");
 			return new LCSAJCoverageSuiteFitness();
-		} else if (Properties.CRITERION.equalsIgnoreCase("defuse")) {
+		} else if (Properties.CRITERION.equals(Properties.CRITERIA.DEFUSE)) {
 			System.out.println("* Test criterion: All DU Pairs");
 			return new DefUseCoverageSuiteFitness();
-		} else if (Properties.CRITERION.equalsIgnoreCase("path")) {
+		} else if (Properties.CRITERION.equals(Properties.CRITERIA.PATH)) {
 			System.out.println("* Test criterion: Prime Path");
 			return new PrimePathSuiteFitness();
-		} else if (Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)) {
+		}else if(Properties.CRITERION.equals(Properties.CRITERIA.CONCURRENCY)){
 			System.out.println("* Test criterion: Concurrent Test Case *");
 			return new ConcurrencySuitCoverage();
 		} else {
@@ -238,16 +237,16 @@ public class TestSuiteGenerator {
 	}
 
 	private TestFitnessFactory getFitnessFactory() {
-		if (Properties.CRITERION.equalsIgnoreCase("mutation")) {
+		if (Properties.CRITERION.equals(Properties.CRITERIA.MUTATION)) {
 			System.out.println("* Test criterion: Mutation testing");
 			return new MutationGoalFactory();
-		} else if (Properties.CRITERION.equalsIgnoreCase("lcsaj")) {
+		} else if (Properties.CRITERION.equals(Properties.CRITERIA.LCSAJ)) {
 			System.out.println("* Test criterion: LCSAJ");
 			return new LCSAJCoverageFactory();
-		} else if (Properties.CRITERION.equalsIgnoreCase("defuse")) {
+		} else if (Properties.CRITERION.equals(Properties.CRITERIA.DEFUSE)) {
 			System.out.println("* Test criterion: All DU Pairs");
 			return new DefUseCoverageFactory();
-		} else if (Properties.CRITERION.equalsIgnoreCase("path")) {
+		} else if (Properties.CRITERION.equals(Properties.CRITERIA.PATH)) {
 			System.out.println("* Test criterion: Prime Path");
 			return new PrimePathCoverageFactory();
 		} else {

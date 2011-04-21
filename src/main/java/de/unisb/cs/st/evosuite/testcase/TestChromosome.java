@@ -161,10 +161,10 @@ public class TestChromosome extends Chromosome {
 		double P;
 
 		//#TODO steenbuck TestChromosome should be subclassed
-		if (Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)) {
-			assert (test instanceof ConcurrentTestCase);
-
-			P = 1d / 6d;
+		if(Properties.CRITERION.equals(Properties.CRITERIA.CONCURRENCY)){
+			assert(test instanceof ConcurrentTestCase);
+			
+			P = 1d/6d;
 
 			// Delete from schedule
 			if (randomness.nextDouble() <= P) {

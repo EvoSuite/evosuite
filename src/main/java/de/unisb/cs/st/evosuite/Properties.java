@@ -29,6 +29,10 @@ import java.util.Set;
  */
 public class Properties {
 
+	public enum CRITERIA{
+		CONCURRENCY,LCSAJ,DEFUSE,PATH,BRANCH,MUTATION
+	}
+	
 	/** Singleton instance */
 	private static Properties instance = null;
 
@@ -84,7 +88,26 @@ public class Properties {
 	public static String STRATEGY = getPropertyOrDefault("strategy", "EvoSuite");
 
 	/** Minimize test suite after generation */
-	public static String CRITERION = getPropertyOrDefault("criterion", "BranchCoverage");
+	public static CRITERIA CRITERION = getCriterion();
+	private static CRITERIA getCriterion(){
+		String crit = getPropertyOrDefault("criterion", "BranchCoverage");
+		if (crit.equalsIgnoreCase("concurrency")) {
+			return CRITERIA.CONCURRENCY;
+		} else if (crit.equalsIgnoreCase("lcsaj")) {
+			return CRITERIA.LCSAJ;
+		} else if (crit.equalsIgnoreCase("defuse")) {
+			return CRITERIA.DEFUSE;
+		} else if (crit.equalsIgnoreCase("path")) {
+			return CRITERIA.PATH;
+		} else if (crit.equalsIgnoreCase("mutation")) {
+			return CRITERIA.MUTATION;
+		}else if(crit.equals("BranchCoverage") || crit.equalsIgnoreCase("branch")){
+			return CRITERIA.BRANCH;
+		}else{
+			throw new AssertionError("Unknown coverage criterion: " + crit);
+		}
+	}
+	//public static String CRITERION = getPropertyOrDefault("criterion", "BranchCoverage");
 
 	/** Sandbox for the classes under test */
 	public static boolean SANDBOX = getPropertyOrDefault("sandbox", false);
