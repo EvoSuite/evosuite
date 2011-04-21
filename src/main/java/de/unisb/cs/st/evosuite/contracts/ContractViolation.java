@@ -88,9 +88,9 @@ public class ContractViolation {
 					MethodStatement ms2 = (MethodStatement) other.statement;
 					if (ms1.getMethod().equals(ms2.getMethod())) {
 						return true;
-					} else {
-						logger.info("Unequal methods: " + ms1.getCode() + " / "
-						        + ms2.getCode());
+						//} else {
+						//	logger.info("Unequal methods: " + ms1.getCode() + " / "
+						//	        + ms2.getCode());
 					}
 				} else if (statement instanceof ConstructorStatement) {
 					ConstructorStatement ms1 = (ConstructorStatement) statement;

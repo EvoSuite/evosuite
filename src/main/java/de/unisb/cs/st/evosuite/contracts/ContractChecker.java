@@ -28,11 +28,16 @@ public class ContractChecker extends ExecutionObserver {
 	private static boolean valid = true;
 
 	public ContractChecker() {
+		// Defaults from Randoop paper
+		contracts.add(new NullPointerExceptionContract());
+		contracts.add(new AssertionErrorContract());
 		contracts.add(new EqualsContract());
-		contracts.add(new EqualsNullContract());
-		contracts.add(new ExceptionContract());
-		contracts.add(new ToStringReturnsNormally());
+		contracts.add(new ToStringReturnsNormallyContract());
+		contracts.add(new HashCodeReturnsNormallyContract());
+
+		// Further Randoop contracts, not in paper
 		contracts.add(new EqualsHashcodeContract());
+		contracts.add(new EqualsNullContract());
 		contracts.add(new EqualsSymmetricContract());
 	}
 
@@ -56,7 +61,8 @@ public class ContractChecker extends ExecutionObserver {
 	@Override
 	public void statement(Statement statement, Scope scope, Throwable exception) {
 		if (!valid)
-			logger.info("Skipping contract checking because test already violated a contract");
+			return;
+		//logger.info("Skipping contract checking because test already violated a contract");
 		// TODO: Only check contracts if the test hasn't already violated any other contracts
 		for (Contract contract : contracts) {
 			try {
@@ -73,9 +79,10 @@ public class ContractChecker extends ExecutionObserver {
 						violations.add(violation);
 						logger.warn("Current number of violations: " + violations.size());
 					}
+					break;
 				}
 			} catch (Throwable t) {
-				logger.info("Caught exception during contract checking");
+				//logger.info("Caught exception during contract checking");
 			}
 		}
 	}

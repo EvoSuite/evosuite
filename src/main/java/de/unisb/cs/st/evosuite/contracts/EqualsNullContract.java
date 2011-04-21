@@ -5,29 +5,31 @@ package de.unisb.cs.st.evosuite.contracts;
 
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.Statement;
-import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
+ * An object must never equal null
+ * 
  * @author Gordon Fraser
  * 
  */
-public class EqualsNullContract implements Contract {
+public class EqualsNullContract extends Contract {
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.contracts.Contract#check(de.unisb.cs.st.evosuite.testcase.TestCase, de.unisb.cs.st.evosuite.testcase.Statement, de.unisb.cs.st.evosuite.testcase.Scope, java.lang.Throwable)
 	 */
 	@Override
 	public boolean check(Statement statement, Scope scope, Throwable exception) {
-		VariableReference var = statement.getReturnValue();
-		Object object = scope.get(var);
-		if (object != null) {
+		for (Object object : getAllObjects(scope)) {
+			if (object == null)
+				continue;
+
 			try {
-				// An object always must not equal null
+				// An object always has to equal itself
 				if (object.equals(null))
 					return false;
 
 			} catch (Throwable t) {
-				return true;
+				continue;
 			}
 		}
 
