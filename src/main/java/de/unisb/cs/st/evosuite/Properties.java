@@ -47,7 +47,7 @@ public class Properties {
 	private static Class<?> TARGET_CLASS_INSTANCE = null;
 
 	/** Package name of target package */
-	public static String PROJECT_PREFIX = "";
+	public static String PROJECT_PREFIX = null;
 
 	/** Package name of target class (might be a subpackage) */
 	public static String CLASS_PREFIX = "";
@@ -95,7 +95,7 @@ public class Properties {
 	/** Folder used for IO, when mocks are enabled */
 	public static String SANDBOX_FOLDER = getPropertyOrDefault("sandbox_folder",
 	                                                           "sandbox/");
-	
+
 	/** Stub generation for the abstract classes. */
 	public static boolean STUBS = getPropertyOrDefault("stubs", false);
 
@@ -261,5 +261,4 @@ public class Properties {
 			return value; // System properties override config file
 		}
 	}
-
 }

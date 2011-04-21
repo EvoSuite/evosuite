@@ -24,10 +24,9 @@ import org.objectweb.asm.util.AbstractVisitor;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyCoverageFactory;
-import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencySuitCoverage;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTracer;
 import de.unisb.cs.st.evosuite.coverage.concurrency.LockRuntime;
-import de.unisb.cs.st.evosuite.javaagent.TestabilityTransformation;
+import de.unisb.cs.st.evosuite.javaagent.BooleanHelper;
 
 /**
  * This class collects information about chosen branches/paths at runtime
@@ -96,29 +95,31 @@ public class ExecutionTracer {
 	 */
 	public void clear() {
 		trace = new ExecutionTrace();
-		TestabilityTransformation.clearStack();
+		BooleanHelper.clearStack();
 		num_statements = 0;
 
 		//#TODO steenbuck: We should be able to register us somewhere, so that we're called before run is executed
-		if(Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)){
+		if (Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)) {
 			trace.concurrencyTracer = new ConcurrencyTracer();
 			LockRuntime.tracer = trace.concurrencyTracer;
 		}
 	}
 
 	/**
-	 * Obviously more than one thread is executing during the creation of concurrent TestCases.
-	 * #TODO steenbuck we should test if Thread.currentThread() is in the set of currently executing threads
+	 * Obviously more than one thread is executing during the creation of
+	 * concurrent TestCases. #TODO steenbuck we should test if
+	 * Thread.currentThread() is in the set of currently executing threads
+	 * 
 	 * @return
 	 */
-	private static boolean isThreadNeqCurrentThread(){
-		if(Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)){
+	private static boolean isThreadNeqCurrentThread() {
+		if (Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)) {
 			return false;
-		}else{
-			return (Thread.currentThread()!=currentThread);
+		} else {
+			return (Thread.currentThread() != currentThread);
 		}
 	}
-	
+
 	/**
 	 * Return trace of current execution
 	 * 
@@ -140,12 +141,12 @@ public class ExecutionTracer {
 	 * @param methodname
 	 */
 	public static void enteredMethod(String classname, String methodname, Object caller)
-	throws TestCaseExecutor.TimeoutExceeded {
+	        throws TestCaseExecutor.TimeoutExceeded {
 		if (isThreadNeqCurrentThread())
 			return;
 
 		if (Properties.TRANSFORM_BOOLEAN) {
-			TestabilityTransformation.methodEntered();
+			BooleanHelper.methodEntered();
 		}
 
 		ExecutionTracer tracer = getExecutionTracer();
@@ -159,7 +160,7 @@ public class ExecutionTracer {
 		logger.trace("Entering method " + classname + "." + methodname);
 		tracer.trace.enteredMethod(classname, methodname, caller);
 	}
-	
+
 	/**
 	 * Called by instrumented code whenever a return values is produced
 	 * 
@@ -218,7 +219,7 @@ public class ExecutionTracer {
 			for (index = position + 1; index < position + 17 && index < tmp.length(); index++) {
 				c = tmp.charAt(index);
 				if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')
-						|| (c >= 'A' && c <= 'F')) {
+				        || (c >= 'A' && c <= 'F')) {
 					found = true;
 				} else {
 					break;
@@ -243,7 +244,7 @@ public class ExecutionTracer {
 			return;
 
 		if (Properties.TRANSFORM_BOOLEAN) {
-			TestabilityTransformation.methodLeft();
+			BooleanHelper.methodLeft();
 		}
 
 		ExecutionTracer tracer = getExecutionTracer();
@@ -349,7 +350,7 @@ public class ExecutionTracer {
 	 * @param line
 	 */
 	public static void passedBranch(int val1, int val2, int opcode, int branch,
-			int bytecode_id) {
+	        int bytecode_id) {
 		if (isThreadNeqCurrentThread())
 			return;
 
@@ -358,8 +359,8 @@ public class ExecutionTracer {
 			return;
 
 		logger.trace("Called passedBranch2 with opcode "
-				+ AbstractVisitor.OPCODES[opcode] + ", val1=" + val1 + ", val2=" + val2
-				+ " in branch " + branch);
+		        + AbstractVisitor.OPCODES[opcode] + ", val1=" + val1 + ", val2=" + val2
+		        + " in branch " + branch);
 		double distance_true = 0;
 		double distance_false = 0;
 		switch (opcode) {
@@ -422,7 +423,7 @@ public class ExecutionTracer {
 	 * @param line
 	 */
 	public static void passedBranch(Object val1, Object val2, int opcode, int branch,
-			int bytecode_id) {
+	        int bytecode_id) {
 		if (isThreadNeqCurrentThread())
 			return;
 
@@ -431,7 +432,7 @@ public class ExecutionTracer {
 			return;
 
 		logger.trace("Called passedBranch3 with opcode "
-				+ AbstractVisitor.OPCODES[opcode]); // +", val1="+val1+", val2="+val2+" in branch "+branch);
+		        + AbstractVisitor.OPCODES[opcode]); // +", val1="+val1+", val2="+val2+" in branch "+branch);
 		double distance_true = 0;
 		double distance_false = 0;
 		// logger.warn("Disabling tracer: passedBranch with 2 Objects");
@@ -517,8 +518,8 @@ public class ExecutionTracer {
 	 * Called by instrumented code each time a variable gets written to (a
 	 * Definition)
 	 */
-	public static void passedDefinition(String className, String varName, 
-			String methodName, Object caller, int branchID, int defID) {
+	public static void passedDefinition(String className, String varName,
+	        String methodName, Object caller, int branchID, int defID) {
 		if (isThreadNeqCurrentThread())
 			return;
 
@@ -531,8 +532,8 @@ public class ExecutionTracer {
 	/**
 	 * Called by instrumented code each time a variable is read from (a Use)
 	 */
-	public static void passedUse(String className, String varName, String methodName, 
-			Object caller, int branchID, int useID) {
+	public static void passedUse(String className, String varName, String methodName,
+	        Object caller, int branchID, int useID) {
 
 		if (isThreadNeqCurrentThread())
 			return;

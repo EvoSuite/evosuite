@@ -35,22 +35,22 @@ public class ExecutionResult {
 		SUCCESS, FAIL
 	};
 
-	public Outcome	               result;
-	public TestCase	               test;
-	public Mutation	               mutation;
-	public int	                   exception_statement	= 0;
+	public Outcome result;
+	public TestCase test;
+	public Mutation mutation;
+	public int exception_statement = 0;
 
 	/** Map statement number to raised exception */
-	public Map<Integer, Throwable>	exceptions	       = new HashMap<Integer, Throwable>();
+	public Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
 
-	public ExecutionTrace	       trace;
+	public ExecutionTrace trace;
 	// public StringOutputTrace output_trace;
-	public ComparisonTrace	       comparison_trace;
-	public PrimitiveOutputTrace	   primitive_trace;
-	public InspectorTrace	       inspector_trace;
-	public PrimitiveFieldTrace	   field_trace;
-	public NullOutputTrace	       null_trace;
-	public List<Long>	           touched	           = new ArrayList<Long>();
+	public ComparisonTrace comparison_trace;
+	public PrimitiveOutputTrace primitive_trace;
+	public InspectorTrace inspector_trace;
+	public PrimitiveFieldTrace field_trace;
+	public NullOutputTrace null_trace;
+	public List<Long> touched = new ArrayList<Long>();
 
 	public ExecutionResult(TestCase t) {
 		exception_statement = 0;
@@ -83,6 +83,7 @@ public class ExecutionResult {
 	@Override
 	public ExecutionResult clone() {
 		ExecutionResult copy = new ExecutionResult(test, mutation);
+		copy.exceptions.putAll(exceptions);
 		copy.trace = trace.clone();
 		return copy;
 	}
