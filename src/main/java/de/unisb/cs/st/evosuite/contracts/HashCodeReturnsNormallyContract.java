@@ -5,37 +5,38 @@ package de.unisb.cs.st.evosuite.contracts;
 
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor.TimeoutExceeded;
 
 /**
- * o1.equals(o2) => o1.hashCode() == o2.hashCode()
- * 
  * @author Gordon Fraser
  * 
  */
-public class EqualsHashcodeContract extends Contract {
+public class HashCodeReturnsNormallyContract extends Contract {
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.contracts.Contract#check(de.unisb.cs.st.evosuite.testcase.Statement, de.unisb.cs.st.evosuite.testcase.Scope, java.lang.Throwable)
 	 */
 	@Override
 	public boolean check(Statement statement, Scope scope, Throwable exception) {
-		for (Pair pair : getAllObjectPairs(scope)) {
-			if (pair.object1 == null || pair.object2 == null)
+		for (Object object : getAllObjects(scope)) {
+			if (object == null)
 				continue;
-			if (pair.object1.equals(pair.object2)) {
-				if (pair.object1.hashCode() != pair.object2.hashCode())
-					return false;
-			} else {
-				if (pair.object1.hashCode() == pair.object2.hashCode())
+
+			try {
+				// hashCode must not throw an exception
+				object.hashCode();
+
+			} catch (Throwable t) {
+				if (!(t instanceof TimeoutExceeded))
 					return false;
 			}
 		}
+
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Equals hashcode check";
+		return "hashCode returns normally check";
 	}
-
 }

@@ -3,20 +3,15 @@
  */
 package de.unisb.cs.st.evosuite.contracts;
 
-import org.apache.log4j.Logger;
-
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor.TimeoutExceeded;
 
 /**
- * An object always has to equal itself
- * 
  * @author Gordon Fraser
  * 
  */
-public class EqualsContract extends Contract {
-
-	private static Logger logger = Logger.getLogger(Contract.class);
+public class ToStringReturnsNormallyContract extends Contract {
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.contracts.Contract#check(de.unisb.cs.st.evosuite.testcase.TestCase, de.unisb.cs.st.evosuite.testcase.Statement, de.unisb.cs.st.evosuite.testcase.Scope, java.lang.Throwable)
@@ -28,15 +23,12 @@ public class EqualsContract extends Contract {
 				continue;
 
 			try {
-				// An object always has to equal itself
-				if (!object.equals(object))
-					return false;
+				// toString must not throw an exception
+				object.toString();
 
-			} catch (NullPointerException e) {
-				// No nullpointer exceptions may be thrown if the parameter was not null
-				return false;
 			} catch (Throwable t) {
-				continue;
+				if (!(t instanceof TimeoutExceeded))
+					return false;
 			}
 		}
 
@@ -45,7 +37,7 @@ public class EqualsContract extends Contract {
 
 	@Override
 	public String toString() {
-		return "Equality check";
+		return "toString returns normally check";
 	}
 
 }
