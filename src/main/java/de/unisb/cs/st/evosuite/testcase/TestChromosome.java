@@ -39,10 +39,10 @@ import de.unisb.cs.st.evosuite.testsuite.CurrentChromosomeTracker;
 public class TestChromosome extends Chromosome {
 
 	private final static boolean RANK_LENGTH = Properties.getPropertyOrDefault("check_rank_length",
-			true);
+	                                                                           true);
 
 	private final static boolean CHECK_LENGTH = Properties.getPropertyOrDefault("check_max_length",
-			true);
+	                                                                            true);
 
 	static {
 		if (RANK_LENGTH)
@@ -65,7 +65,7 @@ public class TestChromosome extends Chromosome {
 		//#TODO steenbuck similar logic is repeated in TestSuiteChromosomeFactory
 		if (test_factory == null) {
 			String factory_name = Properties.getPropertyOrDefault("test_factory",
-			"Random");
+			                                                      "Random");
 			if (factory_name.equals("OUM"))
 				test_factory = OUMTestFactory.getInstance();
 			else
@@ -105,7 +105,7 @@ public class TestChromosome extends Chromosome {
 	 */
 	@Override
 	public void crossOver(Chromosome other, int position1, int position2)
-	throws ConstructionFailedException {
+	        throws ConstructionFailedException {
 		logger.debug("Crossover starting");
 		TestChromosome offspring = new TestChromosome();
 
@@ -114,7 +114,7 @@ public class TestChromosome extends Chromosome {
 		}
 		for (int i = position2; i < other.size(); i++) {
 			test_factory.appendStatement(offspring.test,
-					((TestChromosome) other).test.getStatement(i));
+			                             ((TestChromosome) other).test.getStatement(i));
 		}
 		if (!CHECK_LENGTH || offspring.test.size() <= Properties.CHROMOSOME_LENGTH) {
 			test = offspring.test;
@@ -161,11 +161,10 @@ public class TestChromosome extends Chromosome {
 		double P;
 
 		//#TODO steenbuck TestChromosome should be subclassed
-		if(Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)){
-			assert(test instanceof ConcurrentTestCase);
-			
-			P = 1d/6d;
+		if (Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)) {
+			assert (test instanceof ConcurrentTestCase);
 
+			P = 1d / 6d;
 
 			// Delete from schedule
 			if (randomness.nextDouble() <= P) {
@@ -183,7 +182,7 @@ public class TestChromosome extends Chromosome {
 				if (mutationInsertSchedule())
 					changed = true;
 			}
-		}else{
+		} else {
 			P = 1d / 3d;
 		}
 
@@ -233,7 +232,7 @@ public class TestChromosome extends Chromosome {
 
 				} catch (ConstructionFailedException e) {
 					logger.warn("Deletion of statement failed: "
-							+ test.getStatement(num).getCode());
+					        + test.getStatement(num).getCode());
 					logger.warn(test.toCode());
 				}
 				// }
@@ -242,14 +241,14 @@ public class TestChromosome extends Chromosome {
 
 		return changed;
 	}
-	
+
 	/**
 	 * Each schedule entry is deleted with probability 1/length
 	 * 
 	 * @return
 	 */
 	private boolean mutationDeleteSchedule() {
-		ConcurrentTestCase test = (ConcurrentTestCase)this.test;
+		ConcurrentTestCase test = (ConcurrentTestCase) this.test;
 		Schedule schedule = test.getSchedule();
 		boolean changed = false;
 		double pl = 1d / schedule.size();
@@ -258,21 +257,21 @@ public class TestChromosome extends Chromosome {
 			// Each schedulePoint is deleted with probability 1/l
 			if (randomness.nextDouble() <= pl) {
 				schedule.removeElement(num);
-				changed=true;
+				changed = true;
 			}
 		}
 
 		return changed;
 	}
-	
+
 	/**
-	 * With exponentially decreasing probability, insert schedule points at random
-	 * position
+	 * With exponentially decreasing probability, insert schedule points at
+	 * random position
 	 * 
 	 * @return
 	 */
 	private boolean mutationInsertSchedule() {
-		ConcurrentTestCase test = (ConcurrentTestCase)this.test;
+		ConcurrentTestCase test = (ConcurrentTestCase) this.test;
 		Schedule schedule = test.getSchedule();
 		boolean changed = false;
 		final double ALPHA = 0.5;
@@ -282,20 +281,20 @@ public class TestChromosome extends Chromosome {
 			count++;
 			// Insert at position as during initialization (i.e., using helper
 			// sequences)
-			int pos = (schedule.size()==0)?0:randomness.nextInt(schedule.size());
+			int pos = (schedule.size() == 0) ? 0 : randomness.nextInt(schedule.size());
 			schedule.add(pos, schedule.getRandomThreadID());
 			changed = true;
 		}
 		return changed;
 	}
-	
+
 	/**
 	 * Each schedule is replaced with probability 1/length
 	 * 
 	 * @return
 	 */
 	private boolean mutationChangeSchedule() {
-		ConcurrentTestCase test = (ConcurrentTestCase)this.test;
+		ConcurrentTestCase test = (ConcurrentTestCase) this.test;
 		Schedule schedule = test.getSchedule();
 		boolean changed = false;
 		double pl = 1d / schedule.size();
@@ -305,7 +304,7 @@ public class TestChromosome extends Chromosome {
 			if (randomness.nextDouble() <= pl) {
 				schedule.removeElement(num);
 				schedule.add(num, schedule.getRandomThreadID());
-				changed=true;
+				changed = true;
 			}
 		}
 
@@ -337,19 +336,16 @@ public class TestChromosome extends Chromosome {
 						// do some mutation of values with what probability?
 
 						logger.debug("Old statement: " + statement.getCode());
-
-						//if (randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
-						//	ConcolicMutation mutation = new ConcolicMutation();
-						//	mutation.mutate((PrimitiveStatement) statement, test);
-						//} else {
-						((PrimitiveStatement<?>) statement).delta();
-						//}
+						if (randomness.nextDouble() <= 0.2)
+							((PrimitiveStatement<?>) statement).randomize();
+						else
+							((PrimitiveStatement<?>) statement).delta();
 
 						int position = statement.retval.statement;
 						// test.setStatement(statement, position);
 						//logger.info("Changed test: " + test.toCode());
 						logger.debug("New statement: "
-								+ test.getStatement(position).getCode());
+						        + test.getStatement(position).getCode());
 						changed = true;
 					} else if (statement instanceof AssignmentStatement) {
 						// logger.info("Before change at:");
@@ -357,7 +353,7 @@ public class TestChromosome extends Chromosome {
 						AssignmentStatement as = (AssignmentStatement) statement;
 						if (randomness.nextDouble() < 0.5) {
 							List<VariableReference> objects = test.getObjects(statement.retval.getType(),
-									statement.retval.statement);
+							                                                  statement.retval.statement);
 							objects.remove(statement.retval);
 							objects.remove(as.parameter);
 							if (!objects.isEmpty()) {
@@ -393,7 +389,7 @@ public class TestChromosome extends Chromosome {
 		int count = 0;
 
 		while (randomness.nextDouble() <= Math.pow(ALPHA, count)
-				&& (!CHECK_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {
+		        && (!CHECK_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {
 			count++;
 			// Insert at position as during initialization (i.e., using helper
 			// sequences)
