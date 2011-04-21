@@ -22,11 +22,14 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * This class represents the state of a test case execution
@@ -42,8 +45,7 @@ public class Scope {
 	 * Constructor
 	 */
 	public Scope() {
-		pool = Collections
-		        .synchronizedMap(new HashMap<VariableReference, Object>());
+		pool = Collections.synchronizedMap(new HashMap<VariableReference, Object>());
 	}
 
 	/**
@@ -59,8 +61,8 @@ public class Scope {
 		// Learn some dynamic information about this object
 		if (reference.isArray()) {
 			if (o != null && !o.getClass().isArray())
-				System.out.println("Trying to access object of class "
-				        + o.getClass() + " as array: " + o);
+				System.out.println("Trying to access object of class " + o.getClass()
+				        + " as array: " + o);
 			else if (o != null)
 				reference.array_length = Array.getLength(o);
 			else
@@ -115,8 +117,7 @@ public class Scope {
 		List<VariableReference> refs = new ArrayList<VariableReference>();
 		for (Entry<VariableReference, Object> entry : pool.entrySet()) {
 			if (type.equals(entry.getKey().getType())
-			        || (entry.getValue() != null && type.equals(entry
-			                .getValue().getClass()))) {
+			        || (entry.getValue() != null && type.equals(entry.getValue().getClass()))) {
 				refs.add(entry.getKey());
 			}
 		}
@@ -127,5 +128,28 @@ public class Scope {
 		 * moment if(ref.getType().equals(type)) refs.add(ref); }
 		 */
 		return refs;
+	}
+
+	/**
+	 * Get all objects in scope
+	 * 
+	 * @return Collection of all Objects
+	 */
+	public Collection<Object> getObjects() {
+		return pool.values();
+	}
+
+	/**
+	 * Get all objects of a given type in scope
+	 * 
+	 * @return Collection of all Objects
+	 */
+	public Collection<Object> getObjects(Type type) {
+		Set<Object> objects = new HashSet<Object>();
+		for (Object o : pool.values()) {
+			if (o.getClass().equals(type))
+				objects.add(o);
+		}
+		return objects;
 	}
 }

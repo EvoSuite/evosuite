@@ -2,35 +2,34 @@ package de.unisb.cs.st.evosuite.coverage.lcsaj;
 
 import java.util.HashMap;
 
-import org.apache.bcel.generic.INVOKEVIRTUAL;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 
 public class LCSAJ {
-	
-	private HashMap<Integer,AbstractInsnNode> instructions;
-	private HashMap<AbstractInsnNode,Integer> instructions_reverse;
-	
+
+	private final HashMap<Integer, AbstractInsnNode> instructions;
+	private final HashMap<AbstractInsnNode, Integer> instructions_reverse;
+
 	private AbstractInsnNode lastNodeAccessed;
 	private AbstractInsnNode lastJump;
-	
-	private int id;
-	
-	private String className;
-	private String methodName;
-	
+
+	private final int id;
+
+	private final String className;
+	private final String methodName;
+
 	private static int lcsaj_counter = 0;
-	
-	public LCSAJ(String className,String methodName){
+
+	public LCSAJ(String className, String methodName) {
 		this.id = lcsaj_counter++;
 		this.className = className;
 		this.methodName = methodName;
-		this.instructions = new HashMap<Integer,AbstractInsnNode>();
-		this.instructions_reverse = new HashMap<AbstractInsnNode,Integer>();
+		this.instructions = new HashMap<Integer, AbstractInsnNode>();
+		this.instructions_reverse = new HashMap<AbstractInsnNode, Integer>();
 	}
-	
+
 	//Copy constructor
-	public LCSAJ(String className,String methodName, LCSAJ l){
+	public LCSAJ(String className, String methodName, LCSAJ l) {
 		this.id = lcsaj_counter++;
 		this.className = l.getClassName();
 		this.methodName = l.getMethodName();
@@ -38,58 +37,57 @@ public class LCSAJ {
 		this.lastNodeAccessed = l.getLastNodeAccessed();
 		this.instructions_reverse = l.getInstructionsReverse();
 	}
-	
-	public int getID(){
+
+	public int getID() {
 		return this.id;
 	}
-	
-	public HashMap<Integer,AbstractInsnNode> getInstructions(){
+
+	public HashMap<Integer, AbstractInsnNode> getInstructions() {
 		return this.instructions;
 	}
-	
-	protected HashMap<AbstractInsnNode,Integer> getInstructionsReverse(){
+
+	protected HashMap<AbstractInsnNode, Integer> getInstructionsReverse() {
 		return instructions_reverse;
 	}
-	
-	public AbstractInsnNode getInstruction(int id){
+
+	public AbstractInsnNode getInstruction(int id) {
 		return instructions.get(id);
 	}
-	
-	public int getInstructionID(AbstractInsnNode node){
-		if (instructions_reverse.containsKey(node)){
+
+	public int getInstructionID(AbstractInsnNode node) {
+		if (instructions_reverse.containsKey(node)) {
 			return instructions_reverse.get(node);
-		}
-		else
+		} else
 			return -1;
 	}
-	
-	public AbstractInsnNode getLastNodeAccessed(){
+
+	public AbstractInsnNode getLastNodeAccessed() {
 		return lastNodeAccessed;
 	}
-	
-	public AbstractInsnNode getLastJump(){
+
+	public AbstractInsnNode getLastJump() {
 		return lastJump;
 	}
-	
-	public String getClassName(){
+
+	public String getClassName() {
 		return this.className;
 	}
-	
-	public String getMethodName(){
+
+	public String getMethodName() {
 		return this.methodName;
 	}
-	
-	public boolean containssInstruction(int id){
+
+	public boolean containssInstruction(int id) {
 		return instructions.containsKey(id);
 	}
-	
-	public void addInstruction(int id, AbstractInsnNode node, boolean LCSAJStart){
+
+	public void addInstruction(int id, AbstractInsnNode node, boolean LCSAJStart) {
 		lastNodeAccessed = node;
 		if (node instanceof JumpInsnNode || LCSAJStart)
 			instructions.put(id, node);
 	}
-	
-	public void removeInstruction(int id){
+
+	public void removeInstruction(int id) {
 		instructions.remove(id);
 	}
 

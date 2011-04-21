@@ -25,20 +25,21 @@ import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
 
 /**
  * @author copied from CFGMethodAdapter
- *
+ * 
  */
 public class LCSAJsInstrumentation implements MethodInstrumentation {
-	
+
 	private static Logger logger = Logger.getLogger(LCSAJsInstrumentation.class);
-	
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String, java.lang.String)
 	 */
-	@SuppressWarnings("unchecked") //using external lib
+	@SuppressWarnings("unchecked")
+	//using external lib
 	@Override
 	public void analyze(MethodNode mn, Graph<CFGVertex, DefaultEdge> graph,
-			String className, String methodName, int access) {
-		
+	        String className, String methodName, int access) {
+
 		Queue<LCSAJ> lcsaj_queue = new LinkedList<LCSAJ>();
 		HashSet<Integer> targets_reached = new HashSet<Integer>();
 		LCSAJ a = new LCSAJ(className, methodName);
@@ -46,10 +47,10 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 		lcsaj_queue.add(a);
 
 		while (!lcsaj_queue.isEmpty()) {
-			
+
 			LCSAJ current_lcsaj = lcsaj_queue.poll();
 			int position = mn.instructions.indexOf(current_lcsaj.getLastNodeAccessed());
-			
+
 			if (position + 1 >= mn.instructions.size()) {
 				// New LCSAJ for current + return
 				LCSAJPool.add_lcsaj(className, methodName, current_lcsaj);
@@ -58,45 +59,45 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 
 			AbstractInsnNode next = mn.instructions.get(position + 1);
 			current_lcsaj.addInstruction(position + 1, next, false);
-			
+
 			if (next instanceof JumpInsnNode) {
-				
+
 				JumpInsnNode jump = (JumpInsnNode) next;
 				// New LCSAJ for current + jump to target
 				LCSAJPool.add_lcsaj(className, methodName, current_lcsaj);
 
 				if (jump.getOpcode() != Opcodes.GOTO) {
-					
+
 					lcsaj_queue.add(current_lcsaj);
-					
-					if(!targets_reached.contains(position+1)){
-						
+
+					if (!targets_reached.contains(position + 1)) {
+
 						LabelNode target = jump.label;
 						LCSAJ c = new LCSAJ(className, methodName);
-						c.addInstruction(mn.instructions.indexOf(target), target, true);					
+						c.addInstruction(mn.instructions.indexOf(target), target, true);
 						lcsaj_queue.add(c);
-						targets_reached.add(position+1);
-						
+						targets_reached.add(position + 1);
+
 					}
 				}
 
 			} else if (next instanceof TableSwitchInsnNode) {
-				
+
 				TableSwitchInsnNode tswitch = (TableSwitchInsnNode) next;
 				List<LabelNode> allTargets = tswitch.labels;
-				
+
 				for (LabelNode target : allTargets) {
-			
+
 					int target_position = mn.instructions.indexOf(target);
-					
-					if(!targets_reached.contains(target_position)){
-						
+
+					if (!targets_reached.contains(target_position)) {
+
 						LCSAJ b = new LCSAJ(className, methodName);
 						b.addInstruction(target_position, target, true);
-						
+
 						targets_reached.add(target_position);
 						lcsaj_queue.add(b);
-						
+
 					}
 				}
 
@@ -124,7 +125,6 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 		logger.info("Found " + LCSAJPool.getSize() + " LCSAJs by now");
 		System.out.println("LCSAJs completed!!!!!!!!!!!");
 	}
-
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#executeOnExcludedMethods()
