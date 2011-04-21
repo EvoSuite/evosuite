@@ -33,9 +33,6 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  */
 public class ConcurrencyCoverageFactory implements TestFitnessFactory {
 
-	//#TODO should be in some nice place
-	//the string in Properties.CRITERION which signals that concurrent testCases should be created
-	public static final String CONCURRENCY_COVERAGE_CRITERIA="concurrency";
 	public static final int THREAD_COUNT=2;
 	
 	private static Logger logger = Logger.getLogger(ConcurrencyCoverageFactory.class);

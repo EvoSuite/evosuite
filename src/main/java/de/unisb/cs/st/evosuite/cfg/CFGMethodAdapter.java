@@ -40,7 +40,6 @@ import org.objectweb.asm.tree.analysis.AnalyzerException;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
-import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyInstrumentation;
 import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.AbstractMutationAdapter;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
@@ -131,13 +130,13 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 		instrumentations.add(new BranchInstrumentation());
 
-		if (Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)) {
+		if (Properties.CRITERION.equals(Properties.CRITERIA.CONCURRENCY)) {
 			instrumentations.add(new ConcurrencyInstrumentation());
-		} else if (Properties.CRITERION.equalsIgnoreCase("lcsaj")) {
+		} else if (Properties.CRITERION.equals(Properties.CRITERIA.LCSAJ)) {
 			instrumentations.add(new LCSAJsInstrumentation());
-		} else if (Properties.CRITERION.equalsIgnoreCase("defuse")) {
+		} else if (Properties.CRITERION.equals(Properties.CRITERIA.DEFUSE)) {
 			instrumentations.add(new DefUseInstrumentation());
-		} else if (Properties.CRITERION.equalsIgnoreCase("path")) {
+		} else if (Properties.CRITERION.equals(Properties.CRITERIA.PATH)) {
 			instrumentations.add(new PrimePathInstrumentation());
 		}
 

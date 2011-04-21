@@ -276,7 +276,7 @@ public class TestSuite implements Opcodes {
 		// builder.append(".GeneratedTests;");
 		builder.append(";\n\n");
 
-		if(Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)){
+		if(Properties.CRITERION.equals(Properties.CRITERIA.CONCURRENCY)){
 			builder.append("import java.util.concurrent.Callable;\n");
 			builder.append("import java.util.concurrent.FutureTask;\n");
 			builder.append("import de.unisb.cs.st.evosuite.coverage.concurrency.LockRuntime;\n");
@@ -386,7 +386,7 @@ public class TestSuite implements Opcodes {
 		builder.append("   //");
 		builder.append(getInformation(id));
 		//#TODO steenbuck work around
-		if(Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)){
+		if(Properties.CRITERION.equals(Properties.CRITERIA.CONCURRENCY)){
 			builder.append("\n");
 			ConcurrentTestCase ctc = (ConcurrentTestCase)test_cases.get(id);
 			for (String line : ctc.getThreadCode(result.exceptions, id).split("\\r?\\n")) {

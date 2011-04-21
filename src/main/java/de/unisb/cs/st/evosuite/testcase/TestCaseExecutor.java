@@ -178,7 +178,7 @@ public class TestCaseExecutor implements ThreadFactory {
 
 		//#TODO steenbuck could be nicer (TestRunnable should be an interface
 		InterfaceTestRunnable callable;
-		if (Properties.CRITERION.equalsIgnoreCase(ConcurrencyCoverageFactory.CONCURRENCY_COVERAGE_CRITERIA)) {
+		if (Properties.CRITERION.equals(Properties.CRITERIA.CONCURRENCY)) {
 			callable = new ConcurrentTestRunnable(tc, scope, observers);
 		} else {
 			callable = new TestRunnable(tc, scope, observers);
