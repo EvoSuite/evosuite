@@ -71,13 +71,13 @@ public class ArrayStatement extends Statement {
 	}
 
 	@Override
-	public Statement clone() {
+	public StatementInterface clone() {
 		ArrayStatement copy = new ArrayStatement(retval.clone(), length);
 		return copy;
 	}
 
 	@Override
-	public boolean equals(Statement s) {
+	public boolean equals(StatementInterface s) {
 		if (this == s)
 			return true;
 		if (s == null)

@@ -52,7 +52,7 @@ public abstract class ExecutionObserver {
 
 	public abstract void output(int position, String output);
 
-	public abstract void statement(Statement statement, Scope scope, Throwable exception);
+	public abstract void statement(StatementInterface statement, Scope scope, Throwable exception);
 
 	public abstract void clear();
 }

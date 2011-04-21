@@ -29,7 +29,7 @@ import de.unisb.cs.st.evosuite.testcase.InterfaceTestRunnable;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.Scope;
-import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testcase.TestRunnable;
@@ -283,7 +283,7 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 		try {
 			Sandbox.setUpMocks();
 			// exceptionsThrown = test.execute(scope, observers, !log);
-			for (Statement s : localTest) {
+			for (StatementInterface s : localTest) {
 				if (Thread.currentThread().isInterrupted() || Thread.interrupted()) {
 					logger.info("Thread interrupted at statement " + num + ": "
 							+ s.getCode());

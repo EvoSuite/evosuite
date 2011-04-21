@@ -181,7 +181,7 @@ public class PrimitiveStatement<T> extends Statement {
 	}
 
 	@Override
-	public Statement clone() {
+	public StatementInterface clone() {
 		return new PrimitiveStatement<T>(retval.clone(), value);
 	}
 
@@ -208,7 +208,7 @@ public class PrimitiveStatement<T> extends Statement {
 	}
 
 	@Override
-	public boolean equals(Statement s) {
+	public boolean equals(StatementInterface s) {
 		if (this == s)
 			return true;
 		if (s == null)

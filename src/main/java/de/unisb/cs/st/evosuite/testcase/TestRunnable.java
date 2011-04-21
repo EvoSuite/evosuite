@@ -62,7 +62,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 			
 			Sandbox.setUpMocks();
 			// exceptionsThrown = test.execute(scope, observers, !log);
-			for (Statement s : test) {
+			for (StatementInterface s : test) {
 				if (Thread.currentThread().isInterrupted() || Thread.interrupted()) {
 					logger.info("Thread interrupted at statement " + num + ": "
 					        + s.getCode());

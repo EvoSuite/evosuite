@@ -18,7 +18,7 @@ import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
  * @author Sebastian Steenbuck
  *
  */
-public interface TestCase extends Iterable<Statement>, Cloneable {
+public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 
 	/**
 	 * 
@@ -141,7 +141,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable {
 	 *            Position at which to add
 	 * @return Return value of statement
 	 */
-	public VariableReference setStatement(Statement statement, int position);
+	public VariableReference setStatement(StatementInterface statement, int position);
 
 	/**
 	 * Add new statement at position and fix following variable references
@@ -152,7 +152,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable {
 	 *            Position at which to add
 	 * @return Return value of statement
 	 */
-	public void addStatement(Statement statement, int position);
+	public void addStatement(StatementInterface statement, int position);
 
 	/**
 	 * Append new statement at end of test case
@@ -161,7 +161,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable {
 	 *            New statement
 	 * @return VariableReference of return value
 	 */
-	public void addStatement(Statement statement);
+	public void addStatement(StatementInterface statement);
 
 	/**
 	 * Get return value (variable) of statement at position
@@ -196,7 +196,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable {
 	 *            Index of statement
 	 * @return Statement at position
 	 */
-	public Statement getStatement(int position);
+	public StatementInterface getStatement(int position);
 
 	/**
 	 * Reveal internal list of statements TODO: This is not nice, needed it as a
@@ -204,7 +204,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable {
 	 * 
 	 * @return
 	 */
-	public List<Statement> getStatements();
+	public List<StatementInterface> getStatements();
 
 	/**
 	 * Check if this test case is a prefix of t

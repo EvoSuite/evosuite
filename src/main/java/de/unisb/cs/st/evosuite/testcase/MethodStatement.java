@@ -167,7 +167,7 @@ public class MethodStatement extends Statement {
 	}
 
 	@Override
-	public Statement clone() {
+	public StatementInterface clone() {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
 			new_params.add(r.clone());
@@ -224,7 +224,7 @@ public class MethodStatement extends Statement {
 	}
 
 	@Override
-	public boolean equals(Statement s) {
+	public boolean equals(StatementInterface s) {
 		if (this == s)
 			return true;
 		if (s == null)

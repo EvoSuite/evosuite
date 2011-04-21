@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.Scope;
-import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class NullOutputObserver extends ExecutionObserver {
@@ -44,7 +44,7 @@ public class NullOutputObserver extends ExecutionObserver {
 	}
 
 	@Override
-	public void statement(Statement statement, Scope scope, Throwable exception) {
+	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
 		VariableReference retval = statement.getReturnValue();
 
 		if (retval == null || retval.isPrimitive())

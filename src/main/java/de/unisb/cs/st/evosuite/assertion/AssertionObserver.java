@@ -23,7 +23,7 @@ import java.util.List;
 
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.Scope;
-import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 public class AssertionObserver extends ExecutionObserver {
@@ -49,7 +49,7 @@ public class AssertionObserver extends ExecutionObserver {
 	}
 
 	@Override
-	public void statement(Statement statement, Scope scope, Throwable exception) {
+	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
 		for (Assertion a : statement.getAssertions()) {
 			status.add(a.evaluate(scope));
 		}

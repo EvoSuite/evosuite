@@ -9,7 +9,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
-import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 
 /**
@@ -119,7 +119,7 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 			for (TestChromosome test : suite.tests) {
 				if (test == changed || changed.test == test.test)
 					continue;
-				for (Statement s : test.test.getStatements()) {
+				for (StatementInterface s : test.test.getStatements()) {
 					if (s instanceof TestCallStatement) {
 						TestCallStatement call = (TestCallStatement) s;
 						if (call.getTest() != null && call.getTest().equals(changed.test)) {

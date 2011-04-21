@@ -6,7 +6,7 @@ package de.unisb.cs.st.evosuite.assertion;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
-import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 /**
@@ -15,7 +15,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
  */
 public class UnitAssertionGenerator extends AssertionGenerator {
 
-	private boolean isRelevant(Statement s, TestCase t) {
+	private boolean isRelevant(StatementInterface s, TestCase t) {
 		// Always allow assertions on the last statement
 		if (s.getPosition() == (t.size() - 1))
 			return true;
@@ -46,7 +46,7 @@ public class UnitAssertionGenerator extends AssertionGenerator {
 		result.null_trace.getAllAssertions(test);
 
 		for (int i = 0; i < test.size(); i++) {
-			Statement s = test.getStatement(i);
+			StatementInterface s = test.getStatement(i);
 			if (!isRelevant(s, test))
 				s.removeAssertions();
 		}

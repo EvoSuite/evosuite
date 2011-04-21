@@ -87,7 +87,7 @@ public class TestRunner extends Thread {
 		try {
 			Sandbox.setUpMocks();
 			// exceptionsThrown = test.execute(scope, observers, !log);
-			for (Statement s : test) {
+			for (StatementInterface s : test) {
 				if (isInterrupted()) {
 					logger.info("Thread interrupted at statement " + num + ": "
 					        + s.getCode());

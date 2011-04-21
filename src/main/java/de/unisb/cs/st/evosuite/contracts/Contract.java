@@ -11,7 +11,7 @@ import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.FieldStatement;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.Scope;
-import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 
 /**
  * Based on ObjectContract / Randoop
@@ -44,7 +44,7 @@ public abstract class Contract {
 		return pairs;
 	}
 
-	protected Collection<Object> getAffectedObjects(Statement statement, Scope scope) {
+	protected Collection<Object> getAffectedObjects(StatementInterface statement, Scope scope) {
 		Set<Object> objects = new HashSet<Object>();
 		if (statement instanceof ConstructorStatement
 		        || statement instanceof FieldStatement) {
@@ -61,7 +61,7 @@ public abstract class Contract {
 		return objects;
 	}
 
-	protected Collection<Pair> getAffectedObjectPairs(Statement statement, Scope scope) {
+	protected Collection<Pair> getAffectedObjectPairs(StatementInterface statement, Scope scope) {
 		Set<Pair> pairs = new HashSet<Pair>();
 
 		if (statement instanceof ConstructorStatement
@@ -98,6 +98,6 @@ public abstract class Contract {
 		return pairs;
 	}
 
-	public abstract boolean check(Statement statement, Scope scope, Throwable exception);
+	public abstract boolean check(StatementInterface statement, Scope scope, Throwable exception);
 
 }

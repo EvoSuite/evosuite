@@ -119,7 +119,7 @@ public class FieldStatement extends Statement {
 	}
 
 	@Override
-	public Statement clone() {
+	public StatementInterface clone() {
 		if (Modifier.isStatic(field.getModifiers()))
 			return new FieldStatement(field, null, retval.clone());
 		else
@@ -175,7 +175,7 @@ public class FieldStatement extends Statement {
 	}
 
 	@Override
-	public boolean equals(Statement s) {
+	public boolean equals(StatementInterface s) {
 		if (this == s)
 			return true;
 		if (s == null)

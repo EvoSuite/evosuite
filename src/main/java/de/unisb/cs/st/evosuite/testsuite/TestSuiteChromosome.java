@@ -29,7 +29,7 @@ import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
-import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 
@@ -155,7 +155,7 @@ public class TestSuiteChromosome extends Chromosome {
 			if (t.size() == 0) {
 				it.remove();
 				for (TestChromosome test : tests) {
-					for (Statement s : test.test.getStatements()) {
+					for (StatementInterface s : test.test.getStatements()) {
 						if (s instanceof TestCallStatement) {
 							TestCallStatement call = (TestCallStatement) s;
 							if (call.getTestNum() > num) {

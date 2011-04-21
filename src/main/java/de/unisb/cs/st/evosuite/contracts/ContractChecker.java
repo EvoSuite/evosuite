@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.Scope;
-import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 /**
@@ -59,7 +59,7 @@ public class ContractChecker extends ExecutionObserver {
 	 * @see de.unisb.cs.st.evosuite.testcase.ExecutionObserver#statement(int, de.unisb.cs.st.evosuite.testcase.Scope, de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
 	@Override
-	public void statement(Statement statement, Scope scope, Throwable exception) {
+	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
 		if (!valid)
 			return;
 		//logger.info("Skipping contract checking because test already violated a contract");

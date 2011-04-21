@@ -10,17 +10,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
-import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.Scope;
-import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
-import de.unisb.cs.st.evosuite.testcase.TestRunnable;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
@@ -226,18 +222,18 @@ public class ConcurrentTestCase implements TestCase{
 	}
 
 	@Override
-	public VariableReference setStatement(Statement statement, int position) {
+	public VariableReference setStatement(StatementInterface statement, int position) {
 		return test.setStatement(statement, position);
 	}
 
 	@Override
-	public void addStatement(Statement statement, int position) {
+	public void addStatement(StatementInterface statement, int position) {
 		test.addStatement(statement, position);
 	}
 
 
 	@Override
-	public void addStatement(Statement statement) {
+	public void addStatement(StatementInterface statement) {
 		test.addStatement(statement);
 	}
 
@@ -262,7 +258,7 @@ public class ConcurrentTestCase implements TestCase{
 	}
 
 	@Override
-	public Statement getStatement(int position) {
+	public StatementInterface getStatement(int position) {
 		return test.getStatement(position);
 	}
 
@@ -321,7 +317,7 @@ public class ConcurrentTestCase implements TestCase{
 	}
 
 	@Override
-	public Iterator<Statement> iterator() {
+	public Iterator<StatementInterface> iterator() {
 		return test.iterator();
 	}
 
@@ -337,7 +333,7 @@ public class ConcurrentTestCase implements TestCase{
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getStatements()
 	 */
 	@Override
-	public List<Statement> getStatements() {
+	public List<StatementInterface> getStatements() {
 		return test.getStatements();
 	}
 
