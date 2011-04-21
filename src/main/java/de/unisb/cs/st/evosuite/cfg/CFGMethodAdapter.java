@@ -47,9 +47,9 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 import de.unisb.cs.st.testability.TransformationHelper;
 
 /**
- * Create a minimized control flow graph for the
- * method and store it. In addition, this adapter also adds instrumentation for
- * branch distance measurement
+ * Create a minimized control flow graph for the method and store it. In
+ * addition, this adapter also adds instrumentation for branch distance
+ * measurement
  * 
  * defUse, concurrency and LCSAJs instrumentation is also added (if the
  * properties are set).
@@ -60,46 +60,46 @@ import de.unisb.cs.st.testability.TransformationHelper;
 public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 	private static Logger logger = Logger.getLogger(CFGMethodAdapter.class);
-	
+
 	/**
-	 * A list of Strings representing method signatures. 
-	 * Methods matching those signatures are not instrumented and no CFG is generated for them.
-	 * Except if some MethodInstrumentation requests it.
+	 * A list of Strings representing method signatures. Methods matching those
+	 * signatures are not instrumented and no CFG is generated for them. Except
+	 * if some MethodInstrumentation requests it.
 	 */
 	public static final List<String> EXCLUDE = Arrays.asList("<clinit>",
 	                                                         "__STATIC_RESET()V",
-	                                                         "__STATIC_RESET");	
+	                                                         "__STATIC_RESET");
 	/**
-	 * The set of all methods which can be used during test case generation
-	 * This excludes e.g. synthetic, initializers, private and deprecated methods
+	 * The set of all methods which can be used during test case generation This
+	 * excludes e.g. synthetic, initializers, private and deprecated methods
 	 */
 	public static Set<String> methods = new HashSet<String>();
 
 	/**
-	 * Complete control flow graph, contains each bytecode instruction, each label and line number node
-	 * Think of the direct Known Subclasses of
-	 * http://asm.ow2.org/asm33/javadoc/user/org/objectweb/asm/tree/AbstractInsnNode.html
-	 * for a complete list of the nodes in this cfg
+	 * Complete control flow graph, contains each bytecode instruction, each
+	 * label and line number node Think of the direct Known Subclasses of
+	 * http://
+	 * asm.ow2.org/asm33/javadoc/user/org/objectweb/asm/tree/AbstractInsnNode
+	 * .html for a complete list of the nodes in this cfg
 	 */
 	private static Map<String, Map<String, ControlFlowGraph>> completeCFGs = new HashMap<String, Map<String, ControlFlowGraph>>();
-	
+
 	/**
-	 * Minimized control flow graph. This  graph only contains the first and last node (usually a LABEL and IRETURN), 
-	 * nodes which create branches (all jumps/switches except GOTO) and 
-	 * nodes which were mutated.
+	 * Minimized control flow graph. This graph only contains the first and last
+	 * node (usually a LABEL and IRETURN), nodes which create branches (all
+	 * jumps/switches except GOTO) and nodes which were mutated.
 	 */
 	private static Map<String, Map<String, ControlFlowGraph>> minimizedCFGs = new HashMap<String, Map<String, ControlFlowGraph>>();
-	
-	
+
 	private static Map<String, Map<String, Double>> diameters = new HashMap<String, Map<String, Double>>();
 
 	/**
-	 * This is the name + the description of the method. It is more like the signature and less like the name.
-	 * The name of the method can be found in 
+	 * This is the name + the description of the method. It is more like the
+	 * signature and less like the name. The name of the method can be found in
 	 * this.plain_name
 	 */
 	private final String methodName;
-	
+
 	private final MethodVisitor next;
 	private final String plain_name;
 	private final List<Mutation> mutants;
@@ -109,10 +109,10 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	public CFGMethodAdapter(String className, int access, String name, String desc,
 	        String signature, String[] exceptions, MethodVisitor mv,
 	        List<Mutation> mutants) {
-		
+
 		super(new MethodNode(access, name, desc, signature, exceptions), className,
 		        name.replace('/', '.'), null, desc);
-		
+
 		this.next = mv;
 		this.className = className; // .replace('/', '.');
 		this.access = access;
@@ -155,7 +155,8 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		MethodNode mn = (MethodNode) mv;
 
 		//Only instrument if the method is (not main and not excluded) or (the MethodInstrumentation wants it anyway)
-		if ((!isMainMethod || executeOnMain) && (!isExcludedMethod || executeOnExcluded)) {
+		if ((!isMainMethod || executeOnMain) && (!isExcludedMethod || executeOnExcluded)
+		        && (access & Opcodes.ACC_ABSTRACT) == 0) {
 
 			// MethodNode mn = new CFGMethodNode((MethodNode)mv);
 			// System.out.println("Generating CFG for "+ className+"."+mn.name +
@@ -166,8 +167,10 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			try {
 				cfgGenerator.analyze(className, methodName, mn);
 				logger.trace("Method graph for " + className + "." + methodName
-				        + " contains " + cfgGenerator.getCompleteGraph().vertexSet().size() + " nodes for "
-				        + cfgGenerator.getFrames().length + " instructions");
+				        + " contains "
+				        + cfgGenerator.getCompleteGraph().vertexSet().size()
+				        + " nodes for " + cfgGenerator.getFrames().length
+				        + " instructions");
 			} catch (AnalyzerException e) {
 				logger.warn("Analyzer exception while analyzing " + className + "."
 				        + methodName);
@@ -195,7 +198,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 				methods.add(id);
 				logger.debug("Counting: " + id);
 			}
-			
+
 		}
 
 		mn.accept(next);
@@ -219,6 +222,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 	/**
 	 * See description of CFGMethodAdapter.EXCLUDE
+	 * 
 	 * @return
 	 */
 	private boolean isUsable() {
@@ -257,14 +261,16 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	}
 
 	public static ControlFlowGraph getMinimizedCFG(String classname, String methodname) {
-		logger.debug("Getting minimzed CFG for class " + classname + " and method " + methodname);
+		logger.debug("Getting minimzed CFG for class " + classname + " and method "
+		        + methodname);
 		if (minimizedCFGs.get(classname) == null)
 			return null;
 		return minimizedCFGs.get(classname).get(methodname);
 	}
 
 	public static ControlFlowGraph getCompleteCFG(String classname, String methodname) {
-		logger.debug("Getting complete CFG for class " + classname + " and method " + methodname);
+		logger.debug("Getting complete CFG for class " + classname + " and method "
+		        + methodname);
 		if (completeCFGs.get(classname) == null)
 			return null;
 		return completeCFGs.get(classname).get(methodname);
