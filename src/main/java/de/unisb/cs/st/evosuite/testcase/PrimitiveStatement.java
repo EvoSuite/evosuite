@@ -298,6 +298,61 @@ public class PrimitiveStatement<T> extends Statement {
 		// logger.info("Mutated string now is: "+value);
 	}
 
+	/**
+	 * Create random primitive statement
+	 * 
+	 * @param reference
+	 * @param clazz
+	 * @return
+	 */
+	public void randomize() {
+		if (value instanceof Boolean) {
+			value = (T) new Boolean(randomness.nextBoolean());
+		} else if (value instanceof Integer) {
+			if (randomness.nextDouble() >= P_pool)
+				value = (T) new Integer((randomness.nextInt(2 * MAX_INT) - MAX_INT));
+			else
+				value = (T) new Integer(primitive_pool.getRandomInt());
+		} else if (value instanceof Character) {
+			value = (T) new Character(randomness.nextChar());
+		} else if (value instanceof Long) {
+			int max = Math.min(MAX_INT, 32767);
+			if (randomness.nextDouble() >= P_pool)
+				value = (T) new Long((randomness.nextInt(2 * max) - max));
+			else
+				value = (T) new Long(primitive_pool.getRandomLong());
+		} else if (value instanceof Double) {
+			if (randomness.nextDouble() >= P_pool)
+				value = (T) new Double((randomness.nextInt(2 * MAX_INT) - MAX_INT)
+				        + randomness.nextDouble());
+			else
+				value = (T) new Double(primitive_pool.getRandomDouble());
+
+		} else if (value instanceof Float) {
+			if (randomness.nextDouble() >= P_pool)
+				value = (T) new Float((randomness.nextInt(2 * MAX_INT) - MAX_INT)
+				        + randomness.nextFloat());
+			else
+				value = (T) new Float(primitive_pool.getRandomFloat());
+		} else if (value instanceof Short) {
+			int max = Math.min(MAX_INT, 32767);
+			if (randomness.nextDouble() >= P_pool)
+				value = (T) new Short((short) (randomness.nextInt(2 * max) - max));
+			else
+				value = (T) new Short((short) primitive_pool.getRandomInt());
+		} else if (value instanceof Byte) {
+			if (randomness.nextDouble() >= P_pool)
+				value = (T) new Byte((byte) (randomness.nextInt(256) - 128));
+			else
+				value = (T) new Byte((byte) (primitive_pool.getRandomInt()));
+		} else if (value instanceof String) {
+			if (randomness.nextDouble() >= P_pool)
+				value = (T) randomness.nextString(randomness.nextInt(MAX_STRING));
+			else
+				value = (T) primitive_pool.getRandomString();
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	public void delta() {
 
