@@ -20,8 +20,9 @@ package de.unisb.cs.st.evosuite.coverage.lcsaj;
 
 import java.util.HashMap;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
-
+import org.objectweb.asm.tree.JumpInsnNode;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
@@ -47,46 +48,70 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 	double approach;
 	double branch;
 
-	public LCSAJCoverageTestFitness(String className, String methodName, LCSAJ lcsaj,
-	        ControlFlowGraph cfg) {
+	public LCSAJCoverageTestFitness(String className, String methodName,
+			LCSAJ lcsaj, ControlFlowGraph cfg) {
 		this.lcsaj = lcsaj;
 		this.cfg = cfg;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestFitnessFunction#getFitness(de.unisb.cs.st.evosuite.testcase.TestChromosome, de.unisb.cs.st.evosuite.testcase.ExecutionResult)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.testcase.TestFitnessFunction#getFitness(de.unisb
+	 * .cs.st.evosuite.testcase.TestChromosome,
+	 * de.unisb.cs.st.evosuite.testcase.ExecutionResult)
 	 */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		double fitness = 0.0;
-		HashMap<Integer, AbstractInsnNode> instructions = lcsaj.getInstructions();
+		HashMap<Integer, AbstractInsnNode> instructions = lcsaj
+				.getInstructions();
 		boolean firstInsn = true;
 		approach = instructions.size();
 		for (Integer i : instructions.keySet()) {
+
+			AbstractInsnNode current_instruction = instructions.get(i);
 			CFGVertex c = cfg.getVertex(i);
+
 			if (c == null) {
 				// Only jump nodes are in minimized CFG!
+				continue;
 			}
+
 			if (c.branchId != -1 && firstInsn) {
 				BranchCoverageTestFitness b = new BranchCoverageTestFitness(
-				        new BranchCoverageGoal(BranchPool.getBranch(c.branchId), false,
-				                cfg, lcsaj.getClassName(), lcsaj.getMethodName()));
+						new BranchCoverageGoal(
+								BranchPool.getBranch(c.branchId), false, cfg,
+								lcsaj.getClassName(), lcsaj.getMethodName()));
 				fitness += b.getFitness(individual, result);
 				firstInsn = false;
 				continue;
 			}
 
-			if (i == lcsaj.getInstructionID(instructions.get(i))) {
-				branch = result.trace.false_distances.get(c.branchId);
-				if (branch != 0.0)
-					fitness += approach + normalize(branch);
-				break;
-			}
+			if (current_instruction instanceof JumpInsnNode) {
 
-			else {
-				branch = result.trace.true_distances.get(c.branchId);
-				if (branch != 0.0)
-					fitness += normalize(branch);
+				JumpInsnNode current_jump = (JumpInsnNode) current_instruction;
+	
+				if (current_jump.getOpcode() != Opcodes.GOTO) {
+					if (lcsaj.getInstruction(i).equals(lcsaj.getLastJump())) {
+						branch = result.trace.true_distances.get(c.branchId);
+						if (branch != 0.0) {
+							fitness += normalize(branch);
+							break;
+						}
+					}
+					else {
+						branch = result.trace.false_distances.get(c.branchId);
+						if (branch != 0.0) {
+							fitness += approach + normalize(branch);
+							break;
+						}
+					}
+				}
+				else {
+					
+				}
 			}
 			approach--;
 		}
@@ -94,8 +119,12 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 		return fitness;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#updateIndividual(de.unisb.cs.st.evosuite.ga.Chromosome, double)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.ga.FitnessFunction#updateIndividual(de.unisb.
+	 * cs.st.evosuite.ga.Chromosome, double)
 	 */
 	@Override
 	protected void updateIndividual(Chromosome individual, double fitness) {
