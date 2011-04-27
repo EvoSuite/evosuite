@@ -81,7 +81,7 @@ public class TestSuite implements Opcodes {
 		@Override
 		public boolean accept(File file) {
 			return file.getName().toLowerCase().endsWith(".java")
-			&& file.getName().startsWith("Test");
+			        && file.getName().startsWith("Test");
 		}
 	}
 
@@ -147,7 +147,7 @@ public class TestSuite implements Opcodes {
 	 * @return Index of the test case
 	 */
 	public int insertTest(TestCase test) {
-		if (Properties.getPropertyOrDefault("call_probability", 0.0) <= 0) {
+		if (Properties.getDoubleValue("call_probability") <= 0) {
 			for (int i = 0; i < test_cases.size(); i++) {
 				if (test.isPrefix(test_cases.get(i))) {
 					// It's shorter than an existing one
@@ -205,19 +205,21 @@ public class TestSuite implements Opcodes {
 
 		if (!coveredGoals.isEmpty()) {
 			builder.append("\n  /* ");
-			builder.append(coveredGoals.size()+" covered goal");
-			if(coveredGoals.size()!=1)
+			builder.append(coveredGoals.size() + " covered goal");
+			if (coveredGoals.size() != 1)
 				builder.append("s");
 			int nr = 1;
 			for (TestFitnessFunction goal : coveredGoals) {
-				builder.append("\n    * " +nr + " " + goal.toString());
+				builder.append("\n    * " + nr + " " + goal.toString());
 				// TODO only for debugging purposes
-				if(Properties.CRITERION.equals("defuse") && (goal instanceof DefUseCoverageTestFitness)) {
-					DefUseCoverageTestFitness duGoal = (DefUseCoverageTestFitness)goal;
-					if(duGoal.getCoveringTrace() != null) {
-						String traceInformation = duGoal.getCoveringTrace().toDefUseTraceInformation(duGoal.getGoalVariable(),duGoal.getCoveringObjectId());
+				if (Properties.getStringValue("criterion").equals("defuse")
+				        && (goal instanceof DefUseCoverageTestFitness)) {
+					DefUseCoverageTestFitness duGoal = (DefUseCoverageTestFitness) goal;
+					if (duGoal.getCoveringTrace() != null) {
+						String traceInformation = duGoal.getCoveringTrace().toDefUseTraceInformation(duGoal.getGoalVariable(),
+						                                                                             duGoal.getCoveringObjectId());
 						traceInformation = traceInformation.replaceAll("\n", "");
-						builder.append("\n      * DUTrace: "+traceInformation);
+						builder.append("\n      * DUTrace: " + traceInformation);
 					}
 				}
 				nr++;
@@ -388,7 +390,7 @@ public class TestSuite implements Opcodes {
 		//#TODO steenbuck work around
 		if(Properties.CRITERION.equals(Properties.CRITERIA.CONCURRENCY)){
 			builder.append("\n");
-			ConcurrentTestCase ctc = (ConcurrentTestCase)test_cases.get(id);
+			ConcurrentTestCase ctc = (ConcurrentTestCase) test_cases.get(id);
 			for (String line : ctc.getThreadCode(result.exceptions, id).split("\\r?\\n")) {
 				builder.append("      ");
 				builder.append(line);
@@ -397,7 +399,7 @@ public class TestSuite implements Opcodes {
 			}
 			builder.append("   }\n");
 
-		}else{
+		} else {
 			builder.append("\n   public void test");
 			builder.append(id);
 			builder.append("() ");
@@ -480,11 +482,11 @@ public class TestSuite implements Opcodes {
 
 		File basedir = new File(directory);
 		Iterator<File> i = FileUtils.iterateFiles(basedir, new TestFilter(),
-				TrueFileFilter.INSTANCE);
+		                                          TrueFileFilter.INSTANCE);
 		while (i.hasNext()) {
 			File f = i.next();
 			String name = f.getPath().replace(directory, "").replace(".java", "").replace("/",
-			".");
+			                                                                              ".");
 			suites.add(name.substring(name.lastIndexOf(".") + 1));
 			builder.append("import ");
 			builder.append(Properties.PROJECT_PREFIX);
@@ -540,11 +542,10 @@ public class TestSuite implements Opcodes {
 
 		dir = mainDirectory(directory);
 		writeTestSuiteMainFile(dir);
-
 	}
 
 	private void testToBytecode(TestCase test, GeneratorAdapter mg,
-			Map<Integer, Throwable> exceptions) {
+	        Map<Integer, Throwable> exceptions) {
 		Map<Integer, Integer> locals = new HashMap<Integer, Integer>();
 		mg.visitAnnotation("Lorg/junit/Test;", true);
 		int num = 0;
@@ -561,10 +562,10 @@ public class TestSuite implements Opcodes {
 	public byte[] getBytecode(String name) {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		String prefix = Properties.TARGET_CLASS.substring(0,
-				Properties.TARGET_CLASS.lastIndexOf(".")).replace(".",
-				"/");
+		                                                  Properties.TARGET_CLASS.lastIndexOf(".")).replace(".",
+		                                                                                                    "/");
 		cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, prefix + "/" + name, null,
-				"junit/framework/TestCase", null);
+		         "junit/framework/TestCase", null);
 
 		Method m = Method.getMethod("void <init> ()");
 		GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
@@ -594,7 +595,7 @@ public class TestSuite implements Opcodes {
 		// mg.invokeStatic(Type.getType(org.junit.runner.JUnitCore.class),
 		// Method.getMethod("void main (String[])"));
 		mg.invokeStatic(Type.getType(junit.textui.TestRunner.class),
-				Method.getMethod("void main (String[])"));
+		                Method.getMethod("void main (String[])"));
 		mg.returnValue();
 		mg.endMethod();
 

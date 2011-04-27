@@ -117,18 +117,18 @@ public class TestSuiteGenerator {
 	/**
 	 * Generate a test suite for the target class
 	 */
-	public void generateTestSuite() {
+	public String generateTestSuite() {
 		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
 		List<TestCase> tests;
 
 		System.out.println("* Generating tests for class " + Properties.TARGET_CLASS);
 
-		if (Properties.STRATEGY.equals("EvoSuite"))
+		if (Properties.getStringValue("strategy").equals("EvoSuite"))
 			tests = generateWholeSuite();
 		else
 			tests = generateIndividualTests();
 
-		if (Properties.MUTATION) {
+		if (Properties.getStringValue("criterion").equalsIgnoreCase("mutation")) {
 			MutationAssertionGenerator asserter = new MutationAssertionGenerator();
 			Set<Long> killed = new HashSet<Long>();
 			for (TestCase test : tests) {
@@ -136,23 +136,29 @@ public class TestSuiteGenerator {
 			}
 			asserter.writeStatistics();
 			System.out.println("Killed: " + killed.size() + "/" + asserter.numMutants());
-		} else if (Properties.ASSERTIONS) {
+		} else if (Properties.getBooleanValue("assertions")) {
 			AssertionGenerator asserter = AssertionGenerator.getDefaultGenerator();
 			for (TestCase test : tests) {
 				asserter.addAssertions(test);
 			}
 		}
 
-		if (Properties.getPropertyOrDefault("junit_tests", true)) {
+		if (Properties.getBooleanValue("junit_tests")) {
 			TestSuite suite = new TestSuite(tests);
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
-			System.out.println("* Writing JUnit test cases to " + Properties.TEST_DIR);
-			suite.writeTestSuite("Test" + name, Properties.TEST_DIR);
+			System.out.println("* Writing JUnit test cases to "
+			        + Properties.getStringValue("test_dir"));
+			suite.writeTestSuite("Test" + name, Properties.getStringValue("test_dir"));
 		}
 
 		TestCaseExecutor.pullDown();
 		statistics.writeReport();
 		System.out.println("* Done!");
+
+		System.out.println("Time: "
+		        + (TestCaseExecutor.timeExecuted * 1.0 / TestCaseExecutor.testsExecuted));
+
+		return "";
 	}
 
 	/**
@@ -170,7 +176,7 @@ public class TestSuiteGenerator {
 		FitnessFunction fitness_function = getFitnessFunction();
 		ga.setFitnessFunction(fitness_function);
 
-		if (Properties.CRITERION.equals("defuse"))
+		if (Properties.getStringValue("criterion").equals("defuse"))
 			ExecutionTrace.enableTraceCalls();
 
 		// Perform search
@@ -183,7 +189,7 @@ public class TestSuiteGenerator {
 		        + "s and " + ga.getAge() + " generations, best individual has fitness "
 		        + best.getFitness());
 
-		if (Properties.MINIMIZE) {
+		if (Properties.getBooleanValue("minimize")) {
 			System.out.println("* Minimizing result");
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
 			minimizer.minimize((TestSuiteChromosome) ga.getBestIndividual());
@@ -195,7 +201,7 @@ public class TestSuiteGenerator {
 
 		System.out.println("* Resulting TestSuite's coverage: " + best.getCoverage());
 
-		if (Properties.CRITERION.equals("defuse")) {
+		if (Properties.getStringValue("criterion").equals("defuse")) {
 			// TODO this is horribly inefficient! 
 			// compute all results once and then ask each goal individually
 			// ... and put all that in TestSuiteFitnessFuncion
@@ -264,13 +270,13 @@ public class TestSuiteGenerator {
 	private TestSuiteChromosome bootstrapRandomSuite(FitnessFunction fitness,
 	        TestFitnessFactory goals) {
 
-		int random_tests = Properties.getPropertyOrDefault("random_tests", 100);
+		int random_tests = Properties.getIntegerValue("random_tests");
 		if (random_tests > 0)
 			System.out.println("* Bootstrapping initial random test suite");
 		else
 			System.out.println("* Bootstrapping initial random test suite disabled!");
 		TestSuiteChromosomeFactory factory = new TestSuiteChromosomeFactory();
-		if (Properties.CRITERION.equals("defuse") && random_tests > 0) {
+		if (Properties.getStringValue("criterion").equals("defuse") && random_tests > 0) {
 			System.out.println("* Tuned down random bootstraping for DefUseCoverage-Criterion");
 			random_tests = random_tests / 10;
 		}
@@ -300,9 +306,9 @@ public class TestSuiteGenerator {
 		ExecutionTrace.enableTraceCalls();
 		GeneticAlgorithm ga = setup();
 		long start_time = System.currentTimeMillis() / 1000;
-		boolean skip_covered = Properties.getPropertyOrDefault("skip_covered", true);
-		boolean reuse_budget = Properties.getPropertyOrDefault("reuse_budget", true);
-		boolean log_goals = Properties.getPropertyOrDefault("log_goals", false);
+		boolean skip_covered = Properties.getBooleanValue("skip_covered");
+		boolean reuse_budget = Properties.getBooleanValue("reuse_budget");
+		boolean log_goals = Properties.getBooleanValue("log_goals");
 		FitnessLogger fitness_logger = new FitnessLogger();
 		if (log_goals) {
 			ga.addListener(fitness_logger);
@@ -312,17 +318,17 @@ public class TestSuiteGenerator {
 		TestFitnessFactory goal_factory = getFitnessFactory();
 		List<TestFitnessFunction> goals = goal_factory.getCoverageGoals();
 		// Need to shuffle goals because the order may make a difference
-		if (Properties.getPropertyOrDefault("shuffle_goals", true)) {
+		if (Properties.getBooleanValue("shuffle_goals")) {
 			System.out.println("* Shuffling goals");
 			Randomness.getInstance().shuffle(goals);
 		}
-		if (Properties.getPropertyOrDefault("preorder_goals_by_difficulty", false)) {
+		if (Properties.getBooleanValue("preorder_goals_by_difficulty")) {
 			orderGoalsByDifficulty(goals);
 			System.out.println("* Time taken for difficulty computation: "
 			        + DefUseCoverageTestFitness.difficulty_time + "ms");
 		} else
 			System.out.println("* Goal preordering by difficulty disabled!");
-		if (!Properties.getPropertyOrDefault("recycle_chromosomes", true))
+		if (!Properties.getBooleanValue("recycle_chromosomes"))
 			System.out.println("* ChromosomeRecycler disabled!");
 
 		System.out.println("* Total number of test goals: " + goals.size());
@@ -353,7 +359,7 @@ public class TestSuiteGenerator {
 
 		int current_budget = 0;
 
-		int total_budget = Properties.GENERATIONS;
+		int total_budget = Properties.getIntegerValue("generations");
 		System.out.println("* Budget: "
 		        + NumberFormat.getIntegerInstance().format(total_budget));
 
@@ -378,7 +384,7 @@ public class TestSuiteGenerator {
 				ga.resetStoppingConditions();
 				ga.clearPopulation();
 
-				if (Properties.getPropertyOrDefault("print_current_goals", false))
+				if (Properties.getBooleanValue("print_current_goals"))
 					System.out.println("* Searching for goal " + num + ": "
 					        + fitness_function.toString());
 				logger.info("Goal " + num + "/" + (total_goals - covered_goals) + ": "
@@ -407,11 +413,12 @@ public class TestSuiteGenerator {
 				ga.generateSolution();
 
 				if (ga.getBestIndividual().getFitness() == 0.0) {
-					if (Properties.getPropertyOrDefault("print_covered_goals", false))
+					if (Properties.getBooleanValue("print_covered_goals"))
 						System.out.println("* Covered: " + fitness_function.toString());
-					logger.info("Found solution, adding to test suite");
+					logger.info("Found solution, adding to test suite at "
+					        + MaxStatementsStoppingCondition.getNumExecutedStatements());
 					TestChromosome best = (TestChromosome) ga.getBestIndividual();
-					if (Properties.MINIMIZE) {
+					if (Properties.getBooleanValue("minimize")) {
 						TestCaseMinimizer minimizer = new TestCaseMinimizer(
 						        fitness_function);
 						minimizer.minimize(best);
@@ -436,7 +443,8 @@ public class TestSuiteGenerator {
 					}
 
 				} else {
-					logger.info("Found no solution");
+					logger.info("Found no solution at "
+					        + MaxStatementsStoppingCondition.getNumExecutedStatements());
 				}
 
 				suite_fitness.getFitness(suite); // ???
@@ -530,7 +538,7 @@ public class TestSuiteGenerator {
 				continue;
 			if (goal.isCovered(best, result)) {
 				r.add(num);
-				if (Properties.getPropertyOrDefault("print_covered_goals", false))
+				if (Properties.getBooleanValue("print_covered_goals"))
 					System.out.println("* Additionally covered: " + goal.toString());
 			}
 		}
@@ -569,8 +577,7 @@ public class TestSuiteGenerator {
 	 */
 
 	private StoppingCondition getStoppingCondition() {
-		String stopping_condition = Properties.getPropertyOrDefault("stopping_condition",
-		                                                            "MaxGenerations");
+		String stopping_condition = Properties.getStringValue("stopping_condition");
 		logger.info("Setting stopping condition: " + stopping_condition);
 		if (stopping_condition.equals("MaxGenerations")) {
 			return new MaxGenerationStoppingCondition();
@@ -589,8 +596,7 @@ public class TestSuiteGenerator {
 	}
 
 	private CrossOverFunction getCrossoverFunction() {
-		String crossover_function = Properties.getPropertyOrDefault("crossover_function",
-		                                                            "SinglePoint");
+		String crossover_function = Properties.getStringValue("crossover_function");
 		if (crossover_function.equals("SinglePointFixed"))
 			return new SinglePointFixedCrossOver();
 		else if (crossover_function.equals("SinglePointRelative"))
@@ -600,8 +606,7 @@ public class TestSuiteGenerator {
 	}
 
 	private SelectionFunction getSelectionFunction() {
-		String selection_function = Properties.getPropertyOrDefault("selection_function",
-		                                                            "Rank");
+		String selection_function = Properties.getStringValue("selection_function");
 		if (selection_function.equals("Roulette"))
 			return new FitnessProportionateSelection();
 		else if (selection_function.equals("Tournament"))
@@ -611,7 +616,7 @@ public class TestSuiteGenerator {
 	}
 
 	private ChromosomeFactory getChromosomeFactory() {
-		if (Properties.STRATEGY.equals("EvoSuite"))
+		if (Properties.getStringValue("strategy").equals("EvoSuite"))
 			return new TestSuiteChromosomeFactory();
 		else
 			return new RandomLengthTestFactory();
@@ -632,13 +637,12 @@ public class TestSuiteGenerator {
 	}
 
 	private void getSecondaryObjectives(GeneticAlgorithm algorithm) {
-		if (Properties.STRATEGY.equals("OneBranch")) {
+		if (Properties.getStringValue("strategy").equals("OneBranch")) {
 			SecondaryObjective objective = getSecondaryObjective("size");
 			Chromosome.addSecondaryObjective(objective);
 			algorithm.addSecondaryObjective(objective);
 		} else {
-			String objectives = Properties.getPropertyOrDefault("secondary_objectives",
-			                                                    "maxlength");
+			String objectives = Properties.getStringValue("secondary_objectives");
 			for (String name : objectives.split(":")) {
 				SecondaryObjective objective = getSecondaryObjective(name);
 				Chromosome.addSecondaryObjective(objective);
@@ -648,7 +652,7 @@ public class TestSuiteGenerator {
 	}
 
 	private GeneticAlgorithm getGeneticAlgorithm(ChromosomeFactory factory) {
-		String search_algorithm = Properties.getProperty("algorithm");
+		String search_algorithm = Properties.getStringValue("algorithm");
 		if (search_algorithm.equals("(1+1)EA")) {
 			logger.info("Chosen search algorithm: (1+1)EA");
 			return new OnePlusOneEA(factory);
@@ -656,7 +660,7 @@ public class TestSuiteGenerator {
 		} else if (search_algorithm.equals("SteadyStateGA")) {
 			logger.info("Chosen search algorithm: SteadyStateGA");
 			SteadyStateGA ga = new SteadyStateGA(factory);
-			if (Properties.STRATEGY.equals("EvoSuite"))
+			if (Properties.getStringValue("strategy").equals("EvoSuite"))
 				ga.setReplacementFunction(new TestSuiteReplacementFunction());
 			else
 				ga.setReplacementFunction(new TestCaseReplacementFunction());
@@ -665,7 +669,7 @@ public class TestSuiteGenerator {
 		} else if (search_algorithm.equals("MuPlusLambdaGA")) {
 			logger.info("Chosen search algorithm: MuPlusLambdaGA");
 			MuPlusLambdaGA ga = new MuPlusLambdaGA(factory);
-			if (Properties.STRATEGY.equals("EvoSuite"))
+			if (Properties.getStringValue("strategy").equals("EvoSuite"))
 				ga.setReplacementFunction(new TestSuiteReplacementFunction());
 			else
 				ga.setReplacementFunction(new TestCaseReplacementFunction());
@@ -697,10 +701,10 @@ public class TestSuiteGenerator {
 		stopping_condition = getStoppingCondition();
 		ga.setStoppingCondition(stopping_condition);
 		// ga.addListener(stopping_condition);
-		if (Properties.getPropertyOrDefault("stop_zero", true))
+		if (Properties.getBooleanValue("stop_zero"))
 			ga.addStoppingCondition(zero_fitness);
 		ga.addStoppingCondition(global_time);
-		if (Properties.MUTATION)
+		if (Properties.getStringValue("criterion").equalsIgnoreCase("mutation"))
 			ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
 
 		// How to cross over
@@ -711,7 +715,7 @@ public class TestSuiteGenerator {
 		// MaxLengthBloatControl bloat_control = new MaxLengthBloatControl();
 		// ga.setBloatControl(bloat_control);
 
-		if (Properties.STRATEGY.equals("EvoSuite")) {
+		if (Properties.getStringValue("strategy").equals("EvoSuite")) {
 			RelativeLengthBloatControl bloat_control = new RelativeLengthBloatControl();
 			ga.addBloatControl(bloat_control);
 			ga.addListener(bloat_control);
@@ -725,20 +729,22 @@ public class TestSuiteGenerator {
 		getSecondaryObjectives(ga);
 
 		// Some statistics
-		if (Properties.STRATEGY.equals("EvoSuite"))
+		if (Properties.getStringValue("strategy").equals("EvoSuite"))
 			ga.addListener(SearchStatistics.getInstance());
 		//ga.addListener(MutationStatistics.getInstance());
 		//ga.addListener(BestChromosomeTracker.getInstance());
 
-		if (Properties.getPropertyOrDefault("dynamic_limit", false)) {
+		if (Properties.getBooleanValue("dynamic_limit")) {
 			//max_s = GAProperties.generations * getBranches().size();
 			// TODO: might want to make this dependent on the selected coverage criterion
 			// TODO also, question: is branchMap.size() really intended here? 
 			// I think BranchPool.getBranchCount() was intended
-			Properties.GENERATIONS = Properties.GENERATIONS
-			        * (BranchPool.getBranchlessMethods().size() + BranchPool.getBranchCounter() * 2); // TODO question: is branchMap.size() really what wanted here? I think BranchPool.getBranchCount() was intended here
-			stopping_condition.setLimit(Properties.GENERATIONS);
-			logger.info("Setting dynamic length limit to " + Properties.GENERATIONS);
+			Properties.setValue("generations",
+			                    Properties.getIntegerValue("generations")
+			                            * (BranchPool.getBranchlessMethods().size() + BranchPool.getBranchCounter() * 2)); // TODO question: is branchMap.size() really what wanted here? I think BranchPool.getBranchCount() was intended here
+			stopping_condition.setLimit(Properties.getIntegerValue("generations"));
+			logger.info("Setting dynamic length limit to "
+			        + Properties.getIntegerValue("generations"));
 		}
 
 		return ga;

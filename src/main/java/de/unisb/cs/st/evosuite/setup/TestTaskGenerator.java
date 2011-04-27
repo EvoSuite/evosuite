@@ -61,7 +61,7 @@ public class TestTaskGenerator {
 
 	static Map<String, List<String>> method_excludes = getExcludesFromFile();
 
-	private static final boolean CREATE_OBJECTFILES = Properties.getProperty("generate_objects") != null;
+	private static final boolean CREATE_OBJECTFILES = Properties.getBooleanValue("generate_objects");
 
 	/**
 	 * Get the set of public/default constructors
@@ -644,7 +644,13 @@ public class TestTaskGenerator {
 	 *            Project prefix
 	 */
 	protected static void suggestTasks(String prefix) {
-		List<String> classes = getClasses(prefix);
+		List<String> classes;
+		if (Properties.TARGET_CLASS.equals(""))
+			classes = getClasses(prefix);
+		else {
+			classes = new ArrayList<String>();
+			classes.add(Properties.TARGET_CLASS);
+		}
 		for (String classname : classes) {
 			if (classname.endsWith("Stub"))
 				continue;

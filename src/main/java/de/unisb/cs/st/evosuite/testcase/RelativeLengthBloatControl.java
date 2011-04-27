@@ -32,17 +32,15 @@ import de.unisb.cs.st.evosuite.ga.SearchListener;
  * @author Gordon Fraser
  * 
  */
-public class RelativeLengthBloatControl implements BloatControlFunction,
-        SearchListener {
+public class RelativeLengthBloatControl implements BloatControlFunction, SearchListener {
 
 	protected int current_max = 0;
 
 	protected double best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
-													  // minimizing fitness!
+	                                                  // minimizing fitness!
 
 	/** Factor for bloat control */
-	protected int bloat_factor = Properties.getPropertyOrDefault(
-	        "bloat_factor", 2);
+	protected int bloat_factor = Properties.getIntegerValue("bloat_factor");
 
 	/*
 	 * (non-Javadoc)
@@ -64,8 +62,7 @@ public class RelativeLengthBloatControl implements BloatControlFunction,
 			// logger.debug("Bloat control: "+((TestSuiteChromosome)chromosome).length()
 			// +" > "+ bloat_factor * current_max);
 
-			return ((TestChromosome) chromosome).size() > bloat_factor
-			        * current_max;
+			return ((TestChromosome) chromosome).size() > bloat_factor * current_max;
 		} else
 			return false; // Don't know max length so can't reject!
 	}

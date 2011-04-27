@@ -26,7 +26,7 @@ public class PrimePathCoverageFactory implements TestFitnessFactory {
 		if (!goals.isEmpty())
 			return goals;
 
-		String targetMethod = Properties.getPropertyOrDefault("target_method", "");
+		String targetMethod = Properties.getStringValue("target_method");
 
 		for (String className : PrimePathPool.primePathMap.keySet()) {
 			for (String methodName : PrimePathPool.primePathMap.get(className).keySet()) {

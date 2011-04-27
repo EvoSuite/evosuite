@@ -28,8 +28,7 @@ import de.unisb.cs.st.evosuite.Properties;
  */
 public class MuPlusLambdaGA extends SteadyStateGA {
 
-	private static boolean parent_check = Properties.getPropertyOrDefault("parent_check",
-	                                                                      true);
+	private static boolean parent_check = Properties.getBooleanValue("parent_check");
 
 	/**
 	 * Generate a new search object

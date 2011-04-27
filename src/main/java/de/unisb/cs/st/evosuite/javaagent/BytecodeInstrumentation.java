@@ -49,8 +49,12 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 	private static Hierarchy hierarchy;
 
+	private static boolean instrumentParent = Properties.getBooleanValue("instrument_parent");
+
+	private static final boolean MUTATION = Properties.getStringValue("criterion").equalsIgnoreCase("mutation");
+
 	static {
-		if (Properties.INSTRUMENT_PARENT)
+		if (instrumentParent)
 			hierarchy = Hierarchy.readFromDefaultLocation();
 	}
 
@@ -60,17 +64,16 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 	private static String target_class = Properties.TARGET_CLASS;
 
-	protected boolean static_hack = Properties.getPropertyOrDefault("static_hack", false);
+	protected boolean static_hack = Properties.getBooleanValue("static_hack");
 
-	private final boolean makeAllAccessible = Properties.getPropertyOrDefault("make_accessible",
-	                                                                          false);
+	private final boolean makeAllAccessible = Properties.getBooleanValue("make_accessible");
 
 	private boolean isTargetClass(String className) {
 		if (className.equals(target_class) || className.startsWith(target_class + "$")) {
 			return true;
 		}
 
-		if (Properties.INSTRUMENT_PARENT) {
+		if (instrumentParent) {
 			return hierarchy.getAllSupers(target_class).contains(className);
 		}
 
@@ -132,7 +135,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 					}
 
 					// Collect constant values for the value pool
-					if (!Properties.MUTATION) {
+					if (!MUTATION) {
 						cv = new PrimitiveClassAdapter(cv, className);
 					}
 
@@ -140,7 +143,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 					if (static_hack)
 						cv = new StaticInitializationClassAdapter(cv, className);
 
-					if (Properties.TT) {
+					if (Properties.getBooleanValue("TT")) {
 						logger.info("Transforming " + className);
 						ClassNode cn = new ClassNode();
 						reader.accept(cn, ClassReader.SKIP_FRAMES);

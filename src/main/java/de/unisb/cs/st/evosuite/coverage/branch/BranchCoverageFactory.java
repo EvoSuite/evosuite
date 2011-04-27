@@ -48,17 +48,14 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 	public List<TestFitnessFunction> getCoverageGoals() {
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
 
-		int target_branch = Properties.getPropertyOrDefault("target_branch", -1);
-		String targetMethod = Properties.getPropertyOrDefault("target_method", "");
+		String targetMethod = Properties.getStringValue("target_method");
 
 		// Branchless methods
 		String class_name = Properties.TARGET_CLASS;
-		if (target_branch < 0) {
-			for (String method : BranchPool.getBranchlessMethods()) {
-				if (targetMethod.equals("") || method.endsWith(targetMethod))
-					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(
-					        class_name, method.substring(method.lastIndexOf(".") + 1))));
-			}
+		for (String method : BranchPool.getBranchlessMethods()) {
+			if (targetMethod.equals("") || method.endsWith(targetMethod))
+				goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(
+				        class_name, method.substring(method.lastIndexOf(".") + 1))));
 		}
 		// Branches
 		logger.info("Getting branches");
@@ -71,7 +68,7 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 					continue;
 				}
 
-				if (Properties.TESTABILITY_TRANSFORMATION) {
+				if (Properties.getBooleanValue("testability_transformation")) {
 					String vname = methodName.replace("(", "|(");
 					if (TransformationHelper.hasValkyrieMethod(className, vname)) {
 						logger.info("Skipping branch in transformed method: " + vname);
@@ -82,12 +79,10 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 				}
 
 				// Get CFG of method
-				ControlFlowGraph cfg = CFGMethodAdapter.getMinimizedCFG(className, methodName);
+				ControlFlowGraph cfg = CFGMethodAdapter.getMinimizedCFG(className,
+				                                                        methodName);
 
 				for (Branch b : BranchPool.branchMap.get(className).get(methodName)) {
-
-					if (target_branch >= 0 && b.getBranchId() != target_branch)
-						continue;
 
 					// Identify vertex in CFG
 					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(b,

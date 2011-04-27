@@ -11,13 +11,14 @@ import de.unisb.cs.st.evosuite.Properties;
 
 /**
  * @author fraser
- *
+ * 
  */
 public class DiversityStatistics extends ClassAdapter {
 
-	private String targetClass = Properties.getProperty("target");
-	
-	private String className;
+	private final String targetClass = Properties.getStringValue("TARGET_CLASS");
+
+	private final String className;
+
 	/**
 	 * @param arg0
 	 */
@@ -26,11 +27,13 @@ public class DiversityStatistics extends ClassAdapter {
 		this.className = className;
 	}
 
-	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions); 
-		if(className.equals(targetClass)) {
-			 mv = new DiversityMethodAdapter(mv);
+	@Override
+	public MethodVisitor visitMethod(int access, String name, String desc,
+	        String signature, String[] exceptions) {
+		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
+		if (className.equals(targetClass)) {
+			mv = new DiversityMethodAdapter(mv);
 		}
-		return mv; 
+		return mv;
 	}
 }

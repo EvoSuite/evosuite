@@ -38,14 +38,13 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory {
 	Logger logger = Logger.getLogger(TestSuiteChromosomeFactory.class);
 
 	/** Desired number of tests */
-	protected int num_tests = Properties.getPropertyOrDefault("num_tests", 2);
+	protected int num_tests = Properties.getIntegerValue("num_tests");
 
 	/** Factory to manipulate and generate method sequences */
 	private ChromosomeFactory test_factory;
 
 	public TestSuiteChromosomeFactory() {
-		String factory_name = Properties.getPropertyOrDefault("test_factory",
-		        "Random");
+		String factory_name = Properties.getStringValue("test_factory");
 		if (factory_name.equals("OUM"))
 			test_factory = new OUMTestChromosomeFactory();
 		else
@@ -78,8 +77,7 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory {
 
 		TestSuiteChromosome chromosome = new TestSuiteChromosome();
 		chromosome.tests.clear();
-		CurrentChromosomeTracker tracker = CurrentChromosomeTracker
-		        .getInstance();
+		CurrentChromosomeTracker tracker = CurrentChromosomeTracker.getInstance();
 		tracker.modification(chromosome);
 		// ((AllMethodsChromosomeFactory)test_factory).clear();
 

@@ -36,7 +36,7 @@ class MSecurityManager extends SecurityManager {
 	private final String testPackage = Properties.PROJECT_PREFIX;
 
 	/** indicates if mocks are enabled */
-	private final boolean mocksEnabled = Properties.MOCKS;
+	private final boolean mocksEnabled = Properties.getBooleanValue("mocks");
 
 	private static Logger logger = Logger.getLogger(MSecurityManager.class);
 

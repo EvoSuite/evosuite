@@ -29,7 +29,9 @@ public class FixedLengthTestChromosomeFactory implements ChromosomeFactory {
 	protected static Logger logger = Logger.getLogger(FixedLengthTestChromosomeFactory.class);
 
 	/** Attempts before giving up construction */
-	protected int max_attempts = Properties.getPropertyOrDefault("max_attempts", 1000);
+	protected int max_attempts = Properties.getIntegerValue("max_attempts");
+
+	protected int chromosome_length = Properties.getIntegerValue("chromosome_length");
 
 	/** Factory to manipulate and generate method sequences */
 	private final DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
@@ -69,7 +71,7 @@ public class FixedLengthTestChromosomeFactory implements ChromosomeFactory {
 	@Override
 	public Chromosome getChromosome() {
 		TestChromosome c = new TestChromosome();
-		c.test = getRandomTestCase(Properties.CHROMOSOME_LENGTH);
+		c.test = getRandomTestCase(chromosome_length);
 		return c;
 	}
 

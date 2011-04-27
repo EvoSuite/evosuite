@@ -22,9 +22,9 @@ import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
 
 /**
  * @author copied from CFGMethodAdapter
- *
+ * 
  */
-public class DefUseInstrumentation implements MethodInstrumentation{
+public class DefUseInstrumentation implements MethodInstrumentation {
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String, java.lang.String)
@@ -32,8 +32,9 @@ public class DefUseInstrumentation implements MethodInstrumentation{
 	@SuppressWarnings("unchecked")
 	@Override
 	public void analyze(MethodNode mn, Graph<CFGVertex, DefaultEdge> graph,
-			String className, String methodName, int access) {
-		ControlFlowGraph completeCFG = CFGMethodAdapter.getCompleteCFG(className, methodName);
+	        String className, String methodName, int access) {
+		ControlFlowGraph completeCFG = CFGMethodAdapter.getCompleteCFG(className,
+		                                                               methodName);
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
 		while (j.hasNext()) {
 
@@ -43,65 +44,72 @@ public class DefUseInstrumentation implements MethodInstrumentation{
 				if (in.equals(v.getNode()))
 					v.branchId = completeCFG.getVertex(v.getId()).branchId;
 
-				if (Properties.CRITERION.equals("defuse") && in.equals(v.getNode())
-				        && (v.isDefUse())) {
+				if (Properties.getStringValue("criterion").equals("defuse")
+				        && in.equals(v.getNode()) && (v.isDefUse())) {
 
 					// keeping track of uses
 					boolean isValidDU = false;
-					if (v.isUse()) 
+					if (v.isUse())
 						isValidDU = DefUsePool.addUse(v);
 					// keeping track of definitions
 					if (v.isDefinition())
 						isValidDU = DefUsePool.addDefinition(v) || isValidDU;
 
 					if (isValidDU) {
-						boolean staticContext = v.isStaticDefUse() || ((access & Opcodes.ACC_STATIC) > 0);
+						boolean staticContext = v.isStaticDefUse()
+						        || ((access & Opcodes.ACC_STATIC) > 0);
 						// adding instrumentation for defuse-coverage
 						mn.instructions.insert(v.getNode().getPrevious(),
-						                       getInstrumentation(v, v.branchId, staticContext, className, methodName));						
+						                       getInstrumentation(v, v.branchId,
+						                                          staticContext,
+						                                          className, methodName));
 					}
 				}
 			}
 		}
 	}
-	
+
 	/**
 	 * Creates the instrumentation needed to track defs and uses
 	 * 
 	 */
-    private InsnList getInstrumentation(CFGVertex v, int currentBranch, boolean staticContext, String className, String methodName) {
+	private InsnList getInstrumentation(CFGVertex v, int currentBranch,
+	        boolean staticContext, String className, String methodName) {
 		InsnList instrumentation = new InsnList();
 
-		if(v.isUse()) {
+		if (v.isUse()) {
 			instrumentation.add(new LdcInsnNode(className));
 			instrumentation.add(new LdcInsnNode(v.getDUVariableName()));
 			instrumentation.add(new LdcInsnNode(methodName));
-			if(staticContext) {
+			if (staticContext) {
 				instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
 			} else {
 				instrumentation.add(new VarInsnNode(Opcodes.ALOAD, 0));
 			}
 			instrumentation.add(new LdcInsnNode(currentBranch));
 			instrumentation.add(new LdcInsnNode(DefUsePool.getUseCounter()));
-			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-					"passedUse", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;II)V"));
+			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedUse",
+			        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;II)V"));
 		}
 
-		if(v.isDefinition()) {
+		if (v.isDefinition()) {
 			instrumentation.add(new LdcInsnNode(className));
 			instrumentation.add(new LdcInsnNode(v.getDUVariableName()));
 			instrumentation.add(new LdcInsnNode(methodName));
-			if(staticContext) {
+			if (staticContext) {
 				instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
 			} else {
 				instrumentation.add(new VarInsnNode(Opcodes.ALOAD, 0));
 			}
 			instrumentation.add(new LdcInsnNode(currentBranch));
 			instrumentation.add(new LdcInsnNode(DefUsePool.getDefCounter()));
-			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-					"passedDefinition", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;II)V"));
+			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+			        "passedDefinition",
+			        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;II)V"));
 		}
-		
+
 		return instrumentation;
 	}
 
@@ -120,5 +128,5 @@ public class DefUseInstrumentation implements MethodInstrumentation{
 	public boolean executeOnMainMethod() {
 		return false;
 	}
-	
+
 }

@@ -316,10 +316,14 @@ setup_evosuite ()
 	    OUTPUT_DIR=${cmdline_arguments[0]}
 	    PREFIX=${cmdline_arguments[1]}
 	    SRC=${cmdline_arguments[@]:2:${#cmdline_arguments[@]}}
-	    echo "PREFIX=$PREFIX" > $OUTPUT_DIR/evosuite.properties
-	    echo "CP=\"$SRC\"" >> $OUTPUT_DIR/evosuite.properties
-	    cat $BASEPATH/src/main/assembly/evosuite.properties >> $OUTPUT_DIR/evosuite.properties
-#	    cp $BASEPATH/resources/GA.properties $OUTPUT_DIR
+	    if [ -e $OUTPUT_DIR/evosuite.properties ]; then
+	    	echo "Found existing evosuite.properties, not touching it"
+	    	# TODO: Check PREFIX and CP
+	    else
+	    	echo "PREFIX=$PREFIX" > $OUTPUT_DIR/evosuite.properties
+	    	echo "CP=\"$SRC\"" >> $OUTPUT_DIR/evosuite.properties
+	    	cat $BASEPATH/src/main/assembly/evosuite.properties >> $OUTPUT_DIR/evosuite.properties
+	    fi
 	}
     else {
 	    unknown_parameters "setup_evosuite" "$@"
@@ -422,6 +426,7 @@ generateSuite ()
 			echo "No mutant file found for class ${test_class} - please run EvoSuite -mutants first"
 			continue
 	            fi
+#		    java -Xbootclasspath/p:$BASEPATH/target/util-transformed.jar -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate $javalanche_options $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION $MUTANTS -DTARGET_CLASS=$test_class $evosuite_suite
 		    java -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate $javalanche_options $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION $MUTANTS -DTARGET_CLASS=$test_class $evosuite_suite
 		done
 		popd > /dev/null

@@ -39,8 +39,9 @@ public abstract class FitnessFunction {
 	protected abstract void updateIndividual(Chromosome individual, double fitness);
 
 	/**
-	 * Calculate and set fitness function
-	 * #TODO the 'set fitness' part should be done by some abstract super class of all FitnessFunctions
+	 * Calculate and set fitness function #TODO the 'set fitness' part should be
+	 * done by some abstract super class of all FitnessFunctions
+	 * 
 	 * @param individual
 	 * @return new fitness
 	 */

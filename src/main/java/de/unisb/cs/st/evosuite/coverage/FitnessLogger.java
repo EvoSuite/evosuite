@@ -48,9 +48,9 @@ public class FitnessLogger implements SearchListener {
 		statements_history.clear();
 		fitness_history.clear();
 		size_history.clear();
-		File dir = new File(Properties.REPORT_DIR + "/goals/");
+		File dir = new File(Properties.getStringValue("report_dir") + "/goals/");
 		dir.mkdir();
-		name = Properties.REPORT_DIR
+		name = Properties.getStringValue("report_dir")
 		        + "/goals/"
 		        + objective.toString().replace(" ", "_").replace(":", "-").replace("(",
 		                                                                           "").replace(")",

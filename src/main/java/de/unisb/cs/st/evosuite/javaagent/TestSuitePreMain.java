@@ -47,14 +47,14 @@ public class TestSuitePreMain {
 		if (agentArguments.equals("generate")) {
 			System.out.println("* Instrumenting bytecode for test generation");
 			//addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
-			if (Properties.MUTATION) {
+			if (Properties.getStringValue("criterion").equalsIgnoreCase("mutation")) {
 				System.out.println("* Mutating byte code");
 				addClassFileTransformer(instrumentation, new HOMFileTransformer());
 			}
 
 			//addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
 
-			if (Properties.TESTABILITY_TRANSFORMATION) {
+			if (Properties.getBooleanValue("testability_transformation")) {
 				TransformationHelper.setTestPackage(Properties.PROJECT_PREFIX);
 				ScanProject.searchClasses(Properties.PROJECT_PREFIX);
 				ClassTransformer ct = new ClassTransformer();

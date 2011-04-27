@@ -41,9 +41,10 @@ public class TestRunner extends Thread {
 
 	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
-	private static boolean print_to_system = Properties.getPropertyOrDefault("print_to_system", false);
-	
-	private static PrintStream out = (print_to_system?System.out:new PrintStream(byteStream));
+	private static boolean print_to_system = Properties.getBooleanValue("print_to_system");
+
+	private static PrintStream out = (print_to_system ? System.out : new PrintStream(
+	        byteStream));
 
 	private TestCase test;
 
@@ -112,7 +113,7 @@ public class TestRunner extends Thread {
 				if (!s.getReturnValue().equals(returnValue)) {
 					for (int pos = num; pos < test.size(); pos++) {
 						test.getStatement(pos).replace(returnValue,
-						                                 s.getReturnValue().clone());
+						                               s.getReturnValue().clone());
 					}
 				}
 

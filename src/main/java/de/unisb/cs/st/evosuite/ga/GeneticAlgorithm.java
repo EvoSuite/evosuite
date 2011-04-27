@@ -89,16 +89,13 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	/** Secondary objectives used during replacement */
 	protected final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();
 
-	protected int max_iterations = Properties.getPropertyOrDefault("generations", 100);
-	protected int elite_size = Properties.getPropertyOrDefault("elite", 1);
-	protected double mutation_rate = Properties.getPropertyOrDefault("mutation_rate", 0.5);
-	protected double crossover_rate = Properties.getPropertyOrDefault("crossover_rate",
-	                                                                  0.5);
-	protected double kincompensation = Properties.getPropertyOrDefault("kincompensation",
-	                                                                   1.0);
+	protected int max_iterations = Properties.getIntegerValue("generations");
+	protected int elite_size = Properties.getIntegerValue("elite");
+	protected double crossover_rate = Properties.getDoubleValue("crossover_rate");
+	protected double kincompensation = Properties.getDoubleValue("kincompensation");
+	protected int population_size = Properties.getIntegerValue("population");
 
-	private final boolean shuffleBeforeSort = Properties.getPropertyOrDefault("shuffle_sort",
-	                                                                          true);
+	private final boolean shuffleBeforeSort = Properties.getBooleanValue("shuffle_goals");
 
 	/**
 	 * Age of the population
@@ -128,85 +125,88 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	public abstract void generateSolution();
 
 	/**
-	 * Fills the population at first with recycled chromosomes
-	 * - for more information see recycleChromosomes() and ChromosomeRecycler -
-	 * and after that, the population is filled with random chromosomes.
+	 * Fills the population at first with recycled chromosomes - for more
+	 * information see recycleChromosomes() and ChromosomeRecycler - and after
+	 * that, the population is filled with random chromosomes.
 	 * 
 	 * This method guarantees at least a proportion of
-	 * Properties.initially_enforeced_randomness % of random chromosomes 
-	 *  
+	 * Properties.initially_enforeced_randomness % of random chromosomes
+	 * 
 	 */
 	protected void generateInitialPopulation(int population_size) {
-		boolean recycle = Properties.getPropertyOrDefault("recycle_chromosomes", true);
-		if(Properties.STRATEGY.equals("EvoSuite")) // recycling only makes sense for single test generation
+		boolean recycle = Properties.getBooleanValue("recycle_chromosomes");
+		// FIXME: Possible without reference to strategy?
+		if (Properties.getStringValue("strategy").equals("EvoSuite")) // recycling only makes sense for single test generation
 			recycle = false;
-		if(recycle)
+		if (recycle)
 			recycleChromosomes(population_size);
-		
-		generateRandomPopulation(population_size-population.size());
+
+		generateRandomPopulation(population_size - population.size());
 		// TODO: notifyIteration? calculateFitness?
 	}
-	
+
 	/**
-	 * Adds to the current population all chromosomes that had a good performance
-	 * on a goal that was similar to the current fitness_function.
+	 * Adds to the current population all chromosomes that had a good
+	 * performance on a goal that was similar to the current fitness_function.
 	 * 
-	 * For more information look at ChromosomeRecycler and TestFitnessFunction.isSimilarTo()
+	 * For more information look at ChromosomeRecycler and
+	 * TestFitnessFunction.isSimilarTo()
 	 */
 	protected void recycleChromosomes(int population_size) {
-		if(fitness_function==null)
+		if (fitness_function == null)
 			return;
 		ChromosomeRecycler recycler = ChromosomeRecycler.getInstance();
 		Set<Chromosome> recycables = recycler.getRecycableChromosomes(fitness_function);
-		for(Chromosome recycable : recycables) {
+		for (Chromosome recycable : recycables) {
 			population.add(recycable);
 		}
-		double enforced_randomness = Properties.getPropertyOrDefault("initially_enforced_randomness",0.4);
-		if(enforced_randomness<0.0 || enforced_randomness>1.0) {
+		double enforced_randomness = Properties.getDoubleValue("initially_enforced_randomness");
+		if (enforced_randomness < 0.0 || enforced_randomness > 1.0) {
 			logger.warn("property \"initially_enforced_randomness\" is supposed to be a percentage in [0.0,1.0]");
 			logger.warn("retaining to default");
 			enforced_randomness = 0.4;
 		}
-		enforced_randomness = 1-enforced_randomness;
-		population_size*=enforced_randomness;
+		enforced_randomness = 1 - enforced_randomness;
+		population_size *= enforced_randomness;
 		starveToLimit(population_size);
 	}
 
 	/**
-	 * This method can be used to kick out chromosomes when the population is possibly overcrowded 
+	 * This method can be used to kick out chromosomes when the population is
+	 * possibly overcrowded
 	 * 
 	 * Depending on the Property "starve_by_fitness" chromosome are either
 	 * kicked out randomly or according to their fitness
 	 */
 	protected void starveToLimit(int limit) {
-		if(Properties.getPropertyOrDefault("starve_by_fitness", true))
+		if (Properties.getBooleanValue("starve_by_fitness"))
 			starveByFitness(limit);
 		else
 			starveRandomly(limit);
 	}
-	
+
 	/**
-	 * This method can be used to kick out random chromosomes in the current population
-	 * until the given limit is reached again.
+	 * This method can be used to kick out random chromosomes in the current
+	 * population until the given limit is reached again.
 	 */
 	protected void starveRandomly(int limit) {
-		while(population.size()>limit) {
+		while (population.size() > limit) {
 			int removePos = randomness.nextInt() % population.size();
 			population.remove(removePos);
 		}
 	}
-	
+
 	/**
-	 * This method can be used to kick out the worst chromosomes in the current population
-	 * until the given limit is reached again.
+	 * This method can be used to kick out the worst chromosomes in the current
+	 * population until the given limit is reached again.
 	 */
 	protected void starveByFitness(int limit) {
 		calculateFitness();
-		for(int i=population.size()-1;i>=limit;i--) {
+		for (int i = population.size() - 1; i >= limit; i--) {
 			population.remove(i);
 		}
 	}
-	
+
 	/**
 	 * Generate random population of given size
 	 * 
@@ -378,7 +378,10 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 
 		if (!unique) {
 			logger.debug("Applying kin compensation");
-			individual.setFitness(individual.getFitness() * kincompensation);
+			if (selection_function.maximize)
+				individual.setFitness(individual.getFitness() * kincompensation);
+			else
+				individual.setFitness(individual.getFitness() * (2.0 - kincompensation));
 		}
 	}
 
@@ -388,8 +391,8 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	 * @return
 	 */
 	public Chromosome getBestIndividual() {
+		// Assume population is sorted
 		return population.get(0);
-		// return Collections.max(population);
 	}
 
 	/**
@@ -518,7 +521,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 			c.setLimit(value);
 		}
 	}
-	
+
 	/**
 	 * Add an additional secondary objective to the end of the list of
 	 * objectives
@@ -559,7 +562,6 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 			return chromosome2;
 	}
 
-	
 	/**
 	 * Prints out all information regarding this GAs stopping conditions
 	 * 
@@ -567,7 +569,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	 */
 	public void printBudget() {
 		System.out.println("* GA-Budget:");
-		for(StoppingCondition sc : stopping_conditions)
-			System.out.println("  - "+sc.toString());
+		for (StoppingCondition sc : stopping_conditions)
+			System.out.println("  - " + sc.toString());
 	}
 }

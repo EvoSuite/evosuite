@@ -37,8 +37,7 @@ public class PrimitivePool {
 
 	private static PrimitivePool instance = null;
 
-	private static final int MAX_INT = Properties.getPropertyOrDefault(
-	        "max_int", 256);
+	private static final int MAX_INT = Properties.getIntegerValue("max_int");
 
 	private final Randomness randomness = Randomness.getInstance();
 
