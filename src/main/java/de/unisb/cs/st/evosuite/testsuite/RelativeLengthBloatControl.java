@@ -32,8 +32,7 @@ import de.unisb.cs.st.evosuite.ga.SearchListener;
  * @author Gordon Fraser
  * 
  */
-public class RelativeLengthBloatControl implements BloatControlFunction,
-        SearchListener {
+public class RelativeLengthBloatControl implements BloatControlFunction, SearchListener {
 
 	Logger logger = Logger.getLogger(BloatControlFunction.class);
 
@@ -43,11 +42,10 @@ public class RelativeLengthBloatControl implements BloatControlFunction,
 	protected int current_max = 0;
 
 	protected double best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
-													  // minimizing fitness!
+	                                                  // minimizing fitness!
 
 	/** Factor for bloat control */
-	protected int bloat_factor = Integer.parseInt(Properties
-	        .getPropertyOrDefault("GA.bloat_factor", "2"));
+	protected int bloat_factor = Properties.getIntegerValue("bloat_factor");
 
 	/**
 	 * Reject individuals that are larger than twice the length of the current

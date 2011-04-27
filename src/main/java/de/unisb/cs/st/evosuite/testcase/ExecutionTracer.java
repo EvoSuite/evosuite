@@ -50,6 +50,8 @@ public class ExecutionTracer {
 
 	private int num_statements = 0;
 
+	private static final boolean testabilityTransformation = Properties.getBooleanValue("TT");
+
 	/**
 	 * If a thread of a test case survives for some reason (e.g. long call to
 	 * external library), then we don't want its data in the current trace
@@ -144,7 +146,7 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
-		if (Properties.TRANSFORM_BOOLEAN) {
+		if (testabilityTransformation) {
 			BooleanHelper.methodEntered();
 		}
 
@@ -242,7 +244,7 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
-		if (Properties.TRANSFORM_BOOLEAN) {
+		if (testabilityTransformation) {
 			BooleanHelper.methodLeft();
 		}
 

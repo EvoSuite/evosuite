@@ -53,20 +53,15 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	private static Logger logger = Logger.getLogger(DefaultTestFactory.class);
 
-	private final static int MAX_RECURSION = Properties.getPropertyOrDefault("max_recursion",
-	                                                                         10);
+	private final static int MAX_RECURSION = Properties.getIntegerValue("max_recursion");
 
-	private final static double OBJECT_REUSE_PROBABILITY = Properties.getPropertyOrDefault("object_reuse_probability",
-	                                                                                       0.9);
+	private final static double OBJECT_REUSE_PROBABILITY = Properties.getDoubleValue("object_reuse_probability");
 
-	private final static double PRIMITIVE_REUSE_PROBABILITY = Properties.getPropertyOrDefault("primitive_reuse_probability",
-	                                                                                          0.5);
+	private final static double PRIMITIVE_REUSE_PROBABILITY = Properties.getDoubleValue("primitive_reuse_probability");
 
-	private final static double NULL_PROBABILITY = Properties.getPropertyOrDefault("null_probability",
-	                                                                               0.1);
+	private final static double NULL_PROBABILITY = Properties.getDoubleValue("null_probability");
 
-	private final static double CALL_PROBABILITY = Properties.getPropertyOrDefault("call_probability",
-	                                                                               0.0);
+	private final static double CALL_PROBABILITY = Properties.getDoubleValue("call_probability");
 
 	private final Randomness randomness = Randomness.getInstance();
 

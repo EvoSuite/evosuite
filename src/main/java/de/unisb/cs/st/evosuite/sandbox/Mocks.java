@@ -59,7 +59,7 @@ class Mocks {
 	public Mocks() {
 		// Using File class in order to get absolute path of the sandbox
 		// folder.
-		File f = new File(Properties.SANDBOX_FOLDER);
+		File f = new File(Properties.getStringValue("sandbox_folder"));
 		sandboxPath = f.getAbsolutePath() + "/";
 	}
 

@@ -19,7 +19,7 @@ public class BooleanHelper {
 
 	private static Stack<Stack<Integer>> stackStack = new Stack<Stack<Integer>>();
 
-	private static final int MAX_STACK = Properties.getPropertyOrDefault("TT.stack", 10);
+	private static final int MAX_STACK = Properties.getIntegerValue("TT.stack");
 
 	public static final int K = Integer.MAX_VALUE - 2;
 
@@ -58,7 +58,7 @@ public class BooleanHelper {
 
 	private static double normalize(int distance) {
 		//		double k = K;
-		double k = Properties.getPropertyOrDefault("max_int", K);
+		double k = Properties.getIntegerValue("max_int");
 		double d = distance;
 		return d / (d + 0.5 * k);
 		//return distance / (distance + 1.0);

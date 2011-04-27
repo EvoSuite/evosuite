@@ -44,6 +44,10 @@ public class CFGClassAdapter extends ClassAdapter {
 	/** Current class */
 	private final String className;
 
+	private static final boolean MUTATION = Properties.getStringValue("criterion").equalsIgnoreCase("mutation");
+
+	private static final boolean useDeprecated = Properties.getBooleanValue("use_deprecated");
+
 	/**
 	 * Constructor
 	 * 
@@ -73,14 +77,14 @@ public class CFGClassAdapter extends ClassAdapter {
 			return mv;
 		}
 
-		if (!Properties.USE_DEPRECATED
+		if (!useDeprecated
 		        && (methodAccess & Opcodes.ACC_DEPRECATED) == Opcodes.ACC_DEPRECATED) {
 			logger.info("Skipping deprecated method " + name);
 			return mv;
 		}
 		String classNameWithDots = className.replace('/', '.');
 		List<Mutation> mutants = new ArrayList<Mutation>();
-		if (Properties.MUTATION) {
+		if (MUTATION) {
 			HOMSwitcher switcher = new HOMSwitcher();
 			mutants = switcher.getMutants();
 		}

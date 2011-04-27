@@ -105,6 +105,8 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	private final int access;
 	private final String className;
 
+	private static final boolean useDeprecated = Properties.getBooleanValue("use_deprecated");
+
 	public CFGMethodAdapter(String className, int access, String name, String desc,
 	        String signature, String[] exceptions, MethodVisitor mv,
 	        List<Mutation> mutants) {
@@ -207,7 +209,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		String id = className + "." + methodName;
 		if (BranchPool.getBranchCountForMethod(id) == 0) {
 			if (isUsable()) {
-				if (Properties.TESTABILITY_TRANSFORMATION) {
+				if (Properties.getBooleanValue("testability_transformation")) {
 					String vname = methodName.replace("(", "|(");
 					if (TransformationHelper.hasValkyrieMethod(className, vname))
 						return;
@@ -228,7 +230,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		return !((this.access & Opcodes.ACC_SYNTHETIC) > 0 || (this.access & Opcodes.ACC_BRIDGE) > 0)
 		        && !methodName.contains("<clinit>")
 		        && !(methodName.contains("<init>") && (access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE)
-		        && (Properties.USE_DEPRECATED || (access & Opcodes.ACC_DEPRECATED) != Opcodes.ACC_DEPRECATED);
+		        && (useDeprecated || (access & Opcodes.ACC_DEPRECATED) != Opcodes.ACC_DEPRECATED);
 	}
 
 	private static void addMinimizedCFG(String classname, String methodname,

@@ -16,7 +16,8 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
  * @author Gordon Fraser
  * 
  */
-@SuppressWarnings("unchecked") //we can't know CType at instantiation type
+@SuppressWarnings("unchecked")
+//we can't know CType at instantiation type
 public class CurrentChromosomeTracker<CType extends Chromosome> implements SearchListener {
 
 	/** The current chromosome */
@@ -25,8 +26,7 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 	/** Singleton instance */
 	private static CurrentChromosomeTracker<?> instance = null;
 
-	private final static double CALL_PROBABILITY = Properties.getPropertyOrDefault("call_probability",
-	                                                                               0.0);
+	private final static double CALL_PROBABILITY = Properties.getDoubleValue("call_probability");
 
 	/**
 	 * Private constructor for singleton

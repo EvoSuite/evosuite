@@ -31,8 +31,7 @@ import de.unisb.cs.st.evosuite.Properties;
 public class TournamentSelection extends SelectionFunction {
 
 	/** Number of tournaments to run */
-	private final int tournament_size = Properties.getPropertyOrDefault("tournament_size",
-	                                                                    5);
+	private final int tournament_size = Properties.getIntegerValue("tournament_size");
 
 	/**
 	 * Perform the tournament on the population, return one index

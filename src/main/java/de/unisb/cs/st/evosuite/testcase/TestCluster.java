@@ -99,6 +99,10 @@ public class TestCluster {
 
 	public static final List<String> EXCLUDE = Arrays.asList("<clinit>", "__STATIC_RESET");
 
+	private static final boolean useDeprecated = Properties.getBooleanValue("use_deprecated");
+
+	private static final int tournamentSize = Properties.getIntegerValue("generator_tournament");
+
 	// public int num_defined_methods = 2;
 	public int num_defined_methods = 0;
 
@@ -109,7 +113,7 @@ public class TestCluster {
 		populate();
 		addIncludes();
 		analyzeTarget();
-		if (Properties.getPropertyOrDefault("remote_testing", false))
+		if (Properties.getBooleanValue("remote_testing"))
 			addRemoteCalls();
 		countTargetFunctions();
 		/*
@@ -204,7 +208,7 @@ public class TestCluster {
 
 		int num = 0;
 		int param = 1000;
-		for (int i = 0; i < Properties.GENERATOR_TOURNAMENT; i++) {
+		for (int i = 0; i < tournamentSize; i++) {
 			int new_num = randomness.nextInt(choice.size());
 			AccessibleObject o = choice.get(new_num);
 			if (o instanceof Constructor<?>) {
@@ -261,13 +265,13 @@ public class TestCluster {
 			if (o instanceof Constructor<?>) {
 				Constructor<?> c = (Constructor<?>) o;
 				if (GenericClass.isSubclass(c.getDeclaringClass(), type)
-				        && c.getDeclaringClass().getName().startsWith(Properties.getProperty("PROJECT_PREFIX"))) {
+				        && c.getDeclaringClass().getName().startsWith(Properties.getStringValue("PROJECT_PREFIX"))) {
 					g.add(o);
 				}
 			} else if (o instanceof Method) {
 				Method m = (Method) o;
 				if (GenericClass.isSubclass(m.getGenericReturnType(), type)
-				        && m.getReturnType().getName().startsWith(Properties.getProperty("PROJECT_PREFIX"))) {
+				        && m.getReturnType().getName().startsWith(Properties.getStringValue("PROJECT_PREFIX"))) {
 					g.add(o);
 				}
 				// else if(m.getReturnType().isAssignableFrom(type) &&
@@ -276,7 +280,7 @@ public class TestCluster {
 			} else if (o instanceof Field) {
 				Field f = (Field) o;
 				if (GenericClass.isSubclass(f.getGenericType(), type)
-				        && f.getType().getName().startsWith(Properties.getProperty("PROJECT_PREFIX"))) {
+				        && f.getType().getName().startsWith(Properties.getStringValue("PROJECT_PREFIX"))) {
 					g.add(f);
 				}
 			}
@@ -549,7 +553,7 @@ public class TestCluster {
 			        + org.objectweb.asm.Type.getMethodDescriptor(m);
 
 			// If we are using testability transformation, only add the transformed version
-			if (Properties.TESTABILITY_TRANSFORMATION
+			if (Properties.getBooleanValue("testability_transformation")
 			        && TransformationHelper.hasValkyrieMethod(clazz.getName(), name)) {
 				logger.info("Skipping method " + m.getName()
 				        + " in favor of transformed method");
@@ -630,26 +634,6 @@ public class TestCluster {
 				objs.put(parameters[0], new ArrayList<String>());
 
 			String name = parameters[1];
-			if (false && Properties.TRANSFORM_BOOLEAN) {
-				int split = name.indexOf("(");
-				if (split >= 0) {
-					// TODO: 
-					String methodName = name.substring(0, split);
-					if (methodName.startsWith("\\Q"))
-						methodName = methodName.substring(2);
-					String desc = name.substring(split);
-					String oldDesc = desc;
-					desc = TestabilityTransformation.getTransformedDesc(parameters[0],
-					                                                    methodName, desc);
-					methodName = TestabilityTransformation.getTransformedName(parameters[0],
-					                                                          methodName,
-					                                                          oldDesc);
-					logger.info(methodName + ": Adapting desc from " + oldDesc + " to "
-					        + desc);
-					name = methodName + desc;
-				}
-			}
-
 			objs.get(parameters[0]).add(name);
 		}
 		return objs;
@@ -733,7 +717,7 @@ public class TestCluster {
 			return false;
 		}
 
-		if (!Properties.USE_DEPRECATED && m.getAnnotation(Deprecated.class) != null) {
+		if (!useDeprecated && m.getAnnotation(Deprecated.class) != null) {
 			logger.debug("Skipping deprecated method " + m.getName());
 			return false;
 		}
@@ -840,7 +824,7 @@ public class TestCluster {
 		if (c.getDeclaringClass().isMemberClass())
 			return false;
 
-		if (!Properties.USE_DEPRECATED && c.getAnnotation(Deprecated.class) != null) {
+		if (!useDeprecated && c.getAnnotation(Deprecated.class) != null) {
 			logger.debug("Skipping deprecated method " + c.getName());
 			return false;
 		}
@@ -882,7 +866,7 @@ public class TestCluster {
 
 	private void countTargetFunctions() {
 		num_defined_methods = CFGMethodAdapter.methods.size();
-		if (Properties.INSTRUMENT_PARENT)
+		if (Properties.getBooleanValue("instrument_parent"))
 			num_defined_methods = getMethods(Properties.getTargetClass()).size();
 		logger.info("Target class has " + num_defined_methods + " functions");
 		logger.info("Target class has " + BranchPool.getBranchCounter() + " branches");
@@ -1034,7 +1018,7 @@ public class TestCluster {
 					String name = "<init>"
 					        + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
 
-					if (Properties.TRANSFORM_BOOLEAN) {
+					if (Properties.getBooleanValue("TT")) {
 						String orig = name;
 						name = TestabilityTransformation.getOriginalNameDesc(clazz.getName(),
 						                                                     "<init>",
@@ -1083,7 +1067,7 @@ public class TestCluster {
 					String name = method.getName()
 					        + org.objectweb.asm.Type.getMethodDescriptor(method);
 
-					if (Properties.TRANSFORM_BOOLEAN) {
+					if (Properties.getBooleanValue("TT")) {
 						String orig = name;
 						name = TestabilityTransformation.getOriginalNameDesc(clazz.getName(),
 						                                                     method.getName(),
@@ -1150,7 +1134,7 @@ public class TestCluster {
 	}
 
 	private static Map<String, List<String>> getIncludesFromFile() {
-		String property = Properties.getProperty("test_includes");
+		String property = Properties.getStringValue("test_includes");
 		Map<String, List<String>> objs = new HashMap<String, List<String>>();
 		if (property == null) {
 			logger.debug("No include file specified");
@@ -1269,7 +1253,7 @@ public class TestCluster {
 	}
 
 	private static Map<String, List<String>> getExcludesFromFile() {
-		String property = Properties.getProperty("test_excludes");
+		String property = Properties.getStringValue("test_excludes");
 		Map<String, List<String>> objs = new HashMap<String, List<String>>();
 		if (property == null) {
 			logger.debug("No exclude file specified");

@@ -3,18 +3,17 @@
  * 
  * This file is part of EvoSuite.
  * 
- * EvoSuite is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * EvoSuite is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser Public License for more details.
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser Public License
- * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package de.unisb.cs.st.evosuite.primitives;
@@ -34,18 +33,20 @@ import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.MutationMarker;
 
 /**
  * @author Gordon Fraser
- *
+ * 
  */
 public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 
 	protected static Logger logger = Logger.getLogger(StringReplacementMethodAdapter.class);
-	
-	private Map<Integer, Integer> flags = new HashMap<Integer, Integer>();
-	
+
+	private final Map<Integer, Integer> flags = new HashMap<Integer, Integer>();
+
+	private static final boolean MUTATION = Properties.getStringValue("criterion").equalsIgnoreCase("mutation");
+
 	private int current_var = -1;
-	
+
 	private int current_write = -1;
-	
+
 	/**
 	 * @param arg0
 	 */
@@ -57,7 +58,8 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 	private void insertFlagCode() {
 		// assign the return value to a new local variable
 		int index = newLocal(Type.INT_TYPE);
-		logger.debug("Inserting new variable with index "+index+" as replacement for "+nextLocal);
+		logger.debug("Inserting new variable with index " + index
+		        + " as replacement for " + nextLocal);
 		//flags.put(index, nextLocal);
 		current_write = index;
 		current_var = nextLocal;
@@ -67,7 +69,7 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 		// then put a converted boolean on the stack
 		Label l = new Label();
 		Label l2 = new Label();
-		if(Properties.MUTATION) {
+		if (MUTATION) {
 			Label mutationStartLabel = new Label();
 			mutationStartLabel.info = new MutationMarker(true);
 			super.visitLabel(mutationStartLabel);
@@ -79,53 +81,58 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 		super.visitLabel(l);
 		super.visitInsn(Opcodes.ICONST_0);
 		super.visitLabel(l2);
-		
-		if(Properties.MUTATION) {
+
+		if (MUTATION) {
 			Label mutationEndLabel = new Label();
 			mutationEndLabel.info = new MutationMarker(false);
 			super.visitLabel(mutationEndLabel);
 		}
 
 	}
-	
+
+	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-		if(owner.equals("java/lang/String")) {
-			if(name.equals("equals")) {
+		if (owner.equals("java/lang/String")) {
+			if (name.equals("equals")) {
 				logger.debug("Replacing string call equals!");
 				String replacement_owner = "de/unisb/cs/st/evosuite/primitives/StringReplacementFunctions";
 				String replacement_name = "equalsDistance";
 				String replacement_desc = "(Ljava/lang/String;Ljava/lang/String;)I";
-				super.visitMethodInsn(Opcodes.INVOKESTATIC, replacement_owner, replacement_name, replacement_desc);
+				super.visitMethodInsn(Opcodes.INVOKESTATIC, replacement_owner,
+				                      replacement_name, replacement_desc);
 				insertFlagCode();
 
-			} else if(name.equals("equalsIgnoreCase")) {
+			} else if (name.equals("equalsIgnoreCase")) {
 				logger.debug("Replacing string call equalsignorecase!");
 				String replacement_owner = "de/unisb/cs/st/evosuite/primitives/StringReplacementFunctions";
 				String replacement_name = "equalsIgnoreCaseDistance";
 				String replacement_desc = "(Ljava/lang/String;Ljava/lang/String;)I";
-				super.visitMethodInsn(Opcodes.INVOKESTATIC, replacement_owner, replacement_name, replacement_desc);				
+				super.visitMethodInsn(Opcodes.INVOKESTATIC, replacement_owner,
+				                      replacement_name, replacement_desc);
 				insertFlagCode();
-				
-			} else if(name.equals("startsWith")) {
+
+			} else if (name.equals("startsWith")) {
 				logger.debug("Replacing string call startsWith!");
 				String replacement_owner = "de/unisb/cs/st/evosuite/primitives/StringReplacementFunctions";
 				String replacement_name = "startsWith";
 				String replacement_desc = "(Ljava/lang/String;Ljava/lang/String;)I";
-				super.visitMethodInsn(Opcodes.INVOKESTATIC, replacement_owner, replacement_name, replacement_desc);				
+				super.visitMethodInsn(Opcodes.INVOKESTATIC, replacement_owner,
+				                      replacement_name, replacement_desc);
 				insertFlagCode();
-				
+
 			} else {
-				logger.debug("Not replacing string call: "+owner+" - "+name);
-				super.visitMethodInsn(opcode, owner, name, desc);				
+				logger.debug("Not replacing string call: " + owner + " - " + name);
+				super.visitMethodInsn(opcode, owner, name, desc);
 			}
 		} else {
 			super.visitMethodInsn(opcode, owner, name, desc);
 		}
 	}
-	
+
+	@Override
 	public void visitVarInsn(int opcode, int var) {
 		// Need to know which variable is on the top of the stack
-		switch(opcode) {
+		switch (opcode) {
 		case Opcodes.ALOAD:
 		case Opcodes.ILOAD:
 		case Opcodes.DLOAD:
@@ -139,11 +146,10 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 		case Opcodes.FSTORE:
 		case Opcodes.AASTORE:
 		case Opcodes.LSTORE:
-			if(current_write >= 0) {
-//				flags.put(current_write, var);
+			if (current_write >= 0) {
+				//				flags.put(current_write, var);
 				flags.put(var, current_write);
-			}
-			else if(flags.containsKey(var)) {
+			} else if (flags.containsKey(var)) {
 				flags.remove(var);
 			}
 			current_write = -1;
@@ -151,22 +157,23 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 		super.visitVarInsn(opcode, var);
 	}
 
+	@Override
 	public void visitJumpInsn(int opcode, Label label) {
-		if((opcode == Opcodes.IFEQ || opcode == Opcodes.IFNE) &&
-				(flags.containsKey(current_var) || current_write >= 0)) {
-			
+		if ((opcode == Opcodes.IFEQ || opcode == Opcodes.IFNE)
+		        && (flags.containsKey(current_var) || current_write >= 0)) {
+
 			int var = current_var;
 			//if(flags.get(var) != nextLocal) {
-				// Pop flag from stack
-				super.visitInsn(Opcodes.POP);
-				// Push distance value on stack
-				if(current_write >= 0)
-					super.visitVarInsn(Opcodes.ILOAD, current_write);
-				else
-					super.visitVarInsn(Opcodes.ILOAD, flags.get(var));
+			// Pop flag from stack
+			super.visitInsn(Opcodes.POP);
+			// Push distance value on stack
+			if (current_write >= 0)
+				super.visitVarInsn(Opcodes.ILOAD, current_write);
+			else
+				super.visitVarInsn(Opcodes.ILOAD, flags.get(var));
 			//}
 			// Now add replacement jump
-			if(opcode == Opcodes.IFEQ){
+			if (opcode == Opcodes.IFEQ) {
 				// False distance
 				super.visitJumpInsn(Opcodes.IFNE, label);
 			} else {
@@ -176,8 +183,7 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 		} else {
 			super.visitJumpInsn(opcode, label);
 		}
-		
+
 	}
 
-	
 }

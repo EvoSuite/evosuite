@@ -52,13 +52,13 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	private boolean log = true;
 
-	public static long timeout = Properties.getPropertyOrDefault("timeout", 5000);
+	public static long timeout = Properties.getIntegerValue("timeout");
 
-	public static boolean cpuTimeout = Properties.getPropertyOrDefault("cpu_timeout",
-	                                                                   false);
+	public static boolean cpuTimeout = Properties.getBooleanValue("cpu_timeout");
 
-	private static boolean logTimeout = Properties.getPropertyOrDefault("log_timeout",
-	                                                                    false);
+	private static boolean logTimeout = Properties.getBooleanValue("log_timeout");
+
+	private static boolean checkContracts = Properties.getBooleanValue("check_contracts");
 
 	private static final PrintStream systemOut = System.out;
 	private static final PrintStream systemErr = System.err;
@@ -73,7 +73,11 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	private List<ExecutionObserver> observers;
 
-	protected boolean static_hack = Properties.getPropertyOrDefault("static_hack", false);
+	public static long timeExecuted = 0;
+
+	public static int testsExecuted = 0;
+
+	protected boolean static_hack = Properties.getBooleanValue("static_hack");
 
 	public static TestCaseExecutor getInstance() {
 		if (instance == null)
@@ -149,7 +153,7 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	public void newObservers() {
 		observers = new ArrayList<ExecutionObserver>();
-		if (Properties.CHECK_CONTRACTS) {
+		if (checkContracts) {
 			observers.add(new ContractChecker());
 		}
 
@@ -174,6 +178,8 @@ public class TestCaseExecutor implements ThreadFactory {
 		ExecutionObserver.currentTest(tc);
 		MaxTestsStoppingCondition.testExecuted();
 
+		long startTime = System.currentTimeMillis();
+
 		TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>();
 
 		//#TODO steenbuck could be nicer (TestRunnable should be an interface
@@ -190,6 +196,11 @@ public class TestCaseExecutor implements ThreadFactory {
 			//ExecutionResult result = task.get(timeout, TimeUnit.MILLISECONDS);
 			ExecutionResult result = handler.execute(callable, executor, timeout,
 			                                         cpuTimeout);
+
+			long endTime = System.currentTimeMillis();
+			timeExecuted += endTime - startTime;
+			testsExecuted++;
+
 			return result;
 		} catch (ThreadDeath t) {
 			logger.warn("Caught ThreadDeath during test execution");

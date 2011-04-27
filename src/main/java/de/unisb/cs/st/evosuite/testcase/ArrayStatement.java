@@ -41,8 +41,7 @@ import de.unisb.cs.st.evosuite.ga.Randomness;
  */
 public class ArrayStatement extends Statement {
 
-	private final static int MAX_ARRAY = Properties.getPropertyOrDefault(
-	        "max.array", 20);
+	private final static int MAX_ARRAY = Properties.getIntegerValue("max_array");
 
 	private final Randomness randomness = Randomness.getInstance();
 
@@ -104,8 +103,7 @@ public class ArrayStatement extends Statement {
 	        throws InvocationTargetException, IllegalArgumentException,
 	        IllegalAccessException, InstantiationException {
 		// Add array variable to pool
-		scope.set(retval,
-		        Array.newInstance((Class<?>) retval.getComponentType(), length));
+		scope.set(retval, Array.newInstance((Class<?>) retval.getComponentType(), length));
 		return exceptionThrown;
 
 	}
@@ -172,8 +170,7 @@ public class ArrayStatement extends Statement {
 	 * de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
 	@Override
-	public void replaceUnique(VariableReference old_var,
-	        VariableReference new_var) {
+	public void replaceUnique(VariableReference old_var, VariableReference new_var) {
 		if (retval == old_var)
 			retval = new_var;
 	}

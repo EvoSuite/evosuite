@@ -21,8 +21,6 @@ package de.unisb.cs.st.evosuite.ga;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.unisb.cs.st.evosuite.Properties;
-
 /**
  * Standard GA implementation
  * 
@@ -49,7 +47,7 @@ public class StandardGA extends GeneticAlgorithm {
 		new_generation.addAll(elitism());
 
 		// new_generation.size() < population_size
-		while (new_generation.size() < Properties.POPULATION_SIZE) {
+		while (new_generation.size() < population_size) {
 
 			Chromosome parent1 = selection_function.select(population);
 			Chromosome parent2 = selection_function.select(population);
@@ -94,7 +92,7 @@ public class StandardGA extends GeneticAlgorithm {
 		current_iteration = 0;
 
 		// Set up initial population
-		generateInitialPopulation(Properties.POPULATION_SIZE);
+		generateInitialPopulation(population_size);
 		// Determine fitness
 		calculateFitness();
 		this.notifyIteration();

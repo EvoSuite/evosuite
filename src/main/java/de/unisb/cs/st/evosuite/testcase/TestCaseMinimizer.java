@@ -45,8 +45,7 @@ public class TestCaseMinimizer {
 
 	private double fitness = 0.0;
 
-	private final boolean enabled = Properties.getPropertyOrDefault("minimize",
-	                                                                true);
+	private final boolean enabled = Properties.getBooleanValue("minimize");
 
 	/**
 	 * Constructor
@@ -114,8 +113,7 @@ public class TestCaseMinimizer {
 		/** Factory method that handles statement deletion */
 
 		AbstractTestFactory test_factory = null;
-		String factory_name = Properties.getPropertyOrDefault("test_factory",
-		                                                      "Random");
+		String factory_name = Properties.getStringValue("test_factory");
 		if (factory_name.equals("OUM"))
 			test_factory = OUMTestFactory.getInstance();
 		else
@@ -128,8 +126,7 @@ public class TestCaseMinimizer {
 			changed = false;
 
 			for (int i = c.test.size() - 1; i >= 0; i--) {
-				logger.debug("Deleting statement "
-				        + c.test.getStatement(i).getCode());
+				logger.debug("Deleting statement " + c.test.getStatement(i).getCode());
 				TestChromosome copy = (TestChromosome) c.clone();
 				try {
 					c.setChanged(true);

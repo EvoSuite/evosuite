@@ -185,8 +185,7 @@ public class TestSuiteMinimizer {
 		CurrentChromosomeTracker.getInstance().modification(suite);
 
 		boolean size = false;
-		String strategy = Properties.getPropertyOrDefault("secondary_objectives",
-		                                                  "maxlength");
+		String strategy = Properties.getStringValue("secondary_objectives");
 		if (strategy.contains(":"))
 			strategy = strategy.substring(0, strategy.indexOf(':'));
 		if (strategy.equals("size"))

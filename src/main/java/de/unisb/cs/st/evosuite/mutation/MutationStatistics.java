@@ -58,8 +58,8 @@ public class MutationStatistics implements SearchListener {
 
 	private final Logger logger = Logger.getLogger(MutationStatistics.class);
 
-	private static final File REPORT_DIR = new File(
-	        MutationProperties.OUTPUT_DIR + "/report");
+	private static final File REPORT_DIR = new File(MutationProperties.OUTPUT_DIR
+	        + "/report");
 
 	/**
 	 * Statistics about one test generation run
@@ -228,13 +228,11 @@ public class MutationStatistics implements SearchListener {
 	 * ); } }
 	 */
 
-	protected String writeIntegerChart(List<Integer> values, Long id,
-	        String title) {
-		File file = new File(REPORT_DIR, "statistics_" + title + "_" + id
-		        + ".png");
+	protected String writeIntegerChart(List<Integer> values, Long id, String title) {
+		File file = new File(REPORT_DIR, "statistics_" + title + "_" + id + ".png");
 		JavaPlot plot = new JavaPlot();
-		GNUPlotTerminal terminal = new FileTerminal("png", REPORT_DIR
-		        + "/statistics_" + title + "_" + id + ".png");
+		GNUPlotTerminal terminal = new FileTerminal("png", REPORT_DIR + "/statistics_"
+		        + title + "_" + id + ".png");
 		plot.setTerminal(terminal);
 
 		plot.set("xlabel", "\"Generation\"");
@@ -258,11 +256,10 @@ public class MutationStatistics implements SearchListener {
 	}
 
 	protected String writeDoubleChart(List<Double> values, Long id, String title) {
-		File file = new File(REPORT_DIR, "statistics_" + title + "_" + id
-		        + ".png");
+		File file = new File(REPORT_DIR, "statistics_" + title + "_" + id + ".png");
 		JavaPlot plot = new JavaPlot();
-		GNUPlotTerminal terminal = new FileTerminal("png", REPORT_DIR
-		        + "/statistics_" + title + "_" + id + ".png");
+		GNUPlotTerminal terminal = new FileTerminal("png", REPORT_DIR + "/statistics_"
+		        + title + "_" + id + ".png");
 		plot.setTerminal(terminal);
 
 		plot.set("xlabel", "\"Generation\"");
@@ -338,8 +335,8 @@ public class MutationStatistics implements SearchListener {
 		sb.append("<ul>\n");
 		sb.append("<li>Class: " + run.mutation.getClassName() + "\n");
 		sb.append("<li>Method: " + run.mutation.getMethodName() + "\n");
-		sb.append("<li>Line: <a href=\"#" + run.mutation.getLineNumber()
-		        + "\">" + run.mutation.getLineNumber() + "</a>\n");
+		sb.append("<li>Line: <a href=\"#" + run.mutation.getLineNumber() + "\">"
+		        + run.mutation.getLineNumber() + "</a>\n");
 		sb.append("<li>Type: " + run.mutation.getMutationType() + "\n");
 		sb.append("</ul>\n");
 		sb.append("</p>\n");
@@ -350,9 +347,8 @@ public class MutationStatistics implements SearchListener {
 		if (run.test != null) {
 			int linecount = 1;
 			for (String line : run.test.toCode().split("\n")) {
-				sb.append(String
-				        .format("<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
-				                linecount, linecount));
+				sb.append(String.format("<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
+				                        linecount, linecount));
 				linecount++;
 				sb.append(StringEscapeUtils.escapeHtml(line));
 				sb.append(";\n");
@@ -364,8 +360,7 @@ public class MutationStatistics implements SearchListener {
 		sb.append("</pre>\n");
 
 		// Source code
-		Iterable<String> source = html_analyzer.getClassContent(run.mutation
-		        .getClassName());
+		Iterable<String> source = html_analyzer.getClassContent(run.mutation.getClassName());
 		sb.append("<h2>Mutated Code</h2>\n");
 		sb.append("<p>");
 		sb.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">");
@@ -375,8 +370,7 @@ public class MutationStatistics implements SearchListener {
 		int linecount = 1;
 		for (String line : source) {
 			if (linecount >= line_num && linecount < (line_num + 6)) {
-				sb.append(String.format("<span class=\"nocode\">%3d: </span>",
-				        linecount));
+				sb.append(String.format("<span class=\"nocode\">%3d: </span>", linecount));
 				sb.append(StringEscapeUtils.escapeHtml(line));
 				sb.append("\n");
 			}
@@ -388,8 +382,8 @@ public class MutationStatistics implements SearchListener {
 		if (run.fitness_history.isEmpty()) {
 			sb.append("<h2>No fitness history</h2>\n");
 		} else {
-			String filename = writeDoubleChart(run.fitness_history,
-			        run.mutation.getId(), "Fitness");
+			String filename = writeDoubleChart(run.fitness_history, run.mutation.getId(),
+			                                   "Fitness");
 			sb.append("<h2>Fitness</h2>\n");
 			sb.append("<p>");
 			sb.append("<img src=\"");
@@ -402,8 +396,8 @@ public class MutationStatistics implements SearchListener {
 		if (run.length_history.isEmpty()) {
 			sb.append("<h2>No length history</h2>\n");
 		} else {
-			String filename = writeIntegerChart(run.length_history,
-			        run.mutation.getId(), "Length");
+			String filename = writeIntegerChart(run.length_history, run.mutation.getId(),
+			                                    "Length");
 			sb.append("<h2>Length</h2>\n");
 			sb.append("<p>");
 			sb.append("<img src=\"");
@@ -437,9 +431,8 @@ public class MutationStatistics implements SearchListener {
 		sb.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">");
 		linecount = 1;
 		for (String line : source) {
-			sb.append(String.format(
-			        "<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
-			        linecount, linecount));
+			sb.append(String.format("<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
+			                        linecount, linecount));
 			linecount++;
 			sb.append(StringEscapeUtils.escapeHtml(line));
 			sb.append("\n");
@@ -512,19 +505,17 @@ public class MutationStatistics implements SearchListener {
 	protected void writeParameterTable(StringBuffer buffer) {
 		buffer.append("<h2>Search Parameters:</h2>\n");
 		buffer.append("<ul>\n");
-		buffer.append("<li>Algorithm: " + System.getProperty("GA.algorithm")
+		buffer.append("<li>Algorithm: " + Properties.getStringValue("algorithm") + "\n"); // TODO
+		buffer.append("<li>Length: " + Properties.getIntegerValue("chromosome_length")
 		        + "\n"); // TODO
-		buffer.append("<li>Length: " + Properties.CHROMOSOME_LENGTH + "\n"); // TODO
-		buffer.append("<li>Generations: "
-		        + System.getProperty("GA.generations") + "\n");
+		buffer.append("<li>Generations: " + System.getProperty("GA.generations") + "\n");
 
 		buffer.append("<li>Elite: " + System.getProperty("GA.elite") + "\n");
-		buffer.append("<li>Mutation rate: "
-		        + System.getProperty("GA.mutation_rate") + "\n");
-		buffer.append("<li>Crossover: "
-		        + System.getProperty("GA.crossover_rate") + "\n");
-		buffer.append("<li>Kin Compensation: "
-		        + System.getProperty("GA.kincompensation") + "\n");
+		buffer.append("<li>Mutation rate: " + System.getProperty("GA.mutation_rate")
+		        + "\n");
+		buffer.append("<li>Crossover: " + System.getProperty("GA.crossover_rate") + "\n");
+		buffer.append("<li>Kin Compensation: " + System.getProperty("GA.kincompensation")
+		        + "\n");
 
 		buffer.append("</ul>\n");
 	}
@@ -651,17 +642,15 @@ public class MutationStatistics implements SearchListener {
 		// copyFile("shBrushJava.js");
 
 		StringBuffer report = new StringBuffer();
-		writeHTMLHeader(report, "muTest Report for "
-		        + MutationProperties.PROJECT_PREFIX);
+		writeHTMLHeader(report, "muTest Report for " + MutationProperties.PROJECT_PREFIX);
 
-		report.append("<h1>muTest Report for "
-		        + MutationProperties.PROJECT_PREFIX + "</h1>\n");
+		report.append("<h1>muTest Report for " + MutationProperties.PROJECT_PREFIX
+		        + "</h1>\n");
 		// report.append("<h2>Run on "+System.getenv("USERNAME")+"@"+System.getenv("HOSTNAME")+"</h2>\n");
 
 		try {
 			report.append("<h2>Run on "
-			        + java.net.InetAddress.getLocalHost().getHostName()
-			        + "</h2>\n");
+			        + java.net.InetAddress.getLocalHost().getHostName() + "</h2>\n");
 		} catch (UnknownHostException e) {
 		}
 

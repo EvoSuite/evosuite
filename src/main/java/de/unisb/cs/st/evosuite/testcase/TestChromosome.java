@@ -38,11 +38,13 @@ import de.unisb.cs.st.evosuite.testsuite.CurrentChromosomeTracker;
  */
 public class TestChromosome extends Chromosome {
 
-	private final static boolean RANK_LENGTH = Properties.getPropertyOrDefault("check_rank_length",
-	                                                                           true);
+	private final static boolean RANK_LENGTH = Properties.getBooleanValue("check_rank_length");
 
-	private final static boolean CHECK_LENGTH = Properties.getPropertyOrDefault("check_max_length",
-	                                                                            true);
+	private final static boolean CHECK_LENGTH = Properties.getBooleanValue("check_max_length");
+
+	private final static int CHROMOSOME_LENGTH = Properties.getIntegerValue("chromosome_length");
+
+	private final static double CONCOLIC_MUTATION = Properties.getDoubleValue("concolic_mutation");
 
 	static {
 		if (RANK_LENGTH)
@@ -64,8 +66,7 @@ public class TestChromosome extends Chromosome {
 
 		//#TODO steenbuck similar logic is repeated in TestSuiteChromosomeFactory
 		if (test_factory == null) {
-			String factory_name = Properties.getPropertyOrDefault("test_factory",
-			                                                      "Random");
+			String factory_name = Properties.getStringValue("test_factory");
 			if (factory_name.equals("OUM"))
 				test_factory = OUMTestFactory.getInstance();
 			else
@@ -116,7 +117,7 @@ public class TestChromosome extends Chromosome {
 			test_factory.appendStatement(offspring.test,
 			                             ((TestChromosome) other).test.getStatement(i));
 		}
-		if (!CHECK_LENGTH || offspring.test.size() <= Properties.CHROMOSOME_LENGTH) {
+		if (!CHECK_LENGTH || offspring.test.size() <= CHROMOSOME_LENGTH) {
 			test = offspring.test;
 		}
 		// logger.warn("Size exceeded!");
@@ -320,7 +321,7 @@ public class TestChromosome extends Chromosome {
 		boolean changed = false;
 		double pl = 1d / test.size();
 
-		if (randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
+		if (randomness.nextDouble() < CONCOLIC_MUTATION) {
 			ConcolicMutation mutation = new ConcolicMutation();
 			changed = mutation.mutate(test);
 			if (changed) {
@@ -389,7 +390,7 @@ public class TestChromosome extends Chromosome {
 		int count = 0;
 
 		while (randomness.nextDouble() <= Math.pow(ALPHA, count)
-		        && (!CHECK_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {
+		        && (!CHECK_LENGTH || size() < CHROMOSOME_LENGTH)) {
 			count++;
 			// Insert at position as during initialization (i.e., using helper
 			// sequences)

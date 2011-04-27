@@ -43,21 +43,16 @@ public class TestSuiteChromosome extends Chromosome {
 	public List<TestChromosome> tests = new ArrayList<TestChromosome>();
 
 	/** Maximum number of tests */
-	protected int max_tests = Properties.getPropertyOrDefault("max_size", 50);
+	protected static final int max_tests = Properties.getIntegerValue("max_size");
 
 	protected double coverage = 0.0;
-
-	/** Rate of test case addition */
-	protected double mutation_rate = Properties.getPropertyOrDefault(
-	        "mutation_rate", 0.1);
 
 	/** Factory to manipulate and generate method sequences */
 	private static ChromosomeFactory test_factory = null;
 
 	static {
-		
-		String factory_name = Properties.getPropertyOrDefault("test_factory",
-		        "Random");
+
+		String factory_name = Properties.getStringValue("test_factory");
 		if (factory_name.equals("OUM"))
 			test_factory = new OUMTestChromosomeFactory();
 		else
@@ -67,7 +62,7 @@ public class TestSuiteChromosome extends Chromosome {
 			//#TODO steenbuck we should wrap the original factory not replace it.
 			test_factory = new ConcurrencyTestCaseFactory();
 		}
-	
+
 	}
 
 	public void addTest(TestCase test) {
@@ -110,8 +105,7 @@ public class TestSuiteChromosome extends Chromosome {
 			tests.remove(position1);
 		for (int num = position2; num < other.size(); num++) {
 			// tests.add((TestChromosome) chromosome.tests.get(num).clone());
-			TestChromosome testCopy = (TestChromosome) chromosome.tests
-			        .get(num).clone();
+			TestChromosome testCopy = (TestChromosome) chromosome.tests.get(num).clone();
 			tests.add(testCopy);
 		}
 	}
@@ -172,8 +166,7 @@ public class TestSuiteChromosome extends Chromosome {
 		final double ALPHA = 0.1;
 		int count = 1;
 
-		while (randomness.nextDouble() <= Math.pow(ALPHA, count)
-		        && size() < max_tests) {
+		while (randomness.nextDouble() <= Math.pow(ALPHA, count) && size() < max_tests) {
 			count++;
 			// Insert at position as during initialization (i.e., using helper
 			// sequences)
@@ -186,20 +179,6 @@ public class TestSuiteChromosome extends Chromosome {
 			// tests.add((TestChromosome) test_factory.getChromosome());
 			logger.debug("Adding new test case ");
 		}
-
-		/*
-		 * if(randomness.nextDouble() < mutation_rate) { TestSuiteChromosome
-		 * best = BestChromosomeTracker.getInstance().getBest(); int diff =
-		 * 2*best.length() - length(); if(diff > 0) { int length = 1 +
-		 * randomness.nextInt(Math.min(max_test_length, diff));
-		 * 
-		 * // Add random test case RandomLengthTestFactory factory = new
-		 * RandomLengthTestFactory(); // TestChromosomeFactory factory = new
-		 * TestChromosomeFactory(length); tests.add((TestChromosome)
-		 * factory.getChromosome());
-		 * logger.debug("Adding new test case of max length "+length); } }
-		 */
-
 	}
 
 	/**
