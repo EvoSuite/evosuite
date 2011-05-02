@@ -143,11 +143,11 @@ public class Properties {
 	//---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
-		StandardGA, SteadyStateGA, OnePlusOneEA, MuPlusLambdaGA
+		STANDARDGA, STEADYSTATEGA, ONEPLUSONEEA, MUPLUSLAMBDAGA
 	}
 
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
-	public static Algorithm ALGORITHM = Algorithm.SteadyStateGA;
+	public static Algorithm ALGORITHM = Algorithm.STEADYSTATEGA;
 
 	@Parameter(key = "check_best_length", group = "Search Algorithm", description = "Check length against length of best individual")
 	public static boolean CHECK_BEST_LENGTH = true;
@@ -194,25 +194,25 @@ public class Properties {
 	public static int GENERATIONS = 1000;
 
 	public enum StoppingCondition {
-		MaxStatements, MaxTests, MaxTime, MaxGenerations, MaxFitnessEvaluations
+		MAXSTATEMENTS, MAXTESTS, MAXTIME, MAXGENERATIONS, MAXFITNESSEVALUATIONS
 	}
 
 	@Parameter(key = "stopping_condition", group = "Search Algorithm", description = "What condition should be checked to end the search")
-	public static StoppingCondition STOPPING_CONDITION = StoppingCondition.MaxGenerations;
+	public static StoppingCondition STOPPING_CONDITION = StoppingCondition.MAXGENERATIONS;
 
 	public enum CrossoverFunction {
-		SinglePointRelative, SinglePointFixed, SinglePoint
+		SINGLEPOINTRELATIVE, SINGLEPOINTFIXED, SINGLEPOINT
 	}
 
 	@Parameter(key = "crossover_function", group = "Search Algorithm", description = "Crossover function during search")
-	public static CrossoverFunction CROSSOVER_FUNCTION = CrossoverFunction.SinglePoint;
+	public static CrossoverFunction CROSSOVER_FUNCTION = CrossoverFunction.SINGLEPOINT;
 
 	public enum SelectionFunction {
-		Rank, RouletteWheel, Tournament
+		RANK, ROULETTEWHEEL, TOURNAMENT
 	}
 
 	@Parameter(key = "selection_function", group = "Search Algorithm", description = "Selection function during search")
-	public static SelectionFunction SELECTION_FUNCTION = SelectionFunction.Rank;
+	public static SelectionFunction SELECTION_FUNCTION = SelectionFunction.RANK;
 
 	// TODO: Fix values
 	@Parameter(key = "secondary_objectives", group = "Search Algorithm", description = "Secondary objective during search")
@@ -330,11 +330,11 @@ public class Properties {
 	public static boolean CHECK_CONTRACTS_END = false;
 
 	public enum TestFactory {
-		Random, OUM
+		RANDOM, OUM
 	}
 
 	@Parameter(key = "test_factory", description = "Which factory creates tests")
-	public static TestFactory TEST_FACTORY = TestFactory.Random;
+	public static TestFactory TEST_FACTORY = TestFactory.RANDOM;
 
 	@Parameter(key = "concolic_mutation", description = "Probability of using concolic mutation operator")
 	@DoubleValue(min = 0.0, max = 1.0)
@@ -360,11 +360,11 @@ public class Properties {
 	//---------------------------------------------------------------
 	// TODO: Fix description
 	public enum AlternativeFitnessCalculationMode {
-		sum, min, max, avg, single
+		SUM, MIN, MAX, AVG, SINGLE
 	}
 
 	@Parameter(key = "alternative_fitness_calculation_mode", description = "")
-	public static AlternativeFitnessCalculationMode ALTERNATIVE_FITNESS_CALCULATION_MODE = AlternativeFitnessCalculationMode.sum;
+	public static AlternativeFitnessCalculationMode ALTERNATIVE_FITNESS_CALCULATION_MODE = AlternativeFitnessCalculationMode.SUM;
 
 	@Parameter(key = "initially_enforced_randomness", description = "")
 	@DoubleValue(min = 0.0, max = 1.0)
@@ -428,11 +428,11 @@ public class Properties {
 	public static Criterion CRITERION = Criterion.BRANCH;
 
 	public enum Strategy {
-		OneBranch, EvoSuite
+		ONEBRANCH, EVOSUITE
 	}
 
 	@Parameter(key = "strategy", group = "Runtime", description = "Which mode to use")
-	public static Strategy STRATEGY = Strategy.EvoSuite;
+	public static Strategy STRATEGY = Strategy.EVOSUITE;
 
 	/**
 	 * Get all parameters that are available
@@ -719,8 +719,7 @@ public class Properties {
 
 		Field f = parameterMap.get(key);
 		if (f.getType().isEnum()) {
-			f.set(null, Enum.valueOf((Class<Enum>) f.getType(), value));
-			System.out.println("Value: " + f.get(null));
+			f.set(null, Enum.valueOf((Class<Enum>) f.getType(), value.toUpperCase()));
 		} else if (f.getType().equals(int.class)) {
 			setValue(key, Integer.parseInt(value));
 		} else if (f.getType().equals(boolean.class)) {
