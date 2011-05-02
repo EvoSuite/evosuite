@@ -33,7 +33,6 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.contracts.ContractChecker;
-import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestRunnable;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
@@ -110,6 +109,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
+			logger.fatal("TG: Exception caught: ", e);
 			System.exit(1);
 		}
 
@@ -212,7 +212,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			if (e1.getCause() instanceof AssertionError
 			        && e1.getCause().getStackTrace()[0].getClassName().contains("de.unisb.cs.st.evosuite")) {
 				//e1.printStackTrace();
-				logger.warn("Assertion Error in evosuitecode");
+				logger.warn("Assertion Error in evosuitecode", e1);
 				throw (AssertionError) e1.getCause();
 			}
 			Sandbox.tearDownEverything();
