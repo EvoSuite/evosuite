@@ -32,7 +32,7 @@ import de.unisb.cs.st.evosuite.ga.Chromosome;
 public class MaxGenerationStoppingCondition extends StoppingCondition {
 
 	/** Maximum number of iterations */
-	protected int max_iterations = Properties.getIntegerValue("generations");
+	protected int max_iterations = Properties.GENERATIONS;
 
 	/** Maximum number of iterations */
 	protected int current_iteration = 0;

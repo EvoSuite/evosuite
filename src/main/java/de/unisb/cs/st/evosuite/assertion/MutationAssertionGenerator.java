@@ -598,8 +598,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 	public void writeStatistics() {
 		try {
-			File f = new File(Properties.getStringValue("report_dir")
-			        + "/statistics_assertions.csv");
+			File f = new File(Properties.REPORT_DIR + "/statistics_assertions.csv");
 			BufferedWriter out = new BufferedWriter(new FileWriter(f, true));
 			if (f.length() == 0L) {
 				out.write("Class,String,Comparison,Inspector,Primitive,Field,Null,MinString,MinComparison,MinInspector,MinPrimitive,MinField,MinNull,KilledString,KilledComparison,KilledInspector,KilledPrimitive,KilledField,KilledNull\n");
@@ -652,8 +651,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				                                     // out of VRO mutants
 			}
 			out.close();
-			f = new File(Properties.getStringValue("report_dir")
-			        + "/statistics_mutation.csv");
+			f = new File(Properties.REPORT_DIR + "/statistics_mutation.csv");
 			out = new BufferedWriter(new FileWriter(f, true));
 			if (f.length() == 0L) {
 				out.write("Class,Total,NonVRO,VRO,Killed,KilledVRO,Score,ScoreVRO\n");

@@ -105,8 +105,6 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	private final int access;
 	private final String className;
 
-	private static final boolean useDeprecated = Properties.getBooleanValue("use_deprecated");
-
 	public CFGMethodAdapter(String className, int access, String name, String desc,
 	        String signature, String[] exceptions, MethodVisitor mv,
 	        List<Mutation> mutants) {
@@ -132,13 +130,13 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 		instrumentations.add(new BranchInstrumentation());
 
-		if (Properties.CRITERION.equals(Properties.CRITERIA.CONCURRENCY)) {
+		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
 			instrumentations.add(new ConcurrencyInstrumentation());
-		} else if (Properties.CRITERION.equals(Properties.CRITERIA.LCSAJ)) {
+		} else if (Properties.CRITERION.equals(Properties.Criterion.LCSAJ)) {
 			instrumentations.add(new LCSAJsInstrumentation());
-		} else if (Properties.CRITERION.equals(Properties.CRITERIA.DEFUSE)) {
+		} else if (Properties.CRITERION.equals(Properties.Criterion.DEFUSE)) {
 			instrumentations.add(new DefUseInstrumentation());
-		} else if (Properties.CRITERION.equals(Properties.CRITERIA.PATH)) {
+		} else if (Properties.CRITERION.equals(Properties.Criterion.PATH)) {
 			instrumentations.add(new PrimePathInstrumentation());
 		}
 
@@ -209,7 +207,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		String id = className + "." + methodName;
 		if (BranchPool.getBranchCountForMethod(id) == 0) {
 			if (isUsable()) {
-				if (Properties.getBooleanValue("testability_transformation")) {
+				if (Properties.TESTABILITY_TRANSFORMATION) {
 					String vname = methodName.replace("(", "|(");
 					if (TransformationHelper.hasValkyrieMethod(className, vname))
 						return;
@@ -230,7 +228,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		return !((this.access & Opcodes.ACC_SYNTHETIC) > 0 || (this.access & Opcodes.ACC_BRIDGE) > 0)
 		        && !methodName.contains("<clinit>")
 		        && !(methodName.contains("<init>") && (access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE)
-		        && (useDeprecated || (access & Opcodes.ACC_DEPRECATED) != Opcodes.ACC_DEPRECATED);
+		        && (Properties.USE_DEPRECATED || (access & Opcodes.ACC_DEPRECATED) != Opcodes.ACC_DEPRECATED);
 	}
 
 	private static void addMinimizedCFG(String classname, String methodname,

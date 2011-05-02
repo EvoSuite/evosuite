@@ -22,8 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.TestFactory;
 import de.unisb.cs.st.evosuite.OUM.OUMTestChromosomeFactory;
-import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTestCaseFactory;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
@@ -42,9 +42,6 @@ public class TestSuiteChromosome extends Chromosome {
 	/** The genes are test cases */
 	public List<TestChromosome> tests = new ArrayList<TestChromosome>();
 
-	/** Maximum number of tests */
-	protected static final int max_tests = Properties.getIntegerValue("max_size");
-
 	protected double coverage = 0.0;
 
 	/** Factory to manipulate and generate method sequences */
@@ -52,13 +49,12 @@ public class TestSuiteChromosome extends Chromosome {
 
 	static {
 
-		String factory_name = Properties.getStringValue("test_factory");
-		if (factory_name.equals("OUM"))
+		if (Properties.TEST_FACTORY == TestFactory.OUM)
 			test_factory = new OUMTestChromosomeFactory();
 		else
 			test_factory = new RandomLengthTestFactory();
-	
-		if(Properties.CRITERION.equals(Properties.CRITERIA.CONCURRENCY)){
+
+		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
 			//#TODO steenbuck we should wrap the original factory not replace it.
 			test_factory = new ConcurrencyTestCaseFactory();
 		}
@@ -166,7 +162,8 @@ public class TestSuiteChromosome extends Chromosome {
 		final double ALPHA = 0.1;
 		int count = 1;
 
-		while (randomness.nextDouble() <= Math.pow(ALPHA, count) && size() < max_tests) {
+		while (randomness.nextDouble() <= Math.pow(ALPHA, count)
+		        && size() < Properties.MAX_SIZE) {
 			count++;
 			// Insert at position as during initialization (i.e., using helper
 			// sequences)

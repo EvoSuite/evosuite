@@ -50,7 +50,7 @@ public class ExecutionTracer {
 
 	private int num_statements = 0;
 
-	private static final boolean testabilityTransformation = Properties.getBooleanValue("TT");
+	private static final boolean testabilityTransformation = Properties.TT;
 
 	/**
 	 * If a thread of a test case survives for some reason (e.g. long call to
@@ -100,7 +100,7 @@ public class ExecutionTracer {
 		num_statements = 0;
 
 		//#TODO steenbuck: We should be able to register us somewhere, so that we're called before run is executed
-		if(Properties.CRITERION.equals(Properties.CRITERIA.CONCURRENCY)){
+		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
 			trace.concurrencyTracer = new ConcurrencyTracer();
 			LockRuntime.tracer = trace.concurrencyTracer;
 		}
@@ -113,8 +113,8 @@ public class ExecutionTracer {
 	 * 
 	 * @return
 	 */
-	private static boolean isThreadNeqCurrentThread(){
-		if(Properties.CRITERION.equals(Properties.CRITERIA.CONCURRENCY)){
+	private static boolean isThreadNeqCurrentThread() {
+		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
 			return false;
 		} else {
 			return (Thread.currentThread() != currentThread);

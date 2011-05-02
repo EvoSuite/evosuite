@@ -17,6 +17,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
 
@@ -44,7 +45,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 				if (in.equals(v.getNode()))
 					v.branchId = completeCFG.getVertex(v.getId()).branchId;
 
-				if (Properties.getStringValue("criterion").equals("defuse")
+				if (Properties.CRITERION.equals(Criterion.DEFUSE)
 				        && in.equals(v.getNode()) && (v.isDefUse())) {
 
 					// keeping track of uses

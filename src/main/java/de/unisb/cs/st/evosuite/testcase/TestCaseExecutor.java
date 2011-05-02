@@ -33,7 +33,6 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.contracts.ContractChecker;
-import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestRunnable;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
@@ -52,14 +51,6 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	private boolean log = true;
 
-	public static long timeout = Properties.getIntegerValue("timeout");
-
-	public static boolean cpuTimeout = Properties.getBooleanValue("cpu_timeout");
-
-	private static boolean logTimeout = Properties.getBooleanValue("log_timeout");
-
-	private static boolean checkContracts = Properties.getBooleanValue("check_contracts");
-
 	private static final PrintStream systemOut = System.out;
 	private static final PrintStream systemErr = System.err;
 
@@ -76,8 +67,6 @@ public class TestCaseExecutor implements ThreadFactory {
 	public static long timeExecuted = 0;
 
 	public static int testsExecuted = 0;
-
-	protected boolean static_hack = Properties.getBooleanValue("static_hack");
 
 	public static TestCaseExecutor getInstance() {
 		if (instance == null)
@@ -153,7 +142,7 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	public void newObservers() {
 		observers = new ArrayList<ExecutionObserver>();
-		if (checkContracts) {
+		if (Properties.CHECK_CONTRACTS) {
 			observers.add(new ContractChecker());
 		}
 
@@ -172,7 +161,7 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	public ExecutionResult execute(TestCase tc, Scope scope) {
 		ExecutionTracer.getExecutionTracer().clear();
-		if (static_hack)
+		if (Properties.STATIC_HACK)
 			TestCluster.getInstance().resetStaticClasses();
 		resetObservers();
 		ExecutionObserver.currentTest(tc);
@@ -184,7 +173,7 @@ public class TestCaseExecutor implements ThreadFactory {
 
 		//#TODO steenbuck could be nicer (TestRunnable should be an interface
 		InterfaceTestRunnable callable;
-		if (Properties.CRITERION.equals(Properties.CRITERIA.CONCURRENCY)) {
+		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
 			callable = new ConcurrentTestRunnable(tc, scope, observers);
 		} else {
 			callable = new TestRunnable(tc, scope, observers);
@@ -194,8 +183,9 @@ public class TestCaseExecutor implements ThreadFactory {
 
 		try {
 			//ExecutionResult result = task.get(timeout, TimeUnit.MILLISECONDS);
-			ExecutionResult result = handler.execute(callable, executor, timeout,
-			                                         cpuTimeout);
+			ExecutionResult result = handler.execute(callable, executor,
+			                                         Properties.TIMEOUT,
+			                                         Properties.CPU_TIMEOUT);
 
 			long endTime = System.currentTimeMillis();
 			timeExecuted += endTime - startTime;
@@ -239,7 +229,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			System.setOut(systemOut);
 			System.setErr(systemErr);
 
-			if (logTimeout) {
+			if (Properties.LOG_TIMEOUT) {
 				System.err.println("Timeout occurred for " + Properties.TARGET_CLASS);
 			}
 			logger.info("TimeoutException, need to stop runner");
@@ -251,7 +241,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			if (!callable.isRunFinished()) {
 				logger.info("Run not finished, waiting...");
 				try {
-					executor.awaitTermination(timeout, TimeUnit.MILLISECONDS);
+					executor.awaitTermination(Properties.TIMEOUT, TimeUnit.MILLISECONDS);
 				} catch (InterruptedException e) {
 					logger.info("Interrupted");
 					e.printStackTrace();
@@ -293,7 +283,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		// StringTraceExecutionObserver();
 		// observers.add(obs);
 		ExecutionTracer.getExecutionTracer().clear();
-		if (static_hack)
+		if (Properties.STATIC_HACK)
 			TestCluster.getInstance().resetStaticClasses();
 		resetObservers();
 		ExecutionObserver.currentTest(tc);
@@ -309,10 +299,11 @@ public class TestCaseExecutor implements ThreadFactory {
 			runner.start();
 
 			// If test doesn't finish in time, suspend it.
-			runner.join(timeout);
+			runner.join(Properties.TIMEOUT);
 
 			if (!runner.runFinished) {
-				logger.warn("Exceeded max wait (" + timeout + "ms): aborting test input:");
+				logger.warn("Exceeded max wait (" + Properties.TIMEOUT
+				        + "ms): aborting test input:");
 				logger.warn(tc.toCode());
 				runner.interrupt();
 
@@ -320,7 +311,7 @@ public class TestCaseExecutor implements ThreadFactory {
 					// If test doesn't finish in time, suspend it.
 					logger.info("Thread ignored interrupt, using killswitch");
 					ExecutionTracer.setKillSwitch(true);
-					runner.join(timeout / 2);
+					runner.join(Properties.TIMEOUT / 2);
 					if (!runner.runFinished) {
 						logger.info("Trying thread.stop()");
 						for (StackTraceElement element : runner.getStackTrace()) {
@@ -330,7 +321,7 @@ public class TestCaseExecutor implements ThreadFactory {
 						              // it's the only way to
 						// stop a thread no matter what it's doing.
 						// return runner.exceptionsThrown;
-						runner.join(timeout / 2);
+						runner.join(Properties.TIMEOUT / 2);
 
 						if (runner.isAlive()) {
 							logger.warn("Thread ignored stop()! All is lost!");

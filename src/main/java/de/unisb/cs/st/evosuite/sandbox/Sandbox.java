@@ -38,10 +38,10 @@ public class Sandbox {
 	private static Mocks mocks = new Mocks();
 
 	/** If sandbox, i.e. the MSecurityManager, should be activated. */
-	private static final boolean sandboxActive = Properties.getBooleanValue("sandbox");
+	private static final boolean sandboxActive = Properties.SANDBOX;
 
 	/** If mocks should be created. */
-	private static final boolean mocksActive = Properties.getBooleanValue("mocks");
+	private static final boolean mocksActive = Properties.MOCKS;
 
 	/**
 	 * Set up mocked security manager if sandbox property is true.

@@ -153,7 +153,7 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 public class DefUseCoverageTestFitness extends TestFitnessFunction {
 
 	// debugging flags
-	private final static boolean DEBUG = Properties.getBooleanValue("defuse_debug_mode");
+	private final static boolean DEBUG = Properties.DEFUSE_DEBUG_MODE;
 	private final static boolean PRINT_DEBUG = false;
 
 	// the Definition-Use pair
@@ -321,7 +321,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			throw new IllegalStateException("difficulty out of bounds - overflow? "
 			        + overallDifficulty);
 		difficulty_time += System.currentTimeMillis() - start;
-		if (Properties.getBooleanValue("randomize_difficulty")) {
+		if (Properties.RANDOMIZE_DIFFICULTY) {
 			float modifier = 1.5f * Randomness.getInstance().nextFloat() + 0.5f;
 			overallDifficulty = Math.round(overallDifficulty * modifier);
 		}

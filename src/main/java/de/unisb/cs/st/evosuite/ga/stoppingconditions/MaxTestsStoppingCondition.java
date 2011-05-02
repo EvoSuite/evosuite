@@ -30,7 +30,7 @@ public class MaxTestsStoppingCondition extends StoppingCondition {
 	protected static int num_tests = 0;
 
 	/** Maximum number of evaluations */
-	protected int max_tests = Properties.getIntegerValue("generations");
+	protected int max_tests = Properties.GENERATIONS;
 
 	public static int getNumExecutedTests() {
 		return num_tests;

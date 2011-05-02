@@ -48,7 +48,7 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 	public List<TestFitnessFunction> getCoverageGoals() {
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
 
-		String targetMethod = Properties.getStringValue("target_method");
+		String targetMethod = Properties.TARGET_METHOD;
 
 		// Branchless methods
 		String class_name = Properties.TARGET_CLASS;
@@ -68,7 +68,7 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 					continue;
 				}
 
-				if (Properties.getBooleanValue("testability_transformation")) {
+				if (Properties.TESTABILITY_TRANSFORMATION) {
 					String vname = methodName.replace("(", "|(");
 					if (TransformationHelper.hasValkyrieMethod(className, vname)) {
 						logger.info("Skipping branch in transformed method: " + vname);

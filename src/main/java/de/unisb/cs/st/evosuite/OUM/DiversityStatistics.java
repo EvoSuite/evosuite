@@ -15,8 +15,6 @@ import de.unisb.cs.st.evosuite.Properties;
  */
 public class DiversityStatistics extends ClassAdapter {
 
-	private final String targetClass = Properties.getStringValue("TARGET_CLASS");
-
 	private final String className;
 
 	/**
@@ -31,7 +29,7 @@ public class DiversityStatistics extends ClassAdapter {
 	public MethodVisitor visitMethod(int access, String name, String desc,
 	        String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-		if (className.equals(targetClass)) {
+		if (className.equals(Properties.TARGET_CLASS)) {
 			mv = new DiversityMethodAdapter(mv);
 		}
 		return mv;

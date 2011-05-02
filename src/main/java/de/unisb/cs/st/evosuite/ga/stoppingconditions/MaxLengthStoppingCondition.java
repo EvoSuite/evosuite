@@ -34,16 +34,14 @@ public class MaxLengthStoppingCondition extends StoppingCondition {
 
 	private double average_length = 0.0;
 
-	private static int MAX_LENGTH = Properties.getIntegerValue("max_length");
-
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.ga.StoppingCondition#isFinished()
 	 */
 	@Override
 	public boolean isFinished() {
-		if (average_length >= MAX_LENGTH)
+		if (average_length >= Properties.MAX_LENGTH)
 			logger.info("Maximum average length reached, stopping");
-		return average_length >= MAX_LENGTH;
+		return average_length >= Properties.MAX_LENGTH;
 	}
 
 	/* (non-Javadoc)
@@ -76,11 +74,11 @@ public class MaxLengthStoppingCondition extends StoppingCondition {
 	 */
 	@Override
 	public void setLimit(int limit) {
-		MAX_LENGTH = limit;
+		Properties.MAX_LENGTH = limit;
 	}
 
 	@Override
 	public int getLimit() {
-		return (int) (MAX_LENGTH + 0.5);
+		return (int) (Properties.MAX_LENGTH + 0.5);
 	}
 }

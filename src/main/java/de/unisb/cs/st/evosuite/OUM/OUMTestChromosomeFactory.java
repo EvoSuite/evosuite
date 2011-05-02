@@ -21,11 +21,6 @@ public class OUMTestChromosomeFactory implements ChromosomeFactory {
 
 	protected static Logger logger = Logger.getLogger(OUMTestChromosomeFactory.class);
 
-	/** Attempts before giving up construction */
-	protected int max_attempts = Properties.getIntegerValue("max_attempts");
-
-	protected int chromosome_length = Properties.getIntegerValue("chromosome_length");
-
 	/** Factory to manipulate and generate method sequences */
 	private final OUMTestFactory test_factory = OUMTestFactory.getInstance();
 
@@ -39,7 +34,7 @@ public class OUMTestChromosomeFactory implements ChromosomeFactory {
 		logger.debug("Generating randomized test case of length " + length);
 
 		// Then add random stuff
-		while (test.size() < length && num < max_attempts) {
+		while (test.size() < length && num < Properties.MAX_ATTEMPTS) {
 			test_factory.insertRandomStatement(test);
 			num++;
 		}
@@ -52,7 +47,7 @@ public class OUMTestChromosomeFactory implements ChromosomeFactory {
 	@Override
 	public Chromosome getChromosome() {
 		TestChromosome c = new TestChromosome();
-		c.test = getRandomTestCase(chromosome_length);
+		c.test = getRandomTestCase(Properties.CHROMOSOME_LENGTH);
 		return c;
 	}
 

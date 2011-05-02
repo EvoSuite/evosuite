@@ -33,10 +33,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
-	private static boolean print_to_system = Properties.getBooleanValue("print_to_system");
-
-	private static PrintStream out = (print_to_system ? System.out : new PrintStream(
-	        byteStream));
+	private static PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
+	        : new PrintStream(byteStream));
 
 	public Map<Integer, Throwable> exceptionsThrown = new HashMap<Integer, Throwable>();
 

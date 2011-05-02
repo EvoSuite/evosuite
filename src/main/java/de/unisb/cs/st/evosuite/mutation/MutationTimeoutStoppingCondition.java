@@ -20,7 +20,7 @@ public class MutationTimeoutStoppingCondition extends StoppingCondition {
 
 	private static int timeouts = 0;
 
-	private static int MAX_TIMEOUTS = Properties.getIntegerValue("mutation_timeouts");
+	private static int MAX_TIMEOUTS = Properties.MUTATION_TIMEOUTS;
 
 	private static Set<Mutation> disabled = new HashSet<Mutation>();
 

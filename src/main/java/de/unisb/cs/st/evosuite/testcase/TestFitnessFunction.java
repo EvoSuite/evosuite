@@ -101,7 +101,7 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	 * encouraged in order to avoid unnecessary performance loss
 	 */
 	public boolean isSimilarTo(TestFitnessFunction goal) {
-		if (Properties.getBooleanValue("recycle_chromosomes"))
+		if (Properties.RECYCLE_CHROMOSOMES)
 			logger.warn("called default TestFitness.isSimilarTo() though recycling is enabled. "
 			        + "possible performance loss. set property recycle_chromosomes to false");
 		return false;
@@ -136,7 +136,7 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	 * should be disabled too.
 	 */
 	public int getDifficulty() {
-		if (Properties.getBooleanValue("preorder_goals_by_difficulty"))
+		if (Properties.PREORDER_GOALS_BY_DIFFICULTY)
 			logger.warn("called default TestFitness.getDifficulty() though preordering is enabled. "
 			        + "possible performance loss. set property preorder_goals_by_difficulty to false");
 		return 0;

@@ -29,8 +29,6 @@ import de.unisb.cs.st.evosuite.ga.SelectionFunction;
  */
 public class TestSuiteReplacementFunction extends ReplacementFunction {
 
-	private final static boolean BEST_LENGTH = Properties.getBooleanValue("check_best_length");
-
 	/**
 	 * @param selectionFunction
 	 */
@@ -73,7 +71,7 @@ public class TestSuiteReplacementFunction extends ReplacementFunction {
 		double fitness_parents = getBestFitness((TestSuiteChromosome) parent1,
 		                                        (TestSuiteChromosome) parent2);
 
-		if (BEST_LENGTH
+		if (Properties.CHECK_BEST_LENGTH
 		        && (fitness_offspring == fitness_parents && getLengthSum((TestSuiteChromosome) offspring1,
 		                                                                 (TestSuiteChromosome) offspring2) <= getLengthSum((TestSuiteChromosome) parent1,
 		                                                                                                                   (TestSuiteChromosome) parent2)))

@@ -505,9 +505,8 @@ public class MutationStatistics implements SearchListener {
 	protected void writeParameterTable(StringBuffer buffer) {
 		buffer.append("<h2>Search Parameters:</h2>\n");
 		buffer.append("<ul>\n");
-		buffer.append("<li>Algorithm: " + Properties.getStringValue("algorithm") + "\n"); // TODO
-		buffer.append("<li>Length: " + Properties.getIntegerValue("chromosome_length")
-		        + "\n"); // TODO
+		buffer.append("<li>Algorithm: " + Properties.ALGORITHM + "\n"); // TODO
+		buffer.append("<li>Length: " + Properties.CHROMOSOME_LENGTH + "\n"); // TODO
 		buffer.append("<li>Generations: " + System.getProperty("GA.generations") + "\n");
 
 		buffer.append("<li>Elite: " + System.getProperty("GA.elite") + "\n");

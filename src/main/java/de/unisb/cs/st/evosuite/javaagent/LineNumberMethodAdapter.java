@@ -25,6 +25,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.MutationMarker;
 
 /**
@@ -41,7 +42,7 @@ public class LineNumberMethodAdapter extends MethodAdapter {
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(LineNumberMethodAdapter.class);
 
-	private static final boolean MUTATION = Properties.getStringValue("criterion").equalsIgnoreCase("mutation");
+	private static final boolean MUTATION = Properties.CRITERION.equals(Criterion.MUTATION);
 
 	private final String fullMethodName;
 

@@ -28,8 +28,6 @@ import de.unisb.cs.st.evosuite.Properties;
  */
 public class MuPlusLambdaGA extends SteadyStateGA {
 
-	private static boolean parent_check = Properties.getBooleanValue("parent_check");
-
 	/**
 	 * Generate a new search object
 	 * 
@@ -55,7 +53,7 @@ public class MuPlusLambdaGA extends SteadyStateGA {
 
 		try {
 			// Crossover
-			if (randomness.nextDouble() <= crossover_rate) {
+			if (randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
 				crossover_function.crossOver(offspring1, offspring2);
 			}
 
@@ -80,7 +78,8 @@ public class MuPlusLambdaGA extends SteadyStateGA {
 		notifyEvaluation(offspring2);
 
 		// if (replacement_function.keepOffspring(parent1, parent2, offspring1,
-		if (!parent_check || keepOffspring(parent1, parent2, offspring1, offspring2)) {
+		if (!Properties.PARENT_CHECK
+		        || keepOffspring(parent1, parent2, offspring1, offspring2)) {
 			logger.debug("Keeping offspring");
 
 			if (!isTooLong(offspring1)) {

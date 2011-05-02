@@ -21,8 +21,8 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.TestFactory;
 import de.unisb.cs.st.evosuite.OUM.OUMTestFactory;
-import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
 import de.unisb.cs.st.evosuite.coverage.concurrency.Schedule;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -38,16 +38,8 @@ import de.unisb.cs.st.evosuite.testsuite.CurrentChromosomeTracker;
  */
 public class TestChromosome extends Chromosome {
 
-	private final static boolean RANK_LENGTH = Properties.getBooleanValue("check_rank_length");
-
-	private final static boolean CHECK_LENGTH = Properties.getBooleanValue("check_max_length");
-
-	private final static int CHROMOSOME_LENGTH = Properties.getIntegerValue("chromosome_length");
-
-	private final static double CONCOLIC_MUTATION = Properties.getDoubleValue("concolic_mutation");
-
 	static {
-		if (RANK_LENGTH)
+		if (Properties.CHECK_RANK_LENGTH)
 			logger.debug("Using rank check");
 		else
 			logger.debug("Not using rank check");
@@ -66,8 +58,7 @@ public class TestChromosome extends Chromosome {
 
 		//#TODO steenbuck similar logic is repeated in TestSuiteChromosomeFactory
 		if (test_factory == null) {
-			String factory_name = Properties.getStringValue("test_factory");
-			if (factory_name.equals("OUM"))
+			if (Properties.TEST_FACTORY == TestFactory.OUM)
 				test_factory = OUMTestFactory.getInstance();
 			else
 				test_factory = DefaultTestFactory.getInstance();
@@ -117,7 +108,8 @@ public class TestChromosome extends Chromosome {
 			test_factory.appendStatement(offspring.test,
 			                             ((TestChromosome) other).test.getStatement(i));
 		}
-		if (!CHECK_LENGTH || offspring.test.size() <= CHROMOSOME_LENGTH) {
+		if (!Properties.CHECK_MAX_LENGTH
+		        || offspring.test.size() <= Properties.CHROMOSOME_LENGTH) {
 			test = offspring.test;
 		}
 		// logger.warn("Size exceeded!");
@@ -162,10 +154,10 @@ public class TestChromosome extends Chromosome {
 		double P;
 
 		//#TODO steenbuck TestChromosome should be subclassed
-		if(Properties.CRITERION.equals(Properties.CRITERIA.CONCURRENCY)){
-			assert(test instanceof ConcurrentTestCase);
-			
-			P = 1d/6d;
+		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
+			assert (test instanceof ConcurrentTestCase);
+
+			P = 1d / 6d;
 
 			// Delete from schedule
 			if (randomness.nextDouble() <= P) {
@@ -321,7 +313,7 @@ public class TestChromosome extends Chromosome {
 		boolean changed = false;
 		double pl = 1d / test.size();
 
-		if (randomness.nextDouble() < CONCOLIC_MUTATION) {
+		if (randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
 			ConcolicMutation mutation = new ConcolicMutation();
 			changed = mutation.mutate(test);
 			if (changed) {
@@ -390,7 +382,7 @@ public class TestChromosome extends Chromosome {
 		int count = 0;
 
 		while (randomness.nextDouble() <= Math.pow(ALPHA, count)
-		        && (!CHECK_LENGTH || size() < CHROMOSOME_LENGTH)) {
+		        && (!Properties.CHECK_MAX_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {
 			count++;
 			// Insert at position as during initialization (i.e., using helper
 			// sequences)

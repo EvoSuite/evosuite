@@ -36,8 +36,8 @@ public class PrimitiveClassAdapter extends ClassAdapter {
 
 	private static String target_class = Properties.TARGET_CLASS;
 
-	private static final boolean REPLACE_STRING = Properties.getBooleanValue("string_replacement")
-	        && !Properties.getBooleanValue("TT");
+	private static final boolean REPLACE_STRING = Properties.STRING_REPLACEMENT
+	        && !Properties.TT;
 
 	private final Excludes e = Excludes.getInstance();
 

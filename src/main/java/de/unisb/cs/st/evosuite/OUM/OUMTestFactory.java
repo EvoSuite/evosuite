@@ -28,7 +28,6 @@ import de.unisb.cs.st.evosuite.testcase.MethodDescriptorReplacement;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.NullReference;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
-import de.unisb.cs.st.evosuite.testcase.Statement;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
@@ -45,14 +44,6 @@ public class OUMTestFactory extends AbstractTestFactory {
 	private static OUMTestFactory instance = null;
 
 	private static Logger logger = Logger.getLogger(OUMTestFactory.class);
-
-	private final static int MAX_RECURSION = Properties.getIntegerValue("max_recursion");
-
-	private final static double USAGE_RATE = Properties.getDoubleValue("usage_rate");
-
-	private final double object_reuse_probability = Properties.getDoubleValue("object_reuse_probability");
-
-	private final double null_probability = Properties.getDoubleValue("null_probability");
 
 	private final Randomness randomness = Randomness.getInstance();
 
@@ -90,14 +81,15 @@ public class OUMTestFactory extends AbstractTestFactory {
 	 * @return
 	 */
 	public ConcreteCall getLastUse(TestCase test, int position, VariableReference variable) {
-		for(int i = Math.min(position, test.size() - 1); i>=variable.statement; i--) {
+		for (int i = Math.min(position, test.size() - 1); i >= variable.statement; i--) {
 			StatementInterface s = test.getStatement(i);
-			if(s.references(variable)) {
-				if(s instanceof MethodStatement) {
-					MethodStatement ms = (MethodStatement)s;
-					if(!ms.isStatic()) {
-						if(ms.getCallee().equals(variable))
-							return new ConcreteCall(variable.getClassName(), ms.getMethod());
+			if (s.references(variable)) {
+				if (s instanceof MethodStatement) {
+					MethodStatement ms = (MethodStatement) s;
+					if (!ms.isStatic()) {
+						if (ms.getCallee().equals(variable))
+							return new ConcreteCall(variable.getClassName(),
+							        ms.getMethod());
 						/*
 						} else {
 						//logger.info("Checking static call of class "+ms.getMethod().getDeclaringClass()+" while looking for "+variable.getClassName());
@@ -128,14 +120,15 @@ public class OUMTestFactory extends AbstractTestFactory {
 	}
 
 	public ConcreteCall getNextUse(TestCase test, int position, VariableReference variable) {
-		for(int i = position; i < test.size(); i++) {
+		for (int i = position; i < test.size(); i++) {
 			StatementInterface s = test.getStatement(i);
-			if(s.references(variable)) {
-				if(s instanceof MethodStatement) {
-					MethodStatement ms = (MethodStatement)s;
-					if(!ms.isStatic()) {
-						if(ms.getCallee().equals(variable))
-							return new ConcreteCall(variable.getClassName(), ms.getMethod());
+			if (s.references(variable)) {
+				if (s instanceof MethodStatement) {
+					MethodStatement ms = (MethodStatement) s;
+					if (!ms.isStatic()) {
+						if (ms.getCallee().equals(variable))
+							return new ConcreteCall(variable.getClassName(),
+							        ms.getMethod());
 					} else {
 						//logger.info("Checking static call of class "+ms.getMethod().getDeclaringClass()+" while looking for "+variable.getClassName());
 						if (variable.isAssignableFrom(ms.getMethod().getDeclaringClass())) {
@@ -170,11 +163,12 @@ public class OUMTestFactory extends AbstractTestFactory {
 		// add new instance of the UUT -> use on of the initial locations in the markov chart
 		List<VariableReference> vars = test.getObjects(Properties.getTargetClass(),
 		                                               position);
-		if (vars.isEmpty() || randomness.nextDouble() > object_reuse_probability) { // or certain probability - reuse probability?
+		if (vars.isEmpty()
+		        || randomness.nextDouble() > Properties.OBJECT_REUSE_PROBABILITY) { // or certain probability - reuse probability?
 			// Generate new
 			logger.debug("Creating new UUT object");
 			ConcreteCall generator = null;
-			if (randomness.nextDouble() <= USAGE_RATE)
+			if (randomness.nextDouble() <= Properties.USAGE_RATE)
 				generator = usage_model.getGenerator(Properties.TARGET_CLASS,
 				                                     Properties.getTargetClass());
 			else {
@@ -205,7 +199,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 			}
 		} else {
 			VariableReference target = randomness.choice(vars);
-			if (randomness.nextDouble() < +USAGE_RATE) {
+			if (randomness.nextDouble() < Properties.USAGE_RATE) {
 				logger.debug("Chosen existing object: " + target);
 				ConcreteCall last_call = getLastUse(test, position, target);
 				logger.debug("Last call: " + last_call);
@@ -259,11 +253,12 @@ public class OUMTestFactory extends AbstractTestFactory {
 			// add new instance of the UUT -> use on of the initial locations in the markov chart
 			List<VariableReference> vars = test.getObjects(Properties.getTargetClass(),
 			                                               position);
-			if (vars.isEmpty() || randomness.nextDouble() > object_reuse_probability) { // or certain probability - reuse probability?
+			if (vars.isEmpty()
+			        || randomness.nextDouble() > Properties.OBJECT_REUSE_PROBABILITY) { // or certain probability - reuse probability?
 				// Generate new
 				logger.debug("Creating new UUT object");
 				ConcreteCall generator = null;
-				if (randomness.nextDouble() <= USAGE_RATE)
+				if (randomness.nextDouble() <= Properties.USAGE_RATE)
 					generator = usage_model.getGenerator(Properties.TARGET_CLASS,
 					                                     Properties.getTargetClass());
 				else {
@@ -295,7 +290,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 				}
 			} else {
 				VariableReference target = randomness.choice(vars);
-				if (randomness.nextDouble() < +USAGE_RATE) {
+				if (randomness.nextDouble() < +Properties.USAGE_RATE) {
 					logger.debug("Chosen existing object: " + target);
 					ConcreteCall last_call = getLastUse(test, position, target);
 					logger.debug("Last call: " + last_call);
@@ -344,7 +339,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 					}
 				} else {
 
-					if (randomness.nextDouble() <= USAGE_RATE) {
+					if (randomness.nextDouble() <= Properties.USAGE_RATE) {
 
 						logger.debug("Selected " + object);
 						if (!usage_model.hasClass(object.getClassName())) {
@@ -425,7 +420,9 @@ public class OUMTestFactory extends AbstractTestFactory {
 	 * @param test
 	 * @param s
 	 */
-	public void appendStatement(TestCase test, StatementInterface statement) throws ConstructionFailedException {
+	@Override
+	public void appendStatement(TestCase test, StatementInterface statement)
+	        throws ConstructionFailedException {
 		current_recursion.clear();
 
 		if (statement instanceof ConstructorStatement) {
@@ -463,12 +460,12 @@ public class OUMTestFactory extends AbstractTestFactory {
 
 		if (!alternatives.isEmpty()) {
 			// Change all references to return value at position to something else
-			for(int i = position; i< test.size(); i++) {
+			for (int i = position; i < test.size(); i++) {
 				StatementInterface s = test.getStatement(i);
-				if(s.references(var)) {
-					if(s instanceof MethodStatement) {
-						MethodStatement ms = (MethodStatement)s;
-						if(ms.getCallee() != null && ms.getCallee().equals(var)) {
+				if (s.references(var)) {
+					if (s instanceof MethodStatement) {
+						MethodStatement ms = (MethodStatement) s;
+						if (ms.getCallee() != null && ms.getCallee().equals(var)) {
 							VariableReference r = randomness.choice(alternatives);
 							ms.setCallee(r.clone());
 							logger.trace("Replacing callee in method call");
@@ -530,7 +527,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 	 */
 	public VariableReference addConstructor(TestCase test, ConcreteCall constructor,
 	        int position, int recursion_depth) throws ConstructionFailedException {
-		if (recursion_depth > MAX_RECURSION) {
+		if (recursion_depth > Properties.MAX_RECURSION) {
 			logger.debug("Max recursion depth reached");
 			throw new ConstructionFailedException();
 		}
@@ -565,7 +562,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 	public VariableReference addMethod(TestCase test, ConcreteCall method, int position,
 	        int recursion_depth) throws ConstructionFailedException {
 		//System.out.println("TG: Looking for callee of type "+method.getDeclaringClass());
-		if (recursion_depth > MAX_RECURSION) {
+		if (recursion_depth > Properties.MAX_RECURSION) {
 			logger.debug("Max recursion depth reached");
 			throw new ConstructionFailedException();
 		}
@@ -587,7 +584,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 
 				// Check if we have usage information on how the callee is created: Check for information on parameter 0!
 				if (!usage_model.hasGenerators(className, method, 0)
-				        || randomness.nextDouble() > USAGE_RATE) {
+				        || randomness.nextDouble() > Properties.USAGE_RATE) {
 					logger.debug("Generating callee without usage information");
 					callee = attemptGeneration(test, method.getCallClass(), position,
 					                           recursion_depth, true);
@@ -660,7 +657,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 	private VariableReference addField(TestCase test, ConcreteCall field, int position,
 	        int recursion_depth) throws ConstructionFailedException {
 		logger.debug("Adding field " + field);
-		if (recursion_depth > MAX_RECURSION) {
+		if (recursion_depth > Properties.MAX_RECURSION) {
 			logger.debug("Max recursion depth reached");
 			throw new ConstructionFailedException();
 		}
@@ -689,12 +686,13 @@ public class OUMTestFactory extends AbstractTestFactory {
 
 	private ConcreteCall getCall(TestCase test, VariableReference var) {
 		StatementInterface s = test.getStatement(var.statement);
-		if(s instanceof MethodStatement) {
-			return new ConcreteCall(var.getClassName(), ((MethodStatement)s).getMethod());
-		} else if(s instanceof ConstructorStatement) {
-			return new ConcreteCall(var.getClassName(), ((ConstructorStatement)s).getConstructor());
-		} else if(s instanceof FieldStatement) {
-			return new ConcreteCall(var.getClassName(), ((FieldStatement)s).getField());
+		if (s instanceof MethodStatement) {
+			return new ConcreteCall(var.getClassName(), ((MethodStatement) s).getMethod());
+		} else if (s instanceof ConstructorStatement) {
+			return new ConcreteCall(var.getClassName(),
+			        ((ConstructorStatement) s).getConstructor());
+		} else if (s instanceof FieldStatement) {
+			return new ConcreteCall(var.getClassName(), ((FieldStatement) s).getField());
 		}
 		return null;
 	}
@@ -723,7 +721,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 
 			// Collect all objects that satisfy the usage constraints
 			List<VariableReference> objects = new ArrayList<VariableReference>();
-			if (randomness.nextDouble() <= USAGE_RATE
+			if (randomness.nextDouble() <= Properties.USAGE_RATE
 			        && usage_model.hasGenerators(call.getClassName(), call, i + 1)) {
 				logger.debug("Using information for parameter selection...");
 				for (VariableReference var : test.getObjects(parameter_type, position)) {
@@ -740,7 +738,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 				objects.remove(callee);
 			logger.debug("Found suitable objects: " + objects.size());
 
-			if (!objects.isEmpty() && reuse <= object_reuse_probability) {
+			if (!objects.isEmpty() && reuse <= Properties.OBJECT_REUSE_PROBABILITY) {
 				logger.debug(" Parameter " + i + ": Reusing existing object of type "
 				        + parameter_type);
 				VariableReference reference = randomness.choice(objects);
@@ -757,7 +755,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 					                              recursion_depth + 1, true);
 				} else {
 					logger.debug("Have usage information for this parameter");
-					if (randomness.nextDouble() <= USAGE_RATE)
+					if (randomness.nextDouble() <= Properties.USAGE_RATE)
 						reference = attemptGenerationUsage(test, call, i + 1, position,
 						                                   recursion_depth + 1, true);
 					else
@@ -794,7 +792,8 @@ public class OUMTestFactory extends AbstractTestFactory {
 		VariableReference index = new VariableReference(array.clone(), array_index,
 		        array.array_length, position);
 		//index.statement = position;
-		if (!objects.isEmpty() && randomness.nextDouble() <= object_reuse_probability) {
+		if (!objects.isEmpty()
+		        && randomness.nextDouble() <= Properties.OBJECT_REUSE_PROBABILITY) {
 			// Assign an existing value
 			// TODO:
 			// Do we need a special "[Array]AssignmentStatement"?
@@ -894,7 +893,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 			return createArray(test, type, position, recursion_depth + 1).clone();
 
 		} else {
-			if (allow_null && randomness.nextDouble() <= null_probability) {
+			if (allow_null && randomness.nextDouble() <= Properties.NULL_PROBABILITY) {
 				logger.debug("Using Null!");
 				return new NullReference(type);
 			}
@@ -903,7 +902,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 			//			AccessibleObject o = mapping.getRandomGenerator(type, (ClassConstraint)constraint);
 			//AccessibleObject o = test_cluster.getRandomGenerator(type); // !Problem!!!
 			ConcreteCall o = null;
-			if (randomness.nextDouble() <= USAGE_RATE)
+			if (randomness.nextDouble() <= Properties.USAGE_RATE)
 				o = usage_model.getGenerator(clazz.getClassName(), clazz.getRawClass());
 			else {
 				//				o = new ConcreteCall(clazz.getClassName(), test_cluster.getRandomGenerator(type));
@@ -1004,7 +1003,9 @@ public class OUMTestFactory extends AbstractTestFactory {
 	 * @param call
 	 * @throws ConstructionFailedException
 	 */
-	public void changeCall(TestCase test, StatementInterface statement, AccessibleObject call) throws ConstructionFailedException {
+	@Override
+	public void changeCall(TestCase test, StatementInterface statement,
+	        AccessibleObject call) throws ConstructionFailedException {
 		return;
 		/*
 		int position = statement.getReturnValue().statement;
@@ -1213,7 +1214,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 
 		return calls;
 	}
-	
+
 	@Override
 	public boolean changeRandomCall(TestCase test, StatementInterface statement) {
 		List<VariableReference> objects = test.getObjects(statement.getReturnValue().statement);

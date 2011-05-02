@@ -32,7 +32,7 @@ import de.unisb.cs.st.evosuite.ga.Chromosome;
 public class MaxFitnessEvaluationsStoppingCondition extends StoppingCondition {
 
 	/** Maximum number of evaluations */
-	protected int max_evaluations = Properties.getIntegerValue("generations");
+	protected int max_evaluations = Properties.GENERATIONS;
 
 	/** Maximum number of iterations */
 	protected static int current_evaluation = 0;
