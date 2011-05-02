@@ -201,7 +201,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 				instrumentation.add(new LdcInsnNode(id));
 				instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 				        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-				        "passedBranch", "(Ljava/lang/Object;III)V"));
+				        "passedUnconditionalBranch", "(III)V"));
 				BranchPool.countBranch(methodID);
 			}
 			break;
