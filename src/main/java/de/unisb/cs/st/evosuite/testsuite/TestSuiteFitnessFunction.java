@@ -69,7 +69,7 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 			System.out.println("TG: Exception caught: " + e);
 			try {
 				Thread.sleep(1000);
-				result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+				result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			} catch (Exception e1) {
 				e.printStackTrace();
 				// TODO: Do some error recovery?

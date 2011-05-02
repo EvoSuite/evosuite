@@ -43,7 +43,7 @@ public class ExecutionResult {
 	/** Map statement number to raised exception */
 	public Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
 
-	public ExecutionTrace trace;
+	private ExecutionTrace trace;
 	// public StringOutputTrace output_trace;
 	public ComparisonTrace comparison_trace;
 	public PrimitiveOutputTrace primitive_trace;
@@ -66,6 +66,15 @@ public class ExecutionResult {
 		test = t;
 	}
 
+	public ExecutionTrace getTrace(){
+		return trace;
+	}
+	
+	public void setTrace(ExecutionTrace trace){
+		assert(trace!=null);
+		this.trace=trace;
+	}
+	
 	public boolean hasTimeout() {
 		if (test == null)
 			return false;

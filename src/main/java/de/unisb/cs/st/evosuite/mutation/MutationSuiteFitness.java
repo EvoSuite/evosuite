@@ -108,7 +108,7 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 			executor.setLogging(true);
 			if (mutant != null)
 				hom_switcher.switchOff(mutant);
-			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			// result.output_trace = executor.getTrace();
 			result.comparison_trace = comparison_observer.getTrace();
 			result.primitive_trace = primitive_observer.getTrace();

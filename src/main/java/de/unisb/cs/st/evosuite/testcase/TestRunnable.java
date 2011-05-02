@@ -107,7 +107,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 				}
 				num++;
 			}
-			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 
 		} catch (ThreadDeath e) {// can't stop these guys
 			Sandbox.tearDownEverything();

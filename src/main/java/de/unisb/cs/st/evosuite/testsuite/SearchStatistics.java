@@ -808,7 +808,7 @@ public class SearchStatistics implements SearchListener {
 			entry.results.put(test, result.exceptions);
 
 			//			trace = ExecutionTracer.getExecutionTracer().getTrace();
-			trace = result.trace;
+			trace = result.getTrace();
 
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
