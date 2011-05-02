@@ -278,6 +278,27 @@ public class ExecutionTracer {
 	}
 
 	/**
+	 * Called by the instrumented code each time an unconditional branch is
+	 * taken. This is not enabled by default, only some coverage criteria (e.g.,
+	 * LCSAJ) use it.
+	 * 
+	 * 
+	 * @param val
+	 * @param opcode
+	 */
+	public static void passedUnconditionalBranch(int opcode, int branch, int bytecode_id) {
+		if (isThreadNeqCurrentThread())
+			return;
+
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.disabled)
+			return;
+
+		// Add current branch to control trace
+		tracer.trace.branchPassed(branch, bytecode_id, 0.0, 0.0);
+	}
+
+	/**
 	 * Called by the instrumented code each time a new branch is taken
 	 * 
 	 * @param val
