@@ -77,14 +77,14 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 			}
 
 			if (i == lcsaj.getInstructionID(instructions.get(i))) {
-				branch = result.trace.false_distances.get(c.branchId);
+				branch = result.getTrace().false_distances.get(c.branchId);
 				if (branch != 0.0)
 					fitness += approach + normalize(branch);
 				break;
 			}
 
 			else {
-				branch = result.trace.true_distances.get(c.branchId);
+				branch = result.getTrace().true_distances.get(c.branchId);
 				if (branch != 0.0)
 					fitness += normalize(branch);
 			}

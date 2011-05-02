@@ -122,7 +122,7 @@ public class DefUseFitnessCalculations {
 		if(isSpecialDefinition(goalDefinition)) {
 			double useFitness = calculateUseFitnessForCompleteTrace(goalUse, goalUseBranchFitness,individual,result);
 			if(useFitness == 0.0)
-				goal.setCovered(individual,result.trace,-1);
+				goal.setCovered(individual,result.getTrace(),-1);
 			return normalize(useFitness);
 		}
 		// Case 1.
@@ -135,19 +135,19 @@ public class DefUseFitnessCalculations {
 		// Case 2.
 		// if the use was not passed at all just calculate the fitness 
 		// over all objects without any filtering
-		if(!hasEntriesForId(result.trace.passedUses.get(goalVariable), goalUse.getUseId())) {
+		if(!hasEntriesForId(result.getTrace().passedUses.get(goalVariable), goalUse.getUseId())) {
 			double useFitness = calculateUseFitnessForCompleteTrace(goalUse, goalUseBranchFitness, individual, result);
 			if(useFitness==0.0)
 				throw new IllegalStateException("expect usefitness to be >0 if use wasn't passed");
 			return normalize(useFitness);
 		}
 		// select considerable objects
-		Set<Integer> objectPool = getObjectPool(goal, result.trace);
+		Set<Integer> objectPool = getObjectPool(goal, result.getTrace());
 		// calculate minimal fitness over all objects
 		double fitness = 1;
 		for(Integer objectId : objectPool) {
 			logger.debug("current object: "+objectId);
-			if(!hasEntriesForId(result.trace.passedDefinitions.get(goalVariable), 
+			if(!hasEntriesForId(result.getTrace().passedDefinitions.get(goalVariable), 
 							objectId, goalDefinition.getDefId())) {
 				logger.debug("Discarded object "+objectId+" - goalDefinition not passed");
 				continue;
@@ -178,7 +178,7 @@ public class DefUseFitnessCalculations {
 		String goalVariable = goalDefinition.getDUVariableName();
 		
 		// filter out trace information from other objects
-		ExecutionTrace objectTrace = result.trace.getTraceForObject(objectId);
+		ExecutionTrace objectTrace = result.getTrace().getTraceForObject(objectId);
 		double fitness = 1;
 		// handle special definition case
 		if(isSpecialDefinition(goalDefinition)) {
@@ -404,7 +404,7 @@ public class DefUseFitnessCalculations {
 		if(isSpecialDefinition(targetDefinition))
 			return 0.0;
 		// check ExecutionTrace.passedDefinitions first, because calculating BranchTestFitness takes time
-		if(hasEntriesForId(result.trace.passedDefinitions.get(targetDefinition.getDUVariableName()),
+		if(hasEntriesForId(result.getTrace().passedDefinitions.get(targetDefinition.getDUVariableName()),
 				targetDefinition.getDefId()))
 			return 0.0;
 		// return calculated fitness
@@ -422,7 +422,7 @@ public class DefUseFitnessCalculations {
 			TestChromosome individual, ExecutionResult result) {
 		
 		// check ExecutionTrace.passedUses first, because calculating BranchTestFitness takes time
-		if(hasEntriesForId(result.trace.passedUses.get(targetUse.getDUVariableName()),targetUse.getUseId()))
+		if(hasEntriesForId(result.getTrace().passedUses.get(targetUse.getDUVariableName()),targetUse.getUseId()))
 			return 0.0;
 		// return calculated fitness
 		return targetFitness.getFitness(individual, result);
@@ -510,10 +510,10 @@ public class DefUseFitnessCalculations {
 	public static double executeBranchFitnessForTrace(TestChromosome individual, ExecutionResult result, 
 			ExecutionTrace targetTrace, BranchCoverageTestFitness targetFitness) {
 		
-		ExecutionTrace originalTrace = result.trace;
-		result.trace = targetTrace;
+		ExecutionTrace originalTrace = result.getTrace();
+		result.setTrace(targetTrace);
 		double fitness = targetFitness.getFitness(individual,result);
-		result.trace = originalTrace;
+		result.setTrace(originalTrace);
 		return fitness;
 	}
 	

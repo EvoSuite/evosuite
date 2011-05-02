@@ -54,7 +54,7 @@ public abstract class AssertionGenerator {
 		ExecutionResult result = new ExecutionResult(test);
 		try {
 			result.exceptions = executor.run(test);
-			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			result.comparison_trace = comparison_observer.getTrace();
 			result.primitive_trace = primitive_observer.getTrace();
 			result.inspector_trace = inspector_observer.getTrace();

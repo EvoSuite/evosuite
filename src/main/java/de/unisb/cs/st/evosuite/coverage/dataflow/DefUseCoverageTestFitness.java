@@ -459,7 +459,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 					System.out.println("goal NOT COVERED. fitness: "+fitness);
 					System.out.println("==============================================================");
 				}
-				if(DefUseFitnessCalculations.traceCoversGoal(this, individual, result.trace))
+				if(DefUseFitnessCalculations.traceCoversGoal(this, individual, result.getTrace()))
 					throw new IllegalStateException("calculation flawed. goal was covered but fitness was "+fitness);
 			}
 		}

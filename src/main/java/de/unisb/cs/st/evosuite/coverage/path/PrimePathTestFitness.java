@@ -44,7 +44,7 @@ public class PrimePathTestFitness extends TestFitnessFunction {
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		double minMatch = length;
-		for (MethodCall call : result.trace.finished_calls) {
+		for (MethodCall call : result.getTrace().finished_calls) {
 			if (call.class_name.equals(className) && call.method_name.equals(methodName)) {
 				double matches = 0.0;
 				for (Integer i : call.branch_trace) {

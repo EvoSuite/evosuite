@@ -110,7 +110,7 @@ public class MutationTestFitness extends TestFitnessFunction {
 			if (mutant != null)
 				hom_switcher.switchOff(mutant);
 
-			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			// result.output_trace = executor.getTrace();
 			result.comparison_trace = comparison_observer.getTrace();
 			result.primitive_trace = primitive_observer.getTrace();
@@ -386,7 +386,7 @@ public class MutationTestFitness extends TestFitnessFunction {
 
 		// if(!hasAssertions(result, mutant_result))
 		if (getNumAssertions(result, mutant_result) == 0) {
-			double impact = getSumDistance(result.trace, mutant_result.trace);
+			double impact = getSumDistance(result.getTrace(), mutant_result.getTrace());
 			logger.debug("Impact is " + impact + " (" + (1.0 / (1.0 + impact))
 			        + ")");
 			return 1.0 / (1.0 + impact);
