@@ -21,6 +21,8 @@ package de.unisb.cs.st.evosuite.ga;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.unisb.cs.st.evosuite.Properties;
+
 /**
  * Standard GA implementation
  * 
@@ -47,7 +49,7 @@ public class StandardGA extends GeneticAlgorithm {
 		new_generation.addAll(elitism());
 
 		// new_generation.size() < population_size
-		while (new_generation.size() < population_size) {
+		while (new_generation.size() < Properties.POPULATION) {
 
 			Chromosome parent1 = selection_function.select(population);
 			Chromosome parent2 = selection_function.select(population);
@@ -56,7 +58,7 @@ public class StandardGA extends GeneticAlgorithm {
 			Chromosome offspring2 = parent2.clone();
 
 			try {
-				if (randomness.nextDouble() <= crossover_rate) {
+				if (randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
 					crossover_function.crossOver(offspring1, offspring2);
 				}
 
@@ -92,13 +94,13 @@ public class StandardGA extends GeneticAlgorithm {
 		current_iteration = 0;
 
 		// Set up initial population
-		generateInitialPopulation(population_size);
+		generateInitialPopulation(Properties.POPULATION);
 		// Determine fitness
 		calculateFitness();
 		this.notifyIteration();
 
 		while (!isFinished()) {
-			logger.debug("Current population: " + getAge() + "/" + max_iterations);
+			logger.debug("Current population: " + getAge() + "/" + Properties.GENERATIONS);
 			logger.info("Best fitness: " + getBestIndividual().getFitness());
 
 			evolve();

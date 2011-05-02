@@ -39,9 +39,6 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 	protected double best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
 	                                                  // minimizing fitness!
 
-	/** Factor for bloat control */
-	protected int bloat_factor = Properties.getIntegerValue("bloat_factor");
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -62,7 +59,8 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 			// logger.debug("Bloat control: "+((TestSuiteChromosome)chromosome).length()
 			// +" > "+ bloat_factor * current_max);
 
-			return ((TestChromosome) chromosome).size() > bloat_factor * current_max;
+			return ((TestChromosome) chromosome).size() > Properties.BLOAT_FACTOR
+			        * current_max;
 		} else
 			return false; // Don't know max length so can't reject!
 	}

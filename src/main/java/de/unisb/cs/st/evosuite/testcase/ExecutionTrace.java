@@ -185,7 +185,7 @@ public class ExecutionTrace {
 			methodId++;
 			MethodCall call = new MethodCall(classname, methodname, methodId,
 			        callingObjectID);
-			if (Properties.getStringValue("criterion").equals("defuse")) {
+			if (Properties.CRITERION.equals("defuse")) {
 				call.branch_trace.add(-1);
 				call.true_distance_trace.add(1.0);
 				call.false_distance_trace.add(0.0);
@@ -307,7 +307,7 @@ public class ExecutionTrace {
 			stack.peek().true_distance_trace.add(true_distance);
 			stack.peek().false_distance_trace.add(false_distance);
 			// TODO line_trace ?
-			if (Properties.getStringValue("criterion").equals("defuse")) {
+			if (Properties.CRITERION.equals("defuse")) {
 				stack.peek().defuse_counter_trace.add(duCounter);
 			}
 		}

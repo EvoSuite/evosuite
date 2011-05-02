@@ -28,6 +28,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Strategy;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
 
@@ -89,13 +90,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	/** Secondary objectives used during replacement */
 	protected final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();
 
-	protected int max_iterations = Properties.getIntegerValue("generations");
-	protected int elite_size = Properties.getIntegerValue("elite");
-	protected double crossover_rate = Properties.getDoubleValue("crossover_rate");
-	protected double kincompensation = Properties.getDoubleValue("kincompensation");
-	protected int population_size = Properties.getIntegerValue("population");
-
-	private final boolean shuffleBeforeSort = Properties.getBooleanValue("shuffle_goals");
+	private final boolean shuffleBeforeSort = Properties.SHUFFLE_GOALS;
 
 	/**
 	 * Age of the population
@@ -134,9 +129,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	 * 
 	 */
 	protected void generateInitialPopulation(int population_size) {
-		boolean recycle = Properties.getBooleanValue("recycle_chromosomes");
+		boolean recycle = Properties.RECYCLE_CHROMOSOMES;
 		// FIXME: Possible without reference to strategy?
-		if (Properties.getStringValue("strategy").equals("EvoSuite")) // recycling only makes sense for single test generation
+		if (Properties.STRATEGY == Strategy.EvoSuite) // recycling only makes sense for single test generation
 			recycle = false;
 		if (recycle)
 			recycleChromosomes(population_size);
@@ -160,7 +155,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 		for (Chromosome recycable : recycables) {
 			population.add(recycable);
 		}
-		double enforced_randomness = Properties.getDoubleValue("initially_enforced_randomness");
+		double enforced_randomness = Properties.INITIALLY_ENFORCED_RANDOMNESS;
 		if (enforced_randomness < 0.0 || enforced_randomness > 1.0) {
 			logger.warn("property \"initially_enforced_randomness\" is supposed to be a percentage in [0.0,1.0]");
 			logger.warn("retaining to default");
@@ -179,7 +174,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	 * kicked out randomly or according to their fitness
 	 */
 	protected void starveToLimit(int limit) {
-		if (Properties.getBooleanValue("starve_by_fitness"))
+		if (Properties.STARVE_BY_FITNESS)
 			starveByFitness(limit);
 		else
 			starveRandomly(limit);
@@ -328,7 +323,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 
 		List<Chromosome> elite = new ArrayList<Chromosome>();
 
-		for (int i = 0; i < elite_size; i++) {
+		for (int i = 0; i < Properties.ELITE; i++) {
 			logger.trace("Copying individual " + i + " with fitness "
 			        + population.get(i).getFitness());
 			elite.add(population.get(i).clone());
@@ -347,7 +342,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 
 		List<Chromosome> randoms = new ArrayList<Chromosome>();
 
-		for (int i = 0; i < elite_size; i++) {
+		for (int i = 0; i < Properties.ELITE; i++) {
 			randoms.add(chromosome_factory.getChromosome());
 		}
 		return randoms;
@@ -361,7 +356,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	 */
 	protected void kinCompensation(Chromosome individual, List<Chromosome> generation) {
 
-		if (kincompensation >= 1.0)
+		if (Properties.KINCOMPENSATION >= 1.0)
 			return;
 
 		boolean unique = true;
@@ -379,9 +374,11 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 		if (!unique) {
 			logger.debug("Applying kin compensation");
 			if (selection_function.maximize)
-				individual.setFitness(individual.getFitness() * kincompensation);
+				individual.setFitness(individual.getFitness()
+				        * Properties.KINCOMPENSATION);
 			else
-				individual.setFitness(individual.getFitness() * (2.0 - kincompensation));
+				individual.setFitness(individual.getFitness()
+				        * (2.0 - Properties.KINCOMPENSATION));
 		}
 	}
 

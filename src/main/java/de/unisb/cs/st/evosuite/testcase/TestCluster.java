@@ -99,10 +99,6 @@ public class TestCluster {
 
 	public static final List<String> EXCLUDE = Arrays.asList("<clinit>", "__STATIC_RESET");
 
-	private static final boolean useDeprecated = Properties.getBooleanValue("use_deprecated");
-
-	private static final int tournamentSize = Properties.getIntegerValue("generator_tournament");
-
 	// public int num_defined_methods = 2;
 	public int num_defined_methods = 0;
 
@@ -113,7 +109,7 @@ public class TestCluster {
 		populate();
 		addIncludes();
 		analyzeTarget();
-		if (Properties.getBooleanValue("remote_testing"))
+		if (Properties.REMOTE_TESTING)
 			addRemoteCalls();
 		countTargetFunctions();
 		/*
@@ -208,7 +204,7 @@ public class TestCluster {
 
 		int num = 0;
 		int param = 1000;
-		for (int i = 0; i < tournamentSize; i++) {
+		for (int i = 0; i < Properties.GENERATOR_TOURNAMENT; i++) {
 			int new_num = randomness.nextInt(choice.size());
 			AccessibleObject o = choice.get(new_num);
 			if (o instanceof Constructor<?>) {
@@ -265,13 +261,13 @@ public class TestCluster {
 			if (o instanceof Constructor<?>) {
 				Constructor<?> c = (Constructor<?>) o;
 				if (GenericClass.isSubclass(c.getDeclaringClass(), type)
-				        && c.getDeclaringClass().getName().startsWith(Properties.getStringValue("PROJECT_PREFIX"))) {
+				        && c.getDeclaringClass().getName().startsWith(Properties.PROJECT_PREFIX)) {
 					g.add(o);
 				}
 			} else if (o instanceof Method) {
 				Method m = (Method) o;
 				if (GenericClass.isSubclass(m.getGenericReturnType(), type)
-				        && m.getReturnType().getName().startsWith(Properties.getStringValue("PROJECT_PREFIX"))) {
+				        && m.getReturnType().getName().startsWith(Properties.PROJECT_PREFIX)) {
 					g.add(o);
 				}
 				// else if(m.getReturnType().isAssignableFrom(type) &&
@@ -280,7 +276,7 @@ public class TestCluster {
 			} else if (o instanceof Field) {
 				Field f = (Field) o;
 				if (GenericClass.isSubclass(f.getGenericType(), type)
-				        && f.getType().getName().startsWith(Properties.getStringValue("PROJECT_PREFIX"))) {
+				        && f.getType().getName().startsWith(Properties.PROJECT_PREFIX)) {
 					g.add(f);
 				}
 			}
@@ -553,7 +549,7 @@ public class TestCluster {
 			        + org.objectweb.asm.Type.getMethodDescriptor(m);
 
 			// If we are using testability transformation, only add the transformed version
-			if (Properties.getBooleanValue("testability_transformation")
+			if (Properties.TESTABILITY_TRANSFORMATION
 			        && TransformationHelper.hasValkyrieMethod(clazz.getName(), name)) {
 				logger.info("Skipping method " + m.getName()
 				        + " in favor of transformed method");
@@ -717,7 +713,7 @@ public class TestCluster {
 			return false;
 		}
 
-		if (!useDeprecated && m.getAnnotation(Deprecated.class) != null) {
+		if (!Properties.USE_DEPRECATED && m.getAnnotation(Deprecated.class) != null) {
 			logger.debug("Skipping deprecated method " + m.getName());
 			return false;
 		}
@@ -824,7 +820,7 @@ public class TestCluster {
 		if (c.getDeclaringClass().isMemberClass())
 			return false;
 
-		if (!useDeprecated && c.getAnnotation(Deprecated.class) != null) {
+		if (!Properties.USE_DEPRECATED && c.getAnnotation(Deprecated.class) != null) {
 			logger.debug("Skipping deprecated method " + c.getName());
 			return false;
 		}
@@ -866,7 +862,7 @@ public class TestCluster {
 
 	private void countTargetFunctions() {
 		num_defined_methods = CFGMethodAdapter.methods.size();
-		if (Properties.getBooleanValue("instrument_parent"))
+		if (Properties.INSTRUMENT_PARENT)
 			num_defined_methods = getMethods(Properties.getTargetClass()).size();
 		logger.info("Target class has " + num_defined_methods + " functions");
 		logger.info("Target class has " + BranchPool.getBranchCounter() + " branches");
@@ -1018,7 +1014,7 @@ public class TestCluster {
 					String name = "<init>"
 					        + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
 
-					if (Properties.getBooleanValue("TT")) {
+					if (Properties.TT) {
 						String orig = name;
 						name = TestabilityTransformation.getOriginalNameDesc(clazz.getName(),
 						                                                     "<init>",
@@ -1067,7 +1063,7 @@ public class TestCluster {
 					String name = method.getName()
 					        + org.objectweb.asm.Type.getMethodDescriptor(method);
 
-					if (Properties.getBooleanValue("TT")) {
+					if (Properties.TT) {
 						String orig = name;
 						name = TestabilityTransformation.getOriginalNameDesc(clazz.getName(),
 						                                                     method.getName(),
@@ -1134,7 +1130,7 @@ public class TestCluster {
 	}
 
 	private static Map<String, List<String>> getIncludesFromFile() {
-		String property = Properties.getStringValue("test_includes");
+		String property = Properties.TEST_INCLUDES;
 		Map<String, List<String>> objs = new HashMap<String, List<String>>();
 		if (property == null) {
 			logger.debug("No include file specified");
@@ -1253,7 +1249,7 @@ public class TestCluster {
 	}
 
 	private static Map<String, List<String>> getExcludesFromFile() {
-		String property = Properties.getStringValue("test_excludes");
+		String property = Properties.TEST_EXCLUDES;
 		Map<String, List<String>> objs = new HashMap<String, List<String>>();
 		if (property == null) {
 			logger.debug("No exclude file specified");

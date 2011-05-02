@@ -33,7 +33,7 @@ import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 public class MaxTimeStoppingCondition extends StoppingCondition {
 
 	/** Maximum number of seconds */
-	protected int max_seconds = Properties.getIntegerValue("generations");
+	protected int max_seconds = Properties.GENERATIONS;
 
 	protected long start_time;
 

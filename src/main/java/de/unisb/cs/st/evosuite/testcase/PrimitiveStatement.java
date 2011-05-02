@@ -43,11 +43,11 @@ import de.unisb.cs.st.evosuite.primitives.PrimitivePool;
  */
 public class PrimitiveStatement<T> extends Statement {
 
-	private static int MAX_STRING = Properties.getIntegerValue("string_length");
+	private static int MAX_STRING = Properties.STRING_LENGTH;
 
-	private static int MAX_INT = Properties.getIntegerValue("max_int");
+	private static int MAX_INT = Properties.MAX_INT;
 
-	private static double P_pool = Properties.getDoubleValue("primitive_pool");
+	private static double P_pool = Properties.PRIMITIVE_POOL;
 
 	private static Randomness randomness = Randomness.getInstance();
 

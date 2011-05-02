@@ -43,7 +43,7 @@ import org.objectweb.asm.commons.Method;
 
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyCoverageFactory;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -147,7 +147,7 @@ public class TestSuite implements Opcodes {
 	 * @return Index of the test case
 	 */
 	public int insertTest(TestCase test) {
-		if (Properties.getDoubleValue("call_probability") <= 0) {
+		if (Properties.CALL_PROBABILITY <= 0) {
 			for (int i = 0; i < test_cases.size(); i++) {
 				if (test.isPrefix(test_cases.get(i))) {
 					// It's shorter than an existing one
@@ -212,7 +212,7 @@ public class TestSuite implements Opcodes {
 			for (TestFitnessFunction goal : coveredGoals) {
 				builder.append("\n    * " + nr + " " + goal.toString());
 				// TODO only for debugging purposes
-				if (Properties.getStringValue("criterion").equals("defuse")
+				if (Properties.CRITERION.equals(Criterion.DEFUSE)
 				        && (goal instanceof DefUseCoverageTestFitness)) {
 					DefUseCoverageTestFitness duGoal = (DefUseCoverageTestFitness) goal;
 					if (duGoal.getCoveringTrace() != null) {
@@ -278,7 +278,7 @@ public class TestSuite implements Opcodes {
 		// builder.append(".GeneratedTests;");
 		builder.append(";\n\n");
 
-		if(Properties.CRITERION.equals(Properties.CRITERIA.CONCURRENCY)){
+		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
 			builder.append("import java.util.concurrent.Callable;\n");
 			builder.append("import java.util.concurrent.FutureTask;\n");
 			builder.append("import de.unisb.cs.st.evosuite.coverage.concurrency.LockRuntime;\n");
@@ -388,7 +388,7 @@ public class TestSuite implements Opcodes {
 		builder.append("   //");
 		builder.append(getInformation(id));
 		//#TODO steenbuck work around
-		if(Properties.CRITERION.equals(Properties.CRITERIA.CONCURRENCY)){
+		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
 			builder.append("\n");
 			ConcurrentTestCase ctc = (ConcurrentTestCase) test_cases.get(id);
 			for (String line : ctc.getThreadCode(result.exceptions, id).split("\\r?\\n")) {

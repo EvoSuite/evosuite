@@ -25,6 +25,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.MutationMarker;
 
 /**
@@ -38,7 +39,7 @@ public class MethodEntryAdapter extends AdviceAdapter {
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(MethodEntryAdapter.class);
 
-	private static final boolean MUTATION = Properties.getStringValue("criterion").equalsIgnoreCase("mutation");
+	private static final boolean MUTATION = Properties.CRITERION.equals(Criterion.MUTATION);
 
 	String className;
 	String methodName;

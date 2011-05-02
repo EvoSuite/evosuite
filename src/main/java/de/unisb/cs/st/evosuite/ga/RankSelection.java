@@ -30,9 +30,6 @@ import de.unisb.cs.st.evosuite.Properties;
  */
 public class RankSelection extends SelectionFunction {
 
-	/** Bias towards better individuals */
-	private final double rank_bias = Properties.getDoubleValue("rank_bias");
-
 	@Override
 	/**
 	 * Select index of next offspring
@@ -41,11 +38,12 @@ public class RankSelection extends SelectionFunction {
 	 */
 	public int getIndex(List<Chromosome> population) {
 		double r = randomness.nextDouble();
-		double d = rank_bias
-		        - Math.sqrt((rank_bias * rank_bias) - (4.0 * (rank_bias - 1.0) * r));
+		double d = Properties.RANK_BIAS
+		        - Math.sqrt((Properties.RANK_BIAS * Properties.RANK_BIAS)
+		                - (4.0 * (Properties.RANK_BIAS - 1.0) * r));
 		int length = population.size();
 
-		d = d / 2.0 / (rank_bias - 1.0);
+		d = d / 2.0 / (Properties.RANK_BIAS - 1.0);
 
 		//this is not needed because population is sorted based on Maximization
 		//if(maximize)

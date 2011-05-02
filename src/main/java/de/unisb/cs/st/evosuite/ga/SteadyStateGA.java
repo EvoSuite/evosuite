@@ -21,6 +21,8 @@ package de.unisb.cs.st.evosuite.ga;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.unisb.cs.st.evosuite.Properties;
+
 /**
  * Implementation of steady state GA
  * 
@@ -61,7 +63,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 		// Add random elements
 		// new_generation.addAll(randomism());
 
-		while (new_generation.size() < population_size && !isFinished()) {
+		while (new_generation.size() < Properties.POPULATION && !isFinished()) {
 			logger.debug("Generating offspring");
 
 			Chromosome parent1 = selection_function.select(population);
@@ -72,7 +74,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 
 			try {
 				// Crossover
-				if (randomness.nextDouble() <= crossover_rate) {
+				if (randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
 					crossover_function.crossOver(offspring1, offspring2);
 				}
 
@@ -136,7 +138,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 		current_iteration = 0;
 
 		// Set up initial population
-		generateInitialPopulation(population_size);
+		generateInitialPopulation(Properties.POPULATION);
 		logger.debug("Calculating fitness of initial population");
 		calculateFitness();
 		this.notifyIteration();

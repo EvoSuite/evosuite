@@ -28,6 +28,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMSwitcher;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
@@ -44,9 +45,7 @@ public class CFGClassAdapter extends ClassAdapter {
 	/** Current class */
 	private final String className;
 
-	private static final boolean MUTATION = Properties.getStringValue("criterion").equalsIgnoreCase("mutation");
-
-	private static final boolean useDeprecated = Properties.getBooleanValue("use_deprecated");
+	private static final boolean MUTATION = Properties.CRITERION.equals(Criterion.MUTATION);
 
 	/**
 	 * Constructor
@@ -77,7 +76,7 @@ public class CFGClassAdapter extends ClassAdapter {
 			return mv;
 		}
 
-		if (!useDeprecated
+		if (!Properties.USE_DEPRECATED
 		        && (methodAccess & Opcodes.ACC_DEPRECATED) == Opcodes.ACC_DEPRECATED) {
 			logger.info("Skipping deprecated method " + name);
 			return mv;

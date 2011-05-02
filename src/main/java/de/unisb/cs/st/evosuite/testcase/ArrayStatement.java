@@ -41,15 +41,13 @@ import de.unisb.cs.st.evosuite.ga.Randomness;
  */
 public class ArrayStatement extends Statement {
 
-	private final static int MAX_ARRAY = Properties.getIntegerValue("max_array");
-
 	private final Randomness randomness = Randomness.getInstance();
 
 	private int length = 0;
 
 	public ArrayStatement(VariableReference ret_val) {
 		this.retval = ret_val;
-		this.length = randomness.nextInt(MAX_ARRAY) + 1;
+		this.length = randomness.nextInt(Properties.MAX_ARRAY) + 1;
 		this.retval.array_length = this.length;
 	}
 

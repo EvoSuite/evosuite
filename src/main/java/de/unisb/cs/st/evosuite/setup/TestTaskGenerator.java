@@ -61,8 +61,6 @@ public class TestTaskGenerator {
 
 	static Map<String, List<String>> method_excludes = getExcludesFromFile();
 
-	private static final boolean CREATE_OBJECTFILES = Properties.getBooleanValue("generate_objects");
-
 	/**
 	 * Get the set of public/default constructors
 	 * 
@@ -681,7 +679,7 @@ public class TestTaskGenerator {
 				Set<String> object_methods = new HashSet<String>();
 				addObjectMethods(object_methods, classname);
 				String classfilename = classname.replace("$", "_");
-				if (CREATE_OBJECTFILES)
+				if (Properties.GENERATE_OBJECTS)
 					writeObjectMethods(object_methods, classfilename + ".obj");
 				writeInspectors(classname, classname.replace("$", "_") + ".inspectors");
 				continue;
@@ -740,7 +738,7 @@ public class TestTaskGenerator {
 					logger.info("Ignoring abstract class without concrete subclasses "
 					        + classname);
 					String classfilename = classname.replace("$", "_");
-					if (CREATE_OBJECTFILES)
+					if (Properties.GENERATE_OBJECTS)
 						writeObjectMethods(object_methods, classfilename + ".obj");
 					continue;
 				}
@@ -772,7 +770,7 @@ public class TestTaskGenerator {
 			}
 			String classfilename = classname.replace("$", "_");
 			writeTask(suggestion, classfilename + ".task");
-			if (CREATE_OBJECTFILES)
+			if (Properties.GENERATE_OBJECTS)
 				writeObjectMethods(object_methods, classfilename + ".obj");
 			writeInspectors(classname, classfilename + ".inspectors");
 		}

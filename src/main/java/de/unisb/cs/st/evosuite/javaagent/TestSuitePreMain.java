@@ -22,6 +22,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMFileTransformer;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.DistanceTransformer;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.MutationScanner;
@@ -47,14 +48,14 @@ public class TestSuitePreMain {
 		if (agentArguments.equals("generate")) {
 			System.out.println("* Instrumenting bytecode for test generation");
 			//addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
-			if (Properties.getStringValue("criterion").equalsIgnoreCase("mutation")) {
+			if (Properties.CRITERION.equals(Criterion.MUTATION)) {
 				System.out.println("* Mutating byte code");
 				addClassFileTransformer(instrumentation, new HOMFileTransformer());
 			}
 
 			//addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
 
-			if (Properties.getBooleanValue("testability_transformation")) {
+			if (Properties.TESTABILITY_TRANSFORMATION) {
 				TransformationHelper.setTestPackage(Properties.PROJECT_PREFIX);
 				ScanProject.searchClasses(Properties.PROJECT_PREFIX);
 				ClassTransformer ct = new ClassTransformer();

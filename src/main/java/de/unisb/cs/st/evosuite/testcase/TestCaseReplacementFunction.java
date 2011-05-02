@@ -29,8 +29,6 @@ import de.unisb.cs.st.evosuite.ga.SelectionFunction;
  */
 public class TestCaseReplacementFunction extends ReplacementFunction {
 
-	private final static boolean PARENT_LENGTH = Properties.getBooleanValue("check_parents_length");
-
 	public TestCaseReplacementFunction(SelectionFunction selection) {
 		super(selection);
 	}
@@ -68,7 +66,7 @@ public class TestCaseReplacementFunction extends ReplacementFunction {
 		double fitness_parents = getBestFitness((TestChromosome) parent1,
 		                                        (TestChromosome) parent2);
 
-		if (PARENT_LENGTH) {
+		if (Properties.CHECK_PARENTS_LENGTH) {
 			if ((fitness_offspring == fitness_parents && getLengthSum((TestChromosome) offspring1,
 			                                                          (TestChromosome) offspring2) <= getLengthSum((TestChromosome) parent1,
 			                                                                                                       (TestChromosome) parent2))) {

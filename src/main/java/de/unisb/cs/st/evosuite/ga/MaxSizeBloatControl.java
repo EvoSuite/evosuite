@@ -29,16 +29,11 @@ import de.unisb.cs.st.evosuite.Properties;
 public class MaxSizeBloatControl implements BloatControlFunction {
 
 	/**
-	 * Maximum number of attempts in generating/adding/mutating things
-	 */
-	protected int max_length = Properties.getIntegerValue("max_size");
-
-	/**
 	 * Check whether the chromosome is bigger than the max length constant
 	 */
 	@Override
 	public boolean isTooLong(Chromosome chromosome) {
-		return chromosome.size() > max_length;
+		return chromosome.size() > Properties.MAX_SIZE;
 	}
 
 }

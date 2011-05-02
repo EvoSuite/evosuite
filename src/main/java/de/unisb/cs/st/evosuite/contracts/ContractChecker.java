@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
@@ -24,6 +25,8 @@ public class ContractChecker extends ExecutionObserver {
 	private final Set<Contract> contracts = new HashSet<Contract>();
 
 	private final Set<ContractViolation> violations = new HashSet<ContractViolation>();
+
+	private static final boolean checkAtEnd = Properties.CHECK_CONTRACTS_END;
 
 	private static boolean valid = true;
 
@@ -53,6 +56,7 @@ public class ContractChecker extends ExecutionObserver {
 	public static void currentTest(TestCase test) {
 		currentTest = test;
 		valid = true;
+		// TODO: Keep track of objects that raised an exception, and exclude them from contract checking
 	}
 
 	/* (non-Javadoc)
@@ -62,6 +66,10 @@ public class ContractChecker extends ExecutionObserver {
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
 		if (!valid)
 			return;
+
+		if (checkAtEnd && statement.getPosition() < (currentTest.size() - 1))
+			return;
+
 		//logger.info("Skipping contract checking because test already violated a contract");
 		// TODO: Only check contracts if the test hasn't already violated any other contracts
 		for (Contract contract : contracts) {

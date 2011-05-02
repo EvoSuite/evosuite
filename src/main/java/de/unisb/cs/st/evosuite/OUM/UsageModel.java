@@ -360,7 +360,7 @@ public class UsageModel {
 
 	private void generateUsageModel() {
 		logger.info("Generating usage model");
-		String model_names = Properties.getStringValue("usage_models");
+		String model_names = Properties.USAGE_MODELS;
 
 		for (String filename : model_names.split(":")) {
 			ModelAnalyzer analyzer = new ModelAnalyzer(new File(filename), false);

@@ -29,15 +29,10 @@ import de.unisb.cs.st.evosuite.ga.Chromosome;
 public class MaxLengthBloatControl implements BloatControlFunction {
 
 	/**
-	 * Maximum number of attempts in generating/adding/mutating things
-	 */
-	protected int max_length = Properties.getIntegerValue("max_length");
-
-	/**
 	 * Check whether the chromosome is bigger than the max length constant
 	 */
 	@Override
 	public boolean isTooLong(Chromosome chromosome) {
-		return ((TestSuiteChromosome) chromosome).length() > max_length;
+		return ((TestSuiteChromosome) chromosome).length() > Properties.MAX_LENGTH;
 	}
 }

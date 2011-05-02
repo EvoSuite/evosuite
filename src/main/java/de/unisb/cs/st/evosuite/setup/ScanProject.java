@@ -51,7 +51,7 @@ public class ScanProject {
 				assert !file.getName().contains(".");
 				classes.addAll(findClasses(file, packageName + "." + file.getName()));
 			} else if (file.getName().endsWith(".class")) {
-				if (Properties.getBooleanValue("stubs")) {
+				if (Properties.STUBS) {
 					Class<?> clazz = Class.forName(packageName + '.'
 					        + file.getName().substring(0, file.getName().length() - 6));
 					if (Modifier.isAbstract(clazz.getModifiers()) && !clazz.isInterface()) {

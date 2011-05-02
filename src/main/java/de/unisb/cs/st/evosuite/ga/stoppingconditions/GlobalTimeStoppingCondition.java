@@ -13,7 +13,7 @@ import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 public class GlobalTimeStoppingCondition extends StoppingCondition {
 
 	/** Maximum number of seconds. 0 = infinite time */
-	protected static int max_seconds = Properties.getIntegerValue("global_timeout");
+	protected static int max_seconds = Properties.GLOBAL_TIMEOUT;
 
 	/** Assume the search has not started until start_time != 0 */
 	protected static long start_time = 0L;

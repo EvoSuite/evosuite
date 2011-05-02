@@ -29,6 +29,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.MutationMarker;
 
 /**
@@ -41,7 +42,7 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 
 	private final Map<Integer, Integer> flags = new HashMap<Integer, Integer>();
 
-	private static final boolean MUTATION = Properties.getStringValue("criterion").equalsIgnoreCase("mutation");
+	private static final boolean MUTATION = Properties.CRITERION.equals(Criterion.MUTATION);
 
 	private int current_var = -1;
 

@@ -50,7 +50,7 @@ import com.panayotis.gnuplot.terminal.GNUPlotTerminal;
 
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.Properties.NoSuchPropertyException;
+import de.unisb.cs.st.evosuite.Properties.NoSuchParameterException;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -75,16 +75,15 @@ import de.unisb.cs.st.javalanche.mutation.analyze.html.HtmlAnalyzer;
  */
 public class SearchStatistics implements SearchListener {
 
-	private final static boolean do_plot = Properties.getBooleanValue("plot");
+	private final static boolean do_plot = Properties.PLOT;
 
-	private final static boolean do_html = Properties.getBooleanValue("html");
+	private final static boolean do_html = Properties.HTML;
 
 	private static SearchStatistics instance = null;
 
 	private final Logger logger = Logger.getLogger(SearchStatistics.class);
 
-	private static final File REPORT_DIR = new File(
-	        Properties.getStringValue("report_dir"));
+	private static final File REPORT_DIR = new File(Properties.REPORT_DIR);
 
 	private static final String DATE_FORMAT_NOW = "yyyy-MM-dd HH:mm:ss";
 
@@ -520,23 +519,27 @@ public class SearchStatistics implements SearchListener {
 		buffer.append("<ul>\n");
 		for (String key : Properties.getParameters()) {
 			try {
-				buffer.append("<li>" + key + ": " + Properties.getValue(key) + "\n"); // TODO
-			} catch (NoSuchPropertyException e) {
+				buffer.append("<li>" + key + ": " + Properties.getStringValue(key) + "\n"); // TODO
+			} catch (NoSuchParameterException e) {
 
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		buffer.append("</ul>\n");
 
 		buffer.append("<h2>Old Parameters</h2>\n");
 		buffer.append("<ul>\n");
-		buffer.append("<li>Algorithm: " + Properties.getStringValue("algorithm") + "\n"); // TODO
+		buffer.append("<li>Algorithm: " + Properties.ALGORITHM.toString() + "\n"); // TODO
 		buffer.append("<li>Population size: " + entry.population_size + "\n");
 		buffer.append("<li>Initial test length: " + entry.chromosome_length + "\n");
-		buffer.append("<li>Stopping condition: "
-		        + Properties.getStringValue("stopping_condition") + ": "
-		        + Properties.getIntegerValue("generations") + "\n");
-		buffer.append("<li>Bloat control factor: "
-		        + Properties.getIntegerValue("bloat_factor"));
+		buffer.append("<li>Stopping condition: " + Properties.STOPPING_CONDITION + ": "
+		        + Properties.GENERATIONS + "\n");
+		buffer.append("<li>Bloat control factor: " + Properties.BLOAT_FACTOR);
 		buffer.append("<li>Random seed: " + entry.seed + "\n");
 		buffer.append("</ul>\n");
 	}
@@ -746,12 +749,10 @@ public class SearchStatistics implements SearchListener {
 			}
 		} else {
 
-			writeHTMLHeader(report,
-			                "EvoSuite Report for "
-			                        + Properties.getStringValue("PROJECT_PREFIX"));
+			writeHTMLHeader(report, "EvoSuite Report for " + Properties.PROJECT_PREFIX);
 			report.append("<div id=\"header\"><div id=\"logo\">");
 			report.append("<h1 class=title>EvoSuite Report for "
-			        + Properties.getStringValue("PROJECT_PREFIX") + "</h1>\n");
+			        + Properties.PROJECT_PREFIX + "</h1>\n");
 			report.append("</div></div>");
 			try {
 				report.append("Run on "
@@ -997,8 +998,8 @@ public class SearchStatistics implements SearchListener {
 		entry.id = getNumber(entry.className);
 
 		entry.start_time = System.currentTimeMillis();
-		entry.population_size = Properties.getIntegerValue("population");
-		entry.chromosome_length = Properties.getIntegerValue("chromosome_length");
+		entry.population_size = Properties.POPULATION;
+		entry.chromosome_length = Properties.CHROMOSOME_LENGTH;
 		entry.seed = Randomness.getInstance().getSeed();
 		statistics.add(entry);
 	}
