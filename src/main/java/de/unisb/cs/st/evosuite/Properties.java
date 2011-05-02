@@ -766,8 +766,7 @@ public class Properties {
 	private Properties() {
 		reflectMap();
 		loadProperties();
-		if (TARGET_CLASS != null) {
-			properties.setProperty("TARGET_CLASS", TARGET_CLASS);
+		if (TARGET_CLASS != null && !TARGET_CLASS.equals("")) {
 			CLASS_PREFIX = TARGET_CLASS.substring(0, TARGET_CLASS.lastIndexOf('.'));
 			SUB_PREFIX = CLASS_PREFIX.replace(PROJECT_PREFIX + ".", "");
 		}

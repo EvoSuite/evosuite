@@ -221,7 +221,8 @@ mutate ()
 		pushd .  > /dev/null
 		cd $BASEDIR
 		source $OUTPUT_DIR/evosuite.properties
-		javalanche_options=" -Dmutation.package.prefix=$PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PREFIX -Dmutation.test.suite=EvoSuite"
+                if [ -z "$PROJECT_PREFIX" ]; then PROJECT_PREFIX=$PREFIX ; fi
+                javalanche_options=" -Dmutation.package.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PROJECT_PREFIX -Dmutation.test.suite=EvoSuite"
 		java_options=${cmdline_java_options[*]}
 		java -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=mutate $javalanche_options $java_options $java_opts $evosuite_scan
 		java -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=tasks $javalanche_options $java_options $java_opts $evosuite_mutationtasks
@@ -244,10 +245,10 @@ setup_javalanche ()
     if test ${#cmdline_arguments[@]} -ge 3 && test $options_ok -eq 0;
     then {
 	    OUTPUT_DIR=${cmdline_arguments[0]}
-	    PREFIX=${cmdline_arguments[1]}
+	    PROJECT_PREFIX=${cmdline_arguments[1]}
 	    SRC=${cmdline_arguments[@]:2:${#cmdline_arguments[@]}}
 	    echo "<project name=\"Testsuite Evolution\">" > $OUTPUT_DIR/javalanche.xml
-	    echo "  <property name=\"prefix\" value=\"$PREFIX\"/>" >> $OUTPUT_DIR/javalanche.xml
+	    echo "  <property name=\"prefix\" value=\"$PROJECT_PREFIX\"/>" >> $OUTPUT_DIR/javalanche.xml
 	    echo "  <property name=\"cp\" value=\"$SRC\"/>" >> $OUTPUT_DIR/javalanche.xml
 	    echo "  <property environment=\"env\"/>" >> $OUTPUT_DIR/javalanche.xml
 	    echo "  <property name=\"javalanche\" value=\"\${env.JAVALANCHE_HOME}\"/>" >> $OUTPUT_DIR/javalanche.xml
@@ -274,9 +275,9 @@ setup_evosuite ()
     if test ${#cmdline_arguments[@]} -ge 3 && test $options_ok -eq 0;
     then {
 	    OUTPUT_DIR=${cmdline_arguments[0]}
-	    PREFIX=${cmdline_arguments[1]}
+	    PROJECT_PREFIX=${cmdline_arguments[1]}
 	    SRC=${cmdline_arguments[@]:2:${#cmdline_arguments[@]}}
-	    echo "PREFIX=$PREFIX" > $OUTPUT_DIR/evosuite.properties
+	    echo "PROJECT_PREFIX=$PROJECT_PREFIX" > $OUTPUT_DIR/evosuite.properties
 	    echo "CP=$SRC" >> $OUTPUT_DIR/evosuite.properties
 	    cat $BASEPATH/evosuite.properties >> $OUTPUT_DIR/evosuite.properties
 #	    cp $BASEPATH/resources/GA.properties $OUTPUT_DIR
@@ -314,15 +315,15 @@ setup ()
 		    "-object") OBJECT="-Dgenerate_objects=true";;
 		esac
 	    done
-	    PREFIX=${cmdline_arguments[0]}
+	    PROJECT_PREFIX=${cmdline_arguments[0]}
 	    CP="${cmdline_arguments[@]:1:${#cmdline_arguments[@]}}"
 	    first=1
 
-	    javalanche_options=" -Dmutation.package.prefix=$PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PREFIX"
+	    javalanche_options=" -Dmutation.package.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PROJECT_PREFIX"
 	    java $java_options -cp "$classpath:$CP" $java_agent=scan  $javalanche_options $evosuite_scan
 	    java $java_options -cp "$classpath:$CP" $java_agent=tasks $javalanche_options $OBJECT $evosuite_tasks
-	    setup_javalanche $OUTPUT_DIR $PREFIX $CP
-	    setup_evosuite $OUTPUT_DIR $PREFIX $CP
+	    setup_javalanche $OUTPUT_DIR $PROJECT_PREFIX $CP
+	    setup_evosuite $OUTPUT_DIR $PROJECT_PREFIX $CP
 	}
     else {
 	    unknown_parameters "setup" "$@"
@@ -369,9 +370,10 @@ generateSuite ()
 		    TEST_CLASSES=$(for F in $OUTPUT_DIR/*.task; do echo $(basename $F) | sed -e s/\.task// ; done)
 		fi
 		source $OUTPUT_DIR/evosuite.properties
-		#CP=$BASEDIR/$CP
+                if [ -z "$PROJECT_PREFIX" ]; then PROJECT_PREFIX=$PREFIX ; fi
+                #CP=$BASEDIR/$CP
 
-		javalanche_options=" -Dmutation.package.prefix=$PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PREFIX"
+		javalanche_options=" -Dmutation.package.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PROJECT_PREFIX"
 		java_options=${cmdline_java_options[*]}
 
 		for test_class in $TEST_CLASSES; do
@@ -418,7 +420,8 @@ generateAssertions ()
 		pushd .
 		cd $BASEDIR
 		source $OUTPUT_DIR/evosuite.properties
-		#OUTPUT_DIR=$BASEDIR/$OUTPUT_DIR
+                if [ -z "$PROJECT_PREFIX" ]; then PROJECT_PREFIX=$PREFIX ; fi
+                #OUTPUT_DIR=$BASEDIR/$OUTPUT_DIR
 		#echo $OUTPUT_DIR
 
 		if [ -z "$TEST_CLASSES" ]; then
@@ -426,7 +429,7 @@ generateAssertions ()
 		    TEST_CLASSES=$(for F in $OUTPUT_DIR/*.task; do echo $(basename $F) | sed -e s/\.task// ; done)
 		fi
 		#CP=$BASEDIR/$CP
-		javalanche_options=" -Dmutation.package.prefix=$PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PREFIX -DOUTPUT_DIR=$OUTPUT_DIR"
+		javalanche_options=" -Dmutation.package.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PROJECT_PREFIX -DOUTPUT_DIR=$OUTPUT_DIR"
 		java_options=${cmdline_java_options[*]}
 
 		for test_class in $TEST_CLASSES; do
