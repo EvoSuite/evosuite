@@ -283,8 +283,9 @@ public class ExecutionTracer {
 	 * LCSAJ) use it.
 	 * 
 	 * 
-	 * @param val
 	 * @param opcode
+	 * @param branch
+	 * @param btyecode_id
 	 */
 	public static void passedUnconditionalBranch(int opcode, int branch, int bytecode_id) {
 		if (isThreadNeqCurrentThread())
