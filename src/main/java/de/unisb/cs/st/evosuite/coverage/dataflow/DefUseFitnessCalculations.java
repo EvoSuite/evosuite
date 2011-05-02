@@ -54,7 +54,7 @@ public class DefUseFitnessCalculations {
 			if (ENABLE_ALTERNATIVE_FITNESS_CALCULATION) {
 				System.out.println("* Alternative fitness calculation mode: "
 				        + Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE);
-				if (!Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE.equals(AlternativeFitnessCalculationMode.sum)) {
+				if (!Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE.equals(AlternativeFitnessCalculationMode.SUM)) {
 
 					PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT = false;
 					PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY = false;
@@ -315,12 +315,12 @@ public class DefUseFitnessCalculations {
 		if (overwritingDefIds.isEmpty())
 			throw new IllegalStateException(
 			        "if goalDefinition was passed before goalUse but is no longer active there must be an overwriting definition");
-		if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE.equals(AlternativeFitnessCalculationMode.single)
+		if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE.equals(AlternativeFitnessCalculationMode.SINGLE)
 		        && overwritingDefIds.size() != 1)
 			return 1.0;
 
 		double alternativeFitness = 0.0;
-		if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE.equals(AlternativeFitnessCalculationMode.min))
+		if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE.equals(AlternativeFitnessCalculationMode.MIN))
 			alternativeFitness = 1.0;
 		int overwritingDefinitionCount = 0;
 		for (Integer overwritingDefId : overwritingDefIds) {
@@ -342,16 +342,16 @@ public class DefUseFitnessCalculations {
 			if (PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY)
 				overwritingFitness *= overwritingDefinitionCount;
 			// respect alternative fitness calculation mode
-			if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE.equals(AlternativeFitnessCalculationMode.min))
+			if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE.equals(AlternativeFitnessCalculationMode.MIN))
 				alternativeFitness = Math.min(alternativeFitness, overwritingFitness);
-			else if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE.equals(AlternativeFitnessCalculationMode.max))
+			else if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE.equals(AlternativeFitnessCalculationMode.MAX))
 				alternativeFitness = Math.max(alternativeFitness, overwritingFitness);
 			else
 				alternativeFitness += overwritingFitness;
 		}
-		if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE.equals(AlternativeFitnessCalculationMode.sum))
+		if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE.equals(AlternativeFitnessCalculationMode.SUM))
 			alternativeFitness = normalize(alternativeFitness);
-		else if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE.equals(AlternativeFitnessCalculationMode.avg))
+		else if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE.equals(AlternativeFitnessCalculationMode.AVG))
 			alternativeFitness = alternativeFitness / overwritingDefIds.size();
 		if (alternativeFitness <= 0 || alternativeFitness > 1)
 			throw new IllegalStateException(

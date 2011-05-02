@@ -125,7 +125,7 @@ public class TestSuiteGenerator {
 
 		System.out.println("* Generating tests for class " + Properties.TARGET_CLASS);
 
-		if (Properties.STRATEGY == Strategy.EvoSuite)
+		if (Properties.STRATEGY == Strategy.EVOSUITE)
 			tests = generateWholeSuite();
 		else
 			tests = generateIndividualTests();
@@ -577,15 +577,15 @@ public class TestSuiteGenerator {
 	private StoppingCondition getStoppingCondition() {
 		logger.info("Setting stopping condition: " + stopping_condition);
 		switch (Properties.STOPPING_CONDITION) {
-		case MaxGenerations:
+		case MAXGENERATIONS:
 			return new MaxGenerationStoppingCondition();
-		case MaxFitnessEvaluations:
+		case MAXFITNESSEVALUATIONS:
 			return new MaxFitnessEvaluationsStoppingCondition();
-		case MaxTime:
+		case MAXTIME:
 			return new MaxTimeStoppingCondition();
-		case MaxTests:
+		case MAXTESTS:
 			return new MaxTestsStoppingCondition();
-		case MaxStatements:
+		case MAXSTATEMENTS:
 			return new MaxStatementsStoppingCondition();
 		default:
 			logger.warn("Unknown stopping condition: " + stopping_condition);
@@ -595,9 +595,9 @@ public class TestSuiteGenerator {
 
 	private CrossOverFunction getCrossoverFunction() {
 		switch (Properties.CROSSOVER_FUNCTION) {
-		case SinglePointFixed:
+		case SINGLEPOINTFIXED:
 			return new SinglePointFixedCrossOver();
-		case SinglePointRelative:
+		case SINGLEPOINTRELATIVE:
 			return new SinglePointRelativeCrossOver();
 		default:
 			return new SinglePointCrossOver();
@@ -606,9 +606,9 @@ public class TestSuiteGenerator {
 
 	private SelectionFunction getSelectionFunction() {
 		switch (Properties.SELECTION_FUNCTION) {
-		case RouletteWheel:
+		case ROULETTEWHEEL:
 			return new FitnessProportionateSelection();
-		case Tournament:
+		case TOURNAMENT:
 			return new TournamentSelection();
 		default:
 			return new RankSelection();
@@ -617,7 +617,7 @@ public class TestSuiteGenerator {
 
 	private ChromosomeFactory getChromosomeFactory() {
 		switch (Properties.STRATEGY) {
-		case EvoSuite:
+		case EVOSUITE:
 			return new TestSuiteChromosomeFactory();
 		default:
 			return new RandomLengthTestFactory();
@@ -639,7 +639,7 @@ public class TestSuiteGenerator {
 	}
 
 	private void getSecondaryObjectives(GeneticAlgorithm algorithm) {
-		if (Properties.STRATEGY == Strategy.OneBranch) {
+		if (Properties.STRATEGY == Strategy.ONEBRANCH) {
 			SecondaryObjective objective = getSecondaryObjective("size");
 			Chromosome.addSecondaryObjective(objective);
 			algorithm.addSecondaryObjective(objective);
@@ -655,24 +655,24 @@ public class TestSuiteGenerator {
 
 	private GeneticAlgorithm getGeneticAlgorithm(ChromosomeFactory factory) {
 		switch (Properties.ALGORITHM) {
-		case OnePlusOneEA:
+		case ONEPLUSONEEA:
 			logger.info("Chosen search algorithm: (1+1)EA");
 			return new OnePlusOneEA(factory);
-		case SteadyStateGA:
+		case STEADYSTATEGA:
 			logger.info("Chosen search algorithm: SteadyStateGA");
 			{
 				SteadyStateGA ga = new SteadyStateGA(factory);
-				if (Properties.STRATEGY == Strategy.EvoSuite)
+				if (Properties.STRATEGY == Strategy.EVOSUITE)
 					ga.setReplacementFunction(new TestSuiteReplacementFunction());
 				else
 					ga.setReplacementFunction(new TestCaseReplacementFunction());
 				return ga;
 			}
-		case MuPlusLambdaGA:
+		case MUPLUSLAMBDAGA:
 			logger.info("Chosen search algorithm: MuPlusLambdaGA");
 			{
 				MuPlusLambdaGA ga = new MuPlusLambdaGA(factory);
-				if (Properties.STRATEGY == Strategy.EvoSuite)
+				if (Properties.STRATEGY == Strategy.EVOSUITE)
 					ga.setReplacementFunction(new TestSuiteReplacementFunction());
 				else
 					ga.setReplacementFunction(new TestCaseReplacementFunction());
@@ -719,7 +719,7 @@ public class TestSuiteGenerator {
 		// MaxLengthBloatControl bloat_control = new MaxLengthBloatControl();
 		// ga.setBloatControl(bloat_control);
 
-		if (Properties.STRATEGY == Strategy.EvoSuite) {
+		if (Properties.STRATEGY == Strategy.EVOSUITE) {
 			RelativeLengthBloatControl bloat_control = new RelativeLengthBloatControl();
 			ga.addBloatControl(bloat_control);
 			ga.addListener(bloat_control);
@@ -733,7 +733,7 @@ public class TestSuiteGenerator {
 		getSecondaryObjectives(ga);
 
 		// Some statistics
-		if (Properties.STRATEGY == Strategy.EvoSuite)
+		if (Properties.STRATEGY == Strategy.EVOSUITE)
 			ga.addListener(SearchStatistics.getInstance());
 		//ga.addListener(MutationStatistics.getInstance());
 		//ga.addListener(BestChromosomeTracker.getInstance());

@@ -131,7 +131,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	protected void generateInitialPopulation(int population_size) {
 		boolean recycle = Properties.RECYCLE_CHROMOSOMES;
 		// FIXME: Possible without reference to strategy?
-		if (Properties.STRATEGY == Strategy.EvoSuite) // recycling only makes sense for single test generation
+		if (Properties.STRATEGY == Strategy.EVOSUITE) // recycling only makes sense for single test generation
 			recycle = false;
 		if (recycle)
 			recycleChromosomes(population_size);
