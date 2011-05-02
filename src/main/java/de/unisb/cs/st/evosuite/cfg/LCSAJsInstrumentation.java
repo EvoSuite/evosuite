@@ -4,7 +4,6 @@
 package de.unisb.cs.st.evosuite.cfg;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -14,17 +13,13 @@ import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJ;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
 
@@ -35,31 +30,6 @@ import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
 public class LCSAJsInstrumentation implements MethodInstrumentation {
 
 	private static Logger logger = Logger.getLogger(LCSAJsInstrumentation.class);
-
-	private InsnList getInstrumentation(int id, int branch, AbstractInsnNode node) {
-		InsnList instrumentation = new InsnList();
-		instrumentation.add(new LdcInsnNode(node.getOpcode()));
-		instrumentation.add(new LdcInsnNode(branch));
-		instrumentation.add(new LdcInsnNode(id));
-		instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-		        "passedUnconditionalBranch", "(III)V"));
-		return instrumentation;
-	}
-
-	private void instrumentUnconditionalBranches(MethodNode mn) {
-		Iterator<AbstractInsnNode> iterator = mn.instructions.iterator();
-		int id = 0;
-		while (iterator.hasNext()) {
-			AbstractInsnNode node = iterator.next();
-			if (node.getOpcode() == Opcodes.GOTO) {
-				mn.instructions.insertBefore(node,
-				                             getInstrumentation(id,
-				                                                BranchPool.getBranchCounter(),
-				                                                node));
-			}
-		}
-	}
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String, java.lang.String)
@@ -154,8 +124,6 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 		}
 		logger.info("Found " + LCSAJPool.getSize() + " LCSAJs by now");
 		System.out.println("LCSAJs completed!!!!!!!!!!!");
-
-		instrumentUnconditionalBranches(mn);
 	}
 
 	/* (non-Javadoc)
