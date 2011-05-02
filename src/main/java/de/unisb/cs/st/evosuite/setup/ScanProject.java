@@ -105,7 +105,6 @@ public class ScanProject {
 	 */
 	public static void main(String[] args) {
 		//System.out.println("Scanning project for test suite generation.");
-		//MutationProperties.checkProperty(MutationProperties.PROJECT_PREFIX_KEY);
 		prefix = Properties.PROJECT_PREFIX;
 		System.out.println("* Project prefix: " + prefix);
 		try {
