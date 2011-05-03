@@ -40,8 +40,6 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.OutputTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
-import de.unisb.cs.st.javalanche.mutation.javaagent.MutationsForRun;
-import de.unisb.cs.st.javalanche.mutation.properties.MutationProperties;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation.MutationType;
 
@@ -66,9 +64,10 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 	private final Map<TestCase, Map<Class<?>, Integer>> assertion_statistics_killed = new HashMap<TestCase, Map<Class<?>, Integer>>();
 
-	private final MutationsForRun m_VRO = new MutationsForRun(
-	        MutationProperties.MUTATION_FILE_NAME.replace(".mutants", "_VRO.mutants"),
-	        true);
+	//private final MutationsForRun m_VRO = new MutationsForRun(
+	//        ConfigurationLocator.getJavalancheConfiguration().getMutationIdFile().getPath().replace(".mutants",
+	//                                                                                                "_VRO.mutants"),
+	//        true);
 
 	private final Set<Long> killed_ALL = new HashSet<Long>();
 

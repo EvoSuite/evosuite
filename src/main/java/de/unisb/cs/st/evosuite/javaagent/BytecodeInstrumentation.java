@@ -37,7 +37,6 @@ import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.cfg.CFGClassAdapter;
 import de.unisb.cs.st.evosuite.primitives.PrimitiveClassAdapter;
 import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
-import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.Excludes;
 
 /**
  * The bytecode transformer - transforms bytecode depending on package and
@@ -96,9 +95,6 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 				        && (classNameWithDots.startsWith("java")
 				                || classNameWithDots.startsWith("sun")
 				                || classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
-					return classfileBuffer;
-				}
-				if (Excludes.getInstance().shouldExclude(classNameWithDots)) {
 					return classfileBuffer;
 				}
 				if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)) {
