@@ -277,10 +277,16 @@ setup_evosuite ()
 	    OUTPUT_DIR=${cmdline_arguments[0]}
 	    PROJECT_PREFIX=${cmdline_arguments[1]}
 	    SRC=${cmdline_arguments[@]:2:${#cmdline_arguments[@]}}
-	    echo "PROJECT_PREFIX=$PROJECT_PREFIX" > $OUTPUT_DIR/evosuite.properties
-	    echo "CP=$SRC" >> $OUTPUT_DIR/evosuite.properties
-	    cat $BASEPATH/evosuite.properties >> $OUTPUT_DIR/evosuite.properties
-#	    cp $BASEPATH/resources/GA.properties $OUTPUT_DIR
+            if [ -e $OUTPUT_DIR/evosuite.properties ]; then
+               echo "* Found existing evosuite.properties, not touching it"
+               # TODO: Check PREFIX and CP
+            else                                               
+              echo "* Creating default configuration"                     
+              echo "PROJECT_PREFIX=$PROJECT_PREFIX" > $OUTPUT_DIR/evosuite.properties
+	      echo "CP=$SRC" >> $OUTPUT_DIR/evosuite.properties
+	      cat $BASEPATH/evosuite.properties >> $OUTPUT_DIR/evosuite.properties
+  #	      cp $BASEPATH/resources/GA.properties $OUTPUT_DIR
+            fi
 	}
     else {
 	    unknown_parameters "setup" "$@"
@@ -319,7 +325,7 @@ setup ()
 	    CP="${cmdline_arguments[@]:1:${#cmdline_arguments[@]}}"
 	    first=1
 
-	    javalanche_options=" -Dmutation.package.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PROJECT_PREFIX"
+	    javalanche_options=" -Djavalanche.package.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PROJECT_PREFIX"
 	    java $java_options -cp "$classpath:$CP" $java_agent=scan  $javalanche_options $evosuite_scan
 	    java $java_options -cp "$classpath:$CP" $java_agent=tasks $javalanche_options $OBJECT $evosuite_tasks
 	    setup_javalanche $OUTPUT_DIR $PROJECT_PREFIX $CP
@@ -368,7 +374,13 @@ generateSuite ()
 		if [ -z "$TEST_CLASSES" ]; then
 		    echo "Looking for testable classes"
 		    TEST_CLASSES=$(for F in $OUTPUT_DIR/*.task; do echo $(basename $F) | sed -e s/\.task// ; done)
-		fi
+		else
+                  if ! [ -e $OUTPUT_DIR/$TEST_CLASSES.task ]; then
+                    echo "EvoSuite rocks!"
+                    echo "* No information about class $TEST_CLASSES available - please run EvoSuite -setup first"
+                    exit -1
+                  fi
+                fi
 		source $OUTPUT_DIR/evosuite.properties
                 if [ -z "$PROJECT_PREFIX" ]; then PROJECT_PREFIX=$PREFIX ; fi
                 #CP=$BASEDIR/$CP

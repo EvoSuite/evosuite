@@ -319,9 +319,10 @@ setup_evosuite ()
 	    PROJECT_PREFIX=${cmdline_arguments[1]}
 	    SRC=${cmdline_arguments[@]:2:${#cmdline_arguments[@]}}
 	    if [ -e $OUTPUT_DIR/evosuite.properties ]; then
-	    	echo "Found existing evosuite.properties, not touching it"
+	    	echo "* Found existing evosuite.properties, not touching it"
 	    	# TODO: Check PREFIX and CP
 	    else
+	    	echo "* Creating default configuration"
 	    	echo "PROJECT_PREFIX=$PROJECT_PREFIX" > $OUTPUT_DIR/evosuite.properties
 	    	echo "CP=\"$SRC\"" >> $OUTPUT_DIR/evosuite.properties
 	    	cat $BASEPATH/src/main/assembly/evosuite.properties >> $OUTPUT_DIR/evosuite.properties
@@ -345,8 +346,8 @@ function canonpath ()
 ##
 setup ()
 {
-    allowed_options=("-object")
-    allowed_options_take_values=(0)
+    allowed_options=("-object" "-class")
+    allowed_options_take_values=(0 1)
     parse_command_line "$@"
     options_ok=$?
     OUTPUT_DIR=evosuite-files
@@ -354,19 +355,22 @@ setup ()
     if test ${#cmdline_arguments[@]} -ge 2 && test $options_ok -eq 0;
     then {
 	    OBJECT=""
+	    TEST_CLASS=""
 	    for (( i = 0; i < 3; i++ ))
 	    do
 		case ${cmdline_options[$i]} in
 		    "-object") OBJECT="-Dgenerate_objects=true";;
+		    "-class") TEST_CLASS="-DTARGET_CLASS=${cmdline_options_values[$i]}";;
 		esac
 	    done
 	    PROJECT_PREFIX=${cmdline_arguments[0]}
 	    CP="${cmdline_arguments[@]:1:${#cmdline_arguments[@]}}"
+
 	    first=1
 #	    javalanche_options=" -Djavalanche.ignore.replace.variables=true -Dmutation.package.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PROJECT_PREFIX"
-	    javalanche_options=" -Dmutation.package.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PROJECT_PREFIX"
-	    java $java_options -cp "$classpath:$CP" $java_agent=scan  $javalanche_options $evosuite_scan
-	    java $java_options -cp "$classpath:$CP" $java_agent=tasks $javalanche_options $OBJECT $evosuite_tasks
+	    javalanche_options=" -Djavalanche.project.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PROJECT_PREFIX"
+	    java $java_options -cp "$classpath:$CP" $java_agent=scan  $javalanche_options $TEST_CLASS $OBJECT $evosuite_scan
+#	    java $java_options -cp "$classpath:$CP" $java_agent=tasks $javalanche_options $TEST_CLASS $OBJECT $evosuite_tasks
 	    setup_javalanche $OUTPUT_DIR $PROJECT_PREFIX $CP
 	    setup_evosuite $OUTPUT_DIR $PROJECT_PREFIX $CP
 	}
@@ -411,8 +415,14 @@ generateSuite ()
 		#OUTPUT_DIR=$BASEDIR/$OUTPUT_DIR
 
 		if [ -z "$TEST_CLASSES" ]; then
-		    echo "Looking for testable classes"
+		    echo "* Looking for testable classes"
 		    TEST_CLASSES=$(for F in $OUTPUT_DIR/*.task; do echo $(basename $F) | sed -e s/\.task// ; done)
+		else
+		  if ! [ -e $OUTPUT_DIR/$TEST_CLASSES.task ]; then
+		    echo "EvoSuite rocks!"
+		    echo "* No information about class $TEST_CLASSES available - please run EvoSuite -setup first"
+		    exit -1
+		  fi
 		fi
 		source $OUTPUT_DIR/evosuite.properties
 		if [ -z "$PROJECT_PREFIX" ]; then PROJECT_PREFIX=$PREFIX ; fi
