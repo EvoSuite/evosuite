@@ -42,7 +42,6 @@ import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
 import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
-import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.Excludes;
 import de.unisb.cs.st.utils.Utils;
 
 /**
@@ -55,9 +54,7 @@ public class TestTaskGenerator {
 
 	static Hierarchy hierarchy = Hierarchy.readFromDefaultLocation();
 
-	static Excludes excludes = Excludes.getInstance();
-
-	static String prefix;
+	static String prefix = Properties.PROJECT_PREFIX;
 
 	static Map<String, List<String>> method_excludes = getExcludesFromFile();
 
@@ -172,8 +169,7 @@ public class TestTaskGenerator {
 		ret.add(classname);
 		for (String sup : superclasses) {
 			if (sup.startsWith(prefix))
-				if (!excludes.shouldExclude(sup))
-					ret.add(sup);
+				ret.add(sup);
 		}
 
 		return ret;
@@ -192,16 +188,14 @@ public class TestTaskGenerator {
 		Set<String> owned_classes = hierarchy.getAllClasses();
 		for (String sub : owned_classes) {
 			if (sub.startsWith(classname + "$"))
-				if (!excludes.shouldExclude(sub))
-					subclasses.add(sub);
+				subclasses.add(sub);
 		}
 
 		List<String> ret = new ArrayList<String>();
 		ret.add(classname);
 		for (String sub : subclasses) {
 			if (sub.startsWith(prefix))
-				if (!excludes.shouldExclude(sub))
-					ret.add(sub);
+				ret.add(sub);
 		}
 
 		return ret;
@@ -235,8 +229,7 @@ public class TestTaskGenerator {
 		List<String> ret = new ArrayList<String>();
 		for (String sub : subclasses) {
 			if (sub.startsWith(classname + "$"))
-				if (!excludes.shouldExclude(sub))
-					ret.add(sub);
+				ret.add(sub);
 		}
 
 		return ret;
@@ -258,12 +251,10 @@ public class TestTaskGenerator {
 		TreeMap<Integer, Set<String>> classes = new TreeMap<Integer, Set<String>>();
 		for (String classname : all_classes) {
 			if (classname.startsWith(prefix)) {
-				if (!excludes.shouldExclude(classname)) {
-					int num_subclasses = hierarchy.getAllSubclasses(classname).size();
-					if (!classes.containsKey(num_subclasses))
-						classes.put(num_subclasses, new HashSet<String>());
-					classes.get(num_subclasses).add(classname);
-				}
+				int num_subclasses = hierarchy.getAllSubclasses(classname).size();
+				if (!classes.containsKey(num_subclasses))
+					classes.put(num_subclasses, new HashSet<String>());
+				classes.get(num_subclasses).add(classname);
 			}
 		}
 
@@ -643,6 +634,7 @@ public class TestTaskGenerator {
 	 */
 	protected static void suggestTasks(String prefix) {
 		List<String> classes;
+		int num = 0;
 		if (Properties.TARGET_CLASS.equals(""))
 			classes = getClasses(prefix);
 		else {
@@ -656,7 +648,7 @@ public class TestTaskGenerator {
 			try {
 				clazz = Class.forName(classname);
 			} catch (ClassNotFoundException e) {
-				logger.warn("TG: Class not found: " + classname + ", ignoring for tests");
+				logger.warn("Class not found: " + classname + ", ignoring");
 				continue;
 			} catch (NoClassDefFoundError e) {
 				logger.warn("NoClassDefFoundError " + classname);
@@ -770,10 +762,12 @@ public class TestTaskGenerator {
 			}
 			String classfilename = classname.replace("$", "_");
 			writeTask(suggestion, classfilename + ".task");
+			num++;
 			if (Properties.GENERATE_OBJECTS)
 				writeObjectMethods(object_methods, classfilename + ".obj");
 			writeInspectors(classname, classfilename + ".inspectors");
 		}
+		System.out.println("* Created " + num + " task files");
 	}
 
 	/**
@@ -782,10 +776,10 @@ public class TestTaskGenerator {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		prefix = Properties.PROJECT_PREFIX;
-		System.out.println("Creating test files for " + prefix);
+		System.out.println("* Analyzing " + prefix);
 		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
 		hierarchy.calculateSubclasses();
+		System.out.println("* Creating test files for " + prefix);
 		suggestTasks(prefix);
 	}
 }

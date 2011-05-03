@@ -49,7 +49,6 @@ import de.unisb.cs.st.evosuite.ga.SearchListener;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.javalanche.mutation.analyze.html.HtmlAnalyzer;
-import de.unisb.cs.st.javalanche.mutation.properties.MutationProperties;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 public class MutationStatistics implements SearchListener {
@@ -58,8 +57,7 @@ public class MutationStatistics implements SearchListener {
 
 	private final Logger logger = Logger.getLogger(MutationStatistics.class);
 
-	private static final File REPORT_DIR = new File(MutationProperties.OUTPUT_DIR
-	        + "/report");
+	private static final File REPORT_DIR = new File(Properties.REPORT_DIR);
 
 	/**
 	 * Statistics about one test generation run
@@ -641,10 +639,9 @@ public class MutationStatistics implements SearchListener {
 		// copyFile("shBrushJava.js");
 
 		StringBuffer report = new StringBuffer();
-		writeHTMLHeader(report, "muTest Report for " + MutationProperties.PROJECT_PREFIX);
+		writeHTMLHeader(report, "muTest Report for " + Properties.PROJECT_PREFIX);
 
-		report.append("<h1>muTest Report for " + MutationProperties.PROJECT_PREFIX
-		        + "</h1>\n");
+		report.append("<h1>muTest Report for " + Properties.PROJECT_PREFIX + "</h1>\n");
 		// report.append("<h2>Run on "+System.getenv("USERNAME")+"@"+System.getenv("HOSTNAME")+"</h2>\n");
 
 		try {

@@ -38,6 +38,8 @@ import de.unisb.cs.st.testability.TransformationHelper;
  */
 public class TestSuitePreMain {
 
+	public static DistanceTransformer distanceTransformer = new DistanceTransformer();
+
 	/**
 	 * Decides which transformers to add
 	 * 
@@ -76,10 +78,8 @@ public class TestSuitePreMain {
 
 		} else if (agentArguments.equals("scan")) {
 			System.out.println("* Scanning project for classes");
-			addClassFileTransformer(instrumentation, new DistanceTransformer());
+			addClassFileTransformer(instrumentation, distanceTransformer);
 			addClassFileTransformer(instrumentation, new ScanVariablesTransformer());
-			// addClassFileTransformer(instrumentation,
-			// new ScanProjectTransformer());
 		} else if (agentArguments.equals("tasks")) {
 			// Do nothing?
 		} else if (agentArguments.equals("mutate")) {
