@@ -132,7 +132,7 @@ public class TestCaseMinimizer {
 					c.setChanged(true);
 					test_factory.deleteStatementGracefully(c.test, i);
 				} catch (ConstructionFailedException e) {
-					c.setChanged(true);
+					c.setChanged(false);
 					c.test = copy.test;
 					logger.debug("Deleting failed");
 					continue;

@@ -262,8 +262,9 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	public static ControlFlowGraph getMinimizedCFG(String classname, String methodname) {
 		logger.debug("Getting minimzed CFG for class " + classname + " and method "
 		        + methodname);
-		if (minimizedCFGs.get(classname) == null)
+		if (minimizedCFGs.get(classname).get(methodname) == null) {
 			return null;
+		}
 		return minimizedCFGs.get(classname).get(methodname);
 	}
 

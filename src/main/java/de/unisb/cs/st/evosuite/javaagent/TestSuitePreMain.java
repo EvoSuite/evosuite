@@ -38,7 +38,7 @@ import de.unisb.cs.st.testability.TransformationHelper;
  */
 public class TestSuitePreMain {
 
-	public static DistanceTransformer distanceTransformer = new DistanceTransformer();
+	public static DistanceTransformer distanceTransformer = null;
 
 	/**
 	 * Decides which transformers to add
@@ -50,7 +50,7 @@ public class TestSuitePreMain {
 		if (agentArguments.equals("generate")) {
 			System.out.println("* Instrumenting bytecode for test generation");
 			//addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
-			if (Properties.CRITERION.equals(Criterion.MUTATION)) {
+			if (Properties.CRITERION == Criterion.MUTATION) {
 				System.out.println("* Mutating byte code");
 				addClassFileTransformer(instrumentation, new HOMFileTransformer());
 			}
@@ -78,6 +78,7 @@ public class TestSuitePreMain {
 
 		} else if (agentArguments.equals("scan")) {
 			System.out.println("* Scanning project for classes");
+			distanceTransformer = new DistanceTransformer();
 			addClassFileTransformer(instrumentation, distanceTransformer);
 			addClassFileTransformer(instrumentation, new ScanVariablesTransformer());
 		} else if (agentArguments.equals("tasks")) {

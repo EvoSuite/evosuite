@@ -1,0 +1,62 @@
+<project name="Javalanche">
+	
+<!-- Properties can either be supplied on the command line or specified here -->
+<!--
+	<property name="prefix" value=""/>
+	<property name="tests" value=""/>
+	<property name="javalanche" value=""/>
+	<property name="cp" value=""/>
+-->
+
+
+	<property name="project.prefix" value="${prefix}"/>
+	<property name="project.tests" value="${tests}"/>
+	<property name="javalanche.location" value="${javalanche}" />
+	<property name="javalanche.dist.dir" value="${javalanche}" />
+	
+		
+	<import file="${javalanche.location}/etc/import.xml"/>
+	<import file="${javalanche.location}/etc/mutation-build.xml" />
+
+<!--	<import file="${javalanche.location}/src/main/resources/mutation-add-tasks.xml"/> -->
+	
+<!-- To compute the coverage or invariant impact of the mutations, one of these files has to be included. -->
+<!--	<import file="${javalanche.location}/src/main/resources/invariant-build.xml" /> -->
+<!--	<import file="${javalanche.location}/src/main/resources/coverage-include.xml" /> -->
+
+	<!-- 
+	Task that is called by the different stages of Javalanche.
+	This task should not be called directly.
+	-->
+	<target name="test-javalanche">
+		<mkdir dir="mutation-files/junit-reports"></mkdir>
+		<junit dir="." printSummary="yes" fork="true" forkmode="once" showoutput="true">
+			<classpath>
+				<path refid="javalanche.classpath.add" />
+				<pathelement path="${cp}"></pathelement>
+			</classpath>
+			
+			<jvmarg line="${javalanche.arg.line}" />
+			
+			<formatter type="xml"/>
+			<formatter usefile="true" type="plain"/>
+			<test todir="${javalanche.out.dir}/junit-reports" name="${javalanche.wrapper.testsuite}" />
+		</junit>
+	</target>	
+
+	
+	<target name="testParameters">
+		<echo>
+			project.prefix     : ${project.prefix} 
+			project.tests 	   : ${project.tests} 
+			cp                 : ${cp} 
+			javalanche.location: ${javalanche.location}
+			javalanche.dist.dir: ${javalanche.dist.dir}
+		</echo>
+	</target>	
+
+	
+	<target name="mutationTest" depends="startHsql,schemaexport,scanProject,scan,createSingleRandomTask,runSingleTask,analyzeResults,stopHsql"/>
+	
+
+</project>

@@ -18,7 +18,6 @@
 
 package de.unisb.cs.st.evosuite.mutation;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.assertion.ComparisonTraceObserver;
@@ -32,7 +31,6 @@ import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMSwitcher;
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
@@ -46,27 +44,21 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
  */
 public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
-	private final List<TestFitnessFunction>	goals;
+	private final List<TestFitnessFunction> goals;
 
-	private final HOMSwitcher	            hom_switcher	    = new HOMSwitcher();
+	private final HOMSwitcher hom_switcher = new HOMSwitcher();
 
-	protected List<ExecutionObserver>	    observers;
+	protected List<ExecutionObserver> observers;
 
-	protected PrimitiveOutputTraceObserver	primitive_observer	= new PrimitiveOutputTraceObserver();
-	protected ComparisonTraceObserver	    comparison_observer	= new ComparisonTraceObserver();
-	protected InspectorTraceObserver	    inspector_observer	= new InspectorTraceObserver();
-	protected PrimitiveFieldTraceObserver	field_observer	    = new PrimitiveFieldTraceObserver();
-	protected NullOutputObserver	        null_observer	    = new NullOutputObserver();
+	protected PrimitiveOutputTraceObserver primitive_observer = new PrimitiveOutputTraceObserver();
+	protected ComparisonTraceObserver comparison_observer = new ComparisonTraceObserver();
+	protected InspectorTraceObserver inspector_observer = new InspectorTraceObserver();
+	protected PrimitiveFieldTraceObserver field_observer = new PrimitiveFieldTraceObserver();
+	protected NullOutputObserver null_observer = new NullOutputObserver();
 
 	public MutationSuiteFitness() {
-		goals = new ArrayList<TestFitnessFunction>();
-		System.out.println("* Created " + hom_switcher.getNumMutants()
-		        + " mutants");
-		for (Mutation mutation : hom_switcher.getMutants()) {
-			if (!mutation.getMethodName().equals("<clinit>()V"))
-				goals.add(new MutationTestFitness(mutation));
-		}
-
+		MutationGoalFactory factory = new MutationGoalFactory();
+		goals = factory.getCoverageGoals();
 		executor.addObserver(primitive_observer);
 		executor.addObserver(comparison_observer);
 		executor.addObserver(inspector_observer);
@@ -96,32 +88,33 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	public ExecutionResult runTest(TestCase test, Mutation mutant) {
 
 		ExecutionResult result = new ExecutionResult(test, mutant);
-
 		try {
-			logger.debug("OKExecuting test");
+			logger.debug("Executing test");
 			HOMObserver.resetTouched(); // TODO - is this the right place?
 			if (mutant != null) {
 				hom_switcher.switchOn(mutant);
 				executor.setLogging(false);
 			}
-			result.exceptions = executor.run(test);
+
+			result = executor.execute(test);
 			executor.setLogging(true);
+
 			if (mutant != null)
 				hom_switcher.switchOff(mutant);
-			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
-			// result.output_trace = executor.getTrace();
+
+			int num = test.size();
+			MaxStatementsStoppingCondition.statementsExecuted(num);
+			result.touched.addAll(HOMObserver.getTouched());
+
 			result.comparison_trace = comparison_observer.getTrace();
 			result.primitive_trace = primitive_observer.getTrace();
 			result.inspector_trace = inspector_observer.getTrace();
 			result.field_trace = field_observer.getTrace();
 			result.null_trace = null_observer.getTrace();
 
-			int num = test.size();
-
-			MaxStatementsStoppingCondition.statementsExecuted(num);
-
-			result.touched.addAll(HOMObserver.getTouched());
-
+			// for(TestObserver observer : observers) {
+			// observer.testResult(result);
+			// }
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
@@ -151,9 +144,8 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 			TestChromosome chromosome = new TestChromosome();
 			chromosome.test = result.test;
 			for (TestFitnessFunction goal : goals) {
-				if (!MutationTimeoutStoppingCondition
-				        .isDisabled(((MutationTestFitness) goal)
-				                .getTargetMutation()))
+				// TODO: Only execute test again if mutant is covered
+				if (!MutationTimeoutStoppingCondition.isDisabled(((MutationTestFitness) goal).getTargetMutation()))
 					fitness += goal.getFitness(chromosome, result);
 				else
 					logger.debug("Skipping timed out mutation");
@@ -162,5 +154,4 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
 		return fitness;
 	}
-
 }

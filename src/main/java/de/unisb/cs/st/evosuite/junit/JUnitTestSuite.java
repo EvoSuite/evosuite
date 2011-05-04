@@ -19,12 +19,14 @@
 package de.unisb.cs.st.evosuite.junit;
 
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.junit.runner.JUnitCore;
 
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
@@ -125,9 +127,14 @@ public class JUnitTestSuite {
 		ExecutionResult result = new ExecutionResult(test, null);
 
 		try {
-			result.exceptions = executor.run(test);
+			logger.debug("Executing test");
+			result = executor.execute(test);
 			executor.setLogging(true);
-			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+
+			int num = test.size();
+			MaxStatementsStoppingCondition.statementsExecuted(num);
+			result.touched.addAll(HOMObserver.getTouched());
+
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
