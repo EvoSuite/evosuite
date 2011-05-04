@@ -124,6 +124,7 @@ public class TestSuiteGenerator {
 		List<TestCase> tests;
 
 		System.out.println("* Generating tests for class " + Properties.TARGET_CLASS);
+		printTestCriterion();
 
 		if (Properties.STRATEGY == Strategy.EVOSUITE)
 			tests = generateWholeSuite();
@@ -218,25 +219,41 @@ public class TestSuiteGenerator {
 		return best.getTests();
 	}
 
-	private TestSuiteFitnessFunction getFitnessFunction() {
+	private void printTestCriterion() {
 		switch (Properties.CRITERION) {
 		case MUTATION:
 			System.out.println("* Test criterion: Mutation testing");
-			return new MutationSuiteFitness();
+			break;
 		case LCSAJ:
 			System.out.println("* Test criterion: LCSAJ");
-			return new LCSAJCoverageSuiteFitness();
+			break;
 		case DEFUSE:
 			System.out.println("* Test criterion: All DU Pairs");
-			return new DefUseCoverageSuiteFitness();
+			break;
 		case PATH:
 			System.out.println("* Test criterion: Prime Path");
-			return new PrimePathSuiteFitness();
+			break;
 		case CONCURRENCY:
 			System.out.println("* Test criterion: Concurrent Test Case *");
-			return new ConcurrencySuitCoverage();
+			break;
 		default:
 			System.out.println("* Test criterion: Branch coverage");
+		}
+	}
+
+	private TestSuiteFitnessFunction getFitnessFunction() {
+		switch (Properties.CRITERION) {
+		case MUTATION:
+			return new MutationSuiteFitness();
+		case LCSAJ:
+			return new LCSAJCoverageSuiteFitness();
+		case DEFUSE:
+			return new DefUseCoverageSuiteFitness();
+		case PATH:
+			return new PrimePathSuiteFitness();
+		case CONCURRENCY:
+			return new ConcurrencySuitCoverage();
+		default:
 			return new BranchCoverageSuiteFitness();
 		}
 	}
@@ -244,19 +261,14 @@ public class TestSuiteGenerator {
 	private TestFitnessFactory getFitnessFactory() {
 		switch (Properties.CRITERION) {
 		case MUTATION:
-			System.out.println("* Test criterion: Mutation testing");
 			return new MutationGoalFactory();
 		case LCSAJ:
-			System.out.println("* Test criterion: LCSAJ");
 			return new LCSAJCoverageFactory();
 		case DEFUSE:
-			System.out.println("* Test criterion: All DU Pairs");
 			return new DefUseCoverageFactory();
 		case PATH:
-			System.out.println("* Test criterion: Prime Path");
 			return new PrimePathCoverageFactory();
 		default:
-			System.out.println("* Test criterion: Branch coverage");
 			return new BranchCoverageFactory();
 		}
 	}
@@ -387,15 +399,6 @@ public class TestSuiteGenerator {
 				logger.info("Goal " + num + "/" + (total_goals - covered_goals) + ": "
 				        + fitness_function);
 
-				if (Properties.SKIP_COVERED
-				        && fitness_function.isCovered(suite.getTests())) {
-					logger.info("Skipping goal because it is already covered");
-					covered.add(num);
-					covered_goals++;
-					num++;
-					continue;
-				}
-
 				if (global_time.isFinished()) {
 					System.out.println("Skipping goal because time is up");
 					num++;
@@ -445,7 +448,8 @@ public class TestSuiteGenerator {
 					        + MaxStatementsStoppingCondition.getNumExecutedStatements());
 				}
 
-				suite_fitness.getFitness(suite); // ???
+				// Calculate and keep track of overall fitness
+				suite_fitness.getFitness(suite);
 				List<Chromosome> population = new ArrayList<Chromosome>();
 				population.add(suite);
 				statistics.iteration(population);
@@ -528,7 +532,9 @@ public class TestSuiteGenerator {
 	        Set<Integer> covered, TestChromosome best) {
 
 		Set<Integer> r = new HashSet<Integer>();
-		ExecutionResult result = TestCaseExecutor.getInstance().execute(best.test);
+		ExecutionResult result = best.last_result;
+		if (result == null)
+			result = TestCaseExecutor.getInstance().execute(best.test);
 		int num = -1;
 		for (TestFitnessFunction goal : goals) {
 			num++;

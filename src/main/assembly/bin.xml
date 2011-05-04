@@ -21,8 +21,14 @@
       <filtered>true</filtered>
       <includes>
 	<include>EvoSuite</include>
+	<include>etc</include>
       </includes>
       <fileMode>0755</fileMode>
+    </fileSet>    
+    <fileSet>
+      <directory>src/main/assembly/etc</directory>
+      <outputDirectory>/etc</outputDirectory>
+      <fileMode>0644</fileMode>
     </fileSet>    
     <fileSet>
       <directory>${project.build.directory}</directory>

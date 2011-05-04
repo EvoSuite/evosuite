@@ -21,7 +21,7 @@ import de.unisb.cs.st.evosuite.sandbox.Sandbox;
  */
 public class TestRunnable implements InterfaceTestRunnable {
 
-	private static Logger logger = Logger.getLogger(TestRunner.class);
+	private static Logger logger = Logger.getLogger(TestRunnable.class);
 
 	private final TestCase test;
 

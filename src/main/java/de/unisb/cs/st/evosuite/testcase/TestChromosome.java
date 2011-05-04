@@ -38,13 +38,6 @@ import de.unisb.cs.st.evosuite.testsuite.CurrentChromosomeTracker;
  */
 public class TestChromosome extends Chromosome {
 
-	static {
-		if (Properties.CHECK_RANK_LENGTH)
-			logger.debug("Using rank check");
-		else
-			logger.debug("Not using rank check");
-	}
-
 	/** The test case encoded in this chromosome */
 	public TestCase test = new DefaultTestCase();
 
@@ -84,8 +77,10 @@ public class TestChromosome extends Chromosome {
 		c.setFitness(getFitness());
 		c.solution = solution;
 		c.setChanged(isChanged());
-		if (last_result != null)
+		if (last_result != null) {
 			c.last_result = last_result; //.clone(); // TODO: Clone?
+			c.last_result.test = c.test;
+		}
 
 		return c;
 	}

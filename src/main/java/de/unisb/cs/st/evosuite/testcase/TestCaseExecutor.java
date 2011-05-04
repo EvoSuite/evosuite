@@ -21,7 +21,6 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -275,82 +274,6 @@ public class TestCaseExecutor implements ThreadFactory {
 
 			return result;
 		}
-	}
-
-	@SuppressWarnings("deprecation")
-	public Map<Integer, Throwable> run(TestCase tc, Scope scope) {
-		// StringTraceExecutionObserver obs = new
-		// StringTraceExecutionObserver();
-		// observers.add(obs);
-		ExecutionTracer.getExecutionTracer().clear();
-		if (Properties.STATIC_HACK)
-			TestCluster.getInstance().resetStaticClasses();
-		resetObservers();
-		ExecutionObserver.currentTest(tc);
-
-		TestRunner runner = new TestRunner(null);
-		runner.setLogging(log);
-		runner.setup(tc, scope, observers);
-		MaxTestsStoppingCondition.testExecuted();
-		// MaxStatementsStoppingCondition.statementsExecuted(tc.size());
-
-		try {
-			// Start the test.
-			runner.start();
-
-			// If test doesn't finish in time, suspend it.
-			runner.join(Properties.TIMEOUT);
-
-			if (!runner.runFinished) {
-				logger.warn("Exceeded max wait (" + Properties.TIMEOUT
-				        + "ms): aborting test input:");
-				logger.warn(tc.toCode());
-				runner.interrupt();
-
-				if (runner.isAlive()) {
-					// If test doesn't finish in time, suspend it.
-					logger.info("Thread ignored interrupt, using killswitch");
-					ExecutionTracer.setKillSwitch(true);
-					runner.join(Properties.TIMEOUT / 2);
-					if (!runner.runFinished) {
-						logger.info("Trying thread.stop()");
-						for (StackTraceElement element : runner.getStackTrace()) {
-							logger.info(element.toString());
-						}
-						runner.stop();// We use this deprecated method because
-						              // it's the only way to
-						// stop a thread no matter what it's doing.
-						// return runner.exceptionsThrown;
-						runner.join(Properties.TIMEOUT / 2);
-
-						if (runner.isAlive()) {
-							logger.warn("Thread ignored stop()! All is lost!");
-							for (StackTraceElement element : runner.getStackTrace()) {
-								logger.warn(element.toString());
-							}
-						}
-					}
-
-					ExecutionTracer.enable();
-				}
-				ExecutionTracer.getExecutionTracer().clear();
-				ExecutionTracer.setKillSwitch(false);
-				runner.exceptionsThrown.put(tc.size(),
-				                            new TestCaseExecutor.TimeoutExceeded());
-			}
-			return runner.exceptionsThrown;
-
-		} catch (java.lang.InterruptedException e) {
-			throw new IllegalStateException(
-			        "A RunnerThread thread shouldn't be interrupted by anyone! "
-			                + "(this may be a bug in the program; please report it.)");
-		}
-
-	}
-
-	public Map<Integer, Throwable> run(TestCase tc) {
-		Scope scope = new Scope();
-		return run(tc, scope);
 	}
 
 	@Override

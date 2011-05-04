@@ -64,7 +64,7 @@ public class TestCallStatement extends Statement {
 			Scope scope = new Scope();
 			// logger.info("Starting test call " + test.toCode());
 			// logger.info("Original test was: " + testCall.testCase.toCode());
-			executor.run(test, scope);
+			executor.execute(test, scope);
 			executor.setLogging(true);
 
 			// TODO: Count as 1 or length?

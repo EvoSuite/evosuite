@@ -19,7 +19,6 @@
 package de.unisb.cs.st.evosuite.mutation;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -160,11 +159,7 @@ public class TGTaskCreator extends MutationTaskCreator {
 			sb.append("\n");
 		}
 		Io.writeFile(sb.toString(), file);
-		try {
-			System.out.println("Mutation task created: " + file.getCanonicalPath());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		System.out.println("* Mutation task created: " + file.getPath());
 		return file;
 	}
 
@@ -233,7 +228,7 @@ public class TGTaskCreator extends MutationTaskCreator {
 			mutant_classes.addAll(getOwnedClasses(clazz.getName()));
 			List<Long> mutationIds = getMutations(mutant_classes);
 			if (mutationIds.isEmpty()) {
-				logger.info("No mutations found, skipping " + classname);
+				System.out.println("* No mutants found for class " + classname);
 				continue;
 			}
 
@@ -273,7 +268,7 @@ public class TGTaskCreator extends MutationTaskCreator {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		System.out.println("Creating task files for test case generation.");
+		System.out.println("* Creating mutation files");
 		//MutationProperties.checkProperty(MutationProperties.PROJECT_PREFIX_KEY);
 		//HandleUnsafeMutations.handleUnsafeMutations(HibernateUtil.getSessionFactory());
 		prefix = Properties.PROJECT_PREFIX;

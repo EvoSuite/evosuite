@@ -273,10 +273,10 @@ public class Properties {
 	public static String REPORT_DIR = "evosuite-report";
 
 	@Parameter(key = "print_current_goals", group = "Output", description = "Print out current goal during test generation")
-	public static boolean PRINT_CURRENT_GOALS = false;
+	public static boolean PRINT_CURRENT_GOALS = true;
 
 	@Parameter(key = "print_covered_goals", group = "Output", description = "Print out covered goals during test generation")
-	public static boolean PRINT_COVERED_GOALS = false;
+	public static boolean PRINT_COVERED_GOALS = true;
 
 	@Parameter(key = "assertions", group = "Output", description = "Create assertions")
 	public static boolean ASSERTIONS = false;
@@ -465,11 +465,11 @@ public class Properties {
 			properties.load(in);
 			System.out.println("* Properties loaded from configuration file evosuite.properties");
 		} catch (FileNotFoundException e) {
-			System.err.println("Error: Could not find configuration file evosuite.properties");
+			System.err.println("- Error: Could not find configuration file evosuite.properties");
 		} catch (IOException e) {
-			System.err.println("Error: Could not find configuration file evosuite.properties");
+			System.err.println("- Error: Could not find configuration file evosuite.properties");
 		} catch (Exception e) {
-			System.err.println("Error: Could not find configuration file evosuite.properties");
+			System.err.println("- Error: Could not find configuration file evosuite.properties");
 		}
 
 		for (String parameter : parameterMap.keySet()) {
@@ -480,11 +480,13 @@ public class Properties {
 					setValue(parameter, properties.getProperty(parameter));
 				}
 			} catch (NoSuchParameterException e) {
-				System.out.println("No such parameter: " + parameter);
+				System.out.println("- No such parameter: " + parameter);
 			} catch (IllegalArgumentException e) {
-				System.out.println("Error setting parameter " + parameter + ": " + e);
+				System.out.println("- Error setting parameter \"" + parameter + "\": "
+				        + e);
 			} catch (IllegalAccessException e) {
-				System.out.println("Error setting parameter " + parameter + ": " + e);
+				System.out.println("- Error setting parameter \"" + parameter + "\": "
+				        + e);
 			}
 		}
 	}
@@ -712,6 +714,7 @@ public class Properties {
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void setValue(String key, String value) throws NoSuchParameterException,
 	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))

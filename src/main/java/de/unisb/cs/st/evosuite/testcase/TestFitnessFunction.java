@@ -58,7 +58,6 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 
 			int num = test.size();
 			MaxStatementsStoppingCondition.statementsExecuted(num);
-
 			// for(TestObserver observer : observers) {
 			// observer.testResult(result);
 			// }
@@ -78,7 +77,13 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	public double getFitness(Chromosome individual) {
 		logger.trace("Executing test case on original");
 		TestChromosome c = (TestChromosome) individual;
-		ExecutionResult orig_result = runTest(c.test);
+		ExecutionResult orig_result = c.last_result;
+		if (orig_result == null || c.isChanged()) {
+			orig_result = runTest(c.test);
+			c.last_result = orig_result;
+			c.setChanged(false);
+		}
+
 		double fitness = getFitness(c, orig_result);
 
 		updateIndividual(c, fitness);
