@@ -69,6 +69,19 @@ public class BranchInstrumentation implements MethodInstrumentation {
 						mn.instructions.insertBefore(v.getNode(),
 						                             getInstrumentation(v, mn, className,
 						                                                methodName));
+					} else if (v.isThrow()) {
+						if (Properties.CRITERION == Criterion.LCSAJ) {
+							InsnList instrumentation = new InsnList();
+							instrumentation.add(new LdcInsnNode(v.getNode().getOpcode()));
+							instrumentation.add(new LdcInsnNode(
+							        BranchPool.getBranchCounter()));
+							instrumentation.add(new LdcInsnNode(v.getId()));
+							instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+							        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+							        "passedUnconditionalBranch", "(III)V"));
+							BranchPool.countBranch(className + "." + methodName);
+							mn.instructions.insertBefore(v.getNode(), instrumentation);
+						}
 					}
 				}
 			}

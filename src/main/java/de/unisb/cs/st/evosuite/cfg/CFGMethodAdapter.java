@@ -128,8 +128,6 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 		List<MethodInstrumentation> instrumentations = new ArrayList<MethodInstrumentation>();
 
-		instrumentations.add(new BranchInstrumentation());
-
 		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
 			instrumentations.add(new ConcurrencyInstrumentation());
 		} else if (Properties.CRITERION.equals(Properties.Criterion.LCSAJ)) {
@@ -139,6 +137,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		} else if (Properties.CRITERION.equals(Properties.Criterion.PATH)) {
 			instrumentations.add(new PrimePathInstrumentation());
 		}
+		instrumentations.add(new BranchInstrumentation());
 
 		boolean executeOnMain = false;
 		boolean executeOnExcluded = false;
