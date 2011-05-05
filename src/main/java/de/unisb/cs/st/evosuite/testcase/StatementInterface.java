@@ -84,7 +84,7 @@ public interface StatementInterface {
 	 *            Other statement
 	 * @return True if equals
 	 */
-	public boolean equals(StatementInterface s);
+	public boolean equals(Object s);
 
 	/**
 	 * Generate hash code

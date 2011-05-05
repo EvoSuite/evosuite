@@ -77,7 +77,7 @@ public class ArrayStatement extends Statement {
 	}
 
 	@Override
-	public boolean equals(StatementInterface s) {
+	public boolean equals(Object s) {
 		if (this == s)
 			return true;
 		if (s == null)
