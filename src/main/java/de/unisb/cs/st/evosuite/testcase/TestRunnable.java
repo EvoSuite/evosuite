@@ -21,7 +21,7 @@ import de.unisb.cs.st.evosuite.sandbox.Sandbox;
  */
 public class TestRunnable implements InterfaceTestRunnable {
 
-	private static Logger logger = Logger.getLogger(TestRunner.class);
+	private static Logger logger = Logger.getLogger(TestRunnable.class);
 
 	private final TestCase test;
 
@@ -33,9 +33,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
-	private static boolean print_to_system = Properties.getPropertyOrDefault("print_to_system", false);
-	
-	private static PrintStream out = (print_to_system?System.out:new PrintStream(byteStream));
+	private static PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
+	        : new PrintStream(byteStream));
 
 	public Map<Integer, Throwable> exceptionsThrown = new HashMap<Integer, Throwable>();
 
@@ -53,13 +52,13 @@ public class TestRunnable implements InterfaceTestRunnable {
 	 */
 	@Override
 	public ExecutionResult call() {
-		
+
 		runFinished = false;
 		ExecutionResult result = new ExecutionResult(test, null);
 
 		int num = 0;
 		try {
-			
+
 			Sandbox.setUpMocks();
 			// exceptionsThrown = test.execute(scope, observers, !log);
 			for (StatementInterface s : test) {
@@ -87,7 +86,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 				if (!s.getReturnValue().equals(returnValue)) {
 					for (int pos = num; pos < test.size(); pos++) {
 						test.getStatement(pos).replace(returnValue,
-						                                 s.getReturnValue().clone());
+						                               s.getReturnValue().clone());
 					}
 				}
 
@@ -147,7 +146,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 		return result;
 		//}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.InterfaceTestRunnable#getExceptionsThrown()
 	 */
@@ -155,8 +154,6 @@ public class TestRunnable implements InterfaceTestRunnable {
 	public Map<Integer, Throwable> getExceptionsThrown() {
 		return exceptionsThrown;
 	}
-
-
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.InterfaceTestRunnable#isRunFinished()

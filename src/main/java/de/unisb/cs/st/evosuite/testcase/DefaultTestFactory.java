@@ -53,21 +53,6 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	private static Logger logger = Logger.getLogger(DefaultTestFactory.class);
 
-	private final static int MAX_RECURSION = Properties.getPropertyOrDefault("max_recursion",
-	                                                                         10);
-
-	private final static double OBJECT_REUSE_PROBABILITY = Properties.getPropertyOrDefault("object_reuse_probability",
-	                                                                                       0.9);
-
-	private final static double PRIMITIVE_REUSE_PROBABILITY = Properties.getPropertyOrDefault("primitive_reuse_probability",
-	                                                                                          0.5);
-
-	private final static double NULL_PROBABILITY = Properties.getPropertyOrDefault("null_probability",
-	                                                                               0.1);
-
-	private final static double CALL_PROBABILITY = Properties.getPropertyOrDefault("call_probability",
-	                                                                               0.0);
-
 	private final Randomness randomness = Randomness.getInstance();
 
 	private final MethodDescriptorReplacement descriptor_replacement = MethodDescriptorReplacement.getInstance();
@@ -377,7 +362,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	 */
 	public VariableReference addConstructor(TestCase test, Constructor<?> constructor,
 	        int position, int recursion_depth) throws ConstructionFailedException {
-		if (recursion_depth > MAX_RECURSION) {
+		if (recursion_depth > Properties.MAX_RECURSION) {
 			logger.debug("Max recursion depth reached");
 			throw new ConstructionFailedException();
 		}
@@ -412,7 +397,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	        int recursion_depth) throws ConstructionFailedException {
 		// System.out.println("TG: Looking for callee of type "+method.getDeclaringClass());
 		logger.debug("Recursion depth: " + recursion_depth);
-		if (recursion_depth > MAX_RECURSION) {
+		if (recursion_depth > Properties.MAX_RECURSION) {
 			logger.debug("Max recursion depth reached");
 			throw new ConstructionFailedException();
 		}
@@ -540,13 +525,13 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			// && reuse <= object_reuse_probability) {
 			if ((parameter_type instanceof Class<?>)
 			        && ((Class<?>) parameter_type).isPrimitive() && !objects.isEmpty()
-			        && reuse <= PRIMITIVE_REUSE_PROBABILITY) {
+			        && reuse <= Properties.PRIMITIVE_REUSE_PROBABILITY) {
 				logger.debug(" Parameter " + i + ": Looking for existing object of type "
 				        + parameter_type);
 				VariableReference reference = randomness.choice(objects);
 				parameters.add(reference);
 				logger.debug(" Found object of type: " + reference.getType());
-			} else if (!objects.isEmpty() && reuse <= OBJECT_REUSE_PROBABILITY) {
+			} else if (!objects.isEmpty() && reuse <= Properties.OBJECT_REUSE_PROBABILITY) {
 				logger.debug(" Parameter " + i + ": Looking for existing object of type "
 				        + parameter_type);
 				VariableReference reference = randomness.choice(objects);
@@ -590,7 +575,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		VariableReference index = new VariableReference(array.clone(), array_index,
 		        array.array_length, position);
 		// index.statement = position;
-		if (!objects.isEmpty() && randomness.nextDouble() <= OBJECT_REUSE_PROBABILITY) {
+		if (!objects.isEmpty()
+		        && randomness.nextDouble() <= Properties.OBJECT_REUSE_PROBABILITY) {
 			// Assign an existing value
 			// TODO:
 			// Do we need a special "[Array]AssignmentStatement"?
@@ -704,11 +690,12 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			return createArray(test, type, position, recursion_depth).clone();
 
 		} else {
-			if (allow_null && randomness.nextDouble() <= NULL_PROBABILITY) {
+			if (allow_null && randomness.nextDouble() <= Properties.NULL_PROBABILITY) {
 				return new NullReference(type);
 			}
 
-			if (!test.hasCalls() && randomness.nextDouble() <= CALL_PROBABILITY) {
+			if (!test.hasCalls()
+			        && randomness.nextDouble() <= Properties.CALL_PROBABILITY) {
 				return addTestCall(test, position).clone();
 			}
 
@@ -854,8 +841,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	 * @throws ConstructionFailedException
 	 */
 	@Override
-	public void changeCall(TestCase test, StatementInterface statement, AccessibleObject call)
-	        throws ConstructionFailedException {
+	public void changeCall(TestCase test, StatementInterface statement,
+	        AccessibleObject call) throws ConstructionFailedException {
 		int position = statement.getReturnValue().statement;
 
 		if (call instanceof Method) {

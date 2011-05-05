@@ -22,8 +22,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import de.unisb.cs.st.evosuite.assertion.ComparisonTraceObserver;
 import de.unisb.cs.st.evosuite.assertion.InspectorTraceObserver;
@@ -32,13 +32,13 @@ import de.unisb.cs.st.evosuite.assertion.PrimitiveFieldTraceObserver;
 import de.unisb.cs.st.evosuite.assertion.PrimitiveOutputTraceObserver;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.ga.ChromosomeRecycler;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMSwitcher;
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
@@ -50,33 +50,33 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
  */
 public class MutationTestFitness extends TestFitnessFunction {
 
-	private final Mutation target_mutation;
+	private final Mutation targetMutation;
 
-	private final MutationGoal mutation_goal;
+	private final MutationGoal mutationGoal;
 
-	private final HOMSwitcher hom_switcher = new HOMSwitcher();
+	private final HOMSwitcher homSwitcher = new HOMSwitcher();
 
 	protected List<ExecutionObserver> observers;
 
-	protected PrimitiveOutputTraceObserver primitive_observer = new PrimitiveOutputTraceObserver();
-	protected ComparisonTraceObserver comparison_observer = new ComparisonTraceObserver();
-	protected InspectorTraceObserver inspector_observer = new InspectorTraceObserver();
-	protected PrimitiveFieldTraceObserver field_observer = new PrimitiveFieldTraceObserver();
-	protected NullOutputObserver null_observer = new NullOutputObserver();
+	protected PrimitiveOutputTraceObserver primitiveObserver = new PrimitiveOutputTraceObserver();
+	protected ComparisonTraceObserver comparisonObserver = new ComparisonTraceObserver();
+	protected InspectorTraceObserver inspectorObserver = new InspectorTraceObserver();
+	protected PrimitiveFieldTraceObserver fieldObserver = new PrimitiveFieldTraceObserver();
+	protected NullOutputObserver nullObserver = new NullOutputObserver();
 
 	public MutationTestFitness(Mutation mutation) {
-		target_mutation = mutation;
-		mutation_goal = new MutationGoal(mutation);
+		targetMutation = mutation;
+		mutationGoal = new MutationGoal(mutation);
 
-		executor.addObserver(primitive_observer);
-		executor.addObserver(comparison_observer);
-		executor.addObserver(inspector_observer);
-		executor.addObserver(field_observer);
-		executor.addObserver(null_observer);
+		executor.addObserver(primitiveObserver);
+		executor.addObserver(comparisonObserver);
+		executor.addObserver(inspectorObserver);
+		executor.addObserver(fieldObserver);
+		executor.addObserver(nullObserver);
 	}
 
 	public Mutation getTargetMutation() {
-		return target_mutation;
+		return targetMutation;
 	}
 
 	@Override
@@ -99,37 +99,39 @@ public class MutationTestFitness extends TestFitnessFunction {
 		ExecutionResult result = new ExecutionResult(test, mutant);
 
 		try {
-			logger.debug("KExecuting test");
+			if (mutant != null)
+				logger.debug("Executing test for mutant " + mutant.getId());
 			HOMObserver.resetTouched(); // TODO - is this the right place?
 			if (mutant != null) {
-				hom_switcher.switchOn(mutant);
-				executor.setLogging(false);
+				homSwitcher.switchOn(mutant);
+				//executor.setLogging(false);
 			}
-			result.exceptions = executor.run(test);
-			executor.setLogging(true);
-			if (mutant != null)
-				hom_switcher.switchOff(mutant);
 
-			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
-			// result.output_trace = executor.getTrace();
-			result.comparison_trace = comparison_observer.getTrace();
-			result.primitive_trace = primitive_observer.getTrace();
-			result.inspector_trace = inspector_observer.getTrace();
-			result.field_trace = field_observer.getTrace();
-			result.null_trace = null_observer.getTrace();
+			result = executor.execute(test);
+			//executor.setLogging(true);
+
+			if (mutant != null)
+				homSwitcher.switchOff(mutant);
 
 			int num = test.size();
-
 			MaxStatementsStoppingCondition.statementsExecuted(num);
 			result.touched.addAll(HOMObserver.getTouched());
+
+			result.comparison_trace = comparisonObserver.getTrace();
+			result.primitive_trace = primitiveObserver.getTrace();
+			result.inspector_trace = inspectorObserver.getTrace();
+			result.field_trace = fieldObserver.getTrace();
+			result.null_trace = nullObserver.getTrace();
+
+			// for(TestObserver observer : observers) {
+			// observer.testResult(result);
+			// }
 		} catch (Exception e) {
-			logger.fatal("MutationTestFitness: Exception caught: " + e);
-			logger.fatal(test.toCode());
+			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
 			System.exit(1);
 		}
 
-		// System.out.println("TG: Killed "+result.getNumKilled()+" out of "+mutants.size());
 		return result;
 	}
 
@@ -139,13 +141,11 @@ public class MutationTestFitness extends TestFitnessFunction {
 		Map<String, Set<String>> handled = new HashMap<String, Set<String>>();
 		Set<String> differ = new HashSet<String>();
 
-		for (Entry<String, Map<String, Map<Integer, Integer>>> entry : orig
-		        .entrySet()) {
+		for (Entry<String, Map<String, Map<Integer, Integer>>> entry : orig.entrySet()) {
 			if (!handled.containsKey(entry.getKey()))
 				handled.put(entry.getKey(), new HashSet<String>());
 
-			for (Entry<String, Map<Integer, Integer>> method_entry : entry
-			        .getValue().entrySet()) {
+			for (Entry<String, Map<Integer, Integer>> method_entry : entry.getValue().entrySet()) {
 				if (!mutant.containsKey(entry.getKey())) {
 					// Class was not executed on mutant, so add method
 					logger.debug("Found class difference: " + entry.getKey());
@@ -153,31 +153,22 @@ public class MutationTestFitness extends TestFitnessFunction {
 				} else {
 					// Class was also executed on mutant
 
-					if (!mutant.get(entry.getKey()).containsKey(
-					        method_entry.getKey())) {
+					if (!mutant.get(entry.getKey()).containsKey(method_entry.getKey())) {
 						// Method was not executed on mutant, so add method
-						logger.debug("Found method difference: "
-						        + method_entry.getKey());
+						logger.debug("Found method difference: " + method_entry.getKey());
 						differ.add(entry.getKey() + "." + method_entry.getKey());
 					} else {
 						// Method was executed on mutant
-						for (Entry<Integer, Integer> line_entry : method_entry
-						        .getValue().entrySet()) {
-							if (!mutant.get(entry.getKey())
-							        .get(method_entry.getKey())
-							        .containsKey(line_entry.getKey())) {
+						for (Entry<Integer, Integer> line_entry : method_entry.getValue().entrySet()) {
+							if (!mutant.get(entry.getKey()).get(method_entry.getKey()).containsKey(line_entry.getKey())) {
 								// Line was not executed on mutant, so add
 								logger.debug("Found line difference: "
 								        + line_entry.getKey() + ": "
 								        + line_entry.getValue());
-								differ.add(entry.getKey() + "."
-								        + method_entry.getKey() + ":"
-								        + line_entry.getKey());
+								differ.add(entry.getKey() + "." + method_entry.getKey()
+								        + ":" + line_entry.getKey());
 							} else {
-								if (!mutant.get(entry.getKey())
-								        .get(method_entry.getKey())
-								        .get(line_entry.getKey())
-								        .equals(line_entry.getValue())) {
+								if (!mutant.get(entry.getKey()).get(method_entry.getKey()).get(line_entry.getKey()).equals(line_entry.getValue())) {
 									// Line coverage differs, so add
 									differ.add(entry.getKey() + "."
 									        + method_entry.getKey() + ":"
@@ -188,14 +179,10 @@ public class MutationTestFitness extends TestFitnessFunction {
 								}
 							}
 						}
-						if (!method_entry.getValue().equals(
-						        mutant.get(entry.getKey()).get(
-						                method_entry.getKey()))) {
-							differ.add(entry.getKey() + "."
-							        + method_entry.getKey());
+						if (!method_entry.getValue().equals(mutant.get(entry.getKey()).get(method_entry.getKey()))) {
+							differ.add(entry.getKey() + "." + method_entry.getKey());
 
-							logger.debug("Found other difference: "
-							        + entry.getKey());
+							logger.debug("Found other difference: " + entry.getKey());
 							// logger.info("Coverage difference on : "+entry.getKey()+":"+method_entry.getKey());
 						}
 					}
@@ -221,16 +208,15 @@ public class MutationTestFitness extends TestFitnessFunction {
 		return differ.size();
 	}
 
-	private double getSumDistance(ExecutionTrace orig_trace,
-	        ExecutionTrace mutant_trace) {
+	private double getSumDistance(ExecutionTrace orig_trace, ExecutionTrace mutant_trace) {
 
 		// double sum = getCoverageDifference(getCoverage(orig_trace),
 		// getCoverage(mutant_trace));
 		double coverage_impact = getCoverageDifference(orig_trace.coverage,
-		        mutant_trace.coverage);
+		                                               mutant_trace.coverage);
 		logger.debug("Coverage impact: " + coverage_impact);
 		double data_impact = getCoverageDifference(orig_trace.return_data,
-		        mutant_trace.return_data);
+		                                           mutant_trace.return_data);
 		logger.debug("Data impact: " + data_impact);
 
 		return coverage_impact + data_impact;
@@ -248,19 +234,15 @@ public class MutationTestFitness extends TestFitnessFunction {
 		// if (num > last_num)
 		// logger.debug("Found " + (num - last_num) + " output assertions!");
 		// last_num = num;
-		num += orig_result.comparison_trace
-		        .numDiffer(mutant_result.comparison_trace);
+		num += orig_result.comparison_trace.numDiffer(mutant_result.comparison_trace);
 		if (num > last_num)
-			logger.debug("Found " + (num - last_num)
-			        + " comparison assertions!");
+			logger.debug("Found " + (num - last_num) + " comparison assertions!");
 		last_num = num;
-		num += orig_result.primitive_trace
-		        .numDiffer(mutant_result.primitive_trace);
+		num += orig_result.primitive_trace.numDiffer(mutant_result.primitive_trace);
 		if (num > last_num)
 			logger.debug("Found " + (num - last_num) + " primitive assertions!");
 		last_num = num;
-		num += orig_result.inspector_trace
-		        .numDiffer(mutant_result.inspector_trace);
+		num += orig_result.inspector_trace.numDiffer(mutant_result.inspector_trace);
 		if (num > last_num)
 			logger.debug("Found " + (num - last_num) + " inspector assertions!");
 		last_num = num;
@@ -281,8 +263,7 @@ public class MutationTestFitness extends TestFitnessFunction {
 
 		// if(orig_result.output_trace.differs(mutant_result.output_trace))
 		// num += 0.5;
-		if (orig_result.comparison_trace
-		        .differs(mutant_result.comparison_trace)) {
+		if (orig_result.comparison_trace.differs(mutant_result.comparison_trace)) {
 			logger.info("Difference in comparison trace");
 			return true;
 		}
@@ -313,26 +294,8 @@ public class MutationTestFitness extends TestFitnessFunction {
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 
-		/*
-		 * ExecutionResult check_result = runTest(individual.test); int n =
-		 * getNumAssertions(result, check_result); if(n > 0) {
-		 * logger.info("Found change: "); logger.info(individual.test.toCode());
-		 * result = check_result; }
-		 */
-		/*
-		 * logger.info("Execution check 1"); ExecutionResult mutant_result =
-		 * runTest(individual.test, target_mutation); getNumAssertions(result,
-		 * mutant_result);
-		 * 
-		 * logger.info("Execution check 2"); result = runTest(individual.test);
-		 * getNumAssertions(result, mutant_result);
-		 * 
-		 * logger.info("Execution check 3"); mutant_result =
-		 * runTest(individual.test, target_mutation); getNumAssertions(result,
-		 * mutant_result);
-		 */
 		// First, get the distance. TODO: What about branch distance?
-		ControlFlowDistance cfg_distance = mutation_goal.getDistance(result);
+		ControlFlowDistance cfg_distance = mutationGoal.getDistance(result);
 
 		if (cfg_distance.approach > 1
 		        || (cfg_distance.approach == 1 && cfg_distance.branch > 0.0)) {
@@ -343,52 +306,44 @@ public class MutationTestFitness extends TestFitnessFunction {
 			// return 1.0 + cfg_distance.approach +
 			// normalize(cfg_distance.branch);
 			/*
-			 * ExecutionResult mutant_result = runTest(individual.test,
-			 * target_mutation); if(!mutant_result.touched) {
-			 * logger.warn("Mutant not touched!"); } else {
-			 * logger.warn("Mutant touched!"); }
-			 */
+						ExecutionResult mutant_result = runTest(individual.test, targetMutation);
+						if (!mutant_result.touched.contains(targetMutation.getId())) {
+							logger.warn("Mutant not touched!");
+						} else {
+							logger.warn("Mutant touched!");
+						}
+						*/
+
 			return cfg_distance.approach + normalize(cfg_distance.branch); // 1
 			                                                               // =
 			                                                               // distance
 			                                                               // for
 			                                                               // mutation
 			                                                               // activation
-			/*
-			 * } else if(cfg_distance.approach == 1) {
-			 * logger.info("Distance is "+cfg_distance.approach+"/" +
-			 * cfg_distance.branch); ExecutionResult mutant_result =
-			 * runTest(individual.test, target_mutation);
-			 * if(!mutant_result.touched) { logger.warn("Mutant not touched!");
-			 * } else { logger.warn("Mutant touched!"); } return
-			 * cfg_distance.approach + normalize(cfg_distance.branch); // 1 =
-			 * distance for mutation activation
-			 */
 		}
 
 		logger.debug("Distance is: " + cfg_distance.approach);
 
 		// If the distance is zero, then try
-		ExecutionResult mutant_result = runTest(individual.test,
-		        target_mutation);
-		if (!mutant_result.touched.contains(target_mutation.getId())) {
-			logger.warn("Distance is 1 but mutant " + target_mutation.getId()
-			        + " not executed: " + target_mutation.getClassName() + "."
-			        + target_mutation.getMethodName());
+		ExecutionResult mutant_result = runTest(individual.test, targetMutation);
+		if (!mutant_result.touched.contains(targetMutation.getId())) {
+			logger.warn("Distance is 1 but mutant " + targetMutation.getId()
+			        + " not executed: " + targetMutation.getClassName() + "."
+			        + targetMutation.getMethodName() + " - "
+			        + targetMutation.getMutationType());
 			logger.warn(result.test.toCode());
 			logger.warn(cfg_distance.approach + "/" + cfg_distance.branch);
 		}
 
 		if (MutationGoal.hasTimeout(mutant_result)) {
 			logger.debug("Found timeout in mutant!");
-			MutationTimeoutStoppingCondition.timeOut(target_mutation);
+			MutationTimeoutStoppingCondition.timeOut(targetMutation);
 		}
 
 		// if(!hasAssertions(result, mutant_result))
 		if (getNumAssertions(result, mutant_result) == 0) {
 			double impact = getSumDistance(result.getTrace(), mutant_result.getTrace());
-			logger.debug("Impact is " + impact + " (" + (1.0 / (1.0 + impact))
-			        + ")");
+			logger.debug("Impact is " + impact + " (" + (1.0 / (1.0 + impact)) + ")");
 			return 1.0 / (1.0 + impact);
 		} else {
 			logger.debug("Mutant is asserted!");
@@ -416,10 +371,39 @@ public class MutationTestFitness extends TestFitnessFunction {
 
 	@Override
 	public String toString() {
-		return "Mutation goal: " + target_mutation.getId() + ": "
-		        + target_mutation.getClassName() + "."
-		        + target_mutation.getMethodName() + ":"
-		        + target_mutation.getLineNumber() + " - "
-		        + target_mutation.getMutationType();
+		return "Mutation goal: " + targetMutation.getId() + ": "
+		        + targetMutation.getClassName() + "." + targetMutation.getMethodName()
+		        + ":" + targetMutation.getLineNumber() + " - "
+		        + targetMutation.getMutationType();
+	}
+
+	@Override
+	public boolean isSimilarTo(TestFitnessFunction other) {
+		try {
+			MutationTestFitness otherFitness = (MutationTestFitness) other;
+			return mutationGoal.isConnectedTo(otherFitness.mutationGoal);
+		} catch (ClassCastException e) {
+			return false;
+		}
+	}
+
+	@Override
+	public boolean isCovered(TestChromosome tc) {
+		if (tc.last_result == null) {
+			ExecutionResult result = runTest(tc.test);
+			tc.setChanged(false);
+			tc.last_result = result;
+		}
+		return isCovered(tc, tc.last_result);
+	}
+
+	@Override
+	public boolean isCovered(TestChromosome individual, ExecutionResult result) {
+		boolean covered = getFitness(individual, result) == 0.0;
+		if (covered) {
+			ChromosomeRecycler.getInstance().testIsInterestingForGoal(individual, this);
+			individual.test.addCoveredGoal(this);
+		}
+		return covered;
 	}
 }

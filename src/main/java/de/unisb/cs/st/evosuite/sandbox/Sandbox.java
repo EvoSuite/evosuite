@@ -27,57 +27,57 @@ import de.unisb.cs.st.evosuite.Properties;
  * 
  */
 public class Sandbox {
-	
+
 	/** Mocked security manager. */
 	private static SecurityManager evilManager = new MSecurityManager();
-	
+
 	/** Old security manager. */
 	private static SecurityManager kindManager = System.getSecurityManager();
-	
+
 	/** Mock controller. */
 	private static Mocks mocks = new Mocks();
-	
+
 	/** If sandbox, i.e. the MSecurityManager, should be activated. */
 	private static final boolean sandboxActive = Properties.SANDBOX;
-	
+
 	/** If mocks should be created. */
 	private static final boolean mocksActive = Properties.MOCKS;
-	
+
 	/**
 	 * Set up mocked security manager if sandbox property is true.
 	 */
-	public static void setUpMockedSecurityManager(){
-		if(sandboxActive)
+	public static void setUpMockedSecurityManager() {
+		if (sandboxActive)
 			System.setSecurityManager(evilManager);
 	}
-	
+
 	/**
 	 * Bring back old security manager.
 	 */
-	public static void tearDownMockedSecurityManager(){
+	public static void tearDownMockedSecurityManager() {
 		System.setSecurityManager(kindManager);
 	}
-	
+
 	/**
 	 * Set up mocks, if mock property is true
 	 */
-	public static void setUpMocks(){
-		if(mocksActive)
+	public static void setUpMocks() {
+		if (mocksActive)
 			mocks.setUpMocks();
 	}
-	
+
 	/**
 	 * Disable all active mocks
 	 */
-	public static void tearDownMocks(){
+	public static void tearDownMocks() {
 		mocks.tearDownMocks();
 	}
-	
+
 	/**
-	 * Disable mocks and mocked security manager. 
-	 * This method is used sometimes just for the sake of simplicity.
+	 * Disable mocks and mocked security manager. This method is used sometimes
+	 * just for the sake of simplicity.
 	 */
-	public static void tearDownEverything(){
+	public static void tearDownEverything() {
 		tearDownMockedSecurityManager();
 		tearDownMocks();
 	}

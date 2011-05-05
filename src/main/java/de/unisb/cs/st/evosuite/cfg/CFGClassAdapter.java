@@ -28,6 +28,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMSwitcher;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
@@ -43,6 +44,8 @@ public class CFGClassAdapter extends ClassAdapter {
 
 	/** Current class */
 	private final String className;
+
+	private static final boolean MUTATION = Properties.CRITERION.equals(Criterion.MUTATION);
 
 	/**
 	 * Constructor
@@ -80,7 +83,7 @@ public class CFGClassAdapter extends ClassAdapter {
 		}
 		String classNameWithDots = className.replace('/', '.');
 		List<Mutation> mutants = new ArrayList<Mutation>();
-		if (Properties.MUTATION) {
+		if (MUTATION) {
 			HOMSwitcher switcher = new HOMSwitcher();
 			mutants = switcher.getMutants();
 		}

@@ -181,12 +181,11 @@ public class TestSuiteMinimizer {
 	 */
 	public void minimize(TestSuiteChromosome suite) {
 
-		boolean branch = Properties.CRITERION.equals(Properties.CRITERIA.BRANCH);
+		boolean branch = Properties.CRITERION.equals(Properties.Criterion.BRANCH);
 		CurrentChromosomeTracker.getInstance().modification(suite);
 
 		boolean size = false;
-		String strategy = Properties.getPropertyOrDefault("secondary_objectives",
-		                                                  "maxlength");
+		String strategy = Properties.SECONDARY_OBJECTIVE;
 		if (strategy.contains(":"))
 			strategy = strategy.substring(0, strategy.indexOf(':'));
 		if (strategy.equals("size"))

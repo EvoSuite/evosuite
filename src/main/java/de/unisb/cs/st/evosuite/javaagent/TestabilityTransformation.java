@@ -94,9 +94,6 @@ public class TestabilityTransformation {
 	}
 
 	private void processFields() {
-		if (!Properties.TRANSFORM_BOOLEAN)
-			return;
-
 		List<FieldNode> fieldNodes = cn.fields;
 		int i = 0;
 		for (FieldNode fn : fieldNodes) {
@@ -114,7 +111,6 @@ public class TestabilityTransformation {
 		int count = 0;
 		int defs = flagDefs.size();
 		for (MethodNode mn : methodNodes) {
-			if (Properties.TRANSFORM_BOOLEAN) {
 				// If this method was defined somewhere outside the test package, do not transform signature
 				String desc = mn.desc;
 				mn.desc = mapping.getMethodDesc(cn.name, mn.name, mn.desc);
@@ -126,7 +122,7 @@ public class TestabilityTransformation {
 				// Actually this should be done automatically by the ClassWriter...
 				// +2 because we might do a DUP2
 				mn.maxStack += 3;
-			}
+			
 			count += transformMethod(mn);
 
 		}
@@ -1481,49 +1477,41 @@ public class TestabilityTransformation {
 		//        && !mn.name.equals("__STATIC_RESET"))
 		//	mn.instructions.insertBefore(mn.instructions.getFirst(), reset);
 
-		if (Properties.TRANSFORM_ELSE) {
-			logger.info("Transforming ELSE");
-			// Now unfold implicit else branches
-			transformImplicitElse(mn);
-			transformImplicitElseField(mn);
-			transformImplicitElseStaticField(mn);
-		}
+		logger.info("Transforming ELSE");
+		// Now unfold implicit else branches
+		transformImplicitElse(mn);
+		transformImplicitElseField(mn);
+		transformImplicitElseStaticField(mn);
 
-		if (Properties.TRANSFORM_COMPARISON) {
-			// Change comparisons of non-int values to distance functions
-			transformComparisons(mn);
-		}
+		// Change comparisons of non-int values to distance functions
+		transformComparisons(mn);
 
-		if (Properties.TRANSFORM_BOOLEAN) {
+		transformStrings(mn);
 
-			if (Properties.TRANSFORM_STRING) {
-				transformStrings(mn);
-			}
+		// Remove flag definitions
+		transformBooleanAssignments(mn);
 
-			// Remove flag definitions
-			transformBooleanAssignments(mn);
+		transformInstanceOf(mn);
 
-			transformInstanceOf(mn);
+		// Insert distance function between Boolean variable and jump
+		transformFlagUsage(mn);
 
-			// Insert distance function between Boolean variable and jump
-			transformFlagUsage(mn);
+		// Change IFNE/IFEQ for flags
+		transformBooleanPredicates(mn);
 
-			// Change IFNE/IFEQ for flags
-			transformBooleanPredicates(mn);
+		// Change signatures of fields and methods with Booleans
+		transformCalls(mn);
 
-			// Change signatures of fields and methods with Booleans
-			transformCalls(mn);
+		transformBitwiseOperators(mn);
 
-			transformBitwiseOperators(mn);
+		transformBooleanReturns(mn);
 
-			transformBooleanReturns(mn);
+		// Convert information about local variables (only needed for debugging really)
+		transformLocalVariables(mn);
 
-			// Convert information about local variables (only needed for debugging really)
-			transformLocalVariables(mn);
+		// Convert boolean arrays to integer arrays
+		transformArrays(mn);
 
-			// Convert boolean arrays to integer arrays
-			transformArrays(mn);
-		}
 		return flagUses.size() - before;
 	}
 

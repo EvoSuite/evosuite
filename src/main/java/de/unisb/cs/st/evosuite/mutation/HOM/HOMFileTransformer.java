@@ -3,18 +3,17 @@
  * 
  * This file is part of EvoSuite.
  * 
- * EvoSuite is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * EvoSuite is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser Public License for more details.
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser Public License
- * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package de.unisb.cs.st.evosuite.mutation.HOM;
@@ -36,33 +35,10 @@ import de.unisb.cs.st.evosuite.primitives.PrimitiveClassAdapter;
 import de.unisb.cs.st.javalanche.mutation.javaagent.MutationsForRun;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.MutationDecision;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.MutationDecisionFactory;
-import de.unisb.cs.st.javalanche.mutation.mutationPossibilities.MutationPossibilityCollector;
-import de.unisb.cs.st.javalanche.mutation.properties.MutationProperties;
-import de.unisb.cs.st.javalanche.mutation.results.Mutation;
-import de.unisb.cs.st.javalanche.mutation.results.Mutation.MutationType;
-import de.unisb.cs.st.javalanche.mutation.results.persistence.QueryManager;
 
-public class HOMFileTransformer implements ClassFileTransformer  {
+public class HOMFileTransformer implements ClassFileTransformer {
 
-	protected static Logger logger = Logger
-			.getLogger(HOMFileTransformer.class);
-
-	static {
-		// DB must be loaded before transform method is entered. Otherwise
-		// program crashes.
-		if (MutationProperties.QUERY_DB_BEFORE_START) {
-			Mutation someMutation = new Mutation("SomeMutationToAddToTheDb",
-					"tm", 23, 23, MutationType.ARITHMETIC_REPLACE);
-			Mutation mutationFromDb = QueryManager
-					.getMutationOrNull(someMutation);
-			if (mutationFromDb == null) {
-				MutationPossibilityCollector mpc1 = new MutationPossibilityCollector();
-				mpc1.addPossibility(someMutation);
-				mpc1.toDB();
-			}
-		}
-
-	}
+	protected static Logger logger = Logger.getLogger(HOMFileTransformer.class);
 
 	//private final BytecodeTransformer mutationTransformer;
 	private static HOMTransformer mutationTransformer = new HOMTransformer();
@@ -71,9 +47,8 @@ public class HOMFileTransformer implements ClassFileTransformer  {
 
 	private static Collection<String> classesToMutate = mm.getClassNames();
 
-
 	//private static RemoveSystemExitTransformer systemExitTransformer = new RemoveSystemExitTransformer();
-	
+
 	static {
 		logger.info("Loading HOMFileTransformer");
 		classesToMutate.add(Properties.TARGET_CLASS);
@@ -83,10 +58,8 @@ public class HOMFileTransformer implements ClassFileTransformer  {
 		//}
 	}
 
-	private static MutationDecision mutationDecision = MutationDecisionFactory
-			.getStandardMutationDecision(classesToMutate);
+	private static MutationDecision mutationDecision = MutationDecisionFactory.getStandardMutationDecision(classesToMutate);
 
-	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -95,22 +68,24 @@ public class HOMFileTransformer implements ClassFileTransformer  {
 	 * , java.lang.String, java.lang.Class, java.security.ProtectionDomain,
 	 * byte[])
 	 */
+	@Override
 	public byte[] transform(ClassLoader loader, String className,
-			Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-			byte[] classfileBuffer) throws IllegalClassFormatException {
+	        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+	        byte[] classfileBuffer) throws IllegalClassFormatException {
 		if (className != null) {
 			try {
 				String classNameWithDots = className.replace('/', '.');
-				
+
 				if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)) {
 					ClassReader reader = new ClassReader(classfileBuffer);
-					ClassWriter writer = new ClassWriter(org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
+					ClassWriter writer = new ClassWriter(
+					        org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
 					ClassVisitor cv = writer;
 					cv = new PrimitiveClassAdapter(cv, className);
 					reader.accept(cv, ClassReader.SKIP_FRAMES);
 					classfileBuffer = writer.toByteArray();
 				}
-				
+
 				// logger.info(className + " is passed to transformer");
 				//if (mutationDecision.shouldBeHandled(classNameWithDots)) {
 				//	logger.debug("Removing calls to System.exit() from class: "
@@ -158,6 +133,7 @@ public class HOMFileTransformer implements ClassFileTransformer  {
 		}
 		return classfileBuffer;
 	}
+
 	/*
 	private String checkClass(byte[] transformedBytecode) {
 		ClassReader cr = new ClassReader(transformedBytecode);
@@ -170,20 +146,5 @@ public class HOMFileTransformer implements ClassFileTransformer  {
 		return sw.toString();
 	}
 	*/
-
-	/**
-	 * Checks if the given class name equals to the test suite property.
-	 * 
-	 * @param classNameWithDots
-	 *            the class name to check
-	 * @return true, if
-	 */
-	public static boolean compareWithSuiteProperty(String classNameWithDots) {
-		String testSuiteName = System
-				.getProperty(MutationProperties.TEST_SUITE_KEY);
-		return testSuiteName != null
-				&& classNameWithDots.contains(testSuiteName);
-
-	}
 
 }

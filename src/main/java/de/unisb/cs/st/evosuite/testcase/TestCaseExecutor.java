@@ -21,7 +21,6 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -51,14 +50,6 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	private boolean log = true;
 
-	public static long timeout = Properties.getPropertyOrDefault("timeout", 5000);
-
-	public static boolean cpuTimeout = Properties.getPropertyOrDefault("cpu_timeout",
-	                                                                   false);
-
-	private static boolean logTimeout = Properties.getPropertyOrDefault("log_timeout",
-	                                                                    false);
-
 	private static final PrintStream systemOut = System.out;
 	private static final PrintStream systemErr = System.err;
 
@@ -72,7 +63,9 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	private List<ExecutionObserver> observers;
 
-	protected boolean static_hack = Properties.getPropertyOrDefault("static_hack", false);
+	public static long timeExecuted = 0;
+
+	public static int testsExecuted = 0;
 
 	public static TestCaseExecutor getInstance() {
 		if (instance == null)
@@ -168,17 +161,19 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	public ExecutionResult execute(TestCase tc, Scope scope) {
 		ExecutionTracer.getExecutionTracer().clear();
-		if (static_hack)
+		if (Properties.STATIC_HACK)
 			TestCluster.getInstance().resetStaticClasses();
 		resetObservers();
 		ExecutionObserver.currentTest(tc);
 		MaxTestsStoppingCondition.testExecuted();
 
+		long startTime = System.currentTimeMillis();
+
 		TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>();
 
 		//#TODO steenbuck could be nicer (TestRunnable should be an interface
 		InterfaceTestRunnable callable;
-		if (Properties.CRITERION.equals(Properties.CRITERIA.CONCURRENCY)) {
+		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
 			callable = new ConcurrentTestRunnable(tc, scope, observers);
 		} else {
 			callable = new TestRunnable(tc, scope, observers);
@@ -188,8 +183,14 @@ public class TestCaseExecutor implements ThreadFactory {
 
 		try {
 			//ExecutionResult result = task.get(timeout, TimeUnit.MILLISECONDS);
-			ExecutionResult result = handler.execute(callable, executor, timeout,
-			                                         cpuTimeout);
+			ExecutionResult result = handler.execute(callable, executor,
+			                                         Properties.TIMEOUT,
+			                                         Properties.CPU_TIMEOUT);
+
+			long endTime = System.currentTimeMillis();
+			timeExecuted += endTime - startTime;
+			testsExecuted++;
+
 			return result;
 		} catch (ThreadDeath t) {
 			logger.warn("Caught ThreadDeath during test execution");
@@ -228,7 +229,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			System.setOut(systemOut);
 			System.setErr(systemErr);
 
-			if (logTimeout) {
+			if (Properties.LOG_TIMEOUT) {
 				System.err.println("Timeout occurred for " + Properties.TARGET_CLASS);
 			}
 			logger.info("TimeoutException, need to stop runner");
@@ -240,7 +241,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			if (!callable.isRunFinished()) {
 				logger.info("Run not finished, waiting...");
 				try {
-					executor.awaitTermination(timeout, TimeUnit.MILLISECONDS);
+					executor.awaitTermination(Properties.TIMEOUT, TimeUnit.MILLISECONDS);
 				} catch (InterruptedException e) {
 					logger.info("Interrupted");
 					e.printStackTrace();
@@ -274,81 +275,6 @@ public class TestCaseExecutor implements ThreadFactory {
 
 			return result;
 		}
-	}
-
-	@SuppressWarnings("deprecation")
-	public Map<Integer, Throwable> run(TestCase tc, Scope scope) {
-		// StringTraceExecutionObserver obs = new
-		// StringTraceExecutionObserver();
-		// observers.add(obs);
-		ExecutionTracer.getExecutionTracer().clear();
-		if (static_hack)
-			TestCluster.getInstance().resetStaticClasses();
-		resetObservers();
-		ExecutionObserver.currentTest(tc);
-
-		TestRunner runner = new TestRunner(null);
-		runner.setLogging(log);
-		runner.setup(tc, scope, observers);
-		MaxTestsStoppingCondition.testExecuted();
-		// MaxStatementsStoppingCondition.statementsExecuted(tc.size());
-
-		try {
-			// Start the test.
-			runner.start();
-
-			// If test doesn't finish in time, suspend it.
-			runner.join(timeout);
-
-			if (!runner.runFinished) {
-				logger.warn("Exceeded max wait (" + timeout + "ms): aborting test input:");
-				logger.warn(tc.toCode());
-				runner.interrupt();
-
-				if (runner.isAlive()) {
-					// If test doesn't finish in time, suspend it.
-					logger.info("Thread ignored interrupt, using killswitch");
-					ExecutionTracer.setKillSwitch(true);
-					runner.join(timeout / 2);
-					if (!runner.runFinished) {
-						logger.info("Trying thread.stop()");
-						for (StackTraceElement element : runner.getStackTrace()) {
-							logger.info(element.toString());
-						}
-						runner.stop();// We use this deprecated method because
-						              // it's the only way to
-						// stop a thread no matter what it's doing.
-						// return runner.exceptionsThrown;
-						runner.join(timeout / 2);
-
-						if (runner.isAlive()) {
-							logger.warn("Thread ignored stop()! All is lost!");
-							for (StackTraceElement element : runner.getStackTrace()) {
-								logger.warn(element.toString());
-							}
-						}
-					}
-
-					ExecutionTracer.enable();
-				}
-				ExecutionTracer.getExecutionTracer().clear();
-				ExecutionTracer.setKillSwitch(false);
-				runner.exceptionsThrown.put(tc.size(),
-				                            new TestCaseExecutor.TimeoutExceeded());
-			}
-			return runner.exceptionsThrown;
-
-		} catch (java.lang.InterruptedException e) {
-			throw new IllegalStateException(
-			        "A RunnerThread thread shouldn't be interrupted by anyone! "
-			                + "(this may be a bug in the program; please report it.)");
-		}
-
-	}
-
-	public Map<Integer, Throwable> run(TestCase tc) {
-		Scope scope = new Scope();
-		return run(tc, scope);
 	}
 
 	@Override

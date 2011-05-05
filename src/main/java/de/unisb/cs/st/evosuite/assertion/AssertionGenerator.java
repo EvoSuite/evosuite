@@ -5,8 +5,8 @@ package de.unisb.cs.st.evosuite.assertion;
 
 import org.apache.log4j.Logger;
 
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 
@@ -53,8 +53,11 @@ public abstract class AssertionGenerator {
 	protected ExecutionResult runTest(TestCase test) {
 		ExecutionResult result = new ExecutionResult(test);
 		try {
-			result.exceptions = executor.run(test);
-			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
+			logger.debug("Executing test");
+			result = executor.execute(test);
+			executor.setLogging(true);
+			int num = test.size();
+			MaxStatementsStoppingCondition.statementsExecuted(num);
 			result.comparison_trace = comparison_observer.getTrace();
 			result.primitive_trace = primitive_observer.getTrace();
 			result.inspector_trace = inspector_observer.getTrace();
