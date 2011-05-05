@@ -13,6 +13,6 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
 public class ConcurrencyTestCaseFactory extends RandomLengthTestFactory{
 	@Override 
 	protected TestCase getNewTestCase(){
-		return new ConcurrentTestCase(new BasicTestCase(true));
+		return new ConcurrentTestCase(new BasicTestCase(), true);
 	}
 }

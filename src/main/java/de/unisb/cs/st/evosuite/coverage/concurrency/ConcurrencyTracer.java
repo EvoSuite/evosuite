@@ -12,12 +12,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
+import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
+
 
 /**
- * @author x3k6a2
+ * @author Sebastian Steenbuck
  *
  */
 public class ConcurrencyTracer {
+	private static Logger logger = Logger.getLogger(ConcurrencyTracer.class);
+	
 	private List<SchedulingDecisionTuple> seen;
 
 	public ConcurrencyTracer(){
@@ -51,7 +57,7 @@ public class ConcurrencyTracer {
 			try{
 			assert(t!=null);
 			}catch(Throwable e){
-				e.printStackTrace();
+				logger.fatal("oh nooo", e);
 				System.exit(1);
 			}
 		}

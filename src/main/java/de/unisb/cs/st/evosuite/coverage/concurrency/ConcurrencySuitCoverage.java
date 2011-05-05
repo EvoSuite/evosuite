@@ -85,7 +85,11 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 		Set<List<SchedulingDecisionTuple>> schedules = new HashSet<List<SchedulingDecisionTuple>>();
 
 		for(ExecutionResult result : results) {
-			schedules.add(result.trace.concurrencyTracer.getTrace());
+			assert(result!=null);
+			assert(result.getTrace()!=null);
+			assert(result.getTrace().concurrencyTracer!=null);
+			assert(result.getTrace().concurrencyTracer.getTrace()!=null);
+			schedules.add(result.getTrace().concurrencyTracer.getTrace());
 
 			if(hasTimeout(result)) {
 				updateIndividual(individual, total_branches*2 + total_methods);
@@ -94,28 +98,28 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 				return total_branches*2 + total_methods;
 			}
 
-			for(Entry<String, Integer> entry : result.trace.covered_methods.entrySet()) {
+			for(Entry<String, Integer> entry : result.getTrace().covered_methods.entrySet()) {
 				if(!call_count.containsKey(entry.getKey()))
 					call_count.put(entry.getKey(), entry.getValue());
 				else {
 					call_count.put(entry.getKey(), call_count.get(entry.getKey()) + entry.getValue());
 				}
 			}
-			for(Entry<String, Integer> entry : result.trace.covered_predicates.entrySet()) {
+			for(Entry<String, Integer> entry : result.getTrace().covered_predicates.entrySet()) {
 				if(!predicate_count.containsKey(entry.getKey()))
 					predicate_count.put(entry.getKey(), entry.getValue());
 				else {
 					predicate_count.put(entry.getKey(), predicate_count.get(entry.getKey()) + entry.getValue());
 				}
 			}
-			for(Entry<String, Double> entry : result.trace.true_distances.entrySet()) {
+			for(Entry<String, Double> entry : result.getTrace().true_distances.entrySet()) {
 				if(!true_distance.containsKey(entry.getKey()))
 					true_distance.put(entry.getKey(), entry.getValue());
 				else {
 					true_distance.put(entry.getKey(), Math.min(true_distance.get(entry.getKey()), entry.getValue()));
 				}
 			}
-			for(Entry<String, Double> entry : result.trace.false_distances.entrySet()) {
+			for(Entry<String, Double> entry : result.getTrace().false_distances.entrySet()) {
 				if(!false_distance.containsKey(entry.getKey()))
 					false_distance.put(entry.getKey(), entry.getValue());
 				else {
@@ -219,7 +223,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 			assert(LockRuntime.threadIDs.size()>1) : "We should expect the LockRuntime to know more than 0 threads. But apparently it only knows " + LockRuntime.threadIDs.size();
 			long t1 = System.currentTimeMillis();
 			Set<SchedulingDecisionList> goalSchedules = getSchedules(4, LockRuntime.threadIDs);
-			logger.warn("We generated " + goalSchedules.size() + " schedules which should be covered. In : " + (System.currentTimeMillis()-t1));
+			logger.info("We generated " + goalSchedules.size() + " schedules which should be covered. In : " + (System.currentTimeMillis()-t1));
 			assert(goalSchedules.size()>0) : "it appears odd, that zero goals were generated";
 			for(SchedulingDecisionList goal : goalSchedules){
 				logger.trace("testing for schedule: " + goal.toString());
@@ -245,7 +249,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 		//}else{
 		//System.out.println("not so kicken it " + fitness);
 		//}
-		logger.warn("fitness " + fitness);
+		logger.info("fitness " + fitness);
 		//if(fitness==0.0)System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" + fitness);
 
 		//		covered_methods  = Math.max(covered_methods,  call_count.size());

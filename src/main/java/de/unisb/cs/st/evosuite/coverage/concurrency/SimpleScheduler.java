@@ -85,4 +85,9 @@ public class SimpleScheduler implements Schedule {
 		return schedule.iterator();
 	}
 
+	@Override
+	public void notifyOfUsedSchedule(int threadID) {
+		//nothing todo
+	}
+
 }

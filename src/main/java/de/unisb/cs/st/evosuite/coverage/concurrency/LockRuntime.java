@@ -140,7 +140,7 @@ public class LockRuntime {
 				controller.locked.remove(Thread.currentThread());
 			}
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logger.fatal("interrupted ! ", e);
 			System.exit(1);
 			//#TODO handleCase
 		}
