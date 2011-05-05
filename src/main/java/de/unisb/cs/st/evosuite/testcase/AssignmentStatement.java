@@ -117,7 +117,7 @@ public class AssignmentStatement extends Statement {
 	}
 
 	@Override
-	public boolean equals(StatementInterface obj) {
+	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
