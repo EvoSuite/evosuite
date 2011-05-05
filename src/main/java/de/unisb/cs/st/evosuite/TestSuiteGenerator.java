@@ -27,6 +27,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import de.unisb.cs.st.evosuite.Properties.Criterion;
+import de.unisb.cs.st.evosuite.Properties.Strategy;
 import de.unisb.cs.st.evosuite.assertion.AssertionGenerator;
 import de.unisb.cs.st.evosuite.assertion.MutationAssertionGenerator;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
@@ -117,18 +119,19 @@ public class TestSuiteGenerator {
 	/**
 	 * Generate a test suite for the target class
 	 */
-	public void generateTestSuite() {
+	public String generateTestSuite() {
 		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
 		List<TestCase> tests;
 
 		System.out.println("* Generating tests for class " + Properties.TARGET_CLASS);
+		printTestCriterion();
 
-		if (Properties.STRATEGY.equals("EvoSuite"))
+		if (Properties.STRATEGY == Strategy.EVOSUITE)
 			tests = generateWholeSuite();
 		else
 			tests = generateIndividualTests();
 
-		if (Properties.MUTATION) {
+		if (Properties.CRITERION == Criterion.MUTATION) {
 			MutationAssertionGenerator asserter = new MutationAssertionGenerator();
 			Set<Long> killed = new HashSet<Long>();
 			for (TestCase test : tests) {
@@ -143,7 +146,7 @@ public class TestSuiteGenerator {
 			}
 		}
 
-		if (Properties.getPropertyOrDefault("junit_tests", true)) {
+		if (Properties.JUNIT_TESTS) {
 			TestSuite suite = new TestSuite(tests);
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 			System.out.println("* Writing JUnit test cases to " + Properties.TEST_DIR);
@@ -153,6 +156,8 @@ public class TestSuiteGenerator {
 		TestCaseExecutor.pullDown();
 		statistics.writeReport();
 		System.out.println("* Done!");
+
+		return "";
 	}
 
 	/**
@@ -170,7 +175,7 @@ public class TestSuiteGenerator {
 		FitnessFunction fitness_function = getFitnessFunction();
 		ga.setFitnessFunction(fitness_function);
 
-		if (Properties.CRITERION.equals("defuse"))
+		if (Properties.CRITERION == Criterion.DEFUSE)
 			ExecutionTrace.enableTraceCalls();
 
 		// Perform search
@@ -195,7 +200,7 @@ public class TestSuiteGenerator {
 
 		System.out.println("* Resulting TestSuite's coverage: " + best.getCoverage());
 
-		if (Properties.CRITERION.equals("defuse")) {
+		if (Properties.CRITERION == Criterion.DEFUSE) {
 			// TODO this is horribly inefficient! 
 			// compute all results once and then ask each goal individually
 			// ... and put all that in TestSuiteFitnessFuncion
@@ -214,43 +219,56 @@ public class TestSuiteGenerator {
 		return best.getTests();
 	}
 
-	private TestSuiteFitnessFunction getFitnessFunction() {
-		if (Properties.CRITERION.equals(Properties.CRITERIA.MUTATION)) {
+	private void printTestCriterion() {
+		switch (Properties.CRITERION) {
+		case MUTATION:
 			System.out.println("* Test criterion: Mutation testing");
-			return new MutationSuiteFitness();
-		} else if (Properties.CRITERION.equals(Properties.CRITERIA.LCSAJ)) {
+			break;
+		case LCSAJ:
 			System.out.println("* Test criterion: LCSAJ");
-			return new LCSAJCoverageSuiteFitness();
-		} else if (Properties.CRITERION.equals(Properties.CRITERIA.DEFUSE)) {
+			break;
+		case DEFUSE:
 			System.out.println("* Test criterion: All DU Pairs");
-			return new DefUseCoverageSuiteFitness();
-		} else if (Properties.CRITERION.equals(Properties.CRITERIA.PATH)) {
+			break;
+		case PATH:
 			System.out.println("* Test criterion: Prime Path");
-			return new PrimePathSuiteFitness();
-		}else if(Properties.CRITERION.equals(Properties.CRITERIA.CONCURRENCY)){
+			break;
+		case CONCURRENCY:
 			System.out.println("* Test criterion: Concurrent Test Case *");
-			return new ConcurrencySuitCoverage();
-		} else {
+			break;
+		default:
 			System.out.println("* Test criterion: Branch coverage");
+		}
+	}
+
+	private TestSuiteFitnessFunction getFitnessFunction() {
+		switch (Properties.CRITERION) {
+		case MUTATION:
+			return new MutationSuiteFitness();
+		case LCSAJ:
+			return new LCSAJCoverageSuiteFitness();
+		case DEFUSE:
+			return new DefUseCoverageSuiteFitness();
+		case PATH:
+			return new PrimePathSuiteFitness();
+		case CONCURRENCY:
+			return new ConcurrencySuitCoverage();
+		default:
 			return new BranchCoverageSuiteFitness();
 		}
 	}
 
 	private TestFitnessFactory getFitnessFactory() {
-		if (Properties.CRITERION.equals(Properties.CRITERIA.MUTATION)) {
-			System.out.println("* Test criterion: Mutation testing");
+		switch (Properties.CRITERION) {
+		case MUTATION:
 			return new MutationGoalFactory();
-		} else if (Properties.CRITERION.equals(Properties.CRITERIA.LCSAJ)) {
-			System.out.println("* Test criterion: LCSAJ");
+		case LCSAJ:
 			return new LCSAJCoverageFactory();
-		} else if (Properties.CRITERION.equals(Properties.CRITERIA.DEFUSE)) {
-			System.out.println("* Test criterion: All DU Pairs");
+		case DEFUSE:
 			return new DefUseCoverageFactory();
-		} else if (Properties.CRITERION.equals(Properties.CRITERIA.PATH)) {
-			System.out.println("* Test criterion: Prime Path");
+		case PATH:
 			return new PrimePathCoverageFactory();
-		} else {
-			System.out.println("* Test criterion: Branch coverage");
+		default:
 			return new BranchCoverageFactory();
 		}
 	}
@@ -264,13 +282,13 @@ public class TestSuiteGenerator {
 	private TestSuiteChromosome bootstrapRandomSuite(FitnessFunction fitness,
 	        TestFitnessFactory goals) {
 
-		int random_tests = Properties.getPropertyOrDefault("random_tests", 100);
+		int random_tests = Properties.RANDOM_TESTS;
 		if (random_tests > 0)
 			System.out.println("* Bootstrapping initial random test suite");
 		else
 			System.out.println("* Bootstrapping initial random test suite disabled!");
 		TestSuiteChromosomeFactory factory = new TestSuiteChromosomeFactory();
-		if (Properties.CRITERION.equals("defuse") && random_tests > 0) {
+		if (Properties.CRITERION == Criterion.DEFUSE && random_tests > 0) {
 			System.out.println("* Tuned down random bootstraping for DefUseCoverage-Criterion");
 			random_tests = random_tests / 10;
 		}
@@ -300,11 +318,8 @@ public class TestSuiteGenerator {
 		ExecutionTrace.enableTraceCalls();
 		GeneticAlgorithm ga = setup();
 		long start_time = System.currentTimeMillis() / 1000;
-		boolean skip_covered = Properties.getPropertyOrDefault("skip_covered", true);
-		boolean reuse_budget = Properties.getPropertyOrDefault("reuse_budget", true);
-		boolean log_goals = Properties.getPropertyOrDefault("log_goals", false);
 		FitnessLogger fitness_logger = new FitnessLogger();
-		if (log_goals) {
+		if (Properties.LOG_GOALS) {
 			ga.addListener(fitness_logger);
 		}
 
@@ -312,17 +327,17 @@ public class TestSuiteGenerator {
 		TestFitnessFactory goal_factory = getFitnessFactory();
 		List<TestFitnessFunction> goals = goal_factory.getCoverageGoals();
 		// Need to shuffle goals because the order may make a difference
-		if (Properties.getPropertyOrDefault("shuffle_goals", true)) {
+		if (Properties.SHUFFLE_GOALS) {
 			System.out.println("* Shuffling goals");
 			Randomness.getInstance().shuffle(goals);
 		}
-		if (Properties.getPropertyOrDefault("preorder_goals_by_difficulty", false)) {
+		if (Properties.PREORDER_GOALS_BY_DIFFICULTY) {
 			orderGoalsByDifficulty(goals);
 			System.out.println("* Time taken for difficulty computation: "
 			        + DefUseCoverageTestFitness.difficulty_time + "ms");
 		} else
 			System.out.println("* Goal preordering by difficulty disabled!");
-		if (!Properties.getPropertyOrDefault("recycle_chromosomes", true))
+		if (!Properties.RECYCLE_CHROMOSOMES)
 			System.out.println("* ChromosomeRecycler disabled!");
 
 		System.out.println("* Total number of test goals: " + goals.size());
@@ -378,19 +393,11 @@ public class TestSuiteGenerator {
 				ga.resetStoppingConditions();
 				ga.clearPopulation();
 
-				if (Properties.getPropertyOrDefault("print_current_goals", false))
+				if (Properties.PRINT_CURRENT_GOALS)
 					System.out.println("* Searching for goal " + num + ": "
 					        + fitness_function.toString());
 				logger.info("Goal " + num + "/" + (total_goals - covered_goals) + ": "
 				        + fitness_function);
-
-				if (skip_covered && fitness_function.isCovered(suite.getTests())) {
-					logger.info("Skipping goal because it is already covered");
-					covered.add(num);
-					covered_goals++;
-					num++;
-					continue;
-				}
 
 				if (global_time.isFinished()) {
 					System.out.println("Skipping goal because time is up");
@@ -407,9 +414,10 @@ public class TestSuiteGenerator {
 				ga.generateSolution();
 
 				if (ga.getBestIndividual().getFitness() == 0.0) {
-					if (Properties.getPropertyOrDefault("print_covered_goals", false))
+					if (Properties.PRINT_COVERED_GOALS)
 						System.out.println("* Covered: " + fitness_function.toString());
-					logger.info("Found solution, adding to test suite");
+					logger.info("Found solution, adding to test suite at "
+					        + MaxStatementsStoppingCondition.getNumExecutedStatements());
 					TestChromosome best = (TestChromosome) ga.getBestIndividual();
 					if (Properties.MINIMIZE) {
 						TestCaseMinimizer minimizer = new TestCaseMinimizer(
@@ -424,7 +432,7 @@ public class TestSuiteGenerator {
 					covered.add(num);
 
 					// experiment:
-					if (skip_covered) {
+					if (Properties.SKIP_COVERED) {
 						Set<Integer> additional_covered_nums = getAdditionallyCoveredGoals(goals,
 						                                                                   covered,
 						                                                                   best);
@@ -436,14 +444,16 @@ public class TestSuiteGenerator {
 					}
 
 				} else {
-					logger.info("Found no solution");
+					logger.info("Found no solution at "
+					        + MaxStatementsStoppingCondition.getNumExecutedStatements());
 				}
 
-				suite_fitness.getFitness(suite); // ???
+				// Calculate and keep track of overall fitness
+				suite_fitness.getFitness(suite);
 				List<Chromosome> population = new ArrayList<Chromosome>();
 				population.add(suite);
 				statistics.iteration(population);
-				if (reuse_budget)
+				if (Properties.REUSE_BUDGET)
 					current_budget += stopping_condition.getCurrentValue();
 				else
 					current_budget += budget + 1;
@@ -522,7 +532,9 @@ public class TestSuiteGenerator {
 	        Set<Integer> covered, TestChromosome best) {
 
 		Set<Integer> r = new HashSet<Integer>();
-		ExecutionResult result = TestCaseExecutor.getInstance().execute(best.test);
+		ExecutionResult result = best.last_result;
+		if (result == null)
+			result = TestCaseExecutor.getInstance().execute(best.test);
 		int num = -1;
 		for (TestFitnessFunction goal : goals) {
 			num++;
@@ -530,7 +542,7 @@ public class TestSuiteGenerator {
 				continue;
 			if (goal.isCovered(best, result)) {
 				r.add(num);
-				if (Properties.getPropertyOrDefault("print_covered_goals", false))
+				if (Properties.PRINT_COVERED_GOALS)
 					System.out.println("* Additionally covered: " + goal.toString());
 			}
 		}
@@ -569,52 +581,53 @@ public class TestSuiteGenerator {
 	 */
 
 	private StoppingCondition getStoppingCondition() {
-		String stopping_condition = Properties.getPropertyOrDefault("stopping_condition",
-		                                                            "MaxGenerations");
 		logger.info("Setting stopping condition: " + stopping_condition);
-		if (stopping_condition.equals("MaxGenerations")) {
+		switch (Properties.STOPPING_CONDITION) {
+		case MAXGENERATIONS:
 			return new MaxGenerationStoppingCondition();
-		} else if (stopping_condition.equals("MaxEvaluations")) {
+		case MAXFITNESSEVALUATIONS:
 			return new MaxFitnessEvaluationsStoppingCondition();
-		} else if (stopping_condition.equals("MaxTime")) {
+		case MAXTIME:
 			return new MaxTimeStoppingCondition();
-		} else if (stopping_condition.equals("MaxTests")) {
+		case MAXTESTS:
 			return new MaxTestsStoppingCondition();
-		} else if (stopping_condition.equals("MaxStatements")) {
+		case MAXSTATEMENTS:
 			return new MaxStatementsStoppingCondition();
-		} else {
+		default:
 			logger.warn("Unknown stopping condition: " + stopping_condition);
 			return new MaxGenerationStoppingCondition();
 		}
 	}
 
 	private CrossOverFunction getCrossoverFunction() {
-		String crossover_function = Properties.getPropertyOrDefault("crossover_function",
-		                                                            "SinglePoint");
-		if (crossover_function.equals("SinglePointFixed"))
+		switch (Properties.CROSSOVER_FUNCTION) {
+		case SINGLEPOINTFIXED:
 			return new SinglePointFixedCrossOver();
-		else if (crossover_function.equals("SinglePointRelative"))
+		case SINGLEPOINTRELATIVE:
 			return new SinglePointRelativeCrossOver();
-		else
+		default:
 			return new SinglePointCrossOver();
+		}
 	}
 
 	private SelectionFunction getSelectionFunction() {
-		String selection_function = Properties.getPropertyOrDefault("selection_function",
-		                                                            "Rank");
-		if (selection_function.equals("Roulette"))
+		switch (Properties.SELECTION_FUNCTION) {
+		case ROULETTEWHEEL:
 			return new FitnessProportionateSelection();
-		else if (selection_function.equals("Tournament"))
+		case TOURNAMENT:
 			return new TournamentSelection();
-		else
+		default:
 			return new RankSelection();
+		}
 	}
 
 	private ChromosomeFactory getChromosomeFactory() {
-		if (Properties.STRATEGY.equals("EvoSuite"))
+		switch (Properties.STRATEGY) {
+		case EVOSUITE:
 			return new TestSuiteChromosomeFactory();
-		else
+		default:
 			return new RandomLengthTestFactory();
+		}
 	}
 
 	private SecondaryObjective getSecondaryObjective(String name) {
@@ -632,13 +645,12 @@ public class TestSuiteGenerator {
 	}
 
 	private void getSecondaryObjectives(GeneticAlgorithm algorithm) {
-		if (Properties.STRATEGY.equals("OneBranch")) {
+		if (Properties.STRATEGY == Strategy.ONEBRANCH) {
 			SecondaryObjective objective = getSecondaryObjective("size");
 			Chromosome.addSecondaryObjective(objective);
 			algorithm.addSecondaryObjective(objective);
 		} else {
-			String objectives = Properties.getPropertyOrDefault("secondary_objectives",
-			                                                    "maxlength");
+			String objectives = Properties.SECONDARY_OBJECTIVE;
 			for (String name : objectives.split(":")) {
 				SecondaryObjective objective = getSecondaryObjective(name);
 				Chromosome.addSecondaryObjective(objective);
@@ -648,30 +660,32 @@ public class TestSuiteGenerator {
 	}
 
 	private GeneticAlgorithm getGeneticAlgorithm(ChromosomeFactory factory) {
-		String search_algorithm = Properties.getProperty("algorithm");
-		if (search_algorithm.equals("(1+1)EA")) {
+		switch (Properties.ALGORITHM) {
+		case ONEPLUSONEEA:
 			logger.info("Chosen search algorithm: (1+1)EA");
 			return new OnePlusOneEA(factory);
-
-		} else if (search_algorithm.equals("SteadyStateGA")) {
+		case STEADYSTATEGA:
 			logger.info("Chosen search algorithm: SteadyStateGA");
-			SteadyStateGA ga = new SteadyStateGA(factory);
-			if (Properties.STRATEGY.equals("EvoSuite"))
-				ga.setReplacementFunction(new TestSuiteReplacementFunction());
-			else
-				ga.setReplacementFunction(new TestCaseReplacementFunction());
-			return ga;
-
-		} else if (search_algorithm.equals("MuPlusLambdaGA")) {
+			{
+				SteadyStateGA ga = new SteadyStateGA(factory);
+				if (Properties.STRATEGY == Strategy.EVOSUITE)
+					ga.setReplacementFunction(new TestSuiteReplacementFunction());
+				else
+					ga.setReplacementFunction(new TestCaseReplacementFunction());
+				return ga;
+			}
+		case MUPLUSLAMBDAGA:
 			logger.info("Chosen search algorithm: MuPlusLambdaGA");
-			MuPlusLambdaGA ga = new MuPlusLambdaGA(factory);
-			if (Properties.STRATEGY.equals("EvoSuite"))
-				ga.setReplacementFunction(new TestSuiteReplacementFunction());
-			else
-				ga.setReplacementFunction(new TestCaseReplacementFunction());
-			return ga;
+			{
+				MuPlusLambdaGA ga = new MuPlusLambdaGA(factory);
+				if (Properties.STRATEGY == Strategy.EVOSUITE)
+					ga.setReplacementFunction(new TestSuiteReplacementFunction());
+				else
+					ga.setReplacementFunction(new TestCaseReplacementFunction());
+				return ga;
+			}
 
-		} else {
+		default:
 			logger.info("Chosen search algorithm: StandardGA");
 			return new StandardGA(factory);
 		}
@@ -697,10 +711,10 @@ public class TestSuiteGenerator {
 		stopping_condition = getStoppingCondition();
 		ga.setStoppingCondition(stopping_condition);
 		// ga.addListener(stopping_condition);
-		if (Properties.getPropertyOrDefault("stop_zero", true))
+		if (Properties.STOP_ZERO)
 			ga.addStoppingCondition(zero_fitness);
 		ga.addStoppingCondition(global_time);
-		if (Properties.MUTATION)
+		if (Properties.CRITERION == Criterion.MUTATION)
 			ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
 
 		// How to cross over
@@ -711,7 +725,7 @@ public class TestSuiteGenerator {
 		// MaxLengthBloatControl bloat_control = new MaxLengthBloatControl();
 		// ga.setBloatControl(bloat_control);
 
-		if (Properties.STRATEGY.equals("EvoSuite")) {
+		if (Properties.STRATEGY == Strategy.EVOSUITE) {
 			RelativeLengthBloatControl bloat_control = new RelativeLengthBloatControl();
 			ga.addBloatControl(bloat_control);
 			ga.addListener(bloat_control);
@@ -725,12 +739,12 @@ public class TestSuiteGenerator {
 		getSecondaryObjectives(ga);
 
 		// Some statistics
-		if (Properties.STRATEGY.equals("EvoSuite"))
+		if (Properties.STRATEGY == Strategy.EVOSUITE)
 			ga.addListener(SearchStatistics.getInstance());
 		//ga.addListener(MutationStatistics.getInstance());
 		//ga.addListener(BestChromosomeTracker.getInstance());
 
-		if (Properties.getPropertyOrDefault("dynamic_limit", false)) {
+		if (Properties.DYNAMIC_LIMIT) {
 			//max_s = GAProperties.generations * getBranches().size();
 			// TODO: might want to make this dependent on the selected coverage criterion
 			// TODO also, question: is branchMap.size() really intended here? 

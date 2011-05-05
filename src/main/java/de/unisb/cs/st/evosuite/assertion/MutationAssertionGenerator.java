@@ -34,14 +34,12 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMSwitcher;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.OutputTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
-import de.unisb.cs.st.javalanche.mutation.javaagent.MutationsForRun;
-import de.unisb.cs.st.javalanche.mutation.properties.MutationProperties;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation.MutationType;
 
@@ -66,9 +64,10 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 	private final Map<TestCase, Map<Class<?>, Integer>> assertion_statistics_killed = new HashMap<TestCase, Map<Class<?>, Integer>>();
 
-	private final MutationsForRun m_VRO = new MutationsForRun(
-	        MutationProperties.MUTATION_FILE_NAME.replace(".mutants", "_VRO.mutants"),
-	        true);
+	//private final MutationsForRun m_VRO = new MutationsForRun(
+	//        ConfigurationLocator.getJavalancheConfiguration().getMutationIdFile().getPath().replace(".mutants",
+	//                                                                                                "_VRO.mutants"),
+	//        true);
 
 	private final Set<Long> killed_ALL = new HashSet<Long>();
 
@@ -125,8 +124,6 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	private ExecutionResult runTest(TestCase test, Mutation mutant) {
 		ExecutionResult result = new ExecutionResult(test, mutant);
 		resetObservers();
-		// primitive_observer.clear();
-		// comparison_observer.clear();
 		try {
 			logger.debug("Executing test");
 			HOMObserver.resetTouched(); // TODO - is this the right place?
@@ -134,21 +131,26 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				hom_switcher.switchOn(mutant);
 				executor.setLogging(false);
 			}
-			result.exceptions = executor.run(test);
+
+			result = executor.execute(test);
 			executor.setLogging(true);
 
-			hom_switcher.switchOff(mutant);
-			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
-			// result.output_trace = executor.getTrace();
+			if (mutant != null)
+				hom_switcher.switchOff(mutant);
+
+			int num = test.size();
+			MaxStatementsStoppingCondition.statementsExecuted(num);
+			result.touched.addAll(HOMObserver.getTouched());
+
 			result.comparison_trace = comparison_observer.getTrace();
 			result.primitive_trace = primitive_observer.getTrace();
 			result.inspector_trace = inspector_observer.getTrace();
 			result.field_trace = field_observer.getTrace();
 			result.null_trace = null_observer.getTrace();
-			/*
-			 * if(ex != null) { result.exception = ex; }
-			 */
-			result.touched = HOMObserver.getTouched();
+
+			// for(TestObserver observer : observers) {
+			// observer.testResult(result);
+			// }
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();

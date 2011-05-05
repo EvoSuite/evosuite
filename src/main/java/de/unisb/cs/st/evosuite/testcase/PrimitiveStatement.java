@@ -43,11 +43,11 @@ import de.unisb.cs.st.evosuite.primitives.PrimitivePool;
  */
 public class PrimitiveStatement<T> extends Statement {
 
-	private static int MAX_STRING = Properties.getPropertyOrDefault("string_length", 20);
+	private static int MAX_STRING = Properties.STRING_LENGTH;
 
-	private static int MAX_INT = Properties.getPropertyOrDefault("max_int", 256);
+	private static int MAX_INT = Properties.MAX_INT;
 
-	private static double P_pool = Properties.getPropertyOrDefault("primitive_pool", 0.5);
+	private static double P_pool = Properties.PRIMITIVE_POOL;
 
 	private static Randomness randomness = Randomness.getInstance();
 
@@ -305,6 +305,7 @@ public class PrimitiveStatement<T> extends Statement {
 	 * @param clazz
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public void randomize() {
 		if (value instanceof Boolean) {
 			value = (T) new Boolean(randomness.nextBoolean());

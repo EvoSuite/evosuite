@@ -21,6 +21,10 @@ package de.unisb.cs.st.evosuite.mutation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMSwitcher;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
@@ -32,6 +36,27 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
  */
 public class MutationGoalFactory implements TestFitnessFactory {
 
+	private static Logger logger = Logger.getLogger(TestFitnessFactory.class);
+
+	private boolean isDeprecated(Mutation mutation) {
+		// FIXME: @Deprecated annotation seems to get lost somewhere!
+		/*
+		Class<?> mutationClass = Properties.getTargetClass();
+		for (Method method : mutationClass.getDeclaredMethods()) {
+			String name = method.getName() + Type.getMethodDescriptor(method);
+			if (name.equals(methodName)) {
+				logger.info("Found mutant method: " + methodName);
+				if (method.getAnnotation(Deprecated.class) != null)
+					return true;
+			}
+		}
+		*/
+		if (CFGMethodAdapter.getMinimizedCFG(mutation.getClassName(),
+		                                     mutation.getMethodName()) == null)
+			return true;
+		return false;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -42,25 +67,21 @@ public class MutationGoalFactory implements TestFitnessFactory {
 	public List<TestFitnessFunction> getCoverageGoals() {
 		HOMSwitcher hom_switcher = new HOMSwitcher();
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
-		System.out.println("* Created " + hom_switcher.getNumMutants()
-		        + " mutants");
-		// boolean VRO = Properties.getPropertyOrDefault("VRO", false);
 		for (Mutation mutation : hom_switcher.getMutants()) {
-			if (!mutation.getMethodName().equals("<clinit>()V")) {
-				goals.add(new MutationTestFitness(mutation));
+
+			if (mutation.getMethodName().equals("<clinit>()V")) {
+				logger.info("Skipping mutant in static constructor");
+				continue;
 			}
-			/*
-			 * if(VRO) { if(!mutation.getMethodName().equals("<clinit>()V") &&
-			 * mutation.getMutationType().equals(MutationType.REPLACE_VARIABLE))
-			 * { goals.add(new MutationTestFitness(mutation)); } } else {
-			 * if(!mutation.getMethodName().equals("<clinit>()V") &&
-			 * !mutation.getMutationType
-			 * ().equals(MutationType.REPLACE_VARIABLE)) { goals.add(new
-			 * MutationTestFitness(mutation)); } }
-			 */
+
+			if (!Properties.USE_DEPRECATED && isDeprecated(mutation)) {
+				logger.info("Skipping mutant in deprecated method "
+				        + mutation.getMethodName());
+				continue;
+			}
+			goals.add(new MutationTestFitness(mutation));
 		}
 
 		return goals;
 	}
-
 }

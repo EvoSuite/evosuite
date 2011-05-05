@@ -22,8 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.TestFactory;
 import de.unisb.cs.st.evosuite.OUM.OUMTestChromosomeFactory;
-import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTestCaseFactory;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
@@ -42,32 +42,23 @@ public class TestSuiteChromosome extends Chromosome {
 	/** The genes are test cases */
 	public List<TestChromosome> tests = new ArrayList<TestChromosome>();
 
-	/** Maximum number of tests */
-	protected int max_tests = Properties.getPropertyOrDefault("max_size", 50);
-
 	protected double coverage = 0.0;
-
-	/** Rate of test case addition */
-	protected double mutation_rate = Properties.getPropertyOrDefault(
-	        "mutation_rate", 0.1);
 
 	/** Factory to manipulate and generate method sequences */
 	private static ChromosomeFactory test_factory = null;
 
 	static {
-		
-		String factory_name = Properties.getPropertyOrDefault("test_factory",
-		        "Random");
-		if (factory_name.equals("OUM"))
+
+		if (Properties.TEST_FACTORY == TestFactory.OUM)
 			test_factory = new OUMTestChromosomeFactory();
 		else
 			test_factory = new RandomLengthTestFactory();
-	
-		if(Properties.CRITERION.equals(Properties.CRITERIA.CONCURRENCY)){
+
+		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
 			//#TODO steenbuck we should wrap the original factory not replace it.
 			test_factory = new ConcurrencyTestCaseFactory();
 		}
-	
+
 	}
 
 	public void addTest(TestCase test) {
@@ -110,8 +101,7 @@ public class TestSuiteChromosome extends Chromosome {
 			tests.remove(position1);
 		for (int num = position2; num < other.size(); num++) {
 			// tests.add((TestChromosome) chromosome.tests.get(num).clone());
-			TestChromosome testCopy = (TestChromosome) chromosome.tests
-			        .get(num).clone();
+			TestChromosome testCopy = (TestChromosome) chromosome.tests.get(num).clone();
 			tests.add(testCopy);
 		}
 	}
@@ -173,7 +163,7 @@ public class TestSuiteChromosome extends Chromosome {
 		int count = 1;
 
 		while (randomness.nextDouble() <= Math.pow(ALPHA, count)
-		        && size() < max_tests) {
+		        && size() < Properties.MAX_SIZE) {
 			count++;
 			// Insert at position as during initialization (i.e., using helper
 			// sequences)
@@ -186,20 +176,6 @@ public class TestSuiteChromosome extends Chromosome {
 			// tests.add((TestChromosome) test_factory.getChromosome());
 			logger.debug("Adding new test case ");
 		}
-
-		/*
-		 * if(randomness.nextDouble() < mutation_rate) { TestSuiteChromosome
-		 * best = BestChromosomeTracker.getInstance().getBest(); int diff =
-		 * 2*best.length() - length(); if(diff > 0) { int length = 1 +
-		 * randomness.nextInt(Math.min(max_test_length, diff));
-		 * 
-		 * // Add random test case RandomLengthTestFactory factory = new
-		 * RandomLengthTestFactory(); // TestChromosomeFactory factory = new
-		 * TestChromosomeFactory(length); tests.add((TestChromosome)
-		 * factory.getChromosome());
-		 * logger.debug("Adding new test case of max length "+length); } }
-		 */
-
 	}
 
 	/**

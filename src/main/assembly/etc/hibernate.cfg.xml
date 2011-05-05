@@ -42,9 +42,9 @@
 		<mapping class="de.unisb.cs.st.javalanche.mutation.results.Mutation"/>
 		<mapping class="de.unisb.cs.st.javalanche.mutation.results.MutationTestResult"/>
 		<mapping class="de.unisb.cs.st.javalanche.mutation.results.TestMessage"/>
-		<!--mapping class="de.unisb.cs.st.javalanche.mutation.results.MutationCoverage"/-->
 		<mapping class="de.unisb.cs.st.javalanche.mutation.results.TestName"/>
-		<mapping class="de.unisb.cs.st.javalanche.mutation.results.AddResult"/>
+		<!--mapping class="de.unisb.cs.st.javalanche.mutation.results.MutationCoverage"/-->
+		<!-- <mapping class="de.unisb.cs.st.javalanche.mutation.results.AddResult"/> -->
 		<!--mapping class="de.unisb.cs.st.javalanche.mutation.results.Invariant"/-->
 
 		<!--mapping class="de.unisb.cs.st.javalanche.mutation.results.InvariantAddResult"/-->

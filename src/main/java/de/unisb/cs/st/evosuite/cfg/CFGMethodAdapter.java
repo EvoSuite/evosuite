@@ -130,13 +130,13 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 		instrumentations.add(new BranchInstrumentation());
 
-		if (Properties.CRITERION.equals(Properties.CRITERIA.CONCURRENCY)) {
+		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
 			instrumentations.add(new ConcurrencyInstrumentation());
-		} else if (Properties.CRITERION.equals(Properties.CRITERIA.LCSAJ)) {
+		} else if (Properties.CRITERION.equals(Properties.Criterion.LCSAJ)) {
 			instrumentations.add(new LCSAJsInstrumentation());
-		} else if (Properties.CRITERION.equals(Properties.CRITERIA.DEFUSE)) {
+		} else if (Properties.CRITERION.equals(Properties.Criterion.DEFUSE)) {
 			instrumentations.add(new DefUseInstrumentation());
-		} else if (Properties.CRITERION.equals(Properties.CRITERIA.PATH)) {
+		} else if (Properties.CRITERION.equals(Properties.Criterion.PATH)) {
 			instrumentations.add(new PrimePathInstrumentation());
 		}
 
@@ -262,8 +262,9 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	public static ControlFlowGraph getMinimizedCFG(String classname, String methodname) {
 		logger.debug("Getting minimzed CFG for class " + classname + " and method "
 		        + methodname);
-		if (minimizedCFGs.get(classname) == null)
+		if (minimizedCFGs.get(classname).get(methodname) == null) {
 			return null;
+		}
 		return minimizedCFGs.get(classname).get(methodname);
 	}
 

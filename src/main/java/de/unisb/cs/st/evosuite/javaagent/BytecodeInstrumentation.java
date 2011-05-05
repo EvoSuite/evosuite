@@ -33,10 +33,10 @@ import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.cfg.CFGClassAdapter;
 import de.unisb.cs.st.evosuite.primitives.PrimitiveClassAdapter;
 import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
-import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.Excludes;
 
 /**
  * The bytecode transformer - transforms bytecode depending on package and
@@ -49,6 +49,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 	private static Hierarchy hierarchy;
 
+	private static final boolean MUTATION = Properties.CRITERION.equals(Criterion.MUTATION);
+
 	static {
 		if (Properties.INSTRUMENT_PARENT)
 			hierarchy = Hierarchy.readFromDefaultLocation();
@@ -59,11 +61,6 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	//private static RemoveSystemExitTransformer systemExitTransformer = new RemoveSystemExitTransformer();
 
 	private static String target_class = Properties.TARGET_CLASS;
-
-	protected boolean static_hack = Properties.getPropertyOrDefault("static_hack", false);
-
-	private final boolean makeAllAccessible = Properties.getPropertyOrDefault("make_accessible",
-	                                                                          false);
 
 	private boolean isTargetClass(String className) {
 		if (className.equals(target_class) || className.startsWith(target_class + "$")) {
@@ -94,13 +91,10 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 				String classNameWithDots = className.replace('/', '.');
 
 				// Some packages we shouldn't touch - hard-coded
-				if (!classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
+				if (!classNameWithDots.startsWith(Properties.getInstance().PROJECT_PREFIX)
 				        && (classNameWithDots.startsWith("java")
 				                || classNameWithDots.startsWith("sun")
 				                || classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
-					return classfileBuffer;
-				}
-				if (Excludes.getInstance().shouldExclude(classNameWithDots)) {
 					return classfileBuffer;
 				}
 				if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)) {
@@ -126,18 +120,18 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 						cv = new ExecutionPathClassAdapter(cv, className);
 						cv = new CFGClassAdapter(cv, className);
 
-					} else if (makeAllAccessible) {
+					} else if (Properties.MAKE_ACCESSIBLE) {
 						// Convert protected/default access to public access
 						cv = new AccessibleClassAdapter(cv, className);
 					}
 
 					// Collect constant values for the value pool
-					if (!Properties.MUTATION) {
+					if (!MUTATION) {
 						cv = new PrimitiveClassAdapter(cv, className);
 					}
 
 					// If we need to reset static constructors, make them explicit methods
-					if (static_hack)
+					if (Properties.STATIC_HACK)
 						cv = new StaticInitializationClassAdapter(cv, className);
 
 					if (Properties.TT) {

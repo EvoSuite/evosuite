@@ -98,7 +98,7 @@ public class DescriptorMapping {
 
 	public boolean isTransformedOrBooleanReturnMethod(String className,
 	        String methodName, String desc) {
-		if (Properties.TRANSFORM_STRING && isStringReplacement(className, methodName))
+		if (isStringReplacement(className, methodName))
 			return true;
 
 		TestabilityTransformation.logger.info("Checking method: " + className + "."

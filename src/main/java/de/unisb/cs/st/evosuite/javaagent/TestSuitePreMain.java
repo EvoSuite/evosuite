@@ -22,6 +22,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMFileTransformer;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.DistanceTransformer;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.MutationScanner;
@@ -37,6 +38,8 @@ import de.unisb.cs.st.testability.TransformationHelper;
  */
 public class TestSuitePreMain {
 
+	public static DistanceTransformer distanceTransformer = null;
+
 	/**
 	 * Decides which transformers to add
 	 * 
@@ -47,7 +50,7 @@ public class TestSuitePreMain {
 		if (agentArguments.equals("generate")) {
 			System.out.println("* Instrumenting bytecode for test generation");
 			//addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
-			if (Properties.MUTATION) {
+			if (Properties.CRITERION == Criterion.MUTATION) {
 				System.out.println("* Mutating byte code");
 				addClassFileTransformer(instrumentation, new HOMFileTransformer());
 			}
@@ -75,10 +78,9 @@ public class TestSuitePreMain {
 
 		} else if (agentArguments.equals("scan")) {
 			System.out.println("* Scanning project for classes");
-			addClassFileTransformer(instrumentation, new DistanceTransformer());
+			distanceTransformer = new DistanceTransformer();
+			addClassFileTransformer(instrumentation, distanceTransformer);
 			addClassFileTransformer(instrumentation, new ScanVariablesTransformer());
-			// addClassFileTransformer(instrumentation,
-			// new ScanProjectTransformer());
 		} else if (agentArguments.equals("tasks")) {
 			// Do nothing?
 		} else if (agentArguments.equals("mutate")) {

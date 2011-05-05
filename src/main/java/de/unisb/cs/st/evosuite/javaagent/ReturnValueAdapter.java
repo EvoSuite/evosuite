@@ -3,18 +3,17 @@
  * 
  * This file is part of EvoSuite.
  * 
- * EvoSuite is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * EvoSuite is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser Public License for more details.
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser Public License
- * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package de.unisb.cs.st.evosuite.javaagent;
@@ -26,27 +25,30 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.MutationMarker;
 
 /**
  * Instrument classes to trace return values
  * 
  * @author Gordon Fraser
- *
+ * 
  */
 public class ReturnValueAdapter extends MethodAdapter {
 
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(LineNumberMethodAdapter.class);
-	
-	private String fullMethodName;
+
+	private static final boolean MUTATION = Properties.CRITERION.equals(Criterion.MUTATION);
+
+	private final String fullMethodName;
 
 	protected String className;
 
 	protected String methodName;
 
-	public ReturnValueAdapter(MethodVisitor mv, String className,
-			String methodName, String desc) {
+	public ReturnValueAdapter(MethodVisitor mv, String className, String methodName,
+	        String desc) {
 		super(mv);
 		fullMethodName = methodName + desc;
 		this.methodName = methodName;
@@ -54,8 +56,11 @@ public class ReturnValueAdapter extends MethodAdapter {
 	}
 
 	// primitive data types
-	private enum PDType { LONG, INTEGER, FLOAT, DOUBLE };
+	private enum PDType {
+		LONG, INTEGER, FLOAT, DOUBLE
+	};
 
+	@Override
 	public void visitInsn(int opcode) {
 		if (!methodName.equals("<clinit>")) {
 			switch (opcode) {
@@ -95,25 +100,27 @@ public class ReturnValueAdapter extends MethodAdapter {
 		super.visitInsn(opcode);
 
 	}
-	
+
 	private void insertMutationMarker(boolean start) {
-		if(Properties.MUTATION) {
+		if (MUTATION) {
 			Label mutationLabel = new Label();
 			mutationLabel.info = new MutationMarker(start);
 			mv.visitLabel(mutationLabel);
 		}
 	}
-	
+
 	private void callLogPrototype(String traceMethod, PDType type) {
 		if (type != PDType.LONG && type != PDType.DOUBLE) {
 			this.visitInsn(Opcodes.DUP);
 			if (type == PDType.FLOAT) {
-				this.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "floatToRawIntBits", "(F)I");
+				this.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float",
+				                     "floatToRawIntBits", "(F)I");
 			}
 		} else {
 			this.visitInsn(Opcodes.DUP2);
 			if (type == PDType.DOUBLE) {
-				this.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "doubleToRawLongBits", "(D)J");
+				this.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double",
+				                     "doubleToRawLongBits", "(D)J");
 			}
 			this.visitInsn(Opcodes.DUP2);
 			this.visitIntInsn(Opcodes.BIPUSH, 32);
@@ -124,8 +131,9 @@ public class ReturnValueAdapter extends MethodAdapter {
 
 		this.visitLdcInsn(className);
 		this.visitLdcInsn(fullMethodName);
-		this.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-				"returnValue", "(ILjava/lang/String;Ljava/lang/String;)V");		
+		this.visitMethodInsn(Opcodes.INVOKESTATIC,
+		                     "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+		                     "returnValue", "(ILjava/lang/String;Ljava/lang/String;)V");
 	}
 
 	private void callLogIReturn() {
@@ -136,10 +144,11 @@ public class ReturnValueAdapter extends MethodAdapter {
 		this.visitInsn(Opcodes.DUP);
 		this.visitLdcInsn(className);
 		this.visitLdcInsn(fullMethodName);
-		this.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-				"returnValue", "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V");
+		this.visitMethodInsn(Opcodes.INVOKESTATIC,
+		                     "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+		                     "returnValue",
+		                     "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V");
 	}
-
 
 	private void callLogLReturn() {
 		callLogPrototype("logLReturn", PDType.LONG);

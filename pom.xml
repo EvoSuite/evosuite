@@ -134,7 +134,7 @@
       <dependency>
 	<groupId>de.unisb.cs.st</groupId>
 	<artifactId>javalanche</artifactId>
-	<version>0.3.7-EvoSuite-1</version>
+	<version>0.4.0-EvoSuite-2</version>
       </dependency>
 
       <!-- Dependencies needed by javalanche -->
@@ -399,6 +399,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-eclipse-plugin</artifactId>
+                <version>2.8</version>
                 <configuration>
                     <downloadSources>true</downloadSources>
                 </configuration>
@@ -406,6 +407,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3</version>
                 <configuration>
                     <source>1.6</source>
                     <target>1.6</target>
@@ -415,6 +417,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.7</version>
                 <configuration>
                     <source>1.6</source>
                 </configuration>

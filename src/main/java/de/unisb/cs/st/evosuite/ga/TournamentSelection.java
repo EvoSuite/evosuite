@@ -30,10 +30,6 @@ import de.unisb.cs.st.evosuite.Properties;
  */
 public class TournamentSelection extends SelectionFunction {
 
-	/** Number of tournaments to run */
-	private final int tournament_size = Properties.getPropertyOrDefault("tournament_size",
-	                                                                    5);
-
 	/**
 	 * Perform the tournament on the population, return one index
 	 */
@@ -44,7 +40,7 @@ public class TournamentSelection extends SelectionFunction {
 
 		int round = 0;
 
-		while (round < tournament_size - 1) {
+		while (round < Properties.TOURNAMENT_SIZE - 1) {
 			new_num = randomness.nextInt(population.size());
 			Chromosome selected = population.get(new_num);
 

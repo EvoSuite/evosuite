@@ -37,9 +37,6 @@ public class PrimitivePool {
 
 	private static PrimitivePool instance = null;
 
-	private static final int MAX_INT = Properties.getPropertyOrDefault(
-	        "max_int", 256);
-
 	private final Randomness randomness = Randomness.getInstance();
 
 	private Set<String> string_pool = null;
@@ -97,18 +94,18 @@ public class PrimitivePool {
 				string_pool.add((String) object);
 		} else if (object instanceof Integer) {
 			int val = (Integer) object;
-			if (Math.abs(val) < MAX_INT && val != Integer.MAX_VALUE
+			if (Math.abs(val) < Properties.MAX_INT && val != Integer.MAX_VALUE
 			        && val != Integer.MIN_VALUE) {
 				int_pool.add((Integer) object);
 			}
 		} else if (object instanceof Float) {
-			if (Math.abs((Float) object) < MAX_INT)
+			if (Math.abs((Float) object) < Properties.MAX_INT)
 				float_pool.add((Float) object);
 		} else if (object instanceof Long) {
-			if (Math.abs((Long) object) < MAX_INT)
+			if (Math.abs((Long) object) < Properties.MAX_INT)
 				long_pool.add((Long) object);
 		} else if (object instanceof Double) {
-			if (Math.abs((Double) object) < MAX_INT)
+			if (Math.abs((Double) object) < Properties.MAX_INT)
 				double_pool.add((Double) object);
 		}
 	}

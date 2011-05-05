@@ -1,0 +1,24 @@
+<project name="additionalTasks">
+	
+	<target name="printBytecode" description="* print a classes bytecode (specified in property -Dclass.name=)">
+		<echo> Printing bytecode for class: ${class.name} </echo>
+		<java classname="de.unisb.cs.st.javalanche.mutation.util.AsmUtil" fork="true">
+			<sysproperty key="class.name" value="${class.name}" />
+			<classpath>
+				<pathelement path="${cp}"/>
+				<path refid="mutation.classpath"/>
+			</classpath>
+		</java>
+	</target>
+		
+	
+	<target name="addMutations" description="* Create additional mutations of type 'Replace Constant' and 'Replace Arithmetic Operator'.">
+		<java classname="de.unisb.cs.st.javalanche.mutation.util.AddMutations" maxmemory="${javalanche.maxmemory}" fork="true">
+			<sysproperty key="javalanche.project.prefix" value="${project.prefix}" />
+			<classpath>
+				<path refid="mutation.classpath" />
+			</classpath>
+		</java>
+	</target>
+	
+</project>

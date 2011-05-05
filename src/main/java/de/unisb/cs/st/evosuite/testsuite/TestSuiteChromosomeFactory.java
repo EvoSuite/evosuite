@@ -21,8 +21,8 @@ package de.unisb.cs.st.evosuite.testsuite;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.TestFactory;
 import de.unisb.cs.st.evosuite.OUM.OUMTestChromosomeFactory;
-import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTestCaseFactory;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
@@ -37,21 +37,16 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory {
 
 	Logger logger = Logger.getLogger(TestSuiteChromosomeFactory.class);
 
-	/** Desired number of tests */
-	protected int num_tests = Properties.getPropertyOrDefault("num_tests", 2);
-
 	/** Factory to manipulate and generate method sequences */
 	private ChromosomeFactory test_factory;
 
 	public TestSuiteChromosomeFactory() {
-		String factory_name = Properties.getPropertyOrDefault("test_factory",
-		        "Random");
-		if (factory_name.equals("OUM"))
+		if (Properties.TEST_FACTORY == TestFactory.OUM)
 			test_factory = new OUMTestChromosomeFactory();
 		else
 			test_factory = new RandomLengthTestFactory();
-		
-		if(Properties.CRITERION.equals(Properties.CRITERIA.CONCURRENCY)){
+
+		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
 			//#TODO steenbuck we should wrap the original factory not replace it.
 			test_factory = new ConcurrencyTestCaseFactory();
 		}
@@ -70,7 +65,7 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory {
 	}
 
 	public void setNumberOfTests(int num) {
-		num_tests = num;
+		Properties.NUM_TESTS = num;
 	}
 
 	@Override
@@ -78,13 +73,12 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory {
 
 		TestSuiteChromosome chromosome = new TestSuiteChromosome();
 		chromosome.tests.clear();
-		CurrentChromosomeTracker tracker = CurrentChromosomeTracker
-		        .getInstance();
+		CurrentChromosomeTracker tracker = CurrentChromosomeTracker.getInstance();
 		tracker.modification(chromosome);
 		// ((AllMethodsChromosomeFactory)test_factory).clear();
 
 		// TODO: Change to random number
-		for (int i = 0; i < num_tests; i++) {
+		for (int i = 0; i < Properties.NUM_TESTS; i++) {
 			TestChromosome test = (TestChromosome) test_factory.getChromosome();
 			chromosome.tests.add(test);
 		}

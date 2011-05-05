@@ -55,7 +55,6 @@ import de.unisb.cs.st.javalanche.coverage.distance.ConnectionData;
 import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
 import de.unisb.cs.st.javalanche.coverage.distance.MethodDescription;
 import de.unisb.cs.st.javalanche.coverage.distance.Tuple;
-import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.Excludes;
 import de.unisb.cs.st.testability.TransformationHelper;
 
 /**
@@ -72,9 +71,6 @@ public class TestCluster {
 
 	/** Random number generator */
 	private final Randomness randomness = Randomness.getInstance();
-
-	/** Classes excluded by Javalanche */
-	private final Excludes excludes = Excludes.getInstance();
 
 	/** Instance variable */
 	private static TestCluster instance = null;
@@ -109,7 +105,7 @@ public class TestCluster {
 		populate();
 		addIncludes();
 		analyzeTarget();
-		if (Properties.getPropertyOrDefault("remote_testing", false))
+		if (Properties.REMOTE_TESTING)
 			addRemoteCalls();
 		countTargetFunctions();
 		/*
@@ -261,13 +257,13 @@ public class TestCluster {
 			if (o instanceof Constructor<?>) {
 				Constructor<?> c = (Constructor<?>) o;
 				if (GenericClass.isSubclass(c.getDeclaringClass(), type)
-				        && c.getDeclaringClass().getName().startsWith(Properties.getProperty("PROJECT_PREFIX"))) {
+				        && c.getDeclaringClass().getName().startsWith(Properties.PROJECT_PREFIX)) {
 					g.add(o);
 				}
 			} else if (o instanceof Method) {
 				Method m = (Method) o;
 				if (GenericClass.isSubclass(m.getGenericReturnType(), type)
-				        && m.getReturnType().getName().startsWith(Properties.getProperty("PROJECT_PREFIX"))) {
+				        && m.getReturnType().getName().startsWith(Properties.PROJECT_PREFIX)) {
 					g.add(o);
 				}
 				// else if(m.getReturnType().isAssignableFrom(type) &&
@@ -276,7 +272,7 @@ public class TestCluster {
 			} else if (o instanceof Field) {
 				Field f = (Field) o;
 				if (GenericClass.isSubclass(f.getGenericType(), type)
-				        && f.getType().getName().startsWith(Properties.getProperty("PROJECT_PREFIX"))) {
+				        && f.getType().getName().startsWith(Properties.PROJECT_PREFIX)) {
 					g.add(f);
 				}
 			}
@@ -630,26 +626,6 @@ public class TestCluster {
 				objs.put(parameters[0], new ArrayList<String>());
 
 			String name = parameters[1];
-			if (false && Properties.TRANSFORM_BOOLEAN) {
-				int split = name.indexOf("(");
-				if (split >= 0) {
-					// TODO: 
-					String methodName = name.substring(0, split);
-					if (methodName.startsWith("\\Q"))
-						methodName = methodName.substring(2);
-					String desc = name.substring(split);
-					String oldDesc = desc;
-					desc = TestabilityTransformation.getTransformedDesc(parameters[0],
-					                                                    methodName, desc);
-					methodName = TestabilityTransformation.getTransformedName(parameters[0],
-					                                                          methodName,
-					                                                          oldDesc);
-					logger.info(methodName + ": Adapting desc from " + oldDesc + " to "
-					        + desc);
-					name = methodName + desc;
-				}
-			}
-
 			objs.get(parameters[0]).add(name);
 		}
 		return objs;
@@ -1034,7 +1010,7 @@ public class TestCluster {
 					String name = "<init>"
 					        + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
 
-					if (Properties.TRANSFORM_BOOLEAN) {
+					if (Properties.TT) {
 						String orig = name;
 						name = TestabilityTransformation.getOriginalNameDesc(clazz.getName(),
 						                                                     "<init>",
@@ -1083,7 +1059,7 @@ public class TestCluster {
 					String name = method.getName()
 					        + org.objectweb.asm.Type.getMethodDescriptor(method);
 
-					if (Properties.TRANSFORM_BOOLEAN) {
+					if (Properties.TT) {
 						String orig = name;
 						name = TestabilityTransformation.getOriginalNameDesc(clazz.getName(),
 						                                                     method.getName(),
@@ -1150,7 +1126,7 @@ public class TestCluster {
 	}
 
 	private static Map<String, List<String>> getIncludesFromFile() {
-		String property = Properties.getProperty("test_includes");
+		String property = Properties.TEST_INCLUDES;
 		Map<String, List<String>> objs = new HashMap<String, List<String>>();
 		if (property == null) {
 			logger.debug("No include file specified");
@@ -1269,7 +1245,7 @@ public class TestCluster {
 	}
 
 	private static Map<String, List<String>> getExcludesFromFile() {
-		String property = Properties.getProperty("test_excludes");
+		String property = Properties.TEST_EXCLUDES;
 		Map<String, List<String>> objs = new HashMap<String, List<String>>();
 		if (property == null) {
 			logger.debug("No exclude file specified");
@@ -1319,123 +1295,119 @@ public class TestCluster {
 		for (String classname : all_classes) {
 			// In prefix?
 			if (classname.startsWith(Properties.PROJECT_PREFIX)) {
-				// Not excluded?
-				if (!excludes.shouldExclude(classname)) {
-					try {
-						logger.trace("Current class: " + classname);
-						Class<?> toadd = Class.forName(classname);
-						if (!canUse(toadd)) {
-							logger.debug("Not using class " + classname);
-							continue;
-						}
-
-						// Keep all accessible constructors
-						for (Constructor<?> constructor : getConstructors(toadd)) {
-							logger.trace("Considering constructor " + constructor);
-							if (test_excludes.containsKey(classname)) {
-								boolean valid = true;
-								String full_name = "<init>"
-								        + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
-								for (String regex : test_excludes.get(classname)) {
-									if (full_name.matches(regex)) {
-										logger.info("Found excluded constructor: "
-										        + constructor + " matches " + regex);
-										valid = false;
-										break;
-									}
-								}
-								if (!valid)
-									continue;
-							}
-							if (canUse(constructor)) {
-								for (Class<?> clazz : constructor.getParameterTypes()) {
-									if (!all_classes.contains(clazz.getName())) {
-										if (clazz.isArray())
-											dependencies.add(clazz.getComponentType());
-										else
-											dependencies.add(clazz);
-									}
-								}
-								logger.debug("Adding constructor " + constructor);
-								constructor.setAccessible(true);
-								calls.add(constructor);
-							} else {
-								logger.trace("Constructor " + constructor
-								        + " is not public");
-							}
-						}
-
-						// Keep all accessible methods
-						for (Method method : getMethods(toadd)) {
-							// if(method.getDeclaringClass().equals(Object.class))
-							// continue;
-							if (test_excludes.containsKey(classname)) {
-								boolean valid = true;
-								String full_name = method.getName()
-								        + org.objectweb.asm.Type.getMethodDescriptor(method);
-								for (String regex : test_excludes.get(classname)) {
-									if (full_name.matches(regex)) {
-										valid = false;
-										logger.info("Found excluded method: " + classname
-										        + "." + full_name + " matches " + regex);
-										break;
-									}
-								}
-								if (!valid)
-									continue;
-							}
-							if (canUse(method)) {
-								for (Class<?> clazz : method.getParameterTypes()) {
-									if (!all_classes.contains(clazz.getName())) {
-										if (clazz.isArray())
-											dependencies.add(clazz.getComponentType());
-										else
-											dependencies.add(clazz);
-									}
-								}
-								method.setAccessible(true);
-								calls.add(method);
-								logger.debug("Adding method " + method);
-							}
-						}
-
-						// Keep all accessible fields
-						for (Field field : getFields(toadd)) {
-							// if(!Modifier.isPrivate(field.getModifiers()) &&
-							// !Modifier.isProtected(field.getModifiers()) &&
-							// !Modifier.isProtected(field.getDeclaringClass().getModifiers())
-							// &&
-							// !Modifier.isPrivate(field.getDeclaringClass().getModifiers()))
-							// {
-							if (test_excludes.containsKey(classname)) {
-								boolean valid = true;
-								for (String regex : test_excludes.get(classname)) {
-									if (field.getName().matches(regex)) {
-										valid = false;
-										logger.info("Found excluded field: " + classname
-										        + "." + field.getName() + " matches "
-										        + regex);
-										break;
-									}
-								}
-								if (!valid)
-									continue;
-							}
-
-							if (canUse(field)) {
-								field.setAccessible(true);
-								calls.add(field);
-								logger.trace("Adding field " + field);
-							} else {
-								logger.trace("Cannot use field " + field);
-							}
-						}
-					} catch (ClassNotFoundException e) {
-						logger.debug("Ignoring class " + classname);
-					} catch (ExceptionInInitializerError e) {
-						logger.debug("Problem - ignoring class " + classname + ": " + e);
+				try {
+					logger.trace("Current class: " + classname);
+					Class<?> toadd = Class.forName(classname);
+					if (!canUse(toadd)) {
+						logger.debug("Not using class " + classname);
+						continue;
 					}
+
+					// Keep all accessible constructors
+					for (Constructor<?> constructor : getConstructors(toadd)) {
+						logger.trace("Considering constructor " + constructor);
+						if (test_excludes.containsKey(classname)) {
+							boolean valid = true;
+							String full_name = "<init>"
+							        + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
+							for (String regex : test_excludes.get(classname)) {
+								if (full_name.matches(regex)) {
+									logger.info("Found excluded constructor: "
+									        + constructor + " matches " + regex);
+									valid = false;
+									break;
+								}
+							}
+							if (!valid)
+								continue;
+						}
+						if (canUse(constructor)) {
+							for (Class<?> clazz : constructor.getParameterTypes()) {
+								if (!all_classes.contains(clazz.getName())) {
+									if (clazz.isArray())
+										dependencies.add(clazz.getComponentType());
+									else
+										dependencies.add(clazz);
+								}
+							}
+							logger.debug("Adding constructor " + constructor);
+							constructor.setAccessible(true);
+							calls.add(constructor);
+						} else {
+							logger.trace("Constructor " + constructor + " is not public");
+						}
+					}
+
+					// Keep all accessible methods
+					for (Method method : getMethods(toadd)) {
+						// if(method.getDeclaringClass().equals(Object.class))
+						// continue;
+						if (test_excludes.containsKey(classname)) {
+							boolean valid = true;
+							String full_name = method.getName()
+							        + org.objectweb.asm.Type.getMethodDescriptor(method);
+							for (String regex : test_excludes.get(classname)) {
+								if (full_name.matches(regex)) {
+									valid = false;
+									logger.info("Found excluded method: " + classname
+									        + "." + full_name + " matches " + regex);
+									break;
+								}
+							}
+							if (!valid)
+								continue;
+						}
+						if (canUse(method)) {
+							for (Class<?> clazz : method.getParameterTypes()) {
+								if (!all_classes.contains(clazz.getName())) {
+									if (clazz.isArray())
+										dependencies.add(clazz.getComponentType());
+									else
+										dependencies.add(clazz);
+								}
+							}
+							method.setAccessible(true);
+							calls.add(method);
+							logger.debug("Adding method " + method);
+						}
+					}
+
+					// Keep all accessible fields
+					for (Field field : getFields(toadd)) {
+						// if(!Modifier.isPrivate(field.getModifiers()) &&
+						// !Modifier.isProtected(field.getModifiers()) &&
+						// !Modifier.isProtected(field.getDeclaringClass().getModifiers())
+						// &&
+						// !Modifier.isPrivate(field.getDeclaringClass().getModifiers()))
+						// {
+						if (test_excludes.containsKey(classname)) {
+							boolean valid = true;
+							for (String regex : test_excludes.get(classname)) {
+								if (field.getName().matches(regex)) {
+									valid = false;
+									logger.info("Found excluded field: " + classname
+									        + "." + field.getName() + " matches " + regex);
+									break;
+								}
+							}
+							if (!valid)
+								continue;
+						}
+
+						if (canUse(field)) {
+							field.setAccessible(true);
+							calls.add(field);
+							logger.trace("Adding field " + field);
+						} else {
+							logger.trace("Cannot use field " + field);
+						}
+					}
+				} catch (ClassNotFoundException e) {
+					logger.debug("Ignoring class " + classname);
+				} catch (ExceptionInInitializerError e) {
+					logger.debug("Problem - ignoring class " + classname + ": " + e);
 				}
+
 			}
 		}
 		logger.info("Found " + calls.size() + " other calls");

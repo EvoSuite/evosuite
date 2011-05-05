@@ -26,6 +26,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.TestFactory;
 import de.unisb.cs.st.evosuite.OUM.OUMTestFactory;
 import de.unisb.cs.st.evosuite.assertion.StringTraceExecutionObserver;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
@@ -45,8 +46,7 @@ public class TestCaseMinimizer {
 
 	private double fitness = 0.0;
 
-	private final boolean enabled = Properties.getPropertyOrDefault("minimize",
-	                                                                true);
+	private final boolean enabled = Properties.MINIMIZE;
 
 	/**
 	 * Constructor
@@ -114,9 +114,7 @@ public class TestCaseMinimizer {
 		/** Factory method that handles statement deletion */
 
 		AbstractTestFactory test_factory = null;
-		String factory_name = Properties.getPropertyOrDefault("test_factory",
-		                                                      "Random");
-		if (factory_name.equals("OUM"))
+		if (Properties.TEST_FACTORY == TestFactory.OUM)
 			test_factory = OUMTestFactory.getInstance();
 		else
 			test_factory = DefaultTestFactory.getInstance();
@@ -128,14 +126,13 @@ public class TestCaseMinimizer {
 			changed = false;
 
 			for (int i = c.test.size() - 1; i >= 0; i--) {
-				logger.debug("Deleting statement "
-				        + c.test.getStatement(i).getCode());
+				logger.debug("Deleting statement " + c.test.getStatement(i).getCode());
 				TestChromosome copy = (TestChromosome) c.clone();
 				try {
 					c.setChanged(true);
 					test_factory.deleteStatementGracefully(c.test, i);
 				} catch (ConstructionFailedException e) {
-					c.setChanged(true);
+					c.setChanged(false);
 					c.test = copy.test;
 					logger.debug("Deleting failed");
 					continue;
