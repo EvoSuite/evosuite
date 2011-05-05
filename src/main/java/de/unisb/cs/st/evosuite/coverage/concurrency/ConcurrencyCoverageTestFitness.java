@@ -45,7 +45,7 @@ public class ConcurrencyCoverageTestFitness extends TestFitnessFunction {
 	 */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
-		 ConcurrencyDistance distance = goal.getDistance(result, result.trace.concurrencyTracer);
+		 ConcurrencyDistance distance = goal.getDistance(result, result.getTrace().concurrencyTracer);
 		double fitness = 0.0;
 
 		fitness = distance.approach + normalize(distance.branch) + normalize(distance.scheduleDistance);

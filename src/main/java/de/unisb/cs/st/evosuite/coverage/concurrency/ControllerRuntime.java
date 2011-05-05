@@ -13,6 +13,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
+import org.osgi.framework.AllServiceListener;
 
 /**
  * 
@@ -55,7 +56,8 @@ public class ControllerRuntime implements Callable<Void> {
 
 	private volatile Boolean running;
 	private Object runningMonitor = new Object();
-	private final Map<Integer, Thread> idToThread = new ConcurrentHashMap<Integer, Thread>();
+	//#TODO should be private
+	protected final Map<Integer, Thread> idToThread = new ConcurrentHashMap<Integer, Thread>();
 	private final Map<Thread, Integer> threadToId = new ConcurrentHashMap<Thread, Integer>();
 
 	private volatile Boolean awake = false;
@@ -142,7 +144,7 @@ public class ControllerRuntime implements Callable<Void> {
 
 	private void threadEnd(Thread t){
 		assert(threadToId.containsKey(t));
-
+		logger.trace("Thread " + t.toString() + " with id " + threadToId.get(t) + " signaled end.");
 		ended.add(Thread.currentThread());
 		if(threadToId.keySet().size()==ended.size()){
 			finish=true;
@@ -173,6 +175,7 @@ public class ControllerRuntime implements Callable<Void> {
 	 * id is a unique thread id, we need to assume, that threads are created in a deterministic fashion
 	 */
 	public void registerThread(Integer id){
+		logger.trace("A thread with id " + id + " registered itself.");
 		if(threadToId.containsKey(Thread.currentThread()))throw new AssertionError("This shouldn't happen. May happen if (for example) the application under test calls the run() method of a thread manually. ");
 		synchronized (TOCKEN) {
 			threadWaitingPos.put(Thread.currentThread(), new Object());
@@ -193,7 +196,7 @@ public class ControllerRuntime implements Callable<Void> {
 					runningMonitor.wait();
 				}
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				logger.fatal("help me", e);
 				System.exit(1); 
 				//#TODO handle this case
 			}
@@ -242,11 +245,12 @@ public class ControllerRuntime implements Callable<Void> {
 					}
 					if(waiting)awakeMonitor.wait(5);
 				}
+				assert(assertAllSleep());
 				next();
 			}
 			//next(); //we assume that now all threads are in the waiting position
 		} catch (Throwable e) {
-			e.printStackTrace();
+			logger.fatal("go away", e);
 			System.exit(1);
 		}
 		////System.out.println("controller shutdown");
@@ -265,6 +269,14 @@ public class ControllerRuntime implements Callable<Void> {
 
 	}
 
+	private boolean assertAllSleep(){
+		for(Thread t : threadToId.keySet()){
+			Thread.State s = t.getState();
+			assert(s.equals(Thread.State.WAITING) || s.equals(Thread.State.TERMINATED) || ended.contains(t)) : s + " thread " + t.getName();
+		}
+		return true;
+	}
+	
 	/**
 	 * Starts the next thread
 	 */
@@ -277,18 +289,23 @@ public class ControllerRuntime implements Callable<Void> {
 				//System.out.println("xxx 1");
 				synchronized (threadWaitingPos.get(currentThread)) { //#FIXME evil shit cause current thread may be changed. A monitor objects is in dire need of creation
 					//System.out.println("xxx 2");
+					assert(assertAllSleep());
 					if(LockRuntime.runningThread==null 
 							&& (locked.contains(currentThread) || ended.contains(currentThread))
 							&& threadClock.get(currentThread)>currentThreadClock){
 						//if we're here, we can assume that currentThread finished last run.
 						//System.out.println("NEXT CALL 3 " + executionOrder.size() + " - " + executionOrder.get(0));
 						assert(scheduler.hasNext()); //the scheduler used for test case creation generates new IDs if no old ones exist
+						assert(assertAllSleep());
 						int nextThreadId = scheduler.next();
 						//#TODO !isFinished is needed in case one of the live threads is dying unexpected. Really can a infinite loop happen here? I don't think so.
 						while((!idToThread.containsKey(nextThreadId) || ended.contains(idToThread.get(nextThreadId))) && !isFinished()){
 							scheduler.remove();
 							assert(scheduler.hasNext()); 
 							nextThreadId=scheduler.next();
+						}
+						if(!isFinished()){
+							schedule.notifyOfUsedSchedule(nextThreadId);
 						}
 						currentThread=idToThread.get(nextThreadId); //we always have a next element
 						currentThreadClock=threadClock.get(currentThread);
@@ -317,7 +334,7 @@ public class ControllerRuntime implements Callable<Void> {
 							awakeMonitor.wait();
 						}
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						logger.fatal("go away", e);
 						System.exit(1);
 						//#TODO should be handled
 					}

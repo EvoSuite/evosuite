@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.unisb.cs.st.evosuite.assertion.Assertion;
@@ -24,17 +25,41 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  */
 public class ScheduleLogWrapper implements StatementInterface{
 
-	private final StatementInterface wrapped;
+	public interface callReporter{
+		public void callStart(StatementInterface caller, Integer threadID);
+		public void callEnd(StatementInterface caller, Integer threadID);
+		public Set<Integer> getScheduleForStatement(StatementInterface st);
+	}
+
+	public boolean immutable = false;
+	private void exit(){
+		if(immutable){
+			logger.fatal("good bye.....", new AssertionError());
+			System.exit(1);
+		}
+	}
+
+	private static Logger logger = Logger.getLogger(ScheduleLogWrapper.class);
+
+	public final StatementInterface wrapped;
+	private callReporter callReporter;
+
 	public ScheduleLogWrapper(StatementInterface wrapped){
-		assert(wrapped!=null);
+		assert(wrapped!=null) : "undefined behaviour lurks behind one statement beeing executed by multiple threads";
 		this.wrapped=wrapped;
 	}
-	
+
+	public void setCallReporter(callReporter callReporter){
+		exit();
+		this.callReporter=callReporter;
+	}
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#SetRetval(de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	public void SetRetval(VariableReference newRetVal) {
+		exit();
 		wrapped.SetRetval(newRetVal);
 	}
 
@@ -43,6 +68,7 @@ public class ScheduleLogWrapper implements StatementInterface{
 	 */
 	@Override
 	public void addAssertion(Assertion assertion) {
+		exit();
 		wrapped.addAssertion(assertion);
 	}
 
@@ -51,6 +77,7 @@ public class ScheduleLogWrapper implements StatementInterface{
 	 */
 	@Override
 	public void adjustAssertions(int position, int delta) {
+		exit();
 		wrapped.adjustAssertions(position, delta);
 	}
 
@@ -59,6 +86,7 @@ public class ScheduleLogWrapper implements StatementInterface{
 	 */
 	@Override
 	public void adjustVariableReferences(int position, int delta) {
+		exit();
 		wrapped.adjustVariableReferences(position, delta);
 	}
 
@@ -66,8 +94,12 @@ public class ScheduleLogWrapper implements StatementInterface{
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#equals(de.unisb.cs.st.evosuite.testcase.StatementInterface)
 	 */
 	@Override
-	public boolean equals(StatementInterface s) {
-		return wrapped.equals(s);
+	public boolean equals(Object s) {
+		if(s instanceof ScheduleLogWrapper){
+			return wrapped.equals(((ScheduleLogWrapper) s).wrapped);
+		}else{
+			return wrapped.equals(s);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -75,9 +107,19 @@ public class ScheduleLogWrapper implements StatementInterface{
 	 */
 	@Override
 	public Throwable execute(Scope scope, PrintStream out)
-			throws InvocationTargetException, IllegalArgumentException,
-			IllegalAccessException, InstantiationException {
-		return wrapped.execute(scope, out);
+	throws InvocationTargetException, IllegalArgumentException,
+	IllegalAccessException, InstantiationException {
+		exit();
+		assert(LockRuntime.controller!=null);
+		assert(callReporter!=null):"SetCallReporter/2 must be called before a wrapped statement may be executed";
+		try{
+			callReporter.callStart(this, LockRuntime.controller.getThreadID(Thread.currentThread()));
+		}catch(Throwable e){
+			logger.fatal("test", e);
+		}
+		Throwable t = wrapped.execute(scope, out);
+		callReporter.callEnd(this, LockRuntime.controller.getThreadID(Thread.currentThread()));
+		return t;
 	}
 
 	/* (non-Javadoc)
@@ -198,6 +240,7 @@ public class ScheduleLogWrapper implements StatementInterface{
 	 */
 	@Override
 	public void removeAssertion(Assertion assertion) {
+		exit();
 		wrapped.removeAssertion(assertion);
 	}
 
@@ -206,6 +249,7 @@ public class ScheduleLogWrapper implements StatementInterface{
 	 */
 	@Override
 	public void removeAssertions() {
+		exit();
 		wrapped.removeAssertions();
 	}
 
@@ -214,6 +258,7 @@ public class ScheduleLogWrapper implements StatementInterface{
 	 */
 	@Override
 	public void replace(VariableReference oldVar, VariableReference newVar) {
+		exit();
 		wrapped.replace(oldVar, newVar);
 	}
 
@@ -222,11 +267,17 @@ public class ScheduleLogWrapper implements StatementInterface{
 	 */
 	@Override
 	public void replaceUnique(VariableReference oldVar, VariableReference newVar) {
+		exit();
 		wrapped.replaceUnique(oldVar, newVar);
 	}
 
 	@Override
 	public StatementInterface clone(){
 		return new ScheduleLogWrapper(wrapped.clone());
+	}
+	
+	@Override
+	public int hashCode(){
+		return wrapped.hashCode();
 	}
 }
