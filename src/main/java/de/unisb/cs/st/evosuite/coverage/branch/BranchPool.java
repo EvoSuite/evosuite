@@ -60,7 +60,7 @@ public class BranchPool {
 		markBranchIDs(b);
 		bytecodeIdMap.put(branchCounter, b);
 
-		logger.debug("Branch " + branchCounter + " at line " + b.getLineNumber());
+		logger.debug("Branch " + branchCounter + " at line " ); // TODO stopped + b.getLineNumber());
 
 		branchCounter++;
 	}

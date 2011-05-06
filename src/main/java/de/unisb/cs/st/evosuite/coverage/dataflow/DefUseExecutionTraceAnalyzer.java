@@ -158,8 +158,8 @@ public abstract class DefUseExecutionTraceAnalyzer {
 		for(BytecodeInstruction vertex : vertices) {
 			if(!vertex.isDefinition())
 				continue;
-			BytecodeInstruction vertexInOtherGraph = CFGMethodAdapter.getCompleteCFG(vertex.className, 
-					vertex.methodName).getVertex(vertex.getId());
+			BytecodeInstruction vertexInOtherGraph = CFGMethodAdapter.getCompleteCFG(vertex.getClassName(), 
+					vertex.getMethodName()).getVertex(vertex.getId());
 			Definition currentDefinition = new Definition(vertexInOtherGraph) ;
 			if(isOverwritingDefinition(targetDefinition,currentDefinition))
 				r.add(vertex);

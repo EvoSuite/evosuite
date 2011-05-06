@@ -14,9 +14,9 @@ import de.unisb.cs.st.evosuite.cfg.AbstractInsnWrapper;
 public class Branch extends BytecodeInstruction {
 
 	// TODO decide casting versus this constructor approach - that in this specific case i weirdly like
-	public Branch(BytecodeInstruction v) {
-		super(v);
-		if(!v.isActualBranch())
+	public Branch(AbstractInsnWrapper wrapper) {
+		super(wrapper);
+		if(!isActualBranch())
 			throw new IllegalArgumentException("only actual branch instructions are accepted");
 		
 	}

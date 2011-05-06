@@ -161,8 +161,8 @@ public class DefUsePool {
 			Map<String, Map<String, Map<String, Map<Integer, List<Definition>>>>> map,
 			Use use) {
 	
-		String className = use.className;
-		String methodName = use.methodName;
+		String className = use.getClassName();
+		String methodName = use.getMethodName();
 		String varName = use.getDUVariableName();
 		
 		if(map.get(className) == null)

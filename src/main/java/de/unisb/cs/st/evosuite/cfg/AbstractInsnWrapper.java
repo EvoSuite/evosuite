@@ -21,24 +21,46 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 //			.. wrappers may get cloned but not the nodes themselves!
 
 /**
- * Convenience-superclass for classes that hold a CFGVertex.
+ * Convenience-superclass for classes that hold a BytecodeInstruction
  * 
  * Just gives direct access to a lot of methods from the CFGVertex
  * Known subclasses are Branch and DefUse 
  * 
  * @author Andre Mis
  */
-public abstract class AbstractInsnWrapper {
+public class AbstractInsnWrapper {
 
-	protected int instructionId;
-	protected AbstractInsnNode node;
-	
-	protected String methodName;
 	protected String className;
+	protected String methodName;
+	protected int instructionId;
 	protected int lineNumber = -1;
 	
-	protected CFGFrame frame;
+	protected AbstractInsnNode node;
+	
+	
+	protected CFGFrame frame; // TODO ???
 
+	public AbstractInsnWrapper(String className, String methodName,
+			int instructionId, AbstractInsnNode node) {
+		this.instructionId = instructionId;
+		this.node = node;
+		this.methodName = methodName;
+		this.className = className;
+	}
+
+	public AbstractInsnWrapper(String className, String methodName,
+			int instructionId, AbstractInsnNode node, int lineNumber) {
+		this(className, methodName, instructionId, node);
+		this.lineNumber = lineNumber;
+	}
+
+	/**
+	 * "copy-Constructor"
+	 */
+	public AbstractInsnWrapper(AbstractInsnWrapper wrap) {
+		this(wrap.className, wrap.methodName, wrap.instructionId, wrap.node,
+				wrap.lineNumber);
+	}
 	
 	public boolean isJump() {
 		return (node instanceof JumpInsnNode);
@@ -51,24 +73,36 @@ public abstract class AbstractInsnWrapper {
 		return false;
 	}
 	
-	public String getMethodName() {
+	
+	public String getMethodName() { // TODO ???
 		return ((MethodInsnNode) node).name;
 	}
+	
+	public void setMethodName(String methodName) {
+		this.methodName = methodName;
+	}
 
-	// TODO shouldn't the following methods be somehow merged
-	//		to reflect that all three return true on a "Branch"
-	//		in the sense of evosuite.coverage.branch.Branch ?
+	public void setClassName(String className) {
+		this.className = className;
+	}
 
 	public boolean isBranch() {
 		return isJump() && !isGoto();
 	}
+	
+	public boolean isActualBranch() {
+		return isBranch() 
+				|| isLookupSwitch() 
+				|| isTableSwitch();
+	}
+
 	
 	/**
 	 * TODO repair
 	 * WARNING: throws ClassCastException on non-LineNumberNode node
 	 *  
 	 */
-	protected int getLineNumber() {
+	public int getLineNumber() {
 		return ((LineNumberNode)node).line;
 	}
 
