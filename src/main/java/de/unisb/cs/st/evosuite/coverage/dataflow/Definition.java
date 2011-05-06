@@ -1,6 +1,6 @@
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 
 /**
  * An object of this class corresponds to a Definition inside the class under test.
@@ -13,14 +13,12 @@ import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 
 public class Definition extends DefUse {
 
-	
-	public Definition(CFGVertex v) {
+	// TODO decide casting versus this constructor approach - that in this specific case i weirdly like
+	public Definition(BytecodeInstruction v) {
 		super(v);
 		if(v==null)
 			throw new IllegalArgumentException("null given");
-		if(!v.isDefinition()) // TODO
+		if(!isDefinition()) // TODO
 			throw new IllegalArgumentException("Vertex of a definition expected");
-		
-		this.v = v;
 	}
 }

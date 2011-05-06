@@ -23,7 +23,7 @@ import java.util.HashMap;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
@@ -72,7 +72,7 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 		for (Integer i : instructions.keySet()) {
 
 			AbstractInsnNode current_instruction = instructions.get(i);
-			CFGVertex c = cfg.getVertex(i);
+			BytecodeInstruction c = cfg.getVertex(i);
 
 			if (c == null) {
 				// Only jump nodes are in minimized CFG!

@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 
@@ -136,9 +136,9 @@ public abstract class DefUseExecutionTraceAnalyzer {
 		return r;
 	}
 	
-	public static Set<CFGVertex> getDefinitionsIn(String targetVariable, Set<CFGVertex> vertices) {
-		Set<CFGVertex> r = new HashSet<CFGVertex>();
-		for(CFGVertex vertex : vertices) {
+	public static Set<BytecodeInstruction> getDefinitionsIn(String targetVariable, Set<BytecodeInstruction> vertices) {
+		Set<BytecodeInstruction> r = new HashSet<BytecodeInstruction>();
+		for(BytecodeInstruction vertex : vertices) {
 			if(!vertex.isDefinition())
 				continue;
 			Definition currentDefinition = new Definition(vertex) ;
@@ -152,13 +152,13 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	 * Returns a Set containing all elements in the given vertex set that
 	 * are overwriting definitions for the given targetDefinition 
 	 */
-	public static Set<CFGVertex> getOverwritingDefinitionsIn(Definition targetDefinition,
-			Collection<CFGVertex> vertices) {
-		Set<CFGVertex> r = new HashSet<CFGVertex>();
-		for(CFGVertex vertex : vertices) {
+	public static Set<BytecodeInstruction> getOverwritingDefinitionsIn(Definition targetDefinition,
+			Collection<BytecodeInstruction> vertices) {
+		Set<BytecodeInstruction> r = new HashSet<BytecodeInstruction>();
+		for(BytecodeInstruction vertex : vertices) {
 			if(!vertex.isDefinition())
 				continue;
-			CFGVertex vertexInOtherGraph = CFGMethodAdapter.getCompleteCFG(vertex.className, 
+			BytecodeInstruction vertexInOtherGraph = CFGMethodAdapter.getCompleteCFG(vertex.className, 
 					vertex.methodName).getVertex(vertex.getId());
 			Definition currentDefinition = new Definition(vertexInOtherGraph) ;
 			if(isOverwritingDefinition(targetDefinition,currentDefinition))

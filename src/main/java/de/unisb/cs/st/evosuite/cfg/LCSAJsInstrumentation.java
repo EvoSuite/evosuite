@@ -19,7 +19,7 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJ;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
 
@@ -37,7 +37,7 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 	@SuppressWarnings("unchecked")
 	//using external lib
 	@Override
-	public void analyze(MethodNode mn, Graph<CFGVertex, DefaultEdge> graph,
+	public void analyze(MethodNode mn, Graph<BytecodeInstruction, DefaultEdge> graph,
 	        String className, String methodName, int access) {
 
 		Queue<LCSAJ> lcsaj_queue = new LinkedList<LCSAJ>();

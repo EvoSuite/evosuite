@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.AlternativeFitnessCalculationMode;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
@@ -401,7 +401,7 @@ public class DefUseFitnessCalculations {
 			return SINGLE_ALTERNATIVE_FITNESS_RANGE;
 
 		// get alternative branch
-		BranchCoverageTestFitness alternativeBranchFitness = getAlternativeBranchTestFitness(overwritingDefinition.getCFGVertex());
+		BranchCoverageTestFitness alternativeBranchFitness = getAlternativeBranchTestFitness(overwritingDefinition);
 		// set up duCounter interval to which the trace should be cut
 		int duCounterStart = lastGoalDuPos;
 		int duCounterEnd = usePos;
@@ -605,7 +605,7 @@ public class DefUseFitnessCalculations {
 	 */
 	public static boolean isSpecialDefinition(Definition definition) {
 		if (definition == null
-		        || (definition.isStaticDU() && definition.getCFGVertex().methodName.startsWith("<clinit>"))) {
+		        || (definition.isStaticDefUse() && definition.getMethodName().startsWith("<clinit>"))) {
 
 			if (definition == null)
 				logger.debug("Assume Parameter-Definition to be covered if the Parameter-Use is covered");
@@ -634,7 +634,7 @@ public class DefUseFitnessCalculations {
 			return objectPool;
 		if (trace.passedDefinitions.get(goalVariable) != null)
 			objectPool.addAll(trace.passedDefinitions.get(goalVariable).keySet());
-		if (goalDefinition == null || goalDefinition.isStaticDU()) {
+		if (goalDefinition == null || goalDefinition.isStaticDefUse()) {
 			// in the static case all objects have to be considered
 			objectPool.addAll(trace.passedUses.get(goalVariable).keySet());
 			if (DEBUG)
@@ -731,7 +731,7 @@ public class DefUseFitnessCalculations {
 				continue;
 			if (goalUse.isParameterUse())
 				return true;
-			if (goalDefinition.isStaticDU()
+			if (goalDefinition.isStaticDefUse()
 			        && goalDefinition.getMethodName().startsWith("<clinit>"))
 				return true;
 
@@ -755,7 +755,7 @@ public class DefUseFitnessCalculations {
 	 * Creates a BranchCoverageTestFitness for the branch that the given
 	 * CFGVertex is control dependent on
 	 */
-	public static BranchCoverageTestFitness getBranchTestFitness(CFGVertex v) {
+	public static BranchCoverageTestFitness getBranchTestFitness(BytecodeInstruction v) {
 		return getBranchTestFitness(v, !v.branchExpressionValue);
 	}
 
@@ -763,7 +763,7 @@ public class DefUseFitnessCalculations {
 	 * Creates a BranchCoverageTestFitness for the alternative branch of the
 	 * branch that the given CFGVertex is control dependent on
 	 */
-	public static BranchCoverageTestFitness getAlternativeBranchTestFitness(CFGVertex v) {
+	public static BranchCoverageTestFitness getAlternativeBranchTestFitness(BytecodeInstruction v) {
 		return getBranchTestFitness(v, v.branchExpressionValue);
 	}
 
@@ -772,7 +772,7 @@ public class DefUseFitnessCalculations {
 	 * control dependent on but considering the given targetExpressionValue as
 	 * the branchExpressionValue
 	 */
-	public static BranchCoverageTestFitness getBranchTestFitness(CFGVertex v,
+	public static BranchCoverageTestFitness getBranchTestFitness(BytecodeInstruction v,
 	        boolean targetExpressionValue) {
 		BranchCoverageTestFitness r;
 		if (v.branchId == -1) {
@@ -791,7 +791,7 @@ public class DefUseFitnessCalculations {
 	 * Creates a BranchCoverageTestFitness for the root-branch of the method of
 	 * the given DefUse
 	 */
-	public static BranchCoverageTestFitness getRootBranchTestFitness(CFGVertex v) {
+	public static BranchCoverageTestFitness getRootBranchTestFitness(BytecodeInstruction v) {
 		return new BranchCoverageTestFitness(new BranchCoverageGoal(v.className,
 		        v.className + "." + v.methodName));
 	}

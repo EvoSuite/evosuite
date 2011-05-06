@@ -20,8 +20,8 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 
 /**
  * @author Copied from CFGMethodAdapter
@@ -37,20 +37,20 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void analyze(MethodNode mn, Graph<CFGVertex, DefaultEdge> graph,
+	public void analyze(MethodNode mn, Graph<BytecodeInstruction, DefaultEdge> graph,
 	        String className, String methodName, int access) {
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
 		while (j.hasNext()) {
 			AbstractInsnNode in = j.next();
-			for (CFGVertex v : graph.vertexSet()) {
+			for (BytecodeInstruction v : graph.vertexSet()) {
 				// updating some information in the CFGVertex
 				if (in.equals(v.getNode())) {
 					if (v.isLineNumber()) {
 						currentLineNumber = v.getLineNumber();
 					}
-					v.className = className;
-					v.methodName = methodName;
-					v.line_no = currentLineNumber;
+					v.setClassName(className);
+					v.setMethodName(methodName);
+					v.setLineNumber(currentLineNumber);
 				}
 				// If this is in the CFG and it's a branch...
 				if (in.equals(v.getNode())) {
@@ -88,7 +88,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 		}
 	}
 
-	private InsnList getInstrumentation(CFGVertex v, MethodNode mn, String className,
+	private InsnList getInstrumentation(BytecodeInstruction v, MethodNode mn, String className,
 	        String methodName) {
 		InsnList instrumentation = new InsnList();
 

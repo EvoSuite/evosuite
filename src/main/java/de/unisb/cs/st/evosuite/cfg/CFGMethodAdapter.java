@@ -39,7 +39,6 @@ import org.objectweb.asm.tree.analysis.AnalyzerException;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyInstrumentation;
 import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.AbstractMutationAdapter;
@@ -185,7 +184,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			addMinimizedCFG(className, methodName, cfgGenerator.getMinimalGraph());
 			logger.info("Created CFG for method " + methodName);
 
-			Graph<CFGVertex, DefaultEdge> completeGraph = cfgGenerator.getCompleteGraph();
+			Graph<BytecodeInstruction, DefaultEdge> completeGraph = cfgGenerator.getCompleteGraph();
 
 			//add the actual instrumentation
 			for (MethodInstrumentation instrumentation : instrumentations) {
@@ -235,7 +234,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	}
 
 	private static void addMinimizedCFG(String classname, String methodname,
-	        DirectedMultigraph<CFGVertex, DefaultEdge> graph) {
+	        DirectedMultigraph<BytecodeInstruction, DefaultEdge> graph) {
 		if (!minimizedCFGs.containsKey(classname)) {
 			minimizedCFGs.put(classname, new HashMap<String, ControlFlowGraph>());
 			diameters.put(classname, new HashMap<String, Double>());
@@ -243,14 +242,14 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		Map<String, ControlFlowGraph> methods = minimizedCFGs.get(classname);
 		logger.debug("Added CFG for class " + classname + " and method " + methodname);
 		methods.put(methodname, new ControlFlowGraph(graph, true));
-		FloydWarshall<CFGVertex, DefaultEdge> f = new FloydWarshall<CFGVertex, DefaultEdge>(
+		FloydWarshall<BytecodeInstruction, DefaultEdge> f = new FloydWarshall<BytecodeInstruction, DefaultEdge>(
 		        graph);
 		diameters.get(classname).put(methodname, f.getDiameter());
 		logger.debug("Calculated diameter for " + classname + ": " + f.getDiameter());
 	}
 
 	private static void addCompleteCFG(String classname, String methodname,
-	        DefaultDirectedGraph<CFGVertex, DefaultEdge> graph) {
+	        DefaultDirectedGraph<BytecodeInstruction, DefaultEdge> graph) {
 		if (!completeCFGs.containsKey(classname)) {
 			completeCFGs.put(classname, new HashMap<String, ControlFlowGraph>());
 		}

@@ -25,7 +25,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
@@ -241,7 +241,7 @@ public class MutationGoal extends TestCoverageGoal {
 	        List<Double> true_distances, List<Double> false_distances,
 	        List<Integer> line_trace) {
 		//CFGVertex m = cfg.getVertex(branch_id);
-		CFGVertex m = cfg.getMutation(mutation.getId());
+		BytecodeInstruction m = cfg.getMutation(mutation.getId());
 		ControlFlowDistance d = new ControlFlowDistance();
 		if (m == null) {
 			logger.error("Could not find mutant node " + mutation.getId());
@@ -255,7 +255,7 @@ public class MutationGoal extends TestCoverageGoal {
 		logger.debug("Initial distance: " + min_approach);
 		double min_dist = 0.0;
 		for (int i = 0; i < path.size(); i++) {
-			CFGVertex v = cfg.getVertex(path.get(i));
+			BytecodeInstruction v = cfg.getVertex(path.get(i));
 			if (v != null) {
 				int distance = cfg.getDistance(v, m);
 				if (cfg.isDirectSuccessor(m, v))
