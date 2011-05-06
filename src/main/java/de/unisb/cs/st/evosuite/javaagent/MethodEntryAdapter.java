@@ -39,7 +39,7 @@ public class MethodEntryAdapter extends AdviceAdapter {
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(MethodEntryAdapter.class);
 
-	private static final boolean MUTATION = Properties.CRITERION.equals(Criterion.MUTATION);
+	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION;
 
 	String className;
 	String methodName;

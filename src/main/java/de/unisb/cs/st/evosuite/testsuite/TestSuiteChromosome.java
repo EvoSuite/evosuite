@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.Properties.TestFactory;
 import de.unisb.cs.st.evosuite.OUM.OUMTestChromosomeFactory;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTestCaseFactory;
@@ -54,7 +55,7 @@ public class TestSuiteChromosome extends Chromosome {
 		else
 			test_factory = new RandomLengthTestFactory();
 
-		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
+		if (Properties.CRITERION == Criterion.CONCURRENCY) {
 			//#TODO steenbuck we should wrap the original factory not replace it.
 			test_factory = new ConcurrencyTestCaseFactory();
 		}

@@ -213,7 +213,7 @@ public class TestSuite implements Opcodes {
 			for (TestFitnessFunction goal : coveredGoals) {
 				builder.append("\n    * " + nr + " " + goal.toString());
 				// TODO only for debugging purposes
-				if (Properties.CRITERION.equals(Criterion.DEFUSE)
+				if (Properties.CRITERION == Criterion.DEFUSE
 				        && (goal instanceof DefUseCoverageTestFitness)) {
 					DefUseCoverageTestFitness duGoal = (DefUseCoverageTestFitness) goal;
 					if (duGoal.getCoveringTrace() != null) {
@@ -279,7 +279,7 @@ public class TestSuite implements Opcodes {
 		// builder.append(".GeneratedTests;");
 		builder.append(";\n\n");
 
-		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
+		if (Properties.CRITERION == Criterion.CONCURRENCY) {
 			builder.append("import java.util.concurrent.Callable;\n");
 			builder.append("import java.util.concurrent.FutureTask;\n");
 			builder.append("import de.unisb.cs.st.evosuite.coverage.concurrency.LockRuntime;\n");
@@ -389,7 +389,7 @@ public class TestSuite implements Opcodes {
 		builder.append("   //");
 		builder.append(getInformation(id));
 		//#TODO steenbuck work around
-		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
+		if (Properties.CRITERION == Criterion.CONCURRENCY) {
 			builder.append("\n");
 			ConcurrentTestCase ctc = (ConcurrentTestCase) test_cases.get(id);
 			for (String line : ctc.getThreadCode(result.exceptions, id).split("\\r?\\n")) {

@@ -119,7 +119,7 @@ public class CFGGenerator extends Analyzer {
 			return false;
 		}
 
-		// TODO shouldn't the following the methods be somehow merged
+		// TODO shouldn't the following methods be somehow merged
 		//		to reflect that all three return true on a "Branch"
 		//		in the sense of evosuite.coverage.branch.Branch ?
 

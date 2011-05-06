@@ -45,8 +45,9 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 				if (in.equals(v.getNode()))
 					v.branchId = completeCFG.getVertex(v.getId()).branchId;
 
-				if (Properties.CRITERION.equals(Criterion.DEFUSE)
-				        && in.equals(v.getNode()) && (v.isDefUse())) {
+				if (Properties.CRITERION == Criterion.DEFUSE
+				        && in.equals(v.getNode()) 
+				        && (v.isDefUse())) {
 
 					// keeping track of uses
 					boolean isValidDU = false;
