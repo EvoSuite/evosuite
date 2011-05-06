@@ -49,7 +49,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 	private static Hierarchy hierarchy;
 
-	private static final boolean MUTATION = Properties.CRITERION.equals(Criterion.MUTATION);
+	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION;
 
 	static {
 		if (Properties.INSTRUMENT_PARENT)

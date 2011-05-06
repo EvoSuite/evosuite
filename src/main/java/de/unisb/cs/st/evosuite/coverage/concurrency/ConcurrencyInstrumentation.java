@@ -19,7 +19,7 @@ import org.objectweb.asm.tree.MethodNode;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.MethodInstrumentation;
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 
 /**
  * @author Sebastian Steenbuck
@@ -45,7 +45,7 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void analyze(MethodNode mn, Graph<CFGVertex, DefaultEdge> graph, String className, String methodName, int access) {
+	public void analyze(MethodNode mn, Graph<BytecodeInstruction, DefaultEdge> graph, String className, String methodName, int access) {
 		this.className=className;
 		this.methodName=methodName;
 				
@@ -53,7 +53,7 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 		Iterator<AbstractInsnNode> instructions = mn.instructions.iterator();
 		while (instructions.hasNext()) {
 			AbstractInsnNode instruction = instructions.next();
-			for (CFGVertex v : graph.vertexSet()) {
+			for (BytecodeInstruction v : graph.vertexSet()) {
 				if (instruction.equals(v.getNode())){
 					v.branchId = completeCFG.getVertex(v.getId()).branchId;
 				}
@@ -83,7 +83,7 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 		}
 	}
 	
-	private InsnList getConcurrencyInstrumentation(CFGVertex v, int currentBranch) {
+	private InsnList getConcurrencyInstrumentation(BytecodeInstruction v, int currentBranch) {
 		InsnList instrumentation = new InsnList();
 		switch (v.getNode().getOpcode()) {
 		case Opcodes.GETFIELD:

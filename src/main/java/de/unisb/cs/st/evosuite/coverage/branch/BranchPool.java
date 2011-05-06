@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 
@@ -51,7 +51,7 @@ public class BranchPool {
 	 * @param v
 	 *            CFGVertex of a Branch
 	 */
-	public static void addBranch(CFGVertex v) {
+	public static void addBranch(BytecodeInstruction v) {
 		if (!(v.isBranch() || v.isTableSwitch() || v.isLookupSwitch()))
 			throw new IllegalArgumentException("CFGVertex of a branch expected");
 
@@ -60,8 +60,7 @@ public class BranchPool {
 		markBranchIDs(b);
 		bytecodeIdMap.put(branchCounter, b);
 
-		logger.debug("Branch " + branchCounter + " at line " + v.getId() + " - "
-		        + v.line_no);
+		logger.debug("Branch " + branchCounter + " at line " + b.getLineNumber());
 
 		branchCounter++;
 	}
@@ -147,9 +146,8 @@ public class BranchPool {
 	}
 
 	private static void addBranchToMap(Branch b) {
-		CFGVertex v = b.getCFGVertex();
-		String className = v.className;
-		String methodName = v.methodName;
+		String className = b.getClassName();
+		String methodName = b.getMethodName();
 
 		if (!branchMap.containsKey(className))
 			branchMap.put(className, new HashMap<String, List<Branch>>());
@@ -159,12 +157,13 @@ public class BranchPool {
 	}
 
 	private static void markBranchIDs(Branch b) {
-		CFGVertex v = b.getCFGVertex();
-		ControlFlowGraph completeCFG = CFGMethodAdapter.getCompleteCFG(v.className,
-		                                                               v.methodName);
-		CFGVertex branchVertex = completeCFG.getVertex(v.getId());
+		ControlFlowGraph completeCFG = CFGMethodAdapter.getCompleteCFG(b
+				.getClassName(), b.getMethodName());
+		BytecodeInstruction branchVertex = completeCFG.getVertex(b
+				.getInstructionId());
 		branchVertex.branchId = branchCounter;
-		v.branchId = branchCounter;
+		b.setBranchId(branchCounter);
+		
 		completeCFG.markBranchIds(b);
 	}
 }

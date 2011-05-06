@@ -392,7 +392,7 @@ public class ExecutionTrace {
 		int objectID = registerObject(caller);
 
 		// if this is a static variable, treat objectID as zero for consistency in the representation of static data
-		if (objectID != 0 && def.isStaticDU())
+		if (objectID != 0 && def.isStaticDefUse())
 			objectID = 0;
 		if (passedDefinitions.get(varName) == null)
 			passedDefinitions.put(varName,
@@ -427,7 +427,7 @@ public class ExecutionTrace {
 			if (use == null)
 				throw new IllegalStateException(
 				        "expect DefUsePool to known defIDs that are passed by instrumented code");
-			if (use.isStaticDU())
+			if (use.isStaticDefUse())
 				objectID = 0;
 		}
 		if (passedUses.get(varName) == null)
@@ -556,7 +556,7 @@ public class ExecutionTrace {
 					removableIndices.add(i);
 				else if (currentBranchBytecode == targetDUBranch.getBytecodeId()) {
 					// only remove this point in the trace if it would cover targetDU
-					boolean targetExpressionValue = targetDU.getCFGVertex().branchExpressionValue;
+					boolean targetExpressionValue = targetDU.getBranchExpressionValue();
 					if (wantToCoverTargetDU)
 						targetExpressionValue = !targetExpressionValue;
 					if (targetExpressionValue) {

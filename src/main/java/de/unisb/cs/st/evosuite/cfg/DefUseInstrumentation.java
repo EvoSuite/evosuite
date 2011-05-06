@@ -5,6 +5,7 @@ package de.unisb.cs.st.evosuite.cfg;
 
 import java.util.Iterator;
 
+import org.apache.log4j.Logger;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.objectweb.asm.Opcodes;
@@ -18,8 +19,11 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.coverage.dataflow.DefUse;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
+import de.unisb.cs.st.evosuite.coverage.dataflow.Definition;
+import de.unisb.cs.st.evosuite.coverage.dataflow.Use;
 
 /**
  * @author copied from CFGMethodAdapter
@@ -27,12 +31,14 @@ import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
  */
 public class DefUseInstrumentation implements MethodInstrumentation {
 
+	private static Logger logger = Logger.getLogger(DefUseInstrumentation.class);
+	
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String, java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void analyze(MethodNode mn, Graph<CFGVertex, DefaultEdge> graph,
+	public void analyze(MethodNode mn, Graph<BytecodeInstruction, DefaultEdge> graph,
 	        String className, String methodName, int access) {
 		ControlFlowGraph completeCFG = CFGMethodAdapter.getCompleteCFG(className,
 		                                                               methodName);
@@ -40,7 +46,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 		while (j.hasNext()) {
 
 			AbstractInsnNode in = j.next();
-			for (CFGVertex v : graph.vertexSet()) {
+			for (BytecodeInstruction v : graph.vertexSet()) {
 
 				if (in.equals(v.getNode()))
 					v.branchId = completeCFG.getVertex(v.getId()).branchId;
@@ -52,10 +58,10 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 					// keeping track of uses
 					boolean isValidDU = false;
 					if (v.isUse())
-						isValidDU = DefUsePool.addUse(v);
+						isValidDU = DefUsePool.addUse(new Use(v));
 					// keeping track of definitions
 					if (v.isDefinition())
-						isValidDU = DefUsePool.addDefinition(v) || isValidDU;
+						isValidDU = DefUsePool.addDefinition(new Definition(v)) || isValidDU;
 
 					if (isValidDU) {
 						boolean staticContext = v.isStaticDefUse()
@@ -75,13 +81,21 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 	 * Creates the instrumentation needed to track defs and uses
 	 * 
 	 */
-	private InsnList getInstrumentation(CFGVertex v, int currentBranch,
+	private InsnList getInstrumentation(BytecodeInstruction v, int currentBranch,
 	        boolean staticContext, String className, String methodName) {
 		InsnList instrumentation = new InsnList();
-
+		
+		// TODO sanity check matching method/class names and field values of v?
+		if(!v.isDefUse()) {
+			logger.warn("unexpected DefUseInstrumentation call for a non-DU-instruction");
+			return instrumentation;
+		}
+		
+		DefUse targetDU = new DefUse(v);
+		
 		if (v.isUse()) {
 			instrumentation.add(new LdcInsnNode(className));
-			instrumentation.add(new LdcInsnNode(v.getDUVariableName()));
+			instrumentation.add(new LdcInsnNode(targetDU.getDUVariableName()));
 			instrumentation.add(new LdcInsnNode(methodName));
 			if (staticContext) {
 				instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
@@ -97,7 +111,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 
 		if (v.isDefinition()) {
 			instrumentation.add(new LdcInsnNode(className));
-			instrumentation.add(new LdcInsnNode(v.getDUVariableName()));
+			instrumentation.add(new LdcInsnNode(targetDU.getDUVariableName()));
 			instrumentation.add(new LdcInsnNode(methodName));
 			if (staticContext) {
 				instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));

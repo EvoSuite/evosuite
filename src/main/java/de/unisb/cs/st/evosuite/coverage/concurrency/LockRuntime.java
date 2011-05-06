@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 
 /**
  * This class has two functions:
@@ -38,7 +38,7 @@ public class LockRuntime {
 	/**
 	 * Maps fieldAccessIDS to a vertex in the CFG
 	 */
-	public static final Map<Integer, CFGVertex> fieldAccessIDToCFGVertex = new ConcurrentHashMap<Integer, CFGVertex>();
+	public static final Map<Integer, BytecodeInstruction> fieldAccessIDToCFGVertex = new ConcurrentHashMap<Integer, BytecodeInstruction>();
 	
 	/**
 	 * Maps fieldAccessID to the ConcurrencyInstrumentation which inserted the scheduling point.
@@ -96,7 +96,7 @@ public class LockRuntime {
 	}
 	
 	
-	public static void mapFieldAccessIDtoCFGid(Integer fieldAccessID, Integer cfgID, CFGVertex vertex){
+	public static void mapFieldAccessIDtoCFGid(Integer fieldAccessID, Integer cfgID, BytecodeInstruction vertex){
 		assert(!fieldAccessIDToCFGBranch.containsKey(fieldAccessID));
 		//System.out.println(fieldAccessID + " - " + cfgID);
 		fieldAccessIDToCFGBranch.put(fieldAccessID, cfgID);		
@@ -109,7 +109,7 @@ public class LockRuntime {
 	 * Currently both params are for debugging only
 	 * #TODO this would maybe be better placed in controllerRuntime
 	 * @param requested the object which will be requested for the lock
-	 * @param id the id of this monitorInstruction
+	 * @param instructionId the id of this monitorInstruction
 	 */
 	public static void scheduler(Object requested, int requestID){
 		//logger.warn("XXXXXXXXXXXXXXXXXXXXXX SCHEDULE THREAD");
