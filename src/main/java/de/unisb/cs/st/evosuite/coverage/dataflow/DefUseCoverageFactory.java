@@ -132,6 +132,8 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 				for (String fieldName : DefUsePool.def_map.get(className).get(methodName).keySet()) 
 					for (Entry<Integer, List<Definition>> entry : DefUsePool.def_map.get(className).get(methodName).get(fieldName).entrySet()) {
 						ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(className, methodName);
+						if(cfg==null)
+							throw new IllegalStateException("Expect CFG to exist for "+methodName);
 						CFGVertex v = cfg.getVertex(entry.getKey());
 						if (entry.getKey() != -1 && v == null) 
 							 throw new IllegalStateException("no CFG for branch "+entry.getKey()+" in method "+methodName);

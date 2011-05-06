@@ -50,7 +50,7 @@ public class DefUseFitnessCalculations {
 	private static double SINGLE_ALTERNATIVE_FITNESS_RANGE = Properties.ALTERNATIVE_FITNESS_RANGE;
 	// ensure alternative fitness configuration is valid
 	static {
-		if (Properties.CRITERION.equals(Criterion.DEFUSE))
+		if (Properties.CRITERION == Criterion.DEFUSE)
 			if (ENABLE_ALTERNATIVE_FITNESS_CALCULATION) {
 				System.out.println("* Alternative fitness calculation mode: "
 				        + Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE);

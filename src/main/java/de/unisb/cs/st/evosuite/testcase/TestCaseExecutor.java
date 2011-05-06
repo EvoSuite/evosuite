@@ -31,6 +31,7 @@ import java.util.concurrent.TimeoutException;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.contracts.ContractChecker;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestRunnable;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
@@ -173,7 +174,7 @@ public class TestCaseExecutor implements ThreadFactory {
 
 		//#TODO steenbuck could be nicer (TestRunnable should be an interface
 		InterfaceTestRunnable callable;
-		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
+		if (Properties.CRITERION == Criterion.CONCURRENCY) {
 			callable = new ConcurrentTestRunnable(tc, scope, observers);
 		} else {
 			callable = new TestRunnable(tc, scope, observers);

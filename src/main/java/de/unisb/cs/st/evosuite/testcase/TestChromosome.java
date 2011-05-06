@@ -21,6 +21,7 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.Properties.TestFactory;
 import de.unisb.cs.st.evosuite.OUM.OUMTestFactory;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
@@ -149,7 +150,7 @@ public class TestChromosome extends Chromosome {
 		double P;
 
 		//#TODO steenbuck TestChromosome should be subclassed
-		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
+		if (Properties.CRITERION == Criterion.CONCURRENCY) {
 			assert (test instanceof ConcurrentTestCase);
 
 			P = 1d / 6d;

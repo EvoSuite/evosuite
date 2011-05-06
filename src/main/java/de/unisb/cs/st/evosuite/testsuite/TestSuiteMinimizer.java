@@ -181,7 +181,7 @@ public class TestSuiteMinimizer {
 	 */
 	public void minimize(TestSuiteChromosome suite) {
 
-		boolean branch = Properties.CRITERION.equals(Properties.Criterion.BRANCH);
+		boolean branch = Properties.CRITERION == Properties.Criterion.BRANCH;
 		CurrentChromosomeTracker.getInstance().modification(suite);
 
 		boolean size = false;

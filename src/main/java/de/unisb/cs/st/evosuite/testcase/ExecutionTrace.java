@@ -30,6 +30,7 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTracer;
@@ -115,6 +116,61 @@ public class ExecutionTrace {
 			ret.append("\n");
 			return ret.toString();
 		}
+		
+		public String explain() {
+			// TODO StringBuilder-explain() functions to construct string templates like explainList()
+			StringBuffer r = new StringBuffer();
+			r.append(class_name);
+			r.append(":");
+			r.append(method_name);
+			r.append("\n");
+			r.append("Lines: ");
+			if(line_trace == null)
+				r.append("null");
+			else {
+				for(Integer line : line_trace) {
+					r.append("\t"+line);
+				}
+				r.append("\n");
+			}
+			r.append("Branches: ");
+			if(branch_trace == null)
+				r.append("null");
+			else {
+				for (Integer branch : branch_trace) {
+					r.append("\t" + branch);
+				}
+				r.append("\n");
+			}
+			r.append("True Distances: ");
+			if(true_distance_trace == null)
+				r.append("null");
+			else {
+				for (Double distance : true_distance_trace) {
+					r.append("\t" + distance);
+				}
+				r.append("\n");
+			}
+			r.append("False Distances: ");
+			if(false_distance_trace == null)
+				r.append("null");
+			else {
+				for (Double distance : false_distance_trace) {
+					r.append("\t" + distance);
+				}
+				r.append("\n");
+			}
+			r.append("DefUse Trace:");
+			if(defuse_counter_trace == null)
+				r.append("null");
+			else {
+				for(Integer duCounter : defuse_counter_trace) {
+					r.append("\t" + duCounter);
+				}
+				r.append("\n");
+			}
+			return r.toString();
+		}
 
 		@Override
 		public MethodCall clone() {
@@ -185,7 +241,7 @@ public class ExecutionTrace {
 			methodId++;
 			MethodCall call = new MethodCall(classname, methodname, methodId,
 			        callingObjectID);
-			if (Properties.CRITERION.equals("defuse")) {
+			if (Properties.CRITERION == Criterion.DEFUSE) {
 				call.branch_trace.add(-1);
 				call.true_distance_trace.add(1.0);
 				call.false_distance_trace.add(0.0);
@@ -307,7 +363,7 @@ public class ExecutionTrace {
 			stack.peek().true_distance_trace.add(true_distance);
 			stack.peek().false_distance_trace.add(false_distance);
 			// TODO line_trace ?
-			if (Properties.CRITERION.equals("defuse")) {
+			if (Properties.CRITERION == Criterion.DEFUSE) {
 				stack.peek().defuse_counter_trace.add(duCounter);
 			}
 		}
@@ -544,12 +600,8 @@ public class ExecutionTrace {
 	 */
 	private static void removeFromFinishCall(MethodCall call,
 	        ArrayList<Integer> removableIndices) {
-		// TODO: line_trace?	
-		//check if call is sane
-		if (!(call.true_distance_trace.size() == call.false_distance_trace.size()
-		        && call.false_distance_trace.size() == call.defuse_counter_trace.size() && call.defuse_counter_trace.size() == call.branch_trace.size()))
-			throw new IllegalStateException(
-			        "insane MethodCall: traces should all be of equal size");
+		checkSaneCall(call);
+			
 		Collections.sort(removableIndices);
 		for (int i = removableIndices.size() - 1; i >= 0; i--) {
 			int removableIndex = removableIndices.get(i);
@@ -562,6 +614,15 @@ public class ExecutionTrace {
 				throw new IllegalStateException(
 				        "trace.finished_calls-traces not allowed to contain null");
 		}
+	}
+
+	private static void checkSaneCall(MethodCall call) {
+		if (!(call.true_distance_trace.size() == call.false_distance_trace.size()
+		        && call.false_distance_trace.size() == call.defuse_counter_trace.size() 
+		        && call.defuse_counter_trace.size() == call.branch_trace.size())) {
+			throw new IllegalStateException("insane MethodCall: traces should all be of equal size. "+call.explain());
+		}
+		
 	}
 
 	/**

@@ -38,6 +38,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyInstrumentation;
@@ -128,16 +129,16 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 		List<MethodInstrumentation> instrumentations = new ArrayList<MethodInstrumentation>();
 
-		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
+		if (Properties.CRITERION == Criterion.CONCURRENCY) {
 			instrumentations.add(new ConcurrencyInstrumentation());
 			instrumentations.add(new BranchInstrumentation());
-		} else if (Properties.CRITERION.equals(Properties.Criterion.LCSAJ)) {
+		} else if (Properties.CRITERION ==Criterion.LCSAJ) {
 			instrumentations.add(new LCSAJsInstrumentation());
 			instrumentations.add(new BranchInstrumentation());
-		} else if (Properties.CRITERION.equals(Properties.Criterion.DEFUSE)) {
+		} else if (Properties.CRITERION ==Criterion.DEFUSE) {
 			instrumentations.add(new BranchInstrumentation());
 			instrumentations.add(new DefUseInstrumentation());
-		} else if (Properties.CRITERION.equals(Properties.Criterion.PATH)) {
+		} else if (Properties.CRITERION ==Criterion.PATH) {
 			instrumentations.add(new PrimePathInstrumentation());
 			instrumentations.add(new BranchInstrumentation());
 		}
