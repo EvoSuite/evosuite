@@ -130,14 +130,17 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
 			instrumentations.add(new ConcurrencyInstrumentation());
+			instrumentations.add(new BranchInstrumentation());
 		} else if (Properties.CRITERION.equals(Properties.Criterion.LCSAJ)) {
 			instrumentations.add(new LCSAJsInstrumentation());
+			instrumentations.add(new BranchInstrumentation());
 		} else if (Properties.CRITERION.equals(Properties.Criterion.DEFUSE)) {
+			instrumentations.add(new BranchInstrumentation());
 			instrumentations.add(new DefUseInstrumentation());
 		} else if (Properties.CRITERION.equals(Properties.Criterion.PATH)) {
 			instrumentations.add(new PrimePathInstrumentation());
+			instrumentations.add(new BranchInstrumentation());
 		}
-		instrumentations.add(new BranchInstrumentation());
 
 		boolean executeOnMain = false;
 		boolean executeOnExcluded = false;
@@ -170,7 +173,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 				        + " nodes for " + cfgGenerator.getFrames().length
 				        + " instructions");
 			} catch (AnalyzerException e) {
-				logger.warn("Analyzer exception while analyzing " + className + "."
+				logger.error("Analyzer exception while analyzing " + className + "."
 				        + methodName);
 				e.printStackTrace();
 			}
