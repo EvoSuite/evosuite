@@ -778,11 +778,11 @@ public class DefUseFitnessCalculations {
 		if (v.branchId == -1) {
 			r = getRootBranchTestFitness(v);
 		} else {
-			ControlFlowGraph cfg = CFGMethodAdapter.getMinimizedCFG(v.className,
-			                                                        v.methodName);
+			ControlFlowGraph cfg = CFGMethodAdapter.getMinimizedCFG(v.getClassName(),
+			                                                        v.getMethodName());
 			Branch b = BranchPool.getBranch(v.branchId);
 			r = new BranchCoverageTestFitness(new BranchCoverageGoal(b,
-			        targetExpressionValue, cfg, v.className, v.methodName));
+			        targetExpressionValue, cfg, v.getClassName(), v.getMethodName()));
 		}
 		return r;
 	}
@@ -792,7 +792,7 @@ public class DefUseFitnessCalculations {
 	 * the given DefUse
 	 */
 	public static BranchCoverageTestFitness getRootBranchTestFitness(BytecodeInstruction v) {
-		return new BranchCoverageTestFitness(new BranchCoverageGoal(v.className,
-		        v.className + "." + v.methodName));
+		return new BranchCoverageTestFitness(new BranchCoverageGoal(v.getClassName(),
+		        v.getClassName() + "." + v.getMethodName()));
 	}
 }

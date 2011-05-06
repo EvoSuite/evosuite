@@ -5,6 +5,7 @@ import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import de.unisb.cs.st.evosuite.cfg.AbstractInsnWrapper;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 
 /**
@@ -16,15 +17,28 @@ public class DefUse extends BytecodeInstruction {
 
 	private static Logger logger = Logger.getLogger(DefUse.class);
 	
+	protected boolean isParameterUse=false;
+	
 	public int defuseId = -1;
 	public int useId = -1;
 	public int defId = -1;
 	
 	// TODO decide casting versus this constructor approach - that in this specific case i weirdly like
-	public DefUse(BytecodeInstruction v) {
-		super(v);
+	public DefUse(AbstractInsnWrapper wrap) {
+		// TODO manage ids
+		super(wrap);
+		if(!isDefUse())
+			throw new IllegalArgumentException("only actual defuse instructions are accepted");
 	}
 
+	public boolean isParameterUse() {
+		return isParameterUse;
+	}
+	
+	public void setParameterUse(boolean isParameterUse) {
+		this.isParameterUse = isParameterUse;
+	}
+	
 	public int getDefUseId() {
 		return defuseId;
 	}
@@ -53,6 +67,7 @@ public class DefUse extends BytecodeInstruction {
 		return ((FieldInsnNode) node).name;
 	}
 
+	// TODO make this "retrieveLocalVar"
 	public int getLocalVar() {
 		if (node instanceof VarInsnNode)
 			return ((VarInsnNode) node).var;

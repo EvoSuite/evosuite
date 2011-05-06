@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FrameNode;
@@ -40,27 +39,30 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
  */
 public class BytecodeInstruction extends AbstractInsnWrapper {
 
-	//	---						- Fields - 									---
+	//	---						 - Fields - 							---
+
+	/**
+	 * Can represent any byteCode instruction  
+	 */
+	public BytecodeInstruction(AbstractInsnWrapper wrap) {
+		super(wrap);
+	}
+
+	//			 ---	   		 - General -				---
+	int globalBytecodeInstructionId;
 	
-	// ---			- General - 				---
-	
-	public String methodName;
-	public String className;
-	
-	// ---			- Mutations	-				---
-	
+	//			 ---			- Mutations	-				---
 	// Calculate distance to each mutation
 	Map<Long, Integer> mutant_distance = new HashMap<Long, Integer>(); 
 	private final List<Long> mutations = new ArrayList<Long>();
 	boolean mutationBranch = false;
 	boolean mutatedBranch = false;
 	
-	// --		- Coverage Criteria -			---
-	
+	//			 --			- Coverage Criteria -			---
 	public int branchId = -1;
 	// TODO branchExpressionValue should be false whenever it is true and visa versa
 	public boolean branchExpressionValue = true;
-	boolean isParameterUse = false; // is set by DefUsePool
+	
 	// TODO: every BytecodeInstruction should 
 	// ..hold a reference to it's control dependent Branch
 	// ..actually a CFGVertex should hold a 
@@ -71,19 +73,18 @@ public class BytecodeInstruction extends AbstractInsnWrapper {
 	// ---					- Constructors - 						---
 
 	
-	public BytecodeInstruction(int instructionId, AbstractInsnNode node) {
-		this.instructionId = instructionId;
-		this. node = node;
-	}
-	
-	/**
-	 *  Sort of a copy constructor
-	 * ... TODO is this ugly?
-	 * 
-	 */
-	public BytecodeInstruction(BytecodeInstruction clone) {
-		this(clone.instructionId, clone.node);
-	}
+//	public BytecodeInstruction(int instructionId, AbstractInsnNode node) {
+//		this.instructionId = instructionId;
+//		this.node = node;
+//	}
+
+//	/**
+//	 * Sort of a copy constructor ... TODO is this ugly?
+//	 * 
+//	 */
+//	public BytecodeInstruction(BytecodeInstruction clone) {
+//		this(clone.instructionId, clone.node);
+//	}
 	
 
 
@@ -206,12 +207,6 @@ public class BytecodeInstruction extends AbstractInsnWrapper {
 		return instructionId;
 	}
 	
-	public int getLineNumber() {
-		if (lineNumber == -1)
-			throw new IllegalStateException("expect line number to be set by Instrumentation " +
-					"before asking for it");
-		return lineNumber;
-	}
 	
 	public String getMethodName() {
 		return methodName;
@@ -219,8 +214,7 @@ public class BytecodeInstruction extends AbstractInsnWrapper {
 	
 	public String getClassName() {
 		return className;
-	}
-	
+	}	
 	public boolean getBranchExpressionValue() {
 		return branchExpressionValue;
 	}
@@ -229,18 +223,10 @@ public class BytecodeInstruction extends AbstractInsnWrapper {
 		return branchId;
 	}
 
-	public boolean isParameterUse() {
-		return isParameterUse;
-	}
-
 	public void setLineNumber(int lineNumber) {
 		this.lineNumber = lineNumber; 
 	}
 	
-	public void setParameterUse(boolean isParameterUse) {
-		this.isParameterUse = isParameterUse;
-	}
-
 	public boolean isMutation() {
 		return !mutations.isEmpty();
 		/*
@@ -289,14 +275,6 @@ public class BytecodeInstruction extends AbstractInsnWrapper {
 		return mutations;
 	}
 
-	public void setMethodName(String methodName) {
-		this.methodName = methodName;
-	}
-
-	public void setClassName(String className) {
-		this.className = className;
-	}
-
 	public void setMutationBranch(boolean mutationBranch) {
 		this.mutationBranch = mutationBranch;
 	}
@@ -316,20 +294,6 @@ public class BytecodeInstruction extends AbstractInsnWrapper {
 	public boolean isMutatedBranch() {
 		// Mutated if HOMObserver of MutationObserver are called
 		return isBranch() && mutatedBranch;
-	}
-
-	public boolean isActualBranch() {
-		return isBranch() 
-				|| isLookupSwitch() 
-				|| isTableSwitch();
-	}
-
-	public boolean isDefinition() {
-		return isFieldDefinition() || isLocalVarDefinition();
-	}
-
-	public boolean isUse() {
-		return isFieldUse() || isLocalVarUse();
 	}
 
 	public int getDistance(long id) {

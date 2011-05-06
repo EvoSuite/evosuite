@@ -165,7 +165,6 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	private final BranchCoverageTestFitness goalUseBranchFitness;
 
 	private int difficulty = -1;
-
 	public static long difficulty_time = 0l; // experiment 
 
 	// coverage information
@@ -405,8 +404,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		BytecodeInstruction defVertex = cfg.getVertex(goalDefinition.getVertexId());
 		Set<BytecodeInstruction> r = cfg.getLaterInstructionsInMethod(defVertex);
 		for (BytecodeInstruction v : r) {
-			v.methodName = goalDefinition.getMethodName();
-			v.className = goalDefinition.getClassName();
+			v.setMethodName(goalDefinition.getMethodName());
+			v.setClassName(goalDefinition.getClassName());
 		}
 		return r;
 	}
@@ -423,8 +422,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		BytecodeInstruction useVertex = cfg.getVertex(goalUse.getVertexId());
 		Set<BytecodeInstruction> r = cfg.getPreviousInstructionsInMethod(useVertex);
 		for (BytecodeInstruction v : r) {
-			v.methodName = goalUse.getMethodName();
-			v.className = goalUse.getClassName();
+			v.setMethodName(goalUse.getMethodName());
+			v.setClassName(goalUse.getClassName());
 		}
 		return r;
 	}
@@ -467,7 +466,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		}
 	}
 
-	// getter methods
+	// 	---			Getter 		---
 
 	public ExecutionTrace getCoveringTrace() {
 		return coveringTrace;
@@ -497,7 +496,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		return goalDefinitionBranchFitness;
 	}
 
-	// methods inherited from Object
+	// ---		Inherited from Object 			---
 
 	@Override
 	public String toString() {
