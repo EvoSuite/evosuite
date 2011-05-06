@@ -37,16 +37,35 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
  * @author Gordon Fraser, Andre Mis
  * 
  */
-public class BytecodeInstruction extends AbstractInsnWrapper {
+public class BytecodeInstruction extends ASMWrapper {
 
 	//	---						 - Fields - 							---
 
 	/**
 	 * Can represent any byteCode instruction  
 	 */
-	public BytecodeInstruction(AbstractInsnWrapper wrap) {
-		super(wrap);
+	public BytecodeInstruction (String className, String methodName,
+			int instructionId, AbstractInsnNode node, int lineNumber) {
+		this(className, methodName, instructionId, node);
+		this.lineNumber = lineNumber;
 	}
+	
+	public BytecodeInstruction (String className, String methodName,
+			int instructionId, AbstractInsnNode node) {
+		this.instructionId = instructionId;
+		this.node = node;
+		this.methodName = methodName;
+		this.className = className;
+	}
+
+	/**
+	 * "copy-Constructor"
+	 */
+	public BytecodeInstruction (BytecodeInstruction wrap) {
+		this(wrap.className, wrap.methodName, wrap.instructionId, wrap.node,
+				wrap.lineNumber);
+	}
+
 
 	//			 ---	   		 - General -				---
 	int globalBytecodeInstructionId;

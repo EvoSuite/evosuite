@@ -5,7 +5,6 @@ import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import de.unisb.cs.st.evosuite.cfg.AbstractInsnWrapper;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 
 /**
@@ -24,7 +23,7 @@ public class DefUse extends BytecodeInstruction {
 	public int defId = -1;
 	
 	// TODO decide casting versus this constructor approach - that in this specific case i weirdly like
-	public DefUse(AbstractInsnWrapper wrap) {
+	public DefUse(BytecodeInstruction wrap) {
 		// TODO manage ids
 		super(wrap);
 		if(!isDefUse())
