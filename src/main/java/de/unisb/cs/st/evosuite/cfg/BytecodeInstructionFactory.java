@@ -16,16 +16,10 @@ public class BytecodeInstructionFactory {
 	public static BytecodeInstruction createBytecodeInstruction(
 			String className, String methodName, int instructionId, AbstractInsnNode node) {
 
-		AbstractInsnWrapper wrap = new AbstractInsnWrapper(className, methodName, instructionId, node);
-		if(wrap.isActualBranch())
-			return new Branch(wrap);
-		if(wrap.isDefUse())
-			return new DefUse(wrap);
-
 		// TODO fix other coverage criteria URGENT
 //		throw new NotImplementedException("Andre Mis");
 		
-		return new BytecodeInstruction(wrap);
+		return new BytecodeInstruction(className, methodName, instructionId, node);
 	}
 	
 	private BytecodeInstructionFactory() {}

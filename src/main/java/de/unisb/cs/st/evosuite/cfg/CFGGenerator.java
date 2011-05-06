@@ -80,10 +80,13 @@ public class CFGGenerator extends Analyzer {
 	protected boolean newControlFlowExceptionEdge(int src, int dst) {
 		// TODO: Make use of information that this is an exception edge?
 		registerControlFlowEdge(src, dst);
-
+	
 		return true;
 	}
 	
+	/**
+	 *  Internal management of fields and actual building up of the rawGraph 
+	 */
 	private void registerControlFlowEdge(int src, int dst) {
 		CFGFrame s = (CFGFrame) getFrames()[src];
 		Frame dstFrame = getFrames()[dst];

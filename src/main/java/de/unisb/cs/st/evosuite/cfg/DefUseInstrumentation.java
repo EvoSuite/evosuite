@@ -91,6 +91,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			return instrumentation;
 		}
 		
+		// TODO this is bad, arguments should be BytecodeInstruction already
 		DefUse targetDU = new DefUse(v);
 		
 		if (v.isUse()) {
