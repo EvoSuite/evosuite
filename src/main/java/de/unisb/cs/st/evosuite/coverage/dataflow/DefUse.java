@@ -1,9 +1,6 @@
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
 import org.apache.log4j.Logger;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.IincInsnNode;
-import org.objectweb.asm.tree.VarInsnNode;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 
@@ -16,14 +13,12 @@ public class DefUse extends BytecodeInstruction {
 
 	private static Logger logger = Logger.getLogger(DefUse.class);
 	
-	protected boolean isParameterUse;
 	int defuseId;
-	int useId;
 	int defId;
+	int useId;
+	boolean isParameterUse;
 	
-	// TODO equals() and ids and stuff
 	
-	// TODO decide casting versus this constructor approach - that in this specific case i weirdly like
 	protected DefUse(BytecodeInstruction wrap, int defuseId, int defId, int useId, boolean isParameterUse) {
 		super(wrap);
 		if(!isDefUse())
@@ -34,9 +29,19 @@ public class DefUse extends BytecodeInstruction {
 		this.useId = useId;
 	}
 	
-	public boolean isParameterUse() {
-		return isParameterUse;
+	public String getDUVariableType() {
+		if(isFieldDU())
+			return "Field";
+		if(isParameterUse())
+			return "Parameter";
+		if(isLocalDU())
+			return "Local";
+		
+		logger.warn("unexpected state");
+		return "UNKNOWN";
 	}
+	
+	// getter
 	
 	public int getDefUseId() {
 		return defuseId;
@@ -49,19 +54,28 @@ public class DefUse extends BytecodeInstruction {
 	public int getDefId() {
 		return defId;
 	}
-
-	public String getDUVariableType() {
-		if(isFieldDU())
-			return "Field";
-		if(isParameterUse())
-			return "Parameter";
-		if(isLocalDU())
-			return "Local";
-		
-		logger.warn("unexpected state");
-		return "UNKNOWN";
+	
+	public boolean isParameterUse() {
+		return isParameterUse;
 	}
 
+	// inherited from Object
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(this==obj)
+			return true;
+		if(obj==null)
+			return false;
+		if(obj instanceof DefUse) {
+			DefUse other = (DefUse)obj;
+			if(defuseId != other.defuseId)
+				return false;
+		}
+		return super.equals(obj);
+	}
+
+	@Override
 	public String toString() {
 		StringBuilder r = new StringBuilder();
 		if(isDefinition())

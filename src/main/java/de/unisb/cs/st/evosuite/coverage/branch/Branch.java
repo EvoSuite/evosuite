@@ -12,7 +12,6 @@ import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
  */
 public class Branch extends BytecodeInstruction {
 
-	// TODO decide casting versus this constructor approach - that in this specific case i weirdly like
 	public Branch(BytecodeInstruction wrapper) {
 		super(wrapper);
 		if(!isActualBranch())

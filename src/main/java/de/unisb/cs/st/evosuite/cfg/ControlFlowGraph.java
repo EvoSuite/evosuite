@@ -420,8 +420,6 @@ public class ControlFlowGraph {
 	public boolean hasDefClearPathToMethodEnd(DefUse duVertex) {
 		if (!graph.containsVertex(duVertex))
 			throw new IllegalArgumentException("vertex not in graph");
-		if(!duVertex.isUse())
-			logger.warn("method designed for Uses, not Definitions");
 		if (duVertex.isLocalDU())
 			return false;
 
