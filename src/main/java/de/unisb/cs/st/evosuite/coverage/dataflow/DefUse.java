@@ -63,15 +63,15 @@ public class DefUse extends BytecodeInstruction {
 	}
 
 	public String getFieldName() {
-		return ((FieldInsnNode) node).name;
+		return ((FieldInsnNode) asmNode).name;
 	}
 
 	// TODO make this "retrieveLocalVar"
 	public int getLocalVar() {
-		if (node instanceof VarInsnNode)
-			return ((VarInsnNode) node).var;
+		if (asmNode instanceof VarInsnNode)
+			return ((VarInsnNode) asmNode).var;
 		else
-			return ((IincInsnNode) node).var;
+			return ((IincInsnNode) asmNode).var;
 	}
 
 	public String getLocalVarName() {

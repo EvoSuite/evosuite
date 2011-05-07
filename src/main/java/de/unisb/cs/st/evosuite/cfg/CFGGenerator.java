@@ -74,9 +74,15 @@ public class CFGGenerator {
 		
 		AbstractInsnNode srcNode = currentMethod.instructions.get(src);
 		AbstractInsnNode dstNode = currentMethod.instructions.get(dst);
-		// those nodes should have gotten registered by analyze() 
-		BytecodeInstruction srcInstruction = BytecodeInstructionPool.getInstruction(src, srcNode);
-		BytecodeInstruction dstInstruction = BytecodeInstructionPool.getInstruction(dst, dstNode);
+
+		// those nodes should have gotten registered by registerMethodNode() 
+		BytecodeInstruction srcInstruction = BytecodeInstructionPool
+				.getInstruction(className,methodName,src,srcNode);
+		BytecodeInstruction dstInstruction = BytecodeInstructionPool
+				.getInstruction(className,methodName,dst,dstNode);
+		
+		if(srcInstruction==null || dstInstruction==null)
+			throw new IllegalStateException("expect BytecodeInstructionPool to know the instructions in the method of this edge");
 
 		rawGraph.addVertex(srcInstruction);
 		rawGraph.addVertex(dstInstruction);

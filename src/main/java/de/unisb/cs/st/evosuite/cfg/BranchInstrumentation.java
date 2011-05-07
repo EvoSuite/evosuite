@@ -44,7 +44,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			AbstractInsnNode in = j.next();
 			for (BytecodeInstruction v : graph.vertexSet()) {
 				// updating some information in the CFGVertex
-				if (in.equals(v.getNode())) {
+				if (in.equals(v.getASMNode())) {
 					if (v.isLineNumber()) {
 						currentLineNumber = v.getLineNumber();
 					}
@@ -53,26 +53,26 @@ public class BranchInstrumentation implements MethodInstrumentation {
 					v.setLineNumber(currentLineNumber);
 				}
 				// If this is in the CFG and it's a branch...
-				if (in.equals(v.getNode())) {
+				if (in.equals(v.getASMNode())) {
 					if (v.isBranch() && !v.isMutation() && !v.isMutationBranch()) {
-						mn.instructions.insert(v.getNode().getPrevious(),
-						                       getInstrumentation(v.getNode().getOpcode(),
+						mn.instructions.insert(v.getASMNode().getPrevious(),
+						                       getInstrumentation(v.getASMNode().getOpcode(),
 						                                          v.getId(), className,
 						                                          methodName));
 
 						BranchPool.addBranch(v);
 					} else if (v.isTableSwitch()) {
-						mn.instructions.insertBefore(v.getNode(),
+						mn.instructions.insertBefore(v.getASMNode(),
 						                             getInstrumentation(v, mn, className,
 						                                                methodName));
 					} else if (v.isLookupSwitch()) {
-						mn.instructions.insertBefore(v.getNode(),
+						mn.instructions.insertBefore(v.getASMNode(),
 						                             getInstrumentation(v, mn, className,
 						                                                methodName));
 					} else if (v.isThrow()) {
 						if (Properties.CRITERION == Criterion.LCSAJ) {
 							InsnList instrumentation = new InsnList();
-							instrumentation.add(new LdcInsnNode(v.getNode().getOpcode()));
+							instrumentation.add(new LdcInsnNode(v.getASMNode().getOpcode()));
 							instrumentation.add(new LdcInsnNode(
 							        BranchPool.getBranchCounter()));
 							instrumentation.add(new LdcInsnNode(v.getId()));
@@ -80,7 +80,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 							        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 							        "passedUnconditionalBranch", "(III)V"));
 							BranchPool.countBranch(className + "." + methodName);
-							mn.instructions.insertBefore(v.getNode(), instrumentation);
+							mn.instructions.insertBefore(v.getASMNode(), instrumentation);
 						}
 					}
 				}
@@ -93,9 +93,9 @@ public class BranchInstrumentation implements MethodInstrumentation {
 		InsnList instrumentation = new InsnList();
 
 		String methodID = className + "." + methodName;
-		switch (v.getNode().getOpcode()) {
+		switch (v.getASMNode().getOpcode()) {
 		case Opcodes.TABLESWITCH:
-			TableSwitchInsnNode tsin = (TableSwitchInsnNode) v.getNode();
+			TableSwitchInsnNode tsin = (TableSwitchInsnNode) v.getASMNode();
 			int num = 0;
 			for (int i = tsin.min; i <= tsin.max; i++) {
 				instrumentation.add(new InsnNode(Opcodes.DUP));
@@ -116,7 +116,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			// Default branch is covered if the last case is false
 			break;
 		case Opcodes.LOOKUPSWITCH:
-			LookupSwitchInsnNode lsin = (LookupSwitchInsnNode) v.getNode();
+			LookupSwitchInsnNode lsin = (LookupSwitchInsnNode) v.getASMNode();
 			logger.info("Found lookupswitch with " + lsin.keys.size() + " keys");
 			for (int i = 0; i < lsin.keys.size(); i++) {
 				instrumentation.add(new InsnNode(Opcodes.DUP));

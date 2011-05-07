@@ -54,19 +54,19 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 		while (instructions.hasNext()) {
 			AbstractInsnNode instruction = instructions.next();
 			for (BytecodeInstruction v : graph.vertexSet()) {
-				if (instruction.equals(v.getNode())){
+				if (instruction.equals(v.getASMNode())){
 					v.branchId = completeCFG.getVertex(v.getId()).branchId;
 				}
 				//#TODO steenbuck the true should be some command line option to activate the concurrency stuff
 				if (true && 
-						instruction.equals(v.getNode()) && 
+						instruction.equals(v.getASMNode()) && 
 						v.isFieldUse() &&
 						instruction instanceof FieldInsnNode &&
 						 //#FIXME steenbuck we should also instrument fields, which access primitive types.
 						//#FIXME steenbuck apparently some objects (like Boolean, Integer) are not working with this, likely a different Signature (disappears when all getfield/getstatic points are instrumented)
 						((FieldInsnNode)instruction).desc.startsWith("L")) { //we only want objects, as primitive types are passed by value
 					// adding instrumentation for scheduling-coverage
-					mn.instructions.insert(v.getNode(),
+					mn.instructions.insert(v.getASMNode(),
 							getConcurrencyInstrumentation(v, v.branchId));
 
 					// keeping track of definitions
@@ -85,7 +85,7 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 	
 	private InsnList getConcurrencyInstrumentation(BytecodeInstruction v, int currentBranch) {
 		InsnList instrumentation = new InsnList();
-		switch (v.getNode().getOpcode()) {
+		switch (v.getASMNode().getOpcode()) {
 		case Opcodes.GETFIELD:
 		case Opcodes.GETSTATIC:
 			//System.out.println("as seen in instrument:" + v.node.getClass() + " branchID: " + currentBranch +  " line " + v.line_no);

@@ -12,7 +12,6 @@ import org.objectweb.asm.tree.MethodNode;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 
 /**
- * TODO goal: unite Branch/DefUse-Pools
  * @author Andre Mis
  *
  */
@@ -28,23 +27,25 @@ public class BytecodeInstructionPool {
 	public static void registerMethodNode(MethodNode node, String className, String methodName) {
 		
 		registerMethodNode(node);
-		BytecodeInstructionFactory factory = BytecodeInstructionFactory
-				.getInstance();
+//		BytecodeInstructionFactory factory = BytecodeInstructionFactory
+//				.getInstance();
 
 		for(int instructionId=0;instructionId<node.instructions.size();instructionId++) {
 			AbstractInsnNode instructionNode = node.instructions.get(instructionId);
 			
-			BytecodeInstruction instruction = factory.createBytecodeInstruction(className, methodName, instructionId, instructionNode);
+			BytecodeInstruction instruction = BytecodeInstructionFactory
+					.createBytecodeInstruction(className, methodName,
+							instructionId, instructionNode);
 			addInstructionToMap(instruction);
 			
 		}
 	}
 	
 	private static void registerMethodNode(MethodNode node) {
-		// TODO
 		for (MethodNode mn : knownMethodNodes)
 			if (mn == node)
 				logger.warn("TODO CFGGenerator.analyze() apparently got called for the same MethodNode twice");
+		
 		knownMethodNodes.add(node);
 	}
 	
@@ -59,9 +60,27 @@ public class BytecodeInstructionPool {
 		instructionMap.get(className).get(methodName).add(instruction);
 	}
 
-	public static BytecodeInstruction getInstruction(int src,
-			AbstractInsnNode node1) {
-		// TODO Auto-generated method stub
+	public static BytecodeInstruction getInstruction(String className,
+			String methodName, int src, AbstractInsnNode node1) {
+		
+		if(instructionMap.get(className) == null) {
+			logger.warn("unknown class");
+			return null;
+		}
+		if(instructionMap.get(className).get(methodName) == null) {
+			logger.warn("unknown method");
+			return null;
+		}
+		for(BytecodeInstruction instruction : instructionMap.get(className).get(methodName)) {
+			if(instruction.getId() == src) {
+				// debug
+				instruction.sanityCheckAbstractInsnNode(node1);
+				return instruction;
+			}
+		}
+		
+		logger.warn("unknown instruction");
+		
 		return null;
 	}
 }
