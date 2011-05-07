@@ -27,10 +27,13 @@ import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 
 /**
- * Internal representation of a BytecodeInstruction
- * Wraps asm.tree.AbstractInsnNode and is used in
- * cfg.BasicBlock and transitively cfg.ControlFlowGraph
+ *  Internal representation of a BytecodeInstruction
  *  
+ *  Extends ASMWrapper which serves as an interface to the 
+ * ASM library.
+ *
+ *  Known super classes are DefUse and Branch which yield specific 
+ * functionality needed to achieve theirs respective coverage criteria
  * 
  * Old: Node of the control flow graph
  * 
@@ -39,41 +42,8 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
  */
 public class BytecodeInstruction extends ASMWrapper {
 
-	//	---				 - Constructors - 					---
-
-	/**
-	 * Can represent any byteCode instruction  
-	 */
-	public BytecodeInstruction (String className, String methodName,
-			int instructionId, AbstractInsnNode node, int lineNumber) {
-
-		this(className, methodName, instructionId, node);
-		this.lineNumber = lineNumber;
-	}
-	
-	public BytecodeInstruction (String className, String methodName,
-			int instructionId, AbstractInsnNode node) {
-
-		if (className == null || methodName == null || node == null)
-			throw new IllegalArgumentException("null given");
-		
-		this.instructionId = instructionId;
-		this.asmNode = node;
-		this.methodName = methodName;
-		this.className = className;
-	}
-
-	/**
-	 * "copy-Constructor"
-	 */
-	public BytecodeInstruction (BytecodeInstruction wrap) {
-		this(wrap.className, wrap.methodName, wrap.instructionId, wrap.asmNode,
-				wrap.lineNumber);
-	}
-
-
 	//			 ---	   		 - General -				---
-	int globalBytecodeInstructionId;
+	int globalBytecodeInstructionId; // TODO
 	
 	//			 ---			- Mutations	-				---
 	// Calculate distance to each mutation
@@ -93,24 +63,39 @@ public class BytecodeInstruction extends ASMWrapper {
 	// ..set of all branches it is control dependent on:
 	// private Set<Branch> controlDependencies = new HashSet<Branch>();
 	
-	
-	// ---					- Constructors - 						---
 
+	// TODO make sure the word CFGVertex appears nowhere anymore
+	// TODO clean up
 	
-//	public BytecodeInstruction(int instructionId, AbstractInsnNode node) {
-//		this.instructionId = instructionId;
-//		this.node = node;
-//	}
+	//	---				 - Constructors - 					---
 
-//	/**
-//	 * Sort of a copy constructor ... TODO is this ugly?
-//	 * 
-//	 */
-//	public BytecodeInstruction(BytecodeInstruction clone) {
-//		this(clone.instructionId, clone.node);
-//	}
+	/**
+	 * Can represent any byteCode instruction  
+	 */
+	public BytecodeInstruction (String className, String methodName,
+			int instructionId, AbstractInsnNode asmNode, int lineNumber) {
+
+		this(className, methodName, instructionId, asmNode);
+		this.lineNumber = lineNumber;
+	}
 	
+	public BytecodeInstruction (String className, String methodName,
+			int instructionId, AbstractInsnNode asmNode) {
 
+		if (className == null || methodName == null || asmNode == null)
+			throw new IllegalArgumentException("null given");
+		
+		this.instructionId = instructionId;
+		this.asmNode = asmNode;
+		this.methodName = methodName;
+		this.className = className;
+	}
+	
+	public BytecodeInstruction(BytecodeInstruction wrap) {
+		
+		this(wrap.className, wrap.methodName, wrap.instructionId, wrap.asmNode,
+				wrap.lineNumber);
+	}
 
 	//		---				TODO CDG-Section WARNING: broken as hell TODO		---
 	

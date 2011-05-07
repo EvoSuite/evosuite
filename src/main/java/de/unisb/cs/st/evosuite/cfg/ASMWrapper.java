@@ -13,15 +13,15 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 // TODO: the following methods about control dependence are flawed right now:
-//			- the CFGVertex of a Branch does not have it's control dependent branchId
+//			- the BytecodeInstruction of a Branch does not have it's control dependent branchId
 //				but it's own branchId set 
 //			- this seems to be OK for ChromosomeRecycling as it stands, but
 //				especially getControlDependentBranch() will fail hard when called on a Branch
 //				the same may hold for the other ones as well. 
 //			- look at BranchCoverageGoal and Branch for more information
 
-// TODO ensure only one AbstractInsnNode object for each byteCode instruction 
-//			.. wrappers may get cloned but not the nodes themselves!
+
+// TODO clean up
 
 /**
  * Convenience-superclass for classes that hold a BytecodeInstruction
@@ -261,8 +261,10 @@ public abstract class ASMWrapper {
 	public int getLocalVar() {
 		if (asmNode instanceof VarInsnNode)
 			return ((VarInsnNode) asmNode).var;
-		else
+		else if(asmNode instanceof IincInsnNode)
 			return ((IincInsnNode) asmNode).var;
+		else
+			return -1;
 	}
 	
 	public boolean isLocalVarDefinition() {

@@ -12,8 +12,11 @@ import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 /**
  * This class is supposed to hold all the available information concerning Definitions and Uses.
  * 
- * The addDefinition()- and addUse()-Method get called by the CFGMethodAdapter whenever it detects 
- * a CFGVertex that corresponds to a Definition or Use in the class under test. 
+ * The addDefinition()- and addUse()-Method get called by the DefUseInstrumentation whenever it detects 
+ * a BytecodeInstruction that corresponds to a Definition or Use in the class under test.
+ * 
+ *  BytecodeInstructions that are not known to this pool can not be instantiated as Definition or Use
+ * by the DefUseFactory
  * 
  * @author Andre Mis
  */
@@ -21,23 +24,25 @@ public class DefUsePool {
 
 	private static Logger logger = Logger.getLogger(DefUsePool.class);
 	
-	
-	// maps: className -> methodName  -> DUVarName -> branchID -> List of Definitions in that branch 
-	public static Map<String, Map<String, Map<String, Map<Integer,List<Definition>>>>> def_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<Definition>>>>>();
+	// trees of all known definitions and uses
 
-	// maps: className -> methodName  -> DUVarName -> branchID -> List of Uses in that branch
+	// 	className -> methodName  -> DUVarName -> branchID -> List of Definitions in that branch 
+	public static Map<String, Map<String, Map<String, Map<Integer,List<Definition>>>>> def_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<Definition>>>>>();
+	
+	// 	className -> methodName  -> DUVarName -> branchID -> List of Uses in that branch
 	public static Map<String, Map<String, Map<String, Map<Integer,List<Use>>>>> use_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<Use>>>>>();	
 	
-	// maps all known duIDs to their DefUse TODO refill these
+	// maps IDs to objects
 	private static Map<Integer, DefUse> defuseIdsToDefUses = new HashMap<Integer, DefUse>();
 	private static Map<Integer, Definition> defuseIdsToDefs = new HashMap<Integer, Definition>();
 	private static Map<Integer, Use> defuseIdsToUses = new HashMap<Integer, Use>();
 
-	// register of all known DefUse-, Definition- and Use-IDs - and an extra one to keep track of parameterUses
-	// when creating a DefUse in the DefUseFactory these maps are consulted in order to set the necessary field values
+	// maps objects to IDs
+	// register of all known DefUse-, Definition- and Use-IDs
 	private static Map<BytecodeInstruction, Integer> registeredDUs = new HashMap<BytecodeInstruction, Integer>();
 	private static Map<BytecodeInstruction, Integer> registeredDefs = new HashMap<BytecodeInstruction, Integer>();
 	private static Map<BytecodeInstruction, Integer> registeredUses = new HashMap<BytecodeInstruction, Integer>();
+	// and an extra one to keep track of parameterUses
 	private static List<BytecodeInstruction> knownParameterUses = new ArrayList<BytecodeInstruction>();
 	
 	// keep track of known DUs and assign IDs accordingly
@@ -204,7 +209,7 @@ public class DefUsePool {
 		logger.debug("Added to DefUsePool as use: "+use.toString());		
 	}
 
-
+	// filling the maps
 	
 	private static boolean addToDefMap(Definition d) {
 		String className = d.getClassName();
