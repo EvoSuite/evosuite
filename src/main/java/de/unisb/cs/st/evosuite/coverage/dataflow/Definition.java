@@ -5,20 +5,19 @@ import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 /**
  * An object of this class corresponds to a Definition inside the class under test.
  * 
- * Definitions are created by the CFGMethodAdapter via the DefUsePool.
- * Each Definition holds its corresponding CFGVertex from the ControlFlowGraph.
+ * Definitions are created by the DefUseFactory via the DefUsePool.
  * 
  * @author Andre Mis
  */
 
 public class Definition extends DefUse {
 
-	// TODO decide casting versus this constructor approach - that in this specific case i weirdly like
-	public Definition(BytecodeInstruction v) {
-		super(v);
-		if(v==null)
-			throw new IllegalArgumentException("null given");
-		if(!isDefinition()) // TODO
-			throw new IllegalArgumentException("Vertex of a definition expected");
+	Definition(BytecodeInstruction wrap, int defuseId, int defId, int useId,
+			boolean isParameterUse) {
+	
+		super(wrap, defuseId, defId, useId, isParameterUse);
+		if (!isDefinition())
+			throw new IllegalArgumentException(
+					"Vertex of a definition expected");
 	}
 }

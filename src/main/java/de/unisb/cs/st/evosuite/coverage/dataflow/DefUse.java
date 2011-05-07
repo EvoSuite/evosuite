@@ -16,75 +16,40 @@ public class DefUse extends BytecodeInstruction {
 
 	private static Logger logger = Logger.getLogger(DefUse.class);
 	
-	protected boolean isParameterUse=false;
+	protected boolean isParameterUse;
+	int defuseId;
+	int useId;
+	int defId;
 	
-	public int defuseId = -1;
-	public int useId = -1;
-	public int defId = -1;
+	// TODO equals() and ids and stuff
 	
 	// TODO decide casting versus this constructor approach - that in this specific case i weirdly like
-	public DefUse(BytecodeInstruction wrap) {
-		// TODO manage ids
+	protected DefUse(BytecodeInstruction wrap, int defuseId, int defId, int useId, boolean isParameterUse) {
 		super(wrap);
 		if(!isDefUse())
 			throw new IllegalArgumentException("only actual defuse instructions are accepted");
-	}
-
-	public boolean isParameterUse() {
-		return isParameterUse;
+		
+		this.defuseId = defuseId;
+		this.defId = defId;
+		this.useId = useId;
 	}
 	
-	public void setParameterUse(boolean isParameterUse) {
-		this.isParameterUse = isParameterUse;
+	public boolean isParameterUse() {
+		return isParameterUse;
 	}
 	
 	public int getDefUseId() {
 		return defuseId;
 	}
 
-	public void setDefUseId(int defuseId) {
-		this.defuseId = defuseId;
-	}
-
 	public int getUseId() {
 		return useId;
-	}
-
-	public void setUseId(int useId) {
-		this.useId = useId;
 	}
 
 	public int getDefId() {
 		return defId;
 	}
 
-	public void setDefId(int defId) {
-		this.defId = defId;
-	}
-
-	public String getFieldName() {
-		return ((FieldInsnNode) asmNode).name;
-	}
-
-	// TODO make this "retrieveLocalVar"
-	public int getLocalVar() {
-		if (asmNode instanceof VarInsnNode)
-			return ((VarInsnNode) asmNode).var;
-		else
-			return ((IincInsnNode) asmNode).var;
-	}
-
-	public String getLocalVarName() {
-		return methodName + "_LV_" + getLocalVar();
-	}
-
-	public String getDUVariableName() {
-		if (this.isFieldDU())
-			return getFieldName();
-		else
-			return getLocalVarName();
-	}
-	
 	public String getDUVariableType() {
 		if(isFieldDU())
 			return "Field";
