@@ -140,6 +140,8 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		} else if (Properties.CRITERION ==Criterion.PATH) {
 			instrumentations.add(new PrimePathInstrumentation());
 			instrumentations.add(new BranchInstrumentation());
+		} else {
+			instrumentations.add(new BranchInstrumentation());
 		}
 
 		boolean executeOnMain = false;

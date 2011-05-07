@@ -66,8 +66,8 @@ public class BranchPool {
 	}
 
 	/**
-	 * Gets called by the CFGMethodAdapter when it detects a Method without any
-	 * Branches.
+	 * Gets called by the CFGMethodAdapter when it detects a method 
+	 * without any branches.
 	 * 
 	 * @param methodName
 	 *            Unique methodName of a method without Branches
