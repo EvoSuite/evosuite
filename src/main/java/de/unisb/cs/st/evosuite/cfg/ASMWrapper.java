@@ -173,6 +173,8 @@ public abstract class ASMWrapper {
 		return false;
 	}
 	
+	// inherited from Object
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -184,14 +186,22 @@ public abstract class ASMWrapper {
 	
 	@Override
 	public boolean equals(Object o) {
-		// TODO
 		if(o==this)
 			return true;
 		if(o==null)
 			return false;
 		if(!(o instanceof ASMWrapper))
 			return false;
+		
 		ASMWrapper other = (ASMWrapper)o;
+		
+		if (instructionId != other.instructionId)
+			return false;
+		if (methodName != null && !methodName.equals(other.methodName))
+			return false;
+		if (className != null && !className.equals(other.className))
+			return false;
+		
 		return asmNode.equals(other.asmNode);
 	}
 	

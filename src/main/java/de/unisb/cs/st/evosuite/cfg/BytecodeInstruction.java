@@ -39,19 +39,24 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
  */
 public class BytecodeInstruction extends ASMWrapper {
 
-	//	---						 - Fields - 							---
+	//	---				 - Constructors - 					---
 
 	/**
 	 * Can represent any byteCode instruction  
 	 */
 	public BytecodeInstruction (String className, String methodName,
 			int instructionId, AbstractInsnNode node, int lineNumber) {
+
 		this(className, methodName, instructionId, node);
 		this.lineNumber = lineNumber;
 	}
 	
 	public BytecodeInstruction (String className, String methodName,
 			int instructionId, AbstractInsnNode node) {
+
+		if (className == null || methodName == null || node == null)
+			throw new IllegalArgumentException("null given");
+		
 		this.instructionId = instructionId;
 		this.asmNode = node;
 		this.methodName = methodName;
@@ -410,18 +415,10 @@ public class BytecodeInstruction extends ASMWrapper {
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass()) // TODO: can Class be compared via == ?
+		if (!(obj instanceof BytecodeInstruction)) // TODO: can Class be compared via == ?
 			return false;
-		BytecodeInstruction other = (BytecodeInstruction) obj;
-		// if (!getOuterType().equals(other.getOuterType()))
-		// return false;
-		if (instructionId != other.instructionId)
-			return false;
-		if (methodName != null && !methodName.equals(other.methodName))
-			return false;
-		if (className != null && !className.equals(other.className))
-			return false;
-		return true;
+		
+		return super.equals(obj);
 	}
 
 }
