@@ -1,21 +1,3 @@
-/*
- * Copyright (C) 2010 Saarland University
- * 
- * This file is part of EvoSuite.
- * 
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Lesser Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version.
- * 
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-
 package de.unisb.cs.st.evosuite.cfg;
 
 import java.util.HashSet;
@@ -30,107 +12,75 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.analysis.Analyzer;
-import org.objectweb.asm.tree.analysis.AnalyzerException;
-import org.objectweb.asm.tree.analysis.BasicInterpreter;
 import org.objectweb.asm.tree.analysis.Frame;
 
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
-/**
- * This class generates a CFG from a method's bytecode
- * 
- * @author Gordon Fraser
- * 
- */
-public class CFGGenerator extends Analyzer {
+public class CFGGenerator {
 
-	private static Logger logger = Logger.getLogger(CFGGenerator.class);
-
-	MethodNode current_method = null;
+	private static Logger logger = Logger.getLogger(BytecodeAnalyzer.class);
+	
+	List<Mutation> mutants;
 	DefaultDirectedGraph<BytecodeInstruction, DefaultEdge> rawGraph = new DefaultDirectedGraph<BytecodeInstruction, DefaultEdge>(
 			DefaultEdge.class);
-	List<Mutation> mutants;
+	
+	boolean nodeRegistered = false;
+	MethodNode currentMethod;
 	String className;
 	String methodName;
-
-	// Constructor
 	
-	public CFGGenerator(List<Mutation> mutants) {
-		super(new BasicInterpreter());
+
+	// initialization
+	
+	public CFGGenerator(String className, String methodName,
+			MethodNode node, List<Mutation> mutants) {
 		this.mutants = mutants;
+		registerMethodNode(node, className, methodName);
 	}
 	
-	// build the CFG
-
-	/**
-	 * Called for each non-exceptional cfg edge
-	 */
-	@Override
-	protected void newControlFlowEdge(int src, int dst) {
-
-		registerControlFlowEdge(src,dst);
+	private void registerMethodNode(MethodNode currentMethod, String className, String methodName) {
+		if(nodeRegistered)
+			throw new IllegalStateException("registerMethodNode must not be called more than once for each instance of CFGGenerator");
+		if(currentMethod==null || methodName==null || currentMethod == null)
+			throw new IllegalArgumentException("null given");
+		
+		this.currentMethod = currentMethod;
+		this.className = className;
+		this.methodName = methodName;
+		
+		BytecodeInstructionPool.registerMethodNode(currentMethod,className,methodName);
+		
+		nodeRegistered = true;
 	}
-
-	/**
-	 * We also need to keep track of exceptional edges - they are also branches
-	 */
-	@Override
-	protected boolean newControlFlowExceptionEdge(int src, int dst) {
-		// TODO: Make use of information that this is an exception edge?
-		registerControlFlowEdge(src, dst);
 	
-		return true;
-	}
+	
+	// build up the graph
 	
 	/**
 	 *  Internal management of fields and actual building up of the rawGraph 
 	 */
-	private void registerControlFlowEdge(int src, int dst) {
-		CFGFrame s = (CFGFrame) getFrames()[src];
-		Frame dstFrame = getFrames()[dst];
-		if (dstFrame == null)
-			logger.error("Control flow edge to null");
+	public void registerControlFlowEdge(int src, int dst, Frame[] frames) {
+		if(!nodeRegistered)
+			throw new IllegalStateException("CFGGenrator.registerControlFlowEdge() cannot be called unless registerMethodNode() was called first");
+		if(frames == null)
+			throw new IllegalArgumentException("null given");
+		CFGFrame srcFrame = (CFGFrame) frames[src];
+		Frame dstFrame = frames[dst];
+		if(srcFrame==null || dstFrame == null)
+			throw new IllegalArgumentException("expect expect given frames to know src and dst");
+			
+		srcFrame.successors.put(dst, (CFGFrame) dstFrame);
 		
-		s.successors.put(dst, (CFGFrame) dstFrame);
-		
-		AbstractInsnNode srcNode = current_method.instructions.get(src);
-		AbstractInsnNode dstNode = current_method.instructions.get(dst);
+		AbstractInsnNode srcNode = currentMethod.instructions.get(src);
+		AbstractInsnNode dstNode = currentMethod.instructions.get(dst);
 		// those nodes should have gotten registered by analyze() 
 		BytecodeInstruction srcInstruction = BytecodeInstructionPool.getInstruction(src, srcNode);
 		BytecodeInstruction dstInstruction = BytecodeInstructionPool.getInstruction(dst, dstNode);
 
-		// fill raw graph
 		rawGraph.addVertex(srcInstruction);
 		rawGraph.addVertex(dstInstruction);
 		rawGraph.addEdge(srcInstruction, dstInstruction);
-	}
-	
-	@Override
-	protected Frame newFrame(int nLocals, int nStack) {
-		return new CFGFrame(nLocals, nStack);
-	}
-
-	@Override
-	protected Frame newFrame(Frame src) {
-		return new CFGFrame(src);
-	}
-
-	CFGFrame analyze(String owner, String method, MethodNode node)
-			throws AnalyzerException {
-		
-		current_method = node;
-		className = owner;
-		methodName = method;
-		this.analyze(owner, node);
-		// TODO should this have happened before analyze() ?
-		BytecodeInstructionPool.registerMethodNode(node,className,methodName);
-		Frame[] frames = getFrames();
-		if (frames.length == 0)
-			return null;
-
-		return (CFGFrame) getFrames()[0];
 	}
 	
 	// retrieve information about the graph
@@ -190,8 +140,9 @@ public class CFGGenerator extends Analyzer {
 
 		return min_graph;
 	}
-
-	// mutations
+	
+	
+	// mark mutations
 
 	/**
 	 * Sets the mutation IDs for each node
@@ -239,4 +190,5 @@ public class CFGGenerator extends Analyzer {
 			}
 		}
 	}
+	
 }

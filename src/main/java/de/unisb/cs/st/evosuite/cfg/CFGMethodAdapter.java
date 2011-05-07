@@ -162,14 +162,14 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			// MethodNode mn = new CFGMethodNode((MethodNode)mv);
 			// System.out.println("Generating CFG for "+ className+"."+mn.name +
 			// " ("+mn.desc +")");
-			CFGGenerator cfgGenerator = new CFGGenerator(mutants);
+			BytecodeAnalyzer cfgGenerator = new BytecodeAnalyzer(mutants);
 			logger.info("Generating CFG for method " + methodName);
 
 			try {
 				cfgGenerator.analyze(className, methodName, mn);
 				logger.trace("Method graph for " + className + "." + methodName
 				        + " contains "
-				        + cfgGenerator.getCompleteGraph().vertexSet().size()
+				        + cfgGenerator.retrieveCFGGenerator().getCompleteGraph().vertexSet().size()
 				        + " nodes for " + cfgGenerator.getFrames().length
 				        + " instructions");
 			} catch (AnalyzerException e) {
@@ -178,13 +178,17 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 				e.printStackTrace();
 			}
 
-			// non-minimized cfg needed for defuse-coverage and control dependence
+			// non-minimized cfg needed for defuse-coverage and control
+			// dependence
 			// calculation
-			addCompleteCFG(className, methodName, cfgGenerator.getCompleteGraph());
-			addMinimizedCFG(className, methodName, cfgGenerator.getMinimalGraph());
+			addCompleteCFG(className, methodName, cfgGenerator
+					.retrieveCFGGenerator().getCompleteGraph());
+			addMinimizedCFG(className, methodName, cfgGenerator
+					.retrieveCFGGenerator().getMinimalGraph());
 			logger.info("Created CFG for method " + methodName);
 
-			Graph<BytecodeInstruction, DefaultEdge> completeGraph = cfgGenerator.getCompleteGraph();
+			Graph<BytecodeInstruction, DefaultEdge> completeGraph = cfgGenerator
+					.retrieveCFGGenerator().getCompleteGraph();
 
 			//add the actual instrumentation
 			for (MethodInstrumentation instrumentation : instrumentations) {

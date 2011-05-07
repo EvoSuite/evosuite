@@ -28,7 +28,7 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
  * 
  * @author Andre Mis
  */
-public class AbstractInsnWrapper {
+public abstract class ASMWrapper {
 
 	protected String className;
 	protected String methodName;
@@ -40,28 +40,6 @@ public class AbstractInsnWrapper {
 	
 	protected CFGFrame frame; // TODO ???
 
-	public AbstractInsnWrapper(String className, String methodName,
-			int instructionId, AbstractInsnNode node) {
-		this.instructionId = instructionId;
-		this.node = node;
-		this.methodName = methodName;
-		this.className = className;
-	}
-
-	public AbstractInsnWrapper(String className, String methodName,
-			int instructionId, AbstractInsnNode node, int lineNumber) {
-		this(className, methodName, instructionId, node);
-		this.lineNumber = lineNumber;
-	}
-
-	/**
-	 * "copy-Constructor"
-	 */
-	public AbstractInsnWrapper(AbstractInsnWrapper wrap) {
-		this(wrap.className, wrap.methodName, wrap.instructionId, wrap.node,
-				wrap.lineNumber);
-	}
-	
 	public boolean isJump() {
 		return (node instanceof JumpInsnNode);
 	}
@@ -204,9 +182,9 @@ public class AbstractInsnWrapper {
 			return true;
 		if(o==null)
 			return false;
-		if(!(o instanceof AbstractInsnWrapper))
+		if(!(o instanceof ASMWrapper))
 			return false;
-		AbstractInsnWrapper other = (AbstractInsnWrapper)o;
+		ASMWrapper other = (ASMWrapper)o;
 		return node.equals(other.node);
 	}
 	
