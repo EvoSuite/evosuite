@@ -35,25 +35,24 @@ public abstract class ASMWrapper {
 	protected int instructionId;
 	protected int lineNumber = -1;
 	
-	protected AbstractInsnNode node;
-	
-	
+	// from ASM library
+	protected AbstractInsnNode asmNode;
 	protected CFGFrame frame; // TODO ???
 
 	public boolean isJump() {
-		return (node instanceof JumpInsnNode);
+		return (asmNode instanceof JumpInsnNode);
 	}
 
 	public boolean isGoto() {
-		if (node instanceof JumpInsnNode) {
-			return (node.getOpcode() == Opcodes.GOTO);
+		if (asmNode instanceof JumpInsnNode) {
+			return (asmNode.getOpcode() == Opcodes.GOTO);
 		}
 		return false;
 	}
 	
 	
 	public String getMethodName() { // TODO ???
-		return ((MethodInsnNode) node).name;
+		return ((MethodInsnNode) asmNode).name;
 	}
 	
 	public void setMethodName(String methodName) {
@@ -76,20 +75,25 @@ public abstract class ASMWrapper {
 
 	
 	/**
-	 * TODO repair
-	 * WARNING: throws ClassCastException on non-LineNumberNode node
-	 *  
+	 * If lineNumber was set previously that value is returned.
+	 * Otherwise set previously set line Number is returned.
+	 * 
+	 * If this wraps a LineNumberNode, the line field
+	 * of asmNode is set as lineNumber.
 	 */
 	public int getLineNumber() {
-		return ((LineNumberNode)node).line;
+		if(isLineNumber() && lineNumber == -1)
+			lineNumber = ((LineNumberNode)asmNode).line; 
+		
+		return lineNumber;
 	}
 
 	public boolean isLabel() {
-		return node instanceof LabelNode;
+		return asmNode instanceof LabelNode;
 	}
 
 	public boolean isReturn() {
-		switch (node.getOpcode()) {
+		switch (asmNode.getOpcode()) {
 		case Opcodes.RETURN:
 		case Opcodes.ARETURN:
 		case Opcodes.IRETURN:
@@ -103,7 +107,7 @@ public abstract class ASMWrapper {
 	}
 
 	public boolean isThrow() {
-		if (node.getOpcode() == Opcodes.ATHROW) {
+		if (asmNode.getOpcode() == Opcodes.ATHROW) {
 			// TODO: Need to check if this is a caught exception?
 			return true;
 		}
@@ -111,29 +115,29 @@ public abstract class ASMWrapper {
 	}
 
 	public boolean isTableSwitch() {
-		return (node instanceof TableSwitchInsnNode);
+		return (asmNode instanceof TableSwitchInsnNode);
 	}
 
 	public boolean isLookupSwitch() {
-		return (node instanceof LookupSwitchInsnNode);
+		return (asmNode instanceof LookupSwitchInsnNode);
 	}
 
 
 
-	public AbstractInsnNode getNode(){
-		return node;
+	public AbstractInsnNode getASMNode(){
+		return asmNode;
 	}
 	
 	public boolean isBranchLabel() {
-		if (node instanceof LabelNode
-				&& ((LabelNode) node).getLabel().info instanceof Integer) {
+		if (asmNode instanceof LabelNode
+				&& ((LabelNode) asmNode).getLabel().info instanceof Integer) {
 			return true;
 		}
 		return false;
 	}
 
 	public boolean isLineNumber() {
-		return (node instanceof LineNumberNode);
+		return (asmNode instanceof LineNumberNode);
 	}
 
 //	public int getBranchId() {
@@ -142,14 +146,14 @@ public abstract class ASMWrapper {
 //	}
 
 	public boolean isIfNull() {
-		if (node instanceof JumpInsnNode) {
-			return (node.getOpcode() == Opcodes.IFNULL);
+		if (asmNode instanceof JumpInsnNode) {
+			return (asmNode.getOpcode() == Opcodes.IFNULL);
 		}
 		return false;
 	}
 
 	public boolean isMethodCall() {
-		return node instanceof MethodInsnNode;
+		return asmNode instanceof MethodInsnNode;
 	}
 
 	/**
@@ -158,8 +162,8 @@ public abstract class ASMWrapper {
 	 * @return
 	 */
 	public boolean isMethodCall(String methodName) {
-		if (node instanceof MethodInsnNode) {
-			MethodInsnNode mn = (MethodInsnNode) node;
+		if (asmNode instanceof MethodInsnNode) {
+			MethodInsnNode mn = (MethodInsnNode) asmNode;
 			//#TODO this is unsafe methods should be identified by a signature not by a name
 			return mn.name.equals(methodName);
 		}
@@ -185,7 +189,7 @@ public abstract class ASMWrapper {
 		if(!(o instanceof ASMWrapper))
 			return false;
 		ASMWrapper other = (ASMWrapper)o;
-		return node.equals(other.node);
+		return asmNode.equals(other.asmNode);
 	}
 	
 	public boolean isDefUse() {
@@ -201,20 +205,20 @@ public abstract class ASMWrapper {
 	}
 
 	public boolean isLocalVarDefinition() {
-		return node.getOpcode() == Opcodes.ISTORE
-		|| node.getOpcode() == Opcodes.LSTORE
-		|| node.getOpcode() == Opcodes.FSTORE
-		|| node.getOpcode() == Opcodes.DSTORE
-		|| node.getOpcode() == Opcodes.ASTORE
-		|| node.getOpcode() == Opcodes.IINC;
+		return asmNode.getOpcode() == Opcodes.ISTORE
+		|| asmNode.getOpcode() == Opcodes.LSTORE
+		|| asmNode.getOpcode() == Opcodes.FSTORE
+		|| asmNode.getOpcode() == Opcodes.DSTORE
+		|| asmNode.getOpcode() == Opcodes.ASTORE
+		|| asmNode.getOpcode() == Opcodes.IINC;
 	}
 
 	public boolean isLocalVarUse() {
-		return node.getOpcode() == Opcodes.ILOAD || node.getOpcode() == Opcodes.LLOAD
-		|| node.getOpcode() == Opcodes.FLOAD
-		|| node.getOpcode() == Opcodes.DLOAD
-		|| node.getOpcode() == Opcodes.ALOAD
-		|| node.getOpcode() == Opcodes.IINC;
+		return asmNode.getOpcode() == Opcodes.ILOAD || asmNode.getOpcode() == Opcodes.LLOAD
+		|| asmNode.getOpcode() == Opcodes.FLOAD
+		|| asmNode.getOpcode() == Opcodes.DLOAD
+		|| asmNode.getOpcode() == Opcodes.ALOAD
+		|| asmNode.getOpcode() == Opcodes.IINC;
 	}
 
 	public boolean isDefinition() {
@@ -226,17 +230,26 @@ public abstract class ASMWrapper {
 	}
 
 	public boolean isFieldDefinition() {
-		return node.getOpcode() == Opcodes.PUTFIELD
-		|| node.getOpcode() == Opcodes.PUTSTATIC;
+		return asmNode.getOpcode() == Opcodes.PUTFIELD
+		|| asmNode.getOpcode() == Opcodes.PUTSTATIC;
 	}
 
 	public boolean isFieldUse() {
-		return node.getOpcode() == Opcodes.GETFIELD
-		|| node.getOpcode() == Opcodes.GETSTATIC;
+		return asmNode.getOpcode() == Opcodes.GETFIELD
+		|| asmNode.getOpcode() == Opcodes.GETSTATIC;
 	}
 
 	public boolean isStaticDefUse() {
-		return node.getOpcode() == Opcodes.PUTSTATIC
-		|| node.getOpcode() == Opcodes.GETSTATIC;
+		return asmNode.getOpcode() == Opcodes.PUTSTATIC
+		|| asmNode.getOpcode() == Opcodes.GETSTATIC;
+	}
+	
+	// sanity checks
+	
+	public void sanityCheckAbstractInsnNode(AbstractInsnNode node) {
+		if(node == null)
+			throw new IllegalArgumentException("null given");
+		if(!node.equals(this.asmNode))
+			throw new IllegalStateException("sanity check failed");
 	}
 }

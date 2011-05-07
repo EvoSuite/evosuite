@@ -48,11 +48,11 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			AbstractInsnNode in = j.next();
 			for (BytecodeInstruction v : graph.vertexSet()) {
 
-				if (in.equals(v.getNode()))
+				if (in.equals(v.getASMNode()))
 					v.branchId = completeCFG.getVertex(v.getId()).branchId;
 
 				if (Properties.CRITERION == Criterion.DEFUSE
-				        && in.equals(v.getNode()) 
+				        && in.equals(v.getASMNode()) 
 				        && (v.isDefUse())) {
 
 					// keeping track of uses
@@ -67,7 +67,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 						boolean staticContext = v.isStaticDefUse()
 						        || ((access & Opcodes.ACC_STATIC) > 0);
 						// adding instrumentation for defuse-coverage
-						mn.instructions.insert(v.getNode().getPrevious(),
+						mn.instructions.insert(v.getASMNode().getPrevious(),
 						                       getInstrumentation(v, v.branchId,
 						                                          staticContext,
 						                                          className, methodName));
