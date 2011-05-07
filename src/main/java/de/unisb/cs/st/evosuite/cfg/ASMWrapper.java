@@ -2,12 +2,15 @@ package de.unisb.cs.st.evosuite.cfg;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
+import org.objectweb.asm.tree.VarInsnNode;
 
 // TODO: the following methods about control dependence are flawed right now:
 //			- the CFGVertex of a Branch does not have it's control dependent branchId
@@ -204,23 +207,6 @@ public abstract class ASMWrapper {
 		return isLocalVarDefinition() || isLocalVarUse();
 	}
 
-	public boolean isLocalVarDefinition() {
-		return asmNode.getOpcode() == Opcodes.ISTORE
-		|| asmNode.getOpcode() == Opcodes.LSTORE
-		|| asmNode.getOpcode() == Opcodes.FSTORE
-		|| asmNode.getOpcode() == Opcodes.DSTORE
-		|| asmNode.getOpcode() == Opcodes.ASTORE
-		|| asmNode.getOpcode() == Opcodes.IINC;
-	}
-
-	public boolean isLocalVarUse() {
-		return asmNode.getOpcode() == Opcodes.ILOAD || asmNode.getOpcode() == Opcodes.LLOAD
-		|| asmNode.getOpcode() == Opcodes.FLOAD
-		|| asmNode.getOpcode() == Opcodes.DLOAD
-		|| asmNode.getOpcode() == Opcodes.ALOAD
-		|| asmNode.getOpcode() == Opcodes.IINC;
-	}
-
 	public boolean isDefinition() {
 		return isFieldDefinition() || isLocalVarDefinition();
 	}
@@ -244,6 +230,49 @@ public abstract class ASMWrapper {
 		|| asmNode.getOpcode() == Opcodes.GETSTATIC;
 	}
 	
+	// retrieving information about variable names from ASM
+	
+	public String getDUVariableName() {
+		if (this.isFieldDU())
+			return getFieldName();
+		else
+			return getLocalVarName();
+	}
+
+	protected String getFieldName() {
+		return ((FieldInsnNode) asmNode).name;
+	}
+	
+	protected String getLocalVarName() {
+		return methodName + "_LV_" + getLocalVar();
+	}
+	
+	// TODO unsafe
+	public int getLocalVar() {
+		if (asmNode instanceof VarInsnNode)
+			return ((VarInsnNode) asmNode).var;
+		else
+			return ((IincInsnNode) asmNode).var;
+	}
+	
+	public boolean isLocalVarDefinition() {
+		return asmNode.getOpcode() == Opcodes.ISTORE
+				|| asmNode.getOpcode() == Opcodes.LSTORE
+				|| asmNode.getOpcode() == Opcodes.FSTORE
+				|| asmNode.getOpcode() == Opcodes.DSTORE
+				|| asmNode.getOpcode() == Opcodes.ASTORE
+				|| asmNode.getOpcode() == Opcodes.IINC;
+	}
+
+	public boolean isLocalVarUse() {
+		return asmNode.getOpcode() == Opcodes.ILOAD
+				|| asmNode.getOpcode() == Opcodes.LLOAD
+				|| asmNode.getOpcode() == Opcodes.FLOAD
+				|| asmNode.getOpcode() == Opcodes.DLOAD
+				|| asmNode.getOpcode() == Opcodes.ALOAD
+				|| asmNode.getOpcode() == Opcodes.IINC;
+	}
+
 	// sanity checks
 	
 	public void sanityCheckAbstractInsnNode(AbstractInsnNode node) {

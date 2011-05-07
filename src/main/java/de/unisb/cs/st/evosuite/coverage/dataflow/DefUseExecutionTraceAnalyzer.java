@@ -141,7 +141,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 		for(BytecodeInstruction vertex : vertices) {
 			if(!vertex.isDefinition())
 				continue;
-			Definition currentDefinition = new Definition(vertex) ;
+			Definition currentDefinition = DefUseFactory.makeDefinition(vertex) ;
 			if(currentDefinition.getDUVariableName().equals(targetVariable))
 				r.add(vertex);
 		}
@@ -160,7 +160,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 				continue;
 			BytecodeInstruction vertexInOtherGraph = CFGMethodAdapter.getCompleteCFG(vertex.getClassName(), 
 					vertex.getMethodName()).getVertex(vertex.getId());
-			Definition currentDefinition = new Definition(vertexInOtherGraph) ;
+			Definition currentDefinition = DefUseFactory.makeDefinition(vertexInOtherGraph) ;
 			if(isOverwritingDefinition(targetDefinition,currentDefinition))
 				r.add(vertex);
 		}

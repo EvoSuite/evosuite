@@ -21,6 +21,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUse;
+import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
 import de.unisb.cs.st.evosuite.coverage.dataflow.Definition;
 import de.unisb.cs.st.evosuite.coverage.dataflow.Use;
@@ -58,10 +59,11 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 					// keeping track of uses
 					boolean isValidDU = false;
 					if (v.isUse())
-						isValidDU = DefUsePool.addUse(new Use(v));
+						isValidDU = DefUsePool.addAsUse(v);
 					// keeping track of definitions
 					if (v.isDefinition())
-						isValidDU = DefUsePool.addDefinition(new Definition(v)) || isValidDU;
+						isValidDU = DefUsePool.addAsDefinition(v)
+								|| isValidDU;
 
 					if (isValidDU) {
 						boolean staticContext = v.isStaticDefUse()
@@ -91,8 +93,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			return instrumentation;
 		}
 		
-		// TODO this is bad, arguments should be BytecodeInstruction already
-		DefUse targetDU = new DefUse(v);
+		DefUse targetDU = DefUseFactory.makeInstance(v);
 		
 		if (v.isUse()) {
 			instrumentation.add(new LdcInsnNode(className));

@@ -41,6 +41,7 @@ import org.jgrapht.graph.DefaultEdge;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUse;
+import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.Definition;
 import de.unisb.cs.st.evosuite.coverage.dataflow.Use;
 
@@ -480,7 +481,7 @@ public class ControlFlowGraph {
 			BytecodeInstruction edgeTarget = graph.getEdgeTarget(e);
 			try {
 				// skip edges going into another def for the same field
-				Definition def = new Definition(edgeTarget);
+				Definition def = DefUseFactory.makeDefinition(edgeTarget);
 				if (def.getDUVariableName().equals(varName))
 					continue;
 				
@@ -507,7 +508,7 @@ public class ControlFlowGraph {
 			BytecodeInstruction edgeStart = graph.getEdgeSource(e);
 			try {
 				// skip edges coming from a def for the same field
-				Definition def = new Definition(edgeStart);
+				Definition def = DefUseFactory.makeDefinition(edgeStart);
 				if (def.getDUVariableName().equals(varName))
 					continue;
 			} catch(IllegalArgumentException ex) { 
