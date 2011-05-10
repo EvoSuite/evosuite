@@ -40,7 +40,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  * @author Gordon Fraser
  * 
  */
-public class FieldStatement extends Statement {
+public class FieldStatement extends AbstractStatement {
 
 	transient Field field;
 	VariableReference source;

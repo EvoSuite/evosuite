@@ -41,7 +41,7 @@ import de.unisb.cs.st.evosuite.primitives.PrimitivePool;
  * 
  * @param <T>
  */
-public class PrimitiveStatement<T> extends Statement {
+public class PrimitiveStatement<T> extends AbstractStatement {
 
 	private static int MAX_STRING = Properties.STRING_LENGTH;
 

@@ -34,7 +34,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
-public class MethodStatement extends Statement {
+public class MethodStatement extends AbstractStatement {
 
 	private final Method method;
 	VariableReference callee;

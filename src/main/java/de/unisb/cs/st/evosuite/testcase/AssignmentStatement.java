@@ -37,7 +37,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  * @author Gordon Fraser
  * 
  */
-public class AssignmentStatement extends Statement {
+public class AssignmentStatement extends AbstractStatement {
 
 	public VariableReference parameter;
 

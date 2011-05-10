@@ -33,9 +33,9 @@ import de.unisb.cs.st.evosuite.assertion.Assertion;
  * @author Gordon Fraser
  * 
  */
-public abstract class Statement implements StatementInterface {
+public abstract class AbstractStatement implements StatementInterface {
 
-	protected static Logger logger = Logger.getLogger(Statement.class);
+	protected static Logger logger = Logger.getLogger(AbstractStatement.class);
 
 	protected VariableReference retval = null;
 

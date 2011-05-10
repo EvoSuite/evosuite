@@ -41,7 +41,7 @@ import org.objectweb.asm.commons.Method;
  * @author Gordon Fraser
  * 
  */
-public class ConstructorStatement extends Statement {
+public class ConstructorStatement extends AbstractStatement {
 
 	Constructor<?> constructor;
 
@@ -131,7 +131,7 @@ public class ConstructorStatement extends Statement {
 		for (VariableReference r : parameters) {
 			new_params.add(r.clone());
 		}
-		Statement copy = new ConstructorStatement(constructor, retval.clone(), new_params);
+		AbstractStatement copy = new ConstructorStatement(constructor, retval.clone(), new_params);
 		copy.assertions = cloneAssertions();
 		return copy;
 	}
