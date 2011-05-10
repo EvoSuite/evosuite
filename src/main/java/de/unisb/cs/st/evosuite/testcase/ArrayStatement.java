@@ -39,7 +39,7 @@ import de.unisb.cs.st.evosuite.ga.Randomness;
  * @author Gordon Fraser
  * 
  */
-public class ArrayStatement extends Statement {
+public class ArrayStatement extends AbstractStatement {
 
 	private final Randomness randomness = Randomness.getInstance();
 
