@@ -417,7 +417,7 @@ public class ControlFlowGraph {
 		return getUsesForDef(def, def);
 	}
 
-	public boolean hasDefClearPathToMethodEnd(DefUse duVertex) {
+	public boolean hasDefClearPathToMethodExit(DefUse duVertex) {
 		if (!graph.containsVertex(duVertex))
 			throw new IllegalArgumentException("vertex not in graph");
 		if (duVertex.isLocalDU())
@@ -426,7 +426,7 @@ public class ControlFlowGraph {
 		return hasDefClearPathToMethodEnd(duVertex, duVertex);
 	}
 
-	public boolean hasDefClearPathFromMethodStart(DefUse duVertex) {
+	public boolean hasDefClearPathFromMethodEntry(DefUse duVertex) {
 		if (!graph.containsVertex(duVertex))
 			throw new IllegalArgumentException("vertex not in graph");
 		if (duVertex.isLocalDU())
@@ -601,17 +601,17 @@ public class ControlFlowGraph {
 		return !(graph.getEdgeTarget(backEdge).getId() < maxID);
 	}
 
-	private boolean isWhileBranch(int maxID) {
-		BytecodeInstruction prevVertex = getVertex(maxID - 1);
-		Set<DefaultEdge> prevOut = graph.outgoingEdgesOf(prevVertex);
-		if (prevOut.size() != 1) {
-			return false;
-		}
-		DefaultEdge backEdge = null;
-		for (DefaultEdge e : prevOut)
-			backEdge = e;
-		// only while-branches go back up
-		return graph.getEdgeTarget(backEdge).getId() < maxID;
-	}
+//	private boolean isWhileBranch(int maxID) {
+//		BytecodeInstruction prevVertex = getVertex(maxID - 1);
+//		Set<DefaultEdge> prevOut = graph.outgoingEdgesOf(prevVertex);
+//		if (prevOut.size() != 1) {
+//			return false;
+//		}
+//		DefaultEdge backEdge = null;
+//		for (DefaultEdge e : prevOut)
+//			backEdge = e;
+//		// only while-branches go back up
+//		return graph.getEdgeTarget(backEdge).getId() < maxID;
+//	}
 
 }

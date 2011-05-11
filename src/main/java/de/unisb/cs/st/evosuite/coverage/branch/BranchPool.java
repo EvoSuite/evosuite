@@ -52,7 +52,7 @@ public class BranchPool {
 	 *            CFGVertex of a Branch
 	 */
 	public static void addBranch(BytecodeInstruction v) {
-		if (!(v.isBranch() || v.isTableSwitch() || v.isLookupSwitch()))
+		if (!(v.isActualBranch()))
 			throw new IllegalArgumentException("CFGVertex of a branch expected");
 
 		Branch b = new Branch(v);
@@ -161,7 +161,8 @@ public class BranchPool {
 				.getClassName(), b.getMethodName());
 		BytecodeInstruction branchVertex = completeCFG.getVertex(b
 				.getInstructionId());
-		branchVertex.branchId = branchCounter;
+		
+		branchVertex.setBranchId(branchCounter);
 		b.setBranchId(branchCounter);
 		
 		completeCFG.markBranchIds(b);

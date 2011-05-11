@@ -68,11 +68,16 @@ public class DefUse extends BytecodeInstruction {
 			return true;
 		if(obj==null)
 			return false;
-		if(obj instanceof DefUse) {
-			DefUse other = (DefUse)obj;
-			if(defuseId != other.defuseId)
-				return false;
-		}
+
+		// TODO ensure those checks succeed by always having IDs set properly
+		// s. super.equals() for similar prob
+		
+//		if(obj instanceof DefUse) {
+//			DefUse other = (DefUse)obj;
+//			if(defuseId != other.defuseId)
+//				return false;
+//		}
+		
 		return super.equals(obj);
 	}
 
