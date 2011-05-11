@@ -21,8 +21,6 @@ import org.objectweb.asm.tree.VarInsnNode;
 //			- look at BranchCoverageGoal and Branch for more information
 
 
-// TODO clean up
-
 /**
  * Wrapper class for the underlying byteCode instruction library ASM
  * 
@@ -43,119 +41,25 @@ import org.objectweb.asm.tree.VarInsnNode;
  */
 public abstract class ASMWrapper {
 
-	// identification of a byteCode instruction inside EvoSuite
-	protected String className;
-	protected String methodName;
-	protected int instructionId;
-	
-	// auxilary information
-	protected int lineNumber = -1;
-	
 	// from ASM library
 	protected AbstractInsnNode asmNode;
 	protected CFGFrame frame; // TODO find out what that is used for
 
-	public boolean isJump() {
-		return (asmNode instanceof JumpInsnNode);
-	}
 
-	public boolean isGoto() {
-		if (asmNode instanceof JumpInsnNode) {
-			return (asmNode.getOpcode() == Opcodes.GOTO);
-		}
-		return false;
+	public AbstractInsnNode getASMNode(){
+		return asmNode;
 	}
 	
+	public abstract int getInstructionId();
 	
-	public String getMethodName() { // TODO make like getLineNumber()
-		return ((MethodInsnNode) asmNode).name;
-	}
+	public abstract String getMethodName();
 	
-	public void setMethodName(String methodName) {
-		this.methodName = methodName;
-	}
-
-	public void setClassName(String className) {
-		this.className = className;
-	}
-
-	public boolean isBranch() {
-		return isJump() && !isGoto();
-	}
+	// methods for branch analysis
 	
 	public boolean isActualBranch() {
 		return isBranch() 
 				|| isLookupSwitch() 
 				|| isTableSwitch();
-	}
-
-	
-	/**
-	 * If hasLineNumberSet() returns true, this method returns the lineNumber of this instruction
-	 * Otherwise an IllegalStateException() will be thrown to indicate that the field was never
-	 * initialized properly
-	 * 
-	 */
-	public int getLineNumber() {
-		if(!hasLineNumberSet())
-			throw new IllegalStateException("expect hasLineNumberSet() to be true on a BytecodeInstruction that gets asked for it's lineNumber");
-		
-		return lineNumber;
-	}
-	
-	/**
-	 *  
-	 */
-	public void setLineNumber(int lineNumber) {
-		if(lineNumber<=0)
-			throw new IllegalArgumentException("expect lineNumber value to be positive");
-		
-		if(isLineNumber()) {
-			int asmLine = ((LineNumberNode)asmNode).line;
-			// sanity check
-			if(lineNumber!= -1 && asmLine != lineNumber)
-				throw new IllegalStateException("linenumber instruction has lineNumber field set to a value different from instruction linenumber");
-			this.lineNumber = asmLine;
-		} else {
-			this.lineNumber = lineNumber; 
-		}
-	}
-
-	/**
-	 * At first, if this instruction constitutes a line number instruction
-	 * this method tries to retrieve the lineNumber from the underlying asmNode
-	 * and set the lineNumber field to the value given by the asmNode.
-	 * 
-	 * This can lead to an IllegalStateException, should the lineNumber field have been
-	 * set to another value previously
-	 * 
-	 * After that, if the lineNumber field is still not initialized, this method returns false
-	 * Otherwise it returns true
-	 */
-	public boolean hasLineNumberSet() {
-		retrieveLineNumber();
-		return lineNumber != -1;
-	}
-	
-	/**
-	 * If the underlying ASMNode is a LineNumberNode the lineNumber field of this instance
-	 * will be set to the lineNumber contained in that LineNumberNode
-	 * 
-	 * Should the lineNumber field have been set to a value different from that contained
-	 * in the asmNode, this method throws an IllegalStateExeption
-	 */
-	private void retrieveLineNumber() {
-		if(isLineNumber()) {
-			int asmLine = ((LineNumberNode)asmNode).line;
-			// sanity check
-			if(this.lineNumber!=-1 && asmLine!=this.lineNumber)
-				throw new IllegalStateException("lineNumber field was manually set to a value different from the actual lineNumber contained in LineNumberNode");
-			this.lineNumber = asmLine;
-		}
-	}
-
-	public boolean isLabel() {
-		return asmNode instanceof LabelNode;
 	}
 
 	public boolean isReturn() {
@@ -188,12 +92,6 @@ public abstract class ASMWrapper {
 		return (asmNode instanceof LookupSwitchInsnNode);
 	}
 
-
-
-	public AbstractInsnNode getASMNode(){
-		return asmNode;
-	}
-	
 	public boolean isBranchLabel() {
 		if (asmNode instanceof LabelNode
 				&& ((LabelNode) asmNode).getLabel().info instanceof Integer) {
@@ -201,11 +99,22 @@ public abstract class ASMWrapper {
 		}
 		return false;
 	}
-
-	public boolean isLineNumber() {
-		return (asmNode instanceof LineNumberNode);
+	
+	public boolean isJump() {
+		return (asmNode instanceof JumpInsnNode);
 	}
 
+	public boolean isGoto() {
+		if (asmNode instanceof JumpInsnNode) {
+			return (asmNode.getOpcode() == Opcodes.GOTO);
+		}
+		return false;
+	}
+	
+	public boolean isBranch() {
+		return isJump() && !isGoto();
+	}
+	
 //	public int getBranchId() {
 //		// return ((Integer)((LabelNode)node).getLabel().info).intValue();
 //		return line_no;
@@ -236,37 +145,7 @@ public abstract class ASMWrapper {
 		return false;
 	}
 	
-	// inherited from Object
-	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		// result = prime * result + getOuterType().hashCode();
-		result = prime * result + instructionId;
-		return result;
-	}
-	
-	@Override
-	public boolean equals(Object o) {
-		if(o==this)
-			return true;
-		if(o==null)
-			return false;
-		if(!(o instanceof ASMWrapper))
-			return false;
-		
-		ASMWrapper other = (ASMWrapper)o;
-		
-		if (instructionId != other.instructionId)
-			return false;
-		if (methodName != null && !methodName.equals(other.methodName))
-			return false;
-		if (className != null && !className.equals(other.className))
-			return false;
-		
-		return asmNode.equals(other.asmNode);
-	}
+	// methods for defUse analysis
 	
 	public boolean isDefUse() {
 		return isLocalDU() || isFieldDU();
@@ -317,7 +196,7 @@ public abstract class ASMWrapper {
 	}
 	
 	protected String getLocalVarName() {
-		return methodName + "_LV_" + getLocalVar();
+		return getMethodName() + "_LV_" + getLocalVar();
 	}
 	
 	// TODO unsafe
@@ -347,6 +226,22 @@ public abstract class ASMWrapper {
 				|| asmNode.getOpcode() == Opcodes.ALOAD
 				|| asmNode.getOpcode() == Opcodes.IINC;
 	}
+	
+	// other classification methods
+	
+	/**
+	 * Determines if this instruction is a line number instruction
+	 * 
+	 *  More precisely this method checks if 
+	 * the underlying asmNode is a LineNumberNode
+	 */
+	public boolean isLineNumber() {
+		return (asmNode instanceof LineNumberNode);
+	}
+
+	public boolean isLabel() {
+		return asmNode instanceof LabelNode;
+	}
 
 	// sanity checks
 	
@@ -355,5 +250,30 @@ public abstract class ASMWrapper {
 			throw new IllegalArgumentException("null given");
 		if(!node.equals(this.asmNode))
 			throw new IllegalStateException("sanity check failed");
+	}
+	
+	// inherited from Object
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		// result = prime * result + getOuterType().hashCode();
+		result = prime * result + getInstructionId();
+		return result;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if(o==this)
+			return true;
+		if(o==null)
+			return false;
+		if(!(o instanceof ASMWrapper))
+			return false;
+		
+		ASMWrapper other = (ASMWrapper)o;
+		
+		return asmNode.equals(other.asmNode);
 	}
 }
