@@ -50,7 +50,8 @@ public class BranchInstrumentation implements MethodInstrumentation {
 					}
 					v.setClassName(className);
 					v.setMethodName(methodName);
-					v.setLineNumber(currentLineNumber);
+					if(currentLineNumber != -1)
+						v.setLineNumber(currentLineNumber);
 				}
 				// If this is in the CFG and it's a branch...
 				if (in.equals(v.getASMNode())) {

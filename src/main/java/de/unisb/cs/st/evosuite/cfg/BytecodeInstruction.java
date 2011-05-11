@@ -76,7 +76,7 @@ public class BytecodeInstruction extends ASMWrapper {
 			int instructionId, AbstractInsnNode asmNode, int lineNumber) {
 
 		this(className, methodName, instructionId, asmNode);
-		this.lineNumber = lineNumber;
+		setLineNumber(lineNumber);
 	}
 	
 	public BytecodeInstruction (String className, String methodName,
@@ -87,8 +87,8 @@ public class BytecodeInstruction extends ASMWrapper {
 		
 		this.instructionId = instructionId;
 		this.asmNode = asmNode;
-		this.methodName = methodName;
 		this.className = className;
+		setMethodName(methodName);
 	}
 	
 	public BytecodeInstruction(BytecodeInstruction wrap) {
@@ -232,10 +232,6 @@ public class BytecodeInstruction extends ASMWrapper {
 		return branchId;
 	}
 
-	public void setLineNumber(int lineNumber) {
-		this.lineNumber = lineNumber; 
-	}
-	
 	public boolean isMutation() {
 		return !mutations.isEmpty();
 		/*

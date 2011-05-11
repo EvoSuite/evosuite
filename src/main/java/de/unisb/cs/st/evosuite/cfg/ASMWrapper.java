@@ -24,23 +24,36 @@ import org.objectweb.asm.tree.VarInsnNode;
 // TODO clean up
 
 /**
- * Convenience-superclass for classes that hold a BytecodeInstruction
+ * Wrapper class for the underlying byteCode instruction library ASM
  * 
- * Just gives direct access to a lot of methods from the CFGVertex
- * Known subclasses are Branch and DefUse 
+ *  Gives access to a lot of methods that interpret the raw information in AbstractInsnNode
+ *  to usable chunks of information, inside EvoSuite
+ *  
+ * This class is supposed to hide the ASM library from the rest of EvoSuite as much as possible
  * 
+ * After initialization, all information about byteCode instructions should be accessible via
+ * the BytecodeInstruction-, DefUse- and BranchPool. Each of those has data structures holding
+ * all BytecodeInstruction, DefUse and Branch objects respectively created during initialization.
+ * 
+ * BytecodeInstruction directly extends ASMWrapper and is the first way to instantiate an ASMWrapper.
+ * Branch and DefUse extend BytecodeInstruction, where DefUse is abstract and Branch is not ("concrete"?)
+ * DefUse is further extended by Definition and Use
+ *  
  * @author Andre Mis
  */
 public abstract class ASMWrapper {
 
+	// identification of a byteCode instruction inside EvoSuite
 	protected String className;
 	protected String methodName;
 	protected int instructionId;
+	
+	// auxilary information
 	protected int lineNumber = -1;
 	
 	// from ASM library
 	protected AbstractInsnNode asmNode;
-	protected CFGFrame frame; // TODO ???
+	protected CFGFrame frame; // TODO find out what that is used for
 
 	public boolean isJump() {
 		return (asmNode instanceof JumpInsnNode);
@@ -54,7 +67,7 @@ public abstract class ASMWrapper {
 	}
 	
 	
-	public String getMethodName() { // TODO ???
+	public String getMethodName() { // TODO make like getLineNumber()
 		return ((MethodInsnNode) asmNode).name;
 	}
 	
@@ -78,17 +91,67 @@ public abstract class ASMWrapper {
 
 	
 	/**
-	 * If lineNumber was set previously that value is returned.
-	 * Otherwise set previously set line Number is returned.
+	 * If hasLineNumberSet() returns true, this method returns the lineNumber of this instruction
+	 * Otherwise an IllegalStateException() will be thrown to indicate that the field was never
+	 * initialized properly
 	 * 
-	 * If this wraps a LineNumberNode, the line field
-	 * of asmNode is set as lineNumber.
 	 */
 	public int getLineNumber() {
-		if(isLineNumber() && lineNumber == -1)
-			lineNumber = ((LineNumberNode)asmNode).line; 
+		if(!hasLineNumberSet())
+			throw new IllegalStateException("expect hasLineNumberSet() to be true on a BytecodeInstruction that gets asked for it's lineNumber");
 		
 		return lineNumber;
+	}
+	
+	/**
+	 *  
+	 */
+	public void setLineNumber(int lineNumber) {
+		if(lineNumber<=0)
+			throw new IllegalArgumentException("expect lineNumber value to be positive");
+		
+		if(isLineNumber()) {
+			int asmLine = ((LineNumberNode)asmNode).line;
+			// sanity check
+			if(lineNumber!= -1 && asmLine != lineNumber)
+				throw new IllegalStateException("linenumber instruction has lineNumber field set to a value different from instruction linenumber");
+			this.lineNumber = asmLine;
+		} else {
+			this.lineNumber = lineNumber; 
+		}
+	}
+
+	/**
+	 * At first, if this instruction constitutes a line number instruction
+	 * this method tries to retrieve the lineNumber from the underlying asmNode
+	 * and set the lineNumber field to the value given by the asmNode.
+	 * 
+	 * This can lead to an IllegalStateException, should the lineNumber field have been
+	 * set to another value previously
+	 * 
+	 * After that, if the lineNumber field is still not initialized, this method returns false
+	 * Otherwise it returns true
+	 */
+	public boolean hasLineNumberSet() {
+		retrieveLineNumber();
+		return lineNumber != -1;
+	}
+	
+	/**
+	 * If the underlying ASMNode is a LineNumberNode the lineNumber field of this instance
+	 * will be set to the lineNumber contained in that LineNumberNode
+	 * 
+	 * Should the lineNumber field have been set to a value different from that contained
+	 * in the asmNode, this method throws an IllegalStateExeption
+	 */
+	private void retrieveLineNumber() {
+		if(isLineNumber()) {
+			int asmLine = ((LineNumberNode)asmNode).line;
+			// sanity check
+			if(this.lineNumber!=-1 && asmLine!=this.lineNumber)
+				throw new IllegalStateException("lineNumber field was manually set to a value different from the actual lineNumber contained in LineNumberNode");
+			this.lineNumber = asmLine;
+		}
 	}
 
 	public boolean isLabel() {
