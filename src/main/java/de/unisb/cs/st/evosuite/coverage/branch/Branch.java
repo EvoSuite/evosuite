@@ -17,6 +17,8 @@ public class Branch extends BytecodeInstruction {
 		if(!isActualBranch())
 			throw new IllegalArgumentException("only actual branch instructions are accepted");
 		
+		if(getBranchId() == -1)
+			throw new IllegalStateException("expect branch to have it's branchId set");
 	}
 	
 }

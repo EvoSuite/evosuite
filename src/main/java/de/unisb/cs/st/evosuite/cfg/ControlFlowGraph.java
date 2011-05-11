@@ -514,7 +514,7 @@ public class ControlFlowGraph {
 	 * simple (generic) CFGs
 	 * 
 	 */
-	public void markBranchIds(Branch branch) {
+	public void markBranchIds(BytecodeInstruction branch) {
 		// TODO clean this mess up!
 		
 		if(!graph.containsVertex(branch))
@@ -564,7 +564,7 @@ public class ControlFlowGraph {
 		}
 	}
 
-	private void markNodes(int start, int end, Branch branch, boolean branchExpressionValue) {
+	private void markNodes(int start, int end, BytecodeInstruction branch, boolean branchExpressionValue) {
 		for (int i = start; i <= end; i++) {
 			BytecodeInstruction v = getVertex(i);
 			if (v != null) {
