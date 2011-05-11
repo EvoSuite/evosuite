@@ -250,10 +250,8 @@ public class DefUsePool {
 	// functionality to retrieve information from the pool
 	
 	public static boolean knowsDefinitionForVariableOf(BytecodeInstruction du) {
-		if(!du.isDefUse()) {
-			logger.warn("not a defuse");
-			return false;
-		}
+		if(!du.isDefUse())
+			throw new IllegalArgumentException("defuse expected");
 		
 		String className = du.getClassName();
 		String methodName = du.getMethodName();

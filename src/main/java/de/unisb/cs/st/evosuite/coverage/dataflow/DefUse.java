@@ -27,6 +27,7 @@ public class DefUse extends BytecodeInstruction {
 		this.defuseId = defuseId;
 		this.defId = defId;
 		this.useId = useId;
+		this.isParameterUse = isParameterUse;
 	}
 	
 	public String getDUVariableType() {
