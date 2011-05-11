@@ -25,7 +25,7 @@ public class DefUseFactory {
 					"expect wrap of a use to create one");
 		if (!DefUsePool.isKnown(instruction))
 			throw new IllegalArgumentException(
-					"expect DefUsePool to know the given BytecodeInstruction");
+					"expect DefUsePool to know the given BytecodeInstruction: "+instruction.toString());
 
 		int defuseId = DefUsePool.getRegisteredDefUseId(instruction);
 		int defId = DefUsePool.getRegisteredDefId(instruction);

@@ -66,14 +66,25 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 		return goals;
 	}
 	
+	/**
+	 * Determines all goals that need to get covered in order to fulfill DefUseCoverage
+	 * 
+	 * Those are the following:
+	 *  - for each parameterUse this method creates a goal trying to cover i
+	 *  - for each duPair with a definition clear path inside the methods 
+	 *  	of the CUT a goal is created
+	 *  - for each definition in the CUT with a clear path to an exit of its method
+	 * 		and each use with a clear path from its methods entry a goal is created 
+	 */
 	public static void computeGoals() {
 		// TODO replace this with Reaching-Definitions-Algorithm
 		long start = System.currentTimeMillis();
 		logger.trace("starting DefUse-Coverage goal generation");
 		duGoals = new ArrayList<DefUseCoverageTestFitness>();
 		
-		duGoals.addAll(getPairsWithinMethods());
 		duGoals.addAll(getParameterGoals());
+		duGoals.addAll(getPairsWithinMethods());
+		
 		
 		Set<Definition> freeDefs = getDefinitionsWithClearPathToMethodEnd();
 		Set<Use> freeUses = getUsesWithClearPathFromMethodStart();
@@ -106,6 +117,10 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 		return new DefUseCoverageTestFitness(def, use);
 	}
 
+	/**
+	 *  For each parameterUse in the CUT this method creates a DefUseCoverageTestFitness
+	 * that tries to cover that use 
+	 */
 	public static Set<DefUseCoverageTestFitness> getParameterGoals() {
 		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
 		Set<Use> parameterUses = DefUsePool.retrieveRegisteredParameterUses();
@@ -119,8 +134,8 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 	 * For every definition found by the CFGMethodAdapter this Method checks,
 	 * what uses there are in the same method and for the same field of that definition.
 	 * 
-	 * If there is a defclearpath from the definition to the use, a DefUseCoverageGoal
-	 * for this pair is created.
+	 * If there is a definition clear path from the definition to the use, 
+	 * a DefUseCoverageGoal for this pair is created.
 	 * 
 	 * @return A list of all the DefUseCoverageGoals created this way
 	 */
@@ -156,7 +171,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 
 	/**
 	 * For every definition found by the CFGMethodAdapter this Method checks,
-	 * if there is a defclearpath from that definition to the end of its method.
+	 * if there is a definition clear path from that definition to an exit of its method.
 	 * 
 	 * @return A Set of all the definitions for which the above holds
 	 */
@@ -191,7 +206,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 	
 	/**
 	 * For every use found by the CFGMethodAdapter this method checks,
-	 * if there is a definition clear path from the beginning of the uses method to the use itself.
+	 * if there is a definition clear path from an entry of the uses method to the use itself.
 	 * 
 	 * @return A Set of all the uses for which the above holds
 	 */

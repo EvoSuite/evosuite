@@ -223,8 +223,9 @@ public abstract class ASMWrapper {
 				|| asmNode.getOpcode() == Opcodes.LLOAD
 				|| asmNode.getOpcode() == Opcodes.FLOAD
 				|| asmNode.getOpcode() == Opcodes.DLOAD
-				|| asmNode.getOpcode() == Opcodes.ALOAD
-				|| asmNode.getOpcode() == Opcodes.IINC;
+				|| asmNode.getOpcode() == Opcodes.IINC
+				|| (asmNode.getOpcode() == Opcodes.ALOAD 
+						&& getLocalVar() != 0); // exclude ALOAD 0 (this)
 	}
 	
 	// other classification methods
