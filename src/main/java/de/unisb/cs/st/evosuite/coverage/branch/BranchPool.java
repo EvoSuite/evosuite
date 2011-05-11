@@ -28,7 +28,7 @@ public class BranchPool {
 	//			every root branch should be a branch just like every other branch with it's own branchId and all
 	
 	// maps className -> method inside that class -> list of branches inside that method 
-	public static Map<String, Map<String, List<Branch>>> branchMap = new HashMap<String, Map<String, List<Branch>>>();
+	private static Map<String, Map<String, List<Branch>>> branchMap = new HashMap<String, Map<String, List<Branch>>>();
 
 	// maps every Method to the Branches inside that method
 	private static Map<String, Integer> methodBranchCount = new HashMap<String, Integer>();
@@ -36,8 +36,11 @@ public class BranchPool {
 	// set of all known methods without a Branch
 	private static Set<String> branchlessMethods = new HashSet<String>();
 
-	// maps the branch_counter field of this class to its bytecodeID in the CFG
-	private static Map<Integer, Branch> bytecodeIdMap = new HashMap<Integer, Branch>();
+	// maps the branchIDs assigned by this pool to their respective Branches
+	private static Map<Integer, Branch> branchIdMap = new HashMap<Integer, Branch>();
+	
+	// maps all known branch instructions to their branchId
+	private static Map<BytecodeInstruction, Integer> registeredBranches = new HashMap<BytecodeInstruction, Integer>();
 
 	// number of known Branches
 	private static int branchCounter = 0;
@@ -54,15 +57,32 @@ public class BranchPool {
 	public static void addBranch(BytecodeInstruction v) {
 		if (!(v.isActualBranch()))
 			throw new IllegalArgumentException("CFGVertex of a branch expected");
+		if(isKnownAsBranch(v))
+			throw new IllegalArgumentException("branches can only be added to the pool once");
 
+		registerInstruction(v);
+		
+	}
+
+	public static boolean isKnownAsBranch(BytecodeInstruction v) {
+		
+		return registeredBranches.containsKey(v);
+	}
+
+	private static void registerInstruction(BytecodeInstruction v) {
+		if(isKnownAsBranch(v))
+			throw new IllegalStateException("expect registerInstruction() to be called at most once for each instruction");
+		
+		branchCounter++;
+		v.setBranchId(branchCounter);
+		markBranchIDs(v);
+		registeredBranches.put(v, branchCounter);
+		
 		Branch b = new Branch(v);
 		addBranchToMap(b);
-		markBranchIDs(b);
-		bytecodeIdMap.put(branchCounter, b);
+		branchIdMap.put(branchCounter, b);
 
-		logger.debug("Branch " + branchCounter + " at line " ); // TODO stopped + b.getLineNumber());
-
-		branchCounter++;
+		logger.debug("Branch " + branchCounter + " at line " + b.getLineNumber());
 	}
 
 	/**
@@ -118,7 +138,7 @@ public class BranchPool {
 	 *         its bytecodeID, -1 otherwise
 	 */
 	public static int getBytecodeIdFor(int branchId) {
-		Branch branch = bytecodeIdMap.get(branchId);
+		Branch branch = branchIdMap.get(branchId);
 		if (branch == null)
 			return -1;
 
@@ -133,7 +153,7 @@ public class BranchPool {
 	 * @return The branch, or null if it does not exist
 	 */
 	public static Branch getBranch(int branchId) {
-		return bytecodeIdMap.get(branchId);
+		return branchIdMap.get(branchId);
 	}
 
 	/**
@@ -156,15 +176,35 @@ public class BranchPool {
 		branchMap.get(className).get(methodName).add(b);
 	}
 
-	private static void markBranchIDs(Branch b) {
+	private static void markBranchIDs(BytecodeInstruction b) {
 		ControlFlowGraph completeCFG = CFGMethodAdapter.getCompleteCFG(b
 				.getClassName(), b.getMethodName());
-		BytecodeInstruction branchVertex = completeCFG.getVertex(b
-				.getInstructionId());
-		
-		branchVertex.setBranchId(branchCounter);
-		b.setBranchId(branchCounter);
 		
 		completeCFG.markBranchIds(b);
+	}
+	
+	public static Set<String> knownClasses() {
+		Set<String> r = new HashSet<String>();
+		r.addAll(branchMap.keySet());
+		return r;
+	}
+	
+	public static Set<String> knownMethods(String className) {
+		Set<String> r = new HashSet<String>();
+		Map<String, List<Branch>> methods = branchMap.get(className);
+		if(methods != null)
+			r.addAll(methods.keySet());
+		
+		return r;
+	}
+	
+	public static List<Branch> retrieveBranchesInMethod(String className, String methodName) {
+		List<Branch> r = new ArrayList<Branch>();
+		if(branchMap.get(className) == null)
+			return r;
+		List<Branch> branches = branchMap.get(className).get(methodName);
+		if(branches != null)
+			r.addAll(branches);
+		return r;
 	}
 }
