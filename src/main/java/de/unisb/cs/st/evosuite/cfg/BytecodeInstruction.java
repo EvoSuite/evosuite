@@ -79,6 +79,22 @@ public class BytecodeInstruction extends ASMWrapper {
 	/**
 	 * Can represent any byteCode instruction  
 	 */
+	public BytecodeInstruction(BytecodeInstruction wrap) {
+		
+		this(wrap.className, wrap.methodName, wrap.instructionId, wrap.asmNode,
+				wrap.lineNumber, wrap.branchId, wrap.branchExpressionValue);
+	}
+	
+	public BytecodeInstruction (String className, String methodName,
+			int instructionId, AbstractInsnNode asmNode, int lineNumber,
+			int branchId, boolean branchExpressionValue) {
+
+		this(className, methodName, instructionId, asmNode,lineNumber);
+		
+		this.branchId = branchId;
+		this.branchExpressionValue = branchExpressionValue;
+	}
+	
 	public BytecodeInstruction (String className, String methodName,
 			int instructionId, AbstractInsnNode asmNode, int lineNumber) {
 
@@ -91,19 +107,16 @@ public class BytecodeInstruction extends ASMWrapper {
 
 		if (className == null || methodName == null || asmNode == null)
 			throw new IllegalArgumentException("null given");
+		if(instructionId < 0)
+			throw new IllegalArgumentException("expect instructionId to be positive, not "+instructionId);
 		
 		this.instructionId = instructionId;
 		this.asmNode = asmNode;
-		this.className = className;
+		
+		setClassName(className);
 		setMethodName(methodName);
 	}
 	
-	public BytecodeInstruction(BytecodeInstruction wrap) {
-		
-		this(wrap.className, wrap.methodName, wrap.instructionId, wrap.asmNode,
-				wrap.lineNumber);
-	}
-
 	
 	// ---				Field Management				--- TODO find out which ones to hide/remove
 	
@@ -207,6 +220,9 @@ public class BytecodeInstruction extends ASMWrapper {
 	}
 
 	public void setBranchId(int branchId) {
+		if(branchId<0)
+			throw new IllegalArgumentException("expect branchId to be positive, not "+branchId);
+		
 		this.branchId = branchId;
 	}
 
@@ -479,17 +495,20 @@ public class BytecodeInstruction extends ASMWrapper {
 			return true;
 		if (obj == null)
 			return false;
-		if (!(obj instanceof BytecodeInstruction)) // TODO: can Class be compared via == ?
+		if (!(obj instanceof BytecodeInstruction))
 			return false;
 		
-		BytecodeInstruction other = (BytecodeInstruction)obj;
+		// TODO ensure that the following checks always succeed
+		// TODO do this by ensuring that those values are always set correctly
 		
-		if (instructionId != other.instructionId)
-			return false;
-		if (methodName != null && !methodName.equals(other.methodName))
-			return false;
-		if (className != null && !className.equals(other.className))
-			return false;
+//		BytecodeInstruction other = (BytecodeInstruction)obj;
+//		
+//		if (instructionId != other.instructionId)
+//			return false;
+//		if (methodName != null && !methodName.equals(other.methodName))
+//			return false;
+//		if (className != null && !className.equals(other.className))
+//			return false;
 		
 		return super.equals(obj);
 	}
