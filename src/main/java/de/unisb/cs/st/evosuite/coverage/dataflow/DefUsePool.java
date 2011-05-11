@@ -2,8 +2,10 @@ package de.unisb.cs.st.evosuite.coverage.dataflow;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -27,10 +29,10 @@ public class DefUsePool {
 	// trees of all known definitions and uses
 
 	// 	className -> methodName  -> DUVarName -> branchID -> List of Definitions in that branch 
-	public static Map<String, Map<String, Map<String, Map<Integer,List<Definition>>>>> def_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<Definition>>>>>();
+	private static Map<String, Map<String, Map<String, Map<Integer,List<Definition>>>>> def_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<Definition>>>>>();
 	
 	// 	className -> methodName  -> DUVarName -> branchID -> List of Uses in that branch
-	public static Map<String, Map<String, Map<String, Map<Integer,List<Use>>>>> use_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<Use>>>>>();	
+	private static Map<String, Map<String, Map<String, Map<Integer,List<Use>>>>> use_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<Use>>>>>();	
 	
 	// maps IDs to objects
 	private static Map<Integer, DefUse> defuseIdsToDefUses = new HashMap<Integer, DefUse>();
@@ -198,7 +200,7 @@ public class DefUsePool {
 		defuseIdsToDefUses.put(def.getDefUseId(),def);
 		defuseIdsToDefs.put(def.getDefUseId(), def);
 		
-		logger.debug("Added to DefUsePool as def: "+def.toString());
+		logger.info("Added to DefUsePool as def: "+def.toString());
 	}
 	
 	private static void fillUseMaps(Use use) {
@@ -206,7 +208,7 @@ public class DefUsePool {
 		defuseIdsToDefUses.put(use.getDefUseId(), use);
 		defuseIdsToUses.put(use.getDefUseId(), use);
 		
-		logger.debug("Added to DefUsePool as use: "+use.toString());		
+		logger.info("Added to DefUsePool as use: "+use.toString());		
 	}
 
 	// filling the maps
@@ -286,6 +288,30 @@ public class DefUsePool {
 			return false;
 		
 		return registeredUses.containsKey(instruction);
+	}
+	
+	public static Set<Definition> retrieveRegisteredDefinitions() {
+		Set<Definition> r = new HashSet<Definition>();
+		for(Integer defId : registeredDefs.values()) {
+			r.add(getDefinitionByDefId(defId));
+		}
+		return r;
+	}
+	
+	public static Set<Use> retrieveRegisteredUses() {
+		Set<Use> r = new HashSet<Use>();
+		for(Integer useId : registeredUses.values()) {
+			r.add(getUseByUseId(useId));
+		}
+		return r;
+	}
+	
+	public static Set<Use> retrieveRegisteredParameterUses() {
+		Set<Use> r = new HashSet<Use>();
+		for(BytecodeInstruction instruction : knownParameterUses) {
+			r.add(getUseByUseId(registeredUses.get(instruction)));
+		}
+		return r;
 	}
 
 	/**
