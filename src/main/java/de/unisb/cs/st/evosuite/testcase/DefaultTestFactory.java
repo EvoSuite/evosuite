@@ -114,14 +114,14 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			VariableReference object = test.getRandomObject(position);
 			if (object != null) {
 				if (object.isArray()) {
-					if (object.array_length > 0) {
+					if (object.getArrayLength() > 0) {
 						// ArrayStatement as = (ArrayStatement)
 						// test.getStatement(object.statement);
 						// AssignmentStatement as = new
 						// AssignmentStatement(object);
 						// if(as.size() > 0) {
 						// logger.info("Inserting array thingy");
-						int index = randomness.nextInt(object.array_length);
+						int index = randomness.nextInt(object.getArrayLength());
 						// logger.info("Array statement: "+as.getCode());
 						//logger.info("Inserting array index " + index + " at position "
 						//       + position + " for array with length "
@@ -275,11 +275,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 							if (ms.callee.equals(var)) {
 								ms.callee = randomness.choice(alternatives);
 								logger.trace("Replacing callee in method call");
-							} else if (var.equals(ms.callee.array)) {
+							} else if (var.equals(ms.callee.getArray())) {
 								VariableReference r = randomness.choice(alternatives);
-								ms.callee.array = r;
-								if (r.array_length > 1)
-									ms.callee.array_index = randomness.nextInt(r.array_length);
+								ms.callee.setArray(r);
+								if (r.getArrayLength() > 1)
+									ms.callee.array_index = randomness.nextInt(r.getArrayLength());
 								else
 									ms.callee.array_index = 0;
 							}
@@ -289,11 +289,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 								VariableReference r = randomness.choice(alternatives);
 								ms.parameters.set(pos, r);
 								logger.trace("Replacing parameter in method call");
-							} else if (var.equals(ms.parameters.get(pos).array)) {
+							} else if (var.equals(ms.parameters.get(pos).getArray())) {
 								VariableReference r = randomness.choice(alternatives);
-								ms.parameters.get(pos).array = r;
-								if (r.array_length > 1)
-									ms.parameters.get(pos).array_index = randomness.nextInt(r.array_length);
+								ms.parameters.get(pos).setArray(r);
+								if (r.getArrayLength() > 1)
+									ms.parameters.get(pos).array_index = randomness.nextInt(r.getArrayLength());
 								else
 									ms.parameters.get(pos).array_index = 0;
 							}
@@ -305,11 +305,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 								VariableReference r = randomness.choice(alternatives);
 								cs.parameters.set(pos, r);
 								logger.trace("Replacing parameter in constructor call");
-							} else if (var.equals(cs.parameters.get(pos).array)) {
+							} else if (var.equals(cs.parameters.get(pos).getArray())) {
 								VariableReference r = randomness.choice(alternatives);
-								cs.parameters.get(pos).array = r;
-								if (r.array_length > 1)
-									cs.parameters.get(pos).array_index = randomness.nextInt(r.array_length);
+								cs.parameters.get(pos).setArray(r);
+								if (r.getArrayLength() > 1)
+									cs.parameters.get(pos).array_index = randomness.nextInt(r.getArrayLength());
 								else
 									cs.parameters.get(pos).array_index = 0;
 							}
@@ -320,11 +320,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 							VariableReference r = randomness.choice(alternatives);
 							fs.source = r;
 							logger.trace("Replacing field source");
-						} else if (fs.source != null && var.equals(fs.source.array)) {
+						} else if (fs.source != null && var.equals(fs.source.getArray())) {
 							VariableReference r = randomness.choice(alternatives);
-							fs.source.array = r;
-							if (r.array_length > 1)
-								fs.source.array_index = randomness.nextInt(r.array_length);
+							fs.source.setArray(r);
+							if (r.getArrayLength() > 1)
+								fs.source.array_index = randomness.nextInt(r.getArrayLength());
 							else
 								fs.source.array_index = 0;
 						}
@@ -339,11 +339,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 							VariableReference r = randomness.choice(alternatives);
 							as.retval = r;
 							logger.trace("Replacing array source");
-						} else if (var.equals(as.retval.array)) {
+						} else if (var.equals(as.retval.getArray())) {
 							VariableReference r = randomness.choice(alternatives);
-							as.retval.array = r;
-							if (r.array_length > 1)
-								as.retval.array_index = randomness.nextInt(r.array_length);
+							as.retval.setArray(r);
+							if (r.getArrayLength() > 1)
+								as.retval.array_index = randomness.nextInt(r.getArrayLength());
 							else
 								as.retval.array_index = 0;
 						}
@@ -351,11 +351,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 							VariableReference r = randomness.choice(alternatives);
 							as.parameter = r;
 							logger.trace("Replacing array parameter");
-						} else if (var.equals(as.parameter.array)) {
+						} else if (var.equals(as.parameter.getArray())) {
 							VariableReference r = randomness.choice(alternatives);
-							as.parameter.array = r;
-							if (r.array_length > 1)
-								as.parameter.array_index = randomness.nextInt(r.array_length);
+							as.parameter.setArray(r);
+							if (r.getArrayLength() > 1)
+								as.parameter.array_index = randomness.nextInt(r.getArrayLength());
 							else
 								as.parameter.array_index = 0;
 						}
@@ -562,7 +562,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		Iterator<VariableReference> iterator = objects.iterator();
 		while (iterator.hasNext()) {
 			VariableReference var = iterator.next();
-			if (var.isArrayIndex() && var.array.equals(array))
+			if (var.isArrayIndex() && var.getArray().equals(array))
 				iterator.remove();
 		}
 		assignArray(test, array, array_index, position, objects);
@@ -579,7 +579,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			// Assign an existing value
 			// TODO:
 			// Do we need a special "[Array]AssignmentStatement"?
-			StatementInterface st = new AssignmentStatement(test, array, array_index, array.array_length, randomness.choice(objects));
+			StatementInterface st = new AssignmentStatement(test, array, array_index, array.getArrayLength(), randomness.choice(objects));
 			test.addStatement(st, position);
 		} else {
 			// Assign a new value
@@ -594,7 +594,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			VariableReference var = attemptGeneration(test, array.getComponentType(),
 			                                          position);
 			position += test.size() - old_len;
-			StatementInterface st = new AssignmentStatement(test, array, array_index, array.array_length, var);
+			StatementInterface st = new AssignmentStatement(test, array, array_index, array.getArrayLength(), var);
 			test.addStatement(st, position);
 		}
 	}

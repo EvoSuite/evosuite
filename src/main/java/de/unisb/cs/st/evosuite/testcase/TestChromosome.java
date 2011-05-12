@@ -349,8 +349,8 @@ public class TestChromosome extends Chromosome {
 								as.parameter = randomness.choice(objects);
 								changed = true;
 							}
-						} else if (as.retval.array_length > 0) {
-							as.retval.array_index = randomness.nextInt(as.retval.array_length);
+						} else if (as.retval.getArrayLength() > 0) {
+							as.retval.array_index = randomness.nextInt(as.retval.getArrayLength());
 							changed = true;
 						}
 						// logger.info("After change:");

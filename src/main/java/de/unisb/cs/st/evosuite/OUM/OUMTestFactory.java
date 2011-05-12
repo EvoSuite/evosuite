@@ -330,9 +330,9 @@ public class OUMTestFactory extends AbstractTestFactory {
 					object = null;
 			}
 			if (object != null && !object.isPrimitive()) {
-				if (object.isArray() && object.array_length > 0) {
+				if (object.isArray() && object.getArrayLength() > 0) {
 					logger.debug("Selected array object");
-					int index = randomness.nextInt(object.array_length);
+					int index = randomness.nextInt(object.getArrayLength());
 					try {
 						assignArray(test, object, index, position);
 					} catch (ConstructionFailedException e) {
@@ -795,7 +795,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 			// Assign an existing value
 			// TODO:
 			// Do we need a special "[Array]AssignmentStatement"?
-			test.addStatement(new AssignmentStatement(test, array, array_index, array.array_length,
+			test.addStatement(new AssignmentStatement(test, array, array_index, array.getArrayLength(),
 			        randomness.choice(objects)), position);
 
 		} else {
@@ -808,7 +808,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 			VariableReference var = attemptGeneration(test, array.getComponentType(),
 			                                          position);
 			position += test.size() - old_len;
-			test.addStatement(new AssignmentStatement(test, array, array_index, array.array_length, var), position);
+			test.addStatement(new AssignmentStatement(test, array, array_index, array.getArrayLength(), var), position);
 		}
 	}
 

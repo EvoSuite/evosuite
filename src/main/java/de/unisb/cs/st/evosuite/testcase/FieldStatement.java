@@ -179,7 +179,7 @@ public class FieldStatement extends AbstractStatement {
 		if (!Modifier.isStatic(field.getModifiers())) {
 			references.add(source);
 			if (source.isArrayIndex())
-				references.add(source.array);
+				references.add(source.getArray());
 		}
 		return references;
 

@@ -145,10 +145,10 @@ public class DefaultTestCase implements TestCase{
 					// VariableReference(statements.get(i).retval.clone(),
 					// Randomness.getInstance().nextInt(MAX_ARRAY), i));
 					// ArrayStatement as = (ArrayStatement)statements.get(i);
-					for (int index = 0; index < statements.get(i).getReturnValue().array_length; index++) {
+					for (int index = 0; index < statements.get(i).getReturnValue().getArrayLength(); index++) {
 						variables.add(new VariableReference(this, 
 						        statements.get(i).getReturnValue(), index,
-						        statements.get(i).getReturnValue().array_length));
+						        statements.get(i).getReturnValue().getArrayLength()));
 					}
 				}
 			} else if (statements.get(i).getReturnValue().isArrayIndex()) { // &&
@@ -195,13 +195,13 @@ public class DefaultTestCase implements TestCase{
 				// variables.add(new VariableReference(as.retval.clone(), index,
 				// as.size(), i));
 				// }
-				for (int index = 0; index < statements.get(i).getReturnValue().array_length; index++) {
+				for (int index = 0; index < statements.get(i).getReturnValue().getArrayLength(); index++) {
 					// variables.add(new
 					// VariableReference(statements.get(i).retval.clone(),
 					// index, statements.get(i).retval.array_length, i));
 					variables.add(new VariableReference(this, 
 					        statements.get(i).getReturnValue(), index, statements
-					                .get(i).getReturnValue().array_length));
+					                .get(i).getReturnValue().getArrayLength()));
 				}
 			} else if (!statements.get(i).getReturnValue().isArrayIndex()) {
 				variables.add(statements.get(i).getReturnValue());

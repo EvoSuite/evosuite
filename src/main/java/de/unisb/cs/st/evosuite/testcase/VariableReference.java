@@ -25,6 +25,8 @@ import org.apache.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
+import com.lowagie.text.pdf.ArabicLigaturizer;
+
 /**
  * This class represents a variable in a test case
  * 
@@ -53,11 +55,11 @@ public class VariableReference implements Comparable<VariableReference> {
 	 * Index in the array
 	 */
 	protected int array_index = 0;
-
+	
 	/**
 	 * Index in the array
 	 */
-	public int array_length = 0;
+	protected int array_length = 0;
 
 	/**
 	 * The testCase in which this VariableReference is valid
@@ -97,6 +99,15 @@ public class VariableReference implements Comparable<VariableReference> {
 
 	public VariableReference(TestCase testCase, Type type) {
 		this(testCase, new GenericClass(type));
+	}
+	
+	public int getArrayLength(){
+		return array_length;
+	}
+	
+	public void setArrayLength(int l){
+		assert(l>=0);
+		array_length=l;
 	}
 	
 	/**
@@ -193,6 +204,10 @@ public class VariableReference implements Comparable<VariableReference> {
 	 */
 	public boolean isArray() {
 		return type.isArray();
+	}
+	
+	public void setArray(VariableReference r){
+		array=r;
 	}
 
 	/**

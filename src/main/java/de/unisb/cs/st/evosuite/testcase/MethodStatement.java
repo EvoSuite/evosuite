@@ -217,12 +217,12 @@ public class MethodStatement extends AbstractStatement {
 		if (isInstanceMethod()) {
 			references.add(callee);
 			if (callee.isArrayIndex())
-				references.add(callee.array);
+				references.add(callee.getArray());
 		}
 		references.addAll(parameters);
 		for (VariableReference param : parameters) {
 			if (param.isArrayIndex())
-				references.add(param.array);
+				references.add(param.getArray());
 		}
 		return references;
 	}
@@ -394,12 +394,12 @@ public class MethodStatement extends AbstractStatement {
 		if (isInstanceMethod()) {
 			references.add(callee);
 			if (callee.isArrayIndex())
-				references.add(callee.array);
+				references.add(callee.getArray());
 		}
 		references.addAll(parameters);
 		for (VariableReference param : parameters) {
 			if (param.isArrayIndex())
-				references.add(param.array);
+				references.add(param.getArray());
 		}
 		return references;
 	}
