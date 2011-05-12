@@ -153,7 +153,7 @@ public class StringOutputTrace extends OutputTrace {
 			return false;
 		StringAssertion p = (StringAssertion) assertion;
 
-		if (!p.value.equals(trace.get(p.source.statement))) {
+		if (!p.value.equals(trace.get(p.source.getStPosition()))) {
 			//logger.info("Inequal "+p.value+" to "+trace.get(p.source.statement));
 			return true;
 		} else {

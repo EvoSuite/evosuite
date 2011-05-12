@@ -285,11 +285,6 @@ public class ConcurrentTestCase implements TestCase{
 	}
 
 	@Override
-	public void renameVariable(int old_position, int new_position) {
-		test.renameVariable(old_position, new_position);
-	}
-
-	@Override
 	public VariableReference setStatement(StatementInterface statement, int position) {
 		statement = wrapStatements(statement);
 		//#TODO this should be reduced to remove and addStatement
@@ -526,7 +521,7 @@ public class ConcurrentTestCase implements TestCase{
 
 			@Override
 			public StatementInterface clone(TestCase newTestCase) {
-				return getPseudoStatement(newTestCase, clazz, retval.statement);
+				return getPseudoStatement(newTestCase, clazz, retval.getStPosition());
 			}
 
 			@Override

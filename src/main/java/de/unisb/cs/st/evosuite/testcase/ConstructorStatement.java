@@ -68,7 +68,7 @@ public class ConstructorStatement extends AbstractStatement {
 	public ConstructorStatement(TestCase tc, Constructor<?> constructor, VariableReference retvar,
 	        List<VariableReference> parameters) {
 		super(tc, retvar);
-		assert(tc.size()>retvar.statement); //as an old statement should be replaced by this statement
+		assert(tc.size()>retvar.getStPosition()); //as an old statement should be replaced by this statement
 		this.constructor = constructor;
 		// this.return_type = constructor.getDeclaringClass();
 		this.parameters = parameters;
@@ -148,9 +148,9 @@ public class ConstructorStatement extends AbstractStatement {
 	public StatementInterface clone(TestCase newTestCase) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
-			new_params.add(newTestCase.getStatement(r.statement).getReturnValue());
+			new_params.add(newTestCase.getStatement(r.getStPosition()).getReturnValue());
 		}
-		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor, retval.getType(), retval.statement, new_params);
+		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor, retval.getType(), retval.getStPosition(), new_params);
 		copy.assertions = cloneAssertions(newTestCase);
 		return copy;
 	}

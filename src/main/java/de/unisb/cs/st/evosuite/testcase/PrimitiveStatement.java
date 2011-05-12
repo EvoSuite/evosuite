@@ -182,7 +182,7 @@ public class PrimitiveStatement<T> extends AbstractStatement {
 
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
-		return new PrimitiveStatement<T>(newTestCase, retval.getType(), retval.statement, value);
+		return new PrimitiveStatement<T>(newTestCase, retval.getType(), retval.getStPosition(), value);
 	}
 
 	@Override

@@ -182,7 +182,7 @@ public class TestCallStatement extends AbstractStatement {
 	 */
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
-		TestCallStatement statement = new TestCallStatement(newTestCase, testCall, retval.getType(), retval.statement);
+		TestCallStatement statement = new TestCallStatement(newTestCase, testCall, retval.getType(), retval.getStPosition());
 		return statement;
 	}
 

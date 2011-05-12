@@ -81,7 +81,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 	 * @return
 	 */
 	public ConcreteCall getLastUse(TestCase test, int position, VariableReference variable) {
-		for (int i = Math.min(position, test.size() - 1); i >= variable.statement; i--) {
+		for (int i = Math.min(position, test.size() - 1); i >= variable.getStPosition(); i--) {
 			StatementInterface s = test.getStatement(i);
 			if (s.references(variable)) {
 				if (s instanceof MethodStatement) {
@@ -397,7 +397,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 		List<Integer> positions = new ArrayList<Integer>();
 		Set<Integer> p = new HashSet<Integer>();
 		for (VariableReference var : references) {
-			p.add(var.statement);
+			p.add(var.getStPosition());
 			//positions.add(var.statement);
 		}
 		positions.addAll(p);
@@ -684,7 +684,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 	}
 
 	private ConcreteCall getCall(TestCase test, VariableReference var) {
-		StatementInterface s = test.getStatement(var.statement);
+		StatementInterface s = test.getStatement(var.getStPosition());
 		if (s instanceof MethodStatement) {
 			return new ConcreteCall(var.getClassName(), ((MethodStatement) s).getMethod());
 		} else if (s instanceof ConstructorStatement) {
@@ -1211,7 +1211,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 
 	@Override
 	public boolean changeRandomCall(TestCase test, StatementInterface statement) {
-		List<VariableReference> objects = test.getObjects(statement.getReturnValue().statement);
+		List<VariableReference> objects = test.getObjects(statement.getReturnValue().getStPosition());
 		objects.remove(statement.getReturnValue());
 		List<AccessibleObject> calls = getPossibleCalls(statement.getReturnType(),
 		                                                objects);

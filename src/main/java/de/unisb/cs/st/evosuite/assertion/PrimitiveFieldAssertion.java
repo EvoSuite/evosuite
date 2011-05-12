@@ -59,7 +59,7 @@ public class PrimitiveFieldAssertion extends Assertion {
 	@Override
 	public Assertion clone(TestCase newTestCase) {
 		PrimitiveFieldAssertion s = new PrimitiveFieldAssertion();
-		s.source = newTestCase.getStatement(source.statement).getReturnValue();
+		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
 		s.value = value;
 		s.field = field;
 		return s;

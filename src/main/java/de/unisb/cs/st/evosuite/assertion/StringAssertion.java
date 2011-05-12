@@ -38,7 +38,7 @@ public class StringAssertion extends Assertion {
 	@Override
 	public Assertion clone(TestCase newTestCase) {
 		StringAssertion s = new StringAssertion();
-		s.source = newTestCase.getStatement(source.statement).getReturnValue();
+		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
 		s.value  = value;
 		return s;
 	}

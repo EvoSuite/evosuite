@@ -46,7 +46,7 @@ public class VariableReference implements Comparable<VariableReference> {
 	/**
 	 * Position within the test case I.e., the statement at which it is created
 	 */
-	public int statement = 0;
+	protected int statement = 0;
 
 	/**
 	 * If this variable is contained in an array, this is the reference to the
@@ -98,6 +98,13 @@ public class VariableReference implements Comparable<VariableReference> {
 		statement = position;
 	}
 
+	/**
+	 * The position of the statement, defining this VariableReference, in the testcase.
+	 * @return
+	 */
+	public int getStPosition(){
+		return statement;
+	}
 	/**
 	 * Create a copy of the current variable
 	 */

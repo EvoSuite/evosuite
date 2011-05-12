@@ -282,20 +282,6 @@ public class DefaultTestCase implements TestCase{
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#renameVariable(int, int)
-	 */
-	@Override
-	public void renameVariable(int old_position, int new_position) {
-		for (int i = old_position; i < statements.size(); i++) {
-			for (VariableReference var : statements.get(i)
-			        .getVariableReferences()) {
-				if (var.statement == old_position)
-					var.statement = new_position;
-			}
-		}
-	}
-
-	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#setStatement(de.unisb.cs.st.evosuite.testcase.Statement, int)
 	 */
 	@Override
@@ -338,10 +324,10 @@ public class DefaultTestCase implements TestCase{
 	 */
 	@Override
 	public boolean hasReferences(VariableReference var) {
-		if (var == null || var.statement == -1)
+		if (var == null || var.getStPosition() == -1)
 			return false;
 
-		for (int i = var.statement; i < statements.size(); i++) {
+		for (int i = var.getStPosition(); i < statements.size(); i++) {
 			if (statements.get(i).references(var))
 				return true;
 		}
@@ -355,12 +341,12 @@ public class DefaultTestCase implements TestCase{
 	public List<VariableReference> getReferences(VariableReference var) {
 		List<VariableReference> references = new ArrayList<VariableReference>();
 
-		if (var == null || var.statement == -1)
+		if (var == null || var.getStPosition() == -1)
 			return references;
 
 		// references.add(var);
 
-		for (int i = var.statement; i < statements.size(); i++) {
+		for (int i = var.getStPosition(); i < statements.size(); i++) {
 			List<VariableReference> temp = new ArrayList<VariableReference>();
 			if (statements.get(i).references(var))
 				temp.add(statements.get(i).getReturnValue());
@@ -604,9 +590,9 @@ public class DefaultTestCase implements TestCase{
 	public boolean isValid() {
 		int num = 0;
 		for (StatementInterface s : statements) {
-			if (s.getReturnValue().statement != num) {
+			if (s.getReturnValue().getStPosition() != num) {
 				logger.error("Test case is invalid at statement " + num + " - "
-				        + s.getReturnValue().statement + " which is " + s.getClass() + " " + s.getCode());
+				        + s.getReturnValue().getStPosition() + " which is " + s.getClass() + " " + s.getCode());
 				logger.error("Test code is: " + this.toCode());
 				return false;
 			}

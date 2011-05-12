@@ -89,8 +89,8 @@ public class NullOutputTrace extends OutputTrace {
 			return false;
 
 		NullAssertion p = (NullAssertion) assertion;
-		if (trace.containsKey(p.source.statement)) {
-			return !p.value.equals(trace.get(p.source.statement));
+		if (trace.containsKey(p.source.getStPosition())) {
+			return !p.value.equals(trace.get(p.source.getStPosition()));
 		}
 		return false;
 	}
