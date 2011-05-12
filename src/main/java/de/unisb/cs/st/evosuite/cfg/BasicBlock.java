@@ -56,6 +56,12 @@ public class BasicBlock {
 					"expect each basic block to contain at least one instruction");
 	}
 	
+	public boolean containsInstruction(BytecodeInstruction instruction) {
+		if(instruction == null)
+			throw new IllegalArgumentException("null given");
+		
+		return instructions.contains(instruction);
+	}
 	
 	private void setInstructions(List<BytecodeInstruction> blockNodes) {
 		for(BytecodeInstruction instruction : blockNodes) {
@@ -98,5 +104,28 @@ public class BasicBlock {
 		if(instructions.isEmpty())
 			return null;
 		return instructions.get(instructions.size()-1);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof BasicBlock))
+			return false;
+
+		BasicBlock other = (BasicBlock) obj;
+		if (!className.equals(other.className))
+			return false;
+		if (!methodName.equals(other.methodName))
+			return false;
+		if (this.instructions.size() != other.instructions.size())
+			return false;
+		for (BytecodeInstruction instruction : other.instructions)
+			if (!this.instructions.contains(instruction))
+				return false;
+
+		return true;
 	}
 }
