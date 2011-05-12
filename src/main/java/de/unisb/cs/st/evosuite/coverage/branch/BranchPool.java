@@ -34,7 +34,7 @@ public class BranchPool {
 	// maps className -> method inside that class -> list of branches inside that method 
 	private static Map<String, Map<String, List<Branch>>> branchMap = new HashMap<String, Map<String, List<Branch>>>();
 
-	// maps every Method to the Branches inside that method
+	// maps every Method to the number of Branches inside that method
 	private static Map<String, Integer> methodBranchCount = new HashMap<String, Integer>();
 
 	// set of all known methods without a Branch

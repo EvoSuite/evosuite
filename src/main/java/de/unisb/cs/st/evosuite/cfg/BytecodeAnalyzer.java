@@ -29,10 +29,17 @@ import org.objectweb.asm.tree.analysis.Frame;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
- * This class generates a CFG from a method's bytecode
+ *  This class analyzes the byteCode from a method in the CUT and
+ * generates it's CFG using a cfg.CFGGenerator
+ *
+ *  This is done using the ASM library, extending from it's asm.Analyzer
+ * and redirecting the calls to newControlFlowEdge() to an instance of
+ * cfg.CFGGenerator which in turn builds up a graph representation
+ * of the CFG, which later is used to build a "smaller" CFG containing
+ * not BytecodeInstructions but BasicBlocks of BytecodeInstructions
+ * which are always executed successively
  * 
- * @author Gordon Fraser
- * 
+ * @author Gordon Fraser, Andre Mis
  */
 public class BytecodeAnalyzer extends Analyzer {
 
@@ -58,7 +65,7 @@ public class BytecodeAnalyzer extends Analyzer {
 	 */
 	CFGFrame analyze(String owner, String method, MethodNode node)
 			throws AnalyzerException {
-		// TODO should this have happened after analyze() ?
+
 		cfgGenerator = new CFGGenerator(owner,method,node,mutants);
 		this.analyze(owner, node);
 		
