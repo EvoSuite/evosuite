@@ -28,7 +28,7 @@ public class NullAssertion extends Assertion {
 	@Override
 	public Assertion clone(TestCase newTestCase) {
 		NullAssertion s = new NullAssertion();
-		s.source = newTestCase.getStatement(source.statement).getReturnValue();
+		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
 		s.value  = value;
 		return s;
 	}

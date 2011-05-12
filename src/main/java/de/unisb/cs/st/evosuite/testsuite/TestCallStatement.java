@@ -31,21 +31,9 @@ public class TestCallStatement extends AbstractStatement {
 
 	private final TestCallObject testCall;
 
-	public TestCallStatement(TestCase tc, TestCallObject call, Type type, int position) {
-		super(tc, new VariableReference(type, position));
+	public TestCallStatement(TestCase tc, TestCallObject call, Type type) {
+		super(tc, new VariableReference(tc, type));
 		this.testCall = call;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#adjustVariableReferences(int,
-	 * int)
-	 */
-	@Override
-	public void adjustVariableReferences(int position, int delta) {
-		retval.adjust(delta, position);
 	}
 
 	/**
@@ -182,7 +170,7 @@ public class TestCallStatement extends AbstractStatement {
 	 */
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
-		TestCallStatement statement = new TestCallStatement(newTestCase, testCall, retval.getType(), retval.statement);
+		TestCallStatement statement = new TestCallStatement(newTestCase, testCall, retval.getType());
 		return statement;
 	}
 

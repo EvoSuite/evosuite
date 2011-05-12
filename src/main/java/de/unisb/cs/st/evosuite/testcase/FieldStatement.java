@@ -50,8 +50,8 @@ public class FieldStatement extends AbstractStatement {
 	String fieldName;
 
 	public FieldStatement(TestCase tc, Field field, VariableReference source,
-	        java.lang.reflect.Type type, int position) {
-		super(tc, new VariableReference(type, position));
+	        java.lang.reflect.Type type) {
+		super(tc, new VariableReference(tc, type));
 		this.field = field;
 		this.className = field.getDeclaringClass().getName();
 		this.fieldName = field.getName();
@@ -70,7 +70,7 @@ public class FieldStatement extends AbstractStatement {
 	public FieldStatement(TestCase tc, Field field, VariableReference source,
 	        VariableReference ret_var) {
 		super(tc, ret_var);
-		assert(tc.size()>ret_var.statement); //as an old statement should be replaced by this statement
+		assert(tc.size()>ret_var.getStPosition()); //as an old statement should be replaced by this statement
 		this.field = field;
 		this.className = field.getDeclaringClass().getName();
 		this.fieldName = field.getName();
@@ -140,9 +140,9 @@ public class FieldStatement extends AbstractStatement {
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
 		if (Modifier.isStatic(field.getModifiers()))
-			return new FieldStatement(newTestCase, field, null, retval.getType(), retval.statement);
+			return new FieldStatement(newTestCase, field, null, retval.getType());
 		else
-			return new FieldStatement(newTestCase, field, newTestCase.getStatement(source.statement).getReturnValue(), retval.getType(), retval.statement);
+			return new FieldStatement(newTestCase, field, newTestCase.getStatement(source.getStPosition()).getReturnValue(), retval.getType());
 	}
 
 	@Override
@@ -179,7 +179,7 @@ public class FieldStatement extends AbstractStatement {
 		if (!Modifier.isStatic(field.getModifiers())) {
 			references.add(source);
 			if (source.isArrayIndex())
-				references.add(source.array);
+				references.add(source.getArray());
 		}
 		return references;
 

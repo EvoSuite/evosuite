@@ -69,15 +69,6 @@ public class ScheduleLogWrapper implements StatementInterface{
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#adjustVariableReferences(int, int)
-	 */
-	@Override
-	public void adjustVariableReferences(int position, int delta) {
-		exit();
-		wrapped.adjustVariableReferences(position, delta);
-	}
-
-	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#equals(de.unisb.cs.st.evosuite.testcase.StatementInterface)
 	 */
 	@Override

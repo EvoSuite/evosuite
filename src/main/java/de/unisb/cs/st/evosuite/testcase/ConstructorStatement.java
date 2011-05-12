@@ -48,9 +48,9 @@ public class ConstructorStatement extends AbstractStatement {
 
 	public List<VariableReference> parameters;
 
-	public ConstructorStatement(TestCase tc, Constructor<?> constructor, java.lang.reflect.Type type, int position,
+	public ConstructorStatement(TestCase tc, Constructor<?> constructor, java.lang.reflect.Type type,
 	        List<VariableReference> parameters) {
-		super(tc, new VariableReference(type, position));
+		super(tc, new VariableReference(tc, type));
 		this.constructor = constructor;
 		// this.return_type = constructor.getDeclaringClass();
 		this.parameters = parameters;
@@ -68,7 +68,7 @@ public class ConstructorStatement extends AbstractStatement {
 	public ConstructorStatement(TestCase tc, Constructor<?> constructor, VariableReference retvar,
 	        List<VariableReference> parameters) {
 		super(tc, retvar);
-		assert(tc.size()>retvar.statement); //as an old statement should be replaced by this statement
+		assert(tc.size()>retvar.getStPosition()); //as an old statement should be replaced by this statement
 		this.constructor = constructor;
 		// this.return_type = constructor.getDeclaringClass();
 		this.parameters = parameters;
@@ -148,9 +148,9 @@ public class ConstructorStatement extends AbstractStatement {
 	public StatementInterface clone(TestCase newTestCase) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
-			new_params.add(newTestCase.getStatement(r.statement).getReturnValue());
+			new_params.add(newTestCase.getStatement(r.getStPosition()).getReturnValue());
 		}
-		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor, retval.getType(), retval.statement, new_params);
+		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor, retval.getType(), new_params);
 		copy.assertions = cloneAssertions(newTestCase);
 		return copy;
 	}
@@ -162,7 +162,7 @@ public class ConstructorStatement extends AbstractStatement {
 		references.addAll(parameters);
 		for (VariableReference param : parameters) {
 			if (param.isArrayIndex())
-				references.add(param.array);
+				references.add(param.getArray());
 		}
 		return references;
 	}
@@ -303,7 +303,7 @@ public class ConstructorStatement extends AbstractStatement {
 		references.addAll(parameters);
 		for (VariableReference param : parameters) {
 			if (param.isArrayIndex())
-				references.add(param.array);
+				references.add(param.getArray());
 		}
 		return references;
 

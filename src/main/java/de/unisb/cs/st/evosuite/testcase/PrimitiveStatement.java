@@ -64,8 +64,8 @@ public class PrimitiveStatement<T> extends AbstractStatement {
 	 * @param reference
 	 * @param value
 	 */
-	public PrimitiveStatement(TestCase tc, Type type, int position, T value) {
-		super(tc, new VariableReference(type, position));
+	public PrimitiveStatement(TestCase tc, Type type, T value) {
+		super(tc, new VariableReference(tc, type));
 		this.value = value;
 	}
 
@@ -88,68 +88,68 @@ public class PrimitiveStatement<T> extends AbstractStatement {
 	        Type clazz) {
 
 		if (clazz == boolean.class) {
-			return new PrimitiveStatement<Boolean>(tc, type, position, randomness.nextBoolean());
+			return new PrimitiveStatement<Boolean>(tc, type, randomness.nextBoolean());
 		} else if (clazz == int.class) {
 			if (randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Integer>(tc, type, position, new Integer(
+				return new PrimitiveStatement<Integer>(tc, type, new Integer(
 				        (randomness.nextInt(2 * MAX_INT) - MAX_INT)));
 			else
-				return new PrimitiveStatement<Integer>(tc, type, position,
+				return new PrimitiveStatement<Integer>(tc, type,
 				        primitive_pool.getRandomInt());
 
 		} else if (clazz == char.class) {
 			// Only ASCII chars?
-			return new PrimitiveStatement<Character>(tc, type, position, (randomness.nextChar()));
+			return new PrimitiveStatement<Character>(tc, type, (randomness.nextChar()));
 		} else if (clazz == long.class) {
 			int max = Math.min(MAX_INT, 32767);
 			if (randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Long>(tc, type, position, new Long(
+				return new PrimitiveStatement<Long>(tc, type, new Long(
 				        (randomness.nextInt(2 * max) - max)));
 			else
-				return new PrimitiveStatement<Long>(tc, type, position,
+				return new PrimitiveStatement<Long>(tc, type,
 				        primitive_pool.getRandomLong());
 
 		} else if (clazz.equals(double.class)) {
 			if (randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Double>(tc, type, position,
+				return new PrimitiveStatement<Double>(tc, type,
 				        (randomness.nextInt(2 * MAX_INT) - MAX_INT)
 				                + randomness.nextDouble());
 			else
-				return new PrimitiveStatement<Double>(tc, type, position,
+				return new PrimitiveStatement<Double>(tc, type,
 				        primitive_pool.getRandomDouble());
 
 		} else if (clazz == float.class) {
 			if (randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Float>(tc, type, position,
+				return new PrimitiveStatement<Float>(tc, type,
 				        (randomness.nextInt(2 * MAX_INT) - MAX_INT)
 				                + randomness.nextFloat());
 			else
-				return new PrimitiveStatement<Float>(tc, type, position,
+				return new PrimitiveStatement<Float>(tc, type,
 				        primitive_pool.getRandomFloat());
 
 		} else if (clazz == short.class) {
 			int max = Math.min(MAX_INT, 32767);
 			if (randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Short>(tc, type, position, new Short(
+				return new PrimitiveStatement<Short>(tc, type, new Short(
 				        (short) (randomness.nextInt(2 * max) - max)));
 			else
-				return new PrimitiveStatement<Short>(tc, type, position, new Short(
+				return new PrimitiveStatement<Short>(tc, type, new Short(
 				        (short) primitive_pool.getRandomInt()));
 
 		} else if (clazz == byte.class) {
 			if (randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Byte>(tc, type, position, new Byte(
+				return new PrimitiveStatement<Byte>(tc, type, new Byte(
 				        (byte) (randomness.nextInt(256) - 128)));
 			else
-				return new PrimitiveStatement<Byte>(tc, type, position, new Byte(
+				return new PrimitiveStatement<Byte>(tc, type, new Byte(
 				        (byte) (primitive_pool.getRandomInt())));
 
 		} else if (clazz.equals(String.class)) {
 			if (randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<String>(tc, type, position,
+				return new PrimitiveStatement<String>(tc, type,
 				        randomness.nextString(randomness.nextInt(MAX_STRING)));
 			else
-				return new PrimitiveStatement<String>(tc, type, position,
+				return new PrimitiveStatement<String>(tc, type,
 				        primitive_pool.getRandomString());
 		}
 		logger.error("Getting unknown type: " + clazz + " / " + clazz.getClass());
@@ -182,7 +182,7 @@ public class PrimitiveStatement<T> extends AbstractStatement {
 
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
-		return new PrimitiveStatement<T>(newTestCase, retval.getType(), retval.statement, value);
+		return new PrimitiveStatement<T>(newTestCase, retval.getType(), value);
 	}
 
 	@Override

@@ -25,6 +25,8 @@ import org.apache.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
+import com.lowagie.text.pdf.ArabicLigaturizer;
+
 /**
  * This class represents a variable in a test case
  * 
@@ -37,16 +39,11 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 public class VariableReference implements Comparable<VariableReference> {
 
 	private static Logger logger = Logger.getLogger(VariableReference.class);
-
+	
 	/**
 	 * Type (class) of the variable
 	 */
 	protected GenericClass type;
-
-	/**
-	 * Position within the test case I.e., the statement at which it is created
-	 */
-	public int statement = 0;
 
 	/**
 	 * If this variable is contained in an array, this is the reference to the
@@ -58,23 +55,30 @@ public class VariableReference implements Comparable<VariableReference> {
 	 * Index in the array
 	 */
 	protected int array_index = 0;
-
+	
 	/**
 	 * Index in the array
 	 */
-	public int array_length = 0;
+	protected int array_length = 0;
 
+	/**
+	 * The testCase in which this VariableReference is valid
+	 */
+	protected final TestCase testCase;
+	
 	/**
 	 * Constructor
 	 * 
+	 * @param testCase 
+	 * 			  The TestCase which defines the statement which defines this 
 	 * @param type
 	 *            The type (class) of the variable
 	 * @param position
 	 *            The statement in the test case that declares this variable
 	 */
-	public VariableReference(GenericClass type, int position) {
+	public VariableReference(TestCase testCase, GenericClass type) {
+		this.testCase=testCase;
 		this.type = type;
-		statement = position;
 	}
 
 	/**
@@ -85,17 +89,45 @@ public class VariableReference implements Comparable<VariableReference> {
 	 * @param position
 	 *            The statement in the test case that declares this variable
 	 */
-	public VariableReference(VariableReference array, int index, int length, int position) {
+	public VariableReference(TestCase testCase, VariableReference array, int index, int length) {
+		this.testCase=testCase;
 		this.type = new GenericClass(array.getComponentType());
-		this.statement = position;
 		this.array = array;
 		this.array_index = index;
 		this.array_length = length;
 	}
 
-	public VariableReference(Type type, int position) {
-		this.type = new GenericClass(type);
-		statement = position;
+	public VariableReference(TestCase testCase, Type type) {
+		this(testCase, new GenericClass(type));
+	}
+	
+	public int getArrayLength(){
+		return array_length;
+	}
+	
+	public void setArrayLength(int l){
+		assert(l>=0);
+		array_length=l;
+	}
+	
+	/**
+	 * The position of the statement, defining this VariableReference, in the testcase.
+	 * @return
+	 */
+	public int getStPosition(){
+		for(int i=0 ; i<testCase.size() ; i++){
+			if(testCase.getStatement(i).getReturnValue().equals(this)){
+				return i;
+			}
+		}
+		
+		if(isArrayIndex()){
+			//notice that this case is only reached if no AssignmentStatement was used to assign to the array index (as in that case the for loop would have found something)
+			//Therefore the array must have been assigned in some method and we can return the method call
+			return array.getStPosition();
+		}
+		
+		throw new AssertionError("A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase");
 	}
 
 	/**
@@ -172,6 +204,10 @@ public class VariableReference implements Comparable<VariableReference> {
 	 */
 	public boolean isArray() {
 		return type.isArray();
+	}
+	
+	public void setArray(VariableReference r){
+		array=r;
 	}
 
 	/**
@@ -257,20 +293,6 @@ public class VariableReference implements Comparable<VariableReference> {
 	}
 
 	/**
-	 * Add delta to the position of all variables up to a position
-	 * 
-	 * @param delta
-	 *            The delta that will be added to the position of each variable
-	 * @param position
-	 *            The maximum position up to which variables are changed
-	 */
-	public void adjust(int delta, int position) {
-		if (statement >= position) {
-			statement += delta;
-		}
-	}
-
-	/**
 	 * Return the actual object represented by this variable for a given scope
 	 * 
 	 * @param scope
@@ -285,29 +307,7 @@ public class VariableReference implements Comparable<VariableReference> {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof VariableReference))
-			return false;
-		VariableReference other = (VariableReference) obj;
-		if (statement != other.statement)
-			return false;
-		if (type == null) {
-			if (other.type != null)
-				return false;
-		} else if (!type.equals(other.type))
-			return false;
-		if (array == null) {
-			if (other.array != null)
-				return false;
-		} else if (!array.equals(other.array))
-			return false;
-		if (array_index != other.array_index)
-			return false;
-
-		return true;
+		return super.equals(obj); //We can use the object equals as each VariableReference is only defined once
 	}
 
 	/**
@@ -317,7 +317,7 @@ public class VariableReference implements Comparable<VariableReference> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + statement;
+		result = prime * result + getStPosition();
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		result = prime * result + ((array == null) ? 0 : array.hashCode() + array_index);
 		return result;
@@ -328,7 +328,7 @@ public class VariableReference implements Comparable<VariableReference> {
 	 */
 	@Override
 	public String toString() {
-		return "VariableReference: Statement " + statement + ", type "
+		return "VariableReference: Statement " + getStPosition() + ", type "
 		        + type.getTypeName();
 	}
 
@@ -341,16 +341,16 @@ public class VariableReference implements Comparable<VariableReference> {
 		if (array != null)
 			return array.getName() + "[" + array_index + "]";
 		else
-			return "var" + statement;
+			return "var" + getStPosition();
 	}
 
 	public void loadBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
 		if (array == null) {
-			logger.debug("Loading variable in bytecode: " + statement);
-			if (statement < 0) {
+			logger.debug("Loading variable in bytecode: " + getStPosition());
+			if (getStPosition() < 0) {
 				mg.visitInsn(Opcodes.ACONST_NULL);
 			} else
-				mg.loadLocal(locals.get(statement),
+				mg.loadLocal(locals.get(getStPosition()),
 				             org.objectweb.asm.Type.getType(type.getRawClass()));
 		} else {
 			array.loadBytecode(mg, locals);
@@ -361,12 +361,12 @@ public class VariableReference implements Comparable<VariableReference> {
 
 	public void storeBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
 		if (array == null) {
-			logger.debug("Storing variable in bytecode: " + statement + " of type "
+			logger.debug("Storing variable in bytecode: " + getStPosition() + " of type "
 			        + org.objectweb.asm.Type.getType(type.getRawClass()));
-			if (!locals.containsKey(statement))
-				locals.put(statement,
+			if (!locals.containsKey(getStPosition()))
+				locals.put(getStPosition(),
 				           mg.newLocal(org.objectweb.asm.Type.getType(type.getRawClass())));
-			mg.storeLocal(locals.get(statement),
+			mg.storeLocal(locals.get(getStPosition()),
 			              org.objectweb.asm.Type.getType(type.getRawClass()));
 		} else {
 			array.loadBytecode(mg, locals);
@@ -419,6 +419,6 @@ public class VariableReference implements Comparable<VariableReference> {
 	 */
 	@Override
 	public int compareTo(VariableReference other) {
-		return statement - other.statement;
+		return getStPosition() - other.getStPosition();
 	}
 }

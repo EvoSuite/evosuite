@@ -21,14 +21,6 @@ import de.unisb.cs.st.evosuite.assertion.Assertion;
 public interface StatementInterface {
 
 	/**
-	 * Adjust all variables up to position by delta
-	 * 
-	 * @param position
-	 * @param delta
-	 */
-	public void adjustVariableReferences(int position, int delta);
-
-	/**
 	 * Check if the statement makes use of var
 	 * 
 	 * @param var

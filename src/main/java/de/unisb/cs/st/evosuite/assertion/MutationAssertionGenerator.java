@@ -277,7 +277,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		int num_null_assertions = 0;
 
 		for (Assertion assertion : assertions) {
-			int statement = assertion.getSource().statement;
+			int statement = assertion.getSource().getStPosition();
 			test.getStatement(statement).addAssertion(assertion);
 			if (assertion instanceof StringAssertion)
 				num_string_assertions++;
@@ -315,7 +315,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			num_exception_assertions = 0;
 			num_null_assertions = 0;
 			for (Assertion assertion : result) {
-				int statement = assertion.getSource().statement;
+				int statement = assertion.getSource().getStPosition();
 				test.getStatement(statement).addAssertion(assertion);
 				if (assertion instanceof StringAssertion)
 					num_string_assertions++;

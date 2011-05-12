@@ -32,8 +32,8 @@ public class EqualsAssertion extends Assertion {
 	@Override
 	public Assertion clone(TestCase newTestCase) {
 		EqualsAssertion s = new EqualsAssertion();
-		s.source = newTestCase.getStatement(source.statement).getReturnValue();
-		s.dest = newTestCase.getStatement(dest.statement).getReturnValue();
+		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
+		s.dest = newTestCase.getStatement(dest.getStPosition()).getReturnValue();
 		s.value = value;
 		return s;
 	}

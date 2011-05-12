@@ -130,8 +130,6 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 */
 	public Object getObject(VariableReference reference, Scope scope);
 
-	public void renameVariable(int old_position, int new_position);
-
 	/**
 	 * Set new statement at position
 	 * 
@@ -197,14 +195,6 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 * @return Statement at position
 	 */
 	public StatementInterface getStatement(int position);
-
-	/**
-	 * Reveal internal list of statements TODO: This is not nice, needed it as a
-	 * hack for Parametrized tests
-	 * 
-	 * @return
-	 */
-	public List<StatementInterface> getStatements();
 
 	/**
 	 * Check if this test case is a prefix of t
