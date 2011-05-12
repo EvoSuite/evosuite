@@ -8,8 +8,10 @@ public class BytecodeInstructionFactory {
 			String className, String methodName, int instructionId,
 			AbstractInsnNode node) {
 
-		return new BytecodeInstruction(className, methodName, instructionId,
-				node);
+		BytecodeInstruction instruction = new BytecodeInstruction(className,
+				methodName, instructionId, node);
+		
+		return instruction;
 	}
 
 }

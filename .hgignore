@@ -12,6 +12,7 @@ build
 examples/mine/
 examples/plot/
 examples/indi_plot/
+src/main/resources/log4j.properties
 
 syntax: regexp
 ^lib/evosuite\.jar$
