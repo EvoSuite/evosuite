@@ -41,8 +41,8 @@ public class AssignmentStatement extends AbstractStatement {
 
 	public VariableReference parameter;
 
-	public AssignmentStatement(TestCase tc, VariableReference array, int array_index, int array_length, int position, VariableReference value) {
-		super(tc, new VariableReference(array, array_index, array.array_length, position));
+	public AssignmentStatement(TestCase tc, VariableReference array, int array_index, int array_length, VariableReference value) {
+		super(tc, new VariableReference(tc, array, array_index, array.getArrayLength()));
 		this.parameter = value;
 	}
 
@@ -52,9 +52,9 @@ public class AssignmentStatement extends AbstractStatement {
 
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
-		VariableReference newParam = newTestCase.getStatement(parameter.statement).getReturnValue(); //must be set as we only use this to clone whole testcases
+		VariableReference newParam = newTestCase.getStatement(parameter.getStPosition()).getReturnValue(); //must be set as we only use this to clone whole testcases
 		assert(newParam!=null);
-		AssignmentStatement copy = new AssignmentStatement(newTestCase, retval.array, retval.array_index, retval.array_length, retval.statement,
+		AssignmentStatement copy = new AssignmentStatement(newTestCase, retval.getArray(), retval.array_index, retval.getArrayLength(),
 		        newParam); 
 		return copy;
 	}
@@ -66,10 +66,10 @@ public class AssignmentStatement extends AbstractStatement {
 
 		try {
 			Object value = scope.get(parameter);
-			if (retval.array == null) {
+			if (retval.getArray() == null) {
 				logger.warn("Assigning outside of array");
 			}
-			Object array = scope.get(retval.array);
+			Object array = scope.get(retval.getArray());
 			Array.set(array, retval.array_index, value);
 		} catch (Throwable t) {
 			exceptionThrown = t;
@@ -89,9 +89,9 @@ public class AssignmentStatement extends AbstractStatement {
 		vars.add(retval);
 		vars.add(parameter);
 		if (retval.isArrayIndex())
-			vars.add(retval.array);
+			vars.add(retval.getArray());
 		if (parameter.isArrayIndex())
-			vars.add(parameter.array);
+			vars.add(parameter.getArray());
 		return vars;
 	}
 
@@ -135,7 +135,7 @@ public class AssignmentStatement extends AbstractStatement {
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
 	        Throwable exception) {
-		retval.array.loadBytecode(mg, locals);
+		retval.getArray().loadBytecode(mg, locals);
 		mg.push(retval.array_index);
 		parameter.loadBytecode(mg, locals);
 		Class<?> clazz = parameter.getVariableClass();

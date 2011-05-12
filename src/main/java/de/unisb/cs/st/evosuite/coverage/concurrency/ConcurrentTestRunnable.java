@@ -257,13 +257,13 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 			Class<?> params[] = {int.class}; 
 			Method register = LockRuntime.class.getMethod(LockRuntime.RUNTIME_REGISTER_THREAD_METHOD, params);
 
-			StatementInterface idst = new PrimitiveStatement<Integer>(test, Integer.class, 0, LockRuntime.getUniqueThreadID());
+			StatementInterface idst = new PrimitiveStatement<Integer>(test, Integer.class, LockRuntime.getUniqueThreadID());
 			test.addStatement(idst,0, false);
 			VariableReference idRef = idst.getReturnValue();
 			
 			List<VariableReference> paramsThreadRegistration = new ArrayList<VariableReference>();
 			paramsThreadRegistration.add(idRef);
-			test.addStatement(new MethodStatement(test, register, null, Void.class, 1, paramsThreadRegistration), 1, false);
+			test.addStatement(new MethodStatement(test, register, null, Void.class, paramsThreadRegistration), 1, false);
 
 			return test;
 
@@ -289,7 +289,7 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 				threadEnd=met;
 		}
 
-		test.addStatement(new MethodStatement(test, threadEnd, null, Void.class, test.size(), new ArrayList<VariableReference>()), false);
+		test.addStatement(new MethodStatement(test, threadEnd, null, Void.class, new ArrayList<VariableReference>()), false);
 		return test;
 	}
 

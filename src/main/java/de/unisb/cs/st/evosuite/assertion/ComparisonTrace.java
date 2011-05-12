@@ -238,17 +238,17 @@ public class ComparisonTrace extends OutputTrace {
 	public boolean isDetectedBy(Assertion assertion) {
 		if (assertion instanceof CompareAssertion) {
 			CompareAssertion c = (CompareAssertion) assertion;
-			if (compare_map.containsKey(c.source.statement)) {
-				if (compare_map.get(c.source.statement).containsKey(c.dest))
-					if (!c.value.equals(compare_map.get(c.source.statement).get(c.dest)))
+			if (compare_map.containsKey(c.source.getStPosition())) {
+				if (compare_map.get(c.source.getStPosition()).containsKey(c.dest))
+					if (!c.value.equals(compare_map.get(c.source.getStPosition()).get(c.dest)))
 						return true;
 			}
 			return false;
 		} else if (assertion instanceof EqualsAssertion) {
 			EqualsAssertion e = (EqualsAssertion) assertion;
-			if (equals_map.containsKey(e.source.statement)) {
-				if (equals_map.get(e.source.statement).containsKey(e.dest))
-					if (!e.value.equals(equals_map.get(e.source.statement).get(e.dest)))
+			if (equals_map.containsKey(e.source.getStPosition())) {
+				if (equals_map.get(e.source.getStPosition()).containsKey(e.dest))
+					if (!e.value.equals(equals_map.get(e.source.getStPosition()).get(e.dest)))
 						return true;
 			}
 			return false;

@@ -116,7 +116,7 @@ public class PrimitiveOutputTrace extends OutputTrace {
 				        + " / " + other.trace.get(i));
 				Assertion assertion = new PrimitiveAssertion();
 				assertion.source = test.getReturnValue(i);
-				if (assertion.source.statement != i) {
+				if (assertion.source.getStPosition() != i) {
 					logger.error("Statement id does not match!");
 				}
 				assertion.value = trace.get(i);
@@ -126,7 +126,7 @@ public class PrimitiveOutputTrace extends OutputTrace {
 					logger.error("Invalid primitive assertion generated (C)!");
 					logger.error("Assertion.value: " + assertion.value);
 					logger.error("other.trace.value: "
-					        + other.trace.get(assertion.source.statement));
+					        + other.trace.get(assertion.source.getStPosition()));
 				}
 
 				//} else {
@@ -180,11 +180,11 @@ public class PrimitiveOutputTrace extends OutputTrace {
 			return false;
 
 		PrimitiveAssertion p = (PrimitiveAssertion) assertion;
-		if (trace.containsKey(p.source.statement)) {
+		if (trace.containsKey(p.source.getStPosition())) {
 			if (p.value == null)
-				return (trace.get(p.source.statement) != null);
+				return (trace.get(p.source.getStPosition()) != null);
 			else {
-				return !p.value.equals(trace.get(p.source.statement));
+				return !p.value.equals(trace.get(p.source.getStPosition()));
 			}
 		}
 		return false;

@@ -41,8 +41,8 @@ public class CompareAssertion extends Assertion {
 	@Override
 	public Assertion clone(TestCase newTestCase) {
 		CompareAssertion s = new CompareAssertion();
-		s.source = newTestCase.getStatement(source.statement).getReturnValue();
-		s.dest = newTestCase.getStatement(dest.statement).getReturnValue();
+		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
+		s.dest = newTestCase.getStatement(dest.getStPosition()).getReturnValue();
 		s.value = value;
 		return s;
 	}

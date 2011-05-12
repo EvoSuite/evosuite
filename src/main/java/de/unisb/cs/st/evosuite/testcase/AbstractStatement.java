@@ -46,7 +46,6 @@ public abstract class AbstractStatement implements StatementInterface {
 
 	protected AbstractStatement(TestCase tc, VariableReference retval){
 		assert(retval!=null);
-		assert(tc.size()>=retval.statement) : "testCase had size: " + tc.size() + " and we were asked to add a statement add location " + retval.statement; //>= as the statement is not yet added
 		this.retval=retval;
 		this.tc=tc;
 	}
@@ -146,11 +145,6 @@ public abstract class AbstractStatement implements StatementInterface {
 		}
 		return ret_val;
 	}
-	
-	@Override
-	public void adjustVariableReferences(int position, int delta) {
-		retval.adjust(delta, position);
-	}
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#removeAssertions()
@@ -198,6 +192,6 @@ public abstract class AbstractStatement implements StatementInterface {
 	 */
 	@Override
 	public int getPosition() {
-		return retval.statement;
+		return retval.getStPosition();
 	}
 }

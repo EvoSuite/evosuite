@@ -285,11 +285,6 @@ public class ConcurrentTestCase implements TestCase{
 	}
 
 	@Override
-	public void renameVariable(int old_position, int new_position) {
-		test.renameVariable(old_position, new_position);
-	}
-
-	@Override
 	public VariableReference setStatement(StatementInterface statement, int position) {
 		statement = wrapStatements(statement);
 		//#TODO this should be reduced to remove and addStatement
@@ -424,14 +419,6 @@ public class ConcurrentTestCase implements TestCase{
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getStatements()
-	 */
-	@Override
-	public List<StatementInterface> getStatements() {
-		return test.getStatements();
-	}
-
-	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#isPrefix(de.unisb.cs.st.evosuite.testcase.TestCase)
 	 */
 	@Override
@@ -466,7 +453,7 @@ public class ConcurrentTestCase implements TestCase{
 	 * @return
 	 */
 	private StatementInterface getPseudoStatement(TestCase tc, final Class<?> clazz, int pos){
-		StatementInterface st= new AbstractStatement(tc, new VariableReference(clazz, pos)) {
+		StatementInterface st= new AbstractStatement(tc, new VariableReference(tc, clazz)) {
 
 			@Override
 			public int hashCode() {
@@ -526,7 +513,7 @@ public class ConcurrentTestCase implements TestCase{
 
 			@Override
 			public StatementInterface clone(TestCase newTestCase) {
-				return getPseudoStatement(newTestCase, clazz, retval.statement);
+				return getPseudoStatement(newTestCase, clazz, retval.getStPosition());
 			}
 
 			@Override

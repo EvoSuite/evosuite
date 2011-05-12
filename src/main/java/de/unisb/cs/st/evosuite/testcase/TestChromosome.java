@@ -318,7 +318,7 @@ public class TestChromosome extends Chromosome {
 		}
 		
 		if (!changed) {
-			for (StatementInterface statement : test.getStatements()) {
+			for (StatementInterface statement : test) {
 				if (randomness.nextDouble() <= pl) {
 
 					if (statement instanceof PrimitiveStatement<?>) {
@@ -330,7 +330,7 @@ public class TestChromosome extends Chromosome {
 						else
 							((PrimitiveStatement<?>) statement).delta();
 
-						int position = statement.getReturnValue().statement;
+						int position = statement.getReturnValue().getStPosition();
 						// test.setStatement(statement, position);
 						//logger.info("Changed test: " + test.toCode());
 						logger.debug("New statement: "
@@ -342,15 +342,15 @@ public class TestChromosome extends Chromosome {
 						AssignmentStatement as = (AssignmentStatement) statement;
 						if (randomness.nextDouble() < 0.5) {
 							List<VariableReference> objects = test.getObjects(statement.getReturnValue().getType(),
-							                                                  statement.getReturnValue().statement);
+							                                                  statement.getReturnValue().getStPosition());
 							objects.remove(statement.getReturnValue());
 							objects.remove(as.parameter);
 							if (!objects.isEmpty()) {
 								as.parameter = randomness.choice(objects);
 								changed = true;
 							}
-						} else if (as.retval.array_length > 0) {
-							as.retval.array_index = randomness.nextInt(as.retval.array_length);
+						} else if (as.retval.getArrayLength() > 0) {
+							as.retval.array_index = randomness.nextInt(as.retval.getArrayLength());
 							changed = true;
 						}
 						// logger.info("After change:");
