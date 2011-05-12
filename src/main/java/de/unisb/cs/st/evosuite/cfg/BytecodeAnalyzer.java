@@ -48,8 +48,6 @@ public class BytecodeAnalyzer extends Analyzer {
 	List<Mutation> mutants;
 	
 
-	// Constructor
-	
 	public BytecodeAnalyzer(List<Mutation> mutants) {
 		super(new BasicInterpreter());
 		this.mutants = mutants;

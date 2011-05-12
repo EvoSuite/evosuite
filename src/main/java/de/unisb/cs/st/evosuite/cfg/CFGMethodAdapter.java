@@ -39,6 +39,11 @@ import org.objectweb.asm.tree.analysis.AnalyzerException;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
+import de.unisb.cs.st.evosuite.cfg.instrumentation.BranchInstrumentation;
+import de.unisb.cs.st.evosuite.cfg.instrumentation.DefUseInstrumentation;
+import de.unisb.cs.st.evosuite.cfg.instrumentation.LCSAJsInstrumentation;
+import de.unisb.cs.st.evosuite.cfg.instrumentation.MethodInstrumentation;
+import de.unisb.cs.st.evosuite.cfg.instrumentation.PrimePathInstrumentation;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyInstrumentation;
 import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.AbstractMutationAdapter;
