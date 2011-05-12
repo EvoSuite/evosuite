@@ -178,11 +178,13 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			} catch (Throwable t) {
 				logger.fatal(
 						"Transformation of class " + className + " failed", t);
-				StringWriter writer = new StringWriter();
-				t.printStackTrace(new PrintWriter(writer));
-				logger.fatal(writer.getBuffer().toString());
-				t.printStackTrace();
-//				LogManager.shutdown();
+				// TODO why all the redundant printStackTrace()s?
+				
+//				StringWriter writer = new StringWriter();
+//				t.printStackTrace(new PrintWriter(writer));
+//				logger.fatal(writer.getBuffer().toString());
+				// LogManager.shutdown();
+				System.out.flush();
 				System.exit(0);
 				// throw new RuntimeException(e.getMessage());
 			}

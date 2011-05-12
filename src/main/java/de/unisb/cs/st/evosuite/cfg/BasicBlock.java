@@ -3,6 +3,8 @@ package de.unisb.cs.st.evosuite.cfg;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 /**
  * This class is used to represent basic blocks in the control flow graph.
  * 
@@ -38,10 +40,17 @@ import java.util.List;
  */
 public class BasicBlock {
 
+	private static Logger logger = Logger.getLogger(BasicBlock.class);
+
+	private static int blockCount = 0;
+	
+	
 	private List<BytecodeInstruction> instructions = new ArrayList<BytecodeInstruction>();
 	
+	private int id = -1;
 	private String className;
 	private String methodName;
+	
 	
 	public BasicBlock(String className, String methodName, List<BytecodeInstruction> blockNodes) {
 		if (className == null || methodName == null || blockNodes == null)
@@ -51,9 +60,9 @@ public class BasicBlock {
 		this.methodName = methodName;
 		
 		setInstructions(blockNodes);
-		if (instructions.isEmpty())
-			throw new IllegalStateException(
-					"expect each basic block to contain at least one instruction");
+		setId();
+		
+		checkSanity();
 	}
 	
 	public boolean containsInstruction(BytecodeInstruction instruction) {
@@ -68,6 +77,9 @@ public class BasicBlock {
 			if(!appendInstruction(instruction))
 				throw new IllegalStateException("internal error while addind instruction to basic block list");
 		}
+		if (instructions.isEmpty())
+			throw new IllegalStateException(
+					"expect each basic block to contain at least one instruction");
 	}
 	
 	private boolean appendInstruction(BytecodeInstruction instruction) {
@@ -94,6 +106,11 @@ public class BasicBlock {
 		return instructions.add(instruction);
 	}
 	
+	private void setId() {
+		blockCount++;
+		this.id = blockCount;
+	}
+	
 	public BytecodeInstruction getFirstInstruction() {
 		if(instructions.isEmpty())
 			return null;
@@ -106,8 +123,29 @@ public class BasicBlock {
 		return instructions.get(instructions.size()-1);
 	}
 	
+	public String getName() {
+		return "BasicBlock "+className+"."+methodName+"["+id+"]";
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder r = new StringBuilder();
+		r.append(getName()+":\n");
+		
+		int i = 0;
+		for(BytecodeInstruction instruction : instructions) {
+			i++;
+			r.append("\t"+i+")\t"+instruction.toString()+"\n");
+		}
+		
+		return r.toString();
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
+		
+//		logger.debug(getName()+" got asked asked for equality");
+		
 		if (this == obj)
 			return true;
 		if (obj == null)
@@ -116,6 +154,9 @@ public class BasicBlock {
 			return false;
 
 		BasicBlock other = (BasicBlock) obj;
+		
+//		logger.debug(".. other object different instance of BasicBlock "+other.getName());
+		
 		if (!className.equals(other.className))
 			return false;
 		if (!methodName.equals(other.methodName))
@@ -126,6 +167,23 @@ public class BasicBlock {
 			if (!this.instructions.contains(instruction))
 				return false;
 
+//		logger.debug("was different instance but equal");
+		
 		return true;
+	}
+	
+	public void checkSanity() {
+		
+		logger.debug("checking sanity of "+toString());
+		
+		// TODO
+		
+		for(BytecodeInstruction instruction : instructions) {
+			if (!instruction.equals(getLastInstruction())
+					&& instruction.isActualBranch())
+				throw new IllegalStateException(
+						"expect actual branches to always end a basic block");
+		}
+		
 	}
 }
