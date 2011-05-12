@@ -17,6 +17,28 @@ import org.objectweb.asm.tree.analysis.Frame;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
+/**
+ * When analyzing a CUT the BytecodeAnalyzer creates an instance of this class 
+ * It's methods get called in the following order:
+ * 
+ *  - upon constructing the method at hand is registered via registerMethodNode()
+ *  	this sets the field of this class and fills the BytecodeInstructionPool with
+ *  	 all instructions inside that method
+ *  - then the registerControlFlowEdge() methods get called by the BytecodeAnalyzer for 
+ *  	 each possible transition from one byteCode instruction to another inside the CUT
+ *  	in this step the CFGGenerator asks the BytecodeInstructionPool for the previously 
+ *  	 created instructions and fills up it's raw graph
+ * 
+ * After those calls the raw CFG of the method at hand is complete
+ *  It should contain a Vertex for every BytecodeInstruction inside the specified method
+ *   and an edge for every possible transition between these instructions
+ *   
+ *   
+ * TODO this raw graph should be turned into a nice CFG containing basic blocks as vertices
+ * 
+ * 
+ * @author Andre Mis
+ */
 public class CFGGenerator {
 
 	private static Logger logger = Logger.getLogger(BytecodeAnalyzer.class);
@@ -31,8 +53,16 @@ public class CFGGenerator {
 	String methodName;
 	
 
-	// initialization
-	
+	/**
+	 *  Initializes this generator to generate the CFG for the method identified
+	 * by the given parameters
+	 * 
+	 * Calls registerMethodNode() which in turn calls BytecodeInstructionPool.registerMethodNode()
+	 *  leading to the creation of all BytecodeInstruction instances for the method at hand
+	 *  
+	 *  TODO might not want to give asm.MethodNode to the outside, but 
+	 *   	rather a MyMethodNode extended from BytecodeInstruction or something
+	 */
 	public CFGGenerator(String className, String methodName,
 			MethodNode node, List<Mutation> mutants) {
 		this.mutants = mutants;
