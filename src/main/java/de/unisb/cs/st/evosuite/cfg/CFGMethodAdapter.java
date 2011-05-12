@@ -39,6 +39,11 @@ import org.objectweb.asm.tree.analysis.AnalyzerException;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
+import de.unisb.cs.st.evosuite.cfg.instrumentation.BranchInstrumentation;
+import de.unisb.cs.st.evosuite.cfg.instrumentation.DefUseInstrumentation;
+import de.unisb.cs.st.evosuite.cfg.instrumentation.LCSAJsInstrumentation;
+import de.unisb.cs.st.evosuite.cfg.instrumentation.MethodInstrumentation;
+import de.unisb.cs.st.evosuite.cfg.instrumentation.PrimePathInstrumentation;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyInstrumentation;
 import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.AbstractMutationAdapter;
@@ -164,15 +169,15 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			// MethodNode mn = new CFGMethodNode((MethodNode)mv);
 			// System.out.println("Generating CFG for "+ className+"."+mn.name +
 			// " ("+mn.desc +")");
-			BytecodeAnalyzer cfgGenerator = new BytecodeAnalyzer(mutants);
+			BytecodeAnalyzer bytecodeAnalyzer = new BytecodeAnalyzer(mutants);
 			logger.info("Generating CFG for method " + methodName);
 
 			try {
-				cfgGenerator.analyze(className, methodName, mn);
+				bytecodeAnalyzer.analyze(className, methodName, mn);
 				logger.trace("Method graph for " + className + "." + methodName
 				        + " contains "
-				        + cfgGenerator.retrieveCFGGenerator().getCompleteGraph().vertexSet().size()
-				        + " nodes for " + cfgGenerator.getFrames().length
+				        + bytecodeAnalyzer.retrieveCFGGenerator().getCompleteGraph().vertexSet().size()
+				        + " nodes for " + bytecodeAnalyzer.getFrames().length
 				        + " instructions");
 			} catch (AnalyzerException e) {
 				logger.error("Analyzer exception while analyzing " + className + "."
@@ -183,13 +188,13 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			// non-minimized cfg needed for defuse-coverage and control
 			// dependence
 			// calculation
-			addCompleteCFG(className, methodName, cfgGenerator
+			addCompleteCFG(className, methodName, bytecodeAnalyzer
 					.retrieveCFGGenerator().getCompleteGraph());
-			addMinimizedCFG(className, methodName, cfgGenerator
+			addMinimizedCFG(className, methodName, bytecodeAnalyzer
 					.retrieveCFGGenerator().getMinimalGraph());
 			logger.info("Created CFG for method " + methodName);
 
-			Graph<BytecodeInstruction, DefaultEdge> completeGraph = cfgGenerator
+			Graph<BytecodeInstruction, DefaultEdge> completeGraph = bytecodeAnalyzer
 					.retrieveCFGGenerator().getCompleteGraph();
 
 			//add the actual instrumentation

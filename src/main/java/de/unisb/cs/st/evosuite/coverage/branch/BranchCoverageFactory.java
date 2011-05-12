@@ -59,8 +59,8 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 		}
 		// Branches
 		logger.info("Getting branches");
-		for (String className : BranchPool.branchMap.keySet()) {
-			for (String methodName : BranchPool.branchMap.get(className).keySet()) {
+		for (String className : BranchPool.knownClasses()) {
+			for (String methodName : BranchPool.knownMethods(className)) {
 
 				if (!targetMethod.equals("") && !methodName.equals(targetMethod)) {
 					logger.info("Method " + methodName + " does not equal target method "
@@ -82,7 +82,7 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 				ControlFlowGraph cfg = CFGMethodAdapter.getMinimizedCFG(className,
 				                                                        methodName);
 
-				for (Branch b : BranchPool.branchMap.get(className).get(methodName)) {
+				for (Branch b : BranchPool.retrieveBranchesInMethod(className,methodName)) {
 
 					// Identify vertex in CFG
 					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(b,

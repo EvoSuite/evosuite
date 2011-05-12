@@ -410,6 +410,8 @@ public class ControlFlowGraph {
 		}
 	}
 
+	// functionality for defUse coverage
+	
 	public Set<Use> getUsesForDef(Definition def) {
 		if (!graph.containsVertex(def))
 			throw new IllegalArgumentException("unknown Definition");
@@ -417,56 +419,50 @@ public class ControlFlowGraph {
 		return getUsesForDef(def, def);
 	}
 
-	public boolean hasDefClearPathToMethodEnd(DefUse duVertex) {
-		if (!graph.containsVertex(duVertex))
+	private Set<Use> getUsesForDef(Definition targetDef, BytecodeInstruction entry) {
+		if (!graph.containsVertex(entry))
 			throw new IllegalArgumentException("vertex not in graph");
-		if (duVertex.isLocalDU())
-			return false;
-
-		return hasDefClearPathToMethodEnd(duVertex, duVertex);
-	}
-
-	public boolean hasDefClearPathFromMethodStart(DefUse duVertex) {
-		if (!graph.containsVertex(duVertex))
-			throw new IllegalArgumentException("vertex not in graph");
-		if (duVertex.isLocalDU())
-			return false;
-
-		return hasDefClearPathFromMethodStart(duVertex, duVertex);
-	}
-
-	private Set<Use> getUsesForDef(Definition targetDefinition, BytecodeInstruction currentVertex) {
-		if (!graph.containsVertex(currentVertex))
-			throw new IllegalArgumentException("vertex not in graph");
-
-		String varName = targetDefinition.getDUVariableName();
 		
 		Set<Use> r = new HashSet<Use>();
-		Set<DefaultEdge> outgoingEdges = graph.outgoingEdgesOf(currentVertex);
-		if (outgoingEdges.size() == 0)
-			return r;
+		
+		Set<DefaultEdge> outgoingEdges = graph.outgoingEdgesOf(entry);
 		for (DefaultEdge e : outgoingEdges) {
 			BytecodeInstruction edgeTarget = graph.getEdgeTarget(e);
-			try {
-				DefUse du = (DefUse)edgeTarget;
-				if (edgeTarget.isUse() && du.getDUVariableName().equals(varName))
-					r.add((Use)du);
-				if (edgeTarget.isDefinition()
-				        && du.getDUVariableName().equals(varName))
-					continue;
-			} catch(ClassCastException ex) {}
 			
-			if (edgeTarget.getInstructionId() > currentVertex.getInstructionId()) // dont follow backedges (loops)
-				r.addAll(getUsesForDef(targetDefinition, edgeTarget));			
+			if(edgeTarget.isDefUse()) {
+				if (targetDef.canBeActiveFor(edgeTarget))
+					r.add(DefUseFactory.makeUse(edgeTarget));
+				if (targetDef.canBecomeActiveDefinition(edgeTarget))
+					continue;
+			}
+			if (edgeTarget.getInstructionId() > entry.getInstructionId()) // dont follow backedges (loops)
+				r.addAll(getUsesForDef(targetDef, edgeTarget));			
 		}
 		return r;
 	}
+	
+	public boolean hasDefClearPathToMethodExit(DefUse duVertex) {
+		if (!graph.containsVertex(duVertex))
+			throw new IllegalArgumentException("vertex not in graph");
+		if (duVertex.isLocalDU())
+			return false;
 
-	private boolean hasDefClearPathToMethodEnd(DefUse targetDefUse, BytecodeInstruction currentVertex) {
+		return hasDefClearPathToMethodExit(duVertex, duVertex);
+	}
+
+	public boolean hasDefClearPathFromMethodEntry(DefUse duVertex) {
+		if (!graph.containsVertex(duVertex))
+			throw new IllegalArgumentException("vertex not in graph");
+		if (duVertex.isLocalDU())
+			return false;
+
+		return hasDefClearPathFromMethodEntry(duVertex, duVertex);
+	}
+
+	private boolean hasDefClearPathToMethodExit(DefUse targetDefUse, BytecodeInstruction currentVertex) {
 		if (!graph.containsVertex(currentVertex))
 			throw new IllegalArgumentException("vertex not in graph");
 		
-		String varName = targetDefUse.getDUVariableName();
 		// TODO corner case when this method is initially called with a definition? 
 		// .. which should never happen cause this method is meant to be called for uses ... 
 		// TODO make this explicit
@@ -477,55 +473,48 @@ public class ControlFlowGraph {
 
 		for (DefaultEdge e : outgoingEdges) {
 			BytecodeInstruction edgeTarget = graph.getEdgeTarget(e);
-			try {
-				// skip edges going into another def for the same field
-				Definition def = DefUseFactory.makeDefinition(edgeTarget);
-				if (def.getDUVariableName().equals(varName))
+
+			// skip edges going into another def for the same field
+			if (targetDefUse.canBecomeActiveDefinition(edgeTarget))
 					continue;
-				
-			} catch(IllegalArgumentException ex) {}
 			
 			if (edgeTarget.getId() > currentVertex.getId() // dont follow backedges (loops)
-			        && hasDefClearPathToMethodEnd(targetDefUse, edgeTarget))
+			        && hasDefClearPathToMethodExit(targetDefUse, edgeTarget))
 				return true;
 		}
 		return false;
 	}
 
-	private boolean hasDefClearPathFromMethodStart(DefUse targetDefUse, BytecodeInstruction currentVertex) {
+	private boolean hasDefClearPathFromMethodEntry(DefUse targetDefUse, BytecodeInstruction currentVertex) {
 		if (!graph.containsVertex(currentVertex))
 			throw new IllegalArgumentException("vertex not in graph");
 		
-		String varName = targetDefUse.getDUVariableName();
-
 		Set<DefaultEdge> incomingEdges = graph.incomingEdgesOf(currentVertex);
 		if (incomingEdges.size() == 0)
 			return true;
 
 		for (DefaultEdge e : incomingEdges) {
 			BytecodeInstruction edgeStart = graph.getEdgeSource(e);
-			try {
-				// skip edges coming from a def for the same field
-				Definition def = DefUseFactory.makeDefinition(edgeStart);
-				if (def.getDUVariableName().equals(varName))
+
+			// skip edges coming from a def for the same field
+			if (targetDefUse.canBecomeActiveDefinition(edgeStart))
 					continue;
-			} catch(IllegalArgumentException ex) { 
-				// expected
-			}
 
 			if (edgeStart.getId() < currentVertex.getId() // dont follow backedges (loops) 
-			        && hasDefClearPathFromMethodStart(targetDefUse, edgeStart))
+			        && hasDefClearPathFromMethodEntry(targetDefUse, edgeStart))
 				return true;
 		}
 		return false;
 	}
 
+	// former broken CDG functionality
+	
 	/**
 	 * WARNING currently this method is heavily flawed! Only works on very
 	 * simple (generic) CFGs
 	 * 
 	 */
-	public void markBranchIds(Branch branch) {
+	public void markBranchIds(BytecodeInstruction branch) {
 		// TODO clean this mess up!
 		
 		if(!graph.containsVertex(branch))
@@ -575,7 +564,7 @@ public class ControlFlowGraph {
 		}
 	}
 
-	private void markNodes(int start, int end, Branch branch, boolean branchExpressionValue) {
+	private void markNodes(int start, int end, BytecodeInstruction branch, boolean branchExpressionValue) {
 		for (int i = start; i <= end; i++) {
 			BytecodeInstruction v = getVertex(i);
 			if (v != null) {
@@ -601,17 +590,17 @@ public class ControlFlowGraph {
 		return !(graph.getEdgeTarget(backEdge).getId() < maxID);
 	}
 
-	private boolean isWhileBranch(int maxID) {
-		BytecodeInstruction prevVertex = getVertex(maxID - 1);
-		Set<DefaultEdge> prevOut = graph.outgoingEdgesOf(prevVertex);
-		if (prevOut.size() != 1) {
-			return false;
-		}
-		DefaultEdge backEdge = null;
-		for (DefaultEdge e : prevOut)
-			backEdge = e;
-		// only while-branches go back up
-		return graph.getEdgeTarget(backEdge).getId() < maxID;
-	}
+//	private boolean isWhileBranch(int maxID) {
+//		BytecodeInstruction prevVertex = getVertex(maxID - 1);
+//		Set<DefaultEdge> prevOut = graph.outgoingEdgesOf(prevVertex);
+//		if (prevOut.size() != 1) {
+//			return false;
+//		}
+//		DefaultEdge backEdge = null;
+//		for (DefaultEdge e : prevOut)
+//			backEdge = e;
+//		// only while-branches go back up
+//		return graph.getEdgeTarget(backEdge).getId() < maxID;
+//	}
 
 }

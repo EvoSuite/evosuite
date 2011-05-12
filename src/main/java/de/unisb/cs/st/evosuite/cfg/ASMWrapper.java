@@ -21,78 +21,45 @@ import org.objectweb.asm.tree.VarInsnNode;
 //			- look at BranchCoverageGoal and Branch for more information
 
 
-// TODO clean up
-
 /**
- * Convenience-superclass for classes that hold a BytecodeInstruction
+ * Wrapper class for the underlying byteCode instruction library ASM
  * 
- * Just gives direct access to a lot of methods from the CFGVertex
- * Known subclasses are Branch and DefUse 
+ *  Gives access to a lot of methods that interpret the raw information in AbstractInsnNode
+ *  to usable chunks of information, inside EvoSuite
+ *  
+ * This class is supposed to hide the ASM library from the rest of EvoSuite as much as possible
  * 
+ * After initialization, all information about byteCode instructions should be accessible via
+ * the BytecodeInstruction-, DefUse- and BranchPool. Each of those has data structures holding
+ * all BytecodeInstruction, DefUse and Branch objects respectively created during initialization.
+ * 
+ * BytecodeInstruction directly extends ASMWrapper and is the first way to instantiate an ASMWrapper.
+ * Branch and DefUse extend BytecodeInstruction, where DefUse is abstract and Branch is not ("concrete"?)
+ * DefUse is further extended by Definition and Use
+ *  
  * @author Andre Mis
  */
 public abstract class ASMWrapper {
 
-	protected String className;
-	protected String methodName;
-	protected int instructionId;
-	protected int lineNumber = -1;
-	
 	// from ASM library
 	protected AbstractInsnNode asmNode;
-	protected CFGFrame frame; // TODO ???
+	protected CFGFrame frame; // TODO find out what that is used for
 
-	public boolean isJump() {
-		return (asmNode instanceof JumpInsnNode);
-	}
 
-	public boolean isGoto() {
-		if (asmNode instanceof JumpInsnNode) {
-			return (asmNode.getOpcode() == Opcodes.GOTO);
-		}
-		return false;
+	public AbstractInsnNode getASMNode(){
+		return asmNode;
 	}
 	
+	public abstract int getInstructionId();
 	
-	public String getMethodName() { // TODO ???
-		return ((MethodInsnNode) asmNode).name;
-	}
+	public abstract String getMethodName();
 	
-	public void setMethodName(String methodName) {
-		this.methodName = methodName;
-	}
-
-	public void setClassName(String className) {
-		this.className = className;
-	}
-
-	public boolean isBranch() {
-		return isJump() && !isGoto();
-	}
+	// methods for branch analysis
 	
 	public boolean isActualBranch() {
 		return isBranch() 
 				|| isLookupSwitch() 
 				|| isTableSwitch();
-	}
-
-	
-	/**
-	 * If lineNumber was set previously that value is returned.
-	 * Otherwise set previously set line Number is returned.
-	 * 
-	 * If this wraps a LineNumberNode, the line field
-	 * of asmNode is set as lineNumber.
-	 */
-	public int getLineNumber() {
-		if(isLineNumber() && lineNumber == -1)
-			lineNumber = ((LineNumberNode)asmNode).line; 
-		
-		return lineNumber;
-	}
-
-	public boolean isLabel() {
-		return asmNode instanceof LabelNode;
 	}
 
 	public boolean isReturn() {
@@ -125,12 +92,6 @@ public abstract class ASMWrapper {
 		return (asmNode instanceof LookupSwitchInsnNode);
 	}
 
-
-
-	public AbstractInsnNode getASMNode(){
-		return asmNode;
-	}
-	
 	public boolean isBranchLabel() {
 		if (asmNode instanceof LabelNode
 				&& ((LabelNode) asmNode).getLabel().info instanceof Integer) {
@@ -138,11 +99,22 @@ public abstract class ASMWrapper {
 		}
 		return false;
 	}
-
-	public boolean isLineNumber() {
-		return (asmNode instanceof LineNumberNode);
+	
+	public boolean isJump() {
+		return (asmNode instanceof JumpInsnNode);
 	}
 
+	public boolean isGoto() {
+		if (asmNode instanceof JumpInsnNode) {
+			return (asmNode.getOpcode() == Opcodes.GOTO);
+		}
+		return false;
+	}
+	
+	public boolean isBranch() {
+		return isJump() && !isGoto();
+	}
+	
 //	public int getBranchId() {
 //		// return ((Integer)((LabelNode)node).getLabel().info).intValue();
 //		return line_no;
@@ -173,37 +145,7 @@ public abstract class ASMWrapper {
 		return false;
 	}
 	
-	// inherited from Object
-	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		// result = prime * result + getOuterType().hashCode();
-		result = prime * result + instructionId;
-		return result;
-	}
-	
-	@Override
-	public boolean equals(Object o) {
-		if(o==this)
-			return true;
-		if(o==null)
-			return false;
-		if(!(o instanceof ASMWrapper))
-			return false;
-		
-		ASMWrapper other = (ASMWrapper)o;
-		
-		if (instructionId != other.instructionId)
-			return false;
-		if (methodName != null && !methodName.equals(other.methodName))
-			return false;
-		if (className != null && !className.equals(other.className))
-			return false;
-		
-		return asmNode.equals(other.asmNode);
-	}
+	// methods for defUse analysis
 	
 	public boolean isDefUse() {
 		return isLocalDU() || isFieldDU();
@@ -254,7 +196,7 @@ public abstract class ASMWrapper {
 	}
 	
 	protected String getLocalVarName() {
-		return methodName + "_LV_" + getLocalVar();
+		return getMethodName() + "_LV_" + getLocalVar();
 	}
 	
 	// TODO unsafe
@@ -281,8 +223,25 @@ public abstract class ASMWrapper {
 				|| asmNode.getOpcode() == Opcodes.LLOAD
 				|| asmNode.getOpcode() == Opcodes.FLOAD
 				|| asmNode.getOpcode() == Opcodes.DLOAD
-				|| asmNode.getOpcode() == Opcodes.ALOAD
-				|| asmNode.getOpcode() == Opcodes.IINC;
+				|| asmNode.getOpcode() == Opcodes.IINC
+				|| (asmNode.getOpcode() == Opcodes.ALOAD 
+						&& getLocalVar() != 0); // exclude ALOAD 0 (this)
+	}
+	
+	// other classification methods
+	
+	/**
+	 * Determines if this instruction is a line number instruction
+	 * 
+	 *  More precisely this method checks if 
+	 * the underlying asmNode is a LineNumberNode
+	 */
+	public boolean isLineNumber() {
+		return (asmNode instanceof LineNumberNode);
+	}
+
+	public boolean isLabel() {
+		return asmNode instanceof LabelNode;
 	}
 
 	// sanity checks
@@ -292,5 +251,30 @@ public abstract class ASMWrapper {
 			throw new IllegalArgumentException("null given");
 		if(!node.equals(this.asmNode))
 			throw new IllegalStateException("sanity check failed");
+	}
+	
+	// inherited from Object
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		// result = prime * result + getOuterType().hashCode();
+		result = prime * result + getInstructionId();
+		return result;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if(o==this)
+			return true;
+		if(o==null)
+			return false;
+		if(!(o instanceof ASMWrapper))
+			return false;
+		
+		ASMWrapper other = (ASMWrapper)o;
+		
+		return asmNode.equals(other.asmNode);
 	}
 }

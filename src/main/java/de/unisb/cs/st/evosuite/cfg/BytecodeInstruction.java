@@ -42,6 +42,14 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
  */
 public class BytecodeInstruction extends ASMWrapper {
 
+	// identification of a byteCode instruction inside EvoSuite
+	protected String className;
+	protected String methodName;
+	protected int instructionId;
+	
+	// auxiliary information
+	protected int lineNumber = -1;	
+	
 	//			 ---	   		 - General -				---
 	int globalBytecodeInstructionId; // TODO
 	
@@ -65,18 +73,33 @@ public class BytecodeInstruction extends ASMWrapper {
 	
 
 	// TODO make sure the word CFGVertex appears nowhere anymore
-	// TODO clean up
 	
 	//	---				 - Constructors - 					---
 
 	/**
 	 * Can represent any byteCode instruction  
 	 */
+	public BytecodeInstruction(BytecodeInstruction wrap) {
+		
+		this(wrap.className, wrap.methodName, wrap.instructionId, wrap.asmNode,
+				wrap.lineNumber, wrap.branchId, wrap.branchExpressionValue);
+	}
+	
+	public BytecodeInstruction (String className, String methodName,
+			int instructionId, AbstractInsnNode asmNode, int lineNumber,
+			int branchId, boolean branchExpressionValue) {
+
+		this(className, methodName, instructionId, asmNode,lineNumber);
+		
+		this.branchId = branchId;
+		this.branchExpressionValue = branchExpressionValue;
+	}
+	
 	public BytecodeInstruction (String className, String methodName,
 			int instructionId, AbstractInsnNode asmNode, int lineNumber) {
 
 		this(className, methodName, instructionId, asmNode);
-		this.lineNumber = lineNumber;
+		setLineNumber(lineNumber);
 	}
 	
 	public BytecodeInstruction (String className, String methodName,
@@ -84,21 +107,218 @@ public class BytecodeInstruction extends ASMWrapper {
 
 		if (className == null || methodName == null || asmNode == null)
 			throw new IllegalArgumentException("null given");
+		if(instructionId < 0)
+			throw new IllegalArgumentException("expect instructionId to be positive, not "+instructionId);
 		
 		this.instructionId = instructionId;
 		this.asmNode = asmNode;
+		
+		setClassName(className);
+		setMethodName(methodName);
+	}
+	
+	
+	// ---				Field Management				--- TODO find out which ones to hide/remove
+	
+	// TODO merge with getId()! 
+	// TODO make real getId()!
+	// TODO merge with getVertexId() ... oh boy
+	// TODO merge with getBytecodeId()
+	
+	public int getId() {
+		return instructionId;
+	}
+	
+	public int getBytecodeId() {
+		return instructionId;
+	}
+	
+	public int getVertexId() {
+		return instructionId; 
+	}
+	
+	public int getInstructionId() {
+		return instructionId;
+	}
+	
+	public String getMethodName() {
+		return methodName;
+	}
+	
+	public String getClassName() {
+		return className;
+	}
+	
+	public void setMethodName(String methodName) {
+		if(methodName == null)
+			throw new IllegalArgumentException("null given");
+		
 		this.methodName = methodName;
+	}
+	
+	public void setClassName(String className) {
+		if(className==null)
+			throw new IllegalArgumentException("null given");
+		
 		this.className = className;
 	}
 	
-	public BytecodeInstruction(BytecodeInstruction wrap) {
-		
-		this(wrap.className, wrap.methodName, wrap.instructionId, wrap.asmNode,
-				wrap.lineNumber);
+	public boolean isMutation() {
+		return !mutations.isEmpty();
+		/*
+		 * if(node instanceof LdcInsnNode) {
+		 * 
+		 * if(((LdcInsnNode)node).cst.toString().contains("mutationId")) {
+		 * logger.info("!!!!! Found mutation!"); } } return false;
+		 */
+	}
+	
+	public List<Long> getMutationIds() {
+		return mutations;
+		// String ids = ((LdcInsnNode)node).cst.toString();
+		// return Integer.parseInt(ids.substring(ids.indexOf("_")+1));
 	}
 
+	public boolean isMutationBranch() {
+		return isBranch() && mutationBranch;
+	}
+
+	public void setMutationBranch() {
+		mutationBranch = true;
+	}
+
+	public void setMutatedBranch() {
+		mutatedBranch = true;
+	}
+	
+	public void setMutation(long id) {
+		mutations.add(id);
+	}
+
+	public boolean hasMutation(long id) {
+		return mutations.contains(id);
+	}
+
+	public Map<Long, Integer> getMutant_distance() {
+		return mutant_distance;
+	}
+
+	public void setMutant_distance(Map<Long, Integer> mutantDistance) {
+		mutant_distance = mutantDistance;
+	}
+
+	public List<Long> getMutations() {
+		return mutations;
+	}
+
+	public void setMutationBranch(boolean mutationBranch) {
+		this.mutationBranch = mutationBranch;
+	}
+
+	public void setMutatedBranch(boolean mutatedBranch) {
+		this.mutatedBranch = mutatedBranch;
+	}
+
+	public void setBranchId(int branchId) {
+		if(branchId<0)
+			throw new IllegalArgumentException("expect branchId to be positive, not "+branchId);
+		
+		this.branchId = branchId;
+	}
+
+	public void setBranchExpressionValue(boolean branchExpressionValue) {
+		this.branchExpressionValue = branchExpressionValue;
+	}
+
+	public boolean isMutatedBranch() {
+		// Mutated if HOMObserver of MutationObserver are called
+		return isBranch() && mutatedBranch;
+	}
+
+	public int getDistance(long id) {
+		if (mutant_distance.containsKey(id))
+			return mutant_distance.get(id);
+		return Integer.MAX_VALUE;
+	}
+
+	public void setDistance(long id, int distance) {
+		mutant_distance.put(id, distance);
+	}	
+	
+	/**
+	 * If hasLineNumberSet() returns true, this method returns the lineNumber of this instruction
+	 * Otherwise an IllegalStateException() will be thrown to indicate that the field was never
+	 * initialized properly
+	 * 
+	 */
+	public int getLineNumber() {
+		if(!hasLineNumberSet())
+			throw new IllegalStateException("expect hasLineNumberSet() to be true on a BytecodeInstruction that gets asked for it's lineNumber");
+		
+		return lineNumber;
+	}
+	
+	/**
+	 *  
+	 */
+	public void setLineNumber(int lineNumber) {
+		if(lineNumber<=0)
+			throw new IllegalArgumentException("expect lineNumber value to be positive");
+		
+		if(isLineNumber()) {
+			int asmLine = ((LineNumberNode)asmNode).line;
+			// sanity check
+			if(lineNumber!= -1 && asmLine != lineNumber)
+				throw new IllegalStateException("linenumber instruction has lineNumber field set to a value different from instruction linenumber");
+			this.lineNumber = asmLine;
+		} else {
+			this.lineNumber = lineNumber; 
+		}
+	}
+
+	/**
+	 * At first, if this instruction constitutes a line number instruction
+	 * this method tries to retrieve the lineNumber from the underlying asmNode
+	 * and set the lineNumber field to the value given by the asmNode.
+	 * 
+	 * This can lead to an IllegalStateException, should the lineNumber field have been
+	 * set to another value previously
+	 * 
+	 * After that, if the lineNumber field is still not initialized, this method returns false
+	 * Otherwise it returns true
+	 */
+	public boolean hasLineNumberSet() {
+		retrieveLineNumber();
+		return lineNumber != -1;
+	}
+	
+	/**
+	 * If the underlying ASMNode is a LineNumberNode the lineNumber field of this instance
+	 * will be set to the lineNumber contained in that LineNumberNode
+	 * 
+	 * Should the lineNumber field have been set to a value different from that contained
+	 * in the asmNode, this method throws an IllegalStateExeption
+	 */
+	private void retrieveLineNumber() {
+		if(isLineNumber()) {
+			int asmLine = ((LineNumberNode)asmNode).line;
+			// sanity check
+			if(this.lineNumber!=-1 && asmLine!=this.lineNumber)
+				throw new IllegalStateException("lineNumber field was manually set to a value different from the actual lineNumber contained in LineNumberNode");
+			this.lineNumber = asmLine;
+		}
+	}
+	
+	
 	//		---				TODO CDG-Section WARNING: broken as hell TODO		---
 	
+	public boolean getBranchExpressionValue() {
+		return branchExpressionValue;
+	}
+	
+	public int getBranchId() {
+		return branchId;
+	}
 
 	/**
 	 * Determines whether the CFGVertex is transitively control dependent
@@ -191,131 +411,6 @@ public class BytecodeInstruction extends ASMWrapper {
 	*/
 	
 
-	// ---	Getters and Setters - TODO find out which ones to hide/remove	---
-
-	
-	// TODO merge with getId()! 
-	// TODO make real getId()!
-	// TODO merge with getVertexId() ... oh boy
-	// TODO merge with getBytecodeId()
-	
-	public int getId() {
-		return instructionId;
-	}
-	
-	public int getBytecodeId() {
-		return instructionId;
-	}
-	
-	public int getVertexId() {
-		return instructionId; 
-
-	}
-	
-	public int getInstructionId() {
-		return instructionId;
-	}
-	
-	
-	public String getMethodName() {
-		return methodName;
-	}
-	
-	public String getClassName() {
-		return className;
-	}	
-	public boolean getBranchExpressionValue() {
-		return branchExpressionValue;
-	}
-	
-	public int getBranchId() {
-		return branchId;
-	}
-
-	public void setLineNumber(int lineNumber) {
-		this.lineNumber = lineNumber; 
-	}
-	
-	public boolean isMutation() {
-		return !mutations.isEmpty();
-		/*
-		 * if(node instanceof LdcInsnNode) {
-		 * 
-		 * if(((LdcInsnNode)node).cst.toString().contains("mutationId")) {
-		 * logger.info("!!!!! Found mutation!"); } } return false;
-		 */
-	}
-	
-	public List<Long> getMutationIds() {
-		return mutations;
-		// String ids = ((LdcInsnNode)node).cst.toString();
-		// return Integer.parseInt(ids.substring(ids.indexOf("_")+1));
-	}
-
-	public boolean isMutationBranch() {
-		return isBranch() && mutationBranch;
-	}
-
-	public void setMutationBranch() {
-		mutationBranch = true;
-	}
-
-	public void setMutatedBranch() {
-		mutatedBranch = true;
-	}
-	
-	public void setMutation(long id) {
-		mutations.add(id);
-	}
-
-	public boolean hasMutation(long id) {
-		return mutations.contains(id);
-	}
-
-	public Map<Long, Integer> getMutant_distance() {
-		return mutant_distance;
-	}
-
-	public void setMutant_distance(Map<Long, Integer> mutantDistance) {
-		mutant_distance = mutantDistance;
-	}
-
-	public List<Long> getMutations() {
-		return mutations;
-	}
-
-	public void setMutationBranch(boolean mutationBranch) {
-		this.mutationBranch = mutationBranch;
-	}
-
-	public void setMutatedBranch(boolean mutatedBranch) {
-		this.mutatedBranch = mutatedBranch;
-	}
-
-	public void setBranchId(int branchId) {
-		this.branchId = branchId;
-	}
-
-	public void setBranchExpressionValue(boolean branchExpressionValue) {
-		this.branchExpressionValue = branchExpressionValue;
-	}
-
-	public boolean isMutatedBranch() {
-		// Mutated if HOMObserver of MutationObserver are called
-		return isBranch() && mutatedBranch;
-	}
-
-	public int getDistance(long id) {
-		if (mutant_distance.containsKey(id))
-			return mutant_distance.get(id);
-		return Integer.MAX_VALUE;
-	}
-
-	public void setDistance(long id, int distance) {
-		mutant_distance.put(id, distance);
-	}
-	
-	
 	//	---				Inherited from Object				---
 	
 	
@@ -400,8 +495,20 @@ public class BytecodeInstruction extends ASMWrapper {
 			return true;
 		if (obj == null)
 			return false;
-		if (!(obj instanceof BytecodeInstruction)) // TODO: can Class be compared via == ?
+		if (!(obj instanceof BytecodeInstruction))
 			return false;
+		
+		// TODO ensure that the following checks always succeed
+		// TODO do this by ensuring that those values are always set correctly
+		
+//		BytecodeInstruction other = (BytecodeInstruction)obj;
+//		
+//		if (instructionId != other.instructionId)
+//			return false;
+//		if (methodName != null && !methodName.equals(other.methodName))
+//			return false;
+//		if (className != null && !className.equals(other.className))
+//			return false;
 		
 		return super.equals(obj);
 	}
