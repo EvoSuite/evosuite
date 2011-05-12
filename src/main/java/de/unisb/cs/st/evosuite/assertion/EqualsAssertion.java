@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import de.unisb.cs.st.evosuite.testcase.Scope;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class EqualsAssertion extends Assertion {
@@ -29,10 +30,10 @@ public class EqualsAssertion extends Assertion {
 	public VariableReference dest;
 
 	@Override
-	public Assertion clone() {
+	public Assertion clone(TestCase newTestCase) {
 		EqualsAssertion s = new EqualsAssertion();
-		s.source = source.clone();
-		s.dest = dest.clone();
+		s.source = newTestCase.getStatement(source.statement).getReturnValue();
+		s.dest = newTestCase.getStatement(dest.statement).getReturnValue();
 		s.value = value;
 		return s;
 	}

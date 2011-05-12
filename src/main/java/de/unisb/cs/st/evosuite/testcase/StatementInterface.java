@@ -41,8 +41,6 @@ public interface StatementInterface {
 			throws InvocationTargetException, IllegalArgumentException,
 			IllegalAccessException, InstantiationException;
 
-	public void SetRetval(VariableReference newRetVal);
-
 	/**
 	 * Get Java representation of statement
 	 * 
@@ -100,11 +98,13 @@ public interface StatementInterface {
 
 	public List<VariableReference> getUniqueVariableReferences();
 
-	public void replace(VariableReference old_var, VariableReference new_var);
-
-	public void replaceUnique(VariableReference old_var,
-			VariableReference new_var);
-
+	/**
+	 * 
+	 * @param newTestCase the testcase in which this statement will be inserted
+	 * @return
+	 */
+	public StatementInterface clone(TestCase newTestCase);
+	
 	/**
 	 * Create deep copy of statement
 	 */
@@ -131,14 +131,6 @@ public interface StatementInterface {
 	 * @return String representing all assertions attached to this statement
 	 */
 	public String getAssertionCode();
-
-	/**
-	 * Fix variable references in assertions
-	 * 
-	 * @param position
-	 * @param delta
-	 */
-	public void adjustAssertions(int position, int delta);
 
 	/**
 	 * Delete all assertions attached to this statement

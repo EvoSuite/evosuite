@@ -33,7 +33,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.Scope;
-import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.AbstractStatement;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
@@ -108,7 +108,7 @@ public class BasicTestCase extends DefaultTestCase {
 	 *            New statement
 	 * @return VariableReference of return value
 	 */
-	public void addStatement(Statement statement) {
+	public void addStatement(AbstractStatement statement) {
 		this.addStatement(statement, super.size());
 	}
 
@@ -122,7 +122,7 @@ public class BasicTestCase extends DefaultTestCase {
 		BasicTestCase t = new BasicTestCase();
 		List<StatementInterface> newStatements = t.getStatements();
 		for (StatementInterface s : this) {
-			newStatements.add(s.clone());
+			newStatements.add(s.clone(t));
 		}
 		t.getCoveredGoals().addAll(super.getCoveredGoals());
 

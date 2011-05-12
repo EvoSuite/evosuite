@@ -98,7 +98,7 @@ public class TestChromosome extends Chromosome {
 		TestChromosome offspring = new TestChromosome();
 
 		for (int i = 0; i < position1; i++) {
-			offspring.test.addStatement(test.getStatement(i).clone());
+			offspring.test.addStatement(test.getStatement(i).clone(offspring.test));
 		}
 		for (int i = position2; i < other.size(); i++) {
 			test_factory.appendStatement(offspring.test,
@@ -316,7 +316,7 @@ public class TestChromosome extends Chromosome {
 				logger.info("Changed test case is: " + test.toCode());
 			}
 		}
-
+		
 		if (!changed) {
 			for (StatementInterface statement : test.getStatements()) {
 				if (randomness.nextDouble() <= pl) {
