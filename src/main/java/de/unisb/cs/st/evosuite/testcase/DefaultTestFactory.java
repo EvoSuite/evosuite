@@ -243,7 +243,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	private VariableReference addPrimitive(TestCase test, PrimitiveStatement<?> old,
 	        int position) throws ConstructionFailedException {
 		logger.debug("Adding primitive");
-		StatementInterface st = new PrimitiveStatement(test, old.getReturnType(), position, old.value);
+		StatementInterface st = new PrimitiveStatement(test, old.getReturnType(), old.value);
 		test.addStatement(st, position);
 
 		return st.getReturnValue();
@@ -394,7 +394,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		int new_length = test.size();
 		position += (new_length - length);
 
-		StatementInterface st = new ConstructorStatement(test, constructor,  constructor.getDeclaringClass(), position, parameters);
+		StatementInterface st = new ConstructorStatement(test, constructor,  constructor.getDeclaringClass(), parameters);
 		test.addStatement(st, position);
 
 		return st.getReturnValue();
@@ -452,7 +452,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		// VariableReference(method.getGenericReturnType(), position);
 		Type ret_val_type = getReturnVariable(method, callee);
 
-		StatementInterface st = new MethodStatement(test, method, callee, ret_val_type, position,
+		StatementInterface st = new MethodStatement(test, method, callee, ret_val_type,
 		        parameters);
 		test.addStatement(st, position);
 
@@ -488,7 +488,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			}
 		}
 
-		StatementInterface st = new FieldStatement(test, field, callee, field.getGenericType(), position);
+		StatementInterface st = new FieldStatement(test, field, callee, field.getGenericType());
 		
 		test.addStatement(st, position);
 
@@ -579,7 +579,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			// Assign an existing value
 			// TODO:
 			// Do we need a special "[Array]AssignmentStatement"?
-			StatementInterface st = new AssignmentStatement(test, array, array_index, array.array_length, position, randomness.choice(objects));
+			StatementInterface st = new AssignmentStatement(test, array, array_index, array.array_length, randomness.choice(objects));
 			test.addStatement(st, position);
 		} else {
 			// Assign a new value
@@ -594,7 +594,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			VariableReference var = attemptGeneration(test, array.getComponentType(),
 			                                          position);
 			position += test.size() - old_len;
-			StatementInterface st = new AssignmentStatement(test, array, array_index, array.array_length, position, var);
+			StatementInterface st = new AssignmentStatement(test, array, array_index, array.array_length, var);
 			test.addStatement(st, position);
 		}
 	}
@@ -647,7 +647,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		logger.info("Chosen " + num + " out of " + candidates.size()
 		        + " chromosomes out of " + suite.size());
 		TestCallObject call = new TestCallObject(num);
-		TestCallStatement statement = new TestCallStatement(test, call, Properties.getTargetClass(), position);
+		TestCallStatement statement = new TestCallStatement(test, call, Properties.getTargetClass());
 		test.addStatement(statement, position);
 		// logger.info("Added call to test: " + call.getTest().toCode());
 		return statement.getReturnValue();
@@ -687,7 +687,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 		} else {
 			if (allow_null && randomness.nextDouble() <= Properties.NULL_PROBABILITY) {
-				return new NullReference(type);
+				return new NullReference(test, type);
 			}
 
 			if (!test.hasCalls()
@@ -940,7 +940,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		int new_length = test.size();
 		position += (new_length - length);
 		
-		StatementInterface st = new ConstructorStatement(test, constructor,  constructor.getDeclaringClass(), position, parameters);
+		StatementInterface st = new ConstructorStatement(test, constructor,  constructor.getDeclaringClass(), parameters);
 		test.addStatement(st, position);
 		return st.getReturnValue();
 	}
@@ -959,7 +959,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		// VariableReference(method.getGenericReturnType(), position);
 		
 		Type ret_val = getReturnVariable(method, callee);
-		StatementInterface st = new MethodStatement(test, method, callee, ret_val, position, parameters);
+		StatementInterface st = new MethodStatement(test, method, callee, ret_val, parameters);
 		test.addStatement(st, position);
 
 		logger.debug("Success: Adding method " + method);
@@ -1008,7 +1008,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		// VariableReference ret_val = new
 		// VariableReference(method.getGenericReturnType(), position);
 		Type ret_val = getReturnVariable(method, callee);
-		StatementInterface st = new MethodStatement(test, method, callee, ret_val, position, parameters);
+		StatementInterface st = new MethodStatement(test, method, callee, ret_val, parameters);
 		test.addStatement(st, position);
 
 		logger.debug("Success: Adding method " + method);

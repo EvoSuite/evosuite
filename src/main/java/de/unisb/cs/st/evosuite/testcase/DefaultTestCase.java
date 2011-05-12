@@ -45,7 +45,7 @@ public class DefaultTestCase implements TestCase{
 	private static Logger logger = Logger.getLogger(DefaultTestCase.class);
 
 	/** The statements */
-	private List<StatementInterface> statements;
+	protected List<StatementInterface> statements;
 
 	// a list of all goals this test covers
 	private HashSet<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
@@ -146,9 +146,9 @@ public class DefaultTestCase implements TestCase{
 					// Randomness.getInstance().nextInt(MAX_ARRAY), i));
 					// ArrayStatement as = (ArrayStatement)statements.get(i);
 					for (int index = 0; index < statements.get(i).getReturnValue().array_length; index++) {
-						variables.add(new VariableReference(
+						variables.add(new VariableReference(this, 
 						        statements.get(i).getReturnValue(), index,
-						        statements.get(i).getReturnValue().array_length, i));
+						        statements.get(i).getReturnValue().array_length));
 					}
 				}
 			} else if (statements.get(i).getReturnValue().isArrayIndex()) { // &&
@@ -199,9 +199,9 @@ public class DefaultTestCase implements TestCase{
 					// variables.add(new
 					// VariableReference(statements.get(i).retval.clone(),
 					// index, statements.get(i).retval.array_length, i));
-					variables.add(new VariableReference(
+					variables.add(new VariableReference(this, 
 					        statements.get(i).getReturnValue(), index, statements
-					                .get(i).getReturnValue().array_length, i));
+					                .get(i).getReturnValue().array_length));
 				}
 			} else if (!statements.get(i).getReturnValue().isArrayIndex()) {
 				variables.add(statements.get(i).getReturnValue());
@@ -267,20 +267,6 @@ public class DefaultTestCase implements TestCase{
 		return scope.get(reference);
 	}
 
-	/**
-	 * Adjust position of variables by a given delta
-	 * 
-	 * @param position
-	 *            Starting position
-	 * @param delta
-	 *            Value to add to positions
-	 */
-	private void fixVariableReferences(int position, int delta) {
-		for (int i = position; i < statements.size(); i++) {
-			statements.get(i).adjustVariableReferences(position, delta);
-		}
-	}
-
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#setStatement(de.unisb.cs.st.evosuite.testcase.Statement, int)
 	 */
@@ -297,7 +283,6 @@ public class DefaultTestCase implements TestCase{
 	 */
 	@Override
 	public void addStatement(StatementInterface statement, int position) {
-		fixVariableReferences(position, 1);
 		statements.add(position, statement);
 		assert(isValid());
 	}
@@ -366,9 +351,9 @@ public class DefaultTestCase implements TestCase{
 	@Override
 	public void remove(int position) {
 		logger.debug("Removing statement " + position);
-		if (position >= size())
+		if (position >= size()){
 			return;
-		fixVariableReferences(position, -1);
+		}
 		statements.remove(position);
 		assert(isValid());
 		// for(Statement s : statements) {

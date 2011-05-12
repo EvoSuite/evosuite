@@ -45,14 +45,14 @@ public class ArrayStatement extends AbstractStatement {
 
 	private int length = 0;
 
-	public ArrayStatement(TestCase tc, java.lang.reflect.Type type, int position) {
-		super(tc, new VariableReference(type, position));
+	public ArrayStatement(TestCase tc, java.lang.reflect.Type type) {
+		super(tc, new VariableReference(tc, type));
 		this.length = randomness.nextInt(Properties.MAX_ARRAY) + 1;
 		this.retval.array_length = this.length;
 	}
 
-	public ArrayStatement(TestCase tc, java.lang.reflect.Type type, int position, int length) {
-		super(tc, new VariableReference(type, position));
+	public ArrayStatement(TestCase tc, java.lang.reflect.Type type, int length) {
+		super(tc, new VariableReference(tc, type));
 		this.length = length;
 		this.retval.array_length = this.length;
 	}
@@ -63,7 +63,7 @@ public class ArrayStatement extends AbstractStatement {
 
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
-		ArrayStatement copy = new ArrayStatement(newTestCase, retval.getType(), retval.getStPosition(), length);
+		ArrayStatement copy = new ArrayStatement(newTestCase, retval.getType(), length);
 		return copy;
 	}
 

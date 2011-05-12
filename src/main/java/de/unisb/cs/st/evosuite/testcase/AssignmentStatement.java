@@ -41,8 +41,8 @@ public class AssignmentStatement extends AbstractStatement {
 
 	public VariableReference parameter;
 
-	public AssignmentStatement(TestCase tc, VariableReference array, int array_index, int array_length, int position, VariableReference value) {
-		super(tc, new VariableReference(array, array_index, array.array_length, position));
+	public AssignmentStatement(TestCase tc, VariableReference array, int array_index, int array_length, VariableReference value) {
+		super(tc, new VariableReference(tc, array, array_index, array.array_length));
 		this.parameter = value;
 	}
 
@@ -54,7 +54,7 @@ public class AssignmentStatement extends AbstractStatement {
 	public StatementInterface clone(TestCase newTestCase) {
 		VariableReference newParam = newTestCase.getStatement(parameter.getStPosition()).getReturnValue(); //must be set as we only use this to clone whole testcases
 		assert(newParam!=null);
-		AssignmentStatement copy = new AssignmentStatement(newTestCase, retval.array, retval.array_index, retval.array_length, retval.getStPosition(),
+		AssignmentStatement copy = new AssignmentStatement(newTestCase, retval.array, retval.array_index, retval.array_length,
 		        newParam); 
 		return copy;
 	}

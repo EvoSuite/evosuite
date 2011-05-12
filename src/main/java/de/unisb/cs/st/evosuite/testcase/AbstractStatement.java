@@ -46,7 +46,6 @@ public abstract class AbstractStatement implements StatementInterface {
 
 	protected AbstractStatement(TestCase tc, VariableReference retval){
 		assert(retval!=null);
-		assert(tc.size()>=retval.getStPosition()) : "testCase had size: " + tc.size() + " and we were asked to add a statement add location " + retval.getStPosition(); //>= as the statement is not yet added
 		this.retval=retval;
 		this.tc=tc;
 	}
@@ -145,11 +144,6 @@ public abstract class AbstractStatement implements StatementInterface {
 				ret_val += a.getCode() + "\n";
 		}
 		return ret_val;
-	}
-	
-	@Override
-	public void adjustVariableReferences(int position, int delta) {
-		retval.adjust(delta, position);
 	}
 
 	/* (non-Javadoc)
