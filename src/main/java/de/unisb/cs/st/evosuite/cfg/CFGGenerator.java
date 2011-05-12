@@ -195,7 +195,7 @@ public class CFGGenerator {
 	 */
 	public ActualControlFlowGraph computeCFG() {
 
-		logger.info("computing actual CFG for " + methodName);
+		BytecodeInstructionPool.logInstructionsIn(className,methodName);
 
 		ActualControlFlowGraph cfg = new ActualControlFlowGraph(this);
 
@@ -257,7 +257,7 @@ public class CFGGenerator {
 
 		BasicBlock r = new BasicBlock(className, methodName, blockNodes);
 
-		logger.info("created nodeBlock: "+r.getName());
+		logger.debug("created nodeBlock: "+r.toString());
 		return r;
 	}
 

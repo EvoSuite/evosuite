@@ -90,4 +90,30 @@ public class BytecodeInstructionPool {
 		
 		return null;
 	}
+	
+	public static List<BytecodeInstruction> getInstructionsIn(String className, String methodName) {
+		if (instructionMap.get(className) == null
+				|| instructionMap.get(className).get(methodName) == null)
+			return null;
+		
+		List<BytecodeInstruction> r = new ArrayList<BytecodeInstruction>();
+		r.addAll(instructionMap.get(className).get(methodName));
+		
+		return r;
+	}
+
+	public static void logInstructionsIn(String className, String methodName) {
+		
+		logger.debug("Printing instructions in "+className+"."+methodName+":");
+		
+		List<BytecodeInstruction> instructions = getInstructionsIn(className,methodName);
+		if(instructions==null) {
+			logger.debug("..unknown method");
+		}
+		
+		for(BytecodeInstruction instruction : instructions) {
+			logger.debug("\t"+instruction.toString());
+		}
+		
+	}
 }

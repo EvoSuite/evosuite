@@ -29,8 +29,10 @@ public class ActualControlFlowGraph {
 	
 	private BytecodeInstruction entryPoint;
 	private Set<BytecodeInstruction> exitPoints = new HashSet<BytecodeInstruction>();
-	private Set<BytecodeInstruction> branches = new HashSet<BytecodeInstruction>();
-	private Set<BytecodeInstruction> joins = new HashSet<BytecodeInstruction>();
+	private Set<BytecodeInstruction> branches;
+	private Set<BytecodeInstruction> branchTargets;
+	private Set<BytecodeInstruction> joins;
+	private Set<BytecodeInstruction> joinSources;
 	
 	
 	public ActualControlFlowGraph(CFGGenerator generator) {
@@ -40,14 +42,22 @@ public class ActualControlFlowGraph {
 		this.className = generator.getClassName();
 		this.methodName = generator.getMethodName();
 		
-		setEntryPoint(generator.determineEntryPoint());
-		setExitPoints(generator.determineExitPoints());
-		setBranches(generator.determineBranches());
-		setJoins(generator.determineJoins());
+		fillSets(generator);
 		
 		computeGraph(generator);
 	}
 	
+	private void fillSets(CFGGenerator generator) {
+
+		setEntryPoint(generator.determineEntryPoint());
+		setExitPoints(generator.determineExitPoints());
+		
+		setBranches(generator.determineBranches());
+		setBranchTargets(generator);
+		setJoins(generator.determineJoins());
+		setJoinSources(generator);
+	}
+
 	private void computeGraph(CFGGenerator generator) {
 		
 		computeNodes(generator);
@@ -57,14 +67,10 @@ public class ActualControlFlowGraph {
 	}
 	
 	private void computeNodes(CFGGenerator generator) {
-		Set<BytecodeInstruction> nodes = new HashSet<BytecodeInstruction>();
+
+		Set<BytecodeInstruction> nodes = getInitiallyKnownInstructions();
 		
-		logger.info("Computing Basic Blocks");
-		
-		nodes.add(entryPoint);
-		nodes.addAll(exitPoints);
-		nodes.addAll(branches);
-		nodes.addAll(joins);
+		logger.debug("Computing Basic Blocks");
 		
 		for(BytecodeInstruction node : nodes) {
 			if(knowsInstruction(node, generator))
@@ -74,9 +80,21 @@ public class ActualControlFlowGraph {
 			addBlock(nodeBlock);
 		}
 		
-		logger.info("..#BasicBlocks: "+graph.vertexSet().size());
+		logger.info(graph.vertexSet().size()+" BasicBlocks");
 	}
 	
+	private Set<BytecodeInstruction> getInitiallyKnownInstructions() {
+		Set<BytecodeInstruction> r = new HashSet<BytecodeInstruction>();
+		r.add(entryPoint);
+		r.addAll(exitPoints);
+		r.addAll(branches);
+		r.addAll(branchTargets);
+		r.addAll(joins);
+		r.addAll(joinSources);
+		
+		return r;
+	}
+
 	private void addBlock(BasicBlock nodeBlock) {
 		if (nodeBlock == null)
 			throw new IllegalArgumentException("null given");
@@ -127,6 +145,8 @@ public class ActualControlFlowGraph {
 			computeIncomingEdgesFor(block, generator);
 			computeOutgoingEdgesFor(block, generator);
 		}
+		
+		logger.info(graph.edgeSet().size()+" ControlFlowEdges");
 	}
 	
 	private void computeIncomingEdgesFor(BasicBlock block,
@@ -165,14 +185,20 @@ public class ActualControlFlowGraph {
 	
 	private void addEdge(BytecodeInstruction src, BasicBlock target) {
 		BasicBlock srcBlock = getBlockOf(src);
-		if(srcBlock != null)
-			addEdge(srcBlock,target);
+		if (srcBlock == null)
+			throw new IllegalStateException(
+					"when adding an edge to a CFG it is expected to know both the src- and the target-instruction");
+
+		addEdge(srcBlock, target);
 	}
-	
+
 	private void addEdge(BasicBlock src, BytecodeInstruction target) {
 		BasicBlock targetBlock = getBlockOf(target);
-		if(targetBlock != null)
-			addEdge(src,targetBlock);
+		if (targetBlock == null)
+			throw new IllegalStateException(
+					"when adding an edge to a CFG it is expected to know both the src- and the target-instruction");
+
+		addEdge(src, targetBlock);
 	}
 	
 	private void addEdge(BasicBlock src, BasicBlock target) {
@@ -199,24 +225,28 @@ public class ActualControlFlowGraph {
 		return null;
 	}
 	
+	public boolean knowsInstruction(BytecodeInstruction instruction) {
+		for(BasicBlock block : graph.vertexSet())
+			if(block.containsInstruction(instruction))
+				return true;
+		
+		return false;
+	}	
+	
 	public boolean knowsInstruction(BytecodeInstruction instruction, CFGGenerator generator) {
 		for(BasicBlock block : graph.vertexSet())
-			
 			if(block.containsInstruction(instruction)) {
 				
 				// sanity check
 				BasicBlock testBlock = generator.determineBasicBlockFor(instruction);
-				
 				if (!testBlock.equals(block)) {
 					
 					logger.error(instruction.toString());
 					logger.error(block.toString());
 					logger.error(testBlock.toString());
-					
 					throw new IllegalStateException(
 							"expect CFGGenerator.determineBasicBlockFor() to return an equal BasicBlock for all instructions coming from a basic block in the CFG");
 				}
-				
 				return true;
 			}
 		
@@ -294,6 +324,8 @@ public class ActualControlFlowGraph {
 	private void setJoins(Set<BytecodeInstruction> joins) {
 		if (joins == null)
 			throw new IllegalArgumentException("null given");
+		
+		this.joins = new HashSet<BytecodeInstruction>();
 
 		for (BytecodeInstruction join : joins) {
 			if (!belongsToMethod(join))
@@ -304,9 +336,24 @@ public class ActualControlFlowGraph {
 		}
 	}
 	
+	private void setJoinSources(CFGGenerator generator) {
+		if(joins==null)
+			throw new IllegalStateException("expect joins to be set before setting of joinSources");
+		if(generator == null)
+			throw new IllegalArgumentException("null given");
+		
+		this.joinSources = new HashSet<BytecodeInstruction>();
+		
+		for(BytecodeInstruction join : joins)
+			for(DefaultEdge joinEdge : generator.rawGraph.incomingEdgesOf(join))
+				joinSources.add(generator.rawGraph.getEdgeSource(joinEdge));
+	}
+	
 	private void setBranches(Set<BytecodeInstruction> branches) {
 		if (branches == null)
 			throw new IllegalArgumentException("null given");
+		
+		this.branches = new HashSet<BytecodeInstruction>();
 		
 		for (BytecodeInstruction branch : branches) {
 			if (!belongsToMethod(branch))
@@ -331,6 +378,18 @@ public class ActualControlFlowGraph {
 		}
 	}
 
+	private void setBranchTargets(CFGGenerator generator) {
+		if(branches==null)
+			throw new IllegalStateException("expect branches to be set before setting of branchTargets");
+		if(generator == null)
+			throw new IllegalArgumentException("null given");
+		
+		this.branchTargets = new HashSet<BytecodeInstruction>();
+		
+		for(BytecodeInstruction branch : branches)
+			for(DefaultEdge branchEdge : generator.rawGraph.outgoingEdgesOf(branch))
+				branchTargets.add(generator.rawGraph.getEdgeTarget(branchEdge));
+	}
 
 	public void checkSanity() {
 
@@ -340,7 +399,12 @@ public class ActualControlFlowGraph {
 			throw new IllegalStateException(
 					"a CFG must contain at least one element");
 
-		// TODO branches and joins
+		for(BytecodeInstruction initInstruction : getInitiallyKnownInstructions()) {
+			if(!knowsInstruction(initInstruction))
+				throw new IllegalStateException("expect CFG to contain all initially known instructions");
+		}
+		
+		logger.debug(".. all initInstructions contained");
 		
 		// ensure graph is connected and isEntry and isExitBlock() work as
 		// expected
