@@ -318,7 +318,7 @@ public class TestChromosome extends Chromosome {
 		}
 		
 		if (!changed) {
-			for (StatementInterface statement : test.getStatements()) {
+			for (StatementInterface statement : test) {
 				if (randomness.nextDouble() <= pl) {
 
 					if (statement instanceof PrimitiveStatement<?>) {

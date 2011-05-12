@@ -144,7 +144,7 @@ public class ConcolicMutation {
 		mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, m, null, null,
 		        cw);
 		Map<Integer, Integer> locals = new HashMap<Integer, Integer>();
-		for (StatementInterface statement : test.getStatements()) {
+		for (StatementInterface statement : test) {
 			logger.debug("Current statement: " + statement.getCode());
 			if (target.contains(statement)) {
 				PrimitiveStatement<?> p = (PrimitiveStatement<?>) statement;
@@ -180,7 +180,7 @@ public class ConcolicMutation {
 
 	public boolean mutate(TestCase test) {
 		List<PrimitiveStatement> p = new ArrayList<PrimitiveStatement>();
-		for (StatementInterface s : test.getStatements()) {
+		for (StatementInterface s : test) {
 			if (s instanceof PrimitiveStatement) {
 				PrimitiveStatement ps = (PrimitiveStatement) s;
 				Class<?> t = ps.getReturnClass();
