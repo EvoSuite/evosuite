@@ -91,7 +91,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 				String classNameWithDots = className.replace('/', '.');
 
 				// Some packages we shouldn't touch - hard-coded
-				if (!classNameWithDots.startsWith(Properties.getInstance().PROJECT_PREFIX)
+				if (!classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
 				        && (classNameWithDots.startsWith("java")
 				                || classNameWithDots.startsWith("sun")
 				                || classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {

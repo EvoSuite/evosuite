@@ -9,8 +9,6 @@ import org.apache.log4j.Logger;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import de.unisb.cs.st.evosuite.coverage.branch.Branch;
-
 /**
  * @author Andre Mis
  *
@@ -24,11 +22,11 @@ public class BytecodeInstructionPool {
 
 	private static List<MethodNode> knownMethodNodes = new ArrayList<MethodNode>();
 	
+	// fill the pool
+	
 	public static void registerMethodNode(MethodNode node, String className, String methodName) {
 		
 		registerMethodNode(node);
-//		BytecodeInstructionFactory factory = BytecodeInstructionFactory
-//				.getInstance();
 
 		for(int instructionId=0;instructionId<node.instructions.size();instructionId++) {
 			AbstractInsnNode instructionNode = node.instructions.get(instructionId);
@@ -59,9 +57,21 @@ public class BytecodeInstructionPool {
 			instructionMap.get(className).put(methodName, new ArrayList<BytecodeInstruction>());
 		instructionMap.get(className).get(methodName).add(instruction);
 	}
+	
+	// retrieve data from the pool
 
 	public static BytecodeInstruction getInstruction(String className,
-			String methodName, int src, AbstractInsnNode node1) {
+			String methodName, int instructionId, AbstractInsnNode asmNode) {
+		
+		BytecodeInstruction r = getInstruction(className, methodName, instructionId);
+		if(r!=null)
+			r.sanityCheckAbstractInsnNode(asmNode);
+		
+		return r;
+	}
+	
+	public static BytecodeInstruction getInstruction(String className,
+			String methodName, int instructionId) {
 		
 		if(instructionMap.get(className) == null) {
 			logger.warn("unknown class");
@@ -72,11 +82,8 @@ public class BytecodeInstructionPool {
 			return null;
 		}
 		for(BytecodeInstruction instruction : instructionMap.get(className).get(methodName)) {
-			if(instruction.getId() == src) {
-				// debug
-				instruction.sanityCheckAbstractInsnNode(node1);
+			if(instruction.getId() == instructionId)
 				return instruction;
-			}
 		}
 		
 		logger.warn("unknown instruction");
