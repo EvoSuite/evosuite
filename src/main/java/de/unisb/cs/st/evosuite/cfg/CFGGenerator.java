@@ -15,7 +15,6 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.Frame;
 
-import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
@@ -43,7 +42,7 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
  */
 public class CFGGenerator {
 
-	private static Logger logger = Logger.getLogger(BytecodeAnalyzer.class);
+	private static Logger logger = Logger.getLogger(CFGGenerator.class);
 	
 	List<Mutation> mutants;
 	DefaultDirectedGraph<BytecodeInstruction, DefaultEdge> rawGraph = new DefaultDirectedGraph<BytecodeInstruction, DefaultEdge>(
@@ -187,7 +186,7 @@ public class CFGGenerator {
 	 */
 	public ActualControlFlowGraph computeCFG() {
 		
-		System.out.println("computing actual CFG for "+methodName);
+		logger.info("computing actual CFG for "+methodName);
 		
 		ActualControlFlowGraph cfg = new ActualControlFlowGraph(this);
 		
@@ -197,6 +196,8 @@ public class CFGGenerator {
 	public BasicBlock determineBasicBlockFor(BytecodeInstruction instruction) {
 		if (instruction == null)
 			throw new IllegalArgumentException("null given");
+		
+		logger.debug("creating basic block for "+instruction.toString());
 		
 		List<BytecodeInstruction> blockNodes = new ArrayList<BytecodeInstruction>();
 		blockNodes.add(instruction);
@@ -238,6 +239,7 @@ public class CFGGenerator {
 					blockNodes.add(blockNodes.indexOf(current)+1, parent);
 				}
 		}
+		logger.debug("... contained instructions: "+blockNodes.size());
 		
 		BasicBlock r = new BasicBlock(className, methodName, blockNodes);
 		

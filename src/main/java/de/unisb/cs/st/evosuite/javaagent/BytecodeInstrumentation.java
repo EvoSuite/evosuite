@@ -24,6 +24,8 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
+import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -161,6 +163,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 				t.printStackTrace(new PrintWriter(writer));
 				logger.fatal(writer.getBuffer().toString());
 				t.printStackTrace();
+				LogManager.shutdown();
 				System.exit(0);
 				// throw new RuntimeException(e.getMessage());
 			}

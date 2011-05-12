@@ -3,6 +3,8 @@ package de.unisb.cs.st.evosuite.cfg;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 
 /**
@@ -17,6 +19,8 @@ import org.jgrapht.graph.DirectedMultigraph;
  */
 public class ActualControlFlowGraph {
 
+	private static Logger logger = Logger.getLogger(ActualControlFlowGraph.class);
+	
 	private DirectedMultigraph<BasicBlock, ControlFlowEdge> graph = new DirectedMultigraph<BasicBlock, ControlFlowEdge>(
 			ControlFlowEdge.class);
 	
@@ -45,6 +49,12 @@ public class ActualControlFlowGraph {
 	}
 	
 	private void computeGraph(CFGGenerator generator) {
+		
+		computeNodes(generator);
+		computeEdges(generator);
+	}
+	
+	private void computeNodes(CFGGenerator generator) {
 		Set<BytecodeInstruction> nodes = new HashSet<BytecodeInstruction>();
 		
 		nodes.add(entryPoint);
@@ -54,10 +64,128 @@ public class ActualControlFlowGraph {
 		
 		for(BytecodeInstruction node : nodes) {
 			BasicBlock nodeBlock = generator.determineBasicBlockFor(node);
-			// TODO stopped here
+			addBlock(nodeBlock);
+		}
+		
+		logger.info("#BasicBlocks: "+graph.vertexSet().size());
+	}
+	
+	private void computeEdges(CFGGenerator generator) {
+
+		for (BasicBlock block : graph.vertexSet()) {
+			
+			computeIncomingEdgesFor(block, generator);
+			computeOutgoingEdgesFor(block, generator);
+			
 		}
 	}
 	
+	private void computeIncomingEdgesFor(BasicBlock block,
+			CFGGenerator generator) {
+
+		if (isEntryBlock(block))
+			return;
+
+		BytecodeInstruction blockStart = block.getFirstInstruction();
+		Set<DefaultEdge> rawIncomings = generator.rawGraph
+				.incomingEdgesOf(blockStart);
+		for (DefaultEdge rawIncoming : rawIncomings) {
+			BytecodeInstruction incomingStart = generator.rawGraph
+					.getEdgeSource(rawIncoming);
+			addEdge(incomingStart, block);
+		}
+	}
+	
+	private void computeOutgoingEdgesFor(BasicBlock block,
+			CFGGenerator generator) {
+		
+		if(isExitBlock(block))
+			return;
+		
+		BytecodeInstruction blockEnd = block.getLastInstruction();
+		
+		Set<DefaultEdge> rawOutgoings = generator.rawGraph
+				.outgoingEdgesOf(blockEnd);
+		for (DefaultEdge rawOutgoing : rawOutgoings) {
+			BytecodeInstruction outgoingEnd = generator.rawGraph
+					.getEdgeTarget(rawOutgoing);
+			addEdge(block, outgoingEnd);
+		}
+		
+	}
+
+	private void addEdge(BytecodeInstruction src, BasicBlock target) {
+		addEdge(getBlockOf(src),target);
+	}
+	
+	private void addEdge(BasicBlock src, BytecodeInstruction target) {
+		addEdge(src,getBlockOf(target));
+	}
+	
+	private void addEdge(BasicBlock src, BasicBlock target) {
+		if (src == null || target == null)
+			throw new IllegalArgumentException("null given");
+		
+		ControlFlowEdge newEdge = new ControlFlowEdge(src, target);
+		
+		if (!graph.edgeSet().contains(newEdge)) {
+			logger.debug("edge already contained in CFG");
+		} else if (!graph.addEdge(src, target, newEdge))
+			throw new IllegalStateException(
+					"internal error while adding edge to CFG");
+	}
+	
+	public BasicBlock getBlockOf(BytecodeInstruction instruction) {
+		
+		for(BasicBlock block : graph.vertexSet())
+			if(block.containsInstruction(instruction))
+				return block;
+		
+		logger.debug("unknown instruction "+instruction.toString());
+		
+		return null;
+	}
+
+	public boolean isEntryBlock(BasicBlock block) {
+		if (block == null)
+			throw new IllegalArgumentException("null given");
+
+		if (block.containsInstruction(entryPoint)) {
+			// sanity check
+			if (!block.getFirstInstruction().equals(entryPoint))
+				throw new IllegalStateException(
+						"expect entryPoint of a method to be the first instruction from the entryBlock of that method");
+			return true;
+		}
+
+		return false;
+	}
+	
+	public boolean isExitBlock(BasicBlock block) {
+		if (block == null)
+			throw new IllegalArgumentException("null given");
+
+		for(BytecodeInstruction exitPoint : exitPoints)
+			if (block.containsInstruction(exitPoint)) {
+				// sanity check
+				if (!block.getLastInstruction().equals(exitPoint))
+					throw new IllegalStateException(
+							"expect exitPoints of a method to be the last instruction from an exitBlock of that method");
+				return true;
+			}
+
+		return false;
+	}
+	
+	private void addBlock(BasicBlock nodeBlock) {
+		if(nodeBlock == null)
+			throw new IllegalArgumentException("null given");
+		if(graph.containsVertex(nodeBlock))
+			throw new IllegalArgumentException("block already added before");
+		
+		graph.addVertex(nodeBlock);
+	}
+
 	public boolean belongsToMethod(BytecodeInstruction instruction) {
 		if(instruction==null)
 			throw new IllegalArgumentException("null given");
