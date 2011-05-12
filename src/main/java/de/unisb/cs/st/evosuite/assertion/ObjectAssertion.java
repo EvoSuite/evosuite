@@ -33,7 +33,7 @@ public class ObjectAssertion extends Assertion {
 	@Override
 	public Assertion clone(TestCase newTestCase) {
 		ObjectAssertion s = new ObjectAssertion();
-		s.source = newTestCase.getStatement(source.statement).getReturnValue();
+		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
 		s.value  = value;
 		return s;
 	}

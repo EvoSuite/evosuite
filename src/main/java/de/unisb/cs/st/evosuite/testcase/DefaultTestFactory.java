@@ -188,7 +188,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		Set<Integer> p = new HashSet<Integer>();
 		p.add(position);
 		for (VariableReference var : references) {
-			p.add(var.statement);
+			p.add(var.getStPosition());
 			// positions.add(var.statement);
 		}
 		positions.addAll(p);
@@ -839,7 +839,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	@Override
 	public void changeCall(TestCase test, StatementInterface statement,
 	        AccessibleObject call) throws ConstructionFailedException {
-		int position = statement.getReturnValue().statement;
+		int position = statement.getReturnValue().getStPosition();
 
 		if (call instanceof Method) {
 			Method method = (Method) call;
@@ -1095,7 +1095,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	@Override
 	public boolean changeRandomCall(TestCase test, StatementInterface statement) {
-		List<VariableReference> objects = test.getObjects(statement.getReturnValue().statement);
+		List<VariableReference> objects = test.getObjects(statement.getReturnValue().getStPosition());
 		objects.remove(statement.getReturnValue());
 		List<AccessibleObject> calls = getPossibleCalls(statement.getReturnType(),
 		                                                objects);

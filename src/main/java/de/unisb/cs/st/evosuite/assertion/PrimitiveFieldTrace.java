@@ -163,7 +163,7 @@ public class PrimitiveFieldTrace extends OutputTrace {
 			return false;
 
 		PrimitiveFieldAssertion p = (PrimitiveFieldAssertion) assertion;
-		if (!p.value.equals(trace.get(p.source.statement)))
+		if (!p.value.equals(trace.get(p.source.getStPosition())))
 			return true;
 		else
 			return false;

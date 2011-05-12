@@ -130,8 +130,6 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 */
 	public Object getObject(VariableReference reference, Scope scope);
 
-	public void renameVariable(int old_position, int new_position);
-
 	/**
 	 * Set new statement at position
 	 * 

@@ -330,7 +330,7 @@ public class TestChromosome extends Chromosome {
 						else
 							((PrimitiveStatement<?>) statement).delta();
 
-						int position = statement.getReturnValue().statement;
+						int position = statement.getReturnValue().getStPosition();
 						// test.setStatement(statement, position);
 						//logger.info("Changed test: " + test.toCode());
 						logger.debug("New statement: "
@@ -342,7 +342,7 @@ public class TestChromosome extends Chromosome {
 						AssignmentStatement as = (AssignmentStatement) statement;
 						if (randomness.nextDouble() < 0.5) {
 							List<VariableReference> objects = test.getObjects(statement.getReturnValue().getType(),
-							                                                  statement.getReturnValue().statement);
+							                                                  statement.getReturnValue().getStPosition());
 							objects.remove(statement.getReturnValue());
 							objects.remove(as.parameter);
 							if (!objects.isEmpty()) {

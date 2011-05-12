@@ -64,7 +64,7 @@ public class MethodStatement extends AbstractStatement {
 	public MethodStatement(TestCase tc, Method method, VariableReference callee,
 	        VariableReference retvar, List<VariableReference> parameters) {
 		super(tc, retvar);
-		assert(tc.size()>retvar.statement); //as an old statement should be replaced by this statement
+		assert(tc.size()>retvar.getStPosition()); //as an old statement should be replaced by this statement
 		assert(Modifier.isStatic(method.getModifiers()) || callee!=null);
 		assert(parameters!=null);
 		assert(method.getParameterTypes().length==parameters.size());
@@ -192,16 +192,16 @@ public class MethodStatement extends AbstractStatement {
 	public StatementInterface clone(TestCase newTestCase) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
-			new_params.add(newTestCase.getStatement(r.statement).getReturnValue());
+			new_params.add(newTestCase.getStatement(r.getStPosition()).getReturnValue());
 		}
 
 		MethodStatement m;
 		if (Modifier.isStatic(method.getModifiers())){
 			// FIXXME: If callee is an array index, this will return an invalid
 			// copy of the cloned variable!
-			m = new MethodStatement(newTestCase, method, null, retval.getType(), retval.statement, new_params);
+			m = new MethodStatement(newTestCase, method, null, retval.getType(), retval.getStPosition(), new_params);
 		}else{
-			m = new MethodStatement(newTestCase, method, newTestCase.getStatement(callee.statement).getReturnValue(), retval.getType(), retval.statement, new_params);
+			m = new MethodStatement(newTestCase, method, newTestCase.getStatement(callee.getStPosition()).getReturnValue(), retval.getType(), retval.getStPosition(), new_params);
 
 		}
 		

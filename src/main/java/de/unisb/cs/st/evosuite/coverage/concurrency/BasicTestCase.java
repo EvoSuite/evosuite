@@ -97,7 +97,7 @@ public class BasicTestCase extends DefaultTestCase {
 	@Override
 	public void addStatement(StatementInterface statement, int position) {
 		assert(position>=0);
-		assert(statement.getReturnValue().statement==position);;
+		assert(statement.getReturnValue().getStPosition()==position);;
 		super.addStatement(statement, position);
 	}
 

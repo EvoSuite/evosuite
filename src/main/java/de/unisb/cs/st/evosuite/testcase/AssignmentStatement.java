@@ -52,9 +52,9 @@ public class AssignmentStatement extends AbstractStatement {
 
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
-		VariableReference newParam = newTestCase.getStatement(parameter.statement).getReturnValue(); //must be set as we only use this to clone whole testcases
+		VariableReference newParam = newTestCase.getStatement(parameter.getStPosition()).getReturnValue(); //must be set as we only use this to clone whole testcases
 		assert(newParam!=null);
-		AssignmentStatement copy = new AssignmentStatement(newTestCase, retval.array, retval.array_index, retval.array_length, retval.statement,
+		AssignmentStatement copy = new AssignmentStatement(newTestCase, retval.array, retval.array_index, retval.array_length, retval.getStPosition(),
 		        newParam); 
 		return copy;
 	}
