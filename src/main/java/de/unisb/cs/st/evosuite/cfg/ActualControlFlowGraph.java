@@ -115,11 +115,15 @@ public class ActualControlFlowGraph {
 	}
 
 	private void addEdge(BytecodeInstruction src, BasicBlock target) {
-		addEdge(getBlockOf(src),target);
+		BasicBlock srcBlock = getBlockOf(src);
+		if(srcBlock != null)
+			addEdge(srcBlock,target);
 	}
 	
 	private void addEdge(BasicBlock src, BytecodeInstruction target) {
-		addEdge(src,getBlockOf(target));
+		BasicBlock targetBlock = getBlockOf(target);
+		if(targetBlock != null)
+			addEdge(src,targetBlock);
 	}
 	
 	private void addEdge(BasicBlock src, BasicBlock target) {
