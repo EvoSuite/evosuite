@@ -171,7 +171,7 @@ public class CFGGenerator {
 		}
 		
 		// debug/experiment
-		computeCFG();
+//		computeCFG();
 		
 		return min_graph;
 	}
