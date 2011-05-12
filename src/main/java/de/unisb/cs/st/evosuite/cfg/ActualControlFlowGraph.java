@@ -1,5 +1,6 @@
 package de.unisb.cs.st.evosuite.cfg;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.jgrapht.graph.DirectedMultigraph;
@@ -23,18 +24,38 @@ public class ActualControlFlowGraph {
 	private String methodName;
 	
 	private BytecodeInstruction entryPoint;
-	private Set<BytecodeInstruction> exitPoints;
+	private Set<BytecodeInstruction> exitPoints = new HashSet<BytecodeInstruction>();
+	private Set<BytecodeInstruction> branches = new HashSet<BytecodeInstruction>();
+	private Set<BytecodeInstruction> joins = new HashSet<BytecodeInstruction>();
 	
 	
-	public ActualControlFlowGraph(String className, String methodName,
-			BytecodeInstruction entryPoint, Set<BytecodeInstruction> exitPoints) {
-		if (className == null || methodName == null)
+	public ActualControlFlowGraph(CFGGenerator generator) {
+		if (generator == null)
 			throw new IllegalArgumentException("null given");
 		
-		this.className = className;
-		this.methodName = methodName;
-		setEntryPoint(entryPoint);
-		setExitPoints(exitPoints);
+		this.className = generator.getClassName();
+		this.methodName = generator.getMethodName();
+		
+		setEntryPoint(generator.determineEntryPoint());
+		setExitPoints(generator.determineExitPoints());
+		setBranches(generator.determineBranches());
+		setJoins(generator.determineJoins());
+		
+		computeGraph(generator);
+	}
+	
+	private void computeGraph(CFGGenerator generator) {
+		Set<BytecodeInstruction> nodes = new HashSet<BytecodeInstruction>();
+		
+		nodes.add(entryPoint);
+		nodes.addAll(exitPoints);
+		nodes.addAll(branches);
+		nodes.addAll(joins);
+		
+		for(BytecodeInstruction node : nodes) {
+			BasicBlock nodeBlock = generator.determineBasicBlockFor(node);
+			// TODO stopped here
+		}
 	}
 	
 	public boolean belongsToMethod(BytecodeInstruction instruction) {
@@ -61,7 +82,6 @@ public class ActualControlFlowGraph {
 		if (exitPoints == null)
 			throw new IllegalArgumentException("null given");
 
-		
 		for (BytecodeInstruction exitPoint : exitPoints) {
 			if (!belongsToMethod(exitPoint))
 				throw new IllegalArgumentException(
@@ -69,9 +89,49 @@ public class ActualControlFlowGraph {
 			if (!exitPoint.canReturnFromMethod())
 				throw new IllegalArgumentException(
 						"unexpected exitPoint byteCode instruction type: "
-								+ exitPoint.getOpcodeType());
+								+ exitPoint.getInstructionType());
 			
-			exitPoints.add(exitPoint);
+			this.exitPoints.add(exitPoint);
+		}
+	}
+	
+	private void setJoins(Set<BytecodeInstruction> joins) {
+		if (joins == null)
+			throw new IllegalArgumentException("null given");
+
+		for (BytecodeInstruction join : joins) {
+			if (!belongsToMethod(join))
+				throw new IllegalArgumentException(
+						"join does not belong to this CFGs method");
+			
+			this.joins.add(join);
+		}
+	}
+	
+	private void setBranches(Set<BytecodeInstruction> branches) {
+		if (branches == null)
+			throw new IllegalArgumentException("null given");
+		
+		for (BytecodeInstruction branch : branches) {
+			if (!belongsToMethod(branch))
+				throw new IllegalArgumentException(
+						"branch does not belong to this CFGs method");
+			if (!branch.isActualBranch())
+				throw new IllegalArgumentException(
+						"unexpected branch byteCode instruction type: "
+								+ branch.getInstructionType());
+			
+			// TODO the following doesn't work at this point
+			//		 because the BranchPool is not yet filled yet
+			// BUT one could fill the pool right now and drop further analysis later
+			// way cooler, because then filling of the BranchPool is unrelated to
+			//  BranchInstrumentation - then again that instrumentation is needed anyways i guess
+//			if (!BranchPool.isKnownAsBranch(instruction))
+//				throw new IllegalStateException(
+//						"expect BranchPool to know all branching instructions: "
+//								+ instruction.toString());
+			
+			this.branches.add(branch);
 		}
 	}
 
