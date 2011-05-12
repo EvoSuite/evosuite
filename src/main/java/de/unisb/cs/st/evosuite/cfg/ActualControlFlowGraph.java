@@ -52,10 +52,14 @@ public class ActualControlFlowGraph {
 		
 		computeNodes(generator);
 		computeEdges(generator);
+		
+		checkSanity();
 	}
 	
 	private void computeNodes(CFGGenerator generator) {
 		Set<BytecodeInstruction> nodes = new HashSet<BytecodeInstruction>();
+		
+		logger.info("Computing Basic Blocks");
 		
 		nodes.add(entryPoint);
 		nodes.addAll(exitPoints);
@@ -63,11 +67,57 @@ public class ActualControlFlowGraph {
 		nodes.addAll(joins);
 		
 		for(BytecodeInstruction node : nodes) {
+			if(knowsInstruction(node, generator))
+				continue;
+			
 			BasicBlock nodeBlock = generator.determineBasicBlockFor(node);
 			addBlock(nodeBlock);
 		}
 		
-		logger.info("#BasicBlocks: "+graph.vertexSet().size());
+		logger.info("..#BasicBlocks: "+graph.vertexSet().size());
+	}
+	
+	private void addBlock(BasicBlock nodeBlock) {
+		if (nodeBlock == null)
+			throw new IllegalArgumentException("null given");
+		
+		logger.debug("Adding block: "+nodeBlock.getName());
+		
+		if (graph.containsVertex(nodeBlock))
+			throw new IllegalArgumentException("block already added before");
+
+		if (!graph.addVertex(nodeBlock))
+			throw new IllegalStateException(
+					"internal error while addind basic block to CFG");
+		
+//		for (BasicBlock test : graph.vertexSet()) {
+//			logger.debug("experimental self-equals on " + test.getName());
+//			if (nodeBlock.equals(test))
+//				logger.debug("true");
+//			else
+//				logger.debug("false");
+//			if (!graph.containsVertex(test))
+//				throw new IllegalStateException("wtf");
+//
+//			logger.debug("experimental equals on " + test.getName() + " with "
+//					+ nodeBlock.getName());
+//			if (test.equals(nodeBlock))
+//				logger.debug("true");
+//			else
+//				logger.debug("false");
+//
+//			logger.debug("experimental dual-equal");
+//			if (nodeBlock.equals(test))
+//				logger.debug("true");
+//			else
+//				logger.debug("false");
+//
+//		}
+		
+		if(!graph.containsVertex(nodeBlock))
+			throw new IllegalStateException("expect graph to contain the given block on returning of addBlock()");
+		
+		logger.debug(".. succeeded. nodeCount: "+graph.vertexSet().size());
 	}
 	
 	private void computeEdges(CFGGenerator generator) {
@@ -76,7 +126,6 @@ public class ActualControlFlowGraph {
 			
 			computeIncomingEdgesFor(block, generator);
 			computeOutgoingEdgesFor(block, generator);
-			
 		}
 	}
 	
@@ -113,7 +162,7 @@ public class ActualControlFlowGraph {
 		}
 		
 	}
-
+	
 	private void addEdge(BytecodeInstruction src, BasicBlock target) {
 		BasicBlock srcBlock = getBlockOf(src);
 		if(srcBlock != null)
@@ -132,7 +181,7 @@ public class ActualControlFlowGraph {
 		
 		ControlFlowEdge newEdge = new ControlFlowEdge(src, target);
 		
-		if (!graph.edgeSet().contains(newEdge)) {
+		if (graph.containsEdge(newEdge)) {
 			logger.debug("edge already contained in CFG");
 		} else if (!graph.addEdge(src, target, newEdge))
 			throw new IllegalStateException(
@@ -148,6 +197,30 @@ public class ActualControlFlowGraph {
 		logger.debug("unknown instruction "+instruction.toString());
 		
 		return null;
+	}
+	
+	public boolean knowsInstruction(BytecodeInstruction instruction, CFGGenerator generator) {
+		for(BasicBlock block : graph.vertexSet())
+			
+			if(block.containsInstruction(instruction)) {
+				
+				// sanity check
+				BasicBlock testBlock = generator.determineBasicBlockFor(instruction);
+				
+				if (!testBlock.equals(block)) {
+					
+					logger.error(instruction.toString());
+					logger.error(block.toString());
+					logger.error(testBlock.toString());
+					
+					throw new IllegalStateException(
+							"expect CFGGenerator.determineBasicBlockFor() to return an equal BasicBlock for all instructions coming from a basic block in the CFG");
+				}
+				
+				return true;
+			}
+		
+		return false;
 	}
 
 	public boolean isEntryBlock(BasicBlock block) {
@@ -181,15 +254,6 @@ public class ActualControlFlowGraph {
 		return false;
 	}
 	
-	private void addBlock(BasicBlock nodeBlock) {
-		if(nodeBlock == null)
-			throw new IllegalArgumentException("null given");
-		if(graph.containsVertex(nodeBlock))
-			throw new IllegalArgumentException("block already added before");
-		
-		graph.addVertex(nodeBlock);
-	}
-
 	public boolean belongsToMethod(BytecodeInstruction instruction) {
 		if(instruction==null)
 			throw new IllegalArgumentException("null given");
@@ -268,5 +332,40 @@ public class ActualControlFlowGraph {
 	}
 
 
+	public void checkSanity() {
 
+		logger.debug("checking sanity of CFG for "+methodName);
+		
+		if (graph.vertexSet().isEmpty())
+			throw new IllegalStateException(
+					"a CFG must contain at least one element");
+
+		// TODO branches and joins
+		
+		// ensure graph is connected and isEntry and isExitBlock() work as
+		// expected
+		for (BasicBlock node : graph.vertexSet()) {
+
+			int out = graph.outDegreeOf(node);
+			if (!isExitBlock(node) && out == 0)
+				throw new IllegalStateException(
+						"expect nodes without outgoing edges to be exitBlocks: "+node.toString());
+
+			int in = graph.inDegreeOf(node);
+			if (!isEntryBlock(node) && in == 0)
+				throw new IllegalStateException(
+						"expect nodes without incoming edges to be the entryBlock: "+node.toString());
+
+			if (in + out == 0 && graph.vertexSet().size() != 1)
+				throw new IllegalStateException(
+						"node with neither child nor parent only allowed if CFG consists of a single block: "+node.toString());
+
+			if (graph.vertexSet().size() == 1
+					&& !(isEntryBlock(node) && isExitBlock(node)))
+				throw new IllegalStateException(
+						"if a CFG consists of a single basic block that block must be both entry and exitBlock: "+node.toString());
+		}
+		
+		logger.debug(".. passed");
+	}
 }
