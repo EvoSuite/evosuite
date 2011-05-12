@@ -30,7 +30,7 @@ public class ContractViolation {
 	        Throwable exception) {
 		this.contract = contract;
 		this.test = test.clone();
-		this.statement = statement.clone();
+		this.statement = statement.clone(this.test);
 		this.exception = exception;
 	}
 

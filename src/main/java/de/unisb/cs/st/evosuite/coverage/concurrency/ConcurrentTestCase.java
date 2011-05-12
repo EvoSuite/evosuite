@@ -23,7 +23,7 @@ import de.unisb.cs.st.evosuite.coverage.concurrency.Scheduler.scheduleObserver;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.Scope;
-import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.AbstractStatement;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
@@ -169,8 +169,8 @@ public class ConcurrentTestCase implements TestCase{
 		 *#TODO steenbuck this is a workaround which should be removd.
 		 *The problem is that the code is executed inside evosuite using a testcase with two more statements. (Thread ID and thread registratioon)
 		 */
-		this.addStatement(getPseudoStatement(Properties.getTargetClass(), 0), 0, false);
-		this.addStatement(getPseudoStatement(Properties.getTargetClass(), 0), 0, false);
+		this.addStatement(getPseudoStatement(this, Properties.getTargetClass(), 0), 0, false);
+		this.addStatement(getPseudoStatement(this, Properties.getTargetClass(), 0), 0, false);
 		assert(scheduleObserver!=null);
 		StringBuilder b = new StringBuilder();
 		b.append("Integer[] schedule");
@@ -452,7 +452,7 @@ public class ConcurrentTestCase implements TestCase{
 			assert(Properties.getTargetClass()!=null);
 			if(Properties.getTargetClass().isAssignableFrom(c.getConstructor().getDeclaringClass())){
 				logger.debug("Replaced a constructor call for " + c.getClass().getSimpleName() + " with a pseudo statement. Representing the object shared between the test threads");
-				statement = getPseudoStatement(Properties.getTargetClass(), position);
+				statement = getPseudoStatement(this, Properties.getTargetClass(), position);
 			}
 		}
 
@@ -465,16 +465,8 @@ public class ConcurrentTestCase implements TestCase{
 	 * @param pos
 	 * @return
 	 */
-	private Statement getPseudoStatement(final Class<?> clazz, int pos){
-		Statement st= new Statement() {
-
-			@Override
-			public void replaceUnique(VariableReference oldVar, VariableReference newVar) {
-			}
-
-			@Override
-			public void replace(VariableReference oldVar, VariableReference newVar) {
-			}
+	private StatementInterface getPseudoStatement(TestCase tc, final Class<?> clazz, int pos){
+		StatementInterface st= new AbstractStatement(tc, new VariableReference(clazz, pos)) {
 
 			@Override
 			public int hashCode() {
@@ -527,18 +519,89 @@ public class ConcurrentTestCase implements TestCase{
 			}
 
 			@Override
-			public StatementInterface clone() {
-				return getPseudoStatement(clazz, retval.statement);
+			public void addAssertion(Assertion assertion) {
+				// TODO Auto-generated method stub
+				
 			}
 
 			@Override
-			public void adjustVariableReferences(int position, int delta) {
-				retval.adjust(delta, position);
+			public StatementInterface clone(TestCase newTestCase) {
+				return getPseudoStatement(newTestCase, clazz, retval.statement);
+			}
+
+			@Override
+			public String getAssertionCode() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Set<Assertion> getAssertions() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public String getCode() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Set<Class<?>> getDeclaredExceptions() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public int getPosition() {
+				// TODO Auto-generated method stub
+				return 0;
+			}
+
+			@Override
+			public Class<?> getReturnClass() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Type getReturnType() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public VariableReference getReturnValue() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public boolean hasAssertions() {
+				// TODO Auto-generated method stub
+				return false;
+			}
+
+			@Override
+			public boolean references(VariableReference var) {
+				// TODO Auto-generated method stub
+				return false;
+			}
+
+			@Override
+			public void removeAssertion(Assertion assertion) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void removeAssertions() {
+				// TODO Auto-generated method stub
+				
 			}
 
 		};
-
-		st.SetRetval(new VariableReference(clazz, pos));
 
 		return st;
 	}

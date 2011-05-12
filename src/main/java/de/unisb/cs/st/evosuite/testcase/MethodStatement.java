@@ -34,20 +34,42 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
-public class MethodStatement extends Statement {
+public class MethodStatement extends AbstractStatement {
 
 	private final Method method;
 	VariableReference callee;
 	public List<VariableReference> parameters;
 
-	public MethodStatement(Method method, VariableReference callee,
-	        VariableReference retval, List<VariableReference> parameters) {
+	public MethodStatement(TestCase tc, Method method, VariableReference callee,
+	        java.lang.reflect.Type type, int position, List<VariableReference> parameters) {
+		super(tc, new VariableReference(type, position));
 		assert(Modifier.isStatic(method.getModifiers()) || callee!=null);
 		assert(parameters!=null);
 		assert(method.getParameterTypes().length==parameters.size());
 		this.method = method;
 		this.callee = callee;
-		this.retval = retval;
+		this.parameters = parameters;
+	}
+	
+	/**
+	 * This constructor allows you to use an already existing VariableReference as retvar. 
+	 * This should only be done, iff an old statement is replaced with this statement. 
+	 * And already existing objects should in the future reference this object.
+	 * @param tc
+	 * @param method
+	 * @param callee
+	 * @param retvar
+	 * @param parameters
+	 */
+	public MethodStatement(TestCase tc, Method method, VariableReference callee,
+	        VariableReference retvar, List<VariableReference> parameters) {
+		super(tc, retvar);
+		assert(tc.size()>retvar.statement); //as an old statement should be replaced by this statement
+		assert(Modifier.isStatic(method.getModifiers()) || callee!=null);
+		assert(parameters!=null);
+		assert(method.getParameterTypes().length==parameters.size());
+		this.method = method;
+		this.callee = callee;
 		this.parameters = parameters;
 	}
 
@@ -167,34 +189,25 @@ public class MethodStatement extends Statement {
 	}
 
 	@Override
-	public StatementInterface clone() {
+	public StatementInterface clone(TestCase newTestCase) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
-			new_params.add(r.clone());
+			new_params.add(newTestCase.getStatement(r.statement).getReturnValue());
 		}
 
 		MethodStatement m;
-		if (Modifier.isStatic(method.getModifiers()))
+		if (Modifier.isStatic(method.getModifiers())){
 			// FIXXME: If callee is an array index, this will return an invalid
 			// copy of the cloned variable!
-			m = new MethodStatement(method, null, retval.clone(), new_params);
-		else
-			m = new MethodStatement(method, callee.clone(), retval.clone(), new_params);
+			m = new MethodStatement(newTestCase, method, null, retval.getType(), retval.statement, new_params);
+		}else{
+			m = new MethodStatement(newTestCase, method, newTestCase.getStatement(callee.statement).getReturnValue(), retval.getType(), retval.statement, new_params);
 
-		m.assertions = cloneAssertions();
+		}
+		
+		m.assertions = cloneAssertions(newTestCase);
 
 		return m;
-	}
-
-	@Override
-	public void adjustVariableReferences(int position, int delta) {
-		if (isInstanceMethod())
-			callee.adjust(delta, position);
-		retval.adjust(delta, position);
-		for (VariableReference var : parameters) {
-			var.adjust(delta, position);
-		}
-		adjustAssertions(position, delta);
 	}
 
 	@Override
@@ -263,18 +276,6 @@ public class MethodStatement extends Statement {
 		result = prime * result + ((method == null) ? 0 : method.hashCode());
 		result = prime * result + ((parameters == null) ? 0 : parameters.hashCode());
 		return result;
-	}
-
-	@Override
-	public void replace(VariableReference oldVar, VariableReference newVar) {
-		if (retval.equals(oldVar))
-			retval = newVar;
-		for (int i = 0; i < parameters.size(); i++) {
-			if (parameters.get(i).equals(oldVar))
-				parameters.set(i, newVar);
-		}
-		if (callee != null && callee.equals(oldVar))
-			callee = newVar;
 	}
 
 	/*
@@ -401,32 +402,5 @@ public class MethodStatement extends Statement {
 				references.add(param.array);
 		}
 		return references;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#replaceUnique(de.unisb.cs.
-	 * st.evosuite.testcase.VariableReference,
-	 * de.unisb.cs.st.evosuite.testcase.VariableReference)
-	 */
-	@Override
-	public void replaceUnique(VariableReference old_var, VariableReference new_var) {
-		if (retval == old_var)
-			retval = new_var;
-		if (retval.array == old_var)
-			retval.array = new_var;
-		for (int i = 0; i < parameters.size(); i++) {
-			if (parameters.get(i) == old_var)
-				parameters.set(i, new_var);
-			if (parameters.get(i).array == old_var)
-				parameters.get(i).array = new_var;
-
-		}
-		if (callee == old_var)
-			callee = new_var;
-		if (callee != null && callee.array == old_var)
-			callee.array = new_var;
 	}
 }

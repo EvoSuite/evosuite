@@ -70,7 +70,6 @@ public class TestRunnable implements InterfaceTestRunnable {
 				if (logger.isDebugEnabled())
 					logger.debug("Executing statement " + s.getCode());
 				ExecutionTracer.statementExecuted();
-				VariableReference returnValue = s.getReturnValue().clone();
 
 				out.flush();
 				byteStream.reset();
@@ -78,17 +77,6 @@ public class TestRunnable implements InterfaceTestRunnable {
 				Sandbox.setUpMockedSecurityManager();
 				Throwable exceptionThrown = s.execute(scope, out);
 				Sandbox.tearDownMockedSecurityManager();
-
-				// During runtime the type of a variable might change
-				// E.g. if declared Object, after the first run it will
-				// be set to the actual class observed at runtime
-				// If changed, we need to update all references
-				if (!s.getReturnValue().equals(returnValue)) {
-					for (int pos = num; pos < test.size(); pos++) {
-						test.getStatement(pos).replace(returnValue,
-						                               s.getReturnValue().clone());
-					}
-				}
 
 				if (exceptionThrown != null) {
 					exceptionsThrown.put(num, exceptionThrown);

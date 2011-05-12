@@ -16,6 +16,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
@@ -49,18 +50,13 @@ public class ScheduleLogWrapper implements StatementInterface{
 		this.wrapped=wrapped;
 	}
 
+	public StatementInterface clone(){
+		throw new UnsupportedOperationException();
+	}
+	
 	public void setCallReporter(callReporter callReporter){
 		exit();
 		this.callReporter=callReporter;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#SetRetval(de.unisb.cs.st.evosuite.testcase.VariableReference)
-	 */
-	@Override
-	public void SetRetval(VariableReference newRetVal) {
-		exit();
-		wrapped.SetRetval(newRetVal);
 	}
 
 	/* (non-Javadoc)
@@ -70,15 +66,6 @@ public class ScheduleLogWrapper implements StatementInterface{
 	public void addAssertion(Assertion assertion) {
 		exit();
 		wrapped.addAssertion(assertion);
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#adjustAssertions(int, int)
-	 */
-	@Override
-	public void adjustAssertions(int position, int delta) {
-		exit();
-		wrapped.adjustAssertions(position, delta);
 	}
 
 	/* (non-Javadoc)
@@ -253,27 +240,9 @@ public class ScheduleLogWrapper implements StatementInterface{
 		wrapped.removeAssertions();
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
-	 */
 	@Override
-	public void replace(VariableReference oldVar, VariableReference newVar) {
-		exit();
-		wrapped.replace(oldVar, newVar);
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replaceUnique(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
-	 */
-	@Override
-	public void replaceUnique(VariableReference oldVar, VariableReference newVar) {
-		exit();
-		wrapped.replaceUnique(oldVar, newVar);
-	}
-
-	@Override
-	public StatementInterface clone(){
-		return new ScheduleLogWrapper(wrapped.clone());
+	public StatementInterface clone(TestCase tc){
+		return new ScheduleLogWrapper(wrapped.clone(tc));
 	}
 	
 	@Override
