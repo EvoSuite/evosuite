@@ -427,13 +427,9 @@ public class BytecodeInstruction extends ASMWrapper {
 		if (isBranch()) {
 			return "Branch " + branchId + " - " + ((JumpInsnNode) asmNode).label.getLabel();
 		}
-		String type = "";
-		String opcode = "";
-		if (asmNode.getOpcode() >= 0
-				&& asmNode.getOpcode() < AbstractVisitor.OPCODES.length)
-			opcode = AbstractVisitor.OPCODES[asmNode.getOpcode()];
-		if (asmNode.getType() >= 0 && asmNode.getType() < AbstractVisitor.TYPES.length)
-			type = AbstractVisitor.TYPES[asmNode.getType()];
+		String type = getType();
+		String opcode = getOpcodeType();
+		
 		String stack = "";
 		if (frame == null)
 			stack = "null";

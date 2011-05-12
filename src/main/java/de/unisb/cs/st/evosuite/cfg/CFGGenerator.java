@@ -125,11 +125,6 @@ public class CFGGenerator {
 		return rawGraph;
 	}
 
-	/**
-	 * TODO supposed to build the final CFG with BasicBlocks as nodes and stuff!
-	 * 
-	 *  soon
-	 */
 	public DirectedMultigraph<BytecodeInstruction, DefaultEdge> getMinimalGraph() {
 
 		setMutationIDs();
@@ -173,8 +168,62 @@ public class CFGGenerator {
 				}
 			}
 		}
-
+		
+		// debug/experiment
+		computeCFG();
+		
 		return min_graph;
+	}
+	
+	
+	/**
+	 * TODO supposed to build the final CFG with BasicBlocks as nodes and stuff!
+	 * 
+	 * WORK IN PROGRESS
+	 * 
+	 *  soon
+	 */
+	public ActualControlFlowGraph computeCFG() {
+		
+		BytecodeInstruction entryPoint = determineEntryPoint();
+		Set<BytecodeInstruction> exitPoints = determineExitPoints();
+		
+		ActualControlFlowGraph cfg = new ActualControlFlowGraph(className,
+				methodName, entryPoint, exitPoints);
+		
+		return cfg;
+	}
+	
+	
+	private BytecodeInstruction determineEntryPoint() {
+		
+		BytecodeInstruction r = null;
+		for (BytecodeInstruction instruction : rawGraph.vertexSet())
+			if (rawGraph.inDegreeOf(instruction) == 0) {
+				if (r != null)
+					throw new IllegalStateException(
+							"expect raw CFG of a method to contain exactly one instruction with no parent");
+				r = instruction;
+			}
+		if (r == null)
+			throw new IllegalStateException(
+					"expect raw CFG of a method to contain exactly one instruction with no parent");
+		
+		return r;
+	}
+
+	private Set<BytecodeInstruction> determineExitPoints() {
+		
+		Set<BytecodeInstruction> r = new HashSet<BytecodeInstruction>();
+		for (BytecodeInstruction instruction : rawGraph.vertexSet())
+			if (rawGraph.outDegreeOf(instruction) == 0) {
+				r.add(instruction);
+			}
+		if (r.isEmpty())
+			throw new IllegalStateException(
+					"expect raw CFG of a method to contain at least one instruction with no child");
+		
+		return r;
 	}
 	
 	
