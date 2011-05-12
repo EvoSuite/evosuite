@@ -461,7 +461,7 @@ public class ConcurrentTestCase implements TestCase{
 	 * @return
 	 */
 	private StatementInterface getPseudoStatement(TestCase tc, final Class<?> clazz, int pos){
-		StatementInterface st= new AbstractStatement(tc, new VariableReference(clazz, pos)) {
+		StatementInterface st= new AbstractStatement(tc, new VariableReference(tc, clazz)) {
 
 			@Override
 			public int hashCode() {

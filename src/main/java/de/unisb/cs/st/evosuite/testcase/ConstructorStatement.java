@@ -48,9 +48,9 @@ public class ConstructorStatement extends AbstractStatement {
 
 	public List<VariableReference> parameters;
 
-	public ConstructorStatement(TestCase tc, Constructor<?> constructor, java.lang.reflect.Type type, int position,
+	public ConstructorStatement(TestCase tc, Constructor<?> constructor, java.lang.reflect.Type type,
 	        List<VariableReference> parameters) {
-		super(tc, new VariableReference(type, position));
+		super(tc, new VariableReference(tc, type));
 		this.constructor = constructor;
 		// this.return_type = constructor.getDeclaringClass();
 		this.parameters = parameters;
@@ -150,7 +150,7 @@ public class ConstructorStatement extends AbstractStatement {
 		for (VariableReference r : parameters) {
 			new_params.add(newTestCase.getStatement(r.getStPosition()).getReturnValue());
 		}
-		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor, retval.getType(), retval.getStPosition(), new_params);
+		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor, retval.getType(), new_params);
 		copy.assertions = cloneAssertions(newTestCase);
 		return copy;
 	}

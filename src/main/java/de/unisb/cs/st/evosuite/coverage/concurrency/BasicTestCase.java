@@ -119,13 +119,12 @@ public class BasicTestCase extends DefaultTestCase {
 	 */
 	@Override
 	public BasicTestCase clone() {
-		BasicTestCase t = new BasicTestCase();
-		List<StatementInterface> newStatements = t.getStatements();
+		BasicTestCase newTestCase = new BasicTestCase();
 		for (StatementInterface s : this) {
-			newStatements.add(s.clone(t));
+			super.statements.add(s.clone(newTestCase));
 		}
-		t.getCoveredGoals().addAll(super.getCoveredGoals());
+		newTestCase.getCoveredGoals().addAll(super.getCoveredGoals());
 
-		return t;
+		return newTestCase;
 	}
 }

@@ -541,7 +541,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 		                                                       position, recursion_depth);
 		int new_length = test.size();
 		position += (new_length - length);
-		StatementInterface st = new ConstructorStatement(test, constructor.getConstructor(), constructor.getCallClass(), position,
+		StatementInterface st = new ConstructorStatement(test, constructor.getConstructor(), constructor.getCallClass(),
 		        parameters);
 		test.addStatement(st, position);
 
@@ -617,7 +617,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 		//VariableReference ret_val = new VariableReference(method.getGenericReturnType(), position);
 		Type ret_val_type = getReturnVariable(method.getMethod(), callee);
 
-		StatementInterface st = new MethodStatement(test, method.getMethod(), callee, ret_val_type, position,
+		StatementInterface st = new MethodStatement(test, method.getMethod(), callee, ret_val_type,
 		        parameters);
 		test.addStatement(st, position);
 		logger.debug("Success: Adding method " + method);
@@ -638,7 +638,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 	private VariableReference addPrimitive(TestCase test, PrimitiveStatement<?> old,
 	        int position) throws ConstructionFailedException {
 		logger.debug("Adding primitive");
-		StatementInterface st = new PrimitiveStatement(test, old.getReturnType(), position, old.getValue());
+		StatementInterface st = new PrimitiveStatement(test, old.getReturnType(), old.getValue());
 		test.addStatement(st, position);
 
 		return st.getReturnValue();
@@ -677,7 +677,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 			}
 		}
 	
-		StatementInterface st = new FieldStatement(test, field.getField(), callee, field.getField().getGenericType(), position);
+		StatementInterface st = new FieldStatement(test, field.getField(), callee, field.getField().getGenericType());
 		test.addStatement(st, position);
 
 		return st.getReturnValue();
@@ -795,7 +795,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 			// Assign an existing value
 			// TODO:
 			// Do we need a special "[Array]AssignmentStatement"?
-			test.addStatement(new AssignmentStatement(test, array, array_index, array.array_length, position,
+			test.addStatement(new AssignmentStatement(test, array, array_index, array.array_length,
 			        randomness.choice(objects)), position);
 
 		} else {
@@ -808,7 +808,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 			VariableReference var = attemptGeneration(test, array.getComponentType(),
 			                                          position);
 			position += test.size() - old_len;
-			test.addStatement(new AssignmentStatement(test, array, array_index, array.array_length, position, var), position);
+			test.addStatement(new AssignmentStatement(test, array, array_index, array.array_length, var), position);
 		}
 	}
 
@@ -893,7 +893,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 		} else {
 			if (allow_null && randomness.nextDouble() <= Properties.NULL_PROBABILITY) {
 				logger.debug("Using Null!");
-				return new NullReference(type);
+				return new NullReference(test, type);
 			}
 
 			//logger.info("Current recursion list: "+current_recursion.size());
@@ -1106,7 +1106,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 		}
 		int new_length = test.size();
 		position += (new_length - length);
-		StatementInterface st = new ConstructorStatement(test, constructor.getConstructor(),  constructor.getCallClass(), position, parameters);
+		StatementInterface st = new ConstructorStatement(test, constructor.getConstructor(),  constructor.getCallClass(), parameters);
 		test.addStatement(st, position);
 
 		return st.getReturnValue();
@@ -1123,7 +1123,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 		int new_length = test.size();
 		position += (new_length - length);
 		Type ret_val = getReturnVariable(method.getMethod(), callee);
-		StatementInterface st = new MethodStatement(test, method.getMethod(), callee, ret_val, position,
+		StatementInterface st = new MethodStatement(test, method.getMethod(), callee, ret_val,
 		        parameters);
 		test.addStatement(st, position);
 

@@ -41,8 +41,8 @@ public class MethodStatement extends AbstractStatement {
 	public List<VariableReference> parameters;
 
 	public MethodStatement(TestCase tc, Method method, VariableReference callee,
-	        java.lang.reflect.Type type, int position, List<VariableReference> parameters) {
-		super(tc, new VariableReference(type, position));
+	        java.lang.reflect.Type type, List<VariableReference> parameters) {
+		super(tc, new VariableReference(tc, type));
 		assert(Modifier.isStatic(method.getModifiers()) || callee!=null);
 		assert(parameters!=null);
 		assert(method.getParameterTypes().length==parameters.size());
@@ -199,9 +199,9 @@ public class MethodStatement extends AbstractStatement {
 		if (Modifier.isStatic(method.getModifiers())){
 			// FIXXME: If callee is an array index, this will return an invalid
 			// copy of the cloned variable!
-			m = new MethodStatement(newTestCase, method, null, retval.getType(), retval.getStPosition(), new_params);
+			m = new MethodStatement(newTestCase, method, null, retval.getType(), new_params);
 		}else{
-			m = new MethodStatement(newTestCase, method, newTestCase.getStatement(callee.getStPosition()).getReturnValue(), retval.getType(), retval.getStPosition(), new_params);
+			m = new MethodStatement(newTestCase, method, newTestCase.getStatement(callee.getStPosition()).getReturnValue(), retval.getType(), new_params);
 
 		}
 		
