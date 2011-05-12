@@ -419,14 +419,6 @@ public class ConcurrentTestCase implements TestCase{
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getStatements()
-	 */
-	@Override
-	public List<StatementInterface> getStatements() {
-		return test.getStatements();
-	}
-
-	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#isPrefix(de.unisb.cs.st.evosuite.testcase.TestCase)
 	 */
 	@Override

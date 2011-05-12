@@ -197,14 +197,6 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	public StatementInterface getStatement(int position);
 
 	/**
-	 * Reveal internal list of statements TODO: This is not nice, needed it as a
-	 * hack for Parametrized tests
-	 * 
-	 * @return
-	 */
-	public List<StatementInterface> getStatements();
-
-	/**
 	 * Check if this test case is a prefix of t
 	 * 
 	 * @param t

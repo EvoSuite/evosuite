@@ -370,14 +370,6 @@ public class DefaultTestCase implements TestCase{
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getStatements()
-	 */
-	@Override
-	public List<StatementInterface> getStatements() {
-		return statements;
-	}
-
-	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#isPrefix(de.unisb.cs.st.evosuite.testcase.DefaultTestCase)
 	 */
 	@Override

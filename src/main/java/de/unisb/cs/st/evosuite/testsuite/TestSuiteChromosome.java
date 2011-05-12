@@ -146,7 +146,7 @@ public class TestSuiteChromosome extends Chromosome {
 			if (t.size() == 0) {
 				it.remove();
 				for (TestChromosome test : tests) {
-					for (StatementInterface s : test.test.getStatements()) {
+					for (StatementInterface s : test.test) {
 						if (s instanceof TestCallStatement) {
 							TestCallStatement call = (TestCallStatement) s;
 							if (call.getTestNum() > num) {

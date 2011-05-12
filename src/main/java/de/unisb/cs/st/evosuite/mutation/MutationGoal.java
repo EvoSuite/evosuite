@@ -133,7 +133,7 @@ public class MutationGoal extends TestCoverageGoal {
 		}
 
 		int num = 0;
-		for (StatementInterface statement : result.test.getStatements()) {
+		for (StatementInterface statement : result.test) {
 			for (int i = 0; i < parameters.length; i++) {
 				if (!satisfied.get(i)) {
 					if (parameters[i].isAssignableFrom(statement.getReturnValue().getVariableClass())) {
@@ -215,7 +215,7 @@ public class MutationGoal extends TestCoverageGoal {
 		if (!method_executed) {
 			logger.debug("Method " + methodName + "not executed by test");
 			boolean found = false;
-			for (StatementInterface s : result.test.getStatements()) {
+			for (StatementInterface s : result.test) {
 				if (s instanceof MethodStatement) {
 					MethodStatement ms = (MethodStatement) s;
 					Method method = ms.getMethod();

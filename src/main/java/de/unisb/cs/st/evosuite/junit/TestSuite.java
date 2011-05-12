@@ -550,7 +550,7 @@ public class TestSuite implements Opcodes {
 		Map<Integer, Integer> locals = new HashMap<Integer, Integer>();
 		mg.visitAnnotation("Lorg/junit/Test;", true);
 		int num = 0;
-		for (StatementInterface statement : test.getStatements()) {
+		for (StatementInterface statement : test) {
 			logger.debug("Current statement: " + statement.getCode());
 			statement.getBytecode(mg, locals, exceptions.get(num));
 			num++;
