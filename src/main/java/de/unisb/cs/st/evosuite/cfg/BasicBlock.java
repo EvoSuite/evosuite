@@ -1,9 +1,26 @@
 package de.unisb.cs.st.evosuite.cfg;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class is used to represent basic blocks in the control flow graph.
+ * 
+ * A basic block is a list of instructions for which the following holds:
+ *  
+ *  Whenever control flow reaches the first instruction of this blocks list,
+ *   control flow will pass through all the instructions of this list
+ *   successively and not pass another instruction in the mean time.
+ *  The first element in this blocks list does not have a parent in the
+ *   CFG that can be prepended to the list and the same would still hold true
+ *  Finally the last element in this list does not have a child inside the CFG
+ *   that could be appended to the list such that the above still holds true
+ *   
+ *  In other words:
+ *   - the first/last element of this blocks list has either 0 or >=2 parents/children in the CFG
+ *   - every other element in the list has exactly 1 parent and exactly 1 child in the CFG
  *
- * TODO complete
+ * TODO implement
  *
  * Taken from: 
  * "Efficiently Computing Static Single Assignment Form 
@@ -18,9 +35,97 @@ package de.unisb.cs.st.evosuite.cfg;
  * 
  * @see ControlFlowGraph
  * @author Andre Mis
- * 
  */
 public class BasicBlock {
 
+	private List<BytecodeInstruction> instructions = new ArrayList<BytecodeInstruction>();
 	
+	private String className;
+	private String methodName;
+	
+	public BasicBlock(String className, String methodName, List<BytecodeInstruction> blockNodes) {
+		if (className == null || methodName == null || blockNodes == null)
+			throw new IllegalArgumentException("null given");
+		
+		this.className = className;
+		this.methodName = methodName;
+		
+		setInstructions(blockNodes);
+		if (instructions.isEmpty())
+			throw new IllegalStateException(
+					"expect each basic block to contain at least one instruction");
+	}
+	
+	public boolean containsInstruction(BytecodeInstruction instruction) {
+		if(instruction == null)
+			throw new IllegalArgumentException("null given");
+		
+		return instructions.contains(instruction);
+	}
+	
+	private void setInstructions(List<BytecodeInstruction> blockNodes) {
+		for(BytecodeInstruction instruction : blockNodes) {
+			if(!appendInstruction(instruction))
+				throw new IllegalStateException("internal error while addind instruction to basic block list");
+		}
+	}
+	
+	private boolean appendInstruction(BytecodeInstruction instruction) {
+		if (instruction == null)
+			throw new IllegalArgumentException("null given");
+		if (!className.equals(instruction.getClassName()))
+			throw new IllegalArgumentException(
+					"expect elements of a basic block to be inside the same class");
+		if (!methodName.equals(instruction.getMethodName()))
+			throw new IllegalArgumentException(
+					"expect elements of a basic block to be inside the same class");
+		if (instructions.contains(instruction))
+			throw new IllegalArgumentException(
+					"a basic block can not contain the same element twice");
+		
+		// not sure if this holds:
+		BytecodeInstruction previousInstruction = getLastInstruction();
+		if (previousInstruction != null
+				&& instruction.getInstructionId() < previousInstruction
+						.getInstructionId())
+			throw new IllegalStateException(
+					"expect instructions in a basic block to be ordered by their instructionId");
+		
+		return instructions.add(instruction);
+	}
+	
+	public BytecodeInstruction getFirstInstruction() {
+		if(instructions.isEmpty())
+			return null;
+		return instructions.get(0);
+	}
+	
+	public BytecodeInstruction getLastInstruction() {
+		if(instructions.isEmpty())
+			return null;
+		return instructions.get(instructions.size()-1);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof BasicBlock))
+			return false;
+
+		BasicBlock other = (BasicBlock) obj;
+		if (!className.equals(other.className))
+			return false;
+		if (!methodName.equals(other.methodName))
+			return false;
+		if (this.instructions.size() != other.instructions.size())
+			return false;
+		for (BytecodeInstruction instruction : other.instructions)
+			if (!this.instructions.contains(instruction))
+				return false;
+
+		return true;
+	}
 }

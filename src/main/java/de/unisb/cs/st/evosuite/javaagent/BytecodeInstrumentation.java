@@ -24,6 +24,8 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
+import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -56,14 +58,17 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			hierarchy = Hierarchy.readFromDefaultLocation();
 	}
 
-	protected static Logger logger = Logger.getLogger(BytecodeInstrumentation.class);
+	protected static Logger logger = Logger
+			.getLogger(BytecodeInstrumentation.class);
 
-	//private static RemoveSystemExitTransformer systemExitTransformer = new RemoveSystemExitTransformer();
+	// private static RemoveSystemExitTransformer systemExitTransformer = new
+	// RemoveSystemExitTransformer();
 
 	private static String target_class = Properties.TARGET_CLASS;
 
 	private boolean isTargetClass(String className) {
-		if (className.equals(target_class) || className.startsWith(target_class + "$")) {
+		if (className.equals(target_class)
+				|| className.startsWith(target_class + "$")) {
 			return true;
 		}
 
@@ -75,16 +80,22 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	}
 
 	static {
-		logger.info("Loading bytecode transformer for " + Properties.PROJECT_PREFIX);
+		logger.info("Loading bytecode transformer for "
+				+ Properties.PROJECT_PREFIX);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.instrument.ClassFileTransformer#transform(java.lang.ClassLoader, java.lang.String, java.lang.Class, java.security.ProtectionDomain, byte[])
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * java.lang.instrument.ClassFileTransformer#transform(java.lang.ClassLoader
+	 * , java.lang.String, java.lang.Class, java.security.ProtectionDomain,
+	 * byte[])
 	 */
 	@Override
 	public byte[] transform(ClassLoader loader, String className,
-	        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-	        byte[] classfileBuffer) throws IllegalClassFormatException {
+			Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+			byte[] classfileBuffer) throws IllegalClassFormatException {
 
 		if (className != null) {
 			try {
@@ -92,29 +103,33 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 				// Some packages we shouldn't touch - hard-coded
 				if (!classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
-				        && (classNameWithDots.startsWith("java")
-				                || classNameWithDots.startsWith("sun")
-				                || classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
+						&& (classNameWithDots.startsWith("java")
+								|| classNameWithDots.startsWith("sun")
+								|| classNameWithDots
+										.startsWith("org.aspectj.org.eclipse") || classNameWithDots
+								.startsWith("org.mozilla.javascript.gen.c"))) {
 					return classfileBuffer;
 				}
 				if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)) {
 
-					//logger.debug("Removing calls to System.exit() from class: "
-					//			+ classNameWithDots);
-					//classfileBuffer = systemExitTransformer
-					//.transformBytecode(classfileBuffer);
+					// logger.debug("Removing calls to System.exit() from class: "
+					// + classNameWithDots);
+					// classfileBuffer = systemExitTransformer
+					// .transformBytecode(classfileBuffer);
 
 					ClassReader reader = new ClassReader(classfileBuffer);
 					ClassWriter writer = new ClassWriter(
-					        org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
+							org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
 
 					ClassVisitor cv = writer;
 
 					// Print out bytecode if debug is enabled
-					//if(logger.isDebugEnabled())
-					//cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+					// if(logger.isDebugEnabled())
+					// cv = new TraceClassVisitor(cv, new
+					// PrintWriter(System.out));
 
-					// Apply transformations to class under test and its owned classes
+					// Apply transformations to class under test and its owned
+					// classes
 					if (isTargetClass(classNameWithDots)) {
 						cv = new AccessibleClassAdapter(cv, className);
 						cv = new ExecutionPathClassAdapter(cv, className);
@@ -130,7 +145,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 						cv = new PrimitiveClassAdapter(cv, className);
 					}
 
-					// If we need to reset static constructors, make them explicit methods
+					// If we need to reset static constructors, make them
+					// explicit methods
 					if (Properties.STATIC_HACK)
 						cv = new StaticInitializationClassAdapter(cv, className);
 
@@ -138,17 +154,21 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 						logger.info("Transforming " + className);
 						ClassNode cn = new ClassNode();
 						reader.accept(cn, ClassReader.SKIP_FRAMES);
-						TestabilityTransformation tt = new TestabilityTransformation(cn);
-						//cv = new TraceClassVisitor(writer, new PrintWriter(System.out));
-						cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+						TestabilityTransformation tt = new TestabilityTransformation(
+								cn);
+						// cv = new TraceClassVisitor(writer, new
+						// PrintWriter(System.out));
+						cv = new TraceClassVisitor(cv, new PrintWriter(
+								System.out));
 						cv = new CheckClassAdapter(cv);
 						tt.transform().accept(cv);
 					} else {
 						reader.accept(cv, ClassReader.SKIP_FRAMES);
 					}
 					// Print out bytecode if debug is enabled
-					//if(logger.isDebugEnabled())
-					//cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+					// if(logger.isDebugEnabled())
+					// cv = new TraceClassVisitor(cv, new
+					// PrintWriter(System.out));
 					classfileBuffer = writer.toByteArray();
 
 					return classfileBuffer;
@@ -156,11 +176,13 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 				}
 
 			} catch (Throwable t) {
-				logger.fatal("Transformation of class " + className + " failed", t);
+				logger.fatal(
+						"Transformation of class " + className + " failed", t);
 				StringWriter writer = new StringWriter();
 				t.printStackTrace(new PrintWriter(writer));
 				logger.fatal(writer.getBuffer().toString());
 				t.printStackTrace();
+//				LogManager.shutdown();
 				System.exit(0);
 				// throw new RuntimeException(e.getMessage());
 			}

@@ -39,7 +39,6 @@ import org.jgrapht.ext.StringNameProvider;
 import org.jgrapht.graph.DefaultEdge;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUse;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.Definition;

@@ -11,6 +11,7 @@ import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.util.AbstractVisitor;
 
 // TODO: the following methods about control dependence are flawed right now:
 //			- the BytecodeInstruction of a Branch does not have it's control dependent branchId
@@ -49,10 +50,29 @@ public abstract class ASMWrapper {
 	public AbstractInsnNode getASMNode(){
 		return asmNode;
 	}
+
+	public String getInstructionType() {
+		String opcode = "";
+		if (asmNode.getOpcode() >= 0
+				&& asmNode.getOpcode() < AbstractVisitor.OPCODES.length)
+			opcode = AbstractVisitor.OPCODES[asmNode.getOpcode()];
+		
+		return opcode; 
+	}
+	
+	public String getType() {
+		// TODO explain
+		String type = "";
+		if (asmNode.getType() >= 0 && asmNode.getType() < AbstractVisitor.TYPES.length)
+			type = AbstractVisitor.TYPES[asmNode.getType()];
+		
+		return type;
+	}
 	
 	public abstract int getInstructionId();
 	
 	public abstract String getMethodName();
+	
 	
 	// methods for branch analysis
 	
@@ -60,6 +80,10 @@ public abstract class ASMWrapper {
 		return isBranch() 
 				|| isLookupSwitch() 
 				|| isTableSwitch();
+	}
+	
+	public boolean canReturnFromMethod() {
+		return isReturn() || isThrow();
 	}
 
 	public boolean isReturn() {

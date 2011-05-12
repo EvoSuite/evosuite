@@ -6,7 +6,16 @@ package amis;
  */
 public class ControlDependencyTestClass {
 
+	int anInt = 0;
+	
 	public ControlDependencyTestClass() {
+	}
+	
+	
+	public void simpleDoWhile() {
+		do {
+			anInt++;
+		} while(anInt % 13!=0);
 	}
 	
 	public int ifMethod(int anInt) {
