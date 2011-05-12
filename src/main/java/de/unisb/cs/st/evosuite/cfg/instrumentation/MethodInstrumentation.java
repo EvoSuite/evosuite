@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.unisb.cs.st.evosuite.cfg;
+package de.unisb.cs.st.evosuite.cfg.instrumentation;
 
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;

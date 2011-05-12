@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.unisb.cs.st.evosuite.cfg;
+package de.unisb.cs.st.evosuite.cfg.instrumentation;
 
 import java.util.Iterator;
 
@@ -20,11 +20,11 @@ import org.objectweb.asm.tree.VarInsnNode;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUse;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
-import de.unisb.cs.st.evosuite.coverage.dataflow.Definition;
-import de.unisb.cs.st.evosuite.coverage.dataflow.Use;
 
 /**
  * @author copied from CFGMethodAdapter
@@ -50,7 +50,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			for (BytecodeInstruction v : graph.vertexSet()) {
 
 				if (in.equals(v.getASMNode()))
-					v.branchId = completeCFG.getVertex(v.getId()).branchId;
+					v.branchId = completeCFG.getVertex(v.getId()).getBranchId();
 
 				if (Properties.CRITERION == Criterion.DEFUSE
 				        && in.equals(v.getASMNode()) 
