@@ -147,7 +147,7 @@ public class DefaultTestCase implements TestCase{
 					// ArrayStatement as = (ArrayStatement)statements.get(i);
 					for (int index = 0; index < statements.get(i).getReturnValue().array_length; index++) {
 						variables.add(new VariableReference(
-						        statements.get(i).getReturnValue().clone(), index,
+						        statements.get(i).getReturnValue(), index,
 						        statements.get(i).getReturnValue().array_length, i));
 					}
 				}
@@ -159,8 +159,7 @@ public class DefaultTestCase implements TestCase{
 			} else if (statements.get(i).getReturnValue().isAssignableTo(type)) {
 				// if(constraint == null ||
 				// constraint.isValid(statements.get(i).getReturnValue()))
-				variables.add(new VariableReference(statements.get(i)
-				        .getReturnType(), i));
+				variables.add(statements.get(i).getReturnValue());
 				// else
 				// logger.trace(statements.get(i).retval.getSimpleClassName()+" IS assignable to "+type+" but constrained");
 				// variables.add(new VariableReference(type, i));
@@ -201,12 +200,11 @@ public class DefaultTestCase implements TestCase{
 					// VariableReference(statements.get(i).retval.clone(),
 					// index, statements.get(i).retval.array_length, i));
 					variables.add(new VariableReference(
-					        statements.get(i).getReturnValue().clone(), index, statements
+					        statements.get(i).getReturnValue(), index, statements
 					                .get(i).getReturnValue().array_length, i));
 				}
 			} else if (!statements.get(i).getReturnValue().isArrayIndex()) {
-				variables.add(new VariableReference(statements.get(i)
-				        .getReturnType(), i));
+				variables.add(statements.get(i).getReturnValue());
 			}
 			// logger.trace(statements.get(i).retval.getSimpleClassName());
 		}
@@ -233,7 +231,7 @@ public class DefaultTestCase implements TestCase{
 
 		Randomness randomness = Randomness.getInstance();
 		int num = randomness.nextInt(variables.size());
-		return variables.get(num).clone();
+		return variables.get(num);
 	}
 
 	/* (non-Javadoc)
@@ -258,7 +256,7 @@ public class DefaultTestCase implements TestCase{
 
 		Randomness randomness = Randomness.getInstance();
 		int num = randomness.nextInt(variables.size());
-		return variables.get(num).clone();
+		return variables.get(num);
 	}
 
 	/* (non-Javadoc)
@@ -303,7 +301,8 @@ public class DefaultTestCase implements TestCase{
 	@Override
 	public VariableReference setStatement(StatementInterface statement, int position) {
 		statements.set(position, statement);
-		return new VariableReference(statement.getReturnType(), position); // TODO:
+		assert(isValid());
+		return statement.getReturnValue(); // TODO:
 		                                                                   // -1?
 	}
 
@@ -314,6 +313,7 @@ public class DefaultTestCase implements TestCase{
 	public void addStatement(StatementInterface statement, int position) {
 		fixVariableReferences(position, 1);
 		statements.add(position, statement);
+		assert(isValid());
 	}
 
 	/* (non-Javadoc)
@@ -322,6 +322,7 @@ public class DefaultTestCase implements TestCase{
 	@Override
 	public void addStatement(StatementInterface statement) {
 		statements.add(statement);
+		assert(isValid());
 	}
 
 	/* (non-Javadoc)
@@ -383,6 +384,7 @@ public class DefaultTestCase implements TestCase{
 			return;
 		fixVariableReferences(position, -1);
 		statements.remove(position);
+		assert(isValid());
 		// for(Statement s : statements) {
 		// for(Asss.assertions)
 		// }
@@ -503,7 +505,7 @@ public class DefaultTestCase implements TestCase{
 	public DefaultTestCase clone() {
 		DefaultTestCase t = new DefaultTestCase();
 		for (StatementInterface s : statements) {
-			t.statements.add(s.clone());
+			t.statements.add(s.clone(t));
 		}
 		t.coveredGoals.addAll(coveredGoals);
 		//t.exception_statement = exception_statement;
@@ -555,7 +557,7 @@ public class DefaultTestCase implements TestCase{
 			for (Assertion a : other.getStatement(i).getAssertions()) {
 				if (!statements.get(i).getAssertions().contains(a))
 					if (a != null)
-						statements.get(i).getAssertions().add(a.clone());
+						statements.get(i).getAssertions().add(a.clone(this));
 			}
 		}
 	}
@@ -604,7 +606,8 @@ public class DefaultTestCase implements TestCase{
 		for (StatementInterface s : statements) {
 			if (s.getReturnValue().statement != num) {
 				logger.error("Test case is invalid at statement " + num + " - "
-				        + s.getReturnValue().statement);
+				        + s.getReturnValue().statement + " which is " + s.getClass() + " " + s.getCode());
+				logger.error("Test code is: " + this.toCode());
 				return false;
 			}
 			num++;

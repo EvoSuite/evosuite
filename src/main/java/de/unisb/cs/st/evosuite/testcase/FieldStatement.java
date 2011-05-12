@@ -40,7 +40,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  * @author Gordon Fraser
  * 
  */
-public class FieldStatement extends Statement {
+public class FieldStatement extends AbstractStatement {
 
 	transient Field field;
 	VariableReference source;
@@ -48,6 +48,34 @@ public class FieldStatement extends Statement {
 
 	String className;
 	String fieldName;
+
+	public FieldStatement(TestCase tc, Field field, VariableReference source,
+	        java.lang.reflect.Type type, int position) {
+		super(tc, new VariableReference(type, position));
+		this.field = field;
+		this.className = field.getDeclaringClass().getName();
+		this.fieldName = field.getName();
+		this.source = source;
+	}
+	
+	/**
+	 * This constructor allows you to use an already existing VariableReference as retvar. 
+	 * This should only be done, iff an old statement is replaced with this statement. 
+	 * And already existing objects should in the future reference this object.
+	 * @param tc
+	 * @param field
+	 * @param source
+	 * @param ret_var
+	 */
+	public FieldStatement(TestCase tc, Field field, VariableReference source,
+	        VariableReference ret_var) {
+		super(tc, ret_var);
+		assert(tc.size()>ret_var.statement); //as an old statement should be replaced by this statement
+		this.field = field;
+		this.className = field.getDeclaringClass().getName();
+		this.fieldName = field.getName();
+		this.source = source;
+	}
 
 	private Object readResolve() {
 		try {
@@ -63,16 +91,7 @@ public class FieldStatement extends Statement {
 		}
 		return this;
 	}
-
-	public FieldStatement(Field field, VariableReference source,
-	        VariableReference ret_val) {
-		this.field = field;
-		this.className = field.getDeclaringClass().getName();
-		this.fieldName = field.getName();
-		this.source = source;
-		this.retval = ret_val;
-	}
-
+	
 	public VariableReference getSource() {
 		return source;
 	}
@@ -119,11 +138,11 @@ public class FieldStatement extends Statement {
 	}
 
 	@Override
-	public StatementInterface clone() {
+	public StatementInterface clone(TestCase newTestCase) {
 		if (Modifier.isStatic(field.getModifiers()))
-			return new FieldStatement(field, null, retval.clone());
+			return new FieldStatement(newTestCase, field, null, retval.getType(), retval.statement);
 		else
-			return new FieldStatement(field, source.clone(), retval.clone());
+			return new FieldStatement(newTestCase, field, newTestCase.getStatement(source.statement).getReturnValue(), retval.getType(), retval.statement);
 	}
 
 	@Override
@@ -151,14 +170,6 @@ public class FieldStatement extends Statement {
 			exceptionThrown = e;
 		}
 		return exceptionThrown;
-	}
-
-	@Override
-	public void adjustVariableReferences(int position, int delta) {
-		if (!Modifier.isStatic(field.getModifiers()))
-			source.adjust(delta, position);
-		retval.adjust(delta, position);
-		adjustAssertions(position, delta);
 	}
 
 	@Override
@@ -202,15 +213,6 @@ public class FieldStatement extends Statement {
 
 	public Field getField() {
 		return field;
-	}
-
-	@Override
-	public void replace(VariableReference oldVar, VariableReference newVar) {
-		if (retval.equals(oldVar))
-			retval = newVar;
-		if (source != null && source.equals(oldVar))
-			source = newVar;
-
 	}
 
 	/*
@@ -293,27 +295,5 @@ public class FieldStatement extends Statement {
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
 		return new ArrayList<VariableReference>(getVariableReferences());
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#replaceUnique(de.unisb.cs.
-	 * st.evosuite.testcase.VariableReference,
-	 * de.unisb.cs.st.evosuite.testcase.VariableReference)
-	 */
-	@Override
-	public void replaceUnique(VariableReference old_var,
-	        VariableReference new_var) {
-		if (retval == old_var)
-			retval = new_var;
-		if (retval.array == old_var)
-			retval.array = new_var;
-		if (source == old_var)
-			source = new_var;
-		if (source != null && source.array == old_var)
-			source.array = new_var;
-
 	}
 }

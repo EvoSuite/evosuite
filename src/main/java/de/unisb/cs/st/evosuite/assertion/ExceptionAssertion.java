@@ -21,6 +21,7 @@
 package de.unisb.cs.st.evosuite.assertion;
 
 import de.unisb.cs.st.evosuite.testcase.Scope;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 public class ExceptionAssertion extends Assertion {
 
@@ -34,7 +35,7 @@ public class ExceptionAssertion extends Assertion {
 	}
 
 	@Override
-	public Assertion clone() {
+	public Assertion clone(TestCase newTestCase) {
 		return new ExceptionAssertion(exception, statement);
 	}
 

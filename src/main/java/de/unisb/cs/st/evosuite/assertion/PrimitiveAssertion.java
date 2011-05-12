@@ -21,6 +21,7 @@ package de.unisb.cs.st.evosuite.assertion;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import de.unisb.cs.st.evosuite.testcase.Scope;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 public class PrimitiveAssertion extends Assertion {
 
@@ -46,9 +47,9 @@ public class PrimitiveAssertion extends Assertion {
 	}
 
 	@Override
-	public Assertion clone() {
+	public Assertion clone(TestCase newTestCase) {
 		PrimitiveAssertion s = new PrimitiveAssertion();
-		s.source = source.clone();
+		s.source = newTestCase.getStatement(source.statement).getReturnValue();
 		s.value = value;
 		return s;
 	}

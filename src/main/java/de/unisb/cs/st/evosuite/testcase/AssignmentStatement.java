@@ -37,20 +37,13 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  * @author Gordon Fraser
  * 
  */
-public class AssignmentStatement extends Statement {
+public class AssignmentStatement extends AbstractStatement {
 
 	public VariableReference parameter;
 
-	public AssignmentStatement(VariableReference variable, VariableReference value) {
-		this.retval = variable;
+	public AssignmentStatement(TestCase tc, VariableReference array, int array_index, int array_length, int position, VariableReference value) {
+		super(tc, new VariableReference(array, array_index, array.array_length, position));
 		this.parameter = value;
-	}
-
-	@Override
-	public void adjustVariableReferences(int position, int delta) {
-		retval.adjust(delta, position);
-		parameter.adjust(delta, position);
-		adjustAssertions(position, delta);
 	}
 
 	public void setArray(VariableReference array) {
@@ -58,9 +51,11 @@ public class AssignmentStatement extends Statement {
 	}
 
 	@Override
-	public StatementInterface clone() {
-		AssignmentStatement copy = new AssignmentStatement(retval.clone(),
-		        parameter.clone());
+	public StatementInterface clone(TestCase newTestCase) {
+		VariableReference newParam = newTestCase.getStatement(parameter.statement).getReturnValue(); //must be set as we only use this to clone whole testcases
+		assert(newParam!=null);
+		AssignmentStatement copy = new AssignmentStatement(newTestCase, retval.array, retval.array_index, retval.array_length, retval.statement,
+		        newParam); 
 		return copy;
 	}
 
@@ -106,14 +101,6 @@ public class AssignmentStatement extends Statement {
 		int result = prime + retval.hashCode()
 		        + +((parameter == null) ? 0 : parameter.hashCode());
 		return result;
-	}
-
-	@Override
-	public void replace(VariableReference oldVar, VariableReference newVar) {
-		if (retval.equals(oldVar))
-			retval = newVar;
-		if (parameter.equals(oldVar))
-			parameter = newVar;
 	}
 
 	@Override
@@ -171,23 +158,4 @@ public class AssignmentStatement extends Statement {
 		return new ArrayList<VariableReference>(getVariableReferences());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#replaceUnique(de.unisb.cs.
-	 * st.evosuite.testcase.VariableReference,
-	 * de.unisb.cs.st.evosuite.testcase.VariableReference)
-	 */
-	@Override
-	public void replaceUnique(VariableReference old_var, VariableReference new_var) {
-		if (retval == old_var)
-			retval = new_var;
-		if (retval.array == old_var)
-			retval.array = new_var;
-		if (parameter == old_var)
-			parameter = new_var;
-		if (parameter.array == old_var)
-			parameter.array = new_var;
-	}
 }

@@ -5,6 +5,7 @@ package de.unisb.cs.st.evosuite.testsuite;
 
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -16,7 +17,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.Scope;
-import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.AbstractStatement;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
@@ -26,13 +27,13 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  * @author Gordon Fraser
  * 
  */
-public class TestCallStatement extends Statement {
+public class TestCallStatement extends AbstractStatement {
 
 	private final TestCallObject testCall;
 
-	public TestCallStatement(TestCallObject call, VariableReference retval) {
+	public TestCallStatement(TestCase tc, TestCallObject call, Type type, int position) {
+		super(tc, new VariableReference(type, position));
 		this.testCall = call;
-		this.retval = retval;
 	}
 
 	/*
@@ -173,19 +174,6 @@ public class TestCallStatement extends Statement {
 		return vars;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#replace(de.unisb.cs.st.evosuite
-	 * .testcase.VariableReference,
-	 * de.unisb.cs.st.evosuite.testcase.VariableReference)
-	 */
-	@Override
-	public void replace(VariableReference old_var, VariableReference new_var) {
-		// TODO Auto-generated method stub
-
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -193,8 +181,8 @@ public class TestCallStatement extends Statement {
 	 * @see de.unisb.cs.st.evosuite.testcase.Statement#clone()
 	 */
 	@Override
-	public StatementInterface clone() {
-		TestCallStatement statement = new TestCallStatement(testCall, retval.clone());
+	public StatementInterface clone(TestCase newTestCase) {
+		TestCallStatement statement = new TestCallStatement(newTestCase, testCall, retval.getType(), retval.statement);
 		return statement;
 	}
 
@@ -244,20 +232,6 @@ public class TestCallStatement extends Statement {
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
 		return new ArrayList<VariableReference>(getVariableReferences());
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#replaceUnique(de.unisb.cs.
-	 * st.evosuite.testcase.VariableReference,
-	 * de.unisb.cs.st.evosuite.testcase.VariableReference)
-	 */
-	@Override
-	public void replaceUnique(VariableReference old_var, VariableReference new_var) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

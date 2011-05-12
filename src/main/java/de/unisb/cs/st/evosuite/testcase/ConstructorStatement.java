@@ -31,9 +31,10 @@ import java.util.Set;
 import org.apache.commons.lang.ClassUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
+
+import org.objectweb.asm.Type;
 
 /**
  * This statement represents a constructor call
@@ -41,18 +42,36 @@ import org.objectweb.asm.commons.Method;
  * @author Gordon Fraser
  * 
  */
-public class ConstructorStatement extends Statement {
+public class ConstructorStatement extends AbstractStatement {
 
 	Constructor<?> constructor;
 
 	public List<VariableReference> parameters;
 
-	public ConstructorStatement(Constructor<?> constructor, VariableReference retval,
+	public ConstructorStatement(TestCase tc, Constructor<?> constructor, java.lang.reflect.Type type, int position,
 	        List<VariableReference> parameters) {
+		super(tc, new VariableReference(type, position));
 		this.constructor = constructor;
 		// this.return_type = constructor.getDeclaringClass();
 		this.parameters = parameters;
-		this.retval = retval;
+	}
+	
+	/**
+	 * This constructor allows you to use an already existing VariableReference as retvar. 
+	 * This should only be done, iff an old statement is replaced with this statement. 
+	 * And already existing objects should in the future reference this object.
+	 * @param tc
+	 * @param constructor
+	 * @param retvar
+	 * @param parameters
+	 */
+	public ConstructorStatement(TestCase tc, Constructor<?> constructor, VariableReference retvar,
+	        List<VariableReference> parameters) {
+		super(tc, retvar);
+		assert(tc.size()>retvar.statement); //as an old statement should be replaced by this statement
+		this.constructor = constructor;
+		// this.return_type = constructor.getDeclaringClass();
+		this.parameters = parameters;
 	}
 
 	public Constructor<?> getConstructor() {
@@ -126,23 +145,14 @@ public class ConstructorStatement extends Statement {
 	}
 
 	@Override
-	public StatementInterface clone() {
+	public StatementInterface clone(TestCase newTestCase) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
-			new_params.add(r.clone());
+			new_params.add(newTestCase.getStatement(r.statement).getReturnValue());
 		}
-		Statement copy = new ConstructorStatement(constructor, retval.clone(), new_params);
-		copy.assertions = cloneAssertions();
+		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor, retval.getType(), retval.statement, new_params);
+		copy.assertions = cloneAssertions(newTestCase);
 		return copy;
-	}
-
-	@Override
-	public void adjustVariableReferences(int position, int delta) {
-		retval.adjust(delta, position);
-		for (VariableReference var : parameters) {
-			var.adjust(delta, position);
-		}
-		adjustAssertions(position, delta);
 	}
 
 	@Override
@@ -189,16 +199,6 @@ public class ConstructorStatement extends Statement {
 		result = prime * result + ((constructor == null) ? 0 : constructor.hashCode());
 		result = prime * result + ((parameters == null) ? 0 : parameters.hashCode());
 		return result;
-	}
-
-	@Override
-	public void replace(VariableReference oldVar, VariableReference newVar) {
-		if (retval.equals(oldVar))
-			retval = newVar;
-		for (int i = 0; i < parameters.size(); i++) {
-			if (parameters.get(i).equals(oldVar))
-				parameters.set(i, newVar);
-		}
 	}
 
 	/*
@@ -307,28 +307,5 @@ public class ConstructorStatement extends Statement {
 		}
 		return references;
 
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#replaceUnique(de.unisb.cs.
-	 * st.evosuite.testcase.VariableReference,
-	 * de.unisb.cs.st.evosuite.testcase.VariableReference)
-	 */
-	@Override
-	public void replaceUnique(VariableReference old_var, VariableReference new_var) {
-		if (retval == old_var)
-			retval = new_var;
-		if (retval.array == old_var)
-			retval.array = new_var;
-		for (int i = 0; i < parameters.size(); i++) {
-			if (parameters.get(i) == old_var)
-				parameters.set(i, new_var);
-			if (parameters.get(i).array == old_var)
-				parameters.get(i).array = new_var;
-
-		}
 	}
 }

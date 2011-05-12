@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import de.unisb.cs.st.evosuite.testcase.Scope;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
@@ -82,7 +83,14 @@ public abstract class Assertion {
 	 * Return a copy of the assertion
 	 */
 	@Override
-	public abstract Assertion clone();
+	public final Assertion clone(){
+		throw new UnsupportedOperationException("Use Assertion.clone(TestCase)");
+	}
+	
+	/**
+	 * Return a copy of the assertion, which is valid in newTestCase
+	 */
+	public abstract Assertion clone(TestCase newTestCase);
 
 	/**
 	 * Determine if assertion holds in current scope
