@@ -428,7 +428,7 @@ public class BytecodeInstruction extends ASMWrapper {
 			return "Branch " + branchId + " - " + ((JumpInsnNode) asmNode).label.getLabel();
 		}
 		String type = getType();
-		String opcode = getOpcodeType();
+		String opcode = getInstructionType();
 		
 		String stack = "";
 		if (frame == null)

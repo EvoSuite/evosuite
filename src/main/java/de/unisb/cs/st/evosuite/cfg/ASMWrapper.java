@@ -51,7 +51,7 @@ public abstract class ASMWrapper {
 		return asmNode;
 	}
 
-	public String getOpcodeType() {
+	public String getInstructionType() {
 		String opcode = "";
 		if (asmNode.getOpcode() >= 0
 				&& asmNode.getOpcode() < AbstractVisitor.OPCODES.length)
