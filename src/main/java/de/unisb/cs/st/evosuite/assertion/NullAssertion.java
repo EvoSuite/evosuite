@@ -21,13 +21,14 @@
 package de.unisb.cs.st.evosuite.assertion;
 
 import de.unisb.cs.st.evosuite.testcase.Scope;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 public class NullAssertion extends Assertion {
 
 	@Override
-	public Assertion clone() {
+	public Assertion clone(TestCase newTestCase) {
 		NullAssertion s = new NullAssertion();
-		s.source = source.clone();
+		s.source = newTestCase.getStatement(source.statement).getReturnValue();
 		s.value  = value;
 		return s;
 	}

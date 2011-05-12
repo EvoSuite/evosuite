@@ -103,13 +103,14 @@ public class VariableReference implements Comparable<VariableReference> {
 	 */
 	@Override
 	public VariableReference clone() {
-		VariableReference copy = new VariableReference(type, statement);
+		throw new UnsupportedOperationException("This method SHOULD not be used, as only the original reference is keeped up to date");
+		/*VariableReference copy = new VariableReference(type, statement);
 		if (array != null) {
 			copy.array = array.clone();
 			copy.array_index = array_index;
 			copy.array_length = array_length;
 		}
-		return copy;
+		return copy;*/
 	}
 
 	/**
@@ -266,9 +267,6 @@ public class VariableReference implements Comparable<VariableReference> {
 	public void adjust(int delta, int position) {
 		if (statement >= position) {
 			statement += delta;
-		}
-		if (array != null) {
-			array.adjust(delta, position);
 		}
 	}
 

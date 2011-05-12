@@ -257,12 +257,13 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 			Class<?> params[] = {int.class}; 
 			Method register = LockRuntime.class.getMethod(LockRuntime.RUNTIME_REGISTER_THREAD_METHOD, params);
 
-			VariableReference idRef = new VariableReference(Integer.class, 0);
-			test.addStatement(new PrimitiveStatement<Integer>(idRef, LockRuntime.getUniqueThreadID()),0, false);
-
+			StatementInterface idst = new PrimitiveStatement<Integer>(test, Integer.class, 0, LockRuntime.getUniqueThreadID());
+			test.addStatement(idst,0, false);
+			VariableReference idRef = idst.getReturnValue();
+			
 			List<VariableReference> paramsThreadRegistration = new ArrayList<VariableReference>();
 			paramsThreadRegistration.add(idRef);
-			test.addStatement(new MethodStatement(register, null, new VariableReference(Void.class, 1), paramsThreadRegistration), 1, false);
+			test.addStatement(new MethodStatement(test, register, null, Void.class, 1, paramsThreadRegistration), 1, false);
 
 			return test;
 
@@ -288,7 +289,7 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 				threadEnd=met;
 		}
 
-		test.addStatement(new MethodStatement(threadEnd, null, new VariableReference(Void.class, test.size()), new ArrayList<VariableReference>()), false);
+		test.addStatement(new MethodStatement(test, threadEnd, null, Void.class, test.size(), new ArrayList<VariableReference>()), false);
 		return test;
 	}
 
@@ -317,7 +318,6 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 				if (logger.isDebugEnabled())
 					logger.debug("Executing statement " + s.getCode());
 				ExecutionTracer.statementExecuted();
-				VariableReference returnValue = s.getReturnValue().clone();
 
 				out.flush();
 				byteStream.reset();
@@ -325,17 +325,6 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 				Sandbox.setUpMockedSecurityManager();
 				Throwable exceptionThrown = s.execute(localScope, out);
 				Sandbox.tearDownMockedSecurityManager();
-
-				// During runtime the type of a variable might change
-				// E.g. if declared Object, after the first run it will
-				// be set to the actual class observed at runtime
-				// If changed, we need to update all references
-				if (!s.getReturnValue().equals(returnValue)) {
-					for (int pos = num; pos < localTest.size(); pos++) {
-						localTest.getStatement(pos).replace(returnValue,
-								s.getReturnValue().clone());
-					}
-				}
 
 				if (exceptionThrown != null) {
 					exceptionsThrownLocal.put(num, exceptionThrown);

@@ -59,7 +59,7 @@ public class InspectorTrace extends OutputTrace {
 			trace.inspector_results.put(e.getKey(), new ArrayList<Object>(e.getValue()));
 
 		for (Entry<Integer, VariableReference> e : return_values.entrySet())
-			trace.return_values.put(e.getKey(), e.getValue().clone());
+			trace.return_values.put(e.getKey(), e.getValue());
 		trace.calleeMap.putAll(calleeMap);
 
 		//trace.return_values.putAll(return_values);
