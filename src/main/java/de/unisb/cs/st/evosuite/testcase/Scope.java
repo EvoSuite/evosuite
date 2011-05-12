@@ -64,9 +64,9 @@ public class Scope {
 				System.out.println("Trying to access object of class " + o.getClass()
 				        + " as array: " + o);
 			else if (o != null)
-				reference.array_length = Array.getLength(o);
+				reference.setArrayLength(Array.getLength(o));
 			else
-				reference.array_length = 0;
+				reference.setArrayLength(0);
 		}
 
 		if (o != null && !o.getClass().equals(reference.getVariableClass())
@@ -96,7 +96,7 @@ public class Scope {
 	 */
 	public synchronized Object get(VariableReference reference) {
 		if (reference.isArrayIndex()) {
-			Object array = pool.get(reference.array);
+			Object array = pool.get(reference.getArray());
 			if (array != null) {
 				return Array.get(array, reference.array_index);
 			} else {

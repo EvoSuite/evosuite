@@ -162,7 +162,7 @@ public class ConstructorStatement extends AbstractStatement {
 		references.addAll(parameters);
 		for (VariableReference param : parameters) {
 			if (param.isArrayIndex())
-				references.add(param.array);
+				references.add(param.getArray());
 		}
 		return references;
 	}
@@ -303,7 +303,7 @@ public class ConstructorStatement extends AbstractStatement {
 		references.addAll(parameters);
 		for (VariableReference param : parameters) {
 			if (param.isArrayIndex())
-				references.add(param.array);
+				references.add(param.getArray());
 		}
 		return references;
 

@@ -41,20 +41,17 @@ import de.unisb.cs.st.evosuite.ga.Randomness;
  */
 public class ArrayStatement extends AbstractStatement {
 
-	private final Randomness randomness = Randomness.getInstance();
-
 	private int length = 0;
 
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type) {
-		super(tc, new VariableReference(tc, type));
-		this.length = randomness.nextInt(Properties.MAX_ARRAY) + 1;
-		this.retval.array_length = this.length;
+		this(tc, type, Randomness.getInstance().nextInt(Properties.MAX_ARRAY) + 1);
+
 	}
 
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type, int length) {
 		super(tc, new VariableReference(tc, type));
 		this.length = length;
-		this.retval.array_length = this.length;
+		this.retval.setArrayLength(this.length);
 	}
 
 	public int size() {
