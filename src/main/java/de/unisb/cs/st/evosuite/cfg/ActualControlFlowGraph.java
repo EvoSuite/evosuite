@@ -9,13 +9,33 @@ import org.jgrapht.graph.DirectedMultigraph;
 
 /**
  * 
- * Supposed to become the new implementation of a control flow graph inside EvoSuite
+ * Supposed to become the new implementation of a control flow graph inside
+ * EvoSuite
  * 
- * The "actual" CFG does not contain single cfg.BytecodeInstructions as nodes, but
- * contains cfg.BasicBlocks - look at that class for more information
+ * The "actual" CFG does not contain single cfg.BytecodeInstructions as nodes,
+ * but contains cfg.BasicBlocks - look at that class for more information
  * 
- * Simply put this is a minimized version of the complete/raw CFG the cfg.BytecodeAnalyzer
- * and cfg.CFGGenerator produce 
+ * Simply put this is a minimized version of the complete/raw CFG the
+ * cfg.BytecodeAnalyzer and cfg.CFGGenerator produce - which holds a node for
+ * every BytecodeInstruction
+ * 
+ * Out of the above described raw CFG the following "pin-points" are extracted:
+ * - the entryNode (first instruction in the method) - all exitNodes (outDegree
+ * 0) - all branches (outDegree>1) - and in a subsequent step all targets of all
+ * branches - all joins (inDegree>1) - and in a subsequent step all sources of
+ * all joins
+ * 
+ * All those "pin-points" are put into a big set (some of the above categories
+ * may overlap) and for all those single BytecodeInstrucions their corresponding
+ * BasicBlock is computed and added to this CFGs vertexSet After that the raw
+ * CFG is asked for the parents of the first instruction of each BasicBlock and
+ * the parents of that blocks last instruction and the edges to their
+ * corresponding BasicBlocks are added to this CFG TODO: verify that this method
+ * works :D
+ * 
+ * 
+ * cfg.EvoSuiteGraph is used as the underlying data structure holding the
+ * graphical representation of the CFG
  * 
  * WORK IN PROGRESS
  * 
@@ -51,6 +71,8 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 		computeGraph(generator);
 	}
 	
+	// set field values
+	
 	private void fillSets(CFGGenerator generator) {
 
 		setEntryPoint(generator.determineEntryPoint());
@@ -61,7 +83,112 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 		setJoins(generator.determineJoins());
 		setJoinSources(generator);
 	}
+	
+	
+	private void setEntryPoint(BytecodeInstruction entryPoint) {
+		if (entryPoint == null)
+			throw new IllegalArgumentException("null given");
+		if(!belongsToMethod(entryPoint))
+			throw new IllegalArgumentException("entry point does not belong to this CFGs method");
+		this.entryPoint=entryPoint;
+	}
+	
+	
+	private void setExitPoints(Set<BytecodeInstruction> exitPoints) {
+		if (exitPoints == null)
+			throw new IllegalArgumentException("null given");
 
+		for (BytecodeInstruction exitPoint : exitPoints) {
+			if (!belongsToMethod(exitPoint))
+				throw new IllegalArgumentException(
+						"exit point does not belong to this CFGs method");
+			if (!exitPoint.canReturnFromMethod())
+				throw new IllegalArgumentException(
+						"unexpected exitPoint byteCode instruction type: "
+								+ exitPoint.getInstructionType());
+			
+			this.exitPoints.add(exitPoint);
+		}
+	}
+	
+	
+	private void setJoins(Set<BytecodeInstruction> joins) {
+		if (joins == null)
+			throw new IllegalArgumentException("null given");
+		
+		this.joins = new HashSet<BytecodeInstruction>();
+
+		for (BytecodeInstruction join : joins) {
+			if (!belongsToMethod(join))
+				throw new IllegalArgumentException(
+						"join does not belong to this CFGs method");
+			
+			this.joins.add(join);
+		}
+	}
+	
+	
+	private void setJoinSources(CFGGenerator generator) {
+		if(joins==null)
+			throw new IllegalStateException("expect joins to be set before setting of joinSources");
+		if(generator == null)
+			throw new IllegalArgumentException("null given");
+		
+		this.joinSources = new HashSet<BytecodeInstruction>();
+		
+		for(BytecodeInstruction join : joins)
+			for(DefaultEdge joinEdge : generator.rawGraph.incomingEdgesOf(join))
+				joinSources.add(generator.rawGraph.getEdgeSource(joinEdge));
+	}
+	
+	
+	private void setBranches(Set<BytecodeInstruction> branches) {
+		if (branches == null)
+			throw new IllegalArgumentException("null given");
+		
+		this.branches = new HashSet<BytecodeInstruction>();
+		
+		for (BytecodeInstruction branch : branches) {
+			if (!belongsToMethod(branch))
+				throw new IllegalArgumentException(
+						"branch does not belong to this CFGs method");
+			if (!branch.isActualBranch())
+				throw new IllegalArgumentException(
+						"unexpected branch byteCode instruction type: "
+								+ branch.getInstructionType());
+			
+			// TODO the following doesn't work at this point
+			//		 because the BranchPool is not yet filled yet
+			// BUT one could fill the pool right now and drop further analysis later
+			// way cooler, because then filling of the BranchPool is unrelated to
+			//  BranchInstrumentation - then again that instrumentation is needed anyways i guess
+//			if (!BranchPool.isKnownAsBranch(instruction))
+//				throw new IllegalStateException(
+//						"expect BranchPool to know all branching instructions: "
+//								+ instruction.toString());
+			
+			this.branches.add(branch);
+		}
+	}
+
+	private void setBranchTargets(CFGGenerator generator) {
+		if(branches==null)
+			throw new IllegalStateException("expect branches to be set before setting of branchTargets");
+		if(generator == null)
+			throw new IllegalArgumentException("null given");
+		
+		this.branchTargets = new HashSet<BytecodeInstruction>();
+		
+		for(BytecodeInstruction branch : branches)
+			for(DefaultEdge branchEdge : generator.rawGraph.outgoingEdgesOf(branch))
+				branchTargets.add(generator.rawGraph.getEdgeTarget(branchEdge));
+	}
+	
+	// computing the actual CFG
+	
+
+	// compute actual CFG from maximal one given by CFGGenerator
+	
 	private void computeGraph(CFGGenerator generator) {
 		
 		computeNodes(generator);
@@ -69,6 +196,7 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 		
 		checkSanity();
 	}
+	
 	
 	private void computeNodes(CFGGenerator generator) {
 
@@ -87,18 +215,7 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 		logger.info(getNodeCount()+" BasicBlocks");
 	}
 	
-	private Set<BytecodeInstruction> getInitiallyKnownInstructions() {
-		Set<BytecodeInstruction> r = new HashSet<BytecodeInstruction>();
-		r.add(entryPoint);
-		r.addAll(exitPoints);
-		r.addAll(branches);
-		r.addAll(branchTargets);
-		r.addAll(joins);
-		r.addAll(joinSources);
-		
-		return r;
-	}
-
+	
 	private void addBlock(BasicBlock nodeBlock) {
 		if (nodeBlock == null)
 			throw new IllegalArgumentException("null given");
@@ -142,6 +259,7 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 		logger.debug(".. succeeded. nodeCount: "+getNodeCount());
 	}
 	
+	
 	private void computeEdges(CFGGenerator generator) {
 
 		for (BasicBlock block : vertexSet()) {
@@ -152,6 +270,7 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 		
 		logger.info(getEdgeCount()+" ControlFlowEdges");
 	}
+	
 	
 	private void computeIncomingEdgesFor(BasicBlock block,
 			CFGGenerator generator) {
@@ -169,6 +288,7 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 		}
 	}
 	
+	
 	private void computeOutgoingEdgesFor(BasicBlock block,
 			CFGGenerator generator) {
 		
@@ -184,8 +304,8 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 					.getEdgeTarget(rawOutgoing);
 			addEdge(block, outgoingEnd);
 		}
-		
 	}
+	
 	
 	private void addEdge(BytecodeInstruction src, BasicBlock target) {
 		BasicBlock srcBlock = getBlockOf(src);
@@ -195,6 +315,7 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 
 		addEdge(srcBlock, target);
 	}
+	
 
 	private void addEdge(BasicBlock src, BytecodeInstruction target) {
 		BasicBlock targetBlock = getBlockOf(target);
@@ -204,6 +325,7 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 
 		addEdge(src, targetBlock);
 	}
+	
 	
 	private void addEdge(BasicBlock src, BasicBlock target) {
 		if (src == null || target == null)
@@ -218,6 +340,9 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 					"internal error while adding edge to CFG");
 	}
 	
+	// retrieve information about the CFG
+	
+	
 	public BasicBlock getBlockOf(BytecodeInstruction instruction) {
 		
 		for(BasicBlock block : vertexSet())
@@ -228,6 +353,22 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 		
 		return null;
 	}
+	
+	
+	private Set<BytecodeInstruction> getInitiallyKnownInstructions() {
+		Set<BytecodeInstruction> r = new HashSet<BytecodeInstruction>();
+		r.add(entryPoint);
+		r.addAll(exitPoints);
+		r.addAll(branches);
+		r.addAll(branchTargets);
+		r.addAll(joins);
+		r.addAll(joinSources);
+		
+		return r;
+	}
+	
+	
+	// retrieve information about the CFG
 	
 	public boolean knowsInstruction(BytecodeInstruction instruction) {
 		for(BasicBlock block : vertexSet())
@@ -256,6 +397,7 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 		
 		return false;
 	}
+	
 
 	public boolean isEntryBlock(BasicBlock block) {
 		if (block == null)
@@ -271,6 +413,7 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 
 		return false;
 	}
+	
 	
 	public boolean isExitBlock(BasicBlock block) {
 		if (block == null)
@@ -288,6 +431,7 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 		return false;
 	}
 	
+	
 	public boolean belongsToMethod(BytecodeInstruction instruction) {
 		if(instruction==null)
 			throw new IllegalArgumentException("null given");
@@ -299,102 +443,12 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 		
 		return true;
 	}
-
-	private void setEntryPoint(BytecodeInstruction entryPoint) {
-		if (entryPoint == null)
-			throw new IllegalArgumentException("null given");
-		if(!belongsToMethod(entryPoint))
-			throw new IllegalArgumentException("entry point does not belong to this CFGs method");
-		this.entryPoint=entryPoint;
-	}
 	
-	private void setExitPoints(Set<BytecodeInstruction> exitPoints) {
-		if (exitPoints == null)
-			throw new IllegalArgumentException("null given");
-
-		for (BytecodeInstruction exitPoint : exitPoints) {
-			if (!belongsToMethod(exitPoint))
-				throw new IllegalArgumentException(
-						"exit point does not belong to this CFGs method");
-			if (!exitPoint.canReturnFromMethod())
-				throw new IllegalArgumentException(
-						"unexpected exitPoint byteCode instruction type: "
-								+ exitPoint.getInstructionType());
-			
-			this.exitPoints.add(exitPoint);
-		}
-	}
+	// sanity check
 	
-	private void setJoins(Set<BytecodeInstruction> joins) {
-		if (joins == null)
-			throw new IllegalArgumentException("null given");
-		
-		this.joins = new HashSet<BytecodeInstruction>();
 
-		for (BytecodeInstruction join : joins) {
-			if (!belongsToMethod(join))
-				throw new IllegalArgumentException(
-						"join does not belong to this CFGs method");
-			
-			this.joins.add(join);
-		}
-	}
+	// sanity checks
 	
-	private void setJoinSources(CFGGenerator generator) {
-		if(joins==null)
-			throw new IllegalStateException("expect joins to be set before setting of joinSources");
-		if(generator == null)
-			throw new IllegalArgumentException("null given");
-		
-		this.joinSources = new HashSet<BytecodeInstruction>();
-		
-		for(BytecodeInstruction join : joins)
-			for(DefaultEdge joinEdge : generator.rawGraph.incomingEdgesOf(join))
-				joinSources.add(generator.rawGraph.getEdgeSource(joinEdge));
-	}
-	
-	private void setBranches(Set<BytecodeInstruction> branches) {
-		if (branches == null)
-			throw new IllegalArgumentException("null given");
-		
-		this.branches = new HashSet<BytecodeInstruction>();
-		
-		for (BytecodeInstruction branch : branches) {
-			if (!belongsToMethod(branch))
-				throw new IllegalArgumentException(
-						"branch does not belong to this CFGs method");
-			if (!branch.isActualBranch())
-				throw new IllegalArgumentException(
-						"unexpected branch byteCode instruction type: "
-								+ branch.getInstructionType());
-			
-			// TODO the following doesn't work at this point
-			//		 because the BranchPool is not yet filled yet
-			// BUT one could fill the pool right now and drop further analysis later
-			// way cooler, because then filling of the BranchPool is unrelated to
-			//  BranchInstrumentation - then again that instrumentation is needed anyways i guess
-//			if (!BranchPool.isKnownAsBranch(instruction))
-//				throw new IllegalStateException(
-//						"expect BranchPool to know all branching instructions: "
-//								+ instruction.toString());
-			
-			this.branches.add(branch);
-		}
-	}
-
-	private void setBranchTargets(CFGGenerator generator) {
-		if(branches==null)
-			throw new IllegalStateException("expect branches to be set before setting of branchTargets");
-		if(generator == null)
-			throw new IllegalArgumentException("null given");
-		
-		this.branchTargets = new HashSet<BytecodeInstruction>();
-		
-		for(BytecodeInstruction branch : branches)
-			for(DefaultEdge branchEdge : generator.rawGraph.outgoingEdgesOf(branch))
-				branchTargets.add(generator.rawGraph.getEdgeTarget(branchEdge));
-	}
-
 	public void checkSanity() {
 
 		logger.debug("checking sanity of CFG for " + methodName);
