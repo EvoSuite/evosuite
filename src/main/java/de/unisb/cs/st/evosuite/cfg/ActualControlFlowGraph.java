@@ -127,7 +127,6 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 		}
 	}
 	
-	
 	private void setJoinSources(CFGGenerator generator) {
 		if(joins==null)
 			throw new IllegalStateException("expect joins to be set before setting of joinSources");
@@ -465,48 +464,79 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 
 		logger.debug(".. all initInstructions contained");
 
+		checkEdgeSanity();
+
+		logger.debug(".. CFG sanity ensured");
+	}
+	
+	void checkNodeSanity() {
 		// ensure graph is connected and isEntry and isExitBlock() work as
 		// expected
 		for (BasicBlock node : vertexSet()) {
 
-			int out = getChildCount(node);
-			if (!isExitBlock(node) && out == 0)
-				throw new IllegalStateException(
-						"expect nodes without outgoing edges to be exitBlocks: "
-								+ node.toString());
-			
-			int in = getParentCount(node);
-			if (!isEntryBlock(node) && in == 0)
-				throw new IllegalStateException(
-						"expect nodes without incoming edges to be the entryBlock: "
-								+ node.toString());
+			checkEntryExitPointConstraint(node);
 
-			if (in + out == 0 && getNodeCount() != 1)
-				throw new IllegalStateException(
-						"node with neither child nor parent only allowed if CFG consists of a single block: "
-								+ node.toString());
+			checkSingleCFGNodeConstraint(node);
 
-			if (getNodeCount() == 1
-					&& !(isEntryBlock(node) && isExitBlock(node)))
-				throw new IllegalStateException(
-						"if a CFG consists of a single basic block that block must be both entry and exitBlock: "
-								+ node.toString());
-
-			// is "minimal"
-			if (hasNPartentsMChildren(node, 1, 1)) {
-				for (BasicBlock child : getChildren(node))
-					if (hasNPartentsMChildren(child, 1, 1))
-						throw new IllegalStateException(
-								"whenever a node has exactly one child and one parent, it is expected that the same is true for either of those");
-
-				for (BasicBlock parent : getParents(node))
-					if (hasNPartentsMChildren(parent, 1, 1))
-						throw new IllegalStateException(
-								"whenever a node has exactly one child and one parent, it is expected that the same is true for either of those");
-			}
+			checkNodeMinimalityConstraint(node);
 		}
+		logger.debug("..all node constraints ensured");
+	}
 
-		logger.debug(".. passed");
+	void checkEntryExitPointConstraint(BasicBlock node) {
+		// exit point constraint
+		int out = getChildCount(node);
+		if (!isExitBlock(node) && out == 0)
+			throw new IllegalStateException(
+					"expect nodes without outgoing edges to be exitBlocks: "
+							+ node.toString());
+		// entry point constraint
+		int in = getParentCount(node);
+		if (!isEntryBlock(node) && in == 0)
+			throw new IllegalStateException(
+					"expect nodes without incoming edges to be the entryBlock: "
+							+ node.toString());
+	}
+
+	void checkSingleCFGNodeConstraint(BasicBlock node) {
+		int in = getParentCount(node);
+		int out = getChildCount(node);
+		if (in + out == 0 && getNodeCount() != 1)
+			throw new IllegalStateException(
+					"node with neither child nor parent only allowed if CFG consists of a single block: "
+							+ node.toString());
+
+		if (getNodeCount() == 1 && !(isEntryBlock(node) && isExitBlock(node)))
+			throw new IllegalStateException(
+					"if a CFG consists of a single basic block that block must be both entry and exitBlock: "
+							+ node.toString());
+	}
+
+	void checkNodeMinimalityConstraint(BasicBlock node) {
+
+		if (hasNPartentsMChildren(node, 1, 1)) {
+			for (BasicBlock child : getChildren(node))
+				if (hasNPartentsMChildren(child, 1, 1))
+					throw new IllegalStateException(
+							"whenever a node has exactly one child and one parent, it is expected that the same is true for either of those");
+
+			for (BasicBlock parent : getParents(node))
+				if (hasNPartentsMChildren(parent, 1, 1))
+					throw new IllegalStateException(
+							"whenever a node has exactly one child and one parent, it is expected that the same is true for either of those");
+		}
+	}
+
+	void checkEdgeSanity() {
+
+		for(ControlFlowEdge e : edgeSet()) {
+			// check edge-references
+			if(!e.getSource().equals(getEdgeSource(e)))
+				throw new IllegalStateException("source reference of control flow edge not set properly: "+e.toString());
+			if(!e.getTarget().equals(getEdgeTarget(e)))
+				throw new IllegalStateException("target reference of control flow edge not set properly: "+e.toString());
+		}
+		logger.debug(".. all edge references sane");
 	}
 
 
