@@ -35,6 +35,12 @@ public class ControlFlowEdge extends DefaultEdge {
 		return target;
 	}
 	
+	@Override
+	public String toString() {
+		return "ControlFlowEdge_" + id + " from " + src.getName() + " to "
+				+ target.getName();
+	}
+	
 	
 	@Override
 	public boolean equals(Object obj) {

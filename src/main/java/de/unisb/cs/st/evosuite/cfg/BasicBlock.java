@@ -42,14 +42,15 @@ public class BasicBlock {
 
 	private static Logger logger = Logger.getLogger(BasicBlock.class);
 
+	
 	private static int blockCount = 0;
-	
-	
-	private List<BytecodeInstruction> instructions = new ArrayList<BytecodeInstruction>();
 	
 	private int id = -1;
 	private String className;
 	private String methodName;
+	
+	private List<BytecodeInstruction> instructions = new ArrayList<BytecodeInstruction>();
+	
 	
 	
 	public BasicBlock(String className, String methodName, List<BytecodeInstruction> blockNodes) {
@@ -125,6 +126,14 @@ public class BasicBlock {
 	
 	public String getName() {
 		return "BasicBlock "+className+"."+methodName+"["+id+"]";
+	}
+	
+	public String getClassName() {
+		return className;
+	}
+
+	public String getMethodName() {
+		return methodName;
 	}
 	
 	@Override
