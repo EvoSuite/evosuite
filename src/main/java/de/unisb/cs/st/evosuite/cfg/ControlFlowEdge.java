@@ -6,6 +6,9 @@ public class ControlFlowEdge extends DefaultEdge {
 
 	private static final long serialVersionUID = -5009449930477928101L;
 
+	private static int edgeCount = 0;
+	
+	private int id;
 	
 	private BasicBlock src;
 	private BasicBlock target;
@@ -16,6 +19,12 @@ public class ControlFlowEdge extends DefaultEdge {
 		
 		this.src = src;
 		this.target = target;
+		setId();
+	}
+	
+	private void setId() {
+		edgeCount++;
+		this.id = edgeCount;
 	}
 	
 	public BasicBlock getSource() {

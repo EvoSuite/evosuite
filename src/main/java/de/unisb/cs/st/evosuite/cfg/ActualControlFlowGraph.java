@@ -11,18 +11,21 @@ import org.jgrapht.graph.DirectedMultigraph;
  * 
  * Supposed to become the new implementation of a control flow graph inside EvoSuite
  * 
+ * The "actual" CFG does not contain single cfg.BytecodeInstructions as nodes, but
+ * contains cfg.BasicBlocks - look at that class for more information
+ * 
+ * Simply put this is a minimized version of the complete/raw CFG the cfg.BytecodeAnalyzer
+ * and cfg.CFGGenerator produce 
+ * 
  * WORK IN PROGRESS
  * 
  * TODO implement
  * 
  * @author Andre Mis
  */
-public class ActualControlFlowGraph {
+public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlowEdge> {
 
 	private static Logger logger = Logger.getLogger(ActualControlFlowGraph.class);
-	
-	private DirectedMultigraph<BasicBlock, ControlFlowEdge> graph = new DirectedMultigraph<BasicBlock, ControlFlowEdge>(
-			ControlFlowEdge.class);
 	
 	private String className;
 	private String methodName;
@@ -36,6 +39,7 @@ public class ActualControlFlowGraph {
 	
 	
 	public ActualControlFlowGraph(CFGGenerator generator) {
+		super(new DirectedMultigraph<BasicBlock,ControlFlowEdge>(ControlFlowEdge.class));
 		if (generator == null)
 			throw new IllegalArgumentException("null given");
 		
@@ -80,7 +84,7 @@ public class ActualControlFlowGraph {
 			addBlock(nodeBlock);
 		}
 		
-		logger.info(graph.vertexSet().size()+" BasicBlocks");
+		logger.info(getNodeCount()+" BasicBlocks");
 	}
 	
 	private Set<BytecodeInstruction> getInitiallyKnownInstructions() {
@@ -101,10 +105,10 @@ public class ActualControlFlowGraph {
 		
 		logger.debug("Adding block: "+nodeBlock.getName());
 		
-		if (graph.containsVertex(nodeBlock))
+		if (containsBlock(nodeBlock))
 			throw new IllegalArgumentException("block already added before");
 
-		if (!graph.addVertex(nodeBlock))
+		if (!addVertex(nodeBlock))
 			throw new IllegalStateException(
 					"internal error while addind basic block to CFG");
 		
@@ -114,7 +118,7 @@ public class ActualControlFlowGraph {
 //				logger.debug("true");
 //			else
 //				logger.debug("false");
-//			if (!graph.containsVertex(test))
+//			if (!containsBlock(test))
 //				throw new IllegalStateException("wtf");
 //
 //			logger.debug("experimental equals on " + test.getName() + " with "
@@ -132,21 +136,21 @@ public class ActualControlFlowGraph {
 //
 //		}
 		
-		if(!graph.containsVertex(nodeBlock))
+		if(!containsBlock(nodeBlock))
 			throw new IllegalStateException("expect graph to contain the given block on returning of addBlock()");
 		
-		logger.debug(".. succeeded. nodeCount: "+graph.vertexSet().size());
+		logger.debug(".. succeeded. nodeCount: "+getNodeCount());
 	}
 	
 	private void computeEdges(CFGGenerator generator) {
 
-		for (BasicBlock block : graph.vertexSet()) {
+		for (BasicBlock block : vertexSet()) {
 			
 			computeIncomingEdgesFor(block, generator);
 			computeOutgoingEdgesFor(block, generator);
 		}
 		
-		logger.info(graph.edgeSet().size()+" ControlFlowEdges");
+		logger.info(getEdgeCount()+" ControlFlowEdges");
 	}
 	
 	private void computeIncomingEdgesFor(BasicBlock block,
@@ -207,16 +211,16 @@ public class ActualControlFlowGraph {
 		
 		ControlFlowEdge newEdge = new ControlFlowEdge(src, target);
 		
-		if (graph.containsEdge(newEdge)) {
+		if (containsEdge(newEdge)) {
 			logger.debug("edge already contained in CFG");
-		} else if (!graph.addEdge(src, target, newEdge))
+		} else if (!addEdge(src, target, newEdge))
 			throw new IllegalStateException(
 					"internal error while adding edge to CFG");
 	}
 	
 	public BasicBlock getBlockOf(BytecodeInstruction instruction) {
 		
-		for(BasicBlock block : graph.vertexSet())
+		for(BasicBlock block : vertexSet())
 			if(block.containsInstruction(instruction))
 				return block;
 		
@@ -226,7 +230,7 @@ public class ActualControlFlowGraph {
 	}
 	
 	public boolean knowsInstruction(BytecodeInstruction instruction) {
-		for(BasicBlock block : graph.vertexSet())
+		for(BasicBlock block : vertexSet())
 			if(block.containsInstruction(instruction))
 				return true;
 		
@@ -234,7 +238,7 @@ public class ActualControlFlowGraph {
 	}	
 	
 	public boolean knowsInstruction(BytecodeInstruction instruction, CFGGenerator generator) {
-		for(BasicBlock block : graph.vertexSet())
+		for(BasicBlock block : vertexSet())
 			if(block.containsInstruction(instruction)) {
 				
 				// sanity check
@@ -393,43 +397,63 @@ public class ActualControlFlowGraph {
 
 	public void checkSanity() {
 
-		logger.debug("checking sanity of CFG for "+methodName);
-		
-		if (graph.vertexSet().isEmpty())
+		logger.debug("checking sanity of CFG for " + methodName);
+
+		if (isEmpty())
 			throw new IllegalStateException(
 					"a CFG must contain at least one element");
 
-		for(BytecodeInstruction initInstruction : getInitiallyKnownInstructions()) {
-			if(!knowsInstruction(initInstruction))
-				throw new IllegalStateException("expect CFG to contain all initially known instructions");
+		for (BytecodeInstruction initInstruction : getInitiallyKnownInstructions()) {
+			if (!knowsInstruction(initInstruction))
+				throw new IllegalStateException(
+						"expect CFG to contain all initially known instructions");
 		}
-		
+
 		logger.debug(".. all initInstructions contained");
-		
+
 		// ensure graph is connected and isEntry and isExitBlock() work as
 		// expected
-		for (BasicBlock node : graph.vertexSet()) {
+		for (BasicBlock node : vertexSet()) {
 
-			int out = graph.outDegreeOf(node);
+			int out = getChildCount(node);
 			if (!isExitBlock(node) && out == 0)
 				throw new IllegalStateException(
-						"expect nodes without outgoing edges to be exitBlocks: "+node.toString());
-
-			int in = graph.inDegreeOf(node);
+						"expect nodes without outgoing edges to be exitBlocks: "
+								+ node.toString());
+			
+			int in = getParentCount(node);
 			if (!isEntryBlock(node) && in == 0)
 				throw new IllegalStateException(
-						"expect nodes without incoming edges to be the entryBlock: "+node.toString());
+						"expect nodes without incoming edges to be the entryBlock: "
+								+ node.toString());
 
-			if (in + out == 0 && graph.vertexSet().size() != 1)
+			if (in + out == 0 && getNodeCount() != 1)
 				throw new IllegalStateException(
-						"node with neither child nor parent only allowed if CFG consists of a single block: "+node.toString());
+						"node with neither child nor parent only allowed if CFG consists of a single block: "
+								+ node.toString());
 
-			if (graph.vertexSet().size() == 1
+			if (getNodeCount() == 1
 					&& !(isEntryBlock(node) && isExitBlock(node)))
 				throw new IllegalStateException(
-						"if a CFG consists of a single basic block that block must be both entry and exitBlock: "+node.toString());
+						"if a CFG consists of a single basic block that block must be both entry and exitBlock: "
+								+ node.toString());
+
+			// is "minimal"
+			if (hasNPartentsMChildren(node, 1, 1)) {
+				for (BasicBlock child : getChildren(node))
+					if (hasNPartentsMChildren(child, 1, 1))
+						throw new IllegalStateException(
+								"whenever a node has exactly one child and one parent, it is expected that the same is true for either of those");
+
+				for (BasicBlock parent : getParents(node))
+					if (hasNPartentsMChildren(parent, 1, 1))
+						throw new IllegalStateException(
+								"whenever a node has exactly one child and one parent, it is expected that the same is true for either of those");
+			}
 		}
-		
+
 		logger.debug(".. passed");
 	}
+
+
 }
