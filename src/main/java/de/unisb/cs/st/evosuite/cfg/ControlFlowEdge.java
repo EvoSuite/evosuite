@@ -2,6 +2,14 @@ package de.unisb.cs.st.evosuite.cfg;
 
 import org.jgrapht.graph.DefaultEdge;
 
+/**
+ * Is used insides CFGs to represent edges.
+ * 
+ *  Nothing more then an DefaultEdge that holds it's own references to
+ *  it's source and target Node
+ * 
+ * @author Andre Mis
+ */
 public class ControlFlowEdge extends DefaultEdge {
 
 	private static final long serialVersionUID = -5009449930477928101L;
