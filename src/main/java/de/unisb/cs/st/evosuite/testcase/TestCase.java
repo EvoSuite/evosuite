@@ -137,7 +137,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 *            New statement
 	 * @param position
 	 *            Position at which to add
-	 * @return Return value of statement
+	 * @return Return value of statement. Notice that the test might choose to modify the statement you inserted. You should use the returned variable reference and not use references 
 	 */
 	public VariableReference setStatement(StatementInterface statement, int position);
 
@@ -148,9 +148,9 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 *            New statement
 	 * @param position
 	 *            Position at which to add
-	 * @return Return value of statement
+	 * @return Return value of statement. Notice that the test might choose to modify the statement you inserted. You should use the returned variable reference and not use references 
 	 */
-	public void addStatement(StatementInterface statement, int position);
+	public VariableReference addStatement(StatementInterface statement, int position);
 
 	/**
 	 * Append new statement at end of test case

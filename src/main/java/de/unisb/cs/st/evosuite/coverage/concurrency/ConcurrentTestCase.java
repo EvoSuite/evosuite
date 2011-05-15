@@ -169,8 +169,8 @@ public class ConcurrentTestCase implements TestCase{
 		 *#TODO steenbuck this is a workaround which should be removd.
 		 *The problem is that the code is executed inside evosuite using a testcase with two more statements. (Thread ID and thread registratioon)
 		 */
-		this.addStatement(getPseudoStatement(this, Properties.getTargetClass(), 0), 0, false);
-		this.addStatement(getPseudoStatement(this, Properties.getTargetClass(), 0), 0, false);
+		this.addStatement(getPseudoStatement(this, Properties.getTargetClass()), 0, false);
+		this.addStatement(getPseudoStatement(this, Properties.getTargetClass()), 0, false);
 		assert(scheduleObserver!=null);
 		StringBuilder b = new StringBuilder();
 		b.append("Integer[] schedule");
@@ -292,8 +292,9 @@ public class ConcurrentTestCase implements TestCase{
 	}
 
 	@Override
-	public void addStatement(StatementInterface statement, int position) {
-		this.addStatement(statement, position, true);
+	public VariableReference addStatement(StatementInterface statement, int position) {
+		assert(statement!=null);
+		return this.addStatement(statement, position, true);
 	}
 
 	/**
@@ -303,12 +304,14 @@ public class ConcurrentTestCase implements TestCase{
 	 * @param position
 	 * @param wrap
 	 */
-	public void addStatement(StatementInterface statement, int position, boolean wrap) {
+	public VariableReference addStatement(StatementInterface statement, int position, boolean wrap) {
 		if(replaceConst)
 			statement = replaceConstructorStatement(statement, position);
 		if(wrap)
 			statement = wrapStatements(statement);
+		assert(statement!=null);
 		test.addStatement(statement, position);
+		return statement.getReturnValue();
 	}
 
 	@Override
@@ -439,7 +442,7 @@ public class ConcurrentTestCase implements TestCase{
 			assert(Properties.getTargetClass()!=null);
 			if(Properties.getTargetClass().isAssignableFrom(c.getConstructor().getDeclaringClass())){
 				logger.debug("Replaced a constructor call for " + c.getClass().getSimpleName() + " with a pseudo statement. Representing the object shared between the test threads");
-				statement = getPseudoStatement(this, Properties.getTargetClass(), position);
+				statement = getPseudoStatement(this, Properties.getTargetClass());
 			}
 		}
 
@@ -452,8 +455,8 @@ public class ConcurrentTestCase implements TestCase{
 	 * @param pos
 	 * @return
 	 */
-	private StatementInterface getPseudoStatement(TestCase tc, final Class<?> clazz, int pos){
-		StatementInterface st= new AbstractStatement(tc, new VariableReference(tc, clazz)) {
+	private StatementInterface getPseudoStatement(TestCase tc, final Class<?> clazz){
+		StatementInterface st= new AbstractStatement(tc,new VariableReference(tc, clazz)) {
 
 			@Override
 			public int hashCode() {
@@ -477,7 +480,7 @@ public class ConcurrentTestCase implements TestCase{
 			@Override
 			public String getCode(Throwable exception) {
 				//#TODO steenbuck param0 should not be hardcoded
-				return retval.getSimpleClassName() + " " + retval.getName() + " = param0;";
+				return getCode();
 			}
 
 			@Override
@@ -506,86 +509,14 @@ public class ConcurrentTestCase implements TestCase{
 			}
 
 			@Override
-			public void addAssertion(Assertion assertion) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
 			public StatementInterface clone(TestCase newTestCase) {
-				return getPseudoStatement(newTestCase, clazz, retval.getStPosition());
+				return getPseudoStatement(newTestCase, clazz);
 			}
 
-			@Override
-			public String getAssertionCode() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public Set<Assertion> getAssertions() {
-				// TODO Auto-generated method stub
-				return null;
-			}
 
 			@Override
 			public String getCode() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public Set<Class<?>> getDeclaredExceptions() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public int getPosition() {
-				// TODO Auto-generated method stub
-				return 0;
-			}
-
-			@Override
-			public Class<?> getReturnClass() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public Type getReturnType() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public VariableReference getReturnValue() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public boolean hasAssertions() {
-				// TODO Auto-generated method stub
-				return false;
-			}
-
-			@Override
-			public boolean references(VariableReference var) {
-				// TODO Auto-generated method stub
-				return false;
-			}
-
-			@Override
-			public void removeAssertion(Assertion assertion) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void removeAssertions() {
-				// TODO Auto-generated method stub
-				
+				return retval.getSimpleClassName() + " " + retval.getName() + " = param0;";
 			}
 
 		};
