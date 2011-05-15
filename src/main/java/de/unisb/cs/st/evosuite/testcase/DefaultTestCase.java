@@ -567,6 +567,7 @@ public class DefaultTestCase implements TestCase{
 	public boolean isValid() {
 		int num = 0;
 		for (StatementInterface s : statements) {
+			assert(s.isValid());
 			if (s.getReturnValue().getStPosition() != num) {
 				logger.error("Test case is invalid at statement " + num + " - "
 				        + s.getReturnValue().getStPosition() + " which is " + s.getClass() + " " + s.getCode());
