@@ -19,7 +19,7 @@ import de.unisb.cs.st.evosuite.testcase.StatementInterface;
  */
 public class CallLogger implements callReporter, Scheduler.scheduleObserver {
 	private static final Logger logger = Logger.getLogger(CallLogger.class);
-	private final Object SYNC = new Object();
+	private final Object SYNC = new Object(); //guard for access to the statementToSchedule and threadIdToCurrentStatement, as those might be accessed concurrently
 	public boolean log = true;
 	/*
 	 * Maps statements to schedule.

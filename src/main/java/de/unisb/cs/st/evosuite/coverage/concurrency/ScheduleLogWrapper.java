@@ -32,14 +32,6 @@ public class ScheduleLogWrapper implements StatementInterface{
 		public Set<Integer> getScheduleForStatement(StatementInterface st);
 	}
 
-	public boolean immutable = false;
-	private void exit(){
-		if(immutable){
-			logger.fatal("good bye.....", new AssertionError());
-			System.exit(1);
-		}
-	}
-
 	private static Logger logger = Logger.getLogger(ScheduleLogWrapper.class);
 
 	public final StatementInterface wrapped;
@@ -54,8 +46,7 @@ public class ScheduleLogWrapper implements StatementInterface{
 		throw new UnsupportedOperationException();
 	}
 	
-	public void setCallReporter(callReporter callReporter){
-		exit();
+	public void setCallReporter(callReporter callReporter){;
 		this.callReporter=callReporter;
 	}
 
@@ -64,7 +55,6 @@ public class ScheduleLogWrapper implements StatementInterface{
 	 */
 	@Override
 	public void addAssertion(Assertion assertion) {
-		exit();
 		wrapped.addAssertion(assertion);
 	}
 
@@ -87,7 +77,6 @@ public class ScheduleLogWrapper implements StatementInterface{
 	public Throwable execute(Scope scope, PrintStream out)
 	throws InvocationTargetException, IllegalArgumentException,
 	IllegalAccessException, InstantiationException {
-		exit();
 		assert(LockRuntime.controller!=null);
 		assert(callReporter!=null):"SetCallReporter/2 must be called before a wrapped statement may be executed";
 		try{
@@ -218,7 +207,6 @@ public class ScheduleLogWrapper implements StatementInterface{
 	 */
 	@Override
 	public void removeAssertion(Assertion assertion) {
-		exit();
 		wrapped.removeAssertion(assertion);
 	}
 
@@ -227,7 +215,6 @@ public class ScheduleLogWrapper implements StatementInterface{
 	 */
 	@Override
 	public void removeAssertions() {
-		exit();
 		wrapped.removeAssertions();
 	}
 
@@ -239,5 +226,13 @@ public class ScheduleLogWrapper implements StatementInterface{
 	@Override
 	public int hashCode(){
 		return wrapped.hashCode();
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#isValid()
+	 */
+	@Override
+	public boolean isValid() {
+		return wrapped.isValid();
 	}
 }
