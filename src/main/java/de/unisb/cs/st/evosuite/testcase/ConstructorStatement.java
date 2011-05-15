@@ -308,4 +308,16 @@ public class ConstructorStatement extends AbstractStatement {
 		return references;
 
 	}
+	
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#isValid()
+	 */
+	@Override
+	public boolean isValid() {
+		assert(super.isValid());
+		for(VariableReference v : parameters){
+			v.getStPosition();
+		}
+		return true;
+	}
 }

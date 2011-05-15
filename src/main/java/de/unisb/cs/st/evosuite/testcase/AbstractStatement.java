@@ -194,4 +194,10 @@ public abstract class AbstractStatement implements StatementInterface {
 	public int getPosition() {
 		return retval.getStPosition();
 	}
+	
+	@Override
+	public boolean isValid(){
+		retval.getStPosition();
+		return true;
+	}
 }
