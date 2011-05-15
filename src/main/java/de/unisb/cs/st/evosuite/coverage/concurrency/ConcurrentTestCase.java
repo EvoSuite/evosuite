@@ -315,8 +315,8 @@ public class ConcurrentTestCase implements TestCase{
 	}
 
 	@Override
-	public void addStatement(StatementInterface statement) {
-		this.addStatement(statement, test.size());
+	public VariableReference addStatement(StatementInterface statement) {
+		return this.addStatement(statement, test.size());
 	}
 
 	public void addStatement(StatementInterface statement, boolean wrap) {
