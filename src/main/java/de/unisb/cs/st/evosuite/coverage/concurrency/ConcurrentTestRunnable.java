@@ -109,6 +109,8 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 		throw new AssertionError("We need at least one constructor for the object under test");
 	}
 
+	//#FIXE remove : fixme as this will likely create errors during minizie
+	//this is used to guarantee that each schedule is only logged once (there might be a problem with the last schedule, as it is executed once more right before grading)
 	public final static Set<ConcurrentTestCase> t  = Collections.synchronizedSet(new HashSet<ConcurrentTestCase>());
 
 	/* (non-Javadoc)
