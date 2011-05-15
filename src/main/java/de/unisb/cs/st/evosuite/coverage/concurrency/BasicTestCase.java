@@ -95,10 +95,13 @@ public class BasicTestCase extends DefaultTestCase {
 	 * @return Return value of statement
 	 */
 	@Override
-	public void addStatement(StatementInterface statement, int position) {
+	public VariableReference addStatement(StatementInterface statement, int position) {
 		assert(position>=0);
-		assert(statement.getReturnValue().getStPosition()==position);;
-		super.addStatement(statement, position);
+		assert(statement!=null);
+		assert(statement.getReturnValue()!=null);
+		VariableReference ret = super.addStatement(statement, position);
+		assert(statement.getReturnValue().getStPosition()==position);
+		return ret;
 	}
 
 	/**
@@ -109,7 +112,7 @@ public class BasicTestCase extends DefaultTestCase {
 	 * @return VariableReference of return value
 	 */
 	public void addStatement(AbstractStatement statement) {
-		this.addStatement(statement, super.size());
+		this.addStatement(statement, this.size());
 	}
 
 
