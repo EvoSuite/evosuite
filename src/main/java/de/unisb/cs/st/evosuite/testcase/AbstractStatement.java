@@ -39,10 +39,11 @@ public abstract class AbstractStatement implements StatementInterface {
 
 	protected VariableReference retval;
 	protected final TestCase tc;
-	
+
 	protected Set<Assertion> assertions = new HashSet<Assertion>();
 
 	protected Throwable exceptionThrown = null;
+
 
 	protected AbstractStatement(TestCase tc, VariableReference retval){
 		assert(retval!=null);
@@ -53,10 +54,19 @@ public abstract class AbstractStatement implements StatementInterface {
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#references(de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
+
 	@Override
 	public boolean references(VariableReference var) {
 		return getVariableReferences().contains(var);
 	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#SetRetval(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	public void SetRetval(VariableReference newRetVal){
+		this.retval=newRetVal;
+	}
+
 	
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getCode()
@@ -83,6 +93,7 @@ public abstract class AbstractStatement implements StatementInterface {
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getReturnClass()
 	 */
 	@Override
+
 	public Class<?> getReturnClass() {
 		return (Class<?>) retval.getType();
 	}
@@ -145,7 +156,7 @@ public abstract class AbstractStatement implements StatementInterface {
 		}
 		return ret_val;
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#removeAssertions()
 	 */

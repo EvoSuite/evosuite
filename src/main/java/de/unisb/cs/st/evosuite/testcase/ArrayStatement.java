@@ -40,7 +40,6 @@ import de.unisb.cs.st.evosuite.ga.Randomness;
  * 
  */
 public class ArrayStatement extends AbstractStatement {
-
 	private int length = 0;
 
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type) {

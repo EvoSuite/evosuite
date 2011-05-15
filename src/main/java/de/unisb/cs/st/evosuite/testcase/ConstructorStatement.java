@@ -150,8 +150,10 @@ public class ConstructorStatement extends AbstractStatement {
 		for (VariableReference r : parameters) {
 			new_params.add(newTestCase.getStatement(r.getStPosition()).getReturnValue());
 		}
+		
 		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor, retval.getType(), new_params);
 		copy.assertions = cloneAssertions(newTestCase);
+		
 		return copy;
 	}
 
