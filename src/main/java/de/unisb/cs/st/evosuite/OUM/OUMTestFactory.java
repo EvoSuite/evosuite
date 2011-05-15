@@ -543,9 +543,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 		position += (new_length - length);
 		StatementInterface st = new ConstructorStatement(test, constructor.getConstructor(), constructor.getCallClass(),
 		        parameters);
-		test.addStatement(st, position);
-
-		return st.getReturnValue();
+		return test.addStatement(st, position);
 	}
 
 	/**
@@ -619,10 +617,9 @@ public class OUMTestFactory extends AbstractTestFactory {
 
 		StatementInterface st = new MethodStatement(test, method.getMethod(), callee, ret_val_type,
 		        parameters);
-		test.addStatement(st, position);
+		VariableReference ret = test.addStatement(st, position);
 		logger.debug("Success: Adding method " + method);
-
-		return st.getReturnValue();
+		return ret;
 	}
 
 	/**
@@ -639,9 +636,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 	        int position) throws ConstructionFailedException {
 		logger.debug("Adding primitive");
 		StatementInterface st = new PrimitiveStatement(test, old.getReturnType(), old.getValue());
-		test.addStatement(st, position);
-
-		return st.getReturnValue();
+		return test.addStatement(st, position);
 	}
 
 	/**
@@ -678,9 +673,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 		}
 	
 		StatementInterface st = new FieldStatement(test, field.getField(), callee, field.getField().getGenericType());
-		test.addStatement(st, position);
-
-		return st.getReturnValue();
+		return test.addStatement(st, position);
 	}
 
 	private ConcreteCall getCall(TestCase test, VariableReference var) {
@@ -817,8 +810,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 		// Create array with random size
 		//VariableReference reference = new VariableReference(type, position); // TODO: Is this correct? -1;?
 		ArrayStatement statement = new ArrayStatement(test, type, position);
-		VariableReference reference = statement.getReturnValue();
-		test.addStatement(statement, position);
+		VariableReference reference = test.addStatement(statement, position);
 		position++;
 		//logger.info(test.toCode());
 		// For each value of array, call attemptGeneration
@@ -885,8 +877,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 			//VariableReference reference = new VariableReference(type, position); // TODO: Is this correct? -1;?
 			// TODO: Check before cast!
 			StatementInterface st = PrimitiveStatement.getRandomStatement(test, type, position, type);
-			test.addStatement(st, position);
-			return st.getReturnValue();
+			return test.addStatement(st, position);
 		} else if (clazz.isArray()) {
 			return createArray(test, type, position, recursion_depth + 1);
 
@@ -1107,9 +1098,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 		int new_length = test.size();
 		position += (new_length - length);
 		StatementInterface st = new ConstructorStatement(test, constructor.getConstructor(),  constructor.getCallClass(), parameters);
-		test.addStatement(st, position);
-
-		return st.getReturnValue();
+		return test.addStatement(st, position);
 	}
 
 	public VariableReference addMethodFor(TestCase test, VariableReference callee,
@@ -1125,10 +1114,10 @@ public class OUMTestFactory extends AbstractTestFactory {
 		Type ret_val = getReturnVariable(method.getMethod(), callee);
 		StatementInterface st = new MethodStatement(test, method.getMethod(), callee, ret_val,
 		        parameters);
-		test.addStatement(st, position);
+		VariableReference ret = test.addStatement(st, position);
 
 		logger.debug("Success: Adding method " + method);
-		return st.getReturnValue();
+		return ret;
 	}
 
 	private Set<Type> getDependencies(Method method) {

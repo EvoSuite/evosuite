@@ -244,9 +244,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	        int position) throws ConstructionFailedException {
 		logger.debug("Adding primitive");
 		StatementInterface st = new PrimitiveStatement(test, old.getReturnType(), old.value);
-		test.addStatement(st, position);
-
-		return st.getReturnValue();
+		return test.addStatement(st, position);
 	}
 
 	@Override
@@ -395,9 +393,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		position += (new_length - length);
 
 		StatementInterface st = new ConstructorStatement(test, constructor,  constructor.getDeclaringClass(), parameters);
-		test.addStatement(st, position);
-
-		return st.getReturnValue();
+		return test.addStatement(st, position);
 	}
 
 	/**
@@ -454,9 +450,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 		StatementInterface st = new MethodStatement(test, method, callee, ret_val_type,
 		        parameters);
-		test.addStatement(st, position);
-
-		return st.getReturnValue();
+		return test.addStatement(st, position);
 	}
 
 	/**
@@ -490,9 +484,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 		StatementInterface st = new FieldStatement(test, field, callee, field.getGenericType());
 		
-		test.addStatement(st, position);
-
-		return st.getReturnValue();
+		return test.addStatement(st, position);
 	}
 	
 
@@ -604,8 +596,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 		// Create array with random size
 		ArrayStatement statement = new ArrayStatement(test, type, position);
-		VariableReference reference = statement.getReturnValue();
-		test.addStatement(statement, position);
+		VariableReference reference = test.addStatement(statement, position);
 		position++;
 
 		// For each value of array, call attemptGeneration
@@ -648,9 +639,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		        + " chromosomes out of " + suite.size());
 		TestCallObject call = new TestCallObject(num);
 		TestCallStatement statement = new TestCallStatement(test, call, Properties.getTargetClass());
-		test.addStatement(statement, position);
-		// logger.info("Added call to test: " + call.getTest().toCode());
-		return statement.getReturnValue();
+		return test.addStatement(statement, position);
 	}
 
 	public VariableReference attemptGeneration(TestCase test, Type type, int position)
@@ -680,8 +669,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				        + ((Class<?>) type).getName());
 			//VariableReference reference = new VariableReference(type, position); // TODO: Is this correct? -1;?
 			StatementInterface st = PrimitiveStatement.getRandomStatement(test, type, position, type);
-			test.addStatement(st, position);
-			return st.getReturnValue();
+			return test.addStatement(st, position);
 		} else if (clazz.isArray()) {
 			return createArray(test, type, position, recursion_depth);
 
@@ -941,8 +929,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		position += (new_length - length);
 		
 		StatementInterface st = new ConstructorStatement(test, constructor,  constructor.getDeclaringClass(), parameters);
-		test.addStatement(st, position);
-		return st.getReturnValue();
+		return test.addStatement(st, position);
 	}
 
 	public VariableReference addMethodFor(TestCase test, VariableReference callee,
@@ -960,10 +947,10 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		
 		Type ret_val = getReturnVariable(method, callee);
 		StatementInterface st = new MethodStatement(test, method, callee, ret_val, parameters);
-		test.addStatement(st, position);
+		VariableReference ret = test.addStatement(st, position);
 
 		logger.debug("Success: Adding method " + method);
-		return st.getReturnValue();
+		return ret;
 	}
 
 	public VariableReference addMethodWith(TestCase test, VariableReference parameter,
@@ -1009,10 +996,10 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		// VariableReference(method.getGenericReturnType(), position);
 		Type ret_val = getReturnVariable(method, callee);
 		StatementInterface st = new MethodStatement(test, method, callee, ret_val, parameters);
-		test.addStatement(st, position);
+		VariableReference ret = test.addStatement(st, position);
 
 		logger.debug("Success: Adding method " + method);
-		return st.getReturnValue();
+		return ret;
 	}
 
 	private Set<Type> getDependencies(Method method) {
