@@ -159,7 +159,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 *            New statement
 	 * @return VariableReference of return value
 	 */
-	public void addStatement(StatementInterface statement);
+	public VariableReference addStatement(StatementInterface statement);
 
 	/**
 	 * Get return value (variable) of statement at position

@@ -292,9 +292,10 @@ public class DefaultTestCase implements TestCase{
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#addStatement(de.unisb.cs.st.evosuite.testcase.Statement)
 	 */
 	@Override
-	public void addStatement(StatementInterface statement) {
+	public VariableReference addStatement(StatementInterface statement) {
 		statements.add(statement);
 		assert(isValid());
+		return statement.getReturnValue();
 	}
 
 	/* (non-Javadoc)
