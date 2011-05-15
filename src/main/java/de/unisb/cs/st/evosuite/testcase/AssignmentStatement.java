@@ -158,4 +158,15 @@ public class AssignmentStatement extends AbstractStatement {
 		return new ArrayList<VariableReference>(getVariableReferences());
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#isValid()
+	 */
+	@Override
+	public boolean isValid() {
+		assert(super.isValid());
+		parameter.getStPosition();
+		return true;
+	}
+
+	
 }

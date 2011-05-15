@@ -144,4 +144,12 @@ public class ArrayStatement extends AbstractStatement {
 		return new ArrayList<VariableReference>(getVariableReferences());
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#isValid()
+	 */
+	@Override
+	public boolean isValid() {
+		return super.isValid();
+	}
+
 }

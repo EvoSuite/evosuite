@@ -267,7 +267,7 @@ public class MethodStatement extends AbstractStatement {
 				return (callee.equals(ms.callee));
 		}
 	}
-
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -402,5 +402,20 @@ public class MethodStatement extends AbstractStatement {
 				references.add(param.getArray());
 		}
 		return references;
+	}
+	
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#isValid()
+	 */
+	@Override
+	public boolean isValid() {
+		assert(super.isValid());
+		for(VariableReference v : parameters){
+			v.getStPosition();
+		}
+		if(callee!=null){
+			callee.getStPosition();
+		}
+		return true;
 	}
 }

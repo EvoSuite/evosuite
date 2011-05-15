@@ -41,6 +41,14 @@ public interface StatementInterface {
 	public String getCode();
 
 	/**
+	 * Various consistency checks.
+	 * This method might also return with an assertionError
+	 * Functionality might depend on the status of enableAssertions in this JVM
+	 * @return
+	 */
+	public boolean isValid();
+	
+	/**
 	 * Get Java representation of statement
 	 * 
 	 * @return
