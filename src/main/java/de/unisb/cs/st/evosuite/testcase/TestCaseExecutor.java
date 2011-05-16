@@ -211,15 +211,11 @@ public class TestCaseExecutor implements ThreadFactory {
 			ExecutionTracer.getExecutionTracer().clear();
 			return result;
 		} catch (ExecutionException e1) {
-			if (e1.getCause() instanceof AssertionError
-			        && e1.getCause().getStackTrace()[0].getClassName().contains("de.unisb.cs.st.evosuite")) {
-				//e1.printStackTrace();
-				logger.warn("Assertion Error in evosuitecode", e1);
-				throw (AssertionError) e1.getCause();
-			}
+			/*
+			 * An ExecutionException at this point, is most likely an error in evosuite. As exceptions from the tested code are catched before this.
+			 */
 			Sandbox.tearDownEverything();
-			e1.printStackTrace();
-			logger.info("ExecutionException");
+			logger.error("ExecutionException (this is likely a serious error in the framework)", e1);
 			ExecutionResult result = new ExecutionResult(tc, null);
 			result.exceptions = callable.getExceptionsThrown();
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
