@@ -121,6 +121,9 @@ public class MethodStatement extends AbstractStatement {
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
 				e = e.getCause();
 			}
+			if(e instanceof EvosuiteError){
+				throw (EvosuiteError)e;
+			}
 			logger.debug("Exception thrown in method " + method.getName() + ": " + e);
 			exceptionThrown = e;
 		} finally {
