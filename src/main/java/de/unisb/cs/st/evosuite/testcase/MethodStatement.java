@@ -252,6 +252,9 @@ public class MethodStatement extends AbstractStatement {
 		if (ms.parameters.size() != parameters.size())
 			return false;
 
+		if(!this.method.equals(ms.method))
+			return false;
+		
 		for (int i = 0; i < parameters.size(); i++) {
 			if (!parameters.get(i).equals(ms.parameters.get(i)))
 				return false;
@@ -420,5 +423,6 @@ public class MethodStatement extends AbstractStatement {
 			callee.getStPosition();
 		}
 		return true;
-	}
+	}	
+
 }
