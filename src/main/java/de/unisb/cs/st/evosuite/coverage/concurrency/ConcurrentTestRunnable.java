@@ -122,20 +122,10 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 	@Override
 	public ExecutionResult call() {
 		CallLogger callLogger = new CallLogger();
-		boolean log =true;
-		if(t.contains(test)){
-			log=false;
-			((CallLogger)test.reporter).log=false;
-			//AssertionError e = new AssertionError("A testcase is executed twice");
-			//logger.fatal("going dark", e);
-			//throw e;
-			//System.exit(1);
-		}else{
-			t.add(test);
-			test.setCallReporter(callLogger);
-			test.setScheduleObserver(callLogger);
-		}
-		
+		test.setCallReporter(callLogger);
+		test.setScheduleObserver(callLogger);
+
+
 
 		BasicTestCase initialTestCase = new BasicTestCase();
 		assert(Properties.getTargetClass()!=null);
@@ -163,8 +153,8 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 		System.setErr(out);
 		for(int i=0 ; i<ConcurrencyCoverageFactory.THREAD_COUNT ; i++){
 			ConcurrentTestCase testCopy = test.clone();
-			if(log)testCopy.setCallReporter(callLogger);
-			if(log)testCopy.setScheduleObserver(callLogger);
+			testCopy.setCallReporter(callLogger);
+			testCopy.setScheduleObserver(callLogger);
 			ConcurrentTestCase testToExecute = addThreadEndCode(addThreadRegistrationStatements(testCopy));
 			TestRunnable testRunner = new TestRunnable(testToExecute, new ConcurrentScope(s.get(objectToTest)), observers);
 			FutureTask<ExecutionResult> testFuture = new FutureTask<ExecutionResult>(testRunner);
@@ -262,7 +252,7 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 			StatementInterface idst = new PrimitiveStatement<Integer>(test, Integer.class, LockRuntime.getUniqueThreadID());
 			test.addStatement(idst,0, false);
 			VariableReference idRef = idst.getReturnValue();
-			
+
 			List<VariableReference> paramsThreadRegistration = new ArrayList<VariableReference>();
 			paramsThreadRegistration.add(idRef);
 			test.addStatement(new MethodStatement(test, register, null, Void.class, paramsThreadRegistration), 1, false);

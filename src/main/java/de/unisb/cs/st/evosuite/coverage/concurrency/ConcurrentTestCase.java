@@ -230,9 +230,6 @@ public class ConcurrentTestCase implements TestCase{
 		for (int i = 0; i < size(); i++) {
 			StatementInterface statement = this.getStatement(i);
 			Set<Integer> schedule = reporter.getScheduleForStatement(statement);
-			for(StatementInterface s : ((CallLogger)this.reporter).statementToSchedule.keySet()){
-				//reporter.getScheduleForStatement(s);
-			}
 			//System.exit(1);
 			StringBuilder scheduleString = new StringBuilder();
 			for(Integer p : schedule){
