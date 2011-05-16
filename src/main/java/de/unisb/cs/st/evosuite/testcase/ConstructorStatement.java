@@ -190,6 +190,9 @@ public class ConstructorStatement extends AbstractStatement {
 		if (ms.parameters.size() != parameters.size())
 			return false;
 
+		if(!this.constructor.equals(ms.constructor))
+			return false;
+		
 		for (int i = 0; i < parameters.size(); i++) {
 			if (!parameters.get(i).equals(ms.parameters.get(i)))
 				return false;
