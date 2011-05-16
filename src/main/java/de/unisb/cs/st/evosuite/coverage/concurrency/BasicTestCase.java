@@ -124,7 +124,7 @@ public class BasicTestCase extends DefaultTestCase {
 	public BasicTestCase clone() {
 		BasicTestCase newTestCase = new BasicTestCase();
 		for (StatementInterface s : this) {
-			super.statements.add(s.clone(newTestCase));
+			newTestCase.statements.add(s.clone(newTestCase));
 		}
 		newTestCase.getCoveredGoals().addAll(super.getCoveredGoals());
 
