@@ -329,4 +329,28 @@ public class ConstructorStatement extends AbstractStatement {
 		}
 		return true;
 	}
+
+	@Override
+	public boolean same(StatementInterface s) {
+		if (this == s)
+			return true;
+		if (s == null)
+			return false;
+		if (getClass() != s.getClass())
+			return false;
+
+		ConstructorStatement ms = (ConstructorStatement) s;
+		if (ms.parameters.size() != parameters.size())
+			return false;
+
+		if(!this.constructor.equals(ms.constructor))
+			return false;
+		
+		for (int i = 0; i < parameters.size(); i++) {
+			if (!parameters.get(i).same(ms.parameters.get(i)))
+				return false;
+		}
+
+		return retval.same(ms.retval);
+	}
 }

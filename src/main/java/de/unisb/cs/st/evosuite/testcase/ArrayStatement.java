@@ -151,4 +151,23 @@ public class ArrayStatement extends AbstractStatement {
 		return super.isValid();
 	}
 
+	@Override
+	public boolean same(StatementInterface s) {
+		if (this == s)
+			return true;
+		if (s == null)
+			return false;
+		if (getClass() != s.getClass())
+			return false;
+
+		ArrayStatement as = (ArrayStatement) s;
+		if (length != as.length)
+			return false;
+		if (retval.same(as.retval)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 }

@@ -138,8 +138,8 @@ public class ConcurrentTestCase implements TestCase{
 	public ConcurrentTestCase clone() {
 		BasicTestCase newTest = test.clone();
 		ConcurrentTestCase newConTest = new ConcurrentTestCase(newTest, replaceConst);
-		newConTest.setCallReporter(reporter);
-		newConTest.setScheduleObserver(scheduleObserver);
+		//newConTest.setCallReporter(reporter);
+		//newConTest.setScheduleObserver(scheduleObserver);
 		newConTest.schedule.addAll(schedule);
 		return newConTest;
 	}
@@ -229,7 +229,11 @@ public class ConcurrentTestCase implements TestCase{
 		StringBuilder code = new StringBuilder();
 		for (int i = 0; i < size(); i++) {
 			StatementInterface statement = this.getStatement(i);
-			Set<Integer> schedule = this.reporter.getScheduleForStatement(statement);
+			Set<Integer> schedule = reporter.getScheduleForStatement(statement);
+			for(StatementInterface s : ((CallLogger)this.reporter).statementToSchedule.keySet()){
+				//reporter.getScheduleForStatement(s);
+			}
+			//System.exit(1);
 			StringBuilder scheduleString = new StringBuilder();
 			for(Integer p : schedule){
 				scheduleString.append(p);
@@ -517,6 +521,11 @@ public class ConcurrentTestCase implements TestCase{
 			@Override
 			public String getCode() {
 				return retval.getSimpleClassName() + " " + retval.getName() + " = param0;";
+			}
+
+			@Override
+			public boolean same(StatementInterface s) {
+				return retval.same(s.getReturnValue());
 			}
 
 		};

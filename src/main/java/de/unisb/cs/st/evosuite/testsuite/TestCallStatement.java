@@ -222,4 +222,9 @@ public class TestCallStatement extends AbstractStatement {
 		return new ArrayList<VariableReference>(getVariableReferences());
 	}
 
+	@Override
+	public boolean same(StatementInterface s) {
+		return equals(s);
+	}
+
 }

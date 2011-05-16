@@ -416,4 +416,22 @@ public class VariableReference implements Comparable<VariableReference> {
 	public int compareTo(VariableReference other) {
 		return getStPosition() - other.getStPosition();
 	}
+	
+	public boolean same(VariableReference r){
+		if(r==null)
+			return false;
+		
+		if(this.getStPosition()!=r.getStPosition())
+			return false;
+		
+		if(this.array!=null && !this.array.same(r))
+			return false;
+		
+		if(this.array_index!=r.array_index || this.array_length!=r.array_length)
+			return false;
+		
+		if(this.type.equals(r.type));
+		
+		return true;
+	}
 }

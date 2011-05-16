@@ -168,5 +168,28 @@ public class AssignmentStatement extends AbstractStatement {
 		return true;
 	}
 
+	@Override
+	public boolean same(StatementInterface s) {
+		if (this == s)
+			return true;
+		if (s == null)
+			return false;
+		if (getClass() != s.getClass())
+			return false;
+		
+		AssignmentStatement other = (AssignmentStatement) s;
+		if (parameter == null) {
+			if (other.parameter != null)
+				return false;
+		} else if (!parameter.same(other.parameter))
+			return false;
+		if (retval == null) {
+			if (other.retval != null)
+				return false;
+		} else if (!retval.same(other.retval))
+			return false;
+		return true;
+	}
+
 	
 }

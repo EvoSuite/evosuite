@@ -492,5 +492,18 @@ public class PrimitiveStatement<T> extends AbstractStatement {
 		return new ArrayList<VariableReference>(getVariableReferences());
 	}
 
+	@Override
+	public boolean same(StatementInterface s) {
+		if (this == s)
+			return true;
+		if (s == null)
+			return false;
+		if (getClass() != s.getClass())
+			return false;
+
+		PrimitiveStatement<?> ps = (PrimitiveStatement<?>) s;
+		return (retval.same(ps.retval) && value.equals(ps.value));
+	}
+
 
 }
