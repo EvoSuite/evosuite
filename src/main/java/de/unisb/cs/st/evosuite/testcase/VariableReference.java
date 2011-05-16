@@ -315,12 +315,7 @@ public class VariableReference implements Comparable<VariableReference> {
 	 */
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + getStPosition();
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		result = prime * result + ((array == null) ? 0 : array.hashCode() + array_index);
-		return result;
+		return super.hashCode(); //as each return value exists exactly once
 	}
 
 	/**
