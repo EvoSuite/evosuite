@@ -151,4 +151,11 @@ public interface StatementInterface {
 
 	public int getPosition();
 
+	/**
+	 * Allows the comparing of Statements between TestCases. I.e. this is a more semantic comparison than the one done by equals.
+	 * E.g. two Variable are equal if they are at the same position and they reference to objects of the same type.
+	 * @param s
+	 * @return
+	 */
+	public boolean same(StatementInterface s);
 }

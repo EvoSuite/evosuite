@@ -235,4 +235,13 @@ public class ScheduleLogWrapper implements StatementInterface{
 	public boolean isValid() {
 		return wrapped.isValid();
 	}
+
+	@Override
+	public boolean same(StatementInterface s) {
+		if(s instanceof ScheduleLogWrapper){
+			return wrapped.same(((ScheduleLogWrapper) s).wrapped);
+		}else{
+			return wrapped.same(s);
+		}
+	}
 }

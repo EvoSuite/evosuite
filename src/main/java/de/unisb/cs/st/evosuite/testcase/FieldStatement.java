@@ -46,8 +46,8 @@ public class FieldStatement extends AbstractStatement {
 	VariableReference source;
 	// VariableReference ret_val;
 
-	String className;
-	String fieldName;
+	private String className;
+	private String fieldName;
 
 	public FieldStatement(TestCase tc, Field field, VariableReference source,
 	        java.lang.reflect.Type type) {
@@ -295,5 +295,22 @@ public class FieldStatement extends AbstractStatement {
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
 		return new ArrayList<VariableReference>(getVariableReferences());
+	}
+
+	@Override
+	public boolean same(StatementInterface s) {
+		if (this == s)
+			return true;
+		if (s == null)
+			return false;
+		if (getClass() != s.getClass())
+			return false;
+
+		FieldStatement fs = (FieldStatement) s;
+		if (!Modifier.isStatic(field.getModifiers()))
+			return source.same(fs.source) && retval.same(fs.retval)
+			        && field.equals(fs.field);
+		else
+			return retval.same(fs.retval) && field.equals(fs.field);
 	}
 }
