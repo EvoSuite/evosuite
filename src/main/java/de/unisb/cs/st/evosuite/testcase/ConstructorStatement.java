@@ -101,9 +101,13 @@ public class ConstructorStatement extends AbstractStatement {
 		} catch (Throwable e) {
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
 				e = e.getCause();
-				logger.debug("Exception thrown in constructor: " + e);
-			} else
-				logger.debug("Exception thrown in constructor: " + e);
+			} 
+				
+			if(e instanceof EvosuiteError){
+				throw (EvosuiteError)e;
+			}
+			
+			logger.debug("Exception thrown in constructor: " + e);
 			exceptionThrown = e;
 
 		} finally {
