@@ -220,6 +220,11 @@ public class TestCaseExecutor implements ThreadFactory {
 			result.exceptions = callable.getExceptionsThrown();
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
+			if(e1.getCause() instanceof Error){ //an error was thrown somewhere in evosuite code
+				throw (Error)e1.getCause();
+			}else if(e1.getCause() instanceof RuntimeException){
+				throw (RuntimeException)e1.getCause();
+			}
 			return result;
 		} catch (TimeoutException e1) {
 			Sandbox.tearDownEverything();
