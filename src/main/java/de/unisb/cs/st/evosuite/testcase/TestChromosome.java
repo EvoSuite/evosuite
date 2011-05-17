@@ -349,13 +349,13 @@ public class TestChromosome extends Chromosome {
 								as.parameter = randomness.choice(objects);
 								changed = true;
 							}
-						} else if (as.retval.getArrayLength() > 0) {
-							as.retval.setArrayIndex(randomness.nextInt(as.retval.getArrayLength()));
+						} else if (as.getArrayIndexRef().getArray().getArrayLength() > 0) {
+							as.getArrayIndexRef().setArrayIndex(randomness.nextInt(as.getArrayIndexRef().getArray().getArrayLength()));
 							changed = true;
 						}
 						// logger.info("After change:");
 						// logger.info(test.toCode());
-					} else if (statement.getReturnValue().isArray()) {
+					} else if (statement.getReturnValue() instanceof ArrayReference) {
 
 					} else {
 						changed = test_factory.changeRandomCall(test, statement);

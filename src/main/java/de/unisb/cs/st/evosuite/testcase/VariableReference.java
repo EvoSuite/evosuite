@@ -37,11 +37,6 @@ import com.lowagie.text.pdf.ArabicLigaturizer;
  * 
  */
 public interface VariableReference extends Comparable<VariableReference> {
-
-	
-	public int getArrayLength();
-	
-	public void setArrayLength(int l);
 	
 	/**
 	 * The position of the statement, defining this VariableReference, in the testcase.
@@ -67,14 +62,8 @@ public interface VariableReference extends Comparable<VariableReference> {
 	public String getComponentName();
 
 	public Type getComponentType();
-
-	public VariableReference getArray();
-	
-	public int getArrayIndex();
 	
 	public GenericClass getGenericClass();
-
-	public void setArrayIndex(int index);
 	/**
 	 * Return true if variable is an enumeration
 	 */
@@ -94,18 +83,6 @@ public interface VariableReference extends Comparable<VariableReference> {
 	 * Return true if variable is a string
 	 */
 	public boolean isString();
-
-	/**
-	 * Return true if variable is an array
-	 */
-	public boolean isArray();
-	
-	public void setArray(VariableReference r);
-
-	/**
-	 * Return true if variable is an array
-	 */
-	public boolean isArrayIndex();
 
 	/**
 	 * Return true if type of variable is a primitive wrapper

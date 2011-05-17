@@ -137,7 +137,7 @@ public class DefaultTestCase implements TestCase{
 		for (int i = 0; i < position && i < size(); i++) {
 			if (statements.get(i).getReturnValue() == null)
 				continue;
-			if (statements.get(i).getReturnValue().isArray()) {
+			if (statements.get(i).getReturnValue() instanceof ArrayReference) {
 				if (GenericClass.isAssignable(type,
 				        statements.get(i).getReturnValue().getComponentType())) {
 					// Add components
@@ -145,13 +145,12 @@ public class DefaultTestCase implements TestCase{
 					// VariableReference(statements.get(i).retval.clone(),
 					// Randomness.getInstance().nextInt(MAX_ARRAY), i));
 					// ArrayStatement as = (ArrayStatement)statements.get(i);
-					for (int index = 0; index < statements.get(i).getReturnValue().getArrayLength(); index++) {
-						variables.add(new VariableReferenceImpl(this, 
-						        statements.get(i).getReturnValue(), index,
-						        statements.get(i).getReturnValue().getArrayLength()));
+					for (int index = 0; index < ((ArrayReference)statements.get(i).getReturnValue()).getArrayLength(); index++) {
+						variables.add(new ArrayIndex(this, 
+						        (ArrayReference)statements.get(i).getReturnValue(), index));
 					}
 				}
-			} else if (statements.get(i).getReturnValue().isArrayIndex()) { // &&
+			} else if (statements.get(i).getReturnValue() instanceof ArrayIndex) { // &&
 				                                                  // GenericClass.isAssignable(type,
 				                                                  // statements.get(i).retval.array.getComponentType()))
 				                                                  // {
@@ -183,7 +182,7 @@ public class DefaultTestCase implements TestCase{
 			if (statements.get(i).getReturnValue() == null)
 				continue;
 			// TODO: Need to support arrays that were not self-created
-			if (statements.get(i).getReturnValue().isArray()) { // &&
+			if (statements.get(i).getReturnValue() instanceof ArrayReference) { // &&
 				                                      // statements.get(i).retval.array
 				                                      // != null) {
 				// Add a single component
@@ -195,15 +194,14 @@ public class DefaultTestCase implements TestCase{
 				// variables.add(new VariableReference(as.retval.clone(), index,
 				// as.size(), i));
 				// }
-				for (int index = 0; index < statements.get(i).getReturnValue().getArrayLength(); index++) {
+				for (int index = 0; index < ((ArrayReference)statements.get(i).getReturnValue()).getArrayLength(); index++) {
 					// variables.add(new
 					// VariableReference(statements.get(i).retval.clone(),
 					// index, statements.get(i).retval.array_length, i));
-					variables.add(new VariableReferenceImpl(this, 
-					        statements.get(i).getReturnValue(), index, statements
-					                .get(i).getReturnValue().getArrayLength()));
+					variables.add(new ArrayIndex(this, 
+							(ArrayReference)statements.get(i).getReturnValue(), index));
 				}
-			} else if (!statements.get(i).getReturnValue().isArrayIndex()) {
+			} else if (!(statements.get(i).getReturnValue() instanceof ArrayIndex)) {
 				variables.add(statements.get(i).getReturnValue());
 			}
 			// logger.trace(statements.get(i).retval.getSimpleClassName());

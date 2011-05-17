@@ -48,9 +48,8 @@ public class ArrayStatement extends AbstractStatement {
 	}
 
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type, int length) {
-		super(tc, new VariableReferenceImpl(tc, type));
+		super(tc, new ArrayReference(tc, new GenericClass(type), length));
 		this.length = length;
-		this.retval.setArrayLength(this.length);
 	}
 
 	public int size() {

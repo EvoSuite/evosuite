@@ -19,6 +19,8 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.ga.Randomness;
 import de.unisb.cs.st.evosuite.testcase.AbstractTestFactory;
+import de.unisb.cs.st.evosuite.testcase.ArrayIndex;
+import de.unisb.cs.st.evosuite.testcase.ArrayReference;
 import de.unisb.cs.st.evosuite.testcase.ArrayStatement;
 import de.unisb.cs.st.evosuite.testcase.AssignmentStatement;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
@@ -330,9 +332,9 @@ public class OUMTestFactory extends AbstractTestFactory {
 					object = null;
 			}
 			if (object != null && !object.isPrimitive()) {
-				if (object.isArray() && object.getArrayLength() > 0) {
+				if (object instanceof ArrayReference && ((ArrayReference)object).getArrayLength() > 0) {
 					logger.debug("Selected array object");
-					int index = randomness.nextInt(object.getArrayLength());
+					int index = randomness.nextInt(((ArrayReference)object).getArrayLength());
 					try {
 						assignArray(test, object, index, position);
 					} catch (ConstructionFailedException e) {
@@ -451,7 +453,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 		logger.trace("Delete Statement - " + position);
 
 		VariableReference var = test.getReturnValue(position);
-		if (var.isArrayIndex()) {
+		if (var instanceof ArrayIndex) {
 			deleteStatement(test, position);
 			return;
 		}
@@ -498,7 +500,8 @@ public class OUMTestFactory extends AbstractTestFactory {
 						if (as.getReturnValue() != null
 						        && as.getReturnValue().equals(var)) { // TODO: array index might exceed length
 							VariableReference r = randomness.choice(alternatives);
-							as.setArray(r);
+							assert(r instanceof ArrayReference);
+							as.getArrayIndexRef().setArray((ArrayReference)r);
 							logger.trace("Replacing array source");
 						}
 						if (as.parameter != null && as.parameter.equals(var)) {
@@ -771,7 +774,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 		Iterator<VariableReference> iterator = objects.iterator();
 		while (iterator.hasNext()) {
 			VariableReference var = iterator.next();
-			if (var.isArrayIndex() && var.getArray().equals(array))
+			if (var instanceof ArrayIndex && ((ArrayIndex)var).getArray().equals(array))
 				iterator.remove();
 		}
 		assignArray(test, array, array_index, position, objects);
@@ -780,6 +783,8 @@ public class OUMTestFactory extends AbstractTestFactory {
 	protected void assignArray(TestCase test, VariableReference array, int array_index,
 	        int position, List<VariableReference> objects)
 	        throws ConstructionFailedException {
+		assert(array instanceof ArrayReference);
+		ArrayReference arrayRef = (ArrayReference)array;
 		//		VariableReference index = array.getVariable(array_index).clone();
 
 		//index.statement = position;
@@ -788,7 +793,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 			// Assign an existing value
 			// TODO:
 			// Do we need a special "[Array]AssignmentStatement"?
-			test.addStatement(new AssignmentStatement(test, array, array_index, array.getArrayLength(),
+			test.addStatement(new AssignmentStatement(test, arrayRef, array_index,
 			        randomness.choice(objects)), position);
 
 		} else {
@@ -801,7 +806,7 @@ public class OUMTestFactory extends AbstractTestFactory {
 			VariableReference var = attemptGeneration(test, array.getComponentType(),
 			                                          position);
 			position += test.size() - old_len;
-			test.addStatement(new AssignmentStatement(test, array, array_index, array.getArrayLength(), var), position);
+			test.addStatement(new AssignmentStatement(test, arrayRef, array_index, var), position);
 		}
 	}
 

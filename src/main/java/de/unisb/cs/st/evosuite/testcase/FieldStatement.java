@@ -178,8 +178,8 @@ public class FieldStatement extends AbstractStatement {
 		references.add(retval);
 		if (!Modifier.isStatic(field.getModifiers())) {
 			references.add(source);
-			if (source.isArrayIndex())
-				references.add(source.getArray());
+			if (source instanceof ArrayIndex)
+				references.add(((ArrayIndex)source).getArray());
 		}
 		return references;
 
