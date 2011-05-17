@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.jgrapht.DirectedGraph;
 import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 import org.objectweb.asm.MethodVisitor;
@@ -260,7 +260,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	}
 
 	private static void addCompleteCFG(String classname, String methodname,
-	        DefaultDirectedGraph<BytecodeInstruction, DefaultEdge> graph) {
+	        DirectedGraph<BytecodeInstruction, DefaultEdge> graph) {
 		if (!completeCFGs.containsKey(classname)) {
 			completeCFGs.put(classname, new HashMap<String, ControlFlowGraph>());
 		}

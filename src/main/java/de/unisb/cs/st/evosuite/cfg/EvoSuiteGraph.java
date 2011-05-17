@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.jgrapht.DirectedGraph;
+import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
 /**
@@ -32,11 +33,24 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 
 	private DirectedGraph<V, E> graph;
 
+	protected EvoSuiteGraph(Class<E> cl) {
+
+		graph = new DefaultDirectedGraph<V, E>(cl);
+	}
+
 	protected EvoSuiteGraph(DirectedGraph<V, E> graph) {
 		if (graph == null)
 			throw new IllegalArgumentException("null given");
 
 		this.graph = graph;
+	}
+	
+	
+	// TODO: this is supposed to be removed in the future!
+	// 			only supposed to be used for refactoring the cfg package
+	//			DO NOT CALL THIS! please ;)
+	public DirectedGraph<V,E> getGraph() {
+		return graph;
 	}
 
 	// retrieving nodes and edges
@@ -55,7 +69,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		return graph.getEdgeTarget(e);
 	}
 	
-	public Set<E> getOutgoingEdgesOf(V node) {
+	public Set<E> outgoingEdgesOf(V node) {
 		if (!containsBlock(node)) // should this just return null?
 			throw new IllegalArgumentException(
 					"block not contained in this CFG");
@@ -63,7 +77,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		return graph.outgoingEdgesOf(node);
 	}
 
-	public Set<E> getIncomingEdgesOf(V node) {
+	public Set<E> incomingEdgesOf(V node) {
 		if (!containsBlock(node)) // should this just return null?
 			throw new IllegalArgumentException(
 					"block not contained in this CFG");
@@ -77,11 +91,11 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 					"block not contained in this CFG");
 
 		Set<V> r = new HashSet<V>();
-		for (E e : getOutgoingEdgesOf(node))
+		for (E e : outgoingEdgesOf(node))
 			r.add(getEdgeTarget(e));
 
 		// sanity check
-		if (r.size() != getChildCount(node))
+		if (r.size() != outDegreeOf(node))
 			throw new IllegalStateException(
 					"expect children count and size of set of all children of a CFGs node to be equals");
 
@@ -94,11 +108,11 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 					"block not contained in this CFG");
 
 		Set<V> r = new HashSet<V>();
-		for (E e : getOutgoingEdgesOf(node))
+		for (E e : outgoingEdgesOf(node))
 			r.add(getEdgeTarget(e));
 
 		// sanity check
-		if (r.size() != getChildCount(node))
+		if (r.size() != outDegreeOf(node))
 			throw new IllegalStateException(
 					"expect children count and size of set of all children of a CFGs node to be equals");
 
@@ -119,7 +133,13 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		return graph.addVertex(v);
 	}
 
+	protected E addEdge(V src, V target) {
+		
+		return graph.addEdge(src,target);
+	}
+	
 	protected boolean addEdge(V src, V target, E e) {
+		
 		return graph.addEdge(src, target, e);
 	}
 
@@ -133,14 +153,14 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		return graph.edgeSet().size();
 	}
 	
-	public int getChildCount(V node) {
+	public int outDegreeOf(V node) { // TODO rename to sth. like childCount()
 		if (node == null || !containsBlock(node))
 			return -1;
 
 		return graph.outDegreeOf(node);
 	}
 	
-	public int getParentCount(V node) {
+	public int inDegreeOf(V node) { // TODO rename sth. like parentCount()
 		if (node == null || !containsBlock(node))
 			return -1;
 
@@ -166,8 +186,8 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		if (node == null || !containsBlock(node))
 			return false;
 
-		return getParentCount(node) == parents
-				&& getChildCount(node) == children;
+		return inDegreeOf(node) == parents
+				&& outDegreeOf(node) == children;
 	}
 
 }

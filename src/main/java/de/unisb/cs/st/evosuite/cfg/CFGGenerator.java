@@ -8,7 +8,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -46,14 +46,18 @@ public class CFGGenerator {
 	private static Logger logger = Logger.getLogger(CFGGenerator.class);
 
 	List<Mutation> mutants;
-	DefaultDirectedGraph<BytecodeInstruction, DefaultEdge> rawGraph = new DefaultDirectedGraph<BytecodeInstruction, DefaultEdge>(
-			DefaultEdge.class);
+	
+//	DefaultDirectedGraph<BytecodeInstruction, DefaultEdge> rawGraph = new DefaultDirectedGraph<BytecodeInstruction, DefaultEdge>(
+//			DefaultEdge.class);
+	
+	RawControlFlowGraph rawGraph = new RawControlFlowGraph();
 
 	boolean nodeRegistered = false;
 	MethodNode currentMethod;
 	String className;
 	String methodName;
 
+	
 	/**
 	 * Initializes this generator to generate the CFG for the method identified
 	 * by the given parameters
@@ -132,8 +136,8 @@ public class CFGGenerator {
 
 	// retrieve information about the graph
 
-	public DefaultDirectedGraph<BytecodeInstruction, DefaultEdge> getCompleteGraph() {
-		return rawGraph;
+	public DirectedGraph<BytecodeInstruction, DefaultEdge> getCompleteGraph() {
+		return rawGraph.getGraph();
 	}
 
 	public DirectedMultigraph<BytecodeInstruction, DefaultEdge> getMinimalGraph() {

@@ -20,10 +20,12 @@ import org.jgrapht.graph.DirectedMultigraph;
  * every BytecodeInstruction
  * 
  * Out of the above described raw CFG the following "pin-points" are extracted:
- * - the entryNode (first instruction in the method) - all exitNodes (outDegree
- * 0) - all branches (outDegree>1) - and in a subsequent step all targets of all
- * branches - all joins (inDegree>1) - and in a subsequent step all sources of
- * all joins
+ * - the entryNode (first instruction in the method) 
+ * - all exitNodes (outDegree 0) 
+ * - all branches (outDegree>1) 
+ * 	- and in a subsequent step all targets of all branches 
+ * - all joins (inDegree>1) 
+ *  - and in a subsequent step all sources of all joins
  * 
  * All those "pin-points" are put into a big set (some of the above categories
  * may overlap) and for all those single BytecodeInstrucions their corresponding
@@ -51,7 +53,7 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 	private String methodName;
 	
 	private BytecodeInstruction entryPoint;
-	private Set<BytecodeInstruction> exitPoints = new HashSet<BytecodeInstruction>();
+	private Set<BytecodeInstruction> exitPoints;
 	private Set<BytecodeInstruction> branches;
 	private Set<BytecodeInstruction> branchTargets;
 	private Set<BytecodeInstruction> joins;
@@ -59,15 +61,17 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 	
 	
 	public ActualControlFlowGraph(CFGGenerator generator) {
-		super(new DirectedMultigraph<BasicBlock,ControlFlowEdge>(ControlFlowEdge.class));
+		super(new DirectedMultigraph<BasicBlock, ControlFlowEdge>(
+				ControlFlowEdge.class));
+
 		if (generator == null)
 			throw new IllegalArgumentException("null given");
-		
+
 		this.className = generator.getClassName();
 		this.methodName = generator.getMethodName();
-		
+
 		fillSets(generator);
-		
+
 		computeGraph(generator);
 	}
 	
@@ -97,7 +101,9 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 	private void setExitPoints(Set<BytecodeInstruction> exitPoints) {
 		if (exitPoints == null)
 			throw new IllegalArgumentException("null given");
-
+		
+		this.exitPoints = new HashSet<BytecodeInstruction>();
+		
 		for (BytecodeInstruction exitPoint : exitPoints) {
 			if (!belongsToMethod(exitPoint))
 				throw new IllegalArgumentException(
@@ -326,7 +332,7 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 	}
 	
 	
-	private void addEdge(BasicBlock src, BasicBlock target) {
+	protected ControlFlowEdge addEdge(BasicBlock src, BasicBlock target) {
 		if (src == null || target == null)
 			throw new IllegalArgumentException("null given");
 		
@@ -334,9 +340,11 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 		
 		if (containsEdge(newEdge)) {
 			logger.debug("edge already contained in CFG");
-		} else if (!addEdge(src, target, newEdge))
+		} else if (!super.addEdge(src, target, newEdge))
 			throw new IllegalStateException(
 					"internal error while adding edge to CFG");
+		
+		return newEdge;
 	}
 	
 	// retrieve information about the CFG
@@ -485,13 +493,13 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 
 	void checkEntryExitPointConstraint(BasicBlock node) {
 		// exit point constraint
-		int out = getChildCount(node);
+		int out = outDegreeOf(node);
 		if (!isExitBlock(node) && out == 0)
 			throw new IllegalStateException(
 					"expect nodes without outgoing edges to be exitBlocks: "
 							+ node.toString());
 		// entry point constraint
-		int in = getParentCount(node);
+		int in = inDegreeOf(node);
 		if (!isEntryBlock(node) && in == 0)
 			throw new IllegalStateException(
 					"expect nodes without incoming edges to be the entryBlock: "
@@ -499,8 +507,8 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 	}
 
 	void checkSingleCFGNodeConstraint(BasicBlock node) {
-		int in = getParentCount(node);
-		int out = getChildCount(node);
+		int in = inDegreeOf(node);
+		int out = outDegreeOf(node);
 		if (in + out == 0 && getNodeCount() != 1)
 			throw new IllegalStateException(
 					"node with neither child nor parent only allowed if CFG consists of a single block: "
