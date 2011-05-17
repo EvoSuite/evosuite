@@ -7,6 +7,11 @@ import org.jgrapht.graph.DefaultEdge;
  * 
  *  Nothing more then an DefaultEdge that holds it's own references to
  *  it's source and target Node
+ *  
+ *  TODO remove this class again!
+ *  		... there seems to be a reason why jGraph's edges don't do that already
+ *  		... learned stuff about generics and type erasure in java ... do not like
+ *  
  * 
  * @author Andre Mis
  */
@@ -45,8 +50,8 @@ public class ControlFlowEdge extends DefaultEdge {
 	
 	@Override
 	public String toString() {
-		return "ControlFlowEdge_" + id + " from " + src.getName() + " to "
-				+ target.getName();
+		return "ControlFlowEdge_" + id + " from " + src.toString() + " to "
+				+ target.toString();
 	}
 	
 	
