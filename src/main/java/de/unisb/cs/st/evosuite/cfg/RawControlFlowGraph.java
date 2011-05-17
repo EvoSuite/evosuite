@@ -10,6 +10,9 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.jgrapht.graph.DefaultEdge;
 
+
+// TODO make neat superclass ControlFlowGraph that extends EvoSuiteGraph
+
 /**
  * Represents the complete CFG of a method
  * 
