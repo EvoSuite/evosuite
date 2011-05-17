@@ -42,7 +42,7 @@ public class MethodStatement extends AbstractStatement {
 
 	public MethodStatement(TestCase tc, Method method, VariableReference callee,
 	        java.lang.reflect.Type type, List<VariableReference> parameters) {
-		super(tc, new VariableReference(tc, type));
+		super(tc, new VariableReferenceImpl(tc, type));
 		assert(Modifier.isStatic(method.getModifiers()) || callee!=null);
 		assert(parameters!=null);
 		assert(method.getParameterTypes().length==parameters.size());

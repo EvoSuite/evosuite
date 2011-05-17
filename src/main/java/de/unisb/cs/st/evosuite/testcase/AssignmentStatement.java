@@ -42,7 +42,7 @@ public class AssignmentStatement extends AbstractStatement {
 	public VariableReference parameter;
 
 	public AssignmentStatement(TestCase tc, VariableReference array, int array_index, int array_length, VariableReference value) {
-		super(tc, new VariableReference(tc, array, array_index, array.getArrayLength()));
+		super(tc, new VariableReferenceImpl(tc, array, array_index, array.getArrayLength()));
 		this.parameter = value;
 	}
 
@@ -54,7 +54,7 @@ public class AssignmentStatement extends AbstractStatement {
 	public StatementInterface clone(TestCase newTestCase) {
 		VariableReference newParam = newTestCase.getStatement(parameter.getStPosition()).getReturnValue(); //must be set as we only use this to clone whole testcases
 		assert(newParam!=null);
-		AssignmentStatement copy = new AssignmentStatement(newTestCase, retval.getArray(), retval.array_index, retval.getArrayLength(),
+		AssignmentStatement copy = new AssignmentStatement(newTestCase, retval.getArray(), retval.getArrayIndex(), retval.getArrayLength(),
 		        newParam); 
 		return copy;
 	}
@@ -70,7 +70,7 @@ public class AssignmentStatement extends AbstractStatement {
 				logger.warn("Assigning outside of array");
 			}
 			Object array = scope.get(retval.getArray());
-			Array.set(array, retval.array_index, value);
+			Array.set(array, retval.getArrayIndex(), value);
 		} catch (Throwable t) {
 			exceptionThrown = t;
 		}
@@ -136,7 +136,7 @@ public class AssignmentStatement extends AbstractStatement {
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
 	        Throwable exception) {
 		retval.getArray().loadBytecode(mg, locals);
-		mg.push(retval.array_index);
+		mg.push(retval.getArrayIndex());
 		parameter.loadBytecode(mg, locals);
 		Class<?> clazz = parameter.getVariableClass();
 		if (!clazz.equals(retval.getVariableClass())) {

@@ -146,7 +146,7 @@ public class DefaultTestCase implements TestCase{
 					// Randomness.getInstance().nextInt(MAX_ARRAY), i));
 					// ArrayStatement as = (ArrayStatement)statements.get(i);
 					for (int index = 0; index < statements.get(i).getReturnValue().getArrayLength(); index++) {
-						variables.add(new VariableReference(this, 
+						variables.add(new VariableReferenceImpl(this, 
 						        statements.get(i).getReturnValue(), index,
 						        statements.get(i).getReturnValue().getArrayLength()));
 					}
@@ -199,7 +199,7 @@ public class DefaultTestCase implements TestCase{
 					// variables.add(new
 					// VariableReference(statements.get(i).retval.clone(),
 					// index, statements.get(i).retval.array_length, i));
-					variables.add(new VariableReference(this, 
+					variables.add(new VariableReferenceImpl(this, 
 					        statements.get(i).getReturnValue(), index, statements
 					                .get(i).getReturnValue().getArrayLength()));
 				}

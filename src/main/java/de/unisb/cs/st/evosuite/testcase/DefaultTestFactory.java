@@ -277,9 +277,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 								VariableReference r = randomness.choice(alternatives);
 								ms.callee.setArray(r);
 								if (r.getArrayLength() > 1)
-									ms.callee.array_index = randomness.nextInt(r.getArrayLength());
+									ms.callee.setArrayIndex(randomness.nextInt(r.getArrayLength()));
 								else
-									ms.callee.array_index = 0;
+									ms.callee.setArrayIndex(0);
 							}
 						}
 						for (int pos = 0; pos < ms.parameters.size(); pos++) {
@@ -291,9 +291,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 								VariableReference r = randomness.choice(alternatives);
 								ms.parameters.get(pos).setArray(r);
 								if (r.getArrayLength() > 1)
-									ms.parameters.get(pos).array_index = randomness.nextInt(r.getArrayLength());
+									ms.parameters.get(pos).setArrayIndex(randomness.nextInt(r.getArrayLength()));
 								else
-									ms.parameters.get(pos).array_index = 0;
+									ms.parameters.get(pos).setArrayIndex(0);
 							}
 						}
 					} else if (s instanceof ConstructorStatement) {
@@ -307,9 +307,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 								VariableReference r = randomness.choice(alternatives);
 								cs.parameters.get(pos).setArray(r);
 								if (r.getArrayLength() > 1)
-									cs.parameters.get(pos).array_index = randomness.nextInt(r.getArrayLength());
+									cs.parameters.get(pos).setArrayIndex(randomness.nextInt(r.getArrayLength()));
 								else
-									cs.parameters.get(pos).array_index = 0;
+									cs.parameters.get(pos).setArrayIndex(0);
 							}
 						}
 					} else if (s instanceof FieldStatement) {
@@ -322,9 +322,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 							VariableReference r = randomness.choice(alternatives);
 							fs.source.setArray(r);
 							if (r.getArrayLength() > 1)
-								fs.source.array_index = randomness.nextInt(r.getArrayLength());
+								fs.source.setArrayIndex(randomness.nextInt(r.getArrayLength()));
 							else
-								fs.source.array_index = 0;
+								fs.source.setArrayIndex(0);
 						}
 					} else if (s instanceof AssignmentStatement) {
 						AssignmentStatement as = (AssignmentStatement) s;
@@ -341,9 +341,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 							VariableReference r = randomness.choice(alternatives);
 							as.retval.setArray(r);
 							if (r.getArrayLength() > 1)
-								as.retval.array_index = randomness.nextInt(r.getArrayLength());
+								as.retval.setArrayIndex(randomness.nextInt(r.getArrayLength()));
 							else
-								as.retval.array_index = 0;
+								as.retval.setArrayIndex(0);
 						}
 						if (as.parameter != null && as.parameter.equals(var)) {
 							VariableReference r = randomness.choice(alternatives);
@@ -353,9 +353,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 							VariableReference r = randomness.choice(alternatives);
 							as.parameter.setArray(r);
 							if (r.getArrayLength() > 1)
-								as.parameter.array_index = randomness.nextInt(r.getArrayLength());
+								as.parameter.setArrayIndex(randomness.nextInt(r.getArrayLength()));
 							else
-								as.parameter.array_index = 0;
+								as.parameter.setArrayIndex(0);
 						}
 					}
 				}

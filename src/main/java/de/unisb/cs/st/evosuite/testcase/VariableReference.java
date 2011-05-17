@@ -36,193 +36,81 @@ import com.lowagie.text.pdf.ArabicLigaturizer;
  * @author Gordon Fraser
  * 
  */
-public class VariableReference implements Comparable<VariableReference> {
+public interface VariableReference extends Comparable<VariableReference> {
 
-	private static Logger logger = Logger.getLogger(VariableReference.class);
 	
-	/**
-	 * Type (class) of the variable
-	 */
-	protected GenericClass type;
-
-	/**
-	 * If this variable is contained in an array, this is the reference to the
-	 * array
-	 */
-	protected VariableReference array = null;
-
-	/**
-	 * Index in the array
-	 */
-	protected int array_index = 0;
+	public int getArrayLength();
 	
-	/**
-	 * Index in the array
-	 */
-	protected int array_length = 0;
-
-	/**
-	 * The testCase in which this VariableReference is valid
-	 */
-	protected final TestCase testCase;
-	
-	/**
-	 * Constructor
-	 * 
-	 * @param testCase 
-	 * 			  The TestCase which defines the statement which defines this 
-	 * @param type
-	 *            The type (class) of the variable
-	 * @param position
-	 *            The statement in the test case that declares this variable
-	 */
-	public VariableReference(TestCase testCase, GenericClass type) {
-		this.testCase=testCase;
-		this.type = type;
-	}
-
-	/**
-	 * Constructor
-	 * 
-	 * @param type
-	 *            The type (class) of the variable
-	 * @param position
-	 *            The statement in the test case that declares this variable
-	 */
-	public VariableReference(TestCase testCase, VariableReference array, int index, int length) {
-		this.testCase=testCase;
-		this.type = new GenericClass(array.getComponentType());
-		this.array = array;
-		this.array_index = index;
-		this.array_length = length;
-	}
-
-	public VariableReference(TestCase testCase, Type type) {
-		this(testCase, new GenericClass(type));
-	}
-	
-	public int getArrayLength(){
-		return array_length;
-	}
-	
-	public void setArrayLength(int l){
-		assert(l>=0);
-		array_length=l;
-	}
+	public void setArrayLength(int l);
 	
 	/**
 	 * The position of the statement, defining this VariableReference, in the testcase.
 	 * @return
 	 */
-	public int getStPosition(){
-		for(int i=0 ; i<testCase.size() ; i++){
-			if(testCase.getStatement(i).getReturnValue().equals(this)){
-				return i;
-			}
-		}
-		
-		if(isArrayIndex()){
-			//notice that this case is only reached if no AssignmentStatement was used to assign to the array index (as in that case the for loop would have found something)
-			//Therefore the array must have been assigned in some method and we can return the method call
-			return array.getStPosition();
-		}
-		
-		throw new AssertionError("A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase");
-	}
+	public int getStPosition();
 
 	/**
 	 * Create a copy of the current variable
 	 */
-	@Override
-	public VariableReference clone() {
-		throw new UnsupportedOperationException("This method SHOULD not be used, as only the original reference is keeped up to date");
-		/*VariableReference copy = new VariableReference(type, statement);
-		if (array != null) {
-			copy.array = array.clone();
-			copy.array_index = array_index;
-			copy.array_length = array_length;
-		}
-		return copy;*/
-	}
+	public abstract VariableReference clone();
 
 	/**
 	 * Return simple class name
 	 */
-	public String getSimpleClassName() {
-		return type.getSimpleName();
-	}
+	public String getSimpleClassName();
 
 	/**
 	 * Return class name
 	 */
-	public String getClassName() {
-		return type.getClassName();
-	}
+	public String getClassName();
 
-	public String getComponentName() {
-		return type.getComponentName();
-	}
+	public String getComponentName();
 
-	public Type getComponentType() {
-		return type.getComponentType();
-	}
+	public Type getComponentType();
 
-	public VariableReference getArray() {
-		return array;
-	}
+	public VariableReference getArray();
+	
+	public int getArrayIndex();
+	
+	public GenericClass getGenericClass();
 
+	public void setArrayIndex(int index);
 	/**
 	 * Return true if variable is an enumeration
 	 */
-	public boolean isEnum() {
-		return type.isEnum();
-	}
+	public boolean isEnum();
 
 	/**
 	 * Return true if variable is a primitive type
 	 */
-	public boolean isPrimitive() {
-		return type.isPrimitive();
-	}
+	public boolean isPrimitive();
 
 	/**
 	 * Return true if variable is void
 	 */
-	public boolean isVoid() {
-		return type.isVoid();
-	}
+	public boolean isVoid();
 
 	/**
 	 * Return true if variable is a string
 	 */
-	public boolean isString() {
-		return type.isString();
-	}
+	public boolean isString();
 
 	/**
 	 * Return true if variable is an array
 	 */
-	public boolean isArray() {
-		return type.isArray();
-	}
+	public boolean isArray();
 	
-	public void setArray(VariableReference r){
-		array=r;
-	}
+	public void setArray(VariableReference r);
 
 	/**
 	 * Return true if variable is an array
 	 */
-	public boolean isArrayIndex() {
-		return array != null;
-	}
+	public boolean isArrayIndex();
 
 	/**
 	 * Return true if type of variable is a primitive wrapper
 	 */
-	public boolean isWrapperType() {
-		return type.isWrapperType();
-	}
+	public boolean isWrapperType();
 
 	/**
 	 * Return true if other type can be assigned to this variable
@@ -230,9 +118,7 @@ public class VariableReference implements Comparable<VariableReference> {
 	 * @param other
 	 *            Right hand side of the assignment
 	 */
-	public boolean isAssignableFrom(Type other) {
-		return type.isAssignableFrom(other);
-	}
+	public boolean isAssignableFrom(Type other);
 
 	/**
 	 * Return true if this variable can by assigned to a variable of other type
@@ -240,9 +126,7 @@ public class VariableReference implements Comparable<VariableReference> {
 	 * @param other
 	 *            Left hand side of the assignment
 	 */
-	public boolean isAssignableTo(Type other) {
-		return type.isAssignableTo(other);
-	}
+	public boolean isAssignableTo(Type other);
 
 	/**
 	 * Return true if other type can be assigned to this variable
@@ -250,9 +134,7 @@ public class VariableReference implements Comparable<VariableReference> {
 	 * @param other
 	 *            Right hand side of the assignment
 	 */
-	public boolean isAssignableFrom(VariableReference other) {
-		return type.isAssignableFrom(other.type);
-	}
+	public boolean isAssignableFrom(VariableReference other);
 
 	/**
 	 * Return true if this variable can by assigned to a variable of other type
@@ -260,37 +142,27 @@ public class VariableReference implements Comparable<VariableReference> {
 	 * @param other
 	 *            Left hand side of the assignment
 	 */
-	public boolean isAssignableTo(VariableReference other) {
-		return type.isAssignableTo(other.type);
-	}
+	public boolean isAssignableTo(VariableReference other);
 
 	/**
 	 * Return type of this variable
 	 */
-	public Type getType() {
-		return type.getType();
-	}
+	public Type getType();
 
 	/**
 	 * Set type of this variable
 	 */
-	public void setType(Type type) {
-		this.type = new GenericClass(type);
-	}
+	public void setType(Type type);
 
 	/**
 	 * Return raw class of this variable
 	 */
-	public Class<?> getVariableClass() {
-		return type.getRawClass();
-	}
+	public Class<?> getVariableClass();
 
 	/**
 	 * Return raw class of this variable's component
 	 */
-	public Class<?> getComponentClass() {
-		return type.getRawClass().getComponentType();
-	}
+	public Class<?> getComponentClass();
 
 	/**
 	 * Return the actual object represented by this variable for a given scope
@@ -298,114 +170,39 @@ public class VariableReference implements Comparable<VariableReference> {
 	 * @param scope
 	 *            The scope of the test case execution
 	 */
-	public Object getObject(Scope scope) {
-		return scope.get(this);
-	}
+	public Object getObject(Scope scope);
 
 	/**
 	 * Comparison
 	 */
 	@Override
-	public boolean equals(Object obj) {
-		return super.equals(obj); //We can use the object equals as each VariableReference is only defined once
-	}
+	public boolean equals(Object obj);
 
 	/**
 	 * Hash function
 	 */
-	@Override
-	public int hashCode() {
-		return super.hashCode(); //as each return value exists exactly once
-	}
+	public abstract int hashCode();
 
 	/**
 	 * Return string representation of the variable
 	 */
 	@Override
-	public String toString() {
-		return "VariableReference: Statement " + getStPosition() + ", type "
-		        + type.getTypeName();
-	}
+	public String toString();
 
 	/**
 	 * Return name for source code representation
 	 * 
 	 * @return
 	 */
-	public String getName() {
-		if (array != null)
-			return array.getName() + "[" + array_index + "]";
-		else
-			return "var" + getStPosition();
-	}
+	public String getName();
 
-	public void loadBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
-		if (array == null) {
-			logger.debug("Loading variable in bytecode: " + getStPosition());
-			if (getStPosition() < 0) {
-				mg.visitInsn(Opcodes.ACONST_NULL);
-			} else
-				mg.loadLocal(locals.get(getStPosition()),
-				             org.objectweb.asm.Type.getType(type.getRawClass()));
-		} else {
-			array.loadBytecode(mg, locals);
-			mg.push(array_index);
-			mg.arrayLoad(org.objectweb.asm.Type.getType(type.getRawClass()));
-		}
-	}
+	public void loadBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals);
 
-	public void storeBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
-		if (array == null) {
-			logger.debug("Storing variable in bytecode: " + getStPosition() + " of type "
-			        + org.objectweb.asm.Type.getType(type.getRawClass()));
-			if (!locals.containsKey(getStPosition()))
-				locals.put(getStPosition(),
-				           mg.newLocal(org.objectweb.asm.Type.getType(type.getRawClass())));
-			mg.storeLocal(locals.get(getStPosition()),
-			              org.objectweb.asm.Type.getType(type.getRawClass()));
-		} else {
-			array.loadBytecode(mg, locals);
-			mg.push(array_index);
-			mg.arrayStore(org.objectweb.asm.Type.getType(type.getRawClass()));
-		}
+	public void storeBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals);
 
-	}
+	public Object getDefaultValue();
 
-	public Object getDefaultValue() {
-		if (isVoid())
-			return null;
-		else if (type.isString())
-			return "";
-		else if (isPrimitive()) {
-			if (type.getRawClass().equals(float.class))
-				return 0.0F;
-			else if (type.getRawClass().equals(long.class))
-				return 0L;
-			else if (type.getRawClass().equals(boolean.class))
-				return false;
-			else
-				return 0;
-		} else
-			return null;
-	}
-
-	public String getDefaultValueString() {
-		if (isVoid())
-			return "";
-		else if (type.isString())
-			return "\"\"";
-		else if (isPrimitive()) {
-			if (type.getRawClass().equals(float.class))
-				return "0.0F";
-			else if (type.getRawClass().equals(long.class))
-				return "0L";
-			else if (type.getRawClass().equals(boolean.class))
-				return "false";
-			else
-				return "0";
-		} else
-			return "null";
-	}
+	public String getDefaultValueString();
 
 	/*
 	 * (non-Javadoc)
@@ -413,25 +210,7 @@ public class VariableReference implements Comparable<VariableReference> {
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
 	@Override
-	public int compareTo(VariableReference other) {
-		return getStPosition() - other.getStPosition();
-	}
+	public int compareTo(VariableReference other);
 	
-	public boolean same(VariableReference r){
-		if(r==null)
-			return false;
-		
-		if(this.getStPosition()!=r.getStPosition())
-			return false;
-		
-		if(this.array!=null && !this.array.same(r))
-			return false;
-		
-		if(this.array_index!=r.array_index || this.array_length!=r.array_length)
-			return false;
-		
-		if(this.type.equals(r.type));
-		
-		return true;
-	}
+	public boolean same(VariableReference r);
 }

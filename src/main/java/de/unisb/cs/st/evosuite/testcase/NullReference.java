@@ -26,7 +26,7 @@ import java.lang.reflect.Type;
  * @author Gordon Fraser
  *
  */
-public class NullReference extends VariableReference {
+public class NullReference extends VariableReferenceImpl {
 
 	/**
 	 * @param type

@@ -28,6 +28,7 @@ import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
+import de.unisb.cs.st.evosuite.testcase.VariableReferenceImpl;
 
 //#FIXME irgendwo in dieser software gibt es nicht deterministische prozesse, das sollte nicht sein
 
@@ -457,7 +458,7 @@ public class ConcurrentTestCase implements TestCase{
 	 * @return
 	 */
 	private StatementInterface getPseudoStatement(TestCase tc, final Class<?> clazz){
-		StatementInterface st= new AbstractStatement(tc,new VariableReference(tc, clazz)) {
+		StatementInterface st= new AbstractStatement(tc,new VariableReferenceImpl(tc, clazz)) {
 
 			@Override
 			public int hashCode() {

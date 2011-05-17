@@ -98,7 +98,7 @@ public class Scope {
 		if (reference.isArrayIndex()) {
 			Object array = pool.get(reference.getArray());
 			if (array != null) {
-				return Array.get(array, reference.array_index);
+				return Array.get(array, reference.getArrayIndex());
 			} else {
 				return null;
 			}
