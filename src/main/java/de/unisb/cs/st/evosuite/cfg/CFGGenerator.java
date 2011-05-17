@@ -19,20 +19,26 @@ import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
+ * This classed is used to create the RawControlFlowGraph which can then be used
+ * to create the ActualControlFlowGraph
+ * 
  * When analyzing a CUT the BytecodeAnalyzer creates an instance of this class
- * It's methods get called in the following order:
+ * for each method contained in this CUT
  * 
- * - upon constructing the method at hand is registered via registerMethodNode()
- * this sets the field of this class and fills the BytecodeInstructionPool with
- * all instructions inside that method - then the registerControlFlowEdge()
- * methods get called by the BytecodeAnalyzer for each possible transition from
- * one byteCode instruction to another inside the CUT in this step the
- * CFGGenerator asks the BytecodeInstructionPool for the previously created
- * instructions and fills up it's raw graph
+ * This class's methods get called in the following order:
  * 
- * After those calls the raw CFG of the method at hand is complete It should
- * contain a Vertex for every BytecodeInstruction inside the specified method
- * and an edge for every possible transition between these instructions
+ * - upon constructing, the method at hand is registered via
+ * registerMethodNode() which fills the BytecodeInstructionPool with all
+ * instructions inside that method
+ * 
+ * - then registerControlFlowEdge() is called by the BytecodeAnalyzer for each
+ * possible transition from one byteCode instruction to another within the
+ * current method. In this step the CFGGenerator asks the BytecodeInstructionPool
+ * for the previously created instructions and fills up it's RawControlFlowGraph
+ * 
+ * After those calls the RawControlFlowGraph of the method at hand is complete
+ * It should contain a Vertex for each BytecodeInstruction inside the specified
+ * method and an edge for every possible transition between these instructions
  * 
  * 
  * TODO this raw graph should be turned into a nice CFG containing basic blocks
