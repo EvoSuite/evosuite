@@ -16,22 +16,6 @@ public class VariableReferenceImpl implements VariableReference{
 	protected GenericClass type;
 
 	/**
-	 * If this variable is contained in an array, this is the reference to the
-	 * array
-	 */
-	protected VariableReference array = null;
-
-	/**
-	 * Index in the array
-	 */
-	protected int array_index = 0;
-	
-	/**
-	 * Index in the array
-	 */
-	protected int array_length = 0;
-
-	/**
 	 * The testCase in which this VariableReference is valid
 	 */
 	protected final TestCase testCase;
@@ -51,36 +35,11 @@ public class VariableReferenceImpl implements VariableReference{
 		this.type = type;
 	}
 
-	/**
-	 * Constructor
-	 * 
-	 * @param type
-	 *            The type (class) of the variable
-	 * @param position
-	 *            The statement in the test case that declares this variable
-	 */
-	public VariableReferenceImpl(TestCase testCase, VariableReference array, int index, int length) {
-		this.testCase=testCase;
-		this.type = new GenericClass(array.getComponentType());
-		this.array = array;
-		this.array_index = index;
-		this.array_length = length;
-	}
+
 
 	
 	public VariableReferenceImpl(TestCase testCase, Type type) {
 		this(testCase, new GenericClass(type));
-	}
-
-	@Override
-	public int getArrayLength(){
-		return array_length;
-	}
-
-	@Override
-	public void setArrayLength(int l){
-		assert(l>=0);
-		array_length=l;
 	}
 	
 	/**
@@ -93,12 +52,6 @@ public class VariableReferenceImpl implements VariableReference{
 			if(testCase.getStatement(i).getReturnValue().equals(this)){
 				return i;
 			}
-		}
-		
-		if(isArrayIndex()){
-			//notice that this case is only reached if no AssignmentStatement was used to assign to the array index (as in that case the for loop would have found something)
-			//Therefore the array must have been assigned in some method and we can return the method call
-			return array.getStPosition();
 		}
 		
 		throw new AssertionError("A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase");
@@ -144,11 +97,6 @@ public class VariableReferenceImpl implements VariableReference{
 		return type.getComponentType();
 	}
 
-	@Override
-	public VariableReference getArray() {
-		return array;
-	}
-
 	/**
 	 * Return true if variable is an enumeration
 	 */
@@ -179,27 +127,6 @@ public class VariableReferenceImpl implements VariableReference{
 	@Override
 	public boolean isString() {
 		return type.isString();
-	}
-
-	/**
-	 * Return true if variable is an array
-	 */
-	@Override
-	public boolean isArray() {
-		return type.isArray();
-	}
-
-	@Override
-	public void setArray(VariableReference r){
-		array=r;
-	}
-
-	/**
-	 * Return true if variable is an array
-	 */
-	@Override
-	public boolean isArrayIndex() {
-		return array != null;
 	}
 
 	/**
@@ -329,31 +256,23 @@ public class VariableReferenceImpl implements VariableReference{
 	 */
 	@Override
 	public String getName() {
-		if (array != null)
-			return array.getName() + "[" + array_index + "]";
-		else
-			return "var" + getStPosition();
+		return "var" + getStPosition();
 	}
 
 	@Override
 	public void loadBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
-		if (array == null) {
+	
 			logger.debug("Loading variable in bytecode: " + getStPosition());
 			if (getStPosition() < 0) {
 				mg.visitInsn(Opcodes.ACONST_NULL);
 			} else
 				mg.loadLocal(locals.get(getStPosition()),
-				             org.objectweb.asm.Type.getType(type.getRawClass()));
-		} else {
-			array.loadBytecode(mg, locals);
-			mg.push(array_index);
-			mg.arrayLoad(org.objectweb.asm.Type.getType(type.getRawClass()));
-		}
+				             org.objectweb.asm.Type.getType(type.getRawClass()));	
 	}
 
 	@Override
 	public void storeBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
-		if (array == null) {
+	
 			logger.debug("Storing variable in bytecode: " + getStPosition() + " of type "
 			        + org.objectweb.asm.Type.getType(type.getRawClass()));
 			if (!locals.containsKey(getStPosition()))
@@ -361,12 +280,6 @@ public class VariableReferenceImpl implements VariableReference{
 				           mg.newLocal(org.objectweb.asm.Type.getType(type.getRawClass())));
 			mg.storeLocal(locals.get(getStPosition()),
 			              org.objectweb.asm.Type.getType(type.getRawClass()));
-		} else {
-			array.loadBytecode(mg, locals);
-			mg.push(array_index);
-			mg.arrayStore(org.objectweb.asm.Type.getType(type.getRawClass()));
-		}
-
 	}
 
 	@Override
@@ -424,29 +337,13 @@ public class VariableReferenceImpl implements VariableReference{
 		if(this.getStPosition()!=r.getStPosition())
 			return false;
 		
-		if(this.array!=null && !this.array.same(r.getArray()))
-			return false;
-		
-		if(this.array_index!=r.getArrayIndex() || this.array_length!=r.getArrayLength())
-			return false;
-		
 		if(this.type.equals(r.getGenericClass()));
 		
 		return true;
 	}
 
 	@Override
-	public int getArrayIndex() {
-		return array_index;
-	}
-
-	@Override
 	public GenericClass getGenericClass() {
 		return type;
-	}
-
-	@Override
-	public void setArrayIndex(int index) {
-		array_index=index;
 	}
 }

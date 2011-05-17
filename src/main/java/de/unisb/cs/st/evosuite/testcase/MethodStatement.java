@@ -150,13 +150,13 @@ public class MethodStatement extends AbstractStatement {
 		String parameter_string = "";
 		if (!parameters.isEmpty()) {
 			if (!method.getParameterTypes()[0].equals(parameters.get(0).getVariableClass())
-			        && parameters.get(0).isArray())
+			        && parameters.get(0) instanceof ArrayIndex)
 				parameter_string += "(" + method.getParameterTypes()[0].getSimpleName()
 				        + ")";
 			parameter_string += parameters.get(0).getName();
 			for (int i = 1; i < parameters.size(); i++) {
 				if (!method.getParameterTypes()[i].equals(parameters.get(i).getVariableClass())
-				        && parameters.get(i).isArray())
+				        && parameters.get(i) instanceof ArrayIndex)
 					parameter_string += "("
 					        + method.getParameterTypes()[i].getSimpleName() + ")";
 				parameter_string += ", " + parameters.get(i).getName();
@@ -219,13 +219,13 @@ public class MethodStatement extends AbstractStatement {
 		references.add(retval);
 		if (isInstanceMethod()) {
 			references.add(callee);
-			if (callee.isArrayIndex())
-				references.add(callee.getArray());
+			if (callee instanceof ArrayIndex)
+				references.add(((ArrayIndex)callee).getArray());
 		}
 		references.addAll(parameters);
 		for (VariableReference param : parameters) {
-			if (param.isArrayIndex())
-				references.add(param.getArray());
+			if (param instanceof ArrayIndex)
+				references.add(((ArrayIndex)param).getArray());
 		}
 		return references;
 	}
@@ -399,13 +399,13 @@ public class MethodStatement extends AbstractStatement {
 		references.add(retval);
 		if (isInstanceMethod()) {
 			references.add(callee);
-			if (callee.isArrayIndex())
-				references.add(callee.getArray());
+			if (callee instanceof ArrayIndex)
+				references.add(((ArrayIndex)callee).getArray());
 		}
 		references.addAll(parameters);
 		for (VariableReference param : parameters) {
-			if (param.isArrayIndex())
-				references.add(param.getArray());
+			if (param instanceof ArrayIndex)
+				references.add(((ArrayIndex)param).getArray());
 		}
 		return references;
 	}
