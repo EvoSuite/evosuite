@@ -227,6 +227,20 @@ public class BranchPool {
 	}
 	
 	/**
+	 * Returns the branch contained in the given method of the given class
+	 * 
+	 *  Should no such Branch exist null is returned
+	 */
+	public static Branch getBranchByBytecodeId(String className, String methodName, int bytecodeId) {
+		List<Branch> branches = retrieveBranchesInMethod(className, methodName);
+		for(Branch b : branches)
+			if(b.getBytecodeId()==bytecodeId)
+				return b;
+		
+		return null;
+	}
+	
+	/**
 	 * Returns a List containing all Branches in the given class and method
 	 * 
 	 *  Should no such Branch exist an empty List is returned
