@@ -189,5 +189,27 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		return inDegreeOf(node) == parents
 				&& outDegreeOf(node) == children;
 	}
+	
+	// utils
+	
+	public Set<V> determineBranches() {
+		Set<V> r = new HashSet<V>();
+
+		for (V instruction : vertexSet())
+			if (outDegreeOf(instruction) > 1)
+				r.add(instruction);
+
+		return r;
+	}
+
+	public Set<V> determineJoins() {
+		Set<V> r = new HashSet<V>();
+
+		for (V instruction : vertexSet())
+			if (inDegreeOf(instruction) > 1)
+				r.add(instruction);
+
+		return r;
+	}
 
 }

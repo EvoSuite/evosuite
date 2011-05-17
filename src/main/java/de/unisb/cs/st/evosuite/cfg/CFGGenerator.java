@@ -1,6 +1,5 @@
 package de.unisb.cs.st.evosuite.cfg;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,7 +55,7 @@ public class CFGGenerator {
 //	DefaultDirectedGraph<BytecodeInstruction, DefaultEdge> rawGraph = new DefaultDirectedGraph<BytecodeInstruction, DefaultEdge>(
 //			DefaultEdge.class);
 	
-	RawControlFlowGraph rawGraph = new RawControlFlowGraph();
+	RawControlFlowGraph rawGraph;
 
 	boolean nodeRegistered = false;
 	MethodNode currentMethod;
@@ -87,12 +86,14 @@ public class CFGGenerator {
 			throw new IllegalStateException(
 					"registerMethodNode must not be called more than once for each instance of CFGGenerator");
 		if (currentMethod == null || methodName == null
-				|| currentMethod == null)
+				|| className == null)
 			throw new IllegalArgumentException("null given");
 
 		this.currentMethod = currentMethod;
 		this.className = className;
 		this.methodName = methodName;
+		
+		this.rawGraph = new RawControlFlowGraph(className, methodName);
 
 		BytecodeInstructionPool.registerMethodNode(currentMethod, className,
 				methodName);
@@ -207,119 +208,9 @@ public class CFGGenerator {
 
 		BytecodeInstructionPool.logInstructionsIn(className,methodName);
 
-		ActualControlFlowGraph cfg = new ActualControlFlowGraph(this);
+		ActualControlFlowGraph cfg = new ActualControlFlowGraph(rawGraph);
 
 		return cfg;
-	}
-
-	public BasicBlock determineBasicBlockFor(BytecodeInstruction instruction) {
-		if (instruction == null)
-			throw new IllegalArgumentException("null given");
-
-		logger.debug("creating basic block for " + instruction.toString());
-
-		List<BytecodeInstruction> blockNodes = new ArrayList<BytecodeInstruction>();
-		blockNodes.add(instruction);
-
-		Set<BytecodeInstruction> handled = new HashSet<BytecodeInstruction>();
-
-		Queue<BytecodeInstruction> queue = new LinkedList<BytecodeInstruction>();
-		queue.add(instruction);
-		while (!queue.isEmpty()) {
-			BytecodeInstruction current = queue.poll();
-			handled.add(current);
-
-			// add child to queue
-			if (rawGraph.inDegreeOf(current) == 1)
-				for (DefaultEdge edge : rawGraph.incomingEdgesOf(current)) {
-					// this must be only one edge if inDegree was 1
-					BytecodeInstruction parent = rawGraph.getEdgeSource(edge);
-					if (handled.contains(parent))
-						continue;
-					handled.add(parent);
-
-					if(rawGraph.outDegreeOf(parent)<2) {
-						// insert child right before current
-						// ... always thought ArrayList had insertBefore() and insertAfter() methods ... well
-						blockNodes.add(blockNodes.indexOf(current), parent);
-						
-						queue.add(parent);
-					}
-				}
-
-			// add parent to queue
-			if (rawGraph.outDegreeOf(current) == 1)
-				for (DefaultEdge edge : rawGraph.outgoingEdgesOf(current)) {
-					// this must be only one edge if outDegree was 1
-					BytecodeInstruction child = rawGraph.getEdgeTarget(edge);
-					if (handled.contains(child))
-						continue;
-					handled.add(child);
-
-					if(rawGraph.inDegreeOf(child)<2) {
-						// insert parent right after current
-						blockNodes.add(blockNodes.indexOf(current) + 1, child);
-						
-						queue.add(child);
-					}
-				}
-		}
-
-		BasicBlock r = new BasicBlock(className, methodName, blockNodes);
-
-		logger.debug("created nodeBlock: "+r.toString());
-		return r;
-	}
-
-	public BytecodeInstruction determineEntryPoint() {
-		BytecodeInstruction r = null;
-
-		for (BytecodeInstruction instruction : rawGraph.vertexSet())
-			if (rawGraph.inDegreeOf(instruction) == 0) {
-				if (r != null)
-					throw new IllegalStateException(
-							"expect raw CFG of a method to contain exactly one instruction with no parent");
-				r = instruction;
-			}
-		if (r == null)
-			throw new IllegalStateException(
-					"expect raw CFG of a method to contain exactly one instruction with no parent");
-
-		return r;
-	}
-
-	public Set<BytecodeInstruction> determineExitPoints() {
-		Set<BytecodeInstruction> r = new HashSet<BytecodeInstruction>();
-
-		for (BytecodeInstruction instruction : rawGraph.vertexSet())
-			if (rawGraph.outDegreeOf(instruction) == 0) {
-				r.add(instruction);
-			}
-		if (r.isEmpty())
-			throw new IllegalStateException(
-					"expect raw CFG of a method to contain at least one instruction with no child");
-
-		return r;
-	}
-
-	public Set<BytecodeInstruction> determineBranches() {
-		Set<BytecodeInstruction> r = new HashSet<BytecodeInstruction>();
-
-		for (BytecodeInstruction instruction : rawGraph.vertexSet())
-			if (rawGraph.outDegreeOf(instruction) > 1)
-				r.add(instruction);
-
-		return r;
-	}
-
-	public Set<BytecodeInstruction> determineJoins() {
-		Set<BytecodeInstruction> r = new HashSet<BytecodeInstruction>();
-
-		for (BytecodeInstruction instruction : rawGraph.vertexSet())
-			if (rawGraph.inDegreeOf(instruction) > 1)
-				r.add(instruction);
-
-		return r;
 	}
 
 	// mark mutations
