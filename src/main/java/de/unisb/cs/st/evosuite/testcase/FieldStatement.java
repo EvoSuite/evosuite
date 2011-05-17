@@ -51,7 +51,7 @@ public class FieldStatement extends AbstractStatement {
 
 	public FieldStatement(TestCase tc, Field field, VariableReference source,
 	        java.lang.reflect.Type type) {
-		super(tc, new VariableReference(tc, type));
+		super(tc, new VariableReferenceImpl(tc, type));
 		this.field = field;
 		this.className = field.getDeclaringClass().getName();
 		this.fieldName = field.getName();

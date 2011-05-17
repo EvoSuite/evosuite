@@ -50,7 +50,7 @@ public class ConstructorStatement extends AbstractStatement {
 
 	public ConstructorStatement(TestCase tc, Constructor<?> constructor, java.lang.reflect.Type type,
 	        List<VariableReference> parameters) {
-		super(tc, new VariableReference(tc, type));
+		super(tc, new VariableReferenceImpl(tc, type));
 		this.constructor = constructor;
 		// this.return_type = constructor.getDeclaringClass();
 		this.parameters = parameters;

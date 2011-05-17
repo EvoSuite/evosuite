@@ -22,6 +22,7 @@ import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
+import de.unisb.cs.st.evosuite.testcase.VariableReferenceImpl;
 
 /**
  * @author Gordon Fraser
@@ -32,7 +33,7 @@ public class TestCallStatement extends AbstractStatement {
 	private final TestCallObject testCall;
 
 	public TestCallStatement(TestCase tc, TestCallObject call, Type type) {
-		super(tc, new VariableReference(tc, type));
+		super(tc, new VariableReferenceImpl(tc, type));
 		this.testCall = call;
 	}
 

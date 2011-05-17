@@ -350,7 +350,7 @@ public class TestChromosome extends Chromosome {
 								changed = true;
 							}
 						} else if (as.retval.getArrayLength() > 0) {
-							as.retval.array_index = randomness.nextInt(as.retval.getArrayLength());
+							as.retval.setArrayIndex(randomness.nextInt(as.retval.getArrayLength()));
 							changed = true;
 						}
 						// logger.info("After change:");

@@ -65,7 +65,7 @@ public class PrimitiveStatement<T> extends AbstractStatement {
 	 * @param value
 	 */
 	public PrimitiveStatement(TestCase tc, Type type, T value) {
-		super(tc, new VariableReference(tc, type));
+		super(tc, new VariableReferenceImpl(tc, type));
 		this.value = value;
 	}
 
