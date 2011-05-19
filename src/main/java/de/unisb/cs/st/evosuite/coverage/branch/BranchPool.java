@@ -11,7 +11,6 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
-import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 
 // TODO: root branches should not be special cases
