@@ -45,7 +45,7 @@ import de.unisb.cs.st.evosuite.mutation.Mutateable;
  * 
  * @author Gordon Fraser, Andre Mis
  */
-public abstract class ControlFlowGraph<V extends Mutateable,E extends DefaultEdge> extends EvoSuiteGraph<V, E> {
+public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGraph<V> {
 
 	private static Logger logger = Logger.getLogger(ControlFlowGraph.class);
 
@@ -57,8 +57,8 @@ public abstract class ControlFlowGraph<V extends Mutateable,E extends DefaultEdg
 	/**
 	 * Creates a fresh and empty CFG for the given class and method
 	 */
-	protected ControlFlowGraph(Class<E> cl, String className, String methodName) {
-		super(cl);
+	protected ControlFlowGraph(String className, String methodName) {
+		super();
 		
 		this.className = className;
 		this.methodName = methodName;
@@ -161,7 +161,7 @@ public abstract class ControlFlowGraph<V extends Mutateable,E extends DefaultEdg
 	}
 
 	protected void computeDiameter() {
-		FloydWarshall<V, E> f = new FloydWarshall<V, E>(
+		FloydWarshall<V, DefaultEdge> f = new FloydWarshall<V, DefaultEdge>(
 		        graph);
 		diameter = (int) f.getDiameter();
 	}
