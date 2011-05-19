@@ -60,6 +60,9 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 	protected ControlFlowGraph(String className, String methodName) {
 		super();
 		
+		if (className == null || methodName == null)
+			throw new IllegalArgumentException("null given");
+		
 		this.className = className;
 		this.methodName = methodName;
 	}
@@ -84,7 +87,14 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 	public abstract boolean containsInstruction(BytecodeInstruction instruction);
 
 	
-	
+	/**
+	 * Computes the diameter of this CFG and the mutation distances
+	 * 
+	 * Since both takes some time this is not automatically done on each CFG
+	 * 
+	 * CFGPool will automatically call this immediately after the instantiation of an 
+	 * ActualControlFlowGraph, but not after the creation of a RawControlFlowGraph 
+	 */
 	public void finalize() {
 		computeDiameter();
 		calculateMutationDistances();
@@ -153,10 +163,17 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 		return false;
 	}
 
+	/**
+	 * Returns the Diameter of this CFG
+	 * 
+	 *  If the diameter of this graph was not computed previously it is computed first 
+	 */
 	public int getDiameter() {
-		if(diameter == -1) // TODO: don't throw exception but rather just call computeDiameters() ?
-			throw new IllegalStateException("diameter not computed yet. call computeDiameter() first");
-
+		if(diameter == -1) {
+			logger.debug("diameter not computed yet. calling computeDiameter() first!");
+			computeDiameter();
+		}
+		
 		return diameter;
 	}
 

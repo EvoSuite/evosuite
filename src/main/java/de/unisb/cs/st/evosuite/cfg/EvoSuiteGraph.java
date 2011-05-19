@@ -3,7 +3,6 @@ package de.unisb.cs.st.evosuite.cfg;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -35,6 +34,7 @@ public abstract class EvoSuiteGraph<V> {
 
 	protected DirectedGraph<V, DefaultEdge> graph;
 
+	
 	protected EvoSuiteGraph() {
 
 		graph = new DefaultDirectedGraph<V, DefaultEdge>(DefaultEdge.class);
@@ -47,14 +47,6 @@ public abstract class EvoSuiteGraph<V> {
 		this.graph = graph;
 	}
 	
-	
-	// TODO: this is supposed to be removed in the future!
-	// 			only supposed to be used for refactoring the cfg package
-	//			DO NOT CALL THIS! please ;)
-	public DirectedGraph<V,DefaultEdge> getGraph() {
-		return graph;
-	}
-
 	// retrieving nodes and edges
 
 	public V getEdgeSource(DefaultEdge e) {
@@ -121,11 +113,11 @@ public abstract class EvoSuiteGraph<V> {
 		return r;
 	}
 	
-	protected Set<V> vertexSet() {
+	public Set<V> vertexSet() {
 		return graph.vertexSet();
 	}
 
-	protected Set<DefaultEdge> edgeSet() {
+	public Set<DefaultEdge> edgeSet() {
 		return graph.edgeSet();
 	}
 	
@@ -200,7 +192,7 @@ public abstract class EvoSuiteGraph<V> {
 				&& outDegreeOf(node) == children;
 	}
 	
-	// utils
+	// utilities
 	
 	public int getDistance(V v1, V v2) {
 		DijkstraShortestPath<V, DefaultEdge> d = new DijkstraShortestPath<V, DefaultEdge>(

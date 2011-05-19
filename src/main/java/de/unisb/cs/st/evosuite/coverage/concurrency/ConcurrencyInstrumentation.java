@@ -5,8 +5,6 @@ package de.unisb.cs.st.evosuite.coverage.concurrency;
 
 import java.util.Iterator;
 
-import org.jgrapht.DirectedGraph;
-import org.jgrapht.graph.DefaultEdge;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
@@ -50,11 +48,10 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 		this.methodName=methodName;
 				
 		RawControlFlowGraph completeCFG = CFGPool.getCompleteCFG(className, methodName);
-		DirectedGraph<BytecodeInstruction,DefaultEdge> graph = completeCFG.getGraph();
 		Iterator<AbstractInsnNode> instructions = mn.instructions.iterator();
 		while (instructions.hasNext()) {
 			AbstractInsnNode instruction = instructions.next();
-			for (BytecodeInstruction v : graph.vertexSet()) {
+			for (BytecodeInstruction v : completeCFG.vertexSet()) {
 				if (instruction.equals(v.getASMNode())){
 					v.branchId = completeCFG.getInstruction(v.getId()).branchId;
 				}

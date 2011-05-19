@@ -29,12 +29,12 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
-import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
+import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -308,7 +308,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 			assert(LockRuntime.fieldAccToConcInstr.containsKey(nextTuple.scheduleID));
 			String className = LockRuntime.fieldAccToConcInstr.get(nextTuple.scheduleID).getClassName();
 			String methodName = LockRuntime.fieldAccToConcInstr.get(nextTuple.scheduleID).getMethodName();
-			DirectedGraph<BytecodeInstruction, DefaultEdge> completeCFG = CFGPool.getCompleteCFG(className, methodName).getGraph();
+			RawControlFlowGraph completeCFG = CFGPool.getCompleteCFG(className, methodName);
 			if(isAfter(nextTuple, history, completeCFG)){
 				SchedulingDecisionList newList = history.clone();
 				newList.add(nextTuple);
@@ -330,7 +330,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 	 * @param history
 	 * @return
 	 */
-	private boolean isAfter(SchedulingDecisionTuple tuple, SchedulingDecisionList history, final DirectedGraph<BytecodeInstruction, DefaultEdge> completeCFG){
+	private boolean isAfter(SchedulingDecisionTuple tuple, SchedulingDecisionList history, final RawControlFlowGraph completeCFG){
 		for(int i = (history.size()-1) ; i>=0 ; i--){
 			assert(history.size()>i);
 			SchedulingDecisionTuple searchFront = history.get(i);
@@ -371,7 +371,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 	}
 
 	//#TODO move to CFG
-	private Map<Integer, Map<Integer, Map<DirectedGraph<BytecodeInstruction, DefaultEdge>, Boolean>>> isC = new HashMap<Integer, Map<Integer,Map<DirectedGraph<BytecodeInstruction,DefaultEdge>,Boolean>>>();
+	private Map<Integer, Map<Integer, Map<RawControlFlowGraph, Boolean>>> isC = new HashMap<Integer, Map<Integer,Map<RawControlFlowGraph,Boolean>>>();
 	/**
 	 * Tests if scheduleID1 is before scheduleID2. That is: branchID2 can be reached after branchID1 was reached.
 	 * Notice that before(int, int, graph) is not a partial order.
@@ -389,18 +389,18 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 	 * @param minimizedCFG
 	 * @return
 	 */
-	private final boolean isBefore(final int scheduleID1, final int scheduleID2, final DirectedGraph<BytecodeInstruction, DefaultEdge> completeCFG){
+	private final boolean isBefore(final int scheduleID1, final int scheduleID2, RawControlFlowGraph completeCFG){
 		if(isC.containsKey(scheduleID1)){
 			if(isC.get(scheduleID1).containsKey(scheduleID2)){
 				if(isC.get(scheduleID1).get(scheduleID2).containsKey(completeCFG)){
 					return isC.get(scheduleID1).get(scheduleID2).get(completeCFG);
 				}
 			}else{
-				isC.get(scheduleID1).put(scheduleID2, new HashMap<DirectedGraph<BytecodeInstruction, DefaultEdge>, Boolean>());
+				isC.get(scheduleID1).put(scheduleID2, new HashMap<RawControlFlowGraph, Boolean>());
 			}
 		}else{
-			isC.put(scheduleID1, new HashMap<Integer, Map<DirectedGraph<BytecodeInstruction, DefaultEdge>, Boolean>>());
-			isC.get(scheduleID1).put(scheduleID2, new HashMap<DirectedGraph<BytecodeInstruction, DefaultEdge>, Boolean>());
+			isC.put(scheduleID1, new HashMap<Integer, Map<RawControlFlowGraph, Boolean>>());
+			isC.get(scheduleID1).put(scheduleID2, new HashMap<RawControlFlowGraph, Boolean>());
 		}
 		assert(LockRuntime.fieldAccessIDToCFGVertex.containsKey(scheduleID1));
 		assert(LockRuntime.fieldAccessIDToCFGVertex.containsKey(scheduleID1));
