@@ -12,7 +12,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.AlternativeFitnessCalculationMode;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
@@ -778,7 +778,7 @@ public class DefUseFitnessCalculations {
 		if (v.branchId == -1) {
 			r = getRootBranchTestFitness(v);
 		} else {
-			ControlFlowGraph cfg = CFGMethodAdapter.getMinimizedCFG(v.getClassName(),
+			ControlFlowGraph cfg = CFGPool.getMinimizedCFG(v.getClassName(),
 			                                                        v.getMethodName());
 			Branch b = BranchPool.getBranch(v.branchId);
 			r = new BranchCoverageTestFitness(new BranchCoverageGoal(b,

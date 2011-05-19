@@ -20,7 +20,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUse;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseFactory;
@@ -39,10 +39,10 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void analyze(MethodNode mn, Graph<BytecodeInstruction, DefaultEdge> graph,
+	public void analyze(MethodNode mn,
 	        String className, String methodName, int access) {
-		ControlFlowGraph completeCFG = CFGMethodAdapter.getCompleteCFG(className,
-		                                                               methodName);
+		ControlFlowGraph completeCFG = CFGPool.getCompleteCFG(className, methodName);
+		Graph<BytecodeInstruction, DefaultEdge> graph = completeCFG.getGraph();
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
 		while (j.hasNext()) {
 

@@ -34,6 +34,7 @@ import org.jgrapht.graph.DefaultEdge;
 
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -307,7 +308,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 			assert(LockRuntime.fieldAccToConcInstr.containsKey(nextTuple.scheduleID));
 			String className = LockRuntime.fieldAccToConcInstr.get(nextTuple.scheduleID).getClassName();
 			String methodName = LockRuntime.fieldAccToConcInstr.get(nextTuple.scheduleID).getMethodName();
-			DirectedGraph<BytecodeInstruction, DefaultEdge> completeCFG = CFGMethodAdapter.getCompleteCFG(className, methodName).getGraph();
+			DirectedGraph<BytecodeInstruction, DefaultEdge> completeCFG = CFGPool.getCompleteCFG(className, methodName).getGraph();
 			if(isAfter(nextTuple, history, completeCFG)){
 				SchedulingDecisionList newList = history.clone();
 				newList.add(nextTuple);

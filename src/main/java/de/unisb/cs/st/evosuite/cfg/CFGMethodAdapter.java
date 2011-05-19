@@ -79,23 +79,6 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	 */
 	public static Set<String> methods = new HashSet<String>();
 
-	/**
-	 * Complete control flow graph, contains each bytecode instruction, each
-	 * label and line number node Think of the direct Known Subclasses of
-	 * http://
-	 * asm.ow2.org/asm33/javadoc/user/org/objectweb/asm/tree/AbstractInsnNode
-	 * .html for a complete list of the nodes in this cfg
-	 */
-	private static Map<String, Map<String, ControlFlowGraph>> completeCFGs = new HashMap<String, Map<String, ControlFlowGraph>>();
-
-	/**
-	 * Minimized control flow graph. This graph only contains the first and last
-	 * node (usually a LABEL and IRETURN), nodes which create branches (all
-	 * jumps/switches except GOTO) and nodes which were mutated.
-	 */
-	private static Map<String, Map<String, ControlFlowGraph>> minimizedCFGs = new HashMap<String, Map<String, ControlFlowGraph>>();
-
-	private static Map<String, Map<String, Double>> diameters = new HashMap<String, Map<String, Double>>();
 
 	/**
 	 * This is the name + the description of the method. It is more like the
@@ -185,21 +168,13 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 				e.printStackTrace();
 			}
 
-			// non-minimized cfg needed for defuse-coverage and control
-			// dependence
-			// calculation
-			addCompleteCFG(className, methodName, bytecodeAnalyzer
-					.retrieveCFGGenerator().getCompleteGraph());
-			addMinimizedCFG(className, methodName, bytecodeAnalyzer
-					.retrieveCFGGenerator().getMinimalGraph());
-			logger.info("Created CFG for method " + methodName);
+			bytecodeAnalyzer.retrieveCFGGenerator().registerCFGs();
 
-			Graph<BytecodeInstruction, DefaultEdge> completeGraph = bytecodeAnalyzer
-					.retrieveCFGGenerator().getCompleteGraph();
+			logger.info("Created CFG for method " + methodName);
 
 			//add the actual instrumentation
 			for (MethodInstrumentation instrumentation : instrumentations) {
-				instrumentation.analyze(mn, completeGraph, className, methodName, access);
+				instrumentation.analyze(mn, className, methodName, access);
 			}
 
 			handleBranchlessMethods();
@@ -244,47 +219,4 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		        && (Properties.USE_DEPRECATED || (access & Opcodes.ACC_DEPRECATED) != Opcodes.ACC_DEPRECATED);
 	}
 
-	private static void addMinimizedCFG(String classname, String methodname,
-	        DirectedMultigraph<BytecodeInstruction, DefaultEdge> graph) {
-		if (!minimizedCFGs.containsKey(classname)) {
-			minimizedCFGs.put(classname, new HashMap<String, ControlFlowGraph>());
-			diameters.put(classname, new HashMap<String, Double>());
-		}
-		Map<String, ControlFlowGraph> methods = minimizedCFGs.get(classname);
-		logger.debug("Added CFG for class " + classname + " and method " + methodname);
-		methods.put(methodname, new ControlFlowGraph(graph, true));
-		FloydWarshall<BytecodeInstruction, DefaultEdge> f = new FloydWarshall<BytecodeInstruction, DefaultEdge>(
-		        graph);
-		diameters.get(classname).put(methodname, f.getDiameter());
-		logger.debug("Calculated diameter for " + classname + ": " + f.getDiameter());
-	}
-
-	private static void addCompleteCFG(String classname, String methodname,
-	        DirectedGraph<BytecodeInstruction, DefaultEdge> graph) {
-		if (!completeCFGs.containsKey(classname)) {
-			completeCFGs.put(classname, new HashMap<String, ControlFlowGraph>());
-		}
-		Map<String, ControlFlowGraph> methods = completeCFGs.get(classname);
-		logger.debug("Added complete CFG for class " + classname + " and method "
-		        + methodname);
-		methods.put(methodname, new ControlFlowGraph(graph, false));
-		//ControlFlowGraph cfg = new ControlFlowGraph(graph, false);
-		//cfg.toDot(classname + "_" + methodname + ".dot");
-	}
-
-	public static ControlFlowGraph getMinimizedCFG(String classname, String methodname) {
-		logger.debug("Getting minimzed CFG for " + classname + "." + methodname);
-		if(minimizedCFGs.get(classname) == null)
-			return null;
-		
-		return minimizedCFGs.get(classname).get(methodname);
-	}
-
-	public static ControlFlowGraph getCompleteCFG(String classname, String methodname) {
-		logger.debug("Getting complete CFG for " + classname + "." + methodname);
-		if (completeCFGs.get(classname) == null)
-			return null;
-		
-		return completeCFGs.get(classname).get(methodname);
-	}
 }

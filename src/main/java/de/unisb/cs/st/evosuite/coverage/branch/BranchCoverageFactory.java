@@ -24,7 +24,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
@@ -79,8 +79,7 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 				}
 
 				// Get CFG of method
-				ControlFlowGraph cfg = CFGMethodAdapter.getMinimizedCFG(className,
-				                                                        methodName);
+				ControlFlowGraph cfg = CFGPool.getMinimizedCFG(className,methodName);
 
 				for (Branch b : BranchPool.retrieveBranchesInMethod(className,methodName)) {
 

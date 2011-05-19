@@ -26,7 +26,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
@@ -148,7 +148,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 			String methodName = def.getMethodName();
 			int branchId = def.getBranchId();
 			
-			ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(className, methodName);
+			ControlFlowGraph cfg = CFGPool.getCompleteCFG(className, methodName);
 			if(cfg==null)
 				throw new IllegalStateException("Expect CFG to exist for "+methodName);
 			
@@ -183,7 +183,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 			String methodName = def.getMethodName();
 			int branchId = def.getBranchId();
 			
-			ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(className, methodName);
+			ControlFlowGraph cfg = CFGPool.getCompleteCFG(className, methodName);
 			if(cfg==null)
 				throw new IllegalStateException("Expect CFG to exist for "+methodName);
 			
@@ -215,7 +215,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 		
 		Set<Use> allUses = DefUsePool.retrieveRegisteredUses();
 		for (Use use : allUses) {
-			ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(use.getClassName(), use.getMethodName());
+			ControlFlowGraph cfg = CFGPool.getCompleteCFG(use.getClassName(), use.getMethodName());
 			if(cfg == null)
 				throw new IllegalStateException("no cfg for method "+use.getMethodName());
 			if (cfg.hasDefClearPathFromMethodEntry(use))

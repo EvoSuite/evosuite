@@ -10,7 +10,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 
 // TODO: root branches should not be special cases
@@ -109,7 +109,7 @@ public class BranchPool {
 	}
 
 	private static void markBranchIDs(BytecodeInstruction b) {
-		ControlFlowGraph completeCFG = CFGMethodAdapter.getCompleteCFG(b
+		ControlFlowGraph completeCFG = CFGPool.getCompleteCFG(b
 				.getClassName(), b.getMethodName());
 		
 		completeCFG.markBranchIds(b);

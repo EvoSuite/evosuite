@@ -5,6 +5,7 @@ package de.unisb.cs.st.evosuite.coverage.concurrency;
 
 import java.util.Iterator;
 
+import org.jgrapht.DirectedGraph;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.objectweb.asm.Opcodes;
@@ -17,6 +18,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.MethodInstrumentation;
@@ -45,11 +47,12 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void analyze(MethodNode mn, Graph<BytecodeInstruction, DefaultEdge> graph, String className, String methodName, int access) {
+	public void analyze(MethodNode mn, String className, String methodName, int access) {
 		this.className=className;
 		this.methodName=methodName;
 				
-		ControlFlowGraph completeCFG = CFGMethodAdapter.getCompleteCFG(className, methodName);
+		ControlFlowGraph completeCFG = CFGPool.getCompleteCFG(className, methodName);
+		DirectedGraph<BytecodeInstruction,DefaultEdge> graph = completeCFG.getGraph();
 		Iterator<AbstractInsnNode> instructions = mn.instructions.iterator();
 		while (instructions.hasNext()) {
 			AbstractInsnNode instruction = instructions.next();
