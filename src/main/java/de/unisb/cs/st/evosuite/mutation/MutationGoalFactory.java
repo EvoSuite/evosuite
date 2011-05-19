@@ -24,7 +24,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMSwitcher;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
@@ -51,7 +51,7 @@ public class MutationGoalFactory implements TestFitnessFactory {
 			}
 		}
 		*/
-		if (CFGMethodAdapter.getMinimizedCFG(mutation.getClassName(),
+		if (CFGPool.getMinimizedCFG(mutation.getClassName(),
 		                                     mutation.getMethodName()) == null)
 			return true;
 		return false;

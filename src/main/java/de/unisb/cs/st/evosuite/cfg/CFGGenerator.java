@@ -272,4 +272,13 @@ public class CFGGenerator {
 	public String getMethodName() {
 		return methodName;
 	}
+
+	public void registerCFGs() {
+		
+		// non-minimized cfg needed for defuse-coverage and control
+		// dependence calculation
+		CFGPool.addCompleteCFG(className, methodName, getCompleteGraph());
+		CFGPool.addMinimizedCFG(className, methodName, getMinimalGraph());
+		
+	}
 }

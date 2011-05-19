@@ -126,18 +126,18 @@ public class ControlFlowGraph {
 		return false;
 	}
 
-	private BytecodeInstruction getBranchVertex(int number) {
+	private BytecodeInstruction getBranchVertex(int branchId) {
 		for (BytecodeInstruction v : graph.vertexSet()) {
-			if (v.isBranch() && v.getBranchId() == number) {
+			if (v.isBranch() && v.getBranchId() == branchId) {
 				return v;
 			}
 		}
 		return null;
 	}
 
-	public BytecodeInstruction getVertex(int id) {
+	public BytecodeInstruction getVertex(int instructionId) {
 		for (BytecodeInstruction v : graph.vertexSet()) {
-			if (v.getId() == id) {
+			if (v.getId() == instructionId) {
 				return v;
 			}
 		}

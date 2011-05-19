@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
@@ -77,7 +77,7 @@ public class MutationGoal extends TestCoverageGoal {
 		this.className = mutation.getClassName();
 		this.methodName = mutation.getMethodName();
 		//		this.cfg = ExecutionTracer.getExecutionTracer().getCFG(className, methodName);
-		this.cfg = CFGMethodAdapter.getMinimizedCFG(className, methodName);
+		this.cfg = CFGPool.getMinimizedCFG(className, methodName);
 		if (this.cfg == null) {
 			logger.warn("Found no CFG for " + className + "." + methodName);
 		}

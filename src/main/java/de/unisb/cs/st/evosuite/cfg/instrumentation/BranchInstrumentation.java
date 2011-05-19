@@ -22,6 +22,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.cfg.CFGPool;
 
 /**
  * @author Copied from CFGMethodAdapter
@@ -37,8 +38,9 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void analyze(MethodNode mn, Graph<BytecodeInstruction, DefaultEdge> graph,
+	public void analyze(MethodNode mn,
 	        String className, String methodName, int access) {
+		Graph<BytecodeInstruction, DefaultEdge> graph = CFGPool.getCompleteCFG(className, methodName).getGraph();
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
 		while (j.hasNext()) {
 			AbstractInsnNode in = j.next();

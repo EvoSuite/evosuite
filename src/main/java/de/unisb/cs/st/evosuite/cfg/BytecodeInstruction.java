@@ -378,7 +378,7 @@ public class BytecodeInstruction extends ASMWrapper {
 		// previous to the branch (id-1)
 		// this is should have correct branchId and branchExpressionValue
 		if (isActualBranch()) {
-			BytecodeInstruction hope = CFGMethodAdapter.getCompleteCFG(
+			BytecodeInstruction hope = CFGPool.getCompleteCFG(
 					getClassName(), getMethodName()).getVertex(
 					getVertexId() - 1);
 			if (hope == null)

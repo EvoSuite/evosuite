@@ -37,7 +37,7 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 	@SuppressWarnings("unchecked")
 	//using external lib
 	@Override
-	public void analyze(MethodNode mn, Graph<BytecodeInstruction, DefaultEdge> graph,
+	public void analyze(MethodNode mn,
 	        String className, String methodName, int access) {
 
 		Queue<LCSAJ> lcsaj_queue = new LinkedList<LCSAJ>();

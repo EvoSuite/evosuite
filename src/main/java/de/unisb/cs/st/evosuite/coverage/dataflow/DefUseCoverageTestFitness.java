@@ -23,7 +23,7 @@ import java.util.Set;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -399,7 +399,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * Look at ControlFlowGraph.getLaterInstructionInMethod() for details
 	 */
 	public Set<BytecodeInstruction> getInstructionsAfterGoalDefinition() {
-		ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(goalDefinition.getClassName(),
+		ControlFlowGraph cfg = CFGPool.getCompleteCFG(goalDefinition.getClassName(),
 		                                                       goalDefinition.getMethodName());
 		BytecodeInstruction defVertex = cfg.getVertex(goalDefinition.getVertexId());
 		Set<BytecodeInstruction> r = cfg.getLaterInstructionsInMethod(defVertex);
@@ -417,7 +417,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * Look at ControlFlowGraph.getPreviousInstructionInMethod() for details
 	 */
 	public Set<BytecodeInstruction> getInstructionsBeforeGoalUse() {
-		ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(goalUse.getClassName(),
+		ControlFlowGraph cfg = CFGPool.getCompleteCFG(goalUse.getClassName(),
 		                                                       goalUse.getMethodName());
 		BytecodeInstruction useVertex = cfg.getVertex(goalUse.getVertexId());
 		Set<BytecodeInstruction> r = cfg.getPreviousInstructionsInMethod(useVertex);

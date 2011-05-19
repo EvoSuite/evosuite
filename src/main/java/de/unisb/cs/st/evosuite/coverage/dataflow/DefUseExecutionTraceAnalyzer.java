@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 
@@ -158,7 +158,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 		for(BytecodeInstruction vertex : vertices) {
 			if(!vertex.isDefinition())
 				continue;
-			BytecodeInstruction vertexInOtherGraph = CFGMethodAdapter.getCompleteCFG(vertex.getClassName(), 
+			BytecodeInstruction vertexInOtherGraph = CFGPool.getCompleteCFG(vertex.getClassName(), 
 					vertex.getMethodName()).getVertex(vertex.getId());
 			Definition currentDefinition = DefUseFactory.makeDefinition(vertexInOtherGraph) ;
 			if(isOverwritingDefinition(targetDefinition,currentDefinition))
