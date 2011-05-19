@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DirectedMultigraph;
 
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
@@ -23,20 +22,25 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
  * every BytecodeInstruction
  * 
  * Out of the above described raw CFG the following "pin-points" are extracted:
- * - the entryNode (first instruction in the method) 
- * - all exitNodes (outDegree 0) 
- * - all branches (outDegree>1) 
- * 	- and in a subsequent step all targets of all branches 
- * - all joins (inDegree>1) 
- *  - and in a subsequent step all sources of all joins
+ * 
+ * 1) the entryNode (first instruction in the method)
+ *  
+ * 2) all exitNodes (outDegree 0)
+ *  
+ * 3.1) all branches (outDegree>1)
+ * 3.2) in a subsequent step all targets of all branches
+ *  
+ * 4.1) all joins (inDegree>1) 
+ * 4.2) in a subsequent step all sources of all joins
  * 
  * All those "pin-points" are put into a big set (some of the above categories
  * may overlap) and for all those single BytecodeInstrucions their corresponding
- * BasicBlock is computed and added to this CFGs vertexSet After that the raw
+ * BasicBlock is computed and added to this CFGs vertexSet. After that the raw
  * CFG is asked for the parents of the first instruction of each BasicBlock and
- * the parents of that blocks last instruction and the edges to their
- * corresponding BasicBlocks are added to this CFG TODO: verify that this method
- * works :D
+ * the children of that blocks last instruction. Then the edges to their
+ * corresponding BasicBlocks are added to this CFG 
+ * 
+ * TODO: verify that this method works :D
  * 
  * 
  * cfg.EvoSuiteGraph is used as the underlying data structure holding the
@@ -87,7 +91,6 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		setJoinSources();
 	}
 	
-	
 	private void setEntryPoint(BytecodeInstruction entryPoint) {
 		if (entryPoint == null)
 			throw new IllegalArgumentException("null given");
@@ -95,7 +98,6 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 			throw new IllegalArgumentException("entry point does not belong to this CFGs method");
 		this.entryPoint=entryPoint;
 	}
-	
 	
 	private void setExitPoints(Set<BytecodeInstruction> exitPoints) {
 		if (exitPoints == null)
@@ -115,7 +117,6 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 			this.exitPoints.add(exitPoint);
 		}
 	}
-	
 	
 	private void setJoins(Set<BytecodeInstruction> joins) {
 		if (joins == null)
@@ -144,7 +145,6 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 			for(DefaultEdge joinEdge : rawGraph.incomingEdgesOf(join))
 				joinSources.add(rawGraph.getEdgeSource(joinEdge));
 	}
-	
 	
 	private void setBranches(Set<BytecodeInstruction> branches) {
 		if (branches == null)
@@ -188,10 +188,19 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 				branchTargets.add(rawGraph.getEdgeTarget(branchEdge));
 	}
 	
-	// computing the actual CFG
+	private Set<BytecodeInstruction> getInitiallyKnownInstructions() {
+		Set<BytecodeInstruction> r = new HashSet<BytecodeInstruction>();
+		r.add(entryPoint);
+		r.addAll(exitPoints);
+		r.addAll(branches);
+		r.addAll(branchTargets);
+		r.addAll(joins);
+		r.addAll(joinSources);
+		
+		return r;
+	}
 	
-
-	// compute actual CFG from RawControlFlowGraph given by CFGGenerator
+	//   compute actual CFG from RawControlFlowGraph
 	
 	private void computeGraph() {
 		
@@ -200,7 +209,6 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		
 		checkSanity();
 	}
-	
 	
 	private void computeNodes() {
 
@@ -219,19 +227,51 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		logger.info(getNodeCount()+" BasicBlocks");
 	}
 	
-	private Set<BytecodeInstruction> getInitiallyKnownInstructions() {
-		Set<BytecodeInstruction> r = new HashSet<BytecodeInstruction>();
-		r.add(entryPoint);
-		r.addAll(exitPoints);
-		r.addAll(branches);
-		r.addAll(branchTargets);
-		r.addAll(joins);
-		r.addAll(joinSources);
+	private void computeEdges() {
+
+		for (BasicBlock block : vertexSet()) {
+			
+			computeIncomingEdgesFor(block);
+			computeOutgoingEdgesFor(block);
+		}
 		
-		return r;
+		logger.info(getEdgeCount()+" ControlFlowEdges");
 	}
 	
-	private void addBlock(BasicBlock nodeBlock) {
+	private void computeIncomingEdgesFor(BasicBlock block) {
+
+		if (isEntryBlock(block))
+			return;
+
+		BytecodeInstruction blockStart = block.getFirstInstruction();
+		Set<DefaultEdge> rawIncomings = rawGraph
+				.incomingEdgesOf(blockStart);
+		for (DefaultEdge rawIncoming : rawIncomings) {
+			BytecodeInstruction incomingStart = rawGraph
+					.getEdgeSource(rawIncoming);
+			addEdge(incomingStart, block);
+		}
+	}
+	
+	private void computeOutgoingEdgesFor(BasicBlock block) {
+		
+		if(isExitBlock(block))
+			return;
+		
+		BytecodeInstruction blockEnd = block.getLastInstruction();
+		
+		Set<DefaultEdge> rawOutgoings = rawGraph
+				.outgoingEdgesOf(blockEnd);
+		for (DefaultEdge rawOutgoing : rawOutgoings) {
+			BytecodeInstruction outgoingEnd = rawGraph
+					.getEdgeTarget(rawOutgoing);
+			addEdge(block, outgoingEnd);
+		}
+	}
+	
+	//   internal graph handling
+	
+	protected void addBlock(BasicBlock nodeBlock) {
 		if (nodeBlock == null)
 			throw new IllegalArgumentException("null given");
 		
@@ -274,52 +314,6 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		logger.debug(".. succeeded. nodeCount: "+getNodeCount());
 	}
 	
-	
-	private void computeEdges() {
-
-		for (BasicBlock block : vertexSet()) {
-			
-			computeIncomingEdgesFor(block);
-			computeOutgoingEdgesFor(block);
-		}
-		
-		logger.info(getEdgeCount()+" ControlFlowEdges");
-	}
-	
-	
-	private void computeIncomingEdgesFor(BasicBlock block) {
-
-		if (isEntryBlock(block))
-			return;
-
-		BytecodeInstruction blockStart = block.getFirstInstruction();
-		Set<DefaultEdge> rawIncomings = rawGraph
-				.incomingEdgesOf(blockStart);
-		for (DefaultEdge rawIncoming : rawIncomings) {
-			BytecodeInstruction incomingStart = rawGraph
-					.getEdgeSource(rawIncoming);
-			addEdge(incomingStart, block);
-		}
-	}
-	
-	
-	private void computeOutgoingEdgesFor(BasicBlock block) {
-		
-		if(isExitBlock(block))
-			return;
-		
-		BytecodeInstruction blockEnd = block.getLastInstruction();
-		
-		Set<DefaultEdge> rawOutgoings = rawGraph
-				.outgoingEdgesOf(blockEnd);
-		for (DefaultEdge rawOutgoing : rawOutgoings) {
-			BytecodeInstruction outgoingEnd = rawGraph
-					.getEdgeTarget(rawOutgoing);
-			addEdge(block, outgoingEnd);
-		}
-	}
-	
-	
 	protected void addEdge(BytecodeInstruction src, BasicBlock target) {
 		BasicBlock srcBlock = getBlockOf(src);
 		if (srcBlock == null)
@@ -328,7 +322,6 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 
 		addEdge(srcBlock, target);
 	}
-	
 
 	protected void addEdge(BasicBlock src, BytecodeInstruction target) {
 		BasicBlock targetBlock = getBlockOf(target);
@@ -338,7 +331,6 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 
 		addEdge(src, targetBlock);
 	}
-	
 	
 	protected DefaultEdge addEdge(BasicBlock src, BasicBlock target) {
 		if (src == null || target == null)
@@ -437,7 +429,6 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		return false;
 	}
 	
-	
 	public boolean isExitBlock(BasicBlock block) {
 		if (block == null)
 			throw new IllegalArgumentException("null given");
@@ -454,7 +445,6 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		return false;
 	}
 	
-	
 	public boolean belongsToMethod(BytecodeInstruction instruction) {
 		if(instruction==null)
 			throw new IllegalArgumentException("null given");
@@ -467,9 +457,6 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		return true;
 	}
 	
-	// sanity check
-	
-
 	// sanity checks
 	
 	public void checkSanity() {
@@ -552,7 +539,6 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	}
 
 	// inherited from ControlFlowGraph
-	
 	
 	@Override
 	public boolean containsInstruction(BytecodeInstruction v) {

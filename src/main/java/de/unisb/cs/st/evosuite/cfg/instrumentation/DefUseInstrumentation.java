@@ -6,8 +6,6 @@ package de.unisb.cs.st.evosuite.cfg.instrumentation;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
-import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultEdge;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
@@ -42,12 +40,11 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 	public void analyze(MethodNode mn,
 	        String className, String methodName, int access) {
 		RawControlFlowGraph completeCFG = CFGPool.getCompleteCFG(className, methodName);
-		Graph<BytecodeInstruction, DefaultEdge> graph = completeCFG.getGraph();
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
 		while (j.hasNext()) {
 
 			AbstractInsnNode in = j.next();
-			for (BytecodeInstruction v : graph.vertexSet()) {
+			for (BytecodeInstruction v : completeCFG.vertexSet()) {
 
 				if (in.equals(v.getASMNode()))
 					v.branchId = completeCFG.getInstruction(v.getId()).getBranchId();

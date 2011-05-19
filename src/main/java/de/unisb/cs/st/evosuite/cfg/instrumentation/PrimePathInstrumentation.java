@@ -7,13 +7,12 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import org.apache.log4j.Logger;
-import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.objectweb.asm.tree.MethodNode;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
+import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePath;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathPool;
 
@@ -31,8 +30,7 @@ public class PrimePathInstrumentation implements MethodInstrumentation {
 	@Override
 	public void analyze(MethodNode mn, String className,
 	        String methodName, int access) {
-		Graph<BytecodeInstruction, DefaultEdge> g = CFGPool.getCompleteCFG(className, methodName).getGraph();
-		DefaultDirectedGraph<BytecodeInstruction, DefaultEdge> graph = (DefaultDirectedGraph<BytecodeInstruction, DefaultEdge>) g;
+		RawControlFlowGraph graph = CFGPool.getCompleteCFG(className, methodName);
 		Queue<PrimePath> path_queue = new LinkedList<PrimePath>();
 		for (BytecodeInstruction vertex : graph.vertexSet()) {
 			if (graph.inDegreeOf(vertex) == 0) {
