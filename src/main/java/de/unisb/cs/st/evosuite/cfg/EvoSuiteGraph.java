@@ -3,6 +3,7 @@ package de.unisb.cs.st.evosuite.cfg;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -32,6 +33,8 @@ import org.jgrapht.graph.DefaultEdge;
  */
 public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 
+	private static Logger logger = Logger.getLogger(EvoSuiteGraph.class);	
+	
 	protected DirectedGraph<V, E> graph;
 
 	protected EvoSuiteGraph(Class<E> cl) {
@@ -170,6 +173,10 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 
 	// some queries
 
+	public E getEdge(V v1, V v2) {
+		return graph.getEdge(v1, v2);
+	}
+	
 	public boolean containsVertex(V v) {
 		// documentation says containsVertex() returns false on when given null
 		return graph.containsVertex(v);
@@ -180,7 +187,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	}
 	
 	public boolean containsEdge(E e) {
-		return graph.containsEdge(e);
+		return graph.containsEdge(e); // TODO this seems to be buggy, at least for ControlFlowEdges
 	}
 
 	public boolean isEmpty() {

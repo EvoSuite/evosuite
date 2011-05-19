@@ -63,8 +63,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock,ControlF
 	
 	
 	public ActualControlFlowGraph(RawControlFlowGraph rawGraph) {
-		super(new DirectedMultigraph<BasicBlock, ControlFlowEdge>(
-				ControlFlowEdge.class), rawGraph.getClassName(),rawGraph.getMethodName());
+		super(ControlFlowEdge.class, rawGraph.getClassName(),rawGraph.getMethodName());
 
 		if (rawGraph == null)
 			throw new IllegalArgumentException("null given");
@@ -321,7 +320,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock,ControlF
 	}
 	
 	
-	private void addEdge(BytecodeInstruction src, BasicBlock target) {
+	protected void addEdge(BytecodeInstruction src, BasicBlock target) {
 		BasicBlock srcBlock = getBlockOf(src);
 		if (srcBlock == null)
 			throw new IllegalStateException(
@@ -331,7 +330,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock,ControlF
 	}
 	
 
-	private void addEdge(BasicBlock src, BytecodeInstruction target) {
+	protected void addEdge(BasicBlock src, BytecodeInstruction target) {
 		BasicBlock targetBlock = getBlockOf(target);
 		if (targetBlock == null)
 			throw new IllegalStateException(
@@ -344,14 +343,24 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock,ControlF
 	protected ControlFlowEdge addEdge(BasicBlock src, BasicBlock target) {
 		if (src == null || target == null)
 			throw new IllegalArgumentException("null given");
+
+		logger.debug("Adding edge from "+src.getName()+" to "+target.getName());
+		
+		if (containsEdge(src,target)) {
+			logger.debug("edge already contained in CFG");
+			ControlFlowEdge r = getEdge(src,target);
+			if(r==null)
+				throw new IllegalStateException("expect getEdge() not to retur null on parameters on which containsEdge() retruned true");
+			
+			return r;
+		}
 		
 		ControlFlowEdge newEdge = new ControlFlowEdge(src, target);
-		
-		if (containsEdge(newEdge)) {
-			logger.debug("edge already contained in CFG");
-		} else if (!super.addEdge(src, target, newEdge))
+		if (!super.addEdge(src, target, newEdge))
 			throw new IllegalStateException(
 					"internal error while adding edge to CFG");
+		
+		logger.debug(".. succeeded, edgeCount: "+getEdgeCount());
 		
 		return newEdge;
 	}

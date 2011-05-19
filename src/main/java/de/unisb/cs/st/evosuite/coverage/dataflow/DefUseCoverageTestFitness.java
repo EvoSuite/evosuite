@@ -403,10 +403,10 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		                                                       goalDefinition.getMethodName());
 		BytecodeInstruction defVertex = cfg.getInstruction(goalDefinition.getVertexId());
 		Set<BytecodeInstruction> r = cfg.getLaterInstructionsInMethod(defVertex);
-		for (BytecodeInstruction v : r) {
-			v.setMethodName(goalDefinition.getMethodName());
-			v.setClassName(goalDefinition.getClassName());
-		}
+//		for (BytecodeInstruction v : r) {
+//			v.setMethodName(goalDefinition.getMethodName());
+//			v.setClassName(goalDefinition.getClassName());
+//		}
 		return r;
 	}
 
@@ -421,10 +421,10 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		                                                       goalUse.getMethodName());
 		BytecodeInstruction useVertex = cfg.getInstruction(goalUse.getVertexId());
 		Set<BytecodeInstruction> r = cfg.getPreviousInstructionsInMethod(useVertex);
-		for (BytecodeInstruction v : r) {
-			v.setMethodName(goalUse.getMethodName());
-			v.setClassName(goalUse.getClassName());
-		}
+//		for (BytecodeInstruction v : r) {
+//			v.setMethodName(goalUse.getMethodName());
+//			v.setClassName(goalUse.getClassName());
+//		}
 		return r;
 	}
 
