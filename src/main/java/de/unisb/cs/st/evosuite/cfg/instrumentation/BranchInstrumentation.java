@@ -50,8 +50,8 @@ public class BranchInstrumentation implements MethodInstrumentation {
 					if (v.isLineNumber()) {
 						currentLineNumber = v.getLineNumber();
 					}
-					v.setClassName(className);
-					v.setMethodName(methodName);
+//					v.setClassName(className);
+//					v.setMethodName(methodName);
 					if(currentLineNumber != -1)
 						v.setLineNumber(currentLineNumber);
 				}

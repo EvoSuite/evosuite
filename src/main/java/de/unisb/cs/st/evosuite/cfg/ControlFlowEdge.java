@@ -1,5 +1,6 @@
 package de.unisb.cs.st.evosuite.cfg;
 
+import org.apache.log4j.Logger;
 import org.jgrapht.graph.DefaultEdge;
 
 /**
@@ -17,7 +18,7 @@ import org.jgrapht.graph.DefaultEdge;
  */
 public class ControlFlowEdge extends DefaultEdge {
 
-	private static final long serialVersionUID = -5009449930477928101L;
+	private static final long serialVersionUID = 1640580801274061062L;
 
 	private static int edgeCount = 0;
 	
@@ -50,13 +51,14 @@ public class ControlFlowEdge extends DefaultEdge {
 	
 	@Override
 	public String toString() {
-		return "ControlFlowEdge_" + id + " from " + src.toString() + " to "
-				+ target.toString();
+		return "ControlFlowEdge_" + id + " from " + src.getName() + " to "
+				+ target.getName();
 	}
 	
 	
 	@Override
 	public boolean equals(Object obj) {
+
 		if (obj == this)
 			return true;
 		if (obj == null)

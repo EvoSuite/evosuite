@@ -73,7 +73,6 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 
 	// TODO make sure the word CFGVertex appears nowhere anymore
 
-	// --- - Constructors - ---
 
 	/**
 	 * Can represent any byteCode instruction
@@ -116,6 +115,20 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		setClassName(className);
 		setMethodName(methodName);
 	}
+	
+	private void setMethodName(String methodName) {
+		if (methodName == null)
+			throw new IllegalArgumentException("null given");
+
+		this.methodName = methodName;
+	}
+
+	private void setClassName(String className) {
+		if (className == null)
+			throw new IllegalArgumentException("null given");
+
+		this.className = className;
+	}
 
 	// --- Field Management --- TODO find out which ones to hide/remove
 
@@ -148,20 +161,6 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		return className;
 	}
 
-	public void setMethodName(String methodName) {
-		if (methodName == null)
-			throw new IllegalArgumentException("null given");
-
-		this.methodName = methodName;
-	}
-
-	public void setClassName(String className) {
-		if (className == null)
-			throw new IllegalArgumentException("null given");
-
-		this.className = className;
-	}
-	
 	// mutation part
 
 	public boolean isMutation() {
@@ -369,9 +368,8 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		// previous to the branch (id-1)
 		// this is should have correct branchId and branchExpressionValue
 		if (isActualBranch()) {
-			BytecodeInstruction hope = CFGPool.getCompleteCFG(
-					getClassName(), getMethodName()).getInstruction(
-					getVertexId() - 1);
+			BytecodeInstruction hope = CFGPool.getCompleteCFG(getClassName(),
+					getMethodName()).getInstruction(getVertexId() - 1);
 			if (hope == null)
 				return null;
 			return hope.getControlDependentBranch();
@@ -490,14 +488,14 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		// TODO ensure that the following checks always succeed
 		// TODO do this by ensuring that those values are always set correctly
 
-		// BytecodeInstruction other = (BytecodeInstruction)obj;
-		//		
-		// if (instructionId != other.instructionId)
-		// return false;
-		// if (methodName != null && !methodName.equals(other.methodName))
-		// return false;
-		// if (className != null && !className.equals(other.className))
-		// return false;
+		BytecodeInstruction other = (BytecodeInstruction)obj;
+	 
+		if (instructionId != other.instructionId)
+			return false;
+		if (methodName != null && !methodName.equals(other.methodName))
+			return false;
+		if (className != null && !className.equals(other.className))
+			return false;
 
 		return super.equals(obj);
 	}

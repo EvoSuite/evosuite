@@ -24,12 +24,27 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
 import de.unisb.cs.st.evosuite.mutation.Mutateable;
 
-
+/**
+ * Abstract base class for both forms of CFGs inside EvoSuite
+ * 
+ * One implementation of this is cfg.RawControlFlowGraph, 
+ * which is also known as the complete CFG
+ * The other implementation of this is cfg.ActualControlFlowGraph
+ * which is also known as the minimal CFG
+ * Look at the respective classes for more detailed information
+ * 
+ * The CFGs can be accessed via the CFGPool which holds for each
+ * CUT and each of their methods a complete and a minimal CFG
+ * 
+ * CFGs are created by the CFGGenerator during the analysis of
+ * the CFG's byteCode performed by the BytecodeAnalyzer 
+ * 
+ * @author Gordon Fraser, Andre Mis
+ */
 public abstract class ControlFlowGraph<V extends Mutateable,E extends DefaultEdge> extends EvoSuiteGraph<V, E> {
 
 	private static Logger logger = Logger.getLogger(ControlFlowGraph.class);
@@ -39,26 +54,36 @@ public abstract class ControlFlowGraph<V extends Mutateable,E extends DefaultEdg
 	
 	private int diameter = -1;
 
-	public ControlFlowGraph(DirectedGraph<V, E> cfg,
-	        String className, String methodName) { 
-		super(cfg);
-		
-		this.className = className;
-		this.methodName = methodName;
-	}
-	
-	public ControlFlowGraph(Class<E> cl, String className, String methodName) {
+	/**
+	 * Creates a fresh and empty CFG for the given class and method
+	 */
+	protected ControlFlowGraph(Class<E> cl, String className, String methodName) {
 		super(cl);
 		
 		this.className = className;
 		this.methodName = methodName;
 	}
+
+	/**
+	 * Can be used to retrieve a Branch contained in this CFG identified by it's branchId
+	 * 
+	 *  If no such branch exists in this CFG, null is returned
+	 */
+	public abstract BytecodeInstruction getBranch(int branchId);
+
+	/**
+	 * Can be used to retrieve an instruction contained in this CFG identified by it's instructionId
+	 * 
+	 *  If no such instruction exists in this CFG, null is returned
+	 */
+	public abstract BytecodeInstruction getInstruction(int instructionId);
 	
-	public abstract BytecodeInstruction getBranch(int branchId); // TODO rename to getBranch .. maybe even return a Branch
-	
-	public abstract BytecodeInstruction getInstruction(int instructionId); // TODO rename to getInstruction
-	
+	/**
+	 * Determines, whether a given instruction is contained in this CFG 
+	 */
 	public abstract boolean containsInstruction(BytecodeInstruction instruction);
+
+	
 	
 	public void finalize() {
 		computeDiameter();
@@ -68,6 +93,12 @@ public abstract class ControlFlowGraph<V extends Mutateable,E extends DefaultEdg
 		//  to this method is assumed to have been made
 	}
 	
+	/**
+	 * For each node within this CFG that is known to contain a mutation
+	 * the distance from each node of this CFG to the that mutated node 
+	 * is computed using getDistance() and those result are then stored
+	 * in that mutated node  
+	 */
 	private void calculateMutationDistances() {
 		logger.trace("Calculating mutation distances");
 		for (V m : vertexSet())
@@ -82,17 +113,25 @@ public abstract class ControlFlowGraph<V extends Mutateable,E extends DefaultEdg
 					}
 	}
 	
-	public V getMutation(long id) {
-		for (V v : vertexSet()) {
-			if (v.isMutation()) {
-				if (v.hasMutation(id)) {
-					return v;
-				}
-			}
-		}
+	/**
+	 * Returns the node of this CFG that contains the mutation identified
+	 * by the given mutationId
+	 * 
+	 *   If no such node exists, null is returned
+	 */
+	public V getMutation(long mutationId) {
+		for (V v : vertexSet())
+			if (v.hasMutation(mutationId))
+				return v;
+
 		return null;
 	}
 
+	/**
+	 * Returns a list of all mutationIds contained within this CFG
+	 * 
+	 *   TODO why isn't the return-type a set? where does the order come from?
+	 */
 	public List<Long> getMutations() {
 		List<Long> ids = new ArrayList<Long>();
 		for (V v : vertexSet()) {
@@ -102,6 +141,10 @@ public abstract class ControlFlowGraph<V extends Mutateable,E extends DefaultEdg
 		return ids;
 	}
 
+	/**
+	 * Checks whether the mutation identified by the given mutationId
+	 * is contained in this CFG 
+	 */
 	public boolean containsMutation(long id) {
 		for (V v : vertexSet()) {
 			if (v.isMutation() && v.hasMutation(id))
@@ -117,13 +160,13 @@ public abstract class ControlFlowGraph<V extends Mutateable,E extends DefaultEdg
 		return diameter;
 	}
 
-	public void computeDiameter() {
+	protected void computeDiameter() {
 		FloydWarshall<V, E> f = new FloydWarshall<V, E>(
 		        graph);
 		diameter = (int) f.getDiameter();
 	}
 
-	public V determineEntryPoint() {
+	protected V determineEntryPoint() {
 		V r = null;
 
 		for (V instruction : vertexSet())
@@ -140,7 +183,7 @@ public abstract class ControlFlowGraph<V extends Mutateable,E extends DefaultEdg
 		return r;
 	}
 
-	public Set<V> determineExitPoints() {
+	protected Set<V> determineExitPoints() {
 		Set<V> r = new HashSet<V>();
 
 		for (V instruction : vertexSet())
