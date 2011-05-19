@@ -48,7 +48,7 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
  * 
  * @author Andre Mis
  */
-public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock,ControlFlowEdge> {
+public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 
 	private static Logger logger = Logger.getLogger(ActualControlFlowGraph.class);
 	
@@ -63,7 +63,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock,ControlF
 	
 	
 	public ActualControlFlowGraph(RawControlFlowGraph rawGraph) {
-		super(ControlFlowEdge.class, rawGraph.getClassName(),rawGraph.getMethodName());
+		super(rawGraph.getClassName(),rawGraph.getMethodName());
 
 		if (rawGraph == null)
 			throw new IllegalArgumentException("null given");
@@ -340,29 +340,30 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock,ControlF
 	}
 	
 	
-	protected ControlFlowEdge addEdge(BasicBlock src, BasicBlock target) {
+	protected DefaultEdge addEdge(BasicBlock src, BasicBlock target) {
 		if (src == null || target == null)
 			throw new IllegalArgumentException("null given");
 
 		logger.debug("Adding edge from "+src.getName()+" to "+target.getName());
 		
+		DefaultEdge r;
 		if (containsEdge(src,target)) {
 			logger.debug("edge already contained in CFG");
-			ControlFlowEdge r = getEdge(src,target);
+			r = getEdge(src,target);
 			if(r==null)
 				throw new IllegalStateException("expect getEdge() not to retur null on parameters on which containsEdge() retruned true");
 			
 			return r;
 		}
 		
-		ControlFlowEdge newEdge = new ControlFlowEdge(src, target);
-		if (!super.addEdge(src, target, newEdge))
+		r = super.addEdge(src, target);
+		if (r == null)
 			throw new IllegalStateException(
 					"internal error while adding edge to CFG");
 		
 		logger.debug(".. succeeded, edgeCount: "+getEdgeCount());
 		
-		return newEdge;
+		return r;
 	}
 	
 	// convenience methods to switch between BytecodeInstructons and BasicBlocks
@@ -487,8 +488,8 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock,ControlF
 
 		logger.debug(".. all initInstructions contained");
 
-		checkEdgeSanity();
-
+		checkNodeSanity();
+		
 		logger.debug(".. CFG sanity ensured");
 	}
 	
@@ -550,19 +551,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock,ControlF
 		}
 	}
 
-	void checkEdgeSanity() {
-
-		for(ControlFlowEdge e : edgeSet()) {
-			// check edge-references
-			if(!e.getSource().equals(getEdgeSource(e)))
-				throw new IllegalStateException("source reference of control flow edge not set properly: "+e.toString());
-			if(!e.getTarget().equals(getEdgeTarget(e)))
-				throw new IllegalStateException("target reference of control flow edge not set properly: "+e.toString());
-		}
-		logger.debug(".. all edge references sane");
-	}
-
-	// inherited from ControlFlowGraph - TODO: are those getters really necessary?
+	// inherited from ControlFlowGraph
 	
 	
 	@Override

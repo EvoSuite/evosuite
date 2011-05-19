@@ -40,13 +40,13 @@ import de.unisb.cs.st.evosuite.coverage.dataflow.Use;
  * @author Andre Mis
  */
 public class RawControlFlowGraph extends
-		ControlFlowGraph<BytecodeInstruction, DefaultEdge> {
+		ControlFlowGraph<BytecodeInstruction> {
 
 	private static Logger logger = Logger.getLogger(RawControlFlowGraph.class);
 
 	// TODO: need some sort of finalize method to call calculateDistance()-methods
 	public RawControlFlowGraph(String className, String methodName) {
-		super(DefaultEdge.class, className, methodName);
+		super(className, methodName);
 		
 		if (className == null || methodName == null)
 			throw new IllegalArgumentException("null given");

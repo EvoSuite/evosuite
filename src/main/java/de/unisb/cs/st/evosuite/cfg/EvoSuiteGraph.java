@@ -31,18 +31,16 @@ import org.jgrapht.graph.DefaultEdge;
  * 
  * @author Andre Mis
  */
-public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
+public abstract class EvoSuiteGraph<V> {
 
-	private static Logger logger = Logger.getLogger(EvoSuiteGraph.class);	
-	
-	protected DirectedGraph<V, E> graph;
+	protected DirectedGraph<V, DefaultEdge> graph;
 
-	protected EvoSuiteGraph(Class<E> cl) {
+	protected EvoSuiteGraph() {
 
-		graph = new DefaultDirectedGraph<V, E>(cl);
+		graph = new DefaultDirectedGraph<V, DefaultEdge>(DefaultEdge.class);
 	}
 
-	protected EvoSuiteGraph(DirectedGraph<V, E> graph) {
+	protected EvoSuiteGraph(DirectedGraph<V, DefaultEdge> graph) {
 		if (graph == null)
 			throw new IllegalArgumentException("null given");
 
@@ -53,27 +51,27 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	// TODO: this is supposed to be removed in the future!
 	// 			only supposed to be used for refactoring the cfg package
 	//			DO NOT CALL THIS! please ;)
-	public DirectedGraph<V,E> getGraph() {
+	public DirectedGraph<V,DefaultEdge> getGraph() {
 		return graph;
 	}
 
 	// retrieving nodes and edges
 
-	public V getEdgeSource(E e) {
+	public V getEdgeSource(DefaultEdge e) {
 		if (!containsEdge(e))
 			throw new IllegalArgumentException("edge not in graph");
 
 		return graph.getEdgeSource(e);
 	}
 
-	public V getEdgeTarget(E e) {
+	public V getEdgeTarget(DefaultEdge e) {
 		if (!containsEdge(e))
 			throw new IllegalArgumentException("edge not in graph");
 
 		return graph.getEdgeTarget(e);
 	}
 	
-	public Set<E> outgoingEdgesOf(V node) {
+	public Set<DefaultEdge> outgoingEdgesOf(V node) {
 		if (!containsVertex(node)) // should this just return null?
 			throw new IllegalArgumentException(
 					"block not contained in this CFG");
@@ -81,7 +79,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		return graph.outgoingEdgesOf(node);
 	}
 
-	public Set<E> incomingEdgesOf(V node) {
+	public Set<DefaultEdge> incomingEdgesOf(V node) {
 		if (!containsVertex(node)) // should this just return null?
 			throw new IllegalArgumentException(
 					"block not contained in this CFG");
@@ -95,7 +93,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 					"block not contained in this CFG");
 
 		Set<V> r = new HashSet<V>();
-		for (E e : outgoingEdgesOf(node))
+		for (DefaultEdge e : outgoingEdgesOf(node))
 			r.add(getEdgeTarget(e));
 
 		// sanity check
@@ -112,7 +110,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 					"block not contained in this CFG");
 
 		Set<V> r = new HashSet<V>();
-		for (E e : outgoingEdgesOf(node))
+		for (DefaultEdge e : outgoingEdgesOf(node))
 			r.add(getEdgeTarget(e));
 
 		// sanity check
@@ -127,7 +125,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		return graph.vertexSet();
 	}
 
-	protected Set<E> edgeSet() {
+	protected Set<DefaultEdge> edgeSet() {
 		return graph.edgeSet();
 	}
 	
@@ -137,12 +135,12 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		return graph.addVertex(v);
 	}
 
-	protected E addEdge(V src, V target) {
+	protected DefaultEdge addEdge(V src, V target) {
 		
 		return graph.addEdge(src,target);
 	}
 	
-	protected boolean addEdge(V src, V target, E e) {
+	protected boolean addEdge(V src, V target, DefaultEdge e) {
 		
 		return graph.addEdge(src, target, e);
 	}
@@ -173,7 +171,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 
 	// some queries
 
-	public E getEdge(V v1, V v2) {
+	public DefaultEdge getEdge(V v1, V v2) {
 		return graph.getEdge(v1, v2);
 	}
 	
@@ -186,7 +184,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		return graph.containsEdge(v1,v2);
 	}
 	
-	public boolean containsEdge(E e) {
+	public boolean containsEdge(DefaultEdge e) {
 		return graph.containsEdge(e); // TODO this seems to be buggy, at least for ControlFlowEdges
 	}
 
@@ -205,7 +203,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	// utils
 	
 	public int getDistance(V v1, V v2) {
-		DijkstraShortestPath<V, E> d = new DijkstraShortestPath<V, E>(
+		DijkstraShortestPath<V, DefaultEdge> d = new DijkstraShortestPath<V, DefaultEdge>(
 		        graph, v1, v2);
 		return (int) Math.round(d.getPathLength());
 	}
