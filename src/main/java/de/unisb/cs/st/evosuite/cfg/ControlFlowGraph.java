@@ -50,33 +50,35 @@ public class ControlFlowGraph {
 
 	private final DirectedGraph<BytecodeInstruction, DefaultEdge> graph;
 
-	private int diameter = 0;
+	private int diameter = -1;
 
 	public ControlFlowGraph(DirectedGraph<BytecodeInstruction, DefaultEdge> cfg,
 	        boolean calculateDiameter) {
 		this.graph = cfg;
 
 		if (calculateDiameter) {
-			setDiameter();
+			computeDiameter();
+			calculateMutationDistances();
+		}
+	}
 
-			// Calculate mutation distances
-			logger.trace("Calculating mutation distances");
-			for (BytecodeInstruction m : cfg.vertexSet()) {
-				if (m.isMutation()) {
-					for (Long id : m.getMutationIds()) {
-						for (BytecodeInstruction v : cfg.vertexSet()) {
-							DijkstraShortestPath<BytecodeInstruction, DefaultEdge> d = new DijkstraShortestPath<BytecodeInstruction, DefaultEdge>(
-							        graph, v, m);
-							int distance = (int) Math.round(d.getPathLength());
-							if (distance >= 0)
-								v.setDistance(id, distance);
-							else
-								v.setDistance(id, diameter);
-						}
+	private void calculateMutationDistances() {
+		logger.trace("Calculating mutation distances");
+		for (BytecodeInstruction m : graph.vertexSet()) {
+			if (m.isMutation()) {
+				for (Long id : m.getMutationIds()) {
+					for (BytecodeInstruction v : graph.vertexSet()) {
+						DijkstraShortestPath<BytecodeInstruction, DefaultEdge> d = new DijkstraShortestPath<BytecodeInstruction, DefaultEdge>(
+						        graph, v, m);
+						int distance = (int) Math.round(d.getPathLength());
+						if (distance >= 0)
+							v.setDistance(id, distance);
+						else
+							v.setDistance(id, diameter);
 					}
 				}
 			}
-		}
+		}	
 	}
 
 	/**
@@ -89,10 +91,13 @@ public class ControlFlowGraph {
 	}
 	
 	public int getDiameter() {
+		if(diameter == -1) // TODO: don't throw exception but rather just call computeDiameters() ?
+			throw new IllegalStateException("diameter not computed yet. call computeDiameter() first");
+
 		return diameter;
 	}
 
-	private void setDiameter() {
+	public void computeDiameter() {
 		FloydWarshall<BytecodeInstruction, DefaultEdge> f = new FloydWarshall<BytecodeInstruction, DefaultEdge>(
 		        graph);
 		diameter = (int) f.getDiameter();
