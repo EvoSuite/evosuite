@@ -15,7 +15,7 @@ import org.objectweb.asm.tree.MethodNode;
  */
 public class BytecodeInstructionPool {
 
-	private static Logger logger = Logger.getLogger(BytecodeInstruction.class);
+	private static Logger logger = Logger.getLogger(BytecodeInstructionPool.class);
 	
 	// maps className -> method inside that class -> list of BytecodeInstructions
 	private static Map<String, Map<String, List<BytecodeInstruction>>> instructionMap = new HashMap<String, Map<String, List<BytecodeInstruction>>>();
@@ -74,19 +74,19 @@ public class BytecodeInstructionPool {
 			String methodName, int instructionId) {
 		
 		if(instructionMap.get(className) == null) {
-			logger.warn("unknown class");
+			logger.debug("unknown class");
 			return null;
 		}
 		if(instructionMap.get(className).get(methodName) == null) {
-			logger.warn("unknown method");
+			logger.debug("unknown method");
 			return null;
 		}
 		for(BytecodeInstruction instruction : instructionMap.get(className).get(methodName)) {
-			if(instruction.getId() == instructionId)
+			if(instruction.getInstructionId() == instructionId)
 				return instruction;
 		}
 		
-		logger.warn("unknown instruction");
+		logger.debug("unknown instruction");
 		
 		return null;
 	}

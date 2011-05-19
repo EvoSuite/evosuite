@@ -7,6 +7,9 @@ import org.apache.log4j.Logger;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 
+import de.unisb.cs.st.evosuite.coverage.branch.Branch;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+
 /**
  * 
  * Supposed to become the new implementation of a control flow graph inside
@@ -45,12 +48,9 @@ import org.jgrapht.graph.DirectedMultigraph;
  * 
  * @author Andre Mis
  */
-public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlowEdge> {
+public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock,ControlFlowEdge> {
 
 	private static Logger logger = Logger.getLogger(ActualControlFlowGraph.class);
-	
-	private String className;
-	private String methodName;
 	
 	private RawControlFlowGraph rawGraph;
 	
@@ -64,16 +64,13 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 	
 	public ActualControlFlowGraph(RawControlFlowGraph rawGraph) {
 		super(new DirectedMultigraph<BasicBlock, ControlFlowEdge>(
-				ControlFlowEdge.class));
+				ControlFlowEdge.class), rawGraph.getClassName(),rawGraph.getMethodName());
 
 		if (rawGraph == null)
 			throw new IllegalArgumentException("null given");
 
 		this.rawGraph = rawGraph;
 		
-		this.className = rawGraph.getClassName();
-		this.methodName = rawGraph.getMethodName();
-
 		fillSets();
 		computeGraph();
 	}
@@ -223,6 +220,17 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 		logger.info(getNodeCount()+" BasicBlocks");
 	}
 	
+	private Set<BytecodeInstruction> getInitiallyKnownInstructions() {
+		Set<BytecodeInstruction> r = new HashSet<BytecodeInstruction>();
+		r.add(entryPoint);
+		r.addAll(exitPoints);
+		r.addAll(branches);
+		r.addAll(branchTargets);
+		r.addAll(joins);
+		r.addAll(joinSources);
+		
+		return r;
+	}
 	
 	private void addBlock(BasicBlock nodeBlock) {
 		if (nodeBlock == null)
@@ -230,7 +238,7 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 		
 		logger.debug("Adding block: "+nodeBlock.getName());
 		
-		if (containsBlock(nodeBlock))
+		if (containsVertex(nodeBlock))
 			throw new IllegalArgumentException("block already added before");
 
 		if (!addVertex(nodeBlock))
@@ -261,7 +269,7 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 //
 //		}
 		
-		if(!containsBlock(nodeBlock))
+		if(!containsVertex(nodeBlock))
 			throw new IllegalStateException("expect graph to contain the given block on returning of addBlock()");
 		
 		logger.debug(".. succeeded. nodeCount: "+getNodeCount());
@@ -348,8 +356,7 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 		return newEdge;
 	}
 	
-	// retrieve information about the CFG
-	
+	// convenience methods to switch between BytecodeInstructons and BasicBlocks
 	
 	public BasicBlock getBlockOf(BytecodeInstruction instruction) {
 		
@@ -358,25 +365,8 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 				return block;
 		
 		logger.debug("unknown instruction "+instruction.toString());
-		
 		return null;
 	}
-	
-	
-	private Set<BytecodeInstruction> getInitiallyKnownInstructions() {
-		Set<BytecodeInstruction> r = new HashSet<BytecodeInstruction>();
-		r.add(entryPoint);
-		r.addAll(exitPoints);
-		r.addAll(branches);
-		r.addAll(branchTargets);
-		r.addAll(joins);
-		r.addAll(joinSources);
-		
-		return r;
-	}
-	
-	
-	// retrieve information about the CFG
 	
 	public boolean knowsInstruction(BytecodeInstruction instruction) {
 		for(BasicBlock block : vertexSet())
@@ -384,7 +374,43 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 				return true;
 		
 		return false;
-	}	
+	}
+	
+	public int getDistance(BytecodeInstruction v1, BytecodeInstruction v2) {
+		if (v1 == null || v2 == null)
+			throw new IllegalArgumentException("null given");
+		if (!knowsInstruction(v1) || !knowsInstruction(v2))
+			throw new IllegalArgumentException(
+					"instructions not contained in this CFG");
+		
+		BasicBlock b1 = getBlockOf(v1);
+		BasicBlock b2 = getBlockOf(v2);
+
+		if (b1 == null || b2 == null)
+			throw new IllegalStateException(
+					"expect CFG to contain the BasicBlock for each instruction knowsInstruction() returns true on");
+		
+		return getDistance(b1,b2);
+	}
+	
+	public boolean isDirectSuccessor(BytecodeInstruction v1, BytecodeInstruction v2) {
+		if (v1 == null || v2 == null)
+			throw new IllegalArgumentException("null given");
+		if (!knowsInstruction(v1) || !knowsInstruction(v2))
+			throw new IllegalArgumentException(
+					"instructions not contained in this CFG");
+		
+		BasicBlock b1 = getBlockOf(v1);
+		BasicBlock b2 = getBlockOf(v2);
+
+		if (b1 == null || b2 == null)
+			throw new IllegalStateException(
+					"expect CFG to contain the BasicBlock for each instruction knowsInstruction() returns true on");
+	
+		return isDirectSuccessor(b1,b2);
+	}
+	
+	// retrieve information about the CFG
 	
 	public boolean isEntryBlock(BasicBlock block) {
 		if (block == null)
@@ -527,5 +553,46 @@ public class ActualControlFlowGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 		logger.debug(".. all edge references sane");
 	}
 
+	// inherited from ControlFlowGraph - TODO: are those getters really necessary?
+	
+	
+	@Override
+	public boolean containsInstruction(BytecodeInstruction v) {
+		if(v==null)
+			return false;
+		
+		for(BasicBlock block : vertexSet())
+			if(block.containsInstruction(v))
+				return true;
+		
+		return false;
+	}
+
+	@Override
+	public BytecodeInstruction getInstruction(int instructionId) {
+		
+		BytecodeInstruction searchedFor = BytecodeInstructionPool
+				.getInstruction(className, methodName, instructionId);
+		
+		if(containsInstruction(searchedFor))
+			return searchedFor;
+		
+		return null;
+	}
+	
+	@Override
+	public BytecodeInstruction getBranch(int branchId) {
+		
+		Branch searchedFor = BranchPool.getBranch(branchId);
+		if(searchedFor==null)
+			return null;
+		
+		if(containsInstruction(searchedFor))
+			return searchedFor;
+
+		// TODO more sanity checks?
+		
+		return null;
+	}
 
 }

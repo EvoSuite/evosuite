@@ -21,17 +21,11 @@ package de.unisb.cs.st.evosuite.cfg;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.jgrapht.DirectedGraph;
-import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DirectedMultigraph;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodNode;
@@ -168,14 +162,13 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 				e.printStackTrace();
 			}
 
+			// compute Raw and ActualCFG and put both into CFGPool
 			bytecodeAnalyzer.retrieveCFGGenerator().registerCFGs();
-
 			logger.info("Created CFG for method " + methodName);
 
 			//add the actual instrumentation
-			for (MethodInstrumentation instrumentation : instrumentations) {
+			for (MethodInstrumentation instrumentation : instrumentations)
 				instrumentation.analyze(mn, className, methodName, access);
-			}
 
 			handleBranchlessMethods();
 			logger.info("Analyzing method " + methodName);

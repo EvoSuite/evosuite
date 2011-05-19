@@ -24,7 +24,7 @@ import java.util.Set;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
-import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
+import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.Randomness;
@@ -399,9 +399,9 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * Look at ControlFlowGraph.getLaterInstructionInMethod() for details
 	 */
 	public Set<BytecodeInstruction> getInstructionsAfterGoalDefinition() {
-		ControlFlowGraph cfg = CFGPool.getCompleteCFG(goalDefinition.getClassName(),
+		RawControlFlowGraph cfg = CFGPool.getCompleteCFG(goalDefinition.getClassName(),
 		                                                       goalDefinition.getMethodName());
-		BytecodeInstruction defVertex = cfg.getVertex(goalDefinition.getVertexId());
+		BytecodeInstruction defVertex = cfg.getInstruction(goalDefinition.getVertexId());
 		Set<BytecodeInstruction> r = cfg.getLaterInstructionsInMethod(defVertex);
 		for (BytecodeInstruction v : r) {
 			v.setMethodName(goalDefinition.getMethodName());
@@ -417,9 +417,9 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * Look at ControlFlowGraph.getPreviousInstructionInMethod() for details
 	 */
 	public Set<BytecodeInstruction> getInstructionsBeforeGoalUse() {
-		ControlFlowGraph cfg = CFGPool.getCompleteCFG(goalUse.getClassName(),
+		RawControlFlowGraph cfg = CFGPool.getCompleteCFG(goalUse.getClassName(),
 		                                                       goalUse.getMethodName());
-		BytecodeInstruction useVertex = cfg.getVertex(goalUse.getVertexId());
+		BytecodeInstruction useVertex = cfg.getInstruction(goalUse.getVertexId());
 		Set<BytecodeInstruction> r = cfg.getPreviousInstructionsInMethod(useVertex);
 		for (BytecodeInstruction v : r) {
 			v.setMethodName(goalUse.getMethodName());
