@@ -399,7 +399,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * Look at ControlFlowGraph.getLaterInstructionInMethod() for details
 	 */
 	public Set<BytecodeInstruction> getInstructionsAfterGoalDefinition() {
-		RawControlFlowGraph cfg = CFGPool.getCompleteCFG(goalDefinition.getClassName(),
+		RawControlFlowGraph cfg = CFGPool.getRawCFG(goalDefinition.getClassName(),
 		                                                       goalDefinition.getMethodName());
 		BytecodeInstruction defVertex = cfg.getInstruction(goalDefinition.getVertexId());
 		Set<BytecodeInstruction> r = cfg.getLaterInstructionsInMethod(defVertex);
@@ -417,7 +417,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * Look at ControlFlowGraph.getPreviousInstructionInMethod() for details
 	 */
 	public Set<BytecodeInstruction> getInstructionsBeforeGoalUse() {
-		RawControlFlowGraph cfg = CFGPool.getCompleteCFG(goalUse.getClassName(),
+		RawControlFlowGraph cfg = CFGPool.getRawCFG(goalUse.getClassName(),
 		                                                       goalUse.getMethodName());
 		BytecodeInstruction useVertex = cfg.getInstruction(goalUse.getVertexId());
 		Set<BytecodeInstruction> r = cfg.getPreviousInstructionsInMethod(useVertex);

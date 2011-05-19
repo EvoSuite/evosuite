@@ -109,7 +109,7 @@ public class BranchPool {
 	}
 
 	private static void markBranchIDs(BytecodeInstruction b) {
-		RawControlFlowGraph completeCFG = CFGPool.getCompleteCFG(b
+		RawControlFlowGraph completeCFG = CFGPool.getRawCFG(b
 				.getClassName(), b.getMethodName());
 		
 		completeCFG.markBranchIds(b);

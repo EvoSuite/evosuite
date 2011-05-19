@@ -368,7 +368,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		// previous to the branch (id-1)
 		// this is should have correct branchId and branchExpressionValue
 		if (isActualBranch()) {
-			BytecodeInstruction hope = CFGPool.getCompleteCFG(getClassName(),
+			BytecodeInstruction hope = CFGPool.getRawCFG(getClassName(),
 					getMethodName()).getInstruction(getVertexId() - 1);
 			if (hope == null)
 				return null;

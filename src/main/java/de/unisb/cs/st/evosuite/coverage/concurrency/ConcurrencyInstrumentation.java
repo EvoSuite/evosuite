@@ -47,7 +47,7 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 		this.className=className;
 		this.methodName=methodName;
 				
-		RawControlFlowGraph completeCFG = CFGPool.getCompleteCFG(className, methodName);
+		RawControlFlowGraph completeCFG = CFGPool.getRawCFG(className, methodName);
 		Iterator<AbstractInsnNode> instructions = mn.instructions.iterator();
 		while (instructions.hasNext()) {
 			AbstractInsnNode instruction = instructions.next();

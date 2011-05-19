@@ -39,7 +39,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	@Override
 	public void analyze(MethodNode mn,
 	        String className, String methodName, int access) {
-		RawControlFlowGraph graph = CFGPool.getCompleteCFG(className, methodName);
+		RawControlFlowGraph graph = CFGPool.getRawCFG(className, methodName);
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
 		while (j.hasNext()) {
 			AbstractInsnNode in = j.next();

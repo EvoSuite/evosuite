@@ -51,7 +51,7 @@ public class MutationGoalFactory implements TestFitnessFactory {
 			}
 		}
 		*/
-		if (CFGPool.getMinimizedCFG(mutation.getClassName(),
+		if (CFGPool.getActualCFG(mutation.getClassName(),
 		                                     mutation.getMethodName()) == null)
 			return true;
 		return false;

@@ -30,7 +30,7 @@ public class PrimePathInstrumentation implements MethodInstrumentation {
 	@Override
 	public void analyze(MethodNode mn, String className,
 	        String methodName, int access) {
-		RawControlFlowGraph graph = CFGPool.getCompleteCFG(className, methodName);
+		RawControlFlowGraph graph = CFGPool.getRawCFG(className, methodName);
 		Queue<PrimePath> path_queue = new LinkedList<PrimePath>();
 		for (BytecodeInstruction vertex : graph.vertexSet()) {
 			if (graph.inDegreeOf(vertex) == 0) {
