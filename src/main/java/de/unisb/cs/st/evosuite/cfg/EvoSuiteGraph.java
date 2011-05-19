@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.jgrapht.DirectedGraph;
+import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
@@ -31,7 +32,7 @@ import org.jgrapht.graph.DefaultEdge;
  */
 public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 
-	private DirectedGraph<V, E> graph;
+	protected DirectedGraph<V, E> graph;
 
 	protected EvoSuiteGraph(Class<E> cl) {
 
@@ -70,7 +71,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	}
 	
 	public Set<E> outgoingEdgesOf(V node) {
-		if (!containsBlock(node)) // should this just return null?
+		if (!containsVertex(node)) // should this just return null?
 			throw new IllegalArgumentException(
 					"block not contained in this CFG");
 
@@ -78,7 +79,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	}
 
 	public Set<E> incomingEdgesOf(V node) {
-		if (!containsBlock(node)) // should this just return null?
+		if (!containsVertex(node)) // should this just return null?
 			throw new IllegalArgumentException(
 					"block not contained in this CFG");
 
@@ -86,7 +87,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	}
 	
 	public Set<V> getChildren(V node) {
-		if (!containsBlock(node)) // should this just return null?
+		if (!containsVertex(node)) // should this just return null?
 			throw new IllegalArgumentException(
 					"block not contained in this CFG");
 
@@ -103,7 +104,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	}
 
 	public Set<V> getParents(V node) {
-		if (!containsBlock(node)) // should this just return null?
+		if (!containsVertex(node)) // should this just return null?
 			throw new IllegalArgumentException(
 					"block not contained in this CFG");
 
@@ -154,14 +155,14 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	}
 	
 	public int outDegreeOf(V node) { // TODO rename to sth. like childCount()
-		if (node == null || !containsBlock(node))
+		if (node == null || !containsVertex(node))
 			return -1;
 
 		return graph.outDegreeOf(node);
 	}
 	
 	public int inDegreeOf(V node) { // TODO rename sth. like parentCount()
-		if (node == null || !containsBlock(node))
+		if (node == null || !containsVertex(node))
 			return -1;
 
 		return graph.inDegreeOf(node);
@@ -169,11 +170,15 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 
 	// some queries
 
-	public boolean containsBlock(V block) {
+	public boolean containsVertex(V v) {
 		// documentation says containsVertex() returns false on when given null
-		return graph.containsVertex(block);
+		return graph.containsVertex(v);
 	}
 
+	public boolean containsEdge(V v1, V v2) {
+		return graph.containsEdge(v1,v2);
+	}
+	
 	public boolean containsEdge(E e) {
 		return graph.containsEdge(e);
 	}
@@ -183,7 +188,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	}
 	
 	public boolean hasNPartentsMChildren(V node, int parents, int children) {
-		if (node == null || !containsBlock(node))
+		if (node == null || !containsVertex(node))
 			return false;
 
 		return inDegreeOf(node) == parents
@@ -191,6 +196,17 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	}
 	
 	// utils
+	
+	public int getDistance(V v1, V v2) {
+		DijkstraShortestPath<V, E> d = new DijkstraShortestPath<V, E>(
+		        graph, v1, v2);
+		return (int) Math.round(d.getPathLength());
+	}
+	
+	public boolean isDirectSuccessor(V v1, V v2) {
+		
+		return (containsEdge(v1, v2) && inDegreeOf(v2) == 1);
+	}
 	
 	public Set<V> determineBranches() {
 		Set<V> r = new HashSet<V>();

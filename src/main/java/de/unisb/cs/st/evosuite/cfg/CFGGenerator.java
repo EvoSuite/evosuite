@@ -1,15 +1,9 @@
 package de.unisb.cs.st.evosuite.cfg;
 
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DirectedMultigraph;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.Frame;
@@ -143,59 +137,64 @@ public class CFGGenerator {
 
 	// retrieve information about the graph
 
-	public DirectedGraph<BytecodeInstruction, DefaultEdge> getCompleteGraph() {
-		return rawGraph.getGraph();
+	public RawControlFlowGraph getCompleteGraph() {
+		return rawGraph;
 	}
 
-	public DirectedMultigraph<BytecodeInstruction, DefaultEdge> getMinimalGraph() {
+	public ActualControlFlowGraph getMinimalGraph() {
 
 		setMutationIDs();
 		setMutationBranches();
 
-		DirectedMultigraph<BytecodeInstruction, DefaultEdge> min_graph = new DirectedMultigraph<BytecodeInstruction, DefaultEdge>(
-				DefaultEdge.class);
-
-		// Get minimal cfg vertices
-		for (BytecodeInstruction vertex : rawGraph.vertexSet()) {
-			// Add initial nodes and jump targets
-			if (rawGraph.inDegreeOf(vertex) == 0) {
-				min_graph.addVertex(vertex);
-				// Add end nodes
-			} else if (rawGraph.outDegreeOf(vertex) == 0) {
-				min_graph.addVertex(vertex);
-			} else if (vertex.isJump() && !vertex.isGoto()) {
-				min_graph.addVertex(vertex);
-			} else if (vertex.isTableSwitch() || vertex.isLookupSwitch()) {
-				min_graph.addVertex(vertex);
-			} else if (vertex.isMutation()) {
-				min_graph.addVertex(vertex);
-			}
-		}
-		// Get minimal cfg edges
-		for (BytecodeInstruction vertex : min_graph.vertexSet()) {
-			Set<DefaultEdge> handled = new HashSet<DefaultEdge>();
-
-			Queue<DefaultEdge> queue = new LinkedList<DefaultEdge>();
-			queue.addAll(rawGraph.outgoingEdgesOf(vertex));
-			while (!queue.isEmpty()) {
-				DefaultEdge edge = queue.poll();
-				if (handled.contains(edge))
-					continue;
-				handled.add(edge);
-				if (min_graph.containsVertex(rawGraph.getEdgeTarget(edge))) {
-					min_graph.addEdge(vertex, rawGraph.getEdgeTarget(edge));
-				} else {
-					queue.addAll(rawGraph.outgoingEdgesOf(rawGraph
-							.getEdgeTarget(edge)));
-				}
-			}
-		}
-
-		// debug/experiment
-		computeCFG();
-
-		return min_graph;
+		return computeCFG();
 	}
+	
+//	public DirectedMultigraph<BytecodeInstruction, DefaultEdge> getMinimalGraph() {
+//
+//		setMutationIDs();
+//		setMutationBranches();
+//
+//		DirectedMultigraph<BytecodeInstruction, DefaultEdge> min_graph = new DirectedMultigraph<BytecodeInstruction, DefaultEdge>(
+//				DefaultEdge.class);
+//
+//		// Get minimal cfg vertices
+//		for (BytecodeInstruction vertex : rawGraph.vertexSet()) {
+//			// Add initial nodes and jump targets
+//			if (rawGraph.inDegreeOf(vertex) == 0) {
+//				min_graph.addVertex(vertex);
+//				// Add end nodes
+//			} else if (rawGraph.outDegreeOf(vertex) == 0) {
+//				min_graph.addVertex(vertex);
+//			} else if (vertex.isJump() && !vertex.isGoto()) {
+//				min_graph.addVertex(vertex);
+//			} else if (vertex.isTableSwitch() || vertex.isLookupSwitch()) {
+//				min_graph.addVertex(vertex);
+//			} else if (vertex.isMutation()) {
+//				min_graph.addVertex(vertex);
+//			}
+//		}
+//		// Get minimal cfg edges
+//		for (BytecodeInstruction vertex : min_graph.vertexSet()) {
+//			Set<DefaultEdge> handled = new HashSet<DefaultEdge>();
+//
+//			Queue<DefaultEdge> queue = new LinkedList<DefaultEdge>();
+//			queue.addAll(rawGraph.outgoingEdgesOf(vertex));
+//			while (!queue.isEmpty()) {
+//				DefaultEdge edge = queue.poll();
+//				if (handled.contains(edge))
+//					continue;
+//				handled.add(edge);
+//				if (min_graph.containsVertex(rawGraph.getEdgeTarget(edge))) {
+//					min_graph.addEdge(vertex, rawGraph.getEdgeTarget(edge));
+//				} else {
+//					queue.addAll(rawGraph.outgoingEdgesOf(rawGraph
+//							.getEdgeTarget(edge)));
+//				}
+//			}
+//		}
+//
+//		return min_graph;
+//	}
 
 	/**
 	 * TODO supposed to build the final CFG with BasicBlocks as nodes and stuff!
@@ -277,8 +276,8 @@ public class CFGGenerator {
 		
 		// non-minimized cfg needed for defuse-coverage and control
 		// dependence calculation
-		CFGPool.addCompleteCFG(className, methodName, getCompleteGraph());
-		CFGPool.addMinimizedCFG(className, methodName, getMinimalGraph());
+		CFGPool.addCompleteCFG(getCompleteGraph());
+		CFGPool.addMinimizedCFG(getMinimalGraph());
 		
 	}
 }

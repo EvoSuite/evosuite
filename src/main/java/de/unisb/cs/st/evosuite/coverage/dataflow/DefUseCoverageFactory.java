@@ -27,8 +27,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
-import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
@@ -148,13 +148,13 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 			String methodName = def.getMethodName();
 			int branchId = def.getBranchId();
 			
-			ControlFlowGraph cfg = CFGPool.getCompleteCFG(className, methodName);
+			RawControlFlowGraph cfg = CFGPool.getCompleteCFG(className, methodName);
 			if(cfg==null)
 				throw new IllegalStateException("Expect CFG to exist for "+methodName);
 			
 			// sanity check
 			if (branchId != -1) {
-				BytecodeInstruction branchVertex = cfg.getVertex(branchId);
+				BytecodeInstruction branchVertex = cfg.getInstruction(branchId);
 				if (branchVertex == null) 
 					throw new IllegalStateException("no CFG for branch "+branchId+" in method "+methodName);
 			}
@@ -183,13 +183,13 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 			String methodName = def.getMethodName();
 			int branchId = def.getBranchId();
 			
-			ControlFlowGraph cfg = CFGPool.getCompleteCFG(className, methodName);
+			RawControlFlowGraph cfg = CFGPool.getCompleteCFG(className, methodName);
 			if(cfg==null)
 				throw new IllegalStateException("Expect CFG to exist for "+methodName);
 			
 			// sanity check
 			if (branchId != -1) {
-				BytecodeInstruction branchVertex = cfg.getVertex(branchId);
+				BytecodeInstruction branchVertex = cfg.getInstruction(branchId);
 				if (branchVertex == null) 
 					throw new IllegalStateException("no CFG for branch "+branchId+" in method "+methodName);
 			}
@@ -215,7 +215,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 		
 		Set<Use> allUses = DefUsePool.retrieveRegisteredUses();
 		for (Use use : allUses) {
-			ControlFlowGraph cfg = CFGPool.getCompleteCFG(use.getClassName(), use.getMethodName());
+			RawControlFlowGraph cfg = CFGPool.getCompleteCFG(use.getClassName(), use.getMethodName());
 			if(cfg == null)
 				throw new IllegalStateException("no cfg for method "+use.getMethodName());
 			if (cfg.hasDefClearPathFromMethodEntry(use))
