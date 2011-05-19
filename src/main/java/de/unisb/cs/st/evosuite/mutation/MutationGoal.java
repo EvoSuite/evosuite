@@ -78,7 +78,7 @@ public class MutationGoal extends TestCoverageGoal {
 		this.className = mutation.getClassName();
 		this.methodName = mutation.getMethodName();
 		//		this.cfg = ExecutionTracer.getExecutionTracer().getCFG(className, methodName);
-		this.cfg = CFGPool.getMinimizedCFG(className, methodName);
+		this.cfg = CFGPool.getActualCFG(className, methodName);
 		if (this.cfg == null) {
 			logger.warn("Found no CFG for " + className + "." + methodName);
 		}

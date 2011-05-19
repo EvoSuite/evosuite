@@ -148,7 +148,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 			String methodName = def.getMethodName();
 			int branchId = def.getBranchId();
 			
-			RawControlFlowGraph cfg = CFGPool.getCompleteCFG(className, methodName);
+			RawControlFlowGraph cfg = CFGPool.getRawCFG(className, methodName);
 			if(cfg==null)
 				throw new IllegalStateException("Expect CFG to exist for "+methodName);
 			
@@ -183,7 +183,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 			String methodName = def.getMethodName();
 			int branchId = def.getBranchId();
 			
-			RawControlFlowGraph cfg = CFGPool.getCompleteCFG(className, methodName);
+			RawControlFlowGraph cfg = CFGPool.getRawCFG(className, methodName);
 			if(cfg==null)
 				throw new IllegalStateException("Expect CFG to exist for "+methodName);
 			
@@ -215,7 +215,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 		
 		Set<Use> allUses = DefUsePool.retrieveRegisteredUses();
 		for (Use use : allUses) {
-			RawControlFlowGraph cfg = CFGPool.getCompleteCFG(use.getClassName(), use.getMethodName());
+			RawControlFlowGraph cfg = CFGPool.getRawCFG(use.getClassName(), use.getMethodName());
 			if(cfg == null)
 				throw new IllegalStateException("no cfg for method "+use.getMethodName());
 			if (cfg.hasDefClearPathFromMethodEntry(use))

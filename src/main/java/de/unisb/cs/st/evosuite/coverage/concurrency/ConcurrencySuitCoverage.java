@@ -308,7 +308,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 			assert(LockRuntime.fieldAccToConcInstr.containsKey(nextTuple.scheduleID));
 			String className = LockRuntime.fieldAccToConcInstr.get(nextTuple.scheduleID).getClassName();
 			String methodName = LockRuntime.fieldAccToConcInstr.get(nextTuple.scheduleID).getMethodName();
-			RawControlFlowGraph completeCFG = CFGPool.getCompleteCFG(className, methodName);
+			RawControlFlowGraph completeCFG = CFGPool.getRawCFG(className, methodName);
 			if(isAfter(nextTuple, history, completeCFG)){
 				SchedulingDecisionList newList = history.clone();
 				newList.add(nextTuple);

@@ -276,8 +276,8 @@ public class CFGGenerator {
 		
 		// non-minimized cfg needed for defuse-coverage and control
 		// dependence calculation
-		CFGPool.addCompleteCFG(getCompleteGraph());
-		CFGPool.addMinimizedCFG(getMinimalGraph());
+		CFGPool.registerRawCFG(getCompleteGraph());
+		CFGPool.registerActualCFG(getMinimalGraph());
 		
 	}
 }

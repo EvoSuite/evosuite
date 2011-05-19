@@ -54,7 +54,7 @@ public class LCSAJCoverageFactory implements TestFitnessFactory {
 			for (String methodName : LCSAJPool.lcsaj_map.get(className).keySet()) {
 				// Get CFG of method
 				//				ControlFlowGraph cfg = CFGMethodAdapter.getCFG(className, methodName);
-				ActualControlFlowGraph cfg = CFGPool.getMinimizedCFG(className, methodName);
+				ActualControlFlowGraph cfg = CFGPool.getActualCFG(className, methodName);
 
 				for (LCSAJ lcsaj : LCSAJPool.getLCSAJs(className, methodName))
 					goals.add(new LCSAJCoverageTestFitness(className, methodName, lcsaj,

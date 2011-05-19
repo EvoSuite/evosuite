@@ -79,7 +79,7 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 				}
 
 				// Get CFG of method
-				ActualControlFlowGraph cfg = CFGPool.getMinimizedCFG(className,methodName);
+				ActualControlFlowGraph cfg = CFGPool.getActualCFG(className,methodName);
 
 				for (Branch b : BranchPool.retrieveBranchesInMethod(className,methodName)) {
 

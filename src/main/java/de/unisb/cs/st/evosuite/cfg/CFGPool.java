@@ -5,6 +5,15 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Gives access to all CFGs created by the CFGGenerator during byteCode analysis
+ * in the CFGMethodAdapter
+ * 
+ * For each CUT and each of their methods a Raw- and an ActualControlFlowGraph instance
+ * are stored within this pool
+ * 
+ * @author Andre Mis
+ */
 public class CFGPool {
 
 	private static Logger logger = Logger.getLogger(CFGPool.class);
@@ -17,29 +26,29 @@ public class CFGPool {
 	 * asm.ow2.org/asm33/javadoc/user/org/objectweb/asm/tree/AbstractInsnNode
 	 * .html for a complete list of the nodes in this cfg
 	 */
-	private static Map<String, Map<String, RawControlFlowGraph>> completeCFGs = new HashMap<String, Map<String, RawControlFlowGraph>>();
+	private static Map<String, Map<String, RawControlFlowGraph>> rawCFGs = new HashMap<String, Map<String, RawControlFlowGraph>>();
 
 	/**
 	 * Minimized control flow graph. This graph only contains the first and last
 	 * node (usually a LABEL and IRETURN), nodes which create branches (all
 	 * jumps/switches except GOTO) and nodes which were mutated.
 	 */
-	private static Map<String, Map<String, ActualControlFlowGraph>> minimizedCFGs = new HashMap<String, Map<String, ActualControlFlowGraph>>();
+	private static Map<String, Map<String, ActualControlFlowGraph>> actualCFGs = new HashMap<String, Map<String, ActualControlFlowGraph>>();
 
 	//TODO do these get used anywhere?
 //	private static Map<String, Map<String, Double>> diameters = new HashMap<String, Map<String, Double>>();	
 	
 	
 	
-	public static void addMinimizedCFG(ActualControlFlowGraph cfg) {
+	public static void registerActualCFG(ActualControlFlowGraph cfg) {
 		String className = cfg.getClassName();
 		String methodName = cfg.getMethodName();
 		
-		if (!minimizedCFGs.containsKey(className)) {
-			minimizedCFGs.put(className, new HashMap<String, ActualControlFlowGraph>());
+		if (!actualCFGs.containsKey(className)) {
+			actualCFGs.put(className, new HashMap<String, ActualControlFlowGraph>());
 //			diameters.put(className, new HashMap<String, Double>());
 		}
-		Map<String, ActualControlFlowGraph> methods = minimizedCFGs.get(className);
+		Map<String, ActualControlFlowGraph> methods = actualCFGs.get(className);
 		logger.debug("Added CFG for class " + className + " and method " + methodName);
 		cfg.finalize();
 		methods.put(methodName, cfg);
@@ -48,14 +57,14 @@ public class CFGPool {
 //		logger.debug("Calculated diameter for " + className + ": " + cfg.getDiameter());
 	}
 
-	public static void addCompleteCFG(RawControlFlowGraph cfg) {
+	public static void registerRawCFG(RawControlFlowGraph cfg) {
 		String className = cfg.getClassName();
 		String methodName = cfg.getMethodName();
 		
-		if (!completeCFGs.containsKey(className)) {
-			completeCFGs.put(className, new HashMap<String, RawControlFlowGraph>());
+		if (!rawCFGs.containsKey(className)) {
+			rawCFGs.put(className, new HashMap<String, RawControlFlowGraph>());
 		}
-		Map<String, RawControlFlowGraph> methods = completeCFGs.get(className);
+		Map<String, RawControlFlowGraph> methods = rawCFGs.get(className);
 		logger.debug("Added complete CFG for class " + className + " and method "
 		        + methodName);
 		methods.put(methodName, cfg);
@@ -63,19 +72,19 @@ public class CFGPool {
 		//cfg.toDot(classname + "_" + methodname + ".dot");
 	}
 
-	public static ActualControlFlowGraph getMinimizedCFG(String className, String methodName) {
+	public static ActualControlFlowGraph getActualCFG(String className, String methodName) {
 		logger.debug("Getting minimzed CFG for " + className + "." + methodName);
-		if(minimizedCFGs.get(className) == null)
+		if(actualCFGs.get(className) == null)
 			return null;
 		
-		return minimizedCFGs.get(className).get(methodName);
+		return actualCFGs.get(className).get(methodName);
 	}
 
-	public static RawControlFlowGraph getCompleteCFG(String className, String methodName) {
+	public static RawControlFlowGraph getRawCFG(String className, String methodName) {
 		logger.debug("Getting complete CFG for " + className + "." + methodName);
-		if (completeCFGs.get(className) == null)
+		if (rawCFGs.get(className) == null)
 			return null;
 		
-		return completeCFGs.get(className).get(methodName);
+		return rawCFGs.get(className).get(methodName);
 	}
 }
