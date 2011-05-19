@@ -6,7 +6,6 @@ package de.unisb.cs.st.evosuite.coverage.concurrency;
 import java.util.Iterator;
 
 import org.jgrapht.DirectedGraph;
-import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -17,10 +16,9 @@ import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
-import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.MethodInstrumentation;
 
 /**
@@ -51,14 +49,14 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 		this.className=className;
 		this.methodName=methodName;
 				
-		ControlFlowGraph completeCFG = CFGPool.getCompleteCFG(className, methodName);
+		RawControlFlowGraph completeCFG = CFGPool.getCompleteCFG(className, methodName);
 		DirectedGraph<BytecodeInstruction,DefaultEdge> graph = completeCFG.getGraph();
 		Iterator<AbstractInsnNode> instructions = mn.instructions.iterator();
 		while (instructions.hasNext()) {
 			AbstractInsnNode instruction = instructions.next();
 			for (BytecodeInstruction v : graph.vertexSet()) {
 				if (instruction.equals(v.getASMNode())){
-					v.branchId = completeCFG.getVertex(v.getId()).branchId;
+					v.branchId = completeCFG.getInstruction(v.getId()).branchId;
 				}
 				//#TODO steenbuck the true should be some command line option to activate the concurrency stuff
 				if (true && 

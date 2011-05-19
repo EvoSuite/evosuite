@@ -24,6 +24,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+import de.unisb.cs.st.evosuite.mutation.Mutateable;
 
 /**
  * Internal representation of a BytecodeInstruction
@@ -38,7 +39,7 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
  * @author Gordon Fraser, Andre Mis
  * 
  */
-public class BytecodeInstruction extends ASMWrapper {
+public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 
 	// identification of a byteCode instruction inside EvoSuite
 	protected String className;
@@ -49,14 +50,14 @@ public class BytecodeInstruction extends ASMWrapper {
 	protected int lineNumber = -1;
 
 	// --- - General - ---
-	int globalBytecodeInstructionId; // TODO
+	private int globalBytecodeInstructionId; // TODO
 
 	// --- - Mutations - ---
 	// Calculate distance to each mutation
-	Map<Long, Integer> mutant_distance = new HashMap<Long, Integer>();
+	private Map<Long, Integer> mutant_distance = new HashMap<Long, Integer>();
 	private final List<Long> mutations = new ArrayList<Long>();
-	boolean mutationBranch = false;
-	boolean mutatedBranch = false;
+	private boolean mutationBranch = false;
+	private boolean mutatedBranch = false;
 
 	// -- - Coverage Criteria - ---
 	public int branchId = -1;
@@ -160,6 +161,8 @@ public class BytecodeInstruction extends ASMWrapper {
 
 		this.className = className;
 	}
+	
+	// mutation part
 
 	public boolean isMutation() {
 		return !mutations.isEmpty();
@@ -195,18 +198,6 @@ public class BytecodeInstruction extends ASMWrapper {
 
 	public boolean hasMutation(long id) {
 		return mutations.contains(id);
-	}
-
-	public Map<Long, Integer> getMutant_distance() {
-		return mutant_distance;
-	}
-
-	public void setMutant_distance(Map<Long, Integer> mutantDistance) {
-		mutant_distance = mutantDistance;
-	}
-
-	public List<Long> getMutations() {
-		return mutations;
 	}
 
 	public void setMutationBranch(boolean mutationBranch) {
@@ -379,7 +370,7 @@ public class BytecodeInstruction extends ASMWrapper {
 		// this is should have correct branchId and branchExpressionValue
 		if (isActualBranch()) {
 			BytecodeInstruction hope = CFGPool.getCompleteCFG(
-					getClassName(), getMethodName()).getVertex(
+					getClassName(), getMethodName()).getInstruction(
 					getVertexId() - 1);
 			if (hope == null)
 				return null;

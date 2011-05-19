@@ -14,8 +14,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
-
 
 /**
  * @author Sebastian Steenbuck

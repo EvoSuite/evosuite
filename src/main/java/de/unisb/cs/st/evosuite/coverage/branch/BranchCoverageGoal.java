@@ -20,7 +20,7 @@ package de.unisb.cs.st.evosuite.coverage.branch;
 
 import java.util.List;
 
-import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
+import de.unisb.cs.st.evosuite.cfg.ActualControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
@@ -50,13 +50,13 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 
 	boolean value;
 
-	ControlFlowGraph cfg;
+	ActualControlFlowGraph cfg;
 
 	String className;
 
 	String methodName;
 
-	public BranchCoverageGoal(Branch branch, boolean value, ControlFlowGraph cfg,
+	public BranchCoverageGoal(Branch branch, boolean value, ActualControlFlowGraph cfg,
 	        String className, String methodName) {
 		this.branch = branch;
 		this.branch_id = branch.getBranchId();
@@ -179,7 +179,7 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 
 	private ControlFlowDistance getDistance(List<Integer> path,
 	        List<Double> true_distances, List<Double> false_distances, int branch_id) {
-		BytecodeInstruction m = cfg.getVertex(branch_id);
+		BytecodeInstruction m = cfg.getInstruction(branch_id);
 		ControlFlowDistance d = new ControlFlowDistance();
 		if (m == null) {
 			logger.error("Could not find branch node");
@@ -189,7 +189,7 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 		int min_approach = cfg.getDiameter() + 1;
 		double min_dist = 0.0;
 		for (int i = 0; i < path.size(); i++) {
-			BytecodeInstruction v = cfg.getVertex(path.get(i));
+			BytecodeInstruction v = cfg.getInstruction(path.get(i));
 			if (v != null) {
 				int approach = cfg.getDistance(v, m);
 				//logger.debug("B: Path vertex "+i+" has approach: "+approach+" and branch distance "+distances.get(i));

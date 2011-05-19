@@ -25,6 +25,8 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.unisb.cs.st.evosuite.cfg.ActualControlFlowGraph;
+import de.unisb.cs.st.evosuite.cfg.BasicBlock;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
@@ -46,7 +48,7 @@ public class MutationGoal extends TestCoverageGoal {
 
 	private final Mutation mutation;
 
-	private final ControlFlowGraph cfg;
+	private final ActualControlFlowGraph cfg;
 
 	private final String className;
 
@@ -241,7 +243,13 @@ public class MutationGoal extends TestCoverageGoal {
 	        List<Double> true_distances, List<Double> false_distances,
 	        List<Integer> line_trace) {
 		//CFGVertex m = cfg.getVertex(branch_id);
-		BytecodeInstruction m = cfg.getMutation(mutation.getId());
+		BasicBlock b = cfg.getMutation(mutation.getId());
+		BytecodeInstruction m = b.getMutation(mutation.getId());
+		
+		if (b != null && m == null)
+			throw new IllegalStateException(
+					"expect the BasicBlock in a CFG returned by getMutation(id) to contain an instruction with that mutationId");
+		
 		ControlFlowDistance d = new ControlFlowDistance();
 		if (m == null) {
 			logger.error("Could not find mutant node " + mutation.getId());
@@ -255,7 +263,7 @@ public class MutationGoal extends TestCoverageGoal {
 		logger.debug("Initial distance: " + min_approach);
 		double min_dist = 0.0;
 		for (int i = 0; i < path.size(); i++) {
-			BytecodeInstruction v = cfg.getVertex(path.get(i));
+			BytecodeInstruction v = cfg.getInstruction(path.get(i));
 			if (v != null) {
 				int distance = cfg.getDistance(v, m);
 				if (cfg.isDirectSuccessor(m, v))
