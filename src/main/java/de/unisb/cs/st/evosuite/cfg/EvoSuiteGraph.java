@@ -3,7 +3,6 @@ package de.unisb.cs.st.evosuite.cfg;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -26,13 +25,16 @@ import org.jgrapht.graph.DefaultEdge;
  * So most of this class' methods are just wrappers that redirect the specific
  * call to the corresponding jGraph-method
  * 
- * For now an EvoSuiteGraph can be any DirectedGraph, depending on
+ * For now an EvoSuiteGraph can always be represented by a DefaultDirectedGraph
+ * from the jGraph library - that is a directed graph not allowed to contain
+ * multiple edges between to nodes but allowed to contain cycles
+ * 
  * 
  * @author Andre Mis
  */
 public abstract class EvoSuiteGraph<V> {
 
-	protected DirectedGraph<V, DefaultEdge> graph;
+	protected DefaultDirectedGraph<V, DefaultEdge> graph;
 
 	
 	protected EvoSuiteGraph() {
@@ -40,7 +42,7 @@ public abstract class EvoSuiteGraph<V> {
 		graph = new DefaultDirectedGraph<V, DefaultEdge>(DefaultEdge.class);
 	}
 
-	protected EvoSuiteGraph(DirectedGraph<V, DefaultEdge> graph) {
+	protected EvoSuiteGraph(DefaultDirectedGraph<V, DefaultEdge> graph) {
 		if (graph == null)
 			throw new IllegalArgumentException("null given");
 
@@ -225,4 +227,36 @@ public abstract class EvoSuiteGraph<V> {
 		return r;
 	}
 
+	// building up the reverse graph
+
+	/**
+	 * Returns a reverted version of this graph in a jGraph
+	 * 
+	 * That is a graph containing exactly the same nodes as this one but for
+	 * each edge from v1 to v2 in this graph the resulting graph will contain an
+	 * edge from v2 to v1 - or in other words the reverted edge
+	 * 
+	 * This is used to revert CFGs in order to determine control dependencies
+	 * for example
+	 */
+	protected DefaultDirectedGraph<V,DefaultEdge> computeReverseJGraph() {
+		
+		DefaultDirectedGraph<V, DefaultEdge> r = new DefaultDirectedGraph<V, DefaultEdge>(
+				DefaultEdge.class);
+		
+		for (V v : vertexSet())
+			if (!r.addVertex(v))
+				throw new IllegalStateException(
+						"internal error while adding vertices");
+
+		for (DefaultEdge e : edgeSet()) {
+			V src = getEdgeSource(e);
+			V target = getEdgeTarget(e);
+			if (r.addEdge(target, src) == null)
+				throw new IllegalStateException(
+						"internal error while adding reverse edges");
+		}
+		
+		return r;
+	}
 }
