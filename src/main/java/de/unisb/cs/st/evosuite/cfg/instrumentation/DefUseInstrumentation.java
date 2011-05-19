@@ -21,7 +21,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
-import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
+import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUse;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
@@ -41,7 +41,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 	@Override
 	public void analyze(MethodNode mn,
 	        String className, String methodName, int access) {
-		ControlFlowGraph completeCFG = CFGPool.getCompleteCFG(className, methodName);
+		RawControlFlowGraph completeCFG = CFGPool.getCompleteCFG(className, methodName);
 		Graph<BytecodeInstruction, DefaultEdge> graph = completeCFG.getGraph();
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
 		while (j.hasNext()) {
@@ -50,7 +50,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			for (BytecodeInstruction v : graph.vertexSet()) {
 
 				if (in.equals(v.getASMNode()))
-					v.branchId = completeCFG.getVertex(v.getId()).getBranchId();
+					v.branchId = completeCFG.getInstruction(v.getId()).getBranchId();
 
 				if (Properties.CRITERION == Criterion.DEFUSE
 				        && in.equals(v.getASMNode()) 

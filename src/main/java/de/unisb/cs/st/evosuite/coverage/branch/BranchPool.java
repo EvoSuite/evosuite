@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
-import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
+import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 
 // TODO: root branches should not be special cases
 //			every root branch should be a branch just 
@@ -109,7 +109,7 @@ public class BranchPool {
 	}
 
 	private static void markBranchIDs(BytecodeInstruction b) {
-		ControlFlowGraph completeCFG = CFGPool.getCompleteCFG(b
+		RawControlFlowGraph completeCFG = CFGPool.getCompleteCFG(b
 				.getClassName(), b.getMethodName());
 		
 		completeCFG.markBranchIds(b);

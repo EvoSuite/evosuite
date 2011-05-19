@@ -1,9 +1,13 @@
 package de.unisb.cs.st.evosuite.cfg;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
+
+import de.unisb.cs.st.evosuite.mutation.Mutateable;
 
 /**
  * This class is used to represent basic blocks in the control flow graph.
@@ -38,7 +42,7 @@ import org.apache.log4j.Logger;
  * @see ControlFlowGraph
  * @author Andre Mis
  */
-public class BasicBlock {
+public class BasicBlock implements Mutateable {
 
 	private static Logger logger = Logger.getLogger(BasicBlock.class);
 
@@ -51,7 +55,8 @@ public class BasicBlock {
 	
 	private List<BytecodeInstruction> instructions = new ArrayList<BytecodeInstruction>();
 	
-	
+	// --- - Mutations - ---
+	private Map<Long, Integer> mutant_distance = new HashMap<Long, Integer>();
 	
 	public BasicBlock(String className, String methodName, List<BytecodeInstruction> blockNodes) {
 		if (className == null || methodName == null || blockNodes == null)
@@ -193,6 +198,49 @@ public class BasicBlock {
 				throw new IllegalStateException(
 						"expect actual branches to always end a basic block");
 		}
-		
 	}
+
+	// mutation part
+	
+	public BytecodeInstruction getMutation(long mutationId) {
+		for(BytecodeInstruction instruction : instructions)
+			if(instruction.hasMutation(mutationId))
+				return instruction;
+			
+		return null;
+	}
+	
+	@Override
+	public int getDistance(long mutationId) {
+		if (mutant_distance.containsKey(mutationId))
+			return mutant_distance.get(mutationId);
+		return Integer.MAX_VALUE;
+	}
+
+	@Override
+	public void setDistance(long mutationId, int distance) {
+		mutant_distance.put(mutationId, distance);
+	}
+	
+	@Override
+	public List<Long> getMutationIds() {
+		List<Long> r = new ArrayList<Long>();
+		for(BytecodeInstruction instruction : instructions)
+			r.addAll(instruction.getMutationIds());
+		
+		return r;
+	}
+	
+	@Override
+	public boolean hasMutation(long mutationId) {
+		
+		return getMutationIds().contains(mutationId);
+	}
+
+	@Override
+	public boolean isMutation() {
+
+		return !getMutationIds().isEmpty();
+	}
+
 }
