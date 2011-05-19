@@ -29,6 +29,7 @@ public class CFGPool {
 	 */
 	private static Map<String, Map<String, ControlFlowGraph>> minimizedCFGs = new HashMap<String, Map<String, ControlFlowGraph>>();
 
+	//TODO do these get used anywhere?
 	private static Map<String, Map<String, Double>> diameters = new HashMap<String, Map<String, Double>>();	
 	
 	
