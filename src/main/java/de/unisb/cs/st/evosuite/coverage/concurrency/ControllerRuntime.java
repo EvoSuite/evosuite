@@ -3,6 +3,7 @@
  */
 package de.unisb.cs.st.evosuite.coverage.concurrency;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -14,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 import org.osgi.framework.AllServiceListener;
+
+import choco.cp.solver.constraints.global.geost.dataStructures.LinkedList;
 
 /**
  * 
@@ -105,11 +108,14 @@ public class ControllerRuntime implements Callable<Void> {
 	 */
 	public int getIdFromCount(int threadCount){
 		int count = 0;
-		for(Thread t : threadToId.keySet()){
-			if(!ended.contains(t)){
+		List<Integer> idList = new ArrayList<Integer>();
+		idList.addAll(idToThread.keySet());
+		Collections.sort(idList);
+		for(Integer t : idList){
+			if(!ended.contains(idToThread.get(t))){
 				if(count==threadCount){
-					assert(threadToId.get(t)!=null);
-					return threadToId.get(t);
+					assert(idToThread.get(t)!=null);
+					return t;
 				}else{
 					count++;
 				}
