@@ -243,19 +243,20 @@ public class MutationGoal extends TestCoverageGoal {
 	        List<Integer> line_trace) {
 		//CFGVertex m = cfg.getVertex(branch_id);
 		BasicBlock b = cfg.getMutation(mutation.getId());
-		BytecodeInstruction m = b.getMutation(mutation.getId());
-		
-		if (b != null && m == null)
-			throw new IllegalStateException(
-					"expect the BasicBlock in a CFG returned by getMutation(id) to contain an instruction with that mutationId");
 		
 		ControlFlowDistance d = new ControlFlowDistance();
-		if (m == null) {
+		if (b == null) {
 			logger.error("Could not find mutant node " + mutation.getId());
 			for (Long mi : cfg.getMutations())
 				logger.error("Have mutation: " + mi);
 			return d;
 		}
+
+		BytecodeInstruction m = b.getMutation(mutation.getId());
+		if (m == null)
+			throw new IllegalStateException(
+					"expect the BasicBlock in a CFG returned by getMutation(id) to contain an instruction with that mutationId");
+		
 
 		int min_approach = cfg.getDiameter();
 		//int min_approach = cfg.getInitialDistance(m);
