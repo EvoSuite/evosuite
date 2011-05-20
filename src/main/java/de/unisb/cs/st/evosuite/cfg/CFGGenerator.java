@@ -8,6 +8,7 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.Frame;
 
+import de.unisb.cs.st.evosuite.mutation.Mutateable;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
@@ -209,6 +210,9 @@ public class CFGGenerator {
 
 		ActualControlFlowGraph cfg = new ActualControlFlowGraph(rawGraph);
 
+		// debug/test
+//		new DominatorTree<BasicBlock>(cfg); // does not work yet!
+		
 		return cfg;
 	}
 
