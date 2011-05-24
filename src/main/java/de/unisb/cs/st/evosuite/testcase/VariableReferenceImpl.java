@@ -337,9 +337,10 @@ public class VariableReferenceImpl implements VariableReference{
 		if(this.getStPosition()!=r.getStPosition())
 			return false;
 		
-		if(this.type.equals(r.getGenericClass()));
+		if(this.type.equals(r.getGenericClass()))
+			return true;
 		
-		return true;
+		return false;
 	}
 
 	@Override
