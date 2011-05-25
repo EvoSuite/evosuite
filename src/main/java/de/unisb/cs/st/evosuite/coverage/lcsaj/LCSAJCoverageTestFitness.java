@@ -18,19 +18,14 @@
 
 package de.unisb.cs.st.evosuite.coverage.lcsaj;
 
-import java.util.HashMap;
-
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.JumpInsnNode;
-
-import de.unisb.cs.st.evosuite.cfg.ActualControlFlowGraph;
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
+import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
+import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
@@ -44,17 +39,20 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 
 	LCSAJ lcsaj;
 
-	ActualControlFlowGraph cfg;
+	ControlFlowGraph cfg;
 
 	double approach;
 	double branch;
 
 	public LCSAJCoverageTestFitness(String className, String methodName,
-			LCSAJ lcsaj, ActualControlFlowGraph cfg) {
+			LCSAJ lcsaj, ControlFlowGraph cfg) {
 		this.lcsaj = lcsaj;
 		this.cfg = cfg;
 	}
-
+	
+	public LCSAJCoverageTestFitness(LCSAJ lcsaj) {
+		this.lcsaj = lcsaj;
+	}
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -65,59 +63,75 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 	 */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
-		double fitness = 0.0;
-		HashMap<Integer, AbstractInsnNode> instructions = lcsaj
-				.getInstructions();
-		boolean firstInsn = true;
-		approach = instructions.size();
-		for (Integer i : instructions.keySet()) {
+		approach = lcsaj.getBranches().size();
+		double currentFitness = approach;
+		double savedFitness = approach;
+		int lcsaj_finalBranchID = lcsaj.getBranchID(lcsaj.length() - 1);
 
-			AbstractInsnNode current_instruction = instructions.get(i);
-			BytecodeInstruction c = cfg.getInstruction(i);
+		// for all method calls:
+		for (MethodCall call : result.getTrace().finished_calls) {
 
-			if (c == null) {
-				// Only jump nodes are in minimized CFG!
-				continue;
-			}
+			// if method call is the method of the LCSAJ
+			if (call.class_name.equals(lcsaj.getClassName())
+					&& call.method_name.equals(lcsaj.getMethodName())) {
+				int lcsaj_position = 0;
 
-			if (c.branchId != -1 && firstInsn) {
-				BranchCoverageTestFitness b = new BranchCoverageTestFitness(
-						new BranchCoverageGoal(
-								BranchPool.getBranch(c.branchId), false, cfg,
-								lcsaj.getClassName(), lcsaj.getMethodName()));
-				fitness += b.getFitness(individual, result);
-				firstInsn = false;
-				continue;
-			}
+				// For each branch that was passed in this call
+				for (int i = 0; i < call.branch_trace.size(); i++) {
+					int actualBranch = call.branch_trace.get(i);
+					int lcsaj_branchID = lcsaj.getBranchID(lcsaj_position);
 
-			if (current_instruction instanceof JumpInsnNode) {
+					double false_distance = call.false_distance_trace.get(i);
+					double true_distance = call.true_distance_trace.get(i);
 
-				JumpInsnNode current_jump = (JumpInsnNode) current_instruction;
-	
-				if (current_jump.getOpcode() != Opcodes.GOTO) {
-					if (lcsaj.getInstruction(i).equals(lcsaj.getLastJump())) {
-						branch = result.getTrace().true_distances.get(c.branchId);
-						if (branch != 0.0) {
-							fitness += normalize(branch);
-							break;
+					if (actualBranch == lcsaj_branchID) {
+						currentFitness -= 1.0;
+						if (actualBranch == lcsaj_finalBranchID) {
+
+							currentFitness += normalize(true_distance);
+
+							if (currentFitness < savedFitness)
+								savedFitness = currentFitness;
+
+							lcsaj_position = 0;
+							currentFitness = approach;
+							continue;
+						} else if (false_distance > 0) {
+
+							currentFitness += normalize(false_distance);
+
+							if (currentFitness < savedFitness)
+								savedFitness = currentFitness;
+
+							lcsaj_position = 0;
+							currentFitness = approach;
+							continue;
 						}
+
+						lcsaj_position++;
+
+					} else {
+						lcsaj_position = 0;
+						currentFitness = approach;
 					}
-					else {
-						branch = result.getTrace().false_distances.get(c.branchId);
-						if (branch != 0.0) {
-							fitness += approach + normalize(branch);
-							break;
-						}
-					}
-				}
-				else {
-					
+
 				}
 			}
-			approach--;
 		}
-		updateIndividual(individual, fitness);
-		return fitness;
+//		if (cfg != null){
+//			if (lcsaj.getGeneratingBranchID() != -1) {
+//				Branch b = BranchPool.getBranchByBytecodeId(lcsaj.getClassName(),
+//						lcsaj.getMethodName(), lcsaj.getGeneratingBranchID());
+//				BranchCoverageGoal generatingBranchGoal = new BranchCoverageGoal(b,
+//						true, cfg, lcsaj.getClassName(), lcsaj.getMethodName());
+//				BranchCoverageTestFitness generatingBranchCoverageTestFitness = new BranchCoverageTestFitness(
+//						generatingBranchGoal);
+//				savedFitness += generatingBranchCoverageTestFitness.getFitness(
+//						individual, result);
+//			}
+//		}
+		updateIndividual(individual, savedFitness);
+		return savedFitness;
 	}
 
 	/*
@@ -132,4 +146,7 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 		individual.setFitness(fitness);
 	}
 
+	public String toString() {
+		return lcsaj.toString();
+	}
 }
