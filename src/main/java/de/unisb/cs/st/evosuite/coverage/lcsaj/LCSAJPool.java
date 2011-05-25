@@ -2,32 +2,31 @@ package de.unisb.cs.st.evosuite.coverage.lcsaj;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class LCSAJPool {
 
-	public static Map<String, Map<String, ArrayList<LCSAJ>>> lcsaj_map = new HashMap<String, Map<String, ArrayList<LCSAJ>>>();
-
-	private static int num = 0;
-
+	public static Map<String, Map<String, List<LCSAJ>>> lcsaj_map = new HashMap<String, Map<String, List<LCSAJ>>>();
+	
 	public static void add_lcsaj(String className, String methodName, LCSAJ lcsaj) {
 
 		if (!lcsaj_map.containsKey(className))
-			lcsaj_map.put(className, new HashMap<String, ArrayList<LCSAJ>>());
+			lcsaj_map.put(className, new HashMap<String, List<LCSAJ>>());
 		if (!lcsaj_map.get(className).containsKey(methodName))
 			lcsaj_map.get(className).put(methodName, new ArrayList<LCSAJ>());
 		lcsaj_map.get(className).get(methodName).add(lcsaj);
-		num++;
-
+		
+		lcsaj.setID(lcsaj_map.get(className).get(methodName).size());
 	}
 
-	public static int getSize() {
-		return num;
+	public static int getLCSAJCount(String className, String methodName) {
+		return lcsaj_map.get(className).get(methodName).size();
 	}
 
 	public static ArrayList<LCSAJ> getLCSAJs(String className, String methodName)
 	        throws IllegalArgumentException {
-		ArrayList<LCSAJ> lcsajs = lcsaj_map.get(className).get(methodName);
+		ArrayList<LCSAJ> lcsajs =(ArrayList<LCSAJ>)lcsaj_map.get(className).get(methodName);
 		if (lcsajs == null) {
 			throw new IllegalArgumentException(className + "/" + methodName
 			        + " does not exist!");
@@ -35,5 +34,11 @@ public class LCSAJPool {
 		}
 		return lcsajs;
 	}
-
+	public static int getNewLCSAJID(String className, String methodName){
+		return lcsaj_map.get(className).get(methodName).size()+1;
+	}
+	
+	public static Map<String, Map<String, List<LCSAJ>>> getLCSAJMap(){
+		return lcsaj_map;
+	}
 }
