@@ -45,8 +45,10 @@ public class BasicBlock implements Mutateable {
 	private static int blockCount = 0;
 	
 	private int id = -1;
-	private String className;
-	private String methodName;
+	protected String className;
+	protected String methodName;
+	
+	private boolean isAuxiliaryBlock = false;
 	
 	private List<BytecodeInstruction> instructions = new ArrayList<BytecodeInstruction>();
 	
@@ -64,6 +66,19 @@ public class BasicBlock implements Mutateable {
 		setId();
 		
 		checkSanity();
+	}
+	
+	/**
+	 * Used by Entry- and ExitBlocks
+	 */
+	protected BasicBlock(String className, String methodName) {
+		if (className == null || methodName == null)
+			throw new IllegalArgumentException("null given");
+		
+		this.className = className;
+		this.methodName = methodName;
+		
+		this.isAuxiliaryBlock = true;
 	}
 	
 	// initialization
@@ -129,7 +144,7 @@ public class BasicBlock implements Mutateable {
 	}
 	
 	public String getName() {
-		return "BasicBlock "+className+"."+methodName+"["+id+"]";
+		return "BasicBlock "+methodName+"["+id+"]";
 	}
 	
 	public String getClassName() {
@@ -244,7 +259,15 @@ public class BasicBlock implements Mutateable {
 				throw new IllegalStateException(
 						"expect actual branches to always end a basic block");
 		}
+		
+		// TODO handle specialBlocks
 	}
 
-
+	public boolean isEntryBlock() {
+		return false;
+	}
+	
+	public boolean isExitBlock() {
+		return false;
+	}
 }

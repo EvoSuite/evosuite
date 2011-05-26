@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
 import de.unisb.cs.st.evosuite.mutation.Mutateable;
@@ -59,6 +60,20 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 	 */
 	protected ControlFlowGraph(String className, String methodName) {
 		super();
+		
+		if (className == null || methodName == null)
+			throw new IllegalArgumentException("null given");
+		
+		this.className = className;
+		this.methodName = methodName;
+	}
+
+	/**
+	 * Creates a CFG determined by the given jGraph for the given class and
+	 * method
+	 */
+	protected ControlFlowGraph(String className, String methodName, DefaultDirectedGraph<V,DefaultEdge> jGraph) {
+		super(jGraph);
 		
 		if (className == null || methodName == null)
 			throw new IllegalArgumentException("null given");
