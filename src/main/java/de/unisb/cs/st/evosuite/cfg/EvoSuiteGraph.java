@@ -116,11 +116,22 @@ public abstract class EvoSuiteGraph<V> {
 	}
 	
 	public Set<V> vertexSet() {
-		return graph.vertexSet();
+		
+		Set<V> r = new HashSet<V>();
+		
+		for(V v : graph.vertexSet())
+			r.add(v);
+		
+		return r;
 	}
 
-	public Set<DefaultEdge> edgeSet() {
-		return graph.edgeSet();
+	protected Set<DefaultEdge> edgeSet() {
+		Set<DefaultEdge> r = new HashSet<DefaultEdge>();
+		
+		for(DefaultEdge e : graph.edgeSet())
+			r.add(e);
+		
+		return r;
 	}
 	
 	// building the graph
