@@ -1,8 +1,12 @@
 package de.unisb.cs.st.evosuite.cfg;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -34,6 +38,9 @@ import org.jgrapht.graph.DefaultEdge;
  */
 public abstract class EvoSuiteGraph<V> {
 
+	private static Logger logger = Logger.getLogger(DominatorTree.class);
+	
+	
 	protected DefaultDirectedGraph<V, DefaultEdge> graph;
 
 	
@@ -69,7 +76,7 @@ public abstract class EvoSuiteGraph<V> {
 		if (!containsVertex(node)) // should this just return null?
 			throw new IllegalArgumentException(
 					"block not contained in this CFG");
-
+		// TODO copy set
 		return graph.outgoingEdgesOf(node);
 	}
 
@@ -77,7 +84,7 @@ public abstract class EvoSuiteGraph<V> {
 		if (!containsVertex(node)) // should this just return null?
 			throw new IllegalArgumentException(
 					"block not contained in this CFG");
-
+		// TODO copy set
 		return graph.incomingEdgesOf(node);
 	}
 	
@@ -137,6 +144,15 @@ public abstract class EvoSuiteGraph<V> {
 	
 	// building the graph
 	
+	protected void addVertices(Collection<V> vs) {
+		if(vs==null)
+			throw new IllegalArgumentException("null given");
+		for(V v : vs)
+			if(!addVertex(v))
+				throw new IllegalArgumentException("unable to add all nodes in given collection: "+v.toString());
+			
+	}
+	
 	protected boolean addVertex(V v) {
 		return graph.addVertex(v);
 	}
@@ -153,11 +169,11 @@ public abstract class EvoSuiteGraph<V> {
 
 	// different counts
 
-	public int getNodeCount() {
+	public int vertexCount() {
 		return graph.vertexSet().size();
 	}
 
-	public int getEdgeCount() {
+	public int edgeCount() {
 		return graph.edgeSet().size();
 	}
 	
@@ -198,6 +214,43 @@ public abstract class EvoSuiteGraph<V> {
 		return graph.vertexSet().isEmpty();
 	}
 	
+	/**
+	 * Checks whether each vertex inside this graph is reachable
+	 * from some other vertex   
+	 */
+	public boolean isConnected() {
+		if (vertexCount() < 2)
+			return true;
+
+		V start = getRandomVertex();
+		Set<V> connectedToStart = determineConnectedVertices(start);
+
+		return connectedToStart.size() == vertexSet().size();
+	}
+
+	/**
+	 * Follows all edges adjacent to the given vertex v ignoring edge directions
+	 * and returns a set containing all vertices visited that way
+	 */
+	public Set<V> determineConnectedVertices(V v) {
+		
+		Set<V> visited = new HashSet<V>();
+		Queue<V> queue = new LinkedList<V>();
+		
+		queue.add(v);
+		while (!queue.isEmpty()) {
+			V current = queue.poll();
+			if (visited.contains(current))
+				continue;
+			visited.add(current);
+			
+			queue.addAll(getParents(current));
+			queue.addAll(getChildren(current));
+		}
+		
+		return visited;
+	}
+
 	public boolean hasNPartentsMChildren(V node, int parents, int children) {
 		if (node == null || !containsVertex(node))
 			return false;
@@ -207,6 +260,13 @@ public abstract class EvoSuiteGraph<V> {
 	}
 	
 	// utilities
+	
+	public V getRandomVertex() {
+		for(V v : vertexSet())
+			return v;
+		
+		return null;
+	}
 	
 	public int getDistance(V v1, V v2) {
 		DijkstraShortestPath<V, DefaultEdge> d = new DijkstraShortestPath<V, DefaultEdge>(

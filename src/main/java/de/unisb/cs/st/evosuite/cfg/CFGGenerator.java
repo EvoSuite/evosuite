@@ -216,7 +216,7 @@ public class CFGGenerator {
 		
 		for(BasicBlock b : cfg.vertexSet()) {
 			if(!cfg.isEntryBlock(b))
-				logger.info("Immediate Dominator of "+b.getName()+" is "+dt.getImmediateDominator(b).getName());
+				logger.debug("Immediate Dominator of "+b.getName()+" is "+dt.getImmediateDominator(b).getName());
 		}
 		
 		return cfg;

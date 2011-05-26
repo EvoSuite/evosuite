@@ -77,4 +77,14 @@ class DominatorNode<V> {
 		
 		return null;
 	}
+
+	public boolean isRootNode() {
+		// TODO not that nice :/
+		return n == 1;
+	}
+	
+	@Override
+	public String toString() {
+		return "DTNode "+n;
+	}
 }

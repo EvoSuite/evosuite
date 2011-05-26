@@ -2,6 +2,7 @@ package de.unisb.cs.st.evosuite.cfg;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -26,7 +27,7 @@ import de.unisb.cs.st.evosuite.mutation.Mutateable;
  * 
  * @author Andre Mis
  */
-public class DominatorTree<V extends Mutateable> {
+public class DominatorTree<V extends Mutateable> extends EvoSuiteGraph<DominatorNode<V>> {
 
 	private static Logger logger = Logger.getLogger(DominatorTree.class);
 	
@@ -36,6 +37,7 @@ public class DominatorTree<V extends Mutateable> {
 	
 	private Map<V,DominatorNode<V>> dominatorNodesMap = new HashMap<V,DominatorNode<V>>();
 	private  Map<Integer,DominatorNode<V>> dominatorIDMap = new HashMap<Integer,DominatorNode<V>>();
+	private Map<V,Set<V>> dominatingFrontiers = new HashMap<V,Set<V>>();
 
 	/**
 	 * Will start the computation of all immediateDominators for the given CFG
@@ -54,6 +56,47 @@ public class DominatorTree<V extends Mutateable> {
 		
 		computeSemiDominators();
 		computeImmediateDominators(rootNode);
+		
+		createDominatorTree();
+		
+		computeDominatorFrontiers(rootNode);
+	}
+
+	private void createDominatorTree() {
+		
+		// add dominator nodes
+		addVertices(dominatorIDMap.values());
+		
+		logger.debug("DTNodes: "+vertexCount());
+		
+		// build up tree by adding for each node v an edge from v.iDom to v
+		for (DominatorNode<V> v : vertexSet()) {
+			if (v.isRootNode()) 
+				continue;
+			if(addEdge(v.immediateDominator, v) == null)
+				throw new IllegalStateException(
+						"internal error while building dominator tree edges");
+			
+			logger.debug("added DTEdge from "+v.immediateDominator.n+" to "+v.n);
+		}
+		
+		logger.debug("DTEdges: "+edgeCount());
+		
+		// sanity check
+		if(isEmpty())
+			throw new IllegalStateException("expect dominator trees to not be empty");
+		// check tree is connected
+		if(!isConnected())
+			throw new IllegalStateException("dominator tree expected to be connected");
+	}
+
+	private void computeDominatorFrontiers(DominatorNode<V> currentNode) {
+		
+		// TODO check assumption: exitPoints in original CFG are exitPoints in resulting DominatorTree
+		// idea: make queue, initially fill with exitPoints
+		//		then while not empty, pop from queue, handle, add parent of handled to queue
+		// 	TODO do i have to remember a set for handled nodes in order to avoid loops and stuff? 
+		
 	}
 
 	/**
