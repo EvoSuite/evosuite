@@ -40,17 +40,15 @@ public class CFGGenerator {
 
 	private static Logger logger = Logger.getLogger(CFGGenerator.class);
 
-	List<Mutation> mutants;
 	
-//	DefaultDirectedGraph<BytecodeInstruction, DefaultEdge> rawGraph = new DefaultDirectedGraph<BytecodeInstruction, DefaultEdge>(
-//			DefaultEdge.class);
-	
-	RawControlFlowGraph rawGraph;
+	private List<Mutation> mutants;
 
-	boolean nodeRegistered = false;
-	MethodNode currentMethod;
-	String className;
-	String methodName;
+	private RawControlFlowGraph rawGraph;
+
+	private boolean nodeRegistered = false;
+	private MethodNode currentMethod;
+	private String className;
+	private String methodName;
 
 	
 	/**
@@ -69,6 +67,28 @@ public class CFGGenerator {
 		this.mutants = mutants;
 		registerMethodNode(node, className, methodName);
 	}
+
+	/**
+	 * Adds the RawControlFlowGraph created by this instance to the CFGPool,
+	 * computes the resulting ActualControlFlowGraph and also adds it to the
+	 * CFGPool
+	 */
+	public void registerCFGs() {
+		// non-minimized cfg needed for defuse-coverage and control
+		// dependence calculation
+		CFGPool.registerRawCFG(getRawGraph());
+		CFGPool.registerActualCFG(getActualGraph());
+	}
+	
+	public String getClassName() {
+		return className;
+	}
+
+	public String getMethodName() {
+		return methodName;
+	}
+
+	// build up the graph
 
 	private void registerMethodNode(MethodNode currentMethod, String className,
 			String methodName) {
@@ -90,9 +110,7 @@ public class CFGGenerator {
 
 		nodeRegistered = true;
 	}
-
-	// build up the graph
-
+	
 	/**
 	 * Internal management of fields and actual building up of the rawGraph
 	 */
@@ -133,18 +151,6 @@ public class CFGGenerator {
 
 	// retrieve information about the graph
 
-	public RawControlFlowGraph getCompleteGraph() {
-		return rawGraph;
-	}
-
-	public ActualControlFlowGraph getMinimalGraph() {
-
-		setMutationIDs();
-		setMutationBranches();
-
-		return computeCFG();
-	}
-	
 //	public DirectedMultigraph<BytecodeInstruction, DefaultEdge> getMinimalGraph() {
 //
 //		setMutationIDs();
@@ -206,7 +212,12 @@ public class CFGGenerator {
 		ActualControlFlowGraph cfg = new ActualControlFlowGraph(rawGraph);
 
 		// debug/test
-		new DominatorTree<BasicBlock>(cfg); // does not work yet!
+		DominatorTree<BasicBlock> dt = new DominatorTree<BasicBlock>(cfg); // does not work yet!
+		
+		for(BasicBlock b : cfg.vertexSet()) {
+			if(!cfg.isEntryBlock(b))
+				logger.info("Immediate Dominator of "+b.getName()+" is "+dt.getImmediateDominator(b).getName());
+		}
 		
 		return cfg;
 	}
@@ -263,20 +274,15 @@ public class CFGGenerator {
 		}
 	}
 
-	public String getClassName() {
-		return className;
+	protected RawControlFlowGraph getRawGraph() {
+		return rawGraph;
 	}
 
-	public String getMethodName() {
-		return methodName;
-	}
+	protected ActualControlFlowGraph getActualGraph() {
 
-	public void registerCFGs() {
-		
-		// non-minimized cfg needed for defuse-coverage and control
-		// dependence calculation
-		CFGPool.registerRawCFG(getCompleteGraph());
-		CFGPool.registerActualCFG(getMinimalGraph());
-		
+		setMutationIDs();
+		setMutationBranches();
+
+		return computeCFG();
 	}
 }

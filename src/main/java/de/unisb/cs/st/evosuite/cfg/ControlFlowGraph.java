@@ -214,6 +214,10 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 		return r;
 	}
 
+	public String getName() {
+		return "CFG "+className+"."+getMethodName();
+	}
+	
 	public String getClassName() {
 		return className;
 	}

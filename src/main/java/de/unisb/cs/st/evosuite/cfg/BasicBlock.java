@@ -13,30 +13,25 @@ import de.unisb.cs.st.evosuite.mutation.Mutateable;
  * This class is used to represent basic blocks in the control flow graph.
  * 
  * A basic block is a list of instructions for which the following holds:
- *  
- *  Whenever control flow reaches the first instruction of this blocks list,
- *   control flow will pass through all the instructions of this list
- *   successively and not pass another instruction in the mean time.
- *  The first element in this blocks list does not have a parent in the
- *   CFG that can be prepended to the list and the same would still hold true
- *  Finally the last element in this list does not have a child inside the CFG
- *   that could be appended to the list such that the above still holds true
- *   
- *  In other words:
- *   - the first/last element of this blocks list has either 0 or >=2 parents/children in the CFG
- *   - every other element in the list has exactly 1 parent and exactly 1 child in the raw CFG
- *
- * TODO implement
- *
- * Taken from: 
- * "Efficiently Computing Static Single Assignment Form 
- * and the Control Dependence Graph" 
- * RON CYTRON, JEANNE FERRANTE, BARRY K. ROSEN, and 
- * MARK N. WEGMAN 
- * IBM Research Division 
- * and 
- * F. KENNETH ZADECK 
- * Brown University
+ * 
+ * Whenever control flow reaches the first instruction of this blocks list,
+ * control flow will pass through all the instructions of this list successively
+ * and not pass another instruction in the mean time. The first element in this
+ * blocks list does not have a parent in the CFG that can be prepended to the
+ * list and the same would still hold true Finally the last element in this list
+ * does not have a child inside the CFG that could be appended to the list such
+ * that the above still holds true
+ * 
+ * In other words: - the first/last element of this blocks list has either 0 or
+ * >=2 parents/children in the CFG - every other element in the list has exactly
+ * 1 parent and exactly 1 child in the raw CFG
+ * 
+ * 
+ * Taken from:
+ * 
+ * "Efficiently Computing Static Single Assignment Form and the Control
+ * Dependence Graph" RON CYTRON, JEANNE FERRANTE, BARRY K. ROSEN, and MARK N.
+ * WEGMAN IBM Research Division and F. KENNETH ZADECK Brown University 1991
  * 
  * 
  * @see cfg.ActualControlFlowGraph

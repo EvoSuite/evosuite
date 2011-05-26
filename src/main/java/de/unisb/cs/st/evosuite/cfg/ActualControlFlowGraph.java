@@ -579,4 +579,23 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		return null;
 	}
 
+	public BytecodeInstruction getEntryPoint() {
+		return entryPoint;
+	}
+
+	public Set<BytecodeInstruction> getExitPoints() {
+		// TODO copy set, don't return private reference
+		return exitPoints;
+	}
+
+	public Set<BytecodeInstruction> getBranches() {
+		// TODO copy set, don't return private reference
+		return branches;
+	}
+
+	public Set<BytecodeInstruction> getJoins() {
+		// TODO copy set, don't return private reference		
+		return joins;
+	}
+
 }

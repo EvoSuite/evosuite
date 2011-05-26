@@ -115,8 +115,9 @@ public abstract class EvoSuiteGraph<V> {
 		return r;
 	}
 	
+	// TODO make SetUtils.copySet() or something for the following and other similar methods
+	
 	public Set<V> vertexSet() {
-		
 		Set<V> r = new HashSet<V>();
 		
 		for(V v : graph.vertexSet())

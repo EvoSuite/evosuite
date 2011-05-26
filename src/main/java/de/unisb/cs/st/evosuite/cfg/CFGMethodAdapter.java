@@ -153,7 +153,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 				bytecodeAnalyzer.analyze(className, methodName, mn);
 				logger.trace("Method graph for " + className + "." + methodName
 				        + " contains "
-				        + bytecodeAnalyzer.retrieveCFGGenerator().getCompleteGraph().vertexSet().size()
+				        + bytecodeAnalyzer.retrieveCFGGenerator().getRawGraph().vertexSet().size()
 				        + " nodes for " + bytecodeAnalyzer.getFrames().length
 				        + " instructions");
 			} catch (AnalyzerException e) {

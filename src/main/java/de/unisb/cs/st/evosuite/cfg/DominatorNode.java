@@ -3,20 +3,39 @@ package de.unisb.cs.st.evosuite.cfg;
 import java.util.HashSet;
 import java.util.Set;
 
-
-public class DominatorNode<V> {
+/**
+ * This class serves as a convenience data structure within cfg.DominatorTree
+ * 
+ * For every node within a CFG for which the immediateDominators are to be computed
+ * this class holds auxiliary information needed during the computation inside the
+ * DominatorTree
+ * 
+ * After that computation instances of this class hold the connection between CFG nodes
+ * and their immediateDominators
+ * 
+ * Look at cfg.DominatorTree for more detailed information
+ * 
+ * 
+ * @author Andre Mis
+ */
+class DominatorNode<V> {
 
 	final V node;
 	int n = 0;	
 	
+	// parent of node within spanning tree of DFS inside cfg.DominatorTree
 	DominatorNode<V> parent;
-	DominatorNode<V> semiDominator;
 	
+	// computed dominators 
+	DominatorNode<V> semiDominator;
+	DominatorNode<V> immediateDominator;
+
+	// auxiliary field needed for dominator computation
+	Set<DominatorNode<V>> bucket = new HashSet<DominatorNode<V>>();
+	
+	// data structure needed to represented forest produced during cfg.DominatorTree computation
 	DominatorNode<V> ancestor;
 	DominatorNode<V> label;
-	
-	Set<DominatorNode<V>> bucket = new HashSet<DominatorNode<V>>();
-	DominatorNode<V> immediateDominator;
 	
 	
 	DominatorNode(V node) {
@@ -51,7 +70,7 @@ public class DominatorNode<V> {
 		}
 	}
 
-	public DominatorNode<V> getFromBucket() {
+	DominatorNode<V> getFromBucket() {
 		
 		for(DominatorNode<V> r : bucket)
 			return r;
