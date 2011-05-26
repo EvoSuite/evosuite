@@ -104,13 +104,13 @@ public abstract class EvoSuiteGraph<V> {
 					"block not contained in this CFG");
 
 		Set<V> r = new HashSet<V>();
-		for (DefaultEdge e : outgoingEdgesOf(node))
-			r.add(getEdgeTarget(e));
+		for (DefaultEdge e : incomingEdgesOf(node))
+			r.add(getEdgeSource(e));
 
 		// sanity check
-		if (r.size() != outDegreeOf(node))
+		if (r.size() != inDegreeOf(node))
 			throw new IllegalStateException(
-					"expect children count and size of set of all children of a CFGs node to be equals");
+					"expect parent count and size of set of all parents of a CFGs node to be equals");
 
 		return r;
 	}
@@ -206,6 +206,8 @@ public abstract class EvoSuiteGraph<V> {
 		
 		return (containsEdge(v1, v2) && inDegreeOf(v2) == 1);
 	}
+
+	// TODO make like determineEntry/ExitPoints
 	
 	public Set<V> determineBranches() {
 		Set<V> r = new HashSet<V>();

@@ -28,80 +28,147 @@ public class DominatorTree<V extends Mutateable> extends EvoSuiteGraph<Dominator
 	private static Logger logger = Logger.getLogger(DominatorTree.class);
 	
 	
+	int nodeCount = 0;
 	ControlFlowGraph<V> cfg;
 	
-	List<DominatorNode<V>> dfsPath = new ArrayList<DominatorNode<V>>();
-	
-	Map<V,DominatorNode<V>> dominatorNodesMap = new HashMap<V,DominatorNode<V>>(); // TODO check this is OK
+	Map<V,DominatorNode<V>> dominatorNodesMap = new HashMap<V,DominatorNode<V>>();
+	Map<Integer,DominatorNode<V>> dominatorIDMap = new HashMap<Integer,DominatorNode<V>>();
 	
 	public DominatorTree(ControlFlowGraph<V> cfg) {
-		
-		logger.info("Computing DominatorTree");
-		
+
 		this.cfg = cfg;
 		
 		createDominatorNodes();
+
+		V root = cfg.determineEntryPoint();
+		DominatorNode<V> rootNode = getDominatorNodeFor(root);
 		
-		logger.debug(".. DominatorNodes: "+dfsPath.size());
+		depthFirstAnalyze(rootNode);
 		
+		computeSemiDominators();
+		computeImmediateDominators(rootNode);
+	}
+
+	private void computeSemiDominators() {
 		
-		for (int i = dfsPath.size()-1; i >= 0; i--) {
-			DominatorNode<V> w = dfsPath.get(i);
+		for (int i = nodeCount; i >= 2; i--) {
+			DominatorNode<V> w = getDominatorNodeById(i);
+
+//			logger.debug("computeing semDom: "+w.node.toString());
+//			logger.debug("w semi n: "+w.semiDominator.n);
 			
-			logger.debug(".. processing node: "+w.n);
-			
-			Set<V> preds = cfg.getParents(w.node); // is this was pred() did in Hack's code?
-			
-			logger.debug(".. preds: "+preds.size());
-			
-			for(V pred : preds) {
-				
-				logger.debug("pred: "+pred.toString());
-				
-				DominatorNode<V> v = dominatorNodesMap.get(pred); // ??? is this what Hack's get() did?
+			for (V current : cfg.getParents(w.node)) {
+				DominatorNode<V> v = getDominatorNodeFor(current);
 				DominatorNode<V> u = v.eval();
 				
-				if (u.semi.n < w.semi.n)
-					w.semi = u.semi;
+//				if(v.n != u.n)
+//					logger.debug("eval returned this");
+				
+				
+//				logger.debug("u semi n: "+u.semiDominator.n);
+				
+				if (u.semiDominator.n < w.semiDominator.n)
+					w.semiDominator = u.semiDominator;
 			}
+			
+//			logger.debug("semDom for "+w.n+" was "+w.semiDominator.n);
 
-			w.bucket = w.semi.bucket;
-			w.semi.bucket = w;
+			w.semiDominator.bucket.add(w);
 
-			w.link(w.anc);
-			DominatorNode<V> v = w.anc;
-			while (v != null) {
-				DominatorNode<V> next = v.bucket;
-				v.bucket = null;
+			w.link(w.parent);
+			
+			
+			while (!w.parent.bucket.isEmpty()) {
+				
+				DominatorNode<V> v = w.parent.getFromBucket();
+				if(!w.parent.bucket.remove(v))
+					throw new IllegalStateException("internal error");
+
+				
+				
 				DominatorNode<V> u = v.eval();
-				v.dom = u.semi.n < v.semi.n ? u : w.anc;
-				v = next;
+				
+				v.immediateDominator = (u.semiDominator.n < v.semiDominator.n ? u
+						: w.parent);
+
+//				logger.debug("iDom for "+v.n+" set to "+v.immediateDominator.n);
+				
 			}
 		}
-
-		for (int i = 2, n = dfsPath.size(); i < n; ++i) {
-			DominatorNode<V> w = dfsPath.get(i);
-			if (w.dom != w.semi)
-				w.dom = w.dom.dom;
+		
+	}
+	
+	private void computeImmediateDominators(DominatorNode<V> rootNode) {
+		
+		for(int i = 2; i<=nodeCount;i++) {
+			DominatorNode<V> w = getDominatorNodeById(i);
+			
+			if(w.immediateDominator != w.semiDominator)
+				w.immediateDominator = w.immediateDominator.immediateDominator;
+			
+			logger.debug("iDom for node "+i+" was: "+w.immediateDominator.n);
 		}
+		
+		rootNode.immediateDominator = null;
+	}
 
-		// free the DFS array list
-		dfsPath = null;
+	private DominatorNode<V> getDominatorNodeById(int id) {
+		DominatorNode<V> r = dominatorIDMap.get(id);
+		if(r == null)
+			throw new IllegalArgumentException("id unknown to this tree");
+		
+		return r;
+	}
+
+	private void depthFirstAnalyze(DominatorNode<V> currentNode) {
+		
+		initialize(currentNode);
+		
+		logger.debug("dfs-Analyze: "+currentNode.n);
+		logger.debug(currentNode.node.toString());
+		
+		for(V w : cfg.getChildren(currentNode.node)) {
+			DominatorNode<V> wNode = getDominatorNodeFor(w);
+			if(wNode.semiDominator == null) {
+				wNode.parent = currentNode;
+				depthFirstAnalyze(wNode);
+			}
+		}
+	}
+	
+	private void initialize(DominatorNode<V> currentNode) {
+		
+		nodeCount++;
+		currentNode.n = nodeCount;
+		currentNode.semiDominator = currentNode;
+		
+		dominatorIDMap.put(nodeCount, currentNode);
+		
+	}
+
+	private DominatorNode<V> getDominatorNodeFor(V v) {
+		DominatorNode<V> r = dominatorNodesMap.get(v);
+		if(r == null)
+			throw new IllegalStateException("expect dominatorNodesMap to contain domNodes for all Vs");
+		
+		return r;
 	}
 
 	private void createDominatorNodes() {
 		
-		DepthFirstIterator<V, DefaultEdge> dfs = new DepthFirstIterator<V, DefaultEdge>(
-				cfg.graph);
+//		DepthFirstIterator<V, DefaultEdge> dfs = new DepthFirstIterator<V, DefaultEdge>(
+//				cfg.graph);
 		
-		int n = 0;
-		while(dfs.hasNext()) {
-			V node = dfs.next();
-			DominatorNode<V> domNode = new DominatorNode<V>(node, n);
-			dfsPath.add(domNode);
-			dominatorNodesMap.put(node, domNode);
-			n++;
-		}
+		for(V v : cfg.vertexSet())
+			dominatorNodesMap.put(v, new DominatorNode<V>(v));
+		
+//		while(dfs.hasNext()) {
+//			V node = dfs.next();
+//			DominatorNode<V> domNode = new DominatorNode<V>(node, n);
+//			dfsPath.add(domNode);
+//			dominatorNodesMap.put(node, domNode);
+//			n++;
+//		}
 	}
 	
 }

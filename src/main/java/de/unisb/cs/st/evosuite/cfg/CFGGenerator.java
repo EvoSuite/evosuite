@@ -206,7 +206,7 @@ public class CFGGenerator {
 		ActualControlFlowGraph cfg = new ActualControlFlowGraph(rawGraph);
 
 		// debug/test
-//		new DominatorTree<BasicBlock>(cfg); // does not work yet!
+		new DominatorTree<BasicBlock>(cfg); // does not work yet!
 		
 		return cfg;
 	}
