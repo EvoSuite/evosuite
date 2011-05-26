@@ -33,9 +33,8 @@ public class DominatorNode<V> {
 	void link(DominatorNode<V> v) {
 		anc = v;
 	}
-
+	
 	final V node;
-	DominatorNode<V> parent;
 	DominatorNode<V> lab;
 	DominatorNode<V> anc;
 	DominatorNode<V> bucket;

@@ -8,7 +8,6 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.Frame;
 
-import de.unisb.cs.st.evosuite.mutation.Mutateable;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
@@ -17,7 +16,7 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
  * to create the ActualControlFlowGraph
  * 
  * When analyzing a CUT the BytecodeAnalyzer creates an instance of this class
- * for each method contained in this CUT
+ * for each method contained in it
  * 
  * This class's methods get called in the following order:
  * 
@@ -33,10 +32,6 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
  * After those calls the RawControlFlowGraph of the method at hand is complete
  * It should contain a Vertex for each BytecodeInstruction inside the specified
  * method and an edge for every possible transition between these instructions
- * 
- * 
- * TODO this raw graph should be turned into a nice CFG containing basic blocks
- * as vertices
  * 
  * 
  * @author Andre Mis

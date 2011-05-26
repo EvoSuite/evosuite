@@ -45,7 +45,7 @@ public class DominatorTree<V extends Mutateable> extends EvoSuiteGraph<Dominator
 		logger.debug(".. DominatorNodes: "+dfsPath.size());
 		
 		
-		for (int i = dfsPath.size()-1; i >= 2; i--) {
+		for (int i = dfsPath.size()-1; i >= 0; i--) {
 			DominatorNode<V> w = dfsPath.get(i);
 			
 			logger.debug(".. processing node: "+w.n);
@@ -68,13 +68,13 @@ public class DominatorTree<V extends Mutateable> extends EvoSuiteGraph<Dominator
 			w.bucket = w.semi.bucket;
 			w.semi.bucket = w;
 
-			w.link(w.parent);
-			DominatorNode<V> v = w.parent.bucket;
+			w.link(w.anc);
+			DominatorNode<V> v = w.anc;
 			while (v != null) {
 				DominatorNode<V> next = v.bucket;
 				v.bucket = null;
 				DominatorNode<V> u = v.eval();
-				v.dom = u.semi.n < v.semi.n ? u : w.parent;
+				v.dom = u.semi.n < v.semi.n ? u : w.anc;
 				v = next;
 			}
 		}
