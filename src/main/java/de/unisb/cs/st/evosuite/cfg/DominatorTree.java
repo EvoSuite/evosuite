@@ -23,16 +23,16 @@ import de.unisb.cs.st.evosuite.mutation.Mutateable;
  * 
  * @author Andre Mis
  */
-public class DominatorTree<V extends Mutateable> extends EvoSuiteGraph<DominatorNode<V>> {
+public class DominatorTree<V extends Mutateable> {
 
 	private static Logger logger = Logger.getLogger(DominatorTree.class);
 	
 	
-	int nodeCount = 0;
-	ControlFlowGraph<V> cfg;
+	private  int nodeCount = 0;
+	private  ControlFlowGraph<V> cfg;
 	
-	Map<V,DominatorNode<V>> dominatorNodesMap = new HashMap<V,DominatorNode<V>>();
-	Map<Integer,DominatorNode<V>> dominatorIDMap = new HashMap<Integer,DominatorNode<V>>();
+	private Map<V,DominatorNode<V>> dominatorNodesMap = new HashMap<V,DominatorNode<V>>();
+	private  Map<Integer,DominatorNode<V>> dominatorIDMap = new HashMap<Integer,DominatorNode<V>>();
 	
 	public DominatorTree(ControlFlowGraph<V> cfg) {
 
@@ -53,30 +53,17 @@ public class DominatorTree<V extends Mutateable> extends EvoSuiteGraph<Dominator
 		
 		for (int i = nodeCount; i >= 2; i--) {
 			DominatorNode<V> w = getDominatorNodeById(i);
-
-//			logger.debug("computeing semDom: "+w.node.toString());
-//			logger.debug("w semi n: "+w.semiDominator.n);
 			
 			for (V current : cfg.getParents(w.node)) {
 				DominatorNode<V> v = getDominatorNodeFor(current);
 				DominatorNode<V> u = v.eval();
 				
-//				if(v.n != u.n)
-//					logger.debug("eval returned this");
-				
-				
-//				logger.debug("u semi n: "+u.semiDominator.n);
-				
 				if (u.semiDominator.n < w.semiDominator.n)
 					w.semiDominator = u.semiDominator;
 			}
 			
-//			logger.debug("semDom for "+w.n+" was "+w.semiDominator.n);
-
 			w.semiDominator.bucket.add(w);
-
 			w.link(w.parent);
-			
 			
 			while (!w.parent.bucket.isEmpty()) {
 				
@@ -84,15 +71,10 @@ public class DominatorTree<V extends Mutateable> extends EvoSuiteGraph<Dominator
 				if(!w.parent.bucket.remove(v))
 					throw new IllegalStateException("internal error");
 
-				
-				
 				DominatorNode<V> u = v.eval();
-				
 				v.immediateDominator = (u.semiDominator.n < v.semiDominator.n ? u
 						: w.parent);
 
-//				logger.debug("iDom for "+v.n+" set to "+v.immediateDominator.n);
-				
 			}
 		}
 		
@@ -124,8 +106,7 @@ public class DominatorTree<V extends Mutateable> extends EvoSuiteGraph<Dominator
 		
 		initialize(currentNode);
 		
-		logger.debug("dfs-Analyze: "+currentNode.n);
-		logger.debug(currentNode.node.toString());
+		logger.debug("dfs-Analyze "+currentNode.n+": "+currentNode.node.toString());
 		
 		for(V w : cfg.getChildren(currentNode.node)) {
 			DominatorNode<V> wNode = getDominatorNodeFor(w);
