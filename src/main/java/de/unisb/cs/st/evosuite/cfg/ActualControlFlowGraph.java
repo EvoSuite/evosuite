@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
@@ -76,6 +77,19 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		
 		fillSets();
 		computeGraph();
+	}
+	
+	// "revert" constructor ... for now ... TODO
+	protected ActualControlFlowGraph(ActualControlFlowGraph toRevert) {
+		super(toRevert.className, toRevert.methodName, toRevert
+				.computeReverseJGraph());		
+		
+	}
+	
+	public ActualControlFlowGraph computeReverseCFG() {
+		// TODO: this must be possible to "pre implement" in EvoSuiteGraph for
+		// all sub class of EvoSuiteGraph
+		return new ActualControlFlowGraph(this);
 	}
 	
 	// initialization
@@ -208,13 +222,29 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		computeEdges();
 		
 		checkSanity();
+		
+		addAuxiliaryBlocks();
 	}
 	
+	private void addAuxiliaryBlocks() {
+		
+		// TODO clean up mess: exit/entry POINTs versus BLOCKs
+		
+		EntryBlock entry = new EntryBlock(className, methodName);
+		ExitBlock exit = new ExitBlock(className, methodName);
+		
+		addBlock(entry);
+		addBlock(exit);
+		addEdge(entry,exit);
+		addEdge(entry,this.entryPoint);
+		for(BytecodeInstruction exitPoint : this.exitPoints) {
+			addEdge(getBlockOf(exitPoint),exit);
+		}
+	}
+
 	private void computeNodes() {
 
 		Set<BytecodeInstruction> nodes = getInitiallyKnownInstructions();
-		
-		logger.debug("Computing Basic Blocks");
 		
 		for(BytecodeInstruction node : nodes) {
 			if(knowsInstruction(node))

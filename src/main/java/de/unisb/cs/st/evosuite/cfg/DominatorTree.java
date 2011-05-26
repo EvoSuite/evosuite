@@ -1,6 +1,7 @@
 package de.unisb.cs.st.evosuite.cfg;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,10 +11,12 @@ import de.unisb.cs.st.evosuite.mutation.Mutateable;
 
 /**
  * 
- * Given a CFG this class computes the immediateDominators for each CFG vertex
+ * Given a CFG this class computes the immediateDominators and the
+ * dominatingFrontiers for each CFG vertex
  * 
- * The current algorithm runs in time O( e * log n ) where e is the number of
- * control flow edges and n the number of CFG vertices and is taken from:
+ * The current algorithm to determine the immediateDominators runs in time
+ * O(e*log n) where e is the number of control flow edges and n the number of
+ * CFG vertices and is taken from:
  * 
  * "A Fast Algorithm for Finding Dominators in a Flowgraph" THOMAS LENGAUER and
  * ROBERT ENDRE TARJAN 1979, Stanford University
@@ -22,8 +25,13 @@ import de.unisb.cs.st.evosuite.mutation.Mutateable;
  * http://portal.acm.org/citation.cfm?doid=357062.357071
  * 
  * 
- * TODO so far this is not really a tree - might want to change that and extend
- * from EvoSuiteGraph
+ * The algorithm for computing the dominatingFrontiers when given the
+ * immediateDominators is taken from
+ * 
+ * "Efficiently Computing Static Single Assignment Form and the Control
+ * Dependence Graph" RON CYTRON, JEANNE FERRANTE, BARRY K. ROSEN, and MARK N.
+ * WEGMAN IBM Research Division and F. KENNETH ZADECK Brown University 1991
+ * 
  * 
  * @author Andre Mis
  */
@@ -45,11 +53,14 @@ public class DominatorTree<V extends Mutateable> extends EvoSuiteGraph<Dominator
 	 */
 	public DominatorTree(ControlFlowGraph<V> cfg) {
 
+		logger.debug("Computing DominatorTree for "+cfg.getName());
+		
 		this.cfg = cfg;
 		
 		createDominatorNodes();
 
 		V root = cfg.determineEntryPoint(); // TODO change to getEntryPoint()
+		logger.info("determined root: "+root.getName());
 		DominatorNode<V> rootNode = getDominatorNodeFor(root);
 		
 		depthFirstAnalyze(rootNode);
@@ -88,15 +99,40 @@ public class DominatorTree<V extends Mutateable> extends EvoSuiteGraph<Dominator
 		// check tree is connected
 		if(!isConnected())
 			throw new IllegalStateException("dominator tree expected to be connected");
+		// TODO more sanity checks - no one likes to be insane ;)
 	}
 
 	private void computeDominatorFrontiers(DominatorNode<V> currentNode) {
 		
 		// TODO check assumption: exitPoints in original CFG are exitPoints in resulting DominatorTree
-		// idea: make queue, initially fill with exitPoints
-		//		then while not empty, pop from queue, handle, add parent of handled to queue
-		// 	TODO do i have to remember a set for handled nodes in order to avoid loops and stuff? 
 		
+		for(DominatorNode<V> child : getChildren(currentNode))
+			computeDominatorFrontiers(child);
+		
+		logger.debug("computing dominatingFrontier for: "+currentNode.toString());
+		
+		Set<V> dominatingFrontier = dominatingFrontiers.get(currentNode);
+		if(dominatingFrontier == null)
+			dominatingFrontier = new HashSet<V>();
+
+		// "local"
+		for(V child : cfg.getChildren(currentNode.node)) {
+			DominatorNode<V> y = getDominatorNodeFor(child);
+			if(y.immediateDominator.n != currentNode.n) {
+				logger.debug("  LOCAL adding to DFs: "+y.node.getName());
+				dominatingFrontier.add(y.node);
+			}
+		}
+		
+		// "up"
+		for(DominatorNode<V> z : getChildren(currentNode))
+			for(V y : dominatingFrontiers.get(z.node))
+				if(getDominatorNodeFor(y).immediateDominator.n != currentNode.n) {
+					logger.debug("  UP adding to DFs: "+y.getName());
+					dominatingFrontier.add(y);
+				}
+		
+		dominatingFrontiers.put(currentNode.node, dominatingFrontier);
 	}
 
 	/**
@@ -133,11 +169,16 @@ public class DominatorTree<V extends Mutateable> extends EvoSuiteGraph<Dominator
 		return domNode.immediateDominator.node;
 	}
 	
+	public Set<V> getDominatingFrontiers(V v) {
+		if(v==null)
+			throw new IllegalStateException("null given");
+		
+		return dominatingFrontiers.get(v);
+	}
+	
 	// computation
 	
 	private void createDominatorNodes() {
-		
-		logger.info("Computing dominators for "+cfg.getName());
 		
 		for(V v : cfg.vertexSet())
 			dominatorNodesMap.put(v, new DominatorNode<V>(v));
@@ -162,6 +203,8 @@ public class DominatorTree<V extends Mutateable> extends EvoSuiteGraph<Dominator
 		nodeCount++;
 		currentNode.n = nodeCount;
 		currentNode.semiDominator = currentNode;
+		
+		logger.debug("created "+currentNode.toString()+" for "+currentNode.node.toString());
 		
 		dominatorIDMap.put(nodeCount, currentNode);
 	}

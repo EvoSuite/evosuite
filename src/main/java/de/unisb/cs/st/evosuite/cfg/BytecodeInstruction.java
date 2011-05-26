@@ -160,6 +160,10 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	public String getClassName() {
 		return className;
 	}
+	
+	public String getName() {
+		return "BytecodeInstruction "+instructionId+" in "+methodName;
+	}
 
 	// mutation part
 
