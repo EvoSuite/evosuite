@@ -1,44 +1,61 @@
 package de.unisb.cs.st.evosuite.cfg;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 public class DominatorNode<V> {
-	
-	DominatorNode(V node, int n) {
-		this.node = node;
-		this.lab = this;
-		this.n = n;
-		
-		// TODO ???
-		this.semi = this;
-	}
 
-	void compress() {
-		if (anc.anc != null) {
-			anc.compress();
-			if (anc.lab.semi.n < lab.semi.n)
-				lab = anc.lab;
-			anc = anc.anc;
-		}
-	}
-
-	DominatorNode<V> eval() {
-		if (anc == null)
-			return this;
-		else {
-			compress();
-			return lab;
-		}
-	}
-
-	void link(DominatorNode<V> v) {
-		anc = v;
-	}
-	
 	final V node;
-	DominatorNode<V> lab;
-	DominatorNode<V> anc;
-	DominatorNode<V> bucket;
-	DominatorNode<V> semi;
-	DominatorNode<V> dom;
-	int n;
+	int n = 0;	
+	
+	DominatorNode<V> parent;
+	DominatorNode<V> semiDominator;
+	
+	DominatorNode<V> ancestor;
+	DominatorNode<V> label;
+	
+	Set<DominatorNode<V>> bucket = new HashSet<DominatorNode<V>>();
+	DominatorNode<V> immediateDominator;
+	
+	
+	DominatorNode(V node) {
+		this.node = node;
+		
+		this.label = this;
+	}
+	
+	void link(DominatorNode<V> v) {
+		ancestor = v;
+	}
+	
+	DominatorNode<V> eval() {
+		if(ancestor == null)
+			return this;
+		
+		compress();
+		
+		return label;
+	}
+	
+	void compress() {
+		if(ancestor == null)
+			throw new IllegalStateException("may only be called when ancestor is set");
+		
+		if(ancestor.ancestor != null) {
+			ancestor.compress();
+			if(ancestor.label.semiDominator.n < label.semiDominator.n)
+				label = ancestor.label;
+			
+			ancestor = ancestor.ancestor;
+		}
+	}
+
+	public DominatorNode<V> getFromBucket() {
+		
+		for(DominatorNode<V> r : bucket)
+			return r;
+		
+		return null;
+	}
 }
