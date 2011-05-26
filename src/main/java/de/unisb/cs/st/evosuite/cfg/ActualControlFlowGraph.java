@@ -224,7 +224,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 			addBlock(nodeBlock);
 		}
 		
-		logger.info(getNodeCount()+" BasicBlocks");
+		logger.info(vertexCount()+" BasicBlocks");
 	}
 	
 	private void computeEdges() {
@@ -235,7 +235,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 			computeOutgoingEdgesFor(block);
 		}
 		
-		logger.info(getEdgeCount()+" ControlFlowEdges");
+		logger.info(edgeCount()+" ControlFlowEdges");
 	}
 	
 	private void computeIncomingEdgesFor(BasicBlock block) {
@@ -311,7 +311,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		if(!containsVertex(nodeBlock))
 			throw new IllegalStateException("expect graph to contain the given block on returning of addBlock()");
 		
-		logger.debug(".. succeeded. nodeCount: "+getNodeCount());
+		logger.debug(".. succeeded. nodeCount: "+vertexCount());
 	}
 	
 	protected void addEdge(BytecodeInstruction src, BasicBlock target) {
@@ -353,7 +353,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 			throw new IllegalStateException(
 					"internal error while adding edge to CFG");
 		
-		logger.debug(".. succeeded, edgeCount: "+getEdgeCount());
+		logger.debug(".. succeeded, edgeCount: "+edgeCount());
 		
 		return r;
 	}
@@ -512,12 +512,12 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	void checkSingleCFGNodeConstraint(BasicBlock node) {
 		int in = inDegreeOf(node);
 		int out = outDegreeOf(node);
-		if (in + out == 0 && getNodeCount() != 1)
+		if (in + out == 0 && vertexCount() != 1)
 			throw new IllegalStateException(
 					"node with neither child nor parent only allowed if CFG consists of a single block: "
 							+ node.toString());
 
-		if (getNodeCount() == 1 && !(isEntryBlock(node) && isExitBlock(node)))
+		if (vertexCount() == 1 && !(isEntryBlock(node) && isExitBlock(node)))
 			throw new IllegalStateException(
 					"if a CFG consists of a single basic block that block must be both entry and exitBlock: "
 							+ node.toString());
