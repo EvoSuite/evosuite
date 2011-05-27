@@ -62,7 +62,7 @@ public class DominatorTree<V extends Mutateable> extends EvoSuiteGraph<Dominator
 		createDominatorNodes();
 
 		V root = cfg.determineEntryPoint(); // TODO change to getEntryPoint()
-		logger.info("determined root: "+root.getName());
+		logger.debug("determined root: "+root.getName());
 		DominatorNode<V> rootNode = getDominatorNodeFor(root);
 		
 		depthFirstAnalyze(rootNode);

@@ -81,6 +81,18 @@ public class CFGGenerator {
 		CFGPool.registerActualCFG(getActualGraph());
 	}
 	
+	protected RawControlFlowGraph getRawGraph() {
+		return rawGraph;
+	}
+
+	protected ActualControlFlowGraph getActualGraph() {
+
+		setMutationIDs();
+		setMutationBranches();
+
+		return computeCFG();
+	}
+	
 	public String getClassName() {
 		return className;
 	}
@@ -153,12 +165,12 @@ public class CFGGenerator {
 		
 		// experiment
 		
-		// TODO so how exactly should we handle the whole "true/false" stuff.
-		// TODO how was previously determined, which edge was the true and which
+		// DONE so how exactly should we handle the whole "true/false" stuff.
+		// DONE how was previously determined, which edge was the true and which
 		// was the false distance?
-		// TODO assumption: the first edge is the one that makes the branch jump
+		// DONE assumption: the first edge is the one that makes the branch jump
 		// ("true"?!)
-		// TODO implement ControlFlowEdge (again ...) and give it a flag
+		// DONE implement ControlFlowEdge (again ...) and give it a flag
 		// determining whether it's true/false
 		
 //		Set<BytecodeInstruction> srcChildren = rawGraph.getChildren(srcInstruction);
@@ -227,11 +239,12 @@ public class CFGGenerator {
 	 * 
 	 * WORK IN PROGRESS
 	 * 
-	 * soon
+	 * soon ... it's getting there :D
 	 */
 	public ActualControlFlowGraph computeCFG() {
 
 		BytecodeInstructionPool.logInstructionsIn(className,methodName);
+		
 		ActualControlFlowGraph cfg = new ActualControlFlowGraph(rawGraph);
 
 		return cfg;
@@ -287,17 +300,5 @@ public class CFGGenerator {
 				}
 			}
 		}
-	}
-
-	protected RawControlFlowGraph getRawGraph() {
-		return rawGraph;
-	}
-
-	protected ActualControlFlowGraph getActualGraph() {
-
-		setMutationIDs();
-		setMutationBranches();
-
-		return computeCFG();
 	}
 }

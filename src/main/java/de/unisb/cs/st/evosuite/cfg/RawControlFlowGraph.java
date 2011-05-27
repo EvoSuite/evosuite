@@ -587,6 +587,6 @@ public class RawControlFlowGraph extends
 
 	@Override
 	public String getName() {
-		return "RawCFG"+graphId; // TODO make nice
+		return "RawCFG"+graphId+"_"+methodName; // TODO make nice
 	}
 }
