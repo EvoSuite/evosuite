@@ -628,4 +628,9 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		return joins;
 	}
 
+	
+	@Override
+	public String getName() {
+		return "ActualCFG"+graphId; // TODO make nice
+	}
 }
