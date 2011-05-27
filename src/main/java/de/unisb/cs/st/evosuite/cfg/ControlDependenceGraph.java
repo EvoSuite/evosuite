@@ -50,7 +50,7 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 
 				logger.info("DFs for: "+b.getName());
 				for(BasicBlock cd : dt.getDominatingFrontiers(b)) {
-					
+					// TODO cfg.getEdge(cd, b) und infos entnehmen
 					if(null == addEdge(cd,b))
 						throw new IllegalStateException("internal error while adding CD edge");
 					

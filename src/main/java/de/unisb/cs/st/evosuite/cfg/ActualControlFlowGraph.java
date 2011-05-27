@@ -234,7 +234,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		addBlock(entry);
 		addBlock(exit);
 		addEdge(entry,exit);
-		addEdge(entry,this.entryPoint);
+		addEdge(entry,getBlockOf(this.entryPoint));
 		for(BytecodeInstruction exitPoint : this.exitPoints) {
 			addEdge(getBlockOf(exitPoint),exit);
 		}
@@ -277,7 +277,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		for (ControlFlowEdge rawIncoming : rawIncomings) {
 			BytecodeInstruction incomingStart = rawGraph
 					.getEdgeSource(rawIncoming);
-			addEdge(incomingStart, block);
+			addRawEdge(incomingStart, block, rawIncoming);
 		}
 	}
 	
@@ -293,7 +293,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		for (ControlFlowEdge rawOutgoing : rawOutgoings) {
 			BytecodeInstruction outgoingEnd = rawGraph
 					.getEdgeTarget(rawOutgoing);
-			addEdge(block, outgoingEnd);
+			addRawEdge(block, outgoingEnd, rawOutgoing);
 		}
 	}
 	
@@ -342,48 +342,63 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		logger.debug(".. succeeded. nodeCount: "+vertexCount());
 	}
 	
-	protected void addEdge(BytecodeInstruction src, BasicBlock target) {
+	protected void addRawEdge(BytecodeInstruction src, BasicBlock target, ControlFlowEdge origEdge) {
 		BasicBlock srcBlock = getBlockOf(src);
 		if (srcBlock == null)
 			throw new IllegalStateException(
 					"when adding an edge to a CFG it is expected to know both the src- and the target-instruction");
 
-		addEdge(srcBlock, target);
+		addRawEdge(srcBlock, target, origEdge);
 	}
 
-	protected void addEdge(BasicBlock src, BytecodeInstruction target) {
+	protected void addRawEdge(BasicBlock src, BytecodeInstruction target, ControlFlowEdge origEdge) {
 		BasicBlock targetBlock = getBlockOf(target);
 		if (targetBlock == null)
 			throw new IllegalStateException(
 					"when adding an edge to a CFG it is expected to know both the src- and the target-instruction");
 
-		addEdge(src, targetBlock);
+		addRawEdge(src, targetBlock, origEdge);
 	}
 	
-	protected ControlFlowEdge addEdge(BasicBlock src, BasicBlock target) {
+	protected void addRawEdge(BasicBlock src, BasicBlock target,
+			ControlFlowEdge origEdge) {
 		if (src == null || target == null)
 			throw new IllegalArgumentException("null given");
 
-		logger.debug("Adding edge from "+src.getName()+" to "+target.getName());
-		
-		ControlFlowEdge r;
-		if (containsEdge(src,target)) {
+		logger.debug("Adding edge from " + src.getName() + " to "
+				+ target.getName());
+
+		if (containsEdge(src, target)) {
 			logger.debug("edge already contained in CFG");
-			r = getEdge(src,target);
-			if(r==null)
-				throw new IllegalStateException("expect getEdge() not to retur null on parameters on which containsEdge() retruned true");
-			
-			return r;
+			// sanity check
+			ControlFlowEdge current = getEdge(src, target);
+			if (current == null)
+				throw new IllegalStateException(
+						"expect getEdge() not to return null on parameters on which containsEdge() retruned true");
+			if (current.getBranchExpressionValue()
+					&& !origEdge.getBranchExpressionValue())
+				throw new IllegalStateException(
+						"if this rawEdge was handled before i expect the old edge to have same branchExpressionValue set");
+			if (current.getBranchInstruction() == null) {
+				if (origEdge.getBranchInstruction() != null)
+					throw new IllegalStateException(
+							"if this rawEdge was handled before i expect the old edge to have same branchInstruction set");
+
+			} else if (origEdge.getBranchInstruction() == null
+					|| !current.getBranchInstruction().equals(
+							origEdge.getBranchInstruction()))
+				throw new IllegalStateException(
+						"if this rawEdge was handled before i expect the old edge to have same branchInstruction set");
+
+			return;
 		}
-		
-		r = super.addEdge(src, target);
-		if (r == null)
+
+		ControlFlowEdge e = new ControlFlowEdge(origEdge);
+		if (!super.addEdge(src, target, e))
 			throw new IllegalStateException(
 					"internal error while adding edge to CFG");
-		
-		logger.debug(".. succeeded, edgeCount: "+edgeCount());
-		
-		return r;
+
+		logger.debug(".. succeeded, edgeCount: " + edgeCount());
 	}
 	
 	// convenience methods to switch between BytecodeInstructons and BasicBlocks
