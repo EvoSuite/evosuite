@@ -71,6 +71,8 @@ public class DominatorTree<V extends Mutateable> extends EvoSuiteGraph<Dominator
 		createDominatorTree();
 		
 		computeDominatorFrontiers(rootNode);
+		
+//		toDot();
 	}
 
 	private void createDominatorTree() {

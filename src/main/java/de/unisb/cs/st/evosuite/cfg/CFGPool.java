@@ -34,6 +34,8 @@ public class CFGPool {
 	 * jumps/switches except GOTO) and nodes which were mutated.
 	 */
 	private static Map<String, Map<String, ActualControlFlowGraph>> actualCFGs = new HashMap<String, Map<String, ActualControlFlowGraph>>();
+	
+//	private static Map<String, Map<String, DominatorTree>> dominatorTrees = new HashMap<String, Map<String,DominatorTree>>();
 
 	//TODO do these get used anywhere?
 //	private static Map<String, Map<String, Double>> diameters = new HashMap<String, Map<String, Double>>();	
@@ -53,8 +55,17 @@ public class CFGPool {
 		cfg.finalize();
 		methods.put(methodName, cfg);
 		
+		createControlDependence(cfg);
+		
+		cfg.toDot();
+		
 //		diameters.get(className).put(methodName, cfg.getDiameter());
 //		logger.debug("Calculated diameter for " + className + ": " + cfg.getDiameter());
+	}
+
+	private static void createControlDependence(ActualControlFlowGraph cfg) {
+
+		ControlDependenceGraph cd = new ControlDependenceGraph(cfg);
 	}
 
 	public static void registerRawCFG(RawControlFlowGraph cfg) {
