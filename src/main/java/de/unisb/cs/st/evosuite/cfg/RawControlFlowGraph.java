@@ -569,26 +569,8 @@ public class RawControlFlowGraph extends
 		return sb.toString();
 	}
 
-	public void toDot(String filename) {
-
-		try {
-
-			FileWriter fstream = new FileWriter(filename);
-			BufferedWriter out = new BufferedWriter(fstream);
-			if (!graph.vertexSet().isEmpty()) {
-				//FrameVertexNameProvider nameprovider = new FrameVertexNameProvider(mn.instructions);
-				//	DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>();
-				//DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>(new IntegerNameProvider(), nameprovider, new IntegerEdgeNameProvider());
-				//			DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>(new LineNumberProvider(), new LineNumberProvider(), new IntegerEdgeNameProvider());
-				DOTExporter<BytecodeInstruction, DefaultEdge> exporter = new DOTExporter<BytecodeInstruction, DefaultEdge>(
-				        new IntegerNameProvider<BytecodeInstruction>(),
-				        new StringNameProvider<BytecodeInstruction>(),
-				        new IntegerEdgeNameProvider<DefaultEdge>());
-				exporter.export(out, graph);
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	@Override
+	public String getName() {
+		return "RawCFG"+graphId; // TODO make nice
 	}
 }

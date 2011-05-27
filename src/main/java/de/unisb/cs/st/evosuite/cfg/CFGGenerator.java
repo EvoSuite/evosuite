@@ -1,6 +1,7 @@
 package de.unisb.cs.st.evosuite.cfg;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.jgrapht.graph.DefaultEdge;
@@ -146,7 +147,29 @@ public class CFGGenerator {
 		
 		rawGraph.addVertex(srcInstruction);
 		rawGraph.addVertex(dstInstruction);
-		rawGraph.addEdge(srcInstruction, dstInstruction);
+		if(null == rawGraph.addEdge(srcInstruction, dstInstruction))
+			logger.error("internal error while adding edge");
+		
+		// experiment
+		
+		// TODO so how exactly should we handle the whole "true/false" stuff.
+		// TODO how was previously determined, which edge was the true and which
+		// was the false distance?
+		// TODO assumption: the first edge is the one that makes the branch jump
+		// ("true"?!)
+		// TODO implement ControlFlowEdge (again ...) and give it a flag
+		// determining whether it's true/false
+		
+//		Set<BytecodeInstruction> srcChildren = rawGraph.getChildren(srcInstruction);
+//		if(srcInstruction.isActualBranch() && srcChildren.size()>1) {
+//			logger.info("added second edge for instruction "+srcInstruction.toString());
+//			for(BytecodeInstruction srcParent : srcChildren) {
+//				logger.info(" to "+srcParent.toString());
+//			}
+//		}
+//		
+//		if(srcInstruction.isLabel() || srcInstruction.isLineNumber())
+//			logger.info("found edge from "+srcInstruction.toString()+" to "+dstInstruction.toString());
 	}
 
 	// retrieve information about the graph
@@ -211,6 +234,8 @@ public class CFGGenerator {
 
 		// debug/test
 		
+		rawGraph.toDot();
+		
 		ActualControlFlowGraph cfg = new ActualControlFlowGraph(rawGraph);
 		ActualControlFlowGraph rcfg = cfg.computeReverseCFG();
 		DominatorTree<BasicBlock> dt = new DominatorTree<BasicBlock>(rcfg);
@@ -229,6 +254,9 @@ public class CFGGenerator {
 			}
 		
 			
+		cfg.toDot();
+//		rcfg.toDot();
+		dt.toDot();
 			
 		return cfg;
 	}

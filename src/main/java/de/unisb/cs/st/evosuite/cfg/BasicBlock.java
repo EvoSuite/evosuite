@@ -202,16 +202,20 @@ public class BasicBlock implements Mutateable {
 	
 	@Override
 	public String toString() {
-		StringBuilder r = new StringBuilder();
-		r.append(getName()+":\n");
+	
+		return getName();
 		
-		int i = 0;
-		for(BytecodeInstruction instruction : instructions) {
-			i++;
-			r.append("\t"+i+")\t"+instruction.toString()+"\n");
-		}
-		
-		return r.toString();
+		// for now due to graph-visualization .. TODO make explain() or something
+//		StringBuilder r = new StringBuilder();
+//		r.append(getName() + ":\n");
+//
+//		int i = 0;
+//		for (BytecodeInstruction instruction : instructions) {
+//			i++;
+//			r.append("\t" + i + ")\t" + instruction.toString() + "\n");
+//		}
+//
+//		return r.toString();
 	}
 	
 	@Override
