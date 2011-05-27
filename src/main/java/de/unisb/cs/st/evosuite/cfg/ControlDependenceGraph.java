@@ -48,13 +48,14 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock,ControlFlow
 		for (BasicBlock b : rcfg.vertexSet())
 			if (!b.isExitBlock()) {
 
-				logger.info("DFs for: "+b.getName());
+				logger.debug("DFs for: "+b.getName());
 				for(BasicBlock cd : dt.getDominatingFrontiers(b)) {
-					// TODO cfg.getEdge(cd, b) und infos entnehmen
-					if(null == addEdge(cd,b))
+					ControlFlowEdge orig = cfg.getEdge(cd, b);
+
+					if(!addEdge(cd,b, new ControlFlowEdge(orig)))
 						throw new IllegalStateException("internal error while adding CD edge");
 					
-					logger.info("  "+cd.getName());
+					logger.debug("  "+cd.getName());
 				}
 			}
 
