@@ -17,8 +17,10 @@ public class ControlFlowEdge extends DefaultEdge {
 	 * Sort of a copy constructor
 	 */
 	public ControlFlowEdge(ControlFlowEdge clone) {
-		this.branchInstruction = clone.branchInstruction;
-		this.branchExpressionValue = clone.branchExpressionValue;
+		if(clone != null) {
+			this.branchInstruction = clone.branchInstruction;
+			this.branchExpressionValue = clone.branchExpressionValue;
+		}
 	}
 
 	@Override
@@ -27,13 +29,14 @@ public class ControlFlowEdge extends DefaultEdge {
 		String r = "";
 
 		if (branchInstruction != null) {
+			r += branchInstruction.toString();
 			if (branchExpressionValue)
-				r += "TRUE_";
+				r += " - TRUE";
 			else
-				r += "FALSE_";
-			r += branchInstruction.toString() + "_";
-		} else
-			r += "nonBranch_";
+				r += " - FALSE";
+		} 
+//		else
+//			r += "nonBranch";
 
 //		r += "CFE";
 

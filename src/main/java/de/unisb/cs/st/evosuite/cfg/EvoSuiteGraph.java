@@ -392,7 +392,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		
 		createGraphDirectory();
 		
-		toDot("evosuite-graphs/"+getName());
+		toDot("evosuite-graphs/"+getName()+".dot");
 	}
 	
 	private void createGraphDirectory() {
