@@ -15,6 +15,7 @@ import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.ext.DOTExporter;
 import org.jgrapht.ext.IntegerEdgeNameProvider;
 import org.jgrapht.ext.IntegerNameProvider;
+import org.jgrapht.ext.StringEdgeNameProvider;
 import org.jgrapht.ext.StringNameProvider;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -47,28 +48,30 @@ import org.jgrapht.graph.DefaultEdge;
  * 
  * @author Andre Mis
  */
-public abstract class EvoSuiteGraph<V> {
+public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 
 	private static Logger logger = Logger.getLogger(DominatorTree.class);
 	
 	private static int evoSuiteGraphs = 0;
 	protected int graphId;
 	
-	protected DefaultDirectedGraph<V, DefaultEdge> graph;
-
+	protected DefaultDirectedGraph<V, E> graph;
+	protected Class<E> edgeClass;
 	
-	protected EvoSuiteGraph() {
+	protected EvoSuiteGraph(Class<E> edgeClass) {
 
-		graph = new DefaultDirectedGraph<V, DefaultEdge>(DefaultEdge.class);
+		graph = new DefaultDirectedGraph<V, E>(edgeClass);
+		this.edgeClass = edgeClass;
 		
 		setId();
 	}
 
-	protected EvoSuiteGraph(DefaultDirectedGraph<V, DefaultEdge> graph) {
-		if (graph == null)
+	protected EvoSuiteGraph(DefaultDirectedGraph<V, E> graph, Class<E> edgeClass) {
+		if (graph == null || edgeClass == null)
 			throw new IllegalArgumentException("null given");
-
+		
 		this.graph = graph;
+		this.edgeClass = edgeClass;
 		
 		setId();
 	}
@@ -80,21 +83,21 @@ public abstract class EvoSuiteGraph<V> {
 	
 	// retrieving nodes and edges
 
-	public V getEdgeSource(DefaultEdge e) {
+	public V getEdgeSource(E e) {
 		if (!containsEdge(e))
 			throw new IllegalArgumentException("edge not in graph");
 
 		return graph.getEdgeSource(e);
 	}
 
-	public V getEdgeTarget(DefaultEdge e) {
+	public V getEdgeTarget(E e) {
 		if (!containsEdge(e))
 			throw new IllegalArgumentException("edge not in graph");
 
 		return graph.getEdgeTarget(e);
 	}
 	
-	public Set<DefaultEdge> outgoingEdgesOf(V node) {
+	public Set<E> outgoingEdgesOf(V node) {
 		if (!containsVertex(node)) // should this just return null?
 			throw new IllegalArgumentException(
 					"block not contained in this CFG");
@@ -102,7 +105,7 @@ public abstract class EvoSuiteGraph<V> {
 		return graph.outgoingEdgesOf(node);
 	}
 
-	public Set<DefaultEdge> incomingEdgesOf(V node) {
+	public Set<E> incomingEdgesOf(V node) {
 		if (!containsVertex(node)) // should this just return null?
 			throw new IllegalArgumentException(
 					"block not contained in this CFG");
@@ -116,7 +119,7 @@ public abstract class EvoSuiteGraph<V> {
 					"block not contained in this CFG");
 
 		Set<V> r = new HashSet<V>();
-		for (DefaultEdge e : outgoingEdgesOf(node))
+		for (E e : outgoingEdgesOf(node))
 			r.add(getEdgeTarget(e));
 
 		// sanity check
@@ -133,7 +136,7 @@ public abstract class EvoSuiteGraph<V> {
 					"block not contained in this CFG");
 
 		Set<V> r = new HashSet<V>();
-		for (DefaultEdge e : incomingEdgesOf(node))
+		for (E e : incomingEdgesOf(node))
 			r.add(getEdgeSource(e));
 
 		// sanity check
@@ -155,10 +158,10 @@ public abstract class EvoSuiteGraph<V> {
 		return r;
 	}
 
-	protected Set<DefaultEdge> edgeSet() {
-		Set<DefaultEdge> r = new HashSet<DefaultEdge>();
+	protected Set<E> edgeSet() {
+		Set<E> r = new HashSet<E>();
 		
-		for(DefaultEdge e : graph.edgeSet())
+		for(E e : graph.edgeSet())
 			r.add(e);
 		
 		return r;
@@ -166,7 +169,7 @@ public abstract class EvoSuiteGraph<V> {
 	
 	// building the graph
 	
-	protected void addVertices(EvoSuiteGraph<V> other) {
+	protected void addVertices(EvoSuiteGraph<V,E> other) {
 		
 		addVertices(other.vertexSet());
 	}
@@ -184,12 +187,12 @@ public abstract class EvoSuiteGraph<V> {
 		return graph.addVertex(v);
 	}
 
-	protected DefaultEdge addEdge(V src, V target) {
+	protected E addEdge(V src, V target) {
 		
 		return graph.addEdge(src,target);
 	}
 	
-	protected boolean addEdge(V src, V target, DefaultEdge e) {
+	protected boolean addEdge(V src, V target, E e) {
 		
 		return graph.addEdge(src, target, e);
 	}
@@ -220,7 +223,7 @@ public abstract class EvoSuiteGraph<V> {
 
 	// some queries
 
-	public DefaultEdge getEdge(V v1, V v2) {
+	public E getEdge(V v1, V v2) {
 		return graph.getEdge(v1, v2);
 	}
 	
@@ -233,7 +236,7 @@ public abstract class EvoSuiteGraph<V> {
 		return graph.containsEdge(v1,v2);
 	}
 	
-	public boolean containsEdge(DefaultEdge e) {
+	public boolean containsEdge(E e) {
 		return graph.containsEdge(e); // TODO this seems to be buggy, at least for ControlFlowEdges
 	}
 
@@ -317,7 +320,7 @@ public abstract class EvoSuiteGraph<V> {
 	}
 	
 	public int getDistance(V v1, V v2) {
-		DijkstraShortestPath<V, DefaultEdge> d = new DijkstraShortestPath<V, DefaultEdge>(
+		DijkstraShortestPath<V, E> d = new DijkstraShortestPath<V, E>(
 		        graph, v1, v2);
 		return (int) Math.round(d.getPathLength());
 	}
@@ -361,17 +364,17 @@ public abstract class EvoSuiteGraph<V> {
 	 * This is used to revert CFGs in order to determine control dependencies
 	 * for example
 	 */
-	protected DefaultDirectedGraph<V,DefaultEdge> computeReverseJGraph() {
+	protected DefaultDirectedGraph<V,E> computeReverseJGraph() {
 		
-		DefaultDirectedGraph<V, DefaultEdge> r = new DefaultDirectedGraph<V, DefaultEdge>(
-				DefaultEdge.class);
+		DefaultDirectedGraph<V, E> r = new DefaultDirectedGraph<V, E>(
+				edgeClass);
 		
 		for (V v : vertexSet())
 			if (!r.addVertex(v))
 				throw new IllegalStateException(
 						"internal error while adding vertices");
 
-		for (DefaultEdge e : edgeSet()) {
+		for (E e : edgeSet()) {
 			V src = getEdgeSource(e);
 			V target = getEdgeTarget(e);
 			if (r.addEdge(target, src) == null)
@@ -422,10 +425,11 @@ public abstract class EvoSuiteGraph<V> {
 				//	DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>();
 				//DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>(new IntegerNameProvider(), nameprovider, new IntegerEdgeNameProvider());
 				//			DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>(new LineNumberProvider(), new LineNumberProvider(), new IntegerEdgeNameProvider());
-				DOTExporter<V, DefaultEdge> exporter = new DOTExporter<V, DefaultEdge>(
+				DOTExporter<V, E> exporter = new DOTExporter<V, E>(
 				        new IntegerNameProvider<V>(),
 				        new StringNameProvider<V>(),
-				        new IntegerEdgeNameProvider<DefaultEdge>());
+				        new StringEdgeNameProvider<E>());
+//				        new IntegerEdgeNameProvider<E>());
 				exporter.export(out, graph);
 			}
 		} catch (IOException e) {

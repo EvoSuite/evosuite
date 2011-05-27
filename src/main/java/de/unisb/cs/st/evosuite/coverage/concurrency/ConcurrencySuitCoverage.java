@@ -34,6 +34,7 @@ import org.jgrapht.graph.DefaultEdge;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
+import de.unisb.cs.st.evosuite.cfg.ControlFlowEdge;
 import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -424,7 +425,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 				isC.get(scheduleID1).get(scheduleID2).put(completeCFG, true);
 				return true;
 			}else{
-				for(DefaultEdge e : completeCFG.outgoingEdgesOf(current)){
+				for(ControlFlowEdge e : completeCFG.outgoingEdgesOf(current)){
 					BytecodeInstruction toCheck = completeCFG.getEdgeTarget(e);
 					if(!seen.contains(toCheck)){
 						seen.add(toCheck);

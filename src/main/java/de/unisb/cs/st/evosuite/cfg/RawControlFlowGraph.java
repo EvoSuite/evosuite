@@ -15,11 +15,6 @@ import java.util.Set;
 import org.apache.commons.collections.comparators.ReverseComparator;
 import org.apache.log4j.Logger;
 import org.jgrapht.alg.DijkstraShortestPath;
-import org.jgrapht.ext.DOTExporter;
-import org.jgrapht.ext.IntegerEdgeNameProvider;
-import org.jgrapht.ext.IntegerNameProvider;
-import org.jgrapht.ext.StringNameProvider;
-import org.jgrapht.graph.DefaultEdge;
 
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUse;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseFactory;
@@ -75,6 +70,27 @@ public class RawControlFlowGraph extends
 		return null;
 	}
 	
+	protected ControlFlowEdge addEdge(BytecodeInstruction src, BytecodeInstruction target) {
+		
+		ControlFlowEdge e = new ControlFlowEdge();
+		if(src.isActualBranch()) {
+			e.setBranchInstruction(src);
+			// TODO unsafe, make better!
+			e.setBranchExpressionValue(!isNonJumpEdge(src,target));
+		}
+		
+		if(!super.addEdge(src, target, e))
+			throw new IllegalStateException("internal error while adding RawCFG edge: "+e.toString());
+		
+		return e;
+	}
+	
+	private boolean isNonJumpEdge(BytecodeInstruction src,
+			BytecodeInstruction dst) {
+		
+		return Math.abs(src.getInstructionId()-dst.getInstructionId()) == 1;
+	}
+
 	// functionality used to create ActualControlFlowGraph
 
 	public BasicBlock determineBasicBlockFor(BytecodeInstruction instruction) {
@@ -98,7 +114,7 @@ public class RawControlFlowGraph extends
 
 			// add child to queue
 			if (inDegreeOf(current) == 1)
-				for (DefaultEdge edge : incomingEdgesOf(current)) {
+				for (ControlFlowEdge edge : incomingEdgesOf(current)) {
 					// this must be only one edge if inDegree was 1
 					BytecodeInstruction parent = getEdgeSource(edge);
 					if (handled.contains(parent))
@@ -116,7 +132,7 @@ public class RawControlFlowGraph extends
 
 			// add parent to queue
 			if (outDegreeOf(current) == 1)
-				for (DefaultEdge edge : outgoingEdgesOf(current)) {
+				for (ControlFlowEdge edge : outgoingEdgesOf(current)) {
 					// this must be only one edge if outDegree was 1
 					BytecodeInstruction child = getEdgeTarget(edge);
 					if (handled.contains(child))
@@ -195,7 +211,7 @@ public class RawControlFlowGraph extends
 		/*
 		for(CFGVertex v : graph.vertexSet()) {
 			logger.info("Graph vertex: "+v.id);
-			for(DefaultEdge edge : graph.outgoingEdgesOf(v)) {
+			for(ControlFlowEdge edge : graph.outgoingEdgesOf(v)) {
 				logger.info("  -> "+graph.getEdgeTarget(edge).id);
 			}
 		}
@@ -209,7 +225,7 @@ public class RawControlFlowGraph extends
 			if (v != null) {
 				// FIXME: This does not actually calculate the distance!
 				//int distance = v.getDistance(vertex);
-				DijkstraShortestPath<BytecodeInstruction, DefaultEdge> d = new DijkstraShortestPath<BytecodeInstruction, DefaultEdge>(
+				DijkstraShortestPath<BytecodeInstruction, ControlFlowEdge> d = new DijkstraShortestPath<BytecodeInstruction, ControlFlowEdge>(
 				        graph, v, m);
 				int distance = (int) Math.round(d.getPathLength());
 				logger.info("Path vertex " + i + " has distance: " + distance);
@@ -276,7 +292,7 @@ public class RawControlFlowGraph extends
 		for (int i = 0; i < path.size(); i++) {
 			BytecodeInstruction v = getInstruction(path.get(i));
 			if (v != null) {
-				DijkstraShortestPath<BytecodeInstruction, DefaultEdge> d = new DijkstraShortestPath<BytecodeInstruction, DefaultEdge>(
+				DijkstraShortestPath<BytecodeInstruction, ControlFlowEdge> d = new DijkstraShortestPath<BytecodeInstruction, ControlFlowEdge>(
 				        graph, v, m);
 				int distance = (int) Math.round(d.getPathLength());
 
@@ -299,7 +315,7 @@ public class RawControlFlowGraph extends
 
 		for (BytecodeInstruction node : graph.vertexSet()) {
 			if (graph.inDegreeOf(node) == 0) {
-				DijkstraShortestPath<BytecodeInstruction, DefaultEdge> d = new DijkstraShortestPath<BytecodeInstruction, DefaultEdge>(
+				DijkstraShortestPath<BytecodeInstruction, ControlFlowEdge> d = new DijkstraShortestPath<BytecodeInstruction, ControlFlowEdge>(
 				        graph, node, v);
 				int distance = (int) Math.round(d.getPathLength());
 				if (distance < minimum)
@@ -322,8 +338,8 @@ public class RawControlFlowGraph extends
 			BytecodeInstruction current = queue.poll();
 			if(visited.contains(current))
 				continue;
-			Set<DefaultEdge> incomingEdges = graph.incomingEdgesOf(current);
-			for(DefaultEdge incomingEdge : incomingEdges) {
+			Set<ControlFlowEdge> incomingEdges = graph.incomingEdgesOf(current);
+			for(ControlFlowEdge incomingEdge : incomingEdges) {
 				BytecodeInstruction source = graph.getEdgeSource(incomingEdge);
 				if(source.getId() >= current.getId())
 					continue;
@@ -350,8 +366,8 @@ public class RawControlFlowGraph extends
 			BytecodeInstruction current = queue.poll();
 			if(visited.contains(current))
 				continue;
-			Set<DefaultEdge> outgoingEdges = graph.outgoingEdgesOf(current);
-			for(DefaultEdge outgoingEdge : outgoingEdges) {
+			Set<ControlFlowEdge> outgoingEdges = graph.outgoingEdgesOf(current);
+			for(ControlFlowEdge outgoingEdge : outgoingEdges) {
 				BytecodeInstruction target = graph.getEdgeTarget(outgoingEdge);
 				if(target.getId() < current.getId())
 					continue;
@@ -377,8 +393,8 @@ public class RawControlFlowGraph extends
 		
 		Set<Use> r = new HashSet<Use>();
 		
-		Set<DefaultEdge> outgoingEdges = graph.outgoingEdgesOf(entry);
-		for (DefaultEdge e : outgoingEdges) {
+		Set<ControlFlowEdge> outgoingEdges = graph.outgoingEdgesOf(entry);
+		for (ControlFlowEdge e : outgoingEdges) {
 			BytecodeInstruction edgeTarget = graph.getEdgeTarget(e);
 			
 			if(edgeTarget.isDefUse()) {
@@ -419,11 +435,11 @@ public class RawControlFlowGraph extends
 		// .. which should never happen cause this method is meant to be called for uses ... 
 		// TODO make this explicit
 		
-		Set<DefaultEdge> outgoingEdges = graph.outgoingEdgesOf(currentVertex);
+		Set<ControlFlowEdge> outgoingEdges = graph.outgoingEdgesOf(currentVertex);
 		if (outgoingEdges.size() == 0)
 			return true;
 
-		for (DefaultEdge e : outgoingEdges) {
+		for (ControlFlowEdge e : outgoingEdges) {
 			BytecodeInstruction edgeTarget = graph.getEdgeTarget(e);
 
 			// skip edges going into another def for the same field
@@ -441,11 +457,11 @@ public class RawControlFlowGraph extends
 		if (!graph.containsVertex(currentVertex))
 			throw new IllegalArgumentException("vertex not in graph");
 		
-		Set<DefaultEdge> incomingEdges = graph.incomingEdgesOf(currentVertex);
+		Set<ControlFlowEdge> incomingEdges = graph.incomingEdgesOf(currentVertex);
 		if (incomingEdges.size() == 0)
 			return true;
 
-		for (DefaultEdge e : incomingEdges) {
+		for (ControlFlowEdge e : incomingEdges) {
 			BytecodeInstruction edgeStart = graph.getEdgeSource(e);
 
 			// skip edges coming from a def for the same field
@@ -474,7 +490,7 @@ public class RawControlFlowGraph extends
 		if (branch.getBranchId() == -1)
 			throw new IllegalArgumentException("expect branch to have branchID set");
 		
-		Set<DefaultEdge> out = graph.outgoingEdgesOf(branch);
+		Set<ControlFlowEdge> out = graph.outgoingEdgesOf(branch);
 
 		// TODO: this is not correct. FIX THIS! 
 		//if (out.size() < 2)
@@ -483,7 +499,7 @@ public class RawControlFlowGraph extends
 
 		int minID = Integer.MAX_VALUE;
 		int maxID = Integer.MIN_VALUE;
-		for (DefaultEdge e : out) {
+		for (ControlFlowEdge e : out) {
 			BytecodeInstruction target = graph.getEdgeTarget(e);
 			if (minID > target.getId())
 				minID = target.getId();
@@ -503,12 +519,12 @@ public class RawControlFlowGraph extends
 			BytecodeInstruction prevVertex = getInstruction(maxID - 1);
 			if (prevVertex.isGoto()) {
 				//				logger.error("WITH ELSE PART");
-				Set<DefaultEdge> prevOut = graph.outgoingEdgesOf(prevVertex);
+				Set<ControlFlowEdge> prevOut = graph.outgoingEdgesOf(prevVertex);
 				if (prevOut.size() != 1)
 					throw new IllegalStateException(
 					        "expect gotos to only have 1 outgoing edge");
-				DefaultEdge elseEnd = null;
-				for (DefaultEdge e : prevOut)
+				ControlFlowEdge elseEnd = null;
+				for (ControlFlowEdge e : prevOut)
 					elseEnd = e;
 				markNodes(maxID + 1, graph.getEdgeTarget(elseEnd).getId(),
 				          branch, false);
@@ -531,12 +547,12 @@ public class RawControlFlowGraph extends
 		BytecodeInstruction prevVertex = getInstruction(maxID - 1);
 		if (!graph.containsVertex(prevVertex))
 			return false;
-		Set<DefaultEdge> prevOut = graph.outgoingEdgesOf(prevVertex);
+		Set<ControlFlowEdge> prevOut = graph.outgoingEdgesOf(prevVertex);
 		if (prevOut.size() != 1) {
 			return false;
 		}
-		DefaultEdge backEdge = null;
-		for (DefaultEdge e : prevOut)
+		ControlFlowEdge backEdge = null;
+		for (ControlFlowEdge e : prevOut)
 			backEdge = e;
 		// only if-branches have this structure
 		return !(graph.getEdgeTarget(backEdge).getId() < maxID);
@@ -545,12 +561,12 @@ public class RawControlFlowGraph extends
 	/*
 	private boolean isWhileBranch(int maxID) {
 		BytecodeInstruction prevVertex = getInstruction(maxID - 1);
-		Set<DefaultEdge> prevOut = graph.outgoingEdgesOf(prevVertex);
+		Set<ControlFlowEdge> prevOut = graph.outgoingEdgesOf(prevVertex);
 		if (prevOut.size() != 1) {
 			return false;
 		}
-		DefaultEdge backEdge = null;
-		for (DefaultEdge e : prevOut)
+		ControlFlowEdge backEdge = null;
+		for (ControlFlowEdge e : prevOut)
 			backEdge = e;
 		// only while-branches go back up
 		return graph.getEdgeTarget(backEdge).getId() < maxID;
@@ -562,7 +578,7 @@ public class RawControlFlowGraph extends
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		for (DefaultEdge e : graph.edgeSet()) {
+		for (ControlFlowEdge e : graph.edgeSet()) {
 			sb.append(graph.getEdgeSource(e) + " -> " + graph.getEdgeTarget(e));
 			sb.append("\n");
 		}

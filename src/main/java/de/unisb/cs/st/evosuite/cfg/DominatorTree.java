@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.jgrapht.graph.DefaultEdge;
 
 import de.unisb.cs.st.evosuite.mutation.Mutateable;
 
@@ -35,7 +36,7 @@ import de.unisb.cs.st.evosuite.mutation.Mutateable;
  * 
  * @author Andre Mis
  */
-public class DominatorTree<V extends Mutateable> extends EvoSuiteGraph<DominatorNode<V>> {
+public class DominatorTree<V extends Mutateable> extends EvoSuiteGraph<DominatorNode<V>,DefaultEdge> {
 
 	private static Logger logger = Logger.getLogger(DominatorTree.class);
 	
@@ -52,7 +53,8 @@ public class DominatorTree<V extends Mutateable> extends EvoSuiteGraph<Dominator
 	 * which can later be retrieved via getImmediateDominator()
 	 */
 	public DominatorTree(ControlFlowGraph<V> cfg) {
-
+		super(DefaultEdge.class);
+		
 		logger.debug("Computing DominatorTree for "+cfg.getName());
 		
 		this.cfg = cfg;

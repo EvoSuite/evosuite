@@ -54,10 +54,10 @@ public class CFGPool {
 		logger.debug("Added CFG for class " + className + " and method " + methodName);
 		cfg.finalize();
 		methods.put(methodName, cfg);
+
+		cfg.toDot();
 		
 		createControlDependence(cfg);
-		
-		cfg.toDot();
 		
 //		diameters.get(className).put(methodName, cfg.getDiameter());
 //		logger.debug("Calculated diameter for " + className + ": " + cfg.getDiameter());
@@ -79,6 +79,9 @@ public class CFGPool {
 		logger.debug("Added complete CFG for class " + className + " and method "
 		        + methodName);
 		methods.put(methodName, cfg);
+		
+		cfg.toDot();
+		
 		//ControlFlowGraph cfg = new ControlFlowGraph(graph, false);
 		//cfg.toDot(classname + "_" + methodname + ".dot");
 	}

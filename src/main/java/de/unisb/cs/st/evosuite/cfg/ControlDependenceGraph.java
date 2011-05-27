@@ -4,7 +4,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock> {
+public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock,ControlFlowEdge> {
 
 	private static Logger logger = Logger.getLogger(ControlDependenceGraph.class); 
 	
@@ -14,6 +14,7 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock> {
 	private String methodName;
 	
 	public ControlDependenceGraph(ActualControlFlowGraph cfg) {
+		super(ControlFlowEdge.class);
 		
 		this.cfg = cfg;
 		this.className = cfg.getClassName();
