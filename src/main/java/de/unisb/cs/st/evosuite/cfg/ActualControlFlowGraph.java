@@ -252,7 +252,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 			addBlock(nodeBlock);
 		}
 		
-		logger.info(vertexCount()+" BasicBlocks");
+		logger.debug(vertexCount()+" BasicBlocks");
 	}
 	
 	private void computeEdges() {
@@ -263,7 +263,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 			computeOutgoingEdgesFor(block);
 		}
 		
-		logger.info(edgeCount()+" ControlFlowEdges");
+		logger.debug(edgeCount()+" ControlFlowEdges");
 	}
 	
 	private void computeIncomingEdgesFor(BasicBlock block) {
@@ -644,6 +644,6 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	
 	@Override
 	public String getName() {
-		return "ActualCFG"+graphId; // TODO make nice
+		return "ActualCFG"+graphId+"_"+methodName; // TODO make nice
 	}
 }

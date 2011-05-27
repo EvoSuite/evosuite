@@ -50,7 +50,7 @@ import org.jgrapht.graph.DefaultEdge;
  */
 public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 
-	private static Logger logger = Logger.getLogger(DominatorTree.class);
+	private static Logger logger = Logger.getLogger(EvoSuiteGraph.class);
 	
 	private static int evoSuiteGraphs = 0;
 	protected int graphId;
@@ -392,9 +392,14 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		
 		createGraphDirectory();
 		
-		toDot("evosuite-graphs/"+getName()+".dot");
+		toDot("evosuite-graphs/"+toFileString(getName())+".dot");
 	}
 	
+	private String toFileString(String name) {
+	
+		return name.replaceAll("\\(","_").replaceAll("\\)", "_");
+	}
+
 	private void createGraphDirectory() {
 		
 		File graphDir = new File("evosuite-graphs/");
@@ -431,6 +436,8 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 				        new StringEdgeNameProvider<E>());
 //				        new IntegerEdgeNameProvider<E>());
 				exporter.export(out, graph);
+				
+				logger.info("exportet "+getName());
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
