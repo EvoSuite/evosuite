@@ -418,9 +418,9 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 			}
 			return ids;
 		}
-		if (isBranch()) {
-			return "Branch " + instructionId + "/" + branchId + " " + getInstructionType() + " - "
-					+ ((JumpInsnNode) asmNode).label.getLabel();
+		if (isActualBranch()) {
+			return "Branch " + instructionId + " - " + getInstructionType();
+//			+ " - "	+ ((JumpInsnNode) asmNode).label.getLabel();
 		}
 		String type = getType();
 		String opcode = getInstructionType();

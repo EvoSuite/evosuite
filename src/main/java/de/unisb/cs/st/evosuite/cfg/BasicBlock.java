@@ -144,7 +144,8 @@ public class BasicBlock implements Mutateable {
 	}
 	
 	public String getName() {
-		return (isAuxiliaryBlock?"aux":"")+"BasicBlock "+id+" - "+methodName;
+		return (isAuxiliaryBlock?"aux":"")+"BasicBlock "+id;
+//		+" - "+methodName;
 	}
 	
 	public String getClassName() {
