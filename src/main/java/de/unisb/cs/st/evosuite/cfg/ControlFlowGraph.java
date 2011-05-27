@@ -46,7 +46,7 @@ import de.unisb.cs.st.evosuite.mutation.Mutateable;
  * 
  * @author Gordon Fraser, Andre Mis
  */
-public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGraph<V> {
+public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGraph<V,ControlFlowEdge> {
 
 	private static Logger logger = Logger.getLogger(ControlFlowGraph.class);
 
@@ -59,7 +59,7 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 	 * Creates a fresh and empty CFG for the given class and method
 	 */
 	protected ControlFlowGraph(String className, String methodName) {
-		super();
+		super(ControlFlowEdge.class);
 		
 		if (className == null || methodName == null)
 			throw new IllegalArgumentException("null given");
@@ -72,8 +72,8 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 	 * Creates a CFG determined by the given jGraph for the given class and
 	 * method
 	 */
-	protected ControlFlowGraph(String className, String methodName, DefaultDirectedGraph<V,DefaultEdge> jGraph) {
-		super(jGraph);
+	protected ControlFlowGraph(String className, String methodName, DefaultDirectedGraph<V,ControlFlowEdge> jGraph) {
+		super(jGraph, ControlFlowEdge.class);
 		
 		if (className == null || methodName == null)
 			throw new IllegalArgumentException("null given");
@@ -82,6 +82,7 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 		this.methodName = methodName;
 	}
 
+	
 	/**
 	 * Can be used to retrieve a Branch contained in this CFG identified by it's branchId
 	 * 
@@ -193,7 +194,7 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 	}
 
 	protected void computeDiameter() {
-		FloydWarshall<V, DefaultEdge> f = new FloydWarshall<V, DefaultEdge>(
+		FloydWarshall<V, ControlFlowEdge> f = new FloydWarshall<V, ControlFlowEdge>(
 		        graph);
 		diameter = (int) f.getDiameter();
 	}

@@ -147,6 +147,7 @@ public class CFGGenerator {
 		
 		rawGraph.addVertex(srcInstruction);
 		rawGraph.addVertex(dstInstruction);
+		
 		if(null == rawGraph.addEdge(srcInstruction, dstInstruction))
 			logger.error("internal error while adding edge");
 		
@@ -263,7 +264,7 @@ public class CFGGenerator {
 	private void setMutationBranches() {
 		for (BytecodeInstruction v : rawGraph.vertexSet()) {
 			if (v.isIfNull()) {
-				for (DefaultEdge e : rawGraph.incomingEdgesOf(v)) {
+				for (ControlFlowEdge e : rawGraph.incomingEdgesOf(v)) {
 					BytecodeInstruction v2 = rawGraph.getEdgeSource(e);
 					// #TODO the magic string "getProperty" should be in some
 					// String variable, near the getProperty function
@@ -273,7 +274,7 @@ public class CFGGenerator {
 					}
 				}
 			} else if (v.isBranch() || v.isTableSwitch() || v.isLookupSwitch()) {
-				for (DefaultEdge e : rawGraph.incomingEdgesOf(v)) {
+				for (ControlFlowEdge e : rawGraph.incomingEdgesOf(v)) {
 					BytecodeInstruction v2 = rawGraph.getEdgeSource(e);
 					// #TODO method signature should be used here
 					if (v2.isMethodCall(HOMObserver.NAME_OF_TOUCH_METHOD)) {

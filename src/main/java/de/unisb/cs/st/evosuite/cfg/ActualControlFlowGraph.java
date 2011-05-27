@@ -4,8 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultEdge;
 
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
@@ -156,7 +154,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		this.joinSources = new HashSet<BytecodeInstruction>();
 		
 		for(BytecodeInstruction join : joins)
-			for(DefaultEdge joinEdge : rawGraph.incomingEdgesOf(join))
+			for(ControlFlowEdge joinEdge : rawGraph.incomingEdgesOf(join))
 				joinSources.add(rawGraph.getEdgeSource(joinEdge));
 	}
 	
@@ -198,7 +196,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		this.branchTargets = new HashSet<BytecodeInstruction>();
 		
 		for(BytecodeInstruction branch : branches)
-			for(DefaultEdge branchEdge : rawGraph.outgoingEdgesOf(branch))
+			for(ControlFlowEdge branchEdge : rawGraph.outgoingEdgesOf(branch))
 				branchTargets.add(rawGraph.getEdgeTarget(branchEdge));
 	}
 	
@@ -274,9 +272,9 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 			return;
 
 		BytecodeInstruction blockStart = block.getFirstInstruction();
-		Set<DefaultEdge> rawIncomings = rawGraph
+		Set<ControlFlowEdge> rawIncomings = rawGraph
 				.incomingEdgesOf(blockStart);
-		for (DefaultEdge rawIncoming : rawIncomings) {
+		for (ControlFlowEdge rawIncoming : rawIncomings) {
 			BytecodeInstruction incomingStart = rawGraph
 					.getEdgeSource(rawIncoming);
 			addEdge(incomingStart, block);
@@ -290,9 +288,9 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		
 		BytecodeInstruction blockEnd = block.getLastInstruction();
 		
-		Set<DefaultEdge> rawOutgoings = rawGraph
+		Set<ControlFlowEdge> rawOutgoings = rawGraph
 				.outgoingEdgesOf(blockEnd);
-		for (DefaultEdge rawOutgoing : rawOutgoings) {
+		for (ControlFlowEdge rawOutgoing : rawOutgoings) {
 			BytecodeInstruction outgoingEnd = rawGraph
 					.getEdgeTarget(rawOutgoing);
 			addEdge(block, outgoingEnd);
@@ -362,13 +360,13 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		addEdge(src, targetBlock);
 	}
 	
-	protected DefaultEdge addEdge(BasicBlock src, BasicBlock target) {
+	protected ControlFlowEdge addEdge(BasicBlock src, BasicBlock target) {
 		if (src == null || target == null)
 			throw new IllegalArgumentException("null given");
 
 		logger.debug("Adding edge from "+src.getName()+" to "+target.getName());
 		
-		DefaultEdge r;
+		ControlFlowEdge r;
 		if (containsEdge(src,target)) {
 			logger.debug("edge already contained in CFG");
 			r = getEdge(src,target);
