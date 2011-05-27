@@ -3,6 +3,8 @@ package de.unisb.cs.st.evosuite.cfg;
 import java.util.HashSet;
 import java.util.Set;
 
+import de.unisb.cs.st.evosuite.mutation.Mutateable;
+
 /**
  * This class serves as a convenience data structure within cfg.DominatorTree
  * 
@@ -18,7 +20,7 @@ import java.util.Set;
  * 
  * @author Andre Mis
  */
-class DominatorNode<V> {
+class DominatorNode<V extends Mutateable> {
 
 	final V node;
 	int n = 0;	
@@ -85,6 +87,6 @@ class DominatorNode<V> {
 	
 	@Override
 	public String toString() {
-		return "DTNode "+n;
+		return "DTNode "+n+" - "+node.getName();
 	}
 }

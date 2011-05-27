@@ -231,33 +231,8 @@ public class CFGGenerator {
 	public ActualControlFlowGraph computeCFG() {
 
 		BytecodeInstructionPool.logInstructionsIn(className,methodName);
-
-		// debug/test
-		
-		rawGraph.toDot();
-		
 		ActualControlFlowGraph cfg = new ActualControlFlowGraph(rawGraph);
-		ActualControlFlowGraph rcfg = cfg.computeReverseCFG();
-		DominatorTree<BasicBlock> dt = new DominatorTree<BasicBlock>(rcfg);
-		
-		for (BasicBlock b : rcfg.vertexSet())
-			if (!b.isExitBlock()) {
-//				if(dt.getImmediateDominator(b)==null) {
-//					logger.info("iDom of "+b.getName()+" was null");
-//					continue;
-//				}
-//				logger.info("iDom of "+b.getName()+" is "+dt.getImmediateDominator(b).getName());
-				
-				logger.info("DFs for: "+b.getName());
-				for(BasicBlock cd : dt.getDominatingFrontiers(b))
-					logger.info("  "+cd.getName());
-			}
-		
-			
-		cfg.toDot();
-//		rcfg.toDot();
-		dt.toDot();
-			
+
 		return cfg;
 	}
 

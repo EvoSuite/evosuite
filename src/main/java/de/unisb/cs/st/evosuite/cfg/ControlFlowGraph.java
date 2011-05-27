@@ -42,7 +42,7 @@ import de.unisb.cs.st.evosuite.mutation.Mutateable;
  * CUT and each of their methods a complete and a minimal CFG
  * 
  * CFGs are created by the CFGGenerator during the analysis of
- * the CFG's byteCode performed by the BytecodeAnalyzer 
+ * the CUTs' byteCode performed by the BytecodeAnalyzer 
  * 
  * @author Gordon Fraser, Andre Mis
  */
@@ -199,22 +199,19 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 	}
 
 	protected V determineEntryPoint() {
-		V r = null;
+		Set<V> candidates = determineEntryPoints();
 
-		for (V instruction : vertexSet())
-			if (inDegreeOf(instruction) == 0) {
-				if (r != null)
-					throw new IllegalStateException(
-							"expect CFG of a method to contain exactly one instruction with no parent");
-				r = instruction;
-			}
-		if (r == null)
+		if(candidates.size() != 1)
 			throw new IllegalStateException(
 					"expect CFG of a method to contain exactly one instruction with no parent");
+		
+		for (V instruction : candidates)
+			return instruction;
 
-		return r;
+		throw new IllegalStateException("impossible oO");
 	}
 
+	@Override
 	protected Set<V> determineExitPoints() {
 		Set<V> r = new HashSet<V>();
 
@@ -229,15 +226,16 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 		return r;
 	}
 
-	public String getName() {
-		return "CFG "+className+"."+getMethodName();
-	}
-	
 	public String getClassName() {
 		return className;
 	}
 
 	public String getMethodName() {
 		return methodName;
+	}
+	
+	@Override
+	public String getName() {
+		return "CFG "+className+"."+getMethodName();
 	}
 }

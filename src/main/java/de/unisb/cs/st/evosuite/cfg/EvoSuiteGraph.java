@@ -166,6 +166,11 @@ public abstract class EvoSuiteGraph<V> {
 	
 	// building the graph
 	
+	protected void addVertices(EvoSuiteGraph<V> other) {
+		
+		addVertices(other.vertexSet());
+	}
+	
 	protected void addVertices(Collection<V> vs) {
 		if(vs==null)
 			throw new IllegalArgumentException("null given");
@@ -248,6 +253,27 @@ public abstract class EvoSuiteGraph<V> {
 		Set<V> connectedToStart = determineConnectedVertices(start);
 
 		return connectedToStart.size() == vertexSet().size();
+	}
+	
+	protected Set<V> determineEntryPoints() {
+		Set<V> r = new HashSet<V>();
+
+		for (V instruction : vertexSet())
+			if (inDegreeOf(instruction) == 0) {
+				r.add(instruction);
+			}
+
+		return r;
+	}
+
+	protected Set<V> determineExitPoints() {
+		Set<V> r = new HashSet<V>();
+
+		for (V instruction : vertexSet())
+			if (outDegreeOf(instruction) == 0)
+				r.add(instruction);
+
+		return r;
 	}
 
 	/**

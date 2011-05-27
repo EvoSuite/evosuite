@@ -48,7 +48,7 @@ public class BasicBlock implements Mutateable {
 	protected String className;
 	protected String methodName;
 	
-	private boolean isAuxiliaryBlock = false;
+	protected boolean isAuxiliaryBlock = false;
 	
 	private List<BytecodeInstruction> instructions = new ArrayList<BytecodeInstruction>();
 	
@@ -144,7 +144,7 @@ public class BasicBlock implements Mutateable {
 	}
 	
 	public String getName() {
-		return "BasicBlock "+methodName+"["+id+"]";
+		return (isAuxiliaryBlock?"aux":"")+"BasicBlock "+id+" - "+methodName;
 	}
 	
 	public String getClassName() {
