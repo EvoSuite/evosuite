@@ -1,5 +1,9 @@
 package de.unisb.cs.st.evosuite.cfg;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -8,6 +12,10 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.jgrapht.alg.DijkstraShortestPath;
+import org.jgrapht.ext.DOTExporter;
+import org.jgrapht.ext.IntegerEdgeNameProvider;
+import org.jgrapht.ext.IntegerNameProvider;
+import org.jgrapht.ext.StringNameProvider;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
@@ -43,6 +51,8 @@ public abstract class EvoSuiteGraph<V> {
 
 	private static Logger logger = Logger.getLogger(DominatorTree.class);
 	
+	private static int evoSuiteGraphs = 0;
+	protected int graphId;
 	
 	protected DefaultDirectedGraph<V, DefaultEdge> graph;
 
@@ -50,6 +60,8 @@ public abstract class EvoSuiteGraph<V> {
 	protected EvoSuiteGraph() {
 
 		graph = new DefaultDirectedGraph<V, DefaultEdge>(DefaultEdge.class);
+		
+		setId();
 	}
 
 	protected EvoSuiteGraph(DefaultDirectedGraph<V, DefaultEdge> graph) {
@@ -57,6 +69,13 @@ public abstract class EvoSuiteGraph<V> {
 			throw new IllegalArgumentException("null given");
 
 		this.graph = graph;
+		
+		setId();
+	}
+	
+	private void setId() {
+		evoSuiteGraphs++;
+		graphId = evoSuiteGraphs;
 	}
 	
 	// retrieving nodes and edges
@@ -337,4 +356,55 @@ public abstract class EvoSuiteGraph<V> {
 		return r;
 	}
 	
+	
+	// visualizing the graph TODO !!!
+	
+	public void toDot() {
+		
+		createGraphDirectory();
+		
+		toDot("evosuite-graphs/"+getName());
+	}
+	
+	private void createGraphDirectory() {
+		
+		File graphDir = new File("evosuite-graphs/");
+		
+		if(!graphDir.exists() && !graphDir.mkdir())
+			throw new IllegalStateException("unable to create directory evosuite-graphs");
+			
+		createToPNGScript(graphDir);
+	}
+
+	private void createToPNGScript(File graphDir) {
+		
+		// TODO: for f in *; do dot -Tpng $f -o img_$f ; done
+	}
+
+	public String getName() {
+		return "EvoSuiteGraph_"+graphId;
+	}
+
+	public void toDot(String filename) {
+
+		try {
+
+			FileWriter fstream = new FileWriter(filename);
+			BufferedWriter out = new BufferedWriter(fstream);
+			if (!graph.vertexSet().isEmpty()) {
+				//FrameVertexNameProvider nameprovider = new FrameVertexNameProvider(mn.instructions);
+				//	DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>();
+				//DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>(new IntegerNameProvider(), nameprovider, new IntegerEdgeNameProvider());
+				//			DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>(new LineNumberProvider(), new LineNumberProvider(), new IntegerEdgeNameProvider());
+				DOTExporter<V, DefaultEdge> exporter = new DOTExporter<V, DefaultEdge>(
+				        new IntegerNameProvider<V>(),
+				        new StringNameProvider<V>(),
+				        new IntegerEdgeNameProvider<DefaultEdge>());
+				exporter.export(out, graph);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
