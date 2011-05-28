@@ -52,12 +52,15 @@ public abstract class ASMWrapper {
 	}
 
 	public String getInstructionType() {
-		String opcode = "";
+
 		if (asmNode.getOpcode() >= 0
 				&& asmNode.getOpcode() < AbstractVisitor.OPCODES.length)
-			opcode = AbstractVisitor.OPCODES[asmNode.getOpcode()];
+			return AbstractVisitor.OPCODES[asmNode.getOpcode()];
 		
-		return opcode; 
+		if(isLineNumber())
+			return "LINE "+this.getLineNumber();
+		
+		return getType(); 
 	}
 	
 	public String getType() {
@@ -262,6 +265,13 @@ public abstract class ASMWrapper {
 	 */
 	public boolean isLineNumber() {
 		return (asmNode instanceof LineNumberNode);
+	}
+	
+	public int getLineNumber() {
+		if(!isLineNumber())
+			return -1;
+		
+		return ((LineNumberNode) asmNode).line;
 	}
 
 	public boolean isLabel() {
