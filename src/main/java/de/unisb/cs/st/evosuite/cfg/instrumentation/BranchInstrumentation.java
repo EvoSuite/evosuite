@@ -62,7 +62,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 						                                          v.getId(), className,
 						                                          methodName));
 
-						BranchPool.addBranch(v);
+//						BranchPool.addBranch(v);
 					} else if (v.isTableSwitch()) {
 						mn.instructions.insertBefore(v.getASMNode(),
 						                             getInstrumentation(v, mn, className,
@@ -112,7 +112,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 				        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 				        "passedBranch", "(IIIII)V"));
 				BranchPool.countBranch(methodID);
-				BranchPool.addBranch(v);
+//				BranchPool.addBranch(v);
 				num++;
 			}
 			// Default branch is covered if the last case is false
@@ -133,7 +133,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 				        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 				        "passedBranch", "(IIIII)V"));
 				BranchPool.countBranch(methodID);
-				BranchPool.addBranch(v);
+//				BranchPool.addBranch(v);
 			}
 			// Default branch is covered if the last case is false
 			break;

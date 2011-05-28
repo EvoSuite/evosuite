@@ -15,4 +15,9 @@ public class ExitBlock extends BasicBlock {
 	public String getName() {
 		return "ExitBlock for method "+methodName;
 	}
+	
+	@Override
+	public String toString() {
+		return getName();
+	}
 }

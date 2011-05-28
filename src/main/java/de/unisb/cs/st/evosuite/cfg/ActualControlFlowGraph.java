@@ -226,7 +226,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	
 	private void addAuxiliaryBlocks() {
 		
-		// TODO clean up mess: exit/entry POINTs versus BLOCKs
+		// TODO clean up mess: exit-/entry- POINTs versus BLOCKs
 		
 		EntryBlock entry = new EntryBlock(className, methodName);
 		ExitBlock exit = new ExitBlock(className, methodName);

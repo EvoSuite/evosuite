@@ -35,7 +35,7 @@ public class CFGPool {
 	 */
 	private static Map<String, Map<String, ActualControlFlowGraph>> actualCFGs = new HashMap<String, Map<String, ActualControlFlowGraph>>();
 	
-//	private static Map<String, Map<String, DominatorTree>> dominatorTrees = new HashMap<String, Map<String,DominatorTree>>();
+	private static Map<String, Map<String, ControlDependenceGraph>> controlDependencies = new HashMap<String, Map<String,ControlDependenceGraph>>();
 
 	//TODO do these get used anywhere?
 //	private static Map<String, Map<String, Double>> diameters = new HashMap<String, Map<String, Double>>();	
@@ -45,6 +45,10 @@ public class CFGPool {
 	public static void registerActualCFG(ActualControlFlowGraph cfg) {
 		String className = cfg.getClassName();
 		String methodName = cfg.getMethodName();
+
+		if (className == null || methodName == null)
+			throw new IllegalStateException(
+					"expect class and method name of CFGs to be set before entering the CFGPool");
 		
 		if (!actualCFGs.containsKey(className)) {
 			actualCFGs.put(className, new HashMap<String, ActualControlFlowGraph>());
@@ -57,21 +61,38 @@ public class CFGPool {
 
 		cfg.toDot();
 		
-		createControlDependence(cfg);
+		createAndRegisterControlDependence(cfg);
 		
 //		diameters.get(className).put(methodName, cfg.getDiameter());
 //		logger.debug("Calculated diameter for " + className + ": " + cfg.getDiameter());
 	}
 
-	private static void createControlDependence(ActualControlFlowGraph cfg) {
+	private static void createAndRegisterControlDependence(ActualControlFlowGraph cfg) {
 
 		ControlDependenceGraph cd = new ControlDependenceGraph(cfg);
-		// TODO stopped here
+		
+		String className = cd.getClassName();
+		String methodName = cd.getMethodName();
+		
+		if (className == null || methodName == null)
+			throw new IllegalStateException(
+					"expect class and method name of CFGs to be set before entering the CFGPool");
+		
+		if(!controlDependencies.containsKey(className))
+			controlDependencies.put(className, new HashMap<String,ControlDependenceGraph>());
+		Map<String,ControlDependenceGraph> cds = controlDependencies.get(className);
+		
+		cds.put(methodName, cd);
+		// TODO cd.toDot() ?
 	}
 
 	public static void registerRawCFG(RawControlFlowGraph cfg) {
 		String className = cfg.getClassName();
 		String methodName = cfg.getMethodName();
+		
+		if (className == null || methodName == null)
+			throw new IllegalStateException(
+					"expect class and method name of CFGs to be set before entering the CFGPool");
 		
 		if (!rawCFGs.containsKey(className)) {
 			rawCFGs.put(className, new HashMap<String, RawControlFlowGraph>());

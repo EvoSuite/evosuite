@@ -10,8 +10,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.cfg.CFGPool;
-import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 
 // TODO: root branches should not be special cases
 //			every root branch should be a branch just 
@@ -60,7 +58,7 @@ public class BranchPool {
 	 * @param v
 	 *            CFGVertex of a Branch
 	 */
-	public static void addBranch(BytecodeInstruction v) {
+	public static void registerAsBranch(BytecodeInstruction v) {
 		if (!(v.isActualBranch()))
 			throw new IllegalArgumentException("CFGVertex of a branch expected");
 		if(isKnownAsBranch(v))
@@ -86,11 +84,11 @@ public class BranchPool {
 			throw new IllegalStateException("expect registerInstruction() to be called at most once for each instruction");
 		
 		branchCounter++;
-		v.setBranchId(branchCounter);
-		markBranchIDs(v);
+//		v.setBranchId(branchCounter);
+//		markBranchIDs(v);
 		registeredBranches.put(v, branchCounter);
 		
-		Branch b = new Branch(v);
+		Branch b = new Branch(v,branchCounter);
 		addBranchToMap(b);
 		branchIdMap.put(branchCounter, b);
 
@@ -108,12 +106,12 @@ public class BranchPool {
 		branchMap.get(className).get(methodName).add(b);
 	}
 
-	private static void markBranchIDs(BytecodeInstruction b) {
-		RawControlFlowGraph completeCFG = CFGPool.getRawCFG(b
-				.getClassName(), b.getMethodName());
-		
-		completeCFG.markBranchIds(b);
-	}	
+//	private static void markBranchIDs(BytecodeInstruction b) {
+//		RawControlFlowGraph completeCFG = CFGPool.getRawCFG(b
+//				.getClassName(), b.getMethodName());
+//		
+//		completeCFG.markBranchIds(b); // TODO use new CDG
+//	}	
 	
 	
 	// retrieve information from the pool
@@ -127,7 +125,22 @@ public class BranchPool {
 	 */
 	public static boolean isKnownAsBranch(BytecodeInstruction v) {
 		return registeredBranches.containsKey(v);
-	}	
+	}
+	
+	public static int getActualBranchIdForInstruction(BytecodeInstruction ins) {
+		Branch b = getBranchForInstruction(ins);
+		if(b==null)
+			return -1;
+		
+		return b.getActualBranchId();
+	}
+	
+	public static Branch getBranchForInstruction(BytecodeInstruction ins) {
+		if(ins == null)
+			throw new IllegalArgumentException("null given");
+		
+		return getBranch(registeredBranches.get(ins));
+	}
 
 
 	// TODO can't this just always be called private by addBranch?
@@ -189,6 +202,7 @@ public class BranchPool {
 	 * @return The branch, or null if it does not exist
 	 */
 	public static Branch getBranch(int branchId) {
+
 		return branchIdMap.get(branchId);
 	}
 
