@@ -46,6 +46,10 @@ public class ControlFlowEdge extends DefaultEdge {
 		return r;
 	}
 
+	public boolean hasBranchInstructionSet() {
+		return branchInstruction != null;
+	}
+	
 	public Branch getBranchInstruction() {
 		return branchInstruction;
 	}

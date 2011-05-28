@@ -45,25 +45,27 @@ public class ControlDependenceGraph extends
 				r.add(b);
 		}
 
-		// sanity check
-		if (r.isEmpty()) {
-			Set<BasicBlock> insParents = getParents(insBlock);
-			if (insParents.size() != 1) {
-
-				for (BasicBlock b : insParents)
-					logger.error(b.toString());
-
-				throw new IllegalStateException(
-						"expect instruction dependent on root branch to have exactly one parent in it's CDG namely the EntryBlock: "
-								+ insBlock.toString());
-			}
-
-			for (BasicBlock b : insParents)
-				if (!b.isEntryBlock() && !getControlDependentBranches(b).isEmpty())
-					throw new IllegalStateException(
-							"expect instruction dependent on root branch to have exactly one parent in it's CDG namely the EntryBlock"
-									+ insBlock.toString() + methodName);
-		}
+		// TODO need RootBranch Object!!!
+		// TODO the following does not hold! a node can be dependent on the root branch AND another branch! TODO !!!
+//		// sanity check
+//		if (r.isEmpty()) {
+//			Set<BasicBlock> insParents = getParents(insBlock);
+//			if (insParents.size() != 1) {
+//
+//				for (BasicBlock b : insParents)
+//					logger.error(b.toString());
+//
+//				throw new IllegalStateException(
+//						"expect instruction dependent on root branch to have exactly one parent in it's CDG namely the EntryBlock: "
+//								+ insBlock.toString());
+//			}
+//
+//			for (BasicBlock b : insParents)
+//				if (!b.isEntryBlock() && !getControlDependentBranches(b).isEmpty())
+//					throw new IllegalStateException(
+//							"expect instruction dependent on root branch to have exactly one parent in it's CDG namely the EntryBlock"
+//									+ insBlock.toString() + methodName);
+//		}
 
 		return r;
 	}
@@ -81,17 +83,12 @@ public class ControlDependenceGraph extends
 
 			r.add(b.getActualBranchId());
 		}
-		if (r.isEmpty())
-			r.add(-1); // to indicate this is only dependent on root branch,
+		
+		// to indicate this is only dependent on root branch,
 		// meaning entering the method
-
-		// sanity check
-		if (r.contains(-1)) {
-			if (r.size() > 1)
-				throw new IllegalStateException(
-						"expect instruction dependent on root branch to have no other dependencies");
-		}
-
+		if (isRootDependent(ins))
+			r.add(-1); 
+		
 		return r;
 	}
 
@@ -146,7 +143,7 @@ public class ControlDependenceGraph extends
 		
 		BasicBlock insBlock = getBlockOf(ins);
 
-		boolean isRootDependent = isDependentOnRootBranch(ins);
+		boolean isRootDependent = isRootDependent(ins);
 		if (b == null)
 			return isRootDependent;
 		if(isRootDependent && b != null)
@@ -171,20 +168,16 @@ public class ControlDependenceGraph extends
 	 * Checks whether the given instruction is only dependent on the root branch
 	 * of it's method
 	 * 
-	 * This is the case if the BasicBlock of the given instruction is either directly
-	 * adjacent to the Entry Block or if it's parent is
-	 * 
-	 * TODO check if there can be a root dependent node in the CDG that has no parent that is adjacent to an entry block
+	 * This is the case if the BasicBlock of the given instruction is directly
 	 */
-	public boolean isDependentOnRootBranch(BytecodeInstruction ins) {
+	public boolean isRootDependent(BytecodeInstruction ins) {
 		
 		BasicBlock insBlock = getBlockOf(ins);
 		if(isAdjacentToEntryBlock(insBlock))
 			return true;
 		
-		Set<BasicBlock> parents = getParents(insBlock);
-		for(BasicBlock parent : parents)
-			if(isAdjacentToEntryBlock(parent))
+		for(ControlFlowEdge in : incomingEdgesOf(insBlock))
+			if(!in.hasBranchInstructionSet() && isAdjacentToEntryBlock(getEdgeSource(in)))
 				return true;
 		
 		return false;

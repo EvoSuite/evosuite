@@ -253,6 +253,10 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		// throw new IllegalStateException(
 		// "expect hasLineNumberSet() to be true on a BytecodeInstruction that gets asked for it's lineNumber");
 
+		if(lineNumber == -1 && isLineNumber()) {
+			retrieveLineNumber();
+		}
+		
 		return lineNumber;
 	}
 
@@ -265,7 +269,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 					"expect lineNumber value to be positive");
 
 		if (isLineNumber()) {
-			int asmLine = ((LineNumberNode) asmNode).line;
+			int asmLine = super.getLineNumber();
 			// sanity check
 			if (lineNumber != -1 && asmLine != lineNumber)
 				throw new IllegalStateException(
@@ -302,7 +306,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 */
 	private void retrieveLineNumber() {
 		if (isLineNumber()) {
-			int asmLine = ((LineNumberNode) asmNode).line;
+			int asmLine = super.getLineNumber();
 			// sanity check
 			if (this.lineNumber != -1 && asmLine != this.lineNumber)
 				throw new IllegalStateException(
