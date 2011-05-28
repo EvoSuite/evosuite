@@ -33,10 +33,12 @@ public class ControlFlowEdge extends DefaultEdge {
 
 		if (branchInstruction != null) {
 			r += branchInstruction.toString();
-			if (branchExpressionValue)
-				r += " - TRUE";
-			else
-				r += " - FALSE";
+			if(!(branchInstruction.isTableSwitch() || branchInstruction.isLookupSwitch())) {
+				if (branchExpressionValue)
+					r += " - TRUE";
+				else
+					r += " - FALSE";
+			}
 		} 
 //		else
 //			r += "nonBranch";

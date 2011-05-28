@@ -397,7 +397,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	
 	private String toFileString(String name) {
 	
-		return name.replaceAll("\\(","_").replaceAll("\\)", "_");
+		return name.replaceAll("\\(","_").replaceAll("\\)", "_").replaceAll(";", "_").replaceAll("/", "_");
 	}
 
 	private void createGraphDirectory() {
