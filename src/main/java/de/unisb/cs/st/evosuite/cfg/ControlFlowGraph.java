@@ -202,14 +202,18 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 	protected V determineEntryPoint() {
 		Set<V> candidates = determineEntryPoints();
 
-		if(candidates.size() != 1)
+		if(candidates.size() > 1)
 			throw new IllegalStateException(
-					"expect CFG of a method to contain exactly one instruction with no parent");
+					"expect CFG of a method to contain at most one instruction with no parent");
 		
 		for (V instruction : candidates)
 			return instruction;
 
-		throw new IllegalStateException("impossible oO");
+		// there was a back loop to the first instruction within this CFG, so no
+		// candidate
+		// TODO for now return null and handle in super class
+		// RawControlFlowGraph separately by overriding this method
+		return null;
 	}
 
 	@Override
