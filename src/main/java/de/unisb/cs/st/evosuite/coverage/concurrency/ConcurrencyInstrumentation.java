@@ -52,9 +52,9 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 		while (instructions.hasNext()) {
 			AbstractInsnNode instruction = instructions.next();
 			for (BytecodeInstruction v : completeCFG.vertexSet()) {
-				if (instruction.equals(v.getASMNode())){
-					v.branchId = completeCFG.getInstruction(v.getId()).branchId;
-				}
+//				if (instruction.equals(v.getASMNode())){
+//					v.branchId = completeCFG.getInstruction(v.getId()).getBranchId();
+//				}
 				//#TODO steenbuck the true should be some command line option to activate the concurrency stuff
 				if (true && 
 						instruction.equals(v.getASMNode()) && 
@@ -65,7 +65,7 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 						((FieldInsnNode)instruction).desc.startsWith("L")) { //we only want objects, as primitive types are passed by value
 					// adding instrumentation for scheduling-coverage
 					mn.instructions.insert(v.getASMNode(),
-							getConcurrencyInstrumentation(v, v.branchId));
+							getConcurrencyInstrumentation(v, v.getBranchId()));
 
 					// keeping track of definitions
 					/*if (v.isDefinition())

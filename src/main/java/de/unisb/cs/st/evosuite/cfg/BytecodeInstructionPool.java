@@ -9,6 +9,8 @@ import org.apache.log4j.Logger;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+
 /**
  * @author Andre Mis
  *
@@ -34,7 +36,7 @@ public class BytecodeInstructionPool {
 			BytecodeInstruction instruction = BytecodeInstructionFactory
 					.createBytecodeInstruction(className, methodName,
 							instructionId, instructionNode);
-			addInstructionToMap(instruction);
+			registerInstruction(instruction);
 			
 		}
 	}
@@ -42,12 +44,12 @@ public class BytecodeInstructionPool {
 	private static void registerMethodNode(MethodNode node) {
 		for (MethodNode mn : knownMethodNodes)
 			if (mn == node)
-				logger.warn("TODO CFGGenerator.analyze() apparently got called for the same MethodNode twice");
+				logger.warn("CFGGenerator.analyze() apparently got called for the same MethodNode twice");
 		
 		knownMethodNodes.add(node);
 	}
 	
-	private static void addInstructionToMap(BytecodeInstruction instruction) {
+	private static void registerInstruction(BytecodeInstruction instruction) {
 		String className = instruction.getClassName();
 		String methodName = instruction.getMethodName();
 		
@@ -56,6 +58,9 @@ public class BytecodeInstructionPool {
 		if (!instructionMap.get(className).containsKey(methodName))
 			instructionMap.get(className).put(methodName, new ArrayList<BytecodeInstruction>());
 		instructionMap.get(className).get(methodName).add(instruction);
+		
+		if(instruction.isActualBranch())
+			BranchPool.registerAsBranch(instruction);
 	}
 	
 	// retrieve data from the pool

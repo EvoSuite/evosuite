@@ -60,7 +60,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	private boolean mutatedBranch = false;
 
 	// -- - Coverage Criteria - ---
-	public int branchId = -1;
+	private int controlDependentBranchId = -1;
 	// TODO branchExpressionValue should be false whenever it is true and visa
 	// versa
 	public boolean branchExpressionValue = true;
@@ -80,7 +80,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	public BytecodeInstruction(BytecodeInstruction wrap) {
 
 		this(wrap.className, wrap.methodName, wrap.instructionId, wrap.asmNode,
-				wrap.lineNumber, wrap.branchId, wrap.branchExpressionValue);
+				wrap.lineNumber, wrap.controlDependentBranchId, wrap.branchExpressionValue);
 	}
 
 	public BytecodeInstruction(String className, String methodName,
@@ -89,7 +89,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 
 		this(className, methodName, instructionId, asmNode, lineNumber);
 
-		this.branchId = branchId;
+		this.controlDependentBranchId = branchId;
 		this.branchExpressionValue = branchExpressionValue;
 	}
 
@@ -97,7 +97,8 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 			int instructionId, AbstractInsnNode asmNode, int lineNumber) {
 
 		this(className, methodName, instructionId, asmNode);
-		setLineNumber(lineNumber);
+		if(lineNumber != -1)
+			setLineNumber(lineNumber);
 	}
 
 	public BytecodeInstruction(String className, String methodName,
@@ -216,7 +217,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 			throw new IllegalArgumentException(
 					"expect branchId to be positive, not " + branchId);
 
-		this.branchId = branchId;
+		this.controlDependentBranchId = branchId;
 	}
 
 	public void setBranchExpressionValue(boolean branchExpressionValue) {
@@ -238,16 +239,18 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		mutant_distance.put(id, distance);
 	}
 
-	/**
-	 * If hasLineNumberSet() returns true, this method returns the lineNumber of
-	 * this instruction Otherwise an IllegalStateException() will be thrown to
-	 * indicate that the field was never initialized properly
-	 * 
-	 */
 	public int getLineNumber() {
-		if (!hasLineNumberSet())
-			throw new IllegalStateException(
-					"expect hasLineNumberSet() to be true on a BytecodeInstruction that gets asked for it's lineNumber");
+		// former method comment
+		// If hasLineNumberSet() returns true, this method returns the
+		// lineNumber of
+		// this instruction Otherwise an IllegalStateException() will be thrown
+		// to
+		// indicate that the field was never initialized properly
+
+		// if (!hasLineNumberSet()) // TODO if lineNumber not set retrieve this
+		// info from ... CFGPool or something
+		// throw new IllegalStateException(
+		// "expect hasLineNumberSet() to be true on a BytecodeInstruction that gets asked for it's lineNumber");
 
 		return lineNumber;
 	}
@@ -314,7 +317,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	}
 
 	public int getBranchId() {
-		return branchId;
+		return controlDependentBranchId;
 	}
 
 	/**
@@ -419,7 +422,15 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 			return ids;
 		}
 		if (isActualBranch()) {
-			return "Branch " + instructionId + " - " + getInstructionType();
+			if(BranchPool.isKnownAsBranch(this)) {
+				Branch b = BranchPool.getBranchForInstruction(this);
+				if(b==null)
+					throw new IllegalStateException("expect BranchPool to be able to return Branches for instructions fullfilling BranchPool.isKnownAsBranch()");
+					
+				return "Branch " + b.getActualBranchId() + " - " + getInstructionType();
+			}
+			return "UNKNOWN Branch i"+ instructionId + " " + getInstructionType();
+			
 //			+ " - "	+ ((JumpInsnNode) asmNode).label.getLabel();
 		}
 		String type = getType();

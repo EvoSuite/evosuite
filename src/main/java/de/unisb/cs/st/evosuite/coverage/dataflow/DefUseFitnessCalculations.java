@@ -775,12 +775,12 @@ public class DefUseFitnessCalculations {
 	public static BranchCoverageTestFitness getBranchTestFitness(BytecodeInstruction v,
 	        boolean targetExpressionValue) {
 		BranchCoverageTestFitness r;
-		if (v.branchId == -1) {
+		if (v.getBranchId() == -1) {
 			r = getRootBranchTestFitness(v);
 		} else {
 			ActualControlFlowGraph cfg = CFGPool.getActualCFG(v.getClassName(),
 			                                                        v.getMethodName());
-			Branch b = BranchPool.getBranch(v.branchId);
+			Branch b = BranchPool.getBranch(v.getBranchId());
 			r = new BranchCoverageTestFitness(new BranchCoverageGoal(b,
 			        targetExpressionValue, cfg, v.getClassName(), v.getMethodName()));
 		}

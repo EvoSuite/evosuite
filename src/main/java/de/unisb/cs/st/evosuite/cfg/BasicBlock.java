@@ -204,7 +204,11 @@ public class BasicBlock implements Mutateable {
 	@Override
 	public String toString() {
 	
-		return getName();
+		String r = "BB_"+id;
+		for(BytecodeInstruction ins : instructions)
+			r = r.trim()+" "+ins.getInstructionType();
+		
+		return r;
 		
 		// for now due to graph-visualization .. TODO make explain() or something
 //		StringBuilder r = new StringBuilder();
