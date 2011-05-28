@@ -415,7 +415,7 @@ public class TestSuiteGenerator {
 
 				if (ga.getBestIndividual().getFitness() == 0.0) {
 					if (Properties.PRINT_COVERED_GOALS)
-						System.out.println("* Covered: " + fitness_function.toString());
+						System.out.println("* Covered!"); //: " + fitness_function.toString());
 					logger.info("Found solution, adding to test suite at "
 					        + MaxStatementsStoppingCondition.getNumExecutedStatements());
 					TestChromosome best = (TestChromosome) ga.getBestIndividual();

@@ -412,7 +412,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 
 	private void createToPNGScript(File graphDir) {
 		
-		// TODO: for f in *.dot; do dot -Tpng $f -o img_$f.png ; done
+		// TODO: for f in *.dot; do dot -Tpng $f -o $f.png ; done
 	}
 
 	public String getName() {

@@ -247,7 +247,7 @@ public class DefUseFitnessCalculations {
 		// DONE: this can be optimized! for example if the goalDef is never overwritten by another 
 		// 		  definition but is passed a lot this causes major overhead that is totally unnecessary
 		//  idea: you only have to do this if the last definition for goalVar was not goalDefinitionId
-		if (goalUse.getBranchId() != -1)
+		if (goalUse.getControlDependentBranchId() != -1)
 			for (Integer goalDefinitionPos : goalDefinitionPositions) {
 				double useFitness = calculateUseFitnessForDefinitionPos(goalDefinition,
 				                                                        goalUse,
@@ -397,7 +397,7 @@ public class DefUseFitnessCalculations {
 			        "expect DefUsePool to know definitions traced by instrumented code. defId: "
 			                + overwritingDefId);
 		// if the overwritingDefinition is in a root-branch it's not really avoidable
-		if (overwritingDefinition.getBranchId() == -1)
+		if (overwritingDefinition.getControlDependentBranchId() == -1)
 			return SINGLE_ALTERNATIVE_FITNESS_RANGE;
 
 		// get alternative branch
@@ -568,7 +568,7 @@ public class DefUseFitnessCalculations {
 			System.out.println(cutTrace.toDefUseTraceInformation());
 			System.out.println("duPosStart: " + duCounterStart);
 			System.out.println("duPosEnd: " + duCounterEnd);
-			int targetUseBranchBytecode = BranchPool.getBytecodeIdFor(targetDU.getBranchId());
+			int targetUseBranchBytecode = BranchPool.getBytecodeIdFor(targetDU.getControlDependentBranchId());
 			System.out.println("targetDU-branch-bytecode: " + targetUseBranchBytecode);
 			DefUseExecutionTraceAnalyzer.printFinishCalls(cutTrace);
 			throw new IllegalStateException("use cant have fitness 0 in this cut trace: "
@@ -775,12 +775,12 @@ public class DefUseFitnessCalculations {
 	public static BranchCoverageTestFitness getBranchTestFitness(BytecodeInstruction v,
 	        boolean targetExpressionValue) {
 		BranchCoverageTestFitness r;
-		if (v.getBranchId() == -1) {
+		if (v.getControlDependentBranchId() == -1) {
 			r = getRootBranchTestFitness(v);
 		} else {
 			ActualControlFlowGraph cfg = CFGPool.getActualCFG(v.getClassName(),
 			                                                        v.getMethodName());
-			Branch b = BranchPool.getBranch(v.getBranchId());
+			Branch b = BranchPool.getBranch(v.getControlDependentBranchId());
 			r = new BranchCoverageTestFitness(new BranchCoverageGoal(b,
 			        targetExpressionValue, cfg, v.getClassName(), v.getMethodName()));
 		}

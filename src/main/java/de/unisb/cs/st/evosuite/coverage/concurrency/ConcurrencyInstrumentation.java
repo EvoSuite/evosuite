@@ -65,7 +65,7 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 						((FieldInsnNode)instruction).desc.startsWith("L")) { //we only want objects, as primitive types are passed by value
 					// adding instrumentation for scheduling-coverage
 					mn.instructions.insert(v.getASMNode(),
-							getConcurrencyInstrumentation(v, v.getBranchId()));
+							getConcurrencyInstrumentation(v, v.getControlDependentBranchId()));
 
 					// keeping track of definitions
 					/*if (v.isDefinition())

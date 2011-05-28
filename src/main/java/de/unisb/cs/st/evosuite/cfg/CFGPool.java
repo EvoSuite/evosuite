@@ -41,6 +41,55 @@ public class CFGPool {
 //	private static Map<String, Map<String, Double>> diameters = new HashMap<String, Map<String, Double>>();	
 	
 	
+	// retrieve graphs
+	
+	public static RawControlFlowGraph getRawCFG(String className, String methodName) {
+		logger.debug("Getting complete CFG for " + className + "." + methodName);
+		if (rawCFGs.get(className) == null)
+			return null;
+		
+		return rawCFGs.get(className).get(methodName);
+	}
+	
+	public static ActualControlFlowGraph getActualCFG(String className, String methodName) {
+		logger.debug("Getting minimzed CFG for " + className + "." + methodName);
+		if(actualCFGs.get(className) == null)
+			return null;
+		
+		return actualCFGs.get(className).get(methodName);
+	}
+	
+	public static ControlDependenceGraph getCDG(String className, String methodName) {
+		logger.debug("Getting CDG for " + className + "." + methodName);
+		if(controlDependencies.get(className) == null)
+			return null;
+		
+		return controlDependencies.get(className).get(methodName);
+	}
+	
+	// register graphs
+	
+	public static void registerRawCFG(RawControlFlowGraph cfg) {
+		String className = cfg.getClassName();
+		String methodName = cfg.getMethodName();
+		
+		if (className == null || methodName == null)
+			throw new IllegalStateException(
+					"expect class and method name of CFGs to be set before entering the CFGPool");
+		
+		if (!rawCFGs.containsKey(className)) {
+			rawCFGs.put(className, new HashMap<String, RawControlFlowGraph>());
+		}
+		Map<String, RawControlFlowGraph> methods = rawCFGs.get(className);
+		logger.debug("Added complete CFG for class " + className + " and method "
+		        + methodName);
+		methods.put(methodName, cfg);
+		
+		cfg.toDot();
+		
+		//ControlFlowGraph cfg = new ControlFlowGraph(graph, false);
+		//cfg.toDot(classname + "_" + methodname + ".dot");
+	}
 	
 	public static void registerActualCFG(ActualControlFlowGraph cfg) {
 		String className = cfg.getClassName();
@@ -83,44 +132,9 @@ public class CFGPool {
 		Map<String,ControlDependenceGraph> cds = controlDependencies.get(className);
 		
 		cds.put(methodName, cd);
-		// TODO cd.toDot() ?
+		cd.toDot();
+				
+		// TODO make export to DOT optional and configurable
 	}
 
-	public static void registerRawCFG(RawControlFlowGraph cfg) {
-		String className = cfg.getClassName();
-		String methodName = cfg.getMethodName();
-		
-		if (className == null || methodName == null)
-			throw new IllegalStateException(
-					"expect class and method name of CFGs to be set before entering the CFGPool");
-		
-		if (!rawCFGs.containsKey(className)) {
-			rawCFGs.put(className, new HashMap<String, RawControlFlowGraph>());
-		}
-		Map<String, RawControlFlowGraph> methods = rawCFGs.get(className);
-		logger.debug("Added complete CFG for class " + className + " and method "
-		        + methodName);
-		methods.put(methodName, cfg);
-		
-		cfg.toDot();
-		
-		//ControlFlowGraph cfg = new ControlFlowGraph(graph, false);
-		//cfg.toDot(classname + "_" + methodname + ".dot");
-	}
-
-	public static ActualControlFlowGraph getActualCFG(String className, String methodName) {
-		logger.debug("Getting minimzed CFG for " + className + "." + methodName);
-		if(actualCFGs.get(className) == null)
-			return null;
-		
-		return actualCFGs.get(className).get(methodName);
-	}
-
-	public static RawControlFlowGraph getRawCFG(String className, String methodName) {
-		logger.debug("Getting complete CFG for " + className + "." + methodName);
-		if (rawCFGs.get(className) == null)
-			return null;
-		
-		return rawCFGs.get(className).get(methodName);
-	}
 }

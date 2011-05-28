@@ -146,7 +146,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 			
 			String className = def.getClassName();
 			String methodName = def.getMethodName();
-			int branchId = def.getBranchId();
+			int branchId = def.getControlDependentBranchId();
 			
 			RawControlFlowGraph cfg = CFGPool.getRawCFG(className, methodName);
 			if(cfg==null)
@@ -181,7 +181,7 @@ public class DefUseCoverageFactory implements TestFitnessFactory {
 			
 			String className = def.getClassName();
 			String methodName = def.getMethodName();
-			int branchId = def.getBranchId();
+			int branchId = def.getControlDependentBranchId();
 			
 			RawControlFlowGraph cfg = CFGPool.getRawCFG(className, methodName);
 			if(cfg==null)
