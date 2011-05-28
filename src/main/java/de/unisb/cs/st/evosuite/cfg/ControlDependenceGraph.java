@@ -1,6 +1,8 @@
 package de.unisb.cs.st.evosuite.cfg;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -240,18 +242,46 @@ public class ControlDependenceGraph extends
 				for (BasicBlock cd : dt.getDominatingFrontiers(b)) {
 					ControlFlowEdge orig = cfg.getEdge(cd, b);
 
-					if(orig == null && cd.equals(b)) {
-						// in for loops for example there it can happen that
-						// cd.equals(b) and that the edge containing the
-						// information about the branchExpressionValue was on a
-						// cyclic path from cd to itself (b)
+					if(!cd.isEntryBlock() && orig == null) {
+						// in for loops for example it can happen that cd and b
+						// were not directly adjacent to each other in the CFG
+						// but rather there were some intermediate nodes between
+						// them and the needed information is inside one of the edges
+						// from cd to the first intermediate node. more
+						// precisely cd is expected to be a branch and to have 2
+						// outgoing edges, one for evaluating to true (jumping)
+						// and one for false. one of them can be followed and b
+						// will eventually be reached, the other one can not be
+						// followed in that way. TODO TRY!
+						
+						logger.debug("cd: "+cd.toString());
+						logger.debug("b: "+b.toString());
 						
 						// TODO this is just for now! unsafe and probably not even correct!
-						for(BasicBlock cdChild : cfg.getChildren(cd))
-							for(BasicBlock cdGrandChild : cfg.getChildren(cdChild))
-								if(cdGrandChild.equals(b))
-									orig = cfg.getEdge(cd, cdChild);
+						Set<ControlFlowEdge> candidates = cfg.outgoingEdgesOf(cd);
+						if(candidates.size() < 2)
+							throw new IllegalStateException("unexpected");
+						
+						boolean leadToB = false;
+						
+						for(ControlFlowEdge e : candidates) {
+							if(!e.hasBranchInstructionSet())
+								throw new IllegalStateException("unexpected");
+							
+							if(cfg.leadsToNode(e,b)) {
+								if(leadToB) orig = null;
+//									throw new IllegalStateException("unexpected");
+								leadToB = true;
+								
+								orig = e;
+							}
+						}
+						if(!leadToB)
+							throw new IllegalStateException("unexpected");
 					}
+					
+					if(orig == null)
+						logger.debug("orig still null!");
 					
 					if (!addEdge(cd, b, new ControlFlowEdge(orig)))
 						throw new IllegalStateException(

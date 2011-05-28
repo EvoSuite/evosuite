@@ -20,7 +20,9 @@ package de.unisb.cs.st.evosuite.cfg;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -82,6 +84,28 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 		this.methodName = methodName;
 	}
 
+	public boolean leadsToNode(ControlFlowEdge e, V b) {
+		
+		Set<V> handled = new HashSet<V>();
+		
+		Queue<V> queue = new LinkedList<V>();
+		queue.add(getEdgeTarget(e));
+		while(!queue.isEmpty()) {
+			V current = queue.poll();
+			if(handled.contains(current))
+				continue;
+			handled.add(current);
+			
+			for(V next : getChildren(current))
+				if(next.equals(b))
+					return true;
+				else
+					queue.add(next);
+		}
+		
+		return false;
+	}
+	
 	
 	/**
 	 * Can be used to retrieve a Branch contained in this CFG identified by it's branchId

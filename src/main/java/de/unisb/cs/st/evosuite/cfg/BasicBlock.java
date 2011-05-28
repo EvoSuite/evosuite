@@ -143,6 +143,25 @@ public class BasicBlock implements Mutateable {
 		return instructions.get(instructions.size()-1);
 	}
 	
+	public int getFirstLine() {
+		for(BytecodeInstruction ins : instructions)
+			if(ins.hasLineNumberSet())
+				return ins.getLineNumber();
+		
+		return -1;
+	}
+	
+	public int getLastLine() {
+		
+		int r = -1;
+		
+		for(BytecodeInstruction ins : instructions)
+			if(ins.hasLineNumberSet())
+				r = ins.getLineNumber();
+		
+		return r;
+	}
+	
 	public String getName() {
 		return (isAuxiliaryBlock?"aux":"")+"BasicBlock "+id;
 //		+" - "+methodName;
@@ -204,9 +223,19 @@ public class BasicBlock implements Mutateable {
 	@Override
 	public String toString() {
 	
-		String r = "BB_"+id;
-		for(BytecodeInstruction ins : instructions)
-			r = r.trim()+" "+ins.getInstructionType();
+		String r = "BB"+id;
+		
+		if (instructions.size() < 5)
+			for (BytecodeInstruction ins : instructions)
+				r = r.trim() + " " + ins.getInstructionType();
+		else
+			r += " " + getFirstInstruction().getInstructionType()
+					+ " \\[...\\] " + getLastInstruction().getInstructionType();
+
+		int startLine = getFirstLine();
+		int endLine = getLastLine();
+		r += " l" + (startLine==-1?"?":startLine+"");
+		r += "-l" + (endLine==-1?"?":endLine+"");
 		
 		return r;
 		

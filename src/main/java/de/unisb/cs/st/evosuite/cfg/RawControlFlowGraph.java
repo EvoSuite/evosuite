@@ -79,8 +79,14 @@ public class RawControlFlowGraph extends
 			e.setBranchExpressionValue(!isNonJumpEdge(src,target));
 		}
 		
-		if(!super.addEdge(src, target, e))
-			throw new IllegalStateException("internal error while adding RawCFG edge: "+e.toString());
+		if(!super.addEdge(src, target, e)) {
+			// TODO stopped here
+			logger.error("unexpected "+src.toString()+" to "+target.toString()); 
+			if(super.getEdge(src, target) == null)
+				throw new IllegalStateException("completely unexpected");
+			
+			//	throw new IllegalStateException("internal error while adding RawCFG edge from "+src.toString()+" to "+target.toString());
+		}
 		
 		return e;
 	}
