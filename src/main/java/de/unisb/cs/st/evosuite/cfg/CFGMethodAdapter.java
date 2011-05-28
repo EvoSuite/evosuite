@@ -143,6 +143,8 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		if ((!isMainMethod || executeOnMain) && (!isExcludedMethod || executeOnExcluded)
 		        && (access & Opcodes.ACC_ABSTRACT) == 0) {
 
+			logger.info("Analyzing method " + methodName);
+			
 			// MethodNode mn = new CFGMethodNode((MethodNode)mv);
 			// System.out.println("Generating CFG for "+ className+"."+mn.name +
 			// " ("+mn.desc +")");
@@ -171,7 +173,6 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 				instrumentation.analyze(mn, className, methodName, access);
 
 			handleBranchlessMethods();
-			logger.info("Analyzing method " + methodName);
 
 			String id = className + "." + methodName;
 			if (isUsable()) {

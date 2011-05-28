@@ -59,7 +59,7 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 	public BranchCoverageGoal(Branch branch, boolean value, ActualControlFlowGraph cfg,
 	        String className, String methodName) {
 		this.branch = branch;
-		this.branch_id = branch.getBranchId();
+		this.branch_id = branch.getControlDependentBranchId();
 		this.bytecode_id = branch.getBytecodeId();
 		this.line_number = branch.getLineNumber();
 		this.value = value;
@@ -101,7 +101,10 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 			// one of the goals targets a root branch
 			return goal.methodName.equals(methodName) && goal.className.equals(className);
 		}
-		return branch.isControlDependentOn(goal.branch) || goal.branch.isControlDependentOn(branch) ;
+		
+		// TODO map this to new CDG !
+		
+		return branch.isDirectlyControlDependentOn(goal.branch) || goal.branch.isDirectlyControlDependentOn(branch) ;
 	}
 	
 	/**
@@ -109,6 +112,9 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 	 */
 	public int getDifficulty() {
 		int r = 1;
+		
+		// TODO map this to new CDG !
+		
 		if(branch!=null) {
 			r+=branch.getCDGDepth();
 		}
@@ -228,8 +234,9 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 	 */
 	@Override
 	public String toString() {
-		String name = className + "." + methodName + ":" + line_number + " (" + branch_id
-		        + ")";
+		String name = className + "." + methodName + ":" + line_number;
+		if(branch != null)
+			name += " "+branch.toString();
 
 		if (value)
 			return name + " - true";

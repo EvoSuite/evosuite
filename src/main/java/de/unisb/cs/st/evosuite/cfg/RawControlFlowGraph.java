@@ -63,7 +63,7 @@ public class RawControlFlowGraph extends
 	@Override
 	public BytecodeInstruction getBranch(int branchId) {
 		for (BytecodeInstruction v : vertexSet()) {
-			if (v.isBranch() && v.getBranchId() == branchId) {
+			if (v.isBranch() && v.getControlDependentBranchId() == branchId) {
 				return v;
 			}
 		}
@@ -204,7 +204,7 @@ public class RawControlFlowGraph extends
 			logger.warn("Vertex does not exist in graph: " + vertex);
 			for (BytecodeInstruction v : graph.vertexSet()) {
 				logger.info("  Vertex id: " + v.getId() + ", line number " + v.lineNumber
-				        + ", branch id: " + v.getBranchId());
+				        + ", branch id: " + v.getControlDependentBranchId());
 			}
 			return getDiameter();
 		}

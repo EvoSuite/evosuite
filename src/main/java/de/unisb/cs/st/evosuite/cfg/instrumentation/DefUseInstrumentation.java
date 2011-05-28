@@ -67,7 +67,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 						        || ((access & Opcodes.ACC_STATIC) > 0);
 						// adding instrumentation for defuse-coverage
 						mn.instructions.insert(v.getASMNode().getPrevious(),
-						                       getInstrumentation(v, v.getBranchId(),
+						                       getInstrumentation(v, v.getControlDependentBranchId(),
 						                                          staticContext,
 						                                          className, methodName));
 					}
