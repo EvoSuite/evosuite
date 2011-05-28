@@ -227,6 +227,12 @@ public class ControlDependenceGraph extends
 	private void createGraphNodes() {
 		// copy CFG nodes
 		addVertices(cfg);
+		
+		for(BasicBlock b : vertexSet())
+			if(b.isExitBlock() && !graph.removeVertex(b)) // TODO refactor
+				throw new IllegalStateException("internal error building up CDG");
+				
+				
 	}
 
 	private void computeControlDependence() {
@@ -241,6 +247,19 @@ public class ControlDependenceGraph extends
 				for (BasicBlock cd : dt.getDominatingFrontiers(b)) {
 					ControlFlowEdge orig = cfg.getEdge(cd, b);
 
+					if(orig == null && cd.equals(b)) {
+						// in for loops for example there it can happen that
+						// cd.equals(b) and that the edge containing the
+						// information about the branchExpressionValue was on a
+						// cyclic path from cd to itself (b)
+						
+						// TODO this is just for now! unsafe and probably not even correct!
+						for(BasicBlock cdChild : cfg.getChildren(cd))
+							for(BasicBlock cdGrandChild : cfg.getChildren(cdChild))
+								if(cdGrandChild.equals(b))
+									orig = cfg.getEdge(cd, cdChild);
+					}
+					
 					if (!addEdge(cd, b, new ControlFlowEdge(orig)))
 						throw new IllegalStateException(
 								"internal error while adding CD edge");
@@ -248,26 +267,6 @@ public class ControlDependenceGraph extends
 					logger.debug("  " + cd.getName());
 				}
 			}
-
-		Set<BasicBlock> exits = determineExitPoints();
-		ExitBlock exitNode = getExitBlockNode();
-
-		if (exitNode == null)
-			throw new IllegalStateException("expect ExitBlock to exist in CDG");
-
-		for (BasicBlock exit : exits)
-			if (!exit.isAuxiliaryBlock && null == addEdge(exit, exitNode))
-				throw new IllegalStateException(
-						"internal error while adding exit edges to CDG");
-	}
-
-	private ExitBlock getExitBlockNode() {
-
-		for (BasicBlock b : vertexSet())
-			if (b.isExitBlock())
-				return (ExitBlock) b;
-
-		return null;
 	}
 
 	@Override

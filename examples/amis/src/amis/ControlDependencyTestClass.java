@@ -11,13 +11,13 @@ public class ControlDependencyTestClass {
 	public ControlDependencyTestClass() {
 	}
 	
-	
-	public void simpleDoWhile() {
-		do {
-			anInt++;
-		} while(anInt % 13!=0);
-	}
-	
+//	
+//	public void simpleDoWhile() {
+//		do {
+//			anInt++;
+//		} while(anInt % 13!=0);
+//	}
+//	
 //	public int ifMethod(int anInt) {
 //		int i = anInt;
 //		if(i%2 == 0)
@@ -141,20 +141,20 @@ public class ControlDependencyTestClass {
 //	
 //		return i;
 //	}
-//	
-//	public int forMethod(int anInt) {
-//		int r = 0;
-//		for(int i=0;i<10;i++) {
-//			r = r+i+anInt;
-//		}
-//		
-//		return r;
-//	}
-//	
-//	public int forMethodReturn(int anInt) {
-//		for(int i=0;i<anInt;i++)
-//			return i;
-//		
-//		return anInt;
-//	}
+	
+	public int forMethod(int anInt) {
+		int r = 0;
+		for(int i=0;i<10;i++) {
+			r = r+i+anInt;
+		}
+		
+		return r;
+	}
+	
+	public int forMethodReturn(int anInt) {
+		for(int i=0;i<anInt;i++)
+			return i;
+		
+		return anInt;
+	}
 }
