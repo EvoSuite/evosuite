@@ -520,9 +520,30 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 
 		checkNodeSanity();
 		
+		checkInstructionsContainedOnceConstraint();
+		
 		logger.debug(".. CFG sanity ensured");
 	}
 	
+	private void checkInstructionsContainedOnceConstraint() {
+		
+		for(BytecodeInstruction ins : rawGraph.vertexSet()) {
+			if(!knowsInstruction(ins))
+				throw new IllegalStateException("expect all instructions ins underlying RawCFG to be known by Actual CFG");
+			
+			BasicBlock insBlock = getBlockOf(ins);
+			if(insBlock == null)
+				throw new IllegalStateException("expect ActualCFG.getBlockOf() to return non-null BasicBlocks for all instructions it knows");
+			
+			for(BasicBlock block : vertexSet()) {
+				if(!block.equals(insBlock) && block.containsInstruction(ins))
+					throw new IllegalStateException("expect ActualCFG to contain exactly one BasicBlock for each original bytecode instruction, not more!");
+			}
+		}
+			
+		
+	}
+
 	void checkNodeSanity() {
 		// ensure graph is connected and isEntry and isExitBlock() work as
 		// expected

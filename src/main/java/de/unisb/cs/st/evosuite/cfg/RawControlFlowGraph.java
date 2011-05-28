@@ -104,46 +104,55 @@ public class RawControlFlowGraph extends
 		List<BytecodeInstruction> blockNodes = new ArrayList<BytecodeInstruction>();
 		blockNodes.add(instruction);
 
-		Set<BytecodeInstruction> handled = new HashSet<BytecodeInstruction>();
+		Set<BytecodeInstruction> handledChildren = new HashSet<BytecodeInstruction>();
+		Set<BytecodeInstruction> handledParents = new HashSet<BytecodeInstruction>();
 
 		Queue<BytecodeInstruction> queue = new LinkedList<BytecodeInstruction>();
 		queue.add(instruction);
 		while (!queue.isEmpty()) {
 			BytecodeInstruction current = queue.poll();
-			handled.add(current);
+			logger.debug("handling "+current.toString());
 
 			// add child to queue
-			if (inDegreeOf(current) == 1)
-				for (ControlFlowEdge edge : incomingEdgesOf(current)) {
+			if (outDegreeOf(current) == 1)
+				for (BytecodeInstruction child : getChildren(current)) {
 					// this must be only one edge if inDegree was 1
-					BytecodeInstruction parent = getEdgeSource(edge);
-					if (handled.contains(parent))
+					
+					if(blockNodes.contains(child))
 						continue;
-					handled.add(parent);
 
-					if(outDegreeOf(parent)<2) {
-						// insert child right before current
+					if (handledChildren.contains(child))
+						continue;
+					handledChildren.add(child);
+
+					if(inDegreeOf(child) < 2) {
+						// insert child right after current
 						// ... always thought ArrayList had insertBefore() and insertAfter() methods ... well
-						blockNodes.add(blockNodes.indexOf(current), parent);
+						blockNodes.add(blockNodes.indexOf(current) + 1, child);
 						
-						queue.add(parent);
+						logger.debug("  added child to queue: "+child.toString());
+						queue.add(child);
 					}
 				}
 
 			// add parent to queue
-			if (outDegreeOf(current) == 1)
-				for (ControlFlowEdge edge : outgoingEdgesOf(current)) {
+			if (inDegreeOf(current) == 1)
+				for (BytecodeInstruction parent : getParents(current)) {
 					// this must be only one edge if outDegree was 1
-					BytecodeInstruction child = getEdgeTarget(edge);
-					if (handled.contains(child))
+					
+					if(blockNodes.contains(parent))
 						continue;
-					handled.add(child);
+					
+					if (handledParents.contains(parent))
+						continue;
+					handledParents.add(parent);
 
-					if(inDegreeOf(child)<2) {
-						// insert parent right after current
-						blockNodes.add(blockNodes.indexOf(current) + 1, child);
+					if(outDegreeOf(parent) <  2) {
+						// insert parent right before current
+						blockNodes.add(blockNodes.indexOf(current), parent);
 						
-						queue.add(child);
+						logger.debug("  added parent to queue: "+parent.toString());
+						queue.add(parent);
 					}
 				}
 		}
@@ -154,6 +163,34 @@ public class RawControlFlowGraph extends
 		return r;
 	}		
 	
+	@Override
+	protected BytecodeInstruction determineEntryPoint() {
+		
+		BytecodeInstruction noParent = super.determineEntryPoint();
+		if(noParent != null)
+			return noParent;
+		
+		// copied from ControlFlowGraph.determineEntryPoint():
+		// there was a back loop to the first instruction within this CFG, so no
+		// candidate
+		// TODO for now return null and handle in super class
+		// RawControlFlowGraph separately by overriding this method
+		
+		return getInstructionWithSmallestId();
+	}
+	
+	public BytecodeInstruction getInstructionWithSmallestId() {
+		
+		BytecodeInstruction r = null;
+		
+		for(BytecodeInstruction ins : vertexSet()) {
+			if(r==null || r.getInstructionId()>ins.getInstructionId())
+				r = ins;
+		}
+		
+		return r;
+	}
+
 	// control distance functionality
 	
 	/**
