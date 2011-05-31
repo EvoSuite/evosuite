@@ -71,7 +71,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 						mn.instructions.insertBefore(v.getASMNode(),
 						                             getInstrumentation(v, mn, className,
 						                                                methodName));
-					} else if (v.isThrow()) {
+					} else if (v.isThrow() || v.isReturn()) {
 						if (Properties.CRITERION == Criterion.LCSAJ) {
 							InsnList instrumentation = new InsnList();
 							instrumentation.add(new LdcInsnNode(v.getASMNode().getOpcode()));
