@@ -243,7 +243,8 @@ public class BasicBlock implements Mutateable {
 				r = r.trim() + " " + ins.getInstructionType();
 		else
 			r += " " + getFirstInstruction().getInstructionType()
-					+ " \\[...\\] " + getLastInstruction().getInstructionType();
+					+ " ... "
+					+ getLastInstruction().getInstructionType();
 
 		int startLine = getFirstLine();
 		int endLine = getLastLine();
