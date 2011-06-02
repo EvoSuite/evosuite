@@ -299,10 +299,14 @@ public class ControlDependenceGraph extends
 							throw new IllegalStateException("unexpected");
 						
 						boolean leadToB = false;
+						boolean skip = false;
 						
 						for(ControlFlowEdge e : candidates) {
-							if(!e.hasBranchInstructionSet())
-								throw new IllegalStateException("unexpected");
+							if(!e.hasBranchInstructionSet()) {
+								logger.warn("unexpected outgoingEdge without branchInstruction set .. finally block?: "+b.toString());
+								skip = true;
+								break;
+							}
 							
 							if(cfg.leadsToNode(e,b)) {
 								if(leadToB) orig = null;
@@ -312,6 +316,8 @@ public class ControlDependenceGraph extends
 								orig = e;
 							}
 						}
+						if(skip)
+							continue;
 						if(!leadToB)
 							throw new IllegalStateException("unexpected");
 					}

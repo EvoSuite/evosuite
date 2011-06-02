@@ -128,6 +128,24 @@ public class ExceptionTestClass {
 			// might happen
 		}
 	}
+	
+	public void tryFinally(int val) {
+		try {
+			setField(val);
+		} finally {
+			field--;
+		}
+	}
+	
+	public void tryCatchFinally(int val) {
+		try {
+			illegalArgumentThrower(val);
+		} catch (Exception e) {
+			field++;
+		} finally {
+			field--;
+		}
+	}
 
 	// CARE: the following method produces unreachable code (return in catch never reachable)
 	
