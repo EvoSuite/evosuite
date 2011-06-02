@@ -70,28 +70,26 @@ public class RawControlFlowGraph extends
 		return null;
 	}
 	
-	protected ControlFlowEdge addEdge(BytecodeInstruction src, BytecodeInstruction target) {
+	protected ControlFlowEdge addEdge(BytecodeInstruction src, BytecodeInstruction target, boolean isExceptionEdge) {
 		
-		ControlFlowEdge e = new ControlFlowEdge();
+		ControlFlowEdge e = new ControlFlowEdge(isExceptionEdge);
 		if(src.isActualBranch()) {
 			e.setBranchInstruction(src);
 			// TODO unsafe, make better!
-			e.setBranchExpressionValue(!isNonJumpEdge(src,target));
+			e.setBranchExpressionValue(!isNonJumpingEdge(src,target));
 		}
 		
 		if(!super.addEdge(src, target, e)) {
-			// TODO stopped here
-			logger.error("unexpected "+src.toString()+" to "+target.toString()); 
-			if(super.getEdge(src, target) == null)
+			logger.debug("edge from "+src.toString()+" to "+target.toString()+" already contained in graph"); 
+			e = super.getEdge(src, target);
+			if(e == null)
 				throw new IllegalStateException("completely unexpected");
-			
-			//	throw new IllegalStateException("internal error while adding RawCFG edge from "+src.toString()+" to "+target.toString());
 		}
 		
 		return e;
 	}
 	
-	private boolean isNonJumpEdge(BytecodeInstruction src,
+	private boolean isNonJumpingEdge(BytecodeInstruction src, // TODO move to ControlFlowGraph and implement analog method in ActualCFG
 			BytecodeInstruction dst) {
 		
 		return Math.abs(src.getInstructionId()-dst.getInstructionId()) == 1;
@@ -246,7 +244,7 @@ public class RawControlFlowGraph extends
 		if (m == null) {
 			logger.warn("Vertex does not exist in graph: " + vertex);
 			for (BytecodeInstruction v : graph.vertexSet()) {
-				logger.info("  Vertex id: " + v.getId() + ", line number " + v.lineNumber
+				logger.info("  Vertex id: " + v.getId() + ", line number " + v.getLineNumber()
 				        + ", branch id: " + v.getControlDependentBranchId());
 			}
 			return getDiameter();

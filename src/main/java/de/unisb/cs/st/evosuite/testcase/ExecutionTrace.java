@@ -226,11 +226,12 @@ public class ExecutionTrace {
 	/**
 	 * Add a new method call to stack
 	 * 
-	 * @param classname
-	 * @param methodname
+	 * @param className
+	 * @param methodName
 	 */
-	public void enteredMethod(String classname, String methodname, Object caller) {
-		String id = classname + "." + methodname;
+	public void enteredMethod(String className, String methodName, Object caller) {
+		
+		String id = className + "." + methodName;
 		if (!covered_methods.containsKey(id))
 			covered_methods.put(id, 1);
 		else
@@ -239,7 +240,7 @@ public class ExecutionTrace {
 		if (trace_calls) {
 			int callingObjectID = registerObject(caller);
 			methodId++;
-			MethodCall call = new MethodCall(classname, methodname, methodId,
+			MethodCall call = new MethodCall(className, methodName, methodId,
 			        callingObjectID);
 			if (Properties.CRITERION == Criterion.DEFUSE) {
 				call.branch_trace.add(-1);
@@ -288,7 +289,7 @@ public class ExecutionTrace {
 	public void linePassed(String className, String methodName, int line) {
 		if (trace_calls) {
 			if (stack.isEmpty()) {
-				logger.warn("Method stack is empty: " + className + "." + methodName);
+				logger.warn("Method stack is empty: " + className + "." + methodName+" - l"+line); // TODO switch back logger.debug to logger.warn
 			} else {
 				stack.peek().line_trace.add(line);
 			}

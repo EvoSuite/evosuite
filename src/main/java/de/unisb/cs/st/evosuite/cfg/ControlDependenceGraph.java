@@ -145,17 +145,47 @@ public class ControlDependenceGraph extends
 		
 		BasicBlock insBlock = getBlockOf(ins);
 
-		boolean isRootDependent = isRootDependent(ins);
+		return isDirectlyControlDependentOn(insBlock, b);
+	}
+
+	public boolean isDirectlyControlDependentOn(BasicBlock insBlock, Branch b) {
+		Set<ControlFlowEdge> incomming = incomingEdgesOf(insBlock);
+		
+		if(incomming.size() == 1) {
+			// in methods with a try-catch-block it is possible that there
+			// are nodes in the CDG that have exactly one parent with an
+			// edge without a branchInstruction that is a non exceptional
+			// edge
+			// should the given instruction be such a node, follow the parents until
+			// you reach one where the above conditions are not met
+			
+			for (ControlFlowEdge e : incomming) {
+				if(!e.hasBranchInstructionSet() && !e.isExceptionEdge()) {
+					return isDirectlyControlDependentOn(getEdgeSource(e), b);
+				}
+			}
+		}
+
+
+		boolean isRootDependent = isRootDependent(insBlock);
 		if (b == null)
 			return isRootDependent;
 		if(isRootDependent && b != null)
-			return false;
-
-		for (ControlFlowEdge e : incomingEdgesOf(insBlock)) {
+			return false;			
+			
+		for (ControlFlowEdge e : incomming) {
 			Branch current = e.getBranchInstruction();
+			
+			if(e.isExceptionEdge()) {
+				if(current != null)
+					throw new IllegalStateException("expect exception edges to have no BranchInstruction set");
+				else
+					continue;
+			}
+			
 			if (current == null)
 				throw new IllegalStateException(
-						"expect ControlFlowEdges whithin the CDG that don't come from EntryBlock to have branchInstructions set "
+						"expect non exceptional ControlFlowEdges whithin the CDG that don't come from EntryBlock to have branchInstructions set "
 								+ insBlock.toString() + methodName);
 
 			if (current.equals(b))
@@ -164,6 +194,7 @@ public class ControlDependenceGraph extends
 		
 		
 		return false;
+		
 	}
 
 	/**
@@ -175,6 +206,10 @@ public class ControlDependenceGraph extends
 	public boolean isRootDependent(BytecodeInstruction ins) {
 		
 		BasicBlock insBlock = getBlockOf(ins);
+		return isRootDependent(insBlock);
+	}
+
+	public boolean isRootDependent(BasicBlock insBlock) {
 		if(isAdjacentToEntryBlock(insBlock))
 			return true;
 		
@@ -183,6 +218,7 @@ public class ControlDependenceGraph extends
 				return true;
 		
 		return false;
+		
 	}
 
 	/**

@@ -10,11 +10,19 @@ public class ControlFlowEdge extends DefaultEdge {
 	private static final long serialVersionUID = -5009449930477928101L;
 
 	private Branch branchInstruction = null;
-	private boolean branchExpressionValue = true;
+	// the expressionValue is true if the edge is the jumping edge of branchInstruction
+	private boolean branchExpressionValue = false;
+	
+	private boolean isExceptionEdge = false;
 
 	public ControlFlowEdge() {
-
+		
 	}
+	
+	public ControlFlowEdge(boolean isExceptionEdge) {
+		this.isExceptionEdge = isExceptionEdge;
+	}
+	
 
 	/**
 	 * Sort of a copy constructor
@@ -23,6 +31,7 @@ public class ControlFlowEdge extends DefaultEdge {
 		if(clone != null) {
 			this.branchInstruction = clone.branchInstruction;
 			this.branchExpressionValue = clone.branchExpressionValue;
+			this.isExceptionEdge = clone.isExceptionEdge;
 		}
 	}
 
@@ -30,6 +39,9 @@ public class ControlFlowEdge extends DefaultEdge {
 	public String toString() {
 
 		String r = "";
+		
+		if(isExceptionEdge)
+			 r+= "E ";
 
 		if (branchInstruction != null) {
 			r += branchInstruction.toString();
@@ -54,6 +66,10 @@ public class ControlFlowEdge extends DefaultEdge {
 	
 	public Branch getBranchInstruction() {
 		return branchInstruction;
+	}
+	
+	public boolean isExceptionEdge() {
+		return isExceptionEdge;
 	}
 
 	public void setBranchInstruction(BytecodeInstruction branchInstruction) {
