@@ -127,7 +127,7 @@ public class CFGGenerator {
 	/**
 	 * Internal management of fields and actual building up of the rawGraph
 	 */
-	public void registerControlFlowEdge(int src, int dst, Frame[] frames) {
+	public void registerControlFlowEdge(int src, int dst, Frame[] frames, boolean isExceptionEdge) {
 		if (!nodeRegistered)
 			throw new IllegalStateException(
 					"CFGGenrator.registerControlFlowEdge() cannot be called unless registerMethodNode() was called first");
@@ -135,9 +135,36 @@ public class CFGGenerator {
 			throw new IllegalArgumentException("null given");
 		CFGFrame srcFrame = (CFGFrame) frames[src];
 		Frame dstFrame = frames[dst];
-		if (srcFrame == null || dstFrame == null)
+		
+//		if(isExceptionEdge)
+//			logger.warn("exceptionEdge");
+//		logger.warn("src: "+src);
+//		logger.warn("dst: "+dst);
+		
+		if (srcFrame == null)
 			throw new IllegalArgumentException(
-					"expect expect given frames to know src and dst");
+					"expect given frames to know srcFrame for "+src);
+		
+		if(dstFrame == null) {
+			
+			// documentation of getFrames() tells us the following:
+			// Returns:
+			// the symbolic state of the execution stack frame at each bytecode
+			// instruction of the method. The size of the returned array is
+			// equal to the number of instructions (and labels) of the method. A
+			// given frame is null if the corresponding instruction cannot be
+			// reached, or if an error occured during the analysis of the
+			// method.
+
+			logger.warn("ControlFlowEdge to null");
+			
+			// so let's say we expect the analyzer to return null only if
+			// dst is not reachable and if that happens we just suppress the
+			// corresponding ControlFlowEdge for now
+			
+			// TODO can the CFG become disconnected like that?
+			return;
+		}
 
 		srcFrame.successors.put(dst, (CFGFrame) dstFrame);
 
@@ -160,7 +187,7 @@ public class CFGGenerator {
 		rawGraph.addVertex(srcInstruction);
 		rawGraph.addVertex(dstInstruction);
 		
-		if(null == rawGraph.addEdge(srcInstruction, dstInstruction))
+		if(null == rawGraph.addEdge(srcInstruction, dstInstruction, isExceptionEdge))
 			logger.error("internal error while adding edge");
 		
 		// experiment

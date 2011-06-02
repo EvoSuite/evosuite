@@ -168,10 +168,10 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 			if (!belongsToMethod(branch))
 				throw new IllegalArgumentException(
 						"branch does not belong to this CFGs method");
-			if (!branch.isActualBranch())
-				throw new IllegalArgumentException(
-						"unexpected branch byteCode instruction type: "
-								+ branch.getInstructionType());
+//			if (!branch.isActualBranch()) // TODO this happens if your in a try-catch ... handle!
+//				throw new IllegalArgumentException(
+//						"unexpected branch byteCode instruction type: "
+//								+ branch.getInstructionType());
 			
 			// TODO the following doesn't work at this point
 			//		 because the BranchPool is not yet filled yet

@@ -48,7 +48,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	protected int instructionId;
 
 	// auxiliary information
-	protected int lineNumber = -1;
+	private int lineNumber = -1;
 
 	// --- - General - ---
 	private int globalBytecodeInstructionId; // TODO
@@ -268,6 +268,9 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 			throw new IllegalArgumentException(
 					"expect lineNumber value to be positive");
 
+		if(isLabel())
+			return;
+		
 		if (isLineNumber()) {
 			int asmLine = super.getLineNumber();
 			// sanity check
@@ -510,11 +513,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 * }
 	 */
 
-	// --- Inherited from Object ---
-
-	@Override
-	public String toString() {
-
+	public String explain() {
 		if (isMutation()) {
 			String ids = "Mutations: ";
 			for (long l : mutations) {
@@ -593,6 +592,21 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 			return opcode + " " + ((VarInsnNode) asmNode).var;
 		else
 			return "Unknown node" + " Type=" + type + ", Opcode=" + opcode;
+	}
+	
+	// --- Inherited from Object ---
+
+	@Override
+	public String toString() {
+
+		String r = "I"+instructionId;
+		
+		r+=" "+explain();
+		
+		if(hasLineNumberSet() && !isLineNumber())
+			r += " l"+getLineNumber();
+		
+		return r;
 	}
 
 	@Override

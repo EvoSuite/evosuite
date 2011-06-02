@@ -30,12 +30,21 @@ public class BytecodeInstructionPool {
 		
 		registerMethodNode(node);
 
+		int lastLineNumber = -1;
+		
 		for(int instructionId=0;instructionId<node.instructions.size();instructionId++) {
 			AbstractInsnNode instructionNode = node.instructions.get(instructionId);
 			
 			BytecodeInstruction instruction = BytecodeInstructionFactory
 					.createBytecodeInstruction(className, methodName,
 							instructionId, instructionNode);
+			
+			if(instruction.isLineNumber())
+				lastLineNumber = instruction.getLineNumber();
+			else if(lastLineNumber != -1)
+				instruction.setLineNumber(lastLineNumber);
+				
+			
 			registerInstruction(instruction);
 			
 		}

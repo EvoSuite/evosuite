@@ -218,6 +218,19 @@ public class BasicBlock implements Mutateable {
 		return !getMutationIds().isEmpty();
 	}
 	
+	public String explain() {
+		StringBuilder r = new StringBuilder();
+		r.append(getName() + ":\n");
+
+		int i = 0;
+		for (BytecodeInstruction instruction : instructions) {
+			i++;
+			r.append("\t" + i + ")\t" + instruction.toString() + "\n");
+		}
+
+		return r.toString();
+	}
+	
 	// inherited from Object
 	
 	@Override
@@ -238,18 +251,6 @@ public class BasicBlock implements Mutateable {
 		r += "-l" + (endLine==-1?"?":endLine+"");
 		
 		return r;
-		
-		// for now due to graph-visualization .. TODO make explain() or something
-//		StringBuilder r = new StringBuilder();
-//		r.append(getName() + ":\n");
-//
-//		int i = 0;
-//		for (BytecodeInstruction instruction : instructions) {
-//			i++;
-//			r.append("\t" + i + ")\t" + instruction.toString() + "\n");
-//		}
-//
-//		return r.toString();
 	}
 	
 	@Override
@@ -290,13 +291,18 @@ public class BasicBlock implements Mutateable {
 		logger.debug("checking sanity of "+toString());
 		
 		// TODO
+	
+		// not true, there are branches that don't really jump
+		// for example if you have no statement in a then-part:
+		//  if (exp) { ; }
+		// you will not have a second outgoing edge for that if
 		
-		for(BytecodeInstruction instruction : instructions) {
-			if (!instruction.equals(getLastInstruction())
-					&& instruction.isActualBranch())
-				throw new IllegalStateException(
-						"expect actual branches to always end a basic block");
-		}
+//		for(BytecodeInstruction instruction : instructions) {
+//			if (!instruction.equals(getLastInstruction())
+//					&& instruction.isActualBranch())
+//				throw new IllegalStateException(
+//						"expect actual branches to always end a basic block: "+instruction.toString()+" \n"+explain());
+//		}
 		
 		// TODO handle specialBlocks
 	}

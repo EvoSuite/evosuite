@@ -144,6 +144,7 @@ public class ExecutionTracer {
 	 */
 	public static void enteredMethod(String classname, String methodname, Object caller)
 	        throws TestCaseExecutor.TimeoutExceeded {
+		
 		if (isThreadNeqCurrentThread())
 			return;
 
