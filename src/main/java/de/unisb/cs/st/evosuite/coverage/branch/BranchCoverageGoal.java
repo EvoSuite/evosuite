@@ -128,7 +128,7 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 	public boolean isCovered(TestCase test) {
 		ExecutionResult result = runTest(test);
 		ControlFlowDistance d = getDistance(result);
-		if (d.approach == 0 && d.branch == 0.0)
+		if (d.getApproachLevel() == 0 && d.getBranchDistance() == 0.0)
 			return true;
 		else
 			return false;
@@ -136,7 +136,7 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 
 	public ControlFlowDistance getDistance(ExecutionResult result) {
 
-		return BranchCoverageFitnessCalculations.getDistance(result, branch,
+		return ControlFlowDistanceCalculator.getDistance(result, branch,
 				value, className, methodName);
 	}
 	

@@ -166,9 +166,9 @@ public class MutationGoal extends TestCoverageGoal {
 		if (hasTimeout(result)) {
 			logger.debug("Has timeout!");
 			if (cfg == null) {
-				d.approach = 20;
+				d.approachLevel = 20;
 			} else {
-				d.approach = cfg.getDiameter() + 2;
+				d.approachLevel = cfg.getDiameter() + 2;
 			}
 			return d;
 		}
@@ -187,11 +187,11 @@ public class MutationGoal extends TestCoverageGoal {
 					return d;
 				}
 			}
-			d.approach = 1;
+			d.approachLevel = 1;
 			return d;
 		}
 
-		d.approach = cfg.getDiameter() + 1;
+		d.approachLevel = cfg.getDiameter() + 1;
 
 		// Minimal distance between target node and path
 		boolean method_executed = false;
@@ -230,8 +230,8 @@ public class MutationGoal extends TestCoverageGoal {
 				}
 			}
 			if (!found)
-				d.approach++;
-			d.approach += getMethodDistance(result);
+				d.approachLevel++;
+			d.approachLevel += getMethodDistance(result);
 		}
 		//else
 		//	cfg.toDot(className+"."+methodName.replace(";","").replace("(","").replace(")", "").replace("/",".")+".dot");
@@ -296,8 +296,8 @@ public class MutationGoal extends TestCoverageGoal {
 			}
 		}
 
-		d.approach = min_approach;
-		d.branch = min_dist;
+		d.approachLevel = min_approach;
+		d.branchDistance = min_dist;
 		/*
 		if(line_trace.contains(mutation.getLineNumber()) && d.approach <= 1) {
 			logger.info("Mutant line was executed");
