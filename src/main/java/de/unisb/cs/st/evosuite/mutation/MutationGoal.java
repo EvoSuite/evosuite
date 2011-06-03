@@ -181,9 +181,9 @@ public class MutationGoal extends TestCoverageGoal {
 		if (cfg == null) {
 			logger.warn("Have no cfg for method " + className + "." + methodName);
 			for (MethodCall call : result.getTrace().finished_calls) {
-				if (call.class_name.equals(""))
+				if (call.className.equals(""))
 					continue;
-				if ((call.class_name + "." + call.method_name).equals(methodName)) {
+				if ((call.className + "." + call.methodName).equals(methodName)) {
 					return d;
 				}
 			}
@@ -196,7 +196,7 @@ public class MutationGoal extends TestCoverageGoal {
 		// Minimal distance between target node and path
 		boolean method_executed = false;
 		for (MethodCall call : result.getTrace().finished_calls) {
-			if (call.class_name.equals(className) && call.method_name.equals(methodName)) {
+			if (call.className.equals(className) && call.methodName.equals(methodName)) {
 				logger.debug("Found target call for mutant " + mutation.getId()
 				        + " in method " + className + "." + methodName);
 				//logger.info(cfg.toString());
@@ -204,10 +204,10 @@ public class MutationGoal extends TestCoverageGoal {
 				//	logger.info(" -> "+i);
 				//}
 				method_executed = true;
-				ControlFlowDistance d2 = getDistance(call.branch_trace,
-				                                     call.true_distance_trace,
-				                                     call.false_distance_trace,
-				                                     call.line_trace);
+				ControlFlowDistance d2 = getDistance(call.branchTrace,
+				                                     call.trueDistanceTrace,
+				                                     call.falseDistanceTrace,
+				                                     call.lineTrace);
 				if (d2.compareTo(d) < 0) {
 					d = d2;
 				}
