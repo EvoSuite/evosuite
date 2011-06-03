@@ -18,15 +18,10 @@
 
 package de.unisb.cs.st.evosuite.coverage.branch;
 
-import java.util.List;
-
-import de.unisb.cs.st.evosuite.cfg.ActualControlFlowGraph;
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 
 /**
  * A single branch coverage goal Either true/false evaluation of a jump
@@ -37,18 +32,24 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
  */
 public class BranchCoverageGoal extends TestCoverageGoal {
 
-	// TODO: this is really redundant, only the Branch should be referenced as it 
-	//			already holds all the information from branch_id to methodName  
-	
 	Branch branch;
 	boolean value;
 
-	ActualControlFlowGraph cfg;
-	
 	String className;
 	String methodName;
 
-	public BranchCoverageGoal(Branch branch, boolean value, ActualControlFlowGraph cfg,
+	/**
+	 * Can be used to create an arbitrary BranchCoverageGoal trying to cover the
+	 * given Branch
+	 * 
+	 * If the given branch is null, this goal will try to cover the root branch
+	 * of the method identified by the given name - meaning it will just try to
+	 * call the method at hand
+	 * 
+	 * Otherwise this goal will try to reach the given branch and if value is
+	 * true, make the branchInstruction jump and visa versa
+	 */
+	public BranchCoverageGoal(Branch branch, boolean value,
 	        String className, String methodName) {
 		if(className == null || methodName == null)
 			throw new IllegalArgumentException("null given");
@@ -57,8 +58,6 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 		
 		this.branch = branch;
 		this.value = value;
-		this.cfg = cfg;
-		
 		
 		this.className = className;
 		this.methodName = methodName;
@@ -67,8 +66,6 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 			if(!branch.getMethodName().equals(methodName) || !branch.getClassName().equals(className))
 				throw new IllegalArgumentException(
 						"expect explicitly given information about a branch to coincide with the information given by that branch");
-			if(cfg == null)
-				throw new IllegalArgumentException("expect to be given a non-null cfg, whenever goal branch is not a root branch");
 		}
 	}
 
@@ -82,7 +79,6 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 	public BranchCoverageGoal(String className, String methodName) {
 		this.branch = null;
 		this.value = true;
-		this.cfg = null;
 		
 		this.className = className;
 		this.methodName = methodName;
@@ -139,96 +135,63 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 	}
 
 	public ControlFlowDistance getDistance(ExecutionResult result) {
-		ControlFlowDistance d = new ControlFlowDistance();
 
-		if (hasTimeout(result)) {
-			//logger.info("Has timeout!");
-			if (cfg == null) {
-				d.approach = 20;
-			} else {
-				d.approach = cfg.getDiameter() + 2;
-			}
-			return d;
-		}
-
-		// Methods that have no cfg have no branches
-		if (branch == null) {
-			logger.debug("Looking for method without branches " + methodName);
-			for (MethodCall call : result.getTrace().finished_calls) {
-				if (call.class_name.equals(""))
-					continue;
-				if ((call.class_name + "." + call.method_name).equals(className + "."
-				        + methodName)) {
-					return d;
-				}
-			}
-			d.approach = 1;
-			return d;
-		}
-
-		d.approach = cfg.getDiameter() + 1;
-		logger.debug("Looking for method with branches " + methodName);
-
-		// Minimal distance between target node and path
-		for (MethodCall call : result.getTrace().finished_calls) {
-			if (call.class_name.equals(className) && call.method_name.equals(methodName)) {
-				ControlFlowDistance d2;
-				d2 = getNonRootDistance(call.branch_trace, call.true_distance_trace,
-				                 call.false_distance_trace);
-				if (d2.compareTo(d) < 0) {
-					d = d2;
-				}
-			}
-		}
-
-		return d;
-	}
-
-	private ControlFlowDistance getNonRootDistance(List<Integer> path,
-	        List<Double> true_distances, List<Double> false_distances) {
-
-		if(branch == null)
-			throw new IllegalStateException("expect getNonRootDistance() to only be called if this goal's branch is not a root branch");
+		return BranchCoverageFitnessCalculations.getDistance(result, branch,
+				value, className, methodName);
 		
-		ControlFlowDistance d = new ControlFlowDistance();
-		int min_approach = cfg.getDiameter() + 1;
-		
-		double min_dist = 0.0;
-		for (int i = 0; i < path.size(); i++) {
-			BytecodeInstruction v = cfg.getInstruction(path.get(i));
-			if (v != null) {
-				int approach = cfg.getDistance(v, branch);
-				//logger.debug("B: Path vertex "+i+" has approach: "+approach+" and branch distance "+distances.get(i));
-
-				if (approach <= min_approach && approach >= 0) {
-					double branch_distance = 0.0;
-
-					if (approach > 0)
-						branch_distance = true_distances.get(i) + false_distances.get(i);
-					else if (value)
-						branch_distance = true_distances.get(i);
-					else
-						branch_distance = false_distances.get(i);
-
-					if (approach == min_approach)
-						min_dist = Math.min(min_dist, branch_distance);
-					else {
-						min_approach = approach;
-						min_dist = branch_distance;
-					}
-
-				}
-			} else {
-				logger.info("Path vertex does not exist in graph");
-			}
-		}
-
-		d.approach = min_approach;
-		d.branch = min_dist;
-
-		return d;
 	}
+	
+//	SAFETY BACKUP BEFORE REIMPLEMENTATION
+//	private ControlFlowDistance getNonRootDistance(List<Integer> path,
+//	        List<Double> true_distances, List<Double> false_distances) {
+//
+//		if(branch == null)
+//			throw new IllegalStateException("expect getNonRootDistance() to only be called if this goal's branch is not a root branch");
+//		
+//		ActualControlFlowGraph cfg = branch.getActualCFG();
+//		
+//		ControlFlowDistance d = new ControlFlowDistance();
+//		int min_approach = cfg.getDiameter() + 1;
+//		
+//		double min_dist = 0.0;
+//		for (int i = 0; i < path.size(); i++) {
+//			BytecodeInstruction v = cfg.getInstruction(path.get(i));
+//			if (v != null) {
+//				int approach = cfg.getDistance(v, branch);
+//				//logger.debug("B: Path vertex "+i+" has approach: "+approach+" and branch distance "+distances.get(i));
+//
+//				if (approach <= min_approach && approach >= 0) {
+//					double branch_distance = 0.0;
+//
+//					if (approach > 0)
+//						branch_distance = true_distances.get(i) + false_distances.get(i);
+//					else if (value)
+//						branch_distance = true_distances.get(i);
+//					else
+//						branch_distance = false_distances.get(i);
+//
+//					if (approach == min_approach)
+//						min_dist = Math.min(min_dist, branch_distance);
+//					else {
+//						min_approach = approach;
+//						min_dist = branch_distance;
+//					}
+//
+//				}
+//			} else {
+//				logger.info("Path vertex does not exist in graph");
+//			}
+//		}
+//
+//		d.approach = min_approach;
+//		d.branch = min_dist;
+//
+//		return d;
+//	}
 
+	
+	// inherited from Object
+	
 	/**
 	 * Readable representation
 	 */
@@ -250,7 +213,8 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 		int result = 1;
 		result = prime * result + (branch == null?0:branch.getActualBranchId());
 		result = prime * result + (branch == null?0:branch.getInstructionId());
-		result = prime * result + ((cfg == null) ? 0 : cfg.hashCode());
+		// TODO sure you want to call hashCode() on the cfg? doesn't that take long?
+		result = prime * result + ((branch == null) ? 0 : branch.getActualCFG().hashCode());
 		result = prime * result + className.hashCode();
 		result = prime * result + methodName.hashCode();
 		result = prime * result + (value ? 1231 : 1237);
@@ -265,24 +229,23 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		
 		BranchCoverageGoal other = (BranchCoverageGoal) obj;
-		
-		// i don't have to check for cfg, method name or anything, right? i
-		// mean all that information comes from the branch anyways, so this
-		// instance is completely identified by it's branch and value field
-		// talking about here
-		
+		// are we both root goals?
 		if (this.branch == null) {
 			if (other.branch != null)
 				return false;
 			else
 				// i don't have to check for value at this point, because if
 				// branch is null we are talking about the root branch here
-				return true; 
+				return this.methodName.equals(other.methodName) && this.className.equals(other.className);
 		}
+		// well i am not, if you are we are different
 		if(other.branch == null)
 			return false;
-
+		
+		// so we both have a branch to cover, let's look at that branch and the
+		// way we want it to be evaluated
 		if (!this.branch.equals(other.branch))
 			return false;
 		else {

@@ -11,9 +11,7 @@ import org.apache.log4j.Logger;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.AlternativeFitnessCalculationMode;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.evosuite.cfg.ActualControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
@@ -778,11 +776,9 @@ public class DefUseFitnessCalculations {
 		if (v.getControlDependentBranchId() == -1) {
 			r = getRootBranchTestFitness(v);
 		} else {
-			ActualControlFlowGraph cfg = CFGPool.getActualCFG(v.getClassName(),
-			                                                        v.getMethodName());
 			Branch b = BranchPool.getBranch(v.getControlDependentBranchId());
 			r = new BranchCoverageTestFitness(new BranchCoverageGoal(b,
-			        targetExpressionValue, cfg, v.getClassName(), v.getMethodName()));
+			        targetExpressionValue, v.getClassName(), v.getMethodName()));
 		}
 		return r;
 	}
