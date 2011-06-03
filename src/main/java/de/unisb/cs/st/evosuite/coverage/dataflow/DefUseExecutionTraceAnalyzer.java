@@ -159,7 +159,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 			if(!vertex.isDefinition())
 				continue;
 			BytecodeInstruction vertexInOtherGraph = CFGPool.getRawCFG(vertex.getClassName(), 
-					vertex.getMethodName()).getInstruction(vertex.getId());
+					vertex.getMethodName()).getInstruction(vertex.getInstructionId());
 			Definition currentDefinition = DefUseFactory.makeDefinition(vertexInOtherGraph) ;
 			if(isOverwritingDefinition(targetDefinition,currentDefinition))
 				r.add(vertex);

@@ -53,7 +53,7 @@ public class RawControlFlowGraph extends
 	@Override
 	public BytecodeInstruction getInstruction(int instructionId) {
 		for (BytecodeInstruction v : vertexSet()) {
-			if (v.getId() == instructionId) {
+			if (v.getInstructionId() == instructionId) {
 				return v;
 			}
 		}
@@ -244,7 +244,7 @@ public class RawControlFlowGraph extends
 		if (m == null) {
 			logger.warn("Vertex does not exist in graph: " + vertex);
 			for (BytecodeInstruction v : graph.vertexSet()) {
-				logger.info("  Vertex id: " + v.getId() + ", line number " + v.getLineNumber()
+				logger.info("  Vertex id: " + v.getInstructionId() + ", line number " + v.getLineNumber()
 				        + ", branch id: " + v.getControlDependentBranchId());
 			}
 			return getDiameter();
@@ -373,7 +373,7 @@ public class RawControlFlowGraph extends
 	 */
 	public Set<BytecodeInstruction> getPreviousInstructionsInMethod(BytecodeInstruction v) {
 		Set<BytecodeInstruction> visited = new HashSet<BytecodeInstruction>();
-		PriorityQueue<BytecodeInstruction> queue = new PriorityQueue<BytecodeInstruction>(graph.vertexSet().size(),new CFGVertexIdComparator());
+		PriorityQueue<BytecodeInstruction> queue = new PriorityQueue<BytecodeInstruction>(graph.vertexSet().size(),new BytecodeInstructionIdComparator());
 		queue.add(v);
 		while(queue.peek()!=null) {
 			BytecodeInstruction current = queue.poll();
@@ -382,7 +382,7 @@ public class RawControlFlowGraph extends
 			Set<ControlFlowEdge> incomingEdges = graph.incomingEdgesOf(current);
 			for(ControlFlowEdge incomingEdge : incomingEdges) {
 				BytecodeInstruction source = graph.getEdgeSource(incomingEdge);
-				if(source.getId() >= current.getId())
+				if(source.getInstructionId() >= current.getInstructionId())
 					continue;
 				queue.add(source);
 			}
@@ -399,7 +399,7 @@ public class RawControlFlowGraph extends
 	@SuppressWarnings("unchecked")
 	public Set<BytecodeInstruction> getLaterInstructionsInMethod(BytecodeInstruction v) {
 		Set<BytecodeInstruction> visited = new HashSet<BytecodeInstruction>();
-		Comparator<BytecodeInstruction> reverseComp = new ReverseComparator(new CFGVertexIdComparator());
+		Comparator<BytecodeInstruction> reverseComp = new ReverseComparator(new BytecodeInstructionIdComparator());
 		PriorityQueue<BytecodeInstruction> queue = new PriorityQueue<BytecodeInstruction>(graph.vertexSet().size(),
 				reverseComp);
 		queue.add(v);
@@ -410,7 +410,7 @@ public class RawControlFlowGraph extends
 			Set<ControlFlowEdge> outgoingEdges = graph.outgoingEdgesOf(current);
 			for(ControlFlowEdge outgoingEdge : outgoingEdges) {
 				BytecodeInstruction target = graph.getEdgeTarget(outgoingEdge);
-				if(target.getId() < current.getId())
+				if(target.getInstructionId() < current.getInstructionId())
 					continue;
 				queue.add(target);
 			}
@@ -487,7 +487,7 @@ public class RawControlFlowGraph extends
 			if (targetDefUse.canBecomeActiveDefinition(edgeTarget))
 					continue;
 			
-			if (edgeTarget.getId() > currentVertex.getId() // dont follow backedges (loops)
+			if (edgeTarget.getInstructionId() > currentVertex.getInstructionId() // dont follow backedges (loops)
 			        && hasDefClearPathToMethodExit(targetDefUse, edgeTarget))
 				return true;
 		}
@@ -509,7 +509,7 @@ public class RawControlFlowGraph extends
 			if (targetDefUse.canBecomeActiveDefinition(edgeStart))
 					continue;
 
-			if (edgeStart.getId() < currentVertex.getId() // dont follow backedges (loops) 
+			if (edgeStart.getInstructionId() < currentVertex.getInstructionId() // dont follow backedges (loops) 
 			        && hasDefClearPathFromMethodEntry(targetDefUse, edgeStart))
 				return true;
 		}
@@ -596,7 +596,7 @@ public class RawControlFlowGraph extends
 		for (ControlFlowEdge e : prevOut)
 			backEdge = e;
 		// only if-branches have this structure
-		return !(graph.getEdgeTarget(backEdge).getId() < maxID);
+		return !(graph.getEdgeTarget(backEdge).getInstructionId() < maxID);
 	}
 	
 	/*
