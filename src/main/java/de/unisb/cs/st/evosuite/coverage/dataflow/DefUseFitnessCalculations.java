@@ -756,7 +756,7 @@ public class DefUseFitnessCalculations {
 	 * CFGVertex is control dependent on
 	 */
 	public static BranchCoverageTestFitness getBranchTestFitness(BytecodeInstruction v) {
-		return getBranchTestFitness(v, !v.branchExpressionValue);
+		return getBranchTestFitness(v, !v.getControlDependentBranchExpressionValue());
 	}
 
 	/**
@@ -764,7 +764,7 @@ public class DefUseFitnessCalculations {
 	 * branch that the given CFGVertex is control dependent on
 	 */
 	public static BranchCoverageTestFitness getAlternativeBranchTestFitness(BytecodeInstruction v) {
-		return getBranchTestFitness(v, v.branchExpressionValue);
+		return getBranchTestFitness(v, !v.getControlDependentBranchExpressionValue());
 	}
 
 	/**
