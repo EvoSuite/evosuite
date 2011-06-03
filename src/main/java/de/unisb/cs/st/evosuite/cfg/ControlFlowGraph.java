@@ -27,7 +27,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultEdge;
 
 import de.unisb.cs.st.evosuite.mutation.Mutateable;
 

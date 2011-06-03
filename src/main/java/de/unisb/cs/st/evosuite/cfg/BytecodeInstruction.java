@@ -273,9 +273,42 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 			this.lineNumber = asmLine;
 		}
 	}
+	
+	// --- graph section ---
 
-	// --- CDG-Section ---
+	/**
+	 * Returns the ActualControlFlowGraph of this instructions method
+	 * 
+	 * Convenience method. Redirects the call to CFGPool.getActualCFG()
+	 */
+	public ActualControlFlowGraph getActualCFG() {
 
+		ActualControlFlowGraph myCFG = CFGPool.getActualCFG(className,
+				methodName);
+		if (myCFG == null)
+			throw new IllegalStateException(
+					"expect CFGPool to know CFG for every method for which an instruction is known");
+		
+		return myCFG;
+	}
+	
+	/**
+	 * Returns the RawControlFlowGraph of this instructions method
+	 * 
+	 * Convenience method. Redirects the call to CFGPool.getRawCFG()
+	 */
+	public RawControlFlowGraph getRawCFG() {
+
+		RawControlFlowGraph myCFG = CFGPool.getRawCFG(className,
+				methodName);
+		if (myCFG == null)
+			throw new IllegalStateException(
+					"expect CFGPool to know CFG for every method for which an instruction is known");
+		
+		return myCFG;
+	}
+
+	
 	/**
 	 * Returns the ControlDependenceGraph of this instructions method
 	 * 
@@ -291,7 +324,9 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		
 		return myCDG;
 	}
-	
+
+	// --- TODO CDG-Section ---
+
 	/**
 	 * Returns a cfg.Branch object for each branch this instruction is control
 	 * dependent on as determined by the ControlDependenceGraph. If this
@@ -380,8 +415,21 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	public boolean getControlDependentBranchExpressionValue() {
 
 		Branch b = getControlDependentBranch();
+		return getBranchExpressionValue(b);
+	}
 
-		return getCDG().getBranchExpressionValue(this,b);
+	
+	/**
+	 *  
+	 */
+	public boolean getBranchExpressionValue(Branch b) {
+		if (b == null)
+			throw new IllegalArgumentException("null given");
+		if (!getControlDependentBranches().contains(b))
+			throw new IllegalArgumentException(
+					"this method can only be called for branches that this instruction is directly control dependent on");
+		
+		return getCDG().getBranchExpressionValue(this, b);
 	}
 
 	/**
