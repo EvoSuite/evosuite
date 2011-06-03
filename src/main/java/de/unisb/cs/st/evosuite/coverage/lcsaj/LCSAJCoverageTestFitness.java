@@ -72,17 +72,17 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 		for (MethodCall call : result.getTrace().finished_calls) {
 
 			// if method call is the method of the LCSAJ
-			if (call.class_name.equals(lcsaj.getClassName())
-					&& call.method_name.equals(lcsaj.getMethodName())) {
+			if (call.className.equals(lcsaj.getClassName())
+					&& call.methodName.equals(lcsaj.getMethodName())) {
 				int lcsaj_position = 0;
 
 				// For each branch that was passed in this call
-				for (int i = 0; i < call.branch_trace.size(); i++) {
-					int actualBranch = call.branch_trace.get(i);
+				for (int i = 0; i < call.branchTrace.size(); i++) {
+					int actualBranch = call.branchTrace.get(i);
 					int lcsaj_branchID = lcsaj.getBranchID(lcsaj_position);
 
-					double false_distance = call.false_distance_trace.get(i);
-					double true_distance = call.true_distance_trace.get(i);
+					double false_distance = call.falseDistanceTrace.get(i);
+					double true_distance = call.trueDistanceTrace.get(i);
 
 					if (actualBranch == lcsaj_branchID) {
 						currentFitness -= 1.0;
