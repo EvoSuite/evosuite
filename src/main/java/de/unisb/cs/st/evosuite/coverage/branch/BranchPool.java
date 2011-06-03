@@ -191,7 +191,7 @@ public class BranchPool {
 		if (branch == null)
 			return -1;
 
-		return branch.getBytecodeId();
+		return branch.getInstructionId();
 	}
 
 	/**
@@ -245,10 +245,10 @@ public class BranchPool {
 	 * 
 	 *  Should no such Branch exist null is returned
 	 */
-	public static Branch getBranchByBytecodeId(String className, String methodName, int bytecodeId) {
+	public static Branch getBranchByBytecodeId(String className, String methodName, int instructionId) {
 		List<Branch> branches = retrieveBranchesInMethod(className, methodName);
 		for(Branch b : branches)
-			if(b.getBytecodeId()==bytecodeId)
+			if(b.getInstructionId()==instructionId)
 				return b;
 		
 		return null;

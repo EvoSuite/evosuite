@@ -44,7 +44,7 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 
 	int branch_id;
 
-	int bytecode_id;
+	int instruction_id;
 
 	int line_number;
 
@@ -60,7 +60,7 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 	        String className, String methodName) {
 		this.branch = branch;
 		this.branch_id = branch.getControlDependentBranchId();
-		this.bytecode_id = branch.getBytecodeId();
+		this.instruction_id = branch.getInstructionId();
 		this.line_number = branch.getLineNumber();
 		this.value = value;
 		this.cfg = cfg;
@@ -79,7 +79,7 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 	public BranchCoverageGoal(String className, String methodName) {
 		this.branch = null;
 		this.branch_id = 0;
-		this.bytecode_id = 0;
+		this.instruction_id = 0;
 		this.line_number = 0;
 		this.value = true;
 		this.cfg = null;
@@ -173,7 +173,7 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 			if (call.class_name.equals(className) && call.method_name.equals(methodName)) {
 				ControlFlowDistance d2;
 				d2 = getDistance(call.branch_trace, call.true_distance_trace,
-				                 call.false_distance_trace, bytecode_id);
+				                 call.false_distance_trace, instruction_id);
 				if (d2.compareTo(d) < 0) {
 					d = d2;
 				}
@@ -249,7 +249,7 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + branch_id;
-		result = prime * result + bytecode_id;
+		result = prime * result + instruction_id;
 		result = prime * result + ((cfg == null) ? 0 : cfg.hashCode());
 		result = prime * result + ((className == null) ? 0 : className.hashCode());
 		result = prime * result + ((methodName == null) ? 0 : methodName.hashCode());
@@ -268,7 +268,7 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 		BranchCoverageGoal other = (BranchCoverageGoal) obj;
 		if (branch_id != other.branch_id)
 			return false;
-		if (bytecode_id != other.bytecode_id)
+		if (instruction_id != other.instruction_id)
 			return false;
 		if (cfg == null) {
 			if (other.cfg != null)

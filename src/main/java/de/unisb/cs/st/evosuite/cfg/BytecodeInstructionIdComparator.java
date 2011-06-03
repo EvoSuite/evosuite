@@ -9,11 +9,11 @@ import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
  * This is mainly used to put CFGVertex into a PriorityQueue
  * in ControlFlowGraph.getMaximalInitialDistance()
  */
-public class CFGVertexIdComparator implements Comparator<BytecodeInstruction> {
+public class BytecodeInstructionIdComparator implements Comparator<BytecodeInstruction> {
 
 	@Override
 	public int compare(BytecodeInstruction arg0, BytecodeInstruction arg1) {
 
-		return new Integer(arg0.getId()).compareTo(arg1.getId());
+		return new Integer(arg0.getInstructionId()).compareTo(arg1.getInstructionId());
 	}
 }

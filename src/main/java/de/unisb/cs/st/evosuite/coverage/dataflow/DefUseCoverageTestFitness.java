@@ -380,7 +380,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		Set<BytecodeInstruction> previousInstructions = getInstructionsBeforeGoalUse();
 		if (goalDefinition != null) {
 			Set<BytecodeInstruction> laterInstructions = getInstructionsAfterGoalDefinition();
-			if (goalDefinition.getVertexId() < goalUse.getVertexId()
+			if (goalDefinition.getInstructionId() < goalUse.getInstructionId()
 			        && goalDefinition.getMethodName().equals(goalUse.getMethodName())) {
 				// they are in the same method and definition comes before use => intersect sets
 				previousInstructions.retainAll(laterInstructions);
@@ -401,7 +401,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	public Set<BytecodeInstruction> getInstructionsAfterGoalDefinition() {
 		RawControlFlowGraph cfg = CFGPool.getRawCFG(goalDefinition.getClassName(),
 		                                                       goalDefinition.getMethodName());
-		BytecodeInstruction defVertex = cfg.getInstruction(goalDefinition.getVertexId());
+		BytecodeInstruction defVertex = cfg.getInstruction(goalDefinition.getInstructionId());
 		Set<BytecodeInstruction> r = cfg.getLaterInstructionsInMethod(defVertex);
 //		for (BytecodeInstruction v : r) {
 //			v.setMethodName(goalDefinition.getMethodName());
@@ -419,7 +419,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	public Set<BytecodeInstruction> getInstructionsBeforeGoalUse() {
 		RawControlFlowGraph cfg = CFGPool.getRawCFG(goalUse.getClassName(),
 		                                                       goalUse.getMethodName());
-		BytecodeInstruction useVertex = cfg.getInstruction(goalUse.getVertexId());
+		BytecodeInstruction useVertex = cfg.getInstruction(goalUse.getInstructionId());
 		Set<BytecodeInstruction> r = cfg.getPreviousInstructionsInMethod(useVertex);
 //		for (BytecodeInstruction v : r) {
 //			v.setMethodName(goalUse.getMethodName());

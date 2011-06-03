@@ -50,9 +50,6 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	// auxiliary information
 	private int lineNumber = -1;
 
-	// --- - General - ---
-	private int globalBytecodeInstructionId; // TODO
-
 	// --- - Mutations - ---
 	// Calculate distance to each mutation
 	private Map<Long, Integer> mutant_distance = new HashMap<Long, Integer>();
@@ -120,22 +117,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 
 	// --- Field Management --- TODO find out which ones to hide/remove
 
-	// TODO merge with getId()!
 	// TODO make real getId()!
-	// TODO merge with getVertexId() ... oh boy
-	// TODO merge with getBytecodeId()
-
-	public int getId() {
-		return instructionId;
-	}
-
-	public int getBytecodeId() {
-		return instructionId;
-	}
-
-	public int getVertexId() {
-		return instructionId;
-	}
 
 	public int getInstructionId() {
 		return instructionId;
