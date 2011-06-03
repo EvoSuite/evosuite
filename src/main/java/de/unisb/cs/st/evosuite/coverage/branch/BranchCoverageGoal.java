@@ -138,7 +138,6 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 
 		return BranchCoverageFitnessCalculations.getDistance(result, branch,
 				value, className, methodName);
-		
 	}
 	
 //	SAFETY BACKUP BEFORE REIMPLEMENTATION
