@@ -57,7 +57,6 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	private boolean mutationBranch = false;
 	private boolean mutatedBranch = false;
 
-
 	// TODO make sure the word CFGVertex appears nowhere anymore
 
 	/**
@@ -80,7 +79,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		setClassName(className);
 		setMethodName(methodName);
 	}
-	
+
 	/**
 	 * Can represent any byteCode instruction
 	 */
@@ -97,7 +96,6 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		if (lineNumber != -1)
 			setLineNumber(lineNumber);
 	}
-
 
 	// getter + setter
 
@@ -209,10 +207,10 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		// throw new IllegalStateException(
 		// "expect hasLineNumberSet() to be true on a BytecodeInstruction that gets asked for it's lineNumber");
 
-		if(lineNumber == -1 && isLineNumber()) {
+		if (lineNumber == -1 && isLineNumber()) {
 			retrieveLineNumber();
 		}
-		
+
 		return lineNumber;
 	}
 
@@ -224,9 +222,9 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 			throw new IllegalArgumentException(
 					"expect lineNumber value to be positive");
 
-		if(isLabel())
+		if (isLabel())
 			return;
-		
+
 		if (isLineNumber()) {
 			int asmLine = super.getLineNumber();
 			// sanity check
@@ -273,7 +271,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 			this.lineNumber = asmLine;
 		}
 	}
-	
+
 	// --- graph section ---
 
 	/**
@@ -288,10 +286,10 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		if (myCFG == null)
 			throw new IllegalStateException(
 					"expect CFGPool to know CFG for every method for which an instruction is known");
-		
+
 		return myCFG;
 	}
-	
+
 	/**
 	 * Returns the RawControlFlowGraph of this instructions method
 	 * 
@@ -299,16 +297,14 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 */
 	public RawControlFlowGraph getRawCFG() {
 
-		RawControlFlowGraph myCFG = CFGPool.getRawCFG(className,
-				methodName);
+		RawControlFlowGraph myCFG = CFGPool.getRawCFG(className, methodName);
 		if (myCFG == null)
 			throw new IllegalStateException(
 					"expect CFGPool to know CFG for every method for which an instruction is known");
-		
+
 		return myCFG;
 	}
 
-	
 	/**
 	 * Returns the ControlDependenceGraph of this instructions method
 	 * 
@@ -316,12 +312,11 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 */
 	public ControlDependenceGraph getCDG() {
 
-		ControlDependenceGraph myCDG = CFGPool.getCDG(className,
-				methodName);
+		ControlDependenceGraph myCDG = CFGPool.getCDG(className, methodName);
 		if (myCDG == null)
 			throw new IllegalStateException(
 					"expect CFGPool to know CDG for every method for which an instruction is known");
-		
+
 		return myCDG;
 	}
 
@@ -332,10 +327,37 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 * dependent on as determined by the ControlDependenceGraph. If this
 	 * instruction is only dependent on the root branch this method returns an
 	 * empty set
+	 * 
+	 * If this instruction is a Branch and it is dependent on itself - which can
+	 * happen in loops for example - the returned set WILL contain this. If you
+	 * do not need the full set in order to avoid loops, call
+	 * getAllControlDependentBranches instead
+	 */
+	public Set<Branch> getAllControlDependentBranches() {
+
+		return getCDG().getControlDependentBranches(this);
+	}
+
+	/**
+	 * Returns a cfg.Branch object for each branch this instruction is control
+	 * dependent on as determined by the ControlDependenceGraph. If this
+	 * instruction is only dependent on the root branch this method returns an
+	 * empty set
+	 * 
+	 * If this instruction is a Branch and it is dependent on itself - which can
+	 * happen in loops for example - the returned set will NOT contain this. If
+	 * you need the full set, call getAllControlDependentBranches instead
 	 */
 	public Set<Branch> getControlDependentBranches() {
 
-		return getCDG().getControlDependentBranches(this);
+		Set<Branch> r = getAllControlDependentBranches();
+		r.remove(this);
+
+		// TODO im not sure if the following holds
+//		if (r.isEmpty())
+//			throw new IllegalStateException("expect branch that is control dependent on itself to have at least one other branch it is control dependent on");
+		
+		return r;
 	}
 
 	/**
@@ -418,7 +440,6 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		return getBranchExpressionValue(b);
 	}
 
-	
 	/**
 	 *  
 	 */
@@ -428,7 +449,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		if (!getControlDependentBranches().contains(b))
 			throw new IllegalArgumentException(
 					"this method can only be called for branches that this instruction is directly control dependent on");
-		
+
 		return getCDG().getBranchExpressionValue(this, b);
 	}
 
@@ -518,10 +539,10 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 
 			// + " - " + ((JumpInsnNode) asmNode).label.getLabel();
 		}
-		
+
 		return getASMNodeString();
 	}
-	
+
 	public String getASMNodeString() {
 		String type = getType();
 		String opcode = getInstructionType();
@@ -580,19 +601,19 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		else
 			return "Unknown node" + " Type=" + type + ", Opcode=" + opcode;
 	}
-	
+
 	// --- Inherited from Object ---
 
 	@Override
 	public String toString() {
 
-		String r = "I"+instructionId;
-		
-		r+=" "+explain();
-		
-		if(hasLineNumberSet() && !isLineNumber())
-			r += " l"+getLineNumber();
-		
+		String r = "I" + instructionId;
+
+		r += " " + explain();
+
+		if (hasLineNumberSet() && !isLineNumber())
+			r += " l" + getLineNumber();
+
 		return r;
 	}
 

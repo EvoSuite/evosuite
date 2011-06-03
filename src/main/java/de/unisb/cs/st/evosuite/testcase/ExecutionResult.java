@@ -51,6 +51,7 @@ public class ExecutionResult {
 	public PrimitiveFieldTrace field_trace;
 	public NullOutputTrace null_trace;
 	public List<Long> touched = new ArrayList<Long>();
+	
 
 	public ExecutionResult(TestCase t) {
 		exception_statement = 0;

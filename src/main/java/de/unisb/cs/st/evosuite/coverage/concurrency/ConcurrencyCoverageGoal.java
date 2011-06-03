@@ -69,7 +69,7 @@ public class ConcurrencyCoverageGoal extends TestCoverageGoal {
 		//#TODO it would be nicer, if test cases where notified before being run and we could register our Controller somewhere. So that ExecutionResults would actually be a list of results and we could cast to the right one
 		ExecutionResult result = runTest(test);
 		ConcurrencyDistance d = getDistance(result, result.getTrace().concurrencyTracer); //tracer was set inside ExecutionTracer.clear()
-		if (d.approach == 0 && d.branch == 0.0 && d.scheduleDistance==0)
+		if (d.approachLevel == 0 && d.branchDistance == 0.0 && d.scheduleDistance==0)
 			return true;
 		else
 			return false;
@@ -80,8 +80,8 @@ public class ConcurrencyCoverageGoal extends TestCoverageGoal {
 		ConcurrencyDistance distance = new ConcurrencyDistance();
 		for(BranchCoverageGoal b : branches){
 			ControlFlowDistance dist = b.getDistance(result);
-			distance.approach+=dist.approach;
-			distance.branch+=dist.branch;
+			distance.approachLevel+=dist.approachLevel;
+			distance.branchDistance+=dist.branchDistance;
 		}
 		distance.scheduleDistance = concurrencyTracer.getDistance(scheduleIDs);
 		return distance;

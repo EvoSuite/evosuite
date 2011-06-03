@@ -53,7 +53,7 @@ public abstract class FitnessFunction {
 	 * @param value
 	 * @return
 	 */
-	protected static double normalize(double value) {
+	public static double normalize(double value) {
 		return value / (1.0 + value);
 	}
 }
