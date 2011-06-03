@@ -105,9 +105,9 @@ public class BranchCoverageFitnessCalculations {
 
 		logger.debug("Looking for method without branches " + methodName);
 		for (MethodCall call : result.getTrace().finished_calls) {
-			if (call.class_name.equals(""))
+			if (call.className.equals(""))
 				continue;
-			if ((call.class_name + "." + call.method_name).equals(className
+			if ((call.className + "." + call.methodName).equals(className
 					+ "." + methodName)) {
 				return d;
 			}
@@ -131,8 +131,8 @@ public class BranchCoverageFitnessCalculations {
 
 		// Minimal distance between target node and path
 		for (MethodCall call : result.getTrace().finished_calls) {
-			if (call.class_name.equals(className)
-					&& call.method_name.equals(methodName)) {
+			if (call.className.equals(className)
+					&& call.methodName.equals(methodName)) {
 				ControlFlowDistance d2;
 				d2 = getNonRootDistance(call, branch, value);
 				if (d2.compareTo(d) < 0) {
@@ -152,9 +152,9 @@ public class BranchCoverageFitnessCalculations {
 		if (call == null)
 			throw new IllegalArgumentException("null given");
 
-		List<Integer> path = call.branch_trace;
-		List<Double> true_distances = call.true_distance_trace;
-		List<Double> false_distances = call.false_distance_trace;
+		List<Integer> path = call.branchTrace;
+		List<Double> trueDistances = call.trueDistanceTrace;
+		List<Double> falseDistances = call.falseDistanceTrace;
 
 		// IDEA:
 		// if this goal's branch is traced in the given path, return the
@@ -179,12 +179,12 @@ public class BranchCoverageFitnessCalculations {
 					double branch_distance = 0.0;
 
 					if (approach > 0)
-						branch_distance = true_distances.get(i)
-								+ false_distances.get(i);
+						branch_distance = trueDistances.get(i)
+								+ falseDistances.get(i);
 					else if (value)
-						branch_distance = true_distances.get(i);
+						branch_distance = trueDistances.get(i);
 					else
-						branch_distance = false_distances.get(i);
+						branch_distance = falseDistances.get(i);
 
 					if (approach == min_approach)
 						min_dist = Math.min(min_dist, branch_distance);
