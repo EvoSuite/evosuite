@@ -192,7 +192,7 @@ public class ControlFlowDistanceCalculator {
 		}
 
 		ControlFlowDistance controlDependenceDistance = getControlDependenceDistancesFor(
-				result, branch, className, methodName);
+				result, call, branch, className, methodName);
 
 		controlDependenceDistance.increaseApproachLevel();
 
@@ -238,11 +238,11 @@ public class ControlFlowDistanceCalculator {
 	}
 
 	private static ControlFlowDistance getControlDependenceDistancesFor(
-			ExecutionResult result, BytecodeInstruction instruction,
+			ExecutionResult result, MethodCall call, BytecodeInstruction instruction,
 			String className, String methodName) {
 
 		Set<ControlFlowDistance> cdDistances = getDistancesForControlDependentBranchesOf(
-				result, instruction, className, methodName);
+				result, call, instruction, className, methodName);
 
 		if (cdDistances == null)
 			throw new IllegalStateException(
@@ -256,7 +256,7 @@ public class ControlFlowDistanceCalculator {
 	 * all branches the given instruction is control dependent on
 	 */
 	private static Set<ControlFlowDistance> getDistancesForControlDependentBranchesOf(
-			ExecutionResult result, BytecodeInstruction instruction,
+			ExecutionResult result, MethodCall call, BytecodeInstruction instruction,
 			String className, String methodName) {
 
 		Set<ControlFlowDistance> r = new HashSet<ControlFlowDistance>();
@@ -274,7 +274,7 @@ public class ControlFlowDistanceCalculator {
 
 		for (Branch next : nextToLookAt) {
 			boolean nextValue = instruction.getBranchExpressionValue(next);
-			r.add(getDistance(result, next, nextValue, className, methodName));
+			r.add(getNonRootDistance(result, call, next, nextValue, className, methodName));
 		}
 
 		return r;
