@@ -82,7 +82,13 @@ public class ControlFlowDistanceCalculator {
 		if (branch == null)
 			return getRootDistance(result, className, methodName);
 
-		return getNonRootDistance(result, branch, value);
+		ControlFlowDistance nonRootDistance = getNonRootDistance(result, branch, value);
+		
+		if(nonRootDistance == null)
+			throw new IllegalStateException(
+					"expect getNonRootDistance to never return null");
+		
+		return nonRootDistance;
 	}
 
 	private static ControlFlowDistance getTimeoutDistance(
@@ -91,9 +97,14 @@ public class ControlFlowDistanceCalculator {
 		if (!TestCoverageGoal.hasTimeout(result))
 			throw new IllegalArgumentException(
 					"expect given result to have a timeout");
+		logger.debug("Has timeout!");
+		return worstPossibleDistanceForMethod(branch);
+	}
+
+	private static ControlFlowDistance worstPossibleDistanceForMethod(
+			Branch branch) {
 
 		ControlFlowDistance d = new ControlFlowDistance();
-		logger.debug("Has timeout!");
 		if (branch == null) {
 			d.setApproachLevel(20);
 		} else {
@@ -139,8 +150,9 @@ public class ControlFlowDistanceCalculator {
 			if (call.className.equals(className)
 					&& call.methodName.equals(methodName)) {
 				ControlFlowDistance d2;
+				Set<Branch> handled = new HashSet<Branch>();
 				d2 = getNonRootDistance(result, call, branch, value, className,
-						methodName);
+						methodName, handled);
 				if (d2.compareTo(d) < 0) {
 					d = d2;
 				}
@@ -152,12 +164,17 @@ public class ControlFlowDistanceCalculator {
 
 	private static ControlFlowDistance getNonRootDistance(
 			ExecutionResult result, MethodCall call, Branch branch,
-			boolean value, String className, String methodName) {
+			boolean value, String className, String methodName,
+			Set<Branch> handled) {
 		if (branch == null)
 			throw new IllegalStateException(
 					"expect getNonRootDistance() to only be called if this goal's branch is not a root branch");
 		if (call == null)
 			throw new IllegalArgumentException("null given");
+
+		if (handled.contains(branch))
+			return worstPossibleDistanceForMethod(branch);
+		handled.add(branch);
 
 		List<Double> trueDistances = call.trueDistanceTrace;
 		List<Double> falseDistances = call.falseDistanceTrace;
@@ -192,7 +209,7 @@ public class ControlFlowDistanceCalculator {
 		}
 
 		ControlFlowDistance controlDependenceDistance = getControlDependenceDistancesFor(
-				result, call, branch, className, methodName);
+				result, call, branch, className, methodName, handled);
 
 		controlDependenceDistance.increaseApproachLevel();
 
@@ -238,11 +255,12 @@ public class ControlFlowDistanceCalculator {
 	}
 
 	private static ControlFlowDistance getControlDependenceDistancesFor(
-			ExecutionResult result, MethodCall call, BytecodeInstruction instruction,
-			String className, String methodName) {
+			ExecutionResult result, MethodCall call,
+			BytecodeInstruction instruction, String className,
+			String methodName, Set<Branch> handled) {
 
 		Set<ControlFlowDistance> cdDistances = getDistancesForControlDependentBranchesOf(
-				result, call, instruction, className, methodName);
+				result, call, instruction, className, methodName, handled);
 
 		if (cdDistances == null)
 			throw new IllegalStateException(
@@ -254,10 +272,13 @@ public class ControlFlowDistanceCalculator {
 	/**
 	 * Returns a set containing the ControlFlowDistances in the given result for
 	 * all branches the given instruction is control dependent on
+	 * 
+	 * @param handled
 	 */
 	private static Set<ControlFlowDistance> getDistancesForControlDependentBranchesOf(
-			ExecutionResult result, MethodCall call, BytecodeInstruction instruction,
-			String className, String methodName) {
+			ExecutionResult result, MethodCall call,
+			BytecodeInstruction instruction, String className,
+			String methodName, Set<Branch> handled) {
 
 		Set<ControlFlowDistance> r = new HashSet<ControlFlowDistance>();
 		Set<Branch> nextToLookAt = instruction.getControlDependentBranches();
@@ -274,7 +295,9 @@ public class ControlFlowDistanceCalculator {
 
 		for (Branch next : nextToLookAt) {
 			boolean nextValue = instruction.getBranchExpressionValue(next);
-			r.add(getNonRootDistance(result, call, next, nextValue, className, methodName));
+			ControlFlowDistance nextDistance = getNonRootDistance(result, call,
+					next, nextValue, className, methodName, handled);
+			r.add(nextDistance);
 		}
 
 		return r;

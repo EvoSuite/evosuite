@@ -58,6 +58,8 @@ public class ControlFlowDistance implements Comparable<ControlFlowDistance> {
 
 	public void increaseApproachLevel() {
 		approachLevel++;
+		if(approachLevel<0)
+			throw new IllegalStateException("expect approach Level to always be positive - overflow?");
 	}
 
 	public int getApproachLevel() {
