@@ -368,6 +368,10 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	public void addAssertions(TestCase test, Set<Long> killed, List<Mutation> mutants) {
 
 		logger.info("Generating assertions");
+
+		int ALL_assertions = 0;
+		int MIN_assertions = 0;
+
 		assertion_statistics_full.put(test, new HashMap<Class<?>, Integer>());
 
 		assertion_statistics_killed.put(test, new HashMap<Class<?>, Integer>());
@@ -499,6 +503,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		int num_before = 0;
 		Set<Long> killed_before = new HashSet<Long>();
 		List<Assertion> assertions = test.getAssertions();
+		assertion_statistics_full.get(test).put(StringAssertion.class, assertions.size());
 		logger.info("Got " + assertions.size() + " assertions");
 		Map<Integer, Set<Long>> kill_map = new HashMap<Integer, Set<Long>>();
 		int num = 0;
@@ -591,6 +596,8 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				}
 			}
 		}
+		assertion_statistics_min.get(test).put(StringAssertion.class, assertions.size());
+
 	}
 
 	public boolean isKilled(Mutation mutation, TestCase test) {
