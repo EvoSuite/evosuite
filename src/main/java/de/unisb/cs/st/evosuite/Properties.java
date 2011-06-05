@@ -407,6 +407,9 @@ public class Properties {
 	@Parameter(key = "PROJECT_PREFIX", group = "Runtime", description = "Package name of target package")
 	public static String PROJECT_PREFIX = null;
 
+	@Parameter(key = "PROJECT_DIR", group = "Runtime", description = "Directory name of target package")
+	public static String PROJECT_DIR = null;
+
 	/** Package name of target class (might be a subpackage) */
 	public static String CLASS_PREFIX = "";
 
