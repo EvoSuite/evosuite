@@ -38,8 +38,6 @@ import de.unisb.cs.st.utils.Utils;
  */
 public class ScanProject {
 
-	static String prefix;
-
 	private static List<Class<?>> findClasses(File directory, String packageName)
 	        throws ClassNotFoundException {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
@@ -91,16 +89,15 @@ public class ScanProject {
 			System.out.println("    "
 			        + file.toString().replace(".class", "").replace("/", "."));
 			if (Properties.STUBS) {
-				Class<?> clazz = Class.forName(packageName + '.'
-				        + file.getName().substring(0, file.getName().length() - 6));
+				Class<?> clazz = Class.forName(file.toString().replace(".class", "").replace("/",
+				                                                                             "."));
 				if (Modifier.isAbstract(clazz.getModifiers()) && !clazz.isInterface()) {
 					ClassFactory cf = new ClassFactory();
 					Class<?> stub = cf.createClass(clazz);
 				}
 			}
 			try {
-				Class.forName(packageName + '.'
-				        + file.getName().substring(0, file.getName().length() - 6));
+				Class.forName(file.toString().replace(".class", "").replace("/", "."));
 			} catch (IllegalAccessError e) {
 				System.out.println("Cannot access class " + packageName + '.'
 				        + file.getName().substring(0, file.getName().length() - 6));
@@ -128,6 +125,30 @@ public class ScanProject {
 		}
 	}
 
+	private static void getClasses(File directory) throws ClassNotFoundException {
+		for (File file : directory.listFiles()) {
+			if (file.isDirectory()) {
+				getClasses(file);
+			} else {
+				if (file.getName().endsWith(".class")) {
+					try {
+						Class.forName(file.toString().replace(".class", "").replace("/",
+						                                                            "."));
+					} catch (IllegalAccessError e) {
+						System.out.println("Cannot access class "
+						        + file.getName().substring(0, file.getName().length() - 6));
+					} catch (NoClassDefFoundError e) {
+						System.out.println("Cannot find class "
+						        + file.getName().substring(0, file.getName().length() - 6));
+					} catch (ExceptionInInitializerError e) {
+						System.out.println("Exception in initializer of "
+						        + file.getName().substring(0, file.getName().length() - 6));
+					}
+				}
+			}
+		}
+	}
+
 	/**
 	 * Entry point - generate task files
 	 * 
@@ -135,10 +156,18 @@ public class ScanProject {
 	 */
 	public static void main(String[] args) {
 		//System.out.println("Scanning project for test suite generation.");
-		prefix = Properties.PROJECT_PREFIX;
-		System.out.println("* Analyzing project prefix: " + prefix);
 		try {
-			getClasses(prefix);
+			if (Properties.PROJECT_PREFIX != null) {
+				System.out.println("* Analyzing project prefix: "
+				        + Properties.PROJECT_PREFIX);
+				getClasses(Properties.PROJECT_PREFIX);
+			} else if (Properties.PROJECT_DIR != null) {
+				System.out.println("* Analyzing project directory: "
+				        + Properties.PROJECT_DIR);
+				getClasses(new File(Properties.PROJECT_DIR));
+			} else {
+				System.out.println("* Please specify either project prefix or directory");
+			}
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -147,7 +176,7 @@ public class ScanProject {
 		TestSuitePreMain.distanceTransformer.saveData();
 		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
 		TestTaskGenerator.hierarchy.calculateSubclasses();
-		System.out.println("* Creating test files for " + prefix);
-		TestTaskGenerator.suggestTasks(prefix);
+		System.out.println("* Creating test files for " + Properties.PROJECT_PREFIX);
+		TestTaskGenerator.suggestTasks(Properties.PROJECT_PREFIX);
 	}
 }
