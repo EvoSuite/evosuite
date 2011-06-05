@@ -114,23 +114,11 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 			if (test.isChanged() || test.last_result == null) {
 				ExecutionResult result = runTest(test.test);
 				results.add(result);
-
-				/*
-				 * ExecutionResult r = new ExecutionResult(test.test, null);
-				 * r.trace = result.trace.clone(); r.test = test.test.clone();
-				 * r.exceptions = new HashMap<Integer,
-				 * Throwable>(result.exceptions);
-				 */
 				test.last_result = result; // .clone();
 				test.setChanged(false);
 			} else {
-				// logger.info("Skipping test with length "+test.size());
-				// results.add(result_cache.get(test.test));
+
 				results.add(test.last_result);
-				// ExecutionResult result = runTest(test.test, m);
-				// if(!result.trace.equals(result_cache.get(test.test))) {
-				// logger.error("Cached result does not match new result!");
-				// }
 
 			}
 		}
