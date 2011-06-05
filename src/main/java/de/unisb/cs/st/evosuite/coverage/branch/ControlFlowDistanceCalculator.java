@@ -1,6 +1,7 @@
 package de.unisb.cs.st.evosuite.coverage.branch;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,8 +54,13 @@ public class ControlFlowDistanceCalculator {
 	private static Logger logger = Logger
 			.getLogger(ControlFlowDistanceCalculator.class);
 
+	// DONE hold intermediately calculated ControlFlowDistances in
+	// ExecutionResult during computation in order to speed up things -
+	// experiment at least 
+	// ... did that, but no real speed up observed 
+
 	/**
-	 * Calculates the BranchCoverage distance for how far away the given
+	 * Calculates the ControlFlowDistance indicating how far away the given
 	 * ExecutionResult was from executing the given Branch in a certain way,
 	 * depending on the given value.
 	 * 
@@ -82,12 +88,13 @@ public class ControlFlowDistanceCalculator {
 		if (branch == null)
 			return getRootDistance(result, className, methodName);
 
-		ControlFlowDistance nonRootDistance = getNonRootDistance(result, branch, value);
-		
-		if(nonRootDistance == null)
+		ControlFlowDistance nonRootDistance = getNonRootDistance(result,
+				branch, value);
+
+		if (nonRootDistance == null)
 			throw new IllegalStateException(
 					"expect getNonRootDistance to never return null");
-		
+
 		return nonRootDistance;
 	}
 
@@ -137,12 +144,12 @@ public class ControlFlowDistanceCalculator {
 		if (branch == null)
 			throw new IllegalStateException(
 					"expect this method only to be called if this goal does not try to cover the root branch");
-
+		
 		String className = branch.getClassName();
 		String methodName = branch.getMethodName();
 
-		ControlFlowDistance d = new ControlFlowDistance();
-		d.setApproachLevel(branch.getActualCFG().getDiameter() + 1);
+		ControlFlowDistance r = new ControlFlowDistance();
+		r.setApproachLevel(branch.getActualCFG().getDiameter() + 1);
 		logger.debug("Looking for method with branches " + methodName);
 
 		// Minimal distance between target node and path
@@ -151,15 +158,16 @@ public class ControlFlowDistanceCalculator {
 					&& call.methodName.equals(methodName)) {
 				ControlFlowDistance d2;
 				Set<Branch> handled = new HashSet<Branch>();
+//				result.intermediateDistances = new HashMap<Branch,ControlFlowDistance>();
 				d2 = getNonRootDistance(result, call, branch, value, className,
 						methodName, handled);
-				if (d2.compareTo(d) < 0) {
-					d = d2;
+				if (d2.compareTo(r) < 0) {
+					r = d2;
 				}
 			}
 		}
-
-		return d;
+		
+		return r;
 	}
 
 	private static ControlFlowDistance getNonRootDistance(
@@ -172,10 +180,18 @@ public class ControlFlowDistanceCalculator {
 		if (call == null)
 			throw new IllegalArgumentException("null given");
 
-		if (handled.contains(branch))
-			return worstPossibleDistanceForMethod(branch);
+//		ControlFlowDistance r = result.intermediateDistances.get(branch);
+		
+		if (handled.contains(branch)) { 
+//			if(r== null)
+				return worstPossibleDistanceForMethod(branch);
+//			else {
+//				System.out.println("reused distance for branch: "+branch.toString());
+//				return r;
+//			}
+		}
 		handled.add(branch);
-
+		
 		List<Double> trueDistances = call.trueDistanceTrace;
 		List<Double> falseDistances = call.falseDistanceTrace;
 
@@ -205,6 +221,7 @@ public class ControlFlowDistanceCalculator {
 			if (r.getBranchDistance() == Double.MAX_VALUE)
 				throw new IllegalStateException("should be impossible");
 
+//			result.intermediateDistances.put(branch, r);
 			return r;
 		}
 
@@ -213,45 +230,9 @@ public class ControlFlowDistanceCalculator {
 
 		controlDependenceDistance.increaseApproachLevel();
 
+//		result.intermediateDistances.put(branch, controlDependenceDistance);
+		
 		return controlDependenceDistance;
-
-		// double min_dist = 0.0;
-		// for (int i = 0; i < path.size(); i++) {
-		// BytecodeInstruction v = cfg.getInstruction(path.get(i));
-		// if (v != null) {
-		//
-		// int approach = cfg.getDistance(v, branch);
-		// //
-		// logger.debug("B: Path vertex "+i+" has approach: "+approach+" and branch distance "+distances.get(i));
-		//
-		// if (approach <= min_approach && approach >= 0) {
-		// double branch_distance = 0.0;
-		//
-		// if (approach > 0)
-		// branch_distance = trueDistances.get(i)
-		// + falseDistances.get(i);
-		// else if (value)
-		// branch_distance = trueDistances.get(i);
-		// else
-		// branch_distance = falseDistances.get(i);
-		//
-		// if (approach == min_approach)
-		// min_dist = Math.min(min_dist, branch_distance);
-		// else {
-		// min_approach = approach;
-		// min_dist = branch_distance;
-		// }
-		//
-		// }
-		// } else {
-		// logger.info("Path vertex does not exist in graph");
-		// }
-		// }
-		//
-		// d.approach = min_approach;
-		// d.branch = min_dist;
-		//
-		// return d;
 	}
 
 	private static ControlFlowDistance getControlDependenceDistancesFor(

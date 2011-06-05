@@ -18,6 +18,8 @@
 
 package de.unisb.cs.st.evosuite.coverage.branch;
 
+import java.util.HashMap;
+
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -136,8 +138,10 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 
 	public ControlFlowDistance getDistance(ExecutionResult result) {
 
-		return ControlFlowDistanceCalculator.getDistance(result, branch,
+		ControlFlowDistance r = ControlFlowDistanceCalculator.getDistance(result, branch,
 				value, className, methodName);
+		
+		return r;
 	}
 	
 //	SAFETY BACKUP BEFORE REIMPLEMENTATION
