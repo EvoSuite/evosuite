@@ -1,6 +1,21 @@
-/**
+/*
+ * Copyright (C) 2011 Saarland University
  * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package de.unisb.cs.st.evosuite.symbolic;
 
 import java.io.File;
@@ -9,12 +24,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-
-import jpf.mytest.concolic.PathConstraintGathererParent;
-import jpf.mytest.integer.IntegerNextChoiceProvider;
 
 import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassWriter;
@@ -23,6 +35,10 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
 
+import de.unisb.cs.st.evosuite.ga.Randomness;
+import de.unisb.cs.st.evosuite.symbolic.cvc3.CVC3Solver;
+import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
+import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
@@ -149,7 +165,9 @@ public class ConcolicMutation {
 			if (target.contains(statement)) {
 				PrimitiveStatement<?> p = (PrimitiveStatement<?>) statement;
 				getPrimitiveValue(mg, locals, p); // TODO: Possibly cast?
-				mg.invokeStatic(Type.getType("Ljpf/mytest/primitive/ConcolicMarker;"),
+				//mg.invokeStatic(Type.getType("Ljpf/mytest/primitive/ConcolicMarker;"),
+				//                getMarkMethod(p));
+				mg.invokeStatic(Type.getType("Lde/unisb/cs/st/evosuite/symbolic/nativepeer/ConcolicMarker;"),
 				                getMarkMethod(p));
 				p.getReturnValue().storeBytecode(mg, locals);
 
@@ -211,14 +229,69 @@ public class ConcolicMutation {
 		return mutate(statements, test);
 	}
 
+	private boolean mutate(BranchCondition condition, List<PrimitiveStatement> statements) {
+		HashSet<Constraint> constraints = new HashSet<Constraint>();
+		constraints.addAll(condition.reachingConstraints);
+		//constraints.addAll(condition.localConstraints);
+		Constraint c = condition.localConstraints.iterator().next();
+		constraints.add(new IntegerConstraint(c.getLeftOperand(),
+		        c.getComparator().not(), c.getRightOperand()));
+		logger.info("Converting constraints");
+		//SMTSolver solver = new SMTSolver();
+		//solver.setup();
+		//solver.solve(constraints);
+		//solver.pullDown();
+
+		CVC3Solver solver = new CVC3Solver();
+		Map<String, Object> values = solver.getModel(constraints);
+
+		//Map<String, Object> values = new ChocoSolver().getConcreteModel(constraints);
+		if (values != null) {
+			for (String key : values.keySet()) {
+				logger.info("Calculated " + key + " = " + values.get(key));
+			}
+			int num = 0;
+
+			for (Object val : values.values()) {
+				//			Object val = values.values().toArray()[0];
+				if (val != null) {
+					if (val instanceof Long) {
+						Long value = (Long) val;
+						logger.info("New value is " + value);
+						statements.get(num).setValue(value.intValue());
+					} else {
+						logger.info("New value is not long " + val);
+					}
+				} else {
+					logger.info("New value is null");
+
+				}
+				num++;
+			}
+			return true;
+		} else {
+			logger.info("Got null :-(");
+			return false;
+		}
+	}
+
 	// TODO: Add jpf-classes and jpf-annotation
 	public boolean mutate(List<PrimitiveStatement> statements, TestCase test) {
-		logger.info("Generating test for class " + className + " with classPath "
-		        + classPath);
-		logger.info("Generating new values for " + statements.size()
-		        + " primitive statements"); // for statement " + statement.getCode());
-		logger.info(test.toCode());
 		writeTestCase(statements, test);
+		ConcolicExecution ex = new ConcolicExecution();
+		List<BranchCondition> conditions = ex.executeConcolic(className, classPath);
+		if (conditions.isEmpty())
+			return false;
+
+		//for (BranchCondition condition : conditions) {
+		//	logger.info("Branch has bytecode index: "
+		//	        + condition.ins.getInstructionIndex());
+		//}
+		BranchCondition condition = Randomness.getInstance().choice(conditions);
+		return mutate(condition, statements);
+
+		/*
+
 		jpf.mytest.generator.execution.TestCase jpfTest = new jpf.mytest.generator.execution.TestCase(
 		        new IntegerNextChoiceProvider(), new IntegerNextChoiceProvider(),
 		        className, classPath, null);
@@ -268,40 +341,12 @@ public class ConcolicMutation {
 		} else {
 			if (values == null) {
 				logger.info("Return value is null");
-				/*
-				values = jpfTest.getPCG().getAlternativePath();
-				logger.info("Second concolic execution done.");
-				if (values != null && !values.isEmpty()) {
-					int num = 0;
-
-					for (Object val : values.values()) {
-
-						//					Object val = values.values().toArray()[0];
-						if (val != null) {
-							if (val instanceof Long) {
-								Long value = (Long) val;
-								logger.info("New value is " + value);
-								statements.get(num).setValue(value.intValue());
-							} else {
-								logger.info("New value is not long " + val);
-							}
-						} else {
-							logger.info("New value is null");
-
-						}
-						num++;
-					}
-					return true;
-				} else {
-					logger.info("Second constraint system failed");
-					return false;
-				}
-				*/
 			} else {
 				logger.info("Return value is empty");
 				return false;
 			}
 		}
 		return false;
+		*/
 	}
 }
