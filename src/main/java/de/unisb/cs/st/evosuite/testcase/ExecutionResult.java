@@ -85,6 +85,7 @@ public class ExecutionResult {
 		ExecutionResult copy = new ExecutionResult(test, mutation);
 		copy.exceptions.putAll(exceptions);
 		copy.trace = trace.clone();
+		copy.touched.addAll(touched);
 		return copy;
 	}
 
