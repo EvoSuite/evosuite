@@ -54,6 +54,9 @@ public class BasicBlock implements Mutateable {
 	
 	private Map<Long, Integer> mutant_distance = new HashMap<Long, Integer>();
 	
+	// TODO reference each BytecodeInstruction's BasicBlock at the instruction
+	// TODO determine ControlDependentBranches once for each BasicBlock, then ask BasicBloc, whenever instruction is asked
+	// TODO remember distance to each control dependent Branch in order to speed up ControlFlowDistance calculation even more
 	
 	public BasicBlock(String className, String methodName, List<BytecodeInstruction> blockNodes) {
 		if (className == null || methodName == null || blockNodes == null)
