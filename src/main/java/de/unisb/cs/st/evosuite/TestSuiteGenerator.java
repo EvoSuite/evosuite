@@ -96,7 +96,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosomeFactory;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteReplacementFunction;
-import de.unisb.cs.st.utils.Utils;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
  * Main entry point
