@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.unisb.cs.st.evosuite.symbolic;
+package de.unisb.cs.st.evosuite.symbolic.smt.smtlib;
 
 import java.util.HashSet;
 import java.util.Set;
