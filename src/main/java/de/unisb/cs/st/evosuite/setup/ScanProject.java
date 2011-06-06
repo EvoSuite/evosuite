@@ -236,7 +236,8 @@ public class ScanProject {
 			}
 			return set;
 		} else {
-			throw new RuntimeException("Don't know how to handle: " + directory);
+			return new HashSet<Class<?>>();
+			//			throw new RuntimeException("Don't know how to handle: " + directory);
 		}
 	}
 
