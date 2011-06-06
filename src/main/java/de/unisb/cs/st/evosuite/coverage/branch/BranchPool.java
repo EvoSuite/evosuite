@@ -128,11 +128,10 @@ public class BranchPool {
 	}
 	
 	public static int getActualBranchIdForInstruction(BytecodeInstruction ins) {
-		Branch b = getBranchForInstruction(ins);
-		if(b==null)
-			return -1;
+		if(registeredBranches.containsKey(ins))
+			return registeredBranches.get(ins);
 		
-		return b.getActualBranchId();
+		return -1;
 	}
 	
 	public static Branch getBranchForInstruction(BytecodeInstruction ins) {

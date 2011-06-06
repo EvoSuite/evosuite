@@ -48,9 +48,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 				if (in.equals(v.getASMNode())) {
 					if (v.isBranch() && !v.isMutation() && !v.isMutationBranch()) {
 						mn.instructions.insert(v.getASMNode().getPrevious(),
-						                       getInstrumentation(v.getASMNode().getOpcode(),
-						                                          v.getInstructionId(), className,
-						                                          methodName));
+						                       getInstrumentation(v));
 
 //						BranchPool.addBranch(v);
 					} else if (v.isTableSwitch()) {
@@ -65,8 +63,10 @@ public class BranchInstrumentation implements MethodInstrumentation {
 						if (Properties.CRITERION == Criterion.LCSAJ) {
 							InsnList instrumentation = new InsnList();
 							instrumentation.add(new LdcInsnNode(v.getASMNode().getOpcode()));
-							instrumentation.add(new LdcInsnNode(
-							        BranchPool.getBranchCounter()));
+							// TODO at this point, it seems like you want the
+							// actual branchID of a throw or Return
+							// but there is no branchID for throws and returns.
+							instrumentation.add(new LdcInsnNode(v.getInstructionId())); // TODO <-- this is not correct, FIX THIS!
 							instrumentation.add(new LdcInsnNode(v.getInstructionId()));
 							instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 							        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
@@ -84,6 +84,10 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	        String methodName) {
 		InsnList instrumentation = new InsnList();
 
+		int branchId = BranchPool.getActualBranchIdForInstruction(v);
+		if(branchId<0)
+			throw new IllegalStateException("expect BranchPool to know branchId for alle branch instructions");
+		
 		String methodID = className + "." + methodName;
 		switch (v.getASMNode().getOpcode()) {
 		case Opcodes.TABLESWITCH:
@@ -93,7 +97,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 				instrumentation.add(new InsnNode(Opcodes.DUP));
 				instrumentation.add(new LdcInsnNode(i));
 				instrumentation.add(new LdcInsnNode(Opcodes.IF_ICMPEQ));
-				instrumentation.add(new LdcInsnNode(BranchPool.getBranchCounter()));
+				instrumentation.add(new LdcInsnNode(branchId));
 				instrumentation.add(new LdcInsnNode(v.getInstructionId()));
 				//instrumentation.add(new LdcInsnNode(
 				//        mn.instructions.indexOf((LabelNode) tsin.labels.get(num))));
@@ -115,7 +119,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 				instrumentation.add(new LdcInsnNode(
 				        ((Integer) lsin.keys.get(i)).intValue()));
 				instrumentation.add(new LdcInsnNode(Opcodes.IF_ICMPEQ));
-				instrumentation.add(new LdcInsnNode(BranchPool.getBranchCounter()));
+				instrumentation.add(new LdcInsnNode(branchId));
 				instrumentation.add(new LdcInsnNode(v.getInstructionId()));
 				//				instrumentation.add(new LdcInsnNode(
 				//				        mn.instructions.indexOf((LabelNode) lsin.labels.get(i))));
@@ -132,10 +136,22 @@ public class BranchInstrumentation implements MethodInstrumentation {
 		return instrumentation;
 	}
 
-	private InsnList getInstrumentation(int opcode, int id, String className,
-	        String methodName) {
-		InsnList instrumentation = new InsnList();
+	private InsnList getInstrumentation(BytecodeInstruction instruction) {
+		if(instruction==null)
+			throw new IllegalArgumentException("null given");
+		if(!instruction.isActualBranch())
+			throw new IllegalArgumentException("branch instruction expected");
+		
+		int opcode = instruction.getASMNode().getOpcode();
+        int instructionId = instruction.getInstructionId();
+        String className = instruction.getClassName();
+        String methodName = instruction.getMethodName();
 
+        int branchId = BranchPool.getActualBranchIdForInstruction(instruction);
+        if(branchId<0)
+			throw new IllegalStateException("expect BranchPool to know branchId for alle branch instructions");
+        
+        InsnList instrumentation = new InsnList();
 		String methodID = className + "." + methodName;
 
 		switch (opcode) {
@@ -148,14 +164,14 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new InsnNode(Opcodes.DUP));
 			instrumentation.add(new LdcInsnNode(opcode));
 			// instrumentation.add(new LdcInsnNode(id));
-			instrumentation.add(new LdcInsnNode(BranchPool.getBranchCounter()));
-			instrumentation.add(new LdcInsnNode(id));
+			instrumentation.add(new LdcInsnNode(branchId));
+			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedBranch",
 			        "(IIII)V"));
 			BranchPool.countBranch(methodID);
 			logger.debug("Adding passedBranch val=?, opcode=" + opcode + ", branch="
-			        + BranchPool.getBranchCounter() + ", bytecode_id=" + id);
+			        + branchId + ", bytecode_id=" + instructionId);
 
 			break;
 		case Opcodes.IF_ICMPEQ:
@@ -167,8 +183,8 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new InsnNode(Opcodes.DUP2));
 			instrumentation.add(new LdcInsnNode(opcode));
 			// instrumentation.add(new LdcInsnNode(id));
-			instrumentation.add(new LdcInsnNode(BranchPool.getBranchCounter()));
-			instrumentation.add(new LdcInsnNode(id));
+			instrumentation.add(new LdcInsnNode(branchId));
+			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedBranch",
 			        "(IIIII)V"));
@@ -180,8 +196,8 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new InsnNode(Opcodes.DUP2));
 			instrumentation.add(new LdcInsnNode(opcode));
 			// instrumentation.add(new LdcInsnNode(id));
-			instrumentation.add(new LdcInsnNode(BranchPool.getBranchCounter()));
-			instrumentation.add(new LdcInsnNode(id));
+			instrumentation.add(new LdcInsnNode(branchId));
+			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedBranch",
 			        "(Ljava/lang/Object;Ljava/lang/Object;III)V"));
@@ -192,8 +208,8 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new InsnNode(Opcodes.DUP));
 			instrumentation.add(new LdcInsnNode(opcode));
 			// instrumentation.add(new LdcInsnNode(id));
-			instrumentation.add(new LdcInsnNode(BranchPool.getBranchCounter()));
-			instrumentation.add(new LdcInsnNode(id));
+			instrumentation.add(new LdcInsnNode(branchId));
+			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedBranch",
 			        "(Ljava/lang/Object;III)V"));
@@ -202,8 +218,8 @@ public class BranchInstrumentation implements MethodInstrumentation {
 		case Opcodes.GOTO:
 			if (Properties.CRITERION == Criterion.LCSAJ) {
 				instrumentation.add(new LdcInsnNode(opcode));
-				instrumentation.add(new LdcInsnNode(BranchPool.getBranchCounter()));
-				instrumentation.add(new LdcInsnNode(id));
+				instrumentation.add(new LdcInsnNode(branchId));
+				instrumentation.add(new LdcInsnNode(instructionId));
 				instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 				        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 				        "passedUnconditionalBranch", "(III)V"));
