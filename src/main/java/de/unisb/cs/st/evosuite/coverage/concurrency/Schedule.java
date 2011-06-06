@@ -51,4 +51,10 @@ public interface Schedule extends Iterable<Integer>{
 	 * @return
 	 */
 	public Iterable<Integer> getContentIterable();
+	
+	/**
+	 * called by the schedule if a schedule point is used
+	 * @param threadID only supplied for internal error checking
+	 */
+	public void notifyOfUsedSchedule(int threadID);
 }

@@ -117,7 +117,7 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 			for (TestChromosome test : suite.tests) {
 				if (test == changed || changed.test == test.test)
 					continue;
-				for (StatementInterface s : test.test.getStatements()) {
+				for (StatementInterface s : test.test) {
 					if (s instanceof TestCallStatement) {
 						TestCallStatement call = (TestCallStatement) s;
 						if (call.getTest() != null && call.getTest().equals(changed.test)) {

@@ -89,28 +89,28 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				return total_branches*2 + total_methods;
 			}
 			
-			for(Entry<String, Integer> entry : result.trace.covered_methods.entrySet()) {
+			for(Entry<String, Integer> entry : result.getTrace().covered_methods.entrySet()) {
 				if(!call_count.containsKey(entry.getKey()))
 					call_count.put(entry.getKey(), entry.getValue());
 				else {
 					call_count.put(entry.getKey(), call_count.get(entry.getKey()) + entry.getValue());
 				}
 			}
-			for(Entry<String, Integer> entry : result.trace.covered_predicates.entrySet()) {
+			for(Entry<String, Integer> entry : result.getTrace().covered_predicates.entrySet()) {
 				if(!predicate_count.containsKey(entry.getKey()))
 					predicate_count.put(entry.getKey(), entry.getValue());
 				else {
 					predicate_count.put(entry.getKey(), predicate_count.get(entry.getKey()) + entry.getValue());
 				}
 			}
-			for(Entry<String, Double> entry : result.trace.true_distances.entrySet()) {
+			for(Entry<String, Double> entry : result.getTrace().true_distances.entrySet()) {
 				if(!true_distance.containsKey(entry.getKey()))
 					true_distance.put(entry.getKey(), entry.getValue());
 				else {
 					true_distance.put(entry.getKey(), Math.min(true_distance.get(entry.getKey()), entry.getValue()));
 				}
 			}
-			for(Entry<String, Double> entry : result.trace.false_distances.entrySet()) {
+			for(Entry<String, Double> entry : result.getTrace().false_distances.entrySet()) {
 				if(!false_distance.containsKey(entry.getKey()))
 					false_distance.put(entry.getKey(), entry.getValue());
 				else {

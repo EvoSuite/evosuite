@@ -3,24 +3,34 @@
  */
 package de.unisb.cs.st.evosuite.coverage.concurrency;
 
+import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+import org.objectweb.asm.commons.GeneratorAdapter;
+
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.assertion.Assertion;
+import de.unisb.cs.st.evosuite.coverage.concurrency.ScheduleLogWrapper.callReporter;
+import de.unisb.cs.st.evosuite.coverage.concurrency.Scheduler.scheduleObserver;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
-import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.Scope;
+import de.unisb.cs.st.evosuite.testcase.AbstractStatement;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
+import de.unisb.cs.st.evosuite.testcase.VariableReferenceImpl;
+
+//#FIXME irgendwo in dieser software gibt es nicht deterministische prozesse, das sollte nicht sein
 
 /**
  * A concurrentTestCase wraps a BasicTestCase and enriches it with some additional information.
@@ -32,39 +42,63 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  * @author sebastian steenbuck
  */
 public class ConcurrentTestCase implements TestCase{
-	
+
+	private static Logger logger = Logger.getLogger(ConcurrentTestCase.class);
+
 	//A list of thread IDs
 	private final List<Integer> schedule;
-	/*
-	 * Maps statements to schedule.
-	 * That is if a statment 
-	 */
-	private final Map<StatementInterface, Set<Integer>> statementToSchedule;
-	
+
+	private final boolean replaceConst;
+
 	/**
-	 * Holds all schedules, that might in the future become active
+	 * Each thread might give out exactly one schedule at any time
 	 */
-	private final Set<Scheduler> generatedSchedules;
+	private Scheduler currentSchedule=null;
 	private final BasicTestCase test;
 	private final Set<Integer> seenThreadIDs;
+	public callReporter reporter;
+	private scheduleObserver scheduleObserver;
 
-	public ConcurrentTestCase(BasicTestCase test){
+	/**
+	 * 
+	 * @param test
+	 * @param replaceConst if true all constructors are replaced with calls to a pseudo variable (representing the parameter)
+	 */
+	public ConcurrentTestCase(BasicTestCase test, boolean replaceConst){
 		assert(test!=null);
 		this.test=test;
 		seenThreadIDs=new HashSet<Integer>();
 		schedule=new ArrayList<Integer>();
-		generatedSchedules = new HashSet<Scheduler>();
-		statementToSchedule = new HashMap<StatementInterface, Set<Integer>>();
+		this.replaceConst=replaceConst;
+	}
+
+	public void setScheduleObserver(scheduleObserver obs){
+		this.scheduleObserver=obs;
+	}
+
+	public void setCallReporter(callReporter reporter){
+		this.reporter=reporter;
+		for(StatementInterface st : this){
+			if(st instanceof ScheduleLogWrapper){
+				((ScheduleLogWrapper)st).setCallReporter(reporter);
+			}
+		}
 	}
 
 	/**
 	 * Returns the schedule of this thread.
 	 * Note that this schedule is unbounded (new thread ids are generated as needed)
+	 * #TODO we should have two getSchedule classes. One for getting a schedule during execution (infinite)
 	 * @return
 	 */
 	public Schedule getSchedule(){
-		Scheduler s = new Scheduler(schedule, seenThreadIDs, generatedSchedules);
-		generatedSchedules.add(s);
+		//assert(scheduleObserver!=null);
+
+		//we need the schedule at two times (1. during execution 2. during output)
+		if(currentSchedule!=null){
+			currentSchedule.invalidate();
+		}
+		Scheduler s = new Scheduler(schedule, seenThreadIDs, scheduleObserver);
 		return s;
 	}
 
@@ -104,7 +138,9 @@ public class ConcurrentTestCase implements TestCase{
 	@Override
 	public ConcurrentTestCase clone() {
 		BasicTestCase newTest = test.clone();
-		ConcurrentTestCase newConTest = new ConcurrentTestCase(newTest);
+		ConcurrentTestCase newConTest = new ConcurrentTestCase(newTest, replaceConst);
+		//newConTest.setCallReporter(reporter);
+		//newConTest.setScheduleObserver(scheduleObserver);
 		newConTest.schedule.addAll(schedule);
 		return newConTest;
 	}
@@ -129,9 +165,14 @@ public class ConcurrentTestCase implements TestCase{
 		return test.toCode();
 	}
 
-
 	public String getThreadCode(Map<Integer, Throwable> exceptions, int id){
-		
+		/*
+		 *#TODO steenbuck this is a workaround which should be removd.
+		 *The problem is that the code is executed inside evosuite using a testcase with two more statements. (Thread ID and thread registratioon)
+		 */
+		this.addStatement(getPseudoStatement(this, Properties.getTargetClass()), 0, false);
+		this.addStatement(getPseudoStatement(this, Properties.getTargetClass()), 0, false);
+		assert(scheduleObserver!=null);
 		StringBuilder b = new StringBuilder();
 		b.append("Integer[] schedule");
 		b.append(id);
@@ -153,7 +194,7 @@ public class ConcurrentTestCase implements TestCase{
 		" @Override\n"+
 		" public Void call() throws Exception {\n"+
 		"	LockRuntime.registerThread(tid);\n"+
-			toCode(exceptions) +
+		toCode(exceptions) +
 		"	LockRuntime.threadEnd();\n"+
 		"	return null;\n"+
 		" }\n"+
@@ -170,7 +211,7 @@ public class ConcurrentTestCase implements TestCase{
 		"	testThread.start();\n" +
 		"	testFutures.add(testFuture);\n" +
 		"}\n\n" +
-		
+
 		"	try{\n\n"+		
 		"		for(FutureTask<Void> testFuture : testFutures){\n"+
 		"		testFuture.get();\n"+
@@ -179,14 +220,33 @@ public class ConcurrentTestCase implements TestCase{
 		"	}catch(Exception e){\n"+
 		"    e.printStackTrace();\n"+
 		"	}";
-		
+
 		return testString;
 	}
 
 
 	@Override
 	public String toCode(Map<Integer, Throwable> exceptions) {
-		return test.toCode(exceptions);
+		StringBuilder code = new StringBuilder();
+		for (int i = 0; i < size(); i++) {
+			StatementInterface statement = this.getStatement(i);
+			Set<Integer> schedule = reporter.getScheduleForStatement(statement);
+			//System.exit(1);
+			StringBuilder scheduleString = new StringBuilder();
+			for(Integer p : schedule){
+				scheduleString.append(p);
+				scheduleString.append(",");
+			}
+			if (exceptions.containsKey(i)) {
+				code.append(statement.getCode(exceptions.get(i)) + "// schedule: " + scheduleString.toString() + " \n");
+				code.append(statement.getAssertionCode());
+			} else {
+				code.append(statement.getCode() + "// schedule: " + scheduleString.toString() + " \n");
+				code.append(statement.getAssertionCode()); // TODO: Handle semicolons
+				// properly
+			}
+		}
+		return code.toString();
 	}
 
 	@Override
@@ -227,28 +287,48 @@ public class ConcurrentTestCase implements TestCase{
 	}
 
 	@Override
-	public void renameVariable(int old_position, int new_position) {
-		test.renameVariable(old_position, new_position);
-	}
-
-	@Override
 	public VariableReference setStatement(StatementInterface statement, int position) {
+		statement = wrapStatements(statement);
+		//#TODO this should be reduced to remove and addStatement
 		return test.setStatement(statement, position);
 	}
 
 	@Override
-	public void addStatement(StatementInterface statement, int position) {
-		test.addStatement(statement, position);
+	public VariableReference addStatement(StatementInterface statement, int position) {
+		assert(statement!=null);
+		return this.addStatement(statement, position, true);
 	}
 
+	/**
+	 * Same as addStatement.
+	 * If wrap is set to false, the added statement isn't wrapped
+	 * @param statement
+	 * @param position
+	 * @param wrap
+	 */
+	public VariableReference addStatement(StatementInterface statement, int position, boolean wrap) {
+		if(replaceConst)
+			statement = replaceConstructorStatement(statement, position);
+		if(wrap)
+			statement = wrapStatements(statement);
+		assert(statement!=null);
+		test.addStatement(statement, position);
+		return statement.getReturnValue();
+	}
 
 	@Override
-	public void addStatement(StatementInterface statement) {
-		if(statement instanceof ConstructorStatement ||
-				statement instanceof MethodStatement){
-			statement=new ScheduleLogWrapper(statement);
-		}
-		test.addStatement(statement);
+	public VariableReference addStatement(StatementInterface statement) {
+		return this.addStatement(statement, test.size());
+	}
+
+	public void addStatement(StatementInterface statement, boolean wrap) {
+		this.addStatement(statement, test.size(), wrap);
+	}
+
+	private StatementInterface wrapStatements(StatementInterface st){
+		ScheduleLogWrapper wrapper = new ScheduleLogWrapper(st);
+		wrapper.setCallReporter(reporter);
+		return wrapper;
 	}
 
 	@Override
@@ -344,14 +424,6 @@ public class ConcurrentTestCase implements TestCase{
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getStatements()
-	 */
-	@Override
-	public List<StatementInterface> getStatements() {
-		return test.getStatements();
-	}
-
-	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#isPrefix(de.unisb.cs.st.evosuite.testcase.TestCase)
 	 */
 	@Override
@@ -359,5 +431,104 @@ public class ConcurrentTestCase implements TestCase{
 		return test.isPrefix(t);
 	}
 
+	/**
+	 * Checks if a constructor call should reference a param
+	 * @param statement
+	 * @param position
+	 * @return
+	 */
+	private StatementInterface replaceConstructorStatement(StatementInterface statement, int position){
+		if(replaceConst && statement instanceof ConstructorStatement){
+			ConstructorStatement c = (ConstructorStatement)statement;
+			//#TODO steenbuck we should check if the constructor uses the object we supplied as param (if yes maybe we should let the object be created)
+			assert(Properties.getTargetClass()!=null);
+			if(Properties.getTargetClass().isAssignableFrom(c.getConstructor().getDeclaringClass())){
+				logger.debug("Replaced a constructor call for " + c.getClass().getSimpleName() + " with a pseudo statement. Representing the object shared between the test threads");
+				statement = getPseudoStatement(this, Properties.getTargetClass());
+			}
+		}
+
+		return statement;
+	}
+
+	/**
+	 * The statements returned by this method can only be executed with a concurrentScope
+	 * @param clazz
+	 * @param pos
+	 * @return
+	 */
+	private StatementInterface getPseudoStatement(TestCase tc, final Class<?> clazz){
+		StatementInterface st= new AbstractStatement(tc,new VariableReferenceImpl(tc, clazz)) {
+
+			@Override
+			public int hashCode() {
+				return 0;
+			}
+
+			@Override
+			public Set<VariableReference> getVariableReferences() {
+				Set<VariableReference> s = new HashSet<VariableReference>();
+				s.add(retval);
+				return s;
+			}
+
+			@Override
+			public List<VariableReference> getUniqueVariableReferences() {
+				List<VariableReference> s = new ArrayList<VariableReference>();
+				s.add(retval);
+				return s;
+			}
+
+			@Override
+			public String getCode(Throwable exception) {
+				//#TODO steenbuck param0 should not be hardcoded
+				return getCode();
+			}
+
+			@Override
+			public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
+					Throwable exception) {
+			}
+
+			@Override
+			public Throwable execute(Scope scope, PrintStream out)
+			throws InvocationTargetException, IllegalArgumentException,
+			IllegalAccessException, InstantiationException {
+				if(scope instanceof ConcurrentScope){
+					//Object o = scope.get(new VariableReference(retval.getType(), -1));
+					Object o = ((ConcurrentScope)scope).getSharedObject();
+					assert(retval.getVariableClass().isAssignableFrom(o.getClass())) : "we want an " + retval.getVariableClass() + " but got an " + o.getClass();
+					scope.set(retval, o);
+				}else{
+					throw new AssertionError("Statements from " + BasicTestCase.class.getName() + " should only be executed with a concurrent scope");
+				}
+				return null;
+			}
+
+			@Override
+			public boolean equals(Object s) {
+				return s==this;
+			}
+
+			@Override
+			public StatementInterface clone(TestCase newTestCase) {
+				return getPseudoStatement(newTestCase, clazz);
+			}
+
+
+			@Override
+			public String getCode() {
+				return retval.getSimpleClassName() + " " + retval.getName() + " = param0;";
+			}
+
+			@Override
+			public boolean same(StatementInterface s) {
+				return retval.same(s.getReturnValue());
+			}
+
+		};
+
+		return st;
+	}
 
 }

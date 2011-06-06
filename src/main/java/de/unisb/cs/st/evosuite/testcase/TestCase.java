@@ -130,8 +130,6 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 */
 	public Object getObject(VariableReference reference, Scope scope);
 
-	public void renameVariable(int old_position, int new_position);
-
 	/**
 	 * Set new statement at position
 	 * 
@@ -139,7 +137,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 *            New statement
 	 * @param position
 	 *            Position at which to add
-	 * @return Return value of statement
+	 * @return Return value of statement. Notice that the test might choose to modify the statement you inserted. You should use the returned variable reference and not use references 
 	 */
 	public VariableReference setStatement(StatementInterface statement, int position);
 
@@ -150,9 +148,9 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 *            New statement
 	 * @param position
 	 *            Position at which to add
-	 * @return Return value of statement
+	 * @return Return value of statement. Notice that the test might choose to modify the statement you inserted. You should use the returned variable reference and not use references 
 	 */
-	public void addStatement(StatementInterface statement, int position);
+	public VariableReference addStatement(StatementInterface statement, int position);
 
 	/**
 	 * Append new statement at end of test case
@@ -161,7 +159,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 *            New statement
 	 * @return VariableReference of return value
 	 */
-	public void addStatement(StatementInterface statement);
+	public VariableReference addStatement(StatementInterface statement);
 
 	/**
 	 * Get return value (variable) of statement at position
@@ -197,14 +195,6 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 * @return Statement at position
 	 */
 	public StatementInterface getStatement(int position);
-
-	/**
-	 * Reveal internal list of statements TODO: This is not nice, needed it as a
-	 * hack for Parametrized tests
-	 * 
-	 * @return
-	 */
-	public List<StatementInterface> getStatements();
 
 	/**
 	 * Check if this test case is a prefix of t

@@ -22,9 +22,9 @@ import java.text.NumberFormat;
 import java.util.Set;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
-import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.cfg.CFGPool;
+import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.Randomness;
@@ -165,7 +165,6 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	private final BranchCoverageTestFitness goalUseBranchFitness;
 
 	private int difficulty = -1;
-
 	public static long difficulty_time = 0l; // experiment 
 
 	// coverage information
@@ -185,8 +184,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		this.goalDefinition = def;
 		this.goalUse = use;
 		this.goalVariable = def.getDUVariableName();
-		this.goalDefinitionBranchFitness = DefUseFitnessCalculations.getBranchTestFitness(def.getCFGVertex());
-		this.goalUseBranchFitness = DefUseFitnessCalculations.getBranchTestFitness(use.getCFGVertex());
+		this.goalDefinitionBranchFitness = DefUseFitnessCalculations.getBranchTestFitness(def);
+		this.goalUseBranchFitness = DefUseFitnessCalculations.getBranchTestFitness(use);
 	}
 
 	/**
@@ -195,7 +194,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * Creates a goal that tries to cover the given Use
 	 */
 	public DefUseCoverageTestFitness(Use use) {
-		if (!use.getCFGVertex().isParameterUse)
+		if (!use.isParameterUse())
 			throw new IllegalArgumentException(
 			        "this constructor is only for Parameter-Uses");
 
@@ -203,7 +202,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		goalDefinition = null;
 		goalDefinitionBranchFitness = null;
 		goalUse = use;
-		goalUseBranchFitness = DefUseFitnessCalculations.getBranchTestFitness(use.getCFGVertex());
+		goalUseBranchFitness = DefUseFitnessCalculations.getBranchTestFitness(use);
 	}
 
 	/**
@@ -355,8 +354,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * Returns the definitions to the goalVaraible coming after the
 	 * goalDefinition and before the goalUse in their respective methods
 	 */
-	public Set<CFGVertex> getPotentialOverwritingDefinitions() {
-		Set<CFGVertex> instructionsInBetween = getInstructionsInBetweenDU();
+	public Set<BytecodeInstruction> getPotentialOverwritingDefinitions() {
+		Set<BytecodeInstruction> instructionsInBetween = getInstructionsInBetweenDU();
 		if (goalDefinition != null)
 			return DefUseExecutionTraceAnalyzer.getOverwritingDefinitionsIn(goalDefinition,
 			                                                                instructionsInBetween);
@@ -377,11 +376,11 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * If the goalDefinition is a Parameter-Definition only the CFGVertices
 	 * before the goalUse are considered.
 	 */
-	public Set<CFGVertex> getInstructionsInBetweenDU() {
-		Set<CFGVertex> previousInstructions = getInstructionsBeforeGoalUse();
+	public Set<BytecodeInstruction> getInstructionsInBetweenDU() {
+		Set<BytecodeInstruction> previousInstructions = getInstructionsBeforeGoalUse();
 		if (goalDefinition != null) {
-			Set<CFGVertex> laterInstructions = getInstructionsAfterGoalDefinition();
-			if (goalDefinition.getVertexId() < goalUse.getVertexId()
+			Set<BytecodeInstruction> laterInstructions = getInstructionsAfterGoalDefinition();
+			if (goalDefinition.getInstructionId() < goalUse.getInstructionId()
 			        && goalDefinition.getMethodName().equals(goalUse.getMethodName())) {
 				// they are in the same method and definition comes before use => intersect sets
 				previousInstructions.retainAll(laterInstructions);
@@ -399,15 +398,15 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * 
 	 * Look at ControlFlowGraph.getLaterInstructionInMethod() for details
 	 */
-	public Set<CFGVertex> getInstructionsAfterGoalDefinition() {
-		ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(goalDefinition.getClassName(),
+	public Set<BytecodeInstruction> getInstructionsAfterGoalDefinition() {
+		RawControlFlowGraph cfg = CFGPool.getRawCFG(goalDefinition.getClassName(),
 		                                                       goalDefinition.getMethodName());
-		CFGVertex defVertex = cfg.getVertex(goalDefinition.getVertexId());
-		Set<CFGVertex> r = cfg.getLaterInstructionsInMethod(defVertex);
-		for (CFGVertex v : r) {
-			v.methodName = goalDefinition.getMethodName();
-			v.className = goalDefinition.getClassName();
-		}
+		BytecodeInstruction defVertex = cfg.getInstruction(goalDefinition.getInstructionId());
+		Set<BytecodeInstruction> r = cfg.getLaterInstructionsInMethod(defVertex);
+//		for (BytecodeInstruction v : r) {
+//			v.setMethodName(goalDefinition.getMethodName());
+//			v.setClassName(goalDefinition.getClassName());
+//		}
 		return r;
 	}
 
@@ -417,15 +416,15 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * 
 	 * Look at ControlFlowGraph.getPreviousInstructionInMethod() for details
 	 */
-	public Set<CFGVertex> getInstructionsBeforeGoalUse() {
-		ControlFlowGraph cfg = CFGMethodAdapter.getCompleteCFG(goalUse.getClassName(),
+	public Set<BytecodeInstruction> getInstructionsBeforeGoalUse() {
+		RawControlFlowGraph cfg = CFGPool.getRawCFG(goalUse.getClassName(),
 		                                                       goalUse.getMethodName());
-		CFGVertex useVertex = cfg.getVertex(goalUse.getVertexId());
-		Set<CFGVertex> r = cfg.getPreviousInstructionsInMethod(useVertex);
-		for (CFGVertex v : r) {
-			v.methodName = goalUse.getMethodName();
-			v.className = goalUse.getClassName();
-		}
+		BytecodeInstruction useVertex = cfg.getInstruction(goalUse.getInstructionId());
+		Set<BytecodeInstruction> r = cfg.getPreviousInstructionsInMethod(useVertex);
+//		for (BytecodeInstruction v : r) {
+//			v.setMethodName(goalUse.getMethodName());
+//			v.setClassName(goalUse.getClassName());
+//		}
 		return r;
 	}
 
@@ -461,16 +460,13 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 					System.out.println("goal NOT COVERED. fitness: " + fitness);
 					System.out.println("==============================================================");
 				}
-				if (DefUseFitnessCalculations.traceCoversGoal(this, individual,
-				                                              result.trace))
-					throw new IllegalStateException(
-					        "calculation flawed. goal was covered but fitness was "
-					                + fitness);
+				if(DefUseFitnessCalculations.traceCoversGoal(this, individual, result.getTrace()))
+					throw new IllegalStateException("calculation flawed. goal was covered but fitness was "+fitness);
 			}
 		}
 	}
 
-	// getter methods
+	// 	---			Getter 		---
 
 	public ExecutionTrace getCoveringTrace() {
 		return coveringTrace;
@@ -500,7 +496,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		return goalDefinitionBranchFitness;
 	}
 
-	// methods inherited from Object
+	// ---		Inherited from Object 			---
 
 	@Override
 	public String toString() {
@@ -511,7 +507,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			        + NumberFormat.getIntegerInstance().format(difficulty));
 		r.append("\n\t");
 		if (goalDefinition == null)
-			r.append("Parameter-Definition " + goalUse.getLocalVarNr() + " for method "
+			r.append("Parameter-Definition " + goalUse.getLocalVar() + " for method "
 			        + goalUse.getMethodName());
 		else
 			r.append(goalDefinition.toString());

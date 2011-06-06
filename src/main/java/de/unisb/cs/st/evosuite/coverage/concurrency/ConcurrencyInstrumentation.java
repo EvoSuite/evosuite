@@ -5,8 +5,6 @@ package de.unisb.cs.st.evosuite.coverage.concurrency;
 
 import java.util.Iterator;
 
-import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultEdge;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
@@ -16,10 +14,10 @@ import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
-import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
-import de.unisb.cs.st.evosuite.cfg.MethodInstrumentation;
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.cfg.CFGPool;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
+import de.unisb.cs.st.evosuite.cfg.instrumentation.MethodInstrumentation;
 
 /**
  * @author Sebastian Steenbuck
@@ -45,29 +43,29 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void analyze(MethodNode mn, Graph<CFGVertex, DefaultEdge> graph, String className, String methodName, int access) {
+	public void analyze(MethodNode mn, String className, String methodName, int access) {
 		this.className=className;
 		this.methodName=methodName;
 				
-		ControlFlowGraph completeCFG = CFGMethodAdapter.getCompleteCFG(className, methodName);
+		RawControlFlowGraph completeCFG = CFGPool.getRawCFG(className, methodName);
 		Iterator<AbstractInsnNode> instructions = mn.instructions.iterator();
 		while (instructions.hasNext()) {
 			AbstractInsnNode instruction = instructions.next();
-			for (CFGVertex v : graph.vertexSet()) {
-				if (instruction.equals(v.getNode())){
-					v.branchId = completeCFG.getVertex(v.getId()).branchId;
-				}
+			for (BytecodeInstruction v : completeCFG.vertexSet()) {
+//				if (instruction.equals(v.getASMNode())){
+//					v.branchId = completeCFG.getInstruction(v.getId()).getBranchId();
+//				}
 				//#TODO steenbuck the true should be some command line option to activate the concurrency stuff
 				if (true && 
-						instruction.equals(v.getNode()) && 
+						instruction.equals(v.getASMNode()) && 
 						v.isFieldUse() &&
 						instruction instanceof FieldInsnNode &&
 						 //#FIXME steenbuck we should also instrument fields, which access primitive types.
 						//#FIXME steenbuck apparently some objects (like Boolean, Integer) are not working with this, likely a different Signature (disappears when all getfield/getstatic points are instrumented)
 						((FieldInsnNode)instruction).desc.startsWith("L")) { //we only want objects, as primitive types are passed by value
 					// adding instrumentation for scheduling-coverage
-					mn.instructions.insert(v.getNode(),
-							getConcurrencyInstrumentation(v, v.branchId));
+					mn.instructions.insert(v.getASMNode(),
+							getConcurrencyInstrumentation(v, v.getControlDependentBranchId()));
 
 					// keeping track of definitions
 					/*if (v.isDefinition())
@@ -83,9 +81,9 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 		}
 	}
 	
-	private InsnList getConcurrencyInstrumentation(CFGVertex v, int currentBranch) {
+	private InsnList getConcurrencyInstrumentation(BytecodeInstruction v, int currentBranch) {
 		InsnList instrumentation = new InsnList();
-		switch (v.getNode().getOpcode()) {
+		switch (v.getASMNode().getOpcode()) {
 		case Opcodes.GETFIELD:
 		case Opcodes.GETSTATIC:
 			//System.out.println("as seen in instrument:" + v.node.getClass() + " branchID: " + currentBranch +  " line " + v.line_no);

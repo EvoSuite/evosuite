@@ -21,6 +21,7 @@
 package de.unisb.cs.st.evosuite.assertion;
 
 import de.unisb.cs.st.evosuite.testcase.Scope;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 public class StringAssertion extends Assertion {
 
@@ -35,9 +36,9 @@ public class StringAssertion extends Assertion {
 	}
 
 	@Override
-	public Assertion clone() {
+	public Assertion clone(TestCase newTestCase) {
 		StringAssertion s = new StringAssertion();
-		s.source = source.clone();
+		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
 		s.value  = value;
 		return s;
 	}

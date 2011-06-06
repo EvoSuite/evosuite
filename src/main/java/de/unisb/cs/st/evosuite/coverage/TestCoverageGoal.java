@@ -98,6 +98,7 @@ public abstract class TestCoverageGoal {
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
+			logger.fatal("TG: Exception caught: ", e);
 			System.exit(1);
 		}
 

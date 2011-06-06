@@ -15,67 +15,82 @@ import de.unisb.cs.st.evosuite.ga.Randomness;
  */
 public class Scheduler implements Schedule{
 
+	private class It implements Iterator<Integer>{
+		/**
+		 * Current is the index of the last thread id which was handed out
+		 */
+		protected int current=-1;
+		protected boolean removeCallAllowed=false;
+		/**
+		 * As we can always generate the numbers, we always have another one
+		 */
+		@Override
+		public boolean hasNext() {
+			return true;
+		}
+
+		@Override
+		public Integer next() {
+			assert(!invalidated);
+			removeCallAllowed=true;
+			current++;
+			if(schedule.size()<=(current)){
+				int nextElement = generateNextElement();
+				schedule.add(nextElement);
+				seenThreadIDs.add(nextElement);
+			}
+
+			assert(schedule.size()>current);
+			Integer result = schedule.get(current);
+			return result;
+		}
+
+		/**
+		 * At the current position, we might not be able to run the thread with the last returned id (thread maybe waiting for some other thread 
+		 * The thread we returned may also already have ended
+		 */
+		@Override
+		public void remove() {
+			//throw new UnsupportedOperationException("Currently not supported, as we would need to notify the observer of a removed scheduling point");
+			assert(!invalidated);
+			assert(schedule.size()>current);
+			if(removeCallAllowed){
+				schedule.remove(current);
+				removeCallAllowed=false;
+				current--;
+			}else{
+				throw new IllegalStateException();
+			}
+		}
+	}
+	
+	public interface scheduleObserver{
+		/**
+		 * is called by Schedule each time schedule point (threadid) is handed out. 
+		 * @param schedulePosition the position in the schedule which was handed out
+		 * @param the threadID which was handed out
+		 */
+		public void notify(int position, Integer threadid);
+	}
+	
 	private ControllerRuntime controller=null;
 	private final List<Integer> schedule;
 	private boolean invalidated;
-	private final Set<Scheduler> generatedSchedules;
 	private final Set<Integer> seenThreadIDs;
+	private final Scheduler.scheduleObserver observer;
+	private It iterator;
 	
-	public Scheduler(List<Integer> schedule, Set<Integer> seenThreadID, Set<Scheduler> generatedSchedules){
+	public Scheduler(List<Integer> schedule, Set<Integer> seenThreadID, Scheduler.scheduleObserver observer){
 		this.schedule=schedule;
-		this.generatedSchedules=generatedSchedules;
 		this.seenThreadIDs=seenThreadID;
 		invalidated=false;
+		this.observer=observer;
 	}
 
 	@Override
 	public Iterator<Integer> iterator() {
-
-		return new Iterator<Integer>() {
-			int current=-1;
-			boolean removeCallAllowed=false;
-			/**
-			 * As we can always generate the numbers, we always have another one
-			 */
-			@Override
-			public boolean hasNext() {
-				return true;
-			}
-
-			@Override
-			public Integer next() {
-				assert(!invalidated);
-				removeCallAllowed=true;
-				current++;
-				if(schedule.size()<=(current)){
-					int nextElement = generateNextElement();
-					schedule.add(nextElement);
-					seenThreadIDs.add(nextElement);
-				}
-
-				assert(schedule.size()>current);
-				return schedule.get(current);
-
-
-			}
-
-			/**
-			 * At the current position, we might not be able to run the thread with the last returned id (thread maybe waiting for some other thread 
-			 * The thread we returned may also already have ended
-			 */
-			@Override
-			public void remove() {
-				assert(!invalidated);
-				assert(schedule.size()>current);
-				if(removeCallAllowed){
-					current--;
-					schedule.remove(current);
-					removeCallAllowed=false;
-				}else{
-					throw new IllegalStateException();
-				}
-			}
-		};
+		this.iterator = new It();
+		return this.iterator;
 	}
 
 	public void invalidate(){
@@ -87,11 +102,6 @@ public class Scheduler implements Schedule{
 		assert(c!=null);
 		assert(!invalidated);
 		controller=c;
-		for(Scheduler s : generatedSchedules){
-			s.invalidate();
-		}
-		generatedSchedules.clear();
-		generatedSchedules.add(this);
 		invalidated=false;
 	}
 
@@ -182,5 +192,15 @@ public class Scheduler implements Schedule{
 	public List<Integer> getSchedule(){
 		return schedule;
 	}
+
+	@Override
+	public void notifyOfUsedSchedule(int threadID) {
+		assert(iterator!=null);
+		assert(iterator.current>=0);
+		assert(schedule.size()>iterator.current);
+		assert(schedule.get(iterator.current)==threadID);
+		observer.notify(iterator.current, schedule.get(iterator.current));
+	}
  
+	
 }

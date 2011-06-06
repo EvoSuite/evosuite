@@ -21,6 +21,7 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.Properties.TestFactory;
 import de.unisb.cs.st.evosuite.OUM.OUMTestFactory;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
@@ -97,7 +98,7 @@ public class TestChromosome extends Chromosome {
 		TestChromosome offspring = new TestChromosome();
 
 		for (int i = 0; i < position1; i++) {
-			offspring.test.addStatement(test.getStatement(i).clone());
+			offspring.test.addStatement(test.getStatement(i).clone(offspring.test));
 		}
 		for (int i = position2; i < other.size(); i++) {
 			test_factory.appendStatement(offspring.test,
@@ -149,7 +150,7 @@ public class TestChromosome extends Chromosome {
 		double P;
 
 		//#TODO steenbuck TestChromosome should be subclassed
-		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
+		if (Properties.CRITERION == Criterion.CONCURRENCY) {
 			assert (test instanceof ConcurrentTestCase);
 
 			P = 1d / 6d;
@@ -315,9 +316,9 @@ public class TestChromosome extends Chromosome {
 				logger.info("Changed test case is: " + test.toCode());
 			}
 		}
-
+		
 		if (!changed) {
-			for (StatementInterface statement : test.getStatements()) {
+			for (StatementInterface statement : test) {
 				if (randomness.nextDouble() <= pl) {
 
 					if (statement instanceof PrimitiveStatement<?>) {
@@ -329,7 +330,7 @@ public class TestChromosome extends Chromosome {
 						else
 							((PrimitiveStatement<?>) statement).delta();
 
-						int position = statement.getReturnValue().statement;
+						int position = statement.getReturnValue().getStPosition();
 						// test.setStatement(statement, position);
 						//logger.info("Changed test: " + test.toCode());
 						logger.debug("New statement: "
@@ -341,20 +342,20 @@ public class TestChromosome extends Chromosome {
 						AssignmentStatement as = (AssignmentStatement) statement;
 						if (randomness.nextDouble() < 0.5) {
 							List<VariableReference> objects = test.getObjects(statement.getReturnValue().getType(),
-							                                                  statement.getReturnValue().statement);
+							                                                  statement.getReturnValue().getStPosition());
 							objects.remove(statement.getReturnValue());
 							objects.remove(as.parameter);
 							if (!objects.isEmpty()) {
 								as.parameter = randomness.choice(objects);
 								changed = true;
 							}
-						} else if (as.retval.array_length > 0) {
-							as.retval.array_index = randomness.nextInt(as.retval.array_length);
+						} else if (as.getArrayIndexRef().getArray().getArrayLength() > 0) {
+							as.getArrayIndexRef().setArrayIndex(randomness.nextInt(as.getArrayIndexRef().getArray().getArrayLength()));
 							changed = true;
 						}
 						// logger.info("After change:");
 						// logger.info(test.toCode());
-					} else if (statement.getReturnValue().isArray()) {
+					} else if (statement.getReturnValue() instanceof ArrayReference) {
 
 					} else {
 						changed = test_factory.changeRandomCall(test, statement);

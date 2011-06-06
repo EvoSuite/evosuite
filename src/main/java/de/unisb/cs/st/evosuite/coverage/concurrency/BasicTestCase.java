@@ -33,7 +33,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.Scope;
-import de.unisb.cs.st.evosuite.testcase.Statement;
+import de.unisb.cs.st.evosuite.testcase.AbstractStatement;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
@@ -53,108 +53,15 @@ public class BasicTestCase extends DefaultTestCase {
 	private static Logger logger = Logger.getLogger(BasicTestCase.class);
 
 
-
-	private final boolean replaceConst;
-
 	/**
 	 * Equals BasicTestCase(true)
 	 */
 	public BasicTestCase() {
-		this(true);
-	}
-
-	/**
-	 * @param replaceConst
-	 */
-	public BasicTestCase(boolean replaceConst){
 		super();
-		this.replaceConst=replaceConst;
 	}
 
-	/**
-	 * The statements returned by this method can only be executed with a concurrentScope
-	 * @param clazz
-	 * @param pos
-	 * @return
-	 */
-	@SuppressWarnings("unchecked") //we loose the type information during the call to new VariableReference. 
-	private Statement getPseudoStatement(final Class clazz, int pos){
-		Statement st= new Statement() {
 
-			@Override
-			public void replaceUnique(VariableReference oldVar, VariableReference newVar) {
-			}
 
-			@Override
-			public void replace(VariableReference oldVar, VariableReference newVar) {
-			}
-
-			@Override
-			public int hashCode() {
-				return 0;
-			}
-
-			@Override
-			public Set<VariableReference> getVariableReferences() {
-				Set<VariableReference> s = new HashSet<VariableReference>();
-				s.add(retval);
-				return s;
-			}
-
-			@Override
-			public List<VariableReference> getUniqueVariableReferences() {
-				List<VariableReference> s = new ArrayList<VariableReference>();
-				s.add(retval);
-				return s;
-			}
-
-			@Override
-			public String getCode(Throwable exception) {
-				//#TODO steenbuck param0 should not be hardcoded
-				return retval.getSimpleClassName() + " " + retval.getName() + " = param0;";
-			}
-
-			@Override
-			public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-					Throwable exception) {
-			}
-
-			@Override
-			public Throwable execute(Scope scope, PrintStream out)
-			throws InvocationTargetException, IllegalArgumentException,
-			IllegalAccessException, InstantiationException {
-				if(scope instanceof ConcurrentScope){
-					//Object o = scope.get(new VariableReference(retval.getType(), -1));
-					Object o = ((ConcurrentScope)scope).getSharedObject();
-					assert(retval.getVariableClass().isAssignableFrom(o.getClass())) : "we want an " + retval.getVariableClass() + " but got an " + o.getClass();
-					scope.set(retval, o);
-				}else{
-					throw new AssertionError("Statements from " + BasicTestCase.class.getName() + " should only be executed with a concurrent scope");
-				}
-				return null;
-			}
-
-			@Override
-			public boolean equals(StatementInterface s) {
-				return s==this;
-			}
-
-			@Override
-			public StatementInterface clone() {
-				return getPseudoStatement(clazz, retval.statement);
-			}
-
-			@Override
-			public void adjustVariableReferences(int position, int delta) {
-				retval.adjust(delta, position);
-			}
-
-		};
-
-		st.SetRetval(new VariableReference(clazz, pos));
-
-		return st;
-	}
 
 
 	public String getThreadCode(Map<Integer, Throwable> exceptions, int id){
@@ -175,7 +82,6 @@ public class BasicTestCase extends DefaultTestCase {
 	@Override
 	public VariableReference setStatement(StatementInterface statement, int position) {
 		assert(position>=0);
-		statement = replaceConstructorStatement(statement, position);
 		return super.setStatement(statement, position);
 	}
 
@@ -189,31 +95,13 @@ public class BasicTestCase extends DefaultTestCase {
 	 * @return Return value of statement
 	 */
 	@Override
-	public void addStatement(StatementInterface statement, int position) {
+	public VariableReference addStatement(StatementInterface statement, int position) {
 		assert(position>=0);
-		assert(statement.getReturnValue().statement==position);
-		statement = replaceConstructorStatement(statement, position);
-		super.addStatement(statement, position);
-	}
-
-	/**
-	 * Checks if a constructor call should reference a param
-	 * @param statement
-	 * @param position
-	 * @return
-	 */
-	private StatementInterface replaceConstructorStatement(StatementInterface statement, int position){
-		if(replaceConst && statement instanceof ConstructorStatement){
-			ConstructorStatement c = (ConstructorStatement)statement;
-			//#TODO steenbuck we should check if the constructor uses the object we supplied as param (if yes maybe we should let the object be created)
-			assert(Properties.getTargetClass()!=null);
-			if(Properties.getTargetClass().isAssignableFrom(c.getConstructor().getDeclaringClass())){
-				logger.debug("Replaced a constructor call for " + c.getClass().getSimpleName() + " with a pseudo statement. Representing the object shared between the test threads");
-				statement = getPseudoStatement(Properties.getTargetClass(), position);
-			}
-		}
-
-		return statement;
+		assert(statement!=null);
+		assert(statement.getReturnValue()!=null);
+		VariableReference ret = super.addStatement(statement, position);
+		assert(statement.getReturnValue().getStPosition()==position);
+		return ret;
 	}
 
 	/**
@@ -223,8 +111,8 @@ public class BasicTestCase extends DefaultTestCase {
 	 *            New statement
 	 * @return VariableReference of return value
 	 */
-	public void addStatement(Statement statement) {
-		this.addStatement(statement, super.size());
+	public void addStatement(AbstractStatement statement) {
+		this.addStatement(statement, this.size());
 	}
 
 
@@ -234,13 +122,12 @@ public class BasicTestCase extends DefaultTestCase {
 	 */
 	@Override
 	public BasicTestCase clone() {
-		BasicTestCase t = new BasicTestCase(replaceConst);
-		List<StatementInterface> newStatements = t.getStatements();
+		BasicTestCase newTestCase = new BasicTestCase();
 		for (StatementInterface s : this) {
-			newStatements.add(s.clone());
+			newTestCase.statements.add(s.clone(newTestCase));
 		}
-		t.getCoveredGoals().addAll(super.getCoveredGoals());
+		newTestCase.getCoveredGoals().addAll(super.getCoveredGoals());
 
-		return t;
+		return newTestCase;
 	}
 }

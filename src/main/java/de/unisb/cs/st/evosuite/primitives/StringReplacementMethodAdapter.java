@@ -42,7 +42,7 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 
 	private final Map<Integer, Integer> flags = new HashMap<Integer, Integer>();
 
-	private static final boolean MUTATION = Properties.CRITERION.equals(Criterion.MUTATION);
+	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION;
 
 	private int current_var = -1;
 

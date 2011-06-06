@@ -39,22 +39,17 @@ import de.unisb.cs.st.evosuite.ga.Randomness;
  * @author Gordon Fraser
  * 
  */
-public class ArrayStatement extends Statement {
-
-	private final Randomness randomness = Randomness.getInstance();
-
+public class ArrayStatement extends AbstractStatement {
 	private int length = 0;
 
-	public ArrayStatement(VariableReference ret_val) {
-		this.retval = ret_val;
-		this.length = randomness.nextInt(Properties.MAX_ARRAY) + 1;
-		this.retval.array_length = this.length;
+	public ArrayStatement(TestCase tc, java.lang.reflect.Type type) {
+		this(tc, type, Randomness.getInstance().nextInt(Properties.MAX_ARRAY) + 1);
+
 	}
 
-	public ArrayStatement(VariableReference ret_val, int length) {
-		this.retval = ret_val;
+	public ArrayStatement(TestCase tc, java.lang.reflect.Type type, int length) {
+		super(tc, new ArrayReference(tc, new GenericClass(type), length));
 		this.length = length;
-		this.retval.array_length = this.length;
 	}
 
 	public int size() {
@@ -62,19 +57,13 @@ public class ArrayStatement extends Statement {
 	}
 
 	@Override
-	public void adjustVariableReferences(int position, int delta) {
-		retval.adjust(delta, position);
-		adjustAssertions(position, delta);
-	}
-
-	@Override
-	public StatementInterface clone() {
-		ArrayStatement copy = new ArrayStatement(retval.clone(), length);
+	public StatementInterface clone(TestCase newTestCase) {
+		ArrayStatement copy = new ArrayStatement(newTestCase, retval.getType(), length);
 		return copy;
 	}
 
 	@Override
-	public boolean equals(StatementInterface s) {
+	public boolean equals(Object s) {
 		if (this == s)
 			return true;
 		if (s == null)
@@ -120,12 +109,6 @@ public class ArrayStatement extends Statement {
 	}
 
 	@Override
-	public void replace(VariableReference oldVar, VariableReference newVar) {
-		if (retval.equals(oldVar))
-			retval = newVar;
-	}
-
-	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = retval.hashCode();
@@ -159,17 +142,31 @@ public class ArrayStatement extends Statement {
 		return new ArrayList<VariableReference>(getVariableReferences());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#replaceUnique(de.unisb.cs.
-	 * st.evosuite.testcase.VariableReference,
-	 * de.unisb.cs.st.evosuite.testcase.VariableReference)
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#isValid()
 	 */
 	@Override
-	public void replaceUnique(VariableReference old_var, VariableReference new_var) {
-		if (retval == old_var)
-			retval = new_var;
+	public boolean isValid() {
+		return super.isValid();
 	}
+
+	@Override
+	public boolean same(StatementInterface s) {
+		if (this == s)
+			return true;
+		if (s == null)
+			return false;
+		if (getClass() != s.getClass())
+			return false;
+
+		ArrayStatement as = (ArrayStatement) s;
+		if (length != as.length)
+			return false;
+		if (retval.same(as.retval)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 }

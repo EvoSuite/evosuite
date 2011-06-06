@@ -49,12 +49,11 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		ControlFlowDistance distance = goal.getDistance(result);
-		double fitness = 0.0;
+		
+		double fitness = distance.getResultingBranchFitness();
 
-		fitness = distance.approach + normalize(distance.branch);
-
-		logger.debug("Approach level: " + distance.approach + " / branch distance: "
-		        + distance.branch + ", fitness = " + fitness);
+		logger.debug("Approach level: " + distance.getApproachLevel() + " / branch distance: "
+		        + distance.getBranchDistance() + ", fitness = " + fitness);
 
 		updateIndividual(individual, fitness);
 		return fitness;

@@ -21,6 +21,7 @@ package de.unisb.cs.st.evosuite.testsuite;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.Properties.TestFactory;
 import de.unisb.cs.st.evosuite.OUM.OUMTestChromosomeFactory;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTestCaseFactory;
@@ -46,7 +47,7 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory {
 		else
 			test_factory = new RandomLengthTestFactory();
 
-		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
+		if (Properties.CRITERION == Criterion.CONCURRENCY) {
 			//#TODO steenbuck we should wrap the original factory not replace it.
 			test_factory = new ConcurrencyTestCaseFactory();
 		}

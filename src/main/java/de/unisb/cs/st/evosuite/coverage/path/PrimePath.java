@@ -6,7 +6,7 @@ package de.unisb.cs.st.evosuite.coverage.path;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 
 /**
  * @author Gordon Fraser
@@ -14,10 +14,10 @@ import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
  */
 public class PrimePath {
 
-	List<CFGVertex> nodes = new ArrayList<CFGVertex>();
+	List<BytecodeInstruction> nodes = new ArrayList<BytecodeInstruction>();
 
 	class PathEntry {
-		CFGVertex vertex;
+		BytecodeInstruction vertex;
 		boolean value;
 	}
 
@@ -32,32 +32,32 @@ public class PrimePath {
 		this.methodName = methodName;
 	}
 
-	public CFGVertex getLast() {
+	public BytecodeInstruction getLast() {
 		return nodes.get(nodes.size() - 1);
 	}
 
-	public void append(CFGVertex node) {
+	public void append(BytecodeInstruction node) {
 		nodes.add(node);
 	}
 
-	public PrimePath getAppended(CFGVertex node) {
+	public PrimePath getAppended(BytecodeInstruction node) {
 		PrimePath copy = new PrimePath(className, methodName);
 		copy.nodes.addAll(nodes);
 		copy.append(node);
 		return copy;
 	}
 
-	public boolean contains(CFGVertex vertex) {
+	public boolean contains(BytecodeInstruction vertex) {
 		return nodes.contains(vertex);
 	}
 
 	public void condensate() {
 		for (int position = 0; position < nodes.size(); position++) {
-			CFGVertex node = nodes.get(position);
+			BytecodeInstruction node = nodes.get(position);
 			if (node.isBranch() && position < (nodes.size() - 1)) {
 				PathEntry entry = new PathEntry();
 				entry.vertex = node;
-				if (nodes.get(position + 1).getId() == (node.getId() + 1)) {
+				if (nodes.get(position + 1).getInstructionId() == (node.getInstructionId() + 1)) {
 					entry.value = false;
 				} else {
 					entry.value = true;
@@ -72,7 +72,7 @@ public class PrimePath {
 		return nodes.size();
 	}
 
-	public CFGVertex get(int position) {
+	public BytecodeInstruction get(int position) {
 		return nodes.get(position);
 	}
 
@@ -117,7 +117,7 @@ public class PrimePath {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < nodes.size(); i++) {
-			builder.append(nodes.get(i).getId());
+			builder.append(nodes.get(i).getInstructionId());
 			builder.append(" ");
 		}
 		return builder.toString();

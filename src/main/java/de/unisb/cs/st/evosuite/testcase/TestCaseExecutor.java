@@ -31,6 +31,7 @@ import java.util.concurrent.TimeoutException;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.contracts.ContractChecker;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestRunnable;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
@@ -102,6 +103,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
+			logger.fatal("TG: Exception caught: ", e);
 			System.exit(1);
 		}
 
@@ -172,7 +174,7 @@ public class TestCaseExecutor implements ThreadFactory {
 
 		//#TODO steenbuck could be nicer (TestRunnable should be an interface
 		InterfaceTestRunnable callable;
-		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
+		if (Properties.CRITERION == Criterion.CONCURRENCY) {
 			callable = new ConcurrentTestRunnable(tc, scope, observers);
 		} else {
 			callable = new TestRunnable(tc, scope, observers);
@@ -196,7 +198,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			Sandbox.tearDownEverything();
 			ExecutionResult result = new ExecutionResult(tc, null);
 			result.exceptions = callable.getExceptionsThrown();
-			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
 			return result;
 
@@ -205,23 +207,24 @@ public class TestCaseExecutor implements ThreadFactory {
 			logger.info("InterruptedException");
 			ExecutionResult result = new ExecutionResult(tc, null);
 			result.exceptions = callable.getExceptionsThrown();
-			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
 			return result;
 		} catch (ExecutionException e1) {
-			if (e1.getCause() instanceof AssertionError
-			        && e1.getCause().getStackTrace()[0].getClassName().contains("de.unisb.cs.st.evosuite")) {
-				//e1.printStackTrace();
-				logger.warn("Assertion Error in evosuitecode");
-				throw (AssertionError) e1.getCause();
-			}
+			/*
+			 * An ExecutionException at this point, is most likely an error in evosuite. As exceptions from the tested code are catched before this.
+			 */
 			Sandbox.tearDownEverything();
-			e1.printStackTrace();
-			logger.info("ExecutionException");
+			logger.error("ExecutionException (this is likely a serious error in the framework)", e1);
 			ExecutionResult result = new ExecutionResult(tc, null);
 			result.exceptions = callable.getExceptionsThrown();
-			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
+			if(e1.getCause() instanceof Error){ //an error was thrown somewhere in evosuite code
+				throw (Error)e1.getCause();
+			}else if(e1.getCause() instanceof RuntimeException){
+				throw (RuntimeException)e1.getCause();
+			}
 			return result;
 		} catch (TimeoutException e1) {
 			Sandbox.tearDownEverything();
@@ -267,7 +270,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			ExecutionResult result = new ExecutionResult(tc, null);
 			result.exceptions = callable.getExceptionsThrown();
 			result.exceptions.put(tc.size(), new TestCaseExecutor.TimeoutExceeded());
-			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
 			ExecutionTracer.setKillSwitch(false);
 			ExecutionTracer.enable();

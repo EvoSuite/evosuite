@@ -39,7 +39,7 @@ public class ReturnValueAdapter extends MethodAdapter {
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(LineNumberMethodAdapter.class);
 
-	private static final boolean MUTATION = Properties.CRITERION.equals(Criterion.MUTATION);
+	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION;
 
 	private final String fullMethodName;
 

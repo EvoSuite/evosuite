@@ -45,7 +45,7 @@ public class CFGClassAdapter extends ClassAdapter {
 	/** Current class */
 	private final String className;
 
-	private static final boolean MUTATION = Properties.CRITERION.equals(Criterion.MUTATION);
+	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION;
 
 	/**
 	 * Constructor

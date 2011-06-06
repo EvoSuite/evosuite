@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 
@@ -136,12 +136,12 @@ public abstract class DefUseExecutionTraceAnalyzer {
 		return r;
 	}
 	
-	public static Set<CFGVertex> getDefinitionsIn(String targetVariable, Set<CFGVertex> vertices) {
-		Set<CFGVertex> r = new HashSet<CFGVertex>();
-		for(CFGVertex vertex : vertices) {
+	public static Set<BytecodeInstruction> getDefinitionsIn(String targetVariable, Set<BytecodeInstruction> vertices) {
+		Set<BytecodeInstruction> r = new HashSet<BytecodeInstruction>();
+		for(BytecodeInstruction vertex : vertices) {
 			if(!vertex.isDefinition())
 				continue;
-			Definition currentDefinition = new Definition(vertex) ;
+			Definition currentDefinition = DefUseFactory.makeDefinition(vertex) ;
 			if(currentDefinition.getDUVariableName().equals(targetVariable))
 				r.add(vertex);
 		}
@@ -152,15 +152,15 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	 * Returns a Set containing all elements in the given vertex set that
 	 * are overwriting definitions for the given targetDefinition 
 	 */
-	public static Set<CFGVertex> getOverwritingDefinitionsIn(Definition targetDefinition,
-			Collection<CFGVertex> vertices) {
-		Set<CFGVertex> r = new HashSet<CFGVertex>();
-		for(CFGVertex vertex : vertices) {
+	public static Set<BytecodeInstruction> getOverwritingDefinitionsIn(Definition targetDefinition,
+			Collection<BytecodeInstruction> vertices) {
+		Set<BytecodeInstruction> r = new HashSet<BytecodeInstruction>();
+		for(BytecodeInstruction vertex : vertices) {
 			if(!vertex.isDefinition())
 				continue;
-			CFGVertex vertexInOtherGraph = CFGMethodAdapter.getCompleteCFG(vertex.className, 
-					vertex.methodName).getVertex(vertex.getId());
-			Definition currentDefinition = new Definition(vertexInOtherGraph) ;
+			BytecodeInstruction vertexInOtherGraph = CFGPool.getRawCFG(vertex.getClassName(), 
+					vertex.getMethodName()).getInstruction(vertex.getInstructionId());
+			Definition currentDefinition = DefUseFactory.makeDefinition(vertexInOtherGraph) ;
 			if(isOverwritingDefinition(targetDefinition,currentDefinition))
 				r.add(vertex);
 		}
@@ -210,15 +210,15 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	 */
 	public static void printFinishCalls(ExecutionTrace trace) {
 		for (MethodCall call : trace.finished_calls) {
-			System.out.println("Found MethodCall for: " + call.method_name
+			System.out.println("Found MethodCall for: " + call.methodName
 					+ " on object " + call.callingObjectID);
-			System.out.println("#passed branches: " + call.branch_trace.size());
-			for (int i = 0; i < call.defuse_counter_trace.size(); i++) {
+			System.out.println("#passed branches: " + call.branchTrace.size());
+			for (int i = 0; i < call.defuseCounterTrace.size(); i++) {
 				System.out.println(i + ". at Branch "
-						+ call.branch_trace.get(i) 
-						+ " true_dist: " + call.true_distance_trace.get(i) 
-						+ " false_dist: "+ call.false_distance_trace.get(i)
-						+ " duCounter: " + call.defuse_counter_trace.get(i));
+						+ call.branchTrace.get(i) 
+						+ " true_dist: " + call.trueDistanceTrace.get(i) 
+						+ " false_dist: "+ call.falseDistanceTrace.get(i)
+						+ " duCounter: " + call.defuseCounterTrace.get(i));
 				System.out.println();
 			}
 		}
