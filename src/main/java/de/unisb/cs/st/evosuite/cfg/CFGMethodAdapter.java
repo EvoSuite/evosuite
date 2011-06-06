@@ -43,7 +43,6 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyInstrumentation;
 import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.AbstractMutationAdapter;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
-import de.unisb.cs.st.testability.TransformationHelper;
 
 /**
  * Create a minimized control flow graph for the method and store it. In
@@ -206,12 +205,6 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		String id = className + "." + methodName;
 		if (BranchPool.getBranchCountForMethod(id) == 0) {
 			if (isUsable()) {
-				if (Properties.TESTABILITY_TRANSFORMATION) {
-					String vname = methodName.replace("(", "|(");
-					if (TransformationHelper.hasValkyrieMethod(className, vname))
-						return;
-				}
-
 				logger.debug("Method has no branches: " + id);
 				BranchPool.addBranchlessMethod(id);
 			}
