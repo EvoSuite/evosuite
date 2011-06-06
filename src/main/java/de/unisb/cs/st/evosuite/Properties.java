@@ -642,7 +642,7 @@ public class Properties {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
-		return parameterMap.get(key).get(null).toString();
+		return parameterMap.get(key).toString();
 	}
 
 	/**
