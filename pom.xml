@@ -119,11 +119,6 @@
         <scope>runtime</scope>
       </dependency>
       <dependency>
-        <groupId>de.unisb.cs.st</groupId>
-        <artifactId>jpf-concolic</artifactId>
-        <version>0.2</version>
-      </dependency>      
-      <dependency>
 	<groupId>com.googlecode.gentyref</groupId>
 	<artifactId>gentyref</artifactId>
 	<version>1.1.0</version>
