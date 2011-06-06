@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jpf.mytest.path.TimeOutListener;
 import de.unisb.cs.st.evosuite.Properties;
 
 /**

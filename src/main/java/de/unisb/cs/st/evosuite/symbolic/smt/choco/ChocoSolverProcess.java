@@ -181,8 +181,8 @@ public class ChocoSolverProcess {
 
 	private IntegerExpressionVariable getIntegerValue(Expression<Long> expression)
 	        throws MyUnsupportedException {
-		if (expression instanceof jpf.mytest.solver.IntegerVariable) {
-			jpf.mytest.solver.IntegerVariable sv = (jpf.mytest.solver.IntegerVariable) expression;
+		if (expression instanceof de.unisb.cs.st.evosuite.symbolic.expr.IntegerVariable) {
+			de.unisb.cs.st.evosuite.symbolic.expr.IntegerVariable sv = (de.unisb.cs.st.evosuite.symbolic.expr.IntegerVariable) expression;
 			IntegerVariable i = varMap.get(sv.getName());
 			if (i == null) {
 				if (sv.getMinValue() == null && sv.getMaxValue() == null) {
@@ -298,8 +298,8 @@ public class ChocoSolverProcess {
 
 	private RealExpressionVariable getRealValue(Expression<Double> expression)
 	        throws MyUnsupportedException {
-		if (expression instanceof jpf.mytest.solver.RealVariable) {
-			jpf.mytest.solver.RealVariable sv = (jpf.mytest.solver.RealVariable) expression;
+		if (expression instanceof de.unisb.cs.st.evosuite.symbolic.expr.RealVariable) {
+			de.unisb.cs.st.evosuite.symbolic.expr.RealVariable sv = (de.unisb.cs.st.evosuite.symbolic.expr.RealVariable) expression;
 			RealVariable i = varMapR.get(sv.getName());
 			if (i == null) {
 				if (sv.getMinValue() == null && sv.getMaxValue() == null) {

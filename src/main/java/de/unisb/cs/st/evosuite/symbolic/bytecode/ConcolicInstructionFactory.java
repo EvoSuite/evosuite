@@ -19,13 +19,11 @@
 package de.unisb.cs.st.evosuite.symbolic.bytecode;
 
 import gov.nasa.jpf.jvm.bytecode.InstructionFactory;
-import de.unisb.cs.st.evosuite.symbolic.nativepeer.JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_PrimitiveGenerator;
 
 public class ConcolicInstructionFactory extends InstructionFactory implements Cloneable {
 
 	public ConcolicInstructionFactory() {
 		PathConstraint.init();
-		JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_PrimitiveGenerator.init();
 	}
 
 	@Override
