@@ -156,26 +156,6 @@ public class TestTaskGenerator {
 	}
 
 	/**
-	 * Get all usable superclasses of the given class
-	 * 
-	 * @param classname
-	 *            Name of given class
-	 * @return All superclasses that are within prefix and not excluded
-	 */
-	private static List<String> getSuperClasses(String classname) {
-		Set<String> superclasses = hierarchy.getAllSupers(classname);
-
-		List<String> ret = new ArrayList<String>();
-		ret.add(classname);
-		for (String sup : superclasses) {
-			if (sup.startsWith(prefix))
-				ret.add(sup);
-		}
-
-		return ret;
-	}
-
-	/**
 	 * Get all usable subclasses of the given class
 	 * 
 	 * @param classname
@@ -215,24 +195,6 @@ public class TestTaskGenerator {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Get all usable subclasses of the given class
-	 * 
-	 * @param classname
-	 *            Name of given class
-	 * @return All subclasses that are within prefix and not excluded
-	 */
-	private static List<String> getOwnedClasses(String classname) {
-		Set<String> subclasses = hierarchy.getAllClasses();
-		List<String> ret = new ArrayList<String>();
-		for (String sub : subclasses) {
-			if (sub.startsWith(classname + "$"))
-				ret.add(sub);
-		}
-
-		return ret;
 	}
 
 	/**
@@ -426,38 +388,30 @@ public class TestTaskGenerator {
 	 * @param candidates
 	 * @param classname
 	 */
-	protected static void addConstructors(Set<String> candidates, String classname) {
-		try {
-			Class<?> clazz = Class.forName(classname);
-			if (!canUse(clazz)) {
-				logger.debug("Not using suggested dependency");
-				return;
+	protected static void addConstructors(Set<String> candidates, Class<?> clazz) {
+		if (!canUse(clazz)) {
+			logger.debug("Not using suggested dependency");
+			return;
+		}
+		logger.debug("Adding constructors for class " + clazz.getName());
+		for (Constructor<?> constructor : getConstructors(clazz)) {
+			if (canUse(constructor)
+			        && !isExcluded(clazz.getName(),
+			                       "<init>" + Type.getConstructorDescriptor(constructor))) {
+				logger.debug("Adding constructor " + clazz.getName() + "."
+				        + constructor.getName()
+				        + Type.getConstructorDescriptor(constructor));
+				candidates.add(clazz.getName()
+				        + ","
+				        + Pattern.quote("<init>"
+				                + Type.getConstructorDescriptor(constructor)));
+			} else {
+				if (!canUse(constructor))
+					logger.debug("canUse says no");
+				if (isExcluded(clazz.getName(),
+				               "<init>" + Type.getConstructorDescriptor(constructor)))
+					logger.debug("Is excluded");
 			}
-			logger.debug("Adding constructors for class " + classname);
-			for (Constructor<?> constructor : getConstructors(clazz)) {
-				if (canUse(constructor)
-				        && !isExcluded(classname,
-				                       "<init>"
-				                               + Type.getConstructorDescriptor(constructor))) {
-					logger.debug("Adding constructor " + classname + "."
-					        + constructor.getName()
-					        + Type.getConstructorDescriptor(constructor));
-					candidates.add(classname
-					        + ","
-					        + Pattern.quote("<init>"
-					                + Type.getConstructorDescriptor(constructor)));
-				} else {
-					if (!canUse(constructor))
-						logger.debug("canUse says no");
-					if (isExcluded(classname,
-					               "<init>" + Type.getConstructorDescriptor(constructor)))
-						logger.debug("Is excluded");
-				}
-			}
-		} catch (ClassNotFoundException e) {
-			logger.error("Class not found: " + classname + ", ignoring for tests");
-		} catch (NoClassDefFoundError e) {
-			logger.warn("NoClassDefFoundError " + classname);
 		}
 	}
 
@@ -466,35 +420,28 @@ public class TestTaskGenerator {
 	 * candidates
 	 * 
 	 * @param candidates
-	 * @param classname
+	 * @param clazz
+	 *            .getName()
 	 */
-	protected static void addMethods(Set<String> candidates, String classname) {
-		try {
-			Class<?> clazz = Class.forName(classname);
-			if (!canUse(clazz)) {
-				logger.debug("Not using suggested dependency");
-				return;
+	protected static void addMethods(Set<String> candidates, Class<?> clazz) {
+		if (!canUse(clazz)) {
+			logger.debug("Not using suggested dependency");
+			return;
+		}
+		for (Method method : getMethods(clazz)) {
+			if (canUse(method)
+			        && !isExcluded(clazz.getName(),
+			                       method.getName() + Type.getMethodDescriptor(method))) {
+				logger.debug("Adding method " + clazz.getName() + "." + method.getName()
+				        + Type.getMethodDescriptor(method));
+				candidates.add(clazz.getName()
+				        + ","
+				        + Pattern.quote(method.getName()
+				                + Type.getMethodDescriptor(method)));
+			} else {
+				logger.debug("NOT adding method " + clazz.getName() + "."
+				        + method.getName() + Type.getMethodDescriptor(method));
 			}
-			for (Method method : getMethods(clazz)) {
-				if (canUse(method)
-				        && !isExcluded(classname,
-				                       method.getName()
-				                               + Type.getMethodDescriptor(method))) {
-					logger.debug("Adding method " + classname + "." + method.getName()
-					        + Type.getMethodDescriptor(method));
-					candidates.add(classname
-					        + ","
-					        + Pattern.quote(method.getName()
-					                + Type.getMethodDescriptor(method)));
-				} else {
-					logger.debug("NOT adding method " + classname + "."
-					        + method.getName() + Type.getMethodDescriptor(method));
-				}
-			}
-		} catch (ClassNotFoundException e) {
-			logger.error("Class not found: " + classname + ", ignoring for tests");
-		} catch (NoClassDefFoundError e) {
-			logger.warn("NoClassDefFoundError " + classname);
 		}
 	}
 
@@ -505,23 +452,16 @@ public class TestTaskGenerator {
 	 * @param candidates
 	 * @param classname
 	 */
-	protected static void addFields(Set<String> candidates, String classname) {
-		try {
-			Class<?> clazz = Class.forName(classname);
-			if (!canUse(clazz)) {
-				logger.debug("Not using suggested dependency");
-				return;
-			}
-			for (Field field : getFields(clazz)) {
-				logger.debug("Adding field " + classname + "." + field.getName());
-				candidates.add(classname + "," + Pattern.quote(field.getName()));
-			}
-
-		} catch (ClassNotFoundException e) {
-			logger.error("Class not found: " + classname + ", ignoring for tests");
-		} catch (NoClassDefFoundError e) {
-			logger.warn("NoClassDefFoundError " + classname);
+	protected static void addFields(Set<String> candidates, Class<?> clazz) {
+		if (!canUse(clazz)) {
+			logger.debug("Not using suggested dependency");
+			return;
 		}
+		for (Field field : getFields(clazz)) {
+			logger.debug("Adding field " + clazz.getName() + "." + field.getName());
+			candidates.add(clazz.getName() + "," + Pattern.quote(field.getName()));
+		}
+
 	}
 
 	/**
@@ -531,32 +471,24 @@ public class TestTaskGenerator {
 	 * @param candidates
 	 * @param classname
 	 */
-	protected static void addObjectMethods(Set<String> candidates, String classname) {
-		try {
-			Class<?> clazz = Class.forName(classname);
-			for (Method method : getMethods(clazz)) {
-				if (canUse(method)
-				        && !isExcluded(classname,
-				                       method.getName()
-				                               + Type.getMethodDescriptor(method))
-				        && !method.getName().equals("clone")
-				        && !method.getName().equals("compareTo")
-				        && !method.getName().equals("equals")) {
-					logger.debug("Adding method to signature file " + classname + "."
-					        + method.getName() + Type.getMethodDescriptor(method));
-					candidates.add(classname
-					        + "."
-					        + method.getName()
-					        + Type.getMethodDescriptor(method)
-					        + ","
-					        + Type.getMethodDescriptor(method).replace("Ljava/lang/Object;",
-					                                                   "Ljava/lang/Integer;"));
-				}
+	protected static void addObjectMethods(Set<String> candidates, Class<?> clazz) {
+		for (Method method : getMethods(clazz)) {
+			if (canUse(method)
+			        && !isExcluded(clazz.getName(),
+			                       method.getName() + Type.getMethodDescriptor(method))
+			        && !method.getName().equals("clone")
+			        && !method.getName().equals("compareTo")
+			        && !method.getName().equals("equals")) {
+				logger.debug("Adding method to signature file " + clazz.getName() + "."
+				        + method.getName() + Type.getMethodDescriptor(method));
+				candidates.add(clazz.getName()
+				        + "."
+				        + method.getName()
+				        + Type.getMethodDescriptor(method)
+				        + ","
+				        + Type.getMethodDescriptor(method).replace("Ljava/lang/Object;",
+				                                                   "Ljava/lang/Integer;"));
 			}
-		} catch (ClassNotFoundException e) {
-			logger.error("Class not found: " + classname + ", ignoring for tests");
-		} catch (NoClassDefFoundError e) {
-			logger.warn("NoClassDefFoundError " + classname);
 		}
 	}
 
@@ -566,30 +498,21 @@ public class TestTaskGenerator {
 	 * @param classname
 	 * @param filename
 	 */
-	protected static void writeInspectors(String classname, String filename) {
+	protected static void writeInspectors(Class<?> clazz, String filename) {
 		StringBuffer sb = new StringBuffer();
 		File file = new File(Properties.OUTPUT_DIR, filename);
 
-		// TODO: Don't really need super classes here!
-		List<String> classes = getSuperClasses(classname);
 		Set<String> methods = new HashSet<String>();
 
-		for (String cl : classes) {
-			try {
-				Class<?> clazz = Class.forName(cl);
-				for (Method method : clazz.getMethods()) {
-					if (!Modifier.isProtected(method.getModifiers())
-					        && !Modifier.isPrivate(method.getModifiers())
-					        && (method.getReturnType().isPrimitive() || method.getReturnType().equals(String.class))
-					        && !method.getReturnType().equals(void.class)
-					        && method.getParameterTypes().length == 0
-					        && !method.getName().equals("hashCode")
-					        && !method.getDeclaringClass().equals(Object.class)) {
-						methods.add(method.getName() + Type.getMethodDescriptor(method));
-					}
-				}
-			} catch (ClassNotFoundException e) {
-			} catch (NoClassDefFoundError e) {
+		for (Method method : clazz.getMethods()) {
+			if (!Modifier.isProtected(method.getModifiers())
+			        && !Modifier.isPrivate(method.getModifiers())
+			        && (method.getReturnType().isPrimitive() || method.getReturnType().equals(String.class))
+			        && !method.getReturnType().equals(void.class)
+			        && method.getParameterTypes().length == 0
+			        && !method.getName().equals("hashCode")
+			        && !method.getDeclaringClass().equals(Object.class)) {
+				methods.add(method.getName() + Type.getMethodDescriptor(method));
 			}
 		}
 		for (String method : methods) {
@@ -625,6 +548,122 @@ public class TestTaskGenerator {
 		Io.writeFile(sb.toString(), file);
 	}
 
+	protected static boolean suggestTask(Class<?> clazz) {
+		String classname = clazz.getName();
+
+		if (!canUse(clazz)) {
+			logger.info("Ignoring private class " + classname);
+			List<String> mutant_classes = new ArrayList<String>();
+			mutant_classes.add(classname);
+			return false;
+		}
+		if (clazz.isInterface()) {
+			logger.info("Ignoring interface " + classname);
+			Set<String> object_methods = new HashSet<String>();
+			addObjectMethods(object_methods, clazz);
+			String classfilename = classname.replace("$", "_");
+			if (Properties.GENERATE_OBJECTS)
+				writeObjectMethods(object_methods, classfilename + ".obj");
+			writeInspectors(clazz, classname.replace("$", "_") + ".inspectors");
+			return false;
+		}
+		if (clazz.getDeclaredMethods().length == 0
+		        && clazz.getDeclaredConstructors().length == 0) {
+			logger.info("Ignoring class without methods: " + classname);
+			return false;
+		}
+		if (clazz.isMemberClass() && clazz.getConstructors().length == 0) {
+			logger.info("Ignoring member class without public constructors " + classname);
+			List<String> mutant_classes = new ArrayList<String>();
+			mutant_classes.add(classname);
+			writeInspectors(clazz, classname.replace("$", "_") + ".inspectors");
+			return false;
+		}
+		if (clazz.isMemberClass()) {
+			logger.info("Testing member class " + classname);
+			writeInspectors(clazz, classname.replace("$", "_") + ".inspectors");
+			return false;
+		}
+		if (clazz.isLocalClass()) {
+			logger.info("Testing local class " + classname);
+			writeInspectors(clazz, classname.replace("$", "_") + ".inspectors");
+			return false;
+		}
+		if (clazz.isAnonymousClass()) {
+			logger.info("Testing anonymous class " + classname);
+			return false;
+		}
+		if (clazz.getCanonicalName() != null) {
+			logger.debug("Canonical name: " + clazz.getCanonicalName());
+		}
+		if (classname.matches(".*\\$\\d+$")) {
+			logger.info("Bugger that, it must be an anonymous class");
+			return false;
+		}
+		logger.info("Analyzing dependencies of class " + classname);
+		if (clazz.getEnclosingClass() != null) {
+			logger.info("  defined in " + clazz.getEnclosingClass().getName());
+			writeInspectors(clazz, classname.replace("$", "_") + ".inspectors");
+			return false;
+		}
+		if (clazz.getDeclaringClass() != null) {
+			logger.info("  defined in " + clazz.getDeclaringClass().getName());
+			writeInspectors(clazz, classname.replace("$", "_") + ".inspectors");
+			return false;
+		}
+
+		Set<String> object_methods = new HashSet<String>();
+		addObjectMethods(object_methods, clazz);
+
+		if (Modifier.isAbstract(clazz.getModifiers())) {
+			if (isPurelyAbstract(classname)) {
+				logger.info("Ignoring abstract class without concrete subclasses "
+				        + classname);
+				String classfilename = classname.replace("$", "_");
+				if (Properties.GENERATE_OBJECTS)
+					writeObjectMethods(object_methods, classfilename + ".obj");
+				return false;
+			}
+		}
+
+		Set<String> suggestion = new TreeSet<String>();
+		addConstructors(suggestion, clazz);
+		addMethods(suggestion, clazz);
+		addFields(suggestion, clazz);
+
+		List<String> dependencies = getSubClasses(clazz.getName());
+		for (String dependency : dependencies) {
+			if (dependency.equals(classname))
+				continue;
+			try {
+				Class<?> dep = Class.forName(dependency);
+				addConstructors(suggestion, dep);
+				addMethods(suggestion, dep);
+				addFields(suggestion, dep);
+			} catch (ClassNotFoundException e) {
+				logger.error("Could not load subclass " + dependency);
+			}
+		}
+		for (Class<?> ownedClass : clazz.getClasses()) {
+			addObjectMethods(object_methods, ownedClass);
+		}
+
+		if (suggestion.isEmpty()) {
+			logger.info("No usable methods found, skipping " + classname);
+			return false;
+		}
+		String classfilename = classname.replace("$", "_");
+		writeTask(suggestion, classfilename + ".task");
+		logger.info("GenObjects");
+
+		if (Properties.GENERATE_OBJECTS)
+			writeObjectMethods(object_methods, classfilename + ".obj");
+		logger.info("GenInspectors");
+		writeInspectors(clazz, classfilename + ".inspectors");
+		logger.info("Done");
+		return true;
+	}
+
 	/**
 	 * Central function of the task creator. Creates test task files, mutation
 	 * task files, and inspector files
@@ -647,6 +686,8 @@ public class TestTaskGenerator {
 			Class<?> clazz = null;
 			try {
 				clazz = Class.forName(classname);
+				if (suggestTask(clazz))
+					num++;
 			} catch (ClassNotFoundException e) {
 				logger.warn("Class not found: " + classname + ", ignoring");
 				continue;
@@ -660,112 +701,23 @@ public class TestTaskGenerator {
 				logger.warn("IllegalAccessError when trying to access " + classname);
 				continue;
 			}
-			if (!canUse(clazz)) {
-				logger.info("Ignoring private class " + classname);
-				List<String> mutant_classes = new ArrayList<String>();
-				mutant_classes.add(classname);
-				continue;
-			}
-			if (clazz.isInterface()) {
-				logger.info("Ignoring interface " + classname);
-				Set<String> object_methods = new HashSet<String>();
-				addObjectMethods(object_methods, classname);
-				String classfilename = classname.replace("$", "_");
-				if (Properties.GENERATE_OBJECTS)
-					writeObjectMethods(object_methods, classfilename + ".obj");
-				writeInspectors(classname, classname.replace("$", "_") + ".inspectors");
-				continue;
-			}
-			if (clazz.getDeclaredMethods().length == 0
-			        && clazz.getDeclaredConstructors().length == 0) {
-				logger.info("Ignoring class without methods: " + classname);
-				continue;
-			}
-			if (clazz.isMemberClass() && clazz.getConstructors().length == 0) {
-				logger.info("Ignoring member class without public constructors "
-				        + classname);
-				List<String> mutant_classes = new ArrayList<String>();
-				mutant_classes.add(classname);
-				writeInspectors(classname, classname.replace("$", "_") + ".inspectors");
-				continue;
-			}
-			if (clazz.isMemberClass()) {
-				logger.info("Testing member class " + classname);
-				writeInspectors(classname, classname.replace("$", "_") + ".inspectors");
-				continue;
-			}
-			if (clazz.isLocalClass()) {
-				logger.info("Testing local class " + classname);
-				writeInspectors(classname, classname.replace("$", "_") + ".inspectors");
-				continue;
-			}
-			if (clazz.isAnonymousClass()) {
-				logger.info("Testing anonymous class " + classname);
-				continue;
-			}
-			if (clazz.getCanonicalName() != null) {
-				logger.debug("Canonical name: " + clazz.getCanonicalName());
-			}
-			if (classname.matches(".*\\$\\d+$")) {
-				logger.info("Bugger that, it must be an anonymous class");
-				continue;
-			}
-			logger.info("Analyzing dependencies of class " + classname);
-			if (clazz.getEnclosingClass() != null) {
-				logger.info("  defined in " + clazz.getEnclosingClass().getName());
-				writeInspectors(classname, classname.replace("$", "_") + ".inspectors");
-				continue;
-			}
-			if (clazz.getDeclaringClass() != null) {
-				logger.info("  defined in " + clazz.getDeclaringClass().getName());
-				writeInspectors(classname, classname.replace("$", "_") + ".inspectors");
-				continue;
-			}
+		}
+		System.out.println("* Created " + num + " task files");
+	}
 
-			Set<String> object_methods = new HashSet<String>();
-			addObjectMethods(object_methods, classname);
-
-			if (Modifier.isAbstract(clazz.getModifiers())) {
-				if (isPurelyAbstract(classname)) {
-					logger.info("Ignoring abstract class without concrete subclasses "
-					        + classname);
-					String classfilename = classname.replace("$", "_");
-					if (Properties.GENERATE_OBJECTS)
-						writeObjectMethods(object_methods, classfilename + ".obj");
-					continue;
-				}
-			}
-
-			Set<String> suggestion = new TreeSet<String>();
-			addConstructors(suggestion, classname);
-			addMethods(suggestion, classname);
-			addFields(suggestion, classname);
-
-			List<String> dependencies = getSubClasses(clazz.getName());
-			for (String dependency : dependencies) {
-				if (dependency.equals(classname))
-					continue;
-				addConstructors(suggestion, dependency);
-				addMethods(suggestion, dependency);
-				addFields(suggestion, dependency);
-			}
-			List<String> owned_classes = getOwnedClasses(clazz.getName());
-			for (String iclass : owned_classes) {
-				if (iclass.equals(classname))
-					continue;
-				addObjectMethods(object_methods, iclass);
-			}
-
-			if (suggestion.isEmpty()) {
-				logger.info("No usable methods found, skipping " + classname);
-				continue;
-			}
-			String classfilename = classname.replace("$", "_");
-			writeTask(suggestion, classfilename + ".task");
-			num++;
-			if (Properties.GENERATE_OBJECTS)
-				writeObjectMethods(object_methods, classfilename + ".obj");
-			writeInspectors(classname, classfilename + ".inspectors");
+	/**
+	 * Central function of the task creator. Creates test task files, mutation
+	 * task files, and inspector files
+	 * 
+	 * @param prefix
+	 *            Project prefix
+	 */
+	protected static void suggestTasks(Set<Class<?>> classes) {
+		int num = 0;
+		for (Class<?> clazz : classes) {
+			logger.info("Next task: " + clazz);
+			if (suggestTask(clazz))
+				num++;
 		}
 		System.out.println("* Created " + num + " task files");
 	}

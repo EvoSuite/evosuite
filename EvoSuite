@@ -33,13 +33,17 @@ java_opts="-ea -Xmx1024M"
 
 java_agent="-javaagent:$BASEPATH/target/javaagent.jar"
 
+
+export DYLD_LIBRARY_PATH=$BASEPATH/lib/libcvc3-jni/i386-darwin10.2.0:$DYLD_LIBRARY_PATH
+
 ##
 ## Classpath part to be used in all invocations of Java
 ##
 classpath=$BASEPATH/target/classes:\
 $BASEPATH/src/main/resources:\
 $BASEPATH/src/main/assembly/etc:\
-$BASEPATH/target/evosuite-0.1-SNAPSHOT-dependencies.jar
+$BASEPATH/target/evosuite-0.1-SNAPSHOT-dependencies.jar:\
+$BASEPATH/target/jSMTLIB.jar:$BASEPATH/lib/libcvc3.jar
 
 for I in $BASEPATH/target/jpf*.jar; do
   classpath="$classpath:$I"
@@ -411,6 +415,70 @@ setup ()
     fi
 }
 
+
+getClassPath ()
+{
+    CP = ""
+    for var in "$@"
+    do
+	CP = "$CP:$var"
+    done
+    return $CP
+}
+
+##
+## Sets up a directory for test generation
+##
+##
+setupDir ()
+{
+    allowed_options=("-object" "-class")
+    allowed_options_take_values=(0 1)
+    #parse_command_line "$@"
+    #options_ok=$?
+    OUTPUT_DIR=evosuite-files
+    mkdir -p $OUTPUT_DIR
+    #if test ${#cmdline_arguments[@]} -ge 2 && test $options_ok -eq 0;
+    #then {
+	    OBJECT=""
+	    TEST_CLASS=""
+	    for (( i = 0; i < 3; i++ ))
+	    do
+		case ${cmdline_options[$i]} in
+		    "-object") OBJECT="-Dgenerate_objects=true";;
+		    "-class") TEST_CLASS="-DTARGET_CLASS=${cmdline_options_values[$i]}";;
+		esac
+	    done
+	    PROJECT_PREFIX=${cmdline_arguments[0]}
+	    CP="${cmdline_arguments[@]:1:${#cmdline_arguments[@]}}"
+
+#	    javalanche_options=" -Djavalanche.ignore.replace.variables=true -Dmutation.package.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PROJECT_PREFIX"
+	    javalanche_options=" -Djavalanche.project.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR " #-DPROJECT_PREFIX=$PROJECT_PREFIX
+	    java $java_options -cp "$classpath:$CP" $java_agent=scan  $javalanche_options $TEST_CLASS $OBJECT $evosuite_scan $@
+#	    java $java_options -cp "$classpath:$CP" $java_agent=tasks $javalanche_options $TEST_CLASS $OBJECT $evosuite_tasks
+	    PROJECT_PREFIX=""
+	    CP=""
+	    first=""
+	    for var in "$@"
+	    do
+		if [ -n "$first" ]; then
+		    CP="$CP:$var"
+		else
+		    CP="$var"
+		    first="false"
+		fi
+	    done
+	    setup_javalanche $OUTPUT_DIR \"\" $CP
+	    setup_evosuite $OUTPUT_DIR \"\" $CP
+#	}
+#    else {
+#	    unknown_parameters "setup" "$@"
+#	    print_usage
+#	}
+ #   fi
+}
+
+
 ##
 ##
 generateSuite ()
@@ -483,56 +551,6 @@ generateSuite ()
 
 
 
-##
-##
-generateAssertions ()
-{
-	allowed_options=("-seed" "-base_dir" "-class")
-	allowed_options_take_values=(1 1 1)
-	parse_command_line "$@"
-	options_ok=$?
-	if test $options_ok -eq 0;
-	then {
-		BASEDIR=$(pwd)
-		TEST_CLASSES=""
-		random_seed="-Drandom.seed=0"
-		for (( i = 0; i < 3; i++ ))
-		do
-		    case ${cmdline_options[$i]} in
-			"-seed") random_seed="-Drandom.seed="${cmdline_options_values[$i]};;
-			"-base_dir") BASEDIR=${cmdline_options_values[$i]};;
-			"-class") TEST_CLASSES=${cmdline_options_values[$i]};;
-		    esac
-		done
-		pushd .
-		cd $BASEDIR
-		source $OUTPUT_DIR/evosuite.properties
-		if [ -z "$PROJECT_PREFIX" ]; then PROJECT_PREFIX=$PREFIX ; fi
-		                
-		#OUTPUT_DIR=$BASEDIR/$OUTPUT_DIR
-		#echo $OUTPUT_DIR
-
-		if [ -z "$TEST_CLASSES" ]; then
-		    echo "Looking for testable classes"
-		    TEST_CLASSES=$(for F in $OUTPUT_DIR/*.task; do echo $(basename $F) | sed -e s/\.task// ; done)
-		fi
-		#CP=$BASEDIR/$CP
-		javalanche_options=" -Dmutation.package.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PROJECT_PREFIX -DOUTPUT_DIR=$OUTPUT_DIR"
-		java_options=${cmdline_java_options[*]}
-
-		for test_class in $TEST_CLASSES; do
-		    echo "Current class: $test_class"
-		    #echo "java -cp \"$OUTPUT_DIR:$classpath:$CP\" $java_agent=generate $javalanche_options $random_seed $java_options $java_opts -DTARGET_CLASS=$test_class $evosuite_tests"
-		    java -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=assert $javalanche_options $random_seed $java_options $java_opts -DTARGET_CLASS=$test_class $evosuite_assert
-		done
-		popd
-	    }
-	else {
-		unknown_parameters "generateAssertions" "$@"
-		print_usage
-	    }
-	fi
-}
 
 
 ##
@@ -551,9 +569,9 @@ main ()
 			shift
 			case $command in
 				"-setup") setup "$@";;
+				"-setupDir") setupDir "$@";;
 				"-generateSuite") generateSuite "-EvoSuite" "$@";;
 				"-generateTests") generateSuite "-OneBranch" "$@";;
-				"-generateAssertions") generateAssertions "$@";;
 			        "-mutate") mutate  "$@";;
 			        "-deleteMutations") deleteMutations  "$@";;
 				"-help") print_help "$@";;
