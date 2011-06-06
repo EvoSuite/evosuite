@@ -446,7 +446,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	public boolean getBranchExpressionValue(Branch b) {
 		if (b == null)
 			throw new IllegalArgumentException("null given");
-		if (!getControlDependentBranches().contains(b))
+		if (!getAllControlDependentBranches().contains(b))
 			throw new IllegalArgumentException(
 					"this method can only be called for branches that this instruction is directly control dependent on");
 
