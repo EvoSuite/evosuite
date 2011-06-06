@@ -55,7 +55,6 @@ import de.unisb.cs.st.javalanche.coverage.distance.ConnectionData;
 import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
 import de.unisb.cs.st.javalanche.coverage.distance.MethodDescription;
 import de.unisb.cs.st.javalanche.coverage.distance.Tuple;
-import de.unisb.cs.st.testability.TransformationHelper;
 
 /**
  * The test cluster contains the information about all classes and their members
@@ -543,14 +542,6 @@ public class TestCluster {
 		for (Method m : helper.values()) {
 			String name = m.getName() + "|"
 			        + org.objectweb.asm.Type.getMethodDescriptor(m);
-
-			// If we are using testability transformation, only add the transformed version
-			if (Properties.TESTABILITY_TRANSFORMATION
-			        && TransformationHelper.hasValkyrieMethod(clazz.getName(), name)) {
-				logger.info("Skipping method " + m.getName()
-				        + " in favor of transformed method");
-				continue;
-			}
 
 			methods.add(m);
 		}
