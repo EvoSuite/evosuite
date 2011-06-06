@@ -27,10 +27,6 @@ import de.unisb.cs.st.evosuite.mutation.HOM.HOMFileTransformer;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.DistanceTransformer;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.MutationScanner;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.ScanVariablesTransformer;
-import de.unisb.cs.st.testability.BytecodeTransformer;
-import de.unisb.cs.st.testability.ClassTransformer;
-import de.unisb.cs.st.testability.ScanProject;
-import de.unisb.cs.st.testability.TransformationHelper;
 
 /**
  * @author Gordon Fraser
@@ -56,15 +52,6 @@ public class TestSuitePreMain {
 			}
 
 			//addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
-
-			if (Properties.TESTABILITY_TRANSFORMATION) {
-				TransformationHelper.setTestPackage(Properties.PROJECT_PREFIX);
-				ScanProject.searchClasses(Properties.PROJECT_PREFIX);
-				ClassTransformer ct = new ClassTransformer();
-				ct.findAllMethods();
-				ClassFileTransformer cft = new BytecodeTransformer();
-				addClassFileTransformer(instrumentation, cft);
-			}
 
 			addClassFileTransformer(instrumentation, new BytecodeInstrumentation());
 
