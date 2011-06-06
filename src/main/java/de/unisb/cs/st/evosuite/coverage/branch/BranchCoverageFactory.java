@@ -28,7 +28,6 @@ import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
-import de.unisb.cs.st.testability.TransformationHelper;
 
 /**
  * @author Gordon Fraser
@@ -66,16 +65,6 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 					logger.info("Method " + methodName + " does not equal target method "
 					        + targetMethod);
 					continue;
-				}
-
-				if (Properties.TESTABILITY_TRANSFORMATION) {
-					String vname = methodName.replace("(", "|(");
-					if (TransformationHelper.hasValkyrieMethod(className, vname)) {
-						logger.info("Skipping branch in transformed method: " + vname);
-						continue;
-					} else {
-						logger.info("Keeping branch in untransformed method: " + vname);
-					}
 				}
 
 				// Get CFG of method
