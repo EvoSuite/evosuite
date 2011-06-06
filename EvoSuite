@@ -412,17 +412,6 @@ setup ()
     fi
 }
 
-
-getClassPath ()
-{
-    CP = ""
-    for var in "$@"
-    do
-	CP = "$CP:$var"
-    done
-    return $CP
-}
-
 ##
 ## Sets up a directory for test generation
 ##
