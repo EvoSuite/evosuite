@@ -57,15 +57,6 @@ public class PathConstraint {
 	public static void init() {
 		logger.info("Setting up path constraints");
 		ins = new PathConstraint();
-		String listeners = JVM.getVM().getJPF().getConfig().getProperty("listener");
-		if (listeners != null) {
-			JVM.getVM().getJPF().getConfig().setProperty("listener",
-			                                             "de.unisb.cs.st.evosuite.symbolic.bytecode.PathConstraintDummy,"
-			                                                     + JVM.getVM().getJPF().getConfig().getProperty("listener"));
-		} else {
-			JVM.getVM().getJPF().getConfig().setProperty("listener",
-			                                             "de.unisb.cs.st.evosuite.symbolic.bytecode.PathConstraintDummy");
-		}
 	}
 
 	public HashTableSet<Constraint> getCurrentConstraints() {
