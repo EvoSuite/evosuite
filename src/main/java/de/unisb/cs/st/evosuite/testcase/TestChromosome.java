@@ -22,8 +22,6 @@ import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.evosuite.Properties.TestFactory;
-import de.unisb.cs.st.evosuite.OUM.OUMTestFactory;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
 import de.unisb.cs.st.evosuite.coverage.concurrency.Schedule;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -52,10 +50,7 @@ public class TestChromosome extends Chromosome {
 
 		//#TODO steenbuck similar logic is repeated in TestSuiteChromosomeFactory
 		if (test_factory == null) {
-			if (Properties.TEST_FACTORY == TestFactory.OUM)
-				test_factory = OUMTestFactory.getInstance();
-			else
-				test_factory = DefaultTestFactory.getInstance();
+			test_factory = DefaultTestFactory.getInstance();
 		}
 	}
 
@@ -316,7 +311,7 @@ public class TestChromosome extends Chromosome {
 				logger.info("Changed test case is: " + test.toCode());
 			}
 		}
-		
+
 		if (!changed) {
 			for (StatementInterface statement : test) {
 				if (randomness.nextDouble() <= pl) {
