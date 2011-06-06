@@ -38,7 +38,7 @@ import org.objectweb.asm.ClassReader;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
 import de.unisb.cs.st.evosuite.javaagent.TestSuitePreMain;
-import de.unisb.cs.st.utils.Utils;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
  * @author Gordon Fraser
