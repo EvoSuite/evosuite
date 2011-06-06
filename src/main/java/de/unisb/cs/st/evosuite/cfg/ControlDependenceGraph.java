@@ -1,8 +1,6 @@
 package de.unisb.cs.st.evosuite.cfg;
 
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -28,13 +26,33 @@ public class ControlDependenceGraph extends
 		this.methodName = cfg.getMethodName();
 
 		computeGraph();
+		// TODO check sanity
 	}
 
+	/**
+	 * Convenience method redirecting to getControlDependentBranches(BasicBlock)
+	 * if the given instruction is known to this CDG. Otherwise an
+	 * IllegalArgumentException will be thrown.
+	 */
 	public Set<Branch> getControlDependentBranches(BytecodeInstruction ins) {
+		if (ins == null)
+			throw new IllegalArgumentException("null not accepted");
+		if (!knowsInstruction(ins))
+			throw new IllegalArgumentException(
+					"instruction not known to this CDG: " + methodName
+							+ ins.toString());
 
-		BasicBlock insBlock = getBlockOf(ins);
+		BasicBlock insBlock = ins.getBasicBlock();
 
 		return getControlDependentBranches(insBlock);
+	}
+
+	/**
+	 * Checks whether this graph knows the given instruction. That is there is a
+	 * BasicBlock in this graph's vertexSet containing the given instruction.
+	 */
+	public boolean knowsInstruction(BytecodeInstruction ins) {
+		return cfg.knowsInstruction(ins);
 	}
 
 	/**
@@ -46,6 +64,11 @@ public class ControlDependenceGraph extends
 	 * set.
 	 */
 	public Set<Branch> getControlDependentBranches(BasicBlock insBlock) {
+		if (insBlock == null)
+			throw new IllegalArgumentException("null not accepted");
+		if (!containsVertex(insBlock))
+			throw new IllegalArgumentException("unknown block: "
+					+ insBlock.getName());
 
 		Set<Branch> r = new HashSet<Branch>();
 
@@ -122,18 +145,25 @@ public class ControlDependenceGraph extends
 	 * dependent on the given Branch an IllegalArgumentException is thrown.
 	 */
 	public boolean getBranchExpressionValue(BytecodeInstruction ins, Branch b) {
-
-		BasicBlock insBlock = getBlockOf(ins);
-
+		if (ins == null)
+			throw new IllegalArgumentException("null given");
 		if (b == null)
 			return true; // root branch special case
+		if (!ins.isDirectlyControlDependentOn(b))
+			throw new IllegalArgumentException(
+					"only allowed to call this method for instructions and their directly control dependent branches");
+
+		BasicBlock insBlock = ins.getBasicBlock();
 
 		for (ControlFlowEdge e : incomingEdgesOf(insBlock)) {
+			if (e.isExceptionEdge())
+				continue;
+
 			Branch current = e.getBranchInstruction();
 			if (current == null)
 				continue;
-//				throw new IllegalStateException(
-//						"expect ControlFlowEdges whithin the CDG that don't come from EntryBlock to have branchInstructions set");
+			// throw new IllegalStateException(
+			// "expect ControlFlowEdges whithin the CDG that don't come from EntryBlock to have branchInstructions set");
 
 			if (current.equals(b))
 				return e.getBranchExpressionValue();
@@ -147,21 +177,35 @@ public class ControlDependenceGraph extends
 
 	/**
 	 * Determines whether the given BytecodeInstruction is directly control
-	 * dependent on the given Branch. Meaning within this CDG there is an
-	 * incoming ControlFlowEdge to this instructions BasicBlock holding the
-	 * given Branch as it's branchInstruction.
+	 * dependent on the given Branch. It's BasicBlock is control dependent on
+	 * the given Branch.
+	 * 
+	 * If b is null, it is assumed to be the root branch.
 	 * 
 	 * If the given instruction is not known to this CDG an
 	 * IllegalArgumentException is thrown.
 	 */
 	public boolean isDirectlyControlDependentOn(BytecodeInstruction ins,
 			Branch b) {
+		if (ins == null)
+			throw new IllegalArgumentException("null given");
 
-		BasicBlock insBlock = getBlockOf(ins);
+		BasicBlock insBlock = ins.getBasicBlock();
 
 		return isDirectlyControlDependentOn(insBlock, b);
 	}
 
+	/**
+	 * Determines whether the given BasicBlock is directly control dependent on
+	 * the given Branch. Meaning within this CDG there is an incoming
+	 * ControlFlowEdge to this instructions BasicBlock holding the given Branch
+	 * as it's branchInstruction.
+	 * 
+	 * If b is null, it is assumed to be the root branch.
+	 * 
+	 * If the given instruction is not known to this CDG an
+	 * IllegalArgumentException is thrown.
+	 */
 	public boolean isDirectlyControlDependentOn(BasicBlock insBlock, Branch b) {
 		Set<ControlFlowEdge> incomming = incomingEdgesOf(insBlock);
 
@@ -199,9 +243,10 @@ public class ControlDependenceGraph extends
 			}
 
 			if (current == null)
-				throw new IllegalStateException(
-						"expect non exceptional ControlFlowEdges whithin the CDG that don't come from EntryBlock to have branchInstructions set "
-								+ insBlock.toString() + methodName);
+				continue;
+			// throw new IllegalStateException(
+			// "expect non exceptional ControlFlowEdges whithin the CDG that don't come from EntryBlock to have branchInstructions set "
+			// + insBlock.toString() + methodName);
 
 			if (current.equals(b))
 				return true;
@@ -212,17 +257,24 @@ public class ControlDependenceGraph extends
 	}
 
 	/**
-	 * Checks whether the given instruction is only dependent on the root branch
-	 * of it's method
+	 * Checks whether the given instruction is dependent on the root branch of
+	 * it's method
 	 * 
 	 * This is the case if the BasicBlock of the given instruction is directly
+	 * adjacent to the EntryBlock
 	 */
 	public boolean isRootDependent(BytecodeInstruction ins) {
 
-		BasicBlock insBlock = getBlockOf(ins);
-		return isRootDependent(insBlock);
+		return isRootDependent(ins.getBasicBlock());
 	}
 
+	/**
+	 * Checks whether the given basicBlock is dependent on the root branch of
+	 * it's method
+	 * 
+	 * This is the case if the BasicBlock of the given instruction is directly
+	 * adjacent to the EntryBlock
+	 */
 	public boolean isRootDependent(BasicBlock insBlock) {
 		if (isAdjacentToEntryBlock(insBlock))
 			return true;
@@ -253,24 +305,30 @@ public class ControlDependenceGraph extends
 		return false;
 	}
 
-	/**
-	 * If the given instruction is known to this graph, the BasicBlock holding
-	 * that instruction is returned. Otherwise an IllegalArgumentException will
-	 * be thrown.
-	 */
-	public BasicBlock getBlockOf(BytecodeInstruction ins) {
-		if (ins == null)
-			throw new IllegalArgumentException("null given");
-		if (!cfg.knowsInstruction(ins))
-			throw new IllegalArgumentException("unknown instruction");
+	// /**
+	// * If the given instruction is known to this graph, the BasicBlock holding
+	// * that instruction is returned. Otherwise an IllegalArgumentException
+	// will
+	// * be thrown.
+	// *
+	// * Just a convenience method that more or less just redirects the call to
+	// * the CFG
+	// */
+	// public BasicBlock getBlockOf(BytecodeInstruction ins) {
+	// if (ins == null)
+	// throw new IllegalArgumentException("null given");
+	// if (!cfg.knowsInstruction(ins))
+	// throw new IllegalArgumentException("unknown instruction");
+	//
+	// BasicBlock insBlock = cfg.getBlockOf(ins);
+	// if (insBlock == null)
+	// throw new IllegalStateException(
+	// "expect CFG to return non-null BasicBlock for instruction it knows");
+	//
+	// return insBlock;
+	// }
 
-		BasicBlock insBlock = cfg.getBlockOf(ins);
-		if (insBlock == null)
-			throw new IllegalStateException(
-					"expect CFG to return non-null BasicBlock for instruction it knows");
-
-		return insBlock;
-	}
+	// init
 
 	private void computeGraph() {
 
