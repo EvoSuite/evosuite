@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser Public License
  * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.unisb.cs.st.utils;
+package de.unisb.cs.st.evosuite.utils;
 
 import java.io.File;
 import java.io.IOException;
