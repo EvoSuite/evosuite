@@ -18,12 +18,15 @@ source $BASEPATH/etc/evosuite.properties
 
 java_opts="-ea -Xmx1024M"
 
+export DYLD_LIBRARY_PATH=$BASEPATH/lib/libcvc3-jni/i386-darwin10.2.0:$DYLD_LIBRARY_PATH
+
 java_agent="-javaagent:$BASEPATH/javaagent.jar"
 
 ##
 ## Classpath part to be used in all invocations of Java
 ##
 classpath=$BASEPATH:$BASEPATH/etc:$BASEPATH/${project.artifactId}-${project.version}.jar:$BASEPATH/${project.artifactId}-${project.version}-dependencies.jar
+
 #for JAR in $BASEPATH/lib/*.jar; do
 #    classpath="$classpath:$JAR"
 #done
@@ -32,7 +35,6 @@ classpath=$BASEPATH:$BASEPATH/etc:$BASEPATH/${project.artifactId}-${project.vers
 ## Main class of EvoSuite
 ##
 evosuite_suite=de.unisb.cs.st.evosuite.TestSuiteGenerator
-evosuite_assert=de.unisb.cs.st.evosuite.mutation.TestSuiteAsserter
 evosuite_scan=de.unisb.cs.st.evosuite.setup.ScanProject
 evosuite_tasks=de.unisb.cs.st.evosuite.setup.TestTaskGenerator
 evosuite_mutationtasks=de.unisb.cs.st.evosuite.mutation.TGTaskCreator
