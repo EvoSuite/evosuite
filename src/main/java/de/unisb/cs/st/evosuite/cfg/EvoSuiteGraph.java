@@ -13,7 +13,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.ext.DOTExporter;
-import org.jgrapht.ext.IntegerEdgeNameProvider;
 import org.jgrapht.ext.IntegerNameProvider;
 import org.jgrapht.ext.StringEdgeNameProvider;
 import org.jgrapht.ext.StringNameProvider;
@@ -101,15 +100,15 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		if (!containsVertex(node)) // should this just return null?
 			throw new IllegalArgumentException(
 					"block not contained in this CFG");
-		// TODO copy set
+		// TODO copy set?
 		return graph.outgoingEdgesOf(node);
 	}
 
 	public Set<E> incomingEdgesOf(V node) {
 		if (!containsVertex(node)) // should this just return null?
 			throw new IllegalArgumentException(
-					"block not contained in this CFG");
-		// TODO copy set
+					"block not contained in this CFG ");
+		// TODO copy set?
 		return graph.incomingEdgesOf(node);
 	}
 	
