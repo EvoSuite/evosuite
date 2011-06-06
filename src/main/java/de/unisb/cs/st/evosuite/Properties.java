@@ -284,6 +284,9 @@ public class Properties {
 	@Parameter(key = "test_dir", group = "Output", description = "Directory in which to place JUnit tests")
 	public static String TEST_DIR = "evosuite-tests";
 
+	@Parameter(key = "write_cfg", group = "Output", description = "Create CFG graphs")
+	public static boolean WRITE_CFG = false;
+
 	//---------------------------------------------------------------
 	// Sandbox
 	@Parameter(key = "sandbox", group = "Sandbox", description = "Execute tests in a sandbox environment")
