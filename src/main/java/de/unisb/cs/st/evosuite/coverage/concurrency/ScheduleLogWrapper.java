@@ -10,11 +10,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
@@ -24,18 +26,28 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  */
 public class ScheduleLogWrapper implements StatementInterface{
 
-	private final StatementInterface wrapped;
+	public interface callReporter{
+		public void callStart(StatementInterface caller, Integer threadID);
+		public void callEnd(StatementInterface caller, Integer threadID);
+		public Set<Integer> getScheduleForStatement(StatementInterface st);
+	}
+
+	private static Logger logger = Logger.getLogger(ScheduleLogWrapper.class);
+
+	public final StatementInterface wrapped;
+	private callReporter callReporter;
+
 	public ScheduleLogWrapper(StatementInterface wrapped){
-		assert(wrapped!=null);
+		assert(wrapped!=null) : "undefined behaviour lurks behind one statement beeing executed by multiple threads";
 		this.wrapped=wrapped;
 	}
+
+	public StatementInterface clone(){
+		throw new UnsupportedOperationException();
+	}
 	
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#SetRetval(de.unisb.cs.st.evosuite.testcase.VariableReference)
-	 */
-	@Override
-	public void SetRetval(VariableReference newRetVal) {
-		wrapped.SetRetval(newRetVal);
+	public void setCallReporter(callReporter callReporter){;
+		this.callReporter=callReporter;
 	}
 
 	/* (non-Javadoc)
@@ -47,27 +59,15 @@ public class ScheduleLogWrapper implements StatementInterface{
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#adjustAssertions(int, int)
-	 */
-	@Override
-	public void adjustAssertions(int position, int delta) {
-		wrapped.adjustAssertions(position, delta);
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#adjustVariableReferences(int, int)
-	 */
-	@Override
-	public void adjustVariableReferences(int position, int delta) {
-		wrapped.adjustVariableReferences(position, delta);
-	}
-
-	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#equals(de.unisb.cs.st.evosuite.testcase.StatementInterface)
 	 */
 	@Override
-	public boolean equals(StatementInterface s) {
-		return wrapped.equals(s);
+	public boolean equals(Object s) {
+		if(s instanceof ScheduleLogWrapper){
+			return wrapped.equals(((ScheduleLogWrapper) s).wrapped);
+		}else{
+			return wrapped.equals(s);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -75,9 +75,18 @@ public class ScheduleLogWrapper implements StatementInterface{
 	 */
 	@Override
 	public Throwable execute(Scope scope, PrintStream out)
-			throws InvocationTargetException, IllegalArgumentException,
-			IllegalAccessException, InstantiationException {
-		return wrapped.execute(scope, out);
+	throws InvocationTargetException, IllegalArgumentException,
+	IllegalAccessException, InstantiationException {
+		assert(LockRuntime.controller!=null);
+		assert(callReporter!=null):"SetCallReporter/2 must be called before a wrapped statement may be executed";
+		try{
+			callReporter.callStart(this, LockRuntime.controller.getThreadID(Thread.currentThread()));
+		}catch(Throwable e){
+			logger.fatal("test", e);
+		}
+		Throwable t = wrapped.execute(scope, out);
+		callReporter.callEnd(this, LockRuntime.controller.getThreadID(Thread.currentThread()));
+		return t;
 	}
 
 	/* (non-Javadoc)
@@ -209,24 +218,30 @@ public class ScheduleLogWrapper implements StatementInterface{
 		wrapped.removeAssertions();
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
-	 */
 	@Override
-	public void replace(VariableReference oldVar, VariableReference newVar) {
-		wrapped.replace(oldVar, newVar);
+	public StatementInterface clone(TestCase tc){
+		return new ScheduleLogWrapper(wrapped.clone(tc));
+	}
+	
+	@Override
+	public int hashCode(){
+		return wrapped.hashCode();
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replaceUnique(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#isValid()
 	 */
 	@Override
-	public void replaceUnique(VariableReference oldVar, VariableReference newVar) {
-		wrapped.replaceUnique(oldVar, newVar);
+	public boolean isValid() {
+		return wrapped.isValid();
 	}
 
 	@Override
-	public StatementInterface clone(){
-		return new ScheduleLogWrapper(wrapped.clone());
+	public boolean same(StatementInterface s) {
+		if(s instanceof ScheduleLogWrapper){
+			return wrapped.same(((ScheduleLogWrapper) s).wrapped);
+		}else{
+			return wrapped.same(s);
+		}
 	}
 }

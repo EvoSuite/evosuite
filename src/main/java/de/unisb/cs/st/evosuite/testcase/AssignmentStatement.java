@@ -37,46 +37,53 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  * @author Gordon Fraser
  * 
  */
-public class AssignmentStatement extends Statement {
+public class AssignmentStatement extends AbstractStatement {
 
 	public VariableReference parameter;
 
-	public AssignmentStatement(VariableReference variable, VariableReference value) {
-		this.retval = variable;
+	public AssignmentStatement(TestCase tc, ArrayReference array, int array_index, VariableReference value) {
+		super(tc, new ArrayIndex(tc, array, array_index));
 		this.parameter = value;
 	}
 
-	@Override
-	public void adjustVariableReferences(int position, int delta) {
-		retval.adjust(delta, position);
-		parameter.adjust(delta, position);
-		adjustAssertions(position, delta);
-	}
-
-	public void setArray(VariableReference array) {
+	public void setArray(ArrayReference array) {
 		this.retval = array;
 	}
 
+	public ArrayIndex getArrayIndexRef(){
+		if(this.retval instanceof ArrayIndex){
+			return (ArrayIndex)super.retval;
+		}else{
+			throw new AssertionError("The array reference of an assignment statement must be an array");
+		}
+	}
+
 	@Override
-	public StatementInterface clone() {
-		AssignmentStatement copy = new AssignmentStatement(retval.clone(),
-		        parameter.clone());
+	public StatementInterface clone(TestCase newTestCase) {
+		VariableReference newParam = newTestCase.getStatement(parameter.getStPosition()).getReturnValue(); //must be set as we only use this to clone whole testcases
+		VariableReference newArray = newTestCase.getStatement(getArrayIndexRef().getArray().getStPosition()).getReturnValue();
+		if(!(newArray instanceof ArrayReference)){
+			throw new AssertionError("Can't clone this assignment statement in new TestCase. As on position: " + getArrayIndexRef().getArray().getStPosition() + " of the new TestCase no Array is created");
+		}
+		assert(newParam!=null);
+		AssignmentStatement copy = new AssignmentStatement(newTestCase, (ArrayReference)newArray, getArrayIndexRef().getArrayIndex(),
+				newParam); 
 		return copy;
 	}
 
 	@Override
 	public Throwable execute(Scope scope, PrintStream out)
-	        throws InvocationTargetException, IllegalArgumentException,
-	        IllegalAccessException, InstantiationException {
+	throws InvocationTargetException, IllegalArgumentException,
+	IllegalAccessException, InstantiationException {
 
 		try {
 			Object value = scope.get(parameter);
-			if (retval.array == null) {
-				logger.warn("Assigning outside of array");
-			}
-			Object array = scope.get(retval.array);
-			Array.set(array, retval.array_index, value);
-		} catch (Throwable t) {
+			ArrayIndex index = getArrayIndexRef();
+			Object array = scope.get(index.getArray());
+			Array.set(array, index.getArrayIndex(), value);
+		} catch(AssertionError ae){ //could be thrown in getArrayIndex
+			throw ae;
+		}catch (Throwable t) {
 			exceptionThrown = t;
 		}
 		// scope.set(retval, value);
@@ -93,10 +100,9 @@ public class AssignmentStatement extends Statement {
 		Set<VariableReference> vars = new HashSet<VariableReference>();
 		vars.add(retval);
 		vars.add(parameter);
-		if (retval.isArrayIndex())
-			vars.add(retval.array);
-		if (parameter.isArrayIndex())
-			vars.add(parameter.array);
+		vars.add(getArrayIndexRef().getArray());
+		if (parameter instanceof ArrayIndex)
+			vars.add(((ArrayIndex)parameter).getArray());
 		return vars;
 	}
 
@@ -104,20 +110,12 @@ public class AssignmentStatement extends Statement {
 	public int hashCode() {
 		final int prime = 31;
 		int result = prime + retval.hashCode()
-		        + +((parameter == null) ? 0 : parameter.hashCode());
+			+ +((parameter == null) ? 0 : parameter.hashCode());
 		return result;
 	}
 
 	@Override
-	public void replace(VariableReference oldVar, VariableReference newVar) {
-		if (retval.equals(oldVar))
-			retval = newVar;
-		if (parameter.equals(oldVar))
-			parameter = newVar;
-	}
-
-	@Override
-	public boolean equals(StatementInterface obj) {
+	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
@@ -147,14 +145,14 @@ public class AssignmentStatement extends Statement {
 	 */
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        Throwable exception) {
-		retval.array.loadBytecode(mg, locals);
-		mg.push(retval.array_index);
+			Throwable exception) {
+		getArrayIndexRef().getArray().loadBytecode(mg, locals);
+		mg.push(getArrayIndexRef().getArrayIndex());
 		parameter.loadBytecode(mg, locals);
 		Class<?> clazz = parameter.getVariableClass();
 		if (!clazz.equals(retval.getVariableClass())) {
 			mg.cast(org.objectweb.asm.Type.getType(clazz),
-			        org.objectweb.asm.Type.getType(retval.getVariableClass()));
+					org.objectweb.asm.Type.getType(retval.getVariableClass()));
 		}
 
 		mg.arrayStore(Type.getType(retval.getVariableClass()));
@@ -171,23 +169,38 @@ public class AssignmentStatement extends Statement {
 		return new ArrayList<VariableReference>(getVariableReferences());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#replaceUnique(de.unisb.cs.
-	 * st.evosuite.testcase.VariableReference,
-	 * de.unisb.cs.st.evosuite.testcase.VariableReference)
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#isValid()
 	 */
 	@Override
-	public void replaceUnique(VariableReference old_var, VariableReference new_var) {
-		if (retval == old_var)
-			retval = new_var;
-		if (retval.array == old_var)
-			retval.array = new_var;
-		if (parameter == old_var)
-			parameter = new_var;
-		if (parameter.array == old_var)
-			parameter.array = new_var;
+	public boolean isValid() {
+		assert(super.isValid());
+		parameter.getStPosition();
+		return true;
 	}
+
+	@Override
+	public boolean same(StatementInterface s) {
+		if (this == s)
+			return true;
+		if (s == null)
+			return false;
+		if (getClass() != s.getClass())
+			return false;
+
+		AssignmentStatement other = (AssignmentStatement) s;
+		if (parameter == null) {
+			if (other.parameter != null)
+				return false;
+		} else if (!parameter.same(other.parameter))
+			return false;
+		if (retval == null) {
+			if (other.retval != null)
+				return false;
+		} else if (!retval.same(other.retval))
+			return false;
+		return true;
+	}
+
+
 }

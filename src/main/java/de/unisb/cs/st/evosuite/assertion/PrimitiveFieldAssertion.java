@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import de.unisb.cs.st.evosuite.testcase.Scope;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 public class PrimitiveFieldAssertion extends Assertion {
 
@@ -56,9 +57,9 @@ public class PrimitiveFieldAssertion extends Assertion {
 	}
 
 	@Override
-	public Assertion clone() {
+	public Assertion clone(TestCase newTestCase) {
 		PrimitiveFieldAssertion s = new PrimitiveFieldAssertion();
-		s.source = source.clone();
+		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
 		s.value = value;
 		s.field = field;
 		return s;

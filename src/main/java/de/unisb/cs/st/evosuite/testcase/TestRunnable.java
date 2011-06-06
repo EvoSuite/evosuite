@@ -70,7 +70,6 @@ public class TestRunnable implements InterfaceTestRunnable {
 				if (logger.isDebugEnabled())
 					logger.debug("Executing statement " + s.getCode());
 				ExecutionTracer.statementExecuted();
-				VariableReference returnValue = s.getReturnValue().clone();
 
 				out.flush();
 				byteStream.reset();
@@ -78,17 +77,6 @@ public class TestRunnable implements InterfaceTestRunnable {
 				Sandbox.setUpMockedSecurityManager();
 				Throwable exceptionThrown = s.execute(scope, out);
 				Sandbox.tearDownMockedSecurityManager();
-
-				// During runtime the type of a variable might change
-				// E.g. if declared Object, after the first run it will
-				// be set to the actual class observed at runtime
-				// If changed, we need to update all references
-				if (!s.getReturnValue().equals(returnValue)) {
-					for (int pos = num; pos < test.size(); pos++) {
-						test.getStatement(pos).replace(returnValue,
-						                               s.getReturnValue().clone());
-					}
-				}
 
 				if (exceptionThrown != null) {
 					exceptionsThrown.put(num, exceptionThrown);
@@ -106,13 +94,13 @@ public class TestRunnable implements InterfaceTestRunnable {
 				}
 				num++;
 			}
-			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 
 		} catch (ThreadDeath e) {// can't stop these guys
 			Sandbox.tearDownEverything();
 			logger.info("Found error:");
 			logger.info(test.toCode());
-			e.printStackTrace();
+			logger.warn("Found error in " + test.toCode(), e);
 			runFinished = true;
 			throw e;
 		} catch (TimeoutException e) {
@@ -124,17 +112,23 @@ public class TestRunnable implements InterfaceTestRunnable {
 			logger.info(test.toCode());
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
 				logger.info("Cause: ");
-				logger.info(e.getCause());
+				logger.info(e.getCause(),e);
 				e = e.getCause();
 			}
+			if (e instanceof AssertionError
+			        && e.getStackTrace()[0].getClassName().contains("de.unisb.cs.st.evosuite")) {
+				//e1.printStackTrace();
+				logger.error("Assertion Error in evosuitecode, for statement \n" + test.getStatement(num).getCode() + " \n which is number: " + num + " testcase \n"  + test.toCode(), e);
+				throw (AssertionError) e;
+			}
 			// exceptionThrown = e;
-			e.printStackTrace();
+			logger.warn("Error while executing statement ", e);
 			// System.exit(1);
 
 		} // finally {
 		runFinished = true;
 		Sandbox.tearDownMocks();
-
+		
 		result.exceptions = exceptionsThrown;
 
 		return result;

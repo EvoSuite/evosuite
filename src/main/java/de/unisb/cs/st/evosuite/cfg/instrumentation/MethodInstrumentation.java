@@ -1,13 +1,10 @@
 /**
  * 
  */
-package de.unisb.cs.st.evosuite.cfg;
+package de.unisb.cs.st.evosuite.cfg.instrumentation;
 
-import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultEdge;
 import org.objectweb.asm.tree.MethodNode;
 
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 
 /**
  * An interface which criterions (like defUse, concurrency, LCSAJs) can use to instrument the code of methods
@@ -25,7 +22,7 @@ public interface MethodInstrumentation {
 	 * @param access the access of the current method (see org.objectweb.asm.ClassAdapter#visitMethod(int access, String name,
 	        String descriptor, String signature, String[] exceptions))
 	 */
-	public void analyze(MethodNode mn, Graph<CFGVertex, DefaultEdge> graph, String className, String methodName, int access);
+	public void analyze(MethodNode mn, String className, String methodName, int access);
 	
 	/**
 	 * If this method returns true, the analyze method is also called on 

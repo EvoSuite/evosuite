@@ -11,9 +11,7 @@ import org.apache.log4j.Logger;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.AlternativeFitnessCalculationMode;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
-import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
@@ -50,7 +48,7 @@ public class DefUseFitnessCalculations {
 	private static double SINGLE_ALTERNATIVE_FITNESS_RANGE = Properties.ALTERNATIVE_FITNESS_RANGE;
 	// ensure alternative fitness configuration is valid
 	static {
-		if (Properties.CRITERION.equals(Criterion.DEFUSE))
+		if (Properties.CRITERION == Criterion.DEFUSE)
 			if (ENABLE_ALTERNATIVE_FITNESS_CALCULATION) {
 				System.out.println("* Alternative fitness calculation mode: "
 				        + Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE);
@@ -126,7 +124,8 @@ public class DefUseFitnessCalculations {
 			                                                        goalUseBranchFitness,
 			                                                        individual, result);
 			if (useFitness == 0.0)
-				goal.setCovered(individual, result.trace, -1);
+				goal.setCovered(individual, result.getTrace(), -1);
+
 			return normalize(useFitness);
 		}
 		// Case 1.
@@ -141,7 +140,7 @@ public class DefUseFitnessCalculations {
 		// Case 2.
 		// if the use was not passed at all just calculate the fitness 
 		// over all objects without any filtering
-		if (!hasEntriesForId(result.trace.passedUses.get(goalVariable),
+		if (!hasEntriesForId(result.getTrace().passedUses.get(goalVariable),
 		                     goalUse.getUseId())) {
 			double useFitness = calculateUseFitnessForCompleteTrace(goalUse,
 			                                                        goalUseBranchFitness,
@@ -149,15 +148,16 @@ public class DefUseFitnessCalculations {
 			if (useFitness == 0.0)
 				throw new IllegalStateException(
 				        "expect usefitness to be >0 if use wasn't passed");
+			
 			return normalize(useFitness);
 		}
 		// select considerable objects
-		Set<Integer> objectPool = getObjectPool(goal, result.trace);
+		Set<Integer> objectPool = getObjectPool(goal, result.getTrace());
 		// calculate minimal fitness over all objects
 		double fitness = 1;
 		for (Integer objectId : objectPool) {
 			logger.debug("current object: " + objectId);
-			if (!hasEntriesForId(result.trace.passedDefinitions.get(goalVariable),
+			if (!hasEntriesForId(result.getTrace().passedDefinitions.get(goalVariable),
 			                     objectId, goalDefinition.getDefId())) {
 				logger.debug("Discarded object " + objectId
 				        + " - goalDefinition not passed");
@@ -189,7 +189,7 @@ public class DefUseFitnessCalculations {
 		String goalVariable = goalDefinition.getDUVariableName();
 
 		// filter out trace information from other objects
-		ExecutionTrace objectTrace = result.trace.getTraceForObject(objectId);
+		ExecutionTrace objectTrace = result.getTrace().getTraceForObject(objectId);
 		double fitness = 1;
 		// handle special definition case
 		if (isSpecialDefinition(goalDefinition)) {
@@ -245,7 +245,7 @@ public class DefUseFitnessCalculations {
 		// DONE: this can be optimized! for example if the goalDef is never overwritten by another 
 		// 		  definition but is passed a lot this causes major overhead that is totally unnecessary
 		//  idea: you only have to do this if the last definition for goalVar was not goalDefinitionId
-		if (goalUse.getBranchId() != -1)
+		if (goalUse.getControlDependentBranchId() != -1)
 			for (Integer goalDefinitionPos : goalDefinitionPositions) {
 				double useFitness = calculateUseFitnessForDefinitionPos(goalDefinition,
 				                                                        goalUse,
@@ -395,11 +395,11 @@ public class DefUseFitnessCalculations {
 			        "expect DefUsePool to know definitions traced by instrumented code. defId: "
 			                + overwritingDefId);
 		// if the overwritingDefinition is in a root-branch it's not really avoidable
-		if (overwritingDefinition.getBranchId() == -1)
+		if (overwritingDefinition.getControlDependentBranchId() == -1)
 			return SINGLE_ALTERNATIVE_FITNESS_RANGE;
 
 		// get alternative branch
-		BranchCoverageTestFitness alternativeBranchFitness = getAlternativeBranchTestFitness(overwritingDefinition.getCFGVertex());
+		BranchCoverageTestFitness alternativeBranchFitness = getAlternativeBranchTestFitness(overwritingDefinition);
 		// set up duCounter interval to which the trace should be cut
 		int duCounterStart = lastGoalDuPos;
 		int duCounterEnd = usePos;
@@ -461,7 +461,7 @@ public class DefUseFitnessCalculations {
 		if (isSpecialDefinition(targetDefinition))
 			return 0.0;
 		// check ExecutionTrace.passedDefinitions first, because calculating BranchTestFitness takes time
-		if (hasEntriesForId(result.trace.passedDefinitions.get(targetDefinition.getDUVariableName()),
+		if (hasEntriesForId(result.getTrace().passedDefinitions.get(targetDefinition.getDUVariableName()),
 		                    targetDefinition.getDefId()))
 			return 0.0;
 		// return calculated fitness
@@ -480,7 +480,7 @@ public class DefUseFitnessCalculations {
 	        ExecutionResult result) {
 
 		// check ExecutionTrace.passedUses first, because calculating BranchTestFitness takes time
-		if (hasEntriesForId(result.trace.passedUses.get(targetUse.getDUVariableName()),
+		if (hasEntriesForId(result.getTrace().passedUses.get(targetUse.getDUVariableName()),
 		                    targetUse.getUseId()))
 			return 0.0;
 		// return calculated fitness
@@ -566,7 +566,7 @@ public class DefUseFitnessCalculations {
 			System.out.println(cutTrace.toDefUseTraceInformation());
 			System.out.println("duPosStart: " + duCounterStart);
 			System.out.println("duPosEnd: " + duCounterEnd);
-			int targetUseBranchBytecode = BranchPool.getBytecodeIdFor(targetDU.getBranchId());
+			int targetUseBranchBytecode = BranchPool.getBytecodeIdFor(targetDU.getControlDependentBranchId());
 			System.out.println("targetDU-branch-bytecode: " + targetUseBranchBytecode);
 			DefUseExecutionTraceAnalyzer.printFinishCalls(cutTrace);
 			throw new IllegalStateException("use cant have fitness 0 in this cut trace: "
@@ -588,10 +588,10 @@ public class DefUseFitnessCalculations {
 	        ExecutionResult result, ExecutionTrace targetTrace,
 	        BranchCoverageTestFitness targetFitness) {
 
-		ExecutionTrace originalTrace = result.trace;
-		result.trace = targetTrace;
+		ExecutionTrace originalTrace = result.getTrace();
+		result.setTrace(targetTrace);
 		double fitness = targetFitness.getFitness(individual, result);
-		result.trace = originalTrace;
+		result.setTrace(originalTrace);
 		return fitness;
 	}
 
@@ -603,7 +603,7 @@ public class DefUseFitnessCalculations {
 	 */
 	public static boolean isSpecialDefinition(Definition definition) {
 		if (definition == null
-		        || (definition.isStaticDU() && definition.getCFGVertex().methodName.startsWith("<clinit>"))) {
+		        || (definition.isStaticDefUse() && definition.getMethodName().startsWith("<clinit>"))) {
 
 			if (definition == null)
 				logger.debug("Assume Parameter-Definition to be covered if the Parameter-Use is covered");
@@ -632,7 +632,7 @@ public class DefUseFitnessCalculations {
 			return objectPool;
 		if (trace.passedDefinitions.get(goalVariable) != null)
 			objectPool.addAll(trace.passedDefinitions.get(goalVariable).keySet());
-		if (goalDefinition == null || goalDefinition.isStaticDU()) {
+		if (goalDefinition == null || goalDefinition.isStaticDefUse()) {
 			// in the static case all objects have to be considered
 			objectPool.addAll(trace.passedUses.get(goalVariable).keySet());
 			if (DEBUG)
@@ -729,7 +729,7 @@ public class DefUseFitnessCalculations {
 				continue;
 			if (goalUse.isParameterUse())
 				return true;
-			if (goalDefinition.isStaticDU()
+			if (goalDefinition.isStaticDefUse()
 			        && goalDefinition.getMethodName().startsWith("<clinit>"))
 				return true;
 
@@ -753,16 +753,16 @@ public class DefUseFitnessCalculations {
 	 * Creates a BranchCoverageTestFitness for the branch that the given
 	 * CFGVertex is control dependent on
 	 */
-	public static BranchCoverageTestFitness getBranchTestFitness(CFGVertex v) {
-		return getBranchTestFitness(v, !v.branchExpressionValue);
+	public static BranchCoverageTestFitness getBranchTestFitness(BytecodeInstruction v) {
+		return getBranchTestFitness(v, !v.getControlDependentBranchExpressionValue());
 	}
 
 	/**
 	 * Creates a BranchCoverageTestFitness for the alternative branch of the
 	 * branch that the given CFGVertex is control dependent on
 	 */
-	public static BranchCoverageTestFitness getAlternativeBranchTestFitness(CFGVertex v) {
-		return getBranchTestFitness(v, v.branchExpressionValue);
+	public static BranchCoverageTestFitness getAlternativeBranchTestFitness(BytecodeInstruction v) {
+		return getBranchTestFitness(v, !v.getControlDependentBranchExpressionValue());
 	}
 
 	/**
@@ -770,17 +770,15 @@ public class DefUseFitnessCalculations {
 	 * control dependent on but considering the given targetExpressionValue as
 	 * the branchExpressionValue
 	 */
-	public static BranchCoverageTestFitness getBranchTestFitness(CFGVertex v,
+	public static BranchCoverageTestFitness getBranchTestFitness(BytecodeInstruction v,
 	        boolean targetExpressionValue) {
 		BranchCoverageTestFitness r;
-		if (v.branchId == -1) {
+		if (v.getControlDependentBranchId() == -1) {
 			r = getRootBranchTestFitness(v);
 		} else {
-			ControlFlowGraph cfg = CFGMethodAdapter.getMinimizedCFG(v.className,
-			                                                        v.methodName);
-			Branch b = BranchPool.getBranch(v.branchId);
+			Branch b = BranchPool.getBranch(v.getControlDependentBranchId());
 			r = new BranchCoverageTestFitness(new BranchCoverageGoal(b,
-			        targetExpressionValue, cfg, v.className, v.methodName));
+			        targetExpressionValue, v.getClassName(), v.getMethodName()));
 		}
 		return r;
 	}
@@ -789,8 +787,8 @@ public class DefUseFitnessCalculations {
 	 * Creates a BranchCoverageTestFitness for the root-branch of the method of
 	 * the given DefUse
 	 */
-	public static BranchCoverageTestFitness getRootBranchTestFitness(CFGVertex v) {
-		return new BranchCoverageTestFitness(new BranchCoverageGoal(v.className,
-		        v.className + "." + v.methodName));
+	public static BranchCoverageTestFitness getRootBranchTestFitness(BytecodeInstruction v) {
+		return new BranchCoverageTestFitness(new BranchCoverageGoal(v.getClassName(),
+		        v.getClassName() + "." + v.getMethodName()));
 	}
 }

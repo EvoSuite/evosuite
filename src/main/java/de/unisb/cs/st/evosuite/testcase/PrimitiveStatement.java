@@ -41,7 +41,7 @@ import de.unisb.cs.st.evosuite.primitives.PrimitivePool;
  * 
  * @param <T>
  */
-public class PrimitiveStatement<T> extends Statement {
+public class PrimitiveStatement<T> extends AbstractStatement {
 
 	private static int MAX_STRING = Properties.STRING_LENGTH;
 
@@ -64,8 +64,8 @@ public class PrimitiveStatement<T> extends Statement {
 	 * @param reference
 	 * @param value
 	 */
-	public PrimitiveStatement(VariableReference reference, T value) {
-		this.retval = reference;
+	public PrimitiveStatement(TestCase tc, Type type, T value) {
+		super(tc, new VariableReferenceImpl(tc, type));
 		this.value = value;
 	}
 
@@ -84,72 +84,72 @@ public class PrimitiveStatement<T> extends Statement {
 	 * @param clazz
 	 * @return
 	 */
-	public static PrimitiveStatement<?> getRandomStatement(VariableReference reference,
+	public static PrimitiveStatement<?> getRandomStatement(TestCase tc, Type type, int position,
 	        Type clazz) {
 
 		if (clazz == boolean.class) {
-			return new PrimitiveStatement<Boolean>(reference, randomness.nextBoolean());
+			return new PrimitiveStatement<Boolean>(tc, type, randomness.nextBoolean());
 		} else if (clazz == int.class) {
 			if (randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Integer>(reference, new Integer(
+				return new PrimitiveStatement<Integer>(tc, type, new Integer(
 				        (randomness.nextInt(2 * MAX_INT) - MAX_INT)));
 			else
-				return new PrimitiveStatement<Integer>(reference,
+				return new PrimitiveStatement<Integer>(tc, type,
 				        primitive_pool.getRandomInt());
 
 		} else if (clazz == char.class) {
 			// Only ASCII chars?
-			return new PrimitiveStatement<Character>(reference, (randomness.nextChar()));
+			return new PrimitiveStatement<Character>(tc, type, (randomness.nextChar()));
 		} else if (clazz == long.class) {
 			int max = Math.min(MAX_INT, 32767);
 			if (randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Long>(reference, new Long(
+				return new PrimitiveStatement<Long>(tc, type, new Long(
 				        (randomness.nextInt(2 * max) - max)));
 			else
-				return new PrimitiveStatement<Long>(reference,
+				return new PrimitiveStatement<Long>(tc, type,
 				        primitive_pool.getRandomLong());
 
 		} else if (clazz.equals(double.class)) {
 			if (randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Double>(reference,
+				return new PrimitiveStatement<Double>(tc, type,
 				        (randomness.nextInt(2 * MAX_INT) - MAX_INT)
 				                + randomness.nextDouble());
 			else
-				return new PrimitiveStatement<Double>(reference,
+				return new PrimitiveStatement<Double>(tc, type,
 				        primitive_pool.getRandomDouble());
 
 		} else if (clazz == float.class) {
 			if (randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Float>(reference,
+				return new PrimitiveStatement<Float>(tc, type,
 				        (randomness.nextInt(2 * MAX_INT) - MAX_INT)
 				                + randomness.nextFloat());
 			else
-				return new PrimitiveStatement<Float>(reference,
+				return new PrimitiveStatement<Float>(tc, type,
 				        primitive_pool.getRandomFloat());
 
 		} else if (clazz == short.class) {
 			int max = Math.min(MAX_INT, 32767);
 			if (randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Short>(reference, new Short(
+				return new PrimitiveStatement<Short>(tc, type, new Short(
 				        (short) (randomness.nextInt(2 * max) - max)));
 			else
-				return new PrimitiveStatement<Short>(reference, new Short(
+				return new PrimitiveStatement<Short>(tc, type, new Short(
 				        (short) primitive_pool.getRandomInt()));
 
 		} else if (clazz == byte.class) {
 			if (randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Byte>(reference, new Byte(
+				return new PrimitiveStatement<Byte>(tc, type, new Byte(
 				        (byte) (randomness.nextInt(256) - 128)));
 			else
-				return new PrimitiveStatement<Byte>(reference, new Byte(
+				return new PrimitiveStatement<Byte>(tc, type, new Byte(
 				        (byte) (primitive_pool.getRandomInt())));
 
 		} else if (clazz.equals(String.class)) {
 			if (randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<String>(reference,
+				return new PrimitiveStatement<String>(tc, type,
 				        randomness.nextString(randomness.nextInt(MAX_STRING)));
 			else
-				return new PrimitiveStatement<String>(reference,
+				return new PrimitiveStatement<String>(tc, type,
 				        primitive_pool.getRandomString());
 		}
 		logger.error("Getting unknown type: " + clazz + " / " + clazz.getClass());
@@ -181,8 +181,8 @@ public class PrimitiveStatement<T> extends Statement {
 	}
 
 	@Override
-	public StatementInterface clone() {
-		return new PrimitiveStatement<T>(retval.clone(), value);
+	public StatementInterface clone(TestCase newTestCase) {
+		return new PrimitiveStatement<T>(newTestCase, retval.getType(), value);
 	}
 
 	@Override
@@ -195,12 +195,6 @@ public class PrimitiveStatement<T> extends Statement {
 	}
 
 	@Override
-	public void adjustVariableReferences(int position, int delta) {
-		retval.adjust(delta, position);
-		adjustAssertions(position, delta);
-	}
-
-	@Override
 	public Set<VariableReference> getVariableReferences() {
 		Set<VariableReference> references = new HashSet<VariableReference>();
 		references.add(retval);
@@ -208,7 +202,7 @@ public class PrimitiveStatement<T> extends Statement {
 	}
 
 	@Override
-	public boolean equals(StatementInterface s) {
+	public boolean equals(Object s) {
 		if (this == s)
 			return true;
 		if (s == null)
@@ -448,13 +442,6 @@ public class PrimitiveStatement<T> extends Statement {
 		}
 	}
 
-	@Override
-	public void replace(VariableReference oldVar, VariableReference newVar) {
-		if (retval.equals(oldVar))
-			retval = newVar;
-
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -505,19 +492,18 @@ public class PrimitiveStatement<T> extends Statement {
 		return new ArrayList<VariableReference>(getVariableReferences());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#replaceUnique(de.unisb.cs.
-	 * st.evosuite.testcase.VariableReference,
-	 * de.unisb.cs.st.evosuite.testcase.VariableReference)
-	 */
 	@Override
-	public void replaceUnique(VariableReference old_var, VariableReference new_var) {
-		if (retval == old_var)
-			retval = new_var;
-		if (retval.array == old_var)
-			retval.array = new_var;
+	public boolean same(StatementInterface s) {
+		if (this == s)
+			return true;
+		if (s == null)
+			return false;
+		if (getClass() != s.getClass())
+			return false;
+
+		PrimitiveStatement<?> ps = (PrimitiveStatement<?>) s;
+		return (retval.same(ps.retval) && value.equals(ps.value));
 	}
+
+
 }

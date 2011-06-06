@@ -23,6 +23,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.util.AbstractVisitor;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTracer;
 import de.unisb.cs.st.evosuite.coverage.concurrency.LockRuntime;
 import de.unisb.cs.st.evosuite.javaagent.BooleanHelper;
@@ -100,7 +101,7 @@ public class ExecutionTracer {
 		num_statements = 0;
 
 		//#TODO steenbuck: We should be able to register us somewhere, so that we're called before run is executed
-		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
+		if (Properties.CRITERION == Criterion.CONCURRENCY) {
 			trace.concurrencyTracer = new ConcurrencyTracer();
 			LockRuntime.tracer = trace.concurrencyTracer;
 		}
@@ -114,7 +115,7 @@ public class ExecutionTracer {
 	 * @return
 	 */
 	private static boolean isThreadNeqCurrentThread() {
-		if (Properties.CRITERION.equals(Properties.Criterion.CONCURRENCY)) {
+		if (Properties.CRITERION== Criterion.CONCURRENCY) {
 			return false;
 		} else {
 			return (Thread.currentThread() != currentThread);
@@ -143,6 +144,7 @@ public class ExecutionTracer {
 	 */
 	public static void enteredMethod(String classname, String methodname, Object caller)
 	        throws TestCaseExecutor.TimeoutExceeded {
+		
 		if (isThreadNeqCurrentThread())
 			return;
 

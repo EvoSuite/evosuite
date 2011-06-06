@@ -82,7 +82,7 @@ public class TestSuiteMinimizer {
 			System.out.println("TG: Exception caught: " + e);
 			try {
 				Thread.sleep(1000);
-				result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+				result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			} catch (Exception e1) {
 				e.printStackTrace();
 				// TODO: Do some error recovery?
@@ -155,13 +155,13 @@ public class TestSuiteMinimizer {
 				// logger.info("Skipping test "+num);
 				result = test.last_result;
 			}
-			called_methods.addAll(result.trace.covered_methods.keySet());
-			for (Entry<String, Double> entry : result.trace.true_distances.entrySet()) {
+			called_methods.addAll(result.getTrace().covered_methods.keySet());
+			for (Entry<String, Double> entry : result.getTrace().true_distances.entrySet()) {
 				if (entry.getValue() == 0)
 					covered_true.add(entry.getKey());
 			}
 
-			for (Entry<String, Double> entry : result.trace.false_distances.entrySet()) {
+			for (Entry<String, Double> entry : result.getTrace().false_distances.entrySet()) {
 				if (entry.getValue() == 0)
 					covered_false.add(entry.getKey());
 			}
@@ -181,7 +181,7 @@ public class TestSuiteMinimizer {
 	 */
 	public void minimize(TestSuiteChromosome suite) {
 
-		boolean branch = Properties.CRITERION.equals(Properties.Criterion.BRANCH);
+		boolean branch = Properties.CRITERION == Properties.Criterion.BRANCH;
 		CurrentChromosomeTracker.getInstance().modification(suite);
 
 		boolean size = false;

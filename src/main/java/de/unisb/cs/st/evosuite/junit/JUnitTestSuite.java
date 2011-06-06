@@ -91,18 +91,18 @@ public class JUnitTestSuite {
 
 		for (TestCase test : chromosome.getTests()) {
 			ExecutionResult result = runTest(test);
-			for (Entry<String, Integer> entry : result.trace.covered_methods.entrySet()) {
+			for (Entry<String, Integer> entry : result.getTrace().covered_methods.entrySet()) {
 				//if(!entry.getKey().contains("$"))
 				covered_methods.add(entry.getKey());
 			}
 
-			for (Entry<String, Double> entry : result.trace.true_distances.entrySet()) {
+			for (Entry<String, Double> entry : result.getTrace().true_distances.entrySet()) {
 				if (entry.getValue() == 0.0)
 					//if(!entry.getKey().contains("$"))
 					covered_branches_true.add(entry.getKey());
 			}
 
-			for (Entry<String, Double> entry : result.trace.false_distances.entrySet()) {
+			for (Entry<String, Double> entry : result.getTrace().false_distances.entrySet()) {
 				if (entry.getValue() == 0.0)
 					//if(!entry.getKey().contains("$"))
 					covered_branches_false.add(entry.getKey());
@@ -138,6 +138,7 @@ public class JUnitTestSuite {
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
+			logger.fatal("TG: Exception caught: ", e);
 			System.exit(1);
 		}
 

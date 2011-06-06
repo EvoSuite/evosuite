@@ -297,11 +297,11 @@ public class MutationTestFitness extends TestFitnessFunction {
 		// First, get the distance. TODO: What about branch distance?
 		ControlFlowDistance cfg_distance = mutationGoal.getDistance(result);
 
-		if (cfg_distance.approach > 1
-		        || (cfg_distance.approach == 1 && cfg_distance.branch > 0.0)) {
-			logger.debug("Distance is " + cfg_distance.approach + "/"
-			        + cfg_distance.branch);
-			if (cfg_distance.approach == 1)
+		if (cfg_distance.approachLevel > 1
+		        || (cfg_distance.approachLevel == 1 && cfg_distance.branchDistance > 0.0)) {
+			logger.debug("Distance is " + cfg_distance.approachLevel + "/"
+			        + cfg_distance.branchDistance);
+			if (cfg_distance.approachLevel == 1)
 				logger.debug(individual.test.toCode());
 			// return 1.0 + cfg_distance.approach +
 			// normalize(cfg_distance.branch);
@@ -314,7 +314,7 @@ public class MutationTestFitness extends TestFitnessFunction {
 						}
 						*/
 
-			return cfg_distance.approach + normalize(cfg_distance.branch); // 1
+			return cfg_distance.approachLevel + normalize(cfg_distance.branchDistance); // 1
 			                                                               // =
 			                                                               // distance
 			                                                               // for
@@ -322,7 +322,7 @@ public class MutationTestFitness extends TestFitnessFunction {
 			                                                               // activation
 		}
 
-		logger.debug("Distance is: " + cfg_distance.approach);
+		logger.debug("Distance is: " + cfg_distance.approachLevel);
 
 		// If the distance is zero, then try
 		ExecutionResult mutant_result = runTest(individual.test, targetMutation);
@@ -332,7 +332,7 @@ public class MutationTestFitness extends TestFitnessFunction {
 			        + targetMutation.getMethodName() + " - "
 			        + targetMutation.getMutationType());
 			logger.warn(result.test.toCode());
-			logger.warn(cfg_distance.approach + "/" + cfg_distance.branch);
+			logger.warn(cfg_distance.approachLevel + "/" + cfg_distance.branchDistance);
 		}
 
 		if (MutationGoal.hasTimeout(mutant_result)) {
@@ -342,7 +342,7 @@ public class MutationTestFitness extends TestFitnessFunction {
 
 		// if(!hasAssertions(result, mutant_result))
 		if (getNumAssertions(result, mutant_result) == 0) {
-			double impact = getSumDistance(result.trace, mutant_result.trace);
+			double impact = getSumDistance(result.getTrace(), mutant_result.getTrace());
 			logger.debug("Impact is " + impact + " (" + (1.0 / (1.0 + impact)) + ")");
 			return 1.0 / (1.0 + impact);
 		} else {

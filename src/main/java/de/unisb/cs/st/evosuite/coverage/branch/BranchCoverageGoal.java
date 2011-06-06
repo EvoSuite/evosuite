@@ -18,55 +18,57 @@
 
 package de.unisb.cs.st.evosuite.coverage.branch;
 
-import java.util.List;
+import java.util.HashMap;
 
-import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 
 /**
  * A single branch coverage goal Either true/false evaluation of a jump
  * condition, or a method entry
  * 
- * @author Gordon Fraser
+ * @author Gordon Fraser, Andre Mis
  * 
  */
 public class BranchCoverageGoal extends TestCoverageGoal {
 
-	// TODO: this is really redundant, only the Branch should be referenced as it 
-	//			already holds all the information from branch_id to methodName  
-	
 	Branch branch;
-
-	int branch_id;
-
-	int bytecode_id;
-
-	int line_number;
-
 	boolean value;
 
-	ControlFlowGraph cfg;
-
 	String className;
-
 	String methodName;
 
-	public BranchCoverageGoal(Branch branch, boolean value, ControlFlowGraph cfg,
+	/**
+	 * Can be used to create an arbitrary BranchCoverageGoal trying to cover the
+	 * given Branch
+	 * 
+	 * If the given branch is null, this goal will try to cover the root branch
+	 * of the method identified by the given name - meaning it will just try to
+	 * call the method at hand
+	 * 
+	 * Otherwise this goal will try to reach the given branch and if value is
+	 * true, make the branchInstruction jump and visa versa
+	 */
+	public BranchCoverageGoal(Branch branch, boolean value,
 	        String className, String methodName) {
+		if(className == null || methodName == null)
+			throw new IllegalArgumentException("null given");
+		if(branch == null && !value)
+			throw new IllegalArgumentException("expect goals for a root branch to always have value set to true");
+		
 		this.branch = branch;
-		this.branch_id = branch.getBranchId();
-		this.bytecode_id = branch.getBytecodeId();
-		this.line_number = branch.getLineNumber();
 		this.value = value;
-		this.cfg = cfg;
+		
 		this.className = className;
 		this.methodName = methodName;
-		//cfg.toDot(className+"."+methodName.replace("/",".").replace(";",".").replace("(",".").replace(")",".")+".dot");
+		
+		if(branch != null) {
+			if(!branch.getMethodName().equals(methodName) || !branch.getClassName().equals(className))
+				throw new IllegalArgumentException(
+						"expect explicitly given information about a branch to coincide with the information given by that branch");
+		}
 	}
 
 	/**
@@ -78,11 +80,8 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 	 */
 	public BranchCoverageGoal(String className, String methodName) {
 		this.branch = null;
-		this.branch_id = 0;
-		this.bytecode_id = 0;
-		this.line_number = 0;
 		this.value = true;
-		this.cfg = null;
+		
 		this.className = className;
 		this.methodName = methodName;
 	}
@@ -101,7 +100,10 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 			// one of the goals targets a root branch
 			return goal.methodName.equals(methodName) && goal.className.equals(className);
 		}
-		return branch.isControlDependentOn(goal.branch) || goal.branch.isControlDependentOn(branch) ;
+		
+		// TODO map this to new CDG !
+		
+		return branch.isDirectlyControlDependentOn(goal.branch) || goal.branch.isDirectlyControlDependentOn(branch) ;
 	}
 	
 	/**
@@ -109,6 +111,9 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 	 */
 	public int getDifficulty() {
 		int r = 1;
+		
+		// TODO map this to new CDG !
+		
 		if(branch!=null) {
 			r+=branch.getCDGDepth();
 		}
@@ -125,111 +130,79 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 	public boolean isCovered(TestCase test) {
 		ExecutionResult result = runTest(test);
 		ControlFlowDistance d = getDistance(result);
-		if (d.approach == 0 && d.branch == 0.0)
+		if (d.getApproachLevel() == 0 && d.getBranchDistance() == 0.0)
 			return true;
 		else
 			return false;
 	}
 
 	public ControlFlowDistance getDistance(ExecutionResult result) {
-		ControlFlowDistance d = new ControlFlowDistance();
 
-		if (hasTimeout(result)) {
-			//logger.info("Has timeout!");
-			if (cfg == null) {
-				d.approach = 20;
-			} else {
-				d.approach = cfg.getDiameter() + 2;
-			}
-			return d;
-		}
-
-		// Methods that have no cfg have no branches
-		if (cfg == null) {
-			logger.debug("Looking for method without branches " + methodName);
-			for (MethodCall call : result.trace.finished_calls) {
-				if (call.class_name.equals(""))
-					continue;
-				if ((call.class_name + "." + call.method_name).equals(className + "."
-				        + methodName)) {
-					return d;
-				}
-			}
-			d.approach = 1;
-			return d;
-		}
-
-		d.approach = cfg.getDiameter() + 1;
-		logger.debug("Looking for method with branches " + methodName);
-
-		// Minimal distance between target node and path
-		for (MethodCall call : result.trace.finished_calls) {
-			if (call.class_name.equals(className) && call.method_name.equals(methodName)) {
-				ControlFlowDistance d2;
-				d2 = getDistance(call.branch_trace, call.true_distance_trace,
-				                 call.false_distance_trace, bytecode_id);
-				if (d2.compareTo(d) < 0) {
-					d = d2;
-				}
-			}
-		}
-
-		return d;
+		ControlFlowDistance r = ControlFlowDistanceCalculator.getDistance(result, branch,
+				value, className, methodName);
+		
+		return r;
 	}
+	
+//	SAFETY BACKUP BEFORE REIMPLEMENTATION
+//	private ControlFlowDistance getNonRootDistance(List<Integer> path,
+//	        List<Double> true_distances, List<Double> false_distances) {
+//
+//		if(branch == null)
+//			throw new IllegalStateException("expect getNonRootDistance() to only be called if this goal's branch is not a root branch");
+//		
+//		ActualControlFlowGraph cfg = branch.getActualCFG();
+//		
+//		ControlFlowDistance d = new ControlFlowDistance();
+//		int min_approach = cfg.getDiameter() + 1;
+//		
+//		double min_dist = 0.0;
+//		for (int i = 0; i < path.size(); i++) {
+//			BytecodeInstruction v = cfg.getInstruction(path.get(i));
+//			if (v != null) {
+//				int approach = cfg.getDistance(v, branch);
+//				//logger.debug("B: Path vertex "+i+" has approach: "+approach+" and branch distance "+distances.get(i));
+//
+//				if (approach <= min_approach && approach >= 0) {
+//					double branch_distance = 0.0;
+//
+//					if (approach > 0)
+//						branch_distance = true_distances.get(i) + false_distances.get(i);
+//					else if (value)
+//						branch_distance = true_distances.get(i);
+//					else
+//						branch_distance = false_distances.get(i);
+//
+//					if (approach == min_approach)
+//						min_dist = Math.min(min_dist, branch_distance);
+//					else {
+//						min_approach = approach;
+//						min_dist = branch_distance;
+//					}
+//
+//				}
+//			} else {
+//				logger.info("Path vertex does not exist in graph");
+//			}
+//		}
+//
+//		d.approach = min_approach;
+//		d.branch = min_dist;
+//
+//		return d;
+//	}
 
-	private ControlFlowDistance getDistance(List<Integer> path,
-	        List<Double> true_distances, List<Double> false_distances, int branch_id) {
-		CFGVertex m = cfg.getVertex(branch_id);
-		ControlFlowDistance d = new ControlFlowDistance();
-		if (m == null) {
-			logger.error("Could not find branch node");
-			return d;
-		}
-
-		int min_approach = cfg.getDiameter() + 1;
-		double min_dist = 0.0;
-		for (int i = 0; i < path.size(); i++) {
-			CFGVertex v = cfg.getVertex(path.get(i));
-			if (v != null) {
-				int approach = cfg.getDistance(v, m);
-				//logger.debug("B: Path vertex "+i+" has approach: "+approach+" and branch distance "+distances.get(i));
-
-				if (approach <= min_approach && approach >= 0) {
-					double branch_distance = 0.0;
-
-					if (approach > 0)
-						branch_distance = true_distances.get(i) + false_distances.get(i);
-					else if (value)
-						branch_distance = true_distances.get(i);
-					else
-						branch_distance = false_distances.get(i);
-
-					if (approach == min_approach)
-						min_dist = Math.min(min_dist, branch_distance);
-					else {
-						min_approach = approach;
-						min_dist = branch_distance;
-					}
-
-				}
-			} else {
-				logger.info("Path vertex does not exist in graph");
-			}
-		}
-
-		d.approach = min_approach;
-		d.branch = min_dist;
-
-		return d;
-	}
-
+	
+	// inherited from Object
+	
 	/**
 	 * Readable representation
 	 */
 	@Override
 	public String toString() {
-		String name = className + "." + methodName + ":" + line_number + " (" + branch_id
-		        + ")";
+		String name = className + "." + methodName + ":";
+		if(branch != null)
+			name += " "+branch.toString();
 
 		if (value)
 			return name + " - true";
@@ -241,11 +214,12 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + branch_id;
-		result = prime * result + bytecode_id;
-		result = prime * result + ((cfg == null) ? 0 : cfg.hashCode());
-		result = prime * result + ((className == null) ? 0 : className.hashCode());
-		result = prime * result + ((methodName == null) ? 0 : methodName.hashCode());
+		result = prime * result + (branch == null?0:branch.getActualBranchId());
+		result = prime * result + (branch == null?0:branch.getInstructionId());
+		// TODO sure you want to call hashCode() on the cfg? doesn't that take long?
+		result = prime * result + ((branch == null) ? 0 : branch.getActualCFG().hashCode());
+		result = prime * result + className.hashCode();
+		result = prime * result + methodName.hashCode();
 		result = prime * result + (value ? 1231 : 1237);
 		return result;
 	}
@@ -258,29 +232,28 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		
 		BranchCoverageGoal other = (BranchCoverageGoal) obj;
-		if (branch_id != other.branch_id)
-			return false;
-		if (bytecode_id != other.bytecode_id)
-			return false;
-		if (cfg == null) {
-			if (other.cfg != null)
+		// are we both root goals?
+		if (this.branch == null) {
+			if (other.branch != null)
 				return false;
-		} else if (!cfg.equals(other.cfg))
+			else
+				// i don't have to check for value at this point, because if
+				// branch is null we are talking about the root branch here
+				return this.methodName.equals(other.methodName) && this.className.equals(other.className);
+		}
+		// well i am not, if you are we are different
+		if(other.branch == null)
 			return false;
-		if (className == null) {
-			if (other.className != null)
-				return false;
-		} else if (!className.equals(other.className))
+		
+		// so we both have a branch to cover, let's look at that branch and the
+		// way we want it to be evaluated
+		if (!this.branch.equals(other.branch))
 			return false;
-		if (methodName == null) {
-			if (other.methodName != null)
-				return false;
-		} else if (!methodName.equals(other.methodName))
-			return false;
-		if (value != other.value)
-			return false;
-		return true;
+		else {
+			return this.value == other.value;
+		}
 	}
 
 }

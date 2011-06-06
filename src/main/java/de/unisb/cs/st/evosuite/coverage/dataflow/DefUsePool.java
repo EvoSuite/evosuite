@@ -2,99 +2,318 @@ package de.unisb.cs.st.evosuite.coverage.dataflow;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 
 /**
  * This class is supposed to hold all the available information concerning Definitions and Uses.
  * 
- * The addDefinition()- and addUse()-Method get called by the CFGMethodAdapter whenever it detects 
- * a CFGVertex that corresponds to a Definition or Use in the class under test. 
+ * The addDefinition()- and addUse()-Method get called by the DefUseInstrumentation whenever it detects 
+ * a BytecodeInstruction that corresponds to a Definition or Use in the class under test.
+ * 
+ *  BytecodeInstructions that are not known to this pool can not be instantiated as Definition or Use
+ * by the DefUseFactory
  * 
  * @author Andre Mis
  */
 public class DefUsePool {
 
-	// maps: className -> methodName  -> DUVarName -> branchID -> List of Definitions in that branch 
-	public static Map<String, Map<String, Map<String, Map<Integer,List<Definition>>>>> def_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<Definition>>>>>();
+	private static Logger logger = Logger.getLogger(DefUsePool.class);
+	
+	// trees of all known definitions and uses
 
-	// maps: className -> methodName  -> DUVarName -> branchID -> List of Uses in that branch
-	public static Map<String, Map<String, Map<String, Map<Integer,List<Use>>>>> use_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<Use>>>>>();	
+	// 	className -> methodName  -> DUVarName -> branchID -> List of Definitions in that branch 
+	private static Map<String, Map<String, Map<String, Map<Integer,List<Definition>>>>> def_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<Definition>>>>>();
 	
-	// maps all known duIDs to their DefUse
-	private static Map<Integer,DefUse> defuseIdsToDefUses = new HashMap<Integer,DefUse>();
-	private static Map<Integer,Definition> defuseIdsToDefs = new HashMap<Integer,Definition>();
-	private static Map<Integer,Use> defuseIdsToUses = new HashMap<Integer,Use>();
+	// 	className -> methodName  -> DUVarName -> branchID -> List of Uses in that branch
+	private static Map<String, Map<String, Map<String, Map<Integer,List<Use>>>>> use_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<Use>>>>>();	
 	
+	// maps IDs to objects
+	private static Map<Integer, DefUse> defuseIdsToDefUses = new HashMap<Integer, DefUse>();
+	private static Map<Integer, Definition> defuseIdsToDefs = new HashMap<Integer, Definition>();
+	private static Map<Integer, Use> defuseIdsToUses = new HashMap<Integer, Use>();
+
+	// maps objects to IDs
+	// register of all known DefUse-, Definition- and Use-IDs
+	private static Map<BytecodeInstruction, Integer> registeredDUs = new HashMap<BytecodeInstruction, Integer>();
+	private static Map<BytecodeInstruction, Integer> registeredDefs = new HashMap<BytecodeInstruction, Integer>();
+	private static Map<BytecodeInstruction, Integer> registeredUses = new HashMap<BytecodeInstruction, Integer>();
+	// and an extra one to keep track of parameterUses
+	private static List<BytecodeInstruction> knownParameterUses = new ArrayList<BytecodeInstruction>();
+	
+	// keep track of known DUs and assign IDs accordingly
 	private static int defCounter = 0;
 	private static int useCounter = 0;
 	private static int duCounter = 0;
-	
-	private static Logger logger = Logger.getLogger(DefUsePool.class);
-	
+
 	
 	/**
-	 * Gets called by the CFGMethodAdapter whenever it detects a Definition
+	 * Gets called by DefUseInstrumentation whenever it detects a definition
 	 * 
-	 * @param v CFGVertex corresponding to a Definition
+	 * Registers the given instruction as a definition, assigns a fresh defId for it
+	 * and if the given instruction does not represent an IINC also assigns a fresh
+	 * defUseId to the given instruction.
+	 * 
+	 * Warning: 
+	 *  - Should the instruction be an IINC it is expected to 
+	 *  	have passed addAsUse() first!
+	 *  - if registering of the given instruction fails (like it does for IINCs due to 
+	 *  	the fact above) for any reason this method throws an IllegalStateException! 
+	 * 
+	 *  Return false if the given instruction does not represent an instruction which is
+	 *  a definition as defined in ASMWrapper.isDefinition().
+	 *  
+	 *  Should isKnownAsDefinition() return true for the instruction before calling
+	 *  this method, it also returns false.
+	 *  After the call isKnownAsDefinition() is expected to return true for the instruction
+	 *  at hand however.
+	 *  
+	 * 
+	 * @param d CFGVertex corresponding to a Definition in the CUT
 	 */
-	public static boolean addDefinition(CFGVertex v) {
-		if(!v.isDefinition() && !v.isParameterUse) // TODO
-			throw new IllegalArgumentException("Vertex of a definition expected");
-		
-		defCounter++;
-		v.defId = defCounter; 
-		if(!v.isUse()) {
-			// IINCs already have duID set do useCounter value
-			duCounter++;			
-			v.defuseId = duCounter;
+	public static boolean addAsDefinition(BytecodeInstruction d) {
+		if(!d.isDefinition()) {
+			logger.error("expect instruction of a definition");
+			return false;
 		}
+		if(isKnownAsDefinition(d)) {
+			logger.error("each definition can be added at most once");
+			return false;
+		}
+
+		// register new instruction
+
+		// IINCs already have duID set so this can fail
+		boolean registeredAsDU = registerAsDefUse(d);
 		
-		Definition d = new Definition(v);
-		addToDefMap(d);	
-		defuseIdsToDefUses.put(d.getDefUseId(),d);
-		defuseIdsToDefs.put(d.getDefUseId(),d);
+		// sanity check for IINCs
+		if(!registeredAsDU && !d.isUse())
+			throw new IllegalStateException("expect registering to fail only on IINCs");
+
+		registerAsDefinition(d);
 		
-		logger.debug("Added: "+d.toString());
 		return true;
 	}
-
+	
 	/**
-	 * Gets called by the CFGMethodAdapter whenever it detects a Use
+	 * Gets called by DefUseInstrumentation whenever it detects a use
 	 * 
-	 * @param v CFGVertex corresponding to a Use
+	 * Registers the given instruction as a use, assigns a fresh useId a fresh
+	 * defUseId to the given instruction.
+	 * 
+	 *  Return false if the given instruction does not represent an instruction which is
+	 *  a use as defined in ASMWrapper.isUse().
+	 *  
+	 *  Should isKnown() return true for the instruction before calling
+	 *  this method, it also returns false.
+	 *  
+	 *  After the call isKnown() and isKnownAsUse() are expected to 
+	 *  return true for the instruction at hand however.
+	 * 
+	 * @param u CFGVertex corresponding to a Use in the CUT
 	 */
-	public static boolean addUse(CFGVertex v) {
-		if(!v.isUse()) 
-			throw new IllegalArgumentException("Vertex of a use expected");
-
-		if(v.isLocalVarUse()) {
+	public static boolean addAsUse(BytecodeInstruction u) {
+		if(!u.isUse())
+			return false;
+		if(isKnownAsUse(u))
+			return false;
+		if(u.isLocalVarUse()) {
 			// was ALOAD_0 ("this")
-			if(v.getLocalVar()==0)
+			if(u.getLocalVar()==0)
 				return false;
-			// was an argument
-			if(!hasEntryForVariable(def_map, v))
-				v.isParameterUse = true;
 		}
+		
+		registerAsDefUse(u);
+		registerAsUse(u);
 
-		useCounter++;		
-		v.useId = useCounter;
-		duCounter++;
-		v.defuseId = duCounter;
-		
-		Use u = new Use(v);
-		addToUseMap(u);
-		defuseIdsToDefUses.put(u.getDefUseId(),u);
-		defuseIdsToUses.put(u.getDefUseId(),u);
-		
-		logger.debug("Added: "+u.toString());
 		return true;
 	}
 	
+	// registering
+
+	private static boolean registerAsDefUse(BytecodeInstruction d) {
+		if(registeredDUs.containsKey(d))
+			return false;
+		
+		// assign fresh defUseId
+		duCounter++;
+		registeredDUs.put(d, duCounter);
+		return true;
+	}
+	
+	private static boolean registerAsDefinition(BytecodeInstruction d) {
+		if (!registeredDUs.containsKey(d))
+			throw new IllegalStateException(
+					"expect registerAsDefUse() to be called before registerAsDefinition()/Use()");
+		if(registeredDefs.containsKey(d))
+			return false;
+
+		// assign fresh defId
+		defCounter++;
+		registeredDefs.put(d, defCounter);
+
+		// now the first Definition instance for this instruction can be created  
+		Definition def = DefUseFactory.makeDefinition(d);
+		
+		// finally add the Definition to all corresponding maps
+		fillDefinitionMaps(def);
+		return true;
+	}
+	
+	private static boolean registerAsUse(BytecodeInstruction d) {
+		if (!registeredDUs.containsKey(d))
+			throw new IllegalStateException(
+					"expect registerAsDefUse() to be called before registerAsDefinition()/Use()");
+		if(registeredUses.containsKey(d))
+			return false;
+		
+		// assign fresh useId
+		useCounter++;
+		registeredUses.put(d, useCounter);
+		
+		// check if this particular use is a parameterUse
+		if(d.isLocalVarUse() && !knowsDefinitionForVariableOf(d))
+			registerParameterUse(d);
+		
+		// now the first Use instance for this instruction can be created 
+		Use use = DefUseFactory.makeUse(d);
+		
+		// finally add the use to all corresponding maps
+		fillUseMaps(use);
+		return true;
+	}
+
+	private static void registerParameterUse(BytecodeInstruction d) {
+
+		if(!knownParameterUses.contains(d))
+			knownParameterUses.add(d);
+	}
+	
+	private static void fillDefinitionMaps(Definition def) {
+		addToDefMap(def);
+		defuseIdsToDefUses.put(def.getDefUseId(),def);
+		defuseIdsToDefs.put(def.getDefUseId(), def);
+		
+		logger.info("Added to DefUsePool as def: "+def.toString());
+	}
+	
+	private static void fillUseMaps(Use use) {
+		addToUseMap(use);
+		defuseIdsToDefUses.put(use.getDefUseId(), use);
+		defuseIdsToUses.put(use.getDefUseId(), use);
+		
+		logger.info("Added to DefUsePool as use: "+use.toString());		
+	}
+
+	// filling the maps
+	
+	private static boolean addToDefMap(Definition d) {
+		String className = d.getClassName();
+		String methodName = d.getMethodName();
+		String varName = d.getDUVariableName();
+		int branchId = d.getControlDependentBranchId();
+		
+		initMap(def_map,className,methodName,varName,branchId);
+		
+		return def_map.get(className).get(methodName).get(varName).get(branchId).add(d);
+	}
+	
+	private static boolean addToUseMap(Use u) {
+		String className = u.getClassName();
+		String methodName = u.getMethodName();
+		String varName = u.getDUVariableName();
+		int branchId = u.getControlDependentBranchId(); 
+		
+		initMap(use_map,className,methodName,varName,branchId);
+		
+		return use_map.get(className).get(methodName).get(varName).get(branchId).add(u);
+	}	
+	
+	private static <T> void initMap(
+			Map<String, Map<String, Map<String, Map<Integer, List<T>>>>> map,
+			String className, String methodName, String varName, int branchId) {
+
+		if(!map.containsKey(className))
+			map.put(className, new HashMap<String, Map<String, Map<Integer,List<T>>>>());
+		if(!map.get(className).containsKey(methodName)) 
+			map.get(className).put(methodName, new HashMap<String, Map<Integer,List<T>>>());
+		if(!map.get(className).get(methodName).containsKey(varName))
+			map.get(className).get(methodName).put(varName, new HashMap<Integer,List<T>>());
+		if(!map.get(className).get(methodName).get(varName).containsKey(branchId))
+			map.get(className).get(methodName).get(varName).put(branchId, new ArrayList<T>());
+	}
+	
+	// functionality to retrieve information from the pool
+	
+	public static boolean knowsDefinitionForVariableOf(BytecodeInstruction du) {
+		if(!du.isDefUse())
+			throw new IllegalArgumentException("defuse expected");
+		
+		String className = du.getClassName();
+		String methodName = du.getMethodName();
+		String varName = du.getDUVariableName();
+		
+		try {
+			return def_map.get(className).get(methodName).get(varName).size() > 0;
+		} catch(NullPointerException nex) {
+			// expected
+			return false;
+		}
+	}
+	
+	public static boolean isKnown(BytecodeInstruction instruction) {
+
+		return isKnownAsDefinition(instruction) || isKnownAsUse(instruction);
+	}
+	
+	public static boolean isKnownAsDefinition(
+			BytecodeInstruction instruction) {
+	
+		if(!instruction.isDefinition())
+			return false;
+		
+		return registeredDefs.containsKey(instruction);
+	}
+	
+	public static boolean isKnownAsUse(
+			BytecodeInstruction instruction) {
+	
+		if(!instruction.isUse())
+			return false;
+		
+		return registeredUses.containsKey(instruction);
+	}
+	
+	public static Set<Definition> retrieveRegisteredDefinitions() {
+		Set<Definition> r = new HashSet<Definition>();
+		for(Integer defId : registeredDefs.values()) {
+			r.add(getDefinitionByDefId(defId));
+		}
+		return r;
+	}
+	
+	public static Set<Use> retrieveRegisteredUses() {
+		Set<Use> r = new HashSet<Use>();
+		for(Integer useId : registeredUses.values()) {
+			r.add(getUseByUseId(useId));
+		}
+		return r;
+	}
+	
+	public static Set<Use> retrieveRegisteredParameterUses() {
+		Set<Use> r = new HashSet<Use>();
+		for(BytecodeInstruction instruction : knownParameterUses) {
+			r.add(getUseByUseId(registeredUses.get(instruction)));
+		}
+		return r;
+	}
+
 	/**
 	 * Returns the Use with the given duID
 	 * 
@@ -139,7 +358,32 @@ public class DefUsePool {
 				return def;
 		}
 		return null;
-	}	
+	}
+	
+	public static int getRegisteredDefUseId(BytecodeInstruction instruction) {
+		if(registeredDUs.containsKey(instruction))
+			return registeredDUs.get(instruction);
+		
+		return -1;
+	}
+	
+	public static int getRegisteredDefId(BytecodeInstruction instruction) {
+		if(registeredDefs.containsKey(instruction))
+			return registeredDefs.get(instruction);
+		
+		return -1;
+	}
+	
+	public static int getRegisteredUseId(BytecodeInstruction instruction) {
+		if(registeredUses.containsKey(instruction))
+			return registeredUses.get(instruction);
+		
+		return -1;
+	}
+	
+	public static boolean isRegisteredParameterUse(BytecodeInstruction instruction) {
+		return knownParameterUses.contains(instruction);
+	}
 
 	/**
 	 * Returns the number of currently known Definitions
@@ -157,64 +401,5 @@ public class DefUsePool {
 	 */	
 	public static Object getUseCounter() {
 		return useCounter;
-	}	
-	
-	
-	private static boolean hasEntryForVariable(
-			Map<String, Map<String, Map<String, Map<Integer, List<Definition>>>>> map, CFGVertex v) {
-		
-		String className = v.className;
-		String methodName = v.methodName;
-		String varName = v.getDUVariableName();
-		
-		if(map.get(className) == null)
-			return false;
-		if(map.get(className).get(methodName) == null)
-			return false;
-		if(map.get(className).get(methodName).get(varName) == null)
-			return false;
-		if(map.get(className).get(methodName).get(varName).size() > 0)
-			return true;
-	
-		return false;
 	}
-	
-	
-	private static boolean addToDefMap(Definition d) {
-		CFGVertex v = d.getCFGVertex();
-		String className = v.className;
-		String methodName = v.methodName;
-		String varName = v.getDUVariableName();
-		int branchID = v.branchId; 
-		
-		if(!def_map.containsKey(className))
-			def_map.put(className, new HashMap<String, Map<String, Map<Integer,List<Definition>>>>());
-		if(!def_map.get(className).containsKey(methodName)) 
-			def_map.get(className).put(methodName, new HashMap<String, Map<Integer,List<Definition>>>());
-		if(!def_map.get(className).get(methodName).containsKey(varName))
-			def_map.get(className).get(methodName).put(varName, new HashMap<Integer,List<Definition>>());
-		if(!def_map.get(className).get(methodName).get(varName).containsKey(branchID))
-			def_map.get(className).get(methodName).get(varName).put(branchID, new ArrayList<Definition>());
-		
-		return def_map.get(className).get(methodName).get(varName).get(branchID).add(d);
-	}
-	
-	private static boolean addToUseMap(Use u) {
-		CFGVertex v = u.getCFGVertex();
-		String className = v.className;
-		String methodName = v.methodName;
-		String varName = v.getDUVariableName();
-		int branchId = v.branchId; 
-		
-		if(!use_map.containsKey(className))
-			use_map.put(className, new HashMap<String, Map<String, Map<Integer,List<Use>>>>());
-		if(!use_map.get(className).containsKey(methodName)) 
-			use_map.get(className).put(methodName, new HashMap<String, Map<Integer,List<Use>>>());
-		if(!use_map.get(className).get(methodName).containsKey(varName))
-			use_map.get(className).get(methodName).put(varName, new HashMap<Integer,List<Use>>());
-		if(!use_map.get(className).get(methodName).get(varName).containsKey(branchId))
-			use_map.get(className).get(methodName).get(varName).put(branchId, new ArrayList<Use>());
-		
-		return use_map.get(className).get(methodName).get(varName).get(branchId).add(u);
-	}	
 }

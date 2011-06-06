@@ -135,17 +135,13 @@ public abstract class StoppingCondition implements SearchListener {
 		type+=" :";
 		type = StringUtils.rightPad(type, 24);
 		r.append(type);
-//		if(type.length()<27)
-//			r.append("\t");
-//		if(type.length()<31)
-//			r.append("\t");
 		String value = NumberFormat.getIntegerInstance().format(getCurrentValue());
 		value = StringUtils.leftPad(value,12);
 		String limit = NumberFormat.getIntegerInstance().format(getLimit());
 		limit = StringUtils.rightPad(limit,12);
 		r.append(value+" / "+limit);
 		if(isFinished())
-			r.append(" - Finished!");
+			r.append(" Finished!");
 		
 		return r.toString();
 	}

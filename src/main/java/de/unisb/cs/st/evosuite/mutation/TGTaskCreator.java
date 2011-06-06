@@ -37,7 +37,6 @@ import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
 import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.Excludes;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 import de.unisb.cs.st.javalanche.mutation.results.persistence.QueryManager;
-import de.unisb.cs.st.javalanche.mutation.run.task.MutationTaskCreator;
 
 /**
  * This class generates for each testable unit: - A mutation task - A list of
@@ -46,7 +45,7 @@ import de.unisb.cs.st.javalanche.mutation.run.task.MutationTaskCreator;
  * @author Gordon Fraser
  * 
  */
-public class TGTaskCreator extends MutationTaskCreator {
+public class TGTaskCreator extends de.unisb.cs.st.javalanche.mutation.run.task.MutationTaskCreator {
 
 	private static Logger logger = Logger.getLogger(TGTaskCreator.class);
 

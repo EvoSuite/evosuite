@@ -24,13 +24,11 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
-import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
 /**
- * @author Gordon Fraser
+ * @author Gordon Fraser, Andre Mis
  * 
  */
 public class BranchCoverageFactory implements TestFitnessFactory {
@@ -58,8 +56,8 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 		}
 		// Branches
 		logger.info("Getting branches");
-		for (String className : BranchPool.branchMap.keySet()) {
-			for (String methodName : BranchPool.branchMap.get(className).keySet()) {
+		for (String className : BranchPool.knownClasses()) {
+			for (String methodName : BranchPool.knownMethods(className)) {
 
 				if (!targetMethod.equals("") && !methodName.equals(targetMethod)) {
 					logger.info("Method " + methodName + " does not equal target method "
@@ -67,17 +65,14 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 					continue;
 				}
 
-				// Get CFG of method
-				ControlFlowGraph cfg = CFGMethodAdapter.getMinimizedCFG(className,
-				                                                        methodName);
 
-				for (Branch b : BranchPool.branchMap.get(className).get(methodName)) {
+				for (Branch b : BranchPool.retrieveBranchesInMethod(className,methodName)) {
 
 					// Identify vertex in CFG
 					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(b,
-					        true, cfg, className, methodName)));
+					        true, className, methodName)));
 					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(b,
-					        false, cfg, className, methodName)));
+					        false, className, methodName)));
 				}
 			}
 		}

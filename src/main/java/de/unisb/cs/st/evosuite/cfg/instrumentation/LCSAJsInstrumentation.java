@@ -1,14 +1,15 @@
 /**
  * 
  */
-package de.unisb.cs.st.evosuite.cfg;
+package de.unisb.cs.st.evosuite.cfg.instrumentation;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.objectweb.asm.Opcodes;
@@ -18,8 +19,9 @@ import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
+import org.objectweb.asm.tree.TryCatchBlockNode;
 
-import de.unisb.cs.st.evosuite.cfg.CFGGenerator.CFGVertex;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJ;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
 
@@ -29,7 +31,7 @@ import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
  */
 public class LCSAJsInstrumentation implements MethodInstrumentation {
 
-	private static Logger logger = Logger.getLogger(LCSAJsInstrumentation.class);
+//	private static Logger logger = Logger.getLogger(LCSAJsInstrumentation.class);
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String, java.lang.String)
@@ -37,50 +39,60 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 	@SuppressWarnings("unchecked")
 	//using external lib
 	@Override
-	public void analyze(MethodNode mn, Graph<CFGVertex, DefaultEdge> graph,
-	        String className, String methodName, int access) {
+	public void analyze(MethodNode mn, String className, String methodName, int access) {
 
 		Queue<LCSAJ> lcsaj_queue = new LinkedList<LCSAJ>();
 		HashSet<Integer> targets_reached = new HashSet<Integer>();
-		LCSAJ a = new LCSAJ(className, methodName);
-		a.addInstruction(0, mn.instructions.getFirst(), true);
+		
+		LCSAJ a = new LCSAJ(className, methodName,mn.instructions.getFirst(),0,-1);
 		lcsaj_queue.add(a);
-
+		
+		targets_reached.add(0);
+		
+		ArrayList<TryCatchBlockNode> tc_blocks = (ArrayList<TryCatchBlockNode>)mn.tryCatchBlocks;
+	
+		for (TryCatchBlockNode t : tc_blocks){
+			LCSAJ b  = new LCSAJ(className,methodName,t.handler,mn.instructions.indexOf(t.handler),-1);
+			lcsaj_queue.add(b);
+		}
+		
 		while (!lcsaj_queue.isEmpty()) {
 
 			LCSAJ current_lcsaj = lcsaj_queue.poll();
 			int position = mn.instructions.indexOf(current_lcsaj.getLastNodeAccessed());
-
-			if (position + 1 >= mn.instructions.size()) {
+			// go to next bytecode instruction
+			position++;
+			
+			if (position >= mn.instructions.size()) {
 				// New LCSAJ for current + return
 				LCSAJPool.add_lcsaj(className, methodName, current_lcsaj);
 				continue;
 			}
 
-			AbstractInsnNode next = mn.instructions.get(position + 1);
-			current_lcsaj.addInstruction(position + 1, next, false);
+			AbstractInsnNode next = mn.instructions.get(position);
+			current_lcsaj.lookupInstruction(position, next);
 
 			if (next instanceof JumpInsnNode) {
-
+				
 				JumpInsnNode jump = (JumpInsnNode) next;
 				// New LCSAJ for current + jump to target
 				LCSAJPool.add_lcsaj(className, methodName, current_lcsaj);
-
+				LabelNode target = jump.label;
+				int targetPosition = mn.instructions.indexOf(target);
+				
 				if (jump.getOpcode() != Opcodes.GOTO) {
-
-					lcsaj_queue.add(current_lcsaj);
-
-					if (!targets_reached.contains(position + 1)) {
-
-						LabelNode target = jump.label;
-						LCSAJ c = new LCSAJ(className, methodName);
-						c.addInstruction(mn.instructions.indexOf(target), target, true);
+					
+					LCSAJ copy = new LCSAJ(current_lcsaj);
+					lcsaj_queue.add(copy);
+					
+					if (!targets_reached.contains(targetPosition)){
+						LCSAJ c = new LCSAJ(className, methodName,target,targetPosition,position);
 						lcsaj_queue.add(c);
-						targets_reached.add(position + 1);
-
-					}
+					}                                             
 				}
-
+				if (!targets_reached.contains(targetPosition))
+					targets_reached.add(targetPosition);
+				
 			} else if (next instanceof TableSwitchInsnNode) {
 
 				TableSwitchInsnNode tswitch = (TableSwitchInsnNode) next;
@@ -92,38 +104,29 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 
 					if (!targets_reached.contains(target_position)) {
 
-						LCSAJ b = new LCSAJ(className, methodName);
-						b.addInstruction(target_position, target, true);
-
-						targets_reached.add(target_position);
+						LCSAJ b = new LCSAJ(className, methodName,target,target_position,position);
 						lcsaj_queue.add(b);
-
+						
+						targets_reached.add(target_position);
 					}
 				}
 
-			} else if (next instanceof InsnNode) {
+			} else if (next instanceof InsnNode ) {
 				InsnNode insn = (InsnNode) next;
-				switch (insn.getOpcode()) {
-				case Opcodes.ATHROW:
-				case Opcodes.RETURN:
-				case Opcodes.ARETURN:
-				case Opcodes.IRETURN:
-				case Opcodes.DRETURN:
-				case Opcodes.LRETURN:
-				case Opcodes.FRETURN:
-					// New LCSAJ for current + throw
+				// New LCSAJ for current + throw / return
+				if (	insn.getOpcode() == Opcodes.ATHROW
+						||	insn.getOpcode() == Opcodes.RETURN
+						||	insn.getOpcode() == Opcodes.ARETURN
+						||	insn.getOpcode() == Opcodes.IRETURN
+						||	insn.getOpcode() == Opcodes.DRETURN
+						||	insn.getOpcode() == Opcodes.LRETURN
+						||	insn.getOpcode() == Opcodes.FRETURN)		
 					LCSAJPool.add_lcsaj(className, methodName, current_lcsaj);
-					break;
-				default:
+				else 
 					lcsaj_queue.add(current_lcsaj);
-
-				}
-			} else {
+			} else 
 				lcsaj_queue.add(current_lcsaj);
-			}
 		}
-		logger.info("Found " + LCSAJPool.getSize() + " LCSAJs by now");
-		System.out.println("LCSAJs completed!!!!!!!!!!!");
 	}
 
 	/* (non-Javadoc)

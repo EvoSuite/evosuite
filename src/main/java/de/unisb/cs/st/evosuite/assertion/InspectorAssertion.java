@@ -21,6 +21,7 @@ package de.unisb.cs.st.evosuite.assertion;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import de.unisb.cs.st.evosuite.testcase.Scope;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 public class InspectorAssertion extends Assertion {
 
@@ -30,7 +31,7 @@ public class InspectorAssertion extends Assertion {
 	public Object result;
 
 	@Override
-	public Assertion clone() {
+	public Assertion clone(TestCase newTestCase) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -21,14 +21,6 @@ import de.unisb.cs.st.evosuite.assertion.Assertion;
 public interface StatementInterface {
 
 	/**
-	 * Adjust all variables up to position by delta
-	 * 
-	 * @param position
-	 * @param delta
-	 */
-	public void adjustVariableReferences(int position, int delta);
-
-	/**
 	 * Check if the statement makes use of var
 	 * 
 	 * @param var
@@ -41,8 +33,6 @@ public interface StatementInterface {
 			throws InvocationTargetException, IllegalArgumentException,
 			IllegalAccessException, InstantiationException;
 
-	public void SetRetval(VariableReference newRetVal);
-
 	/**
 	 * Get Java representation of statement
 	 * 
@@ -50,6 +40,14 @@ public interface StatementInterface {
 	 */
 	public String getCode();
 
+	/**
+	 * Various consistency checks.
+	 * This method might also return with an assertionError
+	 * Functionality might depend on the status of enableAssertions in this JVM
+	 * @return
+	 */
+	public boolean isValid();
+	
 	/**
 	 * Get Java representation of statement
 	 * 
@@ -84,7 +82,7 @@ public interface StatementInterface {
 	 *            Other statement
 	 * @return True if equals
 	 */
-	public boolean equals(StatementInterface s);
+	public boolean equals(Object s);
 
 	/**
 	 * Generate hash code
@@ -100,11 +98,13 @@ public interface StatementInterface {
 
 	public List<VariableReference> getUniqueVariableReferences();
 
-	public void replace(VariableReference old_var, VariableReference new_var);
-
-	public void replaceUnique(VariableReference old_var,
-			VariableReference new_var);
-
+	/**
+	 * 
+	 * @param newTestCase the testcase in which this statement will be inserted
+	 * @return
+	 */
+	public StatementInterface clone(TestCase newTestCase);
+	
 	/**
 	 * Create deep copy of statement
 	 */
@@ -133,14 +133,6 @@ public interface StatementInterface {
 	public String getAssertionCode();
 
 	/**
-	 * Fix variable references in assertions
-	 * 
-	 * @param position
-	 * @param delta
-	 */
-	public void adjustAssertions(int position, int delta);
-
-	/**
 	 * Delete all assertions attached to this statement
 	 */
 	public void removeAssertions();
@@ -159,4 +151,11 @@ public interface StatementInterface {
 
 	public int getPosition();
 
+	/**
+	 * Allows the comparing of Statements between TestCases. I.e. this is a more semantic comparison than the one done by equals.
+	 * E.g. two Variable are equal if they are at the same position and they reference to objects of the same type.
+	 * @param s
+	 * @return
+	 */
+	public boolean same(StatementInterface s);
 }

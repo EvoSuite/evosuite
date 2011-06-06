@@ -59,7 +59,7 @@ public class InspectorTrace extends OutputTrace {
 			trace.inspector_results.put(e.getKey(), new ArrayList<Object>(e.getValue()));
 
 		for (Entry<Integer, VariableReference> e : return_values.entrySet())
-			trace.return_values.put(e.getKey(), e.getValue().clone());
+			trace.return_values.put(e.getKey(), e.getValue());
 		trace.calleeMap.putAll(calleeMap);
 
 		//trace.return_values.putAll(return_values);
@@ -121,7 +121,7 @@ public class InspectorTrace extends OutputTrace {
 						assertion.result = own_results.get(i);
 						if (!other.isDetectedBy(assertion)) {
 							logger.error("Invalid inspector assertion generated!");
-							if (line != assertion.source.statement)
+							if (line != assertion.source.getStPosition())
 								logger.error("...because line doesn't match!");
 							logger.error("" + own_results.get(i) + " / "
 							        + other.inspector_results.get(i));
@@ -209,8 +209,8 @@ public class InspectorTrace extends OutputTrace {
 			return false;
 
 		InspectorAssertion p = (InspectorAssertion) assertion;
-		if (inspector_results.containsKey(p.source.statement)) {
-			List<Object> own_results = inspector_results.get(p.source.statement);
+		if (inspector_results.containsKey(p.source.getStPosition())) {
+			List<Object> own_results = inspector_results.get(p.source.getStPosition());
 			List<Inspector> inspectors = manager.getInspectors(p.source.getVariableClass());
 			if (inspectors.size() != own_results.size())
 				logger.error("Size of inspectors and inspector results does not match!");

@@ -59,14 +59,15 @@ public class Scope {
 	public synchronized void set(VariableReference reference, Object o) {
 
 		// Learn some dynamic information about this object
-		if (reference.isArray()) {
+		if (reference instanceof ArrayReference) {
+			ArrayReference arrayRef = (ArrayReference)reference;
 			if (o != null && !o.getClass().isArray())
 				System.out.println("Trying to access object of class " + o.getClass()
 				        + " as array: " + o);
 			else if (o != null)
-				reference.array_length = Array.getLength(o);
+				arrayRef.setArrayLength(Array.getLength(o));
 			else
-				reference.array_length = 0;
+				arrayRef.setArrayLength(0);
 		}
 
 		if (o != null && !o.getClass().equals(reference.getVariableClass())
@@ -95,10 +96,11 @@ public class Scope {
 	 * @return Current value of reference
 	 */
 	public synchronized Object get(VariableReference reference) {
-		if (reference.isArrayIndex()) {
-			Object array = pool.get(reference.array);
+		if (reference instanceof ArrayIndex) {
+			ArrayIndex arrayRef = (ArrayIndex)reference;
+			Object array = pool.get(arrayRef.getArray());
 			if (array != null) {
-				return Array.get(array, reference.array_index);
+				return Array.get(array, arrayRef.getArrayIndex());
 			} else {
 				return null;
 			}

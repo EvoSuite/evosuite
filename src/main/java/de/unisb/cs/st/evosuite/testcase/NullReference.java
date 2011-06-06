@@ -26,39 +26,28 @@ import java.lang.reflect.Type;
  * @author Gordon Fraser
  *
  */
-public class NullReference extends VariableReference {
+public class NullReference extends VariableReferenceImpl {
 
 	/**
 	 * @param type
 	 * @param position
 	 */
-	public NullReference(Type type) {
-		super(type, -1);
+	public NullReference(TestCase testCase, Type type) {
+		super(testCase, type);
 	}
 
 	/**
 	 * Return name for source code representation
 	 * @return
 	 */
+	@Override
 	public String getName() {
 		return "("+type.getSimpleName()+") null";
 	}
-	
-	/**
-	 * Add delta to the position of all variables up to a position
-	 * @param delta
-	 *    The delta that will be added to the position of each variable
-	 * @param position
-	 *    The maximum position up to which variables are changed
-	 */
-	public void adjust(int delta, int position) {
-		// Do nothing
-	}
 
-	/**
-	 * Create a copy of the current variable
-	 */
-	public VariableReference clone() {
-		return new NullReference(getType());
+	
+	@Override
+	public VariableReference clone(){
+		throw new UnsupportedOperationException();
 	}
 }

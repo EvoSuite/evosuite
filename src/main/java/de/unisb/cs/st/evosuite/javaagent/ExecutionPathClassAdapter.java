@@ -38,7 +38,7 @@ public class ExecutionPathClassAdapter extends ClassAdapter {
 
 	private final Excludes e = Excludes.getTestExcludesInstance();
 
-	private static final boolean MUTATION = Properties.CRITERION.equals(Criterion.MUTATION);
+	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION;
 
 	private final String className;
 

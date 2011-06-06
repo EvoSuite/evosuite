@@ -30,6 +30,7 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTracer;
@@ -64,25 +65,25 @@ public class ExecutionTrace {
 	public ConcurrencyTracer concurrencyTracer;
 
 	public class MethodCall {
-		public String class_name;
-		public String method_name;
-		public List<Integer> line_trace;
-		public List<Integer> branch_trace;
-		public List<Double> true_distance_trace;
-		public List<Double> false_distance_trace;
-		public List<Integer> defuse_counter_trace;
+		public String className;
+		public String methodName;
+		public List<Integer> lineTrace;
+		public List<Integer> branchTrace;
+		public List<Double> trueDistanceTrace;
+		public List<Double> falseDistanceTrace;
+		public List<Integer> defuseCounterTrace;
 		public int methodId;
 		public int callingObjectID;
 
 		public MethodCall(String className, String methodName, int methodId,
 		        int callingObjectID) {
-			class_name = className;
-			method_name = methodName;
-			line_trace = new ArrayList<Integer>();
-			branch_trace = new ArrayList<Integer>();
-			true_distance_trace = new ArrayList<Double>();
-			false_distance_trace = new ArrayList<Double>();
-			defuse_counter_trace = new ArrayList<Integer>();
+			this.className = className;
+			this.methodName = methodName;
+			lineTrace = new ArrayList<Integer>();
+			branchTrace = new ArrayList<Integer>();
+			trueDistanceTrace = new ArrayList<Double>();
+			falseDistanceTrace = new ArrayList<Double>();
+			defuseCounterTrace = new ArrayList<Integer>();
 			this.methodId = methodId;
 			this.callingObjectID = callingObjectID;
 		}
@@ -90,9 +91,9 @@ public class ExecutionTrace {
 		@Override
 		public String toString() {
 			StringBuffer ret = new StringBuffer();
-			ret.append(class_name);
+			ret.append(className);
 			ret.append(":");
-			ret.append(method_name);
+			ret.append(methodName);
 			ret.append("\n");
 			// ret.append("Lines: ");
 			// for(Integer line : line_trace) {
@@ -100,31 +101,86 @@ public class ExecutionTrace {
 			// }
 			// ret.append("\n");
 			ret.append("Branches: ");
-			for (Integer branch : branch_trace) {
+			for (Integer branch : branchTrace) {
 				ret.append(" " + branch);
 			}
 			ret.append("\n");
 			ret.append("True Distances: ");
-			for (Double distance : true_distance_trace) {
+			for (Double distance : trueDistanceTrace) {
 				ret.append(" " + distance);
 			}
 			ret.append("False Distances: ");
-			for (Double distance : false_distance_trace) {
+			for (Double distance : falseDistanceTrace) {
 				ret.append(" " + distance);
 			}
 			ret.append("\n");
 			return ret.toString();
 		}
+		
+		public String explain() {
+			// TODO StringBuilder-explain() functions to construct string templates like explainList()
+			StringBuffer r = new StringBuffer();
+			r.append(className);
+			r.append(":");
+			r.append(methodName);
+			r.append("\n");
+			r.append("Lines: ");
+			if(lineTrace == null)
+				r.append("null");
+			else {
+				for(Integer line : lineTrace) {
+					r.append("\t"+line);
+				}
+				r.append("\n");
+			}
+			r.append("Branches: ");
+			if(branchTrace == null)
+				r.append("null");
+			else {
+				for (Integer branch : branchTrace) {
+					r.append("\t" + branch);
+				}
+				r.append("\n");
+			}
+			r.append("True Distances: ");
+			if(trueDistanceTrace == null)
+				r.append("null");
+			else {
+				for (Double distance : trueDistanceTrace) {
+					r.append("\t" + distance);
+				}
+				r.append("\n");
+			}
+			r.append("False Distances: ");
+			if(falseDistanceTrace == null)
+				r.append("null");
+			else {
+				for (Double distance : falseDistanceTrace) {
+					r.append("\t" + distance);
+				}
+				r.append("\n");
+			}
+			r.append("DefUse Trace:");
+			if(defuseCounterTrace == null)
+				r.append("null");
+			else {
+				for(Integer duCounter : defuseCounterTrace) {
+					r.append("\t" + duCounter);
+				}
+				r.append("\n");
+			}
+			return r.toString();
+		}
 
 		@Override
 		public MethodCall clone() {
-			MethodCall copy = new MethodCall(class_name, method_name, methodId,
+			MethodCall copy = new MethodCall(className, methodName, methodId,
 			        callingObjectID);
-			copy.line_trace = new ArrayList<Integer>(line_trace);
-			copy.branch_trace = new ArrayList<Integer>(branch_trace);
-			copy.true_distance_trace = new ArrayList<Double>(true_distance_trace);
-			copy.false_distance_trace = new ArrayList<Double>(false_distance_trace);
-			copy.defuse_counter_trace = new ArrayList<Integer>(defuse_counter_trace);
+			copy.lineTrace = new ArrayList<Integer>(lineTrace);
+			copy.branchTrace = new ArrayList<Integer>(branchTrace);
+			copy.trueDistanceTrace = new ArrayList<Double>(trueDistanceTrace);
+			copy.falseDistanceTrace = new ArrayList<Double>(falseDistanceTrace);
+			copy.defuseCounterTrace = new ArrayList<Integer>(defuseCounterTrace);
 			return copy;
 		}
 	}
@@ -170,11 +226,12 @@ public class ExecutionTrace {
 	/**
 	 * Add a new method call to stack
 	 * 
-	 * @param classname
-	 * @param methodname
+	 * @param className
+	 * @param methodName
 	 */
-	public void enteredMethod(String classname, String methodname, Object caller) {
-		String id = classname + "." + methodname;
+	public void enteredMethod(String className, String methodName, Object caller) {
+		
+		String id = className + "." + methodName;
 		if (!covered_methods.containsKey(id))
 			covered_methods.put(id, 1);
 		else
@@ -183,13 +240,13 @@ public class ExecutionTrace {
 		if (trace_calls) {
 			int callingObjectID = registerObject(caller);
 			methodId++;
-			MethodCall call = new MethodCall(classname, methodname, methodId,
+			MethodCall call = new MethodCall(className, methodName, methodId,
 			        callingObjectID);
-			if (Properties.CRITERION.equals("defuse")) {
-				call.branch_trace.add(-1);
-				call.true_distance_trace.add(1.0);
-				call.false_distance_trace.add(0.0);
-				call.defuse_counter_trace.add(duCounter);
+			if (Properties.CRITERION == Criterion.DEFUSE) {
+				call.branchTrace.add(-1);
+				call.trueDistanceTrace.add(1.0);
+				call.falseDistanceTrace.add(0.0);
+				call.defuseCounterTrace.add(duCounter);
 				// TODO line_trace ?
 			}
 			stack.push(call);
@@ -205,11 +262,11 @@ public class ExecutionTrace {
 	public void exitMethod(String classname, String methodname) {
 		if (trace_calls) {
 
-			if (!stack.isEmpty() && !(stack.peek().method_name.equals(methodname))) {
-				logger.debug("Expecting " + stack.peek().method_name + ", got "
+			if (!stack.isEmpty() && !(stack.peek().methodName.equals(methodname))) {
+				logger.debug("Expecting " + stack.peek().methodName + ", got "
 				        + methodname);
-				if (stack.peek().method_name.equals("")
-				        && !stack.peek().branch_trace.isEmpty()) {
+				if (stack.peek().methodName.equals("")
+				        && !stack.peek().branchTrace.isEmpty()) {
 					logger.info("Found main method");
 					finished_calls.add(stack.pop());
 				} else {
@@ -232,9 +289,9 @@ public class ExecutionTrace {
 	public void linePassed(String className, String methodName, int line) {
 		if (trace_calls) {
 			if (stack.isEmpty()) {
-				logger.warn("Method stack is empty: " + className + "." + methodName);
+				logger.warn("Method stack is empty: " + className + "." + methodName+" - l"+line); // TODO switch back logger.debug to logger.warn
 			} else {
-				stack.peek().line_trace.add(line);
+				stack.peek().lineTrace.add(line);
 			}
 		}
 		if (!coverage.containsKey(className))
@@ -303,12 +360,12 @@ public class ExecutionTrace {
 	        double true_distance, double false_distance) {
 
 		if (trace_calls) {
-			stack.peek().branch_trace.add(bytecode_id);
-			stack.peek().true_distance_trace.add(true_distance);
-			stack.peek().false_distance_trace.add(false_distance);
+			stack.peek().branchTrace.add(bytecode_id);
+			stack.peek().trueDistanceTrace.add(true_distance);
+			stack.peek().falseDistanceTrace.add(false_distance);
 			// TODO line_trace ?
-			if (Properties.CRITERION.equals("defuse")) {
-				stack.peek().defuse_counter_trace.add(duCounter);
+			if (Properties.CRITERION == Criterion.DEFUSE) {
+				stack.peek().defuseCounterTrace.add(duCounter);
 			}
 		}
 	}
@@ -336,7 +393,7 @@ public class ExecutionTrace {
 		int objectID = registerObject(caller);
 
 		// if this is a static variable, treat objectID as zero for consistency in the representation of static data
-		if (objectID != 0 && def.isStaticDU())
+		if (objectID != 0 && def.isStaticDefUse())
 			objectID = 0;
 		if (passedDefinitions.get(varName) == null)
 			passedDefinitions.put(varName,
@@ -371,7 +428,7 @@ public class ExecutionTrace {
 			if (use == null)
 				throw new IllegalStateException(
 				        "expect DefUsePool to known defIDs that are passed by instrumented code");
-			if (use.isStaticDU())
+			if (use.isStaticDefUse())
 				objectID = 0;
 		}
 		if (passedUses.get(varName) == null)
@@ -482,40 +539,40 @@ public class ExecutionTrace {
 		 */
 
 		ExecutionTrace r = clone();
-		Branch targetDUBranch = BranchPool.getBranch(targetDU.getBranchId());
+		Branch targetDUBranch = BranchPool.getBranch(targetDU.getControlDependentBranchId());
 		ArrayList<Integer> removableCalls = new ArrayList<Integer>();
 		for (int callPos = 0; callPos < r.finished_calls.size(); callPos++) {
 			MethodCall call = r.finished_calls.get(callPos);
 			// check if call is for the method of targetDU
-			if (!call.method_name.equals(targetDU.getMethodName())) {
+			if (!call.methodName.equals(targetDU.getMethodName())) {
 				removableCalls.add(callPos);
 				continue;
 			}
 			ArrayList<Integer> removableIndices = new ArrayList<Integer>();
-			for (int i = 0; i < call.defuse_counter_trace.size(); i++) {
-				int currentDUCounter = call.defuse_counter_trace.get(i);
-				int currentBranchBytecode = call.branch_trace.get(i);
+			for (int i = 0; i < call.defuseCounterTrace.size(); i++) {
+				int currentDUCounter = call.defuseCounterTrace.get(i);
+				int currentBranchBytecode = call.branchTrace.get(i);
 
 				if (currentDUCounter < duCounterStart || currentDUCounter > duCounterEnd)
 					removableIndices.add(i);
-				else if (currentBranchBytecode == targetDUBranch.getBytecodeId()) {
+				else if (currentBranchBytecode == targetDUBranch.getInstructionId()) {
 					// only remove this point in the trace if it would cover targetDU
-					boolean targetExpressionValue = targetDU.getCFGVertex().branchExpressionValue;
+					boolean targetExpressionValue = targetDU.getControlDependentBranchExpressionValue();
 					if (wantToCoverTargetDU)
 						targetExpressionValue = !targetExpressionValue;
 					if (targetExpressionValue) {
 						// TODO as mentioned in CFGVertex.branchExpressionValue-comment: flip it!
-						if (call.true_distance_trace.get(i) == 0.0)
+						if (call.trueDistanceTrace.get(i) == 0.0)
 							removableIndices.add(i);
 					} else {
-						if (call.false_distance_trace.get(i) == 0.0)
+						if (call.falseDistanceTrace.get(i) == 0.0)
 							removableIndices.add(i);
 					}
 
 				}
 			}
 			removeFromFinishCall(call, removableIndices);
-			if (call.defuse_counter_trace.size() == 0)
+			if (call.defuseCounterTrace.size() == 0)
 				removableCalls.add(callPos);
 		}
 		removeFinishCalls(r, removableCalls);
@@ -544,24 +601,29 @@ public class ExecutionTrace {
 	 */
 	private static void removeFromFinishCall(MethodCall call,
 	        ArrayList<Integer> removableIndices) {
-		// TODO: line_trace?	
-		//check if call is sane
-		if (!(call.true_distance_trace.size() == call.false_distance_trace.size()
-		        && call.false_distance_trace.size() == call.defuse_counter_trace.size() && call.defuse_counter_trace.size() == call.branch_trace.size()))
-			throw new IllegalStateException(
-			        "insane MethodCall: traces should all be of equal size");
+		checkSaneCall(call);
+			
 		Collections.sort(removableIndices);
 		for (int i = removableIndices.size() - 1; i >= 0; i--) {
 			int removableIndex = removableIndices.get(i);
-			Integer removedBranch = call.branch_trace.remove(removableIndex);
-			Double removedTrue = call.true_distance_trace.remove(removableIndex);
-			Double removedFalse = call.false_distance_trace.remove(removableIndex);
-			Integer removedCounter = call.defuse_counter_trace.remove(removableIndex);
+			Integer removedBranch = call.branchTrace.remove(removableIndex);
+			Double removedTrue = call.trueDistanceTrace.remove(removableIndex);
+			Double removedFalse = call.falseDistanceTrace.remove(removableIndex);
+			Integer removedCounter = call.defuseCounterTrace.remove(removableIndex);
 			if (removedCounter == null || removedBranch == null || removedTrue == null
 			        || removedFalse == null)
 				throw new IllegalStateException(
 				        "trace.finished_calls-traces not allowed to contain null");
 		}
+	}
+
+	private static void checkSaneCall(MethodCall call) {
+		if (!(call.trueDistanceTrace.size() == call.falseDistanceTrace.size()
+		        && call.falseDistanceTrace.size() == call.defuseCounterTrace.size() 
+		        && call.defuseCounterTrace.size() == call.branchTrace.size())) {
+			throw new IllegalStateException("insane MethodCall: traces should all be of equal size. "+call.explain());
+		}
+		
 	}
 
 	/**
