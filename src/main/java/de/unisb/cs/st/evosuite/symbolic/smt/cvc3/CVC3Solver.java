@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.unisb.cs.st.evosuite.symbolic.cvc3;
+package de.unisb.cs.st.evosuite.symbolic.smt.cvc3;
 
 import java.util.Collection;
 import java.util.HashMap;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.unisb.cs.st.evosuite.symbolic;
+package de.unisb.cs.st.evosuite.symbolic.smt.smtlib;
 
 import org.smtlib.IExpr;
 import org.smtlib.IExpr.IDecimal;

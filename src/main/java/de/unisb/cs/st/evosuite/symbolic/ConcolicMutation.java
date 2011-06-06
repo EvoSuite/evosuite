@@ -36,9 +36,9 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
 
 import de.unisb.cs.st.evosuite.ga.Randomness;
-import de.unisb.cs.st.evosuite.symbolic.cvc3.CVC3Solver;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
+import de.unisb.cs.st.evosuite.symbolic.smt.cvc3.CVC3Solver;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;

@@ -1,4 +1,4 @@
-package de.unisb.cs.st.evosuite.symbolic.choco;
+package de.unisb.cs.st.evosuite.symbolic.smt.choco;
 
 /*
  * Copyright (C) 2011 Saarland University

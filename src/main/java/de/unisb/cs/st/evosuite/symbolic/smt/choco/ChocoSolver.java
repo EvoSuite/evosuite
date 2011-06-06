@@ -16,7 +16,7 @@
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.unisb.cs.st.evosuite.symbolic.choco;
+package de.unisb.cs.st.evosuite.symbolic.smt.choco;
 
 import java.io.BufferedReader;
 import java.io.IOException;
