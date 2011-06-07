@@ -493,10 +493,13 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 			throw new IllegalArgumentException("null given");
 
 		if (block.containsInstruction(entryPoint)) {
-			// sanity check
-			if (!block.getFirstInstruction().equals(entryPoint))
-				throw new IllegalStateException(
-						"expect entryPoint of a method to be the first instruction from the entryBlock of that method");
+//			// sanity check
+//			if (!block.getFirstInstruction().equals(entryPoint)) {
+//				logger.error("entryPoint: "+entryPoint.toString());
+//				logger.error("current block: "+block.explain());
+//				throw new IllegalStateException(
+//						"expect entryPoint of a method to be the first instruction from the entryBlock of that method");
+//			}
 			return true;
 		}
 
