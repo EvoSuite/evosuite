@@ -400,7 +400,7 @@ setup ()
 	    first=1
 #	    javalanche_options=" -Djavalanche.ignore.replace.variables=true -Dmutation.package.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PROJECT_PREFIX"
 	    javalanche_options=" -Djavalanche.project.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PROJECT_PREFIX"
-	    java $java_options -cp "$classpath:$CP" $java_agent=scan  $javalanche_options $TEST_CLASS $OBJECT $evosuite_scan
+	    java $java_options -ea -cp "$classpath:$CP" $java_agent=scan  $javalanche_options $TEST_CLASS $OBJECT $evosuite_scan
 #	    java $java_options -cp "$classpath:$CP" $java_agent=tasks $javalanche_options $TEST_CLASS $OBJECT $evosuite_tasks
 	    setup_javalanche $OUTPUT_DIR $PROJECT_PREFIX $CP
 	    setup_evosuite $OUTPUT_DIR $PROJECT_PREFIX $CP
