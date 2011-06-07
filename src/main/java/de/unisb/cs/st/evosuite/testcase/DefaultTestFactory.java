@@ -31,6 +31,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import net.sf.cglib.transform.impl.AddStaticInitTransformer;
+
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
@@ -697,7 +699,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		} else {
 			if (allow_null && randomness.nextDouble() <= Properties.NULL_PROBABILITY) {
 				logger.debug("Using a null reference to satisfy the type: " + type);
-				return new NullReference(test, type);
+				StatementInterface st = new NullStatement(test, type);
+				test.addStatement(st, position);
+				return test.getStatement(position).getReturnValue();
 			}
 
 			if (!test.hasCalls()
