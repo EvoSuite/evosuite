@@ -260,6 +260,9 @@ public class ScanProject {
 		while (e.hasMoreElements()) {
 			final ZipEntry ze = (ZipEntry) e.nextElement();
 			final String fileName = ze.getName();
+			if (!fileName.endsWith(".class"))
+				continue;
+
 			try {
 				System.out.println("* Loading class " + fileName + " from jar file");
 				set.add(zcl.findClass(fileName.replace(".class", "")));
