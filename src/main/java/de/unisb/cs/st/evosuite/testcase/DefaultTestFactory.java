@@ -756,10 +756,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			logger.debug("Inserting call " + call + " has failed. Removing statements");
 			// System.out.println("TG: Failed");
 			// TODO: Doesn't work if position != test.size()
-			while (test.size() != previous_length) {
+			int length_difference = test.size() - previous_length;
+			for(int i=length_difference-1 ; i>=0 ; i--) { //we need to remove them in order, so that the testcase is at all time consistent 
 				logger.debug("  Removing statement: "
-				        + test.getStatement(position).getCode());
-				test.remove(position);
+				        + test.getStatement(position+i).getCode());
+				test.remove(position+i);
 			}
 		}
 	}
@@ -786,10 +787,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			logger.debug("Inserting call " + call + " has failed. Removing statements");
 			// System.out.println("TG: Failed");
 			// TODO: Doesn't work if position != test.size()
-			while (test.size() != previous_length) {
+			int length_difference = test.size() - previous_length;
+			for(int i=length_difference-1 ; i>=0 ; i--) { //we need to remove them in order, so that the testcase is at all time consistent 
 				logger.debug("  Removing statement: "
-				        + test.getStatement(position).getCode());
-				test.remove(position);
+				        + test.getStatement(position+i).getCode());
+				test.remove(position+i);
 			}
 		}
 	}
@@ -826,10 +828,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			        + " has failed. Removing statements");
 			// System.out.println("TG: Failed");
 			// TODO: Doesn't work if position != test.size()
-			while (test.size() != previous_length) {
+			int length_difference = test.size() - previous_length;
+			for(int i=length_difference-1 ; i>=0 ; i--) { //we need to remove them in order, so that the testcase is at all time consistent 
 				logger.debug("  Removing statement: "
-				        + test.getStatement(position).getCode());
-				test.remove(position);
+				        + test.getStatement(position+i).getCode());
+				test.remove(position+i);
 			}
 
 			// logger.info("Attempting search");
