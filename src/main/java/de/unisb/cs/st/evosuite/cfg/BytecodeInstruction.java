@@ -2,6 +2,7 @@ package de.unisb.cs.st.evosuite.cfg;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,6 +58,16 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	private boolean mutationBranch = false;
 	private boolean mutatedBranch = false;
 
+	// experiment: since finding the control dependent branches in the CDG might
+	// take a little to long, we might want to remember them
+	private Set<Branch> controlDependentBranches;
+	private Set<Integer> controlDependentBranchIDs;
+
+	// experiment: also searching through all CFG nodes in order to determine an
+	// instruction BasicBlock might be a little to expensive too just to safe
+	// space for one reference
+	private BasicBlock basicBlock;
+
 	// TODO make sure the word CFGVertex appears nowhere anymore
 
 	/**
@@ -86,13 +97,23 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	public BytecodeInstruction(BytecodeInstruction wrap) {
 
 		this(wrap.className, wrap.methodName, wrap.instructionId, wrap.asmNode,
-				wrap.lineNumber);
+				wrap.lineNumber, wrap.basicBlock);
+	}
+
+	public BytecodeInstruction(String className, String methodName,
+			int instructionId, AbstractInsnNode asmNode, int lineNumber,
+			BasicBlock basicBlock) {
+
+		this(className, methodName, instructionId, asmNode, lineNumber);
+		
+		this.basicBlock = basicBlock;
 	}
 
 	public BytecodeInstruction(String className, String methodName,
 			int instructionId, AbstractInsnNode asmNode, int lineNumber) {
 
 		this(className, methodName, instructionId, asmNode);
+		
 		if (lineNumber != -1)
 			setLineNumber(lineNumber);
 	}
@@ -131,6 +152,51 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	
 	public String getName() {
 		return "BytecodeInstruction " + instructionId + " in " + methodName;
+	}
+
+	/**
+	 * Return's the BasicBlock that contain's this instruction in it's CFG.
+	 * 
+	 * If no BasicBlock containing this instruction was created yet, null is
+	 * returned.
+	 */
+	public BasicBlock getBasicBlock() {
+		if(!hasBasicBlockSet())
+			retrieveBasicBlock();
+		return basicBlock;
+	}
+
+	private void retrieveBasicBlock() {
+		
+		if(basicBlock == null)
+			basicBlock = getActualCFG().getBlockOf(this);
+	}
+
+	/**
+	 * Once the CFG has been asked for this instruction's BasicBlock it sets
+	 * this instance's internal basicBlock field.
+	 */
+	public void setBasicBlock(BasicBlock block) {
+		if (block == null)
+			throw new IllegalArgumentException("null given");
+
+		if (!block.getClassName().equals(getClassName())
+				|| !block.getMethodName().equals(getMethodName()))
+			throw new IllegalArgumentException(
+					"expect block to be for the same method and class as this instruction");
+		if (this.basicBlock != null)
+			throw new IllegalArgumentException(
+					"basicBlock already set! not allowed to overwrite");
+
+		this.basicBlock = block;
+	}
+
+	/**
+	 * Checks whether this instance's basicBlock has already been set by the CFG
+	 * or
+	 */
+	public boolean hasBasicBlockSet() {
+		return basicBlock != null;
 	}
 
 	// mutation part
@@ -335,7 +401,11 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 */
 	public Set<Branch> getAllControlDependentBranches() {
 
-		return getCDG().getControlDependentBranches(this);
+		if (controlDependentBranches == null)
+			controlDependentBranches = getCDG().getControlDependentBranches(
+					this);
+
+		return new HashSet<Branch>(controlDependentBranches);
 	}
 
 	/**
@@ -350,13 +420,14 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 */
 	public Set<Branch> getControlDependentBranches() {
 
-		Set<Branch> r = getAllControlDependentBranches();
+		Set<Branch> r = new HashSet<Branch>(getAllControlDependentBranches());
 		r.remove(this);
 
 		// TODO im not sure if the following holds
-//		if (r.isEmpty())
-//			throw new IllegalStateException("expect branch that is control dependent on itself to have at least one other branch it is control dependent on");
-		
+		// if (r.isEmpty())
+		// throw new
+		// IllegalStateException("expect branch that is control dependent on itself to have at least one other branch it is control dependent on");
+
 		return r;
 	}
 
@@ -373,7 +444,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 */
 	public Branch getControlDependentBranch() {
 
-		Set<Branch> cdIds = getControlDependentBranches();
+		Set<Branch> cdIds = getAllControlDependentBranches();
 
 		for (Branch cdId : cdIds)
 			return cdId;
@@ -382,9 +453,12 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	}
 
 	/**
-	 * Returns all branchIds of Branches this instruction is control dependent
-	 * on as determined by the ControlDependenceGraph for this instruction's
-	 * method.
+	 * Returns all branchIds of Branches this instruction is directly control
+	 * dependent on as determined by the ControlDependenceGraph for this
+	 * instruction's method.
+	 * 
+	 * If this instruction is control dependent on the root branch the id -1
+	 * will be contained in this set
 	 */
 	public Set<Integer> getControlDependentBranchIds() {
 
@@ -394,7 +468,11 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 			throw new IllegalStateException(
 					"expect CFGPool to know CDG for every method for which an instruction is known");
 
-		return myDependence.getControlDependentBranchIds(this);
+		if (controlDependentBranchIDs == null)
+			controlDependentBranchIDs = myDependence
+					.getControlDependentBranchIds(this);
+
+		return controlDependentBranchIDs;
 	}
 
 	/**
@@ -446,7 +524,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	public boolean getBranchExpressionValue(Branch b) {
 		if (b == null)
 			throw new IllegalArgumentException("null given");
-		if (!getControlDependentBranches().contains(b))
+		if (!isDirectlyControlDependentOn(b))
 			throw new IllegalArgumentException(
 					"this method can only be called for branches that this instruction is directly control dependent on");
 
@@ -454,6 +532,18 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	}
 
 	/**
+	 * Determines whether this BytecodeInstruction is directly control dependent
+	 * on the given Branch. Meaning within this instruction CDG there is an
+	 * incoming ControlFlowEdge to this instructions BasicBlock holding the
+	 * given Branch as it's branchInstruction
+	 */
+	public boolean isDirectlyControlDependentOn(Branch branch) {
+		return getAllControlDependentBranches().contains(branch);
+	}
+
+	/**
+	 * WARNING: better don't user this method right now TODO
+	 * 
 	 * Determines whether the CFGVertex is transitively control dependent on the
 	 * given Branch
 	 * 
@@ -471,6 +561,9 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		if (!getMethodName().equals(branch.getMethodName()))
 			return false;
 
+		// TODO: this method does not take into account, that there might be
+		// multiple branches this instruction is control dependent on
+
 		BytecodeInstruction vertexHolder = this;
 		do {
 			if (vertexHolder.isDirectlyControlDependentOn(branch))
@@ -482,22 +575,17 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	}
 
 	/**
-	 * Determines whether this BytecodeInstruction is directly control dependent
-	 * on the given Branch. Meaning within this instruction CDG there is an
-	 * incoming ControlFlowEdge to this instructions BasicBlock holding the
-	 * given Branch as it's branchInstruction
-	 */
-	public boolean isDirectlyControlDependentOn(Branch branch) {
-		return getCDG().isDirectlyControlDependentOn(this, branch);
-	}
-
-	/**
+	 * WARNING: better don't user this method right now TODO
+	 * 
 	 * Determines the number of branches that have to be passed in order to pass
 	 * this CFGVertex
 	 * 
 	 * Used to determine TestFitness difficulty
 	 */
 	public int getCDGDepth() {
+
+		// TODO: this method does not take into account, that there might be
+		// multiple branches this instruction is control dependent on
 
 		Branch current = getControlDependentBranch();
 		int r = 1;
@@ -508,13 +596,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		return r;
 	}
 
-	/*
-	 * public void addControlDependentBranch(Branch branch) {
-	 * controlDependencies.add(branch); }
-	 * 
-	 * public Set<Branch> getControlDependencies() { return controlDependencies;
-	 * }
-	 */
+	// String methods
 
 	public String explain() {
 		if (isMutation()) {
