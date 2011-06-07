@@ -70,7 +70,6 @@ public class BasicBlock implements Mutateable {
 		setId();
 		setInstructions(blockNodes);
 
-
 		checkSanity();
 	}
 
@@ -117,12 +116,15 @@ public class BasicBlock implements Mutateable {
 					"a basic block can not contain the same element twice");
 
 		// not sure if this holds:
-		BytecodeInstruction previousInstruction = getLastInstruction();
-		if (previousInstruction != null
-				&& instruction.getInstructionId() < previousInstruction
-						.getInstructionId())
-			throw new IllegalStateException(
-					"expect instructions in a basic block to be ordered by their instructionId");
+		// .. apparently it doesn't. at least check
+		// fails for java2.util2.Pattern TODO
+
+		// BytecodeInstruction previousInstruction = getLastInstruction();
+		// if (previousInstruction != null
+		// && instruction.getInstructionId() < previousInstruction
+		// .getInstructionId())
+		// throw new IllegalStateException(
+		// "expect instructions in a basic block to be ordered by their instructionId");
 
 		instruction.setBasicBlock(this);
 
@@ -268,7 +270,7 @@ public class BasicBlock implements Mutateable {
 	@Override
 	public boolean equals(Object obj) {
 
-//		logger.debug(getName() + " got asked asked for equality");
+		// logger.debug(getName() + " got asked asked for equality");
 
 		if (this == obj)
 			return true;
@@ -291,7 +293,7 @@ public class BasicBlock implements Mutateable {
 			if (!this.instructions.contains(instruction))
 				return false;
 
-//		logger.debug("was different instance but equal");
+		// logger.debug("was different instance but equal");
 
 		return true;
 	}

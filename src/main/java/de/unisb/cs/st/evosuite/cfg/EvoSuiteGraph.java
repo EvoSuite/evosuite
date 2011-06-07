@@ -20,8 +20,6 @@ import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
 
-// TODO visualization using .DOT
-
 /**
  * Supposed to become the super class of all kinds of graphs used within
  * EvoSuite Examples are the raw and minimal Control Flow Graph and hopefully at
