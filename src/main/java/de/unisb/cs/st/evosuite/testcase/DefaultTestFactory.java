@@ -696,11 +696,13 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 		} else {
 			if (allow_null && randomness.nextDouble() <= Properties.NULL_PROBABILITY) {
+				logger.debug("Using a null reference to satisfy the type: " + type);
 				return new NullReference(test, type);
 			}
 
 			if (!test.hasCalls()
 			        && randomness.nextDouble() <= Properties.CALL_PROBABILITY) {
+				logger.debug("adding a test call, at position: " + position);
 				return addTestCall(test, position);
 			}
 
