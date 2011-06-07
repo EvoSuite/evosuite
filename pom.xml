@@ -104,18 +104,18 @@
       <dependency>
         <groupId>jpf</groupId>
         <artifactId>jpf-core</artifactId>
-        <version>5.0pre2-EvoSuite-2</version>
+        <version>5.0pre2-EvoSuite-3</version>
       </dependency>
       <dependency>
         <groupId>jpf</groupId>
         <artifactId>jpf-annotations</artifactId>
-        <version>5.0pre2-EvoSuite-2</version>
+        <version>5.0pre2-EvoSuite-3</version>
         <scope>runtime</scope>
       </dependency>
       <dependency>
         <groupId>jpf</groupId>
         <artifactId>jpf-classes</artifactId>
-        <version>5.0pre2-EvoSuite-2</version>
+        <version>5.0pre2-EvoSuite-3</version>
         <scope>runtime</scope>
       </dependency>
       <dependency>
