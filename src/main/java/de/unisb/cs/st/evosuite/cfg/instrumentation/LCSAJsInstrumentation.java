@@ -10,8 +10,7 @@ import java.util.List;
 import java.util.Queue;
 
 //import org.apache.log4j.Logger;
-import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultEdge;
+
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnNode;
@@ -21,7 +20,6 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJ;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
 
@@ -44,7 +42,7 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 		Queue<LCSAJ> lcsaj_queue = new LinkedList<LCSAJ>();
 		HashSet<Integer> targets_reached = new HashSet<Integer>();
 		
-		LCSAJ a = new LCSAJ(className, methodName,mn.instructions.getFirst(),0,-1);
+		LCSAJ a = new LCSAJ(className, methodName,mn.instructions.getFirst(),0);
 		lcsaj_queue.add(a);
 		
 		targets_reached.add(0);
@@ -52,41 +50,41 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 		ArrayList<TryCatchBlockNode> tc_blocks = (ArrayList<TryCatchBlockNode>)mn.tryCatchBlocks;
 	
 		for (TryCatchBlockNode t : tc_blocks){
-			LCSAJ b  = new LCSAJ(className,methodName,t.handler,mn.instructions.indexOf(t.handler),-1);
+			LCSAJ b  = new LCSAJ(className,methodName,t.handler,mn.instructions.indexOf(t.handler));
 			lcsaj_queue.add(b);
 		}
 		
 		while (!lcsaj_queue.isEmpty()) {
 
-			LCSAJ current_lcsaj = lcsaj_queue.poll();
-			int position = mn.instructions.indexOf(current_lcsaj.getLastNodeAccessed());
+			LCSAJ currentLCSAJ = lcsaj_queue.poll();
+			int position = mn.instructions.indexOf(currentLCSAJ.getLastNodeAccessed());
 			// go to next bytecode instruction
 			position++;
 			
 			if (position >= mn.instructions.size()) {
 				// New LCSAJ for current + return
-				LCSAJPool.add_lcsaj(className, methodName, current_lcsaj);
+				LCSAJPool.add_lcsaj(className, methodName, currentLCSAJ);
 				continue;
 			}
 
 			AbstractInsnNode next = mn.instructions.get(position);
-			current_lcsaj.lookupInstruction(position, next);
+			currentLCSAJ.lookupInstruction(position, next);
 
 			if (next instanceof JumpInsnNode) {
 				
 				JumpInsnNode jump = (JumpInsnNode) next;
 				// New LCSAJ for current + jump to target
-				LCSAJPool.add_lcsaj(className, methodName, current_lcsaj);
+				LCSAJPool.add_lcsaj(className, methodName, currentLCSAJ);
 				LabelNode target = jump.label;
 				int targetPosition = mn.instructions.indexOf(target);
 				
 				if (jump.getOpcode() != Opcodes.GOTO) {
 					
-					LCSAJ copy = new LCSAJ(current_lcsaj);
+					LCSAJ copy = new LCSAJ(currentLCSAJ);
 					lcsaj_queue.add(copy);
 					
 					if (!targets_reached.contains(targetPosition)){
-						LCSAJ c = new LCSAJ(className, methodName,target,targetPosition,position);
+						LCSAJ c = new LCSAJ(className, methodName,target,targetPosition);
 						lcsaj_queue.add(c);
 					}                                             
 				}
@@ -100,14 +98,14 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 
 				for (LabelNode target : allTargets) {
 
-					int target_position = mn.instructions.indexOf(target);
+					int targetPosition = mn.instructions.indexOf(target);
 
-					if (!targets_reached.contains(target_position)) {
+					if (!targets_reached.contains(targetPosition)) {
 
-						LCSAJ b = new LCSAJ(className, methodName,target,target_position,position);
+						LCSAJ b = new LCSAJ(className, methodName,target,targetPosition);
 						lcsaj_queue.add(b);
 						
-						targets_reached.add(target_position);
+						targets_reached.add(targetPosition);
 					}
 				}
 
@@ -121,11 +119,11 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 						||	insn.getOpcode() == Opcodes.DRETURN
 						||	insn.getOpcode() == Opcodes.LRETURN
 						||	insn.getOpcode() == Opcodes.FRETURN)		
-					LCSAJPool.add_lcsaj(className, methodName, current_lcsaj);
+					LCSAJPool.add_lcsaj(className, methodName, currentLCSAJ);
 				else 
-					lcsaj_queue.add(current_lcsaj);
+					lcsaj_queue.add(currentLCSAJ);
 			} else 
-				lcsaj_queue.add(current_lcsaj);
+				lcsaj_queue.add(currentLCSAJ);
 		}
 	}
 

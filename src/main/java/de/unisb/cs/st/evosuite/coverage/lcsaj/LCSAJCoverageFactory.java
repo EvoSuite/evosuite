@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.cfg.ActualControlFlowGraph;
-import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
@@ -52,13 +50,8 @@ public class LCSAJCoverageFactory implements TestFitnessFactory {
 		// Branches
 		for (String className : LCSAJPool.lcsaj_map.keySet()) {
 			for (String methodName : LCSAJPool.lcsaj_map.get(className).keySet()) {
-				// Get CFG of method
-				//				ControlFlowGraph cfg = CFGMethodAdapter.getCFG(className, methodName);
-				ActualControlFlowGraph cfg = CFGPool.getActualCFG(className, methodName);
-
 				for (LCSAJ lcsaj : LCSAJPool.getLCSAJs(className, methodName))
-					goals.add(new LCSAJCoverageTestFitness(className, methodName, lcsaj,
-					        cfg));
+					goals.add(new LCSAJCoverageTestFitness(className, methodName, lcsaj));
 			}
 		}
 

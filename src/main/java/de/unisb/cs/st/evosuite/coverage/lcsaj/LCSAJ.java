@@ -14,24 +14,22 @@ public class LCSAJ {
 	private final ArrayList<Integer> branchIDs;
 	// Information needed and maintained in the LCSAJ instrumentation and detection algorithm
 	private final AbstractInsnNode startNode;
+	private final int startNodeID;
 	private AbstractInsnNode lastAccessedNode;
-	
-	// The branchID whose target is the start of the LCSAJ. Set to -1 if the start of the method is the start of the LCSAJ
-	private final int generatingBranchID;
 	
 	private int id = -1;
 	// Class and method where the LCSAJ occurs
 	private final String className;
 	private final String methodName;
 	
-	public LCSAJ(String className, String methodName, AbstractInsnNode start, int startNodeID, int generatingBranchID) {
+	public LCSAJ(String className, String methodName, AbstractInsnNode start, int startNodeID) {
 		this.className = className;
 		this.methodName = methodName;
 		this.branchIDs = new ArrayList<Integer>();
 		this.branchInsnNodes = new ArrayList<AbstractInsnNode>();
 		this.startNode = start;
+		this.startNodeID = startNodeID;
 		this.lastAccessedNode = start;
-		this.generatingBranchID = generatingBranchID;
 	}
 
 	//Copy constructor
@@ -47,8 +45,8 @@ public class LCSAJ {
 			branchIDs.add(i);
 		
 		this.startNode = l.getStartNode();
+		this.startNodeID = l.getStartNodeID();
 		this.lastAccessedNode = l.getLastNodeAccessed();
-		this.generatingBranchID = l.getGeneratingBranchID();
 	}
 
 	public int getID() {
@@ -76,12 +74,12 @@ public class LCSAJ {
 		return branchIDs.get(position);
 	}
 	
-	public int getGeneratingBranchID(){
-		return this.generatingBranchID;
-	}
-	
 	public AbstractInsnNode getStartNode(){
 		return startNode;
+	}
+	
+	public int getStartNodeID(){
+		return this.startNodeID;
 	}
 	
 	public AbstractInsnNode getLastNodeAccessed() {
@@ -125,9 +123,7 @@ public class LCSAJ {
 	}
 	
 	public String toString(){
-		String output = "LCSAJ no.: "+ this.id; 
-		if (this.generatingBranchID != -1)
-			output += ", established by branch "+ this.generatingBranchID +",";
+		String output = "LCSAJ no.: "+ this.id;
 		output += " in " + this.className+"/"+this.methodName+ ". Branches passed: ";
 		for (Integer i : branchIDs)
 			output += i +" ";
