@@ -18,11 +18,13 @@
 
 package de.unisb.cs.st.evosuite.coverage.lcsaj;
 
-import de.unisb.cs.st.evosuite.cfg.ControlFlowGraph;
+import java.util.Set;
+
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstructionPool;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
@@ -39,15 +41,11 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 
 	LCSAJ lcsaj;
 
-	ControlFlowGraph cfg;
-
-	double approach;
-	double branch;
-
+	private double approach;
+	
 	public LCSAJCoverageTestFitness(String className, String methodName,
-			LCSAJ lcsaj, ControlFlowGraph cfg) {
+			LCSAJ lcsaj) {
 		this.lcsaj = lcsaj;
-		this.cfg = cfg;
 	}
 	
 	public LCSAJCoverageTestFitness(LCSAJ lcsaj) {
@@ -116,20 +114,17 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 					}
 
 				}
+				BytecodeInstruction firstBytecodeInstruction = BytecodeInstructionPool.getInstruction(lcsaj.getClassName(), lcsaj.getMethodName(), lcsaj.getStartNodeID());
+				Set<Branch> LCSAJDependentBranches = firstBytecodeInstruction.getControlDependentBranches();
+				for (Branch b : LCSAJDependentBranches){
+					BranchCoverageGoal dependentGoal = new BranchCoverageGoal(b, firstBytecodeInstruction.getBranchExpressionValue(b), lcsaj.getClassName(), lcsaj.getMethodName());
+					BranchCoverageTestFitness dependentFitness = new BranchCoverageTestFitness(dependentGoal);
+					savedFitness += normalize(dependentFitness.getFitness(individual, result));
+				}
 			}
 		}
-//		if (cfg != null){
-//			if (lcsaj.getGeneratingBranchID() != -1) {
-//				Branch b = BranchPool.getBranchByBytecodeId(lcsaj.getClassName(),
-//						lcsaj.getMethodName(), lcsaj.getGeneratingBranchID());
-//				BranchCoverageGoal generatingBranchGoal = new BranchCoverageGoal(b,
-//						true, cfg, lcsaj.getClassName(), lcsaj.getMethodName());
-//				BranchCoverageTestFitness generatingBranchCoverageTestFitness = new BranchCoverageTestFitness(
-//						generatingBranchGoal);
-//				savedFitness += generatingBranchCoverageTestFitness.getFitness(
-//						individual, result);
-//			}
-//		}
+		
+		
 		updateIndividual(individual, savedFitness);
 		return savedFitness;
 	}

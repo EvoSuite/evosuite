@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
@@ -34,14 +34,12 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 /**
  * Evaluate fitness of a test suite with respect to all LCSAJs of a class
  * 
- * @author
+ * @author Merlin Lang
  * 
  */
 public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
-
-	public int branchExecutions = 0;
-
-	public int total_branches = BranchPool.getBranchCounter();
+	
+	public HashMap<Integer,Integer> expectedBranchExecutions = new HashMap<Integer,Integer>();
 
 	public HashSet<LCSAJCoverageTestFitness> LCSAJFitnessFunctions = new HashSet<LCSAJCoverageTestFitness>();
 
@@ -50,14 +48,21 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public double best_fitness = Double.MAX_VALUE;
 
 	public LCSAJCoverageSuiteFitness() {
-
-		for (String className : LCSAJPool.getLCSAJMap().keySet())
-			for (String methodName : LCSAJPool.getLCSAJMap().get(className)
+		
+		for (String className : LCSAJPool.lcsaj_map.keySet()){
+			for (String methodName : LCSAJPool.lcsaj_map.get(className)
 					.keySet())
-				for (LCSAJ lcsaj : LCSAJPool.getLCSAJMap().get(className)
-						.get(methodName)) {
-					branchExecutions += lcsaj.length();
+				for (LCSAJ lcsaj : LCSAJPool.lcsaj_map.get(className)
+						.get(methodName)){
+					for (Integer branchID : lcsaj.getBranchIDs()){
+						if (!expectedBranchExecutions.containsKey(branchID))
+							expectedBranchExecutions.put(branchID, 0);
+						else
+							expectedBranchExecutions.put(branchID, expectedBranchExecutions.get(branchID)+1);
+					}
+					LCSAJFitnesses.put(lcsaj,Double.MAX_VALUE);
 				}
+		}
 	}
 
 	/*
@@ -72,11 +77,11 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
 		List<ExecutionResult> results = runTestSuite(suite);
-
-		double fitness = 0.0;
-
-		Map<String, Integer> predicate_count = new HashMap<String, Integer>();
+		
 		Map<String, Integer> call_count = new HashMap<String, Integer>();
+		HashMap<Integer,Integer> branchExecutions = new HashMap<Integer,Integer>();
+		
+		double fitness = 0.0;
 
 		for (ExecutionResult result : results) {
 			for (Entry<String, Integer> entry : result.getTrace().covered_methods
@@ -91,15 +96,16 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 			for (Entry<String, Integer> entry : result.getTrace().covered_predicates
 					.entrySet()) {
-				if (!predicate_count.containsKey(entry.getKey()))
-					predicate_count.put(entry.getKey(), entry.getValue());
+				if (!branchExecutions.containsKey(entry.getKey()))
+					branchExecutions.put(Integer.getInteger(entry.getKey()), entry.getValue());
 				else {
-					predicate_count.put(
-							entry.getKey(),
-							predicate_count.get(entry.getKey())
+					branchExecutions.put(
+							Integer.getInteger(entry.getKey()),
+							branchExecutions.get(entry.getKey())
 									+ entry.getValue());
 				}
 			}
+			
 			for (String className : LCSAJPool.getLCSAJMap().keySet())
 				for (String methodName : LCSAJPool.getLCSAJMap().get(className)
 						.keySet())
@@ -110,10 +116,9 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 								lcsaj));
 
 						for (TestChromosome t : suite.tests) {
-							double oldFitness = 0.0;
+							double oldFitness;
 							for (LCSAJCoverageTestFitness testFitness : LCSAJFitnessFunctions) {
-								if (LCSAJFitnesses.containsKey(lcsaj))
-									oldFitness = LCSAJFitnesses.get(lcsaj);
+								oldFitness = LCSAJFitnesses.get(lcsaj);
 								double newFitness = testFitness.getFitness(t,
 										result);
 								if (newFitness < oldFitness)
@@ -124,14 +129,28 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		for (LCSAJ l : LCSAJFitnesses.keySet()) {
-			fitness += LCSAJFitnesses.get(l);
+			fitness += normalize(LCSAJFitnesses.get(l));
 		}
 
-		fitness += branchExecutions * (total_branches - predicate_count.size());
+		for (Integer executedID : expectedBranchExecutions.keySet()){
+			if (!branchExecutions.containsKey(executedID))
+				fitness += expectedBranchExecutions.get(executedID);
+			else
+				fitness += Math.abs(expectedBranchExecutions.get(executedID)-branchExecutions.get(executedID));
+		}
 
 		if (fitness < best_fitness)
 			best_fitness = fitness;
+		
+		double coverage = 0.0;
+		
+		for (LCSAJ l : LCSAJFitnesses.keySet() ){
+			if (LCSAJFitnesses.get(l) == 0)
+				coverage += 1;
+		}
 
+		suite.setCoverage(coverage / LCSAJFitnesses.size());
+		
 		return fitness;
 	}
 
