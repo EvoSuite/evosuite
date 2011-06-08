@@ -11,7 +11,6 @@ import java.net.Socket;
 
 import org.apache.log4j.Logger;
 
-import de.unisb.cs.st.evosuite.Properties;
 
 /*
  * this code should be used by the main process
@@ -22,7 +21,6 @@ public class ExternalProcessHandler {
 
 	protected ServerSocket server;
 	protected Process process;
-	protected int port;
 	protected String last_command;
 	protected Thread output_printer;
 	protected Thread message_handler;
@@ -35,8 +33,6 @@ public class ExternalProcessHandler {
 	protected final Object MONITOR = new Object();
 
 	public ExternalProcessHandler() {
-		this.port = Properties.PROCESS_COMMUNICATION_PORT;
-
 		//the following thread is important to make sure that the external process is killed
 		//when current process ends
 
@@ -65,7 +61,7 @@ public class ExternalProcessHandler {
 		//this needs to be done only once
 		if (server == null) {
 			try {
-				server = new ServerSocket(port);
+				server = new ServerSocket();
 				server.setSoTimeout(3000);
 			} catch (Exception e) {
 				logger.debug("not possible to start TCP server: ", e);
@@ -132,6 +128,14 @@ public class ExternalProcessHandler {
 		message_handler = null;
 	}
 
+	public int getServerPort()
+	{
+		if(server!=null)
+			return server.getLocalPort();
+		else
+			return -1;
+	}
+	
 	public void closeServer() {
 		if (server != null) {
 			try {

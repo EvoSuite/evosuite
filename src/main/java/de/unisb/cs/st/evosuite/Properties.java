@@ -441,7 +441,7 @@ public class Properties {
 	public static Strategy STRATEGY = Strategy.EVOSUITE;
 
 	@Parameter(key = "process_communication_port", group = "Runtime", description = "Port at which the communication with the external process is done")
-	public static int PROCESS_COMMUNICATION_PORT = 10000;
+	public static int PROCESS_COMMUNICATION_PORT = -1;
 
 	/**
 	 * Get all parameters that are available
