@@ -418,32 +418,23 @@ setup ()
 ##
 setupDir ()
 {
-    allowed_options=("-object" "-class")
-    allowed_options_take_values=(0 1)
-    #parse_command_line "$@"
-    #options_ok=$?
+    allowed_options=("")
+    allowed_options_take_values=(0)
+    parse_command_line "$@"
+    options_ok=$?
     OUTPUT_DIR=evosuite-files
     mkdir -p $OUTPUT_DIR
-    #if test ${#cmdline_arguments[@]} -ge 2 && test $options_ok -eq 0;
-    #then {
-	    OBJECT=""
-	    TEST_CLASS=""
-	    for (( i = 0; i < 3; i++ ))
-	    do
-		case ${cmdline_options[$i]} in
-		    "-object") OBJECT="-Dgenerate_objects=true";;
-		    "-class") TEST_CLASS="-DTARGET_CLASS=${cmdline_options_values[$i]}";;
-		esac
-	    done
+    if test ${#cmdline_arguments[@]} -ge 2 && test $options_ok -eq 0;
+    then {
 	    PROJECT_PREFIX=${cmdline_arguments[0]}
 	    CP="${cmdline_arguments[@]:1:${#cmdline_arguments[@]}}"
-
+	    echo $PROJECT_PREFIX
+	    echo $CP
 #	    javalanche_options=" -Djavalanche.ignore.replace.variables=true -Dmutation.package.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PROJECT_PREFIX"
 	    javalanche_options=" -Djavalanche.project.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR " #-DPROJECT_PREFIX=$PROJECT_PREFIX
-	    java $java_options -cp "$classpath:$CP" $java_agent=scan  $javalanche_options $TEST_CLASS $OBJECT $evosuite_scan $@
+	    java $java_options -cp "$classpath:$CP" $java_agent=scan  $javalanche_options $TEST_CLASS $OBJECT $evosuite_scan $PROJECT_PREFIX
 #	    java $java_options -cp "$classpath:$CP" $java_agent=tasks $javalanche_options $TEST_CLASS $OBJECT $evosuite_tasks
 	    PROJECT_PREFIX=""
-	    CP=""
 	    first=""
 	    for var in "$@"
 	    do
@@ -456,12 +447,12 @@ setupDir ()
 	    done
 	    setup_javalanche $OUTPUT_DIR \"\" $CP
 	    setup_evosuite $OUTPUT_DIR \"\" $CP
-#	}
-#    else {
-#	    unknown_parameters "setup" "$@"
-#	    print_usage
-#	}
- #   fi
+	}
+    else {
+	    unknown_parameters "setup" "$@"
+	    print_usage
+	}
+    fi
 }
 
 
