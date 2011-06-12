@@ -33,8 +33,6 @@ import org.objectweb.asm.tree.analysis.Analyzer;
 import org.objectweb.asm.tree.analysis.BasicValue;
 import org.objectweb.asm.tree.analysis.Frame;
 
-import de.unisb.cs.st.evosuite.Properties;
-
 /**
  * @author Gordon Fraser
  * 
@@ -111,18 +109,18 @@ public class TestabilityTransformation {
 		int count = 0;
 		int defs = flagDefs.size();
 		for (MethodNode mn : methodNodes) {
-				// If this method was defined somewhere outside the test package, do not transform signature
-				String desc = mn.desc;
-				mn.desc = mapping.getMethodDesc(cn.name, mn.name, mn.desc);
-				//mn.desc = mn.desc.replaceAll(Matcher.quoteReplacement("java/util"),
-				//                            "java2/util2");
-				//
-				mn.name = mapping.getMethodName(cn.name, mn.name, desc);
-				logger.info("Now going inside " + mn.name + mn.desc);
-				// Actually this should be done automatically by the ClassWriter...
-				// +2 because we might do a DUP2
-				mn.maxStack += 3;
-			
+			// If this method was defined somewhere outside the test package, do not transform signature
+			String desc = mn.desc;
+			mn.desc = mapping.getMethodDesc(cn.name, mn.name, mn.desc);
+			//mn.desc = mn.desc.replaceAll(Matcher.quoteReplacement("java/util"),
+			//                            "java2/util2");
+			//
+			mn.name = mapping.getMethodName(cn.name, mn.name, desc);
+			logger.info("Now going inside " + mn.name + mn.desc);
+			// Actually this should be done automatically by the ClassWriter...
+			// +2 because we might do a DUP2
+			mn.maxStack += 3;
+
 			count += transformMethod(mn);
 
 		}

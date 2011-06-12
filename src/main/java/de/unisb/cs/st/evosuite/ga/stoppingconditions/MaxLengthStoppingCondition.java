@@ -18,10 +18,9 @@
 
 package de.unisb.cs.st.evosuite.ga.stoppingconditions;
 
-import java.util.List;
-
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 
 /**
  * Stop search when a maximum (average) length has been reached. Used for
@@ -53,12 +52,12 @@ public class MaxLengthStoppingCondition extends StoppingCondition {
 	}
 
 	@Override
-	public void iteration(List<Chromosome> population) {
+	public void iteration(GeneticAlgorithm algorithm) {
 		double avg = 0.0;
-		for (Chromosome c : population) {
+		for (Chromosome c : algorithm.getPopulation()) {
 			avg += c.size();
 		}
-		average_length = avg / population.size();
+		average_length = avg / algorithm.getPopulation().size();
 	}
 
 	/* (non-Javadoc)

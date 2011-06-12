@@ -27,16 +27,20 @@ import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTestCaseFactory;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
 import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * @author Gordon Fraser
  * 
  */
 public class TestSuiteChromosome extends Chromosome {
+
+	private static final long serialVersionUID = 88380759969800800L;
 
 	/** The genes are test cases */
 	public List<TestChromosome> tests = new ArrayList<TestChromosome>();
@@ -129,7 +133,7 @@ public class TestSuiteChromosome extends Chromosome {
 	public void mutate() {
 		// Mutate test cases
 		for (TestChromosome test : tests) {
-			if (randomness.nextDouble() < 1.0 / tests.size()) {
+			if (Randomness.nextDouble() < 1.0 / tests.size()) {
 				test.mutate();
 			}
 		}
@@ -158,19 +162,28 @@ public class TestSuiteChromosome extends Chromosome {
 		final double ALPHA = 0.1;
 		int count = 1;
 
-		while (randomness.nextDouble() <= Math.pow(ALPHA, count)
+		while (Randomness.nextDouble() <= Math.pow(ALPHA, count)
 		        && size() < Properties.MAX_SIZE) {
 			count++;
 			// Insert at position as during initialization (i.e., using helper
 			// sequences)
-			// RandomLengthTestFactory factory = new RandomLengthTestFactory();
-			// //TestChromosomeFactory();
-			// OUMTestChromosomeFactory factory = new
-			// OUMTestChromosomeFactory();
+
 			TestChromosome test = (TestChromosome) test_factory.getChromosome();
 			tests.add(test);
 			// tests.add((TestChromosome) test_factory.getChromosome());
 			logger.debug("Adding new test case ");
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#localSearch()
+	 */
+	@Override
+	public void localSearch(LocalSearchObjective objective) {
+		for (int i = 0; i < tests.size(); i++) {
+			TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective(
+			        (TestSuiteFitnessFunction) objective.getFitnessFunction(), this, i);
+			tests.get(i).localSearch(testObjective);
 		}
 	}
 
@@ -219,6 +232,14 @@ public class TestSuiteChromosome extends Chromosome {
 			testcases.add(test.test);
 		}
 		return testcases;
+	}
+
+	public TestChromosome getTestChromosome(int index) {
+		return tests.get(index);
+	}
+
+	public void setTestChromosome(int index, TestChromosome test) {
+		tests.set(index, test);
 	}
 
 	public double getCoverage() {

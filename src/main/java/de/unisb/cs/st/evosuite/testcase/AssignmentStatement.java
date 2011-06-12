@@ -39,9 +39,12 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  */
 public class AssignmentStatement extends AbstractStatement {
 
+	private static final long serialVersionUID = 2051431241124468349L;
+
 	public VariableReference parameter;
 
-	public AssignmentStatement(TestCase tc, ArrayReference array, int array_index, VariableReference value) {
+	public AssignmentStatement(TestCase tc, ArrayReference array, int array_index,
+	        VariableReference value) {
 		super(tc, new ArrayIndex(tc, array, array_index));
 		this.parameter = value;
 	}
@@ -50,11 +53,12 @@ public class AssignmentStatement extends AbstractStatement {
 		this.retval = array;
 	}
 
-	public ArrayIndex getArrayIndexRef(){
-		if(this.retval instanceof ArrayIndex){
-			return (ArrayIndex)super.retval;
-		}else{
-			throw new AssertionError("The array reference of an assignment statement must be an array");
+	public ArrayIndex getArrayIndexRef() {
+		if (this.retval instanceof ArrayIndex) {
+			return (ArrayIndex) super.retval;
+		} else {
+			throw new AssertionError(
+			        "The array reference of an assignment statement must be an array");
 		}
 	}
 
@@ -62,28 +66,31 @@ public class AssignmentStatement extends AbstractStatement {
 	public StatementInterface clone(TestCase newTestCase) {
 		VariableReference newParam = newTestCase.getStatement(parameter.getStPosition()).getReturnValue(); //must be set as we only use this to clone whole testcases
 		VariableReference newArray = newTestCase.getStatement(getArrayIndexRef().getArray().getStPosition()).getReturnValue();
-		if(!(newArray instanceof ArrayReference)){
-			throw new AssertionError("Can't clone this assignment statement in new TestCase. As on position: " + getArrayIndexRef().getArray().getStPosition() + " of the new TestCase no Array is created");
+		if (!(newArray instanceof ArrayReference)) {
+			throw new AssertionError(
+			        "Can't clone this assignment statement in new TestCase. As on position: "
+			                + getArrayIndexRef().getArray().getStPosition()
+			                + " of the new TestCase no Array is created");
 		}
-		assert(newParam!=null);
-		AssignmentStatement copy = new AssignmentStatement(newTestCase, (ArrayReference)newArray, getArrayIndexRef().getArrayIndex(),
-				newParam); 
+		assert (newParam != null);
+		AssignmentStatement copy = new AssignmentStatement(newTestCase,
+		        (ArrayReference) newArray, getArrayIndexRef().getArrayIndex(), newParam);
 		return copy;
 	}
 
 	@Override
 	public Throwable execute(Scope scope, PrintStream out)
-	throws InvocationTargetException, IllegalArgumentException,
-	IllegalAccessException, InstantiationException {
+	        throws InvocationTargetException, IllegalArgumentException,
+	        IllegalAccessException, InstantiationException {
 
 		try {
 			Object value = scope.get(parameter);
 			ArrayIndex index = getArrayIndexRef();
 			Object array = scope.get(index.getArray());
 			Array.set(array, index.getArrayIndex(), value);
-		} catch(AssertionError ae){ //could be thrown in getArrayIndex
+		} catch (AssertionError ae) { //could be thrown in getArrayIndex
 			throw ae;
-		}catch (Throwable t) {
+		} catch (Throwable t) {
 			exceptionThrown = t;
 		}
 		// scope.set(retval, value);
@@ -102,7 +109,7 @@ public class AssignmentStatement extends AbstractStatement {
 		vars.add(parameter);
 		vars.add(getArrayIndexRef().getArray());
 		if (parameter instanceof ArrayIndex)
-			vars.add(((ArrayIndex)parameter).getArray());
+			vars.add(((ArrayIndex) parameter).getArray());
 		return vars;
 	}
 
@@ -110,7 +117,7 @@ public class AssignmentStatement extends AbstractStatement {
 	public int hashCode() {
 		final int prime = 31;
 		int result = prime + retval.hashCode()
-			+ +((parameter == null) ? 0 : parameter.hashCode());
+		        + +((parameter == null) ? 0 : parameter.hashCode());
 		return result;
 	}
 
@@ -145,14 +152,14 @@ public class AssignmentStatement extends AbstractStatement {
 	 */
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-			Throwable exception) {
+	        Throwable exception) {
 		getArrayIndexRef().getArray().loadBytecode(mg, locals);
 		mg.push(getArrayIndexRef().getArrayIndex());
 		parameter.loadBytecode(mg, locals);
 		Class<?> clazz = parameter.getVariableClass();
 		if (!clazz.equals(retval.getVariableClass())) {
 			mg.cast(org.objectweb.asm.Type.getType(clazz),
-					org.objectweb.asm.Type.getType(retval.getVariableClass()));
+			        org.objectweb.asm.Type.getType(retval.getVariableClass()));
 		}
 
 		mg.arrayStore(Type.getType(retval.getVariableClass()));
@@ -174,7 +181,7 @@ public class AssignmentStatement extends AbstractStatement {
 	 */
 	@Override
 	public boolean isValid() {
-		assert(super.isValid());
+		assert (super.isValid());
 		parameter.getStPosition();
 		return true;
 	}
@@ -201,6 +208,5 @@ public class AssignmentStatement extends AbstractStatement {
 			return false;
 		return true;
 	}
-
 
 }

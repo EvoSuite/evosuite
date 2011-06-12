@@ -31,17 +31,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.cglib.transform.impl.AddStaticInitTransformer;
-
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
-import de.unisb.cs.st.evosuite.ga.Randomness;
 import de.unisb.cs.st.evosuite.testsuite.CurrentChromosomeTracker;
 import de.unisb.cs.st.evosuite.testsuite.TestCallObject;
 import de.unisb.cs.st.evosuite.testsuite.TestCallStatement;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * Handle test case generation
@@ -51,11 +49,11 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
  */
 public class DefaultTestFactory extends AbstractTestFactory {
 
+	private static final long serialVersionUID = 6238144737328754849L;
+
 	private static DefaultTestFactory instance = null;
 
 	private static Logger logger = Logger.getLogger(DefaultTestFactory.class);
-
-	private final Randomness randomness = Randomness.getInstance();
 
 	private final MethodDescriptorReplacement descriptor_replacement = MethodDescriptorReplacement.getInstance();
 
@@ -89,7 +87,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			List<AccessibleObject> calls = test_cluster.getCallsFor(object.getVariableClass());
 			// List<Method> calls = getMethods(object.getVariableClass());
 			if (!calls.isEmpty()) {
-				AccessibleObject call = calls.get(randomness.nextInt(calls.size()));
+				AccessibleObject call = calls.get(Randomness.nextInt(calls.size()));
 				addCallFor(test, object, call, position);
 			}
 		}
@@ -102,10 +100,10 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	 */
 	@Override
 	public void insertRandomStatement(TestCase test) {
-		int position = randomness.nextInt(test.size() + 1);
+		int position = Randomness.nextInt(test.size() + 1);
 		final double P = 1d / 3d;
 
-		double r = randomness.nextDouble();
+		double r = Randomness.nextDouble();
 
 		if (r <= P) {
 			// add new call of the UUT - only declared in UUT!
@@ -116,7 +114,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			VariableReference object = test.getRandomObject(position);
 			if (object != null) {
 				if (object instanceof ArrayReference) {
-					ArrayReference array = (ArrayReference)object;
+					ArrayReference array = (ArrayReference) object;
 					if (array.getArrayLength() > 0) {
 						// ArrayStatement as = (ArrayStatement)
 						// test.getStatement(object.statement);
@@ -124,7 +122,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 						// AssignmentStatement(object);
 						// if(as.size() > 0) {
 						// logger.info("Inserting array thingy");
-						int index = randomness.nextInt(array.getArrayLength());
+						int index = Randomness.nextInt(array.getArrayLength());
 						// logger.info("Array statement: "+as.getCode());
 						//logger.info("Inserting array index " + index + " at position "
 						//       + position + " for array with length "
@@ -144,7 +142,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 					// List<Method> calls =
 					// getMethods(object.getVariableClass());
 					if (!calls.isEmpty()) {
-						AccessibleObject call = calls.get(randomness.nextInt(calls.size()));
+						AccessibleObject call = calls.get(Randomness.nextInt(calls.size()));
 						addCallFor(test, object, call, position);
 					}
 				}
@@ -158,13 +156,13 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				if (object instanceof ArrayIndex) {
 					List<AccessibleObject> calls = test_cluster.getTestCallsWith(object.getType());
 					if (!calls.isEmpty()) {
-						AccessibleObject call = calls.get(randomness.nextInt(calls.size()));
+						AccessibleObject call = calls.get(Randomness.nextInt(calls.size()));
 						addCallWith(test, object, call, position);
 					}
 				} else {
 					List<AccessibleObject> calls = test_cluster.getTestCallsWith(object.getType());
 					if (!calls.isEmpty()) {
-						AccessibleObject call = calls.get(randomness.nextInt(calls.size()));
+						AccessibleObject call = calls.get(Randomness.nextInt(calls.size()));
 						addCallWith(test, object, call, position);
 					}
 				}
@@ -232,7 +230,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			addField(test, ((FieldStatement) statement).field, test.size());
 		}
 	}
-	
+
 	/**
 	 * Add primitive statement at position
 	 * 
@@ -246,7 +244,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	private VariableReference addPrimitive(TestCase test, PrimitiveStatement<?> old,
 	        int position) throws ConstructionFailedException {
 		logger.debug("Adding primitive");
-		StatementInterface st = new PrimitiveStatement(test, old.getReturnType(), old.value);
+		@SuppressWarnings("rawtypes")
+		StatementInterface st = new PrimitiveStatement(test, old.getReturnType(),
+		        old.value);
 		return test.addStatement(st, position);
 	}
 
@@ -274,33 +274,35 @@ public class DefaultTestFactory extends AbstractTestFactory {
 						MethodStatement ms = (MethodStatement) s;
 						if (ms.callee != null) {
 							if (ms.callee.equals(var)) {
-								ms.callee = randomness.choice(alternatives);
+								ms.callee = Randomness.choice(alternatives);
 								logger.trace("Replacing callee in method call");
-							} else if (ms.callee instanceof ArrayIndex && var.equals(((ArrayIndex)ms.callee).getArray())) {
-								ArrayIndex calleeArrayIndex = (ArrayIndex)ms.callee;
-								VariableReference r = randomness.choice(alternatives);
-								assert(r instanceof ArrayReference);
-								ArrayReference array = (ArrayReference)r;
+							} else if (ms.callee instanceof ArrayIndex
+							        && var.equals(((ArrayIndex) ms.callee).getArray())) {
+								ArrayIndex calleeArrayIndex = (ArrayIndex) ms.callee;
+								VariableReference r = Randomness.choice(alternatives);
+								assert (r instanceof ArrayReference);
+								ArrayReference array = (ArrayReference) r;
 								calleeArrayIndex.setArray(array);
 								if (array.getArrayLength() > 1)
-									calleeArrayIndex.setArrayIndex(randomness.nextInt(array.getArrayLength()));
+									calleeArrayIndex.setArrayIndex(Randomness.nextInt(array.getArrayLength()));
 								else
 									calleeArrayIndex.setArrayIndex(0);
 							}
 						}
 						for (int pos = 0; pos < ms.parameters.size(); pos++) {
 							if (ms.parameters.get(pos).equals(var)) {
-								VariableReference r = randomness.choice(alternatives);
+								VariableReference r = Randomness.choice(alternatives);
 								ms.parameters.set(pos, r);
 								logger.trace("Replacing parameter in method call");
-							} else if (ms.parameters.get(pos) instanceof ArrayIndex && var.equals(((ArrayIndex)ms.parameters.get(pos)).getArray())) {
-								ArrayIndex paramArrayIndex = (ArrayIndex)ms.parameters.get(pos);
-								VariableReference r = randomness.choice(alternatives);
-								assert(r instanceof ArrayReference);
-								ArrayReference array = (ArrayReference)r;
+							} else if (ms.parameters.get(pos) instanceof ArrayIndex
+							        && var.equals(((ArrayIndex) ms.parameters.get(pos)).getArray())) {
+								ArrayIndex paramArrayIndex = (ArrayIndex) ms.parameters.get(pos);
+								VariableReference r = Randomness.choice(alternatives);
+								assert (r instanceof ArrayReference);
+								ArrayReference array = (ArrayReference) r;
 								paramArrayIndex.setArray(array);
 								if (array.getArrayLength() > 1)
-									paramArrayIndex.setArrayIndex(randomness.nextInt(array.getArrayLength()));
+									paramArrayIndex.setArrayIndex(Randomness.nextInt(array.getArrayLength()));
 								else
 									paramArrayIndex.setArrayIndex(0);
 							}
@@ -309,17 +311,18 @@ public class DefaultTestFactory extends AbstractTestFactory {
 						ConstructorStatement cs = (ConstructorStatement) s;
 						for (int pos = 0; pos < cs.parameters.size(); pos++) {
 							if (cs.parameters.get(pos).equals(var)) {
-								VariableReference r = randomness.choice(alternatives);
+								VariableReference r = Randomness.choice(alternatives);
 								cs.parameters.set(pos, r);
 								logger.trace("Replacing parameter in constructor call");
-							} else if (cs.parameters.get(pos) instanceof ArrayIndex && var.equals(((ArrayIndex)cs.parameters.get(pos)).getArray())) {
-								ArrayIndex paramArrayIndex = (ArrayIndex)cs.parameters.get(pos);
-								VariableReference r = randomness.choice(alternatives);
-								assert(r instanceof ArrayReference);
-								ArrayReference array = (ArrayReference)r;
+							} else if (cs.parameters.get(pos) instanceof ArrayIndex
+							        && var.equals(((ArrayIndex) cs.parameters.get(pos)).getArray())) {
+								ArrayIndex paramArrayIndex = (ArrayIndex) cs.parameters.get(pos);
+								VariableReference r = Randomness.choice(alternatives);
+								assert (r instanceof ArrayReference);
+								ArrayReference array = (ArrayReference) r;
 								paramArrayIndex.setArray(array);
 								if (array.getArrayLength() > 1)
-									paramArrayIndex.setArrayIndex(randomness.nextInt(array.getArrayLength()));
+									paramArrayIndex.setArrayIndex(Randomness.nextInt(array.getArrayLength()));
 								else
 									paramArrayIndex.setArrayIndex(0);
 							}
@@ -327,17 +330,18 @@ public class DefaultTestFactory extends AbstractTestFactory {
 					} else if (s instanceof FieldStatement) {
 						FieldStatement fs = (FieldStatement) s;
 						if (fs.source != null && fs.source.equals(var)) {
-							VariableReference r = randomness.choice(alternatives);
+							VariableReference r = Randomness.choice(alternatives);
 							fs.source = r;
 							logger.trace("Replacing field source");
-						} else if (fs.source != null && fs.source instanceof ArrayIndex && var.equals(((ArrayIndex)fs.source).getArray())) {
-							VariableReference r = randomness.choice(alternatives);
-							assert(r instanceof ArrayReference);
-							ArrayReference array = (ArrayReference)r;
-							ArrayIndex sourceArrayIndex = (ArrayIndex)fs.source;
+						} else if (fs.source != null && fs.source instanceof ArrayIndex
+						        && var.equals(((ArrayIndex) fs.source).getArray())) {
+							VariableReference r = Randomness.choice(alternatives);
+							assert (r instanceof ArrayReference);
+							ArrayReference array = (ArrayReference) r;
+							ArrayIndex sourceArrayIndex = (ArrayIndex) fs.source;
 							sourceArrayIndex.setArray(array);
 							if (array.getArrayLength() > 1)
-								sourceArrayIndex.setArrayIndex(randomness.nextInt(array.getArrayLength()));
+								sourceArrayIndex.setArrayIndex(Randomness.nextInt(array.getArrayLength()));
 							else
 								sourceArrayIndex.setArrayIndex(0);
 						}
@@ -349,32 +353,34 @@ public class DefaultTestFactory extends AbstractTestFactory {
 							                                              // might
 							                                              // exceed
 							                                              // length
-							VariableReference r = randomness.choice(alternatives);
+							VariableReference r = Randomness.choice(alternatives);
 							as.retval = r;
 							logger.trace("Replacing array source");
-						} else if (as.retval instanceof ArrayIndex && var.equals(((ArrayIndex)as.retval).getArray())) {
-							VariableReference r = randomness.choice(alternatives);
-							assert(r instanceof ArrayReference);
-							ArrayReference array = (ArrayReference)r;
-							ArrayIndex retArrayIndex = (ArrayIndex)as.retval;
+						} else if (as.retval instanceof ArrayIndex
+						        && var.equals(((ArrayIndex) as.retval).getArray())) {
+							VariableReference r = Randomness.choice(alternatives);
+							assert (r instanceof ArrayReference);
+							ArrayReference array = (ArrayReference) r;
+							ArrayIndex retArrayIndex = (ArrayIndex) as.retval;
 							retArrayIndex.setArray(array);
 							if (array.getArrayLength() > 1)
-								retArrayIndex.setArrayIndex(randomness.nextInt(array.getArrayLength()));
+								retArrayIndex.setArrayIndex(Randomness.nextInt(array.getArrayLength()));
 							else
 								retArrayIndex.setArrayIndex(0);
 						}
 						if (as.parameter != null && as.parameter.equals(var)) {
-							VariableReference r = randomness.choice(alternatives);
+							VariableReference r = Randomness.choice(alternatives);
 							as.parameter = r;
 							logger.trace("Replacing array parameter");
-						} else if (as.parameter instanceof ArrayIndex && var.equals(((ArrayIndex)as.parameter).getArray())) {
-							VariableReference r = randomness.choice(alternatives);
-							assert(r instanceof ArrayReference);
-							ArrayReference array = (ArrayReference)r;
-							ArrayIndex paramArrayIndex = (ArrayIndex)as.parameter;
+						} else if (as.parameter instanceof ArrayIndex
+						        && var.equals(((ArrayIndex) as.parameter).getArray())) {
+							VariableReference r = Randomness.choice(alternatives);
+							assert (r instanceof ArrayReference);
+							ArrayReference array = (ArrayReference) r;
+							ArrayIndex paramArrayIndex = (ArrayIndex) as.parameter;
 							paramArrayIndex.setArray(array);
 							if (array.getArrayLength() > 1)
-								paramArrayIndex.setArrayIndex(randomness.nextInt(array.getArrayLength()));
+								paramArrayIndex.setArrayIndex(Randomness.nextInt(array.getArrayLength()));
 							else
 								paramArrayIndex.setArrayIndex(0);
 						}
@@ -413,7 +419,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		int new_length = test.size();
 		position += (new_length - length);
 
-		StatementInterface st = new ConstructorStatement(test, constructor,  constructor.getDeclaringClass(), parameters);
+		StatementInterface st = new ConstructorStatement(test, constructor,
+		        constructor.getDeclaringClass(), parameters);
 		return test.addStatement(st, position);
 	}
 
@@ -503,12 +510,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			}
 		}
 
-		StatementInterface st = new FieldStatement(test, field, callee, field.getGenericType());
-		
+		StatementInterface st = new FieldStatement(test, field, callee,
+		        field.getGenericType());
+
 		return test.addStatement(st, position);
 	}
-	
-
 
 	/**
 	 * Satisfy a list of parameters by reusing or creating variables
@@ -528,7 +534,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		logger.debug("Trying to satisfy " + parameter_types.size() + " parameters");
 		int i = 0;
 		for (Type parameter_type : parameter_types) {
-			double reuse = randomness.nextDouble();
+			double reuse = Randomness.nextDouble();
 			int previous_length = test.size();
 
 			List<VariableReference> objects = test.getObjects(parameter_type, position);
@@ -541,13 +547,13 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			        && reuse <= Properties.PRIMITIVE_REUSE_PROBABILITY) {
 				logger.debug(" Parameter " + i + ": Looking for existing object of type "
 				        + parameter_type);
-				VariableReference reference = randomness.choice(objects);
+				VariableReference reference = Randomness.choice(objects);
 				parameters.add(reference);
 				logger.debug(" Found object of type: " + reference.getType());
 			} else if (!objects.isEmpty() && reuse <= Properties.OBJECT_REUSE_PROBABILITY) {
 				logger.debug(" Parameter " + i + ": Looking for existing object of type "
 				        + parameter_type);
-				VariableReference reference = randomness.choice(objects);
+				VariableReference reference = Randomness.choice(objects);
 				parameters.add(reference);
 				logger.debug(" Found object of type: " + reference.getType());
 
@@ -575,7 +581,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		Iterator<VariableReference> iterator = objects.iterator();
 		while (iterator.hasNext()) {
 			VariableReference var = iterator.next();
-			if (var instanceof ArrayIndex && ((ArrayIndex)var).getArray().equals(array))
+			if (var instanceof ArrayIndex && ((ArrayIndex) var).getArray().equals(array))
 				iterator.remove();
 		}
 		assignArray(test, array, array_index, position, objects);
@@ -584,17 +590,18 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	protected void assignArray(TestCase test, VariableReference array, int array_index,
 	        int position, List<VariableReference> objects)
 	        throws ConstructionFailedException {
-		assert(array instanceof ArrayReference);
-		ArrayReference arrRef = (ArrayReference)array;
+		assert (array instanceof ArrayReference);
+		ArrayReference arrRef = (ArrayReference) array;
 		// VariableReference index = array.getVariable(array_index).clone();
 
 		// index.statement = position;
 		if (!objects.isEmpty()
-		        && randomness.nextDouble() <= Properties.OBJECT_REUSE_PROBABILITY) {
+		        && Randomness.nextDouble() <= Properties.OBJECT_REUSE_PROBABILITY) {
 			// Assign an existing value
 			// TODO:
 			// Do we need a special "[Array]AssignmentStatement"?
-			StatementInterface st = new AssignmentStatement(test, arrRef, array_index, randomness.choice(objects));
+			StatementInterface st = new AssignmentStatement(test, arrRef, array_index,
+			        Randomness.choice(objects));
 			test.addStatement(st, position);
 		} else {
 			// Assign a new value
@@ -609,7 +616,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			VariableReference var = attemptGeneration(test, array.getComponentType(),
 			                                          position);
 			position += test.size() - old_len;
-			StatementInterface st = new AssignmentStatement(test, arrRef, array_index, var);
+			StatementInterface st = new AssignmentStatement(test, arrRef, array_index,
+			        var);
 			test.addStatement(st, position);
 		}
 	}
@@ -657,11 +665,12 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			throw new ConstructionFailedException();
 		// logger.info("Choice of " + candidates.size() + " chromosomes out of "
 		// + suite.size());
-		num = randomness.choice(candidates);
+		num = Randomness.choice(candidates);
 		logger.info("Chosen " + num + " out of " + candidates.size()
 		        + " chromosomes out of " + suite.size());
 		TestCallObject call = new TestCallObject(num);
-		TestCallStatement statement = new TestCallStatement(test, call, Properties.getTargetClass());
+		TestCallStatement statement = new TestCallStatement(test, call,
+		        Properties.getTargetClass());
 		return test.addStatement(statement, position);
 	}
 
@@ -691,13 +700,14 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				logger.debug("Generating primitive of type "
 				        + ((Class<?>) type).getName());
 			//VariableReference reference = new VariableReference(type, position); // TODO: Is this correct? -1;?
-			StatementInterface st = PrimitiveStatement.getRandomStatement(test, type, position, type);
+			StatementInterface st = PrimitiveStatement.getRandomStatement(test, type,
+			                                                              position, type);
 			return test.addStatement(st, position);
 		} else if (clazz.isArray()) {
 			return createArray(test, type, position, recursion_depth);
 
 		} else {
-			if (allow_null && randomness.nextDouble() <= Properties.NULL_PROBABILITY) {
+			if (allow_null && Randomness.nextDouble() <= Properties.NULL_PROBABILITY) {
 				logger.debug("Using a null reference to satisfy the type: " + type);
 				StatementInterface st = new NullStatement(test, type);
 				test.addStatement(st, position);
@@ -705,7 +715,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			}
 
 			if (!test.hasCalls()
-			        && randomness.nextDouble() <= Properties.CALL_PROBABILITY) {
+			        && Randomness.nextDouble() <= Properties.CALL_PROBABILITY) {
 				logger.debug("adding a test call, at position: " + position);
 				return addTestCall(test, position);
 			}
@@ -763,10 +773,10 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			// System.out.println("TG: Failed");
 			// TODO: Doesn't work if position != test.size()
 			int length_difference = test.size() - previous_length;
-			for(int i=length_difference-1 ; i>=0 ; i--) { //we need to remove them in order, so that the testcase is at all time consistent 
+			for (int i = length_difference - 1; i >= 0; i--) { //we need to remove them in order, so that the testcase is at all time consistent 
 				logger.debug("  Removing statement: "
-				        + test.getStatement(position+i).getCode());
-				test.remove(position+i);
+				        + test.getStatement(position + i).getCode());
+				test.remove(position + i);
 			}
 		}
 	}
@@ -794,10 +804,10 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			// System.out.println("TG: Failed");
 			// TODO: Doesn't work if position != test.size()
 			int length_difference = test.size() - previous_length;
-			for(int i=length_difference-1 ; i>=0 ; i--) { //we need to remove them in order, so that the testcase is at all time consistent 
+			for (int i = length_difference - 1; i >= 0; i--) { //we need to remove them in order, so that the testcase is at all time consistent 
 				logger.debug("  Removing statement: "
-				        + test.getStatement(position+i).getCode());
-				test.remove(position+i);
+				        + test.getStatement(position + i).getCode());
+				test.remove(position + i);
 			}
 		}
 	}
@@ -835,10 +845,10 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			// System.out.println("TG: Failed");
 			// TODO: Doesn't work if position != test.size()
 			int length_difference = test.size() - previous_length;
-			for(int i=length_difference-1 ; i>=0 ; i--) { //we need to remove them in order, so that the testcase is at all time consistent 
+			for (int i = length_difference - 1; i >= 0; i--) { //we need to remove them in order, so that the testcase is at all time consistent 
 				logger.debug("  Removing statement: "
-				        + test.getStatement(position+i).getCode());
-				test.remove(position+i);
+				        + test.getStatement(position + i).getCode());
+				test.remove(position + i);
 			}
 
 			// logger.info("Attempting search");
@@ -869,7 +879,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			for (Type type : getParameterTypes(callee, method)) {
 				parameters.add(test.getRandomObject(type, position));
 			}
-			MethodStatement m = new MethodStatement(test, method, callee, retval, parameters);
+			MethodStatement m = new MethodStatement(test, method, callee, retval,
+			        parameters);
 			test.setStatement(m, position);
 
 		} else if (call instanceof Constructor<?>) {
@@ -897,7 +908,6 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		}
 	}
 
-	
 	private Type getReturnVariable(Method method, VariableReference callee) {
 
 		Type ret_val = method.getGenericReturnType();
@@ -906,7 +916,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		// Case 1: clone() on cloneable -> cast to type of defining class
 		if (method.getReturnType().equals(Object.class)
 		        && method.getName().equals("clone")) {
-			ret_val=method.getDeclaringClass();
+			ret_val = method.getDeclaringClass();
 			logger.debug("Found clone method: Changing type to: " + ret_val);
 			// TODO: Need to cast this!
 			return ret_val;
@@ -914,10 +924,10 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 		if (callee == null)
 			ret_val = descriptor_replacement.getReturnType(method.getDeclaringClass().getName(),
-			                                                     method);
+			                                               method);
 		else
 			ret_val = descriptor_replacement.getReturnType(callee.getVariableClass().getName(),
-			                                                     method);
+			                                               method);
 
 		return ret_val;
 	}
@@ -957,8 +967,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		}
 		int new_length = test.size();
 		position += (new_length - length);
-		
-		StatementInterface st = new ConstructorStatement(test, constructor,  constructor.getDeclaringClass(), parameters);
+
+		StatementInterface st = new ConstructorStatement(test, constructor,
+		        constructor.getDeclaringClass(), parameters);
 		return test.addStatement(st, position);
 	}
 
@@ -974,9 +985,10 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		position += (new_length - length);
 		// VariableReference ret_val = new
 		// VariableReference(method.getGenericReturnType(), position);
-		
+
 		Type ret_val = getReturnVariable(method, callee);
-		StatementInterface st = new MethodStatement(test, method, callee, ret_val, parameters);
+		StatementInterface st = new MethodStatement(test, method, callee, ret_val,
+		        parameters);
 		VariableReference ret = test.addStatement(st, position);
 
 		logger.debug("Success: Adding method " + method);
@@ -1025,7 +1037,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		// VariableReference ret_val = new
 		// VariableReference(method.getGenericReturnType(), position);
 		Type ret_val = getReturnVariable(method, callee);
-		StatementInterface st = new MethodStatement(test, method, callee, ret_val, parameters);
+		StatementInterface st = new MethodStatement(test, method, callee, ret_val,
+		        parameters);
 		VariableReference ret = test.addStatement(st, position);
 
 		logger.debug("Success: Adding method " + method);
@@ -1130,7 +1143,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 		logger.debug("Got " + calls.size() + " possible calls for " + objects.size()
 		        + " objects");
-		AccessibleObject call = randomness.choice(calls);
+		AccessibleObject call = Randomness.choice(calls);
 		try {
 			if (statement instanceof TestCallStatement)
 				logger.info("Changing testcall statement");

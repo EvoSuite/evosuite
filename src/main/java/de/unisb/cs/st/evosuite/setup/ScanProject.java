@@ -122,6 +122,7 @@ public class ScanProject {
 				if (Properties.STUBS) {
 					Class<?> clazz = Class.forName(packageName + '.'
 					        + file.getName().substring(0, file.getName().length() - 6));
+
 					if (Modifier.isAbstract(clazz.getModifiers()) && !clazz.isInterface()) {
 						ClassFactory cf = new ClassFactory();
 						Class<?> stub = cf.createClass(clazz);

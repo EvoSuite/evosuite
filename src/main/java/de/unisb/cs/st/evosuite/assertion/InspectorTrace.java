@@ -34,7 +34,7 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class InspectorTrace extends OutputTrace {
 
-	private final Logger logger = Logger.getLogger(InspectorTrace.class);
+	private final static Logger logger = Logger.getLogger(InspectorTrace.class);
 
 	private final InspectorManager manager = InspectorManager.getInstance();
 

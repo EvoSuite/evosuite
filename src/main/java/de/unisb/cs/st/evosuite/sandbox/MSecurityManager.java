@@ -38,6 +38,7 @@ class MSecurityManager extends SecurityManager {
 	/** indicates if mocks are enabled */
 	private final boolean mocksEnabled = Properties.MOCKS;
 
+	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(MSecurityManager.class);
 
 	/**

@@ -68,7 +68,7 @@ public class Properties {
 	}
 
 	@interface DoubleValue {
-		double min() default Double.MIN_VALUE;
+		double min() default -(Double.MAX_VALUE - 1); // FIXXME: Check
 
 		double max() default Double.MAX_VALUE;
 	}
@@ -163,6 +163,9 @@ public class Properties {
 
 	@Parameter(key = "check_max_length", group = "Search Algorithm", description = "Check length against fixed maximum")
 	public static boolean CHECK_MAX_LENGTH = true;
+
+	@Parameter(key = "local_search_rate", group = "Search Algorithm", description = "Apply local search at every X generation")
+	public static int LOCAL_SEARCH_RATE = -1;
 
 	@Parameter(key = "crossover_rate", group = "Search Algorithm", description = "Probability of crossover")
 	@DoubleValue(min = 0.0, max = 1.0)
@@ -442,6 +445,9 @@ public class Properties {
 
 	@Parameter(key = "process_communication_port", group = "Runtime", description = "Port at which the communication with the external process is done")
 	public static int PROCESS_COMMUNICATION_PORT = -1;
+
+	@Parameter(key = "max_stalled_threads", group = "Runtime", description = "Number of stalled threads")
+	public static int MAX_STALLED_THREADS = 1;
 
 	/**
 	 * Get all parameters that are available

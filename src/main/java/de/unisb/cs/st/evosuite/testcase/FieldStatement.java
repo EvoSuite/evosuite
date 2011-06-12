@@ -42,12 +42,14 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  */
 public class FieldStatement extends AbstractStatement {
 
+	private static final long serialVersionUID = -4944610139232763790L;
+
 	transient Field field;
 	VariableReference source;
 	// VariableReference ret_val;
 
-	private String className;
-	private String fieldName;
+	private final String className;
+	private final String fieldName;
 
 	public FieldStatement(TestCase tc, Field field, VariableReference source,
 	        java.lang.reflect.Type type) {
@@ -57,11 +59,13 @@ public class FieldStatement extends AbstractStatement {
 		this.fieldName = field.getName();
 		this.source = source;
 	}
-	
+
 	/**
-	 * This constructor allows you to use an already existing VariableReference as retvar. 
-	 * This should only be done, iff an old statement is replaced with this statement. 
-	 * And already existing objects should in the future reference this object.
+	 * This constructor allows you to use an already existing VariableReference
+	 * as retvar. This should only be done, iff an old statement is replaced
+	 * with this statement. And already existing objects should in the future
+	 * reference this object.
+	 * 
 	 * @param tc
 	 * @param field
 	 * @param source
@@ -70,7 +74,7 @@ public class FieldStatement extends AbstractStatement {
 	public FieldStatement(TestCase tc, Field field, VariableReference source,
 	        VariableReference ret_var) {
 		super(tc, ret_var);
-		assert(tc.size()>ret_var.getStPosition()); //as an old statement should be replaced by this statement
+		assert (tc.size() > ret_var.getStPosition()); //as an old statement should be replaced by this statement
 		this.field = field;
 		this.className = field.getDeclaringClass().getName();
 		this.fieldName = field.getName();
@@ -91,7 +95,7 @@ public class FieldStatement extends AbstractStatement {
 		}
 		return this;
 	}
-	
+
 	public VariableReference getSource() {
 		return source;
 	}
@@ -113,25 +117,23 @@ public class FieldStatement extends AbstractStatement {
 		}
 
 		if (exception != null) {
-			result = retval.getSimpleClassName() + " " + retval.getName()
-			        + " = null;\n";
+			result = retval.getSimpleClassName() + " " + retval.getName() + " = null;\n";
 			result += "try {\n  ";
 		} else {
 			result = retval.getSimpleClassName() + " ";
 		}
 		if (!Modifier.isStatic(field.getModifiers()))
-			result += retval.getName() + " = " + cast_str + source.getName()
-			        + "." + field.getName() + ";";
+			result += retval.getName() + " = " + cast_str + source.getName() + "."
+			        + field.getName() + ";";
 		else
 			result += retval.getName() + " = " + cast_str
-			        + field.getDeclaringClass().getSimpleName() + "."
-			        + field.getName() + ";";
+			        + field.getDeclaringClass().getSimpleName() + "." + field.getName()
+			        + ";";
 		if (exception != null) {
 			Class<?> ex = exception.getClass();
 			while (!Modifier.isPublic(ex.getModifiers()))
 				ex = ex.getSuperclass();
-			result += "\n} catch(" + ClassUtils.getShortClassName(ex)
-			        + " e) {}";
+			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {}";
 		}
 
 		return result;
@@ -142,7 +144,9 @@ public class FieldStatement extends AbstractStatement {
 		if (Modifier.isStatic(field.getModifiers()))
 			return new FieldStatement(newTestCase, field, null, retval.getType());
 		else
-			return new FieldStatement(newTestCase, field, newTestCase.getStatement(source.getStPosition()).getReturnValue(), retval.getType());
+			return new FieldStatement(newTestCase, field,
+			        newTestCase.getStatement(source.getStPosition()).getReturnValue(),
+			        retval.getType());
 	}
 
 	@Override
@@ -179,7 +183,7 @@ public class FieldStatement extends AbstractStatement {
 		if (!Modifier.isStatic(field.getModifiers())) {
 			references.add(source);
 			if (source instanceof ArrayIndex)
-				references.add(((ArrayIndex)source).getArray());
+				references.add(((ArrayIndex) source).getArray());
 		}
 		return references;
 
@@ -236,15 +240,15 @@ public class FieldStatement extends AbstractStatement {
 			source.loadBytecode(mg, locals);
 		}
 		if (isStatic())
-			mg.getStatic(Type.getType(field.getDeclaringClass()),
-			        field.getName(), Type.getType(field.getType()));
+			mg.getStatic(Type.getType(field.getDeclaringClass()), field.getName(),
+			             Type.getType(field.getType()));
 		else {
 			if (!source.getVariableClass().isInterface()) {
-				mg.getField(Type.getType(source.getVariableClass()),
-				        field.getName(), Type.getType(field.getType()));
+				mg.getField(Type.getType(source.getVariableClass()), field.getName(),
+				            Type.getType(field.getType()));
 			} else {
-				mg.getField(Type.getType(field.getDeclaringClass()),
-				        field.getName(), Type.getType(field.getType()));
+				mg.getField(Type.getType(field.getDeclaringClass()), field.getName(),
+				            Type.getType(field.getType()));
 			}
 		}
 

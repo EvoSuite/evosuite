@@ -18,8 +18,6 @@
 
 package de.unisb.cs.st.evosuite.testsuite;
 
-import org.apache.log4j.Logger;
-
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTestCaseFactory;
@@ -34,7 +32,7 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
  */
 public class TestSuiteChromosomeFactory implements ChromosomeFactory {
 
-	Logger logger = Logger.getLogger(TestSuiteChromosomeFactory.class);
+	private static final long serialVersionUID = -3769862881038106087L;
 
 	/** Factory to manipulate and generate method sequences */
 	private ChromosomeFactory test_factory;
@@ -69,7 +67,7 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory {
 
 		TestSuiteChromosome chromosome = new TestSuiteChromosome();
 		chromosome.tests.clear();
-		CurrentChromosomeTracker tracker = CurrentChromosomeTracker.getInstance();
+		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
 		tracker.modification(chromosome);
 		// ((AllMethodsChromosomeFactory)test_factory).clear();
 

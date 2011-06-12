@@ -56,7 +56,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 	private final HOMSwitcher hom_switcher = new HOMSwitcher();
 
-	private final Logger logger = Logger.getLogger(MutationAssertionGenerator.class);
+	private final static Logger logger = Logger.getLogger(MutationAssertionGenerator.class);
 
 	private final Map<TestCase, Map<Class<?>, Integer>> assertion_statistics_full = new HashMap<TestCase, Map<Class<?>, Integer>>();
 
@@ -129,11 +129,9 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			HOMObserver.resetTouched(); // TODO - is this the right place?
 			if (mutant != null) {
 				hom_switcher.switchOn(mutant);
-				executor.setLogging(false);
 			}
 
 			result = executor.execute(test);
-			executor.setLogging(true);
 
 			if (mutant != null)
 				hom_switcher.switchOff(mutant);

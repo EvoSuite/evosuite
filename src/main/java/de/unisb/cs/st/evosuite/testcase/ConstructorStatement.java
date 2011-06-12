@@ -31,10 +31,9 @@ import java.util.Set;
 import org.apache.commons.lang.ClassUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
-
-import org.objectweb.asm.Type;
 
 /**
  * This statement represents a constructor call
@@ -44,31 +43,35 @@ import org.objectweb.asm.Type;
  */
 public class ConstructorStatement extends AbstractStatement {
 
+	private static final long serialVersionUID = -3035570485633271957L;
+
 	Constructor<?> constructor;
 
 	public List<VariableReference> parameters;
 
-	public ConstructorStatement(TestCase tc, Constructor<?> constructor, java.lang.reflect.Type type,
-	        List<VariableReference> parameters) {
+	public ConstructorStatement(TestCase tc, Constructor<?> constructor,
+	        java.lang.reflect.Type type, List<VariableReference> parameters) {
 		super(tc, new VariableReferenceImpl(tc, type));
 		this.constructor = constructor;
 		// this.return_type = constructor.getDeclaringClass();
 		this.parameters = parameters;
 	}
-	
+
 	/**
-	 * This constructor allows you to use an already existing VariableReference as retvar. 
-	 * This should only be done, iff an old statement is replaced with this statement. 
-	 * And already existing objects should in the future reference this object.
+	 * This constructor allows you to use an already existing VariableReference
+	 * as retvar. This should only be done, iff an old statement is replaced
+	 * with this statement. And already existing objects should in the future
+	 * reference this object.
+	 * 
 	 * @param tc
 	 * @param constructor
 	 * @param retvar
 	 * @param parameters
 	 */
-	public ConstructorStatement(TestCase tc, Constructor<?> constructor, VariableReference retvar,
-	        List<VariableReference> parameters) {
+	public ConstructorStatement(TestCase tc, Constructor<?> constructor,
+	        VariableReference retvar, List<VariableReference> parameters) {
 		super(tc, retvar);
-		assert(tc.size()>retvar.getStPosition()); //as an old statement should be replaced by this statement
+		assert (tc.size() > retvar.getStPosition()); //as an old statement should be replaced by this statement
 		this.constructor = constructor;
 		// this.return_type = constructor.getDeclaringClass();
 		this.parameters = parameters;
@@ -101,12 +104,12 @@ public class ConstructorStatement extends AbstractStatement {
 		} catch (Throwable e) {
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
 				e = e.getCause();
-			} 
-				
-			if(e instanceof EvosuiteError){
-				throw (EvosuiteError)e;
 			}
-			
+
+			if (e instanceof EvosuiteError) {
+				throw (EvosuiteError) e;
+			}
+
 			logger.debug("Exception thrown in constructor: " + e);
 			exceptionThrown = e;
 
@@ -154,10 +157,11 @@ public class ConstructorStatement extends AbstractStatement {
 		for (VariableReference r : parameters) {
 			new_params.add(newTestCase.getStatement(r.getStPosition()).getReturnValue());
 		}
-		
-		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor, retval.getType(), new_params);
+
+		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor,
+		        retval.getType(), new_params);
 		copy.assertions = cloneAssertions(newTestCase);
-		
+
 		return copy;
 	}
 
@@ -168,7 +172,7 @@ public class ConstructorStatement extends AbstractStatement {
 		references.addAll(parameters);
 		for (VariableReference param : parameters) {
 			if (param instanceof ArrayIndex)
-				references.add(((ArrayIndex)param).getArray());
+				references.add(((ArrayIndex) param).getArray());
 		}
 		return references;
 	}
@@ -190,9 +194,9 @@ public class ConstructorStatement extends AbstractStatement {
 		if (ms.parameters.size() != parameters.size())
 			return false;
 
-		if(!this.constructor.equals(ms.constructor))
+		if (!this.constructor.equals(ms.constructor))
 			return false;
-		
+
 		for (int i = 0; i < parameters.size(); i++) {
 			if (!parameters.get(i).equals(ms.parameters.get(i)))
 				return false;
@@ -312,19 +316,19 @@ public class ConstructorStatement extends AbstractStatement {
 		references.addAll(parameters);
 		for (VariableReference param : parameters) {
 			if (param instanceof ArrayIndex)
-				references.add(((ArrayIndex)param).getArray());
+				references.add(((ArrayIndex) param).getArray());
 		}
 		return references;
 
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#isValid()
 	 */
 	@Override
 	public boolean isValid() {
-		assert(super.isValid());
-		for(VariableReference v : parameters){
+		assert (super.isValid());
+		for (VariableReference v : parameters) {
 			v.getStPosition();
 		}
 		return true;
@@ -343,9 +347,9 @@ public class ConstructorStatement extends AbstractStatement {
 		if (ms.parameters.size() != parameters.size())
 			return false;
 
-		if(!this.constructor.equals(ms.constructor))
+		if (!this.constructor.equals(ms.constructor))
 			return false;
-		
+
 		for (int i = 0; i < parameters.size(); i++) {
 			if (!parameters.get(i).same(ms.parameters.get(i)))
 				return false;

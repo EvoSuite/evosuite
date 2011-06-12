@@ -92,9 +92,6 @@ public abstract class TestCoverageGoal {
 
 		try {
 			result = executor.execute(test);
-			//			result.exceptions = executor.run(test);
-			executor.setLogging(true);
-			//			result.trace = ExecutionTracer.getExecutionTracer().getTrace();
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();

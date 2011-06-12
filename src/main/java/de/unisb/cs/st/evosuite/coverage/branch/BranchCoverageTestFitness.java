@@ -33,6 +33,8 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  */
 public class BranchCoverageTestFitness extends TestFitnessFunction {
 
+	private static final long serialVersionUID = -6310967747257242580L;
+
 	/** Target branch */
 	private final BranchCoverageGoal goal;
 
@@ -49,35 +51,37 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		ControlFlowDistance distance = goal.getDistance(result);
-		
+
 		double fitness = distance.getResultingBranchFitness();
 
-		logger.debug("Approach level: " + distance.getApproachLevel() + " / branch distance: "
-		        + distance.getBranchDistance() + ", fitness = " + fitness);
+		logger.debug("Approach level: " + distance.getApproachLevel()
+		        + " / branch distance: " + distance.getBranchDistance() + ", fitness = "
+		        + fitness);
 
 		updateIndividual(individual, fitness);
 		return fitness;
 	}
-	
+
 	@Override
 	public boolean isSimilarTo(TestFitnessFunction other) {
-		if(other instanceof DefUseCoverageTestFitness) {
-			DefUseCoverageTestFitness duFitness = (DefUseCoverageTestFitness)other;
-			if(duFitness.getGoalDefinitionBranchFitness()!=null && isSimilarTo(duFitness.getGoalDefinitionBranchFitness()))
+		if (other instanceof DefUseCoverageTestFitness) {
+			DefUseCoverageTestFitness duFitness = (DefUseCoverageTestFitness) other;
+			if (duFitness.getGoalDefinitionBranchFitness() != null
+			        && isSimilarTo(duFitness.getGoalDefinitionBranchFitness()))
 				return true;
 			return isSimilarTo(duFitness.getGoalUseBranchFitness());
 		}
 		try {
-			BranchCoverageTestFitness otherFitness = (BranchCoverageTestFitness)other;
+			BranchCoverageTestFitness otherFitness = (BranchCoverageTestFitness) other;
 			return goal.isConnectedTo(otherFitness.goal);
-		}catch(ClassCastException e) {
+		} catch (ClassCastException e) {
 			return false;
 		}
 	}
-	
+
 	@Override
 	public int getDifficulty() {
-		if(goal==null)
+		if (goal == null)
 			return 1;
 		else
 			return goal.getDifficulty();

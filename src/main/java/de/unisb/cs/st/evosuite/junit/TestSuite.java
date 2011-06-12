@@ -60,7 +60,7 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  */
 public class TestSuite implements Opcodes {
 
-	private final Logger logger = Logger.getLogger(TestSuite.class);
+	private final static Logger logger = Logger.getLogger(TestSuite.class);
 
 	protected List<TestCase> test_cases = new ArrayList<TestCase>();
 
@@ -101,7 +101,6 @@ public class TestSuite implements Opcodes {
 		try {
 			logger.debug("Executing test");
 			result = executor.execute(test);
-			executor.setLogging(true);
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
@@ -289,9 +288,7 @@ public class TestSuite implements Opcodes {
 			builder.append("import java.util.HashSet;\n");
 		}
 
-		builder.append("import junit.framework.Test;\n");
 		builder.append("import junit.framework.TestCase;\n");
-		builder.append("import junit.framework.TestSuite;\n\n");
 		builder.append(getImports(results));
 
 		builder.append("public class ");

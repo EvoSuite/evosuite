@@ -31,8 +31,8 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
-import de.unisb.cs.st.evosuite.ga.Randomness;
 import de.unisb.cs.st.evosuite.testsuite.TestCallStatement;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * A test case is a list of statements
@@ -40,7 +40,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestCallStatement;
  * @author Gordon Fraser
  * 
  */
-public class DefaultTestCase implements TestCase{
+public class DefaultTestCase implements TestCase {
 
 	private static Logger logger = Logger.getLogger(DefaultTestCase.class);
 
@@ -48,9 +48,8 @@ public class DefaultTestCase implements TestCase{
 	protected List<StatementInterface> statements;
 
 	// a list of all goals this test covers
-	private HashSet<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
+	private final HashSet<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
 
-		
 	/**
 	 * Constructor
 	 */
@@ -139,21 +138,22 @@ public class DefaultTestCase implements TestCase{
 				continue;
 			if (statements.get(i).getReturnValue() instanceof ArrayReference) {
 				if (GenericClass.isAssignable(type,
-				        statements.get(i).getReturnValue().getComponentType())) {
+				                              statements.get(i).getReturnValue().getComponentType())) {
 					// Add components
 					// variables.add(new
 					// VariableReference(statements.get(i).retval.clone(),
 					// Randomness.getInstance().nextInt(MAX_ARRAY), i));
 					// ArrayStatement as = (ArrayStatement)statements.get(i);
-					for (int index = 0; index < ((ArrayReference)statements.get(i).getReturnValue()).getArrayLength(); index++) {
-						variables.add(new ArrayIndex(this, 
-						        (ArrayReference)statements.get(i).getReturnValue(), index));
+					for (int index = 0; index < ((ArrayReference) statements.get(i).getReturnValue()).getArrayLength(); index++) {
+						variables.add(new ArrayIndex(this,
+						        (ArrayReference) statements.get(i).getReturnValue(),
+						        index));
 					}
 				}
 			} else if (statements.get(i).getReturnValue() instanceof ArrayIndex) { // &&
-				                                                  // GenericClass.isAssignable(type,
-				                                                  // statements.get(i).retval.array.getComponentType()))
-				                                                  // {
+				// GenericClass.isAssignable(type,
+				// statements.get(i).retval.array.getComponentType()))
+				// {
 				// Don't need to add this
 			} else if (statements.get(i).getReturnValue().isAssignableTo(type)) {
 				// if(constraint == null ||
@@ -183,8 +183,8 @@ public class DefaultTestCase implements TestCase{
 				continue;
 			// TODO: Need to support arrays that were not self-created
 			if (statements.get(i).getReturnValue() instanceof ArrayReference) { // &&
-				                                      // statements.get(i).retval.array
-				                                      // != null) {
+				// statements.get(i).retval.array
+				// != null) {
 				// Add a single component
 				// variables.add(new VariableReference(statements.get(i).retval,
 				// Randomness.getInstance().nextInt(MAX_ARRAY), i));
@@ -194,12 +194,12 @@ public class DefaultTestCase implements TestCase{
 				// variables.add(new VariableReference(as.retval.clone(), index,
 				// as.size(), i));
 				// }
-				for (int index = 0; index < ((ArrayReference)statements.get(i).getReturnValue()).getArrayLength(); index++) {
+				for (int index = 0; index < ((ArrayReference) statements.get(i).getReturnValue()).getArrayLength(); index++) {
 					// variables.add(new
 					// VariableReference(statements.get(i).retval.clone(),
 					// index, statements.get(i).retval.array_length, i));
-					variables.add(new ArrayIndex(this, 
-							(ArrayReference)statements.get(i).getReturnValue(), index));
+					variables.add(new ArrayIndex(this,
+					        (ArrayReference) statements.get(i).getReturnValue(), index));
 				}
 			} else if (!(statements.get(i).getReturnValue() instanceof ArrayIndex)) {
 				variables.add(statements.get(i).getReturnValue());
@@ -227,8 +227,7 @@ public class DefaultTestCase implements TestCase{
 		if (variables.isEmpty())
 			return null;
 
-		Randomness randomness = Randomness.getInstance();
-		int num = randomness.nextInt(variables.size());
+		int num = Randomness.nextInt(variables.size());
 		return variables.get(num);
 	}
 
@@ -252,8 +251,7 @@ public class DefaultTestCase implements TestCase{
 		if (variables.isEmpty())
 			throw new ConstructionFailedException();
 
-		Randomness randomness = Randomness.getInstance();
-		int num = randomness.nextInt(variables.size());
+		int num = Randomness.nextInt(variables.size());
 		return variables.get(num);
 	}
 
@@ -271,9 +269,9 @@ public class DefaultTestCase implements TestCase{
 	@Override
 	public VariableReference setStatement(StatementInterface statement, int position) {
 		statements.set(position, statement);
-		assert(isValid());
+		assert (isValid());
 		return statement.getReturnValue(); // TODO:
-		                                                                   // -1?
+		                                   // -1?
 	}
 
 	/* (non-Javadoc)
@@ -282,7 +280,7 @@ public class DefaultTestCase implements TestCase{
 	@Override
 	public VariableReference addStatement(StatementInterface statement, int position) {
 		statements.add(position, statement);
-		assert(isValid());
+		assert (isValid());
 		return statement.getReturnValue();
 	}
 
@@ -292,7 +290,7 @@ public class DefaultTestCase implements TestCase{
 	@Override
 	public VariableReference addStatement(StatementInterface statement) {
 		statements.add(statement);
-		assert(isValid());
+		assert (isValid());
 		return statement.getReturnValue();
 	}
 
@@ -351,11 +349,11 @@ public class DefaultTestCase implements TestCase{
 	@Override
 	public void remove(int position) {
 		logger.debug("Removing statement " + position);
-		if (position >= size()){
+		if (position >= size()) {
 			return;
 		}
 		statements.remove(position);
-		assert(isValid());
+		assert (isValid());
 		// for(Statement s : statements) {
 		// for(Asss.assertions)
 		// }
@@ -401,8 +399,7 @@ public class DefaultTestCase implements TestCase{
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-		        + ((statements == null) ? 0 : statements.hashCode());
+		result = prime * result + ((statements == null) ? 0 : statements.hashCode());
 		return result;
 	}
 
@@ -495,8 +492,7 @@ public class DefaultTestCase implements TestCase{
 			}
 			if (s instanceof MethodStatement) {
 				MethodStatement ms = (MethodStatement) s;
-				accessed_classes.addAll(Arrays.asList(ms.getMethod()
-				        .getExceptionTypes()));
+				accessed_classes.addAll(Arrays.asList(ms.getMethod().getExceptionTypes()));
 				accessed_classes.add(ms.getMethod().getDeclaringClass());
 				accessed_classes.add(ms.getMethod().getReturnType());
 			} else if (s instanceof FieldStatement) {
@@ -567,10 +563,11 @@ public class DefaultTestCase implements TestCase{
 	public boolean isValid() {
 		int num = 0;
 		for (StatementInterface s : statements) {
-			assert(s.isValid());
+			assert (s.isValid());
 			if (s.getReturnValue().getStPosition() != num) {
 				logger.error("Test case is invalid at statement " + num + " - "
-				        + s.getReturnValue().getStPosition() + " which is " + s.getClass() + " " + s.getCode());
+				        + s.getReturnValue().getStPosition() + " which is "
+				        + s.getClass() + " " + s.getCode());
 				logger.error("Test code is: " + this.toCode());
 				return false;
 			}
@@ -602,7 +599,7 @@ public class DefaultTestCase implements TestCase{
 			}
 		}
 		return false;
-        }
+	}
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#addCoveredGoal(de.unisb.cs.st.evosuite.testcase.TestFitnessFunction)
@@ -612,7 +609,7 @@ public class DefaultTestCase implements TestCase{
 		coveredGoals.add(goal);
 		// TODO: somehow adds the same goal more than once (fitnessfunction.equals()?)
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getCoveredGoals()
 	 */
@@ -620,7 +617,7 @@ public class DefaultTestCase implements TestCase{
 	public Set<TestFitnessFunction> getCoveredGoals() {
 		return coveredGoals;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see java.lang.Iterable#iterator()
 	 */

@@ -44,6 +44,8 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
  */
 public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
+	private static final long serialVersionUID = 8198712273315903693L;
+
 	private final List<TestFitnessFunction> goals;
 
 	private final HOMSwitcher hom_switcher = new HOMSwitcher();
@@ -93,11 +95,9 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 			HOMObserver.resetTouched(); // TODO - is this the right place?
 			if (mutant != null) {
 				hom_switcher.switchOn(mutant);
-				executor.setLogging(false);
 			}
 
 			result = executor.execute(test);
-			executor.setLogging(true);
 
 			if (mutant != null)
 				hom_switcher.switchOff(mutant);

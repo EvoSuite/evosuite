@@ -44,7 +44,7 @@ import com.panayotis.gnuplot.terminal.GNUPlotTerminal;
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
-import de.unisb.cs.st.evosuite.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
@@ -662,17 +662,17 @@ public class MutationStatistics implements SearchListener {
 	}
 
 	@Override
-	public void iteration(List<Chromosome> population) {
+	public void iteration(GeneticAlgorithm algorithm) {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
-		entry.fitness_history.add(population.get(0).getFitness());
-		entry.length_history.add(population.get(0).size());
+		entry.fitness_history.add(algorithm.getBestIndividual().getFitness());
+		entry.length_history.add(algorithm.getBestIndividual().size());
 	}
 
 	@Override
-	public void searchFinished(List<Chromosome> result) {
+	public void searchFinished(GeneticAlgorithm algorithm) {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
-		if (result instanceof TestChromosome) {
-			TestChromosome best = (TestChromosome) result.get(0);
+		if (algorithm.getPopulation() instanceof TestChromosome) {
+			TestChromosome best = (TestChromosome) algorithm.getBestIndividual();
 			entry.test = best.test;
 			entry.has_exception = best.hasException();
 			entry.has_assertion = best.test.hasAssertions();
@@ -684,10 +684,10 @@ public class MutationStatistics implements SearchListener {
 	}
 
 	@Override
-	public void searchStarted(FitnessFunction objective) {
+	public void searchStarted(GeneticAlgorithm algorithm) {
 		StatisticEntry entry = new StatisticEntry();
-		if (objective instanceof MutationTestFitness) {
-			MutationTestFitness fitness = (MutationTestFitness) objective;
+		if (algorithm.getFitnessFunction() instanceof MutationTestFitness) {
+			MutationTestFitness fitness = (MutationTestFitness) algorithm.getFitnessFunction();
 			entry.mutation = fitness.getTargetMutation();
 		} else {
 			entry.mutation = null;

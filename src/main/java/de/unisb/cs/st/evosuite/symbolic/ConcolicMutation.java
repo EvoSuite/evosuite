@@ -35,7 +35,6 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
 
-import de.unisb.cs.st.evosuite.ga.Randomness;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
 import de.unisb.cs.st.evosuite.symbolic.smt.cvc3.CVC3Solver;
@@ -44,6 +43,7 @@ import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * @author Gordon Fraser
@@ -72,7 +72,6 @@ public class ConcolicMutation {
 		try {
 			logger.debug("Executing test");
 			result = executor.execute(test);
-			executor.setLogging(true);
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
@@ -82,7 +81,7 @@ public class ConcolicMutation {
 		return result;
 	}
 
-	private Method getMarkMethod(PrimitiveStatement statement) {
+	private Method getMarkMethod(PrimitiveStatement<?> statement) {
 		Class<?> clazz = statement.getReturnValue().getVariableClass();
 		if (clazz.equals(Boolean.class) || clazz.equals(boolean.class))
 			return org.objectweb.asm.commons.Method.getMethod("boolean mark(boolean)");

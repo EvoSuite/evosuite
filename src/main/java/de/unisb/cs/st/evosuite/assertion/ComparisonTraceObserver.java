@@ -30,7 +30,7 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class ComparisonTraceObserver extends ExecutionObserver {
 
-	private final Logger logger = Logger.getLogger(ComparisonTraceObserver.class);
+	private final static Logger logger = Logger.getLogger(ComparisonTraceObserver.class);
 
 	private final ComparisonTrace trace = new ComparisonTrace();
 

@@ -15,8 +15,6 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
  */
 public class TestCallObject extends AccessibleObject {
 
-	private final TestSuiteChromosome testSuite = null;
-
 	public TestCase testCase = null;
 
 	private Type returnType;
@@ -43,23 +41,19 @@ public class TestCallObject extends AccessibleObject {
 	 * Properties.getTargetClass(); }
 	 */
 	public TestCase getTest() {
-		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker
-		        .getInstance();
-		TestSuiteChromosome suite = (TestSuiteChromosome) tracker
-		        .getCurrentChromosome();
+		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
+		TestSuiteChromosome suite = (TestSuiteChromosome) tracker.getCurrentChromosome();
 		if (num >= suite.tests.size()) {
-			System.out.println("Current chromosome only has "
-			        + suite.tests.size() + " chromosomes, looking for " + num);
+			System.out.println("Current chromosome only has " + suite.tests.size()
+			        + " chromosomes, looking for " + num);
 			return null;
 		} else
 			return suite.tests.get(num).test;
 	}
 
 	public TestSuiteChromosome getSuite() {
-		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker
-		        .getInstance();
-		TestSuiteChromosome suite = (TestSuiteChromosome) tracker
-		        .getCurrentChromosome();
+		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
+		TestSuiteChromosome suite = (TestSuiteChromosome) tracker.getCurrentChromosome();
 		return suite;
 	}
 

@@ -33,7 +33,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 public class PrimitiveFieldTrace extends OutputTrace {
 
-	private final Logger logger = Logger.getLogger(PrimitiveFieldTrace.class);
+	private final static Logger logger = Logger.getLogger(PrimitiveFieldTrace.class);
 
 	public Map<Integer, List<Object>> trace = new HashMap<Integer, List<Object>>();
 	public Map<Type, List<Field>> fields = new HashMap<Type, List<Field>>();
