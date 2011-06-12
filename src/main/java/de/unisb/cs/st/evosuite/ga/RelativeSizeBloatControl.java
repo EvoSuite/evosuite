@@ -18,7 +18,6 @@
 
 package de.unisb.cs.st.evosuite.ga;
 
-import java.util.List;
 
 /**
  * Check individuals against current best
@@ -26,8 +25,9 @@ import java.util.List;
  * @author Gordon Fraser
  * 
  */
-public class RelativeSizeBloatControl implements BloatControlFunction,
-        SearchListener {
+public class RelativeSizeBloatControl implements BloatControlFunction, SearchListener {
+
+	private static final long serialVersionUID = 611130574318547978L;
 
 	/**
 	 * Longest individual in current generation
@@ -51,18 +51,18 @@ public class RelativeSizeBloatControl implements BloatControlFunction,
 	 * Set current max length to max of best chromosome
 	 */
 	@Override
-	public void iteration(List<Chromosome> population) {
-		current_max = population.get(0).size(); // FIXME: 2 Assumptions:
-												// Population is sorted and
-												// population is non-empty...
+	public void iteration(GeneticAlgorithm algorithm) {
+		current_max = algorithm.getPopulation().get(0).size(); // FIXME: 2 Assumptions:
+		// Population is sorted and
+		// population is non-empty...
 	}
 
 	@Override
-	public void searchFinished(List<Chromosome> population) {
+	public void searchFinished(GeneticAlgorithm algorithm) {
 	}
 
 	@Override
-	public void searchStarted(FitnessFunction function) {
+	public void searchStarted(GeneticAlgorithm algorithm) {
 	}
 
 	@Override

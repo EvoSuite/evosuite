@@ -21,11 +21,7 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.GeneratorAdapter;
-
-import com.lowagie.text.pdf.ArabicLigaturizer;
 
 /**
  * This class represents a variable in a test case
@@ -37,9 +33,11 @@ import com.lowagie.text.pdf.ArabicLigaturizer;
  * 
  */
 public interface VariableReference extends Comparable<VariableReference> {
-	
+
 	/**
-	 * The position of the statement, defining this VariableReference, in the testcase.
+	 * The position of the statement, defining this VariableReference, in the
+	 * testcase.
+	 * 
 	 * @return
 	 */
 	public int getStPosition();
@@ -62,8 +60,9 @@ public interface VariableReference extends Comparable<VariableReference> {
 	public String getComponentName();
 
 	public Type getComponentType();
-	
+
 	public GenericClass getGenericClass();
+
 	/**
 	 * Return true if variable is an enumeration
 	 */
@@ -158,6 +157,7 @@ public interface VariableReference extends Comparable<VariableReference> {
 	/**
 	 * Hash function
 	 */
+	@Override
 	public abstract int hashCode();
 
 	/**
@@ -188,6 +188,6 @@ public interface VariableReference extends Comparable<VariableReference> {
 	 */
 	@Override
 	public int compareTo(VariableReference other);
-	
+
 	public boolean same(VariableReference r);
 }

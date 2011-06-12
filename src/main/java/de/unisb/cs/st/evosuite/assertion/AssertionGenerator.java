@@ -55,7 +55,6 @@ public abstract class AssertionGenerator {
 		try {
 			logger.debug("Executing test");
 			result = executor.execute(test);
-			executor.setLogging(true);
 			int num = test.size();
 			MaxStatementsStoppingCondition.statementsExecuted(num);
 			result.comparison_trace = comparison_observer.getTrace();

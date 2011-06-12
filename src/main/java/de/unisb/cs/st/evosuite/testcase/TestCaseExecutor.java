@@ -20,7 +20,10 @@ package de.unisb.cs.st.evosuite.testcase;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -49,8 +52,6 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	private static final Logger logger = Logger.getLogger(TestCaseExecutor.class);
 
-	private boolean log = true;
-
 	private static final PrintStream systemOut = System.out;
 	private static final PrintStream systemErr = System.err;
 
@@ -63,6 +64,8 @@ public class TestCaseExecutor implements ThreadFactory {
 	//private static ExecutorService executor = Executors.newCachedThreadPool();
 
 	private List<ExecutionObserver> observers;
+
+	private final Set<Thread> stalledThreads = new HashSet<Thread>();
 
 	public static long timeExecuted = 0;
 
@@ -129,10 +132,6 @@ public class TestCaseExecutor implements ThreadFactory {
 			instance.executor.shutdownNow();
 	}
 
-	public void setLogging(boolean value) {
-		log = value;
-	}
-
 	public void addObserver(ExecutionObserver observer) {
 		observers.add(observer);
 	}
@@ -160,6 +159,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		return execute(tc, scope);
 	}
 
+	@SuppressWarnings("deprecation")
 	public ExecutionResult execute(TestCase tc, Scope scope) {
 		ExecutionTracer.getExecutionTracer().clear();
 		if (Properties.STATIC_HACK)
@@ -215,15 +215,16 @@ public class TestCaseExecutor implements ThreadFactory {
 			 * An ExecutionException at this point, is most likely an error in evosuite. As exceptions from the tested code are catched before this.
 			 */
 			Sandbox.tearDownEverything();
-			logger.error("ExecutionException (this is likely a serious error in the framework)", e1);
+			logger.error("ExecutionException (this is likely a serious error in the framework)",
+			             e1);
 			ExecutionResult result = new ExecutionResult(tc, null);
 			result.exceptions = callable.getExceptionsThrown();
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
-			if(e1.getCause() instanceof Error){ //an error was thrown somewhere in evosuite code
-				throw (Error)e1.getCause();
-			}else if(e1.getCause() instanceof RuntimeException){
-				throw (RuntimeException)e1.getCause();
+			if (e1.getCause() instanceof Error) { //an error was thrown somewhere in evosuite code
+				throw (Error) e1.getCause();
+			} else if (e1.getCause() instanceof RuntimeException) {
+				throw (RuntimeException) e1.getCause();
 			}
 			return result;
 		} catch (TimeoutException e1) {
@@ -279,8 +280,23 @@ public class TestCaseExecutor implements ThreadFactory {
 		}
 	}
 
+	public int getNumStalledThreads() {
+		Iterator<Thread> iterator = stalledThreads.iterator();
+		while (iterator.hasNext()) {
+			Thread t = iterator.next();
+			if (!t.isAlive()) {
+				iterator.remove();
+			}
+		}
+		return stalledThreads.size();
+	}
+
 	@Override
 	public Thread newThread(Runnable r) {
+		if (currentThread != null && currentThread.isAlive()) {
+			stalledThreads.add(currentThread);
+			logger.info("Current number of stalled threads: " + stalledThreads.size());
+		}
 		currentThread = new Thread(r);
 		ExecutionTracer.setThread(currentThread);
 		return currentThread;

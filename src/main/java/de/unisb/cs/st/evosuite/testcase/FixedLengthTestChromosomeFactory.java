@@ -26,6 +26,8 @@ import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 
 public class FixedLengthTestChromosomeFactory implements ChromosomeFactory {
 
+	private static final long serialVersionUID = -3860201346772188495L;
+
 	protected static Logger logger = Logger.getLogger(FixedLengthTestChromosomeFactory.class);
 
 	/** Factory to manipulate and generate method sequences */

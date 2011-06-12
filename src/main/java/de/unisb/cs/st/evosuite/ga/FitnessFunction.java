@@ -18,6 +18,8 @@
 
 package de.unisb.cs.st.evosuite.ga;
 
+import java.io.Serializable;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -26,7 +28,9 @@ import org.apache.log4j.Logger;
  * @author Gordon Fraser
  * 
  */
-public abstract class FitnessFunction {
+public abstract class FitnessFunction implements Serializable {
+
+	private static final long serialVersionUID = -8876797554111396910L;
 
 	protected static Logger logger = Logger.getLogger(FitnessFunction.class);
 

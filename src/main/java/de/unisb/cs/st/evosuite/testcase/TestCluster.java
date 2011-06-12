@@ -48,9 +48,9 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
-import de.unisb.cs.st.evosuite.ga.Randomness;
 import de.unisb.cs.st.evosuite.javaagent.StaticInitializationClassAdapter;
 import de.unisb.cs.st.evosuite.javaagent.TestabilityTransformation;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 import de.unisb.cs.st.javalanche.coverage.distance.ConnectionData;
 import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
 import de.unisb.cs.st.javalanche.coverage.distance.MethodDescription;
@@ -67,9 +67,6 @@ public class TestCluster {
 
 	/** Logger */
 	private static Logger logger = Logger.getLogger(TestCluster.class);
-
-	/** Random number generator */
-	private final Randomness randomness = Randomness.getInstance();
 
 	/** Instance variable */
 	private static TestCluster instance = null;
@@ -171,7 +168,7 @@ public class TestCluster {
 		if (!generators.containsKey(type))
 			return null;
 
-		return randomness.choice(generators.get(type));
+		return Randomness.choice(generators.get(type));
 	}
 
 	/**
@@ -200,7 +197,7 @@ public class TestCluster {
 		int num = 0;
 		int param = 1000;
 		for (int i = 0; i < Properties.GENERATOR_TOURNAMENT; i++) {
-			int new_num = randomness.nextInt(choice.size());
+			int new_num = Randomness.nextInt(choice.size());
 			AccessibleObject o = choice.get(new_num);
 			if (o instanceof Constructor<?>) {
 				Constructor<?> c = (Constructor<?>) o;
@@ -418,10 +415,10 @@ public class TestCluster {
 		if (num_methods == 0) {
 			if (num_constructors == 0)
 				throw new ConstructionFailedException();
-			return test_constructors.get(randomness.nextInt(num_constructors));
+			return test_constructors.get(Randomness.nextInt(num_constructors));
 		}
 
-		int num = randomness.nextInt(num_methods + num_constructors);
+		int num = Randomness.nextInt(num_methods + num_constructors);
 		if (num >= num_methods) {
 			return test_constructors.get(num - num_methods);
 		} else {
@@ -433,7 +430,7 @@ public class TestCluster {
 	 * Get entirely random call
 	 */
 	public AccessibleObject getRandomCall() {
-		return randomness.choice(calls);
+		return Randomness.choice(calls);
 	}
 
 	// ----------------------------------------------------------------------------------
@@ -539,12 +536,15 @@ public class TestCluster {
 		}
 
 		Set<Method> methods = new HashSet<Method>();
+		methods.addAll(helper.values());
+		/*
 		for (Method m : helper.values()) {
 			String name = m.getName() + "|"
 			        + org.objectweb.asm.Type.getMethodDescriptor(m);
 
 			methods.add(m);
 		}
+		*/
 		return methods;
 	}
 

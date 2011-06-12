@@ -16,8 +16,8 @@ import java.util.Set;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.AbstractStatement;
+import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
@@ -29,6 +29,8 @@ import de.unisb.cs.st.evosuite.testcase.VariableReferenceImpl;
  * 
  */
 public class TestCallStatement extends AbstractStatement {
+
+	private static final long serialVersionUID = -7886618899521718039L;
 
 	private final TestCallObject testCall;
 
@@ -55,7 +57,6 @@ public class TestCallStatement extends AbstractStatement {
 			// logger.info("Starting test call " + test.toCode());
 			// logger.info("Original test was: " + testCall.testCase.toCode());
 			executor.execute(test, scope);
-			executor.setLogging(true);
 
 			// TODO: Count as 1 or length?
 			int num = test.size();
@@ -163,7 +164,6 @@ public class TestCallStatement extends AbstractStatement {
 		return vars;
 	}
 
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -171,7 +171,8 @@ public class TestCallStatement extends AbstractStatement {
 	 */
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
-		TestCallStatement statement = new TestCallStatement(newTestCase, testCall, retval.getType());
+		TestCallStatement statement = new TestCallStatement(newTestCase, testCall,
+		        retval.getType());
 		return statement;
 	}
 

@@ -48,7 +48,7 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 public class TestSuiteMinimizer {
 
 	/** Logger */
-	private final Logger logger = Logger.getLogger(TestSuiteMinimizer.class);
+	private final static Logger logger = Logger.getLogger(TestSuiteMinimizer.class);
 
 	/** Factory method that handles statement deletion */
 	private final DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
@@ -75,7 +75,6 @@ public class TestSuiteMinimizer {
 		try {
 			result = executor.execute(test);
 			//result.exceptions = executor.run(test);
-			executor.setLogging(true);
 			//result.trace = ExecutionTracer.getExecutionTracer().getTrace();
 
 		} catch (Exception e) {

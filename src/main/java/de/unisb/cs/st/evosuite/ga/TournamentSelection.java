@@ -21,6 +21,7 @@ package de.unisb.cs.st.evosuite.ga;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * Select an individual from a population as winner of a number of tournaments
@@ -30,18 +31,20 @@ import de.unisb.cs.st.evosuite.Properties;
  */
 public class TournamentSelection extends SelectionFunction {
 
+	private static final long serialVersionUID = -7465418404056357932L;
+
 	/**
 	 * Perform the tournament on the population, return one index
 	 */
 	@Override
 	public int getIndex(List<Chromosome> population) {
-		int new_num = randomness.nextInt(population.size());
+		int new_num = Randomness.nextInt(population.size());
 		int winner = new_num;
 
 		int round = 0;
 
 		while (round < Properties.TOURNAMENT_SIZE - 1) {
-			new_num = randomness.nextInt(population.size());
+			new_num = Randomness.nextInt(population.size());
 			Chromosome selected = population.get(new_num);
 
 			if (maximize) {

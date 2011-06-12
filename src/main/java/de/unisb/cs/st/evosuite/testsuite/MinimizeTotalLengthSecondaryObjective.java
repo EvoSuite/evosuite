@@ -27,6 +27,8 @@ import de.unisb.cs.st.evosuite.ga.SecondaryObjective;
  */
 public class MinimizeTotalLengthSecondaryObjective extends SecondaryObjective {
 
+	private static final long serialVersionUID = 1974099736891048617L;
+
 	private int getLengthSum(TestSuiteChromosome chromosome1,
 	        TestSuiteChromosome chromosome2) {
 		return chromosome1.length() + chromosome2.length();
@@ -41,9 +43,8 @@ public class MinimizeTotalLengthSecondaryObjective extends SecondaryObjective {
 	 */
 	@Override
 	public int compareChromosomes(Chromosome chromosome1, Chromosome chromosome2) {
-		logger.debug("Comparing lengths: "
-		        + ((TestSuiteChromosome) chromosome1).length() + " vs "
-		        + ((TestSuiteChromosome) chromosome2).length());
+		logger.debug("Comparing lengths: " + ((TestSuiteChromosome) chromosome1).length()
+		        + " vs " + ((TestSuiteChromosome) chromosome2).length());
 
 		return ((TestSuiteChromosome) chromosome1).length()
 		        - ((TestSuiteChromosome) chromosome2).length();
@@ -61,15 +62,12 @@ public class MinimizeTotalLengthSecondaryObjective extends SecondaryObjective {
 	@Override
 	public int compareGenerations(Chromosome parent1, Chromosome parent2,
 	        Chromosome child1, Chromosome child2) {
-		logger.debug("Comparing lengths: "
-		        + ((TestSuiteChromosome) parent1).length() + ", "
-		        + ((TestSuiteChromosome) parent2).length() + " vs "
+		logger.debug("Comparing lengths: " + ((TestSuiteChromosome) parent1).length()
+		        + ", " + ((TestSuiteChromosome) parent2).length() + " vs "
 		        + ((TestSuiteChromosome) child1).length() + ", "
 		        + ((TestSuiteChromosome) child2).length());
-		return getLengthSum((TestSuiteChromosome) parent1,
-		        (TestSuiteChromosome) parent2)
-		        - getLengthSum((TestSuiteChromosome) child1,
-		                (TestSuiteChromosome) child2);
+		return getLengthSum((TestSuiteChromosome) parent1, (TestSuiteChromosome) parent2)
+		        - getLengthSum((TestSuiteChromosome) child1, (TestSuiteChromosome) child2);
 	}
 
 }

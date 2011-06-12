@@ -19,13 +19,12 @@
 package de.unisb.cs.st.evosuite.ga.stoppingconditions;
 
 import java.text.NumberFormat;
-import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
-import de.unisb.cs.st.evosuite.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
 
 /**
@@ -41,7 +40,7 @@ public abstract class StoppingCondition implements SearchListener {
 	public StoppingCondition() {
 		reset();
 	}
-	
+
 	public abstract boolean isFinished();
 
 	/*
@@ -52,7 +51,7 @@ public abstract class StoppingCondition implements SearchListener {
 	 * .st.javalanche.ga.FitnessFunction)
 	 */
 	@Override
-	public void searchStarted(FitnessFunction objective) {
+	public void searchStarted(GeneticAlgorithm algorithm) {
 
 	}
 
@@ -67,7 +66,7 @@ public abstract class StoppingCondition implements SearchListener {
 	 * @see de.unisb.cs.st.ga.SearchListener#iteration(java.util.List)
 	 */
 	@Override
-	public void iteration(List<Chromosome> population) {
+	public void iteration(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -78,7 +77,7 @@ public abstract class StoppingCondition implements SearchListener {
 	 * @see de.unisb.cs.st.ga.SearchListener#searchFinished(java.util.List)
 	 */
 	@Override
-	public void searchFinished(List<Chromosome> population) {
+	public void searchFinished(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -107,7 +106,7 @@ public abstract class StoppingCondition implements SearchListener {
 	 * @param limit
 	 */
 	public abstract void setLimit(int limit);
-	
+
 	/**
 	 * Get upper limit of resources
 	 * 
@@ -123,26 +122,27 @@ public abstract class StoppingCondition implements SearchListener {
 	 * @return
 	 */
 	public abstract int getCurrentValue();
-	
+
 	@Override
 	public String toString() {
 		StringBuilder r = new StringBuilder();
 		String type = getClass().toString();
 		try { // just to make sure
-			type = type.substring(type.lastIndexOf(".")+1);
-		} catch(Exception e) {}
-		type = type.substring(0,type.length()-17); // cut away "StoppingCondition" suffix
-		type+=" :";
+			type = type.substring(type.lastIndexOf(".") + 1);
+		} catch (Exception e) {
+		}
+		type = type.substring(0, type.length() - 17); // cut away "StoppingCondition" suffix
+		type += " :";
 		type = StringUtils.rightPad(type, 24);
 		r.append(type);
 		String value = NumberFormat.getIntegerInstance().format(getCurrentValue());
-		value = StringUtils.leftPad(value,12);
+		value = StringUtils.leftPad(value, 12);
 		String limit = NumberFormat.getIntegerInstance().format(getLimit());
-		limit = StringUtils.rightPad(limit,12);
-		r.append(value+" / "+limit);
-		if(isFinished())
+		limit = StringUtils.rightPad(limit, 12);
+		r.append(value + " / " + limit);
+		if (isFinished())
 			r.append(" Finished!");
-		
+
 		return r.toString();
 	}
 }

@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.ga;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,14 +30,11 @@ import org.apache.log4j.Logger;
  * @author Gordon Fraser
  * 
  */
-public abstract class Chromosome implements Comparable<Chromosome> {
+public abstract class Chromosome implements Comparable<Chromosome>, Serializable {
+
+	private static final long serialVersionUID = -6921897301005213358L;
 
 	protected static Logger logger = Logger.getLogger(Chromosome.class);
-
-	/**
-	 * No GA without randomnes
-	 */
-	protected Randomness randomness = Randomness.getInstance();
 
 	/**
 	 * Exception to handle the case when a mutation fails
@@ -111,12 +109,12 @@ public abstract class Chromosome implements Comparable<Chromosome> {
 
 		while (c == 0 && objective < secondaryObjectives.size()) {
 			SecondaryObjective so = secondaryObjectives.get(objective++);
-			if(so == null)
+			if (so == null)
 				break;
 			c = so.compareChromosomes(this, o);
 		}
-		logger.debug("Comparison: " + fitness + "/" + size() + " vs "
-		        + o.fitness + "/" + o.size() + " = " + c);
+		logger.debug("Comparison: " + fitness + "/" + size() + " vs " + o.fitness + "/"
+		        + o.size() + " = " + c);
 		return c;
 	}
 
@@ -145,8 +143,13 @@ public abstract class Chromosome implements Comparable<Chromosome> {
 	 * @param position2
 	 * @throws ConstructionFailedException
 	 */
-	public abstract void crossOver(Chromosome other, int position1,
-	        int position2) throws ConstructionFailedException;
+	public abstract void crossOver(Chromosome other, int position1, int position2)
+	        throws ConstructionFailedException;
+
+	/**
+	 * Apply the local search
+	 */
+	public abstract void localSearch(LocalSearchObjective objective);
 
 	/**
 	 * Return length of individual

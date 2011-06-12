@@ -18,14 +18,10 @@
 
 package de.unisb.cs.st.evosuite.testsuite;
 
-import java.util.List;
-
-import org.apache.log4j.Logger;
-
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.BloatControlFunction;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
-import de.unisb.cs.st.evosuite.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
 
 /**
@@ -34,7 +30,7 @@ import de.unisb.cs.st.evosuite.ga.SearchListener;
  */
 public class RelativeLengthBloatControl implements BloatControlFunction, SearchListener {
 
-	Logger logger = Logger.getLogger(BloatControlFunction.class);
+	private static final long serialVersionUID = -2352882640530431653L;
 
 	/**
 	 * Longest individual in current generation
@@ -73,18 +69,18 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 	 * Set current max length to max of best chromosome
 	 */
 	@Override
-	public void iteration(List<Chromosome> population) {
-		Chromosome best = population.get(0);
+	public void iteration(GeneticAlgorithm algorithm) {
+		Chromosome best = algorithm.getBestIndividual();
 		current_max = ((TestSuiteChromosome) best).length();
 		best_fitness = best.getFitness();
 	}
 
 	@Override
-	public void searchFinished(List<Chromosome> result) {
+	public void searchFinished(GeneticAlgorithm algorithm) {
 	}
 
 	@Override
-	public void searchStarted(FitnessFunction objective) {
+	public void searchStarted(GeneticAlgorithm algorithm) {
 	}
 
 	@Override

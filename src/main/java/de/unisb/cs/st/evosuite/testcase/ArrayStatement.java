@@ -31,7 +31,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.ga.Randomness;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * An array statement creates a new array
@@ -40,10 +40,13 @@ import de.unisb.cs.st.evosuite.ga.Randomness;
  * 
  */
 public class ArrayStatement extends AbstractStatement {
+
+	private static final long serialVersionUID = -2858236370873914156L;
+
 	private int length = 0;
 
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type) {
-		this(tc, type, Randomness.getInstance().nextInt(Properties.MAX_ARRAY) + 1);
+		this(tc, type, Randomness.nextInt(Properties.MAX_ARRAY) + 1);
 
 	}
 

@@ -38,9 +38,11 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
  */
 public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 
-	protected Logger logger = Logger.getLogger(TestSuiteFitnessFunction.class);
+	private static final long serialVersionUID = 7243635497292960457L;
 
-	protected TestCaseExecutor executor = TestCaseExecutor.getInstance();
+	protected static Logger logger = Logger.getLogger(TestSuiteFitnessFunction.class);
+
+	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
 	/**
 	 * Execute a test case

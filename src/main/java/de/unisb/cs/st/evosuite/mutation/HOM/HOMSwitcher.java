@@ -11,7 +11,7 @@ public class HOMSwitcher {
 
 	private static final String CURRENT_MUTATION_KEY = "javalanche.current.mutation";
 
-	private final Logger logger = Logger.getLogger(HOMSwitcher.class);
+	private final static Logger logger = Logger.getLogger(HOMSwitcher.class);
 
 	static int num_mutants;
 

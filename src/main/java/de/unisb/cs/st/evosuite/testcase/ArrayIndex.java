@@ -9,11 +9,12 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  * This class defines an reference to an array element. E.g. foo[3]
  * 
  * @author Sebastian Steenbuck
- *
+ * 
  */
-public class ArrayIndex extends VariableReferenceImpl{
+public class ArrayIndex extends VariableReferenceImpl {
+	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(ArrayIndex.class);
-	
+
 	/**
 	 * Index in the array
 	 */
@@ -43,8 +44,8 @@ public class ArrayIndex extends VariableReferenceImpl{
 		return array;
 	}
 
-	public void setArray(ArrayReference r){
-		array=r;
+	public void setArray(ArrayReference r) {
+		array = r;
 	}
 
 	/**
@@ -59,14 +60,14 @@ public class ArrayIndex extends VariableReferenceImpl{
 	}
 
 	public void setArrayIndex(int index) {
-		array_index=index;
+		array_index = index;
 	}
 
 	@Override
-	public int getStPosition(){
-		assert(array!=null);
-		for(int i=0 ; i<testCase.size() ; i++){
-			if(testCase.getStatement(i).getReturnValue().equals(this)){
+	public int getStPosition() {
+		assert (array != null);
+		for (int i = 0; i < testCase.size(); i++) {
+			if (testCase.getStatement(i).getReturnValue().equals(this)) {
 				return i;
 			}
 		}
@@ -75,10 +76,9 @@ public class ArrayIndex extends VariableReferenceImpl{
 		//Therefore the array must have been assigned in some method and we can return the method call
 		return array.getStPosition();
 
-
 		//throw new AssertionError("A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase");
 	}
-	
+
 	/**
 	 * Return name for source code representation
 	 * 
@@ -88,41 +88,43 @@ public class ArrayIndex extends VariableReferenceImpl{
 	public String getName() {
 		return array.getName() + "[" + array_index + "]";
 	}
-	
+
 	@Override
 	public void loadBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
-			array.loadBytecode(mg, locals);
-			mg.push(array_index);
-			mg.arrayLoad(org.objectweb.asm.Type.getType(type.getRawClass()));
-		
+		array.loadBytecode(mg, locals);
+		mg.push(array_index);
+		mg.arrayLoad(org.objectweb.asm.Type.getType(type.getRawClass()));
+
 	}
-	
+
 	@Override
 	public void storeBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
-			array.loadBytecode(mg, locals);
-			mg.push(array_index);
-			mg.arrayStore(org.objectweb.asm.Type.getType(type.getRawClass()));
+		array.loadBytecode(mg, locals);
+		mg.push(array_index);
+		mg.arrayStore(org.objectweb.asm.Type.getType(type.getRawClass()));
 	}
-	
-	public boolean same(VariableReference r){
-		if(r==null)
+
+	@Override
+	public boolean same(VariableReference r) {
+		if (r == null)
 			return false;
-		
-		if(!(r instanceof ArrayIndex))
+
+		if (!(r instanceof ArrayIndex))
 			return false;
-		
-		ArrayIndex other = (ArrayIndex)r;
-		if(this.getStPosition()!=r.getStPosition())
+
+		ArrayIndex other = (ArrayIndex) r;
+		if (this.getStPosition() != r.getStPosition())
 			return false;
-		
-		if(!this.array.same(other.getArray()))
+
+		if (!this.array.same(other.getArray()))
 			return false;
-		
-		if(this.array_index!=other.getArrayIndex())
+
+		if (this.array_index != other.getArrayIndex())
 			return false;
-		
-		if(this.type.equals(r.getGenericClass()));
-		
+
+		if (this.type.equals(r.getGenericClass()))
+			;
+
 		return true;
 	}
 }

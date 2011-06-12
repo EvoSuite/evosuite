@@ -15,6 +15,8 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  */
 public class PrimePathTestFitness extends TestFitnessFunction {
 
+	private static final long serialVersionUID = 704930253578667965L;
+
 	private final PrimePath path;
 
 	private final String className;
@@ -30,6 +32,7 @@ public class PrimePathTestFitness extends TestFitnessFunction {
 		length = path.branches.size();
 	}
 
+	@SuppressWarnings("unused")
 	private static int getNextBranch(PrimePath path, int position) {
 		for (int i = position + 1; i < path.getSize(); i++) {
 			if (path.get(i).isBranch())

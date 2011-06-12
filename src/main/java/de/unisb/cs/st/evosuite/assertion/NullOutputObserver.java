@@ -18,17 +18,12 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
-import org.apache.log4j.Logger;
-
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class NullOutputObserver extends ExecutionObserver {
-
-	@SuppressWarnings("unused")
-	private final Logger logger = Logger.getLogger(PrimitiveOutputTraceObserver.class);
 
 	private final NullOutputTrace trace = new NullOutputTrace();
 

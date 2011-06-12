@@ -129,7 +129,6 @@ public class JUnitTestSuite {
 		try {
 			logger.debug("Executing test");
 			result = executor.execute(test);
-			executor.setLogging(true);
 
 			int num = test.size();
 			MaxStatementsStoppingCondition.statementsExecuted(num);

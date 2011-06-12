@@ -18,8 +18,6 @@
 
 package de.unisb.cs.st.evosuite.ga.stoppingconditions;
 
-import java.util.List;
-
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 
@@ -49,7 +47,8 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingCondition {
 	/**
 	 * Keep track of the number of fitness evaluations
 	 */
-	public void fitnessEvaluation(List<Chromosome> population) {
+	@Override
+	public void fitnessEvaluation(Chromosome individual) {
 		current_evaluation++;
 	}
 
@@ -66,24 +65,6 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingCondition {
 	@Override
 	public void reset() {
 		current_evaluation = 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.ga.SearchListener#iteration(java.util.List)
-	 */
-	@Override
-	public void iteration(List<Chromosome> population) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.ga.SearchListener#searchFinished(java.util.List)
-	 */
-	@Override
-	public void searchFinished(List<Chromosome> population) {
-		// TODO Auto-generated method stub
-
 	}
 
 	/* (non-Javadoc)

@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.ga;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -31,6 +32,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Strategy;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * Abstract superclass of genetic algorithms
@@ -38,7 +40,9 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
  * @author Gordon Fraser
  * 
  */
-public abstract class GeneticAlgorithm implements SearchAlgorithm {
+public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable {
+
+	private static final long serialVersionUID = 5155609385855093435L;
 
 	protected static Logger logger = Logger.getLogger(GeneticAlgorithm.class);
 
@@ -63,11 +67,6 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	protected List<Chromosome> population = new ArrayList<Chromosome>();
 
 	/**
-	 * No GA without randomnes
-	 */
-	protected Randomness randomness = Randomness.getInstance();
-
-	/**
 	 * Generator for initial population
 	 */
 	protected ChromosomeFactory chromosome_factory;
@@ -89,6 +88,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 
 	/** Secondary objectives used during replacement */
 	protected final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();
+
+	/** Local search might need a different local objective */
+	protected LocalSearchObjective localObjective;
 
 	private final boolean shuffleBeforeSort = Properties.SHUFFLE_GOALS;
 
@@ -113,6 +115,28 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	 */
 	protected abstract void evolve();
 
+	protected boolean shouldApplyLocalSearch() {
+		if (Properties.LOCAL_SEARCH_RATE <= 0)
+			return false;
+
+		return (getAge() % Properties.LOCAL_SEARCH_RATE == 0);
+	}
+
+	/**
+	 * Apply local search
+	 */
+	protected void applyLocalSearch() {
+		logger.info("Applying local search");
+		for (Chromosome individual : population) {
+			individual.localSearch(localObjective);
+		}
+	}
+
+	/**
+	 * Set up initial population
+	 */
+	public abstract void initializePopulation();
+
 	/**
 	 * Generate solution
 	 */
@@ -125,7 +149,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	 * that, the population is filled with random chromosomes.
 	 * 
 	 * This method guarantees at least a proportion of
-	 * Properties.initially_enforeced_randomness % of random chromosomes
+	 * Properties.initially_enforeced_Randomness % of random chromosomes
 	 * 
 	 */
 	protected void generateInitialPopulation(int population_size) {
@@ -155,14 +179,14 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 		for (Chromosome recycable : recycables) {
 			population.add(recycable);
 		}
-		double enforced_randomness = Properties.INITIALLY_ENFORCED_RANDOMNESS;
-		if (enforced_randomness < 0.0 || enforced_randomness > 1.0) {
-			logger.warn("property \"initially_enforced_randomness\" is supposed to be a percentage in [0.0,1.0]");
+		double enforced_Randomness = Properties.INITIALLY_ENFORCED_RANDOMNESS;
+		if (enforced_Randomness < 0.0 || enforced_Randomness > 1.0) {
+			logger.warn("property \"initially_enforced_Randomness\" is supposed to be a percentage in [0.0,1.0]");
 			logger.warn("retaining to default");
-			enforced_randomness = 0.4;
+			enforced_Randomness = 0.4;
 		}
-		enforced_randomness = 1 - enforced_randomness;
-		population_size *= enforced_randomness;
+		enforced_Randomness = 1 - enforced_Randomness;
+		population_size *= enforced_Randomness;
 		starveToLimit(population_size);
 	}
 
@@ -186,7 +210,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	 */
 	protected void starveRandomly(int limit) {
 		while (population.size() > limit) {
-			int removePos = randomness.nextInt() % population.size();
+			int removePos = Randomness.nextInt() % population.size();
 			population.remove(removePos);
 		}
 	}
@@ -230,6 +254,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 	 */
 	public void setFitnessFunction(FitnessFunction function) {
 		fitness_function = function;
+		localObjective = new DefaultLocalSearchObjective(function);
 	}
 
 	/**
@@ -425,19 +450,19 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 
 	protected void notifySearchStarted() {
 		for (SearchListener listener : listeners) {
-			listener.searchStarted(fitness_function);
+			listener.searchStarted(this);
 		}
 	}
 
 	protected void notifySearchFinished() {
 		for (SearchListener listener : listeners) {
-			listener.searchFinished(population);
+			listener.searchFinished(this);
 		}
 	}
 
 	protected void notifyIteration() {
 		for (SearchListener listener : listeners) {
-			listener.iteration(population);
+			listener.iteration(this);
 		}
 	}
 
@@ -455,7 +480,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm {
 
 	protected void sortPopulation() {
 		if (shuffleBeforeSort)
-			randomness.shuffle(population);
+			Randomness.shuffle(population);
 
 		if (selection_function.maximize) {
 			Collections.sort(population, Collections.reverseOrder());

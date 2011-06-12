@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.io.Serializable;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.HashSet;
@@ -33,7 +34,9 @@ import de.unisb.cs.st.evosuite.assertion.Assertion;
  * @author Gordon Fraser
  * 
  */
-public abstract class AbstractStatement implements StatementInterface {
+public abstract class AbstractStatement implements StatementInterface, Serializable {
+
+	private static final long serialVersionUID = 8993506743384548704L;
 
 	protected static Logger logger = Logger.getLogger(AbstractStatement.class);
 
@@ -44,11 +47,10 @@ public abstract class AbstractStatement implements StatementInterface {
 
 	protected Throwable exceptionThrown = null;
 
-
-	protected AbstractStatement(TestCase tc, VariableReference retval){
-		assert(retval!=null);
-		this.retval=retval;
-		this.tc=tc;
+	protected AbstractStatement(TestCase tc, VariableReference retval) {
+		assert (retval != null);
+		this.retval = retval;
+		this.tc = tc;
 	}
 
 	/* (non-Javadoc)
@@ -63,11 +65,10 @@ public abstract class AbstractStatement implements StatementInterface {
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#SetRetval(de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
-	public void SetRetval(VariableReference newRetVal){
-		this.retval=newRetVal;
+	public void SetRetval(VariableReference newRetVal) {
+		this.retval = newRetVal;
 	}
 
-	
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getCode()
 	 */
@@ -77,7 +78,7 @@ public abstract class AbstractStatement implements StatementInterface {
 	}
 
 	@Override
-	public final StatementInterface clone(){
+	public final StatementInterface clone() {
 		throw new UnsupportedOperationException("Use statementInterface.clone(TestCase)");
 	}
 
@@ -93,7 +94,6 @@ public abstract class AbstractStatement implements StatementInterface {
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getReturnClass()
 	 */
 	@Override
-
 	public Class<?> getReturnClass() {
 		return (Class<?>) retval.getType();
 	}
@@ -156,7 +156,7 @@ public abstract class AbstractStatement implements StatementInterface {
 		}
 		return ret_val;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#removeAssertions()
 	 */
@@ -205,10 +205,15 @@ public abstract class AbstractStatement implements StatementInterface {
 	public int getPosition() {
 		return retval.getStPosition();
 	}
-	
+
 	@Override
-	public boolean isValid(){
+	public boolean isValid() {
 		retval.getStPosition();
 		return true;
+	}
+
+	@Override
+	public boolean isValidException(Throwable t) {
+		return false;
 	}
 }

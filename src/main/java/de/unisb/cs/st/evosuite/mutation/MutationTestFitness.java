@@ -50,6 +50,8 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
  */
 public class MutationTestFitness extends TestFitnessFunction {
 
+	private static final long serialVersionUID = -1303933323109153922L;
+
 	private final Mutation targetMutation;
 
 	private final MutationGoal mutationGoal;
@@ -315,11 +317,11 @@ public class MutationTestFitness extends TestFitnessFunction {
 						*/
 
 			return cfg_distance.approachLevel + normalize(cfg_distance.branchDistance); // 1
-			                                                               // =
-			                                                               // distance
-			                                                               // for
-			                                                               // mutation
-			                                                               // activation
+			// =
+			// distance
+			// for
+			// mutation
+			// activation
 		}
 
 		logger.debug("Distance is: " + cfg_distance.approachLevel);

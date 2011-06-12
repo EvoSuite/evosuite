@@ -30,7 +30,7 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class ComparisonTrace extends OutputTrace {
 
-	private final Logger logger = Logger.getLogger(ComparisonTrace.class);
+	private final static Logger logger = Logger.getLogger(ComparisonTrace.class);
 
 	Map<Integer, VariableReference> return_values = new HashMap<Integer, VariableReference>();
 	Map<Integer, Map<VariableReference, Boolean>> equals_map = new HashMap<Integer, Map<VariableReference, Boolean>>();

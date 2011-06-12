@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
-import de.unisb.cs.st.evosuite.ga.Randomness;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 public class HOMChromosomeFactory implements ChromosomeFactory {

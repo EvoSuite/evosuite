@@ -18,13 +18,6 @@
 
 package de.unisb.cs.st.evosuite.coverage.lcsaj;
 
-import java.util.Set;
-
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstructionPool;
-import de.unisb.cs.st.evosuite.coverage.branch.Branch;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
@@ -42,15 +35,15 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 	LCSAJ lcsaj;
 
 	private double approach;
-	
-	public LCSAJCoverageTestFitness(String className, String methodName,
-			LCSAJ lcsaj) {
+
+	public LCSAJCoverageTestFitness(String className, String methodName, LCSAJ lcsaj) {
 		this.lcsaj = lcsaj;
 	}
-	
+
 	public LCSAJCoverageTestFitness(LCSAJ lcsaj) {
 		this.lcsaj = lcsaj;
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -71,7 +64,27 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 
 			// if method call is the method of the LCSAJ
 			if (call.className.equals(lcsaj.getClassName())
-					&& call.methodName.equals(lcsaj.getMethodName())) {
+			        && call.methodName.equals(lcsaj.getMethodName())) {
+
+				/*
+				BytecodeInstruction firstBytecodeInstruction = BytecodeInstructionPool.getInstruction(lcsaj.getClassName(),
+				                                                                                      lcsaj.getMethodName(),
+				                                                                                      lcsaj.getStartNodeID());
+				Set<Branch> LCSAJDependentBranches = firstBytecodeInstruction.getControlDependentBranches();
+				double min = 1.0;
+				for (Branch b : LCSAJDependentBranches) {
+					BranchCoverageGoal dependentGoal = new BranchCoverageGoal(b,
+					        firstBytecodeInstruction.getBranchExpressionValue(b),
+					        lcsaj.getClassName(), lcsaj.getMethodName());
+					BranchCoverageTestFitness dependentFitness = new BranchCoverageTestFitness(
+					        dependentGoal);
+					min = Math.min(min, normalize(dependentFitness.getFitness(individual,
+					                                                          result)));
+				}
+				if (min > 0.0) {
+					currentFitness = min + approach;
+				} else {
+				*/
 				int lcsaj_position = 0;
 
 				// For each branch that was passed in this call
@@ -112,19 +125,12 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 						lcsaj_position = 0;
 						currentFitness = approach;
 					}
+					//}
+				}
 
-				}
-				BytecodeInstruction firstBytecodeInstruction = BytecodeInstructionPool.getInstruction(lcsaj.getClassName(), lcsaj.getMethodName(), lcsaj.getStartNodeID());
-				Set<Branch> LCSAJDependentBranches = firstBytecodeInstruction.getControlDependentBranches();
-				for (Branch b : LCSAJDependentBranches){
-					BranchCoverageGoal dependentGoal = new BranchCoverageGoal(b, firstBytecodeInstruction.getBranchExpressionValue(b), lcsaj.getClassName(), lcsaj.getMethodName());
-					BranchCoverageTestFitness dependentFitness = new BranchCoverageTestFitness(dependentGoal);
-					savedFitness += normalize(dependentFitness.getFitness(individual, result));
-				}
 			}
 		}
-		
-		
+
 		updateIndividual(individual, savedFitness);
 		return savedFitness;
 	}
@@ -141,6 +147,7 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 		individual.setFitness(fitness);
 	}
 
+	@Override
 	public String toString() {
 		return lcsaj.toString();
 	}

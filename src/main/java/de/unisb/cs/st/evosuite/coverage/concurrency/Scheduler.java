@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import de.unisb.cs.st.evosuite.ga.Randomness;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * @author Sebastian Steenbuck
