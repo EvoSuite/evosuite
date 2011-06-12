@@ -26,6 +26,8 @@ package de.unisb.cs.st.evosuite.ga;
  */
 public class OnePlusOneEA extends GeneticAlgorithm {
 
+	private static final long serialVersionUID = 5229089847512798127L;
+
 	/**
 	 * Constructor
 	 * 
@@ -59,18 +61,23 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 	}
 
 	@Override
-	public void generateSolution() {
+	public void initializePopulation() {
 		notifySearchStarted();
-
 		current_iteration = 0;
 
 		// Only one parent
 		generateRandomPopulation(1);
 		fitness_function.getFitness(population.get(0));
-		double fitness = population.get(0).getFitness();
 		this.notifyIteration();
 		logger.info("Initial fitness: " + population.get(0).getFitness());
+	}
 
+	@Override
+	public void generateSolution() {
+		if (population.isEmpty())
+			initializePopulation();
+
+		double fitness = population.get(0).getFitness();
 		while (!isFinished()) {
 			if ((selection_function.isMaximize() && getBestIndividual().getFitness() > fitness)
 			        || (!selection_function.isMaximize() && getBestIndividual().getFitness() < fitness)) {

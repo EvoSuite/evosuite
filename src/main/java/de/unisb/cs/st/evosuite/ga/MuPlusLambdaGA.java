@@ -19,6 +19,7 @@
 package de.unisb.cs.st.evosuite.ga;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * Alternative version of steady state GA
@@ -27,6 +28,8 @@ import de.unisb.cs.st.evosuite.Properties;
  * 
  */
 public class MuPlusLambdaGA extends SteadyStateGA {
+
+	private static final long serialVersionUID = 7301010503732698233L;
 
 	/**
 	 * Generate a new search object
@@ -53,7 +56,7 @@ public class MuPlusLambdaGA extends SteadyStateGA {
 
 		try {
 			// Crossover
-			if (randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
+			if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
 				crossover_function.crossOver(offspring1, offspring2);
 			}
 

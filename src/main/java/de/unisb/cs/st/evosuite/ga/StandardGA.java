@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * Standard GA implementation
@@ -30,6 +31,8 @@ import de.unisb.cs.st.evosuite.Properties;
  * 
  */
 public class StandardGA extends GeneticAlgorithm {
+
+	private static final long serialVersionUID = 5043503777821916152L;
 
 	/**
 	 * Constructor
@@ -58,7 +61,7 @@ public class StandardGA extends GeneticAlgorithm {
 			Chromosome offspring2 = parent2.clone();
 
 			try {
-				if (randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
+				if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
 					crossover_function.crossOver(offspring1, offspring2);
 				}
 
@@ -88,9 +91,8 @@ public class StandardGA extends GeneticAlgorithm {
 	}
 
 	@Override
-	public void generateSolution() {
+	public void initializePopulation() {
 		notifySearchStarted();
-
 		current_iteration = 0;
 
 		// Set up initial population
@@ -98,6 +100,12 @@ public class StandardGA extends GeneticAlgorithm {
 		// Determine fitness
 		calculateFitness();
 		this.notifyIteration();
+	}
+
+	@Override
+	public void generateSolution() {
+		if (population.isEmpty())
+			initializePopulation();
 
 		while (!isFinished()) {
 			logger.debug("Current population: " + getAge() + "/" + Properties.GENERATIONS);
