@@ -447,7 +447,7 @@ public class Properties {
 	public static int PROCESS_COMMUNICATION_PORT = -1;
 
 	@Parameter(key = "max_stalled_threads", group = "Runtime", description = "Number of stalled threads")
-	public static int MAX_STALLED_THREADS = 1;
+	public static int MAX_STALLED_THREADS = 10;
 
 	/**
 	 * Get all parameters that are available

@@ -342,7 +342,7 @@ public class TestSuiteGenerator {
 		// Need to shuffle goals because the order may make a difference
 		if (Properties.SHUFFLE_GOALS) {
 			System.out.println("* Shuffling goals");
-			Randomness.getInstance().shuffle(goals);
+			Randomness.shuffle(goals);
 		}
 		if (Properties.PREORDER_GOALS_BY_DIFFICULTY) {
 			orderGoalsByDifficulty(goals);
