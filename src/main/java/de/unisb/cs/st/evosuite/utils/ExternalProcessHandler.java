@@ -1,4 +1,4 @@
-package de.unisb.cs.st.evosuite.process;
+package de.unisb.cs.st.evosuite.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,7 +11,6 @@ import java.net.Socket;
 
 import org.apache.log4j.Logger;
 
-
 /*
  * this code should be used by the main process
  */
@@ -21,7 +20,7 @@ public class ExternalProcessHandler {
 
 	protected ServerSocket server;
 	protected Process process;
-	protected String last_command;
+	protected String[] last_command;
 	protected Thread output_printer;
 	protected Thread message_handler;
 
@@ -47,26 +46,14 @@ public class ExternalProcessHandler {
 		Runtime.getRuntime().addShutdownHook(t);
 	}
 
-	public boolean startProcess(String command) {
+	public boolean startProcess(String[] command) {
 		return startProcess(command, null);
 	}
 
-	protected boolean startProcess(String command, Object population_data) {
+	protected boolean startProcess(String[] command, Object population_data) {
 		if (process != null) {
-			logger.debug("already running an external process");
+			System.out.println("already running an external process");
 			return false;
-		}
-
-		//first, start a TCP server for communications.
-		//this needs to be done only once
-		if (server == null) {
-			try {
-				server = new ServerSocket();
-				server.setSoTimeout(3000);
-			} catch (Exception e) {
-				logger.debug("not possible to start TCP server: ", e);
-				return false;
-			}
 		}
 
 		// now start the process
@@ -79,7 +66,8 @@ public class ExternalProcessHandler {
 		try {
 			process = builder.start();
 		} catch (IOException e) {
-			logger.debug("not possible to start external process");
+			System.out.println("not possible to start external process: " + e);
+			e.printStackTrace();
 			return false;
 		}
 
@@ -103,7 +91,9 @@ public class ExternalProcessHandler {
 				out.flush();
 			}
 		} catch (Exception e) {
-			logger.debug("error when waiting for connection from external process", e);
+			System.out.println("error when waiting for connection from external process "
+			        + e);
+			e.printStackTrace();
 			return false;
 		}
 
@@ -123,25 +113,39 @@ public class ExternalProcessHandler {
 			output_printer.interrupt();
 		output_printer = null;
 
-		if (message_handler != null && message_handler.isAlive())
+		if (message_handler != null && message_handler.isAlive()) {
 			message_handler.interrupt();
+		}
+
 		message_handler = null;
 	}
 
-	public int getServerPort()
-	{
-		if(server!=null)
+	public int getServerPort() {
+		if (server != null)
 			return server.getLocalPort();
 		else
 			return -1;
 	}
-	
+
+	public void openServer() {
+		if (server == null) {
+			try {
+				server = new ServerSocket();
+				server.setSoTimeout(10000);
+				server.bind(null);
+			} catch (Exception e) {
+				System.out.println("not possible to start TCP server: " + e);
+			}
+		}
+
+	}
+
 	public void closeServer() {
 		if (server != null) {
 			try {
 				server.close();
 			} catch (IOException e) {
-				logger.debug("error in closing the TCP server", e);
+				System.out.println("error in closing the TCP server " + e);
 			}
 
 			server = null;
@@ -159,10 +163,11 @@ public class ExternalProcessHandler {
 					while (data != null) {
 						data = proc_in.readLine();
 						if (data != null)
-							logger.debug("<External Process> " + data);
+							System.out.println(data);
+						// System.out.println("<External Process> " + data);
 					}
 				} catch (Exception e) {
-					logger.debug(e.toString());
+					System.out.println(e.toString());
 				}
 			}
 		};
@@ -178,7 +183,7 @@ public class ExternalProcessHandler {
 			@Override
 			public void run() {
 				boolean read = true;
-				while (read) {
+				while (read && !isInterrupted()) {
 					try {
 						String message = (String) in.readObject();
 						Object data = in.readObject();
@@ -195,16 +200,17 @@ public class ExternalProcessHandler {
 							killProcess();
 							startProcess(last_command, data);
 						} else {
-							logger.debug("error, received invalid message: " + message);
+							System.out.println("error, received invalid message: "
+							        + message);
 						}
 					} catch (Exception e) {
-						logger.debug("error in reading message", e);
+						System.out.println("error in reading message " + e);
+						e.printStackTrace();
 						return;
 					}
 				}
 			}
 		};
-
 		message_handler.start();
 	}
 
