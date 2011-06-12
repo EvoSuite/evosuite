@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * Implementation of steady state GA
@@ -30,6 +31,8 @@ import de.unisb.cs.st.evosuite.Properties;
  * 
  */
 public class SteadyStateGA extends GeneticAlgorithm {
+
+	private static final long serialVersionUID = 7846967347821123201L;
 
 	protected ReplacementFunction replacement_function;
 
@@ -74,7 +77,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 
 			try {
 				// Crossover
-				if (randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
+				if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
 					crossover_function.crossOver(offspring1, offspring2);
 				}
 
@@ -98,6 +101,10 @@ public class SteadyStateGA extends GeneticAlgorithm {
 			fitness_function.getFitness(offspring2);
 			notifyEvaluation(offspring2);
 
+			// local search
+
+			// DSE
+
 			if (keepOffspring(parent1, parent2, offspring1, offspring2)) {
 				logger.debug("Keeping offspring");
 
@@ -114,7 +121,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 					new_generation.add(offspring2);
 
 				if (rejected == 1)
-					new_generation.add(randomness.choice(parent1, parent2));
+					new_generation.add(Randomness.choice(parent1, parent2));
 				else if (rejected == 2) {
 					new_generation.add(parent1);
 					new_generation.add(parent2);
@@ -132,9 +139,8 @@ public class SteadyStateGA extends GeneticAlgorithm {
 	}
 
 	@Override
-	public void generateSolution() {
+	public void initializePopulation() {
 		notifySearchStarted();
-
 		current_iteration = 0;
 
 		// Set up initial population
@@ -142,11 +148,19 @@ public class SteadyStateGA extends GeneticAlgorithm {
 		logger.debug("Calculating fitness of initial population");
 		calculateFitness();
 		this.notifyIteration();
+	}
 
-		logger.debug("Starting first iteration");
+	@Override
+	public void generateSolution() {
+		if (population.isEmpty())
+			initializePopulation();
+
+		logger.debug("Starting evolution");
 		while (!isFinished()) {
 			logger.info("Population size before: " + population.size());
 			evolve();
+			if (shouldApplyLocalSearch())
+				applyLocalSearch();
 			sortPopulation();
 			logger.info("Current iteration: " + current_iteration);
 			this.notifyIteration();
