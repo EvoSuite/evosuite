@@ -155,7 +155,10 @@ public class ConstructorStatement extends AbstractStatement {
 	public StatementInterface clone(TestCase newTestCase) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
-			new_params.add(newTestCase.getStatement(r.getStPosition()).getReturnValue());
+			if (r instanceof ConstantValue)
+				new_params.add(((ConstantValue) r).clone(newTestCase));
+			else
+				new_params.add(newTestCase.getStatement(r.getStPosition()).getReturnValue());
 		}
 
 		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor,
@@ -175,6 +178,20 @@ public class ConstructorStatement extends AbstractStatement {
 				references.add(((ArrayIndex) param).getArray());
 		}
 		return references;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void replace(VariableReference var1, VariableReference var2) {
+		for (int i = 0; i < parameters.size(); i++) {
+
+			if (parameters.get(i).equals(var1))
+				parameters.set(i, var2);
+			//if (param instanceof ArrayIndex)
+			//	references.add(((ArrayIndex) param).getArray()); // TODO: FIXXME
+		}
 	}
 
 	public List<VariableReference> getParameterReferences() {

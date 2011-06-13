@@ -32,6 +32,8 @@ public class IntegerLocalSearch<T> implements LocalSearch {
 		//logger.info("Trying increment of " + p.getCode());
 		p.increment();
 		if (objective.hasImproved(test)) {
+			logger.info("Starting local search on " + p.getCode() + " (was: " + oldValue
+			        + ")");
 			while (iterate(1, objective, test, p, statement))
 				;
 
@@ -41,6 +43,8 @@ public class IntegerLocalSearch<T> implements LocalSearch {
 			//logger.info("Trying decrement of " + p.getCode());
 			p.decrement();
 			if (objective.hasImproved(test)) {
+				logger.info("Starting local search on " + p.getCode() + " (was: "
+				        + oldValue + ")");
 				while (iterate(-1, objective, test, p, statement))
 					;
 
@@ -48,7 +52,7 @@ public class IntegerLocalSearch<T> implements LocalSearch {
 				p.setValue(oldValue);
 			}
 		}
-		//logger.info("Finished local search with result " + p.getCode());
+		logger.info("Finished local search with result " + p.getCode());
 	}
 
 	private boolean iterate(long delta, LocalSearchObjective objective,
@@ -66,8 +70,10 @@ public class IntegerLocalSearch<T> implements LocalSearch {
 			logger.info("Trying increment " + delta + " of " + p.getCode());
 			p.increment(delta);
 		}
+		logger.info("No improvement on " + p.getCode());
 
 		p.setValue(oldValue);
+		logger.info("Final value of this iteration: " + p.getValue());
 
 		return improvement;
 

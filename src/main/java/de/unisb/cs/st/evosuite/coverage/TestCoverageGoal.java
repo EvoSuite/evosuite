@@ -23,8 +23,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
+import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 
 /**
  * @author Gordon Fraser
@@ -42,15 +42,15 @@ public abstract class TestCoverageGoal {
 	 * @param test
 	 * @return
 	 */
-	public abstract boolean isCovered(TestCase test);
+	public abstract boolean isCovered(TestChromosome test);
 
 	/**
 	 * Determine if there is an existing test case covering this goal
 	 * 
 	 * @return
 	 */
-	public boolean isCovered(List<TestCase> tests) {
-		for (TestCase test : tests) {
+	public boolean isCovered(List<TestChromosome> tests) {
+		for (TestChromosome test : tests) {
 			if (isCovered(test))
 				return true;
 		}
@@ -86,12 +86,15 @@ public abstract class TestCoverageGoal {
 	 * 
 	 * @return Result of the execution
 	 */
-	protected ExecutionResult runTest(TestCase test) {
+	protected ExecutionResult runTest(TestChromosome test) {
 
-		ExecutionResult result = new ExecutionResult(test, null);
+		if (!test.isChanged() && test.last_result != null)
+			return test.last_result;
+
+		ExecutionResult result = new ExecutionResult(test.test, null);
 
 		try {
-			result = executor.execute(test);
+			result = executor.execute(test.test);
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();

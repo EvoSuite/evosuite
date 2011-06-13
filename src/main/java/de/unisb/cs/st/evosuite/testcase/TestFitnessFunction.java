@@ -177,7 +177,13 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	}
 
 	public boolean isCovered(TestChromosome tc) {
-		ExecutionResult result = runTest(tc.test);
+		ExecutionResult result = tc.last_result;
+		if (result == null || tc.isChanged()) {
+			result = runTest(tc.test);
+			tc.last_result = result;
+			tc.setChanged(false);
+		}
+
 		return isCovered(tc, result);
 	}
 

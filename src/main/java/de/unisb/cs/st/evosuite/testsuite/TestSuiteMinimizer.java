@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.testsuite;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -36,10 +37,13 @@ import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
+import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
+import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
  * @author Gordon Fraser
@@ -93,36 +97,24 @@ public class TestSuiteMinimizer {
 	}
 
 	private int getNumCovered(TestSuiteChromosome suite) {
-		Set<TestFitnessFunction> covered = new HashSet<TestFitnessFunction>();
 
 		boolean calls_enabled = ExecutionTrace.trace_calls;
 		if (!calls_enabled)
 			ExecutionTrace.enableTraceCalls();
 
 		int num = 0;
-		for (TestChromosome test : suite.tests) {
-			ExecutionResult result = null;
-			if (test.isChanged() || test.last_result == null) {
-				logger.debug("Executing test " + num);
-				result = runTest(test.test);
-				test.last_result = result;
-				test.setChanged(false);
-			} else {
-				// logger.info("Skipping test " + num);
-				result = test.last_result;
-			}
-			for (TestFitnessFunction goal : goals) {
-				if (!covered.contains(goal) && goal.getFitness(test, result) == 0.0) { // TODO: 0.0 should not be hardcoded
-					covered.add(goal);
-					//					test.test.addCoveredGoal(goal);
+		for (TestFitnessFunction goal : goals) {
+			for (TestChromosome test : suite.getTestChromosomes()) {
+				if (goal.isCovered(test)) {
+					num++;
+					break;
 				}
 			}
-			num++;
 		}
 		if (!calls_enabled)
 			ExecutionTrace.disableTraceCalls();
 
-		return covered.size();
+		return num;
 	}
 
 	/**
@@ -136,6 +128,7 @@ public class TestSuiteMinimizer {
 	 * @return
 	 */
 
+	@SuppressWarnings("unused")
 	private int getNumCoveredBranches(TestSuiteChromosome suite) {
 
 		Set<String> covered_true = new HashSet<String>();
@@ -150,8 +143,9 @@ public class TestSuiteMinimizer {
 				result = runTest(test.test);
 				test.last_result = result.clone();
 				test.setChanged(false);
+
 			} else {
-				// logger.info("Skipping test "+num);
+				logger.debug("Skipping test " + num);
 				result = test.last_result;
 			}
 			called_methods.addAll(result.getTrace().covered_methods.keySet());
@@ -169,7 +163,53 @@ public class TestSuiteMinimizer {
 		}
 
 		logger.debug("Called methods: " + called_methods.size());
+		int check = covered_true.size() + covered_false.size() + called_methods.size();
+		if (check > goals.size()) {
+			logger.info("Covered methods: " + called_methods.size());
+			logger.info("Covered true: " + covered_true.size());
+			logger.info("Covered false: " + covered_false.size());
+		}
 		return covered_true.size() + covered_false.size() + called_methods.size();
+	}
+
+	/**
+	 * Remove all unreferenced variables
+	 * 
+	 * @param t
+	 *            The test case
+	 * @return True if something was deleted
+	 */
+	public boolean removeUnusedVariables(TestCase t) {
+		List<Integer> to_delete = new ArrayList<Integer>();
+		boolean has_deleted = false;
+
+		int num = 0;
+		for (StatementInterface s : t) {
+			if (s instanceof PrimitiveStatement) {
+
+				VariableReference var = s.getReturnValue();
+				if (!t.hasReferences(var)) {
+					to_delete.add(num);
+					has_deleted = true;
+				}
+			}
+			num++;
+		}
+		Collections.sort(to_delete, Collections.reverseOrder());
+		for (Integer position : to_delete) {
+			t.remove(position);
+		}
+
+		return has_deleted;
+	}
+
+	@SuppressWarnings("unused")
+	private int checkFitness(TestSuiteChromosome suite) {
+		for (int i = 0; i < suite.size(); i++) {
+			suite.getTestChromosome(i).last_result = null;
+			suite.getTestChromosome(i).setChanged(true);
+		}
+		return getNumCovered(suite);
 	}
 
 	/**
@@ -180,8 +220,21 @@ public class TestSuiteMinimizer {
 	 */
 	public void minimize(TestSuiteChromosome suite) {
 
+		@SuppressWarnings("unused")
 		boolean branch = Properties.CRITERION == Properties.Criterion.BRANCH;
 		CurrentChromosomeTracker.getInstance().modification(suite);
+		Properties.RECYCLE_CHROMOSOMES = false; // TODO: FIXXME!
+
+		for (TestCase test : suite.getTests()) {
+			removeUnusedVariables(test);
+		}
+
+		// Remove previous results as they do not contain method calls
+		// in the case of whole suite generation
+		for (TestChromosome test : suite.getTestChromosomes()) {
+			test.setChanged(true);
+			test.last_result = null;
+		}
 
 		boolean size = false;
 		String strategy = Properties.SECONDARY_OBJECTIVE;
@@ -220,8 +273,12 @@ public class TestSuiteMinimizer {
 
 		// double fitness = fitness_function.getFitness(suite);
 		// double coverage = suite.coverage;
-		int fitness = getNumCovered(suite);
-		logger.debug("Initially covered: " + fitness);
+		int fitness = 0;
+
+		if (branch)
+			fitness = getNumCoveredBranches(suite);
+		else
+			fitness = getNumCovered(suite);
 
 		boolean changed = true;
 		while (changed) {
@@ -242,6 +299,7 @@ public class TestSuiteMinimizer {
 					logger.debug("Deleting statement "
 					        + test.test.getStatement(i).getCode() + " from test " + num);
 					TestChromosome copy = (TestChromosome) test.clone();
+
 					try {
 						test_factory.deleteStatementGracefully(test.test, i);
 						test.setChanged(true);
@@ -251,8 +309,8 @@ public class TestSuiteMinimizer {
 						logger.debug("Deleting failed");
 						continue;
 					}
-					// logger.trace("Trying: ");
-					// logger.trace(test.test.toCode());
+					// logger.debug("Trying: ");
+					// logger.debug(test.test.toCode());
 
 					int new_fitness = 0;
 					if (branch)
@@ -263,7 +321,6 @@ public class TestSuiteMinimizer {
 					if (new_fitness >= fitness) {
 						fitness = new_fitness;
 						changed = true;
-
 						// If we're optimizing the number of tests, continue
 						// deleting from the same test else try to delete from
 						// another test
@@ -294,6 +351,8 @@ public class TestSuiteMinimizer {
 				it.remove();
 			}
 		}
+
+		//assert (checkFitness(suite) == fitness);
 
 		logger1.setLevel(old_level1);
 		logger2.setLevel(old_level2);

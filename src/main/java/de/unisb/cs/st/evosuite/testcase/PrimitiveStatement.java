@@ -201,6 +201,13 @@ public class PrimitiveStatement<T> extends AbstractStatement {
 		return references;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void replace(VariableReference var1, VariableReference var2) {
+	}
+
 	@Override
 	public boolean equals(Object s) {
 		if (this == s)
@@ -288,6 +295,29 @@ public class PrimitiveStatement<T> extends AbstractStatement {
 			// }
 			// }
 		}
+		value = (T) s;
+		// logger.info("Mutated string now is: "+value);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void incrementString() {
+
+		String s = (String) value;
+
+		final double P2 = 1d / 3d;
+		double P = 1d / s.length();
+		P = 1d / s.length();
+		// Change
+		if (Randomness.nextDouble() < P2) {
+			for (int i = 0; i < s.length(); i++) {
+				if (Randomness.nextDouble() < P) {
+					// logger.info("Before change: '"+s+"'");
+					s = replaceCharAt(s, i, Randomness.nextChar());
+					// logger.info("After change: '"+s+"'");
+				}
+			}
+		}
+
 		value = (T) s;
 		// logger.info("Mutated string now is: "+value);
 	}
@@ -403,6 +433,8 @@ public class PrimitiveStatement<T> extends AbstractStatement {
 			value = (T) new Short((short) (((Short) value).shortValue() + val));
 		} else if (value instanceof Byte) {
 			value = (T) new Byte((byte) (((Byte) value).byteValue() + val));
+		} else if (value instanceof String) {
+			incrementString();
 		}
 	}
 

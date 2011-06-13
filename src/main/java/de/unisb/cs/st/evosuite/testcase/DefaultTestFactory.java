@@ -189,7 +189,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		Set<Integer> p = new HashSet<Integer>();
 		p.add(position);
 		for (VariableReference var : references) {
-			p.add(var.getStPosition());
+			if (!(var instanceof ConstantValue))
+				p.add(var.getStPosition());
 			// positions.add(var.statement);
 		}
 		positions.addAll(p);
@@ -254,6 +255,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	public void deleteStatementGracefully(TestCase test, int position)
 	        throws ConstructionFailedException {
 		logger.trace("Delete Statement - " + position);
+		assert (test.isValid());
 
 		VariableReference var = test.getReturnValue(position);
 		if (var instanceof ArrayIndex) {
@@ -389,6 +391,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			}
 		}
 
+		assert (test.isValid());
 		// Remove everything else
 		deleteStatement(test, position);
 	}

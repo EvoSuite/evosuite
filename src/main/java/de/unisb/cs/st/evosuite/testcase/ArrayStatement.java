@@ -111,6 +111,13 @@ public class ArrayStatement extends AbstractStatement {
 		return references;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void replace(VariableReference var1, VariableReference var2) {
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

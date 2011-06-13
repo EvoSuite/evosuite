@@ -21,7 +21,7 @@ package de.unisb.cs.st.evosuite.coverage.branch;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 
 /**
  * A single branch coverage goal Either true/false evaluation of a jump
@@ -128,7 +128,7 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 	 * @return
 	 */
 	@Override
-	public boolean isCovered(TestCase test) {
+	public boolean isCovered(TestChromosome test) {
 		ExecutionResult result = runTest(test);
 		ControlFlowDistance d = getDistance(result);
 		if (d.getApproachLevel() == 0 && d.getBranchDistance() == 0.0)

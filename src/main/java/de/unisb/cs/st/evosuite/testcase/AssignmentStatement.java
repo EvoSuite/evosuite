@@ -113,6 +113,16 @@ public class AssignmentStatement extends AbstractStatement {
 		return vars;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void replace(VariableReference var1, VariableReference var2) {
+		if (parameter.equals(var1))
+			parameter = var2;
+		// TODO: ArrayIndex
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

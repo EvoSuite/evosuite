@@ -194,6 +194,14 @@ public class ScheduleLogWrapper implements StatementInterface {
 	}
 
 	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void replace(VariableReference var1, VariableReference var2) {
+		wrapped.replace(var1, var2);
+	}
+
+	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#hasAssertions()
 	 */
 	@Override

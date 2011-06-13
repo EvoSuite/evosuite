@@ -72,7 +72,6 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	 */
 	public static Set<String> methods = new HashSet<String>();
 
-
 	/**
 	 * This is the name + the description of the method. It is more like the
 	 * signature and less like the name. The name of the method can be found in
@@ -112,13 +111,13 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		if (Properties.CRITERION == Criterion.CONCURRENCY) {
 			instrumentations.add(new ConcurrencyInstrumentation());
 			instrumentations.add(new BranchInstrumentation());
-		} else if (Properties.CRITERION ==Criterion.LCSAJ) {
+		} else if (Properties.CRITERION == Criterion.LCSAJ) {
 			instrumentations.add(new LCSAJsInstrumentation());
 			instrumentations.add(new BranchInstrumentation());
-		} else if (Properties.CRITERION ==Criterion.DEFUSE) {
+		} else if (Properties.CRITERION == Criterion.DEFUSE) {
 			instrumentations.add(new BranchInstrumentation());
 			instrumentations.add(new DefUseInstrumentation());
-		} else if (Properties.CRITERION ==Criterion.PATH) {
+		} else if (Properties.CRITERION == Criterion.PATH) {
 			instrumentations.add(new PrimePathInstrumentation());
 			instrumentations.add(new BranchInstrumentation());
 		} else {
@@ -143,7 +142,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		        && (access & Opcodes.ACC_ABSTRACT) == 0) {
 
 			logger.info("Analyzing method " + methodName);
-			
+
 			// MethodNode mn = new CFGMethodNode((MethodNode)mv);
 			// System.out.println("Generating CFG for "+ className+"."+mn.name +
 			// " ("+mn.desc +")");
@@ -152,7 +151,10 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 			try {
 				bytecodeAnalyzer.analyze(className, methodName, mn);
-				logger.trace("Method graph for " + className + "." + methodName
+				logger.trace("Method graph for "
+				        + className
+				        + "."
+				        + methodName
 				        + " contains "
 				        + bytecodeAnalyzer.retrieveCFGGenerator().getRawGraph().vertexSet().size()
 				        + " nodes for " + bytecodeAnalyzer.getFrames().length

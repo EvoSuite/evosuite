@@ -189,6 +189,19 @@ public class FieldStatement extends AbstractStatement {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void replace(VariableReference var1, VariableReference var2) {
+		if (!Modifier.isStatic(field.getModifiers())) {
+			if (source.equals(var1))
+				source = var2;
+			//else if (source instanceof ArrayIndex && var2 instanceof ArrayIndex)
+			// TODO: FIXXME
+		}
+	}
+
 	@Override
 	public boolean equals(Object s) {
 		if (this == s)
@@ -317,4 +330,5 @@ public class FieldStatement extends AbstractStatement {
 		else
 			return retval.same(fs.retval) && field.equals(fs.field);
 	}
+
 }
