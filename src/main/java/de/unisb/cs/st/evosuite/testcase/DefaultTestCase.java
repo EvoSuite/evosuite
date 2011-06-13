@@ -310,7 +310,7 @@ public class DefaultTestCase implements TestCase {
 		if (var == null || var.getStPosition() == -1)
 			return false;
 
-		for (int i = var.getStPosition(); i < statements.size(); i++) {
+		for (int i = var.getStPosition() + 1; i < statements.size(); i++) {
 			if (statements.get(i).references(var))
 				return true;
 		}
@@ -329,7 +329,7 @@ public class DefaultTestCase implements TestCase {
 
 		// references.add(var);
 
-		for (int i = var.getStPosition(); i < statements.size(); i++) {
+		for (int i = var.getStPosition() + 1; i < statements.size(); i++) {
 			List<VariableReference> temp = new ArrayList<VariableReference>();
 			if (statements.get(i).references(var))
 				temp.add(statements.get(i).getReturnValue());

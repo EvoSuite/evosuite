@@ -219,7 +219,7 @@ public class TestSuiteChromosome extends Chromosome {
 
 	@Override
 	public String toString() {
-		String result = "TestSuite: " + tests.size();
+		String result = "TestSuite: " + tests.size() + "\n";
 		for (TestChromosome test : tests) {
 			result += test.test.toCode();
 		}
@@ -236,6 +236,10 @@ public class TestSuiteChromosome extends Chromosome {
 
 	public TestChromosome getTestChromosome(int index) {
 		return tests.get(index);
+	}
+
+	public List<TestChromosome> getTestChromosomes() {
+		return tests;
 	}
 
 	public void setTestChromosome(int index, TestChromosome test) {

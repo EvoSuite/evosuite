@@ -35,7 +35,7 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
-import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
@@ -177,7 +177,7 @@ public class MutationGoal extends TestCoverageGoal {
 			logger.debug("Mutation was touched");
 			return d;
 		}
-		
+
 		if (cfg == null) {
 			logger.warn("Have no cfg for method " + className + "." + methodName);
 			for (MethodCall call : result.getTrace().finished_calls) {
@@ -243,7 +243,7 @@ public class MutationGoal extends TestCoverageGoal {
 	        List<Integer> line_trace) {
 		//CFGVertex m = cfg.getVertex(branch_id);
 		BasicBlock b = cfg.getMutation(mutation.getId());
-		
+
 		ControlFlowDistance d = new ControlFlowDistance();
 		if (b == null) {
 			logger.error("Could not find mutant node " + mutation.getId());
@@ -255,8 +255,7 @@ public class MutationGoal extends TestCoverageGoal {
 		BytecodeInstruction m = b.getMutation(mutation.getId());
 		if (m == null)
 			throw new IllegalStateException(
-					"expect the BasicBlock in a CFG returned by getMutation(id) to contain an instruction with that mutationId");
-		
+			        "expect the BasicBlock in a CFG returned by getMutation(id) to contain an instruction with that mutationId");
 
 		int min_approach = cfg.getDiameter();
 		//int min_approach = cfg.getInitialDistance(m);
@@ -313,8 +312,8 @@ public class MutationGoal extends TestCoverageGoal {
 	 * @see de.unisb.cs.st.evosuite.coverage.TestCoverageGoal#isCovered(de.unisb.cs.st.evosuite.testcase.TestCase)
 	 */
 	@Override
-	public boolean isCovered(TestCase test) {
-
+	public boolean isCovered(TestChromosome test) {
+		// TODO: FIXXME
 		return false;
 	}
 

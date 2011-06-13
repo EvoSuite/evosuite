@@ -135,6 +135,7 @@ public class TestChromosome extends Chromosome {
 	@Override
 	public void localSearch(LocalSearchObjective objective) {
 		//logger.info("Test before local search: " + test.toCode());
+		double oldFitness = getFitness();
 
 		for (int i = 0; i < test.size(); i++) {
 			if (test.getStatement(i) instanceof PrimitiveStatement) {
@@ -163,6 +164,7 @@ public class TestChromosome extends Chromosome {
 
 			}
 		}
+		assert (getFitness() <= oldFitness);
 		//logger.info("Test after local search: " + test.toCode());
 	}
 

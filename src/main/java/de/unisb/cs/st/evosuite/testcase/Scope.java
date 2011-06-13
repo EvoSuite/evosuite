@@ -60,7 +60,7 @@ public class Scope {
 
 		// Learn some dynamic information about this object
 		if (reference instanceof ArrayReference) {
-			ArrayReference arrayRef = (ArrayReference)reference;
+			ArrayReference arrayRef = (ArrayReference) reference;
 			if (o != null && !o.getClass().isArray())
 				System.out.println("Trying to access object of class " + o.getClass()
 				        + " as array: " + o);
@@ -97,13 +97,15 @@ public class Scope {
 	 */
 	public synchronized Object get(VariableReference reference) {
 		if (reference instanceof ArrayIndex) {
-			ArrayIndex arrayRef = (ArrayIndex)reference;
+			ArrayIndex arrayRef = (ArrayIndex) reference;
 			Object array = pool.get(arrayRef.getArray());
 			if (array != null) {
 				return Array.get(array, arrayRef.getArrayIndex());
 			} else {
 				return null;
 			}
+		} else if (reference instanceof ConstantValue) {
+			return ((ConstantValue) reference).getValue();
 		} else
 			return pool.get(reference);
 	}

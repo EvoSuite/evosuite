@@ -74,6 +74,7 @@ import de.unisb.cs.st.evosuite.junit.TestSuite;
 import de.unisb.cs.st.evosuite.mutation.MutationGoalFactory;
 import de.unisb.cs.st.evosuite.mutation.MutationSuiteFitness;
 import de.unisb.cs.st.evosuite.mutation.MutationTimeoutStoppingCondition;
+import de.unisb.cs.st.evosuite.testcase.ConstantInliner;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
@@ -195,6 +196,11 @@ public class TestSuiteGenerator {
 		System.out.println("* Search finished after " + (end_time - start_time)
 		        + "s and " + ga.getAge() + " generations, best individual has fitness "
 		        + best.getFitness());
+
+		if (Properties.INLINE) {
+			ConstantInliner inliner = new ConstantInliner();
+			inliner.inline(best);
+		}
 
 		if (Properties.MINIMIZE) {
 			System.out.println("* Minimizing result");
@@ -504,6 +510,12 @@ public class TestSuiteGenerator {
 		System.out.println("* Covered " + covered_goals + "/" + goals.size() + " goals");
 		logger.info("Resulting test suite: " + suite.size() + " tests, length "
 		        + suite.length());
+
+		if (Properties.INLINE) {
+			ConstantInliner inliner = new ConstantInliner();
+			inliner.inline(suite);
+		}
+
 		// Generate a test suite chromosome once all test cases are done?
 		/*
 		 * if(Properties.MINIMIZE) { System.out.println("* Minimizing result");
