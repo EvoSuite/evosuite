@@ -128,7 +128,6 @@ public class TestSuiteMinimizer {
 	 * @return
 	 */
 
-	@SuppressWarnings("unused")
 	private int getNumCoveredBranches(TestSuiteChromosome suite) {
 
 		Set<String> covered_true = new HashSet<String>();
@@ -163,12 +162,6 @@ public class TestSuiteMinimizer {
 		}
 
 		logger.debug("Called methods: " + called_methods.size());
-		int check = covered_true.size() + covered_false.size() + called_methods.size();
-		if (check > goals.size()) {
-			logger.info("Covered methods: " + called_methods.size());
-			logger.info("Covered true: " + covered_true.size());
-			logger.info("Covered false: " + covered_false.size());
-		}
 		return covered_true.size() + covered_false.size() + called_methods.size();
 	}
 
@@ -220,7 +213,6 @@ public class TestSuiteMinimizer {
 	 */
 	public void minimize(TestSuiteChromosome suite) {
 
-		@SuppressWarnings("unused")
 		boolean branch = Properties.CRITERION == Properties.Criterion.BRANCH;
 		CurrentChromosomeTracker.getInstance().modification(suite);
 		Properties.RECYCLE_CHROMOSOMES = false; // TODO: FIXXME!
