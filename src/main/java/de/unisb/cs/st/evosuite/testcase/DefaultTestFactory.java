@@ -35,6 +35,7 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.primitives.ObjectPool;
 import de.unisb.cs.st.evosuite.testsuite.CurrentChromosomeTracker;
 import de.unisb.cs.st.evosuite.testsuite.TestCallObject;
 import de.unisb.cs.st.evosuite.testsuite.TestCallStatement;
@@ -715,6 +716,23 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				StatementInterface st = new NullStatement(test, type);
 				test.addStatement(st, position);
 				return test.getStatement(position).getReturnValue();
+			}
+
+			ObjectPool objectPool = ObjectPool.getInstance();
+			if (Randomness.nextDouble() <= Properties.OBJECT_POOL
+			        && objectPool.hasSequence(type)) {
+				logger.debug("Using a sequence from the pool to satisfy the type: "
+				        + type);
+				TestCase sequence = objectPool.getRandomSequence(type);
+				logger.info("Old test: " + test.toCode());
+				logger.info("Sequence: " + sequence.toCode());
+				VariableReference var = sequence.getRandomObject(type);
+				for (int i = 0; i < sequence.size(); i++) {
+					StatementInterface s = sequence.getStatement(i);
+					test.addStatement(s.clone(test), position + i);
+				}
+				logger.info("New test: " + test.toCode());
+
 			}
 
 			if (!test.hasCalls()
