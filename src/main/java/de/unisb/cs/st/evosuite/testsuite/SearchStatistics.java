@@ -256,7 +256,7 @@ public class SearchStatistics extends ReportGenerator {
 		// TODO: Remember which lines were covered
 		// This information is in ExecutionTrace.coverage
 		entry.size_minimized = best.size();
-		entry.length_minimized = best.length();
+		entry.length_minimized = best.totalLengthOfTestCases();
 		entry.minimized_time = System.currentTimeMillis();
 
 		entry.coverage = new HashSet<Integer>();
@@ -390,7 +390,7 @@ public class SearchStatistics extends ReportGenerator {
 			TestSuiteChromosome best = (TestSuiteChromosome) result;
 			StatisticEntry entry = statistics.get(statistics.size() - 1);
 			entry.size_final = best.size();
-			entry.length_final = best.length();
+			entry.length_final = best.totalLengthOfTestCases();
 			entry.end_time = System.currentTimeMillis();
 			entry.result_tests_executed = MaxTestsStoppingCondition.getNumExecutedTests();
 			entry.result_statements_executed = MaxStatementsStoppingCondition.getNumExecutedStatements();
@@ -422,7 +422,7 @@ public class SearchStatistics extends ReportGenerator {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		Chromosome best = algorithm.getBestIndividual();
 		if (best instanceof TestSuiteChromosome) {
-			entry.length_history.add(((TestSuiteChromosome) best).length());
+			entry.length_history.add(((TestSuiteChromosome) best).totalLengthOfTestCases());
 			entry.coverage_history.add(((TestSuiteChromosome) best).coverage);
 			entry.tests_executed.add(MaxTestsStoppingCondition.getNumExecutedTests());
 			entry.statements_executed.add(MaxStatementsStoppingCondition.getNumExecutedStatements());

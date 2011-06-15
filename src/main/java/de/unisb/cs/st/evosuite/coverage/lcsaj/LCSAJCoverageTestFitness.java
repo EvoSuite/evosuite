@@ -31,6 +31,7 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  * 
  */
 public class LCSAJCoverageTestFitness extends TestFitnessFunction {
+	private static final long serialVersionUID = 1L;
 
 	LCSAJ lcsaj;
 

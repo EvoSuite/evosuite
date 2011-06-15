@@ -36,7 +36,7 @@ public class MuPlusLambdaGA extends SteadyStateGA {
 	 * 
 	 * @param factory
 	 */
-	public MuPlusLambdaGA(ChromosomeFactory factory) {
+	public MuPlusLambdaGA(ChromosomeFactory<? extends Chromosome> factory) {
 		super(factory);
 	}
 

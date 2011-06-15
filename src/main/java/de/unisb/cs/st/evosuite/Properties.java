@@ -352,6 +352,9 @@ public class Properties {
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double CONCOLIC_MUTATION = 0.0;
 
+	@Parameter(key = "ui", description = "Do User Interface tests")
+	public static boolean UI_TEST = false;
+	
 	@Parameter(key = "testability_transformation", description = "Apply testability transformation (Yanchuan)")
 	public static boolean TESTABILITY_TRANSFORMATION = false;
 
@@ -735,7 +738,7 @@ public class Properties {
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	public void setValue(String key, String value) throws NoSuchParameterException,
 	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))

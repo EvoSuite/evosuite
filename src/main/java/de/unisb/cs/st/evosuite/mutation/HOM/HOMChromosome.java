@@ -12,6 +12,7 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 import de.unisb.cs.st.javalanche.mutation.results.MutationTestResult;
 
 public class HOMChromosome extends Chromosome {
+	private static final long serialVersionUID = 1L;
 
 	private final BitSet activated;
 

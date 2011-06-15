@@ -39,6 +39,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
  * 
  */
 public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
+	private static final long serialVersionUID = 1L;
 
 	public HashMap<Integer, Integer> expectedBranchExecutions = new HashMap<Integer, Integer>();
 
@@ -48,6 +49,7 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	public double best_fitness = Double.MAX_VALUE;
 
+	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(LCSAJCoverageSuiteFitness.class);
 
 	public LCSAJCoverageSuiteFitness() {

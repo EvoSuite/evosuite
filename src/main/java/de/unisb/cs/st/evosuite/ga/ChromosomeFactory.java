@@ -26,8 +26,8 @@ import java.io.Serializable;
  * @author Gordon Fraser
  * 
  */
-public interface ChromosomeFactory extends Serializable {
+public interface ChromosomeFactory<T extends Chromosome> extends Serializable {
 
-	public Chromosome getChromosome();
+	public T getChromosome();
 
 }

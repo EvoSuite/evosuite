@@ -41,10 +41,12 @@ public class SMTSolver {
 
 	private ICommand modelCommand;
 
+	@SuppressWarnings("unused")
 	private final ISort boolSort;
 
 	private final ISort intSort;
 
+	@SuppressWarnings("unused")
 	private final ISort bv32Sort;
 
 	private static Logger logger = Logger.getLogger(SMTSolver.class);
@@ -95,7 +97,7 @@ public class SMTSolver {
 		solver.exit();
 	}
 
-	public void solve(Set<Constraint> constraints) {
+	public void solve(Set<Constraint<?>> constraints) {
 		ICommand.IScript script = new org.smtlib.impl.Script();
 		SMTConverter converter = new SMTConverter();
 		solver.set_option(smt.smtConfig.exprFactory.keyword(":produce-models"),

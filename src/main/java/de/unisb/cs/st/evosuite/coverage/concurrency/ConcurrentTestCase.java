@@ -479,6 +479,7 @@ public class ConcurrentTestCase implements TestCase {
 	private StatementInterface getPseudoStatement(TestCase tc, final Class<?> clazz) {
 		StatementInterface st = new AbstractStatement(tc, new VariableReferenceImpl(tc,
 		        clazz)) {
+			private static final long serialVersionUID = 1L;
 
 			@Override
 			public int hashCode() {

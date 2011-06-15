@@ -35,6 +35,6 @@ public class MaxLengthBloatControl implements BloatControlFunction {
 	 */
 	@Override
 	public boolean isTooLong(Chromosome chromosome) {
-		return ((TestSuiteChromosome) chromosome).length() > Properties.MAX_LENGTH;
+		return ((TestSuiteChromosome) chromosome).totalLengthOfTestCases() > Properties.MAX_LENGTH;
 	}
 }

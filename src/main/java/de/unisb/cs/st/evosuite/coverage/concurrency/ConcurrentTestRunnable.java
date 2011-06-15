@@ -48,6 +48,7 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 
 	private final ConcurrentTestCase test;
 
+	@SuppressWarnings("unused")
 	private Scope scope = null;
 
 	private final boolean log = true;

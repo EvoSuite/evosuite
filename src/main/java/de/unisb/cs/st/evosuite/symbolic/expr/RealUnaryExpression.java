@@ -2,6 +2,7 @@ package de.unisb.cs.st.evosuite.symbolic.expr;
 
 public class RealUnaryExpression extends RealExpression implements
 		UnaryExpression<Double> {
+	private static final long serialVersionUID = 1L;
 
 	protected Double concretValue;
 	

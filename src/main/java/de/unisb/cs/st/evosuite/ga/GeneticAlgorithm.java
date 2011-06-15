@@ -69,7 +69,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	/**
 	 * Generator for initial population
 	 */
-	protected ChromosomeFactory chromosome_factory;
+	protected ChromosomeFactory<? extends Chromosome> chromosome_factory;
 
 	/**
 	 * Listeners
@@ -104,7 +104,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * 
 	 * @param factory
 	 */
-	public GeneticAlgorithm(ChromosomeFactory factory) {
+	public GeneticAlgorithm(ChromosomeFactory<? extends Chromosome> factory) {
 		chromosome_factory = factory;
 		addStoppingCondition(new MaxGenerationStoppingCondition());
 		// addBloatControl(new MaxSizeBloatControl());
@@ -422,7 +422,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * 
 	 * @param factory
 	 */
-	public void setChromosomeFactory(ChromosomeFactory factory) {
+	public void setChromosomeFactory(ChromosomeFactory<Chromosome> factory) {
 		chromosome_factory = factory;
 	}
 

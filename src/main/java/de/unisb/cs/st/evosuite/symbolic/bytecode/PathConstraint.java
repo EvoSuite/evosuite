@@ -21,7 +21,6 @@ import gov.nasa.jpf.jvm.JVM;
 import gov.nasa.jpf.search.Search;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -40,8 +39,8 @@ public class PathConstraint {
 	private static Logger logger = Logger.getLogger(PathConstraint.class);
 
 	private PathConstraint() {
-		this.pathConstraints = new HashTableSet<Constraint>();
-		this.storedStateMap = new HashMap<Integer, HashTableSet<Constraint>>();
+		this.pathConstraints = new HashTableSet<Constraint<?>>();
+		this.storedStateMap = new HashMap<Integer, HashTableSet<Constraint<?>>>();
 	};
 
 	public static PathConstraint getInstance() {
@@ -51,25 +50,26 @@ public class PathConstraint {
 		return ins;
 	}
 
-	private HashTableSet<Constraint> pathConstraints;
-	private final Map<Integer, HashTableSet<Constraint>> storedStateMap;
+	private HashTableSet<Constraint<?>> pathConstraints;
+	private final HashMap<Integer, HashTableSet<Constraint<?>>> storedStateMap;
 
 	public static void init() {
 		logger.info("Setting up path constraints");
 		ins = new PathConstraint();
 	}
 
-	public HashTableSet<Constraint> getCurrentConstraints() {
-		return (HashTableSet<Constraint>) pathConstraints.clone();
+	@SuppressWarnings("unchecked")
+	public HashTableSet<Constraint<?>> getCurrentConstraints() {
+		return (HashTableSet<Constraint<?>>) pathConstraints.clone();
 	}
 
 	public void log() {
 		logger.info("Working so far");
 	}
 
-	public void addConstraint(Constraint c) {
+	public void addConstraint(Constraint<?> c) {
 		if (c != null) {
-			Constraint c_opt = removeCMPFormConstraint(c);
+			Constraint<?> c_opt = removeCMPFormConstraint(c);
 			pathConstraints.add(c_opt);
 		} else {
 			throw new NullPointerException();
@@ -82,9 +82,10 @@ public class PathConstraint {
 	 * @param search
 	 *            the search object
 	 */
+	@SuppressWarnings("unchecked")
 	protected void stateStored(Search search) {
 		int i = JVM.getVM().getStateId();
-		storedStateMap.put(i, (HashTableSet<Constraint>) this.pathConstraints.clone());
+		storedStateMap.put(i, (HashTableSet<Constraint<?>>) this.pathConstraints.clone());
 	}
 
 	/**
@@ -93,16 +94,17 @@ public class PathConstraint {
 	 * @param search
 	 *            the search object
 	 */
+	@SuppressWarnings("unchecked")
 	protected void stateRestored(Search search) {
 		int i = JVM.getVM().getStateId();
-		HashTableSet<Constraint> restore = storedStateMap.get(i);
+		HashTableSet<Constraint<?>> restore = storedStateMap.get(i);
 		if (restore == null) {
 			throw new RuntimeException("tried to restore a not stored state");
 		}
-		this.pathConstraints = (HashTableSet<Constraint>) restore.clone();
+		this.pathConstraints = (HashTableSet<Constraint<?>>) restore.clone();
 	}
 
-	private Constraint removeCMPFormConstraint(Constraint c) {
+	private Constraint<?> removeCMPFormConstraint(Constraint<?> c) {
 		if (c.getLeftOperand() instanceof IntegerComparison) {
 			IntegerComparison cmp = (IntegerComparison) c.getLeftOperand();
 			int value = c.getRightOperand().getConcreteValue().intValue();

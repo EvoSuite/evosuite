@@ -91,9 +91,10 @@ public class TestabilityTransformation {
 		return cn;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void processFields() {
 		List<FieldNode> fieldNodes = cn.fields;
-		int i = 0;
+
 		for (FieldNode fn : fieldNodes) {
 			logger.info("Transforming field " + fn.name + " - " + fn.desc);
 			fn.desc = mapping.getFieldDesc(cn.name, fn.name, fn.desc);
@@ -104,6 +105,7 @@ public class TestabilityTransformation {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void processMethods() {
 		List<MethodNode> methodNodes = cn.methods;
 		int count = 0;
@@ -312,6 +314,7 @@ public class TestabilityTransformation {
 		return false;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void transformLocalVariables(MethodNode mn) {
 		logger.info("Transforming local variables");
 		List<LocalVariableNode> variables = mn.localVariables;
@@ -701,7 +704,7 @@ public class TestabilityTransformation {
 				// TODO: This doesn't belong in here
 				TypeInsnNode tn = (TypeInsnNode) node;
 				if (tn.getOpcode() == Opcodes.INSTANCEOF) {
-					Type t = Type.getType("L" + tn.desc + ";");
+					// Type t = Type.getType("L" + tn.desc + ";");
 					logger.info("Class version " + cn.version);
 					if (cn.version > 49) {
 						LdcInsnNode lin = new LdcInsnNode(Type.getType("L" + tn.desc
@@ -879,6 +882,7 @@ public class TestabilityTransformation {
 	 * 
 	 * @param mn
 	 */
+	@SuppressWarnings("unchecked")
 	private void transformStrings(MethodNode mn) {
 		ListIterator<AbstractInsnNode> iterator = mn.instructions.iterator();
 		while (iterator.hasNext()) {
@@ -1037,6 +1041,7 @@ public class TestabilityTransformation {
 				if (!(fn.getPrevious().getPrevious() instanceof VarInsnNode))
 					return; // TODO: How is this possible? java.math.MutableBigInteger
 				VarInsnNode vn = (VarInsnNode) fn.getPrevious().getPrevious();
+				@SuppressWarnings("unused")
 				AbstractInsnNode m = node.getNext();
 				logger.info("Found variable to store: ");
 				LabelNode l = new LabelNode();
@@ -1410,6 +1415,7 @@ public class TestabilityTransformation {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	private void transformBooleanReturns(MethodNode mn) {
 		Type type = Type.getReturnType(mapping.getMethodDesc(cn.name, mn.name, mn.desc));
 		if (type.equals(Type.BOOLEAN_TYPE)) {
@@ -1464,6 +1470,7 @@ public class TestabilityTransformation {
 		logger.info("Transforming method " + mn.name + mn.desc);
 		int before = flagUses.size();
 
+		@SuppressWarnings("unused")
 		MethodInsnNode reset = new MethodInsnNode(Opcodes.INVOKESTATIC,
 		        Type.getInternalName(BooleanHelper.class), "clearPredicates",
 		        Type.getMethodDescriptor(Type.VOID_TYPE, new Type[] {}));

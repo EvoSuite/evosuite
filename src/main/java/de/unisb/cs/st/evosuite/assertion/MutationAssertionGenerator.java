@@ -363,11 +363,14 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		addAssertions(test, killed, mutants);
 	}
 
+	@SuppressWarnings("deprecation")
 	public void addAssertions(TestCase test, Set<Long> killed, List<Mutation> mutants) {
 
 		logger.info("Generating assertions");
 
+		@SuppressWarnings("unused")
 		int ALL_assertions = 0;
+		@SuppressWarnings("unused")
 		int MIN_assertions = 0;
 
 		assertion_statistics_full.put(test, new HashMap<Class<?>, Integer>());

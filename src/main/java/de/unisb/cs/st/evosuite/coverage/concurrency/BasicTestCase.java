@@ -18,21 +18,11 @@
 
 package de.unisb.cs.st.evosuite.coverage.concurrency;
 
-import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.objectweb.asm.commons.GeneratorAdapter;
 
-import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
-import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.AbstractStatement;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
@@ -50,6 +40,7 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  */
 public class BasicTestCase extends DefaultTestCase {
 
+	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(BasicTestCase.class);
 
 

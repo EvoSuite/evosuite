@@ -142,9 +142,9 @@ public class CVC3Converter {
 		                       constraint.getRightOperand());
 	}
 
-	public Expr convert(Collection<Constraint> constraints) {
+	public Expr convert(Collection<Constraint<?>> constraints) {
 		Expr expr = null;
-		for (Constraint c : constraints) {
+		for (Constraint<?> c : constraints) {
 			Expr e = visit(c);
 			if (expr == null)
 				expr = e;

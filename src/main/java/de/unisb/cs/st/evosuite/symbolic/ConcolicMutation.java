@@ -37,6 +37,7 @@ import org.objectweb.asm.commons.Method;
 
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
+import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
 import de.unisb.cs.st.evosuite.symbolic.smt.cvc3.CVC3Solver;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
@@ -109,7 +110,7 @@ public class ConcolicMutation {
 	}
 
 	private void getPrimitiveValue(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        PrimitiveStatement statement) {
+	        PrimitiveStatement<?> statement) {
 		//Class<?> clazz = statement.getReturnValue().getVariableClass();
 		Class<?> clazz = statement.getValue().getClass();
 		if (!clazz.equals(statement.getReturnValue().getVariableClass())) {
@@ -139,7 +140,7 @@ public class ConcolicMutation {
 			logger.fatal("Found primitive of unknown type: " + clazz.getName());
 	}
 
-	private byte[] getBytecode(List<PrimitiveStatement> target, TestCase test) {
+	private byte[] getBytecode(List<PrimitiveStatement<?>> target, TestCase test) {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, className, null,
 		         "java/lang/Object", null);
@@ -182,7 +183,7 @@ public class ConcolicMutation {
 		return cw.toByteArray();
 	}
 
-	public void writeTestCase(List<PrimitiveStatement> statements, TestCase test) {
+	public void writeTestCase(List<PrimitiveStatement<?>> statements, TestCase test) {
 		File dir = new File(dirName);
 		dir.mkdir();
 		File file = new File(dirName + "/", className + ".class");
@@ -196,10 +197,10 @@ public class ConcolicMutation {
 	}
 
 	public boolean mutate(TestCase test) {
-		List<PrimitiveStatement> p = new ArrayList<PrimitiveStatement>();
+		List<PrimitiveStatement<?>> p = new ArrayList<PrimitiveStatement<?>>();
 		for (StatementInterface s : test) {
-			if (s instanceof PrimitiveStatement) {
-				PrimitiveStatement ps = (PrimitiveStatement) s;
+			if (s instanceof PrimitiveStatement<?>) {
+				PrimitiveStatement<?> ps = (PrimitiveStatement<?>) s;
 				Class<?> t = ps.getReturnClass();
 				if (t.equals(Integer.class) || t.equals(int.class)) {
 					p.add(ps);
@@ -223,18 +224,19 @@ public class ConcolicMutation {
 	}
 
 	public boolean mutate(PrimitiveStatement<?> statement, TestCase test) {
-		List<PrimitiveStatement> statements = new ArrayList<PrimitiveStatement>();
+		List<PrimitiveStatement<?>> statements = new ArrayList<PrimitiveStatement<?>>();
 		statements.add(statement);
 		return mutate(statements, test);
 	}
 
-	private boolean mutate(BranchCondition condition, List<PrimitiveStatement> statements) {
-		HashSet<Constraint> constraints = new HashSet<Constraint>();
+	@SuppressWarnings("unchecked")
+	private boolean mutate(BranchCondition condition, List<PrimitiveStatement<?>> statements) {
+		HashSet<Constraint<?>> constraints = new HashSet<Constraint<?>>();
 		constraints.addAll(condition.reachingConstraints);
 		//constraints.addAll(condition.localConstraints);
-		Constraint c = condition.localConstraints.iterator().next();
-		constraints.add(new IntegerConstraint(c.getLeftOperand(),
-		        c.getComparator().not(), c.getRightOperand()));
+		Constraint<?> c = condition.localConstraints.iterator().next();
+		constraints.add(new IntegerConstraint((Expression<Long>) c.getLeftOperand(),
+		        c.getComparator().not(), (Expression<Long>) c.getRightOperand()));
 		logger.info("Converting constraints");
 		//SMTSolver solver = new SMTSolver();
 		//solver.setup();
@@ -257,7 +259,7 @@ public class ConcolicMutation {
 					if (val instanceof Long) {
 						Long value = (Long) val;
 						logger.info("New value is " + value);
-						statements.get(num).setValue(value.intValue());
+						((PrimitiveStatement<Long>) statements.get(num)).setValue(value);
 					} else {
 						logger.info("New value is not long " + val);
 					}
@@ -275,7 +277,7 @@ public class ConcolicMutation {
 	}
 
 	// TODO: Add jpf-classes and jpf-annotation
-	public boolean mutate(List<PrimitiveStatement> statements, TestCase test) {
+	public boolean mutate(List<PrimitiveStatement<?>> statements, TestCase test) {
 		writeTestCase(statements, test);
 		ConcolicExecution ex = new ConcolicExecution();
 		List<BranchCondition> conditions = ex.executeConcolic(className, classPath);
@@ -286,7 +288,7 @@ public class ConcolicMutation {
 		//	logger.info("Branch has bytecode index: "
 		//	        + condition.ins.getInstructionIndex());
 		//}
-		BranchCondition condition = Randomness.getInstance().choice(conditions);
+		BranchCondition condition = Randomness.choice(conditions);
 		return mutate(condition, statements);
 
 		/*
@@ -301,7 +303,7 @@ public class ConcolicMutation {
 		}
 		int num_constraints = pcg.getNumberOfPathConstraints();
 		if (num_constraints <= 0) {
-			logger.info("Empty constraint set");
+			logger.info("Empty Constraint<?> set");
 			return false;
 		}
 

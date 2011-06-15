@@ -33,7 +33,7 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 	 * 
 	 * @param factory
 	 */
-	public OnePlusOneEA(ChromosomeFactory factory) {
+	public OnePlusOneEA(ChromosomeFactory<? extends Chromosome> factory) {
 		super(factory);
 	}
 

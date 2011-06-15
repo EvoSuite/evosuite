@@ -210,7 +210,7 @@ public class TestSuiteGenerator {
 		statistics.iteration(ga);
 		statistics.minimized(ga.getBestIndividual());
 		System.out.println("* Generated " + best.size() + " tests with total length "
-		        + best.length());
+		        + best.totalLengthOfTestCases());
 
 		System.out.println("* Resulting TestSuite's coverage: " + best.getCoverage());
 
@@ -509,7 +509,7 @@ public class TestSuiteGenerator {
 		        + "s, best individual has fitness " + suite.getFitness());
 		System.out.println("* Covered " + covered_goals + "/" + goals.size() + " goals");
 		logger.info("Resulting test suite: " + suite.size() + " tests, length "
-		        + suite.length());
+		        + suite.totalLengthOfTestCases());
 
 		if (Properties.INLINE) {
 			ConstantInliner inliner = new ConstantInliner();
@@ -524,7 +524,7 @@ public class TestSuiteGenerator {
 		 */
 		// System.out.println("Resulting test suite has fitness "+suite.getFitness());
 		System.out.println("* Resulting test suite: " + suite.size() + " tests, length "
-		        + suite.length());
+		        + suite.totalLengthOfTestCases());
 
 		// Log some stats
 
@@ -642,7 +642,7 @@ public class TestSuiteGenerator {
 		}
 	}
 
-	private ChromosomeFactory getChromosomeFactory() {
+	protected ChromosomeFactory<? extends Chromosome> getChromosomeFactory() {
 		switch (Properties.STRATEGY) {
 		case EVOSUITE:
 			return new TestSuiteChromosomeFactory();
@@ -680,7 +680,7 @@ public class TestSuiteGenerator {
 		}
 	}
 
-	private GeneticAlgorithm getGeneticAlgorithm(ChromosomeFactory factory) {
+	private GeneticAlgorithm getGeneticAlgorithm(ChromosomeFactory<? extends Chromosome> factory) {
 		switch (Properties.ALGORITHM) {
 		case ONEPLUSONEEA:
 			logger.info("Chosen search algorithm: (1+1)EA");
@@ -720,7 +720,7 @@ public class TestSuiteGenerator {
 	 */
 	public GeneticAlgorithm setup() {
 
-		ChromosomeFactory factory = getChromosomeFactory();
+		ChromosomeFactory<? extends Chromosome> factory = getChromosomeFactory();
 		GeneticAlgorithm ga = getGeneticAlgorithm(factory);
 
 		// How to select candidates for reproduction

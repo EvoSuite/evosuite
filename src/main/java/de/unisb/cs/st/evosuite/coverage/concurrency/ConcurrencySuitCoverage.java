@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
-import org.jgrapht.graph.DefaultEdge;
 
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
@@ -46,6 +45,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 
 
 public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
+	private static final long serialVersionUID = 1L;
 
 	private static Logger logger = Logger.getLogger(TestSuiteFitnessFunction.class);
 
@@ -193,19 +193,19 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 		if(num_covered > covered_branches) {
 			covered_branches = Math.max(covered_branches, num_covered);
 			logger.info("(Branches) Best individual covers "+covered_branches+"/"+(total_branches*2)+" branches and "+(total_methods - missing_methods)+"/"+total_methods+" methods");
-			logger.info("Fitness: "+fitness+", size: "+suite.size()+", length: "+suite.length());
+			logger.info("Fitness: "+fitness+", size: "+suite.size()+", length: "+suite.totalLengthOfTestCases());
 		}
 		//		if(call_count.size() > covered_methods) {
 		if((total_methods - missing_methods) > covered_methods) {
 			logger.info("(Methods) Best individual covers "+covered_branches+"/"+(total_branches*2)+" branches and "+(total_methods - missing_methods)+"/"+total_methods+" methods");
 			covered_methods = (total_methods - missing_methods);
-			logger.info("Fitness: "+fitness+", size: "+suite.size()+", length: "+suite.length());
+			logger.info("Fitness: "+fitness+", size: "+suite.size()+", length: "+suite.totalLengthOfTestCases());
 
 		}
 		if(fitness < best_fitness) {
 			logger.info("(Fitness) Best individual covers "+covered_branches+"/"+(total_branches*2)+" branches and "+(total_methods - missing_methods)+"/"+total_methods+" methods");
 			best_fitness = fitness;
-			logger.info("Fitness: "+fitness+", size: "+suite.size()+", length: "+suite.length());
+			logger.info("Fitness: "+fitness+", size: "+suite.size()+", length: "+suite.totalLengthOfTestCases());
 
 		}
 

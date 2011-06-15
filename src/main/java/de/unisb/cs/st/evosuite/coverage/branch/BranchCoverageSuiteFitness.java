@@ -194,7 +194,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			        + (total_methods - missing_methods) + "/" + total_methods
 			        + " methods");
 			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
-			        + suite.length());
+			        + suite.totalLengthOfTestCases());
 		}
 		//		if(call_count.size() > covered_methods) {
 		if ((total_methods - missing_methods) > covered_methods) {
@@ -204,7 +204,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			        + " methods");
 			covered_methods = (total_methods - missing_methods);
 			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
-			        + suite.length());
+			        + suite.totalLengthOfTestCases());
 
 		}
 		if (fitness < best_fitness) {
@@ -214,7 +214,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			        + " methods");
 			best_fitness = fitness;
 			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
-			        + suite.length());
+			        + suite.totalLengthOfTestCases());
 
 		}
 
