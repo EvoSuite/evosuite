@@ -180,11 +180,30 @@ public class TestSuiteChromosome extends Chromosome {
 	 */
 	@Override
 	public void localSearch(LocalSearchObjective objective) {
+		double fitnessBefore = getFitness();
 		for (int i = 0; i < tests.size(); i++) {
 			TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective(
 			        (TestSuiteFitnessFunction) objective.getFitnessFunction(), this, i);
 			tests.get(i).localSearch(testObjective);
 		}
+		TestSuiteFitnessFunction fitnessFunction = (TestSuiteFitnessFunction) objective.getFitnessFunction();
+		fitnessFunction.getFitness(this);
+
+		/*
+		if (fitnessBefore < getFitness()) {
+			logger.warn("Fitness was " + fitnessBefore + " and now is " + getFitness());
+			//for (TestChromosome chromosome : tests) {
+			//	chromosome.setChanged(true);
+			//	chromosome.last_result = null;
+			//}
+			fitnessFunction = (TestSuiteFitnessFunction) objective.getFitnessFunction();
+			fitnessFunction.getFitness(this);
+			logger.warn("After checking: Fitness was " + fitnessBefore + " and now is "
+			        + getFitness());
+			assert (false);
+		}
+		*/
+		assert (fitnessBefore >= getFitness());
 	}
 
 	/**
@@ -221,7 +240,7 @@ public class TestSuiteChromosome extends Chromosome {
 	public String toString() {
 		String result = "TestSuite: " + tests.size() + "\n";
 		for (TestChromosome test : tests) {
-			result += test.test.toCode();
+			result += test.test.toCode() + "\n";
 		}
 		return result;
 	}

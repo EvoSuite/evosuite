@@ -130,8 +130,8 @@ public class TestSuiteMinimizer {
 
 	private int getNumCoveredBranches(TestSuiteChromosome suite) {
 
-		Set<String> covered_true = new HashSet<String>();
-		Set<String> covered_false = new HashSet<String>();
+		Set<Integer> covered_true = new HashSet<Integer>();
+		Set<Integer> covered_false = new HashSet<Integer>();
 		Set<String> called_methods = new HashSet<String>();
 
 		int num = 0;
@@ -148,12 +148,12 @@ public class TestSuiteMinimizer {
 				result = test.last_result;
 			}
 			called_methods.addAll(result.getTrace().covered_methods.keySet());
-			for (Entry<String, Double> entry : result.getTrace().true_distances.entrySet()) {
+			for (Entry<Integer, Double> entry : result.getTrace().true_distances.entrySet()) {
 				if (entry.getValue() == 0)
 					covered_true.add(entry.getKey());
 			}
 
-			for (Entry<String, Double> entry : result.getTrace().false_distances.entrySet()) {
+			for (Entry<Integer, Double> entry : result.getTrace().false_distances.entrySet()) {
 				if (entry.getValue() == 0)
 					covered_false.add(entry.getKey());
 			}
