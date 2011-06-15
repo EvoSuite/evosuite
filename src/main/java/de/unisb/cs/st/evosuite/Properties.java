@@ -106,6 +106,10 @@ public class Properties {
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double PRIMITIVE_POOL = 0.5;
 
+	@Parameter(key = "object_pool", group = "Test Creation", description = "Probability to use a predefined sequence from the pool rather than a random generator")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double OBJECT_POOL = 0.0;
+
 	@Parameter(key = "string_length", group = "Test Creation", description = "Maximum length of randomly generated strings")
 	public static int STRING_LENGTH = 20;
 
@@ -277,6 +281,9 @@ public class Properties {
 
 	@Parameter(key = "inline", group = "Output", description = "Inline all constants")
 	public static boolean INLINE = false;
+
+	@Parameter(key = "write_pool", group = "Output", description = "Keep sequences for object pool")
+	public static boolean WRITE_POOL = false;
 
 	@Parameter(key = "report_dir", group = "Output", description = "Directory in which to put HTML and CSV reports")
 	public static String REPORT_DIR = "evosuite-report";
