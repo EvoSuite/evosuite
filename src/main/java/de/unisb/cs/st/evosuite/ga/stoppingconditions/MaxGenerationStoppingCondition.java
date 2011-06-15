@@ -35,8 +35,28 @@ public class MaxGenerationStoppingCondition extends StoppingCondition {
 	/** Maximum number of iterations */
 	protected int current_iteration = 0;
 
-	public void setMaxIterations(int max) {
-		max_iterations = max;
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
+	 */
+	@Override
+	public int getCurrentValue() {
+		return current_iteration;
+	}
+
+	@Override
+	public int getLimit() {
+		return max_iterations;
+	}
+
+	/**
+	 * Stop search after a number of iterations
+	 */
+	@Override
+	public boolean isFinished() {
+		logger.debug("Is finished? Current generation: " + current_iteration + " Max iteration: " + max_iterations);
+		return current_iteration >= max_iterations;
 	}
 
 	/**
@@ -48,21 +68,6 @@ public class MaxGenerationStoppingCondition extends StoppingCondition {
 	}
 
 	/**
-	 * Stop search after a number of iterations
-	 */
-	@Override
-	public boolean isFinished() {
-		logger.debug("Is finished? Current generation: " + current_iteration
-		        + " Max iteration: " + max_iterations);
-		return current_iteration >= max_iterations;
-	}
-
-	@Override
-	public void searchFinished(GeneticAlgorithm algorithm) {
-		current_iteration = 0;
-	}
-
-	/**
 	 * Reset counter
 	 */
 	@Override
@@ -70,7 +75,14 @@ public class MaxGenerationStoppingCondition extends StoppingCondition {
 		current_iteration = 0;
 	}
 
-	/* (non-Javadoc)
+	@Override
+	public void searchFinished(GeneticAlgorithm algorithm) {
+		current_iteration = 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
 	@Override
@@ -78,17 +90,8 @@ public class MaxGenerationStoppingCondition extends StoppingCondition {
 		max_iterations = limit;
 	}
 
-	@Override
-	public int getLimit() {
-		return max_iterations;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
-	 */
-	@Override
-	public int getCurrentValue() {
-		return current_iteration;
+	public void setMaxIterations(int max) {
+		max_iterations = max;
 	}
 
 }

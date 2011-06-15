@@ -28,7 +28,7 @@ public class ConcolicInstructionFactory extends InstructionFactory implements Cl
 
 	@Override
 	public Object clone() {
-		//yes we do not clone
+		// yes we do not clone
 		return this;
 	}
 
@@ -188,16 +188,6 @@ public class ConcolicInstructionFactory extends InstructionFactory implements Cl
 	}
 
 	@Override
-	public IF_ICMPNE if_icmpne(int targetPc) {
-		return new IF_ICMPNE(targetPc);
-	}
-
-	@Override
-	public IF_ICMPLT if_icmplt(int targetPc) {
-		return new IF_ICMPLT(targetPc);
-	}
-
-	@Override
 	public IF_ICMPGE if_icmpge(int targetPc) {
 		return new IF_ICMPGE(targetPc);
 	}
@@ -213,18 +203,18 @@ public class ConcolicInstructionFactory extends InstructionFactory implements Cl
 	}
 
 	@Override
+	public IF_ICMPLT if_icmplt(int targetPc) {
+		return new IF_ICMPLT(targetPc);
+	}
+
+	@Override
+	public IF_ICMPNE if_icmpne(int targetPc) {
+		return new IF_ICMPNE(targetPc);
+	}
+
+	@Override
 	public IFEQ ifeq(int targetPc) {
 		return new IFEQ(targetPc);
-	}
-
-	@Override
-	public IFNE ifne(int targetPc) {
-		return new IFNE(targetPc);
-	}
-
-	@Override
-	public IFLT iflt(int targetPc) {
-		return new IFLT(targetPc);
 	}
 
 	@Override
@@ -240,6 +230,16 @@ public class ConcolicInstructionFactory extends InstructionFactory implements Cl
 	@Override
 	public IFLE ifle(int targetPc) {
 		return new IFLE(targetPc);
+	}
+
+	@Override
+	public IFLT iflt(int targetPc) {
+		return new IFLT(targetPc);
+	}
+
+	@Override
+	public IFNE ifne(int targetPc) {
+		return new IFNE(targetPc);
 	}
 
 	@Override
@@ -372,6 +372,6 @@ public class ConcolicInstructionFactory extends InstructionFactory implements Cl
 		return new TABLESWITCH(defaultTargetPc, low, high);
 	}
 
-	//--- the JPF specific ones (only used in synthetic methods)
+	// --- the JPF specific ones (only used in synthetic methods)
 
 }

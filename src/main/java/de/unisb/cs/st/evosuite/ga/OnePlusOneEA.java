@@ -38,6 +38,38 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 	}
 
 	@Override
+	public void generateSolution() {
+		if (population.isEmpty()) {
+			initializePopulation();
+		}
+
+		double fitness = population.get(0).getFitness();
+		while (!isFinished()) {
+			if ((selection_function.isMaximize() && (getBestIndividual().getFitness() > fitness))
+					|| (!selection_function.isMaximize() && (getBestIndividual().getFitness() < fitness))) {
+				logger.info("Current population: " + getAge());
+				logger.info("Best fitness: " + getBestIndividual().getFitness());
+				fitness = population.get(0).getFitness();
+			}
+			evolve();
+			this.notifyIteration();
+		}
+		notifySearchFinished();
+	}
+
+	@Override
+	public void initializePopulation() {
+		notifySearchStarted();
+		current_iteration = 0;
+
+		// Only one parent
+		generateRandomPopulation(1);
+		fitness_function.getFitness(population.get(0));
+		this.notifyIteration();
+		logger.info("Initial fitness: " + population.get(0).getFitness());
+	}
+
+	@Override
 	protected void evolve() {
 
 		Chromosome parent = population.get(0);
@@ -58,36 +90,5 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 			logger.debug("Keeping old population");
 		}
 		current_iteration++;
-	}
-
-	@Override
-	public void initializePopulation() {
-		notifySearchStarted();
-		current_iteration = 0;
-
-		// Only one parent
-		generateRandomPopulation(1);
-		fitness_function.getFitness(population.get(0));
-		this.notifyIteration();
-		logger.info("Initial fitness: " + population.get(0).getFitness());
-	}
-
-	@Override
-	public void generateSolution() {
-		if (population.isEmpty())
-			initializePopulation();
-
-		double fitness = population.get(0).getFitness();
-		while (!isFinished()) {
-			if ((selection_function.isMaximize() && getBestIndividual().getFitness() > fitness)
-			        || (!selection_function.isMaximize() && getBestIndividual().getFitness() < fitness)) {
-				logger.info("Current population: " + getAge());
-				logger.info("Best fitness: " + getBestIndividual().getFitness());
-				fitness = population.get(0).getFitness();
-			}
-			evolve();
-			this.notifyIteration();
-		}
-		notifySearchFinished();
 	}
 }

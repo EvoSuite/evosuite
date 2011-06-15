@@ -44,39 +44,8 @@ public class ArrayIndex extends VariableReferenceImpl {
 		return array;
 	}
 
-	public void setArray(ArrayReference r) {
-		array = r;
-	}
-
-	/**
-	 * Return true if variable is an array
-	 */
-	public boolean isArrayIndex() {
-		return true;
-	}
-
 	public int getArrayIndex() {
 		return array_index;
-	}
-
-	public void setArrayIndex(int index) {
-		array_index = index;
-	}
-
-	@Override
-	public int getStPosition() {
-		assert (array != null);
-		for (int i = 0; i < testCase.size(); i++) {
-			if (testCase.getStatement(i).getReturnValue().equals(this)) {
-				return i;
-			}
-		}
-
-		//notice that this case is only reached if no AssignmentStatement was used to assign to the array index (as in that case the for loop would have found something)
-		//Therefore the array must have been assigned in some method and we can return the method call
-		return array.getStPosition();
-
-		//throw new AssertionError("A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase");
 	}
 
 	/**
@@ -90,6 +59,33 @@ public class ArrayIndex extends VariableReferenceImpl {
 	}
 
 	@Override
+	public int getStPosition() {
+		assert (array != null);
+		for (int i = 0; i < testCase.size(); i++) {
+			if (testCase.getStatement(i).getReturnValue().equals(this)) {
+				return i;
+			}
+		}
+
+		// notice that this case is only reached if no AssignmentStatement was
+		// used to assign to the array index (as in that case the for loop would
+		// have found something)
+		// Therefore the array must have been assigned in some method and we can
+		// return the method call
+		return array.getStPosition();
+
+		// throw new
+		// AssertionError("A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase");
+	}
+
+	/**
+	 * Return true if variable is an array
+	 */
+	public boolean isArrayIndex() {
+		return true;
+	}
+
+	@Override
 	public void loadBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
 		array.loadBytecode(mg, locals);
 		mg.push(array_index);
@@ -98,33 +94,47 @@ public class ArrayIndex extends VariableReferenceImpl {
 	}
 
 	@Override
+	public boolean same(VariableReference r) {
+		if (r == null) {
+			return false;
+		}
+
+		if (!(r instanceof ArrayIndex)) {
+			return false;
+		}
+
+		ArrayIndex other = (ArrayIndex) r;
+		if (this.getStPosition() != r.getStPosition()) {
+			return false;
+		}
+
+		if (!this.array.same(other.getArray())) {
+			return false;
+		}
+
+		if (this.array_index != other.getArrayIndex()) {
+			return false;
+		}
+
+		if (this.type.equals(r.getGenericClass())) {
+			;
+		}
+
+		return true;
+	}
+
+	public void setArray(ArrayReference r) {
+		array = r;
+	}
+
+	public void setArrayIndex(int index) {
+		array_index = index;
+	}
+
+	@Override
 	public void storeBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
 		array.loadBytecode(mg, locals);
 		mg.push(array_index);
 		mg.arrayStore(org.objectweb.asm.Type.getType(type.getRawClass()));
-	}
-
-	@Override
-	public boolean same(VariableReference r) {
-		if (r == null)
-			return false;
-
-		if (!(r instanceof ArrayIndex))
-			return false;
-
-		ArrayIndex other = (ArrayIndex) r;
-		if (this.getStPosition() != r.getStPosition())
-			return false;
-
-		if (!this.array.same(other.getArray()))
-			return false;
-
-		if (this.array_index != other.getArrayIndex())
-			return false;
-
-		if (this.type.equals(r.getGenericClass()))
-			;
-
-		return true;
 	}
 }

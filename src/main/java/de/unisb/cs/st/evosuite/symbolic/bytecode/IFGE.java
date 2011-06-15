@@ -43,14 +43,12 @@ public class IFGE extends gov.nasa.jpf.jvm.bytecode.IFGE {
 		}
 		int pop = ti.pop();
 		if (pop >= 0) {
-			PathConstraint.getInstance().addConstraint(new IntegerConstraint(sym,
-			                                                   Comparator.GE,
-			                                                   new IntegerConstant(0)));
+			PathConstraint.getInstance().addConstraint(
+					new IntegerConstraint(sym, Comparator.GE, new IntegerConstant(0)));
 			return true;
 		} else {
-			PathConstraint.getInstance().addConstraint(new IntegerConstraint(sym,
-			                                                   Comparator.LT,
-			                                                   new IntegerConstant(0)));
+			PathConstraint.getInstance().addConstraint(
+					new IntegerConstraint(sym, Comparator.LT, new IntegerConstant(0)));
 			return false;
 		}
 	}

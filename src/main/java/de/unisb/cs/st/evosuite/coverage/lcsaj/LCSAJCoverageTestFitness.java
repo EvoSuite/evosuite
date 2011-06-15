@@ -32,15 +32,20 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  */
 public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	LCSAJ lcsaj;
 
 	private double approach;
 
-	public LCSAJCoverageTestFitness(String className, String methodName, LCSAJ lcsaj) {
+	public LCSAJCoverageTestFitness(LCSAJ lcsaj) {
 		this.lcsaj = lcsaj;
 	}
 
-	public LCSAJCoverageTestFitness(LCSAJ lcsaj) {
+	public LCSAJCoverageTestFitness(String className, String methodName, LCSAJ lcsaj) {
 		this.lcsaj = lcsaj;
 	}
 
@@ -63,28 +68,24 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 		for (MethodCall call : result.getTrace().finished_calls) {
 
 			// if method call is the method of the LCSAJ
-			if (call.className.equals(lcsaj.getClassName())
-			        && call.methodName.equals(lcsaj.getMethodName())) {
+			if (call.className.equals(lcsaj.getClassName()) && call.methodName.equals(lcsaj.getMethodName())) {
 
 				/*
-				BytecodeInstruction firstBytecodeInstruction = BytecodeInstructionPool.getInstruction(lcsaj.getClassName(),
-				                                                                                      lcsaj.getMethodName(),
-				                                                                                      lcsaj.getStartNodeID());
-				Set<Branch> LCSAJDependentBranches = firstBytecodeInstruction.getControlDependentBranches();
-				double min = 1.0;
-				for (Branch b : LCSAJDependentBranches) {
-					BranchCoverageGoal dependentGoal = new BranchCoverageGoal(b,
-					        firstBytecodeInstruction.getBranchExpressionValue(b),
-					        lcsaj.getClassName(), lcsaj.getMethodName());
-					BranchCoverageTestFitness dependentFitness = new BranchCoverageTestFitness(
-					        dependentGoal);
-					min = Math.min(min, normalize(dependentFitness.getFitness(individual,
-					                                                          result)));
-				}
-				if (min > 0.0) {
-					currentFitness = min + approach;
-				} else {
-				*/
+				 * BytecodeInstruction firstBytecodeInstruction =
+				 * BytecodeInstructionPool.getInstruction(lcsaj.getClassName(),
+				 * lcsaj.getMethodName(), lcsaj.getStartNodeID()); Set<Branch>
+				 * LCSAJDependentBranches =
+				 * firstBytecodeInstruction.getControlDependentBranches();
+				 * double min = 1.0; for (Branch b : LCSAJDependentBranches) {
+				 * BranchCoverageGoal dependentGoal = new BranchCoverageGoal(b,
+				 * firstBytecodeInstruction.getBranchExpressionValue(b),
+				 * lcsaj.getClassName(), lcsaj.getMethodName());
+				 * BranchCoverageTestFitness dependentFitness = new
+				 * BranchCoverageTestFitness( dependentGoal); min =
+				 * Math.min(min,
+				 * normalize(dependentFitness.getFitness(individual, result)));
+				 * } if (min > 0.0) { currentFitness = min + approach; } else {
+				 */
 				int lcsaj_position = 0;
 
 				// For each branch that was passed in this call
@@ -101,8 +102,9 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 
 							currentFitness += normalize(true_distance);
 
-							if (currentFitness < savedFitness)
+							if (currentFitness < savedFitness) {
 								savedFitness = currentFitness;
+							}
 
 							lcsaj_position = 0;
 							currentFitness = approach;
@@ -111,8 +113,9 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 
 							currentFitness += normalize(false_distance);
 
-							if (currentFitness < savedFitness)
+							if (currentFitness < savedFitness) {
 								savedFitness = currentFitness;
+							}
 
 							lcsaj_position = 0;
 							currentFitness = approach;
@@ -125,7 +128,7 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 						lcsaj_position = 0;
 						currentFitness = approach;
 					}
-					//}
+					// }
 				}
 
 			}
@@ -133,6 +136,11 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 
 		updateIndividual(individual, savedFitness);
 		return savedFitness;
+	}
+
+	@Override
+	public String toString() {
+		return lcsaj.toString();
 	}
 
 	/*
@@ -145,10 +153,5 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	protected void updateIndividual(Chromosome individual, double fitness) {
 		individual.setFitness(fitness);
-	}
-
-	@Override
-	public String toString() {
-		return lcsaj.toString();
 	}
 }

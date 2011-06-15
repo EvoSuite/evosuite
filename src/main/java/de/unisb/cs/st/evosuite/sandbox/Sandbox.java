@@ -47,8 +47,27 @@ public class Sandbox {
 	 * Set up mocked security manager if sandbox property is true.
 	 */
 	public static void setUpMockedSecurityManager() {
-		if (sandboxActive)
+		if (sandboxActive) {
 			System.setSecurityManager(evilManager);
+		}
+	}
+
+	/**
+	 * Set up mocks, if mock property is true
+	 */
+	public static void setUpMocks() {
+		if (mocksActive) {
+			mocks.setUpMocks();
+		}
+	}
+
+	/**
+	 * Disable mocks and mocked security manager. This method is used sometimes
+	 * just for the sake of simplicity.
+	 */
+	public static void tearDownEverything() {
+		tearDownMockedSecurityManager();
+		tearDownMocks();
 	}
 
 	/**
@@ -59,26 +78,9 @@ public class Sandbox {
 	}
 
 	/**
-	 * Set up mocks, if mock property is true
-	 */
-	public static void setUpMocks() {
-		if (mocksActive)
-			mocks.setUpMocks();
-	}
-
-	/**
 	 * Disable all active mocks
 	 */
 	public static void tearDownMocks() {
 		mocks.tearDownMocks();
-	}
-
-	/**
-	 * Disable mocks and mocked security manager. This method is used sometimes
-	 * just for the sake of simplicity.
-	 */
-	public static void tearDownEverything() {
-		tearDownMockedSecurityManager();
-		tearDownMocks();
 	}
 }

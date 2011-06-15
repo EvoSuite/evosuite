@@ -45,6 +45,37 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		this.goal = goal;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		BranchCoverageTestFitness other = (BranchCoverageTestFitness) obj;
+		if (goal == null) {
+			if (other.goal != null) {
+				return false;
+			}
+		} else if (!goal.equals(other.goal)) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public int getDifficulty() {
+		if (goal == null) {
+			return 1;
+		} else {
+			return goal.getDifficulty();
+		}
+	}
+
 	/**
 	 * Calculate approach level + branch distance
 	 */
@@ -54,50 +85,11 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 
 		double fitness = distance.getResultingBranchFitness();
 
-		logger.debug("Approach level: " + distance.getApproachLevel()
-		        + " / branch distance: " + distance.getBranchDistance() + ", fitness = "
-		        + fitness);
+		logger.debug("Approach level: " + distance.getApproachLevel() + " / branch distance: "
+				+ distance.getBranchDistance() + ", fitness = " + fitness);
 
 		updateIndividual(individual, fitness);
 		return fitness;
-	}
-
-	@Override
-	public boolean isSimilarTo(TestFitnessFunction other) {
-		if (other instanceof DefUseCoverageTestFitness) {
-			DefUseCoverageTestFitness duFitness = (DefUseCoverageTestFitness) other;
-			if (duFitness.getGoalDefinitionBranchFitness() != null
-			        && isSimilarTo(duFitness.getGoalDefinitionBranchFitness()))
-				return true;
-			return isSimilarTo(duFitness.getGoalUseBranchFitness());
-		}
-		try {
-			BranchCoverageTestFitness otherFitness = (BranchCoverageTestFitness) other;
-			return goal.isConnectedTo(otherFitness.goal);
-		} catch (ClassCastException e) {
-			return false;
-		}
-	}
-
-	@Override
-	public int getDifficulty() {
-		if (goal == null)
-			return 1;
-		else
-			return goal.getDifficulty();
-	}
-
-	/**
-	 * Store information
-	 */
-	@Override
-	protected void updateIndividual(Chromosome individual, double fitness) {
-		individual.setFitness(fitness);
-	}
-
-	@Override
-	public String toString() {
-		return goal.toString();
 	}
 
 	@Override
@@ -109,20 +101,34 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
+	public boolean isSimilarTo(TestFitnessFunction other) {
+		if (other instanceof DefUseCoverageTestFitness) {
+			DefUseCoverageTestFitness duFitness = (DefUseCoverageTestFitness) other;
+			if ((duFitness.getGoalDefinitionBranchFitness() != null)
+					&& isSimilarTo(duFitness.getGoalDefinitionBranchFitness())) {
+				return true;
+			}
+			return isSimilarTo(duFitness.getGoalUseBranchFitness());
+		}
+		try {
+			BranchCoverageTestFitness otherFitness = (BranchCoverageTestFitness) other;
+			return goal.isConnectedTo(otherFitness.goal);
+		} catch (ClassCastException e) {
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		BranchCoverageTestFitness other = (BranchCoverageTestFitness) obj;
-		if (goal == null) {
-			if (other.goal != null)
-				return false;
-		} else if (!goal.equals(other.goal))
-			return false;
-		return true;
+		}
+	}
+
+	@Override
+	public String toString() {
+		return goal.toString();
+	}
+
+	/**
+	 * Store information
+	 */
+	@Override
+	protected void updateIndividual(Chromosome individual, double fitness) {
+		individual.setFitness(fitness);
 	}
 
 }

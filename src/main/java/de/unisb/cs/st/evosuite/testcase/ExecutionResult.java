@@ -52,8 +52,9 @@ public class ExecutionResult {
 	public NullOutputTrace null_trace;
 	public List<Long> touched = new ArrayList<Long>();
 
-	// experiment .. tried to remember intermediately calculated ControlFlowDistances .. no real speed up
-	//	public Map<Branch, ControlFlowDistance> intermediateDistances;
+	// experiment .. tried to remember intermediately calculated
+	// ControlFlowDistances .. no real speed up
+	// public Map<Branch, ControlFlowDistance> intermediateDistances;
 
 	public ExecutionResult(TestCase t) {
 		exception_statement = 0;
@@ -69,18 +70,23 @@ public class ExecutionResult {
 		test = t;
 	}
 
+	@Override
+	public ExecutionResult clone() {
+		ExecutionResult copy = new ExecutionResult(test, mutation);
+		copy.exceptions.putAll(exceptions);
+		copy.trace = trace.clone();
+		copy.touched.addAll(touched);
+		return copy;
+	}
+
 	public ExecutionTrace getTrace() {
 		return trace;
 	}
 
-	public void setTrace(ExecutionTrace trace) {
-		assert (trace != null);
-		this.trace = trace;
-	}
-
 	public boolean hasTimeout() {
-		if (test == null)
+		if (test == null) {
 			return false;
+		}
 
 		int size = test.size();
 		if (exceptions.containsKey(size)) {
@@ -92,13 +98,9 @@ public class ExecutionResult {
 		return false;
 	}
 
-	@Override
-	public ExecutionResult clone() {
-		ExecutionResult copy = new ExecutionResult(test, mutation);
-		copy.exceptions.putAll(exceptions);
-		copy.trace = trace.clone();
-		copy.touched.addAll(touched);
-		return copy;
+	public void setTrace(ExecutionTrace trace) {
+		assert (trace != null);
+		this.trace = trace;
 	}
 
 	@Override

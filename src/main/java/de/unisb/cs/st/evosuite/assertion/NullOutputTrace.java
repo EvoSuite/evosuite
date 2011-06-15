@@ -45,8 +45,9 @@ public class NullOutputTrace extends OutputTrace {
 		NullOutputTrace other = (NullOutputTrace) other_trace;
 
 		for (Entry<Integer, Boolean> entry : trace.entrySet()) {
-			if (!other.trace.containsKey(entry.getKey()))
+			if (!other.trace.containsKey(entry.getKey())) {
 				continue;
+			}
 
 			if (!entry.getValue().equals(other.trace.get(entry.getKey()))) {
 				return true;
@@ -55,6 +56,29 @@ public class NullOutputTrace extends OutputTrace {
 		}
 
 		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.testcase.OutputTrace#getAllAssertions(de.unisb
+	 * .cs.st.evosuite.testcase.TestCase)
+	 */
+	@Override
+	public int getAllAssertions(TestCase test) {
+		int num_assertions = 0;
+		for (int i = 0; i < test.size(); i++) {
+			if (trace.containsKey(i)) {
+				Assertion assertion = new NullAssertion();
+				assertion.source = test.getReturnValue(i);
+				assertion.value = trace.get(i);
+				test.getStatement(i).addAssertion(assertion);
+				num_assertions++;
+			}
+		}
+
+		return num_assertions;
 	}
 
 	@Override
@@ -71,9 +95,9 @@ public class NullOutputTrace extends OutputTrace {
 					assertion.source = test.getReturnValue(i);
 					assertion.value = trace.get(i);
 					test.getStatement(i).addAssertion(assertion);
-					if (!other.isDetectedBy(assertion))
-						logger.error("Invalid null assertion generated: " + trace.get(i)
-						        + "/" + other.trace.get(i));
+					if (!other.isDetectedBy(assertion)) {
+						logger.error("Invalid null assertion generated: " + trace.get(i) + "/" + other.trace.get(i));
+					}
 
 					num_assertions++;
 				}
@@ -85,8 +109,9 @@ public class NullOutputTrace extends OutputTrace {
 
 	@Override
 	public boolean isDetectedBy(Assertion assertion) {
-		if (!(assertion instanceof NullAssertion))
+		if (!(assertion instanceof NullAssertion)) {
 			return false;
+		}
 
 		NullAssertion p = (NullAssertion) assertion;
 		if (trace.containsKey(p.source.getStPosition())) {
@@ -102,35 +127,18 @@ public class NullOutputTrace extends OutputTrace {
 		NullOutputTrace other = (NullOutputTrace) other_trace;
 
 		for (Entry<Integer, Boolean> entry : trace.entrySet()) {
-			if (!other.trace.containsKey(entry.getKey()))
+			if (!other.trace.containsKey(entry.getKey())) {
 				continue;
+			}
 
 			if (!entry.getValue().equals(other.trace.get(entry.getKey()))) {
-				//logger.info("Difference at: "+entry.getKey()+": "+entry.getValue() +" -> "+other.trace.get(entry.getKey()));
+				// logger.info("Difference at: "+entry.getKey()+": "+entry.getValue()
+				// +" -> "+other.trace.get(entry.getKey()));
 				num++;
 			}
 
 		}
 		return num;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.OutputTrace#getAllAssertions(de.unisb.cs.st.evosuite.testcase.TestCase)
-	 */
-	@Override
-	public int getAllAssertions(TestCase test) {
-		int num_assertions = 0;
-		for (int i = 0; i < test.size(); i++) {
-			if (trace.containsKey(i)) {
-				Assertion assertion = new NullAssertion();
-				assertion.source = test.getReturnValue(i);
-				assertion.value = trace.get(i);
-				test.getStatement(i).addAssertion(assertion);
-				num_assertions++;
-			}
-		}
-
-		return num_assertions;
 	}
 
 }

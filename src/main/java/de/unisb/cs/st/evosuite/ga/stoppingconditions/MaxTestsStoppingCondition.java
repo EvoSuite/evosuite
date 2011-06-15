@@ -29,9 +29,6 @@ public class MaxTestsStoppingCondition extends StoppingCondition {
 	/** Current number of tests */
 	protected static int num_tests = 0;
 
-	/** Maximum number of evaluations */
-	protected int max_tests = Properties.GENERATIONS;
-
 	public static int getNumExecutedTests() {
 		return num_tests;
 	}
@@ -40,17 +37,12 @@ public class MaxTestsStoppingCondition extends StoppingCondition {
 		num_tests++;
 	}
 
-	@Override
-	public void reset() {
-		num_tests = 0;
-	}
+	/** Maximum number of evaluations */
+	protected int max_tests = Properties.GENERATIONS;
 
-	@Override
-	public boolean isFinished() {
-		return num_tests >= max_tests;
-	}
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
 	@Override
@@ -58,17 +50,29 @@ public class MaxTestsStoppingCondition extends StoppingCondition {
 		return num_tests;
 	}
 
-	/* (non-Javadoc)
+	@Override
+	public int getLimit() {
+		return max_tests;
+	}
+
+	@Override
+	public boolean isFinished() {
+		return num_tests >= max_tests;
+	}
+
+	@Override
+	public void reset() {
+		num_tests = 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
 	@Override
 	public void setLimit(int limit) {
 		max_tests = limit;
-	}
-
-	@Override
-	public int getLimit() {
-		return max_tests;
 	}
 
 }

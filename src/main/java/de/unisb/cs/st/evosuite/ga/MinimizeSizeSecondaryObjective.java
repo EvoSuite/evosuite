@@ -35,8 +35,7 @@ public class MinimizeSizeSecondaryObjective extends SecondaryObjective {
 	 */
 	@Override
 	public int compareChromosomes(Chromosome chromosome1, Chromosome chromosome2) {
-		logger.debug("Comparing sizes: " + chromosome1.size() + " vs "
-		        + chromosome2.size());
+		logger.debug("Comparing sizes: " + chromosome1.size() + " vs " + chromosome2.size());
 		return chromosome1.size() - chromosome2.size();
 	}
 
@@ -50,12 +49,10 @@ public class MinimizeSizeSecondaryObjective extends SecondaryObjective {
 	 * de.unisb.cs.st.evosuite.ga.Chromosome)
 	 */
 	@Override
-	public int compareGenerations(Chromosome parent1, Chromosome parent2,
-	        Chromosome child1, Chromosome child2) {
-		logger.debug("Comparing sizes: " + parent1.size() + ", " + parent1.size()
-		        + " vs " + child1.size() + ", " + child2.size());
-		return Math.min(parent1.size(), parent2.size())
-		        - Math.min(child1.size(), child2.size());
+	public int compareGenerations(Chromosome parent1, Chromosome parent2, Chromosome child1, Chromosome child2) {
+		logger.debug("Comparing sizes: " + parent1.size() + ", " + parent1.size() + " vs " + child1.size() + ", "
+				+ child2.size());
+		return Math.min(parent1.size(), parent2.size()) - Math.min(child1.size(), child2.size());
 	}
 
 }

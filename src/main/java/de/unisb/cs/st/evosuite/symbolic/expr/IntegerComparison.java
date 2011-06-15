@@ -4,20 +4,17 @@ public class IntegerComparison extends IntegerExpression {
 
 	private static final long serialVersionUID = 8551234172104612736L;
 
+	private final Long con;
+
+	private final Expression<Long> left;
+	private final Expression<Long> right;
+	protected int size = 0;
+
 	public IntegerComparison(Expression<Long> left, Expression<Long> right, Long con) {
 		super();
 		this.left = left;
 		this.right = right;
 		this.con = con;
-	}
-
-	private final Long con;
-	private final Expression<Long> left;
-	private final Expression<Long> right;
-
-	@Override
-	public Long getConcreteValue() {
-		return con;
 	}
 
 	@Override
@@ -27,27 +24,25 @@ public class IntegerComparison extends IntegerExpression {
 		}
 		if (obj instanceof IntegerComparison) {
 			IntegerComparison other = (IntegerComparison) obj;
-			return this.con.equals(other.con) && this.getSize() == other.getSize()
-			        && this.left.equals(other.left) && this.right.equals(other.right);
+			return this.con.equals(other.con) && (this.getSize() == other.getSize()) && this.left.equals(other.left)
+					&& this.right.equals(other.right);
 		}
 
 		return false;
 	}
 
-	public Expression<Long> getRightOperant() {
-		return right;
+	@Override
+	public Long getConcreteValue() {
+		return con;
 	}
 
 	public Expression<Long> getLeftOperant() {
 		return left;
 	}
 
-	@Override
-	public String toString() {
-		return "(" + left + " cmp " + right + ")";
+	public Expression<Long> getRightOperant() {
+		return right;
 	}
-
-	protected int size = 0;
 
 	@Override
 	public int getSize() {
@@ -55,6 +50,11 @@ public class IntegerComparison extends IntegerExpression {
 			size = 1 + getLeftOperant().getSize() + getRightOperant().getSize();
 		}
 		return size;
+	}
+
+	@Override
+	public String toString() {
+		return "(" + left + " cmp " + right + ")";
 	}
 
 }

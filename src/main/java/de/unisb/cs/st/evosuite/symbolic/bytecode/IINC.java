@@ -43,8 +43,8 @@ public class IINC extends gov.nasa.jpf.jvm.bytecode.IINC {
 		Instruction ret = super.execute(ss, ks, th);
 		Expression<Long> expr = (Expression<Long>) th.getLocalAttr(index);
 		if (expr != null) {
-			th.setLocalAttr(index, new IntegerBinaryExpression(expr, Operator.PLUS,
-			        new IntegerConstant(increment), new Long(th.getLocalVariable(index))));
+			th.setLocalAttr(index, new IntegerBinaryExpression(expr, Operator.PLUS, new IntegerConstant(increment),
+					new Long(th.getLocalVariable(index))));
 		}
 		return ret;
 

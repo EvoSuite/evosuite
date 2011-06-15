@@ -51,20 +51,20 @@ public class SMTSolver {
 
 	public SMTSolver() {
 		solver = new org.smtlib.solvers.Solver_cvc(smt.smtConfig,
-		        "/Users/fraser/Documents/Source/cvc3-2.2/bin/i386-darwin10.2.0/cvc3");
-		//solver = new org.smtlib.solvers.Solver_yices(smt.smtConfig,
-		//        "/Users/fraser/Downloads/yices-1.0.29/bin/yices");
+				"/Users/fraser/Documents/Source/cvc3-2.2/bin/i386-darwin10.2.0/cvc3");
+		// solver = new org.smtlib.solvers.Solver_yices(smt.smtConfig,
+		// "/Users/fraser/Downloads/yices-1.0.29/bin/yices");
 		IKeyword opt = smt.smtConfig.exprFactory.keyword(Utils.PRODUCE_MODELS);
-		//IAttributeValue val = smt.smtConfig.commandFactory.;
+		// IAttributeValue val = smt.smtConfig.commandFactory.;
 		solver.set_option(opt, Utils.TRUE);
 		solver.set_option(smt.smtConfig.exprFactory.keyword(":produce-models"),
-		                  smt.smtConfig.exprFactory.symbol("true"));
+				smt.smtConfig.exprFactory.symbol("true"));
 
-		ISource source = smt.smtConfig.smtFactory.createSource(new CharSequenceReader(
-		        new java.io.StringReader(
-		                "(set-option :produce-models true)(set-logic QF_LIA)")), null);
-		//		ISource source = smt.smtConfig.smtFactory.createSource(new CharSequenceReader(
-		//		                                                              		        new java.io.StringReader("(set-logic QF_ABV)")), null);
+		ISource source = smt.smtConfig.smtFactory.createSource(new CharSequenceReader(new java.io.StringReader(
+				"(set-option :produce-models true)(set-logic QF_LIA)")), null);
+		// ISource source = smt.smtConfig.smtFactory.createSource(new
+		// CharSequenceReader(
+		// new java.io.StringReader("(set-logic QF_ABV)")), null);
 		IParser parser = smt.smtConfig.smtFactory.createParser(smt.smtConfig, source);
 		try {
 			modelCommand = parser.parseCommand();
@@ -76,9 +76,16 @@ public class SMTSolver {
 		boolSort = sortfactory.createSortExpression(smt.smtConfig.exprFactory.symbol("Bool"));
 		intSort = sortfactory.createSortExpression(smt.smtConfig.exprFactory.symbol("Int"));
 		List<IExpr.INumeral> nums = new LinkedList<IExpr.INumeral>();
-		nums.add(smt.smtConfig.exprFactory.numeral(32)); // TODO - room for improvement in ease of use here...
-		bv32Sort = sortfactory.createSortExpression(smt.smtConfig.exprFactory.id(smt.smtConfig.exprFactory.symbol("BitVec"),
-		                                                                         nums));
+		nums.add(smt.smtConfig.exprFactory.numeral(32)); // TODO - room for
+															// improvement in
+															// ease of use
+															// here...
+		bv32Sort = sortfactory.createSortExpression(smt.smtConfig.exprFactory.id(
+				smt.smtConfig.exprFactory.symbol("BitVec"), nums));
+	}
+
+	public void pullDown() {
+		solver.exit();
 	}
 
 	public void setup() {
@@ -91,28 +98,24 @@ public class SMTSolver {
 
 	}
 
-	public void pullDown() {
-		solver.exit();
-	}
-
 	public void solve(Set<Constraint> constraints) {
 		ICommand.IScript script = new org.smtlib.impl.Script();
 		SMTConverter converter = new SMTConverter();
 		solver.set_option(smt.smtConfig.exprFactory.keyword(":produce-models"),
-		                  smt.smtConfig.exprFactory.symbol("true"));
+				smt.smtConfig.exprFactory.symbol("true"));
 
 		solver.push(1);
 		Set<IExpr> expressions = new HashSet<IExpr>();
 		for (Constraint<?> constraint : constraints) {
 			expressions.add(converter.visit(constraint));
 		}
-		//		script.commands().add(new org.smtlib.command.C_set_option(smt.smtConfig.exprFactory.keyword("produce-models"),
-		//		                                                          smt.smtConfig.exprFactory."true"));
+		// script.commands().add(new
+		// org.smtlib.command.C_set_option(smt.smtConfig.exprFactory.keyword("produce-models"),
+		// smt.smtConfig.exprFactory."true"));
 		script.commands().add(modelCommand);
 		script.commands().add(logicCommand);
 		for (IExpr.ISymbol symbol : converter.getSymbols()) {
-			script.commands().add(new org.smtlib.command.C_declare_fun(symbol,
-			                              new ArrayList<ISort>(), intSort));
+			script.commands().add(new org.smtlib.command.C_declare_fun(symbol, new ArrayList<ISort>(), intSort));
 		}
 
 		for (IExpr expr : expressions) {

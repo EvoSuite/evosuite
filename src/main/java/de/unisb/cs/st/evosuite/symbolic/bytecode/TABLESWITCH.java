@@ -42,16 +42,6 @@ public class TABLESWITCH extends gov.nasa.jpf.jvm.bytecode.TABLESWITCH {
 		// TODO Auto-generated constructor stub
 	}
 
-	@Override
-	public int getByteCode() {
-		return 0xAA;
-	}
-
-	@Override
-	public int getLength() {
-		return 13 + 2 * matches.length; // <2do> NOT RIGHT: padding!!
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public Instruction execute(SystemState ss, KernelState ks, ThreadInfo ti) {
@@ -74,20 +64,26 @@ public class TABLESWITCH extends gov.nasa.jpf.jvm.bytecode.TABLESWITCH {
 				assert (ret == null) : "Two branches found for switch";
 				lastIdx = i;
 				ret = mi.getInstructionAt(targets[i]);
-				PathConstraint.getInstance().addConstraint(new IntegerConstraint(sym_v,
-				                                                   Comparator.EQ,
-				                                                   new IntegerConstant(
-				                                                           matches[i])));
+				PathConstraint.getInstance().addConstraint(
+						new IntegerConstraint(sym_v, Comparator.EQ, new IntegerConstant(matches[i])));
 			} else {
-				PathConstraint.getInstance().addConstraint(new IntegerConstraint(sym_v,
-				                                                   Comparator.NE,
-				                                                   new IntegerConstant(
-				                                                           matches[i])));
+				PathConstraint.getInstance().addConstraint(
+						new IntegerConstraint(sym_v, Comparator.NE, new IntegerConstant(matches[i])));
 			}
 		}
 		if (ret == null) {
 			ret = mi.getInstructionAt(target);
 		}
 		return ret;
+	}
+
+	@Override
+	public int getByteCode() {
+		return 0xAA;
+	}
+
+	@Override
+	public int getLength() {
+		return 13 + 2 * matches.length; // <2do> NOT RIGHT: padding!!
 	}
 }

@@ -17,7 +17,6 @@
  * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 package de.unisb.cs.st.evosuite.assertion;
 
 import de.unisb.cs.st.evosuite.testcase.Scope;
@@ -26,21 +25,21 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
 public class ObjectAssertion extends Assertion {
 
 	@Override
-	public String getCode() {
-		return "assert("+source.getName()+".equals("+value+"));";
-	}
-
-	@Override
 	public Assertion clone(TestCase newTestCase) {
 		ObjectAssertion s = new ObjectAssertion();
 		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
-		s.value  = value;
+		s.value = value;
 		return s;
 	}
 
 	@Override
 	public boolean evaluate(Scope scope) {
 		return scope.get(source).equals(value);
+	}
+
+	@Override
+	public String getCode() {
+		return "assert(" + source.getName() + ".equals(" + value + "));";
 	}
 
 }

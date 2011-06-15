@@ -33,14 +33,8 @@ public abstract class ExecutionObserver {
 	protected static TestCase currentTest = null;
 
 	@SuppressWarnings("unchecked")
-	protected static final Set<Class<?>> WRAPPER_TYPES = new HashSet<Class<?>>(
-	        Arrays.asList(Boolean.class, Character.class, Byte.class, Short.class,
-	                      Integer.class, Long.class, Float.class, Double.class,
-	                      Void.class));
-
-	protected static boolean isWrapperType(Class<?> clazz) {
-		return WRAPPER_TYPES.contains(clazz);
-	}
+	protected static final Set<Class<?>> WRAPPER_TYPES = new HashSet<Class<?>>(Arrays.asList(Boolean.class,
+			Character.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class, Void.class));
 
 	public static void currentTest(TestCase test) {
 		currentTest = test;
@@ -50,9 +44,13 @@ public abstract class ExecutionObserver {
 		return currentTest;
 	}
 
+	protected static boolean isWrapperType(Class<?> clazz) {
+		return WRAPPER_TYPES.contains(clazz);
+	}
+
+	public abstract void clear();
+
 	public abstract void output(int position, String output);
 
 	public abstract void statement(StatementInterface statement, Scope scope, Throwable exception);
-
-	public abstract void clear();
 }

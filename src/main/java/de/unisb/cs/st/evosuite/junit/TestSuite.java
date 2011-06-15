@@ -60,18 +60,7 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  */
 public class TestSuite implements Opcodes {
 
-	private final static Logger logger = Logger.getLogger(TestSuite.class);
-
-	protected List<TestCase> test_cases = new ArrayList<TestCase>();
-
-	protected TestCaseExecutor executor = TestCaseExecutor.getInstance();
-
 	class TestFilter implements IOFileFilter {
-		@Override
-		public boolean accept(File f, String s) {
-			return s.toLowerCase().endsWith(".java") && s.startsWith("Test");
-		}
-
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -80,48 +69,79 @@ public class TestSuite implements Opcodes {
 		 */
 		@Override
 		public boolean accept(File file) {
-			return file.getName().toLowerCase().endsWith(".java")
-			        && file.getName().startsWith("Test");
+			return file.getName().toLowerCase().endsWith(".java") && file.getName().startsWith("Test");
+		}
+
+		@Override
+		public boolean accept(File f, String s) {
+			return s.toLowerCase().endsWith(".java") && s.startsWith("Test");
 		}
 	}
+
+	private final static Logger logger = Logger.getLogger(TestSuite.class);
+
+	protected List<TestCase> test_cases = new ArrayList<TestCase>();
+
+	protected TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
 	public TestSuite() {
 
 	}
 
 	public TestSuite(List<TestCase> tests) {
-		for (TestCase test : tests)
+		for (TestCase test : tests) {
 			insertTest(test);
+		}
 	}
 
-	public ExecutionResult runTest(TestCase test) {
+	public byte[] getBytecode(String name) {
+		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+		String prefix = Properties.TARGET_CLASS.substring(0, Properties.TARGET_CLASS.lastIndexOf("."))
+				.replace(".", "/");
+		cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, prefix + "/" + name, null, "junit/framework/TestCase", null);
 
-		ExecutionResult result = new ExecutionResult(test, null);
+		Method m = Method.getMethod("void <init> ()");
+		GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
+		mg.loadThis();
+		mg.invokeConstructor(Type.getType(junit.framework.TestCase.class), m);
+		mg.returnValue();
+		mg.endMethod();
 
-		try {
-			logger.debug("Executing test");
-			result = executor.execute(test);
-		} catch (Exception e) {
-			System.out.println("TG: Exception caught: " + e);
-			e.printStackTrace();
-			logger.fatal("TG: Exception caught: ", e);
-			System.exit(1);
+		int num = 0;
+		for (TestCase test : test_cases) {
+			ExecutionResult result = runTest(test);
+			m = Method.getMethod("void test" + num + " ()");
+			mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
+			testToBytecode(test, mg, result.exceptions);
+			num++;
 		}
 
-		return result;
+		// main method
+		m = Method.getMethod("void main (String[])");
+		mg = new GeneratorAdapter(ACC_PUBLIC + ACC_STATIC, m, null, null, cw);
+		mg.push(1);
+		mg.newArray(Type.getType(String.class));
+		mg.dup();
+		mg.push(0);
+		mg.push(Properties.CLASS_PREFIX + "." + name);
+		mg.arrayStore(Type.getType(String.class));
+		// mg.invokeStatic(Type.getType(org.junit.runner.JUnitCore.class),
+		// Method.getMethod("void main (String[])"));
+		mg.invokeStatic(Type.getType(junit.textui.TestRunner.class), Method.getMethod("void main (String[])"));
+		mg.returnValue();
+		mg.endMethod();
+
+		cw.visitEnd();
+		return cw.toByteArray();
 	}
 
 	/**
-	 * Check if there are test cases
+	 * Get all test cases
 	 * 
-	 * @return True if there are no test cases
+	 * @return
 	 */
-	public boolean isEmpty() {
-		return test_cases.isEmpty();
-	}
-
-	public int size() {
-		return test_cases.size();
+	public List<TestCase> getTestCases() {
+		return test_cases;
 	}
 
 	/**
@@ -132,8 +152,9 @@ public class TestSuite implements Opcodes {
 	 */
 	public boolean hasPrefix(TestCase test) {
 		for (TestCase t : test_cases) {
-			if (t.isPrefix(test))
+			if (t.isPrefix(test)) {
 				return true;
+			}
 		}
 		return false;
 	}
@@ -175,59 +196,86 @@ public class TestSuite implements Opcodes {
 	}
 
 	public void insertTests(List<TestCase> tests) {
-		for (TestCase test : tests)
+		for (TestCase test : tests) {
 			insertTest(test);
+		}
 	}
 
 	/**
-	 * Get all test cases
+	 * Check if there are test cases
+	 * 
+	 * @return True if there are no test cases
+	 */
+	public boolean isEmpty() {
+		return test_cases.isEmpty();
+	}
+
+	public ExecutionResult runTest(TestCase test) {
+
+		ExecutionResult result = new ExecutionResult(test, null);
+
+		try {
+			logger.debug("Executing test");
+			result = executor.execute(test);
+		} catch (Exception e) {
+			System.out.println("TG: Exception caught: " + e);
+			e.printStackTrace();
+			logger.fatal("TG: Exception caught: ", e);
+			System.exit(1);
+		}
+
+		return result;
+	}
+
+	public int size() {
+		return test_cases.size();
+	}
+
+	/**
+	 * Create JUnit test suite for class
+	 * 
+	 * @param name
+	 *            Name of the class
+	 * @param directory
+	 *            Output directory
+	 */
+	public void writeTestSuite(String name, String directory) {
+		String dir = makeDirectory(directory);
+		File file = new File(dir + "/" + name + ".java");
+		Io.writeFile(getUnitTest(name), file);
+
+		dir = mainDirectory(directory);
+		writeTestSuiteMainFile(dir);
+	}
+
+	public void writeTestSuiteClass(String name, String directory) {
+		String dir = makeDirectory(directory);
+		File file = new File(dir + "/" + name + ".class");
+		byte[] bytecode = getBytecode(name);
+		try {
+			FileOutputStream stream = new FileOutputStream(file);
+			stream.write(bytecode);
+		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
+		}
+
+		/*
+		 * ClassReader reader = new ClassReader(bytecode); ClassVisitor cv = new
+		 * TraceClassVisitor(new PrintWriter(System.out)); cv = new
+		 * CheckClassAdapter(cv); reader.accept(cv, ClassReader.SKIP_FRAMES);
+		 */
+
+		// getBytecode(name);
+	}
+
+	/**
+	 * JUnit file footer
 	 * 
 	 * @return
 	 */
-	public List<TestCase> getTestCases() {
-		return test_cases;
-	}
-
-	/**
-	 * When writing out the JUnit test file, each test can have a text comment
-	 * 
-	 * @param num
-	 *            Index of test case
-	 * @return Comment for test case
-	 */
-	protected String getInformation(int num) {
-
-		TestCase test = test_cases.get(num);
-		Set<TestFitnessFunction> coveredGoals = test.getCoveredGoals();
-
+	protected String getFooter() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Test case number: " + num);
-
-		if (!coveredGoals.isEmpty()) {
-			builder.append("\n  /* ");
-			builder.append(coveredGoals.size() + " covered goal");
-			if (coveredGoals.size() != 1)
-				builder.append("s");
-			int nr = 1;
-			for (TestFitnessFunction goal : coveredGoals) {
-				builder.append("\n    * " + nr + " " + goal.toString());
-				// TODO only for debugging purposes
-				if (Properties.CRITERION == Criterion.DEFUSE
-				        && (goal instanceof DefUseCoverageTestFitness)) {
-					DefUseCoverageTestFitness duGoal = (DefUseCoverageTestFitness) goal;
-					if (duGoal.getCoveringTrace() != null) {
-						String traceInformation = duGoal.getCoveringTrace().toDefUseTraceInformation(duGoal.getGoalVariable(),
-						                                                                             duGoal.getCoveringObjectId());
-						traceInformation = traceInformation.replaceAll("\n", "");
-						builder.append("\n      * DUTrace: " + traceInformation);
-					}
-				}
-				nr++;
-			}
-
-			builder.append("\n  */");
-		}
-
+		builder.append("}\n");
 		return builder.toString();
 	}
 
@@ -309,22 +357,27 @@ public class TestSuite implements Opcodes {
 			imports.addAll(test.getAccessedClasses());
 		}
 		for (ExecutionResult result : results) {
-			for (Throwable t : result.exceptions.values())
+			for (Throwable t : result.exceptions.values()) {
 				imports.add(t.getClass());
+			}
 		}
 		Set<String> import_names = new HashSet<String>();
 		for (Class<?> imp : imports) {
-			if (imp.isArray())
+			if (imp.isArray()) {
 				imp = imp.getComponentType();
-			if (imp.isPrimitive())
+			}
+			if (imp.isPrimitive()) {
 				continue;
-			if (imp.getName().startsWith("java.lang"))
+			}
+			if (imp.getName().startsWith("java.lang")) {
 				continue;
-			if (imp.getName().contains("$"))
+			}
+			if (imp.getName().contains("$")) {
 				import_names.add(imp.getName().substring(0, imp.getName().indexOf("$")));
-			// import_names.add(imp.getName().replace("$","."));
-			else
+				// import_names.add(imp.getName().replace("$","."));
+			} else {
 				import_names.add(imp.getName());
+			}
 		}
 		List<String> imports_sorted = new ArrayList<String>(import_names);
 		Collections.sort(imports_sorted);
@@ -338,13 +391,45 @@ public class TestSuite implements Opcodes {
 	}
 
 	/**
-	 * JUnit file footer
+	 * When writing out the JUnit test file, each test can have a text comment
 	 * 
-	 * @return
+	 * @param num
+	 *            Index of test case
+	 * @return Comment for test case
 	 */
-	protected String getFooter() {
+	protected String getInformation(int num) {
+
+		TestCase test = test_cases.get(num);
+		Set<TestFitnessFunction> coveredGoals = test.getCoveredGoals();
+
 		StringBuilder builder = new StringBuilder();
-		builder.append("}\n");
+		builder.append("Test case number: " + num);
+
+		if (!coveredGoals.isEmpty()) {
+			builder.append("\n  /* ");
+			builder.append(coveredGoals.size() + " covered goal");
+			if (coveredGoals.size() != 1) {
+				builder.append("s");
+			}
+			int nr = 1;
+			for (TestFitnessFunction goal : coveredGoals) {
+				builder.append("\n    * " + nr + " " + goal.toString());
+				// TODO only for debugging purposes
+				if ((Properties.CRITERION == Criterion.DEFUSE) && (goal instanceof DefUseCoverageTestFitness)) {
+					DefUseCoverageTestFitness duGoal = (DefUseCoverageTestFitness) goal;
+					if (duGoal.getCoveringTrace() != null) {
+						String traceInformation = duGoal.getCoveringTrace().toDefUseTraceInformation(
+								duGoal.getGoalVariable(), duGoal.getCoveringObjectId());
+						traceInformation = traceInformation.replaceAll("\n", "");
+						builder.append("\n      * DUTrace: " + traceInformation);
+					}
+				}
+				nr++;
+			}
+
+			builder.append("\n  */");
+		}
+
 		return builder.toString();
 	}
 
@@ -373,6 +458,34 @@ public class TestSuite implements Opcodes {
 	}
 
 	/**
+	 * Create subdirectory for package in test directory
+	 * 
+	 * @param directory
+	 * @return
+	 */
+	protected String mainDirectory(String directory) {
+		String dirname = directory + "/" + Properties.PROJECT_PREFIX.replace('.', '/'); // +"/GeneratedTests";
+		File dir = new File(dirname);
+		logger.debug("Target directory: " + dirname);
+		dir.mkdirs();
+		return dirname;
+	}
+
+	/**
+	 * Create subdirectory for package in test directory
+	 * 
+	 * @param directory
+	 * @return
+	 */
+	protected String makeDirectory(String directory) {
+		String dirname = directory + "/" + Properties.CLASS_PREFIX.replace('.', '/'); // +"/GeneratedTests";
+		File dir = new File(dirname);
+		logger.debug("Target directory: " + dirname);
+		dir.mkdirs();
+		return dirname;
+	}
+
+	/**
 	 * Convert one test case to a Java method
 	 * 
 	 * @param id
@@ -385,7 +498,7 @@ public class TestSuite implements Opcodes {
 		builder.append("\n");
 		builder.append("   //");
 		builder.append(getInformation(id));
-		//#TODO steenbuck work around
+		// #TODO steenbuck work around
 		if (Properties.CRITERION == Criterion.CONCURRENCY) {
 			builder.append("\n");
 			ConcurrentTestCase ctc = (ConcurrentTestCase) test_cases.get(id);
@@ -406,10 +519,11 @@ public class TestSuite implements Opcodes {
 				builder.append("throws ");
 				boolean first = true;
 				for (Class<?> exception : exceptions) {
-					if (first)
+					if (first) {
 						first = false;
-					else
+					} else {
 						builder.append(", ");
+					}
 					builder.append(exception.getSimpleName());
 				}
 			}
@@ -423,34 +537,6 @@ public class TestSuite implements Opcodes {
 			builder.append("   }\n");
 		}
 		return builder.toString();
-	}
-
-	/**
-	 * Create subdirectory for package in test directory
-	 * 
-	 * @param directory
-	 * @return
-	 */
-	protected String makeDirectory(String directory) {
-		String dirname = directory + "/" + Properties.CLASS_PREFIX.replace('.', '/'); // +"/GeneratedTests";
-		File dir = new File(dirname);
-		logger.debug("Target directory: " + dirname);
-		dir.mkdirs();
-		return dirname;
-	}
-
-	/**
-	 * Create subdirectory for package in test directory
-	 * 
-	 * @param directory
-	 * @return
-	 */
-	protected String mainDirectory(String directory) {
-		String dirname = directory + "/" + Properties.PROJECT_PREFIX.replace('.', '/'); // +"/GeneratedTests";
-		File dir = new File(dirname);
-		logger.debug("Target directory: " + dirname);
-		dir.mkdirs();
-		return dirname;
 	}
 
 	/**
@@ -479,12 +565,10 @@ public class TestSuite implements Opcodes {
 		List<String> suites = new ArrayList<String>();
 
 		File basedir = new File(directory);
-		Iterator<File> i = FileUtils.iterateFiles(basedir, new TestFilter(),
-		                                          TrueFileFilter.INSTANCE);
+		Iterator<File> i = FileUtils.iterateFiles(basedir, new TestFilter(), TrueFileFilter.INSTANCE);
 		while (i.hasNext()) {
 			File f = i.next();
-			String name = f.getPath().replace(directory, "").replace(".java", "").replace("/",
-			                                                                              ".");
+			String name = f.getPath().replace(directory, "").replace(".java", "").replace("/", ".");
 			suites.add(name.substring(name.lastIndexOf(".") + 1));
 			builder.append("import ");
 			builder.append(Properties.PROJECT_PREFIX);
@@ -525,25 +609,7 @@ public class TestSuite implements Opcodes {
 		Io.writeFile(builder.toString(), file);
 	}
 
-	/**
-	 * Create JUnit test suite for class
-	 * 
-	 * @param name
-	 *            Name of the class
-	 * @param directory
-	 *            Output directory
-	 */
-	public void writeTestSuite(String name, String directory) {
-		String dir = makeDirectory(directory);
-		File file = new File(dir + "/" + name + ".java");
-		Io.writeFile(getUnitTest(name), file);
-
-		dir = mainDirectory(directory);
-		writeTestSuiteMainFile(dir);
-	}
-
-	private void testToBytecode(TestCase test, GeneratorAdapter mg,
-	        Map<Integer, Throwable> exceptions) {
+	private void testToBytecode(TestCase test, GeneratorAdapter mg, Map<Integer, Throwable> exceptions) {
 		Map<Integer, Integer> locals = new HashMap<Integer, Integer>();
 		mg.visitAnnotation("Lorg/junit/Test;", true);
 		int num = 0;
@@ -555,69 +621,5 @@ public class TestSuite implements Opcodes {
 		mg.visitInsn(Opcodes.RETURN);
 		mg.endMethod();
 
-	}
-
-	public byte[] getBytecode(String name) {
-		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-		String prefix = Properties.TARGET_CLASS.substring(0,
-		                                                  Properties.TARGET_CLASS.lastIndexOf(".")).replace(".",
-		                                                                                                    "/");
-		cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, prefix + "/" + name, null,
-		         "junit/framework/TestCase", null);
-
-		Method m = Method.getMethod("void <init> ()");
-		GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
-		mg.loadThis();
-		mg.invokeConstructor(Type.getType(junit.framework.TestCase.class), m);
-		mg.returnValue();
-		mg.endMethod();
-
-		int num = 0;
-		for (TestCase test : test_cases) {
-			ExecutionResult result = runTest(test);
-			m = Method.getMethod("void test" + num + " ()");
-			mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
-			testToBytecode(test, mg, result.exceptions);
-			num++;
-		}
-
-		// main method
-		m = Method.getMethod("void main (String[])");
-		mg = new GeneratorAdapter(ACC_PUBLIC + ACC_STATIC, m, null, null, cw);
-		mg.push(1);
-		mg.newArray(Type.getType(String.class));
-		mg.dup();
-		mg.push(0);
-		mg.push(Properties.CLASS_PREFIX + "." + name);
-		mg.arrayStore(Type.getType(String.class));
-		// mg.invokeStatic(Type.getType(org.junit.runner.JUnitCore.class),
-		// Method.getMethod("void main (String[])"));
-		mg.invokeStatic(Type.getType(junit.textui.TestRunner.class),
-		                Method.getMethod("void main (String[])"));
-		mg.returnValue();
-		mg.endMethod();
-
-		cw.visitEnd();
-		return cw.toByteArray();
-	}
-
-	public void writeTestSuiteClass(String name, String directory) {
-		String dir = makeDirectory(directory);
-		File file = new File(dir + "/" + name + ".class");
-		byte[] bytecode = getBytecode(name);
-		try {
-			FileOutputStream stream = new FileOutputStream(file);
-			stream.write(bytecode);
-		} catch (FileNotFoundException e) {
-		} catch (IOException e) {
-		}
-
-		/*
-		 * ClassReader reader = new ClassReader(bytecode); ClassVisitor cv = new
-		 * TraceClassVisitor(new PrintWriter(System.out)); cv = new
-		 * CheckClassAdapter(cv); reader.accept(cv, ClassReader.SKIP_FRAMES);
-		 */
-
-		// getBytecode(name);
 	}
 }

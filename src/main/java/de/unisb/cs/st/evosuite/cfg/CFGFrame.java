@@ -17,7 +17,6 @@
  * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 package de.unisb.cs.st.evosuite.cfg;
 
 import java.util.HashMap;
@@ -25,15 +24,15 @@ import java.util.Map;
 
 import org.objectweb.asm.tree.analysis.Frame;
 
-public class CFGFrame extends Frame { 
+public class CFGFrame extends Frame {
 	Map<Integer, CFGFrame> successors = new HashMap<Integer, CFGFrame>();
-	
-	public CFGFrame(int nLocals, int nStack) {
-		super(nLocals, nStack);
-	}
-	
+
 	public CFGFrame(Frame src) {
 		super(src);
 	}
-	
+
+	public CFGFrame(int nLocals, int nStack) {
+		super(nLocals, nStack);
+	}
+
 }

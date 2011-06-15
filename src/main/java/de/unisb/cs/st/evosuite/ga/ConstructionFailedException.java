@@ -23,7 +23,7 @@ package de.unisb.cs.st.evosuite.ga;
  * Exception used when error occurs during mutation or crossover
  * 
  * @author Gordon Fraser
- *
+ * 
  */
 public class ConstructionFailedException extends Exception {
 

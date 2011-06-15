@@ -30,8 +30,12 @@ public class PrimePathSuiteFitness extends TestSuiteFitnessFunction {
 		ExecutionTrace.enableTraceCalls();
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#getFitness(de.unisb.cs.st.evosuite.ga.Chromosome)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.ga.FitnessFunction#getFitness(de.unisb.cs.st.
+	 * evosuite.ga.Chromosome)
 	 */
 	@Override
 	public double getFitness(Chromosome individual) {
@@ -46,8 +50,9 @@ public class PrimePathSuiteFitness extends TestSuiteFitnessFunction {
 				TestChromosome tc = new TestChromosome();
 				tc.test = result.test;
 				double resultFitness = goal.getFitness(tc, result);
-				if (resultFitness < goalFitness)
+				if (resultFitness < goalFitness) {
 					goalFitness = resultFitness;
+				}
 				if (goalFitness == 0.0) {
 					result.test.addCoveredGoal(goal);
 					coveredGoals.add(goal);

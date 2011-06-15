@@ -43,7 +43,7 @@ public class IF_ICMPGE extends gov.nasa.jpf.jvm.bytecode.IF_ICMPGE {
 		Expression<Long> v0 = (Expression<Long>) sf.getOperandAttr(0);
 
 		Expression<Long> v1 = (Expression<Long>) sf.getOperandAttr(1);
-		if (v0 == null && v1 == null) {
+		if ((v0 == null) && (v1 == null)) {
 			return super.popConditionValue(ti);
 		}
 
@@ -56,12 +56,10 @@ public class IF_ICMPGE extends gov.nasa.jpf.jvm.bytecode.IF_ICMPGE {
 		int pop0 = ti.pop();
 		int pop1 = ti.pop();
 		if (pop1 >= pop0) {
-			PathConstraint.getInstance().addConstraint(new IntegerConstraint(v1,
-			                                                   Comparator.GE, v0));
+			PathConstraint.getInstance().addConstraint(new IntegerConstraint(v1, Comparator.GE, v0));
 			return true;
 		} else {
-			PathConstraint.getInstance().addConstraint(new IntegerConstraint(v1,
-			                                                   Comparator.LT, v0));
+			PathConstraint.getInstance().addConstraint(new IntegerConstraint(v1, Comparator.LT, v0));
 			return false;
 		}
 	}

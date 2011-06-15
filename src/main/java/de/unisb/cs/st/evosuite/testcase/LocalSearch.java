@@ -11,7 +11,6 @@ import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
  */
 public interface LocalSearch {
 
-	public void doSearch(TestChromosome test, int statement,
-	        LocalSearchObjective objective);
+	public void doSearch(TestChromosome test, int statement, LocalSearchObjective objective);
 
 }

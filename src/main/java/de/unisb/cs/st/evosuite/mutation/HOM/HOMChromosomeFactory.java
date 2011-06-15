@@ -11,14 +11,19 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 public class HOMChromosomeFactory implements ChromosomeFactory {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private static Logger logger = Logger.getLogger(HOMChromosomeFactory.class);
-	
+
 	private Randomness randomness = Randomness.getInstance();
-	
+
 	private HOMSwitcher hom_switcher = new HOMSwitcher();
-	
+
 	private List<Mutation> mutants;
-	
+
 	public HOMChromosomeFactory() {
 		mutants = hom_switcher.getMutants();
 	}
@@ -27,15 +32,16 @@ public class HOMChromosomeFactory implements ChromosomeFactory {
 		this.mutants = mutants;
 	}
 
+	@Override
 	public Chromosome getChromosome() {
 		HOMChromosome chromosome = new HOMChromosome(mutants);
-		chromosome.set(randomness.nextInt(mutants.size()), true);
-		
-		for(int i=0; i<chromosome.size(); i++) {
-			chromosome.set(i, randomness.nextBoolean());
+		chromosome.set(Randomness.nextInt(mutants.size()), true);
+
+		for (int i = 0; i < chromosome.size(); i++) {
+			chromosome.set(i, Randomness.nextBoolean());
 		}
-		
-		logger.info("Generating random HOM of size: "+mutants.size()+" -> "+chromosome.size());
+
+		logger.info("Generating random HOM of size: " + mutants.size() + " -> " + chromosome.size());
 		return chromosome;
 	}
 

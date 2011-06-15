@@ -44,6 +44,10 @@ public class InspectorTraceObserver extends ExecutionObserver {
 		trace.clear();
 	}
 
+	public InspectorTrace getTrace() {
+		return trace.clone();
+	}
+
 	@Override
 	public void output(int position, String output) {
 		// TODO Auto-generated method stub
@@ -54,16 +58,19 @@ public class InspectorTraceObserver extends ExecutionObserver {
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
 		VariableReference retval = statement.getReturnValue();
 
-		if (retval == null)
+		if (retval == null) {
 			return;
+		}
 
 		// Add inspector calls on return value
 		List<Inspector> inspectors = manager.getInspectors(retval.getVariableClass());
-		if (scope.get(retval) != null && !inspectors.isEmpty()) {
+		if ((scope.get(retval) != null) && !inspectors.isEmpty()) {
 			List<Object> result = new ArrayList<Object>();
 			for (Inspector i : inspectors) {
 				result.add(i.getValue(scope.get(retval)));
-				//logger.info("New inspector result for variable of type "+retval.getClassName()+"/" + retval.getVariableClass().getName()+": "+i.getClassName()+"."+i.getMethodCall()+" -> "+i.getValue(scope.get(retval)));
+				// logger.info("New inspector result for variable of type "+retval.getClassName()+"/"
+				// +
+				// retval.getVariableClass().getName()+": "+i.getClassName()+"."+i.getMethodCall()+" -> "+i.getValue(scope.get(retval)));
 			}
 
 			trace.inspector_results.put(statement.getPosition(), result);
@@ -76,23 +83,18 @@ public class InspectorTraceObserver extends ExecutionObserver {
 			if (!ms.isStatic()) {
 				inspectors = manager.getInspectors(ms.getMethod().getDeclaringClass());
 				if (!inspectors.isEmpty()) {
-					trace.calleeMap.put(statement.getPosition(),
-					                    new HashMap<Inspector, Object>());
+					trace.calleeMap.put(statement.getPosition(), new HashMap<Inspector, Object>());
 
 					VariableReference callee = ms.getCallee();
-					if (scope.get(callee) == null)
+					if (scope.get(callee) == null) {
 						return;
+					}
 					for (Inspector i : inspectors) {
-						trace.calleeMap.get(statement.getPosition()).put(i,
-						                                                 i.getValue(scope.get(callee)));
+						trace.calleeMap.get(statement.getPosition()).put(i, i.getValue(scope.get(callee)));
 					}
 				}
 			}
 		}
 
-	}
-
-	public InspectorTrace getTrace() {
-		return trace.clone();
 	}
 }

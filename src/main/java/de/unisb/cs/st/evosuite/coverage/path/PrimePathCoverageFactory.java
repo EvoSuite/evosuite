@@ -18,13 +18,17 @@ public class PrimePathCoverageFactory implements TestFitnessFactory {
 
 	private static List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
 	 */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
-		if (!goals.isEmpty())
+		if (!goals.isEmpty()) {
 			return goals;
+		}
 
 		String targetMethod = Properties.TARGET_METHOD;
 

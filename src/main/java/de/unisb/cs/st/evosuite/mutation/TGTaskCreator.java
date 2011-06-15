@@ -58,36 +58,18 @@ public class TGTaskCreator extends de.unisb.cs.st.javalanche.mutation.run.task.M
 	static Map<String, List<String>> method_excludes = getExcludesFromFile();
 
 	/**
-	 * Read classes to be excluded
+	 * Entry point - generate task files
 	 * 
-	 * @return Map from classname to methods that should not be used
+	 * @param args
 	 */
-	private static Map<String, List<String>> getExcludesFromFile() {
-		String property = System.getProperty("test.excludes");
-		Map<String, List<String>> objs = new HashMap<String, List<String>>();
-		if (property == null)
-			return objs;
-		File file = new File(property);
-		if (!file.exists()) {
-			logger.warn("Exclude file " + property + " does not exist, skipping");
-			return objs;
-		}
-		List<String> lines = Io.getLinesFromFile(file);
-		for (String line : lines) {
-			line = line.trim();
-			// Skip comments
-			if (line.startsWith("#"))
-				continue;
+	public static void main(String[] args) {
+		System.out.println("* Creating mutation files");
+		// MutationProperties.checkProperty(MutationProperties.PROJECT_PREFIX_KEY);
+		// HandleUnsafeMutations.handleUnsafeMutations(HibernateUtil.getSessionFactory());
+		prefix = Properties.PROJECT_PREFIX;
 
-			String[] parameters = line.split(",");
-			if (parameters.length != 2)
-				continue;
-			if (!objs.containsKey(parameters[0]))
-				objs.put(parameters[0], new ArrayList<String>());
-
-			objs.get(parameters[0]).add(parameters[1]);
-		}
-		return objs;
+		hierarchy.calculateSubclasses();
+		suggestTasks(prefix);
 	}
 
 	/**
@@ -104,13 +86,14 @@ public class TGTaskCreator extends de.unisb.cs.st.javalanche.mutation.run.task.M
 		logger.info("Number of classes: " + all_classes.size());
 
 		TreeMap<Integer, Set<String>> classes = new TreeMap<Integer, Set<String>>();
-		//hierarchy.calculateInferiors();
+		// hierarchy.calculateInferiors();
 		for (String classname : all_classes) {
 			if (classname.startsWith(prefix)) {
 				if (!excludes.shouldExclude(classname)) {
 					int num_subclasses = hierarchy.getAllSubclasses(classname).size();
-					if (!classes.containsKey(num_subclasses))
+					if (!classes.containsKey(num_subclasses)) {
 						classes.put(num_subclasses, new HashSet<String>());
+					}
 					classes.get(num_subclasses).add(classname);
 				}
 			}
@@ -132,6 +115,64 @@ public class TGTaskCreator extends de.unisb.cs.st.javalanche.mutation.run.task.M
 	}
 
 	/**
+	 * Read classes to be excluded
+	 * 
+	 * @return Map from classname to methods that should not be used
+	 */
+	private static Map<String, List<String>> getExcludesFromFile() {
+		String property = System.getProperty("test.excludes");
+		Map<String, List<String>> objs = new HashMap<String, List<String>>();
+		if (property == null) {
+			return objs;
+		}
+		File file = new File(property);
+		if (!file.exists()) {
+			logger.warn("Exclude file " + property + " does not exist, skipping");
+			return objs;
+		}
+		List<String> lines = Io.getLinesFromFile(file);
+		for (String line : lines) {
+			line = line.trim();
+			// Skip comments
+			if (line.startsWith("#")) {
+				continue;
+			}
+
+			String[] parameters = line.split(",");
+			if (parameters.length != 2) {
+				continue;
+			}
+			if (!objs.containsKey(parameters[0])) {
+				objs.put(parameters[0], new ArrayList<String>());
+			}
+
+			objs.get(parameters[0]).add(parameters[1]);
+		}
+		return objs;
+	}
+
+	/**
+	 * Get list of mutation IDs for the given list of classes
+	 * 
+	 * @param classes
+	 *            Classes for which we want mutants
+	 * 
+	 * @return List of IDs
+	 */
+	private static List<Long> getMutations(List<String> classes) {
+		List<Long> mutations = new ArrayList<Long>();
+		for (String classname : classes) {
+			List<Mutation> ms = QueryManager.getMutationsForClass(classname);
+			for (Mutation m : ms) {
+				mutations.add(m.getId());
+				logger.debug(" Mutation in " + m.getClassName() + "." + m.getMethodName() + ":" + m.getLineNumber());
+			}
+		}
+		logger.info("Got " + mutations.size() + " mutations");
+		return mutations;
+	}
+
+	/**
 	 * Get all usable subclasses of the given class
 	 * 
 	 * @param classname
@@ -142,24 +183,14 @@ public class TGTaskCreator extends de.unisb.cs.st.javalanche.mutation.run.task.M
 		Set<String> subclasses = hierarchy.getAllClasses();
 		List<String> ret = new ArrayList<String>();
 		for (String sub : subclasses) {
-			if (sub.startsWith(classname + "$"))
-				if (!excludes.shouldExclude(sub))
+			if (sub.startsWith(classname + "$")) {
+				if (!excludes.shouldExclude(sub)) {
 					ret.add(sub);
+				}
+			}
 		}
 
 		return ret;
-	}
-
-	private static File writeListToFile(String className, List<Long> list) {
-		File file = new File(Properties.OUTPUT_DIR, className + ".mutants");
-		StringBuilder sb = new StringBuilder();
-		for (Long l : list) {
-			sb.append(l);
-			sb.append("\n");
-		}
-		Io.writeFile(sb.toString(), file);
-		System.out.println("* Mutation task created: " + file.getPath());
-		return file;
 	}
 
 	/**
@@ -191,8 +222,7 @@ public class TGTaskCreator extends de.unisb.cs.st.javalanche.mutation.run.task.M
 				logger.info("Ignoring interface " + classname);
 				continue;
 			}
-			if (clazz.getDeclaredMethods().length == 0
-			        && clazz.getDeclaredConstructors().length == 0) {
+			if ((clazz.getDeclaredMethods().length == 0) && (clazz.getDeclaredConstructors().length == 0)) {
 				logger.info("Ignoring class without methods: " + classname);
 				continue;
 			}
@@ -239,40 +269,15 @@ public class TGTaskCreator extends de.unisb.cs.st.javalanche.mutation.run.task.M
 
 	}
 
-	/**
-	 * Get list of mutation IDs for the given list of classes
-	 * 
-	 * @param classes
-	 *            Classes for which we want mutants
-	 * 
-	 * @return List of IDs
-	 */
-	private static List<Long> getMutations(List<String> classes) {
-		List<Long> mutations = new ArrayList<Long>();
-		for (String classname : classes) {
-			List<Mutation> ms = QueryManager.getMutationsForClass(classname);
-			for (Mutation m : ms) {
-				mutations.add(m.getId());
-				logger.debug(" Mutation in " + m.getClassName() + "." + m.getMethodName()
-				        + ":" + m.getLineNumber());
-			}
+	private static File writeListToFile(String className, List<Long> list) {
+		File file = new File(Properties.OUTPUT_DIR, className + ".mutants");
+		StringBuilder sb = new StringBuilder();
+		for (Long l : list) {
+			sb.append(l);
+			sb.append("\n");
 		}
-		logger.info("Got " + mutations.size() + " mutations");
-		return mutations;
-	}
-
-	/**
-	 * Entry point - generate task files
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		System.out.println("* Creating mutation files");
-		//MutationProperties.checkProperty(MutationProperties.PROJECT_PREFIX_KEY);
-		//HandleUnsafeMutations.handleUnsafeMutations(HibernateUtil.getSessionFactory());
-		prefix = Properties.PROJECT_PREFIX;
-
-		hierarchy.calculateSubclasses();
-		suggestTasks(prefix);
+		Io.writeFile(sb.toString(), file);
+		System.out.println("* Mutation task created: " + file.getPath());
+		return file;
 	}
 }

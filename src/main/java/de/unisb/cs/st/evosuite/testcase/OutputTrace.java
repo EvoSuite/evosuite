@@ -30,12 +30,12 @@ public abstract class OutputTrace {
 
 	public abstract boolean differs(OutputTrace other);
 
-	public abstract int numDiffer(OutputTrace other);
+	public abstract int getAllAssertions(TestCase test);
 
 	public abstract int getAssertions(TestCase test, OutputTrace other);
 
-	public abstract int getAllAssertions(TestCase test);
-
 	public abstract boolean isDetectedBy(Assertion assertion);
+
+	public abstract int numDiffer(OutputTrace other);
 
 }

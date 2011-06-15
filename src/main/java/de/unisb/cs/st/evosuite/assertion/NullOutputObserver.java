@@ -32,6 +32,10 @@ public class NullOutputObserver extends ExecutionObserver {
 		trace.trace.clear();
 	}
 
+	public NullOutputTrace getTrace() {
+		return trace.clone();
+	}
+
 	@Override
 	public void output(int position, String output) {
 		// TODO Auto-generated method stub
@@ -42,14 +46,11 @@ public class NullOutputObserver extends ExecutionObserver {
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
 		VariableReference retval = statement.getReturnValue();
 
-		if (retval == null || retval.isPrimitive())
+		if ((retval == null) || retval.isPrimitive()) {
 			return;
+		}
 
 		Object object = scope.get(retval);
 		trace.trace.put(statement.getPosition(), object == null);
-	}
-
-	public NullOutputTrace getTrace() {
-		return trace.clone();
 	}
 }

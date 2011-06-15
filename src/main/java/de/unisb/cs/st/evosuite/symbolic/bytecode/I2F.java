@@ -42,8 +42,7 @@ public class I2F extends gov.nasa.jpf.jvm.bytecode.I2F {
 			return super.execute(ss, ks, th);
 		} else {// symbolic
 			Instruction result = super.execute(ss, ks, th);
-			sf.setOperandAttr(new IntegerToRealCast(sym_val, new Double(
-			        Types.intToFloat(sf.peek()))));
+			sf.setOperandAttr(new IntegerToRealCast(sym_val, new Double(Types.intToFloat(sf.peek()))));
 			return result;
 		}
 	}

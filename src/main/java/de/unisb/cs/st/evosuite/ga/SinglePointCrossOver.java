@@ -34,10 +34,9 @@ public class SinglePointCrossOver extends CrossOverFunction {
 	 * A different splitting point is selected for each individual
 	 */
 	@Override
-	public void crossOver(Chromosome parent1, Chromosome parent2)
-	        throws ConstructionFailedException {
+	public void crossOver(Chromosome parent1, Chromosome parent2) throws ConstructionFailedException {
 
-		if (parent1.size() < 2 || parent2.size() < 2) {
+		if ((parent1.size() < 2) || (parent2.size() < 2)) {
 			return;
 		}
 		// Choose a position in the middle

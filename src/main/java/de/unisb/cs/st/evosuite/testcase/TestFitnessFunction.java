@@ -32,12 +32,137 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondit
  * @author Gordon Fraser
  * 
  */
-public abstract class TestFitnessFunction extends FitnessFunction implements
-        Comparable<TestFitnessFunction> {
+public abstract class TestFitnessFunction extends FitnessFunction implements Comparable<TestFitnessFunction> {
 
 	private static final long serialVersionUID = 5602125855207061901L;
 
 	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
+
+	/**
+	 * Used to preorder goals by difficulty
+	 */
+	@Override
+	public int compareTo(TestFitnessFunction other) {
+		return new Integer(getDifficulty()).compareTo(other.getDifficulty());
+	}
+
+	/**
+	 * This function is used for initial preordering of goals in the individual
+	 * test case generation in TestSuiteGenerator
+	 * 
+	 * The idea is to search for easy goals first and reuse their
+	 * TestChromosomes later when looking for harder goals that depend for
+	 * example on Branches that were already covered by the easier goal.
+	 * 
+	 * So the general idea is that a TestFitnessFunction with a higher
+	 * difficulty is concerned with CFGVertices deep down in the CDG one with a
+	 * lower difficulty with vertices near the root-branch of their method.
+	 * 
+	 * Each CoverageTestFitness can override this method to define which goals
+	 * should be searched for first (low difficulty) and which goals should be
+	 * postponed initially
+	 * 
+	 * Disclaimer:
+	 * 
+	 * If this method does not get overwritten preordering of goals by
+	 * difficulty obviously won't work and disabling it using
+	 * Properties.preorder_goals_by_difficulty is encouraged in order to avoid
+	 * unnecessary performance loss
+	 * 
+	 * Also the whole idea of the difficulty value is to boost the performance
+	 * gain in terms of GA-evolutions the ChromosomeRecycler is supposed to
+	 * achieve. So if recycling is disabled or not implemented preordering
+	 * should be disabled too.
+	 */
+	public int getDifficulty() {
+		if (Properties.PREORDER_GOALS_BY_DIFFICULTY) {
+			logger.warn("called default TestFitness.getDifficulty() though preordering is enabled. "
+					+ "possible performance loss. set property preorder_goals_by_difficulty to false");
+		}
+		return 0;
+	}
+
+	@Override
+	public double getFitness(Chromosome individual) {
+		logger.trace("Executing test case on original");
+		TestChromosome c = (TestChromosome) individual;
+		ExecutionResult orig_result = c.last_result;
+		if ((orig_result == null) || c.isChanged()) {
+			orig_result = runTest(c.test);
+			c.last_result = orig_result;
+			c.setChanged(false);
+		}
+
+		double fitness = getFitness(c, orig_result);
+
+		updateIndividual(c, fitness);
+
+		return c.getFitness();
+	}
+
+	public abstract double getFitness(TestChromosome individual, ExecutionResult result);
+
+	/**
+	 * Determine if there is an existing test case covering this goal
+	 * 
+	 * @return
+	 */
+	public boolean isCovered(List<TestCase> tests) {
+		for (TestCase test : tests) {
+			if (isCovered(test)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isCovered(TestCase test) {
+		TestChromosome c = new TestChromosome();
+		c.test = test;
+		return isCovered(c);
+	}
+
+	public boolean isCovered(TestChromosome tc) {
+		ExecutionResult result = tc.last_result;
+		if ((result == null) || tc.isChanged()) {
+			result = runTest(tc.test);
+			tc.last_result = result;
+			tc.setChanged(false);
+		}
+
+		return isCovered(tc, result);
+	}
+
+	public boolean isCovered(TestChromosome individual, ExecutionResult result) {
+		boolean covered = getFitness(individual, result) == 0.0;
+		if (covered) {
+			ChromosomeRecycler.getInstance().testIsInterestingForGoal(individual, this);
+			individual.test.addCoveredGoal(this);
+		}
+		return covered;
+	}
+
+	/**
+	 * This function is used by the ChromosomeRecycler to determine whether an
+	 * older TestChromosome that covered the given goal should be added to the
+	 * initial population for this TestFitnessFunction
+	 * 
+	 * Each CoverageTestFitness can override this method in order to define when
+	 * two goals are similar to each other in a way that tests covering one of
+	 * them is likely to cover the other one too or is at least expected to
+	 * provide a good fitness for it
+	 * 
+	 * If this method does not get overwritten ChromosomeRecycling obviously
+	 * won't work and disabling it using Properties.recycle_chromosomes is
+	 * encouraged in order to avoid unnecessary performance loss
+	 */
+	public boolean isSimilarTo(TestFitnessFunction goal) {
+		if (Properties.RECYCLE_CHROMOSOMES) {
+			logger.warn("called default TestFitness.isSimilarTo() though recycling is enabled. "
+					+ "possible performance loss. set property recycle_chromosomes to false");
+		}
+		return false;
+	}
 
 	/**
 	 * Execute a test case
@@ -71,128 +196,5 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 
 		// System.out.println("TG: Killed "+result.getNumKilled()+" out of "+mutants.size());
 		return result;
-	}
-
-	public abstract double getFitness(TestChromosome individual, ExecutionResult result);
-
-	@Override
-	public double getFitness(Chromosome individual) {
-		logger.trace("Executing test case on original");
-		TestChromosome c = (TestChromosome) individual;
-		ExecutionResult orig_result = c.last_result;
-		if (orig_result == null || c.isChanged()) {
-			orig_result = runTest(c.test);
-			c.last_result = orig_result;
-			c.setChanged(false);
-		}
-
-		double fitness = getFitness(c, orig_result);
-
-		updateIndividual(c, fitness);
-
-		return c.getFitness();
-	}
-
-	/**
-	 * This function is used by the ChromosomeRecycler to determine whether an
-	 * older TestChromosome that covered the given goal should be added to the
-	 * initial population for this TestFitnessFunction
-	 * 
-	 * Each CoverageTestFitness can override this method in order to define when
-	 * two goals are similar to each other in a way that tests covering one of
-	 * them is likely to cover the other one too or is at least expected to
-	 * provide a good fitness for it
-	 * 
-	 * If this method does not get overwritten ChromosomeRecycling obviously
-	 * won't work and disabling it using Properties.recycle_chromosomes is
-	 * encouraged in order to avoid unnecessary performance loss
-	 */
-	public boolean isSimilarTo(TestFitnessFunction goal) {
-		if (Properties.RECYCLE_CHROMOSOMES)
-			logger.warn("called default TestFitness.isSimilarTo() though recycling is enabled. "
-			        + "possible performance loss. set property recycle_chromosomes to false");
-		return false;
-	}
-
-	/**
-	 * This function is used for initial preordering of goals in the individual
-	 * test case generation in TestSuiteGenerator
-	 * 
-	 * The idea is to search for easy goals first and reuse their
-	 * TestChromosomes later when looking for harder goals that depend for
-	 * example on Branches that were already covered by the easier goal.
-	 * 
-	 * So the general idea is that a TestFitnessFunction with a higher
-	 * difficulty is concerned with CFGVertices deep down in the CDG one with a
-	 * lower difficulty with vertices near the root-branch of their method.
-	 * 
-	 * Each CoverageTestFitness can override this method to define which goals
-	 * should be searched for first (low difficulty) and which goals should be
-	 * postponed initially
-	 * 
-	 * Disclaimer:
-	 * 
-	 * If this method does not get overwritten preordering of goals by
-	 * difficulty obviously won't work and disabling it using
-	 * Properties.preorder_goals_by_difficulty is encouraged in order to avoid
-	 * unnecessary performance loss
-	 * 
-	 * Also the whole idea of the difficulty value is to boost the performance
-	 * gain in terms of GA-evolutions the ChromosomeRecycler is supposed to
-	 * achieve. So if recycling is disabled or not implemented preordering
-	 * should be disabled too.
-	 */
-	public int getDifficulty() {
-		if (Properties.PREORDER_GOALS_BY_DIFFICULTY)
-			logger.warn("called default TestFitness.getDifficulty() though preordering is enabled. "
-			        + "possible performance loss. set property preorder_goals_by_difficulty to false");
-		return 0;
-	}
-
-	/**
-	 * Used to preorder goals by difficulty
-	 */
-	@Override
-	public int compareTo(TestFitnessFunction other) {
-		return new Integer(getDifficulty()).compareTo(other.getDifficulty());
-	}
-
-	/**
-	 * Determine if there is an existing test case covering this goal
-	 * 
-	 * @return
-	 */
-	public boolean isCovered(List<TestCase> tests) {
-		for (TestCase test : tests) {
-			if (isCovered(test))
-				return true;
-		}
-		return false;
-	}
-
-	public boolean isCovered(TestCase test) {
-		TestChromosome c = new TestChromosome();
-		c.test = test;
-		return isCovered(c);
-	}
-
-	public boolean isCovered(TestChromosome tc) {
-		ExecutionResult result = tc.last_result;
-		if (result == null || tc.isChanged()) {
-			result = runTest(tc.test);
-			tc.last_result = result;
-			tc.setChanged(false);
-		}
-
-		return isCovered(tc, result);
-	}
-
-	public boolean isCovered(TestChromosome individual, ExecutionResult result) {
-		boolean covered = getFitness(individual, result) == 0.0;
-		if (covered) {
-			ChromosomeRecycler.getInstance().testIsInterestingForGoal(individual, this);
-			individual.test.addCoveredGoal(this);
-		}
-		return covered;
 	}
 }

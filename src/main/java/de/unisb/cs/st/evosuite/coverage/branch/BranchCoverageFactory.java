@@ -50,9 +50,10 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 		// Branchless methods
 		String class_name = Properties.TARGET_CLASS;
 		for (String method : BranchPool.getBranchlessMethods()) {
-			if (targetMethod.equals("") || method.endsWith(targetMethod))
-				goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(
-				        class_name, method.substring(method.lastIndexOf(".") + 1))));
+			if (targetMethod.equals("") || method.endsWith(targetMethod)) {
+				goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(class_name, method.substring(method
+						.lastIndexOf(".") + 1))));
+			}
 		}
 		// Branches
 		logger.info("Getting branches");
@@ -60,19 +61,15 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 			for (String methodName : BranchPool.knownMethods(className)) {
 
 				if (!targetMethod.equals("") && !methodName.equals(targetMethod)) {
-					logger.info("Method " + methodName + " does not equal target method "
-					        + targetMethod);
+					logger.info("Method " + methodName + " does not equal target method " + targetMethod);
 					continue;
 				}
 
-
-				for (Branch b : BranchPool.retrieveBranchesInMethod(className,methodName)) {
+				for (Branch b : BranchPool.retrieveBranchesInMethod(className, methodName)) {
 
 					// Identify vertex in CFG
-					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(b,
-					        true, className, methodName)));
-					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(b,
-					        false, className, methodName)));
+					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(b, true, className, methodName)));
+					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(b, false, className, methodName)));
 				}
 			}
 		}

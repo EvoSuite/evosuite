@@ -39,6 +39,150 @@ public class TestCallStatement extends AbstractStatement {
 		this.testCall = call;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.unisb.cs.st.evosuite.testcase.Statement#clone()
+	 */
+	@Override
+	public StatementInterface clone(TestCase newTestCase) {
+		TestCallStatement statement = new TestCallStatement(newTestCase, testCall, retval.getType());
+		return statement;
+	}
+
+	@Override
+	public boolean equals(Object s) {
+		if (this == s) {
+			return true;
+		}
+		if (s == null) {
+			return false;
+		}
+		if (getClass() != s.getClass()) {
+			return false;
+		}
+		TestCallStatement other = (TestCallStatement) s;
+		if (testCall == null) {
+			if (other.testCall != null) {
+				return false;
+			}
+		} else if (!testCall.equals(other.testCall)) {
+			return false;
+		}
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.testcase.Statement#execute(de.unisb.cs.st.evosuite
+	 * .testcase.Scope, java.io.PrintStream)
+	 */
+	@Override
+	public Throwable execute(Scope scope, PrintStream out) throws InvocationTargetException, IllegalArgumentException,
+			IllegalAccessException, InstantiationException {
+
+		TestCase test = testCall.getTest();
+		if ((test != null) && !test.hasCalls()) {
+			Object value = runTest(test);
+			scope.set(retval, value);
+		} else {
+			scope.set(retval, null);
+		}
+
+		return null; // TODO: Pass on any of the exceptions?
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.testcase.Statement#getBytecode(org.objectweb.
+	 * asm.commons.GeneratorAdapter, java.util.Map, java.lang.Throwable)
+	 */
+	@Override
+	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.testcase.Statement#getCode(java.lang.Throwable)
+	 */
+	@Override
+	public String getCode(Throwable exception) {
+
+		TestCase test = testCall.getTest();
+		if ((test == null) || test.hasCalls()) {
+			return retval.getSimpleClassName() + " " + retval.getName() + " = call to null";
+		}
+		int num = 0;
+		for (TestCase other : testCall.getSuite().getTests()) {
+			if (test.equals(other)) {
+				return retval.getSimpleClassName() + " " + retval.getName() + " = Call to test case: " + num + "...\n"
+						+ test.toCode() + "...\n";
+			}
+			num++;
+		}
+
+		return retval.getSimpleClassName() + " " + retval.getName() + " = Call to test case (null) ";
+	}
+
+	public TestCase getTest() {
+		return testCall.getTest();
+	}
+
+	public int getTestNum() {
+		return testCall.getNum();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.testcase.Statement#getUniqueVariableReferences()
+	 */
+	@Override
+	public List<VariableReference> getUniqueVariableReferences() {
+		return new ArrayList<VariableReference>(getVariableReferences());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.unisb.cs.st.evosuite.testcase.Statement#getVariableReferences()
+	 */
+	@Override
+	public Set<VariableReference> getVariableReferences() {
+		Set<VariableReference> vars = new HashSet<VariableReference>();
+		vars.add(retval);
+		return vars;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((testCall == null) ? 0 : testCall.hashCode());
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.
+	 * cs.st.evosuite.testcase.VariableReference,
+	 * de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void replace(VariableReference var1, VariableReference var2) {
+	}
+
 	/**
 	 * Execute a test case
 	 * 
@@ -88,152 +232,13 @@ public class TestCallStatement extends AbstractStatement {
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#execute(de.unisb.cs.st.evosuite
-	 * .testcase.Scope, java.io.PrintStream)
-	 */
 	@Override
-	public Throwable execute(Scope scope, PrintStream out)
-	        throws InvocationTargetException, IllegalArgumentException,
-	        IllegalAccessException, InstantiationException {
-
-		TestCase test = testCall.getTest();
-		if (test != null && !test.hasCalls()) {
-			Object value = runTest(test);
-			scope.set(retval, value);
-		} else {
-			scope.set(retval, null);
-		}
-
-		return null; // TODO: Pass on any of the exceptions?
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#getCode(java.lang.Throwable)
-	 */
-	@Override
-	public String getCode(Throwable exception) {
-
-		TestCase test = testCall.getTest();
-		if (test == null || test.hasCalls()) {
-			return retval.getSimpleClassName() + " " + retval.getName()
-			        + " = call to null";
-		}
-		int num = 0;
-		for (TestCase other : testCall.getSuite().getTests()) {
-			if (test.equals(other))
-				return retval.getSimpleClassName() + " " + retval.getName()
-				        + " = Call to test case: " + num + "...\n" + test.toCode()
-				        + "...\n";
-			num++;
-		}
-
-		return retval.getSimpleClassName() + " " + retval.getName()
-		        + " = Call to test case (null) ";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#getBytecode(org.objectweb.
-	 * asm.commons.GeneratorAdapter, java.util.Map, java.lang.Throwable)
-	 */
-	@Override
-	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        Throwable exception) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.unisb.cs.st.evosuite.testcase.Statement#getVariableReferences()
-	 */
-	@Override
-	public Set<VariableReference> getVariableReferences() {
-		Set<VariableReference> vars = new HashSet<VariableReference>();
-		vars.add(retval);
-		return vars;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
-	 */
-	@Override
-	public void replace(VariableReference var1, VariableReference var2) {
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.unisb.cs.st.evosuite.testcase.Statement#clone()
-	 */
-	@Override
-	public StatementInterface clone(TestCase newTestCase) {
-		TestCallStatement statement = new TestCallStatement(newTestCase, testCall,
-		        retval.getType());
-		return statement;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((testCall == null) ? 0 : testCall.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object s) {
-		if (this == s)
-			return true;
-		if (s == null)
-			return false;
-		if (getClass() != s.getClass())
-			return false;
-		TestCallStatement other = (TestCallStatement) s;
-		if (testCall == null) {
-			if (other.testCall != null)
-				return false;
-		} else if (!testCall.equals(other.testCall))
-			return false;
-		return true;
-	}
-
-	public TestCase getTest() {
-		return testCall.getTest();
-	}
-
-	public int getTestNum() {
-		return testCall.getNum();
+	public boolean same(StatementInterface s) {
+		return equals(s);
 	}
 
 	public void setTestNum(int num) {
 		testCall.setNum(num);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#getUniqueVariableReferences()
-	 */
-	@Override
-	public List<VariableReference> getUniqueVariableReferences() {
-		return new ArrayList<VariableReference>(getVariableReferences());
-	}
-
-	@Override
-	public boolean same(StatementInterface s) {
-		return equals(s);
 	}
 
 }

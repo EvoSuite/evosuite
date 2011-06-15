@@ -17,31 +17,6 @@ public class IntegerVariable extends IntegerExpression implements Variable<Long>
 		this.maxValue = maxValue;
 	}
 
-	@Override
-	public Long getConcreteValue() {
-		return null;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public Long getMinValue() {
-		return minValue;
-	}
-
-	@Override
-	public Long getMaxValue() {
-		return maxValue;
-	}
-
-	@Override
-	public String toString() {
-		return this.name;
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(Object obj) {
@@ -53,6 +28,31 @@ public class IntegerVariable extends IntegerExpression implements Variable<Long>
 	}
 
 	@Override
+	public Long getConcreteValue() {
+		return null;
+	}
+
+	@Override
+	public Long getMaxValue() {
+		return maxValue;
+	}
+
+	@Override
+	public Long getMinValue() {
+		return minValue;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public int getSize() {
+		return 1;
+	}
+
+	@Override
 	public int hashCode() {
 		if (hash == 0) {
 			hash = this.name.hashCode();
@@ -61,8 +61,8 @@ public class IntegerVariable extends IntegerExpression implements Variable<Long>
 	}
 
 	@Override
-	public int getSize() {
-		return 1;
+	public String toString() {
+		return this.name;
 	}
 
 }

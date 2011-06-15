@@ -71,404 +71,6 @@ public class TestCluster {
 	/** Instance variable */
 	private static TestCluster instance = null;
 
-	/** The usable methods of the class under test */
-	public List<Method> test_methods = new ArrayList<Method>();
-
-	/** The usable constructor of the class under test */
-	private final List<Constructor<?>> test_constructors = new ArrayList<Constructor<?>>();;
-
-	/** Cache results about generators */
-	private final HashMap<Type, List<AccessibleObject>> generators = new HashMap<Type, List<AccessibleObject>>();
-
-	private final HashMap<Type, List<AccessibleObject>> calls_with = new HashMap<Type, List<AccessibleObject>>();
-
-	private final HashMap<Type, List<AccessibleObject>> calls_for = new HashMap<Type, List<AccessibleObject>>();
-
-	/** The entire set of calls available */
-	Set<AccessibleObject> calls = new HashSet<AccessibleObject>();
-
-	private final List<Method> static_initializers = new ArrayList<Method>();
-
-	public static final List<String> EXCLUDE = Arrays.asList("<clinit>", "__STATIC_RESET");
-
-	// public int num_defined_methods = 2;
-	public int num_defined_methods = 0;
-
-	/**
-	 * Private constructor
-	 */
-	private TestCluster() {
-		populate();
-		addIncludes();
-		analyzeTarget();
-		if (Properties.REMOTE_TESTING)
-			addRemoteCalls();
-		countTargetFunctions();
-		/*
-		 * for(Method m : TestHelper.class.getDeclaredMethods()) { calls.add(m);
-		 * test_methods.add(m); }
-		 */
-
-		getStaticClasses();
-		ExecutionTracer.enable();
-	}
-
-	/**
-	 * Instance accessor
-	 * 
-	 * @return
-	 */
-	public static TestCluster getInstance() {
-		if (instance == null)
-			instance = new TestCluster();
-
-		return instance;
-	}
-
-	/**
-	 * Get a list of all generator objects for the type
-	 * 
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
-	 */
-	public List<AccessibleObject> getGenerators(Type type)
-	        throws ConstructionFailedException {
-		cacheGeneratorType(type);
-		if (!generators.containsKey(type))
-			throw new ConstructionFailedException();
-
-		return generators.get(type);
-	}
-
-	/**
-	 * Determine if there are generators
-	 * 
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
-	 */
-	public boolean hasGenerator(Type type) {
-		cacheGeneratorType(type);
-		if (!generators.containsKey(type))
-			return false;
-		return !generators.get(type).isEmpty();
-	}
-
-	/**
-	 * Randomly select one generator
-	 * 
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
-	 */
-	public AccessibleObject getRandomGenerator(Type type)
-	        throws ConstructionFailedException {
-		cacheGeneratorType(type);
-		if (!generators.containsKey(type))
-			return null;
-
-		return Randomness.choice(generators.get(type));
-	}
-
-	/**
-	 * Randomly select one generator
-	 * 
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
-	 */
-	public AccessibleObject getRandomGenerator(Type type, Set<AccessibleObject> excluded)
-	        throws ConstructionFailedException {
-		cacheGeneratorType(type);
-		if (!generators.containsKey(type))
-			return null;
-
-		List<AccessibleObject> choice = new ArrayList<AccessibleObject>(
-		        generators.get(type));
-		logger.debug("Removing " + excluded.size() + " from " + choice.size()
-		        + " generators");
-		choice.removeAll(excluded);
-		if (!excluded.isEmpty())
-			logger.debug("Result: " + choice.size() + " generators");
-		if (choice.isEmpty())
-			return null;
-
-		int num = 0;
-		int param = 1000;
-		for (int i = 0; i < Properties.GENERATOR_TOURNAMENT; i++) {
-			int new_num = Randomness.nextInt(choice.size());
-			AccessibleObject o = choice.get(new_num);
-			if (o instanceof Constructor<?>) {
-				Constructor<?> c = (Constructor<?>) o;
-				if (c.getParameterTypes().length < param) {
-					param = c.getParameterTypes().length;
-					num = new_num;
-				} else if (o instanceof Method) {
-					Method m = (Method) o;
-					int p = m.getParameterTypes().length;
-					if (!Modifier.isStatic(m.getModifiers()))
-						p++;
-					if (p < param) {
-						param = p;
-						num = new_num;
-					}
-				} else if (o instanceof Field) {
-					// param = 2;
-					// num = new_num;
-					Field f = (Field) o;
-					int p = 0;
-					if (!Modifier.isStatic(f.getModifiers()))
-						p++;
-					if (p < param) {
-						param = p;
-						num = new_num;
-					}
-				}
-			}
-		}
-		return choice.get(num);
-		// return randomness.choice(choice);
-	}
-
-	private void cacheSuperGeneratorType(Type type, List<AccessibleObject> g) {
-		// if(generators.containsKey(type))
-		// return;
-
-		logger.debug("Checking superconstructors for class " + type);
-		if (!(type instanceof Class<?>))
-			return;
-		Class<?> clazz = (Class<?>) type;
-		if (clazz.isAnonymousClass() || clazz.isLocalClass()
-		        || clazz.getCanonicalName().startsWith("java.")) {
-			logger.debug("Skipping superconstructors for class " + type);
-			return;
-		} else if (logger.isDebugEnabled()) {
-			logger.debug(clazz.getCanonicalName());
-		}
-
-		// List<AccessibleObject> g = new ArrayList<AccessibleObject>();
-
-		for (AccessibleObject o : calls) {
-			if (o instanceof Constructor<?>) {
-				Constructor<?> c = (Constructor<?>) o;
-				if (GenericClass.isSubclass(c.getDeclaringClass(), type)
-				        && c.getDeclaringClass().getName().startsWith(Properties.PROJECT_PREFIX)) {
-					g.add(o);
-				}
-			} else if (o instanceof Method) {
-				Method m = (Method) o;
-				if (GenericClass.isSubclass(m.getGenericReturnType(), type)
-				        && m.getReturnType().getName().startsWith(Properties.PROJECT_PREFIX)) {
-					g.add(o);
-				}
-				// else if(m.getReturnType().isAssignableFrom(type) &&
-				// m.getName().equals("getInstance"))
-				// g.add(o);
-			} else if (o instanceof Field) {
-				Field f = (Field) o;
-				if (GenericClass.isSubclass(f.getGenericType(), type)
-				        && f.getType().getName().startsWith(Properties.PROJECT_PREFIX)) {
-					g.add(f);
-				}
-			}
-		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("Found " + g.size() + " generators for superclasses of " + type);
-			for (AccessibleObject o : g) {
-				logger.debug(o);
-			}
-		}
-		// generators.put(type, g);
-
-	}
-
-	public void addGenerator(Type type, AccessibleObject call) {
-		if (!generators.containsKey(type)) {
-			cacheGeneratorType(type);
-		}
-		generators.get(type).add(call);
-	}
-
-	public void removeGenerator(Type type, AccessibleObject call) {
-		if (generators.containsKey(type)) {
-			generators.get(type).remove(call);
-		}
-	}
-
-	/**
-	 * Fill cache with information about generators
-	 * 
-	 * @param type
-	 */
-	private void cacheGeneratorType(Type type) {
-		if (generators.containsKey(type))
-			return;
-
-		// TODO: At this point check the files that redefine signatures?
-		// -> This covers changed return types
-		// -> But what about changed parameters?
-
-		List<AccessibleObject> g = new ArrayList<AccessibleObject>();
-
-		for (AccessibleObject o : calls) {
-			if (o instanceof Constructor<?>) {
-				Constructor<?> c = (Constructor<?>) o;
-				if (GenericClass.isAssignable(type, c.getDeclaringClass())) {
-					g.add(o);
-				}
-			} else if (o instanceof Method) {
-				Method m = (Method) o;
-				if (GenericClass.isAssignable(type, m.getGenericReturnType())) {
-					g.add(o);
-				}
-				// else if(m.getReturnType().isAssignableFrom(type) &&
-				// m.getName().equals("getInstance"))
-				// g.add(o);
-			} else if (o instanceof Field) {
-				Field f = (Field) o;
-				if (GenericClass.isAssignable(type, f.getGenericType())) {
-					g.add(f);
-				}
-			}
-		}
-		if (g.isEmpty()) {
-			cacheSuperGeneratorType(type, g);
-		}
-		// } else
-		generators.put(type, g);
-	}
-
-	/**
-	 * Return all calls that have a parameter with given type
-	 * 
-	 * @param type
-	 * @return
-	 */
-	public List<AccessibleObject> getTestCallsWith(Type type) {
-		List<AccessibleObject> calls = new ArrayList<AccessibleObject>();
-		calls.addAll(getTestConstructorsWith(type));
-		calls.addAll(getTestMethodsWith(type));
-		return calls;
-	}
-
-	/**
-	 * Return all calls that have a parameter with given type
-	 * 
-	 * @param type
-	 * @return
-	 */
-	public List<AccessibleObject> getCallsWith(Type type) {
-		if (calls_with.containsKey(type))
-			return calls_with.get(type);
-
-		List<AccessibleObject> relevant_calls = new ArrayList<AccessibleObject>();
-		for (AccessibleObject call : calls) {
-			List<Type> parameters = new ArrayList<Type>();
-
-			if (call instanceof Method) {
-				parameters.addAll(Arrays.asList(((Method) call).getGenericParameterTypes()));
-			} else if (call instanceof Constructor<?>) {
-				parameters.addAll(Arrays.asList(((Constructor<?>) call).getGenericParameterTypes()));
-			}
-
-			if (parameters.contains(type))
-				relevant_calls.add(call);
-		}
-
-		calls_with.put(type, relevant_calls);
-		return relevant_calls;
-	}
-
-	/**
-	 * Return all calls that have a parameter with given type
-	 * 
-	 * @param type
-	 * @return
-	 */
-	public List<AccessibleObject> getCallsFor(Type type) {
-		if (calls_for.containsKey(type))
-			return calls_for.get(type);
-
-		List<AccessibleObject> relevant_calls = new ArrayList<AccessibleObject>();
-		for (AccessibleObject call : calls) {
-			if (call instanceof Method) {
-				if (((Method) call).getDeclaringClass().isAssignableFrom((Class<?>) type))
-					relevant_calls.add(call);
-			}
-		}
-		calls_for.put(type, relevant_calls);
-		return relevant_calls;
-	}
-
-	/**
-	 * Get random method or constructor of unit under test
-	 * 
-	 * @return
-	 * @throws ConstructionFailedException
-	 */
-	public AccessibleObject getRandomTestCall() throws ConstructionFailedException {
-		int num_methods = test_methods.size();
-		int num_constructors = test_constructors.size();
-
-		// If there are no methods, there should always be a default constructor
-		if (num_methods == 0) {
-			if (num_constructors == 0)
-				throw new ConstructionFailedException();
-			return test_constructors.get(Randomness.nextInt(num_constructors));
-		}
-
-		int num = Randomness.nextInt(num_methods + num_constructors);
-		if (num >= num_methods) {
-			return test_constructors.get(num - num_methods);
-		} else {
-			return test_methods.get(num);
-		}
-	}
-
-	/**
-	 * Get entirely random call
-	 */
-	public AccessibleObject getRandomCall() {
-		return Randomness.choice(calls);
-	}
-
-	// ----------------------------------------------------------------------------------
-
-	/**
-	 * Create list of all methods using a certain type as parameter
-	 * 
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
-	 */
-	private List<Method> getTestMethodsWith(Type type) {
-		List<Method> suitable_methods = new ArrayList<Method>();
-
-		for (Method m : test_methods) {
-			if (Arrays.asList(m.getGenericParameterTypes()).contains(type))
-				suitable_methods.add(m);
-		}
-		return suitable_methods;
-	}
-
-	/**
-	 * Create list of all methods using a certain type as parameter
-	 * 
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
-	 */
-	private List<Constructor<?>> getTestConstructorsWith(Type type) {
-		List<Constructor<?>> suitable_constructors = new ArrayList<Constructor<?>>();
-
-		for (Constructor<?> c : test_constructors) {
-			if (Arrays.asList(c.getGenericParameterTypes()).contains(type))
-				suitable_constructors.add(c);
-		}
-		return suitable_constructors;
-	}
-
 	/**
 	 * Get the set of constructors defined in this class and its superclasses
 	 * 
@@ -538,14 +140,286 @@ public class TestCluster {
 		Set<Method> methods = new HashSet<Method>();
 		methods.addAll(helper.values());
 		/*
-		for (Method m : helper.values()) {
-			String name = m.getName() + "|"
-			        + org.objectweb.asm.Type.getMethodDescriptor(m);
-
-			methods.add(m);
-		}
-		*/
+		 * for (Method m : helper.values()) { String name = m.getName() + "|" +
+		 * org.objectweb.asm.Type.getMethodDescriptor(m);
+		 * 
+		 * methods.add(m); }
+		 */
 		return methods;
+	};
+
+	private static boolean canUse(Class<?> c) {
+		// if(Modifier.isAbstract(c.getModifiers()))
+		// return false;
+
+		if (Throwable.class.isAssignableFrom(c)) {
+			return false;
+		}
+		if (Modifier.isPrivate(c.getModifiers())) {
+			// !(Modifier.isProtected(c.getModifiers())))
+			return false;
+		}
+
+		/*
+		 * if(Modifier.isAbstract(c.getModifiers())) return false;
+		 * 
+		 * if(c.isLocalClass() || c.isAnonymousClass()) return false;
+		 */
+
+		if (c.getName().matches(".*\\$\\d+$")) {
+			logger.debug(c + " looks like an anonymous class, ignoring it");
+			return false;
+		}
+
+		if (c.getName().startsWith("junit")) {
+			return false;
+		}
+
+		if (Modifier.isPublic(c.getModifiers())) {
+			return true;
+			/*
+			 * 
+			 * if(Modifier.isProtected(c.getModifiers())) return true;
+			 */
+		}
+
+		return false;
+	}
+
+	private static boolean canUse(Constructor<?> c) {
+
+		// synthetic constructors are OK
+		if (Modifier.isAbstract(c.getDeclaringClass().getModifiers())) {
+			return false;
+		}
+
+		// TODO we could enable some methods from Object, like getClass
+		if (c.getDeclaringClass().equals(java.lang.Object.class)) {
+			return false;// handled here to avoid printing reasons
+		}
+
+		if (c.getDeclaringClass().equals(java.lang.Thread.class)) {
+			return false;// handled here to avoid printing reasons
+		}
+
+		if (c.getDeclaringClass().isAnonymousClass()) {
+			return false;
+		}
+
+		if (c.getDeclaringClass().isMemberClass()) {
+			return false;
+		}
+
+		if (!Properties.USE_DEPRECATED && (c.getAnnotation(Deprecated.class) != null)) {
+			logger.debug("Skipping deprecated method " + c.getName());
+			return false;
+		}
+
+		if (Modifier.isPublic(c.getModifiers())) {
+			return true;
+		}
+		// if (!Modifier.isPrivate(c.getModifiers())) // &&
+		// !Modifier.isProtected(c.getModifiers()))
+		// return true;
+		return false;
+	}
+
+	private static boolean canUse(Field f) {
+		// if(Modifier.isPrivate(f.getDeclaringClass().getModifiers()))
+		// //Modifier.isProtected(f.getDeclaringClass().getModifiers()) ||
+		// return false;
+
+		// TODO we could enable some methods from Object, like getClass
+		if (f.getDeclaringClass().equals(java.lang.Object.class)) {
+			return false;// handled here to avoid printing reasons
+		}
+
+		if (f.getDeclaringClass().equals(java.lang.Thread.class)) {
+			return false;// handled here to avoid printing reasons
+		}
+
+		if (Modifier.isPublic(f.getModifiers())) {
+			return true;
+		}
+
+		/*
+		 * if(Modifier.isProtected(f.getModifiers())) return true;
+		 */
+		/*
+		 * if(!(Modifier.isPrivate(f.getModifiers()))) // &&
+		 * !(Modifier.isProtected(f.getModifiers()))) return true;
+		 */
+		return false;
+	}
+
+	private static boolean canUse(Method m) {
+
+		if (EXCLUDE.contains(m.getName())) {
+			logger.debug("Excluding method");
+			return false;
+		}
+
+		if (m.isBridge()) {
+			logger.debug("Will not use: " + m.toString());
+			logger.debug("  reason: it's a bridge method");
+			return false;
+		}
+
+		if (m.isSynthetic()) {
+			logger.debug("Will not use: " + m.toString());
+			logger.debug("  reason: it's a synthetic method");
+			return false;
+		}
+
+		if (!Properties.USE_DEPRECATED && (m.getAnnotation(Deprecated.class) != null)) {
+			logger.debug("Skipping deprecated method " + m.getName());
+			return false;
+		}
+
+		// if(!Modifier.isPublic(m.getModifiers()))
+		// return false;
+
+		// if (Modifier.isPrivate(m.getModifiers())) // ||
+		// Modifier.isProtected(m.getModifiers()))
+		// return false;
+
+		// TODO?
+		// if(Modifier.isProtected(m.getDeclaringClass().getModifiers()) ||
+		// Modifier.isPrivate(m.getDeclaringClass().getModifiers()))
+		// if(Modifier.isPrivate(m.getDeclaringClass().getModifiers()))
+		// return false;
+
+		// TODO we could enable some methods from Object, like getClass
+
+		if (m.getDeclaringClass().equals(java.lang.Object.class)) {
+			return false;
+			// if(!m.getName().equals("toString") &&
+			// !m.getName().equals("getClass"))
+			// return false;//handled here to avoid printing reasons
+		}
+
+		if (m.getDeclaringClass().equals(java.lang.Thread.class)) {
+			return false;// handled here to avoid printing reasons
+		}
+
+		String reason = doNotUseSpecialCase(m);
+		if (reason != null) {
+			logger.debug("Will not use: " + m.toString());
+			logger.debug("  reason: " + reason);
+			return false;
+		}
+
+		if (m.getName().equals("__STATIC_RESET")) {
+			logger.debug("Ignoring static reset class");
+			return false;
+		}
+
+		if (m.getName().equals("main") && Modifier.isStatic(m.getModifiers()) && Modifier.isPublic(m.getModifiers())) {
+			logger.debug("Ignoring static main method ");
+			return false;
+		}
+
+		// If default or
+		if (Modifier.isPublic(m.getModifiers())) {
+			// Modifier.isProtected(m.getModifiers()))
+			return true;
+		}
+
+		return false;
+	}
+
+	private static String doNotUseSpecialCase(Method m) {
+
+		// Special case 1:
+		// We're skipping compareTo method in enums - you can call it only with
+		// the same type as receiver
+		// but the signature does not tell you that
+		if ((m.getDeclaringClass().getCanonicalName() != null)
+				&& m.getDeclaringClass().getCanonicalName().equals("java.lang.Enum") && m.getName().equals("compareTo")
+				&& (m.getParameterTypes().length == 1) && m.getParameterTypes()[0].equals(Enum.class)) {
+			return "We're skipping compareTo method in enums";
+		}
+
+		// Special case 2:
+		// hashCode is bad in general but String.hashCode is fair game
+		if (m.getName().equals("hashCode") && !m.getDeclaringClass().equals(String.class)) {
+			return "hashCode";
+			// if (m.getName().equals("hashCode") &&
+			// m.getDeclaringClass().equals(Object.class))
+			// return "hashCode";
+		}
+
+		// Special case 3: (just clumps together a bunch of hashCodes, so skip
+		// it)
+		if (m.getName().equals("deepHashCode") && m.getDeclaringClass().equals(Arrays.class)) {
+			return "deepHashCode";
+		}
+
+		// Special case 4: (differs too much between JDK installations)
+		if (m.getName().equals("getAvailableLocales")) {
+			return "getAvailableLocales";
+		}
+		return null;
+	}
+
+	private static DirectedGraph<MethodDescription, DefaultEdge> getCallGraph() {
+		ConnectionData data = ConnectionData.read();
+		Set<Tuple> connections = data.getConnections();
+		DirectedGraph<MethodDescription, DefaultEdge> graph = new DefaultDirectedGraph<MethodDescription, DefaultEdge>(
+				DefaultEdge.class);
+		for (Tuple tuple : connections) {
+			MethodDescription start = tuple.getStart();
+			MethodDescription end = tuple.getEnd();
+			if (!start.equals(end)) {
+				if (!graph.containsVertex(start)) {
+					graph.addVertex(start);
+				}
+				if (!graph.containsVertex(end)) {
+					graph.addVertex(end);
+				}
+				graph.addEdge(start, end);
+			}
+		}
+		return graph;
+	}
+
+	private static Map<String, List<String>> getExcludesFromFile() {
+		String property = Properties.TEST_EXCLUDES;
+		Map<String, List<String>> objs = new HashMap<String, List<String>>();
+		if (property == null) {
+			logger.debug("No exclude file specified");
+			return objs;
+		}
+		File file = new File(property);
+		if (!file.exists()) {
+			file = new File(Properties.OUTPUT_DIR + "/" + property);
+			if (!file.exists() || !file.isFile()) {
+				logger.debug("No exclude file specified");
+				return objs;
+			}
+		}
+
+		List<String> lines = Io.getLinesFromFile(file);
+		for (String line : lines) {
+			line = line.trim();
+			// Skip comments
+			if (line.startsWith("#")) {
+				continue;
+			}
+
+			String[] parameters = line.split(",");
+			if (parameters.length != 2) {
+				continue;
+			}
+			if (!objs.containsKey(parameters[0])) {
+				objs.put(parameters[0], new ArrayList<String>());
+			}
+
+			objs.get(parameters[0]).add(parameters[1]);
+		}
+		logger.info("Found " + objs.size() + " classes with excludes");
+
+		return objs;
 	}
 
 	/**
@@ -587,291 +461,41 @@ public class TestCluster {
 		return fields;
 	}
 
-	/**
-	 * Load test methods from test task file
-	 * 
-	 * @return Map from classname to list of methodnames
-	 */
-	private Map<String, List<String>> getTestObjectsFromFile() {
-		// String property = System.getProperty("test.classes");
-		String property = Properties.TARGET_CLASS;
-		// String filename = property;
-		// if(property == null || property.equals("${test.classes}")) {
-		// property = Properties.TARGET_CLASS;
-		String filename = Properties.OUTPUT_DIR + "/" + property + ".task";
-		// }
-		logger.info("Reading test methods from " + filename);
-		File file = new File(filename);
-		List<String> lines = Io.getLinesFromFile(file);
+	private static Map<String, List<String>> getIncludesFromFile() {
+		String property = Properties.TEST_INCLUDES;
 		Map<String, List<String>> objs = new HashMap<String, List<String>>();
+		if (property == null) {
+			logger.debug("No include file specified");
+			return objs;
+		}
+
+		File file = new File(property);
+		if (!file.exists()) {
+			file = new File(Properties.OUTPUT_DIR + "/" + property);
+			if (!file.exists() || !file.isFile()) {
+				logger.debug("No include file specified");
+				return objs;
+			}
+		}
+		List<String> lines = Io.getLinesFromFile(file);
 		for (String line : lines) {
 			line = line.trim();
 			// Skip comments
-			if (line.startsWith("#"))
+			if (line.startsWith("#")) {
 				continue;
+			}
 
 			String[] parameters = line.split(",");
-			if (parameters.length != 2)
+			if (parameters.length != 2) {
 				continue;
-			if (!objs.containsKey(parameters[0]))
+			}
+			if (!objs.containsKey(parameters[0])) {
 				objs.put(parameters[0], new ArrayList<String>());
+			}
 
-			String name = parameters[1];
-			objs.get(parameters[0]).add(name);
+			objs.get(parameters[0]).add(parameters[1]);
 		}
 		return objs;
-	}
-
-	private static boolean canUse(Class<?> c) {
-		// if(Modifier.isAbstract(c.getModifiers()))
-		// return false;
-
-		if (Throwable.class.isAssignableFrom(c))
-			return false;
-		if (Modifier.isPrivate(c.getModifiers())) // &&
-		                                          // !(Modifier.isProtected(c.getModifiers())))
-			return false;
-
-		/*
-		 * if(Modifier.isAbstract(c.getModifiers())) return false;
-		 * 
-		 * if(c.isLocalClass() || c.isAnonymousClass()) return false;
-		 */
-
-		if (c.getName().matches(".*\\$\\d+$")) {
-			logger.debug(c + " looks like an anonymous class, ignoring it");
-			return false;
-		}
-
-		if (c.getName().startsWith("junit"))
-			return false;
-
-		if (Modifier.isPublic(c.getModifiers()))
-			return true;
-		/*
-		 * 
-		 * if(Modifier.isProtected(c.getModifiers())) return true;
-		 */
-
-		return false;
-	}
-
-	private static boolean canUse(Field f) {
-		// if(Modifier.isPrivate(f.getDeclaringClass().getModifiers()))
-		// //Modifier.isProtected(f.getDeclaringClass().getModifiers()) ||
-		// return false;
-
-		// TODO we could enable some methods from Object, like getClass
-		if (f.getDeclaringClass().equals(java.lang.Object.class))
-			return false;// handled here to avoid printing reasons
-
-		if (f.getDeclaringClass().equals(java.lang.Thread.class))
-			return false;// handled here to avoid printing reasons
-
-		if (Modifier.isPublic(f.getModifiers()))
-			return true;
-
-		/*
-		 * if(Modifier.isProtected(f.getModifiers())) return true;
-		 */
-		/*
-		 * if(!(Modifier.isPrivate(f.getModifiers()))) // &&
-		 * !(Modifier.isProtected(f.getModifiers()))) return true;
-		 */
-		return false;
-	}
-
-	private static boolean canUse(Method m) {
-
-		if (EXCLUDE.contains(m.getName())) {
-			logger.debug("Excluding method");
-			return false;
-		}
-
-		if (m.isBridge()) {
-			logger.debug("Will not use: " + m.toString());
-			logger.debug("  reason: it's a bridge method");
-			return false;
-		}
-
-		if (m.isSynthetic()) {
-			logger.debug("Will not use: " + m.toString());
-			logger.debug("  reason: it's a synthetic method");
-			return false;
-		}
-
-		if (!Properties.USE_DEPRECATED && m.getAnnotation(Deprecated.class) != null) {
-			logger.debug("Skipping deprecated method " + m.getName());
-			return false;
-		}
-
-		// if(!Modifier.isPublic(m.getModifiers()))
-		// return false;
-
-		// if (Modifier.isPrivate(m.getModifiers())) // ||
-		// Modifier.isProtected(m.getModifiers()))
-		// return false;
-
-		// TODO?
-		// if(Modifier.isProtected(m.getDeclaringClass().getModifiers()) ||
-		// Modifier.isPrivate(m.getDeclaringClass().getModifiers()))
-		// if(Modifier.isPrivate(m.getDeclaringClass().getModifiers()))
-		// return false;
-
-		// TODO we could enable some methods from Object, like getClass
-
-		if (m.getDeclaringClass().equals(java.lang.Object.class)) {
-			return false;
-			// if(!m.getName().equals("toString") &&
-			// !m.getName().equals("getClass"))
-			// return false;//handled here to avoid printing reasons
-		}
-
-		if (m.getDeclaringClass().equals(java.lang.Thread.class))
-			return false;// handled here to avoid printing reasons
-
-		String reason = doNotUseSpecialCase(m);
-		if (reason != null) {
-			logger.debug("Will not use: " + m.toString());
-			logger.debug("  reason: " + reason);
-			return false;
-		}
-
-		if (m.getName().equals("__STATIC_RESET")) {
-			logger.debug("Ignoring static reset class");
-			return false;
-		}
-
-		if (m.getName().equals("main") && Modifier.isStatic(m.getModifiers())
-		        && Modifier.isPublic(m.getModifiers())) {
-			logger.debug("Ignoring static main method ");
-			return false;
-		}
-
-		// If default or
-		if (Modifier.isPublic(m.getModifiers())) // ||
-		                                         // Modifier.isProtected(m.getModifiers()))
-			return true;
-
-		return false;
-	}
-
-	private static String doNotUseSpecialCase(Method m) {
-
-		// Special case 1:
-		// We're skipping compareTo method in enums - you can call it only with
-		// the same type as receiver
-		// but the signature does not tell you that
-		if (m.getDeclaringClass().getCanonicalName() != null
-		        && m.getDeclaringClass().getCanonicalName().equals("java.lang.Enum")
-		        && m.getName().equals("compareTo") && m.getParameterTypes().length == 1
-		        && m.getParameterTypes()[0].equals(Enum.class))
-			return "We're skipping compareTo method in enums";
-
-		// Special case 2:
-		// hashCode is bad in general but String.hashCode is fair game
-		if (m.getName().equals("hashCode") && !m.getDeclaringClass().equals(String.class))
-			return "hashCode";
-		// if (m.getName().equals("hashCode") &&
-		// m.getDeclaringClass().equals(Object.class))
-		// return "hashCode";
-
-		// Special case 3: (just clumps together a bunch of hashCodes, so skip
-		// it)
-		if (m.getName().equals("deepHashCode")
-		        && m.getDeclaringClass().equals(Arrays.class))
-			return "deepHashCode";
-
-		// Special case 4: (differs too much between JDK installations)
-		if (m.getName().equals("getAvailableLocales"))
-			return "getAvailableLocales";
-		return null;
-	}
-
-	private static boolean canUse(Constructor<?> c) {
-
-		// synthetic constructors are OK
-		if (Modifier.isAbstract(c.getDeclaringClass().getModifiers()))
-			return false;
-
-		// TODO we could enable some methods from Object, like getClass
-		if (c.getDeclaringClass().equals(java.lang.Object.class))
-			return false;// handled here to avoid printing reasons
-
-		if (c.getDeclaringClass().equals(java.lang.Thread.class))
-			return false;// handled here to avoid printing reasons
-
-		if (c.getDeclaringClass().isAnonymousClass())
-			return false;
-
-		if (c.getDeclaringClass().isMemberClass())
-			return false;
-
-		if (!Properties.USE_DEPRECATED && c.getAnnotation(Deprecated.class) != null) {
-			logger.debug("Skipping deprecated method " + c.getName());
-			return false;
-		}
-
-		if (Modifier.isPublic(c.getModifiers()))
-			return true;
-		// if (!Modifier.isPrivate(c.getModifiers())) // &&
-		// !Modifier.isProtected(c.getModifiers()))
-		// return true;
-		return false;
-	}
-
-	/**
-	 * Check whether the name is matched by one of the regular expressions
-	 * 
-	 * @param name
-	 * @param regexs
-	 * @return
-	 */
-	private static boolean matches(String name, List<String> regexs) {
-		for (String regex : regexs) {
-			if (name.matches(regex))
-				return true;
-		}
-		return false;
-	}
-
-	private static boolean matchesDebug(String name, List<String> regexs) {
-		for (String regex : regexs) {
-			if (name.matches(regex)) {
-				logger.info(name + " does matches " + regex);
-				return true;
-			} else {
-				logger.info(name + " does not match " + regex);
-			}
-		}
-		return false;
-	}
-
-	private void countTargetFunctions() {
-		num_defined_methods = CFGMethodAdapter.methods.size();
-		if (Properties.INSTRUMENT_PARENT)
-			num_defined_methods = getMethods(Properties.getTargetClass()).size();
-		logger.info("Target class has " + num_defined_methods + " functions");
-		logger.info("Target class has " + BranchPool.getBranchCounter() + " branches");
-		logger.info("Target class has " + BranchPool.getBranchlessMethods().size()
-		        + " methods without branches");
-		logger.info("That means for coverage information: "
-		        + (BranchPool.getBranchlessMethods().size() + 2 * BranchPool.getBranchCounter()));
-	}
-
-	private static String getName(AccessibleObject o) {
-		if (o instanceof java.lang.reflect.Method) {
-			java.lang.reflect.Method method = (java.lang.reflect.Method) o;
-			return method.getName() + org.objectweb.asm.Type.getMethodDescriptor(method);
-		} else if (o instanceof java.lang.reflect.Constructor<?>) {
-			java.lang.reflect.Constructor<?> constructor = (java.lang.reflect.Constructor<?>) o;
-			return "<init>"
-			        + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
-		} else if (o instanceof java.lang.reflect.Field) {
-			java.lang.reflect.Field field = (Field) o;
-			return field.getName();
-		}
-		return ""; // TODO
 	}
 
 	private static AccessibleObject getMethod(Class<?> clazz, String methodName) {
@@ -892,32 +516,119 @@ public class TestCluster {
 			}
 			for (Field f : clazz.getFields()) {
 				String name = getName(f);
-				if (name.equals(methodName) && !Modifier.isPrivate(f.getModifiers()))
+				if (name.equals(methodName) && !Modifier.isPrivate(f.getModifiers())) {
 					return f;
+				}
 			}
 		}
 		return null; // not found
 	}
 
-	private static DirectedGraph<MethodDescription, DefaultEdge> getCallGraph() {
-		ConnectionData data = ConnectionData.read();
-		Set<Tuple> connections = data.getConnections();
-		DirectedGraph<MethodDescription, DefaultEdge> graph = new DefaultDirectedGraph<MethodDescription, DefaultEdge>(
-		        DefaultEdge.class);
-		for (Tuple tuple : connections) {
-			MethodDescription start = tuple.getStart();
-			MethodDescription end = tuple.getEnd();
-			if (!start.equals(end)) {
-				if (!graph.containsVertex(start)) {
-					graph.addVertex(start);
-				}
-				if (!graph.containsVertex(end)) {
-					graph.addVertex(end);
-				}
-				graph.addEdge(start, end);
+	private static String getName(AccessibleObject o) {
+		if (o instanceof java.lang.reflect.Method) {
+			java.lang.reflect.Method method = (java.lang.reflect.Method) o;
+			return method.getName() + org.objectweb.asm.Type.getMethodDescriptor(method);
+		} else if (o instanceof java.lang.reflect.Constructor<?>) {
+			java.lang.reflect.Constructor<?> constructor = (java.lang.reflect.Constructor<?>) o;
+			return "<init>" + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
+		} else if (o instanceof java.lang.reflect.Field) {
+			java.lang.reflect.Field field = (Field) o;
+			return field.getName();
+		}
+		return ""; // TODO
+	}
+
+	/**
+	 * Check whether the name is matched by one of the regular expressions
+	 * 
+	 * @param name
+	 * @param regexs
+	 * @return
+	 */
+	private static boolean matches(String name, List<String> regexs) {
+		for (String regex : regexs) {
+			if (name.matches(regex)) {
+				return true;
 			}
 		}
-		return graph;
+		return false;
+	}
+
+	private static boolean matchesDebug(String name, List<String> regexs) {
+		for (String regex : regexs) {
+			if (name.matches(regex)) {
+				logger.info(name + " does matches " + regex);
+				return true;
+			} else {
+				logger.info(name + " does not match " + regex);
+			}
+		}
+		return false;
+	}
+
+	/** The usable methods of the class under test */
+	public List<Method> test_methods = new ArrayList<Method>();
+
+	/** The usable constructor of the class under test */
+	private final List<Constructor<?>> test_constructors = new ArrayList<Constructor<?>>();
+
+	/** Cache results about generators */
+	private final HashMap<Type, List<AccessibleObject>> generators = new HashMap<Type, List<AccessibleObject>>();
+
+	private final HashMap<Type, List<AccessibleObject>> calls_with = new HashMap<Type, List<AccessibleObject>>();
+
+	private final HashMap<Type, List<AccessibleObject>> calls_for = new HashMap<Type, List<AccessibleObject>>();
+
+	/** The entire set of calls available */
+	Set<AccessibleObject> calls = new HashSet<AccessibleObject>();
+
+	private final List<Method> static_initializers = new ArrayList<Method>();
+
+	public static final List<String> EXCLUDE = Arrays.asList("<clinit>", "__STATIC_RESET");
+
+	/**
+	 * Instance accessor
+	 * 
+	 * @return
+	 */
+	public static TestCluster getInstance() {
+		if (instance == null) {
+			instance = new TestCluster();
+		}
+
+		return instance;
+	}
+
+	// ----------------------------------------------------------------------------------
+
+	// public int num_defined_methods = 2;
+	public int num_defined_methods = 0;
+
+	/**
+	 * Private constructor
+	 */
+	private TestCluster() {
+		populate();
+		addIncludes();
+		analyzeTarget();
+		if (Properties.REMOTE_TESTING) {
+			addRemoteCalls();
+		}
+		countTargetFunctions();
+		/*
+		 * for(Method m : TestHelper.class.getDeclaredMethods()) { calls.add(m);
+		 * test_methods.add(m); }
+		 */
+
+		getStaticClasses();
+		ExecutionTracer.enable();
+	}
+
+	public void addGenerator(Type type, AccessibleObject call) {
+		if (!generators.containsKey(type)) {
+			cacheGeneratorType(type);
+		}
+		generators.get(type).add(call);
 	}
 
 	/**
@@ -933,20 +644,21 @@ public class TestCluster {
 		Queue<MethodDescription> queue = new LinkedList<MethodDescription>();
 		for (AccessibleObject call : test_methods) {
 			Method m = (Method) call;
-			MethodDescription md = new MethodDescription(Properties.TARGET_CLASS,
-			        m.getName(), org.objectweb.asm.Type.getMethodDescriptor(m));
+			MethodDescription md = new MethodDescription(Properties.TARGET_CLASS, m.getName(),
+					org.objectweb.asm.Type.getMethodDescriptor(m));
 			queue.add(md);
 		}
 		for (AccessibleObject call : test_constructors) {
 			Constructor<?> c = (Constructor<?>) call;
-			MethodDescription md = new MethodDescription(Properties.TARGET_CLASS,
-			        "<init>", org.objectweb.asm.Type.getConstructorDescriptor(c));
+			MethodDescription md = new MethodDescription(Properties.TARGET_CLASS, "<init>",
+					org.objectweb.asm.Type.getConstructorDescriptor(c));
 			queue.add(md);
 		}
 		while (!queue.isEmpty()) {
 			MethodDescription md = queue.remove();
-			if (!graph.containsVertex(md))
+			if (!graph.containsVertex(md)) {
 				continue;
+			}
 			for (DefaultEdge edge : graph.incomingEdgesOf(md)) {
 				MethodDescription source = graph.getEdgeSource(edge);
 				if (!visited.contains(source)) {
@@ -959,11 +671,10 @@ public class TestCluster {
 		for (MethodDescription md : remoteCalls) {
 			try {
 				Class<?> clazz = Class.forName(md.getClassName());
-				AccessibleObject call = getMethod(clazz,
-				                                  md.getMethodName() + md.getDesc());
+				AccessibleObject call = getMethod(clazz, md.getMethodName() + md.getDesc());
 				if (call == null) {
-					logger.debug("Cannot use remote call: " + md.getClassName() + "."
-					        + md.getMethodName() + md.getDesc());
+					logger.debug("Cannot use remote call: " + md.getClassName() + "." + md.getMethodName()
+							+ md.getDesc());
 				} else if (call instanceof Method) {
 					logger.info("Adding remote method: " + (call));
 					test_methods.add((Method) call);
@@ -976,6 +687,215 @@ public class TestCluster {
 			}
 			// add to test_methods / test_constructors
 		}
+	}
+
+	/**
+	 * Return all calls that have a parameter with given type
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public List<AccessibleObject> getCallsFor(Type type) {
+		if (calls_for.containsKey(type)) {
+			return calls_for.get(type);
+		}
+
+		List<AccessibleObject> relevant_calls = new ArrayList<AccessibleObject>();
+		for (AccessibleObject call : calls) {
+			if (call instanceof Method) {
+				if (((Method) call).getDeclaringClass().isAssignableFrom((Class<?>) type)) {
+					relevant_calls.add(call);
+				}
+			}
+		}
+		calls_for.put(type, relevant_calls);
+		return relevant_calls;
+	}
+
+	/**
+	 * Return all calls that have a parameter with given type
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public List<AccessibleObject> getCallsWith(Type type) {
+		if (calls_with.containsKey(type)) {
+			return calls_with.get(type);
+		}
+
+		List<AccessibleObject> relevant_calls = new ArrayList<AccessibleObject>();
+		for (AccessibleObject call : calls) {
+			List<Type> parameters = new ArrayList<Type>();
+
+			if (call instanceof Method) {
+				parameters.addAll(Arrays.asList(((Method) call).getGenericParameterTypes()));
+			} else if (call instanceof Constructor<?>) {
+				parameters.addAll(Arrays.asList(((Constructor<?>) call).getGenericParameterTypes()));
+			}
+
+			if (parameters.contains(type)) {
+				relevant_calls.add(call);
+			}
+		}
+
+		calls_with.put(type, relevant_calls);
+		return relevant_calls;
+	}
+
+	/**
+	 * Get a list of all generator objects for the type
+	 * 
+	 * @param type
+	 * @return
+	 * @throws ConstructionFailedException
+	 */
+	public List<AccessibleObject> getGenerators(Type type) throws ConstructionFailedException {
+		cacheGeneratorType(type);
+		if (!generators.containsKey(type)) {
+			throw new ConstructionFailedException();
+		}
+
+		return generators.get(type);
+	}
+
+	/**
+	 * Get entirely random call
+	 */
+	public AccessibleObject getRandomCall() {
+		return Randomness.choice(calls);
+	}
+
+	/**
+	 * Randomly select one generator
+	 * 
+	 * @param type
+	 * @return
+	 * @throws ConstructionFailedException
+	 */
+	public AccessibleObject getRandomGenerator(Type type) throws ConstructionFailedException {
+		cacheGeneratorType(type);
+		if (!generators.containsKey(type)) {
+			return null;
+		}
+
+		return Randomness.choice(generators.get(type));
+	}
+
+	/**
+	 * Randomly select one generator
+	 * 
+	 * @param type
+	 * @return
+	 * @throws ConstructionFailedException
+	 */
+	public AccessibleObject getRandomGenerator(Type type, Set<AccessibleObject> excluded)
+			throws ConstructionFailedException {
+		cacheGeneratorType(type);
+		if (!generators.containsKey(type)) {
+			return null;
+		}
+
+		List<AccessibleObject> choice = new ArrayList<AccessibleObject>(generators.get(type));
+		logger.debug("Removing " + excluded.size() + " from " + choice.size() + " generators");
+		choice.removeAll(excluded);
+		if (!excluded.isEmpty()) {
+			logger.debug("Result: " + choice.size() + " generators");
+		}
+		if (choice.isEmpty()) {
+			return null;
+		}
+
+		int num = 0;
+		int param = 1000;
+		for (int i = 0; i < Properties.GENERATOR_TOURNAMENT; i++) {
+			int new_num = Randomness.nextInt(choice.size());
+			AccessibleObject o = choice.get(new_num);
+			if (o instanceof Constructor<?>) {
+				Constructor<?> c = (Constructor<?>) o;
+				if (c.getParameterTypes().length < param) {
+					param = c.getParameterTypes().length;
+					num = new_num;
+				} else if (o instanceof Method) {
+					Method m = (Method) o;
+					int p = m.getParameterTypes().length;
+					if (!Modifier.isStatic(m.getModifiers())) {
+						p++;
+					}
+					if (p < param) {
+						param = p;
+						num = new_num;
+					}
+				} else if (o instanceof Field) {
+					// param = 2;
+					// num = new_num;
+					Field f = (Field) o;
+					int p = 0;
+					if (!Modifier.isStatic(f.getModifiers())) {
+						p++;
+					}
+					if (p < param) {
+						param = p;
+						num = new_num;
+					}
+				}
+			}
+		}
+		return choice.get(num);
+		// return randomness.choice(choice);
+	}
+
+	/**
+	 * Get random method or constructor of unit under test
+	 * 
+	 * @return
+	 * @throws ConstructionFailedException
+	 */
+	public AccessibleObject getRandomTestCall() throws ConstructionFailedException {
+		int num_methods = test_methods.size();
+		int num_constructors = test_constructors.size();
+
+		// If there are no methods, there should always be a default constructor
+		if (num_methods == 0) {
+			if (num_constructors == 0) {
+				throw new ConstructionFailedException();
+			}
+			return test_constructors.get(Randomness.nextInt(num_constructors));
+		}
+
+		int num = Randomness.nextInt(num_methods + num_constructors);
+		if (num >= num_methods) {
+			return test_constructors.get(num - num_methods);
+		} else {
+			return test_methods.get(num);
+		}
+	}
+
+	/**
+	 * Return all calls that have a parameter with given type
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public List<AccessibleObject> getTestCallsWith(Type type) {
+		List<AccessibleObject> calls = new ArrayList<AccessibleObject>();
+		calls.addAll(getTestConstructorsWith(type));
+		calls.addAll(getTestMethodsWith(type));
+		return calls;
+	}
+
+	/**
+	 * Determine if there are generators
+	 * 
+	 * @param type
+	 * @return
+	 * @throws ConstructionFailedException
+	 */
+	public boolean hasGenerator(Type type) {
+		cacheGeneratorType(type);
+		if (!generators.containsKey(type)) {
+			return false;
+		}
+		return !generators.get(type).isEmpty();
 	}
 
 	/**
@@ -998,41 +918,29 @@ public class TestCluster {
 
 				// Add all constructors
 				for (Constructor<?> constructor : getConstructors(clazz)) {
-					String name = "<init>"
-					        + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
+					String name = "<init>" + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
 
 					if (Properties.TT) {
 						String orig = name;
-						name = TestabilityTransformation.getOriginalNameDesc(clazz.getName(),
-						                                                     "<init>",
-						                                                     org.objectweb.asm.Type.getConstructorDescriptor(constructor));
+						name = TestabilityTransformation.getOriginalNameDesc(clazz.getName(), "<init>",
+								org.objectweb.asm.Type.getConstructorDescriptor(constructor));
 						logger.info("TT name: " + orig + " -> " + name);
 
 					}
 
 					if (constructor.getDeclaringClass().getName().startsWith(target_class)
-					        && !constructor.isSynthetic()
-					        && !Modifier.isAbstract(constructor.getModifiers())) {
-						target_functions.add(constructor.getDeclaringClass().getName()
-						        + "."
-						        + constructor.getName()
-						        + org.objectweb.asm.Type.getConstructorDescriptor(constructor));
+							&& !constructor.isSynthetic() && !Modifier.isAbstract(constructor.getModifiers())) {
+						target_functions.add(constructor.getDeclaringClass().getName() + "." + constructor.getName()
+								+ org.objectweb.asm.Type.getConstructorDescriptor(constructor));
 						// num_defined_methods++;
-						logger.debug("Keeping track of "
-						        + constructor.getDeclaringClass().getName()
-						        + "."
-						        + constructor.getName()
-						        + org.objectweb.asm.Type.getConstructorDescriptor(constructor));
-						logger.debug(constructor.getDeclaringClass().getName()
-						        + " starts with " + classname);
+						logger.debug("Keeping track of " + constructor.getDeclaringClass().getName() + "."
+								+ constructor.getName() + org.objectweb.asm.Type.getConstructorDescriptor(constructor));
+						logger.debug(constructor.getDeclaringClass().getName() + " starts with " + classname);
 					}
 
 					if (canUse(constructor) && matches(name, restriction)) {
-						logger.debug("Adding constructor "
-						        + classname
-						        + "."
-						        + constructor.getName()
-						        + org.objectweb.asm.Type.getConstructorDescriptor(constructor));
+						logger.debug("Adding constructor " + classname + "." + constructor.getName()
+								+ org.objectweb.asm.Type.getConstructorDescriptor(constructor));
 						test_constructors.add(constructor);
 						calls.add(constructor);
 
@@ -1047,36 +955,28 @@ public class TestCluster {
 
 				// Add all methods
 				for (Method method : getMethods(clazz)) {
-					String name = method.getName()
-					        + org.objectweb.asm.Type.getMethodDescriptor(method);
+					String name = method.getName() + org.objectweb.asm.Type.getMethodDescriptor(method);
 
 					if (Properties.TT) {
 						String orig = name;
-						name = TestabilityTransformation.getOriginalNameDesc(clazz.getName(),
-						                                                     method.getName(),
-						                                                     org.objectweb.asm.Type.getMethodDescriptor(method));
+						name = TestabilityTransformation.getOriginalNameDesc(clazz.getName(), method.getName(),
+								org.objectweb.asm.Type.getMethodDescriptor(method));
 						logger.info("TT name: " + orig + " -> " + name);
 					}
 
-					if (method.getDeclaringClass().getName().startsWith(target_class)
-					        && !method.isSynthetic()
-					        && !Modifier.isAbstract(method.getModifiers())) {
-						target_functions.add(method.getDeclaringClass().getName() + "."
-						        + method.getName()
-						        + org.objectweb.asm.Type.getMethodDescriptor(method));
+					if (method.getDeclaringClass().getName().startsWith(target_class) && !method.isSynthetic()
+							&& !Modifier.isAbstract(method.getModifiers())) {
+						target_functions.add(method.getDeclaringClass().getName() + "." + method.getName()
+								+ org.objectweb.asm.Type.getMethodDescriptor(method));
 						// num_defined_methods++;
-						logger.debug("Keeping track of "
-						        + method.getDeclaringClass().getName() + "."
-						        + method.getName()
-						        + org.objectweb.asm.Type.getMethodDescriptor(method));
-						logger.debug(method.getDeclaringClass().getName()
-						        + " starts with " + target_class);
+						logger.debug("Keeping track of " + method.getDeclaringClass().getName() + "."
+								+ method.getName() + org.objectweb.asm.Type.getMethodDescriptor(method));
+						logger.debug(method.getDeclaringClass().getName() + " starts with " + target_class);
 					}
 
 					if (canUse(method) && matches(name, restriction)) {
-						logger.debug("Adding method " + classname + "."
-						        + method.getName()
-						        + org.objectweb.asm.Type.getMethodDescriptor(method));
+						logger.debug("Adding method " + classname + "." + method.getName()
+								+ org.objectweb.asm.Type.getMethodDescriptor(method));
 						test_methods.add(method);
 						calls.add(method);
 					} else {
@@ -1102,8 +1002,8 @@ public class TestCluster {
 				logger.error("Class not found: " + classname + ", ignoring for tests");
 				continue;
 			} catch (ExceptionInInitializerError e) {
-				logger.error("Error in static constructor while trying to load class "
-				        + classname + ": " + e.getCause());
+				logger.error("Error in static constructor while trying to load class " + classname + ": "
+						+ e.getCause());
 				e.getCause().printStackTrace();
 				continue;
 			}
@@ -1116,38 +1016,89 @@ public class TestCluster {
 
 	}
 
-	private static Map<String, List<String>> getIncludesFromFile() {
-		String property = Properties.TEST_INCLUDES;
-		Map<String, List<String>> objs = new HashMap<String, List<String>>();
-		if (property == null) {
-			logger.debug("No include file specified");
-			return objs;
+	public void removeGenerator(Type type, AccessibleObject call) {
+		if (generators.containsKey(type)) {
+			generators.get(type).remove(call);
 		}
+	}
 
-		File file = new File(property);
-		if (!file.exists()) {
-			file = new File(Properties.OUTPUT_DIR + "/" + property);
-			if (!file.exists() || !file.isFile()) {
-				logger.debug("No include file specified");
-				return objs;
+	public void resetStaticClasses() {
+		ExecutionTracer.disable();
+		for (Method m : static_initializers) {
+			try {
+				m.invoke(null, (Object[]) null);
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				// e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				// e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				// e.printStackTrace();
+			}
+			;
+		}
+		ExecutionTracer.enable();
+	}
+
+	/**
+	 * Add all classes that are explicitly requested by the user
+	 */
+	private void addIncludes() {
+		addStandardIncludes();
+
+		Map<String, List<String>> include_map = getIncludesFromFile();
+		int num = 0;
+		for (String classname : include_map.keySet()) {
+			try {
+				Class<?> clazz = Class.forName(classname);
+				boolean found = false;
+				for (String methodname : include_map.get(classname)) {
+					for (Method m : getMethods(clazz)) {
+						String signature = m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m);
+						if (canUse(m) && signature.matches(methodname)) {
+							logger.trace("Adding included method " + m);
+							calls.add(m);
+							num++;
+							found = true;
+						}
+					}
+					for (Constructor<?> c : getConstructors(clazz)) {
+						String signature = "<init>" + org.objectweb.asm.Type.getConstructorDescriptor(c);
+						if (canUse(c) && signature.matches(methodname)) {
+							logger.trace("Adding included constructor " + c + " " + signature);
+							calls.add(c);
+							num++;
+							found = true;
+						}
+					}
+					for (Field f : getFields(clazz)) {
+						String signature = f.getName();
+						if (canUse(f) && signature.matches(methodname)) {
+							logger.trace("Adding included field " + f + " " + signature);
+							calls.add(f);
+							num++;
+							found = true;
+						}
+					}
+					if (!found) {
+						logger.warn("Could not find any methods matching " + methodname + " in class " + classname);
+						logger.info("Candidates are: ");
+						for (Constructor<?> c : clazz.getConstructors()) {
+							logger.info("<init>" + org.objectweb.asm.Type.getConstructorDescriptor(c));
+						}
+						for (Method m : clazz.getMethods()) {
+							logger.info(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m));
+						}
+					}
+				}
+			} catch (ClassNotFoundException e) {
+				logger.warn("Cannot include class " + classname + ": Class not found");
 			}
 		}
-		List<String> lines = Io.getLinesFromFile(file);
-		for (String line : lines) {
-			line = line.trim();
-			// Skip comments
-			if (line.startsWith("#"))
-				continue;
+		logger.info("Added " + num + " other calls from include file");
 
-			String[] parameters = line.split(",");
-			if (parameters.length != 2)
-				continue;
-			if (!objs.containsKey(parameters[0]))
-				objs.put(parameters[0], new ArrayList<String>());
-
-			objs.get(parameters[0]).add(parameters[1]);
-		}
-		return objs;
 	}
 
 	private void addStandardIncludes() {
@@ -1168,107 +1119,6 @@ public class TestCluster {
 		} catch (SecurityException e) {
 		} catch (NoSuchMethodException e) {
 		}
-	}
-
-	/**
-	 * Add all classes that are explicitly requested by the user
-	 */
-	private void addIncludes() {
-		addStandardIncludes();
-
-		Map<String, List<String>> include_map = getIncludesFromFile();
-		int num = 0;
-		for (String classname : include_map.keySet()) {
-			try {
-				Class<?> clazz = Class.forName(classname);
-				boolean found = false;
-				for (String methodname : include_map.get(classname)) {
-					for (Method m : getMethods(clazz)) {
-						String signature = m.getName()
-						        + org.objectweb.asm.Type.getMethodDescriptor(m);
-						if (canUse(m) && signature.matches(methodname)) {
-							logger.trace("Adding included method " + m);
-							calls.add(m);
-							num++;
-							found = true;
-						}
-					}
-					for (Constructor<?> c : getConstructors(clazz)) {
-						String signature = "<init>"
-						        + org.objectweb.asm.Type.getConstructorDescriptor(c);
-						if (canUse(c) && signature.matches(methodname)) {
-							logger.trace("Adding included constructor " + c + " "
-							        + signature);
-							calls.add(c);
-							num++;
-							found = true;
-						}
-					}
-					for (Field f : getFields(clazz)) {
-						String signature = f.getName();
-						if (canUse(f) && signature.matches(methodname)) {
-							logger.trace("Adding included field " + f + " " + signature);
-							calls.add(f);
-							num++;
-							found = true;
-						}
-					}
-					if (!found) {
-						logger.warn("Could not find any methods matching " + methodname
-						        + " in class " + classname);
-						logger.info("Candidates are: ");
-						for (Constructor<?> c : clazz.getConstructors()) {
-							logger.info("<init>"
-							        + org.objectweb.asm.Type.getConstructorDescriptor(c));
-						}
-						for (Method m : clazz.getMethods()) {
-							logger.info(m.getName()
-							        + org.objectweb.asm.Type.getMethodDescriptor(m));
-						}
-					}
-				}
-			} catch (ClassNotFoundException e) {
-				logger.warn("Cannot include class " + classname + ": Class not found");
-			}
-		}
-		logger.info("Added " + num + " other calls from include file");
-
-	}
-
-	private static Map<String, List<String>> getExcludesFromFile() {
-		String property = Properties.TEST_EXCLUDES;
-		Map<String, List<String>> objs = new HashMap<String, List<String>>();
-		if (property == null) {
-			logger.debug("No exclude file specified");
-			return objs;
-		}
-		File file = new File(property);
-		if (!file.exists()) {
-			file = new File(Properties.OUTPUT_DIR + "/" + property);
-			if (!file.exists() || !file.isFile()) {
-				logger.debug("No exclude file specified");
-				return objs;
-			}
-		}
-
-		List<String> lines = Io.getLinesFromFile(file);
-		for (String line : lines) {
-			line = line.trim();
-			// Skip comments
-			if (line.startsWith("#"))
-				continue;
-
-			String[] parameters = line.split(",");
-			if (parameters.length != 2)
-				continue;
-			if (!objs.containsKey(parameters[0]))
-				objs.put(parameters[0], new ArrayList<String>());
-
-			objs.get(parameters[0]).add(parameters[1]);
-		}
-		logger.info("Found " + objs.size() + " classes with excludes");
-
-		return objs;
 	}
 
 	/**
@@ -1299,26 +1149,26 @@ public class TestCluster {
 						logger.trace("Considering constructor " + constructor);
 						if (test_excludes.containsKey(classname)) {
 							boolean valid = true;
-							String full_name = "<init>"
-							        + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
+							String full_name = "<init>" + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
 							for (String regex : test_excludes.get(classname)) {
 								if (full_name.matches(regex)) {
-									logger.info("Found excluded constructor: "
-									        + constructor + " matches " + regex);
+									logger.info("Found excluded constructor: " + constructor + " matches " + regex);
 									valid = false;
 									break;
 								}
 							}
-							if (!valid)
+							if (!valid) {
 								continue;
+							}
 						}
 						if (canUse(constructor)) {
 							for (Class<?> clazz : constructor.getParameterTypes()) {
 								if (!all_classes.contains(clazz.getName())) {
-									if (clazz.isArray())
+									if (clazz.isArray()) {
 										dependencies.add(clazz.getComponentType());
-									else
+									} else {
 										dependencies.add(clazz);
+									}
 								}
 							}
 							logger.debug("Adding constructor " + constructor);
@@ -1335,26 +1185,27 @@ public class TestCluster {
 						// continue;
 						if (test_excludes.containsKey(classname)) {
 							boolean valid = true;
-							String full_name = method.getName()
-							        + org.objectweb.asm.Type.getMethodDescriptor(method);
+							String full_name = method.getName() + org.objectweb.asm.Type.getMethodDescriptor(method);
 							for (String regex : test_excludes.get(classname)) {
 								if (full_name.matches(regex)) {
 									valid = false;
-									logger.info("Found excluded method: " + classname
-									        + "." + full_name + " matches " + regex);
+									logger.info("Found excluded method: " + classname + "." + full_name + " matches "
+											+ regex);
 									break;
 								}
 							}
-							if (!valid)
+							if (!valid) {
 								continue;
+							}
 						}
 						if (canUse(method)) {
 							for (Class<?> clazz : method.getParameterTypes()) {
 								if (!all_classes.contains(clazz.getName())) {
-									if (clazz.isArray())
+									if (clazz.isArray()) {
 										dependencies.add(clazz.getComponentType());
-									else
+									} else {
 										dependencies.add(clazz);
+									}
 								}
 							}
 							method.setAccessible(true);
@@ -1376,13 +1227,14 @@ public class TestCluster {
 							for (String regex : test_excludes.get(classname)) {
 								if (field.getName().matches(regex)) {
 									valid = false;
-									logger.info("Found excluded field: " + classname
-									        + "." + field.getName() + " matches " + regex);
+									logger.info("Found excluded field: " + classname + "." + field.getName()
+											+ " matches " + regex);
 									break;
 								}
 							}
-							if (!valid)
+							if (!valid) {
 								continue;
+							}
 						}
 
 						if (canUse(field)) {
@@ -1408,33 +1260,123 @@ public class TestCluster {
 			if (clazz.isArray()) {
 				clazz = clazz.getComponentType();
 			}
-			if (clazz.isPrimitive())
+			if (clazz.isPrimitive()) {
 				continue;
-			if (hasGenerator(clazz))
+			}
+			if (hasGenerator(clazz)) {
 				continue;
+			}
 			logger.info("  " + clazz.getName());
 			// addCalls(clazz);
 		}
 	}
 
-	public void resetStaticClasses() {
-		ExecutionTracer.disable();
-		for (Method m : static_initializers) {
-			try {
-				m.invoke(null, (Object[]) null);
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				// e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				// e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				// e.printStackTrace();
-			}
-			;
+	/**
+	 * Fill cache with information about generators
+	 * 
+	 * @param type
+	 */
+	private void cacheGeneratorType(Type type) {
+		if (generators.containsKey(type)) {
+			return;
 		}
-		ExecutionTracer.enable();
+
+		// TODO: At this point check the files that redefine signatures?
+		// -> This covers changed return types
+		// -> But what about changed parameters?
+
+		List<AccessibleObject> g = new ArrayList<AccessibleObject>();
+
+		for (AccessibleObject o : calls) {
+			if (o instanceof Constructor<?>) {
+				Constructor<?> c = (Constructor<?>) o;
+				if (GenericClass.isAssignable(type, c.getDeclaringClass())) {
+					g.add(o);
+				}
+			} else if (o instanceof Method) {
+				Method m = (Method) o;
+				if (GenericClass.isAssignable(type, m.getGenericReturnType())) {
+					g.add(o);
+				}
+				// else if(m.getReturnType().isAssignableFrom(type) &&
+				// m.getName().equals("getInstance"))
+				// g.add(o);
+			} else if (o instanceof Field) {
+				Field f = (Field) o;
+				if (GenericClass.isAssignable(type, f.getGenericType())) {
+					g.add(f);
+				}
+			}
+		}
+		if (g.isEmpty()) {
+			cacheSuperGeneratorType(type, g);
+		}
+		// } else
+		generators.put(type, g);
+	}
+
+	private void cacheSuperGeneratorType(Type type, List<AccessibleObject> g) {
+		// if(generators.containsKey(type))
+		// return;
+
+		logger.debug("Checking superconstructors for class " + type);
+		if (!(type instanceof Class<?>)) {
+			return;
+		}
+		Class<?> clazz = (Class<?>) type;
+		if (clazz.isAnonymousClass() || clazz.isLocalClass() || clazz.getCanonicalName().startsWith("java.")) {
+			logger.debug("Skipping superconstructors for class " + type);
+			return;
+		} else if (logger.isDebugEnabled()) {
+			logger.debug(clazz.getCanonicalName());
+		}
+
+		// List<AccessibleObject> g = new ArrayList<AccessibleObject>();
+
+		for (AccessibleObject o : calls) {
+			if (o instanceof Constructor<?>) {
+				Constructor<?> c = (Constructor<?>) o;
+				if (GenericClass.isSubclass(c.getDeclaringClass(), type)
+						&& c.getDeclaringClass().getName().startsWith(Properties.PROJECT_PREFIX)) {
+					g.add(o);
+				}
+			} else if (o instanceof Method) {
+				Method m = (Method) o;
+				if (GenericClass.isSubclass(m.getGenericReturnType(), type)
+						&& m.getReturnType().getName().startsWith(Properties.PROJECT_PREFIX)) {
+					g.add(o);
+				}
+				// else if(m.getReturnType().isAssignableFrom(type) &&
+				// m.getName().equals("getInstance"))
+				// g.add(o);
+			} else if (o instanceof Field) {
+				Field f = (Field) o;
+				if (GenericClass.isSubclass(f.getGenericType(), type)
+						&& f.getType().getName().startsWith(Properties.PROJECT_PREFIX)) {
+					g.add(f);
+				}
+			}
+		}
+		if (logger.isDebugEnabled()) {
+			logger.debug("Found " + g.size() + " generators for superclasses of " + type);
+			for (AccessibleObject o : g) {
+				logger.debug(o);
+			}
+		}
+		// generators.put(type, g);
+
+	}
+
+	private void countTargetFunctions() {
+		num_defined_methods = CFGMethodAdapter.methods.size();
+		if (Properties.INSTRUMENT_PARENT) {
+			num_defined_methods = getMethods(Properties.getTargetClass()).size();
+		}
+		logger.info("Target class has " + num_defined_methods + " functions");
+		logger.info("Target class has " + BranchPool.getBranchCounter() + " branches");
+		logger.info("Target class has " + BranchPool.getBranchlessMethods().size() + " methods without branches");
+		logger.info("That means for coverage information: "
+				+ (BranchPool.getBranchlessMethods().size() + 2 * BranchPool.getBranchCounter()));
 	}
 
 	private void getStaticClasses() {
@@ -1457,5 +1399,79 @@ public class TestCluster {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	/**
+	 * Create list of all methods using a certain type as parameter
+	 * 
+	 * @param type
+	 * @return
+	 * @throws ConstructionFailedException
+	 */
+	private List<Constructor<?>> getTestConstructorsWith(Type type) {
+		List<Constructor<?>> suitable_constructors = new ArrayList<Constructor<?>>();
+
+		for (Constructor<?> c : test_constructors) {
+			if (Arrays.asList(c.getGenericParameterTypes()).contains(type)) {
+				suitable_constructors.add(c);
+			}
+		}
+		return suitable_constructors;
+	}
+
+	/**
+	 * Create list of all methods using a certain type as parameter
+	 * 
+	 * @param type
+	 * @return
+	 * @throws ConstructionFailedException
+	 */
+	private List<Method> getTestMethodsWith(Type type) {
+		List<Method> suitable_methods = new ArrayList<Method>();
+
+		for (Method m : test_methods) {
+			if (Arrays.asList(m.getGenericParameterTypes()).contains(type)) {
+				suitable_methods.add(m);
+			}
+		}
+		return suitable_methods;
+	}
+
+	/**
+	 * Load test methods from test task file
+	 * 
+	 * @return Map from classname to list of methodnames
+	 */
+	private Map<String, List<String>> getTestObjectsFromFile() {
+		// String property = System.getProperty("test.classes");
+		String property = Properties.TARGET_CLASS;
+		// String filename = property;
+		// if(property == null || property.equals("${test.classes}")) {
+		// property = Properties.TARGET_CLASS;
+		String filename = Properties.OUTPUT_DIR + "/" + property + ".task";
+		// }
+		logger.info("Reading test methods from " + filename);
+		File file = new File(filename);
+		List<String> lines = Io.getLinesFromFile(file);
+		Map<String, List<String>> objs = new HashMap<String, List<String>>();
+		for (String line : lines) {
+			line = line.trim();
+			// Skip comments
+			if (line.startsWith("#")) {
+				continue;
+			}
+
+			String[] parameters = line.split(",");
+			if (parameters.length != 2) {
+				continue;
+			}
+			if (!objs.containsKey(parameters[0])) {
+				objs.put(parameters[0], new ArrayList<String>());
+			}
+
+			String name = parameters[1];
+			objs.get(parameters[0]).add(name);
+		}
+		return objs;
 	}
 }

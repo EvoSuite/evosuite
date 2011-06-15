@@ -50,15 +50,16 @@ public class TestChromosome extends Chromosome {
 	/** True if this leads to an exception */
 	private final boolean has_exception = false;
 
+	public ExecutionResult last_result = null;
+
 	public TestChromosome() {
 
-		//#TODO steenbuck similar logic is repeated in TestSuiteChromosomeFactory
+		// #TODO steenbuck similar logic is repeated in
+		// TestSuiteChromosomeFactory
 		if (test_factory == null) {
 			test_factory = DefaultTestFactory.getInstance();
 		}
 	}
-
-	public ExecutionResult last_result = null;
 
 	/*
 	 * public TestChromosome(TestFactory test_factory, TestMutationFactory
@@ -78,7 +79,7 @@ public class TestChromosome extends Chromosome {
 		c.solution = solution;
 		c.setChanged(isChanged());
 		if (last_result != null) {
-			c.last_result = last_result; //.clone(); // TODO: Clone?
+			c.last_result = last_result; // .clone(); // TODO: Clone?
 			c.last_result.test = c.test;
 		}
 
@@ -91,8 +92,7 @@ public class TestChromosome extends Chromosome {
 	 * @throws ConstructionFailedException
 	 */
 	@Override
-	public void crossOver(Chromosome other, int position1, int position2)
-	        throws ConstructionFailedException {
+	public void crossOver(Chromosome other, int position1, int position2) throws ConstructionFailedException {
 		logger.debug("Crossover starting");
 		TestChromosome offspring = new TestChromosome();
 
@@ -100,11 +100,9 @@ public class TestChromosome extends Chromosome {
 			offspring.test.addStatement(test.getStatement(i).clone(offspring.test));
 		}
 		for (int i = position2; i < other.size(); i++) {
-			test_factory.appendStatement(offspring.test,
-			                             ((TestChromosome) other).test.getStatement(i));
+			test_factory.appendStatement(offspring.test, ((TestChromosome) other).test.getStatement(i));
 		}
-		if (!Properties.CHECK_MAX_LENGTH
-		        || offspring.test.size() <= Properties.CHROMOSOME_LENGTH) {
+		if (!Properties.CHECK_MAX_LENGTH || (offspring.test.size() <= Properties.CHROMOSOME_LENGTH)) {
 			test = offspring.test;
 		}
 		// logger.warn("Size exceeded!");
@@ -116,25 +114,35 @@ public class TestChromosome extends Chromosome {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		TestChromosome other = (TestChromosome) obj;
 		if (test == null) {
-			if (other.test != null)
+			if (other.test != null) {
 				return false;
-		} else if (!test.equals(other.test))
+			}
+		} else if (!test.equals(other.test)) {
 			return false;
+		}
 		return true;
 	}
 
-	/* (non-Javadoc)
+	public boolean hasException() {
+		return has_exception;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#localSearch()
 	 */
 	@Override
 	public void localSearch(LocalSearchObjective objective) {
-		//logger.info("Test before local search: " + test.toCode());
+		// logger.info("Test before local search: " + test.toCode());
 		double oldFitness = getFitness();
 
 		for (int i = 0; i < test.size(); i++) {
@@ -159,13 +167,14 @@ public class TestChromosome extends Chromosome {
 					search = new StringLocalSearch();
 				}
 
-				if (search != null)
+				if (search != null) {
 					search.doSearch(this, i, objective);
+				}
 
 			}
 		}
 		assert (getFitness() <= oldFitness);
-		//logger.info("Test after local search: " + test.toCode());
+		// logger.info("Test after local search: " + test.toCode());
 	}
 
 	/**
@@ -176,7 +185,7 @@ public class TestChromosome extends Chromosome {
 		boolean changed = false;
 		double P;
 
-		//#TODO steenbuck TestChromosome should be subclassed
+		// #TODO steenbuck TestChromosome should be subclassed
 		if (Properties.CRITERION == Criterion.CONCURRENCY) {
 			assert (test instanceof ConcurrentTestCase);
 
@@ -189,14 +198,16 @@ public class TestChromosome extends Chromosome {
 
 			// Change in schedule
 			if (Randomness.nextDouble() <= P) {
-				if (mutationChangeSchedule())
+				if (mutationChangeSchedule()) {
 					changed = true;
+				}
 			}
 
 			// Insert into schedule
 			if (Randomness.nextDouble() <= P) {
-				if (mutationInsertSchedule())
+				if (mutationInsertSchedule()) {
 					changed = true;
+				}
 			}
 		} else {
 			P = 1d / 3d;
@@ -209,20 +220,131 @@ public class TestChromosome extends Chromosome {
 
 		// Change
 		if (Randomness.nextDouble() <= P) {
-			if (mutationChange())
+			if (mutationChange()) {
 				changed = true;
+			}
 		}
 
 		// Insert
 		if (Randomness.nextDouble() <= P) {
-			if (mutationInsert())
+			if (mutationInsert()) {
 				changed = true;
+			}
 		}
 
 		if (changed) {
 			setChanged(true);
 			last_result = null;
 		}
+	}
+
+	@Override
+	public void setChanged(boolean changed) {
+		this.changed = changed;
+		CurrentChromosomeTracker.getInstance().changed(this);
+	}
+
+	/**
+	 * The size of a chromosome is the length of its test case
+	 */
+	@Override
+	public int size() {
+		return test.size();
+	}
+
+	@Override
+	public String toString() {
+		return test.toCode();
+	}
+
+	/**
+	 * Each statement is replaced with probability 1/length
+	 * 
+	 * @return
+	 */
+	private boolean mutationChange() {
+		boolean changed = false;
+		double pl = 1d / test.size();
+
+		if (Randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
+			ConcolicMutation mutation = new ConcolicMutation();
+			changed = mutation.mutate(test);
+			if (changed) {
+				logger.info("Changed test case is: " + test.toCode());
+			}
+		}
+
+		if (!changed) {
+			for (StatementInterface statement : test) {
+				if (Randomness.nextDouble() <= pl) {
+
+					if (statement instanceof PrimitiveStatement<?>) {
+						// do some mutation of values with what probability?
+
+						logger.debug("Old statement: " + statement.getCode());
+						if (Randomness.nextDouble() <= 0.2) {
+							((PrimitiveStatement<?>) statement).randomize();
+						} else {
+							((PrimitiveStatement<?>) statement).delta();
+						}
+
+						int position = statement.getReturnValue().getStPosition();
+						// test.setStatement(statement, position);
+						// logger.info("Changed test: " + test.toCode());
+						logger.debug("New statement: " + test.getStatement(position).getCode());
+						changed = true;
+					} else if (statement instanceof AssignmentStatement) {
+						// logger.info("Before change at:");
+						// logger.info(test.toCode());
+						AssignmentStatement as = (AssignmentStatement) statement;
+						if (Randomness.nextDouble() < 0.5) {
+							List<VariableReference> objects = test.getObjects(statement.getReturnValue().getType(),
+									statement.getReturnValue().getStPosition());
+							objects.remove(statement.getReturnValue());
+							objects.remove(as.parameter);
+							if (!objects.isEmpty()) {
+								as.parameter = Randomness.choice(objects);
+								changed = true;
+							}
+						} else if (as.getArrayIndexRef().getArray().getArrayLength() > 0) {
+							as.getArrayIndexRef().setArrayIndex(
+									Randomness.nextInt(as.getArrayIndexRef().getArray().getArrayLength()));
+							changed = true;
+						}
+						// logger.info("After change:");
+						// logger.info(test.toCode());
+					} else if (statement.getReturnValue() instanceof ArrayReference) {
+
+					} else {
+						changed = test_factory.changeRandomCall(test, statement);
+					}
+				}
+			}
+		}
+		return changed;
+	}
+
+	/**
+	 * Each schedule is replaced with probability 1/length
+	 * 
+	 * @return
+	 */
+	private boolean mutationChangeSchedule() {
+		ConcurrentTestCase test = (ConcurrentTestCase) this.test;
+		Schedule schedule = test.getSchedule();
+		boolean changed = false;
+		double pl = 1d / schedule.size();
+		for (int num = schedule.size() - 1; num >= 0; num--) {
+
+			// Each schedulePoint is deleted with probability 1/l
+			if (Randomness.nextDouble() <= pl) {
+				schedule.removeElement(num);
+				schedule.add(num, schedule.getRandomThreadID());
+				changed = true;
+			}
+		}
+
+		return changed;
 	}
 
 	/**
@@ -247,8 +369,7 @@ public class TestChromosome extends Chromosome {
 					test = copy;
 
 				} catch (ConstructionFailedException e) {
-					logger.warn("Deletion of statement failed: "
-					        + test.getStatement(num).getCode());
+					logger.warn("Deletion of statement failed: " + test.getStatement(num).getCode());
 					logger.warn(test.toCode());
 				}
 				// }
@@ -281,6 +402,28 @@ public class TestChromosome extends Chromosome {
 	}
 
 	/**
+	 * With exponentially decreasing probability, insert statements at random
+	 * position
+	 * 
+	 * @return
+	 */
+	private boolean mutationInsert() {
+		boolean changed = false;
+		final double ALPHA = 0.5;
+		int count = 0;
+
+		while ((Randomness.nextDouble() <= Math.pow(ALPHA, count))
+				&& (!Properties.CHECK_MAX_LENGTH || (size() < Properties.CHROMOSOME_LENGTH))) {
+			count++;
+			// Insert at position as during initialization (i.e., using helper
+			// sequences)
+			test_factory.insertRandomStatement(test);
+			changed = true;
+		}
+		return changed;
+	}
+
+	/**
 	 * With exponentially decreasing probability, insert schedule points at
 	 * random position
 	 * 
@@ -293,7 +436,16 @@ public class TestChromosome extends Chromosome {
 		final double ALPHA = 0.5;
 		int count = 0;
 
-		while (Randomness.nextDouble() <= Math.pow(ALPHA, count)) { //#TODO steenbuck removed length check, should maybe be added (compare: mutateInsert)
+		while (Randomness.nextDouble() <= Math.pow(ALPHA, count)) { // #TODO
+																	// steenbuck
+																	// removed
+																	// length
+																	// check,
+																	// should
+																	// maybe be
+																	// added
+																	// (compare:
+																	// mutateInsert)
 			count++;
 			// Insert at position as during initialization (i.e., using helper
 			// sequences)
@@ -302,139 +454,5 @@ public class TestChromosome extends Chromosome {
 			changed = true;
 		}
 		return changed;
-	}
-
-	/**
-	 * Each schedule is replaced with probability 1/length
-	 * 
-	 * @return
-	 */
-	private boolean mutationChangeSchedule() {
-		ConcurrentTestCase test = (ConcurrentTestCase) this.test;
-		Schedule schedule = test.getSchedule();
-		boolean changed = false;
-		double pl = 1d / schedule.size();
-		for (int num = schedule.size() - 1; num >= 0; num--) {
-
-			// Each schedulePoint is deleted with probability 1/l
-			if (Randomness.nextDouble() <= pl) {
-				schedule.removeElement(num);
-				schedule.add(num, schedule.getRandomThreadID());
-				changed = true;
-			}
-		}
-
-		return changed;
-	}
-
-	/**
-	 * Each statement is replaced with probability 1/length
-	 * 
-	 * @return
-	 */
-	private boolean mutationChange() {
-		boolean changed = false;
-		double pl = 1d / test.size();
-
-		if (Randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
-			ConcolicMutation mutation = new ConcolicMutation();
-			changed = mutation.mutate(test);
-			if (changed) {
-				logger.info("Changed test case is: " + test.toCode());
-			}
-		}
-
-		if (!changed) {
-			for (StatementInterface statement : test) {
-				if (Randomness.nextDouble() <= pl) {
-
-					if (statement instanceof PrimitiveStatement<?>) {
-						// do some mutation of values with what probability?
-
-						logger.debug("Old statement: " + statement.getCode());
-						if (Randomness.nextDouble() <= 0.2)
-							((PrimitiveStatement<?>) statement).randomize();
-						else
-							((PrimitiveStatement<?>) statement).delta();
-
-						int position = statement.getReturnValue().getStPosition();
-						// test.setStatement(statement, position);
-						//logger.info("Changed test: " + test.toCode());
-						logger.debug("New statement: "
-						        + test.getStatement(position).getCode());
-						changed = true;
-					} else if (statement instanceof AssignmentStatement) {
-						// logger.info("Before change at:");
-						// logger.info(test.toCode());
-						AssignmentStatement as = (AssignmentStatement) statement;
-						if (Randomness.nextDouble() < 0.5) {
-							List<VariableReference> objects = test.getObjects(statement.getReturnValue().getType(),
-							                                                  statement.getReturnValue().getStPosition());
-							objects.remove(statement.getReturnValue());
-							objects.remove(as.parameter);
-							if (!objects.isEmpty()) {
-								as.parameter = Randomness.choice(objects);
-								changed = true;
-							}
-						} else if (as.getArrayIndexRef().getArray().getArrayLength() > 0) {
-							as.getArrayIndexRef().setArrayIndex(Randomness.nextInt(as.getArrayIndexRef().getArray().getArrayLength()));
-							changed = true;
-						}
-						// logger.info("After change:");
-						// logger.info(test.toCode());
-					} else if (statement.getReturnValue() instanceof ArrayReference) {
-
-					} else {
-						changed = test_factory.changeRandomCall(test, statement);
-					}
-				}
-			}
-		}
-		return changed;
-	}
-
-	/**
-	 * With exponentially decreasing probability, insert statements at random
-	 * position
-	 * 
-	 * @return
-	 */
-	private boolean mutationInsert() {
-		boolean changed = false;
-		final double ALPHA = 0.5;
-		int count = 0;
-
-		while (Randomness.nextDouble() <= Math.pow(ALPHA, count)
-		        && (!Properties.CHECK_MAX_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {
-			count++;
-			// Insert at position as during initialization (i.e., using helper
-			// sequences)
-			test_factory.insertRandomStatement(test);
-			changed = true;
-		}
-		return changed;
-	}
-
-	/**
-	 * The size of a chromosome is the length of its test case
-	 */
-	@Override
-	public int size() {
-		return test.size();
-	}
-
-	@Override
-	public String toString() {
-		return test.toCode();
-	}
-
-	public boolean hasException() {
-		return has_exception;
-	}
-
-	@Override
-	public void setChanged(boolean changed) {
-		this.changed = changed;
-		CurrentChromosomeTracker.getInstance().changed(this);
 	}
 }

@@ -29,6 +29,10 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  */
 public class ConcurrencyCoverageTestFitness extends TestFitnessFunction {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/** Target branch */
 	private final ConcurrencyCoverageGoal goal;
 
@@ -38,37 +42,44 @@ public class ConcurrencyCoverageTestFitness extends TestFitnessFunction {
 	public ConcurrencyCoverageTestFitness(ConcurrencyCoverageGoal goal) {
 		this.goal = goal;
 	}
-	
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		ConcurrencyCoverageTestFitness other = (ConcurrencyCoverageTestFitness) obj;
+		if (goal == null) {
+			if (other.goal != null) {
+				return false;
+			}
+		} else if (!goal.equals(other.goal)) {
+			return false;
+		}
+		return true;
+	}
 
 	/**
 	 * Calculate approach level + branch distance
 	 */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
-		 ConcurrencyDistance distance = goal.getDistance(result, result.getTrace().concurrencyTracer);
+		ConcurrencyDistance distance = goal.getDistance(result, result.getTrace().concurrencyTracer);
 		double fitness = 0.0;
 
 		fitness = distance.approachLevel + normalize(distance.branchDistance) + normalize(distance.scheduleDistance);
 
-		logger.debug("Approach level: " + distance.approachLevel
-		        + " / branch distance: " + distance.branchDistance + ", fitness = "
-		        + fitness);
+		logger.debug("Approach level: " + distance.approachLevel + " / branch distance: " + distance.branchDistance
+				+ ", fitness = " + fitness);
 
 		updateIndividual(individual, fitness);
 		return fitness;
-	}
-
-	/**
-	 * Store information
-	 */
-	@Override
-	protected void updateIndividual(Chromosome individual, double fitness) {
-		individual.setFitness(fitness);
-	}
-
-	@Override
-	public String toString() {
-		return goal.toString();
 	}
 
 	@Override
@@ -80,20 +91,16 @@ public class ConcurrencyCoverageTestFitness extends TestFitnessFunction {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ConcurrencyCoverageTestFitness other = (ConcurrencyCoverageTestFitness) obj;
-		if (goal == null) {
-			if (other.goal != null)
-				return false;
-		} else if (!goal.equals(other.goal))
-			return false;
-		return true;
+	public String toString() {
+		return goal.toString();
+	}
+
+	/**
+	 * Store information
+	 */
+	@Override
+	protected void updateIndividual(Chromosome individual, double fitness) {
+		individual.setFitness(fitness);
 	}
 
 }

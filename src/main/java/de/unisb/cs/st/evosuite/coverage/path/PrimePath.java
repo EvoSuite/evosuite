@@ -14,12 +14,12 @@ import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
  */
 public class PrimePath {
 
-	List<BytecodeInstruction> nodes = new ArrayList<BytecodeInstruction>();
-
 	class PathEntry {
 		BytecodeInstruction vertex;
 		boolean value;
 	}
+
+	List<BytecodeInstruction> nodes = new ArrayList<BytecodeInstruction>();
 
 	List<PathEntry> branches = new ArrayList<PathEntry>();
 
@@ -32,29 +32,14 @@ public class PrimePath {
 		this.methodName = methodName;
 	}
 
-	public BytecodeInstruction getLast() {
-		return nodes.get(nodes.size() - 1);
-	}
-
 	public void append(BytecodeInstruction node) {
 		nodes.add(node);
-	}
-
-	public PrimePath getAppended(BytecodeInstruction node) {
-		PrimePath copy = new PrimePath(className, methodName);
-		copy.nodes.addAll(nodes);
-		copy.append(node);
-		return copy;
-	}
-
-	public boolean contains(BytecodeInstruction vertex) {
-		return nodes.contains(vertex);
 	}
 
 	public void condensate() {
 		for (int position = 0; position < nodes.size(); position++) {
 			BytecodeInstruction node = nodes.get(position);
-			if (node.isBranch() && position < (nodes.size() - 1)) {
+			if (node.isBranch() && (position < (nodes.size() - 1))) {
 				PathEntry entry = new PathEntry();
 				entry.vertex = node;
 				if (nodes.get(position + 1).getInstructionId() == (node.getInstructionId() + 1)) {
@@ -68,12 +53,63 @@ public class PrimePath {
 
 	}
 
-	public int getSize() {
-		return nodes.size();
+	public boolean contains(BytecodeInstruction vertex) {
+		return nodes.contains(vertex);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		PrimePath other = (PrimePath) obj;
+		if (className == null) {
+			if (other.className != null) {
+				return false;
+			}
+		} else if (!className.equals(other.className)) {
+			return false;
+		}
+		if (methodName == null) {
+			if (other.methodName != null) {
+				return false;
+			}
+		} else if (!methodName.equals(other.methodName)) {
+			return false;
+		}
+		if (nodes == null) {
+			if (other.nodes != null) {
+				return false;
+			}
+		} else if (!nodes.equals(other.nodes)) {
+			return false;
+		}
+		return true;
 	}
 
 	public BytecodeInstruction get(int position) {
 		return nodes.get(position);
+	}
+
+	public PrimePath getAppended(BytecodeInstruction node) {
+		PrimePath copy = new PrimePath(className, methodName);
+		copy.nodes.addAll(nodes);
+		copy.append(node);
+		return copy;
+	}
+
+	public BytecodeInstruction getLast() {
+		return nodes.get(nodes.size() - 1);
+	}
+
+	public int getSize() {
+		return nodes.size();
 	}
 
 	@Override
@@ -84,33 +120,6 @@ public class PrimePath {
 		result = prime * result + ((methodName == null) ? 0 : methodName.hashCode());
 		result = prime * result + ((nodes == null) ? 0 : nodes.hashCode());
 		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		PrimePath other = (PrimePath) obj;
-		if (className == null) {
-			if (other.className != null)
-				return false;
-		} else if (!className.equals(other.className))
-			return false;
-		if (methodName == null) {
-			if (other.methodName != null)
-				return false;
-		} else if (!methodName.equals(other.methodName))
-			return false;
-		if (nodes == null) {
-			if (other.nodes != null)
-				return false;
-		} else if (!nodes.equals(other.nodes))
-			return false;
-		return true;
 	}
 
 	@Override

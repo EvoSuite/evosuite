@@ -34,8 +34,11 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  */
 public class LCSAJCoverageFactory implements TestFitnessFactory {
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
 	 */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
@@ -44,14 +47,14 @@ public class LCSAJCoverageFactory implements TestFitnessFactory {
 		// Branchless methods
 		String class_name = Properties.TARGET_CLASS;
 		for (String method : BranchPool.getBranchlessMethods()) {
-			goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(class_name,
-			        method)));
+			goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(class_name, method)));
 		}
 		// Branches
 		for (String className : LCSAJPool.lcsaj_map.keySet()) {
 			for (String methodName : LCSAJPool.lcsaj_map.get(className).keySet()) {
-				for (LCSAJ lcsaj : LCSAJPool.getLCSAJs(className, methodName))
+				for (LCSAJ lcsaj : LCSAJPool.getLCSAJs(className, methodName)) {
 					goals.add(new LCSAJCoverageTestFitness(className, methodName, lcsaj));
+				}
 			}
 		}
 

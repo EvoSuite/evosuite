@@ -49,46 +49,6 @@ public class Scope {
 	}
 
 	/**
-	 * Set variable to new value
-	 * 
-	 * @param reference
-	 *            VariableReference
-	 * @param o
-	 *            Value
-	 */
-	public synchronized void set(VariableReference reference, Object o) {
-
-		// Learn some dynamic information about this object
-		if (reference instanceof ArrayReference) {
-			ArrayReference arrayRef = (ArrayReference) reference;
-			if (o != null && !o.getClass().isArray())
-				System.out.println("Trying to access object of class " + o.getClass()
-				        + " as array: " + o);
-			else if (o != null)
-				arrayRef.setArrayLength(Array.getLength(o));
-			else
-				arrayRef.setArrayLength(0);
-		}
-
-		if (o != null && !o.getClass().equals(reference.getVariableClass())
-		        && !reference.isPrimitive()) {
-			if (Modifier.isPublic(o.getClass().getModifiers()))
-				reference.setType(o.getClass());
-		}
-		pool.put(reference, o);
-	}
-
-	/**
-	 * Debug output
-	 */
-	public void printPool() {
-		for (Entry<VariableReference, Object> entry : pool.entrySet()) {
-			System.out.println("Pool: " + entry.getKey().getName() + ", "
-			        + entry.getKey().getType() + " : " + entry.getValue());
-		}
-	}
-
-	/**
 	 * Get current value of variable
 	 * 
 	 * @param reference
@@ -106,8 +66,9 @@ public class Scope {
 			}
 		} else if (reference instanceof ConstantValue) {
 			return ((ConstantValue) reference).getValue();
-		} else
+		} else {
 			return pool.get(reference);
+		}
 	}
 
 	/**
@@ -121,7 +82,7 @@ public class Scope {
 		List<VariableReference> refs = new ArrayList<VariableReference>();
 		for (Entry<VariableReference, Object> entry : pool.entrySet()) {
 			if (type.equals(entry.getKey().getType())
-			        || (entry.getValue() != null && type.equals(entry.getValue().getClass()))) {
+					|| ((entry.getValue() != null) && type.equals(entry.getValue().getClass()))) {
 				refs.add(entry.getKey());
 			}
 		}
@@ -151,9 +112,50 @@ public class Scope {
 	public Collection<Object> getObjects(Type type) {
 		Set<Object> objects = new HashSet<Object>();
 		for (Object o : pool.values()) {
-			if (o.getClass().equals(type))
+			if (o.getClass().equals(type)) {
 				objects.add(o);
+			}
 		}
 		return objects;
+	}
+
+	/**
+	 * Debug output
+	 */
+	public void printPool() {
+		for (Entry<VariableReference, Object> entry : pool.entrySet()) {
+			System.out.println("Pool: " + entry.getKey().getName() + ", " + entry.getKey().getType() + " : "
+					+ entry.getValue());
+		}
+	}
+
+	/**
+	 * Set variable to new value
+	 * 
+	 * @param reference
+	 *            VariableReference
+	 * @param o
+	 *            Value
+	 */
+	public synchronized void set(VariableReference reference, Object o) {
+
+		// Learn some dynamic information about this object
+		if (reference instanceof ArrayReference) {
+			ArrayReference arrayRef = (ArrayReference) reference;
+			if ((o != null) && !o.getClass().isArray()) {
+				System.out.println("Trying to access object of class " + o.getClass() + " as array: " + o);
+			} else if (o != null) {
+				arrayRef.setArrayLength(Array.getLength(o));
+			} else {
+				arrayRef.setArrayLength(0);
+			}
+		}
+
+		if ((o != null) && !o.getClass().equals(reference.getVariableClass()) && !reference.isPrimitive()) {
+			if (Modifier.isPublic(o.getClass().getModifiers())) {
+				reference.setType(o.getClass());
+			}
+		}
+		pool.put(reference, o);
 	}
 }

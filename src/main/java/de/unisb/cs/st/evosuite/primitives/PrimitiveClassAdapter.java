@@ -36,8 +36,7 @@ public class PrimitiveClassAdapter extends ClassAdapter {
 
 	private static String target_class = Properties.TARGET_CLASS;
 
-	private static final boolean REPLACE_STRING = Properties.STRING_REPLACEMENT
-	        && !Properties.TT;
+	private static final boolean REPLACE_STRING = Properties.STRING_REPLACEMENT && !Properties.TT;
 
 	private final Excludes e = Excludes.getInstance();
 
@@ -60,8 +59,7 @@ public class PrimitiveClassAdapter extends ClassAdapter {
 	}
 
 	@Override
-	public FieldVisitor visitField(int access, String name, String desc,
-	        String signature, Object value) {
+	public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
 		if (value instanceof String) {
 			primitive_pool.add(value);
 		}
@@ -75,16 +73,13 @@ public class PrimitiveClassAdapter extends ClassAdapter {
 	 * java.lang.String, java.lang.String, java.lang.String[])
 	 */
 	@Override
-	public MethodVisitor visitMethod(int methodAccess, String name, String descriptor,
-	        String signature, String[] exceptions) {
-		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor, signature,
-		                                     exceptions);
+	public MethodVisitor visitMethod(int methodAccess, String name, String descriptor, String signature,
+			String[] exceptions) {
+		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor, signature, exceptions);
 
 		String classNameWithDots = className.replace('/', '.');
-		if (!exclude
-		        && REPLACE_STRING
-		        && (classNameWithDots.equals(target_class) || (classNameWithDots.startsWith(target_class
-		                + "$")))) {
+		if (!exclude && REPLACE_STRING
+				&& (classNameWithDots.equals(target_class) || (classNameWithDots.startsWith(target_class + "$")))) {
 			mv = new StringReplacementMethodAdapter(methodAccess, descriptor, mv);
 		}
 		mv = new PrimitivePoolMethodAdapter(mv);

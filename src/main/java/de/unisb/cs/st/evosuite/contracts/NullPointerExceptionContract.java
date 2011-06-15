@@ -18,14 +18,20 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  */
 public class NullPointerExceptionContract extends Contract {
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.contracts.Contract#check(de.unisb.cs.st.evosuite.testcase.TestCase, de.unisb.cs.st.evosuite.testcase.Statement, de.unisb.cs.st.evosuite.testcase.Scope, java.lang.Throwable)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.contracts.Contract#check(de.unisb.cs.st.evosuite
+	 * .testcase.TestCase, de.unisb.cs.st.evosuite.testcase.Statement,
+	 * de.unisb.cs.st.evosuite.testcase.Scope, java.lang.Throwable)
 	 */
 	@Override
 	public boolean check(StatementInterface statement, Scope scope, Throwable exception) {
 
 		if (exception != null) {
-			// method throws no NullPointerException if no input parameter was null
+			// method throws no NullPointerException if no input parameter was
+			// null
 			if (exception instanceof NullPointerException) {
 				List<VariableReference> parameters = new ArrayList<VariableReference>();
 				if (statement instanceof MethodStatement) {

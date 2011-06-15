@@ -9,8 +9,8 @@ package de.unisb.cs.st.evosuite.ga;
  */
 public interface LocalSearchObjective {
 
-	public boolean hasImproved(Chromosome individual);
-
 	public FitnessFunction getFitnessFunction();
+
+	public boolean hasImproved(Chromosome individual);
 
 }

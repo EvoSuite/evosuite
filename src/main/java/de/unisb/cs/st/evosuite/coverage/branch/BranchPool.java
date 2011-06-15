@@ -20,16 +20,17 @@ import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
  * Branches.
  * 
  * The addBranch()-Method gets called by the BranchInstrumentation whenever it
- * detects a BytecodeInstruction that corresponds to a Branch in the class under test.
+ * detects a BytecodeInstruction that corresponds to a Branch in the class under
+ * test.
  * 
  * @author Andre Mis
  */
 public class BranchPool {
 
 	private static Logger logger = Logger.getLogger(BranchPool.class);
-	
-	
-	// maps className -> method inside that class -> list of branches inside that method 
+
+	// maps className -> method inside that class -> list of branches inside
+	// that method
 	private static Map<String, Map<String, List<Branch>>> branchMap = new HashMap<String, Map<String, List<Branch>>>();
 
 	// maps every Method to the number of Branches inside that method
@@ -40,157 +41,44 @@ public class BranchPool {
 
 	// maps the branchIDs assigned by this pool to their respective Branches
 	private static Map<Integer, Branch> branchIdMap = new HashMap<Integer, Branch>();
-	
+
 	// maps all known branch instructions to their branchId
 	private static Map<BytecodeInstruction, Integer> registeredBranches = new HashMap<BytecodeInstruction, Integer>();
 
 	// number of known Branches
 	private static int branchCounter = 0;
 
-	
 	// fill the pool
-	
-	
-	/**
-	 * Get called by the BranchInstrumentation whenever it detects a CFGVertex that
-	 * corresponds to a Branch in the class under test.
-	 * 
-	 * @param v
-	 *            CFGVertex of a Branch
-	 */
-	public static void registerAsBranch(BytecodeInstruction v) {
-		if (!(v.isActualBranch()))
-			throw new IllegalArgumentException("CFGVertex of a branch expected");
-		if(isKnownAsBranch(v))
-			throw new IllegalArgumentException("branches can only be added to the pool once");
-
-		registerInstruction(v);
-		
-	}
 
 	/**
-	 * Gets called by the CFGMethodAdapter whenever it detects a method 
-	 * without any branches.
+	 * Gets called by the CFGMethodAdapter whenever it detects a method without
+	 * any branches.
 	 * 
 	 * @param methodName
 	 *            Unique methodName of a method without Branches
 	 */
 	public static void addBranchlessMethod(String methodName) {
 		branchlessMethods.add(methodName);
-	}	
-	
-	private static void registerInstruction(BytecodeInstruction v) {
-		if(isKnownAsBranch(v))
-			throw new IllegalStateException("expect registerInstruction() to be called at most once for each instruction");
-		
-		branchCounter++;
-//		v.setBranchId(branchCounter);
-//		markBranchIDs(v);
-		registeredBranches.put(v, branchCounter);
-		
-		Branch b = new Branch(v,branchCounter);
-		addBranchToMap(b);
-		branchIdMap.put(branchCounter, b);
-
-		logger.debug("Branch " + branchCounter + " at line " + b.getLineNumber());
 	}
-
-	private static void addBranchToMap(Branch b) {
-		String className = b.getClassName();
-		String methodName = b.getMethodName();
-
-		if (!branchMap.containsKey(className))
-			branchMap.put(className, new HashMap<String, List<Branch>>());
-		if (!branchMap.get(className).containsKey(methodName))
-			branchMap.get(className).put(methodName, new ArrayList<Branch>());
-		branchMap.get(className).get(methodName).add(b);
-	}
-
-//	private static void markBranchIDs(BytecodeInstruction b) {
-//		RawControlFlowGraph completeCFG = CFGPool.getRawCFG(b
-//				.getClassName(), b.getMethodName());
-//		
-//		completeCFG.markBranchIds(b); // TODO use new CDG
-//	}	
-	
-	
-	// retrieve information from the pool
-	
-	
-	/**
-	 * Checks whether the given instruction is already known to be a Branch
-	 * 
-	 * Returns true if the given BytecodeInstruction previously passed a
-	 * call to addBranch(instruction), false otherwise  
-	 */
-	public static boolean isKnownAsBranch(BytecodeInstruction v) {
-		return registeredBranches.containsKey(v);
-	}
-	
-	public static int getActualBranchIdForInstruction(BytecodeInstruction ins) {
-		if(registeredBranches.containsKey(ins))
-			return registeredBranches.get(ins);
-		
-		return -1;
-	}
-	
-	public static Branch getBranchForInstruction(BytecodeInstruction ins) {
-		if(ins == null)
-			throw new IllegalArgumentException("null given");
-		
-		return getBranch(registeredBranches.get(ins));
-	}
-
 
 	// TODO can't this just always be called private by addBranch?
-	// 		 why is this called in CFGMethodAdapter.getInstrumentation() anyways?
-	//			.. well it only get's called if Properties.CRITERION is set to LCSAJ 
-	//			... might want to change that
+	// why is this called in CFGMethodAdapter.getInstrumentation() anyways?
+	// .. well it only get's called if Properties.CRITERION is set to LCSAJ
+	// ... might want to change that
 	public static void countBranch(String id) {
 		if (!methodBranchCount.containsKey(id)) {
 			methodBranchCount.put(id, 1);
-		} else
+		} else {
 			methodBranchCount.put(id, methodBranchCount.get(id) + 1);
+		}
 	}
 
-	/**
-	 * Returns the number of known Branches for a given methodName.
-	 * 
-	 * @param methodName
-	 *            Unique methodName (consisting of "className.methodName")
-	 * @return The number of currently known Branches inside the given method
-	 */
-	public static int getBranchCountForMethod(String methodName) {
-		Integer count = methodBranchCount.get(methodName);
-		if (count == null)
-			return 0;
+	public static int getActualBranchIdForInstruction(BytecodeInstruction ins) {
+		if (registeredBranches.containsKey(ins)) {
+			return registeredBranches.get(ins);
+		}
 
-		return count;
-	}
-
-	/**
-	 * Returns the number of currently known Branches
-	 * 
-	 * @return The number of currently known Branches
-	 */
-	public static int getBranchCounter() {
-		return branchCounter;
-	}
-
-	/**
-	 * Returns the bytecodeID for the branch associated with the given branchID
-	 * 
-	 * @param branchId
-	 *            The ID of a Branch
-	 * @return If there is a Branch with the given branchID this method returns
-	 *         its bytecodeID, -1 otherwise
-	 */
-	public static int getBytecodeIdFor(int branchId) {
-		Branch branch = branchIdMap.get(branchId);
-		if (branch == null)
-			return -1;
-
-		return branch.getInstructionId();
+		return -1;
 	}
 
 	/**
@@ -205,6 +93,64 @@ public class BranchPool {
 		return branchIdMap.get(branchId);
 	}
 
+	// private static void markBranchIDs(BytecodeInstruction b) {
+	// RawControlFlowGraph completeCFG = CFGPool.getRawCFG(b
+	// .getClassName(), b.getMethodName());
+	//
+	// completeCFG.markBranchIds(b); // TODO use new CDG
+	// }
+
+	// retrieve information from the pool
+
+	/**
+	 * Returns the branch contained in the given method of the given class
+	 * 
+	 * Should no such Branch exist null is returned
+	 */
+	public static Branch getBranchByBytecodeId(String className, String methodName, int instructionId) {
+		List<Branch> branches = retrieveBranchesInMethod(className, methodName);
+		for (Branch b : branches) {
+			if (b.getInstructionId() == instructionId) {
+				return b;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the number of currently known Branches
+	 * 
+	 * @return The number of currently known Branches
+	 */
+	public static int getBranchCounter() {
+		return branchCounter;
+	}
+
+	/**
+	 * Returns the number of known Branches for a given methodName.
+	 * 
+	 * @param methodName
+	 *            Unique methodName (consisting of "className.methodName")
+	 * @return The number of currently known Branches inside the given method
+	 */
+	public static int getBranchCountForMethod(String methodName) {
+		Integer count = methodBranchCount.get(methodName);
+		if (count == null) {
+			return 0;
+		}
+
+		return count;
+	}
+
+	public static Branch getBranchForInstruction(BytecodeInstruction ins) {
+		if (ins == null) {
+			throw new IllegalArgumentException("null given");
+		}
+
+		return getBranch(registeredBranches.get(ins));
+	}
+
 	/**
 	 * Returns a set with all unique methodNames of methods without Branches.
 	 * 
@@ -215,56 +161,121 @@ public class BranchPool {
 	}
 
 	/**
-	 *  Returns a Set containing all classes for which this pool
-	 * knows Branches for as Strings
+	 * Returns the bytecodeID for the branch associated with the given branchID
+	 * 
+	 * @param branchId
+	 *            The ID of a Branch
+	 * @return If there is a Branch with the given branchID this method returns
+	 *         its bytecodeID, -1 otherwise
+	 */
+	public static int getBytecodeIdFor(int branchId) {
+		Branch branch = branchIdMap.get(branchId);
+		if (branch == null) {
+			return -1;
+		}
+
+		return branch.getInstructionId();
+	}
+
+	/**
+	 * Checks whether the given instruction is already known to be a Branch
+	 * 
+	 * Returns true if the given BytecodeInstruction previously passed a call to
+	 * addBranch(instruction), false otherwise
+	 */
+	public static boolean isKnownAsBranch(BytecodeInstruction v) {
+		return registeredBranches.containsKey(v);
+	}
+
+	/**
+	 * Returns a Set containing all classes for which this pool knows Branches
+	 * for as Strings
 	 */
 	public static Set<String> knownClasses() {
 		Set<String> r = new HashSet<String>();
 		r.addAll(branchMap.keySet());
 		return r;
 	}
-	
+
 	/**
-	 *  Returns a Set containing all methods in the class 
-	 * represented by the given String for which this pool 
-	 * knows Branches for as Strings
+	 * Returns a Set containing all methods in the class represented by the
+	 * given String for which this pool knows Branches for as Strings
 	 * 
-	 */	
+	 */
 	public static Set<String> knownMethods(String className) {
 		Set<String> r = new HashSet<String>();
 		Map<String, List<Branch>> methods = branchMap.get(className);
-		if(methods != null)
+		if (methods != null) {
 			r.addAll(methods.keySet());
-		
+		}
+
 		return r;
 	}
-	
+
 	/**
-	 * Returns the branch contained in the given method of the given class
+	 * Get called by the BranchInstrumentation whenever it detects a CFGVertex
+	 * that corresponds to a Branch in the class under test.
 	 * 
-	 *  Should no such Branch exist null is returned
+	 * @param v
+	 *            CFGVertex of a Branch
 	 */
-	public static Branch getBranchByBytecodeId(String className, String methodName, int instructionId) {
-		List<Branch> branches = retrieveBranchesInMethod(className, methodName);
-		for(Branch b : branches)
-			if(b.getInstructionId()==instructionId)
-				return b;
-		
-		return null;
+	public static void registerAsBranch(BytecodeInstruction v) {
+		if (!(v.isActualBranch())) {
+			throw new IllegalArgumentException("CFGVertex of a branch expected");
+		}
+		if (isKnownAsBranch(v)) {
+			throw new IllegalArgumentException("branches can only be added to the pool once");
+		}
+
+		registerInstruction(v);
+
 	}
-	
+
 	/**
 	 * Returns a List containing all Branches in the given class and method
 	 * 
-	 *  Should no such Branch exist an empty List is returned
+	 * Should no such Branch exist an empty List is returned
 	 */
 	public static List<Branch> retrieveBranchesInMethod(String className, String methodName) {
 		List<Branch> r = new ArrayList<Branch>();
-		if(branchMap.get(className) == null)
+		if (branchMap.get(className) == null) {
 			return r;
+		}
 		List<Branch> branches = branchMap.get(className).get(methodName);
-		if(branches != null)
+		if (branches != null) {
 			r.addAll(branches);
+		}
 		return r;
+	}
+
+	private static void addBranchToMap(Branch b) {
+		String className = b.getClassName();
+		String methodName = b.getMethodName();
+
+		if (!branchMap.containsKey(className)) {
+			branchMap.put(className, new HashMap<String, List<Branch>>());
+		}
+		if (!branchMap.get(className).containsKey(methodName)) {
+			branchMap.get(className).put(methodName, new ArrayList<Branch>());
+		}
+		branchMap.get(className).get(methodName).add(b);
+	}
+
+	private static void registerInstruction(BytecodeInstruction v) {
+		if (isKnownAsBranch(v)) {
+			throw new IllegalStateException(
+					"expect registerInstruction() to be called at most once for each instruction");
+		}
+
+		branchCounter++;
+		// v.setBranchId(branchCounter);
+		// markBranchIDs(v);
+		registeredBranches.put(v, branchCounter);
+
+		Branch b = new Branch(v, branchCounter);
+		addBranchToMap(b);
+		branchIdMap.put(branchCounter, b);
+
+		logger.debug("Branch " + branchCounter + " at line " + b.getLineNumber());
 	}
 }

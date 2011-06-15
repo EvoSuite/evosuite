@@ -94,28 +94,24 @@ public class NodeRegularExpression {
 
 	protected static final int[] ALOAD = new int[] { 25, 42, 43, 44, 45 };
 
-	protected static final int[] IF = new int[] { 153, 154, 155, 156, 157, 158, 159, 160,
-	        161, 162, 163, 164 };
+	protected static final int[] IF = new int[] { 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164 };
 
 	protected static final int[] BOOL = new int[] { ICONST_0, ICONST_1 };
 
-	//public static NodeRegularExpression IFELSE = new NodeRegularExpression(new int[] {
-	//        160, 4, 167, 3 });
+	// public static NodeRegularExpression IFELSE = new
+	// NodeRegularExpression(new int[] {
+	// 160, 4, 167, 3 });
 
-	public static NodeRegularExpression IFELSE = new NodeRegularExpression(new int[][] {
-	        IF, BOOL, { GOTO }, BOOL });
+	public static NodeRegularExpression IFELSE = new NodeRegularExpression(new int[][] { IF, BOOL, { GOTO }, BOOL });
 
-	public static NodeRegularExpression STOREFLAG = new NodeRegularExpression(
-	        new int[][] { IF, BOOL, { ISTORE } });
+	public static NodeRegularExpression STOREFLAG = new NodeRegularExpression(new int[][] { IF, BOOL, { ISTORE } });
 
-	public static NodeRegularExpression STOREFLAG2 = new NodeRegularExpression(
-	        new int[][] { IF, BOOL, { PUTSTATIC } });
+	public static NodeRegularExpression STOREFLAG2 = new NodeRegularExpression(new int[][] { IF, BOOL, { PUTSTATIC } });
 
-	public static NodeRegularExpression STOREFLAG3 = new NodeRegularExpression(
-	        new int[][] { IF, ALOAD, BOOL, { PUTFIELD } });
+	public static NodeRegularExpression STOREFLAG3 = new NodeRegularExpression(new int[][] { IF, ALOAD, BOOL,
+			{ PUTFIELD } });
 
-	public static NodeRegularExpression STOREFLAG4 = new NodeRegularExpression(
-	        new int[][] { IF, BOOL, { IRETURN } });
+	public static NodeRegularExpression STOREFLAG4 = new NodeRegularExpression(new int[][] { IF, BOOL, { IRETURN } });
 
 	public final int[][] pattern;
 
@@ -130,61 +126,31 @@ public class NodeRegularExpression {
 		this.pattern = opcodes;
 	}
 
-	public boolean matches(InsnList instructions) {
-		int match = 0;
-
-		AbstractInsnNode node = instructions.getFirst();
-		while (node != instructions.getLast()) {
-			if (node.getType() == AbstractInsnNode.FRAME
-			        || node.getType() == AbstractInsnNode.LABEL
-			        || node.getType() == AbstractInsnNode.LINE) {
-				node = node.getNext();
-				continue;
-			} else {
-				boolean found = false;
-				for (int opcode : pattern[match]) {
-					if (node.getOpcode() == opcode) {
-						match++;
-						found = true;
-						break;
-					}
-				}
-				if (!found)
-					match = 0;
-			}
-			if (match == pattern.length)
-				return true;
-
-			node = node.getNext();
-		}
-
-		return false;
-	}
-
 	public AbstractInsnNode getNextMatch(AbstractInsnNode start, InsnList instructions) {
 		int match = 0;
 
 		AbstractInsnNode node = start;
 		AbstractInsnNode startNode = start;
 		while (node != instructions.getLast()) {
-			if (node.getType() == AbstractInsnNode.FRAME
-			        || node.getType() == AbstractInsnNode.LABEL
-			        || node.getType() == AbstractInsnNode.LINE) {
+			if ((node.getType() == AbstractInsnNode.FRAME) || (node.getType() == AbstractInsnNode.LABEL)
+					|| (node.getType() == AbstractInsnNode.LINE)) {
 				node = node.getNext();
 				continue;
 			} else {
 				boolean found = false;
 				for (int opcode : pattern[match]) {
 					if (node.getOpcode() == opcode) {
-						if (match == 0)
+						if (match == 0) {
 							startNode = node;
+						}
 						match++;
 						found = true;
 						break;
 					}
 				}
-				if (!found)
+				if (!found) {
 					match = 0;
+				}
 			}
 			if (match == pattern.length) {
 				return startNode;
@@ -195,6 +161,38 @@ public class NodeRegularExpression {
 
 		return null;
 
+	}
+
+	public boolean matches(InsnList instructions) {
+		int match = 0;
+
+		AbstractInsnNode node = instructions.getFirst();
+		while (node != instructions.getLast()) {
+			if ((node.getType() == AbstractInsnNode.FRAME) || (node.getType() == AbstractInsnNode.LABEL)
+					|| (node.getType() == AbstractInsnNode.LINE)) {
+				node = node.getNext();
+				continue;
+			} else {
+				boolean found = false;
+				for (int opcode : pattern[match]) {
+					if (node.getOpcode() == opcode) {
+						match++;
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					match = 0;
+				}
+			}
+			if (match == pattern.length) {
+				return true;
+			}
+
+			node = node.getNext();
+		}
+
+		return false;
 	}
 
 }

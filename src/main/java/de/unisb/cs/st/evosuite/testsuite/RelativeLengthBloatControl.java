@@ -38,7 +38,11 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 	protected int current_max = 0;
 
 	protected double best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
-	                                                  // minimizing fitness!
+														// minimizing fitness!
+
+	@Override
+	public void fitnessEvaluation(Chromosome result) {
+	}
 
 	/**
 	 * Reject individuals that are larger than twice the length of the current
@@ -48,8 +52,9 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 	public boolean isTooLong(Chromosome chromosome) {
 
 		// Always accept if fitness is better
-		if (chromosome.getFitness() < best_fitness)
+		if (chromosome.getFitness() < best_fitness) {
 			return false;
+		}
 
 		// logger.debug("Current - max: "+((TestSuiteChromosome)chromosome).length()+" - "+current_max);
 		if (current_max > 0) {
@@ -58,10 +63,10 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 			// logger.debug("Bloat control: "+((TestSuiteChromosome)chromosome).length()
 			// +" > "+ bloat_factor * current_max);
 
-			return ((TestSuiteChromosome) chromosome).length() > Properties.BLOAT_FACTOR
-			        * current_max;
-		} else
+			return ((TestSuiteChromosome) chromosome).length() > Properties.BLOAT_FACTOR * current_max;
+		} else {
 			return false; // Don't know max length so can't reject!
+		}
 
 	}
 
@@ -75,18 +80,6 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 		best_fitness = best.getFitness();
 	}
 
-	@Override
-	public void searchFinished(GeneticAlgorithm algorithm) {
-	}
-
-	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
-	}
-
-	@Override
-	public void fitnessEvaluation(Chromosome result) {
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -98,5 +91,13 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 	public void modification(Chromosome individual) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void searchFinished(GeneticAlgorithm algorithm) {
+	}
+
+	@Override
+	public void searchStarted(GeneticAlgorithm algorithm) {
 	}
 }

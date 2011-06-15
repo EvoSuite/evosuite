@@ -30,14 +30,6 @@ public class MinimizeMaxLengthSecondaryObjective extends SecondaryObjective {
 
 	private static final long serialVersionUID = 2270058273932360617L;
 
-	private int getMaxLength(Chromosome chromosome) {
-		int max = 0;
-		for (TestChromosome test : ((TestSuiteChromosome) chromosome).tests) {
-			max = Math.max(max, test.size());
-		}
-		return max;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -60,10 +52,17 @@ public class MinimizeMaxLengthSecondaryObjective extends SecondaryObjective {
 	 * de.unisb.cs.st.evosuite.ga.Chromosome)
 	 */
 	@Override
-	public int compareGenerations(Chromosome parent1, Chromosome parent2,
-	        Chromosome child1, Chromosome child2) {
+	public int compareGenerations(Chromosome parent1, Chromosome parent2, Chromosome child1, Chromosome child2) {
 		return Math.min(getMaxLength(parent1), getMaxLength(parent2))
-		        - Math.min(getMaxLength(child1), getMaxLength(child2));
+				- Math.min(getMaxLength(child1), getMaxLength(child2));
+	}
+
+	private int getMaxLength(Chromosome chromosome) {
+		int max = 0;
+		for (TestChromosome test : ((TestSuiteChromosome) chromosome).tests) {
+			max = Math.max(max, test.size());
+		}
+		return max;
 	}
 
 }
