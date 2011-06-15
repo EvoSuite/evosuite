@@ -1,87 +1,86 @@
 package de.unisb.cs.st.evosuite.coverage.lcsaj;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import org.objectweb.asm.Opcodes;
+import org.apache.log4j.Logger;
 import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.JumpInsnNode;
+
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.coverage.branch.Branch;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 
 public class LCSAJ {
-	
+
+	private static Logger logger = Logger.getLogger(LCSAJ.class);
+
 	// All branches passed in the LCSAJ
-	private final ArrayList<AbstractInsnNode> branchInsnNodes;
-	private final ArrayList<Integer> branchIDs;
+	private final List<Branch> branches = new ArrayList<Branch>();
 	// Information needed and maintained in the LCSAJ instrumentation and detection algorithm
-	private final AbstractInsnNode startNode;
-	private final int startNodeID;
 	private AbstractInsnNode lastAccessedNode;
-	
+
 	private int id = -1;
 	// Class and method where the LCSAJ occurs
 	private final String className;
 	private final String methodName;
-	
-	public LCSAJ(String className, String methodName, AbstractInsnNode start, int startNodeID) {
+
+	public LCSAJ(String className, String methodName, BytecodeInstruction start) {
 		this.className = className;
 		this.methodName = methodName;
-		this.branchIDs = new ArrayList<Integer>();
-		this.branchInsnNodes = new ArrayList<AbstractInsnNode>();
-		this.startNode = start;
-		this.startNodeID = startNodeID;
-		this.lastAccessedNode = start;
+		this.lastAccessedNode = start.getASMNode();
+
+		if (!BranchPool.isKnownAsBranch(start)) {
+			if (methodName.startsWith("<init>") && start.getInstructionId() <= 1) {
+
+			}
+			start.forceBranch();
+			BranchPool.registerAsBranch(start);
+			logger.warn("Registering new branch for start node");
+		}
+
+		Branch branch = BranchPool.getBranchForInstruction(start);
+		branches.add(branch);
 	}
 
 	//Copy constructor
 	public LCSAJ(LCSAJ l) {
 		this.className = l.getClassName();
 		this.methodName = l.getMethodName();
-		
-		this.branchInsnNodes = new ArrayList<AbstractInsnNode>();
-		this.branchIDs = new ArrayList<Integer>();
-		for (AbstractInsnNode n : l.getBranches())
-			branchInsnNodes.add(n);
-		for (Integer i : l.getBranchIDs())
-			branchIDs.add(i);
-		
-		this.startNode = l.getStartNode();
-		this.startNodeID = l.getStartNodeID();
+
+		this.branches.addAll(l.branches);
+
 		this.lastAccessedNode = l.getLastNodeAccessed();
 	}
 
 	public int getID() {
 		return this.id;
 	}
-	/** Set an (not necessarily unique) new ID for a LCSAJ. While adding a LCSAJ into the Pool
-	 * the number is set to its occurrence during the detection of all LCSAJ in a method */
-	public void setID(int id){
+
+	/**
+	 * Set an (not necessarily unique) new ID for a LCSAJ. While adding a LCSAJ
+	 * into the Pool the number is set to its occurrence during the detection of
+	 * all LCSAJ in a method
+	 */
+	public void setID(int id) {
 		this.id = id;
 	}
-	
-	public ArrayList<AbstractInsnNode> getBranches() {
-		return this.branchInsnNodes;
+
+	public List<Branch> getBranchInstructions() {
+		return branches;
 	}
 
-	protected ArrayList<Integer> getBranchIDs() {
-		return this.branchIDs;
-	}
-
-	public AbstractInsnNode getBranchInstruction(int position) {
-		return branchInsnNodes.get(position);
+	public Branch getBranch(int position) {
+		return branches.get(position);
 	}
 
 	public int getBranchID(int position) {
-		return branchIDs.get(position);
+		return branches.get(position).getActualBranchId();
 	}
-	
-	public AbstractInsnNode getStartNode(){
-		return startNode;
+
+	public Branch getStartBranch() {
+		return branches.get(0);
 	}
-	
-	public int getStartNodeID(){
-		return this.startNodeID;
-	}
-	
+
 	public AbstractInsnNode getLastNodeAccessed() {
 		return lastAccessedNode;
 	}
@@ -93,40 +92,38 @@ public class LCSAJ {
 	public String getMethodName() {
 		return this.methodName;
 	}
-	
-	public void lookupInstruction(int id, AbstractInsnNode node) {
-		lastAccessedNode = node;
-		if (node instanceof JumpInsnNode ){
-			JumpInsnNode jump = (JumpInsnNode) node;
-			this.branchInsnNodes.add(jump);
-			this.branchIDs.add(id);
-		}
-		else if (node instanceof InsnNode){
-			InsnNode insn = (InsnNode) node;
-			if (	insn.getOpcode() == Opcodes.ATHROW
-				||	insn.getOpcode() == Opcodes.RETURN
-				||	insn.getOpcode() == Opcodes.ARETURN
-				||	insn.getOpcode() == Opcodes.IRETURN
-				||	insn.getOpcode() == Opcodes.DRETURN
-				||	insn.getOpcode() == Opcodes.LRETURN
-				||	insn.getOpcode() == Opcodes.FRETURN){
-				
-				branchInsnNodes.add(insn);
-				branchIDs.add(id);
-				
+
+	public void lookupInstruction(int id, BytecodeInstruction instruction) {
+		lastAccessedNode = instruction.getASMNode();
+
+		if (instruction.isBranch()) {
+			Branch branch = BranchPool.getBranchForInstruction(instruction);
+			branches.add(branch);
+
+		} else if (instruction.isReturn() || instruction.isThrow()
+		        || instruction.isGoto()) {
+
+			if (!BranchPool.isKnownAsBranch(instruction)) {
+				instruction.forceBranch();
+				BranchPool.registerAsBranch(instruction);
+				logger.warn("Registering new branch");
 			}
+
+			Branch branch = BranchPool.getBranchForInstruction(instruction);
+			branches.add(branch);
 		}
 	}
-	
-	public int length(){
-		return branchInsnNodes.size();
+
+	public int length() {
+		return branches.size();
 	}
-	
-	public String toString(){
-		String output = "LCSAJ no.: "+ this.id;
-		output += " in " + this.className+"/"+this.methodName+ ". Branches passed: ";
-		for (Integer i : branchIDs)
-			output += i +" ";
+
+	@Override
+	public String toString() {
+		String output = "LCSAJ no.: " + this.id;
+		output += " in " + this.className + "/" + this.methodName + ". Branches passed: ";
+		for (Branch b : branches)
+			output += " -> " + b.getActualBranchId();
 		return output;
 	}
 }

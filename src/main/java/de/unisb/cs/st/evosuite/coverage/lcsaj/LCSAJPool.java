@@ -2,14 +2,20 @@ package de.unisb.cs.st.evosuite.coverage.lcsaj;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
+
+import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 
 public class LCSAJPool {
 
 	public static Map<String, Map<String, List<LCSAJ>>> lcsaj_map = new HashMap<String, Map<String, List<LCSAJ>>>();
+
+	public static Set<Branch> lcsaj_branches = new HashSet<Branch>();
 
 	public static void add_lcsaj(String className, String methodName, LCSAJ lcsaj) {
 
@@ -23,6 +29,14 @@ public class LCSAJPool {
 		Logger.getLogger(LCSAJPool.class).info("Adding LCSAJ - "
 		                                               + lcsaj_map.get(className).get(methodName).size());
 
+	}
+
+	public static void addLCSAJBranch(Branch b) {
+		lcsaj_branches.add(b);
+	}
+
+	public static boolean isLCSAJBranch(Branch b) {
+		return lcsaj_branches.contains(b);
 	}
 
 	public static int getLCSAJCount(String className, String methodName) {
