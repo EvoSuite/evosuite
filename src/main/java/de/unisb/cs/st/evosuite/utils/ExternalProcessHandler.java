@@ -92,7 +92,7 @@ public class ExternalProcessHandler {
 			}
 		} catch (Exception e) {
 			System.out.println("error when waiting for connection from external process "
-			        + e);
+					+ e);
 			e.printStackTrace();
 			return false;
 		}
@@ -158,7 +158,7 @@ public class ExternalProcessHandler {
 			public void run() {
 				try {
 					BufferedReader proc_in = new BufferedReader(new InputStreamReader(
-					        process.getInputStream()));
+							process.getInputStream()));
 					String data = "";
 					while (data != null) {
 						data = proc_in.readLine();
@@ -184,28 +184,33 @@ public class ExternalProcessHandler {
 			public void run() {
 				boolean read = true;
 				while (read && !isInterrupted()) {
-					try {
-						String message = (String) in.readObject();
-						Object data = in.readObject();
+					String message = null;
+					Object data = null;
 
-						if (message.equals(Messages.FINISHED_COMPUTATION)) {
-							read = false;
-							killProcess();
-							final_result = data;
-							synchronized (MONITOR) {
-								MONITOR.notifyAll();
-							}
-						} else if (message.equals(Messages.NEED_RESTART)) {
-							//now data represent the current generation
-							killProcess();
-							startProcess(last_command, data);
-						} else {
-							System.out.println("error, received invalid message: "
-							        + message);
-						}
+					try {
+						message = (String) in.readObject();
+						data = in.readObject();
 					} catch (Exception e) {
 						System.out.println("error in reading message " + e);
 						e.printStackTrace();
+						message = Messages.FINISHED_COMPUTATION;
+					}
+
+					if (message.equals(Messages.FINISHED_COMPUTATION)) {
+						read = false;
+						killProcess();
+						final_result = data;
+						synchronized (MONITOR) {
+							MONITOR.notifyAll();
+						}
+					} else if (message.equals(Messages.NEED_RESTART)) {
+						//now data represent the current generation
+						killProcess();
+						startProcess(last_command, data);
+					} else {
+						killProcess();
+						System.out.println("error, received invalid message: "
+								+ message);
 						return;
 					}
 				}
