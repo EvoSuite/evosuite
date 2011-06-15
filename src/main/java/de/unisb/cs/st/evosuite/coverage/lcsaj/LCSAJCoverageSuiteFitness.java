@@ -113,7 +113,7 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					for (LCSAJ lcsaj : LCSAJPool.getLCSAJMap().get(className).get(methodName)) {
 						LCSAJFitnessFunctions.add(new LCSAJCoverageTestFitness(lcsaj));
 
-						for (TestChromosome t : suite.tests) {
+						for (TestChromosome t : suite.getTestChromosomes()) {
 							double oldFitness;
 							for (LCSAJCoverageTestFitness testFitness : LCSAJFitnessFunctions) {
 								oldFitness = LCSAJFitnesses.get(lcsaj);
