@@ -5,6 +5,8 @@ package de.unisb.cs.st.evosuite.testcase;
 
 import java.lang.reflect.Type;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 /**
  * @author Gordon Fraser
  * 
@@ -64,6 +66,18 @@ public class ConstantValue extends VariableReferenceImpl {
 	 */
 	@Override
 	public String getName() {
-		return "" + value;
+		if (value.getClass().equals(char.class)
+		        || value.getClass().equals(Character.class))
+			return "'" + StringEscapeUtils.escapeJava(value.toString()) + "';";
+		else if (value.getClass().equals(String.class)) {
+			return "\"" + StringEscapeUtils.escapeJava((String) value) + "\"";
+		} else if (value.getClass().equals(float.class)
+		        || value.getClass().equals(Float.class)) {
+			return value + "F;";
+		} else if (value.getClass().equals(long.class)
+		        || value.getClass().equals(Long.class)) {
+			return value + "L;";
+		} else
+			return "" + value;
 	}
 }
