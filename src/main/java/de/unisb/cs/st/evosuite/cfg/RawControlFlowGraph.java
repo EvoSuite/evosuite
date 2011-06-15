@@ -1,16 +1,6 @@
 package de.unisb.cs.st.evosuite.cfg;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.collections.comparators.ReverseComparator;
 import org.apache.log4j.Logger;
@@ -584,6 +574,7 @@ public class RawControlFlowGraph extends
 //		}
 //	}
 
+	@SuppressWarnings("unused")
 	private boolean isIfBranch(int maxID) {
 		BytecodeInstruction prevVertex = getInstruction(maxID - 1);
 		if (!graph.containsVertex(prevVertex))

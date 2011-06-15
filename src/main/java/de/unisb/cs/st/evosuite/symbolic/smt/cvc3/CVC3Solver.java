@@ -38,7 +38,7 @@ public class CVC3Solver extends Thread implements Solver {
 	 * @see de.unisb.cs.st.evosuite.symbolic.Solver#getModel(java.util.Collection)
 	 */
 	@Override
-	public Map<String, Object> getModel(Collection<Constraint> constraints) {
+	public Map<String, Object> getModel(Collection<Constraint<?>> constraints) {
 		Map<String, Object> result = null;
 		initializeSolver();
 		vc.push();
@@ -61,7 +61,7 @@ public class CVC3Solver extends Thread implements Solver {
 	 * @see de.unisb.cs.st.evosuite.symbolic.Solver#solve(java.util.Collection)
 	 */
 	@Override
-	public boolean solve(Collection<Constraint> constraints) {
+	public boolean solve(Collection<Constraint<?>> constraints) {
 		initializeSolver();
 		vc.push();
 		Expr cvc3Expr = cvc3.convert(constraints);

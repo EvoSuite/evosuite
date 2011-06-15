@@ -34,6 +34,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.RealUnaryExpression;
 
 public class JPF_java_lang_Math {
 
+	@SuppressWarnings("unchecked")
 	public static double acos__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
@@ -52,6 +53,7 @@ public class JPF_java_lang_Math {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	public static double asin__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
@@ -69,6 +71,7 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static double atan__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
@@ -86,6 +89,7 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static double atan2__DD__D(MJIEnv env, int clsObjRef, double a, double b) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
@@ -111,6 +115,7 @@ public class JPF_java_lang_Math {
 		return ret;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static double cos__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
@@ -128,6 +133,7 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static double exp__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
@@ -145,6 +151,7 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static double log__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
@@ -162,6 +169,7 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static double log10__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
@@ -179,6 +187,7 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static double pow__DD__D(MJIEnv env, int clsObjRef, double a, double b) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
@@ -204,6 +213,7 @@ public class JPF_java_lang_Math {
 		return ret;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static double sin__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
@@ -222,6 +232,7 @@ public class JPF_java_lang_Math {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	public static double sqrt__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
@@ -239,6 +250,7 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static double tan__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
@@ -256,6 +268,7 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static int round__F__I(MJIEnv env, int rcls, float v0) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
@@ -272,6 +285,7 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static long round__D__J(MJIEnv env, int rcls, double v0) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
@@ -288,6 +302,7 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static double ceil__D__D(MJIEnv env, int rcls, double v0) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
@@ -305,6 +320,7 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static double floor__D__D(MJIEnv env, int rcls, double v0) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {

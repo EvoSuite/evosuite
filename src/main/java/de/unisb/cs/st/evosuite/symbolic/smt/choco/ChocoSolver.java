@@ -54,13 +54,14 @@ import de.unisb.cs.st.evosuite.symbolic.expr.RealConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.RealToIntegerCast;
 import de.unisb.cs.st.evosuite.symbolic.expr.RealUnaryExpression;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({ "unchecked" })
 public class ChocoSolver implements de.unisb.cs.st.evosuite.symbolic.Solver {
 
 	private static Logger logger = Logger.getLogger(ChocoSolver.class);
 
+	@SuppressWarnings("deprecation")
 	@Override
-	public Map<String, Object> getModel(Collection<Constraint> constraints) {
+	public Map<String, Object> getModel(Collection<Constraint<?>> constraints) {
 		//System.out.println(constraints);
 		for (Constraint c : constraints) {
 			if (!c.isSolveable()) {
@@ -89,7 +90,7 @@ public class ChocoSolver implements de.unisb.cs.st.evosuite.symbolic.Solver {
 
 	private class WorkingThread extends Thread {
 
-		public WorkingThread(Collection<Constraint> constraints) {
+		public WorkingThread(Collection<Constraint<?>> constraints) {
 			super();
 			this.constraints = constraints;
 		}
@@ -102,7 +103,7 @@ public class ChocoSolver implements de.unisb.cs.st.evosuite.symbolic.Solver {
 		private LinkedList<RealVariable> vlr;
 
 		private Map<String, Object> solution = null;
-		private Collection<Constraint> constraints;
+		private Collection<Constraint<?>> constraints;
 		private final LinkedList<choco.kernel.model.constraints.Constraint> additionalConstrraints = new LinkedList<choco.kernel.model.constraints.Constraint>();
 		private int castVarNumber = 0;
 
@@ -155,7 +156,7 @@ public class ChocoSolver implements de.unisb.cs.st.evosuite.symbolic.Solver {
 			}
 		}
 
-		private CPModel2 getModel(Collection<Constraint> constraints)
+		private CPModel2 getModel(Collection<Constraint<?>> constraints)
 		        throws MyUnsupportedException {
 			CPModel2 model = new CPModel2();
 			for (Constraint c : constraints) {
@@ -434,6 +435,7 @@ public class ChocoSolver implements de.unisb.cs.st.evosuite.symbolic.Solver {
 	}
 
 	// For running in a own process
+	@SuppressWarnings("unused")
 	static private class TimeOut extends Thread {
 		private final int time;
 		private final Process p;
@@ -483,7 +485,7 @@ public class ChocoSolver implements de.unisb.cs.st.evosuite.symbolic.Solver {
 	 * @see de.unisb.cs.st.evosuite.symbolic.Solver#solve(java.util.Collection)
 	 */
 	@Override
-	public boolean solve(Collection<Constraint> constraints) {
+	public boolean solve(Collection<Constraint<?>> constraints) {
 		// TODO Auto-generated method stub
 		return false;
 	}

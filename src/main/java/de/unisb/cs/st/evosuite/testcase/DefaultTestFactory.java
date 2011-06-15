@@ -245,9 +245,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	private VariableReference addPrimitive(TestCase test, PrimitiveStatement<?> old,
 	        int position) throws ConstructionFailedException {
 		logger.debug("Adding primitive");
-		@SuppressWarnings("rawtypes")
-		StatementInterface st = new PrimitiveStatement(test, old.getReturnType(),
-		        old.value);
+		StatementInterface st = new PrimitiveStatement(test, old.getReturnType(), old.value);
 		return test.addStatement(st, position);
 	}
 

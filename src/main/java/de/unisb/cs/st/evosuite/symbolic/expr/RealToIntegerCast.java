@@ -1,6 +1,7 @@
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
 public class RealToIntegerCast extends IntegerExpression {
+	private static final long serialVersionUID = 1L;
 
 	protected Long concretValue;
 	

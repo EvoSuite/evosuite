@@ -36,6 +36,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
  *
  */
 public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
+	private static final long serialVersionUID = 1L;
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#getFitness(de.unisb.cs.st.evosuite.ga.Chromosome)

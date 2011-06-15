@@ -14,9 +14,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
-import org.osgi.framework.AllServiceListener;
-
-import choco.cp.solver.constraints.global.geost.dataStructures.LinkedList;
 
 /**
  * 

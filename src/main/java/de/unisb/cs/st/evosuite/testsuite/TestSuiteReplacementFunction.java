@@ -46,7 +46,7 @@ public class TestSuiteReplacementFunction extends ReplacementFunction {
 
 	public int getLengthSum(TestSuiteChromosome chromosome1,
 	        TestSuiteChromosome chromosome2) {
-		return chromosome1.length() + chromosome2.length();
+		return chromosome1.totalLengthOfTestCases() + chromosome2.totalLengthOfTestCases();
 	}
 
 	protected double getBestFitness(TestSuiteChromosome chromosome1,

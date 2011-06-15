@@ -39,7 +39,7 @@ public class StandardGA extends GeneticAlgorithm {
 	 * 
 	 * @param factory
 	 */
-	public StandardGA(ChromosomeFactory factory) {
+	public StandardGA(ChromosomeFactory<? extends Chromosome> factory) {
 		super(factory);
 	}
 
