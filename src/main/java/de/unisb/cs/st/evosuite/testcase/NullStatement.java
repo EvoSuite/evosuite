@@ -30,73 +30,52 @@ public class NullStatement extends AbstractStatement {
 		super(tc, new NullReference(tc, type));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.StatementInterface#clone(de.unisb.cs
-	 * .st.evosuite.testcase.TestCase)
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#clone(de.unisb.cs.st.evosuite.testcase.TestCase)
 	 */
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
 		return new NullStatement(newTestCase, retval.getType());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.StatementInterface#execute(de.unisb.
-	 * cs.st.evosuite.testcase.Scope, java.io.PrintStream)
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#execute(de.unisb.cs.st.evosuite.testcase.Scope, java.io.PrintStream)
 	 */
 	@Override
-	public Throwable execute(Scope scope, PrintStream out) throws InvocationTargetException, IllegalArgumentException,
-			IllegalAccessException, InstantiationException {
+	public Throwable execute(Scope scope, PrintStream out)
+	        throws InvocationTargetException, IllegalArgumentException,
+	        IllegalAccessException, InstantiationException {
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.StatementInterface#getBytecode(org.objectweb
-	 * .asm.commons.GeneratorAdapter, java.util.Map, java.lang.Throwable)
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getBytecode(org.objectweb.asm.commons.GeneratorAdapter, java.util.Map, java.lang.Throwable)
 	 */
 	@Override
-	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception) {
-		// #FIXME shouldn't be too hard. But I have no clue howto //steenbuck
+	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
+	        Throwable exception) {
+		//#FIXME shouldn't be too hard. But I have no clue howto //steenbuck
 		throw new UnsupportedOperationException("Needs to be implemented");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.StatementInterface#getCode(java.lang
-	 * .Throwable)
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getCode(java.lang.Throwable)
 	 */
 	@Override
 	public String getCode(Throwable exception) {
 		return retval.getSimpleClassName() + " " + retval.getName() + " = null;";
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#
-	 * getUniqueVariableReferences()
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getUniqueVariableReferences()
 	 */
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
 		return new ArrayList<VariableReference>(getVariableReferences());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.StatementInterface#getVariableReferences
-	 * ()
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getVariableReferences()
 	 */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
@@ -105,36 +84,24 @@ public class NullStatement extends AbstractStatement {
 		return references;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.
-	 * cs.st.evosuite.testcase.VariableReference,
-	 * de.unisb.cs.st.evosuite.testcase.VariableReference)
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.StatementInterface#same(de.unisb.cs.
-	 * st.evosuite.testcase.StatementInterface)
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#same(de.unisb.cs.st.evosuite.testcase.StatementInterface)
 	 */
 	@Override
 	public boolean same(StatementInterface s) {
-		if (this == s) {
+		if (this == s)
 			return true;
-		}
-		if (s == null) {
+		if (s == null)
 			return false;
-		}
-		if (getClass() != s.getClass()) {
+		if (getClass() != s.getClass())
 			return false;
-		}
 
 		NullStatement ns = (NullStatement) s;
 		return retval.same(ns.retval);

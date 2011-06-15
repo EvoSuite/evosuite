@@ -68,37 +68,6 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 		executor.addObserver(null_observer);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.ga.FitnessFunction#getFitness(de.unisb.cs.st.
-	 * evosuite.ga.Chromosome)
-	 */
-	@Override
-	public double getFitness(Chromosome individual) {
-
-		double fitness = 0.0;
-		// execute test on original
-		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
-		List<ExecutionResult> results = runTestSuite(suite);
-
-		for (ExecutionResult result : results) {
-			TestChromosome chromosome = new TestChromosome();
-			chromosome.test = result.test;
-			for (TestFitnessFunction goal : goals) {
-				// TODO: Only execute test again if mutant is covered
-				if (!MutationTimeoutStoppingCondition.isDisabled(((MutationTestFitness) goal).getTargetMutation())) {
-					fitness += goal.getFitness(chromosome, result);
-				} else {
-					logger.debug("Skipping timed out mutation");
-				}
-			}
-		}
-
-		return fitness;
-	}
-
 	public int getNumGoals() {
 		return goals.size();
 	}
@@ -130,9 +99,8 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
 			result = executor.execute(test);
 
-			if (mutant != null) {
+			if (mutant != null)
 				hom_switcher.switchOff(mutant);
-			}
 
 			int num = test.size();
 			MaxStatementsStoppingCondition.statementsExecuted(num);
@@ -155,5 +123,35 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
 		// System.out.println("TG: Killed "+result.getNumKilled()+" out of "+mutants.size());
 		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.ga.FitnessFunction#getFitness(de.unisb.cs.st.
+	 * evosuite.ga.Chromosome)
+	 */
+	@Override
+	public double getFitness(Chromosome individual) {
+
+		double fitness = 0.0;
+		// execute test on original
+		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
+		List<ExecutionResult> results = runTestSuite(suite);
+
+		for (ExecutionResult result : results) {
+			TestChromosome chromosome = new TestChromosome();
+			chromosome.test = result.test;
+			for (TestFitnessFunction goal : goals) {
+				// TODO: Only execute test again if mutant is covered
+				if (!MutationTimeoutStoppingCondition.isDisabled(((MutationTestFitness) goal).getTargetMutation()))
+					fitness += goal.getFitness(chromosome, result);
+				else
+					logger.debug("Skipping timed out mutation");
+			}
+		}
+
+		return fitness;
 	}
 }

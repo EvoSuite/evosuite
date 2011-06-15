@@ -44,23 +44,6 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 
 	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
-	protected static boolean hasTimeout(ExecutionResult result) {
-
-		if (result == null) {
-			return false;
-		} else if (result.test == null) {
-			return false;
-		}
-		int size = result.test.size();
-		if (result.exceptions.containsKey(size)) {
-			if (result.exceptions.get(size) instanceof TestCaseExecutor.TimeoutExceeded) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	/**
 	 * Execute a test case
 	 * 
@@ -78,10 +61,10 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 		try {
 			result = executor.execute(test);
 			/*
-			 * result.exceptions = executor.run(test);
-			 * executor.setLogging(true); result.trace =
-			 * ExecutionTracer.getExecutionTracer().getTrace();
-			 */
+						result.exceptions = executor.run(test);
+						executor.setLogging(true);
+						result.trace = ExecutionTracer.getExecutionTracer().getTrace();
+			*/
 			int num = test.size();
 			MaxStatementsStoppingCondition.statementsExecuted(num);
 		} catch (Exception e) {
@@ -101,6 +84,28 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 		return result;
 	}
 
+	protected static boolean hasTimeout(ExecutionResult result) {
+
+		if (result == null) {
+			return false;
+		} else if (result.test == null) {
+			return false;
+		}
+		int size = result.test.size();
+		if (result.exceptions.containsKey(size)) {
+			if (result.exceptions.get(size) instanceof TestCaseExecutor.TimeoutExceeded) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	@Override
+	protected void updateIndividual(Chromosome individual, double fitness) {
+		individual.setFitness(fitness);
+	}
+
 	protected List<ExecutionResult> runTestSuite(TestSuiteChromosome suite) {
 
 		CurrentChromosomeTracker.getInstance().modification(suite);
@@ -108,7 +113,7 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 
 		for (TestChromosome test : suite.tests) {
 			// Only execute test if it hasn't been changed
-			if (test.isChanged() || (test.last_result == null)) {
+			if (test.isChanged() || test.last_result == null) {
 				ExecutionResult result = runTest(test.test);
 				results.add(result);
 				test.last_result = result; // .clone();
@@ -121,10 +126,5 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 		}
 
 		return results;
-	}
-
-	@Override
-	protected void updateIndividual(Chromosome individual, double fitness) {
-		individual.setFitness(fitness);
 	}
 }

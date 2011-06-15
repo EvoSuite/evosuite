@@ -37,9 +37,10 @@ public class SinglePointRelativeCrossOver extends CrossOverFunction {
 	 * Therefore, the offspring d have n<=max(n1,n2)
 	 */
 	@Override
-	public void crossOver(Chromosome parent1, Chromosome parent2) throws ConstructionFailedException {
+	public void crossOver(Chromosome parent1, Chromosome parent2)
+	        throws ConstructionFailedException {
 
-		if ((parent1.size() <= 2) || (parent2.size() <= 2)) {
+		if (parent1.size() <= 2 || parent2.size() <= 2) {
 			return;
 		}
 		// Choose a position in the middle
@@ -48,8 +49,10 @@ public class SinglePointRelativeCrossOver extends CrossOverFunction {
 		Chromosome t1 = parent1.clone();
 		Chromosome t2 = parent2.clone();
 
-		parent1.crossOver(t2, Math.round(t1.size() * split_point), Math.round(t2.size() * split_point));
-		parent2.crossOver(t1, Math.round(t2.size() * split_point), Math.round(t1.size() * split_point));
+		parent1.crossOver(t2, Math.round(t1.size() * split_point),
+		                  Math.round(t2.size() * split_point));
+		parent2.crossOver(t1, Math.round(t2.size() * split_point),
+		                  Math.round(t1.size() * split_point));
 	}
 
 }

@@ -41,8 +41,7 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory {
 		test_factory = new RandomLengthTestFactory();
 
 		if (Properties.CRITERION == Criterion.CONCURRENCY) {
-			// #TODO steenbuck we should wrap the original factory not replace
-			// it.
+			//#TODO steenbuck we should wrap the original factory not replace it.
 			test_factory = new ConcurrencyTestCaseFactory();
 		}
 
@@ -53,6 +52,14 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory {
 
 	public TestSuiteChromosomeFactory(ChromosomeFactory test_factory) {
 		this.test_factory = test_factory;
+	}
+
+	public void setTestFactory(ChromosomeFactory factory) {
+		test_factory = factory;
+	}
+
+	public void setNumberOfTests(int num) {
+		Properties.NUM_TESTS = num;
 	}
 
 	@Override
@@ -72,14 +79,6 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory {
 		// logger.info("Covered methods: "+((AllMethodsChromosomeFactory)test_factory).covered.size());
 		// logger.trace("Generated new test suite:"+chromosome);
 		return chromosome;
-	}
-
-	public void setNumberOfTests(int num) {
-		Properties.NUM_TESTS = num;
-	}
-
-	public void setTestFactory(ChromosomeFactory factory) {
-		test_factory = factory;
 	}
 
 }

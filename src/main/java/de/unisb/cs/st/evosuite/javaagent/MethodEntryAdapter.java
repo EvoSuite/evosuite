@@ -46,7 +46,8 @@ public class MethodEntryAdapter extends AdviceAdapter {
 	String fullMethodName;
 	int access;
 
-	public MethodEntryAdapter(MethodVisitor mv, int access, String className, String methodName, String desc) {
+	public MethodEntryAdapter(MethodVisitor mv, int access, String className,
+	        String methodName, String desc) {
 		super(mv, access, methodName, desc);
 		this.className = className;
 		this.methodName = methodName;
@@ -57,9 +58,8 @@ public class MethodEntryAdapter extends AdviceAdapter {
 	@Override
 	public void onMethodEnter() {
 
-		if (methodName.equals("<clinit>")) {
+		if (methodName.equals("<clinit>"))
 			return;
-		}
 
 		if (MUTATION) {
 			Label mutationStartLabel = new Label();
@@ -74,8 +74,10 @@ public class MethodEntryAdapter extends AdviceAdapter {
 		} else {
 			mv.visitVarInsn(Opcodes.ALOAD, 0);
 		}
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "enteredMethod",
-				"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V");
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+		                   "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+		                   "enteredMethod",
+		                   "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V");
 
 		if (MUTATION) {
 			Label mutationEndLabel = new Label();
@@ -94,8 +96,9 @@ public class MethodEntryAdapter extends AdviceAdapter {
 		}
 		mv.visitLdcInsn(className);
 		mv.visitLdcInsn(fullMethodName);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "leftMethod",
-				"(Ljava/lang/String;Ljava/lang/String;)V");
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+		                   "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+		                   "leftMethod", "(Ljava/lang/String;Ljava/lang/String;)V");
 		super.onMethodExit(opcode);
 		if (MUTATION) {
 			Label mutationEndLabel = new Label();

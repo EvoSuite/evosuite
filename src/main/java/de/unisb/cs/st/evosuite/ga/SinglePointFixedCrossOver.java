@@ -35,7 +35,8 @@ public class SinglePointFixedCrossOver extends CrossOverFunction {
 	 * min(length(p1),length(p2))
 	 */
 	@Override
-	public void crossOver(Chromosome parent1, Chromosome parent2) throws ConstructionFailedException {
+	public void crossOver(Chromosome parent1, Chromosome parent2)
+	        throws ConstructionFailedException {
 
 		int point = Randomness.nextInt(Math.min(parent1.size(), parent2.size()));
 

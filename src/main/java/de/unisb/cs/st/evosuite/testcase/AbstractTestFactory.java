@@ -33,17 +33,19 @@ public abstract class AbstractTestFactory implements Serializable {
 
 	private static final long serialVersionUID = -2328803453596295741L;
 
-	public abstract void appendStatement(TestCase test, StatementInterface statement)
-			throws ConstructionFailedException;
-
-	public abstract void changeCall(TestCase test, StatementInterface statement, AccessibleObject call)
-			throws ConstructionFailedException;
-
-	public abstract boolean changeRandomCall(TestCase test, StatementInterface statement);
-
-	public abstract void deleteStatement(TestCase test, int position) throws ConstructionFailedException;
-
-	public abstract void deleteStatementGracefully(TestCase test, int position) throws ConstructionFailedException;
+	public abstract void changeCall(TestCase test, StatementInterface statement,
+	        AccessibleObject call) throws ConstructionFailedException;
 
 	public abstract void insertRandomStatement(TestCase test);
+
+	public abstract void appendStatement(TestCase test, StatementInterface statement)
+	        throws ConstructionFailedException;
+
+	public abstract void deleteStatement(TestCase test, int position)
+	        throws ConstructionFailedException;
+
+	public abstract void deleteStatementGracefully(TestCase test, int position)
+	        throws ConstructionFailedException;
+
+	public abstract boolean changeRandomCall(TestCase test, StatementInterface statement);
 }

@@ -40,6 +40,29 @@ public class ExecutionTracer {
 
 	private static ExecutionTracer instance = null;
 
+	/**
+	 * We need to disable the execution tracer sometimes, e.g. when calling
+	 * equals in the branch distance function
+	 */
+	private boolean disabled = true;
+
+	/** Flag that is used to kill threads that are stuck in endless loops */
+	private boolean killSwitch = false;
+
+	private int num_statements = 0;
+
+	private static final boolean testabilityTransformation = Properties.TT;
+
+	/**
+	 * If a thread of a test case survives for some reason (e.g. long call to
+	 * external library), then we don't want its data in the current trace
+	 */
+	private static Thread currentThread = null;
+
+	public static void setThread(Thread thread) {
+		currentThread = thread;
+	}
+
 	public static void disable() {
 		ExecutionTracer tracer = ExecutionTracer.getExecutionTracer();
 		tracer.disabled = true;
@@ -50,6 +73,69 @@ public class ExecutionTracer {
 		tracer.disabled = false;
 	}
 
+	public static boolean isEnabled() {
+		ExecutionTracer tracer = ExecutionTracer.getExecutionTracer();
+		return !tracer.disabled;
+	}
+
+	public static void setKillSwitch(boolean value) {
+		ExecutionTracer tracer = ExecutionTracer.getExecutionTracer();
+		tracer.killSwitch = value;
+	}
+
+	private ExecutionTrace trace;
+
+	public static ExecutionTracer getExecutionTracer() {
+		if (instance == null) {
+			instance = new ExecutionTracer();
+		}
+		return instance;
+	}
+
+	/**
+	 * Reset for new execution
+	 */
+	public void clear() {
+		trace = new ExecutionTrace();
+		BooleanHelper.clearStack();
+		num_statements = 0;
+
+		//#TODO steenbuck: We should be able to register us somewhere, so that we're called before run is executed
+		if (Properties.CRITERION == Criterion.CONCURRENCY) {
+			trace.concurrencyTracer = new ConcurrencyTracer();
+			LockRuntime.tracer = trace.concurrencyTracer;
+		}
+	}
+
+	/**
+	 * Obviously more than one thread is executing during the creation of
+	 * concurrent TestCases. #TODO steenbuck we should test if
+	 * Thread.currentThread() is in the set of currently executing threads
+	 * 
+	 * @return
+	 */
+	private static boolean isThreadNeqCurrentThread() {
+		if (Properties.CRITERION== Criterion.CONCURRENCY) {
+			return false;
+		} else {
+			return (Thread.currentThread() != currentThread);
+		}
+	}
+
+	/**
+	 * Return trace of current execution
+	 * 
+	 * @return
+	 */
+	public ExecutionTrace getTrace() {
+		trace.finishCalls();
+		return trace;
+
+		//ExecutionTrace copy = trace.clone();
+		//// copy.finishCalls();
+		//return copy;
+	}
+
 	/**
 	 * Called by instrumented code whenever a new method is called
 	 * 
@@ -57,11 +143,10 @@ public class ExecutionTracer {
 	 * @param methodname
 	 */
 	public static void enteredMethod(String classname, String methodname, Object caller)
-			throws TestCaseExecutor.TimeoutExceeded {
-
-		if (isThreadNeqCurrentThread()) {
+	        throws TestCaseExecutor.TimeoutExceeded {
+		
+		if (isThreadNeqCurrentThread())
 			return;
-		}
 
 		if (testabilityTransformation) {
 			BooleanHelper.methodEntered();
@@ -72,24 +157,83 @@ public class ExecutionTracer {
 			logger.info("Raising TimeoutException as kill switch is active - enteredMethod");
 			throw new TestCaseExecutor.TimeoutExceeded();
 		}
-		if (tracer.disabled) {
+		if (tracer.disabled)
 			return;
-		}
 
 		logger.trace("Entering method " + classname + "." + methodname);
 		tracer.trace.enteredMethod(classname, methodname, caller);
 	}
 
-	public static ExecutionTracer getExecutionTracer() {
-		if (instance == null) {
-			instance = new ExecutionTracer();
-		}
-		return instance;
+	/**
+	 * Called by instrumented code whenever a return values is produced
+	 * 
+	 * @param classname
+	 * @param methodname
+	 * @param value
+	 */
+	public static void returnValue(int value, String className, String methodName) {
+		if (isThreadNeqCurrentThread())
+			return;
+
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.disabled)
+			return;
+
+		logger.trace("Return value: " + value);
+		tracer.trace.returnValue(className, methodName, value);
 	}
 
-	public static boolean isEnabled() {
-		ExecutionTracer tracer = ExecutionTracer.getExecutionTracer();
-		return !tracer.disabled;
+	/**
+	 * Called by instrumented code whenever a return values is produced
+	 * 
+	 * @param classname
+	 * @param methodname
+	 * @param value
+	 */
+	public static void returnValue(Object value, String className, String methodName) {
+		if (isThreadNeqCurrentThread())
+			return;
+
+		if (!ExecutionTracer.isEnabled())
+			return;
+
+		if (value == null) {
+			returnValue(0, className, methodName);
+			return;
+		}
+		StringBuilder tmp = null;
+		try {
+			// setLineCoverageDeactivated(true);
+			// logger.warn("Disabling tracer: returnValue");
+			ExecutionTracer.disable();
+			tmp = new StringBuilder(value.toString());
+		} catch (Throwable t) {
+			return;
+		} finally {
+			ExecutionTracer.enable();
+		}
+		int index = 0;
+		int position = 0;
+		boolean found = false;
+		boolean deleteAddresses = true;
+		char c = ' ';
+		// quite fast method to detect memory addresses in Strings.
+		while ((position = tmp.indexOf("@", index)) > 0) {
+			for (index = position + 1; index < position + 17 && index < tmp.length(); index++) {
+				c = tmp.charAt(index);
+				if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')
+				        || (c >= 'A' && c <= 'F')) {
+					found = true;
+				} else {
+					break;
+				}
+			}
+			if (deleteAddresses && found) {
+				tmp.delete(position + 1, index);
+			}
+		}
+
+		returnValue(tmp.toString().hashCode(), className, methodName);
 	}
 
 	/**
@@ -99,21 +243,62 @@ public class ExecutionTracer {
 	 * @param methodname
 	 */
 	public static void leftMethod(String classname, String methodname) {
-		if (isThreadNeqCurrentThread()) {
+		if (isThreadNeqCurrentThread())
 			return;
-		}
 
 		if (testabilityTransformation) {
 			BooleanHelper.methodLeft();
 		}
 
 		ExecutionTracer tracer = getExecutionTracer();
-		if (tracer.disabled) {
+		if (tracer.disabled)
 			return;
-		}
 
 		tracer.trace.exitMethod(classname, methodname);
 		logger.trace("Left method " + classname + "." + methodname);
+	}
+
+	/**
+	 * Called by the instrumented code each time a new source line is executed
+	 * 
+	 * @param line
+	 */
+	public static void passedLine(String className, String methodName, int line) {
+		if (isThreadNeqCurrentThread())
+			return;
+
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.killSwitch) {
+			logger.info("Raising TimeoutException as kill switch is active - passedLine");
+			throw new TestCaseExecutor.TimeoutExceeded();
+		}
+
+		if (tracer.disabled)
+			return;
+
+		tracer.trace.linePassed(className, methodName, line);
+	}
+
+	/**
+	 * Called by the instrumented code each time an unconditional branch is
+	 * taken. This is not enabled by default, only some coverage criteria (e.g.,
+	 * LCSAJ) use it.
+	 * 
+	 * 
+	 * @param opcode
+	 * @param branch
+	 * @param btyecode_id
+	 */
+	public static void passedUnconditionalBranch(int opcode, int branch, int bytecode_id) {
+		if (isThreadNeqCurrentThread())
+			return;
+
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.disabled)
+			return;
+
+		// Add current branch to control trace
+		tracer.trace.branchPassed(branch, bytecode_id, 0.0, 0.0);
 	}
 
 	/**
@@ -124,15 +309,13 @@ public class ExecutionTracer {
 	 * @param line
 	 */
 	public static void passedBranch(int val, int opcode, int branch, int bytecode_id) {
-		if (isThreadNeqCurrentThread()) {
+		if (isThreadNeqCurrentThread())
 			return;
-		}
 
 		ExecutionTracer tracer = getExecutionTracer();
 		// logger.info("passedBranch val="+val+", opcode="+opcode+", branch="+branch+", bytecode_id="+bytecode_id);
-		if (tracer.disabled) {
+		if (tracer.disabled)
 			return;
-		}
 
 		// logger.trace("Called passedBranch1 with opcode "+AbstractVisitor.OPCODES[opcode]+" and val "+val+" in branch "+branch);
 		double distance_true = 0.0;
@@ -191,18 +374,18 @@ public class ExecutionTracer {
 	 * @param opcode
 	 * @param line
 	 */
-	public static void passedBranch(int val1, int val2, int opcode, int branch, int bytecode_id) {
-		if (isThreadNeqCurrentThread()) {
+	public static void passedBranch(int val1, int val2, int opcode, int branch,
+	        int bytecode_id) {
+		if (isThreadNeqCurrentThread())
 			return;
-		}
 
 		ExecutionTracer tracer = getExecutionTracer();
-		if (tracer.disabled) {
+		if (tracer.disabled)
 			return;
-		}
 
-		logger.trace("Called passedBranch2 with opcode " + AbstractVisitor.OPCODES[opcode] + ", val1=" + val1
-				+ ", val2=" + val2 + " in branch " + branch);
+		logger.trace("Called passedBranch2 with opcode "
+		        + AbstractVisitor.OPCODES[opcode] + ", val1=" + val1 + ", val2=" + val2
+		        + " in branch " + branch);
 		double distance_true = 0;
 		double distance_false = 0;
 		switch (opcode) {
@@ -229,76 +412,20 @@ public class ExecutionTracer {
 			// leads to NE
 			break;
 		case Opcodes.IF_ICMPLT: // val1 < val2?
-			distance_true = val1 >= val2 ? (double) val1 - (double) val2 + 1.0 : 0.0; // The
-																						// greater,
-																						// the
-																						// further
-																						// away
-																						// from
-																						// <
-																						// 0
-			distance_false = val1 < val2 ? (double) val2 - (double) val1 + 1.0 : 0.0; // The
-																						// smaller,
-																						// the
-																						// further
-																						// away
-																						// from
-																						// <
-																						// 0
+			distance_true = val1 >= val2 ? (double) val1 - (double) val2 + 1.0 : 0.0; // The greater, the further away from < 0
+			distance_false = val1 < val2 ? (double) val2 - (double) val1 + 1.0 : 0.0; // The smaller, the further away from < 0
 			break;
 		case Opcodes.IF_ICMPGE:
-			distance_false = val1 >= val2 ? (double) val1 - (double) val2 + 1.0 : 0.0; // The
-																						// greater,
-																						// the
-																						// further
-																						// away
-																						// from
-																						// <
-																						// 0
-			distance_true = val1 < val2 ? (double) val2 - (double) val1 + 1.0 : 0.0; // The
-																						// smaller,
-																						// the
-																						// further
-																						// away
-																						// from
-																						// <
-																						// 0
+			distance_false = val1 >= val2 ? (double) val1 - (double) val2 + 1.0 : 0.0; // The greater, the further away from < 0
+			distance_true = val1 < val2 ? (double) val2 - (double) val1 + 1.0 : 0.0; // The smaller, the further away from < 0
 			break;
 		case Opcodes.IF_ICMPGT:
-			distance_false = val1 > val2 ? (double) val1 - (double) val2 + 1.0 : 0.0; // The
-																						// greater,
-																						// the
-																						// further
-																						// away
-																						// from
-																						// <
-																						// 0
-			distance_true = val1 <= val2 ? (double) val2 - (double) val1 + 1.0 : 0.0; // The
-																						// smaller,
-																						// the
-																						// further
-																						// away
-																						// from
-																						// <
-																						// 0
+			distance_false = val1 > val2 ? (double) val1 - (double) val2 + 1.0 : 0.0; // The greater, the further away from < 0
+			distance_true = val1 <= val2 ? (double) val2 - (double) val1 + 1.0 : 0.0; // The smaller, the further away from < 0
 			break;
 		case Opcodes.IF_ICMPLE:
-			distance_true = val1 > val2 ? (double) val1 - (double) val2 + 1.0 : 0.0; // The
-																						// greater,
-																						// the
-																						// further
-																						// away
-																						// from
-																						// <
-																						// 0
-			distance_false = val1 <= val2 ? (double) val2 - (double) val1 + 1.0 : 0.0; // The
-																						// smaller,
-																						// the
-																						// further
-																						// away
-																						// from
-																						// <
-																						// 0
+			distance_true = val1 > val2 ? (double) val1 - (double) val2 + 1.0 : 0.0; // The greater, the further away from < 0
+			distance_false = val1 <= val2 ? (double) val2 - (double) val1 + 1.0 : 0.0; // The smaller, the further away from < 0
 			break;
 		default:
 			logger.error("Unknown opcode: " + opcode);
@@ -315,61 +442,22 @@ public class ExecutionTracer {
 	/**
 	 * Called by the instrumented code each time a new branch is taken
 	 * 
-	 * @param val
-	 * @param opcode
-	 * @param line
-	 */
-	public static void passedBranch(Object val, int opcode, int branch, int bytecode_id) {
-		if (isThreadNeqCurrentThread()) {
-			return;
-		}
-
-		ExecutionTracer tracer = getExecutionTracer();
-		if (tracer.disabled) {
-			return;
-		}
-
-		double distance_true = 0;
-		double distance_false = 0;
-		switch (opcode) {
-		case Opcodes.IFNULL:
-			distance_true = val == null ? 0.0 : 1.0;
-			break;
-		case Opcodes.IFNONNULL:
-			distance_true = val == null ? 1.0 : 0.0;
-			break;
-		default:
-			logger.error("Warning: encountered opcode " + opcode);
-		}
-		distance_false = distance_true == 0 ? 1.0 : 0.0;
-		// enable();
-
-		logger.trace("Branch distance true: " + distance_true);
-		logger.trace("Branch distance false: " + distance_false);
-
-		// Add current branch to control trace
-		tracer.trace.branchPassed(branch, bytecode_id, distance_true, distance_false);
-	}
-
-	/**
-	 * Called by the instrumented code each time a new branch is taken
-	 * 
 	 * @param val1
 	 * @param val2
 	 * @param opcode
 	 * @param line
 	 */
-	public static void passedBranch(Object val1, Object val2, int opcode, int branch, int bytecode_id) {
-		if (isThreadNeqCurrentThread()) {
+	public static void passedBranch(Object val1, Object val2, int opcode, int branch,
+	        int bytecode_id) {
+		if (isThreadNeqCurrentThread())
 			return;
-		}
 
 		ExecutionTracer tracer = getExecutionTracer();
-		if (tracer.disabled) {
+		if (tracer.disabled)
 			return;
-		}
 
-		logger.trace("Called passedBranch3 with opcode " + AbstractVisitor.OPCODES[opcode]); // +", val1="+val1+", val2="+val2+" in branch "+branch);
+		logger.trace("Called passedBranch3 with opcode "
+		        + AbstractVisitor.OPCODES[opcode]); // +", val1="+val1+", val2="+val2+" in branch "+branch);
 		double distance_true = 0;
 		double distance_false = 0;
 		// logger.warn("Disabling tracer: passedBranch with 2 Objects");
@@ -415,249 +503,85 @@ public class ExecutionTracer {
 	}
 
 	/**
+	 * Called by the instrumented code each time a new branch is taken
+	 * 
+	 * @param val
+	 * @param opcode
+	 * @param line
+	 */
+	public static void passedBranch(Object val, int opcode, int branch, int bytecode_id) {
+		if (isThreadNeqCurrentThread())
+			return;
+
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.disabled)
+			return;
+
+		double distance_true = 0;
+		double distance_false = 0;
+		switch (opcode) {
+		case Opcodes.IFNULL:
+			distance_true = val == null ? 0.0 : 1.0;
+			break;
+		case Opcodes.IFNONNULL:
+			distance_true = val == null ? 1.0 : 0.0;
+			break;
+		default:
+			logger.error("Warning: encountered opcode " + opcode);
+		}
+		distance_false = distance_true == 0 ? 1.0 : 0.0;
+		// enable();
+
+		logger.trace("Branch distance true: " + distance_true);
+		logger.trace("Branch distance false: " + distance_false);
+
+		// Add current branch to control trace
+		tracer.trace.branchPassed(branch, bytecode_id, distance_true, distance_false);
+	}
+
+	/**
 	 * Called by instrumented code each time a variable gets written to (a
 	 * Definition)
 	 */
-	public static void passedDefinition(String className, String varName, String methodName, Object caller,
-			int branchID, int defID) {
-		if (isThreadNeqCurrentThread()) {
+	public static void passedDefinition(String className, String varName,
+	        String methodName, Object caller, int branchID, int defID) {
+		if (isThreadNeqCurrentThread())
 			return;
-		}
 
 		ExecutionTracer tracer = getExecutionTracer();
-		if (!tracer.disabled) {
-			tracer.trace.definitionPassed(className, varName, methodName, caller, branchID, defID);
-		}
-	}
-
-	/**
-	 * Called by the instrumented code each time a new source line is executed
-	 * 
-	 * @param line
-	 */
-	public static void passedLine(String className, String methodName, int line) {
-		if (isThreadNeqCurrentThread()) {
-			return;
-		}
-
-		ExecutionTracer tracer = getExecutionTracer();
-		if (tracer.killSwitch) {
-			logger.info("Raising TimeoutException as kill switch is active - passedLine");
-			throw new TestCaseExecutor.TimeoutExceeded();
-		}
-
-		if (tracer.disabled) {
-			return;
-		}
-
-		tracer.trace.linePassed(className, methodName, line);
-	}
-
-	/**
-	 * Called by the instrumented code each time an unconditional branch is
-	 * taken. This is not enabled by default, only some coverage criteria (e.g.,
-	 * LCSAJ) use it.
-	 * 
-	 * 
-	 * @param opcode
-	 * @param branch
-	 * @param btyecode_id
-	 */
-	public static void passedUnconditionalBranch(int opcode, int branch, int bytecode_id) {
-		if (isThreadNeqCurrentThread()) {
-			return;
-		}
-
-		ExecutionTracer tracer = getExecutionTracer();
-		if (tracer.disabled) {
-			return;
-		}
-
-		// Add current branch to control trace
-		tracer.trace.branchPassed(branch, bytecode_id, 0.0, 0.0);
+		if (!tracer.disabled)
+			tracer.trace.definitionPassed(className, varName, methodName, caller,
+			                              branchID, defID);
 	}
 
 	/**
 	 * Called by instrumented code each time a variable is read from (a Use)
 	 */
-	public static void passedUse(String className, String varName, String methodName, Object caller, int branchID,
-			int useID) {
+	public static void passedUse(String className, String varName, String methodName,
+	        Object caller, int branchID, int useID) {
 
-		if (isThreadNeqCurrentThread()) {
+		if (isThreadNeqCurrentThread())
 			return;
-		}
 		ExecutionTracer tracer = getExecutionTracer();
-		if (!tracer.disabled) {
-			tracer.trace.usePassed(className, varName, methodName, caller, branchID, useID);
-		}
-	}
-
-	/**
-	 * Called by instrumented code whenever a return values is produced
-	 * 
-	 * @param classname
-	 * @param methodname
-	 * @param value
-	 */
-	public static void returnValue(int value, String className, String methodName) {
-		if (isThreadNeqCurrentThread()) {
-			return;
-		}
-
-		ExecutionTracer tracer = getExecutionTracer();
-		if (tracer.disabled) {
-			return;
-		}
-
-		logger.trace("Return value: " + value);
-		tracer.trace.returnValue(className, methodName, value);
-	}
-
-	/**
-	 * Called by instrumented code whenever a return values is produced
-	 * 
-	 * @param classname
-	 * @param methodname
-	 * @param value
-	 */
-	public static void returnValue(Object value, String className, String methodName) {
-		if (isThreadNeqCurrentThread()) {
-			return;
-		}
-
-		if (!ExecutionTracer.isEnabled()) {
-			return;
-		}
-
-		if (value == null) {
-			returnValue(0, className, methodName);
-			return;
-		}
-		StringBuilder tmp = null;
-		try {
-			// setLineCoverageDeactivated(true);
-			// logger.warn("Disabling tracer: returnValue");
-			ExecutionTracer.disable();
-			tmp = new StringBuilder(value.toString());
-		} catch (Throwable t) {
-			return;
-		} finally {
-			ExecutionTracer.enable();
-		}
-		int index = 0;
-		int position = 0;
-		boolean found = false;
-		boolean deleteAddresses = true;
-		char c = ' ';
-		// quite fast method to detect memory addresses in Strings.
-		while ((position = tmp.indexOf("@", index)) > 0) {
-			for (index = position + 1; (index < position + 17) && (index < tmp.length()); index++) {
-				c = tmp.charAt(index);
-				if (((c >= '0') && (c <= '9')) || ((c >= 'a') && (c <= 'f')) || ((c >= 'A') && (c <= 'F'))) {
-					found = true;
-				} else {
-					break;
-				}
-			}
-			if (deleteAddresses && found) {
-				tmp.delete(position + 1, index);
-			}
-		}
-
-		returnValue(tmp.toString().hashCode(), className, methodName);
-	}
-
-	public static void setKillSwitch(boolean value) {
-		ExecutionTracer tracer = ExecutionTracer.getExecutionTracer();
-		tracer.killSwitch = value;
+		if (!tracer.disabled)
+			tracer.trace.usePassed(className, varName, methodName, caller, branchID,
+			                       useID);
 	}
 
 	public static void statementExecuted() {
-		if (isThreadNeqCurrentThread()) {
+		if (isThreadNeqCurrentThread())
 			return;
-		}
 
 		ExecutionTracer tracer = getExecutionTracer();
-		if (!tracer.disabled) {
+		if (!tracer.disabled)
 			tracer.num_statements++;
-		}
-	}
-
-	/**
-	 * Obviously more than one thread is executing during the creation of
-	 * concurrent TestCases. #TODO steenbuck we should test if
-	 * Thread.currentThread() is in the set of currently executing threads
-	 * 
-	 * @return
-	 */
-	private static boolean isThreadNeqCurrentThread() {
-		if (Properties.CRITERION == Criterion.CONCURRENCY) {
-			return false;
-		} else {
-			return (Thread.currentThread() != currentThread);
-		}
-	}
-
-	/**
-	 * We need to disable the execution tracer sometimes, e.g. when calling
-	 * equals in the branch distance function
-	 */
-	private boolean disabled = true;
-
-	/** Flag that is used to kill threads that are stuck in endless loops */
-	private boolean killSwitch = false;
-
-	private int num_statements = 0;
-
-	private static final boolean testabilityTransformation = Properties.TT;
-
-	/**
-	 * If a thread of a test case survives for some reason (e.g. long call to
-	 * external library), then we don't want its data in the current trace
-	 */
-	private static Thread currentThread = null;
-
-	public static void setThread(Thread thread) {
-		currentThread = thread;
-	}
-
-	private ExecutionTrace trace;
-
-	private ExecutionTracer() {
-		trace = new ExecutionTrace();
-	}
-
-	/**
-	 * Reset for new execution
-	 */
-	public void clear() {
-		trace = new ExecutionTrace();
-		BooleanHelper.clearStack();
-		num_statements = 0;
-
-		// #TODO steenbuck: We should be able to register us somewhere, so that
-		// we're called before run is executed
-		if (Properties.CRITERION == Criterion.CONCURRENCY) {
-			trace.concurrencyTracer = new ConcurrencyTracer();
-			LockRuntime.tracer = trace.concurrencyTracer;
-		}
 	}
 
 	public int getNumStatementsExecuted() {
 		return num_statements;
 	}
 
-	/**
-	 * Return trace of current execution
-	 * 
-	 * @return
-	 */
-	public ExecutionTrace getTrace() {
-		trace.finishCalls();
-		return trace;
-
-		// ExecutionTrace copy = trace.clone();
-		// // copy.finishCalls();
-		// return copy;
+	private ExecutionTracer() {
+		trace = new ExecutionTrace();
 	}
 }

@@ -26,23 +26,6 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
 public class PrimitiveAssertion extends Assertion {
 
 	@Override
-	public Assertion clone(TestCase newTestCase) {
-		PrimitiveAssertion s = new PrimitiveAssertion();
-		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
-		s.value = value;
-		return s;
-	}
-
-	@Override
-	public boolean evaluate(Scope scope) {
-		if (value != null) {
-			return value.equals(scope.get(source));
-		} else {
-			return scope.get(source) == null;
-		}
-	}
-
-	@Override
 	public String getCode() {
 		if (value == null) {
 			return "assertNull(" + source.getName() + ");";
@@ -53,13 +36,30 @@ public class PrimitiveAssertion extends Assertion {
 			String val = value.toString();
 			return "assertEquals(" + source.getName() + ", " + val + "F);";
 		} else if (value.getClass().equals(Character.class)) {
-			String val = StringEscapeUtils.escapeJava(((Character) value).toString());
+			String val = StringEscapeUtils.escapeJava(((Character) value)
+			        .toString());
 			return "assertEquals(" + source.getName() + ", '" + val + "');";
 		} else if (value.getClass().equals(String.class)) {
-			return "assertEquals(" + source.getName() + ", \"" + StringEscapeUtils.escapeJava((String) value) + "\");";
-		} else {
+			return "assertEquals(" + source.getName() + ", \""
+			        + StringEscapeUtils.escapeJava((String) value) + "\");";
+		} else
 			return "assertEquals(" + source.getName() + ", " + value + ");";
-		}
+	}
+
+	@Override
+	public Assertion clone(TestCase newTestCase) {
+		PrimitiveAssertion s = new PrimitiveAssertion();
+		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
+		s.value = value;
+		return s;
+	}
+
+	@Override
+	public boolean evaluate(Scope scope) {
+		if (value != null)
+			return value.equals(scope.get(source));
+		else
+			return scope.get(source) == null;
 	}
 
 }

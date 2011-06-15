@@ -39,7 +39,7 @@ public class LREM extends gov.nasa.jpf.jvm.bytecode.LREM {
 		Expression<Long> v0 = (Expression<Long>) sf.getOperandAttr(1);
 
 		Expression<Long> v1 = (Expression<Long>) sf.getOperandAttr(3);
-		if ((v0 == null) && (v1 == null)) {
+		if (v0 == null && v1 == null) {
 			return super.execute(ss, ks, th);
 		}
 

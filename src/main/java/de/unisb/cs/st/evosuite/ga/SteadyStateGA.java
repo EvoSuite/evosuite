@@ -47,48 +47,12 @@ public class SteadyStateGA extends GeneticAlgorithm {
 		setReplacementFunction(new FitnessReplacementFunction(selection_function));
 	}
 
-	@Override
-	public void generateSolution() {
-		if (population.isEmpty()) {
-			initializePopulation();
-		}
-
-		logger.debug("Starting evolution");
-		while (!isFinished()) {
-			logger.info("Population size before: " + population.size());
-			evolve();
-			if (shouldApplyLocalSearch()) {
-				applyLocalSearch();
-			}
-			sortPopulation();
-			logger.info("Current iteration: " + current_iteration);
-			this.notifyIteration();
-			logger.info("Population size: " + population.size());
-			logger.info("Best individual has fitness: " + population.get(0).getFitness());
-			logger.info("Worst individual has fitness: " + population.get(population.size() - 1).getFitness());
-		}
-
-		notifySearchFinished();
-	}
-
-	public ReplacementFunction getReplacementFunction() {
-		return replacement_function;
-	}
-
-	@Override
-	public void initializePopulation() {
-		notifySearchStarted();
-		current_iteration = 0;
-
-		// Set up initial population
-		generateInitialPopulation(Properties.POPULATION);
-		logger.debug("Calculating fitness of initial population");
-		calculateFitness();
-		this.notifyIteration();
-	}
-
-	public void setReplacementFunction(ReplacementFunction replacement_function) {
-		this.replacement_function = replacement_function;
+	protected boolean keepOffspring(Chromosome parent1, Chromosome parent2,
+	        Chromosome offspring1, Chromosome offspring2) {
+		return (isBetterOrEqual(offspring1, parent1) && isBetterOrEqual(offspring1,
+		                                                                parent2))
+		        || (isBetterOrEqual(offspring2, parent1) && isBetterOrEqual(offspring2,
+		                                                                    parent2));
 	}
 
 	@Override
@@ -102,7 +66,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 		// Add random elements
 		// new_generation.addAll(randomism());
 
-		while ((new_generation.size() < Properties.POPULATION) && !isFinished()) {
+		while (new_generation.size() < Properties.POPULATION && !isFinished()) {
 			logger.debug("Generating offspring");
 
 			Chromosome parent1 = selection_function.select(population);
@@ -146,21 +110,19 @@ public class SteadyStateGA extends GeneticAlgorithm {
 
 				// Reject offspring straight away if it's too long
 				int rejected = 0;
-				if (isTooLong(offspring1) || (offspring1.size() == 0)) {
+				if (isTooLong(offspring1) || offspring1.size() == 0) {
 					rejected++;
-				} else {
+				} else
 					new_generation.add(offspring1);
-				}
 
-				if (isTooLong(offspring2) || (offspring2.size() == 0)) {
+				if (isTooLong(offspring2) || offspring2.size() == 0) {
 					rejected++;
-				} else {
+				} else
 					new_generation.add(offspring2);
-				}
 
-				if (rejected == 1) {
+				if (rejected == 1)
 					new_generation.add(Randomness.choice(parent1, parent2));
-				} else if (rejected == 2) {
+				else if (rejected == 2) {
 					new_generation.add(parent1);
 					new_generation.add(parent2);
 				}
@@ -176,9 +138,47 @@ public class SteadyStateGA extends GeneticAlgorithm {
 		current_iteration++;
 	}
 
-	protected boolean keepOffspring(Chromosome parent1, Chromosome parent2, Chromosome offspring1, Chromosome offspring2) {
-		return (isBetterOrEqual(offspring1, parent1) && isBetterOrEqual(offspring1, parent2))
-				|| (isBetterOrEqual(offspring2, parent1) && isBetterOrEqual(offspring2, parent2));
+	@Override
+	public void initializePopulation() {
+		notifySearchStarted();
+		current_iteration = 0;
+
+		// Set up initial population
+		generateInitialPopulation(Properties.POPULATION);
+		logger.debug("Calculating fitness of initial population");
+		calculateFitness();
+		this.notifyIteration();
+	}
+
+	@Override
+	public void generateSolution() {
+		if (population.isEmpty())
+			initializePopulation();
+
+		logger.debug("Starting evolution");
+		while (!isFinished()) {
+			logger.info("Population size before: " + population.size());
+			evolve();
+			if (shouldApplyLocalSearch())
+				applyLocalSearch();
+			sortPopulation();
+			logger.info("Current iteration: " + current_iteration);
+			this.notifyIteration();
+			logger.info("Population size: " + population.size());
+			logger.info("Best individual has fitness: " + population.get(0).getFitness());
+			logger.info("Worst individual has fitness: "
+			        + population.get(population.size() - 1).getFitness());
+		}
+
+		notifySearchFinished();
+	}
+
+	public void setReplacementFunction(ReplacementFunction replacement_function) {
+		this.replacement_function = replacement_function;
+	}
+
+	public ReplacementFunction getReplacementFunction() {
+		return replacement_function;
 	}
 
 }

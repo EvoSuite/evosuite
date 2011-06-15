@@ -32,40 +32,17 @@ import org.apache.log4j.Logger;
  */
 public abstract class Chromosome implements Comparable<Chromosome>, Serializable {
 
+	private static final long serialVersionUID = -6921897301005213358L;
+
+	protected static Logger logger = Logger.getLogger(Chromosome.class);
+
 	/**
 	 * Exception to handle the case when a mutation fails
 	 * 
 	 */
 	class MutationFailedException extends Exception {
 		private static final long serialVersionUID = 1667810363133452317L;
-	}
-
-	private static final long serialVersionUID = -6921897301005213358L;
-
-	protected static Logger logger = Logger.getLogger(Chromosome.class);;
-
-	/**
-	 * Add an additional secondary objective to the end of the list of
-	 * objectives
-	 * 
-	 * @param objective
-	 */
-	public static void addSecondaryObjective(SecondaryObjective objective) {
-		secondaryObjectives.add(objective);
-	}
-
-	public static void clearSecondaryObjectives() {
-		secondaryObjectives.clear();
-	}
-
-	/**
-	 * Remove secondary objective from list, if it is there
-	 * 
-	 * @param objective
-	 */
-	public static void removeSecondaryObjective(SecondaryObjective objective) {
-		secondaryObjectives.remove(objective);
-	}
+	};
 
 	/** Last recorded fitness value */
 	private double fitness = 0.0;
@@ -80,101 +57,12 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	private static final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();
 
 	/**
-	 * Create a deep copy of the chromosome
-	 */
-	@Override
-	public abstract Chromosome clone();
-
-	/**
-	 * Determine relative ordering of this chromosome to another chromosome. If
-	 * the fitness values are equal, go through all secondary objectives and try
-	 * to find one where the two are not equal.
-	 */
-	@Override
-	public int compareTo(Chromosome o) {
-		int c = (int) Math.signum(fitness - o.fitness);
-		int objective = 0;
-
-		while ((c == 0) && (objective < secondaryObjectives.size())) {
-			SecondaryObjective so = secondaryObjectives.get(objective++);
-			if (so == null) {
-				break;
-			}
-			c = so.compareChromosomes(this, o);
-		}
-		logger.debug("Comparison: " + fitness + "/" + size() + " vs " + o.fitness + "/" + o.size() + " = " + c);
-		return c;
-	}
-
-	/**
-	 * Fixed single point cross over
-	 * 
-	 * @param other
-	 * @param position
-	 * @throws ConstructionFailedException
-	 */
-	public void crossOver(Chromosome other, int position) throws ConstructionFailedException {
-		crossOver(other, position, position);
-	}
-
-	/**
-	 * Single point cross over
-	 * 
-	 * @param other
-	 * @param position1
-	 * @param position2
-	 * @throws ConstructionFailedException
-	 */
-	public abstract void crossOver(Chromosome other, int position1, int position2) throws ConstructionFailedException;
-
-	@Override
-	public abstract boolean equals(Object obj);
-
-	/**
 	 * Return current fitness value
 	 * 
 	 * @return
 	 */
 	public double getFitness() {
 		return fitness;
-	}
-
-	/**
-	 * Return whether the chromosome has changed since the fitness value was
-	 * computed last
-	 * 
-	 * @return
-	 */
-	public boolean isChanged() {
-		return changed;
-	}
-
-	/**
-	 * Is this a valid solution?
-	 * 
-	 * @return
-	 */
-	public boolean isSolution() {
-		return solution;
-	}
-
-	/**
-	 * Apply the local search
-	 */
-	public abstract void localSearch(LocalSearchObjective objective);
-
-	/**
-	 * Apply mutation
-	 */
-	public abstract void mutate();
-
-	/**
-	 * Set changed status to @param changed
-	 * 
-	 * @param changed
-	 */
-	public void setChanged(boolean changed) {
-		this.changed = changed;
 	}
 
 	/**
@@ -187,9 +75,81 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 		// changed = false;
 	}
 
+	/**
+	 * Is this a valid solution?
+	 * 
+	 * @return
+	 */
+	public boolean isSolution() {
+		return solution;
+	}
+
 	public void setSolution(boolean value) {
 		solution = value;
 	}
+
+	/**
+	 * Create a deep copy of the chromosome
+	 */
+	@Override
+	public abstract Chromosome clone();
+
+	@Override
+	public abstract boolean equals(Object obj);
+
+	/**
+	 * Determine relative ordering of this chromosome to another chromosome. If
+	 * the fitness values are equal, go through all secondary objectives and try
+	 * to find one where the two are not equal.
+	 */
+	@Override
+	public int compareTo(Chromosome o) {
+		int c = (int) Math.signum(fitness - o.fitness);
+		int objective = 0;
+
+		while (c == 0 && objective < secondaryObjectives.size()) {
+			SecondaryObjective so = secondaryObjectives.get(objective++);
+			if (so == null)
+				break;
+			c = so.compareChromosomes(this, o);
+		}
+		logger.debug("Comparison: " + fitness + "/" + size() + " vs " + o.fitness + "/"
+		        + o.size() + " = " + c);
+		return c;
+	}
+
+	/**
+	 * Apply mutation
+	 */
+	public abstract void mutate();
+
+	/**
+	 * Fixed single point cross over
+	 * 
+	 * @param other
+	 * @param position
+	 * @throws ConstructionFailedException
+	 */
+	public void crossOver(Chromosome other, int position)
+	        throws ConstructionFailedException {
+		crossOver(other, position, position);
+	}
+
+	/**
+	 * Single point cross over
+	 * 
+	 * @param other
+	 * @param position1
+	 * @param position2
+	 * @throws ConstructionFailedException
+	 */
+	public abstract void crossOver(Chromosome other, int position1, int position2)
+	        throws ConstructionFailedException;
+
+	/**
+	 * Apply the local search
+	 */
+	public abstract void localSearch(LocalSearchObjective objective);
 
 	/**
 	 * Return length of individual
@@ -197,4 +157,46 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @return
 	 */
 	public abstract int size();
+
+	/**
+	 * Return whether the chromosome has changed since the fitness value was
+	 * computed last
+	 * 
+	 * @return
+	 */
+	public boolean isChanged() {
+		return changed;
+	}
+
+	/**
+	 * Set changed status to @param changed
+	 * 
+	 * @param changed
+	 */
+	public void setChanged(boolean changed) {
+		this.changed = changed;
+	}
+
+	/**
+	 * Add an additional secondary objective to the end of the list of
+	 * objectives
+	 * 
+	 * @param objective
+	 */
+	public static void addSecondaryObjective(SecondaryObjective objective) {
+		secondaryObjectives.add(objective);
+	}
+
+	/**
+	 * Remove secondary objective from list, if it is there
+	 * 
+	 * @param objective
+	 */
+	public static void removeSecondaryObjective(SecondaryObjective objective) {
+		secondaryObjectives.remove(objective);
+	}
+
+	public static void clearSecondaryObjectives() {
+		secondaryObjectives.clear();
+	}
 }

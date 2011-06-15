@@ -14,18 +14,13 @@ import de.unisb.cs.st.javalanche.mutation.runtime.testDriver.MutationTestDriver;
 
 public class FragilityFitnessFunction extends HOMFitnessFunction {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	protected List<Double> fragility = new ArrayList<Double>();
 
 	protected List<Mutation> dead_mutants = new ArrayList<Mutation>();
 
 	public FragilityFitnessFunction(MutationTestDriver driver) {
 		super(driver);
-		// analyzeFOMs();
+		//		analyzeFOMs();
 	}
 
 	public List<Mutation> analyzeFOMs() {
@@ -39,22 +34,25 @@ public class FragilityFitnessFunction extends HOMFitnessFunction {
 			logger.info("Analyzing mutant " + num + "/" + mutants.size());
 			num++;
 			MutationTestResult result = m.getMutationResult();
-			if ((result == null) || (result.getRuns() != tests.size())) {
+			if (result == null || result.getRuns() != tests.size()) {
 				logger.info("Mutation hasn't been analyzed - running test cases");
 				Set<String> coveredTests = MutationCoverageFile.getCoverageData(m);
-				Set<String> testsForThisRun = coveredTests.size() > 0 ? coveredTests : new HashSet<String>(tests);
+				Set<String> testsForThisRun = coveredTests.size() > 0 ? coveredTests
+				        : new HashSet<String>(tests);
 				hom_switcher.switchOn(m);
 				result = test_driver.runTests(testsForThisRun);
 				hom_switcher.switchOff();
 			}
 			logger.info("Executed tests: " + result.getRuns());
 			logger.info("Passed tests: " + result.getPassing().size());
-			logger.info("Failed tests: " + (result.getNumberOfFailures() + result.getNumberOfErrors()));
+			logger.info("Failed tests: "
+			        + (result.getNumberOfFailures() + result.getNumberOfErrors()));
 			if (result.getRuns() != result.getPassing().size()) {
 				logger.info("This mutant is killed!");
 				dead_mutants.add(m);
 			}
-			double f = (result.getNumberOfFailures() + result.getNumberOfErrors()) / (1.0 * result.getRuns());
+			double f = (result.getNumberOfFailures() + result.getNumberOfErrors())
+			        / (1.0 * result.getRuns());
 			fragility.add(f);
 			logger.debug("Fragility of FOM " + f);
 		}
@@ -75,7 +73,8 @@ public class FragilityFitnessFunction extends HOMFitnessFunction {
 		logger.info("Failed tests: " + (result.getRuns() - result.getPassing().size()));
 
 		double other_fragility = 0.0;
-		double own_fragility = (result.getNumberOfErrors() + result.getNumberOfFailures()) / (result.getRuns() * 1.0);
+		double own_fragility = (result.getNumberOfErrors() + result.getNumberOfFailures())
+		        / (result.getRuns() * 1.0);
 
 		for (int i = 0; i < chromosome.size(); i++) {
 			if (chromosome.get(i)) {

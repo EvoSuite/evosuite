@@ -36,6 +36,27 @@ public abstract class TestCoverageGoal {
 
 	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
+	/**
+	 * Return true if this coverage goal is covered by the given test
+	 * 
+	 * @param test
+	 * @return
+	 */
+	public abstract boolean isCovered(TestChromosome test);
+
+	/**
+	 * Determine if there is an existing test case covering this goal
+	 * 
+	 * @return
+	 */
+	public boolean isCovered(List<TestChromosome> tests) {
+		for (TestChromosome test : tests) {
+			if (isCovered(test))
+				return true;
+		}
+		return false;
+	}
+
 	public static boolean hasTimeout(ExecutionResult result) {
 
 		if (result == null) {
@@ -56,28 +77,6 @@ public abstract class TestCoverageGoal {
 	}
 
 	/**
-	 * Determine if there is an existing test case covering this goal
-	 * 
-	 * @return
-	 */
-	public boolean isCovered(List<TestChromosome> tests) {
-		for (TestChromosome test : tests) {
-			if (isCovered(test)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Return true if this coverage goal is covered by the given test
-	 * 
-	 * @param test
-	 * @return
-	 */
-	public abstract boolean isCovered(TestChromosome test);
-
-	/**
 	 * Execute a test case
 	 * 
 	 * @param test
@@ -89,9 +88,8 @@ public abstract class TestCoverageGoal {
 	 */
 	protected ExecutionResult runTest(TestChromosome test) {
 
-		if (!test.isChanged() && (test.last_result != null)) {
+		if (!test.isChanged() && test.last_result != null)
 			return test.last_result;
-		}
 
 		ExecutionResult result = new ExecutionResult(test.test, null);
 

@@ -17,6 +17,7 @@
  * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 package de.unisb.cs.st.evosuite.assertion;
 
 import java.lang.reflect.InvocationTargetException;
@@ -26,61 +27,20 @@ public class Inspector {
 
 	Class<?> clazz;
 	Method method;
-
+	
 	public Inspector(Class<?> clazz, Method m) {
-		this.clazz = clazz;
+		this.clazz= clazz;
 		method = m;
 	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		Inspector other = (Inspector) obj;
-		if (clazz == null) {
-			if (other.clazz != null) {
-				return false;
-			}
-		} else if (!clazz.equals(other.clazz)) {
-			return false;
-		}
-		if (method == null) {
-			if (other.method != null) {
-				return false;
-			}
-		} else if (!method.equals(other.method)) {
-			return false;
-		}
-		return true;
-	}
-
-	public String getClassName() {
-		return clazz.getName();
-	}
-
-	public String getMethodCall() {
-		return method.getName();
-	}
-
-	public Class<?> getReturnType() {
-		return method.getReturnType();
-	}
-
+	
 	public Object getValue(Object object) {
 		try {
 			Object ret = this.method.invoke(object);
-			if (ret instanceof String) {
-				ret = ((String) ret).replaceAll("@[abcdef\\d]+", "");
+			if(ret instanceof String) {
+				ret = ((String)ret).replaceAll("@[abcdef\\d]+", "");
 			}
 			return ret;
-
+			
 		} catch (IllegalArgumentException e) {
 			return null;
 		} catch (IllegalAccessException e) {
@@ -88,6 +48,18 @@ public class Inspector {
 		} catch (InvocationTargetException e) {
 			return null;
 		}
+	}
+	
+	public String getMethodCall() {
+		return method.getName();
+	}
+	
+	public String getClassName() {
+		return clazz.getName();
+	}
+	
+	public Class<?> getReturnType() {
+		return method.getReturnType();
 	}
 
 	@Override
@@ -99,4 +71,27 @@ public class Inspector {
 		return result;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Inspector other = (Inspector) obj;
+		if (clazz == null) {
+			if (other.clazz != null)
+				return false;
+		} else if (!clazz.equals(other.clazz))
+			return false;
+		if (method == null) {
+			if (other.method != null)
+				return false;
+		} else if (!method.equals(other.method))
+			return false;
+		return true;
+	}
+	
+	
 }

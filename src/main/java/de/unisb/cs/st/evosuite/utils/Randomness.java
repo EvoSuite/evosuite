@@ -43,99 +43,6 @@ public class Randomness implements Serializable {
 
 	private static Randomness instance = new Randomness();
 
-	public static <T> T choice(List<T> list) {
-		if (list.isEmpty()) {
-			return null;
-		}
-
-		int position = random.nextInt(list.size());
-		return list.get(position);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <T> T choice(Set<T> set) {
-		if (set.isEmpty()) {
-			return null;
-		}
-
-		int position = random.nextInt(set.size());
-		return (T) set.toArray()[position];
-	}
-
-	public static <T> T choice(T... elements) {
-		if (elements.length == 0) {
-			return null;
-		}
-
-		int position = random.nextInt(elements.length);
-		return elements[position];
-	}
-
-	public static Randomness getInstance() {
-		if (instance == null) {
-			instance = new Randomness();
-		}
-		return instance;
-	}
-
-	public static long getSeed() {
-		return seed;
-	}
-
-	public static boolean nextBoolean() {
-		return random.nextBoolean();
-	}
-
-	public static byte nextByte() {
-		return (byte) (random.nextInt(256) - 128);
-	}
-
-	public static char nextChar() {
-		return (char) (random.nextInt(127));
-		// return random.nextChar();
-	}
-
-	public static double nextDouble() {
-		return random.nextDouble();
-	}
-
-	public static float nextFloat() {
-		return random.nextFloat();
-	}
-
-	public static int nextInt() {
-		return random.nextInt();
-	}
-
-	public static int nextInt(int max) {
-		return random.nextInt(max);
-	}
-
-	public static int nextInt(int min, int max) {
-		return random.nextInt(max - min) + min;
-	}
-
-	public static short nextShort() {
-		return (short) (random.nextInt(2 * 32767) - 32767);
-	}
-
-	public static String nextString(int length) {
-		char[] characters = new char[length];
-		for (int i = 0; i < length; i++) {
-			characters[i] = nextChar();
-		}
-		return new String(characters);
-	}
-
-	public static void setSeed(long seed) {
-		Randomness.seed = seed;
-		random.setSeed(seed);
-	}
-
-	public static void shuffle(List<?> list) {
-		Collections.shuffle(list, random);
-	}
-
 	private Randomness() {
 		String seed_parameter = System.getProperty("random.seed");
 		if (seed_parameter != null) {
@@ -149,5 +56,94 @@ public class Randomness implements Serializable {
 		}
 		logger.info("Random seed: " + seed);
 		random = new MersenneTwister(seed);
+	}
+
+	public static Randomness getInstance() {
+		if (instance == null) {
+			instance = new Randomness();
+		}
+		return instance;
+	}
+
+	public static boolean nextBoolean() {
+		return random.nextBoolean();
+	}
+
+	public static int nextInt(int max) {
+		return random.nextInt(max);
+	}
+
+	public static int nextInt(int min, int max) {
+		return random.nextInt(max - min) + min;
+	}
+
+	public static int nextInt() {
+		return random.nextInt();
+	}
+
+	public static char nextChar() {
+		return (char) (random.nextInt(127));
+		//return random.nextChar();
+	}
+
+	public static short nextShort() {
+		return (short) (random.nextInt(2 * 32767) - 32767);
+	}
+
+	public static byte nextByte() {
+		return (byte) (random.nextInt(256) - 128);
+	}
+
+	public static double nextDouble() {
+		return random.nextDouble();
+	}
+
+	public static float nextFloat() {
+		return random.nextFloat();
+	}
+
+	public static void setSeed(long seed) {
+		Randomness.seed = seed;
+		random.setSeed(seed);
+	}
+
+	public static long getSeed() {
+		return seed;
+	}
+
+	public static <T> T choice(List<T> list) {
+		if (list.isEmpty())
+			return null;
+
+		int position = random.nextInt(list.size());
+		return list.get(position);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> T choice(Set<T> set) {
+		if (set.isEmpty())
+			return null;
+
+		int position = random.nextInt(set.size());
+		return (T) set.toArray()[position];
+	}
+
+	public static <T> T choice(T... elements) {
+		if (elements.length == 0)
+			return null;
+
+		int position = random.nextInt(elements.length);
+		return elements[position];
+	}
+
+	public static void shuffle(List<?> list) {
+		Collections.shuffle(list, random);
+	}
+
+	public static String nextString(int length) {
+		char[] characters = new char[length];
+		for (int i = 0; i < length; i++)
+			characters[i] = nextChar();
+		return new String(characters);
 	}
 }

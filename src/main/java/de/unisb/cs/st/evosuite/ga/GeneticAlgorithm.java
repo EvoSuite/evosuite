@@ -111,104 +111,25 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	}
 
 	/**
-	 * Set new bloat control function
-	 * 
-	 * @param bloat_control
+	 * Generate one new generation
 	 */
-	public void addBloatControl(BloatControlFunction bloat_control) {
-		this.bloat_control.add(bloat_control);
+	protected abstract void evolve();
+
+	protected boolean shouldApplyLocalSearch() {
+		if (Properties.LOCAL_SEARCH_RATE <= 0)
+			return false;
+
+		return (getAge() % Properties.LOCAL_SEARCH_RATE == 0);
 	}
 
 	/**
-	 * Add a new search listener
-	 * 
-	 * @param listener
+	 * Apply local search
 	 */
-	public void addListener(SearchListener listener) {
-		listeners.add(listener);
-	}
-
-	/**
-	 * Add an additional secondary objective to the end of the list of
-	 * objectives
-	 * 
-	 * @param objective
-	 */
-	public void addSecondaryObjective(SecondaryObjective objective) {
-		secondaryObjectives.add(objective);
-	}
-
-	// TODO: Override equals method in StoppingCondition
-	public void addStoppingCondition(StoppingCondition condition) {
-		Iterator<StoppingCondition> it = stopping_conditions.iterator();
-		while (it.hasNext()) {
-			if (it.next().getClass().equals(condition.getClass())) {
-				return;
-			}
+	protected void applyLocalSearch() {
+		logger.info("Applying local search");
+		for (Chromosome individual : population) {
+			individual.localSearch(localObjective);
 		}
-		logger.debug("Adding new stopping condition");
-		stopping_conditions.add(condition);
-		addListener(condition);
-	}
-
-	/**
-	 * Delete all current individuals
-	 */
-	public void clearPopulation() {
-		logger.debug("Resetting population");
-		population.clear();
-	}
-
-	public void clearSecondaryObjectives() {
-		secondaryObjectives.clear();
-		Chromosome.clearSecondaryObjectives();
-	}
-
-	/**
-	 * Generate solution
-	 */
-	@Override
-	public abstract void generateSolution();
-
-	/**
-	 * Get number of iterations
-	 * 
-	 * @return Number of iterations
-	 */
-	public int getAge() {
-		return current_iteration;
-	}
-
-	/**
-	 * Return the individual with the highest fitness
-	 * 
-	 * @return
-	 */
-	public Chromosome getBestIndividual() {
-		// Assume population is sorted
-		return population.get(0);
-	}
-
-	/**
-	 * Get currently used fitness function
-	 * 
-	 * @return
-	 */
-	public FitnessFunction getFitnessFunction() {
-		return fitness_function;
-	}
-
-	public List<Chromosome> getPopulation() {
-		return population;
-	}
-
-	/**
-	 * Get currently used fitness function
-	 * 
-	 * @return
-	 */
-	public SelectionFunction getSelectionFunction() {
-		return selection_function;
 	}
 
 	/**
@@ -217,84 +138,113 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	public abstract void initializePopulation();
 
 	/**
-	 * Check whether individual is suitable according to bloat control functions
+	 * Generate solution
 	 */
-	public boolean isTooLong(Chromosome chromosome) {
-		for (BloatControlFunction b : bloat_control) {
-			if (b.isTooLong(chromosome)) {
-				return true;
-			}
+	@Override
+	public abstract void generateSolution();
+
+	/**
+	 * Fills the population at first with recycled chromosomes - for more
+	 * information see recycleChromosomes() and ChromosomeRecycler - and after
+	 * that, the population is filled with random chromosomes.
+	 * 
+	 * This method guarantees at least a proportion of
+	 * Properties.initially_enforeced_Randomness % of random chromosomes
+	 * 
+	 */
+	protected void generateInitialPopulation(int population_size) {
+		boolean recycle = Properties.RECYCLE_CHROMOSOMES;
+		// FIXME: Possible without reference to strategy?
+		if (Properties.STRATEGY == Strategy.EVOSUITE) // recycling only makes sense for single test generation
+			recycle = false;
+		if (recycle)
+			recycleChromosomes(population_size);
+
+		generateRandomPopulation(population_size - population.size());
+		// TODO: notifyIteration? calculateFitness?
+	}
+
+	/**
+	 * Adds to the current population all chromosomes that had a good
+	 * performance on a goal that was similar to the current fitness_function.
+	 * 
+	 * For more information look at ChromosomeRecycler and
+	 * TestFitnessFunction.isSimilarTo()
+	 */
+	protected void recycleChromosomes(int population_size) {
+		if (fitness_function == null)
+			return;
+		ChromosomeRecycler recycler = ChromosomeRecycler.getInstance();
+		Set<Chromosome> recycables = recycler.getRecycableChromosomes(fitness_function);
+		for (Chromosome recycable : recycables) {
+			population.add(recycable);
 		}
-		return false;
+		double enforced_Randomness = Properties.INITIALLY_ENFORCED_RANDOMNESS;
+		if (enforced_Randomness < 0.0 || enforced_Randomness > 1.0) {
+			logger.warn("property \"initially_enforced_Randomness\" is supposed to be a percentage in [0.0,1.0]");
+			logger.warn("retaining to default");
+			enforced_Randomness = 0.4;
+		}
+		enforced_Randomness = 1 - enforced_Randomness;
+		population_size *= enforced_Randomness;
+		starveToLimit(population_size);
 	}
 
 	/**
-	 * Prints out all information regarding this GAs stopping conditions
+	 * This method can be used to kick out chromosomes when the population is
+	 * possibly overcrowded
 	 * 
-	 * So far only used for testing purposes in TestSuiteGenerator
+	 * Depending on the Property "starve_by_fitness" chromosome are either
+	 * kicked out randomly or according to their fitness
 	 */
-	public void printBudget() {
-		System.out.println("* GA-Budget:");
-		for (StoppingCondition sc : stopping_conditions) {
-			System.out.println("  - " + sc.toString());
+	protected void starveToLimit(int limit) {
+		if (Properties.STARVE_BY_FITNESS)
+			starveByFitness(limit);
+		else
+			starveRandomly(limit);
+	}
+
+	/**
+	 * This method can be used to kick out random chromosomes in the current
+	 * population until the given limit is reached again.
+	 */
+	protected void starveRandomly(int limit) {
+		while (population.size() > limit) {
+			int removePos = Randomness.nextInt() % population.size();
+			population.remove(removePos);
 		}
 	}
 
 	/**
-	 * Remove a search listener
-	 * 
-	 * @param listener
+	 * This method can be used to kick out the worst chromosomes in the current
+	 * population until the given limit is reached again.
 	 */
-	public void removeListener(SearchListener listener) {
-		listeners.remove(listener);
-	}
-
-	/**
-	 * Remove secondary objective from list, if it is there
-	 * 
-	 * @param objective
-	 */
-	public void removeSecondaryObjective(SecondaryObjective objective) {
-		secondaryObjectives.remove(objective);
-	}
-
-	public void removeStoppingCondition(StoppingCondition condition) {
-		Iterator<StoppingCondition> it = stopping_conditions.iterator();
-		while (it.hasNext()) {
-			if (it.next().getClass().equals(condition.getClass())) {
-				it.remove();
-				removeListener(condition);
-			}
-		}
-	}
-
-	public void resetStoppingConditions() {
-		for (StoppingCondition c : stopping_conditions) {
-			c.reset();
+	protected void starveByFitness(int limit) {
+		calculateFitness();
+		for (int i = population.size() - 1; i >= limit; i--) {
+			population.remove(i);
 		}
 	}
 
 	/**
-	 * Set new bloat control function
+	 * Generate random population of given size
 	 * 
-	 * @param bloat_control
+	 * @param population_size
 	 */
-	public void setBloatControl(BloatControlFunction bloat_control) {
-		this.bloat_control.clear();
-		addBloatControl(bloat_control);
+	protected void generateRandomPopulation(int population_size) {
+		logger.debug("Creating random population");
+		for (int i = 0; i < population_size; i++) {
+			population.add(chromosome_factory.getChromosome());
+		}
+		logger.debug("Created " + population.size() + " individuals");
 	}
 
 	/**
-	 * Set a new factory method
-	 * 
-	 * @param factory
+	 * Delete all current individuals
 	 */
-	public void setChromosomeFactory(ChromosomeFactory factory) {
-		chromosome_factory = factory;
-	}
-
-	public void setCrossOverFunction(CrossOverFunction crossover) {
-		this.crossover_function = crossover;
+	public void clearPopulation() {
+		logger.debug("Resetting population");
+		population.clear();
 	}
 
 	/**
@@ -308,6 +258,15 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	}
 
 	/**
+	 * Get currently used fitness function
+	 * 
+	 * @return
+	 */
+	public FitnessFunction getFitnessFunction() {
+		return fitness_function;
+	}
+
+	/**
 	 * Set new fitness function (i.e., for new mutation)
 	 * 
 	 * @param function
@@ -316,28 +275,52 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		selection_function = function;
 	}
 
-	// TODO: Override equals method in StoppingCondition
-	public void setStoppingCondition(StoppingCondition condition) {
-		stopping_conditions.clear();
-		logger.debug("Setting stopping condition");
-		stopping_conditions.add(condition);
-		addListener(condition);
-	}
-
-	public void setStoppingConditionLimit(int value) {
-		for (StoppingCondition c : stopping_conditions) {
-			c.setLimit(value);
-		}
+	/**
+	 * Get currently used fitness function
+	 * 
+	 * @return
+	 */
+	public SelectionFunction getSelectionFunction() {
+		return selection_function;
 	}
 
 	/**
-	 * Apply local search
+	 * Set new bloat control function
+	 * 
+	 * @param bloat_control
 	 */
-	protected void applyLocalSearch() {
-		logger.info("Applying local search");
-		for (Chromosome individual : population) {
-			individual.localSearch(localObjective);
+	public void setBloatControl(BloatControlFunction bloat_control) {
+		this.bloat_control.clear();
+		addBloatControl(bloat_control);
+	}
+
+	/**
+	 * Set new bloat control function
+	 * 
+	 * @param bloat_control
+	 */
+	public void addBloatControl(BloatControlFunction bloat_control) {
+		this.bloat_control.add(bloat_control);
+	}
+
+	/**
+	 * Check whether individual is suitable according to bloat control functions
+	 */
+	public boolean isTooLong(Chromosome chromosome) {
+		for (BloatControlFunction b : bloat_control) {
+			if (b.isTooLong(chromosome))
+				return true;
 		}
+		return false;
+	}
+
+	/**
+	 * Get number of iterations
+	 * 
+	 * @return Number of iterations
+	 */
+	public int getAge() {
+		return current_iteration;
 	}
 
 	/**
@@ -366,143 +349,12 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		List<Chromosome> elite = new ArrayList<Chromosome>();
 
 		for (int i = 0; i < Properties.ELITE; i++) {
-			logger.trace("Copying individual " + i + " with fitness " + population.get(i).getFitness());
+			logger.trace("Copying individual " + i + " with fitness "
+			        + population.get(i).getFitness());
 			elite.add(population.get(i).clone());
 		}
 		logger.trace("Done.");
 		return elite;
-	}
-
-	/**
-	 * Generate one new generation
-	 */
-	protected abstract void evolve();
-
-	/**
-	 * Fills the population at first with recycled chromosomes - for more
-	 * information see recycleChromosomes() and ChromosomeRecycler - and after
-	 * that, the population is filled with random chromosomes.
-	 * 
-	 * This method guarantees at least a proportion of
-	 * Properties.initially_enforeced_Randomness % of random chromosomes
-	 * 
-	 */
-	protected void generateInitialPopulation(int population_size) {
-		boolean recycle = Properties.RECYCLE_CHROMOSOMES;
-		// FIXME: Possible without reference to strategy?
-		if (Properties.STRATEGY == Strategy.EVOSUITE) {
-			recycle = false;
-		}
-		if (recycle) {
-			recycleChromosomes(population_size);
-		}
-
-		generateRandomPopulation(population_size - population.size());
-		// TODO: notifyIteration? calculateFitness?
-	}
-
-	/**
-	 * Generate random population of given size
-	 * 
-	 * @param population_size
-	 */
-	protected void generateRandomPopulation(int population_size) {
-		logger.debug("Creating random population");
-		for (int i = 0; i < population_size; i++) {
-			population.add(chromosome_factory.getChromosome());
-		}
-		logger.debug("Created " + population.size() + " individuals");
-	}
-
-	protected Chromosome getBest(Chromosome chromosome1, Chromosome chromosome2) {
-		if (isBetterOrEqual(chromosome1, chromosome2)) {
-			return chromosome1;
-		} else {
-			return chromosome2;
-		}
-	}
-
-	protected boolean isBetterOrEqual(Chromosome chromosome1, Chromosome chromosome2) {
-		if (selection_function.isMaximize()) {
-			return chromosome1.compareTo(chromosome2) >= 0;
-		} else {
-			return chromosome1.compareTo(chromosome2) <= 0;
-		}
-
-	}
-
-	protected boolean isFinished() {
-		for (StoppingCondition c : stopping_conditions) {
-			if (c.isFinished()) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Penalty if individual is not unique
-	 * 
-	 * @param individual
-	 * @param generation
-	 */
-	protected void kinCompensation(Chromosome individual, List<Chromosome> generation) {
-
-		if (Properties.KINCOMPENSATION >= 1.0) {
-			return;
-		}
-
-		boolean unique = true;
-
-		for (Chromosome other : generation) {
-			if (other == individual) {
-				continue;
-			}
-
-			if (other.equals(individual)) {
-				unique = false;
-				break;
-			}
-		}
-
-		if (!unique) {
-			logger.debug("Applying kin compensation");
-			if (selection_function.maximize) {
-				individual.setFitness(individual.getFitness() * Properties.KINCOMPENSATION);
-			} else {
-				individual.setFitness(individual.getFitness() * (2.0 - Properties.KINCOMPENSATION));
-			}
-		}
-	}
-
-	protected void notifyEvaluation(Chromosome chromosome) {
-		for (SearchListener listener : listeners) {
-			listener.fitnessEvaluation(chromosome);
-		}
-	}
-
-	protected void notifyIteration() {
-		for (SearchListener listener : listeners) {
-			listener.iteration(this);
-		}
-	}
-
-	protected void notifyMutation(Chromosome chromosome) {
-		for (SearchListener listener : listeners) {
-			listener.modification(chromosome);
-		}
-	}
-
-	protected void notifySearchFinished() {
-		for (SearchListener listener : listeners) {
-			listener.searchFinished(this);
-		}
-	}
-
-	protected void notifySearchStarted() {
-		for (SearchListener listener : listeners) {
-			listener.searchStarted(this);
-		}
 	}
 
 	/**
@@ -522,44 +374,113 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	}
 
 	/**
-	 * Adds to the current population all chromosomes that had a good
-	 * performance on a goal that was similar to the current fitness_function.
+	 * Penalty if individual is not unique
 	 * 
-	 * For more information look at ChromosomeRecycler and
-	 * TestFitnessFunction.isSimilarTo()
+	 * @param individual
+	 * @param generation
 	 */
-	protected void recycleChromosomes(int population_size) {
-		if (fitness_function == null) {
+	protected void kinCompensation(Chromosome individual, List<Chromosome> generation) {
+
+		if (Properties.KINCOMPENSATION >= 1.0)
 			return;
+
+		boolean unique = true;
+
+		for (Chromosome other : generation) {
+			if (other == individual)
+				continue;
+
+			if (other.equals(individual)) {
+				unique = false;
+				break;
+			}
 		}
-		ChromosomeRecycler recycler = ChromosomeRecycler.getInstance();
-		Set<Chromosome> recycables = recycler.getRecycableChromosomes(fitness_function);
-		for (Chromosome recycable : recycables) {
-			population.add(recycable);
+
+		if (!unique) {
+			logger.debug("Applying kin compensation");
+			if (selection_function.maximize)
+				individual.setFitness(individual.getFitness()
+				        * Properties.KINCOMPENSATION);
+			else
+				individual.setFitness(individual.getFitness()
+				        * (2.0 - Properties.KINCOMPENSATION));
 		}
-		double enforced_Randomness = Properties.INITIALLY_ENFORCED_RANDOMNESS;
-		if ((enforced_Randomness < 0.0) || (enforced_Randomness > 1.0)) {
-			logger.warn("property \"initially_enforced_Randomness\" is supposed to be a percentage in [0.0,1.0]");
-			logger.warn("retaining to default");
-			enforced_Randomness = 0.4;
-		}
-		enforced_Randomness = 1 - enforced_Randomness;
-		population_size *= enforced_Randomness;
-		starveToLimit(population_size);
 	}
 
-	protected boolean shouldApplyLocalSearch() {
-		if (Properties.LOCAL_SEARCH_RATE <= 0) {
-			return false;
-		}
+	/**
+	 * Return the individual with the highest fitness
+	 * 
+	 * @return
+	 */
+	public Chromosome getBestIndividual() {
+		// Assume population is sorted
+		return population.get(0);
+	}
 
-		return (getAge() % Properties.LOCAL_SEARCH_RATE == 0);
+	/**
+	 * Set a new factory method
+	 * 
+	 * @param factory
+	 */
+	public void setChromosomeFactory(ChromosomeFactory factory) {
+		chromosome_factory = factory;
+	}
+
+	public void setCrossOverFunction(CrossOverFunction crossover) {
+		this.crossover_function = crossover;
+	}
+
+	/**
+	 * Add a new search listener
+	 * 
+	 * @param listener
+	 */
+	public void addListener(SearchListener listener) {
+		listeners.add(listener);
+	}
+
+	/**
+	 * Remove a search listener
+	 * 
+	 * @param listener
+	 */
+	public void removeListener(SearchListener listener) {
+		listeners.remove(listener);
+	}
+
+	protected void notifySearchStarted() {
+		for (SearchListener listener : listeners) {
+			listener.searchStarted(this);
+		}
+	}
+
+	protected void notifySearchFinished() {
+		for (SearchListener listener : listeners) {
+			listener.searchFinished(this);
+		}
+	}
+
+	protected void notifyIteration() {
+		for (SearchListener listener : listeners) {
+			listener.iteration(this);
+		}
+	}
+
+	protected void notifyEvaluation(Chromosome chromosome) {
+		for (SearchListener listener : listeners) {
+			listener.fitnessEvaluation(chromosome);
+		}
+	}
+
+	protected void notifyMutation(Chromosome chromosome) {
+		for (SearchListener listener : listeners) {
+			listener.modification(chromosome);
+		}
 	}
 
 	protected void sortPopulation() {
-		if (shuffleBeforeSort) {
+		if (shuffleBeforeSort)
 			Randomness.shuffle(population);
-		}
 
 		if (selection_function.maximize) {
 			Collections.sort(population, Collections.reverseOrder());
@@ -568,40 +489,109 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		}
 	}
 
-	/**
-	 * This method can be used to kick out the worst chromosomes in the current
-	 * population until the given limit is reached again.
-	 */
-	protected void starveByFitness(int limit) {
-		calculateFitness();
-		for (int i = population.size() - 1; i >= limit; i--) {
-			population.remove(i);
+	public List<Chromosome> getPopulation() {
+		return population;
+	}
+
+	protected boolean isFinished() {
+		for (StoppingCondition c : stopping_conditions) {
+			if (c.isFinished())
+				return true;
+		}
+		return false;
+	}
+
+	// TODO: Override equals method in StoppingCondition
+	public void addStoppingCondition(StoppingCondition condition) {
+		Iterator<StoppingCondition> it = stopping_conditions.iterator();
+		while (it.hasNext()) {
+			if (it.next().getClass().equals(condition.getClass())) {
+				return;
+			}
+		}
+		logger.debug("Adding new stopping condition");
+		stopping_conditions.add(condition);
+		addListener(condition);
+	}
+
+	// TODO: Override equals method in StoppingCondition
+	public void setStoppingCondition(StoppingCondition condition) {
+		stopping_conditions.clear();
+		logger.debug("Setting stopping condition");
+		stopping_conditions.add(condition);
+		addListener(condition);
+	}
+
+	public void removeStoppingCondition(StoppingCondition condition) {
+		Iterator<StoppingCondition> it = stopping_conditions.iterator();
+		while (it.hasNext()) {
+			if (it.next().getClass().equals(condition.getClass())) {
+				it.remove();
+				removeListener(condition);
+			}
+		}
+	}
+
+	public void resetStoppingConditions() {
+		for (StoppingCondition c : stopping_conditions) {
+			c.reset();
+		}
+	}
+
+	public void setStoppingConditionLimit(int value) {
+		for (StoppingCondition c : stopping_conditions) {
+			c.setLimit(value);
 		}
 	}
 
 	/**
-	 * This method can be used to kick out random chromosomes in the current
-	 * population until the given limit is reached again.
-	 */
-	protected void starveRandomly(int limit) {
-		while (population.size() > limit) {
-			int removePos = Randomness.nextInt() % population.size();
-			population.remove(removePos);
-		}
-	}
-
-	/**
-	 * This method can be used to kick out chromosomes when the population is
-	 * possibly overcrowded
+	 * Add an additional secondary objective to the end of the list of
+	 * objectives
 	 * 
-	 * Depending on the Property "starve_by_fitness" chromosome are either
-	 * kicked out randomly or according to their fitness
+	 * @param objective
 	 */
-	protected void starveToLimit(int limit) {
-		if (Properties.STARVE_BY_FITNESS) {
-			starveByFitness(limit);
+	public void addSecondaryObjective(SecondaryObjective objective) {
+		secondaryObjectives.add(objective);
+	}
+
+	/**
+	 * Remove secondary objective from list, if it is there
+	 * 
+	 * @param objective
+	 */
+	public void removeSecondaryObjective(SecondaryObjective objective) {
+		secondaryObjectives.remove(objective);
+	}
+
+	public void clearSecondaryObjectives() {
+		secondaryObjectives.clear();
+		Chromosome.clearSecondaryObjectives();
+	}
+
+	protected boolean isBetterOrEqual(Chromosome chromosome1, Chromosome chromosome2) {
+		if (selection_function.isMaximize()) {
+			return chromosome1.compareTo(chromosome2) >= 0;
 		} else {
-			starveRandomly(limit);
+			return chromosome1.compareTo(chromosome2) <= 0;
 		}
+
+	}
+
+	protected Chromosome getBest(Chromosome chromosome1, Chromosome chromosome2) {
+		if (isBetterOrEqual(chromosome1, chromosome2))
+			return chromosome1;
+		else
+			return chromosome2;
+	}
+
+	/**
+	 * Prints out all information regarding this GAs stopping conditions
+	 * 
+	 * So far only used for testing purposes in TestSuiteGenerator
+	 */
+	public void printBudget() {
+		System.out.println("* GA-Budget:");
+		for (StoppingCondition sc : stopping_conditions)
+			System.out.println("  - " + sc.toString());
 	}
 }

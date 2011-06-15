@@ -56,32 +56,37 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 		// TODO Auto-generated constructor stub
 	}
 
-	@Override
-	public void visitJumpInsn(int opcode, Label label) {
-		if (((opcode == Opcodes.IFEQ) || (opcode == Opcodes.IFNE))
-				&& (flags.containsKey(current_var) || (current_write >= 0))) {
+	private void insertFlagCode() {
+		// assign the return value to a new local variable
+		int index = newLocal(Type.INT_TYPE);
+		logger.debug("Inserting new variable with index " + index
+		        + " as replacement for " + nextLocal);
+		//flags.put(index, nextLocal);
+		current_write = index;
+		current_var = nextLocal;
+		super.visitVarInsn(Opcodes.ISTORE, index);
+		// put new variable on stack
+		super.visitVarInsn(Opcodes.ILOAD, index);
+		// then put a converted boolean on the stack
+		Label l = new Label();
+		Label l2 = new Label();
+		if (MUTATION) {
+			Label mutationStartLabel = new Label();
+			mutationStartLabel.info = new MutationMarker(true);
+			super.visitLabel(mutationStartLabel);
+		}
 
-			int var = current_var;
-			// if(flags.get(var) != nextLocal) {
-			// Pop flag from stack
-			super.visitInsn(Opcodes.POP);
-			// Push distance value on stack
-			if (current_write >= 0) {
-				super.visitVarInsn(Opcodes.ILOAD, current_write);
-			} else {
-				super.visitVarInsn(Opcodes.ILOAD, flags.get(var));
-			}
-			// }
-			// Now add replacement jump
-			if (opcode == Opcodes.IFEQ) {
-				// False distance
-				super.visitJumpInsn(Opcodes.IFNE, label);
-			} else {
-				// True distance
-				super.visitJumpInsn(Opcodes.IFEQ, label);
-			}
-		} else {
-			super.visitJumpInsn(opcode, label);
+		super.visitJumpInsn(Opcodes.IFNE, l);
+		super.visitInsn(Opcodes.ICONST_1);
+		super.visitJumpInsn(Opcodes.GOTO, l2);
+		super.visitLabel(l);
+		super.visitInsn(Opcodes.ICONST_0);
+		super.visitLabel(l2);
+
+		if (MUTATION) {
+			Label mutationEndLabel = new Label();
+			mutationEndLabel.info = new MutationMarker(false);
+			super.visitLabel(mutationEndLabel);
 		}
 
 	}
@@ -94,7 +99,8 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 				String replacement_owner = "de/unisb/cs/st/evosuite/primitives/StringReplacementFunctions";
 				String replacement_name = "equalsDistance";
 				String replacement_desc = "(Ljava/lang/String;Ljava/lang/String;)I";
-				super.visitMethodInsn(Opcodes.INVOKESTATIC, replacement_owner, replacement_name, replacement_desc);
+				super.visitMethodInsn(Opcodes.INVOKESTATIC, replacement_owner,
+				                      replacement_name, replacement_desc);
 				insertFlagCode();
 
 			} else if (name.equals("equalsIgnoreCase")) {
@@ -102,7 +108,8 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 				String replacement_owner = "de/unisb/cs/st/evosuite/primitives/StringReplacementFunctions";
 				String replacement_name = "equalsIgnoreCaseDistance";
 				String replacement_desc = "(Ljava/lang/String;Ljava/lang/String;)I";
-				super.visitMethodInsn(Opcodes.INVOKESTATIC, replacement_owner, replacement_name, replacement_desc);
+				super.visitMethodInsn(Opcodes.INVOKESTATIC, replacement_owner,
+				                      replacement_name, replacement_desc);
 				insertFlagCode();
 
 			} else if (name.equals("startsWith")) {
@@ -110,7 +117,8 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 				String replacement_owner = "de/unisb/cs/st/evosuite/primitives/StringReplacementFunctions";
 				String replacement_name = "startsWith";
 				String replacement_desc = "(Ljava/lang/String;Ljava/lang/String;)I";
-				super.visitMethodInsn(Opcodes.INVOKESTATIC, replacement_owner, replacement_name, replacement_desc);
+				super.visitMethodInsn(Opcodes.INVOKESTATIC, replacement_owner,
+				                      replacement_name, replacement_desc);
 				insertFlagCode();
 
 			} else {
@@ -140,7 +148,7 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 		case Opcodes.AASTORE:
 		case Opcodes.LSTORE:
 			if (current_write >= 0) {
-				// flags.put(current_write, var);
+				//				flags.put(current_write, var);
 				flags.put(var, current_write);
 			} else if (flags.containsKey(var)) {
 				flags.remove(var);
@@ -150,36 +158,31 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 		super.visitVarInsn(opcode, var);
 	}
 
-	private void insertFlagCode() {
-		// assign the return value to a new local variable
-		int index = newLocal(Type.INT_TYPE);
-		logger.debug("Inserting new variable with index " + index + " as replacement for " + nextLocal);
-		// flags.put(index, nextLocal);
-		current_write = index;
-		current_var = nextLocal;
-		super.visitVarInsn(Opcodes.ISTORE, index);
-		// put new variable on stack
-		super.visitVarInsn(Opcodes.ILOAD, index);
-		// then put a converted boolean on the stack
-		Label l = new Label();
-		Label l2 = new Label();
-		if (MUTATION) {
-			Label mutationStartLabel = new Label();
-			mutationStartLabel.info = new MutationMarker(true);
-			super.visitLabel(mutationStartLabel);
-		}
+	@Override
+	public void visitJumpInsn(int opcode, Label label) {
+		if ((opcode == Opcodes.IFEQ || opcode == Opcodes.IFNE)
+		        && (flags.containsKey(current_var) || current_write >= 0)) {
 
-		super.visitJumpInsn(Opcodes.IFNE, l);
-		super.visitInsn(Opcodes.ICONST_1);
-		super.visitJumpInsn(Opcodes.GOTO, l2);
-		super.visitLabel(l);
-		super.visitInsn(Opcodes.ICONST_0);
-		super.visitLabel(l2);
-
-		if (MUTATION) {
-			Label mutationEndLabel = new Label();
-			mutationEndLabel.info = new MutationMarker(false);
-			super.visitLabel(mutationEndLabel);
+			int var = current_var;
+			//if(flags.get(var) != nextLocal) {
+			// Pop flag from stack
+			super.visitInsn(Opcodes.POP);
+			// Push distance value on stack
+			if (current_write >= 0)
+				super.visitVarInsn(Opcodes.ILOAD, current_write);
+			else
+				super.visitVarInsn(Opcodes.ILOAD, flags.get(var));
+			//}
+			// Now add replacement jump
+			if (opcode == Opcodes.IFEQ) {
+				// False distance
+				super.visitJumpInsn(Opcodes.IFNE, label);
+			} else {
+				// True distance
+				super.visitJumpInsn(Opcodes.IFEQ, label);
+			}
+		} else {
+			super.visitJumpInsn(opcode, label);
 		}
 
 	}

@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.ga;
 
+
 /**
  * Check individuals against current best
  * 
@@ -33,22 +34,16 @@ public class RelativeSizeBloatControl implements BloatControlFunction, SearchLis
 	 */
 	protected int current_max = 0;
 
-	@Override
-	public void fitnessEvaluation(Chromosome individual) {
-		// ignore
-	}
-
 	/**
 	 * Reject individuals that are larger than twice the length of the current
 	 * longest individual
 	 */
 	@Override
 	public boolean isTooLong(Chromosome chromosome) {
-		if (current_max > 0) {
+		if (current_max > 0)
 			return chromosome.size() > 2 * current_max;
-		} else {
+		else
 			return false; // Don't know max length!
-		}
 
 	}
 
@@ -57,10 +52,22 @@ public class RelativeSizeBloatControl implements BloatControlFunction, SearchLis
 	 */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
-		current_max = algorithm.getPopulation().get(0).size(); // FIXME: 2
-																// Assumptions:
+		current_max = algorithm.getPopulation().get(0).size(); // FIXME: 2 Assumptions:
 		// Population is sorted and
 		// population is non-empty...
+	}
+
+	@Override
+	public void searchFinished(GeneticAlgorithm algorithm) {
+	}
+
+	@Override
+	public void searchStarted(GeneticAlgorithm algorithm) {
+	}
+
+	@Override
+	public void fitnessEvaluation(Chromosome individual) {
+		// ignore
 	}
 
 	/*
@@ -73,13 +80,5 @@ public class RelativeSizeBloatControl implements BloatControlFunction, SearchLis
 	@Override
 	public void modification(Chromosome individual) {
 		// ignore
-	}
-
-	@Override
-	public void searchFinished(GeneticAlgorithm algorithm) {
-	}
-
-	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
 	}
 }

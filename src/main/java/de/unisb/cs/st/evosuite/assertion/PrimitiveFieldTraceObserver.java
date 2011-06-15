@@ -37,10 +37,6 @@ public class PrimitiveFieldTraceObserver extends ExecutionObserver {
 		trace.trace.clear();
 	}
 
-	public PrimitiveFieldTrace getTrace() {
-		return trace.clone();
-	}
-
 	@Override
 	public void output(int position, String output) {
 		// TODO Auto-generated method stub
@@ -51,35 +47,39 @@ public class PrimitiveFieldTraceObserver extends ExecutionObserver {
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
 		VariableReference retval = statement.getReturnValue();
 
-		if (retval == null) {
+		if (retval == null)
 			return;
-		}
 
 		Object object = scope.get(retval);
-		if ((object != null) && !object.getClass().isPrimitive() && !object.getClass().isEnum()
-				&& !isWrapperType(object.getClass())) {
-			// List<Object> fields = new ArrayList<Object>();
-			// List<Field> valid_fields = new ArrayList<Field>();
+		if (object != null && !object.getClass().isPrimitive()
+		        && !object.getClass().isEnum() && !isWrapperType(object.getClass())) {
+			//List<Object> fields = new ArrayList<Object>();
+			//List<Field> valid_fields = new ArrayList<Field>();
 			Map<Field, Object> fieldMap = new HashMap<Field, Object>();
 
 			for (Field field : retval.getVariableClass().getFields()) {
 				// TODO Check for wrapper types
 				if ((!Modifier.isProtected(field.getModifiers()) && !Modifier.isPrivate(field.getModifiers()))
-						&& !field.getType().equals(void.class) && field.getType().isPrimitive()) {
+				        && !field.getType().equals(void.class)
+				        && field.getType().isPrimitive()) {
 					try {
 						fieldMap.put(field, field.get(object));
-						// fields.add(field.get(object)); // TODO: Create copy
-						// valid_fields.add(field);
+						//fields.add(field.get(object)); // TODO: Create copy
+						//valid_fields.add(field);
 					} catch (IllegalArgumentException e) {
 					} catch (IllegalAccessException e) {
 					}
 				}
 			}
-			// if (!trace.fields.containsKey(statement.getPosition()))
-			// trace.fields.put(retval.getType(), valid_fields);
-			// trace.trace.put(statement.getPosition(), fields);
+			//if (!trace.fields.containsKey(statement.getPosition()))
+			//	trace.fields.put(retval.getType(), valid_fields);
+			//trace.trace.put(statement.getPosition(), fields);
 			trace.fieldMap.put(statement.getPosition(), fieldMap);
 		}
+	}
+
+	public PrimitiveFieldTrace getTrace() {
+		return trace.clone();
 	}
 
 }

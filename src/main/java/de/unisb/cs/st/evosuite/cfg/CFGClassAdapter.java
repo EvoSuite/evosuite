@@ -65,16 +65,19 @@ public class CFGClassAdapter extends ClassAdapter {
 	 * java.lang.String, java.lang.String, java.lang.String[])
 	 */
 	@Override
-	public MethodVisitor visitMethod(int methodAccess, String name, String descriptor, String signature,
-			String[] exceptions) {
+	public MethodVisitor visitMethod(int methodAccess, String name, String descriptor,
+	        String signature, String[] exceptions) {
 
-		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor, signature, exceptions);
+		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor, signature,
+		                                     exceptions);
 
-		if (((methodAccess & Opcodes.ACC_SYNTHETIC) > 0) || ((methodAccess & Opcodes.ACC_BRIDGE) > 0)) {
+		if ((methodAccess & Opcodes.ACC_SYNTHETIC) > 0
+		        || (methodAccess & Opcodes.ACC_BRIDGE) > 0) {
 			return mv;
 		}
 
-		if (!Properties.USE_DEPRECATED && ((methodAccess & Opcodes.ACC_DEPRECATED) == Opcodes.ACC_DEPRECATED)) {
+		if (!Properties.USE_DEPRECATED
+		        && (methodAccess & Opcodes.ACC_DEPRECATED) == Opcodes.ACC_DEPRECATED) {
 			logger.info("Skipping deprecated method " + name);
 			return mv;
 		}
@@ -85,15 +88,19 @@ public class CFGClassAdapter extends ClassAdapter {
 			mutants = switcher.getMutants();
 		}
 
-		mv = new CFGMethodAdapter(classNameWithDots, methodAccess, name, descriptor, signature, exceptions, mv, mutants);
+		mv = new CFGMethodAdapter(classNameWithDots, methodAccess, name, descriptor,
+		        signature, exceptions, mv, mutants);
 		/*
-		 * if (!exclude) { if(false) { MutationForRun mm =
-		 * MutationForRun.getFromDefaultLocation(); mv = new
-		 * CFGMethodAdapter(className, methodAccess, name, descriptor,
-		 * signature, exceptions, mv, mm.getMutations()); } else { mv = new
-		 * CFGMethodAdapter(className, methodAccess, name, descriptor,
-		 * signature, exceptions, mv, new ArrayList<Mutation>()); } }
-		 */
+				if (!exclude) {
+					if(false) {
+						MutationForRun mm = MutationForRun.getFromDefaultLocation();
+						mv = new CFGMethodAdapter(className, methodAccess, name, descriptor, signature, exceptions, mv, mm.getMutations());
+					}
+					else {
+						mv = new CFGMethodAdapter(className, methodAccess, name, descriptor, signature, exceptions, mv, new ArrayList<Mutation>());
+					}
+				}
+				*/
 		return mv;
 	}
 }

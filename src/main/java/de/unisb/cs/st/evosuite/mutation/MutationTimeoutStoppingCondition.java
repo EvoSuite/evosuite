@@ -16,8 +16,7 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
  */
 public class MutationTimeoutStoppingCondition extends StoppingCondition {
 
-	// public static Map<Mutation, Integer> timeouts = new HashMap<Mutation,
-	// Integer>();
+	//public static Map<Mutation, Integer> timeouts = new HashMap<Mutation, Integer>();
 
 	private static int timeouts = 0;
 
@@ -29,16 +28,7 @@ public class MutationTimeoutStoppingCondition extends StoppingCondition {
 		return disabled.contains(mutation);
 	}
 
-	public static void timeOut(Mutation mutation) {
-		timeouts++;
-		if (timeouts >= MAX_TIMEOUTS) {
-			disabled.add(mutation);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
 	@Override
@@ -46,19 +36,13 @@ public class MutationTimeoutStoppingCondition extends StoppingCondition {
 		return timeouts;
 	}
 
-	@Override
-	public int getLimit() {
-		return MAX_TIMEOUTS;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#isFinished()
 	 */
 	@Override
 	public boolean isFinished() {
-		logger.debug("Number of timeouts registered for this mutant: " + timeouts + "/" + MAX_TIMEOUTS);
+		logger.debug("Number of timeouts registered for this mutant: " + timeouts + "/"
+		        + MAX_TIMEOUTS);
 
 		if (timeouts >= MAX_TIMEOUTS) {
 			System.out.println("Mutation timed out, stopping search");
@@ -66,9 +50,7 @@ public class MutationTimeoutStoppingCondition extends StoppingCondition {
 		return timeouts >= MAX_TIMEOUTS;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#reset()
 	 */
 	@Override
@@ -76,14 +58,23 @@ public class MutationTimeoutStoppingCondition extends StoppingCondition {
 		timeouts = 0;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
 	@Override
 	public void setLimit(int limit) {
 		MAX_TIMEOUTS = limit;
+	}
+
+	@Override
+	public int getLimit() {
+		return MAX_TIMEOUTS;
+	}
+
+	public static void timeOut(Mutation mutation) {
+		timeouts++;
+		if (timeouts >= MAX_TIMEOUTS)
+			disabled.add(mutation);
 	}
 
 }

@@ -15,41 +15,31 @@ public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective {
 
 	private static final long serialVersionUID = -4405276303273532040L;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.ga.SecondaryObjective#compareChromosomes(de.unisb
-	 * .cs.st.evosuite.ga.Chromosome, de.unisb.cs.st.evosuite.ga.Chromosome)
+	private int getNumExceptions(Chromosome chromosome) {
+		int sum = 0;
+		for (TestChromosome test : ((TestSuiteChromosome) chromosome).tests) {
+			if (test.last_result != null)
+				sum += test.last_result.exceptions.size();
+		}
+		return sum;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.SecondaryObjective#compareChromosomes(de.unisb.cs.st.evosuite.ga.Chromosome, de.unisb.cs.st.evosuite.ga.Chromosome)
 	 */
 	@Override
 	public int compareChromosomes(Chromosome chromosome1, Chromosome chromosome2) {
 		return getNumExceptions(chromosome1) - getNumExceptions(chromosome2);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.ga.SecondaryObjective#compareGenerations(de.unisb
-	 * .cs.st.evosuite.ga.Chromosome, de.unisb.cs.st.evosuite.ga.Chromosome,
-	 * de.unisb.cs.st.evosuite.ga.Chromosome,
-	 * de.unisb.cs.st.evosuite.ga.Chromosome)
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.SecondaryObjective#compareGenerations(de.unisb.cs.st.evosuite.ga.Chromosome, de.unisb.cs.st.evosuite.ga.Chromosome, de.unisb.cs.st.evosuite.ga.Chromosome, de.unisb.cs.st.evosuite.ga.Chromosome)
 	 */
 	@Override
-	public int compareGenerations(Chromosome parent1, Chromosome parent2, Chromosome child1, Chromosome child2) {
+	public int compareGenerations(Chromosome parent1, Chromosome parent2,
+	        Chromosome child1, Chromosome child2) {
 		return Math.min(getNumExceptions(parent1), getNumExceptions(parent2))
-				- Math.min(getNumExceptions(child1), getNumExceptions(child2));
-	}
-
-	private int getNumExceptions(Chromosome chromosome) {
-		int sum = 0;
-		for (TestChromosome test : ((TestSuiteChromosome) chromosome).tests) {
-			if (test.last_result != null) {
-				sum += test.last_result.exceptions.size();
-			}
-		}
-		return sum;
+		        - Math.min(getNumExceptions(child1), getNumExceptions(child2));
 	}
 
 }

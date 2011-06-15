@@ -40,10 +40,6 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 	/** Maximum number of iterations */
 	protected static int current_statement = 0;
 
-	public static int getNumExecutedStatements() {
-		return current_statement;
-	}
-
 	/**
 	 * Add a given number of executed statements
 	 * 
@@ -53,27 +49,12 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 		current_statement += num;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
-	 */
-	@Override
-	public int getCurrentValue() {
-		return current_statement;
-	}
-
-	@Override
-	public int getLimit() {
-		return max_statements;
-	}
-
 	/**
 	 * Finished, if the maximum number of statements has been reached
 	 */
 	@Override
 	public boolean isFinished() {
-		// logger.info("Current number of statements executed: "+current_statement+"/"+max_statements);
+		//logger.info("Current number of statements executed: "+current_statement+"/"+max_statements);
 		return current_statement >= max_statements;
 	}
 
@@ -85,14 +66,8 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 		current_statement = 0;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
-	 */
-	@Override
-	public void setLimit(int limit) {
-		max_statements = limit;
+	public static int getNumExecutedStatements() {
+		return current_statement;
 	}
 
 	/**
@@ -102,6 +77,27 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 	 */
 	public void setMaxExecutedStatements(int max) {
 		max_statements = max;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
+	 */
+	@Override
+	public int getCurrentValue() {
+		return current_statement;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
+	 */
+	@Override
+	public void setLimit(int limit) {
+		max_statements = limit;
+	}
+
+	@Override
+	public int getLimit() {
+		return max_statements;
 	}
 
 }

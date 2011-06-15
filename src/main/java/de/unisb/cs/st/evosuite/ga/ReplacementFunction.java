@@ -23,29 +23,36 @@ package de.unisb.cs.st.evosuite.ga;
  * Decides when offspring replaces its parents for the next generation
  * 
  * @author Gordon Fraser
- * 
+ *
  */
 public abstract class ReplacementFunction {
 
 	protected boolean maximize = false;
+	
+	public ReplacementFunction(SelectionFunction selection_function) {
+		this.maximize = selection_function.maximize;
+	}
 
 	public ReplacementFunction(boolean maximize) {
 		this.maximize = maximize;
 	}
 
-	public ReplacementFunction(SelectionFunction selection_function) {
-		this.maximize = selection_function.maximize;
+	protected boolean isBetter(Chromosome chromosome1, Chromosome chromosome2) {
+		if(maximize) {
+			return chromosome1.compareTo(chromosome2) > 0;
+		} else {
+			return chromosome1.compareTo(chromosome2) < 0;			
+		}
+		
 	}
-
-	/**
-	 * Decide which of two offspring to keep
-	 * 
-	 * @param parent
-	 * @param offspring
-	 * @return
-	 */
-	public abstract boolean keepOffspring(Chromosome parent, Chromosome offspring);
-
+	
+	protected Chromosome getBest(Chromosome chromosome1, Chromosome chromosome2) {
+		if(isBetter(chromosome1, chromosome2))
+			return chromosome1;
+		else
+			return chromosome2;
+	}
+	
 	/**
 	 * Decide whether to keep the offspring or the parents
 	 * 
@@ -55,23 +62,14 @@ public abstract class ReplacementFunction {
 	 * @param offspring2
 	 * @return
 	 */
-	public abstract boolean keepOffspring(Chromosome parent1, Chromosome parent2, Chromosome offspring1,
-			Chromosome offspring2);
-
-	protected Chromosome getBest(Chromosome chromosome1, Chromosome chromosome2) {
-		if (isBetter(chromosome1, chromosome2)) {
-			return chromosome1;
-		} else {
-			return chromosome2;
-		}
-	}
-
-	protected boolean isBetter(Chromosome chromosome1, Chromosome chromosome2) {
-		if (maximize) {
-			return chromosome1.compareTo(chromosome2) > 0;
-		} else {
-			return chromosome1.compareTo(chromosome2) < 0;
-		}
-
-	}
+	public abstract boolean keepOffspring(Chromosome parent1, Chromosome parent2,
+								 Chromosome offspring1, Chromosome offspring2);
+	
+	/**
+	 * Decide which of two offspring to keep
+	 * @param parent
+	 * @param offspring
+	 * @return
+	 */
+	public abstract boolean keepOffspring(Chromosome parent, Chromosome offspring);
 }

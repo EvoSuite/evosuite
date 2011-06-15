@@ -23,10 +23,12 @@ package de.unisb.cs.st.evosuite.ga;
  * Replacement function that only looks at the fitness
  * 
  * @author Gordon Fraser
- * 
+ *
  */
-public class FitnessReplacementFunction extends ReplacementFunction {
+public class FitnessReplacementFunction extends
+		ReplacementFunction {
 
+	
 	/**
 	 * @param selectionFunction
 	 */
@@ -34,35 +36,24 @@ public class FitnessReplacementFunction extends ReplacementFunction {
 		super(selectionFunction);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.ga.ReplacementFunction#keepOffspring(de.unisb
-	 * .cs.st.evosuite.ga.Chromosome, de.unisb.cs.st.evosuite.ga.Chromosome)
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.javalanche.ga.SteadyStateReplacementFunction#keepOffspring(de.unisb.cs.st.javalanche.ga.Chromosome, de.unisb.cs.st.javalanche.ga.Chromosome, de.unisb.cs.st.javalanche.ga.Chromosome, de.unisb.cs.st.javalanche.ga.Chromosome)
 	 */
-	@Override
-	public boolean keepOffspring(Chromosome parent, Chromosome offspring) {
-		return isBetter(offspring, parent);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.javalanche.ga.SteadyStateReplacementFunction#keepOffspring
-	 * (de.unisb.cs.st.javalanche.ga.Chromosome,
-	 * de.unisb.cs.st.javalanche.ga.Chromosome,
-	 * de.unisb.cs.st.javalanche.ga.Chromosome,
-	 * de.unisb.cs.st.javalanche.ga.Chromosome)
-	 */
-	@Override
-	public boolean keepOffspring(Chromosome parent1, Chromosome parent2, Chromosome offspring1, Chromosome offspring2) {
-
+	public boolean keepOffspring(Chromosome parent1, Chromosome parent2,
+			Chromosome offspring1, Chromosome offspring2) {
+		
 		Chromosome best_parent = getBest(parent1, parent2);
 		Chromosome best_offspring = getBest(offspring1, offspring2);
 
 		return isBetter(best_offspring, best_parent);
 	}
+
+	/* (non-Javadoc)
+     * @see de.unisb.cs.st.evosuite.ga.ReplacementFunction#keepOffspring(de.unisb.cs.st.evosuite.ga.Chromosome, de.unisb.cs.st.evosuite.ga.Chromosome)
+     */
+    @Override
+    public boolean keepOffspring(Chromosome parent, Chromosome offspring) {
+	    return isBetter(offspring, parent);
+    }
 
 }

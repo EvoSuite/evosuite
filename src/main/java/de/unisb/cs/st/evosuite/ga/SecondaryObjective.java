@@ -52,6 +52,7 @@ public abstract class SecondaryObjective implements Serializable {
 	 * @param child2
 	 * @return
 	 */
-	public abstract int compareGenerations(Chromosome parent1, Chromosome parent2, Chromosome child1, Chromosome child2);
+	public abstract int compareGenerations(Chromosome parent1, Chromosome parent2,
+	        Chromosome child1, Chromosome child2);
 
 }

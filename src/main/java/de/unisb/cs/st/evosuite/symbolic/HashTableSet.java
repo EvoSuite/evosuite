@@ -38,6 +38,12 @@ public class HashTableSet<E> extends AbstractSet<E> implements Cloneable, Set<E>
 	}
 
 	@Override
+	public boolean containsAll(Collection<?> c) {
+		// TODO Auto-generated method stub
+		return super.containsAll(c);
+	}
+
+	@Override
 	public Object clone() {
 		HashTableSet<E> ret = new HashTableSet<E>();
 		ret.table = (Hashtable<E, E>) this.table.clone();
@@ -50,19 +56,13 @@ public class HashTableSet<E> extends AbstractSet<E> implements Cloneable, Set<E>
 	}
 
 	@Override
-	public boolean containsAll(Collection<?> c) {
-		// TODO Auto-generated method stub
-		return super.containsAll(c);
+	public boolean remove(Object o) {
+		return null != table.remove(o);
 	}
 
 	@Override
 	public Iterator<E> iterator() {
 		return table.keySet().iterator();
-	}
-
-	@Override
-	public boolean remove(Object o) {
-		return null != table.remove(o);
 	}
 
 	@Override

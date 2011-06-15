@@ -2,7 +2,8 @@ package de.unisb.cs.st.evosuite.symbolic.bytecode;
 
 import gov.nasa.jpf.jvm.bytecode.InstructionFactory;
 
-public class IntegerConcolicInstructionFactory extends InstructionFactory implements Cloneable {
+public class IntegerConcolicInstructionFactory extends InstructionFactory implements
+        Cloneable {
 
 	public IntegerConcolicInstructionFactory() {
 		PathConstraint.init();
@@ -10,7 +11,7 @@ public class IntegerConcolicInstructionFactory extends InstructionFactory implem
 
 	@Override
 	public Object clone() {
-		// yes we do not clone
+		//yes we do not clone
 		return this;
 	}
 
@@ -50,6 +51,16 @@ public class IntegerConcolicInstructionFactory extends InstructionFactory implem
 	}
 
 	@Override
+	public IF_ICMPNE if_icmpne(int targetPc) {
+		return new IF_ICMPNE(targetPc);
+	}
+
+	@Override
+	public IF_ICMPLT if_icmplt(int targetPc) {
+		return new IF_ICMPLT(targetPc);
+	}
+
+	@Override
 	public IF_ICMPGE if_icmpge(int targetPc) {
 		return new IF_ICMPGE(targetPc);
 	}
@@ -65,18 +76,18 @@ public class IntegerConcolicInstructionFactory extends InstructionFactory implem
 	}
 
 	@Override
-	public IF_ICMPLT if_icmplt(int targetPc) {
-		return new IF_ICMPLT(targetPc);
-	}
-
-	@Override
-	public IF_ICMPNE if_icmpne(int targetPc) {
-		return new IF_ICMPNE(targetPc);
-	}
-
-	@Override
 	public IFEQ ifeq(int targetPc) {
 		return new IFEQ(targetPc);
+	}
+
+	@Override
+	public IFNE ifne(int targetPc) {
+		return new IFNE(targetPc);
+	}
+
+	@Override
+	public IFLT iflt(int targetPc) {
+		return new IFLT(targetPc);
 	}
 
 	@Override
@@ -92,16 +103,6 @@ public class IntegerConcolicInstructionFactory extends InstructionFactory implem
 	@Override
 	public IFLE ifle(int targetPc) {
 		return new IFLE(targetPc);
-	}
-
-	@Override
-	public IFLT iflt(int targetPc) {
-		return new IFLT(targetPc);
-	}
-
-	@Override
-	public IFNE ifne(int targetPc) {
-		return new IFNE(targetPc);
 	}
 
 	@Override
@@ -234,6 +235,6 @@ public class IntegerConcolicInstructionFactory extends InstructionFactory implem
 		return new TABLESWITCH(defaultTargetPc, low, high);
 	}
 
-	// --- the JPF specific ones (only used in synthetic methods)
+	//--- the JPF specific ones (only used in synthetic methods)
 
 }

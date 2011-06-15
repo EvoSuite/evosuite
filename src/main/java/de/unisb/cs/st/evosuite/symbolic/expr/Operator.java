@@ -25,8 +25,8 @@ public enum Operator {
 	MUL("*", 2), //
 	MINUS("-", 2), //
 	PLUS("+", 2), //
-	NEG("-", 1), // negate
-	REM("%", 2), // Remainder
+	NEG("-",1),//negate
+	REM("%",2),//Remainder
 
 	// Logical operators
 	AND("&", 2), //
@@ -51,7 +51,9 @@ public enum Operator {
 	POW("pow", 2), //
 	SQRT("sqrt", 1), //
 	ROUND("round", 1), //
-	FLOOR("floor", 1), CEIL("ceil", 1), EXP("exp", 1), //
+	FLOOR("floor",1),
+	CEIL("ceil",1),
+	EXP("exp", 1), //
 	ASIN("asin", 1), //
 	ACOS("acos", 1), //
 	ATAN("atan", 1), //

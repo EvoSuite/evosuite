@@ -29,41 +29,11 @@ import de.unisb.cs.st.evosuite.ga.Chromosome;
  */
 public class MaxFitnessEvaluationsStoppingCondition extends StoppingCondition {
 
-	/**
-	 * Static getter method
-	 */
-	public static int getNumFitnessEvaluations() {
-		return current_evaluation;
-	}
-
 	/** Maximum number of evaluations */
 	protected int max_evaluations = Properties.GENERATIONS;
 
 	/** Maximum number of iterations */
 	protected static int current_evaluation = 0;
-
-	/**
-	 * Keep track of the number of fitness evaluations
-	 */
-	@Override
-	public void fitnessEvaluation(Chromosome individual) {
-		current_evaluation++;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
-	 */
-	@Override
-	public int getCurrentValue() {
-		return current_evaluation;
-	}
-
-	@Override
-	public int getLimit() {
-		return max_evaluations;
-	}
 
 	/**
 	 * Stop when maximum number of fitness evaluations has been reached
@@ -75,6 +45,21 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingCondition {
 	}
 
 	/**
+	 * Keep track of the number of fitness evaluations
+	 */
+	@Override
+	public void fitnessEvaluation(Chromosome individual) {
+		current_evaluation++;
+	}
+
+	/**
+	 * Static getter method
+	 */
+	public static int getNumFitnessEvaluations() {
+		return current_evaluation;
+	}
+
+	/**
 	 * At the end, reset
 	 */
 	@Override
@@ -82,14 +67,25 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingCondition {
 		current_evaluation = 0;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
 	@Override
 	public void setLimit(int limit) {
 		max_evaluations = limit;
+	}
+
+	@Override
+	public int getLimit() {
+		return max_evaluations;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
+	 */
+	@Override
+	public int getCurrentValue() {
+		return current_evaluation;
 	}
 
 }

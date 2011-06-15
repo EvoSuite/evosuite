@@ -45,20 +45,17 @@ public class TestSuitePreMain {
 
 		if (agentArguments.equals("generate")) {
 			System.out.println("* Instrumenting bytecode for test generation");
-			// addClassFileTransformer(instrumentation, new
-			// PrintBytecodeTransformer());
+			//addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
 			if (Properties.CRITERION == Criterion.MUTATION) {
 				System.out.println("* Mutating byte code");
 				addClassFileTransformer(instrumentation, new HOMFileTransformer());
 			}
 
-			// addClassFileTransformer(instrumentation, new
-			// PrintBytecodeTransformer());
+			//addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
 
 			addClassFileTransformer(instrumentation, new BytecodeInstrumentation());
 
-			// addClassFileTransformer(instrumentation, new
-			// PrintBytecodeTransformer());
+			//			addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
 
 		} else if (agentArguments.equals("assert")) {
 			System.out.println("* Instrumenting bytecode for assertion generation");
@@ -79,7 +76,8 @@ public class TestSuitePreMain {
 		}
 	}
 
-	private static void addClassFileTransformer(Instrumentation instrumentation, ClassFileTransformer clt) {
+	private static void addClassFileTransformer(Instrumentation instrumentation,
+	        ClassFileTransformer clt) {
 		instrumentation.addTransformer(clt);
 	}
 }

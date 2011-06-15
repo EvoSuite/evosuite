@@ -12,11 +12,6 @@ import de.unisb.cs.st.javalanche.mutation.runtime.testDriver.MutationTestDriver;
 
 public abstract class HOMFitnessFunction extends FitnessFunction {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	protected HOMSwitcher hom_switcher = new HOMSwitcher();
 
 	protected MutationTestDriver test_driver;
@@ -41,7 +36,8 @@ public abstract class HOMFitnessFunction extends FitnessFunction {
 			coveredTests.addAll(MutationCoverageFile.getCoverageData(m));
 		}
 
-		Set<String> testsForThisRun = coveredTests.size() > 0 ? coveredTests : new HashSet<String>(tests);
+		Set<String> testsForThisRun = coveredTests.size() > 0 ? coveredTests
+		        : new HashSet<String>(tests);
 		logger.info("Checking HOM against " + testsForThisRun.size() + " tests");
 		hom_switcher.switchOn(hom);
 		MutationTestResult mutationTestResult = test_driver.runTests(testsForThisRun);

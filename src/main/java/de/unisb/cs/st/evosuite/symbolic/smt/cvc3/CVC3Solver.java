@@ -34,11 +34,8 @@ public class CVC3Solver extends Thread implements Solver {
 
 	private final Pattern paramPattern = Pattern.compile("\\(([0-9a-zA-Z_]+) = (-?[0-9\\.,]+)\\)");
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.symbolic.Solver#getModel(java.util.Collection)
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.symbolic.Solver#getModel(java.util.Collection)
 	 */
 	@Override
 	public Map<String, Object> getModel(Collection<Constraint> constraints) {
@@ -60,9 +57,7 @@ public class CVC3Solver extends Thread implements Solver {
 		return result;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.symbolic.Solver#solve(java.util.Collection)
 	 */
 	@Override
@@ -73,9 +68,8 @@ public class CVC3Solver extends Thread implements Solver {
 		logger.info("Checking new expression: " + cvc3Expr);
 		SatResult result = vc.checkUnsat(cvc3Expr);
 		deinitialize();
-		if (result == SatResult.SATISFIABLE) {
+		if (result == SatResult.SATISFIABLE)
 			return true;
-		}
 
 		vc.pop();
 		return false;
@@ -86,7 +80,8 @@ public class CVC3Solver extends Thread implements Solver {
 		Map<String, Object> result = new HashMap<String, Object>();
 		for (Map.Entry<Expr, Expr> entry : model.entrySet()) {
 			String paramString = getParamValueString(entry.getKey(), entry.getValue());
-			logger.debug("Analyzing expression to get the parameter value: " + paramString);
+			logger.debug("Analyzing expression to get the parameter value: "
+			        + paramString);
 			Matcher matcher = paramPattern.matcher(paramString);
 			matcher.find();
 			String name = matcher.group(1);
@@ -97,15 +92,6 @@ public class CVC3Solver extends Thread implements Solver {
 		}
 
 		return result;
-	}
-
-	private void deinitialize() {
-		vc.delete();
-		flags.delete();
-		vc = null;
-		flags = null;
-		cvc3 = null;
-		logger.debug("Deinitialized cvc3.");
 	}
 
 	private String getParamValueString(Expr paramExpr, Expr valueExpr) {
@@ -136,5 +122,14 @@ public class CVC3Solver extends Thread implements Solver {
 		vc = ValidityChecker.create(flags);
 		cvc3 = new CVC3Converter(vc);
 		logger.debug("CVC3 initialized.");
+	}
+
+	private void deinitialize() {
+		vc.delete();
+		flags.delete();
+		vc = null;
+		flags = null;
+		cvc3 = null;
+		logger.debug("Deinitialized cvc3.");
 	}
 }

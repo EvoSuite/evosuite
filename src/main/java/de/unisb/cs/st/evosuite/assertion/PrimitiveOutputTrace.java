@@ -43,24 +43,21 @@ public class PrimitiveOutputTrace extends OutputTrace {
 	@Override
 	public boolean differs(OutputTrace other_trace) {
 		PrimitiveOutputTrace other = (PrimitiveOutputTrace) other_trace;
-		// if(trace.size() != other.trace.size()) {
-		// return true;
-		// }
+		//if(trace.size() != other.trace.size()) {
+		//	return true;
+		//}
 
 		for (Entry<Integer, Object> entry : trace.entrySet()) {
-			if (!other.trace.containsKey(entry.getKey())) {
+			if (!other.trace.containsKey(entry.getKey()))
 				continue;
-			}
 
 			if (entry.getValue() == null) {
-				if (other.trace.get(entry.getKey()) != null) {
+				if (other.trace.get(entry.getKey()) != null)
 					return true;
-				}
 			}
 
 			if (!entry.getValue().equals(other.trace.get(entry.getKey()))) {
-				// logger.debug("TG: Traces differ at position "+entry.getKey()+" : "+entry.getValue()
-				// + "<->" + other.trace.get(entry.getKey()));
+				//logger.debug("TG: Traces differ at position "+entry.getKey()+" : "+entry.getValue() + "<->" + other.trace.get(entry.getKey()));
 				return true;
 			}
 
@@ -70,29 +67,6 @@ public class PrimitiveOutputTrace extends OutputTrace {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.OutputTrace#getAllAssertions(de.unisb
-	 * .cs.st.evosuite.testcase.TestCase)
-	 */
-	@Override
-	public int getAllAssertions(TestCase test) {
-		int num_assertions = 0;
-		for (int i = 0; i < test.size(); i++) {
-			if (trace.containsKey(i) && (trace.get(i) != null)) {
-				Assertion assertion = new PrimitiveAssertion();
-				assertion.source = test.getReturnValue(i);
-				assertion.value = trace.get(i);
-				test.getStatement(i).addAssertion(assertion);
-
-				num_assertions++;
-			}
-		}
-		return num_assertions;
-	}
-
 	@Override
 	public int getAssertions(TestCase test, OutputTrace other_trace) {
 		PrimitiveOutputTrace other = (PrimitiveOutputTrace) other_trace;
@@ -100,42 +74,46 @@ public class PrimitiveOutputTrace extends OutputTrace {
 		int num_assertions = 0;
 		for (int i = 0; i < test.size(); i++) {
 			/*
-			 * if((trace.containsKey(i) != other.trace.containsKey(i))) {
-			 * //logger.info("Found primitive assertion"); Assertion assertion =
-			 * new PrimitiveAssertion(); assertion.source =
-			 * test.getReturnValue(i); assertion.value = trace.get(i);
-			 * test.statements.get(i).addAssertion(assertion); } else
-			 */
+			if((trace.containsKey(i) != other.trace.containsKey(i))) {
+				//logger.info("Found primitive assertion");
+				Assertion assertion = new PrimitiveAssertion();
+				assertion.source = test.getReturnValue(i);
+				assertion.value = trace.get(i);
+				test.statements.get(i).addAssertion(assertion);
+			}
+			else 
+			*/
 
-			if ((trace.containsKey(i) && other.trace.containsKey(i) && (trace.get(i) == null) && (other.trace.get(i) != null))) {
+			if ((trace.containsKey(i) && other.trace.containsKey(i)
+			        && trace.get(i) == null && other.trace.get(i) != null)) {
 				logger.debug("Found primitive assertion: null vs " + other.trace.get(i));
 				Assertion assertion = new PrimitiveAssertion();
 				assertion.source = test.getReturnValue(i);
 				assertion.value = trace.get(i);
 				test.getStatement(i).addAssertion(assertion);
-				if (!other.isDetectedBy(assertion)) {
+				if (!other.isDetectedBy(assertion))
 					logger.error("Invalid primitive assertion generated (A)!");
-				}
 
 				num_assertions++;
-			} else if ((trace.containsKey(i) && other.trace.containsKey(i) && (trace.get(i) != null) && (other.trace
-					.get(i) == null))) {
-				logger.debug("Found primitive assertion: " + trace.get(i) + " vs null (2)");
+			} else if ((trace.containsKey(i) && other.trace.containsKey(i)
+			        && trace.get(i) != null && other.trace.get(i) == null)) {
+				logger.debug("Found primitive assertion: " + trace.get(i)
+				        + " vs null (2)");
 				Assertion assertion = new PrimitiveAssertion();
 				assertion.source = test.getReturnValue(i);
 				assertion.value = trace.get(i);
 				test.getStatement(i).addAssertion(assertion);
-				if (!other.isDetectedBy(assertion)) {
+				if (!other.isDetectedBy(assertion))
 					logger.error("Invalid primitive assertion generated (B)!");
-				}
 
 				num_assertions++;
-			} else if ((trace.containsKey(i) && other.trace.containsKey(i) && (trace.get(i) == null) && (other.trace
-					.get(i) == null))) {
-				// logger.info("Null in both traces");
+			} else if ((trace.containsKey(i) && other.trace.containsKey(i)
+			        && trace.get(i) == null && other.trace.get(i) == null)) {
+				//logger.info("Null in both traces");
 				continue;
 			} else if ((trace.containsKey(i) && other.trace.containsKey(i) && !trace.get(i).equals(other.trace.get(i)))) {
-				logger.debug("Found primitive assertion (non-null): " + trace.get(i) + " / " + other.trace.get(i));
+				logger.debug("Found primitive assertion (non-null): " + trace.get(i)
+				        + " / " + other.trace.get(i));
 				Assertion assertion = new PrimitiveAssertion();
 				assertion.source = test.getReturnValue(i);
 				if (assertion.source.getStPosition() != i) {
@@ -147,41 +125,25 @@ public class PrimitiveOutputTrace extends OutputTrace {
 				if (!other.isDetectedBy(assertion)) {
 					logger.error("Invalid primitive assertion generated (C)!");
 					logger.error("Assertion.value: " + assertion.value);
-					logger.error("other.trace.value: " + other.trace.get(assertion.source.getStPosition()));
+					logger.error("other.trace.value: "
+					        + other.trace.get(assertion.source.getStPosition()));
 				}
 
-				// } else {
-				// logger.info("No value at statement "+i);
+				//} else {
+				//	logger.info("No value at statement "+i);
 			}
 			/*
-			 * if((trace.containsKey(i) != other.trace.containsKey(i)) ||
-			 * (trace.containsKey(i) && other.trace.containsKey(i) &&
-			 * trace.get(i) == null && other.trace.get(i) != null) ||
-			 * (trace.containsKey(i) && other.trace.containsKey(i) &&
-			 * !trace.get(i).equals(other.trace.get(i)))) { Assertion assertion
-			 * = new PrimitiveAssertion(); assertion.source =
-			 * test.getReturnValue(i); assertion.value = trace.get(i);
-			 * test.statements.get(i).addAssertion(assertion); }
-			 */
+								if((trace.containsKey(i) != other.trace.containsKey(i)) ||
+										   (trace.containsKey(i) && other.trace.containsKey(i) && trace.get(i) == null && other.trace.get(i) != null) ||
+										   (trace.containsKey(i) && other.trace.containsKey(i) && !trace.get(i).equals(other.trace.get(i)))) {
+												Assertion assertion = new PrimitiveAssertion();
+												assertion.source = test.getReturnValue(i);
+												assertion.value = trace.get(i);
+												test.statements.get(i).addAssertion(assertion);
+										}
+										*/
 		}
 		return num_assertions;
-	}
-
-	@Override
-	public boolean isDetectedBy(Assertion assertion) {
-		if (!(assertion instanceof PrimitiveAssertion)) {
-			return false;
-		}
-
-		PrimitiveAssertion p = (PrimitiveAssertion) assertion;
-		if (trace.containsKey(p.source.getStPosition())) {
-			if (p.value == null) {
-				return (trace.get(p.source.getStPosition()) != null);
-			} else {
-				return !p.value.equals(trace.get(p.source.getStPosition()));
-			}
-		}
-		return false;
 	}
 
 	@Override
@@ -191,11 +153,11 @@ public class PrimitiveOutputTrace extends OutputTrace {
 
 		for (Entry<Integer, Object> entry : trace.entrySet()) {
 			if (other.trace.containsKey(entry.getKey())) {
-				if ((entry.getValue() == null) && (other.trace.get(entry.getKey()) != null)) {
+				if (entry.getValue() == null && other.trace.get(entry.getKey()) != null) {
 					num++;
-				} else if ((entry.getValue() != null) && !entry.getValue().equals(other.trace.get(entry.getKey()))) {
-					// logger.debug("TG: Traces differ at position "+entry.getKey()+" : "+entry.getValue()
-					// + "<->" + other.trace.get(entry.getKey()));
+				} else if (entry.getValue() != null
+				        && !entry.getValue().equals(other.trace.get(entry.getKey()))) {
+					//logger.debug("TG: Traces differ at position "+entry.getKey()+" : "+entry.getValue() + "<->" + other.trace.get(entry.getKey()));
 					num++;
 				}
 			}
@@ -203,11 +165,48 @@ public class PrimitiveOutputTrace extends OutputTrace {
 		}
 
 		/*
-		 * for(Entry<Integer, Object> entry : other.trace.entrySet()) {
-		 * if(!trace.containsKey(entry.getKey())) num++; }
-		 */
+		for(Entry<Integer, Object> entry : other.trace.entrySet()) {
+			if(!trace.containsKey(entry.getKey()))
+				num++;
+		}
+		*/
 
 		return num;
+	}
+
+	@Override
+	public boolean isDetectedBy(Assertion assertion) {
+		if (!(assertion instanceof PrimitiveAssertion))
+			return false;
+
+		PrimitiveAssertion p = (PrimitiveAssertion) assertion;
+		if (trace.containsKey(p.source.getStPosition())) {
+			if (p.value == null)
+				return (trace.get(p.source.getStPosition()) != null);
+			else {
+				return !p.value.equals(trace.get(p.source.getStPosition()));
+			}
+		}
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.OutputTrace#getAllAssertions(de.unisb.cs.st.evosuite.testcase.TestCase)
+	 */
+	@Override
+	public int getAllAssertions(TestCase test) {
+		int num_assertions = 0;
+		for (int i = 0; i < test.size(); i++) {
+			if (trace.containsKey(i) && trace.get(i) != null) {
+				Assertion assertion = new PrimitiveAssertion();
+				assertion.source = test.getReturnValue(i);
+				assertion.value = trace.get(i);
+				test.getStatement(i).addAssertion(assertion);
+
+				num_assertions++;
+			}
+		}
+		return num_assertions;
 	}
 
 }

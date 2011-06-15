@@ -41,6 +41,7 @@ public abstract class CrossOverFunction implements Serializable {
 	 * @param parent2
 	 * @throws ConstructionFailedException
 	 */
-	public abstract void crossOver(Chromosome parent1, Chromosome parent2) throws ConstructionFailedException;
+	public abstract void crossOver(Chromosome parent1, Chromosome parent2)
+	        throws ConstructionFailedException;
 
 }

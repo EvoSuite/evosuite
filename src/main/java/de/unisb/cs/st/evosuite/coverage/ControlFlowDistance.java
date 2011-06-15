@@ -31,9 +31,9 @@ public class ControlFlowDistance implements Comparable<ControlFlowDistance> {
 	 * However approachLevel and branchDistance are expected to be positive
 	 */
 	public ControlFlowDistance(int approachLevel, double branchDistance) {
-		if ((approachLevel < 0) || (branchDistance < 0.0)) {
-			throw new IllegalStateException("expect approachLevel and branchDistance to always be positive");
-		}
+		if (approachLevel < 0 || branchDistance < 0.0)
+			throw new IllegalStateException(
+					"expect approachLevel and branchDistance to always be positive");
 
 		this.approachLevel = approachLevel;
 		this.branchDistance = branchDistance;
@@ -41,55 +41,53 @@ public class ControlFlowDistance implements Comparable<ControlFlowDistance> {
 
 	@Override
 	public int compareTo(ControlFlowDistance o) {
-		ControlFlowDistance d = o;
-		if (approachLevel < d.approachLevel) {
+		ControlFlowDistance d = (ControlFlowDistance) o;
+		if (approachLevel < d.approachLevel)
 			return -1;
-		} else if (approachLevel > d.approachLevel) {
+		else if (approachLevel > d.approachLevel)
 			return 1;
-		} else {
-			if (branchDistance < d.branchDistance) {
+		else {
+			if (branchDistance < d.branchDistance)
 				return -1;
-			} else if (branchDistance > d.branchDistance) {
+			else if (branchDistance > d.branchDistance)
 				return 1;
-			} else {
+			else
 				return 0;
-			}
 		}
+	}
+
+	public void increaseApproachLevel() {
+		approachLevel++;
+		if(approachLevel<0)
+			throw new IllegalStateException("expect approach Level to always be positive - overflow?");
 	}
 
 	public int getApproachLevel() {
 		return approachLevel;
 	}
 
+	public void setApproachLevel(int approachLevel) {
+		if (approachLevel < 0)
+			throw new IllegalArgumentException(
+					"expect approachLevel to always be positive");
+
+		this.approachLevel = approachLevel;
+	}
+
 	public double getBranchDistance() {
 		return branchDistance;
+	}
+
+	public void setBranchDistance(double branchDistance) {
+		if (branchDistance < 0.0)
+			throw new IllegalArgumentException(
+					"expect branchDistance to be positive");
+
+		this.branchDistance = branchDistance;
 	}
 
 	public double getResultingBranchFitness() {
 
 		return approachLevel + FitnessFunction.normalize(branchDistance);
-	}
-
-	public void increaseApproachLevel() {
-		approachLevel++;
-		if (approachLevel < 0) {
-			throw new IllegalStateException("expect approach Level to always be positive - overflow?");
-		}
-	}
-
-	public void setApproachLevel(int approachLevel) {
-		if (approachLevel < 0) {
-			throw new IllegalArgumentException("expect approachLevel to always be positive");
-		}
-
-		this.approachLevel = approachLevel;
-	}
-
-	public void setBranchDistance(double branchDistance) {
-		if (branchDistance < 0.0) {
-			throw new IllegalArgumentException("expect branchDistance to be positive");
-		}
-
-		this.branchDistance = branchDistance;
 	}
 }

@@ -33,7 +33,8 @@ public class BranchCondition {
 	public final Set<Constraint> reachingConstraints;
 	public final Set<Constraint> localConstraints;
 
-	public BranchCondition(Instruction ins, Set<Constraint> reachingConstraints, Set<Constraint> localConstraints) {
+	public BranchCondition(Instruction ins, Set<Constraint> reachingConstraints,
+	        Set<Constraint> localConstraints) {
 		this.ins = ins;
 		this.reachingConstraints = reachingConstraints;
 		this.localConstraints = localConstraints;
@@ -41,8 +42,9 @@ public class BranchCondition {
 
 	@Override
 	public String toString() {
-		String ret = "Branch condition with " + reachingConstraints.size() + " reaching constraints and "
-				+ localConstraints.size() + " local constraints: ";
+		String ret = "Branch condition with " + reachingConstraints.size()
+		        + " reaching constraints and " + localConstraints.size()
+		        + " local constraints: ";
 		for (Constraint c : localConstraints) {
 			ret += " " + c;
 		}
