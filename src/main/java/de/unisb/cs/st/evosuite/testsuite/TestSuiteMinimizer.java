@@ -18,7 +18,6 @@
 
 package de.unisb.cs.st.evosuite.testsuite;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -37,13 +36,10 @@ import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
-import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
-import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
-import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
  * @author Gordon Fraser
@@ -165,37 +161,6 @@ public class TestSuiteMinimizer {
 		return covered_true.size() + covered_false.size() + called_methods.size();
 	}
 
-	/**
-	 * Remove all unreferenced variables
-	 * 
-	 * @param t
-	 *            The test case
-	 * @return True if something was deleted
-	 */
-	public boolean removeUnusedVariables(TestCase t) {
-		List<Integer> to_delete = new ArrayList<Integer>();
-		boolean has_deleted = false;
-
-		int num = 0;
-		for (StatementInterface s : t) {
-			if (s instanceof PrimitiveStatement) {
-
-				VariableReference var = s.getReturnValue();
-				if (!t.hasReferences(var)) {
-					to_delete.add(num);
-					has_deleted = true;
-				}
-			}
-			num++;
-		}
-		Collections.sort(to_delete, Collections.reverseOrder());
-		for (Integer position : to_delete) {
-			t.remove(position);
-		}
-
-		return has_deleted;
-	}
-
 	@SuppressWarnings("unused")
 	private int checkFitness(TestSuiteChromosome suite) {
 		for (int i = 0; i < suite.size(); i++) {
@@ -216,10 +181,6 @@ public class TestSuiteMinimizer {
 		boolean branch = Properties.CRITERION == Properties.Criterion.BRANCH;
 		CurrentChromosomeTracker.getInstance().modification(suite);
 		Properties.RECYCLE_CHROMOSOMES = false; // TODO: FIXXME!
-
-		for (TestCase test : suite.getTests()) {
-			removeUnusedVariables(test);
-		}
 
 		// Remove previous results as they do not contain method calls
 		// in the case of whole suite generation

@@ -113,6 +113,9 @@ public class Properties {
 	@Parameter(key = "string_length", group = "Test Creation", description = "Maximum length of randomly generated strings")
 	public static int STRING_LENGTH = 20;
 
+	@Parameter(key = "epsilon", group = "Test Creation", description = "Epsilon for floats in local search")
+	public static double EPSILON = 0.001;
+
 	@Parameter(key = "max_int", group = "Test Creation", description = "Maximum size of randomly generated integers (minimum range = -1 * max)")
 	public static int MAX_INT = 256;
 
