@@ -21,8 +21,26 @@ public abstract class AbstractTestSuiteChromosome<T extends Chromosome> extends 
 		this.testChromosomeFactory = factory;
 	}
 	
+	/**
+	 * Creates a deep copy of source.
+	 * @param source
+	 */
+	@SuppressWarnings("unchecked")
+	protected AbstractTestSuiteChromosome(AbstractTestSuiteChromosome<T> source) {
+		this(source.testChromosomeFactory);
+
+		for (T test : source.tests) {
+			this.tests.add((T) test.clone());
+		}
+
+		this.setFitness(source.getFitness());
+		this.setChanged(source.isChanged());
+		this.coverage = source.coverage;
+	}
+	
 	public void addTest(T test) {
 		tests.add(test);
+		this.setChanged(true);
 	}
 	
 	/**
@@ -44,6 +62,8 @@ public abstract class AbstractTestSuiteChromosome<T extends Chromosome> extends 
 		for (int num = position2; num < other.size(); num++) {
 			tests.add((T) chromosome.tests.get(num).clone());
 		}
+		
+		this.setChanged(true);
 	}
 
 	@Override
@@ -71,10 +91,13 @@ public abstract class AbstractTestSuiteChromosome<T extends Chromosome> extends 
 	 */
 	@Override
 	public void mutate() {
+		boolean changed = false;
+		
 		// Mutate existing test cases
 		for (T test : tests) {
 			if (Randomness.nextDouble() < 1.0 / tests.size()) {
 				test.mutate();
+				changed = true;
 			}
 		}
 
@@ -86,6 +109,11 @@ public abstract class AbstractTestSuiteChromosome<T extends Chromosome> extends 
 		{
 			tests.add(testChromosomeFactory.getChromosome());
 			logger.debug("Adding new test case");
+			changed = true;
+		}
+		
+		if (changed) {
+			this.setChanged(true);
 		}
 	}
 
@@ -120,6 +148,7 @@ public abstract class AbstractTestSuiteChromosome<T extends Chromosome> extends 
 
 	public void setTestChromosome(int index, T test) {
 		tests.set(index, test);
+		this.setChanged(true);
 	}
 
 	public double getCoverage() {

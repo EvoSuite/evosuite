@@ -650,7 +650,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 		Set<Integer> candidates = new HashSet<Integer>();
 		int num = 0;
-		for (TestChromosome testc : suite.tests) {
+		for (TestChromosome testc : suite.getTestChromosomes()) {
 			if (!testc.test.hasCalls()) {
 				// logger.info("Test has no call: ");
 				// logger.info(testc.test.toCode());

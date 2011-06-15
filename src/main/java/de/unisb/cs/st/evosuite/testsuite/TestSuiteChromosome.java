@@ -36,10 +36,11 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		super(factory);
 	}
 
-	private static final long serialVersionUID = 88380759969800800L;
+	protected TestSuiteChromosome(TestSuiteChromosome source) {
+		super(source);
+	}
 
-	/** The genes are test cases */
-	public List<TestChromosome> tests = new ArrayList<TestChromosome>();
+	private static final long serialVersionUID = 88380759969800800L;
 
 	public void addTest(TestCase test) {
 		TestChromosome c = new TestChromosome();
@@ -52,16 +53,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 */
 	@Override
 	public TestSuiteChromosome clone() {
-		TestSuiteChromosome copy = new TestSuiteChromosome(this.testChromosomeFactory);
-		for (TestChromosome test : tests) {
-			// copy.tests.add((TestChromosome) test.clone());
-			TestChromosome testCopy = (TestChromosome) test.clone();
-			copy.tests.add(testCopy);
-		}
-		copy.setFitness(getFitness());
-		copy.setChanged(isChanged());
-		copy.coverage = coverage;
-		return copy;
+		return new TestSuiteChromosome(this);
 	}
 
 	/**
