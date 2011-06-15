@@ -55,9 +55,10 @@ public class AccessibleClassAdapter extends ClassAdapter {
 	 * Change subclasses to public
 	 */
 	@Override
-	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-		if (!exclude && ((access & Opcodes.ACC_PRIVATE) != Opcodes.ACC_PRIVATE)
-				&& ((access & Opcodes.ACC_PROTECTED) != Opcodes.ACC_PROTECTED)) {
+	public void visit(int version, int access, String name, String signature,
+	        String superName, String[] interfaces) {
+		if (!exclude && (access & Opcodes.ACC_PRIVATE) != Opcodes.ACC_PRIVATE
+		        && (access & Opcodes.ACC_PROTECTED) != Opcodes.ACC_PROTECTED) {
 			access = access | Opcodes.ACC_PUBLIC;
 			// access = access & ~Opcodes.ACC_PROTECTED;
 		}
@@ -68,12 +69,13 @@ public class AccessibleClassAdapter extends ClassAdapter {
 	 * Change fields to public
 	 */
 	@Override
-	public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-		if (!exclude && ((access & Opcodes.ACC_PRIVATE) != Opcodes.ACC_PRIVATE)
-				&& ((access & Opcodes.ACC_PROTECTED) != Opcodes.ACC_PROTECTED)) {
+	public FieldVisitor visitField(int access, String name, String desc,
+	        String signature, Object value) {
+		if (!exclude && (access & Opcodes.ACC_PRIVATE) != Opcodes.ACC_PRIVATE
+		        && (access & Opcodes.ACC_PROTECTED) != Opcodes.ACC_PROTECTED) {
 			access = access | Opcodes.ACC_PUBLIC;
 			// access = access & ~Opcodes.ACC_PROTECTED;
-			// System.out.println("Setting field to public: "+name);
+			//System.out.println("Setting field to public: "+name);
 		}
 
 		return super.visitField(access, name, desc, signature, value);
@@ -83,9 +85,10 @@ public class AccessibleClassAdapter extends ClassAdapter {
 	 * Change methods to public
 	 */
 	@Override
-	public MethodVisitor visitMethod(int access, String name, String desc, String signature, final String[] exceptions) {
+	public MethodVisitor visitMethod(int access, String name, String desc,
+	        String signature, final String[] exceptions) {
 
-		if (!exclude && ((access & Opcodes.ACC_PRIVATE) != Opcodes.ACC_PRIVATE)) {
+		if (!exclude && (access & Opcodes.ACC_PRIVATE) != Opcodes.ACC_PRIVATE) {
 			access = access | Opcodes.ACC_PUBLIC;
 			access = access & ~Opcodes.ACC_PROTECTED;
 		}

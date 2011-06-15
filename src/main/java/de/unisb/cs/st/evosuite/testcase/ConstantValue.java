@@ -11,8 +11,6 @@ import java.lang.reflect.Type;
  */
 public class ConstantValue extends VariableReferenceImpl {
 
-	private Object value;
-
 	/**
 	 * @param testCase
 	 * @param type
@@ -31,14 +29,14 @@ public class ConstantValue extends VariableReferenceImpl {
 		return ret;
 	}
 
-	/**
-	 * Return name for source code representation
-	 * 
-	 * @return
-	 */
-	@Override
-	public String getName() {
-		return "" + value;
+	private Object value;
+
+	public Object getValue() {
+		return value;
+	}
+
+	public void setValue(Object value) {
+		this.value = value;
 	}
 
 	/**
@@ -56,14 +54,16 @@ public class ConstantValue extends VariableReferenceImpl {
 		}
 
 		throw new AssertionError(
-				"A ConstantValue position is only defined if the VariableReference is defined by a statement");
+		        "A ConstantValue position is only defined if the VariableReference is defined by a statement");
 	}
 
-	public Object getValue() {
-		return value;
-	}
-
-	public void setValue(Object value) {
-		this.value = value;
+	/**
+	 * Return name for source code representation
+	 * 
+	 * @return
+	 */
+	@Override
+	public String getName() {
+		return "" + value;
 	}
 }

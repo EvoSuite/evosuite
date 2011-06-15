@@ -36,11 +36,6 @@ import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.MutationMarker;
  */
 public class ReturnValueAdapter extends MethodAdapter {
 
-	// primitive data types
-	private enum PDType {
-		LONG, INTEGER, FLOAT, DOUBLE
-	}
-
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(LineNumberMethodAdapter.class);
 
@@ -52,11 +47,17 @@ public class ReturnValueAdapter extends MethodAdapter {
 
 	protected String methodName;
 
-	public ReturnValueAdapter(MethodVisitor mv, String className, String methodName, String desc) {
+	public ReturnValueAdapter(MethodVisitor mv, String className, String methodName,
+	        String desc) {
 		super(mv);
 		fullMethodName = methodName + desc;
 		this.methodName = methodName;
 		this.className = className;
+	}
+
+	// primitive data types
+	private enum PDType {
+		LONG, INTEGER, FLOAT, DOUBLE
 	};
 
 	@Override
@@ -100,40 +101,26 @@ public class ReturnValueAdapter extends MethodAdapter {
 
 	}
 
-	private void callLogAReturn() {
-		this.visitInsn(Opcodes.DUP);
-		this.visitLdcInsn(className);
-		this.visitLdcInsn(fullMethodName);
-		this.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "returnValue",
-				"(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V");
-	}
-
-	private void callLogDReturn() {
-		callLogPrototype("logDReturn", PDType.DOUBLE);
-	}
-
-	private void callLogFReturn() {
-		callLogPrototype("logFReturn", PDType.FLOAT);
-	}
-
-	private void callLogIReturn() {
-		callLogPrototype("logIReturn", PDType.INTEGER);
-	}
-
-	private void callLogLReturn() {
-		callLogPrototype("logLReturn", PDType.LONG);
+	private void insertMutationMarker(boolean start) {
+		if (MUTATION) {
+			Label mutationLabel = new Label();
+			mutationLabel.info = new MutationMarker(start);
+			mv.visitLabel(mutationLabel);
+		}
 	}
 
 	private void callLogPrototype(String traceMethod, PDType type) {
-		if ((type != PDType.LONG) && (type != PDType.DOUBLE)) {
+		if (type != PDType.LONG && type != PDType.DOUBLE) {
 			this.visitInsn(Opcodes.DUP);
 			if (type == PDType.FLOAT) {
-				this.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "floatToRawIntBits", "(F)I");
+				this.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float",
+				                     "floatToRawIntBits", "(F)I");
 			}
 		} else {
 			this.visitInsn(Opcodes.DUP2);
 			if (type == PDType.DOUBLE) {
-				this.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "doubleToRawLongBits", "(D)J");
+				this.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double",
+				                     "doubleToRawLongBits", "(D)J");
 			}
 			this.visitInsn(Opcodes.DUP2);
 			this.visitIntInsn(Opcodes.BIPUSH, 32);
@@ -144,16 +131,35 @@ public class ReturnValueAdapter extends MethodAdapter {
 
 		this.visitLdcInsn(className);
 		this.visitLdcInsn(fullMethodName);
-		this.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "returnValue",
-				"(ILjava/lang/String;Ljava/lang/String;)V");
+		this.visitMethodInsn(Opcodes.INVOKESTATIC,
+		                     "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+		                     "returnValue", "(ILjava/lang/String;Ljava/lang/String;)V");
 	}
 
-	private void insertMutationMarker(boolean start) {
-		if (MUTATION) {
-			Label mutationLabel = new Label();
-			mutationLabel.info = new MutationMarker(start);
-			mv.visitLabel(mutationLabel);
-		}
+	private void callLogIReturn() {
+		callLogPrototype("logIReturn", PDType.INTEGER);
+	}
+
+	private void callLogAReturn() {
+		this.visitInsn(Opcodes.DUP);
+		this.visitLdcInsn(className);
+		this.visitLdcInsn(fullMethodName);
+		this.visitMethodInsn(Opcodes.INVOKESTATIC,
+		                     "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+		                     "returnValue",
+		                     "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V");
+	}
+
+	private void callLogLReturn() {
+		callLogPrototype("logLReturn", PDType.LONG);
+	}
+
+	private void callLogDReturn() {
+		callLogPrototype("logDReturn", PDType.DOUBLE);
+	}
+
+	private void callLogFReturn() {
+		callLogPrototype("logFReturn", PDType.FLOAT);
 	}
 
 }

@@ -17,6 +17,7 @@
  * along with EvoSuite.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 package de.unisb.cs.st.evosuite.assertion;
 
 import de.unisb.cs.st.evosuite.testcase.Scope;
@@ -28,26 +29,26 @@ public class NullAssertion extends Assertion {
 	public Assertion clone(TestCase newTestCase) {
 		NullAssertion s = new NullAssertion();
 		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
-		s.value = value;
+		s.value  = value;
 		return s;
 	}
 
 	@Override
 	public boolean evaluate(Scope scope) {
-		if (((Boolean) value).booleanValue()) {
+		if(((Boolean)value).booleanValue()) {
 			return scope.get(source) == null;
-		} else {
-			return scope.get(source) != null;
 		}
+		else
+			return scope.get(source) != null;
 	}
 
 	@Override
 	public String getCode() {
-		if (((Boolean) value).booleanValue()) {
-			return "assertNull(" + source.getName() + ");";
-		} else {
-			return "assertNotNull(" + source.getName() + ");";
+		if(((Boolean)value).booleanValue()) {
+			return "assertNull("+source.getName()+");";
 		}
+		else
+			return "assertNotNull("+source.getName()+");";
 	}
 
 }

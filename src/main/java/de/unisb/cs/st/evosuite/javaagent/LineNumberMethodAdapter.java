@@ -52,7 +52,8 @@ public class LineNumberMethodAdapter extends MethodAdapter {
 
 	int current_line = 0;
 
-	public LineNumberMethodAdapter(MethodVisitor mv, String className, String methodName, String desc) {
+	public LineNumberMethodAdapter(MethodVisitor mv, String className, String methodName,
+	        String desc) {
 		super(mv);
 		fullMethodName = methodName + desc;
 		this.className = className;
@@ -62,9 +63,8 @@ public class LineNumberMethodAdapter extends MethodAdapter {
 	@Override
 	public void visitLineNumber(int line, Label start) {
 		super.visitLineNumber(line, start);
-		if (methodName.equals("<clinit>")) {
+		if (methodName.equals("<clinit>"))
 			return;
-		}
 
 		if (MUTATION) {
 			Label mutationStartLabel = new Label();
@@ -74,8 +74,9 @@ public class LineNumberMethodAdapter extends MethodAdapter {
 		this.visitLdcInsn(className);
 		this.visitLdcInsn(fullMethodName);
 		this.visitLdcInsn(line);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedLine",
-				"(Ljava/lang/String;Ljava/lang/String;I)V");
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+		                   "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+		                   "passedLine", "(Ljava/lang/String;Ljava/lang/String;I)V");
 		current_line = line;
 		if (MUTATION) {
 			Label mutationEndLabel = new Label();

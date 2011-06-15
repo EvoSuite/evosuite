@@ -43,7 +43,8 @@ public class INEG extends gov.nasa.jpf.jvm.bytecode.INEG {
 		}
 
 		Instruction ret = super.execute(ss, ks, th);
-		sf.setOperandAttr(new IntegerUnaryExpression(v0, Operator.NEG, new Long(sf.peek())));
+		sf.setOperandAttr(new IntegerUnaryExpression(v0, Operator.NEG,
+		        new Long(sf.peek())));
 		return ret;
 
 	}

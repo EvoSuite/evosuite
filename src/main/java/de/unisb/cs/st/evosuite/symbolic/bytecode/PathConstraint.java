@@ -39,24 +39,32 @@ public class PathConstraint {
 
 	private static Logger logger = Logger.getLogger(PathConstraint.class);
 
+	private PathConstraint() {
+		this.pathConstraints = new HashTableSet<Constraint>();
+		this.storedStateMap = new HashMap<Integer, HashTableSet<Constraint>>();
+	};
+
 	public static PathConstraint getInstance() {
 		if (ins == null) {
 			throw new RuntimeException("PathConstraint not initalized");
 		}
 		return ins;
-	};
+	}
+
+	private HashTableSet<Constraint> pathConstraints;
+	private final Map<Integer, HashTableSet<Constraint>> storedStateMap;
 
 	public static void init() {
 		logger.info("Setting up path constraints");
 		ins = new PathConstraint();
 	}
 
-	private HashTableSet<Constraint> pathConstraints;
-	private final Map<Integer, HashTableSet<Constraint>> storedStateMap;
+	public HashTableSet<Constraint> getCurrentConstraints() {
+		return (HashTableSet<Constraint>) pathConstraints.clone();
+	}
 
-	private PathConstraint() {
-		this.pathConstraints = new HashTableSet<Constraint>();
-		this.storedStateMap = new HashMap<Integer, HashTableSet<Constraint>>();
+	public void log() {
+		logger.info("Working so far");
 	}
 
 	public void addConstraint(Constraint c) {
@@ -68,12 +76,15 @@ public class PathConstraint {
 		}
 	}
 
-	public HashTableSet<Constraint> getCurrentConstraints() {
-		return (HashTableSet<Constraint>) pathConstraints.clone();
-	}
-
-	public void log() {
-		logger.info("Working so far");
+	/**
+	 * Called from Dummy
+	 * 
+	 * @param search
+	 *            the search object
+	 */
+	protected void stateStored(Search search) {
+		int i = JVM.getVM().getStateId();
+		storedStateMap.put(i, (HashTableSet<Constraint>) this.pathConstraints.clone());
 	}
 
 	/**
@@ -91,17 +102,6 @@ public class PathConstraint {
 		this.pathConstraints = (HashTableSet<Constraint>) restore.clone();
 	}
 
-	/**
-	 * Called from Dummy
-	 * 
-	 * @param search
-	 *            the search object
-	 */
-	protected void stateStored(Search search) {
-		int i = JVM.getVM().getStateId();
-		storedStateMap.put(i, (HashTableSet<Constraint>) this.pathConstraints.clone());
-	}
-
 	private Constraint removeCMPFormConstraint(Constraint c) {
 		if (c.getLeftOperand() instanceof IntegerComparison) {
 			IntegerComparison cmp = (IntegerComparison) c.getLeftOperand();
@@ -110,25 +110,33 @@ public class PathConstraint {
 			switch (op) {
 			case EQ:
 				if (value < 0) {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LT, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LT,
+					        cmp.getRightOperant()));
 				} else if (value == 0) {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.EQ, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.EQ,
+					        cmp.getRightOperant()));
 				} else {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GT, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GT,
+					        cmp.getRightOperant()));
 				}
 			case NE:
 				if (value < 0) {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GE, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GE,
+					        cmp.getRightOperant()));
 				} else if (value == 0) {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.NE, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.NE,
+					        cmp.getRightOperant()));
 				} else {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LE, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LE,
+					        cmp.getRightOperant()));
 				}
 			case LE:
 				if (value < 0) {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LT, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LT,
+					        cmp.getRightOperant()));
 				} else if (value == 0) {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LE, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LE,
+					        cmp.getRightOperant()));
 				} else {
 					throw new RuntimeException("Unexpected Constraint");
 				}
@@ -136,23 +144,29 @@ public class PathConstraint {
 				if (value < 0) {
 					throw new RuntimeException("Unexpected Constraint");
 				} else if (value == 0) {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LT, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LT,
+					        cmp.getRightOperant()));
 				} else {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LE, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LE,
+					        cmp.getRightOperant()));
 				}
 			case GE:
 				if (value < 0) {
 					throw new RuntimeException("Unexpected Constraint");
 				} else if (value == 0) {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GE, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GE,
+					        cmp.getRightOperant()));
 				} else {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GT, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GT,
+					        cmp.getRightOperant()));
 				}
 			case GT:
 				if (value < 0) {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GE, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GE,
+					        cmp.getRightOperant()));
 				} else if (value == 0) {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GT, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GT,
+					        cmp.getRightOperant()));
 				} else {
 					throw new RuntimeException("Unexpected Constraint");
 				}
@@ -164,25 +178,33 @@ public class PathConstraint {
 			switch (op) {
 			case EQ:
 				if (value < 0) {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LT, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LT,
+					        cmp.getRightOperant()));
 				} else if (value == 0) {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.EQ, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.EQ,
+					        cmp.getRightOperant()));
 				} else {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GT, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GT,
+					        cmp.getRightOperant()));
 				}
 			case NE:
 				if (value < 0) {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GE, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GE,
+					        cmp.getRightOperant()));
 				} else if (value == 0) {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.NE, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.NE,
+					        cmp.getRightOperant()));
 				} else {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LE, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LE,
+					        cmp.getRightOperant()));
 				}
 			case LE:
 				if (value < 0) {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LT, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LT,
+					        cmp.getRightOperant()));
 				} else if (value == 0) {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LE, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LE,
+					        cmp.getRightOperant()));
 				} else {
 					throw new RuntimeException("Unexpected Constraint");
 				}
@@ -190,23 +212,29 @@ public class PathConstraint {
 				if (value < 0) {
 					throw new RuntimeException("Unexpected Constraint");
 				} else if (value == 0) {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LT, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LT,
+					        cmp.getRightOperant()));
 				} else {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LE, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LE,
+					        cmp.getRightOperant()));
 				}
 			case GE:
 				if (value < 0) {
 					throw new RuntimeException("Unexpected Constraint");
 				} else if (value == 0) {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GE, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GE,
+					        cmp.getRightOperant()));
 				} else {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GT, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GT,
+					        cmp.getRightOperant()));
 				}
 			case GT:
 				if (value < 0) {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GE, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GE,
+					        cmp.getRightOperant()));
 				} else if (value == 0) {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GT, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GT,
+					        cmp.getRightOperant()));
 				} else {
 					throw new RuntimeException("Unexpected Constraint");
 				}
@@ -218,25 +246,33 @@ public class PathConstraint {
 			switch (op) {
 			case EQ:
 				if (value > 0) {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LT, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LT,
+					        cmp.getRightOperant()));
 				} else if (value == 0) {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.EQ, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.EQ,
+					        cmp.getRightOperant()));
 				} else {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GT, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GT,
+					        cmp.getRightOperant()));
 				}
 			case NE:
 				if (value > 0) {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GE, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GE,
+					        cmp.getRightOperant()));
 				} else if (value == 0) {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.NE, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.NE,
+					        cmp.getRightOperant()));
 				} else {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LE, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LE,
+					        cmp.getRightOperant()));
 				}
 			case LE:
 				if (value > 0) {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LT, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LT,
+					        cmp.getRightOperant()));
 				} else if (value == 0) {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LE, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LE,
+					        cmp.getRightOperant()));
 				} else {
 					throw new RuntimeException("Unexpected Constraint");
 				}
@@ -244,23 +280,29 @@ public class PathConstraint {
 				if (value > 0) {
 					throw new RuntimeException("Unexpected Constraint");
 				} else if (value == 0) {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LT, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LT,
+					        cmp.getRightOperant()));
 				} else {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LE, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.LE,
+					        cmp.getRightOperant()));
 				}
 			case GE:
 				if (value > 0) {
 					throw new RuntimeException("Unexpected Constraint");
 				} else if (value == 0) {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GE, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GE,
+					        cmp.getRightOperant()));
 				} else {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GT, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GT,
+					        cmp.getRightOperant()));
 				}
 			case GT:
 				if (value > 0) {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GE, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GE,
+					        cmp.getRightOperant()));
 				} else if (value == 0) {
-					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GT, cmp.getRightOperant()));
+					return (new IntegerConstraint(cmp.getLeftOperant(), Comparator.GT,
+					        cmp.getRightOperant()));
 				} else {
 					throw new RuntimeException("Unexpected Constraint");
 				}
@@ -272,25 +314,33 @@ public class PathConstraint {
 			switch (op) {
 			case EQ:
 				if (value > 0) {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LT, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LT,
+					        cmp.getRightOperant()));
 				} else if (value == 0) {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.EQ, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.EQ,
+					        cmp.getRightOperant()));
 				} else {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GT, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GT,
+					        cmp.getRightOperant()));
 				}
 			case NE:
 				if (value > 0) {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GE, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GE,
+					        cmp.getRightOperant()));
 				} else if (value == 0) {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.NE, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.NE,
+					        cmp.getRightOperant()));
 				} else {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LE, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LE,
+					        cmp.getRightOperant()));
 				}
 			case LE:
 				if (value > 0) {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LT, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LT,
+					        cmp.getRightOperant()));
 				} else if (value == 0) {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LE, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LE,
+					        cmp.getRightOperant()));
 				} else {
 					throw new RuntimeException("Unexpected Constraint");
 				}
@@ -298,23 +348,29 @@ public class PathConstraint {
 				if (value > 0) {
 					throw new RuntimeException("Unexpected Constraint");
 				} else if (value == 0) {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LT, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LT,
+					        cmp.getRightOperant()));
 				} else {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LE, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.LE,
+					        cmp.getRightOperant()));
 				}
 			case GE:
 				if (value > 0) {
 					throw new RuntimeException("Unexpected Constraint");
 				} else if (value == 0) {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GE, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GE,
+					        cmp.getRightOperant()));
 				} else {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GT, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GT,
+					        cmp.getRightOperant()));
 				}
 			case GT:
 				if (value > 0) {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GE, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GE,
+					        cmp.getRightOperant()));
 				} else if (value == 0) {
-					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GT, cmp.getRightOperant()));
+					return (new RealConstraint(cmp.getLeftOperant(), Comparator.GT,
+					        cmp.getRightOperant()));
 				} else {
 					throw new RuntimeException("Unexpected Constraint");
 				}

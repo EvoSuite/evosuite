@@ -37,18 +37,9 @@ public class StringTraceExecutionObserver extends ExecutionObserver {
 	Map<Integer, String> trace = new HashMap<Integer, String>();
 
 	@Override
-	public void clear() {
-		trace.clear();
-	}
-
-	public StringOutputTrace getTrace() {
-		return new StringOutputTrace(trace);
-	}
-
-	@Override
 	public void output(int position, String output) {
-		// logger.info("Received output: "+output);
-		// trace.put(position, output.trim());
+		//logger.info("Received output: "+output);
+		//trace.put(position, output.trim());
 		// TODO: can't use this for oracles
 	}
 
@@ -58,31 +49,30 @@ public class StringTraceExecutionObserver extends ExecutionObserver {
 
 		Object object = scope.get(retval);
 
-		// System.out.println("TG: Adding value "+object.toString());
+		//System.out.println("TG: Adding value "+object.toString());
 		// Only add string if this is not Object.toString()
 		try {
 			if (object == null) {
-				// logger.info("Received return value null");
+				//logger.info("Received return value null");
 				trace.put(statement.getPosition(), "null");
 			} else {
 				Set<String> unusable = new HashSet<String>();
 				unusable.add("java.lang.Object");
-				// unusable.add("java.util.AbstractCollection");
-				// unusable.add("org.jaxen.pattern.UnionPattern");
-				// unusable.add("org.jaxen.pattern.LocationPathPattern");
+				//unusable.add("java.util.AbstractCollection");
+				//unusable.add("org.jaxen.pattern.UnionPattern");
+				//unusable.add("org.jaxen.pattern.LocationPathPattern");
 				String declared_class = object.getClass().getMethod("toString").getDeclaringClass().getName();
 
-				// if(!object.getClass().getMethod("toString").getDeclaringClass().equals(java.lang.Object.class))
-				// {
+				//				if(!object.getClass().getMethod("toString").getDeclaringClass().equals(java.lang.Object.class)) {
 				if (!unusable.contains(declared_class)) {
 					String value = object.toString();
 					if (value == null) {
-						// logger.info("Received return value that converts to null string");
+						//logger.info("Received return value that converts to null string");
 						trace.put(statement.getPosition(), "null");
 					} else {
 						if (!value.matches("@[abcdef\\d]+")) {
 							value = value.replaceAll("@[abcdef\\d]+", "");
-							// logger.info(object.getClass().getMethod("toString").getDeclaringClass()+" says: "+value);
+							//logger.info(object.getClass().getMethod("toString").getDeclaringClass()+" says: "+value);
 							trace.put(statement.getPosition(), value);
 						}
 					}
@@ -95,8 +85,18 @@ public class StringTraceExecutionObserver extends ExecutionObserver {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (Throwable e) {
-			logger.debug("Failed to add object of class " + object.getClass() + " to string trace: " + e.getMessage());
+			logger.debug("Failed to add object of class " + object.getClass()
+			        + " to string trace: " + e.getMessage());
 		}
+	}
+
+	public StringOutputTrace getTrace() {
+		return new StringOutputTrace(trace);
+	}
+
+	@Override
+	public void clear() {
+		trace.clear();
 	}
 
 }

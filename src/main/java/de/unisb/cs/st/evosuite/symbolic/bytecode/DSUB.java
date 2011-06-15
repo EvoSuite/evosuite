@@ -41,7 +41,7 @@ public class DSUB extends gov.nasa.jpf.jvm.bytecode.DSUB {
 		Expression<Double> v0 = (Expression<Double>) sf.getOperandAttr(1);
 
 		Expression<Double> v1 = (Expression<Double>) sf.getOperandAttr(3);
-		if ((v0 == null) && (v1 == null)) {
+		if (v0 == null && v1 == null) {
 			return super.execute(ss, ks, th);
 		}
 

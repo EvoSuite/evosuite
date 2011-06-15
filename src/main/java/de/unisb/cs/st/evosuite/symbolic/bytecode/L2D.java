@@ -44,7 +44,8 @@ public class L2D extends gov.nasa.jpf.jvm.bytecode.L2D {
 			Instruction result = super.execute(ss, ks, th);
 			int lo = th.peek(0);
 			int hi = th.peek(1);
-			sf.setLongOperandAttr(new IntegerToRealCast(sym_val, Types.intsToDouble(lo, hi)));
+			sf.setLongOperandAttr(new IntegerToRealCast(sym_val, Types.intsToDouble(lo,
+			                                                                        hi)));
 			return result;
 		}
 	}

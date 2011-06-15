@@ -37,52 +37,6 @@ public class InspectorAssertion extends Assertion {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!super.equals(obj)) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		InspectorAssertion other = (InspectorAssertion) obj;
-		if (inspector == null) {
-			if (other.inspector != null) {
-				return false;
-			}
-		} else if (!inspector.equals(other.inspector)) {
-			return false;
-		}
-		if (num_inspector != other.num_inspector) {
-			return false;
-		}
-		if (result == null) {
-			if (other.result != null) {
-				return false;
-			}
-		} else if (!result.equals(other.result)) {
-			return false;
-		}
-		return true;
-	}
-
-	@Override
-	public boolean evaluate(Scope scope) {
-		if (scope.get(source) == null) {
-			return true; // TODO - true or false?
-		} else {
-			Object val = inspector.getValue(scope.get(source));
-			if (val == null) {
-				return val == result;
-			} else {
-				return val.equals(result);
-			}
-		}
-	}
-
-	@Override
 	public String getCode() {
 		/*
 		 * if(result.getClass().equals(Boolean.class)) { if(result) return
@@ -92,21 +46,38 @@ public class InspectorAssertion extends Assertion {
 		 * ()+"())"; } else {
 		 */
 		if (result == null) {
-			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall() + "(), null);";
+			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
+			        + "(), null);";
 		} else if (result.getClass().equals(Long.class)) {
 			String val = result.toString();
-			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall() + "(), " + val + "L);";
+			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
+			        + "(), " + val + "L);";
 		} else if (result.getClass().equals(Float.class)) {
 			String val = result.toString();
-			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall() + "(), " + val + "F);";
+			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
+			        + "(), " + val + "F);";
 		} else if (result.getClass().equals(Character.class)) {
 			String val = result.toString();
-			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall() + "(), '" + val + "');";
+			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
+			        + "(), '" + val + "');";
 		} else if (result.getClass().equals(String.class)) {
-			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall() + "(), \""
-					+ StringEscapeUtils.escapeJava((String) result) + "\");";
-		} else {
-			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall() + "(), " + result + ");";
+			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
+			        + "(), \"" + StringEscapeUtils.escapeJava((String) result) + "\");";
+		} else
+			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
+			        + "(), " + result + ");";
+	}
+
+	@Override
+	public boolean evaluate(Scope scope) {
+		if (scope.get(source) == null)
+			return true; // TODO - true or false?
+		else {
+			Object val = inspector.getValue(scope.get(source));
+			if (val == null)
+				return val == result;
+			else
+				return val.equals(result);
 		}
 	}
 
@@ -118,6 +89,30 @@ public class InspectorAssertion extends Assertion {
 		result = prime * result + num_inspector;
 		result = prime * result + ((this.result == null) ? 0 : this.result.hashCode());
 		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		InspectorAssertion other = (InspectorAssertion) obj;
+		if (inspector == null) {
+			if (other.inspector != null)
+				return false;
+		} else if (!inspector.equals(other.inspector))
+			return false;
+		if (num_inspector != other.num_inspector)
+			return false;
+		if (result == null) {
+			if (other.result != null)
+				return false;
+		} else if (!result.equals(other.result))
+			return false;
+		return true;
 	}
 
 }

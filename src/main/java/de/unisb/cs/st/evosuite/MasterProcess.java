@@ -28,7 +28,7 @@ public class MasterProcess {
 		cmdLine.add(cmdLine.size() - 1, "-Dprocess_communication_port=" + port);
 		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
 		if (handler.startProcess(newArgs)) {
-			handler.waitForResult(Properties.GLOBAL_TIMEOUT * 2 * 1000); // FIXXME
+			handler.waitForResult(Properties.GLOBAL_TIMEOUT * 2 * 1000); // FIXXME			
 		} else {
 			System.out.println("Could not connect to client process");
 		}

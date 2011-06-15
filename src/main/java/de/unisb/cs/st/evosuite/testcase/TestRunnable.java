@@ -33,7 +33,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
-	private static PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out : new PrintStream(byteStream));
+	private static PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
+	        : new PrintStream(byteStream));
 
 	public Map<Integer, Throwable> exceptionsThrown = new HashMap<Integer, Throwable>();
 
@@ -46,9 +47,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 		runFinished = false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see java.lang.Runnable#run()
 	 */
 	@Override
@@ -64,12 +63,12 @@ public class TestRunnable implements InterfaceTestRunnable {
 			// exceptionsThrown = test.execute(scope, observers, !log);
 			for (StatementInterface s : test) {
 				if (Thread.currentThread().isInterrupted() || Thread.interrupted()) {
-					logger.info("Thread interrupted at statement " + num + ": " + s.getCode());
+					logger.info("Thread interrupted at statement " + num + ": "
+					        + s.getCode());
 					throw new TimeoutException();
 				}
-				if (logger.isDebugEnabled()) {
+				if (logger.isDebugEnabled())
 					logger.debug("Executing statement " + s.getCode());
-				}
 				ExecutionTracer.statementExecuted();
 
 				out.flush();
@@ -82,19 +81,17 @@ public class TestRunnable implements InterfaceTestRunnable {
 				if (exceptionThrown != null) {
 					exceptionsThrown.put(num, exceptionThrown);
 
-					if (!s.isValidException(exceptionThrown)) {
+					if (!s.isValidException(exceptionThrown))
 						break;
-					}
 
-					// exception_statement = num;
-					if (log && logger.isDebugEnabled()) {
-						logger.debug("Exception thrown in statement: " + s.getCode() + " - "
-								+ exceptionThrown.getClass().getName() + " - " + exceptionThrown.getMessage());
-					}
+					// exception_statement = num; 
+					if (log && logger.isDebugEnabled())
+						logger.debug("Exception thrown in statement: " + s.getCode()
+						        + " - " + exceptionThrown.getClass().getName() + " - "
+						        + exceptionThrown.getMessage());
 				}
-				if (logger.isDebugEnabled()) {
+				if (logger.isDebugEnabled())
 					logger.debug("Done statement " + s.getCode());
-				}
 				for (ExecutionObserver observer : observers) {
 					observer.statement(s, scope, exceptionThrown);
 				}
@@ -121,11 +118,12 @@ public class TestRunnable implements InterfaceTestRunnable {
 				logger.info(e.getCause(), e);
 				e = e.getCause();
 			}
-			if ((e instanceof AssertionError)
-					&& e.getStackTrace()[0].getClassName().contains("de.unisb.cs.st.evosuite")) {
-				// e1.printStackTrace();
-				logger.error("Assertion Error in evosuitecode, for statement \n" + test.getStatement(num).getCode()
-						+ " \n which is number: " + num + " testcase \n" + test.toCode(), e);
+			if (e instanceof AssertionError
+			        && e.getStackTrace()[0].getClassName().contains("de.unisb.cs.st.evosuite")) {
+				//e1.printStackTrace();
+				logger.error("Assertion Error in evosuitecode, for statement \n"
+				        + test.getStatement(num).getCode() + " \n which is number: "
+				        + num + " testcase \n" + test.toCode(), e);
 				throw (AssertionError) e;
 			}
 			// exceptionThrown = e;
@@ -139,26 +137,19 @@ public class TestRunnable implements InterfaceTestRunnable {
 		result.exceptions = exceptionsThrown;
 
 		return result;
-		// }
+		//}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.InterfaceTestRunnable#getExceptionsThrown
-	 * ()
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.InterfaceTestRunnable#getExceptionsThrown()
 	 */
 	@Override
 	public Map<Integer, Throwable> getExceptionsThrown() {
 		return exceptionsThrown;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.InterfaceTestRunnable#isRunFinished()
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.InterfaceTestRunnable#isRunFinished()
 	 */
 	@Override
 	public boolean isRunFinished() {

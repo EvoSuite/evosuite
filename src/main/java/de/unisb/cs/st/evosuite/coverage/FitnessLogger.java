@@ -38,28 +38,33 @@ public class FitnessLogger implements SearchListener {
 
 	private int evaluations = 0;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.ga.SearchListener#fitnessEvaluation(de.unisb.
-	 * cs.st.evosuite.ga.Chromosome)
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.SearchListener#searchStarted(de.unisb.cs.st.evosuite.ga.FitnessFunction)
 	 */
 	@Override
-	public void fitnessEvaluation(Chromosome individual) {
-		evaluations++;
+	public void searchStarted(GeneticAlgorithm algorithm) {
+		evaluations = 0;
+		evaluations_history.clear();
+		statements_history.clear();
+		fitness_history.clear();
+		size_history.clear();
+		File dir = new File(Properties.REPORT_DIR + "/goals/");
+		dir.mkdir();
+		name = Properties.REPORT_DIR
+		        + "/goals/"
+		        + algorithm.getFitnessFunction().toString().replace(" ", "_").replace(":",
+		                                                                              "-").replace("(",
+		                                                                                           "").replace(")",
+		                                                                                                       "");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.SearchListener#iteration(java.util.List)
 	 */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
-		if (algorithm.getPopulation().isEmpty()) {
+		if (algorithm.getPopulation().isEmpty())
 			return;
-		}
 
 		evaluations_history.add(evaluations);
 		statements_history.add(MaxStatementsStoppingCondition.getNumExecutedStatements());
@@ -67,30 +72,13 @@ public class FitnessLogger implements SearchListener {
 		size_history.add(algorithm.getBestIndividual().size());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.ga.SearchListener#modification(de.unisb.cs.st
-	 * .evosuite.ga.Chromosome)
-	 */
-	@Override
-	public void modification(Chromosome individual) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.ga.SearchListener#searchFinished(java.util.List)
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.SearchListener#searchFinished(java.util.List)
 	 */
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
-		if (name == null) {
+		if (name == null)
 			return;
-		}
 
 		File f = new File(name);
 		try {
@@ -109,26 +97,21 @@ public class FitnessLogger implements SearchListener {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.ga.SearchListener#searchStarted(de.unisb.cs.st
-	 * .evosuite.ga.FitnessFunction)
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.SearchListener#fitnessEvaluation(de.unisb.cs.st.evosuite.ga.Chromosome)
 	 */
 	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
-		evaluations = 0;
-		evaluations_history.clear();
-		statements_history.clear();
-		fitness_history.clear();
-		size_history.clear();
-		File dir = new File(Properties.REPORT_DIR + "/goals/");
-		dir.mkdir();
-		name = Properties.REPORT_DIR
-				+ "/goals/"
-				+ algorithm.getFitnessFunction().toString().replace(" ", "_").replace(":", "-").replace("(", "")
-						.replace(")", "");
+	public void fitnessEvaluation(Chromosome individual) {
+		evaluations++;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.SearchListener#modification(de.unisb.cs.st.evosuite.ga.Chromosome)
+	 */
+	@Override
+	public void modification(Chromosome individual) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

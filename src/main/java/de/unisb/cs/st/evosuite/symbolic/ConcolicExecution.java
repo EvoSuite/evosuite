@@ -46,25 +46,27 @@ public class ConcolicExecution {
 		config.setTarget(targetName);
 
 		config.setProperty("vm.insn_factory.class",
-				"de.unisb.cs.st.evosuite.symbolic.bytecode.IntegerConcolicInstructionFactory");
+		                   "de.unisb.cs.st.evosuite.symbolic.bytecode.IntegerConcolicInstructionFactory");
 		config.setProperty("peer_packages",
-				"de.unisb.cs.st.evosuite.symbolic.nativepeer," + config.getProperty("peer_packages"));
+		                   "de.unisb.cs.st.evosuite.symbolic.nativepeer,"
+		                           + config.getProperty("peer_packages"));
 
 		// We don't want JPF output
-		config.setProperty("report.class", "de.unisb.cs.st.evosuite.symbolic.SilentReporter");
+		config.setProperty("report.class",
+		                   "de.unisb.cs.st.evosuite.symbolic.SilentReporter");
 
-		// Configure the search class;
+		//Configure the search class;
 		config.setProperty("search.class", "de.unisb.cs.st.evosuite.symbolic.PathSearch");
 		config.setProperty("jm.numberOfIterations", "1");
 
-		// Generate the JPF Instance
+		//Generate the JPF Instance
 		JPF jpf = new JPF(config);
 
 		this.pcg = new PathConstraintCollector();
 		jpf.getVM().addListener(pcg);
 		jpf.getSearch().addListener(pcg);
 
-		// Run the SUT
+		//Run the SUT
 		logger.info("Running concolic execution");
 		jpf.run();
 		logger.info("Finished concolic execution");

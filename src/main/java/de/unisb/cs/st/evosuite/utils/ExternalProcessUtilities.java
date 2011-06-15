@@ -26,10 +26,6 @@ public class ExternalProcessUtilities {
 		this.port = Properties.PROCESS_COMMUNICATION_PORT;
 	}
 
-	public void askForRestart(Object population_data) {
-		sendFinalMessage(Messages.NEED_RESTART, population_data);
-	}
-
 	public boolean connectToMainProcess() {
 		try {
 			connection = new Socket("127.0.0.1", port);
@@ -44,16 +40,12 @@ public class ExternalProcessUtilities {
 		return true;
 	}
 
-	public void informSearchIsFinished(Object population_data) {
-		sendFinalMessage(Messages.FINISHED_COMPUTATION, population_data);
-	}
-
 	public Object receiveInstruction() {
 		try {
 			String message = (String) in.readObject();
-			if (message.equals(Messages.NEW_SEARCH)) {
+			if (message.equals(Messages.NEW_SEARCH))
 				return null;
-			} else if (message.equals(Messages.CONTINUE_SEARCH)) {
+			else if (message.equals(Messages.CONTINUE_SEARCH)) {
 				Object population_data = in.readObject();
 				return population_data;
 			}
@@ -64,9 +56,17 @@ public class ExternalProcessUtilities {
 		throw new RuntimeException("no valid message received");
 	}
 
+	public void askForRestart(Object population_data) {
+		sendFinalMessage(Messages.NEED_RESTART, population_data);
+	}
+
+	public void informSearchIsFinished(Object population_data) {
+		sendFinalMessage(Messages.FINISHED_COMPUTATION, population_data);
+	}
+
 	public void sendFinalMessage(String message, Object population_data) {
 		XStream xstream = new XStream();
-		// System.out.println(xstream.toXML(population_data));
+		//System.out.println(xstream.toXML(population_data));
 		try {
 			out.writeObject(message);
 			out.flush();
@@ -76,7 +76,7 @@ public class ExternalProcessUtilities {
 			logger.debug("error in sending messages");
 		}
 
-		// main process will kill this one, but we can exit here just to be sure
+		//main process will kill this one, but we can exit here just to be sure
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {

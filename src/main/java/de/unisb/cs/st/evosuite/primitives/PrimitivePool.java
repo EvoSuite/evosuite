@@ -37,14 +37,6 @@ public class PrimitivePool {
 
 	private static PrimitivePool instance = null;
 
-	public static PrimitivePool getInstance() {
-		if (instance == null) {
-			instance = new PrimitivePool();
-		}
-
-		return instance;
-	}
-
 	private Set<String> string_pool = null;
 
 	private Set<Integer> int_pool = null;
@@ -83,73 +75,77 @@ public class PrimitivePool {
 		double_pool.add(-1.0);
 	}
 
+	public static PrimitivePool getInstance() {
+		if (instance == null)
+			instance = new PrimitivePool();
+
+		return instance;
+	}
+
 	public void add(Object object) {
 		// Integer, a Float, a Long, a Double a
 
-		if (object == null) {
+		if (object == null)
 			return;
-		} else if (object instanceof String) {
-			if (!((String) object).startsWith("mutationId")) {
+		else if (object instanceof String) {
+			if (!((String) object).startsWith("mutationId"))
 				string_pool.add((String) object);
-			}
 		} else if (object instanceof Integer) {
 			int val = (Integer) object;
-			if ((Math.abs(val) < Properties.MAX_INT) && (val != Integer.MAX_VALUE) && (val != Integer.MIN_VALUE)) {
+			if (Math.abs(val) < Properties.MAX_INT && val != Integer.MAX_VALUE
+			        && val != Integer.MIN_VALUE) {
 				int_pool.add((Integer) object);
 			}
 		} else if (object instanceof Float) {
-			if (Math.abs((Float) object) < Properties.MAX_INT) {
+			if (Math.abs((Float) object) < Properties.MAX_INT)
 				float_pool.add((Float) object);
-			}
 		} else if (object instanceof Long) {
-			if (Math.abs((Long) object) < Properties.MAX_INT) {
+			if (Math.abs((Long) object) < Properties.MAX_INT)
 				long_pool.add((Long) object);
-			}
 		} else if (object instanceof Double) {
-			if (Math.abs((Double) object) < Properties.MAX_INT) {
+			if (Math.abs((Double) object) < Properties.MAX_INT)
 				double_pool.add((Double) object);
-			}
 		}
 	}
 
-	public Set<Double> getDoubles() {
-		return double_pool;
-	}
-
-	public Set<Float> getFloats() {
-		return float_pool;
+	public Set<String> getStrings() {
+		return string_pool;
 	}
 
 	public Set<Integer> getIntegers() {
 		return int_pool;
 	}
 
+	public Set<Float> getFloats() {
+		return float_pool;
+	}
+
+	public Set<Double> getDoubles() {
+		return double_pool;
+	}
+
 	public Set<Long> getLongs() {
 		return long_pool;
-	}
-
-	public double getRandomDouble() {
-		return Randomness.choice(double_pool);
-	}
-
-	public float getRandomFloat() {
-		return Randomness.choice(float_pool);
-	}
-
-	public int getRandomInt() {
-		return Randomness.choice(int_pool);
-	}
-
-	public long getRandomLong() {
-		return Randomness.choice(long_pool);
 	}
 
 	public String getRandomString() {
 		return Randomness.choice(string_pool);
 	}
 
-	public Set<String> getStrings() {
-		return string_pool;
+	public int getRandomInt() {
+		return Randomness.choice(int_pool);
+	}
+
+	public float getRandomFloat() {
+		return Randomness.choice(float_pool);
+	}
+
+	public double getRandomDouble() {
+		return Randomness.choice(double_pool);
+	}
+
+	public long getRandomLong() {
+		return Randomness.choice(long_pool);
 	}
 
 }

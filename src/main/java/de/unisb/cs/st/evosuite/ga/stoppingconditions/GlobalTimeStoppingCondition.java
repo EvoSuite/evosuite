@@ -18,9 +18,13 @@ public class GlobalTimeStoppingCondition extends StoppingCondition {
 	/** Assume the search has not started until start_time != 0 */
 	protected static long start_time = 0L;
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	@Override
+	public void searchStarted(GeneticAlgorithm algorithm) {
+		if (start_time == 0)
+			reset();
+	}
+
+	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
 	@Override
@@ -29,32 +33,24 @@ public class GlobalTimeStoppingCondition extends StoppingCondition {
 		return (int) ((current_time - start_time) / 1000);
 	}
 
-	@Override
-	public int getLimit() {
-		// TODO Auto-generated method stub
-		return max_seconds;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#isFinished()
 	 */
 	@Override
 	public boolean isFinished() {
 		long current_time = System.currentTimeMillis();
-		if ((max_seconds != 0) && (start_time != 0) && ((current_time - start_time) / 1000 > max_seconds)) {
+		if (max_seconds != 0 && start_time != 0
+		        && (current_time - start_time) / 1000 > max_seconds)
 			logger.info("Timeout reached");
-		}
 		/*
-		 * else logger.info("Timeout not reached: "+getCurrentValue());
-		 */
-		return (max_seconds != 0) && (start_time != 0) && ((current_time - start_time) / 1000 > max_seconds);
+		else
+			logger.info("Timeout not reached: "+getCurrentValue());
+			*/
+		return max_seconds != 0 && start_time != 0
+		        && (current_time - start_time) / 1000 > max_seconds;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#reset()
 	 */
 	@Override
@@ -62,22 +58,19 @@ public class GlobalTimeStoppingCondition extends StoppingCondition {
 		start_time = System.currentTimeMillis();
 	}
 
-	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
-		if (start_time == 0) {
-			reset();
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
 	@Override
 	public void setLimit(int limit) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public int getLimit() {
+		// TODO Auto-generated method stub
+		return max_seconds;
 	}
 
 }

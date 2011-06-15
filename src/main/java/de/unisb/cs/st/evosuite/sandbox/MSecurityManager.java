@@ -46,7 +46,7 @@ class MSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkPermission(Permission perm) {
-		// check access
+		// check access  
 		if (!allowPermission(perm)) {
 			String stack = "\n";
 			for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
@@ -67,90 +67,74 @@ class MSecurityManager extends SecurityManager {
 	 * @return false if access is forbidden, true otherwise
 	 */
 	private boolean allowPermission(Permission perm) {
-		// get all elements of the stack trace for the current thread
+		// get all elements of the stack trace for the current thread 
 		StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
 
-		// false if "executeTestCase" method wasn't in a stack trace, true
-		// otherwise
+		// false if "executeTestCase" method wasn't in a stack trace, true otherwise
 		boolean testExec = false;
 
-		// iterate through all elements and check if name of the calling class
-		// contains
+		// iterate through all elements and check if name of the calling class contains 
 		// the name of the class under test or "executeTestCase" method call.
 		// Also check for few special cases, when permission should be granted
 		for (int elementCounter = 0; elementCounter < stackTraceElements.length; elementCounter++) {
 			StackTraceElement e = stackTraceElements[elementCounter];
-			if (e.getMethodName().equals("executeTestCase") || e.getMethodName().equals("call")
-					|| e.getClassName().contains(testPackage) || e.getClassName().equals(TestRunnable.class.getName())) {
+			if (e.getMethodName().equals("executeTestCase")
+			        || e.getMethodName().equals("call")
+			        || e.getClassName().contains(testPackage)
+			        || e.getClassName().equals(TestRunnable.class.getName())) {
 				testExec = true;
 				break;
 			}
 
 			if (e.getMethodName().equals("setSecurityManager")) {
 				if (stackTraceElements[elementCounter + 1].getMethodName().equals("tearDownMockedSecurityManager")
-						|| stackTraceElements[elementCounter + 1].getMethodName().equals("setUpMockedSecurityManager")) {
+				        || stackTraceElements[elementCounter + 1].getMethodName().equals("setUpMockedSecurityManager"))
 					return true;
-				} else if (stackTraceElements[elementCounter + 1].getMethodName().equals("call")) {
+				else if (stackTraceElements[elementCounter + 1].getMethodName().equals("call"))
 					return true;
-				}
 			}
 
-			if (e.getMethodName().equals("setOut") || e.getMethodName().equals("setErr")) {
-				if (stackTraceElements[elementCounter + 1].getMethodName().equals("execute")) {
+			if (e.getMethodName().equals("setOut") || e.getMethodName().equals("setErr"))
+				if (stackTraceElements[elementCounter + 1].getMethodName().equals("execute"))
 					return true;
-				}
-			}
-			if (e.getClassName().contains("MockingBridge") && this.mocksEnabled) {
+			if (e.getClassName().contains("MockingBridge") && this.mocksEnabled)
 				return true;
-			}
 		}
 
-		// if permission was asked during test case execution, then check
-		// permission itself
+		// if permission was asked during test case execution, then check permission itself
 		if (testExec) {
 			String permName = perm.getClass().getCanonicalName();
 
 			// Check for allowed permissions.
-			// Done with chunk of ugly "if-case" code, since it switch statement
-			// does not
-			// support Strings as parameters. Doing it trough Enum is also not
-			// an option,
-			// since java cannot guarantee the unique values returned by
-			// hashCode() method.
-			if (permName.equals("java.lang.reflect.ReflectPermission")) {
+			// Done with chunk of ugly "if-case" code, since it switch statement does not
+			// support Strings as parameters. Doing it trough Enum is also not an option,
+			// since java cannot guarantee the unique values returned by hashCode() method.
+			if (permName.equals("java.lang.reflect.ReflectPermission"))
 				return true;
-			}
-			if (permName.equals("java.util.PropertyPermission")) {
-				if (perm.getActions().equals("read")) {
+			if (permName.equals("java.util.PropertyPermission"))
+				if (perm.getActions().equals("read"))
 					return true;
-				}
-			}
 
-			// TODO: -------------------- NEED TO FIND BETTER SOLUTION
-			// -----------------------
-			// At the moment this is the only way to allow classes under test
-			// define and load
-			// other classes, but the way it is done seriously damages security
-			// of the program.
+			//TODO: -------------------- NEED TO FIND BETTER SOLUTION ----------------------- 
+			// At the moment this is the only way to allow classes under test define and load 
+			// other classes, but the way it is done seriously damages security of the program.
 			//
 			// Oracle explains risks here
 			// http://download.oracle.com/javase/6/docs/technotes/guides/security/permissions.html
-			if (permName.equals("java.lang.RuntimePermission")) {
-				if (perm.getName().equals("getClassLoader") || perm.getName().equals("createClassLoader")
-						|| perm.getName().contains("accessClassInPackage")
-						|| perm.getName().equals("setContextClassLoader")) {
+			if (permName.equals("java.lang.RuntimePermission"))
+				if (perm.getName().equals("getClassLoader")
+				        || perm.getName().equals("createClassLoader")
+				        || perm.getName().contains("accessClassInPackage")
+				        || perm.getName().equals("setContextClassLoader"))
 					return true;
-				}
-			}
 
-			if (permName.equals("java.io.FilePermission") && perm.getActions().equals("read")) {
+			if (permName.equals("java.io.FilePermission")
+			        && perm.getActions().equals("read")) {
 				for (StackTraceElement e : stackTraceElements) {
-					if (e.getClassName().startsWith("java.net.URLClassLoader")) {
+					if (e.getClassName().startsWith("java.net.URLClassLoader"))
 						return true;
-					}
-					if (e.getClassName().startsWith("java.lang.ClassLoader")) {
+					if (e.getClassName().startsWith("java.lang.ClassLoader"))
 						return true;
-					}
 				}
 			}
 			return false;

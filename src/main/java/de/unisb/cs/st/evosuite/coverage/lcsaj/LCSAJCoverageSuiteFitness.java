@@ -40,11 +40,6 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
  */
 public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	public HashMap<Integer, Integer> expectedBranchExecutions = new HashMap<Integer, Integer>();
 
 	public HashSet<LCSAJCoverageTestFitness> LCSAJFitnessFunctions = new HashSet<LCSAJCoverageTestFitness>();
@@ -58,18 +53,17 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public LCSAJCoverageSuiteFitness() {
 
 		for (String className : LCSAJPool.lcsaj_map.keySet()) {
-			for (String methodName : LCSAJPool.lcsaj_map.get(className).keySet()) {
+			for (String methodName : LCSAJPool.lcsaj_map.get(className).keySet())
 				for (LCSAJ lcsaj : LCSAJPool.lcsaj_map.get(className).get(methodName)) {
 					for (Integer branchID : lcsaj.getBranchIDs()) {
-						if (!expectedBranchExecutions.containsKey(branchID)) {
+						if (!expectedBranchExecutions.containsKey(branchID))
 							expectedBranchExecutions.put(branchID, 0);
-						} else {
-							expectedBranchExecutions.put(branchID, expectedBranchExecutions.get(branchID) + 1);
-						}
+						else
+							expectedBranchExecutions.put(branchID,
+							                             expectedBranchExecutions.get(branchID) + 1);
 					}
 					LCSAJFitnesses.put(lcsaj, Double.MAX_VALUE);
 				}
-			}
 		}
 	}
 
@@ -93,24 +87,27 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		for (ExecutionResult result : results) {
 			for (Entry<String, Integer> entry : result.getTrace().covered_methods.entrySet()) {
-				if (!call_count.containsKey(entry.getKey())) {
+				if (!call_count.containsKey(entry.getKey()))
 					call_count.put(entry.getKey(), entry.getValue());
-				} else {
-					call_count.put(entry.getKey(), call_count.get(entry.getKey()) + entry.getValue());
+				else {
+					call_count.put(entry.getKey(),
+					               call_count.get(entry.getKey()) + entry.getValue());
 				}
 			}
 
 			for (Entry<String, Integer> entry : result.getTrace().covered_predicates.entrySet()) {
-				if (!branchExecutions.containsKey(entry.getKey())) {
-					branchExecutions.put(Integer.getInteger(entry.getKey()), entry.getValue());
-				} else {
-					branchExecutions.put(Integer.getInteger(entry.getKey()), branchExecutions.get(entry.getKey())
-							+ entry.getValue());
+				if (!branchExecutions.containsKey(entry.getKey()))
+					branchExecutions.put(Integer.getInteger(entry.getKey()),
+					                     entry.getValue());
+				else {
+					branchExecutions.put(Integer.getInteger(entry.getKey()),
+					                     branchExecutions.get(entry.getKey())
+					                             + entry.getValue());
 				}
 			}
 
-			for (String className : LCSAJPool.getLCSAJMap().keySet()) {
-				for (String methodName : LCSAJPool.getLCSAJMap().get(className).keySet()) {
+			for (String className : LCSAJPool.getLCSAJMap().keySet())
+				for (String methodName : LCSAJPool.getLCSAJMap().get(className).keySet())
 					for (LCSAJ lcsaj : LCSAJPool.getLCSAJMap().get(className).get(methodName)) {
 						LCSAJFitnessFunctions.add(new LCSAJCoverageTestFitness(lcsaj));
 
@@ -119,14 +116,11 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 							for (LCSAJCoverageTestFitness testFitness : LCSAJFitnessFunctions) {
 								oldFitness = LCSAJFitnesses.get(lcsaj);
 								double newFitness = testFitness.getFitness(t, result);
-								if (newFitness < oldFitness) {
+								if (newFitness < oldFitness)
 									LCSAJFitnesses.put(lcsaj, newFitness);
-								}
 							}
 						}
 					}
-				}
-			}
 		}
 
 		for (LCSAJ l : LCSAJFitnesses.keySet()) {
@@ -134,24 +128,22 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		for (Integer executedID : expectedBranchExecutions.keySet()) {
-			if (!branchExecutions.containsKey(executedID)) {
+			if (!branchExecutions.containsKey(executedID))
 				fitness += expectedBranchExecutions.get(executedID);
-			} else {
-				fitness += Math.abs(expectedBranchExecutions.get(executedID) - branchExecutions.get(executedID));
-			}
+			else
+				fitness += Math.abs(expectedBranchExecutions.get(executedID)
+				        - branchExecutions.get(executedID));
 		}
 
-		if (fitness < best_fitness) {
+		if (fitness < best_fitness)
 			best_fitness = fitness;
-		}
 		updateIndividual(individual, fitness);
 
 		double coverage = 0.0;
 
 		for (LCSAJ l : LCSAJFitnesses.keySet()) {
-			if (LCSAJFitnesses.get(l) == 0) {
+			if (LCSAJFitnesses.get(l) == 0)
 				coverage += 1;
-			}
 		}
 
 		suite.setCoverage(coverage / LCSAJFitnesses.size());

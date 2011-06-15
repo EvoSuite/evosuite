@@ -47,47 +47,26 @@ public class CompareAssertion extends Assertion {
 		return s;
 	}
 
+	/**
+	 * This method returns the Java Code
+	 */
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
+	public String getCode() {
+		if (source.getType().equals(Integer.class)) {
+			if ((Integer) value == 0)
+				return "assertTrue(" + source.getName() + " == "
+				        + dest.getName() + ");";
+			else if ((Integer) value < 0)
+				return "assertTrue(" + source.getName() + " < "
+				        + dest.getName() + ");";
+			else
+				return "assertTrue(" + source.getName() + " > "
+				        + dest.getName() + ");";
+
+		} else {
+			return "assertEquals(" + source.getName() + ".compareTo("
+			        + dest.getName() + "), " + value + ");";
 		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		CompareAssertion other = (CompareAssertion) obj;
-		if (dest == null) {
-			if (other.dest != null) {
-				return false;
-			}
-		} else if (!dest.equals(other.dest)) {
-			return false;
-		}
-		if (source == null) {
-			if (other.source != null) {
-				return false;
-			}
-		} else if (!source.equals(other.source)) {
-			return false;
-		}
-		if (value == null) {
-			if (other.value != null) {
-				return false;
-			}
-		} else if ((Integer) value > 0) {
-			if ((Integer) other.value <= 0) {
-				return false;
-			}
-		} else if ((Integer) value < 0) {
-			if ((Integer) other.value >= 0) {
-				return false;
-			}
-		} else if ((Integer) value == 0) {
-			if ((Integer) other.value != 0) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	/**
@@ -100,13 +79,12 @@ public class CompareAssertion extends Assertion {
 	@Override
 	public boolean evaluate(Scope scope) {
 		Comparable<Object> comparable = (Comparable<Object>) scope.get(source);
-		if (comparable == null) {
-			if ((Integer) value == 0) {
+		if (comparable == null)
+			if ((Integer) value == 0)
 				return scope.get(dest) == null;
-			} else {
+			else
 				return true; // TODO - true or false?
-			}
-		} else {
+		else {
 			try {
 				return comparable.compareTo(scope.get(dest)) == (Integer) value;
 			} catch (Exception e) {
@@ -115,23 +93,45 @@ public class CompareAssertion extends Assertion {
 		}
 	}
 
-	/**
-	 * This method returns the Java Code
-	 */
 	@Override
-	public String getCode() {
-		if (source.getType().equals(Integer.class)) {
-			if ((Integer) value == 0) {
-				return "assertTrue(" + source.getName() + " == " + dest.getName() + ");";
-			} else if ((Integer) value < 0) {
-				return "assertTrue(" + source.getName() + " < " + dest.getName() + ");";
-			} else {
-				return "assertTrue(" + source.getName() + " > " + dest.getName() + ");";
-			}
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((dest == null) ? 0 : dest.hashCode());
+		return result;
+	}
 
-		} else {
-			return "assertEquals(" + source.getName() + ".compareTo(" + dest.getName() + "), " + value + ");";
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (getClass() != obj.getClass())
+			return false;
+		CompareAssertion other = (CompareAssertion) obj;
+		if (dest == null) {
+			if (other.dest != null)
+				return false;
+		} else if (!dest.equals(other.dest))
+			return false;
+		if (source == null) {
+			if (other.source != null)
+				return false;
+		} else if (!source.equals(other.source))
+			return false;
+		if (value == null) {
+			if (other.value != null)
+				return false;
+		} else if ((Integer) value > 0) {
+			if ((Integer) other.value <= 0)
+				return false;
+		} else if ((Integer) value < 0) {
+			if ((Integer) other.value >= 0)
+				return false;
+		} else if ((Integer) value == 0) {
+			if ((Integer) other.value != 0)
+				return false;
 		}
+		return true;
 	}
 
 	/*
@@ -145,14 +145,6 @@ public class CompareAssertion extends Assertion {
 		vars.add(source);
 		vars.add(dest);
 		return vars;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((dest == null) ? 0 : dest.hashCode());
-		return result;
 	}
 
 }

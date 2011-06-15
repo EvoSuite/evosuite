@@ -43,16 +43,6 @@ public class FixedLengthTestChromosomeFactory implements ChromosomeFactory {
 	}
 
 	/**
-	 * Generate a random chromosome
-	 */
-	@Override
-	public Chromosome getChromosome() {
-		TestChromosome c = new TestChromosome();
-		c.test = getRandomTestCase(Properties.CHROMOSOME_LENGTH);
-		return c;
-	}
-
-	/**
 	 * Create a random individual
 	 * 
 	 * @param size
@@ -63,13 +53,23 @@ public class FixedLengthTestChromosomeFactory implements ChromosomeFactory {
 
 		num = 0;
 		// Then add random stuff
-		while ((test.size() < size) && (num < Properties.MAX_ATTEMPTS)) {
+		while (test.size() < size && num < Properties.MAX_ATTEMPTS) {
 			test_factory.insertRandomStatement(test);
 			num++;
 		}
-		// logger.debug("Randomized test case:" + test.toCode());
+		//logger.debug("Randomized test case:" + test.toCode());
 
 		return test;
+	}
+
+	/**
+	 * Generate a random chromosome
+	 */
+	@Override
+	public Chromosome getChromosome() {
+		TestChromosome c = new TestChromosome();
+		c.test = getRandomTestCase(Properties.CHROMOSOME_LENGTH);
+		return c;
 	}
 
 }

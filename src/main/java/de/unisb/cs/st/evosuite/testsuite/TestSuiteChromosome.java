@@ -55,8 +55,7 @@ public class TestSuiteChromosome extends Chromosome {
 		test_factory = new RandomLengthTestFactory();
 
 		if (Properties.CRITERION == Criterion.CONCURRENCY) {
-			// #TODO steenbuck we should wrap the original factory not replace
-			// it.
+			//#TODO steenbuck we should wrap the original factory not replace it.
 			test_factory = new ConcurrencyTestCaseFactory();
 		}
 
@@ -93,13 +92,13 @@ public class TestSuiteChromosome extends Chromosome {
 	 * Keep up to position 1, copy from position 2 on
 	 */
 	@Override
-	public void crossOver(Chromosome other, int position1, int position2) throws ConstructionFailedException {
+	public void crossOver(Chromosome other, int position1, int position2)
+	        throws ConstructionFailedException {
 
 		TestSuiteChromosome chromosome = (TestSuiteChromosome) other;
 
-		while (tests.size() > position1) {
+		while (tests.size() > position1)
 			tests.remove(position1);
-		}
 		for (int num = position2; num < other.size(); num++) {
 			// tests.add((TestChromosome) chromosome.tests.get(num).clone());
 			TestChromosome testCopy = (TestChromosome) chromosome.tests.get(num).clone();
@@ -109,72 +108,22 @@ public class TestSuiteChromosome extends Chromosome {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
 
-		if (!(obj instanceof TestSuiteChromosome)) {
+		if (!(obj instanceof TestSuiteChromosome))
 			return false;
-		}
 
 		TestSuiteChromosome other = (TestSuiteChromosome) obj;
-		if (other.size() != size()) {
+		if (other.size() != size())
 			return false;
-		}
 
 		for (int i = 0; i < size(); i++) {
-			if (!tests.get(i).equals(other.tests.get(i))) {
+			if (!tests.get(i).equals(other.tests.get(i)))
 				return false;
-			}
 		}
 
 		return true;
-	}
-
-	public double getCoverage() {
-		return coverage;
-	}
-
-	public TestChromosome getTestChromosome(int index) {
-		return tests.get(index);
-	}
-
-	public List<TestChromosome> getTestChromosomes() {
-		return tests;
-	}
-
-	public List<TestCase> getTests() {
-		List<TestCase> testcases = new ArrayList<TestCase>();
-		for (TestChromosome test : tests) {
-			testcases.add(test.test);
-		}
-		return testcases;
-	}
-
-	/**
-	 * 
-	 * @return Sum of the lengths of the test cases
-	 */
-	public int length() {
-		int length = 0;
-		for (TestChromosome test : tests) {
-			length += test.size();
-		}
-		return length;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#localSearch()
-	 */
-	@Override
-	public void localSearch(LocalSearchObjective objective) {
-		for (int i = 0; i < tests.size(); i++) {
-			TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective(
-					(TestSuiteFitnessFunction) objective.getFitnessFunction(), this, i);
-			tests.get(i).localSearch(testObjective);
-		}
 	}
 
 	/**
@@ -213,7 +162,8 @@ public class TestSuiteChromosome extends Chromosome {
 		final double ALPHA = 0.1;
 		int count = 1;
 
-		while ((Randomness.nextDouble() <= Math.pow(ALPHA, count)) && (size() < Properties.MAX_SIZE)) {
+		while (Randomness.nextDouble() <= Math.pow(ALPHA, count)
+		        && size() < Properties.MAX_SIZE) {
 			count++;
 			// Insert at position as during initialization (i.e., using helper
 			// sequences)
@@ -225,12 +175,16 @@ public class TestSuiteChromosome extends Chromosome {
 		}
 	}
 
-	public void setCoverage(double coverage) {
-		this.coverage = coverage;
-	}
-
-	public void setTestChromosome(int index, TestChromosome test) {
-		tests.set(index, test);
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#localSearch()
+	 */
+	@Override
+	public void localSearch(LocalSearchObjective objective) {
+		for (int i = 0; i < tests.size(); i++) {
+			TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective(
+			        (TestSuiteFitnessFunction) objective.getFitnessFunction(), this, i);
+			tests.get(i).localSearch(testObjective);
+		}
 	}
 
 	/**
@@ -239,6 +193,17 @@ public class TestSuiteChromosome extends Chromosome {
 	@Override
 	public int size() {
 		return tests.size();
+	}
+
+	/**
+	 * 
+	 * @return Sum of the lengths of the test cases
+	 */
+	public int length() {
+		int length = 0;
+		for (TestChromosome test : tests)
+			length += test.size();
+		return length;
 	}
 
 	/**
@@ -259,5 +224,33 @@ public class TestSuiteChromosome extends Chromosome {
 			result += test.test.toCode();
 		}
 		return result;
+	}
+
+	public List<TestCase> getTests() {
+		List<TestCase> testcases = new ArrayList<TestCase>();
+		for (TestChromosome test : tests) {
+			testcases.add(test.test);
+		}
+		return testcases;
+	}
+
+	public TestChromosome getTestChromosome(int index) {
+		return tests.get(index);
+	}
+
+	public List<TestChromosome> getTestChromosomes() {
+		return tests;
+	}
+
+	public void setTestChromosome(int index, TestChromosome test) {
+		tests.set(index, test);
+	}
+
+	public double getCoverage() {
+		return coverage;
+	}
+
+	public void setCoverage(double coverage) {
+		this.coverage = coverage;
 	}
 }

@@ -44,38 +44,6 @@ public class StandardGA extends GeneticAlgorithm {
 	}
 
 	@Override
-	public void generateSolution() {
-		if (population.isEmpty()) {
-			initializePopulation();
-		}
-
-		while (!isFinished()) {
-			logger.debug("Current population: " + getAge() + "/" + Properties.GENERATIONS);
-			logger.info("Best fitness: " + getBestIndividual().getFitness());
-
-			evolve();
-			// Determine fitness
-			calculateFitness();
-
-			this.notifyIteration();
-		}
-
-		notifySearchFinished();
-	}
-
-	@Override
-	public void initializePopulation() {
-		notifySearchStarted();
-		current_iteration = 0;
-
-		// Set up initial population
-		generateInitialPopulation(Properties.POPULATION);
-		// Determine fitness
-		calculateFitness();
-		this.notifyIteration();
-	}
-
-	@Override
 	protected void evolve() {
 
 		List<Chromosome> new_generation = new ArrayList<Chromosome>();
@@ -106,22 +74,51 @@ public class StandardGA extends GeneticAlgorithm {
 				continue;
 			}
 
-			if (!isTooLong(offspring1)) {
+			if (!isTooLong(offspring1))
 				new_generation.add(offspring1);
-			} else {
+			else
 				new_generation.add(parent1);
-			}
 
-			if (!isTooLong(offspring2)) {
+			if (!isTooLong(offspring2))
 				new_generation.add(offspring2);
-			} else {
+			else
 				new_generation.add(parent2);
-			}
 		}
 
 		population = new_generation;
 
 		current_iteration++;
+	}
+
+	@Override
+	public void initializePopulation() {
+		notifySearchStarted();
+		current_iteration = 0;
+
+		// Set up initial population
+		generateInitialPopulation(Properties.POPULATION);
+		// Determine fitness
+		calculateFitness();
+		this.notifyIteration();
+	}
+
+	@Override
+	public void generateSolution() {
+		if (population.isEmpty())
+			initializePopulation();
+
+		while (!isFinished()) {
+			logger.debug("Current population: " + getAge() + "/" + Properties.GENERATIONS);
+			logger.info("Best fitness: " + getBestIndividual().getFitness());
+
+			evolve();
+			// Determine fitness
+			calculateFitness();
+
+			this.notifyIteration();
+		}
+
+		notifySearchFinished();
 	}
 
 }

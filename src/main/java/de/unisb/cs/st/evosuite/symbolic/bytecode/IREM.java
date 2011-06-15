@@ -40,7 +40,7 @@ public class IREM extends gov.nasa.jpf.jvm.bytecode.IREM {
 		Expression<Long> v0 = (Expression<Long>) sf.getOperandAttr(0);
 
 		Expression<Long> v1 = (Expression<Long>) sf.getOperandAttr(1);
-		if ((v0 == null) && (v1 == null)) {
+		if (v0 == null && v1 == null) {
 			return super.execute(ss, ks, th);
 		}
 
@@ -52,7 +52,8 @@ public class IREM extends gov.nasa.jpf.jvm.bytecode.IREM {
 		}
 
 		Instruction ret = super.execute(ss, ks, th);
-		sf.setOperandAttr(new IntegerBinaryExpression(v1, Operator.REM, v0, new Long(sf.peek())));
+		sf.setOperandAttr(new IntegerBinaryExpression(v1, Operator.REM, v0, new Long(
+		        sf.peek())));
 		return ret;
 
 	}

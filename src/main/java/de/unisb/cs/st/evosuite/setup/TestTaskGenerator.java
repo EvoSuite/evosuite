@@ -59,6 +59,183 @@ public class TestTaskGenerator {
 	static Map<String, List<String>> method_excludes = getExcludesFromFile();
 
 	/**
+	 * Get the set of public/default constructors
+	 * 
+	 * @param clazz
+	 *            The class to be analyzed
+	 * @return The set of accessible constructors
+	 */
+	public static Set<Constructor<?>> getConstructors(Class<?> clazz) {
+		Set<Constructor<?>> constructors = new HashSet<Constructor<?>>();
+		if (clazz.getSuperclass() != null) {
+			constructors.addAll(getConstructors(clazz.getSuperclass()));
+		}
+		for (Class<?> in : clazz.getInterfaces()) {
+			constructors.addAll(getConstructors(in));
+		}
+
+		for (Constructor<?> c : clazz.getDeclaredConstructors()) {
+			constructors.add(c);
+		}
+		return constructors;
+	}
+
+	/**
+	 * Get the set of public/default methods
+	 * 
+	 * @param clazz
+	 *            The class to be analyzed
+	 * @return The set of accessible methods
+	 */
+	public static Set<Method> getMethods(Class<?> clazz) {
+		Set<Method> methods = new HashSet<Method>();
+		if (clazz.getSuperclass() != null) {
+			methods.addAll(getMethods(clazz.getSuperclass()));
+		}
+		for (Class<?> in : clazz.getInterfaces()) {
+			methods.addAll(getMethods(in));
+		}
+		for (Method m : clazz.getDeclaredMethods()) {
+			methods.add(m);
+		}
+		return methods;
+	}
+
+	/**
+	 * Get the set of public/default fields
+	 * 
+	 * @param clazz
+	 *            The class to be analyzed
+	 * @return The set of accessible fields
+	 */
+	public static Set<Field> getFields(Class<?> clazz) {
+		Set<Field> fields = new HashSet<Field>();
+		if (clazz.getSuperclass() != null) {
+			fields.addAll(getFields(clazz.getSuperclass()));
+		}
+		for (Class<?> in : clazz.getInterfaces()) {
+			fields.addAll(getFields(in));
+		}
+		for (Field m : clazz.getFields()) {
+			fields.add(m);
+		}
+		return fields;
+	}
+
+	/**
+	 * Read classes to be excluded
+	 * 
+	 * @return Map from classname to methods that should not be used
+	 */
+	public static Map<String, List<String>> getExcludesFromFile() {
+		String property = System.getProperty("test_excludes");
+		Map<String, List<String>> objs = new HashMap<String, List<String>>();
+		if (property == null)
+			return objs;
+		File file = new File(property);
+		if (!file.exists()) {
+			logger.warn("Exclude file " + property + " does not exist, skipping");
+			return objs;
+		}
+		List<String> lines = Io.getLinesFromFile(file);
+		for (String line : lines) {
+			line = line.trim();
+			// Skip comments
+			if (line.startsWith("#"))
+				continue;
+
+			String[] parameters = line.split(",");
+			if (parameters.length != 2)
+				continue;
+			if (!objs.containsKey(parameters[0]))
+				objs.put(parameters[0], new ArrayList<String>());
+
+			objs.get(parameters[0]).add(parameters[1]);
+		}
+		return objs;
+	}
+
+	/**
+	 * Get all usable subclasses of the given class
+	 * 
+	 * @param classname
+	 *            Name of given class
+	 * @return All subclasses that are within prefix and not excluded
+	 */
+	private static List<String> getSubClasses(String classname) {
+		Set<String> subclasses = hierarchy.getAllSubclasses(classname);
+
+		Set<String> owned_classes = hierarchy.getAllClasses();
+		for (String sub : owned_classes) {
+			if (sub.startsWith(classname + "$"))
+				subclasses.add(sub);
+		}
+
+		List<String> ret = new ArrayList<String>();
+		ret.add(classname);
+		for (String sub : subclasses) {
+			if (sub.startsWith(prefix))
+				ret.add(sub);
+		}
+
+		return ret;
+	}
+
+	private static boolean isPurelyAbstract(String classname) {
+
+		List<String> subclasses = getSubClasses(classname);
+		for (String subclass : subclasses) {
+			Class<?> clazz;
+			try {
+				clazz = Class.forName(subclass);
+				if (!Modifier.isAbstract(clazz.getModifiers()))
+					return false;
+			} catch (ClassNotFoundException e) {
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Get list of all classes in the given prefix
+	 * 
+	 * @param prefix
+	 *            Package prefix
+	 * @return List of classnames in prefix that are not excluded The list is
+	 *         ascending sorted by number of subclasses
+	 */
+	protected static List<String> getClasses(String prefix) {
+		logger.info("Getting list of classes for prefix " + prefix);
+		Set<String> all_classes = hierarchy.getAllClasses();
+		logger.info("Number of classes: " + all_classes.size());
+
+		TreeMap<Integer, Set<String>> classes = new TreeMap<Integer, Set<String>>();
+		for (String classname : all_classes) {
+			if (classname.startsWith(prefix)) {
+				int num_subclasses = hierarchy.getAllSubclasses(classname).size();
+				if (!classes.containsKey(num_subclasses))
+					classes.put(num_subclasses, new HashSet<String>());
+				classes.get(num_subclasses).add(classname);
+			}
+		}
+
+		List<String> sorted_classes = new ArrayList<String>();
+		for (Entry<Integer, Set<String>> entry : classes.entrySet()) {
+			logger.debug(entry.getKey() + " subclasses: ");
+			for (String name : entry.getValue()) {
+				logger.debug("   " + name);
+			}
+		}
+		for (Set<String> classset : classes.values()) {
+			sorted_classes.addAll(classset);
+		}
+		logger.info("Number of sorted classes: " + sorted_classes.size());
+
+		return sorted_classes;
+	}
+
+	/**
 	 * Check if class is accessible
 	 * 
 	 * @param c
@@ -67,32 +244,15 @@ public class TestTaskGenerator {
 	 *         rights
 	 */
 	public static boolean canUse(Class<?> c) {
-		if (Throwable.class.isAssignableFrom(c)) {
+		if (Throwable.class.isAssignableFrom(c))
 			return false;
-		}
-		if (Modifier.isPrivate(c.getModifiers())) {
+		if (Modifier.isPrivate(c.getModifiers()))
 			return false;
-		}
 		if (c.getName().matches(".*\\$\\d+$")) {
 			logger.info(c + " looks like an anonymous class, ignoring it");
 			return false;
 		}
 
-		return true;
-	}
-
-	/**
-	 * Check if constructor is usable
-	 * 
-	 * @param c
-	 * @return True if constructor is accessible (public/package)
-	 */
-	public static boolean canUse(Constructor<?> c) {
-		// synthetic constructors are OK
-		if (Modifier.isProtected(c.getModifiers()) || Modifier.isPrivate(c.getModifiers())) {
-			logger.debug("Non public constructor in class " + c.getDeclaringClass().getName());
-			return false;
-		}
 		return true;
 	}
 
@@ -116,18 +276,20 @@ public class TestTaskGenerator {
 			return false;
 		}
 
-		if (Modifier.isProtected(m.getModifiers()) || Modifier.isPrivate(m.getModifiers())) {
+		if (Modifier.isProtected(m.getModifiers())
+		        || Modifier.isPrivate(m.getModifiers())) {
 			logger.debug("Excluding protected or private method " + m.toString());
 			return false;
 		}
 
 		if (Modifier.isProtected(m.getDeclaringClass().getModifiers())
-				|| Modifier.isPrivate(m.getDeclaringClass().getModifiers())) {
-			logger.debug("Excluding public method from nonpublic superclass " + m.toString());
+		        || Modifier.isPrivate(m.getDeclaringClass().getModifiers())) {
+			logger.debug("Excluding public method from nonpublic superclass "
+			        + m.toString());
 			return false;
 		}
 
-		// TODO we could enable some methods from Object, like getClass
+		//TODO we could enable some methods from Object, like getClass
 		if (m.getDeclaringClass().equals(java.lang.Object.class)) {
 			logger.debug("Excluding method declared in Object " + m.toString());
 			return false;
@@ -155,117 +317,68 @@ public class TestTaskGenerator {
 	}
 
 	/**
-	 * Get the set of public/default constructors
+	 * Check for method special cases (from Randoop)
 	 * 
-	 * @param clazz
-	 *            The class to be analyzed
-	 * @return The set of accessible constructors
+	 * @param m
+	 * @return
 	 */
-	public static Set<Constructor<?>> getConstructors(Class<?> clazz) {
-		Set<Constructor<?>> constructors = new HashSet<Constructor<?>>();
-		if (clazz.getSuperclass() != null) {
-			constructors.addAll(getConstructors(clazz.getSuperclass()));
-		}
-		for (Class<?> in : clazz.getInterfaces()) {
-			constructors.addAll(getConstructors(in));
-		}
+	private static String doNotUseSpecialCase(Method m) {
 
-		for (Constructor<?> c : clazz.getDeclaredConstructors()) {
-			constructors.add(c);
-		}
-		return constructors;
+		if (m == null)
+			return "Method is null";
+		if (m.getDeclaringClass() == null)
+			return "Declaring class is null";
+		if (m.getDeclaringClass().getCanonicalName() == null)
+			return "Canonical name is null";
+
+		// Special case 1: 
+		// We're skipping compareTo method in enums - you can call it only with the same type as receiver 
+		// but the signature does not tell you that 
+		if (m.getDeclaringClass().getCanonicalName().equals("java.lang.Enum")
+		        && m.getName().equals("compareTo") && m.getParameterTypes().length == 1
+		        && m.getParameterTypes()[0].equals(Enum.class))
+			return "We're skipping compareTo method in enums";
+
+		// Special case 2: 
+		//hashCode is bad in general but String.hashCode is fair game
+		if (m.getName().equals("hashCode") && !m.getDeclaringClass().equals(String.class))
+			return "hashCode";
+
+		// Special case 3: (just clumps together a bunch of hashCodes, so skip it)
+		if (m.getName().equals("deepHashCode")
+		        && m.getDeclaringClass().equals(Arrays.class))
+			return "deepHashCode";
+
+		// Special case 4: (differs too much between JDK installations) 
+		if (m.getName().equals("getAvailableLocales"))
+			return "getAvailableLocales";
+
+		return null;
 	}
 
 	/**
-	 * Read classes to be excluded
+	 * Check if constructor is usable
 	 * 
-	 * @return Map from classname to methods that should not be used
+	 * @param c
+	 * @return True if constructor is accessible (public/package)
 	 */
-	public static Map<String, List<String>> getExcludesFromFile() {
-		String property = System.getProperty("test_excludes");
-		Map<String, List<String>> objs = new HashMap<String, List<String>>();
-		if (property == null) {
-			return objs;
+	public static boolean canUse(Constructor<?> c) {
+		//synthetic constructors are OK
+		if (Modifier.isProtected(c.getModifiers())
+		        || Modifier.isPrivate(c.getModifiers())) {
+			logger.debug("Non public constructor in class "
+			        + c.getDeclaringClass().getName());
+			return false;
 		}
-		File file = new File(property);
-		if (!file.exists()) {
-			logger.warn("Exclude file " + property + " does not exist, skipping");
-			return objs;
-		}
-		List<String> lines = Io.getLinesFromFile(file);
-		for (String line : lines) {
-			line = line.trim();
-			// Skip comments
-			if (line.startsWith("#")) {
-				continue;
-			}
-
-			String[] parameters = line.split(",");
-			if (parameters.length != 2) {
-				continue;
-			}
-			if (!objs.containsKey(parameters[0])) {
-				objs.put(parameters[0], new ArrayList<String>());
-			}
-
-			objs.get(parameters[0]).add(parameters[1]);
-		}
-		return objs;
+		return true;
 	}
 
-	/**
-	 * Get the set of public/default fields
-	 * 
-	 * @param clazz
-	 *            The class to be analyzed
-	 * @return The set of accessible fields
-	 */
-	public static Set<Field> getFields(Class<?> clazz) {
-		Set<Field> fields = new HashSet<Field>();
-		if (clazz.getSuperclass() != null) {
-			fields.addAll(getFields(clazz.getSuperclass()));
-		}
-		for (Class<?> in : clazz.getInterfaces()) {
-			fields.addAll(getFields(in));
-		}
-		for (Field m : clazz.getFields()) {
-			fields.add(m);
-		}
-		return fields;
-	}
-
-	/**
-	 * Get the set of public/default methods
-	 * 
-	 * @param clazz
-	 *            The class to be analyzed
-	 * @return The set of accessible methods
-	 */
-	public static Set<Method> getMethods(Class<?> clazz) {
-		Set<Method> methods = new HashSet<Method>();
-		if (clazz.getSuperclass() != null) {
-			methods.addAll(getMethods(clazz.getSuperclass()));
-		}
-		for (Class<?> in : clazz.getInterfaces()) {
-			methods.addAll(getMethods(in));
-		}
-		for (Method m : clazz.getDeclaredMethods()) {
-			methods.add(m);
-		}
-		return methods;
-	}
-
-	/**
-	 * Entry point - generate task files
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		System.out.println("* Analyzing " + prefix);
-		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
-		hierarchy.calculateSubclasses();
-		System.out.println("* Creating test files for " + prefix);
-		suggestTasks(prefix);
+	protected static boolean isExcluded(String classname, String methodname) {
+		if (method_excludes.containsKey(classname)
+		        && method_excludes.get(classname).contains(methodname))
+			logger.info("Is excluded: " + classname + "," + methodname);
+		return method_excludes.containsKey(classname)
+		        && method_excludes.get(classname).contains(methodname);
 	}
 
 	/**
@@ -283,18 +396,51 @@ public class TestTaskGenerator {
 		logger.debug("Adding constructors for class " + clazz.getName());
 		for (Constructor<?> constructor : getConstructors(clazz)) {
 			if (canUse(constructor)
-					&& !isExcluded(clazz.getName(), "<init>" + Type.getConstructorDescriptor(constructor))) {
-				logger.debug("Adding constructor " + clazz.getName() + "." + constructor.getName()
-						+ Type.getConstructorDescriptor(constructor));
-				candidates.add(clazz.getName() + ","
-						+ Pattern.quote("<init>" + Type.getConstructorDescriptor(constructor)));
+			        && !isExcluded(clazz.getName(),
+			                       "<init>" + Type.getConstructorDescriptor(constructor))) {
+				logger.debug("Adding constructor " + clazz.getName() + "."
+				        + constructor.getName()
+				        + Type.getConstructorDescriptor(constructor));
+				candidates.add(clazz.getName()
+				        + ","
+				        + Pattern.quote("<init>"
+				                + Type.getConstructorDescriptor(constructor)));
 			} else {
-				if (!canUse(constructor)) {
+				if (!canUse(constructor))
 					logger.debug("canUse says no");
-				}
-				if (isExcluded(clazz.getName(), "<init>" + Type.getConstructorDescriptor(constructor))) {
+				if (isExcluded(clazz.getName(),
+				               "<init>" + Type.getConstructorDescriptor(constructor)))
 					logger.debug("Is excluded");
-				}
+			}
+		}
+	}
+
+	/**
+	 * Get all constructors for a class and add all accessible methods to test
+	 * candidates
+	 * 
+	 * @param candidates
+	 * @param clazz
+	 *            .getName()
+	 */
+	protected static void addMethods(Set<String> candidates, Class<?> clazz) {
+		if (!canUse(clazz)) {
+			logger.debug("Not using suggested dependency");
+			return;
+		}
+		for (Method method : getMethods(clazz)) {
+			if (canUse(method)
+			        && !isExcluded(clazz.getName(),
+			                       method.getName() + Type.getMethodDescriptor(method))) {
+				logger.debug("Adding method " + clazz.getName() + "." + method.getName()
+				        + Type.getMethodDescriptor(method));
+				candidates.add(clazz.getName()
+				        + ","
+				        + Pattern.quote(method.getName()
+				                + Type.getMethodDescriptor(method)));
+			} else {
+				logger.debug("NOT adding method " + clazz.getName() + "."
+				        + method.getName() + Type.getMethodDescriptor(method));
 			}
 		}
 	}
@@ -323,91 +469,83 @@ public class TestTaskGenerator {
 	 * candidates
 	 * 
 	 * @param candidates
-	 * @param clazz
-	 *            .getName()
-	 */
-	protected static void addMethods(Set<String> candidates, Class<?> clazz) {
-		if (!canUse(clazz)) {
-			logger.debug("Not using suggested dependency");
-			return;
-		}
-		for (Method method : getMethods(clazz)) {
-			if (canUse(method) && !isExcluded(clazz.getName(), method.getName() + Type.getMethodDescriptor(method))) {
-				logger.debug("Adding method " + clazz.getName() + "." + method.getName()
-						+ Type.getMethodDescriptor(method));
-				candidates.add(clazz.getName() + ","
-						+ Pattern.quote(method.getName() + Type.getMethodDescriptor(method)));
-			} else {
-				logger.debug("NOT adding method " + clazz.getName() + "." + method.getName()
-						+ Type.getMethodDescriptor(method));
-			}
-		}
-	}
-
-	/**
-	 * Get all constructors for a class and add all accessible methods to test
-	 * candidates
-	 * 
-	 * @param candidates
 	 * @param classname
 	 */
 	protected static void addObjectMethods(Set<String> candidates, Class<?> clazz) {
 		for (Method method : getMethods(clazz)) {
-			if (canUse(method) && !isExcluded(clazz.getName(), method.getName() + Type.getMethodDescriptor(method))
-					&& !method.getName().equals("clone") && !method.getName().equals("compareTo")
-					&& !method.getName().equals("equals")) {
-				logger.debug("Adding method to signature file " + clazz.getName() + "." + method.getName()
-						+ Type.getMethodDescriptor(method));
-				candidates.add(clazz.getName() + "." + method.getName() + Type.getMethodDescriptor(method) + ","
-						+ Type.getMethodDescriptor(method).replace("Ljava/lang/Object;", "Ljava/lang/Integer;"));
+			if (canUse(method)
+			        && !isExcluded(clazz.getName(),
+			                       method.getName() + Type.getMethodDescriptor(method))
+			        && !method.getName().equals("clone")
+			        && !method.getName().equals("compareTo")
+			        && !method.getName().equals("equals")) {
+				logger.debug("Adding method to signature file " + clazz.getName() + "."
+				        + method.getName() + Type.getMethodDescriptor(method));
+				candidates.add(clazz.getName()
+				        + "."
+				        + method.getName()
+				        + Type.getMethodDescriptor(method)
+				        + ","
+				        + Type.getMethodDescriptor(method).replace("Ljava/lang/Object;",
+				                                                   "Ljava/lang/Integer;"));
 			}
 		}
 	}
 
 	/**
-	 * Get list of all classes in the given prefix
+	 * Write set of possible inspector methods to file
 	 * 
-	 * @param prefix
-	 *            Package prefix
-	 * @return List of classnames in prefix that are not excluded The list is
-	 *         ascending sorted by number of subclasses
+	 * @param classname
+	 * @param filename
 	 */
-	protected static List<String> getClasses(String prefix) {
-		logger.info("Getting list of classes for prefix " + prefix);
-		Set<String> all_classes = hierarchy.getAllClasses();
-		logger.info("Number of classes: " + all_classes.size());
+	protected static void writeInspectors(Class<?> clazz, String filename) {
+		StringBuffer sb = new StringBuffer();
+		File file = new File(Properties.OUTPUT_DIR, filename);
 
-		TreeMap<Integer, Set<String>> classes = new TreeMap<Integer, Set<String>>();
-		for (String classname : all_classes) {
-			if (classname.startsWith(prefix)) {
-				int num_subclasses = hierarchy.getAllSubclasses(classname).size();
-				if (!classes.containsKey(num_subclasses)) {
-					classes.put(num_subclasses, new HashSet<String>());
-				}
-				classes.get(num_subclasses).add(classname);
+		Set<String> methods = new HashSet<String>();
+
+		for (Method method : clazz.getMethods()) {
+			if (!Modifier.isProtected(method.getModifiers())
+			        && !Modifier.isPrivate(method.getModifiers())
+			        && (method.getReturnType().isPrimitive() || method.getReturnType().equals(String.class))
+			        && !method.getReturnType().equals(void.class)
+			        && method.getParameterTypes().length == 0
+			        && !method.getName().equals("hashCode")
+			        && !method.getDeclaringClass().equals(Object.class)) {
+				methods.add(method.getName() + Type.getMethodDescriptor(method));
 			}
 		}
-
-		List<String> sorted_classes = new ArrayList<String>();
-		for (Entry<Integer, Set<String>> entry : classes.entrySet()) {
-			logger.debug(entry.getKey() + " subclasses: ");
-			for (String name : entry.getValue()) {
-				logger.debug("   " + name);
-			}
+		for (String method : methods) {
+			sb.append(method);
+			sb.append("\n");
 		}
-		for (Set<String> classset : classes.values()) {
-			sorted_classes.addAll(classset);
-		}
-		logger.info("Number of sorted classes: " + sorted_classes.size());
-
-		return sorted_classes;
+		Io.writeFile(sb.toString(), file);
 	}
 
-	protected static boolean isExcluded(String classname, String methodname) {
-		if (method_excludes.containsKey(classname) && method_excludes.get(classname).contains(methodname)) {
-			logger.info("Is excluded: " + classname + "," + methodname);
+	/**
+	 * Write test case generation task file
+	 * 
+	 * @param candidates
+	 * @param filename
+	 */
+	protected static void writeTask(Set<String> candidates, String filename) {
+		StringBuffer sb = new StringBuffer();
+		File file = new File(Properties.OUTPUT_DIR, filename);
+		for (String dep : candidates) {
+			sb.append(dep);
+			sb.append("\n");
 		}
-		return method_excludes.containsKey(classname) && method_excludes.get(classname).contains(methodname);
+		Io.writeFile(sb.toString(), file);
+	}
+
+	protected static void writeObjectMethods(Set<String> methods, String filename) {
+		StringBuffer sb = new StringBuffer();
+		File file = new File(Properties.OUTPUT_DIR, filename);
+		for (String method : methods) {
+			sb.append(method);
+			sb.append("\n");
+		}
+		Io.writeFile(sb.toString(), file);
 	}
 
 	protected static boolean suggestTask(Class<?> clazz) {
@@ -424,17 +562,17 @@ public class TestTaskGenerator {
 			Set<String> object_methods = new HashSet<String>();
 			addObjectMethods(object_methods, clazz);
 			String classfilename = classname.replace("$", "_");
-			if (Properties.GENERATE_OBJECTS) {
+			if (Properties.GENERATE_OBJECTS)
 				writeObjectMethods(object_methods, classfilename + ".obj");
-			}
 			writeInspectors(clazz, classname.replace("$", "_") + ".inspectors");
 			return false;
 		}
-		if ((clazz.getDeclaredMethods().length == 0) && (clazz.getDeclaredConstructors().length == 0)) {
+		if (clazz.getDeclaredMethods().length == 0
+		        && clazz.getDeclaredConstructors().length == 0) {
 			logger.info("Ignoring class without methods: " + classname);
 			return false;
 		}
-		if (clazz.isMemberClass() && (clazz.getConstructors().length == 0)) {
+		if (clazz.isMemberClass() && clazz.getConstructors().length == 0) {
 			logger.info("Ignoring member class without public constructors " + classname);
 			List<String> mutant_classes = new ArrayList<String>();
 			mutant_classes.add(classname);
@@ -479,11 +617,11 @@ public class TestTaskGenerator {
 
 		if (Modifier.isAbstract(clazz.getModifiers())) {
 			if (isPurelyAbstract(classname)) {
-				logger.info("Ignoring abstract class without concrete subclasses " + classname);
+				logger.info("Ignoring abstract class without concrete subclasses "
+				        + classname);
 				String classfilename = classname.replace("$", "_");
-				if (Properties.GENERATE_OBJECTS) {
+				if (Properties.GENERATE_OBJECTS)
 					writeObjectMethods(object_methods, classfilename + ".obj");
-				}
 				return false;
 			}
 		}
@@ -495,9 +633,8 @@ public class TestTaskGenerator {
 
 		List<String> dependencies = getSubClasses(clazz.getName());
 		for (String dependency : dependencies) {
-			if (dependency.equals(classname)) {
+			if (dependency.equals(classname))
 				continue;
-			}
 			try {
 				Class<?> dep = Class.forName(dependency);
 				addConstructors(suggestion, dep);
@@ -519,9 +656,8 @@ public class TestTaskGenerator {
 		writeTask(suggestion, classfilename + ".task");
 		logger.info("GenObjects");
 
-		if (Properties.GENERATE_OBJECTS) {
+		if (Properties.GENERATE_OBJECTS)
 			writeObjectMethods(object_methods, classfilename + ".obj");
-		}
 		logger.info("GenInspectors");
 		writeInspectors(clazz, classfilename + ".inspectors");
 		logger.info("Done");
@@ -535,43 +671,23 @@ public class TestTaskGenerator {
 	 * @param prefix
 	 *            Project prefix
 	 */
-	protected static void suggestTasks(Set<Class<?>> classes) {
-		int num = 0;
-		for (Class<?> clazz : classes) {
-			logger.info("Next task: " + clazz);
-			if (suggestTask(clazz)) {
-				num++;
-			}
-		}
-		System.out.println("* Created " + num + " task files");
-	}
-
-	/**
-	 * Central function of the task creator. Creates test task files, mutation
-	 * task files, and inspector files
-	 * 
-	 * @param prefix
-	 *            Project prefix
-	 */
 	protected static void suggestTasks(String prefix) {
 		List<String> classes;
 		int num = 0;
-		if (Properties.TARGET_CLASS.equals("")) {
+		if (Properties.TARGET_CLASS.equals(""))
 			classes = getClasses(prefix);
-		} else {
+		else {
 			classes = new ArrayList<String>();
 			classes.add(Properties.TARGET_CLASS);
 		}
 		for (String classname : classes) {
-			if (classname.endsWith("Stub")) {
+			if (classname.endsWith("Stub"))
 				continue;
-			}
 			Class<?> clazz = null;
 			try {
 				clazz = Class.forName(classname);
-				if (suggestTask(clazz)) {
+				if (suggestTask(clazz))
 					num++;
-				}
 			} catch (ClassNotFoundException e) {
 				logger.warn("Class not found: " + classname + ", ignoring");
 				continue;
@@ -590,147 +706,32 @@ public class TestTaskGenerator {
 	}
 
 	/**
-	 * Write set of possible inspector methods to file
+	 * Central function of the task creator. Creates test task files, mutation
+	 * task files, and inspector files
 	 * 
-	 * @param classname
-	 * @param filename
+	 * @param prefix
+	 *            Project prefix
 	 */
-	protected static void writeInspectors(Class<?> clazz, String filename) {
-		StringBuffer sb = new StringBuffer();
-		File file = new File(Properties.OUTPUT_DIR, filename);
-
-		Set<String> methods = new HashSet<String>();
-
-		for (Method method : clazz.getMethods()) {
-			if (!Modifier.isProtected(method.getModifiers()) && !Modifier.isPrivate(method.getModifiers())
-					&& (method.getReturnType().isPrimitive() || method.getReturnType().equals(String.class))
-					&& !method.getReturnType().equals(void.class) && (method.getParameterTypes().length == 0)
-					&& !method.getName().equals("hashCode") && !method.getDeclaringClass().equals(Object.class)) {
-				methods.add(method.getName() + Type.getMethodDescriptor(method));
-			}
+	protected static void suggestTasks(Set<Class<?>> classes) {
+		int num = 0;
+		for (Class<?> clazz : classes) {
+			logger.info("Next task: " + clazz);
+			if (suggestTask(clazz))
+				num++;
 		}
-		for (String method : methods) {
-			sb.append(method);
-			sb.append("\n");
-		}
-		Io.writeFile(sb.toString(), file);
-	}
-
-	protected static void writeObjectMethods(Set<String> methods, String filename) {
-		StringBuffer sb = new StringBuffer();
-		File file = new File(Properties.OUTPUT_DIR, filename);
-		for (String method : methods) {
-			sb.append(method);
-			sb.append("\n");
-		}
-		Io.writeFile(sb.toString(), file);
+		System.out.println("* Created " + num + " task files");
 	}
 
 	/**
-	 * Write test case generation task file
+	 * Entry point - generate task files
 	 * 
-	 * @param candidates
-	 * @param filename
+	 * @param args
 	 */
-	protected static void writeTask(Set<String> candidates, String filename) {
-		StringBuffer sb = new StringBuffer();
-		File file = new File(Properties.OUTPUT_DIR, filename);
-		for (String dep : candidates) {
-			sb.append(dep);
-			sb.append("\n");
-		}
-		Io.writeFile(sb.toString(), file);
-	}
-
-	/**
-	 * Check for method special cases (from Randoop)
-	 * 
-	 * @param m
-	 * @return
-	 */
-	private static String doNotUseSpecialCase(Method m) {
-
-		if (m == null) {
-			return "Method is null";
-		}
-		if (m.getDeclaringClass() == null) {
-			return "Declaring class is null";
-		}
-		if (m.getDeclaringClass().getCanonicalName() == null) {
-			return "Canonical name is null";
-		}
-
-		// Special case 1:
-		// We're skipping compareTo method in enums - you can call it only with
-		// the same type as receiver
-		// but the signature does not tell you that
-		if (m.getDeclaringClass().getCanonicalName().equals("java.lang.Enum") && m.getName().equals("compareTo")
-				&& (m.getParameterTypes().length == 1) && m.getParameterTypes()[0].equals(Enum.class)) {
-			return "We're skipping compareTo method in enums";
-		}
-
-		// Special case 2:
-		// hashCode is bad in general but String.hashCode is fair game
-		if (m.getName().equals("hashCode") && !m.getDeclaringClass().equals(String.class)) {
-			return "hashCode";
-		}
-
-		// Special case 3: (just clumps together a bunch of hashCodes, so skip
-		// it)
-		if (m.getName().equals("deepHashCode") && m.getDeclaringClass().equals(Arrays.class)) {
-			return "deepHashCode";
-		}
-
-		// Special case 4: (differs too much between JDK installations)
-		if (m.getName().equals("getAvailableLocales")) {
-			return "getAvailableLocales";
-		}
-
-		return null;
-	}
-
-	/**
-	 * Get all usable subclasses of the given class
-	 * 
-	 * @param classname
-	 *            Name of given class
-	 * @return All subclasses that are within prefix and not excluded
-	 */
-	private static List<String> getSubClasses(String classname) {
-		Set<String> subclasses = hierarchy.getAllSubclasses(classname);
-
-		Set<String> owned_classes = hierarchy.getAllClasses();
-		for (String sub : owned_classes) {
-			if (sub.startsWith(classname + "$")) {
-				subclasses.add(sub);
-			}
-		}
-
-		List<String> ret = new ArrayList<String>();
-		ret.add(classname);
-		for (String sub : subclasses) {
-			if (sub.startsWith(prefix)) {
-				ret.add(sub);
-			}
-		}
-
-		return ret;
-	}
-
-	private static boolean isPurelyAbstract(String classname) {
-
-		List<String> subclasses = getSubClasses(classname);
-		for (String subclass : subclasses) {
-			Class<?> clazz;
-			try {
-				clazz = Class.forName(subclass);
-				if (!Modifier.isAbstract(clazz.getModifiers())) {
-					return false;
-				}
-			} catch (ClassNotFoundException e) {
-			}
-		}
-
-		return true;
+	public static void main(String[] args) {
+		System.out.println("* Analyzing " + prefix);
+		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
+		hierarchy.calculateSubclasses();
+		System.out.println("* Creating test files for " + prefix);
+		suggestTasks(prefix);
 	}
 }

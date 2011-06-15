@@ -10,95 +10,91 @@ public class ControlFlowEdge extends DefaultEdge {
 	private static final long serialVersionUID = -5009449930477928101L;
 
 	private Branch branchInstruction = null;
-	// the expressionValue is true if the edge is the jumping edge of
-	// branchInstruction
+	// the expressionValue is true if the edge is the jumping edge of branchInstruction
 	private boolean branchExpressionValue = false;
-
+	
 	private boolean isExceptionEdge = false;
 
 	public ControlFlowEdge() {
-
+		
 	}
-
+	
 	public ControlFlowEdge(boolean isExceptionEdge) {
 		this.isExceptionEdge = isExceptionEdge;
 	}
+	
 
 	/**
 	 * Sort of a copy constructor
 	 */
 	public ControlFlowEdge(ControlFlowEdge clone) {
-		if (clone != null) {
+		if(clone != null) {
 			this.branchInstruction = clone.branchInstruction;
 			this.branchExpressionValue = clone.branchExpressionValue;
 			this.isExceptionEdge = clone.isExceptionEdge;
 		}
 	}
 
-	public boolean getBranchExpressionValue() {
-		return branchExpressionValue;
-	}
+	@Override
+	public String toString() {
 
-	public Branch getBranchInstruction() {
-		return branchInstruction;
+		String r = "";
+		
+		if(isExceptionEdge)
+			 r+= "E ";
+
+		if (branchInstruction != null) {
+			r += branchInstruction.toString();
+			if(!(branchInstruction.isTableSwitch() || branchInstruction.isLookupSwitch())) {
+				if (branchExpressionValue)
+					r += " - TRUE";
+				else
+					r += " - FALSE";
+			}
+		} 
+//		else
+//			r += "nonBranch";
+
+//		r += "CFE";
+
+		return r;
 	}
 
 	public boolean hasBranchInstructionSet() {
 		return branchInstruction != null;
 	}
-
+	
+	public Branch getBranchInstruction() {
+		return branchInstruction;
+	}
+	
 	public boolean isExceptionEdge() {
 		return isExceptionEdge;
 	}
 
-	public void setBranchExpressionValue(boolean branchExpressionValue) {
-
-		if (branchInstruction == null) {
-			throw new IllegalStateException(
-					"expect branchExpressionValue only to be set if branchInstruction was set previously");
-		}
-
-		this.branchExpressionValue = branchExpressionValue;
-	}
-
 	public void setBranchInstruction(BytecodeInstruction branchInstruction) {
-
-		if (!branchInstruction.isActualBranch()) {
-			throw new IllegalArgumentException("expect given instruction to be an actual branch");
-		}
-
+		
+		if (!branchInstruction.isActualBranch())
+			throw new IllegalArgumentException(
+					"expect given instruction to be an actual branch");
+		
 		Branch b = BranchPool.getBranchForInstruction(branchInstruction);
-		if (b == null) {
+		if(b==null)
 			throw new IllegalArgumentException("expect given instruction to be known to BranchPool");
-		}
-
+		
 		this.branchInstruction = b;
 	}
 
-	@Override
-	public String toString() {
+	public boolean getBranchExpressionValue() {
+		return branchExpressionValue;
+	}
 
-		String r = "";
-
-		if (isExceptionEdge) {
-			r += "E ";
-		}
-
-		if (branchInstruction != null) {
-			r += branchInstruction.toString();
-			if (!(branchInstruction.isTableSwitch() || branchInstruction.isLookupSwitch())) {
-				if (branchExpressionValue) {
-					r += " - TRUE";
-				} else {
-					r += " - FALSE";
-				}
-			}
-		}
-		// else
-		// r += "nonBranch";
-
-		// r += "CFE";
-
-		return r;
+	public void setBranchExpressionValue(boolean branchExpressionValue) {
+		
+		if (branchInstruction == null)
+			throw new IllegalStateException(
+					"expect branchExpressionValue only to be set if branchInstruction was set previously");
+		
+		this.branchExpressionValue = branchExpressionValue;
 	}
 }

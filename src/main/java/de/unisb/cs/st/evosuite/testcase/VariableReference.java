@@ -35,65 +35,6 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 public interface VariableReference extends Comparable<VariableReference> {
 
 	/**
-	 * Create a copy of the current variable
-	 */
-	public abstract VariableReference clone();
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
-	@Override
-	public int compareTo(VariableReference other);
-
-	/**
-	 * Comparison
-	 */
-	@Override
-	public boolean equals(Object obj);
-
-	/**
-	 * Return class name
-	 */
-	public String getClassName();
-
-	/**
-	 * Return raw class of this variable's component
-	 */
-	public Class<?> getComponentClass();
-
-	public String getComponentName();
-
-	public Type getComponentType();
-
-	public Object getDefaultValue();
-
-	public String getDefaultValueString();
-
-	public GenericClass getGenericClass();
-
-	/**
-	 * Return name for source code representation
-	 * 
-	 * @return
-	 */
-	public String getName();
-
-	/**
-	 * Return the actual object represented by this variable for a given scope
-	 * 
-	 * @param scope
-	 *            The scope of the test case execution
-	 */
-	public Object getObject(Scope scope);
-
-	/**
-	 * Return simple class name
-	 */
-	public String getSimpleClassName();
-
-	/**
 	 * The position of the statement, defining this VariableReference, in the
 	 * testcase.
 	 * 
@@ -102,20 +43,50 @@ public interface VariableReference extends Comparable<VariableReference> {
 	public int getStPosition();
 
 	/**
-	 * Return type of this variable
+	 * Create a copy of the current variable
 	 */
-	public Type getType();
+	public abstract VariableReference clone();
 
 	/**
-	 * Return raw class of this variable
+	 * Return simple class name
 	 */
-	public Class<?> getVariableClass();
+	public String getSimpleClassName();
 
 	/**
-	 * Hash function
+	 * Return class name
 	 */
-	@Override
-	public abstract int hashCode();
+	public String getClassName();
+
+	public String getComponentName();
+
+	public Type getComponentType();
+
+	public GenericClass getGenericClass();
+
+	/**
+	 * Return true if variable is an enumeration
+	 */
+	public boolean isEnum();
+
+	/**
+	 * Return true if variable is a primitive type
+	 */
+	public boolean isPrimitive();
+
+	/**
+	 * Return true if variable is void
+	 */
+	public boolean isVoid();
+
+	/**
+	 * Return true if variable is a string
+	 */
+	public boolean isString();
+
+	/**
+	 * Return true if type of variable is a primitive wrapper
+	 */
+	public boolean isWrapperType();
 
 	/**
 	 * Return true if other type can be assigned to this variable
@@ -124,6 +95,14 @@ public interface VariableReference extends Comparable<VariableReference> {
 	 *            Right hand side of the assignment
 	 */
 	public boolean isAssignableFrom(Type other);
+
+	/**
+	 * Return true if this variable can by assigned to a variable of other type
+	 * 
+	 * @param other
+	 *            Left hand side of the assignment
+	 */
+	public boolean isAssignableTo(Type other);
 
 	/**
 	 * Return true if other type can be assigned to this variable
@@ -139,55 +118,76 @@ public interface VariableReference extends Comparable<VariableReference> {
 	 * @param other
 	 *            Left hand side of the assignment
 	 */
-	public boolean isAssignableTo(Type other);
-
-	/**
-	 * Return true if this variable can by assigned to a variable of other type
-	 * 
-	 * @param other
-	 *            Left hand side of the assignment
-	 */
 	public boolean isAssignableTo(VariableReference other);
 
 	/**
-	 * Return true if variable is an enumeration
+	 * Return type of this variable
 	 */
-	public boolean isEnum();
-
-	/**
-	 * Return true if variable is a primitive type
-	 */
-	public boolean isPrimitive();
-
-	/**
-	 * Return true if variable is a string
-	 */
-	public boolean isString();
-
-	/**
-	 * Return true if variable is void
-	 */
-	public boolean isVoid();
-
-	/**
-	 * Return true if type of variable is a primitive wrapper
-	 */
-	public boolean isWrapperType();
-
-	public void loadBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals);
-
-	public boolean same(VariableReference r);
+	public Type getType();
 
 	/**
 	 * Set type of this variable
 	 */
 	public void setType(Type type);
 
-	public void storeBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals);
+	/**
+	 * Return raw class of this variable
+	 */
+	public Class<?> getVariableClass();
+
+	/**
+	 * Return raw class of this variable's component
+	 */
+	public Class<?> getComponentClass();
+
+	/**
+	 * Return the actual object represented by this variable for a given scope
+	 * 
+	 * @param scope
+	 *            The scope of the test case execution
+	 */
+	public Object getObject(Scope scope);
+
+	/**
+	 * Comparison
+	 */
+	@Override
+	public boolean equals(Object obj);
+
+	/**
+	 * Hash function
+	 */
+	@Override
+	public abstract int hashCode();
 
 	/**
 	 * Return string representation of the variable
 	 */
 	@Override
 	public String toString();
+
+	/**
+	 * Return name for source code representation
+	 * 
+	 * @return
+	 */
+	public String getName();
+
+	public void loadBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals);
+
+	public void storeBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals);
+
+	public Object getDefaultValue();
+
+	public String getDefaultValueString();
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(VariableReference other);
+
+	public boolean same(VariableReference r);
 }

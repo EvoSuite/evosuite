@@ -44,12 +44,14 @@ public class IFLE extends gov.nasa.jpf.jvm.bytecode.IFLE {
 		}
 		int pop = ti.pop();
 		if (pop <= 0) {
-			PathConstraint.getInstance().addConstraint(
-					new IntegerConstraint(sym, Comparator.LE, new IntegerConstant(0)));
+			PathConstraint.getInstance().addConstraint(new IntegerConstraint(sym,
+			                                                   Comparator.LE,
+			                                                   new IntegerConstant(0)));
 			return true;
 		} else {
-			PathConstraint.getInstance().addConstraint(
-					new IntegerConstraint(sym, Comparator.GT, new IntegerConstant(0)));
+			PathConstraint.getInstance().addConstraint(new IntegerConstraint(sym,
+			                                                   Comparator.GT,
+			                                                   new IntegerConstant(0)));
 			return false;
 		}
 	}

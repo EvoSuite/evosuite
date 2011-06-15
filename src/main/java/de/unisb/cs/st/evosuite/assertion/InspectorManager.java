@@ -41,31 +41,15 @@ public class InspectorManager {
 
 	private static Logger logger = Logger.getLogger(InspectorManager.class);
 
-	public static InspectorManager getInstance() {
-		if (instance == null) {
-			instance = new InspectorManager();
-		}
-		return instance;
-	}
-
 	Map<Class<?>, List<Inspector>> inspectors = new HashMap<Class<?>, List<Inspector>>();
 
 	private InspectorManager() {
 		readInspectors();
 	}
 
-	public List<Inspector> getInspectors(Class<?> clazz) {
-		if (inspectors.containsKey(clazz)) {
-			return inspectors.get(clazz);
-		} else {
-			return new ArrayList<Inspector>();
-		}
-	}
-
 	private void addInspector(Class<?> clazz, Method m) {
-		if (!inspectors.containsKey(clazz)) {
+		if (!inspectors.containsKey(clazz))
 			inspectors.put(clazz, new ArrayList<Inspector>());
-		}
 		List<Inspector> i = inspectors.get(clazz);
 		i.add(new Inspector(clazz, m));
 	}
@@ -82,31 +66,31 @@ public class InspectorManager {
 		int num_old = 0;
 		File basedir = new File(Properties.OUTPUT_DIR);
 		for (File f : basedir.listFiles(inspector_filter)) {
-			// String name = f.getName().replaceAll("_\\d+.inspectors$",
-			// "").replace("_", "$");
+			//			String name = f.getName().replaceAll("_\\d+.inspectors$", "").replace("_", "$");
 			String name = f.getName().replaceAll(".inspectors", "").replace("_", "$");
 			try {
 				Class<?> clazz = Class.forName(name);
 				Scanner scanner = new Scanner(f);
 				Set<String> inspector_names = new HashSet<String>();
 				try {
-					// first use a Scanner to get each line
+					//first use a Scanner to get each line
 					while (scanner.hasNextLine()) {
 						inspector_names.add(scanner.nextLine().trim());
 					}
 				} finally {
-					// ensure the underlying stream is always closed
+					//ensure the underlying stream is always closed
 					scanner.close();
 				}
 
 				for (Method m : clazz.getMethods()) {
-					if (inspector_names.contains(m.getName() + Type.getMethodDescriptor(m))) {
+					if (inspector_names.contains(m.getName()
+					        + Type.getMethodDescriptor(m))) {
 						addInspector(clazz, m);
 						num++;
 					}
 				}
-				logger.debug("Found inspector: " + name + " -> " + (num - num_old) + " for class " + clazz.getName()
-						+ " in file " + name);
+				logger.debug("Found inspector: " + name + " -> " + (num - num_old)
+				        + " for class " + clazz.getName() + " in file " + name);
 				num_old = num;
 			} catch (FileNotFoundException e) {
 				logger.info("Could not find file " + name);
@@ -115,5 +99,19 @@ public class InspectorManager {
 			}
 		}
 		logger.info("Loaded " + num + " inspectors");
+	}
+
+	public static InspectorManager getInstance() {
+		if (instance == null) {
+			instance = new InspectorManager();
+		}
+		return instance;
+	}
+
+	public List<Inspector> getInspectors(Class<?> clazz) {
+		if (inspectors.containsKey(clazz))
+			return inspectors.get(clazz);
+		else
+			return new ArrayList<Inspector>();
 	}
 }

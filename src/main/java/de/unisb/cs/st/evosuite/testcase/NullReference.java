@@ -23,9 +23,8 @@ import java.lang.reflect.Type;
 
 /**
  * Special case of VariableInstance pointing to null
- * 
  * @author Gordon Fraser
- * 
+ *
  */
 public class NullReference extends VariableReferenceImpl {
 
@@ -36,9 +35,9 @@ public class NullReference extends VariableReferenceImpl {
 	public NullReference(TestCase testCase, Type type) {
 		super(testCase, type);
 	}
-
+	
 	@Override
-	public VariableReference clone() {
+	public VariableReference clone(){
 		throw new UnsupportedOperationException();
 	}
 }

@@ -63,10 +63,6 @@ class Mocks {
 		sandboxPath = f.getAbsolutePath() + "/";
 	}
 
-	public Set<String> getFilesAccessed() {
-		return filesAccessed;
-	}
-
 	/**
 	 * Initialize mocks in case the MOCKS property is set to true
 	 */
@@ -92,19 +88,103 @@ class Mocks {
 	}
 
 	/**
-	 * Checks StackTrace of the current thread and decides, whether the file
-	 * path should be changed
-	 * 
-	 * @return true, if file path should be changed, false otherwise
+	 * Create mocks for the class java.io.FileOutputStream
 	 */
-	private boolean checkStackTrace() {
-		StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-		for (StackTraceElement e : stackTraceElements) {
-			if (e.getMethodName().equals("setSecurityManager")) {
-				return false;
+	private void setUpFileOutputStreamMock() {
+		new MockUp<FileOutputStream>() {
+			FileOutputStream it;
+
+			@SuppressWarnings("unused")
+			@Mock
+			// Mock constructor - public FileOutputStream(File file, boolean append);
+			// Current mock is just redirects the original output folder to sandbox 
+			// folder. Private methods and fields are invoked and set through the 
+			// jmockit Deencapsulation.
+			void $init(File file, boolean append) {
+				String name = (file != null ? file.getPath() : null);
+				if (name == null) {
+					throw new NullPointerException();
+				}
+				name = sandboxPath + name;
+
+				try {
+					Deencapsulation.setField(it, "closeLock", new Object());
+					Object fd = Deencapsulation.newInstance(FileDescriptor.class);
+					Deencapsulation.invoke(fd, "incrementAndGetUseCount");
+					Deencapsulation.setField(it, "fd", fd);
+					Deencapsulation.setField(it, "append", append);
+
+					if (append)
+						Deencapsulation.invoke(it, "openAppend", name);
+					else
+						Deencapsulation.invoke(it, "open", name);
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				}
 			}
-		}
-		return true;
+		};
+	}
+
+	/**
+	 * Create mocks for the class java.lang.System
+	 */
+	private void setUpSystemMock() {
+		new MockUp<System>() {
+			@SuppressWarnings("unused")
+			@Mock
+			// Mock method public Properties getProperties();
+			// The mocked method returns empty property instance.
+			java.util.Properties getProperties() {
+				return new java.util.Properties();
+			}
+		};
+	}
+
+	/**
+	 * Create mocks for the class java.io.File
+	 */
+	private void setUpFileMock() {
+		new MockUp<File>() {
+			File it;
+			boolean filePathChanged = false;
+
+			@SuppressWarnings("unused")
+			@Mock
+			// Mock method public boolean mkdir();
+			// Whenever the mkdir() is called, the path of the File instance 
+			// is changed to sandboxPath + originalPath. Private methods and fields 
+			// are invoked and set through the jmockit Deencapsulation.
+			boolean mkdir() {
+				Object fileSystem = Deencapsulation.getField(it, "fs");
+				String originalPath = Deencapsulation.getField(it, "path");
+
+				// Check if original path was already changed, if not - redirect it
+				if (!originalPath.contains(sandboxPath) || !filePathChanged) {
+					String changedPath = Deencapsulation.invoke(fileSystem, "normalize",
+					                                            sandboxPath
+					                                                    + originalPath);
+					filePathChanged = true;
+					Deencapsulation.setField(it, "path", changedPath);
+				}
+				boolean dirCreated = false;
+				dirCreated = (Boolean) Deencapsulation.invoke(fileSystem,
+				                                              "createDirectory", it);
+				return dirCreated;
+			}
+
+			@SuppressWarnings("unused")
+			@Mock
+			// Mock method public boolean isDirectory();
+			// Mock is done to avoid security manager checks.
+			boolean isDirectory() {
+				Object fileSystem = Deencapsulation.getField(it, "fs");
+				int attr = (Integer) Deencapsulation.invoke(fileSystem,
+				                                            "getBooleanAttributes", it);
+				int ba_dir = (Integer) Deencapsulation.getField(fileSystem,
+				                                                "BA_DIRECTORY");
+				return ((attr & ba_dir) != 0);
+			}
+		};
 	}
 
 	/**
@@ -147,103 +227,22 @@ class Mocks {
 	}
 
 	/**
-	 * Create mocks for the class java.io.File
+	 * Checks StackTrace of the current thread and decides, whether the file
+	 * path should be changed
+	 * 
+	 * @return true, if file path should be changed, false otherwise
 	 */
-	private void setUpFileMock() {
-		new MockUp<File>() {
-			File it;
-			boolean filePathChanged = false;
-
-			@SuppressWarnings("unused")
-			@Mock
-			// Mock method public boolean isDirectory();
-			// Mock is done to avoid security manager checks.
-			boolean isDirectory() {
-				Object fileSystem = Deencapsulation.getField(it, "fs");
-				int attr = (Integer) Deencapsulation.invoke(fileSystem, "getBooleanAttributes", it);
-				int ba_dir = (Integer) Deencapsulation.getField(fileSystem, "BA_DIRECTORY");
-				return ((attr & ba_dir) != 0);
-			}
-
-			@SuppressWarnings("unused")
-			@Mock
-			// Mock method public boolean mkdir();
-			// Whenever the mkdir() is called, the path of the File instance
-			// is changed to sandboxPath + originalPath. Private methods and
-			// fields
-			// are invoked and set through the jmockit Deencapsulation.
-			boolean mkdir() {
-				Object fileSystem = Deencapsulation.getField(it, "fs");
-				String originalPath = Deencapsulation.getField(it, "path");
-
-				// Check if original path was already changed, if not - redirect
-				// it
-				if (!originalPath.contains(sandboxPath) || !filePathChanged) {
-					String changedPath = Deencapsulation.invoke(fileSystem, "normalize", sandboxPath + originalPath);
-					filePathChanged = true;
-					Deencapsulation.setField(it, "path", changedPath);
-				}
-				boolean dirCreated = false;
-				dirCreated = (Boolean) Deencapsulation.invoke(fileSystem, "createDirectory", it);
-				return dirCreated;
-			}
-		};
+	private boolean checkStackTrace() {
+		StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+		for (int elementCounter = 0; elementCounter < stackTraceElements.length; elementCounter++) {
+			StackTraceElement e = stackTraceElements[elementCounter];
+			if (e.getMethodName().equals("setSecurityManager"))
+				return false;
+		}
+		return true;
 	}
 
-	/**
-	 * Create mocks for the class java.io.FileOutputStream
-	 */
-	private void setUpFileOutputStreamMock() {
-		new MockUp<FileOutputStream>() {
-			FileOutputStream it;
-
-			@SuppressWarnings("unused")
-			@Mock
-			// Mock constructor - public FileOutputStream(File file, boolean
-			// append);
-			// Current mock is just redirects the original output folder to
-			// sandbox
-			// folder. Private methods and fields are invoked and set through
-			// the
-			// jmockit Deencapsulation.
-			void $init(File file, boolean append) {
-				String name = (file != null ? file.getPath() : null);
-				if (name == null) {
-					throw new NullPointerException();
-				}
-				name = sandboxPath + name;
-
-				try {
-					Deencapsulation.setField(it, "closeLock", new Object());
-					Object fd = Deencapsulation.newInstance(FileDescriptor.class);
-					Deencapsulation.invoke(fd, "incrementAndGetUseCount");
-					Deencapsulation.setField(it, "fd", fd);
-					Deencapsulation.setField(it, "append", append);
-
-					if (append) {
-						Deencapsulation.invoke(it, "openAppend", name);
-					} else {
-						Deencapsulation.invoke(it, "open", name);
-					}
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				}
-			}
-		};
-	}
-
-	/**
-	 * Create mocks for the class java.lang.System
-	 */
-	private void setUpSystemMock() {
-		new MockUp<System>() {
-			@SuppressWarnings("unused")
-			@Mock
-			// Mock method public Properties getProperties();
-			// The mocked method returns empty property instance.
-			java.util.Properties getProperties() {
-				return new java.util.Properties();
-			}
-		};
+	public Set<String> getFilesAccessed() {
+		return filesAccessed;
 	}
 }

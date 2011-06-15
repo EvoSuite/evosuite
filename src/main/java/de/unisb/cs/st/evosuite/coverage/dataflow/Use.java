@@ -12,12 +12,12 @@ import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 
 public class Use extends DefUse {
 
-	Use(BytecodeInstruction wrap, int defuseId, int defId, int useId, boolean isParameterUse) {
+	Use(BytecodeInstruction wrap, int defuseId, int defId, int useId,
+			boolean isParameterUse) {
 
 		super(wrap, defuseId, defId, useId, isParameterUse);
-		if (!isUse()) {
+		if (!isUse())
 			throw new IllegalArgumentException("Vertex of a use expected");
-		}
 	}
 
 }

@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.ga;
 
+
 /**
  * A listener that can be attached to the search
  * 
@@ -27,11 +28,12 @@ package de.unisb.cs.st.evosuite.ga;
 public interface SearchListener {
 
 	/**
-	 * Called after every single fitness evaluation
+	 * Called when a new search is started
 	 * 
-	 * @param individual
+	 * @param objective
+	 *            - the fitness function of the search
 	 */
-	public void fitnessEvaluation(Chromosome individual);
+	public void searchStarted(GeneticAlgorithm algorithm);
 
 	/**
 	 * Called after each iteration of the search
@@ -41,13 +43,6 @@ public interface SearchListener {
 	public void iteration(GeneticAlgorithm algorithm);
 
 	/**
-	 * Called before a chromosome is mutated
-	 * 
-	 * @param individual
-	 */
-	public void modification(Chromosome individual);
-
-	/**
 	 * Called after the last iteration
 	 * 
 	 * @param population
@@ -55,11 +50,17 @@ public interface SearchListener {
 	public void searchFinished(GeneticAlgorithm algorithm);
 
 	/**
-	 * Called when a new search is started
+	 * Called after every single fitness evaluation
 	 * 
-	 * @param objective
-	 *            - the fitness function of the search
+	 * @param individual
 	 */
-	public void searchStarted(GeneticAlgorithm algorithm);
+	public void fitnessEvaluation(Chromosome individual);
+
+	/**
+	 * Called before a chromosome is mutated
+	 * 
+	 * @param individual
+	 */
+	public void modification(Chromosome individual);
 
 }

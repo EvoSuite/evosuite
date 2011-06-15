@@ -43,12 +43,14 @@ public class IFNE extends gov.nasa.jpf.jvm.bytecode.IFNE {
 		}
 		int pop = ti.pop();
 		if (pop != 0) {
-			PathConstraint.getInstance().addConstraint(
-					new IntegerConstraint(sym, Comparator.NE, new IntegerConstant(0)));
+			PathConstraint.getInstance().addConstraint(new IntegerConstraint(sym,
+			                                                   Comparator.NE,
+			                                                   new IntegerConstant(0)));
 			return true;
 		} else {
-			PathConstraint.getInstance().addConstraint(
-					new IntegerConstraint(sym, Comparator.EQ, new IntegerConstant(0)));
+			PathConstraint.getInstance().addConstraint(new IntegerConstraint(sym,
+			                                                   Comparator.EQ,
+			                                                   new IntegerConstant(0)));
 			return false;
 		}
 	}

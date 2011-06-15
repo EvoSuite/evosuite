@@ -40,6 +40,12 @@ import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
  */
 public class PathConstraintCollector extends ListenerAdapter {
 
+	private static Logger logger = Logger.getLogger(PathConstraintCollector.class);
+
+	private HashTableSet<Constraint> last;
+
+	public List<BranchCondition> conditions = new ArrayList<BranchCondition>();
+
 	protected static class MyComparator implements java.util.Comparator<Constraint> {
 
 		@Override
@@ -47,21 +53,15 @@ public class PathConstraintCollector extends ListenerAdapter {
 			IntegerConstraint a1 = (IntegerConstraint) o1;
 			IntegerConstraint a2 = (IntegerConstraint) o2;
 			return Long.signum(((IntegerConstant) a1.getRightOperand()).getConcreteValue()
-					- ((IntegerConstant) a2.getRightOperand()).getConcreteValue());
+			        - ((IntegerConstant) a2.getRightOperand()).getConcreteValue());
 		}
 	}
-
-	private static Logger logger = Logger.getLogger(PathConstraintCollector.class);
-
-	private HashTableSet<Constraint> last;
-
-	public List<BranchCondition> conditions = new ArrayList<BranchCondition>();
 
 	@Override
 	public void executeInstruction(JVM vm) {
 		Instruction ins = vm.getNextInstruction();
-		// logger.info("Going to execute: " + ins);
-		if ((ins instanceof IfInstruction) || (ins instanceof SwitchInstruction)) {
+		//logger.info("Going to execute: " + ins);
+		if (ins instanceof IfInstruction || ins instanceof SwitchInstruction) {
 			last = PathConstraint.getInstance().getCurrentConstraints();
 		}
 	}
@@ -71,17 +71,18 @@ public class PathConstraintCollector extends ListenerAdapter {
 		if (vm.getLastInstruction() instanceof IfInstruction) {
 			HashTableSet<Constraint> current = PathConstraint.getInstance().getCurrentConstraints();
 			if (current.size() == 0) {
-				// no constraints yet -> not in our function
+				//no constraints yet -> not in our function
 				return;
 			}
 			if (current.size() == last.size()) {
-				// logger.info("Double call");
-				return;// double call; // FIXXME: What??
+				//logger.info("Double call");
+				return;//double call; // FIXXME: What??
 			}
 
 			Set<Constraint> mylast = last;
 			Set<Constraint> local = getSetOfNewConstraints(last, current);
-			BranchCondition bc = new BranchCondition(vm.getLastInstruction(), mylast, local);
+			BranchCondition bc = new BranchCondition(vm.getLastInstruction(), mylast,
+			        local);
 			this.conditions.add(bc);
 
 		} else if (vm.getLastInstruction() instanceof SwitchInstruction) {
@@ -90,16 +91,18 @@ public class PathConstraintCollector extends ListenerAdapter {
 				return;
 			}
 			if (last.containsAll(current)) {
-				return;// double call;
+				return;//double call;
 			}
 			Set<Constraint> mylast = last;
 			Set<Constraint> local = getSetOfNewConstraints(last, current);
-			BranchCondition bc = new BranchCondition(vm.getLastInstruction(), mylast, local);
+			BranchCondition bc = new BranchCondition(vm.getLastInstruction(), mylast,
+			        local);
 			this.conditions.add(bc);
 		}
 	}
 
-	protected Set<Constraint> getSetOfNewConstraints(HashTableSet<Constraint> oldC, HashTableSet<Constraint> newC) {
+	protected Set<Constraint> getSetOfNewConstraints(HashTableSet<Constraint> oldC,
+	        HashTableSet<Constraint> newC) {
 		HashTableSet<Constraint> ret = (HashTableSet<Constraint>) newC.clone();
 		ret.removeAll(oldC);
 		return ret;

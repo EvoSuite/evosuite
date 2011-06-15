@@ -28,15 +28,6 @@ public class PrimitiveOutputTraceObserver extends ExecutionObserver {
 	private final PrimitiveOutputTrace trace = new PrimitiveOutputTrace();
 
 	@Override
-	public void clear() {
-		trace.trace.clear();
-	}
-
-	public PrimitiveOutputTrace getTrace() {
-		return trace.clone();
-	}
-
-	@Override
 	public void output(int position, String output) {
 		// TODO Auto-generated method stub
 
@@ -46,24 +37,32 @@ public class PrimitiveOutputTraceObserver extends ExecutionObserver {
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
 		VariableReference retval = statement.getReturnValue();
 
-		if (retval == null) {
+		if (retval == null)
 			return;
-		}
 
 		Object object = scope.get(retval);
-		if ((object == null) || object.getClass().isPrimitive() || object.getClass().isEnum()
-				|| isWrapperType(object.getClass()) || (object instanceof String)) {
+		if (object == null || object.getClass().isPrimitive()
+		        || object.getClass().isEnum() || isWrapperType(object.getClass())
+		        || object instanceof String) {
 			trace.trace.put(statement.getPosition(), object);
 			/*
-			 * if(object == null)
-			 * logger.info("Adding null (Type: "+retval.type.getName()+")");
-			 * else
-			 * logger.info("Adding object of type "+object.getClass().getName
-			 * ());
-			 */
+			if(object == null)
+				logger.info("Adding null (Type: "+retval.type.getName()+")");
+			else
+				logger.info("Adding object of type "+object.getClass().getName());
+				*/
 		}
-		// else
-		// logger.info("Not adding object of type "+object.getClass().getName());
+		//else
+		//	logger.info("Not adding object of type "+object.getClass().getName());
+	}
+
+	@Override
+	public void clear() {
+		trace.trace.clear();
+	}
+
+	public PrimitiveOutputTrace getTrace() {
+		return trace.clone();
 	}
 
 }

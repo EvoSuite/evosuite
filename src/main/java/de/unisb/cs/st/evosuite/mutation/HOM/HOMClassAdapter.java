@@ -22,14 +22,13 @@ public class HOMClassAdapter extends ClassAdapter {
 
 	private Map<Integer, Integer> negatePossibilities = new HashMap<Integer, Integer>();
 
-	// private Map<Integer, Integer> removeCallsPossibilities = new
-	// HashMap<Integer, Integer>();
+	//private Map<Integer, Integer> removeCallsPossibilities = new HashMap<Integer, Integer>();
 
 	private final MutationManager mutationManager;
 
 	public HOMClassAdapter(ClassVisitor cv) {
 		this(cv, new MutationManager());
-
+		
 	}
 
 	public HOMClassAdapter(ClassVisitor cv, MutationManager mm) {
@@ -38,26 +37,34 @@ public class HOMClassAdapter extends ClassAdapter {
 	}
 
 	@Override
-	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+	public void visit(int version, int access, String name, String signature,
+			String superName, String[] interfaces) {
 		super.visit(version, access, name, signature, superName, interfaces);
 		className = name;
 	}
 
-	@Override
-	public MethodVisitor visitMethod(int access, String name, String desc, String signature, final String[] exceptions) {
 
-		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-		// mv = new CFGMethodAdapter(className, access, name, desc, signature,
-		// exceptions, mv);
-		// mv = new CheckMethodAdapter(mv);
-		// mv = new ExecutionPathAdapter(mv, className, name, desc);
-		// mv = new StringReplacementMethodAdapter(access, desc, mv);
-		mv = new RicMethodAdapter(mv, className, name, ricPossibilities, mutationManager, desc);
-		mv = new NegateJumpsMethodAdapter(mv, className, name, negatePossibilities, mutationManager, desc);
-		mv = new ArithmeticReplaceMethodAdapter(mv, className, name, arithmeticPossibilities, mutationManager, desc);
+	
+	public MethodVisitor visitMethod(int access, String name, String desc,
+			String signature, final String[] exceptions) {
+		
+		MethodVisitor mv = super.visitMethod(access, name, desc, signature,
+				exceptions);
+		//mv = new CFGMethodAdapter(className, access, name, desc, signature, exceptions, mv);
+		//mv = new CheckMethodAdapter(mv);
+		//mv = new ExecutionPathAdapter(mv, className, name, desc);
+		//mv = new StringReplacementMethodAdapter(access, desc, mv);
+		mv = new RicMethodAdapter(mv, className, name, ricPossibilities,
+				mutationManager, desc);
+		mv = new NegateJumpsMethodAdapter(mv, className, name,
+				negatePossibilities, mutationManager, desc);
+		mv = new ArithmeticReplaceMethodAdapter(mv, className, name,
+				arithmeticPossibilities, mutationManager, desc);
 
-		// mv = new RemoveMethodCallsMethodAdapter(mv, className, name,
-		// removeCallsPossibilities, mutationManager, desc);
+		
+
+		//mv = new RemoveMethodCallsMethodAdapter(mv, className, name,
+		//		removeCallsPossibilities, mutationManager, desc);
 		return mv;
 	}
 }

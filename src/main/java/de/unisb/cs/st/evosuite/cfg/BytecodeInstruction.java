@@ -71,26 +71,18 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	// TODO make sure the word CFGVertex appears nowhere anymore
 
 	/**
-	 * Can represent any byteCode instruction
-	 */
-	public BytecodeInstruction(BytecodeInstruction wrap) {
-
-		this(wrap.className, wrap.methodName, wrap.instructionId, wrap.asmNode, wrap.lineNumber, wrap.basicBlock);
-	}
-
-	/**
 	 * Generates a ByteCodeInstruction instance that represents a byteCode
 	 * instruction as indicated by the given ASMNode in the given method and
 	 * class
 	 */
-	public BytecodeInstruction(String className, String methodName, int instructionId, AbstractInsnNode asmNode) {
+	public BytecodeInstruction(String className, String methodName,
+			int instructionId, AbstractInsnNode asmNode) {
 
-		if ((className == null) || (methodName == null) || (asmNode == null)) {
+		if (className == null || methodName == null || asmNode == null)
 			throw new IllegalArgumentException("null given");
-		}
-		if (instructionId < 0) {
-			throw new IllegalArgumentException("expect instructionId to be positive, not " + instructionId);
-		}
+		if (instructionId < 0)
+			throw new IllegalArgumentException(
+					"expect instructionId to be positive, not " + instructionId);
 
 		this.instructionId = instructionId;
 		this.asmNode = asmNode;
@@ -99,85 +91,254 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		setMethodName(methodName);
 	}
 
-	public BytecodeInstruction(String className, String methodName, int instructionId, AbstractInsnNode asmNode,
-			int lineNumber) {
+	/**
+	 * Can represent any byteCode instruction
+	 */
+	public BytecodeInstruction(BytecodeInstruction wrap) {
 
-		this(className, methodName, instructionId, asmNode);
-
-		if (lineNumber != -1) {
-			setLineNumber(lineNumber);
-		}
+		this(wrap.className, wrap.methodName, wrap.instructionId, wrap.asmNode,
+				wrap.lineNumber, wrap.basicBlock);
 	}
 
-	public BytecodeInstruction(String className, String methodName, int instructionId, AbstractInsnNode asmNode,
-			int lineNumber, BasicBlock basicBlock) {
+	public BytecodeInstruction(String className, String methodName,
+			int instructionId, AbstractInsnNode asmNode, int lineNumber,
+			BasicBlock basicBlock) {
 
 		this(className, methodName, instructionId, asmNode, lineNumber);
-
+		
 		this.basicBlock = basicBlock;
+	}
+
+	public BytecodeInstruction(String className, String methodName,
+			int instructionId, AbstractInsnNode asmNode, int lineNumber) {
+
+		this(className, methodName, instructionId, asmNode);
+		
+		if (lineNumber != -1)
+			setLineNumber(lineNumber);
 	}
 
 	// getter + setter
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (!(obj instanceof BytecodeInstruction)) {
-			return false;
-		}
+	private void setMethodName(String methodName) {
+		if (methodName == null)
+			throw new IllegalArgumentException("null given");
 
-		// TODO ensure that the following checks always succeed
-		// TODO do this by ensuring that those values are always set correctly
-
-		BytecodeInstruction other = (BytecodeInstruction) obj;
-
-		if (instructionId != other.instructionId) {
-			return false;
-		}
-		if ((methodName != null) && !methodName.equals(other.methodName)) {
-			return false;
-		}
-		if ((className != null) && !className.equals(other.className)) {
-			return false;
-		}
-
-		return super.equals(obj);
+		this.methodName = methodName;
 	}
 
-	public String explain() {
-		if (isMutation()) {
-			String ids = "Mutations: ";
-			for (long l : mutations) {
-				ids += " " + l;
-			}
-			return ids;
-		}
-		if (isActualBranch()) {
-			if (BranchPool.isKnownAsBranch(this)) {
-				Branch b = BranchPool.getBranchForInstruction(this);
-				if (b == null) {
-					throw new IllegalStateException(
-							"expect BranchPool to be able to return Branches for instructions fullfilling BranchPool.isKnownAsBranch()");
-				}
+	private void setClassName(String className) {
+		if (className == null)
+			throw new IllegalArgumentException("null given");
 
-				return "Branch " + b.getActualBranchId() + " - " + getInstructionType();
-			}
-			return "UNKNOWN Branch i" + instructionId + " " + getInstructionType();
-
-			// + " - " + ((JumpInsnNode) asmNode).label.getLabel();
-		}
-
-		return getASMNodeString();
+		this.className = className;
 	}
 
 	// --- Field Management --- TODO find out which ones to hide/remove
 
 	// TODO make real getId()!
+
+	public int getInstructionId() {
+		return instructionId;
+	}
+
+	public String getMethodName() {
+		return methodName;
+	}
+
+	public String getClassName() {
+		return className;
+	}
+	
+	public String getName() {
+		return "BytecodeInstruction " + instructionId + " in " + methodName;
+	}
+
+	/**
+	 * Return's the BasicBlock that contain's this instruction in it's CFG.
+	 * 
+	 * If no BasicBlock containing this instruction was created yet, null is
+	 * returned.
+	 */
+	public BasicBlock getBasicBlock() {
+		if(!hasBasicBlockSet())
+			retrieveBasicBlock();
+		return basicBlock;
+	}
+
+	private void retrieveBasicBlock() {
+		
+		if(basicBlock == null)
+			basicBlock = getActualCFG().getBlockOf(this);
+	}
+
+	/**
+	 * Once the CFG has been asked for this instruction's BasicBlock it sets
+	 * this instance's internal basicBlock field.
+	 */
+	public void setBasicBlock(BasicBlock block) {
+		if (block == null)
+			throw new IllegalArgumentException("null given");
+
+		if (!block.getClassName().equals(getClassName())
+				|| !block.getMethodName().equals(getMethodName()))
+			throw new IllegalArgumentException(
+					"expect block to be for the same method and class as this instruction");
+		if (this.basicBlock != null)
+			throw new IllegalArgumentException(
+					"basicBlock already set! not allowed to overwrite");
+
+		this.basicBlock = block;
+	}
+
+	/**
+	 * Checks whether this instance's basicBlock has already been set by the CFG
+	 * or
+	 */
+	public boolean hasBasicBlockSet() {
+		return basicBlock != null;
+	}
+
+	// mutation part
+
+	public boolean isMutation() {
+		return !mutations.isEmpty();
+		/*
+		 * if(node instanceof LdcInsnNode) {
+		 * 
+		 * if(((LdcInsnNode)node).cst.toString().contains("mutationId")) {
+		 * logger.info("!!!!! Found mutation!"); } } return false;
+		 */
+	}
+
+	public List<Long> getMutationIds() {
+		return mutations;
+		// String ids = ((LdcInsnNode)node).cst.toString();
+		// return Integer.parseInt(ids.substring(ids.indexOf("_")+1));
+	}
+
+	public boolean isMutationBranch() {
+		return isBranch() && mutationBranch;
+	}
+
+	public void setMutationBranch() {
+		mutationBranch = true;
+	}
+
+	public void setMutatedBranch() {
+		mutatedBranch = true;
+	}
+
+	public void setMutation(long id) {
+		mutations.add(id);
+	}
+
+	public boolean hasMutation(long id) {
+		return mutations.contains(id);
+	}
+
+	public void setMutationBranch(boolean mutationBranch) {
+		this.mutationBranch = mutationBranch;
+	}
+
+	public void setMutatedBranch(boolean mutatedBranch) {
+		this.mutatedBranch = mutatedBranch;
+	}
+
+	public boolean isMutatedBranch() {
+		// Mutated if HOMObserver of MutationObserver are called
+		return isBranch() && mutatedBranch;
+	}
+
+	public int getDistance(long id) {
+		if (mutant_distance.containsKey(id))
+			return mutant_distance.get(id);
+		return Integer.MAX_VALUE;
+	}
+
+	public void setDistance(long id, int distance) {
+		mutant_distance.put(id, distance);
+	}
+
+	public int getLineNumber() {
+		// former method comment
+		// If hasLineNumberSet() returns true, this method returns the
+		// lineNumber of
+		// this instruction Otherwise an IllegalStateException() will be thrown
+		// to
+		// indicate that the field was never initialized properly
+
+		// if (!hasLineNumberSet()) // TODO if lineNumber not set retrieve this
+		// info from ... CFGPool or something
+		// throw new IllegalStateException(
+		// "expect hasLineNumberSet() to be true on a BytecodeInstruction that gets asked for it's lineNumber");
+
+		if (lineNumber == -1 && isLineNumber()) {
+			retrieveLineNumber();
+		}
+
+		return lineNumber;
+	}
+
+	/**
+	 *  
+	 */
+	public void setLineNumber(int lineNumber) {
+		if (lineNumber <= 0)
+			throw new IllegalArgumentException(
+					"expect lineNumber value to be positive");
+
+		if (isLabel())
+			return;
+
+		if (isLineNumber()) {
+			int asmLine = super.getLineNumber();
+			// sanity check
+			if (lineNumber != -1 && asmLine != lineNumber)
+				throw new IllegalStateException(
+						"linenumber instruction has lineNumber field set to a value different from instruction linenumber");
+			this.lineNumber = asmLine;
+		} else {
+			this.lineNumber = lineNumber;
+		}
+	}
+
+	/**
+	 * At first, if this instruction constitutes a line number instruction this
+	 * method tries to retrieve the lineNumber from the underlying asmNode and
+	 * set the lineNumber field to the value given by the asmNode.
+	 * 
+	 * This can lead to an IllegalStateException, should the lineNumber field
+	 * have been set to another value previously
+	 * 
+	 * After that, if the lineNumber field is still not initialized, this method
+	 * returns false Otherwise it returns true
+	 */
+	public boolean hasLineNumberSet() {
+		retrieveLineNumber();
+		return lineNumber != -1;
+	}
+
+	/**
+	 * If the underlying ASMNode is a LineNumberNode the lineNumber field of
+	 * this instance will be set to the lineNumber contained in that
+	 * LineNumberNode
+	 * 
+	 * Should the lineNumber field have been set to a value different from that
+	 * contained in the asmNode, this method throws an IllegalStateExeption
+	 */
+	private void retrieveLineNumber() {
+		if (isLineNumber()) {
+			int asmLine = super.getLineNumber();
+			// sanity check
+			if (this.lineNumber != -1 && asmLine != this.lineNumber)
+				throw new IllegalStateException(
+						"lineNumber field was manually set to a value different from the actual lineNumber contained in LineNumberNode");
+			this.lineNumber = asmLine;
+		}
+	}
+
+	// --- graph section ---
 
 	/**
 	 * Returns the ActualControlFlowGraph of this instructions method
@@ -186,14 +347,46 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 */
 	public ActualControlFlowGraph getActualCFG() {
 
-		ActualControlFlowGraph myCFG = CFGPool.getActualCFG(className, methodName);
-		if (myCFG == null) {
+		ActualControlFlowGraph myCFG = CFGPool.getActualCFG(className,
+				methodName);
+		if (myCFG == null)
 			throw new IllegalStateException(
 					"expect CFGPool to know CFG for every method for which an instruction is known");
-		}
 
 		return myCFG;
 	}
+
+	/**
+	 * Returns the RawControlFlowGraph of this instructions method
+	 * 
+	 * Convenience method. Redirects the call to CFGPool.getRawCFG()
+	 */
+	public RawControlFlowGraph getRawCFG() {
+
+		RawControlFlowGraph myCFG = CFGPool.getRawCFG(className, methodName);
+		if (myCFG == null)
+			throw new IllegalStateException(
+					"expect CFGPool to know CFG for every method for which an instruction is known");
+
+		return myCFG;
+	}
+
+	/**
+	 * Returns the ControlDependenceGraph of this instructions method
+	 * 
+	 * Convenience method. Redirects the call to CFGPool.getCDG()
+	 */
+	public ControlDependenceGraph getCDG() {
+
+		ControlDependenceGraph myCDG = CFGPool.getCDG(className, methodName);
+		if (myCDG == null)
+			throw new IllegalStateException(
+					"expect CFGPool to know CDG for every method for which an instruction is known");
+
+		return myCDG;
+	}
+
+	// --- TODO CDG-Section ---
 
 	/**
 	 * Returns a cfg.Branch object for each branch this instruction is control
@@ -208,158 +401,11 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 */
 	public Set<Branch> getAllControlDependentBranches() {
 
-		if (controlDependentBranches == null) {
-			controlDependentBranches = getCDG().getControlDependentBranches(this);
-		}
+		if (controlDependentBranches == null)
+			controlDependentBranches = getCDG().getControlDependentBranches(
+					this);
 
 		return new HashSet<Branch>(controlDependentBranches);
-	}
-
-	public String getASMNodeString() {
-		String type = getType();
-		String opcode = getInstructionType();
-
-		String stack = "";
-		if (frame == null) {
-			stack = "null";
-		} else {
-			for (int i = 0; i < frame.getStackSize(); i++) {
-				stack += frame.getStack(i) + ",";
-			}
-		}
-
-		if (asmNode instanceof LabelNode) {
-			return "LABEL " + ((LabelNode) asmNode).getLabel().toString();
-		} else if (asmNode instanceof FieldInsnNode) {
-			return "Field" + " " + asmNode.getOpcode() + " Type=" + type + ", Opcode=" + opcode;
-		} else if (asmNode instanceof FrameNode) {
-			return "Frame" + " " + asmNode.getOpcode() + " Type=" + type + ", Opcode=" + opcode;
-		} else if (asmNode instanceof IincInsnNode) {
-			return "IINC " + ((IincInsnNode) asmNode).var + " Type=" + type + ", Opcode=" + opcode;
-		} else if (asmNode instanceof InsnNode) {
-			return "" + opcode;
-		} else if (asmNode instanceof IntInsnNode) {
-			return "INT " + ((IntInsnNode) asmNode).operand + " Type=" + type + ", Opcode=" + opcode;
-		} else if (asmNode instanceof MethodInsnNode) {
-			return opcode + " " + ((MethodInsnNode) asmNode).name;
-		} else if (asmNode instanceof JumpInsnNode) {
-			return "JUMP " + ((JumpInsnNode) asmNode).label.getLabel() + " Type=" + type + ", Opcode=" + opcode
-					+ ", Stack: " + stack + " - Line: " + lineNumber;
-		} else if (asmNode instanceof LdcInsnNode) {
-			return "LDC " + ((LdcInsnNode) asmNode).cst + " Type=" + type + ", Opcode=" + opcode; // cst
-																									// starts
-																									// with
-																									// mutationid
-																									// if
-		} else if (asmNode instanceof LineNumberNode) {
-			return "LINE " + " " + ((LineNumberNode) asmNode).line;
-		} else if (asmNode instanceof LookupSwitchInsnNode) {
-			return "LookupSwitchInsnNode" + " " + asmNode.getOpcode() + " Type=" + type + ", Opcode=" + opcode;
-		} else if (asmNode instanceof MultiANewArrayInsnNode) {
-			return "MULTIANEWARRAY " + " " + asmNode.getOpcode() + " Type=" + type + ", Opcode=" + opcode;
-		} else if (asmNode instanceof TableSwitchInsnNode) {
-			return "TableSwitchInsnNode" + " " + asmNode.getOpcode() + " Type=" + type + ", Opcode=" + opcode;
-		} else if (asmNode instanceof TypeInsnNode) {
-			return "NEW " + ((TypeInsnNode) asmNode).desc;
-		} else if (asmNode instanceof VarInsnNode) {
-			return opcode + " " + ((VarInsnNode) asmNode).var;
-		} else {
-			return "Unknown node" + " Type=" + type + ", Opcode=" + opcode;
-		}
-	}
-
-	/**
-	 * Return's the BasicBlock that contain's this instruction in it's CFG.
-	 * 
-	 * If no BasicBlock containing this instruction was created yet, null is
-	 * returned.
-	 */
-	public BasicBlock getBasicBlock() {
-		if (!hasBasicBlockSet()) {
-			retrieveBasicBlock();
-		}
-		return basicBlock;
-	}
-
-	/**
-	 *  
-	 */
-	public boolean getBranchExpressionValue(Branch b) {
-		if (b == null) {
-			throw new IllegalArgumentException("null given");
-		}
-		if (!isDirectlyControlDependentOn(b)) {
-			throw new IllegalArgumentException(
-					"this method can only be called for branches that this instruction is directly control dependent on");
-		}
-
-		return getCDG().getBranchExpressionValue(this, b);
-	}
-
-	/**
-	 * Returns the ControlDependenceGraph of this instructions method
-	 * 
-	 * Convenience method. Redirects the call to CFGPool.getCDG()
-	 */
-	public ControlDependenceGraph getCDG() {
-
-		ControlDependenceGraph myCDG = CFGPool.getCDG(className, methodName);
-		if (myCDG == null) {
-			throw new IllegalStateException(
-					"expect CFGPool to know CDG for every method for which an instruction is known");
-		}
-
-		return myCDG;
-	}
-
-	/**
-	 * WARNING: better don't user this method right now TODO
-	 * 
-	 * Determines the number of branches that have to be passed in order to pass
-	 * this CFGVertex
-	 * 
-	 * Used to determine TestFitness difficulty
-	 */
-	public int getCDGDepth() {
-
-		// TODO: this method does not take into account, that there might be
-		// multiple branches this instruction is control dependent on
-
-		Branch current = getControlDependentBranch();
-		int r = 1;
-		while (current != null) {
-			r++;
-			current = current.getControlDependentBranch();
-		}
-		return r;
-	}
-
-	public String getClassName() {
-		return className;
-	}
-
-	// mutation part
-
-	/**
-	 * This method returns a random Branch among all Branches this instruction
-	 * is control dependent on
-	 * 
-	 * If this instruction is only dependent on the root branch, this method
-	 * returns null
-	 * 
-	 * Since EvoSuite was previously unable to detect multiple control
-	 * dependencies for one instruction this method serves as a backwards
-	 * compatibility bridge
-	 */
-	public Branch getControlDependentBranch() {
-
-		Set<Branch> cdIds = getAllControlDependentBranches();
-
-		for (Branch cdId : cdIds) {
-			return cdId;
-		}
-
-		return null;
 	}
 
 	/**
@@ -386,6 +432,73 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	}
 
 	/**
+	 * This method returns a random Branch among all Branches this instruction
+	 * is control dependent on
+	 * 
+	 * If this instruction is only dependent on the root branch, this method
+	 * returns null
+	 * 
+	 * Since EvoSuite was previously unable to detect multiple control
+	 * dependencies for one instruction this method serves as a backwards
+	 * compatibility bridge
+	 */
+	public Branch getControlDependentBranch() {
+
+		Set<Branch> cdIds = getAllControlDependentBranches();
+
+		for (Branch cdId : cdIds)
+			return cdId;
+
+		return null;
+	}
+
+	/**
+	 * Returns all branchIds of Branches this instruction is directly control
+	 * dependent on as determined by the ControlDependenceGraph for this
+	 * instruction's method.
+	 * 
+	 * If this instruction is control dependent on the root branch the id -1
+	 * will be contained in this set
+	 */
+	public Set<Integer> getControlDependentBranchIds() {
+
+		ControlDependenceGraph myDependence = CFGPool.getCDG(className,
+				methodName);
+		if (myDependence == null)
+			throw new IllegalStateException(
+					"expect CFGPool to know CDG for every method for which an instruction is known");
+
+		if (controlDependentBranchIDs == null)
+			controlDependentBranchIDs = myDependence
+					.getControlDependentBranchIds(this);
+
+		return controlDependentBranchIDs;
+	}
+
+	/**
+	 * This method returns a random branchId among all branchIds this
+	 * instruction is control dependent on.
+	 * 
+	 * This method returns -1 if getControlDependentBranch() returns null,
+	 * otherwise that Branch's branchId is returned
+	 * 
+	 * Note: The returned branchExpressionValue comes from the same Branch
+	 * getControlDependentBranch() and getControlDependentBranchId() return
+	 * 
+	 * Since EvoSuite was previously unable to detect multiple control
+	 * dependencies for one instruction this method serves as a backwards
+	 * compatibility bridge
+	 */
+	public int getControlDependentBranchId() {
+
+		Branch b = getControlDependentBranch();
+		if (b == null)
+			return -1;
+
+		return b.getActualBranchId();
+	}
+
+	/**
 	 * This method returns the branchExpressionValue from a random Branch among
 	 * all Branches this instruction is control dependent on.
 	 * 
@@ -406,146 +519,16 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	}
 
 	/**
-	 * This method returns a random branchId among all branchIds this
-	 * instruction is control dependent on.
-	 * 
-	 * This method returns -1 if getControlDependentBranch() returns null,
-	 * otherwise that Branch's branchId is returned
-	 * 
-	 * Note: The returned branchExpressionValue comes from the same Branch
-	 * getControlDependentBranch() and getControlDependentBranchId() return
-	 * 
-	 * Since EvoSuite was previously unable to detect multiple control
-	 * dependencies for one instruction this method serves as a backwards
-	 * compatibility bridge
+	 *  
 	 */
-	public int getControlDependentBranchId() {
+	public boolean getBranchExpressionValue(Branch b) {
+		if (b == null)
+			throw new IllegalArgumentException("null given");
+		if (!isDirectlyControlDependentOn(b))
+			throw new IllegalArgumentException(
+					"this method can only be called for branches that this instruction is directly control dependent on");
 
-		Branch b = getControlDependentBranch();
-		if (b == null) {
-			return -1;
-		}
-
-		return b.getActualBranchId();
-	}
-
-	/**
-	 * Returns all branchIds of Branches this instruction is directly control
-	 * dependent on as determined by the ControlDependenceGraph for this
-	 * instruction's method.
-	 * 
-	 * If this instruction is control dependent on the root branch the id -1
-	 * will be contained in this set
-	 */
-	public Set<Integer> getControlDependentBranchIds() {
-
-		ControlDependenceGraph myDependence = CFGPool.getCDG(className, methodName);
-		if (myDependence == null) {
-			throw new IllegalStateException(
-					"expect CFGPool to know CDG for every method for which an instruction is known");
-		}
-
-		if (controlDependentBranchIDs == null) {
-			controlDependentBranchIDs = myDependence.getControlDependentBranchIds(this);
-		}
-
-		return controlDependentBranchIDs;
-	}
-
-	@Override
-	public int getDistance(long id) {
-		if (mutant_distance.containsKey(id)) {
-			return mutant_distance.get(id);
-		}
-		return Integer.MAX_VALUE;
-	}
-
-	@Override
-	public int getInstructionId() {
-		return instructionId;
-	}
-
-	@Override
-	public int getLineNumber() {
-		// former method comment
-		// If hasLineNumberSet() returns true, this method returns the
-		// lineNumber of
-		// this instruction Otherwise an IllegalStateException() will be thrown
-		// to
-		// indicate that the field was never initialized properly
-
-		// if (!hasLineNumberSet()) // TODO if lineNumber not set retrieve this
-		// info from ... CFGPool or something
-		// throw new IllegalStateException(
-		// "expect hasLineNumberSet() to be true on a BytecodeInstruction that gets asked for it's lineNumber");
-
-		if ((lineNumber == -1) && isLineNumber()) {
-			retrieveLineNumber();
-		}
-
-		return lineNumber;
-	}
-
-	@Override
-	public String getMethodName() {
-		return methodName;
-	}
-
-	@Override
-	public List<Long> getMutationIds() {
-		return mutations;
-		// String ids = ((LdcInsnNode)node).cst.toString();
-		// return Integer.parseInt(ids.substring(ids.indexOf("_")+1));
-	}
-
-	@Override
-	public String getName() {
-		return "BytecodeInstruction " + instructionId + " in " + methodName;
-	}
-
-	/**
-	 * Returns the RawControlFlowGraph of this instructions method
-	 * 
-	 * Convenience method. Redirects the call to CFGPool.getRawCFG()
-	 */
-	public RawControlFlowGraph getRawCFG() {
-
-		RawControlFlowGraph myCFG = CFGPool.getRawCFG(className, methodName);
-		if (myCFG == null) {
-			throw new IllegalStateException(
-					"expect CFGPool to know CFG for every method for which an instruction is known");
-		}
-
-		return myCFG;
-	}
-
-	/**
-	 * Checks whether this instance's basicBlock has already been set by the CFG
-	 * or
-	 */
-	public boolean hasBasicBlockSet() {
-		return basicBlock != null;
-	}
-
-	/**
-	 * At first, if this instruction constitutes a line number instruction this
-	 * method tries to retrieve the lineNumber from the underlying asmNode and
-	 * set the lineNumber field to the value given by the asmNode.
-	 * 
-	 * This can lead to an IllegalStateException, should the lineNumber field
-	 * have been set to another value previously
-	 * 
-	 * After that, if the lineNumber field is still not initialized, this method
-	 * returns false Otherwise it returns true
-	 */
-	public boolean hasLineNumberSet() {
-		retrieveLineNumber();
-		return lineNumber != -1;
-	}
-
-	@Override
-	public boolean hasMutation(long id) {
-		return mutations.contains(id);
+		return getCDG().getBranchExpressionValue(this, b);
 	}
 
 	/**
@@ -557,30 +540,6 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	public boolean isDirectlyControlDependentOn(Branch branch) {
 		return getAllControlDependentBranches().contains(branch);
 	}
-
-	// --- graph section ---
-
-	public boolean isMutatedBranch() {
-		// Mutated if HOMObserver of MutationObserver are called
-		return isBranch() && mutatedBranch;
-	}
-
-	@Override
-	public boolean isMutation() {
-		return !mutations.isEmpty();
-		/*
-		 * if(node instanceof LdcInsnNode) {
-		 * 
-		 * if(((LdcInsnNode)node).cst.toString().contains("mutationId")) {
-		 * logger.info("!!!!! Found mutation!"); } } return false;
-		 */
-	}
-
-	public boolean isMutationBranch() {
-		return isBranch() && mutationBranch;
-	}
-
-	// --- TODO CDG-Section ---
 
 	/**
 	 * WARNING: better don't user this method right now TODO
@@ -597,21 +556,18 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 * 
 	 */
 	public boolean isTransitivelyControlDependentOn(Branch branch) {
-		if (!getClassName().equals(branch.getClassName())) {
+		if (!getClassName().equals(branch.getClassName()))
 			return false;
-		}
-		if (!getMethodName().equals(branch.getMethodName())) {
+		if (!getMethodName().equals(branch.getMethodName()))
 			return false;
-		}
 
 		// TODO: this method does not take into account, that there might be
 		// multiple branches this instruction is control dependent on
 
 		BytecodeInstruction vertexHolder = this;
 		do {
-			if (vertexHolder.isDirectlyControlDependentOn(branch)) {
+			if (vertexHolder.isDirectlyControlDependentOn(branch))
 				return true;
-			}
 			vertexHolder = vertexHolder.getControlDependentBranch();
 		} while (vertexHolder != null);
 
@@ -619,73 +575,116 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	}
 
 	/**
-	 * Once the CFG has been asked for this instruction's BasicBlock it sets
-	 * this instance's internal basicBlock field.
+	 * WARNING: better don't user this method right now TODO
+	 * 
+	 * Determines the number of branches that have to be passed in order to pass
+	 * this CFGVertex
+	 * 
+	 * Used to determine TestFitness difficulty
 	 */
-	public void setBasicBlock(BasicBlock block) {
-		if (block == null) {
-			throw new IllegalArgumentException("null given");
-		}
+	public int getCDGDepth() {
 
-		if (!block.getClassName().equals(getClassName()) || !block.getMethodName().equals(getMethodName())) {
-			throw new IllegalArgumentException("expect block to be for the same method and class as this instruction");
-		}
-		if (this.basicBlock != null) {
-			throw new IllegalArgumentException("basicBlock already set! not allowed to overwrite");
-		}
+		// TODO: this method does not take into account, that there might be
+		// multiple branches this instruction is control dependent on
 
-		this.basicBlock = block;
+		Branch current = getControlDependentBranch();
+		int r = 1;
+		while (current != null) {
+			r++;
+			current = current.getControlDependentBranch();
+		}
+		return r;
 	}
 
-	@Override
-	public void setDistance(long id, int distance) {
-		mutant_distance.put(id, distance);
-	}
+	// String methods
 
-	/**
-	 *  
-	 */
-	public void setLineNumber(int lineNumber) {
-		if (lineNumber <= 0) {
-			throw new IllegalArgumentException("expect lineNumber value to be positive");
-		}
-
-		if (isLabel()) {
-			return;
-		}
-
-		if (isLineNumber()) {
-			int asmLine = super.getLineNumber();
-			// sanity check
-			if ((lineNumber != -1) && (asmLine != lineNumber)) {
-				throw new IllegalStateException(
-						"linenumber instruction has lineNumber field set to a value different from instruction linenumber");
+	public String explain() {
+		if (isMutation()) {
+			String ids = "Mutations: ";
+			for (long l : mutations) {
+				ids += " " + l;
 			}
-			this.lineNumber = asmLine;
-		} else {
-			this.lineNumber = lineNumber;
+			return ids;
 		}
+		if (isActualBranch()) {
+			if (BranchPool.isKnownAsBranch(this)) {
+				Branch b = BranchPool.getBranchForInstruction(this);
+				if (b == null)
+					throw new IllegalStateException(
+							"expect BranchPool to be able to return Branches for instructions fullfilling BranchPool.isKnownAsBranch()");
+
+				return "Branch " + b.getActualBranchId() + " - "
+						+ getInstructionType();
+			}
+			return "UNKNOWN Branch i" + instructionId + " "
+					+ getInstructionType();
+
+			// + " - " + ((JumpInsnNode) asmNode).label.getLabel();
+		}
+
+		return getASMNodeString();
 	}
 
-	public void setMutatedBranch() {
-		mutatedBranch = true;
+	public String getASMNodeString() {
+		String type = getType();
+		String opcode = getInstructionType();
+
+		String stack = "";
+		if (frame == null)
+			stack = "null";
+		else
+			for (int i = 0; i < frame.getStackSize(); i++) {
+				stack += frame.getStack(i) + ",";
+			}
+
+		if (asmNode instanceof LabelNode) {
+			return "LABEL " + ((LabelNode) asmNode).getLabel().toString();
+		} else if (asmNode instanceof FieldInsnNode)
+			return "Field" + " " + asmNode.getOpcode() + " Type=" + type
+					+ ", Opcode=" + opcode;
+		else if (asmNode instanceof FrameNode)
+			return "Frame" + " " + asmNode.getOpcode() + " Type=" + type
+					+ ", Opcode=" + opcode;
+		else if (asmNode instanceof IincInsnNode)
+			return "IINC " + ((IincInsnNode) asmNode).var + " Type=" + type
+					+ ", Opcode=" + opcode;
+		else if (asmNode instanceof InsnNode)
+			return "" + opcode;
+		else if (asmNode instanceof IntInsnNode)
+			return "INT " + ((IntInsnNode) asmNode).operand + " Type=" + type
+					+ ", Opcode=" + opcode;
+		else if (asmNode instanceof MethodInsnNode)
+			return opcode + " " + ((MethodInsnNode) asmNode).name;
+		else if (asmNode instanceof JumpInsnNode)
+			return "JUMP " + ((JumpInsnNode) asmNode).label.getLabel()
+					+ " Type=" + type + ", Opcode=" + opcode + ", Stack: "
+					+ stack + " - Line: " + lineNumber;
+		else if (asmNode instanceof LdcInsnNode)
+			return "LDC " + ((LdcInsnNode) asmNode).cst + " Type=" + type
+					+ ", Opcode=" + opcode; // cst starts with mutationid if
+		// this is location of mutation
+		else if (asmNode instanceof LineNumberNode)
+			return "LINE " + " " + ((LineNumberNode) asmNode).line;
+		else if (asmNode instanceof LookupSwitchInsnNode)
+			return "LookupSwitchInsnNode" + " " + asmNode.getOpcode()
+					+ " Type=" + type + ", Opcode=" + opcode;
+		else if (asmNode instanceof MultiANewArrayInsnNode)
+			return "MULTIANEWARRAY " + " " + asmNode.getOpcode() + " Type="
+					+ type + ", Opcode=" + opcode;
+		else if (asmNode instanceof TableSwitchInsnNode)
+			return "TableSwitchInsnNode" + " " + asmNode.getOpcode() + " Type="
+					+ type + ", Opcode=" + opcode;
+		else if (asmNode instanceof TypeInsnNode)
+			return "NEW " + ((TypeInsnNode) asmNode).desc;
+		// return "TYPE " + " " + node.getOpcode() + " Type=" + type
+		// + ", Opcode=" + opcode;
+		else if (asmNode instanceof VarInsnNode)
+			return opcode + " " + ((VarInsnNode) asmNode).var;
+		else
+			return "Unknown node" + " Type=" + type + ", Opcode=" + opcode;
 	}
 
-	public void setMutatedBranch(boolean mutatedBranch) {
-		this.mutatedBranch = mutatedBranch;
-	}
-
-	public void setMutation(long id) {
-		mutations.add(id);
-	}
-
-	public void setMutationBranch() {
-		mutationBranch = true;
-	}
-
-	public void setMutationBranch(boolean mutationBranch) {
-		this.mutationBranch = mutationBranch;
-	}
+	// --- Inherited from Object ---
 
 	@Override
 	public String toString() {
@@ -694,58 +693,34 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 
 		r += " " + explain();
 
-		if (hasLineNumberSet() && !isLineNumber()) {
+		if (hasLineNumberSet() && !isLineNumber())
 			r += " l" + getLineNumber();
-		}
 
 		return r;
 	}
 
-	// String methods
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof BytecodeInstruction))
+			return false;
 
-	private void retrieveBasicBlock() {
+		// TODO ensure that the following checks always succeed
+		// TODO do this by ensuring that those values are always set correctly
 
-		if (basicBlock == null) {
-			basicBlock = getActualCFG().getBlockOf(this);
-		}
-	}
+		BytecodeInstruction other = (BytecodeInstruction) obj;
 
-	/**
-	 * If the underlying ASMNode is a LineNumberNode the lineNumber field of
-	 * this instance will be set to the lineNumber contained in that
-	 * LineNumberNode
-	 * 
-	 * Should the lineNumber field have been set to a value different from that
-	 * contained in the asmNode, this method throws an IllegalStateExeption
-	 */
-	private void retrieveLineNumber() {
-		if (isLineNumber()) {
-			int asmLine = super.getLineNumber();
-			// sanity check
-			if ((this.lineNumber != -1) && (asmLine != this.lineNumber)) {
-				throw new IllegalStateException(
-						"lineNumber field was manually set to a value different from the actual lineNumber contained in LineNumberNode");
-			}
-			this.lineNumber = asmLine;
-		}
-	}
+		if (instructionId != other.instructionId)
+			return false;
+		if (methodName != null && !methodName.equals(other.methodName))
+			return false;
+		if (className != null && !className.equals(other.className))
+			return false;
 
-	// --- Inherited from Object ---
-
-	private void setClassName(String className) {
-		if (className == null) {
-			throw new IllegalArgumentException("null given");
-		}
-
-		this.className = className;
-	}
-
-	private void setMethodName(String methodName) {
-		if (methodName == null) {
-			throw new IllegalArgumentException("null given");
-		}
-
-		this.methodName = methodName;
+		return super.equals(obj);
 	}
 
 }

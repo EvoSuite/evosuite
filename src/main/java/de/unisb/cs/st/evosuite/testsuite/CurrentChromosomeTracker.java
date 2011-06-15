@@ -15,7 +15,7 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
  * 
  */
 @SuppressWarnings("unchecked")
-// we can't know CType at instantiation type
+//we can't know CType at instantiation type
 public class CurrentChromosomeTracker<CType extends Chromosome> implements SearchListener {
 
 	/** The current chromosome */
@@ -25,64 +25,36 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 	private static CurrentChromosomeTracker<?> instance = null;
 
 	/**
-	 * Singleton accessor
-	 * 
-	 * @return
-	 */
-	@SuppressWarnings("rawtypes")
-	public static CurrentChromosomeTracker<?> getInstance() {
-		if (instance == null) {
-			instance = new CurrentChromosomeTracker();
-		}
-
-		return instance;
-	}
-
-	/**
 	 * Private constructor for singleton
 	 */
 	private CurrentChromosomeTracker() {
 
 	}
 
-	// TODO: This is very inefficient
-	public void changed(TestChromosome changed) {
-		if (Properties.CALL_PROBABILITY > 0) {
-			TestSuiteChromosome suite = (TestSuiteChromosome) currentSuite;
-			for (TestChromosome test : suite.tests) {
-				if ((test == changed) || (changed.test == test.test)) {
-					continue;
-				}
-				for (StatementInterface s : test.test) {
-					if (s instanceof TestCallStatement) {
-						TestCallStatement call = (TestCallStatement) s;
-						if ((call.getTest() != null) && call.getTest().equals(changed.test)) {
-							if (!test.isChanged()) {
-								test.setChanged(true);
-							}
-							break;
-						}
-					}
-				}
-			}
-		}
+	/**
+	 * Singleton accessor
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("rawtypes")
+	public static CurrentChromosomeTracker<?> getInstance() {
+		if (instance == null)
+			instance = new CurrentChromosomeTracker();
+
+		return instance;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.ga.SearchListener#fitnessEvaluation(de.unisb.
-	 * cs.st.evosuite.ga.Chromosome)
+	 * de.unisb.cs.st.evosuite.ga.SearchListener#searchStarted(de.unisb.cs.st
+	 * .evosuite.ga.FitnessFunction)
 	 */
 	@Override
-	public void fitnessEvaluation(Chromosome individual) {
+	public void searchStarted(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 
-	}
-
-	public CType getCurrentChromosome() {
-		return currentSuite;
 	}
 
 	/*
@@ -94,18 +66,6 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 	public void iteration(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.ga.SearchListener#mutation(de.unisb.cs.st.evosuite
-	 * .ga.Chromosome)
-	 */
-	@Override
-	public void modification(Chromosome individual) {
-		currentSuite = (CType) individual;
 	}
 
 	/*
@@ -124,12 +84,49 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.ga.SearchListener#searchStarted(de.unisb.cs.st
-	 * .evosuite.ga.FitnessFunction)
+	 * de.unisb.cs.st.evosuite.ga.SearchListener#fitnessEvaluation(de.unisb.
+	 * cs.st.evosuite.ga.Chromosome)
 	 */
 	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
+	public void fitnessEvaluation(Chromosome individual) {
 		// TODO Auto-generated method stub
 
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.ga.SearchListener#mutation(de.unisb.cs.st.evosuite
+	 * .ga.Chromosome)
+	 */
+	@Override
+	public void modification(Chromosome individual) {
+		currentSuite = (CType) individual;
+	}
+
+	public CType getCurrentChromosome() {
+		return currentSuite;
+	}
+
+	// TODO: This is very inefficient
+	public void changed(TestChromosome changed) {
+		if (Properties.CALL_PROBABILITY > 0) {
+			TestSuiteChromosome suite = (TestSuiteChromosome) currentSuite;
+			for (TestChromosome test : suite.tests) {
+				if (test == changed || changed.test == test.test)
+					continue;
+				for (StatementInterface s : test.test) {
+					if (s instanceof TestCallStatement) {
+						TestCallStatement call = (TestCallStatement) s;
+						if (call.getTest() != null && call.getTest().equals(changed.test)) {
+							if (!test.isChanged())
+								test.setChanged(true);
+							break;
+						}
+					}
+				}
+			}
+		}
 	}
 }

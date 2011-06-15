@@ -56,9 +56,8 @@ public class PrimitiveFieldTrace extends OutputTrace {
 		PrimitiveFieldTrace other = (PrimitiveFieldTrace) other_trace;
 
 		for (Entry<Integer, List<Object>> entry : trace.entrySet()) {
-			if (!other.trace.containsKey(entry.getKey())) {
+			if (!other.trace.containsKey(entry.getKey()))
 				continue;
-			}
 
 			if (entry.getValue().size() != other.trace.get(entry.getKey()).size()) {
 				return true;
@@ -72,34 +71,6 @@ public class PrimitiveFieldTrace extends OutputTrace {
 		}
 
 		return false;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.OutputTrace#getAllAssertions(de.unisb
-	 * .cs.st.evosuite.testcase.TestCase)
-	 */
-	@Override
-	public int getAllAssertions(TestCase test) {
-		int num_assertions = 0;
-
-		for (int i = 0; i < test.size(); i++) {
-			if (fieldMap.containsKey(i)) {
-				Map<Field, Object> field = fieldMap.get(i);
-				for (Entry<Field, Object> entry : field.entrySet()) {
-					PrimitiveFieldAssertion assertion = new PrimitiveFieldAssertion();
-					assertion.source = test.getReturnValue(i);
-					assertion.value = entry.getValue();
-					assertion.field = entry.getKey();
-					test.getStatement(i).addAssertion(assertion);
-					num_assertions++;
-				}
-
-			}
-		}
-		return num_assertions;
 	}
 
 	@Override
@@ -124,9 +95,9 @@ public class PrimitiveFieldTrace extends OutputTrace {
 				} else {
 					for (int j = 0; j < list1.size(); j++) {
 						if (!list1.get(j).equals(list2.get(j))) {
-							if (!fields.containsKey(test.getReturnValue(i).getType())) {
+							if (!fields.containsKey(test.getReturnValue(i).getType()))
 								logger.error("Have no records of field");
-							} else {
+							else {
 								logger.debug("Generated primitive field assertion");
 
 								PrimitiveFieldAssertion assertion = new PrimitiveFieldAssertion();
@@ -135,9 +106,8 @@ public class PrimitiveFieldTrace extends OutputTrace {
 								assertion.field = fields.get(test.getReturnValue(i).getType()).get(j);
 								test.getStatement(i).addAssertion(assertion);
 								num_assertions++;
-								if (!other.isDetectedBy(assertion)) {
+								if (!other.isDetectedBy(assertion))
 									logger.error("Invalid primitive field assertion generated!");
-								}
 							}
 
 						}
@@ -150,20 +120,6 @@ public class PrimitiveFieldTrace extends OutputTrace {
 	}
 
 	@Override
-	public boolean isDetectedBy(Assertion assertion) {
-		if (!(assertion instanceof PrimitiveFieldAssertion)) {
-			return false;
-		}
-
-		PrimitiveFieldAssertion p = (PrimitiveFieldAssertion) assertion;
-		if (!p.value.equals(trace.get(p.source.getStPosition()))) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	@Override
 	public int numDiffer(OutputTrace other_trace) {
 		PrimitiveFieldTrace other = (PrimitiveFieldTrace) other_trace;
 
@@ -171,7 +127,7 @@ public class PrimitiveFieldTrace extends OutputTrace {
 
 		for (Entry<Integer, List<Object>> entry : trace.entrySet()) {
 			if (other.trace.containsKey(entry.getKey())) {
-				if ((entry.getValue() == null) && (other.trace.get(entry.getKey()) != null)) {
+				if (entry.getValue() == null && other.trace.get(entry.getKey()) != null) {
 					num++;
 				} else if (entry.getValue() != null) {
 					int pos = 0;
@@ -179,12 +135,10 @@ public class PrimitiveFieldTrace extends OutputTrace {
 						if (other.trace.get(entry.getKey()).size() > pos) {
 							Object other_o = other.trace.get(entry.getKey()).get(pos);
 							if (o == null) {
-								if (other_o != null) {
+								if (other_o != null)
 									num++;
-								}
-							} else if (!o.equals(other_o)) {
+							} else if (!o.equals(other_o))
 								num++;
-							}
 						}
 						pos++;
 					}
@@ -194,11 +148,49 @@ public class PrimitiveFieldTrace extends OutputTrace {
 		}
 
 		/*
-		 * for(Entry<Integer, List<Object>> entry : other.trace.entrySet()) {
-		 * if(!trace.containsKey(entry.getKey())) num++; }
-		 */
+		for(Entry<Integer, List<Object>> entry : other.trace.entrySet()) {
+			if(!trace.containsKey(entry.getKey()))
+				num++;
+		}
+		*/
 
 		return num;
+	}
+
+	@Override
+	public boolean isDetectedBy(Assertion assertion) {
+		if (!(assertion instanceof PrimitiveFieldAssertion))
+			return false;
+
+		PrimitiveFieldAssertion p = (PrimitiveFieldAssertion) assertion;
+		if (!p.value.equals(trace.get(p.source.getStPosition())))
+			return true;
+		else
+			return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.OutputTrace#getAllAssertions(de.unisb.cs.st.evosuite.testcase.TestCase)
+	 */
+	@Override
+	public int getAllAssertions(TestCase test) {
+		int num_assertions = 0;
+
+		for (int i = 0; i < test.size(); i++) {
+			if (fieldMap.containsKey(i)) {
+				Map<Field, Object> field = fieldMap.get(i);
+				for (Entry<Field, Object> entry : field.entrySet()) {
+					PrimitiveFieldAssertion assertion = new PrimitiveFieldAssertion();
+					assertion.source = test.getReturnValue(i);
+					assertion.value = entry.getValue();
+					assertion.field = entry.getKey();
+					test.getStatement(i).addAssertion(assertion);
+					num_assertions++;
+				}
+
+			}
+		}
+		return num_assertions;
 	}
 
 }

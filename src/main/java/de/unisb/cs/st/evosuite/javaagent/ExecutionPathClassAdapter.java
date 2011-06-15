@@ -51,7 +51,8 @@ public class ExecutionPathClassAdapter extends ClassAdapter {
 		super(visitor);
 		this.className = className.replace('/', '.');
 
-		if (e.shouldExclude(this.className) || !(this.className.startsWith(Properties.PROJECT_PREFIX))) {
+		if (e.shouldExclude(this.className)
+		        || !(this.className.startsWith(Properties.PROJECT_PREFIX))) {
 			exclude = true;
 		} else {
 			exclude = false;
@@ -65,17 +66,18 @@ public class ExecutionPathClassAdapter extends ClassAdapter {
 	 * java.lang.String, java.lang.String, java.lang.String[])
 	 */
 	@Override
-	public MethodVisitor visitMethod(int methodAccess, String name, String descriptor, String signature,
-			String[] exceptions) {
-		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor, signature, exceptions);
+	public MethodVisitor visitMethod(int methodAccess, String name, String descriptor,
+	        String signature, String[] exceptions) {
+		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor, signature,
+		                                     exceptions);
 
 		// Don't touch bridge and synthetic methods
-		if (((methodAccess & Opcodes.ACC_SYNTHETIC) > 0) || ((methodAccess & Opcodes.ACC_BRIDGE) > 0)) {
+		if ((methodAccess & Opcodes.ACC_SYNTHETIC) > 0
+		        || (methodAccess & Opcodes.ACC_BRIDGE) > 0) {
 			return mv;
 		}
-		if (name.equals("<clinit>")) {
+		if (name.equals("<clinit>"))
 			return mv;
-		}
 
 		if (!exclude) {
 			if (MUTATION) {

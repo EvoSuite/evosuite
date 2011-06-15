@@ -44,7 +44,8 @@ public class FNEG extends gov.nasa.jpf.jvm.bytecode.FNEG {
 		}
 
 		Instruction ret = super.execute(ss, ks, th);
-		sf.setOperandAttr(new RealUnaryExpression(v0, Operator.NEG, (double) Types.intToFloat(sf.peek())));
+		sf.setOperandAttr(new RealUnaryExpression(v0, Operator.NEG,
+		        (double) Types.intToFloat(sf.peek())));
 		return ret;
 
 	}
