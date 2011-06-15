@@ -26,13 +26,14 @@ public class IntegerLocalSearch<T> implements LocalSearch {
 	        LocalSearchObjective objective) {
 
 		PrimitiveStatement<T> p = (PrimitiveStatement<T>) test.test.getStatement(statement);
+		ExecutionResult oldResult = test.last_result;
 		oldValue = p.getValue();
 
 		// Try +1
 		//logger.info("Trying increment of " + p.getCode());
 		p.increment();
 		if (objective.hasImproved(test)) {
-			logger.info("Starting local search on " + p.getCode() + " (was: " + oldValue
+			logger.debug("Starting local search on " + p.getCode() + " (was: " + oldValue
 			        + ")");
 			while (iterate(1, objective, test, p, statement))
 				;
@@ -40,19 +41,23 @@ public class IntegerLocalSearch<T> implements LocalSearch {
 		} else {
 			// Restore original, try -1
 			p.setValue(oldValue);
+			test.last_result = oldResult;
+			test.setChanged(false);
 			//logger.info("Trying decrement of " + p.getCode());
 			p.decrement();
 			if (objective.hasImproved(test)) {
-				logger.info("Starting local search on " + p.getCode() + " (was: "
+				logger.debug("Starting local search on " + p.getCode() + " (was: "
 				        + oldValue + ")");
 				while (iterate(-1, objective, test, p, statement))
 					;
 
 			} else {
 				p.setValue(oldValue);
+				test.last_result = oldResult;
+				test.setChanged(false);
 			}
 		}
-		logger.info("Finished local search with result " + p.getCode());
+		logger.debug("Finished local search with result " + p.getCode());
 	}
 
 	private boolean iterate(long delta, LocalSearchObjective objective,
@@ -60,20 +65,25 @@ public class IntegerLocalSearch<T> implements LocalSearch {
 
 		boolean improvement = false;
 		T oldValue = p.getValue();
-		logger.info("Trying increment " + delta + " of " + p.getCode());
+		ExecutionResult oldResult = test.last_result;
+
+		logger.debug("Trying increment " + delta + " of " + p.getCode());
 
 		p.increment(delta);
 		while (objective.hasImproved(test)) {
 			oldValue = p.getValue();
+			oldResult = test.last_result;
 			improvement = true;
 			delta = 2 * delta;
-			logger.info("Trying increment " + delta + " of " + p.getCode());
+			logger.debug("Trying increment " + delta + " of " + p.getCode());
 			p.increment(delta);
 		}
-		logger.info("No improvement on " + p.getCode());
+		logger.debug("No improvement on " + p.getCode());
 
 		p.setValue(oldValue);
-		logger.info("Final value of this iteration: " + p.getValue());
+		test.last_result = oldResult;
+		test.setChanged(false);
+		logger.debug("Final value of this iteration: " + p.getValue());
 
 		return improvement;
 

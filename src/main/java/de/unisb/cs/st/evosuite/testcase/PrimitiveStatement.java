@@ -303,19 +303,10 @@ public class PrimitiveStatement<T> extends AbstractStatement {
 	private void incrementString() {
 
 		String s = (String) value;
-
-		final double P2 = 1d / 3d;
-		double P = 1d / s.length();
-		P = 1d / s.length();
-		// Change
-		if (Randomness.nextDouble() < P2) {
-			for (int i = 0; i < s.length(); i++) {
-				if (Randomness.nextDouble() < P) {
-					// logger.info("Before change: '"+s+"'");
-					s = replaceCharAt(s, i, Randomness.nextChar());
-					// logger.info("After change: '"+s+"'");
-				}
-			}
+		if (s.isEmpty()) {
+			s += Randomness.nextChar();
+		} else {
+			s = replaceCharAt(s, Randomness.nextInt(s.length()), Randomness.nextChar());
 		}
 
 		value = (T) s;

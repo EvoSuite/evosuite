@@ -27,6 +27,7 @@ public class FloatLocalSearch<T> implements LocalSearch {
 
 		PrimitiveStatement<T> p = (PrimitiveStatement<T>) test.test.getStatement(statement);
 		oldValue = p.getValue();
+		ExecutionResult oldResult = test.last_result;
 
 		double minValue = Double.MIN_VALUE;
 		if (oldValue.getClass().equals(Float.class))
@@ -44,6 +45,9 @@ public class FloatLocalSearch<T> implements LocalSearch {
 		} else {
 			// Restore original, try -1
 			p.setValue(oldValue);
+			test.last_result = oldResult;
+			test.setChanged(false);
+
 			logger.info("Trying decrement of " + p.getCode());
 			p.decrement();
 			if (objective.hasImproved(test)) {
@@ -54,6 +58,8 @@ public class FloatLocalSearch<T> implements LocalSearch {
 
 			} else {
 				p.setValue(oldValue);
+				test.last_result = oldResult;
+				test.setChanged(false);
 			}
 		}
 		logger.info("Finished local search with result " + p.getCode());
@@ -64,11 +70,14 @@ public class FloatLocalSearch<T> implements LocalSearch {
 
 		boolean improvement = false;
 		T oldValue = p.getValue();
+		ExecutionResult oldResult = test.last_result;
 		logger.info("Trying increment " + delta + " of " + p.getCode());
 
 		p.increment(delta);
 		while (objective.hasImproved(test)) {
 			oldValue = p.getValue();
+			oldResult = test.last_result;
+			test.setChanged(false);
 			improvement = true;
 			delta = 2 * delta;
 			logger.info("Trying increment " + delta + " of " + p.getCode());
@@ -76,6 +85,8 @@ public class FloatLocalSearch<T> implements LocalSearch {
 		}
 
 		p.setValue(oldValue);
+		test.last_result = oldResult;
+		test.setChanged(false);
 
 		return improvement;
 
@@ -86,11 +97,14 @@ public class FloatLocalSearch<T> implements LocalSearch {
 
 		boolean improvement = false;
 		T oldValue = p.getValue();
+		ExecutionResult oldResult = test.last_result;
 		logger.info("Trying increment " + delta + " of " + p.getCode());
 
 		p.increment(delta);
 		while (objective.hasImproved(test)) {
 			oldValue = p.getValue();
+			oldResult = test.last_result;
+			test.setChanged(false);
 			improvement = true;
 			delta = 2 * delta;
 			if (delta > 1)
@@ -100,6 +114,8 @@ public class FloatLocalSearch<T> implements LocalSearch {
 		}
 
 		p.setValue(oldValue);
+		test.last_result = oldResult;
+		test.setChanged(false);
 
 		return improvement;
 
