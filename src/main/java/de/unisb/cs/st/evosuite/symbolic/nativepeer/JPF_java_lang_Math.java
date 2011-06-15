@@ -44,8 +44,7 @@ public class JPF_java_lang_Math {
 			return Math.acos(a);
 		} else {
 			double ret = Math.acos(a);
-			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.ACOS,
-			        ret);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.ACOS, ret);
 			env.setReturnAttribute(result);
 			return ret;
 		}
@@ -62,8 +61,7 @@ public class JPF_java_lang_Math {
 			return Math.asin(a);
 		} else {
 			double ret = Math.asin(a);
-			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.ASIN,
-			        ret);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.ASIN, ret);
 			env.setReturnAttribute(result);
 			return ret;
 		}
@@ -79,8 +77,7 @@ public class JPF_java_lang_Math {
 			return Math.atan(a);
 		} else {
 			double ret = Math.atan(a);
-			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.ATAN,
-			        ret);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.ATAN, ret);
 			env.setReturnAttribute(result);
 			return ret;
 		}
@@ -95,20 +92,34 @@ public class JPF_java_lang_Math {
 		Expression<Double> sym_arg2 = (Expression<Double>) attrs[1];
 		Expression<Double> result;
 		double ret = Math.atan2(a, b);
-		if (sym_arg1 == null && sym_arg2 == null) {
+		if ((sym_arg1 == null) && (sym_arg2 == null)) {
 			return ret;
 		} else if (sym_arg1 == null) {
-			result = new RealBinaryExpression(new RealConstant(a), Operator.ATAN2,
-			        sym_arg2, ret);
+			result = new RealBinaryExpression(new RealConstant(a), Operator.ATAN2, sym_arg2, ret);
 		} else if (sym_arg2 == null) {
-			result = new RealBinaryExpression(sym_arg1, Operator.ATAN2, new RealConstant(
-			        b), ret);
+			result = new RealBinaryExpression(sym_arg1, Operator.ATAN2, new RealConstant(b), ret);
 		} else {
 			result = new RealBinaryExpression(sym_arg1, Operator.ATAN2, sym_arg2, ret);
 		}
 
 		env.setReturnAttribute(result);
 		return ret;
+	}
+
+	public static double ceil__D__D(MJIEnv env, int rcls, double v0) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.ceil(v0);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.ceil(v0);
+		} else {
+			double ret = Math.ceil(v0);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.ROUND, ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
 	}
 
 	public static double cos__D__D(MJIEnv env, int clsObjRef, double a) {
@@ -121,8 +132,7 @@ public class JPF_java_lang_Math {
 			return Math.cos(a);
 		} else {
 			double ret = Math.cos(a);
-			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.COS,
-			        ret);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.COS, ret);
 			env.setReturnAttribute(result);
 			return ret;
 		}
@@ -138,8 +148,23 @@ public class JPF_java_lang_Math {
 			return Math.exp(a);
 		} else {
 			double ret = Math.exp(a);
-			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.EXP,
-			        ret);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.EXP, ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+
+	public static double floor__D__D(MJIEnv env, int rcls, double v0) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.floor(v0);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.floor(v0);
+		} else {
+			double ret = Math.floor(v0);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.FLOOR, ret);
 			env.setReturnAttribute(result);
 			return ret;
 		}
@@ -155,8 +180,7 @@ public class JPF_java_lang_Math {
 			return Math.log(a);
 		} else {
 			double ret = Math.log(a);
-			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.LOG,
-			        ret);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.LOG, ret);
 			env.setReturnAttribute(result);
 			return ret;
 		}
@@ -172,8 +196,7 @@ public class JPF_java_lang_Math {
 			return Math.log10(a);
 		} else {
 			double ret = Math.log10(a);
-			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.LOG10,
-			        ret);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.LOG10, ret);
 			env.setReturnAttribute(result);
 			return ret;
 		}
@@ -188,14 +211,12 @@ public class JPF_java_lang_Math {
 		Expression<Double> sym_arg2 = (Expression<Double>) attrs[1];
 		Expression<Double> result;
 		double ret = Math.pow(a, b);
-		if (sym_arg1 == null && sym_arg2 == null) {
+		if ((sym_arg1 == null) && (sym_arg2 == null)) {
 			return ret;
 		} else if (sym_arg1 == null) {
-			result = new RealBinaryExpression(new RealConstant(a), Operator.POW,
-			        sym_arg2, ret);
+			result = new RealBinaryExpression(new RealConstant(a), Operator.POW, sym_arg2, ret);
 		} else if (sym_arg2 == null) {
-			result = new RealBinaryExpression(sym_arg1, Operator.POW,
-			        new RealConstant(b), ret);
+			result = new RealBinaryExpression(sym_arg1, Operator.POW, new RealConstant(b), ret);
 		} else {
 			result = new RealBinaryExpression(sym_arg1, Operator.POW, sym_arg2, ret);
 		}
@@ -204,53 +225,17 @@ public class JPF_java_lang_Math {
 		return ret;
 	}
 
-	public static double sin__D__D(MJIEnv env, int clsObjRef, double a) {
+	public static long round__D__J(MJIEnv env, int rcls, double v0) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
-			return Math.sin(a);
+			return Math.round(v0);
 		}
 		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
 		if (sym_arg == null) { // concrete
-			return Math.sin(a);
+			return Math.round(v0);
 		} else {
-			double ret = Math.sin(a);
-			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.SIN,
-			        ret);
-			env.setReturnAttribute(result);
-			return ret;
-		}
-
-	}
-
-	public static double sqrt__D__D(MJIEnv env, int clsObjRef, double a) {
-		Object[] attrs = env.getArgAttributes();
-		if (attrs == null) {
-			return Math.sqrt(a);
-		}
-		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
-		if (sym_arg == null) { // concrete
-			return Math.sqrt(a);
-		} else {
-			double ret = Math.sqrt(a);
-			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.SQRT,
-			        ret);
-			env.setReturnAttribute(result);
-			return ret;
-		}
-	}
-
-	public static double tan__D__D(MJIEnv env, int clsObjRef, double a) {
-		Object[] attrs = env.getArgAttributes();
-		if (attrs == null) {
-			return Math.tan(a);
-		}
-		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
-		if (sym_arg == null) { // concrete
-			return Math.tan(a);
-		} else {
-			double ret = Math.tan(a);
-			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.TAN,
-			        ret);
+			long ret = Math.round(v0);
+			IntegerExpression result = new RealToIntegerCast(sym_arg, ret);
 			env.setReturnAttribute(result);
 			return ret;
 		}
@@ -272,51 +257,50 @@ public class JPF_java_lang_Math {
 		}
 	}
 
-	public static long round__D__J(MJIEnv env, int rcls, double v0) {
+	public static double sin__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
-			return Math.round(v0);
+			return Math.sin(a);
 		}
 		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
 		if (sym_arg == null) { // concrete
-			return Math.round(v0);
+			return Math.sin(a);
 		} else {
-			long ret = Math.round(v0);
-			IntegerExpression result = new RealToIntegerCast(sym_arg, ret);
+			double ret = Math.sin(a);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.SIN, ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+
+	}
+
+	public static double sqrt__D__D(MJIEnv env, int clsObjRef, double a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.sqrt(a);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.sqrt(a);
+		} else {
+			double ret = Math.sqrt(a);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.SQRT, ret);
 			env.setReturnAttribute(result);
 			return ret;
 		}
 	}
 
-	public static double ceil__D__D(MJIEnv env, int rcls, double v0) {
+	public static double tan__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
-			return Math.ceil(v0);
+			return Math.tan(a);
 		}
 		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
 		if (sym_arg == null) { // concrete
-			return Math.ceil(v0);
+			return Math.tan(a);
 		} else {
-			double ret = Math.ceil(v0);
-			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.ROUND,
-			        ret);
-			env.setReturnAttribute(result);
-			return ret;
-		}
-	}
-
-	public static double floor__D__D(MJIEnv env, int rcls, double v0) {
-		Object[] attrs = env.getArgAttributes();
-		if (attrs == null) {
-			return Math.floor(v0);
-		}
-		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
-		if (sym_arg == null) { // concrete
-			return Math.floor(v0);
-		} else {
-			double ret = Math.floor(v0);
-			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.FLOOR,
-			        ret);
+			double ret = Math.tan(a);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.TAN, ret);
 			env.setReturnAttribute(result);
 			return ret;
 		}

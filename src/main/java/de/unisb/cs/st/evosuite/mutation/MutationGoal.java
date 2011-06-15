@@ -53,20 +53,6 @@ public class MutationGoal extends TestCoverageGoal {
 
 	private final String methodName;
 
-	/**
-	 * @return the className
-	 */
-	public String getClassName() {
-		return className;
-	}
-
-	/**
-	 * @return the methodName
-	 */
-	public String getMethodName() {
-		return methodName;
-	}
-
 	private AccessibleObject targetMethod = null;
 
 	private Class<?> methodSource = null;
@@ -77,7 +63,8 @@ public class MutationGoal extends TestCoverageGoal {
 		this.mutation = mutation;
 		this.className = mutation.getClassName();
 		this.methodName = mutation.getMethodName();
-		//		this.cfg = ExecutionTracer.getExecutionTracer().getCFG(className, methodName);
+		// this.cfg = ExecutionTracer.getExecutionTracer().getCFG(className,
+		// methodName);
 		this.cfg = CFGPool.getActualCFG(className, methodName);
 		if (this.cfg == null) {
 			logger.warn("Found no CFG for " + className + "." + methodName);
@@ -86,8 +73,7 @@ public class MutationGoal extends TestCoverageGoal {
 			Class<?> clazz = Class.forName(className);
 			if (methodName.startsWith("<init>")) {
 				for (Constructor<?> constructor : TestCluster.getConstructors(clazz)) {
-					String name = "<init>"
-					        + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
+					String name = "<init>" + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
 					if (name.equals(methodName)) {
 						this.targetMethod = constructor;
 						this.parameters = constructor.getParameterTypes();
@@ -96,26 +82,216 @@ public class MutationGoal extends TestCoverageGoal {
 				}
 			} else {
 				for (Method method : TestCluster.getMethods(clazz)) {
-					String name = method.getName()
-					        + org.objectweb.asm.Type.getMethodDescriptor(method);
+					String name = method.getName() + org.objectweb.asm.Type.getMethodDescriptor(method);
 					if (name.equals(methodName)) {
 						this.targetMethod = method;
 						this.parameters = method.getParameterTypes();
-						if (!Modifier.isStatic(method.getModifiers()))
+						if (!Modifier.isStatic(method.getModifiers())) {
 							this.methodSource = method.getDeclaringClass();
+						}
 						break;
 					}
 				}
 			}
-			if (this.targetMethod == null)
+			if (this.targetMethod == null) {
 				logger.error("Could not find method " + methodName);
+			}
 		} catch (ClassNotFoundException e) {
 			logger.error("Could not find mutated method");
 		}
 	}
 
+	/**
+	 * @return the className
+	 */
+	public String getClassName() {
+		return className;
+	}
+
+	public ControlFlowDistance getDistance(ExecutionResult result) {
+		ControlFlowDistance d = new ControlFlowDistance();
+		logger.debug("Getting distance");
+
+		if (hasTimeout(result)) {
+			logger.debug("Has timeout!");
+			if (cfg == null) {
+				d.approachLevel = 20;
+			} else {
+				d.approachLevel = cfg.getDiameter() + 2;
+			}
+			return d;
+		}
+
+		if (result.touched.contains(mutation.getId())) {
+			logger.debug("Mutation was touched");
+			return d;
+		}
+
+		if (cfg == null) {
+			logger.warn("Have no cfg for method " + className + "." + methodName);
+			for (MethodCall call : result.getTrace().finished_calls) {
+				if (call.className.equals("")) {
+					continue;
+				}
+				if ((call.className + "." + call.methodName).equals(methodName)) {
+					return d;
+				}
+			}
+			d.approachLevel = 1;
+			return d;
+		}
+
+		d.approachLevel = cfg.getDiameter() + 1;
+
+		// Minimal distance between target node and path
+		boolean method_executed = false;
+		for (MethodCall call : result.getTrace().finished_calls) {
+			if (call.className.equals(className) && call.methodName.equals(methodName)) {
+				logger.debug("Found target call for mutant " + mutation.getId() + " in method " + className + "."
+						+ methodName);
+				// logger.info(cfg.toString());
+				// for(Integer i : call.branch_trace) {
+				// logger.info(" -> "+i);
+				// }
+				method_executed = true;
+				ControlFlowDistance d2 = getDistance(call.branchTrace, call.trueDistanceTrace, call.falseDistanceTrace,
+						call.lineTrace);
+				if (d2.compareTo(d) < 0) {
+					d = d2;
+				}
+			}
+		}
+		if (!method_executed) {
+			logger.debug("Method " + methodName + "not executed by test");
+			boolean found = false;
+			for (StatementInterface s : result.test) {
+				if (s instanceof MethodStatement) {
+					MethodStatement ms = (MethodStatement) s;
+					Method method = ms.getMethod();
+					// logger.info("Comparing with "+className+" . "+methodName);
+					// logger.info(method.getDeclaringClass().getName()+" . "+method.getName());
+					if (methodName.startsWith(method.getName())
+							&& method.getDeclaringClass().getName().equals(className)) {
+						found = true;
+						break;
+					}
+				}
+			}
+			if (!found) {
+				d.approachLevel++;
+			}
+			d.approachLevel += getMethodDistance(result);
+		}
+		// else
+		// cfg.toDot(className+"."+methodName.replace(";","").replace("(","").replace(")",
+		// "").replace("/",".")+".dot");
+		return d;
+	}
+
+	/**
+	 * @return the methodName
+	 */
+	public String getMethodName() {
+		return methodName;
+	}
+
 	public Mutation getMutation() {
 		return mutation;
+	}
+
+	/**
+	 * Determines whether this goals is connected to the given goal
+	 * 
+	 * This is the case when this goals target branch is control dependent on
+	 * the target branch of the given goal or visa versa
+	 * 
+	 * This is used in the ChromosomeRecycler to determine if tests produced to
+	 * cover one goal should be used initially when trying to cover the other
+	 * goal
+	 */
+	public boolean isConnectedTo(MutationGoal goal) {
+		return goal.getMethodName().equals(methodName) && goal.className.equals(className);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.coverage.TestCoverageGoal#isCovered(de.unisb.
+	 * cs.st.evosuite.testcase.TestCase)
+	 */
+	@Override
+	public boolean isCovered(TestChromosome test) {
+		// TODO: FIXXME
+		return false;
+	}
+
+	private ControlFlowDistance getDistance(List<Integer> path, List<Double> true_distances,
+			List<Double> false_distances, List<Integer> line_trace) {
+		// CFGVertex m = cfg.getVertex(branch_id);
+		BasicBlock b = cfg.getMutation(mutation.getId());
+
+		ControlFlowDistance d = new ControlFlowDistance();
+		if (b == null) {
+			logger.error("Could not find mutant node " + mutation.getId());
+			for (Long mi : cfg.getMutations()) {
+				logger.error("Have mutation: " + mi);
+			}
+			return d;
+		}
+
+		BytecodeInstruction m = b.getMutation(mutation.getId());
+		if (m == null) {
+			throw new IllegalStateException(
+					"expect the BasicBlock in a CFG returned by getMutation(id) to contain an instruction with that mutationId");
+		}
+
+		int min_approach = cfg.getDiameter();
+		// int min_approach = cfg.getInitialDistance(m);
+		logger.debug("Initial distance: " + min_approach);
+		double min_dist = 0.0;
+		for (int i = 0; i < path.size(); i++) {
+			BytecodeInstruction v = cfg.getInstruction(path.get(i));
+			if (v != null) {
+				int distance = cfg.getDistance(v, m);
+				if (cfg.isDirectSuccessor(m, v)) {
+					distance = 0;
+				}
+
+				logger.debug("B: Path vertex " + i + "(" + v.toString() + ") has distance: " + distance
+						+ " and branch distance " + Math.max(true_distances.get(i), false_distances.get(i)));
+
+				if ((distance <= min_approach) && (distance >= 0)) {
+					double branch_distance = true_distances.get(i) + false_distances.get(i);
+					if (distance == 0) {
+						min_approach = 0;
+						min_dist = 0;
+					}/*
+					 * else if(distance == 1) { min_approach = 1; min_dist = 0;
+					 * }
+					 */
+					else if (distance == min_approach) {
+						min_dist = Math.min(min_dist, branch_distance);
+					} else {
+						min_dist = branch_distance;
+						min_approach = distance;
+					}
+				}
+			} else {
+				logger.info("Path vertex does not exist in graph");
+			}
+		}
+
+		d.approachLevel = min_approach;
+		d.branchDistance = min_dist;
+		/*
+		 * if(line_trace.contains(mutation.getLineNumber()) && d.approach <= 1)
+		 * { logger.info("Mutant line was executed");
+		 * logger.info("But approach/branch is "+d.approach+"/"+d.branch);
+		 * return new ControlFlowDistance(); }
+		 */
+
+		return d;
 	}
 
 	private int getMethodDistance(ExecutionResult result) {
@@ -123,8 +299,9 @@ public class MutationGoal extends TestCoverageGoal {
 		boolean have_callee = false;
 		if (methodSource != null) {
 			max++;
-		} else
+		} else {
 			have_callee = true;
+		}
 
 		int num_satisfied = 0;
 		List<Boolean> satisfied = new ArrayList<Boolean>();
@@ -157,179 +334,6 @@ public class MutationGoal extends TestCoverageGoal {
 		}
 		logger.debug("Satisfied " + num_satisfied + " out of " + max + " parameters");
 		return max - num_satisfied; // + result.exceptions.size();
-	}
-
-	public ControlFlowDistance getDistance(ExecutionResult result) {
-		ControlFlowDistance d = new ControlFlowDistance();
-		logger.debug("Getting distance");
-
-		if (hasTimeout(result)) {
-			logger.debug("Has timeout!");
-			if (cfg == null) {
-				d.approachLevel = 20;
-			} else {
-				d.approachLevel = cfg.getDiameter() + 2;
-			}
-			return d;
-		}
-
-		if (result.touched.contains(mutation.getId())) {
-			logger.debug("Mutation was touched");
-			return d;
-		}
-
-		if (cfg == null) {
-			logger.warn("Have no cfg for method " + className + "." + methodName);
-			for (MethodCall call : result.getTrace().finished_calls) {
-				if (call.className.equals(""))
-					continue;
-				if ((call.className + "." + call.methodName).equals(methodName)) {
-					return d;
-				}
-			}
-			d.approachLevel = 1;
-			return d;
-		}
-
-		d.approachLevel = cfg.getDiameter() + 1;
-
-		// Minimal distance between target node and path
-		boolean method_executed = false;
-		for (MethodCall call : result.getTrace().finished_calls) {
-			if (call.className.equals(className) && call.methodName.equals(methodName)) {
-				logger.debug("Found target call for mutant " + mutation.getId()
-				        + " in method " + className + "." + methodName);
-				//logger.info(cfg.toString());
-				//for(Integer i : call.branch_trace) {
-				//	logger.info(" -> "+i);
-				//}
-				method_executed = true;
-				ControlFlowDistance d2 = getDistance(call.branchTrace,
-				                                     call.trueDistanceTrace,
-				                                     call.falseDistanceTrace,
-				                                     call.lineTrace);
-				if (d2.compareTo(d) < 0) {
-					d = d2;
-				}
-			}
-		}
-		if (!method_executed) {
-			logger.debug("Method " + methodName + "not executed by test");
-			boolean found = false;
-			for (StatementInterface s : result.test) {
-				if (s instanceof MethodStatement) {
-					MethodStatement ms = (MethodStatement) s;
-					Method method = ms.getMethod();
-					//logger.info("Comparing with "+className+" . "+methodName);
-					//logger.info(method.getDeclaringClass().getName()+" . "+method.getName());
-					if (methodName.startsWith(method.getName())
-					        && method.getDeclaringClass().getName().equals(className)) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found)
-				d.approachLevel++;
-			d.approachLevel += getMethodDistance(result);
-		}
-		//else
-		//	cfg.toDot(className+"."+methodName.replace(";","").replace("(","").replace(")", "").replace("/",".")+".dot");
-		return d;
-	}
-
-	private ControlFlowDistance getDistance(List<Integer> path,
-	        List<Double> true_distances, List<Double> false_distances,
-	        List<Integer> line_trace) {
-		//CFGVertex m = cfg.getVertex(branch_id);
-		BasicBlock b = cfg.getMutation(mutation.getId());
-
-		ControlFlowDistance d = new ControlFlowDistance();
-		if (b == null) {
-			logger.error("Could not find mutant node " + mutation.getId());
-			for (Long mi : cfg.getMutations())
-				logger.error("Have mutation: " + mi);
-			return d;
-		}
-
-		BytecodeInstruction m = b.getMutation(mutation.getId());
-		if (m == null)
-			throw new IllegalStateException(
-			        "expect the BasicBlock in a CFG returned by getMutation(id) to contain an instruction with that mutationId");
-
-		int min_approach = cfg.getDiameter();
-		//int min_approach = cfg.getInitialDistance(m);
-		logger.debug("Initial distance: " + min_approach);
-		double min_dist = 0.0;
-		for (int i = 0; i < path.size(); i++) {
-			BytecodeInstruction v = cfg.getInstruction(path.get(i));
-			if (v != null) {
-				int distance = cfg.getDistance(v, m);
-				if (cfg.isDirectSuccessor(m, v))
-					distance = 0;
-
-				logger.debug("B: Path vertex " + i + "(" + v.toString()
-				        + ") has distance: " + distance + " and branch distance "
-				        + Math.max(true_distances.get(i), false_distances.get(i)));
-
-				if (distance <= min_approach && distance >= 0) {
-					double branch_distance = true_distances.get(i)
-					        + false_distances.get(i);
-					if (distance == 0) {
-						min_approach = 0;
-						min_dist = 0;
-					}/*
-					 else if(distance == 1) {
-					 min_approach = 1;
-					 min_dist = 0;
-					 }*/
-					else if (distance == min_approach)
-						min_dist = Math.min(min_dist, branch_distance);
-					else {
-						min_dist = branch_distance;
-						min_approach = distance;
-					}
-				}
-			} else {
-				logger.info("Path vertex does not exist in graph");
-			}
-		}
-
-		d.approachLevel = min_approach;
-		d.branchDistance = min_dist;
-		/*
-		if(line_trace.contains(mutation.getLineNumber()) && d.approach <= 1) {
-			logger.info("Mutant line was executed");
-			logger.info("But approach/branch is "+d.approach+"/"+d.branch);
-			return new ControlFlowDistance();
-		}
-		*/
-
-		return d;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.coverage.TestCoverageGoal#isCovered(de.unisb.cs.st.evosuite.testcase.TestCase)
-	 */
-	@Override
-	public boolean isCovered(TestChromosome test) {
-		// TODO: FIXXME
-		return false;
-	}
-
-	/**
-	 * Determines whether this goals is connected to the given goal
-	 * 
-	 * This is the case when this goals target branch is control dependent on
-	 * the target branch of the given goal or visa versa
-	 * 
-	 * This is used in the ChromosomeRecycler to determine if tests produced to
-	 * cover one goal should be used initially when trying to cover the other
-	 * goal
-	 */
-	public boolean isConnectedTo(MutationGoal goal) {
-		return goal.getMethodName().equals(methodName)
-		        && goal.className.equals(className);
 	}
 
 }

@@ -51,8 +51,7 @@ public class FieldStatement extends AbstractStatement {
 	private final String className;
 	private final String fieldName;
 
-	public FieldStatement(TestCase tc, Field field, VariableReference source,
-	        java.lang.reflect.Type type) {
+	public FieldStatement(TestCase tc, Field field, VariableReference source, java.lang.reflect.Type type) {
 		super(tc, new VariableReferenceImpl(tc, type));
 		this.field = field;
 		this.className = field.getDeclaringClass().getName();
@@ -71,88 +70,50 @@ public class FieldStatement extends AbstractStatement {
 	 * @param source
 	 * @param ret_var
 	 */
-	public FieldStatement(TestCase tc, Field field, VariableReference source,
-	        VariableReference ret_var) {
+	public FieldStatement(TestCase tc, Field field, VariableReference source, VariableReference ret_var) {
 		super(tc, ret_var);
-		assert (tc.size() > ret_var.getStPosition()); //as an old statement should be replaced by this statement
+		assert (tc.size() > ret_var.getStPosition()); // as an old statement
+														// should be replaced by
+														// this statement
 		this.field = field;
 		this.className = field.getDeclaringClass().getName();
 		this.fieldName = field.getName();
 		this.source = source;
 	}
 
-	private Object readResolve() {
-		try {
-			Class<?> clazz = Class.forName(className);
-			this.field = clazz.getField(fieldName);
-		} catch (ClassNotFoundException e) {
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchFieldException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return this;
-	}
-
-	public VariableReference getSource() {
-		return source;
-	}
-
-	public void setSource(VariableReference source) {
-		this.source = source;
-	}
-
-	public boolean isStatic() {
-		return Modifier.isStatic(field.getModifiers());
-	}
-
-	@Override
-	public String getCode(Throwable exception) {
-		String cast_str = "  ";
-		String result = "";
-		if (!retval.getVariableClass().isAssignableFrom(field.getType())) {
-			cast_str += "(" + retval.getSimpleClassName() + ")";
-		}
-
-		if (exception != null) {
-			result = retval.getSimpleClassName() + " " + retval.getName() + " = null;\n";
-			result += "try {\n  ";
-		} else {
-			result = retval.getSimpleClassName() + " ";
-		}
-		if (!Modifier.isStatic(field.getModifiers()))
-			result += retval.getName() + " = " + cast_str + source.getName() + "."
-			        + field.getName() + ";";
-		else
-			result += retval.getName() + " = " + cast_str
-			        + field.getDeclaringClass().getSimpleName() + "." + field.getName()
-			        + ";";
-		if (exception != null) {
-			Class<?> ex = exception.getClass();
-			while (!Modifier.isPublic(ex.getModifiers()))
-				ex = ex.getSuperclass();
-			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {}";
-		}
-
-		return result;
-	}
-
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
-		if (Modifier.isStatic(field.getModifiers()))
+		if (Modifier.isStatic(field.getModifiers())) {
 			return new FieldStatement(newTestCase, field, null, retval.getType());
-		else
-			return new FieldStatement(newTestCase, field,
-			        newTestCase.getStatement(source.getStPosition()).getReturnValue(),
-			        retval.getType());
+		} else {
+			return new FieldStatement(newTestCase, field, newTestCase.getStatement(source.getStPosition())
+					.getReturnValue(), retval.getType());
+		}
 	}
 
 	@Override
-	public Throwable execute(Scope scope, PrintStream out)
-	        throws InvocationTargetException, IllegalArgumentException,
-	        IllegalAccessException, InstantiationException {
+	public boolean equals(Object s) {
+		if (this == s) {
+			return true;
+		}
+		if (s == null) {
+			return false;
+		}
+		if (getClass() != s.getClass()) {
+			return false;
+		}
+
+		FieldStatement fs = (FieldStatement) s;
+		if (!Modifier.isStatic(field.getModifiers())) {
+			return source.equals(fs.source) && retval.equals(fs.retval) && field.equals(fs.field);
+		} else {
+			return retval.equals(fs.retval) && field.equals(fs.field);
+		}
+	}
+
+	@Override
+	public Throwable execute(Scope scope, PrintStream out) throws InvocationTargetException, IllegalArgumentException,
+			IllegalAccessException, InstantiationException {
 		Object source_object = null;
 		try {
 			if (!Modifier.isStatic(field.getModifiers())) {
@@ -169,67 +130,12 @@ public class FieldStatement extends AbstractStatement {
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
 				e = e.getCause();
 				logger.debug("Exception thrown in constructor: " + e);
-			} else
+			} else {
 				logger.debug("Exception thrown in constructor: " + e);
+			}
 			exceptionThrown = e;
 		}
 		return exceptionThrown;
-	}
-
-	@Override
-	public Set<VariableReference> getVariableReferences() {
-		Set<VariableReference> references = new HashSet<VariableReference>();
-		references.add(retval);
-		if (!Modifier.isStatic(field.getModifiers())) {
-			references.add(source);
-			if (source instanceof ArrayIndex)
-				references.add(((ArrayIndex) source).getArray());
-		}
-		return references;
-
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
-	 */
-	@Override
-	public void replace(VariableReference var1, VariableReference var2) {
-		if (!Modifier.isStatic(field.getModifiers())) {
-			if (source.equals(var1))
-				source = var2;
-			//else if (source instanceof ArrayIndex && var2 instanceof ArrayIndex)
-			// TODO: FIXXME
-		}
-	}
-
-	@Override
-	public boolean equals(Object s) {
-		if (this == s)
-			return true;
-		if (s == null)
-			return false;
-		if (getClass() != s.getClass())
-			return false;
-
-		FieldStatement fs = (FieldStatement) s;
-		if (!Modifier.isStatic(field.getModifiers()))
-			return source.equals(fs.source) && retval.equals(fs.retval)
-			        && field.equals(fs.field);
-		else
-			return retval.equals(fs.retval) && field.equals(fs.field);
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 51;
-		int result = 1;
-		result = prime * result + ((field == null) ? 0 : field.hashCode());
-		result = prime * result + ((source == null) ? 0 : source.hashCode());
-		return result;
-	}
-
-	public Field getField() {
-		return field;
 	}
 
 	/*
@@ -240,8 +146,7 @@ public class FieldStatement extends AbstractStatement {
 	 * asm.commons.GeneratorAdapter)
 	 */
 	@Override
-	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        Throwable exception) {
+	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception) {
 
 		Label start = mg.newLabel();
 		Label end = mg.newLabel();
@@ -252,16 +157,13 @@ public class FieldStatement extends AbstractStatement {
 		if (!isStatic()) {
 			source.loadBytecode(mg, locals);
 		}
-		if (isStatic())
-			mg.getStatic(Type.getType(field.getDeclaringClass()), field.getName(),
-			             Type.getType(field.getType()));
-		else {
+		if (isStatic()) {
+			mg.getStatic(Type.getType(field.getDeclaringClass()), field.getName(), Type.getType(field.getType()));
+		} else {
 			if (!source.getVariableClass().isInterface()) {
-				mg.getField(Type.getType(source.getVariableClass()), field.getName(),
-				            Type.getType(field.getType()));
+				mg.getField(Type.getType(source.getVariableClass()), field.getName(), Type.getType(field.getType()));
 			} else {
-				mg.getField(Type.getType(field.getDeclaringClass()), field.getName(),
-				            Type.getType(field.getType()));
+				mg.getField(Type.getType(field.getDeclaringClass()), field.getName(), Type.getType(field.getType()));
 			}
 		}
 
@@ -276,31 +178,71 @@ public class FieldStatement extends AbstractStatement {
 		mg.pop(); // Pop exception from stack
 		if (!retval.isVoid()) {
 			Class<?> clazz = retval.getVariableClass();
-			if (clazz.equals(boolean.class))
+			if (clazz.equals(boolean.class)) {
 				mg.push(false);
-			else if (clazz.equals(char.class))
+			} else if (clazz.equals(char.class)) {
 				mg.push(0);
-			else if (clazz.equals(int.class))
+			} else if (clazz.equals(int.class)) {
 				mg.push(0);
-			else if (clazz.equals(short.class))
+			} else if (clazz.equals(short.class)) {
 				mg.push(0);
-			else if (clazz.equals(long.class))
+			} else if (clazz.equals(long.class)) {
 				mg.push(0L);
-			else if (clazz.equals(float.class))
+			} else if (clazz.equals(float.class)) {
 				mg.push(0.0F);
-			else if (clazz.equals(double.class))
+			} else if (clazz.equals(double.class)) {
 				mg.push(0.0);
-			else if (clazz.equals(byte.class))
+			} else if (clazz.equals(byte.class)) {
 				mg.push(0);
-			else if (clazz.equals(String.class))
+			} else if (clazz.equals(String.class)) {
 				mg.push("");
-			else
+			} else {
 				mg.visitInsn(Opcodes.ACONST_NULL);
+			}
 
 			retval.storeBytecode(mg, locals);
 		}
 		mg.mark(l);
 		// }
+	}
+
+	@Override
+	public String getCode(Throwable exception) {
+		String cast_str = "  ";
+		String result = "";
+		if (!retval.getVariableClass().isAssignableFrom(field.getType())) {
+			cast_str += "(" + retval.getSimpleClassName() + ")";
+		}
+
+		if (exception != null) {
+			result = retval.getSimpleClassName() + " " + retval.getName() + " = null;\n";
+			result += "try {\n  ";
+		} else {
+			result = retval.getSimpleClassName() + " ";
+		}
+		if (!Modifier.isStatic(field.getModifiers())) {
+			result += retval.getName() + " = " + cast_str + source.getName() + "." + field.getName() + ";";
+		} else {
+			result += retval.getName() + " = " + cast_str + field.getDeclaringClass().getSimpleName() + "."
+					+ field.getName() + ";";
+		}
+		if (exception != null) {
+			Class<?> ex = exception.getClass();
+			while (!Modifier.isPublic(ex.getModifiers())) {
+				ex = ex.getSuperclass();
+			}
+			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {}";
+		}
+
+		return result;
+	}
+
+	public Field getField() {
+		return field;
+	}
+
+	public VariableReference getSource() {
+		return source;
 	}
 
 	/*
@@ -315,20 +257,89 @@ public class FieldStatement extends AbstractStatement {
 	}
 
 	@Override
+	public Set<VariableReference> getVariableReferences() {
+		Set<VariableReference> references = new HashSet<VariableReference>();
+		references.add(retval);
+		if (!Modifier.isStatic(field.getModifiers())) {
+			references.add(source);
+			if (source instanceof ArrayIndex) {
+				references.add(((ArrayIndex) source).getArray());
+			}
+		}
+		return references;
+
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 51;
+		int result = 1;
+		result = prime * result + ((field == null) ? 0 : field.hashCode());
+		result = prime * result + ((source == null) ? 0 : source.hashCode());
+		return result;
+	}
+
+	public boolean isStatic() {
+		return Modifier.isStatic(field.getModifiers());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.
+	 * cs.st.evosuite.testcase.VariableReference,
+	 * de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void replace(VariableReference var1, VariableReference var2) {
+		if (!Modifier.isStatic(field.getModifiers())) {
+			if (source.equals(var1)) {
+				source = var2;
+				// else if (source instanceof ArrayIndex && var2 instanceof
+				// ArrayIndex)
+				// TODO: FIXXME
+			}
+		}
+	}
+
+	@Override
 	public boolean same(StatementInterface s) {
-		if (this == s)
+		if (this == s) {
 			return true;
-		if (s == null)
+		}
+		if (s == null) {
 			return false;
-		if (getClass() != s.getClass())
+		}
+		if (getClass() != s.getClass()) {
 			return false;
+		}
 
 		FieldStatement fs = (FieldStatement) s;
-		if (!Modifier.isStatic(field.getModifiers()))
-			return source.same(fs.source) && retval.same(fs.retval)
-			        && field.equals(fs.field);
-		else
+		if (!Modifier.isStatic(field.getModifiers())) {
+			return source.same(fs.source) && retval.same(fs.retval) && field.equals(fs.field);
+		} else {
 			return retval.same(fs.retval) && field.equals(fs.field);
+		}
+	}
+
+	public void setSource(VariableReference source) {
+		this.source = source;
+	}
+
+	private Object readResolve() {
+		try {
+			Class<?> clazz = Class.forName(className);
+			this.field = clazz.getField(fieldName);
+		} catch (ClassNotFoundException e) {
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchFieldException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return this;
 	}
 
 }

@@ -25,17 +25,16 @@ import org.eclipse.jdt.core.dom.Type;
  * Class to store information about stub's fields and field setters.
  * 
  * @author Andrey Tarasevich
- *
+ * 
  */
 public class StubField {
-	
+
 	private Expression fieldValue;
 	private Type fieldType;
 	private Type fieldSetterType;
 	private String fieldName;
-	
-	public StubField(String fieldName, Expression fieldValue,
-			Type fieldType, Type fieldSetterType){
+
+	public StubField(String fieldName, Expression fieldValue, Type fieldType, Type fieldSetterType) {
 		this.fieldName = fieldName;
 		this.fieldSetterType = fieldSetterType;
 		this.fieldType = fieldType;
@@ -43,17 +42,10 @@ public class StubField {
 	}
 
 	/**
-	 * @return the fieldValue
+	 * @return the fieldName
 	 */
-	public Expression getFieldValue() {
-		return fieldValue;
-	}
-
-	/**
-	 * @return the fieldType
-	 */
-	public Type getFieldType() {
-		return fieldType;
+	public String getFieldName() {
+		return fieldName;
 	}
 
 	/**
@@ -64,9 +56,16 @@ public class StubField {
 	}
 
 	/**
-	 * @return the fieldName
+	 * @return the fieldType
 	 */
-	public String getFieldName() {
-		return fieldName;
+	public Type getFieldType() {
+		return fieldType;
+	}
+
+	/**
+	 * @return the fieldValue
+	 */
+	public Expression getFieldValue() {
+		return fieldValue;
 	}
 }

@@ -14,15 +14,10 @@ import org.jfree.util.Log;
 public class TimeoutHandler<T> {
 	protected FutureTask<T> task = null;
 
-	public FutureTask<T> getLastTask() {
-		return task;
-	}
-	
-	public T execute(final Callable<T> testcase, ExecutorService executor, long timeout, boolean timeout_based_on_cpu) throws TimeoutException, InterruptedException, ExecutionException
-	{
-		ThreadMXBean bean = ManagementFactory.getThreadMXBean( );
-		if(!bean.isCurrentThreadCpuTimeSupported()  && timeout_based_on_cpu)
-		{
+	public T execute(final Callable<T> testcase, ExecutorService executor, long timeout, boolean timeout_based_on_cpu)
+			throws TimeoutException, InterruptedException, ExecutionException {
+		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+		if (!bean.isCurrentThreadCpuTimeSupported() && timeout_based_on_cpu) {
 			timeout_based_on_cpu = false;
 			Log.warn("Requested to use timeout_based_on_cpu, but it is not supported by the JVM/OS");
 		}
@@ -45,18 +40,22 @@ public class TimeoutHandler<T> {
 				try {
 					result = task.get(waiting_time, TimeUnit.MILLISECONDS);
 				} catch (TimeoutException e) {
-					//executor is still running. need to check CPU usage.
-					//NOTE: this is rather tricky, because ONLY the threads that are still alive are returned.
-					//if a test case generates a lot of threads and those die, then their CPU usage would not be counted
+					// executor is still running. need to check CPU usage.
+					// NOTE: this is rather tricky, because ONLY the threads
+					// that are still alive are returned.
+					// if a test case generates a lot of threads and those die,
+					// then their CPU usage would not be counted
 					long[] all_thread_ids = bean.getAllThreadIds();
 					long cpu_usage = 0;
 
 					outer: for (long id : all_thread_ids) {
-						for (int i = 0; i < other_thread_ids.length; i++)
-							if (id == other_thread_ids[i])
+						for (int i = 0; i < other_thread_ids.length; i++) {
+							if (id == other_thread_ids[i]) {
 								continue outer;
+							}
+						}
 
-						//id is "new"
+						// id is "new"
 
 						long ns = bean.getThreadCpuTime(id);
 						long ms = (ns / 1000000);
@@ -64,12 +63,13 @@ public class TimeoutHandler<T> {
 						cpu_usage += ms;
 					}
 
-					final double alpha = 0.9; //used to avoid possible problems with time measurement
+					final double alpha = 0.9; // used to avoid possible problems
+												// with time measurement
 					if (cpu_usage < alpha * timeout) {
-						//CPU has not been used enough
+						// CPU has not been used enough
 						waiting_time = timeout - cpu_usage;
 					} else {
-						//effectively it is a timeout
+						// effectively it is a timeout
 						throw e;
 					}
 				} catch (ThreadDeath t) {
@@ -79,5 +79,9 @@ public class TimeoutHandler<T> {
 			return result;
 
 		}
+	}
+
+	public FutureTask<T> getLastTask() {
+		return task;
 	}
 }

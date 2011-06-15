@@ -29,11 +29,6 @@ public class MinimizeAverageLengthSecondaryObjective extends SecondaryObjective 
 
 	private static final long serialVersionUID = -6272641645062817112L;
 
-	private double getAverageLength(Chromosome chromosome) {
-		return (double) ((TestSuiteChromosome) chromosome).length()
-		        / (double) chromosome.size();
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -43,8 +38,7 @@ public class MinimizeAverageLengthSecondaryObjective extends SecondaryObjective 
 	 */
 	@Override
 	public int compareChromosomes(Chromosome chromosome1, Chromosome chromosome2) {
-		return (int) Math.signum(getAverageLength(chromosome1)
-		        - getAverageLength(chromosome2));
+		return (int) Math.signum(getAverageLength(chromosome1) - getAverageLength(chromosome2));
 	}
 
 	/*
@@ -57,11 +51,13 @@ public class MinimizeAverageLengthSecondaryObjective extends SecondaryObjective 
 	 * de.unisb.cs.st.evosuite.ga.Chromosome)
 	 */
 	@Override
-	public int compareGenerations(Chromosome parent1, Chromosome parent2,
-	        Chromosome child1, Chromosome child2) {
-		return (int) Math.signum(Math.min(getAverageLength(parent1),
-		                                  getAverageLength(parent2))
-		        - Math.min(getAverageLength(child1), getAverageLength(child2)));
+	public int compareGenerations(Chromosome parent1, Chromosome parent2, Chromosome child1, Chromosome child2) {
+		return (int) Math.signum(Math.min(getAverageLength(parent1), getAverageLength(parent2))
+				- Math.min(getAverageLength(child1), getAverageLength(child2)));
+	}
+
+	private double getAverageLength(Chromosome chromosome) {
+		return (double) ((TestSuiteChromosome) chromosome).length() / (double) chromosome.size();
 	}
 
 }

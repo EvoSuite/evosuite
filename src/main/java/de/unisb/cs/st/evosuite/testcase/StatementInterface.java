@@ -21,70 +21,25 @@ import de.unisb.cs.st.evosuite.assertion.Assertion;
 public interface StatementInterface {
 
 	/**
-	 * Check if the statement makes use of var
+	 * Add a new assertion to statement
 	 * 
-	 * @param var
-	 *            Variable we are checking for
-	 * @return True if var is referenced
+	 * @param assertion
+	 *            Assertion to be added
 	 */
-	public boolean references(VariableReference var);
+	public void addAssertion(Assertion assertion);
 
 	/**
-	 * Replace a VariableReference with another one
-	 * 
-	 * @param var1
-	 *            The old variable
-	 * @param var2
-	 *            The new variable
+	 * Create deep copy of statement
 	 */
-	public void replace(VariableReference var1, VariableReference var2);
-
-	public Throwable execute(Scope scope, PrintStream out)
-	        throws InvocationTargetException, IllegalArgumentException,
-	        IllegalAccessException, InstantiationException;
+	public StatementInterface clone();
 
 	/**
-	 * Get Java representation of statement
 	 * 
+	 * @param newTestCase
+	 *            the testcase in which this statement will be inserted
 	 * @return
 	 */
-	public String getCode();
-
-	/**
-	 * Various consistency checks. This method might also return with an
-	 * assertionError Functionality might depend on the status of
-	 * enableAssertions in this JVM
-	 * 
-	 * @return
-	 */
-	public boolean isValid();
-
-	/**
-	 * Get Java representation of statement
-	 * 
-	 * @return
-	 */
-	public String getCode(Throwable exception);
-
-	/**
-	 * Generate bytecode by calling method generator
-	 * 
-	 * @param mg
-	 */
-	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        Throwable exception);
-
-	/**
-	 * 
-	 * @return Generic type of return value
-	 */
-	public Type getReturnType();
-
-	/**
-	 * 
-	 * @return Raw class of return value
-	 */
-	public Class<?> getReturnClass();
+	public StatementInterface clone(TestCase newTestCase);
 
 	/**
 	 * Equality check
@@ -96,48 +51,8 @@ public interface StatementInterface {
 	@Override
 	public boolean equals(Object s);
 
-	/**
-	 * Generate hash code
-	 */
-	@Override
-	public int hashCode();
-
-	/**
-	 * @return Variable representing return value
-	 */
-	public VariableReference getReturnValue();
-
-	public Set<VariableReference> getVariableReferences();
-
-	public List<VariableReference> getUniqueVariableReferences();
-
-	/**
-	 * 
-	 * @param newTestCase
-	 *            the testcase in which this statement will be inserted
-	 * @return
-	 */
-	public StatementInterface clone(TestCase newTestCase);
-
-	/**
-	 * Create deep copy of statement
-	 */
-	public StatementInterface clone();
-
-	/**
-	 * Check if there are assertions
-	 * 
-	 * @return True if there are assertions
-	 */
-	public boolean hasAssertions();
-
-	/**
-	 * Add a new assertion to statement
-	 * 
-	 * @param assertion
-	 *            Assertion to be added
-	 */
-	public void addAssertion(Assertion assertion);
+	public Throwable execute(Scope scope, PrintStream out) throws InvocationTargetException, IllegalArgumentException,
+			IllegalAccessException, InstantiationException;
 
 	/**
 	 * Get Java code representation of assertions
@@ -147,9 +62,88 @@ public interface StatementInterface {
 	public String getAssertionCode();
 
 	/**
-	 * Delete all assertions attached to this statement
+	 * Return list of assertions
 	 */
-	public void removeAssertions();
+	public Set<Assertion> getAssertions();
+
+	/**
+	 * Generate bytecode by calling method generator
+	 * 
+	 * @param mg
+	 */
+	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception);
+
+	/**
+	 * Get Java representation of statement
+	 * 
+	 * @return
+	 */
+	public String getCode();
+
+	/**
+	 * Get Java representation of statement
+	 * 
+	 * @return
+	 */
+	public String getCode(Throwable exception);
+
+	public Set<Class<?>> getDeclaredExceptions();
+
+	public int getPosition();
+
+	/**
+	 * 
+	 * @return Raw class of return value
+	 */
+	public Class<?> getReturnClass();
+
+	/**
+	 * 
+	 * @return Generic type of return value
+	 */
+	public Type getReturnType();
+
+	/**
+	 * @return Variable representing return value
+	 */
+	public VariableReference getReturnValue();
+
+	public List<VariableReference> getUniqueVariableReferences();
+
+	public Set<VariableReference> getVariableReferences();
+
+	/**
+	 * Check if there are assertions
+	 * 
+	 * @return True if there are assertions
+	 */
+	public boolean hasAssertions();
+
+	/**
+	 * Generate hash code
+	 */
+	@Override
+	public int hashCode();
+
+	/**
+	 * Various consistency checks. This method might also return with an
+	 * assertionError Functionality might depend on the status of
+	 * enableAssertions in this JVM
+	 * 
+	 * @return
+	 */
+	public boolean isValid();
+
+	public boolean isValidException(Throwable t);
+
+	/**
+	 * Check if the statement makes use of var
+	 * 
+	 * @param var
+	 *            Variable we are checking for
+	 * @return True if var is referenced
+	 */
+	public boolean references(VariableReference var);
 
 	/**
 	 * Delete assertion attached to this statement
@@ -157,13 +151,19 @@ public interface StatementInterface {
 	public void removeAssertion(Assertion assertion);
 
 	/**
-	 * Return list of assertions
+	 * Delete all assertions attached to this statement
 	 */
-	public Set<Assertion> getAssertions();
+	public void removeAssertions();
 
-	public Set<Class<?>> getDeclaredExceptions();
-
-	public int getPosition();
+	/**
+	 * Replace a VariableReference with another one
+	 * 
+	 * @param var1
+	 *            The old variable
+	 * @param var2
+	 *            The new variable
+	 */
+	public void replace(VariableReference var1, VariableReference var2);
 
 	/**
 	 * Allows the comparing of Statements between TestCases. I.e. this is a more
@@ -175,7 +175,5 @@ public interface StatementInterface {
 	 * @return
 	 */
 	public boolean same(StatementInterface s);
-
-	public boolean isValidException(Throwable t);
 
 }

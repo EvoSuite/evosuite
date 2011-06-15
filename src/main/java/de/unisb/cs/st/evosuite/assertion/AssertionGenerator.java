@@ -18,6 +18,10 @@ public abstract class AssertionGenerator {
 
 	protected static Logger logger = Logger.getLogger(AssertionGenerator.class);
 
+	public static AssertionGenerator getDefaultGenerator() {
+		return new UnitAssertionGenerator();
+	}
+
 	protected PrimitiveOutputTraceObserver primitive_observer = new PrimitiveOutputTraceObserver();
 
 	protected ComparisonTraceObserver comparison_observer = new ComparisonTraceObserver();
@@ -39,10 +43,6 @@ public abstract class AssertionGenerator {
 	}
 
 	public abstract void addAssertions(TestCase test);
-
-	public static AssertionGenerator getDefaultGenerator() {
-		return new UnitAssertionGenerator();
-	}
 
 	/**
 	 * Execute a test case on the original unit

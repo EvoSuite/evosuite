@@ -15,20 +15,26 @@ public class DefaultLocalSearchObjective implements LocalSearchObjective {
 		this.fitness = fitness;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.LocalSearchObjective#hasImproved(de.unisb.cs.st.evosuite.ga.Chromosome)
-	 */
-	@Override
-	public boolean hasImproved(Chromosome individual) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unisb.cs.st.evosuite.ga.LocalSearchObjective#getFitnessFunction()
 	 */
 	@Override
 	public FitnessFunction getFitnessFunction() {
 		return fitness;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.ga.LocalSearchObjective#hasImproved(de.unisb.
+	 * cs.st.evosuite.ga.Chromosome)
+	 */
+	@Override
+	public boolean hasImproved(Chromosome individual) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

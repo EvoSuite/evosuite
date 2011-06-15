@@ -19,22 +19,20 @@
 
 package de.unisb.cs.st.evosuite.coverage;
 
-
 import java.util.List;
-
 
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
 /**
  * @author Gordon Fraser
- *
+ * 
  */
 public interface TestFitnessFactory {
 
-	
 	/**
 	 * Generate a list of goals to cover
+	 * 
 	 * @return
 	 */
-	public  List<TestFitnessFunction> getCoverageGoals();
+	public List<TestFitnessFunction> getCoverageGoals();
 }

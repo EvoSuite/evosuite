@@ -23,6 +23,22 @@ public class BooleanInterpreter extends BasicInterpreter {
 
 	private static Logger logger = Logger.getLogger(BooleanInterpreter.class);
 
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Value naryOperation(AbstractInsnNode insn, List values) throws AnalyzerException {
+		if (insn.getOpcode() == INVOKESTATIC) {
+			MethodInsnNode mn = (MethodInsnNode) insn;
+
+			if (mn.name.equals("getDistance") && (values.size() == 1)) {
+				if (values.get(0) == BOOLEAN) {
+					return BOOLEAN;
+				}
+			}
+		}
+		return super.naryOperation(insn, values);
+
+	}
+
 	@Override
 	public Value newOperation(AbstractInsnNode insn) throws AnalyzerException {
 
@@ -35,22 +51,6 @@ public class BooleanInterpreter extends BasicInterpreter {
 		} else {
 			return super.newOperation(insn);
 		}
-	}
-
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Value naryOperation(AbstractInsnNode insn, List values)
-	        throws AnalyzerException {
-		if (insn.getOpcode() == INVOKESTATIC) {
-			MethodInsnNode mn = (MethodInsnNode) insn;
-
-			if (mn.name.equals("getDistance") && values.size() == 1) {
-				if (values.get(0) == BOOLEAN)
-					return BOOLEAN;
-			}
-		}
-		return super.naryOperation(insn, values);
-
 	}
 
 }

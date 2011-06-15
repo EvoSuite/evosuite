@@ -37,11 +37,13 @@ public class SilentReporter extends Reporter {
 	}
 
 	@Override
-	public void searchStarted(Search search) {
+	public boolean hasToReportOutput() {
+		return false;
 	}
 
 	@Override
-	public void stateAdvanced(Search search) {
+	public boolean hasToReportTrace() {
+		return false;
 	}
 
 	@Override
@@ -53,13 +55,11 @@ public class SilentReporter extends Reporter {
 	}
 
 	@Override
-	public boolean hasToReportTrace() {
-		return false;
+	public void searchStarted(Search search) {
 	}
 
 	@Override
-	public boolean hasToReportOutput() {
-		return false;
+	public void stateAdvanced(Search search) {
 	}
 
 }

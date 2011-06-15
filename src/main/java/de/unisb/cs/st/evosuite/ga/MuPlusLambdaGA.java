@@ -81,8 +81,7 @@ public class MuPlusLambdaGA extends SteadyStateGA {
 		notifyEvaluation(offspring2);
 
 		// if (replacement_function.keepOffspring(parent1, parent2, offspring1,
-		if (!Properties.PARENT_CHECK
-		        || keepOffspring(parent1, parent2, offspring1, offspring2)) {
+		if (!Properties.PARENT_CHECK || keepOffspring(parent1, parent2, offspring1, offspring2)) {
 			logger.debug("Keeping offspring");
 
 			if (!isTooLong(offspring1)) {

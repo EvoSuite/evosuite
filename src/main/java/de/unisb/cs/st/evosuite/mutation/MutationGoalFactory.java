@@ -38,25 +38,6 @@ public class MutationGoalFactory implements TestFitnessFactory {
 
 	private static Logger logger = Logger.getLogger(TestFitnessFactory.class);
 
-	private boolean isDeprecated(Mutation mutation) {
-		// FIXME: @Deprecated annotation seems to get lost somewhere!
-		/*
-		Class<?> mutationClass = Properties.getTargetClass();
-		for (Method method : mutationClass.getDeclaredMethods()) {
-			String name = method.getName() + Type.getMethodDescriptor(method);
-			if (name.equals(methodName)) {
-				logger.info("Found mutant method: " + methodName);
-				if (method.getAnnotation(Deprecated.class) != null)
-					return true;
-			}
-		}
-		*/
-		if (CFGPool.getActualCFG(mutation.getClassName(),
-		                                     mutation.getMethodName()) == null)
-			return true;
-		return false;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -75,13 +56,28 @@ public class MutationGoalFactory implements TestFitnessFactory {
 			}
 
 			if (!Properties.USE_DEPRECATED && isDeprecated(mutation)) {
-				logger.info("Skipping mutant in deprecated method "
-				        + mutation.getMethodName());
+				logger.info("Skipping mutant in deprecated method " + mutation.getMethodName());
 				continue;
 			}
 			goals.add(new MutationTestFitness(mutation));
 		}
 
 		return goals;
+	}
+
+	private boolean isDeprecated(Mutation mutation) {
+		// FIXME: @Deprecated annotation seems to get lost somewhere!
+		/*
+		 * Class<?> mutationClass = Properties.getTargetClass(); for (Method
+		 * method : mutationClass.getDeclaredMethods()) { String name =
+		 * method.getName() + Type.getMethodDescriptor(method); if
+		 * (name.equals(methodName)) { logger.info("Found mutant method: " +
+		 * methodName); if (method.getAnnotation(Deprecated.class) != null)
+		 * return true; } }
+		 */
+		if (CFGPool.getActualCFG(mutation.getClassName(), mutation.getMethodName()) == null) {
+			return true;
+		}
+		return false;
 	}
 }

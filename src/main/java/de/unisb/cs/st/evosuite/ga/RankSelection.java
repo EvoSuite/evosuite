@@ -42,15 +42,14 @@ public class RankSelection extends SelectionFunction {
 	public int getIndex(List<Chromosome> population) {
 		double r = Randomness.nextDouble();
 		double d = Properties.RANK_BIAS
-		        - Math.sqrt((Properties.RANK_BIAS * Properties.RANK_BIAS)
-		                - (4.0 * (Properties.RANK_BIAS - 1.0) * r));
+				- Math.sqrt((Properties.RANK_BIAS * Properties.RANK_BIAS) - (4.0 * (Properties.RANK_BIAS - 1.0) * r));
 		int length = population.size();
 
 		d = d / 2.0 / (Properties.RANK_BIAS - 1.0);
 
-		//this is not needed because population is sorted based on Maximization
-		//if(maximize)
-		//	d = 1.0 - d; // to do that if we want to have Maximisation
+		// this is not needed because population is sorted based on Maximization
+		// if(maximize)
+		// d = 1.0 - d; // to do that if we want to have Maximisation
 
 		int index = (int) (length * d);
 		return index;

@@ -37,33 +37,7 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 	protected int current_max = 0;
 
 	protected double best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
-	                                                  // minimizing fitness!
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.javalanche.ga.BloatControlFunction#isTooLong(de.unisb.
-	 * cs.st.javalanche.ga.Chromosome)
-	 */
-	@Override
-	public boolean isTooLong(Chromosome chromosome) {
-		// Always accept if fitness is better
-		if (chromosome.getFitness() < best_fitness)
-			return false;
-
-		// logger.debug("Current - max: "+((TestSuiteChromosome)chromosome).length()+" - "+current_max);
-		if (current_max > 0) {
-			// if(((TestSuiteChromosome)chromosome).length() > bloat_factor *
-			// current_max)
-			// logger.debug("Bloat control: "+((TestSuiteChromosome)chromosome).length()
-			// +" > "+ bloat_factor * current_max);
-
-			return ((TestChromosome) chromosome).size() > Properties.BLOAT_FACTOR
-			        * current_max;
-		} else
-			return false; // Don't know max length so can't reject!
-	}
+														// minimizing fitness!
 
 	/*
 	 * (non-Javadoc)
@@ -82,6 +56,33 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 	 * (non-Javadoc)
 	 * 
 	 * @see
+	 * de.unisb.cs.st.javalanche.ga.BloatControlFunction#isTooLong(de.unisb.
+	 * cs.st.javalanche.ga.Chromosome)
+	 */
+	@Override
+	public boolean isTooLong(Chromosome chromosome) {
+		// Always accept if fitness is better
+		if (chromosome.getFitness() < best_fitness) {
+			return false;
+		}
+
+		// logger.debug("Current - max: "+((TestSuiteChromosome)chromosome).length()+" - "+current_max);
+		if (current_max > 0) {
+			// if(((TestSuiteChromosome)chromosome).length() > bloat_factor *
+			// current_max)
+			// logger.debug("Bloat control: "+((TestSuiteChromosome)chromosome).length()
+			// +" > "+ bloat_factor * current_max);
+
+			return ((TestChromosome) chromosome).size() > Properties.BLOAT_FACTOR * current_max;
+		} else {
+			return false; // Don't know max length so can't reject!
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
 	 * de.unisb.cs.st.javalanche.ga.SearchListener#iteration(de.unisb.cs.st.
 	 * javalanche.ga.Chromosome)
 	 */
@@ -89,6 +90,19 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 	public void iteration(GeneticAlgorithm algorithm) {
 		current_max = ((TestChromosome) algorithm.getBestIndividual()).size();
 		best_fitness = algorithm.getBestIndividual().getFitness();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.ga.SearchListener#mutation(de.unisb.cs.st.evosuite
+	 * .ga.Chromosome)
+	 */
+	@Override
+	public void modification(Chromosome individual) {
+		// TODO Auto-generated method stub
+
 	}
 
 	/*
@@ -113,19 +127,6 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 	 */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.ga.SearchListener#mutation(de.unisb.cs.st.evosuite
-	 * .ga.Chromosome)
-	 */
-	@Override
-	public void modification(Chromosome individual) {
 		// TODO Auto-generated method stub
 
 	}

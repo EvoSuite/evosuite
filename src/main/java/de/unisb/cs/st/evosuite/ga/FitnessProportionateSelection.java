@@ -41,10 +41,11 @@ public class FitnessProportionateSelection extends SelectionFunction {
 
 	@Override
 	public int getIndex(List<Chromosome> population) {
-		//special case
+		// special case
 		if (sum_value == 0d) {
-			//here does not matter whether maximize or not.
-			//we need to take at random, otherwise it d be always the first that d be chosen
+			// here does not matter whether maximize or not.
+			// we need to take at random, otherwise it d be always the first
+			// that d be chosen
 			return Randomness.nextInt(population.size());
 		}
 
@@ -53,43 +54,23 @@ public class FitnessProportionateSelection extends SelectionFunction {
 		for (int i = 0; i < population.size(); i++) {
 			double fit = population.get(i).getFitness();
 
-			if (!maximize)
+			if (!maximize) {
 				fit = invert(fit);
+			}
 
-			if (fit >= rnd)
+			if (fit >= rnd) {
 				return i;
-			else
+			} else {
 				rnd = rnd - fit;
+			}
 		}
 
-		//now this should never happens, but possible issues with rounding errors in for example "rnd = rnd - fit"
-		//in such a case, we just return a random index and we log it
+		// now this should never happens, but possible issues with rounding
+		// errors in for example "rnd = rnd - fit"
+		// in such a case, we just return a random index and we log it
 
 		logger.debug("ATTENTION: Possible issue in FitnessProportionateSelection");
 		return Randomness.nextInt(population.size());
-	}
-
-	/**
-	 * Calculate total sum of fitnesses
-	 * 
-	 * @param population
-	 */
-	private void setSum(List<Chromosome> population) {
-		sum_value = 0;
-		for (Chromosome c : population) {
-			double v = c.getFitness();
-			if (!maximize)
-				v = invert(v);
-
-			sum_value += v;
-		}
-	}
-
-	/*
-	 * used to handle the case of minimizing the fitness
-	 */
-	private double invert(double x) {
-		return 1d / (x + 1d);
 	}
 
 	/**
@@ -105,6 +86,30 @@ public class FitnessProportionateSelection extends SelectionFunction {
 
 		setSum(population);
 		return super.select(population, number);
+	}
+
+	/*
+	 * used to handle the case of minimizing the fitness
+	 */
+	private double invert(double x) {
+		return 1d / (x + 1d);
+	}
+
+	/**
+	 * Calculate total sum of fitnesses
+	 * 
+	 * @param population
+	 */
+	private void setSum(List<Chromosome> population) {
+		sum_value = 0;
+		for (Chromosome c : population) {
+			double v = c.getFitness();
+			if (!maximize) {
+				v = invert(v);
+			}
+
+			sum_value += v;
+		}
 	}
 
 }

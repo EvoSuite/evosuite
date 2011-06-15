@@ -4,15 +4,15 @@ import java.util.List;
 
 public interface Mutateable {
 
-	public boolean isMutation();
+	public int getDistance(long mutationId);
 
 	public List<Long> getMutationIds();
 
+	public String getName();
+
 	public boolean hasMutation(long mutationId);
 
-	public int getDistance(long mutationId);
+	public boolean isMutation();
 
 	public void setDistance(long mutationId, int distance);
-	
-	public String getName();
 }

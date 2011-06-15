@@ -63,9 +63,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	 * signatures are not instrumented and no CFG is generated for them. Except
 	 * if some MethodInstrumentation requests it.
 	 */
-	public static final List<String> EXCLUDE = Arrays.asList("<clinit>",
-	                                                         "__STATIC_RESET()V",
-	                                                         "__STATIC_RESET");
+	public static final List<String> EXCLUDE = Arrays.asList("<clinit>", "__STATIC_RESET()V", "__STATIC_RESET");
 	/**
 	 * The set of all methods which can be used during test case generation This
 	 * excludes e.g. synthetic, initializers, private and deprecated methods
@@ -85,12 +83,10 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	private final int access;
 	private final String className;
 
-	public CFGMethodAdapter(String className, int access, String name, String desc,
-	        String signature, String[] exceptions, MethodVisitor mv,
-	        List<Mutation> mutants) {
+	public CFGMethodAdapter(String className, int access, String name, String desc, String signature,
+			String[] exceptions, MethodVisitor mv, List<Mutation> mutants) {
 
-		super(new MethodNode(access, name, desc, signature, exceptions), className,
-		        name.replace('/', '.'), null, desc);
+		super(new MethodNode(access, name, desc, signature, exceptions), className, name.replace('/', '.'), null, desc);
 
 		this.next = mv;
 		this.className = className; // .replace('/', '.');
@@ -129,17 +125,17 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 		for (MethodInstrumentation instrumentation : instrumentations) {
 			executeOnMain = executeOnMain || instrumentation.executeOnMainMethod();
-			executeOnExcluded = executeOnExcluded
-			        || instrumentation.executeOnExcludedMethods();
+			executeOnExcluded = executeOnExcluded || instrumentation.executeOnExcludedMethods();
 		}
 
 		// super.visitEnd();
 		// Generate CFG of method
 		MethodNode mn = (MethodNode) mv;
 
-		//Only instrument if the method is (not main and not excluded) or (the MethodInstrumentation wants it anyway)
+		// Only instrument if the method is (not main and not excluded) or (the
+		// MethodInstrumentation wants it anyway)
 		if ((!isMainMethod || executeOnMain) && (!isExcludedMethod || executeOnExcluded)
-		        && (access & Opcodes.ACC_ABSTRACT) == 0) {
+				&& ((access & Opcodes.ACC_ABSTRACT) == 0)) {
 
 			logger.info("Analyzing method " + methodName);
 
@@ -151,17 +147,11 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 			try {
 				bytecodeAnalyzer.analyze(className, methodName, mn);
-				logger.trace("Method graph for "
-				        + className
-				        + "."
-				        + methodName
-				        + " contains "
-				        + bytecodeAnalyzer.retrieveCFGGenerator().getRawGraph().vertexSet().size()
-				        + " nodes for " + bytecodeAnalyzer.getFrames().length
-				        + " instructions");
+				logger.trace("Method graph for " + className + "." + methodName + " contains "
+						+ bytecodeAnalyzer.retrieveCFGGenerator().getRawGraph().vertexSet().size() + " nodes for "
+						+ bytecodeAnalyzer.getFrames().length + " instructions");
 			} catch (AnalyzerException e) {
-				logger.error("Analyzer exception while analyzing " + className + "."
-				        + methodName);
+				logger.error("Analyzer exception while analyzing " + className + "." + methodName);
 				e.printStackTrace();
 			}
 
@@ -169,9 +159,10 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			bytecodeAnalyzer.retrieveCFGGenerator().registerCFGs();
 			logger.info("Created CFG for method " + methodName);
 
-			//add the actual instrumentation
-			for (MethodInstrumentation instrumentation : instrumentations)
+			// add the actual instrumentation
+			for (MethodInstrumentation instrumentation : instrumentations) {
 				instrumentation.analyze(mn, className, methodName, access);
+			}
 
 			handleBranchlessMethods();
 
@@ -202,10 +193,10 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	 * @return
 	 */
 	private boolean isUsable() {
-		return !((this.access & Opcodes.ACC_SYNTHETIC) > 0 || (this.access & Opcodes.ACC_BRIDGE) > 0)
-		        && !methodName.contains("<clinit>")
-		        && !(methodName.contains("<init>") && (access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE)
-		        && (Properties.USE_DEPRECATED || (access & Opcodes.ACC_DEPRECATED) != Opcodes.ACC_DEPRECATED);
+		return !(((this.access & Opcodes.ACC_SYNTHETIC) > 0) || ((this.access & Opcodes.ACC_BRIDGE) > 0))
+				&& !methodName.contains("<clinit>")
+				&& !(methodName.contains("<init>") && ((access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE))
+				&& (Properties.USE_DEPRECATED || ((access & Opcodes.ACC_DEPRECATED) != Opcodes.ACC_DEPRECATED));
 	}
 
 }

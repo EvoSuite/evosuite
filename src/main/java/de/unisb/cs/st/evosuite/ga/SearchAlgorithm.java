@@ -17,14 +17,13 @@
  * along with GA.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 package de.unisb.cs.st.evosuite.ga;
 
 /**
  * Abstract base class of all search algorithms
  * 
  * @author Gordon Fraser
- *
+ * 
  */
 public interface SearchAlgorithm {
 
@@ -32,5 +31,5 @@ public interface SearchAlgorithm {
 	 * Generate solution
 	 */
 	public void generateSolution();
-	
+
 }

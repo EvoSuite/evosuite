@@ -55,10 +55,6 @@ public class ArrayStatement extends AbstractStatement {
 		this.length = length;
 	}
 
-	public int size() {
-		return length;
-	}
-
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
 		ArrayStatement copy = new ArrayStatement(newTestCase, retval.getType(), length);
@@ -67,16 +63,20 @@ public class ArrayStatement extends AbstractStatement {
 
 	@Override
 	public boolean equals(Object s) {
-		if (this == s)
+		if (this == s) {
 			return true;
-		if (s == null)
+		}
+		if (s == null) {
 			return false;
-		if (getClass() != s.getClass())
+		}
+		if (getClass() != s.getClass()) {
 			return false;
+		}
 
 		ArrayStatement as = (ArrayStatement) s;
-		if (length != as.length)
+		if (length != as.length) {
 			return false;
+		}
 		if (retval.equals(as.retval)) {
 			return true;
 		} else {
@@ -89,41 +89,12 @@ public class ArrayStatement extends AbstractStatement {
 	}
 
 	@Override
-	public Throwable execute(Scope scope, PrintStream out)
-	        throws InvocationTargetException, IllegalArgumentException,
-	        IllegalAccessException, InstantiationException {
+	public Throwable execute(Scope scope, PrintStream out) throws InvocationTargetException, IllegalArgumentException,
+			IllegalAccessException, InstantiationException {
 		// Add array variable to pool
 		scope.set(retval, Array.newInstance((Class<?>) retval.getComponentType(), length));
 		return exceptionThrown;
 
-	}
-
-	@Override
-	public String getCode(Throwable exception) {
-		return retval.getComponentName() + "[] " + retval.getName() + " = new "
-		        + retval.getComponentName() + "[" + length + "];";
-	}
-
-	@Override
-	public Set<VariableReference> getVariableReferences() {
-		Set<VariableReference> references = new HashSet<VariableReference>();
-		references.add(retval);
-		return references;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
-	 */
-	@Override
-	public void replace(VariableReference var1, VariableReference var2) {
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = retval.hashCode();
-		result = prime * result + length;
-		return result;
 	}
 
 	/*
@@ -134,11 +105,16 @@ public class ArrayStatement extends AbstractStatement {
 	 * asm.commons.GeneratorAdapter)
 	 */
 	@Override
-	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        Throwable exception) {
+	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception) {
 		mg.push(length);
 		mg.newArray(Type.getType((Class<?>) retval.getComponentType()));
 		retval.storeBytecode(mg, locals);
+	}
+
+	@Override
+	public String getCode(Throwable exception) {
+		return retval.getComponentName() + "[] " + retval.getName() + " = new " + retval.getComponentName() + "["
+				+ length + "];";
 	}
 
 	/*
@@ -152,7 +128,24 @@ public class ArrayStatement extends AbstractStatement {
 		return new ArrayList<VariableReference>(getVariableReferences());
 	}
 
-	/* (non-Javadoc)
+	@Override
+	public Set<VariableReference> getVariableReferences() {
+		Set<VariableReference> references = new HashSet<VariableReference>();
+		references.add(retval);
+		return references;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = retval.hashCode();
+		result = prime * result + length;
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#isValid()
 	 */
 	@Override
@@ -160,23 +153,43 @@ public class ArrayStatement extends AbstractStatement {
 		return super.isValid();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.
+	 * cs.st.evosuite.testcase.VariableReference,
+	 * de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void replace(VariableReference var1, VariableReference var2) {
+	}
+
 	@Override
 	public boolean same(StatementInterface s) {
-		if (this == s)
+		if (this == s) {
 			return true;
-		if (s == null)
+		}
+		if (s == null) {
 			return false;
-		if (getClass() != s.getClass())
+		}
+		if (getClass() != s.getClass()) {
 			return false;
+		}
 
 		ArrayStatement as = (ArrayStatement) s;
-		if (length != as.length)
+		if (length != as.length) {
 			return false;
+		}
 		if (retval.same(as.retval)) {
 			return true;
 		} else {
 			return false;
 		}
+	}
+
+	public int size() {
+		return length;
 	}
 
 }

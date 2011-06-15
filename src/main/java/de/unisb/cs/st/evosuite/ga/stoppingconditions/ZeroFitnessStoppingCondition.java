@@ -31,12 +31,19 @@ public class ZeroFitnessStoppingCondition extends StoppingCondition {
 	/** Keep track of lowest fitness seen so far */
 	private double last_fitness = Double.MAX_VALUE;
 
-	/**
-	 * Update information on currently lowest fitness
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
 	@Override
-	public void iteration(GeneticAlgorithm algorithm) {
-		last_fitness = Math.min(last_fitness, algorithm.getBestIndividual().getFitness());
+	public int getCurrentValue() {
+		return (int) (last_fitness + 0.5);
+	}
+
+	@Override
+	public int getLimit() {
+		return 0;
 	}
 
 	/**
@@ -48,6 +55,14 @@ public class ZeroFitnessStoppingCondition extends StoppingCondition {
 	}
 
 	/**
+	 * Update information on currently lowest fitness
+	 */
+	@Override
+	public void iteration(GeneticAlgorithm algorithm) {
+		last_fitness = Math.min(last_fitness, algorithm.getBestIndividual().getFitness());
+	}
+
+	/**
 	 * Reset currently observed best fitness
 	 */
 	@Override
@@ -55,29 +70,18 @@ public class ZeroFitnessStoppingCondition extends StoppingCondition {
 		last_fitness = Double.MAX_VALUE;
 	}
 
-	/* (non-Javadoc)
+	public void setFinished() {
+		last_fitness = 0.0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
 	@Override
 	public void setLimit(int limit) {
 		// Do nothing
-	}
-
-	@Override
-	public int getLimit() {
-		return 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
-	 */
-	@Override
-	public int getCurrentValue() {
-		return (int) (last_fitness + 0.5);
-	}
-
-	public void setFinished() {
-		last_fitness = 0.0;
 	}
 
 }

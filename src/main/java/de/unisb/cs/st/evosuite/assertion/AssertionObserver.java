@@ -31,15 +31,14 @@ public class AssertionObserver extends ExecutionObserver {
 	List<Boolean> status = new ArrayList<Boolean>();
 	TestCase current_test;
 
-	public void setTest(TestCase test) {
-		current_test = test;
-		status = new ArrayList<Boolean>();
-	}
-
 	@Override
 	public void clear() {
 		// TODO Auto-generated method stub
 
+	}
+
+	public List<Boolean> getStatus() {
+		return status;
 	}
 
 	@Override
@@ -48,14 +47,15 @@ public class AssertionObserver extends ExecutionObserver {
 
 	}
 
+	public void setTest(TestCase test) {
+		current_test = test;
+		status = new ArrayList<Boolean>();
+	}
+
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
 		for (Assertion a : statement.getAssertions()) {
 			status.add(a.evaluate(scope));
 		}
-	}
-
-	public List<Boolean> getStatus() {
-		return status;
 	}
 }

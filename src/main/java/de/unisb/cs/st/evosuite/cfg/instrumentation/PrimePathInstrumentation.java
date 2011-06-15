@@ -24,12 +24,16 @@ public class PrimePathInstrumentation implements MethodInstrumentation {
 
 	protected static Logger logger = Logger.getLogger(PrimePathInstrumentation.class);
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String, java.lang.String, int)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb
+	 * .asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String,
+	 * java.lang.String, int)
 	 */
 	@Override
-	public void analyze(MethodNode mn, String className,
-	        String methodName, int access) {
+	public void analyze(MethodNode mn, String className, String methodName, int access) {
 		RawControlFlowGraph graph = CFGPool.getRawCFG(className, methodName);
 		Queue<PrimePath> path_queue = new LinkedList<PrimePath>();
 		for (BytecodeInstruction vertex : graph.vertexSet()) {
@@ -50,8 +54,9 @@ public class PrimePathInstrumentation implements MethodInstrumentation {
 			if (current.getLast().isReturn() || current.getLast().isThrow()) {
 				logger.warn("New path:");
 				for (int i = 0; i < current.getSize(); i++) {
-					if (current.get(i).isBranch() || current.get(i).isLabel())
+					if (current.get(i).isBranch() || current.get(i).isLabel()) {
 						logger.warn(" -> " + current.get(i));
+					}
 				}
 				PrimePathPool.add(current);
 			}
@@ -60,20 +65,27 @@ public class PrimePathInstrumentation implements MethodInstrumentation {
 
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#executeOnMainMethod()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#executeOnExcludedMethods
+	 * ()
 	 */
 	@Override
-	public boolean executeOnMainMethod() {
+	public boolean executeOnExcludedMethods() {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#executeOnExcludedMethods()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#executeOnMainMethod()
 	 */
 	@Override
-	public boolean executeOnExcludedMethods() {
+	public boolean executeOnMainMethod() {
 		// TODO Auto-generated method stub
 		return false;
 	}

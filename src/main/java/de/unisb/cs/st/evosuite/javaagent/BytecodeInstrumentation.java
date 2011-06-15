@@ -51,8 +51,9 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION;
 
 	static {
-		if (Properties.INSTRUMENT_PARENT)
+		if (Properties.INSTRUMENT_PARENT) {
 			hierarchy = Hierarchy.readFromDefaultLocation();
+		}
 	}
 
 	protected static Logger logger = Logger.getLogger(BytecodeInstrumentation.class);
@@ -61,18 +62,6 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	// RemoveSystemExitTransformer();
 
 	private static String target_class = Properties.TARGET_CLASS;
-
-	private boolean isTargetClass(String className) {
-		if (className.equals(target_class) || className.startsWith(target_class + "$")) {
-			return true;
-		}
-
-		if (Properties.INSTRUMENT_PARENT) {
-			return hierarchy.getAllSupers(target_class).contains(className);
-		}
-
-		return false;
-	}
 
 	static {
 		logger.info("Loading bytecode transformer for " + Properties.PROJECT_PREFIX);
@@ -87,9 +76,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	 * byte[])
 	 */
 	@Override
-	public byte[] transform(ClassLoader loader, String className,
-	        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-	        byte[] classfileBuffer) throws IllegalClassFormatException {
+	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
 		if (className != null) {
 			try {
@@ -97,9 +85,9 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 				// Some packages we shouldn't touch - hard-coded
 				if (!classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
-				        && (classNameWithDots.startsWith("java")
-				                || classNameWithDots.startsWith("sun")
-				                || classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
+						&& (classNameWithDots.startsWith("java") || classNameWithDots.startsWith("sun")
+								|| classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots
+								.startsWith("org.mozilla.javascript.gen.c"))) {
 					return classfileBuffer;
 				}
 				if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)) {
@@ -110,8 +98,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 					// .transformBytecode(classfileBuffer);
 
 					ClassReader reader = new ClassReader(classfileBuffer);
-					ClassWriter writer = new ClassWriter(
-					        org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
+					ClassWriter writer = new ClassWriter(org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
 
 					ClassVisitor cv = writer;
 
@@ -139,8 +126,9 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 					// If we need to reset static constructors, make them
 					// explicit methods
-					if (Properties.STATIC_HACK)
+					if (Properties.STATIC_HACK) {
 						cv = new StaticInitializationClassAdapter(cv, className);
+					}
 
 					if (Properties.TT) {
 						logger.info("Transforming " + className);
@@ -169,9 +157,9 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 				logger.fatal("Transformation of class " + className + " failed", t);
 				// TODO why all the redundant printStackTrace()s?
 
-				//				StringWriter writer = new StringWriter();
-				//				t.printStackTrace(new PrintWriter(writer));
-				//				logger.fatal(writer.getBuffer().toString());
+				// StringWriter writer = new StringWriter();
+				// t.printStackTrace(new PrintWriter(writer));
+				// logger.fatal(writer.getBuffer().toString());
 				// LogManager.shutdown();
 				System.out.flush();
 				System.exit(0);
@@ -180,6 +168,18 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		}
 		return classfileBuffer;
 
+	}
+
+	private boolean isTargetClass(String className) {
+		if (className.equals(target_class) || className.startsWith(target_class + "$")) {
+			return true;
+		}
+
+		if (Properties.INSTRUMENT_PARENT) {
+			return hierarchy.getAllSupers(target_class).contains(className);
+		}
+
+		return false;
 	}
 
 }

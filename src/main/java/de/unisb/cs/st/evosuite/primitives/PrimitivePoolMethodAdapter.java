@@ -44,16 +44,17 @@ public class PrimitivePoolMethodAdapter extends MethodAdapter {
 	 */
 	@Override
 	public void visitInsn(int opcode) {
-		if (opcode != Opcodes.MONITORENTER && opcode != Opcodes.MONITOREXIT)
+		if ((opcode != Opcodes.MONITORENTER) && (opcode != Opcodes.MONITOREXIT)) {
 			super.visitInsn(opcode);
-		else
+		} else {
 			super.visitInsn(Opcodes.POP);
+		}
 
 	}
 
 	@Override
 	public void visitIntInsn(int opcode, int operand) {
-		if (opcode == Opcodes.BIPUSH || opcode == Opcodes.SIPUSH) {
+		if ((opcode == Opcodes.BIPUSH) || (opcode == Opcodes.SIPUSH)) {
 			primitive_pool.add(operand);
 		}
 		super.visitIntInsn(opcode, operand);

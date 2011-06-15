@@ -50,25 +50,20 @@ public class StaticInitializationClassAdapter extends ClassAdapter {
 	}
 
 	@Override
-	public void visit(int version, int access, String name, String signature,
-	        String superName, String[] interfaces) {
+	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
 		super.visit(version, access, name, signature, superName, interfaces);
 		isInterface = ((access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE);
 	}
 
 	@Override
-	public MethodVisitor visitMethod(int methodAccess, String name, String descriptor,
-	        String signature, String[] exceptions) {
+	public MethodVisitor visitMethod(int methodAccess, String name, String descriptor, String signature,
+			String[] exceptions) {
 
-		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor, signature,
-		                                     exceptions);
+		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor, signature, exceptions);
 		if (name.equals("<clinit>") && !isInterface) {
 			logger.info("Found static initializer in class " + className);
-			MethodVisitor mv2 = super.visitMethod(methodAccess | Opcodes.ACC_PUBLIC
-			                                              | Opcodes.ACC_STATIC,
-			                                      "__STATIC_RESET", descriptor,
-			                                      signature,
-			                                      exceptions);
+			MethodVisitor mv2 = super.visitMethod(methodAccess | Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
+					"__STATIC_RESET", descriptor, signature, exceptions);
 			static_classes.add(className.replace('/', '.'));
 			return new MultiMethodVisitor(mv2, mv);
 		}

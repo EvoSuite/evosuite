@@ -37,6 +37,17 @@ public class PathSearch extends Search {
 
 	private final Map<Integer, List<gov.nasa.jpf.Error>> errormap;
 
+	private final int numberOfIterations;
+
+	private final long maxTime = Properties.TIMEOUT; // TODO:
+														// Configuration.MAX_TEST_EXECUTION_TIME_MSEC;
+
+	private long startTime;
+
+	public PathSearch(Config config, JVM vm) {
+		this(config, vm, config.getInt("jm.numberOfIterations", 1));
+	}
+
 	public PathSearch(Config config, JVM vm, int iterations) {
 		super(config, vm);
 		if (iterations <= 0) {
@@ -46,17 +57,15 @@ public class PathSearch extends Search {
 		errormap = new HashMap<Integer, List<gov.nasa.jpf.Error>>();
 	}
 
-	public PathSearch(Config config, JVM vm) {
-		this(config, vm, config.getInt("jm.numberOfIterations", 1));
-	}
-
 	public Map<Integer, List<gov.nasa.jpf.Error>> getErrorMap() {
 		return errormap;
 	}
 
-	private final int numberOfIterations;
-	private final long maxTime = Properties.TIMEOUT; // TODO: Configuration.MAX_TEST_EXECUTION_TIME_MSEC;
-	private long startTime;
+	@Override
+	public boolean isEndState() {
+		// vm.restoreState don`t reset the original impl.
+		return vm.isEndState();
+	}
 
 	@Override
 	public void search() {
@@ -66,7 +75,7 @@ public class PathSearch extends Search {
 			return;
 		}
 
-		//vm.forward();
+		// vm.forward();
 		VMState init_state = vm.getState();
 
 		notifySearchStarted();
@@ -76,19 +85,17 @@ public class PathSearch extends Search {
 		TimeOutListener to = new TimeOutListener(this.maxTime);
 		vm.addListener(to);
 		while (true) {
-			if (!(termination = hasPropertyTermination()) && hasNextState()
-			        && !isEndState() && !to.isTimeOut()) {
+			if (!(termination = hasPropertyTermination()) && hasNextState() && !isEndState() && !to.isTimeOut()) {
 				if (forward()) {
 					notifyStateAdvanced();
 				}
 			} else {
 				if (to.isTimeOut()) {
-					//TODO TimeOut-Error
+					// TODO TimeOut-Error
 				}
 				if (termination) {
 					List<gov.nasa.jpf.Error> errors = getErrors();
-					List<gov.nasa.jpf.Error> error = errors.subList(lastIndex,
-					                                                errors.size());
+					List<gov.nasa.jpf.Error> error = errors.subList(lastIndex, errors.size());
 					lastIndex = errors.size();
 					errormap.put(path, error);
 				}
@@ -105,12 +112,6 @@ public class PathSearch extends Search {
 		}
 
 		notifySearchFinished();
-	}
-
-	@Override
-	public boolean isEndState() {
-		//vm.restoreState don`t reset the original impl.
-		return vm.isEndState();
 	}
 
 	@Override

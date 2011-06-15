@@ -41,24 +41,28 @@ public abstract class StoppingCondition implements SearchListener {
 		reset();
 	}
 
-	public abstract boolean isFinished();
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.javalanche.ga.SearchListener#searchStarted(de.unisb.cs
-	 * .st.javalanche.ga.FitnessFunction)
-	 */
-	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
-
-	}
-
 	@Override
 	public void fitnessEvaluation(Chromosome chromosome) {
 
 	}
+
+	/**
+	 * How much of the budget have we used up
+	 * 
+	 * @return
+	 */
+	public abstract int getCurrentValue();
+
+	/**
+	 * Get upper limit of resources
+	 * 
+	 * Mainly used for toString()
+	 * 
+	 * @return limit
+	 */
+	public abstract int getLimit();
+
+	public abstract boolean isFinished();
 
 	/*
 	 * (non-Javadoc)
@@ -67,17 +71,6 @@ public abstract class StoppingCondition implements SearchListener {
 	 */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.unisb.cs.st.ga.SearchListener#searchFinished(java.util.List)
-	 */
-	@Override
-	public void searchFinished(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -100,28 +93,35 @@ public abstract class StoppingCondition implements SearchListener {
 	 */
 	public abstract void reset();
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.unisb.cs.st.ga.SearchListener#searchFinished(java.util.List)
+	 */
+	@Override
+	public void searchFinished(GeneticAlgorithm algorithm) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.javalanche.ga.SearchListener#searchStarted(de.unisb.cs
+	 * .st.javalanche.ga.FitnessFunction)
+	 */
+	@Override
+	public void searchStarted(GeneticAlgorithm algorithm) {
+
+	}
+
 	/**
 	 * Set new upper limit of resources
 	 * 
 	 * @param limit
 	 */
 	public abstract void setLimit(int limit);
-
-	/**
-	 * Get upper limit of resources
-	 * 
-	 * Mainly used for toString()
-	 * 
-	 * @return limit
-	 */
-	public abstract int getLimit();
-
-	/**
-	 * How much of the budget have we used up
-	 * 
-	 * @return
-	 */
-	public abstract int getCurrentValue();
 
 	@Override
 	public String toString() {
@@ -131,7 +131,9 @@ public abstract class StoppingCondition implements SearchListener {
 			type = type.substring(type.lastIndexOf(".") + 1);
 		} catch (Exception e) {
 		}
-		type = type.substring(0, type.length() - 17); // cut away "StoppingCondition" suffix
+		type = type.substring(0, type.length() - 17); // cut away
+														// "StoppingCondition"
+														// suffix
 		type += " :";
 		type = StringUtils.rightPad(type, 24);
 		r.append(type);
@@ -140,8 +142,9 @@ public abstract class StoppingCondition implements SearchListener {
 		String limit = NumberFormat.getIntegerInstance().format(getLimit());
 		limit = StringUtils.rightPad(limit, 12);
 		r.append(value + " / " + limit);
-		if (isFinished())
+		if (isFinished()) {
 			r.append(" Finished!");
+		}
 
 		return r.toString();
 	}

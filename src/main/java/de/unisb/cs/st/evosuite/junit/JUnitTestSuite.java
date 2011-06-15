@@ -50,6 +50,18 @@ public class JUnitTestSuite {
 
 	private final TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
+	public Set<String> getCoveredMethods() {
+		return covered_methods;
+	}
+
+	public Set<String> getFalseCoveredBranches() {
+		return covered_branches_false;
+	}
+
+	public Set<String> getTrueCoveredBranches() {
+		return covered_branches_true;
+	}
+
 	public void runSuite(String name) {
 		try {
 			Class<?> forName = null;
@@ -63,20 +75,25 @@ public class JUnitTestSuite {
 			covered_branches_false = new HashSet<String>();
 
 			for (Entry<String, Integer> entry : trace.covered_methods.entrySet()) {
-				if (!entry.getKey().contains("$"))
+				if (!entry.getKey().contains("$")) {
 					covered_methods.add(entry.getKey());
+				}
 			}
 
 			for (Entry<String, Double> entry : trace.true_distances.entrySet()) {
-				if (entry.getValue() == 0.0)
-					if (!entry.getKey().contains("$"))
+				if (entry.getValue() == 0.0) {
+					if (!entry.getKey().contains("$")) {
 						covered_branches_true.add(entry.getKey());
+					}
+				}
 			}
 
 			for (Entry<String, Double> entry : trace.false_distances.entrySet()) {
-				if (entry.getValue() == 0.0)
-					if (!entry.getKey().contains("$"))
+				if (entry.getValue() == 0.0) {
+					if (!entry.getKey().contains("$")) {
 						covered_branches_false.add(entry.getKey());
+					}
+				}
 			}
 
 		} catch (ClassNotFoundException e) {
@@ -92,34 +109,24 @@ public class JUnitTestSuite {
 		for (TestCase test : chromosome.getTests()) {
 			ExecutionResult result = runTest(test);
 			for (Entry<String, Integer> entry : result.getTrace().covered_methods.entrySet()) {
-				//if(!entry.getKey().contains("$"))
+				// if(!entry.getKey().contains("$"))
 				covered_methods.add(entry.getKey());
 			}
 
 			for (Entry<String, Double> entry : result.getTrace().true_distances.entrySet()) {
-				if (entry.getValue() == 0.0)
-					//if(!entry.getKey().contains("$"))
+				if (entry.getValue() == 0.0) {
+					// if(!entry.getKey().contains("$"))
 					covered_branches_true.add(entry.getKey());
+				}
 			}
 
 			for (Entry<String, Double> entry : result.getTrace().false_distances.entrySet()) {
-				if (entry.getValue() == 0.0)
-					//if(!entry.getKey().contains("$"))
+				if (entry.getValue() == 0.0) {
+					// if(!entry.getKey().contains("$"))
 					covered_branches_false.add(entry.getKey());
+				}
 			}
 		}
-	}
-
-	public Set<String> getCoveredMethods() {
-		return covered_methods;
-	}
-
-	public Set<String> getTrueCoveredBranches() {
-		return covered_branches_true;
-	}
-
-	public Set<String> getFalseCoveredBranches() {
-		return covered_branches_false;
 	}
 
 	public ExecutionResult runTest(TestCase test) {

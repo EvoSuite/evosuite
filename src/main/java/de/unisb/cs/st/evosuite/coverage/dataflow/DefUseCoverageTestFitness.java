@@ -152,6 +152,10 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
  */
 public class DefUseCoverageTestFitness extends TestFitnessFunction {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	// debugging flags
 	private final static boolean DEBUG = Properties.DEFUSE_DEBUG_MODE;
 	private final static boolean PRINT_DEBUG = false;
@@ -165,7 +169,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	private final BranchCoverageTestFitness goalUseBranchFitness;
 
 	private int difficulty = -1;
-	public static long difficulty_time = 0l; // experiment 
+	public static long difficulty_time = 0l; // experiment
 
 	// coverage information
 	private Integer coveringObjectId = -1;
@@ -177,9 +181,9 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * Creates a Definition-Use-Coverage goal for the given Definition and Use
 	 */
 	public DefUseCoverageTestFitness(Definition def, Use use) {
-		if (!def.getDUVariableName().equals(use.getDUVariableName()))
-			throw new IllegalArgumentException(
-			        "expect def and use to be for the same variable");
+		if (!def.getDUVariableName().equals(use.getDUVariableName())) {
+			throw new IllegalArgumentException("expect def and use to be for the same variable");
+		}
 
 		this.goalDefinition = def;
 		this.goalUse = use;
@@ -194,9 +198,9 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * Creates a goal that tries to cover the given Use
 	 */
 	public DefUseCoverageTestFitness(Use use) {
-		if (!use.isParameterUse())
-			throw new IllegalArgumentException(
-			        "this constructor is only for Parameter-Uses");
+		if (!use.isParameterUse()) {
+			throw new IllegalArgumentException("this constructor is only for Parameter-Uses");
+		}
 
 		goalVariable = use.getDUVariableName();
 		goalDefinition = null;
@@ -206,71 +210,60 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	}
 
 	/**
-	 * Calculates the DefUseCoverage test fitness for this goal
-	 * 
-	 * Look at DefUseCoverageCalculations.calculateDUFitness() for more
-	 * information
+	 * Returns the goalDefinitionBranchDifficulty
 	 */
-	@Override
-	public double getFitness(TestChromosome individual, ExecutionResult result) {
-		preFitnessDebugInfo(result, true);
-
-		double fitness = DefUseFitnessCalculations.calculateDUFitness(this, individual,
-		                                                              result);
-
-		postFitnessDebugInfo(individual, result, fitness);
-
-		return fitness;
-	}
-
-	/**
-	 * Used by DefUseCoverageSuiteFitness
-	 * 
-	 * Simply call getFitness(TestChromosome,ExecutionResult) with a dummy
-	 * TestChromosome The chromosome is used only for updateIndividual()
-	 * anyways.
-	 */
-	public double getFitness(ExecutionResult result) {
-		TestChromosome dummy = new TestChromosome();
-		return getFitness(dummy, result);
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#updateIndividual(de.unisb.cs.st.evosuite.ga.Chromosome, double)
-	 */
-	@Override
-	protected void updateIndividual(Chromosome individual, double fitness) {
-		individual.setFitness(fitness);
-	}
-
-	/**
-	 * First approximation: A DUGoal is similar to another one if the goalDef or
-	 * goalUse branch of this goal is similar to the goalDef or goalUse branch
-	 * of the other goal
-	 * 
-	 * TODO should be: Either make it configurable or choose one: - first
-	 * approximation as described above - similar if goal definition or use are
-	 * equal - something really fancy considering potential overwriting
-	 * definitions and stuff
-	 */
-	@Override
-	public boolean isSimilarTo(TestFitnessFunction goal) {
-		if (goal instanceof BranchCoverageTestFitness) {
-			BranchCoverageTestFitness branchFitness = (BranchCoverageTestFitness) goal;
-			if (goalDefinitionBranchFitness != null
-			        && branchFitness.isSimilarTo(goalDefinitionBranchFitness))
-				return true;
-			return branchFitness.isSimilarTo(goalUseBranchFitness);
+	public int calculateDefinitionDifficulty() {
+		if (goalDefinitionBranchFitness == null) {
+			return 1;
 		}
-		try {
-			DefUseCoverageTestFitness other = (DefUseCoverageTestFitness) goal;
-			if (goalDefinitionBranchFitness != null
-			        && goalDefinitionBranchFitness.isSimilarTo(other))
-				return true;
-			return goalUseBranchFitness.isSimilarTo(other);
-		} catch (ClassCastException e) {
+		int defDifficulty = goalDefinitionBranchFitness.getDifficulty();
+		return defDifficulty;
+	}
+
+	/**
+	 * Returns the goalUseBranchDifficulty
+	 * 
+	 */
+	public int calculateUseDifficulty() {
+		int useDifficulty = goalUseBranchFitness.getDifficulty();
+		return useDifficulty;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == this) {
+			return true;
+		}
+		if (o == null) {
 			return false;
 		}
+		if (!(o instanceof DefUseCoverageTestFitness)) {
+			return false;
+		}
+
+		DefUseCoverageTestFitness t = (DefUseCoverageTestFitness) o;
+		if (!t.goalUse.equals(this.goalUse)) {
+			return false;
+		}
+		if (goalDefinition == null) {
+			if (t.goalDefinition == null) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		if (t.goalDefinition == null) {
+			return false;
+		}
+		return t.goalDefinition.equals(this.goalDefinition);
+	}
+
+	public int getCoveringObjectId() {
+		return coveringObjectId;
+	}
+
+	public ExecutionTrace getCoveringTrace() {
+		return coveringTrace;
 	}
 
 	/**
@@ -287,9 +280,214 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 */
 	@Override
 	public int getDifficulty() {
-		if (difficulty == -1)
+		if (difficulty == -1) {
 			difficulty = calculateDifficulty();
+		}
 		return difficulty;
+	}
+
+	/**
+	 * Used by DefUseCoverageSuiteFitness
+	 * 
+	 * Simply call getFitness(TestChromosome,ExecutionResult) with a dummy
+	 * TestChromosome The chromosome is used only for updateIndividual()
+	 * anyways.
+	 */
+	public double getFitness(ExecutionResult result) {
+		TestChromosome dummy = new TestChromosome();
+		return getFitness(dummy, result);
+	}
+
+	/**
+	 * Calculates the DefUseCoverage test fitness for this goal
+	 * 
+	 * Look at DefUseCoverageCalculations.calculateDUFitness() for more
+	 * information
+	 */
+	@Override
+	public double getFitness(TestChromosome individual, ExecutionResult result) {
+		preFitnessDebugInfo(result, true);
+
+		double fitness = DefUseFitnessCalculations.calculateDUFitness(this, individual, result);
+
+		postFitnessDebugInfo(individual, result, fitness);
+
+		return fitness;
+	}
+
+	public Definition getGoalDefinition() {
+		return goalDefinition;
+	}
+
+	public BranchCoverageTestFitness getGoalDefinitionBranchFitness() {
+		return goalDefinitionBranchFitness;
+	}
+
+	public Use getGoalUse() {
+		return goalUse;
+	}
+
+	public BranchCoverageTestFitness getGoalUseBranchFitness() {
+		return goalUseBranchFitness;
+	}
+
+	// debugging methods
+
+	public String getGoalVariable() {
+		return goalVariable;
+	}
+
+	/**
+	 * Returns a set containing all CFGVertices in the goal definition method
+	 * that come after the definition.
+	 * 
+	 * Look at ControlFlowGraph.getLaterInstructionInMethod() for details
+	 */
+	public Set<BytecodeInstruction> getInstructionsAfterGoalDefinition() {
+		RawControlFlowGraph cfg = CFGPool.getRawCFG(goalDefinition.getClassName(), goalDefinition.getMethodName());
+		BytecodeInstruction defVertex = cfg.getInstruction(goalDefinition.getInstructionId());
+		Set<BytecodeInstruction> r = cfg.getLaterInstructionsInMethod(defVertex);
+		// for (BytecodeInstruction v : r) {
+		// v.setMethodName(goalDefinition.getMethodName());
+		// v.setClassName(goalDefinition.getClassName());
+		// }
+		return r;
+	}
+
+	/**
+	 * Returns a set containing all CFGVertices in the goal use method that come
+	 * before the goal use.
+	 * 
+	 * Look at ControlFlowGraph.getPreviousInstructionInMethod() for details
+	 */
+	public Set<BytecodeInstruction> getInstructionsBeforeGoalUse() {
+		RawControlFlowGraph cfg = CFGPool.getRawCFG(goalUse.getClassName(), goalUse.getMethodName());
+		BytecodeInstruction useVertex = cfg.getInstruction(goalUse.getInstructionId());
+		Set<BytecodeInstruction> r = cfg.getPreviousInstructionsInMethod(useVertex);
+		// for (BytecodeInstruction v : r) {
+		// v.setMethodName(goalUse.getMethodName());
+		// v.setClassName(goalUse.getClassName());
+		// }
+		return r;
+	}
+
+	// --- Getter ---
+
+	/**
+	 * Return a set containing all CFGVertices that occur in the complete CFG
+	 * after the goalDefinition and before the goalUse.
+	 * 
+	 * It's pretty much the union of getInstructionsAfterGoalDefinition() and
+	 * getInstructionsBeforeGoalUse(), except if the DU is in one method and the
+	 * goalDefinition comes before the goalUse, then the intersection of the two
+	 * sets is returned.
+	 * 
+	 * If the goalDefinition is a Parameter-Definition only the CFGVertices
+	 * before the goalUse are considered.
+	 */
+	public Set<BytecodeInstruction> getInstructionsInBetweenDU() {
+		Set<BytecodeInstruction> previousInstructions = getInstructionsBeforeGoalUse();
+		if (goalDefinition != null) {
+			Set<BytecodeInstruction> laterInstructions = getInstructionsAfterGoalDefinition();
+			if ((goalDefinition.getInstructionId() < goalUse.getInstructionId())
+					&& goalDefinition.getMethodName().equals(goalUse.getMethodName())) {
+				// they are in the same method and definition comes before use
+				// => intersect sets
+				previousInstructions.retainAll(laterInstructions);
+			} else {
+				// otherwise take the union
+				previousInstructions.addAll(laterInstructions);
+			}
+		}
+		return previousInstructions;
+	}
+
+	/**
+	 * Returns the definitions to the goalVaraible coming after the
+	 * goalDefinition and before the goalUse in their respective methods
+	 */
+	public Set<BytecodeInstruction> getPotentialOverwritingDefinitions() {
+		Set<BytecodeInstruction> instructionsInBetween = getInstructionsInBetweenDU();
+		if (goalDefinition != null) {
+			return DefUseExecutionTraceAnalyzer.getOverwritingDefinitionsIn(goalDefinition, instructionsInBetween);
+		} else {
+			return DefUseExecutionTraceAnalyzer.getDefinitionsIn(goalVariable, instructionsInBetween);
+		}
+	}
+
+	/**
+	 * First approximation: A DUGoal is similar to another one if the goalDef or
+	 * goalUse branch of this goal is similar to the goalDef or goalUse branch
+	 * of the other goal
+	 * 
+	 * TODO should be: Either make it configurable or choose one: - first
+	 * approximation as described above - similar if goal definition or use are
+	 * equal - something really fancy considering potential overwriting
+	 * definitions and stuff
+	 */
+	@Override
+	public boolean isSimilarTo(TestFitnessFunction goal) {
+		if (goal instanceof BranchCoverageTestFitness) {
+			BranchCoverageTestFitness branchFitness = (BranchCoverageTestFitness) goal;
+			if ((goalDefinitionBranchFitness != null) && branchFitness.isSimilarTo(goalDefinitionBranchFitness)) {
+				return true;
+			}
+			return branchFitness.isSimilarTo(goalUseBranchFitness);
+		}
+		try {
+			DefUseCoverageTestFitness other = (DefUseCoverageTestFitness) goal;
+			if ((goalDefinitionBranchFitness != null) && goalDefinitionBranchFitness.isSimilarTo(other)) {
+				return true;
+			}
+			return goalUseBranchFitness.isSimilarTo(other);
+		} catch (ClassCastException e) {
+			return false;
+		}
+	}
+
+	public void setCovered(Chromosome individual, ExecutionTrace trace, Integer objectId) {
+		if (PRINT_DEBUG) {
+			logger.debug("goal COVERED by object " + objectId);
+			logger.debug("==============================================================");
+		}
+		this.coveringObjectId = objectId;
+		updateIndividual(individual, 0);
+
+		if (DEBUG) {
+			if (!DefUseFitnessCalculations.traceCoversGoal(this, individual, trace)) {
+				throw new IllegalStateException("calculation flawed. goal wasn't covered");
+			}
+		}
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer r = new StringBuffer();
+		r.append("Definition-Use-Pair");
+		if (difficulty != -1) {
+			r.append("- Difficulty " + NumberFormat.getIntegerInstance().format(difficulty));
+		}
+		r.append("\n\t");
+		if (goalDefinition == null) {
+			r.append("Parameter-Definition " + goalUse.getLocalVar() + " for method " + goalUse.getMethodName());
+		} else {
+			r.append(goalDefinition.toString());
+		}
+		r.append("\n\t");
+		r.append(goalUse.toString());
+		return r.toString();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.ga.FitnessFunction#updateIndividual(de.unisb.
+	 * cs.st.evosuite.ga.Chromosome, double)
+	 */
+	@Override
+	protected void updateIndividual(Chromosome individual, double fitness) {
+		individual.setFitness(fitness);
 	}
 
 	/**
@@ -311,136 +509,40 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		overallDifficulty *= calculateDefinitionDifficulty();
 		overallDifficulty *= (getInstructionsInBetweenDU().size() / 3) + 1;
 		if (overallDifficulty <= 0.0) {
-			throw new IllegalStateException("difficulty out of bounds - overflow?"
-			        + overallDifficulty);
+			throw new IllegalStateException("difficulty out of bounds - overflow?" + overallDifficulty);
 		}
 		int overDefs = getPotentialOverwritingDefinitions().size();
 		overallDifficulty *= Math.pow(10 * overDefs + 1, 2);
-		if (overallDifficulty <= 0.0)
-			throw new IllegalStateException("difficulty out of bounds - overflow? "
-			        + overallDifficulty);
+		if (overallDifficulty <= 0.0) {
+			throw new IllegalStateException("difficulty out of bounds - overflow? " + overallDifficulty);
+		}
 		difficulty_time += System.currentTimeMillis() - start;
 		if (Properties.RANDOMIZE_DIFFICULTY) {
-			float modifier = 1.5f * Randomness.getInstance().nextFloat() + 0.5f;
+			Randomness.getInstance();
+			float modifier = 1.5f * Randomness.nextFloat() + 0.5f;
 			overallDifficulty = Math.round(overallDifficulty * modifier);
 		}
-		if (overallDifficulty <= 0.0)
-			throw new IllegalStateException("difficulty out of bounds - overflow? "
-			        + overallDifficulty);
+		if (overallDifficulty <= 0.0) {
+			throw new IllegalStateException("difficulty out of bounds - overflow? " + overallDifficulty);
+		}
 		difficulty = overallDifficulty;
 		return overallDifficulty;
 	}
 
-	/**
-	 * Returns the goalDefinitionBranchDifficulty
-	 */
-	public int calculateDefinitionDifficulty() {
-		if (goalDefinitionBranchFitness == null)
-			return 1;
-		int defDifficulty = goalDefinitionBranchFitness.getDifficulty();
-		return defDifficulty;
-	}
+	// --- Inherited from Object ---
 
-	/**
-	 * Returns the goalUseBranchDifficulty
-	 * 
-	 */
-	public int calculateUseDifficulty() {
-		int useDifficulty = goalUseBranchFitness.getDifficulty();
-		return useDifficulty;
-	}
-
-	/**
-	 * Returns the definitions to the goalVaraible coming after the
-	 * goalDefinition and before the goalUse in their respective methods
-	 */
-	public Set<BytecodeInstruction> getPotentialOverwritingDefinitions() {
-		Set<BytecodeInstruction> instructionsInBetween = getInstructionsInBetweenDU();
-		if (goalDefinition != null)
-			return DefUseExecutionTraceAnalyzer.getOverwritingDefinitionsIn(goalDefinition,
-			                                                                instructionsInBetween);
-		else
-			return DefUseExecutionTraceAnalyzer.getDefinitionsIn(goalVariable,
-			                                                     instructionsInBetween);
-	}
-
-	/**
-	 * Return a set containing all CFGVertices that occur in the complete CFG
-	 * after the goalDefinition and before the goalUse.
-	 * 
-	 * It's pretty much the union of getInstructionsAfterGoalDefinition() and
-	 * getInstructionsBeforeGoalUse(), except if the DU is in one method and the
-	 * goalDefinition comes before the goalUse, then the intersection of the two
-	 * sets is returned.
-	 * 
-	 * If the goalDefinition is a Parameter-Definition only the CFGVertices
-	 * before the goalUse are considered.
-	 */
-	public Set<BytecodeInstruction> getInstructionsInBetweenDU() {
-		Set<BytecodeInstruction> previousInstructions = getInstructionsBeforeGoalUse();
-		if (goalDefinition != null) {
-			Set<BytecodeInstruction> laterInstructions = getInstructionsAfterGoalDefinition();
-			if (goalDefinition.getInstructionId() < goalUse.getInstructionId()
-			        && goalDefinition.getMethodName().equals(goalUse.getMethodName())) {
-				// they are in the same method and definition comes before use => intersect sets
-				previousInstructions.retainAll(laterInstructions);
-			} else {
-				// otherwise take the union
-				previousInstructions.addAll(laterInstructions);
+	private void postFitnessDebugInfo(Chromosome individual, ExecutionResult result, double fitness) {
+		if (DEBUG) {
+			if (fitness != 0) {
+				if (PRINT_DEBUG) {
+					System.out.println("goal NOT COVERED. fitness: " + fitness);
+					System.out.println("==============================================================");
+				}
+				if (DefUseFitnessCalculations.traceCoversGoal(this, individual, result.getTrace())) {
+					throw new IllegalStateException("calculation flawed. goal was covered but fitness was " + fitness);
+				}
 			}
 		}
-		return previousInstructions;
-	}
-
-	/**
-	 * Returns a set containing all CFGVertices in the goal definition method
-	 * that come after the definition.
-	 * 
-	 * Look at ControlFlowGraph.getLaterInstructionInMethod() for details
-	 */
-	public Set<BytecodeInstruction> getInstructionsAfterGoalDefinition() {
-		RawControlFlowGraph cfg = CFGPool.getRawCFG(goalDefinition.getClassName(),
-		                                                       goalDefinition.getMethodName());
-		BytecodeInstruction defVertex = cfg.getInstruction(goalDefinition.getInstructionId());
-		Set<BytecodeInstruction> r = cfg.getLaterInstructionsInMethod(defVertex);
-//		for (BytecodeInstruction v : r) {
-//			v.setMethodName(goalDefinition.getMethodName());
-//			v.setClassName(goalDefinition.getClassName());
-//		}
-		return r;
-	}
-
-	/**
-	 * Returns a set containing all CFGVertices in the goal use method that come
-	 * before the goal use.
-	 * 
-	 * Look at ControlFlowGraph.getPreviousInstructionInMethod() for details
-	 */
-	public Set<BytecodeInstruction> getInstructionsBeforeGoalUse() {
-		RawControlFlowGraph cfg = CFGPool.getRawCFG(goalUse.getClassName(),
-		                                                       goalUse.getMethodName());
-		BytecodeInstruction useVertex = cfg.getInstruction(goalUse.getInstructionId());
-		Set<BytecodeInstruction> r = cfg.getPreviousInstructionsInMethod(useVertex);
-//		for (BytecodeInstruction v : r) {
-//			v.setMethodName(goalUse.getMethodName());
-//			v.setClassName(goalUse.getClassName());
-//		}
-		return r;
-	}
-
-	// debugging methods
-
-	public void setCovered(Chromosome individual, ExecutionTrace trace, Integer objectId) {
-		if (PRINT_DEBUG) {
-			logger.debug("goal COVERED by object " + objectId);
-			logger.debug("==============================================================");
-		}
-		this.coveringObjectId = objectId;
-		updateIndividual(individual, 0);
-
-		if (DEBUG)
-			if (!DefUseFitnessCalculations.traceCoversGoal(this, individual, trace))
-				throw new IllegalStateException("calculation flawed. goal wasn't covered");
 	}
 
 	private void preFitnessDebugInfo(ExecutionResult result, boolean respectPrintFlag) {
@@ -450,93 +552,6 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			System.out.println("current test:");
 			System.out.println(result.test.toCode());
 		}
-	}
-
-	private void postFitnessDebugInfo(Chromosome individual, ExecutionResult result,
-	        double fitness) {
-		if (DEBUG) {
-			if (fitness != 0) {
-				if (PRINT_DEBUG) {
-					System.out.println("goal NOT COVERED. fitness: " + fitness);
-					System.out.println("==============================================================");
-				}
-				if(DefUseFitnessCalculations.traceCoversGoal(this, individual, result.getTrace()))
-					throw new IllegalStateException("calculation flawed. goal was covered but fitness was "+fitness);
-			}
-		}
-	}
-
-	// 	---			Getter 		---
-
-	public ExecutionTrace getCoveringTrace() {
-		return coveringTrace;
-	}
-
-	public String getGoalVariable() {
-		return goalVariable;
-	}
-
-	public int getCoveringObjectId() {
-		return coveringObjectId;
-	}
-
-	public Definition getGoalDefinition() {
-		return goalDefinition;
-	}
-
-	public Use getGoalUse() {
-		return goalUse;
-	}
-
-	public BranchCoverageTestFitness getGoalUseBranchFitness() {
-		return goalUseBranchFitness;
-	}
-
-	public BranchCoverageTestFitness getGoalDefinitionBranchFitness() {
-		return goalDefinitionBranchFitness;
-	}
-
-	// ---		Inherited from Object 			---
-
-	@Override
-	public String toString() {
-		StringBuffer r = new StringBuffer();
-		r.append("Definition-Use-Pair");
-		if (difficulty != -1)
-			r.append("- Difficulty "
-			        + NumberFormat.getIntegerInstance().format(difficulty));
-		r.append("\n\t");
-		if (goalDefinition == null)
-			r.append("Parameter-Definition " + goalUse.getLocalVar() + " for method "
-			        + goalUse.getMethodName());
-		else
-			r.append(goalDefinition.toString());
-		r.append("\n\t");
-		r.append(goalUse.toString());
-		return r.toString();
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (o == this)
-			return true;
-		if (o == null)
-			return false;
-		if (!(o instanceof DefUseCoverageTestFitness))
-			return false;
-
-		DefUseCoverageTestFitness t = (DefUseCoverageTestFitness) o;
-		if (!t.goalUse.equals(this.goalUse))
-			return false;
-		if (goalDefinition == null) {
-			if (t.goalDefinition == null)
-				return true;
-			else
-				return false;
-		}
-		if (t.goalDefinition == null)
-			return false;
-		return t.goalDefinition.equals(this.goalDefinition);
 	}
 
 }

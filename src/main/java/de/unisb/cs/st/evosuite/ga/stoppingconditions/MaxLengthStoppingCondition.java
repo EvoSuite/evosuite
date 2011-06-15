@@ -33,22 +33,32 @@ public class MaxLengthStoppingCondition extends StoppingCondition {
 
 	private double average_length = 0.0;
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
+	 */
+	@Override
+	public int getCurrentValue() {
+		return (int) average_length;
+	}
+
+	@Override
+	public int getLimit() {
+		return (int) (Properties.MAX_LENGTH + 0.5);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unisb.cs.st.ga.StoppingCondition#isFinished()
 	 */
 	@Override
 	public boolean isFinished() {
-		if (average_length >= Properties.MAX_LENGTH)
+		if (average_length >= Properties.MAX_LENGTH) {
 			logger.info("Maximum average length reached, stopping");
+		}
 		return average_length >= Properties.MAX_LENGTH;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.ga.StoppingCondition#reset()
-	 */
-	@Override
-	public void reset() {
-		average_length = 0.0;
 	}
 
 	@Override
@@ -60,24 +70,23 @@ public class MaxLengthStoppingCondition extends StoppingCondition {
 		average_length = avg / algorithm.getPopulation().size();
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.unisb.cs.st.ga.StoppingCondition#reset()
 	 */
 	@Override
-	public int getCurrentValue() {
-		return (int) average_length;
+	public void reset() {
+		average_length = 0.0;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
 	@Override
 	public void setLimit(int limit) {
 		Properties.MAX_LENGTH = limit;
-	}
-
-	@Override
-	public int getLimit() {
-		return (int) (Properties.MAX_LENGTH + 0.5);
 	}
 }

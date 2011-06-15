@@ -40,25 +40,27 @@ public class HOMFileTransformer implements ClassFileTransformer {
 
 	protected static Logger logger = Logger.getLogger(HOMFileTransformer.class);
 
-	//private final BytecodeTransformer mutationTransformer;
+	// private final BytecodeTransformer mutationTransformer;
 	private static HOMTransformer mutationTransformer = new HOMTransformer();
 
 	public static MutationsForRun mm = MutationsForRun.getFromDefaultLocation();
 
 	private static Collection<String> classesToMutate = mm.getClassNames();
 
-	//private static RemoveSystemExitTransformer systemExitTransformer = new RemoveSystemExitTransformer();
+	// private static RemoveSystemExitTransformer systemExitTransformer = new
+	// RemoveSystemExitTransformer();
 
 	static {
 		logger.info("Loading HOMFileTransformer");
 		classesToMutate.add(Properties.TARGET_CLASS);
-		//logger.info("Classes to mutate:");
-		//for(String classname : classesToMutate) {
-		//	logger.info("  "+classname);
-		//}
+		// logger.info("Classes to mutate:");
+		// for(String classname : classesToMutate) {
+		// logger.info("  "+classname);
+		// }
 	}
 
-	private static MutationDecision mutationDecision = MutationDecisionFactory.getStandardMutationDecision(classesToMutate);
+	private static MutationDecision mutationDecision = MutationDecisionFactory
+			.getStandardMutationDecision(classesToMutate);
 
 	/*
 	 * (non-Javadoc)
@@ -69,17 +71,15 @@ public class HOMFileTransformer implements ClassFileTransformer {
 	 * byte[])
 	 */
 	@Override
-	public byte[] transform(ClassLoader loader, String className,
-	        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-	        byte[] classfileBuffer) throws IllegalClassFormatException {
+	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 		if (className != null) {
 			try {
 				String classNameWithDots = className.replace('/', '.');
 
 				if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)) {
 					ClassReader reader = new ClassReader(classfileBuffer);
-					ClassWriter writer = new ClassWriter(
-					        org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
+					ClassWriter writer = new ClassWriter(org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
 					ClassVisitor cv = writer;
 					cv = new PrimitiveClassAdapter(cv, className);
 					reader.accept(cv, ClassReader.SKIP_FRAMES);
@@ -87,18 +87,17 @@ public class HOMFileTransformer implements ClassFileTransformer {
 				}
 
 				// logger.info(className + " is passed to transformer");
-				//if (mutationDecision.shouldBeHandled(classNameWithDots)) {
-				//	logger.debug("Removing calls to System.exit() from class: "
-				//			+ classNameWithDots);
-				//	classfileBuffer = systemExitTransformer
-				//			.transformBytecode(classfileBuffer);
-				//}
+				// if (mutationDecision.shouldBeHandled(classNameWithDots)) {
+				// logger.debug("Removing calls to System.exit() from class: "
+				// + classNameWithDots);
+				// classfileBuffer = systemExitTransformer
+				// .transformBytecode(classfileBuffer);
+				// }
 				/*
-				if (BytecodeTasks.shouldIntegrate(classNameWithDots)) {
-					classfileBuffer = BytecodeTasks.integrateTestSuite(
-							classfileBuffer, classNameWithDots);
-				}
-				*/
+				 * if (BytecodeTasks.shouldIntegrate(classNameWithDots)) {
+				 * classfileBuffer = BytecodeTasks.integrateTestSuite(
+				 * classfileBuffer, classNameWithDots); }
+				 */
 				if (mutationDecision.shouldBeHandled(classNameWithDots)) {
 					logger.info("Transforming: " + classNameWithDots);
 					byte[] transformedBytecode = null;
@@ -110,15 +109,15 @@ public class HOMFileTransformer implements ClassFileTransformer {
 						e.printStackTrace();
 					}
 					/*
-					AsmUtil.checkClass2(transformedBytecode);
-					logger.debug("Class transformed: " + classNameWithDots);
-					String checkClass = AsmUtil.checkClass(transformedBytecode);
-					if (checkClass != null && checkClass.length() > 0) {
-						logger.warn("Check of class failed: "
-								+ classNameWithDots);
-						logger.warn("Message: " + checkClass);
-					}
-					*/
+					 * AsmUtil.checkClass2(transformedBytecode);
+					 * logger.debug("Class transformed: " + classNameWithDots);
+					 * String checkClass =
+					 * AsmUtil.checkClass(transformedBytecode); if (checkClass
+					 * != null && checkClass.length() > 0) {
+					 * logger.warn("Check of class failed: " +
+					 * classNameWithDots); logger.warn("Message: " +
+					 * checkClass); }
+					 */
 					return transformedBytecode;
 				}
 			} catch (Throwable t) {
@@ -135,16 +134,13 @@ public class HOMFileTransformer implements ClassFileTransformer {
 	}
 
 	/*
-	private String checkClass(byte[] transformedBytecode) {
-		ClassReader cr = new ClassReader(transformedBytecode);
-		StringWriter sw = new StringWriter();
-		CheckClassAdapter check = new CheckClassAdapter(new ClassWriter(
-				ClassWriter.COMPUTE_MAXS));
-		cr.accept(check, ClassReader.EXPAND_FRAMES);
-		// cr.accept(check,0);
-		// CheckClassAdapter.verify(cr, false, new PrintWriter(sw));
-		return sw.toString();
-	}
-	*/
+	 * private String checkClass(byte[] transformedBytecode) { ClassReader cr =
+	 * new ClassReader(transformedBytecode); StringWriter sw = new
+	 * StringWriter(); CheckClassAdapter check = new CheckClassAdapter(new
+	 * ClassWriter( ClassWriter.COMPUTE_MAXS)); cr.accept(check,
+	 * ClassReader.EXPAND_FRAMES); // cr.accept(check,0); //
+	 * CheckClassAdapter.verify(cr, false, new PrintWriter(sw)); return
+	 * sw.toString(); }
+	 */
 
 }

@@ -49,7 +49,15 @@ public class HOMObserver {
 	 */
 	public static final String NAME_OF_TOUCH_METHOD = "touch";
 
-	//Notice that the name of this method must be saved in NAME_OF_TOUCH_METHOD
+	public static List<Long> getTouched() {
+		return new ArrayList<Long>(touchedMutations);
+	}
+
+	public static void resetTouched() {
+		touchedMutations.clear();
+	}
+
+	// Notice that the name of this method must be saved in NAME_OF_TOUCH_METHOD
 	/**
 	 * This method is called by statements that are added to the mutated code.
 	 * It is called every time the mutated statements get executed.
@@ -60,23 +68,14 @@ public class HOMObserver {
 	public static void touch(long mutationID) {
 		touchedMutations.add(mutationID);
 
-		logger.trace("Touched mutation: " + mutationID + " Thread "
-		        + Thread.currentThread() + " loaded by class loader "
-		        + HOMObserver.class.getClassLoader());
+		logger.trace("Touched mutation: " + mutationID + " Thread " + Thread.currentThread()
+				+ " loaded by class loader " + HOMObserver.class.getClassLoader());
 		// + "Trace " + Util.getStackTraceString());
 
 	}
 
-	public static void resetTouched() {
-		touchedMutations.clear();
-	}
-
 	public static boolean wasTouched(Long id) {
 		return touchedMutations.contains(id);
-	}
-
-	public static List<Long> getTouched() {
-		return new ArrayList<Long>(touchedMutations);
 	}
 
 }

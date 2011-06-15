@@ -58,34 +58,6 @@ public class TestCaseMinimizer {
 	}
 
 	/**
-	 * Remove all unreferenced variables
-	 * 
-	 * @param t
-	 *            The test case
-	 * @return True if something was deleted
-	 */
-	public boolean removeUnusedVariables(TestCase t) {
-		List<Integer> to_delete = new ArrayList<Integer>();
-		boolean has_deleted = false;
-
-		int num = 0;
-		for (StatementInterface s : t) {
-			VariableReference var = s.getReturnValue();
-			if (!t.hasReferences(var)) {
-				to_delete.add(num);
-				has_deleted = true;
-			}
-			num++;
-		}
-		Collections.sort(to_delete, Collections.reverseOrder());
-		for (Integer position : to_delete) {
-			t.remove(position);
-		}
-
-		return has_deleted;
-	}
-
-	/**
 	 * Central minimization function. Loop and try to remove until all
 	 * statements have been checked.
 	 * 
@@ -96,11 +68,11 @@ public class TestCaseMinimizer {
 			return;
 		}
 		logger.info("Minimizing test case");
-		//logger.info(c.test.toCode());
+		// logger.info(c.test.toCode());
 
 		Logger logger1 = Logger.getLogger(fitness_function.getClass());
 		Level old_level1 = logger.getLevel();
-		//logger1.setLevel(Level.OFF);
+		// logger1.setLevel(Level.OFF);
 		Logger logger2 = Logger.getLogger(DefaultTestCase.class);
 		Level old_level2 = logger.getLevel();
 		logger2.setLevel(Level.OFF);
@@ -158,6 +130,34 @@ public class TestCaseMinimizer {
 			logger.debug(c.test.toCode());
 		}
 
+	}
+
+	/**
+	 * Remove all unreferenced variables
+	 * 
+	 * @param t
+	 *            The test case
+	 * @return True if something was deleted
+	 */
+	public boolean removeUnusedVariables(TestCase t) {
+		List<Integer> to_delete = new ArrayList<Integer>();
+		boolean has_deleted = false;
+
+		int num = 0;
+		for (StatementInterface s : t) {
+			VariableReference var = s.getReturnValue();
+			if (!t.hasReferences(var)) {
+				to_delete.add(num);
+				has_deleted = true;
+			}
+			num++;
+		}
+		Collections.sort(to_delete, Collections.reverseOrder());
+		for (Integer position : to_delete) {
+			t.remove(position);
+		}
+
+		return has_deleted;
 	}
 
 }

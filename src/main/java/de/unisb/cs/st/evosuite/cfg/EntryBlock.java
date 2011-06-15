@@ -7,15 +7,15 @@ public class EntryBlock extends BasicBlock {
 	}
 
 	@Override
+	public String getName() {
+		return "EntryBlock for method " + methodName;
+	}
+
+	@Override
 	public boolean isEntryBlock() {
 		return true;
 	}
-	
-	@Override
-	public String getName() {
-		return "EntryBlock for method "+methodName;
-	}
-	
+
 	@Override
 	public String toString() {
 		return getName();

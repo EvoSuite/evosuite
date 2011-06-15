@@ -31,8 +31,17 @@ public class TestCallObject extends AccessibleObject {
 		return num;
 	}
 
-	public void setNum(int num) {
-		this.num = num;
+	/**
+	 * @return the returnType
+	 */
+	public Type getReturnType() {
+		return returnType;
+	}
+
+	public TestSuiteChromosome getSuite() {
+		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
+		TestSuiteChromosome suite = (TestSuiteChromosome) tracker.getCurrentChromosome();
+		return suite;
 	}
 
 	/*
@@ -44,17 +53,16 @@ public class TestCallObject extends AccessibleObject {
 		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
 		TestSuiteChromosome suite = (TestSuiteChromosome) tracker.getCurrentChromosome();
 		if (num >= suite.tests.size()) {
-			System.out.println("Current chromosome only has " + suite.tests.size()
-			        + " chromosomes, looking for " + num);
+			System.out
+					.println("Current chromosome only has " + suite.tests.size() + " chromosomes, looking for " + num);
 			return null;
-		} else
+		} else {
 			return suite.tests.get(num).test;
+		}
 	}
 
-	public TestSuiteChromosome getSuite() {
-		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
-		TestSuiteChromosome suite = (TestSuiteChromosome) tracker.getCurrentChromosome();
-		return suite;
+	public void setNum(int num) {
+		this.num = num;
 	}
 
 	/**
@@ -63,13 +71,6 @@ public class TestCallObject extends AccessibleObject {
 	 */
 	public void setReturnType(Type returnType) {
 		this.returnType = returnType;
-	}
-
-	/**
-	 * @return the returnType
-	 */
-	public Type getReturnType() {
-		return returnType;
 	}
 
 }

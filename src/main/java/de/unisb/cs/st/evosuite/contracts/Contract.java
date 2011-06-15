@@ -30,42 +30,12 @@ public abstract class Contract {
 		}
 	}
 
-	protected Collection<Object> getAllObjects(Scope scope) {
-		return scope.getObjects();
-	}
-
-	protected Collection<Pair> getAllObjectPairs(Scope scope) {
-		Set<Pair> pairs = new HashSet<Pair>();
-		for (Object o1 : scope.getObjects()) {
-			for (Object o2 : scope.getObjects(o1.getClass())) {
-				pairs.add(new Pair(o1, o2));
-			}
-		}
-		return pairs;
-	}
-
-	protected Collection<Object> getAffectedObjects(StatementInterface statement, Scope scope) {
-		Set<Object> objects = new HashSet<Object>();
-		if (statement instanceof ConstructorStatement
-		        || statement instanceof FieldStatement) {
-			objects.add(scope.get(statement.getReturnValue()));
-		} else if (statement instanceof MethodStatement) {
-			MethodStatement ms = (MethodStatement) statement;
-			Object o = scope.get(statement.getReturnValue());
-			if (o != null)
-				objects.add(o);
-			if (!ms.isStatic())
-				objects.add(scope.get(ms.getCallee()));
-
-		}
-		return objects;
-	}
+	public abstract boolean check(StatementInterface statement, Scope scope, Throwable exception);
 
 	protected Collection<Pair> getAffectedObjectPairs(StatementInterface statement, Scope scope) {
 		Set<Pair> pairs = new HashSet<Pair>();
 
-		if (statement instanceof ConstructorStatement
-		        || statement instanceof FieldStatement) {
+		if ((statement instanceof ConstructorStatement) || (statement instanceof FieldStatement)) {
 			Object o = scope.get(statement.getReturnValue());
 			if (o != null) {
 				for (Object o1 : scope.getObjects(o.getClass())) {
@@ -98,6 +68,36 @@ public abstract class Contract {
 		return pairs;
 	}
 
-	public abstract boolean check(StatementInterface statement, Scope scope, Throwable exception);
+	protected Collection<Object> getAffectedObjects(StatementInterface statement, Scope scope) {
+		Set<Object> objects = new HashSet<Object>();
+		if ((statement instanceof ConstructorStatement) || (statement instanceof FieldStatement)) {
+			objects.add(scope.get(statement.getReturnValue()));
+		} else if (statement instanceof MethodStatement) {
+			MethodStatement ms = (MethodStatement) statement;
+			Object o = scope.get(statement.getReturnValue());
+			if (o != null) {
+				objects.add(o);
+			}
+			if (!ms.isStatic()) {
+				objects.add(scope.get(ms.getCallee()));
+			}
+
+		}
+		return objects;
+	}
+
+	protected Collection<Pair> getAllObjectPairs(Scope scope) {
+		Set<Pair> pairs = new HashSet<Pair>();
+		for (Object o1 : scope.getObjects()) {
+			for (Object o2 : scope.getObjects(o1.getClass())) {
+				pairs.add(new Pair(o1, o2));
+			}
+		}
+		return pairs;
+	}
+
+	protected Collection<Object> getAllObjects(Scope scope) {
+		return scope.getObjects();
+	}
 
 }

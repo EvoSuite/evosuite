@@ -1,27 +1,24 @@
 package de.unisb.cs.st.evosuite.ga;
 
-import org.junit.*;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
-import de.unisb.cs.st.evosuite.testcase.*;
+import org.junit.Assert;
+import org.junit.Test;
+
+import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 
 /**
  * @author Andrea Arcuri
  * 
  */
-public class TestSelectionOperators 
-{
+public class TestSelectionOperators {
 	@Test
-	public void testMaximizeVariable()
-	{
-		SelectionFunction[] v = new SelectionFunction[]{
-				new TournamentSelection(),
-				new FitnessProportionateSelection(),
-				new RankSelection()
-		};
+	public void testMaximizeVariable() {
+		SelectionFunction[] v = new SelectionFunction[] { new TournamentSelection(),
+				new FitnessProportionateSelection(), new RankSelection() };
 
-		for(SelectionFunction sf : v)
-		{
+		for (SelectionFunction sf : v) {
 			sf.setMaximize(true);
 			Assert.assertTrue(sf.isMaximize());
 			sf.setMaximize(false);
@@ -30,48 +27,40 @@ public class TestSelectionOperators
 	}
 
 	@Test
-	public void testProportions()
-	{
-		boolean[] maximize = new boolean[]{false,true};
+	public void testProportions() {
+		boolean[] maximize = new boolean[] { false, true };
 
-		SelectionFunction[] v = new SelectionFunction[]{
-				new TournamentSelection(),
-				new FitnessProportionateSelection(),
-				new RankSelection()
-		};
+		SelectionFunction[] v = new SelectionFunction[] { new TournamentSelection(),
+				new FitnessProportionateSelection(), new RankSelection() };
 
 		final int N = 10;
-		
-		for(boolean b : maximize)
-		{
+
+		for (boolean b : maximize) {
 			List<Chromosome> population = new LinkedList<Chromosome>();
-			for(int i=0; i<N; i++)
-			{
+			for (int i = 0; i < N; i++) {
 				TestChromosome ind = new TestChromosome();
-				double fit = b ? N-i : i;
+				double fit = b ? N - i : i;
 				ind.setFitness(fit);
-				//Rank selection assumes the population in order, but for the others does not matter
+				// Rank selection assumes the population in order, but for the
+				// others does not matter
 				population.add(ind);
 			}
-			
-			for(SelectionFunction sf : v)
-			{
+
+			for (SelectionFunction sf : v) {
 				sf.setMaximize(b);
-				
+
 				int[] counter = new int[N];
-				
-				for(int j=0; j<10000; j++)
-				{
+
+				for (int j = 0; j < 10000; j++) {
 					int index = sf.getIndex(population);
 					counter[index]++;
 				}
-				
-				for(int j=0; j<N-1; j++)
-				{
-					Assert.assertTrue(""+counter[j]+" "+counter[j+1], counter[j] > counter[j+1]);
+
+				for (int j = 0; j < N - 1; j++) {
+					Assert.assertTrue("" + counter[j] + " " + counter[j + 1], counter[j] > counter[j + 1]);
 				}
-				
-				Assert.assertTrue(counter[N-1]>0);
+
+				Assert.assertTrue(counter[N - 1] > 0);
 			}
 		}
 	}

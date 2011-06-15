@@ -11,16 +11,6 @@ public class IntegerConstant extends IntegerExpression {
 	}
 
 	@Override
-	public Long getConcreteValue() {
-		return value;
-	}
-
-	@Override
-	public String toString() {
-		return Long.toString(value);
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof IntegerConstant) {
 			IntegerConstant v = (IntegerConstant) obj;
@@ -30,8 +20,18 @@ public class IntegerConstant extends IntegerExpression {
 	}
 
 	@Override
+	public Long getConcreteValue() {
+		return value;
+	}
+
+	@Override
 	public int getSize() {
 		return 1;
+	}
+
+	@Override
+	public String toString() {
+		return Long.toString(value);
 	}
 
 }

@@ -30,33 +30,6 @@ public class PrimitiveFieldAssertion extends Assertion {
 	public Field field;
 
 	@Override
-	public String getCode() {
-		if (value == null) {
-			return "assertNull(" + source.getName() + "." + field.getName()
-			        + ");";
-		} else if (value.getClass().equals(Long.class)) {
-			String val = value.toString();
-			return "assertEquals(" + source.getName() + "." + field.getName()
-			        + ", " + val + "L);";
-		} else if (value.getClass().equals(Float.class)) {
-			String val = value.toString();
-			return "assertEquals(" + source.getName() + "." + field.getName()
-			        + ", " + val + "F);";
-		} else if (value.getClass().equals(Character.class)) {
-			String val = StringEscapeUtils.escapeJava(((Character) value)
-			        .toString());
-			return "assertEquals(" + source.getName() + "." + field.getName()
-			        + ", '" + val + "');";
-		} else if (value.getClass().equals(String.class)) {
-			return "assertEquals(" + source.getName() + "." + field.getName()
-			        + ", \"" + StringEscapeUtils.escapeJava((String) value)
-			        + "\");";
-		} else
-			return "assertEquals(" + source.getName() + "." + field.getName()
-			        + ", " + value + ");";
-	}
-
-	@Override
 	public Assertion clone(TestCase newTestCase) {
 		PrimitiveFieldAssertion s = new PrimitiveFieldAssertion();
 		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
@@ -66,20 +39,65 @@ public class PrimitiveFieldAssertion extends Assertion {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		PrimitiveFieldAssertion other = (PrimitiveFieldAssertion) obj;
+		if (field == null) {
+			if (other.field != null) {
+				return false;
+			}
+		} else if (!field.equals(other.field)) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
 	public boolean evaluate(Scope scope) {
 		Object obj = scope.get(source);
 		if (obj != null) {
 			try {
 				Object val = field.get(obj);
-				if (val != null)
+				if (val != null) {
 					return val.equals(value);
-				else
+				} else {
 					return value == null;
+				}
 			} catch (Exception e) {
 				return true;
 			}
-		} else
+		} else {
 			return true;
+		}
+	}
+
+	@Override
+	public String getCode() {
+		if (value == null) {
+			return "assertNull(" + source.getName() + "." + field.getName() + ");";
+		} else if (value.getClass().equals(Long.class)) {
+			String val = value.toString();
+			return "assertEquals(" + source.getName() + "." + field.getName() + ", " + val + "L);";
+		} else if (value.getClass().equals(Float.class)) {
+			String val = value.toString();
+			return "assertEquals(" + source.getName() + "." + field.getName() + ", " + val + "F);";
+		} else if (value.getClass().equals(Character.class)) {
+			String val = StringEscapeUtils.escapeJava(((Character) value).toString());
+			return "assertEquals(" + source.getName() + "." + field.getName() + ", '" + val + "');";
+		} else if (value.getClass().equals(String.class)) {
+			return "assertEquals(" + source.getName() + "." + field.getName() + ", \""
+					+ StringEscapeUtils.escapeJava((String) value) + "\");";
+		} else {
+			return "assertEquals(" + source.getName() + "." + field.getName() + ", " + value + ");";
+		}
 	}
 
 	@Override
@@ -88,22 +106,5 @@ public class PrimitiveFieldAssertion extends Assertion {
 		int result = super.hashCode();
 		result = prime * result + ((field == null) ? 0 : field.hashCode());
 		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		PrimitiveFieldAssertion other = (PrimitiveFieldAssertion) obj;
-		if (field == null) {
-			if (other.field != null)
-				return false;
-		} else if (!field.equals(other.field))
-			return false;
-		return true;
 	}
 }

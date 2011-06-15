@@ -35,12 +35,14 @@ public abstract class FitnessFunction implements Serializable {
 	protected static Logger logger = Logger.getLogger(FitnessFunction.class);
 
 	/**
-	 * Make sure that the individual gets to know about its fitness
+	 * Normalize a value using Andrea's normalization function
 	 * 
-	 * @param individual
-	 * @param fitness
+	 * @param value
+	 * @return
 	 */
-	protected abstract void updateIndividual(Chromosome individual, double fitness);
+	public static double normalize(double value) {
+		return value / (1.0 + value);
+	}
 
 	/**
 	 * Calculate and set fitness function #TODO the 'set fitness' part should be
@@ -52,12 +54,10 @@ public abstract class FitnessFunction implements Serializable {
 	public abstract double getFitness(Chromosome individual);
 
 	/**
-	 * Normalize a value using Andrea's normalization function
+	 * Make sure that the individual gets to know about its fitness
 	 * 
-	 * @param value
-	 * @return
+	 * @param individual
+	 * @param fitness
 	 */
-	public static double normalize(double value) {
-		return value / (1.0 + value);
-	}
+	protected abstract void updateIndividual(Chromosome individual, double fitness);
 }

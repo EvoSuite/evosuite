@@ -40,12 +40,29 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 
 	protected static Logger logger = Logger.getLogger(AbstractStatement.class);
 
+	public static Class<?> getExceptionClass(Throwable t) {
+		Class<?> clazz = t.getClass();
+		while (!Modifier.isPublic(clazz.getModifiers())) {
+			clazz = clazz.getSuperclass();
+		}
+		return clazz;
+	}
+
 	protected VariableReference retval;
+
 	protected final TestCase tc;
 
 	protected Set<Assertion> assertions = new HashSet<Assertion>();
 
 	protected Throwable exceptionThrown = null;
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.testcase.StatementInterface#references(de.unisb
+	 * .cs.st.evosuite.testcase.VariableReference)
+	 */
 
 	protected AbstractStatement(TestCase tc, VariableReference retval) {
 		assert (retval != null);
@@ -53,28 +70,21 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 		this.tc = tc;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#references(de.unisb.cs.st.evosuite.testcase.VariableReference)
-	 */
-
-	@Override
-	public boolean references(VariableReference var) {
-		return getVariableReferences().contains(var);
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#SetRetval(de.unisb.cs.st.evosuite.testcase.VariableReference)
-	 */
-	public void SetRetval(VariableReference newRetVal) {
-		this.retval = newRetVal;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getCode()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.testcase.StatementInterface#addAssertion(de.unisb
+	 * .cs.st.evosuite.assertion.Assertion)
 	 */
 	@Override
-	public String getCode() {
-		return getCode(null);
+	public void addAssertion(Assertion assertion) {
+		if (assertion == null) {
+			logger.warn("Trying to add null assertion!");
+		} else {
+			logger.debug("Adding assertion");
+			assertions.add(assertion);
+		}
 	}
 
 	@Override
@@ -82,15 +92,69 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 		throw new UnsupportedOperationException("Use statementInterface.clone(TestCase)");
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getReturnType()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.testcase.StatementInterface#getAssertionCode()
 	 */
 	@Override
-	public Type getReturnType() {
-		return retval.getType();
+	public String getAssertionCode() {
+		String ret_val = "";
+		for (Assertion a : assertions) {
+			if (a != null) {
+				ret_val += a.getCode() + "\n";
+			}
+		}
+		return ret_val;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getAssertions()
+	 */
+	@Override
+	public Set<Assertion> getAssertions() {
+		return assertions;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getCode()
+	 */
+	@Override
+	public String getCode() {
+		return getCode(null);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.testcase.StatementInterface#getDeclaredExceptions
+	 * ()
+	 */
+	@Override
+	public Set<Class<?>> getDeclaredExceptions() {
+		Set<Class<?>> ex = new HashSet<Class<?>>();
+		return ex;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getPosition()
+	 */
+	@Override
+	public int getPosition() {
+		return retval.getStPosition();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getReturnClass()
 	 */
 	@Override
@@ -98,12 +162,84 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 		return (Class<?>) retval.getType();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getReturnType()
+	 */
+	@Override
+	public Type getReturnType() {
+		return retval.getType();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getReturnValue()
 	 */
 	@Override
 	public VariableReference getReturnValue() {
 		return retval;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#hasAssertions()
+	 */
+	@Override
+	public boolean hasAssertions() {
+		return !assertions.isEmpty();
+	}
+
+	@Override
+	public boolean isValid() {
+		retval.getStPosition();
+		return true;
+	}
+
+	@Override
+	public boolean isValidException(Throwable t) {
+		return false;
+	}
+
+	@Override
+	public boolean references(VariableReference var) {
+		return getVariableReferences().contains(var);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.testcase.StatementInterface#removeAssertion(de
+	 * .unisb.cs.st.evosuite.assertion.Assertion)
+	 */
+	@Override
+	public void removeAssertion(Assertion assertion) {
+		assertions.remove(assertion);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.testcase.StatementInterface#removeAssertions()
+	 */
+	@Override
+	public void removeAssertions() {
+		assertions.clear();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.testcase.StatementInterface#SetRetval(de.unisb
+	 * .cs.st.evosuite.testcase.VariableReference)
+	 */
+	public void SetRetval(VariableReference newRetVal) {
+		this.retval = newRetVal;
 	}
 
 	/**
@@ -117,103 +253,10 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 			if (a == null) {
 				logger.info("Assertion is null!");
 				logger.info("Statement has assertions: " + assertions.size());
-			} else
+			} else {
 				copy.add(a.clone(newTestCase));
+			}
 		}
 		return copy;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#hasAssertions()
-	 */
-	@Override
-	public boolean hasAssertions() {
-		return !assertions.isEmpty();
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#addAssertion(de.unisb.cs.st.evosuite.assertion.Assertion)
-	 */
-	@Override
-	public void addAssertion(Assertion assertion) {
-		if (assertion == null) {
-			logger.warn("Trying to add null assertion!");
-		} else {
-			logger.debug("Adding assertion");
-			assertions.add(assertion);
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getAssertionCode()
-	 */
-	@Override
-	public String getAssertionCode() {
-		String ret_val = "";
-		for (Assertion a : assertions) {
-			if (a != null)
-				ret_val += a.getCode() + "\n";
-		}
-		return ret_val;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#removeAssertions()
-	 */
-	@Override
-	public void removeAssertions() {
-		assertions.clear();
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#removeAssertion(de.unisb.cs.st.evosuite.assertion.Assertion)
-	 */
-	@Override
-	public void removeAssertion(Assertion assertion) {
-		assertions.remove(assertion);
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getAssertions()
-	 */
-	@Override
-	public Set<Assertion> getAssertions() {
-		return assertions;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getDeclaredExceptions()
-	 */
-	@Override
-	public Set<Class<?>> getDeclaredExceptions() {
-		Set<Class<?>> ex = new HashSet<Class<?>>();
-		return ex;
-	}
-
-	public static Class<?> getExceptionClass(Throwable t) {
-		Class<?> clazz = t.getClass();
-		while (!Modifier.isPublic(clazz.getModifiers())) {
-			clazz = clazz.getSuperclass();
-		}
-		return clazz;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getPosition()
-	 */
-	@Override
-	public int getPosition() {
-		return retval.getStPosition();
-	}
-
-	@Override
-	public boolean isValid() {
-		retval.getStPosition();
-		return true;
-	}
-
-	@Override
-	public boolean isValidException(Throwable t) {
-		return false;
 	}
 }

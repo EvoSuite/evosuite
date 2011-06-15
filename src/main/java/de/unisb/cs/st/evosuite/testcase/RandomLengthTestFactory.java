@@ -39,31 +39,6 @@ public class RandomLengthTestFactory implements ChromosomeFactory {
 	private final DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 
 	/**
-	 * Create a random individual
-	 * 
-	 * @param size
-	 */
-	private TestCase getRandomTestCase(int size) {
-		TestCase test = getNewTestCase();
-		int num = 0;
-
-		// Choose a random length in 0 - size
-		int length = Randomness.nextInt(size);
-		while (length == 0)
-			length = Randomness.nextInt(size);
-
-		// Then add random stuff
-		while (test.size() < length && num < Properties.MAX_ATTEMPTS) {
-			test_factory.insertRandomStatement(test);
-			num++;
-		}
-		if (logger.isDebugEnabled())
-			logger.debug("Randomized test case:" + test.toCode());
-
-		return test;
-	}
-
-	/**
 	 * Generate a random chromosome
 	 */
 	@Override
@@ -81,6 +56,33 @@ public class RandomLengthTestFactory implements ChromosomeFactory {
 	 */
 	protected TestCase getNewTestCase() {
 		return new DefaultTestCase();
+	}
+
+	/**
+	 * Create a random individual
+	 * 
+	 * @param size
+	 */
+	private TestCase getRandomTestCase(int size) {
+		TestCase test = getNewTestCase();
+		int num = 0;
+
+		// Choose a random length in 0 - size
+		int length = Randomness.nextInt(size);
+		while (length == 0) {
+			length = Randomness.nextInt(size);
+		}
+
+		// Then add random stuff
+		while ((test.size() < length) && (num < Properties.MAX_ATTEMPTS)) {
+			test_factory.insertRandomStatement(test);
+			num++;
+		}
+		if (logger.isDebugEnabled()) {
+			logger.debug("Randomized test case:" + test.toCode());
+		}
+
+		return test;
 	}
 
 }

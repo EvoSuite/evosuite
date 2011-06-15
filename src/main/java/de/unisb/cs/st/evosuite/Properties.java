@@ -44,6 +44,68 @@ import java.util.Set;
  */
 public class Properties {
 
+	// ---------------------------------------------------------------
+	// Search algorithm
+	public enum Algorithm {
+		STANDARDGA, STEADYSTATEGA, ONEPLUSONEEA, MUPLUSLAMBDAGA
+	}
+
+	// ---------------------------------------------------------------
+	// TODO: Fix description
+	public enum AlternativeFitnessCalculationMode {
+		SUM, MIN, MAX, AVG, SINGLE
+	}
+
+	public enum Criterion {
+		CONCURRENCY, LCSAJ, DEFUSE, PATH, BRANCH, MUTATION
+	}
+
+	public enum CrossoverFunction {
+		SINGLEPOINTRELATIVE, SINGLEPOINTFIXED, SINGLEPOINT
+	}
+
+	/**
+	 * This exception is used when a non-existent parameter is accessed
+	 * 
+	 * 
+	 */
+	public static class NoSuchParameterException extends Exception {
+
+		private static final long serialVersionUID = 9074828392047742535L;
+
+		public NoSuchParameterException(String key) {
+			super("No such property defined: " + key);
+		}
+	}
+
+	public enum SelectionFunction {
+		RANK, ROULETTEWHEEL, TOURNAMENT
+	}
+
+	public enum StoppingCondition {
+		MAXSTATEMENTS, MAXTESTS, MAXTIME, MAXGENERATIONS, MAXFITNESSEVALUATIONS
+	}
+
+	public enum Strategy {
+		ONEBRANCH, EVOSUITE
+	}
+
+	public enum TestFactory {
+		RANDOM, OUM
+	}
+
+	@interface DoubleValue {
+		double max() default Double.MAX_VALUE;
+
+		double min() default -(Double.MAX_VALUE - 1); // FIXXME: Check
+	}
+
+	@interface IntValue {
+		int max() default Integer.MAX_VALUE;
+
+		int min() default Integer.MIN_VALUE;
+	}
+
 	/**
 	 * Parameters are fields of the Properties class, annotated with this
 	 * annotation. The key parameter is used to identify values in property
@@ -54,26 +116,14 @@ public class Properties {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
 	@interface Parameter {
-		String key();
+		String description();
 
 		String group() default "Experimental";
 
-		String description();
+		String key();
 	}
 
-	@interface IntValue {
-		int min() default Integer.MIN_VALUE;
-
-		int max() default Integer.MAX_VALUE;
-	}
-
-	@interface DoubleValue {
-		double min() default -(Double.MAX_VALUE - 1); // FIXXME: Check
-
-		double max() default Double.MAX_VALUE;
-	}
-
-	//---------------------------------------------------------------
+	// ---------------------------------------------------------------
 	// Test sequence creation
 	@Parameter(key = "test_excludes", group = "Test Creation", description = "File containing methods that should not be used in testing")
 	public static String TEST_EXCLUDES = "test.excludes";
@@ -140,12 +190,6 @@ public class Properties {
 	@Parameter(key = "generate_objects", group = "Test Creation", description = "Generate .object files that allow adapting method signatures")
 	public static boolean GENERATE_OBJECTS = false;
 
-	//---------------------------------------------------------------
-	// Search algorithm
-	public enum Algorithm {
-		STANDARDGA, STEADYSTATEGA, ONEPLUSONEEA, MUPLUSLAMBDAGA
-	}
-
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
 	public static Algorithm ALGORITHM = Algorithm.STEADYSTATEGA;
 
@@ -199,30 +243,18 @@ public class Properties {
 	@IntValue(min = 1)
 	public static int GENERATIONS = 1000;
 
-	public enum StoppingCondition {
-		MAXSTATEMENTS, MAXTESTS, MAXTIME, MAXGENERATIONS, MAXFITNESSEVALUATIONS
-	}
-
 	@Parameter(key = "stopping_condition", group = "Search Algorithm", description = "What condition should be checked to end the search")
 	public static StoppingCondition STOPPING_CONDITION = StoppingCondition.MAXGENERATIONS;
 
-	public enum CrossoverFunction {
-		SINGLEPOINTRELATIVE, SINGLEPOINTFIXED, SINGLEPOINT
-	}
-
 	@Parameter(key = "crossover_function", group = "Search Algorithm", description = "Crossover function during search")
 	public static CrossoverFunction CROSSOVER_FUNCTION = CrossoverFunction.SINGLEPOINT;
-
-	public enum SelectionFunction {
-		RANK, ROULETTEWHEEL, TOURNAMENT
-	}
 
 	@Parameter(key = "selection_function", group = "Search Algorithm", description = "Selection function during search")
 	public static SelectionFunction SELECTION_FUNCTION = SelectionFunction.RANK;
 
 	// TODO: Fix values
 	@Parameter(key = "secondary_objectives", group = "Search Algorithm", description = "Secondary objective during search")
-	//	@SetValue(values = { "maxlength", "maxsize", "avglength" })
+	// @SetValue(values = { "maxlength", "maxsize", "avglength" })
 	public static String SECONDARY_OBJECTIVE = "maxlength";
 
 	@Parameter(key = "bloat_factor", group = "Search Algorithm", description = "Maximum relative increase in length")
@@ -238,7 +270,7 @@ public class Properties {
 	@IntValue(min = 0)
 	public static int GLOBAL_TIMEOUT = 600;
 
-	//---------------------------------------------------------------
+	// ---------------------------------------------------------------
 	// Single branch mode
 	@Parameter(key = "random_tests", group = "Single Branch Mode", description = "Number of random tests to run before test generation (Single branch mode)")
 	public static int RANDOM_TESTS = 0;
@@ -255,7 +287,7 @@ public class Properties {
 	@Parameter(key = "recycle_chromosomes", group = "Single Branch Mode", description = "Seed initial population with related individuals (Single branch mode)")
 	public static boolean RECYCLE_CHROMOSOMES = true;
 
-	//---------------------------------------------------------------
+	// ---------------------------------------------------------------
 	// Output
 	@Parameter(key = "print_to_system", group = "Output", description = "Allow test output on console")
 	public static boolean PRINT_TO_SYSTEM = false;
@@ -296,7 +328,7 @@ public class Properties {
 	@Parameter(key = "write_cfg", group = "Output", description = "Create CFG graphs")
 	public static boolean WRITE_CFG = false;
 
-	//---------------------------------------------------------------
+	// ---------------------------------------------------------------
 	// Sandbox
 	@Parameter(key = "sandbox", group = "Sandbox", description = "Execute tests in a sandbox environment")
 	public static boolean SANDBOX = false;
@@ -310,7 +342,7 @@ public class Properties {
 	@Parameter(key = "stubs", group = "Sandbox", description = "Stub generation for abstract classes")
 	public static boolean STUBS = false;
 
-	//---------------------------------------------------------------
+	// ---------------------------------------------------------------
 	// Experimental
 	@Parameter(key = "remote_testing", description = "Include remote calls")
 	public static boolean REMOTE_TESTING = false;
@@ -341,10 +373,6 @@ public class Properties {
 	@Parameter(key = "check_contracts_end", description = "Check contracts only once per test")
 	public static boolean CHECK_CONTRACTS_END = false;
 
-	public enum TestFactory {
-		RANDOM, OUM
-	}
-
 	@Parameter(key = "test_factory", description = "Which factory creates tests")
 	public static TestFactory TEST_FACTORY = TestFactory.RANDOM;
 
@@ -361,19 +389,13 @@ public class Properties {
 	@Parameter(key = "TT", description = "Testability transformation")
 	public static boolean TT = false;
 
-	//---------------------------------------------------------------
+	// ---------------------------------------------------------------
 	// Test Execution
 	@Parameter(key = "timeout", group = "Test Execution", description = "Milliseconds allowed per test")
 	public static int TIMEOUT = 5000;
 
 	@Parameter(key = "mutation_timeouts", group = "Test Execution", description = "Number of timeouts before we consider a mutant killed")
 	public static int MUTATION_TIMEOUTS = 3;
-
-	//---------------------------------------------------------------
-	// TODO: Fix description
-	public enum AlternativeFitnessCalculationMode {
-		SUM, MIN, MAX, AVG, SINGLE
-	}
 
 	@Parameter(key = "alternative_fitness_calculation_mode", description = "")
 	public static AlternativeFitnessCalculationMode ALTERNATIVE_FITNESS_CALCULATION_MODE = AlternativeFitnessCalculationMode.SUM;
@@ -397,6 +419,9 @@ public class Properties {
 	@Parameter(key = "penalize_overwriting_definitions_linearly", description = "")
 	public static boolean PENALIZE_OVERWRITING_DEFINITIONS_LINEARLY = false;
 
+	// ---------------------------------------------------------------
+	// Runtime parameters
+
 	@Parameter(key = "enable_alternative_fitness_calculation", description = "")
 	public static boolean ENABLE_ALTERNATIVE_FITNESS_CALCULATION = true;
 
@@ -405,13 +430,6 @@ public class Properties {
 
 	@Parameter(key = "randomize_difficulty", description = "")
 	public static boolean RANDOMIZE_DIFFICULTY = true;
-
-	//---------------------------------------------------------------
-	// Runtime parameters
-
-	public enum Criterion {
-		CONCURRENCY, LCSAJ, DEFUSE, PATH, BRANCH, MUTATION
-	}
 
 	/** Cache target class */
 	private static Class<?> TARGET_CLASS_INSTANCE = null;
@@ -442,10 +460,6 @@ public class Properties {
 	@Parameter(key = "criterion", group = "Runtime", description = "Coverage criterion")
 	public static Criterion CRITERION = Criterion.BRANCH;
 
-	public enum Strategy {
-		ONEBRANCH, EVOSUITE
-	}
-
 	@Parameter(key = "strategy", group = "Runtime", description = "Which mode to use")
 	public static Strategy STRATEGY = Strategy.EVOSUITE;
 
@@ -455,6 +469,144 @@ public class Properties {
 	@Parameter(key = "max_stalled_threads", group = "Runtime", description = "Number of stalled threads")
 	public static int MAX_STALLED_THREADS = 10;
 
+	/** All fields representing values, inserted via reflection */
+	private static Map<String, Field> parameterMap = new HashMap<String, Field>();
+
+	/** Singleton instance */
+	private static Properties instance = new Properties();
+
+	/**
+	 * Get a boolean parameter value
+	 * 
+	 * @param key
+	 * @return
+	 * @throws NoSuchParameterException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 */
+	public static boolean getBooleanValue(String key) throws NoSuchParameterException, IllegalArgumentException,
+			IllegalAccessException {
+		if (!parameterMap.containsKey(key)) {
+			throw new NoSuchParameterException(key);
+		}
+
+		return parameterMap.get(key).getBoolean(null);
+	}
+
+	/**
+	 * Get description string of parameter
+	 * 
+	 * @param key
+	 * @return
+	 * @throws NoSuchParameterException
+	 */
+	public static String getDescription(String key) throws NoSuchParameterException {
+		if (!parameterMap.containsKey(key)) {
+			throw new NoSuchParameterException(key);
+		}
+
+		Field f = parameterMap.get(key);
+		Parameter p = f.getAnnotation(Parameter.class);
+		return p.description();
+	}
+
+	/**
+	 * Get double boundaries
+	 * 
+	 * @param key
+	 * @return
+	 * @throws NoSuchParameterException
+	 */
+	public static DoubleValue getDoubleLimits(String key) throws NoSuchParameterException {
+		if (!parameterMap.containsKey(key)) {
+			throw new NoSuchParameterException(key);
+		}
+
+		Field f = parameterMap.get(key);
+		return f.getAnnotation(DoubleValue.class);
+	}
+
+	/**
+	 * Get a double parameter value
+	 * 
+	 * @param key
+	 * @return
+	 * @throws NoSuchParameterException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 */
+	public static double getDoubleValue(String key) throws NoSuchParameterException, IllegalArgumentException,
+			IllegalAccessException {
+		if (!parameterMap.containsKey(key)) {
+			throw new NoSuchParameterException(key);
+		}
+
+		return parameterMap.get(key).getDouble(null);
+	}
+
+	/**
+	 * Get group name of parameter
+	 * 
+	 * @param key
+	 * @return
+	 * @throws NoSuchParameterException
+	 */
+	public static String getGroup(String key) throws NoSuchParameterException {
+		if (!parameterMap.containsKey(key)) {
+			throw new NoSuchParameterException(key);
+		}
+
+		Field f = parameterMap.get(key);
+		Parameter p = f.getAnnotation(Parameter.class);
+		return p.group();
+	}
+
+	/**
+	 * Singleton accessor
+	 * 
+	 * @return
+	 */
+	public static Properties getInstance() {
+		if (instance == null) {
+			instance = new Properties();
+		}
+		return instance;
+	}
+
+	/**
+	 * Get an integer parameter value
+	 * 
+	 * @param key
+	 * @return
+	 * @throws NoSuchParameterException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 */
+	public static int getIntegerValue(String key) throws NoSuchParameterException, IllegalArgumentException,
+			IllegalAccessException {
+		if (!parameterMap.containsKey(key)) {
+			throw new NoSuchParameterException(key);
+		}
+
+		return parameterMap.get(key).getInt(null);
+	}
+
+	/**
+	 * Get integer boundaries
+	 * 
+	 * @param key
+	 * @return
+	 * @throws NoSuchParameterException
+	 */
+	public static IntValue getIntLimits(String key) throws NoSuchParameterException {
+		if (!parameterMap.containsKey(key)) {
+			throw new NoSuchParameterException(key);
+		}
+
+		Field f = parameterMap.get(key);
+		return f.getAnnotation(IntValue.class);
+	}
+
 	/**
 	 * Get all parameters that are available
 	 * 
@@ -462,6 +614,59 @@ public class Properties {
 	 */
 	public static Set<String> getParameters() {
 		return parameterMap.keySet();
+	}
+
+	/**
+	 * Get parameter value as string (works for all types)
+	 * 
+	 * @param key
+	 * @return
+	 * @throws NoSuchParameterException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 */
+	public static String getStringValue(String key) throws NoSuchParameterException, IllegalArgumentException,
+			IllegalAccessException {
+		if (!parameterMap.containsKey(key)) {
+			throw new NoSuchParameterException(key);
+		}
+
+		return parameterMap.get(key).toString();
+	}
+
+	/**
+	 * Get class object of class under test
+	 * 
+	 * @return
+	 */
+	public static Class<?> getTargetClass() {
+		if (TARGET_CLASS_INSTANCE != null) {
+			return TARGET_CLASS_INSTANCE;
+		}
+
+		try {
+			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS);
+			return TARGET_CLASS_INSTANCE;
+		} catch (ClassNotFoundException e) {
+			System.err.println("Could not find class under test " + TARGET_CLASS);
+		}
+		return null;
+	}
+
+	/**
+	 * Get class of parameter
+	 * 
+	 * @param key
+	 * @return
+	 * @throws NoSuchParameterException
+	 */
+	public static Class<?> getType(String key) throws NoSuchParameterException {
+		if (!parameterMap.containsKey(key)) {
+			throw new NoSuchParameterException(key);
+		}
+
+		Field f = parameterMap.get(key);
+		return f.getType();
 	}
 
 	/**
@@ -474,6 +679,140 @@ public class Properties {
 				parameterMap.put(p.key(), f);
 			}
 		}
+	}
+
+	/** Internal properties hashmap */
+	private java.util.Properties properties;
+
+	/** Constructor */
+	private Properties() {
+		reflectMap();
+		loadProperties();
+		if ((TARGET_CLASS != null) && !TARGET_CLASS.equals("")) {
+			CLASS_PREFIX = TARGET_CLASS.substring(0, TARGET_CLASS.lastIndexOf('.'));
+			SUB_PREFIX = CLASS_PREFIX.replace(PROJECT_PREFIX + ".", "");
+		}
+	}
+
+	/**
+	 * Set parameter to new boolean value
+	 * 
+	 * @param key
+	 * @param value
+	 * @throws NoSuchParameterException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 */
+	public void setValue(String key, boolean value) throws NoSuchParameterException, IllegalArgumentException,
+			IllegalAccessException {
+		if (!parameterMap.containsKey(key)) {
+			throw new NoSuchParameterException(key);
+		}
+
+		Field f = parameterMap.get(key);
+		f.setBoolean(this, value);
+	}
+
+	/**
+	 * Set parameter to new double value
+	 * 
+	 * @param key
+	 * @param value
+	 * @throws NoSuchParameterException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 */
+	public void setValue(String key, double value) throws NoSuchParameterException, IllegalArgumentException,
+			IllegalAccessException {
+		if (!parameterMap.containsKey(key)) {
+			throw new NoSuchParameterException(key);
+		}
+
+		Field f = parameterMap.get(key);
+		if (f.isAnnotationPresent(DoubleValue.class)) {
+			DoubleValue i = f.getAnnotation(DoubleValue.class);
+			if ((value < i.min()) || (value > i.max())) {
+				throw new IllegalArgumentException();
+			}
+		}
+		f.setDouble(this, value);
+	}
+
+	/**
+	 * Set parameter to new integer value
+	 * 
+	 * @param key
+	 * @param value
+	 * @throws NoSuchParameterException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 */
+	public void setValue(String key, int value) throws NoSuchParameterException, IllegalArgumentException,
+			IllegalAccessException {
+		if (!parameterMap.containsKey(key)) {
+			throw new NoSuchParameterException(key);
+		}
+
+		Field f = parameterMap.get(key);
+
+		if (f.isAnnotationPresent(IntValue.class)) {
+			IntValue i = f.getAnnotation(IntValue.class);
+			if ((value < i.min()) || (value > i.max())) {
+				throw new IllegalArgumentException();
+			}
+		}
+
+		f.setInt(this, value);
+	}
+
+	/**
+	 * Set parameter to new value from String
+	 * 
+	 * @param key
+	 * @param value
+	 * @throws NoSuchParameterException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void setValue(String key, String value) throws NoSuchParameterException, IllegalArgumentException,
+			IllegalAccessException {
+		if (!parameterMap.containsKey(key)) {
+			throw new NoSuchParameterException(key);
+		}
+
+		Field f = parameterMap.get(key);
+		if (f.getType().isEnum()) {
+			f.set(null, Enum.valueOf((Class<Enum>) f.getType(), value.toUpperCase()));
+		} else if (f.getType().equals(int.class)) {
+			setValue(key, Integer.parseInt(value));
+		} else if (f.getType().equals(boolean.class)) {
+			setValue(key, Boolean.parseBoolean(value));
+		} else if (f.getType().equals(double.class)) {
+			setValue(key, Double.parseDouble(value));
+		} else {
+			f.set(null, value);
+		}
+	}
+
+	/**
+	 * Update the evosuite.properties file with the current setting
+	 */
+	public void writeConfiguration() {
+		try {
+			URL fileURL = this.getClass().getClassLoader().getResource("evosuite.properties");
+			String name = fileURL.getFile();
+			OutputStream out = new FileOutputStream(new File(name));
+			// TODO: Update the properties!
+			properties.store(out, "This file was automatically produced by EvoSuite");
+		} catch (FileNotFoundException e) {
+			System.err.println("Error: Could not find configuration file evosuite.properties");
+		} catch (IOException e) {
+			System.err.println("Error: Could not find configuration file evosuite.properties");
+		} catch (Exception e) {
+			System.err.println("Error: Could not find configuration file evosuite.properties");
+		}
+
 	}
 
 	/**
@@ -503,334 +842,10 @@ public class Properties {
 			} catch (NoSuchParameterException e) {
 				System.out.println("- No such parameter: " + parameter);
 			} catch (IllegalArgumentException e) {
-				System.out.println("- Error setting parameter \"" + parameter + "\": "
-				        + e);
+				System.out.println("- Error setting parameter \"" + parameter + "\": " + e);
 			} catch (IllegalAccessException e) {
-				System.out.println("- Error setting parameter \"" + parameter + "\": "
-				        + e);
+				System.out.println("- Error setting parameter \"" + parameter + "\": " + e);
 			}
 		}
-	}
-
-	/** All fields representing values, inserted via reflection */
-	private static Map<String, Field> parameterMap = new HashMap<String, Field>();
-
-	/**
-	 * Get class of parameter
-	 * 
-	 * @param key
-	 * @return
-	 * @throws NoSuchParameterException
-	 */
-	public static Class<?> getType(String key) throws NoSuchParameterException {
-		if (!parameterMap.containsKey(key))
-			throw new NoSuchParameterException(key);
-
-		Field f = parameterMap.get(key);
-		return f.getType();
-	}
-
-	/**
-	 * Get description string of parameter
-	 * 
-	 * @param key
-	 * @return
-	 * @throws NoSuchParameterException
-	 */
-	public static String getDescription(String key) throws NoSuchParameterException {
-		if (!parameterMap.containsKey(key))
-			throw new NoSuchParameterException(key);
-
-		Field f = parameterMap.get(key);
-		Parameter p = f.getAnnotation(Parameter.class);
-		return p.description();
-	}
-
-	/**
-	 * Get group name of parameter
-	 * 
-	 * @param key
-	 * @return
-	 * @throws NoSuchParameterException
-	 */
-	public static String getGroup(String key) throws NoSuchParameterException {
-		if (!parameterMap.containsKey(key))
-			throw new NoSuchParameterException(key);
-
-		Field f = parameterMap.get(key);
-		Parameter p = f.getAnnotation(Parameter.class);
-		return p.group();
-	}
-
-	/**
-	 * Get integer boundaries
-	 * 
-	 * @param key
-	 * @return
-	 * @throws NoSuchParameterException
-	 */
-	public static IntValue getIntLimits(String key) throws NoSuchParameterException {
-		if (!parameterMap.containsKey(key))
-			throw new NoSuchParameterException(key);
-
-		Field f = parameterMap.get(key);
-		return f.getAnnotation(IntValue.class);
-	}
-
-	/**
-	 * Get double boundaries
-	 * 
-	 * @param key
-	 * @return
-	 * @throws NoSuchParameterException
-	 */
-	public static DoubleValue getDoubleLimits(String key) throws NoSuchParameterException {
-		if (!parameterMap.containsKey(key))
-			throw new NoSuchParameterException(key);
-
-		Field f = parameterMap.get(key);
-		return f.getAnnotation(DoubleValue.class);
-	}
-
-	/**
-	 * Get an integer parameter value
-	 * 
-	 * @param key
-	 * @return
-	 * @throws NoSuchParameterException
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 */
-	public static int getIntegerValue(String key) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
-		if (!parameterMap.containsKey(key))
-			throw new NoSuchParameterException(key);
-
-		return parameterMap.get(key).getInt(null);
-	}
-
-	/**
-	 * Get a boolean parameter value
-	 * 
-	 * @param key
-	 * @return
-	 * @throws NoSuchParameterException
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 */
-	public static boolean getBooleanValue(String key) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
-		if (!parameterMap.containsKey(key))
-			throw new NoSuchParameterException(key);
-
-		return parameterMap.get(key).getBoolean(null);
-	}
-
-	/**
-	 * Get a double parameter value
-	 * 
-	 * @param key
-	 * @return
-	 * @throws NoSuchParameterException
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 */
-	public static double getDoubleValue(String key) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
-		if (!parameterMap.containsKey(key))
-			throw new NoSuchParameterException(key);
-
-		return parameterMap.get(key).getDouble(null);
-	}
-
-	/**
-	 * Get parameter value as string (works for all types)
-	 * 
-	 * @param key
-	 * @return
-	 * @throws NoSuchParameterException
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 */
-	public static String getStringValue(String key) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
-		if (!parameterMap.containsKey(key))
-			throw new NoSuchParameterException(key);
-
-		return parameterMap.get(key).toString();
-	}
-
-	/**
-	 * Set parameter to new integer value
-	 * 
-	 * @param key
-	 * @param value
-	 * @throws NoSuchParameterException
-	 * @throws IllegalAccessException
-	 * @throws IllegalArgumentException
-	 */
-	public void setValue(String key, int value) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
-		if (!parameterMap.containsKey(key))
-			throw new NoSuchParameterException(key);
-
-		Field f = parameterMap.get(key);
-
-		if (f.isAnnotationPresent(IntValue.class)) {
-			IntValue i = f.getAnnotation(IntValue.class);
-			if (value < i.min() || value > i.max())
-				throw new IllegalArgumentException();
-		}
-
-		f.setInt(this, value);
-	}
-
-	/**
-	 * Set parameter to new boolean value
-	 * 
-	 * @param key
-	 * @param value
-	 * @throws NoSuchParameterException
-	 * @throws IllegalAccessException
-	 * @throws IllegalArgumentException
-	 */
-	public void setValue(String key, boolean value) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
-		if (!parameterMap.containsKey(key))
-			throw new NoSuchParameterException(key);
-
-		Field f = parameterMap.get(key);
-		f.setBoolean(this, value);
-	}
-
-	/**
-	 * Set parameter to new double value
-	 * 
-	 * @param key
-	 * @param value
-	 * @throws NoSuchParameterException
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 */
-	public void setValue(String key, double value) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
-		if (!parameterMap.containsKey(key))
-			throw new NoSuchParameterException(key);
-
-		Field f = parameterMap.get(key);
-		if (f.isAnnotationPresent(DoubleValue.class)) {
-			DoubleValue i = f.getAnnotation(DoubleValue.class);
-			if (value < i.min() || value > i.max())
-				throw new IllegalArgumentException();
-		}
-		f.setDouble(this, value);
-	}
-
-	/**
-	 * Set parameter to new value from String
-	 * 
-	 * @param key
-	 * @param value
-	 * @throws NoSuchParameterException
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void setValue(String key, String value) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
-		if (!parameterMap.containsKey(key))
-			throw new NoSuchParameterException(key);
-
-		Field f = parameterMap.get(key);
-		if (f.getType().isEnum()) {
-			f.set(null, Enum.valueOf((Class<Enum>) f.getType(), value.toUpperCase()));
-		} else if (f.getType().equals(int.class)) {
-			setValue(key, Integer.parseInt(value));
-		} else if (f.getType().equals(boolean.class)) {
-			setValue(key, Boolean.parseBoolean(value));
-		} else if (f.getType().equals(double.class)) {
-			setValue(key, Double.parseDouble(value));
-		} else {
-			f.set(null, value);
-		}
-	}
-
-	/** Singleton instance */
-	private static Properties instance = new Properties();
-
-	/** Internal properties hashmap */
-	private java.util.Properties properties;
-
-	/**
-	 * Singleton accessor
-	 * 
-	 * @return
-	 */
-	public static Properties getInstance() {
-		if (instance == null)
-			instance = new Properties();
-		return instance;
-	}
-
-	/**
-	 * This exception is used when a non-existent parameter is accessed
-	 * 
-	 * 
-	 */
-	public static class NoSuchParameterException extends Exception {
-
-		private static final long serialVersionUID = 9074828392047742535L;
-
-		public NoSuchParameterException(String key) {
-			super("No such property defined: " + key);
-		}
-	}
-
-	/** Constructor */
-	private Properties() {
-		reflectMap();
-		loadProperties();
-		if (TARGET_CLASS != null && !TARGET_CLASS.equals("")) {
-			CLASS_PREFIX = TARGET_CLASS.substring(0, TARGET_CLASS.lastIndexOf('.'));
-			SUB_PREFIX = CLASS_PREFIX.replace(PROJECT_PREFIX + ".", "");
-		}
-	}
-
-	/**
-	 * Get class object of class under test
-	 * 
-	 * @return
-	 */
-	public static Class<?> getTargetClass() {
-		if (TARGET_CLASS_INSTANCE != null)
-			return TARGET_CLASS_INSTANCE;
-
-		try {
-			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS);
-			return TARGET_CLASS_INSTANCE;
-		} catch (ClassNotFoundException e) {
-			System.err.println("Could not find class under test " + TARGET_CLASS);
-		}
-		return null;
-	}
-
-	/**
-	 * Update the evosuite.properties file with the current setting
-	 */
-	public void writeConfiguration() {
-		try {
-			URL fileURL = this.getClass().getClassLoader().getResource("evosuite.properties");
-			String name = fileURL.getFile();
-			OutputStream out = new FileOutputStream(new File(name));
-			// TODO: Update the properties!
-			properties.store(out, "This file was automatically produced by EvoSuite");
-		} catch (FileNotFoundException e) {
-			System.err.println("Error: Could not find configuration file evosuite.properties");
-		} catch (IOException e) {
-			System.err.println("Error: Could not find configuration file evosuite.properties");
-		} catch (Exception e) {
-			System.err.println("Error: Could not find configuration file evosuite.properties");
-		}
-
 	}
 }

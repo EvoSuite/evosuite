@@ -1,6 +1,5 @@
 package de.unisb.cs.st.evosuite.cfg;
 
-
 /* ==========================================
  * JGraphT : a free Java graph-theory library
  * ==========================================
@@ -40,107 +39,105 @@ package de.unisb.cs.st.evosuite.cfg;
  *
  */
 
-import java.util.*;
+import java.util.HashMap;
 
-import org.jgrapht.*;
-
+import org.jgrapht.Graph;
 
 /**
  * The <a href="http://en.wikipedia.org/wiki/Floyd-Warshall_algorithm">
  * Floyd-Warshall algorithm</a> finds all shortest paths (all n^2 of them) in
  * O(n^3) time. This also works out the graph diameter during the process.
- *
+ * 
  * @author Tom Larkworthy
  */
-public class FloydWarshall<V, E>
-{
-    //~ Instance fields --------------------------------------------------------
+public class FloydWarshall<V, E> {
+	// ~ Instance fields
+	// --------------------------------------------------------
 
-    int nextIndex = 0;
-    HashMap<V, Integer> indices;
+	int nextIndex = 0;
+	HashMap<V, Integer> indices;
 
-    double [][] d;
+	double[][] d;
 
-    double diameter;
+	double diameter;
 
-    //~ Constructors -----------------------------------------------------------
+	// ~ Constructors
+	// -----------------------------------------------------------
 
-    /**
-     * Constructs the shortest path array for the given graph.
-     *
-     * @param g input graph
-     */
-    public FloydWarshall(Graph<V, E> g)
-    {
-        int sz = g.vertexSet().size();
-        d = new double[sz][sz];
-        indices = new HashMap<V, Integer>();
+	/**
+	 * Constructs the shortest path array for the given graph.
+	 * 
+	 * @param g
+	 *            input graph
+	 */
+	public FloydWarshall(Graph<V, E> g) {
+		int sz = g.vertexSet().size();
+		d = new double[sz][sz];
+		indices = new HashMap<V, Integer>();
 
-        //Initialise distance to infinity, or the neighbours weight, or 0 if
-        //same
-        for (V v1 : g.vertexSet()) {
-            for (V v2 : g.vertexSet()) {
-                if (v1 == v2) {
-                    d[index(v1)][index(v2)] = 0;
-                } else {
-                    E e = g.getEdge(v1, v2);
+		// Initialise distance to infinity, or the neighbours weight, or 0 if
+		// same
+		for (V v1 : g.vertexSet()) {
+			for (V v2 : g.vertexSet()) {
+				if (v1 == v2) {
+					d[index(v1)][index(v2)] = 0;
+				} else {
+					E e = g.getEdge(v1, v2);
 
-                    if (e == null) {
-                        d[index(v1)][index(v2)] = Double.POSITIVE_INFINITY;
-                    } else {
-                        d[index(v1)][index(v2)] = g.getEdgeWeight(e);
-                    }
-                }
-            }
-        }
+					if (e == null) {
+						d[index(v1)][index(v2)] = Double.POSITIVE_INFINITY;
+					} else {
+						d[index(v1)][index(v2)] = g.getEdgeWeight(e);
+					}
+				}
+			}
+		}
 
-        //now iterate k times
-        for (int k = 0; k < sz; k++) {
-            for (V v1 : g.vertexSet()) {
-                for (V v2 : g.vertexSet()) {
-                    d[index(v1)][index(v2)] =
-                        Math.min(
-                            d[index(v1)][index(v2)],
-                            d[index(v1)][k] + d[k][index(v2)]);
-                    if(Double.POSITIVE_INFINITY != d[index(v1)][index(v2)])
-                    	diameter = Math.max(diameter, d[index(v1)][index(v2)]);
-                }
-            }
-        }
-    }
+		// now iterate k times
+		for (int k = 0; k < sz; k++) {
+			for (V v1 : g.vertexSet()) {
+				for (V v2 : g.vertexSet()) {
+					d[index(v1)][index(v2)] = Math.min(d[index(v1)][index(v2)], d[index(v1)][k] + d[k][index(v2)]);
+					if (Double.POSITIVE_INFINITY != d[index(v1)][index(v2)]) {
+						diameter = Math.max(diameter, d[index(v1)][index(v2)]);
+					}
+				}
+			}
+		}
+	}
 
-    //~ Methods ----------------------------------------------------------------
+	// ~ Methods
+	// ----------------------------------------------------------------
 
-    /**
-     * Retrieves the shortest distance between two vertices.
-     *
-     * @param v1 first vertex
-     * @param v2 second vertex
-     *
-     * @return distance, or positive infinity if no path
-     */
-    public double shortestDistance(V v1, V v2)
-    {
-        return d[index(v1)][index(v2)];
-    }
+	/**
+	 * @return diameter computed for the graph
+	 */
+	public double getDiameter() {
+		return diameter;
+	}
 
-    /**
-     * @return diameter computed for the graph
-     */
-    public double getDiameter()
-    {
-        return diameter;
-    }
+	/**
+	 * Retrieves the shortest distance between two vertices.
+	 * 
+	 * @param v1
+	 *            first vertex
+	 * @param v2
+	 *            second vertex
+	 * 
+	 * @return distance, or positive infinity if no path
+	 */
+	public double shortestDistance(V v1, V v2) {
+		return d[index(v1)][index(v2)];
+	}
 
-    private int index(V vertex)
-    {
-        Integer index = indices.get(vertex);
-        if (index == null) {
-            indices.put(vertex, nextIndex);
-            index = nextIndex++;
-        }
-        return index;
-    }
+	private int index(V vertex) {
+		Integer index = indices.get(vertex);
+		if (index == null) {
+			indices.put(vertex, nextIndex);
+			index = nextIndex++;
+		}
+		return index;
+	}
 }
 
 // End FloydWarshallShortestPaths.java

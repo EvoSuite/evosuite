@@ -39,58 +39,47 @@ public abstract class Assertion {
 	/** Expected value of variable */
 	public Object value;
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((source == null) ? 0 : source.hashCode());
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Assertion other = (Assertion) obj;
-		if (source == null) {
-			if (other.source != null)
-				return false;
-		} else if (!source.equals(other.source))
-			return false;
-		if (value == null) {
-			if (other.value != null)
-				return false;
-		} else if (!value.equals(other.value))
-			return false;
-		return true;
-	}
-
-	public VariableReference getSource() {
-		return source;
-	}
-
-	/**
-	 * This method returns the Java Code
-	 */
-	public abstract String getCode();
-
 	/**
 	 * Return a copy of the assertion
 	 */
 	@Override
-	public final Assertion clone(){
+	public final Assertion clone() {
 		throw new UnsupportedOperationException("Use Assertion.clone(TestCase)");
 	}
-	
+
 	/**
 	 * Return a copy of the assertion, which is valid in newTestCase
 	 */
 	public abstract Assertion clone(TestCase newTestCase);
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Assertion other = (Assertion) obj;
+		if (source == null) {
+			if (other.source != null) {
+				return false;
+			}
+		} else if (!source.equals(other.source)) {
+			return false;
+		}
+		if (value == null) {
+			if (other.value != null) {
+				return false;
+			}
+		} else if (!value.equals(other.value)) {
+			return false;
+		}
+		return true;
+	}
 
 	/**
 	 * Determine if assertion holds in current scope
@@ -101,6 +90,11 @@ public abstract class Assertion {
 	public abstract boolean evaluate(Scope scope);
 
 	/**
+	 * This method returns the Java Code
+	 */
+	public abstract String getCode();
+
+	/**
 	 * Return all the variables that are part of this assertion
 	 * 
 	 * @return
@@ -109,6 +103,19 @@ public abstract class Assertion {
 		Set<VariableReference> vars = new HashSet<VariableReference>();
 		vars.add(source);
 		return vars;
+	}
+
+	public VariableReference getSource() {
+		return source;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((source == null) ? 0 : source.hashCode());
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		return result;
 	}
 
 }

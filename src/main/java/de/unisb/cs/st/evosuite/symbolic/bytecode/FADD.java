@@ -41,7 +41,7 @@ public class FADD extends gov.nasa.jpf.jvm.bytecode.FADD {
 		Expression<Double> v0 = (Expression<Double>) sf.getOperandAttr(0);
 
 		Expression<Double> v1 = (Expression<Double>) sf.getOperandAttr(1);
-		if (v0 == null && v1 == null) {
+		if ((v0 == null) && (v1 == null)) {
 			return super.execute(ss, ks, th);
 		}
 
@@ -53,8 +53,7 @@ public class FADD extends gov.nasa.jpf.jvm.bytecode.FADD {
 		}
 
 		Instruction ret = super.execute(ss, ks, th);
-		sf.setOperandAttr(new RealBinaryExpression(v1, Operator.PLUS, v0,
-		        (double) Types.intToFloat(sf.peek())));
+		sf.setOperandAttr(new RealBinaryExpression(v1, Operator.PLUS, v0, (double) Types.intToFloat(sf.peek())));
 		return ret;
 
 	}

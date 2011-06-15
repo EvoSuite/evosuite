@@ -50,6 +50,14 @@ public abstract class SelectionFunction implements Serializable {
 	public abstract int getIndex(List<Chromosome> population);
 
 	/**
+	 * 
+	 * @return true is we have to maximize
+	 */
+	public boolean isMaximize() {
+		return maximize;
+	}
+
+	/**
 	 * Return two parents
 	 * 
 	 * @param population
@@ -82,14 +90,6 @@ public abstract class SelectionFunction implements Serializable {
 	 */
 	public void setMaximize(boolean max) {
 		maximize = max;
-	}
-
-	/**
-	 * 
-	 * @return true is we have to maximize
-	 */
-	public boolean isMaximize() {
-		return maximize;
 	}
 
 }

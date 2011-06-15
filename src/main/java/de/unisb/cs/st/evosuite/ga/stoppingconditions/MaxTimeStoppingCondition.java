@@ -34,9 +34,20 @@ public class MaxTimeStoppingCondition extends StoppingCondition {
 
 	protected long start_time;
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
+	 */
 	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
-		start_time = System.currentTimeMillis();
+	public int getCurrentValue() {
+		long current_time = System.currentTimeMillis();
+		return (int) ((current_time - start_time) / 1000);
+	}
+
+	@Override
+	public int getLimit() {
+		return max_seconds;
 	}
 
 	/**
@@ -56,26 +67,19 @@ public class MaxTimeStoppingCondition extends StoppingCondition {
 		start_time = System.currentTimeMillis();
 	}
 
-	/* (non-Javadoc)
+	@Override
+	public void searchStarted(GeneticAlgorithm algorithm) {
+		start_time = System.currentTimeMillis();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
 	@Override
 	public void setLimit(int limit) {
 		max_seconds = limit;
-	}
-
-	@Override
-	public int getLimit() {
-		return max_seconds;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
-	 */
-	@Override
-	public int getCurrentValue() {
-		long current_time = System.currentTimeMillis();
-		return (int) ((current_time - start_time) / 1000);
 	}
 
 }

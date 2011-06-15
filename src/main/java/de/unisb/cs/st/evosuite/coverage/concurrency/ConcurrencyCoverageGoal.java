@@ -40,13 +40,6 @@ public class ConcurrencyCoverageGoal extends TestCoverageGoal {
 	private final List<SchedulingDecisionTuple> scheduleIDs;
 	private final List<BranchCoverageGoal> branches;
 
-	public ConcurrencyCoverageGoal(List<SchedulingDecisionTuple> scheduleIDs,
-	        List<BranchCoverageGoal> branches) {
-		this.scheduleIDs = scheduleIDs;
-		this.branches = branches;
-		//cfg.toDot(className+"."+methodName.replace("/",".").replace(";",".").replace("(",".").replace(")",".")+".dot");
-	}
-
 	/**
 	 * Methods that have no branches don't need a cfg, so we just set the cfg to
 	 * null
@@ -59,40 +52,48 @@ public class ConcurrencyCoverageGoal extends TestCoverageGoal {
 		this.branches = null;
 	}
 
-	/**
-	 * Determine if there is an existing test case covering this goal
-	 * 
-	 * @return
-	 */
+	public ConcurrencyCoverageGoal(List<SchedulingDecisionTuple> scheduleIDs, List<BranchCoverageGoal> branches) {
+		this.scheduleIDs = scheduleIDs;
+		this.branches = branches;
+		// cfg.toDot(className+"."+methodName.replace("/",".").replace(";",".").replace("(",".").replace(")",".")+".dot");
+	}
+
 	@Override
-	public boolean isCovered(TestChromosome test) {
-		//#TODO it would be nicer, if test cases where notified before being run and we could register our Controller somewhere. So that ExecutionResults would actually be a list of results and we could cast to the right one
-		ExecutionResult result = runTest(test);
-		ConcurrencyDistance d = getDistance(result, result.getTrace().concurrencyTracer); //tracer was set inside ExecutionTracer.clear()
-		if (d.approachLevel == 0 && d.branchDistance == 0.0 && d.scheduleDistance == 0)
+	public boolean equals(Object obj) {
+		if (this == obj) {
 			return true;
-		else
-			return false;
-	}
-
-	protected ConcurrencyDistance getDistance(ExecutionResult result,
-	        ConcurrencyTracer concurrencyTracer) {
-		ConcurrencyDistance distance = new ConcurrencyDistance();
-		for (BranchCoverageGoal b : branches) {
-			ControlFlowDistance dist = b.getDistance(result);
-			distance.approachLevel += dist.approachLevel;
-			distance.branchDistance += dist.branchDistance;
 		}
-		distance.scheduleDistance = concurrencyTracer.getDistance(scheduleIDs);
-		return distance;
-	}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		ConcurrencyCoverageGoal other = (ConcurrencyCoverageGoal) obj;
 
-	/**
-	 * Readable representation
-	 */
-	@Override
-	public String toString() {
-		return "some concurrent coverage goal";
+		List<BranchCoverageGoal> otherBranches = other.getBranches();
+		if (otherBranches.size() != branches.size()) {
+			return false;
+		}
+
+		for (int i = 0; i < branches.size(); i++) {
+			if (!otherBranches.get(i).equals(branches.get(i))) {
+				return false;
+			}
+		}
+
+		List<SchedulingDecisionTuple> otherSchedule = other.getSchedule();
+		if (otherSchedule.size() != scheduleIDs.size()) {
+			return false;
+		}
+
+		for (int i = 0; i < scheduleIDs.size(); i++) {
+			if (!otherSchedule.get(i).equals(scheduleIDs.get(i))) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	@Override
@@ -107,6 +108,38 @@ public class ConcurrencyCoverageGoal extends TestCoverageGoal {
 		return hash;
 	}
 
+	/**
+	 * Determine if there is an existing test case covering this goal
+	 * 
+	 * @return
+	 */
+	@Override
+	public boolean isCovered(TestChromosome test) {
+		// #TODO it would be nicer, if test cases where notified before being
+		// run and we could register our Controller somewhere. So that
+		// ExecutionResults would actually be a list of results and we could
+		// cast to the right one
+		ExecutionResult result = runTest(test);
+		ConcurrencyDistance d = getDistance(result, result.getTrace().concurrencyTracer); // tracer
+																							// was
+																							// set
+																							// inside
+																							// ExecutionTracer.clear()
+		if ((d.approachLevel == 0) && (d.branchDistance == 0.0) && (d.scheduleDistance == 0)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Readable representation
+	 */
+	@Override
+	public String toString() {
+		return "some concurrent coverage goal";
+	}
+
 	protected List<BranchCoverageGoal> getBranches() {
 		if (branches != null) {
 			return branches;
@@ -115,39 +148,19 @@ public class ConcurrencyCoverageGoal extends TestCoverageGoal {
 		}
 	}
 
-	protected List<SchedulingDecisionTuple> getSchedule() {
-		return scheduleIDs;
+	protected ConcurrencyDistance getDistance(ExecutionResult result, ConcurrencyTracer concurrencyTracer) {
+		ConcurrencyDistance distance = new ConcurrencyDistance();
+		for (BranchCoverageGoal b : branches) {
+			ControlFlowDistance dist = b.getDistance(result);
+			distance.approachLevel += dist.approachLevel;
+			distance.branchDistance += dist.branchDistance;
+		}
+		distance.scheduleDistance = concurrencyTracer.getDistance(scheduleIDs);
+		return distance;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ConcurrencyCoverageGoal other = (ConcurrencyCoverageGoal) obj;
-
-		List<BranchCoverageGoal> otherBranches = other.getBranches();
-		if (otherBranches.size() != branches.size())
-			return false;
-
-		for (int i = 0; i < branches.size(); i++) {
-			if (!otherBranches.get(i).equals(branches.get(i)))
-				return false;
-		}
-
-		List<SchedulingDecisionTuple> otherSchedule = other.getSchedule();
-		if (otherSchedule.size() != scheduleIDs.size())
-			return false;
-
-		for (int i = 0; i < scheduleIDs.size(); i++) {
-			if (!otherSchedule.get(i).equals(scheduleIDs.get(i)))
-				return false;
-		}
-
-		return true;
+	protected List<SchedulingDecisionTuple> getSchedule() {
+		return scheduleIDs;
 	}
 
 }

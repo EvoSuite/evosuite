@@ -34,24 +34,48 @@ public class SMTConverter {
 
 	private final Set<IExpr.ISymbol> symbols = new HashSet<IExpr.ISymbol>();
 
-	private IExpr visitConstraint(Comparator comparator, Expression<?> left,
-	        Expression<?> right) {
+	public Set<IExpr.ISymbol> getSymbols() {
+		return symbols;
+	}
 
-		switch (comparator) {
-		case EQ:
-			return SMTExpr.Eq(visit(left), visit(right));
-		case NE:
-			return SMTExpr.Not(SMTExpr.Eq(visit(left), visit(right)));
-		case GE:
-			return SMTExpr.Gte(visit(left), visit(right));
-		case GT:
-			return SMTExpr.Gt(visit(left), visit(right));
-		case LE:
-			return SMTExpr.Lte(visit(left), visit(right));
-		case LT:
-			return SMTExpr.Lt(visit(left), visit(right));
+	public IExpr visit(Constraint<?> constraint) {
+		logger.info("Converting " + constraint);
+		return visitConstraint(constraint.getComparator(), constraint.getLeftOperand(), constraint.getRightOperand());
+	}
+
+	private IExpr visit(BinaryExpression<?> expr) {
+		switch (expr.getOperator()) {
+		case PLUS:
+			return SMTExpr.Plus(visit(expr.getLeftOperand()), visit(expr.getRightOperand()));
+		case MINUS:
+			return SMTExpr.Minus(visit(expr.getLeftOperand()), visit(expr.getRightOperand()));
+		case MUL:
+			return SMTExpr.Mul(visit(expr.getLeftOperand()), visit(expr.getRightOperand()));
+		case DIV:
+			return SMTExpr.Div(visit(expr.getLeftOperand()), visit(expr.getRightOperand()));
+		case REM:
+			throw new RuntimeException("Unsupported operator: " + expr.getOperator());
+
+		case IAND:
+			return SMTExpr.BvAnd(visit(expr.getLeftOperand()), visit(expr.getRightOperand()));
+		case IOR:
+			return SMTExpr.BvOr(visit(expr.getLeftOperand()), visit(expr.getRightOperand()));
+		case SHR:
+			return SMTExpr.BvShr(visit(expr.getLeftOperand()), visit(expr.getRightOperand()));
+		case SHL:
+			return SMTExpr.BvShl(visit(expr.getLeftOperand()), visit(expr.getRightOperand()));
+		case IXOR:
+			return SMTExpr.BvXor(visit(expr.getLeftOperand()), visit(expr.getRightOperand()));
+
+		case AND:
+			return SMTExpr.And(visit(expr.getLeftOperand()), visit(expr.getRightOperand()));
+		case OR:
+			return SMTExpr.Or(visit(expr.getLeftOperand()), visit(expr.getRightOperand()));
+		case XOR:
+			return SMTExpr.Xor(visit(expr.getLeftOperand()), visit(expr.getRightOperand()));
+
 		default:
-			throw new RuntimeException("Unsupported comparison: " + comparator);
+			throw new RuntimeException("Unsupported operator: " + expr.getOperator());
 		}
 	}
 
@@ -76,12 +100,6 @@ public class SMTConverter {
 		return null;
 	}
 
-	private IExpr visit(Variable<?> expr) {
-		IExpr.ISymbol symbol = SMTExpr.getSymbol(expr.getName());
-		symbols.add(symbol); // TODO: Distinguish between int and float types!
-		return symbol;
-	}
-
 	private IExpr visit(IntegerConstant expr) {
 		return SMTExpr.getNumeral(expr.getConcreteValue());
 	}
@@ -99,60 +117,29 @@ public class SMTConverter {
 		}
 	}
 
-	private IExpr visit(BinaryExpression<?> expr) {
-		switch (expr.getOperator()) {
-		case PLUS:
-			return SMTExpr.Plus(visit(expr.getLeftOperand()),
-			                    visit(expr.getRightOperand()));
-		case MINUS:
-			return SMTExpr.Minus(visit(expr.getLeftOperand()),
-			                     visit(expr.getRightOperand()));
-		case MUL:
-			return SMTExpr.Mul(visit(expr.getLeftOperand()),
-			                   visit(expr.getRightOperand()));
-		case DIV:
-			return SMTExpr.Div(visit(expr.getLeftOperand()),
-			                   visit(expr.getRightOperand()));
-		case REM:
-			throw new RuntimeException("Unsupported operator: " + expr.getOperator());
+	private IExpr visit(Variable<?> expr) {
+		IExpr.ISymbol symbol = SMTExpr.getSymbol(expr.getName());
+		symbols.add(symbol); // TODO: Distinguish between int and float types!
+		return symbol;
+	}
 
-		case IAND:
-			return SMTExpr.BvAnd(visit(expr.getLeftOperand()),
-			                     visit(expr.getRightOperand()));
-		case IOR:
-			return SMTExpr.BvOr(visit(expr.getLeftOperand()),
-			                    visit(expr.getRightOperand()));
-		case SHR:
-			return SMTExpr.BvShr(visit(expr.getLeftOperand()),
-			                     visit(expr.getRightOperand()));
-		case SHL:
-			return SMTExpr.BvShl(visit(expr.getLeftOperand()),
-			                     visit(expr.getRightOperand()));
-		case IXOR:
-			return SMTExpr.BvXor(visit(expr.getLeftOperand()),
-			                     visit(expr.getRightOperand()));
+	private IExpr visitConstraint(Comparator comparator, Expression<?> left, Expression<?> right) {
 
-		case AND:
-			return SMTExpr.And(visit(expr.getLeftOperand()),
-			                   visit(expr.getRightOperand()));
-		case OR:
-			return SMTExpr.Or(visit(expr.getLeftOperand()), visit(expr.getRightOperand()));
-		case XOR:
-			return SMTExpr.Xor(visit(expr.getLeftOperand()),
-			                   visit(expr.getRightOperand()));
-
+		switch (comparator) {
+		case EQ:
+			return SMTExpr.Eq(visit(left), visit(right));
+		case NE:
+			return SMTExpr.Not(SMTExpr.Eq(visit(left), visit(right)));
+		case GE:
+			return SMTExpr.Gte(visit(left), visit(right));
+		case GT:
+			return SMTExpr.Gt(visit(left), visit(right));
+		case LE:
+			return SMTExpr.Lte(visit(left), visit(right));
+		case LT:
+			return SMTExpr.Lt(visit(left), visit(right));
 		default:
-			throw new RuntimeException("Unsupported operator: " + expr.getOperator());
+			throw new RuntimeException("Unsupported comparison: " + comparator);
 		}
-	}
-
-	public IExpr visit(Constraint<?> constraint) {
-		logger.info("Converting " + constraint);
-		return visitConstraint(constraint.getComparator(), constraint.getLeftOperand(),
-		                       constraint.getRightOperand());
-	}
-
-	public Set<IExpr.ISymbol> getSymbols() {
-		return symbols;
 	}
 }

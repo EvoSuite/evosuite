@@ -22,16 +22,29 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 
 	private double lastFitness;
 
-	public TestSuiteLocalSearchObjective(TestSuiteFitnessFunction fitness,
-	        TestSuiteChromosome suite, int index) {
+	public TestSuiteLocalSearchObjective(TestSuiteFitnessFunction fitness, TestSuiteChromosome suite, int index) {
 		this.fitness = fitness;
 		this.suite = suite;
 		this.testIndex = index;
 		this.lastFitness = suite.getFitness();
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.LocalSearchObjective#hasImproved(de.unisb.cs.st.evosuite.ga.Chromosome)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.unisb.cs.st.evosuite.ga.LocalSearchObjective#getFitnessFunction()
+	 */
+	@Override
+	public FitnessFunction getFitnessFunction() {
+		return fitness;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.ga.LocalSearchObjective#hasImproved(de.unisb.
+	 * cs.st.evosuite.ga.Chromosome)
 	 */
 	@Override
 	public boolean hasImproved(Chromosome individual) {
@@ -44,14 +57,6 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 		} else {
 			return false;
 		}
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.LocalSearchObjective#getFitnessFunction()
-	 */
-	@Override
-	public FitnessFunction getFitnessFunction() {
-		return fitness;
 	}
 
 }

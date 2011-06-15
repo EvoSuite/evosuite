@@ -1,8 +1,10 @@
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
-public  interface Variable<T extends Number> extends Expression<T> {
+public interface Variable<T extends Number> extends Expression<T> {
+
+	public T getMaxValue();
+
+	public T getMinValue();
 
 	public String getName();
-	public T getMinValue();
-	public T getMaxValue();
 }

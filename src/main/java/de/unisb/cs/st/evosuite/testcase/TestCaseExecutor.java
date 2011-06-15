@@ -50,18 +50,29 @@ import de.unisb.cs.st.evosuite.sandbox.Sandbox;
  */
 public class TestCaseExecutor implements ThreadFactory {
 
-	private static final Logger logger = Logger.getLogger(TestCaseExecutor.class);
+	public static class TimeoutExceeded extends RuntimeException {
+		private static final long serialVersionUID = -5314228165430676893L;
+	}
 
+	private static final Logger logger = Logger.getLogger(TestCaseExecutor.class);
 	private static final PrintStream systemOut = System.out;
+
 	private static final PrintStream systemErr = System.err;
 
 	private static TestCaseExecutor instance = null;
 
+	public static void pullDown() {
+		if (instance != null) {
+			instance.executor.shutdownNow();
+		}
+	}
+
+	// private static ExecutorService executor =
+	// Executors.newCachedThreadPool();
+
 	private ExecutorService executor;
 
 	private Thread currentThread = null;
-
-	//private static ExecutorService executor = Executors.newCachedThreadPool();
 
 	private List<ExecutionObserver> observers;
 
@@ -72,8 +83,9 @@ public class TestCaseExecutor implements ThreadFactory {
 	public static int testsExecuted = 0;
 
 	public static TestCaseExecutor getInstance() {
-		if (instance == null)
+		if (instance == null) {
 			instance = new TestCaseExecutor();
+		}
 
 		return instance;
 	}
@@ -119,39 +131,8 @@ public class TestCaseExecutor implements ThreadFactory {
 		newObservers();
 	}
 
-	public static class TimeoutExceeded extends RuntimeException {
-		private static final long serialVersionUID = -5314228165430676893L;
-	}
-
-	public void setup() {
-		// start own thread
-	}
-
-	public static void pullDown() {
-		if (instance != null)
-			instance.executor.shutdownNow();
-	}
-
 	public void addObserver(ExecutionObserver observer) {
 		observers.add(observer);
-	}
-
-	public void removeObserver(ExecutionObserver observer) {
-		observers.remove(observer);
-	}
-
-	public void newObservers() {
-		observers = new ArrayList<ExecutionObserver>();
-		if (Properties.CHECK_CONTRACTS) {
-			observers.add(new ContractChecker());
-		}
-
-	}
-
-	private void resetObservers() {
-		for (ExecutionObserver observer : observers) {
-			observer.clear();
-		}
 	}
 
 	public ExecutionResult execute(TestCase tc) {
@@ -162,8 +143,9 @@ public class TestCaseExecutor implements ThreadFactory {
 	@SuppressWarnings("deprecation")
 	public ExecutionResult execute(TestCase tc, Scope scope) {
 		ExecutionTracer.getExecutionTracer().clear();
-		if (Properties.STATIC_HACK)
+		if (Properties.STATIC_HACK) {
 			TestCluster.getInstance().resetStaticClasses();
+		}
 		resetObservers();
 		ExecutionObserver.currentTest(tc);
 		MaxTestsStoppingCondition.testExecuted();
@@ -172,21 +154,21 @@ public class TestCaseExecutor implements ThreadFactory {
 
 		TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>();
 
-		//#TODO steenbuck could be nicer (TestRunnable should be an interface
+		// #TODO steenbuck could be nicer (TestRunnable should be an interface
 		InterfaceTestRunnable callable;
 		if (Properties.CRITERION == Criterion.CONCURRENCY) {
 			callable = new ConcurrentTestRunnable(tc, scope, observers);
 		} else {
 			callable = new TestRunnable(tc, scope, observers);
 		}
-		//FutureTask<ExecutionResult> task = new FutureTask<ExecutionResult>(callable);
-		//executor.execute(task);
+		// FutureTask<ExecutionResult> task = new
+		// FutureTask<ExecutionResult>(callable);
+		// executor.execute(task);
 
 		try {
-			//ExecutionResult result = task.get(timeout, TimeUnit.MILLISECONDS);
-			ExecutionResult result = handler.execute(callable, executor,
-			                                         Properties.TIMEOUT,
-			                                         Properties.CPU_TIMEOUT);
+			// ExecutionResult result = task.get(timeout,
+			// TimeUnit.MILLISECONDS);
+			ExecutionResult result = handler.execute(callable, executor, Properties.TIMEOUT, Properties.CPU_TIMEOUT);
 
 			long endTime = System.currentTimeMillis();
 			timeExecuted += endTime - startTime;
@@ -212,16 +194,19 @@ public class TestCaseExecutor implements ThreadFactory {
 			return result;
 		} catch (ExecutionException e1) {
 			/*
-			 * An ExecutionException at this point, is most likely an error in evosuite. As exceptions from the tested code are catched before this.
+			 * An ExecutionException at this point, is most likely an error in
+			 * evosuite. As exceptions from the tested code are catched before
+			 * this.
 			 */
 			Sandbox.tearDownEverything();
-			logger.error("ExecutionException (this is likely a serious error in the framework)",
-			             e1);
+			logger.error("ExecutionException (this is likely a serious error in the framework)", e1);
 			ExecutionResult result = new ExecutionResult(tc, null);
 			result.exceptions = callable.getExceptionsThrown();
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
-			if (e1.getCause() instanceof Error) { //an error was thrown somewhere in evosuite code
+			if (e1.getCause() instanceof Error) { // an error was thrown
+													// somewhere in evosuite
+													// code
 				throw (Error) e1.getCause();
 			} else if (e1.getCause() instanceof RuntimeException) {
 				throw (RuntimeException) e1.getCause();
@@ -238,7 +223,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			logger.info("TimeoutException, need to stop runner");
 			ExecutionTracer.setKillSwitch(true);
 			ExecutionTracer.disable();
-			//task.cancel(true);
+			// task.cancel(true);
 			handler.getLastTask().cancel(true);
 
 			if (!callable.isRunFinished()) {
@@ -291,14 +276,36 @@ public class TestCaseExecutor implements ThreadFactory {
 		return stalledThreads.size();
 	}
 
+	public void newObservers() {
+		observers = new ArrayList<ExecutionObserver>();
+		if (Properties.CHECK_CONTRACTS) {
+			observers.add(new ContractChecker());
+		}
+
+	}
+
 	@Override
 	public Thread newThread(Runnable r) {
-		if (currentThread != null && currentThread.isAlive()) {
+		if ((currentThread != null) && currentThread.isAlive()) {
 			stalledThreads.add(currentThread);
 			logger.info("Current number of stalled threads: " + stalledThreads.size());
 		}
 		currentThread = new Thread(r);
 		ExecutionTracer.setThread(currentThread);
 		return currentThread;
+	}
+
+	public void removeObserver(ExecutionObserver observer) {
+		observers.remove(observer);
+	}
+
+	public void setup() {
+		// start own thread
+	}
+
+	private void resetObservers() {
+		for (ExecutionObserver observer : observers) {
+			observer.clear();
+		}
 	}
 }
