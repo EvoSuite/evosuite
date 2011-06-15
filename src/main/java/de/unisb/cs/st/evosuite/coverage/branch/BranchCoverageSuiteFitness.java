@@ -77,9 +77,9 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		List<ExecutionResult> results = runTestSuite(suite);
 		long eend = System.currentTimeMillis();
 		double fitness = 0.0;
-		Map<String, Double> true_distance = new HashMap<String, Double>();
-		Map<String, Double> false_distance = new HashMap<String, Double>();
-		Map<String, Integer> predicate_count = new HashMap<String, Integer>();
+		Map<Integer, Double> true_distance = new HashMap<Integer, Double>();
+		Map<Integer, Double> false_distance = new HashMap<Integer, Double>();
+		Map<Integer, Integer> predicate_count = new HashMap<Integer, Integer>();
 		Map<String, Integer> call_count = new HashMap<String, Integer>();
 
 		for (ExecutionResult result : results) {
@@ -99,7 +99,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					               call_count.get(entry.getKey()) + entry.getValue());
 				}
 			}
-			for (Entry<String, Integer> entry : result.getTrace().covered_predicates.entrySet()) {
+			for (Entry<Integer, Integer> entry : result.getTrace().covered_predicates.entrySet()) {
 				if (!predicate_count.containsKey(entry.getKey()))
 					predicate_count.put(entry.getKey(), entry.getValue());
 				else {
@@ -108,7 +108,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					                            + entry.getValue());
 				}
 			}
-			for (Entry<String, Double> entry : result.getTrace().true_distances.entrySet()) {
+			for (Entry<Integer, Double> entry : result.getTrace().true_distances.entrySet()) {
 				if (!true_distance.containsKey(entry.getKey()))
 					true_distance.put(entry.getKey(), entry.getValue());
 				else {
@@ -117,7 +117,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					                           entry.getValue()));
 				}
 			}
-			for (Entry<String, Double> entry : result.getTrace().false_distances.entrySet()) {
+			for (Entry<Integer, Double> entry : result.getTrace().false_distances.entrySet()) {
 				if (!false_distance.containsKey(entry.getKey()))
 					false_distance.put(entry.getKey(), entry.getValue());
 				else {
@@ -132,7 +132,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		int uncovered = 0;
 
 		//logger.info("Got data for predicates: " + predicate_count.size()+"/"+total_branches);
-		for (String key : predicate_count.keySet()) {
+		for (Integer key : predicate_count.keySet()) {
 			//logger.info("Key: "+key);
 			if (!true_distance.containsKey(key) || !false_distance.containsKey(key))
 				continue;

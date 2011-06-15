@@ -53,7 +53,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 
 	// --- - Mutations - ---
 	// Calculate distance to each mutation
-	private Map<Long, Integer> mutant_distance = new HashMap<Long, Integer>();
+	private final Map<Long, Integer> mutant_distance = new HashMap<Long, Integer>();
 	private final List<Long> mutations = new ArrayList<Long>();
 	private boolean mutationBranch = false;
 	private boolean mutatedBranch = false;
@@ -75,14 +75,14 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 * instruction as indicated by the given ASMNode in the given method and
 	 * class
 	 */
-	public BytecodeInstruction(String className, String methodName,
-			int instructionId, AbstractInsnNode asmNode) {
+	public BytecodeInstruction(String className, String methodName, int instructionId,
+	        AbstractInsnNode asmNode) {
 
 		if (className == null || methodName == null || asmNode == null)
 			throw new IllegalArgumentException("null given");
 		if (instructionId < 0)
 			throw new IllegalArgumentException(
-					"expect instructionId to be positive, not " + instructionId);
+			        "expect instructionId to be positive, not " + instructionId);
 
 		this.instructionId = instructionId;
 		this.asmNode = asmNode;
@@ -97,23 +97,23 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	public BytecodeInstruction(BytecodeInstruction wrap) {
 
 		this(wrap.className, wrap.methodName, wrap.instructionId, wrap.asmNode,
-				wrap.lineNumber, wrap.basicBlock);
+		        wrap.lineNumber, wrap.basicBlock);
+		this.forcedBranch = wrap.forcedBranch;
 	}
 
-	public BytecodeInstruction(String className, String methodName,
-			int instructionId, AbstractInsnNode asmNode, int lineNumber,
-			BasicBlock basicBlock) {
+	public BytecodeInstruction(String className, String methodName, int instructionId,
+	        AbstractInsnNode asmNode, int lineNumber, BasicBlock basicBlock) {
 
 		this(className, methodName, instructionId, asmNode, lineNumber);
-		
+
 		this.basicBlock = basicBlock;
 	}
 
-	public BytecodeInstruction(String className, String methodName,
-			int instructionId, AbstractInsnNode asmNode, int lineNumber) {
+	public BytecodeInstruction(String className, String methodName, int instructionId,
+	        AbstractInsnNode asmNode, int lineNumber) {
 
 		this(className, methodName, instructionId, asmNode);
-		
+
 		if (lineNumber != -1)
 			setLineNumber(lineNumber);
 	}
@@ -138,10 +138,12 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 
 	// TODO make real getId()!
 
+	@Override
 	public int getInstructionId() {
 		return instructionId;
 	}
 
+	@Override
 	public String getMethodName() {
 		return methodName;
 	}
@@ -149,7 +151,8 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	public String getClassName() {
 		return className;
 	}
-	
+
+	@Override
 	public String getName() {
 		return "BytecodeInstruction " + instructionId + " in " + methodName;
 	}
@@ -161,14 +164,14 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 * returned.
 	 */
 	public BasicBlock getBasicBlock() {
-		if(!hasBasicBlockSet())
+		if (!hasBasicBlockSet())
 			retrieveBasicBlock();
 		return basicBlock;
 	}
 
 	private void retrieveBasicBlock() {
-		
-		if(basicBlock == null)
+
+		if (basicBlock == null)
 			basicBlock = getActualCFG().getBlockOf(this);
 	}
 
@@ -181,12 +184,12 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 			throw new IllegalArgumentException("null given");
 
 		if (!block.getClassName().equals(getClassName())
-				|| !block.getMethodName().equals(getMethodName()))
+		        || !block.getMethodName().equals(getMethodName()))
 			throw new IllegalArgumentException(
-					"expect block to be for the same method and class as this instruction");
+			        "expect block to be for the same method and class as this instruction");
 		if (this.basicBlock != null)
 			throw new IllegalArgumentException(
-					"basicBlock already set! not allowed to overwrite");
+			        "basicBlock already set! not allowed to overwrite");
 
 		this.basicBlock = block;
 	}
@@ -201,6 +204,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 
 	// mutation part
 
+	@Override
 	public boolean isMutation() {
 		return !mutations.isEmpty();
 		/*
@@ -211,6 +215,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		 */
 	}
 
+	@Override
 	public List<Long> getMutationIds() {
 		return mutations;
 		// String ids = ((LdcInsnNode)node).cst.toString();
@@ -233,6 +238,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		mutations.add(id);
 	}
 
+	@Override
 	public boolean hasMutation(long id) {
 		return mutations.contains(id);
 	}
@@ -250,16 +256,19 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		return isBranch() && mutatedBranch;
 	}
 
+	@Override
 	public int getDistance(long id) {
 		if (mutant_distance.containsKey(id))
 			return mutant_distance.get(id);
 		return Integer.MAX_VALUE;
 	}
 
+	@Override
 	public void setDistance(long id, int distance) {
 		mutant_distance.put(id, distance);
 	}
 
+	@Override
 	public int getLineNumber() {
 		// former method comment
 		// If hasLineNumberSet() returns true, this method returns the
@@ -285,8 +294,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 */
 	public void setLineNumber(int lineNumber) {
 		if (lineNumber <= 0)
-			throw new IllegalArgumentException(
-					"expect lineNumber value to be positive");
+			throw new IllegalArgumentException("expect lineNumber value to be positive");
 
 		if (isLabel())
 			return;
@@ -296,7 +304,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 			// sanity check
 			if (lineNumber != -1 && asmLine != lineNumber)
 				throw new IllegalStateException(
-						"linenumber instruction has lineNumber field set to a value different from instruction linenumber");
+				        "linenumber instruction has lineNumber field set to a value different from instruction linenumber");
 			this.lineNumber = asmLine;
 		} else {
 			this.lineNumber = lineNumber;
@@ -333,7 +341,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 			// sanity check
 			if (this.lineNumber != -1 && asmLine != this.lineNumber)
 				throw new IllegalStateException(
-						"lineNumber field was manually set to a value different from the actual lineNumber contained in LineNumberNode");
+				        "lineNumber field was manually set to a value different from the actual lineNumber contained in LineNumberNode");
 			this.lineNumber = asmLine;
 		}
 	}
@@ -347,11 +355,10 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 */
 	public ActualControlFlowGraph getActualCFG() {
 
-		ActualControlFlowGraph myCFG = CFGPool.getActualCFG(className,
-				methodName);
+		ActualControlFlowGraph myCFG = CFGPool.getActualCFG(className, methodName);
 		if (myCFG == null)
 			throw new IllegalStateException(
-					"expect CFGPool to know CFG for every method for which an instruction is known");
+			        "expect CFGPool to know CFG for every method for which an instruction is known");
 
 		return myCFG;
 	}
@@ -366,7 +373,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		RawControlFlowGraph myCFG = CFGPool.getRawCFG(className, methodName);
 		if (myCFG == null)
 			throw new IllegalStateException(
-					"expect CFGPool to know CFG for every method for which an instruction is known");
+			        "expect CFGPool to know CFG for every method for which an instruction is known");
 
 		return myCFG;
 	}
@@ -381,7 +388,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		ControlDependenceGraph myCDG = CFGPool.getCDG(className, methodName);
 		if (myCDG == null)
 			throw new IllegalStateException(
-					"expect CFGPool to know CDG for every method for which an instruction is known");
+			        "expect CFGPool to know CDG for every method for which an instruction is known");
 
 		return myCDG;
 	}
@@ -402,10 +409,10 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	public Set<Branch> getAllControlDependentBranches() {
 
 		if (controlDependentBranches == null)
-			controlDependentBranches = getCDG().getControlDependentBranches(
-					this);
+			controlDependentBranches = getCDG().getControlDependentBranches(this);
 
-		return new HashSet<Branch>(controlDependentBranches);
+		return controlDependentBranches;
+		//		return new HashSet<Branch>(controlDependentBranches);
 	}
 
 	/**
@@ -462,15 +469,13 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 */
 	public Set<Integer> getControlDependentBranchIds() {
 
-		ControlDependenceGraph myDependence = CFGPool.getCDG(className,
-				methodName);
+		ControlDependenceGraph myDependence = CFGPool.getCDG(className, methodName);
 		if (myDependence == null)
 			throw new IllegalStateException(
-					"expect CFGPool to know CDG for every method for which an instruction is known");
+			        "expect CFGPool to know CDG for every method for which an instruction is known");
 
 		if (controlDependentBranchIDs == null)
-			controlDependentBranchIDs = myDependence
-					.getControlDependentBranchIds(this);
+			controlDependentBranchIDs = myDependence.getControlDependentBranchIds(this);
 
 		return controlDependentBranchIDs;
 	}
@@ -526,7 +531,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 			throw new IllegalArgumentException("null given");
 		if (!isDirectlyControlDependentOn(b))
 			throw new IllegalArgumentException(
-					"this method can only be called for branches that this instruction is directly control dependent on");
+			        "this method can only be called for branches that this instruction is directly control dependent on");
 
 		return getCDG().getBranchExpressionValue(this, b);
 	}
@@ -611,13 +616,11 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 				Branch b = BranchPool.getBranchForInstruction(this);
 				if (b == null)
 					throw new IllegalStateException(
-							"expect BranchPool to be able to return Branches for instructions fullfilling BranchPool.isKnownAsBranch()");
+					        "expect BranchPool to be able to return Branches for instructions fullfilling BranchPool.isKnownAsBranch()");
 
-				return "Branch " + b.getActualBranchId() + " - "
-						+ getInstructionType();
+				return "Branch " + b.getActualBranchId() + " - " + getInstructionType();
 			}
-			return "UNKNOWN Branch i" + instructionId + " "
-					+ getInstructionType();
+			return "UNKNOWN Branch i" + instructionId + " " + getInstructionType();
 
 			// + " - " + ((JumpInsnNode) asmNode).label.getLabel();
 		}
@@ -640,40 +643,40 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		if (asmNode instanceof LabelNode) {
 			return "LABEL " + ((LabelNode) asmNode).getLabel().toString();
 		} else if (asmNode instanceof FieldInsnNode)
-			return "Field" + " " + asmNode.getOpcode() + " Type=" + type
-					+ ", Opcode=" + opcode;
+			return "Field" + " " + asmNode.getOpcode() + " Type=" + type + ", Opcode="
+			        + opcode;
 		else if (asmNode instanceof FrameNode)
-			return "Frame" + " " + asmNode.getOpcode() + " Type=" + type
-					+ ", Opcode=" + opcode;
+			return "Frame" + " " + asmNode.getOpcode() + " Type=" + type + ", Opcode="
+			        + opcode;
 		else if (asmNode instanceof IincInsnNode)
-			return "IINC " + ((IincInsnNode) asmNode).var + " Type=" + type
-					+ ", Opcode=" + opcode;
+			return "IINC " + ((IincInsnNode) asmNode).var + " Type=" + type + ", Opcode="
+			        + opcode;
 		else if (asmNode instanceof InsnNode)
 			return "" + opcode;
 		else if (asmNode instanceof IntInsnNode)
 			return "INT " + ((IntInsnNode) asmNode).operand + " Type=" + type
-					+ ", Opcode=" + opcode;
+			        + ", Opcode=" + opcode;
 		else if (asmNode instanceof MethodInsnNode)
 			return opcode + " " + ((MethodInsnNode) asmNode).name;
 		else if (asmNode instanceof JumpInsnNode)
-			return "JUMP " + ((JumpInsnNode) asmNode).label.getLabel()
-					+ " Type=" + type + ", Opcode=" + opcode + ", Stack: "
-					+ stack + " - Line: " + lineNumber;
+			return "JUMP " + ((JumpInsnNode) asmNode).label.getLabel() + " Type=" + type
+			        + ", Opcode=" + opcode + ", Stack: " + stack + " - Line: "
+			        + lineNumber;
 		else if (asmNode instanceof LdcInsnNode)
-			return "LDC " + ((LdcInsnNode) asmNode).cst + " Type=" + type
-					+ ", Opcode=" + opcode; // cst starts with mutationid if
+			return "LDC " + ((LdcInsnNode) asmNode).cst + " Type=" + type + ", Opcode="
+			        + opcode; // cst starts with mutationid if
 		// this is location of mutation
 		else if (asmNode instanceof LineNumberNode)
 			return "LINE " + " " + ((LineNumberNode) asmNode).line;
 		else if (asmNode instanceof LookupSwitchInsnNode)
-			return "LookupSwitchInsnNode" + " " + asmNode.getOpcode()
-					+ " Type=" + type + ", Opcode=" + opcode;
+			return "LookupSwitchInsnNode" + " " + asmNode.getOpcode() + " Type=" + type
+			        + ", Opcode=" + opcode;
 		else if (asmNode instanceof MultiANewArrayInsnNode)
-			return "MULTIANEWARRAY " + " " + asmNode.getOpcode() + " Type="
-					+ type + ", Opcode=" + opcode;
+			return "MULTIANEWARRAY " + " " + asmNode.getOpcode() + " Type=" + type
+			        + ", Opcode=" + opcode;
 		else if (asmNode instanceof TableSwitchInsnNode)
-			return "TableSwitchInsnNode" + " " + asmNode.getOpcode() + " Type="
-					+ type + ", Opcode=" + opcode;
+			return "TableSwitchInsnNode" + " " + asmNode.getOpcode() + " Type=" + type
+			        + ", Opcode=" + opcode;
 		else if (asmNode instanceof TypeInsnNode)
 			return "NEW " + ((TypeInsnNode) asmNode).desc;
 		// return "TYPE " + " " + node.getOpcode() + " Type=" + type
