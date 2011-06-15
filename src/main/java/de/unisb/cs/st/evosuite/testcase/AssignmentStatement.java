@@ -47,6 +47,7 @@ public class AssignmentStatement extends AbstractStatement {
 	        VariableReference value) {
 		super(tc, new ArrayIndex(tc, array, array_index));
 		this.parameter = value;
+		assert (this.parameter.getType().equals(value.getType()));
 	}
 
 	public void setArray(ArrayReference array) {
@@ -64,7 +65,18 @@ public class AssignmentStatement extends AbstractStatement {
 
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
-		VariableReference newParam = newTestCase.getStatement(parameter.getStPosition()).getReturnValue(); //must be set as we only use this to clone whole testcases
+		VariableReference newParam = null;
+		if (parameter instanceof ConstantValue) {
+			newParam = ((ConstantValue) parameter).clone(newTestCase);
+		} else if (parameter instanceof ArrayIndex
+		        && tc.getStatement(parameter.getStPosition()) instanceof ArrayStatement) {
+
+			ArrayReference otherArray = (ArrayReference) newTestCase.getStatement(parameter.getStPosition()).getReturnValue(); //must be set as we only use this to clone whole testcases
+			newParam = new ArrayIndex(newTestCase, otherArray,
+			        ((ArrayIndex) parameter).getArrayIndex());
+		} else {
+			newParam = newTestCase.getStatement(parameter.getStPosition()).getReturnValue(); //must be set as we only use this to clone whole testcases
+		}
 		VariableReference newArray = newTestCase.getStatement(getArrayIndexRef().getArray().getStPosition()).getReturnValue();
 		if (!(newArray instanceof ArrayReference)) {
 			throw new AssertionError(
@@ -75,6 +87,9 @@ public class AssignmentStatement extends AbstractStatement {
 		assert (newParam != null);
 		AssignmentStatement copy = new AssignmentStatement(newTestCase,
 		        (ArrayReference) newArray, getArrayIndexRef().getArrayIndex(), newParam);
+		//logger.info("Cloneing assignment:");
+		//logger.info(getCode());
+		//logger.info(copy.getCode());
 		return copy;
 	}
 

@@ -74,6 +74,10 @@ public class ArrayIndex extends VariableReferenceImpl {
 
 		//notice that this case is only reached if no AssignmentStatement was used to assign to the array index (as in that case the for loop would have found something)
 		//Therefore the array must have been assigned in some method and we can return the method call
+
+		//throw new AssertionError(
+		//        "A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase");
+
 		return array.getStPosition();
 
 		//throw new AssertionError("A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase");

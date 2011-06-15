@@ -1477,13 +1477,12 @@ public class TestabilityTransformation {
 
 		logger.info("Transforming ELSE");
 		// Now unfold implicit else branches
+
 		transformImplicitElse(mn);
 		transformImplicitElseField(mn);
 		transformImplicitElseStaticField(mn);
-
 		// Change comparisons of non-int values to distance functions
-		transformComparisons(mn);
-
+		//		transformComparisons(mn); // Done in ComparisonTransformation
 		transformStrings(mn);
 
 		// Remove flag definitions

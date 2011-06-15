@@ -637,6 +637,18 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		// For each value of array, call attemptGeneration
 		List<VariableReference> objects = test.getObjects(reference.getComponentType(),
 		                                                  position);
+		Iterator<VariableReference> iterator = objects.iterator();
+		while (iterator.hasNext()) {
+			VariableReference current = iterator.next();
+			if (current instanceof ArrayIndex) {
+				ArrayIndex index = (ArrayIndex) current;
+				if (index.getArray().equals(statement.retval))
+					iterator.remove();
+			} else if (current instanceof ArrayReference) {
+				logger.info("Trying to assign rubbish: " + current);
+				assert (false);
+			}
+		}
 		for (int i = 0; i < statement.size(); i++) {
 			int old_len = test.size();
 			assignArray(test, statement.retval, i, position, objects);

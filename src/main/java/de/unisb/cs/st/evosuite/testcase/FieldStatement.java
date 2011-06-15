@@ -143,10 +143,21 @@ public class FieldStatement extends AbstractStatement {
 	public StatementInterface clone(TestCase newTestCase) {
 		if (Modifier.isStatic(field.getModifiers()))
 			return new FieldStatement(newTestCase, field, null, retval.getType());
-		else
-			return new FieldStatement(newTestCase, field,
-			        newTestCase.getStatement(source.getStPosition()).getReturnValue(),
-			        retval.getType());
+		else {
+			if (source instanceof ArrayIndex
+			        && tc.getStatement(source.getStPosition()) instanceof ArrayStatement) {
+				ArrayReference otherArray = (ArrayReference) newTestCase.getStatement(source.getStPosition()).getReturnValue(); //must be set as we only use this to clone whole testcases
+				VariableReference newSource = new ArrayIndex(newTestCase, otherArray,
+				        ((ArrayIndex) source).getArrayIndex());
+				return new FieldStatement(newTestCase, field, newSource, retval.getType());
+			} else {
+				return new FieldStatement(
+				        newTestCase,
+				        field,
+				        newTestCase.getStatement(source.getStPosition()).getReturnValue(),
+				        retval.getType());
+			}
+		}
 	}
 
 	@Override
@@ -168,9 +179,9 @@ public class FieldStatement extends AbstractStatement {
 		} catch (Throwable e) {
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
 				e = e.getCause();
-				logger.debug("Exception thrown in constructor: " + e);
+				logger.debug("Exception thrown in field: " + e);
 			} else
-				logger.debug("Exception thrown in constructor: " + e);
+				logger.debug("Exception thrown in field: " + e);
 			exceptionThrown = e;
 		}
 		return exceptionThrown;

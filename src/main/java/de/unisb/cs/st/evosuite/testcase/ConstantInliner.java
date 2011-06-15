@@ -3,6 +3,10 @@
  */
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 
 /**
@@ -13,8 +17,6 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
  */
 public class ConstantInliner extends ExecutionObserver {
 
-	// private static Logger logger = Logger.getLogger(ConstantInliner.class);
-
 	private TestCase test = null;
 
 	public void inline(TestCase test) {
@@ -23,6 +25,7 @@ public class ConstantInliner extends ExecutionObserver {
 		executor.addObserver(this);
 		executor.execute(test);
 		executor.removeObserver(this);
+		removeUnusedVariables(test);
 		assert (test.isValid());
 
 	}
@@ -34,6 +37,37 @@ public class ConstantInliner extends ExecutionObserver {
 	public void inline(TestSuiteChromosome suite) {
 		for (TestCase test : suite.getTests())
 			inline(test);
+	}
+
+	/**
+	 * Remove all unreferenced variables
+	 * 
+	 * @param t
+	 *            The test case
+	 * @return True if something was deleted
+	 */
+	public boolean removeUnusedVariables(TestCase t) {
+		List<Integer> to_delete = new ArrayList<Integer>();
+		boolean has_deleted = false;
+
+		int num = 0;
+		for (StatementInterface s : t) {
+			if (s instanceof PrimitiveStatement) {
+
+				VariableReference var = s.getReturnValue();
+				if (!t.hasReferences(var)) {
+					to_delete.add(num);
+					has_deleted = true;
+				}
+			}
+			num++;
+		}
+		Collections.sort(to_delete, Collections.reverseOrder());
+		for (Integer position : to_delete) {
+			t.remove(position);
+		}
+
+		return has_deleted;
 	}
 
 	/* (non-Javadoc)

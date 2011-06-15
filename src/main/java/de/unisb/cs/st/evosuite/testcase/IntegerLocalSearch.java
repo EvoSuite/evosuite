@@ -29,34 +29,41 @@ public class IntegerLocalSearch<T> implements LocalSearch {
 		ExecutionResult oldResult = test.last_result;
 		oldValue = p.getValue();
 
-		// Try +1
-		//logger.info("Trying increment of " + p.getCode());
-		p.increment();
-		if (objective.hasImproved(test)) {
-			logger.debug("Starting local search on " + p.getCode() + " (was: " + oldValue
-			        + ")");
-			while (iterate(1, objective, test, p, statement))
-				;
-
-		} else {
-			// Restore original, try -1
-			p.setValue(oldValue);
-			test.last_result = oldResult;
-			test.setChanged(false);
-			//logger.info("Trying decrement of " + p.getCode());
-			p.decrement();
+		boolean done = false;
+		while (!done) {
+			done = true;
+			// Try +1
+			logger.debug("Trying increment of " + p.getCode());
+			p.increment(1);
 			if (objective.hasImproved(test)) {
-				logger.debug("Starting local search on " + p.getCode() + " (was: "
-				        + oldValue + ")");
-				while (iterate(-1, objective, test, p, statement))
-					;
+				done = false;
+
+				iterate(2, objective, test, p, statement);
+				oldValue = p.getValue();
+				oldResult = test.last_result;
 
 			} else {
+				// Restore original, try -1
 				p.setValue(oldValue);
 				test.last_result = oldResult;
 				test.setChanged(false);
+
+				logger.debug("Trying decrement of " + p.getCode());
+				p.increment(-1);
+				if (objective.hasImproved(test)) {
+					done = false;
+					iterate(-2, objective, test, p, statement);
+					oldValue = p.getValue();
+					oldResult = test.last_result;
+
+				} else {
+					p.setValue(oldValue);
+					test.last_result = oldResult;
+					test.setChanged(false);
+				}
 			}
 		}
+
 		logger.debug("Finished local search with result " + p.getCode());
 	}
 
