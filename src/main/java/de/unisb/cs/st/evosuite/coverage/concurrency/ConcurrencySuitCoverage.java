@@ -42,6 +42,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 
 public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
+	private static final long serialVersionUID = 1L;
 
 	private static Logger logger = Logger.getLogger(TestSuiteFitnessFunction.class);
 
@@ -201,7 +202,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 			        + (total_methods - missing_methods) + "/" + total_methods
 			        + " methods");
 			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
-			        + suite.length());
+			        + suite.totalLengthOfTestCases());
 		}
 		//		if(call_count.size() > covered_methods) {
 		if ((total_methods - missing_methods) > covered_methods) {
@@ -211,7 +212,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 			        + " methods");
 			covered_methods = (total_methods - missing_methods);
 			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
-			        + suite.length());
+			        + suite.totalLengthOfTestCases());
 
 		}
 		if (fitness < best_fitness) {
@@ -221,8 +222,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 			        + " methods");
 			best_fitness = fitness;
 			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
-			        + suite.length());
-
+			        + suite.totalLengthOfTestCases());
 		}
 
 		double coverage = num_covered;

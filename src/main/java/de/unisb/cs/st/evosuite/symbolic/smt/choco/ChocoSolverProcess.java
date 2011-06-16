@@ -56,11 +56,12 @@ public class ChocoSolverProcess {
 	 * @param args
 	 *            ignored
 	 */
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		try {
 			ObjectInputStream in = new ObjectInputStream(System.in);
 			ChocoSolverProcess p = new ChocoSolverProcess();
-			p.constraints = (Collection<Constraint>) in.readObject();
+			p.constraints = (Collection<Constraint<?>>) in.readObject();
 			p.run();
 			ObjectOutputStream out = new ObjectOutputStream(System.out);
 			out.writeObject(p.solution);
@@ -78,7 +79,7 @@ public class ChocoSolverProcess {
 	private LinkedList<RealVariable> vlr;
 
 	private Map<String, Object> solution = null;
-	private Collection<Constraint> constraints;
+	private Collection<Constraint<?>> constraints;
 	private final LinkedList<choco.kernel.model.constraints.Constraint> additionalConstrraints = new LinkedList<choco.kernel.model.constraints.Constraint>();
 	private int castVarNumber = 0;
 
@@ -124,17 +125,18 @@ public class ChocoSolverProcess {
 		}
 	}
 
-	private CPModel2 getModel(Collection<Constraint> constraints)
+	@SuppressWarnings("unchecked")
+	private CPModel2 getModel(Collection<Constraint<?>> constraints)
 	        throws MyUnsupportedException {
 		CPModel2 model = new CPModel2();
-		for (Constraint c : constraints) {
+		for (Constraint<?> c : constraints) {
 			if (c instanceof IntegerConstraint) {
-				choco.kernel.model.constraints.Constraint cc = getChocoConstraintInt(c);
+				choco.kernel.model.constraints.Constraint cc = getChocoConstraintInt((IntegerConstraint) c);
 				if (cc != null) {
 					model.addConstraint(cc);
 				}
 			} else {
-				choco.kernel.model.constraints.Constraint cc = getChocoConstraintReal(c);
+				choco.kernel.model.constraints.Constraint cc = getChocoConstraintReal((Constraint<Double>) c);
 				if (cc != null) {
 					model.addConstraint(cc);
 				}

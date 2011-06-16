@@ -50,6 +50,7 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
  */
 public class ConcolicExecution {
 
+	@SuppressWarnings("unused")
 	private List<gov.nasa.jpf.Error> errors;
 
 	private static Logger logger = Logger.getLogger(ConcolicExecution.class);

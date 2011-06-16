@@ -1,6 +1,7 @@
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
 public class RealComparison extends IntegerExpression {
+	private static final long serialVersionUID = 1L;
 
 	public RealComparison(Expression<Double> left, Expression<Double> right,
 			Long con) {

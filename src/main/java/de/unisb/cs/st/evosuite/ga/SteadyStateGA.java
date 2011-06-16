@@ -41,7 +41,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 	 * 
 	 * @param factory
 	 */
-	public SteadyStateGA(ChromosomeFactory factory) {
+	public SteadyStateGA(ChromosomeFactory<? extends Chromosome> factory) {
 		super(factory);
 
 		setReplacementFunction(new FitnessReplacementFunction(selection_function));

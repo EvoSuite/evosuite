@@ -24,13 +24,15 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import de.unisb.cs.st.evosuite.utils.PublicCloneable;
+
 /**
  * Abstract base class of chromosomes
  * 
  * @author Gordon Fraser
  * 
  */
-public abstract class Chromosome implements Comparable<Chromosome>, Serializable {
+public abstract class Chromosome implements Comparable<Chromosome>, Serializable, PublicCloneable<Chromosome> {
 
 	private static final long serialVersionUID = -6921897301005213358L;
 
@@ -40,7 +42,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * Exception to handle the case when a mutation fails
 	 * 
 	 */
-	class MutationFailedException extends Exception {
+	static class MutationFailedException extends Exception {
 		private static final long serialVersionUID = 1667810363133452317L;
 	};
 

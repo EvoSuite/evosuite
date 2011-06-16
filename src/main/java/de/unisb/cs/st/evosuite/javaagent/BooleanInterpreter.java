@@ -37,7 +37,7 @@ public class BooleanInterpreter extends BasicInterpreter {
 		}
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings("unchecked")
 	@Override
 	public Value naryOperation(AbstractInsnNode insn, List values)
 	        throws AnalyzerException {

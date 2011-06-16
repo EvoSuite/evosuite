@@ -248,7 +248,7 @@ public class TestSuiteMinimizer {
 			int num = 0;
 			for (TestChromosome test : suite.tests) {
 				for (int i = test.size() - 1; i >= 0; i--) {
-					logger.debug("Current size: " + suite.size() + "/" + suite.length());
+					logger.debug("Current size: " + suite.size() + "/" + suite.totalLengthOfTestCases());
 					logger.debug("Deleting statement "
 					        + test.test.getStatement(i).getCode() + " from test " + num);
 					TestChromosome copy = (TestChromosome) test.clone();

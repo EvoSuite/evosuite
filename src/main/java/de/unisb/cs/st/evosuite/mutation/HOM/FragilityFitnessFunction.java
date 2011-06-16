@@ -13,6 +13,7 @@ import de.unisb.cs.st.javalanche.mutation.results.MutationTestResult;
 import de.unisb.cs.st.javalanche.mutation.runtime.testDriver.MutationTestDriver;
 
 public class FragilityFitnessFunction extends HOMFitnessFunction {
+	private static final long serialVersionUID = 1L;
 
 	protected List<Double> fragility = new ArrayList<Double>();
 
@@ -27,6 +28,7 @@ public class FragilityFitnessFunction extends HOMFitnessFunction {
 		dead_mutants.clear();
 
 		List<Mutation> mutants = hom_switcher.getMutants();
+		@SuppressWarnings("unused")
 		boolean old_value = ConfigurationLocator.getJavalancheConfiguration().stopAfterFirstFail();
 		// TODO MutationProperties.STOP_AFTER_FIRST_FAIL = false;
 		int num = 0;

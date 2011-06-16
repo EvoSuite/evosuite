@@ -21,7 +21,6 @@ package de.unisb.cs.st.evosuite.testcase;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
@@ -29,7 +28,7 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
  * @author Gordon Fraser
  * 
  */
-public class RandomLengthTestFactory implements ChromosomeFactory {
+public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome> {
 
 	private static final long serialVersionUID = -5202578461625984100L;
 
@@ -67,7 +66,7 @@ public class RandomLengthTestFactory implements ChromosomeFactory {
 	 * Generate a random chromosome
 	 */
 	@Override
-	public Chromosome getChromosome() {
+	public TestChromosome getChromosome() {
 		TestChromosome c = new TestChromosome();
 		c.test = getRandomTestCase(Properties.CHROMOSOME_LENGTH);
 		return c;

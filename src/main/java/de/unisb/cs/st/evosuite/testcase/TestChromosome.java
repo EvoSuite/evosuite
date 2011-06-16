@@ -138,7 +138,7 @@ public class TestChromosome extends Chromosome {
 		double oldFitness = getFitness();
 
 		for (int i = 0; i < test.size(); i++) {
-			if (test.getStatement(i) instanceof PrimitiveStatement) {
+			if (test.getStatement(i) instanceof PrimitiveStatement<?>) {
 				Class<?> type = test.getReturnValue(i).getVariableClass();
 				LocalSearch search = null;
 				if (type.equals(Integer.class) || type.equals(int.class)) {

@@ -35,6 +35,7 @@ public class ConcurrencyCoverageFactory implements TestFitnessFactory {
 
 	public static final int THREAD_COUNT=2;
 	
+	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(ConcurrencyCoverageFactory.class);
 
 	/*
@@ -62,10 +63,11 @@ public class ConcurrencyCoverageFactory implements TestFitnessFactory {
 						scheduleIDs.add(new SchedulingDecisionTuple(1, combination));
 						scheduleIDs.add(new SchedulingDecisionTuple(0, comb1));
 						
-						
+						@SuppressWarnings("unused")
 						List<BranchCoverageGoal> branches = new ArrayList<BranchCoverageGoal>();
 						
 						//#TODO branches need to be covered
+						@SuppressWarnings("unused")
 						ConcurrencyCoverageGoal c = new ConcurrencyCoverageGoal(scheduleIDs);
 					}
 				}
