@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
@@ -54,8 +55,8 @@ public class NullStatement extends AbstractStatement {
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
 	        Throwable exception) {
-		//#FIXME shouldn't be too hard. But I have no clue howto //steenbuck
-		throw new UnsupportedOperationException("Needs to be implemented");
+		mg.visitInsn(Opcodes.ACONST_NULL);
+		retval.storeBytecode(mg, locals);
 	}
 
 	/* (non-Javadoc)
