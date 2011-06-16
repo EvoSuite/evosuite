@@ -152,6 +152,11 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	public abstract void localSearch(LocalSearchObjective objective);
 
 	/**
+	 * Apply DSE
+	 */
+	public abstract void applyDSE();
+
+	/**
 	 * Return length of individual
 	 * 
 	 * @return

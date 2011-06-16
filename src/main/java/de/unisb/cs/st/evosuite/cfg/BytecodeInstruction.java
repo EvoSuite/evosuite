@@ -47,6 +47,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	protected String className;
 	protected String methodName;
 	protected int instructionId;
+	protected int jpfId;
 
 	// auxiliary information
 	private int lineNumber = -1;
@@ -76,7 +77,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 * class
 	 */
 	public BytecodeInstruction(String className, String methodName, int instructionId,
-	        AbstractInsnNode asmNode) {
+	        int jpfId, AbstractInsnNode asmNode) {
 
 		if (className == null || methodName == null || asmNode == null)
 			throw new IllegalArgumentException("null given");
@@ -85,6 +86,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 			        "expect instructionId to be positive, not " + instructionId);
 
 		this.instructionId = instructionId;
+		this.jpfId = jpfId;
 		this.asmNode = asmNode;
 
 		setClassName(className);
@@ -96,23 +98,23 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 */
 	public BytecodeInstruction(BytecodeInstruction wrap) {
 
-		this(wrap.className, wrap.methodName, wrap.instructionId, wrap.asmNode,
-		        wrap.lineNumber, wrap.basicBlock);
+		this(wrap.className, wrap.methodName, wrap.instructionId, wrap.jpfId,
+		        wrap.asmNode, wrap.lineNumber, wrap.basicBlock);
 		this.forcedBranch = wrap.forcedBranch;
 	}
 
 	public BytecodeInstruction(String className, String methodName, int instructionId,
-	        AbstractInsnNode asmNode, int lineNumber, BasicBlock basicBlock) {
+	        int jpfId, AbstractInsnNode asmNode, int lineNumber, BasicBlock basicBlock) {
 
-		this(className, methodName, instructionId, asmNode, lineNumber);
+		this(className, methodName, instructionId, jpfId, asmNode, lineNumber);
 
 		this.basicBlock = basicBlock;
 	}
 
 	public BytecodeInstruction(String className, String methodName, int instructionId,
-	        AbstractInsnNode asmNode, int lineNumber) {
+	        int jpfId, AbstractInsnNode asmNode, int lineNumber) {
 
-		this(className, methodName, instructionId, asmNode);
+		this(className, methodName, instructionId, jpfId, asmNode);
 
 		if (lineNumber != -1)
 			setLineNumber(lineNumber);
@@ -141,6 +143,10 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	@Override
 	public int getInstructionId() {
 		return instructionId;
+	}
+
+	public int getJPFId() {
+		return jpfId;
 	}
 
 	@Override

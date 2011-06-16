@@ -115,6 +115,12 @@ public class StandardGA extends GeneticAlgorithm {
 			// Determine fitness
 			calculateFitness();
 
+			if (shouldApplyDSE())
+				applyDSE();
+
+			if (shouldApplyLocalSearch())
+				applyLocalSearch();
+
 			this.notifyIteration();
 		}
 

@@ -127,4 +127,13 @@ public class HOMChromosome extends Chromosome {
 		return activated.equals(other.activated);
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#applyDSE()
+	 */
+	@Override
+	public void applyDSE() {
+		// TODO Auto-generated method stub
+
+	}
+
 }

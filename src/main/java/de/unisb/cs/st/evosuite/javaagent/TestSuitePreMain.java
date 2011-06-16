@@ -45,7 +45,7 @@ public class TestSuitePreMain {
 
 		if (agentArguments.equals("generate")) {
 			System.out.println("* Instrumenting bytecode for test generation");
-			//addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
+			// addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
 			if (Properties.CRITERION == Criterion.MUTATION) {
 				System.out.println("* Mutating byte code");
 				addClassFileTransformer(instrumentation, new HOMFileTransformer());
@@ -55,7 +55,7 @@ public class TestSuitePreMain {
 
 			addClassFileTransformer(instrumentation, new BytecodeInstrumentation());
 
-			//			addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
+			// addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
 
 		} else if (agentArguments.equals("assert")) {
 			System.out.println("* Instrumenting bytecode for assertion generation");

@@ -171,6 +171,9 @@ public class Properties {
 	@Parameter(key = "check_max_length", group = "Search Algorithm", description = "Check length against fixed maximum")
 	public static boolean CHECK_MAX_LENGTH = true;
 
+	@Parameter(key = "dse_rate", group = "Search Algorithm", description = "Apply DSE at every X generation")
+	public static int DSE_RATE = -1;
+
 	@Parameter(key = "local_search_rate", group = "Search Algorithm", description = "Apply local search at every X generation")
 	public static int LOCAL_SEARCH_RATE = -1;
 

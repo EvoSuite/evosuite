@@ -3,6 +3,7 @@ package de.unisb.cs.st.evosuite.cfg;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
@@ -156,6 +157,10 @@ public abstract class ASMWrapper {
 			return (asmNode.getOpcode() == Opcodes.IFNULL);
 		}
 		return false;
+	}
+
+	public boolean isFrame() {
+		return asmNode instanceof FrameNode;
 	}
 
 	public boolean isMethodCall() {

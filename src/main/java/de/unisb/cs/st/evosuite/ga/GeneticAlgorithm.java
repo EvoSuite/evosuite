@@ -115,6 +115,11 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 */
 	protected abstract void evolve();
 
+	/**
+	 * Local search is only applied every X generations
+	 * 
+	 * @return
+	 */
 	protected boolean shouldApplyLocalSearch() {
 		if (Properties.LOCAL_SEARCH_RATE <= 0)
 			return false;
@@ -130,6 +135,29 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		for (Chromosome individual : population) {
 			individual.localSearch(localObjective);
 		}
+	}
+
+	/**
+	 * DSE is only applied every X generations
+	 * 
+	 * @return
+	 */
+	protected boolean shouldApplyDSE() {
+		if (Properties.DSE_RATE <= 0)
+			return false;
+
+		return (getAge() % Properties.DSE_RATE == 0);
+	}
+
+	/**
+	 * Apply local search
+	 */
+	protected void applyDSE() {
+		logger.info("Applying DSE");
+		getBestIndividual().applyDSE();
+		//		for (Chromosome individual : population) {
+		//			individual.applyDSE();
+		//		}
 	}
 
 	/**

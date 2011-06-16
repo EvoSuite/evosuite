@@ -60,7 +60,7 @@ public class ChocoSolver implements de.unisb.cs.st.evosuite.symbolic.Solver {
 	private static Logger logger = Logger.getLogger(ChocoSolver.class);
 
 	@Override
-	public Map<String, Object> getModel(Collection<Constraint> constraints) {
+	public Map<String, Object> getModel(Collection<Constraint<?>> constraints) {
 		//System.out.println(constraints);
 		for (Constraint c : constraints) {
 			if (!c.isSolveable()) {
@@ -89,7 +89,7 @@ public class ChocoSolver implements de.unisb.cs.st.evosuite.symbolic.Solver {
 
 	private class WorkingThread extends Thread {
 
-		public WorkingThread(Collection<Constraint> constraints) {
+		public WorkingThread(Collection<Constraint<?>> constraints) {
 			super();
 			this.constraints = constraints;
 		}
@@ -102,7 +102,7 @@ public class ChocoSolver implements de.unisb.cs.st.evosuite.symbolic.Solver {
 		private LinkedList<RealVariable> vlr;
 
 		private Map<String, Object> solution = null;
-		private Collection<Constraint> constraints;
+		private Collection<Constraint<?>> constraints;
 		private final LinkedList<choco.kernel.model.constraints.Constraint> additionalConstrraints = new LinkedList<choco.kernel.model.constraints.Constraint>();
 		private int castVarNumber = 0;
 
@@ -155,19 +155,19 @@ public class ChocoSolver implements de.unisb.cs.st.evosuite.symbolic.Solver {
 			}
 		}
 
-		private CPModel2 getModel(Collection<Constraint> constraints)
+		private CPModel2 getModel(Collection<Constraint<?>> constraints)
 		        throws MyUnsupportedException {
 			CPModel2 model = new CPModel2();
-			for (Constraint c : constraints) {
+			for (Constraint<?> c : constraints) {
 				logger.info("Adding constraint: " + c);
 
 				if (c instanceof IntegerConstraint) {
-					choco.kernel.model.constraints.Constraint cc = getChocoConstraintInt(c);
+					choco.kernel.model.constraints.Constraint cc = getChocoConstraintInt((Constraint<Long>) c);
 					if (cc != null) {
 						model.addConstraint(cc);
 					}
 				} else {
-					choco.kernel.model.constraints.Constraint cc = getChocoConstraintReal(c);
+					choco.kernel.model.constraints.Constraint cc = getChocoConstraintReal((Constraint<Double>) c);
 					if (cc != null) {
 						model.addConstraint(cc);
 					}
@@ -483,7 +483,7 @@ public class ChocoSolver implements de.unisb.cs.st.evosuite.symbolic.Solver {
 	 * @see de.unisb.cs.st.evosuite.symbolic.Solver#solve(java.util.Collection)
 	 */
 	@Override
-	public boolean solve(Collection<Constraint> constraints) {
+	public boolean solve(Collection<Constraint<?>> constraints) {
 		// TODO Auto-generated method stub
 		return false;
 	}

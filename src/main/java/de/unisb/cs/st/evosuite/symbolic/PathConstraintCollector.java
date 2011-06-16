@@ -42,14 +42,14 @@ public class PathConstraintCollector extends ListenerAdapter {
 
 	private static Logger logger = Logger.getLogger(PathConstraintCollector.class);
 
-	private HashTableSet<Constraint> last;
+	private HashTableSet<Constraint<?>> last;
 
 	public List<BranchCondition> conditions = new ArrayList<BranchCondition>();
 
-	protected static class MyComparator implements java.util.Comparator<Constraint> {
+	protected static class MyComparator implements java.util.Comparator<Constraint<?>> {
 
 		@Override
-		public int compare(Constraint o1, Constraint o2) {
+		public int compare(Constraint<?> o1, Constraint<?> o2) {
 			IntegerConstraint a1 = (IntegerConstraint) o1;
 			IntegerConstraint a2 = (IntegerConstraint) o2;
 			return Long.signum(((IntegerConstant) a1.getRightOperand()).getConcreteValue()
@@ -69,7 +69,7 @@ public class PathConstraintCollector extends ListenerAdapter {
 	@Override
 	public void instructionExecuted(JVM vm) {
 		if (vm.getLastInstruction() instanceof IfInstruction) {
-			HashTableSet<Constraint> current = PathConstraint.getInstance().getCurrentConstraints();
+			HashTableSet<Constraint<?>> current = PathConstraint.getInstance().getCurrentConstraints();
 			if (current.size() == 0) {
 				//no constraints yet -> not in our function
 				return;
@@ -79,31 +79,31 @@ public class PathConstraintCollector extends ListenerAdapter {
 				return;//double call; // FIXXME: What??
 			}
 
-			Set<Constraint> mylast = last;
-			Set<Constraint> local = getSetOfNewConstraints(last, current);
+			Set<Constraint<?>> mylast = last;
+			Set<Constraint<?>> local = getSetOfNewConstraints(last, current);
 			BranchCondition bc = new BranchCondition(vm.getLastInstruction(), mylast,
 			        local);
 			this.conditions.add(bc);
 
 		} else if (vm.getLastInstruction() instanceof SwitchInstruction) {
-			HashTableSet<Constraint> current = PathConstraint.getInstance().getCurrentConstraints();
+			HashTableSet<Constraint<?>> current = PathConstraint.getInstance().getCurrentConstraints();
 			if (current.size() == 0) {
 				return;
 			}
 			if (last.containsAll(current)) {
 				return;//double call;
 			}
-			Set<Constraint> mylast = last;
-			Set<Constraint> local = getSetOfNewConstraints(last, current);
+			Set<Constraint<?>> mylast = last;
+			Set<Constraint<?>> local = getSetOfNewConstraints(last, current);
 			BranchCondition bc = new BranchCondition(vm.getLastInstruction(), mylast,
 			        local);
 			this.conditions.add(bc);
 		}
 	}
 
-	protected Set<Constraint> getSetOfNewConstraints(HashTableSet<Constraint> oldC,
-	        HashTableSet<Constraint> newC) {
-		HashTableSet<Constraint> ret = (HashTableSet<Constraint>) newC.clone();
+	protected Set<Constraint<?>> getSetOfNewConstraints(HashTableSet<Constraint<?>> oldC,
+	        HashTableSet<Constraint<?>> newC) {
+		HashTableSet<Constraint<?>> ret = (HashTableSet<Constraint<?>>) newC.clone();
 		ret.removeAll(oldC);
 		return ret;
 	}

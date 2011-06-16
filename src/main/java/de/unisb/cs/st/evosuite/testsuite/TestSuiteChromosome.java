@@ -272,4 +272,13 @@ public class TestSuiteChromosome extends Chromosome {
 	public void setCoverage(double coverage) {
 		this.coverage = coverage;
 	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#applyDSE()
+	 */
+	@Override
+	public void applyDSE() {
+		TestSuiteDSE dse = new TestSuiteDSE();
+		dse.applyDSE(this);
+	}
 }
