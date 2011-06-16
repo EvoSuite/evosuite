@@ -438,4 +438,13 @@ public class TestChromosome extends Chromosome {
 		this.changed = changed;
 		CurrentChromosomeTracker.getInstance().changed(this);
 	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#applyDSE()
+	 */
+	@Override
+	public void applyDSE() {
+		// TODO Auto-generated method stub
+
+	}
 }

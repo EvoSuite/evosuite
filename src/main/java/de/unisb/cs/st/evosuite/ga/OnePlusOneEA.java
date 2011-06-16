@@ -86,6 +86,13 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 				fitness = population.get(0).getFitness();
 			}
 			evolve();
+
+			if (shouldApplyDSE())
+				applyDSE();
+
+			if (shouldApplyLocalSearch())
+				applyLocalSearch();
+
 			this.notifyIteration();
 		}
 		notifySearchFinished();

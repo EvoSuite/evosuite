@@ -159,8 +159,13 @@ public class SteadyStateGA extends GeneticAlgorithm {
 		while (!isFinished()) {
 			logger.info("Population size before: " + population.size());
 			evolve();
+
+			if (shouldApplyDSE())
+				applyDSE();
+
 			if (shouldApplyLocalSearch())
 				applyLocalSearch();
+
 			sortPopulation();
 			logger.info("Current iteration: " + current_iteration);
 			this.notifyIteration();

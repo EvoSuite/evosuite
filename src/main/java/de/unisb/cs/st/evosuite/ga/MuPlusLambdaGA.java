@@ -97,6 +97,12 @@ public class MuPlusLambdaGA extends SteadyStateGA {
 			logger.debug("Keeping parents");
 		}
 
+		if (shouldApplyDSE())
+			applyDSE();
+
+		if (shouldApplyLocalSearch())
+			applyLocalSearch();
+
 	}
 
 }
