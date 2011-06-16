@@ -157,11 +157,12 @@ public class TestChromosome extends Chromosome {
 					search = new FloatLocalSearch<Double>();
 				} else if (type.equals(String.class)) {
 					search = new StringLocalSearch();
+				} else if (type.equals(Boolean.class)) {
+					search = new BooleanLocalSearch();
 				}
 
 				if (search != null)
 					search.doSearch(this, i, objective);
-
 			}
 		}
 		assert (getFitness() <= oldFitness);

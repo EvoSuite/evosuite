@@ -74,6 +74,7 @@ import de.unisb.cs.st.evosuite.junit.TestSuite;
 import de.unisb.cs.st.evosuite.mutation.MutationGoalFactory;
 import de.unisb.cs.st.evosuite.mutation.MutationSuiteFitness;
 import de.unisb.cs.st.evosuite.mutation.MutationTimeoutStoppingCondition;
+import de.unisb.cs.st.evosuite.primitives.ObjectPool;
 import de.unisb.cs.st.evosuite.testcase.ConstantInliner;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
@@ -158,6 +159,15 @@ public class TestSuiteGenerator {
 
 		TestCaseExecutor.pullDown();
 		statistics.writeReport();
+
+		if (Properties.WRITE_POOL) {
+			System.out.println("* Writing sequences to pool");
+			ObjectPool pool = ObjectPool.getInstance();
+			for (TestCase test : tests) {
+				pool.storeSequence(Properties.getTargetClass(), test);
+			}
+		}
+
 		System.out.println("* Done!");
 
 		return "";
@@ -272,7 +282,7 @@ public class TestSuiteGenerator {
 		}
 	}
 
-	private TestFitnessFactory getFitnessFactory() {
+	public TestFitnessFactory getFitnessFactory() {
 		switch (Properties.CRITERION) {
 		case MUTATION:
 			return new MutationGoalFactory();
@@ -443,8 +453,10 @@ public class TestSuiteGenerator {
 						minimizer.minimize(best);
 					}
 					best.test.addCoveredGoal(fitness_function);
-					suiteGA.getPopulation().set(0, suite);
 					suite.addTest(best);
+					suiteGA.getPopulation().set(0, suite);
+					// Calculate and keep track of overall fitness
+					suite_fitness.getFitness(suite);
 
 					covered_goals++;
 					covered.add(num);
@@ -465,10 +477,6 @@ public class TestSuiteGenerator {
 					logger.info("Found no solution at "
 					        + MaxStatementsStoppingCondition.getNumExecutedStatements());
 				}
-
-				// Calculate and keep track of overall fitness
-				suite_fitness.getFitness(suite);
-				suiteGA.getPopulation().set(0, suite);
 
 				statistics.iteration(suiteGA);
 				if (Properties.REUSE_BUDGET)
@@ -601,7 +609,7 @@ public class TestSuiteGenerator {
 	 * return goals; }
 	 */
 
-	private StoppingCondition getStoppingCondition() {
+	public StoppingCondition getStoppingCondition() {
 		logger.info("Setting stopping condition: " + Properties.STOPPING_CONDITION);
 		switch (Properties.STOPPING_CONDITION) {
 		case MAXGENERATIONS:
@@ -631,7 +639,7 @@ public class TestSuiteGenerator {
 		}
 	}
 
-	private SelectionFunction getSelectionFunction() {
+	public SelectionFunction getSelectionFunction() {
 		switch (Properties.SELECTION_FUNCTION) {
 		case ROULETTEWHEEL:
 			return new FitnessProportionateSelection();

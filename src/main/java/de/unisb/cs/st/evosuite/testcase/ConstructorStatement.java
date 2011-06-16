@@ -157,7 +157,12 @@ public class ConstructorStatement extends AbstractStatement {
 		for (VariableReference r : parameters) {
 			if (r instanceof ConstantValue)
 				new_params.add(((ConstantValue) r).clone(newTestCase));
-			else
+			else if (r instanceof ArrayIndex
+			        && tc.getStatement(r.getStPosition()) instanceof ArrayStatement) {
+				ArrayReference otherArray = (ArrayReference) newTestCase.getStatement(r.getStPosition()).getReturnValue(); //must be set as we only use this to clone whole testcases
+				new_params.add(new ArrayIndex(newTestCase, otherArray,
+				        ((ArrayIndex) r).getArrayIndex()));
+			} else
 				new_params.add(newTestCase.getStatement(r.getStPosition()).getReturnValue());
 		}
 

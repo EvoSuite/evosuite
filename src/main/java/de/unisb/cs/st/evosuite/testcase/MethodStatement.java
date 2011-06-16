@@ -214,6 +214,12 @@ public class MethodStatement extends AbstractStatement {
 		for (VariableReference r : parameters) {
 			if (r instanceof ConstantValue) {
 				new_params.add(((ConstantValue) r).clone(newTestCase));
+			} else if (r instanceof ArrayIndex
+			        && tc.getStatement(r.getStPosition()) instanceof ArrayStatement) {
+				ArrayReference otherArray = (ArrayReference) newTestCase.getStatement(r.getStPosition()).getReturnValue(); //must be set as we only use this to clone whole testcases
+				new_params.add(new ArrayIndex(newTestCase, otherArray,
+				        ((ArrayIndex) r).getArrayIndex()));
+
 			} else
 				new_params.add(newTestCase.getStatement(r.getStPosition()).getReturnValue());
 		}
@@ -225,10 +231,20 @@ public class MethodStatement extends AbstractStatement {
 			m = new MethodStatement(newTestCase, method, null, retval.getType(),
 			        new_params);
 		} else {
-			m = new MethodStatement(newTestCase, method,
-			        newTestCase.getStatement(callee.getStPosition()).getReturnValue(),
-			        retval.getType(), new_params);
-
+			if (callee instanceof ArrayIndex
+			        && tc.getStatement(callee.getStPosition()) instanceof ArrayStatement) {
+				ArrayReference otherArray = (ArrayReference) newTestCase.getStatement(callee.getStPosition()).getReturnValue(); //must be set as we only use this to clone whole testcases
+				VariableReference newCallee = new ArrayIndex(newTestCase, otherArray,
+				        ((ArrayIndex) callee).getArrayIndex());
+				m = new MethodStatement(newTestCase, method, newCallee, retval.getType(),
+				        new_params);
+			} else {
+				m = new MethodStatement(
+				        newTestCase,
+				        method,
+				        newTestCase.getStatement(callee.getStPosition()).getReturnValue(),
+				        retval.getType(), new_params);
+			}
 		}
 
 		m.assertions = cloneAssertions(newTestCase);

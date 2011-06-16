@@ -264,9 +264,9 @@ public class SearchStatistics extends ReportGenerator {
 		logger.debug("Calculating coverage of best individual with fitness "
 		        + result.getFitness());
 
-		Map<String, Double> true_distance = new HashMap<String, Double>();
-		Map<String, Double> false_distance = new HashMap<String, Double>();
-		Map<String, Integer> predicate_count = new HashMap<String, Integer>();
+		Map<Integer, Double> true_distance = new HashMap<Integer, Double>();
+		Map<Integer, Double> false_distance = new HashMap<Integer, Double>();
+		Map<Integer, Integer> predicate_count = new HashMap<Integer, Integer>();
 		Set<String> covered_methods = new HashSet<String>();
 
 		logger.debug("Calculating line coverage");
@@ -285,7 +285,7 @@ public class SearchStatistics extends ReportGenerator {
 
 			covered_methods.addAll(trace.covered_methods.keySet());
 
-			for (Entry<String, Double> e : trace.true_distances.entrySet()) {
+			for (Entry<Integer, Double> e : trace.true_distances.entrySet()) {
 				if (!predicate_count.containsKey(e.getKey()))
 					predicate_count.put(e.getKey(), 1);
 				else
@@ -296,7 +296,7 @@ public class SearchStatistics extends ReportGenerator {
 					true_distance.put(e.getKey(), e.getValue());
 				}
 			}
-			for (Entry<String, Double> e : trace.false_distances.entrySet()) {
+			for (Entry<Integer, Double> e : trace.false_distances.entrySet()) {
 				if (!predicate_count.containsKey(e.getKey()))
 					predicate_count.put(e.getKey(), 1);
 				else
@@ -326,7 +326,7 @@ public class SearchStatistics extends ReportGenerator {
 		 * if(val == 0) num_covered ++; }
 		 */
 		int uncovered = 0;
-		for (String key : predicate_count.keySet()) {
+		for (Integer key : predicate_count.keySet()) {
 			// logger.info("Key: "+key);
 			double df = true_distance.get(key);
 			double dt = false_distance.get(key);

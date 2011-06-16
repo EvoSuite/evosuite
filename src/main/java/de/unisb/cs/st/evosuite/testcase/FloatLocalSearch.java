@@ -5,6 +5,7 @@ package de.unisb.cs.st.evosuite.testcase;
 
 import org.apache.log4j.Logger;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
 
 /**
@@ -26,59 +27,53 @@ public class FloatLocalSearch<T> implements LocalSearch {
 	        LocalSearchObjective objective) {
 
 		PrimitiveStatement<T> p = (PrimitiveStatement<T>) test.test.getStatement(statement);
-		oldValue = p.getValue();
-
-		double minValue = Double.MIN_VALUE;
-		if (oldValue.getClass().equals(Float.class))
-			minValue = Float.MIN_VALUE;
-
-		// Try +1
-		logger.info("Trying increment of " + p.getCode());
-		p.increment();
-		if (objective.hasImproved(test)) {
-			while (iterate(1, objective, test, p, statement))
-				;
-			while (iterate(minValue, objective, test, p, statement))
-				;
-
-		} else {
-			// Restore original, try -1
-			p.setValue(oldValue);
-			logger.info("Trying decrement of " + p.getCode());
-			p.decrement();
-			if (objective.hasImproved(test)) {
-				while (iterate(-1, objective, test, p, statement))
-					;
-				while (iterate(-1.0 * minValue, objective, test, p, statement))
-					;
-
-			} else {
-				p.setValue(oldValue);
-			}
-		}
-		logger.info("Finished local search with result " + p.getCode());
+		doSearch(test, statement, objective, 1.0, p);
+		doSearch(test, statement, objective, Properties.EPSILON, p);
+		logger.debug("Finished local search with result " + p.getCode());
 	}
 
-	private boolean iterate(long delta, LocalSearchObjective objective,
-	        TestChromosome test, PrimitiveStatement<T> p, int statement) {
+	private void doSearch(TestChromosome test, int statement,
+	        LocalSearchObjective objective, double initialDelta, PrimitiveStatement<T> p) {
 
-		boolean improvement = false;
-		T oldValue = p.getValue();
-		logger.info("Trying increment " + delta + " of " + p.getCode());
+		oldValue = p.getValue();
+		ExecutionResult oldResult = test.last_result;
 
-		p.increment(delta);
-		while (objective.hasImproved(test)) {
-			oldValue = p.getValue();
-			improvement = true;
-			delta = 2 * delta;
-			logger.info("Trying increment " + delta + " of " + p.getCode());
-			p.increment(delta);
+		boolean done = false;
+		while (!done) {
+			done = true;
+			// Try +1
+			logger.debug("Trying increment of " + p.getCode());
+			p.increment(initialDelta);
+			if (objective.hasImproved(test)) {
+				done = false;
+
+				iterate(2 * initialDelta, objective, test, p, statement);
+				oldValue = p.getValue();
+				oldResult = test.last_result;
+
+			} else {
+				// Restore original, try -1
+				p.setValue(oldValue);
+				test.last_result = oldResult;
+				test.setChanged(false);
+
+				logger.debug("Trying decrement of " + p.getCode());
+				p.increment(-initialDelta);
+				if (objective.hasImproved(test)) {
+					done = false;
+					iterate(-2 * initialDelta, objective, test, p, statement);
+					oldValue = p.getValue();
+					oldResult = test.last_result;
+
+				} else {
+					p.setValue(oldValue);
+					test.last_result = oldResult;
+					test.setChanged(false);
+				}
+			}
 		}
 
-		p.setValue(oldValue);
-
-		return improvement;
-
+		logger.debug("Finished local search with result " + p.getCode());
 	}
 
 	private boolean iterate(double delta, LocalSearchObjective objective,
@@ -86,20 +81,25 @@ public class FloatLocalSearch<T> implements LocalSearch {
 
 		boolean improvement = false;
 		T oldValue = p.getValue();
-		logger.info("Trying increment " + delta + " of " + p.getCode());
+		ExecutionResult oldResult = test.last_result;
+		logger.debug("Trying increment " + delta + " of " + p.getCode());
 
 		p.increment(delta);
 		while (objective.hasImproved(test)) {
 			oldValue = p.getValue();
+			oldResult = test.last_result;
+			test.setChanged(false);
 			improvement = true;
 			delta = 2 * delta;
 			if (delta > 1)
 				return improvement;
-			logger.info("Trying increment " + delta + " of " + p.getCode());
+			logger.debug("Trying increment " + delta + " of " + p.getCode());
 			p.increment(delta);
 		}
 
 		p.setValue(oldValue);
+		test.last_result = oldResult;
+		test.setChanged(false);
 
 		return improvement;
 

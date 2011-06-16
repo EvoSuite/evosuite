@@ -142,16 +142,22 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 					if (Properties.STATIC_HACK)
 						cv = new StaticInitializationClassAdapter(cv, className);
 
-					if (Properties.TT) {
-						logger.info("Transforming " + className);
+					if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
 						ClassNode cn = new ClassNode();
 						reader.accept(cn, ClassReader.SKIP_FRAMES);
-						TestabilityTransformation tt = new TestabilityTransformation(cn);
-						// cv = new TraceClassVisitor(writer, new
-						// PrintWriter(System.out));
-						cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
-						cv = new CheckClassAdapter(cv);
-						tt.transform().accept(cv);
+						ComparisonTransformation cmp = new ComparisonTransformation(cn);
+						cmp.transform().accept(cv);
+						if (Properties.TT) {
+							logger.info("Testability Transforming " + className);
+							TestabilityTransformation tt = new TestabilityTransformation(
+							        cn);
+							// cv = new TraceClassVisitor(writer, new
+							// PrintWriter(System.out));
+							cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+							cv = new CheckClassAdapter(cv);
+							tt.transform().accept(cv);
+						}
+
 					} else {
 						reader.accept(cv, ClassReader.SKIP_FRAMES);
 					}

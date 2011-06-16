@@ -22,6 +22,7 @@ import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
+import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
@@ -45,6 +46,46 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		this.goal = goal;
 	}
 
+	public Branch getBranch() {
+		return goal.branch;
+	}
+
+	public double getUnfitness(TestChromosome individual, ExecutionResult result) {
+
+		double sum = 0.0;
+		boolean methodExecuted = false;
+
+		// logger.info("Looking for unfitness of " + goal);
+		for (MethodCall call : result.getTrace().finished_calls) {
+			if (call.className.equals(goal.className)
+			        && call.methodName.equals(goal.methodName)) {
+				methodExecuted = true;
+				for (int i = 0; i < call.branchTrace.size(); i++) {
+					if (call.branchTrace.get(i) == goal.branch.getInstructionId()) {
+						//logger.info("Found target branch with distances "
+						//        + call.trueDistanceTrace.get(i) + "/"
+						//        + call.falseDistanceTrace.get(i));
+						if (goal.value)
+							sum += call.falseDistanceTrace.get(i);
+						else
+							sum += call.trueDistanceTrace.get(i);
+					}
+				}
+			}
+		}
+
+		if (goal.branch == null) {
+			//logger.info("Branch is null? " + goal.branch);
+			if (goal.value)
+				sum = methodExecuted ? 1.0 : 0.0;
+			else
+				sum = methodExecuted ? 0.0 : 1.0;
+
+		}
+
+		return sum;
+	}
+
 	/**
 	 * Calculate approach level + branch distance
 	 */
@@ -54,7 +95,7 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 
 		double fitness = distance.getResultingBranchFitness();
 
-		logger.debug("Approach level: " + distance.getApproachLevel()
+		logger.info("Approach level: " + distance.getApproachLevel()
 		        + " / branch distance: " + distance.getBranchDistance() + ", fitness = "
 		        + fitness);
 

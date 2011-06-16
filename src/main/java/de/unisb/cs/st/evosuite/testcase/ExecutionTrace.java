@@ -109,14 +109,14 @@ public class ExecutionTrace {
 			for (Double distance : trueDistanceTrace) {
 				ret.append(" " + distance);
 			}
-			ret.append("False Distances: ");
+			ret.append("\nFalse Distances: ");
 			for (Double distance : falseDistanceTrace) {
 				ret.append(" " + distance);
 			}
 			ret.append("\n");
 			return ret.toString();
 		}
-		
+
 		public String explain() {
 			// TODO StringBuilder-explain() functions to construct string templates like explainList()
 			StringBuffer r = new StringBuffer();
@@ -125,16 +125,16 @@ public class ExecutionTrace {
 			r.append(methodName);
 			r.append("\n");
 			r.append("Lines: ");
-			if(lineTrace == null)
+			if (lineTrace == null)
 				r.append("null");
 			else {
-				for(Integer line : lineTrace) {
-					r.append("\t"+line);
+				for (Integer line : lineTrace) {
+					r.append("\t" + line);
 				}
 				r.append("\n");
 			}
 			r.append("Branches: ");
-			if(branchTrace == null)
+			if (branchTrace == null)
 				r.append("null");
 			else {
 				for (Integer branch : branchTrace) {
@@ -143,7 +143,7 @@ public class ExecutionTrace {
 				r.append("\n");
 			}
 			r.append("True Distances: ");
-			if(trueDistanceTrace == null)
+			if (trueDistanceTrace == null)
 				r.append("null");
 			else {
 				for (Double distance : trueDistanceTrace) {
@@ -152,7 +152,7 @@ public class ExecutionTrace {
 				r.append("\n");
 			}
 			r.append("False Distances: ");
-			if(falseDistanceTrace == null)
+			if (falseDistanceTrace == null)
 				r.append("null");
 			else {
 				for (Double distance : falseDistanceTrace) {
@@ -161,10 +161,10 @@ public class ExecutionTrace {
 				r.append("\n");
 			}
 			r.append("DefUse Trace:");
-			if(defuseCounterTrace == null)
+			if (defuseCounterTrace == null)
 				r.append("null");
 			else {
-				for(Integer duCounter : defuseCounterTrace) {
+				for (Integer duCounter : defuseCounterTrace) {
 					r.append("\t" + duCounter);
 				}
 				r.append("\n");
@@ -205,9 +205,9 @@ public class ExecutionTrace {
 	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedUses = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
 
 	public Map<String, Integer> covered_methods = new HashMap<String, Integer>();
-	public Map<String, Integer> covered_predicates = new HashMap<String, Integer>();
-	public Map<String, Double> true_distances = new HashMap<String, Double>();
-	public Map<String, Double> false_distances = new HashMap<String, Double>();
+	public Map<Integer, Integer> covered_predicates = new HashMap<Integer, Integer>();
+	public Map<Integer, Double> true_distances = new HashMap<Integer, Double>();
+	public Map<Integer, Double> false_distances = new HashMap<Integer, Double>();
 
 	// number of seen Definitions and uses for indexing purposes
 	private int duCounter = 0;
@@ -230,7 +230,7 @@ public class ExecutionTrace {
 	 * @param methodName
 	 */
 	public void enteredMethod(String className, String methodName, Object caller) {
-		
+
 		String id = className + "." + methodName;
 		if (!covered_methods.containsKey(id))
 			covered_methods.put(id, 1);
@@ -289,7 +289,8 @@ public class ExecutionTrace {
 	public void linePassed(String className, String methodName, int line) {
 		if (trace_calls) {
 			if (stack.isEmpty()) {
-				logger.warn("Method stack is empty: " + className + "." + methodName+" - l"+line); // TODO switch back logger.debug to logger.warn
+				logger.warn("Method stack is empty: " + className + "." + methodName
+				        + " - l" + line); // TODO switch back logger.debug to logger.warn
 			} else {
 				stack.peek().lineTrace.add(line);
 			}
@@ -336,21 +337,22 @@ public class ExecutionTrace {
 
 		updateTopStackMethodCall(branch, bytecode_id, true_distance, false_distance);
 
-		String id = "" + branch;
-		if (!covered_predicates.containsKey(id))
-			covered_predicates.put(id, 1);
+		if (!covered_predicates.containsKey(branch))
+			covered_predicates.put(branch, 1);
 		else
-			covered_predicates.put(id, covered_predicates.get(id) + 1);
+			covered_predicates.put(branch, covered_predicates.get(branch) + 1);
 
-		if (!true_distances.containsKey(id))
-			true_distances.put(id, true_distance);
+		if (!true_distances.containsKey(branch))
+			true_distances.put(branch, true_distance);
 		else
-			true_distances.put(id, Math.min(true_distances.get(id), true_distance));
+			true_distances.put(branch,
+			                   Math.min(true_distances.get(branch), true_distance));
 
-		if (!false_distances.containsKey(id))
-			false_distances.put(id, false_distance);
+		if (!false_distances.containsKey(branch))
+			false_distances.put(branch, false_distance);
 		else
-			false_distances.put(id, Math.min(false_distances.get(id), false_distance));
+			false_distances.put(branch,
+			                    Math.min(false_distances.get(branch), false_distance));
 	}
 
 	/**
@@ -360,9 +362,10 @@ public class ExecutionTrace {
 	        double true_distance, double false_distance) {
 
 		if (trace_calls) {
-			stack.peek().branchTrace.add(bytecode_id);
+			stack.peek().branchTrace.add(branch); // was: bytecode_id
 			stack.peek().trueDistanceTrace.add(true_distance);
 			stack.peek().falseDistanceTrace.add(false_distance);
+			assert (true_distance == 0.0 || false_distance == 0.0);
 			// TODO line_trace ?
 			if (Properties.CRITERION == Criterion.DEFUSE) {
 				stack.peek().defuseCounterTrace.add(duCounter);
@@ -602,7 +605,7 @@ public class ExecutionTrace {
 	private static void removeFromFinishCall(MethodCall call,
 	        ArrayList<Integer> removableIndices) {
 		checkSaneCall(call);
-			
+
 		Collections.sort(removableIndices);
 		for (int i = removableIndices.size() - 1; i >= 0; i--) {
 			int removableIndex = removableIndices.get(i);
@@ -619,11 +622,12 @@ public class ExecutionTrace {
 
 	private static void checkSaneCall(MethodCall call) {
 		if (!(call.trueDistanceTrace.size() == call.falseDistanceTrace.size()
-		        && call.falseDistanceTrace.size() == call.defuseCounterTrace.size() 
-		        && call.defuseCounterTrace.size() == call.branchTrace.size())) {
-			throw new IllegalStateException("insane MethodCall: traces should all be of equal size. "+call.explain());
+		        && call.falseDistanceTrace.size() == call.defuseCounterTrace.size() && call.defuseCounterTrace.size() == call.branchTrace.size())) {
+			throw new IllegalStateException(
+			        "insane MethodCall: traces should all be of equal size. "
+			                + call.explain());
 		}
-		
+
 	}
 
 	/**
@@ -643,10 +647,10 @@ public class ExecutionTrace {
 		duCounter = 0;
 		objectCounter = 0;
 		knownCallerObjects = new HashMap<Integer, Object>();
-		true_distances = new HashMap<String, Double>();
-		false_distances = new HashMap<String, Double>();
+		true_distances = new HashMap<Integer, Double>();
+		false_distances = new HashMap<Integer, Double>();
 		covered_methods = new HashMap<String, Integer>();
-		covered_predicates = new HashMap<String, Integer>();
+		covered_predicates = new HashMap<Integer, Integer>();
 		passedDefinitions = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
 		passedUses = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
 	}
@@ -769,15 +773,15 @@ public class ExecutionTrace {
 			ret.append(entry.getKey() + ": " + entry.getValue() + ", ");
 		}
 		ret.append("\nCovered predicates: ");
-		for (Entry<String, Integer> entry : covered_predicates.entrySet()) {
+		for (Entry<Integer, Integer> entry : covered_predicates.entrySet()) {
 			ret.append(entry.getKey() + ": " + entry.getValue() + ", ");
 		}
 		ret.append("\nTrue distances: ");
-		for (Entry<String, Double> entry : true_distances.entrySet()) {
+		for (Entry<Integer, Double> entry : true_distances.entrySet()) {
 			ret.append(entry.getKey() + ": " + entry.getValue() + ", ");
 		}
 		ret.append("\nFalse distances: ");
-		for (Entry<String, Double> entry : false_distances.entrySet()) {
+		for (Entry<Integer, Double> entry : false_distances.entrySet()) {
 			ret.append(entry.getKey() + ": " + entry.getValue() + ", ");
 		}
 		return ret.toString();

@@ -71,6 +71,7 @@ done
 ##
 ## Main class of EvoSuite
 ##
+#evosuite_suite=de.unisb.cs.st.evosuite.testsuite.DiagnosisTest
 evosuite_suite=de.unisb.cs.st.evosuite.TestSuiteGenerator
 evosuite_scan=de.unisb.cs.st.evosuite.setup.ScanProject
 evosuite_tasks=de.unisb.cs.st.evosuite.setup.TestTaskGenerator
@@ -385,6 +386,7 @@ setup ()
     options_ok=$?
     OUTPUT_DIR=evosuite-files
     mkdir -p $OUTPUT_DIR
+    mkdir -p $OUTPUT_DIR/evosuite-pool
     if test ${#cmdline_arguments[@]} -ge 2 && test $options_ok -eq 0;
     then {
 	    OBJECT=""
@@ -523,9 +525,9 @@ generateSuite ()
 
 		    if [ $PROCESS -eq 1 ]; then
 			CLIENT="java -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate $javalanche_options $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION $MUTANTS -DTARGET_CLASS=$test_class $evosuite_client"
-			java -cp "$OUTPUT_DIR:$classpath:$CP"  $random_seed $java_options $java_opts -DTARGET_CLASS=$test_class $evosuite_master $CLIENT
+			java -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP"  $random_seed $java_options $java_opts -DTARGET_CLASS=$test_class $evosuite_master $CLIENT
 		    else
-			java -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate $javalanche_options $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION $MUTANTS -DTARGET_CLASS=$test_class $evosuite_suite
+			java -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP" $java_agent=generate $javalanche_options $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION $MUTANTS -DTARGET_CLASS=$test_class $evosuite_suite
 		    fi
 
 		done
