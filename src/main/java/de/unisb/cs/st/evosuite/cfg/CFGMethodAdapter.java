@@ -170,6 +170,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			logger.info("Created CFG for method " + methodName);
 
 			//add the actual instrumentation
+			logger.info("Instrumenting method " + methodName);
 			for (MethodInstrumentation instrumentation : instrumentations)
 				instrumentation.analyze(mn, className, methodName, access);
 

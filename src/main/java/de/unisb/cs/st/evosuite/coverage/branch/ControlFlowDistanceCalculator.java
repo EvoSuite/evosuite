@@ -105,7 +105,6 @@ public class ControlFlowDistanceCalculator {
 	}
 
 	private static ControlFlowDistance worstPossibleDistanceForMethod(Branch branch) {
-
 		ControlFlowDistance d = new ControlFlowDistance();
 		if (branch == null) {
 			d.setApproachLevel(20);
@@ -120,7 +119,6 @@ public class ControlFlowDistanceCalculator {
 
 		ControlFlowDistance d = new ControlFlowDistance();
 
-		logger.debug("Looking for method without branches " + methodName);
 		for (MethodCall call : result.getTrace().finished_calls) {
 			if (call.className.equals(""))
 				continue;
@@ -136,6 +134,7 @@ public class ControlFlowDistanceCalculator {
 
 	private static ControlFlowDistance getNonRootDistance(ExecutionResult result,
 	        Branch branch, boolean value) {
+
 		if (branch == null)
 			throw new IllegalStateException(
 			        "expect this method only to be called if this goal does not try to cover the root branch");
@@ -145,7 +144,6 @@ public class ControlFlowDistanceCalculator {
 
 		ControlFlowDistance r = new ControlFlowDistance();
 		r.setApproachLevel(branch.getActualCFG().getDiameter() + 1);
-		logger.debug("Looking for method with branches " + methodName);
 
 		// Minimal distance between target node and path
 		for (MethodCall call : result.getTrace().finished_calls) {
@@ -167,6 +165,7 @@ public class ControlFlowDistanceCalculator {
 	private static ControlFlowDistance getNonRootDistance(ExecutionResult result,
 	        MethodCall call, Branch branch, boolean value, String className,
 	        String methodName, Set<Branch> handled) {
+
 		if (branch == null)
 			throw new IllegalStateException(
 			        "expect getNonRootDistance() to only be called if this goal's branch is not a root branch");
@@ -287,10 +286,12 @@ public class ControlFlowDistanceCalculator {
 
 		Set<Integer> r = new HashSet<Integer>();
 		List<Integer> path = call.branchTrace;
-		for (int pos = 0; pos < path.size(); pos++)
-			if (path.get(pos) == branch.getInstructionId())
+		for (int pos = 0; pos < path.size(); pos++) {
+			logger.debug(pos + ": " + path.get(pos));
+			if (path.get(pos) == branch.getActualBranchId()) { //.getActualBranchId()); {
 				r.add(pos);
-
+			}
+		}
 		return r;
 	}
 

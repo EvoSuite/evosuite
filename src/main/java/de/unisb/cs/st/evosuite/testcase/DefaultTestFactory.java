@@ -35,6 +35,7 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.primitives.ObjectPool;
 import de.unisb.cs.st.evosuite.testsuite.CurrentChromosomeTracker;
 import de.unisb.cs.st.evosuite.testsuite.TestCallObject;
 import de.unisb.cs.st.evosuite.testsuite.TestCallStatement;
@@ -634,6 +635,18 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		// For each value of array, call attemptGeneration
 		List<VariableReference> objects = test.getObjects(reference.getComponentType(),
 		                                                  position);
+		Iterator<VariableReference> iterator = objects.iterator();
+		while (iterator.hasNext()) {
+			VariableReference current = iterator.next();
+			if (current instanceof ArrayIndex) {
+				ArrayIndex index = (ArrayIndex) current;
+				if (index.getArray().equals(statement.retval))
+					iterator.remove();
+			} else if (current instanceof ArrayReference) {
+				logger.info("Trying to assign rubbish: " + current);
+				assert (false);
+			}
+		}
 		for (int i = 0; i < statement.size(); i++) {
 			int old_len = test.size();
 			assignArray(test, statement.retval, i, position, objects);
@@ -713,6 +726,23 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				StatementInterface st = new NullStatement(test, type);
 				test.addStatement(st, position);
 				return test.getStatement(position).getReturnValue();
+			}
+
+			ObjectPool objectPool = ObjectPool.getInstance();
+			if (Randomness.nextDouble() <= Properties.OBJECT_POOL
+			        && objectPool.hasSequence(type)) {
+				logger.debug("Using a sequence from the pool to satisfy the type: "
+				        + type);
+				TestCase sequence = objectPool.getRandomSequence(type);
+				logger.info("Old test: " + test.toCode());
+				logger.info("Sequence: " + sequence.toCode());
+				VariableReference var = sequence.getRandomObject(type);
+				for (int i = 0; i < sequence.size(); i++) {
+					StatementInterface s = sequence.getStatement(i);
+					test.addStatement(s.clone(test), position + i);
+				}
+				logger.info("New test: " + test.toCode());
+
 			}
 
 			if (!test.hasCalls()

@@ -20,6 +20,22 @@ public class StringLocalSearch implements LocalSearch {
 
 	private String oldValue;
 
+	private ExecutionResult oldResult;
+
+	private boolean oldChanged;
+
+	private void backup(TestChromosome test, PrimitiveStatement<String> p) {
+		oldValue = new String(p.getValue());
+		oldResult = test.last_result;
+		oldChanged = test.isChanged();
+	}
+
+	private void restore(TestChromosome test, PrimitiveStatement<String> p) {
+		p.setValue(new String(oldValue));
+		test.last_result = oldResult;
+		test.setChanged(oldChanged);
+	}
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.LocalSearch#doSearch(de.unisb.cs.st.evosuite.testcase.TestChromosome, int, de.unisb.cs.st.evosuite.ga.LocalSearchObjective)
 	 */
@@ -28,24 +44,23 @@ public class StringLocalSearch implements LocalSearch {
 	public void doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective objective) {
 		PrimitiveStatement<String> p = (PrimitiveStatement<String>) test.test.getStatement(statement);
-		oldValue = p.getValue();
+		backup(test, p);
 
-		//logger.info("Probing local search on string " + oldValue);
+		// TODO: First apply 10 random mutations to determine if string influences _uncovered_ branch
 
-		// TODO: First apply 10 random mutations to determine if string influences uncovered branch
 		boolean affected = false;
 		for (int i = 0; i < Properties.LOCAL_SEARCH_PROBES; i++) {
 			p.increment();
 			if (objective.hasImproved(test)) {
 				affected = true;
-				oldValue = p.getValue();
+				backup(test, p);
 			} else {
-				p.setValue(oldValue);
+				restore(test, p);
 			}
 		}
 
 		if (affected) {
-			logger.info("Applying local search to string " + p.getValue());
+			logger.info("Applying local search to string " + p.getCode());
 			// First try to remove each of the characters
 			logger.info("Removing characters");
 			removeCharacters(objective, test, p, statement);
@@ -62,8 +77,8 @@ public class StringLocalSearch implements LocalSearch {
 			logger.info("Statement: " + p.getCode());
 
 			logger.info("Resulting string: " + p.getValue());
-		} else {
-			//logger.info("Not applying local search to string as it does not improve fitness");
+			//} else {
+			//	logger.info("Not applying local search to string as it does not improve fitness");
 		}
 	}
 
@@ -71,7 +86,7 @@ public class StringLocalSearch implements LocalSearch {
 	        PrimitiveStatement<String> p, int statement) {
 
 		boolean improvement = false;
-		String oldValue = p.getValue();
+		backup(test, p);
 
 		for (int i = oldValue.length() - 1; i >= 0; i--) {
 			String newString = oldValue.substring(0, i) + oldValue.substring(i + 1);
@@ -79,10 +94,10 @@ public class StringLocalSearch implements LocalSearch {
 			//logger.info(" " + i + " " + oldValue + "/" + oldValue.length() + " -> "
 			//        + newString + "/" + newString.length());
 			if (objective.hasImproved(test)) {
-				oldValue = newString;
+				backup(test, p);
 				improvement = true;
 			} else {
-				p.setValue(oldValue);
+				restore(test, p);
 			}
 		}
 
@@ -93,7 +108,7 @@ public class StringLocalSearch implements LocalSearch {
 	        TestChromosome test, PrimitiveStatement<String> p, int statement) {
 
 		boolean improvement = false;
-		String oldValue = p.getValue();
+		backup(test, p);
 
 		for (int i = 0; i < oldValue.length(); i++) {
 			char oldChar = oldValue.charAt(i);
@@ -103,16 +118,16 @@ public class StringLocalSearch implements LocalSearch {
 					characters[i] = replacement;
 					String newString = new String(characters);
 					p.setValue(newString);
-					//logger.info(" " + i + " " + oldValue + "/" + oldValue.length()
-					//        + " -> " + newString + "/" + newString.length());
+					logger.info(" " + i + " " + oldValue + "/" + oldValue.length()
+					        + " -> " + newString + "/" + newString.length());
 
 					if (objective.hasImproved(test)) {
-						oldValue = newString;
+						backup(test, p);
 						//oldChar = replacement;
 						improvement = true;
 					} else {
 						characters[i] = oldChar;
-						p.setValue(oldValue);
+						restore(test, p);
 					}
 				}
 			}
@@ -125,7 +140,7 @@ public class StringLocalSearch implements LocalSearch {
 	        PrimitiveStatement<String> p, int statement) {
 
 		boolean improvement = false;
-		String oldValue = p.getValue();
+		backup(test, p);
 
 		boolean add = true;
 
@@ -137,16 +152,16 @@ public class StringLocalSearch implements LocalSearch {
 				characters[position] = replacement;
 				String newString = new String(characters);
 				p.setValue(newString);
-				//logger.info(" " + oldValue + "/" + oldValue.length() + " -> " + newString
-				//        + "/" + newString.length());
+				logger.info(" " + oldValue + "/" + oldValue.length() + " -> " + newString
+				        + "/" + newString.length());
 
 				if (objective.hasImproved(test)) {
-					oldValue = newString;
+					backup(test, p);
 					improvement = true;
 					add = true;
 					break;
 				} else {
-					p.setValue(oldValue);
+					restore(test, p);
 				}
 			}
 		}
@@ -160,16 +175,16 @@ public class StringLocalSearch implements LocalSearch {
 				characters[position] = replacement;
 				String newString = new String(characters);
 				p.setValue(newString);
-				//logger.info(" " + oldValue + "/" + oldValue.length() + " -> " + newString
-				//        + "/" + newString.length());
+				logger.info(" " + oldValue + "/" + oldValue.length() + " -> " + newString
+				        + "/" + newString.length());
 
 				if (objective.hasImproved(test)) {
-					oldValue = newString;
+					backup(test, p);
 					improvement = true;
 					add = true;
 					break;
 				} else {
-					p.setValue(oldValue);
+					restore(test, p);
 				}
 			}
 		}
