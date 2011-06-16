@@ -1,6 +1,7 @@
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
 public class RealVariable extends RealExpression implements Variable<Double>{
+	private static final long serialVersionUID = 1L;
 	
 	protected String name;
 	protected double minValue;
@@ -42,7 +43,7 @@ public class RealVariable extends RealExpression implements Variable<Double>{
 	public boolean equals(Object obj) {
 		if(obj instanceof RealVariable)
 		{
-			Variable v=(Variable) obj;
+			RealVariable v=(RealVariable) obj;
 			return this.getName().equals(v.getName());
 		}
 		return false;

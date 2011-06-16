@@ -83,9 +83,9 @@ public class SOMAnalysis {
 	
 	private Set<String> getKillingTests(int m1, int m2) {
 		Set<String> killed = new HashSet<String>();
-		Mutation mutation1 = hom_switcher.mutants.get(m1);
+		Mutation mutation1 = HOMSwitcher.mutants.get(m1);
 		killed.addAll(kill_map.get(mutation1));
-		Mutation mutation2 = hom_switcher.mutants.get(m2);
+		Mutation mutation2 = HOMSwitcher.mutants.get(m2);
 		killed.addAll(kill_map.get(mutation2));
 		return killed;
 	}

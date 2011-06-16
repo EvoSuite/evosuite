@@ -460,6 +460,7 @@ public class TestSuite implements Opcodes {
 	 * @param directory
 	 *            Directory of generated test files
 	 */
+	@SuppressWarnings("unchecked")
 	protected void writeTestSuiteMainFile(String directory) {
 		File file = new File(directory + "/GeneratedTestSuite.java");
 		// if(file.exists())
@@ -479,7 +480,7 @@ public class TestSuite implements Opcodes {
 		List<String> suites = new ArrayList<String>();
 
 		File basedir = new File(directory);
-		Iterator<File> i = FileUtils.iterateFiles(basedir, new TestFilter(),
+		Iterator<File> i = (Iterator<File>) FileUtils.iterateFiles(basedir, new TestFilter(),
 		                                          TrueFileFilter.INSTANCE);
 		while (i.hasNext()) {
 			File f = i.next();

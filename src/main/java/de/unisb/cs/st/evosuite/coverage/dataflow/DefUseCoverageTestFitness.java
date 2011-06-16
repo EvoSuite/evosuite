@@ -151,6 +151,7 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
  * @author Andre Mis
  */
 public class DefUseCoverageTestFitness extends TestFitnessFunction {
+	private static final long serialVersionUID = 1L;
 
 	// debugging flags
 	private final static boolean DEBUG = Properties.DEFUSE_DEBUG_MODE;
@@ -321,7 +322,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			        + overallDifficulty);
 		difficulty_time += System.currentTimeMillis() - start;
 		if (Properties.RANDOMIZE_DIFFICULTY) {
-			float modifier = 1.5f * Randomness.getInstance().nextFloat() + 0.5f;
+			float modifier = 1.5f * Randomness.nextFloat() + 0.5f;
 			overallDifficulty = Math.round(overallDifficulty * modifier);
 		}
 		if (overallDifficulty <= 0.0)

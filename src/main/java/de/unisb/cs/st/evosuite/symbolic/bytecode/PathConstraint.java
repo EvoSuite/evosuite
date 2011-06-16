@@ -58,6 +58,7 @@ public class PathConstraint {
 		ins = new PathConstraint();
 	}
 
+	@SuppressWarnings("unchecked")
 	public HashTableSet<Constraint<?>> getCurrentConstraints() {
 		return (HashTableSet<Constraint<?>>) pathConstraints.clone();
 	}
@@ -81,6 +82,7 @@ public class PathConstraint {
 	 * @param search
 	 *            the search object
 	 */
+	@SuppressWarnings("unchecked")
 	protected void stateStored(Search search) {
 		int i = JVM.getVM().getStateId();
 		storedStateMap.put(i, (HashTableSet<Constraint<?>>) this.pathConstraints.clone());
@@ -92,6 +94,7 @@ public class PathConstraint {
 	 * @param search
 	 *            the search object
 	 */
+	@SuppressWarnings("unchecked")
 	protected void stateRestored(Search search) {
 		int i = JVM.getVM().getStateId();
 		HashTableSet<Constraint<?>> restore = storedStateMap.get(i);

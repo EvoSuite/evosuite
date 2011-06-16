@@ -30,7 +30,7 @@ public class MinimizeAverageLengthSecondaryObjective extends SecondaryObjective 
 	private static final long serialVersionUID = -6272641645062817112L;
 
 	private double getAverageLength(Chromosome chromosome) {
-		return (double) ((TestSuiteChromosome) chromosome).length()
+		return (double) ((TestSuiteChromosome) chromosome).totalLengthOfTestCases()
 		        / (double) chromosome.size();
 	}
 

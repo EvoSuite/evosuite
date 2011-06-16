@@ -54,11 +54,12 @@ import de.unisb.cs.st.evosuite.symbolic.expr.RealConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.RealToIntegerCast;
 import de.unisb.cs.st.evosuite.symbolic.expr.RealUnaryExpression;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({ "unchecked" })
 public class ChocoSolver implements de.unisb.cs.st.evosuite.symbolic.Solver {
 
 	private static Logger logger = Logger.getLogger(ChocoSolver.class);
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public Map<String, Object> getModel(Collection<Constraint<?>> constraints) {
 		//System.out.println(constraints);
@@ -434,6 +435,7 @@ public class ChocoSolver implements de.unisb.cs.st.evosuite.symbolic.Solver {
 	}
 
 	// For running in a own process
+	@SuppressWarnings("unused")
 	static private class TimeOut extends Thread {
 		private final int time;
 		private final Process p;

@@ -38,8 +38,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
  * 
  */
 public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
-
-	private static final long serialVersionUID = 1205259012133545178L;
+	private static final long serialVersionUID = 1L;
 
 	public HashMap<Integer, Integer> expectedBranchExecutions = new HashMap<Integer, Integer>();
 
@@ -104,6 +103,23 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					                             + entry.getValue());
 				}
 			}
+<<<<<<< local
+
+			for (String className : LCSAJPool.getLCSAJMap().keySet())
+				for (String methodName : LCSAJPool.getLCSAJMap().get(className).keySet())
+					for (LCSAJ lcsaj : LCSAJPool.getLCSAJMap().get(className).get(methodName)) {
+						LCSAJFitnessFunctions.add(new LCSAJCoverageTestFitness(lcsaj));
+
+						for (TestChromosome t : suite.getTestChromosomes()) {
+							double oldFitness;
+							for (LCSAJCoverageTestFitness testFitness : LCSAJFitnessFunctions) {
+								oldFitness = LCSAJFitnesses.get(lcsaj);
+								double newFitness = testFitness.getFitness(t, result);
+								if (newFitness < oldFitness)
+									LCSAJFitnesses.put(lcsaj, newFitness);
+							}
+						}
+=======
 			*/
 			for (LCSAJCoverageTestFitness testFitness : LCSAJFitnessFunctions) {
 				TestChromosome chromosome = new TestChromosome();
@@ -124,6 +140,7 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				for (String e : CFGMethodAdapter.methods) {
 					if (!call_count.containsKey(e)) {
 						fitness += 1.0;
+>>>>>>> other
 					}
 				}
 				*/

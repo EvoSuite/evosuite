@@ -178,6 +178,7 @@ public class TestCluster {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
+	@SuppressWarnings("deprecation")
 	public AccessibleObject getRandomGenerator(Type type, Set<AccessibleObject> excluded)
 	        throws ConstructionFailedException {
 		cacheGeneratorType(type);

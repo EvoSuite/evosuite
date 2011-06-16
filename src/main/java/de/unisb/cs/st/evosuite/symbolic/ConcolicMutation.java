@@ -37,6 +37,7 @@ import org.objectweb.asm.commons.Method;
 
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
+import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
 import de.unisb.cs.st.evosuite.symbolic.smt.cvc3.CVC3Solver;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
@@ -198,7 +199,7 @@ public class ConcolicMutation {
 	public boolean mutate(TestCase test) {
 		List<PrimitiveStatement<?>> p = new ArrayList<PrimitiveStatement<?>>();
 		for (StatementInterface s : test) {
-			if (s instanceof PrimitiveStatement) {
+			if (s instanceof PrimitiveStatement<?>) {
 				PrimitiveStatement<?> ps = (PrimitiveStatement<?>) s;
 				Class<?> t = ps.getReturnClass();
 				if (t.equals(Integer.class) || t.equals(int.class)) {
@@ -234,9 +235,9 @@ public class ConcolicMutation {
 		HashSet<Constraint<?>> constraints = new HashSet<Constraint<?>>();
 		constraints.addAll(condition.reachingConstraints);
 		//constraints.addAll(condition.localConstraints);
-		Constraint<Long> c = (Constraint<Long>) condition.localConstraints.iterator().next();
-		constraints.add(new IntegerConstraint(c.getLeftOperand(),
-		        c.getComparator().not(), c.getRightOperand()));
+		Constraint<?> c = condition.localConstraints.iterator().next();
+		constraints.add(new IntegerConstraint((Expression<Long>) c.getLeftOperand(),
+		        c.getComparator().not(), (Expression<Long>) c.getRightOperand()));
 		logger.info("Converting constraints");
 		//SMTSolver solver = new SMTSolver();
 		//solver.setup();

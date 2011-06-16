@@ -162,7 +162,7 @@ public class ScanProject {
 				                                                                             "."));
 				if (Modifier.isAbstract(clazz.getModifiers()) && !clazz.isInterface()) {
 					ClassFactory cf = new ClassFactory();
-					Class<?> stub = cf.createClass(clazz);
+					cf.createClass(clazz);
 				}
 			}
 			try {
@@ -256,8 +256,8 @@ public class ScanProject {
 		} catch (final IOException e) {
 			throw new Error(e);
 		}
-		@SuppressWarnings("rawtypes")
-		final Enumeration e = zf.entries();
+
+		final Enumeration<?> e = zf.entries();
 		while (e.hasMoreElements()) {
 			final ZipEntry ze = (ZipEntry) e.nextElement();
 			final String fileName = ze.getName();

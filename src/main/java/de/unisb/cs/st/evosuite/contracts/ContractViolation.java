@@ -16,6 +16,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
  */
 public class ContractViolation {
 
+	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(ContractViolation.class);
 
 	private final Contract contract;
@@ -24,6 +25,7 @@ public class ContractViolation {
 
 	private final StatementInterface statement;
 
+	@SuppressWarnings("unused")
 	private final Throwable exception;
 
 	public ContractViolation(Contract contract, TestCase test, StatementInterface statement,

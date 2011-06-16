@@ -112,7 +112,7 @@ public class Scheduler implements Schedule{
 			return 0;
 		}
 
-		int nextThreadCount = Randomness.getInstance().nextInt(controller.liveThreadCount());
+		int nextThreadCount = Randomness.nextInt(controller.liveThreadCount());
 		int nextThreadID = controller.getIdFromCount(nextThreadCount);
 		return nextThreadID;
 	}
@@ -141,7 +141,7 @@ public class Scheduler implements Schedule{
 	public int getRandomThreadID() {
 		if(seenThreadIDs.size()==0)return 0; //if a mutation is done before the first run
 
-		int elementToReturn = Randomness.getInstance().nextInt(seenThreadIDs.size());
+		int elementToReturn = Randomness.nextInt(seenThreadIDs.size());
 		int i=0;
 		for(Integer threadID : seenThreadIDs){
 			if(i==elementToReturn){

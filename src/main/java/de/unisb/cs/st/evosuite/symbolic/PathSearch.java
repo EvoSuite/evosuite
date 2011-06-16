@@ -56,6 +56,7 @@ public class PathSearch extends Search {
 
 	private final int numberOfIterations;
 	private final long maxTime = Properties.TIMEOUT; // TODO: Configuration.MAX_TEST_EXECUTION_TIME_MSEC;
+	@SuppressWarnings("unused")
 	private long startTime;
 
 	@Override

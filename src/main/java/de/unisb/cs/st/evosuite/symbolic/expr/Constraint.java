@@ -39,7 +39,7 @@ public abstract class Constraint<T extends Number> implements Serializable {
 		if (obj == this) {
 			return true;
 		}
-		if (!(obj instanceof Constraint)) {
+		if (!(obj instanceof Constraint<?>)) {
 			return false;
 		}
 

@@ -40,6 +40,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
  */
 public class PathConstraintCollector extends ListenerAdapter {
 
+	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(PathConstraintCollector.class);
 
 	private HashTableSet<Constraint<?>> last;
@@ -101,6 +102,7 @@ public class PathConstraintCollector extends ListenerAdapter {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	protected Set<Constraint<?>> getSetOfNewConstraints(HashTableSet<Constraint<?>> oldC,
 	        HashTableSet<Constraint<?>> newC) {
 		HashTableSet<Constraint<?>> ret = (HashTableSet<Constraint<?>>) newC.clone();

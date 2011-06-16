@@ -9,6 +9,7 @@ build
 .project
 .settings
 .classpath
+bin/
 examples/mine/
 examples/plot/
 examples/indi_plot/
