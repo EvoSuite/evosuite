@@ -44,29 +44,31 @@ public abstract class Contract {
 		return pairs;
 	}
 
-	protected Collection<Object> getAffectedObjects(StatementInterface statement, Scope scope) {
+	protected Collection<Object> getAffectedObjects(StatementInterface statement,
+	        Scope scope) {
 		Set<Object> objects = new HashSet<Object>();
 		if (statement instanceof ConstructorStatement
 		        || statement instanceof FieldStatement) {
-			objects.add(scope.get(statement.getReturnValue()));
+			objects.add(statement.getReturnValue().getObject(scope));
 		} else if (statement instanceof MethodStatement) {
 			MethodStatement ms = (MethodStatement) statement;
-			Object o = scope.get(statement.getReturnValue());
+			Object o = statement.getReturnValue().getObject(scope);
 			if (o != null)
 				objects.add(o);
 			if (!ms.isStatic())
-				objects.add(scope.get(ms.getCallee()));
+				objects.add(ms.getCallee().getObject(scope));
 
 		}
 		return objects;
 	}
 
-	protected Collection<Pair> getAffectedObjectPairs(StatementInterface statement, Scope scope) {
+	protected Collection<Pair> getAffectedObjectPairs(StatementInterface statement,
+	        Scope scope) {
 		Set<Pair> pairs = new HashSet<Pair>();
 
 		if (statement instanceof ConstructorStatement
 		        || statement instanceof FieldStatement) {
-			Object o = scope.get(statement.getReturnValue());
+			Object o = statement.getReturnValue().getObject(scope);
 			if (o != null) {
 				for (Object o1 : scope.getObjects(o.getClass())) {
 					for (Object o2 : scope.getObjects(o.getClass())) {
@@ -76,7 +78,7 @@ public abstract class Contract {
 			}
 		} else if (statement instanceof MethodStatement) {
 			MethodStatement ms = (MethodStatement) statement;
-			Object o = scope.get(statement.getReturnValue());
+			Object o = statement.getReturnValue().getObject(scope);
 			if (o != null) {
 				for (Object o1 : scope.getObjects(o.getClass())) {
 					for (Object o2 : scope.getObjects(o.getClass())) {
@@ -85,7 +87,7 @@ public abstract class Contract {
 				}
 			}
 			if (!ms.isStatic()) {
-				o = scope.get(ms.getCallee());
+				o = ms.getCallee().getObject(scope);
 				if (o != null) {
 					for (Object o1 : scope.getObjects(o.getClass())) {
 						for (Object o2 : scope.getObjects(o.getClass())) {
@@ -98,6 +100,7 @@ public abstract class Contract {
 		return pairs;
 	}
 
-	public abstract boolean check(StatementInterface statement, Scope scope, Throwable exception);
+	public abstract boolean check(StatementInterface statement, Scope scope,
+	        Throwable exception);
 
 }

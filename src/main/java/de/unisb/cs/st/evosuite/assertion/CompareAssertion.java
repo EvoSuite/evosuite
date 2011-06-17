@@ -54,18 +54,15 @@ public class CompareAssertion extends Assertion {
 	public String getCode() {
 		if (source.getType().equals(Integer.class)) {
 			if ((Integer) value == 0)
-				return "assertTrue(" + source.getName() + " == "
-				        + dest.getName() + ");";
+				return "assertTrue(" + source.getName() + " == " + dest.getName() + ");";
 			else if ((Integer) value < 0)
-				return "assertTrue(" + source.getName() + " < "
-				        + dest.getName() + ");";
+				return "assertTrue(" + source.getName() + " < " + dest.getName() + ");";
 			else
-				return "assertTrue(" + source.getName() + " > "
-				        + dest.getName() + ");";
+				return "assertTrue(" + source.getName() + " > " + dest.getName() + ");";
 
 		} else {
-			return "assertEquals(" + source.getName() + ".compareTo("
-			        + dest.getName() + "), " + value + ");";
+			return "assertEquals(" + source.getName() + ".compareTo(" + dest.getName()
+			        + "), " + value + ");";
 		}
 	}
 
@@ -78,15 +75,15 @@ public class CompareAssertion extends Assertion {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean evaluate(Scope scope) {
-		Comparable<Object> comparable = (Comparable<Object>) scope.get(source);
+		Comparable<Object> comparable = (Comparable<Object>) source.getObject(scope);
 		if (comparable == null)
 			if ((Integer) value == 0)
-				return scope.get(dest) == null;
+				return dest.getObject(scope) == null;
 			else
 				return true; // TODO - true or false?
 		else {
 			try {
-				return comparable.compareTo(scope.get(dest)) == (Integer) value;
+				return comparable.compareTo(dest.getObject(scope)) == (Integer) value;
 			} catch (Exception e) {
 				return true; // TODO - true or false?
 			}

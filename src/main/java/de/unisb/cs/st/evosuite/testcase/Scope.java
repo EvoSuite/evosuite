@@ -56,7 +56,7 @@ public class Scope {
 	 * @param o
 	 *            Value
 	 */
-	public synchronized void set(VariableReference reference, Object o) {
+	public synchronized void setObject(VariableReference reference, Object o) {
 
 		// Learn some dynamic information about this object
 		if (reference instanceof ArrayReference) {
@@ -95,19 +95,8 @@ public class Scope {
 	 *            VariableReference we are looking for
 	 * @return Current value of reference
 	 */
-	public synchronized Object get(VariableReference reference) {
-		if (reference instanceof ArrayIndex) {
-			ArrayIndex arrayRef = (ArrayIndex) reference;
-			Object array = pool.get(arrayRef.getArray());
-			if (array != null) {
-				return Array.get(array, arrayRef.getArrayIndex());
-			} else {
-				return null;
-			}
-		} else if (reference instanceof ConstantValue) {
-			return ((ConstantValue) reference).getValue();
-		} else
-			return pool.get(reference);
+	public synchronized Object getObject(VariableReference reference) {
+		return pool.get(reference);
 	}
 
 	/**
@@ -148,6 +137,7 @@ public class Scope {
 	 * 
 	 * @return Collection of all Objects
 	 */
+	// TODO: Need to add all fields and stuff as well?
 	public Collection<Object> getObjects(Type type) {
 		Set<Object> objects = new HashSet<Object>();
 		for (Object o : pool.values()) {

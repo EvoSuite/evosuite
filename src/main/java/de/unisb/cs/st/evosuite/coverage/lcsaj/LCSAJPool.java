@@ -26,8 +26,11 @@ public class LCSAJPool {
 		lcsaj_map.get(className).get(methodName).add(lcsaj);
 
 		lcsaj.setID(lcsaj_map.get(className).get(methodName).size());
-		Logger.getLogger(LCSAJPool.class).info("Adding LCSAJ - "
-		                                               + lcsaj_map.get(className).get(methodName).size());
+		Logger logger = Logger.getLogger(LCSAJPool.class);
+		logger.info("Adding LCSAJ: " + lcsaj);
+		for (Branch branch : lcsaj.getBranchInstructions()) {
+			logger.info(" -> " + branch.getASMNodeString());
+		}
 
 	}
 

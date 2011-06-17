@@ -63,7 +63,7 @@ public class ChocoSolver implements de.unisb.cs.st.evosuite.symbolic.Solver {
 	@Override
 	public Map<String, Object> getModel(Collection<Constraint<?>> constraints) {
 		//System.out.println(constraints);
-		for (Constraint c : constraints) {
+		for (Constraint<?> c : constraints) {
 			if (!c.isSolveable()) {
 				logger.info("Not solvable: " + c);
 				return null;

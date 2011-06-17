@@ -45,10 +45,10 @@ public class StringLocalSearch implements LocalSearch {
 	        LocalSearchObjective objective) {
 		PrimitiveStatement<String> p = (PrimitiveStatement<String>) test.test.getStatement(statement);
 		backup(test, p);
-
 		// TODO: First apply 10 random mutations to determine if string influences _uncovered_ branch
 
 		boolean affected = false;
+		logger.info("Probing string " + p.getCode());
 		for (int i = 0; i < Properties.LOCAL_SEARCH_PROBES; i++) {
 			p.increment();
 			if (objective.hasImproved(test)) {
@@ -118,8 +118,8 @@ public class StringLocalSearch implements LocalSearch {
 					characters[i] = replacement;
 					String newString = new String(characters);
 					p.setValue(newString);
-					logger.info(" " + i + " " + oldValue + "/" + oldValue.length()
-					        + " -> " + newString + "/" + newString.length());
+					//logger.debug(" " + i + " " + oldValue + "/" + oldValue.length()
+					//        + " -> " + newString + "/" + newString.length());
 
 					if (objective.hasImproved(test)) {
 						backup(test, p);
@@ -152,8 +152,8 @@ public class StringLocalSearch implements LocalSearch {
 				characters[position] = replacement;
 				String newString = new String(characters);
 				p.setValue(newString);
-				logger.info(" " + oldValue + "/" + oldValue.length() + " -> " + newString
-				        + "/" + newString.length());
+				//logger.debug(" " + oldValue + "/" + oldValue.length() + " -> " + newString
+				//        + "/" + newString.length());
 
 				if (objective.hasImproved(test)) {
 					backup(test, p);
@@ -175,8 +175,8 @@ public class StringLocalSearch implements LocalSearch {
 				characters[position] = replacement;
 				String newString = new String(characters);
 				p.setValue(newString);
-				logger.info(" " + oldValue + "/" + oldValue.length() + " -> " + newString
-				        + "/" + newString.length());
+				//logger.debug(" " + oldValue + "/" + oldValue.length() + " -> " + newString
+				//        + "/" + newString.length());
 
 				if (objective.hasImproved(test)) {
 					backup(test, p);

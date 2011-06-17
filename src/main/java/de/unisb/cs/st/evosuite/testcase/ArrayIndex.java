@@ -1,5 +1,6 @@
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.lang.reflect.Array;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -12,7 +13,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  * 
  */
 public class ArrayIndex extends VariableReferenceImpl {
-	@SuppressWarnings("unused")
+
 	private static Logger logger = Logger.getLogger(ArrayIndex.class);
 
 	/**
@@ -131,4 +132,75 @@ public class ArrayIndex extends VariableReferenceImpl {
 
 		return true;
 	}
+
+	/**
+	 * Return the actual object represented by this variable for a given scope
+	 * 
+	 * @param scope
+	 *            The scope of the test case execution
+	 */
+	@Override
+	public Object getObject(Scope scope) {
+		Object arrayObject = array.getObject(scope);
+		if (arrayObject != null) {
+			return Array.get(arrayObject, array_index);
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Set the actual object represented by this variable in a given scope
+	 * 
+	 * @param scope
+	 *            The scope of the test case execution
+	 * @param value
+	 *            The value to be assigned
+	 */
+	@Override
+	public void setObject(Scope scope, Object value) {
+		Object arrayObject = array.getObject(scope);
+		Array.set(arrayObject, array_index, value);
+	}
+
+	/**
+	 * Create a copy of the current variable
+	 */
+	@Override
+	public VariableReference clone(TestCase newTestCase) {
+		ArrayReference otherArray = (ArrayReference) newTestCase.getStatement(array.getStPosition()).getReturnValue(); //must be set as we only use this to clone whole testcases
+		return new ArrayIndex(newTestCase, otherArray, array_index);
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#getAdditionalVariableReference()
+	 */
+	@Override
+	public VariableReference getAdditionalVariableReference() {
+		return array;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#setAdditionalVariableReference(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void setAdditionalVariableReference(VariableReference var) {
+		assert (var instanceof ArrayReference);
+		array = (ArrayReference) var;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#replaceAdditionalVariableReference(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void replaceAdditionalVariableReference(VariableReference var1,
+	        VariableReference var2) {
+		if (array.equals(var1)) {
+			logger.info("Replacing " + var1.getClassName() + " " + var1 + " with "
+			        + var2.getClassName() + " " + var2);
+			array = (ArrayReference) var2;
+		} else
+			array.replaceAdditionalVariableReference(var1, var2);
+	}
+
 }

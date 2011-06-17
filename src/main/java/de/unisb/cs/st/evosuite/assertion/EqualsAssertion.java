@@ -41,25 +41,24 @@ public class EqualsAssertion extends Assertion {
 	@Override
 	public String getCode() {
 		if (((Boolean) value).booleanValue())
-			return "assertTrue(" + source.getName() + ".equals("
-			        + dest.getName() + "));";
+			return "assertTrue(" + source.getName() + ".equals(" + dest.getName() + "));";
 		else
-			return "assertFalse(" + source.getName() + ".equals("
-			        + dest.getName() + "));";
+			return "assertFalse(" + source.getName() + ".equals(" + dest.getName()
+			        + "));";
 	}
 
 	@Override
 	public boolean evaluate(Scope scope) {
 		if (((Boolean) value).booleanValue()) {
-			if (scope.get(source) == null)
-				return scope.get(dest) == null;
+			if (source.getObject(scope) == null)
+				return dest.getObject(scope) == null;
 			else
-				return scope.get(source).equals(scope.get(dest));
+				return source.getObject(scope).equals(dest.getObject(scope));
 		} else {
-			if (scope.get(source) == null)
-				return scope.get(dest) != null;
+			if (source.getObject(scope) == null)
+				return dest.getObject(scope) != null;
 			else
-				return !scope.get(source).equals(scope.get(dest));
+				return !source.getObject(scope).equals(dest.getObject(scope));
 		}
 	}
 

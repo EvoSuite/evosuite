@@ -45,7 +45,7 @@ public class NullOutputObserver extends ExecutionObserver {
 		if (retval == null || retval.isPrimitive())
 			return;
 
-		Object object = scope.get(retval);
+		Object object = retval.getObject(scope);
 		trace.trace.put(statement.getPosition(), object == null);
 	}
 

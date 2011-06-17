@@ -127,6 +127,11 @@ public class GenericClass {
 			//if(ClassUtils.isAssignable((Class<?>) rhsType, (Class<?>) lhsType)) {
 			//	logger.info("Classes are assignable: "+lhsType+" / "+rhsType);
 			//}
+			// Only allow void to void assignments
+			if (((Class<?>) rhsType).equals(void.class)
+			        || ((Class<?>) lhsType).equals(void.class))
+				return false;
+
 			return ClassUtils.isAssignable((Class<?>) rhsType, (Class<?>) lhsType);
 		}
 
@@ -248,7 +253,8 @@ public class GenericClass {
 	}
 
 	public String getSimpleName() {
-		return ClassUtils.getShortClassName(raw_class);
+		return raw_class.getSimpleName();
+		// return ClassUtils.getShortClassName(raw_class);
 	}
 
 	@Override

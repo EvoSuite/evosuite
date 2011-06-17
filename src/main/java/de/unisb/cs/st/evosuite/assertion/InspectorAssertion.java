@@ -70,10 +70,10 @@ public class InspectorAssertion extends Assertion {
 
 	@Override
 	public boolean evaluate(Scope scope) {
-		if (scope.get(source) == null)
+		if (source.getObject(scope) == null)
 			return true; // TODO - true or false?
 		else {
-			Object val = inspector.getValue(scope.get(source));
+			Object val = inspector.getValue(source.getObject(scope));
 			if (val == null)
 				return val == result;
 			else

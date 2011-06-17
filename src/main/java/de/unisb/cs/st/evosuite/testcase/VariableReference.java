@@ -48,6 +48,11 @@ public interface VariableReference extends Comparable<VariableReference> {
 	public abstract VariableReference clone();
 
 	/**
+	 * Create a copy of the current variable for new test
+	 */
+	public abstract VariableReference clone(TestCase newTest);
+
+	/**
 	 * Return simple class name
 	 */
 	public String getSimpleClassName();
@@ -149,6 +154,16 @@ public interface VariableReference extends Comparable<VariableReference> {
 	public Object getObject(Scope scope);
 
 	/**
+	 * Set the actual object represented by this variable in a given scope
+	 * 
+	 * @param scope
+	 *            The scope of the test case execution
+	 * @param value
+	 *            The value to be assigned
+	 */
+	public void setObject(Scope scope, Object value);
+
+	/**
 	 * Comparison
 	 */
 	@Override
@@ -172,6 +187,13 @@ public interface VariableReference extends Comparable<VariableReference> {
 	 * @return
 	 */
 	public String getName();
+
+	public VariableReference getAdditionalVariableReference();
+
+	public void setAdditionalVariableReference(VariableReference var);
+
+	public void replaceAdditionalVariableReference(VariableReference var1,
+	        VariableReference var2);
 
 	public void loadBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals);
 

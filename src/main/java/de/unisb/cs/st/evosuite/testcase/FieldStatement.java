@@ -141,22 +141,15 @@ public class FieldStatement extends AbstractStatement {
 
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
-		if (Modifier.isStatic(field.getModifiers()))
-			return new FieldStatement(newTestCase, field, null, retval.getType());
-		else {
-			if (source instanceof ArrayIndex
-			        && tc.getStatement(source.getStPosition()) instanceof ArrayStatement) {
-				ArrayReference otherArray = (ArrayReference) newTestCase.getStatement(source.getStPosition()).getReturnValue(); //must be set as we only use this to clone whole testcases
-				VariableReference newSource = new ArrayIndex(newTestCase, otherArray,
-				        ((ArrayIndex) source).getArrayIndex());
-				return new FieldStatement(newTestCase, field, newSource, retval.getType());
-			} else {
-				return new FieldStatement(
-				        newTestCase,
-				        field,
-				        newTestCase.getStatement(source.getStPosition()).getReturnValue(),
-				        retval.getType());
-			}
+		if (Modifier.isStatic(field.getModifiers())) {
+			FieldStatement s = new FieldStatement(newTestCase, field, null,
+			        retval.getType());
+			return s;
+		} else {
+			VariableReference newSource = source.clone(newTestCase);
+			FieldStatement s = new FieldStatement(newTestCase, field, newSource,
+			        retval.getType());
+			return s;
 		}
 	}
 
@@ -167,15 +160,17 @@ public class FieldStatement extends AbstractStatement {
 		Object source_object = null;
 		try {
 			if (!Modifier.isStatic(field.getModifiers())) {
-				source_object = scope.get(source);
+				source_object = source.getObject(scope);
 				if (source_object == null) {
-					scope.set(retval, null);
+					retval.setObject(scope, null);
 					return new NullPointerException();
 				}
 
 			}
 			Object ret = field.get(source_object);
-			scope.set(retval, ret);
+			assert (retval.getVariableClass().isAssignableFrom(ret.getClass())) : "we want an "
+			        + retval.getVariableClass() + " but got an " + ret.getClass();
+			retval.setObject(scope, ret);
 		} catch (Throwable e) {
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
 				e = e.getCause();
@@ -193,8 +188,8 @@ public class FieldStatement extends AbstractStatement {
 		references.add(retval);
 		if (!Modifier.isStatic(field.getModifiers())) {
 			references.add(source);
-			if (source instanceof ArrayIndex)
-				references.add(((ArrayIndex) source).getArray());
+			if (source.getAdditionalVariableReference() != null)
+				references.add(source.getAdditionalVariableReference());
 		}
 		return references;
 
@@ -208,8 +203,8 @@ public class FieldStatement extends AbstractStatement {
 		if (!Modifier.isStatic(field.getModifiers())) {
 			if (source.equals(var1))
 				source = var2;
-			//else if (source instanceof ArrayIndex && var2 instanceof ArrayIndex)
-			// TODO: FIXXME
+			else
+				source.replaceAdditionalVariableReference(var1, var2);
 		}
 	}
 

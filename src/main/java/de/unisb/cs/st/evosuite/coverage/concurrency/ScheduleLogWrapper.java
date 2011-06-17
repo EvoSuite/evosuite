@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.unisb.cs.st.evosuite.assertion.Assertion;
+import de.unisb.cs.st.evosuite.testcase.AbstractTestFactory;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
@@ -267,5 +268,21 @@ public class ScheduleLogWrapper implements StatementInterface {
 	public boolean isValidException(Throwable t) {
 		// TODO Auto-generated method stub
 		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#mutate(de.unisb.cs.st.evosuite.testcase.TestCase, de.unisb.cs.st.evosuite.testcase.AbstractTestFactory)
+	 */
+	@Override
+	public boolean mutate(TestCase test, AbstractTestFactory factory) {
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#SetRetval(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void SetRetval(VariableReference newRetVal) {
+		wrapped.SetRetval(newRetVal);
 	}
 }

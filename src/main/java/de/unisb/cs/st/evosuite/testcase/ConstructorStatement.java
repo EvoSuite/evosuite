@@ -95,11 +95,14 @@ public class ConstructorStatement extends AbstractStatement {
 			exceptionThrown = null;
 			Object[] inputs = new Object[parameters.size()];
 			for (int i = 0; i < parameters.size(); i++) {
-				inputs[i] = scope.get(parameters.get(i));
+				inputs[i] = parameters.get(i).getObject(scope);
 			}
 
 			Object ret = this.constructor.newInstance(inputs);
-			scope.set(retval, ret);
+			assert (retval.getVariableClass().isAssignableFrom(ret.getClass())) : "we want an "
+			        + retval.getVariableClass() + " but got an " + ret.getClass();
+
+			retval.setObject(scope, ret);
 
 		} catch (Throwable e) {
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
@@ -155,15 +158,7 @@ public class ConstructorStatement extends AbstractStatement {
 	public StatementInterface clone(TestCase newTestCase) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
-			if (r instanceof ConstantValue)
-				new_params.add(((ConstantValue) r).clone(newTestCase));
-			else if (r instanceof ArrayIndex
-			        && tc.getStatement(r.getStPosition()) instanceof ArrayStatement) {
-				ArrayReference otherArray = (ArrayReference) newTestCase.getStatement(r.getStPosition()).getReturnValue(); //must be set as we only use this to clone whole testcases
-				new_params.add(new ArrayIndex(newTestCase, otherArray,
-				        ((ArrayIndex) r).getArrayIndex()));
-			} else
-				new_params.add(newTestCase.getStatement(r.getStPosition()).getReturnValue());
+			new_params.add(r.clone(newTestCase));
 		}
 
 		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor,
@@ -179,8 +174,8 @@ public class ConstructorStatement extends AbstractStatement {
 		references.add(retval);
 		references.addAll(parameters);
 		for (VariableReference param : parameters) {
-			if (param instanceof ArrayIndex)
-				references.add(((ArrayIndex) param).getArray());
+			if (param.getAdditionalVariableReference() != null)
+				references.add(param.getAdditionalVariableReference());
 		}
 		return references;
 	}
@@ -194,8 +189,8 @@ public class ConstructorStatement extends AbstractStatement {
 
 			if (parameters.get(i).equals(var1))
 				parameters.set(i, var2);
-			//if (param instanceof ArrayIndex)
-			//	references.add(((ArrayIndex) param).getArray()); // TODO: FIXXME
+			else
+				parameters.get(i).replaceAdditionalVariableReference(var1, var2);
 		}
 	}
 

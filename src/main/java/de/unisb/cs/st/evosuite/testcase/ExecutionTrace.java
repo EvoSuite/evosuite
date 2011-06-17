@@ -206,6 +206,8 @@ public class ExecutionTrace {
 
 	public Map<String, Integer> covered_methods = new HashMap<String, Integer>();
 	public Map<Integer, Integer> covered_predicates = new HashMap<Integer, Integer>();
+	public Map<Integer, Integer> covered_true = new HashMap<Integer, Integer>();
+	public Map<Integer, Integer> covered_false = new HashMap<Integer, Integer>();
 	public Map<Integer, Double> true_distances = new HashMap<Integer, Double>();
 	public Map<Integer, Double> false_distances = new HashMap<Integer, Double>();
 
@@ -341,6 +343,21 @@ public class ExecutionTrace {
 			covered_predicates.put(branch, 1);
 		else
 			covered_predicates.put(branch, covered_predicates.get(branch) + 1);
+
+		if (true_distance == 0.0) {
+			if (!covered_true.containsKey(branch))
+				covered_true.put(branch, 1);
+			else
+				covered_true.put(branch, covered_true.get(branch) + 1);
+
+		}
+
+		if (false_distance == 0.0) {
+			if (!covered_false.containsKey(branch))
+				covered_false.put(branch, 1);
+			else
+				covered_false.put(branch, covered_false.get(branch) + 1);
+		}
 
 		if (!true_distances.containsKey(branch))
 			true_distances.put(branch, true_distance);
@@ -651,6 +668,8 @@ public class ExecutionTrace {
 		false_distances = new HashMap<Integer, Double>();
 		covered_methods = new HashMap<String, Integer>();
 		covered_predicates = new HashMap<Integer, Integer>();
+		covered_true = new HashMap<Integer, Integer>();
+		covered_false = new HashMap<Integer, Integer>();
 		passedDefinitions = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
 		passedUses = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
 	}
@@ -681,6 +700,8 @@ public class ExecutionTrace {
 		copy.false_distances.putAll(false_distances);
 		copy.covered_methods.putAll(covered_methods);
 		copy.covered_predicates.putAll(covered_predicates);
+		copy.covered_true.putAll(covered_true);
+		copy.covered_false.putAll(covered_false);
 		copy.passedDefinitions.putAll(passedDefinitions);
 		copy.passedUses.putAll(passedUses);
 		copy.methodId = methodId;

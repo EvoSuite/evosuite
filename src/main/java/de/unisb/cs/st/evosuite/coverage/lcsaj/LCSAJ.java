@@ -81,6 +81,10 @@ public class LCSAJ {
 		return branches.get(0);
 	}
 
+	public Branch getLastBranch() {
+		return branches.get(branches.size() - 1);
+	}
+
 	public AbstractInsnNode getLastNodeAccessed() {
 		return lastAccessedNode;
 	}
@@ -124,6 +128,9 @@ public class LCSAJ {
 		output += " in " + this.className + "/" + this.methodName + ". Branches passed: ";
 		for (Branch b : branches)
 			output += " -> " + b.getActualBranchId();
+		//output += "\n";
+		// for (Branch b : branches)
+		//	output += " -> " + b.getASMNodeString() + "\n";
 		return output;
 	}
 }

@@ -18,8 +18,6 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
-import java.util.List;
-
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
@@ -73,6 +71,9 @@ public class TestChromosome extends Chromosome {
 	public Chromosome clone() {
 		TestChromosome c = new TestChromosome();
 		c.test = test.clone();
+		assert (test.isValid());
+		assert (c.test.isValid());
+		// assert (test.toCode().equals(c.test.toCode()));
 
 		c.setFitness(getFitness());
 		c.solution = solution;
@@ -348,46 +349,16 @@ public class TestChromosome extends Chromosome {
 		if (!changed) {
 			for (StatementInterface statement : test) {
 				if (Randomness.nextDouble() <= pl) {
-
-					if (statement instanceof PrimitiveStatement<?>) {
-						// do some mutation of values with what probability?
-
-						logger.debug("Old statement: " + statement.getCode());
-						if (Randomness.nextDouble() <= 0.2)
-							((PrimitiveStatement<?>) statement).randomize();
-						else
-							((PrimitiveStatement<?>) statement).delta();
-
-						int position = statement.getReturnValue().getStPosition();
-						// test.setStatement(statement, position);
-						//logger.info("Changed test: " + test.toCode());
-						logger.debug("New statement: "
-						        + test.getStatement(position).getCode());
+					if (statement.mutate(test, test_factory)) {
 						changed = true;
-					} else if (statement instanceof AssignmentStatement) {
-						// logger.info("Before change at:");
-						// logger.info(test.toCode());
-						AssignmentStatement as = (AssignmentStatement) statement;
-						if (Randomness.nextDouble() < 0.5) {
-							List<VariableReference> objects = test.getObjects(statement.getReturnValue().getType(),
-							                                                  statement.getReturnValue().getStPosition());
-							objects.remove(statement.getReturnValue());
-							objects.remove(as.parameter);
-							if (!objects.isEmpty()) {
-								as.parameter = Randomness.choice(objects);
-								changed = true;
-							}
-						} else if (as.getArrayIndexRef().getArray().getArrayLength() > 0) {
-							as.getArrayIndexRef().setArrayIndex(Randomness.nextInt(as.getArrayIndexRef().getArray().getArrayLength()));
-							changed = true;
-						}
-						// logger.info("After change:");
-						// logger.info(test.toCode());
-					} else if (statement.getReturnValue() instanceof ArrayReference) {
-
+						assert (test.isValid());
 					} else {
-						changed = test_factory.changeRandomCall(test, statement);
+						boolean replaced = test_factory.changeRandomCall(test, statement);
+						changed = replaced || changed;
+						assert (test.isValid());
 					}
+
+					//					} else if (statement.getReturnValue() instanceof ArrayReference) {
 				}
 			}
 		}

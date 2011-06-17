@@ -95,7 +95,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	 */
 	@Override
 	public Class<?> getReturnClass() {
-		return (Class<?>) retval.getType();
+		return retval.getVariableClass();
 	}
 
 	/* (non-Javadoc)
@@ -214,6 +214,14 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 
 	@Override
 	public boolean isValidException(Throwable t) {
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#mutate(de.unisb.cs.st.evosuite.testcase.TestCase)
+	 */
+	@Override
+	public boolean mutate(TestCase test, AbstractTestFactory factory) {
 		return false;
 	}
 }

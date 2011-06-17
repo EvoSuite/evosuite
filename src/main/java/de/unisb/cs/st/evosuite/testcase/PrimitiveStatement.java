@@ -190,7 +190,9 @@ public class PrimitiveStatement<T> extends AbstractStatement {
 	        throws InvocationTargetException, IllegalArgumentException,
 	        IllegalAccessException, InstantiationException {
 		// Add primitive variable to pool
-		scope.set(retval, value);
+		assert (retval.isPrimitive() || retval.getVariableClass().isAssignableFrom(value.getClass())) : "we want an "
+		        + retval.getVariableClass() + " but got an " + value.getClass();
+		retval.setObject(scope, value);
 		return exceptionThrown;
 	}
 
@@ -521,6 +523,22 @@ public class PrimitiveStatement<T> extends AbstractStatement {
 
 		PrimitiveStatement<?> ps = (PrimitiveStatement<?>) s;
 		return (retval.same(ps.retval) && value.equals(ps.value));
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#mutate(de.unisb.cs.st.evosuite.testcase.TestCase)
+	 */
+	@Override
+	public boolean mutate(TestCase test, AbstractTestFactory factory) {
+		T oldVal = value;
+		// TODO: Should not be hardcoded
+		while (value == oldVal) {
+			if (Randomness.nextDouble() <= 0.2)
+				randomize();
+			else
+				delta();
+		}
+		return true;
 	}
 
 }

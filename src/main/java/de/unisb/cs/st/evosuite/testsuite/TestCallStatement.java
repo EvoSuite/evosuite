@@ -70,7 +70,7 @@ public class TestCallStatement extends AbstractStatement {
 				Collections.sort(variables, Collections.reverseOrder());
 				// logger.info("Return value is good: "
 				// + scope.get(variables.get(0)).getClass());
-				return scope.get(variables.get(0));
+				return variables.get(0).getObject(scope);
 			}
 
 		} catch (Exception e) {
@@ -103,9 +103,11 @@ public class TestCallStatement extends AbstractStatement {
 		TestCase test = testCall.getTest();
 		if (test != null && !test.hasCalls()) {
 			Object value = runTest(test);
-			scope.set(retval, value);
+			assert (retval.getVariableClass().isAssignableFrom(value.getClass())) : "we want an "
+			        + retval.getVariableClass() + " but got an " + value.getClass();
+			retval.setObject(scope, value);
 		} else {
-			scope.set(retval, null);
+			retval.setObject(scope, null);
 		}
 
 		return null; // TODO: Pass on any of the exceptions?
