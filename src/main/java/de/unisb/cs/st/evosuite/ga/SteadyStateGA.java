@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.ma.Connector;
 
 /**
  * Implementation of steady state GA
@@ -154,6 +155,8 @@ public class SteadyStateGA extends GeneticAlgorithm {
 			logger.info("Best individual has fitness: " + population.get(0).getFitness());
 			logger.info("Worst individual has fitness: "
 			        + population.get(population.size() - 1).getFitness());
+			
+			Connector.externalCall((GeneticAlgorithm) this); //call manual algorithm 
 		}
 
 		notifySearchFinished();
