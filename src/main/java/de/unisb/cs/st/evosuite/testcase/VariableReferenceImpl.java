@@ -7,9 +7,9 @@ import org.apache.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
-public class VariableReferenceImpl implements VariableReference{
-	private static Logger logger = Logger.getLogger(VariableReferenceImpl.class);
-	
+public class VariableReferenceImpl implements VariableReference {
+	protected static Logger logger = Logger.getLogger(VariableReferenceImpl.class);
+
 	/**
 	 * Type (class) of the variable
 	 */
@@ -19,42 +19,42 @@ public class VariableReferenceImpl implements VariableReference{
 	 * The testCase in which this VariableReference is valid
 	 */
 	protected final TestCase testCase;
-	
+
 	/**
 	 * Constructor
 	 * 
-	 * @param testCase 
-	 * 			  The TestCase which defines the statement which defines this 
+	 * @param testCase
+	 *            The TestCase which defines the statement which defines this
 	 * @param type
 	 *            The type (class) of the variable
 	 * @param position
 	 *            The statement in the test case that declares this variable
 	 */
 	public VariableReferenceImpl(TestCase testCase, GenericClass type) {
-		this.testCase=testCase;
+		this.testCase = testCase;
 		this.type = type;
 	}
 
-
-
-	
 	public VariableReferenceImpl(TestCase testCase, Type type) {
 		this(testCase, new GenericClass(type));
 	}
-	
+
 	/**
-	 * The position of the statement, defining this VariableReference, in the testcase.
+	 * The position of the statement, defining this VariableReference, in the
+	 * testcase.
+	 * 
 	 * @return
 	 */
 	@Override
-	public int getStPosition(){
-		for(int i=0 ; i<testCase.size() ; i++){
-			if(testCase.getStatement(i).getReturnValue().equals(this)){
+	public int getStPosition() {
+		for (int i = 0; i < testCase.size(); i++) {
+			if (testCase.getStatement(i).getReturnValue().equals(this)) {
 				return i;
 			}
 		}
-		
-		throw new AssertionError("A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase");
+
+		throw new AssertionError(
+		        "A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase");
 	}
 
 	/**
@@ -62,7 +62,8 @@ public class VariableReferenceImpl implements VariableReference{
 	 */
 	@Override
 	public VariableReference clone() {
-		throw new UnsupportedOperationException("This method SHOULD not be used, as only the original reference is keeped up to date");
+		throw new UnsupportedOperationException(
+		        "This method SHOULD not be used, as only the original reference is keeped up to date");
 		/*VariableReference copy = new VariableReference(type, statement);
 		if (array != null) {
 			copy.array = array.clone();
@@ -73,10 +74,19 @@ public class VariableReferenceImpl implements VariableReference{
 	}
 
 	/**
+	 * Create a copy of the current variable
+	 */
+	@Override
+	public VariableReference clone(TestCase newTestCase) {
+		return newTestCase.getStatement(getStPosition()).getReturnValue();
+	}
+
+	/**
 	 * Return simple class name
 	 */
 	@Override
 	public String getSimpleClassName() {
+		assert (!type.getSimpleName().contains(";"));
 		return type.getSimpleName();
 	}
 
@@ -93,6 +103,7 @@ public class VariableReferenceImpl implements VariableReference{
 		return type.getComponentName();
 	}
 
+	@Override
 	public Type getComponentType() {
 		return type.getComponentType();
 	}
@@ -221,7 +232,20 @@ public class VariableReferenceImpl implements VariableReference{
 	 */
 	@Override
 	public Object getObject(Scope scope) {
-		return scope.get(this);
+		return scope.getObject(this);
+	}
+
+	/**
+	 * Set the actual object represented by this variable in a given scope
+	 * 
+	 * @param scope
+	 *            The scope of the test case execution
+	 * @param value
+	 *            The value to be assigned
+	 */
+	@Override
+	public void setObject(Scope scope, Object value) {
+		scope.setObject(this, value);
 	}
 
 	/**
@@ -261,25 +285,25 @@ public class VariableReferenceImpl implements VariableReference{
 
 	@Override
 	public void loadBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
-	
-			logger.debug("Loading variable in bytecode: " + getStPosition());
-			if (getStPosition() < 0) {
-				mg.visitInsn(Opcodes.ACONST_NULL);
-			} else
-				mg.loadLocal(locals.get(getStPosition()),
-				             org.objectweb.asm.Type.getType(type.getRawClass()));	
+
+		logger.debug("Loading variable in bytecode: " + getStPosition());
+		if (getStPosition() < 0) {
+			mg.visitInsn(Opcodes.ACONST_NULL);
+		} else
+			mg.loadLocal(locals.get(getStPosition()),
+			             org.objectweb.asm.Type.getType(type.getRawClass()));
 	}
 
 	@Override
 	public void storeBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
-	
-			logger.debug("Storing variable in bytecode: " + getStPosition() + " of type "
-			        + org.objectweb.asm.Type.getType(type.getRawClass()));
-			if (!locals.containsKey(getStPosition()))
-				locals.put(getStPosition(),
-				           mg.newLocal(org.objectweb.asm.Type.getType(type.getRawClass())));
-			mg.storeLocal(locals.get(getStPosition()),
-			              org.objectweb.asm.Type.getType(type.getRawClass()));
+
+		logger.debug("Storing variable in bytecode: " + getStPosition() + " of type "
+		        + org.objectweb.asm.Type.getType(type.getRawClass()));
+		if (!locals.containsKey(getStPosition()))
+			locals.put(getStPosition(),
+			           mg.newLocal(org.objectweb.asm.Type.getType(type.getRawClass())));
+		mg.storeLocal(locals.get(getStPosition()),
+		              org.objectweb.asm.Type.getType(type.getRawClass()));
 	}
 
 	@Override
@@ -329,21 +353,49 @@ public class VariableReferenceImpl implements VariableReference{
 	public int compareTo(VariableReference other) {
 		return getStPosition() - other.getStPosition();
 	}
-	
-	public boolean same(VariableReference r){
-		if(r==null)
+
+	@Override
+	public boolean same(VariableReference r) {
+		if (r == null)
 			return false;
-		
-		if(this.getStPosition()!=r.getStPosition())
+
+		if (this.getStPosition() != r.getStPosition())
 			return false;
-		
-		if(this.type.equals(r.getGenericClass()));
-		
+
+		if (this.type.equals(r.getGenericClass()))
+			;
+
 		return true;
 	}
 
 	@Override
 	public GenericClass getGenericClass() {
 		return type;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#getAdditionalVariableReference()
+	 */
+	@Override
+	public VariableReference getAdditionalVariableReference() {
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#setAdditionalVariableReference(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void setAdditionalVariableReference(VariableReference var) {
+		// Do nothing by default
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#replaceAdditionalVariableReference(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void replaceAdditionalVariableReference(VariableReference var1,
+	        VariableReference var2) {
+		// no op
+
 	}
 }

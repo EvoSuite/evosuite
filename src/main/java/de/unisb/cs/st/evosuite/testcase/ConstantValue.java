@@ -25,8 +25,12 @@ public class ConstantValue extends VariableReferenceImpl {
 		this(testCase, new GenericClass(type));
 	}
 
-	public ConstantValue clone(TestCase testCase) {
-		ConstantValue ret = new ConstantValue(testCase, type);
+	/**
+	 * Create a copy of the current variable
+	 */
+	@Override
+	public VariableReference clone(TestCase newTestCase) {
+		ConstantValue ret = new ConstantValue(newTestCase, type);
 		ret.setValue(value);
 		return ret;
 	}
@@ -66,7 +70,9 @@ public class ConstantValue extends VariableReferenceImpl {
 	 */
 	@Override
 	public String getName() {
-		if (value.getClass().equals(char.class)
+		if (value == null)
+			return "null";
+		else if (value.getClass().equals(char.class)
 		        || value.getClass().equals(Character.class))
 			return "'" + StringEscapeUtils.escapeJava(value.toString()) + "';";
 		else if (value.getClass().equals(String.class)) {
@@ -80,4 +86,16 @@ public class ConstantValue extends VariableReferenceImpl {
 		} else
 			return "" + value;
 	}
+
+	/**
+	 * Return the actual object represented by this variable for a given scope
+	 * 
+	 * @param scope
+	 *            The scope of the test case execution
+	 */
+	@Override
+	public Object getObject(Scope scope) {
+		return value;
+	}
+
 }

@@ -43,7 +43,7 @@ public class ComparisonTraceObserver extends ExecutionObserver {
 		VariableReference retval = statement.getReturnValue();
 		if (retval == null || retval.isEnum() || retval.isPrimitive())
 			return;
-		Object object = scope.get(retval);
+		Object object = retval.getObject(scope);
 		if (object == null) {
 			//logger.info("Statement adds null value");
 			return; // TODO: Add different check?
@@ -58,7 +58,7 @@ public class ComparisonTraceObserver extends ExecutionObserver {
 		//if(scope.hasObjects(retval.type)) {
 		for (VariableReference other : scope.getElements(retval.getType())) {
 			//logger.info("Found other object of type "+retval.type.getName()+" in scope");
-			Object other_object = scope.get(other);
+			Object other_object = other.getObject(scope);
 			// TODO: Create a matrix of object comparisons?
 			if (other_object == null)
 				continue; // TODO: Don't do this?

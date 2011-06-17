@@ -3,6 +3,8 @@
  */
 package de.unisb.cs.st.evosuite.testsuite;
 
+import org.apache.log4j.Logger;
+
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
@@ -28,6 +30,15 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 		this.suite = suite;
 		this.testIndex = index;
 		this.lastFitness = suite.getFitness();
+
+		for (TestChromosome test : suite.getTestChromosomes()) {
+			test.setChanged(true);
+			test.last_result = null;
+		}
+
+		double fit = fitness.getFitness(suite);
+		assert (fit == this.lastFitness);
+
 	}
 
 	/* (non-Javadoc)
@@ -39,9 +50,15 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 		suite.setTestChromosome(testIndex, (TestChromosome) individual);
 		double newFitness = fitness.getFitness(suite);
 		if (newFitness < lastFitness) { // TODO: Maximize
+			Logger.getLogger(LocalSearchObjective.class).info("Local search improved fitness from "
+			                                                          + lastFitness
+			                                                          + " to "
+			                                                          + newFitness);
 			lastFitness = newFitness;
+			suite.setFitness(lastFitness);
 			return true;
 		} else {
+			suite.setFitness(lastFitness);
 			return false;
 		}
 	}

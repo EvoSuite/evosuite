@@ -50,7 +50,7 @@ public class PrimitiveFieldTraceObserver extends ExecutionObserver {
 		if (retval == null)
 			return;
 
-		Object object = scope.get(retval);
+		Object object = retval.getObject(scope);
 		if (object != null && !object.getClass().isPrimitive()
 		        && !object.getClass().isEnum() && !isWrapperType(object.getClass())) {
 			//List<Object> fields = new ArrayList<Object>();

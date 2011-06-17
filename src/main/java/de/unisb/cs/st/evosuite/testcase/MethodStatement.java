@@ -114,16 +114,16 @@ public class MethodStatement extends AbstractStatement {
 
 		try {
 			for (int i = 0; i < parameters.size(); i++) {
-				inputs[i] = scope.get(parameters.get(i));
+				inputs[i] = parameters.get(i).getObject(scope);
 			}
 
 			Object callee_object = null;
 			if (!Modifier.isStatic(method.getModifiers())) {
-				callee_object = scope.get(callee);
+				callee_object = callee.getObject(scope);
 			}
 
 			Object ret = this.method.invoke(callee_object, inputs);
-			scope.set(retval, ret);
+			retval.setObject(scope, ret);
 		} catch (Throwable e) {
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
 				e = e.getCause();
@@ -154,7 +154,8 @@ public class MethodStatement extends AbstractStatement {
 			result += "// Undeclared exception!\n";
 		}
 
-		if (retval.getType() != Void.TYPE) {
+		if (retval.getType() != Void.TYPE
+		        && retval.getAdditionalVariableReference() == null) {
 			if (exception != null) {
 				result += retval.getSimpleClassName() + " " + retval.getName() + " = "
 				        + retval.getDefaultValueString() + ";\n";
@@ -212,16 +213,7 @@ public class MethodStatement extends AbstractStatement {
 	public StatementInterface clone(TestCase newTestCase) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
-			if (r instanceof ConstantValue) {
-				new_params.add(((ConstantValue) r).clone(newTestCase));
-			} else if (r instanceof ArrayIndex
-			        && tc.getStatement(r.getStPosition()) instanceof ArrayStatement) {
-				ArrayReference otherArray = (ArrayReference) newTestCase.getStatement(r.getStPosition()).getReturnValue(); //must be set as we only use this to clone whole testcases
-				new_params.add(new ArrayIndex(newTestCase, otherArray,
-				        ((ArrayIndex) r).getArrayIndex()));
-
-			} else
-				new_params.add(newTestCase.getStatement(r.getStPosition()).getReturnValue());
+			new_params.add(r.clone(newTestCase));
 		}
 
 		MethodStatement m;
@@ -231,20 +223,10 @@ public class MethodStatement extends AbstractStatement {
 			m = new MethodStatement(newTestCase, method, null, retval.getType(),
 			        new_params);
 		} else {
-			if (callee instanceof ArrayIndex
-			        && tc.getStatement(callee.getStPosition()) instanceof ArrayStatement) {
-				ArrayReference otherArray = (ArrayReference) newTestCase.getStatement(callee.getStPosition()).getReturnValue(); //must be set as we only use this to clone whole testcases
-				VariableReference newCallee = new ArrayIndex(newTestCase, otherArray,
-				        ((ArrayIndex) callee).getArrayIndex());
-				m = new MethodStatement(newTestCase, method, newCallee, retval.getType(),
-				        new_params);
-			} else {
-				m = new MethodStatement(
-				        newTestCase,
-				        method,
-				        newTestCase.getStatement(callee.getStPosition()).getReturnValue(),
-				        retval.getType(), new_params);
-			}
+			VariableReference newCallee = callee.clone(newTestCase);
+			m = new MethodStatement(newTestCase, method, newCallee, retval.getType(),
+			        new_params);
+
 		}
 
 		m.assertions = cloneAssertions(newTestCase);
@@ -258,14 +240,15 @@ public class MethodStatement extends AbstractStatement {
 		references.add(retval);
 		if (isInstanceMethod()) {
 			references.add(callee);
-			if (callee instanceof ArrayIndex)
-				references.add(((ArrayIndex) callee).getArray());
+			if (callee.getAdditionalVariableReference() != null)
+				references.add(callee.getAdditionalVariableReference());
 		}
 		references.addAll(parameters);
 		for (VariableReference param : parameters) {
-			if (param instanceof ArrayIndex)
-				references.add(((ArrayIndex) param).getArray());
+			if (param.getAdditionalVariableReference() != null)
+				references.add(param.getAdditionalVariableReference());
 		}
+
 		return references;
 	}
 
@@ -277,15 +260,15 @@ public class MethodStatement extends AbstractStatement {
 		if (isInstanceMethod()) {
 			if (callee.equals(var1))
 				callee = var2;
-			//if (callee instanceof ArrayIndex)
-			//	references.add(((ArrayIndex) callee).getArray()); // TODO: FIXXME
+			else
+				callee.replaceAdditionalVariableReference(var1, var2);
 		}
 		for (int i = 0; i < parameters.size(); i++) {
 
 			if (parameters.get(i).equals(var1))
 				parameters.set(i, var2);
-			//if (param instanceof ArrayIndex)
-			//	references.add(((ArrayIndex) param).getArray()); // TODO: FIXXME
+			else
+				parameters.get(i).replaceAdditionalVariableReference(var1, var2);
 		}
 	}
 

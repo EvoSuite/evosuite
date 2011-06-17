@@ -95,7 +95,7 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 
 		double fitness = distance.getResultingBranchFitness();
 
-		logger.info("Approach level: " + distance.getApproachLevel()
+		logger.debug("Approach level: " + distance.getApproachLevel()
 		        + " / branch distance: " + distance.getBranchDistance() + ", fitness = "
 		        + fitness);
 

@@ -61,7 +61,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 * @param position
 	 * @return
 	 */
-	public List<VariableReference> getObjects(Type type, int position);
+	public Set<VariableReference> getObjects(Type type, int position);
 
 	/**
 	 * Get all objects up to position satisfying constraint
@@ -71,7 +71,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 * @param constraint
 	 * @return
 	 */
-	public List<VariableReference> getObjects(int position);
+	public Set<VariableReference> getObjects(int position);
 
 	/**
 	 * Get a random object matching type
@@ -275,5 +275,15 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	public Set<TestFitnessFunction> getCoveredGoals();
 
 	public TestCase clone();
+
+	/**
+	 * Replace a VariableReference with another one
+	 * 
+	 * @param var1
+	 *            The old variable
+	 * @param var2
+	 *            The new variable
+	 */
+	public void replace(VariableReference var1, VariableReference var2);
 
 }

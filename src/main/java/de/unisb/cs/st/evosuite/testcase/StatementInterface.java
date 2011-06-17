@@ -178,4 +178,8 @@ public interface StatementInterface {
 
 	public boolean isValidException(Throwable t);
 
+	public boolean mutate(TestCase test, AbstractTestFactory factory);
+
+	public void SetRetval(VariableReference newRetVal);
+
 }

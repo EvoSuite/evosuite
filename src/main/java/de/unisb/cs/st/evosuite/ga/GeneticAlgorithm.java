@@ -133,6 +133,8 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	protected void applyLocalSearch() {
 		logger.info("Applying local search");
 		for (Chromosome individual : population) {
+			if (isFinished())
+				break;
 			individual.localSearch(localObjective);
 		}
 	}

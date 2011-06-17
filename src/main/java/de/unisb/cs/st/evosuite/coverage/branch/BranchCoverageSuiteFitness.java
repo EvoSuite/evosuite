@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
+import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -57,6 +58,8 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public double best_fitness = Double.MAX_VALUE;
 
 	public final int total_goals = 2 * total_branches + branchless_methods;
+
+	protected boolean check = false;
 
 	public BranchCoverageSuiteFitness() {
 		logger.info("Total goals: " + total_goals);
@@ -236,7 +239,19 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		suite.setCoverage(coverage / total_goals);
-
+		//		if (!check)
+		//			checkFitness(suite, fitness);
 		return fitness;
+	}
+
+	public void checkFitness(TestSuiteChromosome suite, double fitness) {
+		for (TestChromosome test : suite.getTestChromosomes()) {
+			test.setChanged(true);
+			test.last_result = null;
+		}
+		check = true;
+		double fitness2 = getFitness(suite);
+		check = false;
+		assert (fitness == fitness2);
 	}
 }

@@ -50,12 +50,13 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 
 		fitness_function.getFitness(offspring);
 		notifyEvaluation(offspring);
+		//logger.info("New individual: " + offspring);
 
 		if (isBetterOrEqual(offspring, parent)) {
-			logger.debug("Replacing old population");
+			//logger.info("Replacing old population");
 			population.set(0, offspring);
 		} else {
-			logger.debug("Keeping old population");
+			//logger.info("Keeping old population");
 		}
 		current_iteration++;
 	}

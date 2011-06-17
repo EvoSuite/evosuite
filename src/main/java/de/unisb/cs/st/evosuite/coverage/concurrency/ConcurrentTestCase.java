@@ -260,12 +260,12 @@ public class ConcurrentTestCase implements TestCase {
 	}
 
 	@Override
-	public List<VariableReference> getObjects(Type type, int position) {
+	public Set<VariableReference> getObjects(Type type, int position) {
 		return test.getObjects(type, position);
 	}
 
 	@Override
-	public List<VariableReference> getObjects(int position) {
+	public Set<VariableReference> getObjects(int position) {
 		return test.getObjects(position);
 	}
 
@@ -524,7 +524,7 @@ public class ConcurrentTestCase implements TestCase {
 					Object o = ((ConcurrentScope) scope).getSharedObject();
 					assert (retval.getVariableClass().isAssignableFrom(o.getClass())) : "we want an "
 					        + retval.getVariableClass() + " but got an " + o.getClass();
-					scope.set(retval, o);
+					retval.setObject(scope, o);
 				} else {
 					throw new AssertionError("Statements from "
 					        + BasicTestCase.class.getName()
@@ -557,6 +557,14 @@ public class ConcurrentTestCase implements TestCase {
 		};
 
 		return st;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void replace(VariableReference var1, VariableReference var2) {
+		test.replace(var1, var2);
 	}
 
 }

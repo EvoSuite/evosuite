@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 
 /**
@@ -16,6 +18,8 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
  * 
  */
 public class ConstantInliner extends ExecutionObserver {
+
+	private static Logger logger = Logger.getLogger(ConstantInliner.class);
 
 	private TestCase test = null;
 
@@ -85,9 +89,12 @@ public class ConstantInliner extends ExecutionObserver {
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
 		for (VariableReference var : statement.getVariableReferences()) {
-			if (var.isPrimitive() || var.isString() || scope.get(var) == null) {
+			if (var.equals(statement.getReturnValue())
+			        || var.equals(statement.getReturnValue().getAdditionalVariableReference()))
+				continue;
+			if (var.isPrimitive() || var.isString() || var.getObject(scope) == null) {
 				ConstantValue value = new ConstantValue(test, var.getGenericClass());
-				value.setValue(scope.get(var));
+				value.setValue(var.getObject(scope));
 				// logger.info("Statement before inlining: " + statement.getCode());
 				statement.replace(var, value);
 				// logger.info("Statement after inlining: " + statement.getCode());

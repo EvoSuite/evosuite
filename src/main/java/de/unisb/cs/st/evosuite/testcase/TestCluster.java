@@ -75,7 +75,10 @@ public class TestCluster {
 	public List<Method> test_methods = new ArrayList<Method>();
 
 	/** The usable constructor of the class under test */
-	private final List<Constructor<?>> test_constructors = new ArrayList<Constructor<?>>();;
+	private final List<Constructor<?>> test_constructors = new ArrayList<Constructor<?>>();
+
+	/** The usable fields of the class under test */
+	private final List<Field> test_fields = new ArrayList<Field>();
 
 	/** Cache results about generators */
 	private final HashMap<Type, List<AccessibleObject>> generators = new HashMap<Type, List<AccessibleObject>>();
@@ -136,7 +139,7 @@ public class TestCluster {
 	        throws ConstructionFailedException {
 		cacheGeneratorType(type);
 		if (!generators.containsKey(type))
-			throw new ConstructionFailedException();
+			throw new ConstructionFailedException("Have no generators for " + type);
 
 		return generators.get(type);
 	}
@@ -349,6 +352,7 @@ public class TestCluster {
 	public List<AccessibleObject> getTestCallsWith(Type type) {
 		List<AccessibleObject> calls = new ArrayList<AccessibleObject>();
 		calls.addAll(getTestConstructorsWith(type));
+		calls.addAll(getTestFieldsWith(type));
 		calls.addAll(getTestMethodsWith(type));
 		return calls;
 	}
@@ -396,6 +400,10 @@ public class TestCluster {
 			if (call instanceof Method) {
 				if (((Method) call).getDeclaringClass().isAssignableFrom((Class<?>) type))
 					relevant_calls.add(call);
+			} else if (call instanceof Field) {
+				if (((Field) call).getDeclaringClass().isAssignableFrom((Class<?>) type)
+				        && !Modifier.isFinal(((Field) call).getModifiers()))
+					relevant_calls.add(call);
 			}
 		}
 		calls_for.put(type, relevant_calls);
@@ -411,19 +419,22 @@ public class TestCluster {
 	public AccessibleObject getRandomTestCall() throws ConstructionFailedException {
 		int num_methods = test_methods.size();
 		int num_constructors = test_constructors.size();
+		int num_fields = test_fields.size();
 
 		// If there are no methods, there should always be a default constructor
-		if (num_methods == 0) {
+		if (num_methods == 0 && num_fields == 0) {
 			if (num_constructors == 0)
-				throw new ConstructionFailedException();
-			return test_constructors.get(Randomness.nextInt(num_constructors));
+				throw new ConstructionFailedException("Have no constructors!");
+			return Randomness.choice(test_constructors);
 		}
 
-		int num = Randomness.nextInt(num_methods + num_constructors);
-		if (num >= num_methods) {
-			return test_constructors.get(num - num_methods);
+		int num = Randomness.nextInt(num_methods + num_constructors + num_fields);
+		if (num < num_constructors) {
+			return test_constructors.get(num); // - num_methods - num_fields);
+		} else if (num < (num_methods + num_constructors)) {
+			return test_methods.get(num - num_constructors);
 		} else {
-			return test_methods.get(num);
+			return test_fields.get(num - num_constructors - num_methods);
 		}
 	}
 
@@ -451,6 +462,23 @@ public class TestCluster {
 				suitable_methods.add(m);
 		}
 		return suitable_methods;
+	}
+
+	/**
+	 * Create list of all methods using a certain type as parameter
+	 * 
+	 * @param type
+	 * @return
+	 * @throws ConstructionFailedException
+	 */
+	private List<Field> getTestFieldsWith(Type type) {
+		List<Field> suitable_fields = new ArrayList<Field>();
+
+		for (Field f : test_fields) {
+			if (f.getGenericType().equals(type))
+				suitable_fields.add(f);
+		}
+		return suitable_fields;
 	}
 
 	/**
@@ -555,7 +583,7 @@ public class TestCluster {
 	 * @param clazz
 	 * @return
 	 */
-	private static Set<Field> getFields(Class<?> clazz) {
+	public static Set<Field> getFields(Class<?> clazz) {
 		// TODO: Helper not necessary here!
 		Map<String, Field> helper = new HashMap<String, Field>();
 
@@ -583,6 +611,24 @@ public class TestCluster {
 		// }
 		for (Field f : helper.values()) {
 			fields.add(f);
+		}
+
+		return fields;
+	}
+
+	/**
+	 * Get the set of fields defined in this class and its superclasses
+	 * 
+	 * @param clazz
+	 * @return
+	 */
+	public static Set<Field> getAccessibleFields(Class<?> clazz) {
+		Set<Field> fields = new HashSet<Field>();
+		for (Field f : clazz.getFields()) {
+			// FIXXME: Final is only a problem for write access...
+			if (canUse(f) && !Modifier.isFinal(f.getModifiers())) {
+				fields.add(f);
+			}
 		}
 
 		return fields;
@@ -1093,8 +1139,11 @@ public class TestCluster {
 				// Add all fields
 				for (Field field : getFields(clazz)) {
 					if (canUse(field) && matches(field.getName(), restriction)) {
-						logger.debug("Adding field " + classname + "." + field.getName());
-						calls.add(field);
+						//logger.info("Adding field " + classname + "." + field.getName());
+						if (!Modifier.isFinal(field.getModifiers())) {
+							calls.add(field);
+							test_fields.add(field);
+						}
 						// addGenerator(field, field.getType());
 					}
 				}
@@ -1111,6 +1160,7 @@ public class TestCluster {
 		}
 		logger.info("Found " + test_constructors.size() + " constructors");
 		logger.info("Found " + test_methods.size() + " methods");
+		logger.info("Found " + test_fields.size() + " fields");
 
 		// num_defined_methods = target_functions.size();
 		// logger.info("Target class has "+num_defined_methods+" functions");
@@ -1386,7 +1436,7 @@ public class TestCluster {
 								continue;
 						}
 
-						if (canUse(field)) {
+						if (canUse(field) && !Modifier.isFinal(field.getModifiers())) {
 							field.setAccessible(true);
 							calls.add(field);
 							logger.trace("Adding field " + field);
