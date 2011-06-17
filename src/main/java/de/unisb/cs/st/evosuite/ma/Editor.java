@@ -1,6 +1,9 @@
 package de.unisb.cs.st.evosuite.ma;
 
+import java.util.List;
+
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 
 /**
@@ -9,6 +12,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
  */
 public class Editor {
 	private GeneticAlgorithm gaInstance;
+	private List<TestCase> tests;
 
 	/**
 	 * Create instance of Editor for manual edition of test individuals with:
@@ -23,9 +27,10 @@ public class Editor {
 
 	private void setUp() {
 //		Scanner scanner = new Scanner(System.in);
-		TestSuiteChromosome tsc = (TestSuiteChromosome) gaInstance
+		TestSuiteChromosome testSuiteChr = (TestSuiteChromosome) gaInstance
 				.getBestIndividual();
 		
+		tests = testSuiteChr.getTests();
 		
 		
 		SimpleGUI sgui = new SimpleGUI();
