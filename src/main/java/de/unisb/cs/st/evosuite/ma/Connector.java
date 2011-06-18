@@ -1,12 +1,11 @@
 package de.unisb.cs.st.evosuite.ma;
 
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
-import de.unisb.cs.st.evosuite.ga.SearchAlgorithm;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 
 /**
- * The {@code Connector} Class can be used to connect to the main algorithm of
- * EvoSuite and extract all needed information. It possible by calling static
+ * The {@code Connector} Class is used to connect to the main algorithm of
+ * EvoSuite and extract all needed information. This is possible by calling static
  * method externalCall.
  * 
  * @author Yury Pavlov
@@ -16,7 +15,7 @@ public class Connector {
 	 * If in the next MAX_ITERATION iterations GA delta Fitness <
 	 * MIN_DELTA_FITNESS then we must create test for this branch in manual mode
 	 */
-	private static final double MIN_DELTA_COVERAGE = 0.01;
+	private static final double MIN_DELTA_COVERAGE = 0.001;
 	private static final int MAX_ITERATION = 500;
 
 	private static int iterCount = 0;
@@ -45,8 +44,6 @@ public class Connector {
 
 				if (iterCount > MAX_ITERATION) {
 					Editor editor = new Editor(ga);
-
-					editor.exec();
 					iterCount = 0;
 				}
 
