@@ -2,8 +2,10 @@ package de.unisb.cs.st.evosuite.ma;
 
 import java.util.List;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 
 /**
@@ -13,6 +15,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 public class Editor {
 	private GeneticAlgorithm gaInstance;
 	private List<TestCase> tests;
+	private List<String> sourceCode;
 
 	/**
 	 * Create instance of Editor for manual edition of test individuals with:
@@ -26,30 +29,29 @@ public class Editor {
 	}
 
 	private void setUp() {
-//		Scanner scanner = new Scanner(System.in);
 		TestSuiteChromosome testSuiteChr = (TestSuiteChromosome) gaInstance
 				.getBestIndividual();
-		
+
 		tests = testSuiteChr.getTests();
-		
-		
+		for (String test : tests.toString()) {
+			System.out.println(test + "\n\n");
+		}
+		sourceCode = getSourceCode();
+
 		SimpleGUI sgui = new SimpleGUI();
 		sgui.createWindow();
-		
+	}
 
-		
-//		Debug.printDebugInformation("Enter in join");
-//		try {
-//			guiThread.join();
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//		Debug.printDebugInformation("Exit from join");
-
-//		Debug.printDebugInformation("Print TSC:\n");
-//		Debug.printDebugInformation(tsc.toString());
-		
-//		scanner.close();
+	/**
+	 * @return Source code of tested class
+	 */
+	private List<String> getSourceCode() {
+		try {
+			// FileReader sourceFile = new FileReader();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return null;
 	}
 
 }

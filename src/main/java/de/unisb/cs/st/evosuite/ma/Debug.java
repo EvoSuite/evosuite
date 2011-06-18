@@ -6,7 +6,7 @@ package de.unisb.cs.st.evosuite.ma;
  */
 public class Debug {
 	static boolean DEBUG = true;
-	static boolean DEBUG_CONN = true;
+	static boolean DEBUG_CONN = false;
 	static boolean DEBUG_EDIT = true;
 	
 
