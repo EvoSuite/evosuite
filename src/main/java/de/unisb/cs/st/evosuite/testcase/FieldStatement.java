@@ -186,7 +186,7 @@ public class FieldStatement extends AbstractStatement {
 	public Set<VariableReference> getVariableReferences() {
 		Set<VariableReference> references = new HashSet<VariableReference>();
 		references.add(retval);
-		if (!Modifier.isStatic(field.getModifiers())) {
+		if (!isStatic()) {
 			references.add(source);
 			if (source.getAdditionalVariableReference() != null)
 				references.add(source.getAdditionalVariableReference());

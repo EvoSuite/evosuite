@@ -17,4 +17,14 @@ public class ArrayReference extends VariableReferenceImpl {
 		assert (l >= 0);
 		array_length = l;
 	}
+
+	/**
+	 * Create a copy of the current variable
+	 */
+	@Override
+	public VariableReference clone(TestCase newTestCase) {
+		ArrayReference otherArray = (ArrayReference) newTestCase.getStatement(getStPosition()).getReturnValue();
+		otherArray.setArrayLength(array_length);
+		return otherArray;
+	}
 }

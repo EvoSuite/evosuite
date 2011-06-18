@@ -170,29 +170,49 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	@Override
 	public void deleteStatement(TestCase test, int position)
 	        throws ConstructionFailedException {
-		logger.trace("Deleting Statement - " + position);
-		// logger.info(test.toCode());
+		logger.debug("Deleting target statement - " + position);
+		//logger.info(test.toCode());
 
-		List<VariableReference> references = test.getReferences(test.getReturnValue(position));
-		List<Integer> positions = new ArrayList<Integer>();
-		Set<Integer> p = new HashSet<Integer>();
-		p.add(position);
-		for (VariableReference var : references) {
-			if (!(var instanceof ConstantValue))
-				p.add(var.getStPosition());
-			// positions.add(var.statement);
+		Set<VariableReference> references = new HashSet<VariableReference>();
+		Set<Integer> positions = new HashSet<Integer>();
+		positions.add(position);
+		references.add(test.getReturnValue(position));
+		for (int i = position; i < test.size(); i++) {
+			Set<VariableReference> temp = new HashSet<VariableReference>();
+			for (VariableReference v : references) {
+				if (test.getStatement(i).references(v)) {
+					temp.add(test.getStatement(i).getReturnValue());
+					positions.add(i);
+				}
+			}
+			references.addAll(temp);
 		}
-		positions.addAll(p);
-		Collections.sort(positions, Collections.reverseOrder());
-		for (Integer pos : positions) {
-			// logger.info("Deleting statement: "+pos);
-			test.remove(pos);
+		List<Integer> pos = new ArrayList<Integer>(positions);
+		Collections.sort(pos, Collections.reverseOrder());
+		for (Integer i : pos) {
+			logger.debug("Deleting statement: " + i);
+			test.remove(i);
 		}
 
-		// logger.trace("DeleteStatement mutation: Var is not referenced, deleting");
-		// logger.info("Deleting statement: "+position);
-		// test.remove(position);
-		// logger.info(test.toCode());
+		/*
+				Set<VariableReference> references = test.getReferences(test.getReturnValue(position));
+				List<Integer> positions = new ArrayList<Integer>();
+				Set<Integer> p = new HashSet<Integer>();
+				p.add(position);
+				for (VariableReference var : references) {
+					if (!(var instanceof ConstantValue))
+						p.add(var.getStPosition());
+					// positions.add(var.statement);
+				}
+				positions.addAll(p);
+				Collections.sort(positions, Collections.reverseOrder());
+				for (Integer pos : positions) {
+					test.remove(pos);
+				}
+				// logger.trace("DeleteStatement mutation: Var is not referenced, deleting");
+				// logger.info("Deleting statement: "+position);
+				// test.remove(position);
+		*/
 	}
 
 	/**
@@ -275,8 +295,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		}
 
 		assert (test.isValid());
+
 		// Remove everything else
 		deleteStatement(test, position);
+		assert (test.isValid());
+
 	}
 
 	/**
@@ -480,12 +503,17 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			return reference;
 
 		} else if (!GenericTypeReflector.erase(parameter_type).isPrimitive()
-		        && !objects.isEmpty() && reuse <= Properties.OBJECT_REUSE_PROBABILITY) {
+		        && !objects.isEmpty()
+		        && ((reuse <= Properties.OBJECT_REUSE_PROBABILITY) || !test_cluster.hasGenerator(parameter_type))) {
 
+			logger.debug(" Choosing from " + objects.size() + " existing objects");
 			VariableReference reference = Randomness.choice(objects);
+			logger.debug(" Using existing object of type " + parameter_type + ": "
+			        + reference);
 			return reference;
 
 		} else {
+			logger.debug(" Generating new object of type " + parameter_type);
 			VariableReference reference = attemptGeneration(test, parameter_type,
 			                                                position, recursion_depth,
 			                                                true);
@@ -1141,8 +1169,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	@Override
 	public boolean changeRandomCall(TestCase test, StatementInterface statement) {
-		logger.debug("Changing statement " + statement.getCode() + " in test "
-		        + test.toCode());
+		logger.debug("Changing statement " + statement.getCode());
+		//+ " in test "
 		Set<VariableReference> objects = test.getObjects(statement.getReturnValue().getStPosition());
 		objects.remove(statement.getReturnValue());
 		// TODO: replacing void calls with other void calls might not be the best idea
@@ -1167,7 +1195,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			if (statement instanceof TestCallStatement)
 				logger.info("Changing testcall statement");
 			changeCall(test, statement, call);
-			logger.debug("Changed to: " + test.toCode());
+			//logger.debug("Changed to: " + test.toCode());
 
 			return true;
 		} catch (ConstructionFailedException e) {

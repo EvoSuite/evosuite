@@ -100,7 +100,6 @@ public class FieldReference extends VariableReferenceImpl {
 				if (sourceObject == null)
 					return;
 			}
-
 			if (value.getClass().equals(Integer.class)
 			        || value.getClass().equals(int.class))
 				field.setInt(sourceObject, (Integer) value);
@@ -156,8 +155,8 @@ public class FieldReference extends VariableReferenceImpl {
 	 */
 	@Override
 	public VariableReference getAdditionalVariableReference() {
-		if (source instanceof FieldReference)
-			return ((FieldReference) source).getAdditionalVariableReference();
+		if (source != null && source.getAdditionalVariableReference() != null)
+			return source.getAdditionalVariableReference();
 		else
 			return source;
 	}

@@ -177,7 +177,10 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 */
 	@Override
 	public VariableReference getAdditionalVariableReference() {
-		return array;
+		if (array.getAdditionalVariableReference() == null)
+			return array;
+		else
+			return array.getAdditionalVariableReference();
 	}
 
 	/* (non-Javadoc)
@@ -196,8 +199,8 @@ public class ArrayIndex extends VariableReferenceImpl {
 	public void replaceAdditionalVariableReference(VariableReference var1,
 	        VariableReference var2) {
 		if (array.equals(var1)) {
-			logger.info("Replacing " + var1.getClassName() + " " + var1 + " with "
-			        + var2.getClassName() + " " + var2);
+			//logger.info("Replacing " + var1.getClassName() + " " + var1 + " with "
+			//        + var2.getClassName() + " " + var2);
 			array = (ArrayReference) var2;
 		} else
 			array.replaceAdditionalVariableReference(var1, var2);

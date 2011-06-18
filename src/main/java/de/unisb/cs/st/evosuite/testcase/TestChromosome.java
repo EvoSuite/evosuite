@@ -73,7 +73,7 @@ public class TestChromosome extends Chromosome {
 		c.test = test.clone();
 		assert (test.isValid());
 		assert (c.test.isValid());
-		// assert (test.toCode().equals(c.test.toCode()));
+		//assert (test.toCode().equals(c.test.toCode()));
 
 		c.setFitness(getFitness());
 		c.solution = solution;
@@ -349,10 +349,11 @@ public class TestChromosome extends Chromosome {
 		if (!changed) {
 			for (StatementInterface statement : test) {
 				if (Randomness.nextDouble() <= pl) {
+					assert (test.isValid());
 					if (statement.mutate(test, test_factory)) {
 						changed = true;
 						assert (test.isValid());
-					} else {
+					} else if (!(statement instanceof AssignmentStatement)) {
 						boolean replaced = test_factory.changeRandomCall(test, statement);
 						changed = replaced || changed;
 						assert (test.isValid());
