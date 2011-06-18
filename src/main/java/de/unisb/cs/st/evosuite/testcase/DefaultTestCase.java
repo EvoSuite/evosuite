@@ -161,6 +161,8 @@ public class DefaultTestCase implements TestCase {
 					variables.add(value);
 				} else if (GenericClass.isAssignable(type, value.getComponentType())) {
 					for (int index = 0; index < ((ArrayReference) value).getArrayLength(); index++) {
+						//logger.info("Adding array index " + index + " to array "
+						//        + value.getSimpleClassName() + " " + value.getName());
 						variables.add(new ArrayIndex(this, (ArrayReference) value, index));
 					}
 				}
@@ -315,8 +317,8 @@ public class DefaultTestCase implements TestCase {
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getReferences(de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
 	@Override
-	public List<VariableReference> getReferences(VariableReference var) {
-		List<VariableReference> references = new ArrayList<VariableReference>();
+	public Set<VariableReference> getReferences(VariableReference var) {
+		Set<VariableReference> references = new HashSet<VariableReference>();
 
 		if (var == null || var.getStPosition() == -1)
 			return references;
@@ -324,7 +326,7 @@ public class DefaultTestCase implements TestCase {
 		// references.add(var);
 
 		for (int i = var.getStPosition() + 1; i < statements.size(); i++) {
-			List<VariableReference> temp = new ArrayList<VariableReference>();
+			Set<VariableReference> temp = new HashSet<VariableReference>();
 			if (statements.get(i).references(var))
 				temp.add(statements.get(i).getReturnValue());
 			for (VariableReference v : references) {

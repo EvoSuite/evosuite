@@ -53,6 +53,16 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 		this.tc = tc;
 	}
 
+	protected AbstractStatement(TestCase tc, Type type) {
+		GenericClass c = new GenericClass(type);
+		if (c.isArray()) {
+			this.retval = new ArrayReference(tc, c, 0);
+		} else {
+			this.retval = new VariableReferenceImpl(tc, type);
+		}
+		this.tc = tc;
+	}
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#references(de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
@@ -65,6 +75,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#SetRetval(de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
+	@Override
 	public void SetRetval(VariableReference newRetVal) {
 		this.retval = newRetVal;
 	}

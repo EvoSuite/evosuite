@@ -39,7 +39,7 @@ import java.util.Set;
  */
 public class Scope {
 
-	Map<VariableReference, Object> pool;
+	private final Map<VariableReference, Object> pool;
 
 	/**
 	 * Constructor
@@ -64,9 +64,9 @@ public class Scope {
 			if (o != null && !o.getClass().isArray())
 				System.out.println("Trying to access object of class " + o.getClass()
 				        + " as array: " + o);
-			else if (o != null)
+			else if (o != null) {
 				arrayRef.setArrayLength(Array.getLength(o));
-			else
+			} else
 				arrayRef.setArrayLength(0);
 		}
 

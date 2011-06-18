@@ -51,6 +51,7 @@ public class Randomness implements Serializable {
 				random = new MersenneTwister(seed);
 			} catch (Exception e) {
 				seed = System.currentTimeMillis();
+				logger.warn("Using random seed: " + seed);
 				random = new MersenneTwister();
 			}
 		}

@@ -354,7 +354,7 @@ public class ConcurrentTestCase implements TestCase {
 	}
 
 	@Override
-	public List<VariableReference> getReferences(VariableReference var) {
+	public Set<VariableReference> getReferences(VariableReference var) {
 		return test.getReferences(var);
 	}
 
