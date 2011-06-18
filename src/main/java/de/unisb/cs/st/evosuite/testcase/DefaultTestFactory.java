@@ -585,6 +585,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		// For each value of array, call attemptGeneration
 		Set<VariableReference> objects = test.getObjects(reference.getComponentType(),
 		                                                 position);
+
+		// Don't assign values to other values in the same array initially
 		Iterator<VariableReference> iterator = objects.iterator();
 		while (iterator.hasNext()) {
 			VariableReference current = iterator.next();
@@ -592,9 +594,6 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				ArrayIndex index = (ArrayIndex) current;
 				if (index.getArray().equals(statement.retval))
 					iterator.remove();
-			} else if (current instanceof ArrayReference) {
-				logger.info("Trying to assign rubbish: " + current);
-				assert (false);
 			}
 		}
 		for (int i = 0; i < statement.size(); i++) {
