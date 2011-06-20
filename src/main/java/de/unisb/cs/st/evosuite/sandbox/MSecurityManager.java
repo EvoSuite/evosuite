@@ -38,7 +38,6 @@ class MSecurityManager extends SecurityManager {
 	/** indicates if mocks are enabled */
 	private final boolean mocksEnabled = Properties.MOCKS;
 
-	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(MSecurityManager.class);
 
 	/**
@@ -48,6 +47,7 @@ class MSecurityManager extends SecurityManager {
 	public void checkPermission(Permission perm) {
 		// check access  
 		if (!allowPermission(perm)) {
+			logger.debug("Security manager blocks permission " + perm);
 			String stack = "\n";
 			for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
 				stack += e + "\n";
@@ -107,7 +107,7 @@ class MSecurityManager extends SecurityManager {
 
 			// Check for allowed permissions.
 			// Done with chunk of ugly "if-case" code, since it switch statement does not
-			// support Strings as parameters. Doing it trough Enum is also not an option,
+			// support Strings as parameters. Doing it through Enum is also not an option,
 			// since java cannot guarantee the unique values returned by hashCode() method.
 			if (permName.equals("java.lang.reflect.ReflectPermission"))
 				return true;
@@ -137,6 +137,7 @@ class MSecurityManager extends SecurityManager {
 						return true;
 				}
 			}
+
 			return false;
 		}
 		return true;
