@@ -106,7 +106,7 @@ public class CFGPool {
 		}
 		Map<String, ActualControlFlowGraph> methods = actualCFGs.get(className);
 		logger.debug("Added CFG for class " + className + " and method " + methodName);
-		cfg.finalize();
+		cfg.finalise();
 		methods.put(methodName, cfg);
 
 		if (Properties.WRITE_CFG)
