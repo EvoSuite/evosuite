@@ -110,13 +110,17 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 		if (r <= P) {
 			// add new call of the UUT - only declared in UUT!
+			logger.debug("Adding new call on UUT");
 			insertRandomCall(test, position);
 
 		} else if (r <= 2 * P) {
+			logger.debug("Adding new call on existing object");
 			// add call on existing object
 			VariableReference object = test.getRandomObject(position);
 			if (object != null) {
+				logger.debug("Chosen object: " + object.getName());
 				if (object instanceof ArrayReference) {
+					logger.debug("Chosen object is array ");
 					ArrayReference array = (ArrayReference) object;
 					if (array.getArrayLength() > 0) {
 						int index = Randomness.nextInt(array.getArrayLength());
@@ -127,14 +131,22 @@ public class DefaultTestFactory extends AbstractTestFactory {
 						}
 					}
 				} else {
+					logger.debug("Getting calls for object");
 					List<AccessibleObject> calls = test_cluster.getCallsFor(object.getVariableClass());
+					for (AccessibleObject o : calls)
+						logger.debug("  " + o);
 					// List<Method> calls =
 					// getMethods(object.getVariableClass());
 					if (!calls.isEmpty()) {
 						AccessibleObject call = calls.get(Randomness.nextInt(calls.size()));
+						logger.debug("Chosen call " + call);
 						addCallFor(test, object, call, position);
+						logger.debug("Done adding call " + call);
 					}
+
 				}
+			} else {
+				logger.debug("Chosen object is null");
 			}
 		} else // FIXME - not used
 		{
@@ -262,7 +274,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	@Override
 	public void deleteStatementGracefully(TestCase test, int position)
 	        throws ConstructionFailedException {
-		logger.trace("Delete Statement - " + position);
+		logger.debug("Delete Statement - " + position);
 		assert (test.isValid());
 
 		VariableReference var = test.getReturnValue(position);
@@ -272,7 +284,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		}
 
 		// Get possible replacements
-		Set<VariableReference> alternatives = test.getObjects(var.getType(), position);
+		List<VariableReference> alternatives = test.getObjects(var.getType(), position);
 
 		// Remove self, and all field or array references to self
 		alternatives.remove(var);
@@ -361,7 +373,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				// TODO: Would casting be an option here?
 				callee = test.getRandomObject(method.getDeclaringClass(), position);
 				logger.debug("Found callee of type "
-				        + method.getDeclaringClass().getName());
+				        + method.getDeclaringClass().getName() + ": " + callee.getName());
 			} catch (ConstructionFailedException e) {
 				logger.debug("No callee of type " + method.getDeclaringClass().getName()
 				        + " found");
@@ -482,7 +494,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	        throws ConstructionFailedException {
 		double reuse = Randomness.nextDouble();
 
-		Set<VariableReference> objects = test.getObjects(parameter_type, position);
+		List<VariableReference> objects = test.getObjects(parameter_type, position);
 		if (exclude != null) {
 			objects.remove(exclude);
 			if (exclude.getAdditionalVariableReference() != null)
@@ -557,8 +569,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	        int position) throws ConstructionFailedException {
 		//logger.info("Array " + array.getSimpleClassName() + " " + array.getName() + " - "
 		//        + array.getComponentType());
-		Set<VariableReference> objects = test.getObjects(array.getComponentType(),
-		                                                 position);
+		List<VariableReference> objects = test.getObjects(array.getComponentType(),
+		                                                  position);
 		Iterator<VariableReference> iterator = objects.iterator();
 		while (iterator.hasNext()) {
 			VariableReference var = iterator.next();
@@ -569,7 +581,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	}
 
 	protected void assignArray(TestCase test, VariableReference array, int array_index,
-	        int position, Set<VariableReference> objects)
+	        int position, List<VariableReference> objects)
 	        throws ConstructionFailedException {
 		assert (array instanceof ArrayReference);
 		ArrayReference arrRef = (ArrayReference) array;
@@ -613,8 +625,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		position++;
 
 		// For each value of array, call attemptGeneration
-		Set<VariableReference> objects = test.getObjects(reference.getComponentType(),
-		                                                 position);
+		List<VariableReference> objects = test.getObjects(reference.getComponentType(),
+		                                                  position);
 
 		// Don't assign values to other values in the same array initially
 		Iterator<VariableReference> iterator = objects.iterator();
@@ -771,6 +783,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	 */
 	private void addCallFor(TestCase test, VariableReference callee,
 	        AccessibleObject call, int position) {
+		logger.trace("addCallFor " + callee.getName());
+
 		int previous_length = test.size();
 		current_recursion.clear();
 		try {
@@ -834,6 +848,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		int previous_length = test.size();
 		String name = "";
 		current_recursion.clear();
+		logger.debug("Inserting random call at position " + position);
 		try {
 			// AccessibleObject o = mapping.getRandomCall();
 			AccessibleObject o = test_cluster.getRandomTestCall();
@@ -1051,7 +1066,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			try {
 				callee = test.getRandomObject(method.getDeclaringClass(), position);
 				logger.debug("Found callee of type "
-				        + method.getDeclaringClass().getName());
+				        + method.getDeclaringClass().getName() + ": " + callee.getName());
 			} catch (ConstructionFailedException e) {
 				logger.debug("No callee of type " + method.getDeclaringClass().getName()
 				        + " found at position " + position);
@@ -1121,7 +1136,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	}
 
 	private boolean dependenciesSatisfied(Set<Type> dependencies,
-	        Set<VariableReference> objects) {
+	        List<VariableReference> objects) {
 		for (Type type : dependencies) {
 			boolean found = false;
 			for (VariableReference var : objects) {
@@ -1138,7 +1153,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	// TODO: Return all possible statements that have this return type
 	private List<AccessibleObject> getPossibleCalls(Type return_type,
-	        Set<VariableReference> objects) {
+	        List<VariableReference> objects) {
 		List<AccessibleObject> calls = new ArrayList<AccessibleObject>();
 		List<AccessibleObject> all_calls;
 
@@ -1173,7 +1188,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	public boolean changeRandomCall(TestCase test, StatementInterface statement) {
 		logger.debug("Changing statement " + statement.getCode());
 		//+ " in test "
-		Set<VariableReference> objects = test.getObjects(statement.getReturnValue().getStPosition());
+		List<VariableReference> objects = test.getObjects(statement.getReturnValue().getStPosition());
 		objects.remove(statement.getReturnValue());
 		// TODO: replacing void calls with other void calls might not be the best idea
 		List<AccessibleObject> calls = getPossibleCalls(statement.getReturnType(),

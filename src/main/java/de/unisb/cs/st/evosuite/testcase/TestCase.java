@@ -61,7 +61,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 * @param position
 	 * @return
 	 */
-	public Set<VariableReference> getObjects(Type type, int position);
+	public List<VariableReference> getObjects(Type type, int position);
 
 	/**
 	 * Get all objects up to position satisfying constraint
@@ -71,7 +71,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 * @param constraint
 	 * @return
 	 */
-	public Set<VariableReference> getObjects(int position);
+	public List<VariableReference> getObjects(int position);
 
 	/**
 	 * Get a random object matching type

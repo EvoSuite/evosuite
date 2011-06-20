@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -126,18 +127,19 @@ public class DefaultTestCase implements TestCase {
 		return code;
 	}
 
-	private void addFields(Set<VariableReference> variables, VariableReference var,
+	private void addFields(List<VariableReference> variables, VariableReference var,
 	        Type type) {
+
 		if (!var.isPrimitive()) {
 			// add fields of this object to list
 			for (Field field : TestCluster.getAccessibleFields(var.getVariableClass())) {
 				FieldReference f = new FieldReference(this, field, var);
 				if (f.getDepth() <= 2) {
 					if (type != null) {
-						if (f.isAssignableTo(type)) {
+						if (f.isAssignableTo(type) && !variables.contains(f)) {
 							variables.add(f);
 						}
-					} else {
+					} else if (!variables.contains(f)) {
 						variables.add(f);
 					}
 				}
@@ -149,8 +151,8 @@ public class DefaultTestCase implements TestCase {
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getObjects(java.lang.reflect.Type, int)
 	 */
 	@Override
-	public Set<VariableReference> getObjects(Type type, int position) {
-		Set<VariableReference> variables = new HashSet<VariableReference>();
+	public List<VariableReference> getObjects(Type type, int position) {
+		List<VariableReference> variables = new LinkedList<VariableReference>();
 
 		for (int i = 0; i < position && i < size(); i++) {
 			VariableReference value = statements.get(i).getReturnValue();
@@ -180,7 +182,6 @@ public class DefaultTestCase implements TestCase {
 			}
 		}
 
-		logger.trace("Found " + variables.size() + " variables of type " + type);
 		return variables;
 	}
 
@@ -188,8 +189,8 @@ public class DefaultTestCase implements TestCase {
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getObjects(int)
 	 */
 	@Override
-	public Set<VariableReference> getObjects(int position) {
-		Set<VariableReference> variables = new HashSet<VariableReference>();
+	public List<VariableReference> getObjects(int position) {
+		List<VariableReference> variables = new LinkedList<VariableReference>();
 
 		for (int i = 0; i < position && i < statements.size(); i++) {
 			VariableReference value = statements.get(i).getReturnValue();
@@ -208,7 +209,6 @@ public class DefaultTestCase implements TestCase {
 			// logger.trace(statements.get(i).retval.getSimpleClassName());
 		}
 
-		logger.trace("Found " + variables.size() + " variables");
 		return variables;
 	}
 
@@ -225,7 +225,7 @@ public class DefaultTestCase implements TestCase {
 	 */
 	@Override
 	public VariableReference getRandomObject(int position) {
-		Set<VariableReference> variables = getObjects(position);
+		List<VariableReference> variables = getObjects(position);
 		if (variables.isEmpty())
 			return null;
 
@@ -248,7 +248,7 @@ public class DefaultTestCase implements TestCase {
 	public VariableReference getRandomObject(Type type, int position)
 	        throws ConstructionFailedException {
 		assert (type != null);
-		Set<VariableReference> variables = getObjects(type, position);
+		List<VariableReference> variables = getObjects(type, position);
 		if (variables.isEmpty())
 			throw new ConstructionFailedException("Found no variables of type " + type
 			        + " at position " + position);
