@@ -70,8 +70,9 @@ public class Scope {
 				arrayRef.setArrayLength(0);
 		}
 
+		// TODO: Changing array types might invalidate array assignments - how to treat this properly?
 		if (o != null && !o.getClass().equals(reference.getVariableClass())
-		        && !reference.isPrimitive()) {
+		        && !reference.isPrimitive()) { // && !(reference instanceof ArrayReference)) {
 			if (Modifier.isPublic(o.getClass().getModifiers()))
 				reference.setType(o.getClass());
 		}

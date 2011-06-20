@@ -167,17 +167,20 @@ public class MethodStatement extends AbstractStatement {
 
 		String parameter_string = "";
 		if (!parameters.isEmpty()) {
-			if (!method.getParameterTypes()[0].equals(parameters.get(0).getVariableClass())
-			        && parameters.get(0) instanceof ArrayIndex)
-				parameter_string += "(" + method.getParameterTypes()[0].getSimpleName()
-				        + ")";
+			if (!method.getParameterTypes()[0].equals(parameters.get(0).getVariableClass()))
+				//			        && parameters.get(0) instanceof ArrayIndex)
+				parameter_string += "("
+				        + new GenericClass(method.getParameterTypes()[0]).getSimpleName()
+				        + ") ";
 			parameter_string += parameters.get(0).getName();
 			for (int i = 1; i < parameters.size(); i++) {
-				if (!method.getParameterTypes()[i].equals(parameters.get(i).getVariableClass())
-				        && parameters.get(i) instanceof ArrayIndex)
+				parameter_string += ", ";
+				if (!method.getParameterTypes()[i].equals(parameters.get(i).getVariableClass()))
+					//				        && parameters.get(i) instanceof ArrayIndex)
 					parameter_string += "("
-					        + method.getParameterTypes()[i].getSimpleName() + ")";
-				parameter_string += ", " + parameters.get(i).getName();
+					        + new GenericClass(method.getParameterTypes()[i]).getSimpleName()
+					        + ") ";
+				parameter_string += parameters.get(i).getName();
 			}
 		}
 

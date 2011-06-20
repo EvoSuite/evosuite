@@ -199,9 +199,13 @@ public class ArrayIndex extends VariableReferenceImpl {
 	public void replaceAdditionalVariableReference(VariableReference var1,
 	        VariableReference var2) {
 		if (array.equals(var1)) {
-			//logger.info("Replacing " + var1.getClassName() + " " + var1 + " with "
-			//        + var2.getClassName() + " " + var2);
-			array = (ArrayReference) var2;
+			if (var2 instanceof ArrayReference) {
+				array = (ArrayReference) var2;
+			}
+			// EvoSuite might try to replace this with a field reference
+			// but for this we have FieldStatements, which would give us
+			// ArrayReferences.
+			// Such a replacement should only happen as part of a graceful delete
 		} else
 			array.replaceAdditionalVariableReference(var1, var2);
 	}

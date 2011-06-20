@@ -90,6 +90,10 @@ public class GenericClass {
 		return raw_class.getComponentType();
 	}
 
+	public Type getComponentClass() {
+		return GenericTypeReflector.erase(raw_class.getComponentType());
+	}
+
 	/**
 	 * Set of wrapper classes
 	 */
@@ -132,7 +136,8 @@ public class GenericClass {
 			        || ((Class<?>) lhsType).equals(void.class))
 				return false;
 
-			return ClassUtils.isAssignable((Class<?>) rhsType, (Class<?>) lhsType);
+			//			return ClassUtils.isAssignable((Class<?>) rhsType, (Class<?>) lhsType);
+			return ((Class<?>) lhsType).isAssignableFrom((Class<?>) rhsType);
 		}
 
 		//	if(lhsType instanceof ParameterizedType && rhsType instanceof ParameterizedType) {
@@ -253,8 +258,8 @@ public class GenericClass {
 	}
 
 	public String getSimpleName() {
-		return raw_class.getSimpleName();
-		// return ClassUtils.getShortClassName(raw_class);
+		// return raw_class.getSimpleName();
+		return ClassUtils.getShortClassName(raw_class).replace(";", "[]");
 	}
 
 	@Override

@@ -47,15 +47,25 @@ public class AssignmentStatement extends AbstractStatement {
 	public AssignmentStatement(TestCase tc, VariableReference var, VariableReference value) {
 		super(tc, var);
 		this.parameter = value;
-		assert (this.parameter.getType().equals(value.getType()));
-		assert (this.parameter.isAssignableTo(retval.getType()));
-
+		// TODO:
+		// Assignment of an "unassignable" type may happen if we have no generator for
+		// the target class, as we then attempt generating a superclass and try to case
+		// down to the actual class
+		//
+		//assert (this.parameter.getType().equals(value.getType()));
+		//if (!this.parameter.isAssignableTo(retval.getType()))
+		//	logger.warn(parameter.getSimpleClassName() + " " + parameter.getName()
+		//	        + " is not assignable to " + retval.getSimpleClassName() + " "
+		//	        + retval.getName() + " in test " + tc.toCode());
+		//assert (this.parameter.isAssignableTo(retval.getType()));
+		//
 		//		assert (retval.getVariableClass().isAssignableFrom(parameter.getVariableClass()));
 	}
 
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
 		try {
+			//logger.info("CLoning : " + getCode());
 			VariableReference newParam = parameter.clone(newTestCase);
 			VariableReference newTarget = retval.clone(newTestCase);
 			AssignmentStatement copy = new AssignmentStatement(newTestCase, newTarget,
@@ -77,8 +87,8 @@ public class AssignmentStatement extends AbstractStatement {
 
 		try {
 			Object value = parameter.getObject(scope);
-			assert (retval.isPrimitive() || retval.getVariableClass().isAssignableFrom(value.getClass())) : "we want an "
-			        + retval.getVariableClass() + " but got an " + value.getClass();
+			// assert (retval.isPrimitive() || retval.isAssignableFrom(value.getClass())) : "we want an "
+			//        + retval.getVariableClass() + " but got a " + value.getClass();
 			retval.setObject(scope, value);
 		} catch (AssertionError ae) { //could be thrown in getArrayIndex
 			throw ae;
@@ -90,7 +100,11 @@ public class AssignmentStatement extends AbstractStatement {
 
 	@Override
 	public String getCode(Throwable exception) {
-		return retval.getName() + " = " + parameter.getName() + ";";
+		String cast = "";
+		if (!retval.getVariableClass().equals(parameter.getVariableClass()))
+			cast = "(" + retval.getSimpleClassName() + ") ";
+
+		return retval.getName() + " = " + cast + parameter.getName() + ";";
 	}
 
 	@Override
@@ -241,8 +255,14 @@ public class AssignmentStatement extends AbstractStatement {
 			Iterator<VariableReference> var = objects.iterator();
 			while (var.hasNext()) {
 				// Only try other array/field references
-				if (var.next().getAdditionalVariableReference() == null)
+				VariableReference v = var.next();
+				if (v.getAdditionalVariableReference() == null)
 					var.remove();
+				// else if (v instanceof ArrayReference) {
+				//	if (!v.isAssignableTo(retval) || !retval.isAssignableTo(v))
+				//		var.remove();
+
+				//}
 			}
 			for (VariableReference v : objects) {
 				if (!v.isAssignableTo(retval.getType())) {
@@ -252,6 +272,7 @@ public class AssignmentStatement extends AbstractStatement {
 			if (!objects.isEmpty()) {
 				retval = Randomness.choice(objects);
 				assert (isValid());
+				test.clone();
 
 				return true;
 			}

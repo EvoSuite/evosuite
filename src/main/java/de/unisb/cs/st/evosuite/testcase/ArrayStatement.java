@@ -101,8 +101,9 @@ public class ArrayStatement extends AbstractStatement {
 
 	@Override
 	public String getCode(Throwable exception) {
-		return retval.getComponentName() + "[] " + retval.getName() + " = new "
-		        + retval.getComponentName() + "[" + length + "];";
+		return retval.getSimpleClassName() + " " + retval.getName() + " = new "
+		        + retval.getSimpleClassName().replaceFirst("\\[\\]", "") + "[" + length
+		        + "];";
 	}
 
 	@Override
@@ -178,6 +179,14 @@ public class ArrayStatement extends AbstractStatement {
 		} else {
 			return false;
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.AbstractStatement#mutate(de.unisb.cs.st.evosuite.testcase.TestCase, de.unisb.cs.st.evosuite.testcase.AbstractTestFactory)
+	 */
+	@Override
+	public boolean mutate(TestCase test, AbstractTestFactory factory) {
+		return true; // TODO: Possibly increase length?
 	}
 
 }
