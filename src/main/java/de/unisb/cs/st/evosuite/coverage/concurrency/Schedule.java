@@ -57,4 +57,11 @@ public interface Schedule extends Iterable<Integer>{
 	 * @param threadID only supplied for internal error checking
 	 */
 	public void notifyOfUsedSchedule(int threadID);
+	
+	/**
+	 * Returns the element at position index from this schedule
+	 * @param index
+	 * @return
+	 */
+	public Integer getElement(int index);
 }

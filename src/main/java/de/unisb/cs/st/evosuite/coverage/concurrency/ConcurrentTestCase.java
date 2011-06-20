@@ -7,6 +7,8 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -48,6 +50,8 @@ public class ConcurrentTestCase implements TestCase {
 
 	//A list of thread IDs
 	private final List<Integer> schedule;
+	//used during mutation to remember schedule which should be deleted
+	private final Set<Integer> scheduleToDelete; 
 
 	private final boolean replaceConst;
 
@@ -67,12 +71,13 @@ public class ConcurrentTestCase implements TestCase {
 	 *            if true all constructors are replaced with calls to a pseudo
 	 *            variable (representing the parameter)
 	 */
-	public ConcurrentTestCase(BasicTestCase test, boolean replaceConst) {
-		assert (test != null);
-		this.test = test;
-		seenThreadIDs = new HashSet<Integer>();
-		schedule = new ArrayList<Integer>();
-		this.replaceConst = replaceConst;
+	public ConcurrentTestCase(BasicTestCase test, boolean replaceConst){
+		assert(test!=null);
+		this.test=test;
+		seenThreadIDs=new HashSet<Integer>();
+		schedule=new ArrayList<Integer>();
+		this.replaceConst=replaceConst;
+		scheduleToDelete=new HashSet<Integer>();
 	}
 
 	public void setScheduleObserver(scheduleObserver obs) {
@@ -103,6 +108,7 @@ public class ConcurrentTestCase implements TestCase {
 		if (currentSchedule != null) {
 			currentSchedule.invalidate();
 		}
+		deleteMarkedSchedule();
 		Scheduler s = new Scheduler(schedule, seenThreadIDs, scheduleObserver);
 		return s;
 	}
@@ -112,6 +118,18 @@ public class ConcurrentTestCase implements TestCase {
 		return test.hashCode() + schedule.hashCode();
 	}
 
+	/**
+	 * Sets the schedule of this ConcurrentTestCase
+	 * Notice that the elements of newSchedule replace the old schedule elements.
+	 * The list references are not changed.
+	 * @param newSchedule
+	 */
+	public void setSchedule(List<Integer> newSchedule){
+				assert(newSchedule!=null);
+				this.schedule.clear();
+				this.schedule.addAll(newSchedule);
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -143,8 +161,9 @@ public class ConcurrentTestCase implements TestCase {
 	public ConcurrentTestCase clone() {
 		BasicTestCase newTest = test.clone();
 		ConcurrentTestCase newConTest = new ConcurrentTestCase(newTest, replaceConst);
-		//newConTest.setCallReporter(reporter);
-		//newConTest.setScheduleObserver(scheduleObserver);
+		newConTest.setCallReporter(reporter);
+		newConTest.setScheduleObserver(scheduleObserver);
+		newConTest.scheduleToDelete.addAll(scheduleToDelete);
 		newConTest.schedule.addAll(schedule);
 		return newConTest;
 	}
@@ -174,10 +193,12 @@ public class ConcurrentTestCase implements TestCase {
 		 *#TODO steenbuck this is a workaround which should be removd.
 		 *The problem is that the code is executed inside evosuite using a testcase with two more statements. (Thread ID and thread registratioon)
 		 */
+		
 		this.addStatement(getPseudoStatement(this, Properties.getTargetClass()), 0, false);
 		this.addStatement(getPseudoStatement(this, Properties.getTargetClass()), 0, false);
-		assert (scheduleObserver != null);
-		StringBuilder b = new StringBuilder();
+
+		assert(scheduleObserver!=null);
+		StringBuilder b = new StringBuilder();	
 		b.append("Integer[] schedule");
 		b.append(id);
 		b.append(" = {");
@@ -236,15 +257,17 @@ public class ConcurrentTestCase implements TestCase {
 	@Override
 	public String toCode(Map<Integer, Throwable> exceptions) {
 		StringBuilder code = new StringBuilder();
+		
 		for (int i = 0; i < size(); i++) {
 			StatementInterface statement = this.getStatement(i);
-			Set<Integer> schedule = reporter.getScheduleForStatement(statement);
+			Set<Integer> schedule = reporter.getScheduleIndicesForStatement(statement);
 			//System.exit(1);
 			StringBuilder scheduleString = new StringBuilder();
 			for (Integer p : schedule) {
 				scheduleString.append(p);
 				scheduleString.append(",");
 			}
+			
 			if (exceptions.containsKey(i)) {
 				code.append(statement.getCode(exceptions.get(i)) + "// schedule: "
 				        + scheduleString.toString() + " \n");
@@ -360,6 +383,7 @@ public class ConcurrentTestCase implements TestCase {
 
 	@Override
 	public void remove(int position) {
+		markScheduleDeleted(getStatement(position));
 		test.remove(position);
 	}
 
@@ -557,6 +581,25 @@ public class ConcurrentTestCase implements TestCase {
 		};
 
 		return st;
+	}
+	
+	private void markScheduleDeleted(StatementInterface st){
+		if(reporter!=null){
+			//logger.fatal("tread " + st.getClass());
+			for(Integer i : reporter.getScheduleIndicesForStatement(st)){
+				logger.fatal("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXxxxxxxxx " + i);
+				scheduleToDelete.add(i);
+			}
+		}
+	}
+	
+	private void deleteMarkedSchedule(){
+		List<Integer> del = new ArrayList<Integer>(scheduleToDelete);
+		Collections.sort(del);
+		for(int i=del.size()-1 ; i>=0 ; i--){
+			schedule.remove(del.get(i));
+		}
+		scheduleToDelete.clear();
 	}
 
 	/* (non-Javadoc)

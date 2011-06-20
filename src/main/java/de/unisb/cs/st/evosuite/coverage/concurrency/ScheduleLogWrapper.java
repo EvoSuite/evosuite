@@ -28,12 +28,29 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  */
 public class ScheduleLogWrapper implements StatementInterface {
 
-	public interface callReporter {
+	public interface callReporter{
+		/**
+		 * called directly before the statement 'caller' is entered by the thread threadID
+		 * @param caller
+		 * @param threadID
+		 */
 		public void callStart(StatementInterface caller, Integer threadID);
-
+		
+		/**
+		 * called directly after the statement 'caller' is existed by the thread threadID
+		 * @param caller
+		 * @param threadID
+		 */
 		public void callEnd(StatementInterface caller, Integer threadID);
-
-		public Set<Integer> getScheduleForStatement(StatementInterface st);
+		
+		/**
+		 * Returns the schedule points which are used from within statement st.
+		 * Note that the returned Integer Values are references to pointers in the schedule.
+		 * So the Integer 5 stands for the 6th element in the schedule list
+		 * @param st
+		 * @return
+		 */
+		public Set<Integer> getScheduleIndicesForStatement(StatementInterface st);
 	}
 
 	private static Logger logger = Logger.getLogger(ScheduleLogWrapper.class);

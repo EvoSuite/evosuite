@@ -201,6 +201,12 @@ public class Scheduler implements Schedule{
 		assert(schedule.get(iterator.current)==threadID);
 		observer.notify(iterator.current, schedule.get(iterator.current));
 	}
+
+	@Override
+	public Integer getElement(int index) {
+		assert(index<schedule.size());
+		return schedule.get(index);
+	}
  
 	
 }
