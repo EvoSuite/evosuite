@@ -18,14 +18,9 @@
 
 package de.unisb.cs.st.evosuite.testsuite;
 
-import org.apache.log4j.Logger;
-
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.evosuite.Properties.TestFactory;
-import de.unisb.cs.st.evosuite.OUM.OUMTestChromosomeFactory;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTestCaseFactory;
-import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
@@ -34,22 +29,19 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
  * @author Gordon Fraser
  * 
  */
-public class TestSuiteChromosomeFactory implements ChromosomeFactory {
+public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteChromosome> {
 
-	Logger logger = Logger.getLogger(TestSuiteChromosomeFactory.class);
+	private static final long serialVersionUID = -3769862881038106087L;
 
 	/** Factory to manipulate and generate method sequences */
-	private ChromosomeFactory test_factory;
+	private ChromosomeFactory<TestChromosome> testChromosomeFactory;
 
 	public TestSuiteChromosomeFactory() {
-		if (Properties.TEST_FACTORY == TestFactory.OUM)
-			test_factory = new OUMTestChromosomeFactory();
-		else
-			test_factory = new RandomLengthTestFactory();
+		testChromosomeFactory = new RandomLengthTestFactory();
 
 		if (Properties.CRITERION == Criterion.CONCURRENCY) {
 			//#TODO steenbuck we should wrap the original factory not replace it.
-			test_factory = new ConcurrencyTestCaseFactory();
+			testChromosomeFactory = new ConcurrencyTestCaseFactory();
 		}
 
 		// test_factory = new RandomLengthTestFactory();
@@ -57,12 +49,12 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory {
 		// test_factory = new OUMTestChromosomeFactory();
 	}
 
-	public TestSuiteChromosomeFactory(ChromosomeFactory test_factory) {
-		this.test_factory = test_factory;
+	public TestSuiteChromosomeFactory(ChromosomeFactory<TestChromosome> test_factory) {
+		this.testChromosomeFactory = test_factory;
 	}
 
-	public void setTestFactory(ChromosomeFactory factory) {
-		test_factory = factory;
+	public void setTestFactory(ChromosomeFactory<TestChromosome> factory) {
+		testChromosomeFactory = factory;
 	}
 
 	public void setNumberOfTests(int num) {
@@ -70,17 +62,17 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory {
 	}
 
 	@Override
-	public Chromosome getChromosome() {
+	public TestSuiteChromosome getChromosome() {
 
-		TestSuiteChromosome chromosome = new TestSuiteChromosome();
+		TestSuiteChromosome chromosome = new TestSuiteChromosome(testChromosomeFactory);
 		chromosome.tests.clear();
-		CurrentChromosomeTracker tracker = CurrentChromosomeTracker.getInstance();
+		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
 		tracker.modification(chromosome);
 		// ((AllMethodsChromosomeFactory)test_factory).clear();
 
 		// TODO: Change to random number
 		for (int i = 0; i < Properties.NUM_TESTS; i++) {
-			TestChromosome test = (TestChromosome) test_factory.getChromosome();
+			TestChromosome test = (TestChromosome) testChromosomeFactory.getChromosome();
 			chromosome.tests.add(test);
 		}
 		// logger.info("Covered methods: "+((AllMethodsChromosomeFactory)test_factory).covered.size());

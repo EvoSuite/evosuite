@@ -16,7 +16,7 @@ import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
  * A test case is a list of statements
  * 
  * @author Sebastian Steenbuck
- *
+ * 
  */
 public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 
@@ -61,7 +61,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 * @param position
 	 * @return
 	 */
-	public List<VariableReference> getObjects(Type type, int position);
+	public Set<VariableReference> getObjects(Type type, int position);
 
 	/**
 	 * Get all objects up to position satisfying constraint
@@ -71,7 +71,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 * @param constraint
 	 * @return
 	 */
-	public List<VariableReference> getObjects(int position);
+	public Set<VariableReference> getObjects(int position);
 
 	/**
 	 * Get a random object matching type
@@ -104,7 +104,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 * @throws ConstructionFailedException
 	 */
 	public VariableReference getRandomObject(Type type)
-			throws ConstructionFailedException;
+	        throws ConstructionFailedException;
 
 	/**
 	 * Get a random object matching type
@@ -117,7 +117,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 *             if no such object exists
 	 */
 	public VariableReference getRandomObject(Type type, int position)
-			throws ConstructionFailedException;
+	        throws ConstructionFailedException;
 
 	/**
 	 * Get actual object represented by a variable for a given execution scope
@@ -137,7 +137,9 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 *            New statement
 	 * @param position
 	 *            Position at which to add
-	 * @return Return value of statement. Notice that the test might choose to modify the statement you inserted. You should use the returned variable reference and not use references 
+	 * @return Return value of statement. Notice that the test might choose to
+	 *         modify the statement you inserted. You should use the returned
+	 *         variable reference and not use references
 	 */
 	public VariableReference setStatement(StatementInterface statement, int position);
 
@@ -148,7 +150,9 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 *            New statement
 	 * @param position
 	 *            Position at which to add
-	 * @return Return value of statement. Notice that the test might choose to modify the statement you inserted. You should use the returned variable reference and not use references 
+	 * @return Return value of statement. Notice that the test might choose to
+	 *         modify the statement you inserted. You should use the returned
+	 *         variable reference and not use references
 	 */
 	public VariableReference addStatement(StatementInterface statement, int position);
 
@@ -178,7 +182,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 */
 	public boolean hasReferences(VariableReference var);
 
-	public List<VariableReference> getReferences(VariableReference var);
+	public Set<VariableReference> getReferences(VariableReference var);
 
 	/**
 	 * Remove statement at position and fix variable references
@@ -269,7 +273,17 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	public void addCoveredGoal(TestFitnessFunction goal);
 
 	public Set<TestFitnessFunction> getCoveredGoals();
-	
+
 	public TestCase clone();
+
+	/**
+	 * Replace a VariableReference with another one
+	 * 
+	 * @param var1
+	 *            The old variable
+	 * @param var2
+	 *            The new variable
+	 */
+	public void replace(VariableReference var1, VariableReference var2);
 
 }

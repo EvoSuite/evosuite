@@ -159,7 +159,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 			if(!vertex.isDefinition())
 				continue;
 			BytecodeInstruction vertexInOtherGraph = CFGPool.getRawCFG(vertex.getClassName(), 
-					vertex.getMethodName()).getInstruction(vertex.getId());
+					vertex.getMethodName()).getInstruction(vertex.getInstructionId());
 			Definition currentDefinition = DefUseFactory.makeDefinition(vertexInOtherGraph) ;
 			if(isOverwritingDefinition(targetDefinition,currentDefinition))
 				r.add(vertex);
@@ -210,15 +210,15 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	 */
 	public static void printFinishCalls(ExecutionTrace trace) {
 		for (MethodCall call : trace.finished_calls) {
-			System.out.println("Found MethodCall for: " + call.method_name
+			System.out.println("Found MethodCall for: " + call.methodName
 					+ " on object " + call.callingObjectID);
-			System.out.println("#passed branches: " + call.branch_trace.size());
-			for (int i = 0; i < call.defuse_counter_trace.size(); i++) {
+			System.out.println("#passed branches: " + call.branchTrace.size());
+			for (int i = 0; i < call.defuseCounterTrace.size(); i++) {
 				System.out.println(i + ". at Branch "
-						+ call.branch_trace.get(i) 
-						+ " true_dist: " + call.true_distance_trace.get(i) 
-						+ " false_dist: "+ call.false_distance_trace.get(i)
-						+ " duCounter: " + call.defuse_counter_trace.get(i));
+						+ call.branchTrace.get(i) 
+						+ " true_dist: " + call.trueDistanceTrace.get(i) 
+						+ " false_dist: "+ call.falseDistanceTrace.get(i)
+						+ " duCounter: " + call.defuseCounterTrace.get(i));
 				System.out.println();
 			}
 		}

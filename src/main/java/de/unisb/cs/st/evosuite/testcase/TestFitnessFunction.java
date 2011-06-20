@@ -35,7 +35,9 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondit
 public abstract class TestFitnessFunction extends FitnessFunction implements
         Comparable<TestFitnessFunction> {
 
-	protected TestCaseExecutor executor = TestCaseExecutor.getInstance();
+	private static final long serialVersionUID = 5602125855207061901L;
+
+	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
 	/**
 	 * Execute a test case
@@ -54,7 +56,6 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 		try {
 			logger.debug("Executing test");
 			result = executor.execute(test);
-			executor.setLogging(true);
 
 			int num = test.size();
 			MaxStatementsStoppingCondition.statementsExecuted(num);
@@ -176,7 +177,13 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	}
 
 	public boolean isCovered(TestChromosome tc) {
-		ExecutionResult result = runTest(tc.test);
+		ExecutionResult result = tc.last_result;
+		if (result == null || tc.isChanged()) {
+			result = runTest(tc.test);
+			tc.last_result = result;
+			tc.setChanged(false);
+		}
+
 		return isCovered(tc, result);
 	}
 

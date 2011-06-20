@@ -23,17 +23,12 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class PrimitiveFieldTraceObserver extends ExecutionObserver {
-
-	@SuppressWarnings("unused")
-	private final Logger logger = Logger.getLogger(PrimitiveFieldTraceObserver.class);
 
 	private final PrimitiveFieldTrace trace = new PrimitiveFieldTrace();
 
@@ -55,7 +50,7 @@ public class PrimitiveFieldTraceObserver extends ExecutionObserver {
 		if (retval == null)
 			return;
 
-		Object object = scope.get(retval);
+		Object object = retval.getObject(scope);
 		if (object != null && !object.getClass().isPrimitive()
 		        && !object.getClass().isEnum() && !isWrapperType(object.getClass())) {
 			//List<Object> fields = new ArrayList<Object>();

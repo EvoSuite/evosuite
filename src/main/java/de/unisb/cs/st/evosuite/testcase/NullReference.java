@@ -35,16 +35,6 @@ public class NullReference extends VariableReferenceImpl {
 	public NullReference(TestCase testCase, Type type) {
 		super(testCase, type);
 	}
-
-	/**
-	 * Return name for source code representation
-	 * @return
-	 */
-	@Override
-	public String getName() {
-		return "("+type.getSimpleName()+") null";
-	}
-
 	
 	@Override
 	public VariableReference clone(){

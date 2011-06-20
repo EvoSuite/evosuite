@@ -20,50 +20,53 @@ package de.unisb.cs.st.evosuite.ga;
 
 import java.util.List;
 
+import de.unisb.cs.st.evosuite.utils.Randomness;
+
 /**
  * Roulette wheel selection
  * 
  * @author Gordon Fraser
  * 
- *         
+ * 
  */
 public class FitnessProportionateSelection extends SelectionFunction {
 
-	/** Sum of fitness values, depending on minimization/maximization of the fitness function */
+	private static final long serialVersionUID = 5206421079815585026L;
+
+	/**
+	 * Sum of fitness values, depending on minimization/maximization of the
+	 * fitness function
+	 */
 	private double sum_value = 0.0;
 
-
 	@Override
-	public int getIndex(List<Chromosome> population) 
-	{
+	public int getIndex(List<Chromosome> population) {
 		//special case
-		if(sum_value == 0d)
-		{
+		if (sum_value == 0d) {
 			//here does not matter whether maximize or not.
 			//we need to take at random, otherwise it d be always the first that d be chosen
-			return randomness.nextInt(population.size());
+			return Randomness.nextInt(population.size());
 		}
-		
-		double rnd = randomness.nextDouble() * sum_value;
 
-		for (int i=0; i < population.size(); i++) 
-		{
+		double rnd = Randomness.nextDouble() * sum_value;
+
+		for (int i = 0; i < population.size(); i++) {
 			double fit = population.get(i).getFitness();
 
-			if(!maximize)
+			if (!maximize)
 				fit = invert(fit);
 
-			if(fit >= rnd)
+			if (fit >= rnd)
 				return i;
 			else
-				rnd = rnd - fit; 
+				rnd = rnd - fit;
 		}
 
 		//now this should never happens, but possible issues with rounding errors in for example "rnd = rnd - fit"
 		//in such a case, we just return a random index and we log it
 
 		logger.debug("ATTENTION: Possible issue in FitnessProportionateSelection");
-		return randomness.nextInt(population.size());
+		return Randomness.nextInt(population.size());
 	}
 
 	/**
@@ -73,10 +76,9 @@ public class FitnessProportionateSelection extends SelectionFunction {
 	 */
 	private void setSum(List<Chromosome> population) {
 		sum_value = 0;
-		for (Chromosome c : population) 
-		{
-			double v = c.getFitness(); 
-			if(!maximize)
+		for (Chromosome c : population) {
+			double v = c.getFitness();
+			if (!maximize)
 				v = invert(v);
 
 			sum_value += v;
@@ -86,8 +88,7 @@ public class FitnessProportionateSelection extends SelectionFunction {
 	/*
 	 * used to handle the case of minimizing the fitness
 	 */
-	private double invert(double x)
-	{
+	private double invert(double x) {
 		return 1d / (x + 1d);
 	}
 

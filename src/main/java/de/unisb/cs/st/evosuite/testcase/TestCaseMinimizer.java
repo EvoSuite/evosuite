@@ -26,8 +26,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.Properties.TestFactory;
-import de.unisb.cs.st.evosuite.OUM.OUMTestFactory;
 import de.unisb.cs.st.evosuite.assertion.StringTraceExecutionObserver;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 
@@ -113,11 +111,7 @@ public class TestCaseMinimizer {
 
 		/** Factory method that handles statement deletion */
 
-		AbstractTestFactory test_factory = null;
-		if (Properties.TEST_FACTORY == TestFactory.OUM)
-			test_factory = OUMTestFactory.getInstance();
-		else
-			test_factory = DefaultTestFactory.getInstance();
+		AbstractTestFactory test_factory = DefaultTestFactory.getInstance();
 
 		fitness = fitness_function.getFitness(c);
 		logger.debug("Start fitness value: " + fitness);

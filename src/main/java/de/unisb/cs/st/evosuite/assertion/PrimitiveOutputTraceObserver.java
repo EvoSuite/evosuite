@@ -18,17 +18,12 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
-import org.apache.log4j.Logger;
-
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class PrimitiveOutputTraceObserver extends ExecutionObserver {
-
-	@SuppressWarnings("unused")
-	private final Logger logger = Logger.getLogger(PrimitiveOutputTraceObserver.class);
 
 	private final PrimitiveOutputTrace trace = new PrimitiveOutputTrace();
 
@@ -45,7 +40,7 @@ public class PrimitiveOutputTraceObserver extends ExecutionObserver {
 		if (retval == null)
 			return;
 
-		Object object = scope.get(retval);
+		Object object = retval.getObject(scope);
 		if (object == null || object.getClass().isPrimitive()
 		        || object.getClass().isEnum() || isWrapperType(object.getClass())
 		        || object instanceof String) {

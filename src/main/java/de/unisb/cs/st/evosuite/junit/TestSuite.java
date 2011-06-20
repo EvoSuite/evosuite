@@ -60,7 +60,7 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  */
 public class TestSuite implements Opcodes {
 
-	private final Logger logger = Logger.getLogger(TestSuite.class);
+	private final static Logger logger = Logger.getLogger(TestSuite.class);
 
 	protected List<TestCase> test_cases = new ArrayList<TestCase>();
 
@@ -101,7 +101,6 @@ public class TestSuite implements Opcodes {
 		try {
 			logger.debug("Executing test");
 			result = executor.execute(test);
-			executor.setLogging(true);
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
@@ -289,9 +288,7 @@ public class TestSuite implements Opcodes {
 			builder.append("import java.util.HashSet;\n");
 		}
 
-		builder.append("import junit.framework.Test;\n");
 		builder.append("import junit.framework.TestCase;\n");
-		builder.append("import junit.framework.TestSuite;\n\n");
 		builder.append(getImports(results));
 
 		builder.append("public class ");
@@ -463,6 +460,7 @@ public class TestSuite implements Opcodes {
 	 * @param directory
 	 *            Directory of generated test files
 	 */
+	@SuppressWarnings("unchecked")
 	protected void writeTestSuiteMainFile(String directory) {
 		File file = new File(directory + "/GeneratedTestSuite.java");
 		// if(file.exists())
@@ -482,7 +480,7 @@ public class TestSuite implements Opcodes {
 		List<String> suites = new ArrayList<String>();
 
 		File basedir = new File(directory);
-		Iterator<File> i = FileUtils.iterateFiles(basedir, new TestFilter(),
+		Iterator<File> i = (Iterator<File>) FileUtils.iterateFiles(basedir, new TestFilter(),
 		                                          TrueFileFilter.INSTANCE);
 		while (i.hasNext()) {
 			File f = i.next();

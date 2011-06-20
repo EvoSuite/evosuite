@@ -29,7 +29,7 @@ import javax.tools.ToolProvider;
 import org.apache.commons.io.output.NullOutputStream;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
-import de.unisb.cs.st.utils.Utils;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 
 

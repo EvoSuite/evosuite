@@ -24,6 +24,8 @@ package de.unisb.cs.st.evosuite.ga;
  */
 public class MinimizeSizeSecondaryObjective extends SecondaryObjective {
 
+	private static final long serialVersionUID = 7211557650429998223L;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -50,9 +52,8 @@ public class MinimizeSizeSecondaryObjective extends SecondaryObjective {
 	@Override
 	public int compareGenerations(Chromosome parent1, Chromosome parent2,
 	        Chromosome child1, Chromosome child2) {
-		logger.debug("Comparing sizes: " + parent1.size() + ", "
-		        + parent1.size() + " vs " + child1.size() + ", "
-		        + child2.size());
+		logger.debug("Comparing sizes: " + parent1.size() + ", " + parent1.size()
+		        + " vs " + child1.size() + ", " + child2.size());
 		return Math.min(parent1.size(), parent2.size())
 		        - Math.min(child1.size(), child2.size());
 	}

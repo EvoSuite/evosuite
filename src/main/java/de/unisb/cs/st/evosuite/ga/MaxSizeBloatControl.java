@@ -28,6 +28,8 @@ import de.unisb.cs.st.evosuite.Properties;
  */
 public class MaxSizeBloatControl implements BloatControlFunction {
 
+	private static final long serialVersionUID = -8241127914702360972L;
+
 	/**
 	 * Check whether the chromosome is bigger than the max length constant
 	 */

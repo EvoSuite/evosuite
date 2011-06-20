@@ -19,13 +19,10 @@
 package de.unisb.cs.st.evosuite.javaagent;
 
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -58,8 +55,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			hierarchy = Hierarchy.readFromDefaultLocation();
 	}
 
-	protected static Logger logger = Logger
-			.getLogger(BytecodeInstrumentation.class);
+	protected static Logger logger = Logger.getLogger(BytecodeInstrumentation.class);
 
 	// private static RemoveSystemExitTransformer systemExitTransformer = new
 	// RemoveSystemExitTransformer();
@@ -67,8 +63,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	private static String target_class = Properties.TARGET_CLASS;
 
 	private boolean isTargetClass(String className) {
-		if (className.equals(target_class)
-				|| className.startsWith(target_class + "$")) {
+		if (className.equals(target_class) || className.startsWith(target_class + "$")) {
 			return true;
 		}
 
@@ -80,8 +75,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	}
 
 	static {
-		logger.info("Loading bytecode transformer for "
-				+ Properties.PROJECT_PREFIX);
+		logger.info("Loading bytecode transformer for " + Properties.PROJECT_PREFIX);
 	}
 
 	/*
@@ -94,8 +88,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	 */
 	@Override
 	public byte[] transform(ClassLoader loader, String className,
-			Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-			byte[] classfileBuffer) throws IllegalClassFormatException {
+	        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+	        byte[] classfileBuffer) throws IllegalClassFormatException {
 
 		if (className != null) {
 			try {
@@ -103,11 +97,9 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 				// Some packages we shouldn't touch - hard-coded
 				if (!classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
-						&& (classNameWithDots.startsWith("java")
-								|| classNameWithDots.startsWith("sun")
-								|| classNameWithDots
-										.startsWith("org.aspectj.org.eclipse") || classNameWithDots
-								.startsWith("org.mozilla.javascript.gen.c"))) {
+				        && (classNameWithDots.startsWith("java")
+				                || classNameWithDots.startsWith("sun")
+				                || classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
 					return classfileBuffer;
 				}
 				if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)) {
@@ -119,7 +111,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 					ClassReader reader = new ClassReader(classfileBuffer);
 					ClassWriter writer = new ClassWriter(
-							org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
+					        org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
 
 					ClassVisitor cv = writer;
 
@@ -150,18 +142,22 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 					if (Properties.STATIC_HACK)
 						cv = new StaticInitializationClassAdapter(cv, className);
 
-					if (Properties.TT) {
-						logger.info("Transforming " + className);
+					if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
 						ClassNode cn = new ClassNode();
 						reader.accept(cn, ClassReader.SKIP_FRAMES);
-						TestabilityTransformation tt = new TestabilityTransformation(
-								cn);
-						// cv = new TraceClassVisitor(writer, new
-						// PrintWriter(System.out));
-						cv = new TraceClassVisitor(cv, new PrintWriter(
-								System.out));
-						cv = new CheckClassAdapter(cv);
-						tt.transform().accept(cv);
+						ComparisonTransformation cmp = new ComparisonTransformation(cn);
+						cmp.transform().accept(cv);
+						if (Properties.TT) {
+							logger.info("Testability Transforming " + className);
+							TestabilityTransformation tt = new TestabilityTransformation(
+							        cn);
+							// cv = new TraceClassVisitor(writer, new
+							// PrintWriter(System.out));
+							cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+							cv = new CheckClassAdapter(cv);
+							tt.transform().accept(cv);
+						}
+
 					} else {
 						reader.accept(cv, ClassReader.SKIP_FRAMES);
 					}
@@ -176,13 +172,12 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 				}
 
 			} catch (Throwable t) {
-				logger.fatal(
-						"Transformation of class " + className + " failed", t);
+				logger.fatal("Transformation of class " + className + " failed", t);
 				// TODO why all the redundant printStackTrace()s?
-				
-//				StringWriter writer = new StringWriter();
-//				t.printStackTrace(new PrintWriter(writer));
-//				logger.fatal(writer.getBuffer().toString());
+
+				//				StringWriter writer = new StringWriter();
+				//				t.printStackTrace(new PrintWriter(writer));
+				//				logger.fatal(writer.getBuffer().toString());
 				// LogManager.shutdown();
 				System.out.flush();
 				System.exit(0);

@@ -47,7 +47,7 @@ public class StringTraceExecutionObserver extends ExecutionObserver {
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
 		VariableReference retval = statement.getReturnValue();
 
-		Object object = scope.get(retval);
+		Object object = retval.getObject(scope);
 
 		//System.out.println("TG: Adding value "+object.toString());
 		// Only add string if this is not Object.toString()

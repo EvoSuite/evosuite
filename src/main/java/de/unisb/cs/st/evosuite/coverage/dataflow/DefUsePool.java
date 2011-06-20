@@ -217,7 +217,7 @@ public class DefUsePool {
 		String className = d.getClassName();
 		String methodName = d.getMethodName();
 		String varName = d.getDUVariableName();
-		int branchId = d.getBranchId();
+		int branchId = d.getControlDependentBranchId();
 		
 		initMap(def_map,className,methodName,varName,branchId);
 		
@@ -228,7 +228,7 @@ public class DefUsePool {
 		String className = u.getClassName();
 		String methodName = u.getMethodName();
 		String varName = u.getDUVariableName();
-		int branchId = u.getBranchId(); 
+		int branchId = u.getControlDependentBranchId(); 
 		
 		initMap(use_map,className,methodName,varName,branchId);
 		

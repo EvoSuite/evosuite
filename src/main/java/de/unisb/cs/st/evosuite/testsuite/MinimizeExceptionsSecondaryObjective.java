@@ -13,6 +13,8 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
  */
 public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective {
 
+	private static final long serialVersionUID = -4405276303273532040L;
+
 	private int getNumExceptions(Chromosome chromosome) {
 		int sum = 0;
 		for (TestChromosome test : ((TestSuiteChromosome) chromosome).tests) {

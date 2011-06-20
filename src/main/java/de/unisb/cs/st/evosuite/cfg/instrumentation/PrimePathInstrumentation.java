@@ -7,11 +7,11 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import org.apache.log4j.Logger;
-import org.jgrapht.graph.DefaultEdge;
 import org.objectweb.asm.tree.MethodNode;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
+import de.unisb.cs.st.evosuite.cfg.ControlFlowEdge;
 import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePath;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathPool;
@@ -41,7 +41,7 @@ public class PrimePathInstrumentation implements MethodInstrumentation {
 		}
 		while (!path_queue.isEmpty()) {
 			PrimePath current = path_queue.poll();
-			for (DefaultEdge edge : graph.outgoingEdgesOf(current.getLast())) {
+			for (ControlFlowEdge edge : graph.outgoingEdgesOf(current.getLast())) {
 				if (!current.contains(graph.getEdgeTarget(edge))) {
 					PrimePath next = current.getAppended(graph.getEdgeTarget(edge));
 					path_queue.add(next);

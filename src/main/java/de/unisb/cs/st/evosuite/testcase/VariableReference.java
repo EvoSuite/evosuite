@@ -21,11 +21,7 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.GeneratorAdapter;
-
-import com.lowagie.text.pdf.ArabicLigaturizer;
 
 /**
  * This class represents a variable in a test case
@@ -37,9 +33,11 @@ import com.lowagie.text.pdf.ArabicLigaturizer;
  * 
  */
 public interface VariableReference extends Comparable<VariableReference> {
-	
+
 	/**
-	 * The position of the statement, defining this VariableReference, in the testcase.
+	 * The position of the statement, defining this VariableReference, in the
+	 * testcase.
+	 * 
 	 * @return
 	 */
 	public int getStPosition();
@@ -48,6 +46,11 @@ public interface VariableReference extends Comparable<VariableReference> {
 	 * Create a copy of the current variable
 	 */
 	public abstract VariableReference clone();
+
+	/**
+	 * Create a copy of the current variable for new test
+	 */
+	public abstract VariableReference clone(TestCase newTest);
 
 	/**
 	 * Return simple class name
@@ -62,8 +65,9 @@ public interface VariableReference extends Comparable<VariableReference> {
 	public String getComponentName();
 
 	public Type getComponentType();
-	
+
 	public GenericClass getGenericClass();
+
 	/**
 	 * Return true if variable is an enumeration
 	 */
@@ -150,6 +154,16 @@ public interface VariableReference extends Comparable<VariableReference> {
 	public Object getObject(Scope scope);
 
 	/**
+	 * Set the actual object represented by this variable in a given scope
+	 * 
+	 * @param scope
+	 *            The scope of the test case execution
+	 * @param value
+	 *            The value to be assigned
+	 */
+	public void setObject(Scope scope, Object value);
+
+	/**
 	 * Comparison
 	 */
 	@Override
@@ -158,6 +172,7 @@ public interface VariableReference extends Comparable<VariableReference> {
 	/**
 	 * Hash function
 	 */
+	@Override
 	public abstract int hashCode();
 
 	/**
@@ -172,6 +187,13 @@ public interface VariableReference extends Comparable<VariableReference> {
 	 * @return
 	 */
 	public String getName();
+
+	public VariableReference getAdditionalVariableReference();
+
+	public void setAdditionalVariableReference(VariableReference var);
+
+	public void replaceAdditionalVariableReference(VariableReference var1,
+	        VariableReference var2);
 
 	public void loadBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals);
 
@@ -188,6 +210,6 @@ public interface VariableReference extends Comparable<VariableReference> {
 	 */
 	@Override
 	public int compareTo(VariableReference other);
-	
+
 	public boolean same(VariableReference r);
 }

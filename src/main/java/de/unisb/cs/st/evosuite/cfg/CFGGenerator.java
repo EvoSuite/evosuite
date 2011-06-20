@@ -3,12 +3,10 @@ package de.unisb.cs.st.evosuite.cfg;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.jgrapht.graph.DefaultEdge;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.Frame;
 
-import de.unisb.cs.st.evosuite.mutation.Mutateable;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
@@ -17,7 +15,7 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
  * to create the ActualControlFlowGraph
  * 
  * When analyzing a CUT the BytecodeAnalyzer creates an instance of this class
- * for each method contained in this CUT
+ * for each method contained in it
  * 
  * This class's methods get called in the following order:
  * 
@@ -35,27 +33,21 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
  * method and an edge for every possible transition between these instructions
  * 
  * 
- * TODO this raw graph should be turned into a nice CFG containing basic blocks
- * as vertices
- * 
- * 
  * @author Andre Mis
  */
 public class CFGGenerator {
 
 	private static Logger logger = Logger.getLogger(CFGGenerator.class);
 
-	List<Mutation> mutants;
 	
-//	DefaultDirectedGraph<BytecodeInstruction, DefaultEdge> rawGraph = new DefaultDirectedGraph<BytecodeInstruction, DefaultEdge>(
-//			DefaultEdge.class);
-	
-	RawControlFlowGraph rawGraph;
+	private List<Mutation> mutants;
 
-	boolean nodeRegistered = false;
-	MethodNode currentMethod;
-	String className;
-	String methodName;
+	private RawControlFlowGraph rawGraph;
+
+	private boolean nodeRegistered = false;
+	private MethodNode currentMethod;
+	private String className;
+	private String methodName;
 
 	
 	/**
@@ -74,6 +66,40 @@ public class CFGGenerator {
 		this.mutants = mutants;
 		registerMethodNode(node, className, methodName);
 	}
+
+	/**
+	 * Adds the RawControlFlowGraph created by this instance to the CFGPool,
+	 * computes the resulting ActualControlFlowGraph and also adds it to the
+	 * CFGPool
+	 */
+	public void registerCFGs() {
+		// non-minimized cfg needed for defuse-coverage and control
+		// dependence calculation
+		CFGPool.registerRawCFG(getRawGraph());
+		CFGPool.registerActualCFG(getActualGraph());
+	}
+	
+	protected RawControlFlowGraph getRawGraph() {
+		return rawGraph;
+	}
+
+	protected ActualControlFlowGraph getActualGraph() {
+
+		setMutationIDs();
+		setMutationBranches();
+
+		return computeCFG();
+	}
+	
+	public String getClassName() {
+		return className;
+	}
+
+	public String getMethodName() {
+		return methodName;
+	}
+
+	// build up the graph
 
 	private void registerMethodNode(MethodNode currentMethod, String className,
 			String methodName) {
@@ -95,13 +121,11 @@ public class CFGGenerator {
 
 		nodeRegistered = true;
 	}
-
-	// build up the graph
-
+	
 	/**
 	 * Internal management of fields and actual building up of the rawGraph
 	 */
-	public void registerControlFlowEdge(int src, int dst, Frame[] frames) {
+	public void registerControlFlowEdge(int src, int dst, Frame[] frames, boolean isExceptionEdge) {
 		if (!nodeRegistered)
 			throw new IllegalStateException(
 					"CFGGenrator.registerControlFlowEdge() cannot be called unless registerMethodNode() was called first");
@@ -109,9 +133,36 @@ public class CFGGenerator {
 			throw new IllegalArgumentException("null given");
 		CFGFrame srcFrame = (CFGFrame) frames[src];
 		Frame dstFrame = frames[dst];
-		if (srcFrame == null || dstFrame == null)
+		
+//		if(isExceptionEdge)
+//			logger.warn("exceptionEdge");
+//		logger.warn("src: "+src);
+//		logger.warn("dst: "+dst);
+		
+		if (srcFrame == null)
 			throw new IllegalArgumentException(
-					"expect expect given frames to know src and dst");
+					"expect given frames to know srcFrame for "+src);
+		
+		if(dstFrame == null) {
+			
+			// documentation of getFrames() tells us the following:
+			// Returns:
+			// the symbolic state of the execution stack frame at each bytecode
+			// instruction of the method. The size of the returned array is
+			// equal to the number of instructions (and labels) of the method. A
+			// given frame is null if the corresponding instruction cannot be
+			// reached, or if an error occured during the analysis of the
+			// method.
+
+			logger.warn("ControlFlowEdge to null");
+			
+			// so let's say we expect the analyzer to return null only if
+			// dst is not reachable and if that happens we just suppress the
+			// corresponding ControlFlowEdge for now
+			
+			// TODO can the CFG become disconnected like that?
+			return;
+		}
 
 		srcFrame.successors.put(dst, (CFGFrame) dstFrame);
 
@@ -133,23 +184,34 @@ public class CFGGenerator {
 		
 		rawGraph.addVertex(srcInstruction);
 		rawGraph.addVertex(dstInstruction);
-		rawGraph.addEdge(srcInstruction, dstInstruction);
+		
+		if(null == rawGraph.addEdge(srcInstruction, dstInstruction, isExceptionEdge))
+			logger.error("internal error while adding edge");
+		
+		// experiment
+		
+		// DONE so how exactly should we handle the whole "true/false" stuff.
+		// DONE how was previously determined, which edge was the true and which
+		// was the false distance?
+		// DONE assumption: the first edge is the one that makes the branch jump
+		// ("true"?!)
+		// DONE implement ControlFlowEdge (again ...) and give it a flag
+		// determining whether it's true/false
+		
+//		Set<BytecodeInstruction> srcChildren = rawGraph.getChildren(srcInstruction);
+//		if(srcInstruction.isActualBranch() && srcChildren.size()>1) {
+//			logger.info("added second edge for instruction "+srcInstruction.toString());
+//			for(BytecodeInstruction srcParent : srcChildren) {
+//				logger.info(" to "+srcParent.toString());
+//			}
+//		}
+//		
+//		if(srcInstruction.isLabel() || srcInstruction.isLineNumber())
+//			logger.info("found edge from "+srcInstruction.toString()+" to "+dstInstruction.toString());
 	}
 
 	// retrieve information about the graph
 
-	public RawControlFlowGraph getCompleteGraph() {
-		return rawGraph;
-	}
-
-	public ActualControlFlowGraph getMinimalGraph() {
-
-		setMutationIDs();
-		setMutationBranches();
-
-		return computeCFG();
-	}
-	
 //	public DirectedMultigraph<BytecodeInstruction, DefaultEdge> getMinimalGraph() {
 //
 //		setMutationIDs();
@@ -202,17 +264,14 @@ public class CFGGenerator {
 	 * 
 	 * WORK IN PROGRESS
 	 * 
-	 * soon
+	 * soon ... it's getting there :D
 	 */
 	public ActualControlFlowGraph computeCFG() {
 
 		BytecodeInstructionPool.logInstructionsIn(className,methodName);
-
+		
 		ActualControlFlowGraph cfg = new ActualControlFlowGraph(rawGraph);
 
-		// debug/test
-//		new DominatorTree<BasicBlock>(cfg); // does not work yet!
-		
 		return cfg;
 	}
 
@@ -243,7 +302,7 @@ public class CFGGenerator {
 	private void setMutationBranches() {
 		for (BytecodeInstruction v : rawGraph.vertexSet()) {
 			if (v.isIfNull()) {
-				for (DefaultEdge e : rawGraph.incomingEdgesOf(v)) {
+				for (ControlFlowEdge e : rawGraph.incomingEdgesOf(v)) {
 					BytecodeInstruction v2 = rawGraph.getEdgeSource(e);
 					// #TODO the magic string "getProperty" should be in some
 					// String variable, near the getProperty function
@@ -253,7 +312,7 @@ public class CFGGenerator {
 					}
 				}
 			} else if (v.isBranch() || v.isTableSwitch() || v.isLookupSwitch()) {
-				for (DefaultEdge e : rawGraph.incomingEdgesOf(v)) {
+				for (ControlFlowEdge e : rawGraph.incomingEdgesOf(v)) {
 					BytecodeInstruction v2 = rawGraph.getEdgeSource(e);
 					// #TODO method signature should be used here
 					if (v2.isMethodCall(HOMObserver.NAME_OF_TOUCH_METHOD)) {
@@ -266,22 +325,5 @@ public class CFGGenerator {
 				}
 			}
 		}
-	}
-
-	public String getClassName() {
-		return className;
-	}
-
-	public String getMethodName() {
-		return methodName;
-	}
-
-	public void registerCFGs() {
-		
-		// non-minimized cfg needed for defuse-coverage and control
-		// dependence calculation
-		CFGPool.registerRawCFG(getCompleteGraph());
-		CFGPool.registerActualCFG(getMinimalGraph());
-		
 	}
 }

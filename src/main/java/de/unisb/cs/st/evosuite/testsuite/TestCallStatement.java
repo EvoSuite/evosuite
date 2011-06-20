@@ -16,8 +16,8 @@ import java.util.Set;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.AbstractStatement;
+import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
@@ -29,6 +29,8 @@ import de.unisb.cs.st.evosuite.testcase.VariableReferenceImpl;
  * 
  */
 public class TestCallStatement extends AbstractStatement {
+
+	private static final long serialVersionUID = -7886618899521718039L;
 
 	private final TestCallObject testCall;
 
@@ -55,7 +57,6 @@ public class TestCallStatement extends AbstractStatement {
 			// logger.info("Starting test call " + test.toCode());
 			// logger.info("Original test was: " + testCall.testCase.toCode());
 			executor.execute(test, scope);
-			executor.setLogging(true);
 
 			// TODO: Count as 1 or length?
 			int num = test.size();
@@ -69,7 +70,7 @@ public class TestCallStatement extends AbstractStatement {
 				Collections.sort(variables, Collections.reverseOrder());
 				// logger.info("Return value is good: "
 				// + scope.get(variables.get(0)).getClass());
-				return scope.get(variables.get(0));
+				return variables.get(0).getObject(scope);
 			}
 
 		} catch (Exception e) {
@@ -102,9 +103,11 @@ public class TestCallStatement extends AbstractStatement {
 		TestCase test = testCall.getTest();
 		if (test != null && !test.hasCalls()) {
 			Object value = runTest(test);
-			scope.set(retval, value);
+			assert (retval.getVariableClass().isAssignableFrom(value.getClass())) : "we want an "
+			        + retval.getVariableClass() + " but got an " + value.getClass();
+			retval.setObject(scope, value);
 		} else {
-			scope.set(retval, null);
+			retval.setObject(scope, null);
 		}
 
 		return null; // TODO: Pass on any of the exceptions?
@@ -163,6 +166,12 @@ public class TestCallStatement extends AbstractStatement {
 		return vars;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void replace(VariableReference var1, VariableReference var2) {
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -171,7 +180,8 @@ public class TestCallStatement extends AbstractStatement {
 	 */
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
-		TestCallStatement statement = new TestCallStatement(newTestCase, testCall, retval.getType());
+		TestCallStatement statement = new TestCallStatement(newTestCase, testCall,
+		        retval.getType());
 		return statement;
 	}
 

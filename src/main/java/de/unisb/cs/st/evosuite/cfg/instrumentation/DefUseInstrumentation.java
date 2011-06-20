@@ -46,8 +46,8 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			AbstractInsnNode in = j.next();
 			for (BytecodeInstruction v : completeCFG.vertexSet()) {
 
-				if (in.equals(v.getASMNode()))
-					v.branchId = completeCFG.getInstruction(v.getId()).getBranchId();
+//				if (in.equals(v.getASMNode()))
+//					v.branchId = completeCFG.getInstruction(v.getId()).getBranchId();
 
 				if (Properties.CRITERION == Criterion.DEFUSE
 				        && in.equals(v.getASMNode()) 
@@ -67,7 +67,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 						        || ((access & Opcodes.ACC_STATIC) > 0);
 						// adding instrumentation for defuse-coverage
 						mn.instructions.insert(v.getASMNode().getPrevious(),
-						                       getInstrumentation(v, v.branchId,
+						                       getInstrumentation(v, v.getControlDependentBranchId(),
 						                                          staticContext,
 						                                          className, methodName));
 					}

@@ -35,7 +35,7 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
-import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
@@ -166,9 +166,9 @@ public class MutationGoal extends TestCoverageGoal {
 		if (hasTimeout(result)) {
 			logger.debug("Has timeout!");
 			if (cfg == null) {
-				d.approach = 20;
+				d.approachLevel = 20;
 			} else {
-				d.approach = cfg.getDiameter() + 2;
+				d.approachLevel = cfg.getDiameter() + 2;
 			}
 			return d;
 		}
@@ -177,26 +177,26 @@ public class MutationGoal extends TestCoverageGoal {
 			logger.debug("Mutation was touched");
 			return d;
 		}
-		
+
 		if (cfg == null) {
 			logger.warn("Have no cfg for method " + className + "." + methodName);
 			for (MethodCall call : result.getTrace().finished_calls) {
-				if (call.class_name.equals(""))
+				if (call.className.equals(""))
 					continue;
-				if ((call.class_name + "." + call.method_name).equals(methodName)) {
+				if ((call.className + "." + call.methodName).equals(methodName)) {
 					return d;
 				}
 			}
-			d.approach = 1;
+			d.approachLevel = 1;
 			return d;
 		}
 
-		d.approach = cfg.getDiameter() + 1;
+		d.approachLevel = cfg.getDiameter() + 1;
 
 		// Minimal distance between target node and path
 		boolean method_executed = false;
 		for (MethodCall call : result.getTrace().finished_calls) {
-			if (call.class_name.equals(className) && call.method_name.equals(methodName)) {
+			if (call.className.equals(className) && call.methodName.equals(methodName)) {
 				logger.debug("Found target call for mutant " + mutation.getId()
 				        + " in method " + className + "." + methodName);
 				//logger.info(cfg.toString());
@@ -204,10 +204,10 @@ public class MutationGoal extends TestCoverageGoal {
 				//	logger.info(" -> "+i);
 				//}
 				method_executed = true;
-				ControlFlowDistance d2 = getDistance(call.branch_trace,
-				                                     call.true_distance_trace,
-				                                     call.false_distance_trace,
-				                                     call.line_trace);
+				ControlFlowDistance d2 = getDistance(call.branchTrace,
+				                                     call.trueDistanceTrace,
+				                                     call.falseDistanceTrace,
+				                                     call.lineTrace);
 				if (d2.compareTo(d) < 0) {
 					d = d2;
 				}
@@ -230,8 +230,8 @@ public class MutationGoal extends TestCoverageGoal {
 				}
 			}
 			if (!found)
-				d.approach++;
-			d.approach += getMethodDistance(result);
+				d.approachLevel++;
+			d.approachLevel += getMethodDistance(result);
 		}
 		//else
 		//	cfg.toDot(className+"."+methodName.replace(";","").replace("(","").replace(")", "").replace("/",".")+".dot");
@@ -243,7 +243,7 @@ public class MutationGoal extends TestCoverageGoal {
 	        List<Integer> line_trace) {
 		//CFGVertex m = cfg.getVertex(branch_id);
 		BasicBlock b = cfg.getMutation(mutation.getId());
-		
+
 		ControlFlowDistance d = new ControlFlowDistance();
 		if (b == null) {
 			logger.error("Could not find mutant node " + mutation.getId());
@@ -255,8 +255,7 @@ public class MutationGoal extends TestCoverageGoal {
 		BytecodeInstruction m = b.getMutation(mutation.getId());
 		if (m == null)
 			throw new IllegalStateException(
-					"expect the BasicBlock in a CFG returned by getMutation(id) to contain an instruction with that mutationId");
-		
+			        "expect the BasicBlock in a CFG returned by getMutation(id) to contain an instruction with that mutationId");
 
 		int min_approach = cfg.getDiameter();
 		//int min_approach = cfg.getInitialDistance(m);
@@ -296,8 +295,8 @@ public class MutationGoal extends TestCoverageGoal {
 			}
 		}
 
-		d.approach = min_approach;
-		d.branch = min_dist;
+		d.approachLevel = min_approach;
+		d.branchDistance = min_dist;
 		/*
 		if(line_trace.contains(mutation.getLineNumber()) && d.approach <= 1) {
 			logger.info("Mutant line was executed");
@@ -313,8 +312,8 @@ public class MutationGoal extends TestCoverageGoal {
 	 * @see de.unisb.cs.st.evosuite.coverage.TestCoverageGoal#isCovered(de.unisb.cs.st.evosuite.testcase.TestCase)
 	 */
 	@Override
-	public boolean isCovered(TestCase test) {
-
+	public boolean isCovered(TestChromosome test) {
+		// TODO: FIXXME
 		return false;
 	}
 

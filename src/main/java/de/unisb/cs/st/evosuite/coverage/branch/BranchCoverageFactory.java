@@ -24,14 +24,11 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.cfg.ActualControlFlowGraph;
-import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
-import de.unisb.cs.st.testability.TransformationHelper;
 
 /**
- * @author Gordon Fraser
+ * @author Gordon Fraser, Andre Mis
  * 
  */
 public class BranchCoverageFactory implements TestFitnessFactory {
@@ -68,26 +65,14 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 					continue;
 				}
 
-				if (Properties.TESTABILITY_TRANSFORMATION) {
-					String vname = methodName.replace("(", "|(");
-					if (TransformationHelper.hasValkyrieMethod(className, vname)) {
-						logger.info("Skipping branch in transformed method: " + vname);
-						continue;
-					} else {
-						logger.info("Keeping branch in untransformed method: " + vname);
-					}
-				}
-
-				// Get CFG of method
-				ActualControlFlowGraph cfg = CFGPool.getActualCFG(className,methodName);
 
 				for (Branch b : BranchPool.retrieveBranchesInMethod(className,methodName)) {
 
 					// Identify vertex in CFG
 					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(b,
-					        true, cfg, className, methodName)));
+					        true, className, methodName)));
 					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(b,
-					        false, cfg, className, methodName)));
+					        false, className, methodName)));
 				}
 			}
 		}
