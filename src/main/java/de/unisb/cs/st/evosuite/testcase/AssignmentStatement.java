@@ -248,8 +248,8 @@ public class AssignmentStatement extends AbstractStatement {
 		// Either mutate parameter, or source
 		if (Randomness.nextDouble() < 0.5) {
 			// TODO: Should we restrict to field and array assignments?
-			Set<VariableReference> objects = test.getObjects(retval.getType(),
-			                                                 retval.getStPosition());
+			List<VariableReference> objects = test.getObjects(retval.getType(),
+			                                                  retval.getStPosition());
 			objects.remove(retval);
 			objects.remove(parameter);
 			Iterator<VariableReference> var = objects.iterator();
@@ -277,8 +277,8 @@ public class AssignmentStatement extends AbstractStatement {
 				return true;
 			}
 		} else {
-			Set<VariableReference> objects = test.getObjects(parameter.getType(),
-			                                                 parameter.getStPosition());
+			List<VariableReference> objects = test.getObjects(parameter.getType(),
+			                                                  parameter.getStPosition());
 			objects.remove(retval);
 			objects.remove(parameter);
 			if (!objects.isEmpty()) {

@@ -212,17 +212,20 @@ public class TestChromosome extends Chromosome {
 			P = 1d / 3d;
 		}
 
+		logger.debug("Mutation: delete");
 		// Delete
 		if (Randomness.nextDouble() <= P) {
 			changed = mutationDelete();
 		}
 
+		logger.debug("Mutation: change");
 		// Change
 		if (Randomness.nextDouble() <= P) {
 			if (mutationChange())
 				changed = true;
 		}
 
+		logger.debug("Mutation: insert");
 		// Insert
 		if (Randomness.nextDouble() <= P) {
 			if (mutationInsert())

@@ -260,12 +260,12 @@ public class ConcurrentTestCase implements TestCase {
 	}
 
 	@Override
-	public Set<VariableReference> getObjects(Type type, int position) {
+	public List<VariableReference> getObjects(Type type, int position) {
 		return test.getObjects(type, position);
 	}
 
 	@Override
-	public Set<VariableReference> getObjects(int position) {
+	public List<VariableReference> getObjects(int position) {
 		return test.getObjects(position);
 	}
 

@@ -210,4 +210,38 @@ public class ArrayIndex extends VariableReferenceImpl {
 			array.replaceAdditionalVariableReference(var1, var2);
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((array == null) ? 0 : array.hashCode());
+		result = prime * result + array_index;
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ArrayIndex other = (ArrayIndex) obj;
+		if (array == null) {
+			if (other.array != null)
+				return false;
+		} else if (!array.equals(other.array))
+			return false;
+		if (array_index != other.array_index)
+			return false;
+		return true;
+	}
+
 }
