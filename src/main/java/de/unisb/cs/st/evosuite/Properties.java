@@ -367,7 +367,7 @@ public class Properties {
 
 	@Parameter(key = "ui", description = "Do User Interface tests")
 	public static boolean UI_TEST = false;
-	
+
 	@Parameter(key = "testability_transformation", description = "Apply testability transformation (Yanchuan)")
 	public static boolean TESTABILITY_TRANSFORMATION = false;
 
@@ -470,6 +470,9 @@ public class Properties {
 
 	@Parameter(key = "max_stalled_threads", group = "Runtime", description = "Number of stalled threads")
 	public static int MAX_STALLED_THREADS = 10;
+
+	@Parameter(key = "min_free_mem", group = "Runtime", description = "Minimum amount of available memory")
+	public static int MIN_FREE_MEM = 200000000;
 
 	/**
 	 * Get all parameters that are available
