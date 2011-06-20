@@ -42,10 +42,7 @@ public class GlobalTimeStoppingCondition extends StoppingCondition {
 		if (max_seconds != 0 && start_time != 0
 		        && (current_time - start_time) / 1000 > max_seconds)
 			logger.info("Timeout reached");
-		/*
-		else
-			logger.info("Timeout not reached: "+getCurrentValue());
-			*/
+
 		return max_seconds != 0 && start_time != 0
 		        && (current_time - start_time) / 1000 > max_seconds;
 	}
@@ -55,7 +52,8 @@ public class GlobalTimeStoppingCondition extends StoppingCondition {
 	 */
 	@Override
 	public void reset() {
-		start_time = System.currentTimeMillis();
+		if (start_time == 0)
+			start_time = System.currentTimeMillis();
 	}
 
 	/* (non-Javadoc)
