@@ -33,7 +33,7 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
 public class InspectorTraceObserver extends ExecutionObserver {
 
 	@SuppressWarnings("unused")
-	private final Logger logger = Logger.getLogger(InspectorTraceObserver.class);
+	private final static Logger logger = Logger.getLogger(InspectorTraceObserver.class);
 
 	private final InspectorManager manager = InspectorManager.getInstance();
 
@@ -59,10 +59,10 @@ public class InspectorTraceObserver extends ExecutionObserver {
 
 		// Add inspector calls on return value
 		List<Inspector> inspectors = manager.getInspectors(retval.getVariableClass());
-		if (scope.get(retval) != null && !inspectors.isEmpty()) {
+		if (retval.getObject(scope) != null && !inspectors.isEmpty()) {
 			List<Object> result = new ArrayList<Object>();
 			for (Inspector i : inspectors) {
-				result.add(i.getValue(scope.get(retval)));
+				result.add(i.getValue(retval.getObject(scope)));
 				//logger.info("New inspector result for variable of type "+retval.getClassName()+"/" + retval.getVariableClass().getName()+": "+i.getClassName()+"."+i.getMethodCall()+" -> "+i.getValue(scope.get(retval)));
 			}
 
@@ -80,11 +80,11 @@ public class InspectorTraceObserver extends ExecutionObserver {
 					                    new HashMap<Inspector, Object>());
 
 					VariableReference callee = ms.getCallee();
-					if (scope.get(callee) == null)
+					if (callee.getObject(scope) == null)
 						return;
 					for (Inspector i : inspectors) {
 						trace.calleeMap.get(statement.getPosition()).put(i,
-						                                                 i.getValue(scope.get(callee)));
+						                                                 i.getValue(callee.getObject(scope)));
 					}
 				}
 			}

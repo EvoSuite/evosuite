@@ -16,7 +16,7 @@ import de.unisb.cs.st.evosuite.assertion.Assertion;
 
 /**
  * @author Sebastian Steenbuck
- *
+ * 
  */
 public interface StatementInterface {
 
@@ -29,9 +29,19 @@ public interface StatementInterface {
 	 */
 	public boolean references(VariableReference var);
 
+	/**
+	 * Replace a VariableReference with another one
+	 * 
+	 * @param var1
+	 *            The old variable
+	 * @param var2
+	 *            The new variable
+	 */
+	public void replace(VariableReference var1, VariableReference var2);
+
 	public Throwable execute(Scope scope, PrintStream out)
-			throws InvocationTargetException, IllegalArgumentException,
-			IllegalAccessException, InstantiationException;
+	        throws InvocationTargetException, IllegalArgumentException,
+	        IllegalAccessException, InstantiationException;
 
 	/**
 	 * Get Java representation of statement
@@ -41,13 +51,14 @@ public interface StatementInterface {
 	public String getCode();
 
 	/**
-	 * Various consistency checks.
-	 * This method might also return with an assertionError
-	 * Functionality might depend on the status of enableAssertions in this JVM
+	 * Various consistency checks. This method might also return with an
+	 * assertionError Functionality might depend on the status of
+	 * enableAssertions in this JVM
+	 * 
 	 * @return
 	 */
 	public boolean isValid();
-	
+
 	/**
 	 * Get Java representation of statement
 	 * 
@@ -61,7 +72,7 @@ public interface StatementInterface {
 	 * @param mg
 	 */
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-			Throwable exception);
+	        Throwable exception);
 
 	/**
 	 * 
@@ -82,11 +93,13 @@ public interface StatementInterface {
 	 *            Other statement
 	 * @return True if equals
 	 */
+	@Override
 	public boolean equals(Object s);
 
 	/**
 	 * Generate hash code
 	 */
+	@Override
 	public int hashCode();
 
 	/**
@@ -100,11 +113,12 @@ public interface StatementInterface {
 
 	/**
 	 * 
-	 * @param newTestCase the testcase in which this statement will be inserted
+	 * @param newTestCase
+	 *            the testcase in which this statement will be inserted
 	 * @return
 	 */
 	public StatementInterface clone(TestCase newTestCase);
-	
+
 	/**
 	 * Create deep copy of statement
 	 */
@@ -152,10 +166,20 @@ public interface StatementInterface {
 	public int getPosition();
 
 	/**
-	 * Allows the comparing of Statements between TestCases. I.e. this is a more semantic comparison than the one done by equals.
-	 * E.g. two Variable are equal if they are at the same position and they reference to objects of the same type.
+	 * Allows the comparing of Statements between TestCases. I.e. this is a more
+	 * semantic comparison than the one done by equals. E.g. two Variable are
+	 * equal if they are at the same position and they reference to objects of
+	 * the same type.
+	 * 
 	 * @param s
 	 * @return
 	 */
 	public boolean same(StatementInterface s);
+
+	public boolean isValidException(Throwable t);
+
+	public boolean mutate(TestCase test, AbstractTestFactory factory);
+
+	public void SetRetval(VariableReference newRetVal);
+
 }

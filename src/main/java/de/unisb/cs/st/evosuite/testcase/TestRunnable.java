@@ -81,6 +81,9 @@ public class TestRunnable implements InterfaceTestRunnable {
 				if (exceptionThrown != null) {
 					exceptionsThrown.put(num, exceptionThrown);
 
+					if (!s.isValidException(exceptionThrown))
+						break;
+
 					// exception_statement = num; 
 					if (log && logger.isDebugEnabled())
 						logger.debug("Exception thrown in statement: " + s.getCode()
@@ -112,13 +115,15 @@ public class TestRunnable implements InterfaceTestRunnable {
 			logger.info(test.toCode());
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
 				logger.info("Cause: ");
-				logger.info(e.getCause(),e);
+				logger.info(e.getCause(), e);
 				e = e.getCause();
 			}
 			if (e instanceof AssertionError
 			        && e.getStackTrace()[0].getClassName().contains("de.unisb.cs.st.evosuite")) {
 				//e1.printStackTrace();
-				logger.error("Assertion Error in evosuitecode, for statement \n" + test.getStatement(num).getCode() + " \n which is number: " + num + " testcase \n"  + test.toCode(), e);
+				logger.error("Assertion Error in evosuitecode, for statement \n"
+				        + test.getStatement(num).getCode() + " \n which is number: "
+				        + num + " testcase \n" + test.toCode(), e);
 				throw (AssertionError) e;
 			}
 			// exceptionThrown = e;
@@ -128,7 +133,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 		} // finally {
 		runFinished = true;
 		Sandbox.tearDownMocks();
-		
+
 		result.exceptions = exceptionsThrown;
 
 		return result;

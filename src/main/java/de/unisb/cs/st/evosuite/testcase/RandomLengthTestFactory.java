@@ -21,15 +21,16 @@ package de.unisb.cs.st.evosuite.testcase;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
-import de.unisb.cs.st.evosuite.ga.Randomness;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * @author Gordon Fraser
  * 
  */
-public class RandomLengthTestFactory implements ChromosomeFactory {
+public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome> {
+
+	private static final long serialVersionUID = -5202578461625984100L;
 
 	protected static Logger logger = Logger.getLogger(FixedLengthTestChromosomeFactory.class);
 
@@ -46,10 +47,9 @@ public class RandomLengthTestFactory implements ChromosomeFactory {
 		int num = 0;
 
 		// Choose a random length in 0 - size
-		Randomness randomness = Randomness.getInstance();
-		int length = randomness.nextInt(size);
+		int length = Randomness.nextInt(size);
 		while (length == 0)
-			length = randomness.nextInt(size);
+			length = Randomness.nextInt(size);
 
 		// Then add random stuff
 		while (test.size() < length && num < Properties.MAX_ATTEMPTS) {
@@ -66,7 +66,7 @@ public class RandomLengthTestFactory implements ChromosomeFactory {
 	 * Generate a random chromosome
 	 */
 	@Override
-	public Chromosome getChromosome() {
+	public TestChromosome getChromosome() {
 		TestChromosome c = new TestChromosome();
 		c.test = getRandomTestCase(Properties.CHROMOSOME_LENGTH);
 		return c;

@@ -18,12 +18,10 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
-import java.util.List;
-
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.BloatControlFunction;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
-import de.unisb.cs.st.evosuite.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
 
 /**
@@ -33,6 +31,8 @@ import de.unisb.cs.st.evosuite.ga.SearchListener;
  * 
  */
 public class RelativeLengthBloatControl implements BloatControlFunction, SearchListener {
+
+	private static final long serialVersionUID = -459141492060919204L;
 
 	protected int current_max = 0;
 
@@ -86,9 +86,9 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 	 * javalanche.ga.Chromosome)
 	 */
 	@Override
-	public void iteration(List<Chromosome> population) {
-		current_max = ((TestChromosome) population.get(0)).size();
-		best_fitness = population.get(0).getFitness();
+	public void iteration(GeneticAlgorithm algorithm) {
+		current_max = ((TestChromosome) algorithm.getBestIndividual()).size();
+		best_fitness = algorithm.getBestIndividual().getFitness();
 	}
 
 	/*
@@ -99,7 +99,7 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 	 * .st.javalanche.ga.Chromosome)
 	 */
 	@Override
-	public void searchFinished(List<Chromosome> best) {
+	public void searchFinished(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -112,7 +112,7 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 	 * .st.javalanche.ga.FitnessFunction)
 	 */
 	@Override
-	public void searchStarted(FitnessFunction objective) {
+	public void searchStarted(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 
 	}

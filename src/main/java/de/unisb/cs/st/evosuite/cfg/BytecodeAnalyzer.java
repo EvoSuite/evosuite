@@ -93,7 +93,7 @@ public class BytecodeAnalyzer extends Analyzer {
 	@Override
 	protected void newControlFlowEdge(int src, int dst) {
 
-		cfgGenerator.registerControlFlowEdge(src,dst, getFrames());
+		cfgGenerator.registerControlFlowEdge(src,dst, getFrames(),false);
 	}
 
 	/**
@@ -102,7 +102,7 @@ public class BytecodeAnalyzer extends Analyzer {
 	@Override
 	protected boolean newControlFlowExceptionEdge(int src, int dst) {
 		// TODO: Make use of information that this is an exception edge?
-		cfgGenerator.registerControlFlowEdge(src, dst, getFrames());
+		cfgGenerator.registerControlFlowEdge(src, dst, getFrames(),true);
 	
 		return true;
 	}

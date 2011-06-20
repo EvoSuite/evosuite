@@ -27,11 +27,11 @@ import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
-import de.unisb.cs.st.evosuite.ga.Randomness;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /*
  * // (0) TODO IDEA FOR AN EVO-SUITE-FEATURE: // given a test(suite) for a
@@ -151,6 +151,7 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  * @author Andre Mis
  */
 public class DefUseCoverageTestFitness extends TestFitnessFunction {
+	private static final long serialVersionUID = 1L;
 
 	// debugging flags
 	private final static boolean DEBUG = Properties.DEFUSE_DEBUG_MODE;
@@ -321,7 +322,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			        + overallDifficulty);
 		difficulty_time += System.currentTimeMillis() - start;
 		if (Properties.RANDOMIZE_DIFFICULTY) {
-			float modifier = 1.5f * Randomness.getInstance().nextFloat() + 0.5f;
+			float modifier = 1.5f * Randomness.nextFloat() + 0.5f;
 			overallDifficulty = Math.round(overallDifficulty * modifier);
 		}
 		if (overallDifficulty <= 0.0)
@@ -380,7 +381,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		Set<BytecodeInstruction> previousInstructions = getInstructionsBeforeGoalUse();
 		if (goalDefinition != null) {
 			Set<BytecodeInstruction> laterInstructions = getInstructionsAfterGoalDefinition();
-			if (goalDefinition.getVertexId() < goalUse.getVertexId()
+			if (goalDefinition.getInstructionId() < goalUse.getInstructionId()
 			        && goalDefinition.getMethodName().equals(goalUse.getMethodName())) {
 				// they are in the same method and definition comes before use => intersect sets
 				previousInstructions.retainAll(laterInstructions);
@@ -401,7 +402,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	public Set<BytecodeInstruction> getInstructionsAfterGoalDefinition() {
 		RawControlFlowGraph cfg = CFGPool.getRawCFG(goalDefinition.getClassName(),
 		                                                       goalDefinition.getMethodName());
-		BytecodeInstruction defVertex = cfg.getInstruction(goalDefinition.getVertexId());
+		BytecodeInstruction defVertex = cfg.getInstruction(goalDefinition.getInstructionId());
 		Set<BytecodeInstruction> r = cfg.getLaterInstructionsInMethod(defVertex);
 //		for (BytecodeInstruction v : r) {
 //			v.setMethodName(goalDefinition.getMethodName());
@@ -419,7 +420,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	public Set<BytecodeInstruction> getInstructionsBeforeGoalUse() {
 		RawControlFlowGraph cfg = CFGPool.getRawCFG(goalUse.getClassName(),
 		                                                       goalUse.getMethodName());
-		BytecodeInstruction useVertex = cfg.getInstruction(goalUse.getVertexId());
+		BytecodeInstruction useVertex = cfg.getInstruction(goalUse.getInstructionId());
 		Set<BytecodeInstruction> r = cfg.getPreviousInstructionsInMethod(useVertex);
 //		for (BytecodeInstruction v : r) {
 //			v.setMethodName(goalUse.getMethodName());

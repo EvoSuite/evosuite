@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,25 +37,31 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 public class MethodStatement extends AbstractStatement {
 
+	private static final long serialVersionUID = 6134126797102983073L;
+
 	private final Method method;
+
 	VariableReference callee;
+
 	public List<VariableReference> parameters;
 
 	public MethodStatement(TestCase tc, Method method, VariableReference callee,
 	        java.lang.reflect.Type type, List<VariableReference> parameters) {
-		super(tc, new VariableReferenceImpl(tc, type));
-		assert(Modifier.isStatic(method.getModifiers()) || callee!=null);
-		assert(parameters!=null);
-		assert(method.getParameterTypes().length==parameters.size());
+		super(tc, type);
+		assert (Modifier.isStatic(method.getModifiers()) || callee != null);
+		assert (parameters != null);
+		assert (method.getParameterTypes().length == parameters.size());
 		this.method = method;
 		this.callee = callee;
 		this.parameters = parameters;
 	}
-	
+
 	/**
-	 * This constructor allows you to use an already existing VariableReference as retvar. 
-	 * This should only be done, iff an old statement is replaced with this statement. 
-	 * And already existing objects should in the future reference this object.
+	 * This constructor allows you to use an already existing VariableReference
+	 * as retvar. This should only be done, iff an old statement is replaced
+	 * with this statement. And already existing objects should in the future
+	 * reference this object.
+	 * 
 	 * @param tc
 	 * @param method
 	 * @param callee
@@ -64,10 +71,10 @@ public class MethodStatement extends AbstractStatement {
 	public MethodStatement(TestCase tc, Method method, VariableReference callee,
 	        VariableReference retvar, List<VariableReference> parameters) {
 		super(tc, retvar);
-		assert(tc.size()>retvar.getStPosition()); //as an old statement should be replaced by this statement
-		assert(Modifier.isStatic(method.getModifiers()) || callee!=null);
-		assert(parameters!=null);
-		assert(method.getParameterTypes().length==parameters.size());
+		assert (tc.size() > retvar.getStPosition()); //as an old statement should be replaced by this statement
+		assert (Modifier.isStatic(method.getModifiers()) || callee != null);
+		assert (parameters != null);
+		assert (method.getParameterTypes().length == parameters.size());
 		this.method = method;
 		this.callee = callee;
 		this.parameters = parameters;
@@ -107,22 +114,22 @@ public class MethodStatement extends AbstractStatement {
 
 		try {
 			for (int i = 0; i < parameters.size(); i++) {
-				inputs[i] = scope.get(parameters.get(i));
+				inputs[i] = parameters.get(i).getObject(scope);
 			}
 
 			Object callee_object = null;
 			if (!Modifier.isStatic(method.getModifiers())) {
-				callee_object = scope.get(callee);
+				callee_object = callee.getObject(scope);
 			}
 
 			Object ret = this.method.invoke(callee_object, inputs);
-			scope.set(retval, ret);
+			retval.setObject(scope, ret);
 		} catch (Throwable e) {
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
 				e = e.getCause();
 			}
-			if(e instanceof EvosuiteError){
-				throw (EvosuiteError)e;
+			if (e instanceof EvosuiteError) {
+				throw (EvosuiteError) e;
 			}
 			logger.debug("Exception thrown in method " + method.getName() + ": " + e);
 			exceptionThrown = e;
@@ -134,32 +141,46 @@ public class MethodStatement extends AbstractStatement {
 	}
 
 	@Override
+	public boolean isValidException(Throwable t) {
+		return Arrays.asList(method.getExceptionTypes()).contains(t);
+	}
+
+	@Override
 	public String getCode(Throwable exception) {
 
 		String result = "";
-		if (retval.getType() != Void.TYPE) {
+
+		if (exception != null && isValidException(exception)) {
+			result += "// Undeclared exception!\n";
+		}
+
+		if (retval.getType() != Void.TYPE
+		        && retval.getAdditionalVariableReference() == null) {
 			if (exception != null) {
-				result = retval.getSimpleClassName() + " " + retval.getName() + " = "
+				result += retval.getSimpleClassName() + " " + retval.getName() + " = "
 				        + retval.getDefaultValueString() + ";\n";
 			} else
-				result = retval.getSimpleClassName() + " ";
+				result += retval.getSimpleClassName() + " ";
 		}
 		if (exception != null)
 			result += "try {\n  ";
 
 		String parameter_string = "";
 		if (!parameters.isEmpty()) {
-			if (!method.getParameterTypes()[0].equals(parameters.get(0).getVariableClass())
-			        && parameters.get(0) instanceof ArrayIndex)
-				parameter_string += "(" + method.getParameterTypes()[0].getSimpleName()
-				        + ")";
+			if (!method.getParameterTypes()[0].equals(parameters.get(0).getVariableClass()))
+				//			        && parameters.get(0) instanceof ArrayIndex)
+				parameter_string += "("
+				        + new GenericClass(method.getParameterTypes()[0]).getSimpleName()
+				        + ") ";
 			parameter_string += parameters.get(0).getName();
 			for (int i = 1; i < parameters.size(); i++) {
-				if (!method.getParameterTypes()[i].equals(parameters.get(i).getVariableClass())
-				        && parameters.get(i) instanceof ArrayIndex)
+				parameter_string += ", ";
+				if (!method.getParameterTypes()[i].equals(parameters.get(i).getVariableClass()))
+					//				        && parameters.get(i) instanceof ArrayIndex)
 					parameter_string += "("
-					        + method.getParameterTypes()[i].getSimpleName() + ")";
-				parameter_string += ", " + parameters.get(i).getName();
+					        + new GenericClass(method.getParameterTypes()[i]).getSimpleName()
+					        + ") ";
+				parameter_string += parameters.get(i).getName();
 			}
 		}
 
@@ -195,19 +216,22 @@ public class MethodStatement extends AbstractStatement {
 	public StatementInterface clone(TestCase newTestCase) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
-			new_params.add(newTestCase.getStatement(r.getStPosition()).getReturnValue());
+			new_params.add(r.clone(newTestCase));
 		}
 
 		MethodStatement m;
-		if (Modifier.isStatic(method.getModifiers())){
+		if (Modifier.isStatic(method.getModifiers())) {
 			// FIXXME: If callee is an array index, this will return an invalid
 			// copy of the cloned variable!
-			m = new MethodStatement(newTestCase, method, null, retval.getType(), new_params);
-		}else{
-			m = new MethodStatement(newTestCase, method, newTestCase.getStatement(callee.getStPosition()).getReturnValue(), retval.getType(), new_params);
+			m = new MethodStatement(newTestCase, method, null, retval.getType(),
+			        new_params);
+		} else {
+			VariableReference newCallee = callee.clone(newTestCase);
+			m = new MethodStatement(newTestCase, method, newCallee, retval.getType(),
+			        new_params);
 
 		}
-		
+
 		m.assertions = cloneAssertions(newTestCase);
 
 		return m;
@@ -219,15 +243,36 @@ public class MethodStatement extends AbstractStatement {
 		references.add(retval);
 		if (isInstanceMethod()) {
 			references.add(callee);
-			if (callee instanceof ArrayIndex)
-				references.add(((ArrayIndex)callee).getArray());
+			if (callee.getAdditionalVariableReference() != null)
+				references.add(callee.getAdditionalVariableReference());
 		}
 		references.addAll(parameters);
 		for (VariableReference param : parameters) {
-			if (param instanceof ArrayIndex)
-				references.add(((ArrayIndex)param).getArray());
+			if (param.getAdditionalVariableReference() != null)
+				references.add(param.getAdditionalVariableReference());
 		}
+
 		return references;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void replace(VariableReference var1, VariableReference var2) {
+		if (isInstanceMethod()) {
+			if (callee.equals(var1))
+				callee = var2;
+			else
+				callee.replaceAdditionalVariableReference(var1, var2);
+		}
+		for (int i = 0; i < parameters.size(); i++) {
+
+			if (parameters.get(i).equals(var1))
+				parameters.set(i, var2);
+			else
+				parameters.get(i).replaceAdditionalVariableReference(var1, var2);
+		}
 	}
 
 	public List<VariableReference> getParameterReferences() {
@@ -252,9 +297,9 @@ public class MethodStatement extends AbstractStatement {
 		if (ms.parameters.size() != parameters.size())
 			return false;
 
-		if(!this.method.equals(ms.method))
+		if (!this.method.equals(ms.method))
 			return false;
-		
+
 		for (int i = 0; i < parameters.size(); i++) {
 			if (!parameters.get(i).equals(ms.parameters.get(i)))
 				return false;
@@ -273,7 +318,7 @@ public class MethodStatement extends AbstractStatement {
 				return (callee.equals(ms.callee));
 		}
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -400,31 +445,31 @@ public class MethodStatement extends AbstractStatement {
 		if (isInstanceMethod()) {
 			references.add(callee);
 			if (callee instanceof ArrayIndex)
-				references.add(((ArrayIndex)callee).getArray());
+				references.add(((ArrayIndex) callee).getArray());
 		}
 		references.addAll(parameters);
 		for (VariableReference param : parameters) {
 			if (param instanceof ArrayIndex)
-				references.add(((ArrayIndex)param).getArray());
+				references.add(((ArrayIndex) param).getArray());
 		}
 		return references;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#isValid()
 	 */
 	@Override
 	public boolean isValid() {
-		assert(super.isValid());
-		for(VariableReference v : parameters){
+		assert (super.isValid());
+		for (VariableReference v : parameters) {
 			v.getStPosition();
 		}
-		if(callee!=null){
+		if (callee != null) {
 			callee.getStPosition();
 		}
 		return true;
-	}	
-	
+	}
+
 	@Override
 	public boolean same(StatementInterface s) {
 		if (this == s)
@@ -442,8 +487,8 @@ public class MethodStatement extends AbstractStatement {
 			if (!parameters.get(i).same(ms.parameters.get(i)))
 				return false;
 		}
-		
-		if(!this.method.equals(ms.method))
+
+		if (!this.method.equals(ms.method))
 			return false;
 
 		if (!retval.same(ms.retval))

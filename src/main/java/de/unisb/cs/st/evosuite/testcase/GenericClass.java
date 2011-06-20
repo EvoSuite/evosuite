@@ -90,6 +90,10 @@ public class GenericClass {
 		return raw_class.getComponentType();
 	}
 
+	public Type getComponentClass() {
+		return GenericTypeReflector.erase(raw_class.getComponentType());
+	}
+
 	/**
 	 * Set of wrapper classes
 	 */
@@ -127,7 +131,13 @@ public class GenericClass {
 			//if(ClassUtils.isAssignable((Class<?>) rhsType, (Class<?>) lhsType)) {
 			//	logger.info("Classes are assignable: "+lhsType+" / "+rhsType);
 			//}
-			return ClassUtils.isAssignable((Class<?>) rhsType, (Class<?>) lhsType);
+			// Only allow void to void assignments
+			if (((Class<?>) rhsType).equals(void.class)
+			        || ((Class<?>) lhsType).equals(void.class))
+				return false;
+
+			//			return ClassUtils.isAssignable((Class<?>) rhsType, (Class<?>) lhsType);
+			return ((Class<?>) lhsType).isAssignableFrom((Class<?>) rhsType);
 		}
 
 		//	if(lhsType instanceof ParameterizedType && rhsType instanceof ParameterizedType) {
@@ -248,7 +258,8 @@ public class GenericClass {
 	}
 
 	public String getSimpleName() {
-		return ClassUtils.getShortClassName(raw_class);
+		// return raw_class.getSimpleName();
+		return ClassUtils.getShortClassName(raw_class).replace(";", "[]");
 	}
 
 	@Override

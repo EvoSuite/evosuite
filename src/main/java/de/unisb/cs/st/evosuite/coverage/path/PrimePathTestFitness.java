@@ -15,6 +15,8 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  */
 public class PrimePathTestFitness extends TestFitnessFunction {
 
+	private static final long serialVersionUID = 704930253578667965L;
+
 	private final PrimePath path;
 
 	private final String className;
@@ -30,6 +32,7 @@ public class PrimePathTestFitness extends TestFitnessFunction {
 		length = path.branches.size();
 	}
 
+	@SuppressWarnings("unused")
 	private static int getNextBranch(PrimePath path, int position) {
 		for (int i = position + 1; i < path.getSize(); i++) {
 			if (path.get(i).isBranch())
@@ -45,52 +48,52 @@ public class PrimePathTestFitness extends TestFitnessFunction {
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		double minMatch = length;
 		for (MethodCall call : result.getTrace().finished_calls) {
-			if (call.class_name.equals(className) && call.method_name.equals(methodName)) {
+			if (call.className.equals(className) && call.methodName.equals(methodName)) {
 				double matches = 0.0;
-				for (Integer i : call.branch_trace) {
+				for (Integer i : call.branchTrace) {
 					logger.debug(" -> " + i);
 				}
 				logger.debug("-------");
 				logger.debug(path.toString());
 				for (int i = 0; i < path.getSize(); i++) {
 					if (path.get(i).isBranch())
-						logger.debug(" -> " + path.get(i).getId());
+						logger.debug(" -> " + path.get(i).getInstructionId());
 				}
 				logger.debug("Length: " + length);
 				int pos_path = 0;
 				int pos_trace = 0;
 				while (pos_path < path.branches.size()) {
-					if (pos_trace >= call.branch_trace.size()) {
+					if (pos_trace >= call.branchTrace.size()) {
 						logger.debug("End of trace?"
 						        + ": "
-						        + (normalize(call.true_distance_trace.get(pos_trace - 1)) + normalize(call.false_distance_trace.get(pos_trace - 1))));
+						        + (normalize(call.trueDistanceTrace.get(pos_trace - 1)) + normalize(call.falseDistanceTrace.get(pos_trace - 1))));
 
-						matches += 1 - (normalize(call.true_distance_trace.get(pos_trace - 1)) + normalize(call.false_distance_trace.get(pos_trace - 1)));
+						matches += 1 - (normalize(call.trueDistanceTrace.get(pos_trace - 1)) + normalize(call.falseDistanceTrace.get(pos_trace - 1)));
 						break;
-					} else if (path.branches.get(pos_path).vertex.getId() == call.branch_trace.get(pos_trace)) {
+					} else if (path.branches.get(pos_path).vertex.getInstructionId() == call.branchTrace.get(pos_trace)) {
 						logger.debug("Found branch match: "
-						        + path.branches.get(pos_path).vertex.getId());
+						        + path.branches.get(pos_path).vertex.getInstructionId());
 						matches++;
 						if (path.branches.get(pos_path).value == true) {
-							if (call.true_distance_trace.get(pos_trace) == 0.0) {
+							if (call.trueDistanceTrace.get(pos_trace) == 0.0) {
 								logger.debug("Truth value match");
 								pos_path++;
 								pos_trace++;
 							} else {
 								logger.debug("Truth value mismatch: "
-								        + (normalize(call.true_distance_trace.get(pos_trace))));
-								matches += 1 - (normalize(call.true_distance_trace.get(pos_trace)));
+								        + (normalize(call.trueDistanceTrace.get(pos_trace))));
+								matches += 1 - (normalize(call.trueDistanceTrace.get(pos_trace)));
 								break;
 							}
 						} else {
-							if (call.false_distance_trace.get(pos_trace) == 0.0) {
+							if (call.falseDistanceTrace.get(pos_trace) == 0.0) {
 								logger.debug("Truth value match");
 								pos_path++;
 								pos_trace++;
 							} else {
 								logger.debug("Truth value mismatch: "
-								        + (normalize(call.false_distance_trace.get(pos_trace))));
-								matches += 1 - (normalize(call.false_distance_trace.get(pos_trace)));
+								        + (normalize(call.falseDistanceTrace.get(pos_trace))));
+								matches += 1 - (normalize(call.falseDistanceTrace.get(pos_trace)));
 								break;
 							}
 						}
@@ -100,8 +103,8 @@ public class PrimePathTestFitness extends TestFitnessFunction {
 						        + " / "
 						        + path.getSize()
 						        + ": "
-						        + (normalize(call.true_distance_trace.get(pos_trace - 1)) + normalize(call.false_distance_trace.get(pos_trace - 1))));
-						matches += 1 - (normalize(call.true_distance_trace.get(pos_trace - 1)) + normalize(call.false_distance_trace.get(pos_trace - 1)));
+						        + (normalize(call.trueDistanceTrace.get(pos_trace - 1)) + normalize(call.falseDistanceTrace.get(pos_trace - 1))));
+						matches += 1 - (normalize(call.trueDistanceTrace.get(pos_trace - 1)) + normalize(call.falseDistanceTrace.get(pos_trace - 1)));
 						break;
 					}
 				}

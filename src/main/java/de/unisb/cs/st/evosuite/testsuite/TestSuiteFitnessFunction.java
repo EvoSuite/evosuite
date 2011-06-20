@@ -38,9 +38,11 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
  */
 public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 
-	protected Logger logger = Logger.getLogger(TestSuiteFitnessFunction.class);
+	private static final long serialVersionUID = 7243635497292960457L;
 
-	protected TestCaseExecutor executor = TestCaseExecutor.getInstance();
+	protected static Logger logger = Logger.getLogger(TestSuiteFitnessFunction.class);
+
+	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
 	/**
 	 * Execute a test case
@@ -114,23 +116,11 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 			if (test.isChanged() || test.last_result == null) {
 				ExecutionResult result = runTest(test.test);
 				results.add(result);
-
-				/*
-				 * ExecutionResult r = new ExecutionResult(test.test, null);
-				 * r.trace = result.trace.clone(); r.test = test.test.clone();
-				 * r.exceptions = new HashMap<Integer,
-				 * Throwable>(result.exceptions);
-				 */
 				test.last_result = result; // .clone();
 				test.setChanged(false);
 			} else {
-				// logger.info("Skipping test with length "+test.size());
-				// results.add(result_cache.get(test.test));
+
 				results.add(test.last_result);
-				// ExecutionResult result = runTest(test.test, m);
-				// if(!result.trace.equals(result_cache.get(test.test))) {
-				// logger.error("Cached result does not match new result!");
-				// }
 
 			}
 		}

@@ -20,11 +20,13 @@ package de.unisb.cs.st.evosuite.cfg;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DefaultDirectedGraph;
 
 import de.unisb.cs.st.evosuite.mutation.Mutateable;
 
@@ -41,11 +43,11 @@ import de.unisb.cs.st.evosuite.mutation.Mutateable;
  * CUT and each of their methods a complete and a minimal CFG
  * 
  * CFGs are created by the CFGGenerator during the analysis of
- * the CFG's byteCode performed by the BytecodeAnalyzer 
+ * the CUTs' byteCode performed by the BytecodeAnalyzer 
  * 
  * @author Gordon Fraser, Andre Mis
  */
-public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGraph<V> {
+public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGraph<V,ControlFlowEdge> {
 
 	private static Logger logger = Logger.getLogger(ControlFlowGraph.class);
 
@@ -58,7 +60,7 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 	 * Creates a fresh and empty CFG for the given class and method
 	 */
 	protected ControlFlowGraph(String className, String methodName) {
-		super();
+		super(ControlFlowEdge.class);
 		
 		if (className == null || methodName == null)
 			throw new IllegalArgumentException("null given");
@@ -67,6 +69,43 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 		this.methodName = methodName;
 	}
 
+	/**
+	 * Creates a CFG determined by the given jGraph for the given class and
+	 * method
+	 */
+	protected ControlFlowGraph(String className, String methodName, DefaultDirectedGraph<V,ControlFlowEdge> jGraph) {
+		super(jGraph, ControlFlowEdge.class);
+		
+		if (className == null || methodName == null)
+			throw new IllegalArgumentException("null given");
+		
+		this.className = className;
+		this.methodName = methodName;
+	}
+
+	public boolean leadsToNode(ControlFlowEdge e, V b) {
+		
+		Set<V> handled = new HashSet<V>();
+		
+		Queue<V> queue = new LinkedList<V>();
+		queue.add(getEdgeTarget(e));
+		while(!queue.isEmpty()) {
+			V current = queue.poll();
+			if(handled.contains(current))
+				continue;
+			handled.add(current);
+			
+			for(V next : getChildren(current))
+				if(next.equals(b))
+					return true;
+				else
+					queue.add(next);
+		}
+		
+		return false;
+	}
+	
+	
 	/**
 	 * Can be used to retrieve a Branch contained in this CFG identified by it's branchId
 	 * 
@@ -178,28 +217,29 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 	}
 
 	protected void computeDiameter() {
-		FloydWarshall<V, DefaultEdge> f = new FloydWarshall<V, DefaultEdge>(
+		FloydWarshall<V, ControlFlowEdge> f = new FloydWarshall<V, ControlFlowEdge>(
 		        graph);
 		diameter = (int) f.getDiameter();
 	}
 
 	protected V determineEntryPoint() {
-		V r = null;
+		Set<V> candidates = determineEntryPoints();
 
-		for (V instruction : vertexSet())
-			if (inDegreeOf(instruction) == 0) {
-				if (r != null)
-					throw new IllegalStateException(
-							"expect CFG of a method to contain exactly one instruction with no parent");
-				r = instruction;
-			}
-		if (r == null)
+		if(candidates.size() > 1)
 			throw new IllegalStateException(
-					"expect CFG of a method to contain exactly one instruction with no parent");
+					"expect CFG of a method to contain at most one instruction with no parent");
+		
+		for (V instruction : candidates)
+			return instruction;
 
-		return r;
+		// there was a back loop to the first instruction within this CFG, so no
+		// candidate
+		// TODO for now return null and handle in super class
+		// RawControlFlowGraph separately by overriding this method
+		return null;
 	}
 
+	@Override
 	protected Set<V> determineExitPoints() {
 		Set<V> r = new HashSet<V>();
 
@@ -220,5 +260,10 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 
 	public String getMethodName() {
 		return methodName;
+	}
+	
+	@Override
+	public String getName() {
+		return "CFG "+className+"."+getMethodName();
 	}
 }

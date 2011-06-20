@@ -48,7 +48,7 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 public class TestSuiteMinimizer {
 
 	/** Logger */
-	private final Logger logger = Logger.getLogger(TestSuiteMinimizer.class);
+	private final static Logger logger = Logger.getLogger(TestSuiteMinimizer.class);
 
 	/** Factory method that handles statement deletion */
 	private final DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
@@ -75,7 +75,6 @@ public class TestSuiteMinimizer {
 		try {
 			result = executor.execute(test);
 			//result.exceptions = executor.run(test);
-			executor.setLogging(true);
 			//result.trace = ExecutionTracer.getExecutionTracer().getTrace();
 
 		} catch (Exception e) {
@@ -94,36 +93,24 @@ public class TestSuiteMinimizer {
 	}
 
 	private int getNumCovered(TestSuiteChromosome suite) {
-		Set<TestFitnessFunction> covered = new HashSet<TestFitnessFunction>();
 
 		boolean calls_enabled = ExecutionTrace.trace_calls;
 		if (!calls_enabled)
 			ExecutionTrace.enableTraceCalls();
 
 		int num = 0;
-		for (TestChromosome test : suite.tests) {
-			ExecutionResult result = null;
-			if (test.isChanged() || test.last_result == null) {
-				logger.debug("Executing test " + num);
-				result = runTest(test.test);
-				test.last_result = result;
-				test.setChanged(false);
-			} else {
-				// logger.info("Skipping test " + num);
-				result = test.last_result;
-			}
-			for (TestFitnessFunction goal : goals) {
-				if (!covered.contains(goal) && goal.getFitness(test, result) == 0.0) { // TODO: 0.0 should not be hardcoded
-					covered.add(goal);
-					//					test.test.addCoveredGoal(goal);
+		for (TestFitnessFunction goal : goals) {
+			for (TestChromosome test : suite.getTestChromosomes()) {
+				if (goal.isCovered(test)) {
+					num++;
+					break;
 				}
 			}
-			num++;
 		}
 		if (!calls_enabled)
 			ExecutionTrace.disableTraceCalls();
 
-		return covered.size();
+		return num;
 	}
 
 	/**
@@ -139,8 +126,8 @@ public class TestSuiteMinimizer {
 
 	private int getNumCoveredBranches(TestSuiteChromosome suite) {
 
-		Set<String> covered_true = new HashSet<String>();
-		Set<String> covered_false = new HashSet<String>();
+		Set<Integer> covered_true = new HashSet<Integer>();
+		Set<Integer> covered_false = new HashSet<Integer>();
 		Set<String> called_methods = new HashSet<String>();
 
 		int num = 0;
@@ -151,17 +138,18 @@ public class TestSuiteMinimizer {
 				result = runTest(test.test);
 				test.last_result = result.clone();
 				test.setChanged(false);
+
 			} else {
-				// logger.info("Skipping test "+num);
+				logger.debug("Skipping test " + num);
 				result = test.last_result;
 			}
 			called_methods.addAll(result.getTrace().covered_methods.keySet());
-			for (Entry<String, Double> entry : result.getTrace().true_distances.entrySet()) {
+			for (Entry<Integer, Double> entry : result.getTrace().true_distances.entrySet()) {
 				if (entry.getValue() == 0)
 					covered_true.add(entry.getKey());
 			}
 
-			for (Entry<String, Double> entry : result.getTrace().false_distances.entrySet()) {
+			for (Entry<Integer, Double> entry : result.getTrace().false_distances.entrySet()) {
 				if (entry.getValue() == 0)
 					covered_false.add(entry.getKey());
 			}
@@ -171,6 +159,15 @@ public class TestSuiteMinimizer {
 
 		logger.debug("Called methods: " + called_methods.size());
 		return covered_true.size() + covered_false.size() + called_methods.size();
+	}
+
+	@SuppressWarnings("unused")
+	private int checkFitness(TestSuiteChromosome suite) {
+		for (int i = 0; i < suite.size(); i++) {
+			suite.getTestChromosome(i).last_result = null;
+			suite.getTestChromosome(i).setChanged(true);
+		}
+		return getNumCovered(suite);
 	}
 
 	/**
@@ -183,6 +180,14 @@ public class TestSuiteMinimizer {
 
 		boolean branch = Properties.CRITERION == Properties.Criterion.BRANCH;
 		CurrentChromosomeTracker.getInstance().modification(suite);
+		Properties.RECYCLE_CHROMOSOMES = false; // TODO: FIXXME!
+
+		// Remove previous results as they do not contain method calls
+		// in the case of whole suite generation
+		for (TestChromosome test : suite.getTestChromosomes()) {
+			test.setChanged(true);
+			test.last_result = null;
+		}
 
 		boolean size = false;
 		String strategy = Properties.SECONDARY_OBJECTIVE;
@@ -221,8 +226,12 @@ public class TestSuiteMinimizer {
 
 		// double fitness = fitness_function.getFitness(suite);
 		// double coverage = suite.coverage;
-		int fitness = getNumCovered(suite);
-		logger.debug("Initially covered: " + fitness);
+		int fitness = 0;
+
+		if (branch)
+			fitness = getNumCoveredBranches(suite);
+		else
+			fitness = getNumCovered(suite);
 
 		boolean changed = true;
 		while (changed) {
@@ -239,10 +248,11 @@ public class TestSuiteMinimizer {
 			int num = 0;
 			for (TestChromosome test : suite.tests) {
 				for (int i = test.size() - 1; i >= 0; i--) {
-					logger.debug("Current size: " + suite.size() + "/" + suite.length());
+					logger.debug("Current size: " + suite.size() + "/" + suite.totalLengthOfTestCases());
 					logger.debug("Deleting statement "
 					        + test.test.getStatement(i).getCode() + " from test " + num);
 					TestChromosome copy = (TestChromosome) test.clone();
+
 					try {
 						test_factory.deleteStatementGracefully(test.test, i);
 						test.setChanged(true);
@@ -252,8 +262,8 @@ public class TestSuiteMinimizer {
 						logger.debug("Deleting failed");
 						continue;
 					}
-					// logger.trace("Trying: ");
-					// logger.trace(test.test.toCode());
+					// logger.debug("Trying: ");
+					// logger.debug(test.test.toCode());
 
 					int new_fitness = 0;
 					if (branch)
@@ -264,7 +274,6 @@ public class TestSuiteMinimizer {
 					if (new_fitness >= fitness) {
 						fitness = new_fitness;
 						changed = true;
-
 						// If we're optimizing the number of tests, continue
 						// deleting from the same test else try to delete from
 						// another test
@@ -295,6 +304,8 @@ public class TestSuiteMinimizer {
 				it.remove();
 			}
 		}
+
+		//assert (checkFitness(suite) == fitness);
 
 		logger1.setLevel(old_level1);
 		logger2.setLevel(old_level2);

@@ -56,7 +56,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 	private final HOMSwitcher hom_switcher = new HOMSwitcher();
 
-	private final Logger logger = Logger.getLogger(MutationAssertionGenerator.class);
+	private final static Logger logger = Logger.getLogger(MutationAssertionGenerator.class);
 
 	private final Map<TestCase, Map<Class<?>, Integer>> assertion_statistics_full = new HashMap<TestCase, Map<Class<?>, Integer>>();
 
@@ -129,11 +129,9 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			HOMObserver.resetTouched(); // TODO - is this the right place?
 			if (mutant != null) {
 				hom_switcher.switchOn(mutant);
-				executor.setLogging(false);
 			}
 
 			result = executor.execute(test);
-			executor.setLogging(true);
 
 			if (mutant != null)
 				hom_switcher.switchOff(mutant);
@@ -365,9 +363,16 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		addAssertions(test, killed, mutants);
 	}
 
+	@SuppressWarnings("deprecation")
 	public void addAssertions(TestCase test, Set<Long> killed, List<Mutation> mutants) {
 
 		logger.info("Generating assertions");
+
+		@SuppressWarnings("unused")
+		int ALL_assertions = 0;
+		@SuppressWarnings("unused")
+		int MIN_assertions = 0;
+
 		assertion_statistics_full.put(test, new HashMap<Class<?>, Integer>());
 
 		assertion_statistics_killed.put(test, new HashMap<Class<?>, Integer>());
@@ -499,6 +504,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		int num_before = 0;
 		Set<Long> killed_before = new HashSet<Long>();
 		List<Assertion> assertions = test.getAssertions();
+		assertion_statistics_full.get(test).put(StringAssertion.class, assertions.size());
 		logger.info("Got " + assertions.size() + " assertions");
 		Map<Integer, Set<Long>> kill_map = new HashMap<Integer, Set<Long>>();
 		int num = 0;
@@ -591,6 +597,8 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				}
 			}
 		}
+		assertion_statistics_min.get(test).put(StringAssertion.class, assertions.size());
+
 	}
 
 	public boolean isKilled(Mutation mutation, TestCase test) {

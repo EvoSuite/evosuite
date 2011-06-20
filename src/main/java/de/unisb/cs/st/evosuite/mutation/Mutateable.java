@@ -13,4 +13,6 @@ public interface Mutateable {
 	public int getDistance(long mutationId);
 
 	public void setDistance(long mutationId, int distance);
+	
+	public String getName();
 }

@@ -18,7 +18,6 @@
 
 package de.unisb.cs.st.evosuite.ga;
 
-import java.util.List;
 
 /**
  * A listener that can be attached to the search
@@ -34,21 +33,21 @@ public interface SearchListener {
 	 * @param objective
 	 *            - the fitness function of the search
 	 */
-	public void searchStarted(FitnessFunction objective);
+	public void searchStarted(GeneticAlgorithm algorithm);
 
 	/**
 	 * Called after each iteration of the search
 	 * 
 	 * @param population
 	 */
-	public void iteration(List<Chromosome> population);
+	public void iteration(GeneticAlgorithm algorithm);
 
 	/**
 	 * Called after the last iteration
 	 * 
 	 * @param population
 	 */
-	public void searchFinished(List<Chromosome> population);
+	public void searchFinished(GeneticAlgorithm algorithm);
 
 	/**
 	 * Called after every single fitness evaluation

@@ -11,6 +11,7 @@ import de.unisb.cs.st.javalanche.mutation.results.MutationTestResult;
 import de.unisb.cs.st.javalanche.mutation.runtime.testDriver.MutationTestDriver;
 
 public abstract class HOMFitnessFunction extends FitnessFunction {
+	private static final long serialVersionUID = 1L;
 
 	protected HOMSwitcher hom_switcher = new HOMSwitcher();
 

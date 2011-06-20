@@ -14,17 +14,19 @@ import org.apache.log4j.Logger;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.unisb.cs.st.evosuite.assertion.Assertion;
+import de.unisb.cs.st.evosuite.testcase.AbstractTestFactory;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
- * Wraps a StatementInterface and calls 
+ * Wraps a StatementInterface and calls
+ * 
  * @author Sebastian Steenbuck
- *
+ * 
  */
-public class ScheduleLogWrapper implements StatementInterface{
+public class ScheduleLogWrapper implements StatementInterface {
 
 	public interface callReporter{
 		/**
@@ -56,17 +58,19 @@ public class ScheduleLogWrapper implements StatementInterface{
 	public final StatementInterface wrapped;
 	private callReporter callReporter;
 
-	public ScheduleLogWrapper(StatementInterface wrapped){
-		assert(wrapped!=null) : "undefined behaviour lurks behind one statement beeing executed by multiple threads";
-		this.wrapped=wrapped;
+	public ScheduleLogWrapper(StatementInterface wrapped) {
+		assert (wrapped != null) : "undefined behaviour lurks behind one statement beeing executed by multiple threads";
+		this.wrapped = wrapped;
 	}
 
-	public StatementInterface clone(){
+	@Override
+	public StatementInterface clone() {
 		throw new UnsupportedOperationException();
 	}
-	
-	public void setCallReporter(callReporter callReporter){;
-		this.callReporter=callReporter;
+
+	public void setCallReporter(callReporter callReporter) {
+		;
+		this.callReporter = callReporter;
 	}
 
 	/* (non-Javadoc)
@@ -82,9 +86,9 @@ public class ScheduleLogWrapper implements StatementInterface{
 	 */
 	@Override
 	public boolean equals(Object s) {
-		if(s instanceof ScheduleLogWrapper){
+		if (s instanceof ScheduleLogWrapper) {
 			return wrapped.equals(((ScheduleLogWrapper) s).wrapped);
-		}else{
+		} else {
 			return wrapped.equals(s);
 		}
 	}
@@ -94,17 +98,19 @@ public class ScheduleLogWrapper implements StatementInterface{
 	 */
 	@Override
 	public Throwable execute(Scope scope, PrintStream out)
-	throws InvocationTargetException, IllegalArgumentException,
-	IllegalAccessException, InstantiationException {
-		assert(LockRuntime.controller!=null);
-		assert(callReporter!=null):"SetCallReporter/2 must be called before a wrapped statement may be executed";
-		try{
-			callReporter.callStart(this, LockRuntime.controller.getThreadID(Thread.currentThread()));
-		}catch(Throwable e){
+	        throws InvocationTargetException, IllegalArgumentException,
+	        IllegalAccessException, InstantiationException {
+		assert (LockRuntime.controller != null);
+		assert (callReporter != null) : "SetCallReporter/2 must be called before a wrapped statement may be executed";
+		try {
+			callReporter.callStart(this,
+			                       LockRuntime.controller.getThreadID(Thread.currentThread()));
+		} catch (Throwable e) {
 			logger.fatal("test", e);
 		}
 		Throwable t = wrapped.execute(scope, out);
-		callReporter.callEnd(this, LockRuntime.controller.getThreadID(Thread.currentThread()));
+		callReporter.callEnd(this,
+		                     LockRuntime.controller.getThreadID(Thread.currentThread()));
 		return t;
 	}
 
@@ -129,7 +135,7 @@ public class ScheduleLogWrapper implements StatementInterface{
 	 */
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-			Throwable exception) {
+	        Throwable exception) {
 		wrapped.getBytecode(mg, locals, exception);
 	}
 
@@ -206,6 +212,14 @@ public class ScheduleLogWrapper implements StatementInterface{
 	}
 
 	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void replace(VariableReference var1, VariableReference var2) {
+		wrapped.replace(var1, var2);
+	}
+
+	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#hasAssertions()
 	 */
 	@Override
@@ -238,12 +252,12 @@ public class ScheduleLogWrapper implements StatementInterface{
 	}
 
 	@Override
-	public StatementInterface clone(TestCase tc){
+	public StatementInterface clone(TestCase tc) {
 		return new ScheduleLogWrapper(wrapped.clone(tc));
 	}
-	
+
 	@Override
-	public int hashCode(){
+	public int hashCode() {
 		return wrapped.hashCode();
 	}
 
@@ -257,10 +271,35 @@ public class ScheduleLogWrapper implements StatementInterface{
 
 	@Override
 	public boolean same(StatementInterface s) {
-		if(s instanceof ScheduleLogWrapper){
+		if (s instanceof ScheduleLogWrapper) {
 			return wrapped.same(((ScheduleLogWrapper) s).wrapped);
-		}else{
+		} else {
 			return wrapped.same(s);
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#isValidException(java.lang.Throwable)
+	 */
+	@Override
+	public boolean isValidException(Throwable t) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#mutate(de.unisb.cs.st.evosuite.testcase.TestCase, de.unisb.cs.st.evosuite.testcase.AbstractTestFactory)
+	 */
+	@Override
+	public boolean mutate(TestCase test, AbstractTestFactory factory) {
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#SetRetval(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void SetRetval(VariableReference newRetVal) {
+		wrapped.SetRetval(newRetVal);
 	}
 }

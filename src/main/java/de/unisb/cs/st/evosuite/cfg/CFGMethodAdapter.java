@@ -42,7 +42,6 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyInstrumentation;
 import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.AbstractMutationAdapter;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
-import de.unisb.cs.st.testability.TransformationHelper;
 
 /**
  * Create a minimized control flow graph for the method and store it. In
@@ -72,7 +71,6 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 	 * excludes e.g. synthetic, initializers, private and deprecated methods
 	 */
 	public static Set<String> methods = new HashSet<String>();
-
 
 	/**
 	 * This is the name + the description of the method. It is more like the
@@ -113,13 +111,13 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		if (Properties.CRITERION == Criterion.CONCURRENCY) {
 			instrumentations.add(new ConcurrencyInstrumentation());
 			instrumentations.add(new BranchInstrumentation());
-		} else if (Properties.CRITERION ==Criterion.LCSAJ) {
+		} else if (Properties.CRITERION == Criterion.LCSAJ) {
 			instrumentations.add(new LCSAJsInstrumentation());
 			instrumentations.add(new BranchInstrumentation());
-		} else if (Properties.CRITERION ==Criterion.DEFUSE) {
+		} else if (Properties.CRITERION == Criterion.DEFUSE) {
 			instrumentations.add(new BranchInstrumentation());
 			instrumentations.add(new DefUseInstrumentation());
-		} else if (Properties.CRITERION ==Criterion.PATH) {
+		} else if (Properties.CRITERION == Criterion.PATH) {
 			instrumentations.add(new PrimePathInstrumentation());
 			instrumentations.add(new BranchInstrumentation());
 		} else {
@@ -143,6 +141,8 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		if ((!isMainMethod || executeOnMain) && (!isExcludedMethod || executeOnExcluded)
 		        && (access & Opcodes.ACC_ABSTRACT) == 0) {
 
+			logger.info("Analyzing method " + methodName);
+
 			// MethodNode mn = new CFGMethodNode((MethodNode)mv);
 			// System.out.println("Generating CFG for "+ className+"."+mn.name +
 			// " ("+mn.desc +")");
@@ -151,9 +151,12 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 			try {
 				bytecodeAnalyzer.analyze(className, methodName, mn);
-				logger.trace("Method graph for " + className + "." + methodName
+				logger.trace("Method graph for "
+				        + className
+				        + "."
+				        + methodName
 				        + " contains "
-				        + bytecodeAnalyzer.retrieveCFGGenerator().getCompleteGraph().vertexSet().size()
+				        + bytecodeAnalyzer.retrieveCFGGenerator().getRawGraph().vertexSet().size()
 				        + " nodes for " + bytecodeAnalyzer.getFrames().length
 				        + " instructions");
 			} catch (AnalyzerException e) {
@@ -167,11 +170,11 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			logger.info("Created CFG for method " + methodName);
 
 			//add the actual instrumentation
+			logger.info("Instrumenting method " + methodName);
 			for (MethodInstrumentation instrumentation : instrumentations)
 				instrumentation.analyze(mn, className, methodName, access);
 
 			handleBranchlessMethods();
-			logger.info("Analyzing method " + methodName);
 
 			String id = className + "." + methodName;
 			if (isUsable()) {
@@ -188,12 +191,6 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		String id = className + "." + methodName;
 		if (BranchPool.getBranchCountForMethod(id) == 0) {
 			if (isUsable()) {
-				if (Properties.TESTABILITY_TRANSFORMATION) {
-					String vname = methodName.replace("(", "|(");
-					if (TransformationHelper.hasValkyrieMethod(className, vname))
-						return;
-				}
-
 				logger.debug("Method has no branches: " + id);
 				BranchPool.addBranchlessMethod(id);
 			}

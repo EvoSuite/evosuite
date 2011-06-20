@@ -20,14 +20,6 @@ public class ExceptionTestClass {
 		return field;
 	}
 	
-	public int returnInTryCatch(int val) {
-		try {
-			return val;
-		} catch(Exception e) {
-			return val;
-		}
-	}
-	
 	public void illegalArgumentThrower(int val)  throws Exception {
 		if(val<0)
 			throw new IllegalArgumentException("not >=0");
@@ -55,22 +47,6 @@ public class ExceptionTestClass {
 		}
 	}
 
-	public void tryCatchDef() {
-		try {
-			throw new Exception("");
-		}catch(Exception e) { 
-			field = e.toString().length();
-		}
-	}
-	
-	public void tryCatchUse() {
-		try {
-			throw new Exception("");
-		}catch(Exception e) { 
-			setField(field);
-		}
-	}
-	
 	public void ifTryCatchDef() {
 		if(field%2==0)
 			try {
@@ -89,6 +65,25 @@ public class ExceptionTestClass {
 			}
 	}
 	
+	public void tryIfCatchDef() {
+		try {
+			if (field % 2 == 0)
+				throw new Exception("");
+		} catch (Exception e) {
+			field = e.toString().length();
+		}
+	}
+	
+	public void tryIfCatchUse() {
+
+		try {
+			if (field % 2 == 0)
+				throw new Exception("");
+		} catch (Exception e) {
+			setField(field);
+		}
+	}
+	
 	public void alwaysThrowIllegalState() throws IllegalStateException {
 		throw new IllegalStateException("error");
 	}
@@ -101,6 +96,65 @@ public class ExceptionTestClass {
 		throw new Exception("error");
 	}
 
+	public void tryCatchDef() {
+		try {
+			throw new Exception("");
+		}catch(Exception e) { 
+			field = e.toString().length();
+		}
+	}
+	
+	public void tryAlwaysCatchUse() {
+		try {
+			throw new Exception("");
+		}catch(Exception e) { 
+			// will always happen
+			setField(field);
+		}
+	}
+	
+	public void tryWontCatch() {
+		try {
+			field = 0;
+		} catch (Exception e) {
+			// won't happen
+		}
+	}
+	
+	public void tryMightCatch(int val) {
+		try {
+			illegalArgumentThrower(val);
+		} catch(Exception e) {
+			// might happen
+		}
+	}
+	
+	public void tryFinally(int val) {
+		try {
+			setField(val);
+		} finally {
+			field--;
+		}
+	}
+	
+	public void tryCatchFinally(int val) {
+		try {
+			illegalArgumentThrower(val);
+		} catch (Exception e) {
+			field++;
+		} finally {
+			field--;
+		}
+	}
 
+	// CARE: the following method produces unreachable code (return in catch never reachable)
+	
+	public int returnInTryCatch(int val) {
+		try {
+			return val;
+		} catch(Exception e) {
+			return val;
+		}
+	}
 	
 }

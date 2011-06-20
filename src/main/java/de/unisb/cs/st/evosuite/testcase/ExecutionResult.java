@@ -52,6 +52,9 @@ public class ExecutionResult {
 	public NullOutputTrace null_trace;
 	public List<Long> touched = new ArrayList<Long>();
 
+	// experiment .. tried to remember intermediately calculated ControlFlowDistances .. no real speed up
+	//	public Map<Branch, ControlFlowDistance> intermediateDistances;
+
 	public ExecutionResult(TestCase t) {
 		exception_statement = 0;
 		trace = null;
@@ -66,15 +69,15 @@ public class ExecutionResult {
 		test = t;
 	}
 
-	public ExecutionTrace getTrace(){
+	public ExecutionTrace getTrace() {
 		return trace;
 	}
-	
-	public void setTrace(ExecutionTrace trace){
-		assert(trace!=null);
-		this.trace=trace;
+
+	public void setTrace(ExecutionTrace trace) {
+		assert (trace != null);
+		this.trace = trace;
 	}
-	
+
 	public boolean hasTimeout() {
 		if (test == null)
 			return false;
@@ -94,6 +97,7 @@ public class ExecutionResult {
 		ExecutionResult copy = new ExecutionResult(test, mutation);
 		copy.exceptions.putAll(exceptions);
 		copy.trace = trace.clone();
+		copy.touched.addAll(touched);
 		return copy;
 	}
 

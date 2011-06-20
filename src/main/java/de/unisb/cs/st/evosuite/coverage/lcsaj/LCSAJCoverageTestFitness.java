@@ -18,19 +18,12 @@
 
 package de.unisb.cs.st.evosuite.coverage.lcsaj;
 
-import java.util.HashMap;
-
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.JumpInsnNode;
-
-import de.unisb.cs.st.evosuite.cfg.ActualControlFlowGraph;
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
+import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
@@ -41,18 +34,22 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  * 
  */
 public class LCSAJCoverageTestFitness extends TestFitnessFunction {
+	private static final long serialVersionUID = 1L;
 
 	LCSAJ lcsaj;
 
-	ActualControlFlowGraph cfg;
+	private final int lcsaj_finalBranchID;
 
-	double approach;
-	double branch;
+	private double approach;
 
-	public LCSAJCoverageTestFitness(String className, String methodName,
-			LCSAJ lcsaj, ActualControlFlowGraph cfg) {
+	public LCSAJCoverageTestFitness(String className, String methodName, LCSAJ lcsaj) {
 		this.lcsaj = lcsaj;
-		this.cfg = cfg;
+		lcsaj_finalBranchID = lcsaj.getBranchID(lcsaj.length() - 1);
+	}
+
+	public LCSAJCoverageTestFitness(LCSAJ lcsaj) {
+		this.lcsaj = lcsaj;
+		lcsaj_finalBranchID = lcsaj.getBranchID(lcsaj.length() - 1);
 	}
 
 	/*
@@ -65,59 +62,101 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 	 */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
-		double fitness = 0.0;
-		HashMap<Integer, AbstractInsnNode> instructions = lcsaj
-				.getInstructions();
-		boolean firstInsn = true;
-		approach = instructions.size();
-		for (Integer i : instructions.keySet()) {
+		approach = lcsaj.length();
+		double savedFitness = approach;
+		logger.debug("Evaluating fitness for " + lcsaj);
 
-			AbstractInsnNode current_instruction = instructions.get(i);
-			BytecodeInstruction c = cfg.getInstruction(i);
+		// for all method calls:
+		for (MethodCall call : result.getTrace().finished_calls) {
+			double currentFitness = approach;
 
-			if (c == null) {
-				// Only jump nodes are in minimized CFG!
-				continue;
-			}
+			// if method call is the method of the LCSAJ
+			if (call.className.equals(lcsaj.getClassName())
+			        && call.methodName.equals(lcsaj.getMethodName())) {
 
-			if (c.branchId != -1 && firstInsn) {
-				BranchCoverageTestFitness b = new BranchCoverageTestFitness(
-						new BranchCoverageGoal(
-								BranchPool.getBranch(c.branchId), false, cfg,
-								lcsaj.getClassName(), lcsaj.getMethodName()));
-				fitness += b.getFitness(individual, result);
-				firstInsn = false;
-				continue;
-			}
+				int lcsaj_position = 0;
+				boolean found = false;
 
-			if (current_instruction instanceof JumpInsnNode) {
+				logger.debug("New call");
+				// For each branch that was passed in this call
+				for (int i = 0; i < call.branchTrace.size(); i++) {
+					int actualBranch = call.branchTrace.get(i);
+					int lcsaj_branchID = lcsaj.getBranchID(lcsaj_position);
 
-				JumpInsnNode current_jump = (JumpInsnNode) current_instruction;
-	
-				if (current_jump.getOpcode() != Opcodes.GOTO) {
-					if (lcsaj.getInstruction(i).equals(lcsaj.getLastJump())) {
-						branch = result.getTrace().true_distances.get(c.branchId);
-						if (branch != 0.0) {
-							fitness += normalize(branch);
-							break;
+					double false_distance = call.falseDistanceTrace.get(i);
+					double true_distance = call.trueDistanceTrace.get(i);
+					logger.debug("Current branch: " + call.branchTrace.get(i) + ": "
+					        + true_distance + "/" + false_distance + ", need "
+					        + lcsaj.getBranchID(lcsaj_position));
+
+					if (actualBranch == lcsaj_branchID) {
+						if (lcsaj_position == 0)
+							found = true;
+						currentFitness -= 1.0;
+						if (actualBranch == lcsaj_finalBranchID) {
+							currentFitness += normalize(false_distance);
+
+							if (currentFitness < savedFitness) {
+								savedFitness = currentFitness;
+							}
+
+							lcsaj_position = 0;
+							currentFitness = approach;
+							continue;
+						} else if (true_distance > 0) {
+							logger.debug("Took a wrong turn with false distance "
+							        + true_distance);
+							currentFitness += normalize(true_distance);
+
+							if (currentFitness < savedFitness)
+								savedFitness = currentFitness;
+
+							lcsaj_position = 0;
+							currentFitness = approach;
+							continue;
 						}
-					}
-					else {
-						branch = result.getTrace().false_distances.get(c.branchId);
-						if (branch != 0.0) {
-							fitness += approach + normalize(branch);
-							break;
+
+						lcsaj_position++;
+						logger.debug("LCSAJ position: " + lcsaj_position);
+
+					} else {
+						if (LCSAJPool.isLCSAJBranch(BranchPool.getBranch(actualBranch))) {
+							//						logger.debug("Skipping pseudo branch");
+							continue;
 						}
+						lcsaj_position = 0;
+						currentFitness = approach;
 					}
+					//}
 				}
-				else {
-					
+
+				if (!found) {
+					logger.debug("Looking for approach to initial branch: "
+					        + lcsaj.getStartBranch() + " with ID "
+					        + lcsaj.getStartBranch().getActualBranchId());
+					BranchCoverageGoal goal = new BranchCoverageGoal(
+					        lcsaj.getStartBranch(), true, lcsaj.getClassName(),
+					        lcsaj.getMethodName());
+					BranchCoverageTestFitness dependentFitness = new BranchCoverageTestFitness(
+					        goal);
+					assert (currentFitness == approach);
+					currentFitness += dependentFitness.getFitness(individual, result);
+					if (currentFitness < savedFitness)
+						savedFitness = currentFitness;
+					//logger.debug("Initial branch has distance: "
+					//        + dependentFitness.getFitness(individual, result));
+					//logger.debug("Dependencies of initial branch: ");
+					//for (Branch branch : lcsaj.getStartBranch().getAllControlDependentBranches()) {
+					//	logger.debug(branch);
+					//	}
+
 				}
+				logger.debug("Resulting fitness: " + savedFitness);
 			}
-			approach--;
 		}
-		updateIndividual(individual, fitness);
-		return fitness;
+
+		updateIndividual(individual, savedFitness);
+		return savedFitness;
 	}
 
 	/*
@@ -132,4 +171,8 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 		individual.setFitness(fitness);
 	}
 
+	@Override
+	public String toString() {
+		return lcsaj.toString();
+	}
 }

@@ -24,7 +24,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.ga.Randomness;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * @author Gordon Fraser
@@ -36,8 +36,6 @@ public class PrimitivePool {
 	private static Logger logger = Logger.getLogger(PrimitivePool.class);
 
 	private static PrimitivePool instance = null;
-
-	private final Randomness randomness = Randomness.getInstance();
 
 	private Set<String> string_pool = null;
 
@@ -131,23 +129,23 @@ public class PrimitivePool {
 	}
 
 	public String getRandomString() {
-		return randomness.choice(string_pool);
+		return Randomness.choice(string_pool);
 	}
 
 	public int getRandomInt() {
-		return randomness.choice(int_pool);
+		return Randomness.choice(int_pool);
 	}
 
 	public float getRandomFloat() {
-		return randomness.choice(float_pool);
+		return Randomness.choice(float_pool);
 	}
 
 	public double getRandomDouble() {
-		return randomness.choice(double_pool);
+		return Randomness.choice(double_pool);
 	}
 
 	public long getRandomLong() {
-		return randomness.choice(long_pool);
+		return Randomness.choice(long_pool);
 	}
 
 }

@@ -39,7 +39,7 @@ public class NullPointerExceptionContract extends Contract {
 				}
 				boolean hasNull = false;
 				for (VariableReference var : parameters) {
-					if (scope.get(var) == null) {
+					if (var.getObject(scope) == null) {
 						hasNull = true;
 						break;
 					}

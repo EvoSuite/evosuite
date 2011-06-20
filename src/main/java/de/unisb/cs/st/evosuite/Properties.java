@@ -68,7 +68,7 @@ public class Properties {
 	}
 
 	@interface DoubleValue {
-		double min() default Double.MIN_VALUE;
+		double min() default -(Double.MAX_VALUE - 1); // FIXXME: Check
 
 		double max() default Double.MAX_VALUE;
 	}
@@ -106,8 +106,15 @@ public class Properties {
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double PRIMITIVE_POOL = 0.5;
 
+	@Parameter(key = "object_pool", group = "Test Creation", description = "Probability to use a predefined sequence from the pool rather than a random generator")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double OBJECT_POOL = 0.0;
+
 	@Parameter(key = "string_length", group = "Test Creation", description = "Maximum length of randomly generated strings")
 	public static int STRING_LENGTH = 20;
+
+	@Parameter(key = "epsilon", group = "Test Creation", description = "Epsilon for floats in local search")
+	public static double EPSILON = 0.001;
 
 	@Parameter(key = "max_int", group = "Test Creation", description = "Maximum size of randomly generated integers (minimum range = -1 * max)")
 	public static int MAX_INT = 256;
@@ -163,6 +170,15 @@ public class Properties {
 
 	@Parameter(key = "check_max_length", group = "Search Algorithm", description = "Check length against fixed maximum")
 	public static boolean CHECK_MAX_LENGTH = true;
+
+	@Parameter(key = "dse_rate", group = "Search Algorithm", description = "Apply DSE at every X generation")
+	public static int DSE_RATE = -1;
+
+	@Parameter(key = "local_search_rate", group = "Search Algorithm", description = "Apply local search at every X generation")
+	public static int LOCAL_SEARCH_RATE = -1;
+
+	@Parameter(key = "local_search_probes", group = "Search Algorithm", description = "How many mutations to apply to a string to check whether it improves coverage")
+	public static int LOCAL_SEARCH_PROBES = 10;
 
 	@Parameter(key = "crossover_rate", group = "Search Algorithm", description = "Probability of crossover")
 	@DoubleValue(min = 0.0, max = 1.0)
@@ -269,6 +285,12 @@ public class Properties {
 	@Parameter(key = "minimize", group = "Output", description = "Minimize test suite after generation")
 	public static boolean MINIMIZE = true;
 
+	@Parameter(key = "inline", group = "Output", description = "Inline all constants")
+	public static boolean INLINE = false;
+
+	@Parameter(key = "write_pool", group = "Output", description = "Keep sequences for object pool")
+	public static boolean WRITE_POOL = false;
+
 	@Parameter(key = "report_dir", group = "Output", description = "Directory in which to put HTML and CSV reports")
 	public static String REPORT_DIR = "evosuite-report";
 
@@ -283,6 +305,9 @@ public class Properties {
 
 	@Parameter(key = "test_dir", group = "Output", description = "Directory in which to place JUnit tests")
 	public static String TEST_DIR = "evosuite-tests";
+
+	@Parameter(key = "write_cfg", group = "Output", description = "Create CFG graphs")
+	public static boolean WRITE_CFG = false;
 
 	//---------------------------------------------------------------
 	// Sandbox
@@ -340,6 +365,9 @@ public class Properties {
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double CONCOLIC_MUTATION = 0.0;
 
+	@Parameter(key = "ui", description = "Do User Interface tests")
+	public static boolean UI_TEST = false;
+	
 	@Parameter(key = "testability_transformation", description = "Apply testability transformation (Yanchuan)")
 	public static boolean TESTABILITY_TRANSFORMATION = false;
 
@@ -407,6 +435,9 @@ public class Properties {
 	@Parameter(key = "PROJECT_PREFIX", group = "Runtime", description = "Package name of target package")
 	public static String PROJECT_PREFIX = null;
 
+	@Parameter(key = "PROJECT_DIR", group = "Runtime", description = "Directory name of target package")
+	public static String PROJECT_DIR = null;
+
 	/** Package name of target class (might be a subpackage) */
 	public static String CLASS_PREFIX = "";
 
@@ -433,6 +464,12 @@ public class Properties {
 
 	@Parameter(key = "strategy", group = "Runtime", description = "Which mode to use")
 	public static Strategy STRATEGY = Strategy.EVOSUITE;
+
+	@Parameter(key = "process_communication_port", group = "Runtime", description = "Port at which the communication with the external process is done")
+	public static int PROCESS_COMMUNICATION_PORT = -1;
+
+	@Parameter(key = "max_stalled_threads", group = "Runtime", description = "Number of stalled threads")
+	public static int MAX_STALLED_THREADS = 10;
 
 	/**
 	 * Get all parameters that are available
@@ -636,7 +673,7 @@ public class Properties {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
-		return parameterMap.get(key).get(null).toString();
+		return parameterMap.get(key).toString();
 	}
 
 	/**
@@ -714,7 +751,7 @@ public class Properties {
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	public void setValue(String key, String value) throws NoSuchParameterException,
 	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))

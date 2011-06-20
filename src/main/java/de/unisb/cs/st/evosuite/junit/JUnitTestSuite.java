@@ -44,9 +44,9 @@ public class JUnitTestSuite {
 
 	private Set<String> covered_methods;
 
-	private Set<String> covered_branches_true;
+	private Set<Integer> covered_branches_true;
 
-	private Set<String> covered_branches_false;
+	private Set<Integer> covered_branches_false;
 
 	private final TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
@@ -59,24 +59,24 @@ public class JUnitTestSuite {
 			ExecutionTrace trace = ExecutionTracer.getExecutionTracer().getTrace();
 
 			covered_methods = new HashSet<String>();
-			covered_branches_true = new HashSet<String>();
-			covered_branches_false = new HashSet<String>();
+			covered_branches_true = new HashSet<Integer>();
+			covered_branches_false = new HashSet<Integer>();
 
 			for (Entry<String, Integer> entry : trace.covered_methods.entrySet()) {
 				if (!entry.getKey().contains("$"))
 					covered_methods.add(entry.getKey());
 			}
 
-			for (Entry<String, Double> entry : trace.true_distances.entrySet()) {
+			for (Entry<Integer, Double> entry : trace.true_distances.entrySet()) {
 				if (entry.getValue() == 0.0)
-					if (!entry.getKey().contains("$"))
-						covered_branches_true.add(entry.getKey());
+					//if (!entry.getKey().contains("$"))
+					covered_branches_true.add(entry.getKey());
 			}
 
-			for (Entry<String, Double> entry : trace.false_distances.entrySet()) {
+			for (Entry<Integer, Double> entry : trace.false_distances.entrySet()) {
 				if (entry.getValue() == 0.0)
-					if (!entry.getKey().contains("$"))
-						covered_branches_false.add(entry.getKey());
+					//if (!entry.getKey().contains("$"))
+					covered_branches_false.add(entry.getKey());
 			}
 
 		} catch (ClassNotFoundException e) {
@@ -86,8 +86,8 @@ public class JUnitTestSuite {
 
 	public void runSuite(TestSuiteChromosome chromosome) {
 		covered_methods = new HashSet<String>();
-		covered_branches_true = new HashSet<String>();
-		covered_branches_false = new HashSet<String>();
+		covered_branches_true = new HashSet<Integer>();
+		covered_branches_false = new HashSet<Integer>();
 
 		for (TestCase test : chromosome.getTests()) {
 			ExecutionResult result = runTest(test);
@@ -96,13 +96,13 @@ public class JUnitTestSuite {
 				covered_methods.add(entry.getKey());
 			}
 
-			for (Entry<String, Double> entry : result.getTrace().true_distances.entrySet()) {
+			for (Entry<Integer, Double> entry : result.getTrace().true_distances.entrySet()) {
 				if (entry.getValue() == 0.0)
 					//if(!entry.getKey().contains("$"))
 					covered_branches_true.add(entry.getKey());
 			}
 
-			for (Entry<String, Double> entry : result.getTrace().false_distances.entrySet()) {
+			for (Entry<Integer, Double> entry : result.getTrace().false_distances.entrySet()) {
 				if (entry.getValue() == 0.0)
 					//if(!entry.getKey().contains("$"))
 					covered_branches_false.add(entry.getKey());
@@ -114,11 +114,11 @@ public class JUnitTestSuite {
 		return covered_methods;
 	}
 
-	public Set<String> getTrueCoveredBranches() {
+	public Set<Integer> getTrueCoveredBranches() {
 		return covered_branches_true;
 	}
 
-	public Set<String> getFalseCoveredBranches() {
+	public Set<Integer> getFalseCoveredBranches() {
 		return covered_branches_false;
 	}
 
@@ -129,7 +129,6 @@ public class JUnitTestSuite {
 		try {
 			logger.debug("Executing test");
 			result = executor.execute(test);
-			executor.setLogging(true);
 
 			int num = test.size();
 			MaxStatementsStoppingCondition.statementsExecuted(num);

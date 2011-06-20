@@ -41,6 +41,18 @@
     <dependencyManagement/>
 
     <dependencies>
+      <dependency>
+	<groupId>cvc3</groupId>
+	<artifactId>cvc3</artifactId>
+	<version>2.1.1</version>
+      </dependency>
+
+      <dependency>
+	<groupId>org.smtlib</groupId>
+	<artifactId>smtlib</artifactId>
+	<version>0.1</version>
+      </dependency>
+
 	<dependency>
 	   <groupId>mockit</groupId>
 	   <artifactId>jmockit</artifactId>
@@ -92,25 +104,20 @@
       <dependency>
         <groupId>jpf</groupId>
         <artifactId>jpf-core</artifactId>
-        <version>5.0pre2-EvoSuite-2</version>
+        <version>5.0pre2-EvoSuite-3</version>
       </dependency>
       <dependency>
         <groupId>jpf</groupId>
         <artifactId>jpf-annotations</artifactId>
-        <version>5.0pre2-EvoSuite-2</version>
+        <version>5.0pre2-EvoSuite-3</version>
         <scope>runtime</scope>
       </dependency>
       <dependency>
         <groupId>jpf</groupId>
         <artifactId>jpf-classes</artifactId>
-        <version>5.0pre2-EvoSuite-2</version>
+        <version>5.0pre2-EvoSuite-3</version>
         <scope>runtime</scope>
       </dependency>
-      <dependency>
-        <groupId>de.unisb.cs.st</groupId>
-        <artifactId>jpf-concolic</artifactId>
-        <version>0.2</version>
-      </dependency>      
       <dependency>
 	<groupId>com.googlecode.gentyref</groupId>
 	<artifactId>gentyref</artifactId>
@@ -243,9 +250,10 @@
       <dependency>
 	<groupId>mysql</groupId>
 	<artifactId>mysql-connector-java</artifactId>
+	
 	<version>5.1.9</version>
-	<!--	
-	<version>5.1.13</version>
+	<!--
+	<version>5.1.16</version>
 	-->	
       </dependency>
       <dependency>
@@ -523,7 +531,7 @@
               <configuration>
                  <skipTests>true</skipTests>
               </configuration>
-            </plugin>            
+            </plugin> 
         </plugins>
         <pluginManagement>
             <plugins>

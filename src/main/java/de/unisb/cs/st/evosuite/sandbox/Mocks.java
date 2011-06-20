@@ -30,7 +30,7 @@ import mockit.Mock;
 import mockit.MockUp;
 import mockit.Mockit;
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.utils.Utils;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
  * This class is used for the mocks creation and destruction. The implementation

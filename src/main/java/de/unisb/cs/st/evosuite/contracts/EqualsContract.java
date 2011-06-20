@@ -16,6 +16,7 @@ import de.unisb.cs.st.evosuite.testcase.StatementInterface;
  */
 public class EqualsContract extends Contract {
 
+	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(Contract.class);
 
 	/* (non-Javadoc)

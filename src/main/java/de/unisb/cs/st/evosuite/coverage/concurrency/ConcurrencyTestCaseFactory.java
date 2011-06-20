@@ -11,6 +11,8 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
  *
  */
 public class ConcurrencyTestCaseFactory extends RandomLengthTestFactory{
+	private static final long serialVersionUID = 1L;
+
 	@Override 
 	protected TestCase getNewTestCase(){
 		return new ConcurrentTestCase(new BasicTestCase(), true);
