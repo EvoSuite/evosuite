@@ -555,6 +555,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	public void assignArray(TestCase test, VariableReference array, int array_index,
 	        int position) throws ConstructionFailedException {
+		//logger.info("Array " + array.getSimpleClassName() + " " + array.getName() + " - "
+		//        + array.getComponentType());
 		Set<VariableReference> objects = test.getObjects(array.getComponentType(),
 		                                                 position);
 		Iterator<VariableReference> iterator = objects.iterator();
@@ -1186,6 +1188,10 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		} else if (statement instanceof FieldStatement) {
 			FieldStatement fs = (FieldStatement) statement;
 			calls.remove(fs.getField());
+		} else if (statement instanceof NullStatement) {
+
+		} else {
+			assert (false) : "Cannot mutate statement of type " + statement.getClass();
 		}
 
 		logger.debug("Got " + calls.size() + " possible calls for " + objects.size()

@@ -86,7 +86,10 @@ public class VariableReferenceImpl implements VariableReference {
 	 */
 	@Override
 	public String getSimpleClassName() {
-		assert (!type.getSimpleName().contains(";"));
+		// TODO: Workaround for bug in commons lang
+		if (type.isPrimitive()
+		        || (type.isArray() && new GenericClass(type.getComponentType()).isPrimitive()))
+			return type.getRawClass().getSimpleName();
 		return type.getSimpleName();
 	}
 

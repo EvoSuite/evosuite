@@ -160,9 +160,14 @@ public class DefaultTestCase implements TestCase {
 				if (value.isAssignableTo(type)) {
 					variables.add(value);
 				} else if (GenericClass.isAssignable(type, value.getComponentType())) {
+					/*
+					logger.info("Found compatible array for " + type + ": "
+					        + value.getSimpleClassName() + " " + value.getName() + " - "
+					        + value.getVariableClass());
+					        */
 					for (int index = 0; index < ((ArrayReference) value).getArrayLength(); index++) {
 						//logger.info("Adding array index " + index + " to array "
-						//        + value.getSimpleClassName() + " " + value.getName());
+						//       + value.getSimpleClassName() + " " + value.getName());
 						variables.add(new ArrayIndex(this, (ArrayReference) value, index));
 					}
 				}

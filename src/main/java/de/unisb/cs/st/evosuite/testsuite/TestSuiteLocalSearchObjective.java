@@ -31,13 +31,14 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 		this.testIndex = index;
 		this.lastFitness = suite.getFitness();
 
-		for (TestChromosome test : suite.getTestChromosomes()) {
-			test.setChanged(true);
-			test.last_result = null;
-		}
+		// Rerun all tests to check if current fitness is still valid - remove this check later
+		//for (TestChromosome test : suite.getTestChromosomes()) {
+		//	test.setChanged(true);
+		//	test.last_result = null;
+		//}
 
-		double fit = fitness.getFitness(suite);
-		assert (fit == this.lastFitness);
+		//double fit = fitness.getFitness(suite);
+		//assert (fit == this.lastFitness);
 
 	}
 

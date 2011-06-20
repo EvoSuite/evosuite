@@ -71,9 +71,14 @@ public class TestChromosome extends Chromosome {
 	public Chromosome clone() {
 		TestChromosome c = new TestChromosome();
 		c.test = test.clone();
-		assert (test.isValid());
-		assert (c.test.isValid());
 		//assert (test.toCode().equals(c.test.toCode()));
+		assert (test.isValid());
+		try {
+			c.test.isValid();
+		} catch (Throwable t) {
+			logger.warn(c.test.toCode());
+		}
+		assert (c.test.isValid());
 
 		c.setFitness(getFitness());
 		c.solution = solution;
@@ -168,6 +173,9 @@ public class TestChromosome extends Chromosome {
 		}
 		assert (getFitness() <= oldFitness);
 		//logger.info("Test after local search: " + test.toCode());
+
+		// TODO: Handle arrays in local search
+		// TODO: mutating an int might have an effect on array lengths
 	}
 
 	/**
@@ -354,8 +362,8 @@ public class TestChromosome extends Chromosome {
 						changed = true;
 						assert (test.isValid());
 					} else if (!(statement instanceof AssignmentStatement)) {
-						boolean replaced = test_factory.changeRandomCall(test, statement);
-						changed = replaced || changed;
+						if (test_factory.changeRandomCall(test, statement))
+							changed = true;
 						assert (test.isValid());
 					}
 

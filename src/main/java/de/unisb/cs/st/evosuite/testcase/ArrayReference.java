@@ -23,8 +23,20 @@ public class ArrayReference extends VariableReferenceImpl {
 	 */
 	@Override
 	public VariableReference clone(TestCase newTestCase) {
-		ArrayReference otherArray = (ArrayReference) newTestCase.getStatement(getStPosition()).getReturnValue();
-		otherArray.setArrayLength(array_length);
-		return otherArray;
+		VariableReference newRef = newTestCase.getStatement(getStPosition()).getReturnValue();
+		if (newRef instanceof ArrayReference) {
+			ArrayReference otherArray = (ArrayReference) newRef;
+			otherArray.setArrayLength(array_length);
+			return otherArray;
+		} else {
+			if (newRef.getComponentType() != null) {
+				ArrayReference otherArray = new ArrayReference(newTestCase, type,
+				        array_length);
+				otherArray.setArrayLength(array_length);
+				return otherArray;
+			} else {
+				throw new RuntimeException("After cloning the array disappeared...");
+			}
+		}
 	}
 }

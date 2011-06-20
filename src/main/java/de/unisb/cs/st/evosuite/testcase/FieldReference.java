@@ -180,10 +180,12 @@ public class FieldReference extends VariableReferenceImpl {
 	@Override
 	public void replaceAdditionalVariableReference(VariableReference var1,
 	        VariableReference var2) {
-		if (source.equals(var1))
-			source = var2;
-		else
-			source.replaceAdditionalVariableReference(var1, var2);
+		if (source != null) {
+			if (source.equals(var1))
+				source = var2;
+			else
+				source.replaceAdditionalVariableReference(var1, var2);
+		}
 	}
 
 	@Override
@@ -195,9 +197,15 @@ public class FieldReference extends VariableReferenceImpl {
 		}
 		if (source != null)
 			return source.getStPosition();
-		else
+		else {
+			for (int i = 0; i < testCase.size(); i++) {
+				if (testCase.getStatement(i).references(this)) {
+					return i;
+				}
+			}
 			throw new AssertionError(
-			        "A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase");
+			        "A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase.");
+		}
 
 		//			return 0;
 	}
