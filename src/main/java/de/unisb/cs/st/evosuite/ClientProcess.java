@@ -3,6 +3,8 @@
  */
 package de.unisb.cs.st.evosuite;
 
+import org.apache.log4j.Logger;
+
 import com.thoughtworks.xstream.XStream;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -19,6 +21,8 @@ import de.unisb.cs.st.evosuite.utils.ExternalProcessUtilities;
 public class ClientProcess implements SearchListener {
 
 	private final ExternalProcessUtilities util = new ExternalProcessUtilities();
+
+	private static Logger logger = Logger.getLogger(ClientProcess.class);
 
 	private GeneticAlgorithm ga;
 
@@ -48,6 +52,37 @@ public class ClientProcess implements SearchListener {
 			generator.generateTestSuite(ga);
 		}
 		util.informSearchIsFinished(null);
+	}
+
+	private boolean hasExceededResources() {
+		if (TestCaseExecutor.getInstance().getNumStalledThreads() >= Properties.MAX_STALLED_THREADS) {
+			System.out.println("* Too many stalled threads: "
+			        + TestCaseExecutor.getInstance().getNumStalledThreads() + " / "
+			        + Properties.MAX_STALLED_THREADS);
+			return true;
+		}
+
+		Runtime runtime = Runtime.getRuntime();
+
+		long freeMem = runtime.maxMemory() - runtime.totalMemory() + runtime.freeMemory();
+
+		if (freeMem < Properties.MIN_FREE_MEM) {
+			System.out.println("* Running out of memory, calling GC with memory left: "
+			        + freeMem + " / " + runtime.maxMemory());
+			System.gc();
+			freeMem = runtime.maxMemory() - runtime.totalMemory() + runtime.freeMemory();
+
+			if (freeMem < Properties.MIN_FREE_MEM) {
+				System.out.println("* Running out of memory, giving up: " + freeMem
+				        + " / " + runtime.maxMemory());
+				return true;
+			} else {
+				System.out.println("* Garbage collection recovered sufficient memory: "
+				        + freeMem + " / " + runtime.maxMemory());
+			}
+		}
+
+		return false;
 	}
 
 	/* (non-Javadoc)
@@ -81,8 +116,8 @@ public class ClientProcess implements SearchListener {
 	@Override
 	public void fitnessEvaluation(Chromosome individual) {
 		//System.out.println("Checking for restart");
-		if (TestCaseExecutor.getInstance().getNumStalledThreads() >= Properties.MAX_STALLED_THREADS) {
-			System.out.println("* Too many stalled threads, asking for JVM restart");
+		if (hasExceededResources()) {
+			System.out.println("* Asking for JVM restart");
 			util.askForRestart(ga);
 		}
 	}
