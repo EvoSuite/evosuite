@@ -90,4 +90,10 @@ public class SimpleScheduler implements Schedule {
 		//nothing todo
 	}
 
+	@Override
+	public Integer getElement(int index) {
+		assert(index<schedule.size());
+		return schedule.get(index);
+	}
+
 }
