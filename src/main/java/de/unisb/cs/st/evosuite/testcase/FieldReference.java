@@ -100,29 +100,21 @@ public class FieldReference extends VariableReferenceImpl {
 				if (sourceObject == null)
 					return;
 			}
-			if (value.getClass().equals(Integer.class)
-			        || value.getClass().equals(int.class))
+			if (value.getClass().equals(int.class))
 				field.setInt(sourceObject, (Integer) value);
-			else if (value.getClass().equals(Boolean.class)
-			        || value.getClass().equals(boolean.class))
+			else if (value.getClass().equals(boolean.class))
 				field.setBoolean(sourceObject, (Boolean) value);
-			else if (value.getClass().equals(Byte.class)
-			        || value.getClass().equals(byte.class))
+			else if (value.getClass().equals(byte.class))
 				field.setByte(sourceObject, (Byte) value);
-			else if (value.getClass().equals(Character.class)
-			        || value.getClass().equals(char.class))
+			else if (value.getClass().equals(char.class))
 				field.setChar(sourceObject, (Character) value);
-			else if (value.getClass().equals(Double.class)
-			        || value.getClass().equals(double.class))
+			else if (value.getClass().equals(double.class))
 				field.setDouble(sourceObject, (Double) value);
-			else if (value.getClass().equals(Float.class)
-			        || value.getClass().equals(float.class))
+			else if (value.getClass().equals(float.class))
 				field.setFloat(sourceObject, (Float) value);
-			else if (value.getClass().equals(Long.class)
-			        || value.getClass().equals(long.class))
+			else if (value.getClass().equals(long.class))
 				field.setLong(sourceObject, (Long) value);
-			else if (value.getClass().equals(Short.class)
-			        || value.getClass().equals(short.class))
+			else if (value.getClass().equals(short.class))
 				field.setShort(sourceObject, (Short) value);
 			else {
 				if (!field.getType().isAssignableFrom(value.getClass())) {
