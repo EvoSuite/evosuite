@@ -3,6 +3,7 @@
  */
 package de.unisb.cs.st.evosuite.ga;
 
+
 /**
  * @author Gordon Fraser
  * 
@@ -31,4 +32,5 @@ public class DefaultLocalSearchObjective implements LocalSearchObjective {
 	public FitnessFunction getFitnessFunction() {
 		return fitness;
 	}
+
 }

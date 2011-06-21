@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
+import de.unisb.cs.st.evosuite.ga.LocalSearchBudget;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
@@ -92,9 +93,16 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	@Override
 	public void localSearch(LocalSearchObjective objective) {
 		double fitnessBefore = getFitness();
+
 		for (int i = 0; i < tests.size(); i++) {
 			TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective(
 			        (TestSuiteFitnessFunction) objective.getFitnessFunction(), this, i);
+			if (LocalSearchBudget.isFinished()) {
+				logger.info("Local search budget used up");
+				break;
+			}
+			logger.info("Local search budget not yet used up");
+
 			tests.get(i).localSearch(testObjective);
 		}
 		TestSuiteFitnessFunction fitnessFunction = (TestSuiteFitnessFunction) objective.getFitnessFunction();
@@ -145,6 +153,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		return testcases;
 	}
 
+	@Override
 	public void applyDSE() {
 		TestSuiteDSE dse = new TestSuiteDSE();
 		dse.applyDSE(this);

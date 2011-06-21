@@ -107,6 +107,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	public GeneticAlgorithm(ChromosomeFactory<? extends Chromosome> factory) {
 		chromosome_factory = factory;
 		addStoppingCondition(new MaxGenerationStoppingCondition());
+		addListener(new LocalSearchBudget());
 		// addBloatControl(new MaxSizeBloatControl());
 	}
 
@@ -135,6 +136,10 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		for (Chromosome individual : population) {
 			if (isFinished())
 				break;
+
+			if (LocalSearchBudget.isFinished())
+				break;
+
 			individual.localSearch(localObjective);
 		}
 	}
