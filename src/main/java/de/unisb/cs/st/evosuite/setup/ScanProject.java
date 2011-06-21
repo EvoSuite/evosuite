@@ -25,13 +25,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.objectweb.asm.ClassReader;
 
@@ -46,8 +49,12 @@ import de.unisb.cs.st.evosuite.utils.Utils;
  */
 public class ScanProject {
 
+	protected static Logger logger = Logger.getLogger(ScanProject.class);
+
 	public final static class ZipClassLoader extends ClassLoader {
 		private final ZipFile file;
+
+		private final Map<String, Class<?>> classMap = new HashMap<String, Class<?>>();
 
 		public ZipClassLoader(String filename) throws IOException {
 			this.file = new ZipFile(filename);
@@ -60,10 +67,15 @@ public class ScanProject {
 		@Override
 		protected Class<?> findClass(String name) throws ClassNotFoundException {
 
+			name = name.replace("/", ".");
+			if (classMap.containsKey(name))
+				return classMap.get(name);
+
 			ZipEntry entry = this.file.getEntry(name.replace('.', '/') + ".class");
 			if (entry == null) {
 				throw new ClassNotFoundException(name);
 			}
+
 			try {
 				byte[] array = new byte[(int) entry.getSize()];
 				InputStream in = this.file.getInputStream(entry);
@@ -74,8 +86,10 @@ public class ScanProject {
 					length = in.read(array);
 				}
 				ClassReader reader = new ClassReader(array);
-				return defineClass(reader.getClassName().replace("/", "."),
-				                   out.toByteArray(), 0, out.size());
+				Class<?> clazz = defineClass(reader.getClassName().replace("/", "."),
+				                             out.toByteArray(), 0, out.size());
+				classMap.put(name, clazz);
+				return clazz;
 			} catch (IOException exception) {
 				throw new ClassNotFoundException(name, exception);
 			}
@@ -84,8 +98,15 @@ public class ScanProject {
 
 	public final static class FileClassLoader extends ClassLoader {
 
+		private final Map<String, Class<?>> classMap = new HashMap<String, Class<?>>();
+
 		@Override
 		protected Class<?> findClass(String name) throws ClassNotFoundException {
+
+			name = name.replace("/", ".");
+			if (classMap.containsKey(name))
+				return classMap.get(name);
+
 			File file = new File(name);
 			try {
 				byte[] array = new byte[(int) file.length()];
@@ -97,8 +118,10 @@ public class ScanProject {
 					length = in.read(array);
 				}
 				ClassReader reader = new ClassReader(array);
-				return defineClass(reader.getClassName().replace("/", "."),
-				                   out.toByteArray(), 0, out.size());
+				Class<?> clazz = defineClass(reader.getClassName().replace("/", "."),
+				                             out.toByteArray(), 0, out.size());
+				classMap.put(name, clazz);
+				return clazz;
 			} catch (IOException exception) {
 				throw new ClassNotFoundException(name, exception);
 			}
@@ -262,6 +285,8 @@ public class ScanProject {
 			final ZipEntry ze = (ZipEntry) e.nextElement();
 			final String fileName = ze.getName();
 			if (!fileName.endsWith(".class"))
+				continue;
+			if (fileName.contains("$"))
 				continue;
 
 			try {

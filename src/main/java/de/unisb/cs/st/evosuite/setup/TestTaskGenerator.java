@@ -174,7 +174,9 @@ public class TestTaskGenerator {
 		List<String> ret = new ArrayList<String>();
 		ret.add(classname);
 		for (String sub : subclasses) {
-			if (sub.startsWith(prefix))
+			if (prefix != null && sub.startsWith(prefix))
+				ret.add(sub);
+			else if (prefix == null)
 				ret.add(sub);
 		}
 
