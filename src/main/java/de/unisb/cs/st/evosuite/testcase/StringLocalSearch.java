@@ -24,13 +24,13 @@ public class StringLocalSearch implements LocalSearch {
 
 	private boolean oldChanged;
 
-	private void backup(TestChromosome test, PrimitiveStatement<String> p) {
+	private void backup(TestChromosome test, StringPrimitiveStatement p) {
 		oldValue = new String(p.getValue());
 		oldResult = test.last_result;
 		oldChanged = test.isChanged();
 	}
 
-	private void restore(TestChromosome test, PrimitiveStatement<String> p) {
+	private void restore(TestChromosome test, StringPrimitiveStatement p) {
 		p.setValue(new String(oldValue));
 		test.last_result = oldResult;
 		test.setChanged(oldChanged);
@@ -39,11 +39,10 @@ public class StringLocalSearch implements LocalSearch {
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.LocalSearch#doSearch(de.unisb.cs.st.evosuite.testcase.TestChromosome, int, de.unisb.cs.st.evosuite.ga.LocalSearchObjective)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public void doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective objective) {
-		PrimitiveStatement<String> p = (PrimitiveStatement<String>) test.test.getStatement(statement);
+		StringPrimitiveStatement p = (StringPrimitiveStatement) test.test.getStatement(statement);
 		backup(test, p);
 		// TODO: First apply 10 random mutations to determine if string influences _uncovered_ branch
 
@@ -83,7 +82,7 @@ public class StringLocalSearch implements LocalSearch {
 	}
 
 	private boolean removeCharacters(LocalSearchObjective objective, TestChromosome test,
-	        PrimitiveStatement<String> p, int statement) {
+	        StringPrimitiveStatement p, int statement) {
 
 		boolean improvement = false;
 		backup(test, p);
@@ -105,7 +104,7 @@ public class StringLocalSearch implements LocalSearch {
 	}
 
 	private boolean replaceCharacters(LocalSearchObjective objective,
-	        TestChromosome test, PrimitiveStatement<String> p, int statement) {
+	        TestChromosome test, StringPrimitiveStatement p, int statement) {
 
 		boolean improvement = false;
 		backup(test, p);
@@ -137,7 +136,7 @@ public class StringLocalSearch implements LocalSearch {
 	}
 
 	private boolean addCharacters(LocalSearchObjective objective, TestChromosome test,
-	        PrimitiveStatement<String> p, int statement) {
+	        StringPrimitiveStatement p, int statement) {
 
 		boolean improvement = false;
 		backup(test, p);

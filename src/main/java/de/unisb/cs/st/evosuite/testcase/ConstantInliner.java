@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 
 /**
@@ -18,8 +16,6 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
  * 
  */
 public class ConstantInliner extends ExecutionObserver {
-
-	private static Logger logger = Logger.getLogger(ConstantInliner.class);
 
 	private TestCase test = null;
 

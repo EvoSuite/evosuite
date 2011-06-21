@@ -34,7 +34,7 @@ import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
  * This class is used for the mocks creation and destruction. The implementation
- * of the mocks and stubs is done with jmockit tool trough the Annotation API.
+ * of the mocks and stubs is done with jmockit tool through the Annotation API.
  * Check http://code.google.com/p/jmockit/ for more info.
  * 
  * @author Andrey Tarasevich
