@@ -100,26 +100,27 @@ public class FieldReference extends VariableReferenceImpl {
 				if (sourceObject == null)
 					return;
 			}
-			if (value.getClass().equals(int.class))
+			if (field.getType().equals(int.class))
 				field.setInt(sourceObject, (Integer) value);
-			else if (value.getClass().equals(boolean.class))
+			else if (field.getType().equals(boolean.class))
 				field.setBoolean(sourceObject, (Boolean) value);
-			else if (value.getClass().equals(byte.class))
+			else if (field.getType().equals(byte.class))
 				field.setByte(sourceObject, (Byte) value);
-			else if (value.getClass().equals(char.class))
+			else if (field.getType().equals(char.class))
 				field.setChar(sourceObject, (Character) value);
-			else if (value.getClass().equals(double.class))
+			else if (field.getType().equals(double.class))
 				field.setDouble(sourceObject, (Double) value);
-			else if (value.getClass().equals(float.class))
+			else if (field.getType().equals(float.class))
 				field.setFloat(sourceObject, (Float) value);
-			else if (value.getClass().equals(long.class))
+			else if (field.getType().equals(long.class))
 				field.setLong(sourceObject, (Long) value);
-			else if (value.getClass().equals(short.class))
+			else if (field.getType().equals(short.class))
 				field.setShort(sourceObject, (Short) value);
 			else {
 				if (!field.getType().isAssignableFrom(value.getClass())) {
-					logger.error("Not assignable: " + value + " to field " + field
-					        + " of variable " + source);
+					logger.error("Not assignable: " + value + " of class "
+					        + value.getClass() + " to field " + field + " of variable "
+					        + source);
 				}
 				assert (field.getType().isAssignableFrom(value.getClass()));
 				if (!field.getDeclaringClass().isAssignableFrom(sourceObject.getClass())) {
