@@ -47,5 +47,13 @@ public abstract class AbstractTestFactory implements Serializable {
 	public abstract void deleteStatementGracefully(TestCase test, int position)
 	        throws ConstructionFailedException;
 
+	/**
+	 * Replaces the call defined by statement with another call. After calling this method, statement is no longer a part of test.
+	 * A new statement is created instead. 
+	 * Notice that Call is an understatement. This method (at least for the DefaultTestFactory) works for Fields, Constructors and Methods.
+	 * @param test
+	 * @param statement
+	 * @return
+	 */
 	public abstract boolean changeRandomCall(TestCase test, StatementInterface statement);
 }
