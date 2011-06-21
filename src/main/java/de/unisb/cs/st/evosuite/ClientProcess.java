@@ -3,8 +3,6 @@
  */
 package de.unisb.cs.st.evosuite;
 
-import org.apache.log4j.Logger;
-
 import com.thoughtworks.xstream.XStream;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -21,8 +19,6 @@ import de.unisb.cs.st.evosuite.utils.ExternalProcessUtilities;
 public class ClientProcess implements SearchListener {
 
 	private final ExternalProcessUtilities util = new ExternalProcessUtilities();
-
-	private static Logger logger = Logger.getLogger(ClientProcess.class);
 
 	private GeneticAlgorithm ga;
 

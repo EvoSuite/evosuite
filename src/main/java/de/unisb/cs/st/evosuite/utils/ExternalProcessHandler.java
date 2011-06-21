@@ -52,7 +52,7 @@ public class ExternalProcessHandler {
 
 	protected boolean startProcess(String[] command, Object population_data) {
 		if (process != null) {
-			System.out.println("already running an external process");
+			System.out.println("* Already running an external process");
 			return false;
 		}
 
@@ -66,7 +66,7 @@ public class ExternalProcessHandler {
 		try {
 			process = builder.start();
 		} catch (IOException e) {
-			System.out.println("not possible to start external process: " + e);
+			System.out.println("* Failed to start external process: " + e);
 			e.printStackTrace();
 			return false;
 		}
@@ -91,8 +91,8 @@ public class ExternalProcessHandler {
 				out.flush();
 			}
 		} catch (Exception e) {
-			System.out.println("error when waiting for connection from external process "
-					+ e);
+			System.out.println("* Error while waiting for connection from external process "
+			        + e);
 			e.printStackTrace();
 			return false;
 		}
@@ -134,7 +134,7 @@ public class ExternalProcessHandler {
 				server.setSoTimeout(10000);
 				server.bind(null);
 			} catch (Exception e) {
-				System.out.println("not possible to start TCP server: " + e);
+				System.out.println("* Not possible to start TCP server: " + e);
 			}
 		}
 
@@ -145,7 +145,7 @@ public class ExternalProcessHandler {
 			try {
 				server.close();
 			} catch (IOException e) {
-				System.out.println("error in closing the TCP server " + e);
+				System.out.println("* Error in closing the TCP server " + e);
 			}
 
 			server = null;
@@ -153,14 +153,17 @@ public class ExternalProcessHandler {
 	}
 
 	protected void startExternalProcessPrinter() {
+		if (output_printer != null && output_printer.isAlive())
+			return;
+
 		output_printer = new Thread() {
 			@Override
 			public void run() {
 				try {
 					BufferedReader proc_in = new BufferedReader(new InputStreamReader(
-							process.getInputStream()));
+					        process.getInputStream()));
 					String data = "";
-					while (data != null) {
+					while (data != null && !isInterrupted()) {
 						data = proc_in.readLine();
 						if (data != null)
 							System.out.println(data);
@@ -191,12 +194,13 @@ public class ExternalProcessHandler {
 						message = (String) in.readObject();
 						data = in.readObject();
 					} catch (Exception e) {
-						System.out.println("error in reading message " + e);
+						System.out.println("* Error in reading message " + e);
 						e.printStackTrace();
 						message = Messages.FINISHED_COMPUTATION;
 					}
 
 					if (message.equals(Messages.FINISHED_COMPUTATION)) {
+						System.out.println(" * Computation finished");
 						read = false;
 						killProcess();
 						final_result = data;
@@ -205,12 +209,13 @@ public class ExternalProcessHandler {
 						}
 					} else if (message.equals(Messages.NEED_RESTART)) {
 						//now data represent the current generation
+						System.out.println(" * Restarting client process");
 						killProcess();
 						startProcess(last_command, data);
 					} else {
 						killProcess();
-						System.out.println("error, received invalid message: "
-								+ message);
+						System.out.println(" * Error, received invalid message: "
+						        + message);
 						return;
 					}
 				}
