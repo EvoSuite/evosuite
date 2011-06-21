@@ -14,6 +14,8 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
  */
 public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 
+	private static final long serialVersionUID = 6902273233816031053L;
+
 	/**
 	 * @param tc
 	 * @param type

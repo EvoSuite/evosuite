@@ -159,6 +159,8 @@ public class ValueMinimizer implements TestVisitor {
 	@Override
 	public void visitPrimitiveStatement(PrimitiveStatement<?> statement) {
 		if (statement instanceof NumericalPrimitiveStatement<?>) {
+			if (statement instanceof BooleanPrimitiveStatement)
+				return;
 			logger.info("Statement before minimization: " + statement.getCode());
 			binarySearch((NumericalPrimitiveStatement<?>) statement);
 			logger.info("Statement after minimization: " + statement.getCode());
@@ -191,7 +193,19 @@ public class ValueMinimizer implements TestVisitor {
 
 		}
 		return num;
+	}
 
+	private boolean isPrimitive(AccessibleObject o) {
+		if (o instanceof Method) {
+			Method m = (Method) o;
+			return m.getReturnType().isPrimitive();
+		} else if (o instanceof Constructor<?>) {
+			return false;
+		} else if (o instanceof Field) {
+			Field f = (Field) o;
+			return f.getType().isPrimitive();
+		}
+		return false;
 	}
 
 	/* (non-Javadoc)
@@ -212,7 +226,8 @@ public class ValueMinimizer implements TestVisitor {
 			logger.info("Trying replacement of " + statement.getCode());
 			logger.info(test.toCode());
 			for (AccessibleObject generator : generators) {
-				if (getNumParameters(generator) < numParameters) {
+				if (!isPrimitive(generator)
+				        && getNumParameters(generator) < numParameters) {
 					try {
 						logger.info("Trying replacement with " + generator);
 						factory.changeCall(test, statement, generator);
