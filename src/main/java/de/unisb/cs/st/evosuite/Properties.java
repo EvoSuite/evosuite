@@ -119,6 +119,9 @@ public class Properties {
 	@Parameter(key = "max_int", group = "Test Creation", description = "Maximum size of randomly generated integers (minimum range = -1 * max)")
 	public static int MAX_INT = 256;
 
+	@Parameter(key = "max_delta", group = "Test Creation", description = "Maximum size of delta for numbers during mutation")
+	public static int MAX_DELTA = 20;
+
 	@Parameter(key = "max_array", group = "Test Creation", description = "Maximum length of randomly generated arrays")
 	public static int MAX_ARRAY = 20;
 
@@ -287,6 +290,9 @@ public class Properties {
 
 	@Parameter(key = "inline", group = "Output", description = "Inline all constants")
 	public static boolean INLINE = false;
+
+	@Parameter(key = "minimize_values", group = "Output", description = "Minimize constants and method calls")
+	public static boolean MINIMIZE_VALUES = false;
 
 	@Parameter(key = "write_pool", group = "Output", description = "Keep sequences for object pool")
 	public static boolean WRITE_POOL = false;

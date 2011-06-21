@@ -3,7 +3,6 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.lang.reflect.Array;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
@@ -13,8 +12,6 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  * 
  */
 public class ArrayIndex extends VariableReferenceImpl {
-
-	private static Logger logger = Logger.getLogger(ArrayIndex.class);
 
 	/**
 	 * Index in the array

@@ -286,4 +286,11 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 */
 	public void replace(VariableReference var1, VariableReference var2);
 
+	/**
+	 * Handle test visitor
+	 * 
+	 * @param visitor
+	 */
+	public void accept(TestVisitor visitor);
+
 }

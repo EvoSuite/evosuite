@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.unisb.cs.st.evosuite.Properties;
@@ -41,17 +40,15 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
  * 
  * @param <T>
  */
-public class PrimitiveStatement<T> extends AbstractStatement {
+public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 	private static final long serialVersionUID = -7721106626421922833L;
 
-	private static int MAX_STRING = Properties.STRING_LENGTH;
+	protected static int MAX_INT = Properties.MAX_INT;
 
-	private static int MAX_INT = Properties.MAX_INT;
+	protected static double P_pool = Properties.PRIMITIVE_POOL;
 
-	private static double P_pool = Properties.PRIMITIVE_POOL;
-
-	private static PrimitivePool primitive_pool = PrimitivePool.getInstance();
+	protected static PrimitivePool primitive_pool = PrimitivePool.getInstance();
 
 	/**
 	 * The value
@@ -69,12 +66,58 @@ public class PrimitiveStatement<T> extends AbstractStatement {
 		this.value = value;
 	}
 
+	/**
+	 * Access the value
+	 * 
+	 * @return
+	 */
 	public T getValue() {
 		return value;
 	}
 
+	/**
+	 * Set the value
+	 * 
+	 * @param val
+	 */
 	public void setValue(T val) {
 		this.value = val;
+	}
+
+	/**
+	 * Generate a primitive statement for given type initialized with default
+	 * value (0)
+	 * 
+	 * @param tc
+	 * @param clazz
+	 * @return
+	 */
+	public static PrimitiveStatement<?> getPrimitiveStatement(TestCase tc, Type clazz) {
+		PrimitiveStatement<?> statement;
+
+		if (clazz == boolean.class) {
+			statement = new BooleanPrimitiveStatement(tc);
+		} else if (clazz == int.class) {
+			statement = new IntPrimitiveStatement(tc);
+		} else if (clazz == char.class) {
+			statement = new CharPrimitiveStatement(tc);
+		} else if (clazz == long.class) {
+			statement = new LongPrimitiveStatement(tc);
+		} else if (clazz.equals(double.class)) {
+			statement = new DoublePrimitiveStatement(tc);
+		} else if (clazz == float.class) {
+			statement = new FloatPrimitiveStatement(tc);
+		} else if (clazz == short.class) {
+			statement = new ShortPrimitiveStatement(tc);
+		} else if (clazz == byte.class) {
+			statement = new BytePrimitiveStatement(tc);
+		} else if (clazz.equals(String.class)) {
+			statement = new StringPrimitiveStatement(tc);
+		} else {
+			throw new RuntimeException("Getting unknown type: " + clazz + " / "
+			        + clazz.getClass());
+		}
+		return statement;
 	}
 
 	/**
@@ -87,102 +130,25 @@ public class PrimitiveStatement<T> extends AbstractStatement {
 	public static PrimitiveStatement<?> getRandomStatement(TestCase tc, Type type,
 	        int position, Type clazz) {
 
-		if (clazz == boolean.class) {
-			return new PrimitiveStatement<Boolean>(tc, type, Randomness.nextBoolean());
-		} else if (clazz == int.class) {
-			if (Randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Integer>(tc, type, new Integer(
-				        (Randomness.nextInt(2 * MAX_INT) - MAX_INT)));
-			else
-				return new PrimitiveStatement<Integer>(tc, type,
-				        primitive_pool.getRandomInt());
+		PrimitiveStatement<?> statement = getPrimitiveStatement(tc, clazz);
+		statement.randomize();
+		return statement;
 
-		} else if (clazz == char.class) {
-			// Only ASCII chars?
-			return new PrimitiveStatement<Character>(tc, type, (Randomness.nextChar()));
-		} else if (clazz == long.class) {
-			int max = Math.min(MAX_INT, 32767);
-			if (Randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Long>(tc, type, new Long(
-				        (Randomness.nextInt(2 * max) - max)));
-			else
-				return new PrimitiveStatement<Long>(tc, type,
-				        primitive_pool.getRandomLong());
-
-		} else if (clazz.equals(double.class)) {
-			if (Randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Double>(tc, type,
-				        (Randomness.nextInt(2 * MAX_INT) - MAX_INT)
-				                + Randomness.nextDouble());
-			else
-				return new PrimitiveStatement<Double>(tc, type,
-				        primitive_pool.getRandomDouble());
-
-		} else if (clazz == float.class) {
-			if (Randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Float>(tc, type,
-				        (Randomness.nextInt(2 * MAX_INT) - MAX_INT)
-				                + Randomness.nextFloat());
-			else
-				return new PrimitiveStatement<Float>(tc, type,
-				        primitive_pool.getRandomFloat());
-
-		} else if (clazz == short.class) {
-			int max = Math.min(MAX_INT, 32767);
-			if (Randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Short>(tc, type, new Short(
-				        (short) (Randomness.nextInt(2 * max) - max)));
-			else
-				return new PrimitiveStatement<Short>(tc, type, new Short(
-				        (short) primitive_pool.getRandomInt()));
-
-		} else if (clazz == byte.class) {
-			if (Randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<Byte>(tc, type, new Byte(
-				        (byte) (Randomness.nextInt(256) - 128)));
-			else
-				return new PrimitiveStatement<Byte>(tc, type, new Byte(
-				        (byte) (primitive_pool.getRandomInt())));
-
-		} else if (clazz.equals(String.class)) {
-			if (Randomness.nextDouble() >= P_pool)
-				return new PrimitiveStatement<String>(tc, type,
-				        Randomness.nextString(Randomness.nextInt(MAX_STRING)));
-			else
-				return new PrimitiveStatement<String>(tc, type,
-				        primitive_pool.getRandomString());
-		}
-		logger.error("Getting unknown type: " + clazz + " / " + clazz.getClass());
-
-		assert (false);
-		return null;
 	}
 
 	@Override
 	public String getCode(Throwable exception) {
-		if (retval.getVariableClass().equals(char.class)
-		        || retval.getVariableClass().equals(Character.class))
-			return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
-			        + " = '" + StringEscapeUtils.escapeJava(value.toString()) + "';";
-		else if (retval.getVariableClass().equals(String.class)) {
-			return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
-			        + " = \"" + StringEscapeUtils.escapeJava((String) value) + "\";";
-		} else if (retval.getVariableClass().equals(float.class)
-		        || retval.getVariableClass().equals(Float.class)) {
-			return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
-			        + " = " + value + "F;";
-		} else if (retval.getVariableClass().equals(long.class)
-		        || retval.getVariableClass().equals(Long.class)) {
-			return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
-			        + " = " + value + "L;";
-		} else
-			return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
-			        + " = " + value + ";";
+		return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
+		        + " = " + value + ";";
 	}
 
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
-		return new PrimitiveStatement<T>(newTestCase, retval.getType(), value);
+		@SuppressWarnings("unchecked")
+		PrimitiveStatement<T> clone = (PrimitiveStatement<T>) getPrimitiveStatement(newTestCase,
+		                                                                            retval.getType());
+		clone.setValue(value);
+		return clone;
 	}
 
 	@Override
@@ -231,236 +197,22 @@ public class PrimitiveStatement<T> extends AbstractStatement {
 		return result;
 	}
 
-	private static String removeCharAt(String s, int pos) {
-		return s.substring(0, pos) + s.substring(pos + 1);
-	}
-
-	private static String replaceCharAt(String s, int pos, char c) {
-		return s.substring(0, pos) + c + s.substring(pos + 1);
-	}
-
-	private static String insertCharAt(String s, int pos, char c) {
-		return s.substring(0, pos) + c + s.substring(pos);
-	}
-
-	private String StringInsert(String s, int pos) {
-		final double ALPHA = 0.5;
-		int count = 1;
-
-		while (Randomness.nextDouble() <= Math.pow(ALPHA, count)
-		        && s.length() < MAX_STRING) {
-			count++;
-			// logger.info("Before insert: '"+s+"'");
-			s = insertCharAt(s, pos, Randomness.nextChar());
-			// logger.info("After insert: '"+s+"'");
-		}
-		return s;
-	}
-
-	@SuppressWarnings("unchecked")
-	private void deltaString() {
-
-		String s = (String) value;
-
-		final double P2 = 1d / 3d;
-		double P = 1d / s.length();
-		// Delete
-		if (Randomness.nextDouble() < P2) {
-			for (int i = s.length(); i > 0; i--) {
-				if (Randomness.nextDouble() < P) {
-					// logger.info("Before remove at "+i+": '"+s+"'");
-					s = removeCharAt(s, i - 1);
-					// logger.info("After remove: '"+s+"'");
-				}
-			}
-		}
-		P = 1d / s.length();
-		// Change
-		if (Randomness.nextDouble() < P2) {
-			for (int i = 0; i < s.length(); i++) {
-				if (Randomness.nextDouble() < P) {
-					// logger.info("Before change: '"+s+"'");
-					s = replaceCharAt(s, i, Randomness.nextChar());
-					// logger.info("After change: '"+s+"'");
-				}
-			}
-		}
-
-		// Insert
-		if (Randomness.nextDouble() < P2) {
-			// for(int i = 0; i < s.length(); i++) {
-			// if(Randomness.nextDouble() < P) {
-			int pos = 0;
-			if (s.length() > 0)
-				pos = Randomness.nextInt(s.length());
-			s = StringInsert(s, pos);
-			// }
-			// }
-		}
-		value = (T) s;
-		// logger.info("Mutated string now is: "+value);
-	}
-
-	@SuppressWarnings("unchecked")
-	private void incrementString() {
-
-		String s = (String) value;
-		if (s.isEmpty()) {
-			s += Randomness.nextChar();
-		} else {
-			s = replaceCharAt(s, Randomness.nextInt(s.length()), Randomness.nextChar());
-		}
-
-		value = (T) s;
-		// logger.info("Mutated string now is: "+value);
-	}
+	/**
+	 * Add a random delta to the value
+	 */
+	public abstract void delta();
 
 	/**
-	 * Create random primitive statement
-	 * 
-	 * @param reference
-	 * @param clazz
-	 * @return
+	 * Reset value to default value 0
 	 */
-	@SuppressWarnings("unchecked")
-	public void randomize() {
-		if (value instanceof Boolean) {
-			value = (T) new Boolean(Randomness.nextBoolean());
-		} else if (value instanceof Integer) {
-			if (Randomness.nextDouble() >= P_pool)
-				value = (T) new Integer((Randomness.nextInt(2 * MAX_INT) - MAX_INT));
-			else
-				value = (T) new Integer(primitive_pool.getRandomInt());
-		} else if (value instanceof Character) {
-			value = (T) new Character(Randomness.nextChar());
-		} else if (value instanceof Long) {
-			int max = Math.min(MAX_INT, 32767);
-			if (Randomness.nextDouble() >= P_pool)
-				value = (T) new Long((Randomness.nextInt(2 * max) - max));
-			else
-				value = (T) new Long(primitive_pool.getRandomLong());
-		} else if (value instanceof Double) {
-			if (Randomness.nextDouble() >= P_pool)
-				value = (T) new Double((Randomness.nextInt(2 * MAX_INT) - MAX_INT)
-				        + Randomness.nextDouble());
-			else
-				value = (T) new Double(primitive_pool.getRandomDouble());
+	public abstract void zero();
 
-		} else if (value instanceof Float) {
-			if (Randomness.nextDouble() >= P_pool)
-				value = (T) new Float((Randomness.nextInt(2 * MAX_INT) - MAX_INT)
-				        + Randomness.nextFloat());
-			else
-				value = (T) new Float(primitive_pool.getRandomFloat());
-		} else if (value instanceof Short) {
-			int max = Math.min(MAX_INT, 32767);
-			if (Randomness.nextDouble() >= P_pool)
-				value = (T) new Short((short) (Randomness.nextInt(2 * max) - max));
-			else
-				value = (T) new Short((short) primitive_pool.getRandomInt());
-		} else if (value instanceof Byte) {
-			if (Randomness.nextDouble() >= P_pool)
-				value = (T) new Byte((byte) (Randomness.nextInt(256) - 128));
-			else
-				value = (T) new Byte((byte) (primitive_pool.getRandomInt()));
-		} else if (value instanceof String) {
-			if (Randomness.nextDouble() >= P_pool)
-				value = (T) Randomness.nextString(Randomness.nextInt(MAX_STRING));
-			else
-				value = (T) primitive_pool.getRandomString();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public void delta() {
-
-		//double delta = 40.0 * Randomness.nextDouble() - 20.0;
-		int delta = Randomness.nextInt(40) - 20;
-		if (value instanceof Boolean) {
-			value = (T) Boolean.valueOf(!((Boolean) value).booleanValue());
-		} else if (value instanceof Integer) {
-			value = (T) new Integer(((Integer) value).intValue() + delta);
-		} else if (value instanceof Character) {
-			value = (T) new Character((char) (((Character) value).charValue() + delta));
-		} else if (value instanceof Long) {
-			value = (T) new Long(((Long) value).longValue() + delta);
-		} else if (value instanceof Double) {
-			value = (T) new Double(((Double) value).doubleValue() + delta
-			        + Randomness.nextDouble());
-		} else if (value instanceof Float) {
-			value = (T) new Float(((Float) value).floatValue() + delta
-			        + Randomness.nextFloat());
-		} else if (value instanceof Short) {
-			value = (T) new Short((short) (((Short) value).shortValue() + delta));
-		} else if (value instanceof Byte) {
-			value = (T) new Byte((byte) (((Byte) value).byteValue() + delta));
-		} else if (value instanceof String) {
-			deltaString();
-		}
-
-	}
-
-	public void increment() {
-		increment(1);
-	}
-
-	public void decrement() {
-		increment(-1);
-	}
-
-	@SuppressWarnings("unchecked")
-	public void increment(long val) {
-		if (value instanceof Boolean) {
-			value = (T) Boolean.valueOf(!((Boolean) value).booleanValue());
-		} else if (value instanceof Integer) {
-			value = (T) new Integer((int) (((Integer) value).intValue() + val));
-		} else if (value instanceof Character) {
-			value = (T) new Character((char) (((Character) value).charValue() + val));
-		} else if (value instanceof Long) {
-			value = (T) new Long(((Long) value).longValue() + val);
-		} else if (value instanceof Double) {
-			value = (T) new Double(((Double) value).doubleValue() + val);
-		} else if (value instanceof Float) {
-			value = (T) new Float(((Float) value).floatValue() + val);
-		} else if (value instanceof Short) {
-			value = (T) new Short((short) (((Short) value).shortValue() + val));
-		} else if (value instanceof Byte) {
-			value = (T) new Byte((byte) (((Byte) value).byteValue() + val));
-		} else if (value instanceof String) {
-			incrementString();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public void increment(double val) {
-		if (value instanceof Double) {
-			value = (T) new Double(((Double) value).doubleValue() + val);
-		} else if (value instanceof Float) {
-			value = (T) new Float(((Float) value).floatValue() + val);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public void zero() {
-		if (value instanceof Boolean) {
-			value = (T) Boolean.FALSE;
-		} else if (value instanceof Integer) {
-			value = (T) new Integer(0);
-		} else if (value instanceof Character) {
-			value = (T) new Character((char) 0);
-		} else if (value instanceof Long) {
-			value = (T) new Long(0);
-		} else if (value instanceof Double) {
-			value = (T) new Double(0.0);
-		} else if (value instanceof Float) {
-			value = (T) new Float(0.0);
-		} else if (value instanceof Short) {
-			value = (T) new Short((short) 0);
-		} else if (value instanceof Byte) {
-			value = (T) new Byte((byte) 0);
-
-		}
-	}
+	/**
+	 * Push the value on the stack
+	 * 
+	 * @param mg
+	 */
+	protected abstract void pushBytecode(GeneratorAdapter mg);
 
 	/*
 	 * (non-Javadoc)
@@ -477,28 +229,8 @@ public class PrimitiveStatement<T> extends AbstractStatement {
 			mg.cast(org.objectweb.asm.Type.getType(clazz),
 			        org.objectweb.asm.Type.getType(retval.getVariableClass()));
 		}
-		if (clazz.equals(Boolean.class) || clazz.equals(boolean.class))
-			mg.push(((Boolean) value).booleanValue());
-		else if (clazz.equals(Character.class) || clazz.equals(char.class))
-			mg.push(((Character) value).charValue());
-		else if (clazz.equals(Integer.class) || clazz.equals(int.class))
-			mg.push(((Integer) value).intValue());
-		else if (clazz.equals(Short.class) || clazz.equals(short.class))
-			mg.push(((Short) value).shortValue());
-		else if (clazz.equals(Long.class) || clazz.equals(long.class))
-			mg.push(((Long) value).longValue());
-		else if (clazz.equals(Float.class) || clazz.equals(float.class))
-			mg.push(((Float) value).floatValue());
-		else if (clazz.equals(Double.class) || clazz.equals(double.class))
-			mg.push(((Double) value).doubleValue());
-		else if (clazz.equals(Byte.class) || clazz.equals(byte.class))
-			mg.push(((Byte) value).byteValue());
-		else if (clazz.equals(String.class))
-			mg.push(((String) value));
-		else
-			logger.fatal("Found primitive of unknown type: " + clazz.getName());
+		pushBytecode(mg);
 		retval.storeBytecode(mg, locals);
-		// mg.storeLocal(retval.statement);
 	}
 
 	/*
@@ -541,4 +273,8 @@ public class PrimitiveStatement<T> extends AbstractStatement {
 		return true;
 	}
 
+	/**
+	 * Set to a random value
+	 */
+	public abstract void randomize();
 }

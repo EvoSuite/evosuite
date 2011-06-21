@@ -26,9 +26,9 @@ import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
+import de.unisb.cs.st.evosuite.testcase.IntPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.InterfaceTestRunnable;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
-import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
@@ -253,8 +253,8 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 			Method register = LockRuntime.class.getMethod(LockRuntime.RUNTIME_REGISTER_THREAD_METHOD,
 			                                              params);
 
-			StatementInterface idst = new PrimitiveStatement<Integer>(test,
-			        Integer.class, LockRuntime.getUniqueThreadID());
+			StatementInterface idst = new IntPrimitiveStatement(test,
+			        LockRuntime.getUniqueThreadID());
 			test.addStatement(idst, 0, false);
 			VariableReference idRef = idst.getReturnValue();
 

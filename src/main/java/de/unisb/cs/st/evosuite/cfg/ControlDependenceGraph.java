@@ -380,7 +380,8 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 
 						for (ControlFlowEdge e : candidates) {
 							if (!e.hasBranchInstructionSet()) {
-								logger.warn("unexpected outgoingEdge without branchInstruction set .. finally block?: "
+								// FIXXME: Is this necessary?
+								logger.debug("unexpected outgoingEdge without branchInstruction set .. finally block?: "
 								        + b.toString());
 								skip = true;
 								break;

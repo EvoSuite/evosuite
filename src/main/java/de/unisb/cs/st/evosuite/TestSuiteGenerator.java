@@ -85,6 +85,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCaseMinimizer;
 import de.unisb.cs.st.evosuite.testcase.TestCaseReplacementFunction;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
+import de.unisb.cs.st.evosuite.testcase.ValueMinimizer;
 import de.unisb.cs.st.evosuite.testsuite.MinimizeAverageLengthSecondaryObjective;
 import de.unisb.cs.st.evosuite.testsuite.MinimizeExceptionsSecondaryObjective;
 import de.unisb.cs.st.evosuite.testsuite.MinimizeMaxLengthSecondaryObjective;
@@ -207,6 +208,12 @@ public class TestSuiteGenerator {
 		        + "s and " + ga.getAge() + " generations, best individual has fitness "
 		        + best.getFitness());
 
+		if (Properties.MINIMIZE_VALUES) {
+			System.out.println("* Minimizing values");
+			ValueMinimizer minimizer = new ValueMinimizer();
+			minimizer.minimize(best, (TestSuiteFitnessFunction) fitness_function);
+		}
+
 		if (Properties.INLINE) {
 			ConstantInliner inliner = new ConstantInliner();
 			inliner.inline(best);
@@ -317,7 +324,7 @@ public class TestSuiteGenerator {
 			random_tests = random_tests / 10;
 		}
 		factory.setNumberOfTests(random_tests);
-		TestSuiteChromosome chromosome = (TestSuiteChromosome) factory.getChromosome();
+		TestSuiteChromosome chromosome = factory.getChromosome();
 		if (random_tests > 0) {
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goals);
 			minimizer.minimize(chromosome);
@@ -688,7 +695,8 @@ public class TestSuiteGenerator {
 		}
 	}
 
-	private GeneticAlgorithm getGeneticAlgorithm(ChromosomeFactory<? extends Chromosome> factory) {
+	private GeneticAlgorithm getGeneticAlgorithm(
+	        ChromosomeFactory<? extends Chromosome> factory) {
 		switch (Properties.ALGORITHM) {
 		case ONEPLUSONEEA:
 			logger.info("Chosen search algorithm: (1+1)EA");

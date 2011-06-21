@@ -26,14 +26,15 @@ public class FloatLocalSearch<T> implements LocalSearch {
 	public void doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective objective) {
 
-		PrimitiveStatement<T> p = (PrimitiveStatement<T>) test.test.getStatement(statement);
+		NumericalPrimitiveStatement<T> p = (NumericalPrimitiveStatement<T>) test.test.getStatement(statement);
 		doSearch(test, statement, objective, 1.0, p);
 		doSearch(test, statement, objective, Properties.EPSILON, p);
 		logger.debug("Finished local search with result " + p.getCode());
 	}
 
 	private void doSearch(TestChromosome test, int statement,
-	        LocalSearchObjective objective, double initialDelta, PrimitiveStatement<T> p) {
+	        LocalSearchObjective objective, double initialDelta,
+	        NumericalPrimitiveStatement<T> p) {
 
 		oldValue = p.getValue();
 		ExecutionResult oldResult = test.last_result;
@@ -77,7 +78,7 @@ public class FloatLocalSearch<T> implements LocalSearch {
 	}
 
 	private boolean iterate(double delta, LocalSearchObjective objective,
-	        TestChromosome test, PrimitiveStatement<T> p, int statement) {
+	        TestChromosome test, NumericalPrimitiveStatement<T> p, int statement) {
 
 		boolean improvement = false;
 		T oldValue = p.getValue();

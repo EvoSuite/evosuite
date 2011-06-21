@@ -25,7 +25,7 @@ public class IntegerLocalSearch<T> implements LocalSearch {
 	public void doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective objective) {
 
-		PrimitiveStatement<T> p = (PrimitiveStatement<T>) test.test.getStatement(statement);
+		NumericalPrimitiveStatement<T> p = (NumericalPrimitiveStatement<T>) test.test.getStatement(statement);
 		ExecutionResult oldResult = test.last_result;
 		oldValue = p.getValue();
 
@@ -68,7 +68,7 @@ public class IntegerLocalSearch<T> implements LocalSearch {
 	}
 
 	private boolean iterate(long delta, LocalSearchObjective objective,
-	        TestChromosome test, PrimitiveStatement<T> p, int statement) {
+	        TestChromosome test, NumericalPrimitiveStatement<T> p, int statement) {
 
 		boolean improvement = false;
 		T oldValue = p.getValue();

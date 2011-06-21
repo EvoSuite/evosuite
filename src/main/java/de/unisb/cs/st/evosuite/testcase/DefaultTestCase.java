@@ -641,4 +641,28 @@ public class DefaultTestCase implements TestCase {
 			statement.replace(var1, var2);
 		}
 	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#accept(de.unisb.cs.st.evosuite.testcase.TestVisitor)
+	 */
+	@Override
+	public void accept(TestVisitor visitor) {
+		Iterator<StatementInterface> iterator = statements.iterator();
+		while (iterator.hasNext()) {
+			StatementInterface statement = iterator.next();
+			logger.info("Visiting statment " + statement.getCode());
+			if (statement instanceof PrimitiveStatement<?>)
+				visitor.visitPrimitiveStatement((PrimitiveStatement<?>) statement);
+			else if (statement instanceof FieldStatement)
+				visitor.visitFieldStatement((FieldStatement) statement);
+			else if (statement instanceof ConstructorStatement)
+				visitor.visitConstructorStatement((ConstructorStatement) statement);
+			else if (statement instanceof MethodStatement)
+				visitor.visitMethodStatement((MethodStatement) statement);
+			else if (statement instanceof AssignmentStatement)
+				visitor.visitAssignmentStatement((AssignmentStatement) statement);
+			else if (statement instanceof ArrayStatement)
+				visitor.visitArrayStatement((ArrayStatement) statement);
+		}
+	}
 }
