@@ -4,6 +4,7 @@
 package de.unisb.cs.st.evosuite.testsuite;
 
 import java.io.PrintStream;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -236,6 +237,17 @@ public class TestCallStatement extends AbstractStatement {
 	@Override
 	public boolean same(StatementInterface s) {
 		return equals(s);
+	}
+
+	@Override
+	public AccessibleObject getAccessibleObject() {
+		assert(false); //not supposed to be called
+		return null;
+	}
+
+	@Override
+	public boolean isAssignmentStatement() {
+		return false;
 	}
 
 }

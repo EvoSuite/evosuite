@@ -364,7 +364,7 @@ public class TestChromosome extends Chromosome {
 					if (statement.mutate(test, test_factory)) {
 						changed = true;
 						assert (test.isValid());
-					} else if (!(statement instanceof AssignmentStatement)) {
+					} else if (!statement.isAssignmentStatement()) {
 						if (test_factory.changeRandomCall(test, statement))
 							changed = true;
 						assert (test.isValid());
