@@ -24,6 +24,7 @@ import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
 import de.unisb.cs.st.evosuite.coverage.concurrency.Schedule;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.ga.LocalSearchBudget;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
 import de.unisb.cs.st.evosuite.symbolic.ConcolicMutation;
 import de.unisb.cs.st.evosuite.testsuite.CurrentChromosomeTracker;
@@ -144,6 +145,9 @@ public class TestChromosome extends Chromosome {
 		double oldFitness = getFitness();
 
 		for (int i = 0; i < test.size(); i++) {
+			if (LocalSearchBudget.isFinished())
+				break;
+
 			if (test.getStatement(i) instanceof PrimitiveStatement<?>) {
 				Class<?> type = test.getReturnValue(i).getVariableClass();
 				LocalSearch search = null;

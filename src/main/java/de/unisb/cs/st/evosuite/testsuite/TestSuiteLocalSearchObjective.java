@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.ga.LocalSearchBudget;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 
@@ -59,6 +60,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 			suite.setFitness(lastFitness);
 			return true;
 		} else {
+			LocalSearchBudget.evaluation();
 			suite.setFitness(lastFitness);
 			return false;
 		}
