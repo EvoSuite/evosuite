@@ -4,6 +4,7 @@
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.io.PrintStream;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -106,6 +107,16 @@ public class NullStatement extends AbstractStatement {
 
 		NullStatement ns = (NullStatement) s;
 		return retval.same(ns.retval);
+	}
+
+	@Override
+	public AccessibleObject getAccessibleObject() {
+		return null;
+	}
+
+	@Override
+	public boolean isAssignmentStatement() {
+		return false;
 	}
 
 }

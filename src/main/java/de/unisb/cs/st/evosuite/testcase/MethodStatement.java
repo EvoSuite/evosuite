@@ -19,6 +19,7 @@
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.io.PrintStream;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -503,6 +504,16 @@ public class MethodStatement extends AbstractStatement {
 			else
 				return (callee.same(ms.callee));
 		}
+	}
+
+	@Override
+	public AccessibleObject getAccessibleObject() {
+		return method;
+	}
+
+	@Override
+	public boolean isAssignmentStatement() {
+		return false;
 	}
 
 }

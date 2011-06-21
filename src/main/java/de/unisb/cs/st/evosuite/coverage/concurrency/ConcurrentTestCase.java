@@ -4,6 +4,7 @@
 package de.unisb.cs.st.evosuite.coverage.concurrency;
 
 import java.io.PrintStream;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -577,6 +578,16 @@ public class ConcurrentTestCase implements TestCase {
 			@Override
 			public boolean same(StatementInterface s) {
 				return retval.same(s.getReturnValue());
+			}
+
+			@Override
+			public AccessibleObject getAccessibleObject() {
+				return null;
+			}
+
+			@Override
+			public boolean isAssignmentStatement() {
+				return false;
 			}
 
 		};

@@ -19,6 +19,7 @@
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.io.PrintStream;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -373,5 +374,15 @@ public class ConstructorStatement extends AbstractStatement {
 		}
 
 		return retval.same(ms.retval);
+	}
+
+	@Override
+	public AccessibleObject getAccessibleObject() {
+		return constructor;
+	}
+
+	@Override
+	public boolean isAssignmentStatement() {
+		return false;
 	}
 }

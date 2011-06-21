@@ -4,6 +4,7 @@
 package de.unisb.cs.st.evosuite.coverage.concurrency;
 
 import java.io.PrintStream;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -283,8 +284,7 @@ public class ScheduleLogWrapper implements StatementInterface {
 	 */
 	@Override
 	public boolean isValidException(Throwable t) {
-		// TODO Auto-generated method stub
-		return true;
+		return wrapped.isValidException(t);
 	}
 
 	/* (non-Javadoc)
@@ -292,7 +292,7 @@ public class ScheduleLogWrapper implements StatementInterface {
 	 */
 	@Override
 	public boolean mutate(TestCase test, AbstractTestFactory factory) {
-		return false;
+		return wrapped.mutate(test, factory);
 	}
 
 	/* (non-Javadoc)
@@ -301,5 +301,15 @@ public class ScheduleLogWrapper implements StatementInterface {
 	@Override
 	public void SetRetval(VariableReference newRetVal) {
 		wrapped.SetRetval(newRetVal);
+	}
+
+	@Override
+	public AccessibleObject getAccessibleObject() {
+		return wrapped.getAccessibleObject();
+	}
+
+	@Override
+	public boolean isAssignmentStatement() {
+		return wrapped.isAssignmentStatement();
 	}
 }

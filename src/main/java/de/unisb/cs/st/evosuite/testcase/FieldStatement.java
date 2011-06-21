@@ -19,6 +19,7 @@
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.io.PrintStream;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -335,6 +336,16 @@ public class FieldStatement extends AbstractStatement {
 			        && field.equals(fs.field);
 		else
 			return retval.same(fs.retval) && field.equals(fs.field);
+	}
+
+	@Override
+	public AccessibleObject getAccessibleObject() {
+		return field;
+	}
+
+	@Override
+	public boolean isAssignmentStatement() {
+		return false;
 	}
 
 }
