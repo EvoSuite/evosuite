@@ -4,6 +4,7 @@
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.io.PrintStream;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -181,5 +182,19 @@ public interface StatementInterface {
 	public boolean mutate(TestCase test, AbstractTestFactory factory);
 
 	public void SetRetval(VariableReference newRetVal);
+	
+	/**
+	 * Returns the accessibleObject which is used to generate this kind of statement
+	 * E.g. the Field of a FieldStatement, the Method of a MethodStatement and so on
+	 * MAY return NULL (for example for NullStatements)
+	 * @return
+	 */
+	public AccessibleObject getAccessibleObject();
 
+	/**
+	 * Returns true if this statement should be handled as an AssignmentStatement. 
+	 * This method was added to allow the wrapping of AssignmentStatements (in which case "a instanceof AssignmentStatement" is no longer working)
+	 * @return
+	 */
+	public boolean isAssignmentStatement();
 }

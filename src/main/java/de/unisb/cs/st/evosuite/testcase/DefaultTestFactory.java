@@ -1194,21 +1194,10 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		List<AccessibleObject> calls = getPossibleCalls(statement.getReturnType(),
 		                                                objects);
 
-		if (statement instanceof MethodStatement) {
-			MethodStatement ms = (MethodStatement) statement;
-			calls.remove(ms.getMethod());
-		} else if (statement instanceof ConstructorStatement) {
-			ConstructorStatement cs = (ConstructorStatement) statement;
-			calls.remove(cs.getConstructor());
-		} else if (statement instanceof FieldStatement) {
-			FieldStatement fs = (FieldStatement) statement;
-			calls.remove(fs.getField());
-		} else if (statement instanceof NullStatement) {
-
-		} else {
-			assert (false) : "Cannot mutate statement of type " + statement.getClass();
-		}
-
+		AccessibleObject ao = statement.getAccessibleObject();
+		if(ao!=null)
+			calls.remove(ao);
+		
 		logger.debug("Got " + calls.size() + " possible calls for " + objects.size()
 		        + " objects");
 		AccessibleObject call = Randomness.choice(calls);

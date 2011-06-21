@@ -19,6 +19,7 @@
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.io.PrintStream;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -187,6 +188,16 @@ public class ArrayStatement extends AbstractStatement {
 	@Override
 	public boolean mutate(TestCase test, AbstractTestFactory factory) {
 		return true; // TODO: Possibly increase length?
+	}
+
+	@Override
+	public AccessibleObject getAccessibleObject() {
+		return null;
+	}
+
+	@Override
+	public boolean isAssignmentStatement() {
+		return false;
 	}
 
 }
