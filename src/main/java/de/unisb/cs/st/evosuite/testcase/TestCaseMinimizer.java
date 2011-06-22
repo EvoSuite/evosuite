@@ -143,7 +143,7 @@ public class TestCaseMinimizer {
 				} else {
 					logger.debug("Keeping original version");
 					c.test = copy.test;
-					c.last_result = copy.last_result;
+					c.setLastExecutionResult(copy.getLastExecutionResult());
 					c.setFitness(copy.getFitness());
 					c.setChanged(false);
 				}

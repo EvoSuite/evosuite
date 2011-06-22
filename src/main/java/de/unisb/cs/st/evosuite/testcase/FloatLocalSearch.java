@@ -32,12 +32,11 @@ public class FloatLocalSearch<T> implements LocalSearch {
 		logger.debug("Finished local search with result " + p.getCode());
 	}
 
-	private void doSearch(TestChromosome test, int statement,
-	        LocalSearchObjective objective, double initialDelta,
-	        NumericalPrimitiveStatement<T> p) {
+	private void doSearch(ExecutableChromosome test, int statement,
+	        LocalSearchObjective objective, double initialDelta, NumericalPrimitiveStatement<T> p) {
 
 		oldValue = p.getValue();
-		ExecutionResult oldResult = test.last_result;
+		ExecutionResult oldResult = test.getLastExecutionResult();
 
 		boolean done = false;
 		while (!done) {
@@ -50,12 +49,12 @@ public class FloatLocalSearch<T> implements LocalSearch {
 
 				iterate(2 * initialDelta, objective, test, p, statement);
 				oldValue = p.getValue();
-				oldResult = test.last_result;
+				oldResult = test.getLastExecutionResult();
 
 			} else {
 				// Restore original, try -1
 				p.setValue(oldValue);
-				test.last_result = oldResult;
+				test.setLastExecutionResult(oldResult);
 				test.setChanged(false);
 
 				logger.debug("Trying decrement of " + p.getCode());
@@ -64,11 +63,11 @@ public class FloatLocalSearch<T> implements LocalSearch {
 					done = false;
 					iterate(-2 * initialDelta, objective, test, p, statement);
 					oldValue = p.getValue();
-					oldResult = test.last_result;
+					oldResult = test.getLastExecutionResult();
 
 				} else {
 					p.setValue(oldValue);
-					test.last_result = oldResult;
+					test.setLastExecutionResult(oldResult);
 					test.setChanged(false);
 				}
 			}
@@ -78,17 +77,17 @@ public class FloatLocalSearch<T> implements LocalSearch {
 	}
 
 	private boolean iterate(double delta, LocalSearchObjective objective,
-	        TestChromosome test, NumericalPrimitiveStatement<T> p, int statement) {
+	        ExecutableChromosome test, NumericalPrimitiveStatement<T> p, int statement) {
 
 		boolean improvement = false;
 		T oldValue = p.getValue();
-		ExecutionResult oldResult = test.last_result;
+		ExecutionResult oldResult = test.getLastExecutionResult();
 		logger.debug("Trying increment " + delta + " of " + p.getCode());
 
 		p.increment(delta);
 		while (objective.hasImproved(test)) {
 			oldValue = p.getValue();
-			oldResult = test.last_result;
+			oldResult = test.getLastExecutionResult();
 			test.setChanged(false);
 			improvement = true;
 			delta = 2 * delta;
@@ -99,7 +98,7 @@ public class FloatLocalSearch<T> implements LocalSearch {
 		}
 
 		p.setValue(oldValue);
-		test.last_result = oldResult;
+		test.setLastExecutionResult(oldResult);
 		test.setChanged(false);
 
 		return improvement;

@@ -53,6 +53,8 @@ public class ExecutionTracer {
 
 	private static final boolean testabilityTransformation = Properties.TT;
 
+	private static boolean checkCallerThread = true;
+	
 	/**
 	 * If a thread of a test case survives for some reason (e.g. long call to
 	 * external library), then we don't want its data in the current trace
@@ -82,6 +84,10 @@ public class ExecutionTracer {
 		ExecutionTracer tracer = ExecutionTracer.getExecutionTracer();
 		tracer.killSwitch = value;
 	}
+	
+	public static void setCheckCallerThread(boolean checkCallerThread) {
+		ExecutionTracer.checkCallerThread = checkCallerThread;
+	}
 
 	private ExecutionTrace trace;
 
@@ -91,7 +97,7 @@ public class ExecutionTracer {
 		}
 		return instance;
 	}
-
+	
 	/**
 	 * Reset for new execution
 	 */
@@ -104,6 +110,7 @@ public class ExecutionTracer {
 		if (Properties.CRITERION == Criterion.CONCURRENCY) {
 			trace.concurrencyTracer = new ConcurrencyTracer();
 			LockRuntime.tracer = trace.concurrencyTracer;
+			checkCallerThread = false;
 		}
 	}
 
@@ -115,7 +122,7 @@ public class ExecutionTracer {
 	 * @return
 	 */
 	private static boolean isThreadNeqCurrentThread() {
-		if (Properties.CRITERION== Criterion.CONCURRENCY) {
+		if (!checkCallerThread) {
 			return false;
 		} else {
 			return (Thread.currentThread() != currentThread);

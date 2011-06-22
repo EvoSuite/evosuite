@@ -8,17 +8,18 @@ import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
+import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
-public abstract class AbstractTestSuiteChromosome<T extends Chromosome> extends Chromosome {
+public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome> extends Chromosome {
 	private static final long serialVersionUID = 1L;
 
 	protected List<T> tests = new ArrayList<T>();
 	protected ChromosomeFactory<T> testChromosomeFactory;
 	protected double coverage = 0.0;
 
-	protected AbstractTestSuiteChromosome(ChromosomeFactory<T> factory) {
-		this.testChromosomeFactory = factory;
+	protected AbstractTestSuiteChromosome(ChromosomeFactory<T> testChromosomeFactory) {
+		this.testChromosomeFactory = testChromosomeFactory;
 	}
 	
 	/**
@@ -137,7 +138,7 @@ public abstract class AbstractTestSuiteChromosome<T extends Chromosome> extends 
 
 	@Override
 	public abstract AbstractTestSuiteChromosome<T> clone();
-	
+
 	public T getTestChromosome(int index) {
 		return tests.get(index);
 	}
@@ -159,3 +160,4 @@ public abstract class AbstractTestSuiteChromosome<T extends Chromosome> extends 
 		this.coverage = coverage;
 	}
 }
+
