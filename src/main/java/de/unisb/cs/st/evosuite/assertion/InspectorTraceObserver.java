@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,8 +63,20 @@ public class InspectorTraceObserver extends ExecutionObserver {
 		if (retval.getObject(scope) != null && !inspectors.isEmpty()) {
 			List<Object> result = new ArrayList<Object>();
 			for (Inspector i : inspectors) {
-				result.add(i.getValue(retval.getObject(scope)));
-				//logger.info("New inspector result for variable of type "+retval.getClassName()+"/" + retval.getVariableClass().getName()+": "+i.getClassName()+"."+i.getMethodCall()+" -> "+i.getValue(scope.get(retval)));
+				try {
+					Object value = i.getValue(retval.getObject(scope));
+					result.add(value);
+					// TODO: Need to keep reference to inspector if exception is thrown!
+				} catch (IllegalArgumentException e) {
+					logger.info("Exception during call to inspector: " + e);
+					continue;
+				} catch (IllegalAccessException e) {
+					logger.info("Exception during call to inspector: " + e);
+					continue;
+				} catch (InvocationTargetException e) {
+					logger.info("Exception during call to inspector: " + e.getCause());
+					continue;
+				}
 			}
 
 			trace.inspector_results.put(statement.getPosition(), result);
@@ -83,8 +96,12 @@ public class InspectorTraceObserver extends ExecutionObserver {
 					if (callee.getObject(scope) == null)
 						return;
 					for (Inspector i : inspectors) {
-						trace.calleeMap.get(statement.getPosition()).put(i,
-						                                                 i.getValue(callee.getObject(scope)));
+						try {
+							Object value = i.getValue(callee.getObject(scope));
+							trace.calleeMap.get(statement.getPosition()).put(i, value);
+						} catch (Exception e) {
+							logger.info("Exception during call to inspector: " + e);
+						}
 					}
 				}
 			}
