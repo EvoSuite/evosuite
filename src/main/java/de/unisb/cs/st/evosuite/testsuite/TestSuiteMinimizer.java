@@ -228,10 +228,10 @@ public class TestSuiteMinimizer {
 		// double coverage = suite.coverage;
 		int fitness = 0;
 
-		if (branch)
-			fitness = getNumCoveredBranches(suite);
-		else
-			fitness = getNumCovered(suite);
+		//if (branch)
+		//	fitness = getNumCoveredBranches(suite);
+		//else
+		fitness = getNumCovered(suite);
 
 		boolean changed = true;
 		while (changed) {
@@ -248,7 +248,8 @@ public class TestSuiteMinimizer {
 			int num = 0;
 			for (TestChromosome test : suite.tests) {
 				for (int i = test.size() - 1; i >= 0; i--) {
-					logger.debug("Current size: " + suite.size() + "/" + suite.totalLengthOfTestCases());
+					logger.debug("Current size: " + suite.size() + "/"
+					        + suite.totalLengthOfTestCases());
 					logger.debug("Deleting statement "
 					        + test.test.getStatement(i).getCode() + " from test " + num);
 					TestChromosome copy = (TestChromosome) test.clone();
@@ -266,10 +267,10 @@ public class TestSuiteMinimizer {
 					// logger.debug(test.test.toCode());
 
 					int new_fitness = 0;
-					if (branch)
-						new_fitness = getNumCoveredBranches(suite);
-					else
-						new_fitness = getNumCovered(suite);
+					//if (branch)
+					//	new_fitness = getNumCoveredBranches(suite);
+					//else
+					new_fitness = getNumCovered(suite);
 
 					if (new_fitness >= fitness) {
 						fitness = new_fitness;

@@ -204,13 +204,15 @@ public class TestSuite implements Opcodes {
 		builder.append("Test case number: " + num);
 
 		if (!coveredGoals.isEmpty()) {
-			builder.append("\n  /* ");
+			builder.append("\n  /*\n");
+			builder.append("   * ");
 			builder.append(coveredGoals.size() + " covered goal");
 			if (coveredGoals.size() != 1)
 				builder.append("s");
+			builder.append(":");
 			int nr = 1;
 			for (TestFitnessFunction goal : coveredGoals) {
-				builder.append("\n    * " + nr + " " + goal.toString());
+				builder.append("\n   * " + nr + " " + goal.toString());
 				// TODO only for debugging purposes
 				if (Properties.CRITERION == Criterion.DEFUSE
 				        && (goal instanceof DefUseCoverageTestFitness)) {
@@ -219,13 +221,13 @@ public class TestSuite implements Opcodes {
 						String traceInformation = duGoal.getCoveringTrace().toDefUseTraceInformation(duGoal.getGoalVariable(),
 						                                                                             duGoal.getCoveringObjectId());
 						traceInformation = traceInformation.replaceAll("\n", "");
-						builder.append("\n      * DUTrace: " + traceInformation);
+						builder.append("\n     * DUTrace: " + traceInformation);
 					}
 				}
 				nr++;
 			}
 
-			builder.append("\n  */");
+			builder.append("\n   */");
 		}
 
 		return builder.toString();
@@ -474,13 +476,11 @@ public class TestSuite implements Opcodes {
 		builder.append("import junit.framework.Test;\n");
 		builder.append("import junit.framework.TestCase;\n");
 		builder.append("import junit.framework.TestSuite;\n\n");
-		builder.append("import java.io.File;\n");
-		builder.append("import java.io.FilenameFilter;\n");
 
 		List<String> suites = new ArrayList<String>();
 
 		File basedir = new File(directory);
-		Iterator<File> i = (Iterator<File>) FileUtils.iterateFiles(basedir, new TestFilter(),
+		Iterator<File> i = FileUtils.iterateFiles(basedir, new TestFilter(),
 		                                          TrueFileFilter.INSTANCE);
 		while (i.hasNext()) {
 			File f = i.next();
