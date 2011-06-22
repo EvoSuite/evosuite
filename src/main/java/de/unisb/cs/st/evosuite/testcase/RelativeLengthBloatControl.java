@@ -59,7 +59,7 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 			// logger.debug("Bloat control: "+((TestSuiteChromosome)chromosome).length()
 			// +" > "+ bloat_factor * current_max);
 
-			return ((TestChromosome) chromosome).size() > Properties.BLOAT_FACTOR
+			return ((ExecutableChromosome) chromosome).size() > Properties.BLOAT_FACTOR
 			        * current_max;
 		} else
 			return false; // Don't know max length so can't reject!
@@ -87,7 +87,7 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 	 */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
-		current_max = ((TestChromosome) algorithm.getBestIndividual()).size();
+		current_max = ((ExecutableChromosome) algorithm.getBestIndividual()).size();
 		best_fitness = algorithm.getBestIndividual().getFitness();
 	}
 

@@ -23,6 +23,7 @@ import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
+import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
@@ -50,7 +51,7 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		return goal.branch;
 	}
 
-	public double getUnfitness(TestChromosome individual, ExecutionResult result) {
+	public double getUnfitness(ExecutableChromosome individual, ExecutionResult result) {
 
 		double sum = 0.0;
 		boolean methodExecuted = false;

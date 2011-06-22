@@ -47,7 +47,7 @@ public class TestSelectionOperators
 			List<Chromosome> population = new LinkedList<Chromosome>();
 			for(int i=0; i<N; i++)
 			{
-				TestChromosome ind = new TestChromosome();
+				ExecutableChromosome ind = new TestChromosome();
 				double fit = b ? N-i : i;
 				ind.setFitness(fit);
 				//Rank selection assumes the population in order, but for the others does not matter

@@ -26,7 +26,7 @@ public class IntegerLocalSearch<T> implements LocalSearch {
 	        LocalSearchObjective objective) {
 
 		NumericalPrimitiveStatement<T> p = (NumericalPrimitiveStatement<T>) test.test.getStatement(statement);
-		ExecutionResult oldResult = test.last_result;
+		ExecutionResult oldResult = test.getLastExecutionResult();
 		oldValue = p.getValue();
 
 		boolean done = false;
@@ -40,12 +40,12 @@ public class IntegerLocalSearch<T> implements LocalSearch {
 
 				iterate(2, objective, test, p, statement);
 				oldValue = p.getValue();
-				oldResult = test.last_result;
+				oldResult = test.getLastExecutionResult();
 
 			} else {
 				// Restore original, try -1
 				p.setValue(oldValue);
-				test.last_result = oldResult;
+				test.setLastExecutionResult(oldResult);
 				test.setChanged(false);
 
 				logger.debug("Trying decrement of " + p.getCode());
@@ -54,11 +54,11 @@ public class IntegerLocalSearch<T> implements LocalSearch {
 					done = false;
 					iterate(-2, objective, test, p, statement);
 					oldValue = p.getValue();
-					oldResult = test.last_result;
+					oldResult = test.getLastExecutionResult();
 
 				} else {
 					p.setValue(oldValue);
-					test.last_result = oldResult;
+					test.setLastExecutionResult(oldResult);
 					test.setChanged(false);
 				}
 			}
@@ -68,18 +68,18 @@ public class IntegerLocalSearch<T> implements LocalSearch {
 	}
 
 	private boolean iterate(long delta, LocalSearchObjective objective,
-	        TestChromosome test, NumericalPrimitiveStatement<T> p, int statement) {
+	        ExecutableChromosome test, NumericalPrimitiveStatement<T> p, int statement) {
 
 		boolean improvement = false;
 		T oldValue = p.getValue();
-		ExecutionResult oldResult = test.last_result;
+		ExecutionResult oldResult = test.getLastExecutionResult();
 
 		logger.debug("Trying increment " + delta + " of " + p.getCode());
 
 		p.increment(delta);
 		while (objective.hasImproved(test)) {
 			oldValue = p.getValue();
-			oldResult = test.last_result;
+			oldResult = test.getLastExecutionResult();
 			improvement = true;
 			delta = 2 * delta;
 			logger.debug("Trying increment " + delta + " of " + p.getCode());
@@ -88,7 +88,7 @@ public class IntegerLocalSearch<T> implements LocalSearch {
 		logger.debug("No improvement on " + p.getCode());
 
 		p.setValue(oldValue);
-		test.last_result = oldResult;
+		test.setLastExecutionResult(oldResult);
 		test.setChanged(false);
 		logger.debug("Final value of this iteration: " + p.getValue());
 

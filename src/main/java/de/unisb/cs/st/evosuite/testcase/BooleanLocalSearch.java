@@ -25,7 +25,7 @@ public class BooleanLocalSearch implements LocalSearch {
 	public void doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective objective) {
 		PrimitiveStatement<Boolean> p = (PrimitiveStatement<Boolean>) test.test.getStatement(statement);
-		ExecutionResult oldResult = test.last_result;
+		ExecutionResult oldResult = test.getLastExecutionResult();
 		oldValue = p.getValue();
 
 		p.setValue(!oldValue);
@@ -33,7 +33,7 @@ public class BooleanLocalSearch implements LocalSearch {
 		if (!objective.hasImproved(test)) {
 			// Restore original
 			p.setValue(oldValue);
-			test.last_result = oldResult;
+			test.setLastExecutionResult(oldResult);
 			test.setChanged(false);
 		}
 

@@ -26,11 +26,11 @@ import org.apache.log4j.Logger;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
-import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 
 /**
  * @author Gordon Fraser
@@ -55,7 +55,6 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 	 * @return Result of the execution
 	 */
 	public ExecutionResult runTest(TestCase test) {
-
 		ExecutionResult result = new ExecutionResult(test, null);
 
 		try {
@@ -84,6 +83,7 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 		return result;
 	}
 
+	
 	protected static boolean hasTimeout(ExecutionResult result) {
 
 		if (result == null) {
@@ -106,22 +106,23 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 		individual.setFitness(fitness);
 	}
 
-	protected List<ExecutionResult> runTestSuite(TestSuiteChromosome suite) {
-
+	protected List<ExecutionResult> runTestSuite(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		CurrentChromosomeTracker.getInstance().modification(suite);
 		List<ExecutionResult> results = new ArrayList<ExecutionResult>();
 
-		for (TestChromosome test : suite.tests) {
+		for (ExecutableChromosome chromosome : suite.getTestChromosomes()) {
 			// Only execute test if it hasn't been changed
-			if (test.isChanged() || test.last_result == null) {
-				ExecutionResult result = runTest(test.test);
-				results.add(result);
-				test.last_result = result; // .clone();
-				test.setChanged(false);
+			if (chromosome.isChanged() || chromosome.getLastExecutionResult() == null) {
+				ExecutionResult result = chromosome.executeForFitnessFunction(this);
+				
+				if (result != null) {
+					results.add(result);
+				
+					chromosome.setLastExecutionResult(result); // .clone();
+					chromosome.setChanged(false);
+				}
 			} else {
-
-				results.add(test.last_result);
-
+				results.add(chromosome.getLastExecutionResult());
 			}
 		}
 
