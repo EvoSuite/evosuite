@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
-import de.unisb.cs.st.evosuite.ga.LocalSearchBudget;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 
@@ -32,14 +31,13 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 		this.testIndex = index;
 		this.lastFitness = suite.getFitness();
 
-		// Rerun all tests to check if current fitness is still valid - remove this check later
-		//for (TestChromosome test : suite.getTestChromosomes()) {
-		//	test.setChanged(true);
-		//	test.last_result = null;
-		//}
+		for (TestChromosome test : suite.getTestChromosomes()) {
+			test.setChanged(true);
+			test.setLastExecutionResult(null);
+		}
 
-		//double fit = fitness.getFitness(suite);
-		//assert (fit == this.lastFitness);
+		double fit = fitness.getFitness(suite);
+		assert (fit == this.lastFitness);
 
 	}
 
@@ -60,7 +58,6 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 			suite.setFitness(lastFitness);
 			return true;
 		} else {
-			LocalSearchBudget.evaluation();
 			suite.setFitness(lastFitness);
 			return false;
 		}

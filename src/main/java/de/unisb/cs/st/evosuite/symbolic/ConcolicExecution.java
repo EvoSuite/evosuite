@@ -260,7 +260,7 @@ public class ConcolicExecution {
 		mg.endMethod();
 
 		int num = 0;
-		ExecutionResult result = test.last_result;
+		ExecutionResult result = test.getLastExecutionResult();
 		if (result == null)
 			result = runTest(test.test);
 

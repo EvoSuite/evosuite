@@ -453,6 +453,9 @@ public class Properties {
 	/** Sub-package name of target class */
 	public static String SUB_PREFIX = "";
 
+	@Parameter(key = "TARGET_CLASS_PREFIX", group = "Runtime", description = "Prefix of classes we are trying to cover")
+	public static String TARGET_CLASS_PREFIX = "";
+	
 	/** Class under test */
 	@Parameter(key = "TARGET_CLASS", group = "Runtime", description = "Class under test")
 	public static String TARGET_CLASS = "";

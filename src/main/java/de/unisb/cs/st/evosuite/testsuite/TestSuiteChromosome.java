@@ -24,6 +24,7 @@ import java.util.List;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.LocalSearchBudget;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
+import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
@@ -33,8 +34,8 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
  * 
  */
 public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromosome> {
-	protected TestSuiteChromosome(ChromosomeFactory<TestChromosome> factory) {
-		super(factory);
+	protected TestSuiteChromosome(ChromosomeFactory<TestChromosome> testChromosomeFactory) {
+		super(testChromosomeFactory);
 	}
 
 	protected TestSuiteChromosome(TestSuiteChromosome source) {
@@ -68,7 +69,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		Iterator<TestChromosome> it = tests.iterator();
 		int num = 0;
 		while (it.hasNext()) {
-			TestChromosome t = it.next();
+			ExecutableChromosome t = it.next();
 			if (t.size() == 0) {
 				it.remove();
 				for (TestChromosome test : tests) {

@@ -213,7 +213,7 @@ public class TestSuiteGenerator {
 			ValueMinimizer minimizer = new ValueMinimizer();
 			minimizer.minimize(best, (TestSuiteFitnessFunction) fitness_function);
 		}
-
+		
 		if (Properties.INLINE) {
 			ConstantInliner inliner = new ConstantInliner();
 			inliner.inline(best);
@@ -272,7 +272,7 @@ public class TestSuiteGenerator {
 		}
 	}
 
-	private TestSuiteFitnessFunction getFitnessFunction() {
+	public TestSuiteFitnessFunction getFitnessFunction() {
 		switch (Properties.CRITERION) {
 		case MUTATION:
 			return new MutationSuiteFitness();
@@ -324,7 +324,7 @@ public class TestSuiteGenerator {
 			random_tests = random_tests / 10;
 		}
 		factory.setNumberOfTests(random_tests);
-		TestSuiteChromosome chromosome = factory.getChromosome();
+		TestSuiteChromosome chromosome = (TestSuiteChromosome) factory.getChromosome();
 		if (random_tests > 0) {
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goals);
 			minimizer.minimize(chromosome);
@@ -568,7 +568,7 @@ public class TestSuiteGenerator {
 	        Set<Integer> covered, TestChromosome best) {
 
 		Set<Integer> r = new HashSet<Integer>();
-		ExecutionResult result = best.last_result;
+		ExecutionResult result = best.getLastExecutionResult();
 		if (result == null)
 			result = TestCaseExecutor.getInstance().execute(best.test);
 		int num = -1;
@@ -695,8 +695,7 @@ public class TestSuiteGenerator {
 		}
 	}
 
-	private GeneticAlgorithm getGeneticAlgorithm(
-	        ChromosomeFactory<? extends Chromosome> factory) {
+	public GeneticAlgorithm getGeneticAlgorithm(ChromosomeFactory<? extends Chromosome> factory) {
 		switch (Properties.ALGORITHM) {
 		case ONEPLUSONEEA:
 			logger.info("Chosen search algorithm: (1+1)EA");

@@ -24,15 +24,15 @@ public class StringLocalSearch implements LocalSearch {
 
 	private boolean oldChanged;
 
-	private void backup(TestChromosome test, StringPrimitiveStatement p) {
+	private void backup(ExecutableChromosome test, StringPrimitiveStatement p) {
 		oldValue = new String(p.getValue());
-		oldResult = test.last_result;
+		oldResult = test.getLastExecutionResult();
 		oldChanged = test.isChanged();
 	}
 
-	private void restore(TestChromosome test, StringPrimitiveStatement p) {
+	private void restore(ExecutableChromosome test, StringPrimitiveStatement p) {
 		p.setValue(new String(oldValue));
-		test.last_result = oldResult;
+		test.setLastExecutionResult(oldResult);
 		test.setChanged(oldChanged);
 	}
 
@@ -81,8 +81,8 @@ public class StringLocalSearch implements LocalSearch {
 		}
 	}
 
-	private boolean removeCharacters(LocalSearchObjective objective, TestChromosome test,
-	        StringPrimitiveStatement p, int statement) {
+	private boolean removeCharacters(LocalSearchObjective objective, ExecutableChromosome test,
+			StringPrimitiveStatement p, int statement) {
 
 		boolean improvement = false;
 		backup(test, p);
@@ -104,7 +104,7 @@ public class StringLocalSearch implements LocalSearch {
 	}
 
 	private boolean replaceCharacters(LocalSearchObjective objective,
-	        TestChromosome test, StringPrimitiveStatement p, int statement) {
+	        ExecutableChromosome test, StringPrimitiveStatement p, int statement) {
 
 		boolean improvement = false;
 		backup(test, p);
@@ -135,8 +135,8 @@ public class StringLocalSearch implements LocalSearch {
 		return improvement;
 	}
 
-	private boolean addCharacters(LocalSearchObjective objective, TestChromosome test,
-	        StringPrimitiveStatement p, int statement) {
+	private boolean addCharacters(LocalSearchObjective objective, ExecutableChromosome test,
+			StringPrimitiveStatement p, int statement) {
 
 		boolean improvement = false;
 		backup(test, p);

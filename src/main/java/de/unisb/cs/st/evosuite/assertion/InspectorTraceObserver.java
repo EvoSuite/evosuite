@@ -32,8 +32,6 @@ import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class InspectorTraceObserver extends ExecutionObserver {
-
-	@SuppressWarnings("unused")
 	private final static Logger logger = Logger.getLogger(InspectorTraceObserver.class);
 
 	private final InspectorManager manager = InspectorManager.getInstance();
