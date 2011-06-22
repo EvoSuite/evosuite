@@ -88,8 +88,8 @@ public abstract class TestCoverageGoal {
 	 */
 	protected ExecutionResult runTest(TestChromosome test) {
 
-		if (!test.isChanged() && test.last_result != null)
-			return test.last_result;
+		if (!test.isChanged() && test.getLastExecutionResult() != null)
+			return test.getLastExecutionResult();
 
 		ExecutionResult result = new ExecutionResult(test.test, null);
 

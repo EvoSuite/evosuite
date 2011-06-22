@@ -79,10 +79,10 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	public double getFitness(Chromosome individual) {
 		logger.trace("Executing test case on original");
 		TestChromosome c = (TestChromosome) individual;
-		ExecutionResult orig_result = c.last_result;
+		ExecutionResult orig_result = c.getLastExecutionResult();
 		if (orig_result == null || c.isChanged()) {
 			orig_result = runTest(c.test);
-			c.last_result = orig_result;
+			c.setLastExecutionResult(orig_result);
 			c.setChanged(false);
 		}
 
@@ -177,10 +177,10 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	}
 
 	public boolean isCovered(TestChromosome tc) {
-		ExecutionResult result = tc.last_result;
+		ExecutionResult result = tc.getLastExecutionResult();
 		if (result == null || tc.isChanged()) {
 			result = runTest(tc.test);
-			tc.last_result = result;
+			tc.setLastExecutionResult(result);
 			tc.setChanged(false);
 		}
 

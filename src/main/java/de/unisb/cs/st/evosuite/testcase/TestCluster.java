@@ -94,7 +94,8 @@ public class TestCluster {
 
 	public static final List<String> EXCLUDE = Arrays.asList("<clinit>", "__STATIC_RESET");
 
-	// public int num_defined_methods = 2;
+	private static Hierarchy hierarchy = Hierarchy.readFromDefaultLocation();
+	
 	public int num_defined_methods = 0;
 
 	/**
@@ -127,6 +128,23 @@ public class TestCluster {
 
 		return instance;
 	}
+	
+	public static boolean isTargetClassName(String className) {
+		if (!Properties.TARGET_CLASS_PREFIX.isEmpty() && className.startsWith(Properties.TARGET_CLASS_PREFIX)) {
+			return true;
+		}
+		
+		if (className.equals(Properties.TARGET_CLASS) || className.startsWith(Properties.TARGET_CLASS + "$")) {
+			return true;
+		}
+
+		if (Properties.INSTRUMENT_PARENT) {
+			return hierarchy.getAllSupers(Properties.TARGET_CLASS).contains(className);
+		}
+		
+		return false;
+	}
+
 
 	/**
 	 * Get a list of all generator objects for the type
@@ -1033,8 +1051,6 @@ public class TestCluster {
 		Map<String, List<String>> allowed = getTestObjectsFromFile();
 		Set<String> target_functions = new HashSet<String>();
 
-		String target_class = Properties.TARGET_CLASS;
-
 		// Analyze each entry of test task
 		for (String classname : allowed.keySet()) {
 			try {
@@ -1057,7 +1073,7 @@ public class TestCluster {
 
 					}
 
-					if (constructor.getDeclaringClass().getName().startsWith(target_class)
+					if (isTargetClassName(constructor.getDeclaringClass().getName())
 					        && !constructor.isSynthetic()
 					        && !Modifier.isAbstract(constructor.getModifiers())) {
 						target_functions.add(constructor.getDeclaringClass().getName()
@@ -1105,7 +1121,7 @@ public class TestCluster {
 						logger.info("TT name: " + orig + " -> " + name);
 					}
 
-					if (method.getDeclaringClass().getName().startsWith(target_class)
+					if (isTargetClassName(method.getDeclaringClass().getName())
 					        && !method.isSynthetic()
 					        && !Modifier.isAbstract(method.getModifiers())) {
 						target_functions.add(method.getDeclaringClass().getName() + "."
@@ -1116,8 +1132,6 @@ public class TestCluster {
 						        + method.getDeclaringClass().getName() + "."
 						        + method.getName()
 						        + org.objectweb.asm.Type.getMethodDescriptor(method));
-						logger.debug(method.getDeclaringClass().getName()
-						        + " starts with " + target_class);
 					}
 
 					if (canUse(method) && matches(name, restriction)) {
@@ -1327,7 +1341,6 @@ public class TestCluster {
 	 */
 	private void analyzeTarget() {
 		logger.info("Getting list of classes");
-		Hierarchy hierarchy = Hierarchy.readFromDefaultLocation();
 
 		Set<String> all_classes = hierarchy.getAllClasses();
 		Set<Class<?>> dependencies = new HashSet<Class<?>>();
