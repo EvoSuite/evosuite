@@ -35,6 +35,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
+import junit.framework.TestCase;
+
 import org.apache.log4j.Logger;
 import org.objectweb.asm.Type;
 
@@ -552,6 +554,11 @@ public class TestTaskGenerator {
 
 	protected static boolean suggestTask(Class<?> clazz) {
 		String classname = clazz.getName();
+
+		if (clazz.getSuperclass() != null && clazz.getSuperclass().equals(TestCase.class)) {
+			logger.info("Ignoring JUnit test case " + classname);
+			return false;
+		}
 
 		if (!canUse(clazz)) {
 			logger.info("Ignoring private class " + classname);
