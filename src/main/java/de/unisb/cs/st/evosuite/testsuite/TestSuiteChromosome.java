@@ -99,10 +99,10 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective(
 			        (TestSuiteFitnessFunction) objective.getFitnessFunction(), this, i);
 			if (LocalSearchBudget.isFinished()) {
-				logger.info("Local search budget used up");
+				logger.debug("Local search budget used up");
 				break;
 			}
-			logger.info("Local search budget not yet used up");
+			logger.debug("Local search budget not yet used up");
 
 			tests.get(i).localSearch(testObjective);
 		}

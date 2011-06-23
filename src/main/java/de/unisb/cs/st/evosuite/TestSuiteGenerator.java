@@ -530,7 +530,7 @@ public class TestSuiteGenerator {
 					LCSAJCoverageTestFitness lcsajGoal = (LCSAJCoverageTestFitness) goal;
 					LCSAJ l = lcsajGoal.getLcsaj();
 					LCSAJGraph uncoveredGraph = new LCSAJGraph(l,true);
-					uncoveredGraph.generate(new File("/home/merlin/Uncovered LCSAJ No: " +l.getID()));
+					uncoveredGraph.generate(new File("evosuite-graphs/Uncovered LCSAJ No: " +l.getID()));
 				}
 			}
 		}
