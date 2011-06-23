@@ -23,7 +23,9 @@ public class LCSAJ {
 	// Class and method where the LCSAJ occurs
 	private final String className;
 	private final String methodName;
-
+	
+	private int positionReached = 0;
+	
 	public LCSAJ(String className, String methodName, BytecodeInstruction start) {
 		this.className = className;
 		this.methodName = methodName;
@@ -132,5 +134,13 @@ public class LCSAJ {
 		// for (Branch b : branches)
 		//	output += " -> " + b.getASMNodeString() + "\n";
 		return output;
+	}
+	
+	public void setPositionReached(int position){
+		this.positionReached = position;
+	}
+	
+	public int getdPositionReached(){
+		return this.positionReached;
 	}
 }

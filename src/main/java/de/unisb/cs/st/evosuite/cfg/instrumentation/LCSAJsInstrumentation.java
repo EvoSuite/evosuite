@@ -3,6 +3,7 @@
  */
 package de.unisb.cs.st.evosuite.cfg.instrumentation;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -22,9 +23,11 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstructionPool;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
+import de.unisb.cs.st.evosuite.cfg.LCSAJGraph;
 import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJ;
@@ -158,7 +161,14 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 			} else
 				lcsaj_queue.add(currentLCSAJ);
 		}
+		
 		addInstrumentation(mn, className, methodName);
+		if (Properties.WRITE_CFG)
+			for (LCSAJ l : LCSAJPool.getLCSAJs(className, methodName)){
+				LCSAJGraph graph = new LCSAJGraph(l,false);
+				graph.generate(new File("/home/merlin/LCSAJGraph no: "+l.getID()+".dot"));
+			}
+			
 	}
 
 	@SuppressWarnings("unchecked")

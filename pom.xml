@@ -366,6 +366,18 @@
 
 
 
+      <dependency>
+      	<groupId>jgraph</groupId>
+      	<artifactId>jgraph</artifactId>
+      	<version>5.13.0.0</version>
+      	<scope>import</scope>
+      </dependency>
+      <dependency>
+      	<groupId>org.kohsuke</groupId>
+      	<artifactId>graphviz-api</artifactId>
+      	<version>1.0</version>
+      	<scope>import</scope>
+      </dependency>
     </dependencies>
     <repositories>
 	<repository>
