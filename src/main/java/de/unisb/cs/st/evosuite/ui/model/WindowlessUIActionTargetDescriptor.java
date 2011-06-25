@@ -13,7 +13,7 @@ import org.uispec4j.Panel;
 import org.uispec4j.UIComponent;
 import org.uispec4j.Window;
 
-import de.unisb.cs.st.evosuite.ui.FocusOrder;
+import de.unisb.cs.st.evosuite.ui.run.FocusOrder;
 import de.unisb.cs.st.evosuite.utils.ArrayUtil;
 import de.unisb.cs.st.evosuite.utils.HashUtil;
 

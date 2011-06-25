@@ -1,10 +1,13 @@
-package de.unisb.cs.st.evosuite.ui.model;
+package de.unisb.cs.st.evosuite.ui.model.states;
 
 import java.io.Serializable;
 import java.util.*;
 
-import de.unisb.cs.st.evosuite.ui.AbstractUIEnvironment;
 import de.unisb.cs.st.evosuite.ui.GraphVizEnvironment;
+import de.unisb.cs.st.evosuite.ui.model.DescriptorBoundUIAction;
+import de.unisb.cs.st.evosuite.ui.model.UIActionTargetDescriptor;
+import de.unisb.cs.st.evosuite.ui.model.WindowDescriptor;
+import de.unisb.cs.st.evosuite.ui.run.AbstractUIEnvironment;
 import de.unisb.cs.st.evosuite.utils.ListUtil;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 import de.unisb.cs.st.evosuite.utils.TriBoolean;

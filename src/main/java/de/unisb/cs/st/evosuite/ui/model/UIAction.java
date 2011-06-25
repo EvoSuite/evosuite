@@ -12,8 +12,9 @@ import org.uispec4j.interception.handlers.InterceptionHandler;
 import org.uispec4j.interception.toolkit.UISpecDisplay;
 import org.uispec4j.utils.TriggerRunner;
 
-import de.unisb.cs.st.evosuite.ui.AbstractUIEnvironment;
-import de.unisb.cs.st.evosuite.ui.BoundUIAction;
+import de.unisb.cs.st.evosuite.ui.model.states.IllegalUIStateException;
+import de.unisb.cs.st.evosuite.ui.run.AbstractUIEnvironment;
+import de.unisb.cs.st.evosuite.ui.run.BoundUIAction;
 import de.unisb.cs.st.evosuite.utils.SimpleCondition;
 
 public abstract class UIAction<T extends UIComponent> implements Serializable {

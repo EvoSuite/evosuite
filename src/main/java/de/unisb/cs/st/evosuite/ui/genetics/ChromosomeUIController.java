@@ -11,11 +11,11 @@ import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.InterfaceTestRunnable;
-import de.unisb.cs.st.evosuite.ui.UIController;
-import de.unisb.cs.st.evosuite.ui.UIRunner;
-import de.unisb.cs.st.evosuite.ui.model.AbstractUIState;
 import de.unisb.cs.st.evosuite.ui.model.DescriptorBoundUIAction;
-import de.unisb.cs.st.evosuite.ui.model.IllegalUIStateException;
+import de.unisb.cs.st.evosuite.ui.model.states.AbstractUIState;
+import de.unisb.cs.st.evosuite.ui.model.states.IllegalUIStateException;
+import de.unisb.cs.st.evosuite.ui.run.UIController;
+import de.unisb.cs.st.evosuite.ui.run.UIRunner;
 import de.unisb.cs.st.evosuite.utils.SimpleCondition;
 
 public class ChromosomeUIController implements InterfaceTestRunnable, UIController {
@@ -43,6 +43,7 @@ public class ChromosomeUIController implements InterfaceTestRunnable, UIControll
 		this.exception = null;
 
 		ExecutionTracer.getExecutionTracer().clear();
+		
 		// TODO: It would be much better if the current thread check in ExecutionTracer
 		// correctly included threads spawned by the thread it is currently tracing...   
 		ExecutionTracer.setCheckCallerThread(false);
@@ -88,7 +89,8 @@ public class ChromosomeUIController implements InterfaceTestRunnable, UIControll
 			ExecutionTracer.statementExecuted();
 			uiRunner.executeAction(state, this.actions.get(idx));
 		} catch (IllegalUIStateException e) {
-			// Swallow the exception if we were in an unknown state (doesn't really matter then, we were speculating anyway)
+			// Swallow the exception if we were in an unknown state
+			// (doesn't really matter then, we were speculating anyway)
 			if (uiRunner.getUnsharpActionSequence().getFinalState().isKnown()) {
 				this.exception = e;
 				this.idx = this.actions.size();

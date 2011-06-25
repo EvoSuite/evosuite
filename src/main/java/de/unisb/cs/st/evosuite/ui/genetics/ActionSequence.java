@@ -1,12 +1,15 @@
 package de.unisb.cs.st.evosuite.ui.genetics;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.lang.NullArgumentException;
 
-import de.unisb.cs.st.evosuite.ui.model.AbstractUIState;
 import de.unisb.cs.st.evosuite.ui.model.DescriptorBoundUIAction;
+import de.unisb.cs.st.evosuite.ui.model.states.AbstractUIState;
 import de.unisb.cs.st.evosuite.utils.HashUtil;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
@@ -128,7 +131,6 @@ public class ActionSequence implements Serializable, Cloneable {
 			actions.add(action);
 			states.add(nextState);
 		}
-		
 	}
 	
 	public void addAction(DescriptorBoundUIAction<?> action) {

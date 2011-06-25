@@ -4,9 +4,9 @@ import org.uispec4j.Trigger;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
-import de.unisb.cs.st.evosuite.ui.RandomWalkUIController;
-import de.unisb.cs.st.evosuite.ui.UIRunner;
-import de.unisb.cs.st.evosuite.ui.model.UIStateGraph;
+import de.unisb.cs.st.evosuite.ui.model.states.UIStateGraph;
+import de.unisb.cs.st.evosuite.ui.run.RandomWalkUIController;
+import de.unisb.cs.st.evosuite.ui.run.UIRunner;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 import de.unisb.cs.st.evosuite.utils.SimpleCondition;
 

@@ -15,7 +15,7 @@ import de.unisb.cs.st.evosuite.testcase.InterfaceTestRunnable;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TimeoutHandler;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
-import de.unisb.cs.st.evosuite.ui.model.UIStateGraph;
+import de.unisb.cs.st.evosuite.ui.model.states.UIStateGraph;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
 public class UITestChromosome extends ExecutableChromosome {

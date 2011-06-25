@@ -1,4 +1,4 @@
-package de.unisb.cs.st.evosuite.ui;
+package de.unisb.cs.st.evosuite.ui.run;
 
 import org.uispec4j.UIComponent;
 

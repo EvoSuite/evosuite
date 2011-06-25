@@ -1,8 +1,11 @@
-package de.unisb.cs.st.evosuite.ui.model;
+package de.unisb.cs.st.evosuite.ui.model.states;
 
 import java.util.List;
 import java.util.Map;
 
+import de.unisb.cs.st.evosuite.ui.model.DescriptorBoundUIAction;
+import de.unisb.cs.st.evosuite.ui.model.UIActionTargetDescriptor;
+import de.unisb.cs.st.evosuite.ui.model.WindowDescriptor;
 import de.unisb.cs.st.evosuite.utils.TriBoolean;
 
 public class UnknownUIState extends AbstractUIState {
