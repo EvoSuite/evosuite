@@ -24,8 +24,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
@@ -44,6 +44,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 	private static final long serialVersionUID = 1L;
 
+	@SuppressWarnings("hiding")
 	private static Logger logger = Logger.getLogger(TestSuiteFitnessFunction.class);
 
 	public final int total_branches = BranchPool.getBranchCounter();

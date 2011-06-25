@@ -45,6 +45,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = 2991632394620406243L;
 
+	@SuppressWarnings("hiding")
 	private static Logger logger = Logger.getLogger(TestSuiteFitnessFunction.class);
 
 	public final int total_methods = TestCluster.getInstance().num_defined_methods;

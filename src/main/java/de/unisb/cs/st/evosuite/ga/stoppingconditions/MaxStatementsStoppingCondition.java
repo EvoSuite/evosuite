@@ -31,7 +31,7 @@ import de.unisb.cs.st.evosuite.Properties;
  */
 public class MaxStatementsStoppingCondition extends StoppingCondition {
 
-	@SuppressWarnings("unused")
+	@SuppressWarnings({ "unused", "hiding" })
 	private static Logger logger = Logger.getLogger(MaxStatementsStoppingCondition.class);
 
 	/** Maximum number of iterations */

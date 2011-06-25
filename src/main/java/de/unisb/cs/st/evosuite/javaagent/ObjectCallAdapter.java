@@ -41,6 +41,7 @@ public class ObjectCallAdapter extends MethodAdapter {
 		this.descriptors = descriptors;
 	}
 	
+	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 		if(descriptors.containsKey(name+desc)) {
 			logger.info("Replacing call to "+name+desc+" with "+descriptors.get(name+desc));
