@@ -1,10 +1,13 @@
 syntax: glob
+*.log
+*.dot
 *~
 target/*
 evosuite-files
 evosuite-report
 evosuite-tests
 build
+transitionLog.txt
 .DS_Store
 .project
 .settings
