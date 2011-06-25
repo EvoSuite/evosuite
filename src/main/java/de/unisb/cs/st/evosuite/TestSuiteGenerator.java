@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite;
 
+import java.io.File;
 import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.Properties.Strategy;
 import de.unisb.cs.st.evosuite.assertion.AssertionGenerator;
 import de.unisb.cs.st.evosuite.assertion.MutationAssertionGenerator;
+import de.unisb.cs.st.evosuite.cfg.LCSAJGraph;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
 import de.unisb.cs.st.evosuite.coverage.FitnessLogger;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
@@ -40,8 +42,10 @@ import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencySuitCoverage;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
+import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJ;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageTestFitness;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -510,14 +514,27 @@ public class TestSuiteGenerator {
 		int uncovered_goals = total_goals - covered_goals;
 		if (uncovered_goals < 10)
 			for (TestFitnessFunction goal : goals) {
-				if (!covered.contains(c))
+				if (!covered.contains(c)){
 					System.out.println("! Unable to cover goal " + c + " "
 					        + goal.toString());
+					
+				}
 				c++;
 			}
 		else
 			System.out.println("! #Goals that were not covered: " + uncovered_goals);
-
+		
+		if (Properties.CRITERION == Criterion.LCSAJ && Properties.WRITE_CFG) {
+			for (TestFitnessFunction goal : goals) {
+				if (!covered.contains(c)){		
+					LCSAJCoverageTestFitness lcsajGoal = (LCSAJCoverageTestFitness) goal;
+					LCSAJ l = lcsajGoal.getLcsaj();
+					LCSAJGraph uncoveredGraph = new LCSAJGraph(l,true);
+					uncoveredGraph.generate(new File("evosuite-graphs/Uncovered LCSAJ No: " +l.getID()));
+				}
+			}
+		}
+		
 		statistics.searchFinished(suiteGA);
 		long end_time = System.currentTimeMillis() / 1000;
 		System.out.println("* Search finished after " + (end_time - start_time)

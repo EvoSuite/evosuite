@@ -227,26 +227,23 @@ public class ValueMinimizer implements TestVisitor {
 			logger.info("Trying replacement of " + statement.getCode());
 			//logger.info(test.toCode());
 			for (AccessibleObject generator : generators) {
-				if (!isPrimitive(generator)
-				        && getNumParameters(generator) < numParameters) {
-					try {
-						logger.info("Trying replacement with " + generator);
-						factory.changeCall(test, statement, generator);
-						if (objective.isNotWorse()) {
-							//logger.info(test.toCode());
-							numParameters = getNumParameters(generator);
-							copy = statement;
-							logger.info("Success replacement with " + generator);
-						} else {
-							logger.info("Failed replacement with " + generator);
-							test.setStatement(copy, position);
-							//logger.info(test.toCode());
-						}
-					} catch (ConstructionFailedException e) {
+				try {
+					logger.info("Trying replacement with " + generator);
+					factory.changeCall(test, statement, generator);
+					if (objective.isNotWorse()) {
+						//logger.info(test.toCode());
+						numParameters = getNumParameters(generator);
+						copy = statement;
+						logger.info("Success replacement with " + generator);
+					} else {
 						logger.info("Failed replacement with " + generator);
 						test.setStatement(copy, position);
-						// logger.info(test.toCode());
+						//logger.info(test.toCode());
 					}
+				} catch (ConstructionFailedException e) {
+					logger.info("Failed replacement with " + generator);
+					test.setStatement(copy, position);
+					// logger.info(test.toCode());
 				}
 			}
 
