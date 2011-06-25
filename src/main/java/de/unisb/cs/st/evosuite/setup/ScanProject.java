@@ -103,7 +103,7 @@ public class ScanProject {
 		@Override
 		protected Class<?> findClass(String name) throws ClassNotFoundException {
 
-			name = name.replace("/", ".");
+			//name = name.replace(".", ".");
 			if (classMap.containsKey(name))
 				return classMap.get(name);
 
