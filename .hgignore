@@ -19,5 +19,8 @@ syntax: regexp
 ^lib/evosuite\.jar$
 
 syntax: regexp
+\.orig$
+
+syntax: regexp
 #^src/main/java/de/unisb/cs/st/evosuite/cfg/CFGPrinter\.java$
 ^examples/*$
