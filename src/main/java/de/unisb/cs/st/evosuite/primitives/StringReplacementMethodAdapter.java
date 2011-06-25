@@ -141,12 +141,15 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 		case Opcodes.AALOAD:
 		case Opcodes.LLOAD:
 			current_var = var;
+			break;
+			
 		case Opcodes.ASTORE:
 		case Opcodes.ISTORE:
 		case Opcodes.DSTORE:
 		case Opcodes.FSTORE:
 		case Opcodes.AASTORE:
 		case Opcodes.LSTORE:
+			current_var = var;
 			if (current_write >= 0) {
 				//				flags.put(current_write, var);
 				flags.put(var, current_write);

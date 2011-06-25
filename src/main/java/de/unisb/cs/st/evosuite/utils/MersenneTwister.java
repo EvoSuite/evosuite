@@ -1,6 +1,11 @@
 package de.unisb.cs.st.evosuite.utils;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 /** 
  * <h3>MersenneTwister and MersenneTwisterFast</h3>
@@ -175,11 +180,12 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
     private boolean __haveNextNextGaussian;
 
     /* We're overriding all internal data, to my knowledge, so this should be okay */
-    public Object clone() throws CloneNotSupportedException
+    @Override
+	public Object clone() throws CloneNotSupportedException
         {
         MersenneTwister f = (MersenneTwister)(super.clone());
-        f.mt = (int[])(mt.clone());
-        f.mag01 = (int[])(mag01.clone());
+        f.mt = (mt.clone());
+        f.mag01 = (mag01.clone());
         return f;
         }
 
@@ -262,7 +268,8 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
      * only uses the first 32 bits for its seed).   
      */
 
-    synchronized public void setSeed(final long seed)
+    @Override
+	synchronized public void setSeed(final long seed)
         {
         // it's always good style to call super
         super.setSeed(seed);
@@ -334,7 +341,8 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
     /**
      * Returns an integer with <i>bits</i> bits filled with a random number.
      */
-    synchronized protected int next(final int bits)
+    @Override
+	synchronized protected int next(final int bits)
         {
         int y;
         
@@ -388,7 +396,8 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
 
     /** This method is missing from jdk 1.0.x and below.  JDK 1.1
         includes this for us, but what the heck.*/
-    public boolean nextBoolean() {return next(1) != 0;}
+    @Override
+	public boolean nextBoolean() {return next(1) != 0;}
 
     /** This generates a coin flip with a probability <tt>probability</tt>
         of returning true, else returning false. <tt>probability</tt> must
@@ -421,7 +430,8 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
     /** This method is missing from JDK 1.1 and below.  JDK 1.2
         includes this for us, but what the heck. */
 
-    public int nextInt(final int n) 
+    @Override
+	public int nextInt(final int n) 
         {
         if (n<=0)
             throw new IllegalArgumentException("n must be > 0");
@@ -461,7 +471,8 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
 
     /** A bug fix for versions of JDK 1.1 and below.  JDK 1.2 fixes
         this for us, but what the heck. */
-    public double nextDouble()
+    @Override
+	public double nextDouble()
         {
         return (((long)next(26) << 27) + next(27))
             / (double)(1L << 53);
@@ -470,7 +481,8 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
     /** A bug fix for versions of JDK 1.1 and below.  JDK 1.2 fixes
         this for us, but what the heck. */
 
-    public float nextFloat()
+    @Override
+	public float nextFloat()
         {
         return next(24) / ((float)(1 << 24));
         }
@@ -479,7 +491,8 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
         use all four bytes in an integer as independent byte values!
         Totally wrong. I've submitted a bug report. */
 
-    public void nextBytes(final byte[] bytes)    
+    @Override
+	public void nextBytes(final byte[] bytes)    
         {
         for (int x=0;x<bytes.length;x++) bytes[x] = (byte)next(8);
         }
@@ -513,7 +526,8 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
         http://developer.java.sun.com/developer/bugParade/bugs/4254501.html</a>
     */
 
-    synchronized public double nextGaussian() 
+    @Override
+	synchronized public double nextGaussian() 
         {
         if (__haveNextNextGaussian) 
             {
@@ -553,7 +567,7 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
         for (j=0;j<1000;j++)
             {
             // first, convert the int from signed to "unsigned"
-            long l = (long)r.nextInt();
+            long l = r.nextInt();
             if (l < 0 ) l += 4294967296L;  // max int value
             String s = String.valueOf(l);
             while(s.length() < 10) s = " " + s;  // buffer
@@ -597,7 +611,7 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
         r = new MersenneTwister(SEED);
         for (j = 0; j < 1000; j++)
             {
-            System.out.print(r.nextBoolean((double)(j/999.0)) + " ");
+            System.out.print(r.nextBoolean((j/999.0)) + " ");
             if (j%8==7) System.out.println();
             }
         if (!(j%8==7)) System.out.println();
@@ -606,7 +620,7 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
         r = new MersenneTwister(SEED);
         for (j = 0; j < 1000; j++)
             {
-            System.out.print(r.nextBoolean((float)(j/999.0f)) + " ");
+            System.out.print(r.nextBoolean((j/999.0f)) + " ");
             if (j%8==7) System.out.println();
             }
         if (!(j%8==7)) System.out.println();
