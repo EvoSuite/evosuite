@@ -18,11 +18,8 @@ import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SelectionFunction;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testsuite.AbstractTestSuiteChromosome;
-import de.unisb.cs.st.evosuite.ui.genetics.UITestChromosome;
-import de.unisb.cs.st.evosuite.ui.genetics.UITestChromosomeFactory;
-import de.unisb.cs.st.evosuite.ui.genetics.UITestSuiteChromosome;
-import de.unisb.cs.st.evosuite.ui.genetics.UITestSuiteChromosomeFactory;
-import de.unisb.cs.st.evosuite.ui.model.UIStateGraph;
+import de.unisb.cs.st.evosuite.ui.genetics.*;
+import de.unisb.cs.st.evosuite.ui.model.states.UIStateGraph;
 
 public class UITestSuiteGenerator {
 	public static void main(String[] args) {

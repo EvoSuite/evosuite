@@ -1,4 +1,4 @@
-package de.unisb.cs.st.evosuite.ui.model;
+package de.unisb.cs.st.evosuite.ui.model.states;
 
 public class IllegalUIStateException extends IllegalStateException {
 	private static final long serialVersionUID = 1L;

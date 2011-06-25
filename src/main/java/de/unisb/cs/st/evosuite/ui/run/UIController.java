@@ -1,6 +1,6 @@
-package de.unisb.cs.st.evosuite.ui;
+package de.unisb.cs.st.evosuite.ui.run;
 
-import de.unisb.cs.st.evosuite.ui.model.AbstractUIState;
+import de.unisb.cs.st.evosuite.ui.model.states.AbstractUIState;
 
 public interface UIController {
 	public void processState(UIRunner uiRunner, AbstractUIState state);

@@ -1,4 +1,4 @@
-package de.unisb.cs.st.evosuite.ui.model;
+package de.unisb.cs.st.evosuite.ui.model.states;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -6,10 +6,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import de.unisb.cs.st.evosuite.ui.AbstractUIEnvironment;
 import de.unisb.cs.st.evosuite.ui.GraphVizDrawable;
 import de.unisb.cs.st.evosuite.ui.GraphVizEnvironment;
-import de.unisb.cs.st.evosuite.ui.model.UIState.Descriptor;
+import de.unisb.cs.st.evosuite.ui.model.states.UIState.Descriptor;
+import de.unisb.cs.st.evosuite.ui.run.AbstractUIEnvironment;
 
 public class UIStateGraph implements GraphVizDrawable, Serializable {
 	private static final long serialVersionUID = 1L;

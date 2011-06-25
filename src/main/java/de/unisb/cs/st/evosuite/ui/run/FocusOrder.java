@@ -1,4 +1,4 @@
-package de.unisb.cs.st.evosuite.ui;
+package de.unisb.cs.st.evosuite.ui.run;
 
 import java.awt.Component;
 import java.awt.Container;

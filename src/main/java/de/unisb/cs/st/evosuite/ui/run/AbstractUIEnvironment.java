@@ -1,12 +1,12 @@
-package de.unisb.cs.st.evosuite.ui;
+package de.unisb.cs.st.evosuite.ui.run;
 
 import java.util.List;
 
 import org.uispec4j.Window;
 import org.uispec4j.interception.handlers.InterceptionHandler;
 
-import de.unisb.cs.st.evosuite.ui.model.UIState;
-import de.unisb.cs.st.evosuite.ui.model.UIStateGraph;
+import de.unisb.cs.st.evosuite.ui.model.states.UIState;
+import de.unisb.cs.st.evosuite.ui.model.states.UIStateGraph;
 
 abstract public class AbstractUIEnvironment {
 	abstract public List<Window> getTargetableWindows();

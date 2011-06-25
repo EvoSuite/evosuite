@@ -1,4 +1,4 @@
-package de.unisb.cs.st.evosuite.ui.model;
+package de.unisb.cs.st.evosuite.ui.model.states;
 
 import java.util.*;
 
@@ -7,6 +7,9 @@ import org.apache.commons.lang.StringUtils;
 
 import de.unisb.cs.st.evosuite.ui.GraphVizDrawable;
 import de.unisb.cs.st.evosuite.ui.GraphVizEnvironment;
+import de.unisb.cs.st.evosuite.ui.model.DescriptorBoundUIAction;
+import de.unisb.cs.st.evosuite.ui.model.UIActionTargetDescriptor;
+import de.unisb.cs.st.evosuite.ui.model.WindowDescriptor;
 
 public class AmbigueUIState extends AbstractUIState implements GraphVizDrawable {
 	private static final long serialVersionUID = 1L;

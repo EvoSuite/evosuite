@@ -8,11 +8,11 @@ import java.util.List;
 
 import org.uispec4j.Window;
 
-import de.unisb.cs.st.evosuite.ui.AbstractUIEnvironment;
 import de.unisb.cs.st.evosuite.ui.GraphVizDrawable;
 import de.unisb.cs.st.evosuite.ui.GraphVizEnvironment;
-import de.unisb.cs.st.evosuite.ui.UIEnvironment;
 import de.unisb.cs.st.evosuite.ui.model.WindowlessUIActionTargetDescriptor.Criteria;
+import de.unisb.cs.st.evosuite.ui.run.AbstractUIEnvironment;
+import de.unisb.cs.st.evosuite.ui.run.UIEnvironment;
 import de.unisb.cs.st.evosuite.utils.HashUtil;
 import de.unisb.cs.st.evosuite.utils.ListUtil;
 import de.unisb.cs.st.evosuite.utils.StringUtil;

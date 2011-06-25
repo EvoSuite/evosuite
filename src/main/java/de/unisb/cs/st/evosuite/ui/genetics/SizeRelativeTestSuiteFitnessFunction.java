@@ -1,4 +1,4 @@
-package de.unisb.cs.st.evosuite.ui;
+package de.unisb.cs.st.evosuite.ui.genetics;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testsuite.AbstractTestSuiteChromosome;

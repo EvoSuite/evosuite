@@ -1,4 +1,4 @@
-package de.unisb.cs.st.evosuite.ui;
+package de.unisb.cs.st.evosuite.ui.run;
 
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
@@ -10,11 +10,11 @@ import org.uispec4j.interception.handlers.InterceptionHandler;
 import org.uispec4j.interception.toolkit.UISpecDisplay;
 
 import de.unisb.cs.st.evosuite.ui.genetics.ActionSequence;
-import de.unisb.cs.st.evosuite.ui.model.AbstractUIState;
 import de.unisb.cs.st.evosuite.ui.model.DescriptorBoundUIAction;
 import de.unisb.cs.st.evosuite.ui.model.UIActionTargetDescriptor;
-import de.unisb.cs.st.evosuite.ui.model.UIState;
-import de.unisb.cs.st.evosuite.ui.model.UIStateGraph;
+import de.unisb.cs.st.evosuite.ui.model.states.AbstractUIState;
+import de.unisb.cs.st.evosuite.ui.model.states.UIState;
+import de.unisb.cs.st.evosuite.ui.model.states.UIStateGraph;
 import de.unisb.cs.st.evosuite.utils.SimpleCondition;
 
 public class UIRunner implements InterceptionHandler {
