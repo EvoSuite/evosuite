@@ -169,15 +169,15 @@ public class FieldStatement extends AbstractStatement {
 
 			}
 			Object ret = field.get(source_object);
-			assert (retval.getVariableClass().isAssignableFrom(ret.getClass())) : "we want an "
+			assert (ret==null || retval.getVariableClass().isAssignableFrom(ret.getClass())) : "we want an "
 			        + retval.getVariableClass() + " but got an " + ret.getClass();
 			retval.setObject(scope, ret);
 		} catch (Throwable e) {
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
 				e = e.getCause();
-				logger.debug("Exception thrown in field: " + e);
+				logger.warn("Exception thrown in field: " + e,e);
 			} else
-				logger.debug("Exception thrown in field: " + e);
+				logger.warn("Exception thrown in field: " + e,e);
 			exceptionThrown = e;
 		}
 		return exceptionThrown;
