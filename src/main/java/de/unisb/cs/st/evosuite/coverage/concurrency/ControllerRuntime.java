@@ -178,7 +178,7 @@ public class ControllerRuntime implements Callable<Void> {
 	 * id is a unique thread id, we need to assume, that threads are created in a deterministic fashion
 	 */
 	public void registerThread(Integer id){
-		logger.trace("A thread with id " + id + " registered itself.");
+		logger.debug("A thread with id " + id + " registered itself. The system id is: " + Thread.currentThread().getId());
 		if(threadToId.containsKey(Thread.currentThread()))throw new AssertionError("This shouldn't happen. May happen if (for example) the application under test calls the run() method of a thread manually. ");
 		synchronized (TOCKEN) {
 			threadWaitingPos.put(Thread.currentThread(), new Object());
