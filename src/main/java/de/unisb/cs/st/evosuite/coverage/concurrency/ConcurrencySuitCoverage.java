@@ -331,7 +331,9 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 			String className = LockRuntime.fieldAccToConcInstr.get(nextTuple.scheduleID).getClassName();
 			String methodName = LockRuntime.fieldAccToConcInstr.get(nextTuple.scheduleID).getMethodName();
 			RawControlFlowGraph completeCFG = CFGPool.getRawCFG(className, methodName);
-			if (isAfter(nextTuple, history, completeCFG)) {
+			assert(LockRuntime.fieldAccessIDToCFGVertex.containsKey(nextTuple.scheduleID));
+			if (completeCFG.containsVertex(LockRuntime.fieldAccessIDToCFGVertex.get(nextTuple.scheduleID)) || //in this case the two accesses are in different methods
+					isAfter(nextTuple, history, completeCFG)) {
 				SchedulingDecisionList newList = history.clone();
 				newList.add(nextTuple);
 				result.add(newList);
