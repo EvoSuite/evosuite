@@ -409,7 +409,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 	 * 
 	 * @param branchID1
 	 * @param branchID2
-	 * @param minimizedCFG
+	 * @param completeCFG
 	 * @return
 	 */
 	private final boolean isBefore(final int scheduleID1, final int scheduleID2,
