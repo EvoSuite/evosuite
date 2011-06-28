@@ -35,7 +35,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.cfg.CFGClassAdapter;
 import de.unisb.cs.st.evosuite.primitives.PrimitiveClassAdapter;
-import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
+import de.unisb.cs.st.evosuite.testcase.TestCluster;
 
 /**
  * The bytecode transformer - transforms bytecode depending on package and
@@ -45,33 +45,15 @@ import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
  * 
  */
 public class BytecodeInstrumentation implements ClassFileTransformer {
-
-	private static Hierarchy hierarchy;
-
 	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION;
-
-	static {
-		if (Properties.INSTRUMENT_PARENT)
-			hierarchy = Hierarchy.readFromDefaultLocation();
-	}
 
 	protected static Logger logger = Logger.getLogger(BytecodeInstrumentation.class);
 
 	// private static RemoveSystemExitTransformer systemExitTransformer = new
 	// RemoveSystemExitTransformer();
 
-	private static String target_class = Properties.TARGET_CLASS;
-
-	private boolean isTargetClass(String className) {
-		if (className.equals(target_class) || className.startsWith(target_class + "$")) {
-			return true;
-		}
-
-		if (Properties.INSTRUMENT_PARENT) {
-			return hierarchy.getAllSupers(target_class).contains(className);
-		}
-
-		return false;
+	private boolean isTargetClassName(String className) {
+		return TestCluster.isTargetClassName(className);
 	}
 
 	static {
@@ -122,7 +104,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 					// Apply transformations to class under test and its owned
 					// classes
-					if (isTargetClass(classNameWithDots)) {
+					if (isTargetClassName(classNameWithDots)) {
 						cv = new AccessibleClassAdapter(cv, className);
 						cv = new ExecutionPathClassAdapter(cv, className);
 						cv = new CFGClassAdapter(cv, className);

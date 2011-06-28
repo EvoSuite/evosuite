@@ -28,6 +28,7 @@ import de.unisb.cs.st.evosuite.ga.LocalSearchBudget;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
 import de.unisb.cs.st.evosuite.symbolic.ConcolicMutation;
 import de.unisb.cs.st.evosuite.testsuite.CurrentChromosomeTracker;
+import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
@@ -36,7 +37,7 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
  * @author Gordon Fraser
  * 
  */
-public class TestChromosome extends Chromosome {
+public class TestChromosome extends ExecutableChromosome {
 
 	private static final long serialVersionUID = 7532366007973252782L;
 
@@ -57,13 +58,11 @@ public class TestChromosome extends Chromosome {
 		}
 	}
 
-	public ExecutionResult last_result = null;
-
-	/*
-	 * public TestChromosome(TestFactory test_factory, TestMutationFactory
-	 * mutation_factory) { this.test_factory = test_factory;
-	 * this.mutation_factory = mutation_factory; }
-	 */
+	@Override
+	public void setChanged(boolean changed) {
+		super.setChanged(changed);
+		CurrentChromosomeTracker.getInstance().changed(this);
+	}
 
 	/**
 	 * Create a deep copy of the chromosome
@@ -84,9 +83,9 @@ public class TestChromosome extends Chromosome {
 		c.setFitness(getFitness());
 		c.solution = solution;
 		c.setChanged(isChanged());
-		if (last_result != null) {
-			c.last_result = last_result; //.clone(); // TODO: Clone?
-			c.last_result.test = c.test;
+		if (getLastExecutionResult() != null) {
+			c.setLastExecutionResult(this.lastExecutionResult); //.clone(); // TODO: Clone?
+			c.getLastExecutionResult().test = c.test;
 		}
 
 		return c;
@@ -238,7 +237,7 @@ public class TestChromosome extends Chromosome {
 
 		if (changed) {
 			setChanged(true);
-			last_result = null;
+			setLastExecutionResult(null);
 		}
 	}
 
@@ -420,12 +419,6 @@ public class TestChromosome extends Chromosome {
 		return has_exception;
 	}
 
-	@Override
-	public void setChanged(boolean changed) {
-		this.changed = changed;
-		CurrentChromosomeTracker.getInstance().changed(this);
-	}
-
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#applyDSE()
 	 */
@@ -433,5 +426,10 @@ public class TestChromosome extends Chromosome {
 	public void applyDSE() {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public ExecutionResult executeForFitnessFunction(TestSuiteFitnessFunction testSuiteFitnessFunction) {
+		return testSuiteFitnessFunction.runTest(this.test);
 	}
 }

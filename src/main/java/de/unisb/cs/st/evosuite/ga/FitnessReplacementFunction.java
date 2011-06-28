@@ -39,6 +39,7 @@ public class FitnessReplacementFunction extends
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.javalanche.ga.SteadyStateReplacementFunction#keepOffspring(de.unisb.cs.st.javalanche.ga.Chromosome, de.unisb.cs.st.javalanche.ga.Chromosome, de.unisb.cs.st.javalanche.ga.Chromosome, de.unisb.cs.st.javalanche.ga.Chromosome)
 	 */
+	@Override
 	public boolean keepOffspring(Chromosome parent1, Chromosome parent2,
 			Chromosome offspring1, Chromosome offspring2) {
 		

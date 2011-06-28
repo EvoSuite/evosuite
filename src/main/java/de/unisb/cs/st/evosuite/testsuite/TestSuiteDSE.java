@@ -25,6 +25,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
 import de.unisb.cs.st.evosuite.symbolic.smt.cvc3.CVC3Solver;
+import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
@@ -123,15 +124,15 @@ public class TestSuiteDSE {
 		Set<Integer> coveredFalse = new HashSet<Integer>();
 
 		for (TestChromosome test : suite.getTestChromosomes()) {
-			if (test.last_result == null) {
-				test.last_result = runTest(test.test);
+			if (test.getLastExecutionResult() == null) {
+				test.setLastExecutionResult(runTest(test.test));
 				test.setChanged(false);
 			}
 
-			for (Integer branchId : test.last_result.getTrace().covered_predicates.keySet()) {
-				if (test.last_result.getTrace().true_distances.get(branchId) == 0.0)
+			for (Integer branchId : test.getLastExecutionResult().getTrace().covered_predicates.keySet()) {
+				if (test.getLastExecutionResult().getTrace().true_distances.get(branchId) == 0.0)
 					coveredTrue.add(branchId);
-				if (test.last_result.getTrace().false_distances.get(branchId) == 0.0)
+				if (test.getLastExecutionResult().getTrace().false_distances.get(branchId) == 0.0)
 					coveredFalse.add(branchId);
 			}
 		}
@@ -196,8 +197,8 @@ public class TestSuiteDSE {
 	 * @param test
 	 * @return
 	 */
-	private boolean hasUncoveredBranches(TestChromosome test) {
-		for (Integer branchId : test.last_result.getTrace().covered_predicates.keySet()) {
+	private boolean hasUncoveredBranches(ExecutableChromosome test) {
+		for (Integer branchId : test.getLastExecutionResult().getTrace().covered_predicates.keySet()) {
 			if (uncoveredBranches.contains(branchId))
 				return true;
 		}

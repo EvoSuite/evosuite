@@ -32,6 +32,7 @@ import org.apache.log4j.Logger;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
@@ -133,15 +134,15 @@ public class TestSuiteMinimizer {
 		int num = 0;
 		for (TestChromosome test : suite.tests) {
 			ExecutionResult result = null;
-			if (test.isChanged() || test.last_result == null) {
+			if (test.isChanged() || test.getLastExecutionResult() == null) {
 				logger.debug("Executing test " + num);
 				result = runTest(test.test);
-				test.last_result = result.clone();
+				test.setLastExecutionResult(result.clone());
 				test.setChanged(false);
 
 			} else {
 				logger.debug("Skipping test " + num);
-				result = test.last_result;
+				result = test.getLastExecutionResult();
 			}
 			called_methods.addAll(result.getTrace().covered_methods.keySet());
 			for (Entry<Integer, Double> entry : result.getTrace().true_distances.entrySet()) {
@@ -164,7 +165,7 @@ public class TestSuiteMinimizer {
 	@SuppressWarnings("unused")
 	private int checkFitness(TestSuiteChromosome suite) {
 		for (int i = 0; i < suite.size(); i++) {
-			suite.getTestChromosome(i).last_result = null;
+			suite.getTestChromosome(i).setLastExecutionResult(null);
 			suite.getTestChromosome(i).setChanged(true);
 		}
 		return getNumCovered(suite);
@@ -184,9 +185,9 @@ public class TestSuiteMinimizer {
 
 		// Remove previous results as they do not contain method calls
 		// in the case of whole suite generation
-		for (TestChromosome test : suite.getTestChromosomes()) {
+		for (ExecutableChromosome test : suite.getTestChromosomes()) {
 			test.setChanged(true);
-			test.last_result = null;
+			test.setLastExecutionResult(null);
 		}
 
 		boolean size = false;
@@ -228,17 +229,17 @@ public class TestSuiteMinimizer {
 		// double coverage = suite.coverage;
 		int fitness = 0;
 
-		if (branch)
-			fitness = getNumCoveredBranches(suite);
-		else
-			fitness = getNumCovered(suite);
+		//if (branch)
+		//	fitness = getNumCoveredBranches(suite);
+		//else
+		fitness = getNumCovered(suite);
 
 		boolean changed = true;
 		while (changed) {
 			changed = false;
 			Iterator<TestChromosome> it = suite.tests.iterator();
 			while (it.hasNext()) {
-				TestChromosome test = it.next();
+				ExecutableChromosome test = it.next();
 				if (test.size() == 0) {
 					logger.debug("Removing empty test case");
 					it.remove();
@@ -248,7 +249,8 @@ public class TestSuiteMinimizer {
 			int num = 0;
 			for (TestChromosome test : suite.tests) {
 				for (int i = test.size() - 1; i >= 0; i--) {
-					logger.debug("Current size: " + suite.size() + "/" + suite.totalLengthOfTestCases());
+					logger.debug("Current size: " + suite.size() + "/"
+					        + suite.totalLengthOfTestCases());
 					logger.debug("Deleting statement "
 					        + test.test.getStatement(i).getCode() + " from test " + num);
 					TestChromosome copy = (TestChromosome) test.clone();
@@ -266,10 +268,10 @@ public class TestSuiteMinimizer {
 					// logger.debug(test.test.toCode());
 
 					int new_fitness = 0;
-					if (branch)
-						new_fitness = getNumCoveredBranches(suite);
-					else
-						new_fitness = getNumCovered(suite);
+					//if (branch)
+					//	new_fitness = getNumCoveredBranches(suite);
+					//else
+					new_fitness = getNumCovered(suite);
 
 					if (new_fitness >= fitness) {
 						fitness = new_fitness;
@@ -286,7 +288,7 @@ public class TestSuiteMinimizer {
 						logger.debug("Restoring fitness from " + new_fitness + " to "
 						        + fitness);
 						test.test = copy.test;
-						test.last_result = copy.last_result;
+						test.setLastExecutionResult(copy.getLastExecutionResult());
 						test.setChanged(false);
 						// suite.setFitness(fitness); // Redo new fitness value
 						// determined by fitness function
@@ -298,7 +300,7 @@ public class TestSuiteMinimizer {
 		// suite.coverage = coverage;
 		Iterator<TestChromosome> it = suite.tests.iterator();
 		while (it.hasNext()) {
-			TestChromosome test = it.next();
+			ExecutableChromosome test = it.next();
 			if (test.size() == 0) {
 				logger.debug("Removing empty test case");
 				it.remove();

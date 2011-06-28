@@ -102,7 +102,9 @@ public class DefaultTestCase implements TestCase {
 		String code = "";
 		for (StatementInterface s : statements) {
 			code += s.getCode() + "\n";
-			code += s.getAssertionCode();
+			String assertions = s.getAssertionCode();
+			if (!assertions.equals(""))
+				code += assertions + "\n";
 		}
 		return code;
 	}
@@ -117,11 +119,14 @@ public class DefaultTestCase implements TestCase {
 			StatementInterface s = statements.get(i);
 			if (exceptions.containsKey(i)) {
 				code += s.getCode(exceptions.get(i)) + "\n";
-				code += s.getAssertionCode();
+				String assertions = s.getAssertionCode();
+				if (!assertions.equals(""))
+					code += assertions + "\n";
 			} else {
 				code += s.getCode() + "\n";
-				code += s.getAssertionCode(); // TODO: Handle semicolons
-				                              // properly
+				String assertions = s.getAssertionCode();
+				if (!assertions.equals(""))
+					code += assertions + "\n";
 			}
 		}
 		return code;

@@ -45,6 +45,7 @@ public class HOMClassAdapter extends ClassAdapter {
 
 
 	
+	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc,
 			String signature, final String[] exceptions) {
 		

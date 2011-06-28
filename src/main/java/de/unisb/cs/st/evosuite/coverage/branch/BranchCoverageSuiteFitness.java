@@ -27,9 +27,11 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
+import de.unisb.cs.st.evosuite.testsuite.AbstractTestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 
@@ -43,13 +45,14 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = 2991632394620406243L;
 
+	@SuppressWarnings("hiding")
 	private static Logger logger = Logger.getLogger(TestSuiteFitnessFunction.class);
+
+	public final int total_methods = TestCluster.getInstance().num_defined_methods;
 
 	public final int total_branches = BranchPool.getBranchCounter();
 
 	public final int branchless_methods = BranchPool.getBranchlessMethods().size();
-
-	public final int total_methods = TestCluster.getInstance().num_defined_methods;
 
 	public int covered_branches = 0;
 
@@ -69,13 +72,14 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	/**
 	 * Execute all tests and count covered branches
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public double getFitness(Chromosome individual) {
 		logger.trace("Calculating branch fitness");
 
 		long start = System.currentTimeMillis();
 
-		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
+		AbstractTestSuiteChromosome<ExecutableChromosome> suite = (AbstractTestSuiteChromosome<ExecutableChromosome>) individual;
 		long estart = System.currentTimeMillis();
 		List<ExecutionResult> results = runTestSuite(suite);
 		long eend = System.currentTimeMillis();
@@ -247,7 +251,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public void checkFitness(TestSuiteChromosome suite, double fitness) {
 		for (TestChromosome test : suite.getTestChromosomes()) {
 			test.setChanged(true);
-			test.last_result = null;
+			test.setLastExecutionResult(null);
 		}
 		check = true;
 		double fitness2 = getFitness(suite);

@@ -155,11 +155,14 @@ public class MethodStatement extends AbstractStatement {
 			result += "// Undeclared exception!\n";
 		}
 
+		boolean lastStatement = getPosition() == tc.size() - 1;
+
 		if (retval.getType() != Void.TYPE
 		        && retval.getAdditionalVariableReference() == null) {
 			if (exception != null) {
-				result += retval.getSimpleClassName() + " " + retval.getName() + " = "
-				        + retval.getDefaultValueString() + ";\n";
+				if (!lastStatement)
+					result += retval.getSimpleClassName() + " " + retval.getName()
+					        + " = " + retval.getDefaultValueString() + ";\n";
 			} else
 				result += retval.getSimpleClassName() + " ";
 		}
@@ -199,8 +202,10 @@ public class MethodStatement extends AbstractStatement {
 		if (retval.getType() == Void.TYPE) {
 			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
 		} else {
-			result += retval.getName() + " = " + callee_str + "." + method.getName()
-			        + "(" + parameter_string + ");";
+			if (exception == null || !lastStatement)
+				result += retval.getName() + " = ";
+
+			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
 		}
 
 		if (exception != null) {
