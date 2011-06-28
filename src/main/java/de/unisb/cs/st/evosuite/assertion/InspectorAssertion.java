@@ -73,11 +73,16 @@ public class InspectorAssertion extends Assertion {
 		if (source.getObject(scope) == null)
 			return true; // TODO - true or false?
 		else {
-			Object val = inspector.getValue(source.getObject(scope));
-			if (val == null)
-				return val == result;
-			else
-				return val.equals(result);
+			try {
+				Object val = inspector.getValue(source.getObject(scope));
+				if (val == null)
+					return val == result;
+				else
+					return val.equals(result);
+			} catch (Exception e) {
+				logger.info("Exception during call to inspector: " + e);
+				return true;
+			}
 		}
 	}
 

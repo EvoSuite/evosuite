@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite;
 
+import java.io.File;
 import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.Properties.Strategy;
 import de.unisb.cs.st.evosuite.assertion.AssertionGenerator;
 import de.unisb.cs.st.evosuite.assertion.MutationAssertionGenerator;
+import de.unisb.cs.st.evosuite.cfg.LCSAJGraph;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
 import de.unisb.cs.st.evosuite.coverage.FitnessLogger;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
@@ -40,8 +42,10 @@ import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencySuitCoverage;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
+import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJ;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageTestFitness;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -213,7 +217,7 @@ public class TestSuiteGenerator {
 			ValueMinimizer minimizer = new ValueMinimizer();
 			minimizer.minimize(best, (TestSuiteFitnessFunction) fitness_function);
 		}
-
+		
 		if (Properties.INLINE) {
 			ConstantInliner inliner = new ConstantInliner();
 			inliner.inline(best);
@@ -272,7 +276,7 @@ public class TestSuiteGenerator {
 		}
 	}
 
-	private TestSuiteFitnessFunction getFitnessFunction() {
+	public TestSuiteFitnessFunction getFitnessFunction() {
 		switch (Properties.CRITERION) {
 		case MUTATION:
 			return new MutationSuiteFitness();
@@ -324,7 +328,7 @@ public class TestSuiteGenerator {
 			random_tests = random_tests / 10;
 		}
 		factory.setNumberOfTests(random_tests);
-		TestSuiteChromosome chromosome = factory.getChromosome();
+		TestSuiteChromosome chromosome = (TestSuiteChromosome) factory.getChromosome();
 		if (random_tests > 0) {
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goals);
 			minimizer.minimize(chromosome);
@@ -510,14 +514,27 @@ public class TestSuiteGenerator {
 		int uncovered_goals = total_goals - covered_goals;
 		if (uncovered_goals < 10)
 			for (TestFitnessFunction goal : goals) {
-				if (!covered.contains(c))
+				if (!covered.contains(c)){
 					System.out.println("! Unable to cover goal " + c + " "
 					        + goal.toString());
+					
+				}
 				c++;
 			}
 		else
 			System.out.println("! #Goals that were not covered: " + uncovered_goals);
-
+		
+		if (Properties.CRITERION == Criterion.LCSAJ && Properties.WRITE_CFG) {
+			for (TestFitnessFunction goal : goals) {
+				if (!covered.contains(c)){		
+					LCSAJCoverageTestFitness lcsajGoal = (LCSAJCoverageTestFitness) goal;
+					LCSAJ l = lcsajGoal.getLcsaj();
+					LCSAJGraph uncoveredGraph = new LCSAJGraph(l,true);
+					uncoveredGraph.generate(new File("evosuite-graphs/Uncovered LCSAJ No: " +l.getID()));
+				}
+			}
+		}
+		
 		statistics.searchFinished(suiteGA);
 		long end_time = System.currentTimeMillis() / 1000;
 		System.out.println("* Search finished after " + (end_time - start_time)
@@ -568,7 +585,7 @@ public class TestSuiteGenerator {
 	        Set<Integer> covered, TestChromosome best) {
 
 		Set<Integer> r = new HashSet<Integer>();
-		ExecutionResult result = best.last_result;
+		ExecutionResult result = best.getLastExecutionResult();
 		if (result == null)
 			result = TestCaseExecutor.getInstance().execute(best.test);
 		int num = -1;
@@ -695,8 +712,7 @@ public class TestSuiteGenerator {
 		}
 	}
 
-	private GeneticAlgorithm getGeneticAlgorithm(
-	        ChromosomeFactory<? extends Chromosome> factory) {
+	public GeneticAlgorithm getGeneticAlgorithm(ChromosomeFactory<? extends Chromosome> factory) {
 		switch (Properties.ALGORITHM) {
 		case ONEPLUSONEEA:
 			logger.info("Chosen search algorithm: (1+1)EA");

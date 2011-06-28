@@ -5,7 +5,7 @@ package de.unisb.cs.st.evosuite.testsuite;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.SecondaryObjective;
-import de.unisb.cs.st.evosuite.testcase.TestChromosome;
+import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 
 /**
  * @author Gordon Fraser
@@ -17,9 +17,9 @@ public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective {
 
 	private int getNumExceptions(Chromosome chromosome) {
 		int sum = 0;
-		for (TestChromosome test : ((TestSuiteChromosome) chromosome).tests) {
-			if (test.last_result != null)
-				sum += test.last_result.exceptions.size();
+		for (ExecutableChromosome test : ((TestSuiteChromosome) chromosome).tests) {
+			if (test.getLastExecutionResult() != null)
+				sum += test.getLastExecutionResult().exceptions.size();
 		}
 		return sum;
 	}

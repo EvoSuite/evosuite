@@ -89,7 +89,7 @@ public class ValueMinimizer implements TestVisitor {
 			individual.setChanged(true);
 			suite.setTestChromosome(testIndex, individual);
 			double newFitness = fitness.getFitness(suite);
-			individual.setChanged(true);
+			// individual.setChanged(true);
 			if (newFitness <= lastFitness) { // TODO: Maximize
 				logger.info("Fitness changed from " + lastFitness + " to " + newFitness);
 				lastFitness = newFitness;
@@ -138,6 +138,7 @@ public class ValueMinimizer implements TestVisitor {
 
 			if (min.equals(max)) {
 				done = true;
+				assert (objective.isNotWorse());
 			} else if (objective.isNotWorse()) {
 				// If fitness has not decreased, new max is new value
 				max = statement.getValue();
@@ -148,7 +149,7 @@ public class ValueMinimizer implements TestVisitor {
 				else
 					statement.decrement();
 				min = statement.getValue();
-
+				statement.setValue(max);
 			}
 		}
 	}
@@ -224,28 +225,25 @@ public class ValueMinimizer implements TestVisitor {
 
 			List<AccessibleObject> generators = cluster.getGenerators(statement.getReturnType());
 			logger.info("Trying replacement of " + statement.getCode());
-			logger.info(test.toCode());
+			//logger.info(test.toCode());
 			for (AccessibleObject generator : generators) {
-				if (!isPrimitive(generator)
-				        && getNumParameters(generator) < numParameters) {
-					try {
-						logger.info("Trying replacement with " + generator);
-						factory.changeCall(test, statement, generator);
-						if (objective.isNotWorse()) {
-							logger.info(test.toCode());
-							numParameters = getNumParameters(generator);
-							copy = statement;
-							logger.info("Success replacement with " + generator);
-						} else {
-							logger.info("Failed replacement with " + generator);
-							test.setStatement(copy, position);
-							logger.info(test.toCode());
-						}
-					} catch (ConstructionFailedException e) {
+				try {
+					logger.info("Trying replacement with " + generator);
+					factory.changeCall(test, statement, generator);
+					if (objective.isNotWorse()) {
+						//logger.info(test.toCode());
+						numParameters = getNumParameters(generator);
+						copy = statement;
+						logger.info("Success replacement with " + generator);
+					} else {
 						logger.info("Failed replacement with " + generator);
 						test.setStatement(copy, position);
-						logger.info(test.toCode());
+						//logger.info(test.toCode());
 					}
+				} catch (ConstructionFailedException e) {
+					logger.info("Failed replacement with " + generator);
+					test.setStatement(copy, position);
+					// logger.info(test.toCode());
 				}
 			}
 

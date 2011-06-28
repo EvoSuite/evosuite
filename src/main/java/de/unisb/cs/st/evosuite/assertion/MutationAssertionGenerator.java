@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
@@ -56,6 +56,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 	private final HOMSwitcher hom_switcher = new HOMSwitcher();
 
+	@SuppressWarnings("hiding")
 	private final static Logger logger = Logger.getLogger(MutationAssertionGenerator.class);
 
 	private final Map<TestCase, Map<Class<?>, Integer>> assertion_statistics_full = new HashMap<TestCase, Map<Class<?>, Integer>>();

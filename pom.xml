@@ -364,9 +364,26 @@
 	<version>3.3.0-v_771</version>
       </dependency>
 
+      <dependency>
+      	<groupId>jgraph</groupId>
+      	<artifactId>jgraph</artifactId>
+      	<version>5.13.0.0</version>
+      	<scope>import</scope>
+      </dependency>
 
-
+      <dependency>
+      	<groupId>org.kohsuke</groupId>
+      	<artifactId>graphviz-api</artifactId>
+      	<version>1.0</version>
+      </dependency>
+      
+      <dependency>
+          <groupId>org.uispec4j</groupId>
+          <artifactId>uispec4j</artifactId>
+          <version>2.4</version>
+      </dependency>
     </dependencies>
+
     <repositories>
 	<repository>
 	   <id>jmockit-svn</id>

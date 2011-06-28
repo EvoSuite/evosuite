@@ -391,12 +391,12 @@ public class MutationTestFitness extends TestFitnessFunction {
 
 	@Override
 	public boolean isCovered(TestChromosome tc) {
-		if (tc.last_result == null) {
+		if (tc.getLastExecutionResult() == null) {
 			ExecutionResult result = runTest(tc.test);
 			tc.setChanged(false);
-			tc.last_result = result;
+			tc.setLastExecutionResult(result);
 		}
-		return isCovered(tc, tc.last_result);
+		return isCovered(tc, tc.getLastExecutionResult());
 	}
 
 	@Override

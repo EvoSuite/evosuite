@@ -1,10 +1,13 @@
 syntax: glob
+*.log
+*.dot
 *~
 target/*
 evosuite-files
 evosuite-report
 evosuite-tests
 build
+transitionLog.txt
 .DS_Store
 .project
 .settings
@@ -17,6 +20,9 @@ src/main/resources/log4j.properties
 
 syntax: regexp
 ^lib/evosuite\.jar$
+
+syntax: regexp
+\.orig$
 
 syntax: regexp
 #^src/main/java/de/unisb/cs/st/evosuite/cfg/CFGPrinter\.java$
