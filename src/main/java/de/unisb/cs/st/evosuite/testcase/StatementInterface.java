@@ -177,7 +177,13 @@ public interface StatementInterface {
 	 */
 	public boolean same(StatementInterface s);
 
-	public boolean isValidException(Throwable t);
+	/**
+	 * Tests if the throwable defined by t is declared to be thrown by the underlying type. 
+	 * Obviously this can only return true for methods and constructors.
+	 * @param t
+	 * @return
+	 */
+	public boolean isDeclaredException(Throwable t);
 
 	public boolean mutate(TestCase test, AbstractTestFactory factory);
 

@@ -81,7 +81,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 				if (exceptionThrown != null) {
 					exceptionsThrown.put(num, exceptionThrown);
 
-					if (!s.isValidException(exceptionThrown))
+					if (!s.isDeclaredException(exceptionThrown))
 						break;
 
 					// exception_statement = num; 
