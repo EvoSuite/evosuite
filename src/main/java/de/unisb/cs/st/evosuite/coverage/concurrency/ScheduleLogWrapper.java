@@ -283,8 +283,8 @@ public class ScheduleLogWrapper implements StatementInterface {
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#isValidException(java.lang.Throwable)
 	 */
 	@Override
-	public boolean isValidException(Throwable t) {
-		return wrapped.isValidException(t);
+	public boolean isDeclaredException(Throwable t) {
+		return wrapped.isDeclaredException(t);
 	}
 
 	/* (non-Javadoc)

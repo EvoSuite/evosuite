@@ -224,7 +224,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	@Override
-	public boolean isValidException(Throwable t) {
+	public boolean isDeclaredException(Throwable t) {
 		return false;
 	}
 

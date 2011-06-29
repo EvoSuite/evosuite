@@ -142,7 +142,7 @@ public class MethodStatement extends AbstractStatement {
 	}
 
 	@Override
-	public boolean isValidException(Throwable t) {
+	public boolean isDeclaredException(Throwable t) {
 		return Arrays.asList(method.getExceptionTypes()).contains(t);
 	}
 
@@ -151,7 +151,7 @@ public class MethodStatement extends AbstractStatement {
 
 		String result = "";
 
-		if (exception != null && isValidException(exception)) {
+		if (exception != null && isDeclaredException(exception)) {
 			result += "// Undeclared exception!\n";
 		}
 
