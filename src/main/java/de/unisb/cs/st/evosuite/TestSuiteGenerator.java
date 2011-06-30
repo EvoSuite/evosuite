@@ -27,6 +27,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.mchange.v1.lang.GentleThread;
+
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.Properties.Strategy;
 import de.unisb.cs.st.evosuite.assertion.AssertionGenerator;
@@ -46,8 +48,10 @@ import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJ;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageTestFitness;
+import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathSuiteFitness;
+import de.unisb.cs.st.evosuite.evaluation.ExcelOutputGenerator;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.CrossOverFunction;
@@ -250,7 +254,9 @@ public class TestSuiteGenerator {
 			ga.printBudget();
 			;
 		}
-
+		
+		writeExcelStatistics(best);
+		
 		return best.getTests();
 	}
 
@@ -523,18 +529,20 @@ public class TestSuiteGenerator {
 			}
 		else
 			System.out.println("! #Goals that were not covered: " + uncovered_goals);
-		
-		if (Properties.CRITERION == Criterion.LCSAJ && Properties.WRITE_CFG) {
+		if (Properties.CRITERION == Criterion.LCSAJ && Properties.WRITE_CFG){
+			int d = 0;
 			for (TestFitnessFunction goal : goals) {
-				if (!covered.contains(c)){		
+				if (!covered.contains(d)){		
 					LCSAJCoverageTestFitness lcsajGoal = (LCSAJCoverageTestFitness) goal;
 					LCSAJ l = lcsajGoal.getLcsaj();
 					LCSAJGraph uncoveredGraph = new LCSAJGraph(l,true);
-					uncoveredGraph.generate(new File("evosuite-graphs/Uncovered LCSAJ No: " +l.getID()));
+					uncoveredGraph.generate(new File("evosuite-graphs/LCSAJGraphs/"+l.getClassName()+"/"+l.getMethodName() +"/Uncovered LCSAJ No: " +l.getID()));
 				}
+				d++;
 			}
 		}
-		
+		writeExcelStatistics(suite);
+	
 		statistics.searchFinished(suiteGA);
 		long end_time = System.currentTimeMillis() / 1000;
 		System.out.println("* Search finished after " + (end_time - start_time)
@@ -811,7 +819,31 @@ public class TestSuiteGenerator {
 
 		return ga;
 	}
-
+	
+	public static void writeExcelStatistics(TestSuiteChromosome suite){
+		
+		ExcelOutputGenerator.createNewExcelWorkbook("./evosuite-excel");
+		
+		if (Properties.CRITERION == Criterion.LCSAJ ){
+			TestSuiteChromosome copy = suite.clone();
+			BranchCoverageSuiteFitness b = new BranchCoverageSuiteFitness();
+			b.getFitness(copy);
+			int infeasableBranches = b.total_goals - b.covered_branches;
+			for (String className : LCSAJPool.lcsaj_map.keySet()){
+				ExcelOutputGenerator.writeLCSAJStatistics(className,b.total_goals,infeasableBranches, copy, suite);
+			}
+		}
+		if (Properties.CRITERION == Criterion.BRANCH){
+			for (String className : BranchPool.knownClasses())
+				ExcelOutputGenerator.wirteBranchStatistics(className, suite.size(), suite.totalLengthOfTestCases(), suite.getCoverage(), suite.getFitness());
+		}
+			
+		ExcelOutputGenerator.writeToCurrentWorkbook();
+	}
+	
+	public static void writeUncoveredLCSAJGraphs(List<TestFitnessFunction> goals){
+		
+	}
 	/**
 	 * @param args
 	 */
@@ -819,5 +851,5 @@ public class TestSuiteGenerator {
 		TestSuiteGenerator generator = new TestSuiteGenerator();
 		generator.generateTestSuite(null);
 	}
-
+	
 }
