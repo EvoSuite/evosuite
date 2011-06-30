@@ -23,8 +23,12 @@ import de.unisb.cs.st.evosuite.ui.model.states.UIStateGraph;
 public class UITestSuiteGenerator {
 	public static void main(String[] args) {
 		System.setProperty("uispec4j.test.library", "testng");
-		AWTAutoShutdown.getInstance().notifyThreadBusy(Thread.currentThread()); // Really, really important, otherwise event loops get killed randomly!
-		UISpec4J.init(); // Also important to do this very early (here), otherwise we might end up with multiple event loops from loading classes
+		
+		 // Really, really important, otherwise event loops get killed randomly!
+		AWTAutoShutdown.getInstance().notifyThreadBusy(Thread.currentThread());
+		// Also important to do this very early (here), otherwise we might end up
+		// with multiple event loops from loading classes
+		UISpec4J.init();
 
 		// 20 UITestSuites
 		Properties.POPULATION = 20;
@@ -32,32 +36,40 @@ public class UITestSuiteGenerator {
 		Properties.NUM_TESTS = 5;
 		// With up to 10 actions
 		Properties.CHROMOSOME_LENGTH = 10;
-		
+
 		// 3 generations
 		Properties.GENERATIONS = 3;
 
 		// No timeout
 		Properties.TIMEOUT = Integer.MAX_VALUE;
 		Properties.CPU_TIMEOUT = false;
-		
+
 		UITestSuiteGenerator generator = new UITestSuiteGenerator(new Trigger() {
 			@Override
 			public void run() throws Exception {
-				Class.forName("samples.calculator.CalculatorPanel").getMethod("main", new Class<?>[] { String[].class }).invoke(null, new Object[] {});
-				//samples.calculator.CalculatorPanel.main(new String[] {});
-				//samples.addressbook.main.Main.main(new String[] {});
+				try {
+					Class<?> cls;
+
+					// cls = Class.forName("samples.calculator.CalculatorPanel");
+					cls = Class.forName("samples.addressbook.main.Main");
+
+					cls.getMethod("main", new Class<?>[] { String[].class }).invoke(null,
+							new Object[] { new String[] {} });
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		});
-		
+
 		generator.generateTestSuite();
-		
+
 		AWTAutoShutdown.getInstance().notifyThreadFree(Thread.currentThread());
 	}
 
 	private TestSuiteGenerator base;
 	private Trigger mainMethodTrigger;
 	private UIStateGraph stateGraph;
-	
+
 	public UITestSuiteGenerator(Trigger mainMethodTrigger) {
 		this.base = new TestSuiteGenerator();
 		this.mainMethodTrigger = mainMethodTrigger;
@@ -66,31 +78,34 @@ public class UITestSuiteGenerator {
 
 	@SuppressWarnings("unchecked")
 	private void generateTestSuite() {
-		ChromosomeFactory<UITestChromosome> testFactory = new UITestChromosomeFactory(stateGraph, this.mainMethodTrigger);
-		ChromosomeFactory<UITestSuiteChromosome> testSuiteFactory = new UITestSuiteChromosomeFactory(testFactory);
+		try {
+			ChromosomeFactory<UITestChromosome> testFactory = new UITestChromosomeFactory(stateGraph, this.mainMethodTrigger);
+			ChromosomeFactory<UITestSuiteChromosome> testSuiteFactory = new UITestSuiteChromosomeFactory(testFactory);
 
-		GeneticAlgorithm ga = this.base.getGeneticAlgorithm(testSuiteFactory);
+			GeneticAlgorithm ga = this.base.getGeneticAlgorithm(testSuiteFactory);
 
-		FitnessFunction fitnessFunction = new SizeRelativeTestSuiteFitnessFunction(base.getFitnessFunction());
-		ga.setFitnessFunction(fitnessFunction);
+			FitnessFunction fitnessFunction = new SizeRelativeTestSuiteFitnessFunction(base.getFitnessFunction());
+			ga.setFitnessFunction(fitnessFunction);
 
-		SelectionFunction selectionFunction = this.base.getSelectionFunction();
-		selectionFunction.setMaximize(false);
-		ga.setSelectionFunction(selectionFunction);
-		
-		ga.generateSolution();
+			SelectionFunction selectionFunction = this.base.getSelectionFunction();
+			selectionFunction.setMaximize(false);
+			ga.setSelectionFunction(selectionFunction);
 
-		AbstractTestSuiteChromosome<ExecutableChromosome> best = (AbstractTestSuiteChromosome<ExecutableChromosome>) ga.getBestIndividual();
-		System.out.println(best);
-		
-		System.out.println("* Resulting TestSuite's coverage: " + best.getCoverage());
+			ga.generateSolution();
 
-		this.writeStateGraph();
+			AbstractTestSuiteChromosome<ExecutableChromosome> best = (AbstractTestSuiteChromosome<ExecutableChromosome>) ga.getBestIndividual();
+			System.out.println(best);
+
+			System.out.println("* Resulting TestSuite's coverage: " + best.getCoverage());
+		} finally {
+			this.writeStateGraph();
+		}
 	}
-	
+
 	private void writeStateGraph() {
 		try {
-			PrintWriter pw = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream("state.dot")), "UTF-8"));
+			PrintWriter pw = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(
+					"state.dot")), "UTF-8"));
 			pw.println(this.stateGraph.toGraphViz());
 			pw.close();
 		} catch (Exception e) {

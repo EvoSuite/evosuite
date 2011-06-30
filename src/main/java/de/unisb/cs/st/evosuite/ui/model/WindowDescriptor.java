@@ -169,6 +169,10 @@ public class WindowDescriptor implements GraphVizDrawable, Serializable {
 			sb.append("\n");
 		}
 		
+		if (this.actionTargetDescriptors.isEmpty()) {
+			sb.append(String.format("dummy_%s [label=\"\",style=invis]\n", id));
+		}
+		
 		sb.append("}\n");
 		
 		return sb.toString();

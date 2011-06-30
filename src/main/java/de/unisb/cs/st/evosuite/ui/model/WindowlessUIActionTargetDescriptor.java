@@ -2,11 +2,10 @@ package de.unisb.cs.st.evosuite.ui.model;
 
 import java.awt.Component;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+
+import javax.swing.AbstractButton;
+import javax.swing.Action;
 
 import org.apache.commons.lang.StringUtils;
 import org.uispec4j.Panel;
@@ -31,6 +30,14 @@ class WindowlessUIActionTargetDescriptor implements Serializable {
 			if (comp instanceof Window) {
 				Window window = (Window) comp;
 				label = window.getTitle();
+			}
+			
+			if (label == null && awtComp instanceof AbstractButton) {
+				Action action = ((AbstractButton) awtComp).getAction();
+				
+				if (action != null) {
+					label = action.getValue(Action.NAME).toString();
+				}
 			}
 			
 			// Note: the following criteria do not matter in selecting action targets.
