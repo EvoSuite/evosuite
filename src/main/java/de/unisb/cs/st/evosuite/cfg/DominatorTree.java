@@ -274,6 +274,7 @@ public class DominatorTree<V extends Mutateable> extends EvoSuiteGraph<Dominator
 		return r;
 	}
 	
+	@Override
 	public String getName() {
 		return "DominatorTree"+graphId;
 	}

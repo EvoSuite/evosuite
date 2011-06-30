@@ -88,6 +88,7 @@ public class ObjectSignatureAdapter extends ClassAdapter {
 		}
 	}
 
+	@Override
 	public MethodVisitor visitMethod(int methodAccess, String name,
 			String descriptor, String signature, String[] exceptions) {
 

@@ -40,6 +40,7 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 
 	private static final long serialVersionUID = 7243635497292960457L;
 
+	@SuppressWarnings("hiding")
 	protected static Logger logger = Logger.getLogger(TestSuiteFitnessFunction.class);
 
 	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
