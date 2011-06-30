@@ -99,7 +99,8 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 							if (currentFitness < savedFitness) {
 								savedFitness = currentFitness;
 							}
-							lcsaj.setPositionReached(lcsaj_position);
+							if (lcsaj_position > lcsaj.getdPositionReached())
+								lcsaj.setPositionReached(lcsaj_position);
 							lcsaj_position = 0;
 							currentFitness = approach;
 							continue;
@@ -110,8 +111,8 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 
 							if (currentFitness < savedFitness)
 								savedFitness = currentFitness;
-							
-							lcsaj.setPositionReached(lcsaj_position);
+							if (lcsaj_position > lcsaj.getdPositionReached())
+								lcsaj.setPositionReached(lcsaj_position);
 							
 							lcsaj_position = 0;
 							currentFitness = approach;
@@ -126,7 +127,8 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 							//						logger.debug("Skipping pseudo branch");
 							continue;
 						}
-						lcsaj.setPositionReached(lcsaj_position);
+						if (lcsaj_position > lcsaj.getdPositionReached())
+							lcsaj.setPositionReached(lcsaj_position);
 						lcsaj_position = 0;
 						currentFitness = approach;
 					}
