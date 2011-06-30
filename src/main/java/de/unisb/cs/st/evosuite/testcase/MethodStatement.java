@@ -24,7 +24,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -142,8 +141,12 @@ public class MethodStatement extends AbstractStatement {
 	}
 
 	@Override
-	public boolean isValidException(Throwable t) {
-		return Arrays.asList(method.getExceptionTypes()).contains(t);
+	public boolean isDeclaredException(Throwable t) {
+		for(Class<?> declaredException : method.getExceptionTypes()){
+			if(declaredException.isAssignableFrom(t.getClass()))
+				return true;
+		}
+		return true;
 	}
 
 	@Override
@@ -151,7 +154,7 @@ public class MethodStatement extends AbstractStatement {
 
 		String result = "";
 
-		if (exception != null && isValidException(exception)) {
+		if (exception != null && isDeclaredException(exception)) {
 			result += "// Undeclared exception!\n";
 		}
 
