@@ -166,7 +166,12 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 		if (Properties.WRITE_CFG)
 			for (LCSAJ l : LCSAJPool.getLCSAJs(className, methodName)){
 				LCSAJGraph graph = new LCSAJGraph(l,false);
-				graph.generate(new File("evosuite-graphs/LCSAJGraph no: "+l.getID()+".dot"));
+				String graphDestination = "evosuite-graphs/LCSAJGraphs/"+className+"/"+methodName;
+				File dir = new File(graphDestination);
+				if (dir.mkdirs())
+					graph.generate(new File(graphDestination+"/LCSAJGraph no: "+l.getID()+".dot"));
+				else if (dir.exists())
+					graph.generate(new File(graphDestination+"/LCSAJGraph no: "+l.getID()+".dot"));
 			}
 			
 	}
