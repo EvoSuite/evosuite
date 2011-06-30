@@ -9,7 +9,6 @@ import org.uispec4j.Trigger;
 import org.uispec4j.UISpec4J;
 
 import sun.awt.AWTAutoShutdown;
-
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
@@ -44,8 +43,9 @@ public class UITestSuiteGenerator {
 		UITestSuiteGenerator generator = new UITestSuiteGenerator(new Trigger() {
 			@Override
 			public void run() throws Exception {
+				Class.forName("samples.calculator.CalculatorPanel").getMethod("main", new Class<?>[] { String[].class }).invoke(null, new Object[] {});
 				//samples.calculator.CalculatorPanel.main(new String[] {});
-				samples.addressbook.main.Main.main(new String[] {});
+				//samples.addressbook.main.Main.main(new String[] {});
 			}
 		});
 		

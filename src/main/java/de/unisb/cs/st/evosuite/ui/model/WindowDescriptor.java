@@ -72,7 +72,7 @@ public class WindowDescriptor implements GraphVizDrawable, Serializable {
 		}
 	}
 
-	private Window resolve(List<Window> windows) {
+	private Window resolveWindowList(List<Window> windows) {
 		int curMatchIdx = -1;
 		
 		for (Window w : windows) {
@@ -89,7 +89,7 @@ public class WindowDescriptor implements GraphVizDrawable, Serializable {
 	}
 	
 	public Window resolve(AbstractUIEnvironment env) {
-		return this.resolve(env.getTargetableWindows());
+		return this.resolveWindowList(env.getTargetableWindows());
 	}
 
 	public WindowDescriptor resolve(List<WindowDescriptor> windowDescriptors) {
