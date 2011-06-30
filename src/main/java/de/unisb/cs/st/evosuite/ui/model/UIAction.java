@@ -27,33 +27,12 @@ public abstract class UIAction<T extends UIComponent> implements Serializable {
 		public void executeOn(final AbstractUIEnvironment env, final AbstractButton button) {
 			this.checkTarget(button);
 
-			final SimpleCondition condition = new SimpleCondition();
-
-			TriggerRunner.runInUISpecThread(new Trigger() {
+			this.run(env, new Runnable() {
 				@Override
-				public void run() throws Exception {
-					InterceptionHandler handler = new InterceptionHandler() {
-						@Override
-						public void process(Window window) {
-							condition.signal();
-						}
-					};
-					
-					env.registerModalWindowHandler(handler);
-
-					try {
-						button.click();
-					} finally {
-						if (!condition.wasSignaled()) {
-							env.unregisterModalWindowHandler(handler);
-							condition.signal();
-						}
-					}
+				public void run() {
+					button.click();
 				}
 			});
-
-			condition.awaitUninterruptibly();
-			UISpecDisplay.instance().rethrowIfNeeded();
 
 //			TriggerRunner.runInUISpecThread(button.triggerClick());
 
@@ -95,6 +74,36 @@ public abstract class UIAction<T extends UIComponent> implements Serializable {
 		if (target == null) {
 			throw new IllegalUIStateException("Tried to execute action " + this + " without a target");
 		}
+	}
+	
+	protected void run(final AbstractUIEnvironment env, final Runnable runnable) {
+		final SimpleCondition condition = new SimpleCondition();
+
+		TriggerRunner.runInUISpecThread(new Trigger() {
+			@Override
+			public void run() throws Exception {
+				InterceptionHandler handler = new InterceptionHandler() {
+					@Override
+					public void process(Window window) {
+						condition.signal();
+					}
+				};
+				
+				env.registerModalWindowHandler(handler);
+
+				try {
+					runnable.run();
+				} finally {
+					if (!condition.wasSignaled()) {
+						env.unregisterModalWindowHandler(handler);
+						condition.signal();
+					}
+				}
+			}
+		});
+
+		condition.awaitUninterruptibly();
+		UISpecDisplay.instance().rethrowIfNeeded();	
 	}
 
 	@SuppressWarnings("unchecked")

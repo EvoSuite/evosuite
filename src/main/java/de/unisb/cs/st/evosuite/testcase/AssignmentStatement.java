@@ -93,9 +93,7 @@ public class AssignmentStatement extends AbstractStatement {
 			retval.setObject(scope, value);
 		} catch (AssertionError ae) { //could be thrown in getArrayIndex
 			throw ae;
-		} catch (Throwable t) {
-			exceptionThrown = t;
-		}
+		} 
 		return exceptionThrown;
 	}
 
