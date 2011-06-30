@@ -42,6 +42,10 @@ public class DescriptorBoundUIAction<T extends UIComponent> implements GraphVizD
 		this.action.executeOn(env, (T) this.target.resolve(env));
 	}
 	
+	public void randomize() {
+		this.action.randomize();
+	}
+	
 	public UIActionTargetDescriptor targetDescriptor() {
 		return this.target;
 	}
@@ -73,10 +77,10 @@ public class DescriptorBoundUIAction<T extends UIComponent> implements GraphVizD
 
 	@Override
 	public String toGraphViz(GraphVizEnvironment env) {
-		return String.format("%s [style=filled,color=black,fillcolor=lightgoldenrod1,label=\"%s\"]", env.getId(this), StringUtil.escapeQuotes(this.action.toString()));
+		return String.format("%s [style=filled,color=black,fillcolor=lightgoldenrod1,label=\"%s\"]", env.getId(this), StringUtil.escapeQuotes(this.action.graphVizString()));
 	}
 
 	public String shortString() {
-		return this.targetDescriptor().getCriteria().toString();
+		return String.format("%s on %s", this.action.toString(), this.targetDescriptor().getCriteria().toString());
 	}
 }

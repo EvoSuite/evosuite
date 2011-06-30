@@ -21,6 +21,10 @@ public class BoundUIAction<T extends UIComponent> {
 		this.action.executeOn(env, this.component);
 	}
 
+	public void randomize() {
+		this.action.randomize();
+	}
+	
 	@Override
 	public int hashCode() {
 		return HashUtil.hashCode(this.action, this.component);

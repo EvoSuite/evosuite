@@ -2,21 +2,25 @@ package de.unisb.cs.st.evosuite.ui.run;
 
 import java.awt.Component;
 import java.awt.Container;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
-import javax.swing.JFormattedTextField;
-import javax.swing.JSpinner;
-import javax.swing.LayoutFocusTraversalPolicy;
+import javax.swing.*;
 
 import org.uispec4j.Panel;
 import org.uispec4j.Spinner;
 import org.uispec4j.UIComponent;
+import org.uispec4j.Window;
 import org.uispec4j.finder.ComponentMatcher;
+import org.uispec4j.utils.UIComponentFactory;
 
 public abstract class FocusOrder {
+	private static final ComponentMatcher popupMatcher = new ComponentMatcher() {
+		@Override
+		public boolean matches(Component component) {
+			return component instanceof JPopupMenu;
+		}
+	};
+
 	private static final class ComponentFocusIterator implements Iterator<Component> {
 		private Container container;
 		private Component currentComponent;
@@ -89,6 +93,22 @@ public abstract class FocusOrder {
 
 	private static final LayoutFocusTraversalPolicy policy = new LayoutFocusTraversalPolicy();
 
+	public static boolean isPopUpWindow(Window w) {
+		try {
+			return w.findSwingComponent(popupMatcher) != null;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	
+	public static boolean isPopUpWindowEnabled(Window w) {
+		if (!w.isEnabled().isTrue() || !w.isVisible().isTrue()) {
+			return false;
+		}
+		
+		return !menuItemsFromPopUp(w.getAwtComponent()).isEmpty();
+	}
+	
 	public static Iterable<Component> children(final Container c) {
 		return new Iterable<Component>() {
 			@Override
@@ -99,6 +119,17 @@ public abstract class FocusOrder {
 	}
 	
 	public static Iterable<UIComponent> children(final Panel p) {
+		// Special handling for popups
+		if (policy.getFirstComponent(p.getAwtComponent()) == null) {			
+			try {
+				JPopupMenu popup = (JPopupMenu) p.findSwingComponent(popupMatcher);
+
+				if (popup != null) {
+					return menuItemsFromPopUp(popup);
+				}
+			} catch (Exception e) { /* OK */ }
+		}
+
 		return new Iterable<UIComponent>() {
 			@Override
 			public Iterator<UIComponent> iterator() {
@@ -107,6 +138,24 @@ public abstract class FocusOrder {
 		};
 	}
 	
+	private static List<UIComponent> menuItemsFromPopUp(Container popup) {
+		List<UIComponent> result = new ArrayList<UIComponent>(popup.getComponentCount());
+		addMenuItemsFromPopUpTo(result, popup);
+		return result;
+	}
+	
+	private static void addMenuItemsFromPopUpTo(List<UIComponent> result, Container popup) {
+		for (Component c : popup.getComponents()) {
+			if (c instanceof JMenuItem && c.isEnabled() && c.isVisible()) {
+				result.add(UIComponentFactory.createUIComponent(c));
+			}
+			
+			if (c instanceof Container) {
+				addMenuItemsFromPopUpTo(result, (Container)c);
+			}
+		}
+	}
+
 	private static UIComponent uiCompFor(UIComponent uiComp) {
 		if (uiComp == null) {
 			return null;

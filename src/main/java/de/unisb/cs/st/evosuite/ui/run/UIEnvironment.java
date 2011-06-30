@@ -1,7 +1,10 @@
 package de.unisb.cs.st.evosuite.ui.run;
 
 import java.awt.Container;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.SwingUtilities;
 
@@ -44,11 +47,17 @@ public class UIEnvironment extends AbstractUIEnvironment implements Interception
 
 		for (Window w : this.windows) {
 			final Container c = w.getAwtComponent();
+			boolean isPopUp = FocusOrder.isPopUpWindow(w); 
+			boolean isPopUpEnabled = isPopUp && FocusOrder.isPopUpWindowEnabled(w);
+
+			if (c.isEnabled() && c.isVisible() && isPopUp && !isPopUpEnabled) {
+				this.disposePopup(w);
+			}
 			
-			if (c.isEnabled() && c.isVisible()) { 
+			if (c.isEnabled() && c.isVisible() && (!isPopUp || isPopUpEnabled)) { 
 				activeWindows.add(w);
 				
-				if (w.isModal().isTrue()) {
+				if (w.isModal().isTrue() || isPopUp) {
 					lastModal = w;
 				}
 			}
@@ -57,10 +66,24 @@ public class UIEnvironment extends AbstractUIEnvironment implements Interception
 		return Collections.unmodifiableList(lastModal != null ? Arrays.asList(lastModal) : activeWindows);
 	}
 
+	public void disposeOpenPopups() {
+		// Dispose all popups after execution of an action
+		for (Window w : this.windows) {
+			if (FocusOrder.isPopUpWindow(w)) {
+				this.disposePopup(w);
+			}
+		}
+	}
+	
+	private void disposePopup(Window w) {
+		w.dispose();
+		w.getAwtComponent().setVisible(false);
+	}
+
 	@Override
 	public synchronized void process(final Window window) {
 		assert(window.getAwtComponent().isVisible());
-
+		
 		if (window.isModal().isTrue()) {
 			synchronized (this.modalWindowHandlers) {
 				if (this.modalWindowHandlers.size() > 0) {
@@ -73,8 +96,6 @@ public class UIEnvironment extends AbstractUIEnvironment implements Interception
 		try {
 			// Readd ourself as window processor
 			this.register();
-	
-			this.windows.add(window);
 			
 			// The thread we are called from at this point seems to be holding the AWT-Tree-Lock --
 			// if we were to call our delegate directly it would be owning the AWT-Tree-Lock --
@@ -88,6 +109,8 @@ public class UIEnvironment extends AbstractUIEnvironment implements Interception
 				@Override
 				public void run() {
 					try {
+						UIEnvironment.this.disposeOpenPopups();
+						UIEnvironment.this.windows.add(window);
 						UIEnvironment.this.delegate.process(window);
 					} catch (Exception e) {
 						System.out.println("Unhandled exception in " + Thread.currentThread() + ":");

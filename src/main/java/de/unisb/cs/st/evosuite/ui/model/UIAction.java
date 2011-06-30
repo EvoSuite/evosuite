@@ -4,10 +4,7 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.uispec4j.AbstractButton;
-import org.uispec4j.Trigger;
-import org.uispec4j.UIComponent;
-import org.uispec4j.Window;
+import org.uispec4j.*;
 import org.uispec4j.interception.handlers.InterceptionHandler;
 import org.uispec4j.interception.toolkit.UISpecDisplay;
 import org.uispec4j.utils.TriggerRunner;
@@ -20,43 +17,8 @@ import de.unisb.cs.st.evosuite.utils.SimpleCondition;
 public abstract class UIAction<T extends UIComponent> implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	public static UIAction<AbstractButton> buttonClick = new UIAction<AbstractButton>() {
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public void executeOn(final AbstractUIEnvironment env, final AbstractButton button) {
-			this.checkTarget(button);
-
-			this.run(env, new Runnable() {
-				@Override
-				public void run() {
-					button.click();
-				}
-			});
-
-//			TriggerRunner.runInUISpecThread(button.triggerClick());
-
-			//TriggerRunner.runInSwingThread(button.triggerClick());
-			
-/*			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						button.click();
-					} finally {
-						condition.signal();
-					}
-				}
-			}, "Helper thread for ButtonClick").start();
-			
-			condition.awaitUninterruptibly();*/
-		}
-
-		@Override
-		public String toString() {
-			return "ButtonClick";
-		}
-	};
+	public static UIAction<AbstractButton> buttonClick = new ButtonClick();
+	public static UIAction<MenuItem> menuClick = new MenuItemClick();
 	
 	public static List<UIAction<? extends UIComponent>> actionsForType(Class<? extends UIComponent> type) {
 		List<UIAction<? extends UIComponent>> result = new LinkedList<UIAction<? extends UIComponent>>();
@@ -65,11 +27,28 @@ public abstract class UIAction<T extends UIComponent> implements Serializable {
 			result.add(buttonClick);
 		}
 		
+		if (MenuItem.class.isAssignableFrom(type)) {
+			result.add(menuClick);
+		}
+		
+		if (Table.class.isAssignableFrom(type)) {
+			result.add(TableClick.newLeftClick());
+			result.add(TableClick.newRightClick());
+		}
+		
 		return result;
 	}
 	
 	abstract public void executeOn(AbstractUIEnvironment env, T component);
 
+	public UIAction() {
+		this.randomize();
+	}
+	
+	public void randomize() {
+		/* Default implementation does nothing */
+	}
+	
 	protected void checkTarget(T target) {
 		if (target == null) {
 			throw new IllegalUIStateException("Tried to execute action " + this + " without a target");
@@ -101,8 +80,9 @@ public abstract class UIAction<T extends UIComponent> implements Serializable {
 				}
 			}
 		});
-
+		
 		condition.awaitUninterruptibly();
+		
 		UISpecDisplay.instance().rethrowIfNeeded();	
 	}
 
@@ -115,6 +95,10 @@ public abstract class UIAction<T extends UIComponent> implements Serializable {
 		return target == null ? null : new DescriptorBoundUIAction<T>(this, target);
 	}	
 
+	public String graphVizString() {
+		return this.toString();
+	}
+	
 	/**
 	 * Default implementation comparing own class to other object's class.
 	 */
