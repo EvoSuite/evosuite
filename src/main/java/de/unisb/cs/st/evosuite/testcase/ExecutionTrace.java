@@ -64,7 +64,7 @@ public class ExecutionTrace {
 	//#TODO steenbuck this should be somewhere else. This is not nice. We should be able to infer from THIS if concurrencyTracer is filled
 	public ConcurrencyTracer concurrencyTracer;
 
-	public class MethodCall {
+	public static class MethodCall {
 		public String className;
 		public String methodName;
 		public List<Integer> lineTrace;
