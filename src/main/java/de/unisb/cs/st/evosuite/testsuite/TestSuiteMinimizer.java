@@ -93,6 +93,11 @@ public class TestSuiteMinimizer {
 		return result;
 	}
 
+	/**
+	 * Returns the number of goals (as retrieved from the TestFitnessFactory) which are fulfilled by this suite
+	 * @param suite
+	 * @return
+	 */
 	private int getNumCovered(TestSuiteChromosome suite) {
 
 		boolean calls_enabled = ExecutionTrace.trace_calls;
@@ -136,7 +141,7 @@ public class TestSuiteMinimizer {
 			ExecutionResult result = null;
 			if (test.isChanged() || test.getLastExecutionResult() == null) {
 				logger.debug("Executing test " + num);
-				result = runTest(test.test);
+				result = runTest(test.getTestCase());
 				test.setLastExecutionResult(result.clone());
 				test.setChanged(false);
 
@@ -173,6 +178,7 @@ public class TestSuiteMinimizer {
 
 	/**
 	 * Minimize test suite with respect to branch coverage
+	 * 
 	 * 
 	 * @param suite
 	 * @param fitness_function
@@ -227,77 +233,83 @@ public class TestSuiteMinimizer {
 
 		// double fitness = fitness_function.getFitness(suite);
 		// double coverage = suite.coverage;
-		int fitness = 0;
+		int coveredGoalsCount = 0;
 
 		//if (branch)
 		//	fitness = getNumCoveredBranches(suite);
 		//else
-		fitness = getNumCovered(suite);
+		coveredGoalsCount = getNumCovered(suite);
 
 		boolean changed = true;
 		while (changed) {
 			changed = false;
-			Iterator<TestChromosome> it = suite.tests.iterator();
-			while (it.hasNext()) {
-				ExecutableChromosome test = it.next();
-				if (test.size() == 0) {
-					logger.debug("Removing empty test case");
-					it.remove();
-				}
-			}
+			
+			removeEmptyTestCases(suite);
 
-			int num = 0;
-			for (TestChromosome test : suite.tests) {
-				for (int i = test.size() - 1; i >= 0; i--) {
+			for (TestChromosome testChromosome : suite.tests) {
+				for (int i = testChromosome.size() - 1; i >= 0; i--) {
 					logger.debug("Current size: " + suite.size() + "/"
 					        + suite.totalLengthOfTestCases());
 					logger.debug("Deleting statement "
-					        + test.test.getStatement(i).getCode() + " from test " + num);
-					TestChromosome copy = (TestChromosome) test.clone();
+					        + testChromosome.getTestCase().getStatement(i).getCode() + " from test");
+					TestChromosome orgiginalTestChromosome = (TestChromosome) testChromosome.clone();
 
 					try {
-						test_factory.deleteStatementGracefully(test.test, i);
-						test.setChanged(true);
+						test_factory.deleteStatementGracefully(testChromosome.getTestCase(), i);
+						testChromosome.setChanged(true);
 					} catch (ConstructionFailedException e) {
-						test.setChanged(false);
-						test.test = copy.test;
+						testChromosome.setChanged(false);
+						testChromosome.setTestCase(orgiginalTestChromosome.getTestCase());
 						logger.debug("Deleting failed");
 						continue;
 					}
 					// logger.debug("Trying: ");
 					// logger.debug(test.test.toCode());
 
-					int new_fitness = 0;
+					int newCoveredGoalsCount = 0;
 					//if (branch)
 					//	new_fitness = getNumCoveredBranches(suite);
 					//else
-					new_fitness = getNumCovered(suite);
+					newCoveredGoalsCount = getNumCovered(suite);
 
-					if (new_fitness >= fitness) {
-						fitness = new_fitness;
+					if (newCoveredGoalsCount >= coveredGoalsCount) {
+						coveredGoalsCount = newCoveredGoalsCount;
 						changed = true;
-						// If we're optimizing the number of tests, continue
-						// deleting from the same test else try to delete from
-						// another test
+						// 
+						// 
+						//
+						/**
+						 * This means, that we try to delete statements equally from each test case (If size is 'false'.) 
+						 * The hope is that the median length of the test cases is shorter, as opposed to the average length.
+						 */
 						if (!size)
 							break;
 					} else {
 						// Restore previous state
 						logger.debug("Can't remove statement "
-						        + copy.test.getStatement(i).getCode());
-						logger.debug("Restoring fitness from " + new_fitness + " to "
-						        + fitness);
-						test.test = copy.test;
-						test.setLastExecutionResult(copy.getLastExecutionResult());
-						test.setChanged(false);
+						        + orgiginalTestChromosome.getTestCase().getStatement(i).getCode());
+						logger.debug("Restoring fitness from " + newCoveredGoalsCount + " to "
+						        + coveredGoalsCount);
+						testChromosome.setTestCase(orgiginalTestChromosome.getTestCase());
+						testChromosome.setLastExecutionResult(orgiginalTestChromosome.getLastExecutionResult());
+						testChromosome.setChanged(false);
 						// suite.setFitness(fitness); // Redo new fitness value
 						// determined by fitness function
 					}
 				}
-				num++;
 			}
 		}
 		// suite.coverage = coverage;
+		removeEmptyTestCases(suite);
+
+		//assert (checkFitness(suite) == fitness);
+
+		logger1.setLevel(old_level1);
+		logger2.setLevel(old_level2);
+		logger3.setLevel(old_level3);
+	}
+	
+	private void removeEmptyTestCases(TestSuiteChromosome suite){
 		Iterator<TestChromosome> it = suite.tests.iterator();
 		while (it.hasNext()) {
 			ExecutableChromosome test = it.next();
@@ -306,12 +318,6 @@ public class TestSuiteMinimizer {
 				it.remove();
 			}
 		}
-
-		//assert (checkFitness(suite) == fitness);
-
-		logger1.setLevel(old_level1);
-		logger2.setLevel(old_level2);
-		logger3.setLevel(old_level3);
 	}
 
 }

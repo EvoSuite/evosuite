@@ -142,7 +142,7 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
 		for (ExecutionResult result : results) {
 			TestChromosome chromosome = new TestChromosome();
-			chromosome.test = result.test;
+			chromosome.setTestCase(result.test);
 			for (TestFitnessFunction goal : goals) {
 				// TODO: Only execute test again if mutant is covered
 				if (!MutationTimeoutStoppingCondition.isDisabled(((MutationTestFitness) goal).getTargetMutation()))

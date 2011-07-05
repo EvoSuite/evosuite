@@ -46,7 +46,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 
 	public void addTest(TestCase test) {
 		TestChromosome c = new TestChromosome();
-		c.test = test;
+		c.setTestCase(test);
 		addTest(c);
 	}
 
@@ -73,7 +73,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			if (t.size() == 0) {
 				it.remove();
 				for (TestChromosome test : tests) {
-					for (StatementInterface s : test.test) {
+					for (StatementInterface s : test.getTestCase()) {
 						if (s instanceof TestCallStatement) {
 							TestCallStatement call = (TestCallStatement) s;
 							if (call.getTestNum() > num) {
@@ -141,7 +141,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	public String toString() {
 		String result = "TestSuite: " + tests.size() + "\n";
 		for (TestChromosome test : tests) {
-			result += test.test.toCode() + "\n";
+			result += test.getTestCase().toCode() + "\n";
 		}
 		return result;
 	}
@@ -149,7 +149,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	public List<TestCase> getTests() {
 		List<TestCase> testcases = new ArrayList<TestCase>();
 		for (TestChromosome test : tests) {
-			testcases.add(test.test);
+			testcases.add(test.getTestCase());
 		}
 		return testcases;
 	}

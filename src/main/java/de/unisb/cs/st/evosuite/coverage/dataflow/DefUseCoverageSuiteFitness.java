@@ -65,7 +65,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			double goalFitness = 2.0;
 			for(ExecutionResult result : results) {
 				TestChromosome tc = new TestChromosome();
-				tc.test = result.test;
+				tc.setTestCase(result.test);
 				double resultFitness = goal.getFitness(tc,result);
 				if(resultFitness<goalFitness)
 					goalFitness=resultFitness;

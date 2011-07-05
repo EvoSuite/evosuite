@@ -114,7 +114,7 @@ public class ConcolicExecution {
 	 */
 	public List<BranchCondition> getSymbolicPath(TestChromosome test) {
 
-		writeTestCase(getPrimitives(test.test), test);
+		writeTestCase(getPrimitives(test.getTestCase()), test);
 		List<BranchCondition> conditions = executeConcolic(className, classPath);
 
 		return conditions;
@@ -262,14 +262,14 @@ public class ConcolicExecution {
 		int num = 0;
 		ExecutionResult result = test.getLastExecutionResult();
 		if (result == null)
-			result = runTest(test.test);
+			result = runTest(test.getTestCase());
 
 		// main method
 		m = Method.getMethod("void main (String[])");
 		mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, m, null, null,
 		        cw);
 		Map<Integer, Integer> locals = new HashMap<Integer, Integer>();
-		for (StatementInterface statement : test.test) {
+		for (StatementInterface statement : test.getTestCase()) {
 			logger.debug("Current statement: " + statement.getCode());
 			if (target.contains(statement)) {
 				PrimitiveStatement<?> p = (PrimitiveStatement<?>) statement;

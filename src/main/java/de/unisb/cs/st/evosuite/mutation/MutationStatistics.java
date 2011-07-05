@@ -673,9 +673,9 @@ public class MutationStatistics implements SearchListener {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		if (algorithm.getPopulation() instanceof TestChromosome) {
 			TestChromosome best = (TestChromosome) algorithm.getBestIndividual();
-			entry.test = best.test;
+			entry.test = best.getTestCase();
 			entry.has_exception = best.hasException();
-			entry.has_assertion = best.test.hasAssertions();
+			entry.has_assertion = best.getTestCase().hasAssertions();
 		} else {
 			entry.test = null;
 		}

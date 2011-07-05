@@ -91,10 +91,10 @@ public abstract class TestCoverageGoal {
 		if (!test.isChanged() && test.getLastExecutionResult() != null)
 			return test.getLastExecutionResult();
 
-		ExecutionResult result = new ExecutionResult(test.test, null);
+		ExecutionResult result = new ExecutionResult(test.getTestCase(), null);
 
 		try {
-			result = executor.execute(test.test);
+			result = executor.execute(test.getTestCase());
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();

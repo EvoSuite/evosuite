@@ -96,7 +96,7 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		for (ExecutionResult result : results) {
 			for (LCSAJCoverageTestFitness testFitness : LCSAJFitnessFunctions) {
 				TestChromosome chromosome = new TestChromosome();
-				chromosome.test = result.test;
+				chromosome.setTestCase(result.test);
 				chromosome.setLastExecutionResult(result);
 				double newFitness = testFitness.getFitness(chromosome, result);
 				if (!LCSAJFitnesses.containsKey(testFitness.lcsaj))

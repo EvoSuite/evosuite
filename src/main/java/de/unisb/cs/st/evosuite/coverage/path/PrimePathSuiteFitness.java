@@ -44,7 +44,7 @@ public class PrimePathSuiteFitness extends TestSuiteFitnessFunction {
 			double goalFitness = Double.MAX_VALUE;
 			for (ExecutionResult result : results) {
 				TestChromosome tc = new TestChromosome();
-				tc.test = result.test;
+				tc.setTestCase(result.test);
 				double resultFitness = goal.getFitness(tc, result);
 				if (resultFitness < goalFitness)
 					goalFitness = resultFitness;

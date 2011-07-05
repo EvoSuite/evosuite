@@ -469,7 +469,7 @@ public class TestSuiteGenerator {
 						        fitness_function);
 						minimizer.minimize(best);
 					}
-					best.test.addCoveredGoal(fitness_function);
+					best.getTestCase().addCoveredGoal(fitness_function);
 					suite.addTest(best);
 					suiteGA.getPopulation().set(0, suite);
 					// Calculate and keep track of overall fitness
@@ -595,7 +595,7 @@ public class TestSuiteGenerator {
 		Set<Integer> r = new HashSet<Integer>();
 		ExecutionResult result = best.getLastExecutionResult();
 		if (result == null)
-			result = TestCaseExecutor.getInstance().execute(best.test);
+			result = TestCaseExecutor.getInstance().execute(best.getTestCase());
 		int num = -1;
 		for (TestFitnessFunction goal : goals) {
 			num++;
