@@ -48,7 +48,7 @@ public class TestCallObject extends AccessibleObject {
 			        + " chromosomes, looking for " + num);
 			return null;
 		} else
-			return suite.tests.get(num).test;
+			return suite.tests.get(num).getTestCase();
 	}
 
 	public TestSuiteChromosome getSuite() {

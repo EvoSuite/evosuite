@@ -80,7 +80,7 @@ public class TestSuiteDSE {
 						        + branch.ins.getInstructionIndex());
 
 						// Try to solve negated constraint
-						TestCase newTest = negateCondition(branch, test.test);
+						TestCase newTest = negateCondition(branch, test.getTestCase());
 
 						// If successful, add resulting test to test suite
 						if (newTest != null) {
@@ -125,7 +125,7 @@ public class TestSuiteDSE {
 
 		for (TestChromosome test : suite.getTestChromosomes()) {
 			if (test.getLastExecutionResult() == null) {
-				test.setLastExecutionResult(runTest(test.test));
+				test.setLastExecutionResult(runTest(test.getTestCase()));
 				test.setChanged(false);
 			}
 

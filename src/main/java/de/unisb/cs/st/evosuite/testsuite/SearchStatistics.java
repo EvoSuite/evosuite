@@ -274,7 +274,7 @@ public class SearchStatistics extends ReportGenerator {
 		for (TestChromosome test : best.tests) {
 			// ExecutionTrace trace = test.last_result.trace;
 			// //executeTest(test.test, entry.className);
-			ExecutionTrace trace = executeTest(test.test, entry.className);
+			ExecutionTrace trace = executeTest(test.getTestCase(), entry.className);
 
 			// if(test.last_result != null)
 			// trace = test.last_result.trace;

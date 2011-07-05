@@ -304,7 +304,7 @@ public class MutationTestFitness extends TestFitnessFunction {
 			logger.debug("Distance is " + cfg_distance.approachLevel + "/"
 			        + cfg_distance.branchDistance);
 			if (cfg_distance.approachLevel == 1)
-				logger.debug(individual.test.toCode());
+				logger.debug(individual.getTestCase().toCode());
 			// return 1.0 + cfg_distance.approach +
 			// normalize(cfg_distance.branch);
 			/*
@@ -327,7 +327,7 @@ public class MutationTestFitness extends TestFitnessFunction {
 		logger.debug("Distance is: " + cfg_distance.approachLevel);
 
 		// If the distance is zero, then try
-		ExecutionResult mutant_result = runTest(individual.test, targetMutation);
+		ExecutionResult mutant_result = runTest(individual.getTestCase(), targetMutation);
 		if (!mutant_result.touched.contains(targetMutation.getId())) {
 			logger.warn("Distance is 1 but mutant " + targetMutation.getId()
 			        + " not executed: " + targetMutation.getClassName() + "."
@@ -392,7 +392,7 @@ public class MutationTestFitness extends TestFitnessFunction {
 	@Override
 	public boolean isCovered(TestChromosome tc) {
 		if (tc.getLastExecutionResult() == null) {
-			ExecutionResult result = runTest(tc.test);
+			ExecutionResult result = runTest(tc.getTestCase());
 			tc.setChanged(false);
 			tc.setLastExecutionResult(result);
 		}
@@ -404,7 +404,7 @@ public class MutationTestFitness extends TestFitnessFunction {
 		boolean covered = getFitness(individual, result) == 0.0;
 		if (covered) {
 			ChromosomeRecycler.getInstance().testIsInterestingForGoal(individual, this);
-			individual.test.addCoveredGoal(this);
+			individual.getTestCase().addCoveredGoal(this);
 		}
 		return covered;
 	}

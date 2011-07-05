@@ -42,7 +42,7 @@ public class TestChromosome extends ExecutableChromosome {
 	private static final long serialVersionUID = 7532366007973252782L;
 
 	/** The test case encoded in this chromosome */
-	public TestCase test = new DefaultTestCase();
+	protected TestCase test = new DefaultTestCase();
 
 	/** Factory to manipulate and generate method sequences */
 	private static AbstractTestFactory test_factory = null;
@@ -57,7 +57,15 @@ public class TestChromosome extends ExecutableChromosome {
 			test_factory = DefaultTestFactory.getInstance();
 		}
 	}
-
+	
+	public void setTestCase(TestCase testCase){
+		test=testCase;
+	}
+	
+	public TestCase getTestCase(){
+		return test;
+	}
+	
 	@Override
 	public void setChanged(boolean changed) {
 		super.setChanged(changed);
