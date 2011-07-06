@@ -822,7 +822,9 @@ public class TestSuiteGenerator {
 	
 	public static void writeExcelStatistics(TestSuiteChromosome suite){
 		
-		ExcelOutputGenerator.createNewExcelWorkbook("./evosuite-excel");
+		File excelOutputDir = new File("." + File.separatorChar + "evosuite-excel");
+		assert(excelOutputDir.exists()) : "We assume the directory " + excelOutputDir.getPath() + " to exist. In your case it doesn't"; 
+		ExcelOutputGenerator.createNewExcelWorkbook(excelOutputDir.getAbsolutePath());
 		
 		if (Properties.CRITERION == Criterion.LCSAJ ){
 			TestSuiteChromosome copy = suite.clone();
