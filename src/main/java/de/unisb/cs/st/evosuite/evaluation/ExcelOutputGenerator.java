@@ -21,12 +21,12 @@ public class ExcelOutputGenerator {
 	public static void createNewExcelWorkbook(String dirName){
 		
 		try {
-			String wholeFilename = dirName+"/"+Properties.CRITERION;
+			String wholeFilename = dirName + File.separator + Properties.CRITERION;
 			
 			if (Properties.STRATEGY == Strategy.EVOSUITE)
-				wholeFilename += " EvoStats.xls";
+				wholeFilename += "-EvoStats.xls";
 			else
-				wholeFilename +=" Stats.xls";
+				wholeFilename +="-Stats.xls";
 				
 			File f = new File(wholeFilename);
 			
