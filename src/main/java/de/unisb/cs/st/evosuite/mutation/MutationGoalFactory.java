@@ -28,13 +28,14 @@ import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.mutation.HOM.HOMSwitcher;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
+import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
 import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
  * @author Gordon Fraser
  * 
  */
-public class MutationGoalFactory implements TestFitnessFactory {
+public class MutationGoalFactory extends AbstractFitnessFactory {
 
 	private static Logger logger = Logger.getLogger(TestFitnessFactory.class);
 

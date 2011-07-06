@@ -26,12 +26,13 @@ import org.apache.log4j.Logger;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
+import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
 
 /**
  * @author Gordon Fraser, Andre Mis
  * 
  */
-public class BranchCoverageFactory implements TestFitnessFactory {
+public class BranchCoverageFactory extends AbstractFitnessFactory {
 
 	private static Logger logger = Logger.getLogger(BranchCoverageFactory.class);
 

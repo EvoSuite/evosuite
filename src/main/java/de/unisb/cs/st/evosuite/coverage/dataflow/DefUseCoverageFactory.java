@@ -31,12 +31,13 @@ import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
+import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
 
 /**
  * @author Andre Mis
  * 
  */
-public class DefUseCoverageFactory implements TestFitnessFactory {
+public class DefUseCoverageFactory  extends AbstractFitnessFactory {
 
 	private static Logger logger = Logger.getLogger(DefUseCoverageFactory.class);
 	

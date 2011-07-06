@@ -26,12 +26,13 @@ import org.apache.log4j.Logger;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
+import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
 
 /**
  * @author 
  * 
  */
-public class ConcurrencyCoverageFactory implements TestFitnessFactory {
+public class ConcurrencyCoverageFactory  extends AbstractFitnessFactory {
 
 	public static final int THREAD_COUNT=2;
 	

@@ -20,11 +20,7 @@ package de.unisb.cs.st.evosuite.testsuite;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -32,13 +28,8 @@ import org.apache.log4j.Logger;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
-import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
-import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
-import de.unisb.cs.st.evosuite.testcase.TestCase;
-import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
+import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
@@ -54,130 +45,14 @@ public class TestSuiteMinimizer {
 	/** Factory method that handles statement deletion */
 	private final DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 
-	/** Test execution helper */
-	private final TestCaseExecutor executor = TestCaseExecutor.getInstance();
-
-	private final List<TestFitnessFunction> goals;
+	private final TestFitnessFactory testFitnessFactory;
 
 	public TestSuiteMinimizer(TestFitnessFactory factory) {
-		goals = factory.getCoverageGoals();
+		this.testFitnessFactory = factory;
 	}
 
 	/**
-	 * Execute a single test case
-	 * 
-	 * @param test
-	 * @return
-	 */
-	private ExecutionResult runTest(TestCase test) {
-
-		ExecutionResult result = new ExecutionResult(test, null);
-
-		try {
-			result = executor.execute(test);
-			//result.exceptions = executor.run(test);
-			//result.trace = ExecutionTracer.getExecutionTracer().getTrace();
-
-		} catch (Exception e) {
-			System.out.println("TG: Exception caught: " + e);
-			try {
-				Thread.sleep(1000);
-				result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
-			} catch (Exception e1) {
-				e.printStackTrace();
-				// TODO: Do some error recovery?
-				System.exit(1);
-			}
-		}
-
-		return result;
-	}
-
-	/**
-	 * Returns the number of goals (as retrieved from the TestFitnessFactory) which are fulfilled by this suite
-	 * @param suite
-	 * @return
-	 */
-	private int getNumCovered(TestSuiteChromosome suite) {
-
-		boolean calls_enabled = ExecutionTrace.trace_calls;
-		if (!calls_enabled)
-			ExecutionTrace.enableTraceCalls();
-
-		int num = 0;
-		for (TestFitnessFunction goal : goals) {
-			for (TestChromosome test : suite.getTestChromosomes()) {
-				if (goal.isCovered(test)) {
-					num++;
-					break;
-				}
-			}
-		}
-		if (!calls_enabled)
-			ExecutionTrace.disableTraceCalls();
-
-		return num;
-	}
-
-	/**
-	 * 
-	 * Calculate the number of covered branches
-	 * 
-	 * 
-	 * 
-	 * @param suite
-	 * 
-	 * @return
-	 */
-
-	private int getNumCoveredBranches(TestSuiteChromosome suite) {
-
-		Set<Integer> covered_true = new HashSet<Integer>();
-		Set<Integer> covered_false = new HashSet<Integer>();
-		Set<String> called_methods = new HashSet<String>();
-
-		int num = 0;
-		for (TestChromosome test : suite.tests) {
-			ExecutionResult result = null;
-			if (test.isChanged() || test.getLastExecutionResult() == null) {
-				logger.debug("Executing test " + num);
-				result = runTest(test.getTestCase());
-				test.setLastExecutionResult(result.clone());
-				test.setChanged(false);
-
-			} else {
-				logger.debug("Skipping test " + num);
-				result = test.getLastExecutionResult();
-			}
-			called_methods.addAll(result.getTrace().covered_methods.keySet());
-			for (Entry<Integer, Double> entry : result.getTrace().true_distances.entrySet()) {
-				if (entry.getValue() == 0)
-					covered_true.add(entry.getKey());
-			}
-
-			for (Entry<Integer, Double> entry : result.getTrace().false_distances.entrySet()) {
-				if (entry.getValue() == 0)
-					covered_false.add(entry.getKey());
-			}
-
-			num++;
-		}
-
-		logger.debug("Called methods: " + called_methods.size());
-		return covered_true.size() + covered_false.size() + called_methods.size();
-	}
-
-	@SuppressWarnings("unused")
-	private int checkFitness(TestSuiteChromosome suite) {
-		for (int i = 0; i < suite.size(); i++) {
-			suite.getTestChromosome(i).setLastExecutionResult(null);
-			suite.getTestChromosome(i).setChanged(true);
-		}
-		return getNumCovered(suite);
-	}
-
-	/**
-	 * Minimize test suite with respect to branch coverage
+	 * Minimize test suite with respect to the isCovered Method of the goals defined by the supplied TestFitnessFactory
 	 * 
 	 * 
 	 * @param suite
@@ -185,7 +60,6 @@ public class TestSuiteMinimizer {
 	 */
 	public void minimize(TestSuiteChromosome suite) {
 
-		boolean branch = Properties.CRITERION == Properties.Criterion.BRANCH;
 		CurrentChromosomeTracker.getInstance().modification(suite);
 		Properties.RECYCLE_CHROMOSOMES = false; // TODO: FIXXME!
 
@@ -233,12 +107,13 @@ public class TestSuiteMinimizer {
 
 		// double fitness = fitness_function.getFitness(suite);
 		// double coverage = suite.coverage;
-		int coveredGoalsCount = 0;
+		double fitness = 0;
 
 		//if (branch)
 		//	fitness = getNumCoveredBranches(suite);
 		//else
-		coveredGoalsCount = getNumCovered(suite);
+		//logger.fatal("type:::: " + testFitnessFactory.getClass());
+		fitness = testFitnessFactory.getFitness(suite);
 
 		boolean changed = true;
 		while (changed) {
@@ -266,14 +141,14 @@ public class TestSuiteMinimizer {
 					// logger.debug("Trying: ");
 					// logger.debug(test.test.toCode());
 
-					int newCoveredGoalsCount = 0;
+					double modifiedVerFitness = 0;
 					//if (branch)
 					//	new_fitness = getNumCoveredBranches(suite);
 					//else
-					newCoveredGoalsCount = getNumCovered(suite);
+					modifiedVerFitness = testFitnessFactory.getFitness(suite);
 
-					if (newCoveredGoalsCount >= coveredGoalsCount) {
-						coveredGoalsCount = newCoveredGoalsCount;
+					if (Double.compare(modifiedVerFitness, fitness)<=0) {
+						fitness = modifiedVerFitness;
 						changed = true;
 						// 
 						// 
@@ -288,8 +163,8 @@ public class TestSuiteMinimizer {
 						// Restore previous state
 						logger.debug("Can't remove statement "
 						        + orgiginalTestChromosome.getTestCase().getStatement(i).getCode());
-						logger.debug("Restoring fitness from " + newCoveredGoalsCount + " to "
-						        + coveredGoalsCount);
+						logger.debug("Restoring fitness from " + modifiedVerFitness + " to "
+						        + fitness);
 						testChromosome.setTestCase(orgiginalTestChromosome.getTestCase());
 						testChromosome.setLastExecutionResult(orgiginalTestChromosome.getLastExecutionResult());
 						testChromosome.setChanged(false);
