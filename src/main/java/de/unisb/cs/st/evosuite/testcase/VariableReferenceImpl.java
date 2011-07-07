@@ -234,7 +234,7 @@ public class VariableReferenceImpl implements VariableReference {
 	 *            The scope of the test case execution
 	 */
 	@Override
-	public Object getObject(Scope scope) {
+	public Object getObject(Scope scope) throws CodeUnderTestException {
 		return scope.getObject(this);
 	}
 
@@ -247,7 +247,7 @@ public class VariableReferenceImpl implements VariableReference {
 	 *            The value to be assigned
 	 */
 	@Override
-	public void setObject(Scope scope, Object value) {
+	public void setObject(Scope scope, Object value) throws CodeUnderTestException{
 		scope.setObject(this, value);
 	}
 

@@ -159,7 +159,11 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 		// Add primitive variable to pool
 		assert (retval.isPrimitive() || retval.getVariableClass().isAssignableFrom(value.getClass())) : "we want an "
 		        + retval.getVariableClass() + " but got an " + value.getClass();
-		retval.setObject(scope, value);
+		try {
+			retval.setObject(scope, value);
+		} catch (CodeUnderTestException e) {
+			exceptionThrown=e;
+		}
 		return exceptionThrown;
 	}
 

@@ -266,7 +266,11 @@ public class DefaultTestCase implements TestCase {
 	 */
 	@Override
 	public Object getObject(VariableReference reference, Scope scope) {
-		return reference.getObject(scope);
+		try {
+			return reference.getObject(scope);
+		} catch (CodeUnderTestException e) {
+			throw new AssertionError("This case isn't handled yet");
+		}
 	}
 
 	/* (non-Javadoc)

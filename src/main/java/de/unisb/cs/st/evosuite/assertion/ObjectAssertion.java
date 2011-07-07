@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
+import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
@@ -38,7 +39,11 @@ public class ObjectAssertion extends Assertion {
 
 	@Override
 	public boolean evaluate(Scope scope) {
-		return source.getObject(scope).equals(value);
+		try{
+			return source.getObject(scope).equals(value);
+		}catch(CodeUnderTestException e){
+			throw new UnsupportedOperationException();
+		}
 	}
 
 }

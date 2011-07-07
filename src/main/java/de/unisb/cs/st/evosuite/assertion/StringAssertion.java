@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
+import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
@@ -27,11 +28,11 @@ public class StringAssertion extends Assertion {
 	public String getCode() {
 		if (source.isPrimitive() || source.isWrapperType())
 			return "assertEquals(\"" + value + "\", String.valueOf(" + source.getName()
-			        + "));";
+			+ "));";
 		else {
 			String escape = ((String) value).replace("\n", "\\n").replace("\"", "\\\"");
 			return "assertEquals(\"" + escape + "\", " + source.getName()
-			        + ".toString());";
+			+ ".toString());";
 		}
 	}
 
@@ -45,10 +46,14 @@ public class StringAssertion extends Assertion {
 
 	@Override
 	public boolean evaluate(Scope scope) {
-		if (source.isPrimitive() || source.isWrapperType())
-			return value.toString().equals(String.valueOf(source.getObject(scope)));
-		else
-			return value.toString().equals(source.getObject(scope).toString());
+		try{
+			if (source.isPrimitive() || source.isWrapperType())
+				return value.toString().equals(String.valueOf(source.getObject(scope)));
+			else
+				return value.toString().equals(source.getObject(scope).toString());
+		}catch(CodeUnderTestException e){
+			throw new UnsupportedOperationException();
+		}
 	}
 
 }

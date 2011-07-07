@@ -159,13 +159,6 @@ public class FieldStatement extends AbstractStatement {
 	throws InvocationTargetException, IllegalArgumentException,
 	IllegalAccessException, InstantiationException {
 
-		final Object source_object = (Modifier.isStatic(field.getModifiers()))?null:source.getObject(scope);
-
-		if (!Modifier.isStatic(field.getModifiers()) && source_object == null) {
-			retval.setObject(scope, null);
-			return new NullPointerException();
-		}
-
 		try{
 			return super.exceptionHandler(new Executer() {
 
@@ -173,12 +166,28 @@ public class FieldStatement extends AbstractStatement {
 				public void execute() throws InvocationTargetException,
 				IllegalArgumentException, IllegalAccessException,
 				InstantiationException {
+					Object source_object;
+					try{
+						source_object = (Modifier.isStatic(field.getModifiers()))?null:source.getObject(scope);
+
+						if (!Modifier.isStatic(field.getModifiers()) && source_object == null) {
+							retval.setObject(scope, null);
+							throw new CodeUnderTestException(new NullPointerException());
+						}
+					} catch (CodeUnderTestException e) {
+						throw CodeUnderTestException.throwException(e);
+					} catch(Throwable e){
+						throw new EvosuiteError(e);
+					}
+
 					Object ret = field.get(source_object);
 
 					try{
 						assert(ret==null || retval.getVariableClass().isAssignableFrom(ret.getClass())) : "we want an " + retval.getVariableClass() + " but got an " + ret.getClass();
 						retval.setObject(scope, ret);
-					}catch(Throwable e){
+					} catch (CodeUnderTestException e) {
+						throw CodeUnderTestException.throwException(e);
+					} catch(Throwable e){
 						throw new EvosuiteError(e);
 					}
 				}

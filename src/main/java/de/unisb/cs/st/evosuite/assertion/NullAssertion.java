@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
+import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
@@ -33,10 +34,16 @@ public class NullAssertion extends Assertion {
 
 	@Override
 	public boolean evaluate(Scope scope) {
-		if (((Boolean) value).booleanValue()) {
-			return source.getObject(scope) == null;
-		} else
-			return source.getObject(scope) != null;
+		try{
+			if (((Boolean) value).booleanValue()) {
+				return source.getObject(scope) == null;
+			} else{
+				return source.getObject(scope) != null;
+			}
+		}catch(CodeUnderTestException e){
+			throw new UnsupportedOperationException();
+		}
+
 	}
 
 	@Override

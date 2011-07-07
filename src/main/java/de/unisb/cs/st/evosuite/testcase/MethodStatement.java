@@ -100,6 +100,14 @@ public class MethodStatement extends AbstractStatement {
 		return !Modifier.isStatic(method.getModifiers());
 	}
 
+	/*	
+	} catch (CodeUnderTestException e) {
+		throw CodeUnderTestException.throwException(e);
+	} catch(Throwable e){
+		throw new EvosuiteError(e);
+	}
+	 */
+
 	@Override
 	public Throwable execute(final Scope scope, PrintStream out)
 	throws InvocationTargetException, IllegalArgumentException,
@@ -111,27 +119,36 @@ public class MethodStatement extends AbstractStatement {
 		System.setOut(out);
 		System.setErr(out);
 
-		for (int i = 0; i < parameters.size(); i++) {
-			inputs[i] = parameters.get(i).getObject(scope);
-		}
-
-		final Object callee_object = (Modifier.isStatic(method.getModifiers()))?null:callee.getObject(scope);
-		if (!Modifier.isStatic(method.getModifiers()) && callee_object==null) {
-			return new NullPointerException();
-		}
-
 		try {
 			return super.exceptionHandler(new Executer() {
 
 				@Override
 				public void execute() throws InvocationTargetException,
 				IllegalArgumentException, IllegalAccessException,
-				InstantiationException {
+				InstantiationException, CodeUnderTestException {
+					Object callee_object;
+					try{
+						for (int i = 0; i < parameters.size(); i++) {
+							inputs[i] = parameters.get(i).getObject(scope);
+						}
+
+						callee_object = (Modifier.isStatic(method.getModifiers()))?null:callee.getObject(scope);
+						if (!Modifier.isStatic(method.getModifiers()) && callee_object==null) {
+							throw new CodeUnderTestException(new NullPointerException());
+						}
+					} catch (CodeUnderTestException e) {
+						throw CodeUnderTestException.throwException(e);
+					} catch(Throwable e){
+						throw new EvosuiteError(e);
+					}
+
 					Object ret = method.invoke(callee_object, inputs);
-					
+
 					try{
 						retval.setObject(scope, ret);
-					}catch(Throwable e){
+					} catch (CodeUnderTestException e) {
+						throw CodeUnderTestException.throwException(e);
+					} catch(Throwable e){
 						throw new EvosuiteError(e);
 					}
 				}

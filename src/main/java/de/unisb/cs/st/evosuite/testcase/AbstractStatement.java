@@ -49,8 +49,8 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 		 * @param throwableExceptions
 		 */
 		public abstract void execute() throws InvocationTargetException, IllegalArgumentException,
-	    IllegalAccessException, InstantiationException;
-		
+		IllegalAccessException, InstantiationException, CodeUnderTestException;
+
 		/**
 		 * A call to this method should return a set of throwables.
 		 * AbstractStatement.executer()/1 will catch all exceptions thrown by Executer.execute()/1. 
@@ -61,7 +61,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 			return new HashSet<Class<? extends Throwable>>();
 		}
 	}
-	
+
 	private static final long serialVersionUID = 8993506743384548704L;
 
 	protected static Logger logger = Logger.getLogger(AbstractStatement.class);
@@ -100,9 +100,13 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	 * @throws InstantiationException
 	 */
 	protected Throwable exceptionHandler(Executer code) throws InvocationTargetException, IllegalArgumentException,
-    IllegalAccessException, InstantiationException{
+	IllegalAccessException, InstantiationException{
 		try{
-			code.execute();
+			try{
+				code.execute();
+			}catch(CodeUnderTestException e){
+				throw CodeUnderTestException.throwException(e);
+			}
 		}catch(EvosuiteError e){
 			/*
 			 * Signal an error in evosuite code and are therefore always thrown
@@ -134,10 +138,10 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 			else
 				return e;
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Tests if concreteThrowable.getClass is assignable to any of the classes in throwableClasses
 	 * @param concreteThrowable true if concreteThrowable is assignable 
@@ -152,7 +156,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 		}
 		return false;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#references(de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */

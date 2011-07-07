@@ -18,6 +18,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.AbstractStatement;
+import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
@@ -98,17 +99,21 @@ public class TestCallStatement extends AbstractStatement {
 	 */
 	@Override
 	public Throwable execute(Scope scope, PrintStream out)
-	        throws InvocationTargetException, IllegalArgumentException,
-	        IllegalAccessException, InstantiationException {
+	throws InvocationTargetException, IllegalArgumentException,
+	IllegalAccessException, InstantiationException {
 
-		TestCase test = testCall.getTest();
-		if (test != null && !test.hasCalls()) {
-			Object value = runTest(test);
-			assert (retval.getVariableClass().isAssignableFrom(value.getClass())) : "we want an "
-			        + retval.getVariableClass() + " but got an " + value.getClass();
-			retval.setObject(scope, value);
-		} else {
-			retval.setObject(scope, null);
+		try{
+			TestCase test = testCall.getTest();
+			if (test != null && !test.hasCalls()) {
+				Object value = runTest(test);
+				assert (retval.getVariableClass().isAssignableFrom(value.getClass())) : "we want an "
+					+ retval.getVariableClass() + " but got an " + value.getClass();
+				retval.setObject(scope, value);
+			} else {
+				retval.setObject(scope, null);
+			}
+		}catch(CodeUnderTestException e){
+			return e.getCause();
 		}
 
 		return null; // TODO: Pass on any of the exceptions?
@@ -126,19 +131,19 @@ public class TestCallStatement extends AbstractStatement {
 		TestCase test = testCall.getTest();
 		if (test == null || test.hasCalls()) {
 			return retval.getSimpleClassName() + " " + retval.getName()
-			        + " = call to null";
+			+ " = call to null";
 		}
 		int num = 0;
 		for (TestCase other : testCall.getSuite().getTests()) {
 			if (test.equals(other))
 				return retval.getSimpleClassName() + " " + retval.getName()
-				        + " = Call to test case: " + num + "...\n" + test.toCode()
-				        + "...\n";
+				+ " = Call to test case: " + num + "...\n" + test.toCode()
+				+ "...\n";
 			num++;
 		}
 
 		return retval.getSimpleClassName() + " " + retval.getName()
-		        + " = Call to test case (null) ";
+		+ " = Call to test case (null) ";
 	}
 
 	/*
@@ -150,7 +155,7 @@ public class TestCallStatement extends AbstractStatement {
 	 */
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        Throwable exception) {
+			Throwable exception) {
 		// TODO Auto-generated method stub
 
 	}
@@ -182,7 +187,7 @@ public class TestCallStatement extends AbstractStatement {
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
 		TestCallStatement statement = new TestCallStatement(newTestCase, testCall,
-		        retval.getType());
+				retval.getType());
 		return statement;
 	}
 

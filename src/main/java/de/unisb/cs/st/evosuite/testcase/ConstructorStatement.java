@@ -94,9 +94,6 @@ public class ConstructorStatement extends AbstractStatement {
 
 		logger.trace("Executing constructor " + constructor.toString());
 		final Object[] inputs = new Object[parameters.size()];
-		for (int i = 0; i < parameters.size(); i++) {
-			inputs[i] = parameters.get(i).getObject(scope);
-		}
 
 		try {
 			return super.exceptionHandler(new Executer() {
@@ -105,12 +102,25 @@ public class ConstructorStatement extends AbstractStatement {
 				public void execute() throws InvocationTargetException,
 				IllegalArgumentException, IllegalAccessException,
 				InstantiationException {
+
+					for (int i = 0; i < parameters.size(); i++) {
+						try {
+							inputs[i] = parameters.get(i).getObject(scope);
+						} catch (CodeUnderTestException e) {
+							throw CodeUnderTestException.throwException(e);
+						} catch(Throwable e){
+							throw new EvosuiteError(e);
+						}
+					}	
+
 					Object ret = constructor.newInstance(inputs);
 
 					try{
 						assert(retval.getVariableClass().isAssignableFrom(ret.getClass())) :"we want an " + retval.getVariableClass() + " but got an " + ret.getClass();
 						retval.setObject(scope, ret);
-					}catch(Throwable e){
+					} catch (CodeUnderTestException e) {
+						throw CodeUnderTestException.throwException(e);
+					} catch(Throwable e){
 						throw new EvosuiteError(e);
 					}
 				}

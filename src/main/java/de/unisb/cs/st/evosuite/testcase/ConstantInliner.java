@@ -84,17 +84,21 @@ public class ConstantInliner extends ExecutionObserver {
 	 */
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
-		for (VariableReference var : statement.getVariableReferences()) {
-			if (var.equals(statement.getReturnValue())
-			        || var.equals(statement.getReturnValue().getAdditionalVariableReference()))
-				continue;
-			if (var.isPrimitive() || var.isString() || var.getObject(scope) == null) {
-				ConstantValue value = new ConstantValue(test, var.getGenericClass());
-				value.setValue(var.getObject(scope));
-				// logger.info("Statement before inlining: " + statement.getCode());
-				statement.replace(var, value);
-				// logger.info("Statement after inlining: " + statement.getCode());
+		try{
+			for (VariableReference var : statement.getVariableReferences()) {
+				if (var.equals(statement.getReturnValue())
+						|| var.equals(statement.getReturnValue().getAdditionalVariableReference()))
+					continue;
+				if (var.isPrimitive() || var.isString() || var.getObject(scope) == null) {
+					ConstantValue value = new ConstantValue(test, var.getGenericClass());
+					value.setValue(var.getObject(scope));
+					// logger.info("Statement before inlining: " + statement.getCode());
+					statement.replace(var, value);
+					// logger.info("Statement after inlining: " + statement.getCode());
+				}
 			}
+		}catch(CodeUnderTestException e){
+			throw new AssertionError("This case isn't handled yet");
 		}
 
 	}

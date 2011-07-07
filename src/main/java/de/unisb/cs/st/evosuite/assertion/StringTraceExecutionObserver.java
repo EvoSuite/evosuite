@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
@@ -45,48 +46,52 @@ public class StringTraceExecutionObserver extends ExecutionObserver {
 
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
-		VariableReference retval = statement.getReturnValue();
+		try{
+			VariableReference retval = statement.getReturnValue();
 
-		Object object = retval.getObject(scope);
+			Object object = retval.getObject(scope);
 
-		//System.out.println("TG: Adding value "+object.toString());
-		// Only add string if this is not Object.toString()
-		try {
-			if (object == null) {
-				//logger.info("Received return value null");
-				trace.put(statement.getPosition(), "null");
-			} else {
-				Set<String> unusable = new HashSet<String>();
-				unusable.add("java.lang.Object");
-				//unusable.add("java.util.AbstractCollection");
-				//unusable.add("org.jaxen.pattern.UnionPattern");
-				//unusable.add("org.jaxen.pattern.LocationPathPattern");
-				String declared_class = object.getClass().getMethod("toString").getDeclaringClass().getName();
+			//System.out.println("TG: Adding value "+object.toString());
+			// Only add string if this is not Object.toString()
+			try {
+				if (object == null) {
+					//logger.info("Received return value null");
+					trace.put(statement.getPosition(), "null");
+				} else {
+					Set<String> unusable = new HashSet<String>();
+					unusable.add("java.lang.Object");
+					//unusable.add("java.util.AbstractCollection");
+					//unusable.add("org.jaxen.pattern.UnionPattern");
+					//unusable.add("org.jaxen.pattern.LocationPathPattern");
+					String declared_class = object.getClass().getMethod("toString").getDeclaringClass().getName();
 
-				//				if(!object.getClass().getMethod("toString").getDeclaringClass().equals(java.lang.Object.class)) {
-				if (!unusable.contains(declared_class)) {
-					String value = object.toString();
-					if (value == null) {
-						//logger.info("Received return value that converts to null string");
-						trace.put(statement.getPosition(), "null");
-					} else {
-						if (!value.matches("@[abcdef\\d]+")) {
-							value = value.replaceAll("@[abcdef\\d]+", "");
-							//logger.info(object.getClass().getMethod("toString").getDeclaringClass()+" says: "+value);
-							trace.put(statement.getPosition(), value);
+					//				if(!object.getClass().getMethod("toString").getDeclaringClass().equals(java.lang.Object.class)) {
+					if (!unusable.contains(declared_class)) {
+						String value = object.toString();
+						if (value == null) {
+							//logger.info("Received return value that converts to null string");
+							trace.put(statement.getPosition(), "null");
+						} else {
+							if (!value.matches("@[abcdef\\d]+")) {
+								value = value.replaceAll("@[abcdef\\d]+", "");
+								//logger.info(object.getClass().getMethod("toString").getDeclaringClass()+" says: "+value);
+								trace.put(statement.getPosition(), value);
+							}
 						}
 					}
 				}
+			} catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (Throwable e) {
+				logger.debug("Failed to add object of class " + object.getClass()
+						+ " to string trace: " + e.getMessage());
 			}
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (Throwable e) {
-			logger.debug("Failed to add object of class " + object.getClass()
-			        + " to string trace: " + e.getMessage());
+		}catch(CodeUnderTestException e){
+			throw new UnsupportedOperationException();
 		}
 	}
 

@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.Scope;
@@ -52,58 +53,62 @@ public class InspectorTraceObserver extends ExecutionObserver {
 
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
-		VariableReference retval = statement.getReturnValue();
+		try{
+			VariableReference retval = statement.getReturnValue();
 
-		if (retval == null)
-			return;
+			if (retval == null)
+				return;
 
-		// Add inspector calls on return value
-		List<Inspector> inspectors = manager.getInspectors(retval.getVariableClass());
-		if (retval.getObject(scope) != null && !inspectors.isEmpty()) {
-			List<Object> result = new ArrayList<Object>();
-			for (Inspector i : inspectors) {
-				try {
-					Object value = i.getValue(retval.getObject(scope));
-					result.add(value);
-					// TODO: Need to keep reference to inspector if exception is thrown!
-				} catch (IllegalArgumentException e) {
-					logger.info("Exception during call to inspector: " + e);
-					continue;
-				} catch (IllegalAccessException e) {
-					logger.info("Exception during call to inspector: " + e);
-					continue;
-				} catch (InvocationTargetException e) {
-					logger.info("Exception during call to inspector: " + e.getCause());
-					continue;
+			// Add inspector calls on return value
+			List<Inspector> inspectors = manager.getInspectors(retval.getVariableClass());
+			if (retval.getObject(scope) != null && !inspectors.isEmpty()) {
+				List<Object> result = new ArrayList<Object>();
+				for (Inspector i : inspectors) {
+					try {
+						Object value = i.getValue(retval.getObject(scope));
+						result.add(value);
+						// TODO: Need to keep reference to inspector if exception is thrown!
+					} catch (IllegalArgumentException e) {
+						logger.info("Exception during call to inspector: " + e);
+						continue;
+					} catch (IllegalAccessException e) {
+						logger.info("Exception during call to inspector: " + e);
+						continue;
+					} catch (InvocationTargetException e) {
+						logger.info("Exception during call to inspector: " + e.getCause());
+						continue;
+					}
 				}
+
+				trace.inspector_results.put(statement.getPosition(), result);
+				trace.return_values.put(statement.getPosition(), retval);
 			}
 
-			trace.inspector_results.put(statement.getPosition(), result);
-			trace.return_values.put(statement.getPosition(), retval);
-		}
+			// Add inspector calls on callee
+			if (statement instanceof MethodStatement) {
+				MethodStatement ms = (MethodStatement) statement;
+				if (!ms.isStatic()) {
+					inspectors = manager.getInspectors(ms.getMethod().getDeclaringClass());
+					if (!inspectors.isEmpty()) {
+						trace.calleeMap.put(statement.getPosition(),
+								new HashMap<Inspector, Object>());
 
-		// Add inspector calls on callee
-		if (statement instanceof MethodStatement) {
-			MethodStatement ms = (MethodStatement) statement;
-			if (!ms.isStatic()) {
-				inspectors = manager.getInspectors(ms.getMethod().getDeclaringClass());
-				if (!inspectors.isEmpty()) {
-					trace.calleeMap.put(statement.getPosition(),
-					                    new HashMap<Inspector, Object>());
-
-					VariableReference callee = ms.getCallee();
-					if (callee.getObject(scope) == null)
-						return;
-					for (Inspector i : inspectors) {
-						try {
-							Object value = i.getValue(callee.getObject(scope));
-							trace.calleeMap.get(statement.getPosition()).put(i, value);
-						} catch (Exception e) {
-							logger.info("Exception during call to inspector: " + e);
+						VariableReference callee = ms.getCallee();
+						if (callee.getObject(scope) == null)
+							return;
+						for (Inspector i : inspectors) {
+							try {
+								Object value = i.getValue(callee.getObject(scope));
+								trace.calleeMap.get(statement.getPosition()).put(i, value);
+							} catch (Exception e) {
+								logger.info("Exception during call to inspector: " + e);
+							}
 						}
 					}
 				}
 			}
+		}catch(CodeUnderTestException e){
+			throw new UnsupportedOperationException();
 		}
 
 	}
