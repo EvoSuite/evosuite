@@ -94,8 +94,12 @@ public class ArrayStatement extends AbstractStatement {
 	        throws InvocationTargetException, IllegalArgumentException,
 	        IllegalAccessException, InstantiationException {
 		// Add array variable to pool
-		retval.setObject(scope,
-		                 Array.newInstance((Class<?>) retval.getComponentType(), length));
+		try {
+			retval.setObject(scope,
+			                 Array.newInstance((Class<?>) retval.getComponentType(), length));
+		} catch (CodeUnderTestException e) {
+			exceptionThrown=e.getCause();
+		}
 		return exceptionThrown;
 
 	}

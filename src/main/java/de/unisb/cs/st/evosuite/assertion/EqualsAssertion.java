@@ -21,6 +21,7 @@ package de.unisb.cs.st.evosuite.assertion;
 import java.util.HashSet;
 import java.util.Set;
 
+import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
@@ -44,21 +45,25 @@ public class EqualsAssertion extends Assertion {
 			return "assertTrue(" + source.getName() + ".equals(" + dest.getName() + "));";
 		else
 			return "assertFalse(" + source.getName() + ".equals(" + dest.getName()
-			        + "));";
+			+ "));";
 	}
 
 	@Override
 	public boolean evaluate(Scope scope) {
-		if (((Boolean) value).booleanValue()) {
-			if (source.getObject(scope) == null)
-				return dest.getObject(scope) == null;
-			else
-				return source.getObject(scope).equals(dest.getObject(scope));
-		} else {
-			if (source.getObject(scope) == null)
-				return dest.getObject(scope) != null;
-			else
-				return !source.getObject(scope).equals(dest.getObject(scope));
+		try{
+			if (((Boolean) value).booleanValue()) {
+				if (source.getObject(scope) == null)
+					return dest.getObject(scope) == null;
+				else
+					return source.getObject(scope).equals(dest.getObject(scope));
+			} else {
+				if (source.getObject(scope) == null)
+					return dest.getObject(scope) != null;
+				else
+					return !source.getObject(scope).equals(dest.getObject(scope));
+			}
+		}catch(CodeUnderTestException e){
+			throw new UnsupportedOperationException();
 		}
 	}
 

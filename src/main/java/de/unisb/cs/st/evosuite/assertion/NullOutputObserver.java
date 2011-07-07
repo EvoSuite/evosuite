@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
+import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
@@ -40,13 +41,17 @@ public class NullOutputObserver extends ExecutionObserver {
 
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
-		VariableReference retval = statement.getReturnValue();
+		try{
+			VariableReference retval = statement.getReturnValue();
 
-		if (retval == null || retval.isPrimitive())
-			return;
+			if (retval == null || retval.isPrimitive())
+				return;
 
-		Object object = retval.getObject(scope);
-		trace.trace.put(statement.getPosition(), object == null);
+			Object object = retval.getObject(scope);
+			trace.trace.put(statement.getPosition(), object == null);
+		}catch(CodeUnderTestException e){
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	public NullOutputTrace getTrace() {

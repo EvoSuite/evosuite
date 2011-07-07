@@ -150,8 +150,10 @@ public interface VariableReference extends Comparable<VariableReference> {
 	 * 
 	 * @param scope
 	 *            The scope of the test case execution
+	 * @throws CodeUnderTestException 
+	 * 			  if code from the class under test throws an exception. (E.g. the static init of a field)
 	 */
-	public Object getObject(Scope scope);
+	public Object getObject(Scope scope) throws CodeUnderTestException ;
 
 	/**
 	 * Set the actual object represented by this variable in a given scope
@@ -160,8 +162,10 @@ public interface VariableReference extends Comparable<VariableReference> {
 	 *            The scope of the test case execution
 	 * @param value
 	 *            The value to be assigned
+	 * @throws CodeUnderTestException 
+	 * 			  if code from the class under test throws an exception. (E.g. the static init of a field)
 	 */
-	public void setObject(Scope scope, Object value);
+	public void setObject(Scope scope, Object value) throws CodeUnderTestException;
 
 	/**
 	 * Comparison

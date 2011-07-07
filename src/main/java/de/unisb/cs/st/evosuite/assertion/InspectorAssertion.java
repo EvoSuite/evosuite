@@ -20,6 +20,7 @@ package de.unisb.cs.st.evosuite.assertion;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
@@ -47,42 +48,46 @@ public class InspectorAssertion extends Assertion {
 		 */
 		if (result == null) {
 			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			        + "(), null);";
+			+ "(), null);";
 		} else if (result.getClass().equals(Long.class)) {
 			String val = result.toString();
 			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			        + "(), " + val + "L);";
+			+ "(), " + val + "L);";
 		} else if (result.getClass().equals(Float.class)) {
 			String val = result.toString();
 			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			        + "(), " + val + "F);";
+			+ "(), " + val + "F);";
 		} else if (result.getClass().equals(Character.class)) {
 			String val = result.toString();
 			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			        + "(), '" + val + "');";
+			+ "(), '" + val + "');";
 		} else if (result.getClass().equals(String.class)) {
 			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			        + "(), \"" + StringEscapeUtils.escapeJava((String) result) + "\");";
+			+ "(), \"" + StringEscapeUtils.escapeJava((String) result) + "\");";
 		} else
 			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			        + "(), " + result + ");";
+			+ "(), " + result + ");";
 	}
 
 	@Override
 	public boolean evaluate(Scope scope) {
-		if (source.getObject(scope) == null)
-			return true; // TODO - true or false?
-		else {
-			try {
-				Object val = inspector.getValue(source.getObject(scope));
-				if (val == null)
-					return val == result;
-				else
-					return val.equals(result);
-			} catch (Exception e) {
-				logger.info("Exception during call to inspector: " + e);
-				return true;
+		try{
+			if (source.getObject(scope) == null)
+				return true; // TODO - true or false?
+			else {
+				try {
+					Object val = inspector.getValue(source.getObject(scope));
+					if (val == null)
+						return val == result;
+					else
+						return val.equals(result);
+				} catch (Exception e) {
+					logger.info("Exception during call to inspector: " + e);
+					return true;
+				}
 			}
+		}catch(CodeUnderTestException e){
+			throw new UnsupportedOperationException();
 		}
 	}
 

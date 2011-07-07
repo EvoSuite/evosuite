@@ -20,6 +20,7 @@ package de.unisb.cs.st.evosuite.assertion;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
@@ -40,7 +41,7 @@ public class PrimitiveAssertion extends Assertion {
 			return "assertEquals(" + source.getName() + ", '" + val + "');";
 		} else if (value.getClass().equals(String.class)) {
 			return "assertEquals(" + source.getName() + ", \""
-			        + StringEscapeUtils.escapeJava((String) value) + "\");";
+			+ StringEscapeUtils.escapeJava((String) value) + "\");";
 		} else
 			return "assertEquals(" + source.getName() + ", " + value + ");";
 	}
@@ -55,10 +56,15 @@ public class PrimitiveAssertion extends Assertion {
 
 	@Override
 	public boolean evaluate(Scope scope) {
-		if (value != null)
-			return value.equals(source.getObject(scope));
-		else
-			return source.getObject(scope) == null;
+		try{
+			if (value != null)
+				return value.equals(source.getObject(scope));
+			else
+				return source.getObject(scope) == null;
+		}catch(CodeUnderTestException e){
+			throw new UnsupportedOperationException();
+		}
 	}
+
 
 }

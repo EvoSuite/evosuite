@@ -137,7 +137,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 *            The scope of the test case execution
 	 */
 	@Override
-	public Object getObject(Scope scope) {
+	public Object getObject(Scope scope) throws CodeUnderTestException {
 		Object arrayObject = array.getObject(scope);
 		if (arrayObject != null) {
 			return Array.get(arrayObject, array_index);
@@ -155,7 +155,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 *            The value to be assigned
 	 */
 	@Override
-	public void setObject(Scope scope, Object value) {
+	public void setObject(Scope scope, Object value) throws CodeUnderTestException{
 		Object arrayObject = array.getObject(scope);
 		Array.set(arrayObject, array_index, value);
 	}

@@ -21,6 +21,7 @@ package de.unisb.cs.st.evosuite.assertion;
 import java.util.HashSet;
 import java.util.Set;
 
+import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
@@ -62,7 +63,7 @@ public class CompareAssertion extends Assertion {
 
 		} else {
 			return "assertEquals(" + source.getName() + ".compareTo(" + dest.getName()
-			        + "), " + value + ");";
+			+ "), " + value + ");";
 		}
 	}
 
@@ -75,18 +76,22 @@ public class CompareAssertion extends Assertion {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean evaluate(Scope scope) {
-		Comparable<Object> comparable = (Comparable<Object>) source.getObject(scope);
-		if (comparable == null)
-			if ((Integer) value == 0)
-				return dest.getObject(scope) == null;
-			else
-				return true; // TODO - true or false?
-		else {
-			try {
-				return comparable.compareTo(dest.getObject(scope)) == (Integer) value;
-			} catch (Exception e) {
-				return true; // TODO - true or false?
+		try{
+			Comparable<Object> comparable = (Comparable<Object>) source.getObject(scope);
+			if (comparable == null)
+				if ((Integer) value == 0)
+					return dest.getObject(scope) == null;
+				else
+					return true; // TODO - true or false?
+			else {
+				try {
+					return comparable.compareTo(dest.getObject(scope)) == (Integer) value;
+				} catch (Exception e) {
+					return true; // TODO - true or false?
+				}
 			}
+		}catch(CodeUnderTestException e){
+			throw new UnsupportedOperationException();
 		}
 	}
 
