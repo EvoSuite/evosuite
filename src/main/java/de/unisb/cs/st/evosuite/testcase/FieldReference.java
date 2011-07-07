@@ -4,6 +4,7 @@
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 /**
  * @author fraser
@@ -21,6 +22,8 @@ public class FieldReference extends VariableReferenceImpl {
 	 */
 	public FieldReference(TestCase testCase, Field field, VariableReference source) {
 		super(testCase, field.getGenericType());
+		assert(field!=null);
+		assert(source!=null || Modifier.isStatic(field.getModifiers())) : "No source object was supplied, therefore we assumed the field to be static. However asking the field if it was static, returned false";
 		this.field = field;
 		this.source = source;
 		//		logger.info("Creating new field assignment for field " + field + " of object "
