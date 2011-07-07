@@ -82,19 +82,36 @@ public class AssignmentStatement extends AbstractStatement {
 	}
 
 	@Override
-	public Throwable execute(Scope scope, PrintStream out)
-	        throws InvocationTargetException, IllegalArgumentException,
-	        IllegalAccessException, InstantiationException {
+	public Throwable execute(final Scope scope, PrintStream out)
+	 throws InvocationTargetException, IllegalArgumentException,
+     IllegalAccessException, InstantiationException {
 
-		try {
-			Object value = parameter.getObject(scope);
+		final Object value = parameter.getObject(scope);
+		
+		return super.exceptionHandler(new Executer() {
+			
+			@Override
+			public void execute() {
+				retval.setObject(scope, value);
+			}
+			
+			@Override
+			public Set<Class<? extends Throwable>> throwableExceptions(){
+				Set<Class<? extends Throwable>> t = new HashSet<Class<? extends Throwable>>();
+				t.add(AssertionError.class);
+				return t;
+			}
+		});
+		
+		/*try {
+			
 			// assert (retval.isPrimitive() || retval.isAssignableFrom(value.getClass())) : "we want an "
 			//        + retval.getVariableClass() + " but got a " + value.getClass();
 			retval.setObject(scope, value);
 		} catch (AssertionError ae) { //could be thrown in getArrayIndex
 			throw ae;
 		} 
-		return exceptionThrown;
+		return exceptionThrown;*/
 	}
 
 	@Override
