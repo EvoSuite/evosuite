@@ -17,4 +17,8 @@ public class EvosuiteError extends Error {
 	public EvosuiteError(Throwable cause) {
 		super(cause);
 	}
+	
+	public EvosuiteError(String msg){
+		super(msg);
+	}
 }
