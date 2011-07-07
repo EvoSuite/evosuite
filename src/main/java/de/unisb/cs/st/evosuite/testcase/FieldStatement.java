@@ -53,7 +53,7 @@ public class FieldStatement extends AbstractStatement {
 	private final String fieldName;
 
 	public FieldStatement(TestCase tc, Field field, VariableReference source,
-	        java.lang.reflect.Type type) {
+			java.lang.reflect.Type type) {
 		super(tc, new VariableReferenceImpl(tc, type));
 		this.field = field;
 		this.className = field.getDeclaringClass().getName();
@@ -73,7 +73,7 @@ public class FieldStatement extends AbstractStatement {
 	 * @param ret_var
 	 */
 	public FieldStatement(TestCase tc, Field field, VariableReference source,
-	        VariableReference ret_var) {
+			VariableReference ret_var) {
 		super(tc, ret_var);
 		assert (tc.size() > ret_var.getStPosition()); //as an old statement should be replaced by this statement
 		this.field = field;
@@ -125,11 +125,11 @@ public class FieldStatement extends AbstractStatement {
 		}
 		if (!Modifier.isStatic(field.getModifiers()))
 			result += retval.getName() + " = " + cast_str + source.getName() + "."
-			        + field.getName() + ";";
+			+ field.getName() + ";";
 		else
 			result += retval.getName() + " = " + cast_str
-			        + field.getDeclaringClass().getSimpleName() + "." + field.getName()
-			        + ";";
+			+ field.getDeclaringClass().getSimpleName() + "." + field.getName()
+			+ ";";
 		if (exception != null) {
 			Class<?> ex = exception.getClass();
 			while (!Modifier.isPublic(ex.getModifiers()))
@@ -144,41 +144,55 @@ public class FieldStatement extends AbstractStatement {
 	public StatementInterface clone(TestCase newTestCase) {
 		if (Modifier.isStatic(field.getModifiers())) {
 			FieldStatement s = new FieldStatement(newTestCase, field, null,
-			        retval.getType());
+					retval.getType());
 			return s;
 		} else {
 			VariableReference newSource = source.clone(newTestCase);
 			FieldStatement s = new FieldStatement(newTestCase, field, newSource,
-			        retval.getType());
+					retval.getType());
 			return s;
 		}
 	}
 
 	@Override
-	public Throwable execute(Scope scope, PrintStream out)
-	        throws InvocationTargetException, IllegalArgumentException,
-	        IllegalAccessException, InstantiationException {
-		Object source_object = null;
-		try {
-			if (!Modifier.isStatic(field.getModifiers())) {
-				source_object = source.getObject(scope);
-				if (source_object == null) {
-					retval.setObject(scope, null);
-					return new NullPointerException();
+	public Throwable execute(final Scope scope, PrintStream out)
+	throws InvocationTargetException, IllegalArgumentException,
+	IllegalAccessException, InstantiationException {
+
+		final Object source_object = (Modifier.isStatic(field.getModifiers()))?null:source.getObject(scope);
+
+		if (!Modifier.isStatic(field.getModifiers()) && source_object == null) {
+			retval.setObject(scope, null);
+			return new NullPointerException();
+		}
+
+		try{
+			return super.exceptionHandler(new Executer() {
+
+				@Override
+				public void execute() throws InvocationTargetException,
+				IllegalArgumentException, IllegalAccessException,
+				InstantiationException {
+					Object ret = field.get(source_object);
+
+					try{
+						assert(ret==null || retval.getVariableClass().isAssignableFrom(ret.getClass())) : "we want an " + retval.getVariableClass() + " but got an " + ret.getClass();
+						retval.setObject(scope, ret);
+					}catch(Throwable e){
+						throw new EvosuiteError(e);
+					}
 				}
 
-			}
-			Object ret = field.get(source_object);
-			assert (ret==null || retval.getVariableClass().isAssignableFrom(ret.getClass())) : "we want an "
-			        + retval.getVariableClass() + " but got an " + ret.getClass();
-			retval.setObject(scope, ret);
-		} catch (Throwable e) {
-			if (e instanceof java.lang.reflect.InvocationTargetException) {
-				e = e.getCause();
-				logger.warn("Exception thrown in field: " + e,e);
-			} else
-				logger.warn("Exception thrown in field: " + e,e);
-			exceptionThrown = e;
+				@Override
+				public Set<Class<? extends Throwable>> throwableExceptions(){
+					Set<Class<? extends Throwable>> t = new HashSet<Class<? extends Throwable>>();
+					t.add(InvocationTargetException.class);
+					return t;
+				}
+			});
+
+		} catch (InvocationTargetException e) {
+			exceptionThrown = e.getCause();
 		}
 		return exceptionThrown;
 	}
@@ -221,7 +235,7 @@ public class FieldStatement extends AbstractStatement {
 		FieldStatement fs = (FieldStatement) s;
 		if (!Modifier.isStatic(field.getModifiers()))
 			return source.equals(fs.source) && retval.equals(fs.retval)
-			        && field.equals(fs.field);
+			&& field.equals(fs.field);
 		else
 			return retval.equals(fs.retval) && field.equals(fs.field);
 	}
@@ -248,7 +262,7 @@ public class FieldStatement extends AbstractStatement {
 	 */
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        Throwable exception) {
+			Throwable exception) {
 
 		Label start = mg.newLabel();
 		Label end = mg.newLabel();
@@ -261,14 +275,14 @@ public class FieldStatement extends AbstractStatement {
 		}
 		if (isStatic())
 			mg.getStatic(Type.getType(field.getDeclaringClass()), field.getName(),
-			             Type.getType(field.getType()));
+					Type.getType(field.getType()));
 		else {
 			if (!source.getVariableClass().isInterface()) {
 				mg.getField(Type.getType(source.getVariableClass()), field.getName(),
-				            Type.getType(field.getType()));
+						Type.getType(field.getType()));
 			} else {
 				mg.getField(Type.getType(field.getDeclaringClass()), field.getName(),
-				            Type.getType(field.getType()));
+						Type.getType(field.getType()));
 			}
 		}
 
@@ -333,7 +347,7 @@ public class FieldStatement extends AbstractStatement {
 		FieldStatement fs = (FieldStatement) s;
 		if (!Modifier.isStatic(field.getModifiers()))
 			return source.same(fs.source) && retval.same(fs.retval)
-			        && field.equals(fs.field);
+			&& field.equals(fs.field);
 		else
 			return retval.same(fs.retval) && field.equals(fs.field);
 	}
