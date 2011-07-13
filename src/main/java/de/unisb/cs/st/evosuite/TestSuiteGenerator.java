@@ -102,6 +102,7 @@ import de.unisb.cs.st.evosuite.testsuite.RelativeLengthBloatControl;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosomeFactory;
+import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunc_to_TestFitnessFactory_Adapter;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteReplacementFunction;
@@ -294,7 +295,10 @@ public class TestSuiteGenerator {
 			return new PrimePathSuiteFitness();
 		case CONCURRENCY:
 			return new ConcurrencySuitCoverage();
+		case BRANCH:
+			return new BranchCoverageSuiteFitness();
 		default:
+			logger.warn("No TestSuiteFitnessFunction defined for " + Properties.CRITERION + " using default one (BranchCoverageSuiteFitness)");
 			return new BranchCoverageSuiteFitness();
 		}
 	}
@@ -309,7 +313,12 @@ public class TestSuiteGenerator {
 			return new DefUseCoverageFactory();
 		case PATH:
 			return new PrimePathCoverageFactory();
+		case BRANCH:
+			return new BranchCoverageFactory();
+		case CONCURRENCY:
+			return new TestSuiteFitnessFunc_to_TestFitnessFactory_Adapter(new ConcurrencySuitCoverage());
 		default:
+			logger.warn("No TestFitnessFactory defined for " + Properties.CRITERION + " using default one (BranchCoverageFactory)");
 			return new BranchCoverageFactory();
 		}
 	}
