@@ -194,7 +194,7 @@ public class TestSuiteGenerator {
 			ga = setup();
 		} else {
 			System.out.println("* Resuming search algorithm at generation " + ga.getAge()
-			        + " for whole suite generation");
+					+ " for whole suite generation");
 			// TODO: SearchStatistics get messed up by resuming
 		}
 		long start_time = System.currentTimeMillis() / 1000;
@@ -213,15 +213,15 @@ public class TestSuiteGenerator {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		long end_time = System.currentTimeMillis() / 1000;
 		System.out.println("* Search finished after " + (end_time - start_time)
-		        + "s and " + ga.getAge() + " generations, best individual has fitness "
-		        + best.getFitness());
+				+ "s and " + ga.getAge() + " generations, best individual has fitness "
+				+ best.getFitness());
 
 		if (Properties.MINIMIZE_VALUES) {
 			System.out.println("* Minimizing values");
 			ValueMinimizer minimizer = new ValueMinimizer();
 			minimizer.minimize(best, (TestSuiteFitnessFunction) fitness_function);
 		}
-		
+
 		if (Properties.INLINE) {
 			ConstantInliner inliner = new ConstantInliner();
 			inliner.inline(best);
@@ -235,7 +235,7 @@ public class TestSuiteGenerator {
 		statistics.iteration(ga);
 		statistics.minimized(ga.getBestIndividual());
 		System.out.println("* Generated " + best.size() + " tests with total length "
-		        + best.totalLengthOfTestCases());
+				+ best.totalLengthOfTestCases());
 
 		System.out.println("* Resulting TestSuite's coverage: " + best.getCoverage());
 
@@ -250,13 +250,13 @@ public class TestSuiteGenerator {
 					covered++;
 			}
 			System.out.println("* Covered " + covered + "/" + singleGoals.size()
-			        + " goals");
+					+ " goals");
 			ga.printBudget();
 			;
 		}
-		
+
 		writeExcelStatistics(best);
-		
+
 		return best.getTests();
 	}
 
@@ -321,7 +321,7 @@ public class TestSuiteGenerator {
 	 * @return
 	 */
 	private TestSuiteChromosome bootstrapRandomSuite(FitnessFunction fitness,
-	        TestFitnessFactory goals) {
+			TestFitnessFactory goals) {
 
 		int random_tests = Properties.RANDOM_TESTS;
 		if (random_tests > 0)
@@ -341,7 +341,7 @@ public class TestSuiteGenerator {
 		}
 		if (random_tests > 0)
 			System.out.println("* Initial test suite contains " + chromosome.size()
-			        + " tests");
+					+ " tests");
 
 		return chromosome;
 	}
@@ -380,7 +380,7 @@ public class TestSuiteGenerator {
 		if (Properties.PREORDER_GOALS_BY_DIFFICULTY) {
 			orderGoalsByDifficulty(goals);
 			System.out.println("* Time taken for difficulty computation: "
-			        + DefUseCoverageTestFitness.difficulty_time + "ms");
+					+ DefUseCoverageTestFitness.difficulty_time + "ms");
 		} else
 			System.out.println("* Goal preordering by difficulty disabled!");
 		if (!Properties.RECYCLE_CHROMOSOMES)
@@ -406,7 +406,7 @@ public class TestSuiteGenerator {
 		}
 		if (covered_goals > 0)
 			System.out.println("* Random bootstrapping covered " + covered_goals
-			        + " test goals");
+					+ " test goals");
 
 		int total_goals = goals.size();
 		if (covered_goals == total_goals)
@@ -416,10 +416,10 @@ public class TestSuiteGenerator {
 
 		int total_budget = Properties.GENERATIONS;
 		System.out.println("* Budget: "
-		        + NumberFormat.getIntegerInstance().format(total_budget));
+				+ NumberFormat.getIntegerInstance().format(total_budget));
 
 		while (current_budget < total_budget && covered_goals < total_goals
-		        && !global_time.isFinished()) {
+				&& !global_time.isFinished()) {
 			int budget = (total_budget - current_budget) / (total_goals - covered_goals);
 			logger.info("Budget: " + budget + "/" + (total_budget - current_budget));
 			logger.info("Statements: " + current_budget + "/" + total_budget);
@@ -441,9 +441,9 @@ public class TestSuiteGenerator {
 
 				if (Properties.PRINT_CURRENT_GOALS)
 					System.out.println("* Searching for goal " + num + ": "
-					        + fitness_function.toString());
+							+ fitness_function.toString());
 				logger.info("Goal " + num + "/" + (total_goals - covered_goals) + ": "
-				        + fitness_function);
+						+ fitness_function);
 
 				if (global_time.isFinished()) {
 					System.out.println("Skipping goal because time is up");
@@ -462,11 +462,11 @@ public class TestSuiteGenerator {
 					if (Properties.PRINT_COVERED_GOALS)
 						System.out.println("* Covered!"); //: " + fitness_function.toString());
 					logger.info("Found solution, adding to test suite at "
-					        + MaxStatementsStoppingCondition.getNumExecutedStatements());
+							+ MaxStatementsStoppingCondition.getNumExecutedStatements());
 					TestChromosome best = (TestChromosome) ga.getBestIndividual();
 					if (Properties.MINIMIZE) {
 						TestCaseMinimizer minimizer = new TestCaseMinimizer(
-						        fitness_function);
+								fitness_function);
 						minimizer.minimize(best);
 					}
 					best.getTestCase().addCoveredGoal(fitness_function);
@@ -481,8 +481,8 @@ public class TestSuiteGenerator {
 					// experiment:
 					if (Properties.SKIP_COVERED) {
 						Set<Integer> additional_covered_nums = getAdditionallyCoveredGoals(goals,
-						                                                                   covered,
-						                                                                   best);
+								covered,
+								best);
 						//					System.out.println("Additionally covered: "+additional_covered_nums.size());
 						for (Integer covered_num : additional_covered_nums) {
 							covered_goals++;
@@ -492,7 +492,7 @@ public class TestSuiteGenerator {
 
 				} else {
 					logger.info("Found no solution at "
-					        + MaxStatementsStoppingCondition.getNumExecutedStatements());
+							+ MaxStatementsStoppingCondition.getNumExecutedStatements());
 				}
 
 				statistics.iteration(suiteGA);
@@ -522,8 +522,8 @@ public class TestSuiteGenerator {
 			for (TestFitnessFunction goal : goals) {
 				if (!covered.contains(c)){
 					System.out.println("! Unable to cover goal " + c + " "
-					        + goal.toString());
-					
+							+ goal.toString());
+
 				}
 				c++;
 			}
@@ -542,14 +542,14 @@ public class TestSuiteGenerator {
 			}
 		}
 		writeExcelStatistics(suite);
-	
+
 		statistics.searchFinished(suiteGA);
 		long end_time = System.currentTimeMillis() / 1000;
 		System.out.println("* Search finished after " + (end_time - start_time)
-		        + "s, best individual has fitness " + suite.getFitness());
+				+ "s, best individual has fitness " + suite.getFitness());
 		System.out.println("* Covered " + covered_goals + "/" + goals.size() + " goals");
 		logger.info("Resulting test suite: " + suite.size() + " tests, length "
-		        + suite.totalLengthOfTestCases());
+				+ suite.totalLengthOfTestCases());
 
 		if (Properties.INLINE) {
 			ConstantInliner inliner = new ConstantInliner();
@@ -564,7 +564,7 @@ public class TestSuiteGenerator {
 		 */
 		// System.out.println("Resulting test suite has fitness "+suite.getFitness());
 		System.out.println("* Resulting test suite: " + suite.size() + " tests, length "
-		        + suite.totalLengthOfTestCases());
+				+ suite.totalLengthOfTestCases());
 
 		// Log some stats
 
@@ -590,7 +590,7 @@ public class TestSuiteGenerator {
 	 * generateIndividualTests()
 	 */
 	private Set<Integer> getAdditionallyCoveredGoals(List<TestFitnessFunction> goals,
-	        Set<Integer> covered, TestChromosome best) {
+			Set<Integer> covered, TestChromosome best) {
 
 		Set<Integer> r = new HashSet<Integer>();
 		ExecutionResult result = best.getLastExecutionResult();
@@ -812,39 +812,40 @@ public class TestSuiteGenerator {
 			// TODO also, question: is branchMap.size() really intended here? 
 			// I think BranchPool.getBranchCount() was intended
 			Properties.GENERATIONS = Properties.GENERATIONS
-			        * (BranchPool.getBranchlessMethods().size() + BranchPool.getBranchCounter() * 2); // TODO question: is branchMap.size() really what wanted here? I think BranchPool.getBranchCount() was intended here
+			* (BranchPool.getBranchlessMethods().size() + BranchPool.getBranchCounter() * 2); // TODO question: is branchMap.size() really what wanted here? I think BranchPool.getBranchCount() was intended here
 			stopping_condition.setLimit(Properties.GENERATIONS);
 			logger.info("Setting dynamic length limit to " + Properties.GENERATIONS);
 		}
 
 		return ga;
 	}
-	
+
 	public static void writeExcelStatistics(TestSuiteChromosome suite){
-		
-		File excelOutputDir = new File("." + File.separatorChar + "evosuite-excel");
-		assert(excelOutputDir.exists()) : "We assume the directory " + excelOutputDir.getPath() + " to exist. In your case it doesn't"; 
-		ExcelOutputGenerator.createNewExcelWorkbook(excelOutputDir.getAbsolutePath());
-		
-		if (Properties.CRITERION == Criterion.LCSAJ ){
-			TestSuiteChromosome copy = suite.clone();
-			BranchCoverageSuiteFitness b = new BranchCoverageSuiteFitness();
-			b.getFitness(copy);
-			int infeasableBranches = b.total_goals - b.covered_branches;
-			for (String className : LCSAJPool.lcsaj_map.keySet()){
-				ExcelOutputGenerator.writeLCSAJStatistics(className,b.total_goals,infeasableBranches, copy, suite);
+		if(Properties.CRITERION == Criterion.LCSAJ || Properties.CRITERION == Criterion.BRANCH){
+			File excelOutputDir = new File("." + File.separatorChar + "evosuite-excel");
+			assert(excelOutputDir.exists()) : "We assume the directory " + excelOutputDir.getPath() + " to exist. In your case it doesn't"; 
+			ExcelOutputGenerator.createNewExcelWorkbook(excelOutputDir.getAbsolutePath());
+
+			if (Properties.CRITERION == Criterion.LCSAJ ){
+				TestSuiteChromosome copy = suite.clone();
+				BranchCoverageSuiteFitness b = new BranchCoverageSuiteFitness();
+				b.getFitness(copy);
+				int infeasableBranches = b.total_goals - b.covered_branches;
+				for (String className : LCSAJPool.lcsaj_map.keySet()){
+					ExcelOutputGenerator.writeLCSAJStatistics(className,b.total_goals,infeasableBranches, copy, suite);
+				}
 			}
+			if (Properties.CRITERION == Criterion.BRANCH){
+				for (String className : BranchPool.knownClasses())
+					ExcelOutputGenerator.wirteBranchStatistics(className, suite.size(), suite.totalLengthOfTestCases(), suite.getCoverage(), suite.getFitness());
+			}
+
+			ExcelOutputGenerator.writeToCurrentWorkbook();
 		}
-		if (Properties.CRITERION == Criterion.BRANCH){
-			for (String className : BranchPool.knownClasses())
-				ExcelOutputGenerator.wirteBranchStatistics(className, suite.size(), suite.totalLengthOfTestCases(), suite.getCoverage(), suite.getFitness());
-		}
-			
-		ExcelOutputGenerator.writeToCurrentWorkbook();
 	}
-	
+
 	public static void writeUncoveredLCSAJGraphs(List<TestFitnessFunction> goals){
-		
+
 	}
 	/**
 	 * @param args
@@ -853,5 +854,5 @@ public class TestSuiteGenerator {
 		TestSuiteGenerator generator = new TestSuiteGenerator();
 		generator.generateTestSuite(null);
 	}
-	
+
 }
