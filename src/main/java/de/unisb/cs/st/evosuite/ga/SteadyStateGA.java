@@ -42,15 +42,16 @@ public class SteadyStateGA extends GeneticAlgorithm {
 	public SteadyStateGA(ChromosomeFactory factory) {
 		super(factory);
 
-		setReplacementFunction(new FitnessReplacementFunction(selection_function));
+		setReplacementFunction(new FitnessReplacementFunction(
+				selection_function));
 	}
 
 	protected boolean keepOffspring(Chromosome parent1, Chromosome parent2,
-	        Chromosome offspring1, Chromosome offspring2) {
-		return (isBetterOrEqual(offspring1, parent1) && isBetterOrEqual(offspring1,
-		                                                                parent2))
-		        || (isBetterOrEqual(offspring2, parent1) && isBetterOrEqual(offspring2,
-		                                                                    parent2));
+			Chromosome offspring1, Chromosome offspring2) {
+		return (isBetterOrEqual(offspring1, parent1) && isBetterOrEqual(
+				offspring1, parent2))
+				|| (isBetterOrEqual(offspring2, parent1) && isBetterOrEqual(
+						offspring2, parent2));
 	}
 
 	@Override
@@ -152,11 +153,13 @@ public class SteadyStateGA extends GeneticAlgorithm {
 			logger.info("Current iteration: " + current_iteration);
 			this.notifyIteration();
 			logger.info("Population size: " + population.size());
-			logger.info("Best individual has fitness: " + population.get(0).getFitness());
+			logger.info("Best individual has fitness: "
+					+ population.get(0).getFitness());
 			logger.info("Worst individual has fitness: "
-			        + population.get(population.size() - 1).getFitness());
-			
-			Connector.externalCall((GeneticAlgorithm) this); //call manual algorithm 
+					+ population.get(population.size() - 1).getFitness());
+
+			Connector.externalCall((GeneticAlgorithm) this); // call manual
+																// algorithm
 		}
 
 		notifySearchFinished();
