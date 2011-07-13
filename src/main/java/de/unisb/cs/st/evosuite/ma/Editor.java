@@ -7,6 +7,7 @@ import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
+import de.unisb.cs.st.javalanche.mutation.analyze.html.HtmlAnalyzer;
 
 /**
  * @author Yury Pavlov
@@ -15,7 +16,8 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 public class Editor {
 	private GeneticAlgorithm gaInstance;
 	private List<TestCase> tests;
-	private List<String> sourceCode;
+	private Iterable<String> sourceCode;
+	private HtmlAnalyzer html_analyzer = new HtmlAnalyzer();
 
 	/**
 	 * Create instance of Editor for manual edition of test individuals with:
@@ -28,14 +30,18 @@ public class Editor {
 		setUp();
 	}
 
+	
+	/**
+	 * Setup editor for work.
+	 */
 	private void setUp() {
 		TestSuiteChromosome testSuiteChr = (TestSuiteChromosome) gaInstance
 				.getBestIndividual();
 
 		tests = testSuiteChr.getTests();
-		for (String test : tests.toString()) {
-			System.out.println(test + "\n\n");
-		}
+//		for (TestCase test : tests) {
+//			System.out.println(test.toCode() + "\n\n");
+//		}
 		sourceCode = getSourceCode();
 
 		SimpleGUI sgui = new SimpleGUI();
@@ -45,13 +51,9 @@ public class Editor {
 	/**
 	 * @return Source code of tested class
 	 */
-	private List<String> getSourceCode() {
-		try {
-			// FileReader sourceFile = new FileReader();
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-		return null;
+	private Iterable<String> getSourceCode() {
+		Iterable<String> res = html_analyzer.getClassContent(Properties.TARGET_CLASS);
+		return res;
 	}
 
 }
