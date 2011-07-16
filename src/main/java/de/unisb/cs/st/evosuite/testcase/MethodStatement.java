@@ -186,7 +186,7 @@ public class MethodStatement extends AbstractStatement {
 
 		String result = "";
 
-		if (exception != null && isDeclaredException(exception)) {
+		if (exception != null && !isDeclaredException(exception)) {
 			result += "// Undeclared exception!\n";
 		}
 
