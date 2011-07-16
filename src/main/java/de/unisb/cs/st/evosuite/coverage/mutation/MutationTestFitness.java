@@ -1,22 +1,7 @@
-/*
- * Copyright (C) 2010 Saarland University
+/**
  * 
- * This file is part of EvoSuite.
- * 
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Lesser Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version.
- * 
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-
-package de.unisb.cs.st.evosuite.mutation;
+package de.unisb.cs.st.evosuite.coverage.mutation;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,18 +16,17 @@ import de.unisb.cs.st.evosuite.assertion.NullOutputObserver;
 import de.unisb.cs.st.evosuite.assertion.PrimitiveFieldTraceObserver;
 import de.unisb.cs.st.evosuite.assertion.PrimitiveOutputTraceObserver;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
+import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
-import de.unisb.cs.st.evosuite.ga.ChromosomeRecycler;
+import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
-import de.unisb.cs.st.evosuite.mutation.HOM.HOMSwitcher;
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
-import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
  * @author Gordon Fraser
@@ -50,13 +34,11 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
  */
 public class MutationTestFitness extends TestFitnessFunction {
 
-	private static final long serialVersionUID = -1303933323109153922L;
+	private static final long serialVersionUID = 596930765039928708L;
 
-	private final Mutation targetMutation;
+	private final Mutation mutation;
 
-	private final MutationGoal mutationGoal;
-
-	private final HOMSwitcher homSwitcher = new HOMSwitcher();
+	private final Set<BranchCoverageGoal> controlDependencies = new HashSet<BranchCoverageGoal>();
 
 	protected List<ExecutionObserver> observers;
 
@@ -67,9 +49,8 @@ public class MutationTestFitness extends TestFitnessFunction {
 	protected NullOutputObserver nullObserver = new NullOutputObserver();
 
 	public MutationTestFitness(Mutation mutation) {
-		targetMutation = mutation;
-		mutationGoal = new MutationGoal(mutation);
-
+		this.mutation = mutation;
+		controlDependencies.addAll(mutation.getControlDependencies());
 		executor.addObserver(primitiveObserver);
 		executor.addObserver(comparisonObserver);
 		executor.addObserver(inspectorObserver);
@@ -77,8 +58,8 @@ public class MutationTestFitness extends TestFitnessFunction {
 		executor.addObserver(nullObserver);
 	}
 
-	public Mutation getTargetMutation() {
-		return targetMutation;
+	public Mutation getMutation() {
+		return mutation;
 	}
 
 	@Override
@@ -86,38 +67,24 @@ public class MutationTestFitness extends TestFitnessFunction {
 		return runTest(test, null);
 	}
 
-	/**
-	 * Execute a test case
-	 * 
-	 * @param test
-	 *            The test case to execute
-	 * @param mutant
-	 *            The mutation to active (null = no mutation)
-	 * 
-	 * @return Result of the execution
-	 */
 	public ExecutionResult runTest(TestCase test, Mutation mutant) {
 
 		ExecutionResult result = new ExecutionResult(test, mutant);
 
 		try {
 			if (mutant != null)
-				logger.debug("Executing test for mutant " + mutant.getId());
-			HOMObserver.resetTouched(); // TODO - is this the right place?
-			if (mutant != null) {
-				homSwitcher.switchOn(mutant);
-				//executor.setLogging(false);
-			}
-
-			result = executor.execute(test);
-			//executor.setLogging(true);
+				logger.info("Executing test for mutant " + mutant.getId());
+			else
+				logger.info("Executing test witout mutant");
 
 			if (mutant != null)
-				homSwitcher.switchOff(mutant);
+				MutationObserver.activateMutation(mutant);
+			result = executor.execute(test);
+			if (mutant != null)
+				MutationObserver.deactivateMutation(mutant);
 
 			int num = test.size();
 			MaxStatementsStoppingCondition.statementsExecuted(num);
-			result.touched.addAll(HOMObserver.getTouched());
 
 			result.comparison_trace = comparisonObserver.getTrace();
 			result.primitive_trace = primitiveObserver.getTrace();
@@ -125,9 +92,6 @@ public class MutationTestFitness extends TestFitnessFunction {
 			result.field_trace = fieldObserver.getTrace();
 			result.null_trace = nullObserver.getTrace();
 
-			// for(TestObserver observer : observers) {
-			// observer.testResult(result);
-			// }
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
@@ -260,152 +224,104 @@ public class MutationTestFitness extends TestFitnessFunction {
 		return num;
 	}
 
-	protected boolean hasAssertions(ExecutionResult orig_result,
-	        ExecutionResult mutant_result) {
-
-		// if(orig_result.output_trace.differs(mutant_result.output_trace))
-		// num += 0.5;
-		if (orig_result.comparison_trace.differs(mutant_result.comparison_trace)) {
-			logger.info("Difference in comparison trace");
-			return true;
-		}
-		if (orig_result.primitive_trace.differs(mutant_result.primitive_trace)) {
-			logger.info("Difference in primitive trace");
-			return true;
-		}
-		if (orig_result.inspector_trace.differs(mutant_result.inspector_trace)) {
-			logger.info("Difference in inspector trace");
-			return true;
-		}
-		if (orig_result.field_trace.differs(mutant_result.field_trace)) {
-			logger.info("Difference in field trace");
-			return true;
-		}
-
-		return false;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.TestFitnessFunction#getFitness(de.unisb
-	 * .cs.st.evosuite.testcase.TestChromosome,
-	 * de.unisb.cs.st.evosuite.testcase.ExecutionResult)
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestFitnessFunction#getFitness(de.unisb.cs.st.evosuite.testcase.TestChromosome, de.unisb.cs.st.evosuite.testcase.ExecutionResult)
 	 */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
+		// If not touched, fitness = branchcoveragefitnesses + 2
 
-		// First, get the distance. TODO: What about branch distance?
-		ControlFlowDistance cfg_distance = mutationGoal.getDistance(result);
+		// If executed, fitness = normalize(constraint distance) + asserted_yes_no
 
-		if (cfg_distance.approachLevel > 1
-		        || (cfg_distance.approachLevel == 1 && cfg_distance.branchDistance > 0.0)) {
-			logger.debug("Distance is " + cfg_distance.approachLevel + "/"
-			        + cfg_distance.branchDistance);
-			if (cfg_distance.approachLevel == 1)
-				logger.debug(individual.getTestCase().toCode());
-			// return 1.0 + cfg_distance.approach +
-			// normalize(cfg_distance.branch);
-			/*
-						ExecutionResult mutant_result = runTest(individual.test, targetMutation);
-						if (!mutant_result.touched.contains(targetMutation.getId())) {
-							logger.warn("Mutant not touched!");
-						} else {
-							logger.warn("Mutant touched!");
-						}
-						*/
+		// If infected, check impact?
 
-			return cfg_distance.approachLevel + normalize(cfg_distance.branchDistance); // 1
-			// =
-			// distance
-			// for
-			// mutation
-			// activation
-		}
+		double fitness = 0.0;
 
-		logger.debug("Distance is: " + cfg_distance.approachLevel);
-
-		// If the distance is zero, then try
-		ExecutionResult mutant_result = runTest(individual.getTestCase(), targetMutation);
-		if (!mutant_result.touched.contains(targetMutation.getId())) {
-			logger.warn("Distance is 1 but mutant " + targetMutation.getId()
-			        + " not executed: " + targetMutation.getClassName() + "."
-			        + targetMutation.getMethodName() + " - "
-			        + targetMutation.getMutationType());
-			logger.warn(result.test.toCode());
-			logger.warn(cfg_distance.approachLevel + "/" + cfg_distance.branchDistance);
-		}
-
-		if (MutationGoal.hasTimeout(mutant_result)) {
-			logger.debug("Found timeout in mutant!");
-			MutationTimeoutStoppingCondition.timeOut(targetMutation);
-		}
-
-		// if(!hasAssertions(result, mutant_result))
-		if (getNumAssertions(result, mutant_result) == 0) {
-			double impact = getSumDistance(result.getTrace(), mutant_result.getTrace());
-			logger.debug("Impact is " + impact + " (" + (1.0 / (1.0 + impact)) + ")");
-			return 1.0 / (1.0 + impact);
+		// Get control flow distance
+		if (controlDependencies.isEmpty()) {
+			String key = mutation.getClassName() + "." + mutation.getMethodName();
+			if (result.getTrace().covered_methods.containsKey(key)) {
+				logger.info("Target method " + key + " was executed");
+			} else {
+				logger.info("Target method " + key + " was not executed");
+				fitness += 1.0;
+			}
 		} else {
-			logger.debug("Mutant is asserted!");
-			/*
-			 * individual.test.removeAssertions(); AssertionGenerator gen = new
-			 * AssertionGenerator(); gen.addAssertions(individual.test,
-			 * target_mutation); logger.info(individual.test.toCode());
-			 * logger.info("Mutant assertions checked.\n");
-			 */
-			return 0.0; // This mutant is asserted
+			ControlFlowDistance cfgDistance = null;
+			for (BranchCoverageGoal dependency : controlDependencies) {
+				logger.info("Checking dependency...");
+				ControlFlowDistance distance = dependency.getDistance(result);
+				if (cfgDistance == null)
+					cfgDistance = distance;
+				else {
+					if (distance.compareTo(cfgDistance) < 0)
+						cfgDistance = distance;
+				}
+			}
+			if (cfgDistance != null) {
+				logger.info("Found control dependency");
+				fitness = cfgDistance.getResultingBranchFitness();
+			}
 		}
+
+		logger.info("Control flow distance to mutation = " + fitness);
+		// If executed...
+		if (fitness <= 0) {
+
+			assert (result.getTrace().touchedMutants.contains(mutation.getId()));
+
+			// Add infection distance
+			if (!result.getTrace().mutant_distances.containsKey(mutation.getId())) {
+				logger.info("Have no distance information for " + mutation.getId());
+				for (Integer id : result.getTrace().mutant_distances.keySet()) {
+					logger.info("Mutation " + id + ": "
+					        + result.getTrace().mutant_distances.get(id));
+				}
+			}
+			fitness += FitnessFunction.normalize(result.getTrace().mutant_distances.get(mutation.getId()));
+
+			logger.info("Infection distance for mutation = " + fitness);
+
+			// If infected check if it is also killed
+			if (fitness <= 0) {
+				ExecutionResult mutationResult = runTest(individual.getTestCase(), mutation);
+
+				if (TestCoverageGoal.hasTimeout(mutationResult)) {
+					logger.debug("Found timeout in mutant!");
+					MutationTimeoutStoppingCondition.timeOut(mutation);
+				}
+
+				if (getNumAssertions(result, mutationResult) == 0) {
+					double impact = getSumDistance(result.getTrace(),
+					                               mutationResult.getTrace());
+					logger.info("Impact is " + impact + " (" + (1.0 / (1.0 + impact))
+					        + ")");
+					fitness += 1.0 / (1.0 + impact);
+				} else {
+					logger.info("Mutant is asserted!");
+					//return 0.0; // This mutant is asserted
+				}
+			}
+
+		}
+
+		updateIndividual(individual, fitness);
+		return fitness;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.ga.FitnessFunction#updateIndividual(de.unisb.
-	 * cs.st.evosuite.ga.Chromosome, double)
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#updateIndividual(de.unisb.cs.st.evosuite.ga.Chromosome, double)
 	 */
 	@Override
 	protected void updateIndividual(Chromosome individual, double fitness) {
 		individual.setFitness(fitness);
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
-		return "Mutation goal: " + targetMutation.getId() + ": "
-		        + targetMutation.getClassName() + "." + targetMutation.getMethodName()
-		        + ":" + targetMutation.getLineNumber() + " - "
-		        + targetMutation.getMutationType();
-	}
-
-	@Override
-	public boolean isSimilarTo(TestFitnessFunction other) {
-		try {
-			MutationTestFitness otherFitness = (MutationTestFitness) other;
-			return mutationGoal.isConnectedTo(otherFitness.mutationGoal);
-		} catch (ClassCastException e) {
-			return false;
-		}
-	}
-
-	@Override
-	public boolean isCovered(TestChromosome tc) {
-		if (tc.getLastExecutionResult() == null) {
-			ExecutionResult result = runTest(tc.getTestCase());
-			tc.setChanged(false);
-			tc.setLastExecutionResult(result);
-		}
-		return isCovered(tc, tc.getLastExecutionResult());
-	}
-
-	@Override
-	public boolean isCovered(TestChromosome individual, ExecutionResult result) {
-		boolean covered = getFitness(individual, result) == 0.0;
-		if (covered) {
-			ChromosomeRecycler.getInstance().testIsInterestingForGoal(individual, this);
-			individual.getTestCase().addCoveredGoal(this);
-		}
-		return covered;
+		return mutation.toString();
 	}
 }

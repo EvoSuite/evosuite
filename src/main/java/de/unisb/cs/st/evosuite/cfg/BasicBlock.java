@@ -1,13 +1,9 @@
 package de.unisb.cs.st.evosuite.cfg;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
-
-import de.unisb.cs.st.evosuite.mutation.Mutateable;
 
 /**
  * This class is used to represent basic blocks in the control flow graph.
@@ -37,7 +33,7 @@ import de.unisb.cs.st.evosuite.mutation.Mutateable;
  * @see cfg.ActualControlFlowGraph
  * @author Andre Mis
  */
-public class BasicBlock implements Mutateable {
+public class BasicBlock {
 
 	private static Logger logger = Logger.getLogger(BasicBlock.class);
 
@@ -49,9 +45,7 @@ public class BasicBlock implements Mutateable {
 
 	protected boolean isAuxiliaryBlock = false;
 
-	private List<BytecodeInstruction> instructions = new ArrayList<BytecodeInstruction>();
-
-	private Map<Long, Integer> mutant_distance = new HashMap<Long, Integer>();
+	private final List<BytecodeInstruction> instructions = new ArrayList<BytecodeInstruction>();
 
 	// TODO reference each BytecodeInstruction's BasicBlock at the instruction
 	// TODO determine ControlDependentBranches once for each BasicBlock, then
@@ -60,7 +54,7 @@ public class BasicBlock implements Mutateable {
 	// up ControlFlowDistance calculation even more
 
 	public BasicBlock(String className, String methodName,
-			List<BytecodeInstruction> blockNodes) {
+	        List<BytecodeInstruction> blockNodes) {
 		if (className == null || methodName == null || blockNodes == null)
 			throw new IllegalArgumentException("null given");
 
@@ -92,11 +86,11 @@ public class BasicBlock implements Mutateable {
 		for (BytecodeInstruction instruction : blockNodes) {
 			if (!appendInstruction(instruction))
 				throw new IllegalStateException(
-						"internal error while addind instruction to basic block list");
+				        "internal error while addind instruction to basic block list");
 		}
 		if (instructions.isEmpty())
 			throw new IllegalStateException(
-					"expect each basic block to contain at least one instruction");
+			        "expect each basic block to contain at least one instruction");
 	}
 
 	private boolean appendInstruction(BytecodeInstruction instruction) {
@@ -104,16 +98,16 @@ public class BasicBlock implements Mutateable {
 			throw new IllegalArgumentException("null given");
 		if (!className.equals(instruction.getClassName()))
 			throw new IllegalArgumentException(
-					"expect elements of a basic block to be inside the same class");
+			        "expect elements of a basic block to be inside the same class");
 		if (!methodName.equals(instruction.getMethodName()))
 			throw new IllegalArgumentException(
-					"expect elements of a basic block to be inside the same class");
+			        "expect elements of a basic block to be inside the same class");
 		if (instruction.hasBasicBlockSet())
 			throw new IllegalArgumentException(
-					"expect to get instruction without BasicBlock already set");
+			        "expect to get instruction without BasicBlock already set");
 		if (instructions.contains(instruction))
 			throw new IllegalArgumentException(
-					"a basic block can not contain the same element twice");
+			        "a basic block can not contain the same element twice");
 
 		// not sure if this holds:
 		// .. apparently it doesn't. at least check
@@ -189,49 +183,6 @@ public class BasicBlock implements Mutateable {
 		return methodName;
 	}
 
-	// mutation part
-
-	public BytecodeInstruction getMutation(long mutationId) {
-		for (BytecodeInstruction instruction : instructions)
-			if (instruction.hasMutation(mutationId))
-				return instruction;
-
-		return null;
-	}
-
-	@Override
-	public int getDistance(long mutationId) {
-		if (mutant_distance.containsKey(mutationId))
-			return mutant_distance.get(mutationId);
-		return Integer.MAX_VALUE;
-	}
-
-	@Override
-	public void setDistance(long mutationId, int distance) {
-		mutant_distance.put(mutationId, distance);
-	}
-
-	@Override
-	public List<Long> getMutationIds() {
-		List<Long> r = new ArrayList<Long>();
-		for (BytecodeInstruction instruction : instructions)
-			r.addAll(instruction.getMutationIds());
-
-		return r;
-	}
-
-	@Override
-	public boolean hasMutation(long mutationId) {
-
-		return getMutationIds().contains(mutationId);
-	}
-
-	@Override
-	public boolean isMutation() {
-
-		return !getMutationIds().isEmpty();
-	}
-
 	public String explain() {
 		StringBuilder r = new StringBuilder();
 		r.append(getName() + ":\n");
@@ -257,7 +208,7 @@ public class BasicBlock implements Mutateable {
 				r = r.trim() + " " + ins.getInstructionType();
 		else
 			r += " " + getFirstInstruction().getInstructionType() + " ... "
-					+ getLastInstruction().getInstructionType();
+			        + getLastInstruction().getInstructionType();
 
 		int startLine = getFirstLine();
 		int endLine = getLastLine();

@@ -515,7 +515,7 @@ public class SourceCodeGenerator {
 	 */
 	private void generateFieldName(Method abstractMethod) {
 		String fieldName = abstractMethod.getName();
-		String methodDescriptor = bsh.org.objectweb.asm.Type.getMethodDescriptor(abstractMethod);
+		String methodDescriptor = org.objectweb.asm.Type.getMethodDescriptor(abstractMethod);
 		String[] methodParams = methodDescriptor.replace(')', ';').replace('(', ';').split(";");
 		for (int i = 1; i < methodParams.length - 1; i++) {
 			String[] temp = methodParams[i].split("/");

@@ -22,10 +22,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -38,7 +40,6 @@ import de.unisb.cs.st.evosuite.coverage.dataflow.DefUse;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
 import de.unisb.cs.st.evosuite.coverage.dataflow.Definition;
 import de.unisb.cs.st.evosuite.coverage.dataflow.Use;
-import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
  * Keep a trace of the program execution
@@ -210,6 +211,8 @@ public class ExecutionTrace {
 	public Map<Integer, Integer> covered_false = new HashMap<Integer, Integer>();
 	public Map<Integer, Double> true_distances = new HashMap<Integer, Double>();
 	public Map<Integer, Double> false_distances = new HashMap<Integer, Double>();
+	public Map<Integer, Double> mutant_distances = new HashMap<Integer, Double>();
+	public Set<Integer> touchedMutants = new HashSet<Integer>();
 
 	// number of seen Definitions and uses for indexing purposes
 	private int duCounter = 0;
@@ -463,6 +466,15 @@ public class ExecutionTrace {
 		duCounter++;
 	}
 
+	public void mutationPassed(int mutationId, double distance) {
+		touchedMutants.add(mutationId);
+		if (!mutant_distances.containsKey(mutationId))
+			mutant_distances.put(mutationId, distance);
+		else
+			mutant_distances.put(mutationId,
+			                     Math.min(distance, mutant_distances.get(mutationId)));
+	}
+
 	/**
 	 * Returns the objecectId for the given object.
 	 * 
@@ -702,6 +714,8 @@ public class ExecutionTrace {
 		copy.covered_predicates.putAll(covered_predicates);
 		copy.covered_true.putAll(covered_true);
 		copy.covered_false.putAll(covered_false);
+		copy.touchedMutants.addAll(touchedMutants);
+		copy.mutant_distances.putAll(mutant_distances);
 		copy.passedDefinitions.putAll(passedDefinitions);
 		copy.passedUses.putAll(passedUses);
 		copy.methodId = methodId;
@@ -715,13 +729,6 @@ public class ExecutionTrace {
 		while (!stack.isEmpty()) {
 			finished_calls.add(stack.pop());
 		}
-	}
-
-	public boolean isMethodExecuted(Mutation m) {
-		String classname = m.getClassName();
-		String methodname = m.getMethodName();
-
-		return (coverage.containsKey(classname) && coverage.get(classname).containsKey(methodname));
 	}
 
 	/**

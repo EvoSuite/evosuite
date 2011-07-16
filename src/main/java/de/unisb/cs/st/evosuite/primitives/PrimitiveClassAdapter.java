@@ -24,7 +24,6 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.Excludes;
 
 /**
  * @author Gordon Fraser
@@ -39,10 +38,6 @@ public class PrimitiveClassAdapter extends ClassAdapter {
 	private static final boolean REPLACE_STRING = Properties.STRING_REPLACEMENT
 	        && !Properties.TT;
 
-	private final Excludes e = Excludes.getInstance();
-
-	private boolean exclude;
-
 	private final PrimitivePool primitive_pool = PrimitivePool.getInstance();
 
 	/**
@@ -51,12 +46,6 @@ public class PrimitiveClassAdapter extends ClassAdapter {
 	public PrimitiveClassAdapter(ClassVisitor visitor, String className) {
 		super(visitor);
 		this.className = className;
-		String classNameWithDots = className.replace('/', '.');
-		if (e.shouldExclude(classNameWithDots)) {
-			exclude = true;
-		} else {
-			exclude = false;
-		}
 	}
 
 	@Override
@@ -81,8 +70,7 @@ public class PrimitiveClassAdapter extends ClassAdapter {
 		                                     exceptions);
 
 		String classNameWithDots = className.replace('/', '.');
-		if (!exclude
-		        && REPLACE_STRING
+		if (REPLACE_STRING
 		        && (classNameWithDots.equals(target_class) || (classNameWithDots.startsWith(target_class
 		                + "$")))) {
 			mv = new StringReplacementMethodAdapter(methodAccess, descriptor, mv);

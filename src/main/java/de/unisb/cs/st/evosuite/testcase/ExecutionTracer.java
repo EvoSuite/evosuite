@@ -54,7 +54,7 @@ public class ExecutionTracer {
 	private static final boolean testabilityTransformation = Properties.TT;
 
 	private static boolean checkCallerThread = true;
-	
+
 	/**
 	 * If a thread of a test case survives for some reason (e.g. long call to
 	 * external library), then we don't want its data in the current trace
@@ -84,7 +84,7 @@ public class ExecutionTracer {
 		ExecutionTracer tracer = ExecutionTracer.getExecutionTracer();
 		tracer.killSwitch = value;
 	}
-	
+
 	public static void setCheckCallerThread(boolean checkCallerThread) {
 		ExecutionTracer.checkCallerThread = checkCallerThread;
 	}
@@ -97,7 +97,7 @@ public class ExecutionTracer {
 		}
 		return instance;
 	}
-	
+
 	/**
 	 * Reset for new execution
 	 */
@@ -151,7 +151,7 @@ public class ExecutionTracer {
 	 */
 	public static void enteredMethod(String classname, String methodname, Object caller)
 	        throws TestCaseExecutor.TimeoutExceeded {
-		
+
 		if (isThreadNeqCurrentThread())
 			return;
 
@@ -573,6 +573,14 @@ public class ExecutionTracer {
 		if (!tracer.disabled)
 			tracer.trace.usePassed(className, varName, methodName, caller, branchID,
 			                       useID);
+	}
+
+	public static void passedMutation(int mutationId, double distance) {
+		if (isThreadNeqCurrentThread())
+			return;
+		ExecutionTracer tracer = getExecutionTracer();
+		if (!tracer.disabled)
+			tracer.trace.mutationPassed(mutationId, distance);
 	}
 
 	public static void statementExecuted() {

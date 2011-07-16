@@ -136,7 +136,7 @@ public class BooleanArrayInterpreter extends BasicInterpreter {
 		}
 		*/
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Value naryOperation(AbstractInsnNode insn, List values)
 	        throws AnalyzerException {

@@ -18,73 +18,66 @@
 
 package de.unisb.cs.st.evosuite.cfg;
 
-import java.util.List;
-
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.Analyzer;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.objectweb.asm.tree.analysis.BasicInterpreter;
 import org.objectweb.asm.tree.analysis.Frame;
 
-import de.unisb.cs.st.javalanche.mutation.results.Mutation;
-
 /**
- *  This class analyzes the byteCode from a method in the CUT and
- * generates it's CFG using a cfg.CFGGenerator
- *
- *  This is done using the ASM library, extending from it's asm.Analyzer
- * and redirecting the calls to newControlFlowEdge() to an instance of
- * cfg.CFGGenerator which in turn builds up a graph representation
- * of the CFG, which later is used to build a "smaller" CFG containing
- * not BytecodeInstructions but BasicBlocks of BytecodeInstructions
- * which are always executed successively
+ * This class analyzes the byteCode from a method in the CUT and generates it's
+ * CFG using a cfg.CFGGenerator
+ * 
+ * This is done using the ASM library, extending from it's asm.Analyzer and
+ * redirecting the calls to newControlFlowEdge() to an instance of
+ * cfg.CFGGenerator which in turn builds up a graph representation of the CFG,
+ * which later is used to build a "smaller" CFG containing not
+ * BytecodeInstructions but BasicBlocks of BytecodeInstructions which are always
+ * executed successively
  * 
  * @author Gordon Fraser, Andre Mis
  */
 public class BytecodeAnalyzer extends Analyzer {
 
-
 	CFGGenerator cfgGenerator;
-	List<Mutation> mutants;
-	
 
-	public BytecodeAnalyzer(List<Mutation> mutants) {
+	public BytecodeAnalyzer() {
 		super(new BasicInterpreter());
-		this.mutants = mutants;
 	}
-	
-	
+
 	// main interface
-	
+
 	/**
-	 * Analyzes the method corresponding to the given Strings
-	 * and initializes the CFGGenerator and thus the BytecodeInstructionPool
-	 * for the given method in the given class.
+	 * Analyzes the method corresponding to the given Strings and initializes
+	 * the CFGGenerator and thus the BytecodeInstructionPool for the given
+	 * method in the given class.
 	 */
 	CFGFrame analyze(String owner, String method, MethodNode node)
-			throws AnalyzerException {
+	        throws AnalyzerException {
 
-		cfgGenerator = new CFGGenerator(owner,method,node,mutants);
+		cfgGenerator = new CFGGenerator(owner, method, node);
 		this.analyze(owner, node);
-		
+
 		Frame[] frames = getFrames();
+
 		if (frames.length == 0)
 			return null;
 
 		return (CFGFrame) getFrames()[0];
 	}
-	
+
 	/**
-	 *  After running analyze() this method yields the filled CFGGenerator
-	 * for further processing of the gathered information from analyze()
-	 * within the ByteCode representation of EvoSuite  
+	 * After running analyze() this method yields the filled CFGGenerator for
+	 * further processing of the gathered information from analyze() within the
+	 * ByteCode representation of EvoSuite
 	 */
 	CFGGenerator retrieveCFGGenerator() {
-		if(cfgGenerator == null)
-			throw new IllegalStateException("you have to call analyze() first before retrieving the CFGGenerator");
+		if (cfgGenerator == null)
+			throw new IllegalStateException(
+			        "you have to call analyze() first before retrieving the CFGGenerator");
 		return cfgGenerator;
 	}
-	
+
 	// inherited from asm.Analyzer
 
 	/**
@@ -93,7 +86,7 @@ public class BytecodeAnalyzer extends Analyzer {
 	@Override
 	protected void newControlFlowEdge(int src, int dst) {
 
-		cfgGenerator.registerControlFlowEdge(src,dst, getFrames(),false);
+		cfgGenerator.registerControlFlowEdge(src, dst, getFrames(), false);
 	}
 
 	/**
@@ -102,11 +95,11 @@ public class BytecodeAnalyzer extends Analyzer {
 	@Override
 	protected boolean newControlFlowExceptionEdge(int src, int dst) {
 		// TODO: Make use of information that this is an exception edge?
-		cfgGenerator.registerControlFlowEdge(src, dst, getFrames(),true);
-	
+		cfgGenerator.registerControlFlowEdge(src, dst, getFrames(), true);
+
 		return true;
 	}
-	
+
 	@Override
 	protected Frame newFrame(int nLocals, int nStack) {
 		return new CFGFrame(nLocals, nStack);

@@ -56,7 +56,7 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 				        class_name, method.substring(method.lastIndexOf(".") + 1))));
 		}
 		// Branches
-		logger.info("Getting branches");
+		//logger.info("Getting branches");
 		for (String className : BranchPool.knownClasses()) {
 			for (String methodName : BranchPool.knownMethods(className)) {
 

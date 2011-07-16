@@ -27,7 +27,7 @@ public class CodeUnderTestException extends Exception{
 	/**
 	 * Used by code calling VariableReference.setObject/2 and .getObject()/1 
 	 * @param e
-	 * @return only there to make the compiler happy, this method always throws and exception
+	 * @return only there to make the compiler happy, this method always throws an exception
 	 * @throws IllegalAccessException
 	 * @throws IllegalArgumentException
 	 * @throws NullPointerException
@@ -45,6 +45,10 @@ public class CodeUnderTestException extends Exception{
 			throw (ExceptionInInitializerError)e;
 		}else{
 			logger.error("We expected the exception to be one of the listed but it was", e);
+			if(e instanceof NullPointerException)
+				logger.error("A");
+			if(e.getClass().equals(NullPointerException.class))
+				logger.error("B");
 			throw new AssertionError("We expected the exception to be one of the listed but it was" + e.getClass());
 		}
 	}

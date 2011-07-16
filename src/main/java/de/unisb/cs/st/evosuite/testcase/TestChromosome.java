@@ -437,7 +437,8 @@ public class TestChromosome extends ExecutableChromosome {
 	}
 
 	@Override
-	public ExecutionResult executeForFitnessFunction(TestSuiteFitnessFunction testSuiteFitnessFunction) {
+	public ExecutionResult executeForFitnessFunction(
+	        TestSuiteFitnessFunction testSuiteFitnessFunction) {
 		return testSuiteFitnessFunction.runTest(this.test);
 	}
 }

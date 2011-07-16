@@ -28,7 +28,7 @@ import de.unisb.cs.st.evosuite.assertion.InspectorTrace;
 import de.unisb.cs.st.evosuite.assertion.NullOutputTrace;
 import de.unisb.cs.st.evosuite.assertion.PrimitiveFieldTrace;
 import de.unisb.cs.st.evosuite.assertion.PrimitiveOutputTrace;
-import de.unisb.cs.st.javalanche.mutation.results.Mutation;
+import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
 
 public class ExecutionResult {
 	public enum Outcome {

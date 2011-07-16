@@ -1,10 +1,6 @@
 package de.unisb.cs.st.evosuite.cfg;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -26,7 +22,6 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
-import de.unisb.cs.st.evosuite.mutation.Mutateable;
 
 /**
  * Internal representation of a BytecodeInstruction
@@ -41,7 +36,7 @@ import de.unisb.cs.st.evosuite.mutation.Mutateable;
  * @author Gordon Fraser, Andre Mis
  * 
  */
-public class BytecodeInstruction extends ASMWrapper implements Mutateable {
+public class BytecodeInstruction extends ASMWrapper {
 
 	// identification of a byteCode instruction inside EvoSuite
 	protected String className;
@@ -51,13 +46,6 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 
 	// auxiliary information
 	private int lineNumber = -1;
-
-	// --- - Mutations - ---
-	// Calculate distance to each mutation
-	private final Map<Long, Integer> mutant_distance = new HashMap<Long, Integer>();
-	private final List<Long> mutations = new ArrayList<Long>();
-	private boolean mutationBranch = false;
-	private boolean mutatedBranch = false;
 
 	// experiment: since finding the control dependent branches in the CDG might
 	// take a little to long, we might want to remember them
@@ -158,7 +146,6 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		return className;
 	}
 
-	@Override
 	public String getName() {
 		return "BytecodeInstruction " + instructionId + " in " + methodName;
 	}
@@ -206,72 +193,6 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 */
 	public boolean hasBasicBlockSet() {
 		return basicBlock != null;
-	}
-
-	// mutation part
-
-	@Override
-	public boolean isMutation() {
-		return !mutations.isEmpty();
-		/*
-		 * if(node instanceof LdcInsnNode) {
-		 * 
-		 * if(((LdcInsnNode)node).cst.toString().contains("mutationId")) {
-		 * logger.info("!!!!! Found mutation!"); } } return false;
-		 */
-	}
-
-	@Override
-	public List<Long> getMutationIds() {
-		return mutations;
-		// String ids = ((LdcInsnNode)node).cst.toString();
-		// return Integer.parseInt(ids.substring(ids.indexOf("_")+1));
-	}
-
-	public boolean isMutationBranch() {
-		return isBranch() && mutationBranch;
-	}
-
-	public void setMutationBranch() {
-		mutationBranch = true;
-	}
-
-	public void setMutatedBranch() {
-		mutatedBranch = true;
-	}
-
-	public void setMutation(long id) {
-		mutations.add(id);
-	}
-
-	@Override
-	public boolean hasMutation(long id) {
-		return mutations.contains(id);
-	}
-
-	public void setMutationBranch(boolean mutationBranch) {
-		this.mutationBranch = mutationBranch;
-	}
-
-	public void setMutatedBranch(boolean mutatedBranch) {
-		this.mutatedBranch = mutatedBranch;
-	}
-
-	public boolean isMutatedBranch() {
-		// Mutated if HOMObserver of MutationObserver are called
-		return isBranch() && mutatedBranch;
-	}
-
-	@Override
-	public int getDistance(long id) {
-		if (mutant_distance.containsKey(id))
-			return mutant_distance.get(id);
-		return Integer.MAX_VALUE;
-	}
-
-	@Override
-	public void setDistance(long id, int distance) {
-		mutant_distance.put(id, distance);
 	}
 
 	@Override
@@ -610,13 +531,6 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	// String methods
 
 	public String explain() {
-		if (isMutation()) {
-			String ids = "Mutations: ";
-			for (long l : mutations) {
-				ids += " " + l;
-			}
-			return ids;
-		}
 		if (isActualBranch()) {
 			if (BranchPool.isKnownAsBranch(this)) {
 				Branch b = BranchPool.getBranchForInstruction(this);
@@ -649,7 +563,8 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		if (asmNode instanceof LabelNode) {
 			return "LABEL " + ((LabelNode) asmNode).getLabel().toString();
 		} else if (asmNode instanceof FieldInsnNode)
-			return "Field" + " " + asmNode.getOpcode() + " Type=" + type + ", Opcode="
+			return "Field" + " " + ((FieldInsnNode) asmNode).owner + "."
+			        + ((FieldInsnNode) asmNode).name + " Type=" + type + ", Opcode="
 			        + opcode;
 		else if (asmNode instanceof FrameNode)
 			return "Frame" + " " + asmNode.getOpcode() + " Type=" + type + ", Opcode="
@@ -669,8 +584,8 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 			        + ", Opcode=" + opcode + ", Stack: " + stack + " - Line: "
 			        + lineNumber;
 		else if (asmNode instanceof LdcInsnNode)
-			return "LDC " + ((LdcInsnNode) asmNode).cst + " Type=" + type + ", Opcode="
-			        + opcode; // cst starts with mutationid if
+			return "LDC " + ((LdcInsnNode) asmNode).cst + " Type=" + type; // + ", Opcode="; 
+		//+ opcode; // cst starts with mutationid if
 		// this is location of mutation
 		else if (asmNode instanceof LineNumberNode)
 			return "LINE " + " " + ((LineNumberNode) asmNode).line;

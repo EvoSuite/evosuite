@@ -1,14 +1,13 @@
 /**
  * 
  */
-package de.unisb.cs.st.evosuite.mutation;
+package de.unisb.cs.st.evosuite.coverage.mutation;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
-import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
  * @author Gordon Fraser
