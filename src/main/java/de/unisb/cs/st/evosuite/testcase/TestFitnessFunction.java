@@ -54,7 +54,6 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 		ExecutionResult result = new ExecutionResult(test, null);
 
 		try {
-			logger.debug("Executing test");
 			result = executor.execute(test);
 
 			int num = test.size();
@@ -81,6 +80,8 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 		TestChromosome c = (TestChromosome) individual;
 		ExecutionResult orig_result = c.getLastExecutionResult();
 		if (orig_result == null || c.isChanged()) {
+			logger.info("Running test for getFitness");
+
 			orig_result = runTest(c.test);
 			c.setLastExecutionResult(orig_result);
 			c.setChanged(false);

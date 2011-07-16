@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodNode;
@@ -37,11 +38,10 @@ import de.unisb.cs.st.evosuite.cfg.instrumentation.BranchInstrumentation;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.DefUseInstrumentation;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.LCSAJsInstrumentation;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.MethodInstrumentation;
+import de.unisb.cs.st.evosuite.cfg.instrumentation.MutationInstrumentation;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.PrimePathInstrumentation;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyInstrumentation;
-import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.AbstractMutationAdapter;
-import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
  * Create a minimized control flow graph for the method and store it. In
@@ -54,7 +54,7 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
  * @author Gordon Fraser
  * 
  */
-public class CFGMethodAdapter extends AbstractMutationAdapter {
+public class CFGMethodAdapter extends MethodAdapter {
 
 	private static Logger logger = Logger.getLogger(CFGMethodAdapter.class);
 
@@ -81,23 +81,22 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 
 	private final MethodVisitor next;
 	private final String plain_name;
-	private final List<Mutation> mutants;
 	private final int access;
 	private final String className;
 
 	public CFGMethodAdapter(String className, int access, String name, String desc,
-	        String signature, String[] exceptions, MethodVisitor mv,
-	        List<Mutation> mutants) {
+	        String signature, String[] exceptions, MethodVisitor mv) {
 
-		super(new MethodNode(access, name, desc, signature, exceptions), className,
-		        name.replace('/', '.'), null, desc);
+		//		super(new MethodNode(access, name, desc, signature, exceptions), className,
+		//		        name.replace('/', '.'), null, desc);
+
+		super(new MethodNode(access, name, desc, signature, exceptions));
 
 		this.next = mv;
 		this.className = className; // .replace('/', '.');
 		this.access = access;
 		this.methodName = name + desc;
 		this.plain_name = name;
-		this.mutants = mutants;
 	}
 
 	@Override
@@ -120,6 +119,9 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 		} else if (Properties.CRITERION == Criterion.PATH) {
 			instrumentations.add(new PrimePathInstrumentation());
 			instrumentations.add(new BranchInstrumentation());
+		} else if (Properties.CRITERION == Criterion.MUTATION) {
+			instrumentations.add(new BranchInstrumentation());
+			instrumentations.add(new MutationInstrumentation());
 		} else {
 			instrumentations.add(new BranchInstrumentation());
 		}
@@ -146,7 +148,7 @@ public class CFGMethodAdapter extends AbstractMutationAdapter {
 			// MethodNode mn = new CFGMethodNode((MethodNode)mv);
 			// System.out.println("Generating CFG for "+ className+"."+mn.name +
 			// " ("+mn.desc +")");
-			BytecodeAnalyzer bytecodeAnalyzer = new BytecodeAnalyzer(mutants);
+			BytecodeAnalyzer bytecodeAnalyzer = new BytecodeAnalyzer();
 			logger.info("Generating CFG for method " + methodName);
 
 			try {

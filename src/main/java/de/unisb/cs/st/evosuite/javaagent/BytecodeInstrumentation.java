@@ -32,7 +32,6 @@ import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.cfg.CFGClassAdapter;
 import de.unisb.cs.st.evosuite.primitives.PrimitiveClassAdapter;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
@@ -45,7 +44,6 @@ import de.unisb.cs.st.evosuite.testcase.TestCluster;
  * 
  */
 public class BytecodeInstrumentation implements ClassFileTransformer {
-	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION;
 
 	protected static Logger logger = Logger.getLogger(BytecodeInstrumentation.class);
 
@@ -115,9 +113,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 					}
 
 					// Collect constant values for the value pool
-					if (!MUTATION) {
-						cv = new PrimitiveClassAdapter(cv, className);
-					}
+					cv = new PrimitiveClassAdapter(cv, className);
 
 					// If we need to reset static constructors, make them
 					// explicit methods

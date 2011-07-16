@@ -26,7 +26,6 @@ import org.apache.log4j.Logger;
 import org.junit.runner.JUnitCore;
 
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
@@ -132,7 +131,7 @@ public class JUnitTestSuite {
 
 			int num = test.size();
 			MaxStatementsStoppingCondition.statementsExecuted(num);
-			result.touched.addAll(HOMObserver.getTouched());
+			//result.touched.addAll(HOMObserver.getTouched());
 
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);

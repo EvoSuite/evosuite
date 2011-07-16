@@ -49,7 +49,7 @@ public class PrimitiveAssertion extends Assertion {
 	@Override
 	public Assertion clone(TestCase newTestCase) {
 		PrimitiveAssertion s = new PrimitiveAssertion();
-		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
+		s.source = source.clone(newTestCase);
 		s.value = value;
 		return s;
 	}

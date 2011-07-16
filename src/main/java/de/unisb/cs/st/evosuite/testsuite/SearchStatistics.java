@@ -35,7 +35,6 @@ import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxFitnessEvaluationsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
-import de.unisb.cs.st.evosuite.mutation.MutationSuiteFitness;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
@@ -407,11 +406,6 @@ public class SearchStatistics extends ReportGenerator {
 			entry.total_branches = fitness.total_branches;
 			entry.branchless_methods = fitness.branchless_methods;
 			entry.total_methods = fitness.total_methods;
-		} else if (algorithm.getFitnessFunction() instanceof MutationSuiteFitness) {
-			MutationSuiteFitness fitness = (MutationSuiteFitness) algorithm.getFitnessFunction();
-			entry.total_branches = fitness.getNumGoals();
-			entry.total_methods = 0;
-			entry.branchless_methods = 0;
 		}
 	}
 

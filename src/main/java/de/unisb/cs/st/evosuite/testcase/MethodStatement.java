@@ -137,7 +137,7 @@ public class MethodStatement extends AbstractStatement {
 							throw new CodeUnderTestException(new NullPointerException());
 						}
 					} catch (CodeUnderTestException e) {
-						throw CodeUnderTestException.throwException(e);
+						throw CodeUnderTestException.throwException(e.getCause());
 					} catch(Throwable e){
 						throw new EvosuiteError(e);
 					}
@@ -273,7 +273,7 @@ public class MethodStatement extends AbstractStatement {
 
 		}
 
-		m.assertions = cloneAssertions(newTestCase);
+		// m.assertions = cloneAssertions(newTestCase);
 
 		return m;
 	}

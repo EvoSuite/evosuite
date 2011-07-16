@@ -95,7 +95,11 @@ public class AssignmentStatement extends AbstractStatement {
 					final Object value = parameter.getObject(scope);
 					retval.setObject(scope, value);
 				} catch (CodeUnderTestException e) {
-					throw CodeUnderTestException.throwException(e);
+					throw CodeUnderTestException.throwException(e.getCause());
+				} catch(IllegalArgumentException e) {
+					// FIXXME: IllegalArgumentException may happen when we only have generators
+					// for an abstract supertype and not the concrete type that we need!
+					throw e;
 				} catch (Throwable e){
 					throw new EvosuiteError(e);
 				}

@@ -84,7 +84,6 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 		return result;
 	}
 
-	
 	protected static boolean hasTimeout(ExecutionResult result) {
 
 		if (result == null) {
@@ -107,7 +106,8 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 		individual.setFitness(fitness);
 	}
 
-	protected List<ExecutionResult> runTestSuite(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+	protected List<ExecutionResult> runTestSuite(
+	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		CurrentChromosomeTracker.getInstance().modification(suite);
 		List<ExecutionResult> results = new ArrayList<ExecutionResult>();
 
@@ -115,10 +115,10 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 			// Only execute test if it hasn't been changed
 			if (chromosome.isChanged() || chromosome.getLastExecutionResult() == null) {
 				ExecutionResult result = chromosome.executeForFitnessFunction(this);
-				
+
 				if (result != null) {
 					results.add(result);
-				
+
 					chromosome.setLastExecutionResult(result); // .clone();
 					chromosome.setChanged(false);
 				}

@@ -478,7 +478,7 @@ public class DefaultTestCase implements TestCase {
 			StatementInterface copy = s.clone(t);
 			t.statements.add(copy);
 			copy.SetRetval(s.getReturnValue().clone(t));
-
+			copy.setAssertions(s.cloneAssertions(t));
 		}
 		t.coveredGoals.addAll(coveredGoals);
 		//t.exception_statement = exception_statement;

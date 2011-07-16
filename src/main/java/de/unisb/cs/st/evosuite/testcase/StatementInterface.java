@@ -139,6 +139,14 @@ public interface StatementInterface {
 	public StatementInterface clone();
 
 	/**
+	 * 
+	 * @param newTestCase
+	 *            the testcase in which this statement will be inserted
+	 * @return
+	 */
+	public Set<Assertion> cloneAssertions(TestCase newTestCase);
+
+	/**
 	 * Check if there are assertions
 	 * 
 	 * @return True if there are assertions
@@ -152,6 +160,14 @@ public interface StatementInterface {
 	 *            Assertion to be added
 	 */
 	public void addAssertion(Assertion assertion);
+
+	/**
+	 * Sets the set of assertions to statement
+	 * 
+	 * @param assertion
+	 *            Assertions to be added
+	 */
+	public void setAssertions(Set<Assertion> assertions);
 
 	/**
 	 * Get Java code representation of assertions
@@ -201,18 +217,23 @@ public interface StatementInterface {
 	public boolean mutate(TestCase test, AbstractTestFactory factory);
 
 	public void SetRetval(VariableReference newRetVal);
-	
+
 	/**
-	 * Returns the accessibleObject which is used to generate this kind of statement
-	 * E.g. the Field of a FieldStatement, the Method of a MethodStatement and so on
-	 * MAY return NULL (for example for NullStatements)
+	 * Returns the accessibleObject which is used to generate this kind of
+	 * statement E.g. the Field of a FieldStatement, the Method of a
+	 * MethodStatement and so on MAY return NULL (for example for
+	 * NullStatements)
+	 * 
 	 * @return
 	 */
 	public AccessibleObject getAccessibleObject();
 
 	/**
-	 * Returns true if this statement should be handled as an AssignmentStatement. 
-	 * This method was added to allow the wrapping of AssignmentStatements (in which case "a instanceof AssignmentStatement" is no longer working)
+	 * Returns true if this statement should be handled as an
+	 * AssignmentStatement. This method was added to allow the wrapping of
+	 * AssignmentStatements (in which case "a instanceof AssignmentStatement" is
+	 * no longer working)
+	 * 
 	 * @return
 	 */
 	public boolean isAssignmentStatement();

@@ -4,10 +4,6 @@
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -177,38 +173,6 @@ public class ValueMinimizer implements TestVisitor {
 
 	}
 
-	private int getNumParameters(AccessibleObject o) {
-		int num = 0;
-		if (o instanceof Method) {
-			Method m = (Method) o;
-			if (Modifier.isStatic(m.getModifiers()))
-				num++;
-			num += m.getParameterTypes().length;
-		} else if (o instanceof Constructor<?>) {
-			Constructor<?> c = (Constructor<?>) o;
-			num = c.getParameterTypes().length;
-		} else if (o instanceof Field) {
-			Field f = (Field) o;
-			if (Modifier.isStatic(f.getModifiers()))
-				num++;
-
-		}
-		return num;
-	}
-
-	private boolean isPrimitive(AccessibleObject o) {
-		if (o instanceof Method) {
-			Method m = (Method) o;
-			return m.getReturnType().isPrimitive();
-		} else if (o instanceof Constructor<?>) {
-			return false;
-		} else if (o instanceof Field) {
-			Field f = (Field) o;
-			return f.getType().isPrimitive();
-		}
-		return false;
-	}
-
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitMethodStatement(de.unisb.cs.st.evosuite.testcase.MethodStatement)
 	 */
@@ -219,7 +183,6 @@ public class ValueMinimizer implements TestVisitor {
 			TestCluster cluster = TestCluster.getInstance();
 			DefaultTestFactory factory = DefaultTestFactory.getInstance();
 
-			int numParameters = statement.parameters.size();
 			StatementInterface copy = statement;
 			int position = copy.getPosition();
 
@@ -232,7 +195,6 @@ public class ValueMinimizer implements TestVisitor {
 					factory.changeCall(test, statement, generator);
 					if (objective.isNotWorse()) {
 						//logger.info(test.toCode());
-						numParameters = getNumParameters(generator);
 						copy = statement;
 						logger.info("Success replacement with " + generator);
 					} else {
