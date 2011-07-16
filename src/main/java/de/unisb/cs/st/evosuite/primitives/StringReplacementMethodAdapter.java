@@ -28,10 +28,6 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 
-import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.MutationMarker;
-
 /**
  * @author Gordon Fraser
  * 
@@ -41,8 +37,6 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 	protected static Logger logger = Logger.getLogger(StringReplacementMethodAdapter.class);
 
 	private final Map<Integer, Integer> flags = new HashMap<Integer, Integer>();
-
-	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION;
 
 	private int current_var = -1;
 
@@ -70,11 +64,6 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 		// then put a converted boolean on the stack
 		Label l = new Label();
 		Label l2 = new Label();
-		if (MUTATION) {
-			Label mutationStartLabel = new Label();
-			mutationStartLabel.info = new MutationMarker(true);
-			super.visitLabel(mutationStartLabel);
-		}
 
 		super.visitJumpInsn(Opcodes.IFNE, l);
 		super.visitInsn(Opcodes.ICONST_1);
@@ -82,12 +71,6 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 		super.visitLabel(l);
 		super.visitInsn(Opcodes.ICONST_0);
 		super.visitLabel(l2);
-
-		if (MUTATION) {
-			Label mutationEndLabel = new Label();
-			mutationEndLabel.info = new MutationMarker(false);
-			super.visitLabel(mutationEndLabel);
-		}
 
 	}
 

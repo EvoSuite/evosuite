@@ -42,6 +42,9 @@ import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.mutation.MutationFactory;
+import de.unisb.cs.st.evosuite.coverage.mutation.MutationSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -71,9 +74,6 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import de.unisb.cs.st.evosuite.junit.TestSuite;
-import de.unisb.cs.st.evosuite.mutation.MutationGoalFactory;
-import de.unisb.cs.st.evosuite.mutation.MutationSuiteFitness;
-import de.unisb.cs.st.evosuite.mutation.MutationTimeoutStoppingCondition;
 import de.unisb.cs.st.evosuite.primitives.ObjectPool;
 import de.unisb.cs.st.evosuite.testcase.ConstantInliner;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -135,9 +135,9 @@ public class TestSuiteGenerator {
 
 		if (Properties.CRITERION == Criterion.MUTATION) {
 			MutationAssertionGenerator asserter = new MutationAssertionGenerator();
-			Set<Long> tkilled = new HashSet<Long>();
+			Set<Integer> tkilled = new HashSet<Integer>();
 			for (TestCase test : tests) {
-				Set<Long> killed = new HashSet<Long>();
+				Set<Integer> killed = new HashSet<Integer>();
 				asserter.addAssertions(test, killed);
 				tkilled.addAll(killed);
 			}
@@ -213,7 +213,7 @@ public class TestSuiteGenerator {
 			ValueMinimizer minimizer = new ValueMinimizer();
 			minimizer.minimize(best, (TestSuiteFitnessFunction) fitness_function);
 		}
-		
+
 		if (Properties.INLINE) {
 			ConstantInliner inliner = new ConstantInliner();
 			inliner.inline(best);
@@ -292,7 +292,7 @@ public class TestSuiteGenerator {
 	public TestFitnessFactory getFitnessFactory() {
 		switch (Properties.CRITERION) {
 		case MUTATION:
-			return new MutationGoalFactory();
+			return new MutationFactory();
 		case LCSAJ:
 			return new LCSAJCoverageFactory();
 		case DEFUSE:
@@ -324,7 +324,7 @@ public class TestSuiteGenerator {
 			random_tests = random_tests / 10;
 		}
 		factory.setNumberOfTests(random_tests);
-		TestSuiteChromosome chromosome = (TestSuiteChromosome) factory.getChromosome();
+		TestSuiteChromosome chromosome = factory.getChromosome();
 		if (random_tests > 0) {
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goals);
 			minimizer.minimize(chromosome);
@@ -569,8 +569,10 @@ public class TestSuiteGenerator {
 
 		Set<Integer> r = new HashSet<Integer>();
 		ExecutionResult result = best.getLastExecutionResult();
-		if (result == null)
-			result = TestCaseExecutor.getInstance().execute(best.test);
+		assert (result != null);
+		//		if (result == null) {
+		//			result = TestCaseExecutor.getInstance().execute(best.test);
+		//		}
 		int num = -1;
 		for (TestFitnessFunction goal : goals) {
 			num++;
@@ -695,7 +697,8 @@ public class TestSuiteGenerator {
 		}
 	}
 
-	public GeneticAlgorithm getGeneticAlgorithm(ChromosomeFactory<? extends Chromosome> factory) {
+	public GeneticAlgorithm getGeneticAlgorithm(
+	        ChromosomeFactory<? extends Chromosome> factory) {
 		switch (Properties.ALGORITHM) {
 		case ONEPLUSONEEA:
 			logger.info("Chosen search algorithm: (1+1)EA");

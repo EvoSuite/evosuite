@@ -455,7 +455,7 @@ public class Properties {
 
 	@Parameter(key = "TARGET_CLASS_PREFIX", group = "Runtime", description = "Prefix of classes we are trying to cover")
 	public static String TARGET_CLASS_PREFIX = "";
-	
+
 	/** Class under test */
 	@Parameter(key = "TARGET_CLASS", group = "Runtime", description = "Class under test")
 	public static String TARGET_CLASS = "";
@@ -466,6 +466,12 @@ public class Properties {
 
 	@Parameter(key = "OUTPUT_DIR", group = "Runtime", description = "Directory in which to put generated files")
 	public static String OUTPUT_DIR = "evosuite-files";
+
+	@Parameter(key = "hierarchy_data", group = "Runtime", description = "File in which hierarchy data is stored")
+	public static String HIERARCHY_DATA = "hierarchy.xml";
+
+	@Parameter(key = "connection_data", group = "Runtime", description = "File in which connection data is stored")
+	public static String CONNECTION_DATA = "connection.xml";
 
 	@Parameter(key = "criterion", group = "Runtime", description = "Coverage criterion")
 	public static Criterion CRITERION = Criterion.BRANCH;

@@ -133,6 +133,10 @@ public class TestCaseExecutor implements ThreadFactory {
 	}
 
 	public void addObserver(ExecutionObserver observer) {
+		// FIXXME: Find proper solution for this
+		//for (ExecutionObserver o : observers)
+		//	if (o.getClass().equals(observer.getClass()))
+		//		return;
 		observers.add(observer);
 	}
 

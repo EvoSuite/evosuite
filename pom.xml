@@ -133,16 +133,6 @@
 	<artifactId>JavaPlot</artifactId>
 	<version>0.4.0</version>
       </dependency>
-      <dependency>
-	<groupId>org.softevo</groupId>
-	<artifactId>jadet</artifactId>
-	<version>0.1.0</version>
-      </dependency>
-      <dependency>
-	<groupId>de.unisb.cs.st</groupId>
-	<artifactId>javalanche</artifactId>
-	<version>0.4.0-EvoSuite-2</version>
-      </dependency>
 
       <!-- Dependencies needed by javalanche -->
       <dependency>
@@ -192,118 +182,10 @@
 	</exclusions>
       </dependency>
       <dependency>
-	<groupId>antlr</groupId>
-	<artifactId>antlr</artifactId>
-	<version>2.7.7</version>
-      </dependency>
-      <dependency>
-	<groupId>c3p0</groupId>
-	<artifactId>c3p0</artifactId>
-	<version>0.9.1.2</version>
-      </dependency>
-      <dependency>
-	<groupId>cglib</groupId>
-	<artifactId>cglib</artifactId>
-	<version>2.2</version>
-	<exclusions>
-	  <exclusion>
-	    <groupId>asm</groupId>
-	    <artifactId>asm</artifactId>
-	  </exclusion>
-	</exclusions>
-      </dependency>
-      <dependency>
-	<groupId>commons-collections</groupId>
-	<artifactId>commons-collections</artifactId>
-	<version>3.2.1</version>
-      </dependency>
-      <dependency>
-	<groupId>commons-lang</groupId>
-	<artifactId>commons-lang</artifactId>
-	<version>2.6</version>
-      </dependency>
-      <dependency>
-	<groupId>commons-logging</groupId>
-	<artifactId>commons-logging</artifactId>
-	<version>1.1.1</version>
-      </dependency>
-      <dependency>
-	<groupId>commons-io</groupId>
-	<artifactId>commons-io</artifactId>
-	<version>1.4</version>
-      </dependency>
-      <dependency>
-	<groupId>dom4j</groupId>
-	<artifactId>dom4j</artifactId>
-	<version>1.6.1</version>
-      </dependency>
-      <dependency>
-	<groupId>com.google.guava</groupId>
-	<artifactId>guava</artifactId>
-	<version>r07</version>
-      </dependency>
-      <dependency>
-	<groupId>javax.transaction</groupId>
-	<artifactId>jta</artifactId>
-	<version>1.1</version>
-      </dependency>
-      <dependency>
-	<groupId>mysql</groupId>
-	<artifactId>mysql-connector-java</artifactId>
-	
-	<version>5.1.9</version>
-	<!--
-	<version>5.1.16</version>
-	-->	
-      </dependency>
-      <dependency>
 	<groupId>com.thoughtworks.xstream</groupId>
 	<artifactId>xstream</artifactId>
 	<version>1.3.1</version>
       </dependency>      
-      <dependency>
-	<groupId>org.hibernate</groupId>
-	<artifactId>hibernate</artifactId>
-	<version>3.2.7.ga</version>
-	<exclusions>
-	  <exclusion>
-	    <groupId>asm</groupId>
-	    <artifactId>asm</artifactId>
-	  </exclusion>
-	  <exclusion>
-	    <groupId>asm</groupId>
-	    <artifactId>asm-attrs</artifactId>
-	  </exclusion>
-	  <exclusion>
-	    <groupId>asm</groupId>
-	    <artifactId>asm-all</artifactId>
-	  </exclusion>
-	</exclusions>
-      </dependency>
-      
-      <dependency>
-	<groupId>org.hibernate</groupId>
-	<artifactId>hibernate-annotations</artifactId>
-	<version>3.3.0.ga</version>
-      </dependency>
-      <dependency>
-	<groupId>org.hibernate</groupId>
-	<artifactId>hibernate-commons-annotations</artifactId>
-	<version>3.3.0.ga</version>
-      </dependency>
-      
-      <dependency>
-	<groupId>org.hibernate</groupId>
-	<artifactId>hibernate-tools</artifactId>
-	<version>3.2.3.GA</version> 
-      </dependency>
-      
-      <dependency>
-	<groupId>hsqldb</groupId>
-	<artifactId>hsqldb</artifactId>
-	<version>1.8.0.1</version>
-      </dependency>
-      
 <!--
       <dependency>
 	<groupId>org.prefuse</groupId>
@@ -330,7 +212,22 @@
 	<artifactId>google-collections</artifactId>
 	<version>1.0</version>
       </dependency>
-
+ 
+      <dependency> 
+        <groupId>commons-collections</groupId>  
+        <artifactId>commons-collections</artifactId>
+        <version>3.2.1</version>
+      </dependency> 
+      <dependency> 
+        <groupId>commons-lang</groupId>  
+        <artifactId>commons-lang</artifactId>
+        <version>2.6</version>
+      </dependency> 
+      <dependency> 
+        <groupId>commons-io</groupId>  
+        <artifactId>commons-io</artifactId>
+        <version>1.4</version>
+      </dependency> 
 <!--      
       <dependency>
 	<groupId>de.unisb.cs.st</groupId>

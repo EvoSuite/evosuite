@@ -19,14 +19,9 @@
 package de.unisb.cs.st.evosuite.javaagent;
 
 import org.apache.log4j.Logger;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-
-import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.MutationMarker;
 
 /**
  * Instrument classes to trace return values
@@ -38,8 +33,6 @@ public class ReturnValueAdapter extends MethodAdapter {
 
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(LineNumberMethodAdapter.class);
-
-	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION;
 
 	private final String fullMethodName;
 
@@ -65,31 +58,21 @@ public class ReturnValueAdapter extends MethodAdapter {
 		if (!methodName.equals("<clinit>")) {
 			switch (opcode) {
 			case Opcodes.IRETURN:
-				insertMutationMarker(true);
 				callLogIReturn();
-				insertMutationMarker(false);
 				break;
 			case Opcodes.ARETURN:
-				insertMutationMarker(true);
 				callLogAReturn();
-				insertMutationMarker(false);
 				break;
 			case Opcodes.ATHROW:
 				break;
 			case Opcodes.DRETURN:
-				insertMutationMarker(true);
 				callLogDReturn();
-				insertMutationMarker(false);
 				break;
 			case Opcodes.FRETURN:
-				insertMutationMarker(true);
 				callLogFReturn();
-				insertMutationMarker(false);
 				break;
 			case Opcodes.LRETURN:
-				insertMutationMarker(true);
 				callLogLReturn();
-				insertMutationMarker(false);
 				break;
 			case Opcodes.RETURN:
 				break;
@@ -99,14 +82,6 @@ public class ReturnValueAdapter extends MethodAdapter {
 		}
 		super.visitInsn(opcode);
 
-	}
-
-	private void insertMutationMarker(boolean start) {
-		if (MUTATION) {
-			Label mutationLabel = new Label();
-			mutationLabel.info = new MutationMarker(start);
-			mv.visitLabel(mutationLabel);
-		}
 	}
 
 	private void callLogPrototype(String traceMethod, PDType type) {

@@ -122,7 +122,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	 * 
 	 * @return List of the assertion copies
 	 */
-	protected Set<Assertion> cloneAssertions(TestCase newTestCase) {
+	public Set<Assertion> cloneAssertions(TestCase newTestCase) {
 		Set<Assertion> copy = new HashSet<Assertion>();
 		for (Assertion a : assertions) {
 			if (a == null) {
@@ -153,6 +153,14 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 			logger.debug("Adding assertion");
 			assertions.add(assertion);
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#setAssertions(java.util.Set)
+	 */
+	@Override
+	public void setAssertions(Set<Assertion> assertions) {
+		this.assertions = assertions;
 	}
 
 	/* (non-Javadoc)

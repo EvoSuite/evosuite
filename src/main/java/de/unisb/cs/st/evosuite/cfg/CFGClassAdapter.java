@@ -18,9 +18,6 @@
 
 package de.unisb.cs.st.evosuite.cfg;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
@@ -28,9 +25,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.evosuite.mutation.HOM.HOMSwitcher;
-import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
  * The CFGClassAdapter calls a CFG generator for relevant methods
@@ -44,8 +38,6 @@ public class CFGClassAdapter extends ClassAdapter {
 
 	/** Current class */
 	private final String className;
-
-	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION;
 
 	/**
 	 * Constructor
@@ -82,14 +74,9 @@ public class CFGClassAdapter extends ClassAdapter {
 			return mv;
 		}
 		String classNameWithDots = className.replace('/', '.');
-		List<Mutation> mutants = new ArrayList<Mutation>();
-		if (MUTATION) {
-			HOMSwitcher switcher = new HOMSwitcher();
-			mutants = switcher.getMutants();
-		}
 
 		mv = new CFGMethodAdapter(classNameWithDots, methodAccess, name, descriptor,
-		        signature, exceptions, mv, mutants);
+		        signature, exceptions, mv);
 		/*
 				if (!exclude) {
 					if(false) {

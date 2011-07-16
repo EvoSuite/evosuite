@@ -265,8 +265,10 @@ public class TestSuite implements Opcodes {
 		 * You should have received a copy of the GNU Lesser Public License
 		 * along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
 		 */
-		builder.append("package ");
-		builder.append(Properties.CLASS_PREFIX);
+		if (!Properties.CLASS_PREFIX.equals("")) {
+			builder.append("package ");
+			builder.append(Properties.CLASS_PREFIX);
+		}
 		// builder.append(Properties.PROJECT_PREFIX);
 
 		// String target_class =
@@ -469,8 +471,10 @@ public class TestSuite implements Opcodes {
 		// return;
 
 		StringBuilder builder = new StringBuilder();
-		builder.append("package ");
-		builder.append(Properties.PROJECT_PREFIX);
+		if (!Properties.PROJECT_PREFIX.equals("")) {
+			builder.append("package ");
+			builder.append(Properties.PROJECT_PREFIX);
+		}
 		// builder.append(".GeneratedTests;");
 		builder.append(";\n\n");
 		builder.append("import junit.framework.Test;\n");

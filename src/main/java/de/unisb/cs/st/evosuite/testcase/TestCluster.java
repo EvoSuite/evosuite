@@ -45,16 +45,16 @@ import org.jgrapht.graph.DefaultEdge;
 
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.callgraph.ConnectionData;
+import de.unisb.cs.st.evosuite.callgraph.Hierarchy;
+import de.unisb.cs.st.evosuite.callgraph.MethodDescription;
+import de.unisb.cs.st.evosuite.callgraph.Tuple;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.javaagent.StaticInitializationClassAdapter;
 import de.unisb.cs.st.evosuite.javaagent.TestabilityTransformation;
 import de.unisb.cs.st.evosuite.utils.Randomness;
-import de.unisb.cs.st.javalanche.coverage.distance.ConnectionData;
-import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
-import de.unisb.cs.st.javalanche.coverage.distance.MethodDescription;
-import de.unisb.cs.st.javalanche.coverage.distance.Tuple;
 
 /**
  * The test cluster contains the information about all classes and their members
@@ -95,7 +95,7 @@ public class TestCluster {
 	public static final List<String> EXCLUDE = Arrays.asList("<clinit>", "__STATIC_RESET");
 
 	private static Hierarchy hierarchy = Hierarchy.readFromDefaultLocation();
-	
+
 	public int num_defined_methods = 0;
 
 	/**
@@ -128,23 +128,24 @@ public class TestCluster {
 
 		return instance;
 	}
-	
+
 	public static boolean isTargetClassName(String className) {
-		if (!Properties.TARGET_CLASS_PREFIX.isEmpty() && className.startsWith(Properties.TARGET_CLASS_PREFIX)) {
+		if (!Properties.TARGET_CLASS_PREFIX.isEmpty()
+		        && className.startsWith(Properties.TARGET_CLASS_PREFIX)) {
 			return true;
 		}
-		
-		if (className.equals(Properties.TARGET_CLASS) || className.startsWith(Properties.TARGET_CLASS + "$")) {
+
+		if (className.equals(Properties.TARGET_CLASS)
+		        || className.startsWith(Properties.TARGET_CLASS + "$")) {
 			return true;
 		}
 
 		if (Properties.INSTRUMENT_PARENT) {
 			return hierarchy.getAllSupers(Properties.TARGET_CLASS).contains(className);
 		}
-		
+
 		return false;
 	}
-
 
 	/**
 	 * Get a list of all generator objects for the type

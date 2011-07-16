@@ -22,11 +22,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.assertion.StringTraceExecutionObserver;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 
 /**
@@ -97,18 +95,18 @@ public class TestCaseMinimizer {
 		}
 		logger.info("Minimizing test case");
 		//logger.info(c.test.toCode());
+		/*
+				Logger logger1 = Logger.getLogger(fitness_function.getClass());
+				Level old_level1 = logger.getLevel();
+				//logger1.setLevel(Level.OFF);
+				Logger logger2 = Logger.getLogger(DefaultTestCase.class);
+				Level old_level2 = logger.getLevel();
+				logger2.setLevel(Level.OFF);
 
-		Logger logger1 = Logger.getLogger(fitness_function.getClass());
-		Level old_level1 = logger.getLevel();
-		//logger1.setLevel(Level.OFF);
-		Logger logger2 = Logger.getLogger(DefaultTestCase.class);
-		Level old_level2 = logger.getLevel();
-		logger2.setLevel(Level.OFF);
-
-		Logger logger3 = Logger.getLogger(StringTraceExecutionObserver.class);
-		Level old_level3 = logger.getLevel();
-		logger3.setLevel(Level.OFF);
-
+				Logger logger3 = Logger.getLogger(StringTraceExecutionObserver.class);
+				Level old_level3 = logger.getLevel();
+				logger3.setLevel(Level.OFF);
+		*/
 		/** Factory method that handles statement deletion */
 
 		AbstractTestFactory test_factory = DefaultTestFactory.getInstance();
@@ -150,9 +148,9 @@ public class TestCaseMinimizer {
 			}
 
 		}
-		logger1.setLevel(old_level1);
-		logger2.setLevel(old_level2);
-		logger3.setLevel(old_level3);
+		//		logger1.setLevel(old_level1);
+		//logger2.setLevel(old_level2);
+		//logger3.setLevel(old_level3);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Minimized test case: ");
 			logger.debug(c.test.toCode());
