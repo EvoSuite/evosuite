@@ -43,13 +43,6 @@ public abstract class StoppingCondition implements SearchListener {
 
 	public abstract boolean isFinished();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.javalanche.ga.SearchListener#searchStarted(de.unisb.cs
-	 * .st.javalanche.ga.FitnessFunction)
-	 */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
 

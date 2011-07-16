@@ -167,6 +167,35 @@ public abstract class ASMWrapper {
 		return asmNode instanceof MethodInsnNode;
 	}
 
+	public boolean isLoadConstant() {
+		return asmNode.getOpcode() == Opcodes.LDC;
+	}
+
+	public boolean isConstant() {
+		switch (asmNode.getOpcode()) {
+		case Opcodes.LDC:
+		case Opcodes.ICONST_0:
+		case Opcodes.ICONST_1:
+		case Opcodes.ICONST_2:
+		case Opcodes.ICONST_3:
+		case Opcodes.ICONST_4:
+		case Opcodes.ICONST_5:
+		case Opcodes.ICONST_M1:
+		case Opcodes.LCONST_0:
+		case Opcodes.LCONST_1:
+		case Opcodes.DCONST_0:
+		case Opcodes.DCONST_1:
+		case Opcodes.FCONST_0:
+		case Opcodes.FCONST_1:
+		case Opcodes.FCONST_2:
+		case Opcodes.BIPUSH:
+		case Opcodes.SIPUSH:
+			return true;
+		default:
+			return false;
+		}
+	}
+
 	/**
 	 * 
 	 * @param methodName

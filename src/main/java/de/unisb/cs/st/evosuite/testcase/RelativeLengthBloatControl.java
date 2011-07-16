@@ -39,13 +39,6 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 	protected double best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
 	                                                  // minimizing fitness!
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.javalanche.ga.BloatControlFunction#isTooLong(de.unisb.
-	 * cs.st.javalanche.ga.Chromosome)
-	 */
 	@Override
 	public boolean isTooLong(Chromosome chromosome) {
 		// Always accept if fitness is better
@@ -65,65 +58,30 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 			return false; // Don't know max length so can't reject!
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.javalanche.ga.SearchListener#fitnessEvaluation(de.unisb
-	 * .cs.st.javalanche.ga.Chromosome)
-	 */
 	@Override
 	public void fitnessEvaluation(Chromosome result) {
 		// TODO Auto-generated method stub
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.javalanche.ga.SearchListener#iteration(de.unisb.cs.st.
-	 * javalanche.ga.Chromosome)
-	 */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
 		current_max = ((ExecutableChromosome) algorithm.getBestIndividual()).size();
 		best_fitness = algorithm.getBestIndividual().getFitness();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.javalanche.ga.SearchListener#searchFinished(de.unisb.cs
-	 * .st.javalanche.ga.Chromosome)
-	 */
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.javalanche.ga.SearchListener#searchStarted(de.unisb.cs
-	 * .st.javalanche.ga.FitnessFunction)
-	 */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.ga.SearchListener#mutation(de.unisb.cs.st.evosuite
-	 * .ga.Chromosome)
-	 */
 	@Override
 	public void modification(Chromosome individual) {
 		// TODO Auto-generated method stub

@@ -528,7 +528,7 @@ generateSuite ()
 			CLIENT="java -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate $javalanche_options $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION $MUTANTS -DTARGET_CLASS=$test_class $evosuite_client"
 			java -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP"  $random_seed $java_options $java_opts -DTARGET_CLASS=$test_class $evosuite_master $CLIENT
 		    else
-			echo "java -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP" $java_agent=generate $javalanche_options $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION $MUTANTS -DTARGET_CLASS=$test_class $evosuite_suite"
+			#echo "java -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP" $java_agent=generate $javalanche_options $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION $MUTANTS -DTARGET_CLASS=$test_class $evosuite_suite"
 			java -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP" $java_agent=generate $javalanche_options $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION $MUTANTS -DTARGET_CLASS=$test_class $evosuite_suite
 		    fi
 

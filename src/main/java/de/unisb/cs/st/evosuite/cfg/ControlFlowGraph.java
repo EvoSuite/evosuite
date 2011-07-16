@@ -18,17 +18,13 @@
 
 package de.unisb.cs.st.evosuite.cfg;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.jgrapht.graph.DefaultDirectedGraph;
-
-import de.unisb.cs.st.evosuite.mutation.Mutateable;
 
 /**
  * Abstract base class for both forms of CFGs inside EvoSuite
@@ -46,8 +42,7 @@ import de.unisb.cs.st.evosuite.mutation.Mutateable;
  * 
  * @author Gordon Fraser, Andre Mis
  */
-public abstract class ControlFlowGraph<V extends Mutateable> extends
-        EvoSuiteGraph<V, ControlFlowEdge> {
+public abstract class ControlFlowGraph<V> extends EvoSuiteGraph<V, ControlFlowEdge> {
 
 	private static Logger logger = Logger.getLogger(ControlFlowGraph.class);
 
@@ -138,69 +133,9 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends
 	 */
 	public void finalise() {
 		computeDiameter();
-		calculateMutationDistances();
 		// TODO: call this! 
 		// 	and sanity check with a flag whenever a call 
 		//  to this method is assumed to have been made
-	}
-
-	/**
-	 * For each node within this CFG that is known to contain a mutation the
-	 * distance from each node of this CFG to the that mutated node is computed
-	 * using getDistance() and those result are then stored in that mutated node
-	 */
-	private void calculateMutationDistances() {
-		logger.trace("Calculating mutation distances for " + className + "." + methodName);
-		for (V m : vertexSet())
-			if (m.isMutation())
-				for (Long id : m.getMutationIds())
-					for (V v : vertexSet()) {
-						int distance = getDistance(v, m);
-						if (distance >= 0)
-							v.setDistance(id, distance);
-						else
-							v.setDistance(id, getDiameter());
-					}
-	}
-
-	/**
-	 * Returns the node of this CFG that contains the mutation identified by the
-	 * given mutationId
-	 * 
-	 * If no such node exists, null is returned
-	 */
-	public V getMutation(long mutationId) {
-		for (V v : vertexSet())
-			if (v.hasMutation(mutationId))
-				return v;
-
-		return null;
-	}
-
-	/**
-	 * Returns a list of all mutationIds contained within this CFG
-	 * 
-	 * TODO why isn't the return-type a set? where does the order come from?
-	 */
-	public List<Long> getMutations() {
-		List<Long> ids = new ArrayList<Long>();
-		for (V v : vertexSet()) {
-			if (v.isMutation())
-				ids.addAll(v.getMutationIds());
-		}
-		return ids;
-	}
-
-	/**
-	 * Checks whether the mutation identified by the given mutationId is
-	 * contained in this CFG
-	 */
-	public boolean containsMutation(long id) {
-		for (V v : vertexSet()) {
-			if (v.isMutation() && v.hasMutation(id))
-				return true;
-		}
-		return false;
 	}
 
 	/**

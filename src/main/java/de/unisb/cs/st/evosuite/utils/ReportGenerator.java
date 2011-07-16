@@ -58,7 +58,6 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
-import de.unisb.cs.st.javalanche.mutation.analyze.html.HtmlAnalyzer;
 
 /**
  * @author Gordon Fraser

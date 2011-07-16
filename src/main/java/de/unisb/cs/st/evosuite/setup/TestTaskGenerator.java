@@ -42,9 +42,9 @@ import org.objectweb.asm.Type;
 
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.callgraph.Hierarchy;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
 import de.unisb.cs.st.evosuite.utils.Utils;
-import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
 
 /**
  * @author Gordon Fraser
@@ -515,7 +515,8 @@ public class TestTaskGenerator {
 			        && !method.getReturnType().equals(void.class)
 			        && method.getParameterTypes().length == 0
 			        && !method.getName().equals("hashCode")
-			        && !method.getDeclaringClass().equals(Object.class)) {
+			        && !method.getDeclaringClass().equals(Object.class)
+			        && !method.getName().equals("pop")) { // FIXXME
 				methods.add(method.getName() + Type.getMethodDescriptor(method));
 			}
 		}
