@@ -35,6 +35,9 @@ public class CodeUnderTestException extends Exception{
 	 * @throws AssertionError if e wasn't one of listed for types
 	 */
 	public static Error throwException(Throwable e) throws IllegalAccessException, IllegalArgumentException, NullPointerException, ExceptionInInitializerError{
+		if(e instanceof CodeUnderTestException){
+			e=e.getCause();
+		}
 		if(e instanceof IllegalAccessException){
 			throw (IllegalAccessException)e;
 		}else if(e instanceof IllegalArgumentException){
