@@ -142,7 +142,8 @@ public class FieldReference extends VariableReferenceImpl {
 							+ value.getClass() + " to field " + field + " of variable "
 							+ source);
 				}
-				assert (value==null || field.getType().isAssignableFrom(value.getClass()));
+				// FIXXME: isAssignableFrom does not work with autoboxing
+				// assert (value==null || field.getType().isAssignableFrom(value.getClass()));
 				if (!field.getDeclaringClass().isAssignableFrom(sourceObject.getClass())) {
 					logger.error("Field " + field + " defined in class "
 							+ field.getDeclaringClass());
@@ -151,7 +152,7 @@ public class FieldReference extends VariableReferenceImpl {
 					logger.error("Value object " + value + " has class "
 							+ value.getClass());
 				}
-				assert (field.getDeclaringClass().isAssignableFrom(sourceObject.getClass()));
+				//assert (field.getDeclaringClass().isAssignableFrom(sourceObject.getClass()));
 				field.set(sourceObject, value);
 			}
 		} catch (IllegalArgumentException e) {

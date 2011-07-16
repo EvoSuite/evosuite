@@ -380,7 +380,6 @@ public class TestChromosome extends ExecutableChromosome {
 							changed = true;
 						assert (test.isValid());
 					}
-
 					//					} else if (statement.getReturnValue() instanceof ArrayReference) {
 				}
 			}

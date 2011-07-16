@@ -175,7 +175,7 @@ public class FieldStatement extends AbstractStatement {
 							throw new CodeUnderTestException(new NullPointerException());
 						}
 					} catch (CodeUnderTestException e) {
-						throw CodeUnderTestException.throwException(e);
+						throw CodeUnderTestException.throwException(e.getCause());
 					} catch(Throwable e){
 						throw new EvosuiteError(e);
 					}
@@ -183,7 +183,8 @@ public class FieldStatement extends AbstractStatement {
 					Object ret = field.get(source_object);
 
 					try{
-						assert(ret==null || retval.getVariableClass().isAssignableFrom(ret.getClass())) : "we want an " + retval.getVariableClass() + " but got an " + ret.getClass();
+						// FIXXME: isAssignableFrom int <- Integer does not return true 
+						//assert(ret==null || retval.getVariableClass().isAssignableFrom(ret.getClass())) : "we want an " + retval.getVariableClass() + " but got an " + ret.getClass();
 						retval.setObject(scope, ret);
 					} catch (CodeUnderTestException e) {
 						throw CodeUnderTestException.throwException(e);
