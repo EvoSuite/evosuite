@@ -31,6 +31,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 		this.testIndex = index;
 		this.lastFitness = suite.getFitness();
 
+		/*
 		for (TestChromosome test : suite.getTestChromosomes()) {
 			test.setChanged(true);
 			test.setLastExecutionResult(null);
@@ -38,7 +39,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 
 		double fit = fitness.getFitness(suite);
 		assert (fit == this.lastFitness);
-
+	*/
 	}
 
 	/* (non-Javadoc)
