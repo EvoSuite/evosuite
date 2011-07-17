@@ -1,6 +1,7 @@
 package de.unisb.cs.st.evosuite.cfg;
 
 import org.apache.log4j.Logger;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.Frame;
@@ -66,7 +67,8 @@ public class CFGGenerator {
 		// non-minimized cfg needed for defuse-coverage and control
 		// dependence calculation
 		CFGPool.registerRawCFG(getRawGraph());
-		CFGPool.registerActualCFG(getActualGraph());
+		if((currentMethod.access & Opcodes.ACC_NATIVE) != Opcodes.ACC_NATIVE)
+			CFGPool.registerActualCFG(getActualGraph());
 	}
 
 	protected RawControlFlowGraph getRawGraph() {
@@ -257,7 +259,6 @@ public class CFGGenerator {
 	 * soon ... it's getting there :D
 	 */
 	public ActualControlFlowGraph computeCFG() {
-
 		BytecodeInstructionPool.logInstructionsIn(className, methodName);
 
 		ActualControlFlowGraph cfg = new ActualControlFlowGraph(rawGraph);
