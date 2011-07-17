@@ -107,7 +107,7 @@ public class ConstructorStatement extends AbstractStatement {
 						try {
 							inputs[i] = parameters.get(i).getObject(scope);
 						} catch (CodeUnderTestException e) {
-							throw CodeUnderTestException.throwException(e);
+							throw CodeUnderTestException.throwException(e.getCause());
 						} catch(Throwable e){
 							throw new EvosuiteError(e);
 						}
