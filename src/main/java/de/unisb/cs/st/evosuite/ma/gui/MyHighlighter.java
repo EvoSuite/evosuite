@@ -11,7 +11,7 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.JTextComponent;
 
-class MyHighlighter extends DefaultHighlighter {
+public class MyHighlighter extends DefaultHighlighter {
 
 	private JTextComponent component;
 

@@ -782,7 +782,7 @@ public class SearchStatistics implements SearchListener {
 		Io.writeFile(report.toString(), file);
 	}
 
-	private Set<Integer> getCoveredLines(ExecutionTrace trace, String className) {
+	public Set<Integer> getCoveredLines(ExecutionTrace trace, String className) {
 		Set<Integer> covered_lines = new HashSet<Integer>();
 		for (Entry<String, Map<String, Map<Integer, Integer>>> entry : trace.coverage.entrySet()) {
 			if (entry.getKey().startsWith(className)) {
@@ -794,7 +794,7 @@ public class SearchStatistics implements SearchListener {
 		return covered_lines;
 	}
 
-	private ExecutionTrace executeTest(TestCase test, String className) {
+	public ExecutionTrace executeTest(TestCase test, String className) {
 		ExecutionTrace trace = null;
 		try {
 			// logger.trace(test.toCode());

@@ -1,5 +1,6 @@
 package de.unisb.cs.st.evosuite.ma.gui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -21,15 +22,20 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Document;
+import javax.swing.text.Highlighter;
+import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 
 import de.unisb.cs.st.evosuite.ma.Editor;
-import de.unisb.cs.st.evosuite.ma.IGUI;
+import javax.swing.ScrollPaneConstants;
 
 /**
  * @author Yury Pavlov
  */
 public class SimpleGUI implements IGUI {
-
+	private final static Color LIGHT_GREEN = new Color(200, 255, 200);
 	protected final Object lock = new Object();
 
 	/**
@@ -79,30 +85,58 @@ public class SimpleGUI implements IGUI {
 				Double.MIN_VALUE };
 		mainFrame.getContentPane().setLayout(gridBagLayout);
 
-		JPanel branchPanel = new JPanel();
-		branchPanel.setBorder(new TitledBorder(null, "Branch Code",
+		JPanel sourceCodePanel = new JPanel();
+		sourceCodePanel.setBorder(new TitledBorder(null, "Branch Code",
 				TitledBorder.LEFT, TitledBorder.TOP, null, null));
-		GridBagConstraints gbc_branchPanel = new GridBagConstraints();
-		gbc_branchPanel.fill = GridBagConstraints.BOTH;
-		gbc_branchPanel.insets = new Insets(0, 0, 5, 0);
-		gbc_branchPanel.gridx = 0;
-		gbc_branchPanel.gridy = 0;
-		mainFrame.getContentPane().add(branchPanel, gbc_branchPanel);
-		branchPanel.setLayout(new BoxLayout(branchPanel, BoxLayout.X_AXIS));
+		GridBagConstraints gbc_sourceCodePanel = new GridBagConstraints();
+		gbc_sourceCodePanel.fill = GridBagConstraints.BOTH;
+		gbc_sourceCodePanel.insets = new Insets(0, 0, 5, 0);
+		gbc_sourceCodePanel.gridx = 0;
+		gbc_sourceCodePanel.gridy = 0;
+		mainFrame.getContentPane().add(sourceCodePanel, gbc_sourceCodePanel);
+		sourceCodePanel.setLayout(new BoxLayout(sourceCodePanel, BoxLayout.X_AXIS));
 
-		JScrollPane scrollPane = new JScrollPane();
-		branchPanel.add(scrollPane);
-		
+		JScrollPane sourceCodeScrollPane = new JScrollPane();
+		sourceCodePanel.add(sourceCodeScrollPane);
+
 		JTextPane sourceCodeTextPane = new JTextPane();
 		sourceCodeTextPane.setEditable(false);
-		scrollPane.setViewportView(sourceCodeTextPane);
+		sourceCodeScrollPane.setViewportView(sourceCodeTextPane);
 
-		int i = 0;
+		// Print Source code
+		int i = 1;
 		String fomatSourceCode = new String();
 		for (String tmpString : editor.getSourceCode()) {
 			fomatSourceCode += (i++ + ":\t" + tmpString + "\n");
 		}
 		sourceCodeTextPane.setText(fomatSourceCode);
+
+		// Set highlights for covered lines
+		Highlighter hilite = new MyHighlighter();
+		sourceCodeTextPane.setHighlighter(hilite);
+		DefaultHighlightPainter coveredPainter = new DefaultHighlighter.DefaultHighlightPainter(
+				LIGHT_GREEN);
+
+		try {
+			Document doc = sourceCodeTextPane.getDocument();
+			String text = doc.getText(0, doc.getLength());
+			int start = 0;
+			int end = 0;
+
+			// look for newline char, and then toggle between white and gray
+			// painters.
+			i = 1;
+			while ((end = text.indexOf('\n', start)) >= 0) {
+				if (editor.getCoverage().contains(i)) {
+					DefaultHighlightPainter painter = coveredPainter;
+					hilite.addHighlight(start, end + 1, painter);
+				}
+				start = end + 1;
+				i++;
+			}
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
 
 		JPanel testPanel = new JPanel();
 		testPanel.setBorder(new TitledBorder(null, "Test Editor",
@@ -115,11 +149,11 @@ public class SimpleGUI implements IGUI {
 		mainFrame.getContentPane().add(testPanel, gbc_testPanel);
 		testPanel.setLayout(new BoxLayout(testPanel, BoxLayout.X_AXIS));
 
-		JScrollPane scrollPane_1 = new JScrollPane();
-		testPanel.add(scrollPane_1);
+		JScrollPane testScrollPane = new JScrollPane();
+		testPanel.add(testScrollPane);
 
 		final JEditorPane testEditorPane = new JEditorPane();
-		scrollPane_1.setViewportView(testEditorPane);
+		testScrollPane.setViewportView(testEditorPane);
 
 		JPanel controlPanel = new JPanel();
 		controlPanel.setBorder(null);
