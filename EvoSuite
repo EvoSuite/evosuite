@@ -506,6 +506,12 @@ generateSuite ()
 		    exit -1
 		  fi
 		fi
+		if ! [ -e $OUTPUT_DIR/hierarchy.xml ]; then
+		   echo "EvoSuite rocks!"
+		   echo "* Some data files have changed together with the Javalanche removal"
+       		   echo "* Please re-run EvoSuite -setup"
+		   exit -1
+		fi
 		source $OUTPUT_DIR/evosuite.properties
 		if [ -z "$PROJECT_PREFIX" ]; then PROJECT_PREFIX=$PREFIX ; fi
 		#CP=$BASEDIR/$CP
