@@ -41,14 +41,12 @@ public class CodeUnderTestException extends Exception{
 			throw (IllegalArgumentException)e;
 		}else if(e instanceof NullPointerException){
 			throw (NullPointerException)e;
+		}else if(e instanceof ArrayIndexOutOfBoundsException){
+			throw (ArrayIndexOutOfBoundsException)e;
 		}else if(e instanceof ExceptionInInitializerError){
 			throw (ExceptionInInitializerError)e;
 		}else{
 			logger.error("We expected the exception to be one of the listed but it was", e);
-			if(e instanceof NullPointerException)
-				logger.error("A");
-			if(e.getClass().equals(NullPointerException.class))
-				logger.error("B");
 			throw new AssertionError("We expected the exception to be one of the listed but it was" + e.getClass());
 		}
 	}
