@@ -139,10 +139,14 @@ public class ArrayIndex extends VariableReferenceImpl {
 	@Override
 	public Object getObject(Scope scope) throws CodeUnderTestException {
 		Object arrayObject = array.getObject(scope);
-		if (arrayObject != null) {
-			return Array.get(arrayObject, array_index);
-		} else {
-			return null;
+		try {
+			if (arrayObject != null) {
+				return Array.get(arrayObject, array_index);
+			} else {
+				throw new CodeUnderTestException(new NullPointerException());
+			}
+		} catch(ArrayIndexOutOfBoundsException e) {
+			throw new CodeUnderTestException(e);
 		}
 	}
 
@@ -157,7 +161,15 @@ public class ArrayIndex extends VariableReferenceImpl {
 	@Override
 	public void setObject(Scope scope, Object value) throws CodeUnderTestException{
 		Object arrayObject = array.getObject(scope);
-		Array.set(arrayObject, array_index, value);
+		try {
+			if (arrayObject != null) {
+				Array.set(arrayObject, array_index, value);
+			} else {
+				throw new CodeUnderTestException(new NullPointerException());
+			}
+		} catch(ArrayIndexOutOfBoundsException e) {
+			throw new CodeUnderTestException(e);
+		}
 	}
 
 	/**
