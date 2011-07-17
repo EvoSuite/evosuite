@@ -254,7 +254,7 @@ public class TestSuiteGenerator {
 			;
 		}
 
-		writeExcelStatistics(best);
+		//writeExcelStatistics(best);
 
 		return best.getTests();
 	}
@@ -369,6 +369,7 @@ public class TestSuiteGenerator {
 
 		GeneticAlgorithm suiteGA = getGeneticAlgorithm(new TestSuiteChromosomeFactory());
 		FitnessFunction suite_fitness = getFitnessFunction();
+		suiteGA.setFitnessFunction(suite_fitness);
 
 		long start_time = System.currentTimeMillis() / 1000;
 		FitnessLogger fitness_logger = new FitnessLogger();
@@ -548,7 +549,7 @@ public class TestSuiteGenerator {
 				d++;
 			}
 		}
-		writeExcelStatistics(suite);
+		//writeExcelStatistics(suite);
 
 		statistics.searchFinished(suiteGA);
 		long end_time = System.currentTimeMillis() / 1000;
