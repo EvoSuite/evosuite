@@ -419,7 +419,8 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 
 	@Override
 	public String getName() {
-		return "CDG" + graphId + "_" + methodName;
+//		return "CDG" + graphId + "_" + methodName;
+		return "CDG" + "_" + methodName;
 	}
 
 	public String getClassName() {

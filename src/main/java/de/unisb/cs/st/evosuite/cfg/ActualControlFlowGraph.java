@@ -685,6 +685,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 
 	@Override
 	public String getName() {
-		return "ActualCFG" + graphId + "_" + methodName; // TODO make nice
+//		return "ActualCFG" + graphId + "_" + methodName;
+		return "ActualCFG"  + "_" + methodName;
 	}
 }
