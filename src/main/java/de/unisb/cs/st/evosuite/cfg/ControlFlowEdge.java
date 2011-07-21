@@ -45,7 +45,7 @@ public class ControlFlowEdge extends DefaultEdge {
 
 		if (branchInstruction != null) {
 			r += branchInstruction.toString();
-			if(!(branchInstruction.isTableSwitch() || branchInstruction.isLookupSwitch())) {
+			if(!branchInstruction.isSwitch()) {
 				if (branchExpressionValue)
 					r += " - TRUE";
 				else
@@ -72,6 +72,13 @@ public class ControlFlowEdge extends DefaultEdge {
 		return isExceptionEdge;
 	}
 
+	public void setBranchInstruction(Branch branch) {
+		if(branch == null)
+			throw new IllegalArgumentException("null given");
+		
+		this.branchInstruction = branch;
+	}
+	
 	public void setBranchInstruction(BytecodeInstruction branchInstruction) {
 		
 		if (!branchInstruction.isActualBranch())

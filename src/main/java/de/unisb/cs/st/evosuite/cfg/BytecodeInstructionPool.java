@@ -28,6 +28,17 @@ public class BytecodeInstructionPool {
 
 	// fill the pool
 
+	/**
+	 * Called by each CFGGenerator for it's corresponding method.
+	 * 
+	 * The MethodNode contains all instructions within a method. A call to
+	 * registerMethodNode() fills the instructionMap of the
+	 * BytecodeInstructionPool with the instructions in that method and returns
+	 * a List containing the BytecodeInstructions within that method.
+	 * 
+	 * While registering all instructions the lineNumber of each
+	 * BytecodeInstruction is set.
+	 */
 	public static List<BytecodeInstruction> registerMethodNode(MethodNode node,
 			String className, String methodName) {
 
@@ -61,7 +72,8 @@ public class BytecodeInstructionPool {
 		List<BytecodeInstruction> r = getInstructionsIn(className, methodName);
 		if (r == null || r.size() == 0)
 			throw new IllegalStateException(
-					"expect instruction pool to return non-null non-empty list of instructions for a previously registered method "+methodName);
+					"expect instruction pool to return non-null non-empty list of instructions for a previously registered method "
+							+ methodName);
 
 		return r;
 	}

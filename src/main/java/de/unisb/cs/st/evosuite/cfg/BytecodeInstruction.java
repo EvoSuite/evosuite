@@ -57,7 +57,6 @@ public class BytecodeInstruction extends ASMWrapper {
 	// space for one reference
 	private BasicBlock basicBlock;
 
-	// TODO make sure the word CFGVertex appears nowhere anymore
 
 	/**
 	 * Generates a ByteCodeInstruction instance that represents a byteCode
@@ -124,9 +123,7 @@ public class BytecodeInstruction extends ASMWrapper {
 		this.className = className;
 	}
 
-	// --- Field Management --- TODO find out which ones to hide/remove
-
-	// TODO make real getId()!
+	// --- Field Management ---
 
 	@Override
 	public int getInstructionId() {
@@ -197,21 +194,9 @@ public class BytecodeInstruction extends ASMWrapper {
 
 	@Override
 	public int getLineNumber() {
-		// former method comment
-		// If hasLineNumberSet() returns true, this method returns the
-		// lineNumber of
-		// this instruction Otherwise an IllegalStateException() will be thrown
-		// to
-		// indicate that the field was never initialized properly
 
-		// if (!hasLineNumberSet()) // TODO if lineNumber not set retrieve this
-		// info from ... CFGPool or something
-		// throw new IllegalStateException(
-		// "expect hasLineNumberSet() to be true on a BytecodeInstruction that gets asked for it's lineNumber");
-
-		if (lineNumber == -1 && isLineNumber()) {
+		if (lineNumber == -1 && isLineNumber())
 			retrieveLineNumber();
-		}
 
 		return lineNumber;
 	}
@@ -320,7 +305,7 @@ public class BytecodeInstruction extends ASMWrapper {
 		return myCDG;
 	}
 
-	// --- TODO CDG-Section ---
+	// --- CDG-Section ---
 
 	/**
 	 * Returns a cfg.Branch object for each branch this instruction is control
@@ -356,11 +341,6 @@ public class BytecodeInstruction extends ASMWrapper {
 
 		Set<Branch> r = new HashSet<Branch>(getAllControlDependentBranches());
 		r.remove(this);
-
-		// TODO im not sure if the following holds
-		// if (r.isEmpty())
-		// throw new
-		// IllegalStateException("expect branch that is control dependent on itself to have at least one other branch it is control dependent on");
 
 		return r;
 	}
@@ -531,7 +511,7 @@ public class BytecodeInstruction extends ASMWrapper {
 	// String methods
 
 	public String explain() {
-		if (isActualBranch()) {
+		if (isBranch()) {
 			if (BranchPool.isKnownAsBranch(this)) {
 				Branch b = BranchPool.getBranchForInstruction(this);
 				if (b == null)
@@ -540,7 +520,7 @@ public class BytecodeInstruction extends ASMWrapper {
 
 				return "Branch " + b.getActualBranchId() + " - " + getInstructionType();
 			}
-			return "UNKNOWN Branch i" + instructionId + " " + getInstructionType();
+			return "UNKNOWN Branch I" + instructionId + " " + getInstructionType();
 
 			// + " - " + ((JumpInsnNode) asmNode).label.getLabel();
 		}

@@ -4,6 +4,7 @@
 package de.unisb.cs.st.evosuite.cfg.instrumentation;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.objectweb.asm.Opcodes;
@@ -47,14 +48,9 @@ public class BranchInstrumentation implements MethodInstrumentation {
 						mn.instructions.insert(v.getASMNode().getPrevious(),
 						                       getInstrumentation(v));
 
-						//						BranchPool.addBranch(v);
-					} else if (v.isTableSwitch()) {
+					} else if (v.isSwitch()) {
 						mn.instructions.insertBefore(v.getASMNode(),
-						                             getInstrumentation(v, mn, className,
-						                                                methodName));
-					} else if (v.isLookupSwitch()) {
-						mn.instructions.insertBefore(v.getASMNode(),
-						                             getInstrumentation(v, mn, className,
+						                             getSwitchInstrumentation(v, mn, className,
 						                                                methodName));
 					}
 				}
@@ -62,58 +58,30 @@ public class BranchInstrumentation implements MethodInstrumentation {
 		}
 	}
 
-	private InsnList getInstrumentation(BytecodeInstruction v, MethodNode mn,
+	private InsnList getSwitchInstrumentation(BytecodeInstruction v, MethodNode mn,
 	        String className, String methodName) {
 		InsnList instrumentation = new InsnList();
 
-		int branchId = BranchPool.getActualBranchIdForInstruction(v);
-		if (branchId < 0)
+		if(!v.isSwitch())
+			throw new IllegalArgumentException("switch instruction expected");
+		
+		Map<Integer,Integer> caseValuesToBranchIDs = BranchPool.getBranchIdMapForSwitch(v);
+		if (caseValuesToBranchIDs == null || caseValuesToBranchIDs.isEmpty())
 			throw new IllegalStateException(
-			        "expect BranchPool to know branchId for alle branch instructions");
+			        "expect BranchPool to know at least one branchID for each switch instruction");
 
 		String methodID = className + "." + methodName;
-		switch (v.getASMNode().getOpcode()) {
-		case Opcodes.TABLESWITCH:
-			TableSwitchInsnNode tsin = (TableSwitchInsnNode) v.getASMNode();
-			int num = 0;
-			for (int i = tsin.min; i <= tsin.max; i++) {
-				instrumentation.add(new InsnNode(Opcodes.DUP));
-				instrumentation.add(new LdcInsnNode(i));
-				instrumentation.add(new LdcInsnNode(Opcodes.IF_ICMPEQ));
-				instrumentation.add(new LdcInsnNode(branchId));
-				instrumentation.add(new LdcInsnNode(v.getInstructionId()));
-				//instrumentation.add(new LdcInsnNode(
-				//        mn.instructions.indexOf((LabelNode) tsin.labels.get(num))));
 
-				instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-				        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-				        "passedBranch", "(IIIII)V"));
-				BranchPool.countBranch(methodID);
-				//				BranchPool.addBranch(v);
-				num++;
-			}
-			// Default branch is covered if the last case is false
-			break;
-		case Opcodes.LOOKUPSWITCH:
-			LookupSwitchInsnNode lsin = (LookupSwitchInsnNode) v.getASMNode();
-			logger.info("Found lookupswitch with " + lsin.keys.size() + " keys");
-			for (int i = 0; i < lsin.keys.size(); i++) {
-				instrumentation.add(new InsnNode(Opcodes.DUP));
-				instrumentation.add(new LdcInsnNode(
-				        ((Integer) lsin.keys.get(i)).intValue()));
-				instrumentation.add(new LdcInsnNode(Opcodes.IF_ICMPEQ));
-				instrumentation.add(new LdcInsnNode(branchId));
-				instrumentation.add(new LdcInsnNode(v.getInstructionId()));
-				//				instrumentation.add(new LdcInsnNode(
-				//				        mn.instructions.indexOf((LabelNode) lsin.labels.get(i))));
-				instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-				        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-				        "passedBranch", "(IIIII)V"));
-				BranchPool.countBranch(methodID);
-				//				BranchPool.addBranch(v);
-			}
-			// Default branch is covered if the last case is false
-			break;
+		for (Integer targetCaseValue : caseValuesToBranchIDs.keySet()) {
+			instrumentation.add(new InsnNode(Opcodes.DUP));
+			instrumentation.add(new LdcInsnNode(targetCaseValue));
+			instrumentation.add(new LdcInsnNode(Opcodes.IF_ICMPEQ));
+			instrumentation.add(new LdcInsnNode(caseValuesToBranchIDs.get(targetCaseValue)));
+			instrumentation.add(new LdcInsnNode(v.getInstructionId()));
+			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+			        "passedBranch", "(IIIII)V"));
+			BranchPool.countBranch(methodID);
 		}
 
 		return instrumentation;
