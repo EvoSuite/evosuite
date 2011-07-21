@@ -45,7 +45,7 @@ public class ControlFlowEdge extends DefaultEdge {
 
 		if (branchInstruction != null) {
 			r += branchInstruction.toString();
-			if(!(branchInstruction.isTableSwitch() || branchInstruction.isLookupSwitch())) {
+			if(!branchInstruction.isSwitch()) {
 				if (branchExpressionValue)
 					r += " - TRUE";
 				else
