@@ -36,7 +36,8 @@ public class BranchPool {
 
 	private static Logger logger = Logger.getLogger(BranchPool.class);
 
-	// maps className -> method inside that class -> list of branches inside that method 
+	// maps className -> method inside that class -> list of branches inside
+	// that method
 	private static Map<String, Map<String, List<Branch>>> branchMap = new HashMap<String, Map<String, List<Branch>>>();
 
 	// maps every Method to the number of Branches inside that method
@@ -50,11 +51,12 @@ public class BranchPool {
 
 	// maps all known branch instructions to their branchId
 	private static Map<BytecodeInstruction, Integer> registeredBranches = new HashMap<BytecodeInstruction, Integer>();
-	
-	// maps all known switch instructions to a map, mapping it's targetCaseValues to their corresponding branchID 
+
+	// maps all known switch instructions to a map, mapping it's
+	// targetCaseValues to their corresponding branchID
 	private static Map<BytecodeInstruction, Map<Integer, Integer>> registeredSwitches = new HashMap<BytecodeInstruction, Map<Integer, Integer>>();
-	
-	private static Map<LabelNode, Branch> switchLabels = new HashMap<LabelNode,Branch>();
+
+	private static Map<LabelNode, Branch> switchLabels = new HashMap<LabelNode, Branch>();
 
 	// number of known Branches
 	private static int branchCounter = 0;
@@ -73,7 +75,8 @@ public class BranchPool {
 			throw new IllegalArgumentException("CFGVertex of a branch expected");
 		if (isKnownAsBranch(v))
 			return;
-		//	throw new IllegalArgumentException("branches can only be added to the pool once");
+		// throw new
+		// IllegalArgumentException("branches can only be added to the pool once");
 
 		registerInstruction(v);
 
@@ -93,20 +96,22 @@ public class BranchPool {
 	private static void registerInstruction(BytecodeInstruction v) {
 		if (isKnownAsBranch(v))
 			throw new IllegalStateException(
-			        "expect registerInstruction() to be called at most once for each instruction");
-		
-		if(v.isBranch())
+					"expect registerInstruction() to be called at most once for each instruction");
+
+		if (v.isBranch())
 			registerNormalBranchInstruction(v);
-		else if(v.isSwitch())
+		else if (v.isSwitch())
 			registerSwitchInstruction(v);
 		else
-			throw new IllegalArgumentException("expect given instruction to be an actual branch");
+			throw new IllegalArgumentException(
+					"expect given instruction to be an actual branch");
 	}
-	
+
 	private static void registerNormalBranchInstruction(BytecodeInstruction v) {
-		if(!v.isBranch())
-			throw new IllegalArgumentException("normal branch instruction expceted");
-		
+		if (!v.isBranch())
+			throw new IllegalArgumentException(
+					"normal branch instruction expceted");
+
 		branchCounter++;
 		registeredBranches.put(v, branchCounter);
 
@@ -114,70 +119,84 @@ public class BranchPool {
 		addBranchToMap(b);
 		branchIdMap.put(branchCounter, b);
 
-		logger.info("Branch " + branchCounter + " at line " + b.getLineNumber());
+		logger
+				.info("Branch " + branchCounter + " at line "
+						+ b.getLineNumber());
 
 	}
-	
+
 	private static void registerSwitchInstruction(BytecodeInstruction v) {
-		if(!v.isSwitch())
+		if (!v.isSwitch())
 			throw new IllegalArgumentException("expect a switch instruction");
-		
+
 		switch (v.getASMNode().getOpcode()) {
 		case Opcodes.TABLESWITCH:
 			TableSwitchInsnNode tsin = (TableSwitchInsnNode) v.getASMNode();
 			int num = 0;
 			for (int i = tsin.min; i <= tsin.max; i++) {
-				LabelNode targetLabel = (LabelNode)tsin.labels.get(num);
-				createSwitchBranch(v,i, targetLabel);
+				LabelNode targetLabel = (LabelNode) tsin.labels.get(num);
+				createSwitchBranch(v, i, targetLabel);
 				num++;
 			}
 			break;
 		case Opcodes.LOOKUPSWITCH:
 			LookupSwitchInsnNode lsin = (LookupSwitchInsnNode) v.getASMNode();
 			for (int i = 0; i < lsin.keys.size(); i++) {
-				LabelNode targetLabel = (LabelNode)lsin.labels.get(i);
-				createSwitchBranch(v, (Integer)lsin.keys.get(i),targetLabel);
+				LabelNode targetLabel = (LabelNode) lsin.labels.get(i);
+				createSwitchBranch(v, (Integer) lsin.keys.get(i), targetLabel);
 			}
 			break;
 		default:
-			throw new IllegalStateException("expect ASMNode of a switch to either be a LOOKUP- or TABLESWITCH");
+			throw new IllegalStateException(
+					"expect ASMNode of a switch to either be a LOOKUP- or TABLESWITCH");
 		}
 	}
 
-	private static void createSwitchBranch(BytecodeInstruction v, int i, LabelNode targetLabel) {
+	private static void createSwitchBranch(BytecodeInstruction v, int i,
+			LabelNode targetLabel) {
 		registerSwitchBranch(v, i);
 
 		Branch b = new Branch(v, i, branchCounter);
 		addBranchToMap(b);
 		branchIdMap.put(branchCounter, b);
-		
+
 		registerSwitchLabel(b, targetLabel);
 	}
 
 	private static void registerSwitchLabel(Branch b, LabelNode targetLabel) {
-		
-//		if(switchLabels.get(targetLabel) != null)
-//			throw new IllegalArgumentException("label already associated with a branch "+b.toString());
-		
+
+		// if(switchLabels.get(targetLabel) != null)
+		// throw new
+		// IllegalArgumentException("label already associated with a branch "+b.toString());
+
+		// TODO several Branches can map to one Label, so switchLabels should
+		// either map from branches to labels, not the other way around. or it
+		// should map labels to a list of branches
+		// this stems from the fact that empty case: blocks do not have their
+		// own label
+
 		switchLabels.put(targetLabel, b);
 	}
 
-	private static void registerSwitchBranch(BytecodeInstruction v, int targetCaseValue) {
-		if(!v.isSwitch())
+	private static void registerSwitchBranch(BytecodeInstruction v,
+			int targetCaseValue) {
+		if (!v.isSwitch())
 			throw new IllegalArgumentException("switch instruction expected");
-		
-		if(registeredSwitches.get(v) == null)
-			registeredSwitches.put(v,new HashMap<Integer,Integer>());
-		
-		Map<Integer,Integer> oldMap = registeredSwitches.get(v);
-		
-		if(oldMap.get(targetCaseValue) != null)
-			throw new IllegalArgumentException("switch already registered for caseValue "+targetCaseValue);
-		
+
+		if (registeredSwitches.get(v) == null)
+			registeredSwitches.put(v, new HashMap<Integer, Integer>());
+
+		Map<Integer, Integer> oldMap = registeredSwitches.get(v);
+
+		if (oldMap.get(targetCaseValue) != null)
+			throw new IllegalArgumentException(
+					"switch already registered for caseValue "
+							+ targetCaseValue);
+
 		branchCounter++;
 		oldMap.put(targetCaseValue, branchCounter);
-		
-		registeredSwitches.put(v,oldMap);
+
+		registeredSwitches.put(v, oldMap);
 	}
 
 	private static void addBranchToMap(Branch b) {
@@ -209,13 +228,14 @@ public class BranchPool {
 
 		return -1;
 	}
-	
-	public static Map<Integer,Integer> getBranchIdMapForSwitch(BytecodeInstruction ins) {
-		if(ins == null)
+
+	public static Map<Integer, Integer> getBranchIdMapForSwitch(
+			BytecodeInstruction ins) {
+		if (ins == null)
 			throw new IllegalArgumentException("null given");
-		if(!ins.isSwitch())
+		if (!ins.isSwitch())
 			throw new IllegalArgumentException("switch instruction expected");
-		
+
 		return registeredSwitches.get(ins);
 	}
 
@@ -225,16 +245,16 @@ public class BranchPool {
 
 		return getBranch(registeredBranches.get(ins));
 	}
-	
+
 	public static Branch getBranchForLabel(LabelNode label) {
-		
+
 		return switchLabels.get(label);
 	}
 
 	// TODO can't this just always be called private by addBranch?
-	// 		 why is this called in CFGMethodAdapter.getInstrumentation() anyways?
-	//			.. well it only get's called if Properties.CRITERION is set to LCSAJ 
-	//			... might want to change that
+	// why is this called in CFGMethodAdapter.getInstrumentation() anyways?
+	// .. well it only get's called if Properties.CRITERION is set to LCSAJ
+	// ... might want to change that
 	public static void countBranch(String id) {
 		if (!methodBranchCount.containsKey(id)) {
 			methodBranchCount.put(id, 1);
@@ -332,8 +352,8 @@ public class BranchPool {
 	 * 
 	 * Should no such Branch exist null is returned
 	 */
-	public static Branch getBranchByBytecodeId(String className, String methodName,
-	        int instructionId) {
+	public static Branch getBranchByBytecodeId(String className,
+			String methodName, int instructionId) {
 		List<Branch> branches = retrieveBranchesInMethod(className, methodName);
 		for (Branch b : branches)
 			if (b.getInstructionId() == instructionId)
@@ -348,7 +368,7 @@ public class BranchPool {
 	 * Should no such Branch exist an empty List is returned
 	 */
 	public static List<Branch> retrieveBranchesInMethod(String className,
-	        String methodName) {
+			String methodName) {
 		List<Branch> r = new ArrayList<Branch>();
 		if (branchMap.get(className) == null)
 			return r;

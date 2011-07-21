@@ -86,6 +86,14 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 						"expect BranchPool to contain a Branch for each switch-case-label");
 
 			Branch branchForSwitchCase = BranchPool.getBranchForLabel(label);
+
+			// TODO there is an inconsistency when it comes to switches with
+			// empty case: blocks. they do not have their own label, so there
+			// can be multiple ControlFlowEdges from the SWITCH instruction to
+			// one LabelNode.
+			// But currently our RawCFG does not permit multiple edges between
+			// two nodes
+
 			if (branchForSwitchCase != null) {
 				// throw new
 				// IllegalStateException("expect BranchPool to know each switch-case-label");
@@ -111,10 +119,10 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	}
 
 	private boolean isNonJumpingEdge(BytecodeInstruction src, // TODO move to
-																// ControlFlowGraph
-																// and implement
-																// analog method
-																// in ActualCFG
+			// ControlFlowGraph
+			// and implement
+			// analog method
+			// in ActualCFG
 			BytecodeInstruction dst) {
 
 		return Math.abs(src.getInstructionId() - dst.getInstructionId()) == 1;
@@ -309,9 +317,9 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 					continue;
 			}
 			if (edgeTarget.getInstructionId() > entry.getInstructionId()) // dont
-																			// follow
-																			// backedges
-																			// (loops)
+				// follow
+				// backedges
+				// (loops)
 				r.addAll(getUsesForDef(targetDef, edgeTarget));
 		}
 		return r;
@@ -384,9 +392,9 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 				continue;
 
 			if (edgeStart.getInstructionId() < currentVertex.getInstructionId() // dont
-																				// follow
-																				// backedges
-																				// (loops)
+					// follow
+					// backedges
+					// (loops)
 					&& hasDefClearPathFromMethodEntry(targetDefUse, edgeStart))
 				return true;
 		}

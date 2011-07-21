@@ -531,7 +531,7 @@ public class BytecodeInstruction extends ASMWrapper {
 	// String methods
 
 	public String explain() {
-		if (isActualBranch()) {
+		if (isBranch()) {
 			if (BranchPool.isKnownAsBranch(this)) {
 				Branch b = BranchPool.getBranchForInstruction(this);
 				if (b == null)
