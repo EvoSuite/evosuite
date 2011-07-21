@@ -83,7 +83,11 @@ public abstract class ASMWrapper {
 	// methods for branch analysis
 
 	public boolean isActualBranch() {
-		return isBranch() || isLookupSwitch() || isTableSwitch() || forcedBranch;
+		return isBranch() || isSwitch() || forcedBranch;
+	}
+
+	public boolean isSwitch() {
+		return isLookupSwitch() || isTableSwitch();
 	}
 
 	public void forceBranch() {

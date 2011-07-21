@@ -13,12 +13,28 @@ import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 public class Branch extends BytecodeInstruction {
 
 	private final int actualBranchId;
+	
+	private Integer targetCaseValue = null;
 
+	public Branch(BytecodeInstruction switchWrapper, int targetCaseValue, int actualBranchId) {
+		super(switchWrapper);
+		if(!isSwitch())
+			throw new IllegalArgumentException("switch instruction expected");
+		
+		this.actualBranchId = actualBranchId;
+		
+		this.targetCaseValue = targetCaseValue;
+		
+		if (this.actualBranchId < 1)
+			throw new IllegalStateException(
+			        "expect branch to have actualBranchId set to positive value");
+	}
+	
 	public Branch(BytecodeInstruction wrapper, int actualBranchId) {
 		super(wrapper);
-		if (!isActualBranch())
+		if (!isBranch())
 			throw new IllegalArgumentException(
-			        "only actual branch instructions are accepted");
+			        "only branch instructions are accepted");
 
 		this.actualBranchId = actualBranchId;
 
@@ -29,9 +45,9 @@ public class Branch extends BytecodeInstruction {
 
 	public Branch(BytecodeInstruction wrapper) {
 		super(wrapper);
-		if (!isActualBranch())
+		if (!isBranch())
 			throw new IllegalArgumentException(
-			        "only actual branch instructions are accepted");
+			        "only branch instructions are accepted");
 
 		if (!BranchPool.isKnownAsBranch(wrapper))
 			throw new IllegalArgumentException(
@@ -46,5 +62,22 @@ public class Branch extends BytecodeInstruction {
 
 	public int getActualBranchId() {
 		return actualBranchId;
+	}
+	
+	public Integer getTargetCaseValue() {
+		return targetCaseValue;
+	}
+	
+	@Override
+	public String toString() {
+		String r = "I"+getInstructionId();
+		r += " Branch "+getActualBranchId();
+		r += " "+getInstructionType();
+		if(targetCaseValue!=null)
+			r += " Case "+targetCaseValue;
+		
+		r += " L"+getLineNumber();
+		
+		return r;
 	}
 }

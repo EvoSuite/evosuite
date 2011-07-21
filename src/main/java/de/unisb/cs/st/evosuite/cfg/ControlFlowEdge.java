@@ -72,6 +72,13 @@ public class ControlFlowEdge extends DefaultEdge {
 		return isExceptionEdge;
 	}
 
+	public void setBranchInstruction(Branch branch) {
+		if(branch == null)
+			throw new IllegalArgumentException("null given");
+		
+		this.branchInstruction = branch;
+	}
+	
 	public void setBranchInstruction(BytecodeInstruction branchInstruction) {
 		
 		if (!branchInstruction.isActualBranch())
