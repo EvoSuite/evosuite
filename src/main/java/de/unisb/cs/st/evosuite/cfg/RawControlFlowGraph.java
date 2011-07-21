@@ -235,7 +235,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 
 	/**
 	 * Returns the number of byteCode instructions that can potentially be
-	 * executed from entering the method of this CFG until the given CFGVertex
+	 * executed from entering the method of this CFG until the given BytecodeInstruction
 	 * is reached.
 	 */
 	public Set<BytecodeInstruction> getPreviousInstructionsInMethod(

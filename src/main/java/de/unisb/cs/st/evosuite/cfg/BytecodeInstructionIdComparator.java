@@ -6,7 +6,7 @@ import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 /**
  * Orders CFGVertices according to their id
  * 
- * This is mainly used to put CFGVertex into a PriorityQueue
+ * This is mainly used to put BytecodeInstructions into a PriorityQueue
  * in ControlFlowGraph.getMaximalInitialDistance()
  */
 public class BytecodeInstructionIdComparator implements Comparator<BytecodeInstruction> {
