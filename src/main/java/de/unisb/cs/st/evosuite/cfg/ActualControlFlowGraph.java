@@ -179,6 +179,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 			// to
 			// BranchInstrumentation - then again that instrumentation is needed
 			// anyways i guess
+			
 			// if (!BranchPool.isKnownAsBranch(instruction))
 			// throw new IllegalStateException(
 			// "expect BranchPool to know all branching instructions: "
@@ -669,18 +670,15 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	}
 
 	public Set<BytecodeInstruction> getExitPoints() {
-		// TODO copy set, don't return private reference
-		return exitPoints;
+		return new HashSet<BytecodeInstruction>(exitPoints);
 	}
 
 	public Set<BytecodeInstruction> getBranches() {
-		// TODO copy set, don't return private reference
-		return branches;
+		return new HashSet<BytecodeInstruction>(branches);
 	}
 
 	public Set<BytecodeInstruction> getJoins() {
-		// TODO copy set, don't return private reference
-		return joins;
+		return new HashSet<BytecodeInstruction>(joins);
 	}
 
 	@Override
