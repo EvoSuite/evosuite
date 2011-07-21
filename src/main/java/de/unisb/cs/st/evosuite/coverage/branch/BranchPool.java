@@ -156,8 +156,8 @@ public class BranchPool {
 
 	private static void registerSwitchLabel(Branch b, LabelNode targetLabel) {
 		
-		if(switchLabels.get(targetLabel) != null)
-			throw new IllegalArgumentException("label already associated with a branch");
+//		if(switchLabels.get(targetLabel) != null)
+//			throw new IllegalArgumentException("label already associated with a branch "+b.toString());
 		
 		switchLabels.put(targetLabel, b);
 	}
