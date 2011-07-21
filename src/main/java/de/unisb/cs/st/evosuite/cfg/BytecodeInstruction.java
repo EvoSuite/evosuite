@@ -540,7 +540,7 @@ public class BytecodeInstruction extends ASMWrapper {
 
 				return "Branch " + b.getActualBranchId() + " - " + getInstructionType();
 			}
-			return "UNKNOWN Branch i" + instructionId + " " + getInstructionType();
+			return "UNKNOWN Branch I" + instructionId + " " + getInstructionType();
 
 			// + " - " + ((JumpInsnNode) asmNode).label.getLabel();
 		}
