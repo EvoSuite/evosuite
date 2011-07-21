@@ -203,13 +203,16 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 	@Override
 	public String toString() {
 		String name = className + "." + methodName + ":";
-		if (branch != null)
+		if (branch != null) {
 			name += " " + branch.toString();
-
-		if (value)
-			return name + " - true";
-		else
-			return name + " - false";
+			if (value)
+				name += " - true";
+			else
+				name += " - false";
+		} else
+			name +=" root-Branch";
+		
+		return name;
 	}
 
 	@Override

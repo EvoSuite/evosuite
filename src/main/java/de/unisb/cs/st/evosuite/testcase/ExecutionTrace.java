@@ -593,7 +593,6 @@ public class ExecutionTrace {
 					if (wantToCoverTargetDU)
 						targetExpressionValue = !targetExpressionValue;
 					if (targetExpressionValue) {
-						// TODO as mentioned in CFGVertex.branchExpressionValue-comment: flip it!
 						if (call.trueDistanceTrace.get(i) == 0.0)
 							removableIndices.add(i);
 					} else {
