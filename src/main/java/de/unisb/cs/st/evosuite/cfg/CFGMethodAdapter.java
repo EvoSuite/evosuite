@@ -121,7 +121,10 @@ public class CFGMethodAdapter extends MethodAdapter {
 			instrumentations.add(new BranchInstrumentation());
 		} else if (Properties.CRITERION == Criterion.MUTATION) {
 			instrumentations.add(new BranchInstrumentation());
-			instrumentations.add(new MutationInstrumentation());
+			instrumentations.add(new MutationInstrumentation());	
+		} else if (Properties.CRITERION == Criterion.COMP_LCSAJ_BRANCH){
+			instrumentations.add(new LCSAJsInstrumentation());
+			instrumentations.add(new BranchInstrumentation());
 		} else {
 			instrumentations.add(new BranchInstrumentation());
 		}

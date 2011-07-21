@@ -126,7 +126,7 @@ public class ExcelOutputGenerator {
 		}
 	}
 	
-	public static void wirteBranchStatistics(String className, int branchTests, int branchTestsLength, double branchCoverage,double branchCoverageFitness){
+	public static void wirteBranchStatistics(String className, TestSuiteChromosome branchSuite, TestSuiteChromosome LCSAJsuite ){
 		
 		WritableSheet currentSheet;
 
@@ -137,10 +137,12 @@ public class ExcelOutputGenerator {
 			currentSheet = writtenWorkbook.getSheet(Properties.PROJECT_PREFIX);
 		}
 		Label l = new Label(0,currentSheet.getRows(), className);
-		Number n1 = new Number(1, currentSheet.getRows(), branchTests);
-		Number n2 = new Number(2, currentSheet.getRows(), branchTestsLength);
-		Number n3 = new Number(3, currentSheet.getRows(), branchCoverage);
-		Number n4 = new Number(4, currentSheet.getRows(), branchCoverageFitness);
+		Number n1 = new Number(1, currentSheet.getRows(), branchSuite.size());
+		Number n2 = new Number(2, currentSheet.getRows(), branchSuite.totalLengthOfTestCases());
+		Number n3 = new Number(3, currentSheet.getRows(), branchSuite.getCoverage());
+		Number n4 = new Number(4, currentSheet.getRows(), branchSuite.getFitness());
+		Number n5 = new Number(5, currentSheet.getRows(), LCSAJsuite.getCoverage());
+		Number n6 = new Number(6, currentSheet.getRows(), LCSAJsuite.getFitness());
 
 		try {
 			
@@ -149,6 +151,8 @@ public class ExcelOutputGenerator {
 			currentSheet.addCell(n2);
 			currentSheet.addCell(n3);
 			currentSheet.addCell(n4);
+			currentSheet.addCell(n5);
+			currentSheet.addCell(n6);
 			
 		} catch (RowsExceededException e) {
 			// TODO Auto-generated catch block
@@ -202,6 +206,8 @@ private static WritableSheet setupSheetForBranchStatistics(){
 			currentSheet.addCell(new Label(2, 0, "Branch Test length"));
 			currentSheet.addCell(new Label(3, 0, "Branch coverage"));
 			currentSheet.addCell(new Label(4, 0, "Branch Fitness"));
+			currentSheet.addCell(new Label(5, 0, "LCSAJ coverage"));
+			currentSheet.addCell(new Label(6, 0, "LCSAJ Fitness"));
 			
 		} catch (RowsExceededException e) {
 			// TODO Auto-generated catch block
