@@ -83,7 +83,7 @@ public abstract class ASMWrapper {
 	// methods for branch analysis
 
 	public boolean isActualBranch() {
-		return isBranch() || isSwitch() || forcedBranch;
+		return isBranch() || isSwitch();
 	}
 
 	public boolean isSwitch() {
@@ -148,7 +148,7 @@ public abstract class ASMWrapper {
 	}
 
 	public boolean isBranch() {
-		return isJump() && !isGoto();
+		return (isJump() && !isGoto())  || forcedBranch;
 	}
 
 	//	public int getBranchId() {
