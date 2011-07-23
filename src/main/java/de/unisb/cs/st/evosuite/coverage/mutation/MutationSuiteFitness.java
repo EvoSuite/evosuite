@@ -64,9 +64,9 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
 		try {
 			if (mutant != null)
-				logger.info("Executing test for mutant " + mutant.getId());
+				logger.debug("Executing test for mutant " + mutant.getId());
 			else
-				logger.info("Executing test witout mutant");
+				logger.debug("Executing test without mutant");
 
 			if (mutant != null)
 				MutationObserver.activateMutation(mutant);
