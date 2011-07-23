@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.ga.LocalSearchBudget;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 
@@ -39,7 +40,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 
 		double fit = fitness.getFitness(suite);
 		assert (fit == this.lastFitness);
-	*/
+		*/
 	}
 
 	/* (non-Javadoc)
@@ -49,6 +50,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 	public boolean hasImproved(Chromosome individual) {
 		individual.setChanged(true);
 		suite.setTestChromosome(testIndex, (TestChromosome) individual);
+		LocalSearchBudget.evaluation();
 		double newFitness = fitness.getFitness(suite);
 		if (newFitness < lastFitness) { // TODO: Maximize
 			Logger.getLogger(LocalSearchObjective.class).info("Local search improved fitness from "
