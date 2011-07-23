@@ -254,7 +254,7 @@ public class TestSuiteGenerator {
 			;
 		}
 
-		//writeExcelStatistics(best);
+		writeExcelStatistics(best);
 
 		return best.getTests();
 	}
@@ -554,7 +554,7 @@ public class TestSuiteGenerator {
 				d++;
 			}
 		}
-		//writeExcelStatistics(suite);
+		writeExcelStatistics(suite);
 
 		statistics.searchFinished(suiteGA);
 		long end_time = System.currentTimeMillis() / 1000;
@@ -836,9 +836,8 @@ public class TestSuiteGenerator {
 		return ga;
 	}
 
-	public static void writeExcelStatistics(TestSuiteChromosome suite) {
-		if (Properties.CRITERION == Criterion.LCSAJ
-		        || Properties.CRITERION == Criterion.BRANCH) {
+	public static void writeExcelStatistics(TestSuiteChromosome suite){
+		if(Properties.WRITE_EXCEL && (Properties.CRITERION == Criterion.LCSAJ || Properties.CRITERION == Criterion.COMP_LCSAJ_BRANCH)){
 			File excelOutputDir = new File(Properties.OUTPUT_DIR);
 			assert (excelOutputDir.exists()) : "We assume the directory "
 			        + excelOutputDir.getPath() + " to exist. In your case it doesn't";
@@ -849,19 +848,17 @@ public class TestSuiteGenerator {
 				BranchCoverageSuiteFitness b = new BranchCoverageSuiteFitness();
 				b.getFitness(copy);
 				int infeasableBranches = b.total_goals - b.covered_branches;
-				for (String className : LCSAJPool.lcsaj_map.keySet()) {
-					ExcelOutputGenerator.writeLCSAJStatistics(className, b.total_goals,
-					                                          infeasableBranches, copy,
-					                                          suite);
+				for (String className : LCSAJPool.lcsaj_map.keySet()){
+					ExcelOutputGenerator.writeLCSAJStatistics(className,b.total_goals,infeasableBranches, suite, copy);
 				}
 			}
-			if (Properties.CRITERION == Criterion.BRANCH) {
-				for (String className : BranchPool.knownClasses())
-					ExcelOutputGenerator.wirteBranchStatistics(className,
-					                                           suite.size(),
-					                                           suite.totalLengthOfTestCases(),
-					                                           suite.getCoverage(),
-					                                           suite.getFitness());
+			if (Properties.CRITERION == Criterion.COMP_LCSAJ_BRANCH){
+				TestSuiteChromosome copy = suite.clone();
+				for (String className : BranchPool.knownClasses()){
+					LCSAJCoverageSuiteFitness l = new LCSAJCoverageSuiteFitness();
+					l.getFitness(copy);
+					ExcelOutputGenerator.wirteBranchStatistics(className,suite, copy);
+				}
 			}
 
 			ExcelOutputGenerator.writeToCurrentWorkbook();
