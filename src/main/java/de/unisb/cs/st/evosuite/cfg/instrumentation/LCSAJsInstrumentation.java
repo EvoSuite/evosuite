@@ -54,8 +54,10 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 		int startID = 0;
 		// This is ugly, but in the constructor the instrumentation has to come after the call to Object() 
 		if (methodName.startsWith("<init>")) {
-			start = mn.instructions.get(4);
-			startID = 4;
+			if (mn.instructions.size() >= 4){
+				start = mn.instructions.get(4);
+				startID = 4;
+			}
 		}
 		LCSAJ a = new LCSAJ(className, methodName,
 		        BytecodeInstructionPool.getInstruction(className, methodName, startID,
@@ -109,18 +111,19 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 
 					LCSAJ copy = new LCSAJ(currentLCSAJ);
 					lcsaj_queue.add(copy);
-
-					if (!targets_reached.contains(targetPosition)) {
-						LCSAJ c = new LCSAJ(className, methodName,
-						        BytecodeInstructionPool.getInstruction(className,
-						                                               methodName,
-						                                               targetPosition,
-						                                               target));
-						lcsaj_queue.add(c);
-					}
+					
 				}
-				if (!targets_reached.contains(targetPosition))
+				
+				if (!targets_reached.contains(targetPosition)) {
+					LCSAJ c = new LCSAJ(className, methodName,
+					        BytecodeInstructionPool.getInstruction(className,
+					                                               methodName,
+					                                               targetPosition,
+					                                               target));
+					lcsaj_queue.add(c);
+					
 					targets_reached.add(targetPosition);
+				}
 
 			} else if (next instanceof TableSwitchInsnNode) {
 
