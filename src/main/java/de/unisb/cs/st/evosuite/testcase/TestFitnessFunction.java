@@ -80,8 +80,6 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 		TestChromosome c = (TestChromosome) individual;
 		ExecutionResult orig_result = c.getLastExecutionResult();
 		if (orig_result == null || c.isChanged()) {
-			logger.info("Running test for getFitness");
-
 			orig_result = runTest(c.test);
 			c.setLastExecutionResult(orig_result);
 			c.setChanged(false);
