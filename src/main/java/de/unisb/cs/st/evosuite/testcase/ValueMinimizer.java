@@ -82,6 +82,7 @@ public class ValueMinimizer implements TestVisitor {
 		 */
 		@Override
 		public boolean isNotWorse() {
+			ExecutionResult lastResult = individual.getLastExecutionResult();
 			individual.setChanged(true);
 			suite.setTestChromosome(testIndex, individual);
 			double newFitness = fitness.getFitness(suite);
@@ -92,6 +93,7 @@ public class ValueMinimizer implements TestVisitor {
 				suite.setFitness(lastFitness);
 				return true;
 			} else {
+				individual.setLastExecutionResult(lastResult);
 				suite.setFitness(lastFitness);
 				return false;
 			}
@@ -134,7 +136,7 @@ public class ValueMinimizer implements TestVisitor {
 
 			if (min.equals(max)) {
 				done = true;
-				assert (objective.isNotWorse());
+				//assert (objective.isNotWorse());
 			} else if (objective.isNotWorse()) {
 				// If fitness has not decreased, new max is new value
 				max = statement.getValue();
@@ -161,6 +163,8 @@ public class ValueMinimizer implements TestVisitor {
 			logger.info("Statement before minimization: " + statement.getCode());
 			binarySearch((NumericalPrimitiveStatement<?>) statement);
 			logger.info("Statement after minimization: " + statement.getCode());
+		} else if (statement instanceof StringPrimitiveStatement) {
+			// TODO: Try to delete characters, or at least replace non-ascii characters with ascii characters
 		}
 	}
 
@@ -178,7 +182,8 @@ public class ValueMinimizer implements TestVisitor {
 	 */
 	@Override
 	public void visitMethodStatement(MethodStatement statement) {
-
+		//if (true)
+		//	return;
 		try {
 			TestCluster cluster = TestCluster.getInstance();
 			DefaultTestFactory factory = DefaultTestFactory.getInstance();
