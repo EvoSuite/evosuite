@@ -51,7 +51,7 @@ public class ConstructorStatement extends AbstractStatement {
 	public List<VariableReference> parameters;
 
 	public ConstructorStatement(TestCase tc, Constructor<?> constructor,
-			java.lang.reflect.Type type, List<VariableReference> parameters) {
+	        java.lang.reflect.Type type, List<VariableReference> parameters) {
 		super(tc, new VariableReferenceImpl(tc, type));
 		this.constructor = constructor;
 		// this.return_type = constructor.getDeclaringClass();
@@ -70,7 +70,7 @@ public class ConstructorStatement extends AbstractStatement {
 	 * @param parameters
 	 */
 	public ConstructorStatement(TestCase tc, Constructor<?> constructor,
-			VariableReference retvar, List<VariableReference> parameters) {
+	        VariableReference retvar, List<VariableReference> parameters) {
 		super(tc, retvar);
 		assert (tc.size() > retvar.getStPosition()); //as an old statement should be replaced by this statement
 		this.constructor = constructor;
@@ -85,8 +85,8 @@ public class ConstructorStatement extends AbstractStatement {
 	// TODO: Handle inner classes (need instance parameter for newInstance)
 	@Override
 	public Throwable execute(final Scope scope, PrintStream out)
-	throws InvocationTargetException, IllegalArgumentException,
-	InstantiationException, IllegalAccessException {
+	        throws InvocationTargetException, IllegalArgumentException,
+	        InstantiationException, IllegalAccessException {
 		PrintStream old_out = System.out;
 		PrintStream old_err = System.err;
 		System.setOut(out);
@@ -100,39 +100,38 @@ public class ConstructorStatement extends AbstractStatement {
 
 				@Override
 				public void execute() throws InvocationTargetException,
-				IllegalArgumentException, IllegalAccessException,
-				InstantiationException {
+				        IllegalArgumentException, IllegalAccessException,
+				        InstantiationException {
 
 					for (int i = 0; i < parameters.size(); i++) {
 						try {
 							inputs[i] = parameters.get(i).getObject(scope);
 						} catch (CodeUnderTestException e) {
 							throw CodeUnderTestException.throwException(e.getCause());
-						} catch(Throwable e){
+						} catch (Throwable e) {
 							throw new EvosuiteError(e);
 						}
-					}	
+					}
 
 					Object ret = constructor.newInstance(inputs);
 
-					try{
-						assert(retval.getVariableClass().isAssignableFrom(ret.getClass())) :"we want an " + retval.getVariableClass() + " but got an " + ret.getClass();
+					try {
+						// assert(retval.getVariableClass().isAssignableFrom(ret.getClass())) :"we want an " + retval.getVariableClass() + " but got an " + ret.getClass();
 						retval.setObject(scope, ret);
 					} catch (CodeUnderTestException e) {
 						throw CodeUnderTestException.throwException(e);
-					} catch(Throwable e){
+					} catch (Throwable e) {
 						throw new EvosuiteError(e);
 					}
 				}
 
 				@Override
-				public Set<Class<? extends Throwable>> throwableExceptions(){
+				public Set<Class<? extends Throwable>> throwableExceptions() {
 					Set<Class<? extends Throwable>> t = new HashSet<Class<? extends Throwable>>();
 					t.add(InvocationTargetException.class);
 					return t;
 				}
 			});
-
 
 		} catch (InvocationTargetException e) {
 			exceptionThrown = e.getCause();
@@ -164,8 +163,8 @@ public class ConstructorStatement extends AbstractStatement {
 			result += retval.getSimpleClassName() + " ";
 		}
 		result += retval.getName() + " = new "
-		+ ClassUtils.getShortClassName(constructor.getDeclaringClass()) + "("
-		+ parameter_string + ");";
+		        + ClassUtils.getShortClassName(constructor.getDeclaringClass()) + "("
+		        + parameter_string + ");";
 		if (exception != null) {
 			Class<?> ex = exception.getClass();
 			while (!Modifier.isPublic(ex.getModifiers()))
@@ -262,7 +261,7 @@ public class ConstructorStatement extends AbstractStatement {
 	 */
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-			Throwable exception) {
+	        Throwable exception) {
 		logger.debug("Invoking constructor");
 		Label start = mg.newLabel();
 		Label end = mg.newLabel();
@@ -278,16 +277,16 @@ public class ConstructorStatement extends AbstractStatement {
 			if (constructor.getParameterTypes()[num].isPrimitive()) {
 				if (!constructor.getParameterTypes()[num].equals(parameter.getVariableClass())) {
 					logger.debug("Types don't match - casting "
-							+ parameter.getVariableClass().getName() + " to "
-							+ constructor.getParameterTypes()[num].getName());
+					        + parameter.getVariableClass().getName() + " to "
+					        + constructor.getParameterTypes()[num].getName());
 					mg.cast(Type.getType(parameter.getVariableClass()),
-							Type.getType(constructor.getParameterTypes()[num]));
+					        Type.getType(constructor.getParameterTypes()[num]));
 				}
 			}
 			num++;
 		}
 		mg.invokeConstructor(Type.getType(retval.getVariableClass()),
-				Method.getMethod(constructor));
+		                     Method.getMethod(constructor));
 		logger.debug("Storing result");
 		retval.storeBytecode(mg, locals);
 

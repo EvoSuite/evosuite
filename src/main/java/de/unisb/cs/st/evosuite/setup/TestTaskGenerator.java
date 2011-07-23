@@ -555,7 +555,7 @@ public class TestTaskGenerator {
 		Io.writeFile(sb.toString(), file);
 	}
 
-	protected static boolean suggestTask(Class<?> clazz) {
+	protected static boolean suggestTask(Class<?> clazz) throws Throwable {
 		String classname = clazz.getName();
 
 		if (clazz.getSuperclass() != null && clazz.getSuperclass().equals(TestCase.class)) {
@@ -698,8 +698,12 @@ public class TestTaskGenerator {
 			Class<?> clazz = null;
 			try {
 				clazz = Class.forName(classname);
-				if (suggestTask(clazz))
-					num++;
+				try {
+					if (suggestTask(clazz))
+						num++;
+				} catch (Throwable e) {
+					logger.info("Ignoring class with exception: " + clazz.getName());
+				}
 			} catch (ClassNotFoundException e) {
 				logger.warn("Class not found: " + classname + ", ignoring");
 				continue;
@@ -728,8 +732,12 @@ public class TestTaskGenerator {
 		int num = 0;
 		for (Class<?> clazz : classes) {
 			logger.info("Next task: " + clazz);
-			if (suggestTask(clazz))
-				num++;
+			try {
+				if (suggestTask(clazz))
+					num++;
+			} catch (Throwable e) {
+				logger.info("Error in creating task for class " + clazz.getName());
+			}
 		}
 		System.out.println("* Created " + num + " task files");
 	}

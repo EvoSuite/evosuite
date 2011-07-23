@@ -21,9 +21,9 @@ package de.unisb.cs.st.evosuite.coverage.branch;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
-import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
