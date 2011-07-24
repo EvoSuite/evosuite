@@ -23,6 +23,10 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 
@@ -37,8 +41,7 @@ public class Utils {
 	/**
 	 * Deletes directory and its content.
 	 * 
-	 * @param dirName
-	 *            name of the directory to delete
+	 * @param dirName name of the directory to delete
 	 */
 	public static void deleteDir(String dirName) {
 		File dir = new File(dirName);
@@ -57,8 +60,7 @@ public class Utils {
 	/**
 	 * Create directory and subdirectories if any.
 	 * 
-	 * @param dirName
-	 *            name of the directory to create
+	 * @param dirName name of the directory to create
 	 * @return true if directory is created successfully, false otherwise
 	 */
 	public static boolean createDir(String dirName) {
@@ -70,10 +72,8 @@ public class Utils {
 	 * Move file to another directory. If file already exist in {@code dest} it
 	 * will be rewritten.
 	 * 
-	 * @param source
-	 *            source file
-	 * @param dest
-	 *            destination file
+	 * @param source source file
+	 * @param dest destination file
 	 * @return true, if file was moved, false otherwise
 	 */
 	public static boolean moveFile(File source, File dest) {
@@ -99,8 +99,7 @@ public class Utils {
 	 * is on the ClassPath ClassLoader can not load stub class if directory does
 	 * not exist during JVM initialization.
 	 * 
-	 * @param path
-	 *            - path to the folder or jar.
+	 * @param path path to the folder or jar.
 	 * @return true if ClassPath updated successfully.
 	 */
 	public static boolean addURL(String path) {
@@ -124,5 +123,36 @@ public class Utils {
 			return false;
 		}
 		return true;
+	}
+	
+	/**
+	 * Parse input string and searches for the ASM-like descriptions of the classes.
+	 * 
+	 * @param input string, where class description should be
+	 * @return Set of class's names in ASM manner or empty set if none were found 
+	 * in input string 
+	 */
+	public static Set<String> classesDescFromString(String input){
+		Set<String> classesDesc = new HashSet<String>();
+
+		// If input actually equals "null" then NullPointerException is trown. 
+		// Don't ask me. I don't know why.
+		try{
+			if(input.equals("null"))
+				return new HashSet<String>();;
+		}
+		catch(NullPointerException e){
+			return classesDesc;
+		}
+		
+		Pattern p = Pattern.compile("(\\w)+(/\\w+)+");
+		Matcher m = p.matcher(input);
+		while(m.find()){
+			String str = m.group();
+			str = str.replaceFirst("(\\[)*L", "");
+			classesDesc.add(str);
+		}
+		
+		return classesDesc;
 	}
 }
