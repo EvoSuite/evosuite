@@ -304,7 +304,7 @@ public class SourceCodeGenerator {
 	 *            array of exception types in original method.generateMethodBody
 	 * @return list of exceptions.
 	 */
-	@SuppressWarnings({ "unchecked" })
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List generateThrownExceptions(Class<?>[] thrownExceptions) {
 		List exceptions = new LinkedList();
 		for (Class<?> exception : thrownExceptions) {
@@ -320,7 +320,7 @@ public class SourceCodeGenerator {
 	 *            types of the parameters in original method.
 	 * @return list of the parameters.
 	 */
-	@SuppressWarnings({ "unchecked" })
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List generateMethodParameters(Class<?>[] parameterTypes) {
 		List parameters = new LinkedList();
 		int counter = 0;
