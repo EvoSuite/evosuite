@@ -38,9 +38,6 @@ public class CFGPool {
 
 	private static Map<String, Map<String, ControlDependenceGraph>> controlDependencies = new HashMap<String, Map<String, ControlDependenceGraph>>();
 
-	//TODO do these get used anywhere?
-	//	private static Map<String, Map<String, Double>> diameters = new HashMap<String, Map<String, Double>>();	
-
 	// retrieve graphs
 
 	public static RawControlFlowGraph getRawCFG(String className, String methodName) {

@@ -52,10 +52,6 @@ public class ControlFlowEdge extends DefaultEdge {
 					r += " - FALSE";
 			}
 		} 
-//		else
-//			r += "nonBranch";
-
-//		r += "CFE";
 
 		return r;
 	}

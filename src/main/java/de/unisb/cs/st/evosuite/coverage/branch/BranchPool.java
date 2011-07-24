@@ -219,7 +219,13 @@ public class BranchPool {
 	 * addBranch(instruction), false otherwise
 	 */
 	public static boolean isKnownAsBranch(BytecodeInstruction v) {
-		return registeredBranches.containsKey(v);
+		return registeredBranches.containsKey(v); // TODO either check if v is
+													// contained in
+													// registeredSwitches or
+													// make new methods
+													// isKnownAsSwitch and
+													// isKnownAsAnyBranch or
+													// something along that way
 	}
 
 	public static int getActualBranchIdForInstruction(BytecodeInstruction ins) {

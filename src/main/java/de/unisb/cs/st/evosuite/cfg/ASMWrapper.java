@@ -48,7 +48,7 @@ public abstract class ASMWrapper {
 
 	// from ASM library
 	protected AbstractInsnNode asmNode;
-	protected CFGFrame frame; // TODO find out what that is used for
+	protected CFGFrame frame;
 	protected boolean forcedBranch = false;
 
 	public AbstractInsnNode getASMNode() {
