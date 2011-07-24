@@ -143,11 +143,11 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 	public boolean getBranchExpressionValue(BytecodeInstruction ins, Branch b) {
 		if (ins == null)
 			throw new IllegalArgumentException("null given");
-		if (b == null)
-			return true; // root branch special case
 		if (!ins.isDirectlyControlDependentOn(b))
 			throw new IllegalArgumentException(
 			        "only allowed to call this method for instructions and their directly control dependent branches");
+		if (b == null)
+			return true; // root branch special case
 
 		BasicBlock insBlock = ins.getBasicBlock();
 
