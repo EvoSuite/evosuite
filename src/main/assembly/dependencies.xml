@@ -13,12 +13,19 @@
       <excludes>
         <exclude>jpf:jpf-annotations</exclude>
         <exclude>jpf:jpf-classes</exclude>
+        <exclude>org.eclipse.jdt:*</exclude>
       </excludes>
       <unpack>true</unpack>
       <unpackOptions>
         <excludes>
           <exclude>log4j.xml</exclude>
           <exclude>log4j.properties</exclude>
+          <exclude>META-INF/*.SF</exclude>
+          <exclude>META-INF/*.sf</exclude>
+          <exclude>META-INF/*.RSA</exclude>
+          <exclude>META-INF/*.rsa</exclude>
+          <exclude>META-INF/*.INF</exclude>
+          <exclude>META-INF/*.inf</exclude>
         </excludes>
       </unpackOptions>
       <scope>runtime</scope>
