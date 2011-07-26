@@ -329,6 +329,9 @@ public class Properties {
 	@Parameter(key = "mocks", group = "Sandbox", description = "Usage of the mocks for the IO, Network etc")
 	public static boolean MOCKS = false;
 
+	@Parameter(key = "mock_strategy", group = "Sandbox", description = "Which mocking strategy should be applied")
+	public static String MOCK_STRATEGY = "internal"; 
+	
 	@Parameter(key = "sandbox_folder", group = "Sandbox", description = "Folder used for IO, when mocks are enabled")
 	public static String SANDBOX_FOLDER = "evosuite-sandbox";
 
