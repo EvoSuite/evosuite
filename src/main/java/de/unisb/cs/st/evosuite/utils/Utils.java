@@ -83,10 +83,8 @@ public class Utils {
 		try {
 			if (dest.exists())
 				dest.delete();
-			dest.createNewFile();
-
+			
 			FileUtils.moveFile(source, dest);
-
 		} catch (IOException e) {
 			return false;
 		}
