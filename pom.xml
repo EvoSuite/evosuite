@@ -56,7 +56,7 @@
 	<dependency>
 	   <groupId>mockit</groupId>
 	   <artifactId>jmockit</artifactId>
-	   <version>0.999.7</version>
+	   <version>0.999.10</version>
 	</dependency>
       <dependency>
 	<groupId>log4j</groupId>
@@ -417,7 +417,7 @@
 			<artifactItem>
 			  <groupId>mockit</groupId>
 			   <artifactId>jmockit</artifactId>
-			   <version>0.999.7</version>
+			   <version>0.999.10</version>
 			  <overWrite>true</overWrite>
 			  <outputDirectory>target/</outputDirectory>
 			  <destFileName>jmockit.jar</destFileName>
