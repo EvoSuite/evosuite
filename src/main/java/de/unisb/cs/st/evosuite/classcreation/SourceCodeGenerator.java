@@ -383,9 +383,22 @@ public class SourceCodeGenerator {
 	 * @return AST representation of the type.
 	 */
 	private Type generateType(Class<?> type) {
+		if (type.isArray())
+			return generateArrayType(type);
 		if (type.isPrimitive())
 			return generatePrimitiveType(type);
 		return generateSimpleType(type);
+	}
+
+	/**
+	 * Generates array type
+	 * 
+	 * @param type
+	 *            reflection represantation of the array type
+	 * @return AST representation of the type
+	 */
+	private Type generateArrayType(Class<?> type) {
+		return ast.newArrayType(generateType(type.getComponentType()));
 	}
 
 	/**
