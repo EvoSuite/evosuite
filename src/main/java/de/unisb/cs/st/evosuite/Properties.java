@@ -497,6 +497,15 @@ public class Properties {
 
 	@Parameter(key = "min_free_mem", group = "Runtime", description = "Minimum amount of available memory")
 	public static int MIN_FREE_MEM = 200000000;
+	
+	// ---------------------------------------------------------------
+	// Seeding test cases
+
+	@Parameter(key = "classpath", group = "Test Seeding", description = "The classpath needed to compile the seeding test case.")
+	public static String[] CLASSPATH = new String[] { "" };
+
+	@Parameter(key = "sourcepath", group = "Test Seeding", description = "The path to the test case source.")
+	public static String[] SOURCEPATH = new String[] { "" };
 
 	/**
 	 * Get all parameters that are available
@@ -793,11 +802,26 @@ public class Properties {
 			setValue(key, Boolean.parseBoolean(value));
 		} else if (f.getType().equals(double.class)) {
 			setValue(key, Double.parseDouble(value));
+		} else if (f.getType().isArray()) {
+			if (f.getType().isAssignableFrom(String[].class)) {
+				setValue(key, value.split(";"));
+			}
 		} else {
 			f.set(null, value);
 		}
 	}
 
+	public void setValue(String key, String[] value) throws NoSuchParameterException, IllegalArgumentException,
+			IllegalAccessException {
+		if (!parameterMap.containsKey(key)) {
+			throw new NoSuchParameterException(key);
+		}
+
+		Field f = parameterMap.get(key);
+
+		f.set(this, value);
+	}
+	
 	/** Singleton instance */
 	private static Properties instance = new Properties();
 
