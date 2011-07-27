@@ -380,8 +380,8 @@ function canonpath ()
 ##
 setup ()
 {
-    allowed_options=("-object" "-class")
-    allowed_options_take_values=(0 1)
+    allowed_options=("-object" "-class" "-debug")
+    allowed_options_take_values=(0 1 0)
     parse_command_line "$@"
     options_ok=$?
     OUTPUT_DIR=evosuite-files
@@ -391,11 +391,13 @@ setup ()
     then {
 	    OBJECT=""
 	    TEST_CLASS=""
+	    java_debug=""
 	    for (( i = 0; i < 3; i++ ))
 	    do
 		case ${cmdline_options[$i]} in
 		    "-object") OBJECT="-Dgenerate_objects=true";;
 		    "-class") TEST_CLASS="-DTARGET_CLASS=${cmdline_options_values[$i]}";;
+		    "-debug") java_debug="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=1044";;
 		esac
 	    done
 	    PROJECT_PREFIX=${cmdline_arguments[0]}
@@ -404,8 +406,8 @@ setup ()
 	    first=1
 #	    javalanche_options=" -Djavalanche.ignore.replace.variables=true -Dmutation.package.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PROJECT_PREFIX"
 	    javalanche_options=" -Djavalanche.project.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PROJECT_PREFIX"
-#	    echo "java $java_options -ea -cp "$classpath:$CP" $java_agent=scan  $javalanche_options $TEST_CLASS $OBJECT $evosuite_scan"
-	    java $java_options -ea -cp "$classpath:$CP" $java_agent=scan  $javalanche_options $TEST_CLASS $OBJECT $evosuite_scan
+#	    echo $java_debug "java $java_options -ea -cp "$classpath:$CP" $java_agent=scan  $javalanche_options $TEST_CLASS $OBJECT $evosuite_scan"
+	    java $java_debug $java_options -ea -cp "$classpath:$CP" $java_agent=scan  $javalanche_options $TEST_CLASS $OBJECT $evosuite_scan
 #	    java $java_options -cp "$classpath:$CP" $java_agent=tasks $javalanche_options $TEST_CLASS $OBJECT $evosuite_tasks
 	    setup_javalanche $OUTPUT_DIR $PROJECT_PREFIX $CP
 	    setup_evosuite $OUTPUT_DIR $PROJECT_PREFIX $CP
@@ -466,8 +468,8 @@ setupDir ()
 ##
 generateSuite ()
 {
-	allowed_options=("-EvoSuite" "-OneBranch" "-seed" "-base_dir" "-class" "-criterion" "-sandbox" "-process")
-	allowed_options_take_values=(0 0 1 1 1 1 0 0)
+	allowed_options=("-EvoSuite" "-OneBranch" "-seed" "-base_dir" "-class" "-criterion" "-sandbox" "-debug" "-process")
+	allowed_options_take_values=(0 0 1 1 1 1 0 0 0)
 	parse_command_line "$@"
 	options_ok=$?
 	if test $options_ok -eq 0;
@@ -477,6 +479,7 @@ generateSuite ()
 		STRATEGY="OneBranch"
 		CRITERION="-Dcriterion=branch"
 		SANDBOX=""
+		java_debug=""
 		random_seed="-Drandom.seed=0"
 		PROCESS=0
 		for (( i = 0; i < ${#cmdline_options[@]}; i++ )) 
@@ -489,6 +492,8 @@ generateSuite ()
 			"-EvoSuite") STRATEGY="EvoSuite";;
 			"-criterion") CRITERION="-Dcriterion="${cmdline_options_values[$i]};;
 			"-sandbox") SANDBOX="-Dsandbox=true";;
+			"-debug") java_debug="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=1044"
+			        echo "*** DEBUGGING MODE *** Start e.g. the eclipse remote debugger with the port given below.";;
 			"-process") PROCESS=1;;
 		    esac
 		done
@@ -532,11 +537,10 @@ generateSuite ()
 
 
 		    if [ $PROCESS -eq 1 ]; then
-			CLIENT="java -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate $javalanche_options $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION $MUTANTS -DTARGET_CLASS=$test_class $evosuite_client"
+			CLIENT="java $java_debug -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate $javalanche_options $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION $MUTANTS -DTARGET_CLASS=$test_class $evosuite_client"
 			java -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP"  $random_seed $java_options $java_opts -DTARGET_CLASS=$test_class $evosuite_master $CLIENT
 		    else
-			#echo "java -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP" $java_agent=generate $javalanche_options $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION $MUTANTS -DTARGET_CLASS=$test_class $evosuite_suite"
-			java -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP" $java_agent=generate $javalanche_options $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION $MUTANTS -DTARGET_CLASS=$test_class $evosuite_suite
+			java $java_debug -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP" $java_agent=generate $javalanche_options $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION $MUTANTS -DTARGET_CLASS=$test_class $evosuite_suite
 		    fi
 
 		done
