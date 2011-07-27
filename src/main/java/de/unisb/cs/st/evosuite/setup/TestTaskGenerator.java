@@ -660,11 +660,11 @@ public class TestTaskGenerator {
 			addObjectMethods(object_methods, ownedClass);
 		}
 
+		String classfilename = classname.replace("$", "_");
 		if (suggestion.isEmpty()) {
 			logger.info("No usable methods found, skipping " + classname);
 			return false;
 		}
-		String classfilename = classname.replace("$", "_");
 		writeTask(suggestion, classfilename + ".task");
 		logger.info("GenObjects");
 
@@ -673,6 +673,8 @@ public class TestTaskGenerator {
 		logger.info("GenInspectors");
 		writeInspectors(clazz, classfilename + ".inspectors");
 		logger.info("Done");
+		System.out.println("  " + classname);
+
 		return true;
 	}
 
@@ -736,7 +738,8 @@ public class TestTaskGenerator {
 				if (suggestTask(clazz))
 					num++;
 			} catch (Throwable e) {
-				logger.info("Error in creating task for class " + clazz.getName());
+				logger.info("Error in creating task for class " + clazz.getName() + ": "
+				        + e);
 			}
 		}
 		System.out.println("* Created " + num + " task files");
