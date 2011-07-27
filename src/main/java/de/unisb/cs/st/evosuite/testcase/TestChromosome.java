@@ -57,15 +57,15 @@ public class TestChromosome extends ExecutableChromosome {
 			test_factory = DefaultTestFactory.getInstance();
 		}
 	}
-	
-	public void setTestCase(TestCase testCase){
-		test=testCase;
+
+	public void setTestCase(TestCase testCase) {
+		test = testCase;
 	}
-	
-	public TestCase getTestCase(){
+
+	public TestCase getTestCase() {
 		return test;
 	}
-	
+
 	@Override
 	public void setChanged(boolean changed) {
 		super.setChanged(changed);
@@ -121,7 +121,7 @@ public class TestChromosome extends ExecutableChromosome {
 		        || offspring.test.size() <= Properties.CHROMOSOME_LENGTH) {
 			test = offspring.test;
 		}
-		// logger.warn("Size exceeded!");
+
 		setChanged(true);
 	}
 

@@ -31,7 +31,9 @@ import de.unisb.cs.st.evosuite.Properties;
  */
 public class MaxStatementsStoppingCondition extends StoppingCondition {
 
-	@SuppressWarnings({ "unused", "hiding" })
+	private static final long serialVersionUID = 8521297417505862683L;
+
+	@SuppressWarnings({ "unused" })
 	private static Logger logger = Logger.getLogger(MaxStatementsStoppingCondition.class);
 
 	/** Maximum number of iterations */

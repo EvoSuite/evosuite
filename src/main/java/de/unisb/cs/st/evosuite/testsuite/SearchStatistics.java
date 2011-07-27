@@ -19,6 +19,7 @@
 package de.unisb.cs.st.evosuite.testsuite;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -44,7 +45,9 @@ import de.unisb.cs.st.evosuite.utils.ReportGenerator;
  * @author Gordon Fraser
  * 
  */
-public class SearchStatistics extends ReportGenerator {
+public class SearchStatistics extends ReportGenerator implements Serializable {
+
+	private static final long serialVersionUID = 8780927435434567712L;
 
 	private static SearchStatistics instance = null;
 
@@ -57,6 +60,10 @@ public class SearchStatistics extends ReportGenerator {
 			instance = new SearchStatistics();
 		}
 		return instance;
+	}
+
+	public static void setInstance(SearchStatistics statistics) {
+		instance = statistics;
 	}
 
 	/**

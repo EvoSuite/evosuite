@@ -6,7 +6,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 public abstract class ExecutableChromosome extends Chromosome {
 	private static final long serialVersionUID = 1L;
 
-	protected ExecutionResult lastExecutionResult = null;
+	protected transient ExecutionResult lastExecutionResult = null;
 
 	public ExecutableChromosome() {
 		super();
@@ -20,5 +20,6 @@ public abstract class ExecutableChromosome extends Chromosome {
 		return lastExecutionResult;
 	}
 
-	abstract public ExecutionResult executeForFitnessFunction(TestSuiteFitnessFunction testSuiteFitnessFunction);
+	abstract public ExecutionResult executeForFitnessFunction(
+	        TestSuiteFitnessFunction testSuiteFitnessFunction);
 }

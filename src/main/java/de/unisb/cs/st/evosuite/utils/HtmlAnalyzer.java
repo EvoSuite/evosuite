@@ -19,6 +19,7 @@ package de.unisb.cs.st.evosuite.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -31,7 +32,9 @@ import de.unisb.cs.st.ds.util.io.DirectoryFileSource;
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
 
-public class HtmlAnalyzer {
+public class HtmlAnalyzer implements Serializable {
+
+	private static final long serialVersionUID = -5634296119340294425L;
 
 	private static Logger logger = Logger.getLogger(HtmlAnalyzer.class);
 

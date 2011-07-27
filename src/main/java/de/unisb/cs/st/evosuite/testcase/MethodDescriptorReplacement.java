@@ -20,6 +20,7 @@ package de.unisb.cs.st.evosuite.testcase;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -39,7 +40,9 @@ import de.unisb.cs.st.evosuite.Properties;
  * @author Gordon Fraser
  * 
  */
-public class MethodDescriptorReplacement {
+public class MethodDescriptorReplacement implements Serializable {
+
+	private static final long serialVersionUID = -2324044891555746456L;
 
 	/** Singleton instance */
 	private static MethodDescriptorReplacement instance = null;

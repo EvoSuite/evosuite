@@ -3,18 +3,21 @@
  */
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import de.unisb.cs.st.evosuite.contracts.NullPointerExceptionContract;
-
 /**
- * @author fraser
+ * @author Gordon Fraser
  * 
  */
 public class FieldReference extends VariableReferenceImpl {
 
-	private final Field field;
+	private static final long serialVersionUID = -5958137620746406320L;
+
+	private transient Field field;
 
 	private VariableReference source;
 
@@ -24,8 +27,8 @@ public class FieldReference extends VariableReferenceImpl {
 	 */
 	public FieldReference(TestCase testCase, Field field, VariableReference source) {
 		super(testCase, field.getGenericType());
-		assert(field!=null);
-		assert(source!=null || Modifier.isStatic(field.getModifiers())) : "No source object was supplied, therefore we assumed the field to be static. However asking the field if it was static, returned false";
+		assert (field != null);
+		assert (source != null || Modifier.isStatic(field.getModifiers())) : "No source object was supplied, therefore we assumed the field to be static. However asking the field if it was static, returned false";
 		this.field = field;
 		this.source = source;
 		//		logger.info("Creating new field assignment for field " + field + " of object "
@@ -71,25 +74,25 @@ public class FieldReference extends VariableReferenceImpl {
 	public Object getObject(Scope scope) throws CodeUnderTestException {
 
 		Object s;
-		if(Modifier.isStatic(field.getModifiers())){
+		if (Modifier.isStatic(field.getModifiers())) {
 			s = null;
-		}else{
+		} else {
 			s = source.getObject(scope);
 		}
 
-		try{
+		try {
 			return field.get(s);
 		} catch (IllegalArgumentException e) {
 			logger.error("Error accessing field " + field + " of object " + source + ": "
-					+ e, e);
+			        + e, e);
 			throw e;
 		} catch (IllegalAccessException e) {
 			logger.error("Error accessing field " + field + " of object " + source + ": "
-					+ e, e);
+			        + e, e);
 			throw new EvosuiteError(e);
-		} catch (NullPointerException e){
+		} catch (NullPointerException e) {
 			throw new CodeUnderTestException(e);
-		}catch (ExceptionInInitializerError e){
+		} catch (ExceptionInInitializerError e) {
 			throw new CodeUnderTestException(e);
 		}
 	}
@@ -109,7 +112,7 @@ public class FieldReference extends VariableReferenceImpl {
 
 			if (source != null) {
 				sourceObject = source.getObject(scope);
-				if (sourceObject == null){
+				if (sourceObject == null) {
 					/*
 					 * #FIXME this is dangerously far away from the java semantics
 					 *	That means we can have a testcase
@@ -137,27 +140,27 @@ public class FieldReference extends VariableReferenceImpl {
 			else if (field.getType().equals(short.class))
 				field.setShort(sourceObject, (Short) value);
 			else {
-				if (value!=null && !field.getType().isAssignableFrom(value.getClass())) {
+				if (value != null && !field.getType().isAssignableFrom(value.getClass())) {
 					logger.error("Not assignable: " + value + " of class "
-							+ value.getClass() + " to field " + field + " of variable "
-							+ source);
+					        + value.getClass() + " to field " + field + " of variable "
+					        + source);
 				}
 				// FIXXME: isAssignableFrom does not work with autoboxing
 				// assert (value==null || field.getType().isAssignableFrom(value.getClass()));
 				if (!field.getDeclaringClass().isAssignableFrom(sourceObject.getClass())) {
 					logger.error("Field " + field + " defined in class "
-							+ field.getDeclaringClass());
+					        + field.getDeclaringClass());
 					logger.error("Source object " + sourceObject + " has class "
-							+ sourceObject.getClass());
+					        + sourceObject.getClass());
 					logger.error("Value object " + value + " has class "
-							+ value.getClass());
+					        + value.getClass());
 				}
 				//assert (field.getDeclaringClass().isAssignableFrom(sourceObject.getClass()));
 				field.set(sourceObject, value);
 			}
 		} catch (IllegalArgumentException e) {
 			logger.error("Error while assigning field: " + getName() + " with value "
-					+ value + " on object " + sourceObject + ": " + e, e);
+			        + value + " on object " + sourceObject + ": " + e, e);
 			e.printStackTrace();
 			throw e;
 		} catch (IllegalAccessException e) {
@@ -165,7 +168,7 @@ public class FieldReference extends VariableReferenceImpl {
 			throw new EvosuiteError(e);
 		} catch (NullPointerException e) {
 			throw new CodeUnderTestException(e);
-		} catch (ExceptionInInitializerError e){
+		} catch (ExceptionInInitializerError e) {
 			throw new CodeUnderTestException(e);
 		}
 	}
@@ -187,7 +190,7 @@ public class FieldReference extends VariableReferenceImpl {
 	@Override
 	public void setAdditionalVariableReference(VariableReference var) {
 		if (source != null
-				&& !field.getDeclaringClass().isAssignableFrom(var.getVariableClass())) {
+		        && !field.getDeclaringClass().isAssignableFrom(var.getVariableClass())) {
 			logger.info("Not assignable: " + field.getDeclaringClass() + " and " + var);
 			assert (false);
 		}
@@ -199,7 +202,7 @@ public class FieldReference extends VariableReferenceImpl {
 	 */
 	@Override
 	public void replaceAdditionalVariableReference(VariableReference var1,
-			VariableReference var2) {
+	        VariableReference var2) {
 		if (source != null) {
 			if (source.equals(var1))
 				source = var2;
@@ -224,7 +227,7 @@ public class FieldReference extends VariableReferenceImpl {
 				}
 			}
 			throw new AssertionError(
-			"A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase.");
+			        "A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase.");
 		}
 
 		//			return 0;
@@ -302,4 +305,30 @@ public class FieldReference extends VariableReferenceImpl {
 		return true;
 	}
 
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+		// Write/save additional fields
+		oos.writeObject(field.getDeclaringClass());
+		Field[] fields = field.getDeclaringClass().getDeclaredFields();
+		boolean done = false;
+		for (int i = 0; i < fields.length; i++) {
+			if (fields[i].equals(field)) {
+				oos.writeObject(new Integer(i));
+				done = true;
+			}
+		}
+		assert (done);
+	}
+
+	// assumes "static java.util.Date aDate;" declared
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+
+		// Read/initialize additional fields
+		Class<?> clazz = (Class<?>) ois.readObject();
+		int num = (Integer) ois.readObject();
+
+		field = clazz.getDeclaredFields()[num];
+	}
 }

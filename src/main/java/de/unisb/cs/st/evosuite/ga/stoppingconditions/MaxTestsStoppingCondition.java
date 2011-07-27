@@ -26,6 +26,8 @@ import de.unisb.cs.st.evosuite.Properties;
  */
 public class MaxTestsStoppingCondition extends StoppingCondition {
 
+	private static final long serialVersionUID = -3375236459377313641L;
+
 	/** Current number of tests */
 	protected static int num_tests = 0;
 

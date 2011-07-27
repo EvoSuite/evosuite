@@ -29,6 +29,8 @@ import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
  */
 public class MaxTimeStoppingCondition extends StoppingCondition {
 
+	private static final long serialVersionUID = -4524853279562896768L;
+
 	/** Maximum number of seconds */
 	protected int max_seconds = Properties.GENERATIONS;
 

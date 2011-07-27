@@ -18,6 +18,9 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
@@ -46,7 +49,7 @@ public class ConstructorStatement extends AbstractStatement {
 
 	private static final long serialVersionUID = -3035570485633271957L;
 
-	Constructor<?> constructor;
+	private transient Constructor<?> constructor;
 
 	public List<VariableReference> parameters;
 
@@ -404,5 +407,28 @@ public class ConstructorStatement extends AbstractStatement {
 	@Override
 	public boolean isAssignmentStatement() {
 		return false;
+	}
+
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+		// Write/save additional fields
+		oos.writeObject(constructor.getDeclaringClass());
+		Constructor<?>[] constructors = constructor.getDeclaringClass().getDeclaredConstructors();
+		for (int i = 0; i < constructors.length; i++) {
+			if (constructors[i].equals(constructor))
+				oos.writeObject(new Integer(i));
+		}
+	}
+
+	// assumes "static java.util.Date aDate;" declared
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+
+		// Read/initialize additional fields
+		Class<?> constructorClass = (Class<?>) ois.readObject();
+		int num = (Integer) ois.readObject();
+
+		constructor = constructorClass.getDeclaredConstructors()[num];
 	}
 }
