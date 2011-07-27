@@ -358,7 +358,7 @@ setup_evosuite ()
 	    else
 	    	echo "* Creating default configuration"
 	    	echo "PROJECT_PREFIX=$PROJECT_PREFIX" > $OUTPUT_DIR/evosuite.properties
-	    	echo "CP=\"$SRC\"" >> $OUTPUT_DIR/evosuite.properties
+	    	echo "CP=\"$SRC:evosuite-files/Stubs/classes\"" >> $OUTPUT_DIR/evosuite.properties
 	    	cat $BASEPATH/src/main/assembly/etc/evosuite.properties >> $OUTPUT_DIR/evosuite.properties
 	    fi
 	}
@@ -404,6 +404,7 @@ setup ()
 	    first=1
 #	    javalanche_options=" -Djavalanche.ignore.replace.variables=true -Dmutation.package.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PROJECT_PREFIX"
 	    javalanche_options=" -Djavalanche.project.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PROJECT_PREFIX"
+#	    echo "java $java_options -ea -cp "$classpath:$CP" $java_agent=scan  $javalanche_options $TEST_CLASS $OBJECT $evosuite_scan"
 	    java $java_options -ea -cp "$classpath:$CP" $java_agent=scan  $javalanche_options $TEST_CLASS $OBJECT $evosuite_scan
 #	    java $java_options -cp "$classpath:$CP" $java_agent=tasks $javalanche_options $TEST_CLASS $OBJECT $evosuite_tasks
 	    setup_javalanche $OUTPUT_DIR $PROJECT_PREFIX $CP
@@ -431,12 +432,12 @@ setupDir ()
     if test ${#cmdline_arguments[@]} -ge 1 && test $options_ok -eq 0;
     then {
 	    PROJECT_PREFIX=${cmdline_arguments[0]}
-	    CP="${cmdline_arguments[@]:1:${#cmdline_arguments[@]}}"
+	    CP="${cmdline_arguments[@]:1:${#cmdline_arguments[@]}}:$@"
 	    #echo $PROJECT_PREFIX
 	    #echo $CP
 #	    javalanche_options=" -Djavalanche.ignore.replace.variables=true -Dmutation.package.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PROJECT_PREFIX"
 	    javalanche_options=" -Djavalanche.project.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR " #-DPROJECT_PREFIX=$PROJECT_PREFIX
-	    java $java_options -cp "$classpath:$CP" $java_agent=scan  $javalanche_options $TEST_CLASS $OBJECT $evosuite_scan $@
+	    java $java_options -cp "$classpath:$CP" $java_agent=scan $javalanche_options $TEST_CLASS $OBJECT $evosuite_scan $@
 
 #	    java $java_options -cp "$classpath:$CP" $java_agent=tasks $javalanche_options $TEST_CLASS $OBJECT $evosuite_tasks
 	    PROJECT_PREFIX=""

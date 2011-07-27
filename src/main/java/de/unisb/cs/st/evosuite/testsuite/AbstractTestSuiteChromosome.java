@@ -9,11 +9,10 @@ import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
-import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
-import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
-public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome> extends Chromosome {
+public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome> extends
+        Chromosome {
 	private static final long serialVersionUID = 1L;
 
 	protected List<T> tests = new ArrayList<T>();
@@ -23,9 +22,10 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	protected AbstractTestSuiteChromosome(ChromosomeFactory<T> testChromosomeFactory) {
 		this.testChromosomeFactory = testChromosomeFactory;
 	}
-	
+
 	/**
 	 * Creates a deep copy of source.
+	 * 
 	 * @param source
 	 */
 	@SuppressWarnings("unchecked")
@@ -40,32 +40,35 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		this.setChanged(source.isChanged());
 		this.coverage = source.coverage;
 	}
-	
+
 	public void addTest(T test) {
 		tests.add(test);
 		this.setChanged(true);
 	}
-	
+
 	/**
 	 * Keep up to position1, append copy of other from position2 on
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void crossOver(Chromosome other, int position1, int position2) throws ConstructionFailedException {
+	public void crossOver(Chromosome other, int position1, int position2)
+	        throws ConstructionFailedException {
 		if (!(other instanceof AbstractTestSuiteChromosome<?>)) {
-			throw new IllegalArgumentException("AbstractTestSuiteChromosome.crossOver() called with parameter of unsupported type " + other.getClass());
+			throw new IllegalArgumentException(
+			        "AbstractTestSuiteChromosome.crossOver() called with parameter of unsupported type "
+			                + other.getClass());
 		}
-		
+
 		AbstractTestSuiteChromosome<T> chromosome = (AbstractTestSuiteChromosome<T>) other;
 
 		while (tests.size() > position1) {
 			tests.remove(position1);
 		}
-		
+
 		for (int num = position2; num < other.size(); num++) {
 			tests.add((T) chromosome.tests.get(num).clone());
 		}
-		
+
 		this.setChanged(true);
 	}
 
@@ -88,14 +91,14 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 
 		return true;
 	}
-	
+
 	/**
 	 * Apply mutation on test suite level
 	 */
 	@Override
 	public void mutate() {
 		boolean changed = false;
-		
+
 		// Mutate existing test cases
 		for (T test : tests) {
 			if (Randomness.nextDouble() < 1.0 / tests.size()) {
@@ -108,13 +111,12 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		final double ALPHA = 0.1;
 
 		for (int count = 1; Randomness.nextDouble() <= Math.pow(ALPHA, count)
-		        && size() < Properties.MAX_SIZE; count++)
-		{
+		        && size() < Properties.MAX_SIZE; count++) {
 			tests.add(testChromosomeFactory.getChromosome());
 			logger.debug("Adding new test case");
 			changed = true;
 		}
-		
+
 		if (changed) {
 			this.setChanged(true);
 		}
@@ -129,7 +131,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 			length += test.size();
 		return length;
 	}
-	
+
 	@Override
 	public int size() {
 		return tests.size();
@@ -162,4 +164,3 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		this.coverage = coverage;
 	}
 }
-

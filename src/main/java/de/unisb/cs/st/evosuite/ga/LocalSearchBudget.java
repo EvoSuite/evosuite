@@ -3,13 +3,17 @@
  */
 package de.unisb.cs.st.evosuite.ga;
 
+import java.io.Serializable;
+
 import de.unisb.cs.st.evosuite.Properties;
 
 /**
- * @author fraser
+ * @author Gordon Fraser
  * 
  */
-public class LocalSearchBudget implements SearchListener {
+public class LocalSearchBudget implements SearchListener, Serializable {
+
+	private static final long serialVersionUID = 9152147170303160131L;
 
 	protected static int attempts = 0;
 

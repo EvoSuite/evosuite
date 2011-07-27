@@ -18,6 +18,9 @@
 
 package de.unisb.cs.st.evosuite.ga;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +35,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Strategy;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
+import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
@@ -628,5 +632,29 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		System.out.println("* GA-Budget:");
 		for (StoppingCondition sc : stopping_conditions)
 			System.out.println("  - " + sc.toString());
+	}
+
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		if (listeners.contains(SearchStatistics.getInstance())) {
+			removeListener(SearchStatistics.getInstance());
+			oos.defaultWriteObject();
+			oos.writeObject(Boolean.TRUE);
+			// Write/save additional fields
+			oos.writeObject(SearchStatistics.getInstance());
+		} else {
+			oos.defaultWriteObject();
+			oos.writeObject(Boolean.FALSE);
+		}
+	}
+
+	// assumes "static java.util.Date aDate;" declared
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+		boolean addStatistics = (Boolean) ois.readObject();
+		if (addStatistics) {
+			SearchStatistics.setInstance((SearchStatistics) ois.readObject());
+			addListener(SearchStatistics.getInstance());
+		}
 	}
 }

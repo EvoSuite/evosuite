@@ -13,6 +13,8 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  */
 public class ArrayIndex extends VariableReferenceImpl {
 
+	private static final long serialVersionUID = -6603106086182398060L;
+
 	/**
 	 * Index in the array
 	 */
@@ -145,7 +147,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 			} else {
 				throw new CodeUnderTestException(new NullPointerException());
 			}
-		} catch(ArrayIndexOutOfBoundsException e) {
+		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new CodeUnderTestException(e);
 		}
 	}
@@ -159,7 +161,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 *            The value to be assigned
 	 */
 	@Override
-	public void setObject(Scope scope, Object value) throws CodeUnderTestException{
+	public void setObject(Scope scope, Object value) throws CodeUnderTestException {
 		Object arrayObject = array.getObject(scope);
 		try {
 			if (arrayObject != null) {
@@ -167,7 +169,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 			} else {
 				throw new CodeUnderTestException(new NullPointerException());
 			}
-		} catch(ArrayIndexOutOfBoundsException e) {
+		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new CodeUnderTestException(e);
 		}
 	}

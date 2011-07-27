@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.ga.stoppingconditions;
 
+import java.io.Serializable;
 import java.text.NumberFormat;
 
 import org.apache.commons.lang.StringUtils;
@@ -33,7 +34,9 @@ import de.unisb.cs.st.evosuite.ga.SearchListener;
  * @author Gordon Fraser
  * 
  */
-public abstract class StoppingCondition implements SearchListener {
+public abstract class StoppingCondition implements SearchListener, Serializable {
+
+	private static final long serialVersionUID = -8221978873140881671L;
 
 	protected static Logger logger = Logger.getLogger(StoppingCondition.class);
 

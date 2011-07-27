@@ -18,6 +18,9 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -53,12 +56,15 @@ public class FieldStatement extends AbstractStatement {
 	private final String fieldName;
 
 	public FieldStatement(TestCase tc, Field field, VariableReference source,
-			java.lang.reflect.Type type) {
+	        java.lang.reflect.Type type) {
 		super(tc, new VariableReferenceImpl(tc, type));
 		this.field = field;
 		this.className = field.getDeclaringClass().getName();
 		this.fieldName = field.getName();
 		this.source = source;
+		if (retval.getComponentType() != null) {
+			retval = new ArrayReference(tc, retval.getGenericClass(), 0);
+		}
 	}
 
 	/**
@@ -73,7 +79,7 @@ public class FieldStatement extends AbstractStatement {
 	 * @param ret_var
 	 */
 	public FieldStatement(TestCase tc, Field field, VariableReference source,
-			VariableReference ret_var) {
+	        VariableReference ret_var) {
 		super(tc, ret_var);
 		assert (tc.size() > ret_var.getStPosition()); //as an old statement should be replaced by this statement
 		this.field = field;
@@ -125,11 +131,11 @@ public class FieldStatement extends AbstractStatement {
 		}
 		if (!Modifier.isStatic(field.getModifiers()))
 			result += retval.getName() + " = " + cast_str + source.getName() + "."
-			+ field.getName() + ";";
+			        + field.getName() + ";";
 		else
 			result += retval.getName() + " = " + cast_str
-			+ field.getDeclaringClass().getSimpleName() + "." + field.getName()
-			+ ";";
+			        + field.getDeclaringClass().getSimpleName() + "." + field.getName()
+			        + ";";
 		if (exception != null) {
 			Class<?> ex = exception.getClass();
 			while (!Modifier.isPublic(ex.getModifiers()))
@@ -144,57 +150,59 @@ public class FieldStatement extends AbstractStatement {
 	public StatementInterface clone(TestCase newTestCase) {
 		if (Modifier.isStatic(field.getModifiers())) {
 			FieldStatement s = new FieldStatement(newTestCase, field, null,
-					retval.getType());
+			        retval.getType());
 			return s;
 		} else {
 			VariableReference newSource = source.clone(newTestCase);
 			FieldStatement s = new FieldStatement(newTestCase, field, newSource,
-					retval.getType());
+			        retval.getType());
 			return s;
 		}
 	}
 
 	@Override
 	public Throwable execute(final Scope scope, PrintStream out)
-	throws InvocationTargetException, IllegalArgumentException,
-	IllegalAccessException, InstantiationException {
+	        throws InvocationTargetException, IllegalArgumentException,
+	        IllegalAccessException, InstantiationException {
 
-		try{
+		try {
 			return super.exceptionHandler(new Executer() {
 
 				@Override
 				public void execute() throws InvocationTargetException,
-				IllegalArgumentException, IllegalAccessException,
-				InstantiationException {
+				        IllegalArgumentException, IllegalAccessException,
+				        InstantiationException {
 					Object source_object;
-					try{
-						source_object = (Modifier.isStatic(field.getModifiers()))?null:source.getObject(scope);
+					try {
+						source_object = (Modifier.isStatic(field.getModifiers())) ? null
+						        : source.getObject(scope);
 
-						if (!Modifier.isStatic(field.getModifiers()) && source_object == null) {
+						if (!Modifier.isStatic(field.getModifiers())
+						        && source_object == null) {
 							retval.setObject(scope, null);
 							throw new CodeUnderTestException(new NullPointerException());
 						}
 					} catch (CodeUnderTestException e) {
 						throw CodeUnderTestException.throwException(e.getCause());
-					} catch(Throwable e){
+					} catch (Throwable e) {
 						throw new EvosuiteError(e);
 					}
 
 					Object ret = field.get(source_object);
 
-					try{
+					try {
 						// FIXXME: isAssignableFrom int <- Integer does not return true 
 						//assert(ret==null || retval.getVariableClass().isAssignableFrom(ret.getClass())) : "we want an " + retval.getVariableClass() + " but got an " + ret.getClass();
 						retval.setObject(scope, ret);
 					} catch (CodeUnderTestException e) {
 						throw CodeUnderTestException.throwException(e);
-					} catch(Throwable e){
+					} catch (Throwable e) {
 						throw new EvosuiteError(e);
 					}
 				}
 
 				@Override
-				public Set<Class<? extends Throwable>> throwableExceptions(){
+				public Set<Class<? extends Throwable>> throwableExceptions() {
 					Set<Class<? extends Throwable>> t = new HashSet<Class<? extends Throwable>>();
 					t.add(InvocationTargetException.class);
 					return t;
@@ -245,7 +253,7 @@ public class FieldStatement extends AbstractStatement {
 		FieldStatement fs = (FieldStatement) s;
 		if (!Modifier.isStatic(field.getModifiers()))
 			return source.equals(fs.source) && retval.equals(fs.retval)
-			&& field.equals(fs.field);
+			        && field.equals(fs.field);
 		else
 			return retval.equals(fs.retval) && field.equals(fs.field);
 	}
@@ -272,7 +280,7 @@ public class FieldStatement extends AbstractStatement {
 	 */
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-			Throwable exception) {
+	        Throwable exception) {
 
 		Label start = mg.newLabel();
 		Label end = mg.newLabel();
@@ -285,14 +293,14 @@ public class FieldStatement extends AbstractStatement {
 		}
 		if (isStatic())
 			mg.getStatic(Type.getType(field.getDeclaringClass()), field.getName(),
-					Type.getType(field.getType()));
+			             Type.getType(field.getType()));
 		else {
 			if (!source.getVariableClass().isInterface()) {
 				mg.getField(Type.getType(source.getVariableClass()), field.getName(),
-						Type.getType(field.getType()));
+				            Type.getType(field.getType()));
 			} else {
 				mg.getField(Type.getType(field.getDeclaringClass()), field.getName(),
-						Type.getType(field.getType()));
+				            Type.getType(field.getType()));
 			}
 		}
 
@@ -357,7 +365,7 @@ public class FieldStatement extends AbstractStatement {
 		FieldStatement fs = (FieldStatement) s;
 		if (!Modifier.isStatic(field.getModifiers()))
 			return source.same(fs.source) && retval.same(fs.retval)
-			&& field.equals(fs.field);
+			        && field.equals(fs.field);
 		else
 			return retval.same(fs.retval) && field.equals(fs.field);
 	}
@@ -372,4 +380,26 @@ public class FieldStatement extends AbstractStatement {
 		return false;
 	}
 
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+		// Write/save additional fields
+		oos.writeObject(field.getDeclaringClass());
+		Field[] fields = field.getDeclaringClass().getDeclaredFields();
+		for (int i = 0; i < fields.length; i++) {
+			if (fields[i].equals(field))
+				oos.writeObject(new Integer(i));
+		}
+	}
+
+	// assumes "static java.util.Date aDate;" declared
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+
+		// Read/initialize additional fields
+		Class<?> methodClass = (Class<?>) ois.readObject();
+		int num = (Integer) ois.readObject();
+
+		field = methodClass.getDeclaredFields()[num];
+	}
 }

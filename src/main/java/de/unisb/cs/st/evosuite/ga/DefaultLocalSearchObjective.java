@@ -3,12 +3,15 @@
  */
 package de.unisb.cs.st.evosuite.ga;
 
+import java.io.Serializable;
 
 /**
  * @author Gordon Fraser
  * 
  */
-public class DefaultLocalSearchObjective implements LocalSearchObjective {
+public class DefaultLocalSearchObjective implements LocalSearchObjective, Serializable {
+
+	private static final long serialVersionUID = -8640106627078837108L;
 
 	private final FitnessFunction fitness;
 

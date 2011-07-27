@@ -54,6 +54,7 @@ public class TestSuitePreMain {
 
 		} else if (agentArguments.equals("scan")) {
 			System.out.println("* Scanning project for classes");
+			addClassFileTransformer(instrumentation, new CollectClassInfoTransformer());
 			distanceTransformer = new DistanceTransformer();
 			addClassFileTransformer(instrumentation, distanceTransformer);
 			// addClassFileTransformer(instrumentation, new ScanVariablesTransformer());

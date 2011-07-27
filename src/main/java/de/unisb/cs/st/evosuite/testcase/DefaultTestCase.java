@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -42,7 +43,9 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
  * @author Gordon Fraser
  * 
  */
-public class DefaultTestCase implements TestCase {
+public class DefaultTestCase implements TestCase, Serializable {
+
+	private static final long serialVersionUID = -689512549778944250L;
 
 	private static Logger logger = Logger.getLogger(DefaultTestCase.class);
 
@@ -300,7 +303,33 @@ public class DefaultTestCase implements TestCase {
 	@Override
 	public VariableReference addStatement(StatementInterface statement) {
 		statements.add(statement);
-		assert (isValid());
+		try {
+			assert (isValid());
+		} catch (AssertionError e) {
+			logger.info("Is not valid: ");
+			for (StatementInterface s : statements) {
+				try {
+					logger.info(s.getCode());
+				} catch (AssertionError e2) {
+					logger.info("Found error in: " + s);
+					if (s instanceof MethodStatement) {
+						MethodStatement ms = (MethodStatement) s;
+						if (!ms.isStatic()) {
+							logger.info("Callee: ");
+							logger.info(ms.callee);
+						}
+						int num = 0;
+						for (VariableReference v : ms.parameters) {
+							logger.info("Parameter " + num);
+							logger.info(v.getVariableClass());
+							logger.info(v.getClass());
+							logger.info(v);
+						}
+					}
+				}
+			}
+			assert (false);
+		}
 		return statement.getReturnValue();
 	}
 
@@ -574,19 +603,8 @@ public class DefaultTestCase implements TestCase {
 	 */
 	@Override
 	public boolean isValid() {
-		int num = 0;
 		for (StatementInterface s : statements) {
 			assert (s.isValid());
-			/*
-			if (s.getReturnValue().getStPosition() != num) {
-				logger.error("Test case is invalid at statement " + num + " - "
-				        + s.getReturnValue().getStPosition() + " which is "
-				        + s.getClass() + " " + s.getCode());
-				logger.error("Test code is: " + this.toCode());
-				return false;
-			}
-			*/
-			num++;
 		}
 		return true;
 	}

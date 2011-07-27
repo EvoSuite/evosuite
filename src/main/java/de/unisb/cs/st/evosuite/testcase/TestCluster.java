@@ -88,7 +88,9 @@ public class TestCluster {
 	private final HashMap<Type, List<AccessibleObject>> calls_for = new HashMap<Type, List<AccessibleObject>>();
 
 	/** The entire set of calls available */
-	Set<AccessibleObject> calls = new HashSet<AccessibleObject>();
+	private final Set<AccessibleObject> calls = new HashSet<AccessibleObject>();
+
+	private final Set<Class<?>> analyzedClasses = new HashSet<Class<?>>();
 
 	private final List<Method> static_initializers = new ArrayList<Method>();
 
@@ -102,6 +104,8 @@ public class TestCluster {
 		}
 		return hierarchy;
 	}
+
+	private static Map<String, List<String>> test_excludes = getExcludesFromFile();
 
 	public int num_defined_methods = 0;
 
@@ -135,6 +139,16 @@ public class TestCluster {
 
 		return instance;
 	}
+
+	// New dependency algorithm:
+	// 1. Load list of all classes in classpath
+	// 2. Identify all parameters of TARGET_CLASS
+	// 3. For each parameter:
+	// 3a. Load class
+	// 3b. If abstract, find all subclasses, add to classlist to handle
+	// 3c. For all parameters, put on classlist if not already handled
+	//
+	// In setup script, add all jars / classes found in local dir to classpath?
 
 	public static boolean isTargetClassName(String className) {
 		if (!Properties.TARGET_CLASS_PREFIX.isEmpty()
@@ -1356,7 +1370,6 @@ public class TestCluster {
 
 		Set<String> all_classes = getHierarchy().getAllClasses();
 		Set<Class<?>> dependencies = new HashSet<Class<?>>();
-		Map<String, List<String>> test_excludes = getExcludesFromFile();
 
 		// Analyze each class
 		for (String classname : all_classes) {
@@ -1365,6 +1378,7 @@ public class TestCluster {
 				try {
 					logger.trace("Current class: " + classname);
 					Class<?> toadd = Class.forName(classname);
+					analyzedClasses.add(toadd);
 					if (!canUse(toadd)) {
 						logger.debug("Not using class " + classname);
 						continue;
@@ -1480,6 +1494,7 @@ public class TestCluster {
 		logger.info("Found " + calls.size() + " other calls");
 		// logger.info("Found "+dependencies.size()+" unsatisfied dependencies:");
 		logger.info("Unsatisfied dependencies:");
+		Set<Class<?>> neededDependencies = new HashSet<Class<?>>();
 		for (Class<?> clazz : dependencies) {
 			if (clazz.isArray()) {
 				clazz = clazz.getComponentType();
@@ -1489,8 +1504,157 @@ public class TestCluster {
 			if (hasGenerator(clazz))
 				continue;
 			logger.info("  " + clazz.getName());
+			neededDependencies.add(clazz);
 			// addCalls(clazz);
 		}
+		if (!neededDependencies.isEmpty())
+			loadDependencies(neededDependencies, 0);
+	}
+
+	/**
+	 * If there is a class for which we have no generator, start a search of the
+	 * classpath to identify something that can serve as generator
+	 * 
+	 * @param dependencies
+	 */
+	private void loadDependencies(Set<Class<?>> all_classes, int depth) {
+		logger.info("Getting list of classes");
+		if (depth > 3)
+			return;
+
+		Set<Class<?>> dependencies = new HashSet<Class<?>>();
+
+		// Analyze each class
+		for (Class<?> toadd : all_classes) {
+			analyzedClasses.add(toadd);
+
+			String classname = toadd.getName();
+			logger.trace("Current class: " + classname);
+			if (!canUse(toadd)) {
+				logger.debug("Not using class " + classname);
+				continue;
+			}
+
+			// Keep all accessible constructors
+			for (Constructor<?> constructor : getConstructors(toadd)) {
+				logger.trace("Considering constructor " + constructor);
+				if (test_excludes.containsKey(classname)) {
+					boolean valid = true;
+					String full_name = "<init>"
+					        + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
+					for (String regex : test_excludes.get(classname)) {
+						if (full_name.matches(regex)) {
+							logger.info("Found excluded constructor: " + constructor
+							        + " matches " + regex);
+							valid = false;
+							break;
+						}
+					}
+					if (!valid)
+						continue;
+				}
+				if (canUse(constructor)) {
+					for (Class<?> clazz : constructor.getParameterTypes()) {
+						if (!analyzedClasses.contains(clazz)) {
+							if (clazz.isArray())
+								dependencies.add(clazz.getComponentType());
+							else
+								dependencies.add(clazz);
+						}
+					}
+					logger.debug("Adding constructor " + constructor);
+					constructor.setAccessible(true);
+					calls.add(constructor);
+				} else {
+					logger.trace("Constructor " + constructor + " is not public");
+				}
+			}
+
+			// Keep all accessible methods
+			for (Method method : getMethods(toadd)) {
+				// if(method.getDeclaringClass().equals(Object.class))
+				// continue;
+				if (test_excludes.containsKey(classname)) {
+					boolean valid = true;
+					String full_name = method.getName()
+					        + org.objectweb.asm.Type.getMethodDescriptor(method);
+					for (String regex : test_excludes.get(classname)) {
+						if (full_name.matches(regex)) {
+							valid = false;
+							logger.info("Found excluded method: " + classname + "."
+							        + full_name + " matches " + regex);
+							break;
+						}
+					}
+					if (!valid)
+						continue;
+				}
+				if (canUse(method)) {
+					for (Class<?> clazz : method.getParameterTypes()) {
+						if (!analyzedClasses.contains(clazz)) {
+							if (clazz.isArray())
+								dependencies.add(clazz.getComponentType());
+							else
+								dependencies.add(clazz);
+						}
+					}
+					method.setAccessible(true);
+					calls.add(method);
+					logger.debug("Adding method " + method);
+				}
+			}
+
+			// Keep all accessible fields
+			for (Field field : getFields(toadd)) {
+				// if(!Modifier.isPrivate(field.getModifiers()) &&
+				// !Modifier.isProtected(field.getModifiers()) &&
+				// !Modifier.isProtected(field.getDeclaringClass().getModifiers())
+				// &&
+				// !Modifier.isPrivate(field.getDeclaringClass().getModifiers()))
+				// {
+				if (test_excludes.containsKey(classname)) {
+					boolean valid = true;
+					for (String regex : test_excludes.get(classname)) {
+						if (field.getName().matches(regex)) {
+							valid = false;
+							logger.info("Found excluded field: " + classname + "."
+							        + field.getName() + " matches " + regex);
+							break;
+						}
+					}
+					if (!valid)
+						continue;
+				}
+
+				if (canUse(field) && !Modifier.isFinal(field.getModifiers())) {
+					field.setAccessible(true);
+					calls.add(field);
+					logger.trace("Adding field " + field);
+				} else {
+					logger.trace("Cannot use field " + field);
+				}
+			}
+
+		}
+		logger.info("Found " + calls.size() + " other calls");
+		// logger.info("Found "+dependencies.size()+" unsatisfied dependencies:");
+		logger.info("Unsatisfied dependencies:");
+		Set<Class<?>> neededDependencies = new HashSet<Class<?>>();
+		for (Class<?> clazz : dependencies) {
+			if (clazz.isArray()) {
+				clazz = clazz.getComponentType();
+			}
+			if (clazz.isPrimitive())
+				continue;
+			if (hasGenerator(clazz))
+				continue;
+			logger.info("  " + clazz.getName());
+			neededDependencies.add(clazz);
+			// addCalls(clazz);
+		}
+		if (!neededDependencies.isEmpty())
+			loadDependencies(neededDependencies, depth + 1);
+
 	}
 
 	public void resetStaticClasses() {

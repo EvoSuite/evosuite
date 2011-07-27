@@ -31,6 +31,8 @@ import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
  */
 public class MaxLengthStoppingCondition extends StoppingCondition {
 
+	private static final long serialVersionUID = 8537667219135128366L;
+
 	private double average_length = 0.0;
 
 	/* (non-Javadoc)

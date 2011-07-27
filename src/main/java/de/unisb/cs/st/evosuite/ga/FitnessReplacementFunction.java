@@ -26,6 +26,8 @@ package de.unisb.cs.st.evosuite.ga;
  */
 public class FitnessReplacementFunction extends ReplacementFunction {
 
+	private static final long serialVersionUID = 8492857847521917540L;
+
 	/**
 	 * @param selectionFunction
 	 */
