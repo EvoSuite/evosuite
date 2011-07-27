@@ -124,6 +124,11 @@ public class ExecutionTracer {
 	private static boolean isThreadNeqCurrentThread() {
 		if (!checkCallerThread) {
 			return false;
+		} 
+		if (currentThread == null) {
+			logger.warn("CurrentThread has not been set!");
+			currentThread = Thread.currentThread();
+			return false;
 		} else {
 			return (Thread.currentThread() != currentThread);
 		}
