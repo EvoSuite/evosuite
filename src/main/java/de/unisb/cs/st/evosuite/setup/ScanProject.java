@@ -258,7 +258,7 @@ public class ScanProject {
 		        + "/.*\\.class$"));
 		for (String name : list) {
 			set.addAll(loadClass(new File(name), packageName, silent));
-			generateMocksAndStubs(name);
+			//generateMocksAndStubs(name);
 		}
 
 		return set;
