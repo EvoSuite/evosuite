@@ -30,6 +30,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -97,8 +98,8 @@ public class TestCluster {
 	public static final List<String> EXCLUDE = Arrays.asList("<clinit>", "__STATIC_RESET");
 
 	private static Hierarchy hierarchy;
-	
-	private static Hierarchy getHierarchy(){
+
+	private static Hierarchy getHierarchy() {
 		if (hierarchy == null) {
 			hierarchy = Hierarchy.readFromDefaultLocation();
 		}
@@ -1362,13 +1363,26 @@ public class TestCluster {
 		return objs;
 	}
 
+	private Collection<String> getCluster() {
+
+		File clusterFile = new File(Properties.OUTPUT_DIR + "/" + Properties.TARGET_CLASS
+		        + ".cluster");
+		if (clusterFile.exists()) {
+			logger.info("Loading files from precalculated cluster");
+			return Io.getLinesFromFile(clusterFile);
+		} else {
+			logger.info("Creating cluster on the fly");
+			return getHierarchy().getAllClasses();
+		}
+	}
+
 	/**
 	 * Load all classes in the current project
 	 */
 	private void analyzeTarget() {
 		logger.info("Getting list of classes");
 
-		Set<String> all_classes = getHierarchy().getAllClasses();
+		Collection<String> all_classes = getCluster();
 		Set<Class<?>> dependencies = new HashSet<Class<?>>();
 
 		// Analyze each class
