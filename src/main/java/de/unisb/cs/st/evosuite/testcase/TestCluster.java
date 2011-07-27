@@ -96,7 +96,14 @@ public class TestCluster {
 
 	public static final List<String> EXCLUDE = Arrays.asList("<clinit>", "__STATIC_RESET");
 
-	private static Hierarchy hierarchy = Hierarchy.readFromDefaultLocation();
+	private static Hierarchy hierarchy;
+	
+	private static Hierarchy getHierarchy(){
+		if (hierarchy == null) {
+			hierarchy = Hierarchy.readFromDefaultLocation();
+		}
+		return hierarchy;
+	}
 
 	private static Map<String, List<String>> test_excludes = getExcludesFromFile();
 
@@ -155,7 +162,7 @@ public class TestCluster {
 		}
 
 		if (Properties.INSTRUMENT_PARENT) {
-			return hierarchy.getAllSupers(Properties.TARGET_CLASS).contains(className);
+			return getHierarchy().getAllSupers(Properties.TARGET_CLASS).contains(className);
 		}
 
 		return false;
@@ -1361,7 +1368,7 @@ public class TestCluster {
 	private void analyzeTarget() {
 		logger.info("Getting list of classes");
 
-		Set<String> all_classes = hierarchy.getAllClasses();
+		Set<String> all_classes = getHierarchy().getAllClasses();
 		Set<Class<?>> dependencies = new HashSet<Class<?>>();
 
 		// Analyze each class

@@ -50,8 +50,18 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	// private static RemoveSystemExitTransformer systemExitTransformer = new
 	// RemoveSystemExitTransformer();
 
+	public boolean isTargetProject(String className) {
+		return className.startsWith(Properties.PROJECT_PREFIX);
+	}
+	
 	private boolean isTargetClassName(String className) {
 		return TestCluster.isTargetClassName(className);
+	}
+
+	private static boolean isJavaagent = false;
+
+	public static boolean isJavaagent() {
+		return isJavaagent;
 	}
 
 	static {
@@ -67,103 +77,103 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	 * byte[])
 	 */
 	@Override
-	public byte[] transform(ClassLoader loader, String className,
-	        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-	        byte[] classfileBuffer) throws IllegalClassFormatException {
+	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+		isJavaagent = true;
+		if (className == null) {
+			return classfileBuffer;
+		}
+		String classNameWithDots = className.replace('/', '.');
 
-		if (className != null) {
-			try {
-				String classNameWithDots = className.replace('/', '.');
-
-				// Some packages we shouldn't touch - hard-coded
-				if (!classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
-				        && (classNameWithDots.startsWith("java")
-				                || classNameWithDots.startsWith("sun")
-				                || classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
-					return classfileBuffer;
-				}
-				if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)) {
-
-					// logger.debug("Removing calls to System.exit() from class: "
-					// + classNameWithDots);
-					// classfileBuffer = systemExitTransformer
-					// .transformBytecode(classfileBuffer);
-
-					ClassReader reader = new ClassReader(classfileBuffer);
-					ClassWriter writer = new ClassWriter(
-					        org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
-
-					ClassVisitor cv = writer;
-
-					// Print out bytecode if debug is enabled
-					// if(logger.isDebugEnabled())
-					// cv = new TraceClassVisitor(cv, new
-					// PrintWriter(System.out));
-
-					// Apply transformations to class under test and its owned
-					// classes
-					if (isTargetClassName(classNameWithDots)) {
-						cv = new AccessibleClassAdapter(cv, className);
-						cv = new ExecutionPathClassAdapter(cv, className);
-						cv = new CFGClassAdapter(cv, className);
-
-					} else if (Properties.MAKE_ACCESSIBLE) {
-						// Convert protected/default access to public access
-						cv = new AccessibleClassAdapter(cv, className);
-					}
-
-					// Collect constant values for the value pool
-					cv = new PrimitiveClassAdapter(cv, className);
-
-					// If we need to reset static constructors, make them
-					// explicit methods
-					if (Properties.STATIC_HACK)
-						cv = new StaticInitializationClassAdapter(cv, className);
-
-					if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
-						ClassNode cn = new ClassNode();
-						reader.accept(cn, ClassReader.SKIP_FRAMES);
-						ComparisonTransformation cmp = new ComparisonTransformation(cn);
-						cmp.transform().accept(cv);
-						if (Properties.TT) {
-							logger.info("Testability Transforming " + className);
-							TestabilityTransformation tt = new TestabilityTransformation(
-							        cn);
-							// cv = new TraceClassVisitor(writer, new
-							// PrintWriter(System.out));
-							cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
-							cv = new CheckClassAdapter(cv);
-							tt.transform().accept(cv);
-						}
-
-					} else {
-						reader.accept(cv, ClassReader.SKIP_FRAMES);
-					}
-					// Print out bytecode if debug is enabled
-					// if(logger.isDebugEnabled())
-					// cv = new TraceClassVisitor(cv, new
-					// PrintWriter(System.out));
-					classfileBuffer = writer.toByteArray();
-
-					return classfileBuffer;
-
-				}
-
-			} catch (Throwable t) {
-				logger.fatal("Transformation of class " + className + " failed", t);
-				// TODO why all the redundant printStackTrace()s?
-
-				//				StringWriter writer = new StringWriter();
-				//				t.printStackTrace(new PrintWriter(writer));
-				//				logger.fatal(writer.getBuffer().toString());
-				// LogManager.shutdown();
-				System.out.flush();
-				System.exit(0);
-				// throw new RuntimeException(e.getMessage());
-			}
+		// Some packages we shouldn't touch - hard-coded
+		if (!isTargetProject(classNameWithDots)
+				&& (classNameWithDots.startsWith("java") 
+						|| classNameWithDots.startsWith("sun")
+						|| classNameWithDots.startsWith("org.aspectj.org.eclipse") 
+						|| classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
+			return classfileBuffer;
+		}
+		
+		if (!isTargetProject(classNameWithDots)) {
+			return classfileBuffer;
+		}
+		
+		try {
+			return transformBytes(className, new ClassReader(classfileBuffer));
+		} catch (Throwable t) {
+			logger.fatal("Transformation of class " + className + " failed", t);
+			// TODO why all the redundant printStackTrace()s?
+			// StringWriter writer = new StringWriter();
+			// t.printStackTrace(new PrintWriter(writer));
+			// logger.fatal(writer.getBuffer().toString());
+			// LogManager.shutdown();
+			System.out.flush();
+			System.exit(0);
+			// throw new RuntimeException(e.getMessage());
 		}
 		return classfileBuffer;
+	}
 
+	public byte[] transformBytes(String className, ClassReader reader) {
+		String classNameWithDots = className.replace('/', '.');
+		// logger.debug("Removing calls to System.exit() from class: "
+		// + classNameWithDots);
+		// classfileBuffer = systemExitTransformer
+		// .transformBytecode(classfileBuffer);
+
+		ClassWriter writer = new ClassWriter(org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
+
+		ClassVisitor cv = writer;
+
+		// Print out bytecode if debug is enabled
+		// if(logger.isDebugEnabled())
+		// cv = new TraceClassVisitor(cv, new
+		// PrintWriter(System.out));
+
+		// Apply transformations to class under test and its owned
+		// classes
+		if (isTargetClassName(classNameWithDots)) {
+			cv = new AccessibleClassAdapter(cv, className);
+			cv = new ExecutionPathClassAdapter(cv, className);
+			cv = new CFGClassAdapter(cv, className);
+
+		} else if (Properties.MAKE_ACCESSIBLE) {
+			// Convert protected/default access to public access
+			cv = new AccessibleClassAdapter(cv, className);
+		}
+
+		// Collect constant values for the value pool
+		cv = new PrimitiveClassAdapter(cv, className);
+
+		// If we need to reset static constructors, make them
+		// explicit methods
+		if (Properties.STATIC_HACK)
+			cv = new StaticInitializationClassAdapter(cv, className);
+
+		if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
+			ClassNode cn = new ClassNode();
+			reader.accept(cn, ClassReader.SKIP_FRAMES);
+			ComparisonTransformation cmp = new ComparisonTransformation(cn);
+			cmp.transform().accept(cv);
+			if (Properties.TT) {
+				logger.info("Testability Transforming " + className);
+				TestabilityTransformation tt = new TestabilityTransformation(
+				        cn);
+				// cv = new TraceClassVisitor(writer, new
+				// PrintWriter(System.out));
+				cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+				cv = new CheckClassAdapter(cv);
+				tt.transform().accept(cv);
+			}
+
+		} else {
+			reader.accept(cv, ClassReader.SKIP_FRAMES);
+		}
+		// Print out bytecode if debug is enabled
+		// if(logger.isDebugEnabled())
+		// cv = new TraceClassVisitor(cv, new
+		// PrintWriter(System.out));
+		return writer.toByteArray();
 	}
 
 }
