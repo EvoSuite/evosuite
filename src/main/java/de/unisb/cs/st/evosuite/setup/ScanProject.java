@@ -18,12 +18,9 @@
 
 package de.unisb.cs.st.evosuite.setup;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -208,26 +205,16 @@ public class ScanProject {
 		}
 		return set;
 	}
-	
-	private static Set<String> getRefClassesFromFile(String fileName){
-		Set<String> classNames = new HashSet<String>();
-		try {
-			BufferedReader in = new BufferedReader(new FileReader(fileName));
-			String clazz;
-			while((clazz = in.readLine()) != null){
-				classNames.add(clazz);				
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return classNames;
-	}
-	
+		
+	/**
+	 * Generate mocks for the classes from <class_name>.CIs file.
+	 * 
+	 * @param className 
+	 */
 	private static void generateMocksAndStubs(String className){
-		Set<String> classNames = getRefClassesFromFile(
-					"evosuite-files/" + className.replace("/", ".").replace("class", "") + "CIs");
+		Set<String> classNames = new HashSet<String>();
+		classNames.addAll(Utils.readFile(
+					"evosuite-files/" + className.replace("/", ".").replace("class", "") + "CIs"));
 		Set<Class<?>> classes = new HashSet<Class<?>>();
 		try {
 			for(String cn : classNames){

@@ -68,6 +68,7 @@ class Mocks {
 	 */
 	public void setUpMocks() {
 		Utils.createDir(sandboxPath);
+		setUpMockedClasses();
 		setUpFileOutputStreamMock();
 		setUpSystemMock();
 		setUpFileMock();
@@ -86,7 +87,61 @@ class Mocks {
 			filesAccessed.clear();
 		}
 	}
-
+	
+	/**
+	 * Apply mocks according to mocking strategy
+	 */
+	private void setUpMockedClasses(){
+		String targetClass = Properties.TARGET_CLASS;
+		
+		// Read available mocks from the file
+		Set<String> ci = new HashSet<String>();
+		ci.addAll(Utils.readFile("evosuite-files/" + targetClass + ".CIs"));
+		
+		for (String c : ci){
+			try {
+				String mock = c.replace("/", ".")+"Stub";
+				Class<?> clazz = Class.forName(mock);
+				if (clazz == null)
+					continue;
+				setUpMockClass(clazz);
+				
+				// Stub parent classes 
+				Class<?> parent = Class.forName(c.replace("/", "."));
+				for (;;){
+					parent = parent.getSuperclass();
+					if (parent == null)
+						break;
+					setUpMockClass(parent);
+				}
+			} catch (ClassNotFoundException e) {
+				//e.printStackTrace();
+				continue;
+			}
+		} 
+	}
+	
+	/**
+	 * Apply mock to one particular class 
+	 * @param clazz
+	 */
+	private void setUpMockClass(Class<?> clazz){
+		String className = clazz.getCanonicalName();
+		if (className.startsWith("java") || className.startsWith("sun"))
+			return;
+		if (Properties.MOCK_STRATEGY.equals("internal")){
+			if (className.startsWith(Properties.PROJECT_PREFIX))
+				Mockit.setUpMocksAndStubs(clazz);
+			return;
+		}
+		if (Properties.MOCK_STRATEGY.equals("external")){
+			if (!className.startsWith(Properties.PROJECT_PREFIX))
+				Mockit.setUpMocksAndStubs(clazz);
+			return;
+		}
+		Mockit.setUpMocksAndStubs(clazz);
+	}
+	
 	/**
 	 * Create mocks for the class java.io.FileOutputStream
 	 */
