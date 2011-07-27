@@ -1646,7 +1646,7 @@ public class TestCluster {
 			// addCalls(clazz);
 		}
 		if (!neededDependencies.isEmpty())
-			loadDependencies(neededDependencies);
+			loadDependencies(neededDependencies, depth + 1);
 
 	}
 
