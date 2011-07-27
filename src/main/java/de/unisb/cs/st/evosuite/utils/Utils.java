@@ -17,13 +17,18 @@
  */
 package de.unisb.cs.st.evosuite.utils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -152,5 +157,27 @@ public class Utils {
 		}
 		
 		return classesDesc;
+	}
+	
+	/**
+	 * Read file line by line into list.
+	 * 
+	 * @param fileName - name of the file to read from
+	 * @return content of the file in a list
+	 */
+	public static List<String> readFile(String fileName){
+		List<String> content = new LinkedList<String>();
+		try {
+			BufferedReader in = new BufferedReader(new FileReader(fileName));
+			String str;
+			while((str = in.readLine()) != null){
+				content.add(str);				
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return content;
 	}
 }
