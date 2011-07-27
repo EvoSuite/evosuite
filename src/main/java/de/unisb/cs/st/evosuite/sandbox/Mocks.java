@@ -52,6 +52,18 @@ class Mocks {
 	 * Set that contains the names of the files, which were attempted to be read
 	 */
 	private final Set<String> filesAccessed = new HashSet<String>();
+	
+	/**
+	 * Set of mocked classes
+	 */
+	private Set<Class<?>> classesMocked = new HashSet<Class<?>>();
+
+	/**
+	 * @return the classesMocked
+	 */
+	public Set<Class<?>> getClassesMocked() {
+		return classesMocked;
+	}
 
 	/**
 	 * Initialization of required fields.
@@ -85,6 +97,7 @@ class Mocks {
 			Utils.deleteDir(sandboxPath);
 			mocksEnabled = false;
 			filesAccessed.clear();
+			classesMocked.clear();
 		}
 	}
 	
@@ -130,16 +143,21 @@ class Mocks {
 		if (className.startsWith("java") || className.startsWith("sun"))
 			return;
 		if (Properties.MOCK_STRATEGY.equals("internal")){
-			if (className.startsWith(Properties.PROJECT_PREFIX))
+			if (className.startsWith(Properties.PROJECT_PREFIX)){
 				Mockit.setUpMocksAndStubs(clazz);
+				classesMocked.add(clazz);
+			}
 			return;
 		}
 		if (Properties.MOCK_STRATEGY.equals("external")){
-			if (!className.startsWith(Properties.PROJECT_PREFIX))
+			if (!className.startsWith(Properties.PROJECT_PREFIX)){
 				Mockit.setUpMocksAndStubs(clazz);
+				classesMocked.add(clazz);
+			}
 			return;
 		}
 		Mockit.setUpMocksAndStubs(clazz);
+		classesMocked.add(clazz);
 	}
 	
 	/**
@@ -178,6 +196,7 @@ class Mocks {
 				}
 			}
 		};
+		classesMocked.add(FileOutputStream.class);
 	}
 
 	/**
@@ -193,6 +212,7 @@ class Mocks {
 				return new java.util.Properties();
 			}
 		};
+		classesMocked.add(System.class);
 	}
 
 	/**
@@ -240,6 +260,7 @@ class Mocks {
 				return ((attr & ba_dir) != 0);
 			}
 		};
+		classesMocked.add(File.class);
 	}
 
 	/**
@@ -279,6 +300,7 @@ class Mocks {
 				}
 			}
 		};
+		classesMocked.add(FileInputStream.class);
 	}
 
 	/**
