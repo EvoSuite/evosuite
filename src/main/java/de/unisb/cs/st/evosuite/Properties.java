@@ -333,8 +333,8 @@ public class Properties {
 	public static boolean MOCKS = false;
 
 	@Parameter(key = "mock_strategy", group = "Sandbox", description = "Which mocking strategy should be applied")
-	public static String MOCK_STRATEGY = "internal"; 
-	
+	public static String MOCK_STRATEGY = "internal";
+
 	@Parameter(key = "sandbox_folder", group = "Sandbox", description = "Folder used for IO, when mocks are enabled")
 	public static String SANDBOX_FOLDER = "evosuite-sandbox";
 
@@ -343,6 +343,9 @@ public class Properties {
 
 	// ---------------------------------------------------------------
 	// Experimental
+	@Parameter(key = "calculate_cluster", description = "Automatically calculate test cluster during setup")
+	public static boolean CALCULATE_CLUSTER = false;
+
 	@Parameter(key = "remote_testing", description = "Include remote calls")
 	public static boolean REMOTE_TESTING = false;
 
@@ -500,7 +503,7 @@ public class Properties {
 
 	@Parameter(key = "min_free_mem", group = "Runtime", description = "Minimum amount of available memory")
 	public static int MIN_FREE_MEM = 200000000;
-	
+
 	// ---------------------------------------------------------------
 	// Seeding test cases
 
@@ -551,16 +554,19 @@ public class Properties {
 			} catch (NoSuchParameterException e) {
 				System.out.println("- No such parameter: " + parameter);
 			} catch (IllegalArgumentException e) {
-				System.out.println("- Error setting parameter \"" + parameter + "\": " + e);
+				System.out.println("- Error setting parameter \"" + parameter + "\": "
+				        + e);
 			} catch (IllegalAccessException e) {
-				System.out.println("- Error setting parameter \"" + parameter + "\": " + e);
+				System.out.println("- Error setting parameter \"" + parameter + "\": "
+				        + e);
 			}
 		}
 	}
-	
+
 	private void loadPropertiesFile() {
 		properties = new java.util.Properties();
-		String propertiesFile = System.getProperty(PROPERTIES_FILE, "evosuite-files/evosuite.properties");
+		String propertiesFile = System.getProperty(PROPERTIES_FILE,
+		                                           "evosuite-files/evosuite.properties");
 		try {
 			InputStream in = null;
 			if (new File(propertiesFile).exists()) {
@@ -570,13 +576,17 @@ public class Properties {
 				in = this.getClass().getClassLoader().getResourceAsStream(propertiesFile);
 			}
 			properties.load(in);
-			System.out.println("* Properties loaded from configuration file " + propertiesFile);
+			System.out.println("* Properties loaded from configuration file "
+			        + propertiesFile);
 		} catch (FileNotFoundException e) {
-			System.err.println("- Error: Could not find configuration file " + propertiesFile);
+			System.err.println("- Error: Could not find configuration file "
+			        + propertiesFile);
 		} catch (IOException e) {
-			System.err.println("- Error: Could not find configuration file " + propertiesFile);
+			System.err.println("- Error: Could not find configuration file "
+			        + propertiesFile);
 		} catch (Exception e) {
-			System.err.println("- Error: Could not find configuration file " + propertiesFile);
+			System.err.println("- Error: Could not find configuration file "
+			        + propertiesFile);
 		}
 	}
 
@@ -670,7 +680,7 @@ public class Properties {
 	 * @throws IllegalAccessException
 	 */
 	public static int getIntegerValue(String key) throws NoSuchParameterException,
-    		IllegalArgumentException, IllegalAccessException {
+	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -687,7 +697,7 @@ public class Properties {
 	 * @throws IllegalAccessException
 	 */
 	public static boolean getBooleanValue(String key) throws NoSuchParameterException,
-    		IllegalArgumentException, IllegalAccessException {
+	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -704,7 +714,7 @@ public class Properties {
 	 * @throws IllegalAccessException
 	 */
 	public static double getDoubleValue(String key) throws NoSuchParameterException,
-    		IllegalArgumentException, IllegalAccessException {
+	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -721,7 +731,7 @@ public class Properties {
 	 * @throws IllegalAccessException
 	 */
 	public static String getStringValue(String key) throws NoSuchParameterException,
-    		IllegalArgumentException, IllegalAccessException {
+	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -738,7 +748,7 @@ public class Properties {
 	 * @throws IllegalArgumentException
 	 */
 	public void setValue(String key, int value) throws NoSuchParameterException,
-    		IllegalArgumentException, IllegalAccessException {
+	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -763,7 +773,7 @@ public class Properties {
 	 * @throws IllegalArgumentException
 	 */
 	public void setValue(String key, boolean value) throws NoSuchParameterException,
-			IllegalArgumentException, IllegalAccessException {
+	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -781,7 +791,7 @@ public class Properties {
 	 * @throws IllegalAccessException
 	 */
 	public void setValue(String key, double value) throws NoSuchParameterException,
-    		IllegalArgumentException, IllegalAccessException {
+	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -828,8 +838,8 @@ public class Properties {
 		}
 	}
 
-	public void setValue(String key, String[] value) throws NoSuchParameterException, IllegalArgumentException,
-			IllegalAccessException {
+	public void setValue(String key, String[] value) throws NoSuchParameterException,
+	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key)) {
 			throw new NoSuchParameterException(key);
 		}

@@ -555,6 +555,17 @@ public class TestTaskGenerator {
 		Io.writeFile(sb.toString(), file);
 	}
 
+	protected static void writeTestCluster(Class<?> clazz, String filename) {
+
+		StringBuffer sb = new StringBuffer();
+		File file = new File(Properties.OUTPUT_DIR, filename);
+		for (String dependency : ClusterAnalysis.getDependencies(clazz.getName())) {
+			sb.append(dependency);
+			sb.append("\n");
+		}
+		Io.writeFile(sb.toString(), file);
+	}
+
 	protected static boolean suggestTask(Class<?> clazz) throws Throwable {
 		String classname = clazz.getName();
 
@@ -665,6 +676,11 @@ public class TestTaskGenerator {
 			logger.info("No usable methods found, skipping " + classname);
 			return false;
 		}
+		if (Properties.CALCULATE_CLUSTER) {
+			logger.info("Calculating test cluster");
+			writeTestCluster(clazz, classfilename + ".cluster");
+		}
+		logger.info("Writing task file");
 		writeTask(suggestion, classfilename + ".task");
 		logger.info("GenObjects");
 
@@ -700,6 +716,7 @@ public class TestTaskGenerator {
 			Class<?> clazz = null;
 			try {
 				clazz = Class.forName(classname);
+				logger.info("Next task: " + clazz);
 				try {
 					if (suggestTask(clazz))
 						num++;

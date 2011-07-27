@@ -398,6 +398,11 @@ public class ScanProject {
 		TestSuitePreMain.distanceTransformer.saveData();
 		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
 		TestTaskGenerator.hierarchy.calculateSubclasses();
+		if (Properties.CALCULATE_CLUSTER) {
+			System.out.println("* Analyzing classpath");
+			ClusterAnalysis.readAllClasses();
+		}
+
 		System.out.println("* Creating test files");
 		//		TestTaskGenerator.suggestTasks(Properties.PROJECT_PREFIX);
 		TestTaskGenerator.suggestTasks(classes);
