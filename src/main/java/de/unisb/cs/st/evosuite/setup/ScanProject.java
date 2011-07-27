@@ -104,9 +104,9 @@ public class ScanProject {
 		protected Class<?> findClass(String name) throws ClassNotFoundException {
 
 			//name = name.replace(".", ".");
-			if (classMap.containsKey(name))
+			if (classMap.containsKey(name)) {
 				return classMap.get(name);
-
+			}
 			File file = new File(name);
 			try {
 				byte[] array = new byte[(int) file.length()];
@@ -143,15 +143,25 @@ public class ScanProject {
 				classes.addAll(findClasses(file, packageName + "." + file.getName()));
 			} else if (file.getName().endsWith(".class")) {
 				if (Properties.STUBS) {
+					System.out.println("* Stubs enabled");
 					Class<?> clazz = Class.forName(packageName + '.'
 					        + file.getName().substring(0, file.getName().length() - 6));
 
 					if (Modifier.isAbstract(clazz.getModifiers()) && !clazz.isInterface()) {
+						System.out.println("* Creating concrete stub for abstract class "
+						        + clazz.getName());
 						ClassFactory cf = new ClassFactory();
 						Class<?> stub = cf.createClass(clazz);
 						if (stub != null)
 							classes.add(stub);
+					} else {
+						System.out.println("* Not creating concrete stub for abstract class "
+						        + clazz.getName());
+
 					}
+				} else {
+					System.out.println("* Stubs disabled");
+
 				}
 				try {
 					classes.add(Class.forName(packageName + '.'
@@ -171,16 +181,16 @@ public class ScanProject {
 		return classes;
 	}
 
-	private static Set<Class<?>> loadClass(File file, String packageName, boolean printOutput)
-	        throws ClassNotFoundException {
+	private static Set<Class<?>> loadClass(File file, String packageName,
+	        boolean printOutput) throws ClassNotFoundException {
 		Set<Class<?>> set = new HashSet<Class<?>>();
 		if (file.isDirectory()) {
 			assert !file.getName().contains(".");
 			set.addAll(findClasses(file, packageName + "." + file.getName()));
 		} else if (file.getName().endsWith(".class")) {
-			if(printOutput)
+			if (printOutput)
 				System.out.println("    "
-			        + file.toString().replace(".class", "").replace("/", "."));
+				        + file.toString().replace(".class", "").replace("/", "."));
 			if (Properties.STUBS) {
 				Class<?> clazz = Class.forName(file.toString().replace(".class", "").replace("/",
 				                                                                             "."));
@@ -205,38 +215,40 @@ public class ScanProject {
 		}
 		return set;
 	}
-		
+
 	/**
 	 * Generate mocks for the classes from <class_name>.CIs file.
 	 * 
-	 * @param className 
+	 * @param className
 	 */
-	private static void generateMocksAndStubs(String className){
+	private static void generateMocksAndStubs(String className) {
 		Set<String> classNames = new HashSet<String>();
-		classNames.addAll(Utils.readFile(
-					"evosuite-files/" + className.replace("/", ".").replace("class", "") + "CIs"));
+		classNames.addAll(Utils.readFile("evosuite-files/"
+		        + className.replace("/", ".").replace("class", "") + "CIs"));
 		Set<Class<?>> classes = new HashSet<Class<?>>();
 		try {
-			for(String cn : classNames){
-				classes.addAll(loadClass(new File(cn.replace("/", ".") + ".class"), cn.split("/")[0], false));
+			for (String cn : classNames) {
+				classes.addAll(loadClass(new File(cn.replace("/", ".") + ".class"),
+				                         cn.split("/")[0], false));
 			}
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 		ClassFactory cf = new ClassFactory();
-		for(Class<?> c : classes){
+		for (Class<?> c : classes) {
 			String packageName = c.getPackage().getName();
-			if(packageName.startsWith("java") || packageName.startsWith("sun"))
+			if (packageName.startsWith("java") || packageName.startsWith("sun"))
 				continue;
 			cf.createClass(c);
 		}
-			
+
 	}
+
 	/**
 	 * Analyze all classes of a given package prefix that can be found in the
 	 * classpath
 	 */
-	private static Set<Class<?>> getClasses(String packageName)
+	public static Set<Class<?>> getClasses(String packageName, boolean silent)
 	        throws ClassNotFoundException, IOException {
 		Set<Class<?>> set = new HashSet<Class<?>>();
 
@@ -245,7 +257,7 @@ public class ScanProject {
 		Collection<String> list = ResourceList.getResources(Pattern.compile(packageName
 		        + "/.*\\.class$"));
 		for (String name : list) {
-			set.addAll(loadClass(new File(name), packageName, true));
+			set.addAll(loadClass(new File(name), packageName, silent));
 			generateMocksAndStubs(name);
 		}
 
@@ -265,16 +277,24 @@ public class ScanProject {
 			Set<Class<?>> set = new HashSet<Class<?>>();
 			try {
 				System.out.println("* Loading class " + directory.getName());
-				set.add(new FileClassLoader().findClass(directory.getPath()));
+				Class<?> clazz = new FileClassLoader().findClass(directory.getPath());
+				set.add(clazz);
+				if (Properties.STUBS) {
+					if (Modifier.isAbstract(clazz.getModifiers()) && !clazz.isInterface()) {
+						ClassFactory cf = new ClassFactory();
+						cf.createClass(clazz);
+					}
+				}
 			} catch (IllegalAccessError e) {
 				System.out.println("Cannot access class "
 				        + directory.getName().substring(0,
 				                                        directory.getName().length() - 6));
 			} catch (NoClassDefFoundError e) {
-				System.out.println("Cannot find class "
+				System.out.println("Error while loading "
 				        + directory.getName().substring(0,
 				                                        directory.getName().length() - 6)
-				        + " in path " + directory);
+				        + " in path " + directory + ": Cannot find " + e.getMessage());
+				e.printStackTrace();
 			} catch (ExceptionInInitializerError e) {
 				System.out.println("Exception in initializer of "
 				        + directory.getName().substring(0,
@@ -318,8 +338,16 @@ public class ScanProject {
 				continue;
 
 			try {
-				System.out.println("* Loading class " + fileName + " from jar file");
-				set.add(zcl.findClass(fileName.replace(".class", "")));
+				System.out.println("* Loading class " + fileName + " from jar file "
+				        + file.getName());
+				Class<?> clazz = zcl.findClass(fileName.replace(".class", ""));
+				set.add(clazz);
+				if (Properties.STUBS) {
+					if (Modifier.isAbstract(clazz.getModifiers()) && !clazz.isInterface()) {
+						ClassFactory cf = new ClassFactory();
+						cf.createClass(clazz);
+					}
+				}
 				//				Class.forName(fileName.replace(".class", "").replace("/", "."));
 			} catch (IllegalAccessError ex) {
 				System.out.println("Cannot access class "
@@ -340,7 +368,7 @@ public class ScanProject {
 		return set;
 
 	}
-	
+
 	/**
 	 * Entry point - generate task files
 	 * 
@@ -353,7 +381,7 @@ public class ScanProject {
 			if (Properties.PROJECT_PREFIX != null) {
 				System.out.println("* Analyzing project prefix: "
 				        + Properties.PROJECT_PREFIX);
-				classes.addAll(getClasses(Properties.PROJECT_PREFIX));
+				classes.addAll(getClasses(Properties.PROJECT_PREFIX, false));
 			} else if (args.length > 0) {
 				for (String arg : args) {
 					System.out.println("* Analyzing project directory: " + arg);
