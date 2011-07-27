@@ -72,6 +72,8 @@ public class SourceCodeGenerator {
 	/** Original abstract class. */
 	private final Class<?> clazz;
 
+	private final String packageName;
+
 	/** List of the constructors for original abstract class. */
 	private final Constructor<?>[] constructors;
 
@@ -80,7 +82,7 @@ public class SourceCodeGenerator {
 
 	/** Current name of the field to generate */
 	private String currentFieldName;
-	
+
 	/** If current class if abstract */
 	private boolean abstractClass = false;
 
@@ -92,14 +94,23 @@ public class SourceCodeGenerator {
 		ast = AST.newAST(AST.JLS3);
 		unit = ast.newCompilationUnit();
 		this.clazz = clazz;
-		
+		if (clazz.getPackage() != null) {
+			this.packageName = clazz.getPackage().getName();
+		} else {
+			String name = clazz.getName();
+			if (name.contains("."))
+				packageName = name.substring(0, name.lastIndexOf("."));
+			else
+				packageName = "";
+		}
+
 		// Get constructors and methods of a class. 
 		Method[] initialMethods = clazz.getDeclaredMethods();
 		constructors = clazz.getConstructors();
 
 		// If class is abstract filter methods and select only 
 		// abstract.
-		if(java.lang.reflect.Modifier.isAbstract(clazz.getModifiers())){
+		if (java.lang.reflect.Modifier.isAbstract(clazz.getModifiers())) {
 			abstractClass = true;
 			for (Method m : initialMethods)
 				if (java.lang.reflect.Modifier.isAbstract(m.getModifiers()))
@@ -117,17 +128,17 @@ public class SourceCodeGenerator {
 	@SuppressWarnings("unchecked")
 	public CompilationUnit generateSourceCode() {
 		PackageDeclaration pd = ast.newPackageDeclaration();
-		pd.setName(ast.newName(clazz.getPackage().getName()));
+		pd.setName(ast.newName(packageName));
 		unit.setPackage(pd);
 
 		// Create class stub.
 		TypeDeclaration type = ast.newTypeDeclaration();
 		type.setName(ast.newSimpleName(clazz.getSimpleName() + "Stub"));
-			
-		if(abstractClass){
+
+		if (abstractClass) {
 			// Set inheritance.
 			type.setSuperclassType(ast.newSimpleType(ast.newName(clazz.getCanonicalName())));
-			
+
 			// Check for abstract constructors and if any - generate them.
 			if (constructors.length != 0)
 				type.bodyDeclarations().addAll(generateConstructors());
@@ -145,7 +156,7 @@ public class SourceCodeGenerator {
 			type.modifiers().add(na);
 		}
 		type.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD));
-		
+
 		type.setInterface(false);
 
 		// Generate stubs, fields and setters for the methods.
@@ -179,12 +190,12 @@ public class SourceCodeGenerator {
 			// Set "Override" annotation marker if abstract class.
 			// Otherwise set jmockit annotations
 			NormalAnnotation na = ast.newNormalAnnotation();
-			if(abstractClass)
+			if (abstractClass)
 				na.setTypeName(ast.newName("java.lang.Override"));
-			else 
+			else
 				na.setTypeName(ast.newName("mockit.Mock"));
 			md.modifiers().add(na);
-			
+
 			// Get original modifiers of the method, they are either 
 			// public or protected.
 			int modifiers = method.getModifiers();

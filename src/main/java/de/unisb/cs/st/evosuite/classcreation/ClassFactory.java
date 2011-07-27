@@ -60,7 +60,13 @@ public class ClassFactory {
 	 */
 	public Class<?> createClass(Class<?> clazz) {
 		this.clazz = clazz;
-		String packageDir = clazz.getPackage().getName().replace(".", "/") + "/";
+		String packageDir = "";
+		if (clazz.getPackage() != null)
+			packageDir = clazz.getPackage().getName().replace(".", "/") + "/";
+		else if (clazz.getName().contains("."))
+			packageDir = clazz.getName().substring(0, clazz.getName().lastIndexOf(".")).replace(".",
+			                                                                                    "/")
+			        + "/";
 		sourceDir = stubsDir + "/src/" + packageDir;
 		classDir = stubsDir + "/classes/" + packageDir;
 
@@ -87,10 +93,18 @@ public class ClassFactory {
 	 */
 	private Class<?> loadClass() {
 		Utils.addURL(stubsDir + "/classes/");
+		String packageName = "";
+		if (clazz.getPackage() != null) {
+			packageName = clazz.getPackage().getName();
+		} else {
+			String name = clazz.getName();
+			if (name.contains("."))
+				packageName = name.substring(0, name.lastIndexOf("."));
+		}
 		Class<?> loadedClass = null;
 		try {
-			loadedClass = Class.forName(clazz.getPackage().getName() + "."
-			        + clazz.getSimpleName() + "Stub");
+			loadedClass = Class.forName(packageName + "." + clazz.getSimpleName()
+			        + "Stub");
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 			return null;
@@ -148,6 +162,7 @@ public class ClassFactory {
 			out.write(unit.toString());
 			out.close();
 		} catch (IOException e) {
+			System.out.println("IOException: " + e);
 		}
 
 		return sourceFileName;
