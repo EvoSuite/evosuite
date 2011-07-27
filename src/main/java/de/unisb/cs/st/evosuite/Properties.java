@@ -317,7 +317,7 @@ public class Properties {
 
 	@Parameter(key = "write_cfg", group = "Output", description = "Create CFG graphs")
 	public static boolean WRITE_CFG = false;
-	
+
 	@Parameter(key = "write_excel", group = "Output", description = "Create Excel workbook")
 	public static boolean WRITE_EXCEL = false;
 
@@ -329,6 +329,9 @@ public class Properties {
 	@Parameter(key = "mocks", group = "Sandbox", description = "Usage of the mocks for the IO, Network etc")
 	public static boolean MOCKS = false;
 
+	@Parameter(key = "mock_strategy", group = "Sandbox", description = "Which mocking strategy should be applied")
+	public static String MOCK_STRATEGY = "internal"; 
+	
 	@Parameter(key = "sandbox_folder", group = "Sandbox", description = "Folder used for IO, when mocks are enabled")
 	public static String SANDBOX_FOLDER = "evosuite-sandbox";
 
@@ -478,7 +481,7 @@ public class Properties {
 
 	@Parameter(key = "criterion", group = "Runtime", description = "Coverage criterion")
 	public static Criterion CRITERION = Criterion.BRANCH;
-	
+
 	public enum Strategy {
 		ONEBRANCH, EVOSUITE
 	}
@@ -857,6 +860,13 @@ public class Properties {
 		if (TARGET_CLASS != null && !TARGET_CLASS.equals("")) {
 			CLASS_PREFIX = TARGET_CLASS.substring(0, TARGET_CLASS.lastIndexOf('.'));
 			SUB_PREFIX = CLASS_PREFIX.replace(PROJECT_PREFIX + ".", "");
+			if (PROJECT_PREFIX == null || PROJECT_PREFIX.equals("")) {
+				if (CLASS_PREFIX.contains("."))
+					PROJECT_PREFIX = CLASS_PREFIX.substring(0, CLASS_PREFIX.indexOf("."));
+				else
+					PROJECT_PREFIX = CLASS_PREFIX;
+				System.out.println("* Using project prefix: " + PROJECT_PREFIX);
+			}
 		}
 	}
 

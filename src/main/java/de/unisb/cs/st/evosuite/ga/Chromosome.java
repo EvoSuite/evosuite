@@ -32,7 +32,8 @@ import de.unisb.cs.st.evosuite.utils.PublicCloneable;
  * @author Gordon Fraser
  * 
  */
-public abstract class Chromosome implements Comparable<Chromosome>, Serializable, PublicCloneable<Chromosome> {
+public abstract class Chromosome implements Comparable<Chromosome>, Serializable,
+        PublicCloneable<Chromosome> {
 
 	private static final long serialVersionUID = -6921897301005213358L;
 
@@ -115,8 +116,8 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 				break;
 			c = so.compareChromosomes(this, o);
 		}
-		logger.debug("Comparison: " + fitness + "/" + size() + " vs " + o.fitness + "/"
-		        + o.size() + " = " + c);
+		//logger.debug("Comparison: " + fitness + "/" + size() + " vs " + o.fitness + "/"
+		//        + o.size() + " = " + c);
 		return c;
 	}
 

@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.io.Serializable;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -33,7 +34,9 @@ import org.apache.log4j.Logger;
 
 import com.googlecode.gentyref.GenericTypeReflector;
 
-public class GenericClass {
+public class GenericClass implements Serializable {
+
+	private static final long serialVersionUID = -3307107227790458308L;
 
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(GenericClass.class);

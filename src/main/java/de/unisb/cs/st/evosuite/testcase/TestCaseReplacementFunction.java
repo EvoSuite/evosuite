@@ -29,6 +29,8 @@ import de.unisb.cs.st.evosuite.ga.SelectionFunction;
  */
 public class TestCaseReplacementFunction extends ReplacementFunction {
 
+	private static final long serialVersionUID = 2894768695219052674L;
+
 	public TestCaseReplacementFunction(SelectionFunction selection) {
 		super(selection);
 	}
@@ -41,11 +43,13 @@ public class TestCaseReplacementFunction extends ReplacementFunction {
 		super(false);
 	}
 
-	public int getLengthSum(ExecutableChromosome chromosome1, ExecutableChromosome chromosome2) {
+	public int getLengthSum(ExecutableChromosome chromosome1,
+	        ExecutableChromosome chromosome2) {
 		return chromosome1.size() + chromosome2.size();
 	}
 
-	protected double getBestFitness(ExecutableChromosome chromosome1, ExecutableChromosome chromosome2) {
+	protected double getBestFitness(ExecutableChromosome chromosome1,
+	        ExecutableChromosome chromosome2) {
 		if (maximize) {
 			return Math.max(chromosome1.getFitness(), chromosome2.getFitness());
 		} else {
@@ -69,7 +73,7 @@ public class TestCaseReplacementFunction extends ReplacementFunction {
 		if (Properties.CHECK_PARENTS_LENGTH) {
 			if ((fitness_offspring == fitness_parents && getLengthSum((ExecutableChromosome) offspring1,
 			                                                          (ExecutableChromosome) offspring2) <= getLengthSum((ExecutableChromosome) parent1,
-			                                                                                                       (ExecutableChromosome) parent2))) {
+			                                                                                                             (ExecutableChromosome) parent2))) {
 				return true;
 			}
 		} else {

@@ -28,6 +28,8 @@ import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
  */
 public class ZeroFitnessStoppingCondition extends StoppingCondition {
 
+	private static final long serialVersionUID = -6925872054053635256L;
+
 	/** Keep track of lowest fitness seen so far */
 	private double last_fitness = Double.MAX_VALUE;
 

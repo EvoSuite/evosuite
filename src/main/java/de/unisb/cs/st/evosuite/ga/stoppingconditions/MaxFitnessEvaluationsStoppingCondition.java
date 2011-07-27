@@ -29,6 +29,8 @@ import de.unisb.cs.st.evosuite.ga.Chromosome;
  */
 public class MaxFitnessEvaluationsStoppingCondition extends StoppingCondition {
 
+	private static final long serialVersionUID = 208241490252275613L;
+
 	/** Maximum number of evaluations */
 	protected int max_evaluations = Properties.GENERATIONS;
 

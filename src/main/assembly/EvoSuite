@@ -388,7 +388,7 @@ setupDir ()
     if test ${#cmdline_arguments[@]} -ge 1 && test $options_ok -eq 0;
     then {
 	    PROJECT_PREFIX=${cmdline_arguments[0]}
-	    CP="${cmdline_arguments[@]:1:${#cmdline_arguments[@]}}"
+	    CP="${cmdline_arguments[@]:1:${#cmdline_arguments[@]}}:$@"
 
 #	    javalanche_options=" -Djavalanche.ignore.replace.variables=true -Dmutation.package.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR -DPROJECT_PREFIX=$PROJECT_PREFIX"
 	    javalanche_options=" -Djavalanche.project.prefix=$PROJECT_PREFIX -Djavalanche.mutation.output.dir=$OUTPUT_DIR " #-DPROJECT_PREFIX=$PROJECT_PREFIX

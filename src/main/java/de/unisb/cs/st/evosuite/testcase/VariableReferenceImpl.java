@@ -1,5 +1,6 @@
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Map;
 
@@ -7,7 +8,10 @@ import org.apache.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
-public class VariableReferenceImpl implements VariableReference {
+public class VariableReferenceImpl implements VariableReference, Serializable {
+
+	private static final long serialVersionUID = 7014270636820758121L;
+
 	protected static Logger logger = Logger.getLogger(VariableReferenceImpl.class);
 
 	/**
@@ -247,7 +251,7 @@ public class VariableReferenceImpl implements VariableReference {
 	 *            The value to be assigned
 	 */
 	@Override
-	public void setObject(Scope scope, Object value) throws CodeUnderTestException{
+	public void setObject(Scope scope, Object value) throws CodeUnderTestException {
 		scope.setObject(this, value);
 	}
 
@@ -364,10 +368,10 @@ public class VariableReferenceImpl implements VariableReference {
 
 		if (this.getStPosition() != r.getStPosition())
 			return false;
-		
-		if(this.type.equals(r.getGenericClass()))
+
+		if (this.type.equals(r.getGenericClass()))
 			return true;
-		
+
 		return false;
 	}
 

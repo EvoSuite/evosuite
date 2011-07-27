@@ -12,6 +12,8 @@ import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
  */
 public class GlobalTimeStoppingCondition extends StoppingCondition {
 
+	private static final long serialVersionUID = -4880914182984895075L;
+
 	/** Maximum number of seconds. 0 = infinite time */
 	protected static int max_seconds = Properties.GLOBAL_TIMEOUT;
 
