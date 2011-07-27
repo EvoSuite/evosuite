@@ -26,6 +26,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -63,13 +64,15 @@ import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
  * @author Gordon Fraser
  * 
  */
-public abstract class ReportGenerator implements SearchListener {
+public abstract class ReportGenerator implements SearchListener, Serializable {
+
+	private static final long serialVersionUID = -920540796220051609L;
 
 	protected final static boolean do_plot = Properties.PLOT;
 
 	protected final static boolean do_html = Properties.HTML;
 
-	protected final Logger logger = Logger.getLogger(ReportGenerator.class);
+	protected static final Logger logger = Logger.getLogger(ReportGenerator.class);
 
 	protected static final File REPORT_DIR = new File(Properties.REPORT_DIR);
 
@@ -81,7 +84,10 @@ public abstract class ReportGenerator implements SearchListener {
 	 * @author Gordon Fraser
 	 * 
 	 */
-	protected class StatisticEntry {
+	protected class StatisticEntry implements Serializable {
+
+		private static final long serialVersionUID = 8690481387977534927L;
+
 		/** Run id */
 		public int id = 0;
 
@@ -169,9 +175,9 @@ public abstract class ReportGenerator implements SearchListener {
 		public long seed = 0;
 	};
 
-	protected final List<StatisticEntry> statistics = new ArrayList<StatisticEntry>();
+	protected List<StatisticEntry> statistics = new ArrayList<StatisticEntry>();
 
-	protected final HtmlAnalyzer html_analyzer = new HtmlAnalyzer();
+	protected static final HtmlAnalyzer html_analyzer = new HtmlAnalyzer();
 
 	protected String writeIntegerChart(List<Integer> values, String className,
 	        String title) {

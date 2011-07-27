@@ -3,8 +3,6 @@
  */
 package de.unisb.cs.st.evosuite;
 
-import com.thoughtworks.xstream.XStream;
-
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
@@ -40,11 +38,11 @@ public class ClientProcess implements SearchListener {
 			generator.generateTestSuite(ga);
 		} else {
 			System.out.println("* Resuming search on new JVM");
+
 			// Resume an interrupted search
 			TestSuiteGenerator generator = new TestSuiteGenerator();
-			XStream xstream = new XStream();
-			GeneticAlgorithm ga = (GeneticAlgorithm) xstream.fromXML((String) population_data);
-			//			ga = (GeneticAlgorithm) population_data;
+			ga = (GeneticAlgorithm) population_data;
+			ga.addListener(this);
 			generator.generateTestSuite(ga);
 		}
 		util.informSearchIsFinished(null);
@@ -86,8 +84,8 @@ public class ClientProcess implements SearchListener {
 	 */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
-		// TODO Auto-generated method stub
-
+		if (ga == null)
+			ga = algorithm;
 	}
 
 	/* (non-Javadoc)
@@ -95,6 +93,8 @@ public class ClientProcess implements SearchListener {
 	 */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
+		if (ga == null)
+			ga = algorithm;
 	}
 
 	/* (non-Javadoc)
@@ -114,6 +114,7 @@ public class ClientProcess implements SearchListener {
 		//System.out.println("Checking for restart");
 		if (hasExceededResources()) {
 			System.out.println("* Asking for JVM restart");
+			ga.removeListener(this);
 			util.askForRestart(ga);
 		}
 	}

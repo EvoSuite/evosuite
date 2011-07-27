@@ -29,6 +29,8 @@ import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
  */
 public class MaxGenerationStoppingCondition extends StoppingCondition {
 
+	private static final long serialVersionUID = 251196904115160351L;
+
 	/** Maximum number of iterations */
 	protected int max_iterations = Properties.GENERATIONS;
 

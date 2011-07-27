@@ -18,6 +18,9 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -58,17 +61,17 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	private static Logger logger = Logger.getLogger(DefaultTestFactory.class);
 
-	private final MethodDescriptorReplacement descriptor_replacement = MethodDescriptorReplacement.getInstance();
+	private transient MethodDescriptorReplacement descriptor_replacement = MethodDescriptorReplacement.getInstance();
 
 	/**
 	 * Accessor to the test cluster
 	 */
-	private final TestCluster test_cluster = TestCluster.getInstance();
+	private transient TestCluster test_cluster = TestCluster.getInstance();
 
 	/**
 	 * Keep track of objects we are already trying to generate
 	 */
-	private final Set<AccessibleObject> current_recursion = new HashSet<AccessibleObject>();
+	private transient Set<AccessibleObject> current_recursion = new HashSet<AccessibleObject>();
 
 	private DefaultTestFactory() {
 	}
@@ -241,7 +244,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		current_recursion.clear();
 
 		if (statement instanceof ConstructorStatement) {
-			addConstructor(test, ((ConstructorStatement) statement).constructor,
+			addConstructor(test, ((ConstructorStatement) statement).getConstructor(),
 			               test.size(), 0);
 		} else if (statement instanceof MethodStatement) {
 			addMethod(test, ((MethodStatement) statement).getMethod(), test.size(), 0);
@@ -1195,9 +1198,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		                                                objects);
 
 		AccessibleObject ao = statement.getAccessibleObject();
-		if(ao!=null)
+		if (ao != null)
 			calls.remove(ao);
-		
+
 		logger.debug("Got " + calls.size() + " possible calls for " + objects.size()
 		        + " objects");
 		AccessibleObject call = Randomness.choice(calls);
@@ -1217,4 +1220,16 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	}
 
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+	}
+
+	// assumes "static java.util.Date aDate;" declared
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+		test_cluster = TestCluster.getInstance();
+		descriptor_replacement = MethodDescriptorReplacement.getInstance();
+		current_recursion = new HashSet<AccessibleObject>();
+	}
 }

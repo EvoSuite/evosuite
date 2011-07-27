@@ -6,8 +6,6 @@ import java.net.Socket;
 
 import org.apache.log4j.Logger;
 
-import com.thoughtworks.xstream.XStream;
-
 import de.unisb.cs.st.evosuite.Properties;
 
 /*
@@ -65,12 +63,10 @@ public class ExternalProcessUtilities {
 	}
 
 	public void sendFinalMessage(String message, Object population_data) {
-		XStream xstream = new XStream();
-		//System.out.println(xstream.toXML(population_data));
 		try {
 			out.writeObject(message);
 			out.flush();
-			out.writeObject(xstream.toXML(population_data));
+			out.writeObject(population_data);
 			out.flush();
 		} catch (Exception e) {
 			logger.debug("error in sending messages");
