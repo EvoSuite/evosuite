@@ -81,4 +81,14 @@ public class Sandbox {
 		tearDownMockedSecurityManager();
 		tearDownMocks();
 	}
+	
+	/**
+	 * Checks if class is currently replaced by its mock.  
+	 * 
+	 * @param clazz class to check
+	 * @return true if class is mocked, false otherwise
+	 */
+	public static boolean isClassMocked(Class<?> clazz){
+		return mocks.getClassesMocked().contains(clazz);
+	}
 }
