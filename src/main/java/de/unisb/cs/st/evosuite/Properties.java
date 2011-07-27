@@ -19,6 +19,7 @@
 package de.unisb.cs.st.evosuite;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -73,7 +74,7 @@ public class Properties {
 		double max() default Double.MAX_VALUE;
 	}
 
-	//---------------------------------------------------------------
+	// ---------------------------------------------------------------
 	// Test sequence creation
 	@Parameter(key = "test_excludes", group = "Test Creation", description = "File containing methods that should not be used in testing")
 	public static String TEST_EXCLUDES = "test.excludes";
@@ -150,7 +151,7 @@ public class Properties {
 	@Parameter(key = "generate_objects", group = "Test Creation", description = "Generate .object files that allow adapting method signatures")
 	public static boolean GENERATE_OBJECTS = false;
 
-	//---------------------------------------------------------------
+	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
 		STANDARDGA, STEADYSTATEGA, ONEPLUSONEEA, MUPLUSLAMBDAGA
@@ -215,6 +216,8 @@ public class Properties {
 	@IntValue(min = 1)
 	public static int GENERATIONS = 1000;
 
+	public static String PROPERTIES_FILE = "properties_file";
+
 	public enum StoppingCondition {
 		MAXSTATEMENTS, MAXTESTS, MAXTIME, MAXGENERATIONS, MAXFITNESSEVALUATIONS
 	}
@@ -238,7 +241,7 @@ public class Properties {
 
 	// TODO: Fix values
 	@Parameter(key = "secondary_objectives", group = "Search Algorithm", description = "Secondary objective during search")
-	//	@SetValue(values = { "maxlength", "maxsize", "avglength" })
+	// @SetValue(values = { "maxlength", "maxsize", "avglength" })
 	public static String SECONDARY_OBJECTIVE = "maxlength";
 
 	@Parameter(key = "bloat_factor", group = "Search Algorithm", description = "Maximum relative increase in length")
@@ -254,7 +257,7 @@ public class Properties {
 	@IntValue(min = 0)
 	public static int GLOBAL_TIMEOUT = 600;
 
-	//---------------------------------------------------------------
+	// ---------------------------------------------------------------
 	// Single branch mode
 	@Parameter(key = "random_tests", group = "Single Branch Mode", description = "Number of random tests to run before test generation (Single branch mode)")
 	public static int RANDOM_TESTS = 0;
@@ -271,7 +274,7 @@ public class Properties {
 	@Parameter(key = "recycle_chromosomes", group = "Single Branch Mode", description = "Seed initial population with related individuals (Single branch mode)")
 	public static boolean RECYCLE_CHROMOSOMES = true;
 
-	//---------------------------------------------------------------
+	// ---------------------------------------------------------------
 	// Output
 	@Parameter(key = "print_to_system", group = "Output", description = "Allow test output on console")
 	public static boolean PRINT_TO_SYSTEM = false;
@@ -338,7 +341,7 @@ public class Properties {
 	@Parameter(key = "stubs", group = "Sandbox", description = "Stub generation for abstract classes")
 	public static boolean STUBS = false;
 
-	//---------------------------------------------------------------
+	// ---------------------------------------------------------------
 	// Experimental
 	@Parameter(key = "remote_testing", description = "Include remote calls")
 	public static boolean REMOTE_TESTING = false;
@@ -392,7 +395,7 @@ public class Properties {
 	@Parameter(key = "TT", description = "Testability transformation")
 	public static boolean TT = false;
 
-	//---------------------------------------------------------------
+	// ---------------------------------------------------------------
 	// Test Execution
 	@Parameter(key = "timeout", group = "Test Execution", description = "Milliseconds allowed per test")
 	public static int TIMEOUT = 5000;
@@ -400,7 +403,7 @@ public class Properties {
 	@Parameter(key = "mutation_timeouts", group = "Test Execution", description = "Number of timeouts before we consider a mutant killed")
 	public static int MUTATION_TIMEOUTS = 3;
 
-	//---------------------------------------------------------------
+	// ---------------------------------------------------------------
 	// TODO: Fix description
 	public enum AlternativeFitnessCalculationMode {
 		SUM, MIN, MAX, AVG, SINGLE
@@ -437,7 +440,7 @@ public class Properties {
 	@Parameter(key = "randomize_difficulty", description = "")
 	public static boolean RANDOMIZE_DIFFICULTY = true;
 
-	//---------------------------------------------------------------
+	// ---------------------------------------------------------------
 	// Runtime parameters
 
 	public enum Criterion {
@@ -532,35 +535,48 @@ public class Properties {
 	 * Initialize properties from property file or commandline parameters
 	 */
 	private void loadProperties() {
-		properties = new java.util.Properties();
-		try {
-			InputStream in = this.getClass().getClassLoader().getResourceAsStream("evosuite.properties");
-			properties.load(in);
-			System.out.println("* Properties loaded from configuration file evosuite.properties");
-		} catch (FileNotFoundException e) {
-			System.err.println("- Error: Could not find configuration file evosuite.properties");
-		} catch (IOException e) {
-			System.err.println("- Error: Could not find configuration file evosuite.properties");
-		} catch (Exception e) {
-			System.err.println("- Error: Could not find configuration file evosuite.properties");
-		}
+		loadPropertiesFile();
 
 		for (String parameter : parameterMap.keySet()) {
 			try {
-				if (System.getProperty(parameter) != null) {
-					setValue(parameter, System.getProperty(parameter));
-				} else if (properties.getProperty(parameter) != null) {
-					setValue(parameter, properties.getProperty(parameter));
+				String property = System.getProperty(parameter);
+				if (property == null) {
+					property = properties.getProperty(parameter);
+				}
+				if (property != null) {
+					setValue(parameter, property);
+					// System.out.println("Loading property " + parameter + "="
+					// + property);
 				}
 			} catch (NoSuchParameterException e) {
 				System.out.println("- No such parameter: " + parameter);
 			} catch (IllegalArgumentException e) {
-				System.out.println("- Error setting parameter \"" + parameter + "\": "
-				        + e);
+				System.out.println("- Error setting parameter \"" + parameter + "\": " + e);
 			} catch (IllegalAccessException e) {
-				System.out.println("- Error setting parameter \"" + parameter + "\": "
-				        + e);
+				System.out.println("- Error setting parameter \"" + parameter + "\": " + e);
 			}
+		}
+	}
+	
+	private void loadPropertiesFile() {
+		properties = new java.util.Properties();
+		String propertiesFile = System.getProperty(PROPERTIES_FILE, "evosuite-files/evosuite.properties");
+		try {
+			InputStream in = null;
+			if (new File(propertiesFile).exists()) {
+				in = new FileInputStream(propertiesFile);
+			} else {
+				propertiesFile = "evosuite.properties";
+				in = this.getClass().getClassLoader().getResourceAsStream(propertiesFile);
+			}
+			properties.load(in);
+			System.out.println("* Properties loaded from configuration file " + propertiesFile);
+		} catch (FileNotFoundException e) {
+			System.err.println("- Error: Could not find configuration file " + propertiesFile);
+		} catch (IOException e) {
+			System.err.println("- Error: Could not find configuration file " + propertiesFile);
+		} catch (Exception e) {
+			System.err.println("- Error: Could not find configuration file " + propertiesFile);
 		}
 	}
 
@@ -654,7 +670,7 @@ public class Properties {
 	 * @throws IllegalAccessException
 	 */
 	public static int getIntegerValue(String key) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
+    		IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -671,7 +687,7 @@ public class Properties {
 	 * @throws IllegalAccessException
 	 */
 	public static boolean getBooleanValue(String key) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
+    		IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -688,7 +704,7 @@ public class Properties {
 	 * @throws IllegalAccessException
 	 */
 	public static double getDoubleValue(String key) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
+    		IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -705,7 +721,7 @@ public class Properties {
 	 * @throws IllegalAccessException
 	 */
 	public static String getStringValue(String key) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
+    		IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -722,7 +738,7 @@ public class Properties {
 	 * @throws IllegalArgumentException
 	 */
 	public void setValue(String key, int value) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
+    		IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -747,7 +763,7 @@ public class Properties {
 	 * @throws IllegalArgumentException
 	 */
 	public void setValue(String key, boolean value) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
+			IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -765,7 +781,7 @@ public class Properties {
 	 * @throws IllegalAccessException
 	 */
 	public void setValue(String key, double value) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
+    		IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -787,11 +803,12 @@ public class Properties {
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
-	@SuppressWarnings({ "unchecked" })
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void setValue(String key, String value) throws NoSuchParameterException,
 	        IllegalArgumentException, IllegalAccessException {
-		if (!parameterMap.containsKey(key))
+		if (!parameterMap.containsKey(key)) {
 			throw new NoSuchParameterException(key);
+		}
 
 		Field f = parameterMap.get(key);
 		if (f.getType().isEnum()) {
@@ -821,7 +838,7 @@ public class Properties {
 
 		f.set(this, value);
 	}
-	
+
 	/** Singleton instance */
 	private static Properties instance = new Properties();
 
