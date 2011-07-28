@@ -19,7 +19,7 @@ public class JUnitTestReaderTest {
 		String result = "String var0 = \"killSelf\";\n" + //
 				"TestExample.MockingBird bird = new TestExample.MockingBird(var0);\n" + //
 				"int var2 = 10;\n" + //
-				"TestExample.MockingBird var3 = (TestExample.MockingBird)bird.executeCmd(var2);\n";
+				"bird.executeCmd(var2);\n";
 		Assert.assertEquals(result, code);
 	}
 
@@ -32,7 +32,27 @@ public class JUnitTestReaderTest {
 		String result = "String var0 = \"killSelf\";\n" + //
 				"TestExample.MockingBird bird = MockingBird.create(var0);\n" + //
 				"int var2 = 10;\n" + //
-				"TestExample.MockingBird var3 = (TestExample.MockingBird)bird.executeCmd(var2);\n";
+				"bird.executeCmd(var2);\n";
 		Assert.assertEquals(result, code);
 	}
+
+	@Test
+	public void testReadComplexJUnitTestCase03() {
+		JUnitTestReader reader = new ComplexJUnitTestReader(null, new String[] { SRCDIR });
+		TestCase testCase = reader.readJUnitTestCase(SimpleTestExample03.class.getName() + "#test");
+		// TODO Implement correct cloning of BoundVariableReferences: testCase = 
+			testCase.clone();
+		String code = testCase.toCode();
+		String result = "String var0 = \"dd.MMM.yyyy\";\n" + //
+				"Locale var1 = Locale.FRENCH;\n" + //
+				"SimpleDateFormat formatter = new SimpleDateFormat(var0, var1);\n" + //
+				"long var3 = System.currentTimeMillis();\n" + //
+				"String var4 = formatter.format((Object) var3);\n" + //
+				"PrintStream var5 = System.out;\n" + //
+				"var5.println((Object) var4);\n" + //
+				"String var7 = \"11.sept..2007\";\n" + //
+				"Date result = formatter.parse(var7);\n";
+		Assert.assertEquals(result, code);
+	}
+
 }

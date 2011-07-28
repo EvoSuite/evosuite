@@ -210,22 +210,17 @@ public class MethodStatement extends AbstractStatement {
 			result += "try {\n  ";
 
 		String parameter_string = "";
-		if (!parameters.isEmpty()) {
-			if (!method.getParameterTypes()[0].equals(parameters.get(0).getVariableClass()))
-				//			        && parameters.get(0) instanceof ArrayIndex)
-				parameter_string += "("
-				        + new GenericClass(method.getParameterTypes()[0]).getSimpleName()
-				        + ") ";
-			parameter_string += parameters.get(0).getName();
-			for (int i = 1; i < parameters.size(); i++) {
+		for (int i = 0; i < parameters.size(); i++) {
+			if (i > 0) {
 				parameter_string += ", ";
-				if (!method.getParameterTypes()[i].equals(parameters.get(i).getVariableClass()))
-					//				        && parameters.get(i) instanceof ArrayIndex)
-					parameter_string += "("
-					        + new GenericClass(method.getParameterTypes()[i]).getSimpleName()
-					        + ") ";
-				parameter_string += parameters.get(i).getName();
 			}
+			Class<?> declaredParamType = method.getParameterTypes()[i];
+			Class<?> actualParamType = parameters.get(i).getVariableClass(); 
+			if (!declaredParamType.equals(actualParamType)){
+					// && parameters.get(i) instanceof ArrayIndex)
+				parameter_string += "(" + new GenericClass(method.getParameterTypes()[i]).getSimpleName() + ") ";
+			}
+			parameter_string += parameters.get(i).getName();
 		}
 
 		String callee_str = "";
