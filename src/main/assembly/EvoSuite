@@ -16,7 +16,7 @@ fi
 source $BASEPATH/etc/evosuite.properties
 		
 
-java_opts="-ea -Xmx1024M"
+java_opts="-ea -Xmx1024M -Dlogback.configurationFile=logback.xml"
 
 export DYLD_LIBRARY_PATH=$BASEPATH/lib/libcvc3-jni/i386-darwin10.2.0:$DYLD_LIBRARY_PATH
 

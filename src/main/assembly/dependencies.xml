@@ -18,6 +18,7 @@
       <unpack>true</unpack>
       <unpackOptions>
         <excludes>
+          <exclude>logback.xml</exclude>
           <exclude>log4j.xml</exclude>
           <exclude>log4j.properties</exclude>
           <exclude>META-INF/*.SF</exclude>
