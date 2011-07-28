@@ -18,10 +18,12 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Map;
+
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.util.AbstractVisitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
@@ -125,9 +127,16 @@ public class ExecutionTracer {
 	private static boolean isThreadNeqCurrentThread() {
 		if (!checkCallerThread) {
 			return false;
-		} 
+		}
 		if (currentThread == null) {
 			logger.warn("CurrentThread has not been set!");
+			Map<Thread, StackTraceElement[]> map = Thread.getAllStackTraces();
+			for (Thread t : map.keySet()) {
+				System.err.println("Thread: " + t);
+				for (StackTraceElement e : map.get(t)) {
+					System.err.println(" -> " + e);
+				}
+			}
 			currentThread = Thread.currentThread();
 			return false;
 		} else {
@@ -158,6 +167,10 @@ public class ExecutionTracer {
 	public static void enteredMethod(String classname, String methodname, Object caller)
 	        throws TestCaseExecutor.TimeoutExceeded {
 
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.disabled)
+			return;
+
 		if (isThreadNeqCurrentThread())
 			return;
 
@@ -165,13 +178,10 @@ public class ExecutionTracer {
 			BooleanHelper.methodEntered();
 		}
 
-		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.killSwitch) {
 			logger.info("Raising TimeoutException as kill switch is active - enteredMethod");
 			throw new TestCaseExecutor.TimeoutExceeded();
 		}
-		if (tracer.disabled)
-			return;
 
 		logger.trace("Entering method " + classname + "." + methodname);
 		tracer.trace.enteredMethod(classname, methodname, caller);
@@ -256,16 +266,16 @@ public class ExecutionTracer {
 	 * @param methodname
 	 */
 	public static void leftMethod(String classname, String methodname) {
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.disabled)
+			return;
+
 		if (isThreadNeqCurrentThread())
 			return;
 
 		if (testabilityTransformation) {
 			BooleanHelper.methodLeft();
 		}
-
-		ExecutionTracer tracer = getExecutionTracer();
-		if (tracer.disabled)
-			return;
 
 		tracer.trace.exitMethod(classname, methodname);
 		logger.trace("Left method " + classname + "." + methodname);
@@ -277,17 +287,17 @@ public class ExecutionTracer {
 	 * @param line
 	 */
 	public static void passedLine(String className, String methodName, int line) {
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.disabled)
+			return;
+
 		if (isThreadNeqCurrentThread())
 			return;
 
-		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.killSwitch) {
 			logger.info("Raising TimeoutException as kill switch is active - passedLine");
 			throw new TestCaseExecutor.TimeoutExceeded();
 		}
-
-		if (tracer.disabled)
-			return;
 
 		tracer.trace.linePassed(className, methodName, line);
 	}
