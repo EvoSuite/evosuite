@@ -65,10 +65,11 @@ public class TestSuiteMinimizer {
 			strategy = strategy.substring(0, strategy.indexOf(':'));
 
 		logger.info("Minimization Strategy: " + strategy);
-		if (strategy.equals("maxlength"))
-			minimizeTests(suite);
-		else
-			minimizeSuite(suite);
+		minimizeTests(suite);
+		//if (strategy.equals("maxlength"))
+		//	
+		//else
+		//	minimizeSuite(suite);
 	}
 
 	/**
