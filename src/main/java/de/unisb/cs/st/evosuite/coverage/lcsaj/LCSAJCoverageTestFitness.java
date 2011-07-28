@@ -77,7 +77,8 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 				int lcsaj_position = 0;
 				boolean found = false;
 
-				logger.debug("New call");
+				logger.debug("New call: " + call.className + "." + call.methodName + " "
+				        + call.branchTrace.size());
 				// For each branch that was passed in this call
 				for (int i = 0; i < call.branchTrace.size(); i++) {
 					int actualBranch = call.branchTrace.get(i);
@@ -104,16 +105,16 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 							lcsaj_position = 0;
 							currentFitness = approach;
 							continue;
-						} else if ( false_distance > 0) {
+						} else if (false_distance > 0) {
 							logger.debug("Took a wrong turn with false distance "
-							        + true_distance);
+							        + false_distance);
 							currentFitness += normalize(false_distance);
 
 							if (currentFitness < savedFitness)
 								savedFitness = currentFitness;
 							if (lcsaj_position > lcsaj.getdPositionReached())
 								lcsaj.setPositionReached(lcsaj_position);
-							
+
 							lcsaj_position = 0;
 							currentFitness = approach;
 							continue;
@@ -157,6 +158,9 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 
 				}
 				logger.debug("Resulting fitness: " + savedFitness);
+			} else {
+				logger.debug("Call does not match: " + call.className + "."
+				        + call.methodName + " " + call.branchTrace.size());
 			}
 		}
 
@@ -180,8 +184,8 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 	public String toString() {
 		return lcsaj.toString();
 	}
-	
-	public LCSAJ getLcsaj(){
+
+	public LCSAJ getLcsaj() {
 		return this.lcsaj;
 	}
 }
