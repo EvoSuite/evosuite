@@ -33,9 +33,11 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.ga.MinimizeSizeSecondaryObjective;
+import de.unisb.cs.st.evosuite.junit.TestSuite;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
@@ -91,6 +93,7 @@ public class TestSuiteMinimizer {
 		List<TestFitnessFunction> goals = testFitnessFactory.getCoverageGoals();
 		Set<TestFitnessFunction> covered = new HashSet<TestFitnessFunction>();
 		List<TestChromosome> minimizedTests = new ArrayList<TestChromosome>();
+		TestSuite minimizedSuite = new TestSuite();
 
 		for (TestFitnessFunction goal : goals) {
 			for (TestChromosome test : minimizedTests) {
@@ -109,13 +112,19 @@ public class TestSuiteMinimizer {
 					TestChromosome copy = (TestChromosome) test.clone();
 					minimizer.minimize(copy);
 					minimizedTests.add(copy);
+					minimizedSuite.insertTest(copy.getTestCase());
 					covered.add(goal);
 					break;
 				}
 
 			}
 		}
-		suite.tests = minimizedTests;
+
+		suite.tests.clear();
+		for (TestCase test : minimizedSuite.getTestCases()) {
+			suite.addTest(test);
+		}
+		// suite.tests = minimizedTests;
 	}
 
 	/**
