@@ -242,7 +242,7 @@ public class Properties {
 	// TODO: Fix values
 	@Parameter(key = "secondary_objectives", group = "Search Algorithm", description = "Secondary objective during search")
 	// @SetValue(values = { "maxlength", "maxsize", "avglength" })
-	public static String SECONDARY_OBJECTIVE = "maxlength";
+	public static String SECONDARY_OBJECTIVE = "totallength";
 
 	@Parameter(key = "bloat_factor", group = "Search Algorithm", description = "Maximum relative increase in length")
 	public static int BLOAT_FACTOR = 2;
