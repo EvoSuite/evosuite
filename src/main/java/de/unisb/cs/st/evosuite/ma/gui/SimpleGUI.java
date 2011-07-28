@@ -179,12 +179,12 @@ public class SimpleGUI implements IGUI {
 		btnPrevTestButton.setBounds(12, 12, 119, 25);
 		controlPanel.add(btnPrevTestButton);
 
-		JButton btnPrevBranch = new JButton("Prev Branch");
-		btnPrevBranch.setPreferredSize(new Dimension(120, 25));
-		btnPrevBranch.setMinimumSize(new Dimension(120, 25));
-		btnPrevBranch.setMaximumSize(new Dimension(120, 25));
-		btnPrevBranch.setBounds(12, 43, 119, 25);
-		controlPanel.add(btnPrevBranch);
+		JButton btnPrevBranchButton = new JButton("Prev Branch");
+		btnPrevBranchButton.setPreferredSize(new Dimension(120, 25));
+		btnPrevBranchButton.setMinimumSize(new Dimension(120, 25));
+		btnPrevBranchButton.setMaximumSize(new Dimension(120, 25));
+		btnPrevBranchButton.setBounds(12, 43, 119, 25);
+		controlPanel.add(btnPrevBranchButton);
 
 		JButton btnNextTestButton = new JButton("Next Test");
 		btnNextTestButton.addMouseListener(new MouseAdapter() {
@@ -196,24 +196,30 @@ public class SimpleGUI implements IGUI {
 		btnNextTestButton.setBounds(160, 12, 119, 25);
 		controlPanel.add(btnNextTestButton);
 
-		JButton btnNewButton_1 = new JButton("Next Branch");
-		btnNewButton_1.setBounds(160, 43, 119, 25);
-		controlPanel.add(btnNewButton_1);
+		JButton btnNextBranchButton = new JButton("Next Branch");
+		btnNextBranchButton.setBounds(160, 43, 119, 25);
+		controlPanel.add(btnNextBranchButton);
 
-		JButton btnNewTest = new JButton("New Test");
-		btnNewTest.setBounds(305, 12, 119, 25);
-		controlPanel.add(btnNewTest);
+		JButton btnNewTestButton = new JButton("New Test");
+		btnNewTestButton.setBounds(305, 12, 119, 25);
+		controlPanel.add(btnNewTestButton);
 
-		JButton btnInsertTest = new JButton("Insert Test");
-		btnInsertTest.setBounds(305, 43, 119, 25);
-		controlPanel.add(btnInsertTest);
+		JButton btnInsertTestButton = new JButton("Insert Test");
+		btnInsertTestButton.setBounds(305, 43, 119, 25);
+		controlPanel.add(btnInsertTestButton);
 
-		JButton btnNewButton_2 = new JButton("Save");
-		btnNewButton_2.setBounds(447, 12, 119, 25);
-		controlPanel.add(btnNewButton_2);
+		JButton btnSaveTestCaseButton = new JButton("Save");
+		btnSaveTestCaseButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				editor.parseTest(testEditorPane.getText());
+			}
+		});
+		btnSaveTestCaseButton.setBounds(447, 12, 119, 25);
+		controlPanel.add(btnSaveTestCaseButton);
 
-		JButton btnQuit = new JButton("Quit");
-		btnQuit.addMouseListener(new MouseAdapter() {
+		JButton btnQuitButton = new JButton("Quit");
+		btnQuitButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				mainFrame.setVisible(false);
@@ -223,8 +229,8 @@ public class SimpleGUI implements IGUI {
 				mainFrame.dispose();
 			}
 		});
-		btnQuit.setBounds(447, 43, 119, 25);
-		controlPanel.add(btnQuit);
+		btnQuitButton.setBounds(447, 43, 119, 25);
+		controlPanel.add(btnQuitButton);
 
 		mainFrame.addWindowListener(new WindowAdapter() {
 

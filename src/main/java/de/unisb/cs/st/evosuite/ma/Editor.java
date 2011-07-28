@@ -1,17 +1,21 @@
 package de.unisb.cs.st.evosuite.ma;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ma.gui.SimpleGUI;
+import de.unisb.cs.st.evosuite.ma.parser.TestParser;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
+import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
 import de.unisb.cs.st.javalanche.mutation.analyze.html.HtmlAnalyzer;
 
 /**
@@ -39,7 +43,7 @@ public class Editor {
 	}
 
 	/**
-	 * Setup editor for work.
+	 * Prepare editor for work.
 	 */
 	private void setUp() {
 		TestSuiteChromosome testSuiteChr = (TestSuiteChromosome) gaInstance
@@ -50,8 +54,9 @@ public class Editor {
 		HtmlAnalyzer html_analyzer = new HtmlAnalyzer();
 		sourceCode = html_analyzer.getClassContent(Properties.TARGET_CLASS);
 
-		statistics.minimized(testSuiteChr);
-
+		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(TestSuiteGenerator.getFitnessFactory());
+		minimizer.minimize(testSuiteChr);
+		
 		for (TestCase test : tests) {
 			ExecutionTrace trace = statistics.executeTest(test,
 					Properties.TARGET_CLASS);
@@ -62,6 +67,17 @@ public class Editor {
 		
 		SimpleGUI sgui = new SimpleGUI();
 		sgui.createWindow(this);
+	}
+	
+	/**
+	 * @param testSource
+	 */
+	public void parseTest(String testCode) {
+		try {
+			TestParser.parsTest(testCode, currentTestCase);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
