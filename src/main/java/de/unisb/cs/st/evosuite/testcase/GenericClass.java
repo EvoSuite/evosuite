@@ -30,7 +30,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.ClassUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.googlecode.gentyref.GenericTypeReflector;
 
@@ -39,7 +40,7 @@ public class GenericClass implements Serializable {
 	private static final long serialVersionUID = -3307107227790458308L;
 
 	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(GenericClass.class);
+	private static Logger logger = LoggerFactory.getLogger(GenericClass.class);
 
 	public boolean isAssignableTo(Type lhsType) {
 		return isAssignable(lhsType, type);

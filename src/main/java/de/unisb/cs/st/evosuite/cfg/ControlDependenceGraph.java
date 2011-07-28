@@ -3,13 +3,14 @@ package de.unisb.cs.st.evosuite.cfg;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 
 public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlowEdge> {
 
-	private static Logger logger = Logger.getLogger(ControlDependenceGraph.class);
+	private static Logger logger = LoggerFactory.getLogger(ControlDependenceGraph.class);
 
 	private final ActualControlFlowGraph cfg;
 

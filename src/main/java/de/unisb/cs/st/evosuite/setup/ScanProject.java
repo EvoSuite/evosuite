@@ -34,7 +34,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.objectweb.asm.ClassReader;
 
@@ -49,7 +50,7 @@ import de.unisb.cs.st.evosuite.utils.Utils;
  */
 public class ScanProject {
 
-	protected static Logger logger = Logger.getLogger(ScanProject.class);
+	protected static Logger logger = LoggerFactory.getLogger(ScanProject.class);
 
 	public final static class ZipClassLoader extends ClassLoader {
 		private final ZipFile file;

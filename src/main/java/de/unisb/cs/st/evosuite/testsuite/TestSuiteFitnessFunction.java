@@ -21,7 +21,8 @@ package de.unisb.cs.st.evosuite.testsuite;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
@@ -40,7 +41,7 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 
 	private static final long serialVersionUID = 7243635497292960457L;
 
-	protected static Logger logger = Logger.getLogger(TestSuiteFitnessFunction.class);
+	protected static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
 	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
 

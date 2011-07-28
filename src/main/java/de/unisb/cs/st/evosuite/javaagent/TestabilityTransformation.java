@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -40,7 +41,7 @@ import org.objectweb.asm.tree.analysis.Frame;
 // TODO: If we transform a method and there already is a method with the transformed descriptor, we need to change the method name as well!
 public class TestabilityTransformation {
 
-	static Logger logger = Logger.getLogger(TestabilityTransformation.class);
+	static Logger logger = LoggerFactory.getLogger(TestabilityTransformation.class);
 
 	private final ClassNode cn;
 

@@ -53,15 +53,20 @@
 	<version>0.1</version>
       </dependency>
 
-	<dependency>
-	   <groupId>mockit</groupId>
-	   <artifactId>jmockit</artifactId>
-	   <version>0.999.10</version>
-	</dependency>
       <dependency>
-	<groupId>log4j</groupId>
-	<artifactId>log4j</artifactId>
-	<version>1.2.16</version>
+       <groupId>mockit</groupId>
+       <artifactId>jmockit</artifactId>
+       <version>0.999.10</version>
+     </dependency>
+      <dependency>
+       <groupId>org.slf4j</groupId>
+       <artifactId>slf4j-api</artifactId>
+       <version>1.6.1</version>
+      </dependency>
+      <dependency>
+       <groupId>ch.qos.logback</groupId>
+       <artifactId>logback-classic</artifactId>
+       <version>0.9.29</version>
       </dependency>
       <dependency>
 	<groupId>junit</groupId>

@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -19,6 +18,8 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
@@ -40,7 +41,7 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
  */
 public class MutationInstrumentation implements MethodInstrumentation {
 
-	private static Logger logger = Logger.getLogger(MethodInstrumentation.class);
+	private static Logger logger = LoggerFactory.getLogger(MethodInstrumentation.class);
 
 	private final List<MutationOperator> mutationOperators;
 
@@ -75,7 +76,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 
 				// If this is in the CFG
 				if (in.equals(v.getASMNode())) {
-					logger.info(v);
+					logger.info(v.toString());
 					List<Mutation> mutations = new LinkedList<Mutation>();
 
 					// TODO: More than one mutation operator might apply to the same instruction
@@ -101,7 +102,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 		logger.info("Result of mutation: ");
 		while (j.hasNext()) {
 			AbstractInsnNode in = j.next();
-			logger.info(new BytecodeInstruction(className, methodName, 0, 0, in));
+			logger.info(new BytecodeInstruction(className, methodName, 0, 0, in).toString());
 		}
 		logger.info("Done.");
 	}

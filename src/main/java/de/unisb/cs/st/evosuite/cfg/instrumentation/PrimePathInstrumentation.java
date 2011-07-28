@@ -6,7 +6,8 @@ package de.unisb.cs.st.evosuite.cfg.instrumentation;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.tree.MethodNode;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
@@ -22,7 +23,7 @@ import de.unisb.cs.st.evosuite.coverage.path.PrimePathPool;
  */
 public class PrimePathInstrumentation implements MethodInstrumentation {
 
-	protected static Logger logger = Logger.getLogger(PrimePathInstrumentation.class);
+	protected static Logger logger = LoggerFactory.getLogger(PrimePathInstrumentation.class);
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String, java.lang.String, int)

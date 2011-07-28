@@ -26,8 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
@@ -46,7 +46,7 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 public class TestSuiteMinimizer {
 
 	/** Logger */
-	private final static Logger logger = Logger.getLogger(TestSuiteMinimizer.class);
+	private final static Logger logger = LoggerFactory.getLogger(TestSuiteMinimizer.class);
 
 	/** Factory method that handles statement deletion */
 	private final DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
@@ -145,16 +145,6 @@ public class TestSuiteMinimizer {
 		if (strategy.equals("size"))
 			size = true;
 
-		Logger logger1 = Logger.getLogger(TestFitnessFunction.class);
-		Level old_level1 = logger.getLevel();
-		logger1.setLevel(Level.OFF);
-		Logger logger2 = Logger.getLogger(TestSuiteFitnessFunction.class);
-		Level old_level2 = logger.getLevel();
-		logger2.setLevel(Level.OFF);
-		Logger logger3 = Logger.getLogger(DefaultTestFactory.class);
-		Level old_level3 = logger.getLevel();
-		logger3.setLevel(Level.OFF);
-
 		if (strategy.equals("size")) {
 			// If we want to remove tests, start with shortest
 			Collections.sort(suite.tests, new Comparator<TestChromosome>() {
@@ -250,10 +240,6 @@ public class TestSuiteMinimizer {
 		removeEmptyTestCases(suite);
 
 		//assert (checkFitness(suite) == fitness);
-
-		logger1.setLevel(old_level1);
-		logger2.setLevel(old_level2);
-		logger3.setLevel(old_level3);
 	}
 
 	private void removeEmptyTestCases(TestSuiteChromosome suite) {

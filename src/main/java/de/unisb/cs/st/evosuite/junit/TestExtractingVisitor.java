@@ -8,7 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.ArrayAccess;
@@ -154,7 +155,7 @@ public class TestExtractingVisitor extends ASTVisitor {
 		}
 	}
 
-	protected static Logger logger = Logger.getLogger(TestExtractingVisitor.class);
+	protected static Logger logger = LoggerFactory.getLogger(TestExtractingVisitor.class);
 	private List<StatementInterface> currentScope;
 	private Map<IVariableBinding, VariableReference> localVars = new HashMap<IVariableBinding, VariableReference>();
 	private final CompoundTestCase testCase;

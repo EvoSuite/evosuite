@@ -37,7 +37,8 @@ import java.util.regex.Pattern;
 
 import junit.framework.TestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.Type;
 
 import de.unisb.cs.st.ds.util.io.Io;
@@ -52,7 +53,7 @@ import de.unisb.cs.st.evosuite.utils.Utils;
  */
 public class TestTaskGenerator {
 
-	private static Logger logger = Logger.getLogger(TestTaskGenerator.class);
+	private static Logger logger = LoggerFactory.getLogger(TestTaskGenerator.class);
 
 	static Hierarchy hierarchy = Hierarchy.readFromDefaultLocation();
 

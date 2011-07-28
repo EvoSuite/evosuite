@@ -2,7 +2,8 @@ package de.unisb.cs.st.evosuite.symbolic.nativepeer;
 
 import gov.nasa.jpf.jvm.MJIEnv;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerVariable;
 import de.unisb.cs.st.evosuite.symbolic.expr.RealVariable;
@@ -10,7 +11,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.RealVariable;
 public class JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker {
 	private static int counter = 0;
 
-	private static Logger logger = Logger.getLogger(JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker.class);
+	private static Logger logger = LoggerFactory.getLogger(JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker.class);
 
 	public static boolean mark__Z__Z(MJIEnv env, int rcls, boolean v0) {
 		env.setReturnAttribute(new IntegerVariable("mark" + counter++ + "__SYM",

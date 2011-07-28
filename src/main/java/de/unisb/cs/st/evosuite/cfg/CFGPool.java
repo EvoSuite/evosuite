@@ -3,7 +3,8 @@ package de.unisb.cs.st.evosuite.cfg;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 
@@ -18,7 +19,7 @@ import de.unisb.cs.st.evosuite.Properties;
  */
 public class CFGPool {
 
-	private static Logger logger = Logger.getLogger(CFGPool.class);
+	private static Logger logger = LoggerFactory.getLogger(CFGPool.class);
 
 	/**
 	 * Complete control flow graph, contains each bytecode instruction, each

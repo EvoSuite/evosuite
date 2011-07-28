@@ -11,8 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.commons.GeneratorAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 import de.unisb.cs.st.evosuite.testcase.AbstractTestFactory;
@@ -60,7 +61,7 @@ public class ScheduleLogWrapper implements StatementInterface {
 		public Set<Integer> getScheduleIndicesForStatement(StatementInterface st);
 	}
 
-	private static Logger logger = Logger.getLogger(ScheduleLogWrapper.class);
+	private static Logger logger = LoggerFactory.getLogger(ScheduleLogWrapper.class);
 
 	public final StatementInterface wrapped;
 	private callReporter callReporter;
@@ -113,7 +114,7 @@ public class ScheduleLogWrapper implements StatementInterface {
 			callReporter.callStart(this,
 			                       LockRuntime.controller.getThreadID(Thread.currentThread()));
 		} catch (Throwable e) {
-			logger.fatal("test", e);
+			logger.error("test", e);
 		}
 		Throwable t = wrapped.execute(scope, out);
 		callReporter.callEnd(this,

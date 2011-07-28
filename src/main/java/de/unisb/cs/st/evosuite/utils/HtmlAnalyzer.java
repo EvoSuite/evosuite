@@ -26,7 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.ds.util.io.DirectoryFileSource;
 import de.unisb.cs.st.ds.util.io.Io;
@@ -36,7 +37,7 @@ public class HtmlAnalyzer implements Serializable {
 
 	private static final long serialVersionUID = -5634296119340294425L;
 
-	private static Logger logger = Logger.getLogger(HtmlAnalyzer.class);
+	private static Logger logger = LoggerFactory.getLogger(HtmlAnalyzer.class);
 
 	private Set<File> files;
 

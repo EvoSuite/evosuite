@@ -3,7 +3,8 @@ package de.unisb.cs.st.evosuite.cfg;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is used to represent basic blocks in the control flow graph.
@@ -35,7 +36,7 @@ import org.apache.log4j.Logger;
  */
 public class BasicBlock {
 
-	private static Logger logger = Logger.getLogger(BasicBlock.class);
+	private static Logger logger = LoggerFactory.getLogger(BasicBlock.class);
 
 	private static int blockCount = 0;
 

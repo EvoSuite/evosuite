@@ -22,7 +22,8 @@ import java.io.Serializable;
 import java.text.NumberFormat;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
@@ -38,7 +39,7 @@ public abstract class StoppingCondition implements SearchListener, Serializable 
 
 	private static final long serialVersionUID = -8221978873140881671L;
 
-	protected static Logger logger = Logger.getLogger(StoppingCondition.class);
+	protected static Logger logger = LoggerFactory.getLogger(StoppingCondition.class);
 
 	public StoppingCondition() {
 		reset();

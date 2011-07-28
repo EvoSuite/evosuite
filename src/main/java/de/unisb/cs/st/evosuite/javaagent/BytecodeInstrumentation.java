@@ -23,13 +23,14 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGClassAdapter;
@@ -45,7 +46,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCluster;
  */
 public class BytecodeInstrumentation implements ClassFileTransformer {
 
-	protected static Logger logger = Logger.getLogger(BytecodeInstrumentation.class);
+	protected static Logger logger = LoggerFactory.getLogger(BytecodeInstrumentation.class);
 
 	// private static RemoveSystemExitTransformer systemExitTransformer = new
 	// RemoveSystemExitTransformer();
@@ -53,7 +54,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	public boolean isTargetProject(String className) {
 		return className.startsWith(Properties.PROJECT_PREFIX);
 	}
-	
+
 	private boolean isTargetClassName(String className) {
 		return TestCluster.isTargetClassName(className);
 	}
@@ -77,8 +78,9 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	 * byte[])
 	 */
 	@Override
-	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+	public byte[] transform(ClassLoader loader, String className,
+	        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+	        byte[] classfileBuffer) throws IllegalClassFormatException {
 		isJavaagent = true;
 		if (className == null) {
 			return classfileBuffer;
@@ -87,21 +89,20 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 		// Some packages we shouldn't touch - hard-coded
 		if (!isTargetProject(classNameWithDots)
-				&& (classNameWithDots.startsWith("java") 
-						|| classNameWithDots.startsWith("sun")
-						|| classNameWithDots.startsWith("org.aspectj.org.eclipse") 
-						|| classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
+		        && (classNameWithDots.startsWith("java")
+		                || classNameWithDots.startsWith("sun")
+		                || classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
 			return classfileBuffer;
 		}
-		
+
 		if (!isTargetProject(classNameWithDots)) {
 			return classfileBuffer;
 		}
-		
+
 		try {
 			return transformBytes(className, new ClassReader(classfileBuffer));
 		} catch (Throwable t) {
-			logger.fatal("Transformation of class " + className + " failed", t);
+			logger.error("Transformation of class " + className + " failed", t);
 			// TODO why all the redundant printStackTrace()s?
 			// StringWriter writer = new StringWriter();
 			// t.printStackTrace(new PrintWriter(writer));
@@ -157,8 +158,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			cmp.transform().accept(cv);
 			if (Properties.TT) {
 				logger.info("Testability Transforming " + className);
-				TestabilityTransformation tt = new TestabilityTransformation(
-				        cn);
+				TestabilityTransformation tt = new TestabilityTransformation(cn);
 				// cv = new TraceClassVisitor(writer, new
 				// PrintWriter(System.out));
 				cv = new TraceClassVisitor(cv, new PrintWriter(System.out));

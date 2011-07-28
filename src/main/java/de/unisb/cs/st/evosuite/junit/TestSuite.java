@@ -34,12 +34,13 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
@@ -60,7 +61,7 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  */
 public class TestSuite implements Opcodes {
 
-	private final static Logger logger = Logger.getLogger(TestSuite.class);
+	private final static Logger logger = LoggerFactory.getLogger(TestSuite.class);
 
 	protected List<TestCase> test_cases = new ArrayList<TestCase>();
 
@@ -104,7 +105,7 @@ public class TestSuite implements Opcodes {
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
-			logger.fatal("TG: Exception caught: ", e);
+			logger.error("TG: Exception caught: ", e);
 			System.exit(1);
 		}
 

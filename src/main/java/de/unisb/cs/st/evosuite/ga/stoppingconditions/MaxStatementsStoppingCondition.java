@@ -21,7 +21,8 @@
 
 package de.unisb.cs.st.evosuite.ga.stoppingconditions;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 
@@ -34,7 +35,7 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 	private static final long serialVersionUID = 8521297417505862683L;
 
 	@SuppressWarnings({ "unused" })
-	private static Logger logger = Logger.getLogger(MaxStatementsStoppingCondition.class);
+	private static Logger logger = LoggerFactory.getLogger(MaxStatementsStoppingCondition.class);
 
 	/** Maximum number of iterations */
 	protected static int max_statements = Properties.GENERATIONS;

@@ -5,9 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 
@@ -17,8 +18,7 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
  */
 public class BytecodeInstructionPool {
 
-	private static Logger logger = Logger
-			.getLogger(BytecodeInstructionPool.class);
+	private static Logger logger = LoggerFactory.getLogger(BytecodeInstructionPool.class);
 
 	// maps className -> method inside that class -> list of
 	// BytecodeInstructions
@@ -40,7 +40,7 @@ public class BytecodeInstructionPool {
 	 * BytecodeInstruction is set.
 	 */
 	public static List<BytecodeInstruction> registerMethodNode(MethodNode node,
-			String className, String methodName) {
+	        String className, String methodName) {
 
 		registerMethodNode(node);
 
@@ -48,12 +48,13 @@ public class BytecodeInstructionPool {
 		int jpfId = 0;
 
 		for (int instructionId = 0; instructionId < node.instructions.size(); instructionId++) {
-			AbstractInsnNode instructionNode = node.instructions
-					.get(instructionId);
+			AbstractInsnNode instructionNode = node.instructions.get(instructionId);
 
-			BytecodeInstruction instruction = BytecodeInstructionFactory
-					.createBytecodeInstruction(className, methodName,
-							instructionId, jpfId, instructionNode);
+			BytecodeInstruction instruction = BytecodeInstructionFactory.createBytecodeInstruction(className,
+			                                                                                       methodName,
+			                                                                                       instructionId,
+			                                                                                       jpfId,
+			                                                                                       instructionNode);
 
 			if (instruction.isLineNumber())
 				lastLineNumber = instruction.getLineNumber();
@@ -61,7 +62,7 @@ public class BytecodeInstructionPool {
 				instruction.setLineNumber(lastLineNumber);
 
 			if (!instruction.isLabel() && !instruction.isLineNumber()
-					&& !instruction.isFrame()) {
+			        && !instruction.isFrame()) {
 				jpfId++;
 			}
 
@@ -72,8 +73,8 @@ public class BytecodeInstructionPool {
 		List<BytecodeInstruction> r = getInstructionsIn(className, methodName);
 		if (r == null || r.size() == 0)
 			throw new IllegalStateException(
-					"expect instruction pool to return non-null non-empty list of instructions for a previously registered method "
-							+ methodName);
+			        "expect instruction pool to return non-null non-empty list of instructions for a previously registered method "
+			                + methodName);
 
 		return r;
 	}
@@ -81,8 +82,7 @@ public class BytecodeInstructionPool {
 	private static void registerMethodNode(MethodNode node) {
 		for (MethodNode mn : knownMethodNodes)
 			if (mn == node)
-				logger
-						.warn("CFGGenerator.analyze() apparently got called for the same MethodNode twice");
+				logger.warn("CFGGenerator.analyze() apparently got called for the same MethodNode twice");
 
 		knownMethodNodes.add(node);
 	}
@@ -93,10 +93,10 @@ public class BytecodeInstructionPool {
 
 		if (!instructionMap.containsKey(className))
 			instructionMap.put(className,
-					new HashMap<String, List<BytecodeInstruction>>());
+			                   new HashMap<String, List<BytecodeInstruction>>());
 		if (!instructionMap.get(className).containsKey(methodName))
 			instructionMap.get(className).put(methodName,
-					new ArrayList<BytecodeInstruction>());
+			                                  new ArrayList<BytecodeInstruction>());
 		instructionMap.get(className).get(methodName).add(instruction);
 
 		if (instruction.isActualBranch())
@@ -105,19 +105,18 @@ public class BytecodeInstructionPool {
 
 	// retrieve data from the pool
 
-	public static BytecodeInstruction getInstruction(String className,
-			String methodName, int instructionId, AbstractInsnNode asmNode) {
+	public static BytecodeInstruction getInstruction(String className, String methodName,
+	        int instructionId, AbstractInsnNode asmNode) {
 
-		BytecodeInstruction r = getInstruction(className, methodName,
-				instructionId);
+		BytecodeInstruction r = getInstruction(className, methodName, instructionId);
 		if (r != null)
 			r.sanityCheckAbstractInsnNode(asmNode);
 
 		return r;
 	}
 
-	public static BytecodeInstruction getInstruction(String className,
-			String methodName, int instructionId) {
+	public static BytecodeInstruction getInstruction(String className, String methodName,
+	        int instructionId) {
 
 		if (instructionMap.get(className) == null) {
 			logger.debug("unknown class");
@@ -127,8 +126,7 @@ public class BytecodeInstructionPool {
 			logger.debug("unknown method");
 			return null;
 		}
-		for (BytecodeInstruction instruction : instructionMap.get(className)
-				.get(methodName)) {
+		for (BytecodeInstruction instruction : instructionMap.get(className).get(methodName)) {
 			if (instruction.getInstructionId() == instructionId)
 				return instruction;
 		}
@@ -139,9 +137,9 @@ public class BytecodeInstructionPool {
 	}
 
 	public static List<BytecodeInstruction> getInstructionsIn(String className,
-			String methodName) {
+	        String methodName) {
 		if (instructionMap.get(className) == null
-				|| instructionMap.get(className).get(methodName) == null)
+		        || instructionMap.get(className).get(methodName) == null)
 			return null;
 
 		List<BytecodeInstruction> r = new ArrayList<BytecodeInstruction>();
@@ -152,11 +150,9 @@ public class BytecodeInstructionPool {
 
 	public static void logInstructionsIn(String className, String methodName) {
 
-		logger.debug("Printing instructions in " + className + "." + methodName
-				+ ":");
+		logger.debug("Printing instructions in " + className + "." + methodName + ":");
 
-		List<BytecodeInstruction> instructions = getInstructionsIn(className,
-				methodName);
+		List<BytecodeInstruction> instructions = getInstructionsIn(className, methodName);
 		if (instructions == null) {
 			logger.debug("..unknown method");
 		}

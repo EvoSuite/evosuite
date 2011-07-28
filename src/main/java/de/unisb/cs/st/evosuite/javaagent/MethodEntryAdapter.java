@@ -18,7 +18,8 @@
 
 package de.unisb.cs.st.evosuite.javaagent;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
@@ -32,7 +33,7 @@ import org.objectweb.asm.commons.AdviceAdapter;
 public class MethodEntryAdapter extends AdviceAdapter {
 
 	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(MethodEntryAdapter.class);
+	private static Logger logger = LoggerFactory.getLogger(MethodEntryAdapter.class);
 
 	String className;
 	String methodName;

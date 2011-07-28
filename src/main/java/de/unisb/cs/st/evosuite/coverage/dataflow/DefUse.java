@@ -1,6 +1,7 @@
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 
@@ -11,7 +12,7 @@ import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
  */
 public class DefUse extends BytecodeInstruction {
 
-	private static Logger logger = Logger.getLogger(DefUse.class);
+	private static Logger logger = LoggerFactory.getLogger(DefUse.class);
 	
 	int defuseId;
 	int defId;

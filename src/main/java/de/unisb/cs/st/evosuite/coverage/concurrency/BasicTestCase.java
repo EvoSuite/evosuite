@@ -20,7 +20,8 @@ package de.unisb.cs.st.evosuite.coverage.concurrency;
 
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.AbstractStatement;
@@ -41,7 +42,7 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
 public class BasicTestCase extends DefaultTestCase {
 
 	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(BasicTestCase.class);
+	private static Logger logger = LoggerFactory.getLogger(BasicTestCase.class);
 
 
 	/**

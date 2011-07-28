@@ -18,7 +18,8 @@
 
 package de.unisb.cs.st.evosuite.javaagent;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -40,7 +41,7 @@ public class ExecutionPathClassAdapter extends ClassAdapter {
 	private final String className;
 
 	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(ExecutionPathClassAdapter.class);
+	private static Logger logger = LoggerFactory.getLogger(ExecutionPathClassAdapter.class);
 
 	public ExecutionPathClassAdapter(ClassVisitor visitor, String className) {
 		super(visitor);

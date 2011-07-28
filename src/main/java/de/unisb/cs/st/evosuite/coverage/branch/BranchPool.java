@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LabelNode;
@@ -34,7 +35,7 @@ import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
  */
 public class BranchPool {
 
-	private static Logger logger = Logger.getLogger(BranchPool.class);
+	private static Logger logger = LoggerFactory.getLogger(BranchPool.class);
 
 	// maps className -> method inside that class -> list of branches inside
 	// that method

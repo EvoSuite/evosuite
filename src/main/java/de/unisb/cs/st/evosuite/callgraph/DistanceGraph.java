@@ -20,7 +20,8 @@ package de.unisb.cs.st.evosuite.callgraph;
 
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultEdge;
@@ -28,7 +29,7 @@ import org.jgrapht.graph.SimpleGraph;
 
 public class DistanceGraph {
 
-	private static Logger logger = Logger.getLogger(DistanceGraph.class);
+	private static Logger logger = LoggerFactory.getLogger(DistanceGraph.class);
 	// private ConnectionData data;
 	private final Hierarchy hierarchy;
 	private UndirectedGraph<MethodDescription, DefaultEdge> g;

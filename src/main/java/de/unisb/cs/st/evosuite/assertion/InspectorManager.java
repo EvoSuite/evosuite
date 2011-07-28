@@ -30,7 +30,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.Type;
 
 import de.unisb.cs.st.evosuite.Properties;
@@ -39,7 +40,7 @@ public class InspectorManager {
 
 	private static InspectorManager instance = null;
 
-	private static Logger logger = Logger.getLogger(InspectorManager.class);
+	private static Logger logger = LoggerFactory.getLogger(InspectorManager.class);
 
 	Map<Class<?>, List<Inspector>> inspectors = new HashMap<Class<?>, List<Inspector>>();
 

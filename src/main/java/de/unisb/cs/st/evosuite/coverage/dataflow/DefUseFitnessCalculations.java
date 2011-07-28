@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.AlternativeFitnessCalculationMode;
@@ -32,7 +33,7 @@ public class DefUseFitnessCalculations {
 
 	private final static boolean DEBUG = Properties.DEFUSE_DEBUG_MODE;
 
-	private static Logger logger = Logger.getLogger(DefUseFitnessCalculations.class);
+	private static Logger logger = LoggerFactory.getLogger(DefUseFitnessCalculations.class);
 
 	// TODO: move these to Properties?
 

@@ -18,7 +18,8 @@
 
 package de.unisb.cs.st.evosuite.javaagent;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
@@ -36,7 +37,7 @@ public class LineNumberMethodAdapter extends MethodAdapter {
 	public static int branch_id = 0;
 
 	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(LineNumberMethodAdapter.class);
+	private static Logger logger = LoggerFactory.getLogger(LineNumberMethodAdapter.class);
 
 	private final String fullMethodName;
 

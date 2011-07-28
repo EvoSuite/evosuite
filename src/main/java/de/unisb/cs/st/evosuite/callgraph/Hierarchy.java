@@ -26,7 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.ds.util.io.XmlIo;
 import de.unisb.cs.st.evosuite.Properties;
@@ -39,7 +40,7 @@ public class Hierarchy implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(Hierarchy.class);
+	private static Logger logger = LoggerFactory.getLogger(Hierarchy.class);
 
 	private final Map<String, ClassNode> hierarchyMap;
 

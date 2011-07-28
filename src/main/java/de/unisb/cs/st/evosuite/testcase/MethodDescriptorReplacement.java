@@ -31,7 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
@@ -47,7 +48,7 @@ public class MethodDescriptorReplacement implements Serializable {
 	/** Singleton instance */
 	private static MethodDescriptorReplacement instance = null;
 
-	private static Logger logger = Logger.getLogger(MethodDescriptorReplacement.class);
+	private static Logger logger = LoggerFactory.getLogger(MethodDescriptorReplacement.class);
 
 	/** Map from class to method pairs */
 	private final Map<String, String> descriptors = new HashMap<String, String>();

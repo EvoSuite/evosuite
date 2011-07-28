@@ -6,7 +6,8 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.lang.reflect.AccessibleObject;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
@@ -18,7 +19,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
  */
 public class ValueMinimizer implements TestVisitor {
 
-	private static Logger logger = Logger.getLogger(ValueMinimizer.class);
+	private static Logger logger = LoggerFactory.getLogger(ValueMinimizer.class);
 
 	private static interface Minimization {
 		public boolean isNotWorse();

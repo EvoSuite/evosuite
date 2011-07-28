@@ -5,7 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
@@ -50,7 +51,7 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
  */
 public class ControlFlowDistanceCalculator {
 
-	private static Logger logger = Logger.getLogger(ControlFlowDistanceCalculator.class);
+	private static Logger logger = LoggerFactory.getLogger(ControlFlowDistanceCalculator.class);
 
 	// DONE hold intermediately calculated ControlFlowDistances in
 	// ExecutionResult during computation in order to speed up things -

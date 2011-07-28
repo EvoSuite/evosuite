@@ -21,7 +21,8 @@ package de.unisb.cs.st.evosuite.primitives;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -34,7 +35,7 @@ import org.objectweb.asm.commons.LocalVariablesSorter;
  */
 public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 
-	protected static Logger logger = Logger.getLogger(StringReplacementMethodAdapter.class);
+	protected static Logger logger = LoggerFactory.getLogger(StringReplacementMethodAdapter.class);
 
 	private final Map<Integer, Integer> flags = new HashMap<Integer, Integer>();
 

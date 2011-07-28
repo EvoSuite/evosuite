@@ -17,7 +17,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -46,7 +47,7 @@ public class ObjectPool {
 		TestCase test;
 	}
 
-	private static Logger logger = Logger.getLogger(ObjectPool.class);
+	private static Logger logger = LoggerFactory.getLogger(ObjectPool.class);
 
 	/**
 	 * Private constructor for singleton

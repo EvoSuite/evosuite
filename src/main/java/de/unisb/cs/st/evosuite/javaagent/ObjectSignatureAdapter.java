@@ -23,7 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -40,7 +41,7 @@ import de.unisb.cs.st.evosuite.Properties;
  */
 public class ObjectSignatureAdapter extends ClassAdapter {
 
-	protected static Logger logger = Logger.getLogger(ObjectSignatureAdapter.class);
+	protected static Logger logger = LoggerFactory.getLogger(ObjectSignatureAdapter.class);
 
 	private final String className;
 

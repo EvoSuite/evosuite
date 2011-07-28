@@ -25,7 +25,8 @@ import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 
@@ -64,7 +65,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 
 	private static final long serialVersionUID = 8993506743384548704L;
 
-	protected static Logger logger = Logger.getLogger(AbstractStatement.class);
+	protected static Logger logger = LoggerFactory.getLogger(AbstractStatement.class);
 
 	protected VariableReference retval;
 	protected final TestCase tc;

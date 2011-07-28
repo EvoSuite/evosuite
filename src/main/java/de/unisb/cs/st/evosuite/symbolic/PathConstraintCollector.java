@@ -27,7 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.symbolic.bytecode.PathConstraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
@@ -41,7 +42,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
 public class PathConstraintCollector extends ListenerAdapter {
 
 	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(PathConstraintCollector.class);
+	private static Logger logger = LoggerFactory.getLogger(PathConstraintCollector.class);
 
 	private HashTableSet<Constraint<?>> last;
 

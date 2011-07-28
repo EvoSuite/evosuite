@@ -30,12 +30,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
@@ -53,7 +54,7 @@ public class ConcolicExecution {
 	@SuppressWarnings("unused")
 	private List<gov.nasa.jpf.Error> errors;
 
-	private static Logger logger = Logger.getLogger(ConcolicExecution.class);
+	private static Logger logger = LoggerFactory.getLogger(ConcolicExecution.class);
 
 	private PathConstraintCollector pcg;
 
@@ -149,7 +150,7 @@ public class ConcolicExecution {
 			// FIXME: Probably not for Strings?
 			return org.objectweb.asm.commons.Method.getMethod("String mark(String,String)");
 		else {
-			logger.fatal("Found primitive of unknown type: " + clazz.getName());
+			logger.error("Found primitive of unknown type: " + clazz.getName());
 			return null; // FIXME
 		}
 	}
@@ -236,7 +237,7 @@ public class ConcolicExecution {
 		else if (clazz.equals(String.class))
 			mg.push(((String) statement.getValue()));
 		else
-			logger.fatal("Found primitive of unknown type: " + clazz.getName());
+			logger.error("Found primitive of unknown type: " + clazz.getName());
 	}
 
 	/**

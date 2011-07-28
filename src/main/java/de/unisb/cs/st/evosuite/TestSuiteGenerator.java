@@ -25,7 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.Properties.Strategy;
@@ -115,7 +116,7 @@ import de.unisb.cs.st.evosuite.utils.Utils;
  */
 public class TestSuiteGenerator {
 
-	private static Logger logger = Logger.getLogger(TestSuiteGenerator.class);
+	private static Logger logger = LoggerFactory.getLogger(TestSuiteGenerator.class);
 
 	private final SearchStatistics statistics = SearchStatistics.getInstance();
 

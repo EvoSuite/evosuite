@@ -18,7 +18,8 @@
 
 package de.unisb.cs.st.evosuite.cfg;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -34,7 +35,7 @@ import de.unisb.cs.st.evosuite.Properties;
  */
 public class CFGClassAdapter extends ClassAdapter {
 
-	private static Logger logger = Logger.getLogger(CFGClassAdapter.class);
+	private static Logger logger = LoggerFactory.getLogger(CFGClassAdapter.class);
 
 	/** Current class */
 	private final String className;
