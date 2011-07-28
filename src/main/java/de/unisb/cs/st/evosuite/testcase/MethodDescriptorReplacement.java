@@ -34,8 +34,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
  * @author Gordon Fraser
@@ -303,7 +303,7 @@ public class MethodDescriptorReplacement implements Serializable {
 		for (File file : files) {
 			if (file.isDirectory())
 				continue;
-			List<String> lines = Io.getLinesFromFile(file);
+			List<String> lines = Utils.readFile(file);
 			//descriptors.put(className, new HashMap<String, String>());
 			for (String line : lines) {
 				//logger.debug("Read line: "+line);

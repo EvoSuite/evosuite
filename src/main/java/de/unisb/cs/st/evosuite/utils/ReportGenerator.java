@@ -49,7 +49,6 @@ import com.panayotis.gnuplot.style.Style;
 import com.panayotis.gnuplot.terminal.FileTerminal;
 import com.panayotis.gnuplot.terminal.GNUPlotTerminal;
 
-import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.NoSuchParameterException;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -492,7 +491,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		String filename = "report-" + run.className + "-" + run.id + ".html";
 		File file = new File(REPORT_DIR.getAbsolutePath() + "/html/" + filename);
-		Io.writeFile(sb.toString(), file);
+		Utils.writeFile(sb.toString(), file);
 		// return file.getAbsolutePath();
 		return filename;
 	}
@@ -728,7 +727,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		StringBuffer report = new StringBuffer();
 
 		if (file.exists()) {
-			List<String> lines = Io.getLinesFromFile(file);
+			List<String> lines = Utils.readFile(file);
 			for (String line : lines) {
 				if (line.contains("<!-- EVOSUITE INSERTION POINT -->")) {
 					break;
@@ -767,7 +766,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		writeHTMLFooter(report);
 
-		Io.writeFile(report.toString(), file);
+		Utils.writeFile(report.toString(), file);
 	}
 
 	protected Set<Integer> getCoveredLines(ExecutionTrace trace, String className) {

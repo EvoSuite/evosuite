@@ -23,14 +23,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
  * Testing might require adapting function signatures, for example Object
@@ -65,7 +65,7 @@ public class ObjectSignatureAdapter extends ClassAdapter {
 			// Initialize descriptors
 			// mutation-report/className.obj contains method signatures
 			File file = new File(Properties.OUTPUT_DIR + "/" + className + ".obj");
-			List<String> lines = Io.getLinesFromFile(file);
+			List<String> lines = Utils.readFile(file);
 			descriptors = new HashMap<String, String>();
 			for (String line : lines) {
 				line = line.trim();

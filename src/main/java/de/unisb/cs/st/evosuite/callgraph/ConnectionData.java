@@ -20,8 +20,8 @@ package de.unisb.cs.st.evosuite.callgraph;
 import java.util.HashSet;
 import java.util.Set;
 
-import de.unisb.cs.st.ds.util.io.XmlIo;
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 public class ConnectionData {
 
@@ -48,11 +48,11 @@ public class ConnectionData {
 	}
 
 	public void save() {
-		XmlIo.toXML(this, Properties.OUTPUT_DIR + "/" + Properties.CONNECTION_DATA);
+		Utils.writeXML(this, Properties.OUTPUT_DIR + "/" + Properties.CONNECTION_DATA);
 	}
 
 	public static ConnectionData read() {
-		return XmlIo.get(Properties.OUTPUT_DIR + "/" + Properties.CONNECTION_DATA);
+		return Utils.readXML(Properties.OUTPUT_DIR + "/" + Properties.CONNECTION_DATA);
 	}
 
 	public Set<Tuple> getConnections() {

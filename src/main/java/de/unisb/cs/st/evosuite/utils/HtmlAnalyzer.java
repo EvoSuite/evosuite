@@ -18,7 +18,6 @@
 package de.unisb.cs.st.evosuite.utils;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,11 +25,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.ds.util.io.DirectoryFileSource;
-import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
 
 public class HtmlAnalyzer implements Serializable {
@@ -54,7 +52,7 @@ public class HtmlAnalyzer implements Serializable {
 		for (File f : files) {
 			String name = getContaingClassName(f);
 			if (name.endsWith(className) && !name.endsWith("Test" + className)) {
-				List<String> linesFromFile = Io.getLinesFromFile(f);
+				List<String> linesFromFile = Utils.readFile(f);
 				logger.debug("Got file " + f + "for class " + fullClassName);
 				return linesFromFile;
 			}
@@ -82,13 +80,10 @@ public class HtmlAnalyzer implements Serializable {
 
 	private void initFiles() {
 		File startDirectory = new File(".");
-		try {
-			Collection<File> javaFiles = DirectoryFileSource.getFilesByExtension(startDirectory,
-			                                                                     "java");
-			files = new HashSet<File>(javaFiles);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		String[] extensions = { "java" };
+		@SuppressWarnings("unchecked")
+		Collection<File> javaFiles = FileUtils.listFiles(startDirectory, extensions, true);
+		files = new HashSet<File>(javaFiles);
 	}
 
 	private String getClassName(String name) {

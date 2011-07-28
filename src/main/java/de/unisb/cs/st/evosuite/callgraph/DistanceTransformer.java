@@ -40,7 +40,7 @@ public class DistanceTransformer implements ClassFileTransformer {
 
 		Set<String> supers;
 
-		private ClassEntry(String name, Set<String> supers) {
+		public ClassEntry(String name, Set<String> supers) {
 			super();
 			this.name = name.replace('/', '.');
 			this.supers = new HashSet<String>();
@@ -84,10 +84,10 @@ public class DistanceTransformer implements ClassFileTransformer {
 
 	}
 
-	private final class SuperClassAdapter extends ClassAdapter {
+	public static final class SuperClassAdapter extends ClassAdapter {
 		Set<String> supers = new HashSet<String>();
 
-		private SuperClassAdapter(ClassVisitor cv) {
+		public SuperClassAdapter(ClassVisitor cv) {
 			super(cv);
 		}
 
@@ -111,20 +111,6 @@ public class DistanceTransformer implements ClassFileTransformer {
 
 	private final AtomicBoolean traceLock = new AtomicBoolean(true);
 
-	public DistanceTransformer() {
-		Runtime r = Runtime.getRuntime();
-
-		r.addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				traceLock.set(false);
-				data.save();
-				XmlIo.toXML(classes, Properties.OUTPUT_DIR + "/"
-				        + Properties.HIERARCHY_DATA);
-			}
-		});
-	}
-
 	Set<ClassEntry> classes = new HashSet<ClassEntry>();
 
 	public void saveData() {
@@ -134,6 +120,7 @@ public class DistanceTransformer implements ClassFileTransformer {
 	}
 
 	@Override
+	@Deprecated
 	public byte[] transform(ClassLoader loader, String className,
 	        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
 	        byte[] classfileBuffer) throws IllegalClassFormatException {
@@ -144,7 +131,8 @@ public class DistanceTransformer implements ClassFileTransformer {
 			if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)) {
 				ClassReader cr = new ClassReader(classfileBuffer);
 				ClassWriter cw = new ClassWriter(0);
-				ClassVisitor cv = new DistanceClassAdapter(cw, data);
+				ClassVisitor cv = new DistanceClassAdapter(cw, data,
+				        new HashSet<String>());
 				cr.accept(cv, ClassReader.SKIP_FRAMES);
 			}
 		}

@@ -17,10 +17,10 @@
  */
 package de.unisb.cs.st.evosuite.callgraph;
 
+import java.util.Set;
+
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
-
-import de.unisb.cs.st.evosuite.Properties;
 
 public class DistanceMethodAdapter extends MethodAdapter {
 
@@ -28,14 +28,16 @@ public class DistanceMethodAdapter extends MethodAdapter {
 	private final String methodName;
 	private final String description;
 	private final ConnectionData connectionData;
+	private final Set<String> packageClasses;
 
 	public DistanceMethodAdapter(MethodVisitor mv, String className, String methodName,
-	        String description, ConnectionData connectionData) {
+	        String description, ConnectionData connectionData, Set<String> packageClasses) {
 		super(mv);
 		this.className = className;
 		this.methodName = methodName;
 		this.description = description;
 		this.connectionData = connectionData;
+		this.packageClasses = packageClasses;
 		connectionData.addConnection(className, methodName, description, className,
 		                             methodName, description);
 	}
@@ -43,7 +45,7 @@ public class DistanceMethodAdapter extends MethodAdapter {
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 		String ownerDots = owner.replace('/', '.');
-		if (ownerDots.startsWith(Properties.PROJECT_PREFIX)) {
+		if (packageClasses.contains(ownerDots)) {
 			connectionData.addConnection(className, methodName, description, owner, name,
 			                             desc);
 		}
