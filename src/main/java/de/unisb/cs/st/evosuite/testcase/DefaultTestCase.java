@@ -30,7 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
@@ -47,7 +48,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	private static final long serialVersionUID = -689512549778944250L;
 
-	private static Logger logger = Logger.getLogger(DefaultTestCase.class);
+	private static Logger logger = LoggerFactory.getLogger(DefaultTestCase.class);
 
 	/** The statements */
 	protected List<StatementInterface> statements;
@@ -316,14 +317,14 @@ public class DefaultTestCase implements TestCase, Serializable {
 						MethodStatement ms = (MethodStatement) s;
 						if (!ms.isStatic()) {
 							logger.info("Callee: ");
-							logger.info(ms.callee);
+							logger.info(ms.callee.toString());
 						}
 						int num = 0;
 						for (VariableReference v : ms.parameters) {
 							logger.info("Parameter " + num);
-							logger.info(v.getVariableClass());
-							logger.info(v.getClass());
-							logger.info(v);
+							logger.info(v.getVariableClass().toString());
+							logger.info(v.getClass().toString());
+							logger.info(v.toString());
 						}
 					}
 				}

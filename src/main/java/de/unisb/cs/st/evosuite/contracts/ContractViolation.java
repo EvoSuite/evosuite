@@ -3,7 +3,8 @@
  */
 package de.unisb.cs.st.evosuite.contracts;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
@@ -17,7 +18,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
 public class ContractViolation {
 
 	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(ContractViolation.class);
+	private static Logger logger = LoggerFactory.getLogger(ContractViolation.class);
 
 	private final Contract contract;
 

@@ -21,7 +21,8 @@ package de.unisb.cs.st.evosuite.javaagent;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -40,7 +41,7 @@ public class StaticInitializationClassAdapter extends ClassAdapter {
 
 	public static List<String> static_classes = new ArrayList<String>();
 
-	private static Logger logger = Logger.getLogger(StaticInitializationClassAdapter.class);
+	private static Logger logger = LoggerFactory.getLogger(StaticInitializationClassAdapter.class);
 
 	private boolean isInterface = false;
 

@@ -20,7 +20,8 @@ package de.unisb.cs.st.evosuite.coverage;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
@@ -32,7 +33,7 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
  */
 public abstract class TestCoverageGoal {
 
-	protected static Logger logger = Logger.getLogger(TestCoverageGoal.class);
+	protected static Logger logger = LoggerFactory.getLogger(TestCoverageGoal.class);
 
 	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
@@ -98,7 +99,7 @@ public abstract class TestCoverageGoal {
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
-			logger.fatal("TG: Exception caught: ", e);
+			logger.error("TG: Exception caught: ", e);
 			System.exit(1);
 		}
 

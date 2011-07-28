@@ -2,7 +2,8 @@ package de.unisb.cs.st.evosuite.cfg;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.Frame;
@@ -35,7 +36,7 @@ import org.objectweb.asm.tree.analysis.Frame;
  */
 public class CFGGenerator {
 
-	private static Logger logger = Logger.getLogger(CFGGenerator.class);
+	private static Logger logger = LoggerFactory.getLogger(CFGGenerator.class);
 
 	private RawControlFlowGraph rawGraph;
 

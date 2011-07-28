@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
@@ -39,7 +40,7 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
  */
 public class TestSuiteDSE {
 
-	private static Logger logger = Logger.getLogger(TestSuiteDSE.class);
+	private static Logger logger = LoggerFactory.getLogger(TestSuiteDSE.class);
 
 	private final Set<Integer> uncoveredBranches = new HashSet<Integer>();
 

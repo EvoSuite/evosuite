@@ -4,13 +4,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.ClassReader;
 
 import de.unisb.cs.st.evosuite.Properties;
 
 public class InstrumentingClassLoader extends ClassLoader {
-	private final Logger logger = Logger.getLogger(InstrumentingClassLoader.class);
+	private final Logger logger = LoggerFactory.getLogger(InstrumentingClassLoader.class);
 	private final BytecodeInstrumentation instrumentation;
 	private final ClassLoader classLoader;
 

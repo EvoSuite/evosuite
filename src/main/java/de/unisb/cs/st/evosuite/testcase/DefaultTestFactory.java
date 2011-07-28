@@ -34,7 +34,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.googlecode.gentyref.GenericTypeReflector;
 
@@ -59,7 +60,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	private static DefaultTestFactory instance = null;
 
-	private static Logger logger = Logger.getLogger(DefaultTestFactory.class);
+	private static Logger logger = LoggerFactory.getLogger(DefaultTestFactory.class);
 
 	private transient MethodDescriptorReplacement descriptor_replacement = MethodDescriptorReplacement.getInstance();
 

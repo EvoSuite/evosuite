@@ -3,7 +3,8 @@ package de.unisb.cs.st.evosuite.cfg;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
@@ -53,7 +54,7 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
  */
 public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 
-	private static Logger logger = Logger.getLogger(ActualControlFlowGraph.class);
+	private static Logger logger = LoggerFactory.getLogger(ActualControlFlowGraph.class);
 
 	private RawControlFlowGraph rawGraph;
 

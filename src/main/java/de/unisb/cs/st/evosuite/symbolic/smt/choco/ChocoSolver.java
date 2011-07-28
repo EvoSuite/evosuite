@@ -28,7 +28,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import choco.Choco;
 import choco.cp.model.CPModel2;
@@ -57,7 +58,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.RealUnaryExpression;
 @SuppressWarnings({ "unchecked" })
 public class ChocoSolver implements de.unisb.cs.st.evosuite.symbolic.Solver {
 
-	private static Logger logger = Logger.getLogger(ChocoSolver.class);
+	private static Logger logger = LoggerFactory.getLogger(ChocoSolver.class);
 
 	@SuppressWarnings("deprecation")
 	@Override

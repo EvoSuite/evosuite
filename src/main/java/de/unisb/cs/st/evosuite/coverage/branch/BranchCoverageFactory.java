@@ -21,7 +21,8 @@ package de.unisb.cs.st.evosuite.coverage.branch;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
@@ -34,7 +35,7 @@ import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
  */
 public class BranchCoverageFactory extends AbstractFitnessFactory {
 
-	private static Logger logger = Logger.getLogger(BranchCoverageFactory.class);
+	private static Logger logger = LoggerFactory.getLogger(BranchCoverageFactory.class);
 
 	/*
 	 * (non-Javadoc)

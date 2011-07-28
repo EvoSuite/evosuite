@@ -18,7 +18,8 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.util.AbstractVisitor;
 
@@ -36,7 +37,7 @@ import de.unisb.cs.st.evosuite.javaagent.BooleanHelper;
  */
 public class ExecutionTracer {
 
-	private static Logger logger = Logger.getLogger(ExecutionTracer.class);
+	private static Logger logger = LoggerFactory.getLogger(ExecutionTracer.class);
 
 	private static ExecutionTracer instance = null;
 

@@ -31,7 +31,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
@@ -50,7 +51,7 @@ import de.unisb.cs.st.evosuite.sandbox.Sandbox;
  */
 public class TestCaseExecutor implements ThreadFactory {
 
-	private static final Logger logger = Logger.getLogger(TestCaseExecutor.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestCaseExecutor.class);
 
 	private static final PrintStream systemOut = System.out;
 	private static final PrintStream systemErr = System.err;
@@ -106,7 +107,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
-			logger.fatal("TG: Exception caught: ", e);
+			logger.error("TG: Exception caught: ", e);
 			System.exit(1);
 		}
 
@@ -260,7 +261,7 @@ public class TestCaseExecutor implements ThreadFactory {
 						if (currentThread.isAlive()) {
 							logger.warn("Thread survived - unsafe operation.");
 							for (StackTraceElement element : currentThread.getStackTrace()) {
-								logger.warn(element);
+								logger.warn(element.toString());
 							}
 							currentThread.stop();
 						}

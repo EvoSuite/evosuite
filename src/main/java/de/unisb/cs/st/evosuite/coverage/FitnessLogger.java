@@ -10,7 +10,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -24,7 +25,7 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondit
  */
 public class FitnessLogger implements SearchListener {
 
-	private static Logger logger = Logger.getLogger(FitnessLogger.class);
+	private static Logger logger = LoggerFactory.getLogger(FitnessLogger.class);
 
 	private final List<Integer> evaluations_history = new ArrayList<Integer>();
 

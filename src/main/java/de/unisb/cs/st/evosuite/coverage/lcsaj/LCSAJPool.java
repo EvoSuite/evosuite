@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
@@ -27,7 +28,7 @@ public class LCSAJPool {
 		lcsaj_map.get(className).get(methodName).add(lcsaj);
 
 		lcsaj.setID(lcsaj_map.get(className).get(methodName).size());
-		Logger logger = Logger.getLogger(LCSAJPool.class);
+		Logger logger = LoggerFactory.getLogger(LCSAJPool.class);
 		logger.info("Adding LCSAJ: " + lcsaj);
 		for (Branch branch : lcsaj.getBranchInstructions()) {
 			logger.info(" -> " + branch.getASMNodeString());

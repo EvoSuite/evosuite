@@ -24,7 +24,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
@@ -39,7 +40,7 @@ import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
  */
 public class DefUseCoverageFactory  extends AbstractFitnessFactory {
 
-	private static Logger logger = Logger.getLogger(DefUseCoverageFactory.class);
+	private static Logger logger = LoggerFactory.getLogger(DefUseCoverageFactory.class);
 	
 	// TestSuiteMinimizer seems to call getCoverageGoals() a second time
 	// and since analysis takes a little ...

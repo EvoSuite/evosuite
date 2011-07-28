@@ -20,7 +20,8 @@ package de.unisb.cs.st.evosuite.sandbox;
 
 import java.security.Permission;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.testcase.TestRunnable;
@@ -38,7 +39,7 @@ class MSecurityManager extends SecurityManager {
 	/** indicates if mocks are enabled */
 	private final boolean mocksEnabled = Properties.MOCKS;
 
-	private static Logger logger = Logger.getLogger(MSecurityManager.class);
+	private static Logger logger = LoggerFactory.getLogger(MSecurityManager.class);
 
 	/**
 	 * Overridden method for checking permissions for any operation.

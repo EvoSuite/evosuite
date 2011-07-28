@@ -3,7 +3,8 @@
  */
 package de.unisb.cs.st.evosuite.testcase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
@@ -14,7 +15,7 @@ import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
  */
 public class FloatLocalSearch<T> implements LocalSearch {
 
-	private static Logger logger = Logger.getLogger(LocalSearch.class);
+	private static Logger logger = LoggerFactory.getLogger(LocalSearch.class);
 
 	private T oldValue;
 

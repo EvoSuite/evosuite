@@ -3,7 +3,8 @@
  */
 package de.unisb.cs.st.evosuite.testsuite;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
@@ -53,7 +54,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 		LocalSearchBudget.evaluation();
 		double newFitness = fitness.getFitness(suite);
 		if (newFitness < lastFitness) { // TODO: Maximize
-			Logger.getLogger(LocalSearchObjective.class).info("Local search improved fitness from "
+			LoggerFactory.getLogger(LocalSearchObjective.class).info("Local search improved fitness from "
 			                                                          + lastFitness
 			                                                          + " to "
 			                                                          + newFitness);

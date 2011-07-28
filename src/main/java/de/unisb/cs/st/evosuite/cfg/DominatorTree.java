@@ -5,7 +5,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jgrapht.graph.DefaultEdge;
 
 /**
@@ -36,7 +37,7 @@ import org.jgrapht.graph.DefaultEdge;
  */
 public class DominatorTree<V> extends EvoSuiteGraph<DominatorNode<V>, DefaultEdge> {
 
-	private static Logger logger = Logger.getLogger(DominatorTree.class);
+	private static Logger logger = LoggerFactory.getLogger(DominatorTree.class);
 
 	private int nodeCount = 0;
 	private final ControlFlowGraph<V> cfg;

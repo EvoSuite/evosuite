@@ -29,7 +29,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
@@ -49,7 +50,7 @@ import de.unisb.cs.st.evosuite.coverage.dataflow.Use;
  */
 public class ExecutionTrace {
 
-	private static Logger logger = Logger.getLogger(ExecutionTrace.class);
+	private static Logger logger = LoggerFactory.getLogger(ExecutionTrace.class);
 
 	public static boolean trace_calls = false;
 

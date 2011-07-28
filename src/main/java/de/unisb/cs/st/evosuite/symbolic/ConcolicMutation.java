@@ -28,16 +28,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
-import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
+import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
 import de.unisb.cs.st.evosuite.symbolic.smt.cvc3.CVC3Solver;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
@@ -52,7 +53,7 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
  */
 public class ConcolicMutation {
 
-	protected static Logger logger = Logger.getLogger(ConcolicMutation.class);
+	protected static Logger logger = LoggerFactory.getLogger(ConcolicMutation.class);
 
 	protected TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
@@ -104,7 +105,7 @@ public class ConcolicMutation {
 			// FIXME: Probably not for Strings?
 			return org.objectweb.asm.commons.Method.getMethod("String mark(String)");
 		else {
-			logger.fatal("Found primitive of unknown type: " + clazz.getName());
+			logger.error("Found primitive of unknown type: " + clazz.getName());
 			return null; // FIXME
 		}
 	}
@@ -137,7 +138,7 @@ public class ConcolicMutation {
 		else if (clazz.equals(String.class))
 			mg.push(((String) statement.getValue()));
 		else
-			logger.fatal("Found primitive of unknown type: " + clazz.getName());
+			logger.error("Found primitive of unknown type: " + clazz.getName());
 	}
 
 	private byte[] getBytecode(List<PrimitiveStatement<?>> target, TestCase test) {

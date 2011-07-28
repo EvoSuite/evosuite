@@ -9,14 +9,15 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /*
  * this code should be used by the main process
  */
 
 public class ExternalProcessHandler {
-	protected static Logger logger = Logger.getLogger(ExternalProcessHandler.class);
+	protected static Logger logger = LoggerFactory.getLogger(ExternalProcessHandler.class);
 
 	protected ServerSocket server;
 	protected Process process;

@@ -39,7 +39,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.panayotis.gnuplot.JavaPlot;
 import com.panayotis.gnuplot.plot.AbstractPlot;
@@ -72,7 +73,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 	protected final static boolean do_html = Properties.HTML;
 
-	protected static final Logger logger = Logger.getLogger(ReportGenerator.class);
+	protected static final Logger logger = LoggerFactory.getLogger(ReportGenerator.class);
 
 	protected static final File REPORT_DIR = new File(Properties.REPORT_DIR);
 

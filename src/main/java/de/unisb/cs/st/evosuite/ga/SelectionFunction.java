@@ -22,7 +22,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract base class of selection functions
@@ -34,7 +35,7 @@ public abstract class SelectionFunction implements Serializable {
 
 	private static final long serialVersionUID = -2514933149542277609L;
 
-	protected static Logger logger = Logger.getLogger(SelectionFunction.class);
+	protected static Logger logger = LoggerFactory.getLogger(SelectionFunction.class);
 
 	/**
 	 * Do we want to minimize or maximize fitness?

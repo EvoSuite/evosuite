@@ -4,7 +4,8 @@ import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
@@ -12,7 +13,7 @@ public class VariableReferenceImpl implements VariableReference, Serializable {
 
 	private static final long serialVersionUID = 7014270636820758121L;
 
-	protected static Logger logger = Logger.getLogger(VariableReferenceImpl.class);
+	protected static Logger logger = LoggerFactory.getLogger(VariableReferenceImpl.class);
 
 	/**
 	 * Type (class) of the variable

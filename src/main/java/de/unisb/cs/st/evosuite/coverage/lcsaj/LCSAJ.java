@@ -3,7 +3,8 @@ package de.unisb.cs.st.evosuite.coverage.lcsaj;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.tree.AbstractInsnNode;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
@@ -12,7 +13,7 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 
 public class LCSAJ {
 
-	private static Logger logger = Logger.getLogger(LCSAJ.class);
+	private static Logger logger = LoggerFactory.getLogger(LCSAJ.class);
 
 	// All branches passed in the LCSAJ
 	private final List<Branch> branches = new ArrayList<Branch>();

@@ -29,7 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Strategy;
@@ -48,7 +49,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	private static final long serialVersionUID = 5155609385855093435L;
 
-	protected static Logger logger = Logger.getLogger(GeneticAlgorithm.class);
+	protected static Logger logger = LoggerFactory.getLogger(GeneticAlgorithm.class);
 
 	/**
 	 * Fitness function to rank individuals

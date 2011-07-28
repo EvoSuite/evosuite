@@ -10,7 +10,8 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.apache.commons.collections.comparators.ReverseComparator;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.tree.LabelNode;
 
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
@@ -32,7 +33,7 @@ import de.unisb.cs.st.evosuite.coverage.dataflow.Use;
  */
 public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 
-	private static Logger logger = Logger.getLogger(RawControlFlowGraph.class);
+	private static Logger logger = LoggerFactory.getLogger(RawControlFlowGraph.class);
 
 	public RawControlFlowGraph(String className, String methodName) {
 		super(className, methodName);

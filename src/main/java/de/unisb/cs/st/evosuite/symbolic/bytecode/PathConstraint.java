@@ -23,7 +23,8 @@ import gov.nasa.jpf.search.Search;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.symbolic.HashTableSet;
 import de.unisb.cs.st.evosuite.symbolic.expr.Comparator;
@@ -37,7 +38,7 @@ public class PathConstraint {
 
 	private static PathConstraint ins = null;
 
-	private static Logger logger = Logger.getLogger(PathConstraint.class);
+	private static Logger logger = LoggerFactory.getLogger(PathConstraint.class);
 
 	private PathConstraint() {
 		this.pathConstraints = new HashTableSet<Constraint<?>>();

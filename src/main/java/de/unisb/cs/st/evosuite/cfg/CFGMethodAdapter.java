@@ -25,7 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -56,7 +57,7 @@ import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyInstrumentation;
  */
 public class CFGMethodAdapter extends MethodAdapter {
 
-	private static Logger logger = Logger.getLogger(CFGMethodAdapter.class);
+	private static Logger logger = LoggerFactory.getLogger(CFGMethodAdapter.class);
 
 	/**
 	 * A list of Strings representing method signatures. Methods matching those

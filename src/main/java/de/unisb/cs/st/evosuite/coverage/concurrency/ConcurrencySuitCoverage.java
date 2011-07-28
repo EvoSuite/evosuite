@@ -24,10 +24,11 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
@@ -45,7 +46,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 	private static final long serialVersionUID = 1L;
 
 	@SuppressWarnings("hiding")
-	private static Logger logger = Logger.getLogger(TestSuiteFitnessFunction.class);
+	private static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
 	public final int total_branches = BranchPool.getBranchCounter();
 
@@ -256,7 +257,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 				concurrentFitness += min;
 			}
 		} catch (Throwable t) {
-			logger.fatal("why?", t);
+			logger.error("why?", t);
 			System.exit(1);
 			throw new Error();
 		}
@@ -331,9 +332,10 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 			String className = LockRuntime.fieldAccToConcInstr.get(nextTuple.scheduleID).getClassName();
 			String methodName = LockRuntime.fieldAccToConcInstr.get(nextTuple.scheduleID).getMethodName();
 			RawControlFlowGraph completeCFG = CFGPool.getRawCFG(className, methodName);
-			assert(LockRuntime.fieldAccessIDToCFGVertex.containsKey(nextTuple.scheduleID));
-			if (completeCFG.containsVertex(LockRuntime.fieldAccessIDToCFGVertex.get(nextTuple.scheduleID)) || //in this case the two accesses are in different methods
-					isAfter(nextTuple, history, completeCFG)) {
+			assert (LockRuntime.fieldAccessIDToCFGVertex.containsKey(nextTuple.scheduleID));
+			if (completeCFG.containsVertex(LockRuntime.fieldAccessIDToCFGVertex.get(nextTuple.scheduleID))
+			        || //in this case the two accesses are in different methods
+			        isAfter(nextTuple, history, completeCFG)) {
 				SchedulingDecisionList newList = history.clone();
 				newList.add(nextTuple);
 				result.add(newList);

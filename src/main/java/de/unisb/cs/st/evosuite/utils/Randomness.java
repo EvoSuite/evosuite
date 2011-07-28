@@ -23,7 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Unique random number accessor
@@ -35,7 +36,7 @@ public class Randomness implements Serializable {
 
 	private static final long serialVersionUID = -5934455398558935937L;
 
-	private static Logger logger = Logger.getLogger(Randomness.class);
+	private static Logger logger = LoggerFactory.getLogger(Randomness.class);
 
 	private static long seed = 0;
 

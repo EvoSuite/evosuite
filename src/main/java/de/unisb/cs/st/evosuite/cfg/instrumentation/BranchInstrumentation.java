@@ -6,7 +6,8 @@ package de.unisb.cs.st.evosuite.cfg.instrumentation;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
@@ -28,7 +29,7 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
  */
 public class BranchInstrumentation implements MethodInstrumentation {
 
-	private static Logger logger = Logger.getLogger(BranchInstrumentation.class);
+	private static Logger logger = LoggerFactory.getLogger(BranchInstrumentation.class);
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String, java.lang.String, int)

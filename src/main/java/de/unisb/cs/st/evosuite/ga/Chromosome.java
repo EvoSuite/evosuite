@@ -22,7 +22,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.utils.PublicCloneable;
 
@@ -37,7 +38,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	private static final long serialVersionUID = -6921897301005213358L;
 
-	protected static Logger logger = Logger.getLogger(Chromosome.class);
+	protected static Logger logger = LoggerFactory.getLogger(Chromosome.class);
 
 	/**
 	 * Exception to handle the case when a mutation fails

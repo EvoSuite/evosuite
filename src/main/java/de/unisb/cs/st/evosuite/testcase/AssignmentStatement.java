@@ -70,7 +70,7 @@ public class AssignmentStatement extends AbstractStatement {
 			VariableReference newParam = parameter.clone(newTestCase);
 			VariableReference newTarget = retval.clone(newTestCase);
 			AssignmentStatement copy = new AssignmentStatement(newTestCase, newTarget,
-					newParam);
+			        newParam);
 			//logger.info("Copy of statement is: " + copy.getCode());
 			return copy;
 		} catch (Exception e) {
@@ -83,30 +83,31 @@ public class AssignmentStatement extends AbstractStatement {
 
 	@Override
 	public Throwable execute(final Scope scope, PrintStream out)
-	throws InvocationTargetException, IllegalArgumentException,
-	IllegalAccessException, InstantiationException {
+	        throws InvocationTargetException, IllegalArgumentException,
+	        IllegalAccessException, InstantiationException {
 
 		return super.exceptionHandler(new Executer() {
 
 			@Override
-			public void execute() throws InvocationTargetException, IllegalArgumentException,
-			IllegalAccessException, InstantiationException {
+			public void execute() throws InvocationTargetException,
+			        IllegalArgumentException, IllegalAccessException,
+			        InstantiationException {
 				try {
 					final Object value = parameter.getObject(scope);
 					retval.setObject(scope, value);
 				} catch (CodeUnderTestException e) {
 					throw CodeUnderTestException.throwException(e.getCause());
-				} catch(IllegalArgumentException e) {
+				} catch (IllegalArgumentException e) {
 					// FIXXME: IllegalArgumentException may happen when we only have generators
 					// for an abstract supertype and not the concrete type that we need!
 					throw e;
-				} catch (Throwable e){
+				} catch (Throwable e) {
 					throw new EvosuiteError(e);
 				}
 			}
 
 			@Override
-			public Set<Class<? extends Throwable>> throwableExceptions(){
+			public Set<Class<? extends Throwable>> throwableExceptions() {
 				Set<Class<? extends Throwable>> t = new HashSet<Class<? extends Throwable>>();
 				t.add(AssertionError.class);
 				return t;
@@ -158,7 +159,7 @@ public class AssignmentStatement extends AbstractStatement {
 	public int hashCode() {
 		final int prime = 31;
 		int result = prime + retval.hashCode()
-		+ +((parameter == null) ? 0 : parameter.hashCode());
+		        + +((parameter == null) ? 0 : parameter.hashCode());
 		return result;
 	}
 
@@ -193,13 +194,13 @@ public class AssignmentStatement extends AbstractStatement {
 	 */
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-			Throwable exception) {
+	        Throwable exception) {
 		parameter.loadBytecode(mg, locals);
 
 		Class<?> clazz = parameter.getVariableClass();
 		if (!clazz.equals(retval.getVariableClass())) {
 			mg.cast(org.objectweb.asm.Type.getType(clazz),
-					org.objectweb.asm.Type.getType(retval.getVariableClass()));
+			        org.objectweb.asm.Type.getType(retval.getVariableClass()));
 		}
 
 		parameter.storeBytecode(mg, locals);
@@ -262,12 +263,12 @@ public class AssignmentStatement extends AbstractStatement {
 	@Override
 	public boolean mutate(TestCase test, AbstractTestFactory factory) {
 		assert (isValid());
-		
+
 		// Either mutate parameter, or source
 		if (Randomness.nextDouble() < 0.5) {
 			// TODO: Should we restrict to field and array assignments?
 			List<VariableReference> objects = test.getObjects(parameter.getType(),
-					retval.getStPosition());
+			                                                  retval.getStPosition());
 			objects.remove(retval);
 			objects.remove(parameter);
 			Iterator<VariableReference> var = objects.iterator();
@@ -282,11 +283,11 @@ public class AssignmentStatement extends AbstractStatement {
 
 				//}
 			}
-			for (VariableReference v : objects) {
-				if (!v.isAssignableTo(retval.getType())) {
-					assert (false);
-				}
-			}
+			//for (VariableReference v : objects) {
+			//	if (!v.isAssignableTo(retval.getType())) {
+			//		assert (false);
+			//	}
+			//}
 			if (!objects.isEmpty()) {
 				VariableReference newRetVal = Randomness.choice(objects);
 				retval = newRetVal;
@@ -295,10 +296,10 @@ public class AssignmentStatement extends AbstractStatement {
 
 				return true;
 			}
-			
+
 		} else {
 			List<VariableReference> objects = test.getObjects(parameter.getType(),
-					parameter.getStPosition());
+			                                                  parameter.getStPosition());
 			objects.remove(retval);
 			objects.remove(parameter);
 			if (!objects.isEmpty()) {

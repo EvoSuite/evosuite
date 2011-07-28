@@ -42,6 +42,8 @@ public class ClusterAnalysis {
 				continue;
 			if (element.endsWith("jpf-classes.jar"))
 				continue;
+			if (element.contains("evosuite"))
+				continue;
 			retval.addAll(ResourceList.getResources(element, pattern));
 		}
 
@@ -58,7 +60,8 @@ public class ClusterAnalysis {
 		Collection<String> list = getResources();
 		for (String name : list) {
 			if (name.startsWith("java/lang") || name.startsWith("sun")
-			        || name.startsWith("com/sun"))
+			        || name.startsWith("com/sun") || name.startsWith("javax/swing")
+			        || name.startsWith("java/awt"))
 				continue;
 
 			try {

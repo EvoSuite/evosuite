@@ -1,6 +1,7 @@
 package de.unisb.cs.st.evosuite.testcase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Used to wrap exceptions thrown in code under test. This is needed as VariableReference.getObjects/.setObject 
@@ -18,7 +19,7 @@ public class CodeUnderTestException extends Exception{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final Logger logger = Logger.getLogger(CodeUnderTestException.class);
+	private static final Logger logger = LoggerFactory.getLogger(CodeUnderTestException.class);
 	
 	public CodeUnderTestException(Throwable cause){
 		super(cause);

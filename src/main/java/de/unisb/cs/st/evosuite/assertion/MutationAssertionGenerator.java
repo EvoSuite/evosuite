@@ -31,7 +31,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
@@ -53,7 +54,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 	private final List<Mutation> mutants;
 
-	private final static Logger logger = Logger.getLogger(MutationAssertionGenerator.class);
+	private final static Logger logger = LoggerFactory.getLogger(MutationAssertionGenerator.class);
 
 	private final Map<TestCase, Map<Class<?>, Integer>> assertion_statistics_full = new HashMap<TestCase, Map<Class<?>, Integer>>();
 

@@ -17,7 +17,8 @@ import java.util.Set;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
@@ -46,7 +47,7 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  */
 public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 
-	private static Logger logger = Logger.getLogger(ConcurrentTestRunnable.class);
+	private static Logger logger = LoggerFactory.getLogger(ConcurrentTestRunnable.class);
 
 	private final ConcurrentTestCase test;
 
@@ -63,7 +64,7 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 	private static boolean print_to_system = false;//Properties.getPropertyOrDefault("print_to_system", true);
 
 	private static PrintStream out = (print_to_system ? System.out : new PrintStream(
-			byteStream));
+	        byteStream));
 	private static final PrintStream sysoutOrg = System.out;
 	private static final PrintStream syserrOrg = System.err;
 
@@ -74,12 +75,12 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 	public List<ExecutionObserver> observers;
 
 	public ConcurrentTestRunnable(TestCase tc, Scope scope,
-			List<ExecutionObserver> observers) {
+	        List<ExecutionObserver> observers) {
 		if (tc instanceof ConcurrentTestCase) {
 			test = (ConcurrentTestCase) tc;
 		} else {
 			throw new AssertionError(
-					"Apparently the test case was constructed by the wrong factory");
+			        "Apparently the test case was constructed by the wrong factory");
 		}
 		//#TODO steenbuck we don't use this scope, maybe we need to wrap it
 		this.scope = scope;
@@ -102,14 +103,14 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 				assert (tc.size() >= 1) : "Usually object creation needs at least one statement";
 				return v;
 			} catch (ConstructionFailedException e) {
-				logger.fatal("Unhappy :(", e);
+				logger.error("Unhappy :(", e);
 				//#TODO steenbuck in the long run this shouldn't be an exception but normal control flow
 				System.exit(-1);
 				return null;
 			}
 		}
 		throw new AssertionError(
-		"We need at least one constructor for the object under test");
+		        "We need at least one constructor for the object under test");
 	}
 
 	//#FIXE remove : fixme as this will likely create errors during minizie
@@ -131,7 +132,7 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 		BasicTestCase initialTestCase = new BasicTestCase();
 		assert (Properties.getTargetClass() != null);
 		VariableReference objectToTest = this.getInitialTest(initialTestCase,
-				Properties.getTargetClass());
+		                                                     Properties.getTargetClass());
 		assert (objectToTest != null);
 		Scope s = new Scope();
 		Map<Integer, Throwable> m = new HashMap<Integer, Throwable>();
@@ -148,7 +149,7 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 		//#TODO all the thread start and stopping magic needs to happen here
 
 		ControllerRuntime controller = new ControllerRuntime(test.getSchedule(),
-				ConcurrencyCoverageFactory.THREAD_COUNT);
+		        ConcurrencyCoverageFactory.THREAD_COUNT);
 		FutureTask<Void> controllerFuture = new FutureTask<Void>(controller);
 		LockRuntime.controller = controller;
 		Thread controllerThread = new Thread(controllerFuture, "controllerThread");
@@ -159,19 +160,19 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 		System.setOut(out);
 		System.setErr(out);
 		for (int i = 0; i < ConcurrencyCoverageFactory.THREAD_COUNT; i++) {
-			try{
+			try {
 				ConcurrentTestCase testCopy = test.clone();
 				testCopy.setCallReporter(callLogger);
 				testCopy.setScheduleObserver(callLogger);
 				ConcurrentTestCase testToExecute = addThreadEndCode(addThreadRegistrationStatements(testCopy));
 				TestRunnable testRunner = new TestRunnable(testToExecute,
-						new ConcurrentScope(objectToTest.getObject(s)), observers, false);
+				        new ConcurrentScope(objectToTest.getObject(s)), observers, false);
 				FutureTask<ExecutionResult> testFuture = new FutureTask<ExecutionResult>(
-						testRunner);
+				        testRunner);
 				Thread testThread = new Thread(testFuture, "TestThread" + i);
 				testThread.start();
 				testFutures.add(testFuture);
-			}catch(CodeUnderTestException e){
+			} catch (CodeUnderTestException e) {
 				logger.error("This should never happen", e);
 				throw new AssertionError("this should never happen");
 			}
@@ -190,7 +191,7 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 		} catch (Throwable e) {
 			if (e.getCause() != null)
 				e.getCause().printStackTrace();
-			logger.fatal("why....", e);
+			logger.error("why....", e);
 			e.printStackTrace();
 			System.exit(1);
 			return null;
@@ -262,24 +263,24 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 
 			Class<?> params[] = { int.class };
 			Method register = LockRuntime.class.getMethod(LockRuntime.RUNTIME_REGISTER_THREAD_METHOD,
-					params);
+			                                              params);
 
 			StatementInterface idst = new IntPrimitiveStatement(test,
-					LockRuntime.getUniqueThreadID());
+			        LockRuntime.getUniqueThreadID());
 			test.addStatement(idst, 0, false);
 			VariableReference idRef = idst.getReturnValue();
 
 			List<VariableReference> paramsThreadRegistration = new ArrayList<VariableReference>();
 			paramsThreadRegistration.add(idRef);
 			test.addStatement(new MethodStatement(test, register, null, Void.class,
-					paramsThreadRegistration), 1, false);
+			        paramsThreadRegistration), 1, false);
 
 			return test;
 
 		} catch (Exception e) {
 			logger.warn("Tried to get method "
-					+ LockRuntime.RUNTIME_REGISTER_THREAD_METHOD
-					+ " but couldn't find such a method");
+			        + LockRuntime.RUNTIME_REGISTER_THREAD_METHOD
+			        + " but couldn't find such a method");
 			throw new AssertionError(e);
 		}
 
@@ -297,12 +298,12 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 		//#TODO should use getMethod()
 		for (Method met : methods) {
 			if (met.getName().contains("threadEnd")
-					&& met.getParameterTypes().length == 0)
+			        && met.getParameterTypes().length == 0)
 				threadEnd = met;
 		}
 
 		test.addStatement(new MethodStatement(test, threadEnd, null, Void.class,
-				new ArrayList<VariableReference>()), false);
+		        new ArrayList<VariableReference>()), false);
 		return test;
 	}
 
@@ -312,7 +313,7 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 	 * @return
 	 */
 	private ExecutionResult execute(BasicTestCase localTest, Scope localScope,
-			Map<Integer, Throwable> exceptionsThrownLocal) {
+	        Map<Integer, Throwable> exceptionsThrownLocal) {
 		runFinished = false;
 		ExecutionResult result = new ExecutionResult(localTest, null);
 
@@ -327,7 +328,7 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 			for (StatementInterface s : localTest) {
 				if (Thread.currentThread().isInterrupted() || Thread.interrupted()) {
 					logger.info("Thread interrupted at statement " + num + ": "
-							+ s.getCode());
+					        + s.getCode());
 					throw new TimeoutException();
 				}
 				if (logger.isDebugEnabled())
@@ -347,8 +348,8 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 					// exception_statement = num;
 					if (log && logger.isDebugEnabled())
 						logger.debug("Exception thrown in statement: " + s.getCode()
-								+ " - " + exceptionThrown.getClass().getName() + " - "
-								+ exceptionThrown.getMessage());
+						        + " - " + exceptionThrown.getClass().getName() + " - "
+						        + exceptionThrown.getMessage());
 				}
 				if (logger.isDebugEnabled())
 					logger.debug("Done statement " + s.getCode());
@@ -376,7 +377,7 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 			logger.info(localTest.toCode());
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
 				logger.info("Cause: ");
-				logger.info(e.getCause());
+				logger.info(e.getCause().toString());
 				e = e.getCause();
 			}
 			// exceptionThrown = e;

@@ -5,7 +5,8 @@ package de.unisb.cs.st.evosuite.javaagent;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
@@ -20,7 +21,7 @@ import org.objectweb.asm.tree.analysis.Value;
  */
 public class BooleanArrayInterpreter extends BasicInterpreter {
 
-	protected static Logger logger = Logger.getLogger(BooleanArrayInterpreter.class);
+	protected static Logger logger = LoggerFactory.getLogger(BooleanArrayInterpreter.class);
 
 	public final static BasicValue BYTE = new BasicValue(null);
 

@@ -3,7 +3,8 @@
  */
 package de.unisb.cs.st.evosuite.assertion;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -16,7 +17,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
  */
 public abstract class AssertionGenerator {
 
-	protected static Logger logger = Logger.getLogger(AssertionGenerator.class);
+	protected static Logger logger = LoggerFactory.getLogger(AssertionGenerator.class);
 
 	protected PrimitiveOutputTraceObserver primitive_observer = new PrimitiveOutputTraceObserver();
 

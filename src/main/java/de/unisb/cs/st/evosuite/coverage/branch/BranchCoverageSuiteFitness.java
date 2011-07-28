@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -46,7 +47,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private static final long serialVersionUID = 2991632394620406243L;
 
 	@SuppressWarnings("hiding")
-	private static Logger logger = Logger.getLogger(TestSuiteFitnessFunction.class);
+	private static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
 	public final int total_methods = TestCluster.getInstance().num_defined_methods;
 

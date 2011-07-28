@@ -23,7 +23,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
@@ -34,7 +35,7 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class InspectorTraceObserver extends ExecutionObserver {
 
-	private final static Logger logger = Logger.getLogger(InspectorTraceObserver.class);
+	private final static Logger logger = LoggerFactory.getLogger(InspectorTraceObserver.class);
 
 	private final InspectorManager manager = InspectorManager.getInstance();
 
