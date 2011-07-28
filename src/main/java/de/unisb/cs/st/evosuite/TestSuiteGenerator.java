@@ -202,6 +202,8 @@ public class TestSuiteGenerator {
 		// What's the search target
 		FitnessFunction fitness_function = getFitnessFunction();
 		ga.setFitnessFunction(fitness_function);
+		if (!logger.isInfoEnabled())
+			ga.addListener(new ConsoleProgressBar());
 
 		if (Properties.CRITERION == Criterion.DEFUSE)
 			ExecutionTrace.enableTraceCalls();
@@ -657,7 +659,7 @@ public class TestSuiteGenerator {
 	 * return goals; }
 	 */
 
-	public StoppingCondition getStoppingCondition() {
+	public static StoppingCondition getStoppingCondition() {
 		logger.info("Setting stopping condition: " + Properties.STOPPING_CONDITION);
 		switch (Properties.STOPPING_CONDITION) {
 		case MAXGENERATIONS:
@@ -676,7 +678,7 @@ public class TestSuiteGenerator {
 		}
 	}
 
-	private CrossOverFunction getCrossoverFunction() {
+	private static CrossOverFunction getCrossoverFunction() {
 		switch (Properties.CROSSOVER_FUNCTION) {
 		case SINGLEPOINTFIXED:
 			return new SinglePointFixedCrossOver();
@@ -687,7 +689,7 @@ public class TestSuiteGenerator {
 		}
 	}
 
-	public SelectionFunction getSelectionFunction() {
+	public static SelectionFunction getSelectionFunction() {
 		switch (Properties.SELECTION_FUNCTION) {
 		case ROULETTEWHEEL:
 			return new FitnessProportionateSelection();
@@ -698,7 +700,7 @@ public class TestSuiteGenerator {
 		}
 	}
 
-	protected ChromosomeFactory<? extends Chromosome> getChromosomeFactory() {
+	protected static ChromosomeFactory<? extends Chromosome> getChromosomeFactory() {
 		switch (Properties.STRATEGY) {
 		case EVOSUITE:
 			return new TestSuiteChromosomeFactory();
@@ -837,8 +839,9 @@ public class TestSuiteGenerator {
 		return ga;
 	}
 
-	public static void writeExcelStatistics(TestSuiteChromosome suite){
-		if(Properties.WRITE_EXCEL && (Properties.CRITERION == Criterion.LCSAJ || Properties.CRITERION == Criterion.COMP_LCSAJ_BRANCH)){
+	public static void writeExcelStatistics(TestSuiteChromosome suite) {
+		if (Properties.WRITE_EXCEL
+		        && (Properties.CRITERION == Criterion.LCSAJ || Properties.CRITERION == Criterion.COMP_LCSAJ_BRANCH)) {
 			File excelOutputDir = new File(Properties.OUTPUT_DIR);
 			assert (excelOutputDir.exists()) : "We assume the directory "
 			        + excelOutputDir.getPath() + " to exist. In your case it doesn't";
@@ -849,16 +852,18 @@ public class TestSuiteGenerator {
 				BranchCoverageSuiteFitness b = new BranchCoverageSuiteFitness();
 				b.getFitness(copy);
 				int infeasableBranches = b.total_goals - b.covered_branches;
-				for (String className : LCSAJPool.lcsaj_map.keySet()){
-					ExcelOutputGenerator.writeLCSAJStatistics(className,b.total_goals,infeasableBranches, suite, copy);
+				for (String className : LCSAJPool.lcsaj_map.keySet()) {
+					ExcelOutputGenerator.writeLCSAJStatistics(className, b.total_goals,
+					                                          infeasableBranches, suite,
+					                                          copy);
 				}
 			}
-			if (Properties.CRITERION == Criterion.COMP_LCSAJ_BRANCH){
+			if (Properties.CRITERION == Criterion.COMP_LCSAJ_BRANCH) {
 				TestSuiteChromosome copy = suite.clone();
-				for (String className : BranchPool.knownClasses()){
+				for (String className : BranchPool.knownClasses()) {
 					LCSAJCoverageSuiteFitness l = new LCSAJCoverageSuiteFitness();
 					l.getFitness(copy);
-					ExcelOutputGenerator.wirteBranchStatistics(className,suite, copy);
+					ExcelOutputGenerator.wirteBranchStatistics(className, suite, copy);
 				}
 			}
 
