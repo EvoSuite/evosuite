@@ -29,8 +29,8 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
-import de.unisb.cs.st.ds.util.io.XmlIo;
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 public class DistanceTransformer implements ClassFileTransformer {
 
@@ -116,7 +116,7 @@ public class DistanceTransformer implements ClassFileTransformer {
 	public void saveData() {
 		traceLock.set(false);
 		data.save();
-		XmlIo.toXML(classes, Properties.OUTPUT_DIR + "/" + Properties.HIERARCHY_DATA);
+		Utils.writeXML(classes, Properties.OUTPUT_DIR + "/" + Properties.HIERARCHY_DATA);
 	}
 
 	@Override
