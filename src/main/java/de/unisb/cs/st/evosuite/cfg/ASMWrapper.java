@@ -148,7 +148,12 @@ public abstract class ASMWrapper {
 	}
 
 	public boolean isBranch() {
-		return (isJump() && !isGoto())  || forcedBranch;
+		return (isJump() && !isGoto()) || forcedBranch;
+	}
+
+	// FIXXME: Andre will hate this
+	public boolean isForcedBranch() {
+		return forcedBranch;
 	}
 
 	//	public int getBranchId() {
