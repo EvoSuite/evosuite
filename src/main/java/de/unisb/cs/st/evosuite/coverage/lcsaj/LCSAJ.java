@@ -3,9 +3,9 @@ package de.unisb.cs.st.evosuite.coverage.lcsaj;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.objectweb.asm.tree.AbstractInsnNode;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
@@ -24,9 +24,9 @@ public class LCSAJ {
 	// Class and method where the LCSAJ occurs
 	private final String className;
 	private final String methodName;
-	
+
 	private int positionReached = 0;
-	
+
 	public LCSAJ(String className, String methodName, BytecodeInstruction start) {
 		this.className = className;
 		this.methodName = methodName;
@@ -38,7 +38,7 @@ public class LCSAJ {
 			}
 			start.forceBranch();
 			BranchPool.registerAsBranch(start);
-			logger.warn("Registering new branch for start node");
+			logger.info("Registering new branch for start node");
 		}
 
 		Branch branch = BranchPool.getBranchForInstruction(start);
@@ -113,7 +113,7 @@ public class LCSAJ {
 			if (!BranchPool.isKnownAsBranch(instruction)) {
 				instruction.forceBranch();
 				BranchPool.registerAsBranch(instruction);
-				logger.warn("Registering new branch");
+				logger.info("Registering new branch");
 			}
 
 			Branch branch = BranchPool.getBranchForInstruction(instruction);
@@ -136,12 +136,12 @@ public class LCSAJ {
 		//	output += " -> " + b.getASMNodeString() + "\n";
 		return output;
 	}
-	
-	public void setPositionReached(int position){
+
+	public void setPositionReached(int position) {
 		this.positionReached = position;
 	}
-	
-	public int getdPositionReached(){
+
+	public int getdPositionReached() {
 		return this.positionReached;
 	}
 }

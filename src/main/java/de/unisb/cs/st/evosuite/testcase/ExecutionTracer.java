@@ -313,11 +313,11 @@ public class ExecutionTracer {
 	 * @param btyecode_id
 	 */
 	public static void passedUnconditionalBranch(int opcode, int branch, int bytecode_id) {
-		if (isThreadNeqCurrentThread())
-			return;
-
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)
+			return;
+
+		if (isThreadNeqCurrentThread())
 			return;
 
 		// Add current branch to control trace
