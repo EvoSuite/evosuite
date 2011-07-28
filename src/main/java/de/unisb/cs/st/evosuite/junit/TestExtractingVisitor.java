@@ -1,85 +1,42 @@
 package de.unisb.cs.st.evosuite.junit;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
-import org.eclipse.jdt.core.dom.ArrayAccess;
-import org.eclipse.jdt.core.dom.ArrayCreation;
-import org.eclipse.jdt.core.dom.ArrayInitializer;
-import org.eclipse.jdt.core.dom.ArrayType;
-import org.eclipse.jdt.core.dom.AssertStatement;
-import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.BooleanLiteral;
-import org.eclipse.jdt.core.dom.BreakStatement;
-import org.eclipse.jdt.core.dom.CastExpression;
-import org.eclipse.jdt.core.dom.CatchClause;
-import org.eclipse.jdt.core.dom.CharacterLiteral;
+import org.apache.log4j.Logger;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
-import org.eclipse.jdt.core.dom.ConditionalExpression;
-import org.eclipse.jdt.core.dom.ConstructorInvocation;
-import org.eclipse.jdt.core.dom.ContinueStatement;
-import org.eclipse.jdt.core.dom.DoStatement;
-import org.eclipse.jdt.core.dom.EmptyStatement;
-import org.eclipse.jdt.core.dom.EnhancedForStatement;
-import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
-import org.eclipse.jdt.core.dom.EnumDeclaration;
-import org.eclipse.jdt.core.dom.FieldAccess;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
-import org.eclipse.jdt.core.dom.Initializer;
-import org.eclipse.jdt.core.dom.InstanceofExpression;
-import org.eclipse.jdt.core.dom.LabeledStatement;
-import org.eclipse.jdt.core.dom.MemberRef;
-import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.MethodRef;
-import org.eclipse.jdt.core.dom.MethodRefParameter;
-import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
-import org.eclipse.jdt.core.dom.ParameterizedType;
-import org.eclipse.jdt.core.dom.ParenthesizedExpression;
-import org.eclipse.jdt.core.dom.PostfixExpression;
-import org.eclipse.jdt.core.dom.PrefixExpression;
-import org.eclipse.jdt.core.dom.QualifiedType;
-import org.eclipse.jdt.core.dom.ReturnStatement;
+import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
-import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.StringLiteral;
-import org.eclipse.jdt.core.dom.SuperFieldAccess;
-import org.eclipse.jdt.core.dom.SuperMethodInvocation;
-import org.eclipse.jdt.core.dom.SwitchCase;
-import org.eclipse.jdt.core.dom.SwitchStatement;
-import org.eclipse.jdt.core.dom.SynchronizedStatement;
-import org.eclipse.jdt.core.dom.ThisExpression;
-import org.eclipse.jdt.core.dom.ThrowStatement;
-import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.TypeLiteral;
-import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.internal.ui.text.correction.ASTResolving;
 
 import de.unisb.cs.st.evosuite.testcase.BooleanPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
+import de.unisb.cs.st.evosuite.testcase.FieldReference;
+import de.unisb.cs.st.evosuite.testcase.FieldStatement;
 import de.unisb.cs.st.evosuite.testcase.IntPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.LongPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
@@ -93,9 +50,9 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 import de.unisb.cs.st.evosuite.testcase.VariableReferenceImpl;
 
-public class TestExtractingVisitor extends ASTVisitor {
-	private static class BoundVariableReferenceImpl extends VariableReferenceImpl {
+public class TestExtractingVisitor extends LoggingVisitor {
 
+	private static class BoundVariableReferenceImpl extends VariableReferenceImpl {
 		protected String name;
 
 		public BoundVariableReferenceImpl(CompoundTestCase testCase, java.lang.reflect.Type type, String name) {
@@ -155,12 +112,40 @@ public class TestExtractingVisitor extends ASTVisitor {
 		}
 	}
 
-	protected static Logger logger = LoggerFactory.getLogger(TestExtractingVisitor.class);
+	private static class ValidVariableReference extends VariableReferenceImpl {
+		public ValidVariableReference(TestCase testCase, java.lang.reflect.Type type) {
+			super(testCase, type);
+		}
+
+		@Override
+		public int getStPosition() {
+			if (((CompoundTestCase) testCase).isFinished()) {
+				return super.getStPosition();
+			}
+			return -1;
+		}
+	}
+
+	private static class WrongMethodBindingException extends Exception {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public WrongMethodBindingException() {
+			// TODO Auto-generated constructor stub
+		}
+	}
+
+	protected static Logger logger = Logger.getLogger(TestExtractingVisitor.class);
 	private List<StatementInterface> currentScope;
 	private Map<IVariableBinding, VariableReference> localVars = new HashMap<IVariableBinding, VariableReference>();
 	private final CompoundTestCase testCase;
 	private final String unqualifiedTest;
 	private final String unqualifiedTestMethod;
+
+	private VariableReference nestedCallResult;
 
 	public TestExtractingVisitor(CompoundTestCase testCase, String qualifiedTestMethod) {
 		super();
@@ -171,105 +156,36 @@ public class TestExtractingVisitor extends ASTVisitor {
 	}
 
 	@Override
-	public void endVisit(EnumDeclaration node) {
-		// TODO-JRO Implement method endVisitEnumDeclaration
-		logger.warn("Method endVisitEnumDeclaration not implemented!");
-		super.endVisit(node);
-	}
-
-	@Override
-	public void endVisit(Initializer node) {
-		// TODO-JRO Implement method endVisitInitializer
-		logger.warn("Method endVisitInitializer not implemented!");
-		super.endVisit(node);
-	}
-
-	@Override
 	public void endVisit(MethodDeclaration node) {
-		// TODO-JRO Implement method endVisitMethodDeclaration such that static
-		// code is treated
+		// TODO-JRO Implement method endVisitMethodDeclaration
+		// such that static code is treated
 		logger.warn("Method endVisitMethodDeclaration only sparsly implemented!");
 		currentScope = null;
 		super.endVisit(node);
 	}
 
 	@Override
-	public void endVisit(TypeDeclaration node) {
-		// TODO-JRO Implement method endVisitTypeDeclaration
-		logger.warn("Method endVisitTypeDeclaration not implemented!");
-		super.endVisit(node);
-	}
-
-	@Override
-	public boolean visit(AnonymousClassDeclaration node) {
-		logger.warn("Method visitAnonymousClassDeclaration not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(ArrayAccess node) {
-		logger.warn("Method visitArrayAccess not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(ArrayCreation node) {
-		logger.warn("Method visitArrayCreation not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(ArrayInitializer node) {
-		logger.warn("Method visitArrayInitializer not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(ArrayType node) {
-		logger.warn("Method visitArrayType not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(AssertStatement node) {
-		logger.warn("Method visitAssertStatement not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(Assignment node) {
-		logger.warn("Method visitAssignment not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(BooleanLiteral node) {
-		logger.warn("Method visitBooleanLiteral not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(BreakStatement node) {
-		logger.warn("Method visitBreakStatement not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(CastExpression node) {
-		logger.warn("Method visitCastExpression not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(CatchClause node) {
-		logger.warn("Method visitCatchClause not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(CharacterLiteral node) {
-		logger.warn("Method visitCharacterLiteral not implemented!");
-		return super.visit(node);
+	public void endVisit(MethodInvocation methodInvocation) {
+		List<VariableReference> params = convertParams(methodInvocation.arguments());
+		Method method = getMethod(methodInvocation, params);
+		VariableReference callee = null;
+		if (!Modifier.isStatic(method.getModifiers())) {
+			callee = retrieveCalleeReference(methodInvocation);
+		}
+		MethodStatement methodStatement = null;
+		ASTNode parent = methodInvocation.getParent();
+		if (parent instanceof ExpressionStatement) {
+			VariableReference retVal = new ValidVariableReference(testCase, method.getReturnType());
+			methodStatement = new ValidMethodStatement(testCase, method, callee, retVal, params);
+		} else {
+			VariableReference retVal = retrieveResultReference(methodInvocation);
+			methodStatement = new ValidMethodStatement(testCase, method, callee, retVal, params);
+			if (parent instanceof MethodInvocation) {
+				nestedCallResult = retVal;
+			}
+		}
+		currentScope.add(methodStatement);
+		super.visit(methodInvocation);
 	}
 
 	@Override
@@ -285,108 +201,11 @@ public class TestExtractingVisitor extends ASTVisitor {
 	}
 
 	@Override
-	public boolean visit(ConditionalExpression node) {
-		logger.warn("Method visitConditionalExpression not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(ConstructorInvocation node) {
-		logger.warn("Method visitConstructorInvocation not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(ContinueStatement node) {
-		logger.warn("Method visitContinueStatement not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(DoStatement node) {
-		logger.warn("Method visitEmptyStatement not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(EmptyStatement node) {
-		logger.warn("Method visitEmptyStatement not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(EnhancedForStatement node) {
-		logger.warn("Method visitEnhancedForStatement not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(EnumConstantDeclaration node) {
-		logger.warn("Method visitEnumConstantDeclaration not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(EnumDeclaration node) {
-		// TODO-JRO Implement method visitEnumDeclaration
-		logger.warn("Method visitEnumDeclaration not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(FieldAccess node) {
-		logger.warn("Method visitFieldAccess not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
 	public boolean visit(FieldDeclaration fieldDeclaration) {
 		// TODO-JRO Implement method visitFieldDeclaration properly
 		retrieveVariableReference(fieldDeclaration.fragments().get(0));
-		logger.warn("Method visitFieldDeclaration not implemented!");
+		logger.warn("Method visitFieldDeclaration not properly implemented!");
 		return super.visit(fieldDeclaration);
-	}
-
-	@Override
-	public boolean visit(ForStatement node) {
-		logger.warn("Method visitForStatement not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(IfStatement node) {
-		logger.warn("Method visitIfStatement not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(Initializer node) {
-		logger.warn("Method visitInitializer not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(InstanceofExpression node) {
-		logger.warn("Method visitInstanceofExpression not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(LabeledStatement node) {
-		logger.warn("Method visitLabeledStatement not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(MemberRef node) {
-		logger.warn("Method visitMemberValuePair not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(MemberValuePair node) {
-		logger.warn("Method visitMemberValuePair not implemented!");
-		return super.visit(node);
 	}
 
 	@Override
@@ -402,173 +221,12 @@ public class TestExtractingVisitor extends ASTVisitor {
 	}
 
 	@Override
-	public boolean visit(MethodInvocation methodInvocation) {
-		IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
-		Class<?> clazz = retrieveTypeClass(methodBinding.getDeclaringClass());
-		Class<?>[] paramClasses = new Class<?>[methodInvocation.arguments().size()];
-		for (int idx = 0; idx < methodInvocation.arguments().size(); idx++) {
-			ITypeBinding paramTypeBinding = methodBinding.getParameterTypes()[idx];
-			paramClasses[idx] = retrieveTypeClass(paramTypeBinding);
-		}
-		String methodName = methodInvocation.getName().getIdentifier();
-		Method method;
-		try {
-			method = clazz.getMethod(methodName, paramClasses);
-		} catch (Exception exc) {
-			throw new RuntimeException(exc);
-		}
-		VariableReference callee = retrieveVariableReference(methodInvocation);
-		List<VariableReference> params = convertParams(methodInvocation.arguments());
-		MethodStatement methodStatement = null;
-		if (methodInvocation.getParent() instanceof VariableDeclarationFragment) {
-			VariableReference retVal = retrieveVariableReference(methodInvocation.getParent());
-			methodStatement = new ValidMethodStatement(testCase, method, callee, retVal, params);
-		} else {
-			methodStatement = new ValidMethodStatement(testCase, method, callee, method.getDeclaringClass(), params);
-		}
-		currentScope.add(methodStatement);
-		return super.visit(methodInvocation);
-	}
-
-	@Override
-	public boolean visit(MethodRef node) {
-		logger.warn("Method visitMethodRef not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(MethodRefParameter node) {
-		logger.warn("Method visitMethodRefParameter not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(NullLiteral node) {
-		logger.warn("Method visitNullLiteral not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(ParameterizedType node) {
-		logger.warn("Method visitParameterizedType not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(ParenthesizedExpression node) {
-		logger.warn("Method visitParenthesizedExpression not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(PostfixExpression node) {
-		logger.warn("Method visitPostfixExpression not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(PrefixExpression node) {
-		logger.warn("Method visitPrefixExpression not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(QualifiedType node) {
-		logger.warn("Method visitQualifiedType not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(ReturnStatement node) {
-		logger.warn("Method visitReturnStatement not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(SingleMemberAnnotation node) {
-		logger.warn("Method visitSingleMemberAnnotation not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(SingleVariableDeclaration node) {
-		logger.warn("Method visitSingleVariableDeclaration not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(SuperFieldAccess node) {
-		logger.warn("Method visitSuperFieldAccess not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(SuperMethodInvocation node) {
-		logger.warn("Method visitSuperMethodInvocation not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(SwitchCase node) {
-		logger.warn("Method visitSwitchCase not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(SwitchStatement node) {
-		logger.warn("Method visitSwitchStatement not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(SynchronizedStatement node) {
-		logger.warn("Method visitSynchronizedStatement not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(ThisExpression node) {
-		logger.warn("Method visitThisExpression not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(ThrowStatement node) {
-		logger.warn("Method visitThrowStatement not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(TryStatement node) {
-		logger.warn("Method visitTryStatement not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
 	public boolean visit(TypeDeclaration typeDeclaration) {
 		if (!unqualifiedTest.equals(typeDeclaration.getName().getIdentifier())) {
 			throw new UnsupportedOperationException(
 					"Method visitTypeDeclaration not implemented for other types than the actual test!");
 		}
 		return super.visit(typeDeclaration);
-	}
-
-	@Override
-	public boolean visit(TypeLiteral node) {
-		logger.warn("Method visitTypeLiteral not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(VariableDeclarationExpression node) {
-		logger.warn("Method visitVariableDeclarationExpression not implemented!");
-		return super.visit(node);
-	}
-
-	@Override
-	public boolean visit(WhileStatement node) {
-		logger.warn("Method visitWhileStatement not implemented!");
-		return super.visit(node);
 	}
 
 	protected Class<?>[] extractArgumentClasses(List<?> arguments) {
@@ -603,14 +261,8 @@ public class TestExtractingVisitor extends ASTVisitor {
 		if (argument instanceof ITypeBinding) {
 			ITypeBinding binding = (ITypeBinding) argument;
 			String className = binding.getBinaryName();
-			if ("I".equals(className)) {
-				return Integer.TYPE;
-			}
-			if ("V".equals(className)) {
-				return Void.TYPE;
-			}
-			if ("Z".equals(className)) {
-				return Boolean.TYPE;
+			if (className.length() == 1) {
+				return retrievePrimitiveClass(className);
 			}
 			try {
 				return Class.forName(className);
@@ -646,6 +298,12 @@ public class TestExtractingVisitor extends ASTVisitor {
 			}
 			if (value instanceof Float) {
 				return Float.TYPE;
+			}
+			if (value instanceof Short) {
+				return Short.TYPE;
+			}
+			if (value instanceof Byte) {
+				return Byte.TYPE;
 			}
 			throw new UnsupportedOperationException("Retrieval of type " + argument.getClass()
 					+ " not implemented yet!");
@@ -689,12 +347,10 @@ public class TestExtractingVisitor extends ASTVisitor {
 			currentScope.add(expr);
 			return ref;
 		}
-		if (argument instanceof MethodInvocation) {
-			MethodInvocation methodInvocation = (MethodInvocation) argument;
-			if (methodInvocation.getExpression() != null) {
-				return retrieveVariableReference(methodInvocation.getExpression());
-			}
-			throw new IllegalStateException(methodInvocation + " has null expression!");
+		if (argument instanceof ExpressionStatement) {
+			ExpressionStatement exprStmt = (ExpressionStatement) argument;
+			Expression expression = exprStmt.getExpression();
+			return retrieveVariableReference(expression);
 		}
 		if (argument instanceof StringLiteral) {
 			String string = ((StringLiteral) argument).getLiteralValue();
@@ -711,15 +367,34 @@ public class TestExtractingVisitor extends ASTVisitor {
 			return numberAssignment.getReturnValue();
 		}
 		if (argument instanceof ITypeBinding) {
-			return new VariableReferenceImpl(testCase, retrieveTypeClass(argument));
+			return new ValidVariableReference(testCase, retrieveTypeClass(argument));
+		}
+		if (argument instanceof QualifiedName) {
+			try {
+				QualifiedName qualifiedName = (QualifiedName) argument;
+				Class<?> referencedClass = retrieveTypeClass(qualifiedName.getQualifier().resolveTypeBinding());
+				Field field = referencedClass.getField(qualifiedName.getName().getIdentifier());
+				FieldReference fieldReference = new FieldReference(testCase, field);
+				Class<?> resultClass = retrieveTypeClass(qualifiedName.resolveTypeBinding());
+				FieldStatement fieldStatement = new FieldStatement(testCase, field, fieldReference, resultClass);
+				currentScope.add(fieldStatement);
+				return fieldStatement.getReturnValue();
+			} catch (Exception exc) {
+				throw new RuntimeException(exc);
+			}
 		}
 		throw new UnsupportedOperationException("Argument type " + argument.getClass() + " not implemented!");
-
 	}
 
 	private List<VariableReference> convertParams(List<?> arguments) {
 		List<VariableReference> result = new ArrayList<VariableReference>();
 		for (Object argument : arguments) {
+			if (argument instanceof MethodInvocation) {
+				assert nestedCallResult != null;
+				result.add(nestedCallResult);
+				nestedCallResult = null;
+				continue;
+			}
 			result.add(retrieveVariableReference(argument));
 		}
 		return result;
@@ -736,5 +411,151 @@ public class TestExtractingVisitor extends ASTVisitor {
 			return new LongPrimitiveStatement(testCase, (Long) value);
 		}
 		throw new UnsupportedOperationException("Not all primitives have been implemented!");
+	}
+
+	private Class<?> doBoxing(Class<?> clazz) {
+		if (clazz.equals(long.class)) {
+			return Long.class;
+		}
+		if (clazz.equals(int.class)) {
+			return Integer.class;
+		}
+		if (clazz.equals(short.class)) {
+			return Short.class;
+		}
+		if (clazz.equals(byte.class)) {
+			return Byte.class;
+		}
+		if (clazz.equals(boolean.class)) {
+			return Boolean.class;
+		}
+		if (clazz.equals(char.class)) {
+			return Character.class;
+		}
+		if (clazz.equals(double.class)) {
+			return Double.class;
+		}
+		if (clazz.equals(float.class)) {
+			return Float.class;
+		}
+		throw new UnsupportedOperationException("Cannot doBoxing for class " + clazz);
+	}
+
+	private Method getMethod(MethodInvocation methodInvocation, List<VariableReference> params) {
+		String methodName = methodInvocation.getName().getIdentifier();
+		IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
+		Class<?> clazz = retrieveTypeClass(methodBinding.getDeclaringClass());
+		List<Method> methods = getMethods(clazz, methodName, params.size());
+		try {
+			Class<?>[] paramClasses = new Class<?>[methodInvocation.arguments().size()];
+			assert methods.size() > 0;
+			for (int idx = 0; idx < methodInvocation.arguments().size(); idx++) {
+				ITypeBinding paramTypeBinding = methodBinding.getParameterTypes()[idx];
+				paramClasses[idx] = retrieveTypeClass(paramTypeBinding);
+				VariableReference param = params.get(idx);
+				if (!param.isAssignableFrom(paramClasses[idx])) {
+					if (methods.size() == 1) {
+						throw new IllegalStateException("Param class and argument do not match!");
+					}
+					throw new WrongMethodBindingException();
+				}
+			}
+			try {
+				return clazz.getMethod(methodName, paramClasses);
+			} catch (Exception exc) {
+				throw new RuntimeException(exc);
+			}
+		} catch (WrongMethodBindingException exc) {
+			logger.debug("The resolved method binding is wrong. Will manually correct it...");
+			return getMethodForParams(methods, params);
+		}
+	}
+
+	private Method getMethodForParams(List<Method> methods, List<VariableReference> params) {
+		outer: for (Method method : methods) {
+			Class<?>[] declaredParamClasses = method.getParameterTypes();
+			for (int idx = 0; idx < params.size(); idx++) {
+				VariableReference param = params.get(idx);
+				Class<?> actualParamClass = param.getVariableClass();
+				if (!declaredParamClasses[idx].isAssignableFrom(actualParamClass)) {
+					if (actualParamClass.isPrimitive()) {
+						actualParamClass = doBoxing(actualParamClass);
+						if (!declaredParamClasses[idx].isAssignableFrom(actualParamClass)) {
+							continue outer;
+						}
+					} else {
+						continue outer;
+					}
+				}
+			}
+			return method;
+		}
+		throw new IllegalStateException("Param classes and arguments do not match!");
+	}
+
+	private List<Method> getMethods(Class<?> clazz, String methodName, int size) {
+		List<Method> result = new ArrayList<Method>();
+		for (Method method : clazz.getMethods()) {
+			if (method.getName().equals(methodName)) {
+				if (method.getParameterTypes().length == size) {
+					result.add(method);
+				}
+			}
+		}
+		return result;
+	}
+
+	private VariableReference retrieveCalleeReference(MethodInvocation methodInvocation) {
+		Expression expression = methodInvocation.getExpression();
+		if (expression != null) {
+			return retrieveVariableReference(expression);
+		}
+		throw new IllegalStateException(methodInvocation + " has null expression!");
+	}
+
+	private Class<?> retrievePrimitiveClass(String className) {
+		if ("B".equals(className)) {
+			return Byte.TYPE;
+		}
+		if ("C".equals(className)) {
+			return Character.TYPE;
+		}
+		if ("D".equals(className)) {
+			return Double.TYPE;
+		}
+		if ("F".equals(className)) {
+			return Float.TYPE;
+		}
+		if ("I".equals(className)) {
+			return Integer.TYPE;
+		}
+		if ("J".equals(className)) {
+			return Long.TYPE;
+		}
+		if ("L".equals(className)) {
+			return Class.class;
+		}
+		if ("S".equals(className)) {
+			return Short.TYPE;
+		}
+		if ("V".equals(className)) {
+			return Void.TYPE;
+		}
+		if ("Z".equals(className)) {
+			return Boolean.TYPE;
+		}
+		if ("[".equals(className)) {
+			return Array.class;
+		}
+		throw new RuntimeException("Primitive type of class '" + className + "' is unknown.");
+	}
+
+	private VariableReference retrieveResultReference(MethodInvocation methodInvocation) {
+		ASTNode parent = methodInvocation.getParent();
+		if (parent instanceof VariableDeclarationFragment) {
+			return retrieveVariableReference(parent);
+		}
+		IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
+		return retrieveVariableReference(methodBinding.getReturnType());
 	}
 }

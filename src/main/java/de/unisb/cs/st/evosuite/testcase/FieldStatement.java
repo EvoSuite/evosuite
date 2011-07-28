@@ -117,7 +117,7 @@ public class FieldStatement extends AbstractStatement {
 
 	@Override
 	public String getCode(Throwable exception) {
-		String cast_str = "  ";
+		String cast_str = "";
 		String result = "";
 		if (!retval.getVariableClass().isAssignableFrom(field.getType())) {
 			cast_str += "(" + retval.getSimpleClassName() + ")";
