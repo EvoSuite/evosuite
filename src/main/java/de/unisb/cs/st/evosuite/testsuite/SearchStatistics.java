@@ -28,7 +28,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -40,6 +39,7 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.utils.ReportGenerator;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
  * @author Gordon Fraser
@@ -249,7 +249,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 
 		String filename = "report-" + run.className + "-" + run.id + ".html";
 		File file = new File(REPORT_DIR.getAbsolutePath() + "/html/" + filename);
-		Io.writeFile(sb.toString(), file);
+		Utils.writeFile(sb.toString(), file);
 		// return file.getAbsolutePath();
 		return filename;
 	}

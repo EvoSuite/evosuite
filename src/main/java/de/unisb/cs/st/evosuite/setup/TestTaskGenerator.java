@@ -37,11 +37,10 @@ import java.util.regex.Pattern;
 
 import junit.framework.TestCase;
 
+import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.objectweb.asm.Type;
 
-import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.callgraph.Hierarchy;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
@@ -140,7 +139,7 @@ public class TestTaskGenerator {
 			logger.warn("Exclude file " + property + " does not exist, skipping");
 			return objs;
 		}
-		List<String> lines = Io.getLinesFromFile(file);
+		List<String> lines = Utils.readFile(file);
 		for (String line : lines) {
 			line = line.trim();
 			// Skip comments
@@ -527,7 +526,7 @@ public class TestTaskGenerator {
 			sb.append(method);
 			sb.append("\n");
 		}
-		Io.writeFile(sb.toString(), file);
+		Utils.writeFile(sb.toString(), file);
 	}
 
 	/**
@@ -543,7 +542,7 @@ public class TestTaskGenerator {
 			sb.append(dep);
 			sb.append("\n");
 		}
-		Io.writeFile(sb.toString(), file);
+		Utils.writeFile(sb.toString(), file);
 	}
 
 	protected static void writeObjectMethods(Set<String> methods, String filename) {
@@ -553,7 +552,7 @@ public class TestTaskGenerator {
 			sb.append(method);
 			sb.append("\n");
 		}
-		Io.writeFile(sb.toString(), file);
+		Utils.writeFile(sb.toString(), file);
 	}
 
 	protected static void writeTestCluster(Class<?> clazz, String filename) {
@@ -564,7 +563,7 @@ public class TestTaskGenerator {
 			sb.append(dependency);
 			sb.append("\n");
 		}
-		Io.writeFile(sb.toString(), file);
+		Utils.writeFile(sb.toString(), file);
 	}
 
 	protected static boolean suggestTask(Class<?> clazz) throws Throwable {

@@ -34,14 +34,19 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.commons.EmptyVisitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.callgraph.ConnectionData;
+import de.unisb.cs.st.evosuite.callgraph.DistanceClassAdapter;
+import de.unisb.cs.st.evosuite.callgraph.DistanceTransformer;
+import de.unisb.cs.st.evosuite.callgraph.DistanceTransformer.ClassEntry;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
-import de.unisb.cs.st.evosuite.javaagent.TestSuitePreMain;
+import de.unisb.cs.st.evosuite.javaagent.CIClassAdapter;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
@@ -370,6 +375,46 @@ public class ScanProject {
 
 	}
 
+	public static void analyzeClasses(Set<Class<?>> classes) {
+		ConnectionData data = new ConnectionData();
+		Set<ClassEntry> classEntries = new HashSet<ClassEntry>();
+
+		Set<String> packageClasses = new HashSet<String>();
+		for (Class<?> clazz : classes) {
+			packageClasses.add(clazz.getName());
+		}
+
+		for (Class<?> clazz : classes) {
+			try {
+
+				String className = clazz.getName().replace(".", "/");
+				InputStream bytecode = clazz.getResourceAsStream("/" + className
+				        + ".class");
+
+				ClassReader reader = new ClassReader(bytecode);
+				DistanceTransformer.SuperClassAdapter cv = new DistanceTransformer.SuperClassAdapter(
+				        new EmptyVisitor());
+				DistanceClassAdapter distance = new DistanceClassAdapter(cv, data,
+				        packageClasses);
+				CIClassAdapter ci = new CIClassAdapter(distance);
+
+				reader.accept(ci, ClassReader.SKIP_FRAMES);
+
+				classEntries.add(new ClassEntry(clazz.getName(), cv.getSupers()));
+
+			} catch (IOException e) {
+				System.out.println(e + ": /" + clazz.getName().replace(".", "/")
+				        + ".class");
+				e.printStackTrace();
+				// Ignore unloadable classes
+			}
+		}
+		data.save();
+		Utils.writeXML(classEntries, Properties.OUTPUT_DIR + "/"
+		        + Properties.HIERARCHY_DATA);
+
+	}
+
 	/**
 	 * Entry point - generate task files
 	 * 
@@ -379,7 +424,8 @@ public class ScanProject {
 		//System.out.println("Scanning project for test suite generation.");
 		Set<Class<?>> classes = new HashSet<Class<?>>();
 		try {
-			if (Properties.PROJECT_PREFIX != null) {
+			if (Properties.PROJECT_PREFIX != null
+			        && !Properties.PROJECT_PREFIX.equals("")) {
 				System.out.println("* Analyzing project prefix: "
 				        + Properties.PROJECT_PREFIX);
 				classes.addAll(getClasses(Properties.PROJECT_PREFIX, false));
@@ -387,6 +433,7 @@ public class ScanProject {
 				for (String arg : args) {
 					System.out.println("* Analyzing project directory: " + arg);
 					classes.addAll(getClasses(new File(arg)));
+					// TODO: Do analysis here
 				}
 			} else {
 				System.out.println("* Please specify either project prefix or directory");
@@ -396,7 +443,8 @@ public class ScanProject {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		TestSuitePreMain.distanceTransformer.saveData();
+		analyzeClasses(classes);
+		//TestSuitePreMain.distanceTransformer.saveData();
 		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
 		TestTaskGenerator.hierarchy.calculateSubclasses();
 		if (Properties.CALCULATE_CLUSTER) {

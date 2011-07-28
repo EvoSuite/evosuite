@@ -42,7 +42,6 @@ import org.objectweb.asm.commons.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
@@ -52,6 +51,7 @@ import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
  * Abstract test suite class.
@@ -528,7 +528,7 @@ public class TestSuite implements Opcodes {
 		builder.append("    return suite;\n");
 		builder.append("  }\n");
 		builder.append("}\n");
-		Io.writeFile(builder.toString(), file);
+		Utils.writeFile(builder.toString(), file);
 	}
 
 	/**
@@ -542,7 +542,7 @@ public class TestSuite implements Opcodes {
 	public void writeTestSuite(String name, String directory) {
 		String dir = makeDirectory(directory);
 		File file = new File(dir + "/" + name + ".java");
-		Io.writeFile(getUnitTest(name), file);
+		Utils.writeFile(getUnitTest(name), file);
 
 		dir = mainDirectory(directory);
 		writeTestSuiteMainFile(dir);

@@ -45,7 +45,6 @@ import org.jgrapht.graph.DefaultEdge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.callgraph.ConnectionData;
 import de.unisb.cs.st.evosuite.callgraph.Hierarchy;
@@ -57,6 +56,7 @@ import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.javaagent.StaticInitializationClassAdapter;
 import de.unisb.cs.st.evosuite.javaagent.TestabilityTransformation;
 import de.unisb.cs.st.evosuite.utils.Randomness;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
  * The test cluster contains the information about all classes and their members
@@ -691,7 +691,7 @@ public class TestCluster {
 		// }
 		logger.info("Reading test methods from " + filename);
 		File file = new File(filename);
-		List<String> lines = Io.getLinesFromFile(file);
+		List<String> lines = Utils.readFile(file);
 		Map<String, List<String>> objs = new HashMap<String, List<String>>();
 		for (String line : lines) {
 			line = line.trim();
@@ -1225,7 +1225,7 @@ public class TestCluster {
 				return objs;
 			}
 		}
-		List<String> lines = Io.getLinesFromFile(file);
+		List<String> lines = Utils.readFile(file);
 		for (String line : lines) {
 			line = line.trim();
 			// Skip comments
@@ -1344,7 +1344,7 @@ public class TestCluster {
 			}
 		}
 
-		List<String> lines = Io.getLinesFromFile(file);
+		List<String> lines = Utils.readFile(file);
 		for (String line : lines) {
 			line = line.trim();
 			// Skip comments
@@ -1370,7 +1370,7 @@ public class TestCluster {
 		        + ".cluster");
 		if (clusterFile.exists()) {
 			logger.info("Loading files from precalculated cluster");
-			return Io.getLinesFromFile(clusterFile);
+			return Utils.readFile(clusterFile);
 		} else {
 			logger.info("Creating cluster on the fly");
 			return getHierarchy().getAllClasses();

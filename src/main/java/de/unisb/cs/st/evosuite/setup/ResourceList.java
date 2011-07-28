@@ -53,7 +53,8 @@ public class ResourceList {
 		} else if (!file.exists()) {
 			//do nothing
 			System.out.println(file.getAbsolutePath()
-			        + " is on the class path, but doesn't exist.");
+			        + " is on the class path, but doesn't exist");
+
 		} else {
 			retval.addAll(getResourcesFromJarFile(file, pattern));
 		}

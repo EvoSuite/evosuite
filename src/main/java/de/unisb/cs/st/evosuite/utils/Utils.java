@@ -35,6 +35,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 
+import com.thoughtworks.xstream.XStream;
+
 /**
  * Class with different useful and widely used methods.
  * 
@@ -46,7 +48,8 @@ public class Utils {
 	/**
 	 * Deletes directory and its content.
 	 * 
-	 * @param dirName name of the directory to delete
+	 * @param dirName
+	 *            name of the directory to delete
 	 */
 	public static void deleteDir(String dirName) {
 		File dir = new File(dirName);
@@ -65,7 +68,8 @@ public class Utils {
 	/**
 	 * Create directory and subdirectories if any.
 	 * 
-	 * @param dirName name of the directory to create
+	 * @param dirName
+	 *            name of the directory to create
 	 * @return true if directory is created successfully, false otherwise
 	 */
 	public static boolean createDir(String dirName) {
@@ -77,8 +81,10 @@ public class Utils {
 	 * Move file to another directory. If file already exist in {@code dest} it
 	 * will be rewritten.
 	 * 
-	 * @param source source file
-	 * @param dest destination file
+	 * @param source
+	 *            source file
+	 * @param dest
+	 *            destination file
 	 * @return true, if file was moved, false otherwise
 	 */
 	public static boolean moveFile(File source, File dest) {
@@ -88,7 +94,7 @@ public class Utils {
 		try {
 			if (dest.exists())
 				dest.delete();
-			
+
 			FileUtils.moveFile(source, dest);
 		} catch (IOException e) {
 			return false;
@@ -102,7 +108,8 @@ public class Utils {
 	 * is on the ClassPath ClassLoader can not load stub class if directory does
 	 * not exist during JVM initialization.
 	 * 
-	 * @param path path to the folder or jar.
+	 * @param path
+	 *            path to the folder or jar.
 	 * @return true if ClassPath updated successfully.
 	 */
 	public static boolean addURL(String path) {
@@ -127,51 +134,54 @@ public class Utils {
 		}
 		return true;
 	}
-	
+
 	/**
-	 * Parse input string and searches for the ASM-like descriptions of the classes.
+	 * Parse input string and searches for the ASM-like descriptions of the
+	 * classes.
 	 * 
-	 * @param input string, where class description should be
-	 * @return Set of class's names in ASM manner or empty set if none were found 
-	 * in input string 
+	 * @param input
+	 *            string, where class description should be
+	 * @return Set of class's names in ASM manner or empty set if none were
+	 *         found in input string
 	 */
-	public static Set<String> classesDescFromString(String input){
+	public static Set<String> classesDescFromString(String input) {
 		Set<String> classesDesc = new HashSet<String>();
 
 		// If input actually equals "null" then NullPointerException is trown. 
 		// Don't ask me. I don't know why.
-		try{
-			if(input.equals("null"))
-				return new HashSet<String>();;
-		}
-		catch(NullPointerException e){
+		try {
+			if (input.equals("null"))
+				return new HashSet<String>();
+			;
+		} catch (NullPointerException e) {
 			return classesDesc;
 		}
-		
+
 		Pattern p = Pattern.compile("(\\w)+(/\\w+)+");
 		Matcher m = p.matcher(input);
-		while(m.find()){
+		while (m.find()) {
 			String str = m.group();
 			str = str.replaceFirst("(\\[)*L", "");
 			classesDesc.add(str);
 		}
-		
+
 		return classesDesc;
 	}
-	
+
 	/**
 	 * Read file line by line into list.
 	 * 
-	 * @param fileName - name of the file to read from
+	 * @param fileName
+	 *            - name of the file to read from
 	 * @return content of the file in a list
 	 */
-	public static List<String> readFile(String fileName){
+	public static List<String> readFile(String fileName) {
 		List<String> content = new LinkedList<String>();
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(fileName));
 			String str;
-			while((str = in.readLine()) != null){
-				content.add(str);				
+			while ((str = in.readLine()) != null) {
+				content.add(str);
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -179,5 +189,98 @@ public class Utils {
 			e.printStackTrace();
 		}
 		return content;
+	}
+
+	/**
+	 * Read file line by line into list.
+	 * 
+	 * @param file
+	 *            - file to read from
+	 * @return content of the file in a list
+	 */
+	public static List<String> readFile(File file) {
+		List<String> content = new LinkedList<String>();
+		try {
+			BufferedReader in = new BufferedReader(new FileReader(file));
+			String str;
+			while ((str = in.readLine()) != null) {
+				content.add(str);
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return content;
+	}
+
+	/**
+	 * Write string to file
+	 * 
+	 * @param fileName
+	 *            - name of the file to write to
+	 * @param content
+	 *            - text to write into the file
+	 */
+	public static void writeFile(String content, String fileName) {
+		try {
+			FileUtils.writeStringToFile(new File(fileName), content);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Write string to file
+	 * 
+	 * @param fileName
+	 *            - name of the file to write to
+	 * @param content
+	 *            - text to write into the file
+	 */
+	public static void writeFile(String content, File file) {
+		try {
+			FileUtils.writeStringToFile(file, content);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Write string to file
+	 * 
+	 * @param fileName
+	 *            - name of the file to write to
+	 * @param content
+	 *            - text to write into the file
+	 */
+	public static void writeXML(Object data, String fileName) {
+		try {
+			XStream xstream = new XStream();
+			FileUtils.writeStringToFile(new File(fileName), xstream.toXML(data));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Write string to file
+	 * 
+	 * @param fileName
+	 *            - name of the file to write to
+	 * @param content
+	 *            - text to write into the file
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T readXML(String fileName) {
+		XStream xstream = new XStream();
+		try {
+			BufferedReader in = new BufferedReader(new FileReader(fileName));
+			return (T) xstream.fromXML(in);
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

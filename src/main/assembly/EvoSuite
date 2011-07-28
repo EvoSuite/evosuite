@@ -230,7 +230,11 @@ setup_evosuite ()
                # TODO: Check PREFIX and CP
             else                                               
               echo "* Creating default configuration"                     
-              echo "PROJECT_PREFIX=$PROJECT_PREFIX" > $OUTPUT_DIR/evosuite.properties
+		if [ $PROJECT_PREFIX == \"\" ]; then
+	    	    echo "PROJECT_PREFIX=" > $OUTPUT_DIR/evosuite.properties
+		else
+	    	    echo "PROJECT_PREFIX=$PROJECT_PREFIX" > $OUTPUT_DIR/evosuite.properties
+		fi
 	      echo "CP=$SRC" >> $OUTPUT_DIR/evosuite.properties
 	      cat $BASEPATH/etc/evosuite.properties >> $OUTPUT_DIR/evosuite.properties
             fi
@@ -299,11 +303,11 @@ setupDir ()
     mkdir -p $OUTPUT_DIR
     if test ${#cmdline_arguments[@]} -ge 1 && test $options_ok -eq 0;
     then {
-	    PROJECT_PREFIX=${cmdline_arguments[0]}
-	    CP="${cmdline_arguments[@]:1:${#cmdline_arguments[@]}}:$@"
+	    #PROJECT_PREFIX=${cmdline_arguments[0]}
+	    CP="${cmdline_arguments[@]:0:${#cmdline_arguments[@]}}"
 
-	    java $java_options -cp "$classpath:$CP" $java_agent=scan   -DPROJECT_PREFIX=$PROJECT_PREFIX $TEST_CLASS $OBJECT $evosuite_scan $@
-	    PROJECT_PREFIX=""
+	    java $java_options -cp "$classpath:$CP" $java_agent=scan $TEST_CLASS $OBJECT $evosuite_scan $@
+	    PROJECT_PREFIX=
 	    first=""
 	    for var in "$@"
 	    do

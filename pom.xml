@@ -206,13 +206,6 @@
       </dependency>
       -->
       <dependency>
-<!--	<groupId>de.st.cs.unisb.ds</groupId> -->
-	<groupId>de.unisb.cs.st</groupId>
-	<artifactId>ds-util</artifactId>
-	<version>0.3.1</version>
-      </dependency>
-      
-      <dependency>
 	<groupId>com.google.collections</groupId>
 	<artifactId>google-collections</artifactId>
 	<version>1.0</version>

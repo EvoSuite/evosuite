@@ -29,9 +29,9 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.ds.util.io.XmlIo;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.callgraph.DistanceTransformer.ClassEntry;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 public class Hierarchy implements Serializable {
 
@@ -110,7 +110,7 @@ public class Hierarchy implements Serializable {
 	}
 
 	public static Hierarchy readFromDefaultLocation() {
-		Set<ClassEntry> entries = XmlIo.get(Properties.OUTPUT_DIR + "/"
+		Set<ClassEntry> entries = Utils.readXML(Properties.OUTPUT_DIR + "/"
 		        + Properties.HIERARCHY_DATA);
 		return fromSet(entries);
 	}
