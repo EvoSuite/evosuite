@@ -51,6 +51,10 @@ public class ConnectionData {
 		Utils.writeXML(this, Properties.OUTPUT_DIR + "/" + Properties.CONNECTION_DATA);
 	}
 
+	public void save(String fileName) {
+		Utils.writeXML(this, fileName);
+	}
+
 	public static ConnectionData read() {
 		return Utils.readXML(Properties.OUTPUT_DIR + "/" + Properties.CONNECTION_DATA);
 	}
