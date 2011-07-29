@@ -23,20 +23,18 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 
-import de.unisb.cs.st.evosuite.Properties;
-
 /**
  * @author Gordon Fraser
  * 
  */
 public class PrimitiveClassAdapter extends ClassAdapter {
 
-	private final String className;
+	//private final String className;
 
-	private static String target_class = Properties.TARGET_CLASS;
+	//private static String target_class = Properties.TARGET_CLASS;
 
-	private static final boolean REPLACE_STRING = Properties.STRING_REPLACEMENT
-	        && !Properties.TT;
+	//private static final boolean REPLACE_STRING = Properties.STRING_REPLACEMENT
+	//        && !Properties.TT;
 
 	private final PrimitivePool primitive_pool = PrimitivePool.getInstance();
 
@@ -45,7 +43,7 @@ public class PrimitiveClassAdapter extends ClassAdapter {
 	 */
 	public PrimitiveClassAdapter(ClassVisitor visitor, String className) {
 		super(visitor);
-		this.className = className;
+		//this.className = className;
 	}
 
 	@Override
@@ -69,12 +67,14 @@ public class PrimitiveClassAdapter extends ClassAdapter {
 		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor, signature,
 		                                     exceptions);
 
+		/*
 		String classNameWithDots = className.replace('/', '.');
 		if (REPLACE_STRING
 		        && (classNameWithDots.equals(target_class) || (classNameWithDots.startsWith(target_class
 		                + "$")))) {
 			mv = new StringReplacementMethodAdapter(methodAccess, descriptor, mv);
 		}
+		*/
 		mv = new PrimitivePoolMethodAdapter(mv);
 
 		return mv;
