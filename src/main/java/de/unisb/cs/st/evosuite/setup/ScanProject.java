@@ -106,13 +106,32 @@ public class ScanProject {
 
 		private final Map<String, Class<?>> classMap = new HashMap<String, Class<?>>();
 
+		/* (non-Javadoc)
+		 * @see java.lang.ClassLoader#loadClass(java.lang.String)
+		 */
+		@Override
+		public Class<?> loadClass(String name) throws ClassNotFoundException {
+			return findClass(name);
+		}
+
 		@Override
 		protected Class<?> findClass(String name) throws ClassNotFoundException {
 
 			//name = name.replace(".", ".");
-			if (classMap.containsKey(name)) {
-				return classMap.get(name);
+			String classNameWithDots = name.replace("/", ".");
+			if (classMap.containsKey(classNameWithDots)) {
+				System.out.println("Attempting to load what we already have: "
+				        + classNameWithDots);
+				return classMap.get(classNameWithDots);
 			}
+
+			try {
+				Class<?> clazz = findSystemClass(name);
+				classMap.put(clazz.getName(), clazz);
+				return clazz;
+			} catch (Exception e) {
+			}
+
 			File file = new File(name);
 			try {
 				byte[] array = new byte[(int) file.length()];
@@ -124,9 +143,15 @@ public class ScanProject {
 					length = in.read(array);
 				}
 				ClassReader reader = new ClassReader(array);
+				String realName = reader.getClassName().replace("/", ".");
+				if (classMap.containsKey(realName)) {
+					System.out.println("Got tricked by path name: " + realName);
+					return classMap.get(realName);
+				}
 				Class<?> clazz = defineClass(reader.getClassName().replace("/", "."),
 				                             out.toByteArray(), 0, out.size());
-				classMap.put(name, clazz);
+				classMap.put(clazz.getName(), clazz);
+				System.out.println("Keeping " + clazz.getName());
 				return clazz;
 			} catch (IOException exception) {
 				throw new ClassNotFoundException(name, exception);
@@ -209,8 +234,9 @@ public class ScanProject {
 				set.add(Class.forName(file.toString().replace(".class", "").replace("/",
 				                                                                    ".")));
 			} catch (IllegalAccessError e) {
-				System.out.println("Cannot access class " + packageName + '.'
-				        + file.getName().substring(0, file.getName().length() - 6));
+				System.out.println("[L] Cannot access class " + packageName + '.'
+				        + file.getName().substring(0, file.getName().length() - 6) + ": "
+				        + e);
 			} catch (NoClassDefFoundError e) {
 				System.out.println("Cannot find class " + packageName + '.'
 				        + file.getName().substring(0, file.getName().length() - 6));
@@ -263,6 +289,7 @@ public class ScanProject {
 		Collection<String> list = ResourceList.getResources(Pattern.compile(packageName
 		        + "/.*\\.class$"));
 		for (String name : list) {
+			System.out.println("* Loading class " + name);
 			set.addAll(loadClass(new File(name), packageName, silent));
 			//generateMocksAndStubs(name);
 		}
@@ -276,14 +303,28 @@ public class ScanProject {
 	 * @param directory
 	 * @throws ClassNotFoundException
 	 */
-	private static Set<Class<?>> getClasses(File directory) throws ClassNotFoundException {
+	public static Set<Class<?>> getClasses(File directory) {
 		if (directory.getName().endsWith(".jar")) {
 			return getClassesJar(directory);
 		} else if (directory.getName().endsWith(".class")) {
 			Set<Class<?>> set = new HashSet<Class<?>>();
 			try {
 				System.out.println("* Loading class " + directory.getName());
-				Class<?> clazz = new FileClassLoader().findClass(directory.getPath());
+				File file = new File(directory.getPath());
+				byte[] array = new byte[(int) file.length()];
+				InputStream in = new FileInputStream(file);
+				ByteArrayOutputStream out = new ByteArrayOutputStream(array.length);
+				int length = in.read(array);
+				while (length > 0) {
+					out.write(array, 0, length);
+					length = in.read(array);
+				}
+				ClassReader reader = new ClassReader(array);
+				String className = reader.getClassName();
+
+				// Use default classLoader
+				Class<?> clazz = Class.forName(className.replace("/", "."));
+				//classLoader.loadClass(directory.getPath());
 				set.add(clazz);
 				if (Properties.STUBS) {
 					if (Modifier.isAbstract(clazz.getModifiers()) && !clazz.isInterface()) {
@@ -294,17 +335,25 @@ public class ScanProject {
 			} catch (IllegalAccessError e) {
 				System.out.println("Cannot access class "
 				        + directory.getName().substring(0,
-				                                        directory.getName().length() - 6));
+				                                        directory.getName().length() - 6)
+				        + ": " + e);
 			} catch (NoClassDefFoundError e) {
 				System.out.println("Error while loading "
 				        + directory.getName().substring(0,
 				                                        directory.getName().length() - 6)
 				        + " in path " + directory + ": Cannot find " + e.getMessage());
-				e.printStackTrace();
+				//e.printStackTrace();
 			} catch (ExceptionInInitializerError e) {
 				System.out.println("Exception in initializer of "
 				        + directory.getName().substring(0,
 				                                        directory.getName().length() - 6));
+			} catch (ClassNotFoundException e) {
+				System.out.println("Class not found: "
+				        + directory.getName().substring(0,
+				                                        directory.getName().length() - 6));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			return set;
 		} else if (directory.isDirectory()) {
@@ -319,7 +368,7 @@ public class ScanProject {
 		}
 	}
 
-	private static Set<Class<?>> getClassesJar(File file) throws ClassNotFoundException {
+	public static Set<Class<?>> getClassesJar(File file) {
 
 		Set<Class<?>> set = new HashSet<Class<?>>();
 
@@ -364,6 +413,9 @@ public class ScanProject {
 			} catch (ExceptionInInitializerError ex) {
 				System.out.println("Exception in initializer of "
 				        + file.getName().substring(0, file.getName().length() - 6));
+			} catch (ClassNotFoundException ex) {
+				System.out.println("Cannot find class "
+				        + file.getName().substring(0, file.getName().length() - 6));
 			}
 		}
 		try {
@@ -376,6 +428,8 @@ public class ScanProject {
 	}
 
 	public static void analyzeClasses(Set<Class<?>> classes) {
+
+		System.out.println("* Analyzing target classes");
 		ConnectionData data = new ConnectionData();
 		Set<ClassEntry> classEntries = new HashSet<ClassEntry>();
 
@@ -385,9 +439,9 @@ public class ScanProject {
 		}
 
 		for (Class<?> clazz : classes) {
+			String className = clazz.getName().replace(".", "/");
 			try {
 
-				String className = clazz.getName().replace(".", "/");
 				InputStream bytecode = clazz.getResourceAsStream("/" + className
 				        + ".class");
 
@@ -405,7 +459,19 @@ public class ScanProject {
 			} catch (IOException e) {
 				System.out.println(e + ": /" + clazz.getName().replace(".", "/")
 				        + ".class");
-				e.printStackTrace();
+				System.out.println(className + ".class" + ": "
+				        + clazz.getResource(className + ".class"));
+				System.out.println(className.substring(className.lastIndexOf("/"))
+				        + ".class"
+				        + ": "
+				        + clazz.getResource(className.substring(className.lastIndexOf("/"))
+				                + ".class"));
+				System.out.println(className.substring(className.lastIndexOf("/") + 1)
+				        + ".class"
+				        + ": "
+				        + clazz.getResource(className.substring(className.lastIndexOf("/") + 1)
+				                + ".class"));
+				// e.printStackTrace();
 				// Ignore unloadable classes
 			}
 		}
