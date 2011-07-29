@@ -48,7 +48,7 @@ public class ArrayStatement extends AbstractStatement {
 
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type) {
 		this(tc, type, Randomness.nextInt(Properties.MAX_ARRAY) + 1);
-
+		logger.debug("Chosen length: " + this.length + "/" + Properties.MAX_ARRAY);
 	}
 
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type, int length) {
@@ -96,9 +96,10 @@ public class ArrayStatement extends AbstractStatement {
 		// Add array variable to pool
 		try {
 			retval.setObject(scope,
-			                 Array.newInstance((Class<?>) retval.getComponentType(), length));
+			                 Array.newInstance((Class<?>) retval.getComponentType(),
+			                                   length));
 		} catch (CodeUnderTestException e) {
-			exceptionThrown=e.getCause();
+			exceptionThrown = e.getCause();
 		}
 		return exceptionThrown;
 

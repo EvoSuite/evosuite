@@ -597,6 +597,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			// Assign an existing value
 			// TODO:
 			// Do we need a special "[Array]AssignmentStatement"?
+			logger.debug("Reusing value");
+
 			ArrayIndex index = new ArrayIndex(test, arrRef, array_index);
 			StatementInterface st = new AssignmentStatement(test, index,
 			        Randomness.choice(objects));
@@ -611,6 +613,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			// OR: Create a new variablereference and then assign it to array
 			// (better!)
 			int old_len = test.size();
+			logger.debug("Attempting generation of object of type "
+			        + array.getComponentType());
 			VariableReference var = attemptGeneration(test, array.getComponentType(),
 			                                          position);
 			position += test.size() - old_len;
@@ -623,10 +627,12 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	private VariableReference createArray(TestCase test, Type type, int position,
 	        int recursion_depth) throws ConstructionFailedException {
 
+		logger.debug("Creating array of type " + type);
 		// Create array with random size
-		ArrayStatement statement = new ArrayStatement(test, type, position);
+		ArrayStatement statement = new ArrayStatement(test, type);
 		VariableReference reference = test.addStatement(statement, position);
 		position++;
+		logger.debug("Array length: " + statement.size());
 
 		// For each value of array, call attemptGeneration
 		List<VariableReference> objects = test.getObjects(reference.getComponentType(),
@@ -642,9 +648,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 					iterator.remove();
 			}
 		}
+		logger.debug("Found assignable objects: " + objects.size());
 		for (int i = 0; i < statement.size(); i++) {
+			logger.debug("Assigning array index " + i);
 			int old_len = test.size();
-			assignArray(test, statement.retval, i, position, objects);
+			assignArray(test, reference, i, position, objects);
 			position += test.size() - old_len;
 		}
 		return reference;

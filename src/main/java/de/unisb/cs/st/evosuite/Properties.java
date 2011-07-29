@@ -126,7 +126,7 @@ public class Properties {
 	public static int MAX_DELTA = 20;
 
 	@Parameter(key = "max_array", group = "Test Creation", description = "Maximum length of randomly generated arrays")
-	public static int MAX_ARRAY = 20;
+	public static int MAX_ARRAY = 10;
 
 	@Parameter(key = "max_attempts", group = "Test Creation", description = "Number of attempts when generating an object before giving up")
 	public static int MAX_ATTEMPTS = 1000;
