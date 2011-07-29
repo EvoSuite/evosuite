@@ -155,7 +155,15 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			ClassNode cn = new ClassNode();
 			reader.accept(cn, ClassReader.SKIP_FRAMES);
 			ComparisonTransformation cmp = new ComparisonTransformation(cn);
-			cmp.transform().accept(cv);
+			cn = cmp.transform();
+
+			if (Properties.STRING_REPLACEMENT) {
+				StringTransformation st = new StringTransformation(cn);
+				cn = st.transform();
+			}
+
+			cn.accept(cv);
+
 			if (Properties.TT) {
 				logger.info("Testability Transforming " + className);
 				TestabilityTransformation tt = new TestabilityTransformation(cn);
@@ -175,5 +183,4 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		// PrintWriter(System.out));
 		return writer.toByteArray();
 	}
-
 }
