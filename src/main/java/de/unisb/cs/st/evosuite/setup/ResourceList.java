@@ -13,6 +13,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import de.unisb.cs.st.evosuite.Properties;
+
 /**
  * list resources available from the classpath @ *
  */
@@ -28,11 +30,16 @@ public class ResourceList {
 	 */
 	public static Collection<String> getResources(final Pattern pattern) {
 		final ArrayList<String> retval = new ArrayList<String>();
-		final String classPath = System.getProperty("java.class.path", ".");
-		final String[] classPathElements = classPath.split(":");
+		String classPath = System.getProperty("java.class.path", ".");
+		String[] classPathElements = classPath.split(":");
 		for (final String element : classPathElements) {
 			if (element.contains("evosuite-0.1-SNAPSHOT-dependencies.jar"))
 				continue;
+			retval.addAll(getResources(element, pattern));
+		}
+		classPath = Properties.CP;
+		classPathElements = classPath.split(":");
+		for (final String element : classPathElements) {
 			retval.addAll(getResources(element, pattern));
 		}
 		return retval;
