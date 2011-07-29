@@ -25,13 +25,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
@@ -122,8 +122,8 @@ public class CFGMethodAdapter extends MethodAdapter {
 			instrumentations.add(new BranchInstrumentation());
 		} else if (Properties.CRITERION == Criterion.MUTATION) {
 			instrumentations.add(new BranchInstrumentation());
-			instrumentations.add(new MutationInstrumentation());	
-		} else if (Properties.CRITERION == Criterion.COMP_LCSAJ_BRANCH){
+			instrumentations.add(new MutationInstrumentation());
+		} else if (Properties.CRITERION == Criterion.COMP_LCSAJ_BRANCH) {
 			instrumentations.add(new LCSAJsInstrumentation());
 			instrumentations.add(new BranchInstrumentation());
 		} else {
@@ -145,7 +145,8 @@ public class CFGMethodAdapter extends MethodAdapter {
 
 		//Only instrument if the method is (not main and not excluded) or (the MethodInstrumentation wants it anyway)
 		if ((!isMainMethod || executeOnMain) && (!isExcludedMethod || executeOnExcluded)
-		        && (access & Opcodes.ACC_ABSTRACT) == 0 && (access & Opcodes.ACC_NATIVE) == 0) {
+		        && (access & Opcodes.ACC_ABSTRACT) == 0
+		        && (access & Opcodes.ACC_NATIVE) == 0) {
 
 			logger.info("Analyzing method " + methodName);
 
@@ -167,7 +168,7 @@ public class CFGMethodAdapter extends MethodAdapter {
 				        + " instructions");
 			} catch (AnalyzerException e) {
 				logger.error("Analyzer exception while analyzing " + className + "."
-				        + methodName);
+				        + methodName + ": " + e);
 				e.printStackTrace();
 			}
 
@@ -209,10 +210,8 @@ public class CFGMethodAdapter extends MethodAdapter {
 	 * @return
 	 */
 	private boolean isUsable() {
-		return !((this.access & Opcodes.ACC_SYNTHETIC) > 0 
-					|| (this.access & Opcodes.ACC_BRIDGE) > 0 
-					|| (this.access & Opcodes.ACC_NATIVE) > 0
-				)
+		return !((this.access & Opcodes.ACC_SYNTHETIC) > 0
+		        || (this.access & Opcodes.ACC_BRIDGE) > 0 || (this.access & Opcodes.ACC_NATIVE) > 0)
 		        && !methodName.contains("<clinit>")
 		        && !(methodName.contains("<init>") && (access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE)
 		        && (Properties.USE_DEPRECATED || (access & Opcodes.ACC_DEPRECATED) != Opcodes.ACC_DEPRECATED);
