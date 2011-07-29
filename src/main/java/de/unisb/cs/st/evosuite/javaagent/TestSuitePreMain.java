@@ -41,16 +41,11 @@ public class TestSuitePreMain {
 		if (agentArguments.equals("generate")) {
 			System.out.println("* Instrumenting bytecode for test generation");
 			// addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
-			//addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
+			// addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
 
 			addClassFileTransformer(instrumentation, new BytecodeInstrumentation());
 
 			// addClassFileTransformer(instrumentation, new PrintBytecodeTransformer());
-
-		} else if (agentArguments.equals("assert")) {
-			System.out.println("* Instrumenting bytecode for assertion generation");
-			// addClassFileTransformer(instrumentation, new
-			// CoverageInstrumentation());
 
 		} else if (agentArguments.equals("scan")) {
 			System.out.println("* Scanning project for classes");
@@ -58,8 +53,6 @@ public class TestSuitePreMain {
 			//distanceTransformer = new DistanceTransformer();
 			//addClassFileTransformer(instrumentation, distanceTransformer);
 			// addClassFileTransformer(instrumentation, new ScanVariablesTransformer());
-		} else if (agentArguments.equals("tasks")) {
-			// Do nothing?
 		}
 	}
 
