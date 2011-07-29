@@ -35,6 +35,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import de.unisb.cs.st.evosuite.testcase.TestCluster;
+
 /**
  * Central property repository. All global parameters of EvoSuite should be
  * declared as fields here, using the appropriate annotation. Access is possible
@@ -453,6 +455,9 @@ public class Properties {
 	/** Cache target class */
 	private static Class<?> TARGET_CLASS_INSTANCE = null;
 
+	@Parameter(key = "CP", group = "Runtime", description = "The classpath of the target classes")
+	public static String CP = "";
+
 	@Parameter(key = "PROJECT_PREFIX", group = "Runtime", description = "Package name of target package")
 	public static String PROJECT_PREFIX = null;
 
@@ -503,6 +508,9 @@ public class Properties {
 
 	@Parameter(key = "min_free_mem", group = "Runtime", description = "Minimum amount of available memory")
 	public static int MIN_FREE_MEM = 200000000;
+
+	@Parameter(key = "classloader", group = "Runtime", description = "Use the classloader for instrumentation, rather than the javaagent")
+	public static boolean CLASSLOADER = false;
 
 	// ---------------------------------------------------------------
 	// Seeding test cases
@@ -735,7 +743,9 @@ public class Properties {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
-		return parameterMap.get(key).toString();
+		StringBuffer sb = new StringBuffer();
+		sb.append(parameterMap.get(key).get(null));
+		return sb.toString();
 	}
 
 	/**
@@ -907,7 +917,7 @@ public class Properties {
 			return TARGET_CLASS_INSTANCE;
 
 		try {
-			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS);
+			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
 			return TARGET_CLASS_INSTANCE;
 		} catch (ClassNotFoundException e) {
 			System.err.println("Could not find class under test " + TARGET_CLASS);
@@ -919,18 +929,45 @@ public class Properties {
 	 * Update the evosuite.properties file with the current setting
 	 */
 	public void writeConfiguration() {
+		URL fileURL = this.getClass().getClassLoader().getResource("evosuite.properties");
+		String name = fileURL.getFile();
+		writeConfiguration(name);
+	}
+
+	/**
+	 * Update the evosuite.properties file with the current setting
+	 */
+	public void writeConfiguration(String fileName) {
+		for (String parameter : parameterMap.keySet()) {
+			try {
+				String val = getStringValue(parameter);
+				if (getType(parameter).isArray()) {
+					val = "TODO"; // TODO
+				}
+				properties.setProperty(parameter, val);
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchParameterException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
 		try {
-			URL fileURL = this.getClass().getClassLoader().getResource("evosuite.properties");
-			String name = fileURL.getFile();
-			OutputStream out = new FileOutputStream(new File(name));
+			OutputStream out = new FileOutputStream(new File(fileName));
+
 			// TODO: Update the properties!
 			properties.store(out, "This file was automatically produced by EvoSuite");
 		} catch (FileNotFoundException e) {
-			System.err.println("Error: Could not find configuration file evosuite.properties");
+			System.err.println("Error writing configuration to " + fileName + ": " + e);
 		} catch (IOException e) {
-			System.err.println("Error: Could not find configuration file evosuite.properties");
+			System.err.println("Error writing configuration to " + fileName + ": " + e);
 		} catch (Exception e) {
-			System.err.println("Error: Could not find configuration file evosuite.properties");
+			System.err.println("Error writing configuration to " + fileName + ": " + e);
 		}
 
 	}
