@@ -332,12 +332,13 @@ public class ExecutionTracer {
 	 * @param line
 	 */
 	public static void passedBranch(int val, int opcode, int branch, int bytecode_id) {
-		if (isThreadNeqCurrentThread())
-			return;
 
 		ExecutionTracer tracer = getExecutionTracer();
 		// logger.info("passedBranch val="+val+", opcode="+opcode+", branch="+branch+", bytecode_id="+bytecode_id);
 		if (tracer.disabled)
+			return;
+
+		if (isThreadNeqCurrentThread())
 			return;
 
 		// logger.trace("Called passedBranch1 with opcode "+AbstractVisitor.OPCODES[opcode]+" and val "+val+" in branch "+branch);
@@ -399,11 +400,11 @@ public class ExecutionTracer {
 	 */
 	public static void passedBranch(int val1, int val2, int opcode, int branch,
 	        int bytecode_id) {
-		if (isThreadNeqCurrentThread())
-			return;
-
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)
+			return;
+
+		if (isThreadNeqCurrentThread())
 			return;
 
 		logger.trace("Called passedBranch2 with opcode "
@@ -472,11 +473,11 @@ public class ExecutionTracer {
 	 */
 	public static void passedBranch(Object val1, Object val2, int opcode, int branch,
 	        int bytecode_id) {
-		if (isThreadNeqCurrentThread())
-			return;
-
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)
+			return;
+
+		if (isThreadNeqCurrentThread())
 			return;
 
 		logger.trace("Called passedBranch3 with opcode "
@@ -533,11 +534,11 @@ public class ExecutionTracer {
 	 * @param line
 	 */
 	public static void passedBranch(Object val, int opcode, int branch, int bytecode_id) {
-		if (isThreadNeqCurrentThread())
-			return;
-
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)
+			return;
+
+		if (isThreadNeqCurrentThread())
 			return;
 
 		double distance_true = 0;
@@ -583,29 +584,36 @@ public class ExecutionTracer {
 	public static void passedUse(String className, String varName, String methodName,
 	        Object caller, int branchID, int useID) {
 
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.disabled)
+			return;
+
 		if (isThreadNeqCurrentThread())
 			return;
-		ExecutionTracer tracer = getExecutionTracer();
-		if (!tracer.disabled)
-			tracer.trace.usePassed(className, varName, methodName, caller, branchID,
-			                       useID);
+
+		tracer.trace.usePassed(className, varName, methodName, caller, branchID, useID);
 	}
 
 	public static void passedMutation(int mutationId, double distance) {
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.disabled)
+			return;
+
 		if (isThreadNeqCurrentThread())
 			return;
-		ExecutionTracer tracer = getExecutionTracer();
-		if (!tracer.disabled)
-			tracer.trace.mutationPassed(mutationId, distance);
+
+		tracer.trace.mutationPassed(mutationId, distance);
 	}
 
 	public static void statementExecuted() {
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.disabled)
+			return;
+
 		if (isThreadNeqCurrentThread())
 			return;
 
-		ExecutionTracer tracer = getExecutionTracer();
-		if (!tracer.disabled)
-			tracer.num_statements++;
+		tracer.num_statements++;
 	}
 
 	public int getNumStatementsExecuted() {
