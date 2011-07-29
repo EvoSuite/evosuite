@@ -53,6 +53,7 @@ import de.unisb.cs.st.evosuite.callgraph.Tuple;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.javaagent.InstrumentingClassLoader;
 import de.unisb.cs.st.evosuite.javaagent.StaticInitializationClassAdapter;
 import de.unisb.cs.st.evosuite.javaagent.TestabilityTransformation;
 import de.unisb.cs.st.evosuite.utils.Randomness;
@@ -110,6 +111,17 @@ public class TestCluster {
 	private static Map<String, List<String>> test_excludes = getExcludesFromFile();
 
 	public int num_defined_methods = 0;
+
+	// public static ClassLoader classLoader = new InstrumentingClassLoader();
+
+	public static ClassLoader classLoader;
+
+	static {
+		if (Properties.CLASSLOADER)
+			classLoader = new InstrumentingClassLoader();
+		else
+			classLoader = Thread.currentThread().getContextClassLoader();
+	}
 
 	/**
 	 * Private constructor
@@ -1047,7 +1059,8 @@ public class TestCluster {
 		}
 		for (MethodDescription md : remoteCalls) {
 			try {
-				Class<?> clazz = Class.forName(md.getClassName());
+				//				Class<?> clazz = Class.forName(md.getClassName());
+				Class<?> clazz = classLoader.loadClass(md.getClassName());
 				AccessibleObject call = getMethod(clazz,
 				                                  md.getMethodName() + md.getDesc());
 				if (call == null) {
@@ -1078,7 +1091,8 @@ public class TestCluster {
 		// Analyze each entry of test task
 		for (String classname : allowed.keySet()) {
 			try {
-				Class<?> clazz = Class.forName(classname);
+				Class<?> clazz = classLoader.loadClass(classname);
+				//Class<?> clazz = Class.forName(classname);
 
 				logger.debug("Analysing class " + classname);
 				List<String> restriction = allowed.get(classname);
@@ -1273,7 +1287,8 @@ public class TestCluster {
 		int num = 0;
 		for (String classname : include_map.keySet()) {
 			try {
-				Class<?> clazz = Class.forName(classname);
+				//				Class<?> clazz = Class.forName(classname);
+				Class<?> clazz = classLoader.loadClass(classname);
 				boolean found = false;
 				for (String methodname : include_map.get(classname)) {
 					for (Method m : getMethods(clazz)) {
@@ -1391,8 +1406,9 @@ public class TestCluster {
 			// In prefix?
 			//if (classname.startsWith(Properties.PROJECT_PREFIX)) {
 			try {
-				logger.trace("Current class: " + classname);
-				Class<?> toadd = Class.forName(classname);
+				logger.debug("Current class: " + classname);
+				//				Class<?> toadd = Class.forName(classname);
+				Class<?> toadd = classLoader.loadClass(classname);
 				analyzedClasses.add(toadd);
 				if (!canUse(toadd)) {
 					logger.debug("Not using class " + classname);
@@ -1503,7 +1519,7 @@ public class TestCluster {
 			} catch (ExceptionInInitializerError e) {
 				logger.debug("Problem - ignoring class " + classname + ": " + e);
 			} catch (Throwable t) {
-				logger.warn("Error when trying to read class " + classname);
+				logger.warn("Error when trying to read class " + classname + ": " + t);
 			}
 
 			//}
@@ -1697,7 +1713,8 @@ public class TestCluster {
 	private void getStaticClasses() {
 		for (String classname : StaticInitializationClassAdapter.static_classes) {
 			try {
-				Class<?> clazz = Class.forName(classname);
+				//				Class<?> clazz = Class.forName(classname);
+				Class<?> clazz = classLoader.loadClass(classname);
 				Method m = clazz.getMethod("__STATIC_RESET", (Class<?>[]) null);
 				m.setAccessible(true);
 				static_initializers.add(m);
