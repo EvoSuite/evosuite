@@ -415,6 +415,7 @@ generateSuite ()
 			CLIENT="java $java_debug -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION -DPROJECT_PREFIX=$PROJECT_PREFIX -DTARGET_CLASS=$test_class $evosuite_client"
 			java -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP"  $random_seed $java_options $java_opts -DTARGET_CLASS=$test_class $evosuite_master $CLIENT
 		    else
+#			java $java_debug -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP" -DPROJECT_PREFIX=$PROJECT_PREFIX -DTARGET_CLASS=$test_class -Dclassloader=true $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION   $evosuite_suite
 			java $java_debug -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP" -DPROJECT_PREFIX=$PROJECT_PREFIX -DTARGET_CLASS=$test_class $java_agent=generate $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION   $evosuite_suite
 		    fi
 
