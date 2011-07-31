@@ -45,9 +45,6 @@ public class BranchPool {
 	// that method
 	private static Map<String, Map<String, List<Branch>>> branchMap = new HashMap<String, Map<String, List<Branch>>>();
 
-	// maps every Method to the number of Branches inside that method
-	private static Map<String, Integer> methodBranchCount = new HashMap<String, Integer>();
-
 	// set of all known methods without a Branch
 	private static Set<String> branchlessMethods = new HashSet<String>();
 
@@ -65,7 +62,7 @@ public class BranchPool {
 
 	private static Map<LabelNode, Branch> switchLabels = new HashMap<LabelNode, Branch>();
 
-	// number of known Branches
+	// number of known Branches - used for actualBranchIds
 	private static int branchCounter = 0;
 
 	// fill the pool
@@ -75,7 +72,8 @@ public class BranchPool {
 	 * any branches.
 	 * 
 	 * @param methodName
-	 *            Unique methodName of a method without Branches
+	 *            Unique methodName - consisting of <className>.<methodName> -
+	 *            of a method without Branches
 	 */
 	public static void addBranchlessMethod(String methodName) {
 		branchlessMethods.add(methodName);
@@ -169,7 +167,7 @@ public class BranchPool {
 		if (defaultLabel == null)
 			throw new IllegalStateException("expect variable to bet set");
 
-		Branch defaultBranch = createSwitchBranch(v, null, defaultLabel);
+		Branch defaultBranch = createSwitchCaseBranch(v, null, defaultLabel);
 		if (!defaultBranch.isSwitch() || !defaultBranch.isDefaultCase())
 			throw new IllegalStateException(
 					"expect created branch to be a default case branch of a switch");
@@ -181,7 +179,7 @@ public class BranchPool {
 		int num = 0;
 		for (int i = tableSwitchNode.min; i <= tableSwitchNode.max; i++) {
 			LabelNode targetLabel = (LabelNode) tableSwitchNode.labels.get(num);
-			Branch switchBranch = createSwitchBranch(v, i, targetLabel);
+			Branch switchBranch = createSwitchCaseBranch(v, i, targetLabel);
 			if (!switchBranch.isSwitch() || !switchBranch.isActualCase())
 				throw new IllegalStateException(
 						"expect created branch to be an actual case branch of a switch");
@@ -194,7 +192,7 @@ public class BranchPool {
 
 		for (int i = 0; i < lookupSwitchNode.keys.size(); i++) {
 			LabelNode targetLabel = (LabelNode) lookupSwitchNode.labels.get(i);
-			Branch switchBranch = createSwitchBranch(v,
+			Branch switchBranch = createSwitchCaseBranch(v,
 					(Integer) lookupSwitchNode.keys.get(i), targetLabel);
 			if (!switchBranch.isSwitch() || !switchBranch.isActualCase())
 				throw new IllegalStateException(
@@ -202,7 +200,7 @@ public class BranchPool {
 		}
 	}
 
-	private static Branch createSwitchBranch(BytecodeInstruction v,
+	private static Branch createSwitchCaseBranch(BytecodeInstruction v,
 			Integer caseValue, LabelNode targetLabel) {
 
 		branchCounter++;
@@ -347,30 +345,20 @@ public class BranchPool {
 		return switchLabels.get(label);
 	}
 
-	// TODO can't this just always be called private by addBranch?
-	// why is this called in CFGMethodAdapter.getInstrumentation() anyways?
-	// .. well it only get's called if Properties.CRITERION is set to LCSAJ
-	// ... might want to change that
-	public static void countBranch(String id) {
-		if (!methodBranchCount.containsKey(id)) {
-			methodBranchCount.put(id, 1);
-		} else
-			methodBranchCount.put(id, methodBranchCount.get(id) + 1);
-	}
-
 	/**
-	 * Returns the number of known Branches for a given methodName.
+	 * Returns the number of known Branches for a given methodName in a given
+	 * class.
 	 * 
-	 * @param methodName
-	 *            Unique methodName (consisting of "className.methodName")
 	 * @return The number of currently known Branches inside the given method
 	 */
-	public static int getBranchCountForMethod(String methodName) {
-		Integer count = methodBranchCount.get(methodName);
-		if (count == null)
+	public static int getBranchCountForMethod(String className,
+			String methodName) {
+		if (branchMap.get(className) == null)
+			return 0;
+		if (branchMap.get(className).get(methodName) == null)
 			return 0;
 
-		return count;
+		return branchMap.get(className).get(methodName).size();
 	}
 
 	/**

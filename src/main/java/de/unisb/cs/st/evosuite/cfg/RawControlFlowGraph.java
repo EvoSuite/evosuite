@@ -70,6 +70,8 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	protected ControlFlowEdge addEdge(BytecodeInstruction src,
 			BytecodeInstruction target, boolean isExceptionEdge) {
 
+		// TODO clean up!
+		
 		ControlFlowEdge e = new ControlFlowEdge(isExceptionEdge);
 		if (src.isBranch()) { // TODO handle switches?
 			e.setBranchInstruction(src);
@@ -82,11 +84,11 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 						"expect control flow edges from switch statements to always target labelNodes");
 
 			LabelNode label = (LabelNode) target.getASMNode();
-			if (label == null)
-				throw new IllegalStateException(
-						"expect BranchPool to contain a Branch for each switch-case-label");
 
 			Branch branchForSwitchCase = BranchPool.getBranchForLabel(label);
+			if (branchForSwitchCase == null)
+				throw new IllegalStateException(
+						"expect BranchPool to contain a Branch for each switch-case-label");
 
 			// TODO there is an inconsistency when it comes to switches with
 			// empty case: blocks. they do not have their own label, so there
@@ -95,16 +97,8 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 			// But currently our RawCFG does not permit multiple edges between
 			// two nodes
 
-			if (branchForSwitchCase != null) {
-				// throw new
-				// IllegalStateException("expect BranchPool to know each switch-case-label");
-
-				// TODO the default: case for each switch is not handled so far,
-				// which can lead to the branchForSwitchCase to be null
-
-				e.setBranchInstruction(branchForSwitchCase);
-				e.setBranchExpressionValue(true);
-			}
+			e.setBranchInstruction(branchForSwitchCase);
+			e.setBranchExpressionValue(true);
 
 		}
 
