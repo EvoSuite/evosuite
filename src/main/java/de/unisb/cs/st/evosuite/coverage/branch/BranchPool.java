@@ -10,11 +10,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
@@ -54,9 +51,11 @@ public class BranchPool {
 	private static Map<BytecodeInstruction, Integer> registeredBranches = new HashMap<BytecodeInstruction, Integer>();
 
 	// maps all known switch instructions to a map, mapping it's
-	// targetCaseValues to their corresponding branchID
+	// branchIDs to their corresponding targetCaseValue (which is null for the default case) 
 	private static Map<BytecodeInstruction, Map<Integer, Integer>> registeredSwitches = new HashMap<BytecodeInstruction, Map<Integer, Integer>>();
-
+	
+	private static Map<BytecodeInstruction, Branch> registeredDefaultCases = new HashMap<BytecodeInstruction, Branch>();
+	
 	private static Map<LabelNode, Branch> switchLabels = new HashMap<LabelNode, Branch>();
 
 	// number of known Branches
@@ -132,20 +131,24 @@ public class BranchPool {
 
 		switch (v.getASMNode().getOpcode()) {
 		case Opcodes.TABLESWITCH:
-			TableSwitchInsnNode tsin = (TableSwitchInsnNode) v.getASMNode();
+			TableSwitchInsnNode tableSwitchNode = (TableSwitchInsnNode) v.getASMNode();
 			int num = 0;
-			for (int i = tsin.min; i <= tsin.max; i++) {
-				LabelNode targetLabel = (LabelNode) tsin.labels.get(num);
+			for (int i = tableSwitchNode.min; i <= tableSwitchNode.max; i++) {
+				LabelNode targetLabel = (LabelNode) tableSwitchNode.labels.get(num);
 				createSwitchBranch(v, i, targetLabel);
 				num++;
 			}
+			// default-case:
+			createSwitchBranch(v, null, tableSwitchNode.dflt);
 			break;
 		case Opcodes.LOOKUPSWITCH:
-			LookupSwitchInsnNode lsin = (LookupSwitchInsnNode) v.getASMNode();
-			for (int i = 0; i < lsin.keys.size(); i++) {
-				LabelNode targetLabel = (LabelNode) lsin.labels.get(i);
-				createSwitchBranch(v, (Integer) lsin.keys.get(i), targetLabel);
+			LookupSwitchInsnNode lookupSwitchNode = (LookupSwitchInsnNode) v.getASMNode();
+			for (int i = 0; i < lookupSwitchNode.keys.size(); i++) {
+				LabelNode targetLabel = (LabelNode) lookupSwitchNode.labels.get(i);
+				createSwitchBranch(v, (Integer) lookupSwitchNode.keys.get(i), targetLabel);
 			}
+			// default-case:
+			createSwitchBranch(v, null, lookupSwitchNode.dflt);
 			break;
 		default:
 			throw new IllegalStateException(
@@ -153,15 +156,26 @@ public class BranchPool {
 		}
 	}
 
-	private static void createSwitchBranch(BytecodeInstruction v, int i,
+	private static void createSwitchBranch(BytecodeInstruction v, Integer caseValue,
 			LabelNode targetLabel) {
-		registerSwitchBranch(v, i);
+		
+		branchCounter++;
+		
+		registerSwitchBranch(v, caseValue);
 
-		Branch b = new Branch(v, i, branchCounter);
+		Branch b = new Branch(v, caseValue, branchCounter);
 		addBranchToMap(b);
 		branchIdMap.put(branchCounter, b);
 
 		registerSwitchLabel(b, targetLabel);
+		
+		// default case
+		if(caseValue == null) {
+			if(registeredDefaultCases.containsKey(v))
+				throw new IllegalStateException("instruction already registered as a branch");
+			registeredDefaultCases.put(v, b);
+		}
+			
 	}
 
 	private static void registerSwitchLabel(Branch b, LabelNode targetLabel) {
@@ -175,12 +189,14 @@ public class BranchPool {
 		// should map labels to a list of branches
 		// this stems from the fact that empty case: blocks do not have their
 		// own label
+		
+		// TODO STOPPED HERE
 
 		switchLabels.put(targetLabel, b);
 	}
 
 	private static void registerSwitchBranch(BytecodeInstruction v,
-			int targetCaseValue) {
+			Integer targetCaseValue) {
 		if (!v.isSwitch())
 			throw new IllegalArgumentException("switch instruction expected");
 
@@ -189,17 +205,17 @@ public class BranchPool {
 
 		Map<Integer, Integer> oldMap = registeredSwitches.get(v);
 
-		if (oldMap.get(targetCaseValue) != null)
+		if (oldMap.get(branchCounter) != null)
 			throw new IllegalArgumentException(
-					"switch already registered for caseValue "
-							+ targetCaseValue);
+					"switch already registered for id "
+							+ branchCounter);
 
-		branchCounter++;
-		oldMap.put(targetCaseValue, branchCounter);
+		
+		oldMap.put(branchCounter, targetCaseValue);
 
 		registeredSwitches.put(v, oldMap);
 	}
-
+	
 	private static void addBranchToMap(Branch b) {
 		String className = b.getClassName();
 		String methodName = b.getMethodName();
@@ -242,6 +258,8 @@ public class BranchPool {
 			throw new IllegalArgumentException("null given");
 		if (!ins.isSwitch())
 			throw new IllegalArgumentException("switch instruction expected");
+		if(!registeredSwitches.containsKey(ins))
+			throw new IllegalArgumentException("not registered as a switch instruction");
 
 		return registeredSwitches.get(ins);
 	}
@@ -383,5 +401,14 @@ public class BranchPool {
 		if (branches != null)
 			r.addAll(branches);
 		return r;
+	}
+
+	public static Branch getDefaultBranchForSwitch(BytecodeInstruction v) {
+		if(!v.isSwitch())
+			throw new IllegalArgumentException("switch instruction expected");
+		if(!registeredDefaultCases.containsKey(v))
+			throw new IllegalArgumentException("there is no registered default case for this instruction");
+		
+		return registeredDefaultCases.get(v);
 	}
 }
