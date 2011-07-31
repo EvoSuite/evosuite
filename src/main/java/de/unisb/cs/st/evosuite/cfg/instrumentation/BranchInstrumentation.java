@@ -80,9 +80,6 @@ public class BranchInstrumentation implements MethodInstrumentation {
 
 		int opcode = instruction.getASMNode().getOpcode();
 		int instructionId = instruction.getInstructionId();
-		String className = instruction.getClassName();
-		String methodName = instruction.getMethodName();
-
 		int branchId = BranchPool
 				.getActualBranchIdForNormalBranchInstruction(instruction);
 		if (branchId < 0)
@@ -90,7 +87,6 @@ public class BranchInstrumentation implements MethodInstrumentation {
 					"expect BranchPool to know branchId for alle branch instructions");
 
 		InsnList instrumentation = new InsnList();
-		String methodID = className + "." + methodName;
 
 		switch (opcode) {
 		case Opcodes.IFEQ:
@@ -107,7 +103,6 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 					"de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(IIII)V"));
-			BranchPool.countBranch(methodID);
 			logger
 					.debug("Adding passedBranch val=?, opcode=" + opcode
 							+ ", branch=" + branchId + ", bytecode_id="
@@ -128,8 +123,6 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 					"de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(IIIII)V"));
-			BranchPool.countBranch(methodID);
-
 			break;
 		case Opcodes.IF_ACMPEQ:
 		case Opcodes.IF_ACMPNE:
@@ -142,7 +135,6 @@ public class BranchInstrumentation implements MethodInstrumentation {
 					"de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch",
 					"(Ljava/lang/Object;Ljava/lang/Object;III)V"));
-			BranchPool.countBranch(methodID);
 			break;
 		case Opcodes.IFNULL:
 		case Opcodes.IFNONNULL:
@@ -154,7 +146,6 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 					"de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(Ljava/lang/Object;III)V"));
-			BranchPool.countBranch(methodID);
 			break;
 		}
 		return instrumentation;
@@ -208,8 +199,6 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			throw new IllegalStateException(
 					"expect BranchPool to know at least one Branch for each switch instruction");
 
-		String methodID = className + "." + methodName;
-
 		for (Branch targetCaseBranch : caseBranches) {
 			if (targetCaseBranch.isDefaultCase())
 				continue; // handled elsewhere
@@ -225,7 +214,6 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 					"de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 					"passedBranch", "(IIIII)V"));
-			BranchPool.countBranch(methodID);
 		}
 	}
 

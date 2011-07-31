@@ -133,13 +133,13 @@ public class Branch {
 		r += " Branch " + getActualBranchId();
 		r += " " + instruction.getInstructionType();
 		if (isSwitch) {
+			r += " L" + instruction.getLineNumber();
 			if (targetCaseValue != null)
 				r += " Case " + targetCaseValue;
 			else
 				r += " Default-Case";
-		}
-
-		r += " L" + instruction.getLineNumber();
+		} else
+			r += " L" + instruction.getLineNumber();
 
 		return r;
 	}
