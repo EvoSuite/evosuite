@@ -10,14 +10,27 @@ import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
  * 
  * For SWITCH statements each case <key>: block corresponds to a Branch that can
  * be created by constructing a Branch with the SWITCH statement and the <key>
- * as the targetCaseValue
+ * as the targetCaseValue. The default: case of switch statement can also be
+ * modeled this way - it has the targetCaseValue set to null.
  * 
+ * TODO:
+ * 
+ * don't extend from BytecodeInstruction! rather hold one where necessary
+ * 
+ * otherwise a Branch "is a" BytecodeInstruction even though it is not
+ * associated with an instruction (root-branch, case's in a switch ... )
+ *
  * @author Andre Mis
  */
 public class Branch extends BytecodeInstruction {
 
 	private final int actualBranchId;
 
+	private boolean isSwitch = false;
+
+	// for switch branches this value indicates to which case of the switch this
+	// branch belongs. if this value is null and this is in fact a switch this
+	// means this branch is the default: case of that switch
 	private Integer targetCaseValue = null;
 
 	/**
@@ -59,7 +72,7 @@ public class Branch extends BytecodeInstruction {
 	 * Constructor for SWITCH-Case: Branches
 	 * 
 	 */
-	public Branch(BytecodeInstruction switchWrapper, int targetCaseValue,
+	public Branch(BytecodeInstruction switchWrapper, Integer targetCaseValue,
 			int actualBranchId) {
 		super(switchWrapper);
 		if (!isSwitch())
@@ -68,6 +81,7 @@ public class Branch extends BytecodeInstruction {
 		this.actualBranchId = actualBranchId;
 
 		this.targetCaseValue = targetCaseValue;
+		this.isSwitch = true;
 
 		if (this.actualBranchId < 1)
 			throw new IllegalStateException(
@@ -78,8 +92,17 @@ public class Branch extends BytecodeInstruction {
 		return actualBranchId;
 	}
 
+	public boolean isDefaultCase() {
+		return isSwitch && targetCaseValue == null;
+	}
+	
 	public Integer getTargetCaseValue() {
-		return targetCaseValue;
+		// in order to avoid confusion when targetCaseValue is null
+		if (!isSwitch)
+			throw new IllegalStateException(
+					"method only allowed to be called on non-switch-Branches");
+
+		return targetCaseValue; // null for default case
 	}
 
 	@Override
@@ -87,8 +110,12 @@ public class Branch extends BytecodeInstruction {
 		String r = "I" + getInstructionId();
 		r += " Branch " + getActualBranchId();
 		r += " " + getInstructionType();
-		if (targetCaseValue != null)
-			r += " Case " + targetCaseValue;
+		if (isSwitch) {
+			if (targetCaseValue != null)
+				r += " Case " + targetCaseValue;
+			else
+				r += " Default-Case";
+		}
 
 		r += " L" + getLineNumber();
 

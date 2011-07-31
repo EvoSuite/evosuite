@@ -190,7 +190,6 @@ public class CFGMethodAdapter extends MethodAdapter {
 			}
 
 		}
-
 		mn.accept(next);
 	}
 
