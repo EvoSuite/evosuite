@@ -50,9 +50,7 @@ public class BranchPool {
 	// maps all known branch instructions to their branchId
 	private static Map<BytecodeInstruction, Integer> registeredNormalBranches = new HashMap<BytecodeInstruction, Integer>();
 
-	// maps all known switch instructions to a map, mapping it's
-	// branchIDs to their corresponding targetCaseValue (which is null for the
-	// default case)
+	// maps all known switch instructions to a list containing all of their associated Branch objects
 	private static Map<BytecodeInstruction, List<Branch>> registeredSwitches = new HashMap<BytecodeInstruction, List<Branch>>();
 
 	private static Map<BytecodeInstruction, Branch> registeredDefaultCases = new HashMap<BytecodeInstruction, Branch>();
