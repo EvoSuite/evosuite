@@ -24,9 +24,16 @@ import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
  * This class is supposed to hold all the available information concerning
  * Branches.
  * 
- * The addBranch()-Method gets called by the BranchInstrumentation whenever it
- * detects a BytecodeInstruction that corresponds to a Branch in the class under
- * test.
+ * The addBranch()-Method gets called during class analysis. Whenever the
+ * BytecodeInstructionPool detects a BytecodeInstruction that corresponds to a
+ * Branch in the class under test as defined in
+ * BytecodeInstruction.isActualBranch() it calls the registerAsBranch() method
+ * of this class which in turn properly registers the instruction within this
+ * pool.
+ * 
+ * There are two kinds of Branch objects: normal branches and switch case
+ * branches. For more details about the difference between these two look at the
+ * Branch class.
  * 
  * @author Andre Mis
  */
@@ -50,7 +57,8 @@ public class BranchPool {
 	// maps all known branch instructions to their branchId
 	private static Map<BytecodeInstruction, Integer> registeredNormalBranches = new HashMap<BytecodeInstruction, Integer>();
 
-	// maps all known switch instructions to a list containing all of their associated Branch objects
+	// maps all known switch instructions to a list containing all of their
+	// associated Branch objects
 	private static Map<BytecodeInstruction, List<Branch>> registeredSwitches = new HashMap<BytecodeInstruction, List<Branch>>();
 
 	private static Map<BytecodeInstruction, Branch> registeredDefaultCases = new HashMap<BytecodeInstruction, Branch>();
@@ -63,25 +71,6 @@ public class BranchPool {
 	// fill the pool
 
 	/**
-	 * Get called by the BranchInstrumentation whenever it detects a CFGVertex
-	 * that corresponds to a Branch in the class under test.
-	 * 
-	 * @param v
-	 *            CFGVertex of a Branch
-	 */
-	public static void registerAsBranch(BytecodeInstruction v) {
-		if (!(v.isActualBranch()))
-			throw new IllegalArgumentException("CFGVertex of a branch expected");
-		if (isKnownAsBranch(v))
-			return;
-		// throw new
-		// IllegalArgumentException("branches can only be added to the pool once");
-
-		registerInstruction(v);
-
-	}
-
-	/**
 	 * Gets called by the CFGMethodAdapter whenever it detects a method without
 	 * any branches.
 	 * 
@@ -90,6 +79,24 @@ public class BranchPool {
 	 */
 	public static void addBranchlessMethod(String methodName) {
 		branchlessMethods.add(methodName);
+	}
+
+	/**
+	 * Called by the BytecodeInstructionPool whenever it detects an instruction
+	 * that corresponds to a Branch in the class under test as defined by
+	 * BytecodeInstruction.isActualBranch().
+	 * 
+	 */
+	public static void registerAsBranch(BytecodeInstruction instruction) {
+		if (!(instruction.isActualBranch()))
+			throw new IllegalArgumentException("CFGVertex of a branch expected");
+		if (isKnownAsBranch(instruction))
+			return;
+		// throw new
+		// IllegalArgumentException("branches can only be added to the pool once");
+
+		registerInstruction(instruction);
+
 	}
 
 	private static void registerInstruction(BytecodeInstruction v) {
@@ -278,7 +285,7 @@ public class BranchPool {
 	 * it.
 	 * 
 	 * Returns true if the given BytecodeInstruction previously passed a call to
-	 * addBranch(instruction), false otherwise
+	 * registerAsBranch(instruction), false otherwise
 	 */
 	public static boolean isKnownAsBranch(BytecodeInstruction instruction) {
 		return isKnownAsNormalBranchInstruction(instruction)
