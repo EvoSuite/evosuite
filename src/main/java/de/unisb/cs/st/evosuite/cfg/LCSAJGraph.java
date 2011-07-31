@@ -56,10 +56,10 @@ public class LCSAJGraph {
 						}	
 				}
 			
-			BytecodeInstruction l1 = lcsaj.getStartBranch();
-			BytecodeInstruction l2 = lcsaj.getLastBranch();
+			BytecodeInstruction l1 = lcsaj.getStartBranch().getInstruction();
+			BytecodeInstruction l2 = lcsaj.getLastBranch().getInstruction();
 			if (fitnessGraph)
-				l2 = lcsaj.getBranch(lcsaj.getdPositionReached());
+				l2 = lcsaj.getBranch(lcsaj.getdPositionReached()).getInstruction();
 			
 			for (Node source : allNodes)
 				for (Node target : allNodes){	

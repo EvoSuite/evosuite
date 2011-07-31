@@ -658,8 +658,8 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		if (searchedFor == null)
 			return null;
 
-		if (containsInstruction(searchedFor))
-			return searchedFor;
+		if (containsInstruction(searchedFor.getInstruction()))
+			return searchedFor.getInstruction();
 
 		// TODO more sanity checks?
 

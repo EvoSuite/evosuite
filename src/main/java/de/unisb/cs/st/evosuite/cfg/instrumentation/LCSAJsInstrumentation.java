@@ -195,7 +195,7 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 					if (v.isForcedBranch()) {
 						LCSAJPool.addLCSAJBranch(BranchPool.getBranchForInstruction(v));
 
-						int branchId = BranchPool.getActualBranchIdForInstruction(v);
+						int branchId = BranchPool.getActualBranchIdForNormalBranchInstruction(v);
 						InsnList instrumentation = new InsnList();
 						instrumentation.add(new LdcInsnNode(v.getASMNode().getOpcode()));
 						instrumentation.add(new LdcInsnNode(branchId));
