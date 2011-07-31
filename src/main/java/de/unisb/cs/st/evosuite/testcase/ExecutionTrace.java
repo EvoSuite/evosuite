@@ -588,7 +588,7 @@ public class ExecutionTrace {
 
 				if (currentDUCounter < duCounterStart || currentDUCounter > duCounterEnd)
 					removableIndices.add(i);
-				else if (currentBranchBytecode == targetDUBranch.getInstructionId()) {
+				else if (currentBranchBytecode == targetDUBranch.getInstruction().getInstructionId()) {
 					// only remove this point in the trace if it would cover targetDU
 					boolean targetExpressionValue = targetDU.getControlDependentBranchExpressionValue();
 					if (wantToCoverTargetDU)

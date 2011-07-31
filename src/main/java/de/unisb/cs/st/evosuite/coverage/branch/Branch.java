@@ -1,5 +1,7 @@
 package de.unisb.cs.st.evosuite.coverage.branch;
 
+import org.objectweb.asm.tree.LabelNode;
+
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 
 /**
@@ -22,7 +24,7 @@ import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
  *
  * @author Andre Mis
  */
-public class Branch extends BytecodeInstruction {
+public class Branch {
 
 	private final int actualBranchId;
 
@@ -32,36 +34,22 @@ public class Branch extends BytecodeInstruction {
 	// branch belongs. if this value is null and this is in fact a switch this
 	// means this branch is the default: case of that switch
 	private Integer targetCaseValue = null;
+	
+	private LabelNode targetLabel = null;
+	
+	private BytecodeInstruction instruction;
 
 	/**
 	 * Constructor for usual jump instruction Branches, that are not SWITCH
-	 * instructions.
+	 * instructions. 
 	 */
-	public Branch(BytecodeInstruction wrapper, int actualBranchId) {
-		super(wrapper);
-		if (!isBranch())
+	public Branch(BytecodeInstruction branchInstruction, int actualBranchId) {
+		if (!branchInstruction.isBranch())
 			throw new IllegalArgumentException(
 					"only branch instructions are accepted");
 
+		this.instruction = branchInstruction;
 		this.actualBranchId = actualBranchId;
-
-		if (this.actualBranchId < 1)
-			throw new IllegalStateException(
-					"expect branch to have actualBranchId set to positive value");
-	}
-
-	public Branch(BytecodeInstruction wrapper) {
-		super(wrapper);
-		if (!isBranch())
-			throw new IllegalArgumentException(
-					"only branch instructions are accepted");
-
-		if (!BranchPool.isKnownAsBranch(wrapper))
-			throw new IllegalArgumentException(
-					"expect Branch(BytecodeInstruction) constructor to be called only for instruction already known to the BranchPool");
-
-		this.actualBranchId = BranchPool
-				.getActualBranchIdForInstruction(wrapper);
 
 		if (this.actualBranchId < 1)
 			throw new IllegalStateException(
@@ -72,14 +60,17 @@ public class Branch extends BytecodeInstruction {
 	 * Constructor for SWITCH-Case: Branches
 	 * 
 	 */
-	public Branch(BytecodeInstruction switchWrapper, Integer targetCaseValue,
+	public Branch(BytecodeInstruction switchInstruction, Integer targetCaseValue, LabelNode targetLabel,
 			int actualBranchId) {
-		super(switchWrapper);
-		if (!isSwitch())
+		if (!switchInstruction.isSwitch())
 			throw new IllegalArgumentException("switch instruction expected");
+		if(targetLabel == null)
+			throw new IllegalArgumentException("expect targetLabel to not be null for case branches");
 
+		this.instruction = switchInstruction;
 		this.actualBranchId = actualBranchId;
 
+		this.targetLabel = targetLabel;
 		this.targetCaseValue = targetCaseValue;
 		this.isSwitch = true;
 
@@ -96,6 +87,10 @@ public class Branch extends BytecodeInstruction {
 		return isSwitch && targetCaseValue == null;
 	}
 	
+	public boolean isActualCase() {
+		return isSwitch && targetCaseValue != null;
+	}
+	
 	public Integer getTargetCaseValue() {
 		// in order to avoid confusion when targetCaseValue is null
 		if (!isSwitch)
@@ -104,12 +99,35 @@ public class Branch extends BytecodeInstruction {
 
 		return targetCaseValue; // null for default case
 	}
+	
+	public LabelNode getTargetLabel() {
+		if(!isSwitch)
+			throw new IllegalStateException("call only allowed on switch instructions");
+		
+		return targetLabel;
+	}
+	
+	public BytecodeInstruction getInstruction() {
+		return instruction;
+	}
+	
+	public String getClassName() {
+		return instruction.getClassName();
+	}
+	
+	public String getMethodName() {
+		return instruction.getMethodName();
+	}
+	
+	public boolean isSwitch() {
+		return isSwitch;
+	}
 
 	@Override
 	public String toString() {
-		String r = "I" + getInstructionId();
+		String r = "I" + instruction.getInstructionId();
 		r += " Branch " + getActualBranchId();
-		r += " " + getInstructionType();
+		r += " " + instruction.getInstructionType();
 		if (isSwitch) {
 			if (targetCaseValue != null)
 				r += " Case " + targetCaseValue;
@@ -117,7 +135,7 @@ public class Branch extends BytecodeInstruction {
 				r += " Default-Case";
 		}
 
-		r += " L" + getLineNumber();
+		r += " L" + instruction.getLineNumber();
 
 		return r;
 	}

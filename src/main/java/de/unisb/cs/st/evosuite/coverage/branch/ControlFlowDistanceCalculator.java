@@ -110,7 +110,7 @@ public class ControlFlowDistanceCalculator {
 		if (branch == null) {
 			d.setApproachLevel(20);
 		} else {
-			d.setApproachLevel(branch.getActualCFG().getDiameter() + 2);
+			d.setApproachLevel(branch.getInstruction().getActualCFG().getDiameter() + 2);
 		}
 		return d;
 	}
@@ -144,7 +144,7 @@ public class ControlFlowDistanceCalculator {
 		String methodName = branch.getMethodName();
 
 		ControlFlowDistance r = new ControlFlowDistance();
-		r.setApproachLevel(branch.getActualCFG().getDiameter() + 1);
+		r.setApproachLevel(branch.getInstruction().getActualCFG().getDiameter() + 1);
 
 		// Minimal distance between target node and path
 		for (MethodCall call : result.getTrace().finished_calls) {
@@ -219,7 +219,7 @@ public class ControlFlowDistanceCalculator {
 
 		ControlFlowDistance controlDependenceDistance = getControlDependenceDistancesFor(result,
 		                                                                                 call,
-		                                                                                 branch,
+		                                                                                 branch.getInstruction(),
 		                                                                                 className,
 		                                                                                 methodName,
 		                                                                                 handled);

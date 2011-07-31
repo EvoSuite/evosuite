@@ -62,7 +62,7 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 			        && call.methodName.equals(goal.methodName)) {
 				methodExecuted = true;
 				for (int i = 0; i < call.branchTrace.size(); i++) {
-					if (call.branchTrace.get(i) == goal.branch.getInstructionId()) {
+					if (call.branchTrace.get(i) == goal.branch.getInstruction().getInstructionId()) {
 						//logger.info("Found target branch with distances "
 						//        + call.trueDistanceTrace.get(i) + "/"
 						//        + call.falseDistanceTrace.get(i));
