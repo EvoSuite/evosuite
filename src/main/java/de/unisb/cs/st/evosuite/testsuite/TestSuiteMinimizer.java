@@ -55,21 +55,29 @@ public class TestSuiteMinimizer {
 
 	private final TestFitnessFactory testFitnessFactory;
 
+	/** Maximum number of seconds. 0 = infinite time */
+	protected static int max_seconds = Properties.MINIMIZATION_TIMEOUT;
+
+	/** Assume the search has not started until start_time != 0 */
+	protected static long start_time = 0L;
+
 	public TestSuiteMinimizer(TestFitnessFactory factory) {
 		this.testFitnessFactory = factory;
 	}
 
 	public void minimize(TestSuiteChromosome suite) {
+		start_time = System.currentTimeMillis();
+
 		String strategy = Properties.SECONDARY_OBJECTIVE;
 		if (strategy.contains(":"))
 			strategy = strategy.substring(0, strategy.indexOf(':'));
 
 		logger.info("Minimization Strategy: " + strategy);
-		minimizeTests(suite);
-		//if (strategy.equals("maxlength"))
-		//	
-		//else
-		//	minimizeSuite(suite);
+
+		if (strategy.equals("maxlength"))
+			minimizeTests(suite);
+		else
+			minimizeSuite(suite);
 	}
 
 	/**
@@ -128,6 +136,16 @@ public class TestSuiteMinimizer {
 		// suite.tests = minimizedTests;
 	}
 
+	private boolean isTimeoutReached() {
+		long current_time = System.currentTimeMillis();
+		if (max_seconds != 0 && start_time != 0
+		        && (current_time - start_time) / 1000 > max_seconds)
+			logger.info("Timeout reached");
+
+		return max_seconds != 0 && start_time != 0
+		        && (current_time - start_time) / 1000 > max_seconds;
+	}
+
 	/**
 	 * Minimize test suite with respect to the isCovered Method of the goals
 	 * defined by the supplied TestFitnessFactory
@@ -184,13 +202,19 @@ public class TestSuiteMinimizer {
 		fitness = testFitnessFactory.getFitness(suite);
 
 		boolean changed = true;
-		while (changed) {
+		while (changed && !isTimeoutReached()) {
 			changed = false;
 
 			removeEmptyTestCases(suite);
 
 			for (TestChromosome testChromosome : suite.tests) {
+				if (isTimeoutReached())
+					break;
+
 				for (int i = testChromosome.size() - 1; i >= 0; i--) {
+					if (isTimeoutReached())
+						break;
+
 					logger.debug("Current size: " + suite.size() + "/"
 					        + suite.totalLengthOfTestCases());
 					logger.debug("Deleting statement "
