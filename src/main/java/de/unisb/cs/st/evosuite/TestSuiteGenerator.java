@@ -478,7 +478,7 @@ public class TestSuiteGenerator {
 					logger.info("Found solution, adding to test suite at "
 					        + MaxStatementsStoppingCondition.getNumExecutedStatements());
 					TestChromosome best = (TestChromosome) ga.getBestIndividual();
-					if (Properties.MINIMIZE) {
+					if (Properties.MINIMIZE && !Properties.MINIMIZE_OLD) {
 						TestCaseMinimizer minimizer = new TestCaseMinimizer(
 						        fitness_function);
 						minimizer.minimize(best);
@@ -530,6 +530,7 @@ public class TestSuiteGenerator {
 		else
 			System.out.println("* Remaining budget: " + (total_budget - current_budget));
 		ga.printBudget();
+
 		int c = 0;
 		int uncovered_goals = total_goals - covered_goals;
 		if (uncovered_goals < 10)
@@ -573,6 +574,14 @@ public class TestSuiteGenerator {
 		}
 
 		// Generate a test suite chromosome once all test cases are done?
+		if (Properties.MINIMIZE && Properties.MINIMIZE_OLD) {
+			System.out.println("* Minimizing result");
+			logger.info("Size before: " + suite.totalLengthOfTestCases());
+			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
+			minimizer.minimize(suite);
+			logger.info("Size after: " + suite.totalLengthOfTestCases());
+		}
+
 		/*
 		 * if(Properties.MINIMIZE) { System.out.println("* Minimizing result");
 		 * TestSuiteMinimizer minimizer = new TestSuiteMinimizer();
