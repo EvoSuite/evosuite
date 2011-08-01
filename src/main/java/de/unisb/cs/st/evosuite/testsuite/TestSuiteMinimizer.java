@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -31,13 +32,18 @@ import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.ga.MinimizeSizeSecondaryObjective;
 import de.unisb.cs.st.evosuite.junit.TestSuite;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
+import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
+import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
@@ -74,10 +80,10 @@ public class TestSuiteMinimizer {
 
 		logger.info("Minimization Strategy: " + strategy);
 
-		if (strategy.equals("maxlength"))
-			minimizeTests(suite);
-		else
+		if (Properties.MINIMIZE_OLD)
 			minimizeSuite(suite);
+		else
+			minimizeTests(suite);
 	}
 
 	/**
@@ -147,6 +153,77 @@ public class TestSuiteMinimizer {
 	}
 
 	/**
+	 * Execute a single test case
+	 * 
+	 * @param test
+	 * @return
+	 */
+	@Deprecated
+	private ExecutionResult runTest(TestCase test) {
+		ExecutionResult result = new ExecutionResult(test, null);
+		TestCaseExecutor executor = TestCaseExecutor.getInstance();
+		try {
+			result = executor.execute(test);
+		} catch (Exception e) {
+			System.out.println("TG: Exception caught: " + e);
+			try {
+				Thread.sleep(1000);
+				result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
+			} catch (Exception e1) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 
+	 * Calculate the number of covered branches
+	 * 
+	 * This is just so much faster than checking individual goals, so let's keep
+	 * it until we've changed to minimizeTests for real.
+	 * 
+	 * @param suite
+	 * 
+	 * @return
+	 */
+	@Deprecated
+	private int getNumUncoveredBranches(TestSuiteChromosome suite) {
+		Set<Integer> covered_true = new HashSet<Integer>();
+		Set<Integer> covered_false = new HashSet<Integer>();
+		Set<String> called_methods = new HashSet<String>();
+		int total_goals = BranchCoverageSuiteFitness.total_goals;
+		int num = 0;
+		for (TestChromosome test : suite.tests) {
+			ExecutionResult result = null;
+			if (test.isChanged() || test.getLastExecutionResult() == null) {
+				logger.debug("Executing test " + num);
+				result = runTest(test.getTestCase());
+				test.setLastExecutionResult(result.clone());
+				test.setChanged(false);
+			} else {
+				logger.debug("Skipping test " + num);
+				result = test.getLastExecutionResult();
+			}
+			called_methods.addAll(result.getTrace().covered_methods.keySet());
+			for (Entry<Integer, Double> entry : result.getTrace().true_distances.entrySet()) {
+				if (entry.getValue() == 0)
+					covered_true.add(entry.getKey());
+			}
+
+			for (Entry<Integer, Double> entry : result.getTrace().false_distances.entrySet()) {
+				if (entry.getValue() == 0)
+					covered_false.add(entry.getKey());
+			}
+			num++;
+		}
+		logger.debug("Called methods: " + called_methods.size());
+		return total_goals
+		        - (covered_true.size() + covered_false.size() + called_methods.size());
+	}
+
+	/**
 	 * Minimize test suite with respect to the isCovered Method of the goals
 	 * defined by the supplied TestFitnessFactory
 	 * 
@@ -193,13 +270,20 @@ public class TestSuiteMinimizer {
 
 		// double fitness = fitness_function.getFitness(suite);
 		// double coverage = suite.coverage;
+
+		boolean branch = false;
+		if (testFitnessFactory instanceof BranchCoverageFactory) {
+			logger.info("Using old branch minimization function");
+			branch = true;
+		}
+
 		double fitness = 0;
 
-		//if (branch)
-		//	fitness = getNumCoveredBranches(suite);
-		//else
-		//logger.fatal("type:::: " + testFitnessFactory.getClass());
-		fitness = testFitnessFactory.getFitness(suite);
+		if (branch)
+			fitness = getNumUncoveredBranches(suite);
+		else
+			//logger.fatal("type:::: " + testFitnessFactory.getClass());
+			fitness = testFitnessFactory.getFitness(suite);
 
 		boolean changed = true;
 		while (changed && !isTimeoutReached()) {
@@ -236,10 +320,10 @@ public class TestSuiteMinimizer {
 					// logger.debug(test.test.toCode());
 
 					double modifiedVerFitness = 0;
-					//if (branch)
-					//	new_fitness = getNumCoveredBranches(suite);
-					//else
-					modifiedVerFitness = testFitnessFactory.getFitness(suite);
+					if (branch)
+						modifiedVerFitness = getNumUncoveredBranches(suite);
+					else
+						modifiedVerFitness = testFitnessFactory.getFitness(suite);
 
 					if (Double.compare(modifiedVerFitness, fitness) <= 0) {
 						fitness = modifiedVerFitness;

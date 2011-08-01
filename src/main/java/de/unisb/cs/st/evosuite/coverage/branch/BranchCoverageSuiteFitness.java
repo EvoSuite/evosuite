@@ -46,14 +46,13 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = 2991632394620406243L;
 
-	@SuppressWarnings("hiding")
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
-	public final int total_methods = TestCluster.getInstance().num_defined_methods;
+	public static final int total_methods = TestCluster.getInstance().num_defined_methods;
 
-	public final int total_branches = BranchPool.getBranchCounter();
+	public static final int total_branches = BranchPool.getBranchCounter();
 
-	public final int branchless_methods = BranchPool.getBranchlessMethods().size();
+	public static final int branchless_methods = BranchPool.getBranchlessMethods().size();
 
 	public int covered_branches = 0;
 
@@ -61,7 +60,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	public double best_fitness = Double.MAX_VALUE;
 
-	public final int total_goals = 2 * total_branches + branchless_methods;
+	public static final int total_goals = 2 * total_branches + branchless_methods;
 
 	protected boolean check = false;
 

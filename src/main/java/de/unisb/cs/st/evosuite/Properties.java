@@ -300,6 +300,9 @@ public class Properties {
 	@Parameter(key = "minimize", group = "Output", description = "Minimize test suite after generation")
 	public static boolean MINIMIZE = true;
 
+	@Parameter(key = "minimize_old", group = "Output", description = "Minimize test suite using old algorithm")
+	public static boolean MINIMIZE_OLD = false;
+
 	@Parameter(key = "inline", group = "Output", description = "Inline all constants")
 	public static boolean INLINE = false;
 
