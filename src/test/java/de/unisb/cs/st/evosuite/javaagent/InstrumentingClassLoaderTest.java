@@ -82,9 +82,9 @@ public class InstrumentingClassLoaderTest {
 		Assert.assertTrue(changedClass.hashCode() != originalClass.hashCode());
 		
 		InnerClassesTestSubject original = originalClass.newInstance();
-		Assert.assertEquals("abc", original.toString());
+		Assert.assertEquals("abcd", original.toString());
 		
 		Object modified = changedClass.newInstance();
-		Assert.assertEquals("abc", modified.toString());		
+		Assert.assertEquals("abcd", modified.toString());		
 	}
 }
