@@ -567,7 +567,7 @@ public class DefUseFitnessCalculations {
 			System.out.println(cutTrace.toDefUseTraceInformation());
 			System.out.println("duPosStart: " + duCounterStart);
 			System.out.println("duPosEnd: " + duCounterEnd);
-			int targetUseBranchBytecode = BranchPool.getBytecodeIdFor(targetDU.getControlDependentBranchId());
+			int targetUseBranchBytecode = targetDU.getControlDependentBranch().getInstruction().getInstructionId();
 			System.out.println("targetDU-branch-bytecode: " + targetUseBranchBytecode);
 			DefUseExecutionTraceAnalyzer.printFinishCalls(cutTrace);
 			throw new IllegalStateException("use cant have fitness 0 in this cut trace: "

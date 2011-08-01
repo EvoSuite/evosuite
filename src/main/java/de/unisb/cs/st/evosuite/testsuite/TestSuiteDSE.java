@@ -111,7 +111,7 @@ public class TestSuiteDSE {
 		if (!jpfBranchMap.containsKey(key)) {
 			jpfBranchMap.put(key, new HashSet<Integer>());
 		}
-		jpfBranchMap.get(key).add(b.getJPFId());
+		jpfBranchMap.get(key).add(b.getInstruction().getJPFId());
 	}
 
 	/**

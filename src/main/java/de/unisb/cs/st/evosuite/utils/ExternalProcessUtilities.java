@@ -31,8 +31,7 @@ public class ExternalProcessUtilities {
 			out = new ObjectOutputStream(connection.getOutputStream());
 			in = new ObjectInputStream(connection.getInputStream());
 		} catch (Exception e) {
-			System.out.println("not possible to connect to main process: " + e);
-			e.printStackTrace();
+			logger.error("not possible to connect to main process",e);
 			return false;
 		}
 
@@ -49,7 +48,7 @@ public class ExternalProcessUtilities {
 				return population_data;
 			}
 		} catch (Exception e) {
-			logger.debug("error in receiving message", e);
+			logger.error("error in receiving message", e);
 		}
 
 		throw new RuntimeException("no valid message received");
@@ -70,13 +69,15 @@ public class ExternalProcessUtilities {
 			out.writeObject(population_data);
 			out.flush();
 		} catch (Exception e) {
-			logger.debug("error in sending messages");
+			logger.error("error in sending messages",e);
 		}
 
 		//main process will kill this one, but we can exit here just to be sure
 		try {
 			Thread.sleep(1000);
-		} catch (InterruptedException e) {
+		} catch (InterruptedException e) 
+		{
+			logger.warn("Thread interrupted while waiting for results from client process",e);
 		}
 
 		System.exit(0);

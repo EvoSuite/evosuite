@@ -492,7 +492,7 @@ public class BytecodeInstruction extends ASMWrapper {
 		do {
 			if (vertexHolder.isDirectlyControlDependentOn(branch))
 				return true;
-			vertexHolder = vertexHolder.getControlDependentBranch();
+			vertexHolder = vertexHolder.getControlDependentBranch().getInstruction();
 		} while (vertexHolder != null);
 
 		return false;
@@ -515,7 +515,7 @@ public class BytecodeInstruction extends ASMWrapper {
 		int r = 1;
 		while (current != null) {
 			r++;
-			current = current.getControlDependentBranch();
+			current = current.getInstruction().getControlDependentBranch();
 		}
 		return r;
 	}
