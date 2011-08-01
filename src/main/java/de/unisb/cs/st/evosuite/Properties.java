@@ -259,6 +259,10 @@ public class Properties {
 	@IntValue(min = 0)
 	public static int GLOBAL_TIMEOUT = 600;
 
+	@Parameter(key = "minimization_timeout", group = "Search Algorithm", description = "Seconds allowed for minimization at the end")
+	@IntValue(min = 0)
+	public static int MINIMIZATION_TIMEOUT = 600;
+
 	// ---------------------------------------------------------------
 	// Single branch mode
 	@Parameter(key = "random_tests", group = "Single Branch Mode", description = "Number of random tests to run before test generation (Single branch mode)")
