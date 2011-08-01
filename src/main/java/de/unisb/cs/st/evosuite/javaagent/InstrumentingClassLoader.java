@@ -4,9 +4,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.objectweb.asm.ClassReader;
 
 import de.unisb.cs.st.evosuite.Properties;
 
@@ -32,7 +32,12 @@ public class InstrumentingClassLoader extends ClassLoader {
 			if (isTargetClass(name)) {
 				return instrumentClass(name);
 			} else {
-				return loadClassByteCode(name);
+				Class<?> result = findLoadedClass(name);
+				if (result != null) {
+					return result;
+				} else {
+					return loadClassByteCode(name);
+				}
 			}
 		}
 		Class<?> result = findLoadedClass(name);
@@ -43,12 +48,20 @@ public class InstrumentingClassLoader extends ClassLoader {
 		return result;
 	}
 
-	private Class<?> instrumentClass(String fullyQualifiedTargetClass) throws ClassNotFoundException {
+	private Class<?> instrumentClass(String fullyQualifiedTargetClass)
+	        throws ClassNotFoundException {
 		logger.info("Instrumenting class '" + fullyQualifiedTargetClass + "'.");
 		try {
 			String className = fullyQualifiedTargetClass.replace('.', '/');
-			byte[] byteBuffer = instrumentation.transformBytes(className, new ClassReader(fullyQualifiedTargetClass));
-			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0, byteBuffer.length);
+			InputStream is = ClassLoader.getSystemResourceAsStream(className + ".class");
+			if (is == null) {
+				throw new ClassNotFoundException(
+				        "Class should be in target project, but could not be found!");
+			}
+			byte[] byteBuffer = instrumentation.transformBytes(className,
+			                                                   new ClassReader(is));
+			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,
+			                              byteBuffer.length);
 			return result;
 		} catch (Exception e) {
 			throw new ClassNotFoundException(e.getMessage());
@@ -56,7 +69,8 @@ public class InstrumentingClassLoader extends ClassLoader {
 	}
 
 	private boolean isTargetClass(String className) {
-		if (className.equals(Properties.TARGET_CLASS) || className.startsWith(Properties.TARGET_CLASS + "$")) {
+		if (className.equals(Properties.TARGET_CLASS)
+		        || className.startsWith(Properties.TARGET_CLASS + "$")) {
 			return true;
 		}
 		return false;
@@ -67,9 +81,11 @@ public class InstrumentingClassLoader extends ClassLoader {
 			throw new IllegalStateException("Cannot load java system classes!");
 		}
 		try {
-			InputStream is = ClassLoader.getSystemResourceAsStream(name.replace('.', '/') + ".class");
+			InputStream is = ClassLoader.getSystemResourceAsStream(name.replace('.', '/')
+			        + ".class");
 			if (is == null) {
-				throw new ClassNotFoundException("Class should be in target project, but could not be found!");
+				throw new ClassNotFoundException(
+				        "Class should be in target project, but could not be found!");
 			}
 			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 			int nRead;
