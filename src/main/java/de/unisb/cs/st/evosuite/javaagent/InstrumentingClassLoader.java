@@ -29,12 +29,12 @@ public class InstrumentingClassLoader extends ClassLoader {
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 		if (instrumentation.isTargetProject(name)) {
 			// if (TestCluster.isTargetClassName(name)) {
-			if (isTargetClass(name)) {
-				return instrumentClass(name);
+			Class<?> result = findLoadedClass(name);
+			if (result != null) {
+				return result;
 			} else {
-				Class<?> result = findLoadedClass(name);
-				if (result != null) {
-					return result;
+				if (isTargetClass(name)) {
+					return instrumentClass(name);
 				} else {
 					return loadClassByteCode(name);
 				}
