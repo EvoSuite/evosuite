@@ -135,28 +135,30 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			fitness += normalize(LCSAJFitnesses.get(l));
 		}
 		logger.debug("Combined fitness: " + fitness);
-		/*
-				for (Integer executedID : expectedTrueExecutions.keySet()) {
-					if (!trueExecutions.containsKey(executedID))
-						fitness += expectedTrueExecutions.get(executedID);
-					else {
-						if (trueExecutions.get(executedID) < expectedTrueExecutions.get(executedID))
-							fitness += expectedTrueExecutions.get(executedID)
-							        - trueExecutions.get(executedID);
-					}
-				}
-				for (Integer executedID : expectedFalseExecutions.keySet()) {
-					if (!falseExecutions.containsKey(executedID))
-						fitness += expectedFalseExecutions.get(executedID);
-					else {
-						if (falseExecutions.get(executedID) < expectedFalseExecutions.get(executedID))
-							fitness += expectedFalseExecutions.get(executedID)
-							        - falseExecutions.get(executedID);
-					}
-				}
+		double missingBranches = 0.0;
+		for (Integer executedID : expectedTrueExecutions.keySet()) {
+			if (!trueExecutions.containsKey(executedID))
+				missingBranches += expectedTrueExecutions.get(executedID);
+			else {
+				if (trueExecutions.get(executedID) < expectedTrueExecutions.get(executedID))
+					missingBranches += expectedTrueExecutions.get(executedID)
+					        - trueExecutions.get(executedID);
+			}
+		}
+		for (Integer executedID : expectedFalseExecutions.keySet()) {
+			if (!falseExecutions.containsKey(executedID))
+				missingBranches += expectedFalseExecutions.get(executedID);
+			else {
+				if (falseExecutions.get(executedID) < expectedFalseExecutions.get(executedID))
+					missingBranches += expectedFalseExecutions.get(executedID)
+					        - falseExecutions.get(executedID);
+			}
+		}
 
-				logger.info("Combined fitness with correction: " + fitness);
-		*/
+		fitness += normalize(missingBranches);
+
+		logger.info("Combined fitness with correction: " + fitness);
+
 		updateIndividual(individual, fitness);
 
 		double coverage = 0.0;
