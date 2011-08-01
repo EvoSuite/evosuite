@@ -9,22 +9,25 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.jfree.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TimeoutHandler<T> {
 	protected FutureTask<T> task = null;
 
+	protected static Logger logger = LoggerFactory.getLogger(TimeoutHandler.class);
+
 	public FutureTask<T> getLastTask() {
 		return task;
 	}
-	
-	public T execute(final Callable<T> testcase, ExecutorService executor, long timeout, boolean timeout_based_on_cpu) throws TimeoutException, InterruptedException, ExecutionException
-	{
-		ThreadMXBean bean = ManagementFactory.getThreadMXBean( );
-		if(!bean.isCurrentThreadCpuTimeSupported()  && timeout_based_on_cpu)
-		{
+
+	public T execute(final Callable<T> testcase, ExecutorService executor, long timeout,
+	        boolean timeout_based_on_cpu) throws TimeoutException, InterruptedException,
+	        ExecutionException {
+		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+		if (!bean.isCurrentThreadCpuTimeSupported() && timeout_based_on_cpu) {
 			timeout_based_on_cpu = false;
-			Log.warn("Requested to use timeout_based_on_cpu, but it is not supported by the JVM/OS");
+			logger.warn("Requested to use timeout_based_on_cpu, but it is not supported by the JVM/OS");
 		}
 
 		if (!timeout_based_on_cpu) {
