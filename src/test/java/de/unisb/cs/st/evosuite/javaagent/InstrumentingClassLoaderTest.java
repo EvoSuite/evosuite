@@ -66,4 +66,25 @@ public class InstrumentingClassLoaderTest {
 		Assert.assertFalse(execTrace.false_distances.isEmpty());
 		ExecutionTracer.getExecutionTracer().clear();
 	}
+	
+	@Test
+	public void testInnerClasses() throws Exception
+	{
+		Class<? extends InnerClassesTestSubject> originalClass = InnerClassesTestSubject.class;
+		
+		Properties.TARGET_CLASS = originalClass.getName();
+		Properties.PROJECT_PREFIX = originalClass.getPackage().getName();
+		InstrumentingClassLoader instrumentingClassLoader = new InstrumentingClassLoader();
+		
+		Class<?> changedClass = instrumentingClassLoader.loadClass(InnerClassesTestSubject.class.getName());
+		
+		Assert.assertEquals(instrumentingClassLoader, changedClass.getClassLoader());
+		Assert.assertTrue(changedClass.hashCode() != originalClass.hashCode());
+		
+		InnerClassesTestSubject original = originalClass.newInstance();
+		Assert.assertEquals("abc", original.toString());
+		
+		Object modified = changedClass.newInstance();
+		Assert.assertEquals("abc", modified.toString());		
+	}
 }
