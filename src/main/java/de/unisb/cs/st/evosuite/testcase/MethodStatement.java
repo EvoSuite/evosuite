@@ -167,6 +167,8 @@ public class MethodStatement extends AbstractStatement {
 			});
 
 		} catch (InvocationTargetException e) {
+			System.setOut(old_out);
+			System.setErr(old_err);
 			exceptionThrown = e.getCause();
 			logger.debug("Exception thrown in method {}: {}", method.getName(),
 			             exceptionThrown);
