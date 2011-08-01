@@ -1,5 +1,8 @@
 package de.unisb.cs.st.evosuite.javaagent;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,6 +21,8 @@ import de.unisb.cs.st.evosuite.utils.Utils;
  */
 public class CIClassAdapter extends ClassAdapter {
 
+	private String className;
+	
 	public CIClassAdapter(ClassVisitor cv) {
 		super(cv);
 	}
@@ -26,12 +31,19 @@ public class CIClassAdapter extends ClassAdapter {
 	private final Set<String> classesReferenced = new HashSet<String>();
 
 	@Override
+	public void visit(int version, int access, String name, String signature,
+			String superName, String[] interfaces) {
+		this.className = name;
+		super.visit(version, access, name, signature, superName, interfaces);
+	}
+	
+	@Override
 	public FieldVisitor visitField(int access, String name, String desc,
 	        String signature, Object value) {
 		if (value != null)
 			classesReferenced.addAll(Utils.classesDescFromString(value.toString()));
 		classesReferenced.addAll(Utils.classesDescFromString(desc));
-		return super.visitField(access, name, desc, signature, value);
+		return null;
 	}
 
 	@Override
@@ -42,16 +54,27 @@ public class CIClassAdapter extends ClassAdapter {
 				classesReferenced.add(e);
 
 		classesReferenced.addAll(Utils.classesDescFromString(desc));
-		return super.visitMethod(access, name, desc, signature, exceptions);
+		return mv;
 	}
 
 	@Override
 	public void visitEnd() {
-		classesReferenced.addAll(mv.getClassesReferenced());
+		saveCItoFile(mv.getClassesReferenced());
 		super.visitEnd();
 	}
 
-	public Set<String> getClassesReferenced() {
-		return classesReferenced;
+	private void saveCItoFile(Set<String> cr){
+		try {
+			cr.remove(className);
+			FileWriter fw = new FileWriter("evosuite-files/" + className.replace("/", ".") + ".CIs");
+			BufferedWriter bw = new BufferedWriter(fw);
+			String lineSeparator = System.getProperty("line.separator");
+			for(String s : cr)
+				bw.write(s + lineSeparator);
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
 }

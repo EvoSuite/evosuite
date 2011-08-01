@@ -156,7 +156,7 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		fitness += normalize(missingBranches);
-
+		
 		logger.info("Combined fitness with correction: " + fitness);
 
 		updateIndividual(individual, fitness);
