@@ -104,8 +104,8 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 
 		// TODO map this to new CDG !
 
-		return branch.isDirectlyControlDependentOn(goal.branch)
-		        || goal.branch.isDirectlyControlDependentOn(branch);
+		return branch.getInstruction().isDirectlyControlDependentOn(goal.branch)
+		        || goal.branch.getInstruction().isDirectlyControlDependentOn(branch);
 	}
 
 	/**
@@ -117,7 +117,7 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 		// TODO map this to new CDG !
 
 		if (branch != null) {
-			r += branch.getCDGDepth();
+			r += branch.getInstruction().getCDGDepth();
 		}
 		return r;
 	}
@@ -220,10 +220,10 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + (branch == null ? 0 : branch.getActualBranchId());
-		result = prime * result + (branch == null ? 0 : branch.getInstructionId());
+		result = prime * result + (branch == null ? 0 : branch.getInstruction().getInstructionId());
 		// TODO sure you want to call hashCode() on the cfg? doesn't that take long?
 		result = prime * result
-		        + ((branch == null) ? 0 : branch.getActualCFG().hashCode());
+		        + ((branch == null) ? 0 : branch.getInstruction().getActualCFG().hashCode());
 		result = prime * result + className.hashCode();
 		result = prime * result + methodName.hashCode();
 		result = prime * result + (value ? 1231 : 1237);

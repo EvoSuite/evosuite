@@ -31,7 +31,7 @@ public class LCSAJPool {
 		Logger logger = LoggerFactory.getLogger(LCSAJPool.class);
 		logger.info("Adding LCSAJ: " + lcsaj);
 		for (Branch branch : lcsaj.getBranchInstructions()) {
-			logger.info(" -> " + branch.getASMNodeString());
+			logger.info(" -> " + branch.getInstruction().getASMNodeString());
 		}
 
 	}
@@ -79,7 +79,7 @@ public class LCSAJPool {
 		int min = Integer.MAX_VALUE;
 		for (String methodName : lcsaj_map.get(className).keySet())
 			for (LCSAJ l : lcsaj_map.get(className).get(methodName)){
-				int branches = l.getLastBranch().getAllControlDependentBranches().size();
+				int branches = l.getLastBranch().getInstruction().getAllControlDependentBranches().size();
 				if (branches < min)
 					min = branches;
 		}
@@ -90,7 +90,7 @@ public class LCSAJPool {
 		int max = Integer.MIN_VALUE;
 		for (String methodName : lcsaj_map.get(className).keySet())
 			for (LCSAJ l : lcsaj_map.get(className).get(methodName)){
-				int branches = l.getLastBranch().getAllControlDependentBranches().size();
+				int branches = l.getLastBranch().getInstruction().getAllControlDependentBranches().size();
 					if (branches > max)
 						max = branches;
 		}
@@ -102,7 +102,7 @@ public class LCSAJPool {
 		int n = 0;
 		for (String methodName : lcsaj_map.get(className).keySet())
 			for (LCSAJ l : lcsaj_map.get(className).get(methodName)){
-					int branches = l.getLastBranch().getAllControlDependentBranches().size();
+					int branches = l.getLastBranch().getInstruction().getAllControlDependentBranches().size();
 					avg += branches;
 					n++;
 			}
