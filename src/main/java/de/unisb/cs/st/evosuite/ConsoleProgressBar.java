@@ -7,6 +7,7 @@ import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
+import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 
 /**
  * @author fraser
@@ -14,7 +15,7 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
  */
 public class ConsoleProgressBar implements SearchListener {
 
-	public static void printProgressBar(int percent) {
+	public static void printProgressBar(int percent, int coverage) {
 		StringBuilder bar = new StringBuilder("[");
 
 		for (int i = 0; i < 50; i++) {
@@ -27,7 +28,7 @@ public class ConsoleProgressBar implements SearchListener {
 			}
 		}
 
-		bar.append("]   " + percent + "%     ");
+		bar.append("]   " + percent + "%  [Coverage: " + coverage + "%]");
 		System.out.print("\r" + bar.toString());
 	}
 
@@ -50,7 +51,8 @@ public class ConsoleProgressBar implements SearchListener {
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
 		int current = stoppingCondition.getCurrentValue();
-		printProgressBar(100 * current / max);
+		printProgressBar(100 * current / max,
+		                 (int) Math.round(((TestSuiteChromosome) algorithm.getBestIndividual()).getCoverage() * 100));
 	}
 
 	/* (non-Javadoc)
