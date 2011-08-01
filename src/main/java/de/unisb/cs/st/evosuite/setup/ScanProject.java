@@ -254,9 +254,12 @@ public class ScanProject {
 	 * @param className
 	 */
 	private static void generateMocksAndStubs(String className) {
+		System.out.println(className);
+		if(className == null)
+			return;
 		Set<String> classNames = new HashSet<String>();
 		classNames.addAll(Utils.readFile("evosuite-files/"
-		        + className.replace("/", ".").replace("class", "") + "CIs"));
+		        + className.replace("/", ".").replace("class", "") + ".CIs"));
 		Set<Class<?>> classes = new HashSet<Class<?>>();
 		try {
 			for (String cn : classNames) {
@@ -291,7 +294,6 @@ public class ScanProject {
 		for (String name : list) {
 			System.out.println("* Loading class " + name);
 			set.addAll(loadClass(new File(name), packageName, silent));
-			//generateMocksAndStubs(name);
 		}
 
 		return set;
@@ -453,8 +455,10 @@ public class ScanProject {
 				CIClassAdapter ci = new CIClassAdapter(distance);
 
 				reader.accept(ci, ClassReader.SKIP_FRAMES);
-
+				
+				
 				classEntries.add(new ClassEntry(clazz.getName(), cv.getSupers()));
+				//generateMocksAndStubs(clazz.getCanonicalName());
 
 			} catch (IOException e) {
 				System.out.println(e + ": /" + clazz.getName().replace(".", "/")
