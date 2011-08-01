@@ -78,12 +78,13 @@
 	<artifactId>asm-all</artifactId>
 	<version>3.3</version>
       </dependency>
+      <!--
       <dependency>
         <groupId>choco</groupId>
         <artifactId>choco</artifactId>
-<!--        <version>2.1.1-SNAPSHOT</version> -->
         <version>2.1.1-20101108.160635-17</version> 
       </dependency>
+      -->
 <!--      
       <dependency>
         <groupId>choco</groupId>
@@ -254,11 +255,18 @@
 	<version>1.1</version>
       </dependency>
       
-		<dependency>
+<dependency>
+  <groupId>org.eclipse.tycho</groupId>
+    <artifactId>org.eclipse.jdt.core</artifactId>
+      <version>3.6.2.v_A76_R36x</version>
+      </dependency>
+      <!--
+      		<dependency>
 			<groupId>org.eclipse.jdt</groupId>
 			<artifactId>core</artifactId>
-			<version>3.6.0</version>
+			<version>3.6.2.v_A76_R36x</version>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>org.eclipse.jdt</groupId>
 			<artifactId>ui</artifactId>
@@ -311,10 +319,12 @@
 	<url>http://titania.fs.uni-saarland.de/nexus/content/groups/public/</url>
 	<layout>default</layout>
       </repository>
+      <!--
       <repository>
         <id>choco.repo</id>
         <url>http://www.emn.fr/z-info/choco-solver/mvn/repository/</url>
       </repository>
+      -->
     </repositories>
 
     <pluginRepositories>
