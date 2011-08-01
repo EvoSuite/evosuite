@@ -173,6 +173,8 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 				testThread.start();
 				testFutures.add(testFuture);
 			} catch (CodeUnderTestException e) {
+				System.setOut(sysoutOrg);
+				System.setErr(syserrOrg);
 				logger.error("This should never happen", e);
 				throw new AssertionError("this should never happen");
 			}
@@ -189,6 +191,8 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 			controllerFuture.get();
 			return result;
 		} catch (Throwable e) {
+			System.setOut(sysoutOrg);
+			System.setErr(syserrOrg);
 			if (e.getCause() != null)
 				e.getCause().printStackTrace();
 			logger.error("why....", e);
