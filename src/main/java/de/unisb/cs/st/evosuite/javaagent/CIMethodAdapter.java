@@ -29,15 +29,14 @@ public class CIMethodAdapter extends MethodAdapter {
 	}
 
     public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-    	
-    	classesReferenced.add(owner);
+    	classesReferenced.addAll(Utils.classesDescFromString(owner));
     	classesReferenced.addAll(Utils.classesDescFromString(desc));
     }
     
     @Override
     public void visitFieldInsn(int opcode, String owner, String name,
     		String desc) {
-    	classesReferenced.add(owner);
+    	classesReferenced.addAll(Utils.classesDescFromString(owner));
        	classesReferenced.addAll(Utils.classesDescFromString(desc));
     }
     

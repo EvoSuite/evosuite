@@ -160,12 +160,15 @@ public class ExternalProcessHandler {
 				try {
 					BufferedReader proc_in = new BufferedReader(new InputStreamReader(
 					        process.getInputStream()));
-					String data = "";
-					while (data != null && !isInterrupted()) {
-						data = proc_in.readLine();
-						if (data != null)
-							System.out.println(data);
+
+					int data = 0;
+					while(data!=-1 && !isInterrupted())
+					{
+						data = proc_in.read();
+						if(data!=-1)
+							System.out.print((char)data);
 					}
+					
 				} catch (Exception e) {
 					logger.error("Exception while reading output of client process",e);
 				}
