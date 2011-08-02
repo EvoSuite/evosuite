@@ -51,8 +51,7 @@ public class CIClassAdapter extends ClassAdapter {
 	        String signature, String[] exceptions) {
 		if (exceptions != null)
 			for (String e : exceptions)
-				classesReferenced.add(e);
-
+				classesReferenced.addAll(Utils.classesDescFromString(e));
 		classesReferenced.addAll(Utils.classesDescFromString(desc));
 		return mv;
 	}
