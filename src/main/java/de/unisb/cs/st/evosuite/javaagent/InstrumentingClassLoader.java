@@ -77,8 +77,8 @@ public class InstrumentingClassLoader extends ClassLoader {
 	}
 
 	private Class<?> loadClassByteCode(String name) throws ClassNotFoundException {
-		if (name.startsWith("java") || name.startsWith("sun")) {
-			throw new IllegalStateException("Cannot load java system classes!");
+		if (name.startsWith("java.") || name.startsWith("sun.")) {
+			throw new IllegalStateException("Cannot load java system class: " + name);
 		}
 		try {
 			InputStream is = ClassLoader.getSystemResourceAsStream(name.replace('.', '/')
