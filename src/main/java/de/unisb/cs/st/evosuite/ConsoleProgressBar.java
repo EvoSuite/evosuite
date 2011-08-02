@@ -16,8 +16,9 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 public class ConsoleProgressBar implements SearchListener {
 
 	public static void printProgressBar(int percent, int coverage) {
-		StringBuilder bar = new StringBuilder("[");
+		StringBuilder bar = new StringBuilder("[Progress:");
 
+		/*
 		for (int i = 0; i < 50; i++) {
 			if (i < (percent / 2)) {
 				bar.append("=");
@@ -27,9 +28,36 @@ public class ConsoleProgressBar implements SearchListener {
 				bar.append(" ");
 			}
 		}
-
 		bar.append("]   " + percent + "%  [Coverage: " + coverage + "%]");
 		System.out.print("\r" + bar.toString());
+		*/
+
+		for (int i = 0; i < 30; i++) {
+			if (i < (int) (percent * 0.30)) {
+				bar.append("=");
+			} else if (i == (int) (percent * 0.30)) {
+				bar.append(">");
+			} else {
+				bar.append(" ");
+			}
+		}
+
+		bar.append(percent + "%][Cov:");
+
+		for (int i = 0; i < 35; i++) {
+			if (i < (int) (coverage * 0.35)) {
+				bar.append("=");
+			} else if (i == (int) (coverage * 0.35)) {
+				bar.append(">");
+			} else {
+				bar.append(" ");
+			}
+		}
+
+		bar.append(coverage + "%]");
+
+		System.out.print("\r" + bar.toString());
+
 	}
 
 	private StoppingCondition stoppingCondition = null;
