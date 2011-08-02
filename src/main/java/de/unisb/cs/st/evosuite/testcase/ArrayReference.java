@@ -39,8 +39,8 @@ public class ArrayReference extends VariableReferenceImpl {
 				return otherArray;
 			} else {
 				throw new RuntimeException("After cloning the array disappeared: "
-				        + newRef.getName() + " in test " + newTestCase.toCode()
-				        + " / old test: " + testCase.toCode());
+				        + getName() + "/" + newRef.getName() + " in test "
+				        + newTestCase.toCode() + " / old test: " + testCase.toCode());
 			}
 		}
 	}
