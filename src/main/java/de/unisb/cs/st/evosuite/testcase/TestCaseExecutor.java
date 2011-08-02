@@ -299,10 +299,13 @@ public class TestCaseExecutor implements ThreadFactory {
 	@Override
 	public Thread newThread(Runnable r) {
 		if (currentThread != null && currentThread.isAlive()) {
+			currentThread.setPriority(Thread.MIN_PRIORITY);
 			stalledThreads.add(currentThread);
 			logger.info("Current number of stalled threads: " + stalledThreads.size());
 		}
 		currentThread = new Thread(r);
+		if (Properties.CLASSLOADER)
+			currentThread.setContextClassLoader(TestCluster.classLoader);
 		ExecutionTracer.setThread(currentThread);
 		return currentThread;
 	}
