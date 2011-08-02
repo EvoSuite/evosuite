@@ -90,7 +90,7 @@ parse_command_line ()
 				option_valid=0
 				index=0
 				option_takes_parameter=0
-				while [ $index -lt ${#allowed_options} ]; do
+				while [ $index -lt ${#allowed_options[@]} ]; do
 					option=${allowed_options[$index]}
 					if [ "$1" = "$option" ];
 						then {
@@ -352,8 +352,8 @@ setupDir ()
 ##
 generateSuite ()
 {
-	allowed_options=("-EvoSuite" "-OneBranch" "-seed" "-base_dir" "-class" "-criterion" "-sandbox" "-debug" "-process")
-	allowed_options_take_values=(0 0 1 1 1 1 0 0 0)
+	allowed_options=("-EvoSuite" "-OneBranch" "-seed" "-base_dir" "-class" "-criterion" "-sandbox" "-debug" "-process" "-stubs" "-mocks" "-mock_strategies")
+	allowed_options_take_values=(0 0 1 1 1 1 0 0 0 0 0 1)
 	parse_command_line "$@"
 	options_ok=$?
 	if test $options_ok -eq 0;
@@ -363,6 +363,9 @@ generateSuite ()
 		STRATEGY="OneBranch"
 		CRITERION="-Dcriterion=branch"
 		SANDBOX=""
+		STUBS=""
+		MOCKS=""
+		MOCK_STRATEGIES=""
 		java_debug=""
 		random_seed="-Drandom.seed=0"
 		PROCESS=0
@@ -379,6 +382,9 @@ generateSuite ()
 			"-debug") java_debug="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=1044"
 			        echo "*** DEBUGGING MODE *** Start e.g. the eclipse remote debugger with the port given below.";;
 			"-process") PROCESS=1;;
+			"-stubs") STUBS="-Dstubs=true";;
+			"-mocks") MOCKS="-Dmocks=true";;
+			"-mock_strategies") MOCK_STRATEGIES="-Dmock_strategies="${cmdline_options_values[$i]};;
 		    esac
 		done
 
@@ -412,11 +418,11 @@ generateSuite ()
 		    #echo "Current class: $test_class"
 
 		    if [ $PROCESS -eq 1 ]; then
-			CLIENT="java $java_debug -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION -DPROJECT_PREFIX=$PROJECT_PREFIX -DTARGET_CLASS=$test_class $evosuite_client"
+			CLIENT="java $java_debug -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate $SANDBOX $MOCKS $STUBS $MOCK_STRATEGIES $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION -DPROJECT_PREFIX=$PROJECT_PREFIX -DTARGET_CLASS=$test_class $evosuite_client"
 			java -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP"  $random_seed $java_options $java_opts -DTARGET_CLASS=$test_class $evosuite_master $CLIENT
 		    else
-			java $java_debug -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP" -DPROJECT_PREFIX=$PROJECT_PREFIX -DTARGET_CLASS=$test_class -Dclassloader=true $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION   $evosuite_suite
-#			java $java_debug -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP" -DPROJECT_PREFIX=$PROJECT_PREFIX -DTARGET_CLASS=$test_class $java_agent=generate $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION   $evosuite_suite
+			java $java_debug -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP" -DPROJECT_PREFIX=$PROJECT_PREFIX -DTARGET_CLASS=$test_class -Dclassloader=true $SANDBOX $MOCKS $STUBS $MOCK_STRATEGIES $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION   $evosuite_suite
+#			java $java_debug -javaagent:$BASEPATH/target/jmockit.jar -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP" -DPROJECT_PREFIX=$PROJECT_PREFIX -DTARGET_CLASS=$test_class $java_agent=generate $SANDBOX $MOCKS $STUBS $MOCK_STRATEGIES $random_seed $java_options $java_opts -Dstrategy=$STRATEGY $CRITERION   $evosuite_suite
 		    fi
 
 		done

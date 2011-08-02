@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,6 +54,8 @@ class Mocks {
 	 */
 	private final Set<String> filesAccessed = new HashSet<String>();
 	
+	private final Set<String> mock_strategies = 
+			new HashSet<String>(Arrays.asList(Properties.MOCK_STRATEGIES));
 	/**
 	 * Set of mocked classes
 	 */
@@ -81,10 +84,12 @@ class Mocks {
 	public void setUpMocks() {
 		Utils.createDir(sandboxPath);
 		setUpMockedClasses();
-		setUpFileOutputStreamMock();
+		if(mock_strategies.contains("io")){
+			setUpFileOutputStreamMock();
+			setUpFileMock();
+			setUpFileInputStreamMock();
+		}
 		setUpSystemMock();
-		setUpFileMock();
-		setUpFileInputStreamMock();
 		mocksEnabled = true;
 	}
 
@@ -142,22 +147,20 @@ class Mocks {
 		String className = clazz.getCanonicalName();
 		if (className.startsWith("java") || className.startsWith("sun"))
 			return;
-		if (Properties.MOCK_STRATEGY.equals("internal")){
+		if (mock_strategies.contains("internal"))
 			if (className.startsWith(Properties.PROJECT_PREFIX)){
 				Mockit.setUpMocksAndStubs(clazz);
 				classesMocked.add(clazz);
 			}
-			return;
-		}
-		if (Properties.MOCK_STRATEGY.equals("external")){
+		if (mock_strategies.contains("external"))
 			if (!className.startsWith(Properties.PROJECT_PREFIX)){
 				Mockit.setUpMocksAndStubs(clazz);
 				classesMocked.add(clazz);
 			}
-			return;
-		}
-		Mockit.setUpMocksAndStubs(clazz);
-		classesMocked.add(clazz);
+		if (mock_strategies.contains("everything")){
+				Mockit.setUpMocksAndStubs(clazz);
+				classesMocked.add(clazz);
+			}
 	}
 	
 	/**
