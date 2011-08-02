@@ -203,7 +203,7 @@ public class TestSuiteGenerator {
 		// What's the search target
 		FitnessFunction fitness_function = getFitnessFunction();
 		ga.setFitnessFunction(fitness_function);
-		if (!logger.isInfoEnabled())
+		if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
 			ga.addListener(new ConsoleProgressBar());
 
 		if (Properties.CRITERION == Criterion.DEFUSE)
