@@ -28,6 +28,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import sun.misc.Signal;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.Properties.Strategy;
 import de.unisb.cs.st.evosuite.assertion.AssertionGenerator;
@@ -215,8 +216,9 @@ public class TestSuiteGenerator {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		long end_time = System.currentTimeMillis() / 1000;
 		System.out.println("* Search finished after " + (end_time - start_time)
-		        + "s and " + ga.getAge() + " generations, best individual has fitness "
-		        + best.getFitness());
+		        + "s and " + ga.getAge() + " generations, "
+		        + MaxStatementsStoppingCondition.getNumExecutedStatements()
+		        + " statements, best individual has fitness " + best.getFitness());
 
 		if (Properties.MINIMIZE_VALUES) {
 			System.out.println("* Minimizing values");
@@ -258,7 +260,6 @@ public class TestSuiteGenerator {
 		}
 
 		writeExcelStatistics(best);
-
 		return best.getTests();
 	}
 
@@ -433,7 +434,7 @@ public class TestSuiteGenerator {
 		        + NumberFormat.getIntegerInstance().format(total_budget));
 
 		while (current_budget < total_budget && covered_goals < total_goals
-		        && !global_time.isFinished()) {
+		        && !global_time.isFinished() && !ShutdownTestWriter.isInterrupted()) {
 			int budget = (total_budget - current_budget) / (total_goals - covered_goals);
 			logger.info("Budget: " + budget + "/" + (total_budget - current_budget));
 			logger.info("Statements: " + current_budget + "/" + total_budget);
@@ -459,6 +460,10 @@ public class TestSuiteGenerator {
 				logger.info("Goal " + num + "/" + (total_goals - covered_goals) + ": "
 				        + fitness_function);
 
+				if (ShutdownTestWriter.isInterrupted()) {
+					num++;
+					continue;
+				}
 				if (global_time.isFinished()) {
 					System.out.println("Skipping goal because time is up");
 					num++;
@@ -562,8 +567,9 @@ public class TestSuiteGenerator {
 
 		statistics.searchFinished(suiteGA);
 		long end_time = System.currentTimeMillis() / 1000;
-		System.out.println("* Search finished after " + (end_time - start_time)
-		        + "s, best individual has fitness " + suite.getFitness());
+		System.out.println("* Search finished after " + (end_time - start_time) + "s, "
+		        + current_budget + " statements, best individual has fitness "
+		        + suite.getFitness());
 		System.out.println("* Covered " + covered_goals + "/" + goals.size() + " goals");
 		logger.info("Resulting test suite: " + suite.size() + " tests, length "
 		        + suite.totalLengthOfTestCases());
@@ -786,6 +792,7 @@ public class TestSuiteGenerator {
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("restriction")
 	public GeneticAlgorithm setup() {
 
 		ChromosomeFactory<? extends Chromosome> factory = getChromosomeFactory();
@@ -843,6 +850,12 @@ public class TestSuiteGenerator {
 			        * (BranchPool.getBranchlessMethods().size() + BranchPool.getBranchCounter() * 2); // TODO question: is branchMap.size() really what wanted here? I think BranchPool.getBranchCount() was intended here
 			stopping_condition.setLimit(Properties.GENERATIONS);
 			logger.info("Setting dynamic length limit to " + Properties.GENERATIONS);
+		}
+
+		if (Properties.SHUTDOWN_HOOK) {
+			ShutdownTestWriter writer = new ShutdownTestWriter();
+			ga.addStoppingCondition(writer);
+			Signal.handle(new Signal("INT"), writer);
 		}
 
 		return ga;
