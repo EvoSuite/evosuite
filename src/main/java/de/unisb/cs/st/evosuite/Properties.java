@@ -336,6 +336,9 @@ public class Properties {
 	@Parameter(key = "shutdown_hook", group = "Output", description = "Store test suite on Ctrl+C")
 	public static boolean SHUTDOWN_HOOK = true;
 
+	@Parameter(key = "show_progress", group = "Output", description = "Show progress bar on console")
+	public static boolean SHOW_PROGRESS = true;
+
 	//---------------------------------------------------------------
 	// Sandbox
 	@Parameter(key = "sandbox", group = "Sandbox", description = "Execute tests in a sandbox environment")
