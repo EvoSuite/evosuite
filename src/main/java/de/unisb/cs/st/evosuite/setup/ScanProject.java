@@ -254,25 +254,24 @@ public class ScanProject {
 	 * @param className
 	 */
 	private static void generateMocksAndStubs(String className) {
-		System.out.println(className);
 		if(className == null)
 			return;
 		Set<String> classNames = new HashSet<String>();
 		classNames.addAll(Utils.readFile("evosuite-files/"
 		        + className.replace("/", ".").replace("class", "") + ".CIs"));
+		
 		Set<Class<?>> classes = new HashSet<Class<?>>();
 		try {
-			for (String cn : classNames) {
+			for (String cn : classNames) 
 				classes.addAll(loadClass(new File(cn.replace("/", ".") + ".class"),
 				                         cn.split("/")[0], false));
-			}
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 		ClassFactory cf = new ClassFactory();
 		for (Class<?> c : classes) {
-			String packageName = c.getPackage().getName();
-			if (packageName.startsWith("java") || packageName.startsWith("sun"))
+			String packageName = Utils.getPackageName(c);			
+			if (packageName.startsWith("java.") || packageName.startsWith("sun."))
 				continue;
 			cf.createClass(c);
 		}
@@ -458,8 +457,7 @@ public class ScanProject {
 				
 				
 				classEntries.add(new ClassEntry(clazz.getName(), cv.getSupers()));
-				//generateMocksAndStubs(clazz.getCanonicalName());
-
+				generateMocksAndStubs(className);
 			} catch (IOException e) {
 				System.out.println(e + ": /" + clazz.getName().replace(".", "/")
 				        + ".class");
