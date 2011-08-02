@@ -49,7 +49,7 @@ public class Utils {
 	 * Deletes directory and its content.
 	 * 
 	 * @param dirName
-	 *            name of the directory to delete
+	 *            - name of the directory to delete
 	 */
 	public static void deleteDir(String dirName) {
 		File dir = new File(dirName);
@@ -69,7 +69,7 @@ public class Utils {
 	 * Create directory and subdirectories if any.
 	 * 
 	 * @param dirName
-	 *            name of the directory to create
+	 *            - name of the directory to create
 	 * @return true if directory is created successfully, false otherwise
 	 */
 	public static boolean createDir(String dirName) {
@@ -82,9 +82,9 @@ public class Utils {
 	 * will be rewritten.
 	 * 
 	 * @param source
-	 *            source file
+	 *            - source file
 	 * @param dest
-	 *            destination file
+	 *            - destination file
 	 * @return true, if file was moved, false otherwise
 	 */
 	public static boolean moveFile(File source, File dest) {
@@ -109,7 +109,7 @@ public class Utils {
 	 * not exist during JVM initialization.
 	 * 
 	 * @param path
-	 *            path to the folder or jar.
+	 *            - path to the folder or jar.
 	 * @return true if ClassPath updated successfully.
 	 */
 	public static boolean addURL(String path) {
@@ -146,8 +146,8 @@ public class Utils {
 	 */
 	public static Set<String> classesDescFromString(String input) {
 		Set<String> classesDesc = new HashSet<String>();
-
-		// If input actually equals "null" then NullPointerException is trown. 
+		
+		// If input actually equals "null" then NullPointerException is thrown. 
 		// Don't ask me. I don't know why.
 		try {
 			if (input.equals("null"))
@@ -157,11 +157,11 @@ public class Utils {
 			return classesDesc;
 		}
 
-		Pattern p = Pattern.compile("(\\w)+(/\\w+)+");
+		// assume first package prefix is written with lower case letters. 
+		Pattern p = Pattern.compile("([a-z])+(/\\w+)+");
 		Matcher m = p.matcher(input);
 		while (m.find()) {
 			String str = m.group();
-			str = str.replaceFirst("(\\[)*L", "");
 			classesDesc.add(str);
 		}
 
@@ -282,5 +282,27 @@ public class Utils {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	/**
+	 * Get package name from the class. Sometimes this maybe tricky,
+	 * since clazz.getPackage() could return null
+	 * 
+	 * @param clazz 
+	 * 			- class which package should be determined
+	 * @return package name of the class
+	 */
+	public static String getPackageName(Class<?> clazz){
+		String packageName = "";
+		if (clazz.getPackage() != null) {
+			packageName = clazz.getPackage().getName();
+		} else {
+			String name = clazz.getName();
+			if (name.contains("."))
+				packageName = name.substring(0, name.lastIndexOf("."));
+			else
+				packageName = "";
+		}
+		return packageName;
 	}
 }
