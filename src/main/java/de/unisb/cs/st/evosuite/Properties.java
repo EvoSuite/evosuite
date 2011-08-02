@@ -333,6 +333,9 @@ public class Properties {
 	@Parameter(key = "write_excel", group = "Output", description = "Create Excel workbook")
 	public static boolean WRITE_EXCEL = false;
 
+	@Parameter(key = "shutdown_hook", group = "Output", description = "Store test suite on Ctrl+C")
+	public static boolean SHUTDOWN_HOOK = true;
+
 	//---------------------------------------------------------------
 	// Sandbox
 	@Parameter(key = "sandbox", group = "Sandbox", description = "Execute tests in a sandbox environment")
