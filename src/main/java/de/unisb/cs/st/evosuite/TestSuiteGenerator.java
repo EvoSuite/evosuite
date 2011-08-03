@@ -190,13 +190,12 @@ public class TestSuiteGenerator {
 	 */
 	public List<TestCase> generateWholeSuite(GeneticAlgorithm ga) {
 		// Set up search algorithm
-		if (ga == null) {
+		if (ga == null || ga.getAge() == 0) {
 			System.out.println("* Setting up search algorithm for whole suite generation");
 			ga = setup();
 		} else {
 			System.out.println("* Resuming search algorithm at generation " + ga.getAge()
 			        + " for whole suite generation");
-			// TODO: SearchStatistics get messed up by resuming
 		}
 		long start_time = System.currentTimeMillis() / 1000;
 

@@ -1519,7 +1519,7 @@ public class TestCluster {
 			} catch (ExceptionInInitializerError e) {
 				logger.debug("Problem - ignoring class " + classname + ": " + e);
 			} catch (Throwable t) {
-				logger.warn("Error when trying to read class " + classname + ": " + t);
+				logger.info("Error when trying to read class " + classname + ": " + t);
 			}
 
 			//}

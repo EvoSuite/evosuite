@@ -24,6 +24,10 @@ public class ShutdownTestWriter extends StoppingCondition implements SignalHandl
 	@Override
 	public void handle(Signal arg0) {
 		System.out.println("\n* User requested search stop");
+
+		// If this is the second Ctrl+C the user _really_ wants to stop...
+		if (interrupted)
+			System.exit(0);
 		interrupted = true;
 	}
 
