@@ -15,7 +15,7 @@ fi
 
 source $BASEPATH/src/main/assembly/etc/evosuite.properties
 
-if [ ! -e $BASEPATH/target/evosuite-0.1-SNAPSHOT-dependencies.jar ]; then
+if [ ! -e $BASEPATH/target/evosuite-0.1-SNAPSHOT-jar.jar ]; then
     echo "Call mvn package first to create dependency jar"
     exit -1
 fi
@@ -23,7 +23,7 @@ fi
 
 #java_opts="-ea -Xmx2048M -Xrunhprof:heap=sites,cpu=times,depth=10" #samples
 #java_opts="-ea -Xmx2048M -Xrunhprof:cpu=times,depth=10"
-java_opts="-ea -Xmx1024M -Dlogback.configurationFile=logback.xml"
+java_opts="-ea -Xmx1024M -Dlogback.configurationFile=$BASEPATH/target/classes/logback.xml"
 #java_opts=""
 
 export DYLD_LIBRARY_PATH=$BASEPATH/lib/libcvc3-jni/i386-darwin10.2.0:$DYLD_LIBRARY_PATH
@@ -33,7 +33,7 @@ export DYLD_LIBRARY_PATH=$BASEPATH/lib/libcvc3-jni/i386-darwin10.2.0:$DYLD_LIBRA
 ##
 classpath=$BASEPATH/target/classes:\
 $BASEPATH/src/main/assembly/etc:\
-$BASEPATH/target/evosuite-0.1-SNAPSHOT-dependencies.jar
+$BASEPATH/target/evosuite-0.1-SNAPSHOT-jar.jar
 
 for I in $BASEPATH/target/jpf*.jar; do
   classpath="$classpath:$I"

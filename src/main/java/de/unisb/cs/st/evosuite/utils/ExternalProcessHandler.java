@@ -12,10 +12,14 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import sun.misc.Signal;
+import sun.misc.SignalHandler;
+
 /*
  * this code should be used by the main process
  */
 
+@SuppressWarnings("restriction")
 public class ExternalProcessHandler {
 	protected static Logger logger = LoggerFactory.getLogger(ExternalProcessHandler.class);
 
@@ -96,7 +100,7 @@ public class ExternalProcessHandler {
 		}
 
 		startExternalProcessMessageHandler();
-
+		startSignalHandler();
 		last_command = command;
 
 		return true;
@@ -132,7 +136,7 @@ public class ExternalProcessHandler {
 				server.setSoTimeout(10000);
 				server.bind(null);
 			} catch (Exception e) {
-				logger.error("Not possible to start TCP server",e);
+				logger.error("Not possible to start TCP server", e);
 			}
 		}
 
@@ -143,7 +147,7 @@ public class ExternalProcessHandler {
 			try {
 				server.close();
 			} catch (IOException e) {
-				logger.error("Error in closing the TCP server",e);
+				logger.error("Error in closing the TCP server", e);
 			}
 
 			server = null;
@@ -162,15 +166,14 @@ public class ExternalProcessHandler {
 					        process.getInputStream()));
 
 					int data = 0;
-					while(data!=-1 && !isInterrupted())
-					{
+					while (data != -1 && !isInterrupted()) {
 						data = proc_in.read();
-						if(data!=-1)
-							System.out.print((char)data);
+						if (data != -1)
+							System.out.print((char) data);
 					}
-					
+
 				} catch (Exception e) {
-					logger.error("Exception while reading output of client process",e);
+					logger.error("Exception while reading output of client process", e);
 				}
 			}
 		};
@@ -194,7 +197,7 @@ public class ExternalProcessHandler {
 						message = (String) in.readObject();
 						data = in.readObject();
 					} catch (Exception e) {
-						logger.error("Error in reading message ",e);
+						logger.error("Error in reading message ", e);
 						message = Messages.FINISHED_COMPUTATION;
 					}
 
@@ -222,14 +225,35 @@ public class ExternalProcessHandler {
 		message_handler.start();
 	}
 
+	protected void startSignalHandler() {
+		Signal.handle(new Signal("INT"), new SignalHandler() {
+
+			private boolean interrupted = false;
+
+			@Override
+			public void handle(Signal arg0) {
+				if (interrupted)
+					System.exit(0);
+				try {
+					interrupted = true;
+					process.waitFor();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+		});
+	}
+
 	public Object waitForResult(int timeout) {
 		try {
 			synchronized (MONITOR) {
 				MONITOR.wait(timeout);
 			}
-		} catch (InterruptedException e) 
-		{
-			logger.warn("Thread interrupted while waiting for results from client process",e);
+		} catch (InterruptedException e) {
+			logger.warn("Thread interrupted while waiting for results from client process",
+			            e);
 		}
 
 		return final_result;
