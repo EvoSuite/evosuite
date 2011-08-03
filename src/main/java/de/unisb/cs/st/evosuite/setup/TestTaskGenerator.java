@@ -185,13 +185,14 @@ public class TestTaskGenerator {
 		return ret;
 	}
 
-	private static boolean isPurelyAbstract(String classname) {
+	private static boolean isPurelyAbstract(Class<?> clazz) {
 
+		String classname = clazz.getName();
 		List<String> subclasses = getSubClasses(classname);
 		for (String subclass : subclasses) {
-			Class<?> clazz;
+			Class<?> subclazz;
 			try {
-				clazz = Class.forName(subclass);
+				subclazz = clazz.getClassLoader().loadClass(subclass);
 				if (!Modifier.isAbstract(clazz.getModifiers()))
 					return false;
 			} catch (ClassNotFoundException e) {
@@ -635,11 +636,12 @@ public class TestTaskGenerator {
 			return false;
 		}
 
+		logger.info("Writing object files " + classname);
 		Set<String> object_methods = new HashSet<String>();
 		addObjectMethods(object_methods, clazz);
 
 		if (Modifier.isAbstract(clazz.getModifiers())) {
-			if (isPurelyAbstract(classname)) {
+			if (isPurelyAbstract(clazz)) {
 				logger.info("Ignoring abstract class without concrete subclasses "
 				        + classname);
 				String classfilename = classname.replace("$", "_");
@@ -659,7 +661,7 @@ public class TestTaskGenerator {
 			if (dependency.equals(classname))
 				continue;
 			try {
-				Class<?> dep = Class.forName(dependency);
+				Class<?> dep = clazz.getClassLoader().loadClass(dependency);
 				addConstructors(suggestion, dep);
 				addMethods(suggestion, dep);
 				addFields(suggestion, dep);
@@ -757,6 +759,8 @@ public class TestTaskGenerator {
 			} catch (Throwable e) {
 				logger.info("Error in creating task for class " + clazz.getName() + ": "
 				        + e);
+				//TODO: Make sure that there are no files for this class
+				//e.printStackTrace();
 			}
 		}
 		System.out.println("* Created " + num + " task files");
