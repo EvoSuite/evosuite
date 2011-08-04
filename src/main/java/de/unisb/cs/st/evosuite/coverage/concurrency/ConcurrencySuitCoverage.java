@@ -45,7 +45,6 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 	private static final long serialVersionUID = 1L;
 
-	@SuppressWarnings("hiding")
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
 	public final int total_branches = BranchPool.getBranchCounter();
@@ -139,7 +138,6 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 		}
 
 		int num_covered = 0;
-		int uncovered = 0;
 		//logger.info("Got data for predicates: " + predicate_count.size()+"/"+total_branches);
 		for (Integer key : predicate_count.keySet()) {
 			//logger.info("Key: "+key);
@@ -156,12 +154,8 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 			}
 			if (df == 0.0)
 				num_covered++;
-			else
-				uncovered++;
 			if (dt == 0.0)
 				num_covered++;
-			else
-				uncovered++;
 		}
 		//logger.info("Fitness after branch distances: "+fitness);
 		//for(String call : call_count.keySet()) {
