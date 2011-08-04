@@ -136,7 +136,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		int num_covered = 0;
-		int uncovered = 0;
 
 		//logger.info("Got data for predicates: " + predicate_count.size()+"/"+total_branches);
 		for (Integer key : predicate_count.keySet()) {
@@ -153,12 +152,8 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			}
 			if (df == 0.0)
 				num_covered++;
-			else
-				uncovered++;
 			if (dt == 0.0)
 				num_covered++;
-			else
-				uncovered++;
 		}
 		//logger.info("Fitness after branch distances: "+fitness);
 		//for(String call : call_count.keySet()) {

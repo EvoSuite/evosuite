@@ -182,6 +182,7 @@ public class GenericClass implements Serializable {
 			return isAssignable(((GenericArrayType) lhsType).getGenericComponentType(),
 			                    ((Class<?>) rhsType).getComponentType());
 		}
+		/*
 		String message = "Not assignable: ";
 		if (lhsType instanceof Class<?>)
 			message += "Class ";
@@ -210,7 +211,9 @@ public class GenericClass implements Serializable {
 		else
 			message += "Unknown type ";
 		message += rhsType;
-		//logger.warn(message);
+		logger.warn(message);
+		 */
+
 		//Thread.dumpStack();
 		return false;
 	}

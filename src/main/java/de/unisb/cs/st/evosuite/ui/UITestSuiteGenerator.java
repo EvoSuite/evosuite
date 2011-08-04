@@ -20,6 +20,7 @@ import de.unisb.cs.st.evosuite.testsuite.AbstractTestSuiteChromosome;
 import de.unisb.cs.st.evosuite.ui.genetics.*;
 import de.unisb.cs.st.evosuite.ui.model.states.UIStateGraph;
 
+@SuppressWarnings("restriction")
 public class UITestSuiteGenerator {
 	public static void main(String[] args) {
 		System.setProperty("uispec4j.test.library", "testng");

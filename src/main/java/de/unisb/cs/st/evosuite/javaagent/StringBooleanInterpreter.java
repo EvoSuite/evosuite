@@ -14,7 +14,7 @@ import org.objectweb.asm.tree.analysis.BasicValue;
 import org.objectweb.asm.tree.analysis.Value;
 
 /**
- * @author fraser
+ * @author Gordon Fraser
  * 
  */
 public class StringBooleanInterpreter extends BasicInterpreter {
@@ -25,8 +25,8 @@ public class StringBooleanInterpreter extends BasicInterpreter {
 	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#naryOperation(org.objectweb.asm.tree.AbstractInsnNode, java.util.List)
 	 */
 	@Override
-	public Value naryOperation(AbstractInsnNode insn, List values)
-	        throws AnalyzerException {
+	public Value naryOperation(AbstractInsnNode insn,
+	        @SuppressWarnings("rawtypes") List values) throws AnalyzerException {
 		if (insn.getOpcode() == Opcodes.INVOKESTATIC) {
 			MethodInsnNode mn = (MethodInsnNode) insn;
 			if (mn.owner.equals("de/unisb/cs/st/evosuite/javaagent/BooleanHelper")
