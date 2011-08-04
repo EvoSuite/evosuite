@@ -443,4 +443,15 @@ public class BranchPool {
 
 		return registeredDefaultCases.get(v);
 	}
+	
+	public static int getRealBranches(String className){
+		int real = 0;
+		for (String methodName : branchMap.get(className).keySet())
+			for (Branch b : (branchMap.get(className).get(methodName))){
+				if (!b.getInstruction().isForcedBranch())
+					real++;
+		}
+			
+		return real;
+	}
 }
