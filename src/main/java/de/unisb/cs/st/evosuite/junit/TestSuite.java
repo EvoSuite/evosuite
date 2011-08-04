@@ -451,7 +451,8 @@ public class TestSuite implements Opcodes {
 	 * @return
 	 */
 	protected String mainDirectory(String directory) {
-		String dirname = directory + "/" + Properties.PROJECT_PREFIX.replace('.', '/'); // +"/GeneratedTests";
+		String dirname = directory + File.separator
+		        + Properties.PROJECT_PREFIX.replace('.', File.separatorChar); // +"/GeneratedTests";
 		File dir = new File(dirname);
 		logger.debug("Target directory: " + dirname);
 		dir.mkdirs();
@@ -465,7 +466,6 @@ public class TestSuite implements Opcodes {
 	 * @param directory
 	 *            Directory of generated test files
 	 */
-	@SuppressWarnings("unchecked")
 	protected void writeTestSuiteMainFile(String directory) {
 		File file = new File(directory + "/GeneratedTestSuite.java");
 		// if(file.exists())
