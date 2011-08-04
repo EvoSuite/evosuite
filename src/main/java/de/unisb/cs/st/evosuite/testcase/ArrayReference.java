@@ -38,9 +38,15 @@ public class ArrayReference extends VariableReferenceImpl {
 				otherArray.setArrayLength(array_length);
 				return otherArray;
 			} else {
-				throw new RuntimeException("After cloning the array disappeared: "
-				        + getName() + "/" + newRef.getName() + " in test "
-				        + newTestCase.toCode() + " / old test: " + testCase.toCode());
+				// This may happen when cloning a method statement which returns an Object that in fact is an array
+				// We'll just create a new ArrayReference in this case.
+				ArrayReference otherArray = new ArrayReference(newTestCase, type,
+				        array_length);
+				otherArray.setArrayLength(array_length);
+				return otherArray;
+				//				throw new RuntimeException("After cloning the array disappeared: "
+				//				        + getName() + "/" + newRef.getName() + " in test "
+				//				        + newTestCase.toCode() + " / old test: " + testCase.toCode());
 			}
 		}
 	}

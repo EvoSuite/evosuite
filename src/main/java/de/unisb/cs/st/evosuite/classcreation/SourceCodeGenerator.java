@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
@@ -74,10 +73,10 @@ public class SourceCodeGenerator {
 
 	/** Original class */
 	private final Class<?> clazz;
-	
+
 	/** Class name */
 	private String className;
-	
+
 	/** Name of the package */
 	private final String packageName;
 
@@ -102,8 +101,8 @@ public class SourceCodeGenerator {
 		unit = ast.newCompilationUnit();
 		this.clazz = clazz;
 		packageName = Utils.getPackageName(clazz);
-		
-		if(clazz.getCanonicalName() == null)
+
+		if (clazz.getCanonicalName() == null)
 			className = clazz.getName();
 		else
 			className = clazz.getCanonicalName();
@@ -138,7 +137,7 @@ public class SourceCodeGenerator {
 		// Create class stub.
 		TypeDeclaration type = ast.newTypeDeclaration();
 		type.setName(ast.newSimpleName(clazz.getSimpleName() + "Stub"));
-		
+
 		if (abstractClass) {
 			// Set inheritance.
 			type.setSuperclassType(ast.newSimpleType(ast.newName(className)));
@@ -463,14 +462,14 @@ public class SourceCodeGenerator {
 
 			return ast.newSimpleName(currentFieldName);
 		}
-		
-		if(returnType.isArray()){			
+
+		if (returnType.isArray()) {
 			NullLiteral nl = ast.newNullLiteral();
 			rememberFieldParams(nl, generateArrayType(returnType),
-					generateArrayType(returnType));
+			                    generateArrayType(returnType));
 			return ast.newSimpleName(currentFieldName);
 		}
-		
+
 		// if primitive, then generate primitive expression.
 		if (returnType.isPrimitive())
 			return generatePrimitiveExpression(generatePrimitiveType(returnType));
@@ -581,11 +580,11 @@ public class SourceCodeGenerator {
 		String fieldName = method.getName();
 		String methodDescriptor = org.objectweb.asm.Type.getMethodDescriptor(method);
 		String[] methodParams = methodDescriptor.replace(')', ';').replace('(', ';').split(";");
-		
+
 		for (int i = 1; i < methodParams.length - 1; i++) {
 			String[] temp = methodParams[i].split("/");
 			String paramName = temp[temp.length - 1];
-			
+
 			if (!paramName.equals(""))
 				fieldName += "_" + paramName.replace('[', 'a');
 		}

@@ -239,7 +239,6 @@ public class TestSuiteDSE {
 		Map<String, Object> values = solver.getModel(constraints);
 
 		if (values != null) {
-			int num = 0;
 			TestCase newTest = test.clone();
 
 			for (Object key : values.keySet()) {
@@ -259,7 +258,6 @@ public class TestSuiteDSE {
 					logger.debug("New value is null");
 
 				}
-				num++;
 			}
 			return newTest;
 		} else {

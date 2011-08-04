@@ -347,7 +347,6 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				 */
 				sb.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">\n");
 				int linecount = 1;
-				int test_line = 0;
 				String code = null;
 				if (run.results.containsKey(test))
 					code = test.toCode(run.results.get(test));
@@ -368,7 +367,6 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 					 * test.exception_statement == test_line)
 					 * sb.append("</span>");
 					 */
-					test_line++;
 					linecount++;
 					sb.append("\n");
 				}
