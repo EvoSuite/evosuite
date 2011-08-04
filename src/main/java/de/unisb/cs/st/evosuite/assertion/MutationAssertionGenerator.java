@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -284,7 +284,8 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		logger.debug("Assertions before minimization: " + test.getAssertions().size()
 		        + "," + num_string_assertions + "," + num_inspector_assertions + ","
 		        + num_field_assertions + "," + num_comparison_assertions + ","
-		        + num_primitive_assertions + "," + num_exception_assertions);
+		        + num_primitive_assertions + "," + num_exception_assertions + ","
+		        + num_null_assertions);
 
 		if (!result.isEmpty()) {
 			test.removeAssertions();
@@ -482,7 +483,6 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			}
 		}
 
-		int num_before = 0;
 		Set<Integer> killed_before = new HashSet<Integer>();
 		List<Assertion> assertions = test.getAssertions();
 		assertion_statistics_full.get(test).put(StringAssertion.class, assertions.size());
@@ -504,7 +504,6 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				}
 				if (is_killed) {
 					// logger.info("Found assertion for mutation: "+m.getId());
-					num_before++;
 					killed_mutations.add(m.getId());
 					// statistics.setAsserted(m);
 					// } else {
@@ -517,9 +516,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		minimize(test, mutants, assertions, kill_map);
 
 		Set<Integer> killed_after = new HashSet<Integer>();
-		int num_after = 0;
 		assertions = test.getAssertions();
-		int num2 = 0;
 		for (Assertion assertion : assertions) {
 			assertion_statistics_min.get(test).put(assertion.getClass(),
 			                                       assertion_statistics_min.get(test).get(assertion.getClass()) + 1);
@@ -536,11 +533,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 						break;
 					}
 				}
-				if (is_killed) {
-					num_after++;
-				}
 			}
-			num2++;
 		}
 		int s2 = killed.size() - s1;
 		logger.debug("Mutants killed before / after / should be: " + killed_before.size()

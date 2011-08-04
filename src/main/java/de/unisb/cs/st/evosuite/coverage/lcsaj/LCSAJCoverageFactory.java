@@ -21,7 +21,6 @@ package de.unisb.cs.st.evosuite.coverage.lcsaj;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
 
@@ -29,7 +28,7 @@ import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
  * @author
  * 
  */
-public class LCSAJCoverageFactory  extends AbstractFitnessFactory {
+public class LCSAJCoverageFactory extends AbstractFitnessFactory {
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.coverage.TestFitnessFactory#getCoverageGoals()

@@ -17,6 +17,8 @@ public class MutationTimeoutStoppingCondition extends StoppingCondition {
 
 	//public static Map<Mutation, Integer> timeouts = new HashMap<Mutation, Integer>();
 
+	private static final long serialVersionUID = -7347443938884126325L;
+
 	private static int timeouts = 0;
 
 	private static int MAX_TIMEOUTS = Properties.MUTATION_TIMEOUTS;

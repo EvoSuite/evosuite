@@ -53,6 +53,9 @@ import de.unisb.cs.st.evosuite.testcase.VariableReferenceImpl;
 public class TestExtractingVisitor extends LoggingVisitor {
 
 	private static class BoundVariableReferenceImpl extends VariableReferenceImpl {
+
+		private static final long serialVersionUID = -8913072341643375066L;
+
 		protected String name;
 
 		public BoundVariableReferenceImpl(CompoundTestCase testCase,
@@ -114,6 +117,9 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	}
 
 	private static class ValidVariableReference extends VariableReferenceImpl {
+
+		private static final long serialVersionUID = -59873293582106016L;
+
 		public ValidVariableReference(TestCase testCase, java.lang.reflect.Type type) {
 			super(testCase, type);
 		}

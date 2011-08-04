@@ -553,7 +553,6 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	        int recursion_depth) throws ConstructionFailedException {
 		List<VariableReference> parameters = new ArrayList<VariableReference>();
 		logger.debug("Trying to satisfy " + parameter_types.size() + " parameters");
-		int i = 0;
 		for (Type parameter_type : parameter_types) {
 			int previous_length = test.size();
 
@@ -563,7 +562,6 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 			int current_length = test.size();
 			position += current_length - previous_length;
-			i++;
 		}
 		logger.debug("Satisfied " + parameter_types.size() + " parameters");
 		return parameters;
