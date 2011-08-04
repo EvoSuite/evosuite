@@ -37,8 +37,11 @@ public class StringTransformation {
 	public ClassNode transform() {
 		List<MethodNode> methodNodes = cn.methods;
 		for (MethodNode mn : methodNodes) {
-			transformMethod(mn);
+			if (transformMethod(mn)) {
+				mn.maxStack++;
+			}
 		}
+
 		return cn;
 	}
 
@@ -48,13 +51,15 @@ public class StringTransformation {
 	 * @param mn
 	 */
 	@SuppressWarnings("unchecked")
-	private void transformStrings(MethodNode mn) {
+	private boolean transformStrings(MethodNode mn) {
+		boolean changed = false;
 		ListIterator<AbstractInsnNode> iterator = mn.instructions.iterator();
 		while (iterator.hasNext()) {
 			AbstractInsnNode node = iterator.next();
 			if (node instanceof MethodInsnNode) {
 				MethodInsnNode min = (MethodInsnNode) node;
 				if (min.owner.equals("java/lang/String")) {
+					changed = true;
 					if (min.name.equals("equals")) {
 						MethodInsnNode equalCheck = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
@@ -125,37 +130,41 @@ public class StringTransformation {
 				}
 			}
 		}
+		return changed;
 	}
 
-	public void transformMethod(MethodNode mn) {
-		transformStrings(mn);
-		try {
-			Analyzer a = new Analyzer(new StringBooleanInterpreter());
-			a.analyze(cn.name, mn);
-			Frame[] frames = a.getFrames();
-			AbstractInsnNode node = mn.instructions.getFirst();
-			while (node != mn.instructions.getLast()) {
-				AbstractInsnNode next = node.getNext();
-				Frame current = frames[mn.instructions.indexOf(node)];
-				int size = current.getStackSize();
-				if (node.getOpcode() == Opcodes.IFNE) {
-					JumpInsnNode branch = (JumpInsnNode) node;
-					if (current.getStack(size - 1) == StringBooleanInterpreter.STRING_BOOLEAN) {
-						logger.info("IFNE -> IFGT");
-						branch.setOpcode(Opcodes.IFGT);
+	public boolean transformMethod(MethodNode mn) {
+		boolean changed = transformStrings(mn);
+		if (changed) {
+			try {
+				Analyzer a = new Analyzer(new StringBooleanInterpreter());
+				a.analyze(cn.name, mn);
+				Frame[] frames = a.getFrames();
+				AbstractInsnNode node = mn.instructions.getFirst();
+				while (node != mn.instructions.getLast()) {
+					AbstractInsnNode next = node.getNext();
+					Frame current = frames[mn.instructions.indexOf(node)];
+					int size = current.getStackSize();
+					if (node.getOpcode() == Opcodes.IFNE) {
+						JumpInsnNode branch = (JumpInsnNode) node;
+						if (current.getStack(size - 1) == StringBooleanInterpreter.STRING_BOOLEAN) {
+							logger.info("IFNE -> IFGT");
+							branch.setOpcode(Opcodes.IFGT);
+						}
+					} else if (node.getOpcode() == Opcodes.IFEQ) {
+						JumpInsnNode branch = (JumpInsnNode) node;
+						if (current.getStack(size - 1) == StringBooleanInterpreter.STRING_BOOLEAN) {
+							logger.info("IFEQ -> IFLE");
+							branch.setOpcode(Opcodes.IFLE);
+						}
 					}
-				} else if (node.getOpcode() == Opcodes.IFEQ) {
-					JumpInsnNode branch = (JumpInsnNode) node;
-					if (current.getStack(size - 1) == StringBooleanInterpreter.STRING_BOOLEAN) {
-						logger.info("IFEQ -> IFLE");
-						branch.setOpcode(Opcodes.IFLE);
-					}
+					node = next;
 				}
-				node = next;
-			}
-		} catch (Exception e) {
+			} catch (Exception e) {
 
-			return;
+				return changed;
+			}
 		}
+		return changed;
 	}
 }
