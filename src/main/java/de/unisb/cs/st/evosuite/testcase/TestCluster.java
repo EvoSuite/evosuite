@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -1711,7 +1712,9 @@ public class TestCluster {
 	}
 
 	private void getStaticClasses() {
-		for (String classname : StaticInitializationClassAdapter.static_classes) {
+		Iterator<String> it = StaticInitializationClassAdapter.static_classes.iterator();
+		while (it.hasNext()) {
+			String classname = it.next();
 			try {
 				//				Class<?> clazz = Class.forName(classname);
 				Class<?> clazz = classLoader.loadClass(classname);
