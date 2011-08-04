@@ -190,10 +190,10 @@ public class TestTaskGenerator {
 		String classname = clazz.getName();
 		List<String> subclasses = getSubClasses(classname);
 		for (String subclass : subclasses) {
-			Class<?> subclazz;
+
 			try {
-				subclazz = clazz.getClassLoader().loadClass(subclass);
-				if (!Modifier.isAbstract(clazz.getModifiers()))
+				Class<?> subclazz = clazz.getClassLoader().loadClass(subclass);
+				if (!Modifier.isAbstract(subclazz.getModifiers()))
 					return false;
 			} catch (ClassNotFoundException e) {
 			}
