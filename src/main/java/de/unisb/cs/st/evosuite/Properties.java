@@ -62,7 +62,7 @@ public class Properties {
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
-	@interface Parameter {
+	public @interface Parameter {
 		String key();
 
 		String group() default "Experimental";
@@ -70,13 +70,13 @@ public class Properties {
 		String description();
 	}
 
-	@interface IntValue {
+	public @interface IntValue {
 		int min() default Integer.MIN_VALUE;
 
 		int max() default Integer.MAX_VALUE;
 	}
 
-	@interface DoubleValue {
+	public @interface DoubleValue {
 		double min() default -(Double.MAX_VALUE - 1); // FIXXME: Check
 
 		double max() default Double.MAX_VALUE;
