@@ -161,7 +161,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	private final String goalVariable;
 	private final Use goalUse;
 	private final Definition goalDefinition;
-	// TODO make DefUse able to return its control dependent branch fitness
+	
+	// TODO take into account that we can detect multiple control dependencies now
 	private final BranchCoverageTestFitness goalDefinitionBranchFitness;
 	private final BranchCoverageTestFitness goalUseBranchFitness;
 
