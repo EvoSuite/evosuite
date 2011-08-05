@@ -456,7 +456,7 @@ public class Properties {
 	public static boolean PENALIZE_OVERWRITING_DEFINITIONS_LINEARLY = false;
 
 	@Parameter(key = "enable_alternative_fitness_calculation", description = "")
-	public static boolean ENABLE_ALTERNATIVE_FITNESS_CALCULATION = true;
+	public static boolean ENABLE_ALTERNATIVE_FITNESS_CALCULATION = false;
 
 	@Parameter(key = "defuse_debug_mode", description = "")
 	public static boolean DEFUSE_DEBUG_MODE = false;

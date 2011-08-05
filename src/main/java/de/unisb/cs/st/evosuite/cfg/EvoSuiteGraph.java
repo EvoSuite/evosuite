@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
+import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.ext.DOTExporter;
 import org.jgrapht.ext.IntegerNameProvider;
@@ -52,7 +53,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	private static int evoSuiteGraphs = 0;
 	protected int graphId;
 
-	protected DefaultDirectedGraph<V, E> graph;
+	protected DirectedGraph<V, E> graph;
 	protected Class<E> edgeClass;
 
 	protected EvoSuiteGraph(Class<E> edgeClass) {
@@ -62,8 +63,8 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 
 		setId();
 	}
-
-	protected EvoSuiteGraph(DefaultDirectedGraph<V, E> graph, Class<E> edgeClass) {
+	
+	protected EvoSuiteGraph(DirectedGraph<V, E> graph, Class<E> edgeClass) {
 		if (graph == null || edgeClass == null)
 			throw new IllegalArgumentException("null given");
 

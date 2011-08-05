@@ -60,7 +60,7 @@ public class BranchPool {
 
 	private static Map<BytecodeInstruction, Branch> registeredDefaultCases = new HashMap<BytecodeInstruction, Branch>();
 
-	private static Map<LabelNode, Branch> switchLabels = new HashMap<LabelNode, Branch>();
+	private static Map<LabelNode, List<Branch>> switchLabels = new HashMap<LabelNode, List<Branch>>();
 
 	// number of known Branches - used for actualBranchIds
 	private static int branchCounter = 0;
@@ -168,7 +168,7 @@ public class BranchPool {
 			throw new IllegalStateException("expect variable to bet set");
 
 		Branch defaultBranch = createSwitchCaseBranch(v, null, defaultLabel);
-		if (!defaultBranch.isSwitch() || !defaultBranch.isDefaultCase())
+		if (!defaultBranch.isSwitchCaseBranch() || !defaultBranch.isDefaultCase())
 			throw new IllegalStateException(
 					"expect created branch to be a default case branch of a switch");
 	}
@@ -177,10 +177,11 @@ public class BranchPool {
 			TableSwitchInsnNode tableSwitchNode) {
 
 		int num = 0;
+		
 		for (int i = tableSwitchNode.min; i <= tableSwitchNode.max; i++) {
 			LabelNode targetLabel = (LabelNode) tableSwitchNode.labels.get(num);
 			Branch switchBranch = createSwitchCaseBranch(v, i, targetLabel);
-			if (!switchBranch.isSwitch() || !switchBranch.isActualCase())
+			if (!switchBranch.isSwitchCaseBranch() || !switchBranch.isActualCase())
 				throw new IllegalStateException(
 						"expect created branch to be an actual case branch of a switch");
 			num++;
@@ -194,7 +195,7 @@ public class BranchPool {
 			LabelNode targetLabel = (LabelNode) lookupSwitchNode.labels.get(i);
 			Branch switchBranch = createSwitchCaseBranch(v,
 					(Integer) lookupSwitchNode.keys.get(i), targetLabel);
-			if (!switchBranch.isSwitch() || !switchBranch.isActualCase())
+			if (!switchBranch.isSwitchCaseBranch() || !switchBranch.isActualCase())
 				throw new IllegalStateException(
 						"expect created branch to be an actual case branch of a switch");
 		}
@@ -221,7 +222,7 @@ public class BranchPool {
 			registeredDefaultCases.put(v, switchBranch);
 		}
 
-		if (!switchBranch.isSwitch())
+		if (!switchBranch.isSwitchCaseBranch())
 			throw new IllegalStateException(
 					"expect created Branch to be a switch branch");
 
@@ -230,10 +231,16 @@ public class BranchPool {
 
 	private static void registerSwitchLabel(Branch b, LabelNode targetLabel) {
 
-		// if(switchLabels.get(targetLabel) != null)
-		// throw new
-		// IllegalArgumentException("label already associated with a branch "+b.toString());
-
+		if(switchLabels.get(targetLabel) == null)
+			switchLabels.put(targetLabel, new ArrayList<Branch>());
+		
+		List<Branch> oldList = switchLabels.get(targetLabel);
+		
+		if(oldList.contains(b))
+			throw new IllegalStateException("branch already registered for this switch label");
+		
+		oldList.add(b);
+		
 		// TODO several Branches can map to one Label, so switchLabels should
 		// either map from branches to labels, not the other way around. or it
 		// should map labels to a list of branches
@@ -242,7 +249,7 @@ public class BranchPool {
 
 		// TODO STOPPED HERE
 
-		switchLabels.put(targetLabel, b);
+		switchLabels.put(targetLabel, oldList);
 	}
 
 	private static void registerSwitchBranch(BytecodeInstruction v,
@@ -338,7 +345,7 @@ public class BranchPool {
 		return getBranch(registeredNormalBranches.get(instruction));
 	}
 
-	public static Branch getBranchForLabel(LabelNode label) {
+	public static List<Branch> getBranchForLabel(LabelNode label) {
 
 		// TODO see registerSwitchLabel()!
 

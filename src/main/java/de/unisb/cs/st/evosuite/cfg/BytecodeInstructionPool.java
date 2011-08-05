@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -160,6 +162,22 @@ public class BytecodeInstructionPool {
 		for (BytecodeInstruction instruction : instructions) {
 			logger.debug("\t" + instruction.toString());
 		}
+
+	}
+
+	public static BytecodeInstruction createFakeInstruction(String className,
+	        String methodName) {
+
+		AbstractInsnNode fakeNode = new InsnNode(Opcodes.NOP);
+
+		int instructionId = getInstructionsIn(className, methodName).size();
+
+		BytecodeInstruction instruction = new BytecodeInstruction(className, methodName,
+		        instructionId, -1, fakeNode);
+
+		registerInstruction(instruction);
+
+		return instruction;
 
 	}
 }
