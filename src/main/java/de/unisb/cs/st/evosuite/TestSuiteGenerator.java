@@ -115,7 +115,6 @@ import de.unisb.cs.st.evosuite.utils.Utils;
  * @author Gordon Fraser
  * 
  */
-@SuppressWarnings("restriction")
 public class TestSuiteGenerator {
 
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteGenerator.class);
@@ -792,6 +791,7 @@ public class TestSuiteGenerator {
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("restriction")
 	public GeneticAlgorithm setup() {
 
 		ChromosomeFactory<? extends Chromosome> factory = getChromosomeFactory();
@@ -870,15 +870,11 @@ public class TestSuiteGenerator {
 
 			if (Properties.CRITERION == Criterion.LCSAJ) {
 				TestSuiteChromosome copy = suite.clone();
-				BranchCoverageSuiteFitness b = new BranchCoverageSuiteFitness();
-				b.getFitness(copy);
-				int infeasableBranches = BranchCoverageSuiteFitness.total_goals
-				        - b.covered_branches;
+				
 				for (String className : LCSAJPool.lcsaj_map.keySet()) {
-					ExcelOutputGenerator.writeLCSAJStatistics(className,
-					                                          BranchCoverageSuiteFitness.total_goals,
-					                                          infeasableBranches, suite,
-					                                          copy);
+					BranchCoverageSuiteFitness b = new BranchCoverageSuiteFitness();
+					b.getFitness(copy);
+					ExcelOutputGenerator.writeLCSAJStatistics(className, suite, copy);
 				}
 			}
 			if (Properties.CRITERION == Criterion.COMP_LCSAJ_BRANCH) {
