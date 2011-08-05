@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.ma.Connector;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
@@ -173,6 +174,11 @@ public class SteadyStateGA extends GeneticAlgorithm {
 			logger.info("Best individual has fitness: " + population.get(0).getFitness());
 			logger.info("Worst individual has fitness: "
 			        + population.get(population.size() - 1).getFitness());
+			
+			if (Properties.MA_ACTIV) {
+				// call manual algorithm
+				Connector.externalCall((GeneticAlgorithm) this); 
+				}
 		}
 
 		notifySearchFinished();

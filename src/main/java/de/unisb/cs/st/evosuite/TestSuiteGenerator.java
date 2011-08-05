@@ -305,7 +305,7 @@ public class TestSuiteGenerator {
 		}
 	}
 
-	public TestFitnessFactory getFitnessFactory() {
+	public static TestFitnessFactory getFitnessFactory() {
 		switch (Properties.CRITERION) {
 		case MUTATION:
 			return new MutationFactory();

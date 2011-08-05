@@ -463,6 +463,17 @@ public class Properties {
 
 	@Parameter(key = "randomize_difficulty", description = "")
 	public static boolean RANDOMIZE_DIFFICULTY = true;
+	
+	//---------------------------------------------------------------
+	// Manual algorithm
+	@Parameter(key = "min_delta_coverage", group = "Manual algorithm", description = "Minimum coverage delta")
+	public static final double MIN_DELTA_COVERAGE = 0.01;
+	
+	@Parameter(key = "max_iteration", group = "Manual algorithm", description = "how much itteration with MIN_DELTA_COVERAGE possible with out MA")
+	public static final int MAX_ITERATION = 500;
+
+	@Parameter(key = "ma_active", group = "Manual algorithm", description = "MA active")
+	public static final boolean MA_ACTIV = false;
 
 	// ---------------------------------------------------------------
 	// Runtime parameters

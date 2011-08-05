@@ -18,7 +18,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
-import de.unisb.cs.st.javalanche.mutation.analyze.html.HtmlAnalyzer;
+import de.unisb.cs.st.evosuite.utils.HtmlAnalyzer;
 
 /**
  * @author Yury Pavlov
@@ -45,8 +45,7 @@ public class Editor {
 		gaInstance = ga;
 		testSuiteChr = (TestSuiteChromosome) gaInstance.getBestIndividual();
 
-		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(
-				TestSuiteGenerator.getFitnessFactory());
+		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(TestSuiteGenerator.getFitnessFactory());
 		minimizer.minimize(testSuiteChr);
 
 		tests = testSuiteChr.getTests();
