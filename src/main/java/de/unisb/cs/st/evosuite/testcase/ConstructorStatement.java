@@ -58,7 +58,7 @@ public class ConstructorStatement extends AbstractStatement {
 	
 	/**
 	 * This constructor allows you to use an already existing VariableReference as retvar. 
-	 * This should only be done, iff an old statement is replaced with this statement. 
+	 * This should only be done, if an old statement is replaced with this statement. 
 	 * And already existing objects should in the future reference this object.
 	 * @param tc
 	 * @param constructor

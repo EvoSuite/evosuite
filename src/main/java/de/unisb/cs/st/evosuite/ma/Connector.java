@@ -1,5 +1,6 @@
 package de.unisb.cs.st.evosuite.ma;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 
@@ -11,15 +12,6 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
  * @author Yury Pavlov
  */
 public class Connector {
-	/*
-	 * If in the next MAX_ITERATION iterations GA delta Fitness <
-	 * MIN_DELTA_FITNESS then we must create test for this branch in manual mode
-	 */
-	private static final double MIN_DELTA_COVERAGE = 0.001;
-	private static final int MAX_ITERATION = 500;
-
-	private static final boolean MA_ACTIV = true;
-
 	private static int iterCount = 0;
 	private static double oldCoverageVal = Double.MAX_VALUE;
 
@@ -31,7 +23,6 @@ public class Connector {
 	 *            - SearchAlgorithm instance to work with it
 	 */
 	public static void externalCall(GeneticAlgorithm ga) {
-		if (MA_ACTIV) {
 			double newCoverageVal = ((TestSuiteChromosome) ga
 					.getBestIndividual()).getCoverage();
 			double deltaCoverage = oldCoverageVal - newCoverageVal;
@@ -41,10 +32,10 @@ public class Connector {
 			 * is too small and not change in few iterations
 			 */
 			if (newCoverageVal > 0)
-				if (deltaCoverage < MIN_DELTA_COVERAGE) {
+				if (deltaCoverage < Properties.MIN_DELTA_COVERAGE) {
 					iterCount++;
 
-					if (iterCount > MAX_ITERATION) {
+					if (iterCount > Properties.MAX_ITERATION) {
 						Editor editor = new Editor(ga);
 						iterCount = 0;
 					}
@@ -55,6 +46,4 @@ public class Connector {
 
 			oldCoverageVal = newCoverageVal;
 		}
-	}
-
 }
