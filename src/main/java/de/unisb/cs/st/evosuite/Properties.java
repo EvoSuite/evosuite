@@ -21,21 +21,25 @@ package de.unisb.cs.st.evosuite;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
  * Central property repository. All global parameters of EvoSuite should be
@@ -47,6 +51,8 @@ import de.unisb.cs.st.evosuite.testcase.TestCluster;
  */
 public class Properties {
 
+	private final static Logger logger = LoggerFactory.getLogger(Properties.class);
+
 	/**
 	 * Parameters are fields of the Properties class, annotated with this
 	 * annotation. The key parameter is used to identify values in property
@@ -56,7 +62,7 @@ public class Properties {
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
-	@interface Parameter {
+	public @interface Parameter {
 		String key();
 
 		String group() default "Experimental";
@@ -64,13 +70,13 @@ public class Properties {
 		String description();
 	}
 
-	@interface IntValue {
+	public @interface IntValue {
 		int min() default Integer.MIN_VALUE;
 
 		int max() default Integer.MAX_VALUE;
 	}
 
-	@interface DoubleValue {
+	public @interface DoubleValue {
 		double min() default -(Double.MAX_VALUE - 1); // FIXXME: Check
 
 		double max() default Double.MAX_VALUE;
@@ -88,7 +94,7 @@ public class Properties {
 	public static boolean MAKE_ACCESSIBLE = false;
 
 	@Parameter(key = "string_replacement", group = "Test Creation", description = "Replace string.equals with levenshtein distance")
-	public static boolean STRING_REPLACEMENT = true;
+	public static boolean STRING_REPLACEMENT = false;
 
 	@Parameter(key = "static_hack", group = "Test Creation", description = "Call static constructors after each test execution")
 	public static boolean STATIC_HACK = false;
@@ -120,7 +126,7 @@ public class Properties {
 	public static double EPSILON = 0.001;
 
 	@Parameter(key = "max_int", group = "Test Creation", description = "Maximum size of randomly generated integers (minimum range = -1 * max)")
-	public static int MAX_INT = 256;
+	public static int MAX_INT = 2048;
 
 	@Parameter(key = "max_delta", group = "Test Creation", description = "Maximum size of delta for numbers during mutation")
 	public static int MAX_DELTA = 20;
@@ -138,7 +144,7 @@ public class Properties {
 	public static int MAX_LENGTH = 0;
 
 	@Parameter(key = "max_size", group = "Test Creation", description = "Maximum number of test cases in a test suite")
-	public static int MAX_SIZE = 50;
+	public static int MAX_SIZE = 100;
 
 	@Parameter(key = "num_tests", group = "Test Creation", description = "Number of tests in initial test suites")
 	public static int NUM_TESTS = 2;
@@ -201,14 +207,14 @@ public class Properties {
 	public static int ELITE = 1;
 
 	@Parameter(key = "tournament_size", group = "Search Algorithm", description = "Number of individuals for tournament selection")
-	public static int TOURNAMENT_SIZE = 5;
+	public static int TOURNAMENT_SIZE = 10;
 
 	@Parameter(key = "rank_bias", group = "Search Algorithm", description = "Bias for better individuals in rank selection")
 	public static double RANK_BIAS = 1.7;
 
 	@Parameter(key = "chromosome_length", group = "Search Algorithm", description = "Maximum length of chromosomes during search")
 	@IntValue(min = 1, max = 100000)
-	public static int CHROMOSOME_LENGTH = 100;
+	public static int CHROMOSOME_LENGTH = 40;
 
 	@Parameter(key = "population", group = "Search Algorithm", description = "Population size of genetic algorithm")
 	@IntValue(min = 1)
@@ -216,7 +222,7 @@ public class Properties {
 
 	@Parameter(key = "generations", group = "Search Algorithm", description = "Maximum search duration")
 	@IntValue(min = 1)
-	public static int GENERATIONS = 1000;
+	public static int GENERATIONS = 1000000;
 
 	public static String PROPERTIES_FILE = "properties_file";
 
@@ -225,7 +231,7 @@ public class Properties {
 	}
 
 	@Parameter(key = "stopping_condition", group = "Search Algorithm", description = "What condition should be checked to end the search")
-	public static StoppingCondition STOPPING_CONDITION = StoppingCondition.MAXGENERATIONS;
+	public static StoppingCondition STOPPING_CONDITION = StoppingCondition.MAXSTATEMENTS;
 
 	public enum CrossoverFunction {
 		SINGLEPOINTRELATIVE, SINGLEPOINTFIXED, SINGLEPOINT
@@ -289,7 +295,7 @@ public class Properties {
 	public static boolean PLOT = false;
 
 	@Parameter(key = "html", group = "Output", description = "Create html reports")
-	public static boolean HTML = false;
+	public static boolean HTML = true;
 
 	@Parameter(key = "junit_tests", group = "Output", description = "Create JUnit test suites")
 	public static boolean JUNIT_TESTS = true;
@@ -333,6 +339,12 @@ public class Properties {
 	@Parameter(key = "write_excel", group = "Output", description = "Create Excel workbook")
 	public static boolean WRITE_EXCEL = false;
 
+	@Parameter(key = "shutdown_hook", group = "Output", description = "Store test suite on Ctrl+C")
+	public static boolean SHUTDOWN_HOOK = true;
+
+	@Parameter(key = "show_progress", group = "Output", description = "Show progress bar on console")
+	public static boolean SHOW_PROGRESS = true;
+
 	//---------------------------------------------------------------
 	// Sandbox
 	@Parameter(key = "sandbox", group = "Sandbox", description = "Execute tests in a sandbox environment")
@@ -341,8 +353,8 @@ public class Properties {
 	@Parameter(key = "mocks", group = "Sandbox", description = "Usage of the mocks for the IO, Network etc")
 	public static boolean MOCKS = false;
 
-	@Parameter(key = "mock_strategy", group = "Sandbox", description = "Which mocking strategy should be applied")
-	public static String MOCK_STRATEGY = "internal";
+	@Parameter(key = "mock_strategies", group = "Sandbox", description = "Which mocking strategy should be applied")
+	public static String[] MOCK_STRATEGIES = { "" };
 
 	@Parameter(key = "sandbox_folder", group = "Sandbox", description = "Folder used for IO, when mocks are enabled")
 	public static String SANDBOX_FOLDER = "evosuite-sandbox";
@@ -401,7 +413,7 @@ public class Properties {
 	@Parameter(key = "testability_transformation", description = "Apply testability transformation (Yanchuan)")
 	public static boolean TESTABILITY_TRANSFORMATION = false;
 
-	@Parameter(key = "TT.stack", description = "Maximum stack depth for testability transformation")
+	@Parameter(key = "TT_stack", description = "Maximum stack depth for testability transformation")
 	public static int TT_stack = 10;
 
 	@Parameter(key = "TT", description = "Testability transformation")
@@ -550,7 +562,7 @@ public class Properties {
 	}
 
 	/**
-	 * Initialize properties from property file or commandline parameters
+	 * Initialize properties from property file or command line parameters
 	 */
 	private void loadProperties() {
 		loadPropertiesFile();
@@ -567,13 +579,11 @@ public class Properties {
 					// + property);
 				}
 			} catch (NoSuchParameterException e) {
-				System.out.println("- No such parameter: " + parameter);
+				logger.info("- No such parameter: " + parameter);
 			} catch (IllegalArgumentException e) {
-				System.out.println("- Error setting parameter \"" + parameter + "\": "
-				        + e);
+				logger.info("- Error setting parameter \"" + parameter + "\": " + e);
 			} catch (IllegalAccessException e) {
-				System.out.println("- Error setting parameter \"" + parameter + "\": "
-				        + e);
+				logger.info("- Error setting parameter \"" + parameter + "\": " + e);
 			}
 		}
 	}
@@ -591,17 +601,13 @@ public class Properties {
 				in = this.getClass().getClassLoader().getResourceAsStream(propertiesFile);
 			}
 			properties.load(in);
-			System.out.println("* Properties loaded from configuration file "
-			        + propertiesFile);
+			logger.info("* Properties loaded from configuration file " + propertiesFile);
 		} catch (FileNotFoundException e) {
-			System.err.println("- Error: Could not find configuration file "
-			        + propertiesFile);
+			logger.info("- Error: Could not find configuration file " + propertiesFile);
 		} catch (IOException e) {
-			System.err.println("- Error: Could not find configuration file "
-			        + propertiesFile);
+			logger.info("- Error: Could not find configuration file " + propertiesFile);
 		} catch (Exception e) {
-			System.err.println("- Error: Could not find configuration file "
-			        + propertiesFile);
+			logger.info("- Error: Could not find configuration file " + propertiesFile);
 		}
 	}
 
@@ -751,7 +757,18 @@ public class Properties {
 			throw new NoSuchParameterException(key);
 
 		StringBuffer sb = new StringBuffer();
-		sb.append(parameterMap.get(key).get(null));
+		Object val = parameterMap.get(key).get(null);
+		if (val != null && val.getClass().isArray()) {
+			int len = Array.getLength(val);
+			for (int i = 0; i < len; i++) {
+				if (i > 0)
+					sb.append(";");
+
+				sb.append(Array.get(val, i));
+			}
+		} else {
+			sb.append(val);
+		}
 		return sb.toString();
 	}
 
@@ -848,7 +865,7 @@ public class Properties {
 			setValue(key, Double.parseDouble(value));
 		} else if (f.getType().isArray()) {
 			if (f.getType().isAssignableFrom(String[].class)) {
-				setValue(key, value.split(";"));
+				setValue(key, value.split(":"));
 			}
 		} else {
 			f.set(null, value);
@@ -945,37 +962,54 @@ public class Properties {
 	 * Update the evosuite.properties file with the current setting
 	 */
 	public void writeConfiguration(String fileName) {
-		for (String parameter : parameterMap.keySet()) {
-			try {
-				String val = getStringValue(parameter);
-				if (getType(parameter).isArray()) {
-					val = "TODO"; // TODO
-				}
-				properties.setProperty(parameter, val);
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchParameterException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("CP=");
+		buffer.append(Properties.CP);
+		buffer.append("\nPROJECT_PREFIX=");
+		if (Properties.PROJECT_PREFIX != null)
+			buffer.append(Properties.PROJECT_PREFIX);
+		buffer.append("\n");
+
+		Map<String, Set<Parameter>> fieldMap = new HashMap<String, Set<Parameter>>();
+		for (Field f : Properties.class.getFields()) {
+			if (f.isAnnotationPresent(Parameter.class)) {
+				Parameter p = f.getAnnotation(Parameter.class);
+				if (!fieldMap.containsKey(p.group()))
+					fieldMap.put(p.group(), new HashSet<Parameter>());
+
+				fieldMap.get(p.group()).add(p);
 			}
 		}
 
-		try {
-			OutputStream out = new FileOutputStream(new File(fileName));
+		for (String group : fieldMap.keySet()) {
+			if (group.equals("Runtime"))
+				continue;
 
-			// TODO: Update the properties!
-			properties.store(out, "This file was automatically produced by EvoSuite");
-		} catch (FileNotFoundException e) {
-			System.err.println("Error writing configuration to " + fileName + ": " + e);
-		} catch (IOException e) {
-			System.err.println("Error writing configuration to " + fileName + ": " + e);
-		} catch (Exception e) {
-			System.err.println("Error writing configuration to " + fileName + ": " + e);
+			buffer.append("#--------------------------------------\n");
+			buffer.append("# ");
+			buffer.append(group);
+			buffer.append("\n#--------------------------------------\n\n");
+			for (Parameter p : fieldMap.get(group)) {
+				buffer.append("# ");
+				buffer.append(p.description());
+				buffer.append("\n#");
+				buffer.append(p.key());
+				buffer.append("=");
+				try {
+					buffer.append(getStringValue(p.key()));
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NoSuchParameterException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				buffer.append("\n\n");
+			}
 		}
-
+		Utils.writeFile(buffer.toString(), fileName);
 	}
 }

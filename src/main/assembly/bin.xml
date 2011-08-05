@@ -36,11 +36,9 @@
       <includes>
 	<include>*.jar</include>
       </includes>
-      <!--
       <excludes>
-	<exclude>evosuite-*-dependencies.jar</exclude>
+	<exclude>evosuite-0.1-SNAPSHOT.jar</exclude>
       </excludes>
-      -->
     </fileSet>
     <fileSet>
       <directory>src/main/assembly</directory>

@@ -177,6 +177,7 @@ public class ConcolicExecution {
 		return result;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public List<PrimitiveStatement> getPrimitives(TestCase test) {
 		List<PrimitiveStatement> p = new ArrayList<PrimitiveStatement>();
 		for (StatementInterface s : test) {
@@ -248,7 +249,9 @@ public class ConcolicExecution {
 	 * @param test
 	 * @return
 	 */
-	private byte[] getBytecode(List<PrimitiveStatement> target, TestChromosome test) {
+	private byte[] getBytecode(
+	        @SuppressWarnings("rawtypes") List<PrimitiveStatement> target,
+	        TestChromosome test) {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, className, null,
 		         "java/lang/Object", null);
@@ -300,6 +303,7 @@ public class ConcolicExecution {
 	 * @param statements
 	 * @param test
 	 */
+	@SuppressWarnings("rawtypes")
 	public void writeTestCase(List<PrimitiveStatement> statements, TestChromosome test) {
 		File dir = new File(dirName);
 		dir.mkdir();

@@ -16,16 +16,14 @@ fi
 source $BASEPATH/etc/evosuite.properties
 		
 
-java_opts="-ea -Xmx1024M -Dlogback.configurationFile=logback.xml"
+java_opts="-ea -Xmx1024M"
 
 export DYLD_LIBRARY_PATH=$BASEPATH/lib/libcvc3-jni/i386-darwin10.2.0:$DYLD_LIBRARY_PATH
-
-java_agent="-javaagent:$BASEPATH/javaagent.jar"
 
 ##
 ## Classpath part to be used in all invocations of Java
 ##
-classpath=$BASEPATH:$BASEPATH/etc:$BASEPATH/${project.artifactId}-${project.version}.jar:$BASEPATH/${project.artifactId}-${project.version}-dependencies.jar
+classpath=$BASEPATH:$BASEPATH/etc:$BASEPATH/${project.artifactId}-${project.version}-jar.jar
 
 #for JAR in $BASEPATH/lib/*.jar; do
 #    classpath="$classpath:$JAR"
@@ -257,8 +255,8 @@ function canonpath ()
 ##
 setup ()
 {
-    allowed_options=("-object" "-class")
-    allowed_options_take_values=(0 1)
+    allowed_options=("-object" "-mock" "-class")
+    allowed_options_take_values=(0 0 1)
     parse_command_line "$@"
     options_ok=$?
     OUTPUT_DIR=evosuite-files
@@ -267,19 +265,24 @@ setup ()
     if test ${#cmdline_arguments[@]} -ge 2 && test $options_ok -eq 0;
     then {
 	    OBJECT=""
+	    MOCK=""
 	    TEST_CLASS=""
-	    for (( i = 0; i < 3; i++ ))
+	    for (( i = 0; i < ${#cmdline_options[@]}; i++ ))
 	    do
 		case ${cmdline_options[$i]} in
 		    "-object") OBJECT="-Dgenerate_objects=true";;
 		    "-class") TEST_CLASS="-DTARGET_CLASS=${cmdline_options_values[$i]}";;
+		    "-mock") MOCK="-Dmocks=true";;
 		esac
 	    done
 	    PROJECT_PREFIX=${cmdline_arguments[0]}
-	    CP="${cmdline_arguments[@]:1:${#cmdline_arguments[@]}}"
+	    CP="${cmdline_arguments[1]}"
+	    for I in ${cmdline_arguments[@]:2:${#cmdline_arguments[@]}}; do
+		CP=$CP:$I
+	    done
 	    first=1
 
-	    java $java_options -cp "$classpath:$CP" $java_agent=scan  -DPROJECT_PREFIX=$PROJECT_PREFIX $TEST_CLASS $OBJECT $evosuite_scan
+	    java $java_options -cp "$classpath:$CP" -DPROJECT_PREFIX=$PROJECT_PREFIX $TEST_CLASS $OBJECT $MOCK $evosuite_scan
 	    setup_evosuite $OUTPUT_DIR $PROJECT_PREFIX $CP
 	}
     else {
@@ -295,29 +298,34 @@ setup ()
 ##
 setupDir ()
 {
-    allowed_options=("")
-    allowed_options_take_values=(0)
+    allowed_options=("-object" "-mock" "-class")
+    allowed_options_take_values=(0 0 1)
     parse_command_line "$@"
     options_ok=$?
     OUTPUT_DIR=evosuite-files
     mkdir -p $OUTPUT_DIR
     if test ${#cmdline_arguments[@]} -ge 1 && test $options_ok -eq 0;
     then {
-	    #PROJECT_PREFIX=${cmdline_arguments[0]}
-	    CP="${cmdline_arguments[@]:0:${#cmdline_arguments[@]}}"
-
-	    java $java_options -cp "$classpath:$CP" $java_agent=scan $TEST_CLASS $OBJECT $evosuite_scan $@
-	    PROJECT_PREFIX=
-	    first=""
-	    for var in "$@"
+	    OBJECT=""
+	    MOCK=""
+	    TEST_CLASS=""
+	    for (( i = 0; i < ${#cmdline_options[@]}; i++ ))
 	    do
-		if [ -n "$first" ]; then
-		    CP="$CP:$var"
-		else
-		    CP="$var"
-		    first="false"
-		fi
+		case ${cmdline_options[$i]} in
+		    "-object") OBJECT="-Dgenerate_objects=true";;
+		    "-mock") MOCK="-Dmocks=true";;
+		    "-class") TEST_CLASS="-DTARGET_CLASS=${cmdline_options_values[$i]}";;
+		esac
 	    done
+
+	    CP="${cmdline_arguments[0]}"
+	    for I in ${cmdline_arguments[@]:1:${#cmdline_arguments[@]}}; do
+		CP=$CP:$I
+	    done
+	    TARGET=${cmdline_arguments[0]}
+
+	    java $java_options -cp "$classpath:$CP" -DPROJECT_PREFIX= $TEST_CLASS $OBJECT $MOCK $evosuite_scan $TARGET
+	    PROJECT_PREFIX=
 	    setup_evosuite $OUTPUT_DIR \"\" $CP
 	}
     else {
@@ -331,8 +339,8 @@ setupDir ()
 ##
 generateSuite ()
 {
-	allowed_options=("-EvoSuite" "-OneBranch" "-seed" "-base_dir" "-class" "-criterion" "-sandbox" "-process")
-	allowed_options_take_values=(0 0 1 1 1 1 0 0)
+	allowed_options=("-EvoSuite" "-OneBranch" "-seed" "-base_dir" "-class" "-criterion" "-sandbox" "-debug" "-process" "-stubs" "-mocks" "-mock_strategies")
+	allowed_options_take_values=(0 0 1 1 1 1 0 0 0 0 0 1)
 	parse_command_line "$@"
 	options_ok=$?
 	if test $options_ok -eq 0;
@@ -342,6 +350,10 @@ generateSuite ()
 		STRATEGY="OneBranch"
 		CRITERION="branch"
 		SANDBOX=""
+		STUBS=""
+		MOCKS=""
+		MOCK_STRATEGIES=""
+		java_debug=""
 		random_seed="-Drandom.seed=0"
 		PROCESS=0
 		for (( i = 0; i < ${#cmdline_options[@]}; i++ )) 
@@ -354,7 +366,12 @@ generateSuite ()
 			"-EvoSuite") STRATEGY="EvoSuite";;
 			"-criterion") CRITERION=${cmdline_options_values[$i]};;
 			"-sandbox") SANDBOX="-Dsandbox=true";;
+			"-debug") java_debug="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=1044"
+			        echo "*** DEBUGGING MODE *** Start e.g. the eclipse remote debugger with the port given below.";;
 			"-process") PROCESS=1;;
+			"-stubs") STUBS="-Dstubs=true";;
+			"-mocks") MOCKS="-Dmocks=true";;
+			"-mock_strategies") MOCK_STRATEGIES="-Dmock_strategies="${cmdline_options_values[$i]};;
 		    esac
 		done
 
@@ -388,10 +405,10 @@ generateSuite ()
 		    #echo "Current class: $test_class"
 
 		    if [ $PROCESS -eq 1 ]; then
-			CLIENT="java -javaagent:$BASEPATH/jmockit.jar -cp "$OUTPUT_DIR:$classpath:$CP" $java_agent=generate -DPROJECT_PREFIX=$PROJECT_PREFIX $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY -Dcriterion=$CRITERION -DTARGET_CLASS=$test_class $evosuite_client"
+			CLIENT="java $java_debug -javaagent:$BASEPATH/jmockit.jar -cp "$OUTPUT_DIR:$classpath:$CP" -Dclassloader=true -DPROJECT_PREFIX=$PROJECT_PREFIX $SANDBOX $MOCKS $STUBS $MOCK_STRATEGIES $random_seed $java_options $java_opts -Dstrategy=$STRATEGY -Dcriterion=$CRITERION -DTARGET_CLASS=$test_class $evosuite_client"
 			java -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP" $random_seed $java_options $java_opts -DTARGET_CLASS=$test_class $evosuite_master $CLIENT
 		    else
-			java -javaagent:$BASEPATH/jmockit.jar -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP" $java_agent=generate $SANDBOX $random_seed $java_options $java_opts -Dstrategy=$STRATEGY -Dcriterion=$CRITERION -DPROJECT_PREFIX=$PROJECT_PREFIX -DTARGET_CLASS=$test_class $evosuite_suite
+			java $java_debug -javaagent:$BASEPATH/jmockit.jar -cp "$OUTPUT_DIR:$OUTPUT_DIR/evosuite-pool:$classpath:$CP" -Dclassloader=true $SANDBOX $MOCKS $STUBS $MOCK_STRATEGIES $random_seed $java_options $java_opts -Dstrategy=$STRATEGY -Dcriterion=$CRITERION -DPROJECT_PREFIX=$PROJECT_PREFIX -DTARGET_CLASS=$test_class $evosuite_suite
 		    fi
 		done
 		popd > /dev/null

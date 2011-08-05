@@ -6,9 +6,7 @@ package de.unisb.cs.st.evosuite.coverage.mutation;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
-
 import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
 
 /**

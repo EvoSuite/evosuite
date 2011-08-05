@@ -1,11 +1,11 @@
 package de.unisb.cs.st.evosuite.javaagent;
 
-public class InnerClassesTestSubject 
+public final class InnerClassesTestSubject 
 {
 	@Override
 	public String toString()
 	{
-		System.out.println("Starting doSomethingNow()");
+		System.out.println("Starting toString()");
 		
 		Object obj = new Object(){
 			@Override 
@@ -24,7 +24,10 @@ public class InnerClassesTestSubject
 		Foo1 foo1 = new Foo1();
 		String c = foo1.toString();
 		
-		return a+b+c;
+		Foo2 foo2 = new Foo2();
+		String d = foo2.toString();
+		
+		return a+b+c+d;
 	}
 	
 	private class Foo0
@@ -42,6 +45,15 @@ public class InnerClassesTestSubject
 		{
 			System.out.println("Printing in private static class");
 			return "c";
+		}		
+	}
+
+	public static final class Foo2
+	{
+		public String toString()
+		{
+			System.out.println("Printing in public static final class");
+			return "d";
 		}		
 	}
 }

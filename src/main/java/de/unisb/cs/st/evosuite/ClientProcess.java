@@ -68,7 +68,8 @@ public class ClientProcess implements SearchListener {
 
 			if (freeMem < Properties.MIN_FREE_MEM) {
 				System.out.println("* Running out of memory, giving up: " + freeMem
-				        + " / " + runtime.maxMemory());
+				        + " / " + runtime.maxMemory() + " - need "
+				        + Properties.MIN_FREE_MEM);
 				return true;
 			} else {
 				System.out.println("* Garbage collection recovered sufficient memory: "

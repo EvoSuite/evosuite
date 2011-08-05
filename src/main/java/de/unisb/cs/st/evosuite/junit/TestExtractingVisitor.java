@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Expression;
@@ -31,7 +30,8 @@ import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.internal.ui.text.correction.ASTResolving;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.testcase.BooleanPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
@@ -53,9 +53,13 @@ import de.unisb.cs.st.evosuite.testcase.VariableReferenceImpl;
 public class TestExtractingVisitor extends LoggingVisitor {
 
 	private static class BoundVariableReferenceImpl extends VariableReferenceImpl {
+
+		private static final long serialVersionUID = -8913072341643375066L;
+
 		protected String name;
 
-		public BoundVariableReferenceImpl(CompoundTestCase testCase, java.lang.reflect.Type type, String name) {
+		public BoundVariableReferenceImpl(CompoundTestCase testCase,
+		        java.lang.reflect.Type type, String name) {
 			super(testCase, type);
 			this.name = name;
 		}
@@ -77,13 +81,13 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	private static class ValidConstructorStatement extends ConstructorStatement {
 		private static final long serialVersionUID = 1L;
 
-		public ValidConstructorStatement(TestCase tc, Constructor<?> constructor, java.lang.reflect.Type type,
-				List<VariableReference> parameters) {
+		public ValidConstructorStatement(TestCase tc, Constructor<?> constructor,
+		        java.lang.reflect.Type type, List<VariableReference> parameters) {
 			super(tc, constructor, type, parameters);
 		}
 
-		public ValidConstructorStatement(TestCase tc, Constructor<?> constructor, VariableReference retVal,
-				List<VariableReference> parameters) {
+		public ValidConstructorStatement(TestCase tc, Constructor<?> constructor,
+		        VariableReference retVal, List<VariableReference> parameters) {
 			super(tc, constructor, retVal, parameters);
 		}
 
@@ -96,13 +100,13 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	private static class ValidMethodStatement extends MethodStatement {
 		private static final long serialVersionUID = 1L;
 
-		public ValidMethodStatement(TestCase tc, Method method, VariableReference callee, java.lang.reflect.Type type,
-				List<VariableReference> parameters) {
+		public ValidMethodStatement(TestCase tc, Method method, VariableReference callee,
+		        java.lang.reflect.Type type, List<VariableReference> parameters) {
 			super(tc, method, callee, type, parameters);
 		}
 
-		public ValidMethodStatement(TestCase tc, Method method, VariableReference callee, VariableReference retVal,
-				List<VariableReference> parameters) {
+		public ValidMethodStatement(TestCase tc, Method method, VariableReference callee,
+		        VariableReference retVal, List<VariableReference> parameters) {
 			super(tc, method, callee, retVal, parameters);
 		}
 
@@ -113,6 +117,9 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	}
 
 	private static class ValidVariableReference extends VariableReferenceImpl {
+
+		private static final long serialVersionUID = -59873293582106016L;
+
 		public ValidVariableReference(TestCase testCase, java.lang.reflect.Type type) {
 			super(testCase, type);
 		}
@@ -138,9 +145,9 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		}
 	}
 
-	protected static Logger logger = Logger.getLogger(TestExtractingVisitor.class);
+	protected static Logger logger = LoggerFactory.getLogger(TestExtractingVisitor.class);
 	private List<StatementInterface> currentScope;
-	private Map<IVariableBinding, VariableReference> localVars = new HashMap<IVariableBinding, VariableReference>();
+	private final Map<IVariableBinding, VariableReference> localVars = new HashMap<IVariableBinding, VariableReference>();
 	private final CompoundTestCase testCase;
 	private final String unqualifiedTest;
 	private final String unqualifiedTestMethod;
@@ -151,7 +158,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		super();
 		this.testCase = testCase;
 		this.unqualifiedTest = qualifiedTestMethod.substring(qualifiedTestMethod.lastIndexOf(".") + 1,
-				qualifiedTestMethod.indexOf("#"));
+		                                                     qualifiedTestMethod.indexOf("#"));
 		this.unqualifiedTestMethod = qualifiedTestMethod.substring(qualifiedTestMethod.indexOf("#") + 1);
 	}
 
@@ -175,11 +182,14 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		MethodStatement methodStatement = null;
 		ASTNode parent = methodInvocation.getParent();
 		if (parent instanceof ExpressionStatement) {
-			VariableReference retVal = new ValidVariableReference(testCase, method.getReturnType());
-			methodStatement = new ValidMethodStatement(testCase, method, callee, retVal, params);
+			VariableReference retVal = new ValidVariableReference(testCase,
+			        method.getReturnType());
+			methodStatement = new ValidMethodStatement(testCase, method, callee, retVal,
+			        params);
 		} else {
 			VariableReference retVal = retrieveResultReference(methodInvocation);
-			methodStatement = new ValidMethodStatement(testCase, method, callee, retVal, params);
+			methodStatement = new ValidMethodStatement(testCase, method, callee, retVal,
+			        params);
 			if (parent instanceof MethodInvocation) {
 				nestedCallResult = retVal;
 			}
@@ -192,10 +202,12 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	public boolean visit(ClassInstanceCreation instanceCreation) {
 		List<?> paramTypes = Arrays.asList(instanceCreation.resolveConstructorBinding().getParameterTypes());
 		List<?> paramValues = instanceCreation.arguments();
-		Constructor<?> constructor = retrieveConstructor(instanceCreation.getType(), paramTypes, paramValues);
+		Constructor<?> constructor = retrieveConstructor(instanceCreation.getType(),
+		                                                 paramTypes, paramValues);
 		List<VariableReference> params = convertParams(instanceCreation.arguments());
 		VariableReference retVal = retrieveVariableReference(instanceCreation.getParent());
-		ConstructorStatement statement = new ValidConstructorStatement(testCase, constructor, retVal, params);
+		ConstructorStatement statement = new ValidConstructorStatement(testCase,
+		        constructor, retVal, params);
 		currentScope.add(statement);
 		return super.visit(instanceCreation);
 	}
@@ -213,9 +225,11 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if (unqualifiedTestMethod.equals(methodDeclaration.getName().getIdentifier())) {
 			currentScope = testCase.getTestMethod();
 		} else {
-			logger.warn("Test method is '" + unqualifiedTestMethod + "' but found method declaration '"
-					+ methodDeclaration.getName().getIdentifier() + "'.");
-			throw new UnsupportedOperationException("Method visitMethodDeclaration not completely implemented!");
+			logger.warn("Test method is '" + unqualifiedTestMethod
+			        + "' but found method declaration '"
+			        + methodDeclaration.getName().getIdentifier() + "'.");
+			throw new UnsupportedOperationException(
+			        "Method visitMethodDeclaration not completely implemented!");
 		}
 		return super.visit(methodDeclaration);
 	}
@@ -224,7 +238,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	public boolean visit(TypeDeclaration typeDeclaration) {
 		if (!unqualifiedTest.equals(typeDeclaration.getName().getIdentifier())) {
 			throw new UnsupportedOperationException(
-					"Method visitTypeDeclaration not implemented for other types than the actual test!");
+			        "Method visitTypeDeclaration not implemented for other types than the actual test!");
 		}
 		return super.visit(typeDeclaration);
 	}
@@ -238,7 +252,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		return argClasses;
 	}
 
-	protected Constructor<?> retrieveConstructor(Type type, List<?> argumentTypes, List<?> arguments) {
+	protected Constructor<?> retrieveConstructor(Type type, List<?> argumentTypes,
+	        List<?> arguments) {
 		Class<?>[] argClasses = extractArgumentClasses(argumentTypes);
 		Constructor<?> constructor = null;
 		Class<?> clazz = retrieveTypeClass(type);
@@ -305,10 +320,11 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			if (value instanceof Byte) {
 				return Byte.TYPE;
 			}
-			throw new UnsupportedOperationException("Retrieval of type " + argument.getClass()
-					+ " not implemented yet!");
+			throw new UnsupportedOperationException("Retrieval of type "
+			        + argument.getClass() + " not implemented yet!");
 		}
-		throw new UnsupportedOperationException("Retrieval of type " + argument.getClass() + " not implemented yet!");
+		throw new UnsupportedOperationException("Retrieval of type "
+		        + argument.getClass() + " not implemented yet!");
 	}
 
 	protected VariableReference retrieveVariableReference(Object argument) {
@@ -319,7 +335,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			VariableDeclarationFragment varDeclFrgmnt = (VariableDeclarationFragment) argument;
 			IVariableBinding variableBinding = varDeclFrgmnt.resolveBinding();
 			Class<?> clazz = retrieveTypeClass(variableBinding.getType());
-			VariableReference result = new BoundVariableReferenceImpl(testCase, clazz, variableBinding.getName());
+			VariableReference result = new BoundVariableReferenceImpl(testCase, clazz,
+			        variableBinding.getName());
 			localVars.put(variableBinding, result);
 			return result;
 		}
@@ -334,16 +351,21 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			if (localVar != null) {
 				return localVar;
 			}
-			return new BoundVariableReferenceImpl(testCase, varClass, varBinding.getName());
+			return new BoundVariableReferenceImpl(testCase, varClass,
+			        varBinding.getName());
 		}
 		if (argument instanceof InfixExpression) {
 			InfixExpression infixExpr = (InfixExpression) argument;
-			ITypeBinding refTypeBinding = ASTResolving.guessBindingForReference(infixExpr);
-			VariableReference ref = new VariableReferenceImpl(testCase, retrieveTypeClass(refTypeBinding));
+			// FIXXME: I have no idea what this is doing, but I wanted to get rid of 40MB of dependencies for this single statement!
+			ITypeBinding refTypeBinding = infixExpr.resolveTypeBinding();
+			//			ITypeBinding refTypeBinding = ASTResolving.guessBindingForReference(infixExpr);
+			VariableReference ref = new VariableReferenceImpl(testCase,
+			        retrieveTypeClass(refTypeBinding));
 			VariableReference leftOperand = retrieveVariableReference(infixExpr.getLeftOperand());
 			Operator operator = Operator.toOperator(infixExpr.getOperator().toString());
 			VariableReference rightOperand = retrieveVariableReference(infixExpr.getRightOperand());
-			PrimitiveExpression expr = new PrimitiveExpression(testCase, ref, leftOperand, operator, rightOperand);
+			PrimitiveExpression expr = new PrimitiveExpression(testCase, ref,
+			        leftOperand, operator, rightOperand);
 			currentScope.add(expr);
 			return ref;
 		}
@@ -354,7 +376,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		}
 		if (argument instanceof StringLiteral) {
 			String string = ((StringLiteral) argument).getLiteralValue();
-			PrimitiveStatement<String> stringAssignment = new StringPrimitiveStatement(testCase, string);
+			PrimitiveStatement<String> stringAssignment = new StringPrimitiveStatement(
+			        testCase, string);
 			currentScope.add(stringAssignment);
 			return stringAssignment.getReturnValue();
 		}
@@ -362,7 +385,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			NumberLiteral numberLiteral = (NumberLiteral) argument;
 			Class<?> numberClass = retrieveTypeClass(numberLiteral);
 			Object value = numberLiteral.resolveConstantExpressionValue();
-			PrimitiveStatement<?> numberAssignment = createNumericalPrimitiveStatement(numberClass, value);
+			PrimitiveStatement<?> numberAssignment = createNumericalPrimitiveStatement(numberClass,
+			                                                                           value);
 			currentScope.add(numberAssignment);
 			return numberAssignment.getReturnValue();
 		}
@@ -376,14 +400,16 @@ public class TestExtractingVisitor extends LoggingVisitor {
 				Field field = referencedClass.getField(qualifiedName.getName().getIdentifier());
 				FieldReference fieldReference = new FieldReference(testCase, field);
 				Class<?> resultClass = retrieveTypeClass(qualifiedName.resolveTypeBinding());
-				FieldStatement fieldStatement = new FieldStatement(testCase, field, fieldReference, resultClass);
+				FieldStatement fieldStatement = new FieldStatement(testCase, field,
+				        fieldReference, resultClass);
 				currentScope.add(fieldStatement);
 				return fieldStatement.getReturnValue();
 			} catch (Exception exc) {
 				throw new RuntimeException(exc);
 			}
 		}
-		throw new UnsupportedOperationException("Argument type " + argument.getClass() + " not implemented!");
+		throw new UnsupportedOperationException("Argument type " + argument.getClass()
+		        + " not implemented!");
 	}
 
 	private List<VariableReference> convertParams(List<?> arguments) {
@@ -400,7 +426,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		return result;
 	}
 
-	private NumericalPrimitiveStatement<?> createNumericalPrimitiveStatement(Class<?> numberClass, Object value) {
+	private NumericalPrimitiveStatement<?> createNumericalPrimitiveStatement(
+	        Class<?> numberClass, Object value) {
 		if (numberClass.equals(Boolean.class) || numberClass.equals(boolean.class)) {
 			return new BooleanPrimitiveStatement(testCase, (Boolean) value);
 		}
@@ -410,7 +437,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if (numberClass.equals(Long.class) || numberClass.equals(long.class)) {
 			return new LongPrimitiveStatement(testCase, (Long) value);
 		}
-		throw new UnsupportedOperationException("Not all primitives have been implemented!");
+		throw new UnsupportedOperationException(
+		        "Not all primitives have been implemented!");
 	}
 
 	private Class<?> doBoxing(Class<?> clazz) {
@@ -441,7 +469,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		throw new UnsupportedOperationException("Cannot doBoxing for class " + clazz);
 	}
 
-	private Method getMethod(MethodInvocation methodInvocation, List<VariableReference> params) {
+	private Method getMethod(MethodInvocation methodInvocation,
+	        List<VariableReference> params) {
 		String methodName = methodInvocation.getName().getIdentifier();
 		IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
 		Class<?> clazz = retrieveTypeClass(methodBinding.getDeclaringClass());
@@ -455,7 +484,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 				VariableReference param = params.get(idx);
 				if (!param.isAssignableFrom(paramClasses[idx])) {
 					if (methods.size() == 1) {
-						throw new IllegalStateException("Param class and argument do not match!");
+						throw new IllegalStateException(
+						        "Param class and argument do not match!");
 					}
 					throw new WrongMethodBindingException();
 				}
@@ -547,7 +577,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if ("[".equals(className)) {
 			return Array.class;
 		}
-		throw new RuntimeException("Primitive type of class '" + className + "' is unknown.");
+		throw new RuntimeException("Primitive type of class '" + className
+		        + "' is unknown.");
 	}
 
 	private VariableReference retrieveResultReference(MethodInvocation methodInvocation) {

@@ -29,12 +29,12 @@ public class InstrumentingClassLoader extends ClassLoader {
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 		if (instrumentation.isTargetProject(name)) {
 			// if (TestCluster.isTargetClassName(name)) {
-			if (isTargetClass(name)) {
-				return instrumentClass(name);
+			Class<?> result = findLoadedClass(name);
+			if (result != null) {
+				return result;
 			} else {
-				Class<?> result = findLoadedClass(name);
-				if (result != null) {
-					return result;
+				if (isTargetClass(name)) {
+					return instrumentClass(name);
 				} else {
 					return loadClassByteCode(name);
 				}
@@ -77,8 +77,8 @@ public class InstrumentingClassLoader extends ClassLoader {
 	}
 
 	private Class<?> loadClassByteCode(String name) throws ClassNotFoundException {
-		if (name.startsWith("java") || name.startsWith("sun")) {
-			throw new IllegalStateException("Cannot load java system classes!");
+		if (name.startsWith("java.") || name.startsWith("sun.")) {
+			throw new IllegalStateException("Cannot load java system class: " + name);
 		}
 		try {
 			InputStream is = ClassLoader.getSystemResourceAsStream(name.replace('.', '/')
