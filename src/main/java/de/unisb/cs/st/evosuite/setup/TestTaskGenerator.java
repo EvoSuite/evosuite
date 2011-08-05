@@ -257,6 +257,8 @@ public class TestTaskGenerator {
 			logger.info(c + " looks like an anonymous class, ignoring it");
 			return false;
 		}
+		if (c.isEnum())
+			return false;
 
 		return true;
 	}
@@ -299,6 +301,11 @@ public class TestTaskGenerator {
 		//TODO we could enable some methods from Object, like getClass
 		if (m.getDeclaringClass().equals(java.lang.Object.class)) {
 			logger.debug("Excluding method declared in Object " + m.toString());
+			return false;
+		}
+
+		if (m.getDeclaringClass().equals(java.lang.Enum.class)) {
+			logger.debug("Excluding method declared in Enum " + m.toString());
 			return false;
 		}
 
@@ -403,6 +410,7 @@ public class TestTaskGenerator {
 		logger.debug("Adding constructors for class " + clazz.getName());
 		for (Constructor<?> constructor : getConstructors(clazz)) {
 			if (canUse(constructor)
+			        && !clazz.isEnum()
 			        && !isExcluded(clazz.getName(),
 			                       "<init>" + Type.getConstructorDescriptor(constructor))) {
 				logger.debug("Adding constructor " + clazz.getName() + "."

@@ -511,14 +511,15 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			}
 		}
 
-		if ((parameter_type instanceof Class<?>)
-		        && ((Class<?>) parameter_type).isPrimitive() && !objects.isEmpty()
+		Class<?> clazz = GenericTypeReflector.erase(parameter_type);
+		if ((clazz.isPrimitive() || clazz.isEnum()) && !objects.isEmpty()
 		        && reuse <= Properties.PRIMITIVE_REUSE_PROBABILITY) {
 			logger.debug(" Looking for existing object of type " + parameter_type);
 			VariableReference reference = Randomness.choice(objects);
 			return reference;
 
-		} else if (!GenericTypeReflector.erase(parameter_type).isPrimitive()
+		} else if (!clazz.isPrimitive()
+		        && !clazz.isEnum()
 		        && !objects.isEmpty()
 		        && ((reuse <= Properties.OBJECT_REUSE_PROBABILITY) || !test_cluster.hasGenerator(parameter_type))) {
 
@@ -710,7 +711,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	        int recursion_depth, boolean allow_null) throws ConstructionFailedException {
 		GenericClass clazz = new GenericClass(type);
 
-		if (clazz.isPrimitive() || clazz.isString()) {
+		if (clazz.isPrimitive() || clazz.isString() || clazz.isEnum()) {
 			if (logger.isDebugEnabled())
 				logger.debug("Generating primitive of type "
 				        + ((Class<?>) type).getName());
@@ -720,7 +721,6 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			return test.addStatement(st, position);
 		} else if (clazz.isArray()) {
 			return createArray(test, type, position, recursion_depth);
-
 		} else {
 			if (allow_null && Randomness.nextDouble() <= Properties.NULL_PROBABILITY) {
 				logger.debug("Using a null reference to satisfy the type: " + type);

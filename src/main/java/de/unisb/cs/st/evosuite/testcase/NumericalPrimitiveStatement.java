@@ -6,7 +6,7 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.lang.reflect.Type;
 
 /**
- * @author fraser
+ * @author Gordon Fraser
  * 
  */
 public abstract class NumericalPrimitiveStatement<T> extends PrimitiveStatement<T> {
