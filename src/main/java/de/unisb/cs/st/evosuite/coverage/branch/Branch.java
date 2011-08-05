@@ -59,7 +59,7 @@ public class Branch {
 	}
 
 	/**
-	 * Constructor for SWITCH-Case: Branches
+	 * Constructor for switch case branches
 	 * 
 	 */
 	public Branch(BytecodeInstruction switchInstruction,
@@ -123,7 +123,7 @@ public class Branch {
 		return instruction.getMethodName();
 	}
 
-	public boolean isSwitch() {
+	public boolean isSwitchCaseBranch() {
 		return isSwitch;
 	}
 

@@ -23,9 +23,9 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
+import org.jgrapht.graph.DefaultDirectedGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.jgrapht.graph.DefaultDirectedGraph;
 
 /**
  * Abstract base class for both forms of CFGs inside EvoSuite
@@ -155,8 +155,13 @@ public abstract class ControlFlowGraph<V> extends EvoSuiteGraph<V, ControlFlowEd
 	}
 
 	protected void computeDiameter() {
+		// The diameter is just an upper bound for the approach level
+		// Let's try to use something that's easier to compute than FLoydWarshall
+		diameter = this.edgeCount();
+		/*
 		FloydWarshall<V, ControlFlowEdge> f = new FloydWarshall<V, ControlFlowEdge>(graph);
 		diameter = (int) f.getDiameter();
+		*/
 	}
 
 	protected V determineEntryPoint() {

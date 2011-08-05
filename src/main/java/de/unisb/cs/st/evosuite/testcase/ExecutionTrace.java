@@ -572,7 +572,7 @@ public class ExecutionTrace {
 		 */
 
 		ExecutionTrace r = clone();
-		Branch targetDUBranch = BranchPool.getBranch(targetDU.getControlDependentBranchId());
+		Branch targetDUBranch = targetDU.getControlDependentBranch();
 		ArrayList<Integer> removableCalls = new ArrayList<Integer>();
 		for (int callPos = 0; callPos < r.finished_calls.size(); callPos++) {
 			MethodCall call = r.finished_calls.get(callPos);
@@ -591,8 +591,6 @@ public class ExecutionTrace {
 				else if (currentBranchBytecode == targetDUBranch.getInstruction().getInstructionId()) {
 					// only remove this point in the trace if it would cover targetDU
 					boolean targetExpressionValue = targetDU.getControlDependentBranchExpressionValue();
-					if (wantToCoverTargetDU)
-						targetExpressionValue = !targetExpressionValue;
 					if (targetExpressionValue) {
 						if (call.trueDistanceTrace.get(i) == 0.0)
 							removableIndices.add(i);
