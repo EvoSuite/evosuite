@@ -18,11 +18,11 @@
 
 package de.unisb.cs.st.evosuite.javaagent;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Instrument classes to keep track of method entry and exit
@@ -53,7 +53,7 @@ public class MethodEntryAdapter extends AdviceAdapter {
 	public void onMethodEnter() {
 
 		if (methodName.equals("<clinit>"))
-			return;
+			return; // FIXXME: Should we call super.onMethodEnter() here?
 
 		mv.visitLdcInsn(className);
 		mv.visitLdcInsn(fullMethodName);
@@ -72,6 +72,7 @@ public class MethodEntryAdapter extends AdviceAdapter {
 
 	@Override
 	public void onMethodExit(int opcode) {
+		// TODO: Check for <clinit>
 		mv.visitLdcInsn(className);
 		mv.visitLdcInsn(fullMethodName);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC,
