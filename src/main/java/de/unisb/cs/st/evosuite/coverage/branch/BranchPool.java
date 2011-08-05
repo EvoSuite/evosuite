@@ -60,7 +60,7 @@ public class BranchPool {
 
 	private static Map<BytecodeInstruction, Branch> registeredDefaultCases = new HashMap<BytecodeInstruction, Branch>();
 
-	private static Map<LabelNode, Branch> switchLabels = new HashMap<LabelNode, Branch>();
+	private static Map<LabelNode, List<Branch>> switchLabels = new HashMap<LabelNode, List<Branch>>();
 
 	// number of known Branches - used for actualBranchIds
 	private static int branchCounter = 0;
@@ -230,10 +230,16 @@ public class BranchPool {
 
 	private static void registerSwitchLabel(Branch b, LabelNode targetLabel) {
 
-		// if(switchLabels.get(targetLabel) != null)
-		// throw new
-		// IllegalArgumentException("label already associated with a branch "+b.toString());
-
+		if(switchLabels.get(targetLabel) == null)
+			switchLabels.put(targetLabel, new ArrayList<Branch>());
+		
+		List<Branch> oldList = switchLabels.get(targetLabel);
+		
+		if(oldList.contains(b))
+			throw new IllegalStateException("branch already registered for this switch label");
+		
+		oldList.add(b);
+		
 		// TODO several Branches can map to one Label, so switchLabels should
 		// either map from branches to labels, not the other way around. or it
 		// should map labels to a list of branches
@@ -242,7 +248,7 @@ public class BranchPool {
 
 		// TODO STOPPED HERE
 
-		switchLabels.put(targetLabel, b);
+		switchLabels.put(targetLabel, oldList);
 	}
 
 	private static void registerSwitchBranch(BytecodeInstruction v,
@@ -338,7 +344,7 @@ public class BranchPool {
 		return getBranch(registeredNormalBranches.get(instruction));
 	}
 
-	public static Branch getBranchForLabel(LabelNode label) {
+	public static List<Branch> getBranchForLabel(LabelNode label) {
 
 		// TODO see registerSwitchLabel()!
 
