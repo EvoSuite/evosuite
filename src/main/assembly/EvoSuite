@@ -23,7 +23,7 @@ export DYLD_LIBRARY_PATH=$BASEPATH/lib/libcvc3-jni/i386-darwin10.2.0:$DYLD_LIBRA
 ##
 ## Classpath part to be used in all invocations of Java
 ##
-classpath=$BASEPATH:$BASEPATH/etc:$BASEPATH/${project.artifactId}-${project.version}.jar:$BASEPATH/${project.artifactId}-${project.version}-dependencies.jar
+classpath=$BASEPATH:$BASEPATH/etc:$BASEPATH/${project.artifactId}-${project.version}-jar.jar
 
 #for JAR in $BASEPATH/lib/*.jar; do
 #    classpath="$classpath:$JAR"
