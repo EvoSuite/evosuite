@@ -5,7 +5,8 @@ package de.unisb.cs.st.evosuite.cfg.instrumentation;
 
 import java.util.Iterator;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
@@ -30,7 +31,7 @@ import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
  */
 public class DefUseInstrumentation implements MethodInstrumentation {
 
-	private static Logger logger = Logger.getLogger(DefUseInstrumentation.class);
+	private static Logger logger = LoggerFactory.getLogger(DefUseInstrumentation.class);
 	
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String, java.lang.String)

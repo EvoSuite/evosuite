@@ -27,8 +27,10 @@ import de.unisb.cs.st.evosuite.ga.SecondaryObjective;
  */
 public class MinimizeAverageLengthSecondaryObjective extends SecondaryObjective {
 
+	private static final long serialVersionUID = -6272641645062817112L;
+
 	private double getAverageLength(Chromosome chromosome) {
-		return (double) ((TestSuiteChromosome) chromosome).length()
+		return (double) ((TestSuiteChromosome) chromosome).totalLengthOfTestCases()
 		        / (double) chromosome.size();
 	}
 
@@ -58,7 +60,7 @@ public class MinimizeAverageLengthSecondaryObjective extends SecondaryObjective 
 	public int compareGenerations(Chromosome parent1, Chromosome parent2,
 	        Chromosome child1, Chromosome child2) {
 		return (int) Math.signum(Math.min(getAverageLength(parent1),
-		        getAverageLength(parent2))
+		                                  getAverageLength(parent2))
 		        - Math.min(getAverageLength(child1), getAverageLength(child2)));
 	}
 

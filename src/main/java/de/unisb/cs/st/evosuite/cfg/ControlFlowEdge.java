@@ -45,17 +45,13 @@ public class ControlFlowEdge extends DefaultEdge {
 
 		if (branchInstruction != null) {
 			r += branchInstruction.toString();
-			if(!(branchInstruction.isTableSwitch() || branchInstruction.isLookupSwitch())) {
+			if(!branchInstruction.isSwitchCaseBranch()) {
 				if (branchExpressionValue)
 					r += " - TRUE";
 				else
 					r += " - FALSE";
 			}
 		} 
-//		else
-//			r += "nonBranch";
-
-//		r += "CFE";
 
 		return r;
 	}
@@ -72,6 +68,13 @@ public class ControlFlowEdge extends DefaultEdge {
 		return isExceptionEdge;
 	}
 
+	public void setBranchInstruction(Branch branch) {
+		if(branch == null)
+			throw new IllegalArgumentException("null given");
+		
+		this.branchInstruction = branch;
+	}
+	
 	public void setBranchInstruction(BytecodeInstruction branchInstruction) {
 		
 		if (!branchInstruction.isActualBranch())

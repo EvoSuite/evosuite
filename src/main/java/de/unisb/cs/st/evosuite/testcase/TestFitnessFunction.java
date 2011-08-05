@@ -35,7 +35,9 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondit
 public abstract class TestFitnessFunction extends FitnessFunction implements
         Comparable<TestFitnessFunction> {
 
-	protected TestCaseExecutor executor = TestCaseExecutor.getInstance();
+	private static final long serialVersionUID = 5602125855207061901L;
+
+	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
 	/**
 	 * Execute a test case
@@ -52,9 +54,7 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 		ExecutionResult result = new ExecutionResult(test, null);
 
 		try {
-			logger.debug("Executing test");
 			result = executor.execute(test);
-			executor.setLogging(true);
 
 			int num = test.size();
 			MaxStatementsStoppingCondition.statementsExecuted(num);
@@ -64,7 +64,7 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
-			logger.fatal("TG: Exception caught: ", e);
+			logger.error("TG: Exception caught: ", e);
 			System.exit(1);
 		}
 
@@ -78,10 +78,10 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	public double getFitness(Chromosome individual) {
 		logger.trace("Executing test case on original");
 		TestChromosome c = (TestChromosome) individual;
-		ExecutionResult orig_result = c.last_result;
+		ExecutionResult orig_result = c.getLastExecutionResult();
 		if (orig_result == null || c.isChanged()) {
 			orig_result = runTest(c.test);
-			c.last_result = orig_result;
+			c.setLastExecutionResult(orig_result);
 			c.setChanged(false);
 		}
 
@@ -176,7 +176,13 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	}
 
 	public boolean isCovered(TestChromosome tc) {
-		ExecutionResult result = runTest(tc.test);
+		ExecutionResult result = tc.getLastExecutionResult();
+		if (result == null || tc.isChanged()) {
+			result = runTest(tc.test);
+			tc.setLastExecutionResult(result);
+			tc.setChanged(false);
+		}
+
 		return isCovered(tc, result);
 	}
 

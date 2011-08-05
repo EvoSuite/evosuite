@@ -28,6 +28,7 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  * 
  */
 public class ConcurrencyCoverageTestFitness extends TestFitnessFunction {
+	private static final long serialVersionUID = 1L;
 
 	/** Target branch */
 	private final ConcurrencyCoverageGoal goal;

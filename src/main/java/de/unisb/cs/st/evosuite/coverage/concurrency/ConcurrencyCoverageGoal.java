@@ -25,7 +25,7 @@ import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 
 /**
  * A single branch coverage goal Either true/false evaluation of a jump
@@ -40,10 +40,10 @@ public class ConcurrencyCoverageGoal extends TestCoverageGoal {
 	private final List<SchedulingDecisionTuple> scheduleIDs;
 	private final List<BranchCoverageGoal> branches;
 
-
-	public ConcurrencyCoverageGoal(List<SchedulingDecisionTuple> scheduleIDs, List<BranchCoverageGoal> branches) {
-		this.scheduleIDs=scheduleIDs;
-		this.branches=branches;
+	public ConcurrencyCoverageGoal(List<SchedulingDecisionTuple> scheduleIDs,
+	        List<BranchCoverageGoal> branches) {
+		this.scheduleIDs = scheduleIDs;
+		this.branches = branches;
 		//cfg.toDot(className+"."+methodName.replace("/",".").replace(";",".").replace("(",".").replace(")",".")+".dot");
 	}
 
@@ -55,8 +55,8 @@ public class ConcurrencyCoverageGoal extends TestCoverageGoal {
 	 * @param methodName
 	 */
 	public ConcurrencyCoverageGoal(List<SchedulingDecisionTuple> scheduleIDs) {
-		this.scheduleIDs=scheduleIDs;
-		this.branches=null;
+		this.scheduleIDs = scheduleIDs;
+		this.branches = null;
 	}
 
 	/**
@@ -65,28 +65,27 @@ public class ConcurrencyCoverageGoal extends TestCoverageGoal {
 	 * @return
 	 */
 	@Override
-	public boolean isCovered(TestCase test) {
+	public boolean isCovered(TestChromosome test) {
 		//#TODO it would be nicer, if test cases where notified before being run and we could register our Controller somewhere. So that ExecutionResults would actually be a list of results and we could cast to the right one
 		ExecutionResult result = runTest(test);
 		ConcurrencyDistance d = getDistance(result, result.getTrace().concurrencyTracer); //tracer was set inside ExecutionTracer.clear()
-		if (d.approachLevel == 0 && d.branchDistance == 0.0 && d.scheduleDistance==0)
+		if (d.approachLevel == 0 && d.branchDistance == 0.0 && d.scheduleDistance == 0)
 			return true;
 		else
 			return false;
 	}
-	
 
-	protected ConcurrencyDistance getDistance(ExecutionResult result, ConcurrencyTracer concurrencyTracer){
+	protected ConcurrencyDistance getDistance(ExecutionResult result,
+	        ConcurrencyTracer concurrencyTracer) {
 		ConcurrencyDistance distance = new ConcurrencyDistance();
-		for(BranchCoverageGoal b : branches){
+		for (BranchCoverageGoal b : branches) {
 			ControlFlowDistance dist = b.getDistance(result);
-			distance.approachLevel+=dist.approachLevel;
-			distance.branchDistance+=dist.branchDistance;
+			distance.approachLevel += dist.approachLevel;
+			distance.branchDistance += dist.branchDistance;
 		}
 		distance.scheduleDistance = concurrencyTracer.getDistance(scheduleIDs);
 		return distance;
 	}
-
 
 	/**
 	 * Readable representation
@@ -99,27 +98,27 @@ public class ConcurrencyCoverageGoal extends TestCoverageGoal {
 	@Override
 	public int hashCode() {
 		int hash = 0;
-		for(BranchCoverageGoal b : branches){
-			hash+=b.hashCode();
+		for (BranchCoverageGoal b : branches) {
+			hash += b.hashCode();
 		}
-		for(SchedulingDecisionTuple t : scheduleIDs){
-			hash+=t.hashCode();
+		for (SchedulingDecisionTuple t : scheduleIDs) {
+			hash += t.hashCode();
 		}
 		return hash;
 	}
 
-	protected List<BranchCoverageGoal> getBranches(){
-		if(branches!=null){
+	protected List<BranchCoverageGoal> getBranches() {
+		if (branches != null) {
 			return branches;
-		}else{
+		} else {
 			return new ArrayList<BranchCoverageGoal>();
 		}
 	}
-	
-	protected List<SchedulingDecisionTuple> getSchedule(){
+
+	protected List<SchedulingDecisionTuple> getSchedule() {
 		return scheduleIDs;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -129,25 +128,25 @@ public class ConcurrencyCoverageGoal extends TestCoverageGoal {
 		if (getClass() != obj.getClass())
 			return false;
 		ConcurrencyCoverageGoal other = (ConcurrencyCoverageGoal) obj;
-		
+
 		List<BranchCoverageGoal> otherBranches = other.getBranches();
-		if(otherBranches.size()!=branches.size())
+		if (otherBranches.size() != branches.size())
 			return false;
-		
-		for(int i=0;i<branches.size();i++){
-			if(!otherBranches.get(i).equals(branches.get(i)))
+
+		for (int i = 0; i < branches.size(); i++) {
+			if (!otherBranches.get(i).equals(branches.get(i)))
 				return false;
 		}
-		
+
 		List<SchedulingDecisionTuple> otherSchedule = other.getSchedule();
-		if(otherSchedule.size()!=scheduleIDs.size())
+		if (otherSchedule.size() != scheduleIDs.size())
 			return false;
-		
-		for(int i=0;i<scheduleIDs.size();i++){
-			if(!otherSchedule.get(i).equals(scheduleIDs.get(i)))
+
+		for (int i = 0; i < scheduleIDs.size(); i++) {
+			if (!otherSchedule.get(i).equals(scheduleIDs.get(i)))
 				return false;
 		}
-		
+
 		return true;
 	}
 

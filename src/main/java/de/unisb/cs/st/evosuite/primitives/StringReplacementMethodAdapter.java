@@ -21,16 +21,13 @@ package de.unisb.cs.st.evosuite.primitives;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.LocalVariablesSorter;
-
-import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.MutationMarker;
 
 /**
  * @author Gordon Fraser
@@ -38,11 +35,9 @@ import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.MutationMarker;
  */
 public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 
-	protected static Logger logger = Logger.getLogger(StringReplacementMethodAdapter.class);
+	protected static Logger logger = LoggerFactory.getLogger(StringReplacementMethodAdapter.class);
 
 	private final Map<Integer, Integer> flags = new HashMap<Integer, Integer>();
-
-	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION;
 
 	private int current_var = -1;
 
@@ -70,11 +65,6 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 		// then put a converted boolean on the stack
 		Label l = new Label();
 		Label l2 = new Label();
-		if (MUTATION) {
-			Label mutationStartLabel = new Label();
-			mutationStartLabel.info = new MutationMarker(true);
-			super.visitLabel(mutationStartLabel);
-		}
 
 		super.visitJumpInsn(Opcodes.IFNE, l);
 		super.visitInsn(Opcodes.ICONST_1);
@@ -82,12 +72,6 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 		super.visitLabel(l);
 		super.visitInsn(Opcodes.ICONST_0);
 		super.visitLabel(l2);
-
-		if (MUTATION) {
-			Label mutationEndLabel = new Label();
-			mutationEndLabel.info = new MutationMarker(false);
-			super.visitLabel(mutationEndLabel);
-		}
 
 	}
 
@@ -141,12 +125,15 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 		case Opcodes.AALOAD:
 		case Opcodes.LLOAD:
 			current_var = var;
+			break;
+			
 		case Opcodes.ASTORE:
 		case Opcodes.ISTORE:
 		case Opcodes.DSTORE:
 		case Opcodes.FSTORE:
 		case Opcodes.AASTORE:
 		case Opcodes.LSTORE:
+			current_var = var;
 			if (current_write >= 0) {
 				//				flags.put(current_write, var);
 				flags.put(var, current_write);

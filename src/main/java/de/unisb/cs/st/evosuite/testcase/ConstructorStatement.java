@@ -18,7 +18,11 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintStream;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -31,10 +35,9 @@ import java.util.Set;
 import org.apache.commons.lang.ClassUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
-
-import org.objectweb.asm.Type;
 
 /**
  * This statement represents a constructor call
@@ -44,31 +47,35 @@ import org.objectweb.asm.Type;
  */
 public class ConstructorStatement extends AbstractStatement {
 
-	Constructor<?> constructor;
+	private static final long serialVersionUID = -3035570485633271957L;
+
+	private transient Constructor<?> constructor;
 
 	public List<VariableReference> parameters;
 
-	public ConstructorStatement(TestCase tc, Constructor<?> constructor, java.lang.reflect.Type type,
-	        List<VariableReference> parameters) {
+	public ConstructorStatement(TestCase tc, Constructor<?> constructor,
+	        java.lang.reflect.Type type, List<VariableReference> parameters) {
 		super(tc, new VariableReferenceImpl(tc, type));
 		this.constructor = constructor;
 		// this.return_type = constructor.getDeclaringClass();
 		this.parameters = parameters;
 	}
-	
+
 	/**
-	 * This constructor allows you to use an already existing VariableReference as retvar. 
-	 * This should only be done, if an old statement is replaced with this statement. 
-	 * And already existing objects should in the future reference this object.
+	 * This constructor allows you to use an already existing VariableReference
+	 * as retvar. This should only be done, iff an old statement is replaced
+	 * with this statement. And already existing objects should in the future
+	 * reference this object.
+	 * 
 	 * @param tc
 	 * @param constructor
 	 * @param retvar
 	 * @param parameters
 	 */
-	public ConstructorStatement(TestCase tc, Constructor<?> constructor, VariableReference retvar,
-	        List<VariableReference> parameters) {
+	public ConstructorStatement(TestCase tc, Constructor<?> constructor,
+	        VariableReference retvar, List<VariableReference> parameters) {
 		super(tc, retvar);
-		assert(tc.size()>retvar.getStPosition()); //as an old statement should be replaced by this statement
+		assert (tc.size() > retvar.getStPosition()); //as an old statement should be replaced by this statement
 		this.constructor = constructor;
 		// this.return_type = constructor.getDeclaringClass();
 		this.parameters = parameters;
@@ -80,35 +87,60 @@ public class ConstructorStatement extends AbstractStatement {
 
 	// TODO: Handle inner classes (need instance parameter for newInstance)
 	@Override
-	public Throwable execute(Scope scope, PrintStream out)
+	public Throwable execute(final Scope scope, PrintStream out)
 	        throws InvocationTargetException, IllegalArgumentException,
 	        InstantiationException, IllegalAccessException {
 		PrintStream old_out = System.out;
 		PrintStream old_err = System.err;
 		System.setOut(out);
 		System.setErr(out);
+
+		logger.trace("Executing constructor " + constructor.toString());
+		final Object[] inputs = new Object[parameters.size()];
+
 		try {
-			logger.trace("Executing constructor " + constructor.toString());
-			exceptionThrown = null;
-			Object[] inputs = new Object[parameters.size()];
-			for (int i = 0; i < parameters.size(); i++) {
-				inputs[i] = scope.get(parameters.get(i));
-			}
+			return super.exceptionHandler(new Executer() {
 
-			Object ret = this.constructor.newInstance(inputs);
-			scope.set(retval, ret);
+				@Override
+				public void execute() throws InvocationTargetException,
+				        IllegalArgumentException, IllegalAccessException,
+				        InstantiationException {
 
-		} catch (Throwable e) {
-			if (e instanceof java.lang.reflect.InvocationTargetException) {
-				e = e.getCause();
-			} 
-				
-			if(e instanceof EvosuiteError){
-				throw (EvosuiteError)e;
-			}
-			
+					for (int i = 0; i < parameters.size(); i++) {
+						try {
+							inputs[i] = parameters.get(i).getObject(scope);
+						} catch (CodeUnderTestException e) {
+							throw CodeUnderTestException.throwException(e.getCause());
+						} catch (Throwable e) {
+							throw new EvosuiteError(e);
+						}
+					}
+
+					Object ret = constructor.newInstance(inputs);
+
+					try {
+						// assert(retval.getVariableClass().isAssignableFrom(ret.getClass())) :"we want an " + retval.getVariableClass() + " but got an " + ret.getClass();
+						retval.setObject(scope, ret);
+					} catch (CodeUnderTestException e) {
+						throw CodeUnderTestException.throwException(e);
+					} catch (Throwable e) {
+						throw new EvosuiteError(e);
+					}
+				}
+
+				@Override
+				public Set<Class<? extends Throwable>> throwableExceptions() {
+					Set<Class<? extends Throwable>> t = new HashSet<Class<? extends Throwable>>();
+					t.add(InvocationTargetException.class);
+					return t;
+				}
+			});
+
+		} catch (InvocationTargetException e) {
+			System.setOut(old_out);
+			System.setErr(old_err);
+			exceptionThrown = e.getCause();
 			logger.debug("Exception thrown in constructor: " + e);
-			exceptionThrown = e;
 
 		} finally {
 			System.setOut(old_out);
@@ -152,12 +184,13 @@ public class ConstructorStatement extends AbstractStatement {
 	public StatementInterface clone(TestCase newTestCase) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
-			new_params.add(newTestCase.getStatement(r.getStPosition()).getReturnValue());
+			new_params.add(r.clone(newTestCase));
 		}
-		
-		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor, retval.getType(), new_params);
-		copy.assertions = cloneAssertions(newTestCase);
-		
+
+		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor,
+		        retval.getType(), new_params);
+		//copy.assertions = cloneAssertions(newTestCase);
+
 		return copy;
 	}
 
@@ -167,10 +200,24 @@ public class ConstructorStatement extends AbstractStatement {
 		references.add(retval);
 		references.addAll(parameters);
 		for (VariableReference param : parameters) {
-			if (param instanceof ArrayIndex)
-				references.add(((ArrayIndex)param).getArray());
+			if (param.getAdditionalVariableReference() != null)
+				references.add(param.getAdditionalVariableReference());
 		}
 		return references;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void replace(VariableReference var1, VariableReference var2) {
+		for (int i = 0; i < parameters.size(); i++) {
+
+			if (parameters.get(i).equals(var1))
+				parameters.set(i, var2);
+			else
+				parameters.get(i).replaceAdditionalVariableReference(var1, var2);
+		}
 	}
 
 	public List<VariableReference> getParameterReferences() {
@@ -190,9 +237,9 @@ public class ConstructorStatement extends AbstractStatement {
 		if (ms.parameters.size() != parameters.size())
 			return false;
 
-		if(!this.constructor.equals(ms.constructor))
+		if (!this.constructor.equals(ms.constructor))
 			return false;
-		
+
 		for (int i = 0; i < parameters.size(); i++) {
 			if (!parameters.get(i).equals(ms.parameters.get(i)))
 				return false;
@@ -312,19 +359,19 @@ public class ConstructorStatement extends AbstractStatement {
 		references.addAll(parameters);
 		for (VariableReference param : parameters) {
 			if (param instanceof ArrayIndex)
-				references.add(((ArrayIndex)param).getArray());
+				references.add(((ArrayIndex) param).getArray());
 		}
 		return references;
 
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#isValid()
 	 */
 	@Override
 	public boolean isValid() {
-		assert(super.isValid());
-		for(VariableReference v : parameters){
+		assert (super.isValid());
+		for (VariableReference v : parameters) {
 			v.getStPosition();
 		}
 		return true;
@@ -343,14 +390,47 @@ public class ConstructorStatement extends AbstractStatement {
 		if (ms.parameters.size() != parameters.size())
 			return false;
 
-		if(!this.constructor.equals(ms.constructor))
+		if (!this.constructor.equals(ms.constructor))
 			return false;
-		
+
 		for (int i = 0; i < parameters.size(); i++) {
 			if (!parameters.get(i).same(ms.parameters.get(i)))
 				return false;
 		}
 
 		return retval.same(ms.retval);
+	}
+
+	@Override
+	public AccessibleObject getAccessibleObject() {
+		return constructor;
+	}
+
+	@Override
+	public boolean isAssignmentStatement() {
+		return false;
+	}
+
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+		// Write/save additional fields
+		oos.writeObject(constructor.getDeclaringClass());
+		Constructor<?>[] constructors = constructor.getDeclaringClass().getDeclaredConstructors();
+		for (int i = 0; i < constructors.length; i++) {
+			if (constructors[i].equals(constructor))
+				oos.writeObject(new Integer(i));
+		}
+	}
+
+	// assumes "static java.util.Date aDate;" declared
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+
+		// Read/initialize additional fields
+		Class<?> constructorClass = (Class<?>) ois.readObject();
+		int num = (Integer) ois.readObject();
+
+		constructor = constructorClass.getDeclaredConstructors()[num];
 	}
 }

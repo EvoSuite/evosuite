@@ -22,6 +22,7 @@ import java.lang.reflect.Field;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
@@ -32,28 +33,25 @@ public class PrimitiveFieldAssertion extends Assertion {
 	@Override
 	public String getCode() {
 		if (value == null) {
-			return "assertNull(" + source.getName() + "." + field.getName()
-			        + ");";
+			return "assertNull(" + source.getName() + "." + field.getName() + ");";
 		} else if (value.getClass().equals(Long.class)) {
 			String val = value.toString();
-			return "assertEquals(" + source.getName() + "." + field.getName()
-			        + ", " + val + "L);";
+			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
+			+ val + "L);";
 		} else if (value.getClass().equals(Float.class)) {
 			String val = value.toString();
-			return "assertEquals(" + source.getName() + "." + field.getName()
-			        + ", " + val + "F);";
+			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
+			+ val + "F);";
 		} else if (value.getClass().equals(Character.class)) {
-			String val = StringEscapeUtils.escapeJava(((Character) value)
-			        .toString());
-			return "assertEquals(" + source.getName() + "." + field.getName()
-			        + ", '" + val + "');";
+			String val = StringEscapeUtils.escapeJava(((Character) value).toString());
+			return "assertEquals(" + source.getName() + "." + field.getName() + ", '"
+			+ val + "');";
 		} else if (value.getClass().equals(String.class)) {
-			return "assertEquals(" + source.getName() + "." + field.getName()
-			        + ", \"" + StringEscapeUtils.escapeJava((String) value)
-			        + "\");";
+			return "assertEquals(" + source.getName() + "." + field.getName() + ", \""
+			+ StringEscapeUtils.escapeJava((String) value) + "\");";
 		} else
-			return "assertEquals(" + source.getName() + "." + field.getName()
-			        + ", " + value + ");";
+			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
+			+ value + ");";
 	}
 
 	@Override
@@ -67,19 +65,23 @@ public class PrimitiveFieldAssertion extends Assertion {
 
 	@Override
 	public boolean evaluate(Scope scope) {
-		Object obj = scope.get(source);
-		if (obj != null) {
-			try {
-				Object val = field.get(obj);
-				if (val != null)
-					return val.equals(value);
-				else
-					return value == null;
-			} catch (Exception e) {
+		try{
+			Object obj = source.getObject(scope);
+			if (obj != null) {
+				try {
+					Object val = field.get(obj);
+					if (val != null)
+						return val.equals(value);
+					else
+						return value == null;
+				} catch (Exception e) {
+					return true;
+				}
+			} else
 				return true;
-			}
-		} else
-			return true;
+		}catch(CodeUnderTestException e){
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	@Override

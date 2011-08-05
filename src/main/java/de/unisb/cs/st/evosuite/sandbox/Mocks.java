@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,7 +35,7 @@ import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
  * This class is used for the mocks creation and destruction. The implementation
- * of the mocks and stubs is done with jmockit tool trough the Annotation API.
+ * of the mocks and stubs is done with jmockit tool through the Annotation API.
  * Check http://code.google.com/p/jmockit/ for more info.
  * 
  * @author Andrey Tarasevich
@@ -52,6 +53,20 @@ class Mocks {
 	 * Set that contains the names of the files, which were attempted to be read
 	 */
 	private final Set<String> filesAccessed = new HashSet<String>();
+	
+	private final Set<String> mock_strategies = 
+			new HashSet<String>(Arrays.asList(Properties.MOCK_STRATEGIES));
+	/**
+	 * Set of mocked classes
+	 */
+	private Set<Class<?>> classesMocked = new HashSet<Class<?>>();
+
+	/**
+	 * @return the classesMocked
+	 */
+	public Set<Class<?>> getClassesMocked() {
+		return classesMocked;
+	}
 
 	/**
 	 * Initialization of required fields.
@@ -68,10 +83,13 @@ class Mocks {
 	 */
 	public void setUpMocks() {
 		Utils.createDir(sandboxPath);
-		setUpFileOutputStreamMock();
+		setUpMockedClasses();
+		if(mock_strategies.contains("io")){
+			setUpFileOutputStreamMock();
+			setUpFileMock();
+			setUpFileInputStreamMock();
+		}
 		setUpSystemMock();
-		setUpFileMock();
-		setUpFileInputStreamMock();
 		mocksEnabled = true;
 	}
 
@@ -84,9 +102,67 @@ class Mocks {
 			Utils.deleteDir(sandboxPath);
 			mocksEnabled = false;
 			filesAccessed.clear();
+			classesMocked.clear();
 		}
 	}
-
+	
+	/**
+	 * Apply mocks according to mocking strategy
+	 */
+	private void setUpMockedClasses(){
+		String targetClass = Properties.TARGET_CLASS;
+		
+		// Read available mocks from the file
+		Set<String> ci = new HashSet<String>();
+		ci.addAll(Utils.readFile("evosuite-files/" + targetClass + ".CIs"));
+		
+		for (String c : ci){
+			try {
+				String mock = c.replace("/", ".")+"Stub";
+				Class<?> clazz = Class.forName(mock);
+				if (clazz == null)
+					continue;
+				setUpMockClass(clazz);
+				
+				// Stub parent classes 
+				Class<?> parent = Class.forName(c.replace("/", "."));
+				for (;;){
+					parent = parent.getSuperclass();
+					if (parent == null)
+						break;
+					setUpMockClass(parent);
+				}
+			} catch (ClassNotFoundException e) {
+				//e.printStackTrace();
+				continue;
+			}
+		} 
+	}
+	
+	/**
+	 * Apply mock to one particular class 
+	 * @param clazz
+	 */
+	private void setUpMockClass(Class<?> clazz){
+		String className = clazz.getCanonicalName();
+		if (className.startsWith("java") || className.startsWith("sun"))
+			return;
+		if (mock_strategies.contains("internal"))
+			if (className.startsWith(Properties.PROJECT_PREFIX)){
+				Mockit.setUpMocksAndStubs(clazz);
+				classesMocked.add(clazz);
+			}
+		if (mock_strategies.contains("external"))
+			if (!className.startsWith(Properties.PROJECT_PREFIX)){
+				Mockit.setUpMocksAndStubs(clazz);
+				classesMocked.add(clazz);
+			}
+		if (mock_strategies.contains("everything")){
+				Mockit.setUpMocksAndStubs(clazz);
+				classesMocked.add(clazz);
+			}
+	}
+	
 	/**
 	 * Create mocks for the class java.io.FileOutputStream
 	 */
@@ -123,6 +199,7 @@ class Mocks {
 				}
 			}
 		};
+		classesMocked.add(FileOutputStream.class);
 	}
 
 	/**
@@ -138,6 +215,7 @@ class Mocks {
 				return new java.util.Properties();
 			}
 		};
+		classesMocked.add(System.class);
 	}
 
 	/**
@@ -185,6 +263,7 @@ class Mocks {
 				return ((attr & ba_dir) != 0);
 			}
 		};
+		classesMocked.add(File.class);
 	}
 
 	/**
@@ -224,6 +303,7 @@ class Mocks {
 				}
 			}
 		};
+		classesMocked.add(FileInputStream.class);
 	}
 
 	/**

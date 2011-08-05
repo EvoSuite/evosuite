@@ -3,7 +3,8 @@ package de.unisb.cs.st.evosuite.cfg;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 
@@ -18,7 +19,7 @@ import de.unisb.cs.st.evosuite.Properties;
  */
 public class CFGPool {
 
-	private static Logger logger = Logger.getLogger(CFGPool.class);
+	private static Logger logger = LoggerFactory.getLogger(CFGPool.class);
 
 	/**
 	 * Complete control flow graph, contains each bytecode instruction, each
@@ -37,9 +38,6 @@ public class CFGPool {
 	private static Map<String, Map<String, ActualControlFlowGraph>> actualCFGs = new HashMap<String, Map<String, ActualControlFlowGraph>>();
 
 	private static Map<String, Map<String, ControlDependenceGraph>> controlDependencies = new HashMap<String, Map<String, ControlDependenceGraph>>();
-
-	//TODO do these get used anywhere?
-	//	private static Map<String, Map<String, Double>> diameters = new HashMap<String, Map<String, Double>>();	
 
 	// retrieve graphs
 
@@ -106,7 +104,7 @@ public class CFGPool {
 		}
 		Map<String, ActualControlFlowGraph> methods = actualCFGs.get(className);
 		logger.debug("Added CFG for class " + className + " and method " + methodName);
-		cfg.finalize();
+		cfg.finalise();
 		methods.put(methodName, cfg);
 
 		if (Properties.WRITE_CFG)

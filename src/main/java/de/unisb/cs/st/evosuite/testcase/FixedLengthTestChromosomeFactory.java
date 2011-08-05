@@ -18,15 +18,17 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 
-public class FixedLengthTestChromosomeFactory implements ChromosomeFactory {
+public class FixedLengthTestChromosomeFactory implements ChromosomeFactory<TestChromosome> {
 
-	protected static Logger logger = Logger.getLogger(FixedLengthTestChromosomeFactory.class);
+	private static final long serialVersionUID = -3860201346772188495L;
+
+	protected static Logger logger = LoggerFactory.getLogger(FixedLengthTestChromosomeFactory.class);
 
 	/** Factory to manipulate and generate method sequences */
 	private final DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
@@ -64,7 +66,7 @@ public class FixedLengthTestChromosomeFactory implements ChromosomeFactory {
 	 * Generate a random chromosome
 	 */
 	@Override
-	public Chromosome getChromosome() {
+	public TestChromosome getChromosome() {
 		TestChromosome c = new TestChromosome();
 		c.test = getRandomTestCase(Properties.CHROMOSOME_LENGTH);
 		return c;

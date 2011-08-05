@@ -21,7 +21,9 @@ package de.unisb.cs.st.evosuite.coverage.branch;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
+import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
@@ -33,6 +35,8 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  */
 public class BranchCoverageTestFitness extends TestFitnessFunction {
 
+	private static final long serialVersionUID = -6310967747257242580L;
+
 	/** Target branch */
 	private final BranchCoverageGoal goal;
 
@@ -43,41 +47,83 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		this.goal = goal;
 	}
 
+	public Branch getBranch() {
+		return goal.branch;
+	}
+
+	public double getUnfitness(ExecutableChromosome individual, ExecutionResult result) {
+
+		double sum = 0.0;
+		boolean methodExecuted = false;
+
+		// logger.info("Looking for unfitness of " + goal);
+		for (MethodCall call : result.getTrace().finished_calls) {
+			if (call.className.equals(goal.className)
+			        && call.methodName.equals(goal.methodName)) {
+				methodExecuted = true;
+				for (int i = 0; i < call.branchTrace.size(); i++) {
+					if (call.branchTrace.get(i) == goal.branch.getInstruction().getInstructionId()) {
+						//logger.info("Found target branch with distances "
+						//        + call.trueDistanceTrace.get(i) + "/"
+						//        + call.falseDistanceTrace.get(i));
+						if (goal.value)
+							sum += call.falseDistanceTrace.get(i);
+						else
+							sum += call.trueDistanceTrace.get(i);
+					}
+				}
+			}
+		}
+
+		if (goal.branch == null) {
+			//logger.info("Branch is null? " + goal.branch);
+			if (goal.value)
+				sum = methodExecuted ? 1.0 : 0.0;
+			else
+				sum = methodExecuted ? 0.0 : 1.0;
+
+		}
+
+		return sum;
+	}
+
 	/**
 	 * Calculate approach level + branch distance
 	 */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		ControlFlowDistance distance = goal.getDistance(result);
-		
+
 		double fitness = distance.getResultingBranchFitness();
 
-		logger.debug("Approach level: " + distance.getApproachLevel() + " / branch distance: "
-		        + distance.getBranchDistance() + ", fitness = " + fitness);
+		logger.debug("Approach level: " + distance.getApproachLevel()
+		        + " / branch distance: " + distance.getBranchDistance() + ", fitness = "
+		        + fitness);
 
 		updateIndividual(individual, fitness);
 		return fitness;
 	}
-	
+
 	@Override
 	public boolean isSimilarTo(TestFitnessFunction other) {
-		if(other instanceof DefUseCoverageTestFitness) {
-			DefUseCoverageTestFitness duFitness = (DefUseCoverageTestFitness)other;
-			if(duFitness.getGoalDefinitionBranchFitness()!=null && isSimilarTo(duFitness.getGoalDefinitionBranchFitness()))
+		if (other instanceof DefUseCoverageTestFitness) {
+			DefUseCoverageTestFitness duFitness = (DefUseCoverageTestFitness) other;
+			if (duFitness.getGoalDefinitionBranchFitness() != null
+			        && isSimilarTo(duFitness.getGoalDefinitionBranchFitness()))
 				return true;
 			return isSimilarTo(duFitness.getGoalUseBranchFitness());
 		}
 		try {
-			BranchCoverageTestFitness otherFitness = (BranchCoverageTestFitness)other;
+			BranchCoverageTestFitness otherFitness = (BranchCoverageTestFitness) other;
 			return goal.isConnectedTo(otherFitness.goal);
-		}catch(ClassCastException e) {
+		} catch (ClassCastException e) {
 			return false;
 		}
 	}
-	
+
 	@Override
 	public int getDifficulty() {
-		if(goal==null)
+		if (goal == null)
 			return 1;
 		else
 			return goal.getDifficulty();

@@ -29,6 +29,8 @@ import de.unisb.cs.st.evosuite.ga.SelectionFunction;
  */
 public class TestCaseReplacementFunction extends ReplacementFunction {
 
+	private static final long serialVersionUID = 2894768695219052674L;
+
 	public TestCaseReplacementFunction(SelectionFunction selection) {
 		super(selection);
 	}
@@ -41,11 +43,13 @@ public class TestCaseReplacementFunction extends ReplacementFunction {
 		super(false);
 	}
 
-	public int getLengthSum(TestChromosome chromosome1, TestChromosome chromosome2) {
+	public int getLengthSum(ExecutableChromosome chromosome1,
+	        ExecutableChromosome chromosome2) {
 		return chromosome1.size() + chromosome2.size();
 	}
 
-	protected double getBestFitness(TestChromosome chromosome1, TestChromosome chromosome2) {
+	protected double getBestFitness(ExecutableChromosome chromosome1,
+	        ExecutableChromosome chromosome2) {
 		if (maximize) {
 			return Math.max(chromosome1.getFitness(), chromosome2.getFitness());
 		} else {
@@ -61,15 +65,15 @@ public class TestCaseReplacementFunction extends ReplacementFunction {
 	public boolean keepOffspring(Chromosome parent1, Chromosome parent2,
 	        Chromosome offspring1, Chromosome offspring2) {
 
-		double fitness_offspring = getBestFitness((TestChromosome) offspring1,
-		                                          (TestChromosome) offspring2);
-		double fitness_parents = getBestFitness((TestChromosome) parent1,
-		                                        (TestChromosome) parent2);
+		double fitness_offspring = getBestFitness((ExecutableChromosome) offspring1,
+		                                          (ExecutableChromosome) offspring2);
+		double fitness_parents = getBestFitness((ExecutableChromosome) parent1,
+		                                        (ExecutableChromosome) parent2);
 
 		if (Properties.CHECK_PARENTS_LENGTH) {
-			if ((fitness_offspring == fitness_parents && getLengthSum((TestChromosome) offspring1,
-			                                                          (TestChromosome) offspring2) <= getLengthSum((TestChromosome) parent1,
-			                                                                                                       (TestChromosome) parent2))) {
+			if ((fitness_offspring == fitness_parents && getLengthSum((ExecutableChromosome) offspring1,
+			                                                          (ExecutableChromosome) offspring2) <= getLengthSum((ExecutableChromosome) parent1,
+			                                                                                                             (ExecutableChromosome) parent2))) {
 				return true;
 			}
 		} else {

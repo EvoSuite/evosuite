@@ -21,6 +21,9 @@ package de.unisb.cs.st.evosuite.assertion;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
@@ -38,6 +41,8 @@ public abstract class Assertion {
 
 	/** Expected value of variable */
 	public Object value;
+
+	protected static Logger logger = LoggerFactory.getLogger(Assertion.class);
 
 	@Override
 	public int hashCode() {
@@ -83,10 +88,10 @@ public abstract class Assertion {
 	 * Return a copy of the assertion
 	 */
 	@Override
-	public final Assertion clone(){
+	public final Assertion clone() {
 		throw new UnsupportedOperationException("Use Assertion.clone(TestCase)");
 	}
-	
+
 	/**
 	 * Return a copy of the assertion, which is valid in newTestCase
 	 */

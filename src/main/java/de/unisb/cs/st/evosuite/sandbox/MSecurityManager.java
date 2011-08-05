@@ -20,7 +20,8 @@ package de.unisb.cs.st.evosuite.sandbox;
 
 import java.security.Permission;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.testcase.TestRunnable;
@@ -38,7 +39,7 @@ class MSecurityManager extends SecurityManager {
 	/** indicates if mocks are enabled */
 	private final boolean mocksEnabled = Properties.MOCKS;
 
-	private static Logger logger = Logger.getLogger(MSecurityManager.class);
+	private static Logger logger = LoggerFactory.getLogger(MSecurityManager.class);
 
 	/**
 	 * Overridden method for checking permissions for any operation.
@@ -47,6 +48,7 @@ class MSecurityManager extends SecurityManager {
 	public void checkPermission(Permission perm) {
 		// check access  
 		if (!allowPermission(perm)) {
+			logger.debug("Security manager blocks permission " + perm);
 			String stack = "\n";
 			for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
 				stack += e + "\n";
@@ -106,7 +108,7 @@ class MSecurityManager extends SecurityManager {
 
 			// Check for allowed permissions.
 			// Done with chunk of ugly "if-case" code, since it switch statement does not
-			// support Strings as parameters. Doing it trough Enum is also not an option,
+			// support Strings as parameters. Doing it through Enum is also not an option,
 			// since java cannot guarantee the unique values returned by hashCode() method.
 			if (permName.equals("java.lang.reflect.ReflectPermission"))
 				return true;
@@ -136,6 +138,7 @@ class MSecurityManager extends SecurityManager {
 						return true;
 				}
 			}
+
 			return false;
 		}
 		return true;

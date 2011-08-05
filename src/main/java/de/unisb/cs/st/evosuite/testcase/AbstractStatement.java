@@ -18,12 +18,15 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 
@@ -33,9 +36,36 @@ import de.unisb.cs.st.evosuite.assertion.Assertion;
  * @author Gordon Fraser
  * 
  */
-public abstract class AbstractStatement implements StatementInterface {
+public abstract class AbstractStatement implements StatementInterface, Serializable {
 
-	protected static Logger logger = Logger.getLogger(AbstractStatement.class);
+	/**
+	 * An interface to enable the concrete statements to use the executer/1 method.
+	 * 
+	 **/
+	protected abstract class Executer{
+		/**
+		 * The execute statement should, when called only execute exactly one statement.
+		 * For example executing java.reflect.Field.get()/1 could be the responsibility of the execute method.
+		 * Execute SHOULD NOT catch any exceptions. Exception handling SHOULD be done by AbstractStatement.executer()/1.
+		 * @param throwableExceptions
+		 */
+		public abstract void execute() throws InvocationTargetException, IllegalArgumentException,
+		IllegalAccessException, InstantiationException, CodeUnderTestException;
+
+		/**
+		 * A call to this method should return a set of throwables.
+		 * AbstractStatement.executer()/1 will catch all exceptions thrown by Executer.execute()/1. 
+		 * All exception in the returned set will be thrown to a higher layer. If the others are thrown or returned by AbstractStatement.executer()/1 is to be defined by executer()/1.
+		 * @return 
+		 */
+		public Set<Class<? extends Throwable>> throwableExceptions(){
+			return new HashSet<Class<? extends Throwable>>();
+		}
+	}
+
+	private static final long serialVersionUID = 8993506743384548704L;
+
+	protected static Logger logger = LoggerFactory.getLogger(AbstractStatement.class);
 
 	protected VariableReference retval;
 	protected final TestCase tc;
@@ -44,17 +74,93 @@ public abstract class AbstractStatement implements StatementInterface {
 
 	protected Throwable exceptionThrown = null;
 
+	protected AbstractStatement(TestCase tc, VariableReference retval) {
+		assert (retval != null);
+		this.retval = retval;
+		this.tc = tc;
+	}
 
-	protected AbstractStatement(TestCase tc, VariableReference retval){
-		assert(retval!=null);
-		this.retval=retval;
-		this.tc=tc;
+	protected AbstractStatement(TestCase tc, Type type) {
+		GenericClass c = new GenericClass(type);
+		if (c.isArray()) {
+			this.retval = new ArrayReference(tc, c, 0);
+		} else {
+			this.retval = new VariableReferenceImpl(tc, type);
+		}
+		this.tc = tc;
+	}
+
+	/**
+	 * This method abstracts the exception handling away from the concrete statements. 
+	 * Thereby hopefully enabling us to have a more consistent approach to exeptions.
+	 * @param code
+	 * @return
+	 * @throws InvocationTargetException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
+	 */
+	protected Throwable exceptionHandler(Executer code) throws InvocationTargetException, IllegalArgumentException,
+	IllegalAccessException, InstantiationException{
+		try{
+			try{
+				code.execute();
+			}catch(CodeUnderTestException e){
+				throw CodeUnderTestException.throwException(e);
+			}
+		}catch(EvosuiteError e){
+			/*
+			 * Signal an error in evosuite code and are therefore always thrown
+			 */
+			throw e;
+		}catch(Error e){
+			if(isAssignableFrom(e, code.throwableExceptions()))
+				throw e;
+			else
+				return e;
+		}catch(RuntimeException e){
+			if(isAssignableFrom(e, code.throwableExceptions()))
+				throw e;
+			else
+				return e;
+		}catch(InvocationTargetException e){
+			if(isAssignableFrom(e, code.throwableExceptions()))
+				throw e;
+			else
+				return e;
+		}catch(IllegalAccessException e){
+			if(isAssignableFrom(e, code.throwableExceptions()))
+				throw e;
+			else
+				return e;
+		}catch(InstantiationException e){
+			if(isAssignableFrom(e, code.throwableExceptions()))
+				throw e;
+			else
+				return e;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Tests if concreteThrowable.getClass is assignable to any of the classes in throwableClasses
+	 * @param concreteThrowable true if concreteThrowable is assignable 
+	 * @param throwableClasses
+	 * @return
+	 */
+	private boolean isAssignableFrom(Throwable concreteThrowable, Set<Class<? extends Throwable>> throwableClasses){
+		for(Class<? extends Throwable> t : throwableClasses){
+			if(t.isAssignableFrom(concreteThrowable.getClass())){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#references(de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
-
 	@Override
 	public boolean references(VariableReference var) {
 		return getVariableReferences().contains(var);
@@ -63,11 +169,11 @@ public abstract class AbstractStatement implements StatementInterface {
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#SetRetval(de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
-	public void SetRetval(VariableReference newRetVal){
-		this.retval=newRetVal;
+	@Override
+	public void SetRetval(VariableReference newRetVal) {
+		this.retval = newRetVal;
 	}
 
-	
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getCode()
 	 */
@@ -77,7 +183,7 @@ public abstract class AbstractStatement implements StatementInterface {
 	}
 
 	@Override
-	public final StatementInterface clone(){
+	public final StatementInterface clone() {
 		throw new UnsupportedOperationException("Use statementInterface.clone(TestCase)");
 	}
 
@@ -93,9 +199,8 @@ public abstract class AbstractStatement implements StatementInterface {
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getReturnClass()
 	 */
 	@Override
-
 	public Class<?> getReturnClass() {
-		return (Class<?>) retval.getType();
+		return retval.getVariableClass();
 	}
 
 	/* (non-Javadoc)
@@ -111,7 +216,7 @@ public abstract class AbstractStatement implements StatementInterface {
 	 * 
 	 * @return List of the assertion copies
 	 */
-	protected Set<Assertion> cloneAssertions(TestCase newTestCase) {
+	public Set<Assertion> cloneAssertions(TestCase newTestCase) {
 		Set<Assertion> copy = new HashSet<Assertion>();
 		for (Assertion a : assertions) {
 			if (a == null) {
@@ -145,6 +250,14 @@ public abstract class AbstractStatement implements StatementInterface {
 	}
 
 	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#setAssertions(java.util.Set)
+	 */
+	@Override
+	public void setAssertions(Set<Assertion> assertions) {
+		this.assertions = assertions;
+	}
+
+	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getAssertionCode()
 	 */
 	@Override
@@ -156,7 +269,7 @@ public abstract class AbstractStatement implements StatementInterface {
 		}
 		return ret_val;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#removeAssertions()
 	 */
@@ -205,10 +318,23 @@ public abstract class AbstractStatement implements StatementInterface {
 	public int getPosition() {
 		return retval.getStPosition();
 	}
-	
+
 	@Override
-	public boolean isValid(){
+	public boolean isValid() {
 		retval.getStPosition();
 		return true;
+	}
+
+	@Override
+	public boolean isDeclaredException(Throwable t) {
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#mutate(de.unisb.cs.st.evosuite.testcase.TestCase)
+	 */
+	@Override
+	public boolean mutate(TestCase test, AbstractTestFactory factory) {
+		return false;
 	}
 }

@@ -20,7 +20,7 @@ package de.unisb.cs.st.evosuite.testsuite;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.SecondaryObjective;
-import de.unisb.cs.st.evosuite.testcase.TestChromosome;
+import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 
 /**
  * @author Gordon Fraser
@@ -28,9 +28,11 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
  */
 public class MinimizeMaxLengthSecondaryObjective extends SecondaryObjective {
 
+	private static final long serialVersionUID = 2270058273932360617L;
+
 	private int getMaxLength(Chromosome chromosome) {
 		int max = 0;
-		for (TestChromosome test : ((TestSuiteChromosome) chromosome).tests) {
+		for (ExecutableChromosome test : ((TestSuiteChromosome) chromosome).tests) {
 			max = Math.max(max, test.size());
 		}
 		return max;

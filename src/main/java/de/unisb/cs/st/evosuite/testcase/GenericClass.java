@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.io.Serializable;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -29,14 +30,17 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.ClassUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.googlecode.gentyref.GenericTypeReflector;
 
-public class GenericClass {
+public class GenericClass implements Serializable {
+
+	private static final long serialVersionUID = -3307107227790458308L;
 
 	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(GenericClass.class);
+	private static Logger logger = LoggerFactory.getLogger(GenericClass.class);
 
 	public boolean isAssignableTo(Type lhsType) {
 		return isAssignable(lhsType, type);
@@ -90,6 +94,10 @@ public class GenericClass {
 		return raw_class.getComponentType();
 	}
 
+	public Type getComponentClass() {
+		return GenericTypeReflector.erase(raw_class.getComponentType());
+	}
+
 	/**
 	 * Set of wrapper classes
 	 */
@@ -127,7 +135,13 @@ public class GenericClass {
 			//if(ClassUtils.isAssignable((Class<?>) rhsType, (Class<?>) lhsType)) {
 			//	logger.info("Classes are assignable: "+lhsType+" / "+rhsType);
 			//}
-			return ClassUtils.isAssignable((Class<?>) rhsType, (Class<?>) lhsType);
+			// Only allow void to void assignments
+			if (((Class<?>) rhsType).equals(void.class)
+			        || ((Class<?>) lhsType).equals(void.class))
+				return false;
+
+			//			return ClassUtils.isAssignable((Class<?>) rhsType, (Class<?>) lhsType);
+			return ((Class<?>) lhsType).isAssignableFrom((Class<?>) rhsType);
 		}
 
 		//	if(lhsType instanceof ParameterizedType && rhsType instanceof ParameterizedType) {
@@ -168,6 +182,7 @@ public class GenericClass {
 			return isAssignable(((GenericArrayType) lhsType).getGenericComponentType(),
 			                    ((Class<?>) rhsType).getComponentType());
 		}
+		/*
 		String message = "Not assignable: ";
 		if (lhsType instanceof Class<?>)
 			message += "Class ";
@@ -196,7 +211,9 @@ public class GenericClass {
 		else
 			message += "Unknown type ";
 		message += rhsType;
-		//logger.warn(message);
+		logger.warn(message);
+		 */
+
 		//Thread.dumpStack();
 		return false;
 	}
@@ -248,7 +265,8 @@ public class GenericClass {
 	}
 
 	public String getSimpleName() {
-		return ClassUtils.getShortClassName(raw_class);
+		// return raw_class.getSimpleName();
+		return ClassUtils.getShortClassName(raw_class).replace(";", "[]");
 	}
 
 	@Override

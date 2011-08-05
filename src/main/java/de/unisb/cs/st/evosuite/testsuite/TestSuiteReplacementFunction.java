@@ -29,6 +29,8 @@ import de.unisb.cs.st.evosuite.ga.SelectionFunction;
  */
 public class TestSuiteReplacementFunction extends ReplacementFunction {
 
+	private static final long serialVersionUID = -8472469271120247395L;
+
 	/**
 	 * @param selectionFunction
 	 */
@@ -46,7 +48,8 @@ public class TestSuiteReplacementFunction extends ReplacementFunction {
 
 	public int getLengthSum(TestSuiteChromosome chromosome1,
 	        TestSuiteChromosome chromosome2) {
-		return chromosome1.length() + chromosome2.length();
+		return chromosome1.totalLengthOfTestCases()
+		        + chromosome2.totalLengthOfTestCases();
 	}
 
 	protected double getBestFitness(TestSuiteChromosome chromosome1,

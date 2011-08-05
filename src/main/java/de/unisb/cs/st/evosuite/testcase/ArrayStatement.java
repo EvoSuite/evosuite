@@ -19,6 +19,7 @@
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.io.PrintStream;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.ga.Randomness;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * An array statement creates a new array
@@ -40,11 +41,14 @@ import de.unisb.cs.st.evosuite.ga.Randomness;
  * 
  */
 public class ArrayStatement extends AbstractStatement {
+
+	private static final long serialVersionUID = -2858236370873914156L;
+
 	private int length = 0;
 
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type) {
-		this(tc, type, Randomness.getInstance().nextInt(Properties.MAX_ARRAY) + 1);
-
+		this(tc, type, Randomness.nextInt(Properties.MAX_ARRAY) + 1);
+		logger.debug("Chosen length: " + this.length + "/" + Properties.MAX_ARRAY);
 	}
 
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type, int length) {
@@ -90,15 +94,22 @@ public class ArrayStatement extends AbstractStatement {
 	        throws InvocationTargetException, IllegalArgumentException,
 	        IllegalAccessException, InstantiationException {
 		// Add array variable to pool
-		scope.set(retval, Array.newInstance((Class<?>) retval.getComponentType(), length));
+		try {
+			retval.setObject(scope,
+			                 Array.newInstance((Class<?>) retval.getComponentType(),
+			                                   length));
+		} catch (CodeUnderTestException e) {
+			exceptionThrown = e.getCause();
+		}
 		return exceptionThrown;
 
 	}
 
 	@Override
 	public String getCode(Throwable exception) {
-		return retval.getComponentName() + "[] " + retval.getName() + " = new "
-		        + retval.getComponentName() + "[" + length + "];";
+		return retval.getSimpleClassName() + " " + retval.getName() + " = new "
+		        + retval.getSimpleClassName().replaceFirst("\\[\\]", "") + "[" + length
+		        + "];";
 	}
 
 	@Override
@@ -106,6 +117,13 @@ public class ArrayStatement extends AbstractStatement {
 		Set<VariableReference> references = new HashSet<VariableReference>();
 		references.add(retval);
 		return references;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void replace(VariableReference var1, VariableReference var2) {
 	}
 
 	@Override
@@ -167,6 +185,24 @@ public class ArrayStatement extends AbstractStatement {
 		} else {
 			return false;
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.AbstractStatement#mutate(de.unisb.cs.st.evosuite.testcase.TestCase, de.unisb.cs.st.evosuite.testcase.AbstractTestFactory)
+	 */
+	@Override
+	public boolean mutate(TestCase test, AbstractTestFactory factory) {
+		return true; // TODO: Possibly increase length?
+	}
+
+	@Override
+	public AccessibleObject getAccessibleObject() {
+		return null;
+	}
+
+	@Override
+	public boolean isAssignmentStatement() {
+		return false;
 	}
 
 }

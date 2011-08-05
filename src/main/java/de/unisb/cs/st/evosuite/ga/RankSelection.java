@@ -21,6 +21,7 @@ package de.unisb.cs.st.evosuite.ga;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * Select individual by rank
@@ -30,6 +31,8 @@ import de.unisb.cs.st.evosuite.Properties;
  */
 public class RankSelection extends SelectionFunction {
 
+	private static final long serialVersionUID = 7849303009915557682L;
+
 	@Override
 	/**
 	 * Select index of next offspring
@@ -37,7 +40,7 @@ public class RankSelection extends SelectionFunction {
 	 * Population has to be sorted!
 	 */
 	public int getIndex(List<Chromosome> population) {
-		double r = randomness.nextDouble();
+		double r = Randomness.nextDouble();
 		double d = Properties.RANK_BIAS
 		        - Math.sqrt((Properties.RANK_BIAS * Properties.RANK_BIAS)
 		                - (4.0 * (Properties.RANK_BIAS - 1.0) * r));

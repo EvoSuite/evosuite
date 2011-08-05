@@ -20,6 +20,7 @@ package de.unisb.cs.st.evosuite.testcase;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -30,21 +31,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
  * @author Gordon Fraser
  * 
  */
-public class MethodDescriptorReplacement {
+public class MethodDescriptorReplacement implements Serializable {
+
+	private static final long serialVersionUID = -2324044891555746456L;
 
 	/** Singleton instance */
 	private static MethodDescriptorReplacement instance = null;
 
-	private static Logger logger = Logger.getLogger(MethodDescriptorReplacement.class);
+	private static Logger logger = LoggerFactory.getLogger(MethodDescriptorReplacement.class);
 
 	/** Map from class to method pairs */
 	private final Map<String, String> descriptors = new HashMap<String, String>();
@@ -299,7 +303,7 @@ public class MethodDescriptorReplacement {
 		for (File file : files) {
 			if (file.isDirectory())
 				continue;
-			List<String> lines = Io.getLinesFromFile(file);
+			List<String> lines = Utils.readFile(file);
 			//descriptors.put(className, new HashMap<String, String>());
 			for (String line : lines) {
 				//logger.debug("Read line: "+line);

@@ -28,9 +28,7 @@ import de.unisb.cs.st.evosuite.assertion.InspectorTrace;
 import de.unisb.cs.st.evosuite.assertion.NullOutputTrace;
 import de.unisb.cs.st.evosuite.assertion.PrimitiveFieldTrace;
 import de.unisb.cs.st.evosuite.assertion.PrimitiveOutputTrace;
-import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
-import de.unisb.cs.st.evosuite.coverage.branch.Branch;
-import de.unisb.cs.st.javalanche.mutation.results.Mutation;
+import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
 
 public class ExecutionResult {
 	public enum Outcome {
@@ -53,10 +51,9 @@ public class ExecutionResult {
 	public PrimitiveFieldTrace field_trace;
 	public NullOutputTrace null_trace;
 	public List<Long> touched = new ArrayList<Long>();
-	
+
 	// experiment .. tried to remember intermediately calculated ControlFlowDistances .. no real speed up
-//	public Map<Branch, ControlFlowDistance> intermediateDistances;
-	
+	//	public Map<Branch, ControlFlowDistance> intermediateDistances;
 
 	public ExecutionResult(TestCase t) {
 		exception_statement = 0;
@@ -72,15 +69,15 @@ public class ExecutionResult {
 		test = t;
 	}
 
-	public ExecutionTrace getTrace(){
+	public ExecutionTrace getTrace() {
 		return trace;
 	}
-	
-	public void setTrace(ExecutionTrace trace){
-		assert(trace!=null);
-		this.trace=trace;
+
+	public void setTrace(ExecutionTrace trace) {
+		assert (trace != null);
+		this.trace = trace;
 	}
-	
+
 	public boolean hasTimeout() {
 		if (test == null)
 			return false;

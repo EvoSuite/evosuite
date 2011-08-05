@@ -4,13 +4,15 @@
 package de.unisb.cs.st.evosuite.ga.stoppingconditions;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 
 /**
  * @author Gordon Fraser
  * 
  */
 public class GlobalTimeStoppingCondition extends StoppingCondition {
+
+	private static final long serialVersionUID = -4880914182984895075L;
 
 	/** Maximum number of seconds. 0 = infinite time */
 	protected static int max_seconds = Properties.GLOBAL_TIMEOUT;
@@ -19,7 +21,7 @@ public class GlobalTimeStoppingCondition extends StoppingCondition {
 	protected static long start_time = 0L;
 
 	@Override
-	public void searchStarted(FitnessFunction objective) {
+	public void searchStarted(GeneticAlgorithm algorithm) {
 		if (start_time == 0)
 			reset();
 	}
@@ -42,10 +44,7 @@ public class GlobalTimeStoppingCondition extends StoppingCondition {
 		if (max_seconds != 0 && start_time != 0
 		        && (current_time - start_time) / 1000 > max_seconds)
 			logger.info("Timeout reached");
-		/*
-		else
-			logger.info("Timeout not reached: "+getCurrentValue());
-			*/
+
 		return max_seconds != 0 && start_time != 0
 		        && (current_time - start_time) / 1000 > max_seconds;
 	}
@@ -55,7 +54,8 @@ public class GlobalTimeStoppingCondition extends StoppingCondition {
 	 */
 	@Override
 	public void reset() {
-		start_time = System.currentTimeMillis();
+		if (start_time == 0)
+			start_time = System.currentTimeMillis();
 	}
 
 	/* (non-Javadoc)

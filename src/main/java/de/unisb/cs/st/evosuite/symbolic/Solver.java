@@ -39,7 +39,7 @@ public interface Solver {
 	 * @return A {@link Map} where the name of the parameter is the key and the
 	 *         concrete value that the solver used is the object.
 	 */
-	Map<String, Object> getModel(Collection<Constraint> constraints);
+	Map<String, Object> getModel(Collection<Constraint<?>> constraints);
 
 	/**
 	 * Determines whether the given PathConditions could be solved.
@@ -47,5 +47,5 @@ public interface Solver {
 	 * @return <code>true</code> if the path conditions could be solved, and a
 	 *         concrete model is obtainable via {@link #getConcreteModel()}.
 	 */
-	boolean solve(Collection<Constraint> constraints);
+	boolean solve(Collection<Constraint<?>> constraints);
 }

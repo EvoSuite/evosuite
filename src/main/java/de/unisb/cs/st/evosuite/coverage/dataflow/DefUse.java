@@ -1,6 +1,7 @@
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 
@@ -11,7 +12,7 @@ import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
  */
 public class DefUse extends BytecodeInstruction {
 
-	private static Logger logger = Logger.getLogger(DefUse.class);
+	private static Logger logger = LoggerFactory.getLogger(DefUse.class);
 	
 	int defuseId;
 	int defId;
@@ -134,8 +135,11 @@ public class DefUse extends BytecodeInstruction {
 		r.append(getDUVariableType());
 		r.append("-Variable \"" + getDUVariableName() +"\"");
 		r.append(" in " + getMethodName()+"."+getInstructionId()); 
-		r.append(" branch " + getControlDependentBranchId() + (getControlDependentBranchExpressionValue()?"t":"f"));
-		r.append(" line "+ getLineNumber());
+		if(isDirectlyControlDependentOn(null))
+			r.append(" root-Branch");
+		else
+			r.append(" Branch " + getControlDependentBranchId() + (getControlDependentBranchExpressionValue()?"t":"f"));
+		r.append(" Line "+ getLineNumber());
 		return r.toString();
 	}
 }

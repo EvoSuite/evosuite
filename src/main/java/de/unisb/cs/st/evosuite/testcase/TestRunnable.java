@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.sandbox.Sandbox;
@@ -21,7 +22,7 @@ import de.unisb.cs.st.evosuite.sandbox.Sandbox;
  */
 public class TestRunnable implements InterfaceTestRunnable {
 
-	private static Logger logger = Logger.getLogger(TestRunnable.class);
+	private static Logger logger = LoggerFactory.getLogger(TestRunnable.class);
 
 	private final TestCase test;
 
@@ -40,11 +41,29 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 	public List<ExecutionObserver> observers;
 
+	private final boolean breakOnUndeclaredException;
+
 	public TestRunnable(TestCase tc, Scope scope, List<ExecutionObserver> observers) {
+		this(tc, scope, observers, true);
+	}
+
+	/**
+	 * 
+	 * @param tc
+	 * @param scope
+	 * @param observers
+	 * @param breakOnUndeclaredException
+	 *            if this is true, the TestRunnable will exit if a statement
+	 *            returns an UndeclaredException. (Note that undeclaredException
+	 *            is defined by StatementInterface.isDeclaredException/1)
+	 */
+	public TestRunnable(TestCase tc, Scope scope, List<ExecutionObserver> observers,
+	        boolean breakOnUndeclaredException) {
 		test = tc;
 		this.scope = scope;
 		this.observers = observers;
 		runFinished = false;
+		this.breakOnUndeclaredException = breakOnUndeclaredException;
 	}
 
 	/* (non-Javadoc)
@@ -81,6 +100,15 @@ public class TestRunnable implements InterfaceTestRunnable {
 				if (exceptionThrown != null) {
 					exceptionsThrown.put(num, exceptionThrown);
 
+					/*
+					 * #TODO this is a penalty for test cases which contain a statement that throws an undeclared exception.
+					 * As those test cases are not going to be executed after the statement (i.e. no coverage for those parts is generated) 
+					 * This comment should explain, why that behavior is desirable 
+					 */
+					if (breakOnUndeclaredException
+					        && !s.isDeclaredException(exceptionThrown))
+						break;
+
 					// exception_statement = num; 
 					if (log && logger.isDebugEnabled())
 						logger.debug("Exception thrown in statement: " + s.getCode()
@@ -112,13 +140,15 @@ public class TestRunnable implements InterfaceTestRunnable {
 			logger.info(test.toCode());
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
 				logger.info("Cause: ");
-				logger.info(e.getCause(),e);
+				logger.info(e.getCause().toString(), e);
 				e = e.getCause();
 			}
 			if (e instanceof AssertionError
 			        && e.getStackTrace()[0].getClassName().contains("de.unisb.cs.st.evosuite")) {
 				//e1.printStackTrace();
-				logger.error("Assertion Error in evosuitecode, for statement \n" + test.getStatement(num).getCode() + " \n which is number: " + num + " testcase \n"  + test.toCode(), e);
+				logger.error("Assertion Error in evosuitecode, for statement \n"
+				        + test.getStatement(num).getCode() + " \n which is number: "
+				        + num + " testcase \n" + test.toCode(), e);
 				throw (AssertionError) e;
 			}
 			// exceptionThrown = e;
@@ -128,7 +158,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 		} // finally {
 		runFinished = true;
 		Sandbox.tearDownMocks();
-		
+
 		result.exceptions = exceptionsThrown;
 
 		return result;

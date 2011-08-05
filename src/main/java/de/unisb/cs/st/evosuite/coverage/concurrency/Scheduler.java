@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import de.unisb.cs.st.evosuite.ga.Randomness;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * @author Sebastian Steenbuck
@@ -112,7 +112,7 @@ public class Scheduler implements Schedule{
 			return 0;
 		}
 
-		int nextThreadCount = Randomness.getInstance().nextInt(controller.liveThreadCount());
+		int nextThreadCount = Randomness.nextInt(controller.liveThreadCount());
 		int nextThreadID = controller.getIdFromCount(nextThreadCount);
 		return nextThreadID;
 	}
@@ -141,7 +141,7 @@ public class Scheduler implements Schedule{
 	public int getRandomThreadID() {
 		if(seenThreadIDs.size()==0)return 0; //if a mutation is done before the first run
 
-		int elementToReturn = Randomness.getInstance().nextInt(seenThreadIDs.size());
+		int elementToReturn = Randomness.nextInt(seenThreadIDs.size());
 		int i=0;
 		for(Integer threadID : seenThreadIDs){
 			if(i==elementToReturn){
@@ -200,6 +200,12 @@ public class Scheduler implements Schedule{
 		assert(schedule.size()>iterator.current);
 		assert(schedule.get(iterator.current)==threadID);
 		observer.notify(iterator.current, schedule.get(iterator.current));
+	}
+
+	@Override
+	public Integer getElement(int index) {
+		assert(index<schedule.size());
+		return schedule.get(index);
 	}
  
 	

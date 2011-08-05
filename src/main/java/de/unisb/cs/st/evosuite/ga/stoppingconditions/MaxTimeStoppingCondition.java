@@ -18,11 +18,8 @@
 
 package de.unisb.cs.st.evosuite.ga.stoppingconditions;
 
-import java.util.List;
-
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.ga.Chromosome;
-import de.unisb.cs.st.evosuite.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 
 /**
  * Stop search after a predefined amount of time
@@ -32,13 +29,15 @@ import de.unisb.cs.st.evosuite.ga.FitnessFunction;
  */
 public class MaxTimeStoppingCondition extends StoppingCondition {
 
+	private static final long serialVersionUID = -4524853279562896768L;
+
 	/** Maximum number of seconds */
 	protected int max_seconds = Properties.GENERATIONS;
 
 	protected long start_time;
 
 	@Override
-	public void searchStarted(FitnessFunction objective) {
+	public void searchStarted(GeneticAlgorithm algorithm) {
 		start_time = System.currentTimeMillis();
 	}
 
@@ -57,33 +56,6 @@ public class MaxTimeStoppingCondition extends StoppingCondition {
 	@Override
 	public void reset() {
 		start_time = System.currentTimeMillis();
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.ga.SearchListener#fitnessEvaluation(java.util.List)
-	 */
-	@Override
-	public void fitnessEvaluation(Chromosome individual) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.ga.SearchListener#iteration(java.util.List)
-	 */
-	@Override
-	public void iteration(List<Chromosome> population) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.ga.SearchListener#searchFinished(java.util.List)
-	 */
-	@Override
-	public void searchFinished(List<Chromosome> population) {
-		// TODO Auto-generated method stub
-
 	}
 
 	/* (non-Javadoc)

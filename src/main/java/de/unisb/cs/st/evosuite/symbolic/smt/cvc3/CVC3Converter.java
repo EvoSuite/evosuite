@@ -5,7 +5,8 @@ package de.unisb.cs.st.evosuite.symbolic.smt.cvc3;
 
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cvc3.Expr;
 import cvc3.ValidityChecker;
@@ -29,7 +30,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
  * 
  */
 public class CVC3Converter {
-	private static Logger logger = Logger.getLogger(CVC3Converter.class);
+	private static Logger logger = LoggerFactory.getLogger(CVC3Converter.class);
 
 	private final CVC3Expr cvc3;
 
@@ -137,14 +138,14 @@ public class CVC3Converter {
 	}
 
 	public Expr visit(Constraint<?> constraint) {
-		logger.info("Converting " + constraint);
+		logger.debug("Converting " + constraint);
 		return visitConstraint(constraint.getComparator(), constraint.getLeftOperand(),
 		                       constraint.getRightOperand());
 	}
 
-	public Expr convert(Collection<Constraint> constraints) {
+	public Expr convert(Collection<Constraint<?>> constraints) {
 		Expr expr = null;
-		for (Constraint c : constraints) {
+		for (Constraint<?> c : constraints) {
 			Expr e = visit(c);
 			if (expr == null)
 				expr = e;
