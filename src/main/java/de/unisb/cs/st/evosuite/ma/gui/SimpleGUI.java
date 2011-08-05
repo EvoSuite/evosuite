@@ -6,6 +6,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -19,23 +20,24 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.Document;
 import javax.swing.text.Highlighter;
-import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 
 import de.unisb.cs.st.evosuite.ma.Editor;
-import javax.swing.ScrollPaneConstants;
 
 /**
  * @author Yury Pavlov
  */
 public class SimpleGUI implements IGUI {
 	private final static Color LIGHT_GREEN = new Color(200, 255, 200);
+	private final static Color LIGHT_RED = new Color(255, 200, 200);
 	protected final Object lock = new Object();
 
 	/**
@@ -44,7 +46,7 @@ public class SimpleGUI implements IGUI {
 	public void createWindow(final Editor editor) {
 		final JFrame mainFrame = new JFrame("Editot");
 		mainFrame.setLocation(new Point(20, 20));
-		mainFrame.setSize(new Dimension(600, 800));
+		mainFrame.setSize(new Dimension(800, 800));
 
 		mainFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -94,49 +96,17 @@ public class SimpleGUI implements IGUI {
 		gbc_sourceCodePanel.gridx = 0;
 		gbc_sourceCodePanel.gridy = 0;
 		mainFrame.getContentPane().add(sourceCodePanel, gbc_sourceCodePanel);
-		sourceCodePanel.setLayout(new BoxLayout(sourceCodePanel, BoxLayout.X_AXIS));
+		sourceCodePanel.setLayout(new BoxLayout(sourceCodePanel,
+				BoxLayout.X_AXIS));
 
-		JScrollPane sourceCodeScrollPane = new JScrollPane();
+		final JScrollPane sourceCodeScrollPane = new JScrollPane();
 		sourceCodePanel.add(sourceCodeScrollPane);
 
-		JTextPane sourceCodeTextPane = new JTextPane();
+		final JTextPane sourceCodeTextPane = new JTextPane();
 		sourceCodeTextPane.setEditable(false);
 		sourceCodeScrollPane.setViewportView(sourceCodeTextPane);
 
-		// Print Source code
-		int i = 1;
-		String fomatSourceCode = new String();
-		for (String tmpString : editor.getSourceCode()) {
-			fomatSourceCode += (i++ + ":\t" + tmpString + "\n");
-		}
-		sourceCodeTextPane.setText(fomatSourceCode);
-
-		// Set highlights for covered lines
-		Highlighter hilite = new MyHighlighter();
-		sourceCodeTextPane.setHighlighter(hilite);
-		DefaultHighlightPainter coveredPainter = new DefaultHighlighter.DefaultHighlightPainter(
-				LIGHT_GREEN);
-
-		try {
-			Document doc = sourceCodeTextPane.getDocument();
-			String text = doc.getText(0, doc.getLength());
-			int start = 0;
-			int end = 0;
-
-			// look for newline char, and then toggle between white and gray
-			// painters.
-			i = 1;
-			while ((end = text.indexOf('\n', start)) >= 0) {
-				if (editor.getCoverage().contains(i)) {
-					DefaultHighlightPainter painter = coveredPainter;
-					hilite.addHighlight(start, end + 1, painter);
-				}
-				start = end + 1;
-				i++;
-			}
-		} catch (BadLocationException e) {
-			e.printStackTrace();
-		}
+		printSourceCode(editor, sourceCodeTextPane, sourceCodeScrollPane);
 
 		JPanel testPanel = new JPanel();
 		testPanel.setBorder(new TitledBorder(null, "Test Editor",
@@ -154,6 +124,7 @@ public class SimpleGUI implements IGUI {
 
 		final JEditorPane testEditorPane = new JEditorPane();
 		testScrollPane.setViewportView(testEditorPane);
+		testEditorPane.setText(editor.getCurrentTestCase().toCode());
 
 		JPanel controlPanel = new JPanel();
 		controlPanel.setBorder(null);
@@ -169,7 +140,10 @@ public class SimpleGUI implements IGUI {
 		btnPrevTestButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				testEditorPane.setText(editor.getPrevTest().toCode());
+				editor.prevTest();
+				printSourceCode(editor, sourceCodeTextPane,
+						sourceCodeScrollPane);
+				testEditorPane.setText(editor.getCurrentTestCase().toCode());
 			}
 		});
 
@@ -190,7 +164,10 @@ public class SimpleGUI implements IGUI {
 		btnNextTestButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				testEditorPane.setText(editor.getNextTest().toCode());
+				editor.nextTest();
+				printSourceCode(editor, sourceCodeTextPane,
+						sourceCodeScrollPane);
+				testEditorPane.setText(editor.getCurrentTestCase().toCode());
 			}
 		});
 		btnNextTestButton.setBounds(160, 12, 119, 25);
@@ -255,6 +232,60 @@ public class SimpleGUI implements IGUI {
 				}
 		}
 
+	}
+
+	/**
+	 * @param sourceCodeTextPane
+	 * @param editor
+	 * @param sourceCodeScrollPane
+	 * 
+	 */
+	private void printSourceCode(Editor editor, JTextPane sourceCodeTextPane,
+			JScrollPane sourceCodeScrollPane) {
+
+		int position = sourceCodeTextPane.getCaretPosition();
+		// Print Source code
+		int i = 1;
+		String formatSourceCode = new String();
+		for (String tmpString : editor.getSourceCode()) {
+			formatSourceCode += (i++ + ":\t" + tmpString + "\n");
+		}
+		sourceCodeTextPane.setText(formatSourceCode);
+
+		// Set highlights for covered lines
+		Highlighter hilite = new MyHighlighter();
+		sourceCodeTextPane.setHighlighter(hilite);
+		DefaultHighlightPainter coveredPainter = new DefaultHighlighter.DefaultHighlightPainter(
+				LIGHT_GREEN);
+		DefaultHighlightPainter coveredCurrentPainter = new DefaultHighlighter.DefaultHighlightPainter(
+				LIGHT_RED);
+
+		try {
+			Document doc = sourceCodeTextPane.getDocument();
+			String text = doc.getText(0, doc.getLength());
+			int start = 0;
+			int end = 0;
+
+			// look for newline char, and then toggle between white and green or
+			// red painters.
+			i = 1;
+			while ((end = text.indexOf('\n', start)) >= 0) {
+				if (editor.getCoverage().contains(i)
+						&& !editor.getCurrentCovarage().contains(i)) {
+					DefaultHighlightPainter painter = coveredPainter;
+					hilite.addHighlight(start, end + 1, painter);
+				}
+				if (editor.getCurrentCovarage().contains(i)) {
+					DefaultHighlightPainter painter = coveredCurrentPainter;
+					hilite.addHighlight(start, end + 1, painter);
+				}
+				start = end + 1;
+				i++;
+			}
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+		sourceCodeTextPane.setCaretPosition(position);
 	}
 
 }

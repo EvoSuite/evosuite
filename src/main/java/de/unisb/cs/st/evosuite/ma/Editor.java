@@ -11,8 +11,10 @@ import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ma.gui.SimpleGUI;
 import de.unisb.cs.st.evosuite.ma.parser.TestParser;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
+import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
@@ -29,6 +31,9 @@ public class Editor {
 	private Iterable<String> sourceCode;
 	private final SearchStatistics statistics = SearchStatistics.getInstance();
 	private Set<Integer> coverage = new HashSet<Integer>();
+	private Set<Integer> currentCovarage = new HashSet<Integer>();
+	private Class<?> clazz;
+	private TestSuiteChromosome testSuiteChr;
 
 	/**
 	 * Create instance of Editor for manual edition of test individuals with:
@@ -38,48 +43,82 @@ public class Editor {
 	 */
 	public Editor(GeneticAlgorithm ga) {
 		gaInstance = ga;
-		setUp();
-		currentTestCase = getNextTest();
-	}
+		testSuiteChr = (TestSuiteChromosome) gaInstance.getBestIndividual();
 
-	/**
-	 * Prepare editor for work.
-	 */
-	private void setUp() {
-		TestSuiteChromosome testSuiteChr = (TestSuiteChromosome) gaInstance
-				.getBestIndividual();
+		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(
+				TestSuiteGenerator.getFitnessFactory());
+		minimizer.minimize(testSuiteChr);
 
 		tests = testSuiteChr.getTests();
+		nextTest();
+		// for (int i = 0; i < tests.get(0).size(); i++) {
+		// if (tests.get(0).getStatement(i) instanceof ArrayStatement) {
+		// System.out.println(i + ": ArrayStatement");
+		// }
+		// if (tests.get(0).getStatement(i) instanceof AssignmentStatement) {
+		// System.out.println(i + ": AssignmentStatement");
+		// }
+		// if (tests.get(0).getStatement(i) instanceof ConstructorStatement) {
+		// System.out.println(i + ": ConstructorStatement");
+		// }
+		// if (tests.get(0).getStatement(i) instanceof NullStatement) {
+		// System.out.println(i + ": NullStatement");
+		// }
+		// if (tests.get(0).getStatement(i) instanceof PrimitiveStatement) {
+		// System.out.println(i + ": PrimitiveStatement");
+		// }
+		// if (tests.get(0).getStatement(i) instanceof MethodStatement) {
+		// System.out.println(i + ": MethodStatement");
+		// System.out.println("11: " +
+		// tests.get(0).getStatement(i).getReturnValue());
+		// }
+		// }
 
 		HtmlAnalyzer html_analyzer = new HtmlAnalyzer();
 		sourceCode = html_analyzer.getClassContent(Properties.TARGET_CLASS);
 
-		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(TestSuiteGenerator.getFitnessFactory());
-		minimizer.minimize(testSuiteChr);
-		
+		try {
+			clazz = Class.forName(Properties.TARGET_CLASS);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
 		for (TestCase test : tests) {
 			ExecutionTrace trace = statistics.executeTest(test,
 					Properties.TARGET_CLASS);
-			
+
 			coverage.addAll(statistics.getCoveredLines(trace,
 					Properties.TARGET_CLASS));
 		}
-		
+
 		SimpleGUI sgui = new SimpleGUI();
 		sgui.createWindow(this);
 	}
-	
+
+	/**
+	 * @return the clazz
+	 */
+	public Class<?> getClazz() {
+		return clazz;
+	}
+
 	/**
 	 * @param testSource
 	 */
 	public void parseTest(String testCode) {
 		try {
-			TestParser.parsTest(testCode, currentTestCase);
+			TestCase newTestCase = TestParser.parsTest(testCode,
+					currentTestCase, clazz);
+			testSuiteChr.setChanged(true);
+			TestCaseExecutor executor = TestCaseExecutor.getInstance();
+			ExecutionResult result = executor.execute(newTestCase);
+			testSuiteChr.addTest(newTestCase);
+			tests = testSuiteChr.getTests();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * @return the coverage
 	 */
@@ -102,55 +141,73 @@ public class Editor {
 	}
 
 	/**
-	 * Return next TestCase from current.
+	 * Set currentTestCase to the next TestCase.
 	 * 
 	 * @return next TestCase from current
 	 */
-	public TestCase getNextTest() {
+	public void nextTest() {
 		if (currentTestCase == null && tests.size() > 0) {
 			currentTestCase = tests.get(0);
-			return tests.get(0);
-		}
+		} else if (currentTestCase != null && tests.size() > 0) {
 
-		for (int i = 0; i < tests.size(); i++) {
-			if (currentTestCase == tests.get(i)) {
-				if (i == tests.size() - 1) {
-					currentTestCase = tests.get(0);
-					return tests.get(0);
-				} else {
-					currentTestCase = tests.get(i + 1);
-					return tests.get(i + 1);
+			int j = 0;
+			for (int i = 0; i < tests.size(); i++) {
+				if (currentTestCase == tests.get(i)) {
+					if (i == tests.size() - 1) {
+						j = 0;
+					} else {
+						j = i + 1;
+					}
 				}
 			}
+			currentTestCase = tests.get(j);
 		}
-
-		return null;
+		updateCurrentCovarage();
 	}
 
 	/**
-	 * Return previous TestCase from current.
+	 * @return the currentCovarage
+	 */
+	public Set<Integer> getCurrentCovarage() {
+		return currentCovarage;
+	}
+
+	/**
+	 * Set currentTestCase to previous TestCase.
 	 * 
 	 * @return previous TestCase from current
 	 */
-	public TestCase getPrevTest() {
+	public void prevTest() {
 		if (currentTestCase == null && tests.size() > 0) {
 			currentTestCase = tests.get(0);
-			return tests.get(0);
-		}
+		} else if (currentTestCase != null && tests.size() > 0) {
 
-		for (int i = 0; i < tests.size(); i++) {
-			if (currentTestCase == tests.get(i)) {
-				if (i == 0) {
-					currentTestCase = tests.get(tests.size() - 1);
-					return tests.get(tests.size() - 1);
-				} else {
-					currentTestCase = tests.get(i - 1);
-					return tests.get(i - 1);
+			int j = 0;
+			for (int i = 0; i < tests.size(); i++) {
+				if (currentTestCase == tests.get(i)) {
+					if (i == 0) {
+						j = tests.size() - 1;
+					} else {
+						j = i - 1;
+					}
 				}
 			}
+			currentTestCase = tests.get(j);
 		}
+		updateCurrentCovarage();
+	}
 
-		return null;
+	/**
+	 * 
+	 */
+	private void updateCurrentCovarage() {
+		currentCovarage.clear();
+
+		ExecutionTrace trace = statistics.executeTest(currentTestCase,
+				Properties.TARGET_CLASS);
+
+		currentCovarage.addAll(statistics.getCoveredLines(trace,
+				Properties.TARGET_CLASS));
 	}
 
 	/**
