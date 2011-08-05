@@ -44,6 +44,8 @@ public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome
 	 * @param size
 	 */
 	private TestCase getRandomTestCase(int size) {
+		ExecutionTracer.disable();
+
 		TestCase test = getNewTestCase();
 		int num = 0;
 
@@ -59,6 +61,8 @@ public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome
 		}
 		if (logger.isDebugEnabled())
 			logger.debug("Randomized test case:" + test.toCode());
+
+		ExecutionTracer.enable();
 
 		return test;
 	}
