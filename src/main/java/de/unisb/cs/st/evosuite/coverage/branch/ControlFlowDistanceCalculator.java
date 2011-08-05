@@ -1,12 +1,12 @@
 package de.unisb.cs.st.evosuite.coverage.branch;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
@@ -51,8 +51,7 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
  */
 public class ControlFlowDistanceCalculator {
 
-	private static Logger logger = Logger
-			.getLogger(ControlFlowDistanceCalculator.class);
+	private static Logger logger = LoggerFactory.getLogger(ControlFlowDistanceCalculator.class);
 
 	// DONE hold intermediately calculated ControlFlowDistances in
 	// ExecutionResult during computation in order to speed up things -
@@ -66,18 +65,18 @@ public class ControlFlowDistanceCalculator {
 	 * 
 	 * For more information look at this class's class comment
 	 */
-	public static ControlFlowDistance getDistance(ExecutionResult result,
-			Branch branch, boolean value, String className, String methodName) {
+	public static ControlFlowDistance getDistance(ExecutionResult result, Branch branch,
+	        boolean value, String className, String methodName) {
 		if (result == null || className == null || methodName == null)
 			throw new IllegalArgumentException("null given");
 		if (branch == null && !value)
 			throw new IllegalArgumentException(
-					"expect distance for a root branch to always have value set to true");
+			        "expect distance for a root branch to always have value set to true");
 		if (branch != null) {
 			if (!branch.getMethodName().equals(methodName)
-					|| !branch.getClassName().equals(className))
+			        || !branch.getClassName().equals(className))
 				throw new IllegalArgumentException(
-						"expect explicitly given information about a branch to coincide with the information given by that branch");
+				        "expect explicitly given information about a branch to coincide with the information given by that branch");
 		}
 
 		// handle timeout in ExecutionResult
@@ -88,49 +87,44 @@ public class ControlFlowDistanceCalculator {
 		if (branch == null)
 			return getRootDistance(result, className, methodName);
 
-		ControlFlowDistance nonRootDistance = getNonRootDistance(result,
-				branch, value);
+		ControlFlowDistance nonRootDistance = getNonRootDistance(result, branch, value);
 
 		if (nonRootDistance == null)
 			throw new IllegalStateException(
-					"expect getNonRootDistance to never return null");
+			        "expect getNonRootDistance to never return null");
 
 		return nonRootDistance;
 	}
 
-	private static ControlFlowDistance getTimeoutDistance(
-			ExecutionResult result, Branch branch) {
+	private static ControlFlowDistance getTimeoutDistance(ExecutionResult result,
+	        Branch branch) {
 
 		if (!TestCoverageGoal.hasTimeout(result))
-			throw new IllegalArgumentException(
-					"expect given result to have a timeout");
+			throw new IllegalArgumentException("expect given result to have a timeout");
 		logger.debug("Has timeout!");
 		return worstPossibleDistanceForMethod(branch);
 	}
 
-	private static ControlFlowDistance worstPossibleDistanceForMethod(
-			Branch branch) {
-
+	private static ControlFlowDistance worstPossibleDistanceForMethod(Branch branch) {
 		ControlFlowDistance d = new ControlFlowDistance();
 		if (branch == null) {
 			d.setApproachLevel(20);
 		} else {
-			d.setApproachLevel(branch.getActualCFG().getDiameter() + 2);
+			d.setApproachLevel(branch.getInstruction().getActualCFG().getDiameter() + 2);
 		}
 		return d;
 	}
 
 	private static ControlFlowDistance getRootDistance(ExecutionResult result,
-			String className, String methodName) {
+	        String className, String methodName) {
 
 		ControlFlowDistance d = new ControlFlowDistance();
 
-		logger.debug("Looking for method without branches " + methodName);
 		for (MethodCall call : result.getTrace().finished_calls) {
 			if (call.className.equals(""))
 				continue;
 			if ((call.className + "." + call.methodName).equals(className + "."
-					+ methodName)) {
+			        + methodName)) {
 				return d;
 			}
 		}
@@ -139,59 +133,58 @@ public class ControlFlowDistanceCalculator {
 		return d;
 	}
 
-	private static ControlFlowDistance getNonRootDistance(
-			ExecutionResult result, Branch branch, boolean value) {
+	private static ControlFlowDistance getNonRootDistance(ExecutionResult result,
+	        Branch branch, boolean value) {
+
 		if (branch == null)
 			throw new IllegalStateException(
-					"expect this method only to be called if this goal does not try to cover the root branch");
-		
+			        "expect this method only to be called if this goal does not try to cover the root branch");
+
 		String className = branch.getClassName();
 		String methodName = branch.getMethodName();
 
 		ControlFlowDistance r = new ControlFlowDistance();
-		r.setApproachLevel(branch.getActualCFG().getDiameter() + 1);
-		logger.debug("Looking for method with branches " + methodName);
+		r.setApproachLevel(branch.getInstruction().getActualCFG().getDiameter() + 1);
 
 		// Minimal distance between target node and path
 		for (MethodCall call : result.getTrace().finished_calls) {
-			if (call.className.equals(className)
-					&& call.methodName.equals(methodName)) {
+			if (call.className.equals(className) && call.methodName.equals(methodName)) {
 				ControlFlowDistance d2;
 				Set<Branch> handled = new HashSet<Branch>();
-//				result.intermediateDistances = new HashMap<Branch,ControlFlowDistance>();
+				//				result.intermediateDistances = new HashMap<Branch,ControlFlowDistance>();
 				d2 = getNonRootDistance(result, call, branch, value, className,
-						methodName, handled);
+				                        methodName, handled);
 				if (d2.compareTo(r) < 0) {
 					r = d2;
 				}
 			}
 		}
-		
+
 		return r;
 	}
 
-	private static ControlFlowDistance getNonRootDistance(
-			ExecutionResult result, MethodCall call, Branch branch,
-			boolean value, String className, String methodName,
-			Set<Branch> handled) {
+	private static ControlFlowDistance getNonRootDistance(ExecutionResult result,
+	        MethodCall call, Branch branch, boolean value, String className,
+	        String methodName, Set<Branch> handled) {
+
 		if (branch == null)
 			throw new IllegalStateException(
-					"expect getNonRootDistance() to only be called if this goal's branch is not a root branch");
+			        "expect getNonRootDistance() to only be called if this goal's branch is not a root branch");
 		if (call == null)
 			throw new IllegalArgumentException("null given");
 
-//		ControlFlowDistance r = result.intermediateDistances.get(branch);
-		
-		if (handled.contains(branch)) { 
-//			if(r== null)
-				return worstPossibleDistanceForMethod(branch);
-//			else {
-//				System.out.println("reused distance for branch: "+branch.toString());
-//				return r;
-//			}
+		//		ControlFlowDistance r = result.intermediateDistances.get(branch);
+
+		if (handled.contains(branch)) {
+			//			if(r== null)
+			return worstPossibleDistanceForMethod(branch);
+			//			else {
+			//				System.out.println("reused distance for branch: "+branch.toString());
+			//				return r;
+			//			}
 		}
 		handled.add(branch);
-		
+
 		List<Double> trueDistances = call.trueDistanceTrace;
 		List<Double> falseDistances = call.falseDistanceTrace;
 
@@ -202,8 +195,7 @@ public class ControlFlowDistanceCalculator {
 		// and return 1 + minimum of the branch coverage goal distance over all
 		// such branches taking as value the branchExpressionValue
 
-		Set<Integer> branchTracePositions = determineBranchTracePositions(call,
-				branch);
+		Set<Integer> branchTracePositions = determineBranchTracePositions(call, branch);
 
 		if (!branchTracePositions.isEmpty()) {
 
@@ -213,39 +205,45 @@ public class ControlFlowDistanceCalculator {
 			for (Integer branchTracePosition : branchTracePositions)
 				if (value)
 					r.setBranchDistance(Math.min(r.getBranchDistance(),
-							trueDistances.get(branchTracePosition)));
+					                             trueDistances.get(branchTracePosition)));
 				else
 					r.setBranchDistance(Math.min(r.getBranchDistance(),
-							falseDistances.get(branchTracePosition)));
+					                             falseDistances.get(branchTracePosition)));
 
 			if (r.getBranchDistance() == Double.MAX_VALUE)
 				throw new IllegalStateException("should be impossible");
 
-//			result.intermediateDistances.put(branch, r);
+			//			result.intermediateDistances.put(branch, r);
 			return r;
 		}
 
-		ControlFlowDistance controlDependenceDistance = getControlDependenceDistancesFor(
-				result, call, branch, className, methodName, handled);
+		ControlFlowDistance controlDependenceDistance = getControlDependenceDistancesFor(result,
+		                                                                                 call,
+		                                                                                 branch.getInstruction(),
+		                                                                                 className,
+		                                                                                 methodName,
+		                                                                                 handled);
 
 		controlDependenceDistance.increaseApproachLevel();
 
-//		result.intermediateDistances.put(branch, controlDependenceDistance);
-		
+		//		result.intermediateDistances.put(branch, controlDependenceDistance);
+
 		return controlDependenceDistance;
 	}
 
 	private static ControlFlowDistance getControlDependenceDistancesFor(
-			ExecutionResult result, MethodCall call,
-			BytecodeInstruction instruction, String className,
-			String methodName, Set<Branch> handled) {
+	        ExecutionResult result, MethodCall call, BytecodeInstruction instruction,
+	        String className, String methodName, Set<Branch> handled) {
 
-		Set<ControlFlowDistance> cdDistances = getDistancesForControlDependentBranchesOf(
-				result, call, instruction, className, methodName, handled);
+		Set<ControlFlowDistance> cdDistances = getDistancesForControlDependentBranchesOf(result,
+		                                                                                 call,
+		                                                                                 instruction,
+		                                                                                 className,
+		                                                                                 methodName,
+		                                                                                 handled);
 
 		if (cdDistances == null)
-			throw new IllegalStateException(
-					"expect cdDistances to never be null");
+			throw new IllegalStateException("expect cdDistances to never be null");
 
 		return Collections.min(cdDistances);
 	}
@@ -257,9 +255,8 @@ public class ControlFlowDistanceCalculator {
 	 * @param handled
 	 */
 	private static Set<ControlFlowDistance> getDistancesForControlDependentBranchesOf(
-			ExecutionResult result, MethodCall call,
-			BytecodeInstruction instruction, String className,
-			String methodName, Set<Branch> handled) {
+	        ExecutionResult result, MethodCall call, BytecodeInstruction instruction,
+	        String className, String methodName, Set<Branch> handled) {
 
 		Set<ControlFlowDistance> r = new HashSet<ControlFlowDistance>();
 		Set<Branch> nextToLookAt = instruction.getControlDependentBranches();
@@ -276,8 +273,9 @@ public class ControlFlowDistanceCalculator {
 
 		for (Branch next : nextToLookAt) {
 			boolean nextValue = instruction.getBranchExpressionValue(next);
-			ControlFlowDistance nextDistance = getNonRootDistance(result, call,
-					next, nextValue, className, methodName, handled);
+			ControlFlowDistance nextDistance = getNonRootDistance(result, call, next,
+			                                                      nextValue, className,
+			                                                      methodName, handled);
 			r.add(nextDistance);
 		}
 
@@ -285,14 +283,16 @@ public class ControlFlowDistanceCalculator {
 	}
 
 	private static Set<Integer> determineBranchTracePositions(MethodCall call,
-			Branch branch) {
+	        Branch branch) {
 
 		Set<Integer> r = new HashSet<Integer>();
 		List<Integer> path = call.branchTrace;
-		for (int pos = 0; pos < path.size(); pos++)
-			if (path.get(pos) == branch.getInstructionId())
+		for (int pos = 0; pos < path.size(); pos++) {
+			logger.debug(pos + ": " + path.get(pos));
+			if (path.get(pos) == branch.getActualBranchId()) { //.getActualBranchId()); {
 				r.add(pos);
-
+			}
+		}
 		return r;
 	}
 

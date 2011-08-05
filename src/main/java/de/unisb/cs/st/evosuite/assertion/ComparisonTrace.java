@@ -22,7 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.testcase.OutputTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
@@ -30,7 +31,7 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class ComparisonTrace extends OutputTrace {
 
-	private final Logger logger = Logger.getLogger(ComparisonTrace.class);
+	private final static Logger logger = LoggerFactory.getLogger(ComparisonTrace.class);
 
 	Map<Integer, VariableReference> return_values = new HashMap<Integer, VariableReference>();
 	Map<Integer, Map<VariableReference, Boolean>> equals_map = new HashMap<Integer, Map<VariableReference, Boolean>>();

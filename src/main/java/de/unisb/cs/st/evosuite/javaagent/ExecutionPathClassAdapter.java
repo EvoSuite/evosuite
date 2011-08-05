@@ -18,7 +18,8 @@
 
 package de.unisb.cs.st.evosuite.javaagent;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -26,7 +27,6 @@ import org.objectweb.asm.Opcodes;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutationDecision.Excludes;
 
 /**
  * Take care of all instrumentation that is necessary to trace executions
@@ -36,27 +36,16 @@ import de.unisb.cs.st.javalanche.mutation.javaagent.classFileTransfomer.mutation
  */
 public class ExecutionPathClassAdapter extends ClassAdapter {
 
-	private final Excludes e = Excludes.getTestExcludesInstance();
-
 	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION;
 
 	private final String className;
 
-	private boolean exclude = false;
-
 	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(ExecutionPathClassAdapter.class);
+	private static Logger logger = LoggerFactory.getLogger(ExecutionPathClassAdapter.class);
 
 	public ExecutionPathClassAdapter(ClassVisitor visitor, String className) {
 		super(visitor);
 		this.className = className.replace('/', '.');
-
-		if (e.shouldExclude(this.className)
-		        || !(this.className.startsWith(Properties.PROJECT_PREFIX))) {
-			exclude = true;
-		} else {
-			exclude = false;
-		}
 	}
 
 	/*
@@ -79,13 +68,11 @@ public class ExecutionPathClassAdapter extends ClassAdapter {
 		if (name.equals("<clinit>"))
 			return mv;
 
-		if (!exclude) {
-			if (MUTATION) {
-				mv = new ReturnValueAdapter(mv, className, name, descriptor);
-			}
-			mv = new MethodEntryAdapter(mv, methodAccess, className, name, descriptor);
-			mv = new LineNumberMethodAdapter(mv, className, name, descriptor);
+		if (MUTATION) {
+			mv = new ReturnValueAdapter(mv, className, name, descriptor);
 		}
+		mv = new MethodEntryAdapter(mv, methodAccess, className, name, descriptor);
+		mv = new LineNumberMethodAdapter(mv, className, name, descriptor);
 		return mv;
 	}
 

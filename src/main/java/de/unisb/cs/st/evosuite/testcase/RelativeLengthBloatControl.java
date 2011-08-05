@@ -18,12 +18,10 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
-import java.util.List;
-
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.BloatControlFunction;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
-import de.unisb.cs.st.evosuite.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
 
 /**
@@ -34,18 +32,13 @@ import de.unisb.cs.st.evosuite.ga.SearchListener;
  */
 public class RelativeLengthBloatControl implements BloatControlFunction, SearchListener {
 
+	private static final long serialVersionUID = -459141492060919204L;
+
 	protected int current_max = 0;
 
 	protected double best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
 	                                                  // minimizing fitness!
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.javalanche.ga.BloatControlFunction#isTooLong(de.unisb.
-	 * cs.st.javalanche.ga.Chromosome)
-	 */
 	@Override
 	public boolean isTooLong(Chromosome chromosome) {
 		// Always accept if fitness is better
@@ -59,71 +52,36 @@ public class RelativeLengthBloatControl implements BloatControlFunction, SearchL
 			// logger.debug("Bloat control: "+((TestSuiteChromosome)chromosome).length()
 			// +" > "+ bloat_factor * current_max);
 
-			return ((TestChromosome) chromosome).size() > Properties.BLOAT_FACTOR
+			return ((ExecutableChromosome) chromosome).size() > Properties.BLOAT_FACTOR
 			        * current_max;
 		} else
 			return false; // Don't know max length so can't reject!
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.javalanche.ga.SearchListener#fitnessEvaluation(de.unisb
-	 * .cs.st.javalanche.ga.Chromosome)
-	 */
 	@Override
 	public void fitnessEvaluation(Chromosome result) {
 		// TODO Auto-generated method stub
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.javalanche.ga.SearchListener#iteration(de.unisb.cs.st.
-	 * javalanche.ga.Chromosome)
-	 */
 	@Override
-	public void iteration(List<Chromosome> population) {
-		current_max = ((TestChromosome) population.get(0)).size();
-		best_fitness = population.get(0).getFitness();
+	public void iteration(GeneticAlgorithm algorithm) {
+		current_max = ((ExecutableChromosome) algorithm.getBestIndividual()).size();
+		best_fitness = algorithm.getBestIndividual().getFitness();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.javalanche.ga.SearchListener#searchFinished(de.unisb.cs
-	 * .st.javalanche.ga.Chromosome)
-	 */
 	@Override
-	public void searchFinished(List<Chromosome> best) {
+	public void searchFinished(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.javalanche.ga.SearchListener#searchStarted(de.unisb.cs
-	 * .st.javalanche.ga.FitnessFunction)
-	 */
 	@Override
-	public void searchStarted(FitnessFunction objective) {
+	public void searchStarted(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.ga.SearchListener#mutation(de.unisb.cs.st.evosuite
-	 * .ga.Chromosome)
-	 */
 	@Override
 	public void modification(Chromosome individual) {
 		// TODO Auto-generated method stub

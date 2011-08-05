@@ -11,7 +11,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
@@ -26,7 +27,7 @@ public class DescriptorMapping {
 
 	private final Map<String, String> descriptorMapping = new HashMap<String, String>();
 
-	private static Logger logger = Logger.getLogger(DescriptorMapping.class);
+	private static Logger logger = LoggerFactory.getLogger(DescriptorMapping.class);
 
 	private static DescriptorMapping instance = null;
 

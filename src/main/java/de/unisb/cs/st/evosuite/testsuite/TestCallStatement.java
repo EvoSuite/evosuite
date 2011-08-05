@@ -4,6 +4,7 @@
 package de.unisb.cs.st.evosuite.testsuite;
 
 import java.io.PrintStream;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -16,8 +17,9 @@ import java.util.Set;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.AbstractStatement;
+import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
+import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
@@ -29,6 +31,8 @@ import de.unisb.cs.st.evosuite.testcase.VariableReferenceImpl;
  * 
  */
 public class TestCallStatement extends AbstractStatement {
+
+	private static final long serialVersionUID = -7886618899521718039L;
 
 	private final TestCallObject testCall;
 
@@ -55,7 +59,6 @@ public class TestCallStatement extends AbstractStatement {
 			// logger.info("Starting test call " + test.toCode());
 			// logger.info("Original test was: " + testCall.testCase.toCode());
 			executor.execute(test, scope);
-			executor.setLogging(true);
 
 			// TODO: Count as 1 or length?
 			int num = test.size();
@@ -69,7 +72,7 @@ public class TestCallStatement extends AbstractStatement {
 				Collections.sort(variables, Collections.reverseOrder());
 				// logger.info("Return value is good: "
 				// + scope.get(variables.get(0)).getClass());
-				return scope.get(variables.get(0));
+				return variables.get(0).getObject(scope);
 			}
 
 		} catch (Exception e) {
@@ -96,15 +99,21 @@ public class TestCallStatement extends AbstractStatement {
 	 */
 	@Override
 	public Throwable execute(Scope scope, PrintStream out)
-	        throws InvocationTargetException, IllegalArgumentException,
-	        IllegalAccessException, InstantiationException {
+	throws InvocationTargetException, IllegalArgumentException,
+	IllegalAccessException, InstantiationException {
 
-		TestCase test = testCall.getTest();
-		if (test != null && !test.hasCalls()) {
-			Object value = runTest(test);
-			scope.set(retval, value);
-		} else {
-			scope.set(retval, null);
+		try{
+			TestCase test = testCall.getTest();
+			if (test != null && !test.hasCalls()) {
+				Object value = runTest(test);
+				assert (retval.getVariableClass().isAssignableFrom(value.getClass())) : "we want an "
+					+ retval.getVariableClass() + " but got an " + value.getClass();
+				retval.setObject(scope, value);
+			} else {
+				retval.setObject(scope, null);
+			}
+		}catch(CodeUnderTestException e){
+			return e.getCause();
 		}
 
 		return null; // TODO: Pass on any of the exceptions?
@@ -122,19 +131,19 @@ public class TestCallStatement extends AbstractStatement {
 		TestCase test = testCall.getTest();
 		if (test == null || test.hasCalls()) {
 			return retval.getSimpleClassName() + " " + retval.getName()
-			        + " = call to null";
+			+ " = call to null";
 		}
 		int num = 0;
 		for (TestCase other : testCall.getSuite().getTests()) {
 			if (test.equals(other))
 				return retval.getSimpleClassName() + " " + retval.getName()
-				        + " = Call to test case: " + num + "...\n" + test.toCode()
-				        + "...\n";
+				+ " = Call to test case: " + num + "...\n" + test.toCode()
+				+ "...\n";
 			num++;
 		}
 
 		return retval.getSimpleClassName() + " " + retval.getName()
-		        + " = Call to test case (null) ";
+		+ " = Call to test case (null) ";
 	}
 
 	/*
@@ -146,7 +155,7 @@ public class TestCallStatement extends AbstractStatement {
 	 */
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        Throwable exception) {
+			Throwable exception) {
 		// TODO Auto-generated method stub
 
 	}
@@ -163,6 +172,12 @@ public class TestCallStatement extends AbstractStatement {
 		return vars;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void replace(VariableReference var1, VariableReference var2) {
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -171,7 +186,8 @@ public class TestCallStatement extends AbstractStatement {
 	 */
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
-		TestCallStatement statement = new TestCallStatement(newTestCase, testCall, retval.getType());
+		TestCallStatement statement = new TestCallStatement(newTestCase, testCall,
+				retval.getType());
 		return statement;
 	}
 
@@ -226,6 +242,17 @@ public class TestCallStatement extends AbstractStatement {
 	@Override
 	public boolean same(StatementInterface s) {
 		return equals(s);
+	}
+
+	@Override
+	public AccessibleObject getAccessibleObject() {
+		assert(false); //not supposed to be called
+		return null;
+	}
+
+	@Override
+	public boolean isAssignmentStatement() {
+		return false;
 	}
 
 }

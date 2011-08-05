@@ -28,15 +28,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.evosuite.ga.Randomness;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
+import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
 import de.unisb.cs.st.evosuite.symbolic.smt.cvc3.CVC3Solver;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -44,6 +45,7 @@ import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * @author Gordon Fraser
@@ -51,7 +53,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
  */
 public class ConcolicMutation {
 
-	protected static Logger logger = Logger.getLogger(ConcolicMutation.class);
+	protected static Logger logger = LoggerFactory.getLogger(ConcolicMutation.class);
 
 	protected TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
@@ -72,7 +74,6 @@ public class ConcolicMutation {
 		try {
 			logger.debug("Executing test");
 			result = executor.execute(test);
-			executor.setLogging(true);
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
@@ -82,7 +83,7 @@ public class ConcolicMutation {
 		return result;
 	}
 
-	private Method getMarkMethod(PrimitiveStatement statement) {
+	private Method getMarkMethod(PrimitiveStatement<?> statement) {
 		Class<?> clazz = statement.getReturnValue().getVariableClass();
 		if (clazz.equals(Boolean.class) || clazz.equals(boolean.class))
 			return org.objectweb.asm.commons.Method.getMethod("boolean mark(boolean)");
@@ -104,13 +105,13 @@ public class ConcolicMutation {
 			// FIXME: Probably not for Strings?
 			return org.objectweb.asm.commons.Method.getMethod("String mark(String)");
 		else {
-			logger.fatal("Found primitive of unknown type: " + clazz.getName());
+			logger.error("Found primitive of unknown type: " + clazz.getName());
 			return null; // FIXME
 		}
 	}
 
 	private void getPrimitiveValue(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        PrimitiveStatement statement) {
+	        PrimitiveStatement<?> statement) {
 		//Class<?> clazz = statement.getReturnValue().getVariableClass();
 		Class<?> clazz = statement.getValue().getClass();
 		if (!clazz.equals(statement.getReturnValue().getVariableClass())) {
@@ -137,10 +138,10 @@ public class ConcolicMutation {
 		else if (clazz.equals(String.class))
 			mg.push(((String) statement.getValue()));
 		else
-			logger.fatal("Found primitive of unknown type: " + clazz.getName());
+			logger.error("Found primitive of unknown type: " + clazz.getName());
 	}
 
-	private byte[] getBytecode(List<PrimitiveStatement> target, TestCase test) {
+	private byte[] getBytecode(List<PrimitiveStatement<?>> target, TestCase test) {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, className, null,
 		         "java/lang/Object", null);
@@ -183,7 +184,7 @@ public class ConcolicMutation {
 		return cw.toByteArray();
 	}
 
-	public void writeTestCase(List<PrimitiveStatement> statements, TestCase test) {
+	public void writeTestCase(List<PrimitiveStatement<?>> statements, TestCase test) {
 		File dir = new File(dirName);
 		dir.mkdir();
 		File file = new File(dirName + "/", className + ".class");
@@ -197,10 +198,10 @@ public class ConcolicMutation {
 	}
 
 	public boolean mutate(TestCase test) {
-		List<PrimitiveStatement> p = new ArrayList<PrimitiveStatement>();
+		List<PrimitiveStatement<?>> p = new ArrayList<PrimitiveStatement<?>>();
 		for (StatementInterface s : test) {
-			if (s instanceof PrimitiveStatement) {
-				PrimitiveStatement ps = (PrimitiveStatement) s;
+			if (s instanceof PrimitiveStatement<?>) {
+				PrimitiveStatement<?> ps = (PrimitiveStatement<?>) s;
 				Class<?> t = ps.getReturnClass();
 				if (t.equals(Integer.class) || t.equals(int.class)) {
 					p.add(ps);
@@ -224,18 +225,20 @@ public class ConcolicMutation {
 	}
 
 	public boolean mutate(PrimitiveStatement<?> statement, TestCase test) {
-		List<PrimitiveStatement> statements = new ArrayList<PrimitiveStatement>();
+		List<PrimitiveStatement<?>> statements = new ArrayList<PrimitiveStatement<?>>();
 		statements.add(statement);
 		return mutate(statements, test);
 	}
 
-	private boolean mutate(BranchCondition condition, List<PrimitiveStatement> statements) {
-		HashSet<Constraint> constraints = new HashSet<Constraint>();
+	@SuppressWarnings("unchecked")
+	private boolean mutate(BranchCondition condition,
+	        List<PrimitiveStatement<?>> statements) {
+		HashSet<Constraint<?>> constraints = new HashSet<Constraint<?>>();
 		constraints.addAll(condition.reachingConstraints);
 		//constraints.addAll(condition.localConstraints);
-		Constraint c = condition.localConstraints.iterator().next();
-		constraints.add(new IntegerConstraint(c.getLeftOperand(),
-		        c.getComparator().not(), c.getRightOperand()));
+		Constraint<?> c = condition.localConstraints.iterator().next();
+		constraints.add(new IntegerConstraint((Expression<Long>) c.getLeftOperand(),
+		        c.getComparator().not(), (Expression<Long>) c.getRightOperand()));
 		logger.info("Converting constraints");
 		//SMTSolver solver = new SMTSolver();
 		//solver.setup();
@@ -258,7 +261,9 @@ public class ConcolicMutation {
 					if (val instanceof Long) {
 						Long value = (Long) val;
 						logger.info("New value is " + value);
-						statements.get(num).setValue(value.intValue());
+						@SuppressWarnings("rawtypes")
+						PrimitiveStatement p = statements.get(num);
+						p.setValue(value.intValue());
 					} else {
 						logger.info("New value is not long " + val);
 					}
@@ -276,77 +281,14 @@ public class ConcolicMutation {
 	}
 
 	// TODO: Add jpf-classes and jpf-annotation
-	public boolean mutate(List<PrimitiveStatement> statements, TestCase test) {
+	public boolean mutate(List<PrimitiveStatement<?>> statements, TestCase test) {
 		writeTestCase(statements, test);
 		ConcolicExecution ex = new ConcolicExecution();
 		List<BranchCondition> conditions = ex.executeConcolic(className, classPath);
 		if (conditions.isEmpty())
 			return false;
 
-		//for (BranchCondition condition : conditions) {
-		//	logger.info("Branch has bytecode index: "
-		//	        + condition.ins.getInstructionIndex());
-		//}
-		BranchCondition condition = Randomness.getInstance().choice(conditions);
+		BranchCondition condition = Randomness.choice(conditions);
 		return mutate(condition, statements);
-
-		/*
-
-		jpf.mytest.generator.execution.TestCase jpfTest = new jpf.mytest.generator.execution.TestCase(
-		        new IntegerNextChoiceProvider(), new IntegerNextChoiceProvider(),
-		        className, classPath, null);
-		PathConstraintGathererParent pcg = jpfTest.getPCG();
-		for (gov.nasa.jpf.Error error : jpfTest.getErrors()) {
-			logger.info("Found error: " + error.getDescription());
-			logger.info(error.getDetails());
-		}
-		int num_constraints = pcg.getNumberOfPathConstraints();
-		if (num_constraints <= 0) {
-			logger.info("Empty constraint set");
-			return false;
-		}
-
-		Random random = new Random();
-		int c = random.nextInt(num_constraints);
-		if (!pcg.isNegatable(c)) {
-			logger.info("Is not negatable");
-			return false;
-		}
-
-		// pcg.getCondition(...).getName()
-
-		Map<String, Object> values = jpfTest.getPCG().getAlternativePath(c);
-		logger.info("Concolic execution done.");
-		if (values != null && !values.isEmpty()) {
-			int num = 0;
-
-			for (Object val : values.values()) {
-				//			Object val = values.values().toArray()[0];
-				if (val != null) {
-					if (val instanceof Long) {
-						Long value = (Long) val;
-						logger.info("New value is " + value);
-						statements.get(num).setValue(value.intValue());
-					} else {
-						logger.info("New value is not long " + val);
-					}
-				} else {
-					logger.info("New value is null");
-
-				}
-				num++;
-			}
-			return true;
-			//logger.info("Created value: " + values.values().toArray()[0]);
-		} else {
-			if (values == null) {
-				logger.info("Return value is null");
-			} else {
-				logger.info("Return value is empty");
-				return false;
-			}
-		}
-		return false;
-		*/
 	}
 }

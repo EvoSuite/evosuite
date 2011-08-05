@@ -18,16 +18,20 @@
 
 package de.unisb.cs.st.evosuite.ga;
 
-import org.apache.log4j.Logger;
+import java.io.Serializable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Gordon Fraser
  * 
  */
-public abstract class SecondaryObjective {
+public abstract class SecondaryObjective implements Serializable {
 
-	protected static Logger	logger	= Logger
-	                                       .getLogger(SecondaryObjective.class);
+	private static final long serialVersionUID = -4117187516650844086L;
+
+	protected static Logger logger = LoggerFactory.getLogger(SecondaryObjective.class);
 
 	/**
 	 * Compare two chromosomes with each other with respect to this objective.
@@ -37,8 +41,7 @@ public abstract class SecondaryObjective {
 	 * @param chromosome2
 	 * @return
 	 */
-	public abstract int compareChromosomes(Chromosome chromosome1,
-	        Chromosome chromosome2);
+	public abstract int compareChromosomes(Chromosome chromosome1, Chromosome chromosome2);
 
 	/**
 	 * Compare two parents to decide whether the children can replace the
@@ -50,7 +53,7 @@ public abstract class SecondaryObjective {
 	 * @param child2
 	 * @return
 	 */
-	public abstract int compareGenerations(Chromosome parent1,
-	        Chromosome parent2, Chromosome child1, Chromosome child2);
+	public abstract int compareGenerations(Chromosome parent1, Chromosome parent2,
+	        Chromosome child1, Chromosome child2);
 
 }

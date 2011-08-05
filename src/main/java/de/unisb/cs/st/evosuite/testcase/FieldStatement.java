@@ -18,7 +18,11 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintStream;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -42,12 +46,14 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  */
 public class FieldStatement extends AbstractStatement {
 
+	private static final long serialVersionUID = -4944610139232763790L;
+
 	transient Field field;
 	VariableReference source;
 	// VariableReference ret_val;
 
-	private String className;
-	private String fieldName;
+	private final String className;
+	private final String fieldName;
 
 	public FieldStatement(TestCase tc, Field field, VariableReference source,
 	        java.lang.reflect.Type type) {
@@ -56,12 +62,17 @@ public class FieldStatement extends AbstractStatement {
 		this.className = field.getDeclaringClass().getName();
 		this.fieldName = field.getName();
 		this.source = source;
+		if (retval.getComponentType() != null) {
+			retval = new ArrayReference(tc, retval.getGenericClass(), 0);
+		}
 	}
-	
+
 	/**
-	 * This constructor allows you to use an already existing VariableReference as retvar. 
-	 * This should only be done, iff an old statement is replaced with this statement. 
-	 * And already existing objects should in the future reference this object.
+	 * This constructor allows you to use an already existing VariableReference
+	 * as retvar. This should only be done, iff an old statement is replaced
+	 * with this statement. And already existing objects should in the future
+	 * reference this object.
+	 * 
 	 * @param tc
 	 * @param field
 	 * @param source
@@ -70,7 +81,7 @@ public class FieldStatement extends AbstractStatement {
 	public FieldStatement(TestCase tc, Field field, VariableReference source,
 	        VariableReference ret_var) {
 		super(tc, ret_var);
-		assert(tc.size()>ret_var.getStPosition()); //as an old statement should be replaced by this statement
+		assert (tc.size() > ret_var.getStPosition()); //as an old statement should be replaced by this statement
 		this.field = field;
 		this.className = field.getDeclaringClass().getName();
 		this.fieldName = field.getName();
@@ -91,7 +102,7 @@ public class FieldStatement extends AbstractStatement {
 		}
 		return this;
 	}
-	
+
 	public VariableReference getSource() {
 		return source;
 	}
@@ -106,32 +117,30 @@ public class FieldStatement extends AbstractStatement {
 
 	@Override
 	public String getCode(Throwable exception) {
-		String cast_str = "  ";
+		String cast_str = "";
 		String result = "";
 		if (!retval.getVariableClass().isAssignableFrom(field.getType())) {
 			cast_str += "(" + retval.getSimpleClassName() + ")";
 		}
 
 		if (exception != null) {
-			result = retval.getSimpleClassName() + " " + retval.getName()
-			        + " = null;\n";
+			result = retval.getSimpleClassName() + " " + retval.getName() + " = null;\n";
 			result += "try {\n  ";
 		} else {
 			result = retval.getSimpleClassName() + " ";
 		}
 		if (!Modifier.isStatic(field.getModifiers()))
-			result += retval.getName() + " = " + cast_str + source.getName()
-			        + "." + field.getName() + ";";
+			result += retval.getName() + " = " + cast_str + source.getName() + "."
+			        + field.getName() + ";";
 		else
 			result += retval.getName() + " = " + cast_str
-			        + field.getDeclaringClass().getSimpleName() + "."
-			        + field.getName() + ";";
+			        + field.getDeclaringClass().getSimpleName() + "." + field.getName()
+			        + ";";
 		if (exception != null) {
 			Class<?> ex = exception.getClass();
 			while (!Modifier.isPublic(ex.getModifiers()))
 				ex = ex.getSuperclass();
-			result += "\n} catch(" + ClassUtils.getShortClassName(ex)
-			        + " e) {}";
+			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {}";
 		}
 
 		return result;
@@ -139,35 +148,69 @@ public class FieldStatement extends AbstractStatement {
 
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
-		if (Modifier.isStatic(field.getModifiers()))
-			return new FieldStatement(newTestCase, field, null, retval.getType());
-		else
-			return new FieldStatement(newTestCase, field, newTestCase.getStatement(source.getStPosition()).getReturnValue(), retval.getType());
+		if (Modifier.isStatic(field.getModifiers())) {
+			FieldStatement s = new FieldStatement(newTestCase, field, null,
+			        retval.getType());
+			return s;
+		} else {
+			VariableReference newSource = source.clone(newTestCase);
+			FieldStatement s = new FieldStatement(newTestCase, field, newSource,
+			        retval.getType());
+			return s;
+		}
 	}
 
 	@Override
-	public Throwable execute(Scope scope, PrintStream out)
+	public Throwable execute(final Scope scope, PrintStream out)
 	        throws InvocationTargetException, IllegalArgumentException,
 	        IllegalAccessException, InstantiationException {
-		Object source_object = null;
+
 		try {
-			if (!Modifier.isStatic(field.getModifiers())) {
-				source_object = scope.get(source);
-				if (source_object == null) {
-					scope.set(retval, null);
-					return new NullPointerException();
+			return super.exceptionHandler(new Executer() {
+
+				@Override
+				public void execute() throws InvocationTargetException,
+				        IllegalArgumentException, IllegalAccessException,
+				        InstantiationException {
+					Object source_object;
+					try {
+						source_object = (Modifier.isStatic(field.getModifiers())) ? null
+						        : source.getObject(scope);
+
+						if (!Modifier.isStatic(field.getModifiers())
+						        && source_object == null) {
+							retval.setObject(scope, null);
+							throw new CodeUnderTestException(new NullPointerException());
+						}
+					} catch (CodeUnderTestException e) {
+						throw CodeUnderTestException.throwException(e.getCause());
+					} catch (Throwable e) {
+						throw new EvosuiteError(e);
+					}
+
+					Object ret = field.get(source_object);
+
+					try {
+						// FIXXME: isAssignableFrom int <- Integer does not return true 
+						//assert(ret==null || retval.getVariableClass().isAssignableFrom(ret.getClass())) : "we want an " + retval.getVariableClass() + " but got an " + ret.getClass();
+						retval.setObject(scope, ret);
+					} catch (CodeUnderTestException e) {
+						throw CodeUnderTestException.throwException(e);
+					} catch (Throwable e) {
+						throw new EvosuiteError(e);
+					}
 				}
 
-			}
-			Object ret = field.get(source_object);
-			scope.set(retval, ret);
-		} catch (Throwable e) {
-			if (e instanceof java.lang.reflect.InvocationTargetException) {
-				e = e.getCause();
-				logger.debug("Exception thrown in constructor: " + e);
-			} else
-				logger.debug("Exception thrown in constructor: " + e);
-			exceptionThrown = e;
+				@Override
+				public Set<Class<? extends Throwable>> throwableExceptions() {
+					Set<Class<? extends Throwable>> t = new HashSet<Class<? extends Throwable>>();
+					t.add(InvocationTargetException.class);
+					return t;
+				}
+			});
+
+		} catch (InvocationTargetException e) {
+			exceptionThrown = e.getCause();
 		}
 		return exceptionThrown;
 	}
@@ -176,13 +219,26 @@ public class FieldStatement extends AbstractStatement {
 	public Set<VariableReference> getVariableReferences() {
 		Set<VariableReference> references = new HashSet<VariableReference>();
 		references.add(retval);
-		if (!Modifier.isStatic(field.getModifiers())) {
+		if (!isStatic()) {
 			references.add(source);
-			if (source instanceof ArrayIndex)
-				references.add(((ArrayIndex)source).getArray());
+			if (source.getAdditionalVariableReference() != null)
+				references.add(source.getAdditionalVariableReference());
 		}
 		return references;
 
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public void replace(VariableReference var1, VariableReference var2) {
+		if (!Modifier.isStatic(field.getModifiers())) {
+			if (source.equals(var1))
+				source = var2;
+			else
+				source.replaceAdditionalVariableReference(var1, var2);
+		}
 	}
 
 	@Override
@@ -236,15 +292,15 @@ public class FieldStatement extends AbstractStatement {
 			source.loadBytecode(mg, locals);
 		}
 		if (isStatic())
-			mg.getStatic(Type.getType(field.getDeclaringClass()),
-			        field.getName(), Type.getType(field.getType()));
+			mg.getStatic(Type.getType(field.getDeclaringClass()), field.getName(),
+			             Type.getType(field.getType()));
 		else {
 			if (!source.getVariableClass().isInterface()) {
-				mg.getField(Type.getType(source.getVariableClass()),
-				        field.getName(), Type.getType(field.getType()));
+				mg.getField(Type.getType(source.getVariableClass()), field.getName(),
+				            Type.getType(field.getType()));
 			} else {
-				mg.getField(Type.getType(field.getDeclaringClass()),
-				        field.getName(), Type.getType(field.getType()));
+				mg.getField(Type.getType(field.getDeclaringClass()), field.getName(),
+				            Type.getType(field.getType()));
 			}
 		}
 
@@ -312,5 +368,38 @@ public class FieldStatement extends AbstractStatement {
 			        && field.equals(fs.field);
 		else
 			return retval.same(fs.retval) && field.equals(fs.field);
+	}
+
+	@Override
+	public AccessibleObject getAccessibleObject() {
+		return field;
+	}
+
+	@Override
+	public boolean isAssignmentStatement() {
+		return false;
+	}
+
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+		// Write/save additional fields
+		oos.writeObject(field.getDeclaringClass());
+		Field[] fields = field.getDeclaringClass().getDeclaredFields();
+		for (int i = 0; i < fields.length; i++) {
+			if (fields[i].equals(field))
+				oos.writeObject(new Integer(i));
+		}
+	}
+
+	// assumes "static java.util.Date aDate;" declared
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+
+		// Read/initialize additional fields
+		Class<?> methodClass = (Class<?>) ois.readObject();
+		int num = (Integer) ois.readObject();
+
+		field = methodClass.getDeclaredFields()[num];
 	}
 }

@@ -18,15 +18,12 @@
 
 package de.unisb.cs.st.evosuite.javaagent;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-
-import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.javalanche.mutation.bytecodeMutations.MutationMarker;
 
 /**
  * Instruments classes to call the tracer each time a new line of the source
@@ -40,9 +37,7 @@ public class LineNumberMethodAdapter extends MethodAdapter {
 	public static int branch_id = 0;
 
 	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(LineNumberMethodAdapter.class);
-
-	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION;
+	private static Logger logger = LoggerFactory.getLogger(LineNumberMethodAdapter.class);
 
 	private final String fullMethodName;
 
@@ -66,11 +61,6 @@ public class LineNumberMethodAdapter extends MethodAdapter {
 		if (methodName.equals("<clinit>"))
 			return;
 
-		if (MUTATION) {
-			Label mutationStartLabel = new Label();
-			mutationStartLabel.info = new MutationMarker(true);
-			mv.visitLabel(mutationStartLabel);
-		}
 		this.visitLdcInsn(className);
 		this.visitLdcInsn(fullMethodName);
 		this.visitLdcInsn(line);
@@ -78,10 +68,5 @@ public class LineNumberMethodAdapter extends MethodAdapter {
 		                   "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 		                   "passedLine", "(Ljava/lang/String;Ljava/lang/String;I)V");
 		current_line = line;
-		if (MUTATION) {
-			Label mutationEndLabel = new Label();
-			mutationEndLabel.info = new MutationMarker(false);
-			mv.visitLabel(mutationEndLabel);
-		}
 	}
 }

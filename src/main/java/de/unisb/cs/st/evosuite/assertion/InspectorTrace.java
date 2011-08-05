@@ -25,7 +25,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.OutputTrace;
@@ -34,7 +35,7 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class InspectorTrace extends OutputTrace {
 
-	private final Logger logger = Logger.getLogger(InspectorTrace.class);
+	private final static Logger logger = LoggerFactory.getLogger(InspectorTrace.class);
 
 	private final InspectorManager manager = InspectorManager.getInstance();
 

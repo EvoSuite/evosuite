@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.FieldStatement;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
@@ -44,48 +45,36 @@ public abstract class Contract {
 		return pairs;
 	}
 
-	protected Collection<Object> getAffectedObjects(StatementInterface statement, Scope scope) {
-		Set<Object> objects = new HashSet<Object>();
-		if (statement instanceof ConstructorStatement
-		        || statement instanceof FieldStatement) {
-			objects.add(scope.get(statement.getReturnValue()));
-		} else if (statement instanceof MethodStatement) {
-			MethodStatement ms = (MethodStatement) statement;
-			Object o = scope.get(statement.getReturnValue());
-			if (o != null)
-				objects.add(o);
-			if (!ms.isStatic())
-				objects.add(scope.get(ms.getCallee()));
-
+	protected Collection<Object> getAffectedObjects(StatementInterface statement,
+			Scope scope) {
+		try{
+			Set<Object> objects = new HashSet<Object>();
+			if (statement instanceof ConstructorStatement
+					|| statement instanceof FieldStatement) {
+				objects.add(statement.getReturnValue().getObject(scope));
+			} else if (statement instanceof MethodStatement) {
+				MethodStatement ms = (MethodStatement) statement;
+				Object o = statement.getReturnValue().getObject(scope);
+				if (o != null)
+					objects.add(o);
+				if (!ms.isStatic())
+					objects.add(ms.getCallee().getObject(scope));
+			}
+			return objects;
+		}catch(CodeUnderTestException e){
+			throw new UnsupportedOperationException();
 		}
-		return objects;
+
 	}
 
-	protected Collection<Pair> getAffectedObjectPairs(StatementInterface statement, Scope scope) {
-		Set<Pair> pairs = new HashSet<Pair>();
+	protected Collection<Pair> getAffectedObjectPairs(StatementInterface statement,
+			Scope scope) {
+		try{
+			Set<Pair> pairs = new HashSet<Pair>();
 
-		if (statement instanceof ConstructorStatement
-		        || statement instanceof FieldStatement) {
-			Object o = scope.get(statement.getReturnValue());
-			if (o != null) {
-				for (Object o1 : scope.getObjects(o.getClass())) {
-					for (Object o2 : scope.getObjects(o.getClass())) {
-						pairs.add(new Pair(o1, o2));
-					}
-				}
-			}
-		} else if (statement instanceof MethodStatement) {
-			MethodStatement ms = (MethodStatement) statement;
-			Object o = scope.get(statement.getReturnValue());
-			if (o != null) {
-				for (Object o1 : scope.getObjects(o.getClass())) {
-					for (Object o2 : scope.getObjects(o.getClass())) {
-						pairs.add(new Pair(o1, o2));
-					}
-				}
-			}
-			if (!ms.isStatic()) {
-				o = scope.get(ms.getCallee());
+			if (statement instanceof ConstructorStatement
+					|| statement instanceof FieldStatement) {
+				Object o = statement.getReturnValue().getObject(scope);
 				if (o != null) {
 					for (Object o1 : scope.getObjects(o.getClass())) {
 						for (Object o2 : scope.getObjects(o.getClass())) {
@@ -93,11 +82,34 @@ public abstract class Contract {
 						}
 					}
 				}
+			} else if (statement instanceof MethodStatement) {
+				MethodStatement ms = (MethodStatement) statement;
+				Object o = statement.getReturnValue().getObject(scope);
+				if (o != null) {
+					for (Object o1 : scope.getObjects(o.getClass())) {
+						for (Object o2 : scope.getObjects(o.getClass())) {
+							pairs.add(new Pair(o1, o2));
+						}
+					}
+				}
+				if (!ms.isStatic()) {
+					o = ms.getCallee().getObject(scope);
+					if (o != null) {
+						for (Object o1 : scope.getObjects(o.getClass())) {
+							for (Object o2 : scope.getObjects(o.getClass())) {
+								pairs.add(new Pair(o1, o2));
+							}
+						}
+					}
+				}
 			}
+			return pairs;
+		}catch(CodeUnderTestException e){
+			throw new UnsupportedOperationException();
 		}
-		return pairs;
 	}
 
-	public abstract boolean check(StatementInterface statement, Scope scope, Throwable exception);
+	public abstract boolean check(StatementInterface statement, Scope scope,
+			Throwable exception);
 
 }

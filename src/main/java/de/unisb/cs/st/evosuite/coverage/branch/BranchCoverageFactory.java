@@ -21,19 +21,22 @@ package de.unisb.cs.st.evosuite.coverage.branch;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
+import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
+import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
 
 /**
  * @author Gordon Fraser, Andre Mis
  * 
  */
-public class BranchCoverageFactory implements TestFitnessFactory {
+public class BranchCoverageFactory extends AbstractFitnessFactory {
 
-	private static Logger logger = Logger.getLogger(BranchCoverageFactory.class);
+	private static Logger logger = LoggerFactory
+			.getLogger(BranchCoverageFactory.class);
 
 	/*
 	 * (non-Javadoc)
@@ -52,27 +55,34 @@ public class BranchCoverageFactory implements TestFitnessFactory {
 		for (String method : BranchPool.getBranchlessMethods()) {
 			if (targetMethod.equals("") || method.endsWith(targetMethod))
 				goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(
-				        class_name, method.substring(method.lastIndexOf(".") + 1))));
+						class_name, method
+								.substring(method.lastIndexOf(".") + 1))));
 		}
 		// Branches
-		logger.info("Getting branches");
+		// logger.info("Getting branches");
 		for (String className : BranchPool.knownClasses()) {
 			for (String methodName : BranchPool.knownMethods(className)) {
 
-				if (!targetMethod.equals("") && !methodName.equals(targetMethod)) {
-					logger.info("Method " + methodName + " does not equal target method "
-					        + targetMethod);
+				if (!targetMethod.equals("")
+						&& !methodName.equals(targetMethod)) {
+					logger.info("Method " + methodName
+							+ " does not equal target method " + targetMethod);
 					continue;
 				}
 
-
-				for (Branch b : BranchPool.retrieveBranchesInMethod(className,methodName)) {
-
-					// Identify vertex in CFG
-					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(b,
-					        true, className, methodName)));
-					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(b,
-					        false, className, methodName)));
+				for (Branch b : BranchPool.retrieveBranchesInMethod(className,
+						methodName)) {
+					if (!(b.getInstruction().isForcedBranch() || LCSAJPool
+							.isLCSAJBranch(b))) {
+						// Identify vertex in CFG
+						goals.add(new BranchCoverageTestFitness(
+								new BranchCoverageGoal(b, true, className,
+										methodName)));
+						if (!b.isSwitchCaseBranch())
+							goals.add(new BranchCoverageTestFitness(
+									new BranchCoverageGoal(b, false, className,
+											methodName)));
+					}
 				}
 			}
 		}

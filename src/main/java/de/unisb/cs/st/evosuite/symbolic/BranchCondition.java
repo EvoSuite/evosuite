@@ -30,11 +30,11 @@ import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
 public class BranchCondition {
 	public Instruction ins;
 
-	public final Set<Constraint> reachingConstraints;
-	public final Set<Constraint> localConstraints;
+	public final Set<Constraint<?>> reachingConstraints;
+	public final Set<Constraint<?>> localConstraints;
 
-	public BranchCondition(Instruction ins, Set<Constraint> reachingConstraints,
-	        Set<Constraint> localConstraints) {
+	public BranchCondition(Instruction ins, Set<Constraint<?>> reachingConstraints,
+	        Set<Constraint<?>> localConstraints) {
 		this.ins = ins;
 		this.reachingConstraints = reachingConstraints;
 		this.localConstraints = localConstraints;
@@ -45,7 +45,7 @@ public class BranchCondition {
 		String ret = "Branch condition with " + reachingConstraints.size()
 		        + " reaching constraints and " + localConstraints.size()
 		        + " local constraints: ";
-		for (Constraint c : localConstraints) {
+		for (Constraint<?> c : localConstraints) {
 			ret += " " + c;
 		}
 

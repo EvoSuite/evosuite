@@ -9,7 +9,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cvc3.Expr;
 import cvc3.FlagsMut;
@@ -24,7 +25,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
  */
 public class CVC3Solver extends Thread implements Solver {
 
-	private static Logger logger = Logger.getLogger(Solver.class);
+	private static Logger logger = LoggerFactory.getLogger(Solver.class);
 
 	private ValidityChecker vc = null;
 
@@ -38,7 +39,7 @@ public class CVC3Solver extends Thread implements Solver {
 	 * @see de.unisb.cs.st.evosuite.symbolic.Solver#getModel(java.util.Collection)
 	 */
 	@Override
-	public Map<String, Object> getModel(Collection<Constraint> constraints) {
+	public Map<String, Object> getModel(Collection<Constraint<?>> constraints) {
 		Map<String, Object> result = null;
 		initializeSolver();
 		vc.push();
@@ -61,11 +62,11 @@ public class CVC3Solver extends Thread implements Solver {
 	 * @see de.unisb.cs.st.evosuite.symbolic.Solver#solve(java.util.Collection)
 	 */
 	@Override
-	public boolean solve(Collection<Constraint> constraints) {
+	public boolean solve(Collection<Constraint<?>> constraints) {
 		initializeSolver();
 		vc.push();
 		Expr cvc3Expr = cvc3.convert(constraints);
-		logger.info("Checking new expression: " + cvc3Expr);
+		logger.debug("Checking new expression: " + cvc3Expr);
 		SatResult result = vc.checkUnsat(cvc3Expr);
 		deinitialize();
 		if (result == SatResult.SATISFIABLE)

@@ -43,6 +43,7 @@ public class HashTableSet<E> extends AbstractSet<E> implements Cloneable, Set<E>
 		return super.containsAll(c);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object clone() {
 		HashTableSet<E> ret = new HashTableSet<E>();

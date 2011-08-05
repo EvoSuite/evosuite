@@ -36,6 +36,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
  *
  */
 public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
+	private static final long serialVersionUID = 1L;
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#getFitness(de.unisb.cs.st.evosuite.ga.Chromosome)
@@ -64,7 +65,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			double goalFitness = 2.0;
 			for(ExecutionResult result : results) {
 				TestChromosome tc = new TestChromosome();
-				tc.test = result.test;
+				tc.setTestCase(result.test);
 				double resultFitness = goal.getFitness(tc,result);
 				if(resultFitness<goalFitness)
 					goalFitness=resultFitness;

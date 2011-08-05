@@ -26,14 +26,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.testcase.OutputTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 public class PrimitiveFieldTrace extends OutputTrace {
 
-	private final Logger logger = Logger.getLogger(PrimitiveFieldTrace.class);
+	private final static Logger logger = LoggerFactory.getLogger(PrimitiveFieldTrace.class);
 
 	public Map<Integer, List<Object>> trace = new HashMap<Integer, List<Object>>();
 	public Map<Type, List<Field>> fields = new HashMap<Type, List<Field>>();

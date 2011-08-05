@@ -10,11 +10,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
-import de.unisb.cs.st.evosuite.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 
@@ -24,7 +25,7 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondit
  */
 public class FitnessLogger implements SearchListener {
 
-	private static Logger logger = Logger.getLogger(FitnessLogger.class);
+	private static Logger logger = LoggerFactory.getLogger(FitnessLogger.class);
 
 	private final List<Integer> evaluations_history = new ArrayList<Integer>();
 
@@ -42,7 +43,7 @@ public class FitnessLogger implements SearchListener {
 	 * @see de.unisb.cs.st.evosuite.ga.SearchListener#searchStarted(de.unisb.cs.st.evosuite.ga.FitnessFunction)
 	 */
 	@Override
-	public void searchStarted(FitnessFunction objective) {
+	public void searchStarted(GeneticAlgorithm algorithm) {
 		evaluations = 0;
 		evaluations_history.clear();
 		statements_history.clear();
@@ -52,30 +53,31 @@ public class FitnessLogger implements SearchListener {
 		dir.mkdir();
 		name = Properties.REPORT_DIR
 		        + "/goals/"
-		        + objective.toString().replace(" ", "_").replace(":", "-").replace("(",
-		                                                                           "").replace(")",
-		                                                                                       "");
+		        + algorithm.getFitnessFunction().toString().replace(" ", "_").replace(":",
+		                                                                              "-").replace("(",
+		                                                                                           "").replace(")",
+		                                                                                                       "");
 	}
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.SearchListener#iteration(java.util.List)
 	 */
 	@Override
-	public void iteration(List<Chromosome> population) {
-		if (population.isEmpty())
+	public void iteration(GeneticAlgorithm algorithm) {
+		if (algorithm.getPopulation().isEmpty())
 			return;
 
 		evaluations_history.add(evaluations);
 		statements_history.add(MaxStatementsStoppingCondition.getNumExecutedStatements());
-		fitness_history.add(population.get(0).getFitness());
-		size_history.add(population.get(0).size());
+		fitness_history.add(algorithm.getBestIndividual().getFitness());
+		size_history.add(algorithm.getBestIndividual().size());
 	}
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.SearchListener#searchFinished(java.util.List)
 	 */
 	@Override
-	public void searchFinished(List<Chromosome> population) {
+	public void searchFinished(GeneticAlgorithm algorithm) {
 		if (name == null)
 			return;
 

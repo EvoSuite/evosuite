@@ -1,6 +1,7 @@
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
 public class RealConstant extends RealExpression{
+	private static final long serialVersionUID = 1L;
 	
 	protected double value;
 

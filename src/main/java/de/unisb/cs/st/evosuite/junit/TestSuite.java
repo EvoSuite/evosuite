@@ -34,14 +34,14 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
@@ -51,6 +51,7 @@ import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
  * Abstract test suite class.
@@ -60,7 +61,7 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  */
 public class TestSuite implements Opcodes {
 
-	private final Logger logger = Logger.getLogger(TestSuite.class);
+	private final static Logger logger = LoggerFactory.getLogger(TestSuite.class);
 
 	protected List<TestCase> test_cases = new ArrayList<TestCase>();
 
@@ -101,11 +102,10 @@ public class TestSuite implements Opcodes {
 		try {
 			logger.debug("Executing test");
 			result = executor.execute(test);
-			executor.setLogging(true);
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
-			logger.fatal("TG: Exception caught: ", e);
+			logger.error("TG: Exception caught: ", e);
 			System.exit(1);
 		}
 
@@ -205,13 +205,15 @@ public class TestSuite implements Opcodes {
 		builder.append("Test case number: " + num);
 
 		if (!coveredGoals.isEmpty()) {
-			builder.append("\n  /* ");
+			builder.append("\n  /*\n");
+			builder.append("   * ");
 			builder.append(coveredGoals.size() + " covered goal");
 			if (coveredGoals.size() != 1)
 				builder.append("s");
+			builder.append(":");
 			int nr = 1;
 			for (TestFitnessFunction goal : coveredGoals) {
-				builder.append("\n    * " + nr + " " + goal.toString());
+				builder.append("\n   * " + nr + " " + goal.toString());
 				// TODO only for debugging purposes
 				if (Properties.CRITERION == Criterion.DEFUSE
 				        && (goal instanceof DefUseCoverageTestFitness)) {
@@ -220,13 +222,13 @@ public class TestSuite implements Opcodes {
 						String traceInformation = duGoal.getCoveringTrace().toDefUseTraceInformation(duGoal.getGoalVariable(),
 						                                                                             duGoal.getCoveringObjectId());
 						traceInformation = traceInformation.replaceAll("\n", "");
-						builder.append("\n      * DUTrace: " + traceInformation);
+						builder.append("\n     * DUTrace: " + traceInformation);
 					}
 				}
 				nr++;
 			}
 
-			builder.append("\n  */");
+			builder.append("\n   */");
 		}
 
 		return builder.toString();
@@ -264,8 +266,10 @@ public class TestSuite implements Opcodes {
 		 * You should have received a copy of the GNU Lesser Public License
 		 * along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
 		 */
-		builder.append("package ");
-		builder.append(Properties.CLASS_PREFIX);
+		if (!Properties.CLASS_PREFIX.equals("")) {
+			builder.append("package ");
+			builder.append(Properties.CLASS_PREFIX);
+		}
 		// builder.append(Properties.PROJECT_PREFIX);
 
 		// String target_class =
@@ -289,9 +293,7 @@ public class TestSuite implements Opcodes {
 			builder.append("import java.util.HashSet;\n");
 		}
 
-		builder.append("import junit.framework.Test;\n");
 		builder.append("import junit.framework.TestCase;\n");
-		builder.append("import junit.framework.TestSuite;\n\n");
 		builder.append(getImports(results));
 
 		builder.append("public class ");
@@ -449,7 +451,8 @@ public class TestSuite implements Opcodes {
 	 * @return
 	 */
 	protected String mainDirectory(String directory) {
-		String dirname = directory + "/" + Properties.PROJECT_PREFIX.replace('.', '/'); // +"/GeneratedTests";
+		String dirname = directory + File.separator
+		        + Properties.PROJECT_PREFIX.replace('.', File.separatorChar); // +"/GeneratedTests";
 		File dir = new File(dirname);
 		logger.debug("Target directory: " + dirname);
 		dir.mkdirs();
@@ -469,15 +472,15 @@ public class TestSuite implements Opcodes {
 		// return;
 
 		StringBuilder builder = new StringBuilder();
-		builder.append("package ");
-		builder.append(Properties.PROJECT_PREFIX);
+		if (!Properties.PROJECT_PREFIX.equals("")) {
+			builder.append("package ");
+			builder.append(Properties.PROJECT_PREFIX);
+		}
 		// builder.append(".GeneratedTests;");
 		builder.append(";\n\n");
 		builder.append("import junit.framework.Test;\n");
 		builder.append("import junit.framework.TestCase;\n");
 		builder.append("import junit.framework.TestSuite;\n\n");
-		builder.append("import java.io.File;\n");
-		builder.append("import java.io.FilenameFilter;\n");
 
 		List<String> suites = new ArrayList<String>();
 
@@ -525,7 +528,7 @@ public class TestSuite implements Opcodes {
 		builder.append("    return suite;\n");
 		builder.append("  }\n");
 		builder.append("}\n");
-		Io.writeFile(builder.toString(), file);
+		Utils.writeFile(builder.toString(), file);
 	}
 
 	/**
@@ -539,7 +542,7 @@ public class TestSuite implements Opcodes {
 	public void writeTestSuite(String name, String directory) {
 		String dir = makeDirectory(directory);
 		File file = new File(dir + "/" + name + ".java");
-		Io.writeFile(getUnitTest(name), file);
+		Utils.writeFile(getUnitTest(name), file);
 
 		dir = mainDirectory(directory);
 		writeTestSuiteMainFile(dir);

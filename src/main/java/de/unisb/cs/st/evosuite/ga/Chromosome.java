@@ -18,10 +18,14 @@
 
 package de.unisb.cs.st.evosuite.ga;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.unisb.cs.st.evosuite.utils.PublicCloneable;
 
 /**
  * Abstract base class of chromosomes
@@ -29,20 +33,18 @@ import org.apache.log4j.Logger;
  * @author Gordon Fraser
  * 
  */
-public abstract class Chromosome implements Comparable<Chromosome> {
+public abstract class Chromosome implements Comparable<Chromosome>, Serializable,
+        PublicCloneable<Chromosome> {
 
-	protected static Logger logger = Logger.getLogger(Chromosome.class);
+	private static final long serialVersionUID = -6921897301005213358L;
 
-	/**
-	 * No GA without randomnes
-	 */
-	protected Randomness randomness = Randomness.getInstance();
+	protected static Logger logger = LoggerFactory.getLogger(Chromosome.class);
 
 	/**
 	 * Exception to handle the case when a mutation fails
 	 * 
 	 */
-	class MutationFailedException extends Exception {
+	static class MutationFailedException extends Exception {
 		private static final long serialVersionUID = 1667810363133452317L;
 	};
 
@@ -111,12 +113,12 @@ public abstract class Chromosome implements Comparable<Chromosome> {
 
 		while (c == 0 && objective < secondaryObjectives.size()) {
 			SecondaryObjective so = secondaryObjectives.get(objective++);
-			if(so == null)
+			if (so == null)
 				break;
 			c = so.compareChromosomes(this, o);
 		}
-		logger.debug("Comparison: " + fitness + "/" + size() + " vs "
-		        + o.fitness + "/" + o.size() + " = " + c);
+		//logger.debug("Comparison: " + fitness + "/" + size() + " vs " + o.fitness + "/"
+		//        + o.size() + " = " + c);
 		return c;
 	}
 
@@ -145,8 +147,18 @@ public abstract class Chromosome implements Comparable<Chromosome> {
 	 * @param position2
 	 * @throws ConstructionFailedException
 	 */
-	public abstract void crossOver(Chromosome other, int position1,
-	        int position2) throws ConstructionFailedException;
+	public abstract void crossOver(Chromosome other, int position1, int position2)
+	        throws ConstructionFailedException;
+
+	/**
+	 * Apply the local search
+	 */
+	public abstract void localSearch(LocalSearchObjective objective);
+
+	/**
+	 * Apply DSE
+	 */
+	public abstract void applyDSE();
 
 	/**
 	 * Return length of individual

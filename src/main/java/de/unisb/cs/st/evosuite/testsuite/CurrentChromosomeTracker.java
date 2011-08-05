@@ -3,11 +3,9 @@
  */
 package de.unisb.cs.st.evosuite.testsuite;
 
-import java.util.List;
-
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
-import de.unisb.cs.st.evosuite.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
@@ -38,6 +36,7 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("rawtypes")
 	public static CurrentChromosomeTracker<?> getInstance() {
 		if (instance == null)
 			instance = new CurrentChromosomeTracker();
@@ -53,7 +52,7 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 	 * .evosuite.ga.FitnessFunction)
 	 */
 	@Override
-	public void searchStarted(FitnessFunction objective) {
+	public void searchStarted(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -64,7 +63,7 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 	 * @see de.unisb.cs.st.evosuite.ga.SearchListener#iteration(java.util.List)
 	 */
 	@Override
-	public void iteration(List<Chromosome> population) {
+	public void iteration(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -76,7 +75,7 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 	 * de.unisb.cs.st.evosuite.ga.SearchListener#searchFinished(java.util.List)
 	 */
 	@Override
-	public void searchFinished(List<Chromosome> population) {
+	public void searchFinished(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -115,12 +114,13 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 		if (Properties.CALL_PROBABILITY > 0) {
 			TestSuiteChromosome suite = (TestSuiteChromosome) currentSuite;
 			for (TestChromosome test : suite.tests) {
-				if (test == changed || changed.test == test.test)
+				if (test == changed || changed.getTestCase() == test.getTestCase())
 					continue;
-				for (StatementInterface s : test.test) {
+				for (StatementInterface s : test.getTestCase()) {
 					if (s instanceof TestCallStatement) {
 						TestCallStatement call = (TestCallStatement) s;
-						if (call.getTest() != null && call.getTest().equals(changed.test)) {
+						if (call.getTest() != null
+						        && call.getTest().equals(changed.getTestCase())) {
 							if (!test.isChanged())
 								test.setChanged(true);
 							break;

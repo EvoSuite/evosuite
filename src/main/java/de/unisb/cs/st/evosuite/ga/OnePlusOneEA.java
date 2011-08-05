@@ -26,12 +26,14 @@ package de.unisb.cs.st.evosuite.ga;
  */
 public class OnePlusOneEA extends GeneticAlgorithm {
 
+	private static final long serialVersionUID = 5229089847512798127L;
+
 	/**
 	 * Constructor
 	 * 
 	 * @param factory
 	 */
-	public OnePlusOneEA(ChromosomeFactory factory) {
+	public OnePlusOneEA(ChromosomeFactory<? extends Chromosome> factory) {
 		super(factory);
 	}
 
@@ -48,29 +50,35 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 
 		fitness_function.getFitness(offspring);
 		notifyEvaluation(offspring);
+		//logger.info("New individual: " + offspring);
 
 		if (isBetterOrEqual(offspring, parent)) {
-			logger.debug("Replacing old population");
+			//logger.info("Replacing old population");
 			population.set(0, offspring);
 		} else {
-			logger.debug("Keeping old population");
+			//logger.info("Keeping old population");
 		}
 		current_iteration++;
 	}
 
 	@Override
-	public void generateSolution() {
+	public void initializePopulation() {
 		notifySearchStarted();
-
 		current_iteration = 0;
 
 		// Only one parent
 		generateRandomPopulation(1);
 		fitness_function.getFitness(population.get(0));
-		double fitness = population.get(0).getFitness();
 		this.notifyIteration();
 		logger.info("Initial fitness: " + population.get(0).getFitness());
+	}
 
+	@Override
+	public void generateSolution() {
+		if (population.isEmpty())
+			initializePopulation();
+
+		double fitness = population.get(0).getFitness();
 		while (!isFinished()) {
 			if ((selection_function.isMaximize() && getBestIndividual().getFitness() > fitness)
 			        || (!selection_function.isMaximize() && getBestIndividual().getFitness() < fitness)) {
@@ -79,6 +87,13 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 				fitness = population.get(0).getFitness();
 			}
 			evolve();
+
+			if (shouldApplyDSE())
+				applyDSE();
+
+			if (shouldApplyLocalSearch())
+				applyLocalSearch();
+
 			this.notifyIteration();
 		}
 		notifySearchFinished();

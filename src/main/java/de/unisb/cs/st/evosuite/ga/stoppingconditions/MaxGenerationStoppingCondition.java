@@ -18,10 +18,8 @@
 
 package de.unisb.cs.st.evosuite.ga.stoppingconditions;
 
-import java.util.List;
-
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 
 /**
  * Stop search after a predefined number of iterations
@@ -30,6 +28,8 @@ import de.unisb.cs.st.evosuite.ga.Chromosome;
  * 
  */
 public class MaxGenerationStoppingCondition extends StoppingCondition {
+
+	private static final long serialVersionUID = 251196904115160351L;
 
 	/** Maximum number of iterations */
 	protected int max_iterations = Properties.GENERATIONS;
@@ -45,7 +45,7 @@ public class MaxGenerationStoppingCondition extends StoppingCondition {
 	 * Increase iteration counter
 	 */
 	@Override
-	public void iteration(List<Chromosome> population) {
+	public void iteration(GeneticAlgorithm algorithm) {
 		current_iteration++;
 	}
 
@@ -60,7 +60,7 @@ public class MaxGenerationStoppingCondition extends StoppingCondition {
 	}
 
 	@Override
-	public void searchFinished(List<Chromosome> population) {
+	public void searchFinished(GeneticAlgorithm algorithm) {
 		current_iteration = 0;
 	}
 
@@ -70,15 +70,6 @@ public class MaxGenerationStoppingCondition extends StoppingCondition {
 	@Override
 	public void reset() {
 		current_iteration = 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.ga.SearchListener#fitnessEvaluation(java.util.List)
-	 */
-	@Override
-	public void fitnessEvaluation(Chromosome individual) {
-		// TODO Auto-generated method stub
-
 	}
 
 	/* (non-Javadoc)

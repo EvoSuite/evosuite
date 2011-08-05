@@ -10,7 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.smtlib.CharSequenceReader;
 import org.smtlib.ICommand;
 import org.smtlib.IExpr;
@@ -41,13 +42,15 @@ public class SMTSolver {
 
 	private ICommand modelCommand;
 
+	@SuppressWarnings("unused")
 	private final ISort boolSort;
 
 	private final ISort intSort;
 
+	@SuppressWarnings("unused")
 	private final ISort bv32Sort;
 
-	private static Logger logger = Logger.getLogger(SMTSolver.class);
+	private static Logger logger = LoggerFactory.getLogger(SMTSolver.class);
 
 	public SMTSolver() {
 		solver = new org.smtlib.solvers.Solver_cvc(smt.smtConfig,
@@ -95,7 +98,7 @@ public class SMTSolver {
 		solver.exit();
 	}
 
-	public void solve(Set<Constraint> constraints) {
+	public void solve(Set<Constraint<?>> constraints) {
 		ICommand.IScript script = new org.smtlib.impl.Script();
 		SMTConverter converter = new SMTConverter();
 		solver.set_option(smt.smtConfig.exprFactory.keyword(":produce-models"),

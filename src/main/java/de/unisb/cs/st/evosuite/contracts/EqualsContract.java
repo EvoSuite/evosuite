@@ -3,7 +3,8 @@
  */
 package de.unisb.cs.st.evosuite.contracts;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
@@ -16,7 +17,8 @@ import de.unisb.cs.st.evosuite.testcase.StatementInterface;
  */
 public class EqualsContract extends Contract {
 
-	private static Logger logger = Logger.getLogger(Contract.class);
+	@SuppressWarnings("unused")
+	private static Logger logger = LoggerFactory.getLogger(Contract.class);
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.contracts.Contract#check(de.unisb.cs.st.evosuite.testcase.TestCase, de.unisb.cs.st.evosuite.testcase.Statement, de.unisb.cs.st.evosuite.testcase.Scope, java.lang.Throwable)

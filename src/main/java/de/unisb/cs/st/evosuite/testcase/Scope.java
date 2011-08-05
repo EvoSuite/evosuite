@@ -39,7 +39,7 @@ import java.util.Set;
  */
 public class Scope {
 
-	Map<VariableReference, Object> pool;
+	private final Map<VariableReference, Object> pool;
 
 	/**
 	 * Constructor
@@ -56,22 +56,23 @@ public class Scope {
 	 * @param o
 	 *            Value
 	 */
-	public synchronized void set(VariableReference reference, Object o) {
+	public synchronized void setObject(VariableReference reference, Object o) {
 
 		// Learn some dynamic information about this object
 		if (reference instanceof ArrayReference) {
-			ArrayReference arrayRef = (ArrayReference)reference;
+			ArrayReference arrayRef = (ArrayReference) reference;
 			if (o != null && !o.getClass().isArray())
 				System.out.println("Trying to access object of class " + o.getClass()
 				        + " as array: " + o);
-			else if (o != null)
+			else if (o != null) {
 				arrayRef.setArrayLength(Array.getLength(o));
-			else
+			} else
 				arrayRef.setArrayLength(0);
 		}
 
+		// TODO: Changing array types might invalidate array assignments - how to treat this properly?
 		if (o != null && !o.getClass().equals(reference.getVariableClass())
-		        && !reference.isPrimitive()) {
+		        && !reference.isPrimitive()) { // && !(reference instanceof ArrayReference)) {
 			if (Modifier.isPublic(o.getClass().getModifiers()))
 				reference.setType(o.getClass());
 		}
@@ -95,17 +96,8 @@ public class Scope {
 	 *            VariableReference we are looking for
 	 * @return Current value of reference
 	 */
-	public synchronized Object get(VariableReference reference) {
-		if (reference instanceof ArrayIndex) {
-			ArrayIndex arrayRef = (ArrayIndex)reference;
-			Object array = pool.get(arrayRef.getArray());
-			if (array != null) {
-				return Array.get(array, arrayRef.getArrayIndex());
-			} else {
-				return null;
-			}
-		} else
-			return pool.get(reference);
+	public synchronized Object getObject(VariableReference reference) {
+		return pool.get(reference);
 	}
 
 	/**
@@ -146,6 +138,7 @@ public class Scope {
 	 * 
 	 * @return Collection of all Objects
 	 */
+	// TODO: Need to add all fields and stuff as well?
 	public Collection<Object> getObjects(Type type) {
 		Set<Object> objects = new HashSet<Object>();
 		for (Object o : pool.values()) {

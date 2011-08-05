@@ -18,42 +18,38 @@
 
 package de.unisb.cs.st.evosuite.cfg;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.jgrapht.graph.DefaultDirectedGraph;
-
-import de.unisb.cs.st.evosuite.mutation.Mutateable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract base class for both forms of CFGs inside EvoSuite
  * 
- * One implementation of this is cfg.RawControlFlowGraph, 
- * which is also known as the complete CFG
- * The other implementation of this is cfg.ActualControlFlowGraph
- * which is also known as the minimal CFG
- * Look at the respective classes for more detailed information
+ * One implementation of this is cfg.RawControlFlowGraph, which is also known as
+ * the complete CFG The other implementation of this is
+ * cfg.ActualControlFlowGraph which is also known as the minimal CFG Look at the
+ * respective classes for more detailed information
  * 
- * The CFGs can be accessed via the CFGPool which holds for each
- * CUT and each of their methods a complete and a minimal CFG
+ * The CFGs can be accessed via the CFGPool which holds for each CUT and each of
+ * their methods a complete and a minimal CFG
  * 
- * CFGs are created by the CFGGenerator during the analysis of
- * the CUTs' byteCode performed by the BytecodeAnalyzer 
+ * CFGs are created by the CFGGenerator during the analysis of the CUTs'
+ * byteCode performed by the BytecodeAnalyzer
  * 
  * @author Gordon Fraser, Andre Mis
  */
-public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGraph<V,ControlFlowEdge> {
+public abstract class ControlFlowGraph<V> extends EvoSuiteGraph<V, ControlFlowEdge> {
 
-	private static Logger logger = Logger.getLogger(ControlFlowGraph.class);
+	private static Logger logger = LoggerFactory.getLogger(ControlFlowGraph.class);
 
 	protected String className;
 	protected String methodName;
-	
+
 	private int diameter = -1;
 
 	/**
@@ -61,10 +57,10 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 	 */
 	protected ControlFlowGraph(String className, String methodName) {
 		super(ControlFlowEdge.class);
-		
+
 		if (className == null || methodName == null)
 			throw new IllegalArgumentException("null given");
-		
+
 		this.className = className;
 		this.methodName = methodName;
 	}
@@ -73,162 +69,108 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 	 * Creates a CFG determined by the given jGraph for the given class and
 	 * method
 	 */
-	protected ControlFlowGraph(String className, String methodName, DefaultDirectedGraph<V,ControlFlowEdge> jGraph) {
+	protected ControlFlowGraph(String className, String methodName,
+	        DefaultDirectedGraph<V, ControlFlowEdge> jGraph) {
 		super(jGraph, ControlFlowEdge.class);
-		
+
 		if (className == null || methodName == null)
 			throw new IllegalArgumentException("null given");
-		
+
 		this.className = className;
 		this.methodName = methodName;
 	}
 
 	public boolean leadsToNode(ControlFlowEdge e, V b) {
-		
+
 		Set<V> handled = new HashSet<V>();
-		
+
 		Queue<V> queue = new LinkedList<V>();
 		queue.add(getEdgeTarget(e));
-		while(!queue.isEmpty()) {
+		while (!queue.isEmpty()) {
 			V current = queue.poll();
-			if(handled.contains(current))
+			if (handled.contains(current))
 				continue;
 			handled.add(current);
-			
-			for(V next : getChildren(current))
-				if(next.equals(b))
+
+			for (V next : getChildren(current))
+				if (next.equals(b))
 					return true;
 				else
 					queue.add(next);
 		}
-		
+
 		return false;
 	}
-	
-	
+
 	/**
-	 * Can be used to retrieve a Branch contained in this CFG identified by it's branchId
+	 * Can be used to retrieve a Branch contained in this CFG identified by it's
+	 * branchId
 	 * 
-	 *  If no such branch exists in this CFG, null is returned
+	 * If no such branch exists in this CFG, null is returned
 	 */
 	public abstract BytecodeInstruction getBranch(int branchId);
 
 	/**
-	 * Can be used to retrieve an instruction contained in this CFG identified by it's instructionId
+	 * Can be used to retrieve an instruction contained in this CFG identified
+	 * by it's instructionId
 	 * 
-	 *  If no such instruction exists in this CFG, null is returned
+	 * If no such instruction exists in this CFG, null is returned
 	 */
 	public abstract BytecodeInstruction getInstruction(int instructionId);
-	
+
 	/**
-	 * Determines, whether a given instruction is contained in this CFG 
+	 * Determines, whether a given instruction is contained in this CFG
 	 */
 	public abstract boolean containsInstruction(BytecodeInstruction instruction);
 
-	
 	/**
 	 * Computes the diameter of this CFG and the mutation distances
 	 * 
 	 * Since both takes some time this is not automatically done on each CFG
 	 * 
-	 * CFGPool will automatically call this immediately after the instantiation of an 
-	 * ActualControlFlowGraph, but not after the creation of a RawControlFlowGraph 
+	 * CFGPool will automatically call this immediately after the instantiation
+	 * of an ActualControlFlowGraph, but not after the creation of a
+	 * RawControlFlowGraph
 	 */
-	public void finalize() {
+	public void finalise() {
 		computeDiameter();
-		calculateMutationDistances();
 		// TODO: call this! 
 		// 	and sanity check with a flag whenever a call 
 		//  to this method is assumed to have been made
-	}
-	
-	/**
-	 * For each node within this CFG that is known to contain a mutation
-	 * the distance from each node of this CFG to the that mutated node 
-	 * is computed using getDistance() and those result are then stored
-	 * in that mutated node  
-	 */
-	private void calculateMutationDistances() {
-		logger.trace("Calculating mutation distances");
-		for (V m : vertexSet())
-			if (m.isMutation())
-				for (Long id : m.getMutationIds())
-					for (V v : vertexSet()) {
-						int distance = getDistance(v,m);
-						if (distance >= 0)
-							v.setDistance(id, distance);
-						else
-							v.setDistance(id, getDiameter());
-					}
-	}
-	
-	/**
-	 * Returns the node of this CFG that contains the mutation identified
-	 * by the given mutationId
-	 * 
-	 *   If no such node exists, null is returned
-	 */
-	public V getMutation(long mutationId) {
-		for (V v : vertexSet())
-			if (v.hasMutation(mutationId))
-				return v;
-
-		return null;
-	}
-
-	/**
-	 * Returns a list of all mutationIds contained within this CFG
-	 * 
-	 *   TODO why isn't the return-type a set? where does the order come from?
-	 */
-	public List<Long> getMutations() {
-		List<Long> ids = new ArrayList<Long>();
-		for (V v : vertexSet()) {
-			if (v.isMutation())
-				ids.addAll(v.getMutationIds());
-		}
-		return ids;
-	}
-
-	/**
-	 * Checks whether the mutation identified by the given mutationId
-	 * is contained in this CFG 
-	 */
-	public boolean containsMutation(long id) {
-		for (V v : vertexSet()) {
-			if (v.isMutation() && v.hasMutation(id))
-				return true;
-		}
-		return false;
 	}
 
 	/**
 	 * Returns the Diameter of this CFG
 	 * 
-	 *  If the diameter of this graph was not computed previously it is computed first 
+	 * If the diameter of this graph was not computed previously it is computed
+	 * first
 	 */
 	public int getDiameter() {
-		if(diameter == -1) {
+		if (diameter == -1) {
 			logger.debug("diameter not computed yet. calling computeDiameter() first!");
 			computeDiameter();
 		}
-		
+
 		return diameter;
 	}
 
 	protected void computeDiameter() {
-		FloydWarshall<V, ControlFlowEdge> f = new FloydWarshall<V, ControlFlowEdge>(
-		        graph);
+		// The diameter is just an upper bound for the approach level
+		// Let's try to use something that's easier to compute than FLoydWarshall
+		diameter = this.edgeCount();
+		/*
+		FloydWarshall<V, ControlFlowEdge> f = new FloydWarshall<V, ControlFlowEdge>(graph);
 		diameter = (int) f.getDiameter();
+		*/
 	}
 
 	protected V determineEntryPoint() {
 		Set<V> candidates = determineEntryPoints();
 
-		if(candidates.size() > 1)
+		if (candidates.size() > 1)
 			throw new IllegalStateException(
-					"expect CFG of a method to contain at most one instruction with no parent");
-		
+			        "expect CFG of a method to contain at most one instruction with no parent");
+
 		for (V instruction : candidates)
 			return instruction;
 
@@ -249,7 +191,7 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 			}
 		if (r.isEmpty())
 			throw new IllegalStateException(
-					"expect CFG of a method to contain at least one instruction with no child");
+			        "expect CFG of a method to contain at least one instruction with no child");
 
 		return r;
 	}
@@ -261,9 +203,9 @@ public abstract class ControlFlowGraph<V extends Mutateable> extends EvoSuiteGra
 	public String getMethodName() {
 		return methodName;
 	}
-	
+
 	@Override
 	public String getName() {
-		return "CFG "+className+"."+getMethodName();
+		return "CFG " + className + "." + methodName;
 	}
 }

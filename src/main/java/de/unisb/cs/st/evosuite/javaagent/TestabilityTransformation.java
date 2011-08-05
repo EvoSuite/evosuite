@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -32,8 +31,8 @@ import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.tree.analysis.Analyzer;
 import org.objectweb.asm.tree.analysis.BasicValue;
 import org.objectweb.asm.tree.analysis.Frame;
-
-import de.unisb.cs.st.evosuite.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Gordon Fraser
@@ -42,7 +41,7 @@ import de.unisb.cs.st.evosuite.Properties;
 // TODO: If we transform a method and there already is a method with the transformed descriptor, we need to change the method name as well!
 public class TestabilityTransformation {
 
-	static Logger logger = Logger.getLogger(TestabilityTransformation.class);
+	static Logger logger = LoggerFactory.getLogger(TestabilityTransformation.class);
 
 	private final ClassNode cn;
 
@@ -93,9 +92,10 @@ public class TestabilityTransformation {
 		return cn;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void processFields() {
 		List<FieldNode> fieldNodes = cn.fields;
-		int i = 0;
+
 		for (FieldNode fn : fieldNodes) {
 			logger.info("Transforming field " + fn.name + " - " + fn.desc);
 			fn.desc = mapping.getFieldDesc(cn.name, fn.name, fn.desc);
@@ -106,23 +106,24 @@ public class TestabilityTransformation {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void processMethods() {
 		List<MethodNode> methodNodes = cn.methods;
 		int count = 0;
 		int defs = flagDefs.size();
 		for (MethodNode mn : methodNodes) {
-				// If this method was defined somewhere outside the test package, do not transform signature
-				String desc = mn.desc;
-				mn.desc = mapping.getMethodDesc(cn.name, mn.name, mn.desc);
-				//mn.desc = mn.desc.replaceAll(Matcher.quoteReplacement("java/util"),
-				//                            "java2/util2");
-				//
-				mn.name = mapping.getMethodName(cn.name, mn.name, desc);
-				logger.info("Now going inside " + mn.name + mn.desc);
-				// Actually this should be done automatically by the ClassWriter...
-				// +2 because we might do a DUP2
-				mn.maxStack += 3;
-			
+			// If this method was defined somewhere outside the test package, do not transform signature
+			String desc = mn.desc;
+			mn.desc = mapping.getMethodDesc(cn.name, mn.name, mn.desc);
+			//mn.desc = mn.desc.replaceAll(Matcher.quoteReplacement("java/util"),
+			//                            "java2/util2");
+			//
+			mn.name = mapping.getMethodName(cn.name, mn.name, desc);
+			logger.info("Now going inside " + mn.name + mn.desc);
+			// Actually this should be done automatically by the ClassWriter...
+			// +2 because we might do a DUP2
+			mn.maxStack += 3;
+
 			count += transformMethod(mn);
 
 		}
@@ -314,17 +315,16 @@ public class TestabilityTransformation {
 		return false;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void transformLocalVariables(MethodNode mn) {
 		logger.info("Transforming local variables");
 		List<LocalVariableNode> variables = mn.localVariables;
 		if (variables == null)
 			return;
-		int num = 0;
 		for (LocalVariableNode var : variables) {
 			if (Type.getType(var.desc).equals(Type.BOOLEAN_TYPE)) {
 				var.desc = Type.INT_TYPE.getDescriptor();
 			}
-			num++;
 		}
 	}
 
@@ -703,7 +703,7 @@ public class TestabilityTransformation {
 				// TODO: This doesn't belong in here
 				TypeInsnNode tn = (TypeInsnNode) node;
 				if (tn.getOpcode() == Opcodes.INSTANCEOF) {
-					Type t = Type.getType("L" + tn.desc + ";");
+					// Type t = Type.getType("L" + tn.desc + ";");
 					logger.info("Class version " + cn.version);
 					if (cn.version > 49) {
 						LdcInsnNode lin = new LdcInsnNode(Type.getType("L" + tn.desc
@@ -850,6 +850,7 @@ public class TestabilityTransformation {
 	}
 
 	// TODO: Do we need to transform the IF expression after this (probably not)
+	@SuppressWarnings("unused")
 	private void transformComparisons(MethodNode mn) {
 		logger.info("Transforming comparisons");
 
@@ -881,6 +882,7 @@ public class TestabilityTransformation {
 	 * 
 	 * @param mn
 	 */
+	@SuppressWarnings("unchecked")
 	private void transformStrings(MethodNode mn) {
 		ListIterator<AbstractInsnNode> iterator = mn.instructions.iterator();
 		while (iterator.hasNext()) {
@@ -1039,6 +1041,7 @@ public class TestabilityTransformation {
 				if (!(fn.getPrevious().getPrevious() instanceof VarInsnNode))
 					return; // TODO: How is this possible? java.math.MutableBigInteger
 				VarInsnNode vn = (VarInsnNode) fn.getPrevious().getPrevious();
+				@SuppressWarnings("unused")
 				AbstractInsnNode m = node.getNext();
 				logger.info("Found variable to store: ");
 				LabelNode l = new LabelNode();
@@ -1412,6 +1415,7 @@ public class TestabilityTransformation {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	private void transformBooleanReturns(MethodNode mn) {
 		Type type = Type.getReturnType(mapping.getMethodDesc(cn.name, mn.name, mn.desc));
 		if (type.equals(Type.BOOLEAN_TYPE)) {
@@ -1466,6 +1470,7 @@ public class TestabilityTransformation {
 		logger.info("Transforming method " + mn.name + mn.desc);
 		int before = flagUses.size();
 
+		@SuppressWarnings("unused")
 		MethodInsnNode reset = new MethodInsnNode(Opcodes.INVOKESTATIC,
 		        Type.getInternalName(BooleanHelper.class), "clearPredicates",
 		        Type.getMethodDescriptor(Type.VOID_TYPE, new Type[] {}));
@@ -1479,13 +1484,12 @@ public class TestabilityTransformation {
 
 		logger.info("Transforming ELSE");
 		// Now unfold implicit else branches
+
 		transformImplicitElse(mn);
 		transformImplicitElseField(mn);
 		transformImplicitElseStaticField(mn);
-
 		// Change comparisons of non-int values to distance functions
-		transformComparisons(mn);
-
+		//		transformComparisons(mn); // Done in ComparisonTransformation
 		transformStrings(mn);
 
 		// Remove flag definitions

@@ -18,16 +18,18 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
-import java.util.List;
-
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
 import de.unisb.cs.st.evosuite.coverage.concurrency.Schedule;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.ga.LocalSearchBudget;
+import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
 import de.unisb.cs.st.evosuite.symbolic.ConcolicMutation;
 import de.unisb.cs.st.evosuite.testsuite.CurrentChromosomeTracker;
+import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * Chromosome representation of test cases
@@ -35,10 +37,12 @@ import de.unisb.cs.st.evosuite.testsuite.CurrentChromosomeTracker;
  * @author Gordon Fraser
  * 
  */
-public class TestChromosome extends Chromosome {
+public class TestChromosome extends ExecutableChromosome {
+
+	private static final long serialVersionUID = 7532366007973252782L;
 
 	/** The test case encoded in this chromosome */
-	public TestCase test = new DefaultTestCase();
+	protected TestCase test = new DefaultTestCase();
 
 	/** Factory to manipulate and generate method sequences */
 	private static AbstractTestFactory test_factory = null;
@@ -54,13 +58,19 @@ public class TestChromosome extends Chromosome {
 		}
 	}
 
-	public ExecutionResult last_result = null;
+	public void setTestCase(TestCase testCase) {
+		test = testCase;
+	}
 
-	/*
-	 * public TestChromosome(TestFactory test_factory, TestMutationFactory
-	 * mutation_factory) { this.test_factory = test_factory;
-	 * this.mutation_factory = mutation_factory; }
-	 */
+	public TestCase getTestCase() {
+		return test;
+	}
+
+	@Override
+	public void setChanged(boolean changed) {
+		super.setChanged(changed);
+		CurrentChromosomeTracker.getInstance().changed(this);
+	}
 
 	/**
 	 * Create a deep copy of the chromosome
@@ -69,13 +79,21 @@ public class TestChromosome extends Chromosome {
 	public Chromosome clone() {
 		TestChromosome c = new TestChromosome();
 		c.test = test.clone();
+		//assert (test.toCode().equals(c.test.toCode()));
+		assert (test.isValid());
+		try {
+			c.test.isValid();
+		} catch (Throwable t) {
+			logger.warn(c.test.toCode());
+		}
+		assert (c.test.isValid());
 
 		c.setFitness(getFitness());
 		c.solution = solution;
 		c.setChanged(isChanged());
-		if (last_result != null) {
-			c.last_result = last_result; //.clone(); // TODO: Clone?
-			c.last_result.test = c.test;
+		if (getLastExecutionResult() != null) {
+			c.setLastExecutionResult(this.lastExecutionResult); //.clone(); // TODO: Clone?
+			c.getLastExecutionResult().test = c.test;
 		}
 
 		return c;
@@ -103,7 +121,7 @@ public class TestChromosome extends Chromosome {
 		        || offspring.test.size() <= Properties.CHROMOSOME_LENGTH) {
 			test = offspring.test;
 		}
-		// logger.warn("Size exceeded!");
+
 		setChanged(true);
 	}
 
@@ -125,16 +143,51 @@ public class TestChromosome extends Chromosome {
 		return true;
 	}
 
-	/**
-	 * Determine relative ordering of this chromosome to another chromosome If
-	 * fitness is equal, the shorter chromosome comes first
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#localSearch()
 	 */
-	/*
-	 * public int compareTo(Chromosome o) { if(RANK_LENGTH && getFitness() ==
-	 * o.getFitness()) { return (int) Math.signum((size() -
-	 * ((TestChromosome)o).size())); } else return (int)
-	 * Math.signum(getFitness() - o.getFitness()); }
-	 */
+	@Override
+	public void localSearch(LocalSearchObjective objective) {
+		//logger.info("Test before local search: " + test.toCode());
+		double oldFitness = getFitness();
+
+		for (int i = 0; i < test.size(); i++) {
+			if (LocalSearchBudget.isFinished())
+				break;
+
+			if (test.getStatement(i) instanceof PrimitiveStatement<?>) {
+				Class<?> type = test.getReturnValue(i).getVariableClass();
+				LocalSearch search = null;
+				if (type.equals(Integer.class) || type.equals(int.class)) {
+					search = new IntegerLocalSearch<Integer>();
+				} else if (type.equals(Byte.class) || type.equals(byte.class)) {
+					search = new IntegerLocalSearch<Byte>();
+				} else if (type.equals(Short.class) || type.equals(short.class)) {
+					search = new IntegerLocalSearch<Short>();
+				} else if (type.equals(Long.class) || type.equals(long.class)) {
+					search = new IntegerLocalSearch<Long>();
+				} else if (type.equals(Character.class) || type.equals(char.class)) {
+					search = new IntegerLocalSearch<Character>();
+				} else if (type.equals(Float.class) || type.equals(float.class)) {
+					search = new FloatLocalSearch<Float>();
+				} else if (type.equals(Double.class) || type.equals(double.class)) {
+					search = new FloatLocalSearch<Double>();
+				} else if (type.equals(String.class)) {
+					search = new StringLocalSearch();
+				} else if (type.equals(Boolean.class)) {
+					search = new BooleanLocalSearch();
+				}
+
+				if (search != null)
+					search.doSearch(this, i, objective);
+			}
+		}
+		assert (getFitness() <= oldFitness);
+		//logger.info("Test after local search: " + test.toCode());
+
+		// TODO: Handle arrays in local search
+		// TODO: mutating an int might have an effect on array lengths
+	}
 
 	/**
 	 * Each statement is mutated with probability 1/l
@@ -151,18 +204,18 @@ public class TestChromosome extends Chromosome {
 			P = 1d / 6d;
 
 			// Delete from schedule
-			if (randomness.nextDouble() <= P) {
+			if (Randomness.nextDouble() <= P) {
 				changed = mutationDeleteSchedule();
 			}
 
 			// Change in schedule
-			if (randomness.nextDouble() <= P) {
+			if (Randomness.nextDouble() <= P) {
 				if (mutationChangeSchedule())
 					changed = true;
 			}
 
 			// Insert into schedule
-			if (randomness.nextDouble() <= P) {
+			if (Randomness.nextDouble() <= P) {
 				if (mutationInsertSchedule())
 					changed = true;
 			}
@@ -170,26 +223,29 @@ public class TestChromosome extends Chromosome {
 			P = 1d / 3d;
 		}
 
+		logger.debug("Mutation: delete");
 		// Delete
-		if (randomness.nextDouble() <= P) {
+		if (Randomness.nextDouble() <= P) {
 			changed = mutationDelete();
 		}
 
+		logger.debug("Mutation: change");
 		// Change
-		if (randomness.nextDouble() <= P) {
+		if (Randomness.nextDouble() <= P) {
 			if (mutationChange())
 				changed = true;
 		}
 
+		logger.debug("Mutation: insert");
 		// Insert
-		if (randomness.nextDouble() <= P) {
+		if (Randomness.nextDouble() <= P) {
 			if (mutationInsert())
 				changed = true;
 		}
 
 		if (changed) {
 			setChanged(true);
-			last_result = null;
+			setLastExecutionResult(null);
 		}
 	}
 
@@ -204,7 +260,7 @@ public class TestChromosome extends Chromosome {
 		for (int num = test.size() - 1; num >= 0; num--) {
 
 			// Each statement is deleted with probability 1/l
-			if (randomness.nextDouble() <= pl) {
+			if (Randomness.nextDouble() <= pl) {
 				// if(!test.hasReferences(test.getStatement(num).getReturnValue()))
 				// {
 				try {
@@ -239,7 +295,7 @@ public class TestChromosome extends Chromosome {
 		for (int num = schedule.size() - 1; num >= 0; num--) {
 
 			// Each schedulePoint is deleted with probability 1/l
-			if (randomness.nextDouble() <= pl) {
+			if (Randomness.nextDouble() <= pl) {
 				schedule.removeElement(num);
 				changed = true;
 			}
@@ -261,11 +317,11 @@ public class TestChromosome extends Chromosome {
 		final double ALPHA = 0.5;
 		int count = 0;
 
-		while (randomness.nextDouble() <= Math.pow(ALPHA, count)) { //#TODO steenbuck removed length check, should maybe be added (compare: mutateInsert)
+		while (Randomness.nextDouble() <= Math.pow(ALPHA, count)) { //#TODO steenbuck removed length check, should maybe be added (compare: mutateInsert)
 			count++;
 			// Insert at position as during initialization (i.e., using helper
 			// sequences)
-			int pos = (schedule.size() == 0) ? 0 : randomness.nextInt(schedule.size());
+			int pos = (schedule.size() == 0) ? 0 : Randomness.nextInt(schedule.size());
 			schedule.add(pos, schedule.getRandomThreadID());
 			changed = true;
 		}
@@ -285,7 +341,7 @@ public class TestChromosome extends Chromosome {
 		for (int num = schedule.size() - 1; num >= 0; num--) {
 
 			// Each schedulePoint is deleted with probability 1/l
-			if (randomness.nextDouble() <= pl) {
+			if (Randomness.nextDouble() <= pl) {
 				schedule.removeElement(num);
 				schedule.add(num, schedule.getRandomThreadID());
 				changed = true;
@@ -304,7 +360,7 @@ public class TestChromosome extends Chromosome {
 		boolean changed = false;
 		double pl = 1d / test.size();
 
-		if (randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
+		if (Randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
 			ConcolicMutation mutation = new ConcolicMutation();
 			changed = mutation.mutate(test);
 			if (changed) {
@@ -314,47 +370,17 @@ public class TestChromosome extends Chromosome {
 
 		if (!changed) {
 			for (StatementInterface statement : test) {
-				if (randomness.nextDouble() <= pl) {
-
-					if (statement instanceof PrimitiveStatement<?>) {
-						// do some mutation of values with what probability?
-
-						logger.debug("Old statement: " + statement.getCode());
-						if (randomness.nextDouble() <= 0.2)
-							((PrimitiveStatement<?>) statement).randomize();
-						else
-							((PrimitiveStatement<?>) statement).delta();
-
-						int position = statement.getReturnValue().getStPosition();
-						// test.setStatement(statement, position);
-						//logger.info("Changed test: " + test.toCode());
-						logger.debug("New statement: "
-						        + test.getStatement(position).getCode());
+				if (Randomness.nextDouble() <= pl) {
+					assert (test.isValid());
+					if (statement.mutate(test, test_factory)) {
 						changed = true;
-					} else if (statement instanceof AssignmentStatement) {
-						// logger.info("Before change at:");
-						// logger.info(test.toCode());
-						AssignmentStatement as = (AssignmentStatement) statement;
-						if (randomness.nextDouble() < 0.5) {
-							List<VariableReference> objects = test.getObjects(statement.getReturnValue().getType(),
-							                                                  statement.getReturnValue().getStPosition());
-							objects.remove(statement.getReturnValue());
-							objects.remove(as.parameter);
-							if (!objects.isEmpty()) {
-								as.parameter = randomness.choice(objects);
-								changed = true;
-							}
-						} else if (as.getArrayIndexRef().getArray().getArrayLength() > 0) {
-							as.getArrayIndexRef().setArrayIndex(randomness.nextInt(as.getArrayIndexRef().getArray().getArrayLength()));
+						assert (test.isValid());
+					} else if (!statement.isAssignmentStatement()) {
+						if (test_factory.changeRandomCall(test, statement))
 							changed = true;
-						}
-						// logger.info("After change:");
-						// logger.info(test.toCode());
-					} else if (statement.getReturnValue() instanceof ArrayReference) {
-
-					} else {
-						changed = test_factory.changeRandomCall(test, statement);
+						assert (test.isValid());
 					}
+					//					} else if (statement.getReturnValue() instanceof ArrayReference) {
 				}
 			}
 		}
@@ -372,7 +398,7 @@ public class TestChromosome extends Chromosome {
 		final double ALPHA = 0.5;
 		int count = 0;
 
-		while (randomness.nextDouble() <= Math.pow(ALPHA, count)
+		while (Randomness.nextDouble() <= Math.pow(ALPHA, count)
 		        && (!Properties.CHECK_MAX_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {
 			count++;
 			// Insert at position as during initialization (i.e., using helper
@@ -400,9 +426,18 @@ public class TestChromosome extends Chromosome {
 		return has_exception;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#applyDSE()
+	 */
 	@Override
-	public void setChanged(boolean changed) {
-		this.changed = changed;
-		CurrentChromosomeTracker.getInstance().changed(this);
+	public void applyDSE() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public ExecutionResult executeForFitnessFunction(
+	        TestSuiteFitnessFunction testSuiteFitnessFunction) {
+		return testSuiteFitnessFunction.runTest(this.test);
 	}
 }

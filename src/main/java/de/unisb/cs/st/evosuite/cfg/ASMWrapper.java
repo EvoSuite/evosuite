@@ -3,6 +3,7 @@ package de.unisb.cs.st.evosuite.cfg;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
@@ -14,77 +15,85 @@ import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.util.AbstractVisitor;
 
 // TODO: the following methods about control dependence are flawed right now:
-//			- the BytecodeInstruction of a Branch does not have it's control dependent branchId
-//				but it's own branchId set 
-//			- this seems to be OK for ChromosomeRecycling as it stands, but
-//				especially getControlDependentBranch() will fail hard when called on a Branch
-//				the same may hold for the other ones as well. 
-//			- look at BranchCoverageGoal and Branch for more information
-
+// - the BytecodeInstruction of a Branch does not have it's control dependent
+// branchId
+// but it's own branchId set
+// - this seems to be OK for ChromosomeRecycling as it stands, but
+// especially getControlDependentBranch() will fail hard when called on a Branch
+// the same may hold for the other ones as well.
+// - look at BranchCoverageGoal and Branch for more information
 
 /**
  * Wrapper class for the underlying byteCode instruction library ASM
  * 
- *  Gives access to a lot of methods that interpret the raw information in AbstractInsnNode
- *  to usable chunks of information, inside EvoSuite
- *  
- * This class is supposed to hide the ASM library from the rest of EvoSuite as much as possible
+ * Gives access to a lot of methods that interpret the raw information in
+ * AbstractInsnNode to usable chunks of information, inside EvoSuite
  * 
- * After initialization, all information about byteCode instructions should be accessible via
- * the BytecodeInstruction-, DefUse- and BranchPool. Each of those has data structures holding
- * all BytecodeInstruction, DefUse and Branch objects respectively created during initialization.
+ * This class is supposed to hide the ASM library from the rest of EvoSuite as
+ * much as possible
  * 
- * BytecodeInstruction directly extends ASMWrapper and is the first way to instantiate an ASMWrapper.
- * Branch and DefUse extend BytecodeInstruction, where DefUse is abstract and Branch is not ("concrete"?)
- * DefUse is further extended by Definition and Use
- *  
+ * After initialization, all information about byteCode instructions should be
+ * accessible via the BytecodeInstruction-, DefUse- and BranchPool. Each of
+ * those has data structures holding all BytecodeInstruction, DefUse and Branch
+ * objects respectively created during initialization.
+ * 
+ * BytecodeInstruction directly extends ASMWrapper and is the first way to
+ * instantiate an ASMWrapper. Branch and DefUse extend BytecodeInstruction,
+ * where DefUse is abstract and Branch is not ("concrete"?) DefUse is further
+ * extended by Definition and Use
+ * 
  * @author Andre Mis
  */
 public abstract class ASMWrapper {
 
 	// from ASM library
 	protected AbstractInsnNode asmNode;
-	protected CFGFrame frame; // TODO find out what that is used for
+	protected CFGFrame frame;
+	protected boolean forcedBranch = false;
 
-
-	public AbstractInsnNode getASMNode(){
+	public AbstractInsnNode getASMNode() {
 		return asmNode;
 	}
 
 	public String getInstructionType() {
 
 		if (asmNode.getOpcode() >= 0
-				&& asmNode.getOpcode() < AbstractVisitor.OPCODES.length)
+		        && asmNode.getOpcode() < AbstractVisitor.OPCODES.length)
 			return AbstractVisitor.OPCODES[asmNode.getOpcode()];
-		
-		if(isLineNumber())
-			return "LINE "+this.getLineNumber();
-		
-		return getType(); 
+
+		if (isLineNumber())
+			return "LINE " + this.getLineNumber();
+
+		return getType();
 	}
-	
+
 	public String getType() {
 		// TODO explain
 		String type = "";
 		if (asmNode.getType() >= 0 && asmNode.getType() < AbstractVisitor.TYPES.length)
 			type = AbstractVisitor.TYPES[asmNode.getType()];
-		
+
 		return type;
 	}
-	
+
 	public abstract int getInstructionId();
-	
+
 	public abstract String getMethodName();
-	
-	
+
 	// methods for branch analysis
-	
+
 	public boolean isActualBranch() {
-		return isBranch() 
-				|| isLookupSwitch() 
-				|| isTableSwitch();
+		return isBranch() || isSwitch();
 	}
-	
+
+	public boolean isSwitch() {
+		return isLookupSwitch() || isTableSwitch();
+	}
+
+	public void forceBranch() {
+		forcedBranch = true;
+	}
+
 	public boolean canReturnFromMethod() {
 		return isReturn() || isThrow();
 	}
@@ -121,12 +130,12 @@ public abstract class ASMWrapper {
 
 	public boolean isBranchLabel() {
 		if (asmNode instanceof LabelNode
-				&& ((LabelNode) asmNode).getLabel().info instanceof Integer) {
+		        && ((LabelNode) asmNode).getLabel().info instanceof Integer) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	public boolean isJump() {
 		return (asmNode instanceof JumpInsnNode);
 	}
@@ -137,15 +146,20 @@ public abstract class ASMWrapper {
 		}
 		return false;
 	}
-	
+
 	public boolean isBranch() {
-		return isJump() && !isGoto();
+		return (isJump() && !isGoto()) || forcedBranch;
 	}
-	
-//	public int getBranchId() {
-//		// return ((Integer)((LabelNode)node).getLabel().info).intValue();
-//		return line_no;
-//	}
+
+	// FIXXME: Andre will hate this
+	public boolean isForcedBranch() {
+		return forcedBranch;
+	}
+
+	//	public int getBranchId() {
+	//		// return ((Integer)((LabelNode)node).getLabel().info).intValue();
+	//		return line_no;
+	//	}
 
 	public boolean isIfNull() {
 		if (asmNode instanceof JumpInsnNode) {
@@ -154,8 +168,41 @@ public abstract class ASMWrapper {
 		return false;
 	}
 
+	public boolean isFrame() {
+		return asmNode instanceof FrameNode;
+	}
+
 	public boolean isMethodCall() {
 		return asmNode instanceof MethodInsnNode;
+	}
+
+	public boolean isLoadConstant() {
+		return asmNode.getOpcode() == Opcodes.LDC;
+	}
+
+	public boolean isConstant() {
+		switch (asmNode.getOpcode()) {
+		case Opcodes.LDC:
+		case Opcodes.ICONST_0:
+		case Opcodes.ICONST_1:
+		case Opcodes.ICONST_2:
+		case Opcodes.ICONST_3:
+		case Opcodes.ICONST_4:
+		case Opcodes.ICONST_5:
+		case Opcodes.ICONST_M1:
+		case Opcodes.LCONST_0:
+		case Opcodes.LCONST_1:
+		case Opcodes.DCONST_0:
+		case Opcodes.DCONST_1:
+		case Opcodes.FCONST_0:
+		case Opcodes.FCONST_1:
+		case Opcodes.FCONST_2:
+		case Opcodes.BIPUSH:
+		case Opcodes.SIPUSH:
+			return true;
+		default:
+			return false;
+		}
 	}
 
 	/**
@@ -171,9 +218,9 @@ public abstract class ASMWrapper {
 		}
 		return false;
 	}
-	
+
 	// methods for defUse analysis
-	
+
 	public boolean isDefUse() {
 		return isLocalDU() || isFieldDU();
 	}
@@ -196,21 +243,21 @@ public abstract class ASMWrapper {
 
 	public boolean isFieldDefinition() {
 		return asmNode.getOpcode() == Opcodes.PUTFIELD
-		|| asmNode.getOpcode() == Opcodes.PUTSTATIC;
+		        || asmNode.getOpcode() == Opcodes.PUTSTATIC;
 	}
 
 	public boolean isFieldUse() {
 		return asmNode.getOpcode() == Opcodes.GETFIELD
-		|| asmNode.getOpcode() == Opcodes.GETSTATIC;
+		        || asmNode.getOpcode() == Opcodes.GETSTATIC;
 	}
 
 	public boolean isStaticDefUse() {
 		return asmNode.getOpcode() == Opcodes.PUTSTATIC
-		|| asmNode.getOpcode() == Opcodes.GETSTATIC;
+		        || asmNode.getOpcode() == Opcodes.GETSTATIC;
 	}
-	
+
 	// retrieving information about variable names from ASM
-	
+
 	public String getDUVariableName() {
 		if (this.isFieldDU())
 			return getFieldName();
@@ -221,56 +268,55 @@ public abstract class ASMWrapper {
 	protected String getFieldName() {
 		return ((FieldInsnNode) asmNode).name;
 	}
-	
+
 	protected String getLocalVarName() {
 		return getMethodName() + "_LV_" + getLocalVar();
 	}
-	
+
 	// TODO unsafe
 	public int getLocalVar() {
 		if (asmNode instanceof VarInsnNode)
 			return ((VarInsnNode) asmNode).var;
-		else if(asmNode instanceof IincInsnNode)
+		else if (asmNode instanceof IincInsnNode)
 			return ((IincInsnNode) asmNode).var;
 		else
 			return -1;
 	}
-	
+
 	public boolean isLocalVarDefinition() {
 		return asmNode.getOpcode() == Opcodes.ISTORE
-				|| asmNode.getOpcode() == Opcodes.LSTORE
-				|| asmNode.getOpcode() == Opcodes.FSTORE
-				|| asmNode.getOpcode() == Opcodes.DSTORE
-				|| asmNode.getOpcode() == Opcodes.ASTORE
-				|| asmNode.getOpcode() == Opcodes.IINC;
+		        || asmNode.getOpcode() == Opcodes.LSTORE
+		        || asmNode.getOpcode() == Opcodes.FSTORE
+		        || asmNode.getOpcode() == Opcodes.DSTORE
+		        || asmNode.getOpcode() == Opcodes.ASTORE
+		        || asmNode.getOpcode() == Opcodes.IINC;
 	}
 
 	public boolean isLocalVarUse() {
 		return asmNode.getOpcode() == Opcodes.ILOAD
-				|| asmNode.getOpcode() == Opcodes.LLOAD
-				|| asmNode.getOpcode() == Opcodes.FLOAD
-				|| asmNode.getOpcode() == Opcodes.DLOAD
-				|| asmNode.getOpcode() == Opcodes.IINC
-				|| (asmNode.getOpcode() == Opcodes.ALOAD 
-						&& getLocalVar() != 0); // exclude ALOAD 0 (this)
+		        || asmNode.getOpcode() == Opcodes.LLOAD
+		        || asmNode.getOpcode() == Opcodes.FLOAD
+		        || asmNode.getOpcode() == Opcodes.DLOAD
+		        || asmNode.getOpcode() == Opcodes.IINC
+		        || (asmNode.getOpcode() == Opcodes.ALOAD && getLocalVar() != 0); // exclude ALOAD 0 (this)
 	}
-	
+
 	// other classification methods
-	
+
 	/**
 	 * Determines if this instruction is a line number instruction
 	 * 
-	 *  More precisely this method checks if 
-	 * the underlying asmNode is a LineNumberNode
+	 * More precisely this method checks if the underlying asmNode is a
+	 * LineNumberNode
 	 */
 	public boolean isLineNumber() {
 		return (asmNode instanceof LineNumberNode);
 	}
-	
+
 	public int getLineNumber() {
-		if(!isLineNumber())
+		if (!isLineNumber())
 			return -1;
-		
+
 		return ((LineNumberNode) asmNode).line;
 	}
 
@@ -279,16 +325,16 @@ public abstract class ASMWrapper {
 	}
 
 	// sanity checks
-	
+
 	public void sanityCheckAbstractInsnNode(AbstractInsnNode node) {
-		if(node == null)
+		if (node == null)
 			throw new IllegalArgumentException("null given");
-		if(!node.equals(this.asmNode))
+		if (!node.equals(this.asmNode))
 			throw new IllegalStateException("sanity check failed");
 	}
-	
+
 	// inherited from Object
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -297,18 +343,18 @@ public abstract class ASMWrapper {
 		result = prime * result + getInstructionId();
 		return result;
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
-		if(o==this)
+		if (o == this)
 			return true;
-		if(o==null)
+		if (o == null)
 			return false;
-		if(!(o instanceof ASMWrapper))
+		if (!(o instanceof ASMWrapper))
 			return false;
-		
-		ASMWrapper other = (ASMWrapper)o;
-		
+
+		ASMWrapper other = (ASMWrapper) o;
+
 		return asmNode.equals(other.asmNode);
 	}
 }

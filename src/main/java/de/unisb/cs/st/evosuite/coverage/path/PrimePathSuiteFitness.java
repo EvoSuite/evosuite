@@ -20,6 +20,8 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
  */
 public class PrimePathSuiteFitness extends TestSuiteFitnessFunction {
 
+	private static final long serialVersionUID = 8301900778876171653L;
+
 	List<TestFitnessFunction> goals;
 
 	public PrimePathSuiteFitness() {
@@ -42,7 +44,7 @@ public class PrimePathSuiteFitness extends TestSuiteFitnessFunction {
 			double goalFitness = Double.MAX_VALUE;
 			for (ExecutionResult result : results) {
 				TestChromosome tc = new TestChromosome();
-				tc.test = result.test;
+				tc.setTestCase(result.test);
 				double resultFitness = goal.getFitness(tc, result);
 				if (resultFitness < goalFitness)
 					goalFitness = resultFitness;

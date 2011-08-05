@@ -23,17 +23,13 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
+import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class PrimitiveFieldTraceObserver extends ExecutionObserver {
-
-	@SuppressWarnings("unused")
-	private final Logger logger = Logger.getLogger(PrimitiveFieldTraceObserver.class);
 
 	private final PrimitiveFieldTrace trace = new PrimitiveFieldTrace();
 
@@ -50,36 +46,40 @@ public class PrimitiveFieldTraceObserver extends ExecutionObserver {
 
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
-		VariableReference retval = statement.getReturnValue();
+		try{
+			VariableReference retval = statement.getReturnValue();
 
-		if (retval == null)
-			return;
+			if (retval == null)
+				return;
 
-		Object object = scope.get(retval);
-		if (object != null && !object.getClass().isPrimitive()
-		        && !object.getClass().isEnum() && !isWrapperType(object.getClass())) {
-			//List<Object> fields = new ArrayList<Object>();
-			//List<Field> valid_fields = new ArrayList<Field>();
-			Map<Field, Object> fieldMap = new HashMap<Field, Object>();
+			Object object = retval.getObject(scope);
+			if (object != null && !object.getClass().isPrimitive()
+					&& !object.getClass().isEnum() && !isWrapperType(object.getClass())) {
+				//List<Object> fields = new ArrayList<Object>();
+				//List<Field> valid_fields = new ArrayList<Field>();
+				Map<Field, Object> fieldMap = new HashMap<Field, Object>();
 
-			for (Field field : retval.getVariableClass().getFields()) {
-				// TODO Check for wrapper types
-				if ((!Modifier.isProtected(field.getModifiers()) && !Modifier.isPrivate(field.getModifiers()))
-				        && !field.getType().equals(void.class)
-				        && field.getType().isPrimitive()) {
-					try {
-						fieldMap.put(field, field.get(object));
-						//fields.add(field.get(object)); // TODO: Create copy
-						//valid_fields.add(field);
-					} catch (IllegalArgumentException e) {
-					} catch (IllegalAccessException e) {
+				for (Field field : retval.getVariableClass().getFields()) {
+					// TODO Check for wrapper types
+					if ((!Modifier.isProtected(field.getModifiers()) && !Modifier.isPrivate(field.getModifiers()))
+							&& !field.getType().equals(void.class)
+							&& field.getType().isPrimitive()) {
+						try {
+							fieldMap.put(field, field.get(object));
+							//fields.add(field.get(object)); // TODO: Create copy
+							//valid_fields.add(field);
+						} catch (IllegalArgumentException e) {
+						} catch (IllegalAccessException e) {
+						}
 					}
 				}
+				//if (!trace.fields.containsKey(statement.getPosition()))
+				//	trace.fields.put(retval.getType(), valid_fields);
+				//trace.trace.put(statement.getPosition(), fields);
+				trace.fieldMap.put(statement.getPosition(), fieldMap);
 			}
-			//if (!trace.fields.containsKey(statement.getPosition()))
-			//	trace.fields.put(retval.getType(), valid_fields);
-			//trace.trace.put(statement.getPosition(), fields);
-			trace.fieldMap.put(statement.getPosition(), fieldMap);
+		}catch(CodeUnderTestException e){
+			throw new UnsupportedOperationException();
 		}
 	}
 

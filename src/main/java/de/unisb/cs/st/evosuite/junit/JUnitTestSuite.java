@@ -22,11 +22,11 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.junit.runner.JUnitCore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
@@ -40,13 +40,13 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
  */
 public class JUnitTestSuite {
 
-	private static Logger logger = Logger.getLogger(JUnitTestSuite.class);
+	private static Logger logger = LoggerFactory.getLogger(JUnitTestSuite.class);
 
 	private Set<String> covered_methods;
 
-	private Set<String> covered_branches_true;
+	private Set<Integer> covered_branches_true;
 
-	private Set<String> covered_branches_false;
+	private Set<Integer> covered_branches_false;
 
 	private final TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
@@ -59,24 +59,24 @@ public class JUnitTestSuite {
 			ExecutionTrace trace = ExecutionTracer.getExecutionTracer().getTrace();
 
 			covered_methods = new HashSet<String>();
-			covered_branches_true = new HashSet<String>();
-			covered_branches_false = new HashSet<String>();
+			covered_branches_true = new HashSet<Integer>();
+			covered_branches_false = new HashSet<Integer>();
 
 			for (Entry<String, Integer> entry : trace.covered_methods.entrySet()) {
 				if (!entry.getKey().contains("$"))
 					covered_methods.add(entry.getKey());
 			}
 
-			for (Entry<String, Double> entry : trace.true_distances.entrySet()) {
+			for (Entry<Integer, Double> entry : trace.true_distances.entrySet()) {
 				if (entry.getValue() == 0.0)
-					if (!entry.getKey().contains("$"))
-						covered_branches_true.add(entry.getKey());
+					//if (!entry.getKey().contains("$"))
+					covered_branches_true.add(entry.getKey());
 			}
 
-			for (Entry<String, Double> entry : trace.false_distances.entrySet()) {
+			for (Entry<Integer, Double> entry : trace.false_distances.entrySet()) {
 				if (entry.getValue() == 0.0)
-					if (!entry.getKey().contains("$"))
-						covered_branches_false.add(entry.getKey());
+					//if (!entry.getKey().contains("$"))
+					covered_branches_false.add(entry.getKey());
 			}
 
 		} catch (ClassNotFoundException e) {
@@ -86,8 +86,8 @@ public class JUnitTestSuite {
 
 	public void runSuite(TestSuiteChromosome chromosome) {
 		covered_methods = new HashSet<String>();
-		covered_branches_true = new HashSet<String>();
-		covered_branches_false = new HashSet<String>();
+		covered_branches_true = new HashSet<Integer>();
+		covered_branches_false = new HashSet<Integer>();
 
 		for (TestCase test : chromosome.getTests()) {
 			ExecutionResult result = runTest(test);
@@ -96,13 +96,13 @@ public class JUnitTestSuite {
 				covered_methods.add(entry.getKey());
 			}
 
-			for (Entry<String, Double> entry : result.getTrace().true_distances.entrySet()) {
+			for (Entry<Integer, Double> entry : result.getTrace().true_distances.entrySet()) {
 				if (entry.getValue() == 0.0)
 					//if(!entry.getKey().contains("$"))
 					covered_branches_true.add(entry.getKey());
 			}
 
-			for (Entry<String, Double> entry : result.getTrace().false_distances.entrySet()) {
+			for (Entry<Integer, Double> entry : result.getTrace().false_distances.entrySet()) {
 				if (entry.getValue() == 0.0)
 					//if(!entry.getKey().contains("$"))
 					covered_branches_false.add(entry.getKey());
@@ -114,11 +114,11 @@ public class JUnitTestSuite {
 		return covered_methods;
 	}
 
-	public Set<String> getTrueCoveredBranches() {
+	public Set<Integer> getTrueCoveredBranches() {
 		return covered_branches_true;
 	}
 
-	public Set<String> getFalseCoveredBranches() {
+	public Set<Integer> getFalseCoveredBranches() {
 		return covered_branches_false;
 	}
 
@@ -129,16 +129,15 @@ public class JUnitTestSuite {
 		try {
 			logger.debug("Executing test");
 			result = executor.execute(test);
-			executor.setLogging(true);
 
 			int num = test.size();
 			MaxStatementsStoppingCondition.statementsExecuted(num);
-			result.touched.addAll(HOMObserver.getTouched());
+			//result.touched.addAll(HOMObserver.getTouched());
 
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
-			logger.fatal("TG: Exception caught: ", e);
+			logger.error("TG: Exception caught: ", e);
 			System.exit(1);
 		}
 

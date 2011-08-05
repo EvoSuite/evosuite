@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.ma.Connector;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * Implementation of steady state GA
@@ -32,6 +32,8 @@ import de.unisb.cs.st.evosuite.ma.Connector;
  */
 public class SteadyStateGA extends GeneticAlgorithm {
 
+	private static final long serialVersionUID = 7846967347821123201L;
+
 	protected ReplacementFunction replacement_function;
 
 	/**
@@ -39,19 +41,18 @@ public class SteadyStateGA extends GeneticAlgorithm {
 	 * 
 	 * @param factory
 	 */
-	public SteadyStateGA(ChromosomeFactory factory) {
+	public SteadyStateGA(ChromosomeFactory<? extends Chromosome> factory) {
 		super(factory);
 
-		setReplacementFunction(new FitnessReplacementFunction(
-				selection_function));
+		setReplacementFunction(new FitnessReplacementFunction(selection_function));
 	}
 
 	protected boolean keepOffspring(Chromosome parent1, Chromosome parent2,
-			Chromosome offspring1, Chromosome offspring2) {
-		return (isBetterOrEqual(offspring1, parent1) && isBetterOrEqual(
-				offspring1, parent2))
-				|| (isBetterOrEqual(offspring2, parent1) && isBetterOrEqual(
-						offspring2, parent2));
+	        Chromosome offspring1, Chromosome offspring2) {
+		return (isBetterOrEqual(offspring1, parent1) && isBetterOrEqual(offspring1,
+		                                                                parent2))
+		        || (isBetterOrEqual(offspring2, parent1) && isBetterOrEqual(offspring2,
+		                                                                    parent2));
 	}
 
 	@Override
@@ -76,7 +77,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 
 			try {
 				// Crossover
-				if (randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
+				if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
 					crossover_function.crossOver(offspring1, offspring2);
 				}
 
@@ -100,6 +101,10 @@ public class SteadyStateGA extends GeneticAlgorithm {
 			fitness_function.getFitness(offspring2);
 			notifyEvaluation(offspring2);
 
+			// local search
+
+			// DSE
+
 			if (keepOffspring(parent1, parent2, offspring1, offspring2)) {
 				logger.debug("Keeping offspring");
 
@@ -116,7 +121,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 					new_generation.add(offspring2);
 
 				if (rejected == 1)
-					new_generation.add(randomness.choice(parent1, parent2));
+					new_generation.add(Randomness.choice(parent1, parent2));
 				else if (rejected == 2) {
 					new_generation.add(parent1);
 					new_generation.add(parent2);
@@ -134,9 +139,8 @@ public class SteadyStateGA extends GeneticAlgorithm {
 	}
 
 	@Override
-	public void generateSolution() {
+	public void initializePopulation() {
 		notifySearchStarted();
-
 		current_iteration = 0;
 
 		// Set up initial population
@@ -144,24 +148,31 @@ public class SteadyStateGA extends GeneticAlgorithm {
 		logger.debug("Calculating fitness of initial population");
 		calculateFitness();
 		this.notifyIteration();
+	}
 
-		logger.debug("Starting first iteration");
+	@Override
+	public void generateSolution() {
+		if (population.isEmpty())
+			initializePopulation();
+
+		logger.debug("Starting evolution");
 		while (!isFinished()) {
 			logger.info("Population size before: " + population.size());
 			evolve();
+
+			if (shouldApplyDSE())
+				applyDSE();
+
+			if (shouldApplyLocalSearch())
+				applyLocalSearch();
+
 			sortPopulation();
 			logger.info("Current iteration: " + current_iteration);
 			this.notifyIteration();
 			logger.info("Population size: " + population.size());
-			logger.info("Best individual has fitness: "
-					+ population.get(0).getFitness());
+			logger.info("Best individual has fitness: " + population.get(0).getFitness());
 			logger.info("Worst individual has fitness: "
-					+ population.get(population.size() - 1).getFitness());
-
-			if (Properties.MA_ACTIV) {
-			Connector.externalCall((GeneticAlgorithm) this); // call manual
-																// algorithm
-			}
+			        + population.get(population.size() - 1).getFitness());
 		}
 
 		notifySearchFinished();

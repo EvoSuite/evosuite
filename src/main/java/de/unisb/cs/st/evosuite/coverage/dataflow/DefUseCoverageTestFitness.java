@@ -27,11 +27,11 @@ import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
-import de.unisb.cs.st.evosuite.ga.Randomness;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /*
  * // (0) TODO IDEA FOR AN EVO-SUITE-FEATURE: // given a test(suite) for a
@@ -151,6 +151,7 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  * @author Andre Mis
  */
 public class DefUseCoverageTestFitness extends TestFitnessFunction {
+	private static final long serialVersionUID = 1L;
 
 	// debugging flags
 	private final static boolean DEBUG = Properties.DEFUSE_DEBUG_MODE;
@@ -160,7 +161,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	private final String goalVariable;
 	private final Use goalUse;
 	private final Definition goalDefinition;
-	// TODO make DefUse able to return its control dependent branch fitness
+	
+	// TODO take into account that we can detect multiple control dependencies now
 	private final BranchCoverageTestFitness goalDefinitionBranchFitness;
 	private final BranchCoverageTestFitness goalUseBranchFitness;
 
@@ -321,7 +323,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			        + overallDifficulty);
 		difficulty_time += System.currentTimeMillis() - start;
 		if (Properties.RANDOMIZE_DIFFICULTY) {
-			float modifier = 1.5f * Randomness.getInstance().nextFloat() + 0.5f;
+			float modifier = 1.5f * Randomness.nextFloat() + 0.5f;
 			overallDifficulty = Math.round(overallDifficulty * modifier);
 		}
 		if (overallDifficulty <= 0.0)

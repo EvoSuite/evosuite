@@ -21,18 +21,14 @@ package de.unisb.cs.st.evosuite.coverage.lcsaj;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
+import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
 
 /**
  * @author
  * 
  */
-public class LCSAJCoverageFactory implements TestFitnessFactory {
+public class LCSAJCoverageFactory extends AbstractFitnessFactory {
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
@@ -41,12 +37,6 @@ public class LCSAJCoverageFactory implements TestFitnessFactory {
 	public List<TestFitnessFunction> getCoverageGoals() {
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
 
-		// Branchless methods
-		String class_name = Properties.TARGET_CLASS;
-		for (String method : BranchPool.getBranchlessMethods()) {
-			goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(class_name,
-			        method)));
-		}
 		// Branches
 		for (String className : LCSAJPool.lcsaj_map.keySet()) {
 			for (String methodName : LCSAJPool.lcsaj_map.get(className).keySet()) {
