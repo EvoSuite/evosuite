@@ -26,7 +26,9 @@ public class ExternalProcessHandler {
 	protected ServerSocket server;
 	protected Process process;
 	protected String[] last_command;
+
 	protected Thread output_printer;
+	protected Thread error_printer;
 	protected Thread message_handler;
 
 	protected Socket connection;
@@ -66,7 +68,7 @@ public class ExternalProcessHandler {
 		File dir = new File(System.getProperty("user.dir"));
 		ProcessBuilder builder = new ProcessBuilder(command);
 		builder.directory(dir);
-		builder.redirectErrorStream(true);
+		builder.redirectErrorStream(false);
 
 		try {
 			process = builder.start();
@@ -115,10 +117,14 @@ public class ExternalProcessHandler {
 			output_printer.interrupt();
 		output_printer = null;
 
+		if (error_printer != null && error_printer.isAlive())
+			error_printer.interrupt();
+		error_printer = null;
+
+
 		if (message_handler != null && message_handler.isAlive()) {
 			message_handler.interrupt();
 		}
-
 		message_handler = null;
 	}
 
@@ -155,30 +161,57 @@ public class ExternalProcessHandler {
 	}
 
 	protected void startExternalProcessPrinter() {
-		if (output_printer != null && output_printer.isAlive())
-			return;
 
-		output_printer = new Thread() {
-			@Override
-			public void run() {
-				try {
-					BufferedReader proc_in = new BufferedReader(new InputStreamReader(
-					        process.getInputStream()));
+		if(output_printer == null || !output_printer.isAlive())
+		{
+			output_printer = new Thread() {
+				@Override
+				public void run() {
+					try {
+						BufferedReader proc_in = new BufferedReader(new InputStreamReader(
+								process.getInputStream()));
 
-					int data = 0;
-					while (data != -1 && !isInterrupted()) {
-						data = proc_in.read();
-						if (data != -1)
-							System.out.print((char) data);
+						int data = 0;
+						while (data != -1 && !isInterrupted()) {
+							data = proc_in.read();
+							if (data != -1)
+								System.out.print((char) data);
+						}
+
+					} catch (Exception e) {
+						logger.error("Exception while reading output of client process", e);
 					}
-
-				} catch (Exception e) {
-					logger.error("Exception while reading output of client process", e);
 				}
-			}
-		};
+			};
 
-		output_printer.start();
+			output_printer.start();
+		}
+		
+		if(error_printer == null || !error_printer.isAlive())
+		{
+			error_printer = new Thread() {
+				@Override
+				public void run() {
+					try {
+						BufferedReader proc_in = new BufferedReader(new InputStreamReader(
+								process.getErrorStream()));
+
+						int data = 0;
+						while (data != -1 && !isInterrupted()) {
+							data = proc_in.read();
+							if (data != -1)
+								System.err.print((char) data);
+						}
+
+					} catch (Exception e) {
+						logger.error("Exception while reading output of client process", e);
+					}
+				}
+			};
+
+			error_printer.start();
+		}
+		
 	}
 
 	protected void startExternalProcessMessageHandler() {
@@ -253,7 +286,7 @@ public class ExternalProcessHandler {
 			}
 		} catch (InterruptedException e) {
 			logger.warn("Thread interrupted while waiting for results from client process",
-			            e);
+					e);
 		}
 
 		return final_result;
