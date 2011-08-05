@@ -177,6 +177,7 @@ public class BranchPool {
 			TableSwitchInsnNode tableSwitchNode) {
 
 		int num = 0;
+		
 		for (int i = tableSwitchNode.min; i <= tableSwitchNode.max; i++) {
 			LabelNode targetLabel = (LabelNode) tableSwitchNode.labels.get(num);
 			Branch switchBranch = createSwitchCaseBranch(v, i, targetLabel);
