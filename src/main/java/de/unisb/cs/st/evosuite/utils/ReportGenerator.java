@@ -767,7 +767,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		Utils.writeFile(report.toString(), file);
 	}
 
-	protected Set<Integer> getCoveredLines(ExecutionTrace trace, String className) {
+	public Set<Integer> getCoveredLines(ExecutionTrace trace, String className) {
 		Set<Integer> covered_lines = new HashSet<Integer>();
 		for (Entry<String, Map<String, Map<Integer, Integer>>> entry : trace.coverage.entrySet()) {
 			if (entry.getKey().startsWith(className)) {
@@ -779,7 +779,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		return covered_lines;
 	}
 
-	protected ExecutionTrace executeTest(TestCase test, String className) {
+	public ExecutionTrace executeTest(TestCase test, String className) {
 		ExecutionTrace trace = null;
 		try {
 			// logger.trace(test.toCode());

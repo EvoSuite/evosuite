@@ -33,10 +33,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
+import de.unisb.cs.st.evosuite.testcase.BooleanPrimitiveStatement;
+import de.unisb.cs.st.evosuite.testcase.BytePrimitiveStatement;
+import de.unisb.cs.st.evosuite.testcase.CharPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
+import de.unisb.cs.st.evosuite.testcase.DoublePrimitiveStatement;
+import de.unisb.cs.st.evosuite.testcase.FloatPrimitiveStatement;
+import de.unisb.cs.st.evosuite.testcase.IntPrimitiveStatement;
+import de.unisb.cs.st.evosuite.testcase.LongPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
+import de.unisb.cs.st.evosuite.testcase.ShortPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
@@ -381,29 +389,28 @@ public class TestParser {
 
 		switch (primitiveType.getType()) {
 		case Char:
-			return new PrimitiveStatement<Character>(newTestCase,
-					Character.TYPE, variableDeclarator.getInit().toString()
-							.charAt(0));
+			return new CharPrimitiveStatement(newTestCase, variableDeclarator
+					.getInit().toString().charAt(0));
 		case Byte:
-			return new PrimitiveStatement<Byte>(newTestCase, Byte.TYPE,
+			return new BytePrimitiveStatement(newTestCase,
 					Byte.parseByte(variableDeclarator.getInit().toString()));
 		case Short:
-			return new PrimitiveStatement<Short>(newTestCase, Short.TYPE,
+			return new ShortPrimitiveStatement(newTestCase,
 					Short.parseShort(variableDeclarator.getInit().toString()));
 		case Int:
-			return new PrimitiveStatement<Integer>(newTestCase, Integer.TYPE,
+			return new IntPrimitiveStatement(newTestCase,
 					Integer.parseInt(variableDeclarator.getInit().toString()));
 		case Long:
-			return new PrimitiveStatement<Long>(newTestCase, Long.TYPE,
+			return new LongPrimitiveStatement(newTestCase,
 					Long.parseLong(variableDeclarator.getInit().toString()));
 		case Float:
-			return new PrimitiveStatement<Float>(newTestCase, Float.TYPE,
+			return new FloatPrimitiveStatement(newTestCase,
 					Float.parseFloat(variableDeclarator.getInit().toString()));
 		case Double:
-			return new PrimitiveStatement<Double>(newTestCase, Double.TYPE,
+			return new DoublePrimitiveStatement(newTestCase,
 					Double.parseDouble(variableDeclarator.getInit().toString()));
 		case Boolean:
-			return new PrimitiveStatement<Boolean>(newTestCase, Boolean.TYPE,
+			return new BooleanPrimitiveStatement(newTestCase,
 					Boolean.parseBoolean(variableDeclarator.getInit()
 							.toString()));
 		default:

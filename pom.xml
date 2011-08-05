@@ -200,13 +200,12 @@
 			<version>3.6.2.v_A76_R36x</version>
 		</dependency>
 		-->
+		
 		<dependency>
 			<groupId>org.eclipse.jdt</groupId>
 			<artifactId>ui</artifactId>
 			<version>3.6.0</version>
       </dependency>
-
-
 
       <dependency>
       	<groupId>org.kohsuke</groupId>
@@ -225,8 +224,25 @@
       	<type>jar</type>
       	<scope>compile</scope>
       </dependency>
+      <dependency>
+      	<groupId>com.google.code.javaparser</groupId>
+      	<artifactId>javaparser</artifactId>
+      	<version>1.0.1</version>
+      	<type>jar</type>
+      	<scope>compile</scope>
+      </dependency>
     </dependencies>
     <repositories>
+
+		<repository>
+			<id>javaparser</id>
+			<name>JavaParser Repository</name>
+			<url>http://javaparser.googlecode.com/svn/maven2</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+    
 	<repository>
 	   <id>jmockit-svn</id>
 	   <url>http://jmockit.googlecode.com/svn/maven-repo</url>
