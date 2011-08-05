@@ -80,7 +80,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 			
 			return internalAddEdge(src,target,e);
 		} else if (src.isSwitch()) {
-
+			
 			if (!target.isLabel())
 				throw new IllegalStateException(
 						"expect control flow edges from switch statements to always target labelNodes");
@@ -88,9 +88,13 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 			LabelNode label = (LabelNode) target.getASMNode();
 
 			List<Branch> switchCaseBranches = BranchPool.getBranchForLabel(label);
-			if (switchCaseBranches == null)
-				throw new IllegalStateException(
-						"expect BranchPool to contain a Branch for each switch-case-label");
+
+			if (switchCaseBranches == null) {
+				logger.debug("not a switch case label: "+label.toString()+" "+target.toString());
+				return internalAddEdge(src,target,e);
+			}
+//				throw new IllegalStateException(
+//						"expect BranchPool to contain a Branch for each switch-case-label"+src.toString()+" to "+target.toString());
 
 			// TODO there is an inconsistency when it comes to switches with
 			// empty case: blocks. they do not have their own label, so there
@@ -146,7 +150,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		if (!super.addEdge(src, target, e)) {
 			// TODO find out why this still happens
 			logger.debug("unable to add edge from " + src.toString() + " to "
-					+ target.toString() + " into the rawCFG");
+					+ target.toString() + " into the rawCFG of "+getMethodName());
 			e = super.getEdge(src, target);
 			if (e == null)
 				throw new IllegalStateException("internal graph error - completely unexpected");

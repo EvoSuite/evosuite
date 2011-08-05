@@ -543,6 +543,8 @@ public class DefUseFitnessCalculations {
 	 * prevent miscalculations. Again ExecutionTrace.getTraceInDUCounterRange()
 	 * holds more information
 	 * 
+	 * 
+	 * 
 	 * This method gets called for alternative fitness calculation -
 	 * calculateAlternativeFitness() - and in order to determine the
 	 * goalUseBranch fitness between a goalUsePos and its next overwriting
