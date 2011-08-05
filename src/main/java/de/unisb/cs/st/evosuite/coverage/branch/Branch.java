@@ -59,7 +59,7 @@ public class Branch {
 	}
 
 	/**
-	 * Constructor for SWITCH-Case: Branches
+	 * Constructor for switch case branches
 	 * 
 	 */
 	public Branch(BytecodeInstruction switchInstruction,

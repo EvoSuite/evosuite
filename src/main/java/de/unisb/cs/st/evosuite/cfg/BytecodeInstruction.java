@@ -362,9 +362,9 @@ public class BytecodeInstruction extends ASMWrapper {
 	 */
 	public Branch getControlDependentBranch() {
 
-		Set<Branch> cdIds = getAllControlDependentBranches();
+		Set<Branch> controlDependentBranches = getAllControlDependentBranches();
 
-		for (Branch cdId : cdIds)
+		for (Branch cdId : controlDependentBranches)
 			return cdId;
 
 		return null;
@@ -391,6 +391,15 @@ public class BytecodeInstruction extends ASMWrapper {
 					.getControlDependentBranchIds(this);
 
 		return controlDependentBranchIDs;
+	}
+
+	/**
+	 * Determines whether or not this instruction is control dependent on the
+	 * root branch of it's method by calling getControlDependentBranchIds() to
+	 * see if the return contains -1.
+	 */
+	public boolean isRootBranchDependent() {
+		return getControlDependentBranchIds().contains(-1);
 	}
 
 	/**
@@ -442,8 +451,8 @@ public class BytecodeInstruction extends ASMWrapper {
 	public boolean getBranchExpressionValue(Branch b) {
 		if (!isDirectlyControlDependentOn(b))
 			throw new IllegalArgumentException(
-			        "this method can only be called for branches that this instruction is directly control dependent on");
-		
+					"this method can only be called for branches that this instruction is directly control dependent on");
+
 		if (b == null)
 			return true; // root branch special case
 
@@ -460,7 +469,7 @@ public class BytecodeInstruction extends ASMWrapper {
 	 * instruction is control dependent on the root branch of it's method.
 	 */
 	public boolean isDirectlyControlDependentOn(Branch branch) {
-		if(branch==null)
+		if (branch == null)
 			return getControlDependentBranchIds().contains(-1);
 		return getAllControlDependentBranches().contains(branch);
 	}
@@ -492,7 +501,8 @@ public class BytecodeInstruction extends ASMWrapper {
 		do {
 			if (vertexHolder.isDirectlyControlDependentOn(branch))
 				return true;
-			vertexHolder = vertexHolder.getControlDependentBranch().getInstruction();
+			vertexHolder = vertexHolder.getControlDependentBranch()
+					.getInstruction();
 		} while (vertexHolder != null);
 
 		return false;
@@ -579,7 +589,7 @@ public class BytecodeInstruction extends ASMWrapper {
 					+ stack + " - Line: " + lineNumber;
 		else if (asmNode instanceof LdcInsnNode)
 			return "LDC " + ((LdcInsnNode) asmNode).cst + " Type=" + type; // +
-																			// ", Opcode=";
+		// ", Opcode=";
 		// + opcode; // cst starts with mutationid if
 		// this is location of mutation
 		else if (asmNode instanceof LineNumberNode)
