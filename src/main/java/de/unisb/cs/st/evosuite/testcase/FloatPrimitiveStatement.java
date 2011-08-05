@@ -9,7 +9,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
- * @author fraser
+ * @author Gordon Fraser
  * 
  */
 public class FloatPrimitiveStatement extends NumericalPrimitiveStatement<Float> {
