@@ -1,8 +1,6 @@
 package de.unisb.cs.st.evosuite.cfg;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.InsnNode;
-import org.springframework.asm.Opcodes;
 
 public class BytecodeInstructionFactory {
 

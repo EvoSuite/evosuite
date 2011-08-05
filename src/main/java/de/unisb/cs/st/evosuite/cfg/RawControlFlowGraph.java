@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.objectweb.asm.tree.LabelNode;
 
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUse;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseFactory;
@@ -111,27 +110,27 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 
 				if(handled)
 					continue;
-				if(switchCaseBranches.size()>1) {
-
-					e = new ControlFlowEdge(isExceptionEdge);
-					e.setBranchInstruction(switchCaseBranch);
-					e.setBranchExpressionValue(true);
-					BytecodeInstruction fakeInstruction = BytecodeInstructionPool.createFakeInstruction(className,methodName);
-					addVertex(fakeInstruction);
-					internalAddEdge(src,fakeInstruction,e);
-					
-					e = new ControlFlowEdge(isExceptionEdge);
-					e.setBranchInstruction(switchCaseBranch);
-					e.setBranchExpressionValue(true);
-					
-					e = internalAddEdge(fakeInstruction,target,e);
-				} else {
+//				if(switchCaseBranches.size()>1) {
+//
+//					e = new ControlFlowEdge(isExceptionEdge);
+//					e.setBranchInstruction(switchCaseBranch);
+//					e.setBranchExpressionValue(true);
+//					BytecodeInstruction fakeInstruction = BytecodeInstructionPool.createFakeInstruction(className,methodName);
+//					addVertex(fakeInstruction);
+//					internalAddEdge(src,fakeInstruction,e);
+//					
+//					e = new ControlFlowEdge(isExceptionEdge);
+//					e.setBranchInstruction(switchCaseBranch);
+//					e.setBranchExpressionValue(true);
+//					
+//					e = internalAddEdge(fakeInstruction,target,e);
+//				} else {
 					e = new ControlFlowEdge(isExceptionEdge);
 					e.setBranchInstruction(switchCaseBranch);
 					e.setBranchExpressionValue(true);
 					
 					e = internalAddEdge(src,target,e);
-				}
+//				}
 				
 			}
 			
