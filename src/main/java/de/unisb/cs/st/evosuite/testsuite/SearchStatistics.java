@@ -28,8 +28,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxFitnessEvaluationsStoppingCondition;
@@ -105,7 +105,6 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 				 */
 				sb.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">\n");
 				int linecount = 1;
-				int test_line = 0;
 				String code = null;
 				if (run.results.containsKey(test))
 					code = test.toCode(run.results.get(test));
@@ -126,7 +125,6 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 					 * test.exception_statement == test_line)
 					 * sb.append("</span>");
 					 */
-					test_line++;
 					linecount++;
 					sb.append("\n");
 				}
@@ -317,72 +315,40 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 
 		int num_covered = 0;
 
-		// for(Entry<String, Double> entry : true_distance.entrySet()) {
-		// logger.trace("Branch "+entry.getKey()+": "+normalize(entry.getValue())+"/"+normalize(false_distance.get(entry.getKey())));
-		// }
-		/*
-		 * for(String key : predicate_count.keySet()) { Integer val =
-		 * predicate_count.get(key); if(val == 1 && true_distance.get(key) >
-		 * 0.0) true_distance.put(key, 1.0); else if(val == 1 &&
-		 * false_distance.get(key) > 0.0) false_distance.put(key, 1.0); }
-		 */
-		/*
-		 * for(Double val : true_distance.values()) { num++; if(val == 0)
-		 * num_covered ++; } for(Double val : false_distance.values()) { num++;
-		 * if(val == 0) num_covered ++; }
-		 */
-		int uncovered = 0;
 		for (Integer key : predicate_count.keySet()) {
 			// logger.info("Key: "+key);
 			double df = true_distance.get(key);
 			double dt = false_distance.get(key);
 			if (df == 0.0)
 				num_covered++;
-			else {
-				uncovered++;
-				logger.debug("Branch distance false: " + df);
-			}
 			if (dt == 0.0)
 				num_covered++;
-			else {
-				uncovered++;
-				logger.debug("Branch distance true: " + dt);
-			}
 
-		}
-		if (logger.isDebugEnabled()) {
-			if (predicate_count.size() < entry.total_branches) {
-				logger.debug("Missing some predicates: " + predicate_count.size() + "/"
-				        + (2 * entry.total_branches));
-			}
-			if (predicate_count.size() > entry.total_branches) {
-				logger.debug("Got too many branches: " + predicate_count.size() + "/"
-				        + (2 * entry.total_branches));
-			}
-			if (uncovered > 0)
-				logger.debug("Have not covered " + uncovered + " branches");
 		}
 
 		// entry.total_goals = 2 * CFGMethodAdapter.branch_counter +
 		// entry.branchless_methods;
 		// entry.total_goals = 2 * entry.total_branches +
 		// entry.branchless_methods;
-		entry.total_goals = 2 * entry.total_branches + entry.total_methods;
+		entry.total_goals = 2 * entry.total_branches + entry.branchless_methods;
 		entry.covered_branches = num_covered;
 		entry.covered_methods = covered_methods.size();
 		entry.covered_goals = num_covered;
 		// for(String e : CFGMethodAdapter.branchless_methods) {
-		for (String e : CFGMethodAdapter.methods) {
-			if (covered_methods.contains(e))
+		//for (String e : CFGMethodAdapter.methods) {
+		for (String e : BranchPool.getBranchlessMethods()) {
+			if (covered_methods.contains(e)) {
+				logger.info("Covered method: " + e);
 				entry.covered_goals++;
-			else {
-				logger.debug("Method is not covered: " + e);
+			} else {
+				logger.info("Method is not covered: " + e);
 			}
+			/*
 			logger.debug("Covered methods: " + covered_methods.size() + "/"
 			        + entry.total_methods);
 			for (String method : covered_methods) {
 				logger.debug("Covered method: " + method);
-			}
+			}*/
 		}
 
 		makeDirs();
@@ -403,6 +369,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		}
 	}
 
+	@SuppressWarnings("static-access")
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
 		super.searchStarted(algorithm);

@@ -123,7 +123,7 @@ public class Branch {
 		return instruction.getMethodName();
 	}
 
-	public boolean isSwitch() {
+	public boolean isSwitchCaseBranch() {
 		return isSwitch;
 	}
 

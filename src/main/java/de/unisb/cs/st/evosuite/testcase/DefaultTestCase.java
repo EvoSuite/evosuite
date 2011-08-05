@@ -693,4 +693,13 @@ public class DefaultTestCase implements TestCase, Serializable {
 				visitor.visitArrayStatement((ArrayStatement) statement);
 		}
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return toCode();
+
+	}
 }

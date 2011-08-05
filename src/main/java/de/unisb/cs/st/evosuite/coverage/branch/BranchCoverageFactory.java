@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
 
@@ -71,15 +72,17 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 
 				for (Branch b : BranchPool.retrieveBranchesInMethod(className,
 						methodName)) {
-
-					// Identify vertex in CFG
-					goals.add(new BranchCoverageTestFitness(
-							new BranchCoverageGoal(b, true, className,
-									methodName)));
-					if (!b.isSwitch())
+					if (!(b.getInstruction().isForcedBranch() || LCSAJPool
+							.isLCSAJBranch(b))) {
+						// Identify vertex in CFG
 						goals.add(new BranchCoverageTestFitness(
-								new BranchCoverageGoal(b, false, className,
+								new BranchCoverageGoal(b, true, className,
 										methodName)));
+						if (!b.isSwitchCaseBranch())
+							goals.add(new BranchCoverageTestFitness(
+									new BranchCoverageGoal(b, false, className,
+											methodName)));
+					}
 				}
 			}
 		}

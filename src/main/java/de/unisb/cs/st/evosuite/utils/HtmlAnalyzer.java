@@ -81,7 +81,6 @@ public class HtmlAnalyzer implements Serializable {
 	private void initFiles() {
 		File startDirectory = new File(".");
 		String[] extensions = { "java" };
-		@SuppressWarnings("unchecked")
 		Collection<File> javaFiles = FileUtils.listFiles(startDirectory, extensions, true);
 		files = new HashSet<File>(javaFiles);
 	}

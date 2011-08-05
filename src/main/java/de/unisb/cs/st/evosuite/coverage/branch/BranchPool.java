@@ -168,7 +168,7 @@ public class BranchPool {
 			throw new IllegalStateException("expect variable to bet set");
 
 		Branch defaultBranch = createSwitchCaseBranch(v, null, defaultLabel);
-		if (!defaultBranch.isSwitch() || !defaultBranch.isDefaultCase())
+		if (!defaultBranch.isSwitchCaseBranch() || !defaultBranch.isDefaultCase())
 			throw new IllegalStateException(
 					"expect created branch to be a default case branch of a switch");
 	}
@@ -180,7 +180,7 @@ public class BranchPool {
 		for (int i = tableSwitchNode.min; i <= tableSwitchNode.max; i++) {
 			LabelNode targetLabel = (LabelNode) tableSwitchNode.labels.get(num);
 			Branch switchBranch = createSwitchCaseBranch(v, i, targetLabel);
-			if (!switchBranch.isSwitch() || !switchBranch.isActualCase())
+			if (!switchBranch.isSwitchCaseBranch() || !switchBranch.isActualCase())
 				throw new IllegalStateException(
 						"expect created branch to be an actual case branch of a switch");
 			num++;
@@ -194,7 +194,7 @@ public class BranchPool {
 			LabelNode targetLabel = (LabelNode) lookupSwitchNode.labels.get(i);
 			Branch switchBranch = createSwitchCaseBranch(v,
 					(Integer) lookupSwitchNode.keys.get(i), targetLabel);
-			if (!switchBranch.isSwitch() || !switchBranch.isActualCase())
+			if (!switchBranch.isSwitchCaseBranch() || !switchBranch.isActualCase())
 				throw new IllegalStateException(
 						"expect created branch to be an actual case branch of a switch");
 		}
@@ -221,7 +221,7 @@ public class BranchPool {
 			registeredDefaultCases.put(v, switchBranch);
 		}
 
-		if (!switchBranch.isSwitch())
+		if (!switchBranch.isSwitchCaseBranch())
 			throw new IllegalStateException(
 					"expect created Branch to be a switch branch");
 
@@ -448,5 +448,16 @@ public class BranchPool {
 					"there is no registered default case for this instruction");
 
 		return registeredDefaultCases.get(v);
+	}
+	
+	public static int getRealBranches(String className){
+		int real = 0;
+		for (String methodName : branchMap.get(className).keySet())
+			for (Branch b : (branchMap.get(className).get(methodName))){
+				if (!b.getInstruction().isForcedBranch())
+					real++;
+		}
+			
+		return real;
 	}
 }

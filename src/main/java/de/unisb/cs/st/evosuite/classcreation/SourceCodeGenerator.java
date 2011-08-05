@@ -49,6 +49,8 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
+import de.unisb.cs.st.evosuite.utils.Utils;
+
 /**
  * Generates classes from given abstract methods and constructors.
  * 
@@ -66,15 +68,19 @@ public class SourceCodeGenerator {
 	/** Container for the current AST. */
 	private final CompilationUnit unit;
 
-	/** List of the abstract methods for original abstract class */
+	/** List of the methods for original class */
 	private final List<Method> methods = new LinkedList<Method>();
 
-	/** Original abstract class. */
+	/** Original class */
 	private final Class<?> clazz;
 
+	/** Class name */
+	private String className;
+
+	/** Name of the package */
 	private final String packageName;
 
-	/** List of the constructors for original abstract class. */
+	/** List of the constructors for original class. */
 	private final Constructor<?>[] constructors;
 
 	/** Information about stub fields and setters */
@@ -94,15 +100,12 @@ public class SourceCodeGenerator {
 		ast = AST.newAST(AST.JLS3);
 		unit = ast.newCompilationUnit();
 		this.clazz = clazz;
-		if (clazz.getPackage() != null) {
-			this.packageName = clazz.getPackage().getName();
-		} else {
-			String name = clazz.getName();
-			if (name.contains("."))
-				packageName = name.substring(0, name.lastIndexOf("."));
-			else
-				packageName = "";
-		}
+		packageName = Utils.getPackageName(clazz);
+
+		if (clazz.getCanonicalName() == null)
+			className = clazz.getName();
+		else
+			className = clazz.getCanonicalName();
 
 		// Get constructors and methods of a class. 
 		Method[] initialMethods = clazz.getDeclaredMethods();
@@ -137,7 +140,7 @@ public class SourceCodeGenerator {
 
 		if (abstractClass) {
 			// Set inheritance.
-			type.setSuperclassType(ast.newSimpleType(ast.newName(clazz.getCanonicalName())));
+			type.setSuperclassType(ast.newSimpleType(ast.newName(className)));
 
 			// Check for abstract constructors and if any - generate them.
 			if (constructors.length != 0)
@@ -149,7 +152,7 @@ public class SourceCodeGenerator {
 			MemberValuePair mvp = ast.newMemberValuePair();
 			mvp.setName(ast.newSimpleName("realClass"));
 			TypeLiteral tl = ast.newTypeLiteral();
-			tl.setType(ast.newSimpleType(ast.newName(clazz.getCanonicalName())));
+			tl.setType(ast.newSimpleType(ast.newName(className)));
 			mvp.setValue(tl);
 			na.values().add(mvp);
 
@@ -460,6 +463,13 @@ public class SourceCodeGenerator {
 			return ast.newSimpleName(currentFieldName);
 		}
 
+		if (returnType.isArray()) {
+			NullLiteral nl = ast.newNullLiteral();
+			rememberFieldParams(nl, generateArrayType(returnType),
+			                    generateArrayType(returnType));
+			return ast.newSimpleName(currentFieldName);
+		}
+
 		// if primitive, then generate primitive expression.
 		if (returnType.isPrimitive())
 			return generatePrimitiveExpression(generatePrimitiveType(returnType));
@@ -538,7 +548,6 @@ public class SourceCodeGenerator {
 			                    ast.newPrimitiveType(PrimitiveType.SHORT),
 			                    ast.newPrimitiveType(PrimitiveType.SHORT));
 		}
-
 		return ast.newSimpleName(currentFieldName);
 	}
 
@@ -564,18 +573,20 @@ public class SourceCodeGenerator {
 	/**
 	 * Does some tricky string manipulation to get name of the field.
 	 * 
-	 * @param abstractMethod
+	 * @param method
 	 *            method for which name should be created.
 	 */
-	private void generateFieldName(Method abstractMethod) {
-		String fieldName = abstractMethod.getName();
-		String methodDescriptor = org.objectweb.asm.Type.getMethodDescriptor(abstractMethod);
+	private void generateFieldName(Method method) {
+		String fieldName = method.getName();
+		String methodDescriptor = org.objectweb.asm.Type.getMethodDescriptor(method);
 		String[] methodParams = methodDescriptor.replace(')', ';').replace('(', ';').split(";");
+
 		for (int i = 1; i < methodParams.length - 1; i++) {
 			String[] temp = methodParams[i].split("/");
 			String paramName = temp[temp.length - 1];
+
 			if (!paramName.equals(""))
-				fieldName += "_" + paramName;
+				fieldName += "_" + paramName.replace('[', 'a');
 		}
 		currentFieldName = fieldName;
 	}

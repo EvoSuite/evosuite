@@ -5,6 +5,8 @@ import java.io.IOException;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Strategy;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 
@@ -71,7 +73,7 @@ public class ExcelOutputGenerator {
 		} 
 	}
 	
-	public static void writeLCSAJStatistics(String className, int totalBranches, int infeasableBranches,TestSuiteChromosome LCSAJsuite,TestSuiteChromosome LCSAJbranchSuite){
+	public static void writeLCSAJStatistics(String className,TestSuiteChromosome LCSAJsuite,TestSuiteChromosome LCSAJbranchSuite){
 		
 		WritableSheet currentSheet;
 		System.out.println(writtenWorkbook);
@@ -85,7 +87,7 @@ public class ExcelOutputGenerator {
 		}
 		Label l = new Label(0,currentSheet.getRows(), className);
 
-		Number n1 = new Number(1, currentSheet.getRows(), totalBranches);
+		Number n1 = new Number(1, currentSheet.getRows(), BranchPool.getRealBranches(className));
 		Number n2 = new Number(2, currentSheet.getRows(), LCSAJPool.getLCSAJsPerClass(className));
 		Number n3 = new Number(3, currentSheet.getRows(), LCSAJsuite.getCoverage());
 		Number n4 = new Number(4, currentSheet.getRows(), LCSAJbranchSuite.getCoverage());
@@ -96,9 +98,8 @@ public class ExcelOutputGenerator {
 		Number n9 = new Number(9, currentSheet.getRows(), LCSAJPool.getMaxLCSAJlength(className));
 		Number n10 = new Number(10, currentSheet.getRows(), LCSAJPool.getInfeasableLCSAJs(className));
 		Number n11 = new Number(11, currentSheet.getRows(), LCSAJPool.getUnfinishedLCSAJs(className));
-		Number n12 = new Number(12, currentSheet.getRows(), infeasableBranches);
-		Number n13 = new Number(13, currentSheet.getRows(), LCSAJsuite.size());
-		Number n14 = new Number(14, currentSheet.getRows(), LCSAJsuite.totalLengthOfTestCases());
+		Number n12 = new Number(13, currentSheet.getRows(), LCSAJsuite.size());
+		Number n13 = new Number(14, currentSheet.getRows(), LCSAJsuite.totalLengthOfTestCases());
 		
 		try {
 			currentSheet.addCell(l);
@@ -115,7 +116,6 @@ public class ExcelOutputGenerator {
 			currentSheet.addCell(n11);
 			currentSheet.addCell(n12);
 			currentSheet.addCell(n13);
-			currentSheet.addCell(n14);
 			
 		} catch (RowsExceededException e) {
 			// TODO Auto-generated catch block
@@ -137,12 +137,13 @@ public class ExcelOutputGenerator {
 			currentSheet = writtenWorkbook.getSheet(Properties.PROJECT_PREFIX);
 		}
 		Label l = new Label(0,currentSheet.getRows(), className);
-		Number n1 = new Number(1, currentSheet.getRows(), branchSuite.size());
-		Number n2 = new Number(2, currentSheet.getRows(), branchSuite.totalLengthOfTestCases());
-		Number n3 = new Number(3, currentSheet.getRows(), branchSuite.getCoverage());
-		Number n4 = new Number(4, currentSheet.getRows(), branchSuite.getFitness());
-		Number n5 = new Number(5, currentSheet.getRows(), LCSAJsuite.getCoverage());
-		Number n6 = new Number(6, currentSheet.getRows(), LCSAJsuite.getFitness());
+		Number n1 = new Number(1, currentSheet.getRows(), BranchPool.getRealBranches(className));
+		Number n2 = new Number(2, currentSheet.getRows(), branchSuite.size());
+		Number n3 = new Number(3, currentSheet.getRows(), branchSuite.totalLengthOfTestCases());
+		Number n4 = new Number(4, currentSheet.getRows(), branchSuite.getCoverage());
+		Number n5 = new Number(5, currentSheet.getRows(), branchSuite.getFitness());
+		Number n6 = new Number(6, currentSheet.getRows(), LCSAJsuite.getCoverage());
+		Number n7 = new Number(7, currentSheet.getRows(), LCSAJsuite.getFitness());
 
 		try {
 			
@@ -153,6 +154,7 @@ public class ExcelOutputGenerator {
 			currentSheet.addCell(n4);
 			currentSheet.addCell(n5);
 			currentSheet.addCell(n6);
+			currentSheet.addCell(n7);
 			
 		} catch (RowsExceededException e) {
 			// TODO Auto-generated catch block
@@ -180,9 +182,8 @@ public class ExcelOutputGenerator {
 			currentSheet.addCell(new Label(9, 0, "LCSAJ length max"));
 			currentSheet.addCell(new Label(10, 0, "Infeasable LCSAJs"));
 			currentSheet.addCell(new Label(11, 0, "Unfinished LCSAJs"));
-			currentSheet.addCell(new Label(12, 0, "Infeasable Branches"));
-			currentSheet.addCell(new Label(13, 0, "LCSAJ Test cases"));
-			currentSheet.addCell(new Label(14, 0, "LCSAJ Test length"));
+			currentSheet.addCell(new Label(12, 0, "LCSAJ Test cases"));
+			currentSheet.addCell(new Label(13, 0, "LCSAJ Test length"));
 			
 			
 		} catch (RowsExceededException e) {
@@ -202,12 +203,13 @@ private static WritableSheet setupSheetForBranchStatistics(){
 		try {
 			
 			currentSheet.addCell(new Label(0, 0, "Classname"));
-			currentSheet.addCell(new Label(1, 0, "Branch Test cases"));
-			currentSheet.addCell(new Label(2, 0, "Branch Test length"));
-			currentSheet.addCell(new Label(3, 0, "Branch coverage"));
-			currentSheet.addCell(new Label(4, 0, "Branch Fitness"));
-			currentSheet.addCell(new Label(5, 0, "LCSAJ coverage"));
-			currentSheet.addCell(new Label(6, 0, "LCSAJ Fitness"));
+			currentSheet.addCell(new Label(1, 0, "Branches"));
+			currentSheet.addCell(new Label(2, 0, "Branch Test cases"));
+			currentSheet.addCell(new Label(3, 0, "Branch Test length"));
+			currentSheet.addCell(new Label(4, 0, "Branch coverage"));
+			currentSheet.addCell(new Label(5, 0, "Branch Fitness"));
+			currentSheet.addCell(new Label(6, 0, "LCSAJ coverage"));
+			currentSheet.addCell(new Label(7, 0, "LCSAJ Fitness"));
 			
 		} catch (RowsExceededException e) {
 			// TODO Auto-generated catch block

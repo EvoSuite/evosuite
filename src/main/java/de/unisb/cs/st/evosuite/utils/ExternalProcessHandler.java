@@ -12,17 +12,23 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import sun.misc.Signal;
+import sun.misc.SignalHandler;
+
 /*
  * this code should be used by the main process
  */
 
+@SuppressWarnings("restriction")
 public class ExternalProcessHandler {
 	protected static Logger logger = LoggerFactory.getLogger(ExternalProcessHandler.class);
 
 	protected ServerSocket server;
 	protected Process process;
 	protected String[] last_command;
+
 	protected Thread output_printer;
+	protected Thread error_printer;
 	protected Thread message_handler;
 
 	protected Socket connection;
@@ -62,7 +68,7 @@ public class ExternalProcessHandler {
 		File dir = new File(System.getProperty("user.dir"));
 		ProcessBuilder builder = new ProcessBuilder(command);
 		builder.directory(dir);
-		builder.redirectErrorStream(true);
+		builder.redirectErrorStream(false);
 
 		try {
 			process = builder.start();
@@ -96,7 +102,7 @@ public class ExternalProcessHandler {
 		}
 
 		startExternalProcessMessageHandler();
-
+		startSignalHandler();
 		last_command = command;
 
 		return true;
@@ -111,10 +117,14 @@ public class ExternalProcessHandler {
 			output_printer.interrupt();
 		output_printer = null;
 
+		if (error_printer != null && error_printer.isAlive())
+			error_printer.interrupt();
+		error_printer = null;
+
+
 		if (message_handler != null && message_handler.isAlive()) {
 			message_handler.interrupt();
 		}
-
 		message_handler = null;
 	}
 
@@ -132,7 +142,7 @@ public class ExternalProcessHandler {
 				server.setSoTimeout(10000);
 				server.bind(null);
 			} catch (Exception e) {
-				logger.error("Not possible to start TCP server",e);
+				logger.error("Not possible to start TCP server", e);
 			}
 		}
 
@@ -143,7 +153,7 @@ public class ExternalProcessHandler {
 			try {
 				server.close();
 			} catch (IOException e) {
-				logger.error("Error in closing the TCP server",e);
+				logger.error("Error in closing the TCP server", e);
 			}
 
 			server = null;
@@ -151,28 +161,57 @@ public class ExternalProcessHandler {
 	}
 
 	protected void startExternalProcessPrinter() {
-		if (output_printer != null && output_printer.isAlive())
-			return;
 
-		output_printer = new Thread() {
-			@Override
-			public void run() {
-				try {
-					BufferedReader proc_in = new BufferedReader(new InputStreamReader(
-					        process.getInputStream()));
-					String data = "";
-					while (data != null && !isInterrupted()) {
-						data = proc_in.readLine();
-						if (data != null)
-							System.out.println(data);
+		if(output_printer == null || !output_printer.isAlive())
+		{
+			output_printer = new Thread() {
+				@Override
+				public void run() {
+					try {
+						BufferedReader proc_in = new BufferedReader(new InputStreamReader(
+								process.getInputStream()));
+
+						int data = 0;
+						while (data != -1 && !isInterrupted()) {
+							data = proc_in.read();
+							if (data != -1)
+								System.out.print((char) data);
+						}
+
+					} catch (Exception e) {
+						logger.error("Exception while reading output of client process", e);
 					}
-				} catch (Exception e) {
-					logger.error("Exception while reading output of client process",e);
 				}
-			}
-		};
+			};
 
-		output_printer.start();
+			output_printer.start();
+		}
+		
+		if(error_printer == null || !error_printer.isAlive())
+		{
+			error_printer = new Thread() {
+				@Override
+				public void run() {
+					try {
+						BufferedReader proc_in = new BufferedReader(new InputStreamReader(
+								process.getErrorStream()));
+
+						int data = 0;
+						while (data != -1 && !isInterrupted()) {
+							data = proc_in.read();
+							if (data != -1)
+								System.err.print((char) data);
+						}
+
+					} catch (Exception e) {
+						logger.error("Exception while reading output of client process", e);
+					}
+				}
+			};
+
+			error_printer.start();
+		}
+		
 	}
 
 	protected void startExternalProcessMessageHandler() {
@@ -191,7 +230,7 @@ public class ExternalProcessHandler {
 						message = (String) in.readObject();
 						data = in.readObject();
 					} catch (Exception e) {
-						logger.error("Error in reading message ",e);
+						logger.error("Error in reading message ", e);
 						message = Messages.FINISHED_COMPUTATION;
 					}
 
@@ -219,14 +258,35 @@ public class ExternalProcessHandler {
 		message_handler.start();
 	}
 
+	protected void startSignalHandler() {
+		Signal.handle(new Signal("INT"), new SignalHandler() {
+
+			private boolean interrupted = false;
+
+			@Override
+			public void handle(Signal arg0) {
+				if (interrupted)
+					System.exit(0);
+				try {
+					interrupted = true;
+					process.waitFor();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+		});
+	}
+
 	public Object waitForResult(int timeout) {
 		try {
 			synchronized (MONITOR) {
 				MONITOR.wait(timeout);
 			}
-		} catch (InterruptedException e) 
-		{
-			logger.warn("Thread interrupted while waiting for results from client process",e);
+		} catch (InterruptedException e) {
+			logger.warn("Thread interrupted while waiting for results from client process",
+					e);
 		}
 
 		return final_result;

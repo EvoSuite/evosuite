@@ -18,6 +18,8 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
  */
 public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 
+	private static Logger logger = LoggerFactory.getLogger(TestSuiteLocalSearchObjective.class);
+
 	private final TestSuiteFitnessFunction fitness;
 
 	private final TestSuiteChromosome suite;
@@ -54,10 +56,8 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 		LocalSearchBudget.evaluation();
 		double newFitness = fitness.getFitness(suite);
 		if (newFitness < lastFitness) { // TODO: Maximize
-			LoggerFactory.getLogger(LocalSearchObjective.class).info("Local search improved fitness from "
-			                                                          + lastFitness
-			                                                          + " to "
-			                                                          + newFitness);
+			logger.info("Local search improved fitness from " + lastFitness + " to "
+			        + newFitness);
 			lastFitness = newFitness;
 			suite.setFitness(lastFitness);
 			return true;

@@ -7,6 +7,7 @@ import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
+import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 
 /**
  * @author fraser
@@ -14,9 +15,10 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
  */
 public class ConsoleProgressBar implements SearchListener {
 
-	public static void printProgressBar(int percent) {
-		StringBuilder bar = new StringBuilder("[");
+	public static void printProgressBar(int percent, int coverage) {
+		StringBuilder bar = new StringBuilder("[Progress:");
 
+		/*
 		for (int i = 0; i < 50; i++) {
 			if (i < (percent / 2)) {
 				bar.append("=");
@@ -26,9 +28,36 @@ public class ConsoleProgressBar implements SearchListener {
 				bar.append(" ");
 			}
 		}
-
-		bar.append("]   " + percent + "%     ");
+		bar.append("]   " + percent + "%  [Coverage: " + coverage + "%]");
 		System.out.print("\r" + bar.toString());
+		*/
+
+		for (int i = 0; i < 30; i++) {
+			if (i < (int) (percent * 0.30)) {
+				bar.append("=");
+			} else if (i == (int) (percent * 0.30)) {
+				bar.append(">");
+			} else {
+				bar.append(" ");
+			}
+		}
+
+		bar.append(Math.min(100, percent) + "%][Cov:");
+
+		for (int i = 0; i < 35; i++) {
+			if (i < (int) (coverage * 0.35)) {
+				bar.append("=");
+			} else if (i == (int) (coverage * 0.35)) {
+				bar.append(">");
+			} else {
+				bar.append(" ");
+			}
+		}
+
+		bar.append(coverage + "%]");
+
+		System.out.print("\r" + bar.toString());
+
 	}
 
 	private StoppingCondition stoppingCondition = null;
@@ -50,7 +79,8 @@ public class ConsoleProgressBar implements SearchListener {
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
 		int current = stoppingCondition.getCurrentValue();
-		printProgressBar(100 * current / max);
+		printProgressBar(100 * current / max,
+		                 (int) Math.round(((TestSuiteChromosome) algorithm.getBestIndividual()).getCoverage() * 100));
 	}
 
 	/* (non-Javadoc)
