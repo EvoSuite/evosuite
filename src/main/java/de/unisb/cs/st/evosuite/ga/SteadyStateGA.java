@@ -174,11 +174,11 @@ public class SteadyStateGA extends GeneticAlgorithm {
 			logger.info("Best individual has fitness: " + population.get(0).getFitness());
 			logger.info("Worst individual has fitness: "
 			        + population.get(population.size() - 1).getFitness());
-			
-			if (Properties.MA_ACTIV) {
+
+			if (Properties.MA_ACTIVE) {
 				// call manual algorithm
-				Connector.externalCall((GeneticAlgorithm) this); 
-				}
+				Connector.externalCall(this);
+			}
 		}
 
 		notifySearchFinished();

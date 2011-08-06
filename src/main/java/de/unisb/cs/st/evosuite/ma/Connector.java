@@ -23,27 +23,26 @@ public class Connector {
 	 *            - SearchAlgorithm instance to work with it
 	 */
 	public static void externalCall(GeneticAlgorithm ga) {
-			double newCoverageVal = ((TestSuiteChromosome) ga
-					.getBestIndividual()).getCoverage();
-			double deltaCoverage = oldCoverageVal - newCoverageVal;
+		double newCoverageVal = ((TestSuiteChromosome) ga.getBestIndividual()).getCoverage();
+		double deltaCoverage = oldCoverageVal - newCoverageVal;
+		System.out.println("Delta: " + deltaCoverage);
+		/*
+		 * Call manual edition when coverage is smaller then 100% and delta
+		 * is too small and not change in few iterations
+		 */
+		if (newCoverageVal > 0)
+			if (deltaCoverage < Properties.MIN_DELTA_COVERAGE) {
+				iterCount++;
 
-			/*
-			 * Call manual edition when coverage is smaller then 100% and delta
-			 * is too small and not change in few iterations
-			 */
-			if (newCoverageVal > 0)
-				if (deltaCoverage < Properties.MIN_DELTA_COVERAGE) {
-					iterCount++;
-
-					if (iterCount > Properties.MAX_ITERATION) {
-						Editor editor = new Editor(ga);
-						iterCount = 0;
-					}
-
-				} else {
+				if (iterCount > Properties.MAX_ITERATION) {
+					Editor editor = new Editor(ga);
 					iterCount = 0;
 				}
 
-			oldCoverageVal = newCoverageVal;
-		}
+			} else {
+				iterCount = 0;
+			}
+
+		oldCoverageVal = newCoverageVal;
+	}
 }
