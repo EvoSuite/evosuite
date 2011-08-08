@@ -48,13 +48,11 @@ import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJ;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageTestFitness;
-import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationFactory;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathSuiteFitness;
-import de.unisb.cs.st.evosuite.evaluation.ExcelOutputGenerator;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.CrossOverFunction;
@@ -258,7 +256,6 @@ public class TestSuiteGenerator {
 			;
 		}
 
-		writeExcelStatistics(best);
 		return best.getTests();
 	}
 
@@ -562,7 +559,6 @@ public class TestSuiteGenerator {
 				d++;
 			}
 		}
-		writeExcelStatistics(suite);
 
 		statistics.searchFinished(suiteGA);
 		long end_time = System.currentTimeMillis() / 1000;
@@ -858,40 +854,6 @@ public class TestSuiteGenerator {
 		}
 
 		return ga;
-	}
-
-	public static void writeExcelStatistics(TestSuiteChromosome suite) {
-		if (Properties.WRITE_EXCEL
-		        && (Properties.CRITERION == Criterion.LCSAJ || Properties.CRITERION == Criterion.COMP_LCSAJ_BRANCH)) {
-			File excelOutputDir = new File(Properties.OUTPUT_DIR);
-			assert (excelOutputDir.exists()) : "We assume the directory "
-			        + excelOutputDir.getPath() + " to exist. In your case it doesn't";
-			ExcelOutputGenerator.createNewExcelWorkbook(excelOutputDir.getAbsolutePath());
-
-			if (Properties.CRITERION == Criterion.LCSAJ) {
-				TestSuiteChromosome copy = suite.clone();
-				
-				for (String className : LCSAJPool.lcsaj_map.keySet()) {
-					BranchCoverageSuiteFitness b = new BranchCoverageSuiteFitness();
-					b.getFitness(copy);
-					ExcelOutputGenerator.writeLCSAJStatistics(className, suite, copy);
-				}
-			}
-			if (Properties.CRITERION == Criterion.COMP_LCSAJ_BRANCH) {
-				TestSuiteChromosome copy = suite.clone();
-				for (String className : BranchPool.knownClasses()) {
-					LCSAJCoverageSuiteFitness l = new LCSAJCoverageSuiteFitness();
-					l.getFitness(copy);
-					ExcelOutputGenerator.wirteBranchStatistics(className, suite, copy);
-				}
-			}
-
-			ExcelOutputGenerator.writeToCurrentWorkbook();
-		}
-	}
-
-	public static void writeUncoveredLCSAJGraphs(List<TestFitnessFunction> goals) {
-
 	}
 
 	/**
