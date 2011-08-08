@@ -130,7 +130,13 @@ public class ClientProcess implements SearchListener {
 	}
 
 	public static void main(String[] args) {
-		ClientProcess process = new ClientProcess();
-		process.run();
+		try {
+			ClientProcess process = new ClientProcess();
+			process.run();
+		} catch (Throwable t) {
+			System.err.println("Error when generating tests for: "
+			        + Properties.TARGET_CLASS);
+			t.printStackTrace();
+		}
 	}
 }
