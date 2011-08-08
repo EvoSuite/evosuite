@@ -18,6 +18,8 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.util.List;
+
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
@@ -26,6 +28,8 @@ import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.ga.LocalSearchBudget;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
+import de.unisb.cs.st.evosuite.symbolic.BranchCondition;
+import de.unisb.cs.st.evosuite.symbolic.ConcolicExecution;
 import de.unisb.cs.st.evosuite.symbolic.ConcolicMutation;
 import de.unisb.cs.st.evosuite.testsuite.CurrentChromosomeTracker;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -361,11 +365,14 @@ public class TestChromosome extends ExecutableChromosome {
 		double pl = 1d / test.size();
 
 		if (Randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
+			changed = mutationConcolic();
+			/*
 			ConcolicMutation mutation = new ConcolicMutation();
 			changed = mutation.mutate(test);
 			if (changed) {
 				logger.info("Changed test case is: " + test.toCode());
 			}
+			*/
 		}
 
 		if (!changed) {
@@ -407,6 +414,43 @@ public class TestChromosome extends ExecutableChromosome {
 			changed = true;
 		}
 		return changed;
+	}
+
+	/**
+	 * Collect path constraints and negate one of them to derive new integer
+	 * inputs
+	 * 
+	 * @return
+	 */
+	private boolean mutationConcolic() {
+		logger.info("Applying DSE mutation");
+		ConcolicExecution concolicExecution = new ConcolicExecution();
+
+		// Apply DSE to gather constraints
+		List<BranchCondition> branches = concolicExecution.getSymbolicPath(this);
+		if (branches.isEmpty())
+			return false;
+
+		boolean mutated = false;
+
+		// Select random branch
+		BranchCondition branch = Randomness.choice(branches);
+		logger.info("Trying to negate branch " + branch.ins.getInstructionIndex());
+
+		// Try to solve negated constraint
+		TestCase newTest = ConcolicMutation.negateCondition(branch, test);
+
+		// If successful, add resulting test to test suite
+		if (newTest != null) {
+			logger.info("Created new test");
+			// logger.info(newTest.toCode());
+			// logger.info("Old test");
+			// logger.info(test.toCode());
+			this.test = newTest;
+			this.changed = true;
+		}
+
+		return mutated;
 	}
 
 	/**
