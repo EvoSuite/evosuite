@@ -19,15 +19,20 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 
 	@SuppressWarnings("unchecked")
 	public EnumPrimitiveStatement(TestCase tc, Class<T> clazz) {
-		super(tc, clazz, clazz.getEnumConstants()[0]);
-		constants = (T[]) value.getClass().getEnumConstants();
+		super(tc, clazz, null);
+		if (clazz.getEnumConstants().length > 0) {
+			this.value = clazz.getEnumConstants()[0];
+			constants = (T[]) value.getClass().getEnumConstants();
+		} else {
+			// Coping with empty enms is a bit of a mess
+			constants = (T[]) new Enum[0];
+		}
 	}
 
 	@SuppressWarnings("unchecked")
 	public EnumPrimitiveStatement(TestCase tc, T value) {
 		super(tc, value.getClass(), value);
 		constants = (T[]) value.getClass().getEnumConstants();
-		assert (constants.length > 0);
 	}
 
 	/* (non-Javadoc)
@@ -35,6 +40,9 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	 */
 	@Override
 	public void delta() {
+		if (constants.length == 0)
+			return;
+
 		int pos = 0;
 		for (pos = 0; pos < constants.length; pos++) {
 			if (constants[pos].equals(value)) {
@@ -60,6 +68,9 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	 */
 	@Override
 	public void zero() {
+		if (constants.length == 0)
+			return;
+
 		value = constants[0];
 	}
 
@@ -77,8 +88,10 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	 */
 	@Override
 	public void randomize() {
-		int pos = Randomness.nextInt(constants.length);
-		value = constants[pos];
+		if (constants.length > 1) {
+			int pos = Randomness.nextInt(constants.length);
+			value = constants[pos];
+		}
 	}
 
 	/* (non-Javadoc)
@@ -86,7 +99,11 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	 */
 	@Override
 	public String getCode(Throwable exception) {
-		return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
-		        + " = " + value.getClass().getSimpleName() + "." + value + ";";
+		if (value != null)
+			return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
+			        + " = " + value.getClass().getSimpleName() + "." + value + ";";
+		else
+			return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
+			        + " = (" + ((Class<?>) retval.getType()).getSimpleName() + ") null;";
 	}
 }
