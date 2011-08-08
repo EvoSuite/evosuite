@@ -161,9 +161,9 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	public Throwable execute(Scope scope, PrintStream out)
 	        throws InvocationTargetException, IllegalArgumentException,
 	        IllegalAccessException, InstantiationException {
-		// Add primitive variable to pool
-		assert (retval.isPrimitive() || retval.getVariableClass().isAssignableFrom(value.getClass())) : "we want an "
-		        + retval.getVariableClass() + " but got an " + value.getClass();
+
+		//		assert (retval.isPrimitive() || retval.getVariableClass().isAssignableFrom(value.getClass())) : "we want an "
+		//		        + retval.getVariableClass() + " but got an "; // + value.getClass();
 		try {
 			retval.setObject(scope, value);
 		} catch (CodeUnderTestException e) {
@@ -274,7 +274,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	public boolean mutate(TestCase test, AbstractTestFactory factory) {
 		T oldVal = value;
 		// TODO: Should not be hardcoded
-		while (value == oldVal) {
+		while (value == oldVal && value != null) {
 			if (Randomness.nextDouble() <= 0.2)
 				randomize();
 			else
