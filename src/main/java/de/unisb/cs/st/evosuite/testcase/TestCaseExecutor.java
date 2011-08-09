@@ -259,9 +259,9 @@ public class TestCaseExecutor implements ThreadFactory {
 					try {
 						executor.shutdownNow();
 						if (currentThread.isAlive()) {
-							logger.warn("Thread survived - unsafe operation.");
+							logger.info("Thread survived - unsafe operation.");
 							for (StackTraceElement element : currentThread.getStackTrace()) {
-								logger.warn(element.toString());
+								logger.info(element.toString());
 							}
 							currentThread.stop();
 						}
