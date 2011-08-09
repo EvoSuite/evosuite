@@ -22,7 +22,8 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 		super(tc, clazz, null);
 		if (clazz.getEnumConstants().length > 0) {
 			this.value = clazz.getEnumConstants()[0];
-			constants = (T[]) value.getClass().getEnumConstants();
+			constants = clazz.getEnumConstants();
+
 		} else {
 			// Coping with empty enms is a bit of a mess
 			constants = (T[]) new Enum[0];
@@ -32,7 +33,18 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	@SuppressWarnings("unchecked")
 	public EnumPrimitiveStatement(TestCase tc, T value) {
 		super(tc, value.getClass(), value);
-		constants = (T[]) value.getClass().getEnumConstants();
+		constants = (T[]) getEnumClass(value.getClass()).getEnumConstants();
+	}
+
+	private static Class<?> getEnumClass(Class<?> clazz) {
+		if (clazz.isEnum())
+			return clazz;
+		else if (clazz.getEnclosingClass() != null && clazz.getEnclosingClass().isEnum())
+			return clazz.getEnclosingClass();
+		else if (clazz.getDeclaringClass() != null && clazz.getDeclaringClass().isEnum())
+			return clazz.getDeclaringClass();
+		else
+			throw new RuntimeException("Cannot find enum class: " + clazz);
 	}
 
 	/* (non-Javadoc)
