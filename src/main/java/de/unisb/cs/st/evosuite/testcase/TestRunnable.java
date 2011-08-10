@@ -100,6 +100,11 @@ public class TestRunnable implements InterfaceTestRunnable {
 				if (exceptionThrown != null) {
 					exceptionsThrown.put(num, exceptionThrown);
 
+					if (exceptionThrown instanceof SecurityException) {
+						logger.debug("Security exception found: " + exceptionThrown);
+						break;
+					}
+
 					/*
 					 * #TODO this is a penalty for test cases which contain a statement that throws an undeclared exception.
 					 * As those test cases are not going to be executed after the statement (i.e. no coverage for those parts is generated) 
