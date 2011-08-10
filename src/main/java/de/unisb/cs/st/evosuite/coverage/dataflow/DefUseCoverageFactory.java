@@ -148,23 +148,15 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 
 			String className = def.getClassName();
 			String methodName = def.getMethodName();
-			int branchId = def.getControlDependentBranchId();
 
 			RawControlFlowGraph cfg = CFGPool.getRawCFG(className, methodName);
 			if (cfg == null)
 				throw new IllegalStateException("Expect CFG to exist for " + methodName);
 
-			// sanity check
-			if (branchId != -1) {
-				BytecodeInstruction branchVertex = cfg.getInstruction(branchId);
-				if (branchVertex == null)
-					throw new IllegalStateException("no CFG for branch " + branchId
-					        + " in method " + methodName);
-			}
-
 			Set<Use> uses = cfg.getUsesForDef(def);
 			logger.debug("Found " + uses.size() + " Uses for Def " + def.getDefId()
 			        + " in " + def.getMethodName());
+			
 			for (Use use : uses)
 				r.add(createGoal(def, DefUsePool.getUseByDefUseId(use.getDefUseId())));
 		}
@@ -186,19 +178,10 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 
 			String className = def.getClassName();
 			String methodName = def.getMethodName();
-			int branchId = def.getControlDependentBranchId();
 
 			RawControlFlowGraph cfg = CFGPool.getRawCFG(className, methodName);
 			if (cfg == null)
 				throw new IllegalStateException("Expect CFG to exist for " + methodName);
-
-			// sanity check
-			if (branchId != -1) {
-				BytecodeInstruction branchVertex = cfg.getInstruction(branchId);
-				if (branchVertex == null)
-					throw new IllegalStateException("no CFG for branch " + branchId
-					        + " in method " + methodName);
-			}
 
 			if (cfg.hasDefClearPathToMethodExit(def))
 				r.add(def);
