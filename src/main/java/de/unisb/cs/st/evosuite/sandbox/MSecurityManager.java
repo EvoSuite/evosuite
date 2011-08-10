@@ -41,6 +41,8 @@ class MSecurityManager extends SecurityManager {
 
 	private static Logger logger = LoggerFactory.getLogger(MSecurityManager.class);
 
+	private final PermissionStatistics statistics = PermissionStatistics.getInstance();
+
 	/**
 	 * Overridden method for checking permissions for any operation.
 	 */
@@ -48,12 +50,15 @@ class MSecurityManager extends SecurityManager {
 	public void checkPermission(Permission perm) {
 		// check access  
 		if (!allowPermission(perm)) {
-			logger.debug("Security manager blocks permission " + perm);
+			statistics.permissionDenied(perm);
 			String stack = "\n";
 			for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
 				stack += e + "\n";
 			}
+			logger.info("Security manager blocks permission " + perm + stack);
 			throw new SecurityException("Security manager blocks " + perm + stack);
+		} else {
+			statistics.permissionAllowed(perm);
 		}
 
 		return;
@@ -115,6 +120,9 @@ class MSecurityManager extends SecurityManager {
 			if (permName.equals("java.util.PropertyPermission"))
 				if (perm.getActions().equals("read"))
 					return true;
+			if (perm.getClass().equals(java.util.logging.LoggingPermission.class)) {
+				return true;
+			}
 
 			//TODO: -------------------- NEED TO FIND BETTER SOLUTION ----------------------- 
 			// At the moment this is the only way to allow classes under test define and load 
