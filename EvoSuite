@@ -26,7 +26,13 @@ fi
 java_opts="-ea -Xmx1024M -Dlogback.configurationFile=$BASEPATH/target/classes/logback.xml"
 #java_opts=""
 
-export DYLD_LIBRARY_PATH=$BASEPATH/lib/libcvc3-jni/i386-darwin10.2.0:$DYLD_LIBRARY_PATH
+unamestr=`uname`
+if [[ "$unamestr" == 'Linux' ]]; then
+    export LD_LIBRARY_PATH=$BASEPATH/lib/libcvc3-jni/x86_64-linux-gnu:$LD_LIBRARY_PATH
+elif [[ "$unamestr" == 'Darwin' ]]; then
+    export DYLD_LIBRARY_PATH=$BASEPATH/lib/libcvc3-jni/i386-darwin10.2.0:$DYLD_LIBRARY_PATH
+fi
+
 
 ##
 ## Classpath part to be used in all invocations of Java
