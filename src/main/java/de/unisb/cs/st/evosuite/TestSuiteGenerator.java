@@ -81,6 +81,7 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import de.unisb.cs.st.evosuite.junit.TestSuite;
 import de.unisb.cs.st.evosuite.primitives.ObjectPool;
+import de.unisb.cs.st.evosuite.sandbox.PermissionStatistics;
 import de.unisb.cs.st.evosuite.testcase.ConstantInliner;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
@@ -175,6 +176,8 @@ public class TestSuiteGenerator {
 				pool.storeSequence(Properties.getTargetClass(), test);
 			}
 		}
+
+		PermissionStatistics.getInstance().printStatistics();
 
 		System.out.println("* Done!");
 
