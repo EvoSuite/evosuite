@@ -679,11 +679,16 @@ public class TestCluster {
 	 */
 	public static Set<Field> getAccessibleFields(Class<?> clazz) {
 		Set<Field> fields = new HashSet<Field>();
-		for (Field f : clazz.getFields()) {
-			// FIXXME: Final is only a problem for write access...
-			if (canUse(f) && !Modifier.isFinal(f.getModifiers())) {
-				fields.add(f);
+		try {
+			for (Field f : clazz.getFields()) {
+				// FIXXME: Final is only a problem for write access...
+				if (canUse(f) && !Modifier.isFinal(f.getModifiers())) {
+					fields.add(f);
+				}
 			}
+		} catch (Throwable t) {
+			logger.warn("Error while accessing fields of class " + clazz.getName()
+			        + " - check allowed permissions: " + t);
 		}
 
 		return fields;
