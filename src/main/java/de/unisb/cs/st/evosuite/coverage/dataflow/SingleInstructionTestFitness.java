@@ -32,7 +32,7 @@ public class SingleInstructionTestFitness extends TestFitnessFunction {
 			BranchCoverageTestFitness fitness = BranchCoverageFactory
 					.createBranchCoverageTestFitness(cd, goalInstruction
 							.getBranchExpressionValue(cd));
-			
+
 			branchFitnesses.add(fitness);
 		}
 
@@ -49,7 +49,21 @@ public class SingleInstructionTestFitness extends TestFitnessFunction {
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 
-		return 0;
+		if (branchFitnesses.isEmpty())
+			throw new IllegalStateException(
+					"expect to know at least one fitness for goalInstruction");
+		
+		double r = Double.MAX_VALUE;
+
+		for(BranchCoverageTestFitness branchFitness : branchFitnesses) {
+			double newFitness = branchFitness.getFitness(individual,result);
+			if(newFitness == 0.0)
+				return 0.0;
+			if(newFitness<r)
+				r= newFitness;
+		}
+		
+		return r;
 	}
 
 }
