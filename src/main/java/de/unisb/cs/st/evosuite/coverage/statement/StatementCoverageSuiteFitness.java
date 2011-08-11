@@ -40,7 +40,7 @@ public class StatementCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				if(resultFitness<goalFitness)
 					goalFitness=resultFitness;
 				if(goalFitness == 0.0) {
-					result.test.addCoveredGoal(goal);
+//					result.test.addCoveredGoal(goal);
 					coveredGoals.add(goal);
 					break;
 				}
@@ -50,6 +50,7 @@ public class StatementCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		
 		suite.setCoverage(coveredGoals.size()/(double)totalGoals.size());
 		updateIndividual(individual, fitness);
+		
 		return fitness;
 	}
 
