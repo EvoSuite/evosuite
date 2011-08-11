@@ -101,11 +101,6 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 		return false;
 	}
 
-	@Override
-	protected void updateIndividual(Chromosome individual, double fitness) {
-		individual.setFitness(fitness);
-	}
-
 	protected List<ExecutionResult> runTestSuite(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		CurrentChromosomeTracker.getInstance().modification(suite);

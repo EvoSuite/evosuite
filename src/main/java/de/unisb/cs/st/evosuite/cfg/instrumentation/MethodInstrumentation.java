@@ -7,7 +7,7 @@ import org.objectweb.asm.tree.MethodNode;
 
 
 /**
- * An interface which criterions (like defUse, concurrency, LCSAJs) can use to instrument the code of methods
+ * An interface which criteria (like defUse, concurrency, LCSAJs) can use to instrument the code of methods
  * @author Sebastian Steenbuck
  *
  */

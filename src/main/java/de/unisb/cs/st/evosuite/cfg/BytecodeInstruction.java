@@ -399,7 +399,7 @@ public class BytecodeInstruction extends ASMWrapper {
 	 * see if the return contains -1.
 	 */
 	public boolean isRootBranchDependent() {
-		return getControlDependentBranchIds().contains(-1);
+		return getAllControlDependentBranches().isEmpty();
 	}
 
 	/**

@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
@@ -51,16 +52,18 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 		String targetMethod = Properties.TARGET_METHOD;
 
 		// Branchless methods
-		String class_name = Properties.TARGET_CLASS;
+		String targetClass = Properties.TARGET_CLASS;
 		for (String method : BranchPool.getBranchlessMethods()) {
 			if (targetMethod.equals("") || method.endsWith(targetMethod))
-				goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(
-						class_name, method
-								.substring(method.lastIndexOf(".") + 1))));
+				goals.add(createRootBranchTestFitness(targetClass, method));
 		}
 		// Branches
 		// logger.info("Getting branches");
 		for (String className : BranchPool.knownClasses()) {
+
+			if (!(targetClass.equals("") || className.endsWith(targetClass)))
+				continue;
+
 			for (String methodName : BranchPool.knownMethods(className)) {
 
 				if (!targetMethod.equals("")
@@ -74,14 +77,12 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 						methodName)) {
 					if (!(b.getInstruction().isForcedBranch() || LCSAJPool
 							.isLCSAJBranch(b))) {
-						// Identify vertex in CFG
-						goals.add(new BranchCoverageTestFitness(
-								new BranchCoverageGoal(b, true, className,
-										methodName)));
+
+						goals.add(createBranchCoverageTestFitness(b, true));
 						if (!b.isSwitchCaseBranch())
-							goals.add(new BranchCoverageTestFitness(
-									new BranchCoverageGoal(b, false, className,
-											methodName)));
+							goals
+									.add(createBranchCoverageTestFitness(b,
+											false));
 					}
 				}
 			}
@@ -90,4 +91,39 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 		return goals;
 	}
 
+	/**
+	 * Create a fitness function for branch coverage aimed at executing the
+	 * Branch identified by b as defined by branchExpressionValue.
+	 */
+	public static BranchCoverageTestFitness createBranchCoverageTestFitness(
+			Branch b, boolean branchExpressionValue) {
+
+		return new BranchCoverageTestFitness(new BranchCoverageGoal(b,
+				branchExpressionValue, b.getClassName(), b.getMethodName()));
+	}
+
+	/**
+	 * Create a fitness function for branch coverage aimed at covering the root
+	 * branch of the given method in the given class. Covering a root branch
+	 * means entering the method.
+	 */
+	public static BranchCoverageTestFitness createRootBranchTestFitness(
+			String className, String method) {
+
+		return new BranchCoverageTestFitness(new BranchCoverageGoal(className,
+				method.substring(method.lastIndexOf(".") + 1)));
+	}
+
+	/**
+	 * Convenience method calling createRootBranchTestFitness(class,method) with
+	 * the respective class and method of the given BytecodeInstruction.
+	 */
+	public static BranchCoverageTestFitness createRootBranchTestFitness(
+			BytecodeInstruction instruction) {
+		if (instruction == null)
+			throw new IllegalArgumentException("null given");
+
+		return createRootBranchTestFitness(instruction.getClassName(),
+				instruction.getMethodName());
+	}
 }
