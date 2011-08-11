@@ -15,6 +15,7 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
+import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
@@ -25,15 +26,15 @@ import de.unisb.cs.st.evosuite.utils.HtmlAnalyzer;
  * 
  */
 public class Editor {
-	private GeneticAlgorithm gaInstance;
+	private final GeneticAlgorithm gaInstance;
 	private List<TestCase> tests;
 	private TestCase currentTestCase;
-	private Iterable<String> sourceCode;
+	private final Iterable<String> sourceCode;
 	private final SearchStatistics statistics = SearchStatistics.getInstance();
-	private Set<Integer> coverage = new HashSet<Integer>();
-	private Set<Integer> currentCovarage = new HashSet<Integer>();
+	private final Set<Integer> coverage = new HashSet<Integer>();
+	private final Set<Integer> currentCovarage = new HashSet<Integer>();
 	private Class<?> clazz;
-	private TestSuiteChromosome testSuiteChr;
+	private final TestSuiteChromosome testSuiteChr;
 
 	/**
 	 * Create instance of Editor for manual edition of test individuals with:
@@ -45,7 +46,8 @@ public class Editor {
 		gaInstance = ga;
 		testSuiteChr = (TestSuiteChromosome) gaInstance.getBestIndividual();
 
-		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(TestSuiteGenerator.getFitnessFactory());
+		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(
+		        TestSuiteGenerator.getFitnessFactory());
 		minimizer.minimize(testSuiteChr);
 
 		tests = testSuiteChr.getTests();
@@ -77,17 +79,15 @@ public class Editor {
 		sourceCode = html_analyzer.getClassContent(Properties.TARGET_CLASS);
 
 		try {
-			clazz = Class.forName(Properties.TARGET_CLASS);
+			clazz = TestCluster.classLoader.loadClass(Properties.TARGET_CLASS);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 
 		for (TestCase test : tests) {
-			ExecutionTrace trace = statistics.executeTest(test,
-					Properties.TARGET_CLASS);
+			ExecutionTrace trace = statistics.executeTest(test, Properties.TARGET_CLASS);
 
-			coverage.addAll(statistics.getCoveredLines(trace,
-					Properties.TARGET_CLASS));
+			coverage.addAll(statistics.getCoveredLines(trace, Properties.TARGET_CLASS));
 		}
 
 		SimpleGUI sgui = new SimpleGUI();
@@ -106,8 +106,7 @@ public class Editor {
 	 */
 	public void parseTest(String testCode) {
 		try {
-			TestCase newTestCase = TestParser.parsTest(testCode,
-					currentTestCase, clazz);
+			TestCase newTestCase = TestParser.parsTest(testCode, currentTestCase, clazz);
 			testSuiteChr.setChanged(true);
 			TestCaseExecutor executor = TestCaseExecutor.getInstance();
 			ExecutionResult result = executor.execute(newTestCase);
@@ -203,10 +202,9 @@ public class Editor {
 		currentCovarage.clear();
 
 		ExecutionTrace trace = statistics.executeTest(currentTestCase,
-				Properties.TARGET_CLASS);
+		                                              Properties.TARGET_CLASS);
 
-		currentCovarage.addAll(statistics.getCoveredLines(trace,
-				Properties.TARGET_CLASS));
+		currentCovarage.addAll(statistics.getCoveredLines(trace, Properties.TARGET_CLASS));
 	}
 
 	/**
