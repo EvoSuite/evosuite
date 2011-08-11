@@ -25,7 +25,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
+import de.unisb.cs.st.evosuite.coverage.statement.StatementCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
@@ -186,8 +186,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		this.goalDefinition = def;
 		this.goalUse = use;
 		this.goalVariable = def.getDUVariableName();
-		this.goalDefinitionFitness = new SingleInstructionTestFitness(goalDefinition);
-		this.goalUseFitness = new SingleInstructionTestFitness(goalUse);
+		this.goalDefinitionFitness = new StatementCoverageTestFitness(goalDefinition);
+		this.goalUseFitness = new StatementCoverageTestFitness(goalUse);
 	}
 
 	/**
@@ -204,7 +204,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		goalDefinition = null;
 		goalDefinitionFitness = null;
 		goalUse = use;
-		goalUseFitness = new SingleInstructionTestFitness(goalUse);
+		goalUseFitness = new StatementCoverageTestFitness(goalUse);
 	}
 
 	/**

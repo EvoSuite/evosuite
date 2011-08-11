@@ -125,7 +125,7 @@ public class DefUsePool {
 		if(isKnownAsUse(u))
 			return false;
 		if(u.isLocalVarUse()) {
-			// was ALOAD_0 ("this")
+			// was ALOAD_0 ("this") TODO amis: thesis!
 			if(u.getLocalVar()==0)
 				return false;
 		}
