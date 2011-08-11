@@ -53,6 +53,8 @@ import de.unisb.cs.st.evosuite.coverage.mutation.MutationSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.statement.StatementCoverageFactory;
+import de.unisb.cs.st.evosuite.coverage.statement.StatementCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.CrossOverFunction;
@@ -298,6 +300,8 @@ public class TestSuiteGenerator {
 			return new ConcurrencySuitCoverage();
 		case BRANCH:
 			return new BranchCoverageSuiteFitness();
+		case STATEMENT:
+			return new StatementCoverageSuiteFitness();
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for " + Properties.CRITERION
 			        + " using default one (BranchCoverageSuiteFitness)");
@@ -320,6 +324,8 @@ public class TestSuiteGenerator {
 		case CONCURRENCY:
 			return new TestSuiteFitnessFunc_to_TestFitnessFactory_Adapter(
 			        new ConcurrencySuitCoverage());
+		case STATEMENT:
+			return new StatementCoverageFactory();
 		default:
 			logger.warn("No TestFitnessFactory defined for " + Properties.CRITERION
 			        + " using default one (BranchCoverageFactory)");

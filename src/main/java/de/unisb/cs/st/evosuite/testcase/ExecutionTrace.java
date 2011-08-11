@@ -406,6 +406,8 @@ public class ExecutionTrace {
 	public void definitionPassed(String className, String varName, String methodName,
 	        Object caller, int branchID, int defID) {
 
+		// TODO amis: branchID never used! no need to instrument
+		
 		if (!trace_calls) // TODO ???
 			return;
 
@@ -441,6 +443,8 @@ public class ExecutionTrace {
 	public void usePassed(String className, String varName, String methodName,
 	        Object caller, int branchID, int useID) {
 
+		// TODO amis: branchID never used! no need to instrument		
+		
 		if (!trace_calls) // TODO ???
 			return;
 

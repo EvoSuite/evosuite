@@ -177,6 +177,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		} else {
 			reader.accept(cv, ClassReader.SKIP_FRAMES);
 		}
+		
 		// Print out bytecode if debug is enabled
 		// if(logger.isDebugEnabled())
 		// cv = new TraceClassVisitor(cv, new

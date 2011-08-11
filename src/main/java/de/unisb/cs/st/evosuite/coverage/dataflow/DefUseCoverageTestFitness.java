@@ -25,7 +25,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
+import de.unisb.cs.st.evosuite.coverage.statement.StatementCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
@@ -163,8 +163,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	private final Definition goalDefinition;
 	
 	// TODO take into account that we can detect multiple control dependencies now
-	private final BranchCoverageTestFitness goalDefinitionBranchFitness;
-	private final BranchCoverageTestFitness goalUseBranchFitness;
+	private final TestFitnessFunction goalDefinitionFitness;
+	private final TestFitnessFunction goalUseFitness;
 
 	private int difficulty = -1;
 	public static long difficulty_time = 0l; // experiment 
@@ -186,8 +186,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		this.goalDefinition = def;
 		this.goalUse = use;
 		this.goalVariable = def.getDUVariableName();
-		this.goalDefinitionBranchFitness = DefUseFitnessCalculations.getBranchTestFitness(def);
-		this.goalUseBranchFitness = DefUseFitnessCalculations.getBranchTestFitness(use);
+		this.goalDefinitionFitness = new StatementCoverageTestFitness(goalDefinition);
+		this.goalUseFitness = new StatementCoverageTestFitness(goalUse);
 	}
 
 	/**
@@ -202,9 +202,9 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 
 		goalVariable = use.getDUVariableName();
 		goalDefinition = null;
-		goalDefinitionBranchFitness = null;
+		goalDefinitionFitness = null;
 		goalUse = use;
-		goalUseBranchFitness = DefUseFitnessCalculations.getBranchTestFitness(use);
+		goalUseFitness = new StatementCoverageTestFitness(goalUse);
 	}
 
 	/**
@@ -237,14 +237,6 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		return getFitness(dummy, result);
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#updateIndividual(de.unisb.cs.st.evosuite.ga.Chromosome, double)
-	 */
-	@Override
-	protected void updateIndividual(Chromosome individual, double fitness) {
-		individual.setFitness(fitness);
-	}
-
 	/**
 	 * First approximation: A DUGoal is similar to another one if the goalDef or
 	 * goalUse branch of this goal is similar to the goalDef or goalUse branch
@@ -257,22 +249,23 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 */
 	@Override
 	public boolean isSimilarTo(TestFitnessFunction goal) {
-		if (goal instanceof BranchCoverageTestFitness) {
-			BranchCoverageTestFitness branchFitness = (BranchCoverageTestFitness) goal;
-			if (goalDefinitionBranchFitness != null
-			        && branchFitness.isSimilarTo(goalDefinitionBranchFitness))
-				return true;
-			return branchFitness.isSimilarTo(goalUseBranchFitness);
-		}
-		try {
-			DefUseCoverageTestFitness other = (DefUseCoverageTestFitness) goal;
-			if (goalDefinitionBranchFitness != null
-			        && goalDefinitionBranchFitness.isSimilarTo(other))
-				return true;
-			return goalUseBranchFitness.isSimilarTo(other);
-		} catch (ClassCastException e) {
-			return false;
-		}
+		return false; // disabled for now
+//		if (goal instanceof BranchCoverageTestFitness) {
+//			BranchCoverageTestFitness branchFitness = (BranchCoverageTestFitness) goal;
+//			if (goalDefinitionBranchFitness != null
+//			        && branchFitness.isSimilarTo(goalDefinitionBranchFitness))
+//				return true;
+//			return branchFitness.isSimilarTo(goalUseBranchFitness);
+//		}
+//		try {
+//			DefUseCoverageTestFitness other = (DefUseCoverageTestFitness) goal;
+//			if (goalDefinitionBranchFitness != null
+//			        && goalDefinitionBranchFitness.isSimilarTo(other))
+//				return true;
+//			return goalUseBranchFitness.isSimilarTo(other);
+//		} catch (ClassCastException e) {
+//			return false;
+//		}
 	}
 
 	/**
@@ -337,10 +330,11 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * Returns the goalDefinitionBranchDifficulty
 	 */
 	public int calculateDefinitionDifficulty() {
-		if (goalDefinitionBranchFitness == null)
-			return 1;
-		int defDifficulty = goalDefinitionBranchFitness.getDifficulty();
-		return defDifficulty;
+		return 0; // disabled for now
+//		if (goalDefinitionBranchFitness == null)
+//			return 1;
+//		int defDifficulty = goalDefinitionBranchFitness.getDifficulty();
+//		return defDifficulty;
 	}
 
 	/**
@@ -348,8 +342,9 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * 
 	 */
 	public int calculateUseDifficulty() {
-		int useDifficulty = goalUseBranchFitness.getDifficulty();
-		return useDifficulty;
+		return 0; // disabled for now
+//		int useDifficulty = goalUseBranchFitness.getDifficulty();
+//		return useDifficulty;
 	}
 
 	/**
@@ -490,12 +485,12 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		return goalUse;
 	}
 
-	public BranchCoverageTestFitness getGoalUseBranchFitness() {
-		return goalUseBranchFitness;
+	public TestFitnessFunction getGoalUseFitness() {
+		return goalUseFitness;
 	}
 
-	public BranchCoverageTestFitness getGoalDefinitionBranchFitness() {
-		return goalDefinitionBranchFitness;
+	public TestFitnessFunction getGoalDefinitionFitness() {
+		return goalDefinitionFitness;
 	}
 
 	// ---		Inherited from Object 			---
