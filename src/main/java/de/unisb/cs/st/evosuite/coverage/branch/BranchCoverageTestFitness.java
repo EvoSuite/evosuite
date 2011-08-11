@@ -108,10 +108,10 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	public boolean isSimilarTo(TestFitnessFunction other) {
 		if (other instanceof DefUseCoverageTestFitness) {
 			DefUseCoverageTestFitness duFitness = (DefUseCoverageTestFitness) other;
-			if (duFitness.getGoalDefinitionBranchFitness() != null
-			        && isSimilarTo(duFitness.getGoalDefinitionBranchFitness()))
+			if (duFitness.getGoalDefinitionFitness() != null
+			        && isSimilarTo(duFitness.getGoalDefinitionFitness()))
 				return true;
-			return isSimilarTo(duFitness.getGoalUseBranchFitness());
+			return isSimilarTo(duFitness.getGoalUseFitness());
 		}
 		try {
 			BranchCoverageTestFitness otherFitness = (BranchCoverageTestFitness) other;

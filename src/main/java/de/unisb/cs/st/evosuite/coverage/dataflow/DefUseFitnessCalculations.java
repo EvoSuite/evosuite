@@ -22,6 +22,7 @@ import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
+import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
 /**
  * 
@@ -116,8 +117,8 @@ public class DefUseFitnessCalculations {
 
 		Definition goalDefinition = goal.getGoalDefinition();
 		Use goalUse = goal.getGoalUse();
-		BranchCoverageTestFitness goalDefinitionBranchFitness = goal.getGoalDefinitionBranchFitness();
-		BranchCoverageTestFitness goalUseBranchFitness = goal.getGoalUseBranchFitness();
+		TestFitnessFunction goalDefinitionBranchFitness = goal.getGoalDefinitionFitness();
+		TestFitnessFunction goalUseBranchFitness = goal.getGoalUseFitness();
 		String goalVariable = goalUse.getDUVariableName();
 
 		// at first handle special cases where definition is assumed to be covered if use is covered:
@@ -188,7 +189,7 @@ public class DefUseFitnessCalculations {
 
 		Definition goalDefinition = goal.getGoalDefinition();
 		Use goalUse = goal.getGoalUse();
-		BranchCoverageTestFitness goalUseBranchFitness = goal.getGoalUseBranchFitness();
+		TestFitnessFunction goalUseBranchFitness = goal.getGoalUseFitness();
 		String goalVariable = goalDefinition.getDUVariableName();
 
 		// filter out trace information from other objects
@@ -459,7 +460,7 @@ public class DefUseFitnessCalculations {
 	 * special s. isSpecialGoalDefinition()
 	 */
 	public static double calculateDefFitnessForCompleteTrace(Definition targetDefinition,
-	        BranchCoverageTestFitness targetFitness, TestChromosome individual,
+	        TestFitnessFunction targetFitness, TestChromosome individual,
 	        ExecutionResult result) {
 		if (isSpecialDefinition(targetDefinition))
 			return 0.0;
@@ -479,7 +480,7 @@ public class DefUseFitnessCalculations {
 	 * special s. isSpecialGoalDefinition()
 	 */
 	public static double calculateUseFitnessForCompleteTrace(Use targetUse,
-	        BranchCoverageTestFitness targetFitness, TestChromosome individual,
+	        TestFitnessFunction targetFitness, TestChromosome individual,
 	        ExecutionResult result) {
 
 		// check ExecutionTrace.passedUses first, because calculating BranchTestFitness takes time
@@ -508,7 +509,7 @@ public class DefUseFitnessCalculations {
 	 * 
 	 */
 	public static double calculateUseFitnessForDefinitionPos(Definition targetDefinition,
-	        Use targetUse, BranchCoverageTestFitness targetUseBranchTestFitness,
+	        Use targetUse, TestFitnessFunction targetUseTestFitness,
 	        TestChromosome individual, ExecutionResult result,
 	        ExecutionTrace targetTrace, Integer objectId, int goalDefinitionPos) {
 
@@ -524,7 +525,7 @@ public class DefUseFitnessCalculations {
 		                                                                                          goalDefinitionPos,
 		                                                                                          objectId);
 		double fitness = calculateFitnessForDURange(individual, result, targetTrace,
-		                                            objectId, targetUseBranchTestFitness,
+		                                            objectId, targetUseTestFitness,
 		                                            targetUse, true, goalDefinitionPos,
 		                                            overwritingDefPos);
 
@@ -555,7 +556,7 @@ public class DefUseFitnessCalculations {
 	 */
 	public static double calculateFitnessForDURange(TestChromosome individual,
 	        ExecutionResult result, ExecutionTrace targetTrace, Integer objectId,
-	        BranchCoverageTestFitness targetFitness, DefUse targetDU,
+	        TestFitnessFunction targetFitness, DefUse targetDU,
 	        boolean wantToCoverTargetDU, int duCounterStart, int duCounterEnd) {
 
 		// filter trace
@@ -596,7 +597,7 @@ public class DefUseFitnessCalculations {
 	 */
 	public static double executeBranchFitnessForTrace(TestChromosome individual,
 	        ExecutionResult result, ExecutionTrace targetTrace,
-	        BranchCoverageTestFitness targetFitness) {
+	        TestFitnessFunction targetFitness) {
 
 		ExecutionTrace originalTrace = result.getTrace();
 		result.setTrace(targetTrace);
@@ -753,46 +754,6 @@ public class DefUseFitnessCalculations {
 		}
 
 		return false;
-	}
-
-	// BranchCoverageTestFitness factory methods
-	// TODO ... might want to encapsulate these somehow different
-	// maybe even make them new constructors for BranchCoverageTestFitness, that seems reasonable
-
-	/**
-	 * Creates a BranchCoverageTestFitness for the branch that the given
-	 * CFGVertex is control dependent on
-	 */
-	public static BranchCoverageTestFitness getBranchTestFitness(BytecodeInstruction v) {
-		
-		return getBranchTestFitness(v, v.getControlDependentBranchExpressionValue());
-	}
-
-//	/**
-//	 * Creates a BranchCoverageTestFitness for the alternative branch of the
-//	 * branch that the given CFGVertex is control dependent on
-//	 */
-//	public static BranchCoverageTestFitness getAlternativeBranchTestFitness(BytecodeInstruction v) {
-//		
-//		return getBranchTestFitness(v, v.getControlDependentBranchExpressionValue());
-//	}
-
-	/**
-	 * Creates a BranchCoverageTestFitness for the branch the given CFGVertex is
-	 * control dependent on but considering the given targetExpressionValue as
-	 * the branchExpressionValue
-	 */
-	public static BranchCoverageTestFitness getBranchTestFitness(BytecodeInstruction v,
-	        boolean targetExpressionValue) {
-		BranchCoverageTestFitness r;
-		if (v.isRootBranchDependent()) {
-			r = BranchCoverageFactory.createRootBranchTestFitness(v);
-		} else {
-			
-			r = new BranchCoverageTestFitness(new BranchCoverageGoal(v.getControlDependentBranch(),
-			        targetExpressionValue, v.getClassName(), v.getMethodName()));
-		}
-		return r;
 	}
 
 }
