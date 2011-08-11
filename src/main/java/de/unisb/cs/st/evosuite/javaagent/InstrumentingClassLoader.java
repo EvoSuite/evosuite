@@ -3,6 +3,8 @@ package de.unisb.cs.st.evosuite.javaagent;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
@@ -11,9 +13,10 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.Properties;
 
 public class InstrumentingClassLoader extends ClassLoader {
-	private final Logger logger = LoggerFactory.getLogger(InstrumentingClassLoader.class);
+	private final static Logger logger = LoggerFactory.getLogger(InstrumentingClassLoader.class);
 	private final BytecodeInstrumentation instrumentation;
 	private final ClassLoader classLoader;
+	private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
 
 	public InstrumentingClassLoader() {
 		this(new BytecodeInstrumentation());
@@ -33,12 +36,16 @@ public class InstrumentingClassLoader extends ClassLoader {
 			if (result != null) {
 				return result;
 			} else {
-				if (isTargetClass(name)) {
-					return instrumentClass(name);
+				result = classes.get(name);
+				if (result != null) {
+					return result;
 				} else {
-					return loadClassByteCode(name);
+					logger.info("Seeing class for first time: " + name);
+					return instrumentClass(name);
 				}
 			}
+		} else {
+			logger.trace("Not instrumenting: " + name);
 		}
 		Class<?> result = findLoadedClass(name);
 		if (result != null) {
@@ -62,9 +69,11 @@ public class InstrumentingClassLoader extends ClassLoader {
 			                                                   new ClassReader(is));
 			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,
 			                              byteBuffer.length);
+			classes.put(fullyQualifiedTargetClass, result);
+			logger.info("Keeping class: " + fullyQualifiedTargetClass);
 			return result;
 		} catch (Exception e) {
-			throw new ClassNotFoundException(e.getMessage());
+			throw new ClassNotFoundException(e.getMessage(), e);
 		}
 	}
 
