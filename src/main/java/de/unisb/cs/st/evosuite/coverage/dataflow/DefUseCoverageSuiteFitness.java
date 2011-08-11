@@ -46,9 +46,6 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		logger.trace("Calculating defuse fitness");
 
 		TestSuiteChromosome suite = (TestSuiteChromosome)individual;
-		// this seems odd: why aren't the results calculated once for all suites?
-		//				   seem very inefficient. TODO: talk to Gordon i guess, i seem to be missing a point here
-		// ah ok nvm, a test holds it's last result if it wasn't changed so this is OK
 		List<ExecutionResult> results = runTestSuite(suite);
 		double fitness = 0.0;
 

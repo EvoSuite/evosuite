@@ -135,7 +135,7 @@ public class DefUse extends BytecodeInstruction {
 		r.append(getDUVariableType());
 		r.append("-Variable \"" + getDUVariableName() +"\"");
 		r.append(" in " + getMethodName()+"."+getInstructionId()); 
-		if(isDirectlyControlDependentOn(null))
+		if(isRootBranchDependent())
 			r.append(" root-Branch");
 		else
 			r.append(" Branch " + getControlDependentBranchId() + (getControlDependentBranchExpressionValue()?"t":"f"));

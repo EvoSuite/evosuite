@@ -11,12 +11,24 @@ import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
 
 public class StatementCoverageFactory extends AbstractFitnessFactory {
 
+	private static boolean called = false;
+	private static List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
+	
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
-		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
+		
+		if(!called)
+			computeGoals();
 
+		return goals;
+	}
+	
+	private static void computeGoals() {
+		
+		if(called)
+			return;
+		
 		String targetMethod = Properties.TARGET_METHOD;
-
 		String targetClass = Properties.TARGET_CLASS;
 
 		for (String className : BytecodeInstructionPool.knownClasses()) {
@@ -36,13 +48,20 @@ public class StatementCoverageFactory extends AbstractFitnessFactory {
 						goals.add(new StatementCoverageTestFitness(ins));
 			}
 		}
-
-		return goals;
+		
+		called = true;		
 	}
 
-	private boolean isUsable(BytecodeInstruction ins) {
+
+	private static boolean isUsable(BytecodeInstruction ins) {
 		
 		return !ins.isLabel() && !ins.isLineNumber();
 	}
 
+	public static List<TestFitnessFunction> retrieveCoverageGoals() {
+		if(!called)
+			computeGoals();
+		
+		return goals;
+	}
 }

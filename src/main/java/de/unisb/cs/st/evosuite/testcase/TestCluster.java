@@ -1207,6 +1207,8 @@ public class TestCluster {
 				}
 
 			} catch (ClassNotFoundException e) {
+				if(e.getCause()!=null)
+					e.getCause().printStackTrace();
 				logger.error("Class not found: " + classname + ", ignoring for tests");
 				continue;
 			} catch (ExceptionInInitializerError e) {
