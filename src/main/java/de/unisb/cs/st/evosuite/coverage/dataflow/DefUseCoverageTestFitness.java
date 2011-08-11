@@ -164,6 +164,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	
 	// TODO take into account that we can detect multiple control dependencies now
 	private final BranchCoverageTestFitness goalDefinitionBranchFitness;
+	private final SingleInstructionTestFitness goalDefinitionFitness = null;
+	
 	private final BranchCoverageTestFitness goalUseBranchFitness;
 
 	private int difficulty = -1;
@@ -235,14 +237,6 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	public double getFitness(ExecutionResult result) {
 		TestChromosome dummy = new TestChromosome();
 		return getFitness(dummy, result);
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#updateIndividual(de.unisb.cs.st.evosuite.ga.Chromosome, double)
-	 */
-	@Override
-	protected void updateIndividual(Chromosome individual, double fitness) {
-		individual.setFitness(fitness);
 	}
 
 	/**

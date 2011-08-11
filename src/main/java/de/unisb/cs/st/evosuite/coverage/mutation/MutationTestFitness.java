@@ -310,14 +310,6 @@ public class MutationTestFitness extends TestFitnessFunction {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#updateIndividual(de.unisb.cs.st.evosuite.ga.Chromosome, double)
-	 */
-	@Override
-	protected void updateIndividual(Chromosome individual, double fitness) {
-		individual.setFitness(fitness);
-	}
-
-	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
