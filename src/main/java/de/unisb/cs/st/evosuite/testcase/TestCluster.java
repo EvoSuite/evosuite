@@ -1207,9 +1207,11 @@ public class TestCluster {
 				}
 
 			} catch (ClassNotFoundException e) {
+
 				if(e.getCause()!=null)
 					e.getCause().printStackTrace();
-				logger.error("Class not found: " + classname + ", ignoring for tests");
+				logger.error("Error loading class: " + classname + ": " + e.getCause()
+				        + " -  ignoring for tests");
 				continue;
 			} catch (ExceptionInInitializerError e) {
 				logger.error("Error in static constructor while trying to load class "
@@ -1423,6 +1425,11 @@ public class TestCluster {
 					continue;
 				}
 
+				if (toadd.isEnum()) {
+					logger.debug("Skipping enum " + classname);
+					continue;
+				}
+
 				// Keep all accessible constructors
 				for (Constructor<?> constructor : getConstructors(toadd)) {
 					logger.trace("Considering constructor " + constructor);
@@ -1573,6 +1580,11 @@ public class TestCluster {
 			logger.trace("Current class: " + classname);
 			if (!canUse(toadd)) {
 				logger.debug("Not using class " + classname);
+				continue;
+			}
+
+			if (toadd.isEnum()) {
+				logger.debug("Skipping enum " + classname);
 				continue;
 			}
 
