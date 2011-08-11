@@ -451,7 +451,7 @@ public class BytecodeInstruction extends ASMWrapper {
 	public boolean getBranchExpressionValue(Branch b) {
 		if (!isDirectlyControlDependentOn(b))
 			throw new IllegalArgumentException(
-					"this method can only be called for branches that this instruction is directly control dependent on");
+					"this method can only be called for branches that this instruction is directly control dependent on. "+toString()+b.toString());
 
 		if (b == null)
 			return true; // root branch special case

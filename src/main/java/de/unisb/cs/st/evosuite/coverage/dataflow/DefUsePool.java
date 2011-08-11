@@ -29,6 +29,8 @@ public class DefUsePool {
 	
 	// trees of all known definitions and uses
 
+	// TODO amis: remove branchId step! no longer accurate 
+	
 	// 	className -> methodName  -> DUVarName -> branchID -> List of Definitions in that branch 
 	private static Map<String, Map<String, Map<String, Map<Integer,List<Definition>>>>> def_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<Definition>>>>>();
 	
@@ -145,6 +147,7 @@ public class DefUsePool {
 		// assign fresh defUseId
 		duCounter++;
 		registeredDUs.put(d, duCounter);
+		
 		return true;
 	}
 	
@@ -209,7 +212,7 @@ public class DefUsePool {
 		defuseIdsToDefUses.put(use.getDefUseId(), use);
 		defuseIdsToUses.put(use.getDefUseId(), use);
 		
-		logger.info("Added to DefUsePool as use: "+use.toString());		
+		logger.info("Added to DefUsePool as use: "+use.toString());
 	}
 
 	// filling the maps

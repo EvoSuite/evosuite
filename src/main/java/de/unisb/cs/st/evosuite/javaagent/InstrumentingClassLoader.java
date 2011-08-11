@@ -64,7 +64,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 			                              byteBuffer.length);
 			return result;
 		} catch (Exception e) {
-			throw new ClassNotFoundException(e.getMessage());
+			throw new ClassNotFoundException(e.getMessage(),e);
 		}
 	}
 
