@@ -157,6 +157,7 @@ public class CFGMethodAdapter extends MethodAdapter {
 			logger.info("Generating CFG for method " + methodName);
 
 			try {
+				
 				bytecodeAnalyzer.analyze(className, methodName, mn);
 				logger.trace("Method graph for "
 				        + className
