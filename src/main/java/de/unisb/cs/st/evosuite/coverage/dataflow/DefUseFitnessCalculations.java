@@ -14,6 +14,7 @@ import de.unisb.cs.st.evosuite.Properties.AlternativeFitnessCalculationMode;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
@@ -785,7 +786,7 @@ public class DefUseFitnessCalculations {
 	        boolean targetExpressionValue) {
 		BranchCoverageTestFitness r;
 		if (v.isRootBranchDependent()) {
-			r = getRootBranchTestFitness(v);
+			r = BranchCoverageFactory.createRootBranchTestFitness(v);
 		} else {
 			
 			r = new BranchCoverageTestFitness(new BranchCoverageGoal(v.getControlDependentBranch(),
@@ -794,12 +795,4 @@ public class DefUseFitnessCalculations {
 		return r;
 	}
 
-	/**
-	 * Creates a BranchCoverageTestFitness for the root-branch of the method of
-	 * the given DefUse
-	 */
-	public static BranchCoverageTestFitness getRootBranchTestFitness(BytecodeInstruction v) {
-		return new BranchCoverageTestFitness(new BranchCoverageGoal(v.getClassName(),
-		        v.getClassName() + "." + v.getMethodName()));
-	}
 }
