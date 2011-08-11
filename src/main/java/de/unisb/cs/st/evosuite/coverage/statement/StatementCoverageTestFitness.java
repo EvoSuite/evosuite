@@ -58,18 +58,19 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 
 		for (BranchCoverageTestFitness branchFitness : branchFitnesses) {
 			double newFitness = branchFitness.getFitness(individual, result);
-			if (newFitness == 0.0)
+			if (newFitness == 0.0) {
 				return 0.0;
+			}
 			if (newFitness < r)
 				r = newFitness;
 		}
-
+		
 		return r;
 	}
 
 	@Override
 	public String toString() {
-		return goalInstruction.getMethodName() + " "
+		return "Statement Goal: "+goalInstruction.getMethodName() + " "
 				+ goalInstruction.toString();
 	}
 

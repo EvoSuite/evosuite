@@ -204,6 +204,8 @@ public class DefUsePool {
 		defuseIdsToDefUses.put(def.getDefUseId(),def);
 		defuseIdsToDefs.put(def.getDefUseId(), def);
 		
+		System.out.println("registered "+def.toString());
+		
 		logger.info("Added to DefUsePool as def: "+def.toString());
 	}
 	
@@ -211,6 +213,8 @@ public class DefUsePool {
 		addToUseMap(use);
 		defuseIdsToDefUses.put(use.getDefUseId(), use);
 		defuseIdsToUses.put(use.getDefUseId(), use);
+		
+		System.out.println("registered "+use.toString());
 		
 		logger.info("Added to DefUsePool as use: "+use.toString());
 	}

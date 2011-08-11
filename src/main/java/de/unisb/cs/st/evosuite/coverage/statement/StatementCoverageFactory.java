@@ -49,6 +49,8 @@ public class StatementCoverageFactory extends AbstractFitnessFactory {
 			}
 		}
 		
+		System.out.println("* Total number of coverage goals: "+goals.size());
+		
 		called = true;		
 	}
 

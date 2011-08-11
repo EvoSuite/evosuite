@@ -46,7 +46,8 @@ import de.unisb.cs.st.evosuite.testcase.TestCluster;
  */
 public class BytecodeInstrumentation implements ClassFileTransformer {
 
-	protected static Logger logger = LoggerFactory.getLogger(BytecodeInstrumentation.class);
+	protected static Logger logger = LoggerFactory
+			.getLogger(BytecodeInstrumentation.class);
 
 	// private static RemoveSystemExitTransformer systemExitTransformer = new
 	// RemoveSystemExitTransformer();
@@ -66,7 +67,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	}
 
 	static {
-		logger.info("Loading bytecode transformer for " + Properties.PROJECT_PREFIX);
+		logger.info("Loading bytecode transformer for "
+				+ Properties.PROJECT_PREFIX);
 	}
 
 	/*
@@ -79,8 +81,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	 */
 	@Override
 	public byte[] transform(ClassLoader loader, String className,
-	        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-	        byte[] classfileBuffer) throws IllegalClassFormatException {
+			Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+			byte[] classfileBuffer) throws IllegalClassFormatException {
 		isJavaagent = true;
 		if (className == null) {
 			return classfileBuffer;
@@ -89,9 +91,11 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 		// Some packages we shouldn't touch - hard-coded
 		if (!isTargetProject(classNameWithDots)
-		        && (classNameWithDots.startsWith("java")
-		                || classNameWithDots.startsWith("sun")
-		                || classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
+				&& (classNameWithDots.startsWith("java")
+						|| classNameWithDots.startsWith("sun")
+						|| classNameWithDots
+								.startsWith("org.aspectj.org.eclipse") || classNameWithDots
+						.startsWith("org.mozilla.javascript.gen.c"))) {
 			return classfileBuffer;
 		}
 
@@ -122,7 +126,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		// classfileBuffer = systemExitTransformer
 		// .transformBytecode(classfileBuffer);
 
-		ClassWriter writer = new ClassWriter(org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
+		ClassWriter writer = new ClassWriter(
+				org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
 
 		ClassVisitor cv = writer;
 
@@ -134,6 +139,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		// Apply transformations to class under test and its owned
 		// classes
 		if (isTargetClassName(classNameWithDots)) {
+//			cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 			cv = new AccessibleClassAdapter(cv, className);
 			cv = new ExecutionPathClassAdapter(cv, className);
 			cv = new CFGClassAdapter(cv, className);
@@ -177,7 +183,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		} else {
 			reader.accept(cv, ClassReader.SKIP_FRAMES);
 		}
-		
+
 		// Print out bytecode if debug is enabled
 		// if(logger.isDebugEnabled())
 		// cv = new TraceClassVisitor(cv, new
