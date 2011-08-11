@@ -38,6 +38,8 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	private static final long serialVersionUID = 5602125855207061901L;
 
 	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
+	
+	static boolean warnedAboutIsSimilarTo = false;
 
 	/**
 	 * Execute a test case
@@ -107,9 +109,11 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	 * encouraged in order to avoid unnecessary performance loss
 	 */
 	public boolean isSimilarTo(TestFitnessFunction goal) {
-		if (Properties.RECYCLE_CHROMOSOMES)
+		if (!warnedAboutIsSimilarTo && Properties.RECYCLE_CHROMOSOMES) {
 			logger.warn("called default TestFitness.isSimilarTo() though recycling is enabled. "
 			        + "possible performance loss. set property recycle_chromosomes to false");
+			warnedAboutIsSimilarTo = true;
+		}
 		return false;
 	}
 
