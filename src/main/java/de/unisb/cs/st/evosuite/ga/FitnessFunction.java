@@ -41,7 +41,9 @@ public abstract class FitnessFunction implements Serializable {
 	 * @param individual
 	 * @param fitness
 	 */
-	protected abstract void updateIndividual(Chromosome individual, double fitness);
+	protected void updateIndividual(Chromosome individual, double fitness) {
+		individual.setFitness(fitness);
+	}
 
 	/**
 	 * Calculate and set fitness function #TODO the 'set fitness' part should be

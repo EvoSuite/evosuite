@@ -129,14 +129,6 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 			return goal.getDifficulty();
 	}
 
-	/**
-	 * Store information
-	 */
-	@Override
-	protected void updateIndividual(Chromosome individual, double fitness) {
-		individual.setFitness(fitness);
-	}
-
 	@Override
 	public String toString() {
 		return goal.toString();

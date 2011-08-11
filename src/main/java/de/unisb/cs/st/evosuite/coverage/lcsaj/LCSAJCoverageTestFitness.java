@@ -168,18 +168,6 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 		return savedFitness;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.ga.FitnessFunction#updateIndividual(de.unisb.
-	 * cs.st.evosuite.ga.Chromosome, double)
-	 */
-	@Override
-	protected void updateIndividual(Chromosome individual, double fitness) {
-		individual.setFitness(fitness);
-	}
-
 	@Override
 	public String toString() {
 		return lcsaj.toString();
