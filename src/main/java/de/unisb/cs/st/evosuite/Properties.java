@@ -568,6 +568,11 @@ public class Properties {
 			if (f.isAnnotationPresent(Parameter.class)) {
 				Parameter p = f.getAnnotation(Parameter.class);
 				parameterMap.put(p.key(), f);
+				try {
+					defaultMap.put(f, f.get(null));
+				} catch (IllegalArgumentException e) {
+				} catch (IllegalAccessException e) {
+				}
 			}
 		}
 	}
@@ -624,6 +629,9 @@ public class Properties {
 
 	/** All fields representing values, inserted via reflection */
 	private static Map<String, Field> parameterMap = new HashMap<String, Field>();
+
+	/** All fields representing values, inserted via reflection */
+	private static Map<Field, Object> defaultMap = new HashMap<Field, Object>();
 
 	/**
 	 * Get class of parameter
@@ -895,7 +903,7 @@ public class Properties {
 	}
 
 	/** Singleton instance */
-	private static Properties instance = new Properties();
+	private static Properties instance = new Properties(true);
 
 	/** Internal properties hashmap */
 	private java.util.Properties properties;
@@ -907,7 +915,7 @@ public class Properties {
 	 */
 	public static Properties getInstance() {
 		if (instance == null)
-			instance = new Properties();
+			instance = new Properties(true);
 		return instance;
 	}
 
@@ -926,9 +934,10 @@ public class Properties {
 	}
 
 	/** Constructor */
-	private Properties() {
+	private Properties(boolean loadProperties) {
 		reflectMap();
-		loadProperties();
+		if (loadProperties)
+			loadProperties();
 		if (TARGET_CLASS != null && !TARGET_CLASS.equals("")) {
 			CLASS_PREFIX = TARGET_CLASS.substring(0, TARGET_CLASS.lastIndexOf('.'));
 			SUB_PREFIX = CLASS_PREFIX.replace(PROJECT_PREFIX + ".", "");
@@ -1022,5 +1031,20 @@ public class Properties {
 			}
 		}
 		Utils.writeFile(buffer.toString(), fileName);
+	}
+
+	public void resetToDefaults() {
+		instance = new Properties(false);
+		for (Field f : Properties.class.getFields()) {
+			if (f.isAnnotationPresent(Parameter.class)) {
+				if (defaultMap.containsKey(f)) {
+					try {
+						f.set(null, defaultMap.get(f));
+					} catch (IllegalArgumentException e) {
+					} catch (IllegalAccessException e) {
+					}
+				}
+			}
+		}
 	}
 }
