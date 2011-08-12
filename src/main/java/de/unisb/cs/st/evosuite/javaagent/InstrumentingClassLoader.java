@@ -1,5 +1,7 @@
 package de.unisb.cs.st.evosuite.javaagent;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,6 +9,8 @@ import java.util.Map;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.unisb.cs.st.evosuite.Properties;
 
 public class InstrumentingClassLoader extends ClassLoader {
 	private final static Logger logger = LoggerFactory.getLogger(InstrumentingClassLoader.class);
