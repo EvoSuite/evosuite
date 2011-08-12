@@ -651,20 +651,20 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		return null;
 	}
 
-	@Override
-	public BytecodeInstruction getBranch(int branchId) {
-
-		Branch searchedFor = BranchPool.getBranch(branchId);
-		if (searchedFor == null)
-			return null;
-
-		if (containsInstruction(searchedFor.getInstruction()))
-			return searchedFor.getInstruction();
-
-		// TODO more sanity checks?
-
-		return null;
-	}
+//	@Override
+//	public BytecodeInstruction getBranch(int branchId) {
+//
+//		Branch searchedFor = BranchPool.getBranch(branchId);
+//		if (searchedFor == null)
+//			return null;
+//
+//		if (containsInstruction(searchedFor.getInstruction()))
+//			return searchedFor.getInstruction();
+//
+//		// TODO more sanity checks?
+//
+//		return null;
+//	}
 
 	public BytecodeInstruction getEntryPoint() {
 		return entryPoint;
