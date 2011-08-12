@@ -58,15 +58,15 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		return null;
 	}
 
-//	@Override
-//	public BytecodeInstruction getBranch(int branchId) {
-//		for (BytecodeInstruction v : vertexSet()) {
-//			if (v.isBranch() && v.getControlDependentBranchId() == branchId) {
-//				return v;
-//			}
-//		}
-//		return null;
-//	}
+	// @Override
+	// public BytecodeInstruction getBranch(int branchId) {
+	// for (BytecodeInstruction v : vertexSet()) {
+	// if (v.isBranch() && v.getControlDependentBranchId() == branchId) {
+	// return v;
+	// }
+	// }
+	// return null;
+	// }
 
 	protected ControlFlowEdge addEdge(BytecodeInstruction src,
 			BytecodeInstruction target, boolean isExceptionEdge) {
