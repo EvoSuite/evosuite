@@ -100,13 +100,12 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			if (staticContext) {
 				instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
 			} else {
-				instrumentation.add(new VarInsnNode(Opcodes.ALOAD, 0));
+				instrumentation.add(new VarInsnNode(Opcodes.ALOAD, 0)); // "this"
 			}
-			instrumentation.add(new LdcInsnNode(-999)); // TODO remove from tracer! no longer necessary and not even used!
 			instrumentation.add(new LdcInsnNode(DefUsePool.getUseCounter()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedUse",
-			        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;II)V"));
+			        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;I)V"));
 		}
 
 		if (v.isDefinition()) {
@@ -116,14 +115,13 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			if (staticContext) {
 				instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
 			} else {
-				instrumentation.add(new VarInsnNode(Opcodes.ALOAD, 0));
+				instrumentation.add(new VarInsnNode(Opcodes.ALOAD, 0)); // "this"
 			}
-			instrumentation.add(new LdcInsnNode(-999));
 			instrumentation.add(new LdcInsnNode(DefUsePool.getDefCounter()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 			        "passedDefinition",
-			        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;II)V"));
+			        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;I)V"));
 		}
 
 		return instrumentation;
