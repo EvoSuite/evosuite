@@ -206,6 +206,13 @@ public abstract class ControlFlowGraph<V> extends EvoSuiteGraph<V, ControlFlowEd
 
 	@Override
 	public String getName() {
-		return "CFG " + className + "." + methodName;
+		return getCFGType() + " " + methodName;
 	}
+	
+	@Override
+	protected String dotSubFolder() {
+		return toFileString(className)+"/"+getCFGType()+"/";
+	}
+	
+	public abstract String getCFGType();
 }
