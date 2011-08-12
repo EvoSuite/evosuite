@@ -217,9 +217,14 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		preFitnessDebugInfo(result, true);
 
-		double fitness = DefUseFitnessCalculations.calculateDUFitness(this, individual,
-		                                                              result);
+		DefUseFitnessCalculator calculator = new DefUseFitnessCalculator(this, individual,
+                result);
+		
+		double fitness = calculator.calculateDUFitness();
 
+		if(fitness == 0.0)
+			setCovered(individual, result.getTrace(), -1); // TODO wrong
+		
 		postFitnessDebugInfo(individual, result, fitness);
 
 		return fitness;
@@ -436,7 +441,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		updateIndividual(individual, 0);
 
 		if (DEBUG)
-			if (!DefUseFitnessCalculations.traceCoversGoal(this, individual, trace))
+			if (!DefUseFitnessCalculator.traceCoversGoal(this, individual, trace))
 				throw new IllegalStateException("calculation flawed. goal wasn't covered");
 	}
 
@@ -457,7 +462,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 					System.out.println("goal NOT COVERED. fitness: " + fitness);
 					System.out.println("==============================================================");
 				}
-				if(DefUseFitnessCalculations.traceCoversGoal(this, individual, result.getTrace()))
+				if(DefUseFitnessCalculator.traceCoversGoal(this, individual, result.getTrace()))
 					throw new IllegalStateException("calculation flawed. goal was covered but fitness was "+fitness);
 			}
 		}
