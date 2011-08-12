@@ -451,7 +451,8 @@ public class BytecodeInstruction extends ASMWrapper {
 	public boolean getBranchExpressionValue(Branch b) {
 		if (!isDirectlyControlDependentOn(b))
 			throw new IllegalArgumentException(
-					"this method can only be called for branches that this instruction is directly control dependent on. "+toString()+b.toString());
+					"this method can only be called for branches that this instruction is directly control dependent on. "
+							+ toString() + b.toString());
 
 		if (b == null)
 			return true; // root branch special case
@@ -650,6 +651,24 @@ public class BytecodeInstruction extends ASMWrapper {
 			return false;
 
 		return super.equals(obj);
+	}
+
+	/**
+	 * Convenience method:
+	 * 
+	 * If this instruction is known by the BranchPool to be a Branch,
+	 * you can call this method in order to retrieve the corresponding Branch
+	 * object registered within the BranchPool.
+	 * 
+	 * Otherwise this method will return null;
+	 */
+	public Branch toBranch() {
+		
+		try {
+			return BranchPool.getBranchForInstruction(this);
+		} catch(Exception e) {
+			return null;
+		}
 	}
 
 }
