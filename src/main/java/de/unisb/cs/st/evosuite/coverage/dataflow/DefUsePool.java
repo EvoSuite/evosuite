@@ -123,11 +123,6 @@ public class DefUsePool {
 			return false;
 		if(isKnownAsUse(u))
 			return false;
-		if(u.isLocalVarUse()) {
-			// was ALOAD_0 ("this") TODO amis: thesis!
-			if(u.getLocalVar()==0)
-				return false;
-		}
 		
 		registerAsDefUse(u);
 		registerAsUse(u);
