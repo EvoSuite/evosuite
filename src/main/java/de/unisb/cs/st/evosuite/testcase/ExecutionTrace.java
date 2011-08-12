@@ -303,8 +303,8 @@ public class ExecutionTrace {
 			if (stack.isEmpty()) {
 				logger.warn("Method stack is empty: " + className + "."
 						+ methodName + " - l" + line); // TODO switch back
-														// logger.debug to
-														// logger.warn
+				// logger.debug to
+				// logger.warn
 			} else {
 				stack.peek().lineTrace.add(line);
 			}
@@ -417,9 +417,7 @@ public class ExecutionTrace {
 	 * active MethodCall in this.stack
 	 */
 	public void definitionPassed(String className, String varName,
-			String methodName, Object caller, int branchID, int defID) {
-
-		// TODO amis: branchID never used! no need to instrument
+			String methodName, Object caller, int defID) {
 
 		if (!trace_calls) // TODO ???
 			return;
@@ -456,9 +454,7 @@ public class ExecutionTrace {
 	 * in the passedUses-field
 	 */
 	public void usePassed(String className, String varName, String methodName,
-			Object caller, int branchID, int useID) {
-
-		// TODO amis: branchID never used! no need to instrument
+			Object caller, int useID) {
 
 		if (!trace_calls) // TODO ???
 			return;
@@ -792,7 +788,7 @@ public class ExecutionTrace {
 			r.append(toDefUseTraceInformation(targetVar, objectId));
 		}
 		r.append("\n  ");
-		
+
 		return r.toString();
 	}
 
