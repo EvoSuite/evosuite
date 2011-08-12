@@ -474,8 +474,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	}
 
 	@Override
-	public String getName() {
-		// return "RawCFG" + graphId + "_" + methodName;
-		return "RawCFG" + "_" + methodName;
+	public String getCFGType() {
+		return "RCFG";
 	}
 }

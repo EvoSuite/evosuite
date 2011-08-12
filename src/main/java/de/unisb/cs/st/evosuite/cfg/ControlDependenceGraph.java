@@ -434,6 +434,11 @@ public class ControlDependenceGraph extends
 		// return "CDG" + graphId + "_" + methodName;
 		return "CDG" + "_" + methodName;
 	}
+	
+	@Override
+	protected String dotSubFolder() {
+		return toFileString(className)+"/CDG/";
+	}
 
 	public String getClassName() {
 		return className;
