@@ -322,10 +322,10 @@ public class Properties {
 	public static String REPORT_DIR = "evosuite-report";
 
 	@Parameter(key = "print_current_goals", group = "Output", description = "Print out current goal during test generation")
-	public static boolean PRINT_CURRENT_GOALS = true;
+	public static boolean PRINT_CURRENT_GOALS = false;
 
 	@Parameter(key = "print_covered_goals", group = "Output", description = "Print out covered goals during test generation")
-	public static boolean PRINT_COVERED_GOALS = true;
+	public static boolean PRINT_COVERED_GOALS = false;
 
 	@Parameter(key = "assertions", group = "Output", description = "Create assertions")
 	public static boolean ASSERTIONS = false;
