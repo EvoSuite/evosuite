@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.cfg.ControlDependency;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -259,7 +260,7 @@ public class ControlFlowDistanceCalculator {
 	        String className, String methodName, Set<Branch> handled) {
 
 		Set<ControlFlowDistance> r = new HashSet<ControlFlowDistance>();
-		Set<Branch> nextToLookAt = instruction.getControlDependentBranches();
+		Set<ControlDependency> nextToLookAt = instruction.getControlDependencies();
 
 		if (nextToLookAt.isEmpty()) {
 			// instruction only dependent on root branch
@@ -271,9 +272,12 @@ public class ControlFlowDistanceCalculator {
 			r.add(new ControlFlowDistance());
 		}
 
-		for (Branch next : nextToLookAt) {
-			boolean nextValue = instruction.getBranchExpressionValue(next);
-			ControlFlowDistance nextDistance = getNonRootDistance(result, call, next,
+		for (ControlDependency next : nextToLookAt) {
+			if(instruction.equals(next.getBranch()))
+				continue; // avoid loops
+			
+			boolean nextValue = next.getBranchExpressionValue();
+			ControlFlowDistance nextDistance = getNonRootDistance(result, call, next.getBranch(),
 			                                                      nextValue, className,
 			                                                      methodName, handled);
 			r.add(nextDistance);

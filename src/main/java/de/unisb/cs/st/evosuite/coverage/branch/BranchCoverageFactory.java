@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.cfg.ControlDependency;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
@@ -91,6 +92,14 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 		return goals;
 	}
 
+	/**
+	 * Create a fitness function for branch coverage aimed at executing the
+	 * given ControlDependency.
+	 */	
+	public static BranchCoverageTestFitness createBranchCoverageTestFitness(ControlDependency cd) {
+		return createBranchCoverageTestFitness(cd.getBranch(), cd.getBranchExpressionValue());
+	}
+	
 	/**
 	 * Create a fitness function for branch coverage aimed at executing the
 	 * Branch identified by b as defined by branchExpressionValue.

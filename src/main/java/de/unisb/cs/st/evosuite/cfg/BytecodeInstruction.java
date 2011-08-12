@@ -49,7 +49,7 @@ public class BytecodeInstruction extends ASMWrapper {
 
 	// experiment: since finding the control dependent branches in the CDG might
 	// take a little to long, we might want to remember them
-	private Set<Branch> controlDependentBranches;
+	private Set<ControlDependency> controlDependentBranches;
 	private Set<Integer> controlDependentBranchIDs;
 
 	// experiment: also searching through all CFG nodes in order to determine an
@@ -321,32 +321,14 @@ public class BytecodeInstruction extends ASMWrapper {
 	 * do not need the full set in order to avoid loops, call
 	 * getAllControlDependentBranches instead
 	 */
-	public Set<Branch> getAllControlDependentBranches() {
+	public Set<ControlDependency> getControlDependencies() {
 
 		if (controlDependentBranches == null)
 			controlDependentBranches = getCDG().getControlDependentBranches(
 					this);
 
-		return controlDependentBranches;
+		return new HashSet<ControlDependency>(controlDependentBranches);
 		// return new HashSet<Branch>(controlDependentBranches);
-	}
-
-	/**
-	 * Returns a cfg.Branch object for each branch this instruction is control
-	 * dependent on as determined by the ControlDependenceGraph. If this
-	 * instruction is only dependent on the root branch this method returns an
-	 * empty set
-	 * 
-	 * If this instruction is a Branch and it is dependent on itself - which can
-	 * happen in loops for example - the returned set will NOT contain this. If
-	 * you need the full set, call getAllControlDependentBranches instead
-	 */
-	public Set<Branch> getControlDependentBranches() {
-
-		Set<Branch> r = new HashSet<Branch>(getAllControlDependentBranches());
-		r.remove(this);
-
-		return r;
 	}
 
 	/**
@@ -362,12 +344,12 @@ public class BytecodeInstruction extends ASMWrapper {
 	 */
 	public Branch getControlDependentBranch() {
 
-		Set<Branch> controlDependentBranches = getAllControlDependentBranches();
+		Set<ControlDependency> controlDependentBranches = getControlDependencies();
 
-		for (Branch cdId : controlDependentBranches)
-			return cdId;
+		for (ControlDependency cd : controlDependentBranches)
+			return cd.getBranch();
 
-		return null;
+		return null; // root branch
 	}
 
 	/**
@@ -380,11 +362,7 @@ public class BytecodeInstruction extends ASMWrapper {
 	 */
 	public Set<Integer> getControlDependentBranchIds() {
 
-		ControlDependenceGraph myDependence = CFGPool.getCDG(className,
-				methodName);
-		if (myDependence == null)
-			throw new IllegalStateException(
-					"expect CFGPool to know CDG for every method for which an instruction is known");
+		ControlDependenceGraph myDependence = getCDG();
 
 		if (controlDependentBranchIDs == null)
 			controlDependentBranchIDs = myDependence
@@ -399,7 +377,7 @@ public class BytecodeInstruction extends ASMWrapper {
 	 * see if the return contains -1.
 	 */
 	public boolean isRootBranchDependent() {
-		return getAllControlDependentBranches().isEmpty();
+		return getControlDependencies().isEmpty();
 	}
 
 	/**
@@ -445,19 +423,14 @@ public class BytecodeInstruction extends ASMWrapper {
 		return getBranchExpressionValue(b);
 	}
 
-	/**
-	 *  
-	 */
 	public boolean getBranchExpressionValue(Branch b) {
 		if (!isDirectlyControlDependentOn(b))
-			throw new IllegalArgumentException(
-					"this method can only be called for branches that this instruction is directly control dependent on. "
-							+ toString() + b.toString());
+			throw new IllegalArgumentException("this method can only be called for branches that this instruction is directly control dependent on.");
 
 		if (b == null)
 			return true; // root branch special case
 
-		return getCDG().getBranchExpressionValue(this, b);
+		return getControlDependency(b).getBranchExpressionValue();
 	}
 
 	/**
@@ -472,64 +445,80 @@ public class BytecodeInstruction extends ASMWrapper {
 	public boolean isDirectlyControlDependentOn(Branch branch) {
 		if (branch == null)
 			return getControlDependentBranchIds().contains(-1);
-		return getAllControlDependentBranches().contains(branch);
-	}
-
-	/**
-	 * WARNING: better don't user this method right now TODO
-	 * 
-	 * Determines whether the CFGVertex is transitively control dependent on the
-	 * given Branch
-	 * 
-	 * A CFGVertex is transitively control dependent on a given Branch if the
-	 * Branch and the vertex are in the same method and the vertex is either
-	 * directly control dependent on the Branch - look at
-	 * isDirectlyControlDependentOn(Branch) - or the CFGVertex of the control
-	 * dependent branch of this CFGVertex is transitively control dependent on
-	 * the given branch.
-	 * 
-	 */
-	public boolean isTransitivelyControlDependentOn(Branch branch) {
-		if (!getClassName().equals(branch.getClassName()))
-			return false;
-		if (!getMethodName().equals(branch.getMethodName()))
-			return false;
-
-		// TODO: this method does not take into account, that there might be
-		// multiple branches this instruction is control dependent on
-
-		BytecodeInstruction vertexHolder = this;
-		do {
-			if (vertexHolder.isDirectlyControlDependentOn(branch))
+		
+		for(ControlDependency cd : getControlDependencies())
+			if(cd.getBranch().equals(branch))
 				return true;
-			vertexHolder = vertexHolder.getControlDependentBranch()
-					.getInstruction();
-		} while (vertexHolder != null);
-
+		
 		return false;
 	}
 
-	/**
-	 * WARNING: better don't user this method right now TODO
-	 * 
-	 * Determines the number of branches that have to be passed in order to pass
-	 * this CFGVertex
-	 * 
-	 * Used to determine TestFitness difficulty
-	 */
-	public int getCDGDepth() {
-
-		// TODO: this method does not take into account, that there might be
-		// multiple branches this instruction is control dependent on
-
-		Branch current = getControlDependentBranch();
-		int r = 1;
-		while (current != null) {
-			r++;
-			current = current.getInstruction().getControlDependentBranch();
-		}
-		return r;
+	public ControlDependency getControlDependency(Branch branch) {
+		if(!isDirectlyControlDependentOn(branch))
+			throw new IllegalArgumentException("instruction not directly control dependent on given branch");
+		
+		for(ControlDependency cd : getControlDependencies())
+			if(cd.getBranch().equals(branch))
+				return cd;
+		
+		throw new IllegalStateException("expect getControlDependencies() to contain a CD for each branch that isDirectlyControlDependentOn() returns true on");
 	}
+
+//	/**
+//	 * WARNING: better don't user this method right now TODO
+//	 * 
+//	 * Determines whether the CFGVertex is transitively control dependent on the
+//	 * given Branch
+//	 * 
+//	 * A CFGVertex is transitively control dependent on a given Branch if the
+//	 * Branch and the vertex are in the same method and the vertex is either
+//	 * directly control dependent on the Branch - look at
+//	 * isDirectlyControlDependentOn(Branch) - or the CFGVertex of the control
+//	 * dependent branch of this CFGVertex is transitively control dependent on
+//	 * the given branch.
+//	 * 
+//	 */
+//	public boolean isTransitivelyControlDependentOn(Branch branch) {
+//		if (!getClassName().equals(branch.getClassName()))
+//			return false;
+//		if (!getMethodName().equals(branch.getMethodName()))
+//			return false;
+//
+//		// TODO: this method does not take into account, that there might be
+//		// multiple branches this instruction is control dependent on
+//
+//		BytecodeInstruction vertexHolder = this;
+//		do {
+//			if (vertexHolder.isDirectlyControlDependentOn(branch))
+//				return true;
+//			vertexHolder = vertexHolder.getControlDependentBranch()
+//					.getInstruction();
+//		} while (vertexHolder != null);
+//
+//		return false;
+//	}
+
+//	/**
+//	 * WARNING: better don't user this method right now TODO
+//	 * 
+//	 * Determines the number of branches that have to be passed in order to pass
+//	 * this CFGVertex
+//	 * 
+//	 * Used to determine TestFitness difficulty
+//	 */
+//	public int getCDGDepth() {
+//
+//		// TODO: this method does not take into account, that there might be
+//		// multiple branches this instruction is control dependent on
+//
+//		Branch current = getControlDependentBranch();
+//		int r = 1;
+//		while (current != null) {
+//			r++;
+//			current = current.getInstruction().getControlDependentBranch();
+//		}
+//		return r;
+//	}
 
 	// String methods
 

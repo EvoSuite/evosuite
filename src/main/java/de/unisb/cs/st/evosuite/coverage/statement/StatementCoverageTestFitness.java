@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.cfg.ControlDependency;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
@@ -25,12 +26,11 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 
 		this.goalInstruction = goalInstruction;
 
-		Set<Branch> cds = goalInstruction.getAllControlDependentBranches();
+		Set<ControlDependency> cds = goalInstruction.getControlDependencies();
 
-		for (Branch cd : cds) {
+		for (ControlDependency cd : cds) {
 			BranchCoverageTestFitness fitness = BranchCoverageFactory
-					.createBranchCoverageTestFitness(cd, goalInstruction
-							.getBranchExpressionValue(cd));
+					.createBranchCoverageTestFitness(cd);
 
 			branchFitnesses.add(fitness);
 		}

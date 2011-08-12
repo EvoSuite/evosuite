@@ -68,7 +68,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 						        || ((access & Opcodes.ACC_STATIC) > 0);
 						// adding instrumentation for defuse-coverage
 						mn.instructions.insert(v.getASMNode().getPrevious(),
-						                       getInstrumentation(v, v.getControlDependentBranchId(),
+						                       getInstrumentation(v, 
 						                                          staticContext,
 						                                          className, methodName));
 					}
@@ -81,7 +81,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 	 * Creates the instrumentation needed to track defs and uses
 	 * 
 	 */
-	private InsnList getInstrumentation(BytecodeInstruction v, int currentBranch,
+	private InsnList getInstrumentation(BytecodeInstruction v,
 	        boolean staticContext, String className, String methodName) {
 		InsnList instrumentation = new InsnList();
 		
@@ -102,7 +102,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			} else {
 				instrumentation.add(new VarInsnNode(Opcodes.ALOAD, 0));
 			}
-			instrumentation.add(new LdcInsnNode(currentBranch));
+			instrumentation.add(new LdcInsnNode(-999)); // TODO remove from tracer! no longer necessary and not even used!
 			instrumentation.add(new LdcInsnNode(DefUsePool.getUseCounter()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedUse",
@@ -118,7 +118,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			} else {
 				instrumentation.add(new VarInsnNode(Opcodes.ALOAD, 0));
 			}
-			instrumentation.add(new LdcInsnNode(currentBranch));
+			instrumentation.add(new LdcInsnNode(-999));
 			instrumentation.add(new LdcInsnNode(DefUsePool.getDefCounter()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",

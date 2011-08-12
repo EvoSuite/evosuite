@@ -11,6 +11,10 @@ public class ControlFlowEdge extends DefaultEdge {
 	private ControlDependency cd;
 	private boolean isExceptionEdge;
 
+	public ControlFlowEdge() {
+		this.cd = null;
+		this.isExceptionEdge = false;
+	}
 
 	public ControlFlowEdge(boolean isExceptionEdge) {
 		this.isExceptionEdge = isExceptionEdge;
@@ -50,11 +54,14 @@ public class ControlFlowEdge extends DefaultEdge {
 		return cd;
 	}
 
-	public boolean hasBranchInstructionSet() {
+	public boolean hasControlDependency() {
 		return cd != null;
 	}
 	
 	public Branch getBranchInstruction() {
+		if(cd == null)
+			return null;
+		
 		return cd.getBranch();
 	}
 	
@@ -63,7 +70,10 @@ public class ControlFlowEdge extends DefaultEdge {
 	}
 
 	public boolean getBranchExpressionValue() {
-		return cd.getBranchExpressionValue();
+		if(hasControlDependency())
+			return cd.getBranchExpressionValue();
+		
+		return true;
 	}
-
+	
 }

@@ -121,13 +121,13 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		}
 	}
 
-	@Override
-	public int getDifficulty() {
-		if (goal == null)
-			return 1;
-		else
-			return goal.getDifficulty();
-	}
+//	@Override
+//	public int getDifficulty() {
+//		if (goal == null)
+//			return 1;
+//		else
+//			return goal.getDifficulty();
+//	}
 
 	@Override
 	public String toString() {

@@ -102,13 +102,13 @@ public abstract class ControlFlowGraph<V> extends EvoSuiteGraph<V, ControlFlowEd
 		return false;
 	}
 
-	/**
-	 * Can be used to retrieve a Branch contained in this CFG identified by it's
-	 * branchId
-	 * 
-	 * If no such branch exists in this CFG, null is returned
-	 */
-	public abstract BytecodeInstruction getBranch(int branchId);
+//	/**
+//	 * Can be used to retrieve a Branch contained in this CFG identified by it's
+//	 * branchId
+//	 * 
+//	 * If no such branch exists in this CFG, null is returned
+//	 */
+//	public abstract BytecodeInstruction getBranch(int branchId);
 
 	/**
 	 * Can be used to retrieve an instruction contained in this CFG identified

@@ -11,6 +11,7 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.LdcInsnNode;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.cfg.ControlDependency;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
 
@@ -78,9 +79,8 @@ public class Mutation {
 
 	public Set<BranchCoverageGoal> getControlDependencies() {
 		Set<BranchCoverageGoal> goals = new HashSet<BranchCoverageGoal>();
-		for (Branch branch : original.getControlDependentBranches()) {
-			BranchCoverageGoal goal = new BranchCoverageGoal(branch,
-			        original.getBranchExpressionValue(branch), className, methodName);
+		for (ControlDependency cd : original.getControlDependencies()) {
+			BranchCoverageGoal goal = new BranchCoverageGoal(cd, className, methodName);
 			goals.add(goal);
 		}
 		return goals;
