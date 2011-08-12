@@ -29,14 +29,11 @@ public class DefUsePool {
 	
 	// trees of all known definitions and uses
 
-	// TODO amis: remove branchId step! no longer accurate 
+	// 	className -> methodName  -> DUVarName -> List of Definitions in that method for the variable 
+	private static Map<String, Map<String, Map<String, List<Definition>>>> def_map = new HashMap<String, Map<String, Map<String, List<Definition>>>>();
 	
-	// 	className -> methodName  -> DUVarName -> branchID -> List of Definitions in that branch 
-	private static Map<String, Map<String, Map<String, Map<Integer,List<Definition>>>>> def_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<Definition>>>>>();
-	
-	// 	className -> methodName  -> DUVarName -> branchID -> List of Uses in that branch
-	private static Map<String, Map<String, Map<String, Map<Integer,List<Use>>>>> use_map = new HashMap<String, Map<String, Map<String, Map<Integer,List<Use>>>>>();	
-	
+	// 	className -> methodName  -> DUVarName -> List of Uses in that method for the variable
+	private static Map<String, Map<String, Map<String, List<Use>>>> use_map = new HashMap<String, Map<String, Map<String, List<Use>>>>();		
 	// maps IDs to objects
 	private static Map<Integer, DefUse> defuseIdsToDefUses = new HashMap<Integer, DefUse>();
 	private static Map<Integer, Definition> defuseIdsToDefs = new HashMap<Integer, Definition>();
@@ -221,36 +218,32 @@ public class DefUsePool {
 		String className = d.getClassName();
 		String methodName = d.getMethodName();
 		String varName = d.getDUVariableName();
-		int branchId = d.getControlDependentBranchId();
 		
-		initMap(def_map,className,methodName,varName,branchId);
+		initMap(def_map,className,methodName,varName);
 		
-		return def_map.get(className).get(methodName).get(varName).get(branchId).add(d);
+		return def_map.get(className).get(methodName).get(varName).add(d);
 	}
 	
 	private static boolean addToUseMap(Use u) {
 		String className = u.getClassName();
 		String methodName = u.getMethodName();
 		String varName = u.getDUVariableName();
-		int branchId = u.getControlDependentBranchId(); 
 		
-		initMap(use_map,className,methodName,varName,branchId);
+		initMap(use_map,className,methodName,varName);
 		
-		return use_map.get(className).get(methodName).get(varName).get(branchId).add(u);
+		return use_map.get(className).get(methodName).get(varName).add(u);
 	}	
 	
 	private static <T> void initMap(
-			Map<String, Map<String, Map<String, Map<Integer, List<T>>>>> map,
-			String className, String methodName, String varName, int branchId) {
+			Map<String, Map<String, Map<String, List<T>>>> map,
+			String className, String methodName, String varName) {
 
 		if(!map.containsKey(className))
-			map.put(className, new HashMap<String, Map<String, Map<Integer,List<T>>>>());
+			map.put(className, new HashMap<String, Map<String, List<T>>>());
 		if(!map.get(className).containsKey(methodName)) 
-			map.get(className).put(methodName, new HashMap<String, Map<Integer,List<T>>>());
+			map.get(className).put(methodName, new HashMap<String, List<T>>());
 		if(!map.get(className).get(methodName).containsKey(varName))
-			map.get(className).get(methodName).put(varName, new HashMap<Integer,List<T>>());
-		if(!map.get(className).get(methodName).get(varName).containsKey(branchId))
-			map.get(className).get(methodName).get(varName).put(branchId, new ArrayList<T>());
+			map.get(className).get(methodName).put(varName, new ArrayList<T>());
 	}
 	
 	// functionality to retrieve information from the pool
