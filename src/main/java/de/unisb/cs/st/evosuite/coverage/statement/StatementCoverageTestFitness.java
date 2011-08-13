@@ -6,7 +6,6 @@ import java.util.Set;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.ControlDependency;
-import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -19,6 +18,8 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 
 	BytecodeInstruction goalInstruction;
 	List<BranchCoverageTestFitness> branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
+	
+	BranchCoverageTestFitness lastCoveringFitness = null;
 
 	public StatementCoverageTestFitness(BytecodeInstruction goalInstruction) {
 		if (goalInstruction == null)
@@ -35,16 +36,18 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 			branchFitnesses.add(fitness);
 		}
 
-		if (cds.isEmpty()) { // dependent on root-branch
-			if (!goalInstruction.isRootBranchDependent())
-				throw new IllegalStateException(
-						"expect control dependencies to be empty only for root dependent instructions: "
-								+ toString());
-
+		if (goalInstruction.isRootBranchDependent())
 			branchFitnesses.add(BranchCoverageFactory
 					.createRootBranchTestFitness(goalInstruction));
-		}
-		
+
+		if (cds.isEmpty() && !goalInstruction.isRootBranchDependent())
+			throw new IllegalStateException(
+					"expect control dependencies to be empty only for root dependent instructions: "
+							+ toString());
+
+		if (branchFitnesses.isEmpty())
+			throw new IllegalStateException(
+					"an instruction is at least on the root branch of it's method");
 	}
 
 	@Override
@@ -59,32 +62,39 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 		for (BranchCoverageTestFitness branchFitness : branchFitnesses) {
 			double newFitness = branchFitness.getFitness(individual, result);
 			if (newFitness == 0.0) {
+				lastCoveringFitness = branchFitness;
 				return 0.0;
 			}
 			if (newFitness < r)
 				r = newFitness;
 		}
 		
+		lastCoveringFitness = null;
+
 		return r;
+	}
+	
+	public BranchCoverageTestFitness getLastCoveringFitness() {
+		return lastCoveringFitness;
 	}
 
 	@Override
 	public String toString() {
-		return "Statement Goal: "+goalInstruction.getMethodName() + " "
+		return "Statement Goal: " + goalInstruction.getMethodName() + " "
 				+ goalInstruction.toString();
 	}
 
 	public String explain() {
 		StringBuilder r = new StringBuilder();
-		
+
 		r.append("StatementCoverageTestFitness for ");
 		r.append(goalInstruction.toString());
-		r.append(" in "+goalInstruction.getMethodName());
-		
+		r.append(" in " + goalInstruction.getMethodName());
+
 		r.append("\n");
 		r.append("CDS:\n");
-		for(BranchCoverageTestFitness branchFitness : branchFitnesses) {
-			r.append("\t"+branchFitness.toString());
+		for (BranchCoverageTestFitness branchFitness : branchFitnesses) {
+			r.append("\t" + branchFitness.toString());
 		}
 		return r.toString();
 	}
