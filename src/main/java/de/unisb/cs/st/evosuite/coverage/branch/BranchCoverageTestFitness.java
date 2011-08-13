@@ -50,6 +50,10 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	public Branch getBranch() {
 		return goal.branch;
 	}
+	
+	public boolean getBranchExpressionValue() {
+		return goal.value;
+	}
 
 	public double getUnfitness(ExecutableChromosome individual, ExecutionResult result) {
 

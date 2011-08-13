@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.AlternativeFitnessCalculationMode;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
+import de.unisb.cs.st.evosuite.coverage.statement.StatementCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
@@ -44,29 +47,30 @@ public class DefUseFitnessCalculator {
 	// if the mode isn't "sum" the following are ignored
 	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT = Properties.PENALIZE_OVERWRITING_DEFINITIONS_FLAT;
 	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY = Properties.PENALIZE_OVERWRITING_DEFINITIONS_LINEARLY;
-	private static double SINGLE_ALTERNATIVE_FITNESS_RANGE = Properties.ALTERNATIVE_FITNESS_RANGE;
+	private static double SINGLE_ALTERNATIVE_FITNESS_RANGE = 1.0;//Properties.ALTERNATIVE_FITNESS_RANGE;
 	// ensure alternative fitness configuration is valid
 	static {
 		if (Properties.CRITERION == Criterion.DEFUSE)
 			if (ENABLE_ALTERNATIVE_FITNESS_CALCULATION) {
-				System.out.println("* Alternative fitness calculation mode: "
-						+ Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE);
+				System.out.println("* Alternative fitness calculation enabled");
+				// + Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE);
 				if (!Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
 						.equals(AlternativeFitnessCalculationMode.SUM)) {
 
 					PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT = false;
 					PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY = false;
 					SINGLE_ALTERNATIVE_FITNESS_RANGE = 1;
-				} else {
-					System.out.println("  - Single alternative fitness range: "
-							+ SINGLE_ALTERNATIVE_FITNESS_RANGE);
-					if (PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT)
-						System.out
-								.println("  - Penalizing multiple overwriting definitions: flat");
-					if (PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY)
-						System.out
-								.println("  - Penalizing multiple overwriting definitions: linearly");
 				}
+				// else {
+				// System.out.println("  - Single alternative fitness range: "
+				// + SINGLE_ALTERNATIVE_FITNESS_RANGE);
+				// if (PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT)
+				// System.out
+				// .println("  - Penalizing multiple overwriting definitions: flat");
+				// if (PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY)
+				// System.out
+				// .println("  - Penalizing multiple overwriting definitions: linearly");
+				// }
 			} else {
 				System.out
 						.println("* Alternative fitness calculation disabled!");
@@ -205,13 +209,14 @@ public class DefUseFitnessCalculator {
 		double fitness = 1;
 		// handle special definition case TODO already handled!?
 		if (isSpecialDefinition(goalDefinition)) {
-			double useFitness = callTestFitnessFunctionForTrace(individual,
-					result, objectTrace, goalUseFitness);
+			double useFitness = callTestFitnessFunctionForTrace(objectTrace,
+					goalUseFitness);
 			fitness = normalize(useFitness);
 			if (fitness == 0.0)
 				goal.setCovered(individual, objectTrace, objectId);
 			return fitness;
 		}
+
 		// check if goalDefinition is active at any goalUsePosition
 		List<Integer> usePositions = DefUseExecutionTraceAnalyzer
 				.getUsePositions(goalUse, objectTrace, objectId);
@@ -227,29 +232,36 @@ public class DefUseFitnessCalculator {
 				goal.setCovered(individual, objectTrace, objectId);
 				return 0.0;
 			} else {
-				// if (ENABLE_ALTERNATIVE_FITNESS_CALCULATION) { // currently
-				// buggy
-				// // goalDefinition was not active at usePos
-				// // if it was active before, we have a overwriting definition
-				// if (hasEntryLowerThan(goalDefinitionPositions, usePos)) {
-				// // Case 3.2.1
-				// // calculate fitness for not taking branch of overwriting
-				// definition
-				// double alternativeFitness =
-				// calculateAlternativeFitness(goalDefinition,
-				// individual,
-				// result,
-				// objectTrace,
-				// objectId,
-				// usePos,
-				// goalDefinitionPositions);
-				// if (alternativeFitness <= 0.0 || alternativeFitness > 1.0)
-				// throw new IllegalStateException(
-				// "alternative fitness expected to be in (0,1]");
-				// if (alternativeFitness < fitness)
-				// fitness = alternativeFitness;
-				// }
-				// }
+				if (ENABLE_ALTERNATIVE_FITNESS_CALCULATION) { // currently buggy
+					// goalDefinition was not active at usePos
+					// if it was active before, we might have a overwriting
+					// definition
+					if (hasEntryLowerThan(goalDefinitionPositions, usePos)) {
+
+						int goalDefPos = getMaxEntryLowerThan(
+								goalDefinitionPositions, usePos);
+
+						// first check if there was yet another occurrence of
+						// goalUse between usePos and goalDefPos. if so, we
+						// discard that as an overwriting definition for now
+						// (TODO)
+						if (!hasEntryInBetween(usePositions, goalDefPos, usePos)) {
+
+							// Case 3.2.1
+							// calculate fitness for not taking branch of
+							// overwriting definition
+							double alternativeFitness = calculateAlternativeFitness(
+									objectTrace, objectId, usePos, goalDefPos);
+							if (alternativeFitness <= 0.0
+									|| alternativeFitness > 1.0)
+								throw new IllegalStateException(
+										"alternative fitness expected to be in (0,1]");
+							if (alternativeFitness < fitness) {
+								fitness = alternativeFitness;
+							}
+						}
+					}
+				}
 			}
 		}
 		// Case 3.2.2
@@ -260,10 +272,12 @@ public class DefUseFitnessCalculator {
 		// totally unnecessary
 		// idea: you only have to do this if the last definition for goalVar was
 		// not goalDefinitionId
-		if (goalUse.getControlDependentBranchId() != -1) // TODO else?
+		if (goalUse.isRootBranchDependent()) // TODO else?
 			for (Integer goalDefinitionPos : goalDefinitionPositions) {
 				double useFitness = calculateUseFitnessForDefinitionPos(
 						objectTrace, objectId, goalDefinitionPos);
+//				if(useFitness == 0.0)
+//					throw new IllegalStateException("unexpected: should have been detected earlier");
 				double newFitness = normalize(useFitness);
 				if (newFitness < fitness)
 					fitness = newFitness;
@@ -309,76 +323,74 @@ public class DefUseFitnessCalculator {
 	 * 
 	 * 
 	 */
-	// public static double calculateAlternativeFitness(Definition
-	// goalDefinition,
-	// TestChromosome individual, ExecutionResult result,
-	// ExecutionTrace objectTrace, Integer objectId, Integer usePos,
-	// List<Integer> goalDefinitionPositions) {
-	//
-	// int lastGoalDUPos = getMaxEntryLowerThan(goalDefinitionPositions,
-	// usePos);
-	// Set<Integer> overwritingDefIds =
-	// DefUseExecutionTraceAnalyzer.getOverwritingDefinitionIdsBetween(goalDefinition,
-	// objectTrace,
-	// lastGoalDUPos + 1,
-	// usePos,
-	// objectId);
-	//
-	// if (overwritingDefIds.isEmpty())
-	// throw new IllegalStateException(
-	// "if goalDefinition was passed before goalUse but is no longer active there must be an overwriting definition");
-	// if
-	// (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE.equals(AlternativeFitnessCalculationMode.SINGLE)
-	// && overwritingDefIds.size() != 1)
-	// return 1.0;
-	//
-	// double alternativeFitness = 0.0;
-	// if
-	// (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE.equals(AlternativeFitnessCalculationMode.MIN))
-	// alternativeFitness = 1.0;
-	// int overwritingDefinitionCount = 0;
-	// for (Integer overwritingDefId : overwritingDefIds) {
-	// overwritingDefinitionCount++;
-	// double overwritingFitness =
-	// calculateAlternatveFitnessForOverwritingDefinition(individual,
-	// result,
-	// objectTrace,
-	// objectId,
-	// overwritingDefId,
-	// lastGoalDUPos,
-	// usePos);
-	// if (overwritingFitness <= 0.0
-	// || overwritingFitness > SINGLE_ALTERNATIVE_FITNESS_RANGE)
-	// throw new IllegalStateException(
-	// "expected this definition to be between >0 and SINLE_ALTERNATIVE_FITNESS_RANGE");
-	// // respect penalizing configuration parameters
-	// if (PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT)
-	// overwritingFitness += overwritingDefinitionCount - 1;
-	// if (PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY)
-	// overwritingFitness *= overwritingDefinitionCount;
-	// // respect alternative fitness calculation mode
-	// if
-	// (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE.equals(AlternativeFitnessCalculationMode.MIN))
-	// alternativeFitness = Math.min(alternativeFitness, overwritingFitness);
-	// else if
-	// (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE.equals(AlternativeFitnessCalculationMode.MAX))
-	// alternativeFitness = Math.max(alternativeFitness, overwritingFitness);
-	// else
-	// alternativeFitness += overwritingFitness;
-	// }
-	// if
-	// (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE.equals(AlternativeFitnessCalculationMode.SUM))
-	// alternativeFitness = normalize(alternativeFitness);
-	// else if
-	// (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE.equals(AlternativeFitnessCalculationMode.AVG))
-	// alternativeFitness = alternativeFitness / overwritingDefIds.size();
-	// if (alternativeFitness <= 0 || alternativeFitness > 1)
-	// throw new IllegalStateException(
-	// "calculated alternative fitness out of bounds");
-	// //
-	// System.out.println("calculated alternative fitness: "+alternativeFitness);
-	// return alternativeFitness;
-	// }
+	public double calculateAlternativeFitness(ExecutionTrace objectTrace,
+			Integer objectId, Integer usePos, int lastGoalDefPos) {
+
+		Map<Integer, Integer> overwritingDefs = DefUseExecutionTraceAnalyzer
+				.getOverwritingDefinitionsBetween(goalDefinition, objectTrace,
+						lastGoalDefPos + 1, usePos, objectId);
+
+		if (overwritingDefs.isEmpty())
+			throw new IllegalStateException(
+					"if goalDefinition was passed before goalUse but is no longer active there must be an overwriting definition");
+
+		// if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
+		// .equals(AlternativeFitnessCalculationMode.SINGLE)
+		// &&
+		if (overwritingDefs.keySet().size() != 1)
+			return 1.0;
+
+		double alternativeFitness = 0.0;
+		// if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
+		// .equals(AlternativeFitnessCalculationMode.MIN))
+		// alternativeFitness = 1.0;
+
+		// int overwritingDefinitionCount = 0;
+		for (Integer overwritingDefId : overwritingDefs.keySet()) {
+			// overwritingDefinitionCount++;
+			double overwritingFitness = calculateAlternatveFitnessForOverwritingDefinition(
+					objectTrace, objectId, overwritingDefId, lastGoalDefPos,
+					overwritingDefs.get(overwritingDefId));
+
+			if (overwritingFitness <= 0.0 || overwritingFitness > SINGLE_ALTERNATIVE_FITNESS_RANGE)
+				throw new IllegalStateException(
+						"expected this definition to be >0 and <=SINGLEALTERNATIVE_FITNESS");
+
+			// respect penalizing configuration parameters
+			// if (PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT)
+			// overwritingFitness += overwritingDefinitionCount - 1;
+			// if (PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY)
+			// overwritingFitness *= overwritingDefinitionCount;
+
+			// // respect alternative fitness calculation mode
+			// if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
+			// .equals(AlternativeFitnessCalculationMode.MIN))
+			// alternativeFitness = Math.min(alternativeFitness,
+			// overwritingFitness);
+			// else if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
+			// .equals(AlternativeFitnessCalculationMode.MAX))
+			// alternativeFitness = Math.max(alternativeFitness,
+			// overwritingFitness);
+			// else
+			alternativeFitness += overwritingFitness;
+		}
+		// if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
+		// .equals(AlternativeFitnessCalculationMode.SUM))
+		// alternativeFitness = normalize(alternativeFitness);
+		// else if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
+		// .equals(AlternativeFitnessCalculationMode.AVG))
+		// alternativeFitness = alternativeFitness / overwritingDefIds.size();
+		// if (alternativeFitness <= 0 || alternativeFitness > 1)
+		// throw new IllegalStateException(
+		// "calculated alternative fitness out of bounds");
+		// //
+		// System.out.println("calculated alternative fitness: "
+		// + alternativeFitness);
+		if(SINGLE_ALTERNATIVE_FITNESS_RANGE > 1)
+			return normalize(alternativeFitness);
+		else
+			return alternativeFitness;
+	}
 
 	/**
 	 * Computes the "alternative fitness for an overwriting definition" as
@@ -404,80 +416,97 @@ public class DefUseFitnessCalculator {
 	 * again the above described fitness is linearly stretched to be in the
 	 * interval (0,SINGLE_ALTERNATIVE_FITNESS_RANGE]
 	 */
-	// public static double calculateAlternatveFitnessForOverwritingDefinition(
-	// TestChromosome individual, ExecutionResult result,
-	// ExecutionTrace objectTrace, Integer objectId, int overwritingDefId,
-	// int lastGoalDuPos, Integer usePos) {
-	//
-	// Definition overwritingDefinition =
-	// DefUsePool.getDefinitionByDefId(overwritingDefId);
-	// if (overwritingDefinition == null)
-	// throw new IllegalStateException(
-	// "expect DefUsePool to know definitions traced by instrumented code. defId: "
-	// + overwritingDefId);
-	// // if the overwritingDefinition is in a root-branch it's not really
-	// avoidable
-	// if (overwritingDefinition.getControlDependentBranchId() == -1)
-	// return SINGLE_ALTERNATIVE_FITNESS_RANGE;
-	//
-	// // get alternative branch
-	// BranchCoverageTestFitness alternativeBranchFitness =
-	// getAlternativeBranchTestFitness(overwritingDefinition);
-	// // set up duCounter interval to which the trace should be cut
-	// int duCounterStart = lastGoalDuPos;
-	// int duCounterEnd = usePos;
-	// // calculate fitness
-	// double newFitness = calculateFitnessForDURange(individual, result,
-	// objectTrace,
-	// objectId,
-	// alternativeBranchFitness,
-	// overwritingDefinition, false,
-	// duCounterStart, duCounterEnd);
-	// // debugging stuff
-	// if (DEBUG && newFitness == 0.0) {
-	// // debugging purposes
-	// // preFitnessDebugInfo(result,false);
-	// System.out.println("object trace: ");
-	// DefUseExecutionTraceAnalyzer.printFinishCalls(objectTrace);
-	// System.out.println();
-	// System.out.println("cut trace:");
-	// ExecutionTrace cutTrace =
-	// objectTrace.getTraceInDUCounterRange(overwritingDefinition,
-	// false,
-	// duCounterStart,
-	// duCounterEnd);
-	// DefUseExecutionTraceAnalyzer.printFinishCalls(cutTrace);
-	// System.out.println("cut from " + duCounterStart + " to " + duCounterEnd);
-	// System.out.println("overwritingDef: " +
-	// overwritingDefinition.toString());
-	// System.out.println("on object " + objectId);
-	// System.out.println("alternative branch fitness: "
-	// + alternativeBranchFitness.toString());
-	// throw new IllegalStateException(
-	// "expect fitness to be >0 if trace information that passed the alternative branch should have been removed");
-	// }
-	//
-	// // TODO research: shouldn't this fitness always be >0 and <1 (because
-	// approach level is 0 and branch distance is normalized)
-	// // thing is i'm pretty sure it should be as described, but since our
-	// control dependencies are crap right now
-	// // this fitness can be >1, meaning the approach level can be >0 when the
-	// overwritingDef was control dependent from more then one Branch
-	// // this can for example happen when you have a branch expression with
-	// several sub-expressions separated by an ||
-	//
-	// // quick fix: when the fitness is >1 assume it was the flaw described
-	// above and only look at branch-distance part of fitness (decimal places)
-	// if (newFitness > 1) {
-	// int approachPart = (int) newFitness;
-	// newFitness -= approachPart;
-	// }
-	// if (newFitness <= 0 || newFitness > 1) {
-	// throw new IllegalStateException(
-	// "single alternative fitness out of expected range: " + newFitness);
-	// }
-	// return SINGLE_ALTERNATIVE_FITNESS_RANGE * newFitness;
-	// }
+	public double calculateAlternatveFitnessForOverwritingDefinition(
+			ExecutionTrace objectTrace, Integer objectId, int overwritingDefId,
+			int traceStart, int traceEnd) {
+
+		Definition overwritingDefinition = DefUsePool
+				.getDefinitionByDefId(overwritingDefId);
+		if (overwritingDefinition == null)
+			throw new IllegalStateException(
+					"expect DefUsePool to know definitions traced by instrumented code. defId: "
+							+ overwritingDefId);
+
+		// if the overwritingDefinition is in a root-branch it's not really
+		// avoidable TODO might still have another non root dependency
+		if (overwritingDefinition.isRootBranchDependent())
+			return SINGLE_ALTERNATIVE_FITNESS_RANGE;
+
+		// get alternative branch
+		StatementCoverageTestFitness overwritingFunction = new StatementCoverageTestFitness(
+				overwritingDefinition);
+
+		double overwritingFitness = calculateFitnessForDURange(objectTrace,
+				objectId, overwritingFunction, overwritingDefinition, true,
+				traceStart, traceEnd,false);
+		if (overwritingFitness != 0.0)
+			throw new IllegalStateException(
+					"expect fitness of overwritingDefinition in cut trace to be 0.0 since def was passed");
+
+		BranchCoverageTestFitness coveringOverwritingFitness = overwritingFunction
+				.getLastCoveringFitness();
+		
+		if(coveringOverwritingFitness.getBranch() == null)
+			throw new IllegalStateException("impossible if overwritingDef not rootBranchDependent()");
+//			return SINGLE_ALTERNATIVE_FITNESS_RANGE;
+
+		TestFitnessFunction alternativeFitness = BranchCoverageFactory
+				.createBranchCoverageTestFitness(coveringOverwritingFitness
+						.getBranch(), !coveringOverwritingFitness
+						.getBranchExpressionValue());
+
+		// calculate alternative fitness
+		double newFitness = calculateFitnessForDURange(objectTrace, objectId,
+				alternativeFitness, overwritingDefinition, false, traceStart,
+				traceEnd,true);
+
+		// // debugging stuff
+		// if (DEBUG && newFitness == 0.0) {
+		// // debugging purposes
+		// // preFitnessDebugInfo(result,false);
+		// System.out.println("object trace: ");
+		// DefUseExecutionTraceAnalyzer.printFinishCalls(objectTrace);
+		// System.out.println();
+		// System.out.println("cut trace:");
+		// ExecutionTrace cutTrace = objectTrace.getTraceInDUCounterRange(
+		// overwritingDefinition, false, duCounterStart, duCounterEnd);
+		// DefUseExecutionTraceAnalyzer.printFinishCalls(cutTrace);
+		// System.out.println("cut from " + duCounterStart + " to "
+		// + duCounterEnd);
+		// System.out.println("overwritingDef: "
+		// + overwritingDefinition.toString());
+		// System.out.println("on object " + objectId);
+		// System.out.println("alternative branch fitness: "
+		// + alternativeBranchFitness.toString());
+		// throw new IllegalStateException(
+		// "expect fitness to be >0 if trace information that passed the alternative branch should have been removed");
+		// }
+
+		// TODO research: shouldn't this fitness always be >0 and <1 (because
+		// approach level is 0 and branch distance is normalized)
+		// thing is i'm pretty sure it should be as described, but since our
+		// control dependencies are crap right now
+		// this fitness can be >1, meaning the approach level can be >0 when the
+		// overwritingDef was control dependent from more then one Branch
+		// this can for example happen when you have a branch expression with
+		// several sub-expressions separated by an ||
+
+		// quick fix: when the fitness is >1 assume it was the flaw described
+		// above and only look at branch-distance part of fitness (decimal
+		// places)
+		if (newFitness > 1) {
+			System.out.println("really");
+			int approachPart = (int) newFitness;
+			newFitness -= approachPart;
+		}
+		if (newFitness <= 0 || newFitness > 1) {
+			throw new IllegalStateException(
+					"single alternative fitness out of expected range: "
+							+ newFitness);
+		}
+
+		return SINGLE_ALTERNATIVE_FITNESS_RANGE * newFitness;
+	}
 
 	/**
 	 * Determines the BranchCoverageTestFitness of goalDefinitionBranch
@@ -564,9 +593,9 @@ public class DefUseFitnessCalculator {
 		int overwritingDefPos = DefUseExecutionTraceAnalyzer
 				.getNextOverwritingDefinitionPosition(goalDefinition,
 						targetTrace, goalDefinitionPos, objectId);
-		double fitness = calculateFitnessForDURange(individual, result,
-				targetTrace, objectId, goalUseFitness, goalUse, true,
-				goalDefinitionPos, overwritingDefPos);
+		double fitness = calculateFitnessForDURange(targetTrace, objectId,
+				goalUseFitness, goalUse, true, goalDefinitionPos,
+				overwritingDefPos, true);
 
 		return fitness;
 	}
@@ -593,42 +622,47 @@ public class DefUseFitnessCalculator {
 	 * 
 	 * 
 	 */
-	private static double calculateFitnessForDURange(TestChromosome individual,
-			ExecutionResult result, ExecutionTrace targetTrace,
+	private double calculateFitnessForDURange(ExecutionTrace targetTrace,
 			Integer objectId, TestFitnessFunction targetFitness,
 			DefUse targetDU, boolean wantToCoverTargetDU, int duCounterStart,
-			int duCounterEnd) {
+			int duCounterEnd, boolean forceNotNull) {
 
 		// filter trace
 		ExecutionTrace cutTrace = targetTrace.getTraceInDUCounterRange(
 				targetDU, wantToCoverTargetDU, duCounterStart, duCounterEnd);
 		// calculate fitness
-		double fitness = callTestFitnessFunctionForTrace(individual, result,
-				cutTrace, targetFitness);
+		double fitness = callTestFitnessFunctionForTrace(cutTrace,
+				targetFitness);
 
 		// TODO see comment in calculateDUFitness() Case2.
 		// // sanity check
-		// if (fitness == 0.0 && wantToCoverTargetDU) {
-		//
-		// if (wantToCoverTargetDU)
-		// System.out.println("WANTED TO COVER");
-		//
-		// System.out.println(cutTrace.toDefUseTraceInformation());
-		// DefUseExecutionTraceAnalyzer.printFinishCalls(cutTrace);
-		//
-		// System.out.println("duPosStart: " + duCounterStart);
-		// System.out.println("duPosEnd: " + duCounterEnd);
-		// int targetUseBranchBytecode = targetDU.getControlDependentBranch()
-		// .getInstruction().getInstructionId();
-		// System.out.println("targetDU-branch-bytecode: "
-		// + targetUseBranchBytecode);
-		// throw new IllegalStateException(
-		// "use cant have fitness 0 in this cut trace: "
-		// + cutTrace.toDefUseTraceInformation(targetDU
-		// .getDUVariableName(), objectId));
-		// }
-		if (fitness == 0.0)
+		 if (fitness == 0.0 && !wantToCoverTargetDU) {
+		
+		 System.out.println(this.goal.toString());
+		
+		 System.out.println(cutTrace.toDefUseTraceInformation());
+		 DefUseExecutionTraceAnalyzer.printFinishCalls(cutTrace);
+		
+		 System.out.println("duPosStart: " + duCounterStart);
+		 System.out.println("duPosEnd: " + duCounterEnd);
+		 // int targetUseBranchBytecode =
+		 // targetDU.getControlDependentBranch()
+		 // .getInstruction().getInstructionId();
+		 // System.out.println("targetDU-branch-bytecode: "
+		 // + targetUseBranchBytecode);
+		 throw new IllegalStateException(targetFitness.toString()
+		 + " cant have fitness 0 in this cut trace: "
+		 + cutTrace.toDefUseTraceInformation(targetDU
+		 .getDUVariableName(), objectId));
+		 }
+		if (forceNotNull && fitness == 0.0)
+			// if (wantToCoverTargetDU)
 			return 1;
+		// else
+		// throw new IllegalStateException(
+		// "avoiding fitness should not be 0 if instruction was actually passed "
+		// + targetFitness.toString());
+
 		return fitness;
 	}
 
@@ -640,9 +674,8 @@ public class DefUseFitnessCalculator {
 	 * 
 	 * The ExecutionResult is left in it's original state after execution
 	 */
-	private static double callTestFitnessFunctionForTrace(
-			TestChromosome individual, ExecutionResult result,
-			ExecutionTrace targetTrace, TestFitnessFunction targetFitness) {
+	private double callTestFitnessFunctionForTrace(ExecutionTrace targetTrace,
+			TestFitnessFunction targetFitness) {
 
 		ExecutionTrace originalTrace = result.getTrace();
 		result.setTrace(targetTrace);
@@ -734,8 +767,16 @@ public class DefUseFitnessCalculator {
 	}
 
 	public static boolean hasEntryLowerThan(List<Integer> list, Integer border) {
-		for (Integer defPos : list)
-			if (defPos < border)
+		for (Integer pos : list)
+			if (pos < border)
+				return true;
+		return false;
+	}
+
+	public static boolean hasEntryInBetween(List<Integer> list, Integer start,
+			Integer end) {
+		for (Integer pos : list)
+			if (start < pos && pos < end)
 				return true;
 		return false;
 	}

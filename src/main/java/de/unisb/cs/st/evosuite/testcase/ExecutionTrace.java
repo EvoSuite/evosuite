@@ -589,7 +589,7 @@ public class ExecutionTrace {
 		 */
 
 		ExecutionTrace r = clone();
-		Branch targetDUBranch = targetDU.getControlDependentBranch();
+//		Branch targetDUBranch = targetDU.getControlDependentBranch();
 		ArrayList<Integer> removableCalls = new ArrayList<Integer>();
 		for (int callPos = 0; callPos < r.finished_calls.size(); callPos++) {
 			MethodCall call = r.finished_calls.get(callPos);
@@ -601,26 +601,26 @@ public class ExecutionTrace {
 			ArrayList<Integer> removableIndices = new ArrayList<Integer>();
 			for (int i = 0; i < call.defuseCounterTrace.size(); i++) {
 				int currentDUCounter = call.defuseCounterTrace.get(i);
-				int currentBranchBytecode = call.branchTrace.get(i);
+//				int currentBranchBytecode = call.branchTrace.get(i);
 
 				if (currentDUCounter < duCounterStart
 						|| currentDUCounter > duCounterEnd)
 					removableIndices.add(i);
-				else if (currentBranchBytecode == targetDUBranch
-						.getInstruction().getInstructionId()) {
-					// only remove this point in the trace if it would cover
-					// targetDU
-					boolean targetExpressionValue = targetDU
-							.getControlDependentBranchExpressionValue();
-					if (targetExpressionValue) {
-						if (call.trueDistanceTrace.get(i) == 0.0)
-							removableIndices.add(i);
-					} else {
-						if (call.falseDistanceTrace.get(i) == 0.0)
-							removableIndices.add(i);
-					}
-
-				}
+//				else if (currentBranchBytecode == targetDUBranch
+//						.getInstruction().getInstructionId()) {
+//					// only remove this point in the trace if it would cover
+//					// targetDU
+//					boolean targetExpressionValue = targetDU
+//							.getControlDependentBranchExpressionValue();
+//					if (targetExpressionValue) {
+//						if (call.trueDistanceTrace.get(i) == 0.0)
+//							removableIndices.add(i);
+//					} else {
+//						if (call.falseDistanceTrace.get(i) == 0.0)
+//							removableIndices.add(i);
+//					}
+//
+//				}
 			}
 			removeFromFinishCall(call, removableIndices);
 			if (call.defuseCounterTrace.size() == 0)
