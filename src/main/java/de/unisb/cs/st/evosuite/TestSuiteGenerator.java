@@ -510,7 +510,7 @@ public class TestSuiteGenerator {
 				if (ga.getBestIndividual().getFitness() == 0.0) {
 					if (Properties.PRINT_COVERED_GOALS)
 						System.out.println("* Covered!"); // : " +
-															// fitness_function.toString());
+					// fitness_function.toString());
 					logger.info("Found solution, adding to test suite at "
 							+ MaxStatementsStoppingCondition
 									.getNumExecutedStatements());
@@ -552,6 +552,18 @@ public class TestSuiteGenerator {
 					current_budget += stopping_condition.getCurrentValue();
 				else
 					current_budget += budget + 1;
+				
+				// print console progress bar
+				if(Properties.SHOW_PROGRESS && !(Properties.PRINT_COVERED_GOALS || Properties.PRINT_CURRENT_GOALS)) {
+					double percent = current_budget;
+					percent = percent / total_budget * 100;
+					
+					double coverage = covered_goals;
+					coverage = coverage / total_goals * 100;
+					
+					ConsoleProgressBar.printProgressBar((int)percent, (int)coverage);
+				}
+				
 				if (current_budget > total_budget)
 					break;
 				num++;
@@ -896,11 +908,11 @@ public class TestSuiteGenerator {
 			Properties.GENERATIONS = Properties.GENERATIONS
 					* (BranchPool.getBranchlessMethods().size() + BranchPool
 							.getBranchCounter() * 2); // TODO question: is
-														// branchMap.size()
-														// really what wanted
-														// here? I think
-														// BranchPool.getBranchCount()
-														// was intended here
+			// branchMap.size()
+			// really what wanted
+			// here? I think
+			// BranchPool.getBranchCount()
+			// was intended here
 			stopping_condition.setLimit(Properties.GENERATIONS);
 			logger.info("Setting dynamic length limit to "
 					+ Properties.GENERATIONS);
