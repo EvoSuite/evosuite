@@ -440,8 +440,9 @@ public class DefUseFitnessCalculator {
 				objectId, overwritingFunction, overwritingDefinition, true,
 				traceStart, traceEnd,false);
 		if (overwritingFitness != 0.0)
-			throw new IllegalStateException(
-					"expect fitness of overwritingDefinition in cut trace to be 0.0 since def was passed");
+			return SINGLE_ALTERNATIVE_FITNESS_RANGE;
+//			throw new IllegalStateException(
+//					"expect fitness of overwritingDefinition in cut trace to be 0.0 since def was passed");
 
 		BranchCoverageTestFitness coveringOverwritingFitness = overwritingFunction
 				.getLastCoveringFitness();
@@ -636,25 +637,25 @@ public class DefUseFitnessCalculator {
 
 		// TODO see comment in calculateDUFitness() Case2.
 		// // sanity check
-		 if (fitness == 0.0 && !wantToCoverTargetDU) {
-		
-		 System.out.println(this.goal.toString());
-		
-		 System.out.println(cutTrace.toDefUseTraceInformation());
-		 DefUseExecutionTraceAnalyzer.printFinishCalls(cutTrace);
-		
-		 System.out.println("duPosStart: " + duCounterStart);
-		 System.out.println("duPosEnd: " + duCounterEnd);
-		 // int targetUseBranchBytecode =
-		 // targetDU.getControlDependentBranch()
-		 // .getInstruction().getInstructionId();
-		 // System.out.println("targetDU-branch-bytecode: "
-		 // + targetUseBranchBytecode);
-		 throw new IllegalStateException(targetFitness.toString()
-		 + " cant have fitness 0 in this cut trace: "
-		 + cutTrace.toDefUseTraceInformation(targetDU
-		 .getDUVariableName(), objectId));
-		 }
+//		 if (fitness == 0.0 && !wantToCoverTargetDU) {
+//		
+//		 System.out.println(this.goal.toString());
+//		
+//		 System.out.println(cutTrace.toDefUseTraceInformation());
+//		 DefUseExecutionTraceAnalyzer.printFinishCalls(cutTrace);
+//		
+//		 System.out.println("duPosStart: " + duCounterStart);
+//		 System.out.println("duPosEnd: " + duCounterEnd);
+//		 // int targetUseBranchBytecode =
+//		 // targetDU.getControlDependentBranch()
+//		 // .getInstruction().getInstructionId();
+//		 // System.out.println("targetDU-branch-bytecode: "
+//		 // + targetUseBranchBytecode);
+//		 throw new IllegalStateException(targetFitness.toString()
+//		 + " cant have fitness 0 in this cut trace: "
+//		 + cutTrace.toDefUseTraceInformation(targetDU
+//		 .getDUVariableName(), objectId));
+//		 }
 		if (forceNotNull && fitness == 0.0)
 			// if (wantToCoverTargetDU)
 			return 1;
