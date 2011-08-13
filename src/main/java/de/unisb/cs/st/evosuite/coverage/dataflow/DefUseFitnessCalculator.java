@@ -141,6 +141,9 @@ public class DefUseFitnessCalculator {
 	 */
 	public double calculateDUFitness() {
 
+//		if(!goalVariable.equals("targetField"))
+//			return 0.0;
+		
 		// at first handle special cases where definition is assumed to be
 		// covered if use is covered:
 
@@ -272,7 +275,7 @@ public class DefUseFitnessCalculator {
 		// totally unnecessary
 		// idea: you only have to do this if the last definition for goalVar was
 		// not goalDefinitionId
-		if (goalUse.isRootBranchDependent()) // TODO else?
+//		if (!goalUse.isRootBranchDependent()) // TODO else?
 			for (Integer goalDefinitionPos : goalDefinitionPositions) {
 				double useFitness = calculateUseFitnessForDefinitionPos(
 						objectTrace, objectId, goalDefinitionPos);
@@ -496,7 +499,7 @@ public class DefUseFitnessCalculator {
 		// above and only look at branch-distance part of fitness (decimal
 		// places)
 		if (newFitness > 1) {
-			System.out.println("really");
+//			System.out.println("really");
 			int approachPart = (int) newFitness;
 			newFitness -= approachPart;
 		}
