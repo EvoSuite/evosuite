@@ -93,7 +93,6 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 					if (!duGoals.contains(newGoal))
 						duGoals.add(newGoal);
 				}
-
 		called = true;
 		goals = new ArrayList<TestFitnessFunction>();
 		goals.addAll(duGoals);
