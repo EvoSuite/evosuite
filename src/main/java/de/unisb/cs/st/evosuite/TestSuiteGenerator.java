@@ -96,6 +96,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCaseReplacementFunction;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testcase.ValueMinimizer;
+import de.unisb.cs.st.evosuite.testsuite.CoverageStatistics;
 import de.unisb.cs.st.evosuite.testsuite.MinimizeAverageLengthSecondaryObjective;
 import de.unisb.cs.st.evosuite.testsuite.MinimizeExceptionsSecondaryObjective;
 import de.unisb.cs.st.evosuite.testsuite.MinimizeMaxLengthSecondaryObjective;
@@ -179,6 +180,7 @@ public class TestSuiteGenerator {
 				else
 					tests = generateIndividualTests(ga);
 			}
+			CoverageStatistics.writeCSV();
 		}
 
 		// if (Properties.STRATEGY == Strategy.EVOSUITE)
@@ -296,9 +298,14 @@ public class TestSuiteGenerator {
 		System.out.println("* Generated " + best.size()
 				+ " tests with total length " + best.totalLengthOfTestCases());
 
-		printCoverage(best);
+		if (analyzing)
+			analyzeCoverage(best);
+		else
+			System.out.println("* Resulting TestSuite's coverage: "
+					+ NumberFormat.getPercentInstance().format(
+							best.getCoverage()));
 
-		if (Properties.CRITERION == Criterion.DEFUSE) {
+		if (Properties.CRITERION == Criterion.DEFUSE && !analyzing) {
 			// TODO this is horribly inefficient!
 			// compute all results once and then ask each goal individually
 			// ... and put all that in TestSuiteFitnessFuncion
@@ -318,31 +325,29 @@ public class TestSuiteGenerator {
 		return best.getTests();
 	}
 
-	private void printCoverage(TestSuiteChromosome best) {
+	private void analyzeCoverage(TestSuiteChromosome best) {
 
-		if (analyzing) {
-			DefUseCoverageSuiteFitness defuse = new DefUseCoverageSuiteFitness();
-			defuse.getFitness(best);
-			System.out.println("* DefUse Coverage: "
-					+ NumberFormat.getPercentInstance().format(
-							best.getCoverage()));
+		// TODO clean up
+		
+		System.out.println("* Measured Coverage:");
+		
+		DefUseCoverageSuiteFitness defuse = new DefUseCoverageSuiteFitness();
+		defuse.getFitness(best);
+		System.out.println("\tDefUse: "
+				+ NumberFormat.getPercentInstance().format(best.getCoverage()));
+		CoverageStatistics.setCoverage(Criterion.DEFUSE, best.getCoverage());
 
-			BranchCoverageSuiteFitness branch = new BranchCoverageSuiteFitness();
-			branch.getFitness(best);
-			System.out.println("* Branch Coverage: "
-					+ NumberFormat.getPercentInstance().format(
-							best.getCoverage()));
+		BranchCoverageSuiteFitness branch = new BranchCoverageSuiteFitness();
+		branch.getFitness(best);
+		System.out.println("\tBranch: "
+				+ NumberFormat.getPercentInstance().format(best.getCoverage()));
+		CoverageStatistics.setCoverage(Criterion.BRANCH, best.getCoverage());
 
-			StatementCoverageSuiteFitness statement = new StatementCoverageSuiteFitness();
-			statement.getFitness(best);
-			System.out.println("* Statement Coverage: "
-					+ NumberFormat.getPercentInstance().format(
-							best.getCoverage()));
-		} else {
-			System.out.println("* Resulting TestSuite's coverage: "
-					+ NumberFormat.getPercentInstance().format(
-							best.getCoverage()));
-		}
+		StatementCoverageSuiteFitness statement = new StatementCoverageSuiteFitness();
+		statement.getFitness(best);
+		System.out.println("\tStatement: "
+				+ NumberFormat.getPercentInstance().format(best.getCoverage()));
+		CoverageStatistics.setCoverage(Criterion.STATEMENT, best.getCoverage());
 
 	}
 
@@ -645,7 +650,7 @@ public class TestSuiteGenerator {
 				// break;
 			}
 		}
-		if(Properties.SHOW_PROGRESS)
+		if (Properties.SHOW_PROGRESS)
 			System.out.println();
 
 		// for testing purposes
@@ -657,6 +662,7 @@ public class TestSuiteGenerator {
 			else
 				System.out.println("* Remaining budget: "
 						+ (total_budget - current_budget));
+			
 			ga.printBudget();
 
 			int c = 0;
@@ -697,14 +703,14 @@ public class TestSuiteGenerator {
 				+ "s, " + current_budget
 				+ " statements, best individual has fitness "
 				+ suite.getFitness());
-		
+
 		if (!analyzing) {
 			System.out.println("* Covered " + covered_goals + "/"
 					+ goals.size() + " goals");
 			logger.info("Resulting test suite: " + suite.size()
 					+ " tests, length " + suite.totalLengthOfTestCases());
 		} else {
-			printCoverage(suite);
+			analyzeCoverage(suite);
 		}
 
 		if (Properties.INLINE) {
