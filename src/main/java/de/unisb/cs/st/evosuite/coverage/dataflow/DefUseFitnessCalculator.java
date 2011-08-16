@@ -47,7 +47,7 @@ public class DefUseFitnessCalculator {
 	// if the mode isn't "sum" the following are ignored
 	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT = Properties.PENALIZE_OVERWRITING_DEFINITIONS_FLAT;
 	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY = Properties.PENALIZE_OVERWRITING_DEFINITIONS_LINEARLY;
-	private static double SINGLE_ALTERNATIVE_FITNESS_RANGE = 1.0;//Properties.ALTERNATIVE_FITNESS_RANGE;
+	private static double SINGLE_ALTERNATIVE_FITNESS_RANGE = 100.0;// Properties.ALTERNATIVE_FITNESS_RANGE;
 	// ensure alternative fitness configuration is valid
 	static {
 		if (Properties.CRITERION == Criterion.DEFUSE)
@@ -141,9 +141,9 @@ public class DefUseFitnessCalculator {
 	 */
 	public double calculateDUFitness() {
 
-//		if(!goalVariable.equals("targetField"))
-//			return 0.0;
-		
+		if (!goalVariable.equals("targetField"))
+			return 0.0;
+
 		// at first handle special cases where definition is assumed to be
 		// covered if use is covered:
 
@@ -260,6 +260,10 @@ public class DefUseFitnessCalculator {
 								throw new IllegalStateException(
 										"alternative fitness expected to be in (0,1]");
 							if (alternativeFitness < fitness) {
+//								System.out
+//										.println("alternative boost: "
+//												+ fitness + " -> "
+//												+ alternativeFitness);
 								fitness = alternativeFitness;
 							}
 						}
@@ -275,15 +279,24 @@ public class DefUseFitnessCalculator {
 		// totally unnecessary
 		// idea: you only have to do this if the last definition for goalVar was
 		// not goalDefinitionId
-//		if (!goalUse.isRootBranchDependent()) // TODO else?
+		if (!goalUse.isRootBranchDependent()) // if goal use is root branch
+			// dependent useFitness will
+			// always be 1.0
 			for (Integer goalDefinitionPos : goalDefinitionPositions) {
-				double useFitness = calculateUseFitnessForDefinitionPos(
-						objectTrace, objectId, goalDefinitionPos);
-//				if(useFitness == 0.0)
-//					throw new IllegalStateException("unexpected: should have been detected earlier");
+				double useFitness;
+				try {
+					useFitness = calculateUseFitnessForDefinitionPos(
+							objectTrace, objectId, goalDefinitionPos);
+				} catch (UnexpectedFitnessException e) {
+					continue;
+				}
+				// if(useFitness == 0.0)
+				// throw new
+				// IllegalStateException("unexpected: should have been detected earlier");
 				double newFitness = normalize(useFitness);
 				if (newFitness < fitness)
 					fitness = newFitness;
+
 			}
 		return fitness;
 	}
@@ -340,8 +353,8 @@ public class DefUseFitnessCalculator {
 		// if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
 		// .equals(AlternativeFitnessCalculationMode.SINGLE)
 		// &&
-		if (overwritingDefs.keySet().size() != 1)
-			return 1.0;
+//		if (overwritingDefs.keySet().size() != 1)
+//			return 1.0;
 
 		double alternativeFitness = 0.0;
 		// if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
@@ -355,7 +368,8 @@ public class DefUseFitnessCalculator {
 					objectTrace, objectId, overwritingDefId, lastGoalDefPos,
 					overwritingDefs.get(overwritingDefId));
 
-			if (overwritingFitness <= 0.0 || overwritingFitness > SINGLE_ALTERNATIVE_FITNESS_RANGE)
+			if (overwritingFitness <= 0.0
+					|| overwritingFitness > SINGLE_ALTERNATIVE_FITNESS_RANGE)
 				throw new IllegalStateException(
 						"expected this definition to be >0 and <=SINGLEALTERNATIVE_FITNESS");
 
@@ -389,10 +403,10 @@ public class DefUseFitnessCalculator {
 		// //
 		// System.out.println("calculated alternative fitness: "
 		// + alternativeFitness);
-		if(SINGLE_ALTERNATIVE_FITNESS_RANGE > 1)
-			return normalize(alternativeFitness);
-		else
-			return alternativeFitness;
+
+//		System.out.println(overwritingDefs.size() + " " + alternativeFitness);
+
+		return normalize(alternativeFitness);
 	}
 
 	/**
@@ -439,20 +453,27 @@ public class DefUseFitnessCalculator {
 		StatementCoverageTestFitness overwritingFunction = new StatementCoverageTestFitness(
 				overwritingDefinition);
 
-		double overwritingFitness = calculateFitnessForDURange(objectTrace,
-				objectId, overwritingFunction, overwritingDefinition, true,
-				traceStart, traceEnd,false);
-		if (overwritingFitness != 0.0)
-			return SINGLE_ALTERNATIVE_FITNESS_RANGE;
-//			throw new IllegalStateException(
-//					"expect fitness of overwritingDefinition in cut trace to be 0.0 since def was passed");
+		double overwritingFitness;
+		try {
+			overwritingFitness = calculateFitnessForDURange(objectTrace,
+					objectId, overwritingFunction, overwritingDefinition, true,
+					traceStart, traceEnd, false);
+			if (overwritingFitness != 0.0)
+				return SINGLE_ALTERNATIVE_FITNESS_RANGE;
+
+		} catch (UnexpectedFitnessException e) {
+			throw new IllegalStateException("should be impossible");
+		}
+		// throw new IllegalStateException(
+		// "expect fitness of overwritingDefinition in cut trace to be 0.0 since def was passed");
 
 		BranchCoverageTestFitness coveringOverwritingFitness = overwritingFunction
 				.getLastCoveringFitness();
-		
-		if(coveringOverwritingFitness.getBranch() == null)
-			throw new IllegalStateException("impossible if overwritingDef not rootBranchDependent()");
-//			return SINGLE_ALTERNATIVE_FITNESS_RANGE;
+
+		if (coveringOverwritingFitness.getBranch() == null)
+			throw new IllegalStateException(
+					"impossible if overwritingDef not rootBranchDependent()");
+		// return SINGLE_ALTERNATIVE_FITNESS_RANGE;
 
 		TestFitnessFunction alternativeFitness = BranchCoverageFactory
 				.createBranchCoverageTestFitness(coveringOverwritingFitness
@@ -460,9 +481,33 @@ public class DefUseFitnessCalculator {
 						.getBranchExpressionValue());
 
 		// calculate alternative fitness
-		double newFitness = calculateFitnessForDURange(objectTrace, objectId,
-				alternativeFitness, overwritingDefinition, false, traceStart,
-				traceEnd,true);
+		try {
+			double newFitness = calculateFitnessForDURange(objectTrace,
+					objectId, alternativeFitness, overwritingDefinition, false,
+					traceStart, traceEnd, true);
+			if (newFitness > 1) {
+				int approachPart = (int) newFitness;
+				newFitness -= approachPart;
+			}
+			if (newFitness <= 0 || newFitness > 1) {
+				throw new IllegalStateException(
+						"single alternative fitness out of expected range: "
+								+ newFitness);
+			}
+
+//			if (newFitness != 0.5) {
+//				System.out.println("HAH: " + newFitness);
+//				System.out.println(alternativeFitness.toString());
+//				System.out.println(overwritingDefinition.toString());
+//				System.out.println(result.test.toCode());
+//				System.out.println(objectTrace.toDefUseTraceInformation(
+//						goalVariable, objectId));
+//			}
+
+			return SINGLE_ALTERNATIVE_FITNESS_RANGE * newFitness;
+		} catch (UnexpectedFitnessException e) {
+			return SINGLE_ALTERNATIVE_FITNESS_RANGE;
+		}
 
 		// // debugging stuff
 		// if (DEBUG && newFitness == 0.0) {
@@ -498,18 +543,6 @@ public class DefUseFitnessCalculator {
 		// quick fix: when the fitness is >1 assume it was the flaw described
 		// above and only look at branch-distance part of fitness (decimal
 		// places)
-		if (newFitness > 1) {
-//			System.out.println("really");
-			int approachPart = (int) newFitness;
-			newFitness -= approachPart;
-		}
-		if (newFitness <= 0 || newFitness > 1) {
-			throw new IllegalStateException(
-					"single alternative fitness out of expected range: "
-							+ newFitness);
-		}
-
-		return SINGLE_ALTERNATIVE_FITNESS_RANGE * newFitness;
 	}
 
 	/**
@@ -584,24 +617,30 @@ public class DefUseFitnessCalculator {
 	 * the definition coming before goalDefinitionPos was not the
 	 * goalDefinition. If it was, 1 is returned.
 	 * 
+	 * @throws UnexpectedFitnessException
+	 * 
 	 */
 	private double calculateUseFitnessForDefinitionPos(
-			ExecutionTrace targetTrace, Integer objectId, int goalDefinitionPos) {
+			ExecutionTrace targetTrace, Integer objectId, int goalDefinitionPos)
+			throws UnexpectedFitnessException {
 
 		int previousDefId = DefUseExecutionTraceAnalyzer
 				.getPreviousDefinitionId(goalDefinition.getDUVariableName(),
 						targetTrace, goalDefinitionPos, objectId);
 		if (previousDefId == goalDefinition.getDefId())
-			return 1;
+			return 1.0;
 
 		int overwritingDefPos = DefUseExecutionTraceAnalyzer
 				.getNextOverwritingDefinitionPosition(goalDefinition,
 						targetTrace, goalDefinitionPos, objectId);
-		double fitness = calculateFitnessForDURange(targetTrace, objectId,
-				goalUseFitness, goalUse, true, goalDefinitionPos,
-				overwritingDefPos, true);
 
-		return fitness;
+		try {
+			return calculateFitnessForDURange(targetTrace, objectId,
+					goalUseFitness, goalUse, true, goalDefinitionPos,
+					overwritingDefPos, true);
+		} catch (UnexpectedFitnessException e) {
+			return 1.0;
+		}
 	}
 
 	/**
@@ -624,12 +663,15 @@ public class DefUseFitnessCalculator {
 	 * goalUseBranch fitness between a goalUsePos and its next overwriting
 	 * definition - calculateUseFitnessForDefinitionPos()
 	 * 
+	 * @throws UnexpectedFitnessException
+	 * 
 	 * 
 	 */
 	private double calculateFitnessForDURange(ExecutionTrace targetTrace,
 			Integer objectId, TestFitnessFunction targetFitness,
 			DefUse targetDU, boolean wantToCoverTargetDU, int duCounterStart,
-			int duCounterEnd, boolean forceNotNull) {
+			int duCounterEnd, boolean expectNotToBeZero)
+			throws UnexpectedFitnessException {
 
 		// filter trace
 		ExecutionTrace cutTrace = targetTrace.getTraceInDUCounterRange(
@@ -640,28 +682,28 @@ public class DefUseFitnessCalculator {
 
 		// TODO see comment in calculateDUFitness() Case2.
 		// // sanity check
-//		 if (fitness == 0.0 && !wantToCoverTargetDU) {
-//		
-//		 System.out.println(this.goal.toString());
-//		
-//		 System.out.println(cutTrace.toDefUseTraceInformation());
-//		 DefUseExecutionTraceAnalyzer.printFinishCalls(cutTrace);
-//		
-//		 System.out.println("duPosStart: " + duCounterStart);
-//		 System.out.println("duPosEnd: " + duCounterEnd);
-//		 // int targetUseBranchBytecode =
-//		 // targetDU.getControlDependentBranch()
-//		 // .getInstruction().getInstructionId();
-//		 // System.out.println("targetDU-branch-bytecode: "
-//		 // + targetUseBranchBytecode);
-//		 throw new IllegalStateException(targetFitness.toString()
-//		 + " cant have fitness 0 in this cut trace: "
-//		 + cutTrace.toDefUseTraceInformation(targetDU
-//		 .getDUVariableName(), objectId));
-//		 }
-		if (forceNotNull && fitness == 0.0)
-			// if (wantToCoverTargetDU)
-			return 1;
+		// if (fitness == 0.0 && !wantToCoverTargetDU) {
+		//		
+		// System.out.println(this.goal.toString());
+		//		
+		// System.out.println(cutTrace.toDefUseTraceInformation());
+		// DefUseExecutionTraceAnalyzer.printFinishCalls(cutTrace);
+		//		
+		// System.out.println("duPosStart: " + duCounterStart);
+		// System.out.println("duPosEnd: " + duCounterEnd);
+		// // int targetUseBranchBytecode =
+		// // targetDU.getControlDependentBranch()
+		// // .getInstruction().getInstructionId();
+		// // System.out.println("targetDU-branch-bytecode: "
+		// // + targetUseBranchBytecode);
+		// throw new IllegalStateException(targetFitness.toString()
+		// + " cant have fitness 0 in this cut trace: "
+		// + cutTrace.toDefUseTraceInformation(targetDU
+		// .getDUVariableName(), objectId));
+		// }
+		if (expectNotToBeZero && fitness == 0.0)
+			throw new UnexpectedFitnessException();
+
 		// else
 		// throw new IllegalStateException(
 		// "avoiding fitness should not be 0 if instruction was actually passed "

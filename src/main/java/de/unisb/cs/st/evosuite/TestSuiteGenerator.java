@@ -20,7 +20,6 @@ package de.unisb.cs.st.evosuite;
 
 import java.io.File;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
