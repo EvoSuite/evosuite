@@ -55,6 +55,7 @@ public class CoverageStatistics {
 					out.write(",suite");
 				else
 					out.write(",tests");
+				
 				out.write("\n");
 			}
 			
