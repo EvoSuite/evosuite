@@ -188,10 +188,15 @@
 	<!--scope>test</scope-->
       </dependency>
       
-<dependency>
-  <groupId>org.eclipse.tycho</groupId>
-    <artifactId>org.eclipse.jdt.core</artifactId>
-      <version>3.6.2.v_A76_R36x</version>
+      <dependency>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>org.eclipse.jdt.core</artifactId>
+        <version>3.6.2.v_A76_R36x</version>
+      </dependency>
+      <dependency>
+	    <groupId>org.eclipse.equinox</groupId>
+	    <artifactId>org.eclipse.equinox.common</artifactId>
+	    <version>3.6.0.v20100503</version>
       </dependency>
       <!--
       		<dependency>
@@ -201,11 +206,11 @@
 		</dependency>
 		-->
 		
-		<dependency>
+		<!--dependency>
 			<groupId>org.eclipse.jdt</groupId>
 			<artifactId>ui</artifactId>
 			<version>3.6.0</version>
-      </dependency>
+      </dependency-->
 
       <dependency>
       	<groupId>org.kohsuke</groupId>
