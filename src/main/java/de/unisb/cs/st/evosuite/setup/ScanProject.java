@@ -215,6 +215,7 @@ public class ScanProject {
 				classes.addAll(loadClass(new File(cn.replace("/", ".") + ".class"),
 				                         cn.split("/")[0], false));
 			} catch (ClassNotFoundException e) {
+				//System.out.println("Class is not in a class path " + cn.replace("/", "."));
 				//e.printStackTrace();
 			}
 		}
@@ -227,7 +228,8 @@ public class ScanProject {
 				cf.createClass(c);
 			}
 		} catch (Throwable t) {
-
+			System.out.println("* Could not generate stub. Print stack trace for more information");
+			//t.printStackTrace();
 		}
 	}
 
