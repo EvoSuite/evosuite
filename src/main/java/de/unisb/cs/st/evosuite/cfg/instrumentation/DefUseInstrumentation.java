@@ -17,6 +17,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
@@ -50,7 +51,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 //				if (in.equals(v.getASMNode()))
 //					v.branchId = completeCFG.getInstruction(v.getId()).getBranchId();
 
-				if (Properties.CRITERION == Criterion.DEFUSE
+				if ((Properties.CRITERION == Criterion.DEFUSE || TestSuiteGenerator.analyzing)
 				        && in.equals(v.getASMNode()) 
 				        && (v.isDefUse())) {
 

@@ -117,6 +117,9 @@ public class CFGMethodAdapter extends MethodAdapter {
 		} else if (Properties.CRITERION == Criterion.DEFUSE) {
 			instrumentations.add(new BranchInstrumentation());
 			instrumentations.add(new DefUseInstrumentation());
+		} else if (Properties.CRITERION == Criterion.ANALYZE) {
+			instrumentations.add(new BranchInstrumentation());
+			instrumentations.add(new DefUseInstrumentation());
 		} else if (Properties.CRITERION == Criterion.PATH) {
 			instrumentations.add(new PrimePathInstrumentation());
 			instrumentations.add(new BranchInstrumentation());
