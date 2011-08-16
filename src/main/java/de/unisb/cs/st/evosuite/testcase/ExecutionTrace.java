@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTracer;
@@ -252,7 +253,7 @@ public class ExecutionTrace {
 			methodId++;
 			MethodCall call = new MethodCall(className, methodName, methodId,
 					callingObjectID);
-			if (Properties.CRITERION == Criterion.DEFUSE) {
+			if (Properties.CRITERION == Criterion.DEFUSE || TestSuiteGenerator.analyzing) {
 				call.branchTrace.add(-1);
 				call.trueDistanceTrace.add(1.0);
 				call.falseDistanceTrace.add(0.0);
@@ -400,7 +401,7 @@ public class ExecutionTrace {
 			stack.peek().falseDistanceTrace.add(false_distance);
 			assert (true_distance == 0.0 || false_distance == 0.0);
 			// TODO line_trace ?
-			if (Properties.CRITERION == Criterion.DEFUSE) {
+			if (Properties.CRITERION == Criterion.DEFUSE || TestSuiteGenerator.analyzing) {
 				stack.peek().defuseCounterTrace.add(duCounter);
 			}
 		}

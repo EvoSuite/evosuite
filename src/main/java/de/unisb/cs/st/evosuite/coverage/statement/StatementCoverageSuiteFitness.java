@@ -3,8 +3,6 @@ package de.unisb.cs.st.evosuite.coverage.statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
-import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;

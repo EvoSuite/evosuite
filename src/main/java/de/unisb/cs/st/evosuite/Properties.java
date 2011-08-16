@@ -479,7 +479,7 @@ public class Properties {
 	// Runtime parameters
 
 	public enum Criterion {
-		CONCURRENCY, LCSAJ, DEFUSE, PATH, BRANCH, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT
+		CONCURRENCY, LCSAJ, DEFUSE, PATH, BRANCH, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT, ANALYZE
 	}
 
 	/** Cache target class */

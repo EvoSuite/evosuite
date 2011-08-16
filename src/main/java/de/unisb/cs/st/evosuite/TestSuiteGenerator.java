@@ -20,6 +20,7 @@ package de.unisb.cs.st.evosuite;
 
 import java.io.File;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -129,21 +130,61 @@ public class TestSuiteGenerator {
 
 	private StoppingCondition stopping_condition;
 
+	public static boolean analyzing = false;
+
 	/**
 	 * Generate a test suite for the target class
 	 */
 	public String generateTestSuite(GeneticAlgorithm ga) {
 		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
-		List<TestCase> tests;
+		List<TestCase> tests = null;
 
 		System.out.println("* Generating tests for class "
 				+ Properties.TARGET_CLASS);
 		printTestCriterion();
 
-		if (Properties.STRATEGY == Strategy.EVOSUITE)
-			tests = generateWholeSuite(ga);
-		else
-			tests = generateIndividualTests(ga);
+		// TODO clean up
+		if (Properties.CRITERION != Criterion.ANALYZE) {
+			if (Properties.STRATEGY == Strategy.EVOSUITE)
+				tests = generateWholeSuite(ga);
+			else
+				tests = generateIndividualTests(ga);
+		} else {
+
+			analyzing = true;
+
+			Criterion[] supported = { Criterion.DEFUSE, Criterion.BRANCH,
+					Criterion.STATEMENT };
+
+			for (Criterion criterion : supported) {
+				if (tests != null) {
+					if (Properties.JUNIT_TESTS) {
+						TestSuite suite = new TestSuite(tests);
+						String name = Properties.TARGET_CLASS
+								.substring(Properties.TARGET_CLASS
+										.lastIndexOf(".") + 1);
+						System.out.println("* Writing JUnit test cases to "
+								+ Properties.TEST_DIR);
+						suite.writeTestSuite("Test" + name, Properties.TEST_DIR
+								+ "/" + Properties.CRITERION);
+					}
+				}
+
+				Properties.CRITERION = criterion;
+				System.out.println("* Analyzing Criterion: "
+						+ Properties.CRITERION);
+
+				if (Properties.STRATEGY == Strategy.EVOSUITE)
+					tests = generateWholeSuite(ga);
+				else
+					tests = generateIndividualTests(ga);
+			}
+		}
+
+		// if (Properties.STRATEGY == Strategy.EVOSUITE)
+		// tests = generateWholeSuite(ga);
+		// else
+		// tests = generateIndividualTests(ga);
 
 		if (Properties.CRITERION == Criterion.MUTATION) {
 			MutationAssertionGenerator asserter = new MutationAssertionGenerator();
@@ -171,7 +212,8 @@ public class TestSuiteGenerator {
 					.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 			System.out.println("* Writing JUnit test cases to "
 					+ Properties.TEST_DIR);
-			suite.writeTestSuite("Test" + name, Properties.TEST_DIR);
+			suite.writeTestSuite("Test" + name, Properties.TEST_DIR + "/"
+					+ Properties.CRITERION);
 		}
 
 		TestCaseExecutor.pullDown();
@@ -254,8 +296,7 @@ public class TestSuiteGenerator {
 		System.out.println("* Generated " + best.size()
 				+ " tests with total length " + best.totalLengthOfTestCases());
 
-		System.out.println("* Resulting TestSuite's coverage: "
-				+ best.getCoverage());
+		printCoverage(best);
 
 		if (Properties.CRITERION == Criterion.DEFUSE) {
 			// TODO this is horribly inefficient!
@@ -277,6 +318,34 @@ public class TestSuiteGenerator {
 		return best.getTests();
 	}
 
+	private void printCoverage(TestSuiteChromosome best) {
+
+		if (analyzing) {
+			DefUseCoverageSuiteFitness defuse = new DefUseCoverageSuiteFitness();
+			defuse.getFitness(best);
+			System.out.println("* DefUse Coverage: "
+					+ NumberFormat.getPercentInstance().format(
+							best.getCoverage()));
+
+			BranchCoverageSuiteFitness branch = new BranchCoverageSuiteFitness();
+			branch.getFitness(best);
+			System.out.println("* Branch Coverage: "
+					+ NumberFormat.getPercentInstance().format(
+							best.getCoverage()));
+
+			StatementCoverageSuiteFitness statement = new StatementCoverageSuiteFitness();
+			statement.getFitness(best);
+			System.out.println("* Statement Coverage: "
+					+ NumberFormat.getPercentInstance().format(
+							best.getCoverage()));
+		} else {
+			System.out.println("* Resulting TestSuite's coverage: "
+					+ NumberFormat.getPercentInstance().format(
+							best.getCoverage()));
+		}
+
+	}
+
 	private void printTestCriterion() {
 		switch (Properties.CRITERION) {
 		case MUTATION:
@@ -296,6 +365,9 @@ public class TestSuiteGenerator {
 			break;
 		case STATEMENT:
 			System.out.println("* Test Criterion: Statement Coverage");
+			break;
+		case ANALYZE:
+			System.out.println("* Test Criterion: Analyzing");
 			break;
 		default:
 			System.out.println("* Test criterion: Branch coverage");
@@ -552,18 +624,20 @@ public class TestSuiteGenerator {
 					current_budget += stopping_condition.getCurrentValue();
 				else
 					current_budget += budget + 1;
-				
+
 				// print console progress bar
-				if(Properties.SHOW_PROGRESS && !(Properties.PRINT_COVERED_GOALS || Properties.PRINT_CURRENT_GOALS)) {
+				if (Properties.SHOW_PROGRESS
+						&& !(Properties.PRINT_COVERED_GOALS || Properties.PRINT_CURRENT_GOALS)) {
 					double percent = current_budget;
 					percent = percent / total_budget * 100;
-					
+
 					double coverage = covered_goals;
 					coverage = coverage / total_goals * 100;
-					
-					ConsoleProgressBar.printProgressBar((int)percent, (int)coverage);
+
+					ConsoleProgressBar.printProgressBar((int) percent,
+							(int) coverage);
 				}
-				
+
 				if (current_budget > total_budget)
 					break;
 				num++;
@@ -571,31 +645,36 @@ public class TestSuiteGenerator {
 				// break;
 			}
 		}
+		if(Properties.SHOW_PROGRESS)
+			System.out.println();
 
 		// for testing purposes
-		if (global_time.isFinished())
-			System.out.println("! Timeout reached");
-		if (current_budget >= total_budget)
-			System.out.println("! Budget exceeded");
-		else
-			System.out.println("* Remaining budget: "
-					+ (total_budget - current_budget));
-		ga.printBudget();
+		if (!analyzing) {
+			if (global_time.isFinished())
+				System.out.println("! Timeout reached");
+			if (current_budget >= total_budget)
+				System.out.println("! Budget exceeded");
+			else
+				System.out.println("* Remaining budget: "
+						+ (total_budget - current_budget));
+			ga.printBudget();
 
-		int c = 0;
-		int uncovered_goals = total_goals - covered_goals;
-		if (uncovered_goals < 10)
-			for (TestFitnessFunction goal : goals) {
-				if (!covered.contains(c)) {
-					System.out.println("! Unable to cover goal " + c + " "
-							+ goal.toString());
+			int c = 0;
+			int uncovered_goals = total_goals - covered_goals;
+			if (uncovered_goals < 10)
+				for (TestFitnessFunction goal : goals) {
+					if (!covered.contains(c)) {
+						System.out.println("! Unable to cover goal " + c + " "
+								+ goal.toString());
 
+					}
+					c++;
 				}
-				c++;
-			}
-		else
-			System.out.println("! #Goals that were not covered: "
-					+ uncovered_goals);
+			else
+				System.out.println("! #Goals that were not covered: "
+						+ uncovered_goals);
+		}
+
 		if (Properties.CRITERION == Criterion.LCSAJ && Properties.WRITE_CFG) {
 			int d = 0;
 			for (TestFitnessFunction goal : goals) {
@@ -618,10 +697,15 @@ public class TestSuiteGenerator {
 				+ "s, " + current_budget
 				+ " statements, best individual has fitness "
 				+ suite.getFitness());
-		System.out.println("* Covered " + covered_goals + "/" + goals.size()
-				+ " goals");
-		logger.info("Resulting test suite: " + suite.size() + " tests, length "
-				+ suite.totalLengthOfTestCases());
+		
+		if (!analyzing) {
+			System.out.println("* Covered " + covered_goals + "/"
+					+ goals.size() + " goals");
+			logger.info("Resulting test suite: " + suite.size()
+					+ " tests, length " + suite.totalLengthOfTestCases());
+		} else {
+			printCoverage(suite);
+		}
 
 		if (Properties.INLINE) {
 			ConstantInliner inliner = new ConstantInliner();
@@ -931,8 +1015,24 @@ public class TestSuiteGenerator {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+
 		TestSuiteGenerator generator = new TestSuiteGenerator();
 		generator.generateTestSuite(null);
+
+		// Criterion[] supported = {Criterion.DEFUSE,
+		// Criterion.BRANCH,Criterion.STATEMENT};
+		//			
+		// System.out.println("* Analyzing CUT completely");
+		//			
+		// for(Criterion criterion : supported) {
+		// Properties.CRITERION = criterion;
+		// System.out.println("* Analyzing Criterion: "+Properties.CRITERION);
+		//				
+		//				
+		// TestSuiteGenerator generator = new TestSuiteGenerator();
+		// generator.generateTestSuite(null);
+		// }
+		// }
 	}
 
 }
