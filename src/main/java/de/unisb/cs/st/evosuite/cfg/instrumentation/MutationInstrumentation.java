@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
+import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.DeleteStatement;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.InsertUnaryOperator;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.MutationOperator;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.NegateCondition;
@@ -55,6 +56,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 		mutationOperators.add(new ReplaceArithmeticOperator());
 		mutationOperators.add(new NegateCondition());
 		mutationOperators.add(new InsertUnaryOperator());
+		mutationOperators.add(new DeleteStatement());
 
 		// TODO: Replace iinc
 
