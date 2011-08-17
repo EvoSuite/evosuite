@@ -19,16 +19,20 @@
 package de.unisb.cs.st.evosuite.coverage.branch;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.javaagent.LinePool;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
@@ -51,9 +55,12 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	public static final int total_methods = TestCluster.getInstance().num_defined_methods;
 
-	public static final int total_branches = BranchPool.getBranchCounter() - LCSAJPool.lcsaj_branches.size();
+	public static final int total_branches = BranchPool.getBranchCounter()
+	        - LCSAJPool.lcsaj_branches.size();
 
 	public static final int branchless_methods = BranchPool.getBranchlessMethods().size();
+
+	public static final Set<Integer> lines = LinePool.getLines(Properties.TARGET_CLASS);
 
 	public int covered_branches = 0;
 
@@ -89,6 +96,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		Map<Integer, Double> false_distance = new HashMap<Integer, Double>();
 		Map<Integer, Integer> predicate_count = new HashMap<Integer, Integer>();
 		Map<String, Integer> call_count = new HashMap<String, Integer>();
+		Set<Integer> covered_lines = new HashSet<Integer>();
 
 		for (ExecutionResult result : results) {
 			if (hasTimeout(result)) {
@@ -99,16 +107,16 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				return total_branches * 2 + total_methods;
 			}
 
-			for (Entry<String, Integer> entry : result.getTrace().covered_methods.entrySet()){
-					if (!call_count.containsKey(entry.getKey()))
-						call_count.put(entry.getKey(), entry.getValue());
-					else {
-						call_count.put(entry.getKey(),
-						               call_count.get(entry.getKey()) + entry.getValue());
+			for (Entry<String, Integer> entry : result.getTrace().covered_methods.entrySet()) {
+				if (!call_count.containsKey(entry.getKey()))
+					call_count.put(entry.getKey(), entry.getValue());
+				else {
+					call_count.put(entry.getKey(),
+					               call_count.get(entry.getKey()) + entry.getValue());
 				}
 			}
 			for (Entry<Integer, Integer> entry : result.getTrace().covered_predicates.entrySet()) {
-				if (!LCSAJPool.isLCSAJBranch(BranchPool.getBranch(entry.getKey()))){
+				if (!LCSAJPool.isLCSAJBranch(BranchPool.getBranch(entry.getKey()))) {
 					if (!predicate_count.containsKey(entry.getKey()))
 						predicate_count.put(entry.getKey(), entry.getValue());
 					else {
@@ -119,7 +127,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				}
 			}
 			for (Entry<Integer, Double> entry : result.getTrace().true_distances.entrySet()) {
-				if (!LCSAJPool.isLCSAJBranch(BranchPool.getBranch(entry.getKey()))){
+				if (!LCSAJPool.isLCSAJBranch(BranchPool.getBranch(entry.getKey()))) {
 					if (!true_distance.containsKey(entry.getKey()))
 						true_distance.put(entry.getKey(), entry.getValue());
 					else {
@@ -130,7 +138,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				}
 			}
 			for (Entry<Integer, Double> entry : result.getTrace().false_distances.entrySet()) {
-				if (!LCSAJPool.isLCSAJBranch(BranchPool.getBranch(entry.getKey()))){
+				if (!LCSAJPool.isLCSAJBranch(BranchPool.getBranch(entry.getKey()))) {
 					if (!false_distance.containsKey(entry.getKey()))
 						false_distance.put(entry.getKey(), entry.getValue());
 					else {
@@ -140,11 +148,19 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					}
 				}
 			}
+
+			if (Properties.BRANCH_STATEMENT) {
+				// Add requirement on statements
+				for (Map<String, Map<Integer, Integer>> coverage : result.getTrace().coverage.values()) {
+					for (Map<Integer, Integer> coveredLines : coverage.values())
+						covered_lines.addAll(coveredLines.keySet());
+				}
+			}
 		}
-		
+
 		int num_covered = 0;
 		int uncovered = 0;
-		
+
 		//logger.info("Got data for predicates: " + predicate_count.size()+"/"+total_branches);
 		for (Integer key : predicate_count.keySet()) {
 			//logger.info("Key: "+key);
@@ -233,7 +249,12 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		//		covered_methods  = Math.max(covered_methods,  call_count.size());
-
+		if (Properties.BRANCH_STATEMENT) {
+			int totalLines = lines.size();
+			logger.info("Covered " + covered_lines.size() + " out of " + totalLines
+			        + " lines");
+			//fitness += totalLines - covered_lines.size();
+		}
 		//logger.info("Fitness: "+fitness+", size: "+suite.size()+", length: "+suite.length());
 		updateIndividual(individual, fitness);
 
