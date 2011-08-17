@@ -99,20 +99,20 @@ public class TestCallStatement extends AbstractStatement {
 	 */
 	@Override
 	public Throwable execute(Scope scope, PrintStream out)
-	throws InvocationTargetException, IllegalArgumentException,
-	IllegalAccessException, InstantiationException {
+	        throws InvocationTargetException, IllegalArgumentException,
+	        IllegalAccessException, InstantiationException {
 
-		try{
+		try {
 			TestCase test = testCall.getTest();
 			if (test != null && !test.hasCalls()) {
 				Object value = runTest(test);
 				assert (retval.getVariableClass().isAssignableFrom(value.getClass())) : "we want an "
-					+ retval.getVariableClass() + " but got an " + value.getClass();
+				        + retval.getVariableClass() + " but got an " + value.getClass();
 				retval.setObject(scope, value);
 			} else {
 				retval.setObject(scope, null);
 			}
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			return e.getCause();
 		}
 
@@ -131,19 +131,19 @@ public class TestCallStatement extends AbstractStatement {
 		TestCase test = testCall.getTest();
 		if (test == null || test.hasCalls()) {
 			return retval.getSimpleClassName() + " " + retval.getName()
-			+ " = call to null";
+			        + " = call to null";
 		}
 		int num = 0;
 		for (TestCase other : testCall.getSuite().getTests()) {
 			if (test.equals(other))
 				return retval.getSimpleClassName() + " " + retval.getName()
-				+ " = Call to test case: " + num + "...\n" + test.toCode()
-				+ "...\n";
+				        + " = Call to test case: " + num + "...\n" + test.toCode()
+				        + "...\n";
 			num++;
 		}
 
 		return retval.getSimpleClassName() + " " + retval.getName()
-		+ " = Call to test case (null) ";
+		        + " = Call to test case (null) ";
 	}
 
 	/*
@@ -155,7 +155,7 @@ public class TestCallStatement extends AbstractStatement {
 	 */
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-			Throwable exception) {
+	        Throwable exception) {
 		// TODO Auto-generated method stub
 
 	}
@@ -185,9 +185,9 @@ public class TestCallStatement extends AbstractStatement {
 	 * @see de.unisb.cs.st.evosuite.testcase.Statement#clone()
 	 */
 	@Override
-	public StatementInterface clone(TestCase newTestCase) {
+	public StatementInterface copy(TestCase newTestCase, int offset) {
 		TestCallStatement statement = new TestCallStatement(newTestCase, testCall,
-				retval.getType());
+		        retval.getType());
 		return statement;
 	}
 
@@ -246,7 +246,7 @@ public class TestCallStatement extends AbstractStatement {
 
 	@Override
 	public AccessibleObject getAccessibleObject() {
-		assert(false); //not supposed to be called
+		assert (false); //not supposed to be called
 		return null;
 	}
 
@@ -255,4 +255,11 @@ public class TestCallStatement extends AbstractStatement {
 		return false;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		// No-op
+	}
 }

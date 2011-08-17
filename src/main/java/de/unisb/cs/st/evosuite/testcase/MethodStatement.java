@@ -119,8 +119,8 @@ public class MethodStatement extends AbstractStatement {
 		final Object[] inputs = new Object[parameters.size()];
 		PrintStream old_out = System.out;
 		PrintStream old_err = System.err;
-		System.setOut(out);
-		System.setErr(out);
+		//System.setOut(out);
+		//System.setErr(out);
 
 		try {
 			return super.exceptionHandler(new Executer() {
@@ -217,10 +217,12 @@ public class MethodStatement extends AbstractStatement {
 				parameter_string += ", ";
 			}
 			Class<?> declaredParamType = method.getParameterTypes()[i];
-			Class<?> actualParamType = parameters.get(i).getVariableClass(); 
-			if (!declaredParamType.equals(actualParamType)){
-					// && parameters.get(i) instanceof ArrayIndex)
-				parameter_string += "(" + new GenericClass(method.getParameterTypes()[i]).getSimpleName() + ") ";
+			Class<?> actualParamType = parameters.get(i).getVariableClass();
+			if (!declaredParamType.equals(actualParamType)) {
+				// && parameters.get(i) instanceof ArrayIndex)
+				parameter_string += "("
+				        + new GenericClass(method.getParameterTypes()[i]).getSimpleName()
+				        + ") ";
 			}
 			parameter_string += parameters.get(i).getName();
 		}
@@ -256,10 +258,10 @@ public class MethodStatement extends AbstractStatement {
 	}
 
 	@Override
-	public StatementInterface clone(TestCase newTestCase) {
+	public StatementInterface copy(TestCase newTestCase, int offset) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
-			new_params.add(r.clone(newTestCase));
+			new_params.add(r.copy(newTestCase, offset));
 		}
 
 		MethodStatement m;
@@ -269,7 +271,7 @@ public class MethodStatement extends AbstractStatement {
 			m = new MethodStatement(newTestCase, method, null, retval.getType(),
 			        new_params);
 		} else {
-			VariableReference newCallee = callee.clone(newTestCase);
+			VariableReference newCallee = callee.copy(newTestCase, offset);
 			m = new MethodStatement(newTestCase, method, newCallee, retval.getType(),
 			        new_params);
 
@@ -579,5 +581,23 @@ public class MethodStatement extends AbstractStatement {
 		int num = (Integer) ois.readObject();
 
 		method = methodClass.getDeclaredMethods()[num];
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		try {
+			Class<?> oldClass = method.getDeclaringClass();
+			Class<?> newClass = loader.loadClass(oldClass.getName());
+			this.method = newClass.getMethod(method.getName(), method.getParameterTypes());
+		} catch (ClassNotFoundException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		} catch (SecurityException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		} catch (NoSuchMethodException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		}
 	}
 }

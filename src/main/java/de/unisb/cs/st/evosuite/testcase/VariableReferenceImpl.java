@@ -4,10 +4,10 @@ import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.GeneratorAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class VariableReferenceImpl implements VariableReference, Serializable {
 
@@ -23,7 +23,7 @@ public class VariableReferenceImpl implements VariableReference, Serializable {
 	/**
 	 * The testCase in which this VariableReference is valid
 	 */
-	protected final TestCase testCase;
+	protected TestCase testCase;
 
 	/**
 	 * Constructor
@@ -84,6 +84,11 @@ public class VariableReferenceImpl implements VariableReference, Serializable {
 	@Override
 	public VariableReference clone(TestCase newTestCase) {
 		return newTestCase.getStatement(getStPosition()).getReturnValue();
+	}
+
+	@Override
+	public VariableReference copy(TestCase newTestCase, int offset) {
+		return newTestCase.getStatement(getStPosition() + offset).getReturnValue();
 	}
 
 	/**

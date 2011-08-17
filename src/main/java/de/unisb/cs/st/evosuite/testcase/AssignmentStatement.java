@@ -64,11 +64,11 @@ public class AssignmentStatement extends AbstractStatement {
 	}
 
 	@Override
-	public StatementInterface clone(TestCase newTestCase) {
+	public StatementInterface copy(TestCase newTestCase, int offset) {
 		try {
 			//logger.info("CLoning : " + getCode());
-			VariableReference newParam = parameter.clone(newTestCase);
-			VariableReference newTarget = retval.clone(newTestCase);
+			VariableReference newParam = parameter.copy(newTestCase, offset);
+			VariableReference newTarget = retval.copy(newTestCase, offset);
 			AssignmentStatement copy = new AssignmentStatement(newTestCase, newTarget,
 			        newParam);
 			//logger.info("Copy of statement is: " + copy.getCode());
@@ -320,5 +320,13 @@ public class AssignmentStatement extends AbstractStatement {
 	@Override
 	public boolean isAssignmentStatement() {
 		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		// No-op
 	}
 }
