@@ -367,6 +367,9 @@ public class Properties {
 	@Parameter(key = "calculate_cluster", description = "Automatically calculate test cluster during setup")
 	public static boolean CALCULATE_CLUSTER = false;
 
+	@Parameter(key = "branch_statement", description = "Require statement coverage for branch coverage")
+	public static boolean BRANCH_STATEMENT = false;
+
 	@Parameter(key = "remote_testing", description = "Include remote calls")
 	public static boolean REMOTE_TESTING = false;
 
