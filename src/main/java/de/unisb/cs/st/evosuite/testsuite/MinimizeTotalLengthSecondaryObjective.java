@@ -31,7 +31,8 @@ public class MinimizeTotalLengthSecondaryObjective extends SecondaryObjective {
 
 	private int getLengthSum(TestSuiteChromosome chromosome1,
 	        TestSuiteChromosome chromosome2) {
-		return chromosome1.totalLengthOfTestCases() + chromosome2.totalLengthOfTestCases();
+		return chromosome1.totalLengthOfTestCases()
+		        + chromosome2.totalLengthOfTestCases();
 	}
 
 	/*
@@ -43,8 +44,8 @@ public class MinimizeTotalLengthSecondaryObjective extends SecondaryObjective {
 	 */
 	@Override
 	public int compareChromosomes(Chromosome chromosome1, Chromosome chromosome2) {
-		logger.debug("Comparing lengths: " + ((TestSuiteChromosome) chromosome1).totalLengthOfTestCases()
-		        + " vs " + ((TestSuiteChromosome) chromosome2).totalLengthOfTestCases());
+		//logger.debug("Comparing lengths: " + ((TestSuiteChromosome) chromosome1).totalLengthOfTestCases()
+		//        + " vs " + ((TestSuiteChromosome) chromosome2).totalLengthOfTestCases());
 
 		return ((TestSuiteChromosome) chromosome1).totalLengthOfTestCases()
 		        - ((TestSuiteChromosome) chromosome2).totalLengthOfTestCases();
@@ -62,10 +63,10 @@ public class MinimizeTotalLengthSecondaryObjective extends SecondaryObjective {
 	@Override
 	public int compareGenerations(Chromosome parent1, Chromosome parent2,
 	        Chromosome child1, Chromosome child2) {
-		logger.debug("Comparing lengths: " + ((TestSuiteChromosome) parent1).totalLengthOfTestCases()
-		        + ", " + ((TestSuiteChromosome) parent2).totalLengthOfTestCases() + " vs "
-		        + ((TestSuiteChromosome) child1).totalLengthOfTestCases() + ", "
-		        + ((TestSuiteChromosome) child2).totalLengthOfTestCases());
+		//logger.debug("Comparing lengths: " + ((TestSuiteChromosome) parent1).totalLengthOfTestCases()
+		//        + ", " + ((TestSuiteChromosome) parent2).totalLengthOfTestCases() + " vs "
+		//        + ((TestSuiteChromosome) child1).totalLengthOfTestCases() + ", "
+		//        + ((TestSuiteChromosome) child2).totalLengthOfTestCases());
 		return getLengthSum((TestSuiteChromosome) parent1, (TestSuiteChromosome) parent2)
 		        - getLengthSum((TestSuiteChromosome) child1, (TestSuiteChromosome) child2);
 	}
