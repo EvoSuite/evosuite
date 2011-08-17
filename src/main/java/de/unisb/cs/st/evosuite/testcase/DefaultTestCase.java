@@ -700,6 +700,11 @@ public class DefaultTestCase implements TestCase, Serializable {
 	@Override
 	public String toString() {
 		return toCode();
+	}
 
+	public void changeClassLoader(ClassLoader loader) {
+		for (StatementInterface s : statements) {
+			s.changeClassLoader(loader);
+		}
 	}
 }

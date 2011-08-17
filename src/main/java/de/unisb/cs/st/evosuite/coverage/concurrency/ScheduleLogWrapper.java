@@ -265,6 +265,11 @@ public class ScheduleLogWrapper implements StatementInterface {
 	}
 
 	@Override
+	public StatementInterface copy(TestCase tc, int offset) {
+		return new ScheduleLogWrapper(wrapped.copy(tc, offset));
+	}
+
+	@Override
 	public int hashCode() {
 		return wrapped.hashCode();
 	}
@@ -334,5 +339,13 @@ public class ScheduleLogWrapper implements StatementInterface {
 	@Override
 	public void setAssertions(Set<Assertion> assertions) {
 		wrapped.setAssertions(assertions);
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		wrapped.changeClassLoader(loader);
 	}
 }

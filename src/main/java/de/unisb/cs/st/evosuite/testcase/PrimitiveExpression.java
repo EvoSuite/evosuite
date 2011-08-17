@@ -55,12 +55,13 @@ public class PrimitiveExpression extends AbstractStatement {
 
 	private static final long serialVersionUID = 1L;
 
-	private VariableReference leftOperand;
-	private Operator operator;
-	private VariableReference rightOperand;
+	private final VariableReference leftOperand;
+	private final Operator operator;
+	private final VariableReference rightOperand;
 
-	public PrimitiveExpression(TestCase testCase, VariableReference reference, VariableReference leftOperand,
-			Operator operator, VariableReference rightOperand) {
+	public PrimitiveExpression(TestCase testCase, VariableReference reference,
+	        VariableReference leftOperand, Operator operator,
+	        VariableReference rightOperand) {
 		super(testCase, reference);
 		this.leftOperand = leftOperand;
 		this.operator = operator;
@@ -68,30 +69,34 @@ public class PrimitiveExpression extends AbstractStatement {
 	}
 
 	@Override
-	public StatementInterface clone(TestCase newTestCase) {
+	public StatementInterface copy(TestCase newTestCase, int offset) {
 		throw new UnsupportedOperationException("Method clone not implemented!");
 	}
 
 	@Override
-	public Throwable execute(Scope scope, PrintStream out) throws InvocationTargetException, IllegalArgumentException,
-			IllegalAccessException, InstantiationException {
+	public Throwable execute(Scope scope, PrintStream out)
+	        throws InvocationTargetException, IllegalArgumentException,
+	        IllegalAccessException, InstantiationException {
 		throw new UnsupportedOperationException("Method execute not implemented!");
 	}
 
 	@Override
 	public AccessibleObject getAccessibleObject() {
-		throw new UnsupportedOperationException("Method getAccessibleObject not implemented!");
+		throw new UnsupportedOperationException(
+		        "Method getAccessibleObject not implemented!");
 	}
 
 	@Override
-	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception) {
+	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
+	        Throwable exception) {
 		throw new UnsupportedOperationException("Method getBytecode not implemented!");
 	}
 
 	@Override
 	public String getCode() {
-		String code = ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName() + " = "
-				+ leftOperand.getName() + " " + operator.toCode() + " " + rightOperand.getName() + ";";
+		String code = ((Class<?>) retval.getType()).getSimpleName() + " "
+		        + retval.getName() + " = " + leftOperand.getName() + " "
+		        + operator.toCode() + " " + rightOperand.getName() + ";";
 		return code;
 	}
 
@@ -102,17 +107,20 @@ public class PrimitiveExpression extends AbstractStatement {
 
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
-		throw new UnsupportedOperationException("Method getUniqueVariableReferences not implemented!");
+		throw new UnsupportedOperationException(
+		        "Method getUniqueVariableReferences not implemented!");
 	}
 
 	@Override
 	public Set<VariableReference> getVariableReferences() {
-		throw new UnsupportedOperationException("Method getVariableReferences not implemented!");
+		throw new UnsupportedOperationException(
+		        "Method getVariableReferences not implemented!");
 	}
 
 	@Override
 	public boolean isAssignmentStatement() {
-		throw new UnsupportedOperationException("Method isAssignmentStatement not implemented!");
+		throw new UnsupportedOperationException(
+		        "Method isAssignmentStatement not implemented!");
 	}
 
 	@Override
@@ -123,5 +131,13 @@ public class PrimitiveExpression extends AbstractStatement {
 	@Override
 	public boolean same(StatementInterface s) {
 		throw new UnsupportedOperationException("Method same not implemented!");
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		// No-op
 	}
 }

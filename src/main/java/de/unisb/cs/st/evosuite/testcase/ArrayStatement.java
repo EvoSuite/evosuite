@@ -61,7 +61,7 @@ public class ArrayStatement extends AbstractStatement {
 	}
 
 	@Override
-	public StatementInterface clone(TestCase newTestCase) {
+	public StatementInterface copy(TestCase newTestCase, int offset) {
 		ArrayStatement copy = new ArrayStatement(newTestCase, retval.getType(), length);
 		return copy;
 	}
@@ -205,4 +205,11 @@ public class ArrayStatement extends AbstractStatement {
 		return false;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		// No-op
+	}
 }

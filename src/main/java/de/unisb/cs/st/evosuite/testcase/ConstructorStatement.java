@@ -181,10 +181,10 @@ public class ConstructorStatement extends AbstractStatement {
 	}
 
 	@Override
-	public StatementInterface clone(TestCase newTestCase) {
+	public StatementInterface copy(TestCase newTestCase, int offset) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
-			new_params.add(r.clone(newTestCase));
+			new_params.add(r.copy(newTestCase, offset));
 		}
 
 		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor,
@@ -432,5 +432,23 @@ public class ConstructorStatement extends AbstractStatement {
 		int num = (Integer) ois.readObject();
 
 		constructor = constructorClass.getDeclaredConstructors()[num];
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		try {
+			Class<?> oldClass = constructor.getDeclaringClass();
+			Class<?> newClass = loader.loadClass(oldClass.getName());
+			this.constructor = newClass.getConstructor(constructor.getParameterTypes());
+		} catch (ClassNotFoundException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		} catch (SecurityException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		} catch (NoSuchMethodException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		}
 	}
 }
