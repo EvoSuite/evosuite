@@ -181,7 +181,7 @@ class Mocks {
 				if (name == null) {
 					throw new NullPointerException();
 				}
-				name = sandboxPath + name;
+				name = sandboxPath + name.replaceAll("\\.\\.", "").replaceAll("//", "");
 
 				try {
 					Deencapsulation.setField(it, "closeLock", new Object());
@@ -239,8 +239,7 @@ class Mocks {
 				// Check if original path was already changed, if not - redirect it
 				if (!originalPath.contains(sandboxPath) || !filePathChanged) {
 					String changedPath = Deencapsulation.invoke(fileSystem, "normalize",
-					                                            sandboxPath
-					                                                    + originalPath);
+							sandboxPath + originalPath.replaceAll("\\.\\.", "").replaceAll("//", ""));
 					filePathChanged = true;
 					Deencapsulation.setField(it, "path", changedPath);
 				}
@@ -290,7 +289,7 @@ class Mocks {
 					Deencapsulation.invoke(fd, "incrementAndGetUseCount");
 					Deencapsulation.setField(it, "fd", fd);
 
-					String pathToOpen = name;
+					String pathToOpen = name.replaceAll("\\.\\.", "").replaceAll("//", "");
 
 					if (checkStackTrace()) {
 						pathToOpen = sandboxPath + pathToOpen;
