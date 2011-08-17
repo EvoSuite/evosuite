@@ -18,12 +18,12 @@
 
 package de.unisb.cs.st.evosuite.javaagent;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Instruments classes to call the tracer each time a new line of the source
@@ -61,6 +61,7 @@ public class LineNumberMethodAdapter extends MethodAdapter {
 		if (methodName.equals("<clinit>"))
 			return;
 
+		LinePool.addLine(className, methodName, line);
 		this.visitLdcInsn(className);
 		this.visitLdcInsn(fullMethodName);
 		this.visitLdcInsn(line);
@@ -68,5 +69,14 @@ public class LineNumberMethodAdapter extends MethodAdapter {
 		                   "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 		                   "passedLine", "(Ljava/lang/String;Ljava/lang/String;I)V");
 		current_line = line;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.objectweb.asm.commons.LocalVariablesSorter#visitMaxs(int, int)
+	 */
+	@Override
+	public void visitMaxs(int maxStack, int maxLocals) {
+		int maxNum = 3;
+		super.visitMaxs(Math.max(maxNum, maxStack), maxLocals);
 	}
 }
