@@ -21,10 +21,12 @@ package de.unisb.cs.st.evosuite.symbolic;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +40,7 @@ import org.objectweb.asm.commons.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
@@ -55,6 +58,11 @@ public class ConcolicExecution {
 	private List<gov.nasa.jpf.Error> errors;
 
 	private static Logger logger = LoggerFactory.getLogger(ConcolicExecution.class);
+
+	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+
+	private static PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
+	        : new PrintStream(byteStream));
 
 	private PathConstraintCollector pcg;
 
@@ -98,7 +106,13 @@ public class ConcolicExecution {
 
 		//Run the SUT
 		logger.debug("Running concolic execution");
+		PrintStream old_out = System.out;
+		PrintStream old_err = System.err;
+		System.setOut(out);
+		System.setErr(out);
 		jpf.run();
+		System.setOut(old_out);
+		System.setErr(old_err);
 		logger.debug("Finished concolic execution");
 		logger.debug("Conditions collected: " + pcg.conditions.size());
 
