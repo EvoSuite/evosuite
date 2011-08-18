@@ -162,7 +162,6 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	private final Use goalUse;
 	private final Definition goalDefinition;
 	
-	// TODO take into account that we can detect multiple control dependencies now
 	private final TestFitnessFunction goalDefinitionFitness;
 	private final TestFitnessFunction goalUseFitness;
 
@@ -519,26 +518,61 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (o == this)
-			return true;
-		if (o == null)
-			return false;
-		if (!(o instanceof DefUseCoverageTestFitness))
-			return false;
-
-		DefUseCoverageTestFitness t = (DefUseCoverageTestFitness) o;
-		if (!t.goalUse.equals(this.goalUse))
-			return false;
-		if (goalDefinition == null) {
-			if (t.goalDefinition == null)
-				return true;
-			else
-				return false;
-		}
-		if (t.goalDefinition == null)
-			return false;
-		return t.goalDefinition.equals(this.goalDefinition);
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((goalDefinition == null) ? 0 : goalDefinition.hashCode());
+		result = prime * result + ((goalUse == null) ? 0 : goalUse.hashCode());
+		return result;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DefUseCoverageTestFitness other = (DefUseCoverageTestFitness) obj;
+		if (goalDefinition == null) {
+			if (other.goalDefinition != null)
+				return false;
+		} else if (!goalDefinition.equals(other.goalDefinition))
+			return false;
+		if (goalUse == null) {
+			if (other.goalUse != null)
+				return false;
+		} else if (!goalUse.equals(other.goalUse))
+			return false;
+		return true;
+	}
+
+	
+	
+//	@Override
+//	public boolean equals(Object o) {
+//		if (o == this)
+//			return true;
+//		if (o == null)
+//			return false;
+//		if (!(o instanceof DefUseCoverageTestFitness))
+//			return false;
+//
+//		DefUseCoverageTestFitness t = (DefUseCoverageTestFitness) o;
+//		if (t.goalUse.useId != this.goalUse.useId)
+//			return false;
+//		if (goalDefinition == null) {
+//			if (t.goalDefinition == null)
+//				return true;
+//			else
+//				return false;
+//		}
+//		if (t.goalDefinition == null)
+//			return false;
+//		
+//		return t.goalDefinition.defId == this.goalDefinition.defId;
+//	}
 
 }

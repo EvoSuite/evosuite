@@ -19,5 +19,19 @@ public class Use extends DefUse {
 		if (!isUse())
 			throw new IllegalArgumentException("Vertex of a use expected");
 	}
+	
+//	@Override
+//	public boolean equals(Object o) {
+//		if(o==null)
+//			return false;
+//		if(o==this)
+//			return true;
+//		if(!(o instanceof Use))
+//			return super.equals(o);
+//		
+//		Use other = (Use)o;
+//		
+//		return useId == other.useId;
+//	}
 
 }
