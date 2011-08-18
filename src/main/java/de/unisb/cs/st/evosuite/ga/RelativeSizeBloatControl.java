@@ -18,7 +18,6 @@
 
 package de.unisb.cs.st.evosuite.ga;
 
-
 /**
  * Check individuals against current best
  * 
@@ -52,8 +51,7 @@ public class RelativeSizeBloatControl implements BloatControlFunction, SearchLis
 	 */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
-		current_max = algorithm.getPopulation().get(0).size(); // FIXME: 2 Assumptions:
-		// Population is sorted and
+		current_max = algorithm.getBestIndividual().size(); // FIXME: Assumption:
 		// population is non-empty...
 	}
 
