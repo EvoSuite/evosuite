@@ -100,7 +100,7 @@ import de.unisb.cs.st.evosuite.testsuite.MinimizeAverageLengthSecondaryObjective
 import de.unisb.cs.st.evosuite.testsuite.MinimizeExceptionsSecondaryObjective;
 import de.unisb.cs.st.evosuite.testsuite.MinimizeMaxLengthSecondaryObjective;
 import de.unisb.cs.st.evosuite.testsuite.MinimizeTotalLengthSecondaryObjective;
-import de.unisb.cs.st.evosuite.testsuite.RelativeLengthBloatControl;
+import de.unisb.cs.st.evosuite.testsuite.RelativeSuiteLengthBloatControl;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosomeFactory;
@@ -806,8 +806,11 @@ public class TestSuiteGenerator {
 			return new SinglePointFixedCrossOver();
 		case SINGLEPOINTRELATIVE:
 			return new SinglePointRelativeCrossOver();
-		default:
+		case SINGLEPOINT:
 			return new SinglePointCrossOver();
+		default:
+			throw new RuntimeException("Unknown crossover function: "
+			        + Properties.CROSSOVER_FUNCTION);
 		}
 	}
 
@@ -846,7 +849,12 @@ public class TestSuiteGenerator {
 	}
 
 	private static void getSecondaryObjectives(GeneticAlgorithm algorithm) {
-		if (Properties.STRATEGY == Strategy.ONEBRANCH) {
+		// Hard coded secondary objective for rank check experiments
+		if (Properties.CHECK_RANK_LENGTH) {
+			SecondaryObjective objective = new MinimizeTotalLengthSecondaryObjective();
+			Chromosome.addSecondaryObjective(objective);
+			algorithm.addSecondaryObjective(objective);
+		} else if (Properties.STRATEGY == Strategy.ONEBRANCH) {
 			SecondaryObjective objective = getSecondaryObjective("size");
 			Chromosome.addSecondaryObjective(objective);
 			algorithm.addSecondaryObjective(objective);
@@ -929,14 +937,16 @@ public class TestSuiteGenerator {
 		// MaxLengthBloatControl bloat_control = new MaxLengthBloatControl();
 		// ga.setBloatControl(bloat_control);
 
-		if (Properties.STRATEGY == Strategy.EVOSUITE) {
-			RelativeLengthBloatControl bloat_control = new RelativeLengthBloatControl();
-			ga.addBloatControl(bloat_control);
-			ga.addListener(bloat_control);
-		} else {
-			de.unisb.cs.st.evosuite.testcase.RelativeLengthBloatControl bloat_control = new de.unisb.cs.st.evosuite.testcase.RelativeLengthBloatControl();
-			ga.addBloatControl(bloat_control);
-			ga.addListener(bloat_control);
+		if (Properties.CHECK_BEST_LENGTH) {
+			if (Properties.STRATEGY == Strategy.EVOSUITE) {
+				RelativeSuiteLengthBloatControl bloat_control = new RelativeSuiteLengthBloatControl();
+				ga.addBloatControl(bloat_control);
+				ga.addListener(bloat_control);
+			} else {
+				de.unisb.cs.st.evosuite.testcase.RelativeTestLengthBloatControl bloat_control = new de.unisb.cs.st.evosuite.testcase.RelativeTestLengthBloatControl();
+				ga.addBloatControl(bloat_control);
+				ga.addListener(bloat_control);
+			}
 		}
 		// ga.addBloatControl(new MaxLengthBloatControl());
 
