@@ -175,7 +175,7 @@ public class Properties {
 	public static boolean CHECK_PARENTS_LENGTH = true;
 
 	@Parameter(key = "check_rank_length", group = "Search Algorithm", description = "Use length in rank selection")
-	public static boolean CHECK_RANK_LENGTH = true;
+	public static boolean CHECK_RANK_LENGTH = false;
 
 	@Parameter(key = "parent_check", group = "Search Algorithm", description = "Check against parents in Mu+Lambda algorithm")
 	public static boolean PARENT_CHECK = true;
