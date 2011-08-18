@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.sandbox.EvosuiteFile;
-import de.unisb.cs.st.evosuite.sandbox.PermissionStatistics;
 import de.unisb.cs.st.evosuite.sandbox.Sandbox;
 
 /**
@@ -168,13 +167,14 @@ public class TestRunnable implements InterfaceTestRunnable {
 		} // finally {
 		runFinished = true;
 		Sandbox.tearDownMocks();
-				
+
 		result.exceptions = exceptionsThrown;
-		if(Sandbox.canUseFileContentGeneration())
+		if (Sandbox.canUseFileContentGeneration())
 			try {
-				Method m = Sandbox.class.getMethod("generateFileContent", 
-						EvosuiteFile.class, String.class);
-				if(!TestCluster.getInstance().test_methods.contains(m))
+				logger.debug("Enabling file handling");
+				Method m = Sandbox.class.getMethod("generateFileContent",
+				                                   EvosuiteFile.class, String.class);
+				if (!TestCluster.getInstance().test_methods.contains(m))
 					TestCluster.getInstance().test_methods.add(m);
 			} catch (SecurityException e) {
 				e.printStackTrace();
