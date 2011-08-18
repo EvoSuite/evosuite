@@ -2,6 +2,7 @@ package de.unisb.cs.st.evosuite.coverage.dataflow;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Set;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
+import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 
@@ -144,7 +146,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 			if (defId == targetDefinition.getDefId())
 				throw new IllegalStateException(
 						"expect given trace not to have passed goalDefinition in the given duCounter-range");
-			if(r.get(defId)==null)
+			if (r.get(defId) == null)
 				r.put(defId, defPos);
 		}
 		return r;
@@ -246,4 +248,94 @@ public abstract class DefUseExecutionTraceAnalyzer {
 		}
 	}
 
+	public static Set<DefUseCoverageTestFitness> getCoveredGoals(
+			List<ExecutionResult> results) {
+
+		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
+
+		for (ExecutionResult result : results) {
+			Set<DefUseCoverageTestFitness> goals = getCoveredGoals(result);
+			r.addAll(goals);
+		}
+
+		return r;
+	}
+
+	public static Set<DefUseCoverageTestFitness> getCoveredGoals(
+			ExecutionResult result) {
+
+		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
+		
+		Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedDefs = result
+				.getTrace().passedDefinitions;
+		Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedUses = result
+		.getTrace().passedUses;
+		
+		for(String goalVariable : passedDefs.keySet()) {
+			if(passedUses.get(goalVariable) == null)
+				continue;
+			for(Integer objectId : passedDefs.get(goalVariable).keySet()) {
+				if(passedUses.get(goalVariable).get(objectId) == null)
+					continue;
+				
+				Map<Integer,Integer> currentDefMap = passedDefs.get(goalVariable).get(objectId);
+				Map<Integer,Integer> currentUseMap = passedUses.get(goalVariable).get(objectId);
+				List<Integer> duCounterTrace = new ArrayList<Integer>(currentDefMap.keySet());
+				Collections.sort(duCounterTrace);
+				int traceLength = duCounterTrace.size();
+				Integer[] sortedDUTrace = duCounterTrace.toArray(new Integer[traceLength]);
+				
+				for(int i=0;i<traceLength;i++) {
+					int currentDUCounter = sortedDUTrace[i];
+					int activeDef = currentDefMap.get(currentDUCounter);
+					
+					int nextDUCounter;
+					if(i != traceLength-1) {
+						// definition that was overwritten
+						nextDUCounter = sortedDUTrace[i+1];
+					} else {
+						// last active definition
+						nextDUCounter = Integer.MAX_VALUE;
+					}
+
+					Set<Integer> coveredUses = getUsesBetween(currentUseMap, currentDUCounter, nextDUCounter);
+					Set<DefUseCoverageTestFitness> coveredGoals = getGoalsFor(activeDef,coveredUses);
+					r.addAll(coveredGoals);
+				}
+			}
+		}
+
+		return r;
+	}
+
+	private static Set<DefUseCoverageTestFitness> getGoalsFor(
+			int activeDef, Set<Integer> coveredUses) {
+		
+		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
+		Definition def = DefUsePool.getDefinitionByDefId(activeDef);
+		
+		List<DefUseCoverageTestFitness> validGoals = DefUseCoverageFactory.getDUGoals();
+		
+		for(Integer coveredUse : coveredUses) {
+			Use use = DefUsePool.getUseByUseId(coveredUse);
+			DefUseCoverageTestFitness goal = DefUseCoverageFactory.createGoal(def, use);
+			
+			if(validGoals.contains(goal))
+				r.add(goal);
+		}
+		
+		return r;
+	}
+
+	public static Set<Integer> getUsesBetween(
+			Map<Integer, Integer> currentUseMap, int currentDUCounter,
+			int nextDUCounter) {
+		
+		Set<Integer> r = new HashSet<Integer>();
+		for(Integer duCounter : currentUseMap.keySet())
+			if(currentDUCounter<duCounter && duCounter<nextDUCounter)
+				r.add(currentUseMap.get(duCounter));
+		
+		return r;
+	}
 }

@@ -20,8 +20,9 @@
 
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -38,6 +39,8 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private static final long serialVersionUID = 1L;
 
+	static List<DefUseCoverageTestFitness> totalGoals = DefUseCoverageFactory.getDUGoals();
+	
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#getFitness(de.unisb.cs.st.evosuite.ga.Chromosome)
 	 */
@@ -55,10 +58,30 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		//  in the end sum up all those fitness and it's the resulting suite-fitness
 		
 		// guess this is horribly inefficient but it's a start
-		List<DefUseCoverageTestFitness> totalGoals = DefUseCoverageFactory.getDUGoals();
-		List<DefUseCoverageTestFitness> coveredGoals = new ArrayList<DefUseCoverageTestFitness>(); 
+		Set<DefUseCoverageTestFitness> coveredGoals = DefUseExecutionTraceAnalyzer.getCoveredGoals(results);
+//		Set<DefUseCoverageTestFitness> coveredGoals = new HashSet<DefUseCoverageTestFitness>();
 
+//		if(coveredGoals.size()>totalGoals.size())
+//			throw new IllegalStateException("cant cover more goals than there are: "+coveredGoals.size());
+//		
+//		for(DefUseCoverageTestFitness c : coveredGoals) {
+//////			if(!totalGoals.contains(c))
+//				System.out.println("!"+c.getGoalDefinition().defId+" "+c.getGoalUse().useId);
+////				System.out.println(c.toString());
+//				
+//				int count = 0;
+//				for(DefUseCoverageTestFitness c2: coveredGoals) {
+//					if(c.equals(c2))
+//						count++;
+//				}
+//				
+//				System.out.println(count);
+//		}
+		
 		for(DefUseCoverageTestFitness goal : totalGoals) {
+			if(coveredGoals.contains(goal))
+				continue;
+			
 			double goalFitness = 2.0;
 			for(ExecutionResult result : results) {
 				TestChromosome tc = new TestChromosome();
@@ -77,6 +100,8 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			}
 			fitness += goalFitness;
 		}
+		
+//		System.out.println();
 		
 		suite.setCoverage(coveredGoals.size()/(double)totalGoals.size());
 		updateIndividual(individual, fitness);
