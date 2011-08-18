@@ -1417,11 +1417,11 @@ public class TestCluster {
 		try {
 			calls.add(Sandbox.class.getDeclaredField("accessedFiles"));
 			calls.add(Sandbox.class.getDeclaredField("lastAccessedFile"));
-			System.out.println("ADDED");
+			logger.info("Added file handling");
 		} catch (SecurityException e) {
-			System.out.println("NOPE: " + e);
+			logger.info("Failed to add file handling: ", e);
 		} catch (NoSuchFieldException e) {
-			System.out.println("NOPE: " + e);
+			logger.info("Failed to add file handling: ", e);
 		}
 
 		// Analyze each class
