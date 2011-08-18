@@ -94,7 +94,9 @@ class Mocks {
 			setUpFileMock();
 			setUpFileInputStreamMock();
 		}
-		setUpSystemMock();
+		if(mock_strategies.contains("everything") ||
+				mock_strategies.contains("external"))
+			setUpSystemMock();
 		mocksEnabled = true;
 	}
 
@@ -105,7 +107,6 @@ class Mocks {
 		if (mocksEnabled) {
 			Mockit.tearDownMocks();
 			Utils.deleteDir(sandboxWriteFolder);
-			Utils.createDir(sandboxReadFolder);
 			mocksEnabled = false;
 			filesAccessed.clear();
 			classesMocked.clear();
@@ -120,7 +121,11 @@ class Mocks {
 		
 		// Read available mocks from the file
 		Set<String> ci = new HashSet<String>();
-		ci.addAll(Utils.readFile("evosuite-files/" + targetClass + ".CIs"));
+		try{
+			ci.addAll(Utils.readFile("evosuite-files/" + targetClass + ".CIs"));
+		}catch (Exception e){
+			return;
+		}
 		
 		for (String c : ci){
 			try {
@@ -212,7 +217,7 @@ class Mocks {
 	 * Create mocks for the class java.lang.System
 	 */
 	private void setUpSystemMock() {
-		new MockUp<System>() {
+		new MockUp<java.lang.System>() {
 			@SuppressWarnings("unused")
 			@Mock
 			// Mock method public Properties getProperties();
