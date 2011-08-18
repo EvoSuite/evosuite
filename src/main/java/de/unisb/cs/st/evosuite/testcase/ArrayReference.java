@@ -25,8 +25,8 @@ public class ArrayReference extends VariableReferenceImpl {
 	 * Create a copy of the current variable
 	 */
 	@Override
-	public VariableReference clone(TestCase newTestCase) {
-		VariableReference newRef = newTestCase.getStatement(getStPosition()).getReturnValue();
+	public VariableReference copy(TestCase newTestCase, int offset) {
+		VariableReference newRef = newTestCase.getStatement(getStPosition() + offset).getReturnValue();
 		if (newRef instanceof ArrayReference) {
 			ArrayReference otherArray = (ArrayReference) newRef;
 			otherArray.setArrayLength(array_length);
