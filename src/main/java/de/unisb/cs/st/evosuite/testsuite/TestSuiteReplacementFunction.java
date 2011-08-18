@@ -74,7 +74,7 @@ public class TestSuiteReplacementFunction extends ReplacementFunction {
 		double fitness_parents = getBestFitness((TestSuiteChromosome) parent1,
 		                                        (TestSuiteChromosome) parent2);
 
-		if (Properties.CHECK_BEST_LENGTH
+		if (Properties.CHECK_PARENTS_LENGTH
 		        && (fitness_offspring == fitness_parents && getLengthSum((TestSuiteChromosome) offspring1,
 		                                                                 (TestSuiteChromosome) offspring2) <= getLengthSum((TestSuiteChromosome) parent1,
 		                                                                                                                   (TestSuiteChromosome) parent2)))
