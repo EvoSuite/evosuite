@@ -34,7 +34,12 @@ import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
 import de.unisb.cs.st.evosuite.symbolic.smt.cvc3.CVC3Solver;
+import de.unisb.cs.st.evosuite.testcase.BooleanPrimitiveStatement;
+import de.unisb.cs.st.evosuite.testcase.BytePrimitiveStatement;
+import de.unisb.cs.st.evosuite.testcase.CharPrimitiveStatement;
+import de.unisb.cs.st.evosuite.testcase.LongPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
+import de.unisb.cs.st.evosuite.testcase.ShortPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
@@ -62,6 +67,7 @@ public class ConcolicMutation {
 		Constraint<Long> targetConstraint = new IntegerConstraint(c.getLeftOperand(),
 		        c.getComparator().not(), c.getRightOperand());
 		constraints.add(targetConstraint);
+
 		if (!targetConstraint.isSolveable()) {
 			logger.info("Found unsolvable constraint: " + targetConstraint);
 			// TODO: This is usually the case when the same variable is used for several parameters of a method
@@ -72,13 +78,15 @@ public class ConcolicMutation {
 		int size = constraints.size();
 		if (size > 0) {
 			constraints = reduce(constraints);
-			logger.info("Reduced constraints from " + size + " to " + constraints.size());
+			//logger.info("Reduced constraints from " + size + " to " + constraints.size());
+			//logger.info("Now solving: " + constraints);
 		}
 
 		CVC3Solver solver = new CVC3Solver();
 		Map<String, Object> values = solver.getModel(constraints);
 
 		if (values != null) {
+			// logger.info(values.toString());
 			TestCase newTest = test.clone();
 
 			for (Object key : values.keySet()) {
@@ -90,7 +98,18 @@ public class ConcolicMutation {
 						logger.debug("New value for " + name + " is " + value);
 						PrimitiveStatement p = getStatement(newTest, name);
 						assert (p != null);
-						p.setValue(value.intValue());
+						if (p instanceof BooleanPrimitiveStatement)
+							p.setValue(value.intValue() > 0);
+						else if (p instanceof CharPrimitiveStatement)
+							p.setValue((char) value.intValue());
+						else if (p instanceof BytePrimitiveStatement)
+							p.setValue((byte) value.intValue());
+						else if (p instanceof ShortPrimitiveStatement)
+							p.setValue((short) value.intValue());
+						else if (p instanceof LongPrimitiveStatement)
+							p.setValue(value);
+						else
+							p.setValue(value.intValue());
 					} else {
 						logger.debug("New value is not long " + val);
 					}
