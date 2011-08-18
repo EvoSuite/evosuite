@@ -57,6 +57,7 @@ import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.javaagent.InstrumentingClassLoader;
 import de.unisb.cs.st.evosuite.javaagent.StaticInitializationClassAdapter;
 import de.unisb.cs.st.evosuite.javaagent.TestabilityTransformation;
+import de.unisb.cs.st.evosuite.sandbox.Sandbox;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
@@ -1204,6 +1205,15 @@ public class TestCluster {
 						}
 						// addGenerator(field, field.getType());
 					}
+				}
+				
+				try {
+					calls.add(Sandbox.class.getField("accessedFiles"));
+					System.out.println("ADDED");
+				} catch (SecurityException e) {
+					System.out.println("NOPE");
+				} catch (NoSuchFieldException e) {
+					System.out.println("NOPE");
 				}
 
 			} catch (ClassNotFoundException e) {

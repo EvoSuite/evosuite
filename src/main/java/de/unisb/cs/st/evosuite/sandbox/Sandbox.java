@@ -18,7 +18,10 @@
 
 package de.unisb.cs.st.evosuite.sandbox;
 
+import java.util.ArrayList;
+
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
  * Class which controls enabling and disabling sandbox.
@@ -42,7 +45,12 @@ public class Sandbox {
 
 	/** If mocks should be created. */
 	private static final boolean mocksActive = Properties.MOCKS;
-
+	
+	/** Array of files accessed during test generation */
+	private static ArrayList<EvosuiteFile> accessedFiles = new ArrayList<EvosuiteFile>(); 
+	
+	private static PermissionStatistics statistics = PermissionStatistics.getInstance();
+	
 	/**
 	 * Set up mocked security manager if sandbox property is true.
 	 */
@@ -65,12 +73,16 @@ public class Sandbox {
 		if (mocksActive)
 			mocks.setUpMocks();
 	}
-
+	
 	/**
 	 * Disable all active mocks
 	 */
 	public static void tearDownMocks() {
 		mocks.tearDownMocks();
+		for(String s : statistics.getRecentFileReadPermissions()){
+			EvosuiteFile a = new EvosuiteFile(s, "default content");
+			accessedFiles.add(a);}
+		statistics.resetRecentStatistic();
 	}
 
 	/**
@@ -90,5 +102,20 @@ public class Sandbox {
 	 */
 	public static boolean isClassMocked(Class<?> clazz){
 		return mocks.getClassesMocked().contains(clazz);
+	}
+	
+	public static boolean canUseFileContentGeneration(){
+		if(mocksActive && sandboxActive)
+			return !accessedFiles.isEmpty();
+		return false;
+	}
+	
+	public static void generateFileContent(EvosuiteFile file, String content){
+		if(file == null)
+			return;
+		if(content == null)
+			Utils.writeFile(file.getContent(), file.getFileName());
+		else
+			Utils.writeFile(content, file.getFileName());
 	}
 }
