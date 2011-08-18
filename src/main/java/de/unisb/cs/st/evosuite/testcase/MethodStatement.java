@@ -119,8 +119,8 @@ public class MethodStatement extends AbstractStatement {
 		final Object[] inputs = new Object[parameters.size()];
 		PrintStream old_out = System.out;
 		PrintStream old_err = System.err;
-		//System.setOut(out);
-		//System.setErr(out);
+		System.setOut(out);
+		System.setErr(out);
 
 		try {
 			return super.exceptionHandler(new Executer() {

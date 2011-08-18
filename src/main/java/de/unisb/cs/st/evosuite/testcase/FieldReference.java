@@ -250,10 +250,10 @@ public class FieldReference extends VariableReferenceImpl {
 	 * Create a copy of the current variable
 	 */
 	@Override
-	public VariableReference clone(TestCase newTestCase) {
+	public VariableReference copy(TestCase newTestCase, int offset) {
 		if (source != null) {
 			//			VariableReference otherSource = newTestCase.getStatement(source.getStPosition()).getReturnValue();
-			VariableReference otherSource = source.clone(newTestCase);
+			VariableReference otherSource = source.copy(newTestCase, offset);
 			return new FieldReference(newTestCase, field, otherSource);
 		} else {
 			return new FieldReference(newTestCase, field);
