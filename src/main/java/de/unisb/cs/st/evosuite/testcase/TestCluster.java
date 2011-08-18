@@ -389,6 +389,8 @@ public class TestCluster {
 				Field f = (Field) o;
 				if (GenericClass.isAssignable(type, f.getGenericType())) {
 					g.add(f);
+				} else if (type.toString().contains("EvosuiteFile")) {
+					logger.warn("Found EvosuiteFile generator " + type + "/" + f);
 				}
 			}
 		}
@@ -1206,19 +1208,10 @@ public class TestCluster {
 						// addGenerator(field, field.getType());
 					}
 				}
-				
-				try {
-					calls.add(Sandbox.class.getField("accessedFiles"));
-					System.out.println("ADDED");
-				} catch (SecurityException e) {
-					System.out.println("NOPE");
-				} catch (NoSuchFieldException e) {
-					System.out.println("NOPE");
-				}
 
 			} catch (ClassNotFoundException e) {
 
-				if(e.getCause()!=null)
+				if (e.getCause() != null)
 					e.getCause().printStackTrace();
 				logger.error("Error loading class: " + classname + ": " + e.getCause()
 				        + " -  ignoring for tests");
@@ -1420,6 +1413,16 @@ public class TestCluster {
 
 		Collection<String> all_classes = getCluster();
 		Set<Class<?>> dependencies = new HashSet<Class<?>>();
+
+		try {
+			calls.add(Sandbox.class.getDeclaredField("accessedFiles"));
+			calls.add(Sandbox.class.getDeclaredField("lastAccessedFile"));
+			System.out.println("ADDED");
+		} catch (SecurityException e) {
+			System.out.println("NOPE: " + e);
+		} catch (NoSuchFieldException e) {
+			System.out.println("NOPE: " + e);
+		}
 
 		// Analyze each class
 		for (String classname : all_classes) {
