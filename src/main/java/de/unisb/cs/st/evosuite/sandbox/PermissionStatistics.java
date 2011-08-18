@@ -3,9 +3,12 @@
  */
 package de.unisb.cs.st.evosuite.sandbox;
 
+import java.io.FilePermission;
 import java.security.Permission;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Gordon Fraser
@@ -18,11 +21,14 @@ public class PermissionStatistics {
 	private final Map<String, Map<String, Integer>> allowedCount;
 
 	private final Map<String, Map<String, Integer>> deniedCount;
+	
+	private final Set<String> recentAccess;
 
 	// Private constructor
 	private PermissionStatistics() {
 		allowedCount = new HashMap<String, Map<String, Integer>>();
 		deniedCount = new HashMap<String, Map<String, Integer>>();
+		recentAccess = new HashSet<String>();
 	}
 
 	public static PermissionStatistics getInstance() {
@@ -32,7 +38,27 @@ public class PermissionStatistics {
 		return instance;
 	}
 
+	public String[] getRecentFileReadPermissions(){
+		return recentAccess.toArray(new String[0]);
+	}
+	
+	public void resetRecentStatistic(){
+		recentAccess.clear();
+	}
+	
+	private void rememberRecentReadFilePermissions(Permission permission){
+		try {
+			FilePermission fp = (FilePermission)permission;
+			if(!fp.getActions().equals("read"))
+				return;
+			recentAccess.add(fp.getName());
+		}catch(Exception e){
+			return;
+		}
+	}
+	
 	public void permissionAllowed(Permission permission) {
+		rememberRecentReadFilePermissions(permission);
 		String name = permission.getClass().getName();
 		String type = permission.getName();
 		if (!allowedCount.containsKey(name)) {
@@ -47,6 +73,7 @@ public class PermissionStatistics {
 	}
 
 	public void permissionDenied(Permission permission) {
+		rememberRecentReadFilePermissions(permission);
 		String name = permission.getClass().getName();
 		String type = permission.getName();
 		if (!deniedCount.containsKey(name)) {
