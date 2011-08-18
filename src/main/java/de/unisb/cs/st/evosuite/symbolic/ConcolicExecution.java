@@ -87,8 +87,9 @@ public class ConcolicExecution {
 		config.setProperty("vm.insn_factory.class",
 		                   "de.unisb.cs.st.evosuite.symbolic.bytecode.IntegerConcolicInstructionFactory");
 		config.setProperty("peer_packages",
-		                   "de.unisb.cs.st.evosuite.symbolic.nativepeer,"
-		                           + config.getProperty("peer_packages"));
+		                   "de.unisb.cs.st.evosuite.symbolic.nativepeer,gov.nasa.jpf.jvm");
+		//		                           + config.getProperty("peer_packages"));
+		//logger.warn(config.getProperty("peer_packages"));
 
 		// We don't want JPF output
 		config.setProperty("report.class",
@@ -110,9 +111,14 @@ public class ConcolicExecution {
 		PrintStream old_err = System.err;
 		System.setOut(out);
 		System.setErr(out);
-		jpf.run();
-		System.setOut(old_out);
-		System.setErr(old_err);
+		try {
+			jpf.run();
+		} catch (Throwable t) {
+			logger.warn("Exception while executing test: " + classPath + " " + targetName);
+		} finally {
+			System.setOut(old_out);
+			System.setErr(old_err);
+		}
 		logger.debug("Finished concolic execution");
 		logger.debug("Conditions collected: " + pcg.conditions.size());
 
@@ -213,7 +219,6 @@ public class ConcolicExecution {
 				}
 			}
 		}
-
 		return p;
 	}
 
@@ -288,7 +293,7 @@ public class ConcolicExecution {
 		        cw);
 		Map<Integer, Integer> locals = new HashMap<Integer, Integer>();
 		for (StatementInterface statement : test.getTestCase()) {
-			logger.debug("Current statement: " + statement.getCode());
+			logger.debug("Current statement: {}", statement.getCode());
 			if (target.contains(statement)) {
 				PrimitiveStatement<?> p = (PrimitiveStatement<?>) statement;
 				getPrimitiveValue(mg, locals, p); // TODO: Possibly cast?
