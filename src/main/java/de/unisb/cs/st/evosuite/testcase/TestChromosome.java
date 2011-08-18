@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
@@ -365,14 +366,9 @@ public class TestChromosome extends ExecutableChromosome {
 		double pl = 1d / test.size();
 
 		if (Randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
+			//logger.info("Test before concolic: " + test.toCode());
 			changed = mutationConcolic();
-			/*
-			ConcolicMutation mutation = new ConcolicMutation();
-			changed = mutation.mutate(test);
-			if (changed) {
-				logger.info("Changed test case is: " + test.toCode());
-			}
-			*/
+			//logger.info("Test after concolic: " + test.toCode());
 		}
 
 		if (!changed) {
@@ -428,26 +424,41 @@ public class TestChromosome extends ExecutableChromosome {
 
 		// Apply DSE to gather constraints
 		List<BranchCondition> branches = concolicExecution.getSymbolicPath(this);
+		logger.debug("Conditions: " + branches);
 		if (branches.isEmpty())
 			return false;
 
 		boolean mutated = false;
-
+		List<BranchCondition> targetBranches = new ArrayList<BranchCondition>();
+		for (BranchCondition branch : branches) {
+			if (branch.ins.getMethodInfo().getClassName().equals(Properties.TARGET_CLASS))
+				targetBranches.add(branch);
+		}
 		// Select random branch
-		BranchCondition branch = Randomness.choice(branches);
-		logger.info("Trying to negate branch " + branch.ins.getInstructionIndex());
+		BranchCondition branch = null;
+		if (targetBranches.isEmpty())
+			branch = Randomness.choice(branches);
+		else
+			branch = Randomness.choice(targetBranches);
+
+		logger.debug("Trying to negate branch " + branch.ins.getInstructionIndex()
+		        + " - have " + targetBranches.size() + "/" + branches.size()
+		        + " target branches");
 
 		// Try to solve negated constraint
 		TestCase newTest = ConcolicMutation.negateCondition(branch, test);
 
 		// If successful, add resulting test to test suite
 		if (newTest != null) {
-			logger.info("Created new test");
-			// logger.info(newTest.toCode());
-			// logger.info("Old test");
-			// logger.info(test.toCode());
+			logger.debug("CONCOLIC: Created new test");
+			//logger.info(newTest.toCode());
+			//logger.info("Old test");
+			//logger.info(test.toCode());
 			this.test = newTest;
 			this.changed = true;
+			this.lastExecutionResult = null;
+		} else {
+			logger.debug("CONCOLIC: Did not create new test");
 		}
 
 		return mutated;
