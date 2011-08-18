@@ -141,8 +141,8 @@ public class DefUseFitnessCalculator {
 	 */
 	public double calculateDUFitness() {
 
-		if (!goalVariable.equals("targetField"))
-			return 0.0;
+//		if (!goalVariable.equals("targetField"))
+//			return 0.0;
 
 		// at first handle special cases where definition is assumed to be
 		// covered if use is covered:
