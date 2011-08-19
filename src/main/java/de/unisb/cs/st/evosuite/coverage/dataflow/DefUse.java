@@ -103,24 +103,24 @@ public class DefUse extends BytecodeInstruction {
 
 	// inherited from Object
 	
-	@Override
-	public boolean equals(Object obj) {
-		if(this==obj)
-			return true;
-		if(obj==null)
-			return false;
-
-		// TODO ensure those checks succeed by always having IDs set properly
-		// s. super.equals() for similar prob
-		
-//		if(obj instanceof DefUse) {
-//			DefUse other = (DefUse)obj;
-//			if(defuseId != other.defuseId)
-//				return false;
-//		}
-		
-		return super.equals(obj);
-	}
+//	@Override
+//	public boolean equals(Object obj) {
+//		if(this==obj)
+//			return true;
+//		if(obj==null)
+//			return false;
+//
+//		// TODO ensure those checks succeed by always having IDs set properly
+//		// s. super.equals() for similar prob
+//		
+////		if(obj instanceof DefUse) {
+////			DefUse other = (DefUse)obj;
+////			if(defuseId != other.defuseId)
+////				return false;
+////		}
+//		
+//		return super.equals(obj);
+//	}
 
 	@Override
 	public String toString() {
