@@ -618,29 +618,29 @@ public class BytecodeInstruction extends ASMWrapper {
 		return r;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof BytecodeInstruction))
-			return false;
-
-		// TODO ensure that the following checks always succeed
-		// TODO do this by ensuring that those values are always set correctly
-
-		BytecodeInstruction other = (BytecodeInstruction) obj;
-
-		if (instructionId != other.instructionId)
-			return false;
-		if (methodName != null && !methodName.equals(other.methodName))
-			return false;
-		if (className != null && !className.equals(other.className))
-			return false;
-
-		return super.equals(obj);
-	}
+//	@Override
+//	public boolean equals(Object obj) {
+//		if (this == obj)
+//			return true;
+//		if (obj == null)
+//			return false;
+//		if (!(obj instanceof BytecodeInstruction))
+//			return false;
+//
+//		// TODO ensure that the following checks always succeed
+//		// TODO do this by ensuring that those values are always set correctly
+//
+//		BytecodeInstruction other = (BytecodeInstruction) obj;
+//
+//		if (instructionId != other.instructionId)
+//			return false;
+//		if (methodName != null && !methodName.equals(other.methodName))
+//			return false;
+//		if (className != null && !className.equals(other.className))
+//			return false;
+//
+//		return super.equals(obj);
+//	}
 
 	/**
 	 * Convenience method:
