@@ -24,6 +24,7 @@ import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTestCaseFactory;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * @author Gordon Fraser
@@ -70,14 +71,15 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteCh
 		tracker.modification(chromosome);
 		// ((AllMethodsChromosomeFactory)test_factory).clear();
 
-		// TODO: Change to random number
-		for (int i = 0; i < Properties.NUM_TESTS; i++) {
-			TestChromosome test = (TestChromosome) testChromosomeFactory.getChromosome();
+		int numTests = Randomness.nextInt(Properties.MIN_INITIAL_TEST,
+		                                  Properties.MAX_INITIAL_TESTS);
+
+		for (int i = 0; i < numTests; i++) {
+			TestChromosome test = testChromosomeFactory.getChromosome();
 			chromosome.tests.add(test);
 		}
 		// logger.info("Covered methods: "+((AllMethodsChromosomeFactory)test_factory).covered.size());
 		// logger.trace("Generated new test suite:"+chromosome);
 		return chromosome;
 	}
-
 }
