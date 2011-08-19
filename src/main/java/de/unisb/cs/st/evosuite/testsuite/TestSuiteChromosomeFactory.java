@@ -72,7 +72,7 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteCh
 		// ((AllMethodsChromosomeFactory)test_factory).clear();
 
 		int numTests = Randomness.nextInt(Properties.MIN_INITIAL_TEST,
-		                                  Properties.MAX_INITIAL_TESTS);
+		                                  Properties.MAX_INITIAL_TESTS + 1);
 
 		for (int i = 0; i < numTests; i++) {
 			TestChromosome test = testChromosomeFactory.getChromosome();
