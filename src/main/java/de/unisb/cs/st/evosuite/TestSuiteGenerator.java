@@ -844,25 +844,26 @@ public class TestSuiteGenerator {
 			return new MinimizeAverageLengthSecondaryObjective();
 		else if (name.equalsIgnoreCase("exceptions"))
 			return new MinimizeExceptionsSecondaryObjective();
-		else
-			// default: totallength
+		else if (name.equalsIgnoreCase("totallength"))
 			return new MinimizeTotalLengthSecondaryObjective();
+		else
+			throw new RuntimeException("ERROR: asked for unknown secondary objective \""+name+"\"");
 	}
 
 	private static void getSecondaryObjectives(GeneticAlgorithm algorithm) {
-		// Hard coded secondary objective for rank check experiments
-		if (Properties.CHECK_RANK_LENGTH) {
-			SecondaryObjective objective = new MinimizeTotalLengthSecondaryObjective();
-			Chromosome.addSecondaryObjective(objective);
-			algorithm.addSecondaryObjective(objective);
-		} else if (Properties.STRATEGY == Strategy.ONEBRANCH) {
+		if (Properties.STRATEGY == Strategy.ONEBRANCH) {
 			SecondaryObjective objective = getSecondaryObjective("size");
 			Chromosome.addSecondaryObjective(objective);
 			algorithm.addSecondaryObjective(objective);
 		} else {
 			String objectives = Properties.SECONDARY_OBJECTIVE;
+			
+			//check if there are no secondary objectives to optimize
+			if(objectives==null || objectives.trim().length()==0 || objectives.trim().equalsIgnoreCase("none"))
+				return;
+				
 			for (String name : objectives.split(":")) {
-				SecondaryObjective objective = getSecondaryObjective(name);
+				SecondaryObjective objective = getSecondaryObjective(name.trim());
 				Chromosome.addSecondaryObjective(objective);
 				algorithm.addSecondaryObjective(objective);
 			}
@@ -939,7 +940,7 @@ public class TestSuiteGenerator {
 
 		if (Properties.CHECK_BEST_LENGTH) {
 			if (Properties.STRATEGY == Strategy.EVOSUITE) {
-				RelativeSuiteLengthBloatControl bloat_control = new RelativeSuiteLengthBloatControl();
+				RelativeSuiteLengthBloatControl bloat_control = new de.unisb.cs.st.evosuite.testsuite.RelativeSuiteLengthBloatControl();
 				ga.addBloatControl(bloat_control);
 				ga.addListener(bloat_control);
 			} else {

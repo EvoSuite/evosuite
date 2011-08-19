@@ -174,8 +174,8 @@ public class Properties {
 	@Parameter(key = "check_parents_length", group = "Search Algorithm", description = "Check length against length of parents")
 	public static boolean CHECK_PARENTS_LENGTH = true;
 
-	@Parameter(key = "check_rank_length", group = "Search Algorithm", description = "Use length in rank selection")
-	public static boolean CHECK_RANK_LENGTH = false;
+	//@Parameter(key = "check_rank_length", group = "Search Algorithm", description = "Use length in rank selection")
+	//public static boolean CHECK_RANK_LENGTH = false;
 
 	@Parameter(key = "parent_check", group = "Search Algorithm", description = "Check against parents in Mu+Lambda algorithm")
 	public static boolean PARENT_CHECK = true;
@@ -249,7 +249,7 @@ public class Properties {
 
 	// TODO: Fix values
 	@Parameter(key = "secondary_objectives", group = "Search Algorithm", description = "Secondary objective during search")
-	// @SetValue(values = { "maxlength", "maxsize", "avglength" })
+	// @SetValue(values = { "maxlength", "maxsize", "avglength", "none" })
 	public static String SECONDARY_OBJECTIVE = "totallength";
 
 	@Parameter(key = "bloat_factor", group = "Search Algorithm", description = "Maximum relative increase in length")
