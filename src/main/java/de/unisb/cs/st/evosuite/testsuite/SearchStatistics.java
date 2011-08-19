@@ -397,4 +397,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			entry.fitness_evaluations.add(MaxFitnessEvaluationsStoppingCondition.getNumFitnessEvaluations());
 		}
 	}
+	
+	public StatisticEntry getLastStatisticEntry() {
+		return statistics.get(statistics.size()-1);
+	}
 }

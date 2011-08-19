@@ -312,8 +312,6 @@ public class TestSuiteGenerator {
 
 	private void analyzeCoverage(TestSuiteChromosome best) {
 
-		// TODO clean up
-
 		System.out.println("* Measured Coverage:");
 
 		DefUseCoverageSuiteFitness defuse = new DefUseCoverageSuiteFitness();
@@ -334,6 +332,7 @@ public class TestSuiteGenerator {
 		        + NumberFormat.getPercentInstance().format(best.getCoverage()));
 		CoverageStatistics.setCoverage(Criterion.STATEMENT, best.getCoverage());
 
+		CoverageStatistics.setStatisticEntry(SearchStatistics.getInstance().getLastStatisticEntry());
 	}
 
 	private void printTestCriterion() {
@@ -991,21 +990,6 @@ public class TestSuiteGenerator {
 
 		TestSuiteGenerator generator = new TestSuiteGenerator();
 		generator.generateTestSuite(null);
-
-		// Criterion[] supported = {Criterion.DEFUSE,
-		// Criterion.BRANCH,Criterion.STATEMENT};
-		//			
-		// System.out.println("* Analyzing CUT completely");
-		//			
-		// for(Criterion criterion : supported) {
-		// Properties.CRITERION = criterion;
-		// System.out.println("* Analyzing Criterion: "+Properties.CRITERION);
-		//				
-		//				
-		// TestSuiteGenerator generator = new TestSuiteGenerator();
-		// generator.generateTestSuite(null);
-		// }
-		// }
 	}
 
 }

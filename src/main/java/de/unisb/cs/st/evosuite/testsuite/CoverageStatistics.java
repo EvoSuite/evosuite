@@ -14,6 +14,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.Properties.Strategy;
 import de.unisb.cs.st.evosuite.utils.ReportGenerator;
+import de.unisb.cs.st.evosuite.utils.ReportGenerator.StatisticEntry;
 
 public class CoverageStatistics {
 
@@ -21,6 +22,7 @@ public class CoverageStatistics {
 			.getLogger(ReportGenerator.class);
 
 	protected static Map<Criterion, Map<Criterion, Double>> coverages = new HashMap<Criterion, Map<Criterion, Double>>();
+	protected static Map<Criterion, StatisticEntry> statistics = new HashMap<Criterion, StatisticEntry>();
 
 	protected static final File REPORT_DIR = new File(Properties.REPORT_DIR);
 	
@@ -45,16 +47,20 @@ public class CoverageStatistics {
 			BufferedWriter out = new BufferedWriter(new FileWriter(outputFile,
 					true));
 			
-			for(Criterion testCoverage : coverages.keySet()) {
+			Criterion[] supported = {Criterion.DEFUSE,Criterion.BRANCH,Criterion.STATEMENT};
+			
+			for(Criterion testCoverage : supported) {
 				out.write(Properties.TARGET_CLASS);
 				out.write(","+testCoverage.toString());
 				out.write(","+coverages.get(testCoverage).get(Criterion.DEFUSE));
 				out.write(","+coverages.get(testCoverage).get(Criterion.BRANCH));
 				out.write(","+coverages.get(testCoverage).get(Criterion.STATEMENT));
 				if(Properties.STRATEGY == Strategy.EVOSUITE)
-					out.write(",suite");
+					out.write(",suite,");
 				else
-					out.write(",tests");
+					out.write(",tests,");
+				
+				out.write(statistics.get(testCoverage).getCSVData());
 				
 				out.write("\n");
 			}
@@ -84,7 +90,15 @@ public class CoverageStatistics {
 
 	private static String getCSVHeader() {
 		
-		return "Class,TestCriterion,DefUse-Coverage,Branch-Coverage,Statement-Coverage,Mode";
+		StatisticEntry dummyStat = SearchStatistics.getInstance().getLastStatisticEntry();
+		
+		return "Class,TestCriterion,DefUse-Coverage,Branch-Coverage,Statement-Coverage,Mode,"+dummyStat.getCSVHeader();
+	}
+
+	public static void setStatisticEntry(StatisticEntry lastStatisticEntry) {
+		
+		statistics.put(Properties.CRITERION, lastStatisticEntry);
+		
 	}
 	
 }

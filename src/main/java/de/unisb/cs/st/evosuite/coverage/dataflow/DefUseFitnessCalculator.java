@@ -47,7 +47,7 @@ public class DefUseFitnessCalculator {
 	// if the mode isn't "sum" the following are ignored
 	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT = Properties.PENALIZE_OVERWRITING_DEFINITIONS_FLAT;
 	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY = Properties.PENALIZE_OVERWRITING_DEFINITIONS_LINEARLY;
-	private static double SINGLE_ALTERNATIVE_FITNESS_RANGE = 100.0;// Properties.ALTERNATIVE_FITNESS_RANGE;
+	private static double SINGLE_ALTERNATIVE_FITNESS_RANGE = 10000.0;// Properties.ALTERNATIVE_FITNESS_RANGE;
 	// ensure alternative fitness configuration is valid
 	static {
 		if (Properties.CRITERION == Criterion.DEFUSE)
