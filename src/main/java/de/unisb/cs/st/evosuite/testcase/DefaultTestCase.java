@@ -416,7 +416,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 			return false;
 
 		for (int i = 0; i < statements.size(); i++) {
-			if (!statements.get(i).equals(t.getStatement(i))) {
+			if (!statements.get(i).same(t.getStatement(i))) {
 				return false;
 			}
 		}

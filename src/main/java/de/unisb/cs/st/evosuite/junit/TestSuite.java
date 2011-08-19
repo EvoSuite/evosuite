@@ -153,7 +153,7 @@ public class TestSuite implements Opcodes {
 				if (test.isPrefix(test_cases.get(i))) {
 					// It's shorter than an existing one
 					// test_cases.set(i, test);
-					logger.debug("This is a prefix of an existing test");
+					logger.info("This is a prefix of an existing test");
 					test_cases.get(i).addAssertions(test);
 					return i;
 				} else {
@@ -161,14 +161,14 @@ public class TestSuite implements Opcodes {
 					if (test_cases.get(i).isPrefix(test)) {
 						test.addAssertions(test_cases.get(i));
 						test_cases.set(i, test);
-						logger.debug("We have a prefix of this one");
+						logger.info("We have a prefix of this one");
 						return i;
 					}
 				}
 			}
 		}
+		logger.info("Adding new test case:");
 		if (logger.isDebugEnabled()) {
-			logger.debug("Adding new test case:");
 			logger.debug(test.toCode());
 		}
 		test_cases.add(test);

@@ -96,6 +96,8 @@ public class TestSuiteMinimizer {
 	 */
 	public void minimizeTests(TestSuiteChromosome suite) {
 
+		logger.info("Minimizing per test");
+
 		Properties.RECYCLE_CHROMOSOMES = false; // TODO: FIXXME!
 		ExecutionTrace.enableTraceCalls();
 

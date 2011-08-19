@@ -117,6 +117,7 @@ import de.unisb.cs.st.evosuite.utils.Utils;
  * @author Gordon Fraser
  * 
  */
+@SuppressWarnings("restriction")
 public class TestSuiteGenerator {
 
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteGenerator.class);
@@ -907,7 +908,6 @@ public class TestSuiteGenerator {
 	 * 
 	 * @return
 	 */
-	@SuppressWarnings("restriction")
 	public GeneticAlgorithm setup() {
 
 		ChromosomeFactory<? extends Chromosome> factory = getChromosomeFactory();
