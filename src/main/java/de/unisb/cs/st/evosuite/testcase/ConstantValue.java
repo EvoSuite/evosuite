@@ -31,7 +31,7 @@ public class ConstantValue extends VariableReferenceImpl {
 	 * Create a copy of the current variable
 	 */
 	@Override
-	public VariableReference clone(TestCase newTestCase) {
+	public VariableReference copy(TestCase newTestCase, int offset) {
 		ConstantValue ret = new ConstantValue(newTestCase, type);
 		ret.setValue(value);
 		return ret;
@@ -98,6 +98,28 @@ public class ConstantValue extends VariableReferenceImpl {
 	@Override
 	public Object getObject(Scope scope) {
 		return value;
+	}
+
+	@Override
+	public boolean same(VariableReference r) {
+		if (r == null)
+			return false;
+
+		if (!this.type.equals(r.getGenericClass()))
+			return false;
+
+		if (r instanceof ConstantValue) {
+			ConstantValue v = (ConstantValue) r;
+			if (this.value == null) {
+				if (v.getValue() == null)
+					return true;
+			} else {
+				if (this.value.equals(v.getValue()))
+					return true;
+			}
+		}
+
+		return false;
 	}
 
 }
