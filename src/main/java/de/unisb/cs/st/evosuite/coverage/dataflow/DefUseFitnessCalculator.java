@@ -47,7 +47,7 @@ public class DefUseFitnessCalculator {
 	// if the mode isn't "sum" the following are ignored
 //	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT = Properties.PENALIZE_OVERWRITING_DEFINITIONS_FLAT;
 //	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY = Properties.PENALIZE_OVERWRITING_DEFINITIONS_LINEARLY;
-	private static double SINGLE_ALTERNATIVE_FITNESS_RANGE = Properties.ALTERNATIVE_FITNESS_RANGE;
+	private static double SINGLE_ALTERNATIVE_FITNESS_RANGE = 1.0; // Properties.ALTERNATIVE_FITNESS_RANGE;
 	// ensure alternative fitness configuration is valid
 	static {
 		if (Properties.CRITERION == Criterion.DEFUSE)
@@ -260,7 +260,7 @@ public class DefUseFitnessCalculator {
 							if (alternativeFitness <= 0.0
 									|| alternativeFitness > 1.0)
 								throw new IllegalStateException(
-										"alternative fitness expected to be in (0,1]");
+										"alternative fitness expected to be in (0,1] "+alternativeFitness);
 							if (alternativeFitness < fitness) {
 //								System.out
 //										.println("alternative boost: "
@@ -357,8 +357,8 @@ public class DefUseFitnessCalculator {
 		// if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
 		// .equals(AlternativeFitnessCalculationMode.SINGLE)
 		// &&
-//		if (overwritingDefs.keySet().size() != 1)
-//			return 1.0;
+		if (overwritingDefs.keySet().size() != 1)
+			return 1.0;
 
 		double alternativeFitness = 0.0;
 		// if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
@@ -408,9 +408,8 @@ public class DefUseFitnessCalculator {
 		// System.out.println("calculated alternative fitness: "
 		// + alternativeFitness);
 
-//		System.out.println(overwritingDefs.size() + " " + alternativeFitness);
-
-		return normalize(alternativeFitness);
+		return alternativeFitness;
+//		return normalize(alternativeFitness);
 	}
 
 	/**
