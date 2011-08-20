@@ -140,92 +140,110 @@ public class TestSuiteGenerator {
 	 */
 	public String generateTestSuite(GeneticAlgorithm ga) {
 		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
-		List<TestCase> tests = null;
 
 		System.out.println("* Generating tests for class "
 				+ Properties.TARGET_CLASS);
 		printTestCriterion();
 
-		// TODO clean up
-		if (Properties.CRITERION != Criterion.ANALYZE) {
-			if (Properties.STRATEGY == Strategy.EVOSUITE)
-				tests = generateWholeSuite(ga);
-			else
-				tests = generateIndividualTests(ga);
-		} else {
-
-			analyzing = true;
-
-			Criterion[] supported = { Criterion.DEFUSE, Criterion.BRANCH,
-					Criterion.STATEMENT };
-
-			for (Criterion criterion : supported) {
-				if (tests != null) {
-					if (Properties.JUNIT_TESTS) {
-						TestSuite suite = new TestSuite(tests);
-						String name = Properties.TARGET_CLASS
-								.substring(Properties.TARGET_CLASS
-										.lastIndexOf(".") + 1);
-						System.out.println("* Writing JUnit test cases to "
-								+ Properties.TEST_DIR);
-						suite.writeTestSuite("Test" + name, Properties.TEST_DIR
-								+ "/" + Properties.CRITERION);
-					}
-				}
-
-				Properties.CRITERION = criterion;
-				System.out.println("* Analyzing Criterion: "
-						+ Properties.CRITERION);
-
-				if (Properties.STRATEGY == Strategy.EVOSUITE)
-					tests = generateWholeSuite(ga);
-				else
-					tests = generateIndividualTests(ga);
-			}
-			CoverageStatistics.writeCSV();
-		}
-
-		if (Properties.CRITERION == Criterion.DEFUSE) {
-			if (Properties.ENABLE_ALTERNATIVE_FITNESS_CALCULATION)
-				System.out
-						.println("* Consumed time in alternative fitness calculation: "
-								+ DefUseFitnessCalculator.alternativeTime
-								+ "ms");
-		}
-
-		if (Properties.CRITERION == Criterion.MUTATION) {
-			MutationAssertionGenerator asserter = new MutationAssertionGenerator();
-			Set<Integer> tkilled = new HashSet<Integer>();
-			for (TestCase test : tests) {
-				Set<Integer> killed = new HashSet<Integer>();
-				asserter.addAssertions(test, killed);
-				tkilled.addAll(killed);
-			}
-			asserter.writeStatistics();
-			System.out.println("Killed: " + tkilled.size() + "/"
-					+ asserter.numMutants());
-		} else if (Properties.ASSERTIONS) {
-
-			AssertionGenerator asserter = AssertionGenerator
-					.getDefaultGenerator();
-			for (TestCase test : tests) {
-				asserter.addAssertions(test);
-			}
-		}
-
-		if (Properties.JUNIT_TESTS) {
-			TestSuite suite = new TestSuite(tests);
-			String name = Properties.TARGET_CLASS
-					.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
-			System.out.println("* Writing JUnit test cases to "
-					+ Properties.TEST_DIR);
-			suite.writeTestSuite("Test" + name, Properties.TEST_DIR + "/"
-					+ Properties.CRITERION);
-		}
+		if (Properties.CRITERION == Criterion.ANALYZE)
+			analyzeCriteria(ga);
+		else
+			generateTests(ga);
 
 		TestCaseExecutor.pullDown();
 		statistics.writeReport();
 
+		PermissionStatistics.getInstance().printStatistics();
+
+		System.out.println("* Done!");
+
+		return "";
+	}
+
+	private void analyzeCriteria(GeneticAlgorithm ga) {
+		analyzing = true;
+		Criterion[] supported = { Criterion.DEFUSE, Criterion.BRANCH,
+				Criterion.STATEMENT };
+		for (Criterion criterion : supported) {
+			Properties.CRITERION = criterion;
+			System.out
+					.println("* Analyzing Criterion: " + Properties.CRITERION);
+			generateTests(ga);
+
+			// TODO reset method?
+			TestCaseExecutor.timeExecuted = 0l;
+		}
+		CoverageStatistics.writeCSV();
+	}
+
+	private List<TestCase> generateTests(GeneticAlgorithm ga) {
+		List<TestCase> tests;
+		if (Properties.STRATEGY == Strategy.EVOSUITE)
+			tests = generateWholeSuite(ga);
+		else
+			tests = generateIndividualTests(ga);
+
+		System.out.println("* Time spent executing the CUT: "
+				+ TestCaseExecutor.timeExecuted + "ms");
+
+		writeJUnitTests(tests);
+
+		if (Properties.CRITERION == Criterion.DEFUSE) {
+			if (Properties.ENABLE_ALTERNATIVE_FITNESS_CALCULATION)
+				System.out
+						.println("* Time spent calculating alternative fitness: "
+								+ DefUseFitnessCalculator.alternativeTime
+								+ "ms");
+			System.out.println("* Time spent calculating single fitnesses: "
+					+ DefUseCoverageTestFitness.singleFitnessTime + "ms");
+		}
+
+		if (Properties.CRITERION == Criterion.MUTATION) {
+			handleMutations(tests);
+		} else if (Properties.ASSERTIONS)
+			addAssertions(tests);
+
+		writeObjectPool(tests);
+
+		System.out.println();
+		
+		return tests;
+	}
+
+	private void writeJUnitTests(List<TestCase> tests) {
+		if (Properties.JUNIT_TESTS) {
+			TestSuite suite = new TestSuite(tests);
+			String name = Properties.TARGET_CLASS
+					.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
+			String testDir = Properties.TEST_DIR + "/" + Properties.CRITERION;
+			System.out.println("* Writing JUnit test cases to " + testDir);
+			suite.writeTestSuite("Test" + name, testDir);
+		}
+	}
+
+	private void addAssertions(List<TestCase> tests) {
+
+		AssertionGenerator asserter = AssertionGenerator.getDefaultGenerator();
+		for (TestCase test : tests) {
+			asserter.addAssertions(test);
+		}
+	}
+
+	private void handleMutations(List<TestCase> tests) {
+		// TODO better method name?
+		MutationAssertionGenerator asserter = new MutationAssertionGenerator();
+		Set<Integer> tkilled = new HashSet<Integer>();
+		for (TestCase test : tests) {
+			Set<Integer> killed = new HashSet<Integer>();
+			asserter.addAssertions(test, killed);
+			tkilled.addAll(killed);
+		}
+		asserter.writeStatistics();
+		System.out.println("Killed: " + tkilled.size() + "/"
+				+ asserter.numMutants());
+	}
+
+	private void writeObjectPool(List<TestCase> tests) {
 		if (Properties.WRITE_POOL) {
 			System.out.println("* Writing sequences to pool");
 			ObjectPool pool = ObjectPool.getInstance();
@@ -233,12 +251,6 @@ public class TestSuiteGenerator {
 				pool.storeSequence(Properties.getTargetClass(), test);
 			}
 		}
-
-		PermissionStatistics.getInstance().printStatistics();
-
-		System.out.println("* Done!");
-
-		return "";
 	}
 
 	/**
@@ -305,24 +317,21 @@ public class TestSuiteGenerator {
 
 		if (analyzing)
 			analyzeCoverage(best);
-		else
+		else {
+			ga.printBudget();
 			System.out.println("* Resulting TestSuite's coverage: "
 					+ NumberFormat.getPercentInstance().format(
 							best.getCoverage()));
+		}
 
 		if (Properties.CRITERION == Criterion.DEFUSE) {
-
 			int covered = DefUseCoverageSuiteFitness.bestCoveredGoals;
 			int total = DefUseCoverageSuiteFitness.totalGoals;
 			System.out.println("* Covered " + covered + "/" + total + " goals");
-
 			System.out
-					.println("* Consumed time in covered goals optimization analysis: "
+					.println("* Time spent optimizing covered goals analysis: "
 							+ DefUseExecutionTraceAnalyzer.timeGetCoveredGoals
 							+ "ms");
-
-			if (!analyzing)
-				ga.printBudget();
 		}
 
 		return best.getTests();
@@ -334,19 +343,19 @@ public class TestSuiteGenerator {
 
 		DefUseCoverageSuiteFitness defuse = new DefUseCoverageSuiteFitness();
 		defuse.getFitness(best);
-		System.out.println("\tDefUse: "
+		System.out.println("\t- DefUse: "
 				+ NumberFormat.getPercentInstance().format(best.getCoverage()));
 		CoverageStatistics.setCoverage(Criterion.DEFUSE, best.getCoverage());
 
 		BranchCoverageSuiteFitness branch = new BranchCoverageSuiteFitness();
 		branch.getFitness(best);
-		System.out.println("\tBranch: "
+		System.out.println("\t- Branch: "
 				+ NumberFormat.getPercentInstance().format(best.getCoverage()));
 		CoverageStatistics.setCoverage(Criterion.BRANCH, best.getCoverage());
 
 		StatementCoverageSuiteFitness statement = new StatementCoverageSuiteFitness();
 		statement.getFitness(best);
-		System.out.println("\tStatement: "
+		System.out.println("\t- Statement: "
 				+ NumberFormat.getPercentInstance().format(best.getCoverage()));
 		CoverageStatistics.setCoverage(Criterion.STATEMENT, best.getCoverage());
 
@@ -660,17 +669,17 @@ public class TestSuiteGenerator {
 			System.out.println();
 
 		// for testing purposes
+		if (global_time.isFinished())
+			System.out.println("! Timeout reached");
+		if (current_budget >= total_budget)
+			System.out.println("! Budget exceeded");
+		else
+			System.out.println("* Remaining budget: "
+					+ (total_budget - current_budget));
+
+		ga.printBudget();
+
 		if (!analyzing) {
-			if (global_time.isFinished())
-				System.out.println("! Timeout reached");
-			if (current_budget >= total_budget)
-				System.out.println("! Budget exceeded");
-			else
-				System.out.println("* Remaining budget: "
-						+ (total_budget - current_budget));
-
-			ga.printBudget();
-
 			int c = 0;
 			int uncovered_goals = total_goals - covered_goals;
 			if (uncovered_goals < 10)
