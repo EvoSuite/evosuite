@@ -24,6 +24,8 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
  */
 public abstract class DefUseExecutionTraceAnalyzer {
 
+	public static long timeGetCoveredGoals = 0l;
+	
 	/**
 	 * Determines the definitionId for targetVar before tagetDUPos in the given
 	 * ExecutionTrace
@@ -251,6 +253,8 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	public static Set<DefUseCoverageTestFitness> getCoveredGoals(
 			List<ExecutionResult> results) {
 
+		long start = System.currentTimeMillis();
+		
 		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
 
 		for (ExecutionResult result : results) {
@@ -258,6 +262,8 @@ public abstract class DefUseExecutionTraceAnalyzer {
 			r.addAll(goals);
 		}
 
+		timeGetCoveredGoals += System.currentTimeMillis() - start;
+		
 		return r;
 	}
 
