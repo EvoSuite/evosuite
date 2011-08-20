@@ -39,7 +39,10 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private static final long serialVersionUID = 1L;
 
-	static List<DefUseCoverageTestFitness> totalGoals = DefUseCoverageFactory.getDUGoals();
+	static List<DefUseCoverageTestFitness> goals = DefUseCoverageFactory.getDUGoals();
+	
+	public static int totalGoals = goals.size();
+	public static int bestCoveredGoals = 0;
 	
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#getFitness(de.unisb.cs.st.evosuite.ga.Chromosome)
@@ -78,7 +81,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 //				System.out.println(count);
 //		}
 		
-		for(DefUseCoverageTestFitness goal : totalGoals) {
+		for(DefUseCoverageTestFitness goal : goals) {
 			if(coveredGoals.contains(goal))
 				continue;
 			
@@ -101,9 +104,14 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			fitness += goalFitness;
 		}
 		
-//		System.out.println();
+		if(goals.size()>0)
+			suite.setCoverage(coveredGoals.size()/(double)goals.size());
+		else
+			suite.setCoverage(1.0);
 		
-		suite.setCoverage(coveredGoals.size()/(double)totalGoals.size());
+		if(bestCoveredGoals<coveredGoals.size())
+			bestCoveredGoals = coveredGoals.size();
+		
 		updateIndividual(individual, fitness);
 		return fitness;
 	}
