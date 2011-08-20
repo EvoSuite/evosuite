@@ -162,6 +162,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		public long end_time;
 
 		public long minimized_time;
+		
+		public long testExecutionTime;
 
 		public int result_fitness_evaluations = 0;
 
@@ -180,7 +182,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r
 					.append("Class,Predicates,Total Branches,Covered Branches,Total Methods,Branchless Methods,Covered Methods,");
 			r
-					.append("Total Goals,Covered Goals,Coverage,Creation Time,Minimization Time,Total Time, Result Size, Result Length,");
+					.append("Total Goals,Covered Goals,Coverage,Creation Time,Minimization Time,Test Execution Time,Total Time, Result Size, Result Length,");
 			r.append("Minimized Size,Minimized Length,");
 			// "Bloat Rejections,Fitness Rejections,Fitness Accepts,"
 			r.append("Chromosome Length,Population Size,Random Seed,Data File");
@@ -214,6 +216,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 			r.append((minimized_time - start_time) + ",");
 			r.append((minimized_time - end_time) + ",");
+			r.append(testExecutionTime+",");
 			r.append((end_time - start_time) + ",");
 
 			r.append(size_final + ",");

@@ -37,6 +37,7 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondit
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.utils.ReportGenerator;
 import de.unisb.cs.st.evosuite.utils.Utils;
@@ -366,6 +367,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			entry.end_time = System.currentTimeMillis();
 			entry.result_tests_executed = MaxTestsStoppingCondition.getNumExecutedTests();
 			entry.result_statements_executed = MaxStatementsStoppingCondition.getNumExecutedStatements();
+			entry.testExecutionTime = TestCaseExecutor.timeExecuted;
 		}
 	}
 
