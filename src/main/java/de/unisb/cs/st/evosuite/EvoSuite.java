@@ -107,7 +107,7 @@ public class EvoSuite {
 
 	}
 
-	private static void generateTests(boolean wholeSuite, String[] args) {
+	private static void generateTests(boolean wholeSuite, List<String> args) {
 		File directory = new File(Properties.OUTPUT_DIR);
 		String[] extensions = { "task" };
 		for (File file : FileUtils.listFiles(directory, extensions, false)) {
@@ -115,7 +115,7 @@ public class EvoSuite {
 		}
 	}
 
-	private static void generateTests(boolean wholeSuite, String target, String[] args) {
+	private static void generateTests(boolean wholeSuite, String target, List<String> args) {
 		String classPath = System.getProperty("java.class.path");
 		if (Properties.CP.charAt(0) == '"')
 			Properties.CP = Properties.CP.substring(1, Properties.CP.length() - 1);
@@ -128,7 +128,9 @@ public class EvoSuite {
 		cmdLine.add("-cp");
 		cmdLine.add(classPath);
 		cmdLine.add("-Dprocess_communication_port=" + port);
-		cmdLine.addAll(Arrays.asList(args));
+		cmdLine.add("-Dinline=true");
+		//cmdLine.add("-Dminimize_values=true");
+		cmdLine.addAll(args);
 		if (wholeSuite)
 			cmdLine.add("-DSTRATEGY=EvoSuite");
 		else
@@ -137,7 +139,6 @@ public class EvoSuite {
 		if (Properties.PROJECT_PREFIX != null)
 			cmdLine.add("-DPROJECT_PREFIX=" + Properties.PROJECT_PREFIX);
 
-		cmdLine.add("-DCRITERION=branch");
 		cmdLine.add("-Dclassloader=true");
 		cmdLine.add("de.unisb.cs.st.evosuite.ClientProcess");
 		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
@@ -159,12 +160,22 @@ public class EvoSuite {
 		        "use individual test generation");
 		Option setup = OptionBuilder.withArgName("target").hasArg().withDescription("use given directory/jar file/package prefix for test generation").create("setup");
 		Option targetClass = OptionBuilder.withArgName("class").hasArg().withDescription("target class for test generation").create("class");
+		Option criterion = OptionBuilder.withArgName("criterion").hasArg().withDescription("target criterion for test generation").create("criterion");
+
+		Option sandbox = new Option("sandbox", "Run tests in sandbox");
+		Option mocks = new Option("mocks", "Use mock classes");
+		Option stubs = new Option("stubs", "Use stubs");
 
 		options.addOption(help);
 		options.addOption(generateSuite);
 		options.addOption(generateTests);
 		options.addOption(setup);
 		options.addOption(targetClass);
+		options.addOption(criterion);
+
+		options.addOption(sandbox);
+		options.addOption(mocks);
+		options.addOption(stubs);
 
 		List<String> javaOpts = new ArrayList<String>();
 		List<String> cmdOpts = new ArrayList<String>();
@@ -181,10 +192,18 @@ public class EvoSuite {
 			// parse the command line arguments
 			String[] cargs = new String[cmdOpts.size()];
 			cmdOpts.toArray(cargs);
-			String[] jargs = new String[javaOpts.size()];
-			javaOpts.toArray(jargs);
 			CommandLine line = parser.parse(options, cargs);
 			javaOpts.addAll(Arrays.asList(line.getArgs()));
+
+			if (line.hasOption("criterion"))
+				javaOpts.add("-Dcriterion=" + line.getOptionValue("criterion"));
+			if (line.hasOption("sandbox"))
+				javaOpts.add("-Dsandbox=true");
+			if (line.hasOption("mocks"))
+				javaOpts.add("-Dmocks=true");
+			if (line.hasOption("stubs"))
+				javaOpts.add("-Dstubs=true");
+
 			if (line.hasOption("help")) {
 				HelpFormatter formatter = new HelpFormatter();
 				formatter.printHelp("EvoSuite", options);
@@ -192,14 +211,14 @@ public class EvoSuite {
 				setup(line.getOptionValue("setup"), line.getArgs());
 			} else if (line.hasOption("generateTests")) {
 				if (line.hasOption("class"))
-					generateTests(false, line.getOptionValue("class"), jargs);
+					generateTests(false, line.getOptionValue("class"), javaOpts);
 				else
-					generateTests(false, jargs);
+					generateTests(false, javaOpts);
 			} else if (line.hasOption("generateSuite")) {
 				if (line.hasOption("class"))
-					generateTests(true, line.getOptionValue("class"), jargs);
+					generateTests(true, line.getOptionValue("class"), javaOpts);
 				else
-					generateTests(true, jargs);
+					generateTests(true, javaOpts);
 			} else {
 				HelpFormatter formatter = new HelpFormatter();
 				formatter.printHelp("EvoSuite", options);

@@ -80,6 +80,7 @@ public class ScanProject {
 			name = name.replace("/", ".");
 			if (classMap.containsKey(name))
 				return classMap.get(name);
+			logger.debug("Loading class: " + name);
 
 			ZipEntry entry = this.file.getEntry(name.replace('.', '/') + ".class");
 			if (entry == null) {
@@ -96,9 +97,17 @@ public class ScanProject {
 					length = in.read(array);
 				}
 				ClassReader reader = new ClassReader(array);
+				Class<?> result = findLoadedClass(name);
+				if (result != null) {
+					logger.debug("Found loaded instance: " + name);
+					return result;
+				}
+
 				Class<?> clazz = defineClass(reader.getClassName().replace("/", "."),
 				                             out.toByteArray(), 0, out.size());
 				classMap.put(name, clazz);
+				logger.debug("Loaded class: " + name);
+
 				return clazz;
 			} catch (IOException exception) {
 				throw new ClassNotFoundException(name, exception);
