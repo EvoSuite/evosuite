@@ -42,7 +42,7 @@ public class ConsoleProgressBar implements SearchListener {
 			}
 		}
 
-		bar.append(Math.min(100, percent) + "%][Cov:");
+		bar.append(Math.min(100, percent) + "%] [Cov:");
 
 		for (int i = 0; i < 35; i++) {
 			if (i < (int) (coverage * 0.35)) {

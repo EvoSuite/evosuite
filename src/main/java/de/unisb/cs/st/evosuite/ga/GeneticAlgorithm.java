@@ -632,7 +632,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	public void printBudget() {
 		System.out.println("* GA-Budget:");
 		for (StoppingCondition sc : stopping_conditions)
-			System.out.println("  - " + sc.toString());
+			System.out.println("\t- " + sc.toString());
 	}
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {
