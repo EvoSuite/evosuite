@@ -420,24 +420,26 @@ public class TestSuiteGenerator {
 	        TestFitnessFactory goals) {
 
 		int random_tests = Properties.RANDOM_TESTS;
+		if (Properties.CRITERION == Criterion.DEFUSE) {
+			System.out.println("* Disabled random bootstraping for DefUseCoverage-Criterion");
+			Properties.MIN_INITIAL_TESTS = 0;
+			Properties.MAX_INITIAL_TESTS = 0;
+		}
+		// TODO the following does no longer work as expected since Properties.RANDOM_TESTS
+		// seems to have been replaced by Properties.MIN/MAX_INITIAL_TESTS
 		if (random_tests > 0)
 			System.out.println("* Bootstrapping initial random test suite");
 		else
 			System.out.println("* Bootstrapping initial random test suite disabled!");
 		TestSuiteChromosomeFactory factory = new TestSuiteChromosomeFactory();
-		if (Properties.CRITERION == Criterion.DEFUSE && random_tests > 0) {
-			System.out.println("* Tuned down random bootstraping for DefUseCoverage-Criterion");
-			random_tests = random_tests / 10;
-		}
 		factory.setNumberOfTests(random_tests);
 		TestSuiteChromosome chromosome = factory.getChromosome();
 		if (random_tests > 0) {
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goals);
 			minimizer.minimize(chromosome);
 		}
-		if (random_tests > 0)
-			System.out.println("* Initial test suite contains " + chromosome.size()
-			        + " tests");
+		System.out.println("* Initial test suite contains " + chromosome.size()
+		        + " tests");
 
 		return chromosome;
 	}

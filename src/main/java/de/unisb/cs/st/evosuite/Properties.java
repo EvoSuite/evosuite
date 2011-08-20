@@ -150,7 +150,7 @@ public class Properties {
 	public static int NUM_TESTS = 2;
 
 	@Parameter(key = "min_initial_tests", group = "Test Creation", description = "Minimum number of tests in initial test suites")
-	public static int MIN_INITIAL_TEST = 1;
+	public static int MIN_INITIAL_TESTS = 1;
 
 	@Parameter(key = "max_initial_tests", group = "Test Creation", description = "Maximum number of tests in initial test suites")
 	public static int MAX_INITIAL_TESTS = 10;

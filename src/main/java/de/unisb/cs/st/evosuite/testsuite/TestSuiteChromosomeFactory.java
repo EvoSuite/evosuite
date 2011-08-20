@@ -30,7 +30,8 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
  * @author Gordon Fraser
  * 
  */
-public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteChromosome> {
+public class TestSuiteChromosomeFactory implements
+		ChromosomeFactory<TestSuiteChromosome> {
 
 	private static final long serialVersionUID = -3769862881038106087L;
 
@@ -41,7 +42,8 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteCh
 		testChromosomeFactory = new RandomLengthTestFactory();
 
 		if (Properties.CRITERION == Criterion.CONCURRENCY) {
-			//#TODO steenbuck we should wrap the original factory not replace it.
+			// #TODO steenbuck we should wrap the original factory not replace
+			// it.
 			testChromosomeFactory = new ConcurrencyTestCaseFactory();
 		}
 
@@ -50,7 +52,8 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteCh
 		// test_factory = new OUMTestChromosomeFactory();
 	}
 
-	public TestSuiteChromosomeFactory(ChromosomeFactory<TestChromosome> test_factory) {
+	public TestSuiteChromosomeFactory(
+			ChromosomeFactory<TestChromosome> test_factory) {
 		this.testChromosomeFactory = test_factory;
 	}
 
@@ -59,20 +62,24 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteCh
 	}
 
 	public void setNumberOfTests(int num) {
+		// TODO this no longer has an effect, since
+		// Properties.MIN/MAX_INITIAL_TESTS is used now
 		Properties.NUM_TESTS = num;
 	}
 
 	@Override
 	public TestSuiteChromosome getChromosome() {
 
-		TestSuiteChromosome chromosome = new TestSuiteChromosome(testChromosomeFactory);
+		TestSuiteChromosome chromosome = new TestSuiteChromosome(
+				testChromosomeFactory);
 		chromosome.tests.clear();
-		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
+		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker
+				.getInstance();
 		tracker.modification(chromosome);
 		// ((AllMethodsChromosomeFactory)test_factory).clear();
 
-		int numTests = Randomness.nextInt(Properties.MIN_INITIAL_TEST,
-		                                  Properties.MAX_INITIAL_TESTS + 1);
+		int numTests = Randomness.nextInt(Properties.MIN_INITIAL_TESTS,
+				Properties.MAX_INITIAL_TESTS + 1);
 
 		for (int i = 0; i < numTests; i++) {
 			TestChromosome test = testChromosomeFactory.getChromosome();
