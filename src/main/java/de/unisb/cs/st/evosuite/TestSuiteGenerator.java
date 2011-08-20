@@ -156,6 +156,7 @@ public class TestSuiteGenerator {
 		PermissionStatistics.getInstance().printStatistics();
 
 		System.out.println("* Done!");
+		System.out.println();
 
 		return "";
 	}
@@ -183,7 +184,7 @@ public class TestSuiteGenerator {
 		else
 			tests = generateIndividualTests(ga);
 
-		System.out.println("* Time spent executing the CUT: "
+		System.out.println("* Time spent executing tests: "
 				+ TestCaseExecutor.timeExecuted + "ms");
 
 		writeJUnitTests(tests);
@@ -280,6 +281,9 @@ public class TestSuiteGenerator {
 				|| Properties.CRITERION == Criterion.STATEMENT)
 			ExecutionTrace.enableTraceCalls();
 
+		if(analyzing)
+			ga.resetStoppingConditions();
+		
 		// Perform search
 		System.out.println("* Starting evolution");
 		ga.generateSolution();
@@ -318,11 +322,12 @@ public class TestSuiteGenerator {
 		if (analyzing)
 			analyzeCoverage(best);
 		else {
-			ga.printBudget();
 			System.out.println("* Resulting TestSuite's coverage: "
 					+ NumberFormat.getPercentInstance().format(
 							best.getCoverage()));
 		}
+		
+		ga.printBudget();
 
 		if (Properties.CRITERION == Criterion.DEFUSE) {
 			int covered = DefUseCoverageSuiteFitness.bestCoveredGoals;

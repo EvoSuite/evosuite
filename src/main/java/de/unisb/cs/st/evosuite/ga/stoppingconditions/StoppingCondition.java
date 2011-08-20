@@ -128,7 +128,9 @@ public abstract class StoppingCondition implements SearchListener, Serializable 
 			type = type.substring(type.lastIndexOf(".") + 1);
 		} catch (Exception e) {
 		}
-		type = type.substring(0, type.length() - 17); // cut away "StoppingCondition" suffix
+		// cut away "StoppingCondition" suffix
+		if(type.endsWith("StoppingCondition"))
+			type = type.substring(0, type.length() - 17);
 		type += " :";
 		type = StringUtils.rightPad(type, 24);
 		r.append(type);
