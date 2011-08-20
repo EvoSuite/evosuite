@@ -153,6 +153,8 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
 public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	private static final long serialVersionUID = 1L;
 
+	public static long singleFitnessTime = 0l;
+	
 	// debugging flags
 	private final static boolean DEBUG = Properties.DEFUSE_DEBUG_MODE;
 	private final static boolean PRINT_DEBUG = false;
@@ -216,16 +218,20 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		preFitnessDebugInfo(result, true);
 
+		long start = System.currentTimeMillis();
+		
 		DefUseFitnessCalculator calculator = new DefUseFitnessCalculator(this, individual,
                 result);
 		
 		double fitness = calculator.calculateDUFitness();
 
 		if(fitness == 0.0)
-			setCovered(individual, result.getTrace(), -1); // TODO wrong
+			setCovered(individual, result.getTrace(), -1); // TODO objectId wrong
 		
 		postFitnessDebugInfo(individual, result, fitness);
 
+		singleFitnessTime += System.currentTimeMillis() - start;
+		
 		return fitness;
 	}
 
