@@ -30,14 +30,14 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  */
 public class DefUseFitnessCalculator {
 
+	public static long alternativeTime = 0l;
+	
 	private final static boolean DEBUG = Properties.DEFUSE_DEBUG_MODE;
 
 	private static Logger logger = LoggerFactory
 			.getLogger(DefUseFitnessCalculator.class);
 
-	// TODO: move these to Properties?
-
-	// alternative fitness calculation
+	// alternative fitness calculation - experiment failed
 	public static final boolean ENABLE_ALTERNATIVE_FITNESS_CALCULATION = Properties.ENABLE_ALTERNATIVE_FITNESS_CALCULATION;
 
 	// if alternative fitness calculation is disabled ignore the following
@@ -45,22 +45,22 @@ public class DefUseFitnessCalculator {
 	// private static final String ALTERNATIVE_FITNESS_CALCULATION_MODE =
 	// Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE;
 	// if the mode isn't "sum" the following are ignored
-	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT = Properties.PENALIZE_OVERWRITING_DEFINITIONS_FLAT;
-	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY = Properties.PENALIZE_OVERWRITING_DEFINITIONS_LINEARLY;
-	private static double SINGLE_ALTERNATIVE_FITNESS_RANGE = 100.0;// Properties.ALTERNATIVE_FITNESS_RANGE;
+//	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT = Properties.PENALIZE_OVERWRITING_DEFINITIONS_FLAT;
+//	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY = Properties.PENALIZE_OVERWRITING_DEFINITIONS_LINEARLY;
+	private static double SINGLE_ALTERNATIVE_FITNESS_RANGE = Properties.ALTERNATIVE_FITNESS_RANGE;
 	// ensure alternative fitness configuration is valid
 	static {
 		if (Properties.CRITERION == Criterion.DEFUSE)
 			if (ENABLE_ALTERNATIVE_FITNESS_CALCULATION) {
 				System.out.println("* Alternative fitness calculation enabled");
 				// + Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE);
-				if (!Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
-						.equals(AlternativeFitnessCalculationMode.SUM)) {
-
-					PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT = false;
-					PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY = false;
-					SINGLE_ALTERNATIVE_FITNESS_RANGE = 1;
-				}
+//				if (!Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
+//						.equals(AlternativeFitnessCalculationMode.SUM)) {
+//
+//					PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT = false;
+//					PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY = false;
+//					SINGLE_ALTERNATIVE_FITNESS_RANGE = 1;
+//				}
 				// else {
 				// System.out.println("  - Single alternative fitness range: "
 				// + SINGLE_ALTERNATIVE_FITNESS_RANGE);
@@ -236,6 +236,9 @@ public class DefUseFitnessCalculator {
 				return 0.0;
 			} else {
 				if (ENABLE_ALTERNATIVE_FITNESS_CALCULATION) {
+					
+					long start = System.currentTimeMillis();
+					
 					// goalDefinition was not active at usePos
 					// if it was active before, we might have a overwriting
 					// definition
@@ -267,6 +270,7 @@ public class DefUseFitnessCalculator {
 							}
 						}
 					}
+					alternativeTime += System.currentTimeMillis() - start;
 				}
 			}
 		}
