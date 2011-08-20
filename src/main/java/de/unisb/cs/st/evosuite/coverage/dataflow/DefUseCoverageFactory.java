@@ -115,6 +115,14 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 
 		return new DefUseCoverageTestFitness(def, use);
 	}
+	
+	public static DefUseCoverageTestFitness createGoal(int defId, int useId) {
+
+		Definition def = DefUsePool.getDefinitionByDefId(defId);
+		Use use = DefUsePool.getUseByUseId(useId);
+		
+		return new DefUseCoverageTestFitness(def, use);
+	}
 
 	/**
 	 * For each parameterUse in the CUT this method creates a

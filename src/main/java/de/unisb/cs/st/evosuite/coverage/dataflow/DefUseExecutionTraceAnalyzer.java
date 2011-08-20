@@ -25,7 +25,7 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 public abstract class DefUseExecutionTraceAnalyzer {
 
 	public static long timeGetCoveredGoals = 0l;
-	
+
 	/**
 	 * Determines the definitionId for targetVar before tagetDUPos in the given
 	 * ExecutionTrace
@@ -253,8 +253,9 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	public static Set<DefUseCoverageTestFitness> getCoveredGoals(
 			List<ExecutionResult> results) {
 
+		System.out.println("start");
 		long start = System.currentTimeMillis();
-		
+
 		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
 
 		for (ExecutionResult result : results) {
@@ -263,6 +264,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 		}
 
 		timeGetCoveredGoals += System.currentTimeMillis() - start;
+		System.out.println("end");
 		
 		return r;
 	}
@@ -271,42 +273,50 @@ public abstract class DefUseExecutionTraceAnalyzer {
 			ExecutionResult result) {
 
 		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
-		
+
 		Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedDefs = result
 				.getTrace().passedDefinitions;
 		Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedUses = result
-		.getTrace().passedUses;
-		
-		for(String goalVariable : passedDefs.keySet()) {
-			if(passedUses.get(goalVariable) == null)
+				.getTrace().passedUses;
+
+		List<DefUseCoverageTestFitness> validGoals = DefUseCoverageFactory
+				.getDUGoals();
+
+		for (String goalVariable : passedDefs.keySet()) {
+			if (passedUses.get(goalVariable) == null)
 				continue;
-			for(Integer objectId : passedDefs.get(goalVariable).keySet()) {
-				if(passedUses.get(goalVariable).get(objectId) == null)
+			for (Integer objectId : passedDefs.get(goalVariable).keySet()) {
+				if (passedUses.get(goalVariable).get(objectId) == null)
 					continue;
-				
-				Map<Integer,Integer> currentDefMap = passedDefs.get(goalVariable).get(objectId);
-				Map<Integer,Integer> currentUseMap = passedUses.get(goalVariable).get(objectId);
-				List<Integer> duCounterTrace = new ArrayList<Integer>(currentDefMap.keySet());
+
+				// DONE sort use map too, merge to one big trace => way better
+				// performance
+				Map<Integer, Integer> currentDefMap = passedDefs.get(
+						goalVariable).get(objectId);
+				Map<Integer, Integer> currentUseMap = passedUses.get(
+						goalVariable).get(objectId);
+
+				List<Integer> duCounterTrace = new ArrayList<Integer>(
+						currentDefMap.keySet());
+				duCounterTrace.addAll(currentUseMap.keySet());
 				Collections.sort(duCounterTrace);
 				int traceLength = duCounterTrace.size();
-				Integer[] sortedDUTrace = duCounterTrace.toArray(new Integer[traceLength]);
-				
-				for(int i=0;i<traceLength;i++) {
-					int currentDUCounter = sortedDUTrace[i];
-					int activeDef = currentDefMap.get(currentDUCounter);
-					
-					int nextDUCounter;
-					if(i != traceLength-1) {
-						// definition that was overwritten
-						nextDUCounter = sortedDUTrace[i+1];
-					} else {
-						// last active definition
-						nextDUCounter = Integer.MAX_VALUE;
-					}
+				Integer[] sortedDefDUTrace = duCounterTrace
+						.toArray(new Integer[traceLength]);
 
-					Set<Integer> coveredUses = getUsesBetween(currentUseMap, currentDUCounter, nextDUCounter);
-					Set<DefUseCoverageTestFitness> coveredGoals = getGoalsFor(activeDef,coveredUses);
-					r.addAll(coveredGoals);
+				int activeDef = -1;
+				for (int i = 0; i < traceLength; i++) {
+					int currentDUCounter = sortedDefDUTrace[i];
+
+					if (currentDefMap.containsKey(currentDUCounter)) {
+						activeDef = currentDefMap.get(currentDUCounter);
+					} else if (activeDef != -1) {
+						int currentUse = currentUseMap.get(currentDUCounter);
+						DefUseCoverageTestFitness currentGoal = DefUseCoverageFactory
+								.createGoal(activeDef, currentUse);
+						if(validGoals.contains(currentGoal))
+							r.add(currentGoal);
+					}
 				}
 			}
 		}
@@ -314,34 +324,36 @@ public abstract class DefUseExecutionTraceAnalyzer {
 		return r;
 	}
 
-	private static Set<DefUseCoverageTestFitness> getGoalsFor(
-			int activeDef, Set<Integer> coveredUses) {
-		
-		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
-		Definition def = DefUsePool.getDefinitionByDefId(activeDef);
-		
-		List<DefUseCoverageTestFitness> validGoals = DefUseCoverageFactory.getDUGoals();
-		
-		for(Integer coveredUse : coveredUses) {
-			Use use = DefUsePool.getUseByUseId(coveredUse);
-			DefUseCoverageTestFitness goal = DefUseCoverageFactory.createGoal(def, use);
-			
-			if(validGoals.contains(goal))
-				r.add(goal);
-		}
-		
-		return r;
-	}
-
-	public static Set<Integer> getUsesBetween(
-			Map<Integer, Integer> currentUseMap, int currentDUCounter,
-			int nextDUCounter) {
-		
-		Set<Integer> r = new HashSet<Integer>();
-		for(Integer duCounter : currentUseMap.keySet())
-			if(currentDUCounter<duCounter && duCounter<nextDUCounter)
-				r.add(currentUseMap.get(duCounter));
-		
-		return r;
-	}
+//	private static Set<DefUseCoverageTestFitness> getGoalsFor(int activeDef,
+//			Set<Integer> coveredUses) {
+//
+//		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
+//		Definition def = DefUsePool.getDefinitionByDefId(activeDef);
+//
+//		List<DefUseCoverageTestFitness> validGoals = DefUseCoverageFactory
+//				.getDUGoals();
+//
+//		for (Integer coveredUse : coveredUses) {
+//			Use use = DefUsePool.getUseByUseId(coveredUse);
+//			DefUseCoverageTestFitness goal = DefUseCoverageFactory.createGoal(
+//					def, use);
+//
+//			if (validGoals.contains(goal))
+//				r.add(goal);
+//		}
+//
+//		return r;
+//	}
+//
+//	public static Set<Integer> getUsesBetween(
+//			Map<Integer, Integer> currentUseMap, int currentDUCounter,
+//			int nextDUCounter) {
+//
+//		Set<Integer> r = new HashSet<Integer>();
+//		for (Integer duCounter : currentUseMap.keySet())
+//			if (currentDUCounter < duCounter && duCounter < nextDUCounter)
+//				r.add(currentUseMap.get(duCounter));
+//
+//		return r;
+//	}
 }
