@@ -203,7 +203,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 			r.append(total_goals + ",");
 			r.append(covered_goals + ",");
-			r.append(1.0 * covered_goals / (total_goals) + ",");
+			if(total_goals>0)
+				r.append(1.0 * covered_goals / (total_goals) + ",");
+			else
+				r.append("1.0,");
 
 			// r.append(start_time+",");
 			// r.append(end_time+",");

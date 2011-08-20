@@ -46,7 +46,10 @@ public class StatementCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			fitness += goalFitness;
 		}
 		
-		suite.setCoverage(coveredGoals.size()/(double)totalGoals.size());
+		if(totalGoals.size()>0)
+			suite.setCoverage(coveredGoals.size()/(double)totalGoals.size());
+		else
+			suite.setCoverage(1.0);
 		updateIndividual(individual, fitness);
 		
 		return fitness;
