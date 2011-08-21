@@ -205,8 +205,9 @@ public class TestSuiteGenerator {
 			addAssertions(tests);
 
 		writeObjectPool(tests);
-
-		System.out.println();
+		
+		if(analyzing)
+			System.out.println();
 		
 		return tests;
 	}

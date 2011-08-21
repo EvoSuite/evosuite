@@ -111,7 +111,7 @@ public class ControlDependenceGraph extends
 		return r;
 	}
 
-	public Set<Integer> getControlDependentBranchIds(BytecodeInstruction ins) {
+	public Set<Integer> getControlDependentBranchIds(BasicBlock ins) {
 
 		Set<ControlDependency> dependentBranches = getControlDependentBranches(ins);
 
