@@ -47,11 +47,6 @@ public class BytecodeInstruction extends ASMWrapper {
 	// auxiliary information
 	private int lineNumber = -1;
 
-	// experiment: since finding the control dependent branches in the CDG might
-	// take a little to long, we might want to remember them
-	private Set<ControlDependency> controlDependentBranches;
-	private Set<Integer> controlDependentBranchIDs;
-
 	// experiment: also searching through all CFG nodes in order to determine an
 	// instruction BasicBlock might be a little to expensive too just to safe
 	// space for one reference
@@ -323,12 +318,10 @@ public class BytecodeInstruction extends ASMWrapper {
 	 */
 	public Set<ControlDependency> getControlDependencies() {
 
-		if (controlDependentBranches == null)
-			controlDependentBranches = getCDG().getControlDependentBranches(
-					this);
+		BasicBlock myBlock = getBasicBlock();
 
-		return new HashSet<ControlDependency>(controlDependentBranches);
-		// return new HashSet<Branch>(controlDependentBranches);
+//		return new HashSet<ControlDependency>(myBlock.getControlDependencies());
+		return myBlock.getControlDependencies();
 	}
 
 	/**
@@ -362,13 +355,9 @@ public class BytecodeInstruction extends ASMWrapper {
 	 */
 	public Set<Integer> getControlDependentBranchIds() {
 
-		ControlDependenceGraph myDependence = getCDG();
-
-		if (controlDependentBranchIDs == null)
-			controlDependentBranchIDs = myDependence
-					.getControlDependentBranchIds(this);
-
-		return controlDependentBranchIDs;
+		BasicBlock myBlock = getBasicBlock();
+		
+		return myBlock.getControlDependentBranchIds();
 	}
 
 	/**

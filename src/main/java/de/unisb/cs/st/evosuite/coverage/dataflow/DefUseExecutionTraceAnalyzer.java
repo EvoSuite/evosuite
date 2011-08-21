@@ -253,7 +253,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	public static Set<DefUseCoverageTestFitness> getCoveredGoals(
 			List<ExecutionResult> results) {
 
-		System.out.println("start");
+//		System.out.println("start");
 		long start = System.currentTimeMillis();
 
 		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
@@ -264,7 +264,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 		}
 
 		timeGetCoveredGoals += System.currentTimeMillis() - start;
-		System.out.println("end");
+//		System.out.println("end");
 		
 		return r;
 	}
