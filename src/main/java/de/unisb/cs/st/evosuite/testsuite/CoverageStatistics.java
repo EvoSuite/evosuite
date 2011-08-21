@@ -7,8 +7,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.text.NumberFormatter;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.ibm.icu.text.NumberFormat;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
@@ -52,9 +56,9 @@ public class CoverageStatistics {
 			for(Criterion testCoverage : supported) {
 				out.write(Properties.TARGET_CLASS);
 				out.write(","+testCoverage.toString());
-				out.write(","+coverages.get(testCoverage).get(Criterion.DEFUSE));
-				out.write(","+coverages.get(testCoverage).get(Criterion.BRANCH));
-				out.write(","+coverages.get(testCoverage).get(Criterion.STATEMENT));
+				out.write(","+formatCoverage(coverages.get(testCoverage).get(Criterion.DEFUSE)));
+				out.write(","+formatCoverage(coverages.get(testCoverage).get(Criterion.BRANCH)));
+				out.write(","+formatCoverage(coverages.get(testCoverage).get(Criterion.STATEMENT)));
 				if(Properties.STRATEGY == Strategy.EVOSUITE)
 					out.write(",suite,");
 				else
@@ -70,6 +74,12 @@ public class CoverageStatistics {
 		} catch (IOException e) {
 			logger.info("Exception while writing CSV data: " + e);
 		}
+	}
+
+	private static String formatCoverage(double coverage) {
+		// TODO put in some utils class or something
+		return String.format("%.2f",100.0*coverage).replaceAll(",",".")+"%";
+		
 	}
 
 	private static void ensureCSVHeader() throws IOException{

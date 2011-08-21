@@ -20,8 +20,6 @@ public class StatementCoverageFactory extends AbstractFitnessFactory {
 		if(!called)
 			computeGoals();
 
-		System.out.println("* Total number of coverage goals: "+goals.size());
-		
 		return goals;
 	}
 	
@@ -50,6 +48,8 @@ public class StatementCoverageFactory extends AbstractFitnessFactory {
 						goals.add(new StatementCoverageTestFitness(ins));
 			}
 		}
+		
+		System.out.println("* Total number of coverage goals: "+goals.size());
 		
 		called = true;		
 	}
