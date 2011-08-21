@@ -1,6 +1,5 @@
 package de.unisb.cs.st.evosuite.cfg;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.objectweb.asm.tree.AbstractInsnNode;

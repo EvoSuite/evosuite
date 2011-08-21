@@ -42,7 +42,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	static List<DefUseCoverageTestFitness> goals = DefUseCoverageFactory.getDUGoals();
 	
 	public static int totalGoals = goals.size();
-	public static int bestCoveredGoals = 0;
+	public static int mostCoveredGoals = 0;
 	
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#getFitness(de.unisb.cs.st.evosuite.ga.Chromosome)
@@ -64,22 +64,8 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		Set<DefUseCoverageTestFitness> coveredGoals = DefUseExecutionTraceAnalyzer.getCoveredGoals(results);
 //		Set<DefUseCoverageTestFitness> coveredGoals = new HashSet<DefUseCoverageTestFitness>();
 
-//		if(coveredGoals.size()>totalGoals.size())
-//			throw new IllegalStateException("cant cover more goals than there are: "+coveredGoals.size());
-//		
-//		for(DefUseCoverageTestFitness c : coveredGoals) {
-//////			if(!totalGoals.contains(c))
-//				System.out.println("!"+c.getGoalDefinition().defId+" "+c.getGoalUse().useId);
-////				System.out.println(c.toString());
-//				
-//				int count = 0;
-//				for(DefUseCoverageTestFitness c2: coveredGoals) {
-//					if(c.equals(c2))
-//						count++;
-//				}
-//				
-//				System.out.println(count);
-//		}
+		if(coveredGoals.size()>totalGoals)
+			throw new IllegalStateException("cant cover more goals than there are: "+coveredGoals.size());
 		
 		for(DefUseCoverageTestFitness goal : goals) {
 			if(coveredGoals.contains(goal))
@@ -109,8 +95,11 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		else
 			suite.setCoverage(1.0);
 		
-		if(bestCoveredGoals<coveredGoals.size())
-			bestCoveredGoals = coveredGoals.size();
+		if(mostCoveredGoals<coveredGoals.size()) {
+			mostCoveredGoals = coveredGoals.size();
+			if(mostCoveredGoals>totalGoals)
+				throw new IllegalStateException("can't cover more goals than there exist");
+		}
 		
 		updateIndividual(individual, fitness);
 		return fitness;

@@ -162,7 +162,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		public long end_time;
 
 		public long minimized_time;
-		
+
 		public long testExecutionTime;
 
 		public int result_fitness_evaluations = 0;
@@ -185,7 +185,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 					.append("Total Goals,Covered Goals,Coverage,Creation Time,Minimization Time,Test Execution Time,Total Time, Result Size, Result Length,");
 			r.append("Minimized Size,Minimized Length,");
 			// "Bloat Rejections,Fitness Rejections,Fitness Accepts,"
-			r.append("Chromosome Length,Population Size,Random Seed,Data File");
+			r.append("Chromosome Length,Population Size,Random Seed,Budget,Data File");
 
 			return r.toString();
 		}
@@ -205,10 +205,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 			r.append(total_goals + ",");
 			r.append(covered_goals + ",");
-			if(total_goals>0)
-				r.append(1.0 * covered_goals / (total_goals) + ",");
-			else
-				r.append("1.0,");
+			r.append(getCoverage() + ",");
 
 			// r.append(start_time+",");
 			// r.append(end_time+",");
@@ -216,7 +213,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 			r.append((minimized_time - start_time) + ",");
 			r.append((minimized_time - end_time) + ",");
-			r.append(testExecutionTime+",");
+			r.append(testExecutionTime + ",");
 			r.append((end_time - start_time) + ",");
 
 			r.append(size_final + ",");
@@ -227,11 +224,26 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append(chromosome_length + ",");
 			r.append(population_size + ",");
 			r.append(seed + ",");
+			r.append(Properties.GENERATIONS+",");
 
-			r.append(REPORT_DIR.getAbsolutePath() + "/data/statistics_"
-					+ className + "-" + id + ".csv");
+			r.append(getCSVFilepath());
 
 			return r.toString();
+		}
+
+		public String getCSVFilepath() {
+			return REPORT_DIR.getAbsolutePath() + "/data/statistics_"
+					+ className + "-" + id + ".csv";
+		}
+
+		public String getCoverage() {
+			if (total_goals == 0)
+				return "100.00%";
+			else
+				return String.format("%.2f",
+						(100.0 * covered_goals / (1.0 * total_goals)))
+						.replaceAll(",", ".")
+						+ "%";
 		}
 	};
 
@@ -695,8 +707,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 					(duration_TO % 3600) / 60, (duration_TO % 60)));
 			buffer.append("</td>");
 			buffer.append("<td>");
-			buffer.append(String.format("%.2f",
-					(100.0 * entry.covered_goals / (1.0 * entry.total_goals))));
+			buffer.append(entry.getCoverage());
 			buffer.append("%</td>");
 			buffer.append("<td><a href=\"html/");
 			String filename = writeRunPage(entry);
@@ -705,8 +716,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			buffer.append(entry.className);
 			buffer.append("</a></td>");
 			buffer.append("<td><a href=\"");
-			buffer.append("data/statistics_" + entry.className + "-" + entry.id
-					+ ".csv");
+			buffer.append(entry.getCSVFilepath());
 			buffer.append("\">CSV</a></td>");
 			buffer.append("</tr>\n");
 		}
@@ -730,12 +740,11 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			logger.warn("Error while writing statistics: " + e.getMessage());
 		}
 
-		writeCSVData(REPORT_DIR.getAbsolutePath() + "/data/statistics_"
-				+ entry.className + "-" + entry.id + ".csv",
-				entry.fitness_history, entry.coverage_history,
-				entry.size_history, entry.length_history,
-				entry.average_length_history, entry.fitness_evaluations,
-				entry.tests_executed, entry.statements_executed);
+		writeCSVData(entry.getCSVFilepath(), entry.fitness_history,
+				entry.coverage_history, entry.size_history,
+				entry.length_history, entry.average_length_history,
+				entry.fitness_evaluations, entry.tests_executed,
+				entry.statements_executed);
 
 	}
 

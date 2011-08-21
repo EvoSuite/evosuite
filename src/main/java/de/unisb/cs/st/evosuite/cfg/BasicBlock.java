@@ -1,7 +1,6 @@
 package de.unisb.cs.st.evosuite.cfg;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -48,15 +47,15 @@ public class BasicBlock {
 	
 	// experiment: since finding the control dependent branches in the CDG might
 	// take a little to long, we might want to remember them
-	private Set<ControlDependency> controlDependentBranches;
+	private Set<ControlDependency> controlDependencies;
 	private Set<Integer> controlDependentBranchIDs;
 
 	protected boolean isAuxiliaryBlock = false;
 
 	private final List<BytecodeInstruction> instructions = new ArrayList<BytecodeInstruction>();
 
-	// TODO reference each BytecodeInstruction's BasicBlock at the instruction
-	// TODO determine ControlDependentBranches once for each BasicBlock, then
+	// DONE reference each BytecodeInstruction's BasicBlock at the instruction
+	// DONE determine ControlDependentBranches once for each BasicBlock, then
 	// ask BasicBloc, whenever instruction is asked
 	// TODO remember distance to each control dependent Branch in order to speed
 	// up ControlFlowDistance calculation even more
@@ -88,7 +87,7 @@ public class BasicBlock {
 		this.isAuxiliaryBlock = true;
 	}
 	
-	// utils
+	// CDs
 	
 	/**
 	 * Returns the ControlDependenceGraph of this instructions method
@@ -137,16 +136,16 @@ public class BasicBlock {
 	 */
 	public Set<ControlDependency> getControlDependencies() {
 
-		if (controlDependentBranches == null)
-			controlDependentBranches = getCDG().getControlDependentBranches(
+		if (controlDependencies == null)
+			controlDependencies = getCDG().getControlDependentBranches(
 					this);
 
 //		return new HashSet<ControlDependency>(controlDependentBranches);
-		return controlDependentBranches;
+		return controlDependencies;
 	}
 	
 	public boolean hasControlDependenciesSet() {
-		return controlDependentBranches != null;
+		return controlDependencies != null;
 	}
 
 	// initialization

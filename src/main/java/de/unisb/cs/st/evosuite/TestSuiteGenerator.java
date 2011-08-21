@@ -331,7 +331,7 @@ public class TestSuiteGenerator {
 		ga.printBudget();
 
 		if (Properties.CRITERION == Criterion.DEFUSE) {
-			int covered = DefUseCoverageSuiteFitness.bestCoveredGoals;
+			int covered = DefUseCoverageSuiteFitness.mostCoveredGoals;
 			int total = DefUseCoverageSuiteFitness.totalGoals;
 			System.out.println("* Covered " + covered + "/" + total + " goals");
 			System.out

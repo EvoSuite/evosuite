@@ -1,7 +1,9 @@
 package de.unisb.cs.st.evosuite.coverage.statement;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -14,6 +16,8 @@ public class StatementCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = -4479582777935260157L;
 
+	public static int mostCoveredGoals = 0;
+	
 	@Override
 	public double getFitness(Chromosome individual) {
 		TestSuiteChromosome suite = (TestSuiteChromosome)individual;
@@ -27,7 +31,7 @@ public class StatementCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		
 		// guess this is horribly inefficient but it's a start
 		List<TestFitnessFunction> totalGoals = StatementCoverageFactory.retrieveCoverageGoals();
-		List<TestFitnessFunction> coveredGoals = new ArrayList<TestFitnessFunction>(); 
+		Set<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>(); 
 
 		for(TestFitnessFunction goal : totalGoals) {
 			double goalFitness = Double.MAX_VALUE;
@@ -50,6 +54,10 @@ public class StatementCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			suite.setCoverage(coveredGoals.size()/(double)totalGoals.size());
 		else
 			suite.setCoverage(1.0);
+		
+		if(coveredGoals.size()>mostCoveredGoals)
+			mostCoveredGoals = coveredGoals.size();
+		
 		updateIndividual(individual, fitness);
 		
 		return fitness;
