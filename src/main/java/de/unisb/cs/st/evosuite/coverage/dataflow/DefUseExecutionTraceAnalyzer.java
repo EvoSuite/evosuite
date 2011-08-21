@@ -299,6 +299,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 				List<Integer> duCounterTrace = new ArrayList<Integer>(
 						currentDefMap.keySet());
 				duCounterTrace.addAll(currentUseMap.keySet());
+//				System.out.println(duCounterTrace.size()); oO for ncs.Bessj these can be up to 50k entries big
 				Collections.sort(duCounterTrace);
 				int traceLength = duCounterTrace.size();
 				Integer[] sortedDefDUTrace = duCounterTrace
