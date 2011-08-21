@@ -144,6 +144,10 @@ public class BasicBlock {
 //		return new HashSet<ControlDependency>(controlDependentBranches);
 		return controlDependentBranches;
 	}
+	
+	public boolean hasControlDependenciesSet() {
+		return controlDependentBranches != null;
+	}
 
 	// initialization
 
