@@ -277,7 +277,7 @@ public class MethodStatement extends AbstractStatement {
 
 		}
 
-		// m.assertions = cloneAssertions(newTestCase);
+		// m.assertions = copyAssertions(newTestCase, offset);
 
 		return m;
 	}

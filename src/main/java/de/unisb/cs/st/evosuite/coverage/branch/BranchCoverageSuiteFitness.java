@@ -69,13 +69,13 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public double best_fitness = Double.MAX_VALUE;
 
 	public static final int total_goals = 2 * total_branches + branchless_methods;
-	
+
 	public static int mostCoveredGoals = 0;
 
 	protected boolean check = false;
 
 	public BranchCoverageSuiteFitness() {
-		logger.info("Total goals: " + total_goals);
+		logger.info("Total branch coverage goals: " + total_goals);
 		logger.info("Total branches: " + total_branches);
 	}
 
@@ -271,9 +271,9 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				coverage += 1.0;
 
 		}
-		if(mostCoveredGoals<coverage)
-			mostCoveredGoals = (int)coverage;
-		
+		if (mostCoveredGoals < coverage)
+			mostCoveredGoals = (int) coverage;
+
 		suite.setCoverage(coverage / total_goals);
 		//		if (!check)
 		//			checkFitness(suite, fitness);

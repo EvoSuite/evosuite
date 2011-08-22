@@ -231,14 +231,14 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	 * @return List of the assertion copies
 	 */
 	@Override
-	public Set<Assertion> cloneAssertions(TestCase newTestCase) {
+	public Set<Assertion> copyAssertions(TestCase newTestCase, int offset) {
 		Set<Assertion> copy = new HashSet<Assertion>();
 		for (Assertion a : assertions) {
 			if (a == null) {
 				logger.info("Assertion is null!");
 				logger.info("Statement has assertions: " + assertions.size());
 			} else
-				copy.add(a.clone(newTestCase));
+				copy.add(a.copy(newTestCase, offset));
 		}
 		return copy;
 	}

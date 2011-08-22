@@ -189,7 +189,7 @@ public class ConstructorStatement extends AbstractStatement {
 
 		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor,
 		        retval.getType(), new_params);
-		//copy.assertions = cloneAssertions(newTestCase);
+		// copy.assertions = copyAssertions(newTestCase, offset);
 
 		return copy;
 	}

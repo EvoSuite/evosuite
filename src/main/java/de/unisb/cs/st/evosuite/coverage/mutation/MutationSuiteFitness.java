@@ -45,6 +45,7 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	public MutationSuiteFitness() {
 		MutationFactory factory = new MutationFactory();
 		mutationGoals = factory.getCoverageGoals();
+		logger.info("Mutation goals: " + mutationGoals.size());
 		executor.addObserver(primitiveObserver);
 		executor.addObserver(comparisonObserver);
 		executor.addObserver(inspectorObserver);
@@ -108,9 +109,9 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 		runTestSuite((TestSuiteChromosome) individual);
 
 		// First objective: achieve branch coverage
-		logger.info("Calculating branch fitness: ");
-		double fitness = branchFitness.getFitness(individual);
-		logger.info("Branch fitness: " + fitness);
+		logger.debug("Calculating branch fitness: ");
+		double fitness = 0.0; // branchFitness.getFitness(individual);
+		//logger.info("Branch fitness: " + fitness);
 
 		// Additional objective 1: all mutants need to be touched
 

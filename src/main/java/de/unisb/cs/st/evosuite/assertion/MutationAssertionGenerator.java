@@ -394,9 +394,9 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			logger.debug("Running on mutation " + m.getId());
 			// logger.info(m.toString());
 
-			logger.info("Cloning test: " + test.toCode());
+			// logger.info("Cloning test: " + test.toCode());
 			ExecutionResult mutant_result = runTest(test.clone(), m);
-			logger.info("Clone: " + mutant_result.test.toCode());
+			// logger.info("Clone: " + mutant_result.test.toCode());
 			List<OutputTrace> traces = new ArrayList<OutputTrace>();
 			traces.add(mutant_result.comparison_trace);
 			traces.add(mutant_result.primitive_trace);
