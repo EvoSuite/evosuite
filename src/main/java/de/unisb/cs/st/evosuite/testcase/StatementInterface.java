@@ -153,7 +153,7 @@ public interface StatementInterface {
 	 *            the testcase in which this statement will be inserted
 	 * @return
 	 */
-	public Set<Assertion> cloneAssertions(TestCase newTestCase);
+	public Set<Assertion> copyAssertions(TestCase newTestCase, int offset);
 
 	/**
 	 * Check if there are assertions

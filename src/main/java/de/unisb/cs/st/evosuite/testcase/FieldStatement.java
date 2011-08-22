@@ -151,13 +151,16 @@ public class FieldStatement extends AbstractStatement {
 		if (Modifier.isStatic(field.getModifiers())) {
 			FieldStatement s = new FieldStatement(newTestCase, field, null,
 			        retval.getType());
+			// s.assertions = copyAssertions(newTestCase, offset);
 			return s;
 		} else {
 			VariableReference newSource = source.copy(newTestCase, offset);
 			FieldStatement s = new FieldStatement(newTestCase, field, newSource,
 			        retval.getType());
+			// s.assertions = copyAssertions(newTestCase, offset);
 			return s;
 		}
+
 	}
 
 	@Override

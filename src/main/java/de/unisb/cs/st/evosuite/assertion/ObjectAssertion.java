@@ -30,18 +30,18 @@ public class ObjectAssertion extends Assertion {
 	}
 
 	@Override
-	public Assertion clone(TestCase newTestCase) {
+	public Assertion copy(TestCase newTestCase, int offset) {
 		ObjectAssertion s = new ObjectAssertion();
-		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
+		s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
 		s.value = value;
 		return s;
 	}
 
 	@Override
 	public boolean evaluate(Scope scope) {
-		try{
+		try {
 			return source.getObject(scope).equals(value);
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 	}

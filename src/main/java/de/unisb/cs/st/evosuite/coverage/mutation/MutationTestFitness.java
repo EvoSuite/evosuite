@@ -18,7 +18,6 @@ import de.unisb.cs.st.evosuite.assertion.PrimitiveOutputTraceObserver;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
-import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
@@ -73,9 +72,9 @@ public class MutationTestFitness extends TestFitnessFunction {
 
 		try {
 			if (mutant != null)
-				logger.info("Executing test for mutant " + mutant.getId());
+				logger.debug("Executing test for mutant " + mutant.getId());
 			else
-				logger.info("Executing test witout mutant");
+				logger.debug("Executing test witout mutant");
 
 			if (mutant != null)
 				MutationObserver.activateMutation(mutant);
@@ -241,15 +240,15 @@ public class MutationTestFitness extends TestFitnessFunction {
 		if (controlDependencies.isEmpty()) {
 			String key = mutation.getClassName() + "." + mutation.getMethodName();
 			if (result.getTrace().covered_methods.containsKey(key)) {
-				logger.info("Target method " + key + " was executed");
+				logger.debug("Target method " + key + " was executed");
 			} else {
-				logger.info("Target method " + key + " was not executed");
+				logger.debug("Target method " + key + " was not executed");
 				fitness += 1.0;
 			}
 		} else {
 			ControlFlowDistance cfgDistance = null;
 			for (BranchCoverageGoal dependency : controlDependencies) {
-				logger.info("Checking dependency...");
+				logger.debug("Checking dependency...");
 				ControlFlowDistance distance = dependency.getDistance(result);
 				if (cfgDistance == null)
 					cfgDistance = distance;
@@ -259,12 +258,12 @@ public class MutationTestFitness extends TestFitnessFunction {
 				}
 			}
 			if (cfgDistance != null) {
-				logger.info("Found control dependency");
+				logger.debug("Found control dependency");
 				fitness = cfgDistance.getResultingBranchFitness();
 			}
 		}
 
-		logger.info("Control flow distance to mutation = " + fitness);
+		logger.debug("Control flow distance to mutation = " + fitness);
 		// If executed...
 		if (fitness <= 0) {
 
@@ -272,19 +271,20 @@ public class MutationTestFitness extends TestFitnessFunction {
 
 			// Add infection distance
 			if (!result.getTrace().mutant_distances.containsKey(mutation.getId())) {
-				logger.info("Have no distance information for " + mutation.getId());
+				logger.debug("Have no distance information for " + mutation.getId());
 				for (Integer id : result.getTrace().mutant_distances.keySet()) {
-					logger.info("Mutation " + id + ": "
+					logger.debug("Mutation " + id + ": "
 					        + result.getTrace().mutant_distances.get(id));
 				}
 			}
 			fitness += FitnessFunction.normalize(result.getTrace().mutant_distances.get(mutation.getId()));
 
-			logger.info("Infection distance for mutation = " + fitness);
+			logger.debug("Infection distance for mutation = " + fitness);
 
 			// If infected check if it is also killed
 			if (fitness <= 0) {
-				ExecutionResult mutationResult = runTest(individual.getTestCase(), mutation);
+				ExecutionResult mutationResult = runTest(individual.getTestCase(),
+				                                         mutation);
 
 				if (TestCoverageGoal.hasTimeout(mutationResult)) {
 					logger.debug("Found timeout in mutant!");
@@ -294,11 +294,11 @@ public class MutationTestFitness extends TestFitnessFunction {
 				if (getNumAssertions(result, mutationResult) == 0) {
 					double impact = getSumDistance(result.getTrace(),
 					                               mutationResult.getTrace());
-					logger.info("Impact is " + impact + " (" + (1.0 / (1.0 + impact))
+					logger.debug("Impact is " + impact + " (" + (1.0 / (1.0 + impact))
 					        + ")");
 					fitness += 1.0 / (1.0 + impact);
 				} else {
-					logger.info("Mutant is asserted!");
+					logger.debug("Mutant is asserted!");
 					//return 0.0; // This mutant is asserted
 				}
 			}

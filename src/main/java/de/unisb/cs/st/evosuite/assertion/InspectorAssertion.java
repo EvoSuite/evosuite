@@ -32,9 +32,15 @@ public class InspectorAssertion extends Assertion {
 	public Object result;
 
 	@Override
-	public Assertion clone(TestCase newTestCase) {
-		// TODO Auto-generated method stub
-		return null;
+	public Assertion copy(TestCase newTestCase, int offset) {
+		InspectorAssertion s = new InspectorAssertion();
+		s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
+		s.inspector = inspector;
+		s.num_inspector = num_inspector;
+		s.result = result;
+		s.value = value;
+		return s;
+
 	}
 
 	@Override
@@ -48,30 +54,30 @@ public class InspectorAssertion extends Assertion {
 		 */
 		if (result == null) {
 			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			+ "(), null);";
+			        + "(), null);";
 		} else if (result.getClass().equals(Long.class)) {
 			String val = result.toString();
 			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			+ "(), " + val + "L);";
+			        + "(), " + val + "L);";
 		} else if (result.getClass().equals(Float.class)) {
 			String val = result.toString();
 			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			+ "(), " + val + "F);";
+			        + "(), " + val + "F);";
 		} else if (result.getClass().equals(Character.class)) {
 			String val = result.toString();
 			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			+ "(), '" + val + "');";
+			        + "(), '" + val + "');";
 		} else if (result.getClass().equals(String.class)) {
 			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			+ "(), \"" + StringEscapeUtils.escapeJava((String) result) + "\");";
+			        + "(), \"" + StringEscapeUtils.escapeJava((String) result) + "\");";
 		} else
 			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			+ "(), " + result + ");";
+			        + "(), " + result + ");";
 	}
 
 	@Override
 	public boolean evaluate(Scope scope) {
-		try{
+		try {
 			if (source.getObject(scope) == null)
 				return true; // TODO - true or false?
 			else {
@@ -86,7 +92,7 @@ public class InspectorAssertion extends Assertion {
 					return true;
 				}
 			}
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 	}

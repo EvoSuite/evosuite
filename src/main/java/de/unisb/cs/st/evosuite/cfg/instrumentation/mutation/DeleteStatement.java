@@ -82,6 +82,7 @@ public class DeleteStatement implements MutationOperator {
 	 */
 	@Override
 	public boolean isApplicable(BytecodeInstruction instruction) {
-		return instruction.isMethodCall();
+		return instruction.isMethodCall()
+		        && instruction.getASMNode().getOpcode() != Opcodes.INVOKESPECIAL;
 	}
 }

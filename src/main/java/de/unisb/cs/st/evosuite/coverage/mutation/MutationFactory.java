@@ -6,6 +6,9 @@ package de.unisb.cs.st.evosuite.coverage.mutation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
 
@@ -14,6 +17,8 @@ import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
  * 
  */
 public class MutationFactory extends AbstractFitnessFactory {
+
+	private static Logger logger = LoggerFactory.getLogger(MutationFactory.class);
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
@@ -35,6 +40,7 @@ public class MutationFactory extends AbstractFitnessFactory {
 		}
 		*/
 		for (Mutation m : MutationPool.getMutants()) {
+			logger.info("Goal: " + m);
 			goals.add(new MutationTestFitness(m));
 		}
 		return goals;

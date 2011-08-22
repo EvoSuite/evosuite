@@ -329,8 +329,8 @@ public class ScheduleLogWrapper implements StatementInterface {
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#cloneAssertions(de.unisb.cs.st.evosuite.testcase.TestCase)
 	 */
 	@Override
-	public Set<Assertion> cloneAssertions(TestCase newTestCase) {
-		return wrapped.cloneAssertions(newTestCase);
+	public Set<Assertion> copyAssertions(TestCase newTestCase, int offset) {
+		return wrapped.copyAssertions(newTestCase, offset);
 	}
 
 	/* (non-Javadoc)
