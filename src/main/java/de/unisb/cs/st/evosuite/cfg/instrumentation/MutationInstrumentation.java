@@ -106,6 +106,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 			logger.info(new BytecodeInstruction(className, methodName, 0, 0, in).toString());
 		}
 		logger.info("Done.");
+		mn.maxStack += 3;
 	}
 
 	/* (non-Javadoc)
