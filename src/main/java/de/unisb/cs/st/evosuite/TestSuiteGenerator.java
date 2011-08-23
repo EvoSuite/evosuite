@@ -98,6 +98,7 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testcase.ValueMinimizer;
 import de.unisb.cs.st.evosuite.testsuite.CoverageStatistics;
+import de.unisb.cs.st.evosuite.testsuite.FixedSizeTestSuiteChromosomeFactory;
 import de.unisb.cs.st.evosuite.testsuite.MinimizeAverageLengthSecondaryObjective;
 import de.unisb.cs.st.evosuite.testsuite.MinimizeExceptionsSecondaryObjective;
 import de.unisb.cs.st.evosuite.testsuite.MinimizeMaxLengthSecondaryObjective;
@@ -234,7 +235,7 @@ public class TestSuiteGenerator {
 			tkilled.addAll(killed);
 		}
 		asserter.writeStatistics();
-		System.out.println("Killed: " + tkilled.size() + "/" + asserter.numMutants());
+		//System.out.println("Killed: " + tkilled.size() + "/" + asserter.numMutants());
 	}
 
 	private void writeObjectPool(List<TestCase> tests) {
@@ -275,6 +276,10 @@ public class TestSuiteGenerator {
 
 		if (analyzing)
 			ga.resetStoppingConditions();
+
+		TestFitnessFactory goal_factory = getFitnessFactory();
+		List<TestFitnessFunction> goals = goal_factory.getCoverageGoals();
+		System.out.println("* Total number of test goals: " + goals.size());
 
 		// Perform search
 		System.out.println("* Starting evolution");
@@ -437,30 +442,27 @@ public class TestSuiteGenerator {
 	private TestSuiteChromosome bootstrapRandomSuite(FitnessFunction fitness,
 	        TestFitnessFactory goals) {
 
-		int random_tests = Properties.RANDOM_TESTS;
 		if (Properties.CRITERION == Criterion.DEFUSE) {
 			System.out.println("* Disabled random bootstraping for DefUseCoverage-Criterion");
-			Properties.MIN_INITIAL_TESTS = 0;
-			Properties.MAX_INITIAL_TESTS = 0;
+			Properties.RANDOM_TESTS = 0;
 		}
-		// TODO the following does no longer work as expected since
-		// Properties.RANDOM_TESTS
-		// seems to have been replaced by Properties.MIN/MAX_INITIAL_TESTS
-		if (random_tests > 0)
-			System.out.println("* Bootstrapping initial random test suite");
-		else
-			System.out.println("* Bootstrapping initial random test suite disabled!");
-		TestSuiteChromosomeFactory factory = new TestSuiteChromosomeFactory();
-		factory.setNumberOfTests(random_tests);
-		TestSuiteChromosome chromosome = factory.getChromosome();
-		if (random_tests > 0) {
-			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goals);
-			minimizer.minimize(chromosome);
-		}
-		System.out.println("* Initial test suite contains " + chromosome.size()
-		        + " tests");
 
-		return chromosome;
+		if (Properties.RANDOM_TESTS > 0) {
+			System.out.println("* Bootstrapping initial random test suite");
+		} else
+			System.out.println("* Bootstrapping initial random test suite disabled!");
+
+		FixedSizeTestSuiteChromosomeFactory factory = new FixedSizeTestSuiteChromosomeFactory(
+		        Properties.RANDOM_TESTS);
+
+		TestSuiteChromosome suite = factory.getChromosome();
+		if (Properties.RANDOM_TESTS > 0) {
+			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goals);
+			minimizer.minimize(suite);
+			System.out.println("* Initial test suite contains " + suite.size() + " tests");
+		}
+
+		return suite;
 	}
 
 	/**
