@@ -42,6 +42,9 @@ public class ReplaceVariable implements MutationOperator {
 	        BytecodeInstruction instruction) {
 
 		List<Mutation> mutations = new LinkedList<Mutation>();
+		if (mn.localVariables.isEmpty()) {
+			logger.warn("Have no information about local variables - recompile with full debug information");
+		}
 
 		for (InsnList mutation : getReplacements(mn, className, instruction.getASMNode())) {
 			// insert mutation into pool			
@@ -54,6 +57,36 @@ public class ReplaceVariable implements MutationOperator {
 			mutations.add(mutationObject);
 		}
 		return mutations;
+	}
+
+	public InsnList getInfectionDistance(Type type, AbstractInsnNode original,
+	        InsnList mutant) {
+		// Load the original value
+		// Load the new value
+		// Take the difference
+		// Math.abs
+		InsnList distance = new InsnList();
+		distance.add(original);
+		distance.add(mutant);
+		if (original instanceof VarInsnNode) {
+			distance.add(original);
+			distance.add(mutant);
+			distance.add(new InsnNode(type.getOpcode(Opcodes.ISUB)));
+			distance.add(cast(type, Type.DOUBLE_TYPE));
+
+		} else if (original instanceof FieldInsnNode) {
+			if (original.getOpcode() == Opcodes.GETFIELD)
+				distance.add(new InsnNode(Opcodes.DUP)); //make sure to re-load this for GETFIELD
+
+			distance.add(original);
+			distance.add(mutant);
+			distance.add(new InsnNode(type.getOpcode(Opcodes.ISUB)));
+			distance.add(cast(type, Type.DOUBLE_TYPE));
+
+		} else if (original instanceof IincInsnNode) {
+			distance.add(Mutation.getDefaultInfectionDistance());
+		}
+		return distance;
 	}
 
 	/**
@@ -103,11 +136,14 @@ public class ReplaceVariable implements MutationOperator {
 			LocalVariableNode localVar = (LocalVariableNode) v;
 			int startId = mn.instructions.indexOf(localVar.start);
 			int endId = mn.instructions.indexOf(localVar.end);
+			logger.info("Checking " + localVar.index + " in scope " + startId + " - "
+			        + endId);
 			if (currentId >= startId && currentId <= endId && localVar.index == index)
 				return localVar;
 		}
 
-		throw new RuntimeException("Could not find local variable " + index);
+		throw new RuntimeException("Could not find local variable " + index
+		        + " at position " + currentId);
 	}
 
 	private List<InsnList> getLocalReplacements(MethodNode mn, String desc,
@@ -241,16 +277,63 @@ public class ReplaceVariable implements MutationOperator {
 		return alternatives;
 	}
 
-	private boolean isGetField(BytecodeInstruction instruction) {
-		if (instruction.getASMNode().getOpcode() == Opcodes.ALOAD) {
-			VarInsnNode var = (VarInsnNode) instruction.getASMNode();
-			if (var.var == 0) {
-				AbstractInsnNode next = instruction.getASMNode().getNext();
-				if (next.getOpcode() == Opcodes.GETFIELD)
-					return true;
+	/**
+	 * Generates the instructions to cast a numerical value from one type to
+	 * another.
+	 * 
+	 * @param from
+	 *            the type of the top stack value
+	 * @param to
+	 *            the type into which this value must be cast.
+	 */
+	public InsnList cast(final Type from, final Type to) {
+		InsnList list = new InsnList();
+
+		if (from != to) {
+			if (from == Type.DOUBLE_TYPE) {
+				if (to == Type.FLOAT_TYPE) {
+					list.add(new InsnNode(Opcodes.D2F));
+				} else if (to == Type.LONG_TYPE) {
+					list.add(new InsnNode(Opcodes.D2L));
+				} else {
+					list.add(new InsnNode(Opcodes.D2I));
+					list.add(cast(Type.INT_TYPE, to));
+				}
+			} else if (from == Type.FLOAT_TYPE) {
+				if (to == Type.DOUBLE_TYPE) {
+					list.add(new InsnNode(Opcodes.F2D));
+				} else if (to == Type.LONG_TYPE) {
+					list.add(new InsnNode(Opcodes.F2L));
+				} else {
+					list.add(new InsnNode(Opcodes.F2I));
+					list.add(cast(Type.INT_TYPE, to));
+				}
+			} else if (from == Type.LONG_TYPE) {
+				if (to == Type.DOUBLE_TYPE) {
+					list.add(new InsnNode(Opcodes.L2D));
+				} else if (to == Type.FLOAT_TYPE) {
+					list.add(new InsnNode(Opcodes.L2F));
+				} else {
+					list.add(new InsnNode(Opcodes.L2I));
+					list.add(cast(Type.INT_TYPE, to));
+				}
+			} else {
+				if (to == Type.BYTE_TYPE) {
+					list.add(new InsnNode(Opcodes.I2B));
+				} else if (to == Type.CHAR_TYPE) {
+					list.add(new InsnNode(Opcodes.I2C));
+				} else if (to == Type.DOUBLE_TYPE) {
+					list.add(new InsnNode(Opcodes.I2D));
+				} else if (to == Type.FLOAT_TYPE) {
+					list.add(new InsnNode(Opcodes.I2F));
+				} else if (to == Type.LONG_TYPE) {
+					list.add(new InsnNode(Opcodes.I2L));
+				} else if (to == Type.SHORT_TYPE) {
+					list.add(new InsnNode(Opcodes.I2S));
+				}
 			}
 		}
-		return false;
+		return list;
 	}
 
 	/* (non-Javadoc)
