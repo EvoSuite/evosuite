@@ -513,7 +513,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			kill_map.put(num, killed_mutations);
 			num++;
 		}
-		minimize(test, mutants, assertions, kill_map);
+		//minimize(test, mutants, assertions, kill_map);
 
 		Set<Integer> killed_after = new HashSet<Integer>();
 		assertions = test.getAssertions();

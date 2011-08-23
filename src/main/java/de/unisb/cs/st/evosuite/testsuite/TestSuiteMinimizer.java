@@ -242,7 +242,7 @@ public class TestSuiteMinimizer {
 		// in the case of whole suite generation
 		for (ExecutableChromosome test : suite.getTestChromosomes()) {
 			test.setChanged(true);
-			test.setLastExecutionResult(null);
+			test.clearCachedResults();
 		}
 
 		boolean size = false;

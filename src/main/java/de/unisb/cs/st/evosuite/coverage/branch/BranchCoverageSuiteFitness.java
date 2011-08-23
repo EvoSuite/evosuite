@@ -283,7 +283,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public void checkFitness(TestSuiteChromosome suite, double fitness) {
 		for (TestChromosome test : suite.getTestChromosomes()) {
 			test.setChanged(true);
-			test.setLastExecutionResult(null);
 		}
 		check = true;
 		double fitness2 = getFitness(suite);
