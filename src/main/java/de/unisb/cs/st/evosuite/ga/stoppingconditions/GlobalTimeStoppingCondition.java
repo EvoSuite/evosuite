@@ -72,5 +72,9 @@ public class GlobalTimeStoppingCondition extends StoppingCondition {
 		// TODO Auto-generated method stub
 		return max_seconds;
 	}
+	
+	public static void forceReset() {
+		start_time = 0;
+	}
 
 }
