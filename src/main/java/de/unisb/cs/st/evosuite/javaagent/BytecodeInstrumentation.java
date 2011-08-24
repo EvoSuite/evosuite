@@ -134,8 +134,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 		// Print out bytecode if debug is enabled
 		// if(logger.isDebugEnabled())
-		// cv = new TraceClassVisitor(cv, new
-		// PrintWriter(System.out));
+//		 cv = new TraceClassVisitor(cv, new
+//		 PrintWriter(System.out));
 
 		// Apply transformations to class under test and its owned
 		// classes

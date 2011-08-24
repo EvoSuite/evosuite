@@ -301,9 +301,27 @@ public abstract class ASMWrapper {
 				|| asmNode.getOpcode() == Opcodes.DLOAD
 				|| asmNode.getOpcode() == Opcodes.IINC
 				|| (asmNode.getOpcode() == Opcodes.ALOAD && getLocalVar() != 0); // exclude
-																					// ALOAD
-																					// 0
-																					// (this)
+		// ALOAD_0
+		// (this)
+	}
+
+	public boolean isInvokeSpecial() {
+		return asmNode.getOpcode() == Opcodes.INVOKESPECIAL;
+	}
+
+	/**
+	 * Checks whether this instruction is an INVOKESPECIAL instruction that
+	 * calls a constructor of the given className.
+	 */
+	public boolean isConstructorInvocation(String className) {
+		if (!isInvokeSpecial())
+			return false;
+
+		MethodInsnNode invoke = (MethodInsnNode) asmNode;
+		if (!invoke.owner.equals(className.replaceAll("\\.", "/")))
+			return false;
+		
+		return invoke.name.equals("<init>");
 	}
 
 	// other classification methods
@@ -336,7 +354,7 @@ public abstract class ASMWrapper {
 			throw new IllegalArgumentException("null given");
 		if (!node.equals(this.asmNode))
 			throw new IllegalStateException("sanity check failed for "
-					+ node.toString() + " on "+getMethodName() + toString());
+					+ node.toString() + " on " + getMethodName() + toString());
 	}
 
 	// inherited from Object
