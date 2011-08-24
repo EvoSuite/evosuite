@@ -657,14 +657,10 @@ public class BytecodeInstruction extends ASMWrapper {
 	public boolean proceedsConstructorInvocation() {
 		
 		RawControlFlowGraph cfg = getRawCFG();
-		for (BytecodeInstruction other : cfg.vertexSet()) {
-			if (other.isConstructorInvocation(getClassName())) {
-				if (getInstructionId() < other.getInstructionId()) {
-//					System.out.println("discarded: " + toString());
+		for (BytecodeInstruction other : cfg.vertexSet())
+			if (other.isConstructorInvocation())
+				if (getInstructionId() < other.getInstructionId())
 					return true;
-				}
-			}
-		}
 
 		return false;
 	}
