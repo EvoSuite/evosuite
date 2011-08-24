@@ -89,6 +89,8 @@ public class DefUsePool {
 			logger.error("each definition can be added at most once");
 			return false;
 		}
+//		if(d.isWithinConstructor() && d.proceedsConstructorInvocation())
+//			return false;
 
 		// register new instruction
 
@@ -128,7 +130,6 @@ public class DefUsePool {
 			return false;
 		if (isKnownAsUse(u))
 			return false;
-		
 		if(u.isWithinConstructor() && u.proceedsConstructorInvocation())
 			return false;
 		
@@ -394,7 +395,7 @@ public class DefUsePool {
 	 * 
 	 * @return the number of currently known Definitions
 	 */
-	public static Object getDefCounter() {
+	public static int getDefCounter() {
 		return defCounter;
 	}
 
@@ -403,7 +404,7 @@ public class DefUsePool {
 	 * 
 	 * @return the number of currently known Uses
 	 */
-	public static Object getUseCounter() {
+	public static int getUseCounter() {
 		return useCounter;
 	}
 }

@@ -182,7 +182,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	public DefUseCoverageTestFitness(Definition def, Use use) {
 		if (!def.getDUVariableName().equals(use.getDUVariableName()))
 			throw new IllegalArgumentException(
-			        "expect def and use to be for the same variable");
+			        "expect def and use to be for the same variable: \n"+def.toString()+"\n"+use.toString());
 
 		this.goalDefinition = def;
 		this.goalUse = use;

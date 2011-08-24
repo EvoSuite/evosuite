@@ -32,28 +32,35 @@ import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
  */
 public class DefUseInstrumentation implements MethodInstrumentation {
 
-	private static Logger logger = LoggerFactory.getLogger(DefUseInstrumentation.class);
-	
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String, java.lang.String)
+	private static Logger logger = LoggerFactory
+			.getLogger(DefUseInstrumentation.class);
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb
+	 * .asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String,
+	 * java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void analyze(MethodNode mn,
-	        String className, String methodName, int access) {
-		RawControlFlowGraph completeCFG = CFGPool.getRawCFG(className, methodName);
+	public void analyze(MethodNode mn, String className, String methodName,
+			int access) {
+		RawControlFlowGraph completeCFG = CFGPool.getRawCFG(className,
+				methodName);
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
 		while (j.hasNext()) {
 
 			AbstractInsnNode in = j.next();
 			for (BytecodeInstruction v : completeCFG.vertexSet()) {
 
-//				if (in.equals(v.getASMNode()))
-//					v.branchId = completeCFG.getInstruction(v.getId()).getBranchId();
+				// if (in.equals(v.getASMNode()))
+				// v.branchId =
+				// completeCFG.getInstruction(v.getId()).getBranchId();
 
 				if ((Properties.CRITERION == Criterion.DEFUSE || TestSuiteGenerator.analyzing)
-				        && in.equals(v.getASMNode()) 
-				        && (v.isDefUse())) {
+						&& in.equals(v.getASMNode()) && (v.isDefUse())) {
 
 					// keeping track of uses
 					boolean isValidDU = false;
@@ -61,17 +68,15 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 						isValidDU = DefUsePool.addAsUse(v);
 					// keeping track of definitions
 					if (v.isDefinition())
-						isValidDU = DefUsePool.addAsDefinition(v)
-								|| isValidDU;
+						isValidDU = DefUsePool.addAsDefinition(v) || isValidDU;
 
 					if (isValidDU) {
 						boolean staticContext = v.isStaticDefUse()
-						        || ((access & Opcodes.ACC_STATIC) > 0);
+								|| ((access & Opcodes.ACC_STATIC) > 0);
 						// adding instrumentation for defuse-coverage
 						mn.instructions.insert(v.getASMNode().getPrevious(),
-						                       getInstrumentation(v, 
-						                                          staticContext,
-						                                          className, methodName));
+								getInstrumentation(v, staticContext, className,
+										methodName));
 					}
 				}
 			}
@@ -83,18 +88,29 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 	 * 
 	 */
 	private InsnList getInstrumentation(BytecodeInstruction v,
-	        boolean staticContext, String className, String methodName) {
+			boolean staticContext, String className, String methodName) {
 		InsnList instrumentation = new InsnList();
+
+		// TODO you only have to pass the defID/useID and not the variable and
+		// class anymore, that can be retrieved from the DefUsePool
+		
+		// TODO clean up
 		
 		// TODO sanity check matching method/class names and field values of v?
-		if(!v.isDefUse()) {
-			logger.warn("unexpected DefUseInstrumentation call for a non-DU-instruction");
+		if (!v.isDefUse()) {
+			logger
+					.warn("unexpected DefUseInstrumentation call for a non-DU-instruction");
 			return instrumentation;
 		}
-		
+
 		DefUse targetDU = DefUseFactory.makeInstance(v);
-		
-		if (v.isUse()) {
+
+		if (DefUsePool.isKnownAsUse(v)) {
+
+			if (targetDU.getUseId() != DefUsePool.getUseCounter())
+				throw new IllegalStateException(v.toString() + " "
+						+ targetDU.toString());
+
 			instrumentation.add(new LdcInsnNode(className));
 			instrumentation.add(new LdcInsnNode(targetDU.getDUVariableName()));
 			instrumentation.add(new LdcInsnNode(methodName));
@@ -104,12 +120,17 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 				instrumentation.add(new VarInsnNode(Opcodes.ALOAD, 0)); // "this"
 			}
 			instrumentation.add(new LdcInsnNode(DefUsePool.getUseCounter()));
-			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedUse",
-			        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;I)V"));
+			instrumentation
+					.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+							"de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+							"passedUse",
+							"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;I)V"));
 		}
 
-		if (v.isDefinition()) {
+		if (DefUsePool.isKnownAsDefinition(v)) {
+			
+			
+			
 			instrumentation.add(new LdcInsnNode(className));
 			instrumentation.add(new LdcInsnNode(targetDU.getDUVariableName()));
 			instrumentation.add(new LdcInsnNode(methodName));
@@ -119,25 +140,33 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 				instrumentation.add(new VarInsnNode(Opcodes.ALOAD, 0)); // "this"
 			}
 			instrumentation.add(new LdcInsnNode(DefUsePool.getDefCounter()));
-			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-			        "passedDefinition",
-			        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;I)V"));
+			instrumentation
+					.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+							"de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+							"passedDefinition",
+							"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;I)V"));
 		}
 
 		return instrumentation;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#executeOnExcludedMethods()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#executeOnExcludedMethods
+	 * ()
 	 */
 	@Override
 	public boolean executeOnExcludedMethods() {
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#executeOnMainMethod()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#executeOnMainMethod()
 	 */
 	@Override
 	public boolean executeOnMainMethod() {

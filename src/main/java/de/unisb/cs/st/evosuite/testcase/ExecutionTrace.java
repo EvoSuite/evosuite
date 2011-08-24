@@ -253,7 +253,8 @@ public class ExecutionTrace {
 			methodId++;
 			MethodCall call = new MethodCall(className, methodName, methodId,
 					callingObjectID);
-			if (Properties.CRITERION == Criterion.DEFUSE || TestSuiteGenerator.analyzing) {
+			if (Properties.CRITERION == Criterion.DEFUSE
+					|| TestSuiteGenerator.analyzing) {
 				call.branchTrace.add(-1);
 				call.trueDistanceTrace.add(1.0);
 				call.falseDistanceTrace.add(0.0);
@@ -401,7 +402,8 @@ public class ExecutionTrace {
 			stack.peek().falseDistanceTrace.add(false_distance);
 			assert (true_distance == 0.0 || false_distance == 0.0);
 			// TODO line_trace ?
-			if (Properties.CRITERION == Criterion.DEFUSE || TestSuiteGenerator.analyzing) {
+			if (Properties.CRITERION == Criterion.DEFUSE
+					|| TestSuiteGenerator.analyzing) {
 				stack.peek().defuseCounterTrace.add(duCounter);
 			}
 		}
@@ -419,6 +421,13 @@ public class ExecutionTrace {
 	public void definitionPassed(String className, String varName,
 			String methodName, Object caller, int defID) {
 
+		// TODO sanity checks in the ExecutionTrace don't really work since
+		// EvoSuite will think the Exceptions thrown by the ExecutionTrace come
+		// from the CUT
+
+		// TODO don't need that many arguments anymore, the Definition with the
+		// respective defID already holds this information
+
 		if (!trace_calls) // TODO ???
 			return;
 
@@ -426,6 +435,10 @@ public class ExecutionTrace {
 		if (def == null)
 			throw new IllegalStateException(
 					"expect DefUsePool to known defIDs that are passed by instrumented code");
+
+		// if(!def.getDUVariableName().equals(varName))
+		// throw new
+		// IllegalStateException("error in defuse instrumentation: inconsistend trace call");
 
 		int objectID = registerObject(caller);
 
@@ -456,6 +469,13 @@ public class ExecutionTrace {
 	public void usePassed(String className, String varName, String methodName,
 			Object caller, int useID) {
 
+		// TODO sanity checks in the ExecutionTrace don't really work since
+		// EvoSuite will think the Exceptions thrown by the ExecutionTrace come
+		// from the CUT
+		
+		// TODO don't need that many arguments anymore, the Definition with the
+		// respective defID already holds this information
+
 		if (!trace_calls) // TODO ???
 			return;
 
@@ -470,6 +490,9 @@ public class ExecutionTrace {
 						"expect DefUsePool to known defIDs that are passed by instrumented code");
 			if (use.isStaticDefUse())
 				objectID = 0;
+			// if(!use.getDUVariableName().equals(varName))
+			// throw new
+			// IllegalStateException("error in defuse instrumentation: inconsistend trace call");
 		}
 		if (passedUses.get(varName) == null)
 			passedUses.put(varName,
@@ -590,7 +613,7 @@ public class ExecutionTrace {
 		 */
 
 		ExecutionTrace r = clone();
-//		Branch targetDUBranch = targetDU.getControlDependentBranch();
+		// Branch targetDUBranch = targetDU.getControlDependentBranch();
 		ArrayList<Integer> removableCalls = new ArrayList<Integer>();
 		for (int callPos = 0; callPos < r.finished_calls.size(); callPos++) {
 			MethodCall call = r.finished_calls.get(callPos);
@@ -602,26 +625,26 @@ public class ExecutionTrace {
 			ArrayList<Integer> removableIndices = new ArrayList<Integer>();
 			for (int i = 0; i < call.defuseCounterTrace.size(); i++) {
 				int currentDUCounter = call.defuseCounterTrace.get(i);
-//				int currentBranchBytecode = call.branchTrace.get(i);
+				// int currentBranchBytecode = call.branchTrace.get(i);
 
 				if (currentDUCounter < duCounterStart
 						|| currentDUCounter > duCounterEnd)
 					removableIndices.add(i);
-//				else if (currentBranchBytecode == targetDUBranch
-//						.getInstruction().getInstructionId()) {
-//					// only remove this point in the trace if it would cover
-//					// targetDU
-//					boolean targetExpressionValue = targetDU
-//							.getControlDependentBranchExpressionValue();
-//					if (targetExpressionValue) {
-//						if (call.trueDistanceTrace.get(i) == 0.0)
-//							removableIndices.add(i);
-//					} else {
-//						if (call.falseDistanceTrace.get(i) == 0.0)
-//							removableIndices.add(i);
-//					}
-//
-//				}
+				// else if (currentBranchBytecode == targetDUBranch
+				// .getInstruction().getInstructionId()) {
+				// // only remove this point in the trace if it would cover
+				// // targetDU
+				// boolean targetExpressionValue = targetDU
+				// .getControlDependentBranchExpressionValue();
+				// if (targetExpressionValue) {
+				// if (call.trueDistanceTrace.get(i) == 0.0)
+				// removableIndices.add(i);
+				// } else {
+				// if (call.falseDistanceTrace.get(i) == 0.0)
+				// removableIndices.add(i);
+				// }
+				//
+				// }
 			}
 			removeFromFinishCall(call, removableIndices);
 			if (call.defuseCounterTrace.size() == 0)
