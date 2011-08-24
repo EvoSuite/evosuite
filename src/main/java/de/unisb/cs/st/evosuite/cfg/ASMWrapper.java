@@ -311,15 +311,30 @@ public abstract class ASMWrapper {
 
 	/**
 	 * Checks whether this instruction is an INVOKESPECIAL instruction that
-	 * calls a constructor of the given className.
+	 * calls a constructor.
 	 */
-	public boolean isConstructorInvocation(String className) {
+	public boolean isConstructorInvocation() {
 		if (!isInvokeSpecial())
 			return false;
 
 		MethodInsnNode invoke = (MethodInsnNode) asmNode;
 //		if (!invoke.owner.equals(className.replaceAll("\\.", "/")))
 //			return false;
+		
+		return invoke.name.equals("<init>");
+	}
+	
+	/**
+	 * Checks whether this instruction is an INVOKESPECIAL instruction that
+	 * calls a constructor of the given class.
+	 */
+	public boolean isConstructorInvocation(String className) {
+		if (!isInvokeSpecial())
+			return false;
+
+		MethodInsnNode invoke = (MethodInsnNode) asmNode;
+		if (!invoke.owner.equals(className.replaceAll("\\.", "/")))
+			return false;
 		
 		return invoke.name.equals("<init>");
 	}
