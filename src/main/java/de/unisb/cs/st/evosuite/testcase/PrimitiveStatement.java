@@ -154,6 +154,8 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 		PrimitiveStatement<T> clone = (PrimitiveStatement<T>) getPrimitiveStatement(newTestCase,
 		                                                                            retval.getType());
 		clone.setValue(value);
+		// clone.assertions = copyAssertions(newTestCase, offset);
+
 		return clone;
 	}
 

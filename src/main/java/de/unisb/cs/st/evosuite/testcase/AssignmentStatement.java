@@ -71,6 +71,8 @@ public class AssignmentStatement extends AbstractStatement {
 			VariableReference newTarget = retval.copy(newTestCase, offset);
 			AssignmentStatement copy = new AssignmentStatement(newTestCase, newTarget,
 			        newParam);
+			// copy.assertions = copyAssertions(newTestCase, offset);
+
 			//logger.info("Copy of statement is: " + copy.getCode());
 			return copy;
 		} catch (Exception e) {

@@ -41,15 +41,15 @@ public class NullOutputObserver extends ExecutionObserver {
 
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
-		try{
+		try {
 			VariableReference retval = statement.getReturnValue();
 
-			if (retval == null || retval.isPrimitive())
+			if (retval == null || retval.isPrimitive() || exception != null)
 				return;
 
 			Object object = retval.getObject(scope);
 			trace.trace.put(statement.getPosition(), object == null);
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 	}

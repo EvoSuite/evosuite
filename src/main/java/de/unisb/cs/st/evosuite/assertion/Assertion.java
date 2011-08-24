@@ -95,7 +95,14 @@ public abstract class Assertion {
 	/**
 	 * Return a copy of the assertion, which is valid in newTestCase
 	 */
-	public abstract Assertion clone(TestCase newTestCase);
+	public Assertion clone(TestCase newTestCase) {
+		return copy(newTestCase, 0);
+	}
+
+	/**
+	 * Return a copy of the assertion, which is valid in newTestCase
+	 */
+	public abstract Assertion copy(TestCase newTestCase, int offset);
 
 	/**
 	 * Determine if assertion holds in current scope

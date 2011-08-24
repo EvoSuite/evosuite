@@ -7,8 +7,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
@@ -41,11 +41,11 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 	public Map<Integer, Throwable> exceptionsThrown = new HashMap<Integer, Throwable>();
 
-	public List<ExecutionObserver> observers;
+	public Set<ExecutionObserver> observers;
 
 	private final boolean breakOnUndeclaredException;
 
-	public TestRunnable(TestCase tc, Scope scope, List<ExecutionObserver> observers) {
+	public TestRunnable(TestCase tc, Scope scope, Set<ExecutionObserver> observers) {
 		this(tc, scope, observers, true);
 	}
 
@@ -59,7 +59,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	 *            returns an UndeclaredException. (Note that undeclaredException
 	 *            is defined by StatementInterface.isDeclaredException/1)
 	 */
-	public TestRunnable(TestCase tc, Scope scope, List<ExecutionObserver> observers,
+	public TestRunnable(TestCase tc, Scope scope, Set<ExecutionObserver> observers,
 	        boolean breakOnUndeclaredException) {
 		test = tc;
 		this.scope = scope;

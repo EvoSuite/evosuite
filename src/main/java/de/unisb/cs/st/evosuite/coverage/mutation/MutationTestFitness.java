@@ -15,11 +15,11 @@ import de.unisb.cs.st.evosuite.assertion.InspectorTraceObserver;
 import de.unisb.cs.st.evosuite.assertion.NullOutputObserver;
 import de.unisb.cs.st.evosuite.assertion.PrimitiveFieldTraceObserver;
 import de.unisb.cs.st.evosuite.assertion.PrimitiveOutputTraceObserver;
+import de.unisb.cs.st.evosuite.cfg.ActualControlFlowGraph;
+import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
-import de.unisb.cs.st.evosuite.ga.Chromosome;
-import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -42,11 +42,13 @@ public class MutationTestFitness extends TestFitnessFunction {
 
 	protected List<ExecutionObserver> observers;
 
-	protected PrimitiveOutputTraceObserver primitiveObserver = new PrimitiveOutputTraceObserver();
-	protected ComparisonTraceObserver comparisonObserver = new ComparisonTraceObserver();
-	protected InspectorTraceObserver inspectorObserver = new InspectorTraceObserver();
-	protected PrimitiveFieldTraceObserver fieldObserver = new PrimitiveFieldTraceObserver();
-	protected NullOutputObserver nullObserver = new NullOutputObserver();
+	protected static PrimitiveOutputTraceObserver primitiveObserver = new PrimitiveOutputTraceObserver();
+	protected static ComparisonTraceObserver comparisonObserver = new ComparisonTraceObserver();
+	protected static InspectorTraceObserver inspectorObserver = new InspectorTraceObserver();
+	protected static PrimitiveFieldTraceObserver fieldObserver = new PrimitiveFieldTraceObserver();
+	protected static NullOutputObserver nullObserver = new NullOutputObserver();
+
+	private final int diameter;
 
 	public MutationTestFitness(Mutation mutation) {
 		this.mutation = mutation;
@@ -56,6 +58,10 @@ public class MutationTestFitness extends TestFitnessFunction {
 		executor.addObserver(inspectorObserver);
 		executor.addObserver(fieldObserver);
 		executor.addObserver(nullObserver);
+
+		ActualControlFlowGraph cfg = CFGPool.getActualCFG(mutation.getClassName(),
+		                                                  mutation.getMethodName());
+		diameter = cfg.getDiameter();
 	}
 
 	public Mutation getMutation() {
@@ -67,15 +73,15 @@ public class MutationTestFitness extends TestFitnessFunction {
 		return runTest(test, null);
 	}
 
-	public ExecutionResult runTest(TestCase test, Mutation mutant) {
+	public static ExecutionResult runTest(TestCase test, Mutation mutant) {
 
 		ExecutionResult result = new ExecutionResult(test, mutant);
 
 		try {
 			if (mutant != null)
-				logger.info("Executing test for mutant " + mutant.getId());
+				logger.debug("Executing test for mutant " + mutant.getId());
 			else
-				logger.info("Executing test witout mutant");
+				logger.debug("Executing test witout mutant");
 
 			if (mutant != null)
 				MutationObserver.activateMutation(mutant);
@@ -84,6 +90,7 @@ public class MutationTestFitness extends TestFitnessFunction {
 				MutationObserver.deactivateMutation(mutant);
 
 			int num = test.size();
+			//if (mutant == null)
 			MaxStatementsStoppingCondition.statementsExecuted(num);
 
 			result.comparison_trace = comparisonObserver.getTrace();
@@ -176,16 +183,37 @@ public class MutationTestFitness extends TestFitnessFunction {
 
 	private double getSumDistance(ExecutionTrace orig_trace, ExecutionTrace mutant_trace) {
 
+		// TODO: Also sum up differences in branch distances as part of impact!
+
 		// double sum = getCoverageDifference(getCoverage(orig_trace),
 		// getCoverage(mutant_trace));
+		logger.debug("Calculating coverage impact");
 		double coverage_impact = getCoverageDifference(orig_trace.coverage,
 		                                               mutant_trace.coverage);
 		logger.debug("Coverage impact: " + coverage_impact);
+		logger.debug("Calculating data impact");
 		double data_impact = getCoverageDifference(orig_trace.return_data,
 		                                           mutant_trace.return_data);
 		logger.debug("Data impact: " + data_impact);
 
-		return coverage_impact + data_impact;
+		double branch_impact = 0.0;
+		for (Integer predicate : orig_trace.covered_predicates.keySet()) {
+			if (mutant_trace.true_distances.containsKey(predicate)) {
+				branch_impact += normalize(Math.abs(orig_trace.true_distances.get(predicate)
+				        - mutant_trace.true_distances.get(predicate)));
+			} else {
+				branch_impact += 1.0;
+			}
+			if (mutant_trace.false_distances.containsKey(predicate)) {
+				branch_impact += normalize(Math.abs(orig_trace.false_distances.get(predicate)
+				        - mutant_trace.false_distances.get(predicate)));
+			} else {
+				branch_impact += 1.0;
+			}
+		}
+		logger.debug("Branch impact: " + branch_impact);
+
+		return normalize(coverage_impact) + normalize(data_impact) + branch_impact;
 	}
 
 	private int getNumAssertions(ExecutionResult orig_result,
@@ -224,32 +252,26 @@ public class MutationTestFitness extends TestFitnessFunction {
 		return num;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestFitnessFunction#getFitness(de.unisb.cs.st.evosuite.testcase.TestChromosome, de.unisb.cs.st.evosuite.testcase.ExecutionResult)
-	 */
-	@Override
-	public double getFitness(TestChromosome individual, ExecutionResult result) {
-		// If not touched, fitness = branchcoveragefitnesses + 2
-
-		// If executed, fitness = normalize(constraint distance) + asserted_yes_no
-
-		// If infected, check impact?
-
+	private double getExecutionDistance(ExecutionResult result) {
 		double fitness = 0.0;
+		if (!result.getTrace().touchedMutants.contains(mutation.getId()))
+			fitness += diameter;
 
 		// Get control flow distance
 		if (controlDependencies.isEmpty()) {
+			// If mutant was not executed, this can be either because of an exception, or because the method was not executed
+
 			String key = mutation.getClassName() + "." + mutation.getMethodName();
 			if (result.getTrace().covered_methods.containsKey(key)) {
-				logger.info("Target method " + key + " was executed");
+				logger.debug("Target method " + key + " was executed");
 			} else {
-				logger.info("Target method " + key + " was not executed");
-				fitness += 1.0;
+				logger.debug("Target method " + key + " was not executed");
+				fitness += diameter;
 			}
 		} else {
 			ControlFlowDistance cfgDistance = null;
 			for (BranchCoverageGoal dependency : controlDependencies) {
-				logger.info("Checking dependency...");
+				logger.debug("Checking dependency...");
 				ControlFlowDistance distance = dependency.getDistance(result);
 				if (cfgDistance == null)
 					cfgDistance = distance;
@@ -259,33 +281,62 @@ public class MutationTestFitness extends TestFitnessFunction {
 				}
 			}
 			if (cfgDistance != null) {
-				logger.info("Found control dependency");
-				fitness = cfgDistance.getResultingBranchFitness();
+				logger.debug("Found control dependency");
+				fitness += cfgDistance.getResultingBranchFitness();
 			}
 		}
 
-		logger.info("Control flow distance to mutation = " + fitness);
+		return fitness;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestFitnessFunction#getFitness(de.unisb.cs.st.evosuite.testcase.TestChromosome, de.unisb.cs.st.evosuite.testcase.ExecutionResult)
+	 */
+	@Override
+	public double getFitness(TestChromosome individual, ExecutionResult result) {
+
+		// impact (0..1)
+		// asserted: 0/1
+		//
+
+		// If not touched, fitness = branchcoveragefitnesses + 2
+
+		// If executed, fitness = normalize(constraint distance) + asserted_yes_no
+
+		// If infected, check impact?
+
+		double fitness = 0.0;
+
+		double executionDistance = diameter;
+
+		// Get control flow distance
+		if (!result.getTrace().touchedMutants.contains(mutation.getId()))
+			executionDistance = getExecutionDistance(result);
+		else
+			executionDistance = 0.0;
+
+		double infectionDistance = 1.0;
+
+		double impactDistance = 1.0;
+
 		// If executed...
-		if (fitness <= 0) {
-
-			assert (result.getTrace().touchedMutants.contains(mutation.getId()));
-
+		if (executionDistance <= 0) {
 			// Add infection distance
-			if (!result.getTrace().mutant_distances.containsKey(mutation.getId())) {
-				logger.info("Have no distance information for " + mutation.getId());
-				for (Integer id : result.getTrace().mutant_distances.keySet()) {
-					logger.info("Mutation " + id + ": "
-					        + result.getTrace().mutant_distances.get(id));
-				}
-			}
-			fitness += FitnessFunction.normalize(result.getTrace().mutant_distances.get(mutation.getId()));
-
-			logger.info("Infection distance for mutation = " + fitness);
+			assert (result.getTrace() != null);
+			assert (result.getTrace().mutant_distances != null);
+			assert (mutation != null);
+			assert (result.getTrace().touchedMutants.contains(mutation.getId()));
+			infectionDistance = normalize(result.getTrace().mutant_distances.get(mutation.getId()));
+			logger.debug("Infection distance for mutation = " + fitness);
 
 			// If infected check if it is also killed
-			if (fitness <= 0) {
-				ExecutionResult mutationResult = runTest(individual.getTestCase(), mutation);
-
+			if (infectionDistance <= 0) {
+				logger.debug("Running test on mutant " + mutation.getId());
+				ExecutionResult mutationResult = individual.getLastExecutionResult(mutation);
+				if (mutationResult == null) {
+					mutationResult = runTest(individual.getTestCase(), mutation);
+					individual.setLastExecutionResult(mutationResult, mutation);
+				}
 				if (TestCoverageGoal.hasTimeout(mutationResult)) {
 					logger.debug("Found timeout in mutant!");
 					MutationTimeoutStoppingCondition.timeOut(mutation);
@@ -294,15 +345,19 @@ public class MutationTestFitness extends TestFitnessFunction {
 				if (getNumAssertions(result, mutationResult) == 0) {
 					double impact = getSumDistance(result.getTrace(),
 					                               mutationResult.getTrace());
-					logger.info("Impact is " + impact + " (" + (1.0 / (1.0 + impact))
+					logger.debug("Impact is " + impact + " (" + (1.0 / (1.0 + impact))
 					        + ")");
-					fitness += 1.0 / (1.0 + impact);
+					impactDistance = 1.0 / (1.0 + impact);
 				} else {
-					logger.info("Mutant is asserted!");
-					//return 0.0; // This mutant is asserted
+					impactDistance = 0.0;
 				}
 			}
+		}
 
+		fitness = impactDistance + infectionDistance + executionDistance;
+		if (fitness == 0.0) {
+			assert (getNumAssertions(individual.getLastExecutionResult(),
+			                         individual.getLastExecutionResult(mutation)) > 0);
 		}
 
 		updateIndividual(individual, fitness);

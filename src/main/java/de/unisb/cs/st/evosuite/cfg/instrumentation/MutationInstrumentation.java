@@ -32,6 +32,7 @@ import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.ReplaceArithmeticOpe
 import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.ReplaceBitwiseOperator;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.ReplaceComparisonOperator;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.ReplaceConstant;
+import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.ReplaceVariable;
 import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationObserver;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
@@ -49,16 +50,14 @@ public class MutationInstrumentation implements MethodInstrumentation {
 	public MutationInstrumentation() {
 		mutationOperators = new ArrayList<MutationOperator>();
 		mutationOperators.add(new ReplaceConstant());
-
-		//mutationOperators.add(new ReplaceVariable());
+		mutationOperators.add(new ReplaceVariable());
 		mutationOperators.add(new ReplaceComparisonOperator());
 		mutationOperators.add(new ReplaceBitwiseOperator());
 		mutationOperators.add(new ReplaceArithmeticOperator());
 		mutationOperators.add(new NegateCondition());
 		mutationOperators.add(new InsertUnaryOperator());
 		mutationOperators.add(new DeleteStatement());
-
-		// TODO: Replace iinc
+		// TODO: Replace iinc?
 
 	}
 
@@ -107,6 +106,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 			logger.info(new BytecodeInstruction(className, methodName, 0, 0, in).toString());
 		}
 		logger.info("Done.");
+		mn.maxStack += 3;
 	}
 
 	/* (non-Javadoc)

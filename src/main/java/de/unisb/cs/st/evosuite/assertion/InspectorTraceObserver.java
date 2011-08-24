@@ -54,7 +54,7 @@ public class InspectorTraceObserver extends ExecutionObserver {
 
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
-		try{
+		try {
 			VariableReference retval = statement.getReturnValue();
 
 			if (retval == null)
@@ -62,12 +62,14 @@ public class InspectorTraceObserver extends ExecutionObserver {
 
 			// Add inspector calls on return value
 			List<Inspector> inspectors = manager.getInspectors(retval.getVariableClass());
-			if (retval.getObject(scope) != null && !inspectors.isEmpty()) {
+			if (retval.getObject(scope) != null && !inspectors.isEmpty()
+			        && exception != null) {
 				List<Object> result = new ArrayList<Object>();
 				for (Inspector i : inspectors) {
 					try {
 						Object value = i.getValue(retval.getObject(scope));
 						result.add(value);
+						logger.debug("Inspector " + i.getMethodCall() + " is: " + value);
 						// TODO: Need to keep reference to inspector if exception is thrown!
 					} catch (IllegalArgumentException e) {
 						logger.info("Exception during call to inspector: " + e);
@@ -92,7 +94,7 @@ public class InspectorTraceObserver extends ExecutionObserver {
 					inspectors = manager.getInspectors(ms.getMethod().getDeclaringClass());
 					if (!inspectors.isEmpty()) {
 						trace.calleeMap.put(statement.getPosition(),
-								new HashMap<Inspector, Object>());
+						                    new HashMap<Inspector, Object>());
 
 						VariableReference callee = ms.getCallee();
 						if (callee.getObject(scope) == null)
@@ -100,6 +102,8 @@ public class InspectorTraceObserver extends ExecutionObserver {
 						for (Inspector i : inspectors) {
 							try {
 								Object value = i.getValue(callee.getObject(scope));
+								logger.debug("Inspector " + i.getMethodCall() + " is: "
+								        + value);
 								trace.calleeMap.get(statement.getPosition()).put(i, value);
 							} catch (Exception e) {
 								logger.info("Exception during call to inspector: " + e);
@@ -108,7 +112,7 @@ public class InspectorTraceObserver extends ExecutionObserver {
 					}
 				}
 			}
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 

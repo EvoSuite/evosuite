@@ -19,10 +19,9 @@
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -64,7 +63,7 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	//private static ExecutorService executor = Executors.newCachedThreadPool();
 
-	private List<ExecutionObserver> observers;
+	private Set<ExecutionObserver> observers;
 
 	private final Set<Thread> stalledThreads = new HashSet<Thread>();
 
@@ -134,6 +133,8 @@ public class TestCaseExecutor implements ThreadFactory {
 	}
 
 	public void addObserver(ExecutionObserver observer) {
+		if (!observers.contains(observer))
+			logger.debug("Adding observer " + observer);
 		// FIXXME: Find proper solution for this
 		//for (ExecutionObserver o : observers)
 		//	if (o.getClass().equals(observer.getClass()))
@@ -142,11 +143,13 @@ public class TestCaseExecutor implements ThreadFactory {
 	}
 
 	public void removeObserver(ExecutionObserver observer) {
+		if (observers.contains(observer))
+			logger.debug("Removing observer " + observer);
 		observers.remove(observer);
 	}
 
 	public void newObservers() {
-		observers = new ArrayList<ExecutionObserver>();
+		observers = new LinkedHashSet<ExecutionObserver>();
 		if (Properties.CHECK_CONTRACTS) {
 			observers.add(new ContractChecker());
 		}

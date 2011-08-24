@@ -25,6 +25,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
 import de.unisb.cs.st.evosuite.coverage.concurrency.Schedule;
+import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.ga.LocalSearchBudget;
@@ -74,6 +75,8 @@ public class TestChromosome extends ExecutableChromosome {
 	@Override
 	public void setChanged(boolean changed) {
 		super.setChanged(changed);
+		if (changed)
+			clearCachedResults();
 		CurrentChromosomeTracker.getInstance().changed(this);
 	}
 
@@ -95,13 +98,29 @@ public class TestChromosome extends ExecutableChromosome {
 
 		c.setFitness(getFitness());
 		c.solution = solution;
+		c.copyCachedResults(this);
 		c.setChanged(isChanged());
-		if (getLastExecutionResult() != null) {
-			c.setLastExecutionResult(this.lastExecutionResult); //.clone(); // TODO: Clone?
-			c.getLastExecutionResult().test = c.test;
-		}
 
 		return c;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.ExecutableChromosome#copyCachedResults(de.unisb.cs.st.evosuite.testcase.ExecutableChromosome)
+	 */
+	@Override
+	protected void copyCachedResults(ExecutableChromosome other) {
+		if (test == null)
+			throw new RuntimeException("Test is null!");
+		this.lastExecutionResult = other.lastExecutionResult; //.clone();
+		if (this.lastExecutionResult != null) {
+			this.lastExecutionResult.test = this.test;
+		}
+
+		for (Mutation mutation : other.lastMutationResult.keySet()) {
+			ExecutionResult copy = other.lastMutationResult.get(mutation); //.clone();
+			copy.test = test;
+			this.lastMutationResult.put(mutation, copy);
+		}
 	}
 
 	/**
@@ -250,7 +269,6 @@ public class TestChromosome extends ExecutableChromosome {
 
 		if (changed) {
 			setChanged(true);
-			setLastExecutionResult(null);
 		}
 	}
 
