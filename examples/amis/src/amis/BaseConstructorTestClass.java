@@ -10,6 +10,10 @@ public class BaseConstructorTestClass {
 	private int targetField = 0;
 	
 	// constructors
+
+	public BaseConstructorTestClass() {
+        }
+
 	
 	public BaseConstructorTestClass(int anInt) {
 		targetField = anInt;
