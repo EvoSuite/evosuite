@@ -5,7 +5,7 @@ package amis;
  * @author Andre Mis
  *
  */
-public class ConstructorTestClass {
+public class ConstructorTestClass extends BaseConstructorTestClass {
 
 	private int targetField = 0;
 	
@@ -15,7 +15,7 @@ public class ConstructorTestClass {
 	}
 	
 	public ConstructorTestClass(int anInt) {
-		targetField = anInt;
+		super(anInt);
 	}
 	
 	public ConstructorTestClass(int anInt, int anotherInt) {
@@ -25,6 +25,7 @@ public class ConstructorTestClass {
 		new Object();
 		setTargetField(imPrivate());
 		setTargetField(targetField);
+		new ConstructorTestClass(3);
 	}
 //	
 //	public ConstructorTestClass(int anInt, int anotherInt, int andAnotherInt) {
@@ -37,6 +38,7 @@ public class ConstructorTestClass {
 //
 	public void setTargetField(int field) {
 		targetField = field;
+		new ConstructorTestClass();
 	}
 	public int getTargetField() {
 		return targetField;

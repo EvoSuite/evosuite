@@ -128,7 +128,8 @@ public class DefUsePool {
 			return false;
 		if (isKnownAsUse(u))
 			return false;
-		if(u.proceedsConstructorInvocation())
+		
+		if(u.isWithinConstructor() && u.proceedsConstructorInvocation())
 			return false;
 		
 		registerAsDefUse(u);

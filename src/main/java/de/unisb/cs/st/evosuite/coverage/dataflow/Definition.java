@@ -32,7 +32,9 @@ public class Definition extends DefUse {
 	 *  which is sort of the dual to this method
 	 */
 	public boolean canBeActiveFor(BytecodeInstruction instruction) {
-		if(!instruction.isUse())
+//		if(!instruction.isUse())
+//			return false;
+		if(!DefUsePool.isKnownAsUse(instruction))
 			return false;
 		
 		Use use = DefUseFactory.makeUse(instruction);

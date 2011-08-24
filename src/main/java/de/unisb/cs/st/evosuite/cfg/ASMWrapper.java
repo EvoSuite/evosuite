@@ -318,8 +318,8 @@ public abstract class ASMWrapper {
 			return false;
 
 		MethodInsnNode invoke = (MethodInsnNode) asmNode;
-		if (!invoke.owner.equals(className.replaceAll("\\.", "/")))
-			return false;
+//		if (!invoke.owner.equals(className.replaceAll("\\.", "/")))
+//			return false;
 		
 		return invoke.name.equals("<init>");
 	}

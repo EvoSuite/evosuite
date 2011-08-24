@@ -660,12 +660,16 @@ public class BytecodeInstruction extends ASMWrapper {
 		for (BytecodeInstruction other : cfg.vertexSet()) {
 			if (other.isConstructorInvocation(getClassName())) {
 				if (getInstructionId() < other.getInstructionId()) {
-					System.out.println("discarded: " + toString());
+//					System.out.println("discarded: " + toString());
 					return true;
 				}
 			}
 		}
 
 		return false;
+	}
+
+	public boolean isWithinConstructor() {
+		return getMethodName().startsWith("<init>");
 	}
 }
