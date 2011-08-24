@@ -35,6 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.TestSuiteGenerator;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.cfg.CFGClassAdapter;
 import de.unisb.cs.st.evosuite.primitives.PrimitiveClassAdapter;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
@@ -48,7 +50,8 @@ import de.unisb.cs.st.evosuite.testcase.TestCluster;
  */
 public class BytecodeInstrumentation implements ClassFileTransformer {
 
-	protected static Logger logger = LoggerFactory.getLogger(BytecodeInstrumentation.class);
+	protected static Logger logger = LoggerFactory
+			.getLogger(BytecodeInstrumentation.class);
 
 	private static List<ClassAdapterFactory> externalVisitors = new ArrayList<ClassAdapterFactory>();
 
@@ -71,7 +74,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	}
 
 	static {
-		logger.info("Loading bytecode transformer for " + Properties.PROJECT_PREFIX);
+		logger.info("Loading bytecode transformer for "
+				+ Properties.PROJECT_PREFIX);
 	}
 
 	/*
@@ -84,8 +88,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	 */
 	@Override
 	public byte[] transform(ClassLoader loader, String className,
-	        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-	        byte[] classfileBuffer) throws IllegalClassFormatException {
+			Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+			byte[] classfileBuffer) throws IllegalClassFormatException {
 		isJavaagent = true;
 		if (className == null) {
 			return classfileBuffer;
@@ -94,9 +98,11 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 		// Some packages we shouldn't touch - hard-coded
 		if (!isTargetProject(classNameWithDots)
-		        && (classNameWithDots.startsWith("java")
-		                || classNameWithDots.startsWith("sun")
-		                || classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
+				&& (classNameWithDots.startsWith("java")
+						|| classNameWithDots.startsWith("sun")
+						|| classNameWithDots
+								.startsWith("org.aspectj.org.eclipse") || classNameWithDots
+						.startsWith("org.mozilla.javascript.gen.c"))) {
 			return classfileBuffer;
 		}
 
@@ -139,9 +145,13 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		// Apply transformations to class under test and its owned
 		// classes
 		if (isTargetClassName(classNameWithDots)) {
-			cv = new CheckClassAdapter(cv);
+			// CheckClassAdapter rejects defuse instrumentation even though it
+			// seems to work just fine
+			if (Properties.CRITERION == Criterion.BRANCH
+					&& !TestSuiteGenerator.analyzing)
+				cv = new CheckClassAdapter(cv);
 			// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
-			//			cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+			// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 			for (ClassAdapterFactory factory : externalVisitors) {
 				cv = factory.getVisitor(cv, className);
 			}
