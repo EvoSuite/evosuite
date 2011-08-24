@@ -1221,10 +1221,10 @@ public class TestCluster {
 				        + classname + ": " + e.getCause());
 				e.getCause().printStackTrace();
 				continue;
-			} catch (VerifyError e) {
-				logger.warn("Ignoring class with verify error: " + classname + ": "
-				        + e.getCause());
-				continue;
+				//} catch (VerifyError e) {
+				//	logger.warn("Ignoring class with verify error: " + classname + ": "
+				//	        + e.getCause());
+				//	continue;
 			}
 		}
 		logger.info("Found " + test_constructors.size() + " constructors");

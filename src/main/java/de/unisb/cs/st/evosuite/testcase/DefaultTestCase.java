@@ -508,7 +508,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 			StatementInterface copy = s.clone(t);
 			t.statements.add(copy);
 			copy.SetRetval(s.getReturnValue().clone(t));
-			copy.setAssertions(s.cloneAssertions(t));
+			copy.setAssertions(s.copyAssertions(t, 0));
 		}
 		t.coveredGoals.addAll(coveredGoals);
 		//t.exception_statement = exception_statement;

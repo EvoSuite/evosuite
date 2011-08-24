@@ -63,6 +63,7 @@ public class ArrayStatement extends AbstractStatement {
 	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
 		ArrayStatement copy = new ArrayStatement(newTestCase, retval.getType(), length);
+		// copy.assertions = copyAssertions(newTestCase, offset);
 		return copy;
 	}
 
