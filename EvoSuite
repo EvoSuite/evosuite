@@ -23,7 +23,7 @@ fi
 
 #java_opts="-ea -Xmx2048M -Xrunhprof:heap=sites,cpu=times,depth=10" #samples
 #java_opts="-ea -Xmx2048M -Xrunhprof:cpu=times,depth=10"
-java_opts="-ea -Xmx3072M -Dlogback.configurationFile=$BASEPATH/target/classes/logback.xml"
+java_opts="-ea -Xmx2048M -Dlogback.configurationFile=$BASEPATH/target/classes/logback.xml"
 #java_opts=""
 
 unamestr=`uname`
