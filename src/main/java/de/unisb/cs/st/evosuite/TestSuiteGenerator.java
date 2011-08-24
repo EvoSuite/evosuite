@@ -170,6 +170,7 @@ public class TestSuiteGenerator {
 
 			// TODO reset method?
 			TestCaseExecutor.timeExecuted = 0l;
+			GlobalTimeStoppingCondition.forceReset();
 		}
 		CoverageStatistics.writeCSV();
 	}
