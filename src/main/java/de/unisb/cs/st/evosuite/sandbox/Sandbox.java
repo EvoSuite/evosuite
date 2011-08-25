@@ -49,7 +49,7 @@ public class Sandbox {
 	/** Array of files accessed during test generation */
 	private static ArrayList<EvosuiteFile> accessedFiles = new ArrayList<EvosuiteFile>();
 
-	private static EvosuiteFile lastAccessedFile = null;;
+	public static EvosuiteFile lastAccessedFile = null;;
 
 	private static PermissionStatistics statistics = PermissionStatistics.getInstance();
 
