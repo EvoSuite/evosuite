@@ -178,7 +178,7 @@ class Mocks {
 	 * Create mocks for the class java.io.FileOutputStream
 	 */
 	private void setUpFileOutputStreamMock() {
-		new MockUp<FileOutputStream>() {
+		new MockUp<java.io.FileOutputStream>() {
 			FileOutputStream it;
 
 			@SuppressWarnings("unused")
@@ -192,7 +192,8 @@ class Mocks {
 				if (name == null) {
 					throw new NullPointerException();
 				}
-				name = sandboxWriteFolder + name.replaceAll("\\.\\.", "").replaceAll("//", "/");
+				if(!name.contains(sandboxWriteFolder))
+					name = sandboxWriteFolder + name.replaceAll("\\.\\.", "").replaceAll("//", "/");
 
 				try {
 					Deencapsulation.setField(it, "closeLock", new Object());
@@ -248,7 +249,7 @@ class Mocks {
 				String originalPath = Deencapsulation.getField(it, "path");
 
 				// Check if original path was already changed, if not - redirect it
-				if (!originalPath.contains(sandboxWriteFolder) || !filePathChanged) {
+				if (!originalPath.contains(sandboxWriteFolder) && !filePathChanged) {
 					String changedPath = Deencapsulation.invoke(fileSystem, "normalize",
 							sandboxWriteFolder + originalPath.replaceAll("\\.\\.", "").replaceAll("//", "/"));
 					filePathChanged = true;
@@ -303,10 +304,12 @@ class Mocks {
 					String originalPath = name.replaceAll("\\.\\.", "").replaceAll("//", "/");
 					String modifiedPath = originalPath;
 					if (checkStackTrace()) {
-						if((new File(sandboxWriteFolder + originalPath)).exists())
-							modifiedPath = sandboxWriteFolder + originalPath;
-						else
-							modifiedPath = sandboxReadFolder + originalPath;
+						if(!originalPath.contains(sandboxWriteFolder))
+							if((new File(sandboxWriteFolder + originalPath)).exists())
+								modifiedPath = sandboxWriteFolder + originalPath;
+							else
+								if(!originalPath.contains(sandboxReadFolder))
+									modifiedPath = sandboxReadFolder + originalPath;
 						filesAccessed.add(modifiedPath);
 					}
 
