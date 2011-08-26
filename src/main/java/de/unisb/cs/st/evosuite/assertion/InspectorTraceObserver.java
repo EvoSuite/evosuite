@@ -60,31 +60,48 @@ public class InspectorTraceObserver extends ExecutionObserver {
 			if (retval == null)
 				return;
 
+			logger.debug("Inspectors!");
+
 			// Add inspector calls on return value
 			List<Inspector> inspectors = manager.getInspectors(retval.getVariableClass());
 			if (retval.getObject(scope) != null && !inspectors.isEmpty()
-			        && exception != null) {
+			        && exception == null) {
 				List<Object> result = new ArrayList<Object>();
 				for (Inspector i : inspectors) {
 					try {
-						Object value = i.getValue(retval.getObject(scope));
-						result.add(value);
-						logger.debug("Inspector " + i.getMethodCall() + " is: " + value);
-						// TODO: Need to keep reference to inspector if exception is thrown!
+						Object target = retval.getObject(scope);
+						if (target != null) {
+
+							Object value = i.getValue(target);
+							result.add(value);
+							logger.debug("Inspector " + i.getMethodCall() + " is: "
+							        + value);
+							// TODO: Need to keep reference to inspector if exception is thrown!
+						} else {
+							result.add(null);
+						}
 					} catch (IllegalArgumentException e) {
-						logger.info("Exception during call to inspector: " + e);
+						logger.debug("Exception during call to inspector: " + e);
+						result.add(null);
 						continue;
 					} catch (IllegalAccessException e) {
-						logger.info("Exception during call to inspector: " + e);
+						logger.debug("Exception during call to inspector: " + e);
+						result.add(null);
 						continue;
 					} catch (InvocationTargetException e) {
-						logger.info("Exception during call to inspector: " + e.getCause());
+						if (!e.getCause().getClass().equals(NullPointerException.class)) {
+							logger.debug("Exception during call to inspector: "
+							        + e.getCause());
+						}
+						result.add(null);
 						continue;
 					}
 				}
 
 				trace.inspector_results.put(statement.getPosition(), result);
-				trace.return_values.put(statement.getPosition(), retval);
+				trace.return_values.put(statement.getPosition(), retval.getStPosition());
+			} else {
+				logger.debug("No inspectors for " + retval + ": " + inspectors.isEmpty());
 			}
 
 			// Add inspector calls on callee
@@ -101,12 +118,19 @@ public class InspectorTraceObserver extends ExecutionObserver {
 							return;
 						for (Inspector i : inspectors) {
 							try {
-								Object value = i.getValue(callee.getObject(scope));
-								logger.debug("Inspector " + i.getMethodCall() + " is: "
-								        + value);
-								trace.calleeMap.get(statement.getPosition()).put(i, value);
+								Object target = callee.getObject(scope);
+								if (target != null) {
+									Object value = i.getValue(target);
+									logger.debug("Inspector " + i.getMethodCall()
+									        + " is: " + value);
+									trace.calleeMap.get(statement.getPosition()).put(i,
+									                                                 value);
+								}
 							} catch (Exception e) {
-								logger.info("Exception during call to inspector: " + e);
+								if (!e.getCause().getClass().equals(NullPointerException.class)) {
+									logger.debug("Exception during call to inspector: "
+									        + e + " - " + e.getCause());
+								}
 							}
 						}
 					}

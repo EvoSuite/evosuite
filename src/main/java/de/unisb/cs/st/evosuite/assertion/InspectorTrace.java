@@ -40,7 +40,7 @@ public class InspectorTrace extends OutputTrace {
 	private final InspectorManager manager = InspectorManager.getInstance();
 
 	// TODO: Add inspectors on public fields?
-	Map<Integer, VariableReference> return_values = new HashMap<Integer, VariableReference>();
+	Map<Integer, Integer> return_values = new HashMap<Integer, Integer>();
 	Map<Integer, List<Object>> inspector_results = new HashMap<Integer, List<Object>>();
 
 	public Map<Integer, Map<Inspector, Object>> calleeMap = new HashMap<Integer, Map<Inspector, Object>>();
@@ -59,7 +59,7 @@ public class InspectorTrace extends OutputTrace {
 		for (Entry<Integer, List<Object>> e : set1)
 			trace.inspector_results.put(e.getKey(), new ArrayList<Object>(e.getValue()));
 
-		for (Entry<Integer, VariableReference> e : return_values.entrySet())
+		for (Entry<Integer, Integer> e : return_values.entrySet())
 			trace.return_values.put(e.getKey(), e.getValue());
 		trace.calleeMap.putAll(calleeMap);
 
@@ -114,7 +114,7 @@ public class InspectorTrace extends OutputTrace {
 						logger.debug("Found inspector assertion: ");
 
 						InspectorAssertion assertion = new InspectorAssertion();
-						assertion.source = return_values.get(line);
+						assertion.source = test.getReturnValue(return_values.get(line));
 						List<Inspector> inspectors = manager.getInspectors(assertion.source.getVariableClass());
 						//logger.info("Creating inspector assertion for class "+assertion.source.getVariableClass());
 						assertion.inspector = inspectors.get(i);
@@ -235,7 +235,7 @@ public class InspectorTrace extends OutputTrace {
 				List<Object> own_results = inspector_results.get(line);
 				for (int i = 0; i < own_results.size(); i++) {
 					InspectorAssertion assertion = new InspectorAssertion();
-					assertion.source = return_values.get(line);
+					assertion.source = test.getReturnValue(return_values.get(line));
 					List<Inspector> inspectors = manager.getInspectors(assertion.source.getVariableClass());
 					//logger.info("Creating inspector assertion for class "+assertion.source.getVariableClass());
 					assertion.inspector = inspectors.get(i);
