@@ -49,13 +49,13 @@ public class InsertUnaryOperator implements MutationOperator {
 
 			if (node.getOpcode() == Opcodes.ILOAD) {
 				mutation = new InsnList();
-				mutation.add(new VarInsnNode(node.getOpcode(), node.var));
 				mutation.add(new IincInsnNode(node.var, 1));
+				mutation.add(new VarInsnNode(node.getOpcode(), node.var));
 				mutationCode.add(mutation);
 
 				mutation = new InsnList();
-				mutation.add(new VarInsnNode(node.getOpcode(), node.var));
 				mutation.add(new IincInsnNode(node.var, -1));
+				mutation.add(new VarInsnNode(node.getOpcode(), node.var));
 				mutationCode.add(mutation);
 			}
 		} else {
