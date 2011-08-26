@@ -99,11 +99,16 @@ public class ExecutionResult {
 		copy.trace = trace.clone();
 		copy.touched.addAll(touched);
 
-		copy.comparison_trace = comparison_trace.clone();
-		copy.primitive_trace = primitive_trace.clone();
-		copy.inspector_trace = inspector_trace.clone();
-		copy.field_trace = field_trace.clone();
-		copy.null_trace = null_trace.clone();
+		if (comparison_trace != null)
+			copy.comparison_trace = comparison_trace.clone();
+		if (primitive_trace != null)
+			copy.primitive_trace = primitive_trace.clone();
+		if (inspector_trace != null)
+			copy.inspector_trace = inspector_trace.clone();
+		if (field_trace != null)
+			copy.field_trace = field_trace.clone();
+		if (null_trace != null)
+			copy.null_trace = null_trace.clone();
 
 		return copy;
 	}
