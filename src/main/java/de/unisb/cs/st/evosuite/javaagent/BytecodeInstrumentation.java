@@ -145,11 +145,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		// Apply transformations to class under test and its owned
 		// classes
 		if (isTargetClassName(classNameWithDots)) {
-			// CheckClassAdapter rejects defuse instrumentation even though it
-			// seems to work just fine
-			if (Properties.CRITERION == Criterion.BRANCH
-					&& !TestSuiteGenerator.analyzing)
-				cv = new CheckClassAdapter(cv);
+			// cv = new CheckClassAdapter(cv);
 			// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 			// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 			for (ClassAdapterFactory factory : externalVisitors) {
