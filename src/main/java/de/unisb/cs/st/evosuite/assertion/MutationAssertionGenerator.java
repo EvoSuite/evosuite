@@ -64,29 +64,26 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 	private final Set<Integer> killed_ALL = new HashSet<Integer>();
 
+	private static PrimitiveOutputTraceObserver primitive_observer = new PrimitiveOutputTraceObserver();
+	private static ComparisonTraceObserver comparison_observer = new ComparisonTraceObserver();
+	private static InspectorTraceObserver inspector_observer = new InspectorTraceObserver();
+	private static PrimitiveFieldTraceObserver field_observer = new PrimitiveFieldTraceObserver();
+	private static NullOutputObserver null_observer = new NullOutputObserver();
+
 	/**
 	 * Default constructor
 	 */
 	public MutationAssertionGenerator() {
 		mutants = MutationPool.getMutants();
-	}
-
-	public int numMutants() {
-		return MutationPool.getMutantCounter();
-	}
-
-	public void resetObservers() {
-		executor.newObservers();
-		primitive_observer = new PrimitiveOutputTraceObserver();
-		comparison_observer = new ComparisonTraceObserver();
-		inspector_observer = new InspectorTraceObserver();
-		field_observer = new PrimitiveFieldTraceObserver();
-		null_observer = new NullOutputObserver();
 		executor.addObserver(primitive_observer);
 		executor.addObserver(comparison_observer);
 		executor.addObserver(inspector_observer);
 		executor.addObserver(field_observer);
 		executor.addObserver(null_observer);
+	}
+
+	public int numMutants() {
+		return MutationPool.getMutantCounter();
 	}
 
 	/**
@@ -110,7 +107,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	 */
 	private ExecutionResult runTest(TestCase test, Mutation mutant) {
 		ExecutionResult result = new ExecutionResult(test, mutant);
-		resetObservers();
+		//resetObservers();
 		try {
 			logger.debug("Executing test");
 			MutationObserver.activateMutation(mutant);

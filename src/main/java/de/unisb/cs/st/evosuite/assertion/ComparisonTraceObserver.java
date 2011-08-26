@@ -54,8 +54,8 @@ public class ComparisonTraceObserver extends ExecutionObserver {
 			}
 			if (isWrapperType(object.getClass()))
 				return;
-			Map<VariableReference, Boolean> eqmap = new HashMap<VariableReference, Boolean>();
-			Map<VariableReference, Integer> cmpmap = new HashMap<VariableReference, Integer>();
+			Map<Integer, Boolean> eqmap = new HashMap<Integer, Boolean>();
+			Map<Integer, Integer> cmpmap = new HashMap<Integer, Integer>();
 
 			logger.debug("Comparing to other objects of type " + retval.getClassName());
 			//scope.printScope();
@@ -70,7 +70,7 @@ public class ComparisonTraceObserver extends ExecutionObserver {
 				try {
 					logger.debug("Comparison of " + retval + " with " + other + " is: "
 					        + object.equals(other_object));
-					eqmap.put(other, object.equals(other_object));
+					eqmap.put(other.getStPosition(), object.equals(other_object));
 				} catch (Throwable t) {
 					logger.debug("Exception during equals: " + t);
 					/*
@@ -85,7 +85,7 @@ public class ComparisonTraceObserver extends ExecutionObserver {
 				if (object instanceof Comparable<?>) {
 					Comparable<Object> c = (Comparable<Object>) object;
 					try {
-						cmpmap.put(other, c.compareTo(other_object));
+						cmpmap.put(other.getStPosition(), c.compareTo(other_object));
 					} catch (Throwable t) {
 						logger.debug("Exception during compareto: " + t);
 						/*
@@ -103,7 +103,7 @@ public class ComparisonTraceObserver extends ExecutionObserver {
 			if (object instanceof Comparable<?>) {
 				trace.compare_map.put(position, cmpmap);
 			}
-			trace.return_values.put(position, retval);
+			// trace.return_values.put(position, retval.getStPosition());
 			//} else {
 			//	logger.info("No other objects of type "+retval.type.getName()+" in scope");
 			//}
