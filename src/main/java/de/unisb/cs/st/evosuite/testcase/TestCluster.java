@@ -667,9 +667,7 @@ public class TestCluster {
 		// for(Field m : clazz.getDeclaredFields()) {
 		// fields.add(m);
 		// }
-		for (Field f : helper.values()) {
-			fields.add(f);
-		}
+		fields.addAll(helper.values());
 
 		return fields;
 	}
