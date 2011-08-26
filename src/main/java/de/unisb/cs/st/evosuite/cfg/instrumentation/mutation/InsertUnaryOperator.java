@@ -7,7 +7,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -33,22 +36,65 @@ public class InsertUnaryOperator implements MutationOperator {
 
 		// Mutation: Insert an INEG _after_ an iload 
 		List<Mutation> mutations = new LinkedList<Mutation>();
+		List<InsnList> mutationCode = new LinkedList<InsnList>();
 
-		VarInsnNode node = (VarInsnNode) instruction.getASMNode();
+		if (instruction.getASMNode() instanceof VarInsnNode) {
+			InsnList mutation = new InsnList();
+			VarInsnNode node = (VarInsnNode) instruction.getASMNode();
 
-		// insert mutation into bytecode with conditional
-		InsnList mutation = new InsnList();
-		mutation.add(new VarInsnNode(node.getOpcode(), node.var));
-		mutation.add(new InsnNode(getNegation(node.getOpcode())));
-		// insert mutation into pool
-		Mutation mutationObject = MutationPool.addMutation(className,
-		                                                   methodName,
-		                                                   "InsertUnaryOp",
-		                                                   instruction,
-		                                                   mutation,
-		                                                   Mutation.getDefaultInfectionDistance());
+			// insert mutation into bytecode with conditional
+			mutation.add(new VarInsnNode(node.getOpcode(), node.var));
+			mutation.add(new InsnNode(getNegation(node.getOpcode())));
+			mutationCode.add(mutation);
 
-		mutations.add(mutationObject);
+			if (node.getOpcode() == Opcodes.ILOAD) {
+				mutation = new InsnList();
+				mutation.add(new VarInsnNode(node.getOpcode(), node.var));
+				mutation.add(new IincInsnNode(node.var, 1));
+				mutationCode.add(mutation);
+
+				mutation = new InsnList();
+				mutation.add(new VarInsnNode(node.getOpcode(), node.var));
+				mutation.add(new IincInsnNode(node.var, -1));
+				mutationCode.add(mutation);
+			}
+		} else {
+			InsnList mutation = new InsnList();
+			FieldInsnNode node = (FieldInsnNode) instruction.getASMNode();
+			Type type = Type.getType(node.desc);
+			mutation.add(new FieldInsnNode(node.getOpcode(), node.owner, node.name,
+			        node.desc));
+			mutation.add(new InsnNode(getNegation(type)));
+			mutationCode.add(mutation);
+
+			if (type == Type.INT_TYPE) {
+				mutation = new InsnList();
+				mutation.add(new FieldInsnNode(node.getOpcode(), node.owner, node.name,
+				        node.desc));
+				mutation.add(new InsnNode(Opcodes.ICONST_1));
+				mutation.add(new InsnNode(Opcodes.IADD));
+				mutationCode.add(mutation);
+
+				mutation = new InsnList();
+				mutation.add(new FieldInsnNode(node.getOpcode(), node.owner, node.name,
+				        node.desc));
+				mutation.add(new InsnNode(Opcodes.ICONST_M1));
+				mutation.add(new InsnNode(Opcodes.IADD));
+				mutationCode.add(mutation);
+			}
+		}
+
+		for (InsnList mutation : mutationCode) {
+			// insert mutation into pool
+			Mutation mutationObject = MutationPool.addMutation(className,
+			                                                   methodName,
+			                                                   "InsertUnaryOp",
+			                                                   instruction,
+			                                                   mutation,
+			                                                   Mutation.getDefaultInfectionDistance());
+
+			mutations.add(mutationObject);
+		}
 		return mutations;
 	}
 
@@ -64,12 +110,41 @@ public class InsertUnaryOperator implements MutationOperator {
 		case Opcodes.FLOAD:
 		case Opcodes.DLOAD:
 			return true;
+		case Opcodes.GETFIELD:
+			FieldInsnNode fieldNode = (FieldInsnNode) instruction.getASMNode();
+			Type type = Type.getType(fieldNode.desc);
+			if (type == Type.BYTE_TYPE || type == Type.SHORT_TYPE
+			        || type == Type.LONG_TYPE || type == Type.FLOAT_TYPE
+			        || type == Type.DOUBLE_TYPE || type == Type.BOOLEAN_TYPE
+			        || type == Type.INT_TYPE) {
+				return true;
+			}
 		default:
 			return false;
 		}
 	}
 
-	public int getNegation(int opcode) {
+	private int getNegation(Type type) {
+		if (type.equals(Type.BYTE_TYPE)) {
+			return Opcodes.INEG;
+		} else if (type == Type.SHORT_TYPE) {
+			return Opcodes.INEG;
+		} else if (type == Type.LONG_TYPE) {
+			return Opcodes.LNEG;
+		} else if (type == Type.FLOAT_TYPE) {
+			return Opcodes.FNEG;
+		} else if (type == Type.DOUBLE_TYPE) {
+			return Opcodes.DNEG;
+		} else if (type == Type.BOOLEAN_TYPE) {
+			return Opcodes.INEG;
+		} else if (type == Type.INT_TYPE) {
+			return Opcodes.INEG;
+		} else {
+			throw new RuntimeException("Don't know how to negate type " + type);
+		}
+	}
+
+	private int getNegation(int opcode) {
 		switch (opcode) {
 		case Opcodes.ILOAD:
 			return Opcodes.INEG;
