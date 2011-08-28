@@ -9,5 +9,10 @@ package de.unisb.cs.st.evosuite.ma.gui;
  */
 public interface IGUI {
 
+	/**
+	 * @param message
+	 */
+	void showParserException(String message);
+
 
 }
