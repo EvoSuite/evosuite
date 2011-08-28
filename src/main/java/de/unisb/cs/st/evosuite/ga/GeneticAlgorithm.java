@@ -34,8 +34,10 @@ import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Strategy;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
@@ -456,6 +458,16 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		// Assume population is sorted
 		return population.get(0);
 	}
+	
+	
+	/**
+	 * For manual algorithm
+	 * 
+	 * @param testCase to remove
+	 */
+	public void removeFromBestIndividual(TestCase testCase) {
+		
+	}
 
 	/**
 	 * Set a new factory method
@@ -656,6 +668,17 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		if (addStatistics) {
 			SearchStatistics.setInstance((SearchStatistics) ois.readObject());
 			addListener(SearchStatistics.getInstance());
+		}
+	}
+
+	/**
+	 * 
+	 */
+	public void resetGlobalTimeStoppingCondition() {
+		for (StoppingCondition c : stopping_conditions) {
+			if (c instanceof GlobalTimeStoppingCondition) {
+				c.reset();
+			}
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package de.unisb.cs.st.evosuite.ma;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -8,14 +9,12 @@ import java.util.Set;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
-import de.unisb.cs.st.evosuite.ma.gui.SimpleGUI;
+import de.unisb.cs.st.evosuite.ma.gui.SimpleGUITestEditor;
 import de.unisb.cs.st.evosuite.ma.parser.TestParser;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
-import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
-import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
@@ -27,17 +26,16 @@ import de.unisb.cs.st.evosuite.utils.HtmlAnalyzer;
  */
 public class Editor {
 	private final GeneticAlgorithm gaInstance;
-	private List<TestCase> tests;
-	private TestCase currentTestCase;
+	private TestCaseTuple currentTestCaseTuple;
 	private final Iterable<String> sourceCode;
 	private final SearchStatistics statistics = SearchStatistics.getInstance();
-	private final Set<Integer> coverage = new HashSet<Integer>();
-	private final Set<Integer> currentCovarage = new HashSet<Integer>();
-	private Class<?> clazz;
+	private final Set<Integer> suiteCoverage = new HashSet<Integer>();
 	private final TestSuiteChromosome testSuiteChr;
+	private final List<TestCaseTuple> testCases = new ArrayList<TestCaseTuple>();
+	private SimpleGUITestEditor sgui;
 
 	/**
-	 * Create instance of Editor for manual edition of test individuals with:
+	 * Create instance of Editor for manual edition of tests.
 	 * 
 	 * @param sa
 	 *            - SearchAlgorihm as parameter
@@ -47,11 +45,10 @@ public class Editor {
 		testSuiteChr = (TestSuiteChromosome) gaInstance.getBestIndividual();
 
 		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(
-		        TestSuiteGenerator.getFitnessFactory());
+				TestSuiteGenerator.getFitnessFactory());
 		minimizer.minimize(testSuiteChr);
 
-		tests = testSuiteChr.getTests();
-		nextTest();
+		List<TestCase> tests = testSuiteChr.getTests();
 		// for (int i = 0; i < tests.get(0).size(); i++) {
 		// if (tests.get(0).getStatement(i) instanceof ArrayStatement) {
 		// System.out.println(i + ": ArrayStatement");
@@ -78,152 +75,196 @@ public class Editor {
 		HtmlAnalyzer html_analyzer = new HtmlAnalyzer();
 		sourceCode = html_analyzer.getClassContent(Properties.TARGET_CLASS);
 
-		try {
-			clazz = TestCluster.classLoader.loadClass(Properties.TARGET_CLASS);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+		Set<Integer> testCaseCoverega;
+		for (TestCase testCase : tests) {
+			testCaseCoverega = retrieveCoverage(testCase);
+			testCases.add(new TestCaseTuple(testCase, testCaseCoverega));
+			suiteCoverage.addAll(testCaseCoverega);
+
 		}
 
-		for (TestCase test : tests) {
-			ExecutionTrace trace = statistics.executeTest(test, Properties.TARGET_CLASS);
+		// set currentTestCaseTuple to proper. value
+		nextTest();
 
-			coverage.addAll(statistics.getCoveredLines(trace, Properties.TARGET_CLASS));
-		}
+		sgui = new SimpleGUITestEditor();
+		sgui.createMainWindow(this);
 
-		SimpleGUI sgui = new SimpleGUI();
-		sgui.createWindow(this);
+		// when work is done reset time
+		ga.resetGlobalTimeStoppingCondition();
 	}
 
 	/**
-	 * @return the clazz
+	 * Retrieve the coverage information of the TestCase
+	 * 
+	 * @param testCase
+	 * @return Set of Integers
 	 */
-	public Class<?> getClazz() {
-		return clazz;
+	private Set<Integer> retrieveCoverage(TestCase testCase) {
+		ExecutionTrace trace = statistics.executeTest(testCase,
+				Properties.TARGET_CLASS);
+		Set<Integer> result = statistics.getCoveredLines(trace,
+				Properties.TARGET_CLASS);
+
+		return result;
 	}
 
 	/**
+	 * Pars a testCase from Editor to EvoSuite's instructions and insert in
+	 * EvoSuite's population. Create coverage for the new TestCase.
+	 * 
 	 * @param testSource
 	 */
-	public void parseTest(String testCode) {
+	public boolean saveTest(String testCode) {
+		TestCase currentTestCase = currentTestCaseTuple.getTestCase();
 		try {
-			TestCase newTestCase = TestParser.parsTest(testCode, currentTestCase, clazz);
-			testSuiteChr.setChanged(true);
-			TestCaseExecutor executor = TestCaseExecutor.getInstance();
-			ExecutionResult result = executor.execute(newTestCase);
-			testSuiteChr.addTest(newTestCase);
-			tests = testSuiteChr.getTests();
+			TestCase newTestCase = TestParser.parsTest(testCode,
+					currentTestCase, sgui);
+
+			if (newTestCase != null) {
+				// EvoSuite stuff
+				testSuiteChr.setChanged(true);
+				TestCaseExecutor executor = TestCaseExecutor.getInstance();
+				executor.execute(newTestCase);
+
+				// If we change already existed testCase, remove old version
+				testSuiteChr.deleteTest(currentTestCase);
+				testSuiteChr.addTest(newTestCase);
+
+				// MA stuff
+				Set<Integer> testCaseCoverega = retrieveCoverage(newTestCase);
+				suiteCoverage.addAll(testCaseCoverega);
+				TestCaseTuple newTestCaseTuple = new TestCaseTuple(newTestCase,
+						testCaseCoverega);
+				currentTestCaseTuple = newTestCaseTuple;
+				testCases.add(newTestCaseTuple);
+				return true;
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return false;
 	}
 
 	/**
-	 * @return the coverage
+	 * Return the number of TestCases in suite.
+	 * 
+	 * @return int
 	 */
-	public Set<Integer> getCoverage() {
-		return coverage;
+	public int getNumOfTestCases() {
+		return testCases.size();
 	}
 
 	/**
-	 * @return the currentTestCase
+	 * Return displacement currentTestCase in Suite.
+	 * 
+	 * @return int
 	 */
-	public TestCase getCurrentTestCase() {
-		return currentTestCase;
+	public int getNumOfCurrntTest() {
+		return testCases.indexOf(currentTestCaseTuple);
 	}
 
 	/**
-	 * @return the tests
+	 * Return the Coverage of whole suite.
+	 * 
+	 * @return Set of Integers
 	 */
-	public List<TestCase> getTests() {
-		return tests;
+	public Set<Integer> getSuiteCoverage() {
+		return suiteCoverage;
+	}
+
+	/**
+	 * @return TestCaseTupel
+	 */
+	public TestCaseTuple getCurrentTestCase() {
+		return currentTestCaseTuple;
 	}
 
 	/**
 	 * Set currentTestCase to the next TestCase.
-	 * 
-	 * @return next TestCase from current
 	 */
 	public void nextTest() {
-		if (currentTestCase == null && tests.size() > 0) {
-			currentTestCase = tests.get(0);
-		} else if (currentTestCase != null && tests.size() > 0) {
+		if (currentTestCaseTuple == null && testCases.size() > 0) {
+			currentTestCaseTuple = testCases.get(0);
+		} else if (currentTestCaseTuple != null && testCases.size() > 0) {
 
 			int j = 0;
-			for (int i = 0; i < tests.size(); i++) {
-				if (currentTestCase == tests.get(i)) {
-					if (i == tests.size() - 1) {
+			for (int i = 0; i < testCases.size(); i++) {
+				if (currentTestCaseTuple == testCases.get(i)) {
+					if (i == testCases.size() - 1) {
 						j = 0;
 					} else {
 						j = i + 1;
 					}
 				}
 			}
-			currentTestCase = tests.get(j);
+			currentTestCaseTuple = testCases.get(j);
+		} else {
+			createNewTestCase();
 		}
-		updateCurrentCovarage();
-	}
-
-	/**
-	 * @return the currentCovarage
-	 */
-	public Set<Integer> getCurrentCovarage() {
-		return currentCovarage;
 	}
 
 	/**
 	 * Set currentTestCase to previous TestCase.
-	 * 
-	 * @return previous TestCase from current
 	 */
 	public void prevTest() {
-		if (currentTestCase == null && tests.size() > 0) {
-			currentTestCase = tests.get(0);
-		} else if (currentTestCase != null && tests.size() > 0) {
+		if (currentTestCaseTuple == null && testCases.size() > 0) {
+			currentTestCaseTuple = testCases.get(0);
+		} else if (currentTestCaseTuple != null && testCases.size() > 0) {
 
 			int j = 0;
-			for (int i = 0; i < tests.size(); i++) {
-				if (currentTestCase == tests.get(i)) {
+			for (int i = 0; i < testCases.size(); i++) {
+				if (currentTestCaseTuple == testCases.get(i)) {
 					if (i == 0) {
-						j = tests.size() - 1;
+						j = testCases.size() - 1;
 					} else {
 						j = i - 1;
 					}
 				}
 			}
-			currentTestCase = tests.get(j);
+			currentTestCaseTuple = testCases.get(j);
+		} else {
+			createNewTestCase();
 		}
-		updateCurrentCovarage();
 	}
 
 	/**
+	 * The coverage of the current TestCase.
 	 * 
+	 * @return Set of Integers
 	 */
-	private void updateCurrentCovarage() {
-		currentCovarage.clear();
-
-		ExecutionTrace trace = statistics.executeTest(currentTestCase,
-		                                              Properties.TARGET_CLASS);
-
-		currentCovarage.addAll(statistics.getCoveredLines(trace, Properties.TARGET_CLASS));
+	public Set<Integer> getCurrentCoverage() {
+		return currentTestCaseTuple.getCoverage();
 	}
 
 	/**
-	 * Return source code of class in form of Iterable<String>.
+	 * Return source code of class.
 	 * 
-	 * @return Iterable<String> of SourceCode
+	 * @return Iterable of String
 	 */
 	public Iterable<String> getSourceCode() {
 		return sourceCode;
 	}
 
 	/**
-	 * Create full new TestCase which can be inserted in population.
+	 * Create new TestCase that can be insert in population. Without coverage
+	 * information. Set current TestCase to this.
 	 * 
-	 * @return new TestCase
 	 */
-	public TestCase createTestCase() {
-		TestCase res = new DefaultTestCase();
-		return res;
+	public void createNewTestCase() {
+		TestCaseTuple newTestCaseTuple = new TestCaseTuple(
+				new DefaultTestCase(), new HashSet<Integer>());
+		currentTestCaseTuple = newTestCaseTuple;
+	}
+
+	/**
+	 * Delete from testSuiteChromosome currentTestCase. Set current TestCase to
+	 * the next.
+	 */
+	public void deleteCurrentTestCase() {
+		TestCase testCaseForDeleting = currentTestCaseTuple.getTestCase();
+		testSuiteChr.deleteTest(testCaseForDeleting);
+		testCases.remove(currentTestCaseTuple);
+		nextTest();
 	}
 
 }

@@ -13,7 +13,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
  */
 public class Connector {
 	private static int iterCount = 0;
-	private static double oldCoverageVal = Double.MAX_VALUE;
+	private static double oldCoverageVal = 0;
 
 	/**
 	 * Call this function in GA after each population to check, when we need to
@@ -24,8 +24,7 @@ public class Connector {
 	 */
 	public static void externalCall(GeneticAlgorithm ga) {
 		double newCoverageVal = ((TestSuiteChromosome) ga.getBestIndividual()).getCoverage();
-		double deltaCoverage = oldCoverageVal - newCoverageVal;
-		System.out.println("Delta: " + deltaCoverage);
+		double deltaCoverage = newCoverageVal - oldCoverageVal;
 		/*
 		 * Call manual edition when coverage is smaller then 100% and delta
 		 * is too small and not change in few iterations
@@ -35,7 +34,7 @@ public class Connector {
 				iterCount++;
 
 				if (iterCount > Properties.MAX_ITERATION) {
-					Editor editor = new Editor(ga);
+					new Editor(ga);
 					iterCount = 0;
 				}
 

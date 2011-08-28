@@ -154,6 +154,24 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		return testcases;
 	}
 
+	/**
+	 * For manual algorithm
+	 * 
+	 * @param testCase
+	 *            to remove
+	 */
+	public boolean deleteTest(TestCase testCase) {
+		if (testCase != null) {
+			for (TestChromosome test: tests) {
+				if(test.equals(testCase)) {
+					tests.remove(testCase);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	@Override
 	public void applyDSE() {
 		TestSuiteDSE dse = new TestSuiteDSE();
