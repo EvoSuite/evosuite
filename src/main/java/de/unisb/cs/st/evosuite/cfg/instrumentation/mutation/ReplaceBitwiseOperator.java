@@ -26,14 +26,24 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 
 	private static Set<Integer> opcodesInt = new HashSet<Integer>();
 
+	private static Set<Integer> opcodesIntShift = new HashSet<Integer>();
+
 	private static Set<Integer> opcodesLong = new HashSet<Integer>();
+
+	private static Set<Integer> opcodesLongShift = new HashSet<Integer>();
 
 	static {
 		opcodesInt.addAll(Arrays.asList(new Integer[] { Opcodes.IAND, Opcodes.IOR,
-		        Opcodes.IXOR, Opcodes.ISHL, Opcodes.ISHR, Opcodes.IUSHR }));
+		        Opcodes.IXOR }));
+
+		opcodesIntShift.addAll(Arrays.asList(new Integer[] { Opcodes.ISHL, Opcodes.ISHR,
+		        Opcodes.IUSHR }));
 
 		opcodesLong.addAll(Arrays.asList(new Integer[] { Opcodes.LAND, Opcodes.LOR,
-		        Opcodes.LXOR, Opcodes.LSHL, Opcodes.LSHR, Opcodes.LUSHR }));
+		        Opcodes.LXOR }));
+
+		opcodesLongShift.addAll(Arrays.asList(new Integer[] { Opcodes.LSHL, Opcodes.LSHR,
+		        Opcodes.LUSHR }));
 	}
 
 	/* (non-Javadoc)
@@ -51,8 +61,12 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 		Set<Integer> replacement = new HashSet<Integer>();
 		if (opcodesInt.contains(node.getOpcode()))
 			replacement.addAll(opcodesInt);
+		else if (opcodesIntShift.contains(node.getOpcode()))
+			replacement.addAll(opcodesIntShift);
 		else if (opcodesLong.contains(node.getOpcode()))
 			replacement.addAll(opcodesLong);
+		else if (opcodesLongShift.contains(node.getOpcode()))
+			replacement.addAll(opcodesLongShift);
 		replacement.remove(node.getOpcode());
 
 		for (int opcode : replacement) {
