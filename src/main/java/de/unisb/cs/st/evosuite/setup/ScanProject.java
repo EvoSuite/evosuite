@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -96,9 +97,10 @@ public class ScanProject {
 				ByteArrayOutputStream out = new ByteArrayOutputStream(array.length);
 				int length = in.read(array);
 				while (length > 0) {
-					out.write(array, 0, length);
+					out.write(array, 0, array.length);
 					length = in.read(array);
 				}
+
 				ClassReader reader = new ClassReader(array);
 				Class<?> result = findLoadedClass(name);
 				if (result != null) {
@@ -112,7 +114,7 @@ public class ScanProject {
 				logger.debug("Loaded class: " + name);
 
 				return clazz;
-			} catch (IOException exception) {
+			} catch (Throwable exception) {
 				throw new ClassNotFoundException(name, exception);
 			}
 		}
@@ -292,13 +294,23 @@ public class ScanProject {
 				ClassReader reader = new ClassReader(array);
 				String className = reader.getClassName();
 
+				ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+				PrintStream outStream = new PrintStream(byteStream);
+
+				PrintStream old_out = System.out;
+				PrintStream old_err = System.err;
+				System.setOut(outStream);
+				System.setErr(outStream);
+
 				// Use default classLoader
 				Class<?> clazz = Class.forName(className.replace("/", "."));
 				//Class<?> clazz = classLoader.loadClass(directory.getPath());
 				//Class<?> clazz = new FileClassLoader().loadClass(directory.getPath());
 
-				//clazz = Class.forName(clazz.getName());
+				System.setOut(old_out);
+				System.setErr(old_err);
 
+				//clazz = Class.forName(clazz.getName());
 				set.add(clazz);
 				if (Properties.STUBS) {
 					if (Modifier.isAbstract(clazz.getModifiers()) && !clazz.isInterface()) {
@@ -372,7 +384,9 @@ public class ScanProject {
 			try {
 				System.out.println("* Loading class " + fileName + " from jar file "
 				        + file.getName());
-				Class<?> clazz = zcl.findClass(fileName.replace(".class", ""));
+				//				Class<?> clazz = zcl.findClass(fileName.replace(".class", ""));
+				Class<?> clazz = Class.forName(fileName.replace(".class", "").replace("/",
+				                                                                      "."));
 				set.add(clazz);
 				if (Properties.STUBS) {
 					if (Modifier.isAbstract(clazz.getModifiers()) && !clazz.isInterface()) {
@@ -439,9 +453,20 @@ public class ScanProject {
 				System.out.println("  Ignoring class " + clazz.getName() + ": " + e);
 			}
 		}
-		data.save();
-		Utils.writeXML(classEntries, Properties.OUTPUT_DIR + "/"
-		        + Properties.HIERARCHY_DATA);
+		try {
+			data.save();
+			Utils.writeXML(classEntries, Properties.OUTPUT_DIR + "/"
+			        + Properties.HIERARCHY_DATA);
+		} catch (Throwable t) {
+			System.out.println("* Error while analyzing classes: ");
+			System.out.println("  " + t);
+			Throwable cause = t.getCause();
+			while (cause != null) {
+				System.out.println("  Caused by: " + cause);
+				cause = cause.getCause();
+			}
+			System.exit(1);
+		}
 
 	}
 

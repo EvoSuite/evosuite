@@ -119,7 +119,25 @@ public class EvoSuite {
 		}
 	}
 
+	private static void listClasses() {
+		System.out.println("* The following classes are known: ");
+		File directory = new File(Properties.OUTPUT_DIR);
+		String[] extensions = { "task" };
+		for (File file : FileUtils.listFiles(directory, extensions, false)) {
+			System.out.println("   " + file.getName().replace(".task", ""));
+		}
+
+	}
+
 	private static void generateTests(boolean wholeSuite, String target, List<String> args) {
+		File taskFile = new File(Properties.OUTPUT_DIR + File.separator + target
+		        + ".task");
+		if (!taskFile.exists()) {
+			System.out.println("* Unknown class: " + target);
+			listClasses();
+			System.out.println("* If the class is missing but should be there, consider rerunning -setup, or adapting evosuite-files/evosuite.properties");
+			return;
+		}
 		String classPath = System.getProperty("java.class.path");
 		if (Properties.CP.charAt(0) == '"')
 			Properties.CP = Properties.CP.substring(1, Properties.CP.length() - 1);
