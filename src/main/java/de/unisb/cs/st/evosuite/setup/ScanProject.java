@@ -269,9 +269,10 @@ public class ScanProject {
 	 * @throws ClassNotFoundException
 	 */
 	public static Set<Class<?>> getClasses(File directory) {
-		if (directory.getName().endsWith(".jar")) {
-			return getClassesJar(directory);
-		} else if (directory.getName().endsWith(".class")) {
+		//if (directory.getName().endsWith(".jar")) {
+		//	return getClassesJar(directory);
+		//} else
+		if (directory.getName().endsWith(".class")) {
 			Set<Class<?>> set = new HashSet<Class<?>>();
 			try {
 				System.out.println("* Loading class " + directory.getName());
@@ -317,7 +318,7 @@ public class ScanProject {
 				        + directory.getName().substring(0,
 				                                        directory.getName().length() - 6));
 			} catch (ClassNotFoundException e) {
-				System.out.println("  Class not found: "
+				System.out.println("  Class not found in classpath: "
 				        + directory.getName().substring(0,
 				                                        directory.getName().length() - 6)
 				        + ": " + e);
@@ -456,8 +457,13 @@ public class ScanProject {
 				classes.addAll(getClasses(Properties.PROJECT_PREFIX, false));
 			} else if (args.length > 0) {
 				for (String arg : args) {
-					System.out.println("* Analyzing project directory: " + arg);
-					classes.addAll(getClasses(new File(arg)));
+					if (arg.endsWith(".jar")) {
+						System.out.println("* Analyzing jar file: " + arg);
+						classes.addAll(getClassesJar(new File(arg)));
+					} else {
+						System.out.println("* Analyzing project directory: " + arg);
+						classes.addAll(getClasses(new File(arg)));
+					}
 				}
 			} else {
 				System.out.println("* Please specify either project prefix or directory");
