@@ -69,6 +69,7 @@ public class EvoSuite {
 		parameters.add("-cp");
 		parameters.add(classPath);
 		parameters.add("-DPROJECT_PREFIX=" + prefix);
+		parameters.add("-DCP=" + Properties.CP);
 		parameters.add("-Dclassloader=true");
 		parameters.add("-Dshow_progress=true");
 		parameters.add("de.unisb.cs.st.evosuite.setup.ScanProject");
@@ -76,6 +77,7 @@ public class EvoSuite {
 
 		try {
 			ProcessBuilder builder = new ProcessBuilder(parameters);
+
 			File dir = new File(System.getProperty("user.dir"));
 			builder.directory(dir);
 			builder.redirectErrorStream(true);
@@ -101,8 +103,10 @@ public class EvoSuite {
 		if (propertyFile.exists()) {
 
 		} else {
+			Properties.PROJECT_PREFIX = prefix;
 			Properties.getInstance().writeConfiguration(Properties.OUTPUT_DIR
-			                                                    + "/evosuite.properties");
+			                                                    + File.separator
+			                                                    + "evosuite.properties");
 		}
 
 	}

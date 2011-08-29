@@ -23,10 +23,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -47,6 +49,7 @@ import de.unisb.cs.st.evosuite.callgraph.DistanceTransformer;
 import de.unisb.cs.st.evosuite.callgraph.DistanceTransformer.ClassEntry;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
 import de.unisb.cs.st.evosuite.javaagent.CIClassAdapter;
+import de.unisb.cs.st.evosuite.utils.StringUtil;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
@@ -252,7 +255,8 @@ public class ScanProject {
 
 		//ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		//assert classLoader != null;
-		Collection<String> list = ResourceList.getResources(Pattern.compile(packageName
+		Collection<String> list = ResourceList.getResources(Pattern.compile(packageName.replace(".",
+		                                                                                        "/")
 		        + "/.*\\.class$"));
 		for (String name : list) {
 			System.out.println("* Loading class " + name);
@@ -441,6 +445,20 @@ public class ScanProject {
 
 	}
 
+	private static String getPackageName(Set<Class<?>> classes) {
+		List<String> names = new ArrayList<String>();
+		for (Class<?> clazz : classes) {
+			names.add(clazz.getName());
+		}
+		String[] nameArray = new String[names.size()];
+		names.toArray(nameArray);
+		String prefix = StringUtil.getCommonPrefix(nameArray);
+		if (prefix.endsWith("."))
+			prefix = prefix.substring(0, prefix.length() - 1);
+
+		return prefix;
+	}
+
 	/**
 	 * Entry point - generate task files
 	 * 
@@ -464,6 +482,19 @@ public class ScanProject {
 						System.out.println("* Analyzing project directory: " + arg);
 						classes.addAll(getClasses(new File(arg)));
 					}
+				}
+				String prefix = getPackageName(classes);
+				System.out.println("* Project prefix: " + prefix);
+				Properties.PROJECT_PREFIX = prefix;
+				File propertyFile = new File(Properties.OUTPUT_DIR + File.separator
+				        + "evosuite.properties");
+				if (propertyFile.exists()) {
+
+				} else {
+
+					Properties.getInstance().writeConfiguration(Properties.OUTPUT_DIR
+					                                                    + File.separator
+					                                                    + "evosuite.properties");
 				}
 			} else {
 				System.out.println("* Please specify either project prefix or directory");
