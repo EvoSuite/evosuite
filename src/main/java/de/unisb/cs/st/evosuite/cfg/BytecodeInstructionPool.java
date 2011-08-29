@@ -113,7 +113,7 @@ public class BytecodeInstructionPool {
 	        int instructionId, AbstractInsnNode asmNode) {
 
 		BytecodeInstruction r = getInstruction(className, methodName, instructionId);
-		
+
 		if (r != null)
 			r.sanityCheckAbstractInsnNode(asmNode);
 
@@ -140,17 +140,17 @@ public class BytecodeInstructionPool {
 
 		return null;
 	}
-	
+
 	public static Set<String> knownClasses() {
 		return new HashSet<String>(instructionMap.keySet());
 	}
-	
+
 	public static Set<String> knownMethods(String className) {
 		Set<String> r = new HashSet<String>();
-		
-		if(instructionMap.get(className) != null)
+
+		if (instructionMap.get(className) != null)
 			r.addAll(instructionMap.get(className).keySet());
-		
+
 		return r;
 	}
 
@@ -195,5 +195,10 @@ public class BytecodeInstructionPool {
 
 		return instruction;
 
+	}
+
+	public static void clear() {
+		instructionMap.clear();
+		knownMethodNodes.clear();
 	}
 }
