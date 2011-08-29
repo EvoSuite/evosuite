@@ -127,7 +127,8 @@ public class InspectorTraceObserver extends ExecutionObserver {
 									                                                 value);
 								}
 							} catch (Exception e) {
-								if (!e.getCause().getClass().equals(NullPointerException.class)) {
+								if (e.getCause() != null
+								        && !e.getCause().getClass().equals(NullPointerException.class)) {
 									logger.debug("Exception during call to inspector: "
 									        + e + " - " + e.getCause());
 								}
