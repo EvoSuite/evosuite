@@ -87,7 +87,7 @@ class MSecurityManager extends SecurityManager {
 			StackTraceElement e = stackTraceElements[elementCounter];
 			if (e.getMethodName().equals("executeTestCase")
 			        || e.getMethodName().equals("call")
-			        || e.getClassName().contains(testPackage)
+			        || (e.getClassName().contains(testPackage) && !testPackage.equals(""))
 			        || e.getClassName().equals(TestRunnable.class.getName())) {
 				testExec = true;
 				break;
@@ -139,24 +139,24 @@ class MSecurityManager extends SecurityManager {
 					return true;
 
 			if (permName.equals("java.io.FilePermission")) {
-				
+
 				// check if we try to access sandbox folder. In that case allow.
 				//TODO: -------------------- VERY VERY V-E-R-Y DANGEROUS -----------------------
 				// Assume some malicious code was written to the sandbox folder, then it was compiled 
 				// and executed during test execution. Then we have problems. Once again. PROBLEMS!!!
 				// But I leave this as temporary solution since test generated inside chroot environment
 				// and let's hope nothing will go wrong.  
-				FilePermission fp = (FilePermission)perm;
-				if(fp.getName().contains(Properties.SANDBOX_FOLDER))
-						return true;
-				
-				if(perm.getActions().equals("read"))
+				FilePermission fp = (FilePermission) perm;
+				if (fp.getName().contains(Properties.SANDBOX_FOLDER))
+					return true;
+
+				if (perm.getActions().equals("read"))
 					for (StackTraceElement e : stackTraceElements) {
 						if (e.getClassName().startsWith("java.net.URLClassLoader"))
 							return true;
 						if (e.getClassName().startsWith("java.lang.ClassLoader"))
 							return true;
-				}
+					}
 			}
 
 			return false;
