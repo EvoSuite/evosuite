@@ -112,8 +112,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 					 * As those test cases are not going to be executed after the statement (i.e. no coverage for those parts is generated) 
 					 * This comment should explain, why that behavior is desirable 
 					 */
-					if (breakOnUndeclaredException
-					        && !s.isDeclaredException(exceptionThrown))
+					if (breakOnUndeclaredException)
+						//					        && !s.isDeclaredException(exceptionThrown))
 						break;
 
 					// exception_statement = num; 
