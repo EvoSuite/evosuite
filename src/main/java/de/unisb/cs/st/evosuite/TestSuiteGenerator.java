@@ -29,10 +29,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import sun.misc.Signal;
+import de.unisb.cs.st.evosuite.Properties.AssertionStrategy;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.Properties.Strategy;
 import de.unisb.cs.st.evosuite.assertion.AssertionGenerator;
+import de.unisb.cs.st.evosuite.assertion.CompleteAssertionGenerator;
 import de.unisb.cs.st.evosuite.assertion.MutationAssertionGenerator;
+import de.unisb.cs.st.evosuite.assertion.UnitAssertionGenerator;
 import de.unisb.cs.st.evosuite.cfg.LCSAJGraph;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
 import de.unisb.cs.st.evosuite.coverage.FitnessLogger;
@@ -87,6 +90,7 @@ import de.unisb.cs.st.evosuite.junit.TestSuite;
 import de.unisb.cs.st.evosuite.primitives.ObjectPool;
 import de.unisb.cs.st.evosuite.sandbox.PermissionStatistics;
 import de.unisb.cs.st.evosuite.testcase.ConstantInliner;
+import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
@@ -95,6 +99,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestCaseMinimizer;
 import de.unisb.cs.st.evosuite.testcase.TestCaseReplacementFunction;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
+import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testcase.ValueMinimizer;
 import de.unisb.cs.st.evosuite.testsuite.CoverageStatistics;
@@ -194,9 +199,12 @@ public class TestSuiteGenerator {
 		}
 
 		if (Properties.CRITERION == Criterion.MUTATION) {
+			System.out.println("* Generating assertions");
 			handleMutations(tests);
-		} else if (Properties.ASSERTIONS)
+		} else if (Properties.ASSERTIONS) {
+			System.out.println("* Generating assertions");
 			addAssertions(tests);
+		}
 
 		writeJUnitTests(tests);
 
@@ -219,8 +227,33 @@ public class TestSuiteGenerator {
 	}
 
 	private void addAssertions(List<TestCase> tests) {
+		AssertionGenerator asserter;
+		if (Properties.ASSERTION_STRATEGY == AssertionStrategy.MUTATION) {
+			Criterion oldCriterion = Properties.CRITERION;
+			if (Properties.CRITERION != Criterion.MUTATION) {
+				Properties.CRITERION = Criterion.MUTATION;
+				TestCluster.getInstance().resetCluster();
+				// TODO: Now all existing test cases have reflection objects pointing to the wrong classloader
+				for (TestCase test : tests) {
+					DefaultTestCase dtest = (DefaultTestCase) test;
+					dtest.changeClassLoader(TestCluster.classLoader);
+				}
+			}
+			MutationAssertionGenerator masserter = new MutationAssertionGenerator();
+			Set<Integer> tkilled = new HashSet<Integer>();
+			for (TestCase test : tests) {
+				Set<Integer> killed = new HashSet<Integer>();
+				masserter.addAssertions(test, killed);
+				tkilled.addAll(killed);
+			}
+			Properties.CRITERION = oldCriterion;
+			return;
 
-		AssertionGenerator asserter = AssertionGenerator.getDefaultGenerator();
+		} else if (Properties.ASSERTION_STRATEGY == AssertionStrategy.ALL) {
+			asserter = new CompleteAssertionGenerator();
+		} else
+			asserter = new UnitAssertionGenerator();
+
 		for (TestCase test : tests) {
 			asserter.addAssertions(test);
 		}

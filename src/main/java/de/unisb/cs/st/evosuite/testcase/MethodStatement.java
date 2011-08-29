@@ -251,7 +251,9 @@ public class MethodStatement extends AbstractStatement {
 			Class<?> ex = exception.getClass();
 			while (!Modifier.isPublic(ex.getModifiers()))
 				ex = ex.getSuperclass();
-			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {}";
+			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {\n";
+			result += "  // " + exception.getMessage() + "\n";
+			result += "}";
 		}
 
 		return result;
@@ -591,13 +593,32 @@ public class MethodStatement extends AbstractStatement {
 		try {
 			Class<?> oldClass = method.getDeclaringClass();
 			Class<?> newClass = loader.loadClass(oldClass.getName());
-			this.method = newClass.getMethod(method.getName(), method.getParameterTypes());
+			for (Method newMethod : TestCluster.getMethods(newClass)) {
+				if (newMethod.getName().equals(this.method.getName())) {
+					boolean equals = true;
+					Class<?>[] oldParameters = this.method.getParameterTypes();
+					Class<?>[] newParameters = newMethod.getParameterTypes();
+					if (oldParameters.length != newParameters.length)
+						continue;
+
+					for (int i = 0; i < newParameters.length; i++) {
+						if (!oldParameters[i].getName().equals(newParameters[i].getName())) {
+							equals = false;
+							break;
+						}
+					}
+					if (equals) {
+						this.method = newMethod;
+						return;
+					}
+				}
+			}
 		} catch (ClassNotFoundException e) {
 			logger.warn("Class not found - keeping old class loader ", e);
 		} catch (SecurityException e) {
 			logger.warn("Class not found - keeping old class loader ", e);
-		} catch (NoSuchMethodException e) {
-			logger.warn("Class not found - keeping old class loader ", e);
 		}
+		logger.warn("Method not found - keeping old class loader ");
+
 	}
 }
