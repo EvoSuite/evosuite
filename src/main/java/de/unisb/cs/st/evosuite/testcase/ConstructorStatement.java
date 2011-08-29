@@ -140,7 +140,7 @@ public class ConstructorStatement extends AbstractStatement {
 			System.setOut(old_out);
 			System.setErr(old_err);
 			exceptionThrown = e.getCause();
-			logger.debug("Exception thrown in constructor: " + e);
+			logger.debug("Exception thrown in constructor: " + e + " / " + e.getCause());
 
 		} finally {
 			System.setOut(old_out);
@@ -442,13 +442,29 @@ public class ConstructorStatement extends AbstractStatement {
 		try {
 			Class<?> oldClass = constructor.getDeclaringClass();
 			Class<?> newClass = loader.loadClass(oldClass.getName());
-			this.constructor = newClass.getConstructor(constructor.getParameterTypes());
+			for (Constructor<?> newConstructor : TestCluster.getConstructors(newClass)) {
+				boolean equals = true;
+				Class<?>[] oldParameters = this.constructor.getParameterTypes();
+				Class<?>[] newParameters = newConstructor.getParameterTypes();
+				if (oldParameters.length != newParameters.length)
+					continue;
+
+				for (int i = 0; i < newParameters.length; i++) {
+					if (!oldParameters[i].getName().equals(newParameters[i].getName())) {
+						equals = false;
+						break;
+					}
+				}
+				if (equals) {
+					this.constructor = newConstructor;
+					return;
+				}
+			}
 		} catch (ClassNotFoundException e) {
 			logger.warn("Class not found - keeping old class loader ", e);
 		} catch (SecurityException e) {
 			logger.warn("Class not found - keeping old class loader ", e);
-		} catch (NoSuchMethodException e) {
-			logger.warn("Class not found - keeping old class loader ", e);
 		}
+		logger.warn("Constructor not found - keeping old class loader ");
 	}
 }

@@ -139,4 +139,10 @@ public class CFGPool {
 		// TODO make export to DOT optional and configurable
 	}
 
+	public static void clear() {
+		rawCFGs.clear();
+		actualCFGs.clear();
+		controlDependencies.clear();
+	}
+
 }

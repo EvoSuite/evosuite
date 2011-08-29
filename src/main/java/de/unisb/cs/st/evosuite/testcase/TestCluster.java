@@ -51,7 +51,9 @@ import de.unisb.cs.st.evosuite.callgraph.ConnectionData;
 import de.unisb.cs.st.evosuite.callgraph.Hierarchy;
 import de.unisb.cs.st.evosuite.callgraph.MethodDescription;
 import de.unisb.cs.st.evosuite.callgraph.Tuple;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstructionPool;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.javaagent.InstrumentingClassLoader;
@@ -1764,5 +1766,27 @@ public class TestCluster {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	/**
+	 * Unload all classes; perform cleanup
+	 */
+	public void resetCluster() {
+
+		calls.clear();
+		test_constructors.clear();
+		test_methods.clear();
+		test_fields.clear();
+		generators.clear();
+
+		BranchPool.clear();
+		CFGPool.clear();
+		BytecodeInstructionPool.clear();
+
+		// Get new classloader
+		if (Properties.CLASSLOADER)
+			classLoader = new InstrumentingClassLoader();
+
+		instance = new TestCluster();
 	}
 }

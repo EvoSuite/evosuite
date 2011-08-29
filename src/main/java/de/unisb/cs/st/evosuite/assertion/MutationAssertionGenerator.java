@@ -42,6 +42,8 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondit
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.OutputTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.VariableReference;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * This class executes a test case on a unit and all mutants and infers
@@ -277,6 +279,9 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				logger.error("Found unknown assertion!");
 
 		}
+
+		Set<Assertion> finalAssertions = test.getStatement(test.size() - 1).getAssertions();
+
 		// TODO: List exception assertion
 		logger.debug("Assertions before minimization: " + test.getAssertions().size()
 		        + "," + num_string_assertions + "," + num_inspector_assertions + ","
@@ -318,6 +323,14 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		} else {
 			logger.info("Not removing assertions because no new assertions were found");
 		}
+
+		// Make sure last statement has some assertion
+		Set<Assertion> finalAssertions2 = test.getStatement(test.size() - 1).getAssertions();
+		if (finalAssertions2.isEmpty() && !finalAssertions.isEmpty()) {
+			// Use an assertion that already covered a mutant
+			assertions.add(Randomness.choice(finalAssertions));
+		}
+
 		// TODO: List exception assertion
 		logger.debug("Assertions after minimization: " + test.getAssertions().size()
 		        + "," + num_string_assertions + "," + num_inspector_assertions + ","
@@ -510,7 +523,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			kill_map.put(num, killed_mutations);
 			num++;
 		}
-		//minimize(test, mutants, assertions, kill_map);
+		minimize(test, mutants, assertions, kill_map);
 
 		Set<Integer> killed_after = new HashSet<Integer>();
 		assertions = test.getAssertions();
@@ -537,6 +550,31 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		        + "/" + killed_after.size() + "/" + s2);
 
 		assertion_statistics_min.get(test).put(StringAssertion.class, assertions.size());
+
+		TestCase clone = test.clone();
+
+		// IF there are no mutant killing assertions on the last statement, still assert something
+		if (test.getStatement(test.size() - 1).getAssertions().isEmpty()) {
+			orig_result.comparison_trace.getAllAssertions(test);
+			orig_result.primitive_trace.getAllAssertions(test);
+			orig_result.inspector_trace.getAllAssertions(test);
+			orig_result.field_trace.getAllAssertions(test);
+			orig_result.null_trace.getAllAssertions(test);
+			Set<Assertion> target = new HashSet<Assertion>(
+			        test.getStatement(test.size() - 1).getAssertions());
+			test.removeAssertions();
+			test.addAssertions(clone);
+			VariableReference targetVar = test.getStatement(test.size() - 1).getReturnValue();
+			int maxAssertions = 2;
+			int numAssertions = 0;
+			for (Assertion ass : target) {
+				if (ass.getReferencedVariables().contains(targetVar)) {
+					test.getStatement(test.size() - 1).addAssertion(ass);
+					if (++numAssertions >= maxAssertions)
+						break;
+				}
+			}
+		}
 
 	}
 

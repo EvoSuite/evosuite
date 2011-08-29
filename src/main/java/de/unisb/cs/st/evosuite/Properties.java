@@ -336,6 +336,13 @@ public class Properties {
 	@Parameter(key = "assertions", group = "Output", description = "Create assertions")
 	public static boolean ASSERTIONS = false;
 
+	public enum AssertionStrategy {
+		ALL, MUTATION, UNIT
+	}
+
+	@Parameter(key = "assertion_strategy", group = "Output", description = "Which assertions to generate")
+	public static AssertionStrategy ASSERTION_STRATEGY = AssertionStrategy.UNIT;
+
 	@Parameter(key = "test_dir", group = "Output", description = "Directory in which to place JUnit tests")
 	public static String TEST_DIR = "evosuite-tests";
 
@@ -948,8 +955,10 @@ public class Properties {
 		if (loadProperties)
 			loadProperties();
 		if (TARGET_CLASS != null && !TARGET_CLASS.equals("")) {
-			CLASS_PREFIX = TARGET_CLASS.substring(0, TARGET_CLASS.lastIndexOf('.'));
-			SUB_PREFIX = CLASS_PREFIX.replace(PROJECT_PREFIX + ".", "");
+			if (TARGET_CLASS.contains(".")) {
+				CLASS_PREFIX = TARGET_CLASS.substring(0, TARGET_CLASS.lastIndexOf('.'));
+				SUB_PREFIX = CLASS_PREFIX.replace(PROJECT_PREFIX + ".", "");
+			}
 			if (PROJECT_PREFIX == null || PROJECT_PREFIX.equals("")) {
 				if (CLASS_PREFIX.contains("."))
 					PROJECT_PREFIX = CLASS_PREFIX.substring(0, CLASS_PREFIX.indexOf("."));
