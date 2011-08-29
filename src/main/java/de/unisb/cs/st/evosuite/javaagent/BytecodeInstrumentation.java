@@ -35,8 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.TestSuiteGenerator;
-import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.cfg.CFGClassAdapter;
 import de.unisb.cs.st.evosuite.primitives.PrimitiveClassAdapter;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
@@ -50,8 +48,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCluster;
  */
 public class BytecodeInstrumentation implements ClassFileTransformer {
 
-	protected static Logger logger = LoggerFactory
-			.getLogger(BytecodeInstrumentation.class);
+	protected static Logger logger = LoggerFactory.getLogger(BytecodeInstrumentation.class);
 
 	private static List<ClassAdapterFactory> externalVisitors = new ArrayList<ClassAdapterFactory>();
 
@@ -60,7 +57,9 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	}
 
 	public boolean isTargetProject(String className) {
-		return className.startsWith(Properties.PROJECT_PREFIX);
+		return className.startsWith(Properties.PROJECT_PREFIX)
+		        && !className.startsWith("java.") && !className.startsWith("sun.")
+		        && !className.startsWith("de.unisb.cs.st.evosuite");
 	}
 
 	private boolean isTargetClassName(String className) {
@@ -74,8 +73,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	}
 
 	static {
-		logger.info("Loading bytecode transformer for "
-				+ Properties.PROJECT_PREFIX);
+		logger.info("Loading bytecode transformer for " + Properties.PROJECT_PREFIX);
 	}
 
 	/*
@@ -88,8 +86,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	 */
 	@Override
 	public byte[] transform(ClassLoader loader, String className,
-			Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-			byte[] classfileBuffer) throws IllegalClassFormatException {
+	        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+	        byte[] classfileBuffer) throws IllegalClassFormatException {
 		isJavaagent = true;
 		if (className == null) {
 			return classfileBuffer;
@@ -98,11 +96,9 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 		// Some packages we shouldn't touch - hard-coded
 		if (!isTargetProject(classNameWithDots)
-				&& (classNameWithDots.startsWith("java")
-						|| classNameWithDots.startsWith("sun")
-						|| classNameWithDots
-								.startsWith("org.aspectj.org.eclipse") || classNameWithDots
-						.startsWith("org.mozilla.javascript.gen.c"))) {
+		        && (classNameWithDots.startsWith("java")
+		                || classNameWithDots.startsWith("sun")
+		                || classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
 			return classfileBuffer;
 		}
 
