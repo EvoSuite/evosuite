@@ -44,6 +44,7 @@ public class ReplaceVariable implements MutationOperator {
 		List<Mutation> mutations = new LinkedList<Mutation>();
 		if (mn.localVariables.isEmpty()) {
 			logger.warn("Have no information about local variables - recompile with full debug information");
+			return mutations;
 		}
 
 		for (InsnList mutation : getReplacements(mn, className, instruction.getASMNode())) {
