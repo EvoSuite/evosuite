@@ -39,7 +39,9 @@ public class ReplaceConstant implements MutationOperator {
 			// insert mutation into pool
 			Mutation mutationObject = MutationPool.addMutation(className,
 			                                                   methodName,
-			                                                   "ReplaceConstant",
+			                                                   "ReplaceConstant - "
+			                                                           + value + " -> "
+			                                                           + replacement,
 			                                                   instruction,
 			                                                   mutation,
 			                                                   Mutation.getDefaultInfectionDistance());
@@ -165,7 +167,7 @@ public class ReplaceConstant implements MutationOperator {
 		if (value != -1.0)
 			values.add(-1.0);
 		if (!values.contains(value - 1.0))
-			values.add(value - 1);
+			values.add(value - 1.0);
 		if (!values.contains(value + 1.0))
 			values.add(value + 1.0);
 
