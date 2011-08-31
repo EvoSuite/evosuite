@@ -280,8 +280,15 @@ public class ScanProject {
 		//} else
 		if (directory.getName().endsWith(".class")) {
 			Set<Class<?>> set = new HashSet<Class<?>>();
+			ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+			PrintStream outStream = new PrintStream(byteStream);
+
+			System.out.println("* Loading class " + directory.getName());
+			PrintStream old_out = System.out;
+			PrintStream old_err = System.err;
+			System.setOut(outStream);
+			System.setErr(outStream);
 			try {
-				System.out.println("* Loading class " + directory.getName());
 				File file = new File(directory.getPath());
 				byte[] array = new byte[(int) file.length()];
 				InputStream in = new FileInputStream(file);
@@ -293,14 +300,6 @@ public class ScanProject {
 				}
 				ClassReader reader = new ClassReader(array);
 				String className = reader.getClassName();
-
-				ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-				PrintStream outStream = new PrintStream(byteStream);
-
-				PrintStream old_out = System.out;
-				PrintStream old_err = System.err;
-				System.setOut(outStream);
-				System.setErr(outStream);
 
 				// Use default classLoader
 				Class<?> clazz = Class.forName(className.replace("/", "."));
@@ -319,26 +318,41 @@ public class ScanProject {
 					}
 				}
 			} catch (IllegalAccessError e) {
+				System.setOut(old_out);
+				System.setErr(old_err);
+
 				System.out.println("  Cannot access class "
 				        + directory.getName().substring(0,
 				                                        directory.getName().length() - 6)
 				        + ": " + e);
 			} catch (NoClassDefFoundError e) {
+				System.setOut(old_out);
+				System.setErr(old_err);
+
 				System.out.println("  Error while loading "
 				        + directory.getName().substring(0,
 				                                        directory.getName().length() - 6)
 				        + ": Cannot find " + e.getMessage());
 				//e.printStackTrace();
 			} catch (ExceptionInInitializerError e) {
+				System.setOut(old_out);
+				System.setErr(old_err);
+
 				System.out.println("  Exception in initializer of "
 				        + directory.getName().substring(0,
 				                                        directory.getName().length() - 6));
 			} catch (ClassNotFoundException e) {
+				System.setOut(old_out);
+				System.setErr(old_err);
+
 				System.out.println("  Class not found in classpath: "
 				        + directory.getName().substring(0,
 				                                        directory.getName().length() - 6)
 				        + ": " + e);
 			} catch (Throwable e) {
+				System.setOut(old_out);
+				System.setErr(old_err);
+
 				System.out.println("  Unexpected error: "
 				        + directory.getName().substring(0,
 				                                        directory.getName().length() - 6)
