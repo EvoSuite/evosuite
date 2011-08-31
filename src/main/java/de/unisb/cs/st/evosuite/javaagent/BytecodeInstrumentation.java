@@ -50,10 +50,16 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 	protected static Logger logger = LoggerFactory.getLogger(BytecodeInstrumentation.class);
 
-	private static List<ClassAdapterFactory> externalVisitors = new ArrayList<ClassAdapterFactory>();
+	private static List<ClassAdapterFactory> externalPreVisitors = new ArrayList<ClassAdapterFactory>();
+
+	private static List<ClassAdapterFactory> externalPostVisitors = new ArrayList<ClassAdapterFactory>();
 
 	public static void addClassAdapter(ClassAdapterFactory factory) {
-		externalVisitors.add(factory);
+		externalPostVisitors.add(factory);
+	}
+
+	public static void addPreClassAdapter(ClassAdapterFactory factory) {
+		externalPreVisitors.add(factory);
 	}
 
 	public boolean isTargetProject(String className) {
@@ -144,12 +150,16 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			// cv = new CheckClassAdapter(cv);
 			// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 			// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
-			for (ClassAdapterFactory factory : externalVisitors) {
+			for (ClassAdapterFactory factory : externalPostVisitors) {
 				cv = factory.getVisitor(cv, className);
 			}
 			cv = new AccessibleClassAdapter(cv, className);
 			cv = new ExecutionPathClassAdapter(cv, className);
 			cv = new CFGClassAdapter(cv, className);
+
+			for (ClassAdapterFactory factory : externalPreVisitors) {
+				cv = factory.getVisitor(cv, className);
+			}
 
 		} else if (Properties.MAKE_ACCESSIBLE) {
 			// Convert protected/default access to public access
