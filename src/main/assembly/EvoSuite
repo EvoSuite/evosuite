@@ -291,7 +291,7 @@ setup ()
 	    done
 	    first=1
 
-	    java $java_options -cp "$classpath:$CP" -DPROJECT_PREFIX=$PROJECT_PREFIX $TEST_CLASS $OBJECT $MOCK $evosuite_scan
+	    java $java_options -cp "$classpath:$CP" -DCP=$CP -DPROJECT_PREFIX=$PROJECT_PREFIX $TEST_CLASS $OBJECT $MOCK $evosuite_scan
 	    setup_evosuite $OUTPUT_DIR $PROJECT_PREFIX $CP
 	}
     else {
@@ -333,7 +333,7 @@ setupDir ()
 	    done
 	    TARGET=${cmdline_arguments[0]}
 
-	    java $java_options -cp "$classpath:$CP" -DPROJECT_PREFIX= $TEST_CLASS $OBJECT $MOCK $evosuite_scan $TARGET
+	    java $java_options -cp "$classpath:$CP" -DCP=$CP -DPROJECT_PREFIX= $TEST_CLASS $OBJECT $MOCK $evosuite_scan $TARGET
 	    PROJECT_PREFIX=
 	    setup_evosuite $OUTPUT_DIR \"\" $CP
 	}
