@@ -1572,6 +1572,10 @@ public class TestCluster {
 			loadDependencies(neededDependencies, 0);
 	}
 
+	private void loadClass(Class<?> clazz, Set<Class<?>> dependencies) {
+
+	}
+
 	/**
 	 * If there is a class for which we have no generator, start a search of the
 	 * classpath to identify something that can serve as generator
@@ -1723,6 +1727,9 @@ public class TestCluster {
 
 	}
 
+	/**
+	 * Call each of the duplicated static constructors
+	 */
 	public void resetStaticClasses() {
 		ExecutionTracer.disable();
 		for (Method m : static_initializers) {
@@ -1743,6 +1750,9 @@ public class TestCluster {
 		ExecutionTracer.enable();
 	}
 
+	/**
+	 * Determine the set of classes that have static constructors
+	 */
 	private void getStaticClasses() {
 		Iterator<String> it = StaticInitializationClassAdapter.static_classes.iterator();
 		while (it.hasNext()) {
@@ -1788,5 +1798,125 @@ public class TestCluster {
 			classLoader = new InstrumentingClassLoader();
 
 		instance = new TestCluster();
+	}
+
+	/**
+	 * Find a class that matches the given name
+	 * 
+	 * @param name
+	 * @return
+	 * @throws ClassNotFoundException
+	 */
+	public Class<?> getClass(String name) throws ClassNotFoundException {
+
+		// First try to find exact match
+		for (Class<?> clazz : analyzedClasses) {
+			if (clazz.getName().equals(name))
+				return clazz;
+		}
+
+		// Then try to match a postfix
+		for (Class<?> clazz : analyzedClasses) {
+			if (clazz.getName().endsWith(name))
+				return clazz;
+		}
+
+		throw new ClassNotFoundException(name);
+
+	}
+
+	/**
+	 * Integrate a new class into the test cluster
+	 * 
+	 * @param name
+	 * @throws ClassNotFoundException
+	 */
+	public Class<?> importClass(String name) throws ClassNotFoundException {
+
+		Class<?> clazz = classLoader.loadClass(name);
+
+		analyzedClasses.add(clazz);
+
+		logger.trace("Importing class: " + name);
+
+		// Keep all accessible constructors
+		for (Constructor<?> constructor : getConstructors(clazz)) {
+			logger.trace("Considering constructor " + constructor);
+			if (test_excludes.containsKey(name)) {
+				boolean valid = true;
+				String full_name = "<init>"
+				        + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
+				for (String regex : test_excludes.get(name)) {
+					if (full_name.matches(regex)) {
+						logger.info("Found excluded constructor: " + constructor
+						        + " matches " + regex);
+						valid = false;
+						break;
+					}
+				}
+				if (!valid)
+					continue;
+			}
+			if (canUse(constructor)) {
+				logger.debug("Adding constructor " + constructor);
+				constructor.setAccessible(true);
+				calls.add(constructor);
+			} else {
+				logger.trace("Constructor " + constructor + " is not public");
+			}
+		}
+
+		// Keep all accessible methods
+		for (Method method : getMethods(clazz)) {
+			// if(method.getDeclaringClass().equals(Object.class))
+			// continue;
+			if (test_excludes.containsKey(name)) {
+				boolean valid = true;
+				String full_name = method.getName()
+				        + org.objectweb.asm.Type.getMethodDescriptor(method);
+				for (String regex : test_excludes.get(name)) {
+					if (full_name.matches(regex)) {
+						valid = false;
+						logger.info("Found excluded method: " + name + "." + full_name
+						        + " matches " + regex);
+						break;
+					}
+				}
+				if (!valid)
+					continue;
+			}
+			if (canUse(method)) {
+				method.setAccessible(true);
+				calls.add(method);
+				logger.debug("Adding method " + method);
+			}
+		}
+
+		// Keep all accessible fields
+		for (Field field : getFields(clazz)) {
+			if (test_excludes.containsKey(name)) {
+				boolean valid = true;
+				for (String regex : test_excludes.get(name)) {
+					if (field.getName().matches(regex)) {
+						valid = false;
+						logger.info("Found excluded field: " + name + "."
+						        + field.getName() + " matches " + regex);
+						break;
+					}
+				}
+				if (!valid)
+					continue;
+			}
+
+			if (canUse(field) && !Modifier.isFinal(field.getModifiers())) {
+				field.setAccessible(true);
+				calls.add(field);
+				logger.trace("Adding field " + field);
+			} else {
+				logger.trace("Cannot use field " + field);
+			}
+		}
+
+		return clazz;
 	}
 }
