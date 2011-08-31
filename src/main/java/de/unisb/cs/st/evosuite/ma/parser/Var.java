@@ -10,7 +10,9 @@ import japa.parser.ast.type.Type;
  *
  */
 public class Var {
+	
 	private String varName;
+	
 	private Type varType;
 	
 	public Var(String varName, Type varType) {
@@ -19,14 +21,14 @@ public class Var {
 	}
 	
 	/**
-	 * @return the varName
+	 * @return String
 	 */
 	public String getVarName() {
 		return varName;
 	}
 	
 	/**
-	 * @return the varType
+	 * @return Type
 	 */
 	public Type getVarType() {
 		return varType;

@@ -31,15 +31,19 @@ import de.unisb.cs.st.evosuite.ma.Editor;
  * @author Yury Pavlov
  */
 public class SimpleGUITestEditor implements IGUI {
-	protected final Object lock = new Object();
-	private JButton btnSaveTestCaseButton = new JButton("Save");
-	private SimpleGUISourceCode sourceCodeWindow = new SimpleGUISourceCode();
-	private TitledBorder editorTitledBorder = new TitledBorder(null,
-			"Test Editor", TitledBorder.LEADING, TitledBorder.TOP, null, null);
-	final JFrame mainFrame = new JFrame("MA Editor");
-	private JPanel testPanel = new JPanel();
 
-	// private final static Color RED = new Color(255, 150, 150);
+	private final Object lock = new Object();
+
+	private final JFrame mainFrame = new JFrame("MA Editor");
+
+	private final JButton btnSaveTestCaseButton = new JButton("Save");
+
+	private final SimpleGUISourceCode sourceCodeWindow = new SimpleGUISourceCode();
+
+	private final TitledBorder editorTitledBorder = new TitledBorder(null,
+			"Test Editor", TitledBorder.LEADING, TitledBorder.TOP, null, null);
+
+	private final JPanel testPanel = new JPanel();
 
 	/**
 	 * @wbp.parser.entryPoint
@@ -111,7 +115,8 @@ public class SimpleGUITestEditor implements IGUI {
 		testEditorPane.setText(editor.getCurrentTestCase().getTestCase()
 				.toCode());
 		updateLinesTextPane(testEditorPane, linesTextPane);
-		updateTitle(editor.getNumOfTestCases(), editor.getNumOfCurrntTest());
+		updateTitle(editor.getNumOfTestCases(), editor.getNumOfCurrntTest(),
+				editor);
 
 		JPanel controlPanel = new JPanel();
 		controlPanel.setBorder(null);
@@ -133,7 +138,7 @@ public class SimpleGUITestEditor implements IGUI {
 						.getTestCase().toCode());
 				setTestCaseUnchanged();
 				updateTitle(editor.getNumOfTestCases(),
-						editor.getNumOfCurrntTest());
+						editor.getNumOfCurrntTest(), editor);
 			}
 		});
 
@@ -153,7 +158,7 @@ public class SimpleGUITestEditor implements IGUI {
 						.getTestCase().toCode());
 				setTestCaseUnchanged();
 				updateTitle(editor.getNumOfTestCases(),
-						editor.getNumOfCurrntTest());
+						editor.getNumOfCurrntTest(), editor);
 			}
 		});
 		btnNextTestButton.setBounds(160, 12, 119, 25);
@@ -169,7 +174,7 @@ public class SimpleGUITestEditor implements IGUI {
 						.getTestCase().toCode());
 				setTestCaseUnchanged();
 				updateTitle(editor.getNumOfTestCases(),
-						editor.getNumOfCurrntTest());
+						editor.getNumOfCurrntTest(), editor);
 			}
 		});
 		btnDeleteTest.setBounds(305, 43, 119, 25);
@@ -183,7 +188,7 @@ public class SimpleGUITestEditor implements IGUI {
 				testEditorPane.setText("");
 				setTestCaseChanged();
 				updateTitle(editor.getNumOfTestCases(),
-						editor.getNumOfCurrntTest());
+						editor.getNumOfCurrntTest(), editor);
 			}
 		});
 		btnNewTestButton.setBounds(305, 12, 119, 25);
@@ -196,7 +201,7 @@ public class SimpleGUITestEditor implements IGUI {
 				editor.createNewTestCase();
 				setTestCaseChanged();
 				updateTitle(editor.getNumOfTestCases(),
-						editor.getNumOfCurrntTest());
+						editor.getNumOfCurrntTest(), editor);
 			}
 		});
 		btnInsertTestButton.setBounds(160, 43, 119, 25);
@@ -207,15 +212,15 @@ public class SimpleGUITestEditor implements IGUI {
 			public void mouseClicked(MouseEvent e) {
 				// new TestCase was created and inserted in population
 				if (editor.saveTest(testEditorPane.getText())) {
-				sourceCodeWindow.printSourceCode(editor);
-				testEditorPane.setText(editor.getCurrentTestCase()
-						.getTestCase().toCode());
-				setTestCaseUnchanged();
-				updateTitle(editor.getNumOfTestCases(),
-						editor.getNumOfCurrntTest());
-				// there is some problem in creating of TestCase 
+					sourceCodeWindow.printSourceCode(editor);
+					testEditorPane.setText(editor.getCurrentTestCase()
+							.getTestCase().toCode());
+					setTestCaseUnchanged();
+					updateTitle(editor.getNumOfTestCases(),
+							editor.getNumOfCurrntTest(), editor);
+					// there is some problem in creating of TestCase
 				} else {
-					
+
 				}
 			}
 		});
@@ -270,9 +275,9 @@ public class SimpleGUITestEditor implements IGUI {
 		btnSaveTestCaseButton.setText("Save");
 	}
 
-	private void updateTitle(int numAllTests, int numCurrentTest) {
-		editorTitledBorder.setTitle("Test Editor " + numAllTests + " / "
-				+ (numCurrentTest + 1));
+	private void updateTitle(int numAllTests, int numCurrentTest, Editor editor) {
+		editorTitledBorder.setTitle("Test Editor     " + (numCurrentTest + 1)
+				+ " / " + numAllTests + "     Coverage: " + editor.getCoveratgeRatio() + "%");
 		testPanel.repaint();
 	}
 
@@ -284,8 +289,6 @@ public class SimpleGUITestEditor implements IGUI {
 			int start = 0;
 			int end = 0;
 
-			// look for newline char, and then toggle between white, green or
-			// red painters.
 			int i = 1;
 			String numLines = "";
 
@@ -301,7 +304,7 @@ public class SimpleGUITestEditor implements IGUI {
 		}
 	}
 
-	public void showParserException(String message) {
+	public void showParseException(String message) {
 		JOptionPane.showMessageDialog(mainFrame, message, "Parsing error",
 				JOptionPane.ERROR_MESSAGE);
 	}

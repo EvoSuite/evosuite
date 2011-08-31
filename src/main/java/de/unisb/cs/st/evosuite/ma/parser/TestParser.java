@@ -30,11 +30,12 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import cvc3.ParserException;
-
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ma.gui.IGUI;
+import de.unisb.cs.st.evosuite.testcase.AbstractStatement;
+import de.unisb.cs.st.evosuite.testcase.ArrayStatement;
+import de.unisb.cs.st.evosuite.testcase.AssignmentStatement;
 import de.unisb.cs.st.evosuite.testcase.BooleanPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.BytePrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.CharPrimitiveStatement;
@@ -56,9 +57,16 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  * 
  */
 public class TestParser {
-	private static TypeTable tt = new TypeTable();
-	private static Class<?> clazz = null;
-	private static IGUI gui;
+
+	private final TypeTable tt = new TypeTable();
+
+	private final IGUI gui;
+
+	private TestCase newTestCase;
+
+	public TestParser(IGUI pgui) {
+		gui = pgui;
+	}
 
 	/**
 	 * Parse a testCase in form of {@link String} to List<StatementInterface>
@@ -74,73 +82,113 @@ public class TestParser {
 	 * @throws IOException
 	 * @throws ParseException
 	 */
-	public static TestCase parsTest(String testCode, TestCase currentTestCase,
-			IGUI pgui) throws IOException {
-		gui = pgui;
-		try {
-			clazz = TestCluster.classLoader.loadClass(Properties.TARGET_CLASS);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
+	public TestCase parsTest(String testCode) throws IOException {
+		TestCase res = null;
 
 		CompilationUnit cu = null;
-		testCode = prepareTestCode(testCode);
-		InputStream inputStream = createInputStream(testCode);
+		testCode = "class DummyCl{void DummyMt(){" + testCode + "}}";
+		InputStream inputStream = new ByteArrayInputStream(testCode.getBytes());
 
 		try {
 			cu = JavaParser.parse(inputStream);
 		} catch (ParseException e) {
-			gui.showParserException(e.getMessage());
+			gui.showParseException(e.getMessage());
 			// e.printStackTrace();
-
 		} finally {
 			inputStream.close();
 		}
 
-		List<Expression> expressionStmts = getExpressionStmt(cu);
-		TestCase newTestCase = new DefaultTestCase();
+		List<Expression> exprStmts = getExpressionStmt(cu);
+		newTestCase = new DefaultTestCase();
 		try {
-			for (Expression expression : expressionStmts) {
+			for (Expression expr : exprStmts) {
 
-				if (expression instanceof VariableDeclarationExpr) {
-					createNewVariableStatements(currentTestCase, expression,
-							newTestCase);
+				if (expr instanceof VariableDeclarationExpr) {
+					createVariableStatements(expr);
 				}
 
-				if (expression instanceof AssignExpr) {
-					createNewAssignStatments(currentTestCase, expression,
-							newTestCase);
+				if (expr instanceof AssignExpr) {
+					createAssignStatments(expr);
 				}
 
-				if (expression instanceof MethodCallExpr) {
-					createNewMethodCallStatments(currentTestCase, expression,
-							newTestCase);
+				if (expr instanceof MethodCallExpr) {
+					createMethodCallStatments(expr);
 				}
 			}
-			System.out.println("---------------------------------------------");
+			System.out.println("\n-------------------------------------------");
 			System.out.println(newTestCase.toCode());
-			return newTestCase;
-		} catch (ParserException e) {
-			gui.showParserException(e.getMessage());
+			System.out.println("===========================================");
+			res = newTestCase;
+		} catch (ParseException e) {
+			gui.showParseException(e.getMessage());
 		}
-		return null;
+		return res;
+	}
+
+	/**
+	 * Create new Evosuite statements {@link VariableReference} from parsed code
+	 * 
+	 * @param currentTestCase
+	 *            to insert new statements
+	 * @param expression
+	 *            from parser
+	 * @param newTestCase
+	 * @throws ParseException
+	 */
+	private void createVariableStatements(Expression expr)
+			throws ParseException {
+		VariableDeclarationExpr varDeclarationExpr = (VariableDeclarationExpr) expr;
+		Type parserType = varDeclarationExpr.getType();
+
+		// get all vars, but usually there is only one?
+		List<VariableDeclarator> vars = varDeclarationExpr.getVars();
+
+		for (VariableDeclarator varDeclarator : vars) {
+			AbstractStatement newStatement = null;
+			if (parserType instanceof PrimitiveType) {
+				newStatement = createPrimitiveStatement(parserType,
+						varDeclarator);
+			}
+			if (parserType instanceof ClassOrInterfaceType) {
+				throw new ParseException(null,
+						"ClassOrInterfaceType not implemented yet");
+			}
+			if (parserType instanceof ReferenceType) {
+
+				newStatement = createReferenceType(parserType, varDeclarator);
+			}
+			if (parserType instanceof WildcardType) {
+				throw new ParseException(null,
+						"WildcardType not implemented yet");
+			}
+
+			if (newStatement != null) {
+				tt.addVariableReference(newStatement.getVariableReferences());
+				tt.addVar(new Var(varDeclarator.getId().toString(), parserType));
+				newTestCase.addStatement(newStatement);
+			}
+		}
 	}
 
 	/**
 	 * @param currentTestCase
 	 * @param expression
 	 * @param newTestCase
-	 * @param clazz
+	 * @throws ParseException
 	 */
-	private static void createNewMethodCallStatments(TestCase currentTestCase,
-			Expression expression, TestCase newTestCase) {
-		MethodCallExpr methodCallExpr = (MethodCallExpr) expression;
+	private void createMethodCallStatments(Expression expr)
+			throws ParseException {
+		MethodCallExpr methodCallExpr = (MethodCallExpr) expr;
 
-		List<Type> argTypes = getArgTypes(methodCallExpr.getArgs());
-		Class<?>[] parameterTypes = convertParamsTypes(argTypes);
+		List<Type> argTypes = getVarTypesFromTT(methodCallExpr.getArgs());
+		Class<?>[] parameterTypes = convertVarTypes(argTypes);
 
 		String methodName = methodCallExpr.getName();
-		methodCallExpr.getClass();
+
+		// look in TT type of var and load right class
+		Class<?> clazz = getClass(tt.getType(methodCallExpr.getScope()
+				.toString()));
+
 		Method method = null;
 		try {
 			method = clazz.getMethod(methodName, parameterTypes);
@@ -148,23 +196,160 @@ public class TestParser {
 			System.out.println("In TestParser.createNewMethodCallStatments():");
 			e.printStackTrace();
 		} catch (NoSuchMethodException e) {
-			gui.showParserException(e.getMessage());
+			gui.showParseException(e.getMessage());
 			// e.printStackTrace();
 		}
 
 		String calleeName = methodCallExpr.getScope().toString();
-		VariableReference callee = retrieveVariableReference(calleeName,
-				newTestCase);
+		VariableReference callee = tt.getVarReference(calleeName);
 
-		List<String> paramNames = getArgNames(methodCallExpr.getArgs());
-		List<VariableReference> paramReferences = new ArrayList<VariableReference>();
-		for (String paramName : paramNames) {
-			paramReferences.add(retrieveVariableReference(paramName,
-					newTestCase));
-		}
+		List<VariableReference> paramReferences = getVarReferences(methodCallExpr
+				.getArgs());
 
 		newTestCase.addStatement(new MethodStatement(newTestCase, method,
 				callee, method.getGenericReturnType(), paramReferences));
+	}
+
+	/**
+	 * @param currentTestCase
+	 * @param expression
+	 * @param newTestCase
+	 * @throws ParseException
+	 */
+	private void createAssignStatments(Expression expr) throws ParseException {
+		AssignExpr assignExpr = (AssignExpr) expr;
+		VariableReference varReference = null;
+		VariableReference valReference = null;
+		switch (assignExpr.getOperator()) {
+		case assign:
+			varReference = getVarReference(assignExpr.getTarget());
+			valReference = getVarReference(assignExpr.getValue());
+			break;
+		}
+		if (varReference != null && valReference != null) {
+			newTestCase.addStatement(new AssignmentStatement(newTestCase,
+					varReference, valReference));
+		}
+	}
+
+	/**
+	 * Convert the variable statement in parser form to the Evosuite statement
+	 * 
+	 * Boolean, Char, Byte, Short, Int, Long, Float, Double
+	 * 
+	 * @param newTestCase
+	 * @param varDeclarator
+	 * 
+	 * @param parstype
+	 *            type to convert
+	 * @return res type of Evosuite
+	 * @throws ParseException
+	 */
+	private PrimitiveStatement<?> createPrimitiveStatement(Type parserType,
+			VariableDeclarator varDeclarator) throws ParseException {
+
+		PrimitiveType primType = (PrimitiveType) parserType;
+		String varName = varDeclarator.getId().getName();
+		String correctVarName = "var" + (varDeclarator.getBeginLine() - 1);
+		if (!varName.equals(correctVarName)) {
+			throw new ParseException(null, varName
+					+ " has wrong name! It must be: " + correctVarName);
+		}
+
+		Var var = new Var(varDeclarator.getId().getName(), parserType);
+		tt.addVar(var);
+
+		switch (primType.getType()) {
+		case Char:
+			return new CharPrimitiveStatement(newTestCase, varDeclarator
+					.getInit().toString().charAt(1));
+		case Byte:
+			return new BytePrimitiveStatement(newTestCase,
+					Byte.parseByte(varDeclarator.getInit().toString()));
+		case Short:
+			return new ShortPrimitiveStatement(newTestCase,
+					Short.parseShort(varDeclarator.getInit().toString()));
+		case Int:
+			return new IntPrimitiveStatement(newTestCase,
+					Integer.parseInt(varDeclarator.getInit().toString()));
+		case Long:
+			return new LongPrimitiveStatement(newTestCase,
+					Long.parseLong(varDeclarator.getInit().toString()));
+		case Float:
+			return new FloatPrimitiveStatement(newTestCase,
+					Float.parseFloat(varDeclarator.getInit().toString()));
+		case Double:
+			return new DoublePrimitiveStatement(newTestCase,
+					Double.parseDouble(varDeclarator.getInit().toString()));
+		case Boolean:
+			return new BooleanPrimitiveStatement(newTestCase,
+					Boolean.parseBoolean(varDeclarator.getInit().toString()));
+		default:
+			throw new IllegalArgumentException(
+					"convertPrimitiveType(Type parsType) can't obtain primitive Type");
+		}
+	}
+	
+	/**
+	 * 
+	 * @param parserType
+	 * @param newTestCase
+	 * @param variableDeclarator
+	 * @return
+	 * @throws ParseException
+	 */
+	private AbstractStatement createReferenceType(Type parserType,
+			VariableDeclarator variableDeclarator) throws ParseException {
+		AbstractStatement res = null;
+		Expression rightExpression = variableDeclarator.getInit();
+
+		if (rightExpression != null) {
+			// case of assign: methCall, just another var, some el of array etc
+			if (rightExpression instanceof MethodCallExpr) {
+				System.out.println("TestParser.newConstructorStatement() "
+						+ "Reference variable can get value in different ways");
+			}
+
+			// case of creation new Object
+			if (rightExpression instanceof ObjectCreationExpr) {
+				Class<?> clazz = getClass(parserType);
+				ObjectCreationExpr objCreationExpr = (ObjectCreationExpr) rightExpression;
+				Class<?>[] paramTypes = convertVarTypes(objCreationExpr
+						.getTypeArgs());
+				List<VariableReference> params = getVarReferences(objCreationExpr
+						.getArgs());
+
+				Constructor<?> constructor = null;
+				try {
+					constructor = clazz.getConstructor(paramTypes);
+				} catch (SecurityException e) {
+					System.out.println("317 TestParser.newConstructorStatemen");
+					e.printStackTrace();
+				} catch (NoSuchMethodException e) {
+					System.out.println("321 TestParser.newConstructorStatemen");
+					e.printStackTrace();
+				}
+
+				res = new ConstructorStatement(newTestCase, constructor, clazz,
+						params);
+			}
+
+			// Array
+			if (rightExpression instanceof ArrayCreationExpr) {
+				ArrayCreationExpr arrayCreationExpr = (ArrayCreationExpr) rightExpression;
+
+				// Array can't be created with var. length
+				int arraySize = Integer.parseInt(arrayCreationExpr
+						.getDimensions().get(0).toString());
+				res = new ArrayStatement(newTestCase,
+						getClass(arrayCreationExpr.getType()), arraySize);
+			}
+		} else {
+			throw new ParseException(null,
+					"There is no right side of declaration ecpression!");
+		}
+
+		return res;
 	}
 
 	/**
@@ -172,18 +357,29 @@ public class TestParser {
 	 * 
 	 * @param args
 	 * @return
+	 * @throws ParseException
 	 */
-	private static List<String> getArgNames(List<Expression> args) {
-		List<String> res = new ArrayList<String>();
+	private List<VariableReference> getVarReferences(List<Expression> args)
+			throws ParseException {
+		List<VariableReference> res = new ArrayList<VariableReference>();
 		if (args != null) {
 			for (Expression expr : args) {
-				if (expr instanceof NameExpr) {
-					NameExpr nameExpr = (NameExpr) expr;
-					res.add(nameExpr.getName());
-				}
+				res.add(getVarReference(expr));
 			}
 		}
 		return res;
+	}
+
+	private VariableReference getVarReference(Expression expr)
+			throws ParseException {
+		String varName = "";
+		if (expr instanceof NameExpr) {
+			NameExpr nameExpr = (NameExpr) expr;
+			varName = nameExpr.getName();
+		} else {
+			throw new ParseException(null, "noop!!!");
+		}
+		return tt.getVarReference(varName);
 	}
 
 	/**
@@ -191,8 +387,10 @@ public class TestParser {
 	 * 
 	 * @param args
 	 * @return
+	 * @throws ParseException
 	 */
-	private static List<Type> getArgTypes(List<Expression> args) {
+	private List<Type> getVarTypesFromTT(List<Expression> args)
+			throws ParseException {
 		List<Type> res = new ArrayList<Type>();
 		if (args != null) {
 			for (Expression expr : args) {
@@ -206,179 +404,22 @@ public class TestParser {
 	}
 
 	/**
-	 * @param calleeName
-	 * @param newTestCase
+	 * @param types
 	 * @return
+	 * @throws ParseException
 	 */
-	private static VariableReference retrieveVariableReference(
-			String calleeName, TestCase newTestCase) {
-		List<VariableReference> listVariableReferences = new ArrayList<VariableReference>();
-		for (int i = 0; i < newTestCase.size(); i++) {
-			listVariableReferences.addAll(newTestCase.getStatement(i)
-					.getVariableReferences());
-		}
-
-		for (VariableReference variableReference : listVariableReferences) {
-			if (variableReference.getName().equals(calleeName)) {
-				return variableReference;
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * Create new Evosuite statements {@link VariableReference} from parsed code
-	 * 
-	 * @param currentTestCase
-	 *            to insert new statements
-	 * @param expression
-	 *            from parser
-	 * @param newTestCase
-	 * @param clazz
-	 */
-	private static void createNewVariableStatements(TestCase currentTestCase,
-			Expression expression, TestCase newTestCase) {
-		VariableDeclarationExpr variableDeclarationExpr = (VariableDeclarationExpr) expression;
-		Type parserType = variableDeclarationExpr.getType();
-
-		// get all vars, but usually there is only one?
-		List<VariableDeclarator> vars = variableDeclarationExpr.getVars();
-
-		for (VariableDeclarator variableDeclarator : vars) {
-			if (parserType instanceof PrimitiveType) {
-				newTestCase.addStatement(newPrimitiveStatement(parserType,
-						newTestCase, variableDeclarator));
-			}
-			if (parserType instanceof ClassOrInterfaceType) {
-				System.out.println("ClassOrInterfaceType not implemented yet");
-			}
-			if (parserType instanceof ReferenceType) {
-				ConstructorStatement newConstructorStatement = newReferenceType(
-						parserType, newTestCase, variableDeclarator);
-				if (newConstructorStatement != null) {
-					newTestCase.addStatement(newConstructorStatement);
-				}
-			}
-			if (parserType instanceof WildcardType) {
-				System.out.println("WildcardType not implemented yet");
-			}
-		}
-	}
-
-	/**
-	 * 
-	 * @param parserType
-	 * @param newTestCase
-	 * @param variableDeclarator
-	 * @param clazz
-	 * @return
-	 */
-	private static ConstructorStatement newReferenceType(Type parserType,
-			TestCase newTestCase, VariableDeclarator variableDeclarator) {
-		ConstructorStatement res = null;
-		Expression rightExpression = variableDeclarator.getInit();
-
-		if (rightExpression != null) {
-			// case of assign: methCall, just another var, some el of array etc
-			if (variableDeclarator.getInit() instanceof MethodCallExpr) {
-				System.out
-						.println("TestParser.newConstructorStatement() Reference variable can get value in different ways");
-			}
-
-			// case of creation new Object
-			if (variableDeclarator.getInit() instanceof ObjectCreationExpr) {
-				ObjectCreationExpr objCreationExpr = (ObjectCreationExpr) variableDeclarator
-						.getInit();
-				Class<?>[] parameterTypes = convertParamsTypes(objCreationExpr
-						.getTypeArgs());
-				List<VariableReference> parameters = getParams(objCreationExpr
-						.getArgs());
-
-				Constructor<?> constructor = null;
-				try {
-					constructor = clazz.getConstructor(parameterTypes);
-				} catch (SecurityException e) {
-					System.out
-							.println("In TestParser.newConstructorStatement():");
-					e.printStackTrace();
-				} catch (NoSuchMethodException e) {
-					System.out
-							.println("In TestParser.newConstructorStatement():");
-					e.printStackTrace();
-				}
-
-				res = new ConstructorStatement(newTestCase, constructor, clazz,
-						parameters);
-			}
-
-			if (variableDeclarator.getInit() instanceof ArrayCreationExpr) {
-
-			}
-		} else {
-			throw new ParserException("There is no right side of declaration ecpression!");
-		}
-
-		return res;
-	}
-
-	/**
-	 * @param args
-	 * @return
-	 */
-	private static List<VariableReference> getParams(List<Expression> args) {
-		List<VariableReference> res = new ArrayList<VariableReference>();
-		return res;
-	}
-
-	/**
-	 * @param typeArgs
-	 * @return
-	 */
-	private static Class<?>[] convertParamsTypes(List<Type> typeArgs) {
-		if (typeArgs == null) {
+	private Class<?>[] convertVarTypes(List<Type> types) throws ParseException {
+		if (types == null) {
 			return null;
 		}
-		if (typeArgs.size() == 0) {
+		if (types.size() == 0) {
 			return null;
 		}
 
 		List<Class<?>> res = new ArrayList<Class<?>>();
 
-		for (Type paramType : typeArgs) {
-			if (paramType instanceof PrimitiveType) {
-				PrimitiveType primitiveParamType = (PrimitiveType) paramType;
-
-				switch (primitiveParamType.getType()) {
-				case Char:
-					res.add(Character.TYPE);
-					break;
-				case Byte:
-					res.add(Byte.TYPE);
-					break;
-				case Short:
-					res.add(Short.TYPE);
-					break;
-				case Int:
-					res.add(Integer.TYPE);
-					break;
-				case Long:
-					res.add(Long.TYPE);
-					break;
-				case Float:
-					res.add(Float.TYPE);
-					break;
-				case Double:
-					res.add(Double.TYPE);
-					break;
-				case Boolean:
-					res.add(Boolean.TYPE);
-					break;
-				default:
-					throw new IllegalArgumentException(
-							"convertParams(Type parsType) can't obtain primitive Type");
-				}
-			}
+		for (Type parsType : types) {
+			res.add(getClass(parsType ));
 		}
 
 		Class<?>[] resArray = new Class<?>[res.size()];
@@ -386,74 +427,56 @@ public class TestParser {
 	}
 
 	/**
-	 * @param currentTestCase
-	 * @param expression
-	 * @param newTestCase
-	 * @param clazz
+	 * @param typeArgs
+	 * @return
+	 * @throws ParseException
 	 */
-	private static void createNewAssignStatments(TestCase currentTestCase,
-			Expression expression, TestCase newTestCase) {
-		// TODO
-		System.out.println("Warning AssignExpr!");
-	}
-
-	/**
-	 * Convert the variable statement in parser form to the Evosuite statement
-	 * 
-	 * Boolean, Char, Byte, Short, Int, Long, Float, Double
-	 * 
-	 * @param newTestCase
-	 * @param variableDeclarator
-	 * 
-	 * @param parstype
-	 *            type to convert
-	 * @return res type of Evosuite
-	 */
-	private static PrimitiveStatement<?> newPrimitiveStatement(Type parserType,
-			TestCase newTestCase, VariableDeclarator variableDeclarator) {
-
-		PrimitiveType primitiveType = (PrimitiveType) parserType;
-		String varName = variableDeclarator.getId().getName();
-		String correctVarName = "var" + (variableDeclarator.getBeginLine() - 1);
-		if (!varName.equals(correctVarName)) {
-			throw new ParserException(varName + " has wrong name! It must be: "
-					+ correctVarName);
+	private Class<?> getClass(Type parsType) throws ParseException {
+		if (parsType == null) {
+			return null;
 		}
 
-		Var var = new Var(variableDeclarator.getId().getName(), parserType);
-		tt.addVar(var);
+		if (parsType instanceof PrimitiveType) {
+			PrimitiveType primitiveParamType = (PrimitiveType) parsType;
 
-		switch (primitiveType.getType()) {
-		case Char:
-			return new CharPrimitiveStatement(newTestCase, variableDeclarator
-					.getInit().toString().charAt(1));
-		case Byte:
-			return new BytePrimitiveStatement(newTestCase,
-					Byte.parseByte(variableDeclarator.getInit().toString()));
-		case Short:
-			return new ShortPrimitiveStatement(newTestCase,
-					Short.parseShort(variableDeclarator.getInit().toString()));
-		case Int:
-			return new IntPrimitiveStatement(newTestCase,
-					Integer.parseInt(variableDeclarator.getInit().toString()));
-		case Long:
-			return new LongPrimitiveStatement(newTestCase,
-					Long.parseLong(variableDeclarator.getInit().toString()));
-		case Float:
-			return new FloatPrimitiveStatement(newTestCase,
-					Float.parseFloat(variableDeclarator.getInit().toString()));
-		case Double:
-			return new DoublePrimitiveStatement(newTestCase,
-					Double.parseDouble(variableDeclarator.getInit().toString()));
-		case Boolean:
-			return new BooleanPrimitiveStatement(newTestCase,
-					Boolean.parseBoolean(variableDeclarator.getInit()
-							.toString()));
-		default:
-			throw new IllegalArgumentException(
-					"convertPrimitiveType(Type parsType) can't obtain primitive Type");
+			switch (primitiveParamType.getType()) {
+			case Char:
+				return Character.TYPE;
+			case Byte:
+				return Byte.TYPE;
+			case Short:
+				return Short.TYPE;
+			case Int:
+				return Integer.TYPE;
+			case Long:
+				return Long.TYPE;
+			case Float:
+				return Float.TYPE;
+			case Double:
+				return Double.TYPE;
+			case Boolean:
+				return Boolean.TYPE;
+			default:
+				throw new IllegalArgumentException(
+						"convertParams(Type parsType) can't obtain primitive Type");
+			}
 		}
+		if (parsType instanceof ReferenceType) {
+			ReferenceType refType = (ReferenceType) parsType;
+			String fullClassName = Properties.PROJECT_PREFIX + "."
+					+ refType.getType();
+			try {
+				return TestCluster.classLoader.loadClass(fullClassName);
+			} catch (ClassNotFoundException e) {
+				throw new ParseException(null, "Can not load class: "
+						+ fullClassName);
+				// e.printStackTrace();
+			}
+		}
+		return null;
 	}
+	
+	
 
 	/**
 	 * Return parsed expression statements of new {@link TestCase} from GUI
@@ -461,7 +484,7 @@ public class TestParser {
 	 * 
 	 * @param cu
 	 */
-	private static List<Expression> getExpressionStmt(CompilationUnit cu) {
+	private List<Expression> getExpressionStmt(CompilationUnit cu) {
 		List<Expression> res = new ArrayList<Expression>();
 		TypeDeclaration typeDeclaration = cu.getTypes().get(0);
 		BodyDeclaration member = typeDeclaration.getMembers().get(0);
@@ -479,29 +502,6 @@ public class TestParser {
 			}
 		}
 
-		return res;
-	}
-
-	/**
-	 * Add class declaration string to test code, because {@link JavaParser}
-	 * pars only complete java class
-	 * 
-	 * @param testCode
-	 *            to modify
-	 */
-	private static String prepareTestCode(String testCode) {
-		return "class DummyCl{void DummyMt(){" + testCode + "}}";
-	}
-
-	/**
-	 * Convert {@link String} variable to {@link InputStream}
-	 * 
-	 * @param str
-	 *            {@link String} to convert
-	 * @return new {@link InputStream} variable
-	 */
-	private static InputStream createInputStream(String str) {
-		InputStream res = new ByteArrayInputStream(str.getBytes());
 		return res;
 	}
 
