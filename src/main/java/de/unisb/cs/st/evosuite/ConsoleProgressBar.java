@@ -62,7 +62,7 @@ public class ConsoleProgressBar implements SearchListener {
 
 	private StoppingCondition stoppingCondition = null;
 
-	private int max = 1;
+	private long max = 1;
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.SearchListener#searchStarted(de.unisb.cs.st.evosuite.ga.GeneticAlgorithm)
@@ -78,8 +78,8 @@ public class ConsoleProgressBar implements SearchListener {
 	 */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
-		int current = stoppingCondition.getCurrentValue();
-		printProgressBar(100 * current / max,
+		long current = stoppingCondition.getCurrentValue();
+		printProgressBar((int) (100 * current / max),
 		                 (int) Math.round(((TestSuiteChromosome) algorithm.getBestIndividual()).getCoverage() * 100));
 	}
 

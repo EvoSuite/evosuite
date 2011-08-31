@@ -102,7 +102,7 @@ public abstract class StoppingCondition implements SearchListener, Serializable 
 	 * 
 	 * @param limit
 	 */
-	public abstract void setLimit(int limit);
+	public abstract void setLimit(long limit);
 
 	/**
 	 * Get upper limit of resources
@@ -111,14 +111,14 @@ public abstract class StoppingCondition implements SearchListener, Serializable 
 	 * 
 	 * @return limit
 	 */
-	public abstract int getLimit();
+	public abstract long getLimit();
 
 	/**
 	 * How much of the budget have we used up
 	 * 
 	 * @return
 	 */
-	public abstract int getCurrentValue();
+	public abstract long getCurrentValue();
 
 	@Override
 	public String toString() {
@@ -129,7 +129,7 @@ public abstract class StoppingCondition implements SearchListener, Serializable 
 		} catch (Exception e) {
 		}
 		// cut away "StoppingCondition" suffix
-		if(type.endsWith("StoppingCondition"))
+		if (type.endsWith("StoppingCondition"))
 			type = type.substring(0, type.length() - 17);
 		type += " :";
 		type = StringUtils.rightPad(type, 24);

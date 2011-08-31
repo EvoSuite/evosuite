@@ -76,6 +76,12 @@ public class Properties {
 		int max() default Integer.MAX_VALUE;
 	}
 
+	public @interface LongValue {
+		long min() default Long.MIN_VALUE;
+
+		long max() default Long.MAX_VALUE;
+	}
+
 	public @interface DoubleValue {
 		double min() default -(Double.MAX_VALUE - 1); // FIXXME: Check
 
@@ -227,8 +233,8 @@ public class Properties {
 	public static int POPULATION = 50;
 
 	@Parameter(key = "generations", group = "Search Algorithm", description = "Maximum search duration")
-	@IntValue(min = 1)
-	public static int GENERATIONS = 1000000;
+	@LongValue(min = 1)
+	public static long GENERATIONS = 1000000;
 
 	public static String PROPERTIES_FILE = "properties_file";
 
@@ -712,6 +718,21 @@ public class Properties {
 	}
 
 	/**
+	 * Get long boundaries
+	 * 
+	 * @param key
+	 * @return
+	 * @throws NoSuchParameterException
+	 */
+	public static LongValue getLongLimits(String key) throws NoSuchParameterException {
+		if (!parameterMap.containsKey(key))
+			throw new NoSuchParameterException(key);
+
+		Field f = parameterMap.get(key);
+		return f.getAnnotation(LongValue.class);
+	}
+
+	/**
 	 * Get double boundaries
 	 * 
 	 * @param key
@@ -741,6 +762,23 @@ public class Properties {
 			throw new NoSuchParameterException(key);
 
 		return parameterMap.get(key).getInt(null);
+	}
+
+	/**
+	 * Get an integer parameter value
+	 * 
+	 * @param key
+	 * @return
+	 * @throws NoSuchParameterException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 */
+	public static long getLongValue(String key) throws NoSuchParameterException,
+	        IllegalArgumentException, IllegalAccessException {
+		if (!parameterMap.containsKey(key))
+			throw new NoSuchParameterException(key);
+
+		return parameterMap.get(key).getLong(null);
 	}
 
 	/**
@@ -833,6 +871,31 @@ public class Properties {
 	}
 
 	/**
+	 * Set parameter to new long value
+	 * 
+	 * @param key
+	 * @param value
+	 * @throws NoSuchParameterException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 */
+	public void setValue(String key, long value) throws NoSuchParameterException,
+	        IllegalArgumentException, IllegalAccessException {
+		if (!parameterMap.containsKey(key))
+			throw new NoSuchParameterException(key);
+
+		Field f = parameterMap.get(key);
+
+		if (f.isAnnotationPresent(LongValue.class)) {
+			LongValue i = f.getAnnotation(LongValue.class);
+			if (value < i.min() || value > i.max())
+				throw new IllegalArgumentException();
+		}
+
+		f.setLong(this, value);
+	}
+
+	/**
 	 * Set parameter to new boolean value
 	 * 
 	 * @param key
@@ -894,6 +957,8 @@ public class Properties {
 			f.set(null, Enum.valueOf((Class<Enum>) f.getType(), value.toUpperCase()));
 		} else if (f.getType().equals(int.class)) {
 			setValue(key, Integer.parseInt(value));
+		} else if (f.getType().equals(long.class)) {
+			setValue(key, Long.parseLong(value));
 		} else if (f.getType().equals(boolean.class)) {
 			setValue(key, Boolean.parseBoolean(value));
 		} else if (f.getType().equals(double.class)) {

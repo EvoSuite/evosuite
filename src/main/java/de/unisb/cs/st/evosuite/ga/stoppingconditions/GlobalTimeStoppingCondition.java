@@ -15,7 +15,7 @@ public class GlobalTimeStoppingCondition extends StoppingCondition {
 	private static final long serialVersionUID = -4880914182984895075L;
 
 	/** Maximum number of seconds. 0 = infinite time */
-	protected static int max_seconds = Properties.GLOBAL_TIMEOUT;
+	protected static long max_seconds = Properties.GLOBAL_TIMEOUT;
 
 	/** Assume the search has not started until start_time != 0 */
 	protected static long start_time = 0L;
@@ -30,7 +30,7 @@ public class GlobalTimeStoppingCondition extends StoppingCondition {
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
 	@Override
-	public int getCurrentValue() {
+	public long getCurrentValue() {
 		long current_time = System.currentTimeMillis();
 		return (int) ((current_time - start_time) / 1000);
 	}
@@ -62,17 +62,17 @@ public class GlobalTimeStoppingCondition extends StoppingCondition {
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
 	@Override
-	public void setLimit(int limit) {
+	public void setLimit(long limit) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public int getLimit() {
+	public long getLimit() {
 		// TODO Auto-generated method stub
 		return max_seconds;
 	}
-	
+
 	public static void forceReset() {
 		start_time = 0;
 	}
