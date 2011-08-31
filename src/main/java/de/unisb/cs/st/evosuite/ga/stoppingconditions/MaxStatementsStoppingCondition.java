@@ -38,7 +38,7 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 	private static Logger logger = LoggerFactory.getLogger(MaxStatementsStoppingCondition.class);
 
 	/** Maximum number of iterations */
-	protected static int max_statements = Properties.GENERATIONS;
+	protected static long max_statements = Properties.GENERATIONS;
 
 	/** Maximum number of iterations */
 	protected static int current_statement = 0;
@@ -86,7 +86,7 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
 	@Override
-	public int getCurrentValue() {
+	public long getCurrentValue() {
 		return current_statement;
 	}
 
@@ -94,12 +94,12 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
 	@Override
-	public void setLimit(int limit) {
+	public void setLimit(long limit) {
 		max_statements = limit;
 	}
 
 	@Override
-	public int getLimit() {
+	public long getLimit() {
 		return max_statements;
 	}
 

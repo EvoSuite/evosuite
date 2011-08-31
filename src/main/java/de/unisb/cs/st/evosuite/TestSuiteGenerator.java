@@ -568,13 +568,13 @@ public class TestSuiteGenerator {
 
 		int current_budget = 0;
 
-		int total_budget = Properties.GENERATIONS;
+		long total_budget = Properties.GENERATIONS;
 		System.out.println("* Budget: "
 		        + NumberFormat.getIntegerInstance().format(total_budget));
 
 		while (current_budget < total_budget && covered_goals < total_goals
 		        && !global_time.isFinished() && !ShutdownTestWriter.isInterrupted()) {
-			int budget = (total_budget - current_budget) / (total_goals - covered_goals);
+			long budget = (total_budget - current_budget) / (total_goals - covered_goals);
 			logger.info("Budget: " + budget + "/" + (total_budget - current_budget));
 			logger.info("Statements: " + current_budget + "/" + total_budget);
 			logger.info("Goals covered: " + covered_goals + "/" + total_goals);
