@@ -12,7 +12,7 @@ public interface IGUI {
 	/**
 	 * @param message
 	 */
-	void showParserException(String message);
+	void showParseException(String message);
 
 
 }

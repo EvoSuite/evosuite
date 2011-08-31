@@ -25,14 +25,24 @@ import de.unisb.cs.st.evosuite.utils.HtmlAnalyzer;
  * 
  */
 public class Editor {
-	private final GeneticAlgorithm gaInstance;
-	private TestCaseTuple currentTestCaseTuple;
-	private final Iterable<String> sourceCode;
+
 	private final SearchStatistics statistics = SearchStatistics.getInstance();
+
 	private final Set<Integer> suiteCoverage = new HashSet<Integer>();
-	private final TestSuiteChromosome testSuiteChr;
+
 	private final List<TestCaseTuple> testCases = new ArrayList<TestCaseTuple>();
-	private SimpleGUITestEditor sgui;
+
+	private final TestSuiteChromosome testSuiteChr;
+
+	private final GeneticAlgorithm gaInstance;
+
+	private final Iterable<String> sourceCode;
+
+	private final SimpleGUITestEditor sgui;
+
+	private final TestParser testParser;
+
+	private TestCaseTuple currentTestCaseTuple;
 
 	/**
 	 * Create instance of Editor for manual edition of tests.
@@ -87,6 +97,7 @@ public class Editor {
 		nextTest();
 
 		sgui = new SimpleGUITestEditor();
+		testParser = new TestParser(sgui);
 		sgui.createMainWindow(this);
 
 		// when work is done reset time
@@ -117,8 +128,7 @@ public class Editor {
 	public boolean saveTest(String testCode) {
 		TestCase currentTestCase = currentTestCaseTuple.getTestCase();
 		try {
-			TestCase newTestCase = TestParser.parsTest(testCode,
-					currentTestCase, sgui);
+			TestCase newTestCase = testParser.parsTest(testCode);
 
 			if (newTestCase != null) {
 				// EvoSuite stuff
@@ -128,6 +138,7 @@ public class Editor {
 
 				// If we change already existed testCase, remove old version
 				testSuiteChr.deleteTest(currentTestCase);
+				testCases.remove(currentTestCaseTuple);
 				testSuiteChr.addTest(newTestCase);
 
 				// MA stuff
@@ -267,4 +278,7 @@ public class Editor {
 		nextTest();
 	}
 
+	public int getCoveratgeRatio() {
+		return (int) (testSuiteChr.getCoverage() * 100);
+	}
 }
