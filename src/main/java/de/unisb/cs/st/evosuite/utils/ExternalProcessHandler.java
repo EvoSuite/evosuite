@@ -121,7 +121,6 @@ public class ExternalProcessHandler {
 			error_printer.interrupt();
 		error_printer = null;
 
-
 		if (message_handler != null && message_handler.isAlive()) {
 			message_handler.interrupt();
 		}
@@ -162,14 +161,13 @@ public class ExternalProcessHandler {
 
 	protected void startExternalProcessPrinter() {
 
-		if(output_printer == null || !output_printer.isAlive())
-		{
+		if (output_printer == null || !output_printer.isAlive()) {
 			output_printer = new Thread() {
 				@Override
 				public void run() {
 					try {
-						BufferedReader proc_in = new BufferedReader(new InputStreamReader(
-								process.getInputStream()));
+						BufferedReader proc_in = new BufferedReader(
+						        new InputStreamReader(process.getInputStream()));
 
 						int data = 0;
 						while (data != -1 && !isInterrupted()) {
@@ -179,22 +177,22 @@ public class ExternalProcessHandler {
 						}
 
 					} catch (Exception e) {
-						logger.error("Exception while reading output of client process", e);
+						logger.error("Exception while reading output of client process",
+						             e);
 					}
 				}
 			};
 
 			output_printer.start();
 		}
-		
-		if(error_printer == null || !error_printer.isAlive())
-		{
+
+		if (error_printer == null || !error_printer.isAlive()) {
 			error_printer = new Thread() {
 				@Override
 				public void run() {
 					try {
-						BufferedReader proc_in = new BufferedReader(new InputStreamReader(
-								process.getErrorStream()));
+						BufferedReader proc_in = new BufferedReader(
+						        new InputStreamReader(process.getErrorStream()));
 
 						int data = 0;
 						while (data != -1 && !isInterrupted()) {
@@ -204,14 +202,15 @@ public class ExternalProcessHandler {
 						}
 
 					} catch (Exception e) {
-						logger.error("Exception while reading output of client process", e);
+						logger.error("Exception while reading output of client process",
+						             e);
 					}
 				}
 			};
 
 			error_printer.start();
 		}
-		
+
 	}
 
 	protected void startExternalProcessMessageHandler() {
@@ -269,7 +268,8 @@ public class ExternalProcessHandler {
 					System.exit(0);
 				try {
 					interrupted = true;
-					process.waitFor();
+					if (process != null)
+						process.waitFor();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -286,7 +286,7 @@ public class ExternalProcessHandler {
 			}
 		} catch (InterruptedException e) {
 			logger.warn("Thread interrupted while waiting for results from client process",
-					e);
+			            e);
 		}
 
 		return final_result;
