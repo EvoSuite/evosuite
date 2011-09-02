@@ -57,8 +57,8 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 	 */
 	@Override
 	public boolean isFinished() {
-		logger.info("Current number of statements executed: " + current_statement + "/"
-		        + max_statements);
+		// logger.info("Current number of statements executed: " + current_statement + "/"
+		//        + max_statements);
 		return current_statement >= max_statements;
 	}
 
