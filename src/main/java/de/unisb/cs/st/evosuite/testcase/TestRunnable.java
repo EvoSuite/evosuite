@@ -161,7 +161,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
 			// exceptionThrown = e;
-			logger.warn("Error while executing statement " + test.toCode(), e);
+			logger.info("Error while executing statement " + test.toCode(), e);
 			// System.exit(1);
 
 		} // finally {

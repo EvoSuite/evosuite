@@ -127,6 +127,8 @@ class MSecurityManager extends SecurityManager {
 			if (perm instanceof RuntimePermission)
 				if (perm.getName().equals("loadLibrary.awt"))
 					return true;
+			if (perm.getName().equals("loadLibrary.net"))
+				return true;
 
 			//TODO: -------------------- NEED TO FIND BETTER SOLUTION ----------------------- 
 			// At the moment this is the only way to allow classes under test define and load 
