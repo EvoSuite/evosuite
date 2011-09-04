@@ -386,6 +386,7 @@ generateSuite ()
 
 		pushd .  > /dev/null
 		cd $BASEDIR
+		OUTPUT_DIR=evosuite-files
 		#OUTPUT_DIR=$BASEDIR/$OUTPUT_DIR
 
 		if [ -z "$TEST_CLASSES" ]; then

@@ -62,10 +62,16 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		externalPreVisitors.add(factory);
 	}
 
+	public boolean isJavaClass(String className) {
+		return className.startsWith("java.") || className.startsWith("sun.")
+		        || className.startsWith("javax.");
+	}
+
 	public boolean isTargetProject(String className) {
 		return className.startsWith(Properties.PROJECT_PREFIX)
 		        && !className.startsWith("java.") && !className.startsWith("sun.")
-		        && !className.startsWith("de.unisb.cs.st.evosuite");
+		        && !className.startsWith("de.unisb.cs.st.evosuite")
+		        && !className.startsWith("javax.");
 	}
 
 	private boolean isTargetClassName(String className) {
