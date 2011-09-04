@@ -394,10 +394,18 @@ public class ScanProject {
 				continue;
 			if (fileName.contains("$"))
 				continue;
+			ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+			PrintStream outStream = new PrintStream(byteStream);
+
+			System.out.println("* Loading class " + fileName + " from jar file "
+			        + file.getName());
+			PrintStream old_out = System.out;
+			PrintStream old_err = System.err;
+			//System.setOut(outStream);
+			//System.setErr(outStream);
 
 			try {
-				System.out.println("* Loading class " + fileName + " from jar file "
-				        + file.getName());
+
 				//				Class<?> clazz = zcl.findClass(fileName.replace(".class", ""));
 				Class<?> clazz = Class.forName(fileName.replace(".class", "").replace("/",
 				                                                                      "."));
@@ -410,17 +418,35 @@ public class ScanProject {
 				}
 				//				Class.forName(fileName.replace(".class", "").replace("/", "."));
 			} catch (IllegalAccessError ex) {
+				System.setOut(old_out);
+				System.setErr(old_err);
 				System.out.println("Cannot access class "
 				        + file.getName().substring(0, file.getName().length() - 6));
 			} catch (NoClassDefFoundError ex) {
+				System.setOut(old_out);
+				System.setErr(old_err);
 				System.out.println("Cannot find dependent class " + ex);
 			} catch (ExceptionInInitializerError ex) {
+				System.setOut(old_out);
+				System.setErr(old_err);
 				System.out.println("Exception in initializer of "
 				        + file.getName().substring(0, file.getName().length() - 6));
 			} catch (ClassNotFoundException ex) {
+				System.setOut(old_out);
+				System.setErr(old_err);
 				System.out.println("Cannot find class "
 				        + file.getName().substring(0, file.getName().length() - 6) + ": "
 				        + ex);
+			} catch (Throwable t) {
+				System.setOut(old_out);
+				System.setErr(old_err);
+
+				System.out.println("  Unexpected error: "
+				        + file.getName().substring(0, file.getName().length() - 6) + ": "
+				        + t);
+			} finally {
+				System.setOut(old_out);
+				System.setErr(old_err);
 			}
 		}
 		try {

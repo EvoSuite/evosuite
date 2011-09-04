@@ -656,6 +656,12 @@ public class Properties {
 	private static Map<Field, Object> defaultMap = new HashMap<Field, Object>();
 
 	/**
+	 * Keep track of which fields have been changed from their defaults during
+	 * loading
+	 */
+	private static Set<String> changedFields = new HashSet<String>();
+
+	/**
 	 * Get class of parameter
 	 * 
 	 * @param key
@@ -953,6 +959,7 @@ public class Properties {
 		}
 
 		Field f = parameterMap.get(key);
+		changedFields.add(key);
 		if (f.getType().isEnum()) {
 			f.set(null, Enum.valueOf((Class<Enum>) f.getType(), value.toUpperCase()));
 		} else if (f.getType().equals(int.class)) {
@@ -1095,7 +1102,9 @@ public class Properties {
 			for (Parameter p : fieldMap.get(group)) {
 				buffer.append("# ");
 				buffer.append(p.description());
-				buffer.append("\n#");
+				buffer.append("\n");
+				if (!changedFields.contains(p.key()))
+					buffer.append("#");
 				buffer.append(p.key());
 				buffer.append("=");
 				try {

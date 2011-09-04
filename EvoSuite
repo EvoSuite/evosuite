@@ -8,12 +8,12 @@ BASEPATH=$(dirname $0)
 if [ ! -z "$EVOSUITE_HOME" ]; then
     BASEPATH=$EVOSUITE_HOME
 fi
-if [ ! -e $BASEPATH/src/main/assembly/etc/evosuite.properties ]; then
+if [ ! -e $BASEPATH/src/main/assembly/EvoSuite ]; then
     echo "EVOSUITE_HOME is not set correctly"
     exit -1
 fi
 
-source $BASEPATH/src/main/assembly/etc/evosuite.properties
+#source $BASEPATH/src/main/assembly/etc/evosuite.properties
 
 if [ ! -e $BASEPATH/target/evosuite-0.1-SNAPSHOT-jar.jar ]; then
     echo "Call mvn package first to create dependency jar"
@@ -399,7 +399,7 @@ generateSuite ()
 
 		pushd .  > /dev/null
 		cd $BASEDIR
-		#OUTPUT_DIR=$BASEDIR/$OUTPUT_DIR
+		OUTPUT_DIR=evosuite-files
 
 		if [ -z "$TEST_CLASSES" ]; then
 		    echo "* Looking for testable classes"

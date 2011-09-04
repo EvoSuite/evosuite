@@ -28,13 +28,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.TestSuiteGenerator;
-import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
-import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
-import de.unisb.cs.st.evosuite.coverage.statement.StatementCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxFitnessEvaluationsStoppingCondition;
@@ -88,17 +83,14 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		sb.append("<h1>");
 		sb.append(run.className);
 		sb.append(": ");
-		sb.append(String.format("%.2f", 100.0 * run.covered_goals
-				/ run.total_goals));
+		sb.append(String.format("%.2f", 100.0 * run.covered_goals / run.total_goals));
 		sb.append("%");
 		sb.append("</h1></div></div>\n");
-		sb
-				.append("<p><a href=\"../report-generation.html\">Overview</a></p>\n");
+		sb.append("<p><a href=\"../report-generation.html\">Overview</a></p>\n");
 
 		writeResultTable(sb, run);
 		// writeMutationTable(sb);
-		sb
-				.append("<div id=\"page\"><div id=\"page-bgtop\"><div id=\"page-bgbtm\"><div id=\"content\">");
+		sb.append("<div id=\"page\"><div id=\"page-bgtop\"><div id=\"page-bgbtm\"><div id=\"content\">");
 		sb.append("<div id=\"post\">");
 
 		// Resulting test case
@@ -113,8 +105,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 				 * if(test.exceptionThrown != null) { sb.append("<p>Raises:");
 				 * sb.append(test.exceptionThrown); sb.append("</p>"); }
 				 */
-				sb
-						.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">\n");
+				sb.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">\n");
 				int linecount = 1;
 				String code = null;
 				if (run.results.containsKey(test))
@@ -123,11 +114,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 					code = test.toCode();
 
 				for (String line : code.split("\n")) {
-					sb
-							.append(String
-									.format(
-											"<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
-											linecount, linecount));
+					sb.append(String.format("<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
+					                        linecount, linecount));
 					/*
 					 * if(test.exceptionsThrown != null &&
 					 * test.exception_statement == test_line)
@@ -169,8 +157,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			if (run.fitness_history.isEmpty()) {
 				sb.append("<h2>No fitness history</h2>\n");
 			} else {
-				String filename = writeDoubleChart(run.fitness_history,
-						run.className + "-" + run.id, "Fitness");
+				String filename = writeDoubleChart(run.fitness_history, run.className
+				        + "-" + run.id, "Fitness");
 				sb.append("<h2>Fitness</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -183,8 +171,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			if (run.size_history.isEmpty()) {
 				sb.append("<h2>No size history</h2>\n");
 			} else {
-				String filename = writeIntegerChart(run.size_history,
-						run.className + "-" + run.id, "Size");
+				String filename = writeIntegerChart(run.size_history, run.className + "-"
+				        + run.id, "Size");
 				sb.append("<h2>Size</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -197,8 +185,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			if (run.length_history.isEmpty()) {
 				sb.append("<h2>No length history</h2>\n");
 			} else {
-				String filename = writeIntegerChart(run.length_history,
-						run.className + "-" + run.id, "Length");
+				String filename = writeIntegerChart(run.length_history, run.className
+				        + "-" + run.id, "Length");
 				sb.append("<h2>Length</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -212,7 +200,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 				sb.append("<h2>No average length history</h2>\n");
 			} else {
 				String filename = writeDoubleChart(run.average_length_history,
-						run.className + "-" + run.id, "Length");
+				                                   run.className + "-" + run.id, "Length");
 				sb.append("<h2>Average Length</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -226,19 +214,14 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 
 		// Source code
 		try {
-			Iterable<String> source = html_analyzer
-					.getClassContent(run.className);
+			Iterable<String> source = html_analyzer.getClassContent(run.className);
 			sb.append("<h2 class=title>Source Code</h2>\n");
 			sb.append("<p>");
-			sb
-					.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">");
+			sb.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">");
 			int linecount = 1;
 			for (String line : source) {
-				sb
-						.append(String
-								.format(
-										"<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
-										linecount, linecount));
+				sb.append(String.format("<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
+				                        linecount, linecount));
 				if (run.coverage.contains(linecount)) {
 					sb.append("<span style=\"background-color: #ffffcc\">");
 					sb.append(StringEscapeUtils.escapeHtml(line));
@@ -291,7 +274,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		// could ask every suite fitness how many goals were covered
 
 		logger.debug("Calculating coverage of best individual with fitness "
-				+ result.getFitness());
+		        + result.getFitness());
 
 		Map<Integer, Double> true_distance = new HashMap<Integer, Double>();
 		Map<Integer, Double> false_distance = new HashMap<Integer, Double>();
@@ -303,8 +286,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		for (TestChromosome test : best.tests) {
 			// ExecutionTrace trace = test.last_result.trace;
 			// //executeTest(test.test, entry.className);
-			ExecutionTrace trace = executeTest(test.getTestCase(),
-					entry.className);
+			ExecutionTrace trace = executeTest(test.getTestCase(), entry.className);
 
 			// if(test.last_result != null)
 			// trace = test.last_result.trace;
@@ -319,11 +301,10 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 				if (!predicate_count.containsKey(e.getKey()))
 					predicate_count.put(e.getKey(), 1);
 				else
-					predicate_count.put(e.getKey(), predicate_count.get(e
-							.getKey()) + 1);
+					predicate_count.put(e.getKey(), predicate_count.get(e.getKey()) + 1);
 
 				if (!true_distance.containsKey(e.getKey())
-						|| true_distance.get(e.getKey()) > e.getValue()) {
+				        || true_distance.get(e.getKey()) > e.getValue()) {
 					true_distance.put(e.getKey(), e.getValue());
 				}
 			}
@@ -331,11 +312,10 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 				if (!predicate_count.containsKey(e.getKey()))
 					predicate_count.put(e.getKey(), 1);
 				else
-					predicate_count.put(e.getKey(), predicate_count.get(e
-							.getKey()) + 1);
+					predicate_count.put(e.getKey(), predicate_count.get(e.getKey()) + 1);
 
 				if (!false_distance.containsKey(e.getKey())
-						|| false_distance.get(e.getKey()) > e.getValue()) {
+				        || false_distance.get(e.getKey()) > e.getValue()) {
 					false_distance.put(e.getKey(), e.getValue());
 				}
 			}
@@ -390,10 +370,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 
 		entry.end_time = System.currentTimeMillis();
-		entry.result_tests_executed = MaxTestsStoppingCondition
-				.getNumExecutedTests();
-		entry.result_statements_executed = MaxStatementsStoppingCondition
-				.getNumExecutedStatements();
+		entry.result_tests_executed = MaxTestsStoppingCondition.getNumExecutedTests();
+		entry.result_statements_executed = MaxStatementsStoppingCondition.getNumExecutedStatements();
 		entry.testExecutionTime = TestCaseExecutor.timeExecuted;
 		entry.covered_goals = TestSuiteFitnessFunction.getCoveredGoals();
 
@@ -404,7 +382,6 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		}
 	}
 
-	@SuppressWarnings("static-access")
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
 		super.searchStarted(algorithm);
@@ -414,8 +391,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.branchless_methods = BranchPool.getBranchlessMethods().size();
 		entry.total_methods = TestCluster.getInstance().num_defined_methods;
 
-		entry.total_goals = TestSuiteGenerator.getFitnessFactory()
-				.getCoverageGoals().size();
+		entry.total_goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
 
 		// removed the code below with the one above, in order to have these
 		// values for other criteria as well
@@ -437,16 +413,11 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		Chromosome best = algorithm.getBestIndividual();
 		if (best instanceof TestSuiteChromosome) {
-			entry.length_history.add(((TestSuiteChromosome) best)
-					.totalLengthOfTestCases());
+			entry.length_history.add(((TestSuiteChromosome) best).totalLengthOfTestCases());
 			entry.coverage_history.add(((TestSuiteChromosome) best).coverage);
-			entry.tests_executed.add(MaxTestsStoppingCondition
-					.getNumExecutedTests());
-			entry.statements_executed.add(MaxStatementsStoppingCondition
-					.getNumExecutedStatements());
-			entry.fitness_evaluations
-					.add(MaxFitnessEvaluationsStoppingCondition
-							.getNumFitnessEvaluations());
+			entry.tests_executed.add(MaxTestsStoppingCondition.getNumExecutedTests());
+			entry.statements_executed.add(MaxStatementsStoppingCondition.getNumExecutedStatements());
+			entry.fitness_evaluations.add(MaxFitnessEvaluationsStoppingCondition.getNumFitnessEvaluations());
 		}
 	}
 

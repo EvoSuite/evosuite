@@ -392,7 +392,7 @@ public class TestCluster {
 				if (GenericClass.isAssignable(type, f.getGenericType())) {
 					g.add(f);
 				} else if (type.toString().contains("EvosuiteFile")) {
-					logger.warn("Found EvosuiteFile generator " + type + "/" + f);
+					logger.info("Found EvosuiteFile generator " + type + "/" + f);
 				}
 			}
 		}

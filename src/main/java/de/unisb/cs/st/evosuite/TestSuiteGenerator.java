@@ -983,7 +983,8 @@ public class TestSuiteGenerator {
 		if (Properties.STOP_ZERO) {
 			ga.addStoppingCondition(zero_fitness);
 		}
-		ga.addStoppingCondition(global_time);
+		if (!(stopping_condition instanceof MaxTimeStoppingCondition))
+			ga.addStoppingCondition(global_time);
 		if (Properties.CRITERION == Criterion.MUTATION)
 			ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
 
