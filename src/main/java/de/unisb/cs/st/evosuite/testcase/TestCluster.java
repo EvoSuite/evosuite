@@ -690,7 +690,7 @@ public class TestCluster {
 				}
 			}
 		} catch (Throwable t) {
-			logger.warn("Error while accessing fields of class " + clazz.getName()
+			logger.info("Error while accessing fields of class " + clazz.getName()
 			        + " - check allowed permissions: " + t);
 		}
 
