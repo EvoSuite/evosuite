@@ -114,9 +114,24 @@ public class EvoSuite {
 
 	private static void generateTests(boolean wholeSuite, List<String> args) {
 		File directory = new File(Properties.OUTPUT_DIR);
+		if (!directory.exists()) {
+			System.out.println("* Found no EvoSuite data in current directory. Run -setup first!");
+			return;
+		} else if (!directory.isDirectory()) {
+			System.out.println("* Found no EvoSuite data in " + directory
+			        + ". Run -setup first!");
+			return;
+		}
+		int num = 0;
 		String[] extensions = { "task" };
 		for (File file : FileUtils.listFiles(directory, extensions, false)) {
 			generateTests(wholeSuite, file.getName().replace(".task", ""), args);
+			num++;
+		}
+		if (num == 0) {
+			System.out.println("* Found no class information in " + directory
+			        + ". Check that the classpath is correct when calling -setup.");
+			return;
 		}
 	}
 
