@@ -8,12 +8,12 @@ BASEPATH=$(dirname $0)
 if [ ! -z "$EVOSUITE_HOME" ]; then
     BASEPATH=$EVOSUITE_HOME
 fi
-if [ ! -e $BASEPATH/etc/evosuite.properties ]; then
+if [ ! -e $BASEPATH/EvoSuite ]; then
     echo "EVOSUITE_HOME is not set correctly"
     exit -1
 fi
 
-source $BASEPATH/etc/evosuite.properties
+#source $BASEPATH/etc/evosuite.properties
 		
 
 java_opts="-ea -Xmx1024M"

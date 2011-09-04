@@ -35,6 +35,7 @@ public class EvoSuite {
 
 	private static void setup(String target, String[] args) {
 		String classPath = System.getProperty("java.class.path");
+		Properties.CP = "";
 		if (args.length > 0) {
 			for (int i = 0; i < args.length; i++) {
 				classPath += File.pathSeparator + args[i];
@@ -54,8 +55,8 @@ public class EvoSuite {
 		String prefix = "";
 		File targetFile = new File(target);
 		if (targetFile.exists()) {
-			targetParam = target;
 			classPath += File.pathSeparator + target;
+			targetParam = target;
 			if (!Properties.CP.equals(""))
 				Properties.CP += File.pathSeparator;
 
@@ -98,16 +99,16 @@ public class EvoSuite {
 		} catch (InterruptedException e) {
 			System.out.println("Interrupted");
 		}
-		File propertyFile = new File(Properties.OUTPUT_DIR + separator
-		        + "evosuite.properties");
-		if (propertyFile.exists()) {
+		//File propertyFile = new File(Properties.OUTPUT_DIR + separator
+		//        + "evosuite.properties");
+		//if (propertyFile.exists()) {
 
-		} else {
-			Properties.PROJECT_PREFIX = prefix;
-			Properties.getInstance().writeConfiguration(Properties.OUTPUT_DIR
-			                                                    + File.separator
-			                                                    + "evosuite.properties");
-		}
+		//} else {
+		Properties.PROJECT_PREFIX = prefix;
+		Properties.getInstance().writeConfiguration(Properties.OUTPUT_DIR
+		                                                    + File.separator
+		                                                    + "evosuite.properties");
+		//}
 
 	}
 
@@ -183,6 +184,7 @@ public class EvoSuite {
 		Option setup = OptionBuilder.withArgName("target").hasArg().withDescription("use given directory/jar file/package prefix for test generation").create("setup");
 		Option targetClass = OptionBuilder.withArgName("class").hasArg().withDescription("target class for test generation").create("class");
 		Option criterion = OptionBuilder.withArgName("criterion").hasArg().withDescription("target criterion for test generation").create("criterion");
+		Option seed = OptionBuilder.withArgName("seed").hasArg().withDescription("seed for random number generator").create("seed");
 
 		Option sandbox = new Option("sandbox", "Run tests in sandbox");
 		Option mocks = new Option("mocks", "Use mock classes");
@@ -194,6 +196,7 @@ public class EvoSuite {
 		options.addOption(setup);
 		options.addOption(targetClass);
 		options.addOption(criterion);
+		options.addOption(seed);
 
 		options.addOption(sandbox);
 		options.addOption(mocks);
@@ -225,6 +228,8 @@ public class EvoSuite {
 				javaOpts.add("-Dmocks=true");
 			if (line.hasOption("stubs"))
 				javaOpts.add("-Dstubs=true");
+			if (line.hasOption("seed"))
+				javaOpts.add("-Drandom.seed=" + line.getOptionValue("seed"));
 
 			if (line.hasOption("help")) {
 				HelpFormatter formatter = new HelpFormatter();

@@ -37,6 +37,7 @@ public class InsertUnaryOperator implements MutationOperator {
 		// Mutation: Insert an INEG _after_ an iload 
 		List<Mutation> mutations = new LinkedList<Mutation>();
 		List<InsnList> mutationCode = new LinkedList<InsnList>();
+		List<String> descriptions = new LinkedList<String>();
 
 		if (instruction.getASMNode() instanceof VarInsnNode) {
 			InsnList mutation = new InsnList();
@@ -46,16 +47,19 @@ public class InsertUnaryOperator implements MutationOperator {
 			mutation.add(new VarInsnNode(node.getOpcode(), node.var));
 			mutation.add(new InsnNode(getNegation(node.getOpcode())));
 			mutationCode.add(mutation);
+			descriptions.add("Negation");
 
 			if (node.getOpcode() == Opcodes.ILOAD) {
 				mutation = new InsnList();
 				mutation.add(new IincInsnNode(node.var, 1));
 				mutation.add(new VarInsnNode(node.getOpcode(), node.var));
+				descriptions.add("IINC 1");
 				mutationCode.add(mutation);
 
 				mutation = new InsnList();
 				mutation.add(new IincInsnNode(node.var, -1));
 				mutation.add(new VarInsnNode(node.getOpcode(), node.var));
+				descriptions.add("IINC -1");
 				mutationCode.add(mutation);
 			}
 		} else {
@@ -65,6 +69,7 @@ public class InsertUnaryOperator implements MutationOperator {
 			mutation.add(new FieldInsnNode(node.getOpcode(), node.owner, node.name,
 			        node.desc));
 			mutation.add(new InsnNode(getNegation(type)));
+			descriptions.add("Negation");
 			mutationCode.add(mutation);
 
 			if (type == Type.INT_TYPE) {
@@ -73,6 +78,7 @@ public class InsertUnaryOperator implements MutationOperator {
 				        node.desc));
 				mutation.add(new InsnNode(Opcodes.ICONST_1));
 				mutation.add(new InsnNode(Opcodes.IADD));
+				descriptions.add("+1");
 				mutationCode.add(mutation);
 
 				mutation = new InsnList();
@@ -80,15 +86,18 @@ public class InsertUnaryOperator implements MutationOperator {
 				        node.desc));
 				mutation.add(new InsnNode(Opcodes.ICONST_M1));
 				mutation.add(new InsnNode(Opcodes.IADD));
+				descriptions.add("-1");
 				mutationCode.add(mutation);
 			}
 		}
 
+		int i = 0;
 		for (InsnList mutation : mutationCode) {
 			// insert mutation into pool
 			Mutation mutationObject = MutationPool.addMutation(className,
 			                                                   methodName,
-			                                                   "InsertUnaryOp",
+			                                                   "InsertUnaryOp "
+			                                                           + descriptions.get(i++),
 			                                                   instruction,
 			                                                   mutation,
 			                                                   Mutation.getDefaultInfectionDistance());

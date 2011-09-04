@@ -54,6 +54,7 @@ import de.unisb.cs.st.evosuite.Properties.NoSuchParameterException;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
+import de.unisb.cs.st.evosuite.sandbox.PermissionStatistics;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
@@ -182,8 +183,11 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append("Total Goals,Covered Goals,Coverage,Creation Time,Minimization Time,Test Execution Time,Total Time, Result Size, Result Length,");
 			r.append("Minimized Size,Minimized Length,");
 			// "Bloat Rejections,Fitness Rejections,Fitness Accepts,"
-			r.append("Chromosome Length,Population Size,Random Seed,Budget,Data File");
+			r.append("Chromosome Length,Population Size,Random Seed,Budget,");
 
+			r.append("AllPermission,SecurityPermission,UnresolvedPermission,AWTPermission,FilePermission,SerializablePermission,ReflectPermission,RuntimePermission,NetPermission,SocketPermission,SQLPermission,PropertyPermission,LoggingPermission,SSLPermission,AuthPermission,AudioPermission,OtherPermission,");
+
+			r.append("Data File");
 			return r.toString();
 		}
 
@@ -202,7 +206,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 			r.append(total_goals + ",");
 			r.append(covered_goals + ",");
-			r.append(getCoverage() + ",");
+			r.append(getCoverageDouble() + ",");
 
 			// r.append(start_time+",");
 			// r.append(end_time+",");
@@ -223,6 +227,27 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append(seed + ",");
 			r.append(Properties.GENERATIONS + ",");
 
+			PermissionStatistics pstats = PermissionStatistics.getInstance();
+
+			r.append(pstats.getNumAllPermission() + ",");
+			r.append(pstats.getNumAllPermission() + ",");
+			r.append(pstats.getNumSecurityPermission() + ",");
+			r.append(pstats.getNumUnresolvedPermission() + ",");
+			r.append(pstats.getNumAWTPermission() + ",");
+			r.append(pstats.getNumFilePermission() + ",");
+			r.append(pstats.getNumSerializablePermission() + ",");
+			r.append(pstats.getNumReflectPermission() + ",");
+			r.append(pstats.getNumRuntimePermission() + ",");
+			r.append(pstats.getNumNetPermission() + ",");
+			r.append(pstats.getNumSocketPermission() + ",");
+			r.append(pstats.getNumSQLPermission() + ",");
+			r.append(pstats.getNumPropertyPermission() + ",");
+			r.append(pstats.getNumLoggingPermission() + ",");
+			r.append(pstats.getNumSSLPermission() + ",");
+			r.append(pstats.getNumAuthPermission() + ",");
+			r.append(pstats.getNumAudioPermission() + ",");
+			r.append(pstats.getNumOtherPermission() + ",");
+
 			r.append(getCSVFilepath());
 
 			return r.toString();
@@ -241,6 +266,13 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				                     (100.0 * covered_goals / (1.0 * total_goals))).replaceAll(",",
 				                                                                               ".")
 				        + "%";
+		}
+
+		public double getCoverageDouble() {
+			if (total_goals == 0)
+				return 1.0;
+			else
+				return covered_goals / (1.0 * total_goals);
 		}
 	};
 
