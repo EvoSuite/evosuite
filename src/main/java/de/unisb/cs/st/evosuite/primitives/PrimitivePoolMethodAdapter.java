@@ -42,6 +42,7 @@ public class PrimitivePoolMethodAdapter extends MethodAdapter {
 	 * threaded stuff. This will be replaced with something nicer once Sebastian
 	 * has found a solution
 	 */
+	/*
 	@Override
 	public void visitInsn(int opcode) {
 		if (opcode != Opcodes.MONITORENTER && opcode != Opcodes.MONITOREXIT)
@@ -50,6 +51,7 @@ public class PrimitivePoolMethodAdapter extends MethodAdapter {
 			super.visitInsn(Opcodes.POP);
 
 	}
+	*/
 
 	@Override
 	public void visitIntInsn(int opcode, int operand) {

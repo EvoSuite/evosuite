@@ -62,7 +62,7 @@ public class EvoSuite {
 
 			Properties.CP += target;
 		} else {
-			prefix = target;
+			prefix = target; // TODO: Should be proper prefix!
 		}
 
 		List<String> parameters = new ArrayList<String>();
