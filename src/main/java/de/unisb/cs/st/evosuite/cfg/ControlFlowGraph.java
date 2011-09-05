@@ -211,7 +211,7 @@ public abstract class ControlFlowGraph<V> extends
 
 	@Override
 	public String getName() {
-		return getCFGType() + " " + methodName;
+		return methodName + " " + getCFGType();
 	}
 
 	@Override

@@ -455,7 +455,7 @@ public class ControlDependenceGraph extends
 	@Override
 	public String getName() {
 		// return "CDG" + graphId + "_" + methodName;
-		return "CDG" + "_" + methodName;
+		return methodName + "_" +  "CDG";
 	}
 
 	@Override
