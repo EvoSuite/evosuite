@@ -339,7 +339,7 @@
 		  <descriptors>
 <!--		    <descriptor>src/main/assembly/dependencies.xml</descriptor> -->
 		    <descriptor>src/main/assembly/jar.xml</descriptor> 
-<!--		    <descriptor>src/main/assembly/jar-minimal.xml</descriptor>  -->
+<!--		    <descriptor>src/main/assembly/jar-minimal.xml</descriptor> -->
 		    <descriptor>src/main/assembly/bin.xml</descriptor>
 		  </descriptors>
 		</configuration>
