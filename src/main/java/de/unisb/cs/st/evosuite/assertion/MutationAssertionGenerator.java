@@ -555,6 +555,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 		// IF there are no mutant killing assertions on the last statement, still assert something
 		if (test.getStatement(test.size() - 1).getAssertions().isEmpty()) {
+			logger.info("No assertions on last statement!");
 			orig_result.comparison_trace.getAllAssertions(test);
 			orig_result.primitive_trace.getAllAssertions(test);
 			orig_result.inspector_trace.getAllAssertions(test);
@@ -562,17 +563,35 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			orig_result.null_trace.getAllAssertions(test);
 			Set<Assertion> target = new HashSet<Assertion>(
 			        test.getStatement(test.size() - 1).getAssertions());
+			logger.info("Found assertions: " + target.size());
+
 			test.removeAssertions();
 			test.addAssertions(clone);
 			VariableReference targetVar = test.getStatement(test.size() - 1).getReturnValue();
-			int maxAssertions = 2;
-			int numAssertions = 0;
-			for (Assertion ass : target) {
-				if (ass.getReferencedVariables().contains(targetVar)) {
-					test.getStatement(test.size() - 1).addAssertion(ass);
-					if (++numAssertions >= maxAssertions)
-						break;
+			if (!targetVar.isVoid()) {
+				int maxAssertions = 2;
+				int numAssertions = 0;
+				for (Assertion ass : target) {
+					if (ass.getReferencedVariables().contains(targetVar)) {
+						test.getStatement(test.size() - 1).addAssertion(ass);
+						if (++numAssertions >= maxAssertions)
+							break;
+					}
 				}
+			} else {
+				Set<VariableReference> targetVars = test.getStatement(test.size() - 1).getVariableReferences();
+				int maxAssertions = 2;
+				int numAssertions = 0;
+				for (Assertion ass : target) {
+					Set<VariableReference> vars = ass.getReferencedVariables();
+					vars.retainAll(targetVars);
+					if (!vars.isEmpty()) {
+						test.getStatement(test.size() - 1).addAssertion(ass);
+						if (++numAssertions >= maxAssertions)
+							break;
+					}
+				}
+
 			}
 		}
 
