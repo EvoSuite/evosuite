@@ -161,7 +161,7 @@ public class FieldReference extends VariableReferenceImpl {
 		} catch (IllegalArgumentException e) {
 			logger.error("Error while assigning field: " + getName() + " with value "
 			        + value + " on object " + sourceObject + ": " + e, e);
-			e.printStackTrace();
+			//e.printStackTrace();
 			throw e;
 		} catch (IllegalAccessException e) {
 			logger.error("Error while assigning field: " + e, e);

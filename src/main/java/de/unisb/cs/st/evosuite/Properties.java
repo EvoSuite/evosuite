@@ -347,7 +347,7 @@ public class Properties {
 	}
 
 	@Parameter(key = "assertion_strategy", group = "Output", description = "Which assertions to generate")
-	public static AssertionStrategy ASSERTION_STRATEGY = AssertionStrategy.UNIT;
+	public static AssertionStrategy ASSERTION_STRATEGY = AssertionStrategy.MUTATION;
 
 	@Parameter(key = "test_dir", group = "Output", description = "Directory in which to place JUnit tests")
 	public static String TEST_DIR = "evosuite-tests";
