@@ -201,4 +201,13 @@ public class BytecodeInstructionPool {
 		instructionMap.clear();
 		knownMethodNodes.clear();
 	}
+	
+	public static boolean forgetInstruction(BytecodeInstruction ins) {
+		if(!instructionMap.containsKey(ins.getClassName()))
+			return false;
+		if(!instructionMap.get(ins.getClassName()).containsKey(ins.getMethodName()))
+			return false;
+		
+		return instructionMap.get(ins.getClassName()).get(ins.getMethodName()).remove(ins);
+	}
 }

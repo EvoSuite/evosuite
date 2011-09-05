@@ -314,6 +314,33 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 
 		return r;
 	}
+	
+	/**
+	 * In some cases there can be isolated nodes within a CFG. For example in an
+	 * completely empty try-catch-finally. Since these nodes are not reachable
+	 * but cause trouble when determining the entry point of a CFG they get
+	 * removed.
+	 * 
+	 * @return
+	 */
+	public int removeIsolatedNodes() {
+		Set<BytecodeInstruction> candidates = determineEntryPoints();
+
+		int removed = 0;
+		if (candidates.size() > 1) {
+
+			for (BytecodeInstruction instruction : candidates) {
+				if (outDegreeOf(instruction) == 0) {
+					if (graph.removeVertex(instruction)) {
+						removed++;
+						BytecodeInstructionPool.forgetInstruction(instruction);
+					}
+				}
+			}
+
+		}
+		return removed;
+	}
 
 	// control distance functionality
 
