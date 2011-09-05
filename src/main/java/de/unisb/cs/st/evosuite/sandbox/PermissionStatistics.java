@@ -224,4 +224,14 @@ public class PermissionStatistics {
 		}
 	}
 
+	private int maxThreads = 1;
+
+	public void countThreads(int numThreads) {
+		maxThreads = Math.max(maxThreads, numThreads);
+	}
+
+	public int getMaxThreads() {
+		return maxThreads;
+	}
+
 }

@@ -39,6 +39,7 @@ import de.unisb.cs.st.evosuite.contracts.ContractChecker;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestRunnable;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
+import de.unisb.cs.st.evosuite.sandbox.PermissionStatistics;
 import de.unisb.cs.st.evosuite.sandbox.Sandbox;
 
 /**
@@ -60,6 +61,8 @@ public class TestCaseExecutor implements ThreadFactory {
 	private ExecutorService executor;
 
 	private Thread currentThread = null;
+
+	private ThreadGroup threadGroup = null;
 
 	//private static ExecutorService executor = Executors.newCachedThreadPool();
 
@@ -195,7 +198,6 @@ public class TestCaseExecutor implements ThreadFactory {
 			ExecutionResult result = handler.execute(callable, executor,
 			                                         Properties.TIMEOUT,
 			                                         Properties.CPU_TIMEOUT);
-
 			long endTime = System.currentTimeMillis();
 			timeExecuted += endTime - startTime;
 			testsExecuted++;
@@ -285,6 +287,8 @@ public class TestCaseExecutor implements ThreadFactory {
 			ExecutionTracer.enable();
 
 			return result;
+		} finally {
+			PermissionStatistics.getInstance().countThreads(threadGroup.activeCount());
 		}
 	}
 
@@ -306,7 +310,12 @@ public class TestCaseExecutor implements ThreadFactory {
 			stalledThreads.add(currentThread);
 			logger.info("Current number of stalled threads: " + stalledThreads.size());
 		}
-		currentThread = new Thread(r);
+
+		if (threadGroup != null) {
+			PermissionStatistics.getInstance().countThreads(threadGroup.activeCount());
+		}
+		threadGroup = new ThreadGroup("Test Execution");
+		currentThread = new Thread(threadGroup, r);
 		if (Properties.CLASSLOADER)
 			currentThread.setContextClassLoader(TestCluster.classLoader);
 		ExecutionTracer.setThread(currentThread);

@@ -112,6 +112,7 @@ class MSecurityManager extends SecurityManager {
 		if (testExec) {
 			String permName = perm.getClass().getCanonicalName();
 
+			PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
 			// Check for allowed permissions.
 			// Done with chunk of ugly "if-case" code, since it switch statement does not
 			// support Strings as parameters. Doing it through Enum is also not an option,
@@ -124,11 +125,12 @@ class MSecurityManager extends SecurityManager {
 			if (perm.getClass().equals(java.util.logging.LoggingPermission.class)) {
 				return true;
 			}
-			if (perm instanceof RuntimePermission)
+			if (perm instanceof RuntimePermission) {
 				if (perm.getName().equals("loadLibrary.awt"))
 					return true;
-			if (perm.getName().equals("loadLibrary.net"))
-				return true;
+				if (perm.getName().equals("loadLibrary.net"))
+					return true;
+			}
 
 			//TODO: -------------------- NEED TO FIND BETTER SOLUTION ----------------------- 
 			// At the moment this is the only way to allow classes under test define and load 
