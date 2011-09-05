@@ -222,9 +222,6 @@ public abstract class ControlFlowGraph<V> extends
 			if (outDegreeOf(instruction) == 0) {
 				r.add(instruction);
 			}
-		if (r.isEmpty())
-			throw new IllegalStateException(
-					"expect CFG of a method to contain at least one instruction with no child");
 
 		return r;
 	}
