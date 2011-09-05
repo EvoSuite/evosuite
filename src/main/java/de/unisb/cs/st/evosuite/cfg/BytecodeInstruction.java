@@ -668,4 +668,12 @@ public class BytecodeInstruction extends ASMWrapper {
 	public boolean isWithinConstructor() {
 		return getMethodName().startsWith("<init>");
 	}
+
+	public boolean isLastInstructionInMethod() {
+		return equals(getRawCFG().getInstructionWithBiggestId());
+	}
+	
+	public boolean canBeExitPoint() {
+		return canReturnFromMethod() || isLastInstructionInMethod();
+	}
 }
