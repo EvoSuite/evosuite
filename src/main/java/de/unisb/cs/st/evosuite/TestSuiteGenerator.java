@@ -167,8 +167,7 @@ public class TestSuiteGenerator {
 
 	private void analyzeCriteria(GeneticAlgorithm ga) {
 		analyzing = true;
-		Criterion[] supported = { Criterion.DEFUSE, Criterion.BRANCH, Criterion.STATEMENT };
-		for (Criterion criterion : supported) {
+		for (Criterion criterion : CoverageStatistics.supportedCriteria) {
 			Properties.CRITERION = criterion;
 			System.out.println("* Analyzing Criterion: " + Properties.CRITERION);
 			generateTests(ga);
@@ -177,9 +176,11 @@ public class TestSuiteGenerator {
 			TestCaseExecutor.timeExecuted = 0l;
 			GlobalTimeStoppingCondition.forceReset();
 		}
+		Properties.CRITERION = Criterion.ANALYZE;
+		CoverageStatistics.computeCombinedCoverages();
 		CoverageStatistics.writeCSV();
 	}
-
+	
 	private List<TestCase> generateTests(GeneticAlgorithm ga) {
 		List<TestCase> tests;
 		if (Properties.STRATEGY == Strategy.EVOSUITE)
@@ -216,7 +217,7 @@ public class TestSuiteGenerator {
 		return tests;
 	}
 
-	private void writeJUnitTests(List<TestCase> tests) {
+	public static void writeJUnitTests(List<TestCase> tests) {
 		if (Properties.JUNIT_TESTS) {
 			TestSuite suite = new TestSuite(tests);
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
@@ -348,7 +349,7 @@ public class TestSuiteGenerator {
 		        + best.totalLengthOfTestCases());
 
 		if (analyzing)
-			analyzeCoverage(best);
+			CoverageStatistics.analyzeCoverage(best);
 		else {
 			System.out.println("* Resulting TestSuite's coverage: "
 			        + NumberFormat.getPercentInstance().format(best.getCoverage()));
@@ -365,31 +366,6 @@ public class TestSuiteGenerator {
 		}
 
 		return best.getTests();
-	}
-
-	private void analyzeCoverage(TestSuiteChromosome best) {
-
-		System.out.println("* Measured Coverage:");
-
-		DefUseCoverageSuiteFitness defuse = new DefUseCoverageSuiteFitness();
-		defuse.getFitness(best);
-		System.out.println("\t- DefUse: "
-		        + NumberFormat.getPercentInstance().format(best.getCoverage()));
-		CoverageStatistics.setCoverage(Criterion.DEFUSE, best.getCoverage());
-
-		BranchCoverageSuiteFitness branch = new BranchCoverageSuiteFitness();
-		branch.getFitness(best);
-		System.out.println("\t- Branch: "
-		        + NumberFormat.getPercentInstance().format(best.getCoverage()));
-		CoverageStatistics.setCoverage(Criterion.BRANCH, best.getCoverage());
-
-		StatementCoverageSuiteFitness statement = new StatementCoverageSuiteFitness();
-		statement.getFitness(best);
-		System.out.println("\t- Statement: "
-		        + NumberFormat.getPercentInstance().format(best.getCoverage()));
-		CoverageStatistics.setCoverage(Criterion.STATEMENT, best.getCoverage());
-
-		CoverageStatistics.setStatisticEntry(SearchStatistics.getInstance().getLastStatisticEntry());
 	}
 
 	private void printTestCriterion() {
@@ -420,8 +396,12 @@ public class TestSuiteGenerator {
 		}
 	}
 
-	public TestSuiteFitnessFunction getFitnessFunction() {
-		switch (Properties.CRITERION) {
+	public static TestSuiteFitnessFunction getFitnessFunction() {
+		return getFitnessFunction(Properties.CRITERION);
+	}
+	
+	public static TestSuiteFitnessFunction getFitnessFunction(Criterion criterion) {
+		switch (criterion) {
 		case MUTATION:
 			return new MutationSuiteFitness();
 		case LCSAJ:
@@ -739,7 +719,7 @@ public class TestSuiteGenerator {
 			logger.info("Resulting test suite: " + suite.size() + " tests, length "
 			        + suite.totalLengthOfTestCases());
 		} else {
-			analyzeCoverage(suite);
+			CoverageStatistics.analyzeCoverage(suite);
 		}
 
 		if (Properties.INLINE) {
