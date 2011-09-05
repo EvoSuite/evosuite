@@ -164,6 +164,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		public long minimized_time;
 
 		public long testExecutionTime;
+		
+		public long goalComputationTime;
 
 		public int result_fitness_evaluations = 0;
 
@@ -180,7 +182,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		public String getCSVHeader() {
 			StringBuilder r = new StringBuilder();
 			r.append("Class,Predicates,Total Branches,Covered Branches,Total Methods,Branchless Methods,Covered Methods,");
-			r.append("Total Goals,Covered Goals,Coverage,Creation Time,Minimization Time,Test Execution Time,Total Time, Result Size, Result Length,");
+			r.append("Total Goals,Covered Goals,Coverage,Creation Time,Minimization Time,Total Time,Test Execution Time,Goal Computation Time,Result Size,Result Length,");
 			r.append("Minimized Size,Minimized Length,");
 			// "Bloat Rejections,Fitness Rejections,Fitness Accepts,"
 			r.append("Chromosome Length,Population Size,Random Seed,Budget,");
@@ -214,8 +216,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 			r.append((minimized_time - start_time) + ",");
 			r.append((minimized_time - end_time) + ",");
-			r.append(testExecutionTime + ",");
 			r.append((end_time - start_time) + ",");
+			
+			r.append(testExecutionTime + ",");
+			r.append(goalComputationTime + ",");
 
 			r.append(size_final + ",");
 			r.append(length_final + ",");

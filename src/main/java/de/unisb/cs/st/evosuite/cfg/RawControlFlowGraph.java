@@ -314,7 +314,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 
 		return r;
 	}
-	
+
 	/**
 	 * In some cases there can be isolated nodes within a CFG. For example in an
 	 * completely empty try-catch-finally. Since these nodes are not reachable
@@ -436,7 +436,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		return r;
 	}
 
-	public boolean hasDefClearPathToMethodExit(DefUse duVertex) {
+	public boolean hasDefClearPathToMethodExit(Definition duVertex) {
 		if (!graph.containsVertex(duVertex))
 			throw new IllegalArgumentException("vertex not in graph");
 		if (duVertex.isLocalDU())
@@ -445,7 +445,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		return hasDefClearPathToMethodExit(duVertex, duVertex);
 	}
 
-	public boolean hasDefClearPathFromMethodEntry(DefUse duVertex) {
+	public boolean hasDefClearPathFromMethodEntry(Use duVertex) {
 		if (!graph.containsVertex(duVertex))
 			throw new IllegalArgumentException("vertex not in graph");
 		if (duVertex.isLocalDU())
@@ -454,16 +454,10 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		return hasDefClearPathFromMethodEntry(duVertex, duVertex);
 	}
 
-	private boolean hasDefClearPathToMethodExit(DefUse targetDefUse,
+	private boolean hasDefClearPathToMethodExit(Definition targetDefUse,
 			BytecodeInstruction currentVertex) {
 		if (!graph.containsVertex(currentVertex))
 			throw new IllegalArgumentException("vertex not in graph");
-
-		// TODO corner case when this method is initially called with a
-		// definition?
-		// .. which should never happen cause this method is meant to be called
-		// for uses ...
-		// TODO make this explicit
 
 		Set<ControlFlowEdge> outgoingEdges = graph
 				.outgoingEdgesOf(currentVertex);
@@ -477,6 +471,12 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 			if (targetDefUse.canBecomeActiveDefinition(edgeTarget))
 				continue;
 
+			if (targetDefUse.isFieldDU() && edgeTarget.isMethodCall()) {
+				// TODO in this case we should check if there is a deffree path
+				// for this field in the called method if the called method is
+				// also a method from the class of our targetDU
+			}
+
 			if (edgeTarget.getInstructionId() > currentVertex
 					.getInstructionId() // dont follow backedges (loops)
 					&& hasDefClearPathToMethodExit(targetDefUse, edgeTarget))
@@ -485,7 +485,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		return false;
 	}
 
-	private boolean hasDefClearPathFromMethodEntry(DefUse targetDefUse,
+	private boolean hasDefClearPathFromMethodEntry(Use targetDefUse,
 			BytecodeInstruction currentVertex) {
 		if (!graph.containsVertex(currentVertex))
 			throw new IllegalArgumentException("vertex not in graph");
