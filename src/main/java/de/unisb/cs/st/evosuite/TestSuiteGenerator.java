@@ -512,11 +512,16 @@ public class TestSuiteGenerator {
 		ExecutionTrace.enableTraceCalls();
 		if (ga == null)
 			ga = setup();
+		if (analyzing)
+			ga.resetStoppingConditions();
 
 		GeneticAlgorithm suiteGA = getGeneticAlgorithm(new TestSuiteChromosomeFactory());
 		FitnessFunction suite_fitness = getFitnessFunction();
 		suiteGA.setFitnessFunction(suite_fitness);
 
+		if (analyzing)
+			suiteGA.resetStoppingConditions();
+		
 		long start_time = System.currentTimeMillis() / 1000;
 		FitnessLogger fitness_logger = new FitnessLogger();
 		if (Properties.LOG_GOALS) {
