@@ -79,24 +79,28 @@ public class ControlDependenceGraph extends
 		if(insBlock.hasControlDependenciesSet())
 			return insBlock.getControlDependencies();
 		
-		Set<ControlDependency> r = retrieveControlDependencies(insBlock); 
+		Set<ControlDependency> r = retrieveControlDependencies(insBlock, new HashSet<ControlFlowEdge>()); 
 
 		return r;
 	}
 
 	private Set<ControlDependency> retrieveControlDependencies(
-			BasicBlock insBlock) {
+			BasicBlock insBlock, Set<ControlFlowEdge> handled) {
 		
 		Set<ControlDependency> r = new HashSet<ControlDependency>();
 
 		for (ControlFlowEdge e : incomingEdgesOf(insBlock)) {
+			if(handled.contains(e))
+				continue;
+			handled.add(e);
+			
 			ControlDependency cd = e.getControlDependency();
 			if (cd != null)
 				r.add(cd);
 			else {
 				BasicBlock in = getEdgeSource(e);
 				if (!in.equals(insBlock))
-					r.addAll(retrieveControlDependencies(in));
+					r.addAll(retrieveControlDependencies(in,handled));
 			}
 
 		}
