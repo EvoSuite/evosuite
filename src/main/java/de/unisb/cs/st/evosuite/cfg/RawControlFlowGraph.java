@@ -518,11 +518,8 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		if (targetDefUse.canBecomeActiveDefinition(edgeTarget))
 			return true;
 
-		if (callsOverwritingMethod(targetDefUse, edgeTarget, handle)) {
-			System.out.println("overwriteCall: " + edgeTarget.toString()
-					+ targetDefUse.getDUVariableName());
+		if (callsOverwritingMethod(targetDefUse, edgeTarget, handle))
 			return true;
-		}
 
 		return false;
 	}
