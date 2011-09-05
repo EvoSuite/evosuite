@@ -40,6 +40,16 @@ public class ConstructorTestClass extends BaseConstructorTestClass {
 		targetField = field;
 		new ConstructorTestClass();
 	}
+	
+	public int setsetMethod() {
+		setsetTargetField(3);
+		return targetField;
+	}
+	
+	public void setsetTargetField(int field) {
+		setTargetField(field);
+	}
+	
 	public int getTargetField() {
 		return targetField;
 	}
