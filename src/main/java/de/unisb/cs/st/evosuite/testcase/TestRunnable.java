@@ -133,9 +133,9 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 		} catch (ThreadDeath e) {// can't stop these guys
 			Sandbox.tearDownEverything();
-			logger.info("Found error:");
-			logger.info(test.toCode());
-			logger.warn("Found error in " + test.toCode(), e);
+			//logger.info("Found error:");
+			//logger.info(test.toCode());
+			logger.info("Found error in " + test.toCode(), e);
 			runFinished = true;
 			throw e;
 		} catch (TimeoutException e) {

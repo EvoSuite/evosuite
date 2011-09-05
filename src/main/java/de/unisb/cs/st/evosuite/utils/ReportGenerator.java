@@ -185,7 +185,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			// "Bloat Rejections,Fitness Rejections,Fitness Accepts,"
 			r.append("Chromosome Length,Population Size,Random Seed,Budget,");
 
-			r.append("AllPermission,SecurityPermission,UnresolvedPermission,AWTPermission,FilePermission,SerializablePermission,ReflectPermission,RuntimePermission,NetPermission,SocketPermission,SQLPermission,PropertyPermission,LoggingPermission,SSLPermission,AuthPermission,AudioPermission,OtherPermission,");
+			r.append("AllPermission,SecurityPermission,UnresolvedPermission,AWTPermission,FilePermission,SerializablePermission,ReflectPermission,RuntimePermission,NetPermission,SocketPermission,SQLPermission,PropertyPermission,LoggingPermission,SSLPermission,AuthPermission,AudioPermission,OtherPermission,Threads,");
 
 			r.append("Data File");
 			return r.toString();
@@ -247,6 +247,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append(pstats.getNumAuthPermission() + ",");
 			r.append(pstats.getNumAudioPermission() + ",");
 			r.append(pstats.getNumOtherPermission() + ",");
+			r.append(pstats.getMaxThreads() + ",");
 
 			r.append(getCSVFilepath());
 
