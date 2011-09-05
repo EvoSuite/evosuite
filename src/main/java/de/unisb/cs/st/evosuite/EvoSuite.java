@@ -204,6 +204,7 @@ public class EvoSuite {
 		Option sandbox = new Option("sandbox", "Run tests in sandbox");
 		Option mocks = new Option("mocks", "Use mock classes");
 		Option stubs = new Option("stubs", "Use stubs");
+		Option assertions = new Option("assertions", "Add assertions");
 
 		options.addOption(help);
 		options.addOption(generateSuite);
@@ -212,6 +213,7 @@ public class EvoSuite {
 		options.addOption(targetClass);
 		options.addOption(criterion);
 		options.addOption(seed);
+		options.addOption(assertions);
 
 		options.addOption(sandbox);
 		options.addOption(mocks);
@@ -245,6 +247,8 @@ public class EvoSuite {
 				javaOpts.add("-Dstubs=true");
 			if (line.hasOption("seed"))
 				javaOpts.add("-Drandom.seed=" + line.getOptionValue("seed"));
+			if (line.hasOption("assertions"))
+				javaOpts.add("-Dassertions=true");
 
 			if (line.hasOption("help")) {
 				HelpFormatter formatter = new HelpFormatter();

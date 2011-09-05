@@ -54,6 +54,7 @@ import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageTestFitness;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationFactory;
+import de.unisb.cs.st.evosuite.coverage.mutation.MutationPool;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathCoverageFactory;
@@ -182,7 +183,7 @@ public class TestSuiteGenerator {
 		CoverageStatistics.computeCombinedCoverages();
 		CoverageStatistics.writeCSV();
 	}
-	
+
 	private List<TestCase> generateTests(GeneticAlgorithm ga) {
 		List<TestCase> tests;
 		if (Properties.STRATEGY == Strategy.EVOSUITE)
@@ -223,7 +224,7 @@ public class TestSuiteGenerator {
 		if (Properties.JUNIT_TESTS) {
 			TestSuite suite = new TestSuite(tests);
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
-			String testDir = Properties.TEST_DIR + "/" + Properties.CRITERION;
+			String testDir = Properties.TEST_DIR;// + "/" + Properties.CRITERION;
 			System.out.println("* Writing JUnit test cases to " + testDir);
 			suite.writeTestSuite("Test" + name, testDir);
 		}
@@ -245,11 +246,16 @@ public class TestSuiteGenerator {
 			MutationAssertionGenerator masserter = new MutationAssertionGenerator();
 			Set<Integer> tkilled = new HashSet<Integer>();
 			for (TestCase test : tests) {
-				Set<Integer> killed = new HashSet<Integer>();
-				masserter.addAssertions(test, killed);
-				tkilled.addAll(killed);
+				//Set<Integer> killed = new HashSet<Integer>();
+				masserter.addAssertions(test, tkilled);
+				//tkilled.addAll(killed);
 			}
 			Properties.CRITERION = oldCriterion;
+			double score = (double) tkilled.size()
+			        / (double) MutationPool.getMutantCounter();
+			System.out.println("* Resulting test suite's mutation score: "
+			        + NumberFormat.getPercentInstance().format(score));
+
 			return;
 
 		} else if (Properties.ASSERTION_STRATEGY == AssertionStrategy.ALL) {
@@ -353,7 +359,7 @@ public class TestSuiteGenerator {
 		if (analyzing)
 			CoverageStatistics.analyzeCoverage(best);
 		else {
-			System.out.println("* Resulting TestSuite's coverage: "
+			System.out.println("* Resulting test suite's coverage: "
 			        + NumberFormat.getPercentInstance().format(best.getCoverage()));
 		}
 
@@ -401,7 +407,7 @@ public class TestSuiteGenerator {
 	public static TestSuiteFitnessFunction getFitnessFunction() {
 		return getFitnessFunction(Properties.CRITERION);
 	}
-	
+
 	public static TestSuiteFitnessFunction getFitnessFunction(Criterion criterion) {
 		switch (criterion) {
 		case MUTATION:
@@ -503,7 +509,7 @@ public class TestSuiteGenerator {
 
 		if (analyzing)
 			suiteGA.resetStoppingConditions();
-		
+
 		long start_time = System.currentTimeMillis() / 1000;
 		FitnessLogger fitness_logger = new FitnessLogger();
 		if (Properties.LOG_GOALS) {
@@ -514,8 +520,9 @@ public class TestSuiteGenerator {
 		TestFitnessFactory goal_factory = getFitnessFactory();
 		long goalComputationStart = System.currentTimeMillis();
 		List<TestFitnessFunction> goals = goal_factory.getCoverageGoals();
-		if(AbstractFitnessFactory.goalComputationTime != 0l)
-			AbstractFitnessFactory.goalComputationTime = System.currentTimeMillis() - goalComputationStart;
+		if (AbstractFitnessFactory.goalComputationTime != 0l)
+			AbstractFitnessFactory.goalComputationTime = System.currentTimeMillis()
+			        - goalComputationStart;
 		// Need to shuffle goals because the order may make a difference
 		if (Properties.SHUFFLE_GOALS) {
 			System.out.println("* Shuffling goals");
