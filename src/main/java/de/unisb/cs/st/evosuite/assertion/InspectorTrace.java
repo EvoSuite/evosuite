@@ -115,6 +115,7 @@ public class InspectorTrace extends OutputTrace {
 
 						InspectorAssertion assertion = new InspectorAssertion();
 						assertion.source = test.getReturnValue(return_values.get(line));
+						assertion.inspectorSource = test.getReturnValue(return_values.get(line));
 						List<Inspector> inspectors = manager.getInspectors(assertion.source.getVariableClass());
 						//logger.info("Creating inspector assertion for class "+assertion.source.getVariableClass());
 						assertion.inspector = inspectors.get(i);
@@ -146,7 +147,8 @@ public class InspectorTrace extends OutputTrace {
 						        || (value.getValue() != null && !value.getValue().equals(other_values.get(value.getKey())))) {
 
 							InspectorAssertion assertion = new InspectorAssertion();
-							assertion.source = callee;
+							assertion.source = test.getStatement(line).getReturnValue();
+							assertion.inspectorSource = callee;
 							assertion.inspector = value.getKey();
 							assertion.result = value.getValue();
 							test.getStatement(line).addAssertion(assertion);
@@ -236,6 +238,7 @@ public class InspectorTrace extends OutputTrace {
 				for (int i = 0; i < own_results.size(); i++) {
 					InspectorAssertion assertion = new InspectorAssertion();
 					assertion.source = test.getReturnValue(return_values.get(line));
+					assertion.inspectorSource = test.getReturnValue(return_values.get(line));
 					List<Inspector> inspectors = manager.getInspectors(assertion.source.getVariableClass());
 					//logger.info("Creating inspector assertion for class "+assertion.source.getVariableClass());
 					assertion.inspector = inspectors.get(i);
@@ -250,6 +253,7 @@ public class InspectorTrace extends OutputTrace {
 				VariableReference callee = ms.getCallee();
 				for (Entry<Inspector, Object> value : values.entrySet()) {
 					InspectorAssertion assertion = new InspectorAssertion();
+					assertion.inspectorSource = callee;
 					assertion.source = callee;
 					assertion.inspector = value.getKey();
 					assertion.result = value.getValue();

@@ -23,11 +23,13 @@ import org.apache.commons.lang.StringEscapeUtils;
 import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class InspectorAssertion extends Assertion {
 
 	// VariableReference value;
 	public Inspector inspector;
+	public VariableReference inspectorSource;
 	public int num_inspector;
 	public Object result;
 
@@ -35,6 +37,8 @@ public class InspectorAssertion extends Assertion {
 	public Assertion copy(TestCase newTestCase, int offset) {
 		InspectorAssertion s = new InspectorAssertion();
 		s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
+		s.inspectorSource = newTestCase.getStatement(inspectorSource.getStPosition()
+		                                                     + offset).getReturnValue();
 		s.inspector = inspector;
 		s.num_inspector = num_inspector;
 		s.result = result;
@@ -53,36 +57,37 @@ public class InspectorAssertion extends Assertion {
 		 * ()+"())"; } else {
 		 */
 		if (result == null) {
-			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			        + "(), null);";
+			return "assertEquals(" + inspectorSource.getName() + "."
+			        + inspector.getMethodCall() + "(), null);";
 		} else if (result.getClass().equals(Long.class)) {
 			String val = result.toString();
-			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			        + "(), " + val + "L);";
+			return "assertEquals(" + inspectorSource.getName() + "."
+			        + inspector.getMethodCall() + "(), " + val + "L);";
 		} else if (result.getClass().equals(Float.class)) {
 			String val = result.toString();
-			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			        + "(), " + val + "F);";
+			return "assertEquals(" + inspectorSource.getName() + "."
+			        + inspector.getMethodCall() + "(), " + val + "F);";
 		} else if (result.getClass().equals(Character.class)) {
 			String val = result.toString();
-			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			        + "(), '" + val + "');";
+			return "assertEquals(" + inspectorSource.getName() + "."
+			        + inspector.getMethodCall() + "(), '" + val + "');";
 		} else if (result.getClass().equals(String.class)) {
-			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			        + "(), \"" + StringEscapeUtils.escapeJava((String) result) + "\");";
+			return "assertEquals(" + inspectorSource.getName() + "."
+			        + inspector.getMethodCall() + "(), \""
+			        + StringEscapeUtils.escapeJava((String) result) + "\");";
 		} else
-			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			        + "(), " + result + ");";
+			return "assertEquals(" + inspectorSource.getName() + "."
+			        + inspector.getMethodCall() + "(), " + result + ");";
 	}
 
 	@Override
 	public boolean evaluate(Scope scope) {
 		try {
-			if (source.getObject(scope) == null)
+			if (inspectorSource.getObject(scope) == null)
 				return true; // TODO - true or false?
 			else {
 				try {
-					Object val = inspector.getValue(source.getObject(scope));
+					Object val = inspector.getValue(inspectorSource.getObject(scope));
 					if (val == null)
 						return val == result;
 					else
@@ -102,6 +107,8 @@ public class InspectorAssertion extends Assertion {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
+		result = prime * result
+		        + ((inspectorSource == null) ? 0 : inspectorSource.hashCode());
 		result = prime * result + ((inspector == null) ? 0 : inspector.hashCode());
 		result = prime * result + num_inspector;
 		result = prime * result + ((this.result == null) ? 0 : this.result.hashCode());
@@ -122,6 +129,12 @@ public class InspectorAssertion extends Assertion {
 				return false;
 		} else if (!inspector.equals(other.inspector))
 			return false;
+		if (inspectorSource == null) {
+			if (other.inspectorSource != null)
+				return false;
+		} else if (!inspectorSource.equals(other.inspectorSource))
+			return false;
+
 		if (num_inspector != other.num_inspector)
 			return false;
 		if (result == null) {
