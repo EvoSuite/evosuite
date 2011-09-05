@@ -43,7 +43,6 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.OutputTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
-import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * This class executes a test case on a unit and all mutants and infers
@@ -280,7 +279,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 		}
 
-		Set<Assertion> finalAssertions = test.getStatement(test.size() - 1).getAssertions();
+		//Set<Assertion> finalAssertions = test.getStatement(test.size() - 1).getAssertions();
 
 		// TODO: List exception assertion
 		logger.debug("Assertions before minimization: " + test.getAssertions().size()
@@ -324,12 +323,14 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			logger.info("Not removing assertions because no new assertions were found");
 		}
 
+		/*
 		// Make sure last statement has some assertion
 		Set<Assertion> finalAssertions2 = test.getStatement(test.size() - 1).getAssertions();
 		if (finalAssertions2.isEmpty() && !finalAssertions.isEmpty()) {
 			// Use an assertion that already covered a mutant
 			assertions.add(Randomness.choice(finalAssertions));
 		}
+		*/
 
 		// TODO: List exception assertion
 		logger.debug("Assertions after minimization: " + test.getAssertions().size()
