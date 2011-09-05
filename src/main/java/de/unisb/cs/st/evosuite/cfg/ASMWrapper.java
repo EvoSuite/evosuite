@@ -206,20 +206,20 @@ public abstract class ASMWrapper {
 		}
 	}
 
-	/**
-	 * 
-	 * @param methodName
-	 * @return
-	 */
-	public boolean isMethodCall(String methodName) {
-		if (asmNode instanceof MethodInsnNode) {
-			MethodInsnNode mn = (MethodInsnNode) asmNode;
-			// #TODO this is unsafe methods should be identified by a signature
-			// not by a name
-			return mn.name.equals(methodName);
-		}
-		return false;
-	}
+//	/**
+//	 * 
+//	 * @param methodName
+//	 * @return
+//	 */
+//	public boolean isMethodCall(String methodName) {
+//		if (asmNode instanceof MethodInsnNode) {
+//			MethodInsnNode mn = (MethodInsnNode) asmNode;
+//			// this is unsafe methods should be identified by a signature
+//			// not by a name
+//			return mn.name.equals(methodName);
+//		}
+//		return false;
+//	}
 	
 	public boolean isMethodCallForClass(String className) {
 		if (asmNode instanceof MethodInsnNode) {
