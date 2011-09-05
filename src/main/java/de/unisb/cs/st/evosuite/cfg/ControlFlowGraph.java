@@ -189,31 +189,6 @@ public abstract class ControlFlowGraph<V> extends
 		return null;
 	}
 
-	/**
-	 * In some cases there can be isolated nodes within a CFG. For example in an
-	 * completely empty try-catch-finally. Since these nodes are not reachable
-	 * but cause trouble when determining the entry point of a CFG they get
-	 * removed.
-	 * 
-	 * @return
-	 */
-	public int removeIsolatedNodes() {
-		Set<V> candidates = determineEntryPoints();
-
-		int removed = 0;
-		if (candidates.size() > 1) {
-
-			for (V instruction : candidates) {
-				if (outDegreeOf(instruction) == 0) {
-					if (graph.removeVertex(instruction))
-						removed++;
-				}
-			}
-
-		}
-		return removed;
-	}
-
 	@Override
 	protected Set<V> determineExitPoints() {
 		Set<V> r = new HashSet<V>();
