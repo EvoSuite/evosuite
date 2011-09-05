@@ -273,10 +273,23 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		// copied from ControlFlowGraph.determineEntryPoint():
 		// there was a back loop to the first instruction within this CFG, so no
 		// candidate
-		// TODO for now return null and handle in super class
-		// RawControlFlowGraph separately by overriding this method
 
 		return getInstructionWithSmallestId();
+	}
+
+	@Override
+	protected Set<BytecodeInstruction> determineExitPoints() {
+
+		Set<BytecodeInstruction> r = super.determineExitPoints();
+
+		// if the last instruction loops back to a previous instruction there is
+		// no node without a child, so just take the last byteCode instruction
+
+		if (r.isEmpty())
+			r.add(getInstructionWithBiggestId());
+
+		return r;
+
 	}
 
 	public BytecodeInstruction getInstructionWithSmallestId() {
@@ -285,6 +298,17 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 
 		for (BytecodeInstruction ins : vertexSet()) {
 			if (r == null || r.getInstructionId() > ins.getInstructionId())
+				r = ins;
+		}
+
+		return r;
+	}
+
+	public BytecodeInstruction getInstructionWithBiggestId() {
+		BytecodeInstruction r = null;
+
+		for (BytecodeInstruction ins : vertexSet()) {
+			if (r == null || r.getInstructionId() < ins.getInstructionId())
 				r = ins;
 		}
 
