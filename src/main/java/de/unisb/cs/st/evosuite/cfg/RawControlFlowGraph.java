@@ -467,16 +467,9 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		for (ControlFlowEdge e : outgoingEdges) {
 			BytecodeInstruction edgeTarget = graph.getEdgeTarget(e);
 
-			// skip edges going into another def for the same field
-			if (targetDefUse.canBecomeActiveDefinition(edgeTarget))
+			if(canOverwriteDU(targetDefUse, edgeTarget))
 				continue;
-
-			if (targetDefUse.isFieldDU() && edgeTarget.isMethodCall()) {
-				// TODO in this case we should check if there is a deffree path
-				// for this field in the called method if the called method is
-				// also a method from the class of our targetDU
-			}
-
+			
 			if (edgeTarget.getInstructionId() > currentVertex
 					.getInstructionId() // dont follow backedges (loops)
 					&& hasDefClearPathToMethodExit(targetDefUse, edgeTarget))
@@ -499,7 +492,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 			BytecodeInstruction edgeStart = graph.getEdgeSource(e);
 
 			// skip edges coming from a def for the same field
-			if (targetDefUse.canBecomeActiveDefinition(edgeStart))
+			if (canOverwriteDU(targetDefUse,edgeStart))
 				continue;
 
 			if (edgeStart.getInstructionId() < currentVertex.getInstructionId() // dont
@@ -509,6 +502,83 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 					&& hasDefClearPathFromMethodEntry(targetDefUse, edgeStart))
 				return true;
 		}
+		return false;
+	}
+
+	private boolean canOverwriteDU(DefUse targetDefUse,
+			BytecodeInstruction edgeTarget) {
+		
+		// skip edges going into another def for the same field
+		if (targetDefUse.canBecomeActiveDefinition(edgeTarget))
+			return true;
+
+		if(callsOverwritingMethod(targetDefUse, edgeTarget)) {
+			System.out.println("overwriteCall: "+edgeTarget.toString()+targetDefUse.getDUVariableName());
+			return true;
+		}
+		
+		return false;
+	}
+
+	private boolean callsOverwritingMethod(DefUse targetDefUse,
+			BytecodeInstruction edgeTarget) {
+		
+		if (targetDefUse.isFieldDU()
+				&& edgeTarget.isMethodCallForClass(targetDefUse
+						.getClassName())) {
+
+			// DONE in this case we should check if there is a deffree path
+			// for this field in the called method if the called method is
+			// also a method from the class of our targetDU
+			
+			// TODO this does not take into account if the method call is
+			// invoked on the same object. we should actually check if
+			// "this" is on top of the stack (ALOAD_0 previous instruction
+			// before call)
+
+			RawControlFlowGraph calledGraph = CFGPool.getRawCFG(edgeTarget.getClassName(), edgeTarget.getCalledMethod());
+			
+			if (!calledGraph.hasDefClearPath(targetDefUse
+					.getDUVariableName()))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	public boolean hasDefClearPath(String targetVariable) {
+		BytecodeInstruction entry = determineEntryPoint();
+
+		return hasDefClearPath(targetVariable, entry);
+
+	}
+
+	private boolean hasDefClearPath(String targetVariable,
+			BytecodeInstruction currentVertex) {
+		if (!graph.containsVertex(currentVertex))
+			throw new IllegalArgumentException("vertex not in graph");
+
+		if (currentVertex.isDefinitionForVariable(targetVariable))
+			return false;
+
+		Set<ControlFlowEdge> outgoingEdges = graph
+				.outgoingEdgesOf(currentVertex);
+		if (outgoingEdges.size() == 0)
+			return true;
+
+		for (ControlFlowEdge e : outgoingEdges) {
+			BytecodeInstruction edgeTarget = graph.getEdgeTarget(e);
+
+			// TODO stopped here
+			
+			// TODO handle edgeTarget being another method call!
+
+			if (edgeTarget.getInstructionId() > currentVertex
+					.getInstructionId() // dont follow backedges (loops)
+					&& hasDefClearPath(targetVariable, edgeTarget))
+				return true;
+		}
+
 		return false;
 	}
 

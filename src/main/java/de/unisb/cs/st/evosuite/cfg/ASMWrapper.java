@@ -220,6 +220,14 @@ public abstract class ASMWrapper {
 		}
 		return false;
 	}
+	
+	public boolean isMethodCallForClass(String className) {
+		if (asmNode instanceof MethodInsnNode) {
+			MethodInsnNode mn = (MethodInsnNode) asmNode;
+			return mn.owner.equals(className.replaceAll("\\.", "/"));
+		}
+		return false;
+	}
 
 	// methods for defUse analysis
 
@@ -304,6 +312,10 @@ public abstract class ASMWrapper {
 		// ALOAD_0
 		// (this)
 	}
+	
+	public boolean isDefinitionForVariable(String var) {
+		return (isDefinition() && getDUVariableName().equals(var));
+	}
 
 	public boolean isInvokeSpecial() {
 		return asmNode.getOpcode() == Opcodes.INVOKESPECIAL;
@@ -337,6 +349,13 @@ public abstract class ASMWrapper {
 			return false;
 		
 		return invoke.name.equals("<init>");
+	}
+	
+	public String getCalledMethod() {
+		if(!isMethodCall())
+			return null;
+		MethodInsnNode meth = (MethodInsnNode)asmNode;
+		return meth.name+meth.desc;
 	}
 
 	// other classification methods
