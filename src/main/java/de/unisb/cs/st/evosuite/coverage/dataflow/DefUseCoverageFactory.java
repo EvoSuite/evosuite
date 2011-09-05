@@ -98,6 +98,7 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 		goals.addAll(duGoals);
 		long end = System.currentTimeMillis();
 		System.out.println("* Goal computation took: " + (end - start) + "ms");
+		goalComputationTime = end - start;
 	}
 
 	/**

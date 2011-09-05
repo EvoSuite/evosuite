@@ -102,6 +102,7 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testcase.ValueMinimizer;
+import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
 import de.unisb.cs.st.evosuite.testsuite.CoverageStatistics;
 import de.unisb.cs.st.evosuite.testsuite.FixedSizeTestSuiteChromosomeFactory;
 import de.unisb.cs.st.evosuite.testsuite.MinimizeAverageLengthSecondaryObjective;
@@ -174,6 +175,7 @@ public class TestSuiteGenerator {
 
 			// TODO reset method?
 			TestCaseExecutor.timeExecuted = 0l;
+			AbstractFitnessFactory.goalComputationTime = 0l;
 			GlobalTimeStoppingCondition.forceReset();
 		}
 		Properties.CRITERION = Criterion.ANALYZE;
@@ -510,7 +512,10 @@ public class TestSuiteGenerator {
 
 		// Get list of goals
 		TestFitnessFactory goal_factory = getFitnessFactory();
+		long goalComputationStart = System.currentTimeMillis();
 		List<TestFitnessFunction> goals = goal_factory.getCoverageGoals();
+		if(AbstractFitnessFactory.goalComputationTime != 0l)
+			AbstractFitnessFactory.goalComputationTime = System.currentTimeMillis() - goalComputationStart;
 		// Need to shuffle goals because the order may make a difference
 		if (Properties.SHUFFLE_GOALS) {
 			System.out.println("* Shuffling goals");

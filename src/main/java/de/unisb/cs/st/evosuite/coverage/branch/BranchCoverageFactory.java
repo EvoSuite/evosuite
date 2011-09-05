@@ -48,6 +48,7 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 	 */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
+		long start = System.currentTimeMillis();
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
 
 		String targetMethod = Properties.TARGET_METHOD;
@@ -88,7 +89,7 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 				}
 			}
 		}
-
+		goalComputationTime = System.currentTimeMillis() - start;
 		return goals;
 	}
 
