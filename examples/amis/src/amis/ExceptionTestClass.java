@@ -95,6 +95,14 @@ public class ExceptionTestClass {
 	public void alwaysThrowException()  throws Exception{
 		throw new Exception("error");
 	}
+	
+	public void emptyTryCatch() {
+		try {
+			
+		} catch(Exception e) {
+			
+		}
+	}
 
 	public void tryCatchDef() {
 		try {
@@ -121,6 +129,16 @@ public class ExceptionTestClass {
 		}
 	}
 	
+	public void tryEmptyCatchEmptyFinally() {
+		try {
+			field = 0;
+		} catch (Exception e) {
+			// won't happen
+		} finally {
+			
+		}
+	}
+	
 	public void tryMightCatch(int val) {
 		try {
 			illegalArgumentThrower(val);
@@ -144,6 +162,31 @@ public class ExceptionTestClass {
 			field++;
 		} finally {
 			field--;
+		}
+	}
+	
+	public void tryCatchEmptyFinally(int val) {
+		try {
+			illegalArgumentThrower(val);
+		} catch (Exception e) {
+			field++;
+		} finally {
+		}
+	}
+	
+	public void tryEmptyCatchFinally(int val) {
+		try {
+			illegalArgumentThrower(val);
+		} catch (Exception e) {
+		} finally {
+			field++;
+		}
+	}
+	
+	public void emptyTryCatchFinally(int val) {
+		try {
+		} catch (Exception e) {
+		} finally {
 		}
 	}
 

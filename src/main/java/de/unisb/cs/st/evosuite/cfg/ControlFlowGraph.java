@@ -43,9 +43,11 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser, Andre Mis
  */
-public abstract class ControlFlowGraph<V> extends EvoSuiteGraph<V, ControlFlowEdge> {
+public abstract class ControlFlowGraph<V> extends
+		EvoSuiteGraph<V, ControlFlowEdge> {
 
-	private static Logger logger = LoggerFactory.getLogger(ControlFlowGraph.class);
+	private static Logger logger = LoggerFactory
+			.getLogger(ControlFlowGraph.class);
 
 	protected String className;
 	protected String methodName;
@@ -70,7 +72,7 @@ public abstract class ControlFlowGraph<V> extends EvoSuiteGraph<V, ControlFlowEd
 	 * method
 	 */
 	protected ControlFlowGraph(String className, String methodName,
-	        DefaultDirectedGraph<V, ControlFlowEdge> jGraph) {
+			DefaultDirectedGraph<V, ControlFlowEdge> jGraph) {
 		super(jGraph, ControlFlowEdge.class);
 
 		if (className == null || methodName == null)
@@ -102,13 +104,14 @@ public abstract class ControlFlowGraph<V> extends EvoSuiteGraph<V, ControlFlowEd
 		return false;
 	}
 
-//	/**
-//	 * Can be used to retrieve a Branch contained in this CFG identified by it's
-//	 * branchId
-//	 * 
-//	 * If no such branch exists in this CFG, null is returned
-//	 */
-//	public abstract BytecodeInstruction getBranch(int branchId);
+	// /**
+	// * Can be used to retrieve a Branch contained in this CFG identified by
+	// it's
+	// * branchId
+	// *
+	// * If no such branch exists in this CFG, null is returned
+	// */
+	// public abstract BytecodeInstruction getBranch(int branchId);
 
 	/**
 	 * Can be used to retrieve an instruction contained in this CFG identified
@@ -134,9 +137,9 @@ public abstract class ControlFlowGraph<V> extends EvoSuiteGraph<V, ControlFlowEd
 	 */
 	public void finalise() {
 		computeDiameter();
-		// TODO: call this! 
-		// 	and sanity check with a flag whenever a call 
-		//  to this method is assumed to have been made
+		// TODO: call this!
+		// and sanity check with a flag whenever a call
+		// to this method is assumed to have been made
 	}
 
 	/**
@@ -147,7 +150,8 @@ public abstract class ControlFlowGraph<V> extends EvoSuiteGraph<V, ControlFlowEd
 	 */
 	public int getDiameter() {
 		if (diameter == -1) {
-			logger.debug("diameter not computed yet. calling computeDiameter() first!");
+			logger
+					.debug("diameter not computed yet. calling computeDiameter() first!");
 			computeDiameter();
 		}
 
@@ -156,12 +160,13 @@ public abstract class ControlFlowGraph<V> extends EvoSuiteGraph<V, ControlFlowEd
 
 	protected void computeDiameter() {
 		// The diameter is just an upper bound for the approach level
-		// Let's try to use something that's easier to compute than FLoydWarshall
+		// Let's try to use something that's easier to compute than
+		// FLoydWarshall
 		diameter = this.edgeCount();
 		/*
-		FloydWarshall<V, ControlFlowEdge> f = new FloydWarshall<V, ControlFlowEdge>(graph);
-		diameter = (int) f.getDiameter();
-		*/
+		 * FloydWarshall<V, ControlFlowEdge> f = new FloydWarshall<V,
+		 * ControlFlowEdge>(graph); diameter = (int) f.getDiameter();
+		 */
 	}
 
 	protected V determineEntryPoint() {
@@ -169,7 +174,8 @@ public abstract class ControlFlowGraph<V> extends EvoSuiteGraph<V, ControlFlowEd
 
 		if (candidates.size() > 1)
 			throw new IllegalStateException(
-			        "expect CFG of a method to contain at most one instruction with no parent");
+					"expect CFG of a method to contain at most one instruction with no parent in "
+							+ methodName);
 
 		for (V instruction : candidates)
 			return instruction;
@@ -178,7 +184,34 @@ public abstract class ControlFlowGraph<V> extends EvoSuiteGraph<V, ControlFlowEd
 		// candidate
 		// TODO for now return null and handle in super class
 		// RawControlFlowGraph separately by overriding this method
+
+		// can also happen in empty methods
 		return null;
+	}
+
+	/**
+	 * In some cases there can be isolated nodes within a CFG. For example in an
+	 * completely empty try-catch-finally. Since these nodes are not reachable
+	 * but cause trouble when determining the entry point of a CFG they get
+	 * removed.
+	 * 
+	 * @return
+	 */
+	public int removeIsolatedNodes() {
+		Set<V> candidates = determineEntryPoints();
+
+		int removed = 0;
+		if (candidates.size() > 1) {
+
+			for (V instruction : candidates) {
+				if (outDegreeOf(instruction) == 0) {
+					if (graph.removeVertex(instruction))
+						removed++;
+				}
+			}
+
+		}
+		return removed;
 	}
 
 	@Override
@@ -191,7 +224,7 @@ public abstract class ControlFlowGraph<V> extends EvoSuiteGraph<V, ControlFlowEd
 			}
 		if (r.isEmpty())
 			throw new IllegalStateException(
-			        "expect CFG of a method to contain at least one instruction with no child");
+					"expect CFG of a method to contain at least one instruction with no child");
 
 		return r;
 	}
@@ -208,11 +241,11 @@ public abstract class ControlFlowGraph<V> extends EvoSuiteGraph<V, ControlFlowEd
 	public String getName() {
 		return getCFGType() + " " + methodName;
 	}
-	
+
 	@Override
 	protected String dotSubFolder() {
-		return toFileString(className)+"/"+getCFGType()+"/";
+		return toFileString(className) + "/" + getCFGType() + "/";
 	}
-	
+
 	public abstract String getCFGType();
 }
