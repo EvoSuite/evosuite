@@ -81,11 +81,20 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 		logger.trace("starting DefUse-Coverage goal generation");
 		duGoals = new ArrayList<DefUseCoverageTestFitness>();
 
+		System.out.print("* Creating goals vor Parameters...");
 		duGoals.addAll(getParameterGoals());
+		int param = duGoals.size();
+		System.out.println(" created "+param);
+		System.out.print("* Creating intra-method goals...");
 		duGoals.addAll(getPairsWithinMethods());
+		System.out.println(" created "+(duGoals.size()-param));
 
+		System.out.print("* Searching for clear Defs...");
 		Set<Definition> freeDefs = getDefinitionsWithClearPathToMethodEnd();
+		System.out.println(" found "+freeDefs.size());
+		System.out.print("* Searching for clear Uses...");
 		Set<Use> freeUses = getUsesWithClearPathFromMethodStart();
+		System.out.println(" found "+freeUses.size());
 		for (Definition def : freeDefs)
 			for (Use use : freeUses)
 				if (def.getDUVariableName().equals(use.getDUVariableName())) {
