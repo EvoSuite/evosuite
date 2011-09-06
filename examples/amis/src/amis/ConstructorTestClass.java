@@ -36,6 +36,15 @@ public class ConstructorTestClass extends BaseConstructorTestClass {
 //		targetField = aString.length();
 //	}
 //
+	public int withinPairsTest() {
+		targetField = 1;
+		targetField++;
+		
+		setsetTargetField(targetField);
+		
+		return targetField;
+	}
+	
 	public void setTargetField(int field) {
 		targetField = field;
 		new ConstructorTestClass();
