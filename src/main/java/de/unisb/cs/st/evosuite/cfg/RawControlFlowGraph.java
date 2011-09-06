@@ -411,31 +411,33 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	}
 
 	private Set<Use> getUsesForDef(Definition targetDef,
-			BytecodeInstruction currentInstruction, Set<BytecodeInstruction> handled) {
+			BytecodeInstruction currentInstruction,
+			Set<BytecodeInstruction> handled) {
 		if (!graph.containsVertex(currentInstruction))
 			throw new IllegalArgumentException("vertex not in graph");
 
 		Set<Use> r = new HashSet<Use>();
-		
-		if(handled.contains(currentInstruction))
+
+		if (handled.contains(currentInstruction))
 			return r;
 		handled.add(currentInstruction);
 
-		Set<ControlFlowEdge> outgoingEdges = graph.outgoingEdgesOf(currentInstruction);
+		Set<ControlFlowEdge> outgoingEdges = graph
+				.outgoingEdgesOf(currentInstruction);
 		for (ControlFlowEdge e : outgoingEdges) {
 			BytecodeInstruction edgeTarget = graph.getEdgeTarget(e);
 
-			if (edgeTarget.isDefUse()) {
-				if (targetDef.canBeActiveFor(edgeTarget))
-					r.add(DefUseFactory.makeUse(edgeTarget));
-				if (targetDef.canBecomeActiveDefinition(edgeTarget))
-					continue;
-			}
-			if (edgeTarget.getInstructionId() > currentInstruction.getInstructionId()) // dont
+			if (targetDef.canBeActiveFor(edgeTarget))
+				r.add(DefUseFactory.makeUse(edgeTarget));
+			if (canOverwriteDU(targetDef, edgeTarget))
+				continue;
+
+			if (edgeTarget.getInstructionId() > currentInstruction
+					.getInstructionId()) // dont
 				// follow
 				// backedges
 				// (loops)
-				r.addAll(getUsesForDef(targetDef, edgeTarget,handled));
+				r.addAll(getUsesForDef(targetDef, edgeTarget, handled));
 		}
 		return r;
 	}
@@ -446,7 +448,8 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		if (duVertex.isLocalDU())
 			return false;
 
-		return hasDefClearPathToMethodExit(duVertex, duVertex, new HashSet<BytecodeInstruction>());
+		return hasDefClearPathToMethodExit(duVertex, duVertex,
+				new HashSet<BytecodeInstruction>());
 	}
 
 	public boolean hasDefClearPathFromMethodEntry(Use duVertex) {
@@ -455,7 +458,8 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		if (duVertex.isLocalDU())
 			return false;
 
-		return hasDefClearPathFromMethodEntry(duVertex, duVertex, new HashSet<BytecodeInstruction>());
+		return hasDefClearPathFromMethodEntry(duVertex, duVertex,
+				new HashSet<BytecodeInstruction>());
 	}
 
 	private boolean hasDefClearPathToMethodExit(Definition targetDefUse,
@@ -463,10 +467,10 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		if (!graph.containsVertex(currentVertex))
 			throw new IllegalArgumentException("vertex not in graph");
 
-		if(handled.contains(currentVertex))
+		if (handled.contains(currentVertex))
 			return false;
 		handled.add(currentVertex);
-		
+
 		Set<ControlFlowEdge> outgoingEdges = graph
 				.outgoingEdgesOf(currentVertex);
 		if (outgoingEdges.size() == 0)
@@ -480,7 +484,8 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 
 			if (edgeTarget.getInstructionId() > currentVertex
 					.getInstructionId() // dont follow backedges (loops)
-					&& hasDefClearPathToMethodExit(targetDefUse, edgeTarget, handled))
+					&& hasDefClearPathToMethodExit(targetDefUse, edgeTarget,
+							handled))
 				return true;
 		}
 		return false;
@@ -491,10 +496,10 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		if (!graph.containsVertex(currentVertex))
 			throw new IllegalArgumentException("vertex not in graph");
 
-		if(handled.contains(currentVertex))
+		if (handled.contains(currentVertex))
 			return false;
 		handled.add(currentVertex);
-		
+
 		Set<ControlFlowEdge> incomingEdges = graph
 				.incomingEdgesOf(currentVertex);
 		if (incomingEdges.size() == 0)
@@ -511,7 +516,8 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 					// follow
 					// backedges
 					// (loops)
-					&& hasDefClearPathFromMethodEntry(targetDefUse, edgeStart, handled))
+					&& hasDefClearPathFromMethodEntry(targetDefUse, edgeStart,
+							handled))
 				return true;
 		}
 		return false;
@@ -553,11 +559,13 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 			RawControlFlowGraph calledGraph = CFGPool.getRawCFG(edgeTarget
 					.getClassName(), edgeTarget.getCalledMethod());
 
-			if(calledGraph == null) {
-				logger.debug("expected cfg to exist for: "+edgeTarget.getCalledMethod()+" ... abstract method?");
+			if (calledGraph == null) {
+				logger.debug("expected cfg to exist for: "
+						+ edgeTarget.getCalledMethod()
+						+ " ... abstract method?");
 				return false;
 			}
-			
+
 			if (!calledGraph.hasDefClearPath(targetDefUse, handle))
 				return true;
 		}
