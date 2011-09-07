@@ -508,10 +508,10 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 
 		for (BytecodeInstruction exitPoint : exitPoints)
 			if (block.containsInstruction(exitPoint)) {
-				// sanity check
-				if (!block.getLastInstruction().equals(exitPoint))
-					throw new IllegalStateException(
-							"expect exitPoints of a method to be the last instruction from an exitBlock of that method");
+//				// sanity check
+//				if (!block.getLastInstruction().equals(exitPoint))
+//					throw new IllegalStateException(
+//							"expect exitPoints of a method to be the last instruction from an exitBlock of that method");
 				return true;
 			}
 
@@ -548,7 +548,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 
 		logger.debug(".. all initInstructions contained");
 
-		checkNodeSanity();
+//		checkNodeSanity();
 
 		checkInstructionsContainedOnceConstraint();
 
