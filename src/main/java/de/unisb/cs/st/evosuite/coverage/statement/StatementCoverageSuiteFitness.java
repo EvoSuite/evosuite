@@ -1,9 +1,5 @@
 package de.unisb.cs.st.evosuite.coverage.statement;
 
-<<<<<<< local
-=======
-import java.util.ArrayList;
->>>>>>> other
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -66,7 +62,4 @@ public class StatementCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		return fitness;
 	}
 
-<<<<<<< local
-}=======
 }
->>>>>>> other
