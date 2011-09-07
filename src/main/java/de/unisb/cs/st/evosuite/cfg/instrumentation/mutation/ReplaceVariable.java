@@ -43,7 +43,7 @@ public class ReplaceVariable implements MutationOperator {
 
 		List<Mutation> mutations = new LinkedList<Mutation>();
 		if (mn.localVariables.isEmpty()) {
-			logger.warn("Have no information about local variables - recompile with full debug information");
+			logger.info("Have no information about local variables - recompile with full debug information");
 			return mutations;
 		}
 
@@ -103,13 +103,17 @@ public class ReplaceVariable implements MutationOperator {
 		if (node instanceof VarInsnNode) {
 			VarInsnNode var = (VarInsnNode) node;
 
-			LocalVariableNode origVar = getLocal(mn, node, var.var);
-			//LocalVariableNode origVar = (LocalVariableNode) mn.localVariables.get(var.var);
-			logger.info("Looking for replacements for " + origVar.name + " of type "
-			        + origVar.desc + " at index " + origVar.index);
+			try {
+				LocalVariableNode origVar = getLocal(mn, node, var.var);
+				//LocalVariableNode origVar = (LocalVariableNode) mn.localVariables.get(var.var);
+				logger.info("Looking for replacements for " + origVar.name + " of type "
+				        + origVar.desc + " at index " + origVar.index);
 
-			variables.addAll(getLocalReplacements(mn, origVar.desc, node));
-			variables.addAll(getFieldReplacements(mn, className, origVar.desc, node));
+				variables.addAll(getLocalReplacements(mn, origVar.desc, node));
+				variables.addAll(getFieldReplacements(mn, className, origVar.desc, node));
+			} catch (RuntimeException e) {
+				logger.info("Could not find variable, not replacing it: " + var.var);
+			}
 		} else if (node instanceof FieldInsnNode) {
 			FieldInsnNode field = (FieldInsnNode) node;
 			if (field.owner.replace("/", ".").equals(className)) {
@@ -144,7 +148,8 @@ public class ReplaceVariable implements MutationOperator {
 		}
 
 		throw new RuntimeException("Could not find local variable " + index
-		        + " at position " + currentId);
+		        + " at position " + currentId + ", have variables: "
+		        + mn.localVariables.size());
 	}
 
 	private List<InsnList> getLocalReplacements(MethodNode mn, String desc,
