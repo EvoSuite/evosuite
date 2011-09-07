@@ -914,7 +914,8 @@ public class TestCluster {
 		if (c.getDeclaringClass().isAnonymousClass())
 			return false;
 
-		if (c.getDeclaringClass().isMemberClass())
+		if (c.getDeclaringClass().isMemberClass()
+		        && !Modifier.isStatic(c.getDeclaringClass().getModifiers()))
 			return false;
 
 		if (!Properties.USE_DEPRECATED && c.getAnnotation(Deprecated.class) != null) {
