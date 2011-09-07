@@ -134,6 +134,9 @@ public class Properties {
 	@Parameter(key = "max_int", group = "Test Creation", description = "Maximum size of randomly generated integers (minimum range = -1 * max)")
 	public static int MAX_INT = 2048;
 
+	@Parameter(key = "restrict_pool", group = "Test Creation", description = "Prohibit integers in the pool greater than max_int")
+	public static boolean RESTRICT_POOL = false;
+
 	@Parameter(key = "max_delta", group = "Test Creation", description = "Maximum size of delta for numbers during mutation")
 	public static int MAX_DELTA = 20;
 
