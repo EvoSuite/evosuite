@@ -164,7 +164,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		public long minimized_time;
 
 		public long testExecutionTime;
-		
+
 		public long goalComputationTime;
 
 		public int result_fitness_evaluations = 0;
@@ -217,7 +217,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append((minimized_time - start_time) + ",");
 			r.append((minimized_time - end_time) + ",");
 			r.append((end_time - start_time) + ",");
-			
+
 			r.append(testExecutionTime + ",");
 			r.append(goalComputationTime + ",");
 
@@ -713,7 +713,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			buffer.append("</td>");
 			buffer.append("<td>");
 			buffer.append(entry.getCoverage());
-			buffer.append("%</td>");
+			buffer.append("</td>");
 			buffer.append("<td><a href=\"html/");
 			String filename = writeRunPage(entry);
 			buffer.append(filename);
