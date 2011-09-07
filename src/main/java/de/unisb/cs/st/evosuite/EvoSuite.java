@@ -182,7 +182,9 @@ public class EvoSuite {
 		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
 		if (handler.startProcess(newArgs)) {
 			handler.waitForResult((Properties.GLOBAL_TIMEOUT
-			        + Properties.MINIMIZATION_TIMEOUT + 120) * 1000); // FIXXME: search timeout plus 100 seconds?			
+			        + Properties.MINIMIZATION_TIMEOUT + 120) * 1000); // FIXXME: search timeout plus 100 seconds?	
+			handler.killProcess();
+			handler.closeServer();
 		} else {
 			System.out.println("* Could not connect to client process");
 		}
