@@ -309,6 +309,12 @@ public class TestTaskGenerator {
 			return false;
 		}
 
+		if (m.getDeclaringClass().isEnum()
+		        && (m.getName().equals("valueOf") || m.getName().equals("values"))) {
+			logger.debug("Excluding valueOf for Enum " + m.toString());
+			return false;
+		}
+
 		if (m.getDeclaringClass().equals(java.lang.Thread.class)) {
 			logger.debug("Excluding method declared in Thread " + m.toString());
 			return false;
@@ -495,7 +501,8 @@ public class TestTaskGenerator {
 			        && !method.getName().equals("compareTo")
 			        && !method.getName().equals("equals")) {
 				logger.debug("Adding method to signature file " + clazz.getName() + "."
-				        + method.getName() + Type.getMethodDescriptor(method));
+				        + method.getName() + Type.getMethodDescriptor(method)
+				        + " defined in " + method.getDeclaringClass().getName());
 				candidates.add(clazz.getName()
 				        + "."
 				        + method.getName()
@@ -666,10 +673,12 @@ public class TestTaskGenerator {
 
 		List<String> dependencies = getSubClasses(clazz.getName());
 		for (String dependency : dependencies) {
+			logger.debug("Analyzing subclass " + dependency);
 			if (dependency.equals(classname))
 				continue;
 			try {
 				Class<?> dep = clazz.getClassLoader().loadClass(dependency);
+
 				addConstructors(suggestion, dep);
 				addMethods(suggestion, dep);
 				addFields(suggestion, dep);
