@@ -42,6 +42,9 @@ public class PrimitiveAssertion extends Assertion {
 		} else if (value.getClass().equals(String.class)) {
 			return "assertEquals(" + source.getName() + ", \""
 			        + StringEscapeUtils.escapeJava((String) value) + "\");";
+		} else if (value.getClass().isEnum()) {
+			return "assertEquals(" + source.getName() + ", "
+			        + this.source.getSimpleClassName() + "." + value + ");";
 		} else
 			return "assertEquals(" + source.getName() + ", " + value + ");";
 	}

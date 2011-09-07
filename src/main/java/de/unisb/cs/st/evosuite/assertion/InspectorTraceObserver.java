@@ -103,19 +103,21 @@ public class InspectorTraceObserver extends ExecutionObserver {
 			} else {
 				logger.debug("No inspectors for " + retval + ": " + inspectors.isEmpty());
 			}
-
+			logger.debug("Checking for method call statement");
 			// Add inspector calls on callee
 			if (statement instanceof MethodStatement) {
 				MethodStatement ms = (MethodStatement) statement;
 				if (!ms.isStatic()) {
 					inspectors = manager.getInspectors(ms.getMethod().getDeclaringClass());
 					if (!inspectors.isEmpty()) {
+
 						trace.calleeMap.put(statement.getPosition(),
 						                    new HashMap<Inspector, Object>());
 
 						VariableReference callee = ms.getCallee();
-						if (callee.getObject(scope) == null)
+						if (callee.getObject(scope) == null) {
 							return;
+						}
 						for (Inspector i : inspectors) {
 							try {
 								Object target = callee.getObject(scope);
@@ -127,6 +129,7 @@ public class InspectorTraceObserver extends ExecutionObserver {
 									                                                 value);
 								}
 							} catch (Exception e) {
+								logger.debug("Exception " + e + " / " + e.getCause());
 								if (e.getCause() != null
 								        && !e.getCause().getClass().equals(NullPointerException.class)) {
 									logger.debug("Exception during call to inspector: "
