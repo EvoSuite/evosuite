@@ -529,7 +529,8 @@ public class TestTaskGenerator {
 		for (Method method : clazz.getMethods()) {
 			if (!Modifier.isProtected(method.getModifiers())
 			        && !Modifier.isPrivate(method.getModifiers())
-			        && (method.getReturnType().isPrimitive() || method.getReturnType().equals(String.class))
+			        && (method.getReturnType().isPrimitive()
+			                || method.getReturnType().equals(String.class) || method.getReturnType().isEnum())
 			        && !method.getReturnType().equals(void.class)
 			        && method.getParameterTypes().length == 0
 			        && !method.getName().equals("hashCode")

@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
+import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
@@ -75,6 +76,12 @@ public class InspectorAssertion extends Assertion {
 			return "assertEquals(" + inspectorSource.getName() + "."
 			        + inspector.getMethodCall() + "(), \""
 			        + StringEscapeUtils.escapeJava((String) result) + "\");";
+		} else if (result.getClass().isEnum()) {
+			return "assertEquals(" + inspectorSource.getName() + "."
+			        + inspector.getMethodCall() + "(),"
+			        + ClassUtils.getShortClassName(this.result.getClass()) + "." + result
+			        + ");";
+
 		} else
 			return "assertEquals(" + inspectorSource.getName() + "."
 			        + inspector.getMethodCall() + "(), " + result + ");";
