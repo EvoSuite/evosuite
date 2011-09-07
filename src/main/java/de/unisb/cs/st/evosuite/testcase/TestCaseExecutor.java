@@ -222,9 +222,12 @@ public class TestCaseExecutor implements ThreadFactory {
 			return result;
 		} catch (ExecutionException e1) {
 			/*
-			 * An ExecutionException at this point, is most likely an error in evosuite. As exceptions from the tested code are catched before this.
+			 * An ExecutionException at this point, is most likely an error in evosuite. As exceptions from the tested code are caught before this.
 			 */
 			Sandbox.tearDownEverything();
+			System.setOut(systemOut);
+			System.setErr(systemErr);
+
 			logger.error("ExecutionException (this is likely a serious error in the framework)",
 			             e1);
 			ExecutionResult result = new ExecutionResult(tc, null);

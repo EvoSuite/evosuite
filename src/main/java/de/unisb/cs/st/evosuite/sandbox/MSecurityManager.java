@@ -87,7 +87,7 @@ class MSecurityManager extends SecurityManager {
 			StackTraceElement e = stackTraceElements[elementCounter];
 			if (e.getMethodName().equals("executeTestCase")
 			        || e.getMethodName().equals("call")
-			        || (e.getClassName().contains(testPackage) && !testPackage.equals(""))
+			        || (e.getClassName().startsWith(testPackage) && !testPackage.equals(""))
 			        || e.getClassName().equals(TestRunnable.class.getName())) {
 				testExec = true;
 				break;
