@@ -228,7 +228,8 @@ public class MethodStatement extends AbstractStatement {
 		}
 
 		String callee_str = "";
-		if (!retval.getVariableClass().isAssignableFrom(method.getReturnType())) {
+		if (exception == null
+		        && !retval.getVariableClass().isAssignableFrom(method.getReturnType())) {
 			callee_str = "(" + retval.getSimpleClassName() + ")";
 		}
 
