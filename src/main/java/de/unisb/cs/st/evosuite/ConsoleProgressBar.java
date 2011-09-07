@@ -80,7 +80,7 @@ public class ConsoleProgressBar implements SearchListener {
 	public void iteration(GeneticAlgorithm algorithm) {
 		long current = stoppingCondition.getCurrentValue();
 		printProgressBar((int) (100 * current / max),
-		                 (int) Math.round(((TestSuiteChromosome) algorithm.getBestIndividual()).getCoverage() * 100));
+		                 (int) Math.floor(((TestSuiteChromosome) algorithm.getBestIndividual()).getCoverage() * 100));
 	}
 
 	/* (non-Javadoc)
