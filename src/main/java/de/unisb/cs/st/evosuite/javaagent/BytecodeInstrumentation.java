@@ -71,7 +71,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		return className.startsWith(Properties.PROJECT_PREFIX)
 		        && !className.startsWith("java.") && !className.startsWith("sun.")
 		        && !className.startsWith("de.unisb.cs.st.evosuite")
-		        && !className.startsWith("javax.");
+		        && !className.startsWith("javax.")
+		        && !className.startsWith("org.xml.sax");
 	}
 
 	private boolean isTargetClassName(String className) {
