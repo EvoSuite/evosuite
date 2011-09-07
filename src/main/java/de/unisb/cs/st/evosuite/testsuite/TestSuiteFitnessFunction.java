@@ -28,7 +28,6 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.statement.StatementCoverageSuiteFitness;
-import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
@@ -45,8 +44,7 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 
 	private static final long serialVersionUID = 7243635497292960457L;
 
-	protected static Logger logger = LoggerFactory
-			.getLogger(TestSuiteFitnessFunction.class);
+	protected static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
 	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
@@ -76,9 +74,7 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 			System.out.println("TG: Exception caught: " + e);
 			try {
 				Thread.sleep(1000);
-				result
-						.setTrace(ExecutionTracer.getExecutionTracer()
-								.getTrace());
+				result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			} catch (Exception e1) {
 				e.printStackTrace();
 				// TODO: Do some error recovery?
@@ -109,16 +105,14 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 	}
 
 	protected List<ExecutionResult> runTestSuite(
-			AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		CurrentChromosomeTracker.getInstance().modification(suite);
 		List<ExecutionResult> results = new ArrayList<ExecutionResult>();
 
 		for (ExecutableChromosome chromosome : suite.getTestChromosomes()) {
 			// Only execute test if it hasn't been changed
-			if (chromosome.isChanged()
-					|| chromosome.getLastExecutionResult() == null) {
-				ExecutionResult result = chromosome
-						.executeForFitnessFunction(this);
+			if (chromosome.isChanged() || chromosome.getLastExecutionResult() == null) {
+				ExecutionResult result = chromosome.executeForFitnessFunction(this);
 
 				if (result != null) {
 					results.add(result);

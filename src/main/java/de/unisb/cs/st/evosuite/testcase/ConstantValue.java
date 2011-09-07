@@ -85,6 +85,9 @@ public class ConstantValue extends VariableReferenceImpl {
 		} else if (value.getClass().equals(long.class)
 		        || value.getClass().equals(Long.class)) {
 			return value + "L";
+		} else if (value.getClass().isEnum()) {
+			return value.getClass().getSimpleName() + "." + value;
+
 		} else
 			return "" + value;
 	}
