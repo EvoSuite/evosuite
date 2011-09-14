@@ -1,11 +1,9 @@
 package de.unisb.cs.st.evosuite.ui.run;
 
 import java.awt.Container;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
+import javax.swing.JDialog;
 import javax.swing.SwingUtilities;
 
 import org.uispec4j.Window;
@@ -16,12 +14,14 @@ import de.unisb.cs.st.evosuite.ui.model.states.UIState;
 import de.unisb.cs.st.evosuite.ui.model.states.UIStateGraph;
 
 public class UIEnvironment extends AbstractUIEnvironment implements InterceptionHandler {
-	private static final int noWindowsVisibleSleepTimeMs = 100;
+	private static final int noWindowsVisibleSleepTimeMs = 1;
 	private List<Window> windows = Collections.synchronizedList(new LinkedList<Window>());
 	private UISpecDisplay display;
 	private InterceptionHandler delegate;
 	private List<InterceptionHandler> modalWindowHandlers = Collections.synchronizedList(new LinkedList<InterceptionHandler>());
-
+	private Set<java.awt.Window> initialWindows = new HashSet<java.awt.Window>(); 
+	
+	
 	public UIEnvironment(UISpecDisplay display, InterceptionHandler delegate) {
 		// display.reset();
 		
@@ -29,6 +29,8 @@ public class UIEnvironment extends AbstractUIEnvironment implements Interception
 		this.delegate = delegate;
 
 		this.register();
+		
+		// this.initialWindows = new HashSet<java.awt.Window>(Arrays.asList(java.awt.Window.getWindows()));
 	}
 
 	public void register() {
@@ -45,32 +47,40 @@ public class UIEnvironment extends AbstractUIEnvironment implements Interception
 		
 		Window lastModal = null;
 
-		for (Window w : this.windows) {
-			final Container c = w.getAwtComponent();
-			boolean isPopUp = FocusOrder.isPopUpWindow(w); 
-			boolean isPopUpEnabled = isPopUp && FocusOrder.isPopUpWindowEnabled(w);
-
-			if (c.isEnabled() && c.isVisible() && isPopUp && !isPopUpEnabled) {
-				this.disposePopup(w);
-			}
-			
-			if (c.isEnabled() && c.isVisible() && (!isPopUp || isPopUpEnabled)) { 
-				activeWindows.add(w);
+		synchronized(this.windows) {
+			for (Window w : this.windows) {
+				final Container c = w.getAwtComponent();
+				boolean isPopUp = FocusOrder.isPopUpWindow(w); 
+				boolean isPopUpEnabled = isPopUp && FocusOrder.isPopUpWindowEnabled(w);
+	
+				if (c.isEnabled() && c.isVisible() && isPopUp && !isPopUpEnabled) {
+					this.disposePopup(w);
+				}
 				
-				if (w.isModal().isTrue() || isPopUp) {
-					lastModal = w;
+				if (c.isEnabled() && c.isVisible() && (!isPopUp || isPopUpEnabled)) { 
+					activeWindows.add(w);
+					
+					if (isModal(c) || isPopUp) {
+						lastModal = w;
+					}
 				}
 			}
 		}
-
+			
 		return Collections.unmodifiableList(lastModal != null ? Arrays.asList(lastModal) : activeWindows);
+	}
+	
+	public static boolean isModal(Container window) {
+		return !(window instanceof JDialog) ? false : ((JDialog) window).isModal();
 	}
 
 	public void disposeOpenPopups() {
 		// Dispose all popups after execution of an action
-		for (Window w : this.windows) {
-			if (FocusOrder.isPopUpWindow(w)) {
-				this.disposePopup(w);
+		synchronized (this.windows) {
+			for (Window w : this.windows) {
+				if (FocusOrder.isPopUpWindow(w)) {
+					this.disposePopup(w);
+				}
 			}
 		}
 	}
@@ -139,7 +149,7 @@ public class UIEnvironment extends AbstractUIEnvironment implements Interception
 				@Override
 				public void run() {
 					try {
-						Thread.sleep(100);
+						Thread.sleep(1);
 					} catch (InterruptedException e) { /* OK */ }
 				}
 			});
@@ -170,9 +180,14 @@ public class UIEnvironment extends AbstractUIEnvironment implements Interception
 
 	@Override
 	public void dispose() {		
-/*		for (Window window : this.windows) {
+		Set<java.awt.Window> windows = new HashSet<java.awt.Window>(Arrays.asList(java.awt.Window.getWindows()));
+		
+		windows.removeAll(initialWindows);
+		
+		for (java.awt.Window window : windows) {
 			window.dispose();
-		} */
+			window.setVisible(false);
+		}
 		
 /*		try {
 			ThreadManager threadManager = ThreadManager.getInstance();

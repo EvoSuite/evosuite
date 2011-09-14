@@ -28,8 +28,6 @@ public class UITestChromosomeFactory implements ChromosomeFactory<UITestChromoso
 
 	@Override
 	public synchronized UITestChromosome getChromosome() {
-		System.out.println("Call to getChromosome()...");
-		
 		final SimpleCondition cond = new SimpleCondition();
 		
 		try {
@@ -42,11 +40,12 @@ public class UITestChromosomeFactory implements ChromosomeFactory<UITestChromoso
 			}, this.mainMethodTrigger);
 
 			cond.awaitUninterruptibly();
-			System.out.println("  Returning " + uiRunner.getActionSequence().shortString());
 			return new UITestChromosome(uiRunner.getActionSequence(), this.stateGraph, this.mainMethodTrigger);
 		} catch (Throwable t) {
 			t.printStackTrace();
-			return getChromosome();
+			System.exit(-1);
+			return null;
+			//return getChromosome();
 		}
 	}
 }

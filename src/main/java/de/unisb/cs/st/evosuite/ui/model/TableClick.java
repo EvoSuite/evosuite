@@ -1,6 +1,9 @@
 package de.unisb.cs.st.evosuite.ui.model;
 
+import java.util.List;
+
 import org.uispec4j.Table;
+import org.uispec4j.UIComponent;
 
 import de.unisb.cs.st.evosuite.ui.run.AbstractUIEnvironment;
 import de.unisb.cs.st.evosuite.utils.Randomness;
@@ -80,5 +83,10 @@ class TableClick extends UIAction<Table> {
 	@Override
 	public String graphVizString() {
 		return isRightClick ? "TableRightClick" : "TableClick";
+	}
+
+	public static void addActions(List<UIAction<? extends UIComponent>> toList) {
+		toList.add(TableClick.newLeftClick());
+		toList.add(TableClick.newRightClick());
 	}
 }

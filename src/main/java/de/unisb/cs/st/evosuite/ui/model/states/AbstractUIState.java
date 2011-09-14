@@ -1,9 +1,12 @@
 package de.unisb.cs.st.evosuite.ui.model.states;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import de.unisb.cs.st.evosuite.ui.GraphVizEnvironment;
+import de.unisb.cs.st.evosuite.ui.YWorksEnvironment;
 import de.unisb.cs.st.evosuite.ui.model.DescriptorBoundUIAction;
 import de.unisb.cs.st.evosuite.ui.model.UIActionTargetDescriptor;
 import de.unisb.cs.st.evosuite.ui.model.WindowDescriptor;
@@ -93,4 +96,6 @@ public abstract class AbstractUIState implements Serializable {
 		
 		return null;
 	}
+
+	public abstract void addToYWorksEnvironment(YWorksEnvironment env);
 }

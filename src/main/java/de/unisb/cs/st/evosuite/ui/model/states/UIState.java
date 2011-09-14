@@ -1,23 +1,23 @@
 package de.unisb.cs.st.evosuite.ui.model.states;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.uispec4j.Window;
 
+import y.view.Arrow;
+import y.view.EdgeRealizer;
+import y.view.NodeRealizer;
 import de.unisb.cs.st.evosuite.ui.GraphVizDrawable;
 import de.unisb.cs.st.evosuite.ui.GraphVizEnvironment;
+import de.unisb.cs.st.evosuite.ui.YWorksDrawable;
+import de.unisb.cs.st.evosuite.ui.YWorksEnvironment;
 import de.unisb.cs.st.evosuite.ui.model.DescriptorBoundUIAction;
 import de.unisb.cs.st.evosuite.ui.model.UIActionTargetDescriptor;
 import de.unisb.cs.st.evosuite.ui.model.WindowDescriptor;
 import de.unisb.cs.st.evosuite.ui.run.AbstractUIEnvironment;
 import de.unisb.cs.st.evosuite.utils.HashUtil;
 
-public class UIState extends AbstractUIState implements GraphVizDrawable {
+public class UIState extends AbstractUIState implements GraphVizDrawable, YWorksDrawable {
 	static class Descriptor extends LinkedList<WindowDescriptor> {
 		private static final long serialVersionUID = 1L;
 
@@ -83,7 +83,7 @@ public class UIState extends AbstractUIState implements GraphVizDrawable {
 	 * .gui.BoundUIAction, de.unisb.cs.st.evosuite.gui.RegularUIState)
 	 */
 	@Override
-	public void addTransition(DescriptorBoundUIAction<?> action, UIState toState) {
+	public synchronized void addTransition(DescriptorBoundUIAction<?> action, UIState toState) {
 		if (!this.transitions.containsKey(action)) {
 			this.transitions.put(action, toState);
 		} else if (!this.transitions.get(action).equals(toState)) {
@@ -176,7 +176,7 @@ public class UIState extends AbstractUIState implements GraphVizDrawable {
 		return sb.toString();
 	}
 	
-	String graphVizEdges(GraphVizEnvironment env) {
+	synchronized String graphVizEdges(GraphVizEnvironment env) {
 		//String fromId = this.graphVizId(env);
 		//String dummyFromId = "dummy_" + fromId;
 		StringBuilder sb = new StringBuilder();
@@ -206,6 +206,34 @@ public class UIState extends AbstractUIState implements GraphVizDrawable {
 	}
 
 	@Override
+	public void addToYWorksEnvironment(YWorksEnvironment env) {
+		NodeRealizer nodeRealizer = env.realizerPushGroupNodeFor(this);
+		nodeRealizer.setLabelText(String.format("UIState %s", this.id));
+
+		for (WindowDescriptor wd : this.descriptor) {
+			wd.addToYWorksEnvironment(env);
+		}
+		
+		env.popGroupNode();
+	}
+	
+	@Override
+	public synchronized void addEdgesToYWorksEnvironment(YWorksEnvironment env) {
+		for (DescriptorBoundUIAction<?> action : this.transitions.keySet()) {
+			action.addToYWorksEnvironment(env);
+		}
+
+		for (DescriptorBoundUIAction<?> action : this.transitions.keySet()) {
+			EdgeRealizer edgeRealizer = env.getEdgeRealizerFor(action.targetDescriptor(), action);
+			edgeRealizer.setSourceArrow(Arrow.CIRCLE);
+			edgeRealizer.setTargetArrow(Arrow.CIRCLE);
+			
+			edgeRealizer = env.getEdgeRealizerFor(action, this.transitions.get(action));
+			edgeRealizer.setArrow(Arrow.CONCAVE);
+		}
+	}
+
+	@Override
 	public Map<DescriptorBoundUIAction<?>, AbstractUIState> getTransitions() {
 		return Collections.unmodifiableMap(this.transitions);
 	}
@@ -221,7 +249,7 @@ public class UIState extends AbstractUIState implements GraphVizDrawable {
 		return result;
 	}
 
-	private void mergeInInternal(DescriptorBoundUIAction<?> action, AbstractUIState toState) {
+	private synchronized void mergeInInternal(DescriptorBoundUIAction<?> action, AbstractUIState toState) {
 		if (toState instanceof AmbigueUIState) {
 			this.mergeInInternal(action, (AmbigueUIState) toState);
 		} else if (toState instanceof UIState) {
@@ -231,18 +259,18 @@ public class UIState extends AbstractUIState implements GraphVizDrawable {
 		}
 	}
 
-	private void mergeInInternal(DescriptorBoundUIAction<?> action, AmbigueUIState ambigueUIState) {
+	private synchronized  void mergeInInternal(DescriptorBoundUIAction<?> action, AmbigueUIState ambigueUIState) {
 		for (AbstractUIState possibleState : ambigueUIState.getPossibleStates()) {
 			this.mergeInInternal(action, possibleState);
 		}
 	}
 
-	private void mergeInInternal(DescriptorBoundUIAction<?> action, UIState toState) {
+	private synchronized  void mergeInInternal(DescriptorBoundUIAction<?> action, UIState toState) {
 		UIState newState = this.graph.getState(toState.descriptor);
 		this.addTransition(action, newState);
 	}
 	
-	public void mergeIn(UIState otherState) {
+	public synchronized  void mergeIn(UIState otherState) {
 		assert(otherState != null);
 		assert(otherState.descriptor == this.descriptor);
 		

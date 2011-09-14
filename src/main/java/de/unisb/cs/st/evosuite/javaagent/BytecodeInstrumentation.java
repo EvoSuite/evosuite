@@ -153,7 +153,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 		if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
 			ClassNode cn = new ClassNode();
-			reader.accept(cn, ClassReader.SKIP_FRAMES);
+			reader.accept(cn, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
 			ComparisonTransformation cmp = new ComparisonTransformation(cn);
 			cn = cmp.transform();
 
@@ -175,7 +175,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			}
 
 		} else {
-			reader.accept(cv, ClassReader.SKIP_FRAMES);
+			reader.accept(cv, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
 		}
 		// Print out bytecode if debug is enabled
 		// if(logger.isDebugEnabled())

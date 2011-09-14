@@ -39,7 +39,9 @@ public abstract class FocusOrder {
 				return policy.getFirstComponent(this.container) != null;
 			}
 			
-			return policy.getComponentAfter(this.container, this.currentComponent) != this.firstComponent;
+			Component nextComp = policy.getComponentAfter(this.container, this.currentComponent);
+			
+			return nextComp != this.firstComponent && nextComp != null;
 		}
 
 		@Override
@@ -119,6 +121,15 @@ public abstract class FocusOrder {
 	}
 	
 	public static Iterable<UIComponent> children(final Panel p) {
+		if (true) {
+			return Arrays.asList(p.getUIComponents(new ComponentMatcher() {
+				@Override
+				public boolean matches(Component component) {
+					return !(component instanceof JLabel) && component.isEnabled() && component.isVisible();
+				}
+			}));
+		}
+		
 		// Special handling for popups
 		if (policy.getFirstComponent(p.getAwtComponent()) == null) {			
 			try {
