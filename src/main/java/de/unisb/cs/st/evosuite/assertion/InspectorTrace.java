@@ -111,7 +111,8 @@ public class InspectorTrace extends OutputTrace {
 				for (int i = 0; i < other_results.size() && i < own_results.size(); i++) {
 					if ((own_results.get(i) == null && other_results.get(i) != null)
 					        || (own_results.get(i) != null && !own_results.get(i).equals(other_results.get(i)))) {
-						logger.debug("Found inspector assertion: ");
+						logger.debug("Found inspector assertion: " + own_results.get(i)
+						        + " vs " + other_results.get(i));
 
 						InspectorAssertion assertion = new InspectorAssertion();
 						assertion.source = test.getReturnValue(return_values.get(line));
@@ -143,8 +144,12 @@ public class InspectorTrace extends OutputTrace {
 				for (Entry<Inspector, Object> value : own_values.entrySet()) {
 					if (other_values.containsKey(value.getKey())) {
 
-						if ((value.getValue() == null && other_values.get(value.getKey()) != null)
-						        || (value.getValue() != null && !value.getValue().equals(other_values.get(value.getKey())))) {
+						if (other_values.get(value.getKey()) != null
+						        && value.getValue() != null
+						        && !value.getValue().equals(other_values.get(value.getKey()))) {
+
+							//if ((value.getValue() == null && other_values.get(value.getKey()) != null)
+							//        || (value.getValue() != null && !value.getValue().equals(other_values.get(value.getKey())))) {
 
 							InspectorAssertion assertion = new InspectorAssertion();
 							assertion.source = test.getStatement(line).getReturnValue();
