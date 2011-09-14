@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -311,6 +312,8 @@ public class ScanProject {
 
 				//clazz = Class.forName(clazz.getName());
 				set.add(clazz);
+				set.addAll(Arrays.asList(clazz.getDeclaredClasses()));
+
 				if (Properties.STUBS) {
 					if (Modifier.isAbstract(clazz.getModifiers()) && !clazz.isInterface()) {
 						ClassFactory cf = new ClassFactory();
@@ -410,6 +413,7 @@ public class ScanProject {
 				Class<?> clazz = Class.forName(fileName.replace(".class", "").replace("/",
 				                                                                      "."));
 				set.add(clazz);
+				set.addAll(Arrays.asList(clazz.getDeclaredClasses()));
 				if (Properties.STUBS) {
 					if (Modifier.isAbstract(clazz.getModifiers()) && !clazz.isInterface()) {
 						ClassFactory cf = new ClassFactory();
@@ -470,6 +474,7 @@ public class ScanProject {
 		}
 
 		for (Class<?> clazz : classes) {
+			System.out.println("ANALYZING " + clazz.getName());
 			String className = clazz.getName().replace(".", "/");
 			try {
 
