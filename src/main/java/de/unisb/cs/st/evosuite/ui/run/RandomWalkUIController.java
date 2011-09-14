@@ -27,6 +27,7 @@ public class RandomWalkUIController implements UIController {
 
 		for (UIActionTargetDescriptor atd : actionTargets) {
 			UIComponent at = uiRunner.resolve(atd);
+			
 			List<DescriptorBoundUIAction<? extends UIComponent>> actions = ListUtil.shuffledList(atd.getActions());
 
 			if (at != null && actions.size() > 0) {

@@ -20,8 +20,9 @@ public abstract class UIAction<T extends UIComponent> implements Serializable {
 	public static UIAction<AbstractButton> buttonClick = new ButtonClick();
 	public static UIAction<MenuItem> menuClick = new MenuItemClick();
 	
-	public static List<UIAction<? extends UIComponent>> actionsForType(Class<? extends UIComponent> type) {
+	public static List<UIAction<? extends UIComponent>> actionsForDescriptor(WindowlessUIActionTargetDescriptor targetDescriptor) {
 		List<UIAction<? extends UIComponent>> result = new LinkedList<UIAction<? extends UIComponent>>();
+		Class<?> type = targetDescriptor.getType();
 		
 		if (AbstractButton.class.isAssignableFrom(type)) {
 			result.add(buttonClick);
@@ -32,8 +33,11 @@ public abstract class UIAction<T extends UIComponent> implements Serializable {
 		}
 		
 		if (Table.class.isAssignableFrom(type)) {
-			result.add(TableClick.newLeftClick());
-			result.add(TableClick.newRightClick());
+			TableClick.addActions(result);
+		}
+		
+		if (TextBox.class.isAssignableFrom(type)) {
+			EnterText.addActions(result);
 		}
 		
 		return result;

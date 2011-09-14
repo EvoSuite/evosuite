@@ -5,8 +5,10 @@ import java.util.List;
 
 import org.uispec4j.UIComponent;
 
+import y.view.NodeRealizer;
 import de.unisb.cs.st.evosuite.ui.GraphVizDrawable;
 import de.unisb.cs.st.evosuite.ui.GraphVizEnvironment;
+import de.unisb.cs.st.evosuite.ui.YWorksEnvironment;
 import de.unisb.cs.st.evosuite.ui.run.AbstractUIEnvironment;
 import de.unisb.cs.st.evosuite.ui.run.BoundUIAction;
 import de.unisb.cs.st.evosuite.ui.run.UIEnvironment;
@@ -82,5 +84,10 @@ public class DescriptorBoundUIAction<T extends UIComponent> implements GraphVizD
 
 	public String shortString() {
 		return String.format("%s on %s", this.action.toString(), this.targetDescriptor().getCriteria().toString());
+	}
+
+	public void addToYWorksEnvironment(YWorksEnvironment env) {
+		NodeRealizer realizer = env.getNodeRealizerFor(this);		
+		realizer.setLabelText(this.action.graphVizString());
 	}
 }

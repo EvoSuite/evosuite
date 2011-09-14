@@ -6,6 +6,7 @@ import java.util.*;
 
 import javax.swing.AbstractButton;
 import javax.swing.Action;
+import javax.swing.text.JTextComponent;
 
 import org.apache.commons.lang.StringUtils;
 import org.uispec4j.Panel;
@@ -106,24 +107,50 @@ class WindowlessUIActionTargetDescriptor implements Serializable {
 			}
 		}
 	}
+	
+	/**
+	 * Swing TextComponents are 'enabled' (according to the terms of the UIComponent method) even when they can not be edited.
+	 * This method only returns true if a component can be edited.
+	 * 
+	 * @param comp
+	 * @return
+	 */
+	public static boolean isComponentEnabled(UIComponent comp) {
+		assert(comp != null);
+		
+		Component awtComp = comp.getAwtComponent();
+		boolean enabled = awtComp.isEnabled();
+		
+		if (enabled && awtComp instanceof JTextComponent) {
+			JTextComponent textComp = (JTextComponent) awtComp;
+			boolean editable = textComp.isEditable();
+			enabled &= editable;
+		}
+		
+		return enabled;
+	}
 
 	public static List<WindowlessUIActionTargetDescriptor> allFor(Window window) {
 		List<WindowlessUIActionTargetDescriptor> result = new LinkedList<WindowlessUIActionTargetDescriptor>();
 		
-		for (UIComponent comp : FocusOrder.children(window)) {
-			result.add(new WindowlessUIActionTargetDescriptor(window, comp));
+		Iterable<UIComponent> children = FocusOrder.children(window);
+		
+		for (UIComponent comp : children) {
+			if (comp != null && isComponentEnabled(comp)) {
+				result.add(new WindowlessUIActionTargetDescriptor(children, comp));
+			}
 		}
 		
 		return result;
 	}
-
-	private static int matchIdxFor(Panel container, UIComponent comp, Criteria criteria) {
+	
+	private static int matchIdxFor(Iterable<UIComponent> children, UIComponent comp, Criteria criteria) {
 		Component targetComp = comp.getAwtComponent();
 
 		int matchIdx = -1;
 		
-		for (UIComponent curComp : FocusOrder.children(container)) {
-			if (criteria.match(curComp)) {
+		for (UIComponent curComp : children) {
+			if (curComp != null && criteria.match(curComp)) {
 				matchIdx++;
 				
 				if (curComp.getAwtComponent() == targetComp) {
@@ -136,24 +163,25 @@ class WindowlessUIActionTargetDescriptor implements Serializable {
 		return -1;
 	}
 
+
 	private Criteria criteria;
 	private int matchIdx;
 	private Class<? extends UIComponent> type;
 
-	public WindowlessUIActionTargetDescriptor(Window window, UIComponent comp) {
-		assert (window != null);
+	public WindowlessUIActionTargetDescriptor(Iterable<UIComponent> children, UIComponent comp) {
+		assert (children != null);
 		assert (comp != null);
 		
 		this.criteria = Criteria.forComponent(comp);
-		this.matchIdx = matchIdxFor(window, comp, criteria);
+		this.matchIdx = matchIdxFor(children, comp, criteria);
 		this.type = comp.getClass();
 	}
-	
+
 	public UIComponent resolve(Panel container) {
 		int curMatchIdx = -1;
 		
 		for (UIComponent curComp : FocusOrder.children(container)) {
-			if (this.criteria.match(curComp)) {
+			if (curComp != null && this.criteria.match(curComp)) {
 				curMatchIdx++;
 				
 				if (curMatchIdx == this.matchIdx) {

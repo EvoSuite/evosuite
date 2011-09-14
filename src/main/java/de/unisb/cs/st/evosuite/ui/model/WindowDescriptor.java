@@ -8,8 +8,11 @@ import java.util.List;
 
 import org.uispec4j.Window;
 
+import y.view.NodeRealizer;
 import de.unisb.cs.st.evosuite.ui.GraphVizDrawable;
 import de.unisb.cs.st.evosuite.ui.GraphVizEnvironment;
+import de.unisb.cs.st.evosuite.ui.YWorksDrawable;
+import de.unisb.cs.st.evosuite.ui.YWorksEnvironment;
 import de.unisb.cs.st.evosuite.ui.model.WindowlessUIActionTargetDescriptor.Criteria;
 import de.unisb.cs.st.evosuite.ui.run.AbstractUIEnvironment;
 import de.unisb.cs.st.evosuite.ui.run.UIEnvironment;
@@ -17,7 +20,7 @@ import de.unisb.cs.st.evosuite.utils.HashUtil;
 import de.unisb.cs.st.evosuite.utils.ListUtil;
 import de.unisb.cs.st.evosuite.utils.StringUtil;
 
-public class WindowDescriptor implements GraphVizDrawable, Serializable {
+public class WindowDescriptor implements GraphVizDrawable, YWorksDrawable, Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public static WindowDescriptor forWindow(Window window, List<Window> windows) {
@@ -180,5 +183,21 @@ public class WindowDescriptor implements GraphVizDrawable, Serializable {
 	
 	public List<UIActionTargetDescriptor> getActionTargetDescriptors() {
 		return Collections.unmodifiableList(this.actionTargetDescriptors);
+	}
+
+	@Override
+	public void addToYWorksEnvironment(YWorksEnvironment env) {
+		NodeRealizer realizer = env.realizerPushGroupNodeFor(this);
+		realizer.setLabelText("Window: " + this.innerString());
+
+		for (UIActionTargetDescriptor td : this.actionTargetDescriptors) {
+			td.addToYWorksEnvironment(env);
+		}
+		
+		env.popGroupNode();
+	}
+
+	@Override
+	public void addEdgesToYWorksEnvironment(YWorksEnvironment env) {
 	}
 }

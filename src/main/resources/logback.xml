@@ -1,6 +1,8 @@
 <configuration>
 
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+  	<append>false</append>
+  
     <file>output.log</file>
 
     <encoder>
@@ -23,8 +25,8 @@
   <logger name="de.unisb.cs.st.evosuite.testcase" level="WARN" />
 -->
 
-  <root level="WARN">
-    <appender-ref ref="STDOUT" />
-<!--    <appender-ref ref="FILE" /> -->
+  <root level="debug">
+<!--  -->    <appender-ref ref="STDOUT" /> -->
+     <appender-ref ref="FILE" />
   </root>
 </configuration>
