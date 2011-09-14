@@ -140,7 +140,7 @@ public class ConstructorStatement extends AbstractStatement {
 			System.setOut(old_out);
 			System.setErr(old_err);
 			exceptionThrown = e.getCause();
-			logger.debug("Exception thrown in constructor: " + e + " / " + e.getCause());
+			logger.debug("Exception thrown in constructor: " + e.getCause());
 
 		} finally {
 			System.setOut(old_out);

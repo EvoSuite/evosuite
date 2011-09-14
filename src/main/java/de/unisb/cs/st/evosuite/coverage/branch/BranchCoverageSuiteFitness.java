@@ -35,10 +35,7 @@ import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.javaagent.LinePool;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.TestChromosome;
-import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testsuite.AbstractTestSuiteChromosome;
-import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
@@ -53,7 +50,8 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
-	public static final int total_methods = TestCluster.getInstance().num_defined_methods;
+	//	public static final int total_methods = TestCluster.getInstance().num_defined_methods;
+	public static final int total_methods = CFGMethodAdapter.methods.size();
 
 	public static final int total_branches = BranchPool.getBranchCounter()
 	        - LCSAJPool.lcsaj_branches.size();
@@ -199,14 +197,14 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		int missing_methods = 0;
 		for (String e : CFGMethodAdapter.methods) {
 			if (!call_count.containsKey(e)) {
-				logger.debug("Missing method: " + e);
+				//logger.debug("Missing method: " + e);
 				fitness += 1.0;
 				missing_methods += 1;
 			}
 		}
-		for (String method : call_count.keySet()) {
-			logger.debug("Got method: " + method);
-		}
+		//for (String method : call_count.keySet()) {
+		//	logger.debug("Got method: " + method);
+		//}
 
 		//logger.info("Fitness after missing methods: "+fitness);
 
@@ -275,18 +273,23 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			mostCoveredGoals = (int) coverage;
 
 		suite.setCoverage(coverage / total_goals);
-		//		if (!check)
-		//			checkFitness(suite, fitness);
+		//if (!check)
+		//	checkFitness(suite, fitness);
 		return fitness;
 	}
 
-	public void checkFitness(TestSuiteChromosome suite, double fitness) {
-		for (TestChromosome test : suite.getTestChromosomes()) {
+	public void checkFitness(AbstractTestSuiteChromosome<ExecutableChromosome> suite,
+	        double fitness) {
+		for (ExecutableChromosome test : suite.getTestChromosomes()) {
 			test.setChanged(true);
 		}
+		logger.info("Running double check");
 		check = true;
 		double fitness2 = getFitness(suite);
 		check = false;
-		assert (fitness == fitness2);
+		//		assert (fitness == fitness2) : "Fitness is " + fitness + " but should be "
+		//		        + fitness2;
+		if (fitness != fitness2)
+			logger.error("Fitness is " + fitness + " but should be " + fitness2);
 	}
 }

@@ -29,7 +29,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import de.unisb.cs.st.evosuite.TestSuiteGenerator;
-import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
+import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
@@ -40,7 +40,6 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
-import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.utils.ReportGenerator;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
@@ -391,7 +390,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 
 		entry.total_branches = BranchPool.getBranchCounter();
 		entry.branchless_methods = BranchPool.getBranchlessMethods().size();
-		entry.total_methods = TestCluster.getInstance().num_defined_methods;
+		entry.total_methods = CFGMethodAdapter.methods.size();
 
 		entry.total_goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
 
