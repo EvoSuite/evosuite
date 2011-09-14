@@ -474,7 +474,6 @@ public class ScanProject {
 		}
 
 		for (Class<?> clazz : classes) {
-			System.out.println("ANALYZING " + clazz.getName());
 			String className = clazz.getName().replace(".", "/");
 			try {
 
