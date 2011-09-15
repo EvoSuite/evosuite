@@ -88,6 +88,7 @@ public class TestChromosome extends ExecutableChromosome {
 		TestChromosome c = new TestChromosome();
 		c.test = test.clone();
 		//assert (test.toCode().equals(c.test.toCode()));
+		/*
 		assert (test.isValid());
 		try {
 			c.test.isValid();
@@ -95,7 +96,7 @@ public class TestChromosome extends ExecutableChromosome {
 			logger.warn(c.test.toCode());
 		}
 		assert (c.test.isValid());
-
+		*/
 		c.setFitness(getFitness());
 		c.solution = solution;
 		c.copyCachedResults(this);

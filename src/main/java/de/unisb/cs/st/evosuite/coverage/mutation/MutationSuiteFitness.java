@@ -53,8 +53,15 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	@Override
 	public double getFitness(Chromosome individual) {
-		// TODO Auto-generated method stub
 		runTestSuite((TestSuiteChromosome) individual);
+
+		Set<TestFitnessFunction> coveredMutants = ((TestSuiteChromosome) individual).getCoveredGoals();
+
+		Set<TestFitnessFunction> uncoveredMutants = new HashSet<TestFitnessFunction>();
+		for (TestFitnessFunction mutation : mutationGoals) {
+			if (!coveredMutants.contains(mutation))
+				uncoveredMutants.add(mutation);
+		}
 
 		// First objective: achieve branch coverage
 		logger.debug("Calculating branch fitness: ");
@@ -68,26 +75,33 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 		Set<Integer> touchedMutants = new HashSet<Integer>();
 		//Map<Integer, Double> infectionDistance = new HashMap<Integer, Double>();
 		Map<Mutation, Double> minMutantFitness = new HashMap<Mutation, Double>();
-		for (TestFitnessFunction mutant : mutationGoals) {
+		for (TestFitnessFunction mutant : uncoveredMutants) {
 			MutationTestFitness mutantFitness = (MutationTestFitness) mutant;
 			minMutantFitness.put(mutantFitness.getMutation(), 1.0);
 		}
+		Set<TestChromosome> safeCopies = new HashSet<TestChromosome>();
 		for (TestChromosome test : suite.getTestChromosomes()) {
 			ExecutionResult result = test.getLastExecutionResult();
 			ExecutionTrace trace = result.getTrace();
 			touchedMutants.addAll(trace.touchedMutants);
 
-			for (TestFitnessFunction mutant : mutationGoals) {
+			boolean coversNewMutants = false;
+			for (TestFitnessFunction mutant : uncoveredMutants) {
 				MutationTestFitness mutantFitness = (MutationTestFitness) mutant;
 				if (trace.touchedMutants.contains(mutantFitness.getMutation().getId())) {
 					double mutantFitnessValue = mutant.getFitness(test, result);
 					minMutantFitness.put(mutantFitness.getMutation(),
 					                     Math.min(normalize(mutantFitnessValue),
 					                              minMutantFitness.get(mutantFitness.getMutation())));
-
+					if (mutantFitnessValue == 0.0)
+						coversNewMutants = true;
 					//fitness += FitnessFunction.normalize(mutantFitnessValue);
 				}// else
 				 //fitness += 1.0;
+
+			}
+			if (coversNewMutants) {
+				safeCopies.add((TestChromosome) test.clone());
 			}
 
 			/*
@@ -102,8 +116,14 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 						*/
 		}
 
+		for (TestChromosome copy : safeCopies) {
+			suite.addUnmodifiableTest(copy);
+		}
+		logger.debug("Mutants killed: {}",
+		             ((TestSuiteChromosome) individual).getCoveredGoals().size());
+
 		//logger.info("Fitness values for " + minMutantFitness.size() + " mutants");
-		int numKilled = 0;
+		int numKilled = coveredMutants.size();
 		for (Double fit : minMutantFitness.values()) {
 			if (fit == 0.0)
 				numKilled++;
