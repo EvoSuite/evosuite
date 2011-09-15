@@ -55,18 +55,18 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 		// Branchless methods
 		String targetClass = Properties.TARGET_CLASS;
 		for (String method : BranchPool.getBranchlessMethods()) {
-			if (targetMethod.equals("") || method.endsWith(targetMethod))
+			if (targetMethod.equals("") || method.endsWith(targetMethod)) {
 				goals.add(createRootBranchTestFitness(targetClass, method));
+			}
 		}
 		// Branches
 		// logger.info("Getting branches");
 		for (String className : BranchPool.knownClasses()) {
-
-			if (!(targetClass.equals("") || className.endsWith(targetClass)))
-				continue;
+			//if (!targetClass.equals("") && !className.startsWith(targetClass)) {
+			//	continue;
+			//}
 
 			for (String methodName : BranchPool.knownMethods(className)) {
-
 				if (!targetMethod.equals("") && !methodName.equals(targetMethod)) {
 					logger.info("Method " + methodName + " does not equal target method "
 					        + targetMethod);
@@ -75,7 +75,6 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 
 				for (Branch b : BranchPool.retrieveBranchesInMethod(className, methodName)) {
 					if (!(b.getInstruction().isForcedBranch() || LCSAJPool.isLCSAJBranch(b))) {
-
 						goals.add(createBranchCoverageTestFitness(b, true));
 						//if (!b.isSwitchCaseBranch())
 						goals.add(createBranchCoverageTestFitness(b, false));
