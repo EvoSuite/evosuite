@@ -351,6 +351,8 @@ public class MutationTestFitness extends TestFitnessFunction {
 				} else {
 					impactDistance = 0.0;
 				}
+				logger.debug("Impact distance for mutation = " + fitness);
+
 			}
 		}
 
@@ -361,6 +363,9 @@ public class MutationTestFitness extends TestFitnessFunction {
 		}
 
 		updateIndividual(individual, fitness);
+		if (fitness == 0.0) {
+			individual.getTestCase().addCoveredGoal(this);
+		}
 		return fitness;
 	}
 

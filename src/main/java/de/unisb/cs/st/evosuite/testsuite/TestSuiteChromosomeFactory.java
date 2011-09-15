@@ -73,7 +73,8 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteCh
 
 		for (int i = 0; i < numTests; i++) {
 			TestChromosome test = testChromosomeFactory.getChromosome();
-			chromosome.tests.add(test);
+			chromosome.addTest(test);
+			//chromosome.tests.add(test);
 		}
 		// logger.info("Covered methods: "+((AllMethodsChromosomeFactory)test_factory).covered.size());
 		// logger.trace("Generated new test suite:"+chromosome);
