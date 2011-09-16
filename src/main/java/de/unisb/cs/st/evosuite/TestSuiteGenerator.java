@@ -737,7 +737,7 @@ public class TestSuiteGenerator {
 			return new MinimizeTotalLengthSecondaryObjective();
 	}
 
-	private void getSecondaryObjectives(GeneticAlgorithm algorithm) {
+	public void getSecondaryObjectives(GeneticAlgorithm algorithm) {
 		if (Properties.STRATEGY == Strategy.ONEBRANCH) {
 			SecondaryObjective objective = getSecondaryObjective("size");
 			Chromosome.addSecondaryObjective(objective);

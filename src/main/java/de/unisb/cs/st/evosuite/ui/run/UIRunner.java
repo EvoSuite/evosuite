@@ -85,9 +85,11 @@ public class UIRunner implements InterceptionHandler {
 
 	@Override
 	public void process(Window window) {
-		if (this.finished) return;
+		System.out.println("UIRunner::process: window = " + window.getAwtComponent() + ": isVisible = " + window.getAwtComponent().isVisible());
 
-		// System.out.println("UIRunner::process: window = " + window.getTitle() + ": isVisible = " + window.getAwtComponent().isVisible());
+		if (this.finished) return;
+		if (!window.isVisible().isTrue()) return;
+
 		boolean wasFirstWindow;
 		
 		synchronized (this) {

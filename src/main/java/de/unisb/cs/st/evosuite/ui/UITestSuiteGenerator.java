@@ -48,11 +48,11 @@ public class UITestSuiteGenerator {
         writeCoverage();
 		
 		// 4 UITestSuites
-		Properties.POPULATION = 4;
+		Properties.POPULATION = 10;
 		// With (up to) 5 tests
 		Properties.NUM_TESTS = 5;
 		// With up to 15 actions
-		Properties.CHROMOSOME_LENGTH = 15;
+		Properties.CHROMOSOME_LENGTH = 250;
 
 		Properties.GENERATIONS = Integer.MAX_VALUE;
 
@@ -81,23 +81,25 @@ public class UITestSuiteGenerator {
 		
         Properties.SANDBOX = false;
         Properties.MOCKS = false;
-                
+        
         long startTime = System.currentTimeMillis();
 
 		UITestSuiteGenerator generator = new UITestSuiteGenerator(new Trigger() {
 			@Override
 			public void run() throws Exception {
 				ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-
+				
 				try {
+					//Thread.currentThread().setContextClassLoader(new InstrumentingClassLoader());
+					
 					Class<?> cls;
 
 					//cls = Class.forName("samples.calculator.CalculatorPanel");
 					//cls = Class.forName("samples.addressbook.main.Main");
 					//cls = Class.forName("terpword.Ekit");
 					//cls = Class.forName("org.tss.TerpSpreadSheet");
-					//cls = Class.forName("TerpPresent");
-					cls = Class.forName("org.gjt.sp.jedit.jEdit");
+					cls = Class.forName("terppresent.TerpPresent");
+					// cls = Class.forName("org.gjt.sp.jedit.jEdit");
 					
 					// Class.forName("org.gjt.sp.jedit.Macros");
 
@@ -124,12 +126,25 @@ public class UITestSuiteGenerator {
         
         writeCoverage();
 
-        System.out.println();
-        System.out.println(String.format("Generating test suite took %.2f seconds", (endTime - startTime) / 1000.0f));
-        System.out.println(String.format("Generated %d tests, of which %d are failing tests",
-        		UITestChromosome.getExecutedChromosomes().size(), UITestChromosome.getFailingChromosomes().size()));
+        //Logger logger = Logger.getLogger(UITestSuiteGenerator.class);
+
+        PrintWriter log;
+		try {
+			log = new PrintWriter(System.out); //new PrintWriter(new FileOutputStream("log.txt"));
+	        log.println("");
+	        log.println(String.format("Generating test suite took %.2f seconds", (endTime - startTime) / 1000.0f));
+	        log.println(String.format("Generated %d tests, of which %d are failing tests",
+	        		UITestChromosome.getExecutedChromosomes().size(), UITestChromosome.getFailingChromosomes().size()));
+	        
+	        log.flush();
+	        log.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
         
 		AWTAutoShutdown.getInstance().notifyThreadFree(Thread.currentThread());
+
+		//throw new Error("HELLO???");
 	}
 
 	public static void writeCoverage() {
@@ -172,36 +187,40 @@ public class UITestSuiteGenerator {
 
 	@SuppressWarnings("unchecked")
 	private void generateTestSuite() {
-/*		Thread t = new Thread(new Runnable() {
+		Thread t = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				while (true) {
+					try {
+						Thread.sleep(5 * 60 * 1000);
+					} catch (InterruptedException e) { }
+
 					try {
 						UITestSuiteGenerator.this.writeStateGraph();
 					} catch (Exception e) {
 						System.err.println("Error writing state graph!");
 						e.printStackTrace();
 					}
-					
-					try {
-						Thread.sleep(5 * 60 * 1000);
-					} catch (InterruptedException e) { }
 				}
 			}
 		}, "State Graph Writer");
 		
 		t.setDaemon(true);
-		t.start();*/
+		t.start();
+		
+        this.writeStateGraph();
 		
 		try {
 			ChromosomeFactory<UITestChromosome> testFactory = new UITestChromosomeFactory(stateGraph, this.mainMethodTrigger);
 			ChromosomeFactory<UITestSuiteChromosome> testSuiteFactory = new UITestSuiteChromosomeFactory(testFactory);
 
 			GeneticAlgorithm ga = this.base.getGeneticAlgorithm(testSuiteFactory);
-
+			this.base.getSecondaryObjectives(ga);
+			
 			ga.setStoppingCondition(getStoppingCondition());
 			
-			FitnessFunction fitnessFunction = new SizeRelativeTestSuiteFitnessFunction(base.getFitnessFunction());
+			FitnessFunction fitnessFunction = base.getFitnessFunction(); 
+			// new SizeRelativeTestSuiteFitnessFunction(base.getFitnessFunction());
 			ga.setFitnessFunction(fitnessFunction);
 
 			SelectionFunction selectionFunction = TestSuiteGenerator.getSelectionFunction();

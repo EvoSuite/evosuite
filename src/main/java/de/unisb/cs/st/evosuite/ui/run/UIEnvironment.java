@@ -20,7 +20,7 @@ public class UIEnvironment extends AbstractUIEnvironment implements Interception
 	private InterceptionHandler delegate;
 	private List<InterceptionHandler> modalWindowHandlers = Collections.synchronizedList(new LinkedList<InterceptionHandler>());
 	private Set<java.awt.Window> initialWindows = new HashSet<java.awt.Window>(); 
-	
+	private Set<Thread> initialThreads = new HashSet<Thread>();
 	
 	public UIEnvironment(UISpecDisplay display, InterceptionHandler delegate) {
 		// display.reset();
@@ -28,9 +28,23 @@ public class UIEnvironment extends AbstractUIEnvironment implements Interception
 		this.display = display;
 		this.delegate = delegate;
 
-		this.register();
+		for (int i = 0; i < 100; i++) {
+			this.register();
+		}
+
+		this.initialThreads = currentThreads();
 		
 		// this.initialWindows = new HashSet<java.awt.Window>(Arrays.asList(java.awt.Window.getWindows()));
+	}
+
+	public static Set<Thread> currentThreads() {
+		Thread[] threads = new Thread[Thread.activeCount()];
+		Thread.enumerate(threads);
+		
+		List<Thread> list = new LinkedList<Thread>(Arrays.asList(threads));
+		while (list.remove(null));
+		
+ 		return new HashSet<Thread>(list);
 	}
 
 	public void register() {
@@ -91,7 +105,11 @@ public class UIEnvironment extends AbstractUIEnvironment implements Interception
 	}
 
 	@Override
-	public synchronized void process(final Window window) {
+	public void process(final Window window) {
+		// Readd ourself as window processor
+		this.register();
+
+		System.out.println("UIEnvironment::process: window = " + window.getAwtComponent() + ": isVisible = " + window.getAwtComponent().isVisible());
 		assert(window.getAwtComponent().isVisible());
 		
 		if (window.isModal().isTrue()) {
@@ -104,9 +122,6 @@ public class UIEnvironment extends AbstractUIEnvironment implements Interception
 		}
 
 		try {
-			// Readd ourself as window processor
-			this.register();
-			
 			// The thread we are called from at this point seems to be holding the AWT-Tree-Lock --
 			// if we were to call our delegate directly it would be owning the AWT-Tree-Lock --
 			// meaning that it would block its own SwingUtilities.invokeLater() calls!
@@ -115,25 +130,32 @@ public class UIEnvironment extends AbstractUIEnvironment implements Interception
 			// delegate would still be blocking its own SwingUtilities.invokeLater() calls...
 			//
 			// So what we do is to create a new thread instead.
-			Runnable runnable = new Runnable() {
+			final Runnable runnable = new Runnable() {
 				@Override
 				public void run() {
 					try {
 						UIEnvironment.this.disposeOpenPopups();
 						UIEnvironment.this.windows.add(window);
 						UIEnvironment.this.delegate.process(window);
-					} catch (Exception e) {
-						System.out.println("Unhandled exception in " + Thread.currentThread() + ":");
-						e.printStackTrace();
+					} catch (Throwable t) {
+						System.err.println("Unhandled exception in " + Thread.currentThread() + ":");
+						t.printStackTrace();
+						System.err.flush();
 					}
 				}
 			};
 			
-			if (Thread.currentThread().getName().contains("UIEnvironment helper thread")) {
-				runnable.run();
-			} else {
-				new Thread(runnable, "UIEnvironment helper thread for processing window without locks").start();
-			}
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					if (Thread.currentThread().getName().contains("UIEnvironment helper thread")) {
+						runnable.run();
+					} else {
+						new Thread(runnable, "UIEnvironment helper thread for processing window without locks").start();
+					}
+				}
+			});
+			
 		} catch (Throwable t) {
 			System.out.println("UIEnvironment::process(Window) caught throwable:");
 			t.printStackTrace();
@@ -163,7 +185,7 @@ public class UIEnvironment extends AbstractUIEnvironment implements Interception
 		
 		do { 
 			if (windows != null) {
-				System.out.println("No windows visible from waitGetNewState(): Waiting...");
+				// System.out.println("No windows visible from waitGetNewState(): Waiting...");
 			}
 
 			try {
@@ -181,13 +203,21 @@ public class UIEnvironment extends AbstractUIEnvironment implements Interception
 	@Override
 	public void dispose() {		
 		Set<java.awt.Window> windows = new HashSet<java.awt.Window>(Arrays.asList(java.awt.Window.getWindows()));
-		
-		windows.removeAll(initialWindows);
+		windows.removeAll(this.initialWindows);
 		
 		for (java.awt.Window window : windows) {
 			window.dispose();
 			window.setVisible(false);
 		}
+		
+		Set<Thread> threads = currentThreads();
+		threads.removeAll(this.initialThreads);
+		
+		/* for (Thread t : threads) {
+			System.err.println("Interrupting thread " + t);
+			t.interrupt();
+			t.stop();
+		} */
 		
 /*		try {
 			ThreadManager threadManager = ThreadManager.getInstance();

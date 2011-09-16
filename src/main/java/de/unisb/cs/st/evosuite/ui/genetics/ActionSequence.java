@@ -14,6 +14,26 @@ import de.unisb.cs.st.evosuite.utils.HashUtil;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
 public class ActionSequence implements Serializable, Cloneable {
+	public static class ActionError extends Error {
+		private static final long serialVersionUID = 1L;
+
+		public ActionError() {
+			super();
+		}
+
+		public ActionError(String message, Throwable cause) {
+			super(message, cause);
+		}
+
+		public ActionError(String message) {
+			super(message);
+		}
+
+		public ActionError(Throwable cause) {
+			super(cause);
+		}
+	}
+	
 	private static final long serialVersionUID = 1L;
 	
 	private LinkedList<AbstractUIState> states = new LinkedList<AbstractUIState>(); 
@@ -138,7 +158,7 @@ public class ActionSequence implements Serializable, Cloneable {
 		AbstractUIState nextState = lastState.getTransition(action);
 		
 		if (nextState == null) {
-			throw new Error(String.format("Trying to add action %s to state %s where it can't be executed", action, lastState));
+			throw new ActionError(String.format("Trying to add action %s to state %s where it can't be executed", action, lastState));
 		} else {
 			this.addAction(action, nextState);
 		}
