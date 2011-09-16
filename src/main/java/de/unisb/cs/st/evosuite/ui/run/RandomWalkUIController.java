@@ -31,8 +31,13 @@ public class RandomWalkUIController implements UIController {
 			List<DescriptorBoundUIAction<? extends UIComponent>> actions = ListUtil.shuffledList(atd.getActions());
 
 			if (at != null && actions.size() > 0) {
-				uiRunner.executeAction(state, actions.get(0));
-				return;
+				try {
+					uiRunner.executeAction(state, actions.get(0));
+					return;
+				} catch (Throwable t) {
+					System.err.println("Error in random walk: ");
+					t.printStackTrace();
+				}
 			}
 		}
 	}

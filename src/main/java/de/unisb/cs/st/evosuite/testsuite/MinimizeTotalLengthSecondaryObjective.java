@@ -43,11 +43,11 @@ public class MinimizeTotalLengthSecondaryObjective extends SecondaryObjective {
 	 */
 	@Override
 	public int compareChromosomes(Chromosome chromosome1, Chromosome chromosome2) {
-		logger.debug("Comparing lengths: " + ((TestSuiteChromosome) chromosome1).totalLengthOfTestCases()
-		        + " vs " + ((TestSuiteChromosome) chromosome2).totalLengthOfTestCases());
+		logger.debug("Comparing lengths: " + ((AbstractTestSuiteChromosome<?>) chromosome1).totalLengthOfTestCases()
+		        + " vs " + ((AbstractTestSuiteChromosome<?>) chromosome2).totalLengthOfTestCases());
 
-		return ((TestSuiteChromosome) chromosome1).totalLengthOfTestCases()
-		        - ((TestSuiteChromosome) chromosome2).totalLengthOfTestCases();
+		return ((AbstractTestSuiteChromosome<?>) chromosome1).totalLengthOfTestCases()
+		        - ((AbstractTestSuiteChromosome<?>) chromosome2).totalLengthOfTestCases();
 	}
 
 	/*
