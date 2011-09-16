@@ -90,4 +90,9 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingCondition {
 		return current_evaluation;
 	}
 
+	@Override
+	public void forceCurrentValue(long value) {
+		current_evaluation = value;
+	}
+
 }

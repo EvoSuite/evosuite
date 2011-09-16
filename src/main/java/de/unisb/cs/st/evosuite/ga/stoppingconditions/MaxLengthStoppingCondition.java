@@ -82,4 +82,10 @@ public class MaxLengthStoppingCondition extends StoppingCondition {
 	public long getLimit() {
 		return (long) (Properties.MAX_LENGTH + 0.5);
 	}
+
+	@Override
+	public void forceCurrentValue(long value) {
+		// TODO Auto-generated method stub
+		// TODO ?
+	}
 }

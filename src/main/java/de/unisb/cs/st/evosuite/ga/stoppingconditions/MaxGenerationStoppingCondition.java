@@ -35,7 +35,7 @@ public class MaxGenerationStoppingCondition extends StoppingCondition {
 	protected long max_iterations = Properties.GENERATIONS;
 
 	/** Maximum number of iterations */
-	protected int current_iteration = 0;
+	protected long current_iteration = 0;
 
 	public void setMaxIterations(int max) {
 		max_iterations = max;
@@ -93,4 +93,8 @@ public class MaxGenerationStoppingCondition extends StoppingCondition {
 		return current_iteration;
 	}
 
+	@Override
+	public void forceCurrentValue(long value) {
+		current_iteration = value;
+	}
 }

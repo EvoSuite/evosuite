@@ -73,7 +73,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 	protected final static boolean do_html = Properties.HTML;
 
-	protected static final Logger logger = LoggerFactory.getLogger(ReportGenerator.class);
+	protected static final Logger logger = LoggerFactory
+			.getLogger(ReportGenerator.class);
 
 	protected static final File REPORT_DIR = new File(Properties.REPORT_DIR);
 
@@ -135,10 +136,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		public List<Double> coverage_history = new ArrayList<Double>();
 
 		/** History of best test length */
-		public List<Integer> tests_executed = new ArrayList<Integer>();
+		public List<Long> tests_executed = new ArrayList<Long>();
 
 		/** History of best test length */
-		public List<Integer> statements_executed = new ArrayList<Integer>();
+		public List<Long> statements_executed = new ArrayList<Long>();
 
 		/** History of best test length */
 		public List<Long> fitness_evaluations = new ArrayList<Long>();
@@ -169,9 +170,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public int result_fitness_evaluations = 0;
 
-		public int result_tests_executed = 0;
+		public long result_tests_executed = 0;
 
-		public int result_statements_executed = 0;
+		public long result_statements_executed = 0;
 
 		public int age = 0;
 
@@ -179,15 +180,29 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public long seed = 0;
 
+		public String stoppingCondition;
+
+		public String globalTimeStoppingCondition;
+
+		public String timedOut;
+
 		public String getCSVHeader() {
 			StringBuilder r = new StringBuilder();
-			r.append("Class,Predicates,Total Branches,Covered Branches,Total Methods,Branchless Methods,Covered Methods,");
-			r.append("Total Goals,Covered Goals,Coverage,Creation Time,Minimization Time,Total Time,Test Execution Time,Goal Computation Time,Result Size,Result Length,");
+			r
+					.append("Class,Predicates,Total Branches,Covered Branches,Total Methods,Branchless Methods,Covered Methods,");
+			r
+					.append("Total Goals,Covered Goals,Coverage,Creation Time,Minimization Time,Total Time,Test Execution Time,Goal Computation Time,Result Size,Result Length,");
 			r.append("Minimized Size,Minimized Length,");
 			// "Bloat Rejections,Fitness Rejections,Fitness Accepts,"
 			r.append("Chromosome Length,Population Size,Random Seed,Budget,");
 
-			r.append("AllPermission,SecurityPermission,UnresolvedPermission,AWTPermission,FilePermission,SerializablePermission,ReflectPermission,RuntimePermission,NetPermission,SocketPermission,SQLPermission,PropertyPermission,LoggingPermission,SSLPermission,AuthPermission,AudioPermission,OtherPermission,Threads,");
+			// TODO since we currently don't want to change the layout of
+			// statistics.csv i will leave this commented out for future use and
+			// sort of copy this into CoverageStatistics
+			// r.append("Stopping Condition,Global Time,Timed Out,");
+
+			r
+					.append("AllPermission,SecurityPermission,UnresolvedPermission,AWTPermission,FilePermission,SerializablePermission,ReflectPermission,RuntimePermission,NetPermission,SocketPermission,SQLPermission,PropertyPermission,LoggingPermission,SSLPermission,AuthPermission,AudioPermission,OtherPermission,Threads,");
 
 			r.append("Data File");
 			return r.toString();
@@ -231,9 +246,19 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append(seed + ",");
 			r.append(Properties.GENERATIONS + ",");
 
+			// TODO since we currently don't want to change the layout of
+			// statistics.csv i will leave this commented out for future use and
+			// sort of copy this into CoverageStatistics
+			// r.append(stoppingCondition + ",");
+			// r.append(globalTimeStoppingCondition + ",");
+			// r.append(timedOut + ",");
+
 			PermissionStatistics pstats = PermissionStatistics.getInstance();
 
+			// TODO the following is a bug we don't want to fix right now
+			// because the layout of statistics.csv should not change currently
 			r.append(pstats.getNumAllPermission() + ",");
+			// TODO remove the line above in the future (awesome comment)
 			r.append(pstats.getNumAllPermission() + ",");
 			r.append(pstats.getNumSecurityPermission() + ",");
 			r.append(pstats.getNumUnresolvedPermission() + ",");
@@ -259,8 +284,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		}
 
 		public String getCSVFilepath() {
-			return REPORT_DIR.getAbsolutePath() + "/data/statistics_" + className + "-"
-			        + id + ".csv";
+			return REPORT_DIR.getAbsolutePath() + "/data/statistics_"
+					+ className + "-" + id + ".csv";
 		}
 
 		public String getCoverage() {
@@ -268,9 +293,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				return "100.00%";
 			else
 				return String.format("%.2f",
-				                     (100.0 * covered_goals / (1.0 * total_goals))).replaceAll(",",
-				                                                                               ".")
-				        + "%";
+						(100.0 * covered_goals / (1.0 * total_goals)))
+						.replaceAll(",", ".")
+						+ "%";
 		}
 
 		public double getCoverageDouble() {
@@ -286,12 +311,12 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	protected static final HtmlAnalyzer html_analyzer = new HtmlAnalyzer();
 
 	protected String writeIntegerChart(List<Integer> values, String className,
-	        String title) {
-		File file = new File(REPORT_DIR.getAbsolutePath() + "/img/statistics_" + title
-		        + "_" + className + ".png");
+			String title) {
+		File file = new File(REPORT_DIR.getAbsolutePath() + "/img/statistics_"
+				+ title + "_" + className + ".png");
 		JavaPlot plot = new JavaPlot();
 		GNUPlotTerminal terminal = new FileTerminal("png", REPORT_DIR
-		        + "/img/statistics_" + title + "_" + className + ".png");
+				+ "/img/statistics_" + title + "_" + className + ".png");
 		plot.setTerminal(terminal);
 
 		plot.set("xlabel", "\"Generation\"");
@@ -314,12 +339,13 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		return file.getName();
 	}
 
-	protected String writeDoubleChart(List<Double> values, String className, String title) {
-		File file = new File(REPORT_DIR.getAbsolutePath() + "/img/statistics_" + title
-		        + "_" + className + ".png");
+	protected String writeDoubleChart(List<Double> values, String className,
+			String title) {
+		File file = new File(REPORT_DIR.getAbsolutePath() + "/img/statistics_"
+				+ title + "_" + className + ".png");
 		JavaPlot plot = new JavaPlot();
 		GNUPlotTerminal terminal = new FileTerminal("png", REPORT_DIR
-		        + "/img/statistics_" + title + "_" + className + ".png");
+				+ "/img/statistics_" + title + "_" + className + ".png");
 		plot.setTerminal(terminal);
 
 		plot.set("xlabel", "\"Generation\"");
@@ -347,16 +373,20 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 * HTML header
 	 */
 	protected void writeHTMLHeader(StringBuffer buffer, String title) {
-		buffer.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\" \"http://www.w3.org/TR/html4/frameset.dtd\">\n");
+		buffer
+				.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\" \"http://www.w3.org/TR/html4/frameset.dtd\">\n");
 		buffer.append("<html>\n");
 		buffer.append("<head>\n");
 		buffer.append("<title>\n");
 		buffer.append(title);
 		buffer.append("\n</title>\n");
 
-		buffer.append("<link href=\"prettify.css\" type=\"text/css\" rel=\"stylesheet\" />\n");
-		buffer.append("<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\"/>\n");
-		buffer.append("<script type=\"text/javascript\" src=\"prettify.js\"></script>\n");
+		buffer
+				.append("<link href=\"prettify.css\" type=\"text/css\" rel=\"stylesheet\" />\n");
+		buffer
+				.append("<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\"/>\n");
+		buffer
+				.append("<script type=\"text/javascript\" src=\"prettify.js\"></script>\n");
 		buffer.append("</head>\n");
 		buffer.append("<body onload=\"prettyPrint()\">\n");
 		buffer.append("<div id=\"wrapper\">\n");
@@ -373,10 +403,12 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 	protected void writeCSVData(String filename, List<?>... data) {
 		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
+			BufferedWriter out = new BufferedWriter(new FileWriter(filename,
+					true));
 			int length = Integer.MAX_VALUE;
 
-			out.write("Generation,Fitness,Coverage,Size,Length,AverageLength,Evaluations,Tests,Statements\n");
+			out
+					.write("Generation,Fitness,Coverage,Size,Length,AverageLength,Evaluations,Tests,Statements\n");
 			for (List<?> d : data) {
 				length = Math.min(length, d.size());
 			}
@@ -399,16 +431,18 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			@Override
 			public boolean accept(File dir, String name) {
 				return name.startsWith("statistics_" + className)
-				        && name.endsWith(".csv"); // && !dir.isDirectory();
+						&& name.endsWith(".csv"); // && !dir.isDirectory();
 			}
 		};
 		List<String> filenames = new ArrayList<String>();
 
-		File[] files = (new File(REPORT_DIR.getAbsolutePath() + "/data")).listFiles(filter);
+		File[] files = (new File(REPORT_DIR.getAbsolutePath() + "/data"))
+				.listFiles(filter);
 		if (files != null) {
 			for (File f : files)
 				filenames.add(f.getName());
-			while (filenames.contains("statistics_" + className + "-" + num + ".csv"))
+			while (filenames.contains("statistics_" + className + "-" + num
+					+ ".csv"))
 				num++;
 		}
 
@@ -429,14 +463,17 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		sb.append("<h1>");
 		sb.append(run.className);
 		sb.append(": ");
-		sb.append(String.format("%.2f", 100.0 * run.covered_goals / run.total_goals));
+		sb.append(String.format("%.2f", 100.0 * run.covered_goals
+				/ run.total_goals));
 		sb.append("%");
 		sb.append("</h1></div></div>\n");
-		sb.append("<p><a href=\"../report-generation.html\">Overview</a></p>\n");
+		sb
+				.append("<p><a href=\"../report-generation.html\">Overview</a></p>\n");
 
 		writeResultTable(sb, run);
 		// writeMutationTable(sb);
-		sb.append("<div id=\"page\"><div id=\"page-bgtop\"><div id=\"page-bgbtm\"><div id=\"content\">");
+		sb
+				.append("<div id=\"page\"><div id=\"page-bgtop\"><div id=\"page-bgbtm\"><div id=\"content\">");
 		sb.append("<div id=\"post\">");
 
 		// Resulting test case
@@ -451,7 +488,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				 * if(test.exceptionThrown != null) { sb.append("<p>Raises:");
 				 * sb.append(test.exceptionThrown); sb.append("</p>"); }
 				 */
-				sb.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">\n");
+				sb
+						.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">\n");
 				int linecount = 1;
 				String code = null;
 				if (run.results.containsKey(test))
@@ -460,8 +498,11 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 					code = test.toCode();
 
 				for (String line : code.split("\n")) {
-					sb.append(String.format("<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
-					                        linecount, linecount));
+					sb
+							.append(String
+									.format(
+											"<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
+											linecount, linecount));
 					/*
 					 * if(test.exceptionsThrown != null &&
 					 * test.exception_statement == test_line)
@@ -503,8 +544,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			if (run.fitness_history.isEmpty()) {
 				sb.append("<h2>No fitness history</h2>\n");
 			} else {
-				String filename = writeDoubleChart(run.fitness_history, run.className
-				        + "-" + run.id, "Fitness");
+				String filename = writeDoubleChart(run.fitness_history,
+						run.className + "-" + run.id, "Fitness");
 				sb.append("<h2>Fitness</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -517,8 +558,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			if (run.size_history.isEmpty()) {
 				sb.append("<h2>No size history</h2>\n");
 			} else {
-				String filename = writeIntegerChart(run.size_history, run.className + "-"
-				        + run.id, "Size");
+				String filename = writeIntegerChart(run.size_history,
+						run.className + "-" + run.id, "Size");
 				sb.append("<h2>Size</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -531,8 +572,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			if (run.length_history.isEmpty()) {
 				sb.append("<h2>No length history</h2>\n");
 			} else {
-				String filename = writeIntegerChart(run.length_history, run.className
-				        + "-" + run.id, "Length");
+				String filename = writeIntegerChart(run.length_history,
+						run.className + "-" + run.id, "Length");
 				sb.append("<h2>Length</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -546,7 +587,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				sb.append("<h2>No average length history</h2>\n");
 			} else {
 				String filename = writeDoubleChart(run.average_length_history,
-				                                   run.className + "-" + run.id, "Length");
+						run.className + "-" + run.id, "Length");
 				sb.append("<h2>Average Length</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -560,14 +601,19 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		// Source code
 		try {
-			Iterable<String> source = html_analyzer.getClassContent(run.className);
+			Iterable<String> source = html_analyzer
+					.getClassContent(run.className);
 			sb.append("<h2 class=title>Source Code</h2>\n");
 			sb.append("<p>");
-			sb.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">");
+			sb
+					.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">");
 			int linecount = 1;
 			for (String line : source) {
-				sb.append(String.format("<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
-				                        linecount, linecount));
+				sb
+						.append(String
+								.format(
+										"<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
+										linecount, linecount));
 				if (run.coverage.contains(linecount)) {
 					sb.append("<span style=\"background-color: #ffffcc\">");
 					sb.append(StringEscapeUtils.escapeHtml(line));
@@ -610,7 +656,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		buffer.append("<ul>\n");
 		for (String key : Properties.getParameters()) {
 			try {
-				buffer.append("<li>" + key + ": " + Properties.getStringValue(key) + "\n"); // TODO
+				buffer.append("<li>" + key + ": "
+						+ Properties.getStringValue(key) + "\n"); // TODO
 			} catch (NoSuchParameterException e) {
 
 			} catch (IllegalArgumentException e) {
@@ -625,11 +672,14 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		buffer.append("<h2>Old Parameters</h2>\n");
 		buffer.append("<ul>\n");
-		buffer.append("<li>Algorithm: " + Properties.ALGORITHM.toString() + "\n"); // TODO
+		buffer.append("<li>Algorithm: " + Properties.ALGORITHM.toString()
+				+ "\n"); // TODO
 		buffer.append("<li>Population size: " + entry.population_size + "\n");
-		buffer.append("<li>Initial test length: " + entry.chromosome_length + "\n");
-		buffer.append("<li>Stopping condition: " + Properties.STOPPING_CONDITION + ": "
-		        + Properties.GENERATIONS + "\n");
+		buffer.append("<li>Initial test length: " + entry.chromosome_length
+				+ "\n");
+		buffer.append("<li>Stopping condition: "
+				+ Properties.STOPPING_CONDITION + ": " + Properties.GENERATIONS
+				+ "\n");
 		buffer.append("<li>Bloat control factor: " + Properties.BLOAT_FACTOR);
 		buffer.append("<li>Random seed: " + entry.seed + "\n");
 		buffer.append("</ul>\n");
@@ -645,29 +695,33 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		buffer.append("<h2>Statistics</h2>\n");
 		buffer.append("<ul>\n");
-		buffer.append("<li>Start time: " + sdf.format(new Date(entry.start_time)) + "\n");
-		buffer.append("<li>End time: " + sdf.format(new Date(entry.minimized_time))
-		        + "\n");
-		buffer.append("<li>Fitness evaluations: " + entry.result_fitness_evaluations
-		        + "\n");
-		buffer.append("<li>Tests executed: " + entry.result_tests_executed + "\n");
-		buffer.append("<li>Statements executed: " + entry.result_statements_executed
-		        + "\n");
+		buffer.append("<li>Start time: "
+				+ sdf.format(new Date(entry.start_time)) + "\n");
+		buffer.append("<li>End time: "
+				+ sdf.format(new Date(entry.minimized_time)) + "\n");
+		buffer.append("<li>Fitness evaluations: "
+				+ entry.result_fitness_evaluations + "\n");
+		buffer.append("<li>Tests executed: " + entry.result_tests_executed
+				+ "\n");
+		buffer.append("<li>Statements executed: "
+				+ entry.result_statements_executed + "\n");
 		buffer.append("<li>Generations: " + entry.age + "\n");
-		buffer.append("<li>Number of tests before minimization: " + entry.size_final
-		        + "\n");
-		buffer.append("<li>Number of tests after minimization: " + entry.size_minimized
-		        + "\n");
-		buffer.append("<li>Length of tests before minimization: " + entry.length_final
-		        + "\n");
-		buffer.append("<li>Length of tests after minimization: " + entry.length_minimized
-		        + "\n");
+		buffer.append("<li>Number of tests before minimization: "
+				+ entry.size_final + "\n");
+		buffer.append("<li>Number of tests after minimization: "
+				+ entry.size_minimized + "\n");
+		buffer.append("<li>Length of tests before minimization: "
+				+ entry.length_final + "\n");
+		buffer.append("<li>Length of tests after minimization: "
+				+ entry.length_minimized + "\n");
 		buffer.append("<li>Total predicates: " + entry.total_branches + "\n");
-		buffer.append("<li>Total branches: " + (2 * entry.total_branches) + "\n");
+		buffer.append("<li>Total branches: " + (2 * entry.total_branches)
+				+ "\n");
 		buffer.append("<li>Covered branches: " + entry.covered_branches + "\n");
 		buffer.append("<li>Total methods: " + entry.total_methods + "\n");
 		buffer.append("<li>Covered methods: " + entry.covered_methods + "\n");
-		buffer.append("<li>Methods without branches: " + entry.branchless_methods + "\n");
+		buffer.append("<li>Methods without branches: "
+				+ entry.branchless_methods + "\n");
 		buffer.append("<li>Total coverage goal: " + entry.total_goals + "\n");
 		buffer.append("<li>Covered goals: " + entry.covered_goals + "\n");
 
@@ -675,14 +729,14 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		long duration_MI = (entry.minimized_time - entry.end_time) / 1000;
 		long duration_TO = (entry.minimized_time - entry.start_time) / 1000;
 		buffer.append("<li>Time for search: "
-		        + String.format("%d:%02d:%02d", duration_GA / 3600,
-		                        (duration_GA % 3600) / 60, (duration_GA % 60)) + "\n");
+				+ String.format("%d:%02d:%02d", duration_GA / 3600,
+						(duration_GA % 3600) / 60, (duration_GA % 60)) + "\n");
 		buffer.append("<li>Time for minimization: "
-		        + String.format("%d:%02d:%02d", duration_MI / 3600,
-		                        (duration_MI % 3600) / 60, (duration_MI % 60)) + "\n");
+				+ String.format("%d:%02d:%02d", duration_MI / 3600,
+						(duration_MI % 3600) / 60, (duration_MI % 60)) + "\n");
 		buffer.append("<li>Total time: "
-		        + String.format("%d:%02d:%02d", duration_TO / 3600,
-		                        (duration_TO % 3600) / 60, (duration_TO % 60)) + "\n");
+				+ String.format("%d:%02d:%02d", duration_TO / 3600,
+						(duration_TO % 3600) / 60, (duration_TO % 60)) + "\n");
 
 		// buffer.append("<li>Elite: "+System.getProperty("GA.elite")+"\n");
 		// buffer.append("<li>Mutation rate: "+System.getProperty("GA.mutation_rate")+"\n");
@@ -709,7 +763,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			long duration_TO = (entry.minimized_time - entry.start_time) / 1000;
 			buffer.append("<td>");
 			buffer.append(String.format("%d:%02d:%02d", duration_TO / 3600,
-			                            (duration_TO % 3600) / 60, (duration_TO % 60)));
+					(duration_TO % 3600) / 60, (duration_TO % 60)));
 			buffer.append("</td>");
 			buffer.append("<td>");
 			buffer.append(entry.getCoverage());
@@ -746,9 +800,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		}
 
 		writeCSVData(entry.getCSVFilepath(), entry.fitness_history,
-		             entry.coverage_history, entry.size_history, entry.length_history,
-		             entry.average_length_history, entry.fitness_evaluations,
-		             entry.tests_executed, entry.statements_executed);
+				entry.coverage_history, entry.size_history,
+				entry.length_history, entry.average_length_history,
+				entry.fitness_evaluations, entry.tests_executed,
+				entry.statements_executed);
 
 	}
 
@@ -773,7 +828,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		URL systemResource = ClassLoader.getSystemResource("report/" + name);
 		logger.debug("Copying from resource: " + systemResource);
 		copyFile(systemResource, new File(REPORT_DIR, name));
-		copyFile(systemResource, new File(REPORT_DIR.getAbsolutePath() + "/html/" + name));
+		copyFile(systemResource, new File(REPORT_DIR.getAbsolutePath()
+				+ "/html/" + name));
 	}
 
 	/**
@@ -805,21 +861,25 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			}
 		} else {
 
-			writeHTMLHeader(report, "EvoSuite Report for " + Properties.PROJECT_PREFIX);
+			writeHTMLHeader(report, "EvoSuite Report for "
+					+ Properties.PROJECT_PREFIX);
 			report.append("<div id=\"header\"><div id=\"logo\">");
 			report.append("<h1 class=title>EvoSuite Report for "
-			        + Properties.PROJECT_PREFIX + "</h1>\n");
+					+ Properties.PROJECT_PREFIX + "</h1>\n");
 			report.append("</div></div>");
 			try {
 				report.append("Run on "
-				        + java.net.InetAddress.getLocalHost().getHostName() + "\n");
+						+ java.net.InetAddress.getLocalHost().getHostName()
+						+ "\n");
 			} catch (Exception e) {
 			}
 
-			report.append("<div id=\"page\"><div id=\"page-bgtop\"><div id=\"page-bgbtm\"><div id=\"content\">");
+			report
+					.append("<div id=\"page\"><div id=\"page-bgtop\"><div id=\"page-bgbtm\"><div id=\"content\">");
 			report.append("<div id=\"post\">");
 			report.append("<h2 class=\"title\">Test generation runs:</h2>\n");
-			report.append("<div style=\"clear: both;\">&nbsp;</div><div class=\"entry\">");
+			report
+					.append("<div style=\"clear: both;\">&nbsp;</div><div class=\"entry\">");
 			report.append("<table border=1 cellspacing=0 cellpadding=3>");
 			report.append("<tr>");
 			report.append("<td>Run</td>");
@@ -840,9 +900,11 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 	public Set<Integer> getCoveredLines(ExecutionTrace trace, String className) {
 		Set<Integer> covered_lines = new HashSet<Integer>();
-		for (Entry<String, Map<String, Map<Integer, Integer>>> entry : trace.coverage.entrySet()) {
+		for (Entry<String, Map<String, Map<Integer, Integer>>> entry : trace.coverage
+				.entrySet()) {
 			if (entry.getKey().startsWith(className)) {
-				for (Map<Integer, Integer> methodentry : entry.getValue().values()) {
+				for (Map<Integer, Integer> methodentry : entry.getValue()
+						.values()) {
 					covered_lines.addAll(methodentry.keySet());
 				}
 			}
@@ -914,7 +976,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			average += individual.size();
 		}
 
-		entry.average_length_history.add(average / algorithm.getPopulation().size());
+		entry.average_length_history.add(average
+				/ algorithm.getPopulation().size());
 
 		// TODO: Need to get data of average size in here - how? Pass population
 		// as parameter?

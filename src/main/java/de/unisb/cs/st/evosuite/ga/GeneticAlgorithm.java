@@ -634,6 +634,14 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		for (StoppingCondition sc : stopping_conditions)
 			System.out.println("\t- " + sc.toString());
 	}
+	
+	public String getBudgetString() {
+		String r = "";
+		for(StoppingCondition sc : stopping_conditions)
+			r+=sc.toString()+" ";
+		
+		return r;
+	}
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {
 		if (listeners.contains(SearchStatistics.getInstance())) {

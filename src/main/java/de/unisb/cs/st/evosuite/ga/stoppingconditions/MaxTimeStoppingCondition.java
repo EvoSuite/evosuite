@@ -80,4 +80,9 @@ public class MaxTimeStoppingCondition extends StoppingCondition {
 		return (current_time - start_time) / 1000;
 	}
 
+	@Override
+	public void forceCurrentValue(long value) {
+		start_time = value;
+	}
+
 }

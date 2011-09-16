@@ -41,7 +41,7 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 	protected static long max_statements = Properties.GENERATIONS;
 
 	/** Maximum number of iterations */
-	protected static int current_statement = 0;
+	protected static long current_statement = 0;
 
 	/**
 	 * Add a given number of executed statements
@@ -70,7 +70,7 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 		current_statement = 0;
 	}
 
-	public static int getNumExecutedStatements() {
+	public static long getNumExecutedStatements() {
 		return current_statement;
 	}
 
@@ -102,6 +102,11 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 	@Override
 	public long getLimit() {
 		return max_statements;
+	}
+
+	@Override
+	public void forceCurrentValue(long value) {
+		current_statement = value;
 	}
 
 }

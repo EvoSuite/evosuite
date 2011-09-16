@@ -28,6 +28,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import antlr.StringUtils;
+
 import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
@@ -375,6 +377,9 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.testExecutionTime = TestCaseExecutor.timeExecuted;
 		entry.goalComputationTime = AbstractFitnessFactory.goalComputationTime;
 		entry.covered_goals = TestSuiteFitnessFunction.getCoveredGoals();
+		entry.timedOut = (TestSuiteGenerator.global_time.isFinished()?"yes":"no");
+		entry.stoppingCondition = TestSuiteGenerator.stopping_condition.toString().trim();
+		entry.globalTimeStoppingCondition = TestSuiteGenerator.global_time.getValueString().trim();
 
 		if (result instanceof TestSuiteChromosome) {
 			TestSuiteChromosome best = (TestSuiteChromosome) result;

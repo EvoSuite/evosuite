@@ -78,4 +78,9 @@ public class MutationTimeoutStoppingCondition extends StoppingCondition {
 			disabled.add(mutation);
 	}
 
+	@Override
+	public void forceCurrentValue(long value) {
+		timeouts = (int) value;
+	}
+
 }

@@ -78,4 +78,10 @@ public class ShutdownTestWriter extends StoppingCondition implements SignalHandl
 		return 0;
 	}
 
+	@Override
+	public void forceCurrentValue(long value) {
+		// TODO Auto-generated method stub
+		// TODO ?
+	}
+
 }

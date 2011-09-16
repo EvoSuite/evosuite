@@ -102,7 +102,11 @@ public class CoverageStatistics {
 					out.write(",suite,");
 				else
 					out.write(",tests,");
-				out.write(statistics.get(testCoverage).getCSVData());
+				StatisticEntry statistic = statistics.get(testCoverage);
+				out.write(statistic.stoppingCondition+",");
+				out.write(statistic.globalTimeStoppingCondition+",");
+				out.write(statistic.timedOut+",");
+				out.write(statistic.getCSVData());
 				out.write("\n");
 			}
 			out.close();
@@ -148,7 +152,7 @@ public class CoverageStatistics {
 		StatisticEntry dummyStat = SearchStatistics.getInstance()
 				.getLastStatisticEntry();
 
-		return "Class,TestCriterion,DefUse-Coverage,Branch-Coverage,Statement-Coverage,Combined-Coverage,Combined-Boost,Mode,"
+		return "Class,TestCriterion,DefUse-Coverage,Branch-Coverage,Statement-Coverage,Combined-Coverage,Combined-Boost,Mode,Stopping Condition,Global Time,Timed Out,"
 				+ dummyStat.getCSVHeader();
 	}
 
