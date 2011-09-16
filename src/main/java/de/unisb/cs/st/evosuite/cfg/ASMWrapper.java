@@ -276,7 +276,9 @@ public abstract class ASMWrapper {
 	}
 
 	protected String getFieldName() {
-		return ((FieldInsnNode) asmNode).name;
+		FieldInsnNode fieldNode = (FieldInsnNode) asmNode;
+		return fieldNode.owner+"."+fieldNode.name;
+//		return fieldNode.name;
 	}
 
 	protected String getLocalVarName() {
