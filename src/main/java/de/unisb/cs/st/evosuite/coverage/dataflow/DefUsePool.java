@@ -89,8 +89,8 @@ public class DefUsePool {
 			logger.error("each definition can be added at most once");
 			return false;
 		}
-//		if(d.isWithinConstructor() && d.proceedsConstructorInvocation())
-//			return false;
+		if(d.isWithinConstructor() && d.proceedsConstructorInvocation())
+			return false;
 
 		// register new instruction
 
