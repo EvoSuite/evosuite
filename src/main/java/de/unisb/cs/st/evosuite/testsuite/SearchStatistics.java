@@ -28,8 +28,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import antlr.StringUtils;
-
 import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
