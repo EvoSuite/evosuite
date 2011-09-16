@@ -223,7 +223,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 			r.append(total_goals + ",");
 			r.append(covered_goals + ",");
-			r.append(getCoverageDouble() + ",");
+			r.append(getCoverageDouble() + ","); // 9
 
 			// r.append(start_time+",");
 			// r.append(end_time+",");
@@ -243,8 +243,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 			r.append(chromosome_length + ",");
 			r.append(population_size + ",");
-			r.append(seed + ",");
-			r.append(Properties.GENERATIONS + ",");
+			r.append(seed + ","); //21
+			r.append(Properties.GENERATIONS + ","); //22
 
 			// TODO since we currently don't want to change the layout of
 			// statistics.csv i will leave this commented out for future use and
@@ -255,8 +255,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 			PermissionStatistics pstats = PermissionStatistics.getInstance();
 
-			// TODO the following is a bug we don't want to fix right now
-			// because the layout of statistics.csv should not change currently
+			// TODO: This is a bug, AllPermission should only be here once, but we need to keep it for the ICSE12 experiments
 			r.append(pstats.getNumAllPermission() + ",");
 			// TODO remove the line above in the future (awesome comment)
 			r.append(pstats.getNumAllPermission() + ",");
