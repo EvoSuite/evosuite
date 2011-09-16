@@ -77,4 +77,9 @@ public class GlobalTimeStoppingCondition extends StoppingCondition {
 		start_time = 0;
 	}
 
+	@Override
+	public void forceCurrentValue(long value) {
+		start_time = value;
+	}
+
 }

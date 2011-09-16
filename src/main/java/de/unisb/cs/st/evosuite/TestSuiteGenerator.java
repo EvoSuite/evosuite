@@ -134,11 +134,11 @@ public class TestSuiteGenerator {
 
 	private final SearchStatistics statistics = SearchStatistics.getInstance();
 
-	private final ZeroFitnessStoppingCondition zero_fitness = new ZeroFitnessStoppingCondition();
+	public final static ZeroFitnessStoppingCondition zero_fitness = new ZeroFitnessStoppingCondition();
 
-	private final GlobalTimeStoppingCondition global_time = new GlobalTimeStoppingCondition();
+	public static final GlobalTimeStoppingCondition global_time = new GlobalTimeStoppingCondition();
 
-	private StoppingCondition stopping_condition;
+	public static StoppingCondition stopping_condition;
 
 	public static boolean analyzing = false;
 
@@ -687,7 +687,11 @@ public class TestSuiteGenerator {
 		else
 			System.out.println("* Remaining budget: " + (total_budget - current_budget));
 
-		ga.printBudget();
+		stopping_condition.setLimit(Properties.GENERATIONS);
+		stopping_condition.forceCurrentValue(current_budget);
+		suiteGA.setStoppingCondition(stopping_condition);
+		suiteGA.addStoppingCondition(global_time);
+		suiteGA.printBudget();
 
 		if (!analyzing) {
 			int c = 0;
@@ -758,7 +762,6 @@ public class TestSuiteGenerator {
 		        + suite.totalLengthOfTestCases());
 
 		// Log some stats
-
 		statistics.iteration(suiteGA);
 		statistics.minimized(suite);
 

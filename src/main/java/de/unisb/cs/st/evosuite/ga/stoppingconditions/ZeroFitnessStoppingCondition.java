@@ -82,4 +82,10 @@ public class ZeroFitnessStoppingCondition extends StoppingCondition {
 		last_fitness = 0.0;
 	}
 
+	@Override
+	public void forceCurrentValue(long value) {
+		// TODO Auto-generated method stub
+		// TODO ?
+	}
+
 }
