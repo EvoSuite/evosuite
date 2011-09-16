@@ -60,6 +60,10 @@ public class ArrayStatement extends AbstractStatement {
 		return length;
 	}
 
+	public void setSize(int size) {
+		this.length = size;
+	}
+
 	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
 		ArrayStatement copy = new ArrayStatement(newTestCase, retval.getType(), length);

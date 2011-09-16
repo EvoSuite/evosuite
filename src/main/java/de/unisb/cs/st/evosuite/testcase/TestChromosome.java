@@ -180,9 +180,9 @@ public class TestChromosome extends ExecutableChromosome {
 			if (LocalSearchBudget.isFinished())
 				break;
 
+			LocalSearch search = null;
 			if (test.getStatement(i) instanceof PrimitiveStatement<?>) {
 				Class<?> type = test.getReturnValue(i).getVariableClass();
-				LocalSearch search = null;
 				if (type.equals(Integer.class) || type.equals(int.class)) {
 					search = new IntegerLocalSearch<Integer>();
 				} else if (type.equals(Byte.class) || type.equals(byte.class)) {
@@ -203,9 +203,12 @@ public class TestChromosome extends ExecutableChromosome {
 					search = new BooleanLocalSearch();
 				}
 
-				if (search != null)
-					search.doSearch(this, i, objective);
+			} else if (test.getStatement(i) instanceof ArrayStatement) {
+				search = new ArrayLocalSearch();
 			}
+			if (search != null)
+				search.doSearch(this, i, objective);
+
 		}
 		assert (getFitness() <= oldFitness);
 		//logger.info("Test after local search: " + test.toCode());
