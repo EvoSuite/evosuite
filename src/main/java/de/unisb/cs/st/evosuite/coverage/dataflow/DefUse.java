@@ -54,10 +54,9 @@ public class DefUse extends BytecodeInstruction {
 		if(!instruction.isDefinition())
 			return false;
 		
-		return varName.equals(instruction.getDUVariableName());
 		
 //		Definition otherDef = DefUseFactory.makeDefinition(instruction);
-//		return sharesVariableWith(otherDef);
+		return sharesVariableWith(instruction);
 	}
 	
 	/**
@@ -66,6 +65,13 @@ public class DefUse extends BytecodeInstruction {
 	 */
 	public boolean sharesVariableWith(DefUse du) {
 		return varName.equals(du.varName);
+	}
+	
+	public boolean sharesVariableWith(BytecodeInstruction instruction) {
+		if(!instruction.isDefUse())
+			return false;
+		
+		return varName.equals(instruction.getDUVariableName());
 	}
 	
 	public String getDUVariableType() {

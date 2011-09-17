@@ -158,7 +158,9 @@ public abstract class DefUseExecutionTraceAnalyzer {
 			String targetVariable, Set<BytecodeInstruction> vertices) {
 		Set<BytecodeInstruction> r = new HashSet<BytecodeInstruction>();
 		for (BytecodeInstruction vertex : vertices) {
-			if (!vertex.isDefinition())
+//			if (!vertex.isDefinition())
+//				continue;
+			if(!DefUsePool.isKnownAsDefinition(vertex))
 				continue;
 			Definition currentDefinition = DefUseFactory.makeDefinition(vertex);
 			if (currentDefinition.getDUVariableName().equals(targetVariable))
