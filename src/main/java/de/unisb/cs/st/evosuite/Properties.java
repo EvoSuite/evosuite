@@ -253,7 +253,7 @@ public class Properties {
 	}
 
 	@Parameter(key = "crossover_function", group = "Search Algorithm", description = "Crossover function during search")
-	public static CrossoverFunction CROSSOVER_FUNCTION = CrossoverFunction.SINGLEPOINT;
+	public static CrossoverFunction CROSSOVER_FUNCTION = CrossoverFunction.SINGLEPOINTRELATIVE;
 
 	public enum SelectionFunction {
 		RANK, ROULETTEWHEEL, TOURNAMENT
