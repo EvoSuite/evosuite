@@ -76,7 +76,7 @@ class MSecurityManager extends SecurityManager {
 	private boolean allowPermission(Permission perm) {
 		// get all elements of the stack trace for the current thread 
 		StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-
+		
 		// false if "executeTestCase" method wasn't in a stack trace, true otherwise
 		boolean testExec = false;
 
@@ -85,9 +85,18 @@ class MSecurityManager extends SecurityManager {
 		// Also check for few special cases, when permission should be granted
 		for (int elementCounter = 0; elementCounter < stackTraceElements.length; elementCounter++) {
 			StackTraceElement e = stackTraceElements[elementCounter];
+			
+			String[] packageNameSplit = e.getClassName().split("\\.");
+			String packageName = "";
+			if(packageNameSplit.length > 1) {
+				packageName = packageNameSplit[0] + ".";
+			for(int i=0; i < packageNameSplit.length - 1; i++)
+				packageName += "." + packageNameSplit[i];
+			}
+			
 			if (e.getMethodName().equals("executeTestCase")
 			        || e.getMethodName().equals("call")
-			        || (e.getClassName().startsWith(testPackage) && !testPackage.equals(""))
+			        || (packageName.equals(testPackage) && !testPackage.equals(""))
 			        || e.getClassName().equals(TestRunnable.class.getName())) {
 				testExec = true;
 				break;
