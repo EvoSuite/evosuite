@@ -54,8 +54,10 @@ public class DefUse extends BytecodeInstruction {
 		if(!instruction.isDefinition())
 			return false;
 		
-		Definition otherDef = DefUseFactory.makeDefinition(instruction);
-		return sharesVariableWith(otherDef);
+		return varName.equals(instruction.getDUVariableName());
+		
+//		Definition otherDef = DefUseFactory.makeDefinition(instruction);
+//		return sharesVariableWith(otherDef);
 	}
 	
 	/**
