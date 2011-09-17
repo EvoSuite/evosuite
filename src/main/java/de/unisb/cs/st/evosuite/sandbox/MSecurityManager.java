@@ -89,8 +89,8 @@ class MSecurityManager extends SecurityManager {
 			String[] packageNameSplit = e.getClassName().split("\\.");
 			String packageName = "";
 			if(packageNameSplit.length > 1) {
-				packageName = packageNameSplit[0] + ".";
-			for(int i=0; i < packageNameSplit.length - 1; i++)
+				packageName = packageNameSplit[0];
+			for(int i=1; i < packageNameSplit.length - 1; i++)
 				packageName += "." + packageNameSplit[i];
 			}
 			
