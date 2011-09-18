@@ -11,20 +11,19 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
 class TableClick extends UIAction<Table> {
 	private static final long serialVersionUID = 1L;
 
-	public static TableClick newLeftClick() {
-		return new TableClick(false);
+	enum Mode {
+		LeftClick,
+		RightClick,
+		DoubleClick
 	}
-
-	public static TableClick newRightClick() {
-		return new TableClick(true);
-	}
-
+	
 	private double rowRand;
 	private double colRand;
-	private boolean isRightClick;
+	private Mode mode;
 	
-	TableClick(boolean isRightClick) {
-		this.isRightClick = isRightClick;
+	TableClick(Mode mode) {
+		assert(mode != null);
+		this.mode = mode;
 	}
 
 	@Override
@@ -37,10 +36,18 @@ class TableClick extends UIAction<Table> {
 				int rowIdx = (int) (TableClick.this.rowRand * table.getRowCount());
 				int colIdx = (int) (TableClick.this.colRand * table.getColumnCount());
 
-				if (TableClick.this.isRightClick) {
-					table.rightClick(rowIdx, colIdx);
-				} else {
+				switch (TableClick.this.mode) {
+				case LeftClick:
 					table.click(rowIdx, colIdx);
+					break;
+				
+				case RightClick:
+					table.rightClick(rowIdx, colIdx);
+					break;
+					
+				case DoubleClick:
+					table.doubleClick(rowIdx, colIdx);
+					break;
 				}
 			}
 		});
@@ -57,7 +64,7 @@ class TableClick extends UIAction<Table> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + (isRightClick ? 1231 : 1237);
+		result = prime * result + ((mode == null) ? 0 : mode.hashCode());
 		return result;
 	}
 
@@ -70,7 +77,7 @@ class TableClick extends UIAction<Table> {
 		if (getClass() != obj.getClass())
 			return false;
 		TableClick other = (TableClick) obj;
-		if (isRightClick != other.isRightClick)
+		if (mode != other.mode)
 			return false;
 		return true;
 	}
@@ -82,11 +89,17 @@ class TableClick extends UIAction<Table> {
 	
 	@Override
 	public String graphVizString() {
-		return isRightClick ? "TableRightClick" : "TableClick";
+		switch (this.mode) {
+		case LeftClick: return "TableClick";
+		case RightClick: return "TableRightClick";
+		case DoubleClick: return "TableDoubleClick";
+		default: return "TableUnknownClick";
+		}
 	}
 
 	public static void addActions(List<UIAction<? extends UIComponent>> toList) {
-		toList.add(TableClick.newLeftClick());
-		toList.add(TableClick.newRightClick());
+		toList.add(new TableClick(Mode.LeftClick));
+		toList.add(new TableClick(Mode.RightClick));
+		toList.add(new TableClick(Mode.DoubleClick));
 	}
 }
