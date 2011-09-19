@@ -7,26 +7,25 @@ import japa.parser.ParseException;
 import japa.parser.ast.type.Type;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
  * @author Yury Pavlov
- *
+ * 
  */
 public class TypeTable {
-	
+
+	/**
+	 * @uml.property  name="typeTable"
+	 * @uml.associationEnd  multiplicity="(0 -1)" elementType="de.unisb.cs.st.evosuite.ma.parser.Var"
+	 */
 	private final ArrayList<Var> typeTable = new ArrayList<Var>();
-	
-	private final List<VariableReference> listVariableReferences = new ArrayList<VariableReference>();
-	
 
 	public void addVar(Var var) {
 		typeTable.add(var);
 	}
-	
+
 	public Type getType(String varName) throws ParseException {
 		for (Var tmpVar : typeTable) {
 			if (tmpVar.getVarName().equals(varName)) {
@@ -35,36 +34,45 @@ public class TypeTable {
 		}
 		throw new ParseException(null, "Type of: " + varName + " not found!");
 	}
-	
-	public void addVariableReference(Collection<VariableReference> varReferences) {
-		listVariableReferences.addAll(varReferences);
-	}
-	
+
 	/**
 	 * @param methodCallExpr
 	 * @param newTestCase
 	 * @return
+	 * @throws ParseException
 	 */
-	//TODO implement with HashSet
-	public VariableReference getVarReference(String calleeName) {
-		for (VariableReference variableReference : listVariableReferences) {
-			if (variableReference.getName().equals(calleeName)) {
-				return variableReference;
+	// TODO implement with HashSet
+	public VariableReference getVarReference(String varName)
+			throws ParseException {
+		for (Var var : typeTable) {
+			if (var.getVarName().equals(varName)) {
+				return var.getVarRef();
 			}
+		}
+		throw new ParseException(null, "variableReference for var: " + varName
+				+ " not found in TT.");
+	}
+
+	public VariableReference getVarReference() {
+		for (Var var : typeTable) {
+
+			return var.getVarRef();
 		}
 		return null;
 	}
-	
-//	/**
-//	 * @param args
-//	 * @return
-//	 */
-//	public List<VariableReference> getVarReferences(Collection<String> calleeNames) {
-//		List<VariableReference> res = new ArrayList<VariableReference>();
-//		for (String calleeName : calleeNames) {
-//			res.add(getVarReference(calleeName));
-//		}
-//		return res;
-//	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		String res = "";
+		for (Var var : typeTable) {
+			res += var + "\n";
+		}
+		return res;
+	}
 
 }

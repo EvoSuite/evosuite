@@ -11,8 +11,14 @@ import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ma.gui.SimpleGUITestEditor;
 import de.unisb.cs.st.evosuite.ma.parser.TestParser;
+import de.unisb.cs.st.evosuite.testcase.ArrayStatement;
+import de.unisb.cs.st.evosuite.testcase.AssignmentStatement;
+import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
+import de.unisb.cs.st.evosuite.testcase.MethodStatement;
+import de.unisb.cs.st.evosuite.testcase.NullStatement;
+import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
@@ -40,7 +46,7 @@ public class Editor {
 
 	private final SimpleGUITestEditor sgui;
 
-	private final TestParser testParser;
+	private TestParser testParser;
 
 	private TestCaseTuple currentTestCaseTuple;
 
@@ -52,6 +58,7 @@ public class Editor {
 	 */
 	public Editor(GeneticAlgorithm ga) {
 		gaInstance = ga;
+		ga.pauseGlobalTimeStoppingCondition();
 		testSuiteChr = (TestSuiteChromosome) gaInstance.getBestIndividual();
 
 		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(
@@ -59,29 +66,6 @@ public class Editor {
 		minimizer.minimize(testSuiteChr);
 
 		List<TestCase> tests = testSuiteChr.getTests();
-		// for (int i = 0; i < tests.get(0).size(); i++) {
-		// if (tests.get(0).getStatement(i) instanceof ArrayStatement) {
-		// System.out.println(i + ": ArrayStatement");
-		// }
-		// if (tests.get(0).getStatement(i) instanceof AssignmentStatement) {
-		// System.out.println(i + ": AssignmentStatement");
-		// }
-		// if (tests.get(0).getStatement(i) instanceof ConstructorStatement) {
-		// System.out.println(i + ": ConstructorStatement");
-		// }
-		// if (tests.get(0).getStatement(i) instanceof NullStatement) {
-		// System.out.println(i + ": NullStatement");
-		// }
-		// if (tests.get(0).getStatement(i) instanceof PrimitiveStatement) {
-		// System.out.println(i + ": PrimitiveStatement");
-		// }
-		// if (tests.get(0).getStatement(i) instanceof MethodStatement) {
-		// System.out.println(i + ": MethodStatement");
-		// System.out.println("11: " +
-		// tests.get(0).getStatement(i).getReturnValue());
-		// }
-		// }
-
 		HtmlAnalyzer html_analyzer = new HtmlAnalyzer();
 		sourceCode = html_analyzer.getClassContent(Properties.TARGET_CLASS);
 
@@ -101,7 +85,7 @@ public class Editor {
 		sgui.createMainWindow(this);
 
 		// when work is done reset time
-		ga.resetGlobalTimeStoppingCondition();
+		ga.resumeGlobalTimeStoppingCondition();
 	}
 
 	/**
@@ -147,6 +131,7 @@ public class Editor {
 				TestCaseTuple newTestCaseTuple = new TestCaseTuple(newTestCase,
 						testCaseCoverega);
 				currentTestCaseTuple = newTestCaseTuple;
+				testParser = new TestParser(sgui);
 				testCases.add(newTestCaseTuple);
 				return true;
 			}
@@ -212,6 +197,30 @@ public class Editor {
 		} else {
 			createNewTestCase();
 		}
+		
+		for (int i = 0; i < currentTestCaseTuple.getTestCase().size(); i++) {
+			if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof ArrayStatement) {
+				System.out.println(i + ": ArrayStatement");
+			}
+			if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof AssignmentStatement) {
+				System.out.println(i + ": AssignmentStatement");
+			}
+			if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof ConstructorStatement) {
+				System.out.println(i + ": ConstructorStatement");
+			}
+			if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof NullStatement) {
+				System.out.println(i + ": NullStatement");
+			}
+			if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof PrimitiveStatement) {
+				System.out.println(i + ": PrimitiveStatement");
+			}
+			if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof MethodStatement) {
+				System.out.println(i + ": MethodStatement");
+				System.out.println("11: "
+						+ currentTestCaseTuple.getTestCase().getStatement(i).getVariableReferences());
+			}
+		}
+		System.out.println("================!!==============");
 	}
 
 	/**
