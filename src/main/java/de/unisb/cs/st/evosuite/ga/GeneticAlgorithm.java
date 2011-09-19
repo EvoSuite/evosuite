@@ -674,10 +674,21 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	/**
 	 * 
 	 */
-	public void resetGlobalTimeStoppingCondition() {
+	public void pauseGlobalTimeStoppingCondition() {
 		for (StoppingCondition c : stopping_conditions) {
 			if (c instanceof GlobalTimeStoppingCondition) {
-				c.reset();
+				((GlobalTimeStoppingCondition) c).pause();
+			}
+		}
+	}
+	
+	/**
+	 * 
+	 */
+	public void resumeGlobalTimeStoppingCondition() {
+		for (StoppingCondition c : stopping_conditions) {
+			if (c instanceof GlobalTimeStoppingCondition) {
+				((GlobalTimeStoppingCondition) c).resume();
 			}
 		}
 	}
