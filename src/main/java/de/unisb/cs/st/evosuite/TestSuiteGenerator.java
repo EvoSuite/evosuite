@@ -224,7 +224,9 @@ public class TestSuiteGenerator {
 		if (Properties.JUNIT_TESTS) {
 			TestSuite suite = new TestSuite(tests);
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
-			String testDir = Properties.TEST_DIR;// + "/" + Properties.CRITERION;
+			String testDir = Properties.TEST_DIR;
+			if(analyzing)
+			  testDir = testDir + "/" + Properties.CRITERION;
 			System.out.println("* Writing JUnit test cases to " + testDir);
 			suite.writeTestSuite("Test" + name, testDir);
 		}
