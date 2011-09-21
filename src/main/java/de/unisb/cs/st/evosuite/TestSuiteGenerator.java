@@ -365,13 +365,8 @@ public class TestSuiteGenerator {
 
 		ga.printBudget();
 
-		if (Properties.CRITERION == Criterion.DEFUSE) {
-			int covered = DefUseCoverageSuiteFitness.mostCoveredGoals;
-			int total = DefUseCoverageSuiteFitness.totalGoals;
-			System.out.println("* Covered " + covered + "/" + total + " goals");
-			System.out.println("* Time spent optimizing covered goals analysis: "
-			        + DefUseExecutionTraceAnalyzer.timeGetCoveredGoals + "ms");
-		}
+		if (Properties.CRITERION == Criterion.DEFUSE)
+			DefUseCoverageSuiteFitness.printCoverage();
 
 		return best.getTests();
 	}
@@ -751,7 +746,7 @@ public class TestSuiteGenerator {
 			minimizer.minimize(suite);
 			logger.info("Size after: " + suite.totalLengthOfTestCases());
 		}
-
+		
 		/*
 		 * if(Properties.MINIMIZE) { System.out.println("* Minimizing result");
 		 * TestSuiteMinimizer minimizer = new TestSuiteMinimizer();
