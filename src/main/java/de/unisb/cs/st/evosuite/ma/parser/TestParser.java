@@ -89,6 +89,10 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  * @author Yury Pavlov
  * 
  */
+/**
+ * @author Yury Pavlov
+ * 
+ */
 public class TestParser {
 
 	private TypeTable tt;
@@ -217,10 +221,10 @@ public class TestParser {
 		Expression scope = methodCallExpr.getScope();
 		List<Expression> args = methodCallExpr.getArgs();
 
-		Class<?> clazz = getClass(getType(scope));
+		Class<?> clazz = converTypeToClass(getType(scope));
 
 		String methodName = methodCallExpr.getName();
-		Class<?>[] paramClasses = getClasses(getTypes(args));
+		Class<?>[] paramClasses = getVarClasses(args);
 
 		Method method = getMethod(clazz, methodName, paramClasses);
 
@@ -341,8 +345,9 @@ public class TestParser {
 			if (rightExpression instanceof ObjectCreationExpr) {
 				ObjectCreationExpr objCreatExpr = (ObjectCreationExpr) rightExpression;
 
-				Class<?> clazz = getClass(parserType);
-				Class<?>[] paramTypes = getClasses(objCreatExpr.getTypeArgs());
+				Class<?> clazz = converTypeToClass(parserType);
+				Class<?>[] paramTypes = convertTypesToClasses(objCreatExpr
+						.getTypeArgs());
 				List<VariableReference> params = getVarRefs(objCreatExpr
 						.getArgs());
 
@@ -368,7 +373,7 @@ public class TestParser {
 				// Array can't be created with var. length
 				int arraySize = Integer.parseInt(arrayCreationExpr
 						.getDimensions().get(0).toString());
-				Class<?> clazz = getClass(arrayCreationExpr.getType());
+				Class<?> clazz = converTypeToClass(arrayCreationExpr.getType());
 				Object array = Array.newInstance(clazz, arraySize);
 
 				res = new ArrayStatement(newTestCase, array.getClass(),
@@ -428,15 +433,15 @@ public class TestParser {
 			}
 		}
 		if (expr instanceof FieldAccessExpr) {
-			FieldAccessExpr fieldAcExpr = (FieldAccessExpr) expr;
+			FieldAccessExpr fieldAccExpr = (FieldAccessExpr) expr;
 			VariableReference varRef = null;
 
 			// if VariableRef stay null EvoSuite make this call as static
-			if (!isStatic(fieldAcExpr.getScope().toString())) {
-				varRef = tt.getVarReference(fieldAcExpr.getScope().toString());
+			if (!isStatic(fieldAccExpr.getScope().toString())) {
+				varRef = tt.getVarReference(fieldAccExpr.getScope().toString());
 			}
 			// TODO check if static from another class
-			return new FieldReference(newTestCase, getField(fieldAcExpr),
+			return new FieldReference(newTestCase, getField(fieldAccExpr),
 					varRef);
 		}
 		if (expr instanceof ArrayAccessExpr) {
@@ -445,6 +450,7 @@ public class TestParser {
 			ArrayReference arrayRef = (ArrayReference) tt
 					.getVarReference(arrayAccExpr.getName().toString());
 			int arrayInd = Integer.parseInt(arrayAccExpr.getIndex().toString());
+
 			return new ArrayIndex(newTestCase, arrayRef, arrayInd);
 		}
 		return null;
@@ -457,15 +463,24 @@ public class TestParser {
 	 * @return
 	 * @throws ParseException
 	 */
-	private Class<?>[] getVarTypes(List<Expression> args) throws ParseException {
+	private Class<?>[] getVarClasses(List<Expression> args)
+			throws ParseException {
 		List<Class<?>> tmpRes = new ArrayList<Class<?>>();
 		if (args != null) {
 			for (Expression expr : args) {
 				if (expr instanceof NameExpr) {
-					tmpRes.add(getClass(getType(expr)));
+					tmpRes.add(converTypeToClass(getType(expr)));
 				}
 				if (expr instanceof FieldAccessExpr) {
 					tmpRes.add(getField(expr).getType());
+				}
+				if (expr instanceof ArrayAccessExpr) {
+					ArrayAccessExpr arrayAccExpr = (ArrayAccessExpr) expr;
+
+					ArrayReference arrayRef = (ArrayReference) tt
+							.getVarReference(arrayAccExpr.getName().toString());
+					tmpRes.add(arrayRef.getComponentClass());
+					System.out.println(arrayRef.getComponentClass());
 				}
 			}
 		}
@@ -481,7 +496,7 @@ public class TestParser {
 	private Field getField(Expression expr) throws ParseException {
 		FieldAccessExpr fieldExpr = (FieldAccessExpr) expr;
 
-		Class<?> clazz = getClass(getType(fieldExpr.getScope()));
+		Class<?> clazz = converTypeToClass(getType(fieldExpr.getScope()));
 
 		try {
 			return clazz.getField(fieldExpr.getField());
@@ -498,14 +513,15 @@ public class TestParser {
 	 * @return
 	 * @throws ParseException
 	 */
-	private Class<?>[] getClasses(List<Type> typeArgs) throws ParseException {
+	private Class<?>[] convertTypesToClasses(List<Type> typeArgs)
+			throws ParseException {
 		if (typeArgs == null) {
 			return null;
 		}
 
 		List<Class<?>> tmpRes = new ArrayList<Class<?>>();
 		for (Type type : typeArgs) {
-			tmpRes.add(getClass(type));
+			tmpRes.add(converTypeToClass(type));
 		}
 
 		Class<?>[] res = new Class<?>[tmpRes.size()];
@@ -518,18 +534,18 @@ public class TestParser {
 	 * @return
 	 * @throws ParseException
 	 */
-	private Class<?> getClass(Type parsType) throws ParseException {
+	private Class<?> converTypeToClass(Type parsType) throws ParseException {
 		if (parsType instanceof PrimitiveType) {
 			PrimitiveType primitiveParamType = (PrimitiveType) parsType;
-	
-			return getPrimitiveClass(primitiveParamType);
+
+			return convertPrimitiveType(primitiveParamType);
 		}
 		if (parsType instanceof ReferenceType) {
 			ReferenceType refType = (ReferenceType) parsType;
-			return getRefClass(refType);
+			return convertRefType(refType);
 		}
 		if (parsType instanceof ClassOrInterfaceType) {
-			return getCOIClass(parsType);
+			return convertCOIType(parsType);
 		}
 		if (parsType instanceof VoidType) {
 			throw new ParseException(null, "Can not load class for VoidType.");
@@ -546,7 +562,7 @@ public class TestParser {
 	 * @return
 	 * @throws ParseException
 	 */
-	private Class<?> getPrimitiveClass(PrimitiveType primitiveParamType)
+	private Class<?> convertPrimitiveType(PrimitiveType primitiveParamType)
 			throws ParseException {
 		switch (primitiveParamType.getType()) {
 		case Char:
@@ -576,7 +592,8 @@ public class TestParser {
 	 * @return
 	 * @throws ParseException
 	 */
-	private Class<?> getRefClass(ReferenceType refType) throws ParseException {
+	private Class<?> convertRefType(ReferenceType refType)
+			throws ParseException {
 		String fullClassName = Properties.PROJECT_PREFIX + "."
 				+ refType.getType();
 		try {
@@ -593,7 +610,7 @@ public class TestParser {
 	 * @return
 	 * @throws ParseException
 	 */
-	private Class<?> getCOIClass(Type parsType) throws ParseException {
+	private Class<?> convertCOIType(Type parsType) throws ParseException {
 		String fullClassName = Properties.PROJECT_PREFIX + "." + parsType;
 		try {
 			return TestCluster.classLoader.loadClass(fullClassName);
@@ -628,24 +645,19 @@ public class TestParser {
 				System.out.println(paramType.getCanonicalName());
 				System.out.println(paramType.getModifiers());
 				System.out.println(paramType.getName());
-				System.out.println(paramType.getSimpleName());				
+				System.out.println(paramType.getSimpleName());
 			}
-			throw new ParseException(null, "Can not find the method: " + methodName
-					+ " with parameter(s): " + classNames);
+			throw new ParseException(null, "Can not find the method: "
+					+ methodName + " with parameter(s): " + classNames);
 		}
-	}
-	
-	private List<Type> getTypes(List<Expression> args) throws ParseException {
-		List<Type> res = new ArrayList<Type>();
-		
-		for (Expression expr : args) {
-			res.add(getType(expr));
-		}
-		return res;
 	}
 
 	/**
-	 * @param scope
+	 * Return parser's type of expr. F.e. int instance.fieldInt it's
+	 * type(instance). It is impossible to obtain type of field here. But we can
+	 * load class and get field's class from there. See getVarClasses.
+	 * 
+	 * @param expr
 	 * @return
 	 * @throws ParseException
 	 */
@@ -664,11 +676,6 @@ public class TestParser {
 			if (!isStatic(fieldAcExpr.getScope().toString())) {
 				return tt.getType(fieldAcExpr.getScope());
 			}
-		}
-		if (expr instanceof ArrayAccessExpr) {
-			ArrayAccessExpr arrayAcExpr = (ArrayAccessExpr) expr;
-
-			System.out.println("Array access line " + arrayAcExpr);
 		}
 		return null;
 	}
