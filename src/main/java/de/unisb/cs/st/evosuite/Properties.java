@@ -467,10 +467,10 @@ public class Properties {
 	//---------------------------------------------------------------
 	// Manual algorithm
 	@Parameter(key = "min_delta_coverage", group = "Manual algorithm", description = "Minimum coverage delta")
-	public static double MIN_DELTA_COVERAGE = 0.05;
+	public static double MIN_DELTA_COVERAGE = 0.90;
 
 	@Parameter(key = "max_iteration", group = "Manual algorithm", description = "how much itteration with MIN_DELTA_COVERAGE possible with out MA")
-	public static int MAX_ITERATION = 300;
+	public static int MAX_ITERATION = 50;
 
 	@Parameter(key = "ma_active", group = "Manual algorithm", description = "MA active")
 	public static boolean MA_ACTIVE = true;

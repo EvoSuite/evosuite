@@ -11,14 +11,8 @@ import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ma.gui.SimpleGUITestEditor;
 import de.unisb.cs.st.evosuite.ma.parser.TestParser;
-import de.unisb.cs.st.evosuite.testcase.ArrayStatement;
-import de.unisb.cs.st.evosuite.testcase.AssignmentStatement;
-import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
-import de.unisb.cs.st.evosuite.testcase.MethodStatement;
-import de.unisb.cs.st.evosuite.testcase.NullStatement;
-import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
@@ -197,30 +191,37 @@ public class Editor {
 		} else {
 			createNewTestCase();
 		}
-		
-		for (int i = 0; i < currentTestCaseTuple.getTestCase().size(); i++) {
-			if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof ArrayStatement) {
-				System.out.println(i + ": ArrayStatement");
-			}
-			if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof AssignmentStatement) {
-				System.out.println(i + ": AssignmentStatement");
-			}
-			if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof ConstructorStatement) {
-				System.out.println(i + ": ConstructorStatement");
-			}
-			if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof NullStatement) {
-				System.out.println(i + ": NullStatement");
-			}
-			if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof PrimitiveStatement) {
-				System.out.println(i + ": PrimitiveStatement");
-			}
-			if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof MethodStatement) {
-				System.out.println(i + ": MethodStatement");
-				System.out.println("11: "
-						+ currentTestCaseTuple.getTestCase().getStatement(i).getVariableReferences());
-			}
-		}
-		System.out.println("================!!==============");
+
+		// for (int i = 0; i < currentTestCaseTuple.getTestCase().size(); i++) {
+		// if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof
+		// ArrayStatement) {
+		// System.out.println(i + ": ArrayStatement");
+		// }
+		// if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof
+		// AssignmentStatement) {
+		// System.out.println(i + ": AssignmentStatement");
+		// }
+		// if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof
+		// ConstructorStatement) {
+		// System.out.println(i + ": ConstructorStatement");
+		// }
+		// if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof
+		// NullStatement) {
+		// System.out.println(i + ": NullStatement");
+		// }
+		// if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof
+		// PrimitiveStatement) {
+		// System.out.println(i + ": PrimitiveStatement");
+		// }
+		// if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof
+		// MethodStatement) {
+		// System.out.println(i + ": MethodStatement");
+		// System.out.println("11: "
+		// +
+		// currentTestCaseTuple.getTestCase().getStatement(i).getVariableReferences());
+		// }
+		// }
+		// System.out.println("================!!==============");
 	}
 
 	/**
