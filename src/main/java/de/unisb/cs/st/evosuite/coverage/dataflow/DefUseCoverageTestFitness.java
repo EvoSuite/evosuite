@@ -163,6 +163,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	private final String goalVariable;
 	private final Use goalUse;
 	private final Definition goalDefinition;
+	private final boolean isInterMethodPair;
 	
 	private final TestFitnessFunction goalDefinitionFitness;
 	private final TestFitnessFunction goalUseFitness;
@@ -179,7 +180,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	/**
 	 * Creates a Definition-Use-Coverage goal for the given Definition and Use
 	 */
-	public DefUseCoverageTestFitness(Definition def, Use use) {
+	public DefUseCoverageTestFitness(Definition def, Use use, boolean isInterMethodPair) {
 		if (!def.getDUVariableName().equals(use.getDUVariableName()))
 			throw new IllegalArgumentException(
 			        "expect def and use to be for the same variable: \n"+def.toString()+"\n"+use.toString());
@@ -189,6 +190,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		this.goalVariable = def.getDUVariableName();
 		this.goalDefinitionFitness = new StatementCoverageTestFitness(goalDefinition);
 		this.goalUseFitness = new StatementCoverageTestFitness(goalUse);
+		this.isInterMethodPair = isInterMethodPair;
 	}
 
 	/**
@@ -206,6 +208,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		goalDefinitionFitness = null;
 		goalUse = use;
 		goalUseFitness = new StatementCoverageTestFitness(goalUse);
+		isInterMethodPair = false;
 	}
 
 	/**
@@ -502,18 +505,30 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	public TestFitnessFunction getGoalDefinitionFitness() {
 		return goalDefinitionFitness;
 	}
+	
+	public boolean isInterMethodPair() {
+		return isInterMethodPair;
+	}
+	
+	public boolean isParameterGoal() {
+		return goalDefinition == null;
+	}
 
 	// ---		Inherited from Object 			---
 
 	@Override
 	public String toString() {
 		StringBuffer r = new StringBuffer();
+		if(isInterMethodPair())
+			r.append("inter-");
+		else
+			r.append("intra-");
 		r.append("Definition-Use-Pair");
 		if (difficulty != -1)
 			r.append("- Difficulty "
 			        + NumberFormat.getIntegerInstance().format(difficulty));
 		r.append("\n\t");
-		if (goalDefinition == null)
+		if (isParameterGoal())
 			r.append("Parameter-Definition " + goalUse.getLocalVar() + " for method "
 			        + goalUse.getMethodName());
 		else
@@ -530,6 +545,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		result = prime * result
 				+ ((goalDefinition == null) ? 0 : goalDefinition.hashCode());
 		result = prime * result + ((goalUse == null) ? 0 : goalUse.hashCode());
+		result = prime * result + (isInterMethodPair ? 1231 : 1237);
 		return result;
 	}
 
@@ -552,10 +568,43 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 				return false;
 		} else if (!goalUse.equals(other.goalUse))
 			return false;
+		if (isInterMethodPair != other.isInterMethodPair)
+			return false;
 		return true;
 	}
 
-	
+//	@Override
+//	public int hashCode() {
+//		final int prime = 31;
+//		int result = 1;
+//		result = prime * result
+//				+ ((goalDefinition == null) ? 0 : goalDefinition.hashCode());
+//		result = prime * result + ((goalUse == null) ? 0 : goalUse.hashCode());
+//		return result;
+//	}
+//
+//	@Override
+//	public boolean equals(Object obj) {
+//		if (this == obj)
+//			return true;
+//		if (obj == null)
+//			return false;
+//		if (getClass() != obj.getClass())
+//			return false;
+//		DefUseCoverageTestFitness other = (DefUseCoverageTestFitness) obj;
+//		if (goalDefinition == null) {
+//			if (other.goalDefinition != null)
+//				return false;
+//		} else if (!goalDefinition.equals(other.goalDefinition))
+//			return false;
+//		if (goalUse == null) {
+//			if (other.goalUse != null)
+//				return false;
+//		} else if (!goalUse.equals(other.goalUse))
+//			return false;
+//		return true;
+//	}
+
 	
 //	@Override
 //	public boolean equals(Object o) {
