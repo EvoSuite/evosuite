@@ -163,6 +163,7 @@ public class EvoSuite {
 		int port = handler.getServerPort();
 		List<String> cmdLine = new ArrayList<String>();
 		cmdLine.add(javaCmd);
+		cmdLine.add("-Xmx" + Properties.MAX_MEM + "M");
 		cmdLine.add("-cp");
 		cmdLine.add(classPath);
 		cmdLine.add("-Dprocess_communication_port=" + port);
