@@ -40,12 +40,14 @@ public class Editor {
 
 	private final SimpleGUITestEditor sgui;
 
+	private double suiteCoverageValProLine;
+
 	private TestParser testParser;
 
 	private TestCaseTuple currentTestCaseTuple;
 
 	/**
-	 * Create instance of Editor for manual edition of tests.
+	 * Create instance of manual editor.
 	 * 
 	 * @param sa
 	 *            - SearchAlgorihm as parameter
@@ -68,8 +70,10 @@ public class Editor {
 			testCaseCoverega = retrieveCoverage(testCase);
 			testCases.add(new TestCaseTuple(testCase, testCaseCoverega));
 			suiteCoverage.addAll(testCaseCoverega);
-
 		}
+		suiteCoverageValProLine = testSuiteChr.getCoverage()
+				/ suiteCoverage.size();
+		System.out.println("!@#!@#!ddfj " + suiteCoverageValProLine);
 
 		// set currentTestCaseTuple to proper. value
 		nextTest();
@@ -80,21 +84,6 @@ public class Editor {
 
 		// when work is done reset time
 		ga.resumeGlobalTimeStoppingCondition();
-	}
-
-	/**
-	 * Retrieve the coverage information of the TestCase
-	 * 
-	 * @param testCase
-	 * @return Set of Integers
-	 */
-	private Set<Integer> retrieveCoverage(TestCase testCase) {
-		ExecutionTrace trace = statistics.executeTest(testCase,
-				Properties.TARGET_CLASS);
-		Set<Integer> result = statistics.getCoveredLines(trace,
-				Properties.TARGET_CLASS);
-
-		return result;
 	}
 
 	/**
@@ -127,6 +116,8 @@ public class Editor {
 				currentTestCaseTuple = newTestCaseTuple;
 				testParser = new TestParser(sgui);
 				testCases.add(newTestCaseTuple);
+				updateCoverage();
+
 				return true;
 			}
 		} catch (IOException e) {
@@ -154,15 +145,8 @@ public class Editor {
 	}
 
 	/**
-	 * Return the Coverage of whole suite.
+	 * Return current testCase in editor (and GUI).
 	 * 
-	 * @return Set of Integers
-	 */
-	public Set<Integer> getSuiteCoverage() {
-		return suiteCoverage;
-	}
-
-	/**
 	 * @return TestCaseTupel
 	 */
 	public TestCaseTuple getCurrentTestCase() {
@@ -170,7 +154,7 @@ public class Editor {
 	}
 
 	/**
-	 * Set currentTestCase to the next TestCase.
+	 * Set currentTestCase to the next testCase.
 	 */
 	public void nextTest() {
 		if (currentTestCaseTuple == null && testCases.size() > 0) {
@@ -191,41 +175,10 @@ public class Editor {
 		} else {
 			createNewTestCase();
 		}
-
-		// for (int i = 0; i < currentTestCaseTuple.getTestCase().size(); i++) {
-		// if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof
-		// ArrayStatement) {
-		// System.out.println(i + ": ArrayStatement");
-		// }
-		// if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof
-		// AssignmentStatement) {
-		// System.out.println(i + ": AssignmentStatement");
-		// }
-		// if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof
-		// ConstructorStatement) {
-		// System.out.println(i + ": ConstructorStatement");
-		// }
-		// if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof
-		// NullStatement) {
-		// System.out.println(i + ": NullStatement");
-		// }
-		// if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof
-		// PrimitiveStatement) {
-		// System.out.println(i + ": PrimitiveStatement");
-		// }
-		// if (currentTestCaseTuple.getTestCase().getStatement(i) instanceof
-		// MethodStatement) {
-		// System.out.println(i + ": MethodStatement");
-		// System.out.println("11: "
-		// +
-		// currentTestCaseTuple.getTestCase().getStatement(i).getVariableReferences());
-		// }
-		// }
-		// System.out.println("================!!==============");
 	}
 
 	/**
-	 * Set currentTestCase to previous TestCase.
+	 * Set currentTestCase to previous testCase.
 	 */
 	public void prevTest() {
 		if (currentTestCaseTuple == null && testCases.size() > 0) {
@@ -246,15 +199,6 @@ public class Editor {
 		} else {
 			createNewTestCase();
 		}
-	}
-
-	/**
-	 * The coverage of the current TestCase.
-	 * 
-	 * @return Set of Integers
-	 */
-	public Set<Integer> getCurrentCoverage() {
-		return currentTestCaseTuple.getCoverage();
 	}
 
 	/**
@@ -285,10 +229,64 @@ public class Editor {
 		TestCase testCaseForDeleting = currentTestCaseTuple.getTestCase();
 		testSuiteChr.deleteTest(testCaseForDeleting);
 		testCases.remove(currentTestCaseTuple);
+		updateCoverage();
 		nextTest();
 	}
 
-	public int getCoveratgeRatio() {
-		return (int) (testSuiteChr.getCoverage() * 100);
+	/**
+	 * Rebuild set of covered lines.
+	 */
+	private void updateCoverage() {
+		suiteCoverage.clear();
+		for (TestCaseTuple tct : testCases) {
+			suiteCoverage.addAll(tct.getCoverage());
+		}
+
+	}
+
+	/**
+	 * Retrieve the covered lines from EvoSuite (slow). Executed only 1 time at
+	 * init.
+	 * 
+	 * @param testCase
+	 * @return Set of Integers
+	 */
+	private Set<Integer> retrieveCoverage(TestCase testCase) {
+		ExecutionTrace trace = statistics.executeTest(testCase,
+				Properties.TARGET_CLASS);
+		Set<Integer> result = statistics.getCoveredLines(trace,
+				Properties.TARGET_CLASS);
+
+		return result;
+	}
+
+	/**
+	 * Return the coverage of the current TestCase.
+	 * 
+	 * @return Set of Integers
+	 */
+	public Set<Integer> getCurrentCoverage() {
+		return currentTestCaseTuple.getCoverage();
+	}
+
+	/**
+	 * Return covered lines of the whole TestSuite.
+	 * 
+	 * @return Set of Integers
+	 */
+	public Set<Integer> getSuiteCoverage() {
+		return suiteCoverage;
+	}
+
+	/**
+	 * Return testSuit's coverage value.
+	 * 
+	 * @return int
+	 */
+	public int getSuiteCoveratgeVal() {
+		System.out.println("asdsdaasdqweqweqwe "
+				+ (int) (suiteCoverageValProLine * suiteCoverage.size() * 100));
+		System.out.println("number of lines " + suiteCoverage.size());
+		return (int) (suiteCoverageValProLine * suiteCoverage.size() * 100);
 	}
 }

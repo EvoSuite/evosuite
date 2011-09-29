@@ -1,6 +1,3 @@
-/**
- * 
- */
 package de.unisb.cs.st.evosuite.ma.parser;
 
 import japa.parser.ParseException;
@@ -19,11 +16,6 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  */
 public class TypeTable {
 
-	/**
-	 * @uml.property name="typeTable"
-	 * @uml.associationEnd multiplicity="(0 -1)"
-	 *                     elementType="de.unisb.cs.st.evosuite.ma.parser.Var"
-	 */
 	private final ArrayList<Var> typeTable = new ArrayList<Var>();
 
 	public void addVar(Var var) {
@@ -34,8 +26,8 @@ public class TypeTable {
 	 * Return Type of var if exist. For Static var (first letter is capital)
 	 * return null.
 	 * 
-	 * @param varName
-	 * @return type of variable.
+	 * @param varName String
+	 * @return Type of variable.
 	 * @throws ParseException
 	 *             if var not found in TT.
 	 */
@@ -68,7 +60,7 @@ public class TypeTable {
 				return getType(fieldExpr.getScope().toString());
 			}
 		}
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 

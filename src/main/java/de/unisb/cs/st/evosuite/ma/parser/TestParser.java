@@ -7,39 +7,14 @@ import japa.parser.ast.body.BodyDeclaration;
 import japa.parser.ast.body.MethodDeclaration;
 import japa.parser.ast.body.TypeDeclaration;
 import japa.parser.ast.body.VariableDeclarator;
-import japa.parser.ast.expr.AnnotationExpr;
 import japa.parser.ast.expr.ArrayAccessExpr;
 import japa.parser.ast.expr.ArrayCreationExpr;
-import japa.parser.ast.expr.ArrayInitializerExpr;
 import japa.parser.ast.expr.AssignExpr;
-import japa.parser.ast.expr.BinaryExpr;
-import japa.parser.ast.expr.BooleanLiteralExpr;
-import japa.parser.ast.expr.CastExpr;
-import japa.parser.ast.expr.CharLiteralExpr;
-import japa.parser.ast.expr.ClassExpr;
-import japa.parser.ast.expr.ConditionalExpr;
-import japa.parser.ast.expr.DoubleLiteralExpr;
-import japa.parser.ast.expr.EnclosedExpr;
 import japa.parser.ast.expr.Expression;
 import japa.parser.ast.expr.FieldAccessExpr;
-import japa.parser.ast.expr.InstanceOfExpr;
-import japa.parser.ast.expr.IntegerLiteralExpr;
-import japa.parser.ast.expr.IntegerLiteralMinValueExpr;
-import japa.parser.ast.expr.LiteralExpr;
-import japa.parser.ast.expr.LongLiteralExpr;
-import japa.parser.ast.expr.LongLiteralMinValueExpr;
-import japa.parser.ast.expr.MarkerAnnotationExpr;
 import japa.parser.ast.expr.MethodCallExpr;
 import japa.parser.ast.expr.NameExpr;
-import japa.parser.ast.expr.NormalAnnotationExpr;
-import japa.parser.ast.expr.NullLiteralExpr;
 import japa.parser.ast.expr.ObjectCreationExpr;
-import japa.parser.ast.expr.QualifiedNameExpr;
-import japa.parser.ast.expr.SingleMemberAnnotationExpr;
-import japa.parser.ast.expr.StringLiteralExpr;
-import japa.parser.ast.expr.SuperExpr;
-import japa.parser.ast.expr.ThisExpr;
-import japa.parser.ast.expr.UnaryExpr;
 import japa.parser.ast.expr.VariableDeclarationExpr;
 import japa.parser.ast.stmt.ExpressionStmt;
 import japa.parser.ast.stmt.Statement;
@@ -130,7 +105,7 @@ public class TestParser {
 			cu = JavaParser.parse(inputStream);
 		} catch (ParseException e) {
 			gui.showParseException(e.getMessage());
-			// e.printStackTrace();
+			e.printStackTrace();
 		} finally {
 			inputStream.close();
 		}
@@ -140,136 +115,58 @@ public class TestParser {
 		for (Expression expr : exprStmts) {
 			try {
 				if (expr instanceof VariableDeclarationExpr) {
-					VariableDeclarationExpr varDeclarationExpr = (VariableDeclarationExpr) expr;
-					createVariableStatements(varDeclarationExpr);
+					VariableDeclarationExpr varDeclExpr = (VariableDeclarationExpr) expr;
+					AbstractStatement newSttm = createVarSttm(varDeclExpr);
+					newTestCase.addStatement(newSttm);
+					addNewVarToTT(varDeclExpr, newSttm);
 				}
 				if (expr instanceof AssignExpr) {
 					AssignExpr assignExpr = (AssignExpr) expr;
-					createAssignStatments(assignExpr);
+					newTestCase.addStatement(createAssignSttm(assignExpr));
 				}
 				if (expr instanceof MethodCallExpr) {
 					MethodCallExpr methodCallExpr = (MethodCallExpr) expr;
-					boolean addStatement = true;
-					createMethodStatment(methodCallExpr, addStatement);
+					newTestCase.addStatement(createMethodSttm(methodCallExpr));
 				}
 			} catch (ParseException e) {
 				gui.showParseException("Error in line: " + expr.getBeginLine()
 						+ "\nMessage: " + e.getMessage());
 
-				// if res == null, editor & co. stay unchanged
+				// if res == null, editor&co. stay unchanged
 				newTestCase = null;
 				break;
 			}
 		}
-		System.out.println("\n-------------------------------------------");
-		System.out.println(newTestCase.toCode());
-		System.out.println("===========================================");
+		// System.out.println("\n-------------------------------------------");
+		// System.out.println(newTestCase.toCode());
+		// System.out.println("===========================================");
 		return newTestCase;
 	}
 
 	/**
 	 * Create new Evosuite statements {@link VariableReference} from parsed code
 	 * 
-	 * @param currentTestCase
-	 *            to insert new statements
-	 * @param expression
-	 *            from parser
-	 * @param newTestCase
-	 * @throws ParseException
-	 */
-	private void createVariableStatements(
-			VariableDeclarationExpr varDeclarationExpr) throws ParseException {
-		Type parserType = varDeclarationExpr.getType();
-
-		// get all vars, but usually there is only one?
-		List<VariableDeclarator> vars = varDeclarationExpr.getVars();
-
-		for (VariableDeclarator varDeclarator : vars) {
-			AbstractStatement newStatement = null;
-
-			if (parserType instanceof PrimitiveType) {
-				if (varDeclarator.getInit() instanceof MethodCallExpr) {
-					boolean addStatement = false;
-					newStatement = createMethodStatment(
-							(MethodCallExpr) varDeclarator.getInit(),
-							addStatement);
-				} else {
-					newStatement = createPrimitiveStatement(parserType,
-							varDeclarator);
-				}
-			}
-			if (parserType instanceof ReferenceType) {
-				newStatement = createReferenceType(parserType, varDeclarator);
-			}
-
-			if (newStatement != null) {
-				newTestCase.addStatement(newStatement);
-				addNewVarToTT(parserType, varDeclarator, newStatement);
-			}
-		}
-	}
-
-	/**
-	 * @param methodCallExpr
-	 * @param addStatement
+	 * @param varDeclExpr
 	 * @return
 	 * @throws ParseException
 	 */
-	private AbstractStatement createMethodStatment(
-			MethodCallExpr methodCallExpr, boolean addStatement)
+	private AbstractStatement createVarSttm(VariableDeclarationExpr varDeclExpr)
 			throws ParseException {
-		Expression scope = methodCallExpr.getScope();
-		List<Expression> args = methodCallExpr.getArgs();
+		Type parserType = varDeclExpr.getType();
+		VariableDeclarator varDecl = varDeclExpr.getVars().get(0);
 
-		Class<?> clazz = converTypeToClass(getType(scope));
-
-		String methodName = methodCallExpr.getName();
-		Class<?>[] paramClasses = getVarClasses(args);
-
-		Method method = getMethod(clazz, methodName, paramClasses);
-
-		VariableReference callee = getVarRef(scope);
-		List<VariableReference> paramReferences = getVarRefs(args);
-
-		// there is only 3 poss. to call this fun.
-		// 1. to call without any assigm. return value
-		// 2. assigm. return value to var
-		// 3. call for for new var
-		AbstractStatement res = null;
-		if (addStatement) {
-			res = new MethodStatement(newTestCase, method, callee,
-					method.getGenericReturnType(), paramReferences);
-			newTestCase.addStatement(res);
-		} else {
-			res = new MethodStatement(newTestCase, method, callee,
-					method.getGenericReturnType(), paramReferences);
+		if (parserType instanceof PrimitiveType) {
+			if (varDecl.getInit() instanceof MethodCallExpr) {
+				return createMethodSttm((MethodCallExpr) varDecl.getInit());
+			} else {
+				return createPrimitiveStatement(varDeclExpr);
+			}
 		}
-		return res;
-	}
-
-	/**
-	 * @param currentTestCase
-	 * @param expression
-	 * @param newTestCase
-	 * @throws ParseException
-	 */
-	private void createAssignStatments(AssignExpr assignExpr)
-			throws ParseException {
-		VariableReference varReference = null;
-		VariableReference valReference = null;
-		switch (assignExpr.getOperator()) {
-		case assign:
-			varReference = getVarRef(assignExpr.getTarget());
-			valReference = getVarRef(assignExpr.getValue());
-			break;
+		if (parserType instanceof ReferenceType) {
+			return createReferenceType(varDeclExpr);
 		}
 
-		if (varReference != null && valReference != null) {
-			newTestCase.addStatement(new AssignmentStatement(newTestCase,
-					varReference, valReference));
-		} else {
-			throw new ParseException(null, "Can not create or find var ref.");
-		}
+		throw new ParseException(null, "Can not create variable statement.");
 	}
 
 	/**
@@ -285,39 +182,36 @@ public class TestParser {
 	 * @return res type of Evosuite
 	 * @throws ParseException
 	 */
-	private PrimitiveStatement<?> createPrimitiveStatement(Type parserType,
-			VariableDeclarator varDeclarator) throws ParseException {
+	private PrimitiveStatement<?> createPrimitiveStatement(
+			VariableDeclarationExpr varDeclExpr) throws ParseException {
 
-		PrimitiveType primType = (PrimitiveType) parserType;
+		PrimitiveType primType = (PrimitiveType) varDeclExpr.getType();
+		String init = varDeclExpr.getVars().get(0).getInit().toString();
 
 		switch (primType.getType()) {
 		case Char:
-			return new CharPrimitiveStatement(newTestCase, varDeclarator
-					.getInit().toString().charAt(1));
+			return new CharPrimitiveStatement(newTestCase, init.charAt(1));
 		case Byte:
-			return new BytePrimitiveStatement(newTestCase,
-					Byte.parseByte(varDeclarator.getInit().toString()));
+			return new BytePrimitiveStatement(newTestCase, Byte.parseByte(init));
 		case Short:
 			return new ShortPrimitiveStatement(newTestCase,
-					Short.parseShort(varDeclarator.getInit().toString()));
+					Short.parseShort(init));
 		case Int:
 			return new IntPrimitiveStatement(newTestCase,
-					Integer.parseInt(varDeclarator.getInit().toString()));
+					Integer.parseInt(init));
 		case Long:
-			return new LongPrimitiveStatement(newTestCase,
-					Long.parseLong(varDeclarator.getInit().toString()));
+			return new LongPrimitiveStatement(newTestCase, Long.parseLong(init));
 		case Float:
 			return new FloatPrimitiveStatement(newTestCase,
-					Float.parseFloat(varDeclarator.getInit().toString()));
+					Float.parseFloat(init));
 		case Double:
 			return new DoublePrimitiveStatement(newTestCase,
-					Double.parseDouble(varDeclarator.getInit().toString()));
+					Double.parseDouble(init));
 		case Boolean:
 			return new BooleanPrimitiveStatement(newTestCase,
-					Boolean.parseBoolean(varDeclarator.getInit().toString()));
+					Boolean.parseBoolean(init));
 		default:
-			throw new IllegalArgumentException(
-					"convertPrimitiveType(Type parsType) can't obtain primitive Type");
+			throw new ParseException(null, "Can't obtain primitive type.");
 		}
 	}
 
@@ -329,24 +223,18 @@ public class TestParser {
 	 * @return
 	 * @throws ParseException
 	 */
-	private AbstractStatement createReferenceType(Type parserType,
-			VariableDeclarator variableDeclarator) throws ParseException {
+	private AbstractStatement createReferenceType(
+			VariableDeclarationExpr varDeclExpr) throws ParseException {
 		AbstractStatement res = null;
-		Expression rightExpression = variableDeclarator.getInit();
+		Expression initExpr = varDeclExpr.getVars().get(0).getInit();
+		Type parserType = varDeclExpr.getType();
 
-		if (rightExpression != null) {
-			// case of assign: methCall, just another var, some el of array etc
-			if (rightExpression instanceof MethodCallExpr) {
-				// TODO can be part of MethodCallExpr of Primitive type!!!
-				System.out.println("Can not assigen value by methad call");
-			}
+		if (initExpr != null) {
+			if (initExpr instanceof ObjectCreationExpr) {
+				ObjectCreationExpr objCreatExpr = (ObjectCreationExpr) initExpr;
 
-			// case of creation new Object
-			if (rightExpression instanceof ObjectCreationExpr) {
-				ObjectCreationExpr objCreatExpr = (ObjectCreationExpr) rightExpression;
-
-				Class<?> clazz = converTypeToClass(parserType);
-				Class<?>[] paramTypes = convertTypesToClasses(objCreatExpr
+				Class<?> clazz = typeToClass(parserType);
+				Class<?>[] paramTypes = typesToClasses(objCreatExpr
 						.getTypeArgs());
 				List<VariableReference> params = getVarRefs(objCreatExpr
 						.getArgs());
@@ -355,25 +243,23 @@ public class TestParser {
 				try {
 					constructor = clazz.getConstructor(paramTypes);
 				} catch (SecurityException e) {
-					System.out.println("345 TestParser.newConstructorStatemen");
 					e.printStackTrace();
 				} catch (NoSuchMethodException e) {
-					System.out.println("348 TestParser.newConstructorStatemen");
-					e.printStackTrace();
+					throw new ParseException(null, "No such method in this class.");
 				}
 
 				res = new ConstructorStatement(newTestCase, constructor, clazz,
 						params);
 			}
-
-			// Array
-			if (rightExpression instanceof ArrayCreationExpr) {
-				ArrayCreationExpr arrayCreationExpr = (ArrayCreationExpr) rightExpression;
+			if (initExpr instanceof ArrayCreationExpr) {
+				ArrayCreationExpr arrayCreationExpr = (ArrayCreationExpr) initExpr;
 
 				// Array can't be created with var. length
 				int arraySize = Integer.parseInt(arrayCreationExpr
 						.getDimensions().get(0).toString());
-				Class<?> clazz = converTypeToClass(arrayCreationExpr.getType());
+				Class<?> clazz = typeToClass(arrayCreationExpr.getType());
+
+				// TODO check for the best way to get that@#%@#%^
 				Object array = Array.newInstance(clazz, arraySize);
 
 				res = new ArrayStatement(newTestCase, array.getClass(),
@@ -388,23 +274,75 @@ public class TestParser {
 	}
 
 	/**
+	 * @param methodCallExpr
+	 * @param addStatement
+	 * @return
+	 * @throws ParseException
+	 */
+	private AbstractStatement createMethodSttm(MethodCallExpr methodCallExpr)
+			throws ParseException {
+
+		Expression scope = methodCallExpr.getScope();
+		List<Expression> args = methodCallExpr.getArgs();
+
+		Class<?> clazz = typeToClass(getType(scope));
+
+		String methodName = methodCallExpr.getName();
+		Class<?>[] paramClasses = getVarClasses(args);
+
+		Method method = getMethod(clazz, methodName, paramClasses);
+
+		VariableReference callee = getVarRef(scope);
+		List<VariableReference> paramReferences = getVarRefs(args);
+
+		return new MethodStatement(newTestCase, method, callee,
+				method.getGenericReturnType(), paramReferences);
+	}
+
+	/**
+	 * @param currentTestCase
+	 * @param expression
+	 * @param newTestCase
+	 * @throws ParseException
+	 */
+	private AbstractStatement createAssignSttm(AssignExpr assignExpr)
+			throws ParseException {
+		VariableReference varRef = getVarRef(assignExpr.getTarget());
+		VariableReference valRef = getVarRef(assignExpr.getValue());
+
+		if (varRef == null) {
+			throw new ParseException(null,
+					"Can not create or find var reference: "
+							+ assignExpr.getTarget());
+		}
+		if (valRef == null) {
+			throw new ParseException(null,
+					"Can not create or find var reference: "
+							+ assignExpr.getValue());
+		}
+		return new AssignmentStatement(newTestCase, varRef, valRef);
+	}
+
+	/**
 	 * @param parserType
 	 * @param varDeclarator
 	 * @param newStatement
+	 * @throws ParseException
 	 */
-	private void addNewVarToTT(Type parserType,
-			VariableDeclarator varDeclarator, AbstractStatement newStatement) {
+	private void addNewVarToTT(VariableDeclarationExpr varDeclExpr,
+			AbstractStatement newStatement) throws ParseException {
 		ArrayList<VariableReference> varRefArray = new ArrayList<VariableReference>();
 		varRefArray.addAll(newStatement.getVariableReferences());
-		String varBinding = "var" + (varDeclarator.getBeginLine() - 1);
+		String varBinding = "var" + (varDeclExpr.getBeginLine() - 1);
+
 		VariableReference varRef = null;
 		for (VariableReference tVarRef : varRefArray) {
 			if (varBinding.equals(tVarRef.getName())) {
 				varRef = tVarRef;
 			}
 		}
-		tt.addVar(new Var(varDeclarator.getId().getName(), varBinding,
-				parserType, varRef));
+		tt.addVar(new Var(varDeclExpr.getVars().get(0).getId().getName(),
+				varBinding, varDeclExpr.getType(), varRef));
 	}
 
 	/**
@@ -466,21 +404,21 @@ public class TestParser {
 	private Class<?>[] getVarClasses(List<Expression> args)
 			throws ParseException {
 		List<Class<?>> tmpRes = new ArrayList<Class<?>>();
+
 		if (args != null) {
 			for (Expression expr : args) {
 				if (expr instanceof NameExpr) {
-					tmpRes.add(converTypeToClass(getType(expr)));
+					String varName = ((NameExpr) expr).getName();
+					tmpRes.add(tt.getVarReference(varName).getVariableClass());
 				}
 				if (expr instanceof FieldAccessExpr) {
 					tmpRes.add(getField(expr).getType());
 				}
 				if (expr instanceof ArrayAccessExpr) {
-					ArrayAccessExpr arrayAccExpr = (ArrayAccessExpr) expr;
-
-					ArrayReference arrayRef = (ArrayReference) tt
-							.getVarReference(arrayAccExpr.getName().toString());
-					tmpRes.add(arrayRef.getComponentClass());
-					System.out.println(arrayRef.getComponentClass());
+					String arrayName = ((ArrayAccessExpr) expr).getName()
+							.toString();
+					tmpRes.add(tt.getVarReference(arrayName)
+							.getComponentClass());
 				}
 			}
 		}
@@ -496,7 +434,7 @@ public class TestParser {
 	private Field getField(Expression expr) throws ParseException {
 		FieldAccessExpr fieldExpr = (FieldAccessExpr) expr;
 
-		Class<?> clazz = converTypeToClass(getType(fieldExpr.getScope()));
+		Class<?> clazz = typeToClass(getType(fieldExpr.getScope()));
 
 		try {
 			return clazz.getField(fieldExpr.getField());
@@ -513,7 +451,7 @@ public class TestParser {
 	 * @return
 	 * @throws ParseException
 	 */
-	private Class<?>[] convertTypesToClasses(List<Type> typeArgs)
+	private Class<?>[] typesToClasses(List<Type> typeArgs)
 			throws ParseException {
 		if (typeArgs == null) {
 			return null;
@@ -521,7 +459,7 @@ public class TestParser {
 
 		List<Class<?>> tmpRes = new ArrayList<Class<?>>();
 		for (Type type : typeArgs) {
-			tmpRes.add(converTypeToClass(type));
+			tmpRes.add(typeToClass(type));
 		}
 
 		Class<?>[] res = new Class<?>[tmpRes.size()];
@@ -534,18 +472,17 @@ public class TestParser {
 	 * @return
 	 * @throws ParseException
 	 */
-	private Class<?> converTypeToClass(Type parsType) throws ParseException {
+	private Class<?> typeToClass(Type parsType) throws ParseException {
 		if (parsType instanceof PrimitiveType) {
 			PrimitiveType primitiveParamType = (PrimitiveType) parsType;
-
-			return convertPrimitiveType(primitiveParamType);
+			return primitiveTypeToClass(primitiveParamType);
 		}
 		if (parsType instanceof ReferenceType) {
 			ReferenceType refType = (ReferenceType) parsType;
-			return convertRefType(refType);
+			return refTypeToClass(refType);
 		}
 		if (parsType instanceof ClassOrInterfaceType) {
-			return convertCOIType(parsType);
+			return coiTypeToClass(parsType);
 		}
 		if (parsType instanceof VoidType) {
 			throw new ParseException(null, "Can not load class for VoidType.");
@@ -562,7 +499,7 @@ public class TestParser {
 	 * @return
 	 * @throws ParseException
 	 */
-	private Class<?> convertPrimitiveType(PrimitiveType primitiveParamType)
+	private Class<?> primitiveTypeToClass(PrimitiveType primitiveParamType)
 			throws ParseException {
 		switch (primitiveParamType.getType()) {
 		case Char:
@@ -592,7 +529,7 @@ public class TestParser {
 	 * @return
 	 * @throws ParseException
 	 */
-	private Class<?> convertRefType(ReferenceType refType)
+	private Class<?> refTypeToClass(ReferenceType refType)
 			throws ParseException {
 		String fullClassName = Properties.PROJECT_PREFIX + "."
 				+ refType.getType();
@@ -610,7 +547,7 @@ public class TestParser {
 	 * @return
 	 * @throws ParseException
 	 */
-	private Class<?> convertCOIType(Type parsType) throws ParseException {
+	private Class<?> coiTypeToClass(Type parsType) throws ParseException {
 		String fullClassName = Properties.PROJECT_PREFIX + "." + parsType;
 		try {
 			return TestCluster.classLoader.loadClass(fullClassName);
@@ -631,7 +568,6 @@ public class TestParser {
 	 */
 	private Method getMethod(Class<?> clazz, String methodName,
 			Class<?>[] parameterTypes) throws ParseException {
-		System.out.println("adsasdzxc " + parameterTypes.length);
 		try {
 			return clazz.getMethod(methodName, parameterTypes);
 		} catch (SecurityException e) {
@@ -642,10 +578,6 @@ public class TestParser {
 			String classNames = "";
 			for (Class<?> paramType : parameterTypes) {
 				classNames += paramType.getName() + " ";
-				System.out.println(paramType.getCanonicalName());
-				System.out.println(paramType.getModifiers());
-				System.out.println(paramType.getName());
-				System.out.println(paramType.getSimpleName());
 			}
 			throw new ParseException(null, "Can not find the method: "
 					+ methodName + " with parameter(s): " + classNames);
@@ -715,110 +647,110 @@ public class TestParser {
 		return Character.isUpperCase(varName.charAt(0));
 	}
 
-	private void printTypeOfExpr(Expression expr) {
-		if (expr instanceof AnnotationExpr) {
-			System.out.println("Expr: " + expr + " is AnnotationExpr.");
-		}
-		if (expr instanceof ArrayAccessExpr) {
-			System.out.println("Expr: " + expr + " is ArrayAccessExpr.");
-		}
-		if (expr instanceof ArrayCreationExpr) {
-			System.out.println("Expr: " + expr + " is ArrayCreationExpr.");
-		}
-		if (expr instanceof ArrayInitializerExpr) {
-			System.out.println("Expr: " + expr + " is ArrayInitializerExpr.");
-		}
-		if (expr instanceof AssignExpr) {
-			System.out.println("Expr: " + expr + " is AssignExpr.");
-		}
-		if (expr instanceof BinaryExpr) {
-			System.out.println("Expr: " + expr + " is BinaryExpr.");
-		}
-		if (expr instanceof BooleanLiteralExpr) {
-			System.out.println("Expr: " + expr + " is BooleanLiteralExpr.");
-		}
-		if (expr instanceof CastExpr) {
-			System.out.println("Expr: " + expr + " is CastExpr.");
-		}
-		if (expr instanceof CharLiteralExpr) {
-			System.out.println("Expr: " + expr + " is CharLiteralExpr.");
-		}
-		if (expr instanceof ClassExpr) {
-			System.out.println("Expr: " + expr + " is ClassExpr.");
-		}
-		if (expr instanceof ConditionalExpr) {
-			System.out.println("Expr: " + expr + " is ConditionalExpr.");
-		}
-		if (expr instanceof DoubleLiteralExpr) {
-			System.out.println("Expr: " + expr + " is DoubleLiteralExpr.");
-		}
-		if (expr instanceof EnclosedExpr) {
-			System.out.println("Expr: " + expr + " is EnclosedExpr.");
-		}
-		if (expr instanceof FieldAccessExpr) {
-			System.out.println("Expr: " + expr + " is FieldAccessExpr.");
-		}
-		if (expr instanceof InstanceOfExpr) {
-			System.out.println("Expr: " + expr + " is InstanceOfExpr.");
-		}
-		if (expr instanceof IntegerLiteralExpr) {
-			System.out.println("Expr: " + expr + " is IntegerLiteralExpr.");
-		}
-		if (expr instanceof IntegerLiteralMinValueExpr) {
-			System.out.println("Expr: " + expr
-					+ " is IntegerLiteralMinValueExpr.");
-		}
-		if (expr instanceof LiteralExpr) {
-			System.out.println("Expr: " + expr + " is LiteralExpr.");
-		}
-		if (expr instanceof LongLiteralExpr) {
-			System.out.println("Expr: " + expr + " is LongLiteralExpr.");
-		}
-		if (expr instanceof LongLiteralMinValueExpr) {
-			System.out
-					.println("Expr: " + expr + " is LongLiteralMinValueExpr.");
-		}
-		if (expr instanceof MarkerAnnotationExpr) {
-			System.out.println("Expr: " + expr + " is MarkerAnnotationExpr.");
-		}
-		if (expr instanceof MethodCallExpr) {
-			System.out.println("Expr: " + expr + " is MethodCallExpr.");
-		}
-		if (expr instanceof NameExpr) {
-			System.out.println("Expr: " + expr + " is NameExpr.");
-		}
-		if (expr instanceof NormalAnnotationExpr) {
-			System.out.println("Expr: " + expr + " is NormalAnnotationExpr.");
-		}
-		if (expr instanceof NullLiteralExpr) {
-			System.out.println("Expr: " + expr + " is NullLiteralExpr.");
-		}
-		if (expr instanceof ObjectCreationExpr) {
-			System.out.println("Expr: " + expr + " is ObjectCreationExpr.");
-		}
-		if (expr instanceof QualifiedNameExpr) {
-			System.out.println("Expr: " + expr + " is QualifiedNameExpr.");
-		}
-		if (expr instanceof SingleMemberAnnotationExpr) {
-			System.out.println("Expr: " + expr
-					+ " is SingleMemberAnnotationExpr.");
-		}
-		if (expr instanceof StringLiteralExpr) {
-			System.out.println("Expr: " + expr + " is StringLiteralExpr.");
-		}
-		if (expr instanceof SuperExpr) {
-			System.out.println("Expr: " + expr + " is SuperExpr.");
-		}
-		if (expr instanceof ThisExpr) {
-			System.out.println("Expr: " + expr + " is ThisExpr.");
-		}
-		if (expr instanceof UnaryExpr) {
-			System.out.println("Expr: " + expr + " is UnaryExpr.");
-		}
-		if (expr instanceof VariableDeclarationExpr) {
-			System.out
-					.println("Expr: " + expr + " is VariableDeclarationExpr.");
-		}
-	}
+	// private void printTypeOfExpr(Expression expr) {
+	// if (expr instanceof AnnotationExpr) {
+	// System.out.println("Expr: " + expr + " is AnnotationExpr.");
+	// }
+	// if (expr instanceof ArrayAccessExpr) {
+	// System.out.println("Expr: " + expr + " is ArrayAccessExpr.");
+	// }
+	// if (expr instanceof ArrayCreationExpr) {
+	// System.out.println("Expr: " + expr + " is ArrayCreationExpr.");
+	// }
+	// if (expr instanceof ArrayInitializerExpr) {
+	// System.out.println("Expr: " + expr + " is ArrayInitializerExpr.");
+	// }
+	// if (expr instanceof AssignExpr) {
+	// System.out.println("Expr: " + expr + " is AssignExpr.");
+	// }
+	// if (expr instanceof BinaryExpr) {
+	// System.out.println("Expr: " + expr + " is BinaryExpr.");
+	// }
+	// if (expr instanceof BooleanLiteralExpr) {
+	// System.out.println("Expr: " + expr + " is BooleanLiteralExpr.");
+	// }
+	// if (expr instanceof CastExpr) {
+	// System.out.println("Expr: " + expr + " is CastExpr.");
+	// }
+	// if (expr instanceof CharLiteralExpr) {
+	// System.out.println("Expr: " + expr + " is CharLiteralExpr.");
+	// }
+	// if (expr instanceof ClassExpr) {
+	// System.out.println("Expr: " + expr + " is ClassExpr.");
+	// }
+	// if (expr instanceof ConditionalExpr) {
+	// System.out.println("Expr: " + expr + " is ConditionalExpr.");
+	// }
+	// if (expr instanceof DoubleLiteralExpr) {
+	// System.out.println("Expr: " + expr + " is DoubleLiteralExpr.");
+	// }
+	// if (expr instanceof EnclosedExpr) {
+	// System.out.println("Expr: " + expr + " is EnclosedExpr.");
+	// }
+	// if (expr instanceof FieldAccessExpr) {
+	// System.out.println("Expr: " + expr + " is FieldAccessExpr.");
+	// }
+	// if (expr instanceof InstanceOfExpr) {
+	// System.out.println("Expr: " + expr + " is InstanceOfExpr.");
+	// }
+	// if (expr instanceof IntegerLiteralExpr) {
+	// System.out.println("Expr: " + expr + " is IntegerLiteralExpr.");
+	// }
+	// if (expr instanceof IntegerLiteralMinValueExpr) {
+	// System.out.println("Expr: " + expr
+	// + " is IntegerLiteralMinValueExpr.");
+	// }
+	// if (expr instanceof LiteralExpr) {
+	// System.out.println("Expr: " + expr + " is LiteralExpr.");
+	// }
+	// if (expr instanceof LongLiteralExpr) {
+	// System.out.println("Expr: " + expr + " is LongLiteralExpr.");
+	// }
+	// if (expr instanceof LongLiteralMinValueExpr) {
+	// System.out
+	// .println("Expr: " + expr + " is LongLiteralMinValueExpr.");
+	// }
+	// if (expr instanceof MarkerAnnotationExpr) {
+	// System.out.println("Expr: " + expr + " is MarkerAnnotationExpr.");
+	// }
+	// if (expr instanceof MethodCallExpr) {
+	// System.out.println("Expr: " + expr + " is MethodCallExpr.");
+	// }
+	// if (expr instanceof NameExpr) {
+	// System.out.println("Expr: " + expr + " is NameExpr.");
+	// }
+	// if (expr instanceof NormalAnnotationExpr) {
+	// System.out.println("Expr: " + expr + " is NormalAnnotationExpr.");
+	// }
+	// if (expr instanceof NullLiteralExpr) {
+	// System.out.println("Expr: " + expr + " is NullLiteralExpr.");
+	// }
+	// if (expr instanceof ObjectCreationExpr) {
+	// System.out.println("Expr: " + expr + " is ObjectCreationExpr.");
+	// }
+	// if (expr instanceof QualifiedNameExpr) {
+	// System.out.println("Expr: " + expr + " is QualifiedNameExpr.");
+	// }
+	// if (expr instanceof SingleMemberAnnotationExpr) {
+	// System.out.println("Expr: " + expr
+	// + " is SingleMemberAnnotationExpr.");
+	// }
+	// if (expr instanceof StringLiteralExpr) {
+	// System.out.println("Expr: " + expr + " is StringLiteralExpr.");
+	// }
+	// if (expr instanceof SuperExpr) {
+	// System.out.println("Expr: " + expr + " is SuperExpr.");
+	// }
+	// if (expr instanceof ThisExpr) {
+	// System.out.println("Expr: " + expr + " is ThisExpr.");
+	// }
+	// if (expr instanceof UnaryExpr) {
+	// System.out.println("Expr: " + expr + " is UnaryExpr.");
+	// }
+	// if (expr instanceof VariableDeclarationExpr) {
+	// System.out
+	// .println("Expr: " + expr + " is VariableDeclarationExpr.");
+	// }
+	// }
 
 }
