@@ -74,9 +74,17 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 						boolean staticContext = v.isStaticDefUse()
 								|| ((access & Opcodes.ACC_STATIC) > 0);
 						// adding instrumentation for defuse-coverage
-						mn.instructions.insert(v.getASMNode().getPrevious(),
-								getInstrumentation(v, staticContext, className,
-										methodName));
+						InsnList instrumentation = getInstrumentation(v, staticContext, className,
+								methodName);
+						if(instrumentation == null)
+							throw new IllegalStateException("error instrumenting node "+v.toString());
+						
+//						AbstractInsnNode prev = v.getASMNode().getPrevious();
+//						if(prev == null) // no previous instruction
+//							mn.instructions.insert(instrumentation);
+//						else
+							mn.instructions.insertBefore(v.getASMNode(),
+								instrumentation);
 					}
 				}
 			}
@@ -93,18 +101,15 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 
 		// TODO you only have to pass the defID/useID and not the variable and
 		// class anymore, that can be retrieved from the DefUsePool
-		
 		// TODO clean up
-		
 		// TODO sanity check matching method/class names and field values of v?
 		if (!v.isDefUse()) {
 			logger
 					.warn("unexpected DefUseInstrumentation call for a non-DU-instruction");
 			return instrumentation;
 		}
-
 		DefUse targetDU = DefUseFactory.makeInstance(v);
-
+//		System.out.println("instrumenting: "+targetDU.toString());
 		if (DefUsePool.isKnownAsUse(v)) {
 
 			if (targetDU.getUseId() != DefUsePool.getUseCounter())
@@ -126,11 +131,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 							"passedUse",
 							"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;I)V"));
 		}
-
 		if (DefUsePool.isKnownAsDefinition(v)) {
-			
-			
-			
 			instrumentation.add(new LdcInsnNode(className));
 			instrumentation.add(new LdcInsnNode(targetDU.getDUVariableName()));
 			instrumentation.add(new LdcInsnNode(methodName));
@@ -146,7 +147,6 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 							"passedDefinition",
 							"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;I)V"));
 		}
-
 		return instrumentation;
 	}
 
