@@ -281,9 +281,6 @@ public abstract class DefUseExecutionTraceAnalyzer {
 		Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedUses = result
 				.getTrace().passedUses;
 
-		List<DefUseCoverageTestFitness> validGoals = DefUseCoverageFactory
-				.getDUGoals();
-
 		for (String goalVariable : passedDefs.keySet()) {
 			if (passedUses.get(goalVariable) == null)
 				continue;
@@ -316,8 +313,8 @@ public abstract class DefUseExecutionTraceAnalyzer {
 					} else if (activeDef != -1) {
 						int currentUse = currentUseMap.get(currentDUCounter);
 						DefUseCoverageTestFitness currentGoal = DefUseCoverageFactory
-								.createGoal(activeDef, currentUse);
-						if(validGoals.contains(currentGoal))
+								.retrieveGoal(activeDef, currentUse);
+						if(currentGoal != null)
 							r.add(currentGoal);
 					}
 				}

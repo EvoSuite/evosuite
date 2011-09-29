@@ -224,7 +224,9 @@ public class TestSuiteGenerator {
 		if (Properties.JUNIT_TESTS) {
 			TestSuite suite = new TestSuite(tests);
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
-			String testDir = Properties.TEST_DIR;// + "/" + Properties.CRITERION;
+			String testDir = Properties.TEST_DIR;
+			if(analyzing)
+			  testDir = testDir + "/" + Properties.CRITERION;
 			System.out.println("* Writing JUnit test cases to " + testDir);
 			suite.writeTestSuite("Test" + name, testDir);
 		}
@@ -365,13 +367,8 @@ public class TestSuiteGenerator {
 
 		ga.printBudget();
 
-		if (Properties.CRITERION == Criterion.DEFUSE) {
-			int covered = DefUseCoverageSuiteFitness.mostCoveredGoals;
-			int total = DefUseCoverageSuiteFitness.totalGoals;
-			System.out.println("* Covered " + covered + "/" + total + " goals");
-			System.out.println("* Time spent optimizing covered goals analysis: "
-			        + DefUseExecutionTraceAnalyzer.timeGetCoveredGoals + "ms");
-		}
+		if (Properties.CRITERION == Criterion.DEFUSE)
+			DefUseCoverageSuiteFitness.printCoverage();
 
 		return best.getTests();
 	}
@@ -751,7 +748,7 @@ public class TestSuiteGenerator {
 			minimizer.minimize(suite);
 			logger.info("Size after: " + suite.totalLengthOfTestCases());
 		}
-
+		
 		/*
 		 * if(Properties.MINIMIZE) { System.out.println("* Minimizing result");
 		 * TestSuiteMinimizer minimizer = new TestSuiteMinimizer();

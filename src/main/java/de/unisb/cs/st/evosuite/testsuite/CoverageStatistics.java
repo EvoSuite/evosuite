@@ -16,8 +16,8 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.Properties.Strategy;
+import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
-import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.utils.ReportGenerator;
@@ -29,6 +29,7 @@ public class CoverageStatistics {
 			.getLogger(ReportGenerator.class);
 
 	protected static Map<Criterion, Map<Criterion, Double>> coverages = new HashMap<Criterion, Map<Criterion, Double>>();
+	protected static Map<Criterion, DefUseCoverageSuiteFitness> defuseCoverage = new HashMap<Criterion, DefUseCoverageSuiteFitness>();
 	protected static Map<Criterion, Double> combinedCoverages = new HashMap<Criterion, Double>();
 	protected static Map<Criterion, StatisticEntry> statistics = new HashMap<Criterion, StatisticEntry>();
 	protected static Map<Criterion, List<TestCase>> tests = new HashMap<Criterion, List<TestCase>>();
@@ -48,36 +49,52 @@ public class CoverageStatistics {
 		System.out.println("* Measured Coverage:");
 
 		for (Criterion criterion : supportedCriteria) {
-			getFitness(criterion,best);
-			System.out.println("\t- "+criterion+": "
-					+ NumberFormat.getPercentInstance().format(best.getCoverage()));
-			setCoverage(criterion,best.getCoverage());
+			TestSuiteFitnessFunction fitness = getFitness(criterion, best);
+			System.out.println("\t- "
+					+ criterion
+					+ ": "
+					+ NumberFormat.getPercentInstance().format(
+							best.getCoverage()));
+			setCoverage(criterion, best.getCoverage());
+			if (fitness instanceof DefUseCoverageSuiteFitness) {
+				defuseCoverage.put(Properties.CRITERION,
+						(DefUseCoverageSuiteFitness) fitness);
+			}
 		}
 
 		setStatisticEntry(SearchStatistics.getInstance()
 				.getLastStatisticEntry());
 	}
-	
+
 	public static void computeCombinedCoverages() {
 
 		// create big suite
 		ChromosomeFactory<TestChromosome> fac = null;
 		TestSuiteChromosome testChrom = new TestSuiteChromosome(fac);
 		for (Criterion criterion : supportedCriteria)
-			for(TestCase test : tests.get(criterion))
+			for (TestCase test : tests.get(criterion))
 				testChrom.addTest(test);
 
 		TestSuiteGenerator.writeJUnitTests(testChrom.getTests());
-		
-		for(Criterion criterion : supportedCriteria) {
-			getFitness(criterion, testChrom);
+
+		for (Criterion criterion : supportedCriteria) {
+			TestSuiteFitnessFunction fitness = getFitness(criterion, testChrom);
 			combinedCoverages.put(criterion, testChrom.getCoverage());
+
+			if (fitness instanceof DefUseCoverageSuiteFitness) {
+				defuseCoverage.put(Criterion.ANALYZE,
+						(DefUseCoverageSuiteFitness) fitness);
+			}
 		}
 	}
 
-	private static void getFitness(Criterion criterion, TestSuiteChromosome best) {
-		TestSuiteFitnessFunction fitness = TestSuiteGenerator.getFitnessFunction(criterion);
+	private static TestSuiteFitnessFunction getFitness(Criterion criterion,
+			TestSuiteChromosome best) {
+		TestSuiteFitnessFunction fitness = TestSuiteGenerator
+				.getFitnessFunction(criterion);
 		fitness.getFitness(best);
+
+		return fitness;
 	}
 
 	public static void writeCSV() {
@@ -88,24 +105,42 @@ public class CoverageStatistics {
 					true));
 
 			for (Criterion testCoverage : supportedCriteria) {
-				out.write(Properties.TARGET_CLASS);
-				out.write("," + testCoverage.toString());
+				out.write(Properties.TARGET_CLASS + ",");
+				out.write(testCoverage.toString() + ",");
+
 				for (Criterion currentCoverage : supportedCriteria)
-				out.write(","
-						+ formatCoverage(coverages.get(testCoverage).get(
-								currentCoverage)));
-						
+					out.write(formatCoverage(coverages.get(testCoverage).get(
+							currentCoverage))
+							+ ",");
+
+				DefUseCoverageSuiteFitness duCoverage = defuseCoverage
+						.get(testCoverage);
+				out.write(duCoverage.coveredParamGoals + ",");
+				out.write(DefUseCoverageSuiteFitness.totalParamGoals + ",");
+				out.write(duCoverage.coveredIntraGoals + ",");
+				out.write(DefUseCoverageSuiteFitness.totalIntraGoals + ",");
+				out.write(duCoverage.coveredInterGoals + ",");
+				out.write(DefUseCoverageSuiteFitness.totalInterGoals + ",");
+
 				double combined = combinedCoverages.get(testCoverage);
-				out.write(","+formatCoverage(combined));
-				out.write(","+formatCoverage(combined - coverages.get(testCoverage).get(testCoverage)));
+				out.write(formatCoverage(combined) + ",");
+				out.write(formatCoverage(combined
+						- coverages.get(testCoverage).get(testCoverage))
+						+ ",");
+
+				duCoverage = defuseCoverage.get(Criterion.ANALYZE);
+				out.write(duCoverage.coveredParamGoals + ",");
+				out.write(duCoverage.coveredIntraGoals + ",");
+				out.write(duCoverage.coveredInterGoals + ",");
+
 				if (Properties.STRATEGY == Strategy.EVOSUITE)
-					out.write(",suite,");
+					out.write("suite,");
 				else
-					out.write(",tests,");
+					out.write("tests,");
 				StatisticEntry statistic = statistics.get(testCoverage);
-				out.write(statistic.stoppingCondition+",");
-				out.write(statistic.globalTimeStoppingCondition+",");
-				out.write(statistic.timedOut+",");
+				out.write(statistic.stoppingCondition + ",");
+				out.write(statistic.globalTimeStoppingCondition + ",");
+				out.write(statistic.timedOut + ",");
 				out.write(statistic.getCSVData());
 				out.write("\n");
 			}
@@ -152,7 +187,10 @@ public class CoverageStatistics {
 		StatisticEntry dummyStat = SearchStatistics.getInstance()
 				.getLastStatisticEntry();
 
-		return "Class,TestCriterion,DefUse-Coverage,Branch-Coverage,Statement-Coverage,Combined-Coverage,Combined-Boost,Mode,Stopping Condition,Global Time,Timed Out,"
+		return "Class,TestCriterion,DefUse-Coverage,Branch-Coverage,Statement-Coverage,"
+				+ "Covered param goals,Total param goals,Covered intra goals,Total intra goals,Covered inter goals,Total inter goals,"
+				+ "Combined-Coverage,Combined-Boost,Combined param goals,Combined intra goals,Combined inter goals,"
+				+ "Mode,Stopping Condition,Global Time,Timed Out,"
 				+ dummyStat.getCSVHeader();
 	}
 
