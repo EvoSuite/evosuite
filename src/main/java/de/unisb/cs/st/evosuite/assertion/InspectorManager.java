@@ -30,11 +30,12 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
+import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.objectweb.asm.Type;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.testcase.TestCluster;
 
 public class InspectorManager {
 
@@ -70,7 +71,7 @@ public class InspectorManager {
 			//			String name = f.getName().replaceAll("_\\d+.inspectors$", "").replace("_", "$");
 			String name = f.getName().replaceAll(".inspectors", "").replace("_", "$");
 			try {
-				Class<?> clazz = Class.forName(name);
+				Class<?> clazz = TestCluster.classLoader.loadClass(name);
 				Scanner scanner = new Scanner(f);
 				Set<String> inspector_names = new HashSet<String>();
 				try {

@@ -45,7 +45,9 @@ public class AccessibleClassAdapter extends ClassAdapter {
 	public AccessibleClassAdapter(ClassVisitor cv, String className) {
 		super(cv);
 		className = className.replace('/', '.');
-		String packageName = className.substring(0, className.lastIndexOf('.'));
+		String packageName = "";
+		if (className.contains("."))
+			packageName = className.substring(0, className.lastIndexOf('.'));
 		if (!packageName.equals(Properties.CLASS_PREFIX)) {
 			exclude = true;
 		}

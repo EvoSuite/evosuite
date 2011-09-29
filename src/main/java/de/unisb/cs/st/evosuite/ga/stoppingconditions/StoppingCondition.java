@@ -102,7 +102,7 @@ public abstract class StoppingCondition implements SearchListener, Serializable 
 	 * 
 	 * @param limit
 	 */
-	public abstract void setLimit(int limit);
+	public abstract void setLimit(long limit);
 
 	/**
 	 * Get upper limit of resources
@@ -111,35 +111,54 @@ public abstract class StoppingCondition implements SearchListener, Serializable 
 	 * 
 	 * @return limit
 	 */
-	public abstract int getLimit();
+	public abstract long getLimit();
 
 	/**
 	 * How much of the budget have we used up
 	 * 
 	 * @return
 	 */
-	public abstract int getCurrentValue();
+	public abstract long getCurrentValue();
+	
+	/**
+	 * Force a specific amount of used up budget. Handle with care!
+	 * 
+	 * @param value The new amount of used up budget for this StoppingCondition
+	 */
+	public abstract void forceCurrentValue(long value);
 
 	@Override
 	public String toString() {
 		StringBuilder r = new StringBuilder();
+		String type = getType();
+		type += " :";
+		type = StringUtils.rightPad(type, 24);
+		r.append(type);
+		r.append(getValueString());
+		if (isFinished())
+			r.append(" Finished!");
+
+		return r.toString();
+	}
+	
+	public String getType() {
 		String type = getClass().toString();
 		try { // just to make sure
 			type = type.substring(type.lastIndexOf(".") + 1);
 		} catch (Exception e) {
 		}
-		type = type.substring(0, type.length() - 17); // cut away "StoppingCondition" suffix
-		type += " :";
-		type = StringUtils.rightPad(type, 24);
-		r.append(type);
+		// cut away "StoppingCondition" suffix
+		if (type.endsWith("StoppingCondition"))
+			type = type.substring(0, type.length() - 17);
+		
+		return type;
+	}
+	
+	public String getValueString() {
 		String value = NumberFormat.getIntegerInstance().format(getCurrentValue());
 		value = StringUtils.leftPad(value, 12);
 		String limit = NumberFormat.getIntegerInstance().format(getLimit());
 		limit = StringUtils.rightPad(limit, 12);
-		r.append(value + " / " + limit);
-		if (isFinished())
-			r.append(" Finished!");
-
-		return r.toString();
+		return value + " / " + limit;
 	}
 }

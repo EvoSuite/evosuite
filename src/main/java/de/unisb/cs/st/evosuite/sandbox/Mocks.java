@@ -43,8 +43,11 @@ import de.unisb.cs.st.evosuite.utils.Utils;
  */
 class Mocks {
 
-	/** Folder where IO should happen, if mocks are enabled */
-	private final String sandboxPath;
+	/** Folder where EvoSuite will write during test case execution */
+	private final String sandboxWriteFolder;
+	
+	/** Folder from which EvoSuite will read during test case execution */
+	private final String sandboxReadFolder;
 
 	/** If mocks already created */
 	private boolean mocksEnabled = false;
@@ -75,21 +78,25 @@ class Mocks {
 		// Using File class in order to get absolute path of the sandbox
 		// folder.
 		File f = new File(Properties.SANDBOX_FOLDER);
-		sandboxPath = f.getAbsolutePath() + "/";
+		sandboxWriteFolder = f.getAbsolutePath() + "/write/";
+		sandboxReadFolder = f.getAbsolutePath() + "/read/";
 	}
 
 	/**
 	 * Initialize mocks in case the MOCKS property is set to true
 	 */
 	public void setUpMocks() {
-		Utils.createDir(sandboxPath);
+		Utils.createDir(sandboxWriteFolder);
+		Utils.createDir(sandboxReadFolder);
 		setUpMockedClasses();
 		if(mock_strategies.contains("io")){
 			setUpFileOutputStreamMock();
 			setUpFileMock();
 			setUpFileInputStreamMock();
 		}
-		setUpSystemMock();
+		if(mock_strategies.contains("everything") ||
+				mock_strategies.contains("external"))
+			setUpSystemMock();
 		mocksEnabled = true;
 	}
 
@@ -99,7 +106,7 @@ class Mocks {
 	public void tearDownMocks() {
 		if (mocksEnabled) {
 			Mockit.tearDownMocks();
-			Utils.deleteDir(sandboxPath);
+			Utils.deleteDir(sandboxWriteFolder);
 			mocksEnabled = false;
 			filesAccessed.clear();
 			classesMocked.clear();
@@ -114,7 +121,11 @@ class Mocks {
 		
 		// Read available mocks from the file
 		Set<String> ci = new HashSet<String>();
-		ci.addAll(Utils.readFile("evosuite-files/" + targetClass + ".CIs"));
+		try{
+			ci.addAll(Utils.readFile("evosuite-files/" + targetClass + ".CIs"));
+		}catch (Exception e){
+			return;
+		}
 		
 		for (String c : ci){
 			try {
@@ -167,7 +178,7 @@ class Mocks {
 	 * Create mocks for the class java.io.FileOutputStream
 	 */
 	private void setUpFileOutputStreamMock() {
-		new MockUp<FileOutputStream>() {
+		new MockUp<java.io.FileOutputStream>() {
 			FileOutputStream it;
 
 			@SuppressWarnings("unused")
@@ -181,7 +192,8 @@ class Mocks {
 				if (name == null) {
 					throw new NullPointerException();
 				}
-				name = sandboxPath + name;
+				if(!name.contains(sandboxWriteFolder))
+					name = sandboxWriteFolder + name.replaceAll("\\.\\.", "").replaceAll("//", "/");
 
 				try {
 					Deencapsulation.setField(it, "closeLock", new Object());
@@ -206,7 +218,7 @@ class Mocks {
 	 * Create mocks for the class java.lang.System
 	 */
 	private void setUpSystemMock() {
-		new MockUp<System>() {
+		new MockUp<java.lang.System>() {
 			@SuppressWarnings("unused")
 			@Mock
 			// Mock method public Properties getProperties();
@@ -237,10 +249,9 @@ class Mocks {
 				String originalPath = Deencapsulation.getField(it, "path");
 
 				// Check if original path was already changed, if not - redirect it
-				if (!originalPath.contains(sandboxPath) || !filePathChanged) {
+				if (!originalPath.contains(sandboxWriteFolder) && !filePathChanged) {
 					String changedPath = Deencapsulation.invoke(fileSystem, "normalize",
-					                                            sandboxPath
-					                                                    + originalPath);
+							sandboxWriteFolder + originalPath.replaceAll("\\.\\.", "").replaceAll("//", "/"));
 					filePathChanged = true;
 					Deencapsulation.setField(it, "path", changedPath);
 				}
@@ -290,14 +301,19 @@ class Mocks {
 					Deencapsulation.invoke(fd, "incrementAndGetUseCount");
 					Deencapsulation.setField(it, "fd", fd);
 
-					String pathToOpen = name;
-
+					String originalPath = name.replaceAll("\\.\\.", "").replaceAll("//", "/");
+					String modifiedPath = originalPath;
 					if (checkStackTrace()) {
-						pathToOpen = sandboxPath + pathToOpen;
-						filesAccessed.add(pathToOpen);
+						if(!originalPath.contains(sandboxWriteFolder))
+							if((new File(sandboxWriteFolder + originalPath)).exists())
+								modifiedPath = sandboxWriteFolder + originalPath;
+							else
+								if(!originalPath.contains(sandboxReadFolder))
+									modifiedPath = sandboxReadFolder + originalPath;
+						filesAccessed.add(modifiedPath);
 					}
 
-					Deencapsulation.invoke(it, "open", pathToOpen);
+					Deencapsulation.invoke(it, "open", modifiedPath);
 				} catch (IllegalArgumentException e) {
 					e.printStackTrace();
 				}

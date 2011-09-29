@@ -16,6 +16,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	private static final long serialVersionUID = 1L;
 
 	protected List<T> tests = new ArrayList<T>();
+	protected List<Boolean> unmodifiableTests = new ArrayList<Boolean>();
 	protected ChromosomeFactory<T> testChromosomeFactory;
 	protected double coverage = 0.0;
 
@@ -33,7 +34,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		this(source.testChromosomeFactory);
 
 		for (T test : source.tests) {
-			this.tests.add((T) test.clone());
+			addTest((T) test.clone());
 		}
 
 		this.setFitness(source.getFitness());
@@ -43,6 +44,13 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 
 	public void addTest(T test) {
 		tests.add(test);
+		unmodifiableTests.add(false);
+		this.setChanged(true);
+	}
+
+	public void addUnmodifiableTest(T test) {
+		tests.add(test);
+		unmodifiableTests.add(true);
 		this.setChanged(true);
 	}
 
@@ -63,10 +71,12 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 
 		while (tests.size() > position1) {
 			tests.remove(position1);
+			unmodifiableTests.remove(position1);
 		}
 
 		for (int num = position2; num < other.size(); num++) {
 			tests.add((T) chromosome.tests.get(num).clone());
+			unmodifiableTests.add(chromosome.unmodifiableTests.get(num).booleanValue());
 		}
 
 		this.setChanged(true);
@@ -100,7 +110,11 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		boolean changed = false;
 
 		// Mutate existing test cases
-		for (T test : tests) {
+		for (int i = 0; i < tests.size(); i++) {
+			T test = tests.get(i);
+			if (unmodifiableTests.get(i) == true)
+				continue;
+
 			if (Randomness.nextDouble() < 1.0 / tests.size()) {
 				test.mutate();
 				changed = true;
@@ -113,6 +127,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		for (int count = 1; Randomness.nextDouble() <= Math.pow(ALPHA, count)
 		        && size() < Properties.MAX_SIZE; count++) {
 			tests.add(testChromosomeFactory.getChromosome());
+			unmodifiableTests.add(false);
 			logger.debug("Adding new test case");
 			changed = true;
 		}

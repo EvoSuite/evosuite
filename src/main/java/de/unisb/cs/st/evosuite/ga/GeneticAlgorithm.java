@@ -37,7 +37,6 @@ import de.unisb.cs.st.evosuite.Properties.Strategy;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
-import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
@@ -139,7 +138,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * Apply local search
 	 */
 	protected void applyLocalSearch() {
-		logger.info("Applying local search");
+		logger.debug("Applying local search");
 		for (Chromosome individual : population) {
 			if (isFinished())
 				break;
@@ -458,16 +457,6 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		// Assume population is sorted
 		return population.get(0);
 	}
-	
-	
-	/**
-	 * For manual algorithm
-	 * 
-	 * @param testCase to remove
-	 */
-	public void removeFromBestIndividual(TestCase testCase) {
-		
-	}
 
 	/**
 	 * Set a new factory method
@@ -644,7 +633,15 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	public void printBudget() {
 		System.out.println("* GA-Budget:");
 		for (StoppingCondition sc : stopping_conditions)
-			System.out.println("  - " + sc.toString());
+			System.out.println("\t- " + sc.toString());
+	}
+	
+	public String getBudgetString() {
+		String r = "";
+		for(StoppingCondition sc : stopping_conditions)
+			r+=sc.toString()+" ";
+		
+		return r;
 	}
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {
@@ -670,9 +667,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 			addListener(SearchStatistics.getInstance());
 		}
 	}
-
+	
 	/**
-	 * 
+	 * Set pause before MA
 	 */
 	public void pauseGlobalTimeStoppingCondition() {
 		for (StoppingCondition c : stopping_conditions) {
@@ -683,7 +680,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	}
 	
 	/**
-	 * 
+	 * Resume from pause after MA
 	 */
 	public void resumeGlobalTimeStoppingCondition() {
 		for (StoppingCondition c : stopping_conditions) {

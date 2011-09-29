@@ -30,7 +30,7 @@ import de.unisb.cs.st.evosuite.ga.SearchListener;
  * @author Gordon Fraser
  * 
  */
-public class RelativeLengthBloatControl implements BloatControlFunction, SearchListener {
+public class RelativeTestLengthBloatControl implements BloatControlFunction, SearchListener {
 
 	private static final long serialVersionUID = -459141492060919204L;
 

@@ -54,61 +54,93 @@ public class InspectorTraceObserver extends ExecutionObserver {
 
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
-		try{
+		try {
 			VariableReference retval = statement.getReturnValue();
 
 			if (retval == null)
 				return;
 
+			logger.debug("Inspectors!");
+
 			// Add inspector calls on return value
 			List<Inspector> inspectors = manager.getInspectors(retval.getVariableClass());
-			if (retval.getObject(scope) != null && !inspectors.isEmpty()) {
+			if (retval.getObject(scope) != null && !inspectors.isEmpty()
+			        && exception == null) {
 				List<Object> result = new ArrayList<Object>();
 				for (Inspector i : inspectors) {
 					try {
-						Object value = i.getValue(retval.getObject(scope));
-						result.add(value);
-						// TODO: Need to keep reference to inspector if exception is thrown!
+						Object target = retval.getObject(scope);
+						if (target != null) {
+
+							Object value = i.getValue(target);
+							result.add(value);
+							logger.debug("Inspector " + i.getMethodCall() + " is: "
+							        + value);
+							// TODO: Need to keep reference to inspector if exception is thrown!
+						} else {
+							result.add(null);
+						}
 					} catch (IllegalArgumentException e) {
-						logger.info("Exception during call to inspector: " + e);
+						logger.debug("Exception during call to inspector: " + e);
+						result.add(null);
 						continue;
 					} catch (IllegalAccessException e) {
-						logger.info("Exception during call to inspector: " + e);
+						logger.debug("Exception during call to inspector: " + e);
+						result.add(null);
 						continue;
 					} catch (InvocationTargetException e) {
-						logger.info("Exception during call to inspector: " + e.getCause());
+						if (!e.getCause().getClass().equals(NullPointerException.class)) {
+							logger.debug("Exception during call to inspector: "
+							        + e.getCause());
+						}
+						result.add(null);
 						continue;
 					}
 				}
 
 				trace.inspector_results.put(statement.getPosition(), result);
-				trace.return_values.put(statement.getPosition(), retval);
+				trace.return_values.put(statement.getPosition(), retval.getStPosition());
+			} else {
+				logger.debug("No inspectors for " + retval + ": " + inspectors.isEmpty());
 			}
-
+			logger.debug("Checking for method call statement");
 			// Add inspector calls on callee
 			if (statement instanceof MethodStatement) {
 				MethodStatement ms = (MethodStatement) statement;
 				if (!ms.isStatic()) {
 					inspectors = manager.getInspectors(ms.getMethod().getDeclaringClass());
 					if (!inspectors.isEmpty()) {
+
 						trace.calleeMap.put(statement.getPosition(),
-								new HashMap<Inspector, Object>());
+						                    new HashMap<Inspector, Object>());
 
 						VariableReference callee = ms.getCallee();
-						if (callee.getObject(scope) == null)
+						if (callee.getObject(scope) == null) {
 							return;
+						}
 						for (Inspector i : inspectors) {
 							try {
-								Object value = i.getValue(callee.getObject(scope));
-								trace.calleeMap.get(statement.getPosition()).put(i, value);
+								Object target = callee.getObject(scope);
+								if (target != null) {
+									Object value = i.getValue(target);
+									logger.debug("Inspector " + i.getMethodCall()
+									        + " is: " + value);
+									trace.calleeMap.get(statement.getPosition()).put(i,
+									                                                 value);
+								}
 							} catch (Exception e) {
-								logger.info("Exception during call to inspector: " + e);
+								logger.debug("Exception " + e + " / " + e.getCause());
+								if (e.getCause() != null
+								        && !e.getCause().getClass().equals(NullPointerException.class)) {
+									logger.debug("Exception during call to inspector: "
+									        + e + " - " + e.getCause());
+								}
 							}
 						}
 					}
 				}
 			}
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 

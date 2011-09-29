@@ -24,6 +24,7 @@ import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTestCaseFactory;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * @author Gordon Fraser
@@ -40,7 +41,8 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteCh
 		testChromosomeFactory = new RandomLengthTestFactory();
 
 		if (Properties.CRITERION == Criterion.CONCURRENCY) {
-			//#TODO steenbuck we should wrap the original factory not replace it.
+			// #TODO steenbuck we should wrap the original factory not replace
+			// it.
 			testChromosomeFactory = new ConcurrencyTestCaseFactory();
 		}
 
@@ -57,10 +59,6 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteCh
 		testChromosomeFactory = factory;
 	}
 
-	public void setNumberOfTests(int num) {
-		Properties.NUM_TESTS = num;
-	}
-
 	@Override
 	public TestSuiteChromosome getChromosome() {
 
@@ -70,14 +68,16 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteCh
 		tracker.modification(chromosome);
 		// ((AllMethodsChromosomeFactory)test_factory).clear();
 
-		// TODO: Change to random number
-		for (int i = 0; i < Properties.NUM_TESTS; i++) {
-			TestChromosome test = (TestChromosome) testChromosomeFactory.getChromosome();
-			chromosome.tests.add(test);
+		int numTests = Randomness.nextInt(Properties.MIN_INITIAL_TESTS,
+		                                  Properties.MAX_INITIAL_TESTS + 1);
+
+		for (int i = 0; i < numTests; i++) {
+			TestChromosome test = testChromosomeFactory.getChromosome();
+			chromosome.addTest(test);
+			//chromosome.tests.add(test);
 		}
 		// logger.info("Covered methods: "+((AllMethodsChromosomeFactory)test_factory).covered.size());
 		// logger.trace("Generated new test suite:"+chromosome);
 		return chromosome;
 	}
-
 }

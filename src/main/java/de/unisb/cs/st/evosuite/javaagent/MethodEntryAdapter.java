@@ -80,4 +80,13 @@ public class MethodEntryAdapter extends AdviceAdapter {
 		                   "leftMethod", "(Ljava/lang/String;Ljava/lang/String;)V");
 		super.onMethodExit(opcode);
 	}
+
+	/* (non-Javadoc)
+	 * @see org.objectweb.asm.commons.LocalVariablesSorter#visitMaxs(int, int)
+	 */
+	@Override
+	public void visitMaxs(int maxStack, int maxLocals) {
+		int maxNum = 3;
+		super.visitMaxs(Math.max(maxNum, maxStack), maxLocals);
+	}
 }

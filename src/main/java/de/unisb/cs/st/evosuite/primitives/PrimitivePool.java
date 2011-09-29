@@ -85,16 +85,20 @@ public class PrimitivePool {
 
 	public void add(Object object) {
 		// Integer, a Float, a Long, a Double a
-
+		logger.debug("Adding to pool: " + object);
 		if (object == null)
 			return;
 		else if (object instanceof String) {
 			if (!((String) object).startsWith("mutationId"))
 				string_pool.add((String) object);
 		} else if (object instanceof Integer) {
-			int val = (Integer) object;
-			if (Math.abs(val) < Properties.MAX_INT && val != Integer.MAX_VALUE
-			        && val != Integer.MIN_VALUE) {
+			if (Properties.RESTRICT_POOL) {
+				int val = (Integer) object;
+				if (Math.abs(val) < Properties.MAX_INT && val != Integer.MAX_VALUE
+				        && val != Integer.MIN_VALUE) {
+					int_pool.add((Integer) object);
+				}
+			} else {
 				int_pool.add((Integer) object);
 			}
 		} else if (object instanceof Float) {
@@ -134,7 +138,8 @@ public class PrimitivePool {
 	}
 
 	public int getRandomInt() {
-		return Randomness.choice(int_pool);
+		int r = Randomness.choice(int_pool);
+		return r;
 	}
 
 	public float getRandomFloat() {

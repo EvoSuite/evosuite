@@ -233,8 +233,8 @@ public class Utils {
 	/**
 	 * Write string to file
 	 * 
-	 * @param fileName
-	 *            - name of the file to write to
+	 * @param file
+	 *            - file to write to
 	 * @param content
 	 *            - text to write into the file
 	 */
