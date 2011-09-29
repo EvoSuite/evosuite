@@ -22,6 +22,8 @@ import java.io.PrintWriter;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -46,14 +48,31 @@ import de.unisb.cs.st.evosuite.testcase.TestCluster;
  */
 public class BytecodeInstrumentation implements ClassFileTransformer {
 
-	protected static Logger logger = LoggerFactory
-			.getLogger(BytecodeInstrumentation.class);
+	protected static Logger logger = LoggerFactory.getLogger(BytecodeInstrumentation.class);
 
-	// private static RemoveSystemExitTransformer systemExitTransformer = new
-	// RemoveSystemExitTransformer();
+	private static List<ClassAdapterFactory> externalPreVisitors = new ArrayList<ClassAdapterFactory>();
+
+	private static List<ClassAdapterFactory> externalPostVisitors = new ArrayList<ClassAdapterFactory>();
+
+	public static void addClassAdapter(ClassAdapterFactory factory) {
+		externalPostVisitors.add(factory);
+	}
+
+	public static void addPreClassAdapter(ClassAdapterFactory factory) {
+		externalPreVisitors.add(factory);
+	}
+
+	public boolean isJavaClass(String className) {
+		return className.startsWith("java.") || className.startsWith("sun.")
+		        || className.startsWith("javax.");
+	}
 
 	public boolean isTargetProject(String className) {
-		return className.startsWith(Properties.PROJECT_PREFIX);
+		return className.startsWith(Properties.PROJECT_PREFIX)
+		        && !className.startsWith("java.") && !className.startsWith("sun.")
+		        && !className.startsWith("de.unisb.cs.st.evosuite")
+		        && !className.startsWith("javax.")
+		        && !className.startsWith("org.xml.sax");
 	}
 
 	private boolean isTargetClassName(String className) {
@@ -67,8 +86,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	}
 
 	static {
-		logger.info("Loading bytecode transformer for "
-				+ Properties.PROJECT_PREFIX);
+		logger.info("Loading bytecode transformer for " + Properties.PROJECT_PREFIX);
 	}
 
 	/*
@@ -81,8 +99,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	 */
 	@Override
 	public byte[] transform(ClassLoader loader, String className,
-			Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-			byte[] classfileBuffer) throws IllegalClassFormatException {
+	        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+	        byte[] classfileBuffer) throws IllegalClassFormatException {
 		isJavaagent = true;
 		if (className == null) {
 			return classfileBuffer;
@@ -91,11 +109,9 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 		// Some packages we shouldn't touch - hard-coded
 		if (!isTargetProject(classNameWithDots)
-				&& (classNameWithDots.startsWith("java")
-						|| classNameWithDots.startsWith("sun")
-						|| classNameWithDots
-								.startsWith("org.aspectj.org.eclipse") || classNameWithDots
-						.startsWith("org.mozilla.javascript.gen.c"))) {
+		        && (classNameWithDots.startsWith("java")
+		                || classNameWithDots.startsWith("sun")
+		                || classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
 			return classfileBuffer;
 		}
 
@@ -126,23 +142,31 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		// classfileBuffer = systemExitTransformer
 		// .transformBytecode(classfileBuffer);
 
-		ClassWriter writer = new ClassWriter(
-				org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
+		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
 		ClassVisitor cv = writer;
+		// if(logger.isDebugEnabled())
 
 		// Print out bytecode if debug is enabled
-		// if(logger.isDebugEnabled())
-		// cv = new TraceClassVisitor(cv, new
-		// PrintWriter(System.out));
+		if (logger.isDebugEnabled())
+			cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 
 		// Apply transformations to class under test and its owned
 		// classes
 		if (isTargetClassName(classNameWithDots)) {
-//			cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+			// cv = new CheckClassAdapter(cv);
+			// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+			// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+			for (ClassAdapterFactory factory : externalPostVisitors) {
+				cv = factory.getVisitor(cv, className);
+			}
 			cv = new AccessibleClassAdapter(cv, className);
 			cv = new ExecutionPathClassAdapter(cv, className);
 			cv = new CFGClassAdapter(cv, className);
+
+			for (ClassAdapterFactory factory : externalPreVisitors) {
+				cv = factory.getVisitor(cv, className);
+			}
 
 		} else if (Properties.MAKE_ACCESSIBLE) {
 			// Convert protected/default access to public access

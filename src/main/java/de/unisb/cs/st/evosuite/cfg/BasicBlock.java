@@ -2,6 +2,7 @@ package de.unisb.cs.st.evosuite.cfg;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,13 +44,18 @@ public class BasicBlock {
 	private int id = -1;
 	protected String className;
 	protected String methodName;
+	
+	// experiment: since finding the control dependent branches in the CDG might
+	// take a little to long, we might want to remember them
+	private Set<ControlDependency> controlDependencies;
+	private Set<Integer> controlDependentBranchIDs;
 
 	protected boolean isAuxiliaryBlock = false;
 
 	private final List<BytecodeInstruction> instructions = new ArrayList<BytecodeInstruction>();
 
-	// TODO reference each BytecodeInstruction's BasicBlock at the instruction
-	// TODO determine ControlDependentBranches once for each BasicBlock, then
+	// DONE reference each BytecodeInstruction's BasicBlock at the instruction
+	// DONE determine ControlDependentBranches once for each BasicBlock, then
 	// ask BasicBloc, whenever instruction is asked
 	// TODO remember distance to each control dependent Branch in order to speed
 	// up ControlFlowDistance calculation even more
@@ -79,6 +85,67 @@ public class BasicBlock {
 		this.methodName = methodName;
 
 		this.isAuxiliaryBlock = true;
+	}
+	
+	// CDs
+	
+	/**
+	 * Returns the ControlDependenceGraph of this instructions method
+	 * 
+	 * Convenience method. Redirects the call to CFGPool.getCDG()
+	 */
+	public ControlDependenceGraph getCDG() {
+
+		ControlDependenceGraph myCDG = CFGPool.getCDG(className, methodName);
+		if (myCDG == null)
+			throw new IllegalStateException(
+					"expect CFGPool to know CDG for every method for which an instruction is known");
+
+		return myCDG;
+	}
+	
+	/**
+	 * Returns all branchIds of Branches this instruction is directly control
+	 * dependent on as determined by the ControlDependenceGraph for this
+	 * instruction's method.
+	 * 
+	 * If this instruction is control dependent on the root branch the id -1
+	 * will be contained in this set
+	 */
+	public Set<Integer> getControlDependentBranchIds() {
+
+		ControlDependenceGraph myDependence = getCDG();
+
+		if (controlDependentBranchIDs == null)
+			controlDependentBranchIDs = myDependence
+					.getControlDependentBranchIds(this);
+
+		return controlDependentBranchIDs;
+	}
+	
+	/**
+	 * Returns a cfg.Branch object for each branch this instruction is control
+	 * dependent on as determined by the ControlDependenceGraph. If this
+	 * instruction is only dependent on the root branch this method returns an
+	 * empty set
+	 * 
+	 * If this instruction is a Branch and it is dependent on itself - which can
+	 * happen in loops for example - the returned set WILL contain this. If you
+	 * do not need the full set in order to avoid loops, call
+	 * getAllControlDependentBranches instead
+	 */
+	public Set<ControlDependency> getControlDependencies() {
+
+		if (controlDependencies == null)
+			controlDependencies = getCDG().getControlDependentBranches(
+					this);
+
+//		return new HashSet<ControlDependency>(controlDependentBranches);
+		return controlDependencies;
+	}
+	
+	public boolean hasControlDependenciesSet() {
+		return controlDependencies != null;
 	}
 
 	// initialization

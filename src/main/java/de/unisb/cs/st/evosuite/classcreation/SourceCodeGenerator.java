@@ -94,7 +94,7 @@ public class SourceCodeGenerator {
 
 	/**
 	 * @param clazz
-	 *            abstract class for which stub should be generated.
+	 *            class for which stub should be generated.
 	 */
 	public SourceCodeGenerator(Class<?> clazz) {
 		ast = AST.newAST(AST.JLS3);

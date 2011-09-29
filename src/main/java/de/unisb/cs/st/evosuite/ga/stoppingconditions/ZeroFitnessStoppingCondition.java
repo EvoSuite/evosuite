@@ -61,12 +61,12 @@ public class ZeroFitnessStoppingCondition extends StoppingCondition {
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
 	@Override
-	public void setLimit(int limit) {
+	public void setLimit(long limit) {
 		// Do nothing
 	}
 
 	@Override
-	public int getLimit() {
+	public long getLimit() {
 		return 0;
 	}
 
@@ -74,12 +74,18 @@ public class ZeroFitnessStoppingCondition extends StoppingCondition {
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
 	@Override
-	public int getCurrentValue() {
-		return (int) (last_fitness + 0.5);
+	public long getCurrentValue() {
+		return (long) (last_fitness + 0.5); // TODO: Why +0.5??
 	}
 
 	public void setFinished() {
 		last_fitness = 0.0;
+	}
+
+	@Override
+	public void forceCurrentValue(long value) {
+		// TODO Auto-generated method stub
+		// TODO ?
 	}
 
 }

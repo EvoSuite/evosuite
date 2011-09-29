@@ -140,7 +140,7 @@ public class ConstructorStatement extends AbstractStatement {
 			System.setOut(old_out);
 			System.setErr(old_err);
 			exceptionThrown = e.getCause();
-			logger.debug("Exception thrown in constructor: " + e);
+			logger.debug("Exception thrown in constructor: " + e.getCause());
 
 		} finally {
 			System.setOut(old_out);
@@ -181,15 +181,15 @@ public class ConstructorStatement extends AbstractStatement {
 	}
 
 	@Override
-	public StatementInterface clone(TestCase newTestCase) {
+	public StatementInterface copy(TestCase newTestCase, int offset) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
-			new_params.add(r.clone(newTestCase));
+			new_params.add(r.copy(newTestCase, offset));
 		}
 
 		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor,
 		        retval.getType(), new_params);
-		//copy.assertions = cloneAssertions(newTestCase);
+		// copy.assertions = copyAssertions(newTestCase, offset);
 
 		return copy;
 	}
@@ -432,5 +432,39 @@ public class ConstructorStatement extends AbstractStatement {
 		int num = (Integer) ois.readObject();
 
 		constructor = constructorClass.getDeclaredConstructors()[num];
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		try {
+			Class<?> oldClass = constructor.getDeclaringClass();
+			Class<?> newClass = loader.loadClass(oldClass.getName());
+			for (Constructor<?> newConstructor : TestCluster.getConstructors(newClass)) {
+				boolean equals = true;
+				Class<?>[] oldParameters = this.constructor.getParameterTypes();
+				Class<?>[] newParameters = newConstructor.getParameterTypes();
+				if (oldParameters.length != newParameters.length)
+					continue;
+
+				for (int i = 0; i < newParameters.length; i++) {
+					if (!oldParameters[i].getName().equals(newParameters[i].getName())) {
+						equals = false;
+						break;
+					}
+				}
+				if (equals) {
+					this.constructor = newConstructor;
+					return;
+				}
+			}
+		} catch (ClassNotFoundException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		} catch (SecurityException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		}
+		logger.warn("Constructor not found - keeping old class loader ");
 	}
 }

@@ -695,6 +695,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		return attemptGeneration(test, type, position, 0, false);
 	}
 
+	public VariableReference attemptGenerationOrNull(TestCase test, Type type,
+	        int position) throws ConstructionFailedException {
+		return attemptGeneration(test, type, position, 0, true);
+	}
+
 	/**
 	 * Try to generate an object of a given type
 	 * 
@@ -982,14 +987,14 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		return ret_val;
 	}
 
-	private List<Type> getParameterTypes(VariableReference callee, Method method) {
+	public List<Type> getParameterTypes(VariableReference callee, Method method) {
 		if (callee == null)
 			return descriptor_replacement.getParameterTypes(method);
 		else
 			return descriptor_replacement.getParameterTypes(callee.getType(), method);
 	}
 
-	private List<Type> getParameterTypes(Constructor<?> constructor) {
+	public List<Type> getParameterTypes(Constructor<?> constructor) {
 		return descriptor_replacement.getParameterTypes(constructor);
 	}
 

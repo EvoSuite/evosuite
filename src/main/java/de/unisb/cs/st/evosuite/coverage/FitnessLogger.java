@@ -29,7 +29,7 @@ public class FitnessLogger implements SearchListener {
 
 	private final List<Integer> evaluations_history = new ArrayList<Integer>();
 
-	private final List<Integer> statements_history = new ArrayList<Integer>();
+	private final List<Long> statements_history = new ArrayList<Long>();
 
 	private final List<Double> fitness_history = new ArrayList<Double>();
 

@@ -7,11 +7,14 @@
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
+  <!--
     <fileSet>
       <directory>src/main/assembly/etc</directory>
       <outputDirectory>/</outputDirectory>
       <fileMode>0644</fileMode>
     </fileSet>    
+    -->
+    <!--
     <fileSet>
       <directory>src/main/assembly</directory>
       <outputDirectory>/</outputDirectory>
@@ -19,6 +22,7 @@
 	<include>evosuite.properties</include>
       </includes>
     </fileSet>
+    -->
     <fileSet>
       <directory>lib</directory>
       <outputDirectory>/</outputDirectory>
@@ -41,14 +45,10 @@
       <excludes>
         <exclude>jpf:jpf-annotations</exclude>
         <exclude>jpf:jpf-classes</exclude>
-        <exclude>org.eclipse.*:*</exclude>
-        <exclude>org.eclipse:*</exclude>
-        <exclude>org.eclipse.tycho:*</exclude>
         <exclude>org.eclipse.jdt:*</exclude>
         <exclude>org.eclipse.core:*</exclude>
         <exclude>org.eclipse.team:*</exclude>
         <exclude>org.eclipse.jface:*</exclude>
-        <exclude>org.eclipse.equinox:*</exclude>
         <exclude>org.eclipse.ltk:*</exclude>
         <exclude>com.ibm:icu</exclude>
       </excludes>

@@ -167,9 +167,9 @@ public class MethodStatement extends AbstractStatement {
 			});
 
 		} catch (InvocationTargetException e) {
+			exceptionThrown = e.getCause();
 			System.setOut(old_out);
 			System.setErr(old_err);
-			exceptionThrown = e.getCause();
 			logger.debug("Exception thrown in method {}: {}", method.getName(),
 			             exceptionThrown);
 		} finally {
@@ -217,16 +217,19 @@ public class MethodStatement extends AbstractStatement {
 				parameter_string += ", ";
 			}
 			Class<?> declaredParamType = method.getParameterTypes()[i];
-			Class<?> actualParamType = parameters.get(i).getVariableClass(); 
-			if (!declaredParamType.equals(actualParamType)){
-					// && parameters.get(i) instanceof ArrayIndex)
-				parameter_string += "(" + new GenericClass(method.getParameterTypes()[i]).getSimpleName() + ") ";
+			Class<?> actualParamType = parameters.get(i).getVariableClass();
+			if (!declaredParamType.equals(actualParamType)) {
+				// && parameters.get(i) instanceof ArrayIndex)
+				parameter_string += "("
+				        + new GenericClass(method.getParameterTypes()[i]).getSimpleName()
+				        + ") ";
 			}
 			parameter_string += parameters.get(i).getName();
 		}
 
 		String callee_str = "";
-		if (!retval.getVariableClass().isAssignableFrom(method.getReturnType())) {
+		if (exception == null
+		        && !retval.getVariableClass().isAssignableFrom(method.getReturnType())) {
 			callee_str = "(" + retval.getSimpleClassName() + ")";
 		}
 
@@ -249,17 +252,19 @@ public class MethodStatement extends AbstractStatement {
 			Class<?> ex = exception.getClass();
 			while (!Modifier.isPublic(ex.getModifiers()))
 				ex = ex.getSuperclass();
-			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {}";
+			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {\n";
+			result += "  // " + exception.getMessage() + "\n";
+			result += "}";
 		}
 
 		return result;
 	}
 
 	@Override
-	public StatementInterface clone(TestCase newTestCase) {
+	public StatementInterface copy(TestCase newTestCase, int offset) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
-			new_params.add(r.clone(newTestCase));
+			new_params.add(r.copy(newTestCase, offset));
 		}
 
 		MethodStatement m;
@@ -269,13 +274,13 @@ public class MethodStatement extends AbstractStatement {
 			m = new MethodStatement(newTestCase, method, null, retval.getType(),
 			        new_params);
 		} else {
-			VariableReference newCallee = callee.clone(newTestCase);
+			VariableReference newCallee = callee.copy(newTestCase, offset);
 			m = new MethodStatement(newTestCase, method, newCallee, retval.getType(),
 			        new_params);
 
 		}
 
-		// m.assertions = cloneAssertions(newTestCase);
+		// m.assertions = copyAssertions(newTestCase, offset);
 
 		return m;
 	}
@@ -579,5 +584,42 @@ public class MethodStatement extends AbstractStatement {
 		int num = (Integer) ois.readObject();
 
 		method = methodClass.getDeclaredMethods()[num];
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		try {
+			Class<?> oldClass = method.getDeclaringClass();
+			Class<?> newClass = loader.loadClass(oldClass.getName());
+			for (Method newMethod : TestCluster.getMethods(newClass)) {
+				if (newMethod.getName().equals(this.method.getName())) {
+					boolean equals = true;
+					Class<?>[] oldParameters = this.method.getParameterTypes();
+					Class<?>[] newParameters = newMethod.getParameterTypes();
+					if (oldParameters.length != newParameters.length)
+						continue;
+
+					for (int i = 0; i < newParameters.length; i++) {
+						if (!oldParameters[i].getName().equals(newParameters[i].getName())) {
+							equals = false;
+							break;
+						}
+					}
+					if (equals) {
+						this.method = newMethod;
+						return;
+					}
+				}
+			}
+		} catch (ClassNotFoundException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		} catch (SecurityException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		}
+		logger.warn("Method not found - keeping old class loader ");
+
 	}
 }

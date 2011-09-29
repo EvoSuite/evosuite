@@ -117,6 +117,9 @@ public class CFGMethodAdapter extends MethodAdapter {
 		} else if (Properties.CRITERION == Criterion.DEFUSE) {
 			instrumentations.add(new BranchInstrumentation());
 			instrumentations.add(new DefUseInstrumentation());
+		} else if (Properties.CRITERION == Criterion.ANALYZE) {
+			instrumentations.add(new BranchInstrumentation());
+			instrumentations.add(new DefUseInstrumentation());
 		} else if (Properties.CRITERION == Criterion.PATH) {
 			instrumentations.add(new PrimePathInstrumentation());
 			instrumentations.add(new BranchInstrumentation());
@@ -157,7 +160,7 @@ public class CFGMethodAdapter extends MethodAdapter {
 			logger.info("Generating CFG for method " + methodName);
 
 			try {
-				
+
 				bytecodeAnalyzer.analyze(className, methodName, mn);
 				logger.trace("Method graph for "
 				        + className
@@ -192,6 +195,15 @@ public class CFGMethodAdapter extends MethodAdapter {
 
 		}
 		mn.accept(next);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.objectweb.asm.commons.LocalVariablesSorter#visitMaxs(int, int)
+	 */
+	@Override
+	public void visitMaxs(int maxStack, int maxLocals) {
+		int maxNum = 7;
+		super.visitMaxs(Math.max(maxNum, maxStack), maxLocals);
 	}
 
 	private void handleBranchlessMethods() {

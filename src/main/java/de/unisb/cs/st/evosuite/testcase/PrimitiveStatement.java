@@ -149,11 +149,13 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	}
 
 	@Override
-	public StatementInterface clone(TestCase newTestCase) {
+	public StatementInterface copy(TestCase newTestCase, int offset) {
 		@SuppressWarnings("unchecked")
 		PrimitiveStatement<T> clone = (PrimitiveStatement<T>) getPrimitiveStatement(newTestCase,
 		                                                                            retval.getType());
 		clone.setValue(value);
+		// clone.assertions = copyAssertions(newTestCase, offset);
+
 		return clone;
 	}
 
@@ -296,6 +298,14 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	@Override
 	public boolean isAssignmentStatement() {
 		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		// No-op
 	}
 
 }

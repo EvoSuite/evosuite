@@ -27,7 +27,7 @@ public class StatementCoverageFactory extends AbstractFitnessFactory {
 		
 		if(called)
 			return;
-		
+		long start = System.currentTimeMillis();
 		String targetMethod = Properties.TARGET_METHOD;
 		String targetClass = Properties.TARGET_CLASS;
 
@@ -48,9 +48,9 @@ public class StatementCoverageFactory extends AbstractFitnessFactory {
 						goals.add(new StatementCoverageTestFitness(ins));
 			}
 		}
-		
-		System.out.println("* Total number of coverage goals: "+goals.size());
-		
+		long end = System.currentTimeMillis();
+		System.out.println("* Total number of coverage goals: "+goals.size()+" took "+(end-start)+"ms");
+		goalComputationTime = end - start;
 		called = true;		
 	}
 

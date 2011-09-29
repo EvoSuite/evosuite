@@ -46,8 +46,9 @@ public class InheritanceClassAdapter extends ClassAdapter {
 	 * @see org.objectweb.asm.ClassAdapter#visitField(int, java.lang.String, java.lang.String, java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public FieldVisitor visitField(int arg0, String arg1, String arg2, String arg3,
-	        Object arg4) {
+	public FieldVisitor visitField(int access, String name, String desc,
+	        String signature, Object value) {
+		ClusterAnalysis.addGenerator(className, Type.getType(desc).getClassName());
 		return null;
 	}
 
@@ -55,7 +56,7 @@ public class InheritanceClassAdapter extends ClassAdapter {
 	 * @see org.objectweb.asm.ClassAdapter#visitMethod(int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])
 	 */
 	@Override
-	public MethodVisitor visitMethod(int arg0, String arg1, String desc,
+	public MethodVisitor visitMethod(int arg0, String name, String desc,
 	        String signature, String[] arg4) {
 		Type ret = Type.getReturnType(desc);
 		while (ret.getSort() == Type.ARRAY)
@@ -71,6 +72,12 @@ public class InheritanceClassAdapter extends ClassAdapter {
 			if (type.getSort() == Type.OBJECT)
 				ClusterAnalysis.addParameter(className, type.getClassName());
 		}
+
+		if (name.equals("<init>")) {
+			ClusterAnalysis.addGenerator(className, className);
+		} else if (ret.getSort() != Type.VOID)
+			ClusterAnalysis.addGenerator(className, ret.getClassName());
+
 		return null;
 	}
 

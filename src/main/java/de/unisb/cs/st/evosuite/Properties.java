@@ -76,6 +76,12 @@ public class Properties {
 		int max() default Integer.MAX_VALUE;
 	}
 
+	public @interface LongValue {
+		long min() default Long.MIN_VALUE;
+
+		long max() default Long.MAX_VALUE;
+	}
+
 	public @interface DoubleValue {
 		double min() default -(Double.MAX_VALUE - 1); // FIXXME: Check
 
@@ -128,6 +134,9 @@ public class Properties {
 	@Parameter(key = "max_int", group = "Test Creation", description = "Maximum size of randomly generated integers (minimum range = -1 * max)")
 	public static int MAX_INT = 2048;
 
+	@Parameter(key = "restrict_pool", group = "Test Creation", description = "Prohibit integers in the pool greater than max_int")
+	public static boolean RESTRICT_POOL = false;
+
 	@Parameter(key = "max_delta", group = "Test Creation", description = "Maximum size of delta for numbers during mutation")
 	public static int MAX_DELTA = 20;
 
@@ -148,6 +157,12 @@ public class Properties {
 
 	@Parameter(key = "num_tests", group = "Test Creation", description = "Number of tests in initial test suites")
 	public static int NUM_TESTS = 2;
+
+	@Parameter(key = "min_initial_tests", group = "Test Creation", description = "Minimum number of tests in initial test suites")
+	public static int MIN_INITIAL_TESTS = 1;
+
+	@Parameter(key = "max_initial_tests", group = "Test Creation", description = "Maximum number of tests in initial test suites")
+	public static int MAX_INITIAL_TESTS = 10;
 
 	@Parameter(key = "use_deprecated", group = "Test Creation", description = "Include deprecated methods in tests")
 	public static boolean USE_DEPRECATED = false;
@@ -174,8 +189,8 @@ public class Properties {
 	@Parameter(key = "check_parents_length", group = "Search Algorithm", description = "Check length against length of parents")
 	public static boolean CHECK_PARENTS_LENGTH = true;
 
-	@Parameter(key = "check_rank_length", group = "Search Algorithm", description = "Use length in rank selection")
-	public static boolean CHECK_RANK_LENGTH = true;
+	//@Parameter(key = "check_rank_length", group = "Search Algorithm", description = "Use length in rank selection")
+	//public static boolean CHECK_RANK_LENGTH = false;
 
 	@Parameter(key = "parent_check", group = "Search Algorithm", description = "Check against parents in Mu+Lambda algorithm")
 	public static boolean PARENT_CHECK = true;
@@ -218,11 +233,11 @@ public class Properties {
 
 	@Parameter(key = "population", group = "Search Algorithm", description = "Population size of genetic algorithm")
 	@IntValue(min = 1)
-	public static int POPULATION = 100;
+	public static int POPULATION = 50;
 
 	@Parameter(key = "generations", group = "Search Algorithm", description = "Maximum search duration")
-	@IntValue(min = 1)
-	public static int GENERATIONS = 1000000;
+	@LongValue(min = 1)
+	public static long GENERATIONS = 1000000;
 
 	public static String PROPERTIES_FILE = "properties_file";
 
@@ -238,7 +253,7 @@ public class Properties {
 	}
 
 	@Parameter(key = "crossover_function", group = "Search Algorithm", description = "Crossover function during search")
-	public static CrossoverFunction CROSSOVER_FUNCTION = CrossoverFunction.SINGLEPOINT;
+	public static CrossoverFunction CROSSOVER_FUNCTION = CrossoverFunction.SINGLEPOINTRELATIVE;
 
 	public enum SelectionFunction {
 		RANK, ROULETTEWHEEL, TOURNAMENT
@@ -249,7 +264,7 @@ public class Properties {
 
 	// TODO: Fix values
 	@Parameter(key = "secondary_objectives", group = "Search Algorithm", description = "Secondary objective during search")
-	// @SetValue(values = { "maxlength", "maxsize", "avglength" })
+	// @SetValue(values = { "maxlength", "maxsize", "avglength", "none" })
 	public static String SECONDARY_OBJECTIVE = "totallength";
 
 	@Parameter(key = "bloat_factor", group = "Search Algorithm", description = "Maximum relative increase in length")
@@ -330,6 +345,13 @@ public class Properties {
 	@Parameter(key = "assertions", group = "Output", description = "Create assertions")
 	public static boolean ASSERTIONS = false;
 
+	public enum AssertionStrategy {
+		ALL, MUTATION, UNIT
+	}
+
+	@Parameter(key = "assertion_strategy", group = "Output", description = "Which assertions to generate")
+	public static AssertionStrategy ASSERTION_STRATEGY = AssertionStrategy.MUTATION;
+
 	@Parameter(key = "test_dir", group = "Output", description = "Directory in which to place JUnit tests")
 	public static String TEST_DIR = "evosuite-tests";
 
@@ -366,6 +388,9 @@ public class Properties {
 	// Experimental
 	@Parameter(key = "calculate_cluster", description = "Automatically calculate test cluster during setup")
 	public static boolean CALCULATE_CLUSTER = false;
+
+	@Parameter(key = "branch_statement", description = "Require statement coverage for branch coverage")
+	public static boolean BRANCH_STATEMENT = false;
 
 	@Parameter(key = "remote_testing", description = "Include remote calls")
 	public static boolean REMOTE_TESTING = false;
@@ -467,19 +492,19 @@ public class Properties {
 	//---------------------------------------------------------------
 	// Manual algorithm
 	@Parameter(key = "min_delta_coverage", group = "Manual algorithm", description = "Minimum coverage delta")
-	public static double MIN_DELTA_COVERAGE = 0.90;
+	public static double MIN_DELTA_COVERAGE = 0.01;
 
 	@Parameter(key = "max_iteration", group = "Manual algorithm", description = "how much itteration with MIN_DELTA_COVERAGE possible with out MA")
-	public static int MAX_ITERATION = 50;
+	public static int MAX_ITERATION = 500;
 
 	@Parameter(key = "ma_active", group = "Manual algorithm", description = "MA active")
-	public static boolean MA_ACTIVE = true;
+	public static boolean MA_ACTIVE = false;
 
 	// ---------------------------------------------------------------
 	// Runtime parameters
 
 	public enum Criterion {
-		CONCURRENCY, LCSAJ, DEFUSE, PATH, BRANCH, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT
+		CONCURRENCY, LCSAJ, DEFUSE, PATH, BRANCH, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT, ANALYZE
 	}
 
 	/** Cache target class */
@@ -634,6 +659,12 @@ public class Properties {
 	private static Map<Field, Object> defaultMap = new HashMap<Field, Object>();
 
 	/**
+	 * Keep track of which fields have been changed from their defaults during
+	 * loading
+	 */
+	private static Set<String> changedFields = new HashSet<String>();
+
+	/**
 	 * Get class of parameter
 	 * 
 	 * @param key
@@ -696,6 +727,21 @@ public class Properties {
 	}
 
 	/**
+	 * Get long boundaries
+	 * 
+	 * @param key
+	 * @return
+	 * @throws NoSuchParameterException
+	 */
+	public static LongValue getLongLimits(String key) throws NoSuchParameterException {
+		if (!parameterMap.containsKey(key))
+			throw new NoSuchParameterException(key);
+
+		Field f = parameterMap.get(key);
+		return f.getAnnotation(LongValue.class);
+	}
+
+	/**
 	 * Get double boundaries
 	 * 
 	 * @param key
@@ -725,6 +771,23 @@ public class Properties {
 			throw new NoSuchParameterException(key);
 
 		return parameterMap.get(key).getInt(null);
+	}
+
+	/**
+	 * Get an integer parameter value
+	 * 
+	 * @param key
+	 * @return
+	 * @throws NoSuchParameterException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 */
+	public static long getLongValue(String key) throws NoSuchParameterException,
+	        IllegalArgumentException, IllegalAccessException {
+		if (!parameterMap.containsKey(key))
+			throw new NoSuchParameterException(key);
+
+		return parameterMap.get(key).getLong(null);
 	}
 
 	/**
@@ -817,6 +880,31 @@ public class Properties {
 	}
 
 	/**
+	 * Set parameter to new long value
+	 * 
+	 * @param key
+	 * @param value
+	 * @throws NoSuchParameterException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 */
+	public void setValue(String key, long value) throws NoSuchParameterException,
+	        IllegalArgumentException, IllegalAccessException {
+		if (!parameterMap.containsKey(key))
+			throw new NoSuchParameterException(key);
+
+		Field f = parameterMap.get(key);
+
+		if (f.isAnnotationPresent(LongValue.class)) {
+			LongValue i = f.getAnnotation(LongValue.class);
+			if (value < i.min() || value > i.max())
+				throw new IllegalArgumentException();
+		}
+
+		f.setLong(this, value);
+	}
+
+	/**
 	 * Set parameter to new boolean value
 	 * 
 	 * @param key
@@ -874,10 +962,13 @@ public class Properties {
 		}
 
 		Field f = parameterMap.get(key);
+		changedFields.add(key);
 		if (f.getType().isEnum()) {
 			f.set(null, Enum.valueOf((Class<Enum>) f.getType(), value.toUpperCase()));
 		} else if (f.getType().equals(int.class)) {
 			setValue(key, Integer.parseInt(value));
+		} else if (f.getType().equals(long.class)) {
+			setValue(key, Long.parseLong(value));
 		} else if (f.getType().equals(boolean.class)) {
 			setValue(key, Boolean.parseBoolean(value));
 		} else if (f.getType().equals(double.class)) {
@@ -939,8 +1030,10 @@ public class Properties {
 		if (loadProperties)
 			loadProperties();
 		if (TARGET_CLASS != null && !TARGET_CLASS.equals("")) {
-			CLASS_PREFIX = TARGET_CLASS.substring(0, TARGET_CLASS.lastIndexOf('.'));
-			SUB_PREFIX = CLASS_PREFIX.replace(PROJECT_PREFIX + ".", "");
+			if (TARGET_CLASS.contains(".")) {
+				CLASS_PREFIX = TARGET_CLASS.substring(0, TARGET_CLASS.lastIndexOf('.'));
+				SUB_PREFIX = CLASS_PREFIX.replace(PROJECT_PREFIX + ".", "");
+			}
 			if (PROJECT_PREFIX == null || PROJECT_PREFIX.equals("")) {
 				if (CLASS_PREFIX.contains("."))
 					PROJECT_PREFIX = CLASS_PREFIX.substring(0, CLASS_PREFIX.indexOf("."));
@@ -1012,7 +1105,9 @@ public class Properties {
 			for (Parameter p : fieldMap.get(group)) {
 				buffer.append("# ");
 				buffer.append(p.description());
-				buffer.append("\n#");
+				buffer.append("\n");
+				if (!changedFields.contains(p.key()))
+					buffer.append("#");
 				buffer.append(p.key());
 				buffer.append("=");
 				try {

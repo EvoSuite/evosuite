@@ -1,6 +1,5 @@
 package de.unisb.cs.st.evosuite.cfg;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -46,11 +45,6 @@ public class BytecodeInstruction extends ASMWrapper {
 
 	// auxiliary information
 	private int lineNumber = -1;
-
-	// experiment: since finding the control dependent branches in the CDG might
-	// take a little to long, we might want to remember them
-	private Set<ControlDependency> controlDependentBranches;
-	private Set<Integer> controlDependentBranchIDs;
 
 	// experiment: also searching through all CFG nodes in order to determine an
 	// instruction BasicBlock might be a little to expensive too just to safe
@@ -323,12 +317,11 @@ public class BytecodeInstruction extends ASMWrapper {
 	 */
 	public Set<ControlDependency> getControlDependencies() {
 
-		if (controlDependentBranches == null)
-			controlDependentBranches = getCDG().getControlDependentBranches(
-					this);
+		BasicBlock myBlock = getBasicBlock();
 
-		return new HashSet<ControlDependency>(controlDependentBranches);
-		// return new HashSet<Branch>(controlDependentBranches);
+		// return new
+		// HashSet<ControlDependency>(myBlock.getControlDependencies());
+		return myBlock.getControlDependencies();
 	}
 
 	/**
@@ -362,13 +355,9 @@ public class BytecodeInstruction extends ASMWrapper {
 	 */
 	public Set<Integer> getControlDependentBranchIds() {
 
-		ControlDependenceGraph myDependence = getCDG();
+		BasicBlock myBlock = getBasicBlock();
 
-		if (controlDependentBranchIDs == null)
-			controlDependentBranchIDs = myDependence
-					.getControlDependentBranchIds(this);
-
-		return controlDependentBranchIDs;
+		return myBlock.getControlDependentBranchIds();
 	}
 
 	/**
@@ -425,7 +414,8 @@ public class BytecodeInstruction extends ASMWrapper {
 
 	public boolean getBranchExpressionValue(Branch b) {
 		if (!isDirectlyControlDependentOn(b))
-			throw new IllegalArgumentException("this method can only be called for branches that this instruction is directly control dependent on.");
+			throw new IllegalArgumentException(
+					"this method can only be called for branches that this instruction is directly control dependent on.");
 
 		if (b == null)
 			return true; // root branch special case
@@ -445,80 +435,84 @@ public class BytecodeInstruction extends ASMWrapper {
 	public boolean isDirectlyControlDependentOn(Branch branch) {
 		if (branch == null)
 			return getControlDependentBranchIds().contains(-1);
-		
-		for(ControlDependency cd : getControlDependencies())
-			if(cd.getBranch().equals(branch))
+
+		for (ControlDependency cd : getControlDependencies())
+			if (cd.getBranch().equals(branch))
 				return true;
-		
+
 		return false;
 	}
 
 	public ControlDependency getControlDependency(Branch branch) {
-		if(!isDirectlyControlDependentOn(branch))
-			throw new IllegalArgumentException("instruction not directly control dependent on given branch");
-		
-		for(ControlDependency cd : getControlDependencies())
-			if(cd.getBranch().equals(branch))
+		if (!isDirectlyControlDependentOn(branch))
+			throw new IllegalArgumentException(
+					"instruction not directly control dependent on given branch");
+
+		for (ControlDependency cd : getControlDependencies())
+			if (cd.getBranch().equals(branch))
 				return cd;
-		
-		throw new IllegalStateException("expect getControlDependencies() to contain a CD for each branch that isDirectlyControlDependentOn() returns true on");
+
+		throw new IllegalStateException(
+				"expect getControlDependencies() to contain a CD for each branch that isDirectlyControlDependentOn() returns true on");
 	}
 
-//	/**
-//	 * WARNING: better don't user this method right now TODO
-//	 * 
-//	 * Determines whether the CFGVertex is transitively control dependent on the
-//	 * given Branch
-//	 * 
-//	 * A CFGVertex is transitively control dependent on a given Branch if the
-//	 * Branch and the vertex are in the same method and the vertex is either
-//	 * directly control dependent on the Branch - look at
-//	 * isDirectlyControlDependentOn(Branch) - or the CFGVertex of the control
-//	 * dependent branch of this CFGVertex is transitively control dependent on
-//	 * the given branch.
-//	 * 
-//	 */
-//	public boolean isTransitivelyControlDependentOn(Branch branch) {
-//		if (!getClassName().equals(branch.getClassName()))
-//			return false;
-//		if (!getMethodName().equals(branch.getMethodName()))
-//			return false;
-//
-//		// TODO: this method does not take into account, that there might be
-//		// multiple branches this instruction is control dependent on
-//
-//		BytecodeInstruction vertexHolder = this;
-//		do {
-//			if (vertexHolder.isDirectlyControlDependentOn(branch))
-//				return true;
-//			vertexHolder = vertexHolder.getControlDependentBranch()
-//					.getInstruction();
-//		} while (vertexHolder != null);
-//
-//		return false;
-//	}
+	// /**
+	// * WARNING: better don't user this method right now TODO
+	// *
+	// * Determines whether the CFGVertex is transitively control dependent on
+	// the
+	// * given Branch
+	// *
+	// * A CFGVertex is transitively control dependent on a given Branch if the
+	// * Branch and the vertex are in the same method and the vertex is either
+	// * directly control dependent on the Branch - look at
+	// * isDirectlyControlDependentOn(Branch) - or the CFGVertex of the control
+	// * dependent branch of this CFGVertex is transitively control dependent on
+	// * the given branch.
+	// *
+	// */
+	// public boolean isTransitivelyControlDependentOn(Branch branch) {
+	// if (!getClassName().equals(branch.getClassName()))
+	// return false;
+	// if (!getMethodName().equals(branch.getMethodName()))
+	// return false;
+	//
+	// // TODO: this method does not take into account, that there might be
+	// // multiple branches this instruction is control dependent on
+	//
+	// BytecodeInstruction vertexHolder = this;
+	// do {
+	// if (vertexHolder.isDirectlyControlDependentOn(branch))
+	// return true;
+	// vertexHolder = vertexHolder.getControlDependentBranch()
+	// .getInstruction();
+	// } while (vertexHolder != null);
+	//
+	// return false;
+	// }
 
-//	/**
-//	 * WARNING: better don't user this method right now TODO
-//	 * 
-//	 * Determines the number of branches that have to be passed in order to pass
-//	 * this CFGVertex
-//	 * 
-//	 * Used to determine TestFitness difficulty
-//	 */
-//	public int getCDGDepth() {
-//
-//		// TODO: this method does not take into account, that there might be
-//		// multiple branches this instruction is control dependent on
-//
-//		Branch current = getControlDependentBranch();
-//		int r = 1;
-//		while (current != null) {
-//			r++;
-//			current = current.getInstruction().getControlDependentBranch();
-//		}
-//		return r;
-//	}
+	// /**
+	// * WARNING: better don't user this method right now TODO
+	// *
+	// * Determines the number of branches that have to be passed in order to
+	// pass
+	// * this CFGVertex
+	// *
+	// * Used to determine TestFitness difficulty
+	// */
+	// public int getCDGDepth() {
+	//
+	// // TODO: this method does not take into account, that there might be
+	// // multiple branches this instruction is control dependent on
+	//
+	// Branch current = getControlDependentBranch();
+	// int r = 1;
+	// while (current != null) {
+	// r++;
+	// current = current.getInstruction().getControlDependentBranch();
+	// }
+	// return r;
+	// }
 
 	// String methods
 
@@ -618,46 +612,68 @@ public class BytecodeInstruction extends ASMWrapper {
 		return r;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof BytecodeInstruction))
-			return false;
-
-		// TODO ensure that the following checks always succeed
-		// TODO do this by ensuring that those values are always set correctly
-
-		BytecodeInstruction other = (BytecodeInstruction) obj;
-
-		if (instructionId != other.instructionId)
-			return false;
-		if (methodName != null && !methodName.equals(other.methodName))
-			return false;
-		if (className != null && !className.equals(other.className))
-			return false;
-
-		return super.equals(obj);
-	}
+	// @Override
+	// public boolean equals(Object obj) {
+	// if (this == obj)
+	// return true;
+	// if (obj == null)
+	// return false;
+	// if (!(obj instanceof BytecodeInstruction))
+	// return false;
+	//
+	// // TODO ensure that the following checks always succeed
+	// // TODO do this by ensuring that those values are always set correctly
+	//
+	// BytecodeInstruction other = (BytecodeInstruction) obj;
+	//
+	// if (instructionId != other.instructionId)
+	// return false;
+	// if (methodName != null && !methodName.equals(other.methodName))
+	// return false;
+	// if (className != null && !className.equals(other.className))
+	// return false;
+	//
+	// return super.equals(obj);
+	// }
 
 	/**
 	 * Convenience method:
 	 * 
-	 * If this instruction is known by the BranchPool to be a Branch,
-	 * you can call this method in order to retrieve the corresponding Branch
-	 * object registered within the BranchPool.
+	 * If this instruction is known by the BranchPool to be a Branch, you can
+	 * call this method in order to retrieve the corresponding Branch object
+	 * registered within the BranchPool.
 	 * 
 	 * Otherwise this method will return null;
 	 */
 	public Branch toBranch() {
-		
+
 		try {
 			return BranchPool.getBranchForInstruction(this);
-		} catch(Exception e) {
+		} catch (Exception e) {
 			return null;
 		}
 	}
 
+	public boolean proceedsConstructorInvocation() {
+		
+		RawControlFlowGraph cfg = getRawCFG();
+		for (BytecodeInstruction other : cfg.vertexSet())
+			if (other.isConstructorInvocation())
+				if (getInstructionId() < other.getInstructionId())
+					return true;
+
+		return false;
+	}
+
+	public boolean isWithinConstructor() {
+		return getMethodName().startsWith("<init>");
+	}
+
+	public boolean isLastInstructionInMethod() {
+		return equals(getRawCFG().getInstructionWithBiggestId());
+	}
+	
+	public boolean canBeExitPoint() {
+		return canReturnFromMethod() || isLastInstructionInMethod();
+	}
 }

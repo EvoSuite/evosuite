@@ -51,12 +51,15 @@ import de.unisb.cs.st.evosuite.callgraph.ConnectionData;
 import de.unisb.cs.st.evosuite.callgraph.Hierarchy;
 import de.unisb.cs.st.evosuite.callgraph.MethodDescription;
 import de.unisb.cs.st.evosuite.callgraph.Tuple;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstructionPool;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.javaagent.InstrumentingClassLoader;
 import de.unisb.cs.st.evosuite.javaagent.StaticInitializationClassAdapter;
 import de.unisb.cs.st.evosuite.javaagent.TestabilityTransformation;
+import de.unisb.cs.st.evosuite.sandbox.Sandbox;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
@@ -388,6 +391,8 @@ public class TestCluster {
 				Field f = (Field) o;
 				if (GenericClass.isAssignable(type, f.getGenericType())) {
 					g.add(f);
+				} else if (type.toString().contains("EvosuiteFile")) {
+					logger.info("Found EvosuiteFile generator " + type + "/" + f);
 				}
 			}
 		}
@@ -664,9 +669,7 @@ public class TestCluster {
 		// for(Field m : clazz.getDeclaredFields()) {
 		// fields.add(m);
 		// }
-		for (Field f : helper.values()) {
-			fields.add(f);
-		}
+		fields.addAll(helper.values());
 
 		return fields;
 	}
@@ -687,7 +690,7 @@ public class TestCluster {
 				}
 			}
 		} catch (Throwable t) {
-			logger.warn("Error while accessing fields of class " + clazz.getName()
+			logger.info("Error while accessing fields of class " + clazz.getName()
 			        + " - check allowed permissions: " + t);
 		}
 
@@ -911,7 +914,8 @@ public class TestCluster {
 		if (c.getDeclaringClass().isAnonymousClass())
 			return false;
 
-		if (c.getDeclaringClass().isMemberClass())
+		if (c.getDeclaringClass().isMemberClass()
+		        && !Modifier.isStatic(c.getDeclaringClass().getModifiers()))
 			return false;
 
 		if (!Properties.USE_DEPRECATED && c.getAnnotation(Deprecated.class) != null) {
@@ -1208,7 +1212,7 @@ public class TestCluster {
 
 			} catch (ClassNotFoundException e) {
 
-				if(e.getCause()!=null)
+				if (e.getCause() != null)
 					e.getCause().printStackTrace();
 				logger.error("Error loading class: " + classname + ": " + e.getCause()
 				        + " -  ignoring for tests");
@@ -1218,10 +1222,10 @@ public class TestCluster {
 				        + classname + ": " + e.getCause());
 				e.getCause().printStackTrace();
 				continue;
-			} catch (VerifyError e) {
-				logger.warn("Ignoring class with verify error: " + classname + ": "
-				        + e.getCause());
-				continue;
+				//} catch (VerifyError e) {
+				//	logger.warn("Ignoring class with verify error: " + classname + ": "
+				//	        + e.getCause());
+				//	continue;
 			}
 		}
 		logger.info("Found " + test_constructors.size() + " constructors");
@@ -1411,6 +1415,16 @@ public class TestCluster {
 		Collection<String> all_classes = getCluster();
 		Set<Class<?>> dependencies = new HashSet<Class<?>>();
 
+		try {
+			calls.add(Sandbox.class.getDeclaredField("accessedFiles"));
+			calls.add(Sandbox.class.getDeclaredField("lastAccessedFile"));
+			logger.info("Added file handling");
+		} catch (SecurityException e) {
+			logger.info("Failed to add file handling: ", e);
+		} catch (NoSuchFieldException e) {
+			logger.info("Failed to add file handling: ", e);
+		}
+
 		// Analyze each class
 		for (String classname : all_classes) {
 			// In prefix?
@@ -1557,6 +1571,10 @@ public class TestCluster {
 		}
 		if (!neededDependencies.isEmpty())
 			loadDependencies(neededDependencies, 0);
+	}
+
+	private void loadClass(Class<?> clazz, Set<Class<?>> dependencies) {
+
 	}
 
 	/**
@@ -1710,6 +1728,9 @@ public class TestCluster {
 
 	}
 
+	/**
+	 * Call each of the duplicated static constructors
+	 */
 	public void resetStaticClasses() {
 		ExecutionTracer.disable();
 		for (Method m : static_initializers) {
@@ -1730,6 +1751,9 @@ public class TestCluster {
 		ExecutionTracer.enable();
 	}
 
+	/**
+	 * Determine the set of classes that have static constructors
+	 */
 	private void getStaticClasses() {
 		Iterator<String> it = StaticInitializationClassAdapter.static_classes.iterator();
 		while (it.hasNext()) {
@@ -1753,5 +1777,147 @@ public class TestCluster {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	/**
+	 * Unload all classes; perform cleanup
+	 */
+	public void resetCluster() {
+
+		calls.clear();
+		test_constructors.clear();
+		test_methods.clear();
+		test_fields.clear();
+		generators.clear();
+
+		BranchPool.clear();
+		CFGPool.clear();
+		BytecodeInstructionPool.clear();
+
+		// Get new classloader
+		if (Properties.CLASSLOADER)
+			classLoader = new InstrumentingClassLoader();
+
+		instance = new TestCluster();
+	}
+
+	/**
+	 * Find a class that matches the given name
+	 * 
+	 * @param name
+	 * @return
+	 * @throws ClassNotFoundException
+	 */
+	public Class<?> getClass(String name) throws ClassNotFoundException {
+
+		// First try to find exact match
+		for (Class<?> clazz : analyzedClasses) {
+			if (clazz.getName().equals(name))
+				return clazz;
+		}
+
+		// Then try to match a postfix
+		for (Class<?> clazz : analyzedClasses) {
+			if (clazz.getName().endsWith(name))
+				return clazz;
+		}
+
+		throw new ClassNotFoundException(name);
+
+	}
+
+	/**
+	 * Integrate a new class into the test cluster
+	 * 
+	 * @param name
+	 * @throws ClassNotFoundException
+	 */
+	public Class<?> importClass(String name) throws ClassNotFoundException {
+
+		Class<?> clazz = classLoader.loadClass(name);
+
+		analyzedClasses.add(clazz);
+
+		logger.trace("Importing class: " + name);
+
+		// Keep all accessible constructors
+		for (Constructor<?> constructor : getConstructors(clazz)) {
+			logger.trace("Considering constructor " + constructor);
+			if (test_excludes.containsKey(name)) {
+				boolean valid = true;
+				String full_name = "<init>"
+				        + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
+				for (String regex : test_excludes.get(name)) {
+					if (full_name.matches(regex)) {
+						logger.info("Found excluded constructor: " + constructor
+						        + " matches " + regex);
+						valid = false;
+						break;
+					}
+				}
+				if (!valid)
+					continue;
+			}
+			if (canUse(constructor)) {
+				logger.debug("Adding constructor " + constructor);
+				constructor.setAccessible(true);
+				calls.add(constructor);
+			} else {
+				logger.trace("Constructor " + constructor + " is not public");
+			}
+		}
+
+		// Keep all accessible methods
+		for (Method method : getMethods(clazz)) {
+			// if(method.getDeclaringClass().equals(Object.class))
+			// continue;
+			if (test_excludes.containsKey(name)) {
+				boolean valid = true;
+				String full_name = method.getName()
+				        + org.objectweb.asm.Type.getMethodDescriptor(method);
+				for (String regex : test_excludes.get(name)) {
+					if (full_name.matches(regex)) {
+						valid = false;
+						logger.info("Found excluded method: " + name + "." + full_name
+						        + " matches " + regex);
+						break;
+					}
+				}
+				if (!valid)
+					continue;
+			}
+			if (canUse(method)) {
+				method.setAccessible(true);
+				calls.add(method);
+				logger.debug("Adding method " + method);
+			}
+		}
+
+		// Keep all accessible fields
+		for (Field field : getFields(clazz)) {
+			if (test_excludes.containsKey(name)) {
+				boolean valid = true;
+				for (String regex : test_excludes.get(name)) {
+					if (field.getName().matches(regex)) {
+						valid = false;
+						logger.info("Found excluded field: " + name + "."
+						        + field.getName() + " matches " + regex);
+						break;
+					}
+				}
+				if (!valid)
+					continue;
+			}
+
+			if (canUse(field) && !Modifier.isFinal(field.getModifiers())) {
+				field.setAccessible(true);
+				calls.add(field);
+				logger.trace("Adding field " + field);
+			} else {
+				logger.trace("Cannot use field " + field);
+			}
+		}
+
+		return clazz;
 	}
 }
