@@ -495,7 +495,7 @@ public class Properties {
 	public static double MIN_DELTA_COVERAGE = 0.01;
 
 	@Parameter(key = "max_iteration", group = "Manual algorithm", description = "how much itteration with MIN_DELTA_COVERAGE possible with out MA")
-	public static int MAX_ITERATION = 500;
+	public static int MAX_ITERATION = 50;
 
 	@Parameter(key = "ma_active", group = "Manual algorithm", description = "MA active")
 	public static boolean MA_ACTIVE = false;
