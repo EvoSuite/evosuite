@@ -13,17 +13,11 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
  * 
  */
 public class TestCaseTuple {
-	TestCase testCase;
-	Set<Integer> coverage = new HashSet<Integer>();
 
-	/**
-	 * Default constructor to create new TestCaseTupel
-	 * 
-	 * @param testCase
-	 *            TestCase
-	 * @param coverage
-	 *            Set of Integer
-	 */
+	private TestCase testCase;
+
+	private Set<Integer> coverage = new HashSet<Integer>();
+
 	public TestCaseTuple(TestCase testCase, Set<Integer> coverage) {
 		this.testCase = testCase;
 		this.coverage = coverage;

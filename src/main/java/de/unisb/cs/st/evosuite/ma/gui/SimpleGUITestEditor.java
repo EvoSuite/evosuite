@@ -54,7 +54,7 @@ public class SimpleGUITestEditor implements IGUI {
 
 		mainFrame.setAlwaysOnTop(true);
 		mainFrame.setLocation(new Point(dim.width - 585, dim.height - 600));
-		mainFrame.setSize(new Dimension(585, 600));
+		mainFrame.setSize(new Dimension(800, 600));
 
 		mainFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		GridBagLayout gridBagLayout = new GridBagLayout();
@@ -115,8 +115,7 @@ public class SimpleGUITestEditor implements IGUI {
 		testEditorPane.setText(editor.getCurrentTestCase().getTestCase()
 				.toCode());
 		updateLinesTextPane(testEditorPane, linesTextPane);
-		updateTitle(editor.getNumOfTestCases(), editor.getNumOfCurrntTest(),
-				editor);
+		updateTitle(editor);
 
 		JPanel controlPanel = new JPanel();
 		controlPanel.setBorder(null);
@@ -137,8 +136,7 @@ public class SimpleGUITestEditor implements IGUI {
 				testEditorPane.setText(editor.getCurrentTestCase()
 						.getTestCase().toCode());
 				setTestCaseUnchanged();
-				updateTitle(editor.getNumOfTestCases(),
-						editor.getNumOfCurrntTest(), editor);
+				updateTitle(editor);
 			}
 		});
 
@@ -157,11 +155,10 @@ public class SimpleGUITestEditor implements IGUI {
 				testEditorPane.setText(editor.getCurrentTestCase()
 						.getTestCase().toCode());
 				setTestCaseUnchanged();
-				updateTitle(editor.getNumOfTestCases(),
-						editor.getNumOfCurrntTest(), editor);
+				updateTitle(editor);
 			}
 		});
-		btnNextTestButton.setBounds(160, 12, 119, 25);
+		btnNextTestButton.setBounds(143, 12, 119, 25);
 		controlPanel.add(btnNextTestButton);
 
 		JButton btnDeleteTest = new JButton("Delete Test");
@@ -173,11 +170,10 @@ public class SimpleGUITestEditor implements IGUI {
 				testEditorPane.setText(editor.getCurrentTestCase()
 						.getTestCase().toCode());
 				setTestCaseUnchanged();
-				updateTitle(editor.getNumOfTestCases(),
-						editor.getNumOfCurrntTest(), editor);
+				updateTitle(editor);
 			}
 		});
-		btnDeleteTest.setBounds(305, 43, 119, 25);
+		btnDeleteTest.setBounds(661, 43, 119, 25);
 		controlPanel.add(btnDeleteTest);
 
 		JButton btnNewTestButton = new JButton("New Test");
@@ -187,11 +183,10 @@ public class SimpleGUITestEditor implements IGUI {
 				editor.createNewTestCase();
 				testEditorPane.setText("");
 				setTestCaseChanged();
-				updateTitle(editor.getNumOfTestCases(),
-						editor.getNumOfCurrntTest(), editor);
+				updateTitle(editor);
 			}
 		});
-		btnNewTestButton.setBounds(305, 12, 119, 25);
+		btnNewTestButton.setBounds(274, 12, 119, 25);
 		controlPanel.add(btnNewTestButton);
 
 		JButton btnInsertTestButton = new JButton("Clone Test");
@@ -200,11 +195,10 @@ public class SimpleGUITestEditor implements IGUI {
 			public void mouseClicked(MouseEvent e) {
 				editor.createNewTestCase();
 				setTestCaseChanged();
-				updateTitle(editor.getNumOfTestCases(),
-						editor.getNumOfCurrntTest(), editor);
+				updateTitle(editor);
 			}
 		});
-		btnInsertTestButton.setBounds(160, 43, 119, 25);
+		btnInsertTestButton.setBounds(274, 43, 119, 25);
 		controlPanel.add(btnInsertTestButton);
 
 		btnSaveTestCaseButton.addMouseListener(new MouseAdapter() {
@@ -216,15 +210,14 @@ public class SimpleGUITestEditor implements IGUI {
 					testEditorPane.setText(editor.getCurrentTestCase()
 							.getTestCase().toCode());
 					setTestCaseUnchanged();
-					updateTitle(editor.getNumOfTestCases(),
-							editor.getNumOfCurrntTest(), editor);
+					updateTitle(editor);
 					// there is some problem in creating of TestCase
 				} else {
 
 				}
 			}
 		});
-		btnSaveTestCaseButton.setBounds(447, 12, 119, 25);
+		btnSaveTestCaseButton.setBounds(405, 12, 119, 25);
 		controlPanel.add(btnSaveTestCaseButton);
 
 		JButton btnQuitButton = new JButton("Quit");
@@ -239,7 +232,7 @@ public class SimpleGUITestEditor implements IGUI {
 				mainFrame.dispose();
 			}
 		});
-		btnQuitButton.setBounds(447, 43, 119, 25);
+		btnQuitButton.setBounds(405, 43, 119, 25);
 		controlPanel.add(btnQuitButton);
 
 		mainFrame.addWindowListener(new WindowAdapter() {
@@ -275,9 +268,9 @@ public class SimpleGUITestEditor implements IGUI {
 		btnSaveTestCaseButton.setText("Save");
 	}
 
-	private void updateTitle(int numAllTests, int numCurrentTest, Editor editor) {
-		editorTitledBorder.setTitle("Test Editor     " + (numCurrentTest + 1)
-				+ " / " + numAllTests + "     Coverage: " + editor.getCoveratgeRatio() + "%");
+	private void updateTitle(Editor editor) {
+		editorTitledBorder.setTitle("Test Editor     " + (editor.getNumOfCurrntTest() + 1)
+				+ " / " + editor.getNumOfTestCases() + "     Coverage: " + editor.getSuiteCoveratgeVal() + "%");
 		testPanel.repaint();
 	}
 
