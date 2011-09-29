@@ -163,7 +163,6 @@ public class EvoSuite {
 		int port = handler.getServerPort();
 		List<String> cmdLine = new ArrayList<String>();
 		cmdLine.add(javaCmd);
-		cmdLine.add("-Xmx" + Properties.MAX_MEM + "M");
 		cmdLine.add("-cp");
 		cmdLine.add(classPath);
 		cmdLine.add("-Dprocess_communication_port=" + port);
@@ -203,6 +202,7 @@ public class EvoSuite {
 		Option targetClass = OptionBuilder.withArgName("class").hasArg().withDescription("target class for test generation").create("class");
 		Option criterion = OptionBuilder.withArgName("criterion").hasArg().withDescription("target criterion for test generation").create("criterion");
 		Option seed = OptionBuilder.withArgName("seed").hasArg().withDescription("seed for random number generator").create("seed");
+		Option mem = OptionBuilder.withArgName("mem").hasArg().withDescription("heap size for client process (in megabytes)").create("mem");
 
 		Option sandbox = new Option("sandbox", "Run tests in sandbox");
 		Option mocks = new Option("mocks", "Use mock classes");
@@ -216,6 +216,7 @@ public class EvoSuite {
 		options.addOption(targetClass);
 		options.addOption(criterion);
 		options.addOption(seed);
+		options.addOption(mem);
 		options.addOption(assertions);
 
 		options.addOption(sandbox);
@@ -240,6 +241,8 @@ public class EvoSuite {
 			CommandLine line = parser.parse(options, cargs);
 			javaOpts.addAll(Arrays.asList(line.getArgs()));
 
+			if (line.hasOption("mem"))
+				javaOpts.add("-Xmx" + line.getOptionValue("mem") + "M");
 			if (line.hasOption("criterion"))
 				javaOpts.add("-Dcriterion=" + line.getOptionValue("criterion"));
 			if (line.hasOption("sandbox"))

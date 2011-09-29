@@ -564,9 +564,6 @@ public class Properties {
 	@Parameter(key = "min_free_mem", group = "Runtime", description = "Minimum amount of available memory")
 	public static int MIN_FREE_MEM = 200000000;
 
-	@Parameter(key = "max_mem", group = "Runtime", description = "Amount of memory to reserve")
-	public static int MAX_MEM = 1000;
-
 	@Parameter(key = "classloader", group = "Runtime", description = "Use the classloader for instrumentation, rather than the javaagent")
 	public static boolean CLASSLOADER = false;
 
