@@ -180,11 +180,17 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public long seed = 0;
 
-		public String stoppingCondition;
+		public long stoppingCondition;
 
-		public String globalTimeStoppingCondition;
+		public long globalTimeStoppingCondition;
 
-		public String timedOut;
+		public boolean timedOut;
+		
+		public int paramDUGoalCount;
+		
+		public int interDUGoalCount;
+		
+		public int intraDUGoalCount;
 
 		public String getCSVHeader() {
 			StringBuilder r = new StringBuilder();
@@ -199,6 +205,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			// TODO since we currently don't want to change the layout of
 			// statistics.csv i will leave this commented out for future use and
 			// sort of copy this into CoverageStatistics
+			// r.append("parameter DU-goals, intra DU-goals, inter DU-goals,");
 			// r.append("Stopping Condition,Global Time,Timed Out,");
 
 			r
@@ -249,6 +256,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			// TODO since we currently don't want to change the layout of
 			// statistics.csv i will leave this commented out for future use and
 			// sort of copy this into CoverageStatistics
+//			r.append(paramDUGoalCount + ",");
+//			r.append(intraDUGoalCount + ",");
+//			r.append(interDUGoalCount + ",");
 			// r.append(stoppingCondition + ",");
 			// r.append(globalTimeStoppingCondition + ",");
 			// r.append(timedOut + ",");
