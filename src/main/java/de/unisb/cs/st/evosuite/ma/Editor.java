@@ -73,7 +73,6 @@ public class Editor {
 		}
 		suiteCoverageValProLine = testSuiteChr.getCoverage()
 				/ suiteCoverage.size();
-		System.out.println("!@#!@#!ddfj " + suiteCoverageValProLine);
 
 		// set currentTestCaseTuple to proper. value
 		nextTest();
@@ -284,9 +283,6 @@ public class Editor {
 	 * @return int
 	 */
 	public int getSuiteCoveratgeVal() {
-		System.out.println("asdsdaasdqweqweqwe "
-				+ (int) (suiteCoverageValProLine * suiteCoverage.size() * 100));
-		System.out.println("number of lines " + suiteCoverage.size());
 		return (int) (suiteCoverageValProLine * suiteCoverage.size() * 100);
 	}
 }
