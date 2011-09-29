@@ -56,7 +56,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 				// If this is in the CFG and it's a branch...
 				if (in.equals(v.getASMNode())) {
 					if (v.isBranch()) {
-						mn.instructions.insert(v.getASMNode().getPrevious(),
+						mn.instructions.insertBefore(v.getASMNode(),
 								getInstrumentation(v));
 
 					} else if (v.isSwitch()) {
