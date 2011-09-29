@@ -3,7 +3,6 @@
  */
 package de.unisb.cs.st.evosuite.coverage.path;
 
-import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
@@ -51,7 +50,7 @@ public class PrimePathTestFitness extends TestFitnessFunction {
 			if (call.className.equals(className) && call.methodName.equals(methodName)) {
 				double matches = 0.0;
 				for (Integer i : call.branchTrace) {
-					logger.debug(" -> " + i);
+					logger.debug(" |-> " + i);
 				}
 				logger.debug("-------");
 				logger.debug(path.toString());
