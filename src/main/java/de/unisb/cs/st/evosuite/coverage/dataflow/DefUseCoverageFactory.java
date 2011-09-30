@@ -304,6 +304,18 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 		logger.info("# Uses with clear path from method entry " + r.size());
 		return r;
 	}
+	
+	public static Set<Definition> getRegsiteredDefinitions() {
+		if(!called)
+			computeGoals();
+		return new HashSet<Definition>(goalMap.keySet());
+	}
+	
+	public static Map<Use,DefUseCoverageTestFitness> getRegisteredGoalsForDefinition(Definition def) {
+		if(!called)
+			computeGoals();
+		return goalMap.get(def);
+	}
 
 	// Getter
 
