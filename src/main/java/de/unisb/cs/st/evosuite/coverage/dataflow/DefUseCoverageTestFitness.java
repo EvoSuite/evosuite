@@ -151,6 +151,8 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
  * @author Andre Mis
  */
 public class DefUseCoverageTestFitness extends TestFitnessFunction {
+
+
 	private static final long serialVersionUID = 1L;
 
 	public static long singleFitnessTime = 0l;

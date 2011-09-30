@@ -39,7 +39,7 @@ public class CoverageStatistics {
 	protected static String outputFile = REPORT_DIR.getAbsolutePath()
 			+ "/coverage.csv";
 
-	public static Criterion[] supportedCriteria = { Criterion.DEFUSE,
+	public static Criterion[] supportedCriteria = { Criterion.DEFUSE, // TODO Criterion.ALLDEFS,
 			Criterion.BRANCH, Criterion.STATEMENT };
 
 	public static void analyzeCoverage(TestSuiteChromosome best) {

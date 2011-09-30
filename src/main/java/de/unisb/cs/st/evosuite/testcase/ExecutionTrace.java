@@ -254,6 +254,7 @@ public class ExecutionTrace {
 			MethodCall call = new MethodCall(className, methodName, methodId,
 					callingObjectID);
 			if (Properties.CRITERION == Criterion.DEFUSE
+					|| Properties.CRITERION == Criterion.ALLDEFS
 					|| TestSuiteGenerator.analyzing) {
 				call.branchTrace.add(-1);
 				call.trueDistanceTrace.add(1.0);
@@ -403,6 +404,7 @@ public class ExecutionTrace {
 			assert (true_distance == 0.0 || false_distance == 0.0);
 			// TODO line_trace ?
 			if (Properties.CRITERION == Criterion.DEFUSE
+					|| Properties.CRITERION == Criterion.ALLDEFS
 					|| TestSuiteGenerator.analyzing) {
 				stack.peek().defuseCounterTrace.add(duCounter);
 			}

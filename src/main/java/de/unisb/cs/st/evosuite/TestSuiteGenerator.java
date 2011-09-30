@@ -44,6 +44,8 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencySuitCoverage;
+import de.unisb.cs.st.evosuite.coverage.dataflow.AllDefsCoverageFactory;
+import de.unisb.cs.st.evosuite.coverage.dataflow.AllDefsCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
@@ -316,6 +318,7 @@ public class TestSuiteGenerator {
 			ga.addListener(new ConsoleProgressBar());
 
 		if (Properties.CRITERION == Criterion.DEFUSE
+				|| Properties.CRITERION == Criterion.ALLDEFS
 		        || Properties.CRITERION == Criterion.STATEMENT)
 			ExecutionTrace.enableTraceCalls();
 
@@ -396,6 +399,9 @@ public class TestSuiteGenerator {
 		case ANALYZE:
 			System.out.println("* Test Criterion: Analyzing");
 			break;
+		case ALLDEFS:
+			System.out.println("* Test Criterion: All Definitions");
+			break;
 		default:
 			System.out.println("* Test criterion: Branch coverage");
 		}
@@ -421,6 +427,8 @@ public class TestSuiteGenerator {
 			return new BranchCoverageSuiteFitness();
 		case STATEMENT:
 			return new StatementCoverageSuiteFitness();
+		case ALLDEFS:
+			return new AllDefsCoverageSuiteFitness();
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for " + Properties.CRITERION
 			        + " using default one (BranchCoverageSuiteFitness)");
@@ -445,6 +453,8 @@ public class TestSuiteGenerator {
 			        new ConcurrencySuitCoverage());
 		case STATEMENT:
 			return new StatementCoverageFactory();
+		case ALLDEFS:
+			return new AllDefsCoverageFactory();
 		default:
 			logger.warn("No TestFitnessFactory defined for " + Properties.CRITERION
 			        + " using default one (BranchCoverageFactory)");
@@ -461,11 +471,11 @@ public class TestSuiteGenerator {
 	private TestSuiteChromosome bootstrapRandomSuite(FitnessFunction fitness,
 	        TestFitnessFactory goals) {
 
-		if (Properties.CRITERION == Criterion.DEFUSE) {
-			System.out.println("* Disabled random bootstraping for DefUseCoverage-Criterion");
+		if (Properties.CRITERION == Criterion.DEFUSE || Properties.CRITERION == Criterion.ALLDEFS) {
+			System.out.println("* Disabled random bootstraping for dataflow criterion");
 			Properties.RANDOM_TESTS = 0;
 		}
-
+		
 		if (Properties.RANDOM_TESTS > 0) {
 			System.out.println("* Bootstrapping initial random test suite");
 		} else
