@@ -82,17 +82,12 @@ public class TestParser {
 
 	/**
 	 * Parse a testCase in form of {@link String} to List<StatementInterface>
-	 * statements, create {@link TestCase} and save it to List of tests in
+	 * statements, create {@link TestCase} and save it to the List of tests in
 	 * {@link GeneticAlgorithm}
 	 * 
 	 * @param testCode
 	 *            to parse
-	 * @param clazz
-	 * @param sgui
-	 * @param tests
-	 *            destination to save results
 	 * @throws IOException
-	 * @throws ParseException
 	 */
 	public TestCase parsTest(String testCode) throws IOException {
 		CompilationUnit cu = null;
@@ -245,7 +240,8 @@ public class TestParser {
 				} catch (SecurityException e) {
 					e.printStackTrace();
 				} catch (NoSuchMethodException e) {
-					throw new ParseException(null, "No such method in this class.");
+					throw new ParseException(null,
+							"No such method in this class.");
 				}
 
 				res = new ConstructorStatement(newTestCase, constructor, clazz,
@@ -267,7 +263,7 @@ public class TestParser {
 			}
 		} else {
 			throw new ParseException(null,
-					"There is no right side of declaration ecpression!");
+					"There is no right side of declaration expression!");
 		}
 
 		return res;
@@ -333,16 +329,9 @@ public class TestParser {
 			AbstractStatement newStatement) throws ParseException {
 		ArrayList<VariableReference> varRefArray = new ArrayList<VariableReference>();
 		varRefArray.addAll(newStatement.getVariableReferences());
-		String varBinding = "var" + (varDeclExpr.getBeginLine() - 1);
-
-		VariableReference varRef = null;
-		for (VariableReference tVarRef : varRefArray) {
-			if (varBinding.equals(tVarRef.getName())) {
-				varRef = tVarRef;
-			}
-		}
-		tt.addVar(new Var(varDeclExpr.getVars().get(0).getId().getName(),
-				varBinding, varDeclExpr.getType(), varRef));
+		VariableReference varRef = newStatement.getReturnValue();
+		
+		tt.addVar(new Var(varDeclExpr.getVars().get(0).getId().getName(), varDeclExpr.getType(), varRef));
 	}
 
 	/**
