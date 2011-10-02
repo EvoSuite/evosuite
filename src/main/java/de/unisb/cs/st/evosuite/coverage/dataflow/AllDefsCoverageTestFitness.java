@@ -64,9 +64,47 @@ public class AllDefsCoverageTestFitness extends TestFitnessFunction {
 		// TODO: compute minimum over all use-fitnesses
 		// TODO: return that minimum after normalization, stop once a use-fitness is 0
 		
-		return 0;
+		// first inefficient version:
+		double min = Double.MAX_VALUE;
+		for(Use use : uses.keySet()) {
+			double useFitness = uses.get(use).getFitness(individual, result);
+			if(useFitness == 0)
+				return 0;
+			if(useFitness<min)
+				min = useFitness;
+		}
+		
+		return min;
 	}
 	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((targetDef == null) ? 0 : targetDef.hashCode());
+		return result;
+	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AllDefsCoverageTestFitness other = (AllDefsCoverageTestFitness) obj;
+		if (targetDef == null) {
+			if (other.targetDef != null)
+				return false;
+		} else if (!targetDef.equals(other.targetDef))
+			return false;
+		return true;
+	}
+
+
 	@Override
 	public String toString() {
 		return "AllDef-Goal "+targetDef.toString();

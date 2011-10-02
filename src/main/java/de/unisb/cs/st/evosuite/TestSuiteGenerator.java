@@ -437,7 +437,11 @@ public class TestSuiteGenerator {
 	}
 
 	public static TestFitnessFactory getFitnessFactory() {
-		switch (Properties.CRITERION) {
+		return getFitnessFactory(Properties.CRITERION);
+	}
+	
+	public static TestFitnessFactory getFitnessFactory(Criterion crit) {
+		switch (crit) {
 		case MUTATION:
 			return new MutationFactory();
 		case LCSAJ:
@@ -456,7 +460,7 @@ public class TestSuiteGenerator {
 		case ALLDEFS:
 			return new AllDefsCoverageFactory();
 		default:
-			logger.warn("No TestFitnessFactory defined for " + Properties.CRITERION
+			logger.warn("No TestFitnessFactory defined for " + crit
 			        + " using default one (BranchCoverageFactory)");
 			return new BranchCoverageFactory();
 		}

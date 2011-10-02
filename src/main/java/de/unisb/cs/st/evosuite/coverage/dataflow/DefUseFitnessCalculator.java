@@ -215,7 +215,7 @@ public class DefUseFitnessCalculator {
 			double useFitness = callTestFitnessFunctionForTrace(objectTrace,
 					goalUseFitness);
 			fitness = normalize(useFitness);
-			if (fitness == 0.0)
+			if (Properties.CRITERION == Criterion.DEFUSE && fitness == 0.0)
 				goal.setCovered(individual, objectTrace, objectId);
 			return fitness;
 		}
@@ -232,7 +232,8 @@ public class DefUseFitnessCalculator {
 							objectId);
 			if (activeDefId == goalDefinition.getDefId()) {
 				// Case 3.1.
-				goal.setCovered(individual, objectTrace, objectId);
+				if(Properties.CRITERION == Criterion.DEFUSE)
+					goal.setCovered(individual, objectTrace, objectId);
 				return 0.0;
 			} else {
 				if (ENABLE_ALTERNATIVE_FITNESS_CALCULATION) {
