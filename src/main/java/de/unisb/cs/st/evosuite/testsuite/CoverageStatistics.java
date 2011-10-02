@@ -39,7 +39,7 @@ public class CoverageStatistics {
 	protected static String outputFile = REPORT_DIR.getAbsolutePath()
 			+ "/coverage.csv";
 
-	public static Criterion[] supportedCriteria = { Criterion.DEFUSE, // TODO Criterion.ALLDEFS,
+	public static Criterion[] supportedCriteria = { Criterion.DEFUSE, Criterion.ALLDEFS,
 			Criterion.BRANCH, Criterion.STATEMENT };
 
 	public static void analyzeCoverage(TestSuiteChromosome best) {
@@ -187,7 +187,7 @@ public class CoverageStatistics {
 		StatisticEntry dummyStat = SearchStatistics.getInstance()
 				.getLastStatisticEntry();
 
-		return "Class,TestCriterion,DefUse-Coverage,Branch-Coverage,Statement-Coverage,"
+		return "Class,TestCriterion,DefUse-Coverage,AllDefs-Coverage,Branch-Coverage,Statement-Coverage,"
 				+ "Covered param goals,Total param goals,Covered intra goals,Total intra goals,Covered inter goals,Total inter goals,"
 				+ "Combined-Coverage,Combined-Boost,Combined param goals,Combined intra goals,Combined inter goals,"
 				+ "Mode,Stopping Condition,Global Time,Timed Out,"
