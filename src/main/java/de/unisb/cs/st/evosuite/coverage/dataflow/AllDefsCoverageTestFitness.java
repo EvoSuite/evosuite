@@ -58,7 +58,7 @@ public class AllDefsCoverageTestFitness extends TestFitnessFunction {
 		double defFitness = goalDefinitionFitness.getFitness(individual, result);
 		
 		if(defFitness>0)
-			return normalize(defFitness);
+			return 1+normalize(defFitness);
 		
 		// TODO: filter all objects
 		// TODO: compute minimum over all use-fitnesses
