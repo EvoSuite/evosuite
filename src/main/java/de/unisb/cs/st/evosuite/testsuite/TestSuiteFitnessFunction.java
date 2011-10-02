@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.dataflow.AllDefsCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.statement.StatementCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
@@ -140,6 +141,8 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 			return StatementCoverageSuiteFitness.mostCoveredGoals;
 		case BRANCH:
 			return BranchCoverageSuiteFitness.mostCoveredGoals;
+		case ALLDEFS:
+			return AllDefsCoverageSuiteFitness.mostCoveredGoals;
 		default:
 			return -1; // to indicate value is missing
 		}

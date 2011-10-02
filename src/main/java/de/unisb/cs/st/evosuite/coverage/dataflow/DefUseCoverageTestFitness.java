@@ -22,6 +22,7 @@ import java.text.NumberFormat;
 import java.util.Set;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
@@ -230,7 +231,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		
 		double fitness = calculator.calculateDUFitness();
 
-		if(fitness == 0.0)
+		if(Properties.CRITERION == Criterion.DEFUSE && fitness == 0.0)
 			setCovered(individual, result.getTrace(), -1); // TODO objectId wrong
 		
 		postFitnessDebugInfo(individual, result, fitness);
