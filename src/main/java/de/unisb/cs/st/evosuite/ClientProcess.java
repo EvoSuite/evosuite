@@ -137,6 +137,7 @@ public class ClientProcess implements SearchListener {
 			System.err.println("Error when generating tests for: "
 			        + Properties.TARGET_CLASS);
 			t.printStackTrace();
+			System.exit(1);
 		}
 	}
 }
