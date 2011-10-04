@@ -8,14 +8,14 @@ import com.examples.with.different.packagename.SingleMethod;
  * @author Andrea Arcuri
  * 
  */
-public class TestSUTWithSimpleSingleMethod {
+public class TestSUTWithSimpleSingleMethod extends SystemTest{
 
 	@Test
 	public void testSingleMethod(){
 		EvoSuite evosuite = new EvoSuite();
 		
 		String[] command = new String[]{				
-				EvoSuite.JAVA_CMD,
+				//EvoSuite.JAVA_CMD,
 				"-generateSuite",
 				"-class",
 				SingleMethod.class.getCanonicalName(),
