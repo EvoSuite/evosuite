@@ -12,7 +12,9 @@ public interface IGUI {
 	/**
 	 * @param message
 	 */
-	void showParseException(String message);
+	public void showParseException(String message);
+	
+	public String showChooseFileMenu();
 
 
 }
