@@ -59,7 +59,8 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 				// v.branchId =
 				// completeCFG.getInstruction(v.getId()).getBranchId();
 
-				if ((Properties.CRITERION == Criterion.DEFUSE || TestSuiteGenerator.analyzing)
+				if ((Properties.CRITERION == Criterion.DEFUSE
+						|| Properties.CRITERION == Criterion.ALLDEFS || TestSuiteGenerator.analyzing)
 						&& in.equals(v.getASMNode()) && (v.isDefUse())) {
 
 					// keeping track of uses
@@ -74,16 +75,17 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 						boolean staticContext = v.isStaticDefUse()
 								|| ((access & Opcodes.ACC_STATIC) > 0);
 						// adding instrumentation for defuse-coverage
-						InsnList instrumentation = getInstrumentation(v, staticContext, className,
-								methodName);
-						if(instrumentation == null)
-							throw new IllegalStateException("error instrumenting node "+v.toString());
-						
-//						AbstractInsnNode prev = v.getASMNode().getPrevious();
-//						if(prev == null) // no previous instruction
-//							mn.instructions.insert(instrumentation);
-//						else
-							mn.instructions.insertBefore(v.getASMNode(),
+						InsnList instrumentation = getInstrumentation(v,
+								staticContext, className, methodName);
+						if (instrumentation == null)
+							throw new IllegalStateException(
+									"error instrumenting node " + v.toString());
+
+						// AbstractInsnNode prev = v.getASMNode().getPrevious();
+						// if(prev == null) // no previous instruction
+						// mn.instructions.insert(instrumentation);
+						// else
+						mn.instructions.insertBefore(v.getASMNode(),
 								instrumentation);
 					}
 				}
@@ -109,7 +111,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			return instrumentation;
 		}
 		DefUse targetDU = DefUseFactory.makeInstance(v);
-//		System.out.println("instrumenting: "+targetDU.toString());
+		// System.out.println("instrumenting: "+targetDU.toString());
 		if (DefUsePool.isKnownAsUse(v)) {
 
 			if (targetDU.getUseId() != DefUsePool.getUseCounter())
