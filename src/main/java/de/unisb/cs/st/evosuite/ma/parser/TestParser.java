@@ -35,7 +35,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ma.gui.IGUI;
 import de.unisb.cs.st.evosuite.testcase.AbstractStatement;
@@ -75,6 +74,8 @@ public class TestParser {
 	private final IGUI gui;
 
 	private TestCase newTestCase;
+
+	private TestCluster testCluster = TestCluster.getInstance();
 
 	public TestParser(IGUI pgui) {
 		gui = pgui;
@@ -330,8 +331,9 @@ public class TestParser {
 		ArrayList<VariableReference> varRefArray = new ArrayList<VariableReference>();
 		varRefArray.addAll(newStatement.getVariableReferences());
 		VariableReference varRef = newStatement.getReturnValue();
-		
-		tt.addVar(new Var(varDeclExpr.getVars().get(0).getId().getName(), varDeclExpr.getType(), varRef));
+
+		tt.addVar(new Var(varDeclExpr.getVars().get(0).getId().getName(),
+				varDeclExpr.getType(), varRef));
 	}
 
 	/**
@@ -520,14 +522,19 @@ public class TestParser {
 	 */
 	private Class<?> refTypeToClass(ReferenceType refType)
 			throws ParseException {
-		String fullClassName = Properties.PROJECT_PREFIX + "."
-				+ refType.getType();
+		// String fullClassName = Properties.PROJECT_PREFIX + "."
+		// + refType.getType();
 		try {
-			return TestCluster.classLoader.loadClass(fullClassName);
+			return testCluster.getClass(refType.getType().toString());
+			// return TestCluster.classLoader.loadClass(fullClassName);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			throw new ParseException(null,
-					"Can not load class for ReferenceType: " + fullClassName);
+			try {
+				return testCluster.importClass(gui.showChooseFileMenu());
+			} catch (ClassNotFoundException e1) {
+				throw new ParseException(null,
+						"Can not load class for ReferenceType: "
+								+ refType.getType());
+			}
 		}
 	}
 
@@ -537,14 +544,18 @@ public class TestParser {
 	 * @throws ParseException
 	 */
 	private Class<?> coiTypeToClass(Type parsType) throws ParseException {
-		String fullClassName = Properties.PROJECT_PREFIX + "." + parsType;
+		// String fullClassName = Properties.PROJECT_PREFIX + "." + parsType;
 		try {
-			return TestCluster.classLoader.loadClass(fullClassName);
+			return testCluster.getClass(parsType.toString());
+			// return TestCluster.classLoader.loadClass(fullClassName);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			throw new ParseException(null,
-					"Can not load class for ClassOrInterfaceType: "
-							+ fullClassName);
+			try {
+				return testCluster.importClass(gui.showChooseFileMenu());
+			} catch (ClassNotFoundException e1) {
+				throw new ParseException(null,
+						"Can not load class for ClassOrInterfaceType: "
+								+ parsType);
+			}
 		}
 	}
 
@@ -635,111 +646,5 @@ public class TestParser {
 	public static boolean isStatic(String varName) {
 		return Character.isUpperCase(varName.charAt(0));
 	}
-
-	// private void printTypeOfExpr(Expression expr) {
-	// if (expr instanceof AnnotationExpr) {
-	// System.out.println("Expr: " + expr + " is AnnotationExpr.");
-	// }
-	// if (expr instanceof ArrayAccessExpr) {
-	// System.out.println("Expr: " + expr + " is ArrayAccessExpr.");
-	// }
-	// if (expr instanceof ArrayCreationExpr) {
-	// System.out.println("Expr: " + expr + " is ArrayCreationExpr.");
-	// }
-	// if (expr instanceof ArrayInitializerExpr) {
-	// System.out.println("Expr: " + expr + " is ArrayInitializerExpr.");
-	// }
-	// if (expr instanceof AssignExpr) {
-	// System.out.println("Expr: " + expr + " is AssignExpr.");
-	// }
-	// if (expr instanceof BinaryExpr) {
-	// System.out.println("Expr: " + expr + " is BinaryExpr.");
-	// }
-	// if (expr instanceof BooleanLiteralExpr) {
-	// System.out.println("Expr: " + expr + " is BooleanLiteralExpr.");
-	// }
-	// if (expr instanceof CastExpr) {
-	// System.out.println("Expr: " + expr + " is CastExpr.");
-	// }
-	// if (expr instanceof CharLiteralExpr) {
-	// System.out.println("Expr: " + expr + " is CharLiteralExpr.");
-	// }
-	// if (expr instanceof ClassExpr) {
-	// System.out.println("Expr: " + expr + " is ClassExpr.");
-	// }
-	// if (expr instanceof ConditionalExpr) {
-	// System.out.println("Expr: " + expr + " is ConditionalExpr.");
-	// }
-	// if (expr instanceof DoubleLiteralExpr) {
-	// System.out.println("Expr: " + expr + " is DoubleLiteralExpr.");
-	// }
-	// if (expr instanceof EnclosedExpr) {
-	// System.out.println("Expr: " + expr + " is EnclosedExpr.");
-	// }
-	// if (expr instanceof FieldAccessExpr) {
-	// System.out.println("Expr: " + expr + " is FieldAccessExpr.");
-	// }
-	// if (expr instanceof InstanceOfExpr) {
-	// System.out.println("Expr: " + expr + " is InstanceOfExpr.");
-	// }
-	// if (expr instanceof IntegerLiteralExpr) {
-	// System.out.println("Expr: " + expr + " is IntegerLiteralExpr.");
-	// }
-	// if (expr instanceof IntegerLiteralMinValueExpr) {
-	// System.out.println("Expr: " + expr
-	// + " is IntegerLiteralMinValueExpr.");
-	// }
-	// if (expr instanceof LiteralExpr) {
-	// System.out.println("Expr: " + expr + " is LiteralExpr.");
-	// }
-	// if (expr instanceof LongLiteralExpr) {
-	// System.out.println("Expr: " + expr + " is LongLiteralExpr.");
-	// }
-	// if (expr instanceof LongLiteralMinValueExpr) {
-	// System.out
-	// .println("Expr: " + expr + " is LongLiteralMinValueExpr.");
-	// }
-	// if (expr instanceof MarkerAnnotationExpr) {
-	// System.out.println("Expr: " + expr + " is MarkerAnnotationExpr.");
-	// }
-	// if (expr instanceof MethodCallExpr) {
-	// System.out.println("Expr: " + expr + " is MethodCallExpr.");
-	// }
-	// if (expr instanceof NameExpr) {
-	// System.out.println("Expr: " + expr + " is NameExpr.");
-	// }
-	// if (expr instanceof NormalAnnotationExpr) {
-	// System.out.println("Expr: " + expr + " is NormalAnnotationExpr.");
-	// }
-	// if (expr instanceof NullLiteralExpr) {
-	// System.out.println("Expr: " + expr + " is NullLiteralExpr.");
-	// }
-	// if (expr instanceof ObjectCreationExpr) {
-	// System.out.println("Expr: " + expr + " is ObjectCreationExpr.");
-	// }
-	// if (expr instanceof QualifiedNameExpr) {
-	// System.out.println("Expr: " + expr + " is QualifiedNameExpr.");
-	// }
-	// if (expr instanceof SingleMemberAnnotationExpr) {
-	// System.out.println("Expr: " + expr
-	// + " is SingleMemberAnnotationExpr.");
-	// }
-	// if (expr instanceof StringLiteralExpr) {
-	// System.out.println("Expr: " + expr + " is StringLiteralExpr.");
-	// }
-	// if (expr instanceof SuperExpr) {
-	// System.out.println("Expr: " + expr + " is SuperExpr.");
-	// }
-	// if (expr instanceof ThisExpr) {
-	// System.out.println("Expr: " + expr + " is ThisExpr.");
-	// }
-	// if (expr instanceof UnaryExpr) {
-	// System.out.println("Expr: " + expr + " is UnaryExpr.");
-	// }
-	// if (expr instanceof VariableDeclarationExpr) {
-	// System.out
-	// .println("Expr: " + expr + " is VariableDeclarationExpr.");
-	// }
-	// }
 
 }

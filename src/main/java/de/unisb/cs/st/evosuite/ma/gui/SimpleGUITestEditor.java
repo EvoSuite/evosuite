@@ -14,6 +14,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -300,5 +301,16 @@ public class SimpleGUITestEditor implements IGUI {
 	public void showParseException(String message) {
 		JOptionPane.showMessageDialog(mainFrame, message, "Parsing error",
 				JOptionPane.ERROR_MESSAGE);
+	}
+	
+	public String showChooseFileMenu() {
+		final JFileChooser fc = new JFileChooser();
+		int returnVal = fc.showOpenDialog(mainFrame);
+		
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			return fc.getSelectedFile().getName();
+		}
+		
+		return null;
 	}
 }
