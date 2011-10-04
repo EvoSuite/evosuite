@@ -6,6 +6,9 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -16,15 +19,20 @@ import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.KeyStroke;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import javax.swing.undo.UndoManager;
 
 import de.unisb.cs.st.evosuite.ma.Editor;
 
@@ -46,12 +54,20 @@ public class SimpleGUITestEditor implements IGUI {
 
 	private final JPanel testPanel = new JPanel();
 
+	private final UndoManager undoManager = new UndoManager();
+
+	private final JEditorPane testEditorPane = new JEditorPane();
+
+	private Editor editor;
+
 	/**
 	 * @wbp.parser.entryPoint
 	 */
 	public void createMainWindow(final Editor editor) {
+		this.editor = editor;
 		sourceCodeWindow.createWindow();
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		ActionListener menuListener = new MenuActionListener();
 
 		mainFrame.setAlwaysOnTop(true);
 		mainFrame.setLocation(new Point(dim.width - 585, dim.height - 600));
@@ -97,13 +113,13 @@ public class SimpleGUITestEditor implements IGUI {
 		gbc_linesTextPane.gridy = 0;
 		panel.add(linesTextPane, gbc_linesTextPane);
 
-		final JEditorPane testEditorPane = new JEditorPane();
 		testEditorPane.addCaretListener(new CaretListener() {
 			public void caretUpdate(CaretEvent arg0) {
 				updateLinesTextPane(testEditorPane, linesTextPane);
 				setTestCaseChanged();
 			}
 		});
+
 		testEditorPane.setAlignmentY(0.1f);
 		testEditorPane.setAlignmentX(0.1f);
 		GridBagConstraints gbc_testEditorPane = new GridBagConstraints();
@@ -111,6 +127,8 @@ public class SimpleGUITestEditor implements IGUI {
 		gbc_testEditorPane.gridx = 1;
 		gbc_testEditorPane.gridy = 0;
 		panel.add(testEditorPane, gbc_testEditorPane);
+
+		testEditorPane.getDocument().addUndoableEditListener(undoManager);
 
 		// print first TC
 		testEditorPane.setText(editor.getCurrentTestCase().getTestCase()
@@ -128,16 +146,11 @@ public class SimpleGUITestEditor implements IGUI {
 		gbc_controlPanel.gridy = 1;
 		mainFrame.getContentPane().add(controlPanel, gbc_controlPanel);
 
-		JButton btnPrevTestButton = new JButton("Prev Test");
+		JButton btnPrevTestButton = new JButton("Prev test");
 		btnPrevTestButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				editor.prevTest();
-				sourceCodeWindow.printSourceCode(editor);
-				testEditorPane.setText(editor.getCurrentTestCase()
-						.getTestCase().toCode());
-				setTestCaseUnchanged();
-				updateTitle(editor);
+				prevTest();
 			}
 		});
 
@@ -147,75 +160,50 @@ public class SimpleGUITestEditor implements IGUI {
 		btnPrevTestButton.setBounds(12, 12, 119, 25);
 		controlPanel.add(btnPrevTestButton);
 
-		JButton btnNextTestButton = new JButton("Next Test");
+		JButton btnNextTestButton = new JButton("Next test");
 		btnNextTestButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				editor.nextTest();
-				sourceCodeWindow.printSourceCode(editor);
-				testEditorPane.setText(editor.getCurrentTestCase()
-						.getTestCase().toCode());
-				setTestCaseUnchanged();
-				updateTitle(editor);
+				nextTest();
 			}
 		});
 		btnNextTestButton.setBounds(143, 12, 119, 25);
 		controlPanel.add(btnNextTestButton);
 
-		JButton btnDeleteTest = new JButton("Delete Test");
+		JButton btnDeleteTest = new JButton("Delete test");
 		btnDeleteTest.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				editor.deleteCurrentTestCase();
-				sourceCodeWindow.printSourceCode(editor);
-				testEditorPane.setText(editor.getCurrentTestCase()
-						.getTestCase().toCode());
-				setTestCaseUnchanged();
-				updateTitle(editor);
+				deleteTest();
 			}
 		});
 		btnDeleteTest.setBounds(661, 43, 119, 25);
 		controlPanel.add(btnDeleteTest);
 
-		JButton btnNewTestButton = new JButton("New Test");
+		JButton btnNewTestButton = new JButton("New test");
 		btnNewTestButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				editor.createNewTestCase();
-				testEditorPane.setText("");
-				setTestCaseChanged();
-				updateTitle(editor);
+				newTest();
 			}
 		});
 		btnNewTestButton.setBounds(274, 12, 119, 25);
 		controlPanel.add(btnNewTestButton);
 
-		JButton btnInsertTestButton = new JButton("Clone Test");
-		btnInsertTestButton.addMouseListener(new MouseAdapter() {
+		JButton btnCloneTestButton = new JButton("Clone test");
+		btnCloneTestButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				editor.createNewTestCase();
-				setTestCaseChanged();
-				updateTitle(editor);
+				cloneTest();
 			}
 		});
-		btnInsertTestButton.setBounds(274, 43, 119, 25);
-		controlPanel.add(btnInsertTestButton);
+		btnCloneTestButton.setBounds(274, 43, 119, 25);
+		controlPanel.add(btnCloneTestButton);
 
 		btnSaveTestCaseButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				// new TestCase was created and inserted in population
-				if (editor.saveTest(testEditorPane.getText())) {
-					sourceCodeWindow.printSourceCode(editor);
-					testEditorPane.setText(editor.getCurrentTestCase()
-							.getTestCase().toCode());
-					setTestCaseUnchanged();
-					updateTitle(editor);
-					// there is some problem in creating of TestCase
-				} else {
-
-				}
+				saveTest();
 			}
 		});
 		btnSaveTestCaseButton.setBounds(405, 12, 119, 25);
@@ -225,26 +213,99 @@ public class SimpleGUITestEditor implements IGUI {
 		btnQuitButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				sourceCodeWindow.close();
-				mainFrame.setVisible(false);
-				synchronized (lock) {
-					lock.notifyAll();
-				}
-				mainFrame.dispose();
+				quit();
 			}
 		});
 		btnQuitButton.setBounds(405, 43, 119, 25);
 		controlPanel.add(btnQuitButton);
 
+		JMenuBar menuBar = new JMenuBar();
+		mainFrame.setJMenuBar(menuBar);
+
+		JMenu mnTestCaseEditor = new JMenu("TestCase Editor");
+		mnTestCaseEditor.setMnemonic(KeyEvent.VK_T);
+		menuBar.add(mnTestCaseEditor);
+
+		JMenuItem mntmPrevTest = new JMenuItem("Prev test", KeyEvent.VK_P);
+		mntmPrevTest.addActionListener(menuListener);
+		KeyStroke ctrlPKeyStroke = KeyStroke.getKeyStroke("control P");
+		mntmPrevTest.setAccelerator(ctrlPKeyStroke);
+		mnTestCaseEditor.add(mntmPrevTest);
+
+		JMenuItem mntmNextTest = new JMenuItem("Next test", KeyEvent.VK_E);
+		mntmNextTest.addActionListener(menuListener);
+		KeyStroke ctrlEKeyStroke = KeyStroke.getKeyStroke("control E");
+		mntmNextTest.setAccelerator(ctrlEKeyStroke);
+		mnTestCaseEditor.add(mntmNextTest);
+
+		mnTestCaseEditor.addSeparator();
+
+		JMenuItem mntmNewTest = new JMenuItem("New test", KeyEvent.VK_N);
+		mntmNewTest.addActionListener(menuListener);
+		KeyStroke ctrlNKeyStroke = KeyStroke.getKeyStroke("control N");
+		mntmNewTest.setAccelerator(ctrlNKeyStroke);
+		mnTestCaseEditor.add(mntmNewTest);
+
+		JMenuItem mntmCloneTest = new JMenuItem("Clone test", KeyEvent.VK_L);
+		mntmCloneTest.addActionListener(menuListener);
+		KeyStroke ctrlLKeyStroke = KeyStroke.getKeyStroke("control L");
+		mntmCloneTest.setAccelerator(ctrlLKeyStroke);
+		mnTestCaseEditor.add(mntmCloneTest);
+
+		JMenuItem mntmSaveTest = new JMenuItem("Save", KeyEvent.VK_S);
+		mntmSaveTest.addActionListener(menuListener);
+		KeyStroke ctrlSKeyStroke = KeyStroke.getKeyStroke("control S");
+		mntmSaveTest.setAccelerator(ctrlSKeyStroke);
+		mnTestCaseEditor.add(mntmSaveTest);
+
+		mnTestCaseEditor.addSeparator();
+
+		JMenuItem mntmQuit = new JMenuItem("Quit", KeyEvent.VK_Q);
+		mntmQuit.addActionListener(menuListener);
+		KeyStroke ctrlQKeyStroke = KeyStroke.getKeyStroke("control Q");
+		mntmQuit.setAccelerator(ctrlQKeyStroke);
+		mnTestCaseEditor.add(mntmQuit);
+
+		JMenu mnEditor = new JMenu("Editor");
+		mnEditor.setMnemonic(KeyEvent.VK_E);
+		menuBar.add(mnEditor);
+
+		JMenuItem mntmCopy = new JMenuItem("Copy", KeyEvent.VK_C);
+		mntmCopy.addActionListener(menuListener);
+		KeyStroke ctrlCKeyStroke = KeyStroke.getKeyStroke("control C");
+		mntmCopy.setAccelerator(ctrlCKeyStroke);
+		mnEditor.add(mntmCopy);
+
+		JMenuItem mntmCut = new JMenuItem("Cut", KeyEvent.VK_X);
+		mntmCut.addActionListener(menuListener);
+		KeyStroke ctrlXKeyStroke = KeyStroke.getKeyStroke("control X");
+		mntmCut.setAccelerator(ctrlXKeyStroke);
+		mnEditor.add(mntmCut);
+
+		JMenuItem mntmPaste = new JMenuItem("Paste", KeyEvent.VK_V);
+		mntmPaste.addActionListener(menuListener);
+		KeyStroke ctrlVKeyStroke = KeyStroke.getKeyStroke("control V");
+		mntmPaste.setAccelerator(ctrlVKeyStroke);
+		mnEditor.add(mntmPaste);
+
+		mnEditor.addSeparator();
+
+		JMenuItem mntmUnDo = new JMenuItem("Undo", KeyEvent.VK_Z);
+		mntmUnDo.addActionListener(menuListener);
+		KeyStroke ctrlZKeyStroke = KeyStroke.getKeyStroke("control Z");
+		mntmUnDo.setAccelerator(ctrlZKeyStroke);
+		mnEditor.add(mntmUnDo);
+
+		JMenuItem mntmReDo = new JMenuItem("Redo", KeyEvent.VK_Y);
+		mntmReDo.addActionListener(menuListener);
+		KeyStroke ctrlYKeyStroke = KeyStroke.getKeyStroke("control Y");
+		mntmReDo.setAccelerator(ctrlYKeyStroke);
+		mnEditor.add(mntmReDo);
+
 		mainFrame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent arg0) {
-				sourceCodeWindow.close();
-				mainFrame.setVisible(false);
-				synchronized (lock) {
-					lock.notifyAll();
-				}
-				mainFrame.dispose();
+				quit();
 			}
 		});
 
@@ -270,8 +331,10 @@ public class SimpleGUITestEditor implements IGUI {
 	}
 
 	private void updateTitle(Editor editor) {
-		editorTitledBorder.setTitle("Test Editor     " + (editor.getNumOfCurrntTest() + 1)
-				+ " / " + editor.getNumOfTestCases() + "     Coverage: " + editor.getSuiteCoveratgeVal() + "%");
+		editorTitledBorder.setTitle("Test Editor     "
+				+ (editor.getNumOfCurrntTest() + 1) + " / "
+				+ editor.getNumOfTestCases() + "     Coverage: "
+				+ editor.getSuiteCoveratgeVal() + "%");
 		testPanel.repaint();
 	}
 
@@ -302,15 +365,111 @@ public class SimpleGUITestEditor implements IGUI {
 		JOptionPane.showMessageDialog(mainFrame, message, "Parsing error",
 				JOptionPane.ERROR_MESSAGE);
 	}
-	
+
 	public String showChooseFileMenu() {
 		final JFileChooser fc = new JFileChooser();
 		int returnVal = fc.showOpenDialog(mainFrame);
-		
+
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			return fc.getSelectedFile().getName();
 		}
-		
+
 		return null;
+	}
+
+	private void prevTest() {
+		editor.prevTest();
+		sourceCodeWindow.printSourceCode(editor);
+		testEditorPane.setText(editor.getCurrentTestCase().getTestCase()
+				.toCode());
+		setTestCaseUnchanged();
+		updateTitle(editor);
+	}
+
+	private void nextTest() {
+		editor.nextTest();
+		sourceCodeWindow.printSourceCode(editor);
+		testEditorPane.setText(editor.getCurrentTestCase().getTestCase()
+				.toCode());
+		setTestCaseUnchanged();
+		updateTitle(editor);
+	}
+
+	private void deleteTest() {
+		editor.deleteCurrentTestCase();
+		sourceCodeWindow.printSourceCode(editor);
+		testEditorPane.setText(editor.getCurrentTestCase().getTestCase()
+				.toCode());
+		setTestCaseUnchanged();
+		updateTitle(editor);
+	}
+
+	private void newTest() {
+		editor.createNewTestCase();
+		testEditorPane.setText("");
+		setTestCaseChanged();
+		updateTitle(editor);
+	}
+
+	private void cloneTest() {
+		editor.createNewTestCase();
+		setTestCaseChanged();
+		updateTitle(editor);
+	}
+
+	private void saveTest() {
+		if (editor.saveTest(testEditorPane.getText())) {
+			sourceCodeWindow.printSourceCode(editor);
+			testEditorPane.setText(editor.getCurrentTestCase().getTestCase()
+					.toCode());
+			setTestCaseUnchanged();
+			updateTitle(editor);
+		}
+	}
+
+	private void quit() {
+		sourceCodeWindow.close();
+		mainFrame.setVisible(false);
+		synchronized (lock) {
+			lock.notifyAll();
+		}
+		mainFrame.dispose();
+	}
+
+	private void undo() {
+		if (undoManager.canUndo()) {
+			undoManager.undo();
+		}
+	}
+
+	private void redo() {
+		if (undoManager.canRedo()) {
+			undoManager.redo();
+		}
+	}
+
+	class MenuActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent actionEvent) {
+			System.out.println("Selected: " + actionEvent.getActionCommand());
+			if (actionEvent.getActionCommand().equals("Prev test")) {
+				prevTest();
+			} else if (actionEvent.getActionCommand().equals("Next test")) {
+				nextTest();
+			} else if (actionEvent.getActionCommand().equals("Delete test")) {
+				deleteTest();
+			} else if (actionEvent.getActionCommand().equals("New test")) {
+				newTest();
+			} else if (actionEvent.getActionCommand().equals("Clone test")) {
+				cloneTest();
+			} else if (actionEvent.getActionCommand().equals("Save")) {
+				saveTest();
+			} else if (actionEvent.getActionCommand().equals("Quit")) {
+				quit();
+			} else if (actionEvent.getActionCommand().equals("Undo")) {
+				undo();
+			} else if (actionEvent.getActionCommand().equals("Redo")) {
+				redo();
+			}
+		}
 	}
 }
