@@ -24,6 +24,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
@@ -289,18 +290,61 @@ public class SimpleGUITestEditor implements IGUI {
 		mnEditor.add(mntmPaste);
 
 		mnEditor.addSeparator();
-
+				
 		JMenuItem mntmUnDo = new JMenuItem("Undo", KeyEvent.VK_Z);
 		mntmUnDo.addActionListener(menuListener);
 		KeyStroke ctrlZKeyStroke = KeyStroke.getKeyStroke("control Z");
 		mntmUnDo.setAccelerator(ctrlZKeyStroke);
 		mnEditor.add(mntmUnDo);
-
+		
 		JMenuItem mntmReDo = new JMenuItem("Redo", KeyEvent.VK_Y);
 		mntmReDo.addActionListener(menuListener);
 		KeyStroke ctrlYKeyStroke = KeyStroke.getKeyStroke("control Y");
 		mntmReDo.setAccelerator(ctrlYKeyStroke);
 		mnEditor.add(mntmReDo);
+		
+		final JPopupMenu popUpMenu = new JPopupMenu();
+		
+		JMenuItem popPrevTest = new JMenuItem("Prev test");
+		popPrevTest.addActionListener(menuListener);
+		popUpMenu.add(popPrevTest);
+
+		JMenuItem popNextTest = new JMenuItem("Next test");
+		popNextTest.addActionListener(menuListener);
+		popUpMenu.add(popNextTest);
+
+		popUpMenu.addSeparator();
+		
+		JMenuItem popCopy = new JMenuItem("Copy");
+		popCopy.addActionListener(menuListener);
+		popUpMenu.add(popCopy);
+
+		JMenuItem popCut = new JMenuItem("Cut");
+		popCut.addActionListener(menuListener);
+		popUpMenu.add(popCut);
+
+		JMenuItem popPaste = new JMenuItem("Paste");
+		popPaste.addActionListener(menuListener);
+		popUpMenu.add(popPaste);
+
+		popUpMenu.addSeparator();
+				
+		JMenuItem popUnDo = new JMenuItem("Undo");
+		popUnDo.addActionListener(menuListener);
+		popUpMenu.add(popUnDo);
+		
+		JMenuItem popReDo = new JMenuItem("Redo");
+		popReDo.addActionListener(menuListener);
+		popUpMenu.add(popReDo);
+		
+		testEditorPane.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					popUpMenu.show(e.getComponent(), e.getX(), e.getY());
+				}
+			}			
+		});
 
 		mainFrame.addWindowListener(new WindowAdapter() {
 			@Override
@@ -308,7 +352,8 @@ public class SimpleGUITestEditor implements IGUI {
 				quit();
 			}
 		});
-
+		
+		
 		mainFrame.setVisible(true);
 
 		synchronized (lock) {
@@ -450,7 +495,6 @@ public class SimpleGUITestEditor implements IGUI {
 
 	class MenuActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent actionEvent) {
-			System.out.println("Selected: " + actionEvent.getActionCommand());
 			if (actionEvent.getActionCommand().equals("Prev test")) {
 				prevTest();
 			} else if (actionEvent.getActionCommand().equals("Next test")) {
