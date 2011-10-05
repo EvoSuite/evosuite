@@ -91,6 +91,7 @@ public class SystemTest {
 		hasBeenAlreadyRun = true;
 	}
 	
+	@BeforeClass 
 	@AfterClass
 	public static void deleteEvoDirs(){
 		try {

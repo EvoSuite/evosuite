@@ -2,6 +2,7 @@ package de.unisb.cs.st.evosuite.junit;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestExample extends ParentTestExample {
@@ -36,6 +37,7 @@ public class TestExample extends ParentTestExample {
 		needed = "killSelf";
 	}
 
+	@Ignore
 	@Test
 	public void test() {
 		MockingBird bird = new MockingBird(needed);
