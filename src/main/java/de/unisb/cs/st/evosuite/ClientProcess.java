@@ -45,7 +45,8 @@ public class ClientProcess implements SearchListener {
 			ga.addListener(this);
 			generator.generateTestSuite(ga);
 		}
-		util.informSearchIsFinished(null);
+		ga.removeListener(this);
+		util.informSearchIsFinished(ga);
 	}
 
 	private boolean hasExceededResources() {
