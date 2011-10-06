@@ -134,6 +134,9 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		for (LCSAJ l : LCSAJFitnesses.keySet()) {
 			fitness += normalize(LCSAJFitnesses.get(l));
 		}
+		
+		fitness += branchFitness.getFitness(individual);
+		
 		logger.debug("Combined fitness: " + fitness);
 		double missingBranches = 0.0;
 		for (Integer executedID : expectedTrueExecutions.keySet()) {
