@@ -6,9 +6,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
+import de.unisb.cs.st.evosuite.ma.gui.SimpleGUISourceCode;
 import de.unisb.cs.st.evosuite.ma.gui.SimpleGUITestEditor;
 import de.unisb.cs.st.evosuite.ma.parser.TestParser;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
@@ -26,6 +30,8 @@ import de.unisb.cs.st.evosuite.utils.HtmlAnalyzer;
  */
 public class Editor {
 
+	public final Object lock = new Object();
+
 	private final SearchStatistics statistics = SearchStatistics.getInstance();
 
 	private final Set<Integer> suiteCoveredLines = new HashSet<Integer>();
@@ -38,11 +44,13 @@ public class Editor {
 
 	private final Iterable<String> sourceCode;
 
-	private final SimpleGUITestEditor sgui;
+	public final SimpleGUITestEditor sguiTE;
+
+	public final SimpleGUISourceCode sguiSC;
 
 	private TestParser testParser;
 
-	private TestCaseTuple currentTestCaseTuple;
+	private TestCaseTuple currTCTuple;
 
 	/**
 	 * Create instance of manual editor.
@@ -70,13 +78,21 @@ public class Editor {
 			suiteCoveredLines.addAll(testCaseCoverega);
 		}
 
-		// set currentTestCaseTuple to proper. value
 		nextTest();
+		sguiSC = new SimpleGUISourceCode();
+		sguiTE = new SimpleGUITestEditor();
+		sguiSC.createWindow(this);
+		sguiTE.createMainWindow(this);
+		testParser = new TestParser(this);
 
-		sgui = new SimpleGUITestEditor();
-		testParser = new TestParser(sgui);
-		sgui.createMainWindow(this);
-
+		synchronized (lock) {
+			while (sguiTE.mainFrame.isVisible())
+				try {
+					lock.wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+		}
 		// when work is done reset time
 		ga.resumeGlobalTimeStoppingCondition();
 	}
@@ -88,7 +104,7 @@ public class Editor {
 	 * @param testSource
 	 */
 	public boolean saveTest(String testCode) {
-		TestCase currentTestCase = currentTestCaseTuple.getTestCase();
+		TestCase currentTestCase = currTCTuple.getTestCase();
 		try {
 			TestCase newTestCase = testParser.parsTest(testCode);
 
@@ -100,7 +116,7 @@ public class Editor {
 
 				// If we change already existed testCase, remove old version
 				testSuiteChr.deleteTest(currentTestCase);
-				testCases.remove(currentTestCaseTuple);
+				testCases.remove(currTCTuple);
 				testSuiteChr.addTest(newTestCase);
 
 				// MA stuff
@@ -108,8 +124,8 @@ public class Editor {
 				suiteCoveredLines.addAll(testCaseCoverega);
 				TestCaseTuple newTestCaseTuple = new TestCaseTuple(newTestCase,
 						testCaseCoverega);
-				currentTestCaseTuple = newTestCaseTuple;
-				testParser = new TestParser(sgui);
+				currTCTuple = newTestCaseTuple;
+				testParser = new TestParser(this);
 				testCases.add(newTestCaseTuple);
 				updateCoverage();
 
@@ -135,8 +151,8 @@ public class Editor {
 	 * 
 	 * @return int
 	 */
-	public int getNumOfCurrntTest() {
-		return testCases.indexOf(currentTestCaseTuple);
+	public int getNumOfCurrTest() {
+		return testCases.indexOf(currTCTuple);
 	}
 
 	/**
@@ -144,21 +160,28 @@ public class Editor {
 	 * 
 	 * @return TestCaseTupel
 	 */
-	public TestCaseTuple getCurrentTestCase() {
-		return currentTestCaseTuple;
+	public TestCaseTuple getCurrTCTup() {
+		return currTCTuple;
+	}
+	
+	/**
+	 * 
+	 */
+	public String getCurrTCCode() {
+		return currTCTuple.getTestCase().toCode();
 	}
 
 	/**
 	 * Set currentTestCase to the next testCase.
 	 */
 	public void nextTest() {
-		if (currentTestCaseTuple == null && testCases.size() > 0) {
-			currentTestCaseTuple = testCases.get(0);
-		} else if (currentTestCaseTuple != null && testCases.size() > 0) {
+		if (currTCTuple == null && testCases.size() > 0) {
+			currTCTuple = testCases.get(0);
+		} else if (currTCTuple != null && testCases.size() > 0) {
 
 			int j = 0;
 			for (int i = 0; i < testCases.size(); i++) {
-				if (currentTestCaseTuple == testCases.get(i)) {
+				if (currTCTuple == testCases.get(i)) {
 					if (i == testCases.size() - 1) {
 						j = 0;
 					} else {
@@ -166,7 +189,7 @@ public class Editor {
 					}
 				}
 			}
-			currentTestCaseTuple = testCases.get(j);
+			currTCTuple = testCases.get(j);
 		} else {
 			createNewTestCase();
 		}
@@ -176,13 +199,13 @@ public class Editor {
 	 * Set currentTestCase to previous testCase.
 	 */
 	public void prevTest() {
-		if (currentTestCaseTuple == null && testCases.size() > 0) {
-			currentTestCaseTuple = testCases.get(0);
-		} else if (currentTestCaseTuple != null && testCases.size() > 0) {
+		if (currTCTuple == null && testCases.size() > 0) {
+			currTCTuple = testCases.get(0);
+		} else if (currTCTuple != null && testCases.size() > 0) {
 
 			int j = 0;
 			for (int i = 0; i < testCases.size(); i++) {
-				if (currentTestCaseTuple == testCases.get(i)) {
+				if (currTCTuple == testCases.get(i)) {
 					if (i == 0) {
 						j = testCases.size() - 1;
 					} else {
@@ -190,7 +213,7 @@ public class Editor {
 					}
 				}
 			}
-			currentTestCaseTuple = testCases.get(j);
+			currTCTuple = testCases.get(j);
 		} else {
 			createNewTestCase();
 		}
@@ -213,17 +236,17 @@ public class Editor {
 	public void createNewTestCase() {
 		TestCaseTuple newTestCaseTuple = new TestCaseTuple(
 				new DefaultTestCase(), new HashSet<Integer>());
-		currentTestCaseTuple = newTestCaseTuple;
+		currTCTuple = newTestCaseTuple;
 	}
 
 	/**
 	 * Delete from testSuiteChromosome currentTestCase. Set current TestCase to
 	 * the next.
 	 */
-	public void deleteCurrentTestCase() {
-		TestCase testCaseForDeleting = currentTestCaseTuple.getTestCase();
+	public void delCurrTC() {
+		TestCase testCaseForDeleting = currTCTuple.getTestCase();
 		testSuiteChr.deleteTest(testCaseForDeleting);
-		testCases.remove(currentTestCaseTuple);
+		testCases.remove(currTCTuple);
 		updateCoverage();
 		nextTest();
 	}
@@ -260,8 +283,8 @@ public class Editor {
 	 * 
 	 * @return Set of Integers
 	 */
-	public Set<Integer> getCurrentCoverage() {
-		return currentTestCaseTuple.getCoverage();
+	public Set<Integer> getCurrCoverage() {
+		return currTCTuple.getCoverage();
 	}
 
 	/**
@@ -281,5 +304,21 @@ public class Editor {
 	public int getSuiteCoveratgeVal() {
 		gaInstance.getFitnessFunction().getFitness(testSuiteChr);
 		return (int) (testSuiteChr.getCoverage() * 100);
+	}
+
+	public void showParseException(String message) {
+		JOptionPane.showMessageDialog(sguiTE.mainFrame, message,
+				"Parsing error", JOptionPane.ERROR_MESSAGE);
+	}
+
+	public String showChooseFileMenu() {
+		final JFileChooser fc = new JFileChooser();
+		int returnVal = fc.showOpenDialog(sguiTE.mainFrame);
+
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			return fc.getSelectedFile().getName();
+		}
+
+		return null;
 	}
 }

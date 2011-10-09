@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
-import de.unisb.cs.st.evosuite.ma.gui.IGUI;
+import de.unisb.cs.st.evosuite.ma.Editor;
 import de.unisb.cs.st.evosuite.testcase.AbstractStatement;
 import de.unisb.cs.st.evosuite.testcase.ArrayIndex;
 import de.unisb.cs.st.evosuite.testcase.ArrayReference;
@@ -63,22 +63,18 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  * @author Yury Pavlov
  * 
  */
-/**
- * @author Yury Pavlov
- * 
- */
 public class TestParser {
 
 	private TypeTable tt;
 
-	private final IGUI gui;
+	private final Editor editor;
 
 	private TestCase newTestCase;
 
 	private TestCluster testCluster = TestCluster.getInstance();
 
-	public TestParser(IGUI pgui) {
-		gui = pgui;
+	public TestParser(Editor editor) {
+		this.editor = editor;
 	}
 
 	/**
@@ -100,8 +96,7 @@ public class TestParser {
 		try {
 			cu = JavaParser.parse(inputStream);
 		} catch (ParseException e) {
-			gui.showParseException(e.getMessage());
-			e.printStackTrace();
+			editor.showParseException(e.getMessage());
 		} finally {
 			inputStream.close();
 		}
@@ -125,7 +120,7 @@ public class TestParser {
 					newTestCase.addStatement(createMethodSttm(methodCallExpr));
 				}
 			} catch (ParseException e) {
-				gui.showParseException("Error in line: " + expr.getBeginLine()
+				editor.showParseException("Error in line: " + expr.getBeginLine()
 						+ "\nMessage: " + e.getMessage());
 
 				// if res == null, editor&co. stay unchanged
@@ -432,7 +427,7 @@ public class TestParser {
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (NoSuchFieldException e) {
-			e.printStackTrace();
+			throw new ParseException(null, "Can't find the field." );
 		}
 		return null;
 	}
@@ -529,7 +524,7 @@ public class TestParser {
 			// return TestCluster.classLoader.loadClass(fullClassName);
 		} catch (ClassNotFoundException e) {
 			try {
-				return testCluster.importClass(gui.showChooseFileMenu());
+				return testCluster.importClass(editor.showChooseFileMenu());
 			} catch (ClassNotFoundException e1) {
 				throw new ParseException(null,
 						"Can not load class for ReferenceType: "
@@ -550,7 +545,7 @@ public class TestParser {
 			// return TestCluster.classLoader.loadClass(fullClassName);
 		} catch (ClassNotFoundException e) {
 			try {
-				return testCluster.importClass(gui.showChooseFileMenu());
+				return testCluster.importClass(editor.showChooseFileMenu());
 			} catch (ClassNotFoundException e1) {
 				throw new ParseException(null,
 						"Can not load class for ClassOrInterfaceType: "
@@ -574,7 +569,6 @@ public class TestParser {
 			e.printStackTrace();
 			throw new ParseException(null, "SecurityException by getMethod.");
 		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
 			String classNames = "";
 			for (Class<?> paramType : parameterTypes) {
 				classNames += paramType.getName() + " ";

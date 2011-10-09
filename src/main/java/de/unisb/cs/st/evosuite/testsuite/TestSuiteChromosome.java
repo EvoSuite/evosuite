@@ -183,15 +183,17 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 * @param testCase
 	 *            to remove
 	 */
-	public boolean deleteTest(TestCase testCase) {
+	public void deleteTest(TestCase testCase) {
 		if (testCase != null) {
+			TestChromosome chromToDel = null;
 			for (TestChromosome test: tests) {
-				if(test.equals(testCase)) {
-					tests.remove(testCase);
-					return true;
+				if(test.getTestCase().equals((testCase))) {
+					chromToDel = test;
 				}
 			}
+			if (chromToDel != null) {
+				tests.remove(chromToDel);
+			}
 		}
-		return false;
 	}
 }

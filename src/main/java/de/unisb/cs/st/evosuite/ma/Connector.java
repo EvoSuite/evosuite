@@ -12,7 +12,9 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
  * @author Yury Pavlov
  */
 public class Connector {
+	
 	private static int iterCount = 0;
+	
 	private static double oldCoverage = 0;
 
 	/**
