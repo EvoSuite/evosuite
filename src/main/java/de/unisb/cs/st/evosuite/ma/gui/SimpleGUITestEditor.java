@@ -17,47 +17,35 @@ import java.awt.event.WindowEvent;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.undo.UndoManager;
 
+import jsyntaxpane.DefaultSyntaxKit;
 import de.unisb.cs.st.evosuite.ma.Editor;
 
 /**
  * @author Yury Pavlov
  */
-public class SimpleGUITestEditor implements IGUI {
+public class SimpleGUITestEditor {
 
-	private final Object lock = new Object();
-
-	private final JFrame mainFrame = new JFrame("MA Editor");
+	public final JFrame mainFrame = new JFrame("MA Editor");
 
 	private final JButton btnSaveTestCaseButton = new JButton("Save");
-
-	private final SimpleGUISourceCode sourceCodeWindow = new SimpleGUISourceCode();
 
 	private final TitledBorder editorTitledBorder = new TitledBorder(null,
 			"Test Editor", TitledBorder.LEADING, TitledBorder.TOP, null, null);
 
 	private final JPanel testPanel = new JPanel();
 
-	private final UndoManager undoManager = new UndoManager();
-
-	private final JEditorPane testEditorPane = new JEditorPane();
+	private JEditorPane testEditorPane;
 
 	private Editor editor;
 
@@ -66,7 +54,7 @@ public class SimpleGUITestEditor implements IGUI {
 	 */
 	public void createMainWindow(final Editor editor) {
 		this.editor = editor;
-		sourceCodeWindow.createWindow();
+
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		ActionListener menuListener = new MenuActionListener();
 
@@ -82,8 +70,6 @@ public class SimpleGUITestEditor implements IGUI {
 		gridBagLayout.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
 		mainFrame.getContentPane().setLayout(gridBagLayout);
 
-		sourceCodeWindow.printSourceCode(editor);
-
 		testPanel.setBorder(editorTitledBorder);
 		GridBagConstraints gbc_testPanel = new GridBagConstraints();
 		gbc_testPanel.fill = GridBagConstraints.BOTH;
@@ -93,49 +79,21 @@ public class SimpleGUITestEditor implements IGUI {
 		mainFrame.getContentPane().add(testPanel, gbc_testPanel);
 		testPanel.setLayout(new BoxLayout(testPanel, BoxLayout.X_AXIS));
 
-		JScrollPane testScrollPane = new JScrollPane();
+		testEditorPane = new JEditorPane();
+		JScrollPane testScrollPane = new JScrollPane(testEditorPane);
+		DefaultSyntaxKit.initKit();
+		testEditorPane.setContentType("text/java");
+
 		testPanel.add(testScrollPane);
 
-		JPanel panel = new JPanel();
-		testScrollPane.setViewportView(panel);
-		GridBagLayout gbl_panel = new GridBagLayout();
-		gbl_panel.columnWidths = new int[] { 44, 428, 0 };
-		gbl_panel.rowHeights = new int[] { 418, 0 };
-		gbl_panel.columnWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
-		gbl_panel.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
-		panel.setLayout(gbl_panel);
-
-		final JTextPane linesTextPane = new JTextPane();
-		linesTextPane.setEditable(false);
-		GridBagConstraints gbc_linesTextPane = new GridBagConstraints();
-		gbc_linesTextPane.insets = new Insets(0, 0, 0, 5);
-		gbc_linesTextPane.fill = GridBagConstraints.BOTH;
-		gbc_linesTextPane.gridx = 0;
-		gbc_linesTextPane.gridy = 0;
-		panel.add(linesTextPane, gbc_linesTextPane);
+		testEditorPane.setText(editor.getCurrTCCode());
+		updateTitle();
 
 		testEditorPane.addCaretListener(new CaretListener() {
 			public void caretUpdate(CaretEvent arg0) {
-				updateLinesTextPane(testEditorPane, linesTextPane);
 				setTestCaseChanged();
 			}
 		});
-
-		testEditorPane.setAlignmentY(0.1f);
-		testEditorPane.setAlignmentX(0.1f);
-		GridBagConstraints gbc_testEditorPane = new GridBagConstraints();
-		gbc_testEditorPane.fill = GridBagConstraints.BOTH;
-		gbc_testEditorPane.gridx = 1;
-		gbc_testEditorPane.gridy = 0;
-		panel.add(testEditorPane, gbc_testEditorPane);
-
-		testEditorPane.getDocument().addUndoableEditListener(undoManager);
-
-		// print first TC
-		testEditorPane.setText(editor.getCurrentTestCase().getTestCase()
-				.toCode());
-		updateLinesTextPane(testEditorPane, linesTextPane);
-		updateTitle(editor);
 
 		JPanel controlPanel = new JPanel();
 		controlPanel.setBorder(null);
@@ -223,7 +181,7 @@ public class SimpleGUITestEditor implements IGUI {
 		JMenuBar menuBar = new JMenuBar();
 		mainFrame.setJMenuBar(menuBar);
 
-		JMenu mnTestCaseEditor = new JMenu("TestCase Editor");
+		JMenu mnTestCaseEditor = new JMenu("TestSuite");
 		mnTestCaseEditor.setMnemonic(KeyEvent.VK_T);
 		menuBar.add(mnTestCaseEditor);
 
@@ -290,61 +248,18 @@ public class SimpleGUITestEditor implements IGUI {
 		mnEditor.add(mntmPaste);
 
 		mnEditor.addSeparator();
-				
+
 		JMenuItem mntmUnDo = new JMenuItem("Undo", KeyEvent.VK_Z);
 		mntmUnDo.addActionListener(menuListener);
 		KeyStroke ctrlZKeyStroke = KeyStroke.getKeyStroke("control Z");
 		mntmUnDo.setAccelerator(ctrlZKeyStroke);
 		mnEditor.add(mntmUnDo);
-		
+
 		JMenuItem mntmReDo = new JMenuItem("Redo", KeyEvent.VK_Y);
 		mntmReDo.addActionListener(menuListener);
 		KeyStroke ctrlYKeyStroke = KeyStroke.getKeyStroke("control Y");
 		mntmReDo.setAccelerator(ctrlYKeyStroke);
 		mnEditor.add(mntmReDo);
-		
-		final JPopupMenu popUpMenu = new JPopupMenu();
-		
-		JMenuItem popPrevTest = new JMenuItem("Prev test");
-		popPrevTest.addActionListener(menuListener);
-		popUpMenu.add(popPrevTest);
-
-		JMenuItem popNextTest = new JMenuItem("Next test");
-		popNextTest.addActionListener(menuListener);
-		popUpMenu.add(popNextTest);
-
-		popUpMenu.addSeparator();
-		
-		JMenuItem popCopy = new JMenuItem("Copy");
-		popCopy.addActionListener(menuListener);
-		popUpMenu.add(popCopy);
-
-		JMenuItem popCut = new JMenuItem("Cut");
-		popCut.addActionListener(menuListener);
-		popUpMenu.add(popCut);
-
-		JMenuItem popPaste = new JMenuItem("Paste");
-		popPaste.addActionListener(menuListener);
-		popUpMenu.add(popPaste);
-
-		popUpMenu.addSeparator();
-				
-		JMenuItem popUnDo = new JMenuItem("Undo");
-		popUnDo.addActionListener(menuListener);
-		popUpMenu.add(popUnDo);
-		
-		JMenuItem popReDo = new JMenuItem("Redo");
-		popReDo.addActionListener(menuListener);
-		popUpMenu.add(popReDo);
-		
-		testEditorPane.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent e) {
-				if (e.isPopupTrigger()) {
-					popUpMenu.show(e.getComponent(), e.getX(), e.getY());
-				}
-			}			
-		});
 
 		mainFrame.addWindowListener(new WindowAdapter() {
 			@Override
@@ -352,19 +267,8 @@ public class SimpleGUITestEditor implements IGUI {
 				quit();
 			}
 		});
-		
-		
+
 		mainFrame.setVisible(true);
-
-		synchronized (lock) {
-			while (mainFrame.isVisible())
-				try {
-					lock.wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-		}
-
 	}
 
 	private void setTestCaseChanged() {
@@ -375,122 +279,67 @@ public class SimpleGUITestEditor implements IGUI {
 		btnSaveTestCaseButton.setText("Save");
 	}
 
-	private void updateTitle(Editor editor) {
+	private void updateTitle() {
 		editorTitledBorder.setTitle("Test Editor     "
-				+ (editor.getNumOfCurrntTest() + 1) + " / "
+				+ (editor.getNumOfCurrTest() + 1) + " / "
 				+ editor.getNumOfTestCases() + "     Coverage: "
 				+ editor.getSuiteCoveratgeVal() + "%");
 		testPanel.repaint();
 	}
 
-	private void updateLinesTextPane(JEditorPane testEditorPane,
-			JTextPane linesTextPane) {
-		try {
-			Document doc = testEditorPane.getDocument();
-			String text = doc.getText(0, doc.getLength());
-			int start = 0;
-			int end = 0;
-
-			int i = 1;
-			String numLines = "";
-
-			while ((end = text.indexOf('\n', start)) >= 0) {
-				numLines += i++ + ":\n";
-				start = end + 1;
-			}
-			numLines += i + ":\n";
-
-			linesTextPane.setText(numLines);
-		} catch (BadLocationException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void showParseException(String message) {
-		JOptionPane.showMessageDialog(mainFrame, message, "Parsing error",
-				JOptionPane.ERROR_MESSAGE);
-	}
-
-	public String showChooseFileMenu() {
-		final JFileChooser fc = new JFileChooser();
-		int returnVal = fc.showOpenDialog(mainFrame);
-
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			return fc.getSelectedFile().getName();
-		}
-
-		return null;
-	}
-
 	private void prevTest() {
 		editor.prevTest();
-		sourceCodeWindow.printSourceCode(editor);
-		testEditorPane.setText(editor.getCurrentTestCase().getTestCase()
-				.toCode());
+		editor.sguiSC.printSourceCode();
+		testEditorPane.setText(editor.getCurrTCCode());
 		setTestCaseUnchanged();
-		updateTitle(editor);
+		updateTitle();
 	}
 
 	private void nextTest() {
 		editor.nextTest();
-		sourceCodeWindow.printSourceCode(editor);
-		testEditorPane.setText(editor.getCurrentTestCase().getTestCase()
-				.toCode());
+		editor.sguiSC.printSourceCode();
+		testEditorPane.setText(editor.getCurrTCCode());
 		setTestCaseUnchanged();
-		updateTitle(editor);
+		updateTitle();
 	}
 
 	private void deleteTest() {
-		editor.deleteCurrentTestCase();
-		sourceCodeWindow.printSourceCode(editor);
-		testEditorPane.setText(editor.getCurrentTestCase().getTestCase()
-				.toCode());
+		editor.delCurrTC();
+		editor.sguiSC.printSourceCode();
+		testEditorPane.setText(editor.getCurrTCCode());
 		setTestCaseUnchanged();
-		updateTitle(editor);
+		updateTitle();
 	}
 
 	private void newTest() {
 		editor.createNewTestCase();
 		testEditorPane.setText("");
 		setTestCaseChanged();
-		updateTitle(editor);
+		updateTitle();
 	}
 
 	private void cloneTest() {
 		editor.createNewTestCase();
 		setTestCaseChanged();
-		updateTitle(editor);
+		updateTitle();
 	}
 
 	private void saveTest() {
 		if (editor.saveTest(testEditorPane.getText())) {
-			sourceCodeWindow.printSourceCode(editor);
-			testEditorPane.setText(editor.getCurrentTestCase().getTestCase()
-					.toCode());
+			editor.sguiSC.printSourceCode();
+			testEditorPane.setText(editor.getCurrTCCode());
 			setTestCaseUnchanged();
-			updateTitle(editor);
+			updateTitle();
 		}
 	}
 
 	private void quit() {
-		sourceCodeWindow.close();
+		editor.sguiSC.close();
 		mainFrame.setVisible(false);
-		synchronized (lock) {
-			lock.notifyAll();
+		synchronized (editor.lock) {
+			editor.lock.notifyAll();
 		}
 		mainFrame.dispose();
-	}
-
-	private void undo() {
-		if (undoManager.canUndo()) {
-			undoManager.undo();
-		}
-	}
-
-	private void redo() {
-		if (undoManager.canRedo()) {
-			undoManager.redo();
-		}
 	}
 
 	class MenuActionListener implements ActionListener {
@@ -509,11 +358,8 @@ public class SimpleGUITestEditor implements IGUI {
 				saveTest();
 			} else if (actionEvent.getActionCommand().equals("Quit")) {
 				quit();
-			} else if (actionEvent.getActionCommand().equals("Undo")) {
-				undo();
-			} else if (actionEvent.getActionCommand().equals("Redo")) {
-				redo();
 			}
 		}
 	}
+
 }

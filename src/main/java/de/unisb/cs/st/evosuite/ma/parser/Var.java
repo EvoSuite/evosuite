@@ -12,8 +12,6 @@ public class Var {
 
 	private String varName;
 
-	// private String varBinding;
-
 	private Type varType;
 
 	private VariableReference varRef;
