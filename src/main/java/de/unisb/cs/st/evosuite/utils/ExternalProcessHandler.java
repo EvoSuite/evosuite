@@ -257,6 +257,10 @@ public class ExternalProcessHandler {
 						//now data represent the current generation
 						System.out.println("* Restarting client process");
 						killProcess();
+						/*
+						 * TODO: this will need to be changed, to take into account
+						 * a possible reduced budget
+						 */
 						startProcess(last_command, data);
 					} else {
 						killProcess();
