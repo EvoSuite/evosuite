@@ -13,6 +13,8 @@ public class VariableReferenceImpl implements VariableReference, Serializable {
 
 	private static final long serialVersionUID = 7014270636820758121L;
 
+	private int distance = 0;
+
 	protected static Logger logger = LoggerFactory.getLogger(VariableReferenceImpl.class);
 
 	/**
@@ -410,5 +412,21 @@ public class VariableReferenceImpl implements VariableReference, Serializable {
 	        VariableReference var2) {
 		// no op
 
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#getDistance()
+	 */
+	@Override
+	public int getDistance() {
+		return distance;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#setDistance(int)
+	 */
+	@Override
+	public void setDistance(int distance) {
+		this.distance = distance;
 	}
 }

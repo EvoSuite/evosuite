@@ -39,6 +39,7 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteCh
 
 	public TestSuiteChromosomeFactory() {
 		testChromosomeFactory = new RandomLengthTestFactory();
+		//testChromosomeFactory = new AllMethodsTestChromosomeFactory();
 
 		if (Properties.CRITERION == Criterion.CONCURRENCY) {
 			// #TODO steenbuck we should wrap the original factory not replace

@@ -97,7 +97,7 @@ public class Properties {
 	public static String TEST_INCLUDES = "test.includes";
 
 	@Parameter(key = "make_accessible", group = "TestCreation", description = "Change default package rights to public package rights (?)")
-	public static boolean MAKE_ACCESSIBLE = false;
+	public static boolean MAKE_ACCESSIBLE = true;
 
 	@Parameter(key = "string_replacement", group = "Test Creation", description = "Replace string.equals with levenshtein distance")
 	public static boolean STRING_REPLACEMENT = false;
@@ -169,7 +169,7 @@ public class Properties {
 
 	@Parameter(key = "generator_tournament", group = "Test Creation", description = "Size of tournament when choosing a generator")
 	@Deprecated
-	public static int GENERATOR_TOURNAMENT = 1;
+	public static int GENERATOR_TOURNAMENT = 3;
 
 	@Parameter(key = "generate_objects", group = "Test Creation", description = "Generate .object files that allow adapting method signatures")
 	public static boolean GENERATE_OBJECTS = false;
@@ -563,9 +563,6 @@ public class Properties {
 
 	@Parameter(key = "min_free_mem", group = "Runtime", description = "Minimum amount of available memory")
 	public static int MIN_FREE_MEM = 200000000;
-
-	@Parameter(key = "classloader", group = "Runtime", description = "Use the classloader for instrumentation, rather than the javaagent")
-	public static boolean CLASSLOADER = false;
 
 	// ---------------------------------------------------------------
 	// Seeding test cases

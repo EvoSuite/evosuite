@@ -33,9 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.evosuite.coverage.branch.Branch;
+import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTracer;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUse;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
@@ -50,8 +49,7 @@ import de.unisb.cs.st.evosuite.coverage.dataflow.Use;
  */
 public class ExecutionTrace {
 
-	private static Logger logger = LoggerFactory
-			.getLogger(ExecutionTrace.class);
+	private static Logger logger = LoggerFactory.getLogger(ExecutionTrace.class);
 
 	public static boolean trace_calls = false;
 
@@ -80,7 +78,7 @@ public class ExecutionTrace {
 		public int callingObjectID;
 
 		public MethodCall(String className, String methodName, int methodId,
-				int callingObjectID) {
+		        int callingObjectID) {
 			this.className = className;
 			this.methodName = methodName;
 			lineTrace = new ArrayList<Integer>();
@@ -180,7 +178,7 @@ public class ExecutionTrace {
 		@Override
 		public MethodCall clone() {
 			MethodCall copy = new MethodCall(className, methodName, methodId,
-					callingObjectID);
+			        callingObjectID);
 			copy.lineTrace = new ArrayList<Integer>(lineTrace);
 			copy.branchTrace = new ArrayList<Integer>(branchTrace);
 			copy.trueDistanceTrace = new ArrayList<Double>(trueDistanceTrace);
@@ -224,8 +222,7 @@ public class ExecutionTrace {
 	// for defuse-coverage it is important to keep track of all the objects that
 	// called the ExecutionTracer
 	private int objectCounter = 0;
-	public Map<Integer, Object> knownCallerObjects = Collections
-			.synchronizedMap(new HashMap<Integer, Object>());
+	public Map<Integer, Object> knownCallerObjects = Collections.synchronizedMap(new HashMap<Integer, Object>());
 
 	// to differentiate between different MethodCalls
 	private int methodId = 0;
@@ -252,10 +249,10 @@ public class ExecutionTrace {
 			int callingObjectID = registerObject(caller);
 			methodId++;
 			MethodCall call = new MethodCall(className, methodName, methodId,
-					callingObjectID);
+			        callingObjectID);
 			if (Properties.CRITERION == Criterion.DEFUSE
-					|| Properties.CRITERION == Criterion.ALLDEFS
-					|| TestSuiteGenerator.analyzing) {
+			        || Properties.CRITERION == Criterion.ALLDEFS
+			        || TestSuiteGenerator.analyzing) {
 				call.branchTrace.add(-1);
 				call.trueDistanceTrace.add(1.0);
 				call.falseDistanceTrace.add(0.0);
@@ -275,12 +272,11 @@ public class ExecutionTrace {
 	public void exitMethod(String classname, String methodname) {
 		if (trace_calls) {
 
-			if (!stack.isEmpty()
-					&& !(stack.peek().methodName.equals(methodname))) {
+			if (!stack.isEmpty() && !(stack.peek().methodName.equals(methodname))) {
 				logger.debug("Expecting " + stack.peek().methodName + ", got "
-						+ methodname);
+				        + methodname);
 				if (stack.peek().methodName.equals("")
-						&& !stack.peek().branchTrace.isEmpty()) {
+				        && !stack.peek().branchTrace.isEmpty()) {
 					logger.info("Found main method");
 					finished_calls.add(stack.pop());
 				} else {
@@ -303,8 +299,8 @@ public class ExecutionTrace {
 	public void linePassed(String className, String methodName, int line) {
 		if (trace_calls) {
 			if (stack.isEmpty()) {
-				logger.warn("Method stack is empty: " + className + "."
-						+ methodName + " - l" + line); // TODO switch back
+				logger.warn("Method stack is empty: " + className + "." + methodName
+				        + " - l" + line); // TODO switch back
 				// logger.debug to
 				// logger.warn
 			} else {
@@ -312,28 +308,24 @@ public class ExecutionTrace {
 			}
 		}
 		if (!coverage.containsKey(className))
-			coverage.put(className,
-					new HashMap<String, Map<Integer, Integer>>());
+			coverage.put(className, new HashMap<String, Map<Integer, Integer>>());
 
 		if (!coverage.get(className).containsKey(methodName))
-			coverage.get(className).put(methodName,
-					new HashMap<Integer, Integer>());
+			coverage.get(className).put(methodName, new HashMap<Integer, Integer>());
 
 		if (!coverage.get(className).get(methodName).containsKey(line))
 			coverage.get(className).get(methodName).put(line, 1);
 		else
 			coverage.get(className).get(methodName).put(line,
-					coverage.get(className).get(methodName).get(line) + 1);
+			                                            coverage.get(className).get(methodName).get(line) + 1);
 	}
 
 	public void returnValue(String className, String methodName, int value) {
 		if (!return_data.containsKey(className))
-			return_data.put(className,
-					new HashMap<String, Map<Integer, Integer>>());
+			return_data.put(className, new HashMap<String, Map<Integer, Integer>>());
 
 		if (!return_data.get(className).containsKey(methodName))
-			return_data.get(className).put(methodName,
-					new HashMap<Integer, Integer>());
+			return_data.get(className).put(methodName, new HashMap<Integer, Integer>());
 
 		if (!return_data.get(className).get(methodName).containsKey(value)) {
 			// logger.info("Got return value "+value);
@@ -341,7 +333,7 @@ public class ExecutionTrace {
 		} else {
 			// logger.info("Got return value again "+value);
 			return_data.get(className).get(methodName).put(value,
-					return_data.get(className).get(methodName).get(value) + 1);
+			                                               return_data.get(className).get(methodName).get(value) + 1);
 		}
 	}
 
@@ -353,10 +345,9 @@ public class ExecutionTrace {
 	 * @param false_distance
 	 */
 	public void branchPassed(int branch, int bytecode_id, double true_distance,
-			double false_distance) {
+	        double false_distance) {
 
-		updateTopStackMethodCall(branch, bytecode_id, true_distance,
-				false_distance);
+		updateTopStackMethodCall(branch, bytecode_id, true_distance, false_distance);
 
 		if (!covered_predicates.containsKey(branch))
 			covered_predicates.put(branch, 1);
@@ -381,21 +372,21 @@ public class ExecutionTrace {
 		if (!true_distances.containsKey(branch))
 			true_distances.put(branch, true_distance);
 		else
-			true_distances.put(branch, Math.min(true_distances.get(branch),
-					true_distance));
+			true_distances.put(branch,
+			                   Math.min(true_distances.get(branch), true_distance));
 
 		if (!false_distances.containsKey(branch))
 			false_distances.put(branch, false_distance);
 		else
-			false_distances.put(branch, Math.min(false_distances.get(branch),
-					false_distance));
+			false_distances.put(branch,
+			                    Math.min(false_distances.get(branch), false_distance));
 	}
 
 	/**
 	 * Adds trace information to the active MethodCall in this.stack
 	 */
 	private void updateTopStackMethodCall(int branch, int bytecode_id,
-			double true_distance, double false_distance) {
+	        double true_distance, double false_distance) {
 
 		if (trace_calls) {
 			stack.peek().branchTrace.add(branch); // was: bytecode_id
@@ -404,8 +395,8 @@ public class ExecutionTrace {
 			assert (true_distance == 0.0 || false_distance == 0.0);
 			// TODO line_trace ?
 			if (Properties.CRITERION == Criterion.DEFUSE
-					|| Properties.CRITERION == Criterion.ALLDEFS
-					|| TestSuiteGenerator.analyzing) {
+			        || Properties.CRITERION == Criterion.ALLDEFS
+			        || TestSuiteGenerator.analyzing) {
 				stack.peek().defuseCounterTrace.add(duCounter);
 			}
 		}
@@ -420,8 +411,8 @@ public class ExecutionTrace {
 	 * activeDefinitions-field Adds fake trace information to the currently
 	 * active MethodCall in this.stack
 	 */
-	public void definitionPassed(String className, String varName,
-			String methodName, Object caller, int defID) {
+	public void definitionPassed(String className, String varName, String methodName,
+	        Object caller, int defID) {
 
 		// TODO sanity checks in the ExecutionTrace don't really work since
 		// EvoSuite will think the Exceptions thrown by the ExecutionTrace come
@@ -436,7 +427,7 @@ public class ExecutionTrace {
 		Definition def = DefUsePool.getDefinitionByDefId(defID);
 		if (def == null)
 			throw new IllegalStateException(
-					"expect DefUsePool to known defIDs that are passed by instrumented code");
+			        "expect DefUsePool to known defIDs that are passed by instrumented code");
 
 		// if(!def.getDUVariableName().equals(varName))
 		// throw new
@@ -450,9 +441,8 @@ public class ExecutionTrace {
 			objectID = 0;
 		if (passedDefinitions.get(varName) == null)
 			passedDefinitions.put(varName,
-					new HashMap<Integer, HashMap<Integer, Integer>>());
-		HashMap<Integer, Integer> defs = passedDefinitions.get(varName).get(
-				objectID);
+			                      new HashMap<Integer, HashMap<Integer, Integer>>());
+		HashMap<Integer, Integer> defs = passedDefinitions.get(varName).get(objectID);
 		if (defs == null)
 			defs = new HashMap<Integer, Integer>();
 		defs.put(duCounter, defID);
@@ -469,12 +459,12 @@ public class ExecutionTrace {
 	 * in the passedUses-field
 	 */
 	public void usePassed(String className, String varName, String methodName,
-			Object caller, int useID) {
+	        Object caller, int useID) {
 
 		// TODO sanity checks in the ExecutionTrace don't really work since
 		// EvoSuite will think the Exceptions thrown by the ExecutionTrace come
 		// from the CUT
-		
+
 		// TODO don't need that many arguments anymore, the Definition with the
 		// respective defID already holds this information
 
@@ -489,7 +479,7 @@ public class ExecutionTrace {
 			Use use = DefUsePool.getUseByUseId(useID);
 			if (use == null)
 				throw new IllegalStateException(
-						"expect DefUsePool to known defIDs that are passed by instrumented code");
+				        "expect DefUsePool to known defIDs that are passed by instrumented code");
 			if (use.isStaticDefUse())
 				objectID = 0;
 			// if(!use.getDUVariableName().equals(varName))
@@ -497,8 +487,7 @@ public class ExecutionTrace {
 			// IllegalStateException("error in defuse instrumentation: inconsistend trace call");
 		}
 		if (passedUses.get(varName) == null)
-			passedUses.put(varName,
-					new HashMap<Integer, HashMap<Integer, Integer>>());
+			passedUses.put(varName, new HashMap<Integer, HashMap<Integer, Integer>>());
 
 		HashMap<Integer, Integer> uses = passedUses.get(varName).get(objectID);
 		if (uses == null)
@@ -514,8 +503,8 @@ public class ExecutionTrace {
 		if (!mutant_distances.containsKey(mutationId))
 			mutant_distances.put(mutationId, distance);
 		else
-			mutant_distances.put(mutationId, Math.min(distance,
-					mutant_distances.get(mutationId)));
+			mutant_distances.put(mutationId,
+			                     Math.min(distance, mutant_distances.get(mutationId)));
 	}
 
 	/**
@@ -585,11 +574,10 @@ public class ExecutionTrace {
 	 * suffice for BranchCoverageFitness-calculation)
 	 */
 	public ExecutionTrace getTraceInDUCounterRange(DefUse targetDU,
-			boolean wantToCoverTargetDU, int duCounterStart, int duCounterEnd) {
+	        boolean wantToCoverTargetDU, int duCounterStart, int duCounterEnd) {
 
 		if (duCounterStart > duCounterEnd)
-			throw new IllegalArgumentException(
-					"start has to be lesser or equal end");
+			throw new IllegalArgumentException("start has to be lesser or equal end");
 		/*
 		 * // DONE: bug // this still has a major flaw: s. MeanTestClass.mean():
 		 * // right now its like we map branches to activeDefenitions // but
@@ -629,8 +617,7 @@ public class ExecutionTrace {
 				int currentDUCounter = call.defuseCounterTrace.get(i);
 				// int currentBranchBytecode = call.branchTrace.get(i);
 
-				if (currentDUCounter < duCounterStart
-						|| currentDUCounter > duCounterEnd)
+				if (currentDUCounter < duCounterStart || currentDUCounter > duCounterEnd)
 					removableIndices.add(i);
 				// else if (currentBranchBytecode == targetDUBranch
 				// .getInstruction().getInstructionId()) {
@@ -661,14 +648,14 @@ public class ExecutionTrace {
 	 * removableCalls
 	 */
 	private static void removeFinishCalls(ExecutionTrace trace,
-			ArrayList<Integer> removableCalls) {
+	        ArrayList<Integer> removableCalls) {
 		Collections.sort(removableCalls);
 		for (int i = removableCalls.size() - 1; i >= 0; i--) {
 			int toRemove = removableCalls.get(i);
 			MethodCall removed = trace.finished_calls.remove(toRemove);
 			if (removed == null)
 				throw new IllegalStateException(
-						"trace.finished_calls not allowed to contain null");
+				        "trace.finished_calls not allowed to contain null");
 		}
 	}
 
@@ -677,7 +664,7 @@ public class ExecutionTrace {
 	 * removableIndices
 	 */
 	private static void removeFromFinishCall(MethodCall call,
-			ArrayList<Integer> removableIndices) {
+	        ArrayList<Integer> removableIndices) {
 		checkSaneCall(call);
 
 		Collections.sort(removableIndices);
@@ -685,25 +672,21 @@ public class ExecutionTrace {
 			int removableIndex = removableIndices.get(i);
 			Integer removedBranch = call.branchTrace.remove(removableIndex);
 			Double removedTrue = call.trueDistanceTrace.remove(removableIndex);
-			Double removedFalse = call.falseDistanceTrace
-					.remove(removableIndex);
-			Integer removedCounter = call.defuseCounterTrace
-					.remove(removableIndex);
-			if (removedCounter == null || removedBranch == null
-					|| removedTrue == null || removedFalse == null)
+			Double removedFalse = call.falseDistanceTrace.remove(removableIndex);
+			Integer removedCounter = call.defuseCounterTrace.remove(removableIndex);
+			if (removedCounter == null || removedBranch == null || removedTrue == null
+			        || removedFalse == null)
 				throw new IllegalStateException(
-						"trace.finished_calls-traces not allowed to contain null");
+				        "trace.finished_calls-traces not allowed to contain null");
 		}
 	}
 
 	private static void checkSaneCall(MethodCall call) {
 		if (!(call.trueDistanceTrace.size() == call.falseDistanceTrace.size()
-				&& call.falseDistanceTrace.size() == call.defuseCounterTrace
-						.size() && call.defuseCounterTrace.size() == call.branchTrace
-				.size())) {
+		        && call.falseDistanceTrace.size() == call.defuseCounterTrace.size() && call.defuseCounterTrace.size() == call.branchTrace.size())) {
 			throw new IllegalStateException(
-					"insane MethodCall: traces should all be of equal size. "
-							+ call.explain());
+			        "insane MethodCall: traces should all be of equal size. "
+			                + call.explain());
 		}
 
 	}
@@ -838,12 +821,11 @@ public class ExecutionTrace {
 		}
 		for (Integer duPos : passedDefinitions.get(var).get(objectId).keySet())
 			duTrace[duPos] = "(" + duPos + ":Def "
-					+ passedDefinitions.get(var).get(objectId).get(duPos) + ")";
-		if (passedUses.get(var) != null
-				&& passedUses.get(var).get(objectId) != null)
+			        + passedDefinitions.get(var).get(objectId).get(duPos) + ")";
+		if (passedUses.get(var) != null && passedUses.get(var).get(objectId) != null)
 			for (Integer duPos : passedUses.get(var).get(objectId).keySet())
 				duTrace[duPos] = "(" + duPos + ":Use "
-						+ passedUses.get(var).get(objectId).get(duPos) + ")";
+				        + passedUses.get(var).get(objectId).get(duPos) + ")";
 		// build up the String
 		StringBuffer r = new StringBuffer();
 		for (String s : duTrace) {
@@ -887,12 +869,10 @@ public class ExecutionTrace {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((coverage == null) ? 0 : coverage.hashCode());
 		result = prime * result
-				+ ((coverage == null) ? 0 : coverage.hashCode());
-		result = prime * result
-				+ ((finished_calls == null) ? 0 : finished_calls.hashCode());
-		result = prime * result
-				+ ((return_data == null) ? 0 : return_data.hashCode());
+		        + ((finished_calls == null) ? 0 : finished_calls.hashCode());
+		result = prime * result + ((return_data == null) ? 0 : return_data.hashCode());
 		result = prime * result + ((stack == null) ? 0 : stack.hashCode());
 		return result;
 	}

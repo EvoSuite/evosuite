@@ -9,6 +9,7 @@ import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 /**
  * Visits given class in order to collect information about class hierarchies
@@ -33,6 +34,10 @@ public class InheritanceClassAdapter extends ClassAdapter {
 
 		this.className = name.replace("/", ".");
 
+		if ((access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE) {
+			return;
+		}
+
 		if (superName != null)
 			ClusterAnalysis.addSubclass(superName.replace("/", "."), className);
 		for (String interfaceName : interfaces)
@@ -48,7 +53,8 @@ public class InheritanceClassAdapter extends ClassAdapter {
 	@Override
 	public FieldVisitor visitField(int access, String name, String desc,
 	        String signature, Object value) {
-		ClusterAnalysis.addGenerator(className, Type.getType(desc).getClassName());
+		if (Type.getType(desc).getSort() == Type.OBJECT)
+			ClusterAnalysis.addGenerator(className, Type.getType(desc).getClassName());
 		return null;
 	}
 
@@ -73,9 +79,12 @@ public class InheritanceClassAdapter extends ClassAdapter {
 				ClusterAnalysis.addParameter(className, type.getClassName());
 		}
 
+		if ((Opcodes.ACC_PRIVATE & arg0) == Opcodes.ACC_PRIVATE)
+			return null;
+
 		if (name.equals("<init>")) {
 			ClusterAnalysis.addGenerator(className, className);
-		} else if (ret.getSort() != Type.VOID)
+		} else if (ret.getSort() == Type.OBJECT)
 			ClusterAnalysis.addGenerator(className, ret.getClassName());
 
 		return null;
@@ -92,8 +101,7 @@ public class InheritanceClassAdapter extends ClassAdapter {
 	 * @see org.objectweb.asm.ClassAdapter#visitInnerClass(java.lang.String, java.lang.String, java.lang.String, int)
 	 */
 	@Override
-	public void visitInnerClass(String arg0, String arg1, String arg2, int arg3) {
-
+	public void visitInnerClass(String arg0, String arg1, String arg2, int access) {
 	}
 
 	/* (non-Javadoc)

@@ -10,14 +10,19 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 
 /**
- * @author fraser
+ * @author Gordon Fraser
  * 
  */
 public class ConsoleProgressBar implements SearchListener {
 
+	private static int lastCoverage = 0;
+
 	public static void printProgressBar(int percent, int coverage) {
 		StringBuilder bar = new StringBuilder("[Progress:");
 
+		//		assert (coverage >= lastCoverage) : "Coverage decreased from " + lastCoverage
+		//		        + " to " + coverage;
+		lastCoverage = coverage;
 		/*
 		for (int i = 0; i < 50; i++) {
 			if (i < (percent / 2)) {

@@ -57,8 +57,7 @@ import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyInstrumentation;
  */
 public class CFGMethodAdapter extends MethodAdapter {
 
-	private static Logger logger = LoggerFactory
-			.getLogger(CFGMethodAdapter.class);
+	private static Logger logger = LoggerFactory.getLogger(CFGMethodAdapter.class);
 
 	/**
 	 * A list of Strings representing method signatures. Methods matching those
@@ -66,7 +65,8 @@ public class CFGMethodAdapter extends MethodAdapter {
 	 * if some MethodInstrumentation requests it.
 	 */
 	public static final List<String> EXCLUDE = Arrays.asList("<clinit>",
-			"__STATIC_RESET()V", "__STATIC_RESET");
+	                                                         "__STATIC_RESET()V",
+	                                                         "__STATIC_RESET");
 	/**
 	 * The set of all methods which can be used during test case generation This
 	 * excludes e.g. synthetic, initializers, private and deprecated methods
@@ -85,8 +85,8 @@ public class CFGMethodAdapter extends MethodAdapter {
 	private final int access;
 	private final String className;
 
-	public CFGMethodAdapter(String className, int access, String name,
-			String desc, String signature, String[] exceptions, MethodVisitor mv) {
+	public CFGMethodAdapter(String className, int access, String name, String desc,
+	        String signature, String[] exceptions, MethodVisitor mv) {
 
 		// super(new MethodNode(access, name, desc, signature, exceptions),
 		// className,
@@ -105,8 +105,7 @@ public class CFGMethodAdapter extends MethodAdapter {
 	public void visitEnd() {
 
 		boolean isExcludedMethod = EXCLUDE.contains(methodName);
-		boolean isMainMethod = plain_name.equals("main")
-				&& Modifier.isStatic(access);
+		boolean isMainMethod = plain_name.equals("main") && Modifier.isStatic(access);
 
 		List<MethodInstrumentation> instrumentations = new ArrayList<MethodInstrumentation>();
 
@@ -117,7 +116,7 @@ public class CFGMethodAdapter extends MethodAdapter {
 			instrumentations.add(new LCSAJsInstrumentation());
 			instrumentations.add(new BranchInstrumentation());
 		} else if (Properties.CRITERION == Criterion.DEFUSE
-				|| Properties.CRITERION == Criterion.ALLDEFS) {
+		        || Properties.CRITERION == Criterion.ALLDEFS) {
 			instrumentations.add(new BranchInstrumentation());
 			instrumentations.add(new DefUseInstrumentation());
 		} else if (Properties.CRITERION == Criterion.ANALYZE) {
@@ -140,10 +139,9 @@ public class CFGMethodAdapter extends MethodAdapter {
 		boolean executeOnExcluded = false;
 
 		for (MethodInstrumentation instrumentation : instrumentations) {
-			executeOnMain = executeOnMain
-					|| instrumentation.executeOnMainMethod();
+			executeOnMain = executeOnMain || instrumentation.executeOnMainMethod();
 			executeOnExcluded = executeOnExcluded
-					|| instrumentation.executeOnExcludedMethods();
+			        || instrumentation.executeOnExcludedMethods();
 		}
 
 		// super.visitEnd();
@@ -152,10 +150,9 @@ public class CFGMethodAdapter extends MethodAdapter {
 
 		// Only instrument if the method is (not main and not excluded) or (the
 		// MethodInstrumentation wants it anyway)
-		if ((!isMainMethod || executeOnMain)
-				&& (!isExcludedMethod || executeOnExcluded)
-				&& (access & Opcodes.ACC_ABSTRACT) == 0
-				&& (access & Opcodes.ACC_NATIVE) == 0) {
+		if ((!isMainMethod || executeOnMain) && (!isExcludedMethod || executeOnExcluded)
+		        && (access & Opcodes.ACC_ABSTRACT) == 0
+		        && (access & Opcodes.ACC_NATIVE) == 0) {
 
 			logger.info("Analyzing method " + methodName);
 
@@ -168,20 +165,17 @@ public class CFGMethodAdapter extends MethodAdapter {
 			try {
 
 				bytecodeAnalyzer.analyze(className, methodName, mn);
-				logger
-						.trace("Method graph for "
-								+ className
-								+ "."
-								+ methodName
-								+ " contains "
-								+ bytecodeAnalyzer.retrieveCFGGenerator()
-										.getRawGraph().vertexSet().size()
-								+ " nodes for "
-								+ bytecodeAnalyzer.getFrames().length
-								+ " instructions");
+				logger.trace("Method graph for "
+				        + className
+				        + "."
+				        + methodName
+				        + " contains "
+				        + bytecodeAnalyzer.retrieveCFGGenerator().getRawGraph().vertexSet().size()
+				        + " nodes for " + bytecodeAnalyzer.getFrames().length
+				        + " instructions");
 			} catch (AnalyzerException e) {
-				logger.error("Analyzer exception while analyzing " + className
-						+ "." + methodName + ": " + e);
+				logger.error("Analyzer exception while analyzing " + className + "."
+				        + methodName + ": " + e);
 				e.printStackTrace();
 			}
 
@@ -198,6 +192,7 @@ public class CFGMethodAdapter extends MethodAdapter {
 
 			String id = className + "." + methodName;
 			if (isUsable()) {
+				logger.warn("ADDING METHOD: " + id);
 				methods.add(id);
 				logger.debug("Counting: " + id);
 			}
@@ -234,10 +229,10 @@ public class CFGMethodAdapter extends MethodAdapter {
 	 */
 	private boolean isUsable() {
 		return !((this.access & Opcodes.ACC_SYNTHETIC) > 0
-				|| (this.access & Opcodes.ACC_BRIDGE) > 0 || (this.access & Opcodes.ACC_NATIVE) > 0)
-				&& !methodName.contains("<clinit>")
-				&& !(methodName.contains("<init>") && (access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE)
-				&& (Properties.USE_DEPRECATED || (access & Opcodes.ACC_DEPRECATED) != Opcodes.ACC_DEPRECATED);
+		        || (this.access & Opcodes.ACC_BRIDGE) > 0 || (this.access & Opcodes.ACC_NATIVE) > 0)
+		        && !methodName.contains("<clinit>")
+		        && !(methodName.contains("<init>") && (access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE)
+		        && (Properties.USE_DEPRECATED || (access & Opcodes.ACC_DEPRECATED) != Opcodes.ACC_DEPRECATED);
 	}
 
 }

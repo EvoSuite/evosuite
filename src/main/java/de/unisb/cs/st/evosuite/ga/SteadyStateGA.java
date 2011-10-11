@@ -160,6 +160,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 			initializePopulation();
 
 		logger.debug("Starting evolution");
+		double bestFitness = Double.MAX_VALUE;
 		while (!isFinished()) {
 			logger.info("Population size before: " + population.size());
 			evolve();
@@ -171,6 +172,9 @@ public class SteadyStateGA extends GeneticAlgorithm {
 				applyLocalSearch();
 
 			sortPopulation();
+			double newFitness = getBestIndividual().getFitness();
+			assert (newFitness <= bestFitness);
+			bestFitness = newFitness;
 			logger.info("Current iteration: " + current_iteration);
 			this.notifyIteration();
 			logger.info("Population size: " + population.size());
