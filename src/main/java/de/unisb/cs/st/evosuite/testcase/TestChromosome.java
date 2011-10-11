@@ -397,6 +397,7 @@ public class TestChromosome extends ExecutableChromosome {
 			for (StatementInterface statement : test) {
 				if (Randomness.nextDouble() <= pl) {
 					assert (test.isValid());
+					int oldDistance = statement.getReturnValue().getDistance();
 					if (statement.mutate(test, test_factory)) {
 						changed = true;
 						assert (test.isValid());
@@ -405,6 +406,7 @@ public class TestChromosome extends ExecutableChromosome {
 							changed = true;
 						assert (test.isValid());
 					}
+					statement.getReturnValue().setDistance(oldDistance);
 					//					} else if (statement.getReturnValue() instanceof ArrayReference) {
 				}
 			}

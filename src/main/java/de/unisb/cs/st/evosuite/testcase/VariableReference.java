@@ -43,6 +43,21 @@ public interface VariableReference extends Comparable<VariableReference> {
 	public int getStPosition();
 
 	/**
+	 * Distance metric used to select variables for mutation based on how close
+	 * they are to the SUT
+	 * 
+	 * @return
+	 */
+	public int getDistance();
+
+	/**
+	 * Set the distance metric
+	 * 
+	 * @param distance
+	 */
+	public void setDistance(int distance);
+
+	/**
 	 * Create a copy of the current variable
 	 */
 	public abstract VariableReference clone();

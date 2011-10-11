@@ -116,9 +116,11 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			tests.get(i).localSearch(testObjective);
 		}
 		TestSuiteFitnessFunction fitnessFunction = (TestSuiteFitnessFunction) objective.getFitnessFunction();
+		for (TestChromosome test : tests) {
+			test.setChanged(true);
+		}
 		fitnessFunction.getFitness(this);
 
-		/*
 		if (fitnessBefore < getFitness()) {
 			logger.warn("Fitness was " + fitnessBefore + " and now is " + getFitness());
 			//for (TestChromosome chromosome : tests) {
@@ -131,7 +133,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			        + getFitness());
 			assert (false);
 		}
-		*/
+
 		assert (fitnessBefore >= getFitness());
 	}
 

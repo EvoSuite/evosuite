@@ -174,8 +174,9 @@ public class TestRunnable implements InterfaceTestRunnable {
 				logger.debug("Enabling file handling");
 				Method m = Sandbox.class.getMethod("generateFileContent",
 				                                   EvosuiteFile.class, String.class);
-				if (!TestCluster.getInstance().test_methods.contains(m))
-					TestCluster.getInstance().test_methods.add(m);
+				// TODO: Re-insert!
+				// if (!TestCluster.getInstance().test_methods.contains(m))
+				//	TestCluster.getInstance().test_methods.add(m);
 			} catch (SecurityException e) {
 				e.printStackTrace();
 			} catch (NoSuchMethodException e) {

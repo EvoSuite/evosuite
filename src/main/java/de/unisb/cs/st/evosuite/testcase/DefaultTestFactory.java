@@ -67,12 +67,12 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	/**
 	 * Accessor to the test cluster
 	 */
-	private transient TestCluster test_cluster = TestCluster.getInstance();
+	private transient TestCluster testCluster = TestCluster.getInstance();
 
 	/**
 	 * Keep track of objects we are already trying to generate
 	 */
-	private transient Set<AccessibleObject> current_recursion = new HashSet<AccessibleObject>();
+	private transient Set<AccessibleObject> currentRecursion = new HashSet<AccessibleObject>();
 
 	private DefaultTestFactory() {
 	}
@@ -84,19 +84,49 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	}
 
 	public void resetRecursion() {
-		current_recursion.clear();
+		currentRecursion.clear();
 	}
 
 	public void insertRandomCallOnObject(TestCase test, int position) {
 		// add call on existing object
 		VariableReference object = test.getRandomObject(position);
 		if (object != null) {
-			List<AccessibleObject> calls = test_cluster.getCallsFor(object.getVariableClass());
+			List<AccessibleObject> calls = testCluster.getCallsFor(object.getVariableClass());
 
 			if (!calls.isEmpty()) {
 				AccessibleObject call = Randomness.choice(calls);
 				addCallFor(test, object, call, position);
 			}
+		}
+	}
+
+	private VariableReference selectVariableForCall(TestCase test, int position) {
+		if (test.isEmpty() || position == 0)
+			return null;
+
+		double sum = 0.0;
+		for (int i = 0; i < position; i++) {
+			sum += 1d / (10 * test.getStatement(i).getReturnValue().getDistance() + 1d);
+			logger.debug(test.getStatement(i).getCode() + ": Distance = "
+			        + test.getStatement(i).getReturnValue().getDistance());
+		}
+
+		double rnd = Randomness.nextDouble() * sum;
+
+		for (int i = 0; i < position; i++) {
+			double dist = 1d / (test.getStatement(i).getReturnValue().getDistance() + 1d);
+
+			if (dist >= rnd)
+				return test.getStatement(i).getReturnValue();
+			else
+				rnd = rnd - dist;
+		}
+
+		if (position > 0) {
+			int i = Randomness.nextInt(position);
+			return test.getStatement(i).getReturnValue();
+		} else {
+			return test.getStatement(0).getReturnValue();
 		}
 	}
 
@@ -107,10 +137,16 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	 */
 	@Override
 	public void insertRandomStatement(TestCase test) {
-		int position = Randomness.nextInt(test.size() + 1);
 		final double P = 1d / 3d;
 
 		double r = Randomness.nextDouble();
+		int position = Randomness.nextInt(test.size() + 1);
+
+		logger.debug("\n\n*** Mutation\n\n");
+		for (int i = 0; i < test.size(); i++) {
+			logger.debug(test.getStatement(i).getCode() + ": Distance = "
+			        + test.getStatement(i).getReturnValue().getDistance());
+		}
 
 		if (r <= P) {
 			// add new call of the UUT - only declared in UUT!
@@ -118,60 +154,66 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			insertRandomCall(test, position);
 
 		} else if (r <= 2 * P) {
-			logger.debug("Adding new call on existing object");
-			// add call on existing object
-			VariableReference object = test.getRandomObject(position);
-			if (object != null) {
-				logger.debug("Chosen object: " + object.getName());
-				if (object instanceof ArrayReference) {
+			// Select a random variable
+			VariableReference var = selectVariableForCall(test, position);
+			if (var != null)
+				logger.debug("Inserting call at position " + position + ", chosen var: "
+				        + var.getName() + ", distance: " + var.getDistance()
+				        + ", class: " + var.getClassName());
+			// Add call for this variable at random position
+			if (var != null) {
+				logger.debug("Chosen object: " + var.getName());
+				if (var instanceof ArrayReference) {
 					logger.debug("Chosen object is array ");
-					ArrayReference array = (ArrayReference) object;
+					ArrayReference array = (ArrayReference) var;
 					if (array.getArrayLength() > 0) {
 						int index = Randomness.nextInt(array.getArrayLength());
 						try {
-							assignArray(test, object, index, position);
+							assignArray(test, var, index, position);
 						} catch (ConstructionFailedException e) {
 							// logger.info("Failed!");
 						}
 					}
 				} else {
-					logger.debug("Getting calls for object");
-					List<AccessibleObject> calls = test_cluster.getCallsFor(object.getVariableClass());
-					for (AccessibleObject o : calls)
-						logger.debug("  " + o);
-					// List<Method> calls =
-					// getMethods(object.getVariableClass());
+					logger.debug("Getting calls for object " + var.toString());
+					List<AccessibleObject> calls = testCluster.getCallsFor(var.getVariableClass());
 					if (!calls.isEmpty()) {
 						AccessibleObject call = calls.get(Randomness.nextInt(calls.size()));
 						logger.debug("Chosen call " + call);
-						addCallFor(test, object, call, position);
+						addCallFor(test, var, call, position);
 						logger.debug("Done adding call " + call);
 					}
 
 				}
 			} else {
-				logger.debug("Chosen object is null");
+				logger.debug("Adding new call on UUT");
+				insertRandomCall(test, position);
 			}
 		} else // FIXME - not used
 		{
 			// add call that uses existing object as parameter (consider all
 			// possible calls)
 			VariableReference object = test.getRandomObject(position);
+			boolean mutated = false;
 			if (object != null) {
 				if (object instanceof ArrayIndex) {
-					List<AccessibleObject> calls = test_cluster.getTestCallsWith(object.getType());
+					List<AccessibleObject> calls = testCluster.getTestCallsWith(object.getType());
 					if (!calls.isEmpty()) {
 						AccessibleObject call = calls.get(Randomness.nextInt(calls.size()));
 						addCallWith(test, object, call, position);
+						mutated = true;
 					}
 				} else {
-					List<AccessibleObject> calls = test_cluster.getTestCallsWith(object.getType());
+					List<AccessibleObject> calls = testCluster.getTestCallsWith(object.getType());
 					if (!calls.isEmpty()) {
 						AccessibleObject call = calls.get(Randomness.nextInt(calls.size()));
 						addCallWith(test, object, call, position);
+						mutated = true;
 					}
 				}
 			}
+			if (!mutated)
+				insertRandomCall(test, position);
 		}
 	}
 
@@ -242,7 +284,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	@Override
 	public void appendStatement(TestCase test, StatementInterface statement)
 	        throws ConstructionFailedException {
-		current_recursion.clear();
+		currentRecursion.clear();
 
 		if (statement instanceof ConstructorStatement) {
 			addConstructor(test, ((ConstructorStatement) statement).getConstructor(),
@@ -340,7 +382,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		List<VariableReference> parameters = satisfyParameters(test,
 		                                                       null,
 		                                                       getParameterTypes(constructor),
-		                                                       position, recursion_depth);
+		                                                       position,
+		                                                       recursion_depth + 1);
 		int new_length = test.size();
 		position += (new_length - length);
 
@@ -371,28 +414,34 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		int length = test.size();
 		VariableReference callee = null;
 		List<VariableReference> parameters = null;
-		if (!Modifier.isStatic(method.getModifiers())) { // TODO: Consider reuse
-			                                             // probability here?
-			try {
-				// TODO: Would casting be an option here?
-				callee = test.getRandomObject(method.getDeclaringClass(), position);
-				logger.debug("Found callee of type "
-				        + method.getDeclaringClass().getName() + ": " + callee.getName());
-			} catch (ConstructionFailedException e) {
-				logger.debug("No callee of type " + method.getDeclaringClass().getName()
-				        + " found");
-				callee = attemptGeneration(test, method.getDeclaringClass(), position,
-				                           recursion_depth, false);
-				position += test.size() - length;
-				length = test.size();
+		try {
+			if (!Modifier.isStatic(method.getModifiers())) { // TODO: Consider reuse
+				                                             // probability here?
+				try {
+					// TODO: Would casting be an option here?
+					callee = test.getRandomObject(method.getDeclaringClass(), position);
+					logger.debug("Found callee of type "
+					        + method.getDeclaringClass().getName() + ": "
+					        + callee.getName());
+				} catch (ConstructionFailedException e) {
+					logger.debug("No callee of type "
+					        + method.getDeclaringClass().getName() + " found");
+					callee = attemptGeneration(test, method.getDeclaringClass(),
+					                           position, recursion_depth, false);
+					position += test.size() - length;
+					length = test.size();
+				}
+				parameters = satisfyParameters(test, callee,
+				                               getParameterTypes(callee, method),
+				                               position, recursion_depth + 1);
+			} else {
+				parameters = satisfyParameters(test, callee,
+				                               getParameterTypes(callee, method),
+				                               position, recursion_depth + 1);
 			}
-			parameters = satisfyParameters(test, callee,
-			                               getParameterTypes(callee, method), position,
-			                               recursion_depth);
-		} else {
-			parameters = satisfyParameters(test, callee,
-			                               getParameterTypes(callee, method), position,
-			                               recursion_depth);
+		} catch (ConstructionFailedException e) {
+			testCluster.checkDependencies(method);
+			throw e;
 		}
 
 		int new_length = test.size();
@@ -403,7 +452,10 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 		StatementInterface st = new MethodStatement(test, method, callee, ret_val_type,
 		        parameters);
-		return test.addStatement(st, position);
+		VariableReference ret = test.addStatement(st, position);
+		if (callee != null)
+			ret.setDistance(callee.getDistance() + 1);
+		return ret;
 	}
 
 	/**
@@ -521,7 +573,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		} else if (!clazz.isPrimitive()
 		        && !clazz.isEnum()
 		        && !objects.isEmpty()
-		        && ((reuse <= Properties.OBJECT_REUSE_PROBABILITY) || !test_cluster.hasGenerator(parameter_type))) {
+		        && ((reuse <= Properties.OBJECT_REUSE_PROBABILITY) || !testCluster.hasGenerator(parameter_type))) {
 
 			logger.debug(" Choosing from " + objects.size() + " existing objects");
 			VariableReference reference = Randomness.choice(objects);
@@ -654,6 +706,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			assignArray(test, reference, i, position, objects);
 			position += test.size() - old_len;
 		}
+		reference.setDistance(recursion_depth);
 		return reference;
 
 	}
@@ -723,7 +776,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			//VariableReference reference = new VariableReference(type, position); // TODO: Is this correct? -1;?
 			StatementInterface st = PrimitiveStatement.getRandomStatement(test, type,
 			                                                              position, type);
-			return test.addStatement(st, position);
+			VariableReference ret = test.addStatement(st, position);
+			ret.setDistance(recursion_depth);
+			return ret;
 		} else if (clazz.isArray()) {
 			return createArray(test, type, position, recursion_depth);
 		} else {
@@ -731,7 +786,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				logger.debug("Using a null reference to satisfy the type: " + type);
 				StatementInterface st = new NullStatement(test, type);
 				test.addStatement(st, position);
-				return test.getStatement(position).getReturnValue();
+				VariableReference ret = test.getStatement(position).getReturnValue();
+				ret.setDistance(recursion_depth);
+				return ret;
 			}
 
 			ObjectPool objectPool = ObjectPool.getInstance();
@@ -756,14 +813,18 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				return addTestCall(test, position);
 			}
 
-			AccessibleObject o = test_cluster.getRandomGenerator(type, current_recursion);
-			current_recursion.add(o);
+			AccessibleObject o = testCluster.getRandomGenerator(type, currentRecursion);
+			currentRecursion.add(o);
 			if (o == null) {
+				if (!testCluster.hasGenerator(type)) {
+					logger.warn("We have no generator for class " + type);
+				}
 				throw new ConstructionFailedException("Generator is null");
 			} else if (o instanceof Field) {
 				logger.debug("Attempting generating of " + type + " via field of type "
 				        + type);
 				VariableReference ret = addField(test, (Field) o, position);
+				ret.setDistance(recursion_depth + 1);
 				logger.debug("Success in generating type " + type);
 				return ret;
 			} else if (o instanceof Method) {
@@ -772,6 +833,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				VariableReference ret = addMethod(test, (Method) o, position,
 				                                  recursion_depth + 1);
 				logger.debug("Success in generating type " + type);
+				ret.setDistance(recursion_depth + 1);
 				return ret;
 			} else if (o instanceof Constructor<?>) {
 				logger.debug("Attempting generating of " + type + " via constructor "
@@ -779,6 +841,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				VariableReference ret = addConstructor(test, (Constructor<?>) o,
 				                                       position, recursion_depth + 1);
 				logger.debug("Success in generating type " + type);
+				ret.setDistance(recursion_depth + 1);
+
 				return ret;
 			} else {
 				logger.debug("No generators found for type " + type);
@@ -801,7 +865,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		logger.trace("addCallFor " + callee.getName());
 
 		int previous_length = test.size();
-		current_recursion.clear();
+		currentRecursion.clear();
 		try {
 			if (call instanceof Method) {
 				addMethodFor(test, callee, (Method) call, position);
@@ -832,7 +896,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	private void addCallWith(TestCase test, VariableReference parameter,
 	        AccessibleObject call, int position) {
 		int previous_length = test.size();
-		current_recursion.clear();
+		currentRecursion.clear();
 		try {
 			if (call instanceof Method) {
 				addMethodWith(test, parameter, (Method) call, position);
@@ -862,12 +926,13 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	public void insertRandomCall(TestCase test, int position) {
 		int previous_length = test.size();
 		String name = "";
-		current_recursion.clear();
+		currentRecursion.clear();
 		logger.debug("Inserting random call at position " + position);
+		AccessibleObject o = testCluster.getRandomTestCall();
 		try {
-			// AccessibleObject o = mapping.getRandomCall();
-			AccessibleObject o = test_cluster.getRandomTestCall();
-			if (o instanceof Constructor<?>) {
+			if (o == null) {
+				logger.warn("Have no target methods to test");
+			} else if (o instanceof Constructor<?>) {
 				Constructor<?> c = (Constructor<?>) o;
 				//logger.info("Adding constructor call " + c.getName());
 				name = c.getName();
@@ -887,6 +952,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			}
 		} catch (ConstructionFailedException e) {
 			// TODO: Check this!
+			testCluster.checkDependencies(o);
 			logger.debug("Inserting statement " + name
 			        + " has failed. Removing statements");
 			// System.out.println("TG: Failed");
@@ -955,11 +1021,19 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			if (!Modifier.isStatic(field.getModifiers()))
 				source = test.getRandomObject(field.getDeclaringClass(), position);
 
-			FieldStatement f = new FieldStatement(test, field, source, retval);
-			logger.debug("Using field " + f.getCode());
+			try {
+				FieldStatement f = new FieldStatement(test, field, source, retval);
+				logger.debug("Using field " + f.getCode());
 
-			test.setStatement(f, position);
+				test.setStatement(f, position);
+			} catch (Throwable e) {
 
+				logger.warn("Error: " + e);
+				e.printStackTrace();
+				logger.warn("Field: " + field);
+				logger.warn("Test: " + test);
+				System.exit(0);
+			}
 		}
 	}
 
@@ -1008,7 +1082,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		List<VariableReference> parameters = satisfyParameters(test,
 		                                                       null,
 		                                                       getParameterTypes(constructor),
-		                                                       position, 0);
+		                                                       position, 1);
 		// Force one parameter to be "parameter"
 		if (!parameters.contains(parameter)) {
 			int num = 0;
@@ -1031,11 +1105,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	public VariableReference addMethodFor(TestCase test, VariableReference callee,
 	        Method method, int position) throws ConstructionFailedException {
 		logger.debug("Adding method " + method.toGenericString());
-		current_recursion.clear();
+		currentRecursion.clear();
 		int length = test.size();
 		List<VariableReference> parameters = null;
 		parameters = satisfyParameters(test, callee, getParameterTypes(callee, method),
-		                               position, 0);
+		                               position, 1);
 		int new_length = test.size();
 		position += (new_length - length);
 		// VariableReference ret_val = new
@@ -1045,7 +1119,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		StatementInterface st = new MethodStatement(test, method, callee, ret_val,
 		        parameters);
 		VariableReference ret = test.addStatement(st, position);
-
+		ret.setDistance(callee.getDistance() + 1);
 		logger.debug("Success: Adding method " + method);
 		return ret;
 	}
@@ -1054,7 +1128,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	        Field field, int position) throws ConstructionFailedException {
 		logger.debug("Adding field " + field.toGenericString() + " for variable "
 		        + callee);
-		current_recursion.clear();
+		currentRecursion.clear();
 
 		FieldReference fieldVar = new FieldReference(test, field, callee);
 		int length = test.size();
@@ -1065,6 +1139,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 		StatementInterface st = new AssignmentStatement(test, fieldVar, value);
 		VariableReference ret = test.addStatement(st, position);
+		ret.setDistance(callee.getDistance() + 1);
+
 		assert (test.isValid());
 
 		return ret;
@@ -1092,7 +1168,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			}
 		}
 		parameters = satisfyParameters(test, callee, getParameterTypes(callee, method),
-		                               position, 0);
+		                               position, 1);
 
 		// Force one parameter to be "parameter"
 		if (!parameters.contains(parameter)) {
@@ -1170,10 +1246,10 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	private List<AccessibleObject> getPossibleCalls(Type return_type,
 	        List<VariableReference> objects) {
 		List<AccessibleObject> calls = new ArrayList<AccessibleObject>();
-		List<AccessibleObject> all_calls;
+		Set<AccessibleObject> all_calls;
 
 		try {
-			all_calls = test_cluster.getGenerators(return_type);
+			all_calls = testCluster.getGenerators(return_type);
 		} catch (ConstructionFailedException e) {
 			return calls;
 		}
@@ -1240,8 +1316,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {
 		ois.defaultReadObject();
-		test_cluster = TestCluster.getInstance();
+		//		test_cluster = TestCluster.getInstance();
+		testCluster = TestCluster.getInstance();
 		descriptor_replacement = MethodDescriptorReplacement.getInstance();
-		current_recursion = new HashSet<AccessibleObject>();
+		currentRecursion = new HashSet<AccessibleObject>();
 	}
 }

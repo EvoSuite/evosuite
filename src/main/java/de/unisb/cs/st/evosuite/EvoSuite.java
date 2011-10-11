@@ -163,10 +163,12 @@ public class EvoSuite {
 		int port = handler.getServerPort();
 		List<String> cmdLine = new ArrayList<String>();
 		cmdLine.add(javaCmd);
+		cmdLine.add("-ea");
 		cmdLine.add("-cp");
 		cmdLine.add(classPath);
 		cmdLine.add("-Dprocess_communication_port=" + port);
 		cmdLine.add("-Dinline=true");
+		cmdLine.add("-Djava.awt.headless=true");
 		//cmdLine.add("-Dminimize_values=true");
 		cmdLine.addAll(args);
 		if (wholeSuite)

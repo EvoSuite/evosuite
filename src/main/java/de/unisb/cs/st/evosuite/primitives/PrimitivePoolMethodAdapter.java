@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.primitives;
 
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -52,6 +53,17 @@ public class PrimitivePoolMethodAdapter extends MethodAdapter {
 
 	}
 	*/
+
+	/* (non-Javadoc)
+	 * @see org.objectweb.asm.MethodAdapter#visitLookupSwitchInsn(org.objectweb.asm.Label, int[], org.objectweb.asm.Label[])
+	 */
+	@Override
+	public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
+		for (int key : keys) {
+			primitive_pool.add(key);
+		}
+		super.visitLookupSwitchInsn(dflt, keys, labels);
+	}
 
 	@Override
 	public void visitIntInsn(int opcode, int operand) {

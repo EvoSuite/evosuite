@@ -4,7 +4,7 @@
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.lang.reflect.AccessibleObject;
-import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -192,7 +192,7 @@ public class ValueMinimizer implements TestVisitor {
 			StatementInterface copy = statement;
 			int position = copy.getPosition();
 
-			List<AccessibleObject> generators = cluster.getGenerators(statement.getReturnType());
+			Set<AccessibleObject> generators = cluster.getGenerators(statement.getReturnType());
 			logger.info("Trying replacement of " + statement.getCode());
 			//logger.info(test.toCode());
 			for (AccessibleObject generator : generators) {

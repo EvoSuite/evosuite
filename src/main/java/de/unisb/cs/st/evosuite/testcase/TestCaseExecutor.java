@@ -173,6 +173,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	@SuppressWarnings("deprecation")
 	public ExecutionResult execute(TestCase tc, Scope scope) {
 		ExecutionTracer.getExecutionTracer().clear();
+		// TODO: Re-insert!
 		if (Properties.STATIC_HACK)
 			TestCluster.getInstance().resetStaticClasses();
 		resetObservers();
@@ -319,8 +320,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		}
 		threadGroup = new ThreadGroup("Test Execution");
 		currentThread = new Thread(threadGroup, r);
-		if (Properties.CLASSLOADER)
-			currentThread.setContextClassLoader(TestCluster.classLoader);
+		currentThread.setContextClassLoader(TestCluster.classLoader);
 		ExecutionTracer.setThread(currentThread);
 		return currentThread;
 	}

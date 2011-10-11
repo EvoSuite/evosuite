@@ -219,7 +219,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		if (num_covered > covered_branches) {
 			covered_branches = Math.max(covered_branches, num_covered);
-			logger.info("(Branches) Best individual covers " + covered_branches + "/"
+			logger.info("(Branches) Best individual covers " + num_covered + "/"
 			        + (total_branches * 2) + " branches and "
 			        + (total_methods - missing_methods) + "/" + total_methods
 			        + " methods");
@@ -228,7 +228,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 		//		if(call_count.size() > covered_methods) {
 		if ((total_methods - missing_methods) > covered_methods) {
-			logger.info("(Methods) Best individual covers " + covered_branches + "/"
+			logger.info("(Methods) Best individual covers " + num_covered + "/"
 			        + (total_branches * 2) + " branches and "
 			        + (total_methods - missing_methods) + "/" + total_methods
 			        + " methods");
@@ -238,7 +238,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		}
 		if (fitness < best_fitness) {
-			logger.info("(Fitness) Best individual covers " + covered_branches + "/"
+			logger.info("(Fitness) Best individual covers " + num_covered + "/"
 			        + (total_branches * 2) + " branches and "
 			        + (total_methods - missing_methods) + "/" + total_methods
 			        + " methods");
@@ -272,7 +272,21 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		if (mostCoveredGoals < coverage)
 			mostCoveredGoals = (int) coverage;
 
+		if (coverage > total_goals) {
+			logger.warn("Total goals: " + total_goals);
+			logger.warn("Covered goals: " + coverage);
+			logger.warn("Total branches: " + total_branches * 2);
+			logger.warn("Covered branches: " + num_covered);
+		}
+		assert (coverage <= total_goals);
 		suite.setCoverage(coverage / total_goals);
+		if (coverage / total_goals > 1) {
+			logger.warn("Coverage > 1:");
+			logger.warn("Covered branches: " + num_covered);
+
+		}
+		assert (suite.getCoverage() <= 1.0);
+		assert (suite.getCoverage() >= 0.0);
 		//if (!check)
 		//	checkFitness(suite, fitness);
 		return fitness;

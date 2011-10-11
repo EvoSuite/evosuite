@@ -49,7 +49,6 @@ import de.unisb.cs.st.evosuite.coverage.dataflow.AllDefsCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
-import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseExecutionTraceAnalyzer;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseFitnessCalculator;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJ;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
@@ -227,8 +226,8 @@ public class TestSuiteGenerator {
 			TestSuite suite = new TestSuite(tests);
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 			String testDir = Properties.TEST_DIR;
-			if(analyzing)
-			  testDir = testDir + "/" + Properties.CRITERION;
+			if (analyzing)
+				testDir = testDir + "/" + Properties.CRITERION;
 			System.out.println("* Writing JUnit test cases to " + testDir);
 			suite.writeTestSuite("Test" + name, testDir);
 		}
@@ -240,7 +239,9 @@ public class TestSuiteGenerator {
 			Criterion oldCriterion = Properties.CRITERION;
 			if (Properties.CRITERION != Criterion.MUTATION) {
 				Properties.CRITERION = Criterion.MUTATION;
+
 				TestCluster.getInstance().resetCluster();
+
 				// TODO: Now all existing test cases have reflection objects pointing to the wrong classloader
 				for (TestCase test : tests) {
 					DefaultTestCase dtest = (DefaultTestCase) test;
@@ -318,7 +319,7 @@ public class TestSuiteGenerator {
 			ga.addListener(new ConsoleProgressBar());
 
 		if (Properties.CRITERION == Criterion.DEFUSE
-				|| Properties.CRITERION == Criterion.ALLDEFS
+		        || Properties.CRITERION == Criterion.ALLDEFS
 		        || Properties.CRITERION == Criterion.STATEMENT)
 			ExecutionTrace.enableTraceCalls();
 
@@ -439,7 +440,7 @@ public class TestSuiteGenerator {
 	public static TestFitnessFactory getFitnessFactory() {
 		return getFitnessFactory(Properties.CRITERION);
 	}
-	
+
 	public static TestFitnessFactory getFitnessFactory(Criterion crit) {
 		switch (crit) {
 		case MUTATION:
@@ -475,11 +476,12 @@ public class TestSuiteGenerator {
 	private TestSuiteChromosome bootstrapRandomSuite(FitnessFunction fitness,
 	        TestFitnessFactory goals) {
 
-		if (Properties.CRITERION == Criterion.DEFUSE || Properties.CRITERION == Criterion.ALLDEFS) {
+		if (Properties.CRITERION == Criterion.DEFUSE
+		        || Properties.CRITERION == Criterion.ALLDEFS) {
 			System.out.println("* Disabled random bootstraping for dataflow criterion");
 			Properties.RANDOM_TESTS = 0;
 		}
-		
+
 		if (Properties.RANDOM_TESTS > 0) {
 			System.out.println("* Bootstrapping initial random test suite");
 		} else
@@ -762,7 +764,7 @@ public class TestSuiteGenerator {
 			minimizer.minimize(suite);
 			logger.info("Size after: " + suite.totalLengthOfTestCases());
 		}
-		
+
 		/*
 		 * if(Properties.MINIMIZE) { System.out.println("* Minimizing result");
 		 * TestSuiteMinimizer minimizer = new TestSuiteMinimizer();

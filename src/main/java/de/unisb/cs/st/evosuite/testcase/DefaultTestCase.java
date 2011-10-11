@@ -141,7 +141,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 		if (!var.isPrimitive()) {
 			// add fields of this object to list
-			for (Field field : TestCluster.getAccessibleFields(var.getVariableClass())) {
+			for (Field field : StaticTestCluster.getAccessibleFields(var.getVariableClass())) {
 				FieldReference f = new FieldReference(this, field, var);
 				if (f.getDepth() <= 2) {
 					if (type != null) {

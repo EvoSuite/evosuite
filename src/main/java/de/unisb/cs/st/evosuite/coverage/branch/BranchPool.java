@@ -76,6 +76,7 @@ public class BranchPool {
 	 *            of a method without Branches
 	 */
 	public static void addBranchlessMethod(String methodName) {
+		logger.warn("ADDING BRANCHLESS METHOD " + methodName);
 		branchlessMethods.add(methodName);
 	}
 

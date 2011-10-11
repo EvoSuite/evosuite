@@ -98,4 +98,19 @@ public class AccessibleClassAdapter extends ClassAdapter {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
 		return mv;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.objectweb.asm.ClassAdapter#visitInnerClass(java.lang.String, java.lang.String, java.lang.String, int)
+	 */
+	@Override
+	public void visitInnerClass(String name, String outerName, String innerName,
+	        int access) {
+		if (!exclude && (access & Opcodes.ACC_PRIVATE) != Opcodes.ACC_PRIVATE) {
+			access = access | Opcodes.ACC_PUBLIC;
+			access = access & ~Opcodes.ACC_PROTECTED;
+		}
+
+		super.visitInnerClass(name, outerName, innerName, access);
+	}
+
 }

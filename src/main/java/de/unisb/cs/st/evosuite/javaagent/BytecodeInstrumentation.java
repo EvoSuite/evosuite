@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGClassAdapter;
 import de.unisb.cs.st.evosuite.primitives.PrimitiveClassAdapter;
-import de.unisb.cs.st.evosuite.testcase.TestCluster;
+import de.unisb.cs.st.evosuite.testcase.StaticTestCluster;
 
 /**
  * The bytecode transformer - transforms bytecode depending on package and
@@ -76,7 +76,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	}
 
 	private boolean isTargetClassName(String className) {
-		return TestCluster.isTargetClassName(className);
+		// TODO: Need to replace this in the long term
+		return StaticTestCluster.isTargetClassName(className);
 	}
 
 	private static boolean isJavaagent = false;
@@ -146,21 +147,20 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 		ClassVisitor cv = writer;
 		// if(logger.isDebugEnabled())
-
-		// Print out bytecode if debug is enabled
 		if (logger.isDebugEnabled())
 			cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 
 		// Apply transformations to class under test and its owned
 		// classes
 		if (isTargetClassName(classNameWithDots)) {
+			// Print out bytecode if debug is enabled
+			cv = new AccessibleClassAdapter(cv, className);
 			// cv = new CheckClassAdapter(cv);
 			// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 			// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 			for (ClassAdapterFactory factory : externalPostVisitors) {
 				cv = factory.getVisitor(cv, className);
 			}
-			cv = new AccessibleClassAdapter(cv, className);
 			cv = new ExecutionPathClassAdapter(cv, className);
 			cv = new CFGClassAdapter(cv, className);
 
@@ -178,8 +178,10 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 		// If we need to reset static constructors, make them
 		// explicit methods
-		if (Properties.STATIC_HACK)
+		if (Properties.STATIC_HACK) {
+			// cv = new CheckClassAdapter(cv);
 			cv = new StaticInitializationClassAdapter(cv, className);
+		}
 
 		if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
 			ClassNode cn = new ClassNode();
