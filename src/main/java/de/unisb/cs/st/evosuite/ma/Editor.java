@@ -311,8 +311,9 @@ public class Editor {
 				"Parsing error", JOptionPane.ERROR_MESSAGE);
 	}
 
-	public String showChooseFileMenu() {
+	public String showChooseFileMenu(String className) {
 		final JFileChooser fc = new JFileChooser();
+		fc.setDialogTitle("Try to guess where is class: " + className);
 		int returnVal = fc.showOpenDialog(sguiTE.mainFrame);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {

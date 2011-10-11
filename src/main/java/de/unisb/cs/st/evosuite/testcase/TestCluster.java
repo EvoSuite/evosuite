@@ -1816,7 +1816,7 @@ public class TestCluster {
 				return clazz;
 		}
 
-		// Then try to match a postfix
+		// Then try to match a postfix 
 		for (Class<?> clazz : analyzedClasses) {
 			if (clazz.getName().endsWith(name))
 				return clazz;
@@ -1919,5 +1919,12 @@ public class TestCluster {
 		}
 
 		return clazz;
+	}
+	
+	/**
+	 * @return the analyzedClasses
+	 */
+	public Set<Class<?>> getAnalyzedClasses() {
+		return analyzedClasses;
 	}
 }
