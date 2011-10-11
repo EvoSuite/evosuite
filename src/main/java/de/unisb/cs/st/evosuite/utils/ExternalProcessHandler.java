@@ -38,19 +38,10 @@ public class ExternalProcessHandler {
 	protected Object final_result;
 	protected final Object MONITOR = new Object();
 
+	protected Thread processKillHook;
+	
 	public ExternalProcessHandler() {
-		//the following thread is important to make sure that the external process is killed
-		//when current process ends
 
-		Thread t = new Thread() {
-			@Override
-			public void run() {
-				killProcess();
-				closeServer();
-			}
-		};
-
-		Runtime.getRuntime().addShutdownHook(t);
 	}
 
 	public boolean startProcess(String[] command) {
@@ -63,6 +54,18 @@ public class ExternalProcessHandler {
 			return false;
 		}
 
+		//the following thread is important to make sure that the external process is killed
+		//when current process ends
+
+		processKillHook = new Thread() {
+			@Override
+			public void run() {
+				killProcess();
+				closeServer();
+			}
+		};
+
+		Runtime.getRuntime().addShutdownHook(processKillHook);
 		// now start the process
 
 		File dir = new File(System.getProperty("user.dir"));
@@ -109,6 +112,7 @@ public class ExternalProcessHandler {
 	}
 
 	public void killProcess() {
+		Runtime.getRuntime().removeShutdownHook(processKillHook);
 		if (process != null)
 			process.destroy();
 		process = null;
@@ -229,6 +233,14 @@ public class ExternalProcessHandler {
 						message = (String) in.readObject();
 						data = in.readObject();
 					} catch (Exception e) {
+						/*
+						 * TODO: this parts need to be improved.
+						 * An exception here is most likely due to the client crashing.
+						 * If there is still enough budget (this might not be trivial to check,
+						 * eg it could be fine for time, but not number of fitness evaluations), then
+						 * we should try to re-start based on the partial info received so far, eg
+						 * the best solutions found so far which was sent to master
+						 */
 						logger.error("Error in reading message ", e);
 						message = Messages.FINISHED_COMPUTATION;
 					}
@@ -245,6 +257,10 @@ public class ExternalProcessHandler {
 						//now data represent the current generation
 						System.out.println("* Restarting client process");
 						killProcess();
+						/*
+						 * TODO: this will need to be changed, to take into account
+						 * a possible reduced budget
+						 */
 						startProcess(last_command, data);
 					} else {
 						killProcess();

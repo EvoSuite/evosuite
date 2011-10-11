@@ -28,7 +28,7 @@ public class Editor {
 
 	private final SearchStatistics statistics = SearchStatistics.getInstance();
 
-	private final Set<Integer> suiteCoverage = new HashSet<Integer>();
+	private final Set<Integer> suiteCoveredLines = new HashSet<Integer>();
 
 	private final List<TestCaseTuple> testCases = new ArrayList<TestCaseTuple>();
 
@@ -39,8 +39,6 @@ public class Editor {
 	private final Iterable<String> sourceCode;
 
 	private final SimpleGUITestEditor sgui;
-
-	private double suiteCoverageValProLine;
 
 	private TestParser testParser;
 
@@ -69,10 +67,8 @@ public class Editor {
 		for (TestCase testCase : tests) {
 			testCaseCoverega = retrieveCoverage(testCase);
 			testCases.add(new TestCaseTuple(testCase, testCaseCoverega));
-			suiteCoverage.addAll(testCaseCoverega);
+			suiteCoveredLines.addAll(testCaseCoverega);
 		}
-		suiteCoverageValProLine = testSuiteChr.getCoverage()
-				/ suiteCoverage.size();
 
 		// set currentTestCaseTuple to proper. value
 		nextTest();
@@ -109,7 +105,7 @@ public class Editor {
 
 				// MA stuff
 				Set<Integer> testCaseCoverega = retrieveCoverage(newTestCase);
-				suiteCoverage.addAll(testCaseCoverega);
+				suiteCoveredLines.addAll(testCaseCoverega);
 				TestCaseTuple newTestCaseTuple = new TestCaseTuple(newTestCase,
 						testCaseCoverega);
 				currentTestCaseTuple = newTestCaseTuple;
@@ -236,9 +232,9 @@ public class Editor {
 	 * Rebuild set of covered lines.
 	 */
 	private void updateCoverage() {
-		suiteCoverage.clear();
+		suiteCoveredLines.clear();
 		for (TestCaseTuple tct : testCases) {
-			suiteCoverage.addAll(tct.getCoverage());
+			suiteCoveredLines.addAll(tct.getCoverage());
 		}
 
 	}
@@ -273,8 +269,8 @@ public class Editor {
 	 * 
 	 * @return Set of Integers
 	 */
-	public Set<Integer> getSuiteCoverage() {
-		return suiteCoverage;
+	public Set<Integer> getSuiteCoveredLines() {
+		return suiteCoveredLines;
 	}
 
 	/**
@@ -283,6 +279,7 @@ public class Editor {
 	 * @return int
 	 */
 	public int getSuiteCoveratgeVal() {
-		return (int) (suiteCoverageValProLine * suiteCoverage.size() * 100);
+		gaInstance.getFitnessFunction().getFitness(testSuiteChr);
+		return (int) (testSuiteChr.getCoverage() * 100);
 	}
 }

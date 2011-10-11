@@ -143,23 +143,35 @@ public class TestSuiteGenerator {
 
 	public static boolean analyzing = false;
 
+	/*
+	 * a field is needed for "ga" to avoid a large re-factoring of the code.
+	 * "ga" is given as input to many functions, but there are side-effects
+	 * like "ga = setup()" that are not propagated to the "ga" reference
+	 * of the top-function caller
+	 */
+	private GeneticAlgorithm ga;
+	
 	/**
 	 * Generate a test suite for the target class
 	 */
-	public String generateTestSuite(GeneticAlgorithm ga) {
+	public String generateTestSuite(GeneticAlgorithm geneticAlgorithm) {
 		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
-
+		ga = geneticAlgorithm;
+		
 		System.out.println("* Generating tests for class " + Properties.TARGET_CLASS);
 		printTestCriterion();
 
 		if (Properties.CRITERION == Criterion.ANALYZE)
-			analyzeCriteria(ga);
+			analyzeCriteria();
 		else
-			generateTests(ga);
+			generateTests();
 
 		TestCaseExecutor.pullDown();
+		/*
+		 * TODO: when we will have several processes running in parallel, we ll
+		 * need to handle the gathering of the statistics. 
+		 */
 		statistics.writeReport();
-
 		PermissionStatistics.getInstance().printStatistics();
 
 		System.out.println("* Done!");
@@ -168,12 +180,19 @@ public class TestSuiteGenerator {
 		return "";
 	}
 
-	private void analyzeCriteria(GeneticAlgorithm ga) {
+	/*
+	 * return reference of the GA used in the most recent generateTestSuite()
+	 */
+	public GeneticAlgorithm getEmployedGeneticAlgorithm(){
+		return ga;
+	}
+	
+	private void analyzeCriteria() {
 		analyzing = true;
 		for (Criterion criterion : CoverageStatistics.supportedCriteria) {
 			Properties.CRITERION = criterion;
 			System.out.println("* Analyzing Criterion: " + Properties.CRITERION);
-			generateTests(ga);
+			generateTests();
 
 			// TODO reset method?
 			TestCaseExecutor.timeExecuted = 0l;
@@ -185,12 +204,12 @@ public class TestSuiteGenerator {
 		CoverageStatistics.writeCSV();
 	}
 
-	private List<TestCase> generateTests(GeneticAlgorithm ga) {
+	private List<TestCase> generateTests() {
 		List<TestCase> tests;
 		if (Properties.STRATEGY == Strategy.EVOSUITE)
-			tests = generateWholeSuite(ga);
+			tests = generateWholeSuite();
 		else
-			tests = generateIndividualTests(ga);
+			tests = generateIndividualTests();
 
 		System.out.println("* Time spent executing tests: "
 		        + TestCaseExecutor.timeExecuted + "ms");
@@ -301,7 +320,7 @@ public class TestSuiteGenerator {
 	 * 
 	 * @return
 	 */
-	public List<TestCase> generateWholeSuite(GeneticAlgorithm ga) {
+	public List<TestCase> generateWholeSuite() {
 		// Set up search algorithm
 		if (ga == null || ga.getAge() == 0) {
 			System.out.println("* Setting up search algorithm for whole suite generation");
@@ -507,7 +526,7 @@ public class TestSuiteGenerator {
 	 * 
 	 * @return
 	 */
-	public List<TestCase> generateIndividualTests(GeneticAlgorithm ga) {
+	public List<TestCase> generateIndividualTests() {
 		// Set up search algorithm
 		System.out.println("* Setting up search algorithm for individual test generation");
 		ExecutionTrace.enableTraceCalls();
