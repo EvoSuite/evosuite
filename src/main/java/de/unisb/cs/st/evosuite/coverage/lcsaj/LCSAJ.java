@@ -7,6 +7,8 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Strategy;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
@@ -36,9 +38,11 @@ public class LCSAJ {
 			if (methodName.startsWith("<init>") && start.getInstructionId() <= 1) {
 
 			}
-			start.forceBranch();
-			BranchPool.registerAsBranch(start);
-			logger.info("Registering new branch for start node");
+			if (Properties.STRATEGY != Strategy.EVOSUITE){
+				start.forceBranch();
+				BranchPool.registerAsBranch(start);
+				logger.info("Registering new branch for start node");
+			}
 		}
 
 		Branch branch = BranchPool.getBranchForInstruction(start);
@@ -110,7 +114,7 @@ public class LCSAJ {
 		} else if (instruction.isReturn() || instruction.isThrow()
 		        || instruction.isGoto()) {
 
-			if (!BranchPool.isKnownAsBranch(instruction)) {
+			if (Properties.STRATEGY != Strategy.EVOSUITE && !BranchPool.isKnownAsBranch(instruction)) {
 				instruction.forceBranch();
 				BranchPool.registerAsBranch(instruction);
 				logger.info("Registering new branch");

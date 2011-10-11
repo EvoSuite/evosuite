@@ -24,6 +24,7 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Strategy;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstructionPool;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
@@ -164,22 +165,23 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 			} else
 				lcsaj_queue.add(currentLCSAJ);
 		}
-
-		addInstrumentation(mn, className, methodName);
-		if (Properties.WRITE_CFG)
-			for (LCSAJ l : LCSAJPool.getLCSAJs(className, methodName)) {
-				LCSAJGraph graph = new LCSAJGraph(l, false);
-				String graphDestination = "evosuite-graphs/LCSAJGraphs/" + className
-				        + "/" + methodName;
-				File dir = new File(graphDestination);
-				if (dir.mkdirs())
-					graph.generate(new File(graphDestination + "/LCSAJGraph no: "
-					        + l.getID() + ".dot"));
-				else if (dir.exists())
-					graph.generate(new File(graphDestination + "/LCSAJGraph no: "
-					        + l.getID() + ".dot"));
-			}
-
+		
+		if (Properties.STRATEGY != Strategy.EVOSUITE)
+			addInstrumentation(mn, className, methodName);
+		
+//		if (Properties.WRITE_CFG)
+//			for (LCSAJ l : LCSAJPool.getLCSAJs(className, methodName)) {
+//				LCSAJGraph graph = new LCSAJGraph(l, false);
+//				String graphDestination = "evosuite-graphs/LCSAJGraphs/" + className
+//				        + "/" + methodName;
+//				File dir = new File(graphDestination);
+//				if (dir.mkdirs())
+//					graph.generate(new File(graphDestination + "/LCSAJGraph no: "
+//					        + l.getID() + ".dot"));
+//				else if (dir.exists())
+//					graph.generate(new File(graphDestination + "/LCSAJGraph no: "
+//					        + l.getID() + ".dot"));
+//			}
 	}
 
 	@SuppressWarnings("unchecked")

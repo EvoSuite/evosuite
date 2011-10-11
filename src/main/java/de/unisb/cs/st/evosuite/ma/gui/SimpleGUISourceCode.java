@@ -119,7 +119,7 @@ public class SimpleGUISourceCode {
 			i = 1;
 			DefaultHighlightPainter painter;
 			while ((end = text.indexOf('\n', start)) >= 0) {
-				if (editor.getSuiteCoverage().contains(i) && !editor.getCurrentCoverage().contains(i)) {
+				if (editor.getSuiteCoveredLines().contains(i) && !editor.getCurrentCoverage().contains(i)) {
 					painter = coveredPainter;
 					hilite.addHighlight(start, end + 1, painter);
 				}

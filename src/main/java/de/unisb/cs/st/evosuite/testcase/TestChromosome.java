@@ -117,10 +117,12 @@ public class TestChromosome extends ExecutableChromosome {
 			this.lastExecutionResult.test = this.test;
 		}
 
-		for (Mutation mutation : other.lastMutationResult.keySet()) {
-			ExecutionResult copy = other.lastMutationResult.get(mutation); //.clone();
-			copy.test = test;
-			this.lastMutationResult.put(mutation, copy);
+		if(other.lastMutationResult != null){
+			for (Mutation mutation : other.lastMutationResult.keySet()) {
+				ExecutionResult copy = other.lastMutationResult.get(mutation); //.clone();
+				copy.test = test;
+				this.lastMutationResult.put(mutation, copy);
+			}
 		}
 	}
 

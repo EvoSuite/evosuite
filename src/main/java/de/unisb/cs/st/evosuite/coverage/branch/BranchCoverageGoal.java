@@ -18,6 +18,8 @@
 
 package de.unisb.cs.st.evosuite.coverage.branch;
 
+import java.io.Serializable;
+
 import de.unisb.cs.st.evosuite.cfg.ControlDependency;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
@@ -31,8 +33,9 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
  * @author Gordon Fraser, Andre Mis
  * 
  */
-public class BranchCoverageGoal extends TestCoverageGoal {
+public class BranchCoverageGoal extends TestCoverageGoal implements Serializable {
 
+	private static final long serialVersionUID = 2962922303111452419L;
 	Branch branch;
 	boolean value;
 

@@ -31,7 +31,7 @@ public class EvoSuite {
 
 	private static String separator = System.getProperty("file.separator");
 	private static String javaHome = System.getProperty("java.home");
-	private static String javaCmd = javaHome + separator + "bin" + separator + "java";
+	public final static String JAVA_CMD = javaHome + separator + "bin" + separator + "java";
 
 	private static void setup(String target, String[] args) {
 		String classPath = System.getProperty("java.class.path");
@@ -66,7 +66,7 @@ public class EvoSuite {
 		}
 
 		List<String> parameters = new ArrayList<String>();
-		parameters.add(javaCmd);
+		parameters.add(JAVA_CMD);
 		parameters.add("-cp");
 		parameters.add(classPath);
 		parameters.add("-DPROJECT_PREFIX=" + prefix);
@@ -145,14 +145,14 @@ public class EvoSuite {
 
 	}
 
-	private static void generateTests(boolean wholeSuite, String target, List<String> args) {
+	private static Object generateTests(boolean wholeSuite, String target, List<String> args) {
 		File taskFile = new File(Properties.OUTPUT_DIR + File.separator + target
 		        + ".task");
 		if (!taskFile.exists()) {
 			System.out.println("* Unknown class: " + target);
 			listClasses();
 			System.out.println("* If the class is missing but should be there, consider rerunning -setup, or adapting evosuite-files/evosuite.properties");
-			return;
+			return null;
 		}
 		String classPath = System.getProperty("java.class.path");
 		if (Properties.CP.charAt(0) == '"')
@@ -162,8 +162,7 @@ public class EvoSuite {
 		handler.openServer();
 		int port = handler.getServerPort();
 		List<String> cmdLine = new ArrayList<String>();
-		cmdLine.add(javaCmd);
-		cmdLine.add("-ea");
+		cmdLine.add(JAVA_CMD);
 		cmdLine.add("-cp");
 		cmdLine.add(classPath);
 		cmdLine.add("-Dprocess_communication_port=" + port);
@@ -182,18 +181,31 @@ public class EvoSuite {
 		cmdLine.add("-Dclassloader=true");
 		cmdLine.add("de.unisb.cs.st.evosuite.ClientProcess");
 		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
+		
+		/*
+		 * TODO: here we start the client with several properties that are set through -D.
+		 * These properties are not visible to the master process (ie this process), when
+		 * we access the Properties file. 
+		 * At the moment, we only need TARGET_CLASS, so we can hack it. 
+		 */
+		Properties.getInstance();//should force the load
+		Properties.TARGET_CLASS = target;
+		
+		Object result = null;
 		if (handler.startProcess(newArgs)) {
-			handler.waitForResult((Properties.GLOBAL_TIMEOUT
+			result = handler.waitForResult((Properties.GLOBAL_TIMEOUT
 			        + Properties.MINIMIZATION_TIMEOUT + 120) * 1000); // FIXXME: search timeout plus 100 seconds?	
 			handler.killProcess();
 			handler.closeServer();
 		} else {
 			System.out.println("* Could not connect to client process");
 		}
+		return result;
 	}
 
+	
 	@SuppressWarnings("static-access")
-	private void parseCommandLine(String[] args) {
+	public Object parseCommandLine(String[] args) {
 		Options options = new Options();
 
 		Option help = new Option("help", "print this message");
@@ -234,6 +246,8 @@ public class EvoSuite {
 				cmdOpts.add(arg);
 		}
 
+		Object result = null;
+		
 		// create the parser
 		CommandLineParser parser = new GnuParser();
 		try {
@@ -265,12 +279,12 @@ public class EvoSuite {
 				setup(line.getOptionValue("setup"), line.getArgs());
 			} else if (line.hasOption("generateTests")) {
 				if (line.hasOption("class"))
-					generateTests(false, line.getOptionValue("class"), javaOpts);
+					result = generateTests(false, line.getOptionValue("class"), javaOpts);
 				else
 					generateTests(false, javaOpts);
 			} else if (line.hasOption("generateSuite")) {
 				if (line.hasOption("class"))
-					generateTests(true, line.getOptionValue("class"), javaOpts);
+					result = generateTests(true, line.getOptionValue("class"), javaOpts);
 				else
 					generateTests(true, javaOpts);
 			} else {
@@ -284,8 +298,10 @@ public class EvoSuite {
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("EvoSuite", options);
 		}
+		
+		return result;
 	}
-
+	
 	/**
 	 * @param args
 	 */
