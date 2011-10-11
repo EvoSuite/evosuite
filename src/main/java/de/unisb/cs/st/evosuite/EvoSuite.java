@@ -181,6 +181,15 @@ public class EvoSuite {
 		cmdLine.add("de.unisb.cs.st.evosuite.ClientProcess");
 		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
 		
+		/*
+		 * TODO: here we start the client with several properties that are set through -D.
+		 * These properties are not visible to the master process (ie this process), when
+		 * we access the Properties file. 
+		 * At the moment, we only need TARGET_CLASS, so we can hack it. 
+		 */
+		Properties.getInstance();//should force the load
+		Properties.TARGET_CLASS = target;
+		
 		Object result = null;
 		if (handler.startProcess(newArgs)) {
 			result = handler.waitForResult((Properties.GLOBAL_TIMEOUT
@@ -193,6 +202,7 @@ public class EvoSuite {
 		return result;
 	}
 
+	
 	@SuppressWarnings("static-access")
 	public Object parseCommandLine(String[] args) {
 		Options options = new Options();
