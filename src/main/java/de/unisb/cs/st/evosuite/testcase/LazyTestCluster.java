@@ -989,4 +989,12 @@ public class LazyTestCluster extends TestCluster {
 		testCalls.addAll(testMethods);
 		return testCalls;
 	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#getAnalyzedClasses()
+	 */
+	@Override
+	public Set<Class<?>> getAnalyzedClasses() {
+		return analyzedClasses;
+	}
 }

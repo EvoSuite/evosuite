@@ -135,6 +135,8 @@ class MSecurityManager extends SecurityManager {
 				return true;
 			}
 			if (perm instanceof RuntimePermission) {
+				if (perm.getName().startsWith("loadLibrary."))
+					return true;
 				if (perm.getName().equals("loadLibrary.awt"))
 					return true;
 				if (perm.getName().equals("loadLibrary.net"))
@@ -164,6 +166,10 @@ class MSecurityManager extends SecurityManager {
 				// and let's hope nothing will go wrong.  
 				FilePermission fp = (FilePermission) perm;
 				if (fp.getName().contains(Properties.SANDBOX_FOLDER))
+					return true;
+
+				if (perm.getActions().equals("read")
+				        && fp.getName().endsWith(".properties"))
 					return true;
 
 				if (perm.getActions().equals("read"))
