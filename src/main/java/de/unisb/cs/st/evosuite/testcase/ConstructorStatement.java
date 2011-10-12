@@ -178,8 +178,10 @@ public class ConstructorStatement extends AbstractStatement {
 			        + ClassUtils.getShortClassName(ex) + "\");";
 
 			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {\n";
-			for (String msg : exception.getMessage().split("\n")) {
-				result += "  // " + msg + "\n";
+			if (exception.getMessage() != null) {
+				for (String msg : exception.getMessage().split("\n")) {
+					result += "  // " + msg + "\n";
+				}
 			}
 			result += "}";
 		}
