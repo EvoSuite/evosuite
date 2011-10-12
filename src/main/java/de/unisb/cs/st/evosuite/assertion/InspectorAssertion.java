@@ -67,7 +67,11 @@ public class InspectorAssertion extends Assertion {
 		} else if (result.getClass().equals(Float.class)) {
 			String val = result.toString();
 			return "assertEquals(" + inspectorSource.getName() + "."
-			        + inspector.getMethodCall() + "(), " + val + "F);";
+			        + inspector.getMethodCall() + "(), " + val + "F, 0.01F);";
+		} else if (result.getClass().equals(Double.class)) {
+			String val = result.toString();
+			return "assertEquals(" + inspectorSource.getName() + "."
+			        + inspector.getMethodCall() + "(), " + val + "D, 0.01D);";
 		} else if (result.getClass().equals(Character.class)) {
 			String val = result.toString();
 			return "assertEquals(" + inspectorSource.getName() + "."

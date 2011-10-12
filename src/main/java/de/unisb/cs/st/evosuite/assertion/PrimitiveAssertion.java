@@ -35,7 +35,10 @@ public class PrimitiveAssertion extends Assertion {
 			return "assertEquals(" + source.getName() + ", " + val + "L);";
 		} else if (value.getClass().equals(Float.class)) {
 			String val = value.toString();
-			return "assertEquals(" + source.getName() + ", " + val + "F);";
+			return "assertEquals(" + source.getName() + ", " + val + "F, 0.01F);";
+		} else if (value.getClass().equals(Double.class)) {
+			String val = value.toString();
+			return "assertEquals(" + source.getName() + ", " + val + "D, 0.01D);";
 		} else if (value.getClass().equals(Character.class)) {
 			String val = StringEscapeUtils.escapeJava(((Character) value).toString());
 			return "assertEquals(" + source.getName() + ", '" + val + "');";
