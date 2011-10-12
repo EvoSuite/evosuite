@@ -26,12 +26,13 @@ public class ExternalProcessUtilities {
 	}
 
 	public boolean connectToMainProcess() {
+
 		try {
 			connection = new Socket("127.0.0.1", port);
-			out = new ObjectOutputStream(connection.getOutputStream());
+			out = new DebuggingObjectOutputStream(connection.getOutputStream());
 			in = new ObjectInputStream(connection.getInputStream());
 		} catch (Exception e) {
-			logger.error("not possible to connect to main process",e);
+			logger.error("not possible to connect to main process", e);
 			return false;
 		}
 
@@ -66,18 +67,20 @@ public class ExternalProcessUtilities {
 		try {
 			out.writeObject(message);
 			out.flush();
-			out.writeObject(population_data);
+			// FIXXME: Currently not working
+			//out.writeObject(population_data);
+			out.writeObject(null);
 			out.flush();
 		} catch (Exception e) {
-			logger.error("error in sending messages",e);
+			logger.error("error in sending messages", e);
 		}
 
 		//main process will kill this one, but we can exit here just to be sure
 		try {
 			Thread.sleep(1000);
-		} catch (InterruptedException e) 
-		{
-			logger.warn("Thread interrupted while waiting for results from client process",e);
+		} catch (InterruptedException e) {
+			logger.warn("Thread interrupted while waiting for results from client process",
+			            e);
 		}
 
 		System.exit(0);
