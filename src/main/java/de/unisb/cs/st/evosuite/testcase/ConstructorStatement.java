@@ -174,7 +174,14 @@ public class ConstructorStatement extends AbstractStatement {
 			Class<?> ex = exception.getClass();
 			while (!Modifier.isPublic(ex.getModifiers()))
 				ex = ex.getSuperclass();
-			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {}";
+			result += "\n  fail(\"Expecting exception: "
+			        + ClassUtils.getShortClassName(ex) + "\");";
+
+			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {\n";
+			for (String msg : exception.getMessage().split("\n")) {
+				result += "  // " + msg + "\n";
+			}
+			result += "}";
 		}
 
 		return result;
