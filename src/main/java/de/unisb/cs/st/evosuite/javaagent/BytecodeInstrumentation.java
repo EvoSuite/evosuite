@@ -18,6 +18,9 @@
 
 package de.unisb.cs.st.evosuite.javaagent;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -70,8 +73,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	 */
 	@Override
 	public byte[] transform(ClassLoader loader, String className,
-	        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-	        byte[] classfileBuffer) throws IllegalClassFormatException {
+			Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+			byte[] classfileBuffer) throws IllegalClassFormatException {
 
 		if (className != null) {
 			try {
@@ -79,9 +82,9 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 				// Some packages we shouldn't touch - hard-coded
 				if (!classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
-				        && (classNameWithDots.startsWith("java")
-				                || classNameWithDots.startsWith("sun")
-				                || classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
+						&& (classNameWithDots.startsWith("java")
+								|| classNameWithDots.startsWith("sun")
+								|| classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
 					return classfileBuffer;
 				}
 				if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)) {
@@ -93,7 +96,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 					ClassReader reader = new ClassReader(classfileBuffer);
 					ClassWriter writer = new ClassWriter(
-					        org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
+							org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
 
 					ClassVisitor cv = writer;
 
@@ -132,7 +135,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 						if (Properties.TT) {
 							logger.info("Testability Transforming " + className);
 							TestabilityTransformation tt = new TestabilityTransformation(
-							        cn);
+									cn);
 							// cv = new TraceClassVisitor(writer, new
 							// PrintWriter(System.out));
 							cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
@@ -148,6 +151,25 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 					// cv = new TraceClassVisitor(cv, new
 					// PrintWriter(System.out));
 					classfileBuffer = writer.toByteArray();
+
+					String printInstrumentedClasses = System.getProperty("printInstrumentedClasses");
+					try{
+						if(printInstrumentedClasses!=null && printInstrumentedClasses.equals("true")){
+							File f = new File(classNameWithDots + ".class");
+							if(!f.exists()){
+								System.out.println(f.getAbsolutePath());
+								f.createNewFile();
+							}else{
+								f.delete();
+								f.createNewFile();
+							}
+							OutputStream out = new FileOutputStream(f);
+							out.write(classfileBuffer);
+							out.close();
+						}
+					}catch(Throwable t){
+						logger.error("Problem printing modified bytecode of class " + classNameWithDots, t);
+					}
 
 					return classfileBuffer;
 
