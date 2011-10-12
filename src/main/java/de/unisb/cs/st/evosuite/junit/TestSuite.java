@@ -315,12 +315,13 @@ public class TestSuite implements Opcodes {
 			imports.addAll(test.getAccessedClasses());
 		}
 		for (ExecutionResult result : results) {
-			for (Throwable t : result.exceptions.values())
+			for (Throwable t : result.exceptions.values()) {
 				imports.add(t.getClass());
+			}
 		}
 		Set<String> import_names = new HashSet<String>();
 		for (Class<?> imp : imports) {
-			if (imp.isArray())
+			while (imp.isArray())
 				imp = imp.getComponentType();
 			if (imp.isPrimitive())
 				continue;
