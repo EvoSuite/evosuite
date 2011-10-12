@@ -253,7 +253,9 @@ public class MethodStatement extends AbstractStatement {
 			while (!Modifier.isPublic(ex.getModifiers()))
 				ex = ex.getSuperclass();
 			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {\n";
-			result += "  // " + exception.getMessage() + "\n";
+			for (String msg : exception.getMessage().split("\n")) {
+				result += "  // " + msg + "\n";
+			}
 			result += "}";
 		}
 
