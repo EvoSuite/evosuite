@@ -10,11 +10,14 @@ import japa.parser.ast.body.VariableDeclarator;
 import japa.parser.ast.expr.ArrayAccessExpr;
 import japa.parser.ast.expr.ArrayCreationExpr;
 import japa.parser.ast.expr.AssignExpr;
+import japa.parser.ast.expr.CastExpr;
 import japa.parser.ast.expr.Expression;
 import japa.parser.ast.expr.FieldAccessExpr;
 import japa.parser.ast.expr.MethodCallExpr;
 import japa.parser.ast.expr.NameExpr;
+import japa.parser.ast.expr.NullLiteralExpr;
 import japa.parser.ast.expr.ObjectCreationExpr;
+import japa.parser.ast.expr.StringLiteralExpr;
 import japa.parser.ast.expr.VariableDeclarationExpr;
 import japa.parser.ast.stmt.ExpressionStmt;
 import japa.parser.ast.stmt.Statement;
@@ -35,8 +38,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
-import de.unisb.cs.st.evosuite.ma.gui.IGUI;
+import de.unisb.cs.st.evosuite.ma.Editor;
 import de.unisb.cs.st.evosuite.testcase.AbstractStatement;
 import de.unisb.cs.st.evosuite.testcase.ArrayIndex;
 import de.unisb.cs.st.evosuite.testcase.ArrayReference;
@@ -53,8 +57,10 @@ import de.unisb.cs.st.evosuite.testcase.FloatPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.IntPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.LongPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
+import de.unisb.cs.st.evosuite.testcase.NullStatement;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.ShortPrimitiveStatement;
+import de.unisb.cs.st.evosuite.testcase.StringPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
@@ -63,22 +69,45 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  * @author Yury Pavlov
  * 
  */
-/**
- * @author Yury Pavlov
- * 
- */
 public class TestParser {
 
 	private TypeTable tt;
 
-	private final IGUI gui;
+	private final Editor editor;
 
 	private TestCase newTestCase;
 
 	private final TestCluster testCluster = TestCluster.getInstance();
 
-	public TestParser(IGUI pgui) {
-		gui = pgui;
+	public TestParser(Editor editor) {
+		this.editor = editor;
+	}
+
+	/**
+	 * Return parsed expression statements of new {@link TestCase} from GUI
+	 * Editor
+	 * 
+	 * @param cu
+	 */
+	private List<Expression> getExpressionStmt(CompilationUnit cu) {
+		List<Expression> res = new ArrayList<Expression>();
+		TypeDeclaration typeDeclaration = cu.getTypes().get(0);
+		BodyDeclaration member = typeDeclaration.getMembers().get(0);
+		// There is only one method in new TestCase - Dummy
+		MethodDeclaration method = null;
+
+		if (member instanceof MethodDeclaration) {
+			method = (MethodDeclaration) member;
+		}
+
+		for (Statement statement : method.getBody().getStmts()) {
+			// probably all statements of TestCase are ExpressionStmt
+			if (statement instanceof ExpressionStmt) {
+				res.add(((ExpressionStmt) statement).getExpression());
+			}
+		}
+
+		return res;
 	}
 
 	/**
@@ -100,8 +129,7 @@ public class TestParser {
 		try {
 			cu = JavaParser.parse(inputStream);
 		} catch (ParseException e) {
-			gui.showParseException(e.getMessage());
-			e.printStackTrace();
+			editor.showParseException(e.getMessage());
 		} finally {
 			inputStream.close();
 		}
@@ -125,8 +153,9 @@ public class TestParser {
 					newTestCase.addStatement(createMethodSttm(methodCallExpr));
 				}
 			} catch (ParseException e) {
-				gui.showParseException("Error in line: " + expr.getBeginLine()
-				        + "\nMessage: " + e.getMessage());
+				editor.showParseException("Error in line: "
+						+ expr.getBeginLine() + "\nMessage: " + e.getMessage()
+						+ "\nExpr: " + expr);
 
 				// if res == null, editor&co. stay unchanged
 				newTestCase = null;
@@ -151,14 +180,11 @@ public class TestParser {
 		Type parserType = varDeclExpr.getType();
 		VariableDeclarator varDecl = varDeclExpr.getVars().get(0);
 
-		if (parserType instanceof PrimitiveType) {
-			if (varDecl.getInit() instanceof MethodCallExpr) {
-				return createMethodSttm((MethodCallExpr) varDecl.getInit());
-			} else {
-				return createPrimitiveStatement(varDeclExpr);
-			}
-		}
-		if (parserType instanceof ReferenceType) {
+		if (varDecl.getInit() instanceof MethodCallExpr) {
+			return createMethodSttm((MethodCallExpr) varDecl.getInit());
+		} else if (parserType instanceof PrimitiveType) {
+			return createPrimitiveStatement(varDeclExpr);
+		} else if (parserType instanceof ReferenceType) {
 			return createReferenceType(varDeclExpr);
 		}
 
@@ -218,44 +244,48 @@ public class TestParser {
 	        throws ParseException {
 		AbstractStatement res = null;
 		Expression initExpr = varDeclExpr.getVars().get(0).getInit();
-		Type parserType = varDeclExpr.getType();
+		Type parsType = varDeclExpr.getType();
 
 		if (initExpr != null) {
 			if (initExpr instanceof ObjectCreationExpr) {
 				ObjectCreationExpr objCreatExpr = (ObjectCreationExpr) initExpr;
+				List<Expression> args = objCreatExpr.getArgs();
+				Class<?> clazz = typeToClass(parsType);
+				Class<?>[] paramClasses = getVarClasses(args);
+				List<VariableReference> params = getVarRefs(args);
+				Constructor<?> constructor = getConstructor(clazz, paramClasses);
 
-				Class<?> clazz = typeToClass(parserType);
-				Class<?>[] paramTypes = typesToClasses(objCreatExpr.getTypeArgs());
-				List<VariableReference> params = getVarRefs(objCreatExpr.getArgs());
-
-				Constructor<?> constructor = null;
-				try {
-					constructor = clazz.getConstructor(paramTypes);
-				} catch (SecurityException e) {
-					e.printStackTrace();
-				} catch (NoSuchMethodException e) {
-					throw new ParseException(null, "No such method in this class.");
-				}
-
-				res = new ConstructorStatement(newTestCase, constructor, clazz, params);
-			}
-			if (initExpr instanceof ArrayCreationExpr) {
+				res = new ConstructorStatement(newTestCase, constructor, clazz,
+						params);
+			} else if (initExpr instanceof ArrayCreationExpr) {
 				ArrayCreationExpr arrayCreationExpr = (ArrayCreationExpr) initExpr;
-
-				// Array can't be created with var. length
-				int arraySize = Integer.parseInt(arrayCreationExpr.getDimensions().get(0).toString());
+				int arraySize = Integer.parseInt(arrayCreationExpr
+						.getDimensions().get(0).toString());
 				Class<?> clazz = typeToClass(arrayCreationExpr.getType());
-
-				// TODO check for the best way to get that@#%@#%^
 				Object array = Array.newInstance(clazz, arraySize);
 
-				res = new ArrayStatement(newTestCase, array.getClass(), arraySize);
+				res = new ArrayStatement(newTestCase, array.getClass(),
+						arraySize);
+			} else if (initExpr instanceof CastExpr) {
+				CastExpr castExpr = (CastExpr) initExpr;
+				if (castExpr.getExpr() instanceof MethodCallExpr) {
+					res = createMethodSttm((MethodCallExpr) castExpr.getExpr());
+				}
+			} else if (initExpr instanceof StringLiteralExpr) {
+				res = new StringPrimitiveStatement(newTestCase,
+						((StringLiteralExpr) initExpr).getValue());
+			} else if (initExpr instanceof NullLiteralExpr) {
+				res = new NullStatement(newTestCase, typeToClass(parsType));
 			}
+
 		} else {
 			throw new ParseException(null,
-			        "There is no right side of declaration expression!");
+					"There is no a right side of the declaration expression.");
 		}
 
+		if (res == null) {
+			throw new ParseException(null, "Can not create the reference type.");
+		}
 		return res;
 	}
 
@@ -266,18 +296,13 @@ public class TestParser {
 	 * @throws ParseException
 	 */
 	private AbstractStatement createMethodSttm(MethodCallExpr methodCallExpr)
-	        throws ParseException {
-
+			throws ParseException {
 		Expression scope = methodCallExpr.getScope();
 		List<Expression> args = methodCallExpr.getArgs();
-
 		Class<?> clazz = typeToClass(getType(scope));
-
 		String methodName = methodCallExpr.getName();
 		Class<?>[] paramClasses = getVarClasses(args);
-
 		Method method = getMethod(clazz, methodName, paramClasses);
-
 		VariableReference callee = getVarRef(scope);
 		List<VariableReference> paramReferences = getVarRefs(args);
 
@@ -297,13 +322,16 @@ public class TestParser {
 		VariableReference valRef = getVarRef(assignExpr.getValue());
 
 		if (varRef == null) {
-			throw new ParseException(null, "Can not create or find var reference: "
-			        + assignExpr.getTarget());
+			throw new ParseException(null,
+					"Can not create or find the var reference: "
+							+ assignExpr.getTarget());
 		}
 		if (valRef == null) {
-			throw new ParseException(null, "Can not create or find var reference: "
-			        + assignExpr.getValue());
+			throw new ParseException(null,
+					"Can not create or find the var reference: "
+							+ assignExpr.getValue());
 		}
+
 		return new AssignmentStatement(newTestCase, varRef, valRef);
 	}
 
@@ -335,7 +363,11 @@ public class TestParser {
 		List<VariableReference> res = new ArrayList<VariableReference>();
 		if (args != null) {
 			for (Expression expr : args) {
-				res.add(getVarRef(expr));
+				if (expr instanceof CastExpr) {
+					res.add(getVarRef(((CastExpr) expr).getExpr()));
+				} else {
+					res.add(getVarRef(expr));
+				}
 			}
 		}
 		return res;
@@ -347,8 +379,7 @@ public class TestParser {
 			if (!isStatic(name)) {
 				return tt.getVarReference(name);
 			}
-		}
-		if (expr instanceof FieldAccessExpr) {
+		} else if (expr instanceof FieldAccessExpr) {
 			FieldAccessExpr fieldAccExpr = (FieldAccessExpr) expr;
 			VariableReference varRef = null;
 
@@ -357,15 +388,17 @@ public class TestParser {
 				varRef = tt.getVarReference(fieldAccExpr.getScope().toString());
 			}
 			// TODO check if static from another class
-			return new FieldReference(newTestCase, getField(fieldAccExpr), varRef);
-		}
-		if (expr instanceof ArrayAccessExpr) {
+			return new FieldReference(newTestCase, getField(fieldAccExpr),
+					varRef);
+		} else if (expr instanceof ArrayAccessExpr) {
 			ArrayAccessExpr arrayAccExpr = (ArrayAccessExpr) expr;
 
 			ArrayReference arrayRef = (ArrayReference) tt.getVarReference(arrayAccExpr.getName().toString());
 			int arrayInd = Integer.parseInt(arrayAccExpr.getIndex().toString());
 
 			return new ArrayIndex(newTestCase, arrayRef, arrayInd);
+		} else if (expr instanceof CastExpr) {
+			return getVarRef(((CastExpr) expr).getExpr());
 		}
 		return null;
 	}
@@ -385,13 +418,17 @@ public class TestParser {
 				if (expr instanceof NameExpr) {
 					String varName = ((NameExpr) expr).getName();
 					tmpRes.add(tt.getVarReference(varName).getVariableClass());
-				}
-				if (expr instanceof FieldAccessExpr) {
+				} else if (expr instanceof FieldAccessExpr) {
 					tmpRes.add(getField(expr).getType());
-				}
-				if (expr instanceof ArrayAccessExpr) {
-					String arrayName = ((ArrayAccessExpr) expr).getName().toString();
-					tmpRes.add(tt.getVarReference(arrayName).getComponentClass());
+				} else if (expr instanceof ArrayAccessExpr) {
+					String arrayName = ((ArrayAccessExpr) expr).getName()
+							.toString();
+					tmpRes.add(tt.getVarReference(arrayName)
+							.getComponentClass());
+				} else if (expr instanceof CastExpr) {
+					tmpRes.add(typeToClass(((CastExpr) expr).getType()));
+				} else {
+					throw new ParseException(null, "Can not find reference for \"" + expr + "\"");
 				}
 			}
 		}
@@ -414,29 +451,128 @@ public class TestParser {
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (NoSuchFieldException e) {
-			e.printStackTrace();
+			throw new ParseException(null, "Can not find the field.");
 		}
 		return null;
 	}
 
+	// /**
+	// * @param typeArgs
+	// * @return
+	// * @throws ParseException
+	// */
+	// private Class<?>[] typesToClasses(List<Type> typeArgs)
+	// throws ParseException {
+	// if (typeArgs == null) {
+	// return null;
+	// }
+	//
+	// List<Class<?>> tmpRes = new ArrayList<Class<?>>();
+	// for (Type type : typeArgs) {
+	// tmpRes.add(typeToClass(type));
+	// }
+	//
+	// Class<?>[] res = new Class<?>[tmpRes.size()];
+	// res = tmpRes.toArray(res);
+	// return res;
+	// }
+
 	/**
-	 * @param typeArgs
+	 * @param clazz
+	 * @param paramClasses
 	 * @return
 	 * @throws ParseException
 	 */
-	private Class<?>[] typesToClasses(List<Type> typeArgs) throws ParseException {
-		if (typeArgs == null) {
-			return null;
+	private Constructor<?> getConstructor(Class<?> clazz,
+			Class<?>[] paramClasses) throws ParseException {
+		try {
+			return clazz.getConstructor(paramClasses);
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			for (Constructor<?> constr : TestCluster.getConstructors(clazz)) {
+				if (constr.getParameterTypes().length == paramClasses.length) {
+					Class<?>[] constrParams = constr.getParameterTypes();
+					for (int i = 0; i < constrParams.length; i++) {
+						if (constrParams[i].isAssignableFrom(paramClasses[i])) {
+							if (i == constrParams.length - 1) {
+								return constr;
+							}
+						} else {
+							break;
+						}
+					}
+				}
+			}
 		}
+		throw new ParseException(null, "No such constructor in this class.");
+	}
 
-		List<Class<?>> tmpRes = new ArrayList<Class<?>>();
-		for (Type type : typeArgs) {
-			tmpRes.add(typeToClass(type));
+	/**
+	 * @param clazz
+	 * @param methodName
+	 * @param paramClasses
+	 * @return
+	 * @throws ParseException
+	 */
+	private Method getMethod(Class<?> clazz, String methodName,
+			Class<?>[] paramClasses) throws ParseException {
+		String classNames = "";
+		try {
+			return clazz.getMethod(methodName, paramClasses);
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			for (Method meth : clazz.getMethods()) {
+				if (meth.getName().equals(methodName)) {
+					if (meth.getParameterTypes().length == paramClasses.length) {
+						Class<?>[] methParams = meth.getParameterTypes();
+						for (int i = 0; i < methParams.length; i++) {
+							if (methParams[i].isAssignableFrom(paramClasses[i])) {
+								if (i == methParams.length - 1) {
+									return meth;
+								}
+							} else {
+								break;
+							}
+						}
+					}
+				}
+			}
+			for (Class<?> paramType : paramClasses) {
+				classNames += paramType.getName() + "; ";
+			}
 		}
+		throw new ParseException(null, "Can not find the method: \""
+				+ methodName + "\", with parameter(s): " + classNames);
+	}
 
-		Class<?>[] res = new Class<?>[tmpRes.size()];
-		res = tmpRes.toArray(res);
-		return res;
+	/**
+	 * Return parser's type of expr. F.e. int instance.fieldInt it's
+	 * type(instance). It is impossible to obtain type of field here. But we can
+	 * load class and get field's class from there. See getVarClasses.
+	 * 
+	 * @param expr
+	 * @return
+	 * @throws ParseException
+	 */
+	private Type getType(Expression expr) throws ParseException {
+		if (expr instanceof NameExpr) {
+			String name = ((NameExpr) expr).getName();
+			if (isStatic(name)) {
+				return new ClassOrInterfaceType(0, 0, 0, 0, null, name, null);
+			} else {
+				return tt.getType(name);
+			}
+		}
+		if (expr instanceof FieldAccessExpr) {
+			FieldAccessExpr fieldAcExpr = (FieldAccessExpr) expr;
+
+			if (!isStatic(fieldAcExpr.getScope().toString())) {
+				return tt.getType(fieldAcExpr.getScope());
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -451,7 +587,7 @@ public class TestParser {
 		}
 		if (parsType instanceof ReferenceType) {
 			ReferenceType refType = (ReferenceType) parsType;
-			return refTypeToClass(refType);
+			return coiTypeToClass(refType.getType());
 		}
 		if (parsType instanceof ClassOrInterfaceType) {
 			return coiTypeToClass(parsType);
@@ -497,124 +633,47 @@ public class TestParser {
 	}
 
 	/**
-	 * @param refType
-	 * @return
-	 * @throws ParseException
-	 */
-	private Class<?> refTypeToClass(ReferenceType refType) throws ParseException {
-		// String fullClassName = Properties.PROJECT_PREFIX + "."
-		// + refType.getType();
-		try {
-			return testCluster.getClass(refType.getType().toString());
-			// return TestCluster.classLoader.loadClass(fullClassName);
-		} catch (ClassNotFoundException e) {
-			try {
-				return testCluster.importClass(gui.showChooseFileMenu());
-			} catch (ClassNotFoundException e1) {
-				throw new ParseException(null, "Can not load class for ReferenceType: "
-				        + refType.getType());
-			}
-		}
-	}
-
-	/**
 	 * @param parsType
 	 * @return
 	 * @throws ParseException
 	 */
 	private Class<?> coiTypeToClass(Type parsType) throws ParseException {
-		// String fullClassName = Properties.PROJECT_PREFIX + "." + parsType;
+		String fullClassName = Properties.CLASS_PREFIX + "." + parsType;
+
 		try {
-			return testCluster.getClass(parsType.toString());
-			// return TestCluster.classLoader.loadClass(fullClassName);
+			return TestCluster.classLoader.loadClass(fullClassName);
 		} catch (ClassNotFoundException e) {
 			try {
-				return testCluster.importClass(gui.showChooseFileMenu());
+				return getClass(parsType.toString());
 			} catch (ClassNotFoundException e1) {
-				throw new ParseException(null,
-				        "Can not load class for ClassOrInterfaceType: " + parsType);
+				try {
+					String className = editor.showChooseFileMenu(parsType
+							.toString());
+					if (className != null) {
+						return testCluster.importClass(className);
+					} else {
+						throw new ParseException(null,
+								"Can not load class for ClassOrInterfaceType: "
+										+ parsType);
+					}
+				} catch (ClassNotFoundException e2) {
+					throw new ParseException(null,
+							"Can not load class for ClassOrInterfaceType: "
+									+ parsType);
+				}
 			}
 		}
 	}
 
-	/**
-	 * @param clazz
-	 * @param methodName
-	 * @param parameterTypes
-	 * @return
-	 * @throws ParseException
-	 */
-	private Method getMethod(Class<?> clazz, String methodName, Class<?>[] parameterTypes)
-	        throws ParseException {
-		try {
-			return clazz.getMethod(methodName, parameterTypes);
-		} catch (SecurityException e) {
-			e.printStackTrace();
-			throw new ParseException(null, "SecurityException by getMethod.");
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-			String classNames = "";
-			for (Class<?> paramType : parameterTypes) {
-				classNames += paramType.getName() + " ";
-			}
-			throw new ParseException(null, "Can not find the method: " + methodName
-			        + " with parameter(s): " + classNames);
-		}
-	}
+	public Class<?> getClass(String name) throws ClassNotFoundException {
 
-	/**
-	 * Return parser's type of expr. F.e. int instance.fieldInt it's
-	 * type(instance). It is impossible to obtain type of field here. But we can
-	 * load class and get field's class from there. See getVarClasses.
-	 * 
-	 * @param expr
-	 * @return
-	 * @throws ParseException
-	 */
-	private Type getType(Expression expr) throws ParseException {
-		if (expr instanceof NameExpr) {
-			String name = ((NameExpr) expr).getName();
-			if (isStatic(name)) {
-				return new ClassOrInterfaceType(0, 0, 0, 0, null, name, null);
-			} else {
-				return tt.getType(name);
-			}
-		}
-		if (expr instanceof FieldAccessExpr) {
-			FieldAccessExpr fieldAcExpr = (FieldAccessExpr) expr;
-
-			if (!isStatic(fieldAcExpr.getScope().toString())) {
-				return tt.getType(fieldAcExpr.getScope());
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Return parsed expression statements of new {@link TestCase} from GUI
-	 * Editor
-	 * 
-	 * @param cu
-	 */
-	private List<Expression> getExpressionStmt(CompilationUnit cu) {
-		List<Expression> res = new ArrayList<Expression>();
-		TypeDeclaration typeDeclaration = cu.getTypes().get(0);
-		BodyDeclaration member = typeDeclaration.getMembers().get(0);
-		// There is only one method in new TestCase - Dummy
-		MethodDeclaration method = null;
-
-		if (member instanceof MethodDeclaration) {
-			method = (MethodDeclaration) member;
+		// First try to find exact match
+		for (Class<?> clazz : testCluster.getAnalyzedClasses()) {
+			if (clazz.getName().equals(name))
+				return clazz;
 		}
 
-		for (Statement statement : method.getBody().getStmts()) {
-			// probably all statements of TestCase are ExpressionStmt
-			if (statement instanceof ExpressionStmt) {
-				res.add(((ExpressionStmt) statement).getExpression());
-			}
-		}
-
-		return res;
+		throw new ClassNotFoundException(name);
 	}
 
 	/**

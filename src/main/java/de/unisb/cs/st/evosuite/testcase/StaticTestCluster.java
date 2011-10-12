@@ -1677,7 +1677,7 @@ public class StaticTestCluster extends TestCluster {
 				return clazz;
 		}
 
-		// Then try to match a postfix
+		// Then try to match a postfix 
 		for (Class<?> clazz : analyzedClasses) {
 			if (clazz.getName().endsWith(name))
 				return clazz;
@@ -1685,6 +1685,13 @@ public class StaticTestCluster extends TestCluster {
 
 		throw new ClassNotFoundException(name);
 
+	}
+
+	/**
+	 * @return the analyzedClasses
+	 */
+	public Set<Class<?>> getAnalyzedClasses() {
+		return analyzedClasses;
 	}
 
 	/**

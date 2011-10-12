@@ -132,6 +132,13 @@ public abstract class TestCluster {
 	public abstract Class<?> importClass(String name) throws ClassNotFoundException;
 
 	/**
+	 * Set of classes that have been analyzed already
+	 * 
+	 * @return
+	 */
+	public abstract Set<Class<?>> getAnalyzedClasses();
+
+	/**
 	 * Determine if there are generators
 	 * 
 	 * @param type
