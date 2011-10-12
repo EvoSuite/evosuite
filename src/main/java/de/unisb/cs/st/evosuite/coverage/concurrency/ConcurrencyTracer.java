@@ -21,13 +21,13 @@ import org.apache.log4j.Logger;
  */
 public class ConcurrencyTracer {
 	private static Logger logger = Logger.getLogger(ConcurrencyTracer.class);
-	
+
 	private List<SchedulingDecisionTuple> seen;
 
 	public ConcurrencyTracer(){
 		seen=new LinkedList<SchedulingDecisionTuple>();
 	}
-	
+
 	//#TODO global naming for scheduleID (the IDs written to the source code at each schedule point). This is named requestID in other places
 	public synchronized void passedScheduleID(int threadID, int scheduleID){
 		seen.add(new SchedulingDecisionTuple(threadID, scheduleID));
@@ -49,11 +49,11 @@ public class ConcurrencyTracer {
 		return computeLevenshteinDistance(seen2, target);
 
 	}
-	
+
 	private boolean noNull(){
 		for(SchedulingDecisionTuple t : seen){
 			try{
-			assert(t!=null);
+				assert(t!=null);
 			}catch(Throwable e){
 				logger.fatal("oh nooo", e);
 				System.exit(1);
@@ -61,7 +61,7 @@ public class ConcurrencyTracer {
 		}
 		return true;
 	}
-	
+
 	public List<SchedulingDecisionTuple> getTrace(){
 		assert(seen!=null);
 		assert(noNull());
@@ -76,15 +76,15 @@ public class ConcurrencyTracer {
 	public static int computeDistance(List<SchedulingDecisionTuple> goal, List<SchedulingDecisionTuple> run){
 		return test(goal, run);
 	}
-	
+
 
 	private static final int defDistance = 200;
-	
+
 	private static int test(List<SchedulingDecisionTuple> goal, List<SchedulingDecisionTuple> run){
 		if(goal.size()>run.size()){
 			return defDistance;
 		}
-		
+
 		if(goal.size()==1){
 			if(run.contains(goal.get(0))){
 				return 0;
@@ -92,33 +92,40 @@ public class ConcurrencyTracer {
 				return defDistance;
 			}
 		}
-		
+
 		class searchState{
 			public Integer pos=1;
 			public Integer cost=0;
 			boolean finished=false;
 		}
-		
+
 		Set<searchState> states = new HashSet<searchState>();
-		for(SchedulingDecisionTuple t : run){
-			for(searchState s : states){
+		for(SchedulingDecisionTuple observedElement : run){
+			//test all already created search states
+			for(searchState currentSearchState : states){
 				//assert(goal.size()>s.pos) : "goal size is only " + goal.size() + " but we will request pos " + s.pos;
-				if(!s.finished && goal.get(s.pos).equals(t)){
-					s.pos++;
-					if(s.pos==goal.size()){
-						s.finished=true;
-						if(s.cost==0)
+				if(!currentSearchState.finished && goal.get(currentSearchState.pos).equals(observedElement)){
+					currentSearchState.pos++;
+					if(currentSearchState.pos==goal.size()){
+						currentSearchState.finished=true;
+						if(currentSearchState.cost==0){
 							return 0;
+						}
 					}
-				}else if(!s.finished){
-					s.cost++;
+				}else if(!currentSearchState.finished){
+					if(goal.contains(observedElement)){
+						currentSearchState.cost++;
+					}else{
+						//currently we do nothing in this case
+					}
 				}
 			}
-				
-			if(goal.get(0).equals(t)){
+
+			//the first element of the goal, therefore we create a new searchState
+			if(goal.get(0).equals(observedElement)){
 				states.add(new searchState());
 			}
-			
+
 			Map<Integer, searchState> posToMinCost = new HashMap<Integer, searchState>();
 			Set<searchState> toDrop = new HashSet<searchState>();
 			for(searchState s : states){
@@ -131,9 +138,9 @@ public class ConcurrencyTracer {
 					}
 				}
 			}
-			states.removeAll(toDrop);
+			//states.removeAll(toDrop);
 		}
-		
+
 		searchState min = new searchState();
 		min.pos=0;
 		min.cost=Integer.MAX_VALUE;
@@ -144,7 +151,7 @@ public class ConcurrencyTracer {
 				min = s;
 			}
 		}
-		
+
 		int distance;
 		assert(min.pos<=goal.size());
 		if(min.pos==goal.size()){
@@ -152,16 +159,16 @@ public class ConcurrencyTracer {
 		}else{
 			distance=defDistance;
 		}
-		
-		
+
+
 		//System.out.println("XXXXXXXXXXXXXXXXXXXXXXx");
 		//System.out.println("compare: " + distance);
 		//System.out.println("goal: " + ConcurrencySuitCoverage.printList(goal));
 		//System.out.println("reality:" + ConcurrencySuitCoverage.printList(run));
-		
+
 		return distance;
 	}
-	
+
 	private static int computeLevenshteinDistance(List<SchedulingDecisionTuple> str1,
 			List<SchedulingDecisionTuple> str2) {
 		int[][] distance = new int[str1.size() + 1][str2.size() + 1];
