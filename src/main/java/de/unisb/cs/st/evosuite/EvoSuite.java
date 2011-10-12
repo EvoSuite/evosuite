@@ -31,7 +31,8 @@ public class EvoSuite {
 
 	private static String separator = System.getProperty("file.separator");
 	private static String javaHome = System.getProperty("java.home");
-	public final static String JAVA_CMD = javaHome + separator + "bin" + separator + "java";
+	public final static String JAVA_CMD = javaHome + separator + "bin" + separator
+	        + "java";
 
 	private static void setup(String target, String[] args) {
 		String classPath = System.getProperty("java.class.path");
@@ -64,6 +65,7 @@ public class EvoSuite {
 		} else {
 			prefix = target; // TODO: Should be proper prefix!
 		}
+		Properties.PROJECT_PREFIX = prefix;
 
 		List<String> parameters = new ArrayList<String>();
 		parameters.add(JAVA_CMD);
@@ -73,6 +75,8 @@ public class EvoSuite {
 		parameters.add("-DCP=" + Properties.CP);
 		parameters.add("-Dclassloader=true");
 		parameters.add("-Dshow_progress=true");
+		parameters.add("-Djava.awt.headless=true");
+		parameters.add("-Dlogback.configurationFile=logback.xml");
 		parameters.add("de.unisb.cs.st.evosuite.setup.ScanProject");
 		parameters.add(targetParam);
 
@@ -145,7 +149,8 @@ public class EvoSuite {
 
 	}
 
-	private static Object generateTests(boolean wholeSuite, String target, List<String> args) {
+	private static Object generateTests(boolean wholeSuite, String target,
+	        List<String> args) {
 		File taskFile = new File(Properties.OUTPUT_DIR + File.separator + target
 		        + ".task");
 		if (!taskFile.exists()) {
@@ -168,6 +173,7 @@ public class EvoSuite {
 		cmdLine.add("-Dprocess_communication_port=" + port);
 		cmdLine.add("-Dinline=true");
 		cmdLine.add("-Djava.awt.headless=true");
+		cmdLine.add("-Dlogback.configurationFile=logback.xml");
 		//cmdLine.add("-Dminimize_values=true");
 		cmdLine.addAll(args);
 		if (wholeSuite)
@@ -181,7 +187,7 @@ public class EvoSuite {
 		cmdLine.add("-Dclassloader=true");
 		cmdLine.add("de.unisb.cs.st.evosuite.ClientProcess");
 		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
-		
+
 		/*
 		 * TODO: here we start the client with several properties that are set through -D.
 		 * These properties are not visible to the master process (ie this process), when
@@ -190,7 +196,7 @@ public class EvoSuite {
 		 */
 		Properties.getInstance();//should force the load
 		Properties.TARGET_CLASS = target;
-		
+
 		Object result = null;
 		if (handler.startProcess(newArgs)) {
 			result = handler.waitForResult((Properties.GLOBAL_TIMEOUT
@@ -203,7 +209,6 @@ public class EvoSuite {
 		return result;
 	}
 
-	
 	@SuppressWarnings("static-access")
 	public Object parseCommandLine(String[] args) {
 		Options options = new Options();
@@ -247,7 +252,7 @@ public class EvoSuite {
 		}
 
 		Object result = null;
-		
+
 		// create the parser
 		CommandLineParser parser = new GnuParser();
 		try {
@@ -298,10 +303,10 @@ public class EvoSuite {
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("EvoSuite", options);
 		}
-		
+
 		return result;
 	}
-	
+
 	/**
 	 * @param args
 	 */
