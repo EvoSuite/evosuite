@@ -19,6 +19,12 @@ import de.unisb.cs.st.evosuite.testcase.EvosuiteError;
  */
 public class LockRuntime {
 
+	public interface ThreadStartupMonitor{
+		public void threadStartup();
+		
+		public void passedSchedulingPoint(Object requested, int requestID);
+	}
+	
 	private static Logger logger = Logger.getLogger(LockRuntime.class);
 
 
@@ -40,7 +46,13 @@ public class LockRuntime {
 	 * Maps fieldAccessIDS to a vertex in the CFG
 	 */
 	public static final Map<Integer, BytecodeInstruction> fieldAccessIDToCFGVertex = new ConcurrentHashMap<Integer, BytecodeInstruction>();
-
+	
+	/**
+	 * If this switch is set to true. The behavior of the instrumented program should be changed. 
+	 * Some methods may still log information 
+	 */
+	private static boolean threadControllingDisabled=false;
+	
 	/**
 	 * Maps fieldAccessID to the ConcurrencyInstrumentation which inserted the scheduling point.
 	 * Is used to transport information from the instrumentation time (like className/MethodName) to the runtime
@@ -53,11 +65,44 @@ public class LockRuntime {
 
 	public static ControllerRuntime controller;
 
+	private static Set<ThreadStartupMonitor> startupMonitors = new HashSet<ThreadStartupMonitor>();
+	
+	
 	public static Set<Thread> getThreadLockStruct(){
 		return controller.locked;
 	}
+	
+	/**
+	 * StartupMonitors are called, iff a thread registers itself;
+	 * @param monitor
+	 */
+	public static void registerStartupMonitor(ThreadStartupMonitor monitor){
+		startupMonitors.add(monitor);
+	}
+	
+	public static void removeStartupMonitor(ThreadStartupMonitor monitor){
+		startupMonitors.remove(monitor);
+	}
+	
+	public static void disableThreadControlling(){
+		threadControllingDisabled=true;
+	}
+	
+	public static void enableThreadControlling(){
+		threadControllingDisabled=false;
+	}
+	
+	
 
 	public static void registerThread(int threadID){
+		for(ThreadStartupMonitor monitor : startupMonitors){
+			monitor.threadStartup();
+		}
+		
+		if(threadControllingDisabled){
+			return;
+		}
+		
 		try{
 			assert(controller!=null);
 			logger.trace("The thread " + Thread.currentThread() + " registered itself with the threadID: " + threadID);
@@ -88,6 +133,10 @@ public class LockRuntime {
 	 * @param int the id of the thread 
 	 */
 	public static void threadEnd(){	
+		if(threadControllingDisabled){
+			return;
+		}
+		
 		try{
 			assert(controller!=null);
 			logger.trace("The thread " + Thread.currentThread() + " signaled that he is about to finish");
@@ -129,6 +178,14 @@ public class LockRuntime {
 	 * @param instructionId the id of this monitorInstruction
 	 */
 	public static void scheduler(Object requested, int requestID){
+		for(ThreadStartupMonitor monitor : startupMonitors){
+			monitor.passedSchedulingPoint(requested, requestID);
+		}
+		
+		if(threadControllingDisabled){
+			return;
+		}
+		
 		try{
 			//logger.warn("XXXXXXXXXXXXXXXXXXXXXX SCHEDULE THREAD");
 			//#TODO steenbuck tmp work around should be in the end
