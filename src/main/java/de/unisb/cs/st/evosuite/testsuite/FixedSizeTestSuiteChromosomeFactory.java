@@ -40,7 +40,8 @@ public class FixedSizeTestSuiteChromosomeFactory implements
 	 */
 	@Override
 	public TestSuiteChromosome getChromosome() {
-		TestSuiteChromosome chromosome = new TestSuiteChromosome(testChromosomeFactory);
+		TestSuiteChromosome chromosome = new TestSuiteChromosome(
+		        new RandomLengthTestFactory());
 		chromosome.tests.clear();
 		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
 		tracker.modification(chromosome);

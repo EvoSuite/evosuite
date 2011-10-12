@@ -979,4 +979,14 @@ public class LazyTestCluster extends TestCluster {
 		return getRandomGenerator(type, new HashSet<AccessibleObject>());
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#getTestCalls()
+	 */
+	@Override
+	public List<AccessibleObject> getTestCalls() {
+		List<AccessibleObject> testCalls = new ArrayList<AccessibleObject>();
+		testCalls.addAll(testConstructors);
+		testCalls.addAll(testMethods);
+		return testCalls;
+	}
 }

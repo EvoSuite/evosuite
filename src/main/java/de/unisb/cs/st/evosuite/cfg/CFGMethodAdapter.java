@@ -192,7 +192,6 @@ public class CFGMethodAdapter extends MethodAdapter {
 
 			String id = className + "." + methodName;
 			if (isUsable()) {
-				logger.warn("ADDING METHOD: " + id);
 				methods.add(id);
 				logger.debug("Counting: " + id);
 			}

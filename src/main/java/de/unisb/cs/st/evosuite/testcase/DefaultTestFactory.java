@@ -817,7 +817,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			currentRecursion.add(o);
 			if (o == null) {
 				if (!testCluster.hasGenerator(type)) {
-					logger.warn("We have no generator for class " + type);
+					logger.info("We have no generator for class " + type);
 				}
 				throw new ConstructionFailedException("Generator is null");
 			} else if (o instanceof Field) {
@@ -1316,7 +1316,6 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {
 		ois.defaultReadObject();
-		//		test_cluster = TestCluster.getInstance();
 		testCluster = TestCluster.getInstance();
 		descriptor_replacement = MethodDescriptorReplacement.getInstance();
 		currentRecursion = new HashSet<AccessibleObject>();

@@ -60,10 +60,17 @@ public abstract class FitnessFunction implements Serializable {
 	 * @param value
 	 * @return
 	 */
-	public static double normalize(double value) throws IllegalArgumentException{
-		if(value < 0d){
+	public static double normalize(double value) throws IllegalArgumentException {
+		if (value < 0d) {
 			throw new IllegalArgumentException("Values to normalize cannot be negative");
 		}
 		return value / (1.0 + value);
 	}
+
+	/**
+	 * Do we need to maximize, or minimize this function?
+	 * 
+	 * @return
+	 */
+	public abstract boolean isMaximizationFunction();
 }

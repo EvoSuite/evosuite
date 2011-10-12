@@ -50,19 +50,8 @@ public class TestChromosome extends ExecutableChromosome {
 	/** The test case encoded in this chromosome */
 	protected TestCase test = new DefaultTestCase();
 
-	/** Factory to manipulate and generate method sequences */
-	private static AbstractTestFactory test_factory = null;
-
 	/** True if this leads to an exception */
 	private final boolean has_exception = false;
-
-	public TestChromosome() {
-
-		//#TODO steenbuck similar logic is repeated in TestSuiteChromosomeFactory
-		if (test_factory == null) {
-			test_factory = DefaultTestFactory.getInstance();
-		}
-	}
 
 	public void setTestCase(TestCase testCase) {
 		test = testCase;
@@ -117,7 +106,7 @@ public class TestChromosome extends ExecutableChromosome {
 			this.lastExecutionResult.test = this.test;
 		}
 
-		if(other.lastMutationResult != null){
+		if (other.lastMutationResult != null) {
 			for (Mutation mutation : other.lastMutationResult.keySet()) {
 				ExecutionResult copy = other.lastMutationResult.get(mutation); //.clone();
 				copy.test = test;
@@ -136,6 +125,7 @@ public class TestChromosome extends ExecutableChromosome {
 	        throws ConstructionFailedException {
 		logger.debug("Crossover starting");
 		TestChromosome offspring = new TestChromosome();
+		DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 
 		for (int i = 0; i < position1; i++) {
 			offspring.test.addStatement(test.getStatement(i).clone(offspring.test));
@@ -286,6 +276,8 @@ public class TestChromosome extends ExecutableChromosome {
 	private boolean mutationDelete() {
 		boolean changed = false;
 		double pl = 1d / test.size();
+		DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
+
 		for (int num = test.size() - 1; num >= 0; num--) {
 
 			// Each statement is deleted with probability 1/l
@@ -388,6 +380,7 @@ public class TestChromosome extends ExecutableChromosome {
 	private boolean mutationChange() {
 		boolean changed = false;
 		double pl = 1d / test.size();
+		DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 
 		if (Randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
 			//logger.info("Test before concolic: " + test.toCode());
@@ -426,6 +419,7 @@ public class TestChromosome extends ExecutableChromosome {
 		boolean changed = false;
 		final double ALPHA = 0.5;
 		int count = 0;
+		DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 
 		while (Randomness.nextDouble() <= Math.pow(ALPHA, count)
 		        && (!Properties.CHECK_MAX_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {

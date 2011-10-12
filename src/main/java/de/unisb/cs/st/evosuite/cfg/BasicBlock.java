@@ -1,5 +1,6 @@
 package de.unisb.cs.st.evosuite.cfg;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -35,7 +36,9 @@ import org.slf4j.LoggerFactory;
  * @see cfg.ActualControlFlowGraph
  * @author Andre Mis
  */
-public class BasicBlock {
+public class BasicBlock implements Serializable {
+
+	private static final long serialVersionUID = -3465486470017841484L;
 
 	private static Logger logger = LoggerFactory.getLogger(BasicBlock.class);
 
@@ -44,7 +47,7 @@ public class BasicBlock {
 	private int id = -1;
 	protected String className;
 	protected String methodName;
-	
+
 	// experiment: since finding the control dependent branches in the CDG might
 	// take a little to long, we might want to remember them
 	private Set<ControlDependency> controlDependencies;
@@ -86,9 +89,9 @@ public class BasicBlock {
 
 		this.isAuxiliaryBlock = true;
 	}
-	
+
 	// CDs
-	
+
 	/**
 	 * Returns the ControlDependenceGraph of this instructions method
 	 * 
@@ -99,11 +102,11 @@ public class BasicBlock {
 		ControlDependenceGraph myCDG = CFGPool.getCDG(className, methodName);
 		if (myCDG == null)
 			throw new IllegalStateException(
-					"expect CFGPool to know CDG for every method for which an instruction is known");
+			        "expect CFGPool to know CDG for every method for which an instruction is known");
 
 		return myCDG;
 	}
-	
+
 	/**
 	 * Returns all branchIds of Branches this instruction is directly control
 	 * dependent on as determined by the ControlDependenceGraph for this
@@ -117,12 +120,11 @@ public class BasicBlock {
 		ControlDependenceGraph myDependence = getCDG();
 
 		if (controlDependentBranchIDs == null)
-			controlDependentBranchIDs = myDependence
-					.getControlDependentBranchIds(this);
+			controlDependentBranchIDs = myDependence.getControlDependentBranchIds(this);
 
 		return controlDependentBranchIDs;
 	}
-	
+
 	/**
 	 * Returns a cfg.Branch object for each branch this instruction is control
 	 * dependent on as determined by the ControlDependenceGraph. If this
@@ -137,13 +139,12 @@ public class BasicBlock {
 	public Set<ControlDependency> getControlDependencies() {
 
 		if (controlDependencies == null)
-			controlDependencies = getCDG().getControlDependentBranches(
-					this);
+			controlDependencies = getCDG().getControlDependentBranches(this);
 
-//		return new HashSet<ControlDependency>(controlDependentBranches);
+		//		return new HashSet<ControlDependency>(controlDependentBranches);
 		return controlDependencies;
 	}
-	
+
 	public boolean hasControlDependenciesSet() {
 		return controlDependencies != null;
 	}

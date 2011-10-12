@@ -1,5 +1,7 @@
 package de.unisb.cs.st.evosuite.coverage.branch;
 
+import java.io.Serializable;
+
 import org.objectweb.asm.tree.LabelNode;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
@@ -26,7 +28,9 @@ import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
  * 
  * @author Andre Mis
  */
-public class Branch {
+public class Branch implements Serializable {
+
+	private static final long serialVersionUID = -4732587925060748263L;
 
 	private final int actualBranchId;
 
@@ -39,7 +43,7 @@ public class Branch {
 
 	private LabelNode targetLabel = null;
 
-	private BytecodeInstruction instruction;
+	private final BytecodeInstruction instruction;
 
 	/**
 	 * Constructor for usual jump instruction Branches, that are not SWITCH
@@ -47,28 +51,27 @@ public class Branch {
 	 */
 	public Branch(BytecodeInstruction branchInstruction, int actualBranchId) {
 		if (!branchInstruction.isBranch())
-			throw new IllegalArgumentException(
-					"only branch instructions are accepted");
+			throw new IllegalArgumentException("only branch instructions are accepted");
 
 		this.instruction = branchInstruction;
 		this.actualBranchId = actualBranchId;
 
 		if (this.actualBranchId < 1)
 			throw new IllegalStateException(
-					"expect branch to have actualBranchId set to positive value");
+			        "expect branch to have actualBranchId set to positive value");
 	}
 
 	/**
 	 * Constructor for switch case branches
 	 * 
 	 */
-	public Branch(BytecodeInstruction switchInstruction,
-			Integer targetCaseValue, LabelNode targetLabel, int actualBranchId) {
+	public Branch(BytecodeInstruction switchInstruction, Integer targetCaseValue,
+	        LabelNode targetLabel, int actualBranchId) {
 		if (!switchInstruction.isSwitch())
 			throw new IllegalArgumentException("switch instruction expected");
 		if (targetLabel == null)
 			throw new IllegalArgumentException(
-					"expect targetLabel to not be null for case branches");
+			        "expect targetLabel to not be null for case branches");
 
 		this.instruction = switchInstruction;
 		this.actualBranchId = actualBranchId;
@@ -79,7 +82,7 @@ public class Branch {
 
 		if (this.actualBranchId < 1)
 			throw new IllegalStateException(
-					"expect branch to have actualBranchId set to positive value");
+			        "expect branch to have actualBranchId set to positive value");
 	}
 
 	public int getActualBranchId() {
@@ -98,15 +101,14 @@ public class Branch {
 		// in order to avoid confusion when targetCaseValue is null
 		if (!isSwitch)
 			throw new IllegalStateException(
-					"method only allowed to be called on non-switch-Branches");
+			        "method only allowed to be called on non-switch-Branches");
 
 		return targetCaseValue; // null for default case
 	}
 
 	public LabelNode getTargetLabel() {
 		if (!isSwitch)
-			throw new IllegalStateException(
-					"call only allowed on switch instructions");
+			throw new IllegalStateException("call only allowed on switch instructions");
 
 		return targetLabel;
 	}
