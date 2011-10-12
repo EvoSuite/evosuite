@@ -422,7 +422,7 @@ public class Properties {
 	public static boolean CHECK_CONTRACTS_END = false;
 
 	public enum TestFactory {
-		RANDOM, OUM
+		RANDOM, ALLMETHODS, TOURNAMENT, SEEDING
 	}
 
 	@Parameter(key = "test_factory", description = "Which factory creates tests")
@@ -1054,7 +1054,7 @@ public class Properties {
 			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
 			return TARGET_CLASS_INSTANCE;
 		} catch (ClassNotFoundException e) {
-			System.err.println("Could not find class under test " + TARGET_CLASS);
+			System.err.println("* Could not find class under test: " + TARGET_CLASS);
 		}
 		return null;
 	}
