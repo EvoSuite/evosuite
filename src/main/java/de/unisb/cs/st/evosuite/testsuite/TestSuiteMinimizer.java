@@ -56,9 +56,6 @@ public class TestSuiteMinimizer {
 	/** Logger */
 	private final static Logger logger = LoggerFactory.getLogger(TestSuiteMinimizer.class);
 
-	/** Factory method that handles statement deletion */
-	private final DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
-
 	private final TestFitnessFactory testFitnessFactory;
 
 	/** Maximum number of seconds. 0 = infinite time */
@@ -309,6 +306,7 @@ public class TestSuiteMinimizer {
 					TestChromosome orgiginalTestChromosome = (TestChromosome) testChromosome.clone();
 
 					try {
+						DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 						test_factory.deleteStatementGracefully(testChromosome.getTestCase(),
 						                                       i);
 						testChromosome.setChanged(true);

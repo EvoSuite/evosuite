@@ -195,6 +195,13 @@ public abstract class TestCluster {
 	public abstract AccessibleObject getRandomTestCall();
 
 	/**
+	 * Get a list of all test calls (i.e., constructors and methods)
+	 * 
+	 * @return
+	 */
+	public abstract List<AccessibleObject> getTestCalls();
+
+	/**
 	 * Determine if we have generators for all parameters, and delete method if
 	 * not
 	 * 

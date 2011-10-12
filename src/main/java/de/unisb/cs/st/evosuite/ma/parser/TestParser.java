@@ -51,12 +51,12 @@ import de.unisb.cs.st.evosuite.testcase.DoublePrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.FieldReference;
 import de.unisb.cs.st.evosuite.testcase.FloatPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.IntPrimitiveStatement;
-import de.unisb.cs.st.evosuite.testcase.LazyTestCluster;
 import de.unisb.cs.st.evosuite.testcase.LongPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.ShortPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
@@ -75,7 +75,7 @@ public class TestParser {
 
 	private TestCase newTestCase;
 
-	private TestCluster testCluster = TestCluster.getInstance();
+	private final TestCluster testCluster = TestCluster.getInstance();
 
 	public TestParser(IGUI pgui) {
 		gui = pgui;
@@ -234,8 +234,7 @@ public class TestParser {
 				} catch (SecurityException e) {
 					e.printStackTrace();
 				} catch (NoSuchMethodException e) {
-					throw new ParseException(null,
-							"No such method in this class.");
+					throw new ParseException(null, "No such method in this class.");
 				}
 
 				res = new ConstructorStatement(newTestCase, constructor, clazz, params);
@@ -254,7 +253,7 @@ public class TestParser {
 			}
 		} else {
 			throw new ParseException(null,
-					"There is no right side of declaration expression!");
+			        "There is no right side of declaration expression!");
 		}
 
 		return res;
@@ -321,7 +320,7 @@ public class TestParser {
 		VariableReference varRef = newStatement.getReturnValue();
 
 		tt.addVar(new Var(varDeclExpr.getVars().get(0).getId().getName(),
-				varDeclExpr.getType(), varRef));
+		        varDeclExpr.getType(), varRef));
 	}
 
 	/**
@@ -502,8 +501,7 @@ public class TestParser {
 	 * @return
 	 * @throws ParseException
 	 */
-	private Class<?> refTypeToClass(ReferenceType refType)
-			throws ParseException {
+	private Class<?> refTypeToClass(ReferenceType refType) throws ParseException {
 		// String fullClassName = Properties.PROJECT_PREFIX + "."
 		// + refType.getType();
 		try {
@@ -513,9 +511,8 @@ public class TestParser {
 			try {
 				return testCluster.importClass(gui.showChooseFileMenu());
 			} catch (ClassNotFoundException e1) {
-				throw new ParseException(null,
-						"Can not load class for ReferenceType: "
-								+ refType.getType());
+				throw new ParseException(null, "Can not load class for ReferenceType: "
+				        + refType.getType());
 			}
 		}
 	}
@@ -535,8 +532,7 @@ public class TestParser {
 				return testCluster.importClass(gui.showChooseFileMenu());
 			} catch (ClassNotFoundException e1) {
 				throw new ParseException(null,
-						"Can not load class for ClassOrInterfaceType: "
-								+ parsType);
+				        "Can not load class for ClassOrInterfaceType: " + parsType);
 			}
 		}
 	}

@@ -24,14 +24,12 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 
-public class FixedLengthTestChromosomeFactory implements ChromosomeFactory<TestChromosome> {
+public class FixedLengthTestChromosomeFactory implements
+        ChromosomeFactory<TestChromosome> {
 
 	private static final long serialVersionUID = -3860201346772188495L;
 
 	protected static Logger logger = LoggerFactory.getLogger(FixedLengthTestChromosomeFactory.class);
-
-	/** Factory to manipulate and generate method sequences */
-	private final DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 
 	/**
 	 * Constructor
@@ -50,8 +48,8 @@ public class FixedLengthTestChromosomeFactory implements ChromosomeFactory<TestC
 	private TestCase getRandomTestCase(int size) {
 		TestCase test = new DefaultTestCase();
 		int num = 0;
+		DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 
-		num = 0;
 		// Then add random stuff
 		while (test.size() < size && num < Properties.MAX_ATTEMPTS) {
 			test_factory.insertRandomStatement(test);

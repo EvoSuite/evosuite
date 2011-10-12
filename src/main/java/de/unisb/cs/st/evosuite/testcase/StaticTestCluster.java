@@ -1791,4 +1791,15 @@ public class StaticTestCluster extends TestCluster {
 		// TODO Auto-generated method stub
 
 	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#getTestCalls()
+	 */
+	@Override
+	public List<AccessibleObject> getTestCalls() {
+		List<AccessibleObject> testCalls = new ArrayList<AccessibleObject>();
+		testCalls.addAll(test_constructors);
+		testCalls.addAll(test_methods);
+		return testCalls;
+	}
 }

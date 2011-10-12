@@ -54,7 +54,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	protected List<StatementInterface> statements;
 
 	// a list of all goals this test covers
-	private final HashSet<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
+	private transient final HashSet<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
 
 	/**
 	 * Constructor

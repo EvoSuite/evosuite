@@ -278,7 +278,8 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			logger.warn("Total branches: " + total_branches * 2);
 			logger.warn("Covered branches: " + num_covered);
 		}
-		assert (coverage <= total_goals);
+		assert (coverage <= total_goals) : "Covered " + coverage + " vs total goals "
+		        + total_goals;
 		suite.setCoverage(coverage / total_goals);
 		if (coverage / total_goals > 1) {
 			logger.warn("Coverage > 1:");

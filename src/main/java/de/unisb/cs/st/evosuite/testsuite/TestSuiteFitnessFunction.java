@@ -147,4 +147,12 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 			return -1; // to indicate value is missing
 		}
 	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#isMaximizationFunction()
+	 */
+	@Override
+	public boolean isMaximizationFunction() {
+		return false;
+	}
 }

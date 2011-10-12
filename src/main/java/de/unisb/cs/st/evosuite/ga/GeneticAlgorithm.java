@@ -463,7 +463,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * 
 	 * @param factory
 	 */
-	public void setChromosomeFactory(ChromosomeFactory<Chromosome> factory) {
+	public void setChromosomeFactory(ChromosomeFactory<? extends Chromosome> factory) {
 		chromosome_factory = factory;
 	}
 
@@ -635,12 +635,12 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		for (StoppingCondition sc : stopping_conditions)
 			System.out.println("\t- " + sc.toString());
 	}
-	
+
 	public String getBudgetString() {
 		String r = "";
-		for(StoppingCondition sc : stopping_conditions)
-			r+=sc.toString()+" ";
-		
+		for (StoppingCondition sc : stopping_conditions)
+			r += sc.toString() + " ";
+
 		return r;
 	}
 
@@ -667,7 +667,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 			addListener(SearchStatistics.getInstance());
 		}
 	}
-	
+
 	/**
 	 * Set pause before MA
 	 */
@@ -678,7 +678,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 			}
 		}
 	}
-	
+
 	/**
 	 * Resume from pause after MA
 	 */
