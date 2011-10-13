@@ -545,6 +545,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 			} else if (s instanceof ConstructorStatement) {
 				ConstructorStatement cs = (ConstructorStatement) s;
 				accessed_classes.add(cs.getConstructor().getDeclaringClass());
+				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getExceptionTypes()));
 			}
 		}
 		return accessed_classes;
