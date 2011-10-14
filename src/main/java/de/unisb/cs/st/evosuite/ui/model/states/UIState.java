@@ -68,6 +68,8 @@ public class UIState extends AbstractUIState implements GraphVizDrawable, YWorks
 	private Map<DescriptorBoundUIAction<?>, AbstractUIState> transitions = new HashMap<DescriptorBoundUIAction<?>, AbstractUIState>();
 	private int id;
 
+	private int timesVisited;
+
 	UIState(UIStateGraph graph, Descriptor descriptor) {
 		assert (descriptor != null);
 		this.graph = graph;
@@ -208,7 +210,7 @@ public class UIState extends AbstractUIState implements GraphVizDrawable, YWorks
 	@Override
 	public void addToYWorksEnvironment(YWorksEnvironment env) {
 		NodeRealizer nodeRealizer = env.realizerPushGroupNodeFor(this);
-		nodeRealizer.setLabelText(String.format("UIState %s", this.id));
+		nodeRealizer.setLabelText(String.format("UIState %s (%d x)", this.id, this.timesVisited));
 
 		for (WindowDescriptor wd : this.descriptor) {
 			wd.addToYWorksEnvironment(env);
@@ -278,5 +280,9 @@ public class UIState extends AbstractUIState implements GraphVizDrawable, YWorks
 			AbstractUIState toState = otherState.transitions.get(action);
 			this.mergeInInternal(action, toState);
 		}
+	}
+
+	public void increaseTimesVisited() {
+		this.timesVisited++;
 	}
 }

@@ -19,13 +19,11 @@
     </encoder>
   </appender>
 
-<!--
   <logger name="de.unisb.cs.st.evosuite.cfg" level="WARN" />
   <logger name="de.unisb.cs.st.evosuite.coverage.branch" level="WARN" />
-  <logger name="de.unisb.cs.st.evosuite.testcase" level="WARN" />
--->
+  <!-- <logger name="de.unisb.cs.st.evosuite.testcase" level="WARN" /> -->
 
-  <root level="debug">
+  <root level="info">
 	 <!--  <appender-ref ref="STDOUT" /> -->
      <appender-ref ref="FILE" />
   </root>

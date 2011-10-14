@@ -1,9 +1,14 @@
 package de.unisb.cs.st.evosuite.ui.model.states;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import org.uispec4j.UIComponent;
 
 import de.unisb.cs.st.evosuite.ui.GraphVizEnvironment;
 import de.unisb.cs.st.evosuite.ui.YWorksEnvironment;
@@ -18,7 +23,7 @@ import de.unisb.cs.st.evosuite.utils.TriBoolean;
 public abstract class AbstractUIState implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	protected static UnknownUIState unknownUIState(AbstractUIState uiState) {
+	public static UnknownUIState unknownUIState(AbstractUIState uiState) {
 		return (uiState instanceof UnknownUIState) ? (UnknownUIState)uiState : new UnknownUIState(uiState);
 	}
 
@@ -42,6 +47,64 @@ public abstract class AbstractUIState implements Serializable {
 
 	public abstract List<UIActionTargetDescriptor> getActionTargetDescriptors();
 	
+	public List<DescriptorBoundUIAction<? extends UIComponent>> allActions() {
+		List<DescriptorBoundUIAction<? extends UIComponent>> result =
+				new ArrayList<DescriptorBoundUIAction<? extends UIComponent>>();
+		
+		for (UIActionTargetDescriptor actionTarget : this.getActionTargetDescriptors()) {
+			result.addAll(actionTarget.getActions());
+		}
+		
+		return result;
+	}
+	
+	public List<DescriptorBoundUIAction<? extends UIComponent>> allUnexploredActions() {
+		List<DescriptorBoundUIAction<? extends UIComponent>> result =
+				this.allActions();
+		
+		Iterator<DescriptorBoundUIAction<? extends UIComponent>> iter =
+				result.iterator();
+		
+		while (iter.hasNext()) {
+			if (!isUnexplored(iter.next())) {
+				iter.remove();
+			}
+		}
+		
+		return result;
+	}
+
+	public List<DescriptorBoundUIAction<? extends UIComponent>> allActionsShuffledUnexploredFirst() {
+		List<DescriptorBoundUIAction<? extends UIComponent>> result =
+				this.allActions();
+		
+		Randomness.shuffle(result);
+		
+		List<DescriptorBoundUIAction<? extends UIComponent>> explored =
+				new LinkedList<DescriptorBoundUIAction<? extends UIComponent>>();
+		
+		Iterator<DescriptorBoundUIAction<? extends UIComponent>> iter =
+				result.iterator();
+		
+		while (iter.hasNext()) {
+			DescriptorBoundUIAction<? extends UIComponent> action = iter.next();
+
+			if (!isUnexplored(action)) {
+				iter.remove();
+				explored.add(action);
+			}
+		}
+		
+		result.addAll(explored);
+		
+		return result;
+	}
+	
+	private boolean isUnexplored(
+			DescriptorBoundUIAction<? extends UIComponent> action) {
+		return action.getTimesExecuted() == 0;
+	}
+
 	public AbstractUIState execute(DescriptorBoundUIAction<?> boundAction, UIStateGraph stateGraph, AbstractUIEnvironment environment) {
 		boundAction.execute(environment);
 		
@@ -96,6 +159,14 @@ public abstract class AbstractUIState implements Serializable {
 		
 		return null;
 	}
+	
+	public DescriptorBoundUIAction<?> getNewRandomDescriptorBoundAction() {
+		List<DescriptorBoundUIAction<? extends UIComponent>> actions =
+				this.allUnexploredActions();
+		
+		return Randomness.choice(actions);
+	}
 
 	public abstract void addToYWorksEnvironment(YWorksEnvironment env);
+
 }

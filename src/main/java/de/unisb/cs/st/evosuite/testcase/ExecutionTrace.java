@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTracer;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUse;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
@@ -188,32 +187,32 @@ public class ExecutionTrace {
 	}
 
 	// finished_calls;
-	public List<MethodCall> finished_calls = new ArrayList<MethodCall>();
+	public List<MethodCall> finished_calls = Collections.synchronizedList(new ArrayList<MethodCall>());
 
 	// active calls
 	Deque<MethodCall> stack = new LinkedList<MethodCall>();
 
 	// Coverage information
-	public Map<String, Map<String, Map<Integer, Integer>>> coverage = new HashMap<String, Map<String, Map<Integer, Integer>>>();
+	public Map<String, Map<String, Map<Integer, Integer>>> coverage = Collections.synchronizedMap(new HashMap<String, Map<String, Map<Integer, Integer>>>());
 
 	// Data information
-	public Map<String, Map<String, Map<Integer, Integer>>> return_data = new HashMap<String, Map<String, Map<Integer, Integer>>>();
+	public Map<String, Map<String, Map<Integer, Integer>>> return_data = Collections.synchronizedMap(new HashMap<String, Map<String, Map<Integer, Integer>>>());
 
 	// Refactoring
 
 	// for each Variable-Name these maps hold the data for which objectID 
 	// at which time (duCounter) which Definition or Use was passed
-	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedDefinitions = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
-	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedUses = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
+	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedDefinitions = Collections.synchronizedMap(new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>());
+	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedUses = Collections.synchronizedMap(new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>());
 
-	public Map<String, Integer> covered_methods = new HashMap<String, Integer>();
-	public Map<Integer, Integer> covered_predicates = new HashMap<Integer, Integer>();
-	public Map<Integer, Integer> covered_true = new HashMap<Integer, Integer>();
-	public Map<Integer, Integer> covered_false = new HashMap<Integer, Integer>();
-	public Map<Integer, Double> true_distances = new HashMap<Integer, Double>();
-	public Map<Integer, Double> false_distances = new HashMap<Integer, Double>();
-	public Map<Integer, Double> mutant_distances = new HashMap<Integer, Double>();
-	public Set<Integer> touchedMutants = new HashSet<Integer>();
+	public Map<String, Integer> covered_methods = Collections.synchronizedMap(new HashMap<String, Integer>());
+	public Map<Integer, Integer> covered_predicates = Collections.synchronizedMap(new HashMap<Integer, Integer>());
+	public Map<Integer, Integer> covered_true = Collections.synchronizedMap(new HashMap<Integer, Integer>());
+	public Map<Integer, Integer> covered_false = Collections.synchronizedMap(new HashMap<Integer, Integer>());
+	public Map<Integer, Double> true_distances = Collections.synchronizedMap(new HashMap<Integer, Double>());
+	public Map<Integer, Double> false_distances = Collections.synchronizedMap(new HashMap<Integer, Double>());
+	public Map<Integer, Double> mutant_distances = Collections.synchronizedMap(new HashMap<Integer, Double>());
+	public Set<Integer> touchedMutants = Collections.synchronizedSet(new HashSet<Integer>());
 
 	// number of seen Definitions and uses for indexing purposes
 	private int duCounter = 0;

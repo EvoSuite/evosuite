@@ -21,7 +21,6 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.util.Map;
 
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.util.AbstractVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,11 +165,11 @@ public class ExecutionTracer {
 	 */
 	public static void enteredMethod(String classname, String methodname, Object caller)
 	        throws TestCaseExecutor.TimeoutExceeded {
-
 		ExecutionTracer tracer = getExecutionTracer();
+		
 		if (tracer.disabled)
 			return;
-
+		
 		if (isThreadNeqCurrentThread())
 			return;
 
@@ -183,7 +182,7 @@ public class ExecutionTracer {
 			throw new TestCaseExecutor.TimeoutExceeded();
 		}
 
-		logger.trace("Entering method " + classname + "." + methodname);
+		//logger.trace("Entering method " + classname + "." + methodname);
 		tracer.trace.enteredMethod(classname, methodname, caller);
 	}
 
@@ -202,7 +201,7 @@ public class ExecutionTracer {
 		if (tracer.disabled)
 			return;
 
-		logger.trace("Return value: " + value);
+		//logger.trace("Return value: " + value);
 		tracer.trace.returnValue(className, methodName, value);
 	}
 
@@ -278,7 +277,7 @@ public class ExecutionTracer {
 		}
 
 		tracer.trace.exitMethod(classname, methodname);
-		logger.trace("Left method " + classname + "." + methodname);
+		// logger.trace("Left method " + classname + "." + methodname);
 	}
 
 	/**
@@ -383,8 +382,8 @@ public class ExecutionTracer {
 			logger.error("Unknown opcode: " + opcode);
 
 		}
-		logger.trace("Branch distance true : " + distance_true);
-		logger.trace("Branch distance false: " + distance_false);
+		// logger.trace("Branch distance true : " + distance_true);
+		// logger.trace("Branch distance false: " + distance_false);
 
 		// Add current branch to control trace
 		tracer.trace.branchPassed(branch, bytecode_id, distance_true, distance_false);
@@ -407,9 +406,9 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
-		logger.trace("Called passedBranch2 with opcode "
+		/* logger.trace("Called passedBranch2 with opcode "
 		        + AbstractVisitor.OPCODES[opcode] + ", val1=" + val1 + ", val2=" + val2
-		        + " in branch " + branch);
+		        + " in branch " + branch); */
 		double distance_true = 0;
 		double distance_false = 0;
 		switch (opcode) {
@@ -454,8 +453,8 @@ public class ExecutionTracer {
 		default:
 			logger.error("Unknown opcode: " + opcode);
 		}
-		logger.trace("Branch distance true: " + distance_true);
-		logger.trace("Branch distance false: " + distance_false);
+		// logger.trace("Branch distance true: " + distance_true);
+		// logger.trace("Branch distance false: " + distance_false);
 
 		// Add current branch to control trace
 		tracer.trace.branchPassed(branch, bytecode_id, distance_true, distance_false);
@@ -480,8 +479,8 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
-		logger.trace("Called passedBranch3 with opcode "
-		        + AbstractVisitor.OPCODES[opcode]); // +", val1="+val1+", val2="+val2+" in branch "+branch);
+		// logger.trace("Called passedBranch3 with opcode "
+		//        + AbstractVisitor.OPCODES[opcode]); // +", val1="+val1+", val2="+val2+" in branch "+branch);
 		double distance_true = 0;
 		double distance_false = 0;
 		// logger.warn("Disabling tracer: passedBranch with 2 Objects");
@@ -556,8 +555,8 @@ public class ExecutionTracer {
 		distance_false = distance_true == 0 ? 1.0 : 0.0;
 		// enable();
 
-		logger.trace("Branch distance true: " + distance_true);
-		logger.trace("Branch distance false: " + distance_false);
+		// logger.trace("Branch distance true: " + distance_true);
+		// logger.trace("Branch distance false: " + distance_false);
 
 		// Add current branch to control trace
 		tracer.trace.branchPassed(branch, bytecode_id, distance_true, distance_false);

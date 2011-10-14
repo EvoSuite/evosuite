@@ -24,8 +24,8 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
 public class UITestChromosome extends ExecutableChromosome {
 	private static final long serialVersionUID = 1L;
 
-	private static final Set<UITestChromosome> executedChromosomes = Collections.newSetFromMap(new IdentityHashMap<UITestChromosome, Boolean>());
-	private static final Set<UITestChromosome> failingChromosomes = Collections.newSetFromMap(new IdentityHashMap<UITestChromosome, Boolean>());
+	static final Set<UITestChromosome> executedChromosomes = Collections.newSetFromMap(new IdentityHashMap<UITestChromosome, Boolean>());
+	static final Set<UITestChromosome> failingChromosomes = Collections.newSetFromMap(new IdentityHashMap<UITestChromosome, Boolean>());
 
 	public static Set<UITestChromosome> getExecutedChromosomes() {
 		return executedChromosomes;
@@ -86,9 +86,25 @@ public class UITestChromosome extends ExecutableChromosome {
 		}
 	}
 
+	/**
+	 * Each action is mutated with probability 1 / size
+	 * 
+	 * @return true if anything was actually changed
+	 */
 	private boolean mutationChange() {		
-		// TODO
-		return false;
+		boolean changed = false;
+
+		if (this.size() > 0) {
+			double p = 1 / this.size();
+
+			for (int i = 0; i < this.actionSequence.size(); i++) {
+				if (Randomness.nextDouble() <= p) {
+					changed = this.actionSequence.changeUnsafe(i);
+				}
+			}
+		}
+
+		return changed;
 	}
 
 	/**

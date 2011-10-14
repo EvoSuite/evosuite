@@ -55,8 +55,10 @@ public class EnterText extends UIAction<TextBox> {
     }
 
     @Override
-    public void randomize() {
-        if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL)
+    public boolean randomize() {
+		boolean changed = false;
+
+		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL)
             this.text = Randomness.nextString(Randomness
                     .nextInt(Properties.STRING_LENGTH));
         else
@@ -65,6 +67,11 @@ public class EnterText extends UIAction<TextBox> {
         this.mode = Randomness.choice(Mode.values());
         this.posRand = (this.mode == Mode.InsertText) ? Randomness.nextDouble()
                 : 0;
+        
+        changed = true;
+        
+        super.randomize();
+        return changed;
     }
 
     @Override

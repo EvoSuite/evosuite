@@ -10,14 +10,45 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import y.base.DataProvider;
 import y.base.Edge;
 import y.base.Node;
 import y.io.GraphMLIOHandler;
+import y.io.graphml.KeyScope;
+import y.io.graphml.KeyType;
 import y.view.*;
 import y.view.hierarchy.GroupNodeRealizer;
 import y.view.hierarchy.HierarchyManager;
 
 public class YWorksEnvironment {
+	private static final class MapBasedObjectDataProvider implements DataProvider {
+		private Map<Object, String> map;
+
+		public MapBasedObjectDataProvider(Map<Object, String> map) {
+			this.map = map;
+		}
+
+		@Override
+		public int getInt(Object key) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public double getDouble(Object key) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean getBool(Object key) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Object get(Object key) {
+			return this.map.get(key);
+		}
+	}
+
 	private final class AdjustSizeToLabelListener implements Graph2DListener {
 		public final static int INDENTATION = 2; 
 		
@@ -79,6 +110,7 @@ public class YWorksEnvironment {
 	private LinkedList<Node> groupStack;
 
 	private HierarchyManager hierarchyManager;
+	private HashMap<Object, String> descriptionMap;
 
 	public YWorksEnvironment() {
 		this.clear();
@@ -87,11 +119,16 @@ public class YWorksEnvironment {
 	public void clear() {
 		this.graph = new Graph2D();
 		this.graph.addGraph2DListener(new AdjustSizeToLabelListener());
-
+		
 		this.hierarchyManager = new HierarchyManager(this.graph);
 		this.graph.setHierarchyManager(this.hierarchyManager);
 
+		this.descriptionMap = new HashMap<Object, String>();
+		
+		DataProvider descriptionProvider = new MapBasedObjectDataProvider(this.descriptionMap);
+		
 		this.graphMLIOHandler = new GraphMLIOHandler();
+		this.graphMLIOHandler.getGraphMLHandler().addOutputDataProvider("description", descriptionProvider, KeyScope.NODE, KeyType.STRING);
 
 		this.objToNode = new HashMap<Object, Node>();
 		this.groupStack = new LinkedList<Node>();
@@ -185,6 +222,49 @@ public class YWorksEnvironment {
 	public void setParentNode(Node node, Node parent) {
 		assert (node != null);
 		this.hierarchyManager.setParentNode(node, parent);
+	}
+
+	public void setDescription(Node node, String description) {
+		this.descriptionMap.put(node, wrapString(description, 80));
+	}
+	
+	private static String wrapString(String description, int lineLength) {
+		Pattern splitPattern = Pattern.compile("[\\p{Punct}\\p{Space}]");
+		Matcher matcher = splitPattern.matcher(description);
+		
+		StringBuilder result = new StringBuilder();
+		
+		int prevMatchIdx = 0;
+		int curLineLength = 0;
+		
+		while (matcher.find()) {
+			int matchIdx = matcher.start();
+			
+			if (prevMatchIdx < matchIdx) {
+				String textMatch = description.substring(prevMatchIdx, matchIdx);
+				result.append(textMatch);
+				curLineLength += textMatch.length();
+			}
+			
+			String splitMatch = matcher.group();
+			
+			if (splitMatch.equals("\n")) {
+				curLineLength = 0;
+			}
+			
+			result.append(splitMatch);
+			curLineLength += splitMatch.length();
+
+			if (curLineLength > lineLength) {
+				result.append("\n");
+				curLineLength = 0;
+			}
+			
+			prevMatchIdx = matcher.end();
+		}
+		
+		result.append(description.substring(prevMatchIdx));
+		return result.toString();
 	}
 
 	public EdgeRealizer getEdgeRealizerFor(Object from, Object to) {
