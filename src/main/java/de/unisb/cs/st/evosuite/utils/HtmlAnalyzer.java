@@ -50,7 +50,7 @@ public class HtmlAnalyzer implements Serializable {
 		        + files.size() + " files.");
 		logger.debug("Files: " + files);
 		for (File f : files) {
-			String name = getContaingClassName(f);
+			String name = getContainingClassName(f);
 			if (name.endsWith(className) && !name.endsWith("Test" + className)) {
 				List<String> linesFromFile = Utils.readFile(f);
 				logger.debug("Got file " + f + "for class " + fullClassName);
@@ -62,7 +62,7 @@ public class HtmlAnalyzer implements Serializable {
 		return Arrays.asList(msg);
 	}
 
-	public static String getContaingClassName(File f) {
+	public static String getContainingClassName(File f) {
 		String name = f.getAbsolutePath();
 		String sep = System.getProperty("file.separator");
 		name = name.replace(sep, ".");
