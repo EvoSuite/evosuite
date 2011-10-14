@@ -2,6 +2,8 @@ package de.unisb.cs.st.evosuite.ui.model;
 
 import java.util.List;
 
+import org.uispec4j.Key.Modifier;
+import org.uispec4j.Key;
 import org.uispec4j.Table;
 import org.uispec4j.UIComponent;
 
@@ -10,6 +12,10 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
 
 class TableClick extends UIAction<Table> {
 	private static final long serialVersionUID = 1L;
+
+	private static final TableClick TABLE_LEFT_CLICK = new TableClick(Mode.LeftClick);
+	private static final TableClick TABLE_RIGHT_CLICK = new TableClick(Mode.RightClick);
+	private static final TableClick TABLE_DOUBLE_CLICK = new TableClick(Mode.DoubleClick);
 
 	enum Mode {
 		LeftClick,
@@ -20,6 +26,7 @@ class TableClick extends UIAction<Table> {
 	private double rowRand;
 	private double colRand;
 	private Mode mode;
+	private Modifier modifier;
 	
 	TableClick(Mode mode) {
 		assert(mode != null);
@@ -38,7 +45,7 @@ class TableClick extends UIAction<Table> {
 
 				switch (TableClick.this.mode) {
 				case LeftClick:
-					table.click(rowIdx, colIdx);
+					table.click(rowIdx, colIdx, TableClick.this.modifier);
 					break;
 				
 				case RightClick:
@@ -55,9 +62,13 @@ class TableClick extends UIAction<Table> {
 	}
 
 	@Override
-	public void randomize() {
+	public boolean randomize() {
 		this.rowRand = Randomness.nextDouble();
 		this.colRand = Randomness.nextDouble();
+		this.modifier = Randomness.nextDouble() > 0.5 ? Randomness.choice(Key.Modifier.ALT, Key.Modifier.CONTROL, Key.Modifier.META, Key.Modifier.SHIFT) : Key.Modifier.NONE;
+		
+		super.randomize();
+		return true;
 	}
 
 	@Override
@@ -98,8 +109,8 @@ class TableClick extends UIAction<Table> {
 	}
 
 	public static void addActions(List<UIAction<? extends UIComponent>> toList) {
-		toList.add(new TableClick(Mode.LeftClick));
-		toList.add(new TableClick(Mode.RightClick));
-		toList.add(new TableClick(Mode.DoubleClick));
+		toList.add(TABLE_LEFT_CLICK);
+		toList.add(TABLE_RIGHT_CLICK);
+		toList.add(TABLE_DOUBLE_CLICK);
 	}
 }

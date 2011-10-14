@@ -1,6 +1,7 @@
 package de.unisb.cs.st.evosuite.ui.genetics;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -10,6 +11,7 @@ import org.apache.commons.lang.NullArgumentException;
 
 import de.unisb.cs.st.evosuite.ui.model.DescriptorBoundUIAction;
 import de.unisb.cs.st.evosuite.ui.model.states.AbstractUIState;
+import de.unisb.cs.st.evosuite.ui.model.states.UIState;
 import de.unisb.cs.st.evosuite.utils.HashUtil;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
@@ -49,12 +51,14 @@ public class ActionSequence implements Serializable, Cloneable {
 	
 	public ActionSequence(ActionSequence fromSequence) {
 		this(fromSequence.states.getFirst());
-		this.addActionSequence(fromSequence);
+		this.addActionSequenceUnsafe(fromSequence);
+		this.repair();
 	}
 
 	public ActionSequence(AbstractUIState firstState, List<DescriptorBoundUIAction<?>> fromActions) {
 		this(firstState);
-		this.addActionSequence(fromActions);
+		this.addActionSequenceUnsafe(fromActions);
+		this.repair();
 	}
 
 	public List<DescriptorBoundUIAction<?>> getActions() {
@@ -164,6 +168,18 @@ public class ActionSequence implements Serializable, Cloneable {
 		}
 	}
 	
+	private void addActionUnsafe(DescriptorBoundUIAction<?> action) {
+		AbstractUIState lastState = states.getLast();
+		AbstractUIState nextState = lastState.getTransition(action);
+		
+		if (nextState == null) {
+			this.addAction(action, UIState.unknownUIState(lastState));
+		} else {
+			this.addAction(action, nextState);
+		}
+	}
+
+	
 	public boolean canAddActionSequence(List<DescriptorBoundUIAction<?>> actions) {
 		AbstractUIState lastState = states.getLast();
 		return lastState.canExecuteActionSequence(actions).isPossiblyTrue();
@@ -180,8 +196,19 @@ public class ActionSequence implements Serializable, Cloneable {
 		}
 	}
 	
+	private void addActionSequenceUnsafe(List<DescriptorBoundUIAction<?>> actions) {
+		for (DescriptorBoundUIAction<?> action : actions) {
+			this.addActionUnsafe(action);
+		}
+	}
+
+	
 	public void addActionSequence(ActionSequence actionSequence) {
 		addActionSequence(actionSequence.actions);
+	}
+	
+	private void addActionSequenceUnsafe(ActionSequence fromSequence) {
+		addActionSequenceUnsafe(fromSequence.actions);
 	}
 
 	@Override
@@ -271,6 +298,10 @@ public class ActionSequence implements Serializable, Cloneable {
 		this.states.remove(stateIdx);
 	}
 
+	public boolean changeUnsafe(int actionIdx) {
+		return this.actions.get(actionIdx).randomize();
+	}
+	
 	public void insertUnsafe(int actionIdx, DescriptorBoundUIAction<?> action) {
 		AbstractUIState prevState = this.stateBeforeActionIdx(actionIdx);
 		AbstractUIState newState = prevState.getTransition(action);
@@ -305,16 +336,42 @@ public class ActionSequence implements Serializable, Cloneable {
 	}
 
 	public boolean insertRandomActionUnsafe() {
-		int prevStateIdx = Randomness.nextInt(this.states.size());
-		AbstractUIState afterState = this.states.get(prevStateIdx);
-		DescriptorBoundUIAction<?> action = afterState.getRandomDescriptorBoundAction();
+		int[] indices = new int[this.states.size()];
+		
+		for (int i = 0; i < indices.length; i++) {
+			indices[i] = i;
+		}
 
-		if (action != null) {
-			int actionIdx = this.actionIdxAfterState(prevStateIdx);
-			this.insertUnsafe(actionIdx, action);
-			return true;
+		Randomness.shuffle(Arrays.asList(indices));
+		
+		for (int i = 0; i < indices.length; i++) {
+			int prevStateIdx = indices[i];
+			AbstractUIState afterState = this.states.get(prevStateIdx);
+			
+			DescriptorBoundUIAction<?> action =
+					afterState.getNewRandomDescriptorBoundAction();
+			
+			if (action != null) {
+				int actionIdx = this.actionIdxAfterState(prevStateIdx);
+				this.insertUnsafe(actionIdx, action);
+				return true;
+			}
 		}
 		
+		for (int i = 0; i < indices.length; i++) {
+			int prevStateIdx = indices[i];
+			AbstractUIState afterState = this.states.get(prevStateIdx);
+			
+			DescriptorBoundUIAction<?> action =
+					afterState.getRandomDescriptorBoundAction();
+			
+			if (action != null) {
+				int actionIdx = this.actionIdxAfterState(prevStateIdx);
+				this.insertUnsafe(actionIdx, action);
+				return true;
+			}
+		}
+				
 		return false;
 	}
 }

@@ -8,7 +8,7 @@ import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.testcase.TestCluster;
 
 public class InstrumentingClassLoader extends ClassLoader {
 	private final Logger logger = LoggerFactory.getLogger(InstrumentingClassLoader.class);
@@ -69,11 +69,13 @@ public class InstrumentingClassLoader extends ClassLoader {
 	}
 
 	private boolean isTargetClass(String className) {
-		if (className.equals(Properties.TARGET_CLASS)
+		return TestCluster.isTargetClassName(className);
+		
+		/*if (className.equals(Properties.TARGET_CLASS)
 		        || className.startsWith(Properties.TARGET_CLASS + "$")) {
 			return true;
 		}
-		return false;
+		return false;*/
 	}
 
 	private Class<?> loadClassByteCode(String name) throws ClassNotFoundException {

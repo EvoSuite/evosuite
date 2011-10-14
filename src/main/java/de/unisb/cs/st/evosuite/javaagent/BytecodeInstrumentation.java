@@ -18,7 +18,6 @@
 
 package de.unisb.cs.st.evosuite.javaagent;
 
-import java.io.PrintWriter;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
@@ -28,7 +27,6 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.util.CheckClassAdapter;
-import org.objectweb.asm.util.TraceClassVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,14 +125,15 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		ClassVisitor cv = writer;
 
 		// Print out bytecode if debug is enabled
-		// if(logger.isDebugEnabled())
-		// cv = new TraceClassVisitor(cv, new
-		// PrintWriter(System.out));
+		/*if (logger.isDebugEnabled())
+			cv = new TraceClassVisitor(cv, new PrintWriter(System.out));*/
 
 		// Apply transformations to class under test and its owned
 		// classes
 		if (isTargetClassName(classNameWithDots)) {
-			cv = new AccessibleClassAdapter(cv, className);
+			if (Properties.MAKE_ACCESSIBLE) {
+				cv = new AccessibleClassAdapter(cv, className);
+			}
 			cv = new ExecutionPathClassAdapter(cv, className);
 			cv = new CFGClassAdapter(cv, className);
 
@@ -151,7 +150,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		if (Properties.STATIC_HACK)
 			cv = new StaticInitializationClassAdapter(cv, className);
 
-		if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
+		if (isTargetClassName(classNameWithDots)) { //classNameWithDots.equals(Properties.TARGET_CLASS)) {
 			ClassNode cn = new ClassNode();
 			reader.accept(cn, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
 			ComparisonTransformation cmp = new ComparisonTransformation(cn);
@@ -169,7 +168,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 				TestabilityTransformation tt = new TestabilityTransformation(cn);
 				// cv = new TraceClassVisitor(writer, new
 				// PrintWriter(System.out));
-				cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+				//cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 				cv = new CheckClassAdapter(cv);
 				tt.transform().accept(cv);
 			}
@@ -178,9 +177,9 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			reader.accept(cv, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
 		}
 		// Print out bytecode if debug is enabled
-		// if(logger.isDebugEnabled())
-		// cv = new TraceClassVisitor(cv, new
-		// PrintWriter(System.out));
+		/*if(logger.isDebugEnabled())
+			cv = new TraceClassVisitor(cv, new PrintWriter(System.out));*/
+		
 		return writer.toByteArray();
 	}
 }

@@ -93,6 +93,7 @@ public class UIActionTargetDescriptor implements GraphVizDrawable, YWorksDrawabl
 	public void addToYWorksEnvironment(YWorksEnvironment env) {
 		NodeRealizer realizer = env.getNodeRealizerFor(this);
 		realizer.setLabelText(this.targetDescriptor.innerString());
+		env.setDescription(env.getNodeFor(this), this.targetDescriptor.getDescription());
 	}
 
 	@Override

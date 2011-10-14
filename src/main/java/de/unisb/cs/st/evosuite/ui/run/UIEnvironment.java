@@ -9,12 +9,15 @@ import javax.swing.SwingUtilities;
 import org.uispec4j.Window;
 import org.uispec4j.interception.handlers.InterceptionHandler;
 import org.uispec4j.interception.toolkit.UISpecDisplay;
+import org.uispec4j.interception.toolkit.UISpecToolkit;
 
 import de.unisb.cs.st.evosuite.ui.model.states.UIState;
 import de.unisb.cs.st.evosuite.ui.model.states.UIStateGraph;
 
 public class UIEnvironment extends AbstractUIEnvironment implements InterceptionHandler {
 	private static final int noWindowsVisibleSleepTimeMs = 1;
+	private static final int noWindowsVisibleTimeoutMs = 3000;
+
 	private List<Window> windows = Collections.synchronizedList(new LinkedList<Window>());
 	private UISpecDisplay display;
 	private InterceptionHandler delegate;
@@ -109,7 +112,7 @@ public class UIEnvironment extends AbstractUIEnvironment implements Interception
 		// Readd ourself as window processor
 		this.register();
 
-		System.out.println("UIEnvironment::process: window = " + window.getAwtComponent() + ": isVisible = " + window.getAwtComponent().isVisible());
+		// System.out.println("UIEnvironment::process: window = " + window.getAwtComponent() + ": isVisible = " + window.getAwtComponent().isVisible());
 		assert(window.getAwtComponent().isVisible());
 		
 		if (window.isModal().isTrue()) {
@@ -183,7 +186,13 @@ public class UIEnvironment extends AbstractUIEnvironment implements Interception
 		
 		List<Window> windows = null;
 		
+		long startTime = System.currentTimeMillis();
+		
 		do { 
+			if (System.currentTimeMillis() - startTime > noWindowsVisibleTimeoutMs) {
+				break;
+			}
+			
 			if (windows != null) {
 				// System.out.println("No windows visible from waitGetNewState(): Waiting...");
 			}
@@ -212,6 +221,9 @@ public class UIEnvironment extends AbstractUIEnvironment implements Interception
 		
 		Set<Thread> threads = currentThreads();
 		threads.removeAll(this.initialThreads);
+		
+		while (this.display.remove(this));
+		UISpecToolkit.instance().resetSystemClipboard();
 		
 		/* for (Thread t : threads) {
 			System.err.println("Interrupting thread " + t);

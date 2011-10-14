@@ -85,10 +85,14 @@ public class UIRunner implements InterceptionHandler {
 
 	@Override
 	public void process(Window window) {
-		System.out.println("UIRunner::process: window = " + window.getAwtComponent() + ": isVisible = " + window.getAwtComponent().isVisible());
+		// System.out.println("UIRunner::process: window = " + window.getAwtComponent() + ": isVisible = " + window.getAwtComponent().isVisible());
 
 		if (this.finished) return;
-		if (!window.isVisible().isTrue()) return;
+		
+		if (!window.isVisible().isTrue()) {
+			this.finished();
+			return;
+		}
 
 		boolean wasFirstWindow;
 		
@@ -102,6 +106,7 @@ public class UIRunner implements InterceptionHandler {
 			this.condition.awaitUninterruptibly();
 
 			UIState state = this.env.waitGetNewState(this.stateGraph);
+			state.increaseTimesVisited();
 			
 			try {
 				this.actionSequence = new ActionSequence(state);
@@ -143,8 +148,10 @@ public class UIRunner implements InterceptionHandler {
 		
 		//System.out.println("UIRunner::executeAction(): Before execute of " + action.shortString() + ": " + state.shortString());
 
+		action.increaseTimesExecuted();
 		state.execute(action, this.stateGraph, this.env);
 		UIState newState = this.env.waitGetNewState(this.stateGraph);
+		newState.increaseTimesVisited();
 
 		// System.out.println("UIRunner::executeAction(): After execute of " + action.shortString() + ": " + newState.shortString());
 
