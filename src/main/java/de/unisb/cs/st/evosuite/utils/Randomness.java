@@ -49,13 +49,13 @@ public class Randomness implements Serializable {
 		if (seed_parameter != null) {
 			try {
 				seed = Long.parseLong(seed_parameter);
-				random = new MersenneTwister(seed);
 			} catch (Exception e) {
 				seed = System.currentTimeMillis();
-				logger.warn("Using random seed: " + seed);
-				random = new MersenneTwister();
+				logger.warn("Could not parse seed parameter \"" + seed
+				        + "\", using random seed: " + seed);
 			}
-		}
+		} else
+			seed = System.currentTimeMillis();
 		logger.info("Random seed: " + seed);
 		random = new MersenneTwister(seed);
 	}

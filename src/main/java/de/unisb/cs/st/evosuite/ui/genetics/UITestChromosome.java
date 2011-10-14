@@ -37,11 +37,12 @@ public class UITestChromosome extends ExecutableChromosome {
 
 	private ActionSequence actionSequence;
 
-	private UIStateGraph stateGraph;
+	private final UIStateGraph stateGraph;
 
-	private Trigger mainMethodTrigger;
+	private final Trigger mainMethodTrigger;
 
-	public UITestChromosome(ActionSequence actionSequence, UIStateGraph stateGraph, Trigger mainMethodTrigger) {
+	public UITestChromosome(ActionSequence actionSequence, UIStateGraph stateGraph,
+	        Trigger mainMethodTrigger) {
 		assert (actionSequence != null);
 
 		this.actionSequence = actionSequence;
@@ -50,8 +51,10 @@ public class UITestChromosome extends ExecutableChromosome {
 	}
 
 	@Override
-	public void crossOver(Chromosome other, int position1, int position2) throws ConstructionFailedException {
-		throw new UnsupportedOperationException("UITestChromosome doesn't support cross-over at arbitrary positions");
+	public void crossOver(Chromosome other, int position1, int position2)
+	        throws ConstructionFailedException {
+		throw new UnsupportedOperationException(
+		        "UITestChromosome doesn't support cross-over at arbitrary positions");
 	}
 
 	public void replaceWithCrossOverResult(UITestChromosome partner) {
@@ -82,7 +85,7 @@ public class UITestChromosome extends ExecutableChromosome {
 		if (changed) {
 			this.actionSequence.repair();
 			this.setChanged(true);
-			this.setLastExecutionResult(null);
+			this.clearCachedResults();
 		}
 	}
 
@@ -139,7 +142,8 @@ public class UITestChromosome extends ExecutableChromosome {
 		boolean changed = false;
 		double p = 1.0;
 
-		while (Randomness.nextDouble() <= p && (!Properties.CHECK_MAX_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {
+		while (Randomness.nextDouble() <= p
+		        && (!Properties.CHECK_MAX_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {
 			changed |= this.actionSequence.insertRandomActionUnsafe();
 			p /= 2;
 		}
@@ -149,8 +153,8 @@ public class UITestChromosome extends ExecutableChromosome {
 
 	@Override
 	public Chromosome clone() {
-		return new UITestChromosome((ActionSequence) this.actionSequence.clone(), this.stateGraph,
-				this.mainMethodTrigger);
+		return new UITestChromosome((ActionSequence) this.actionSequence.clone(),
+		        this.stateGraph, this.mainMethodTrigger);
 	}
 
 	@Override
@@ -174,25 +178,30 @@ public class UITestChromosome extends ExecutableChromosome {
 
 	@Override
 	public void localSearch(LocalSearchObjective objective) {
-		throw new UnsupportedOperationException("UITestChromosome doesn't support localSearch() (yet?)");
+		throw new UnsupportedOperationException(
+		        "UITestChromosome doesn't support localSearch() (yet?)");
 	}
 
 	@Override
 	public void applyDSE() {
-		throw new UnsupportedOperationException("UITestChromosome doesn't support applyDSE() (yet?)");
+		throw new UnsupportedOperationException(
+		        "UITestChromosome doesn't support applyDSE() (yet?)");
 	}
 
 	private static final ExecutorService executor = Executors.newSingleThreadExecutor(TestCaseExecutor.getInstance());
 
 	@Override
-	public ExecutionResult executeForFitnessFunction(TestSuiteFitnessFunction testSuiteFitnessFunction) {
+	public ExecutionResult executeForFitnessFunction(
+	        TestSuiteFitnessFunction testSuiteFitnessFunction) {
 		TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>();
 		InterfaceTestRunnable callable = new ChromosomeUIController(this);
 		
 		executedChromosomes.add(this);
 
 		try {
-			ExecutionResult result = handler.execute(callable, executor, Properties.TIMEOUT, Properties.CPU_TIMEOUT);
+			ExecutionResult result = handler.execute(callable, executor,
+			                                         Properties.TIMEOUT,
+			                                         Properties.CPU_TIMEOUT);
 			return result;
 		} catch (Exception e) {
 			failingChromosomes.add(this);
@@ -225,5 +234,13 @@ public class UITestChromosome extends ExecutableChromosome {
 
 	public void repair() {
 		this.actionSequence.repair();
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.ExecutableChromosome#copyCachedResults(de.unisb.cs.st.evosuite.testcase.ExecutableChromosome)
+	 */
+	@Override
+	protected void copyCachedResults(ExecutableChromosome other) {
+		this.lastExecutionResult = other.getLastExecutionResult();
 	}
 }

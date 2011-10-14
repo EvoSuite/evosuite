@@ -33,7 +33,7 @@ public class MutationTimeoutStoppingCondition extends StoppingCondition {
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
 	@Override
-	public int getCurrentValue() {
+	public long getCurrentValue() {
 		return timeouts;
 	}
 
@@ -63,12 +63,12 @@ public class MutationTimeoutStoppingCondition extends StoppingCondition {
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
 	@Override
-	public void setLimit(int limit) {
-		MAX_TIMEOUTS = limit;
+	public void setLimit(long limit) {
+		MAX_TIMEOUTS = (int) limit;
 	}
 
 	@Override
-	public int getLimit() {
+	public long getLimit() {
 		return MAX_TIMEOUTS;
 	}
 
@@ -76,6 +76,11 @@ public class MutationTimeoutStoppingCondition extends StoppingCondition {
 		timeouts++;
 		if (timeouts >= MAX_TIMEOUTS)
 			disabled.add(mutation);
+	}
+
+	@Override
+	public void forceCurrentValue(long value) {
+		timeouts = (int) value;
 	}
 
 }

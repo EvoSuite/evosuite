@@ -2,14 +2,15 @@ package de.unisb.cs.st.evosuite.cfg;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,6 +113,7 @@ public class BytecodeInstructionPool {
 	        int instructionId, AbstractInsnNode asmNode) {
 
 		BytecodeInstruction r = getInstruction(className, methodName, instructionId);
+
 		if (r != null)
 			r.sanityCheckAbstractInsnNode(asmNode);
 
@@ -137,6 +139,19 @@ public class BytecodeInstructionPool {
 		logger.debug("unknown instruction");
 
 		return null;
+	}
+
+	public static Set<String> knownClasses() {
+		return new HashSet<String>(instructionMap.keySet());
+	}
+
+	public static Set<String> knownMethods(String className) {
+		Set<String> r = new HashSet<String>();
+
+		if (instructionMap.get(className) != null)
+			r.addAll(instructionMap.get(className).keySet());
+
+		return r;
 	}
 
 	public static List<BytecodeInstruction> getInstructionsIn(String className,
@@ -180,5 +195,19 @@ public class BytecodeInstructionPool {
 
 		return instruction;
 
+	}
+
+	public static void clear() {
+		instructionMap.clear();
+		knownMethodNodes.clear();
+	}
+	
+	public static boolean forgetInstruction(BytecodeInstruction ins) {
+		if(!instructionMap.containsKey(ins.getClassName()))
+			return false;
+		if(!instructionMap.get(ins.getClassName()).containsKey(ins.getMethodName()))
+			return false;
+		
+		return instructionMap.get(ins.getClassName()).get(ins.getMethodName()).remove(ins);
 	}
 }

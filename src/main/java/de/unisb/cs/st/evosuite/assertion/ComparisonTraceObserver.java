@@ -42,21 +42,22 @@ public class ComparisonTraceObserver extends ExecutionObserver {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
-		try{
+		try {
 			VariableReference retval = statement.getReturnValue();
-			if (retval == null || retval.isEnum() || retval.isPrimitive())
+			if (retval == null || retval.isEnum() || retval.isPrimitive()
+			        || exception != null)
 				return;
 			Object object = retval.getObject(scope);
 			if (object == null) {
-				//logger.info("Statement adds null value");
+				logger.debug("Statement adds null value");
 				return; // TODO: Add different check?
 			}
 			if (isWrapperType(object.getClass()))
 				return;
-			Map<VariableReference, Boolean> eqmap = new HashMap<VariableReference, Boolean>();
-			Map<VariableReference, Integer> cmpmap = new HashMap<VariableReference, Integer>();
+			Map<Integer, Boolean> eqmap = new HashMap<Integer, Boolean>();
+			Map<Integer, Integer> cmpmap = new HashMap<Integer, Integer>();
 
-			//logger.info("Comparing to other objects of type "+retval.type.getName());
+			logger.debug("Comparing to other objects of type " + retval.getClassName());
 			//scope.printScope();
 			//if(scope.hasObjects(retval.type)) {
 			for (VariableReference other : scope.getElements(retval.getType())) {
@@ -67,28 +68,30 @@ public class ComparisonTraceObserver extends ExecutionObserver {
 					continue; // TODO: Don't do this?
 
 				try {
-					eqmap.put(other, object.equals(other_object));
+					logger.debug("Comparison of " + retval + " with " + other + " is: "
+					        + object.equals(other_object));
+					eqmap.put(other.getStPosition(), object.equals(other_object));
 				} catch (Throwable t) {
 					logger.debug("Exception during equals: " + t);
 					/*
-				logger.info("Type of retval: "+retval.getType());
-				logger.info(object);
-				logger.info(other_object);
-				logger.info(object.getClass()+": "+object);
-				logger.info(other_object.getClass()+": "+other_object);
+					logger.info("Type of retval: "+retval.getType());
+					logger.info(object);
+					logger.info(other_object);
+					logger.info(object.getClass()+": "+object);
+					logger.info(other_object.getClass()+": "+other_object);
 					 */
 					// ignore?
 				}
 				if (object instanceof Comparable<?>) {
 					Comparable<Object> c = (Comparable<Object>) object;
 					try {
-						cmpmap.put(other, c.compareTo(other_object));
+						cmpmap.put(other.getStPosition(), c.compareTo(other_object));
 					} catch (Throwable t) {
 						logger.debug("Exception during compareto: " + t);
 						/*
-					logger.info("Type of retval: "+retval.getType());
-					logger.info(object.getClass()+": "+object);
-					logger.info(other_object.getClass()+": "+other_object);
+						logger.info("Type of retval: "+retval.getType());
+						logger.info(object.getClass()+": "+object);
+						logger.info(other_object.getClass()+": "+other_object);
 						 */
 						// ignore?
 					}
@@ -100,11 +103,11 @@ public class ComparisonTraceObserver extends ExecutionObserver {
 			if (object instanceof Comparable<?>) {
 				trace.compare_map.put(position, cmpmap);
 			}
-			trace.return_values.put(position, retval);
+			// trace.return_values.put(position, retval.getStPosition());
 			//} else {
 			//	logger.info("No other objects of type "+retval.type.getName()+" in scope");
 			//}
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 	}

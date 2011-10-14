@@ -50,6 +50,9 @@ public class SteadyStateGA extends GeneticAlgorithm {
 
 	protected boolean keepOffspring(Chromosome parent1, Chromosome parent2,
 	        Chromosome offspring1, Chromosome offspring2) {
+		//return replacement_function.keepOffspring(parent1, parent2, offspring1,
+		//                                          offspring2);
+
 		return (isBetterOrEqual(offspring1, parent1) && isBetterOrEqual(offspring1,
 		                                                                parent2))
 		        || (isBetterOrEqual(offspring2, parent1) && isBetterOrEqual(offspring2,
@@ -157,6 +160,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 			initializePopulation();
 
 		logger.debug("Starting evolution");
+		double bestFitness = Double.MAX_VALUE;
 		while (!isFinished()) {
 			logger.info("Population size before: " + population.size());
 			evolve();
@@ -168,6 +172,9 @@ public class SteadyStateGA extends GeneticAlgorithm {
 				applyLocalSearch();
 
 			sortPopulation();
+			double newFitness = getBestIndividual().getFitness();
+			assert (newFitness <= bestFitness);
+			bestFitness = newFitness;
 			logger.info("Current iteration: " + current_iteration);
 			this.notifyIteration();
 			logger.info("Population size: " + population.size());

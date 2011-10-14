@@ -11,7 +11,7 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.LdcInsnNode;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.coverage.branch.Branch;
+import de.unisb.cs.st.evosuite.cfg.ControlDependency;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
 
 /**
@@ -78,9 +78,8 @@ public class Mutation {
 
 	public Set<BranchCoverageGoal> getControlDependencies() {
 		Set<BranchCoverageGoal> goals = new HashSet<BranchCoverageGoal>();
-		for (Branch branch : original.getControlDependentBranches()) {
-			BranchCoverageGoal goal = new BranchCoverageGoal(branch,
-			        original.getBranchExpressionValue(branch), className, methodName);
+		for (ControlDependency cd : original.getControlDependencies()) {
+			BranchCoverageGoal goal = new BranchCoverageGoal(cd, className, methodName);
 			goals.add(goal);
 		}
 		return goals;
@@ -109,6 +108,57 @@ public class Mutation {
 	 */
 	@Override
 	public String toString() {
-		return className + "." + methodName + ":" + lineNo + " - " + mutationName;
+		return "Mutation " + id + ": " + className + "." + methodName + ":" + lineNo
+		        + " - " + mutationName;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((className == null) ? 0 : className.hashCode());
+		result = prime * result + id;
+		result = prime * result + lineNo;
+		result = prime * result + ((methodName == null) ? 0 : methodName.hashCode());
+		result = prime * result + ((mutationName == null) ? 0 : mutationName.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Mutation other = (Mutation) obj;
+		if (className == null) {
+			if (other.className != null)
+				return false;
+		} else if (!className.equals(other.className))
+			return false;
+		if (id != other.id)
+			return false;
+		if (lineNo != other.lineNo)
+			return false;
+		if (methodName == null) {
+			if (other.methodName != null)
+				return false;
+		} else if (!methodName.equals(other.methodName))
+			return false;
+		if (mutationName == null) {
+			if (other.mutationName != null)
+				return false;
+		} else if (!mutationName.equals(other.mutationName))
+			return false;
+		return true;
+	}
+
 }

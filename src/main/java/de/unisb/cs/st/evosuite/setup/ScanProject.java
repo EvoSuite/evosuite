@@ -23,10 +23,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -47,6 +50,7 @@ import de.unisb.cs.st.evosuite.callgraph.DistanceTransformer;
 import de.unisb.cs.st.evosuite.callgraph.DistanceTransformer.ClassEntry;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
 import de.unisb.cs.st.evosuite.javaagent.CIClassAdapter;
+import de.unisb.cs.st.evosuite.utils.StringUtil;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
@@ -80,6 +84,7 @@ public class ScanProject {
 			name = name.replace("/", ".");
 			if (classMap.containsKey(name))
 				return classMap.get(name);
+			logger.debug("Loading class: " + name);
 
 			ZipEntry entry = this.file.getEntry(name.replace('.', '/') + ".class");
 			if (entry == null) {
@@ -92,15 +97,24 @@ public class ScanProject {
 				ByteArrayOutputStream out = new ByteArrayOutputStream(array.length);
 				int length = in.read(array);
 				while (length > 0) {
-					out.write(array, 0, length);
+					out.write(array, 0, array.length);
 					length = in.read(array);
 				}
+
 				ClassReader reader = new ClassReader(array);
+				Class<?> result = findLoadedClass(name);
+				if (result != null) {
+					logger.debug("Found loaded instance: " + name);
+					return result;
+				}
+
 				Class<?> clazz = defineClass(reader.getClassName().replace("/", "."),
 				                             out.toByteArray(), 0, out.size());
 				classMap.put(name, clazz);
+				logger.debug("Loaded class: " + name);
+
 				return clazz;
-			} catch (IOException exception) {
+			} catch (Throwable exception) {
 				throw new ClassNotFoundException(name, exception);
 			}
 		}
@@ -215,6 +229,7 @@ public class ScanProject {
 				classes.addAll(loadClass(new File(cn.replace("/", ".") + ".class"),
 				                         cn.split("/")[0], false));
 			} catch (ClassNotFoundException e) {
+				//System.out.println("Class is not in a class path " + cn.replace("/", "."));
 				//e.printStackTrace();
 			}
 		}
@@ -227,7 +242,8 @@ public class ScanProject {
 				cf.createClass(c);
 			}
 		} catch (Throwable t) {
-
+			System.out.println("* Could not generate stub. Print stack trace for more information");
+			//t.printStackTrace();
 		}
 	}
 
@@ -241,7 +257,8 @@ public class ScanProject {
 
 		//ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		//assert classLoader != null;
-		Collection<String> list = ResourceList.getResources(Pattern.compile(packageName
+		Collection<String> list = ResourceList.getResources(Pattern.compile(packageName.replace(".",
+		                                                                                        "/")
 		        + "/.*\\.class$"));
 		for (String name : list) {
 			System.out.println("* Loading class " + name);
@@ -258,12 +275,20 @@ public class ScanProject {
 	 * @throws ClassNotFoundException
 	 */
 	public static Set<Class<?>> getClasses(File directory) {
-		if (directory.getName().endsWith(".jar")) {
-			return getClassesJar(directory);
-		} else if (directory.getName().endsWith(".class")) {
+		//if (directory.getName().endsWith(".jar")) {
+		//	return getClassesJar(directory);
+		//} else
+		if (directory.getName().endsWith(".class")) {
 			Set<Class<?>> set = new HashSet<Class<?>>();
+			ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+			PrintStream outStream = new PrintStream(byteStream);
+
+			System.out.println("* Loading class " + directory.getName());
+			PrintStream old_out = System.out;
+			PrintStream old_err = System.err;
+			System.setOut(outStream);
+			System.setErr(outStream);
 			try {
-				System.out.println("* Loading class " + directory.getName());
 				File file = new File(directory.getPath());
 				byte[] array = new byte[(int) file.length()];
 				InputStream in = new FileInputStream(file);
@@ -281,9 +306,12 @@ public class ScanProject {
 				//Class<?> clazz = classLoader.loadClass(directory.getPath());
 				//Class<?> clazz = new FileClassLoader().loadClass(directory.getPath());
 
-				//clazz = Class.forName(clazz.getName());
+				System.setOut(old_out);
+				System.setErr(old_err);
 
+				//clazz = Class.forName(clazz.getName());
 				set.add(clazz);
+
 				if (Properties.STUBS) {
 					if (Modifier.isAbstract(clazz.getModifiers()) && !clazz.isInterface()) {
 						ClassFactory cf = new ClassFactory();
@@ -291,26 +319,41 @@ public class ScanProject {
 					}
 				}
 			} catch (IllegalAccessError e) {
+				System.setOut(old_out);
+				System.setErr(old_err);
+
 				System.out.println("  Cannot access class "
 				        + directory.getName().substring(0,
 				                                        directory.getName().length() - 6)
 				        + ": " + e);
 			} catch (NoClassDefFoundError e) {
+				System.setOut(old_out);
+				System.setErr(old_err);
+
 				System.out.println("  Error while loading "
 				        + directory.getName().substring(0,
 				                                        directory.getName().length() - 6)
 				        + ": Cannot find " + e.getMessage());
 				//e.printStackTrace();
 			} catch (ExceptionInInitializerError e) {
+				System.setOut(old_out);
+				System.setErr(old_err);
+
 				System.out.println("  Exception in initializer of "
 				        + directory.getName().substring(0,
 				                                        directory.getName().length() - 6));
 			} catch (ClassNotFoundException e) {
-				System.out.println("  Class not found: "
+				System.setOut(old_out);
+				System.setErr(old_err);
+
+				System.out.println("  Class not found in classpath: "
 				        + directory.getName().substring(0,
 				                                        directory.getName().length() - 6)
 				        + ": " + e);
 			} catch (Throwable e) {
+				System.setOut(old_out);
+				System.setErr(old_err);
+
 				System.out.println("  Unexpected error: "
 				        + directory.getName().substring(0,
 				                                        directory.getName().length() - 6)
@@ -350,13 +393,21 @@ public class ScanProject {
 			final String fileName = ze.getName();
 			if (!fileName.endsWith(".class"))
 				continue;
-			if (fileName.contains("$"))
-				continue;
+			ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+			PrintStream outStream = new PrintStream(byteStream);
+
+			System.out.println("* Loading class " + fileName + " from jar file "
+			        + file.getName());
+			PrintStream old_out = System.out;
+			PrintStream old_err = System.err;
+			//System.setOut(outStream);
+			//System.setErr(outStream);
 
 			try {
-				System.out.println("* Loading class " + fileName + " from jar file "
-				        + file.getName());
-				Class<?> clazz = zcl.findClass(fileName.replace(".class", ""));
+
+				//				Class<?> clazz = zcl.findClass(fileName.replace(".class", ""));
+				Class<?> clazz = Class.forName(fileName.replace(".class", "").replace("/",
+				                                                                      "."));
 				set.add(clazz);
 				if (Properties.STUBS) {
 					if (Modifier.isAbstract(clazz.getModifiers()) && !clazz.isInterface()) {
@@ -366,17 +417,35 @@ public class ScanProject {
 				}
 				//				Class.forName(fileName.replace(".class", "").replace("/", "."));
 			} catch (IllegalAccessError ex) {
+				System.setOut(old_out);
+				System.setErr(old_err);
 				System.out.println("Cannot access class "
 				        + file.getName().substring(0, file.getName().length() - 6));
 			} catch (NoClassDefFoundError ex) {
+				System.setOut(old_out);
+				System.setErr(old_err);
 				System.out.println("Cannot find dependent class " + ex);
 			} catch (ExceptionInInitializerError ex) {
+				System.setOut(old_out);
+				System.setErr(old_err);
 				System.out.println("Exception in initializer of "
 				        + file.getName().substring(0, file.getName().length() - 6));
 			} catch (ClassNotFoundException ex) {
+				System.setOut(old_out);
+				System.setErr(old_err);
 				System.out.println("Cannot find class "
 				        + file.getName().substring(0, file.getName().length() - 6) + ": "
 				        + ex);
+			} catch (Throwable t) {
+				System.setOut(old_out);
+				System.setErr(old_err);
+
+				System.out.println("  Unexpected error: "
+				        + file.getName().substring(0, file.getName().length() - 6) + ": "
+				        + t);
+			} finally {
+				System.setOut(old_out);
+				System.setErr(old_err);
 			}
 		}
 		try {
@@ -423,10 +492,35 @@ public class ScanProject {
 				System.out.println("  Ignoring class " + clazz.getName() + ": " + e);
 			}
 		}
-		data.save();
-		Utils.writeXML(classEntries, Properties.OUTPUT_DIR + "/"
-		        + Properties.HIERARCHY_DATA);
+		try {
+			data.save();
+			Utils.writeXML(classEntries, Properties.OUTPUT_DIR + "/"
+			        + Properties.HIERARCHY_DATA);
+		} catch (Throwable t) {
+			System.out.println("* Error while analyzing classes: ");
+			System.out.println("  " + t);
+			Throwable cause = t.getCause();
+			while (cause != null) {
+				System.out.println("  Caused by: " + cause);
+				cause = cause.getCause();
+			}
+			System.exit(1);
+		}
 
+	}
+
+	private static String getPackageName(Set<Class<?>> classes) {
+		List<String> names = new ArrayList<String>();
+		for (Class<?> clazz : classes) {
+			names.add(clazz.getName());
+		}
+		String[] nameArray = new String[names.size()];
+		names.toArray(nameArray);
+		String prefix = StringUtil.getCommonPrefix(nameArray);
+		if (prefix.endsWith("."))
+			prefix = prefix.substring(0, prefix.length() - 1);
+
+		return prefix;
 	}
 
 	/**
@@ -445,8 +539,26 @@ public class ScanProject {
 				classes.addAll(getClasses(Properties.PROJECT_PREFIX, false));
 			} else if (args.length > 0) {
 				for (String arg : args) {
-					System.out.println("* Analyzing project directory: " + arg);
-					classes.addAll(getClasses(new File(arg)));
+					if (arg.endsWith(".jar")) {
+						System.out.println("* Analyzing jar file: " + arg);
+						classes.addAll(getClassesJar(new File(arg)));
+					} else {
+						System.out.println("* Analyzing project directory: " + arg);
+						classes.addAll(getClasses(new File(arg)));
+					}
+				}
+				String prefix = getPackageName(classes);
+				System.out.println("* Project prefix: " + prefix);
+				Properties.PROJECT_PREFIX = prefix;
+				File propertyFile = new File(Properties.OUTPUT_DIR + File.separator
+				        + "evosuite.properties");
+				if (propertyFile.exists()) {
+
+				} else {
+
+					Properties.getInstance().writeConfiguration(Properties.OUTPUT_DIR
+					                                                    + File.separator
+					                                                    + "evosuite.properties");
 				}
 			} else {
 				System.out.println("* Please specify either project prefix or directory");

@@ -31,10 +31,10 @@ public class EqualsAssertion extends Assertion {
 	public VariableReference dest;
 
 	@Override
-	public Assertion clone(TestCase newTestCase) {
+	public Assertion copy(TestCase newTestCase, int offset) {
 		EqualsAssertion s = new EqualsAssertion();
-		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
-		s.dest = newTestCase.getStatement(dest.getStPosition()).getReturnValue();
+		s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
+		s.dest = newTestCase.getStatement(dest.getStPosition() + offset).getReturnValue();
 		s.value = value;
 		return s;
 	}
@@ -45,12 +45,12 @@ public class EqualsAssertion extends Assertion {
 			return "assertTrue(" + source.getName() + ".equals(" + dest.getName() + "));";
 		else
 			return "assertFalse(" + source.getName() + ".equals(" + dest.getName()
-			+ "));";
+			        + "));";
 	}
 
 	@Override
 	public boolean evaluate(Scope scope) {
-		try{
+		try {
 			if (((Boolean) value).booleanValue()) {
 				if (source.getObject(scope) == null)
 					return dest.getObject(scope) == null;
@@ -62,7 +62,7 @@ public class EqualsAssertion extends Assertion {
 				else
 					return !source.getObject(scope).equals(dest.getObject(scope));
 			}
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 	}

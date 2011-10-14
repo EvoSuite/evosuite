@@ -19,10 +19,9 @@
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -40,6 +39,7 @@ import de.unisb.cs.st.evosuite.contracts.ContractChecker;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestRunnable;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
+import de.unisb.cs.st.evosuite.sandbox.PermissionStatistics;
 import de.unisb.cs.st.evosuite.sandbox.Sandbox;
 
 /**
@@ -62,9 +62,11 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	private Thread currentThread = null;
 
+	private ThreadGroup threadGroup = null;
+
 	//private static ExecutorService executor = Executors.newCachedThreadPool();
 
-	private List<ExecutionObserver> observers;
+	private Set<ExecutionObserver> observers;
 
 	private final Set<Thread> stalledThreads = new HashSet<Thread>();
 
@@ -134,6 +136,8 @@ public class TestCaseExecutor implements ThreadFactory {
 	}
 
 	public void addObserver(ExecutionObserver observer) {
+		if (!observers.contains(observer))
+			logger.debug("Adding observer " + observer);
 		// FIXXME: Find proper solution for this
 		//for (ExecutionObserver o : observers)
 		//	if (o.getClass().equals(observer.getClass()))
@@ -142,11 +146,13 @@ public class TestCaseExecutor implements ThreadFactory {
 	}
 
 	public void removeObserver(ExecutionObserver observer) {
+		if (observers.contains(observer))
+			logger.debug("Removing observer " + observer);
 		observers.remove(observer);
 	}
 
 	public void newObservers() {
-		observers = new ArrayList<ExecutionObserver>();
+		observers = new LinkedHashSet<ExecutionObserver>();
 		if (Properties.CHECK_CONTRACTS) {
 			observers.add(new ContractChecker());
 		}
@@ -167,6 +173,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	@SuppressWarnings("deprecation")
 	public ExecutionResult execute(TestCase tc, Scope scope) {
 		ExecutionTracer.getExecutionTracer().clear();
+		// TODO: Re-insert!
 		if (Properties.STATIC_HACK)
 			TestCluster.getInstance().resetStaticClasses();
 		resetObservers();
@@ -192,7 +199,6 @@ public class TestCaseExecutor implements ThreadFactory {
 			ExecutionResult result = handler.execute(callable, executor,
 			                                         Properties.TIMEOUT,
 			                                         Properties.CPU_TIMEOUT);
-
 			long endTime = System.currentTimeMillis();
 			timeExecuted += endTime - startTime;
 			testsExecuted++;
@@ -217,9 +223,12 @@ public class TestCaseExecutor implements ThreadFactory {
 			return result;
 		} catch (ExecutionException e1) {
 			/*
-			 * An ExecutionException at this point, is most likely an error in evosuite. As exceptions from the tested code are catched before this.
+			 * An ExecutionException at this point, is most likely an error in evosuite. As exceptions from the tested code are caught before this.
 			 */
 			Sandbox.tearDownEverything();
+			System.setOut(systemOut);
+			System.setErr(systemErr);
+
 			logger.error("ExecutionException (this is likely a serious error in the framework)",
 			             e1);
 			ExecutionResult result = new ExecutionResult(tc, null);
@@ -259,9 +268,9 @@ public class TestCaseExecutor implements ThreadFactory {
 					try {
 						executor.shutdownNow();
 						if (currentThread.isAlive()) {
-							logger.warn("Thread survived - unsafe operation.");
+							logger.info("Thread survived - unsafe operation.");
 							for (StackTraceElement element : currentThread.getStackTrace()) {
-								logger.warn(element.toString());
+								logger.info(element.toString());
 							}
 							currentThread.stop();
 						}
@@ -282,6 +291,8 @@ public class TestCaseExecutor implements ThreadFactory {
 			ExecutionTracer.enable();
 
 			return result;
+		} finally {
+			PermissionStatistics.getInstance().countThreads(threadGroup.activeCount());
 		}
 	}
 
@@ -303,9 +314,13 @@ public class TestCaseExecutor implements ThreadFactory {
 			stalledThreads.add(currentThread);
 			logger.info("Current number of stalled threads: " + stalledThreads.size());
 		}
-		currentThread = new Thread(r);
-		if (Properties.CLASSLOADER)
-			currentThread.setContextClassLoader(TestCluster.classLoader);
+
+		if (threadGroup != null) {
+			PermissionStatistics.getInstance().countThreads(threadGroup.activeCount());
+		}
+		threadGroup = new ThreadGroup("Test Execution");
+		currentThread = new Thread(threadGroup, r);
+		currentThread.setContextClassLoader(TestCluster.classLoader);
 		ExecutionTracer.setThread(currentThread);
 		return currentThread;
 	}

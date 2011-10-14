@@ -18,13 +18,19 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
+import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class PrimitiveOutputTraceObserver extends ExecutionObserver {
+
+	private static Logger logger = LoggerFactory.getLogger(PrimitiveOutputTraceObserver.class);
 
 	private final PrimitiveOutputTrace trace = new PrimitiveOutputTrace();
 
@@ -36,27 +42,32 @@ public class PrimitiveOutputTraceObserver extends ExecutionObserver {
 
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
-		try{
+		try {
 			VariableReference retval = statement.getReturnValue();
 
-			if (retval == null)
+			if (retval == null || exception != null)
+				return;
+
+			if (statement instanceof PrimitiveStatement<?>)
 				return;
 
 			Object object = retval.getObject(scope);
 			if (object == null || object.getClass().isPrimitive()
-					|| object.getClass().isEnum() || isWrapperType(object.getClass())
-					|| object instanceof String) {
+			        || object.getClass().isEnum() || isWrapperType(object.getClass())
+			        || object instanceof String) {
+				logger.debug("Observed value " + object + " for statement "
+				        + statement.getCode());
 				trace.trace.put(statement.getPosition(), object);
 				/*
-			if(object == null)
+				if(object == null)
 				logger.info("Adding null (Type: "+retval.type.getName()+")");
-			else
+				else
 				logger.info("Adding object of type "+object.getClass().getName());
 				 */
 			}
 			//else
 			//	logger.info("Not adding object of type "+object.getClass().getName());
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 	}

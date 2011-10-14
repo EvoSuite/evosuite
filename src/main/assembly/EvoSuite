@@ -8,22 +8,31 @@ BASEPATH=$(dirname $0)
 if [ ! -z "$EVOSUITE_HOME" ]; then
     BASEPATH=$EVOSUITE_HOME
 fi
-if [ ! -e $BASEPATH/etc/evosuite.properties ]; then
+if [ ! -e $BASEPATH/EvoSuite ]; then
     echo "EVOSUITE_HOME is not set correctly"
     exit -1
 fi
 
-source $BASEPATH/etc/evosuite.properties
+#source $BASEPATH/etc/evosuite.properties
 		
 
 java_opts="-ea -Xmx1024M"
 
-export DYLD_LIBRARY_PATH=$BASEPATH/lib/libcvc3-jni/i386-darwin10.2.0:$DYLD_LIBRARY_PATH
+unamestr=`uname`
+if [[ "$unamestr" == 'Linux' ]]; then
+    export LD_LIBRARY_PATH=$BASEPATH/lib/libcvc3-jni/x86_64-linux-gnu:$LD_LIBRARY_PATH
+elif [[ "$unamestr" == 'Darwin' ]]; then
+    export DYLD_LIBRARY_PATH=$BASEPATH/lib/libcvc3-jni/i386-darwin10.2.0:$DYLD_LIBRARY_PATH
+fi
 
 ##
 ## Classpath part to be used in all invocations of Java
 ##
 classpath=$BASEPATH:$BASEPATH/etc:$BASEPATH/${project.artifactId}-${project.version}-jar.jar
+
+for I in $BASEPATH/jpf*.jar; do
+  classpath="$classpath:$I"
+done
 
 #for JAR in $BASEPATH/lib/*.jar; do
 #    classpath="$classpath:$JAR"
@@ -282,7 +291,7 @@ setup ()
 	    done
 	    first=1
 
-	    java $java_options -cp "$classpath:$CP" -DPROJECT_PREFIX=$PROJECT_PREFIX $TEST_CLASS $OBJECT $MOCK $evosuite_scan
+	    java $java_options -cp "$classpath:$CP" -DCP=$CP -DPROJECT_PREFIX=$PROJECT_PREFIX $TEST_CLASS $OBJECT $MOCK $evosuite_scan
 	    setup_evosuite $OUTPUT_DIR $PROJECT_PREFIX $CP
 	}
     else {
@@ -324,7 +333,7 @@ setupDir ()
 	    done
 	    TARGET=${cmdline_arguments[0]}
 
-	    java $java_options -cp "$classpath:$CP" -DPROJECT_PREFIX= $TEST_CLASS $OBJECT $MOCK $evosuite_scan $TARGET
+	    java $java_options -cp "$classpath:$CP" -DCP=$CP -DPROJECT_PREFIX= $TEST_CLASS $OBJECT $MOCK $evosuite_scan $TARGET
 	    PROJECT_PREFIX=
 	    setup_evosuite $OUTPUT_DIR \"\" $CP
 	}
@@ -377,6 +386,7 @@ generateSuite ()
 
 		pushd .  > /dev/null
 		cd $BASEDIR
+		OUTPUT_DIR=evosuite-files
 		#OUTPUT_DIR=$BASEDIR/$OUTPUT_DIR
 
 		if [ -z "$TEST_CLASSES" ]; then

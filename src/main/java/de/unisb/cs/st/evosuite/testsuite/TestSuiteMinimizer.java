@@ -56,9 +56,6 @@ public class TestSuiteMinimizer {
 	/** Logger */
 	private final static Logger logger = LoggerFactory.getLogger(TestSuiteMinimizer.class);
 
-	/** Factory method that handles statement deletion */
-	private final DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
-
 	private final TestFitnessFactory testFitnessFactory;
 
 	/** Maximum number of seconds. 0 = infinite time */
@@ -95,6 +92,8 @@ public class TestSuiteMinimizer {
 	 * @param fitness_function
 	 */
 	public void minimizeTests(TestSuiteChromosome suite) {
+
+		logger.info("Minimizing per test");
 
 		Properties.RECYCLE_CHROMOSOMES = false; // TODO: FIXXME!
 		ExecutionTrace.enableTraceCalls();
@@ -240,7 +239,7 @@ public class TestSuiteMinimizer {
 		// in the case of whole suite generation
 		for (ExecutableChromosome test : suite.getTestChromosomes()) {
 			test.setChanged(true);
-			test.setLastExecutionResult(null);
+			test.clearCachedResults();
 		}
 
 		boolean size = false;
@@ -307,6 +306,7 @@ public class TestSuiteMinimizer {
 					TestChromosome orgiginalTestChromosome = (TestChromosome) testChromosome.clone();
 
 					try {
+						DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 						test_factory.deleteStatementGracefully(testChromosome.getTestCase(),
 						                                       i);
 						testChromosome.setChanged(true);

@@ -37,27 +37,31 @@ public class PrimitiveFieldAssertion extends Assertion {
 		} else if (value.getClass().equals(Long.class)) {
 			String val = value.toString();
 			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
-			+ val + "L);";
+			        + val + "L);";
 		} else if (value.getClass().equals(Float.class)) {
 			String val = value.toString();
 			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
-			+ val + "F);";
+			        + val + "F, 0.01F);";
+		} else if (value.getClass().equals(Double.class)) {
+			String val = value.toString();
+			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
+			        + val + "D, 0.01D);";
 		} else if (value.getClass().equals(Character.class)) {
 			String val = StringEscapeUtils.escapeJava(((Character) value).toString());
 			return "assertEquals(" + source.getName() + "." + field.getName() + ", '"
-			+ val + "');";
+			        + val + "');";
 		} else if (value.getClass().equals(String.class)) {
 			return "assertEquals(" + source.getName() + "." + field.getName() + ", \""
-			+ StringEscapeUtils.escapeJava((String) value) + "\");";
+			        + StringEscapeUtils.escapeJava((String) value) + "\");";
 		} else
 			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
-			+ value + ");";
+			        + value + ");";
 	}
 
 	@Override
-	public Assertion clone(TestCase newTestCase) {
+	public Assertion copy(TestCase newTestCase, int offset) {
 		PrimitiveFieldAssertion s = new PrimitiveFieldAssertion();
-		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
+		s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
 		s.value = value;
 		s.field = field;
 		return s;
@@ -65,7 +69,7 @@ public class PrimitiveFieldAssertion extends Assertion {
 
 	@Override
 	public boolean evaluate(Scope scope) {
-		try{
+		try {
 			Object obj = source.getObject(scope);
 			if (obj != null) {
 				try {
@@ -79,7 +83,7 @@ public class PrimitiveFieldAssertion extends Assertion {
 				}
 			} else
 				return true;
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 	}

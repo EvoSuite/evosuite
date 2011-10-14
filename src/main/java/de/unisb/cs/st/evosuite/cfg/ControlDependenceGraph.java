@@ -8,9 +8,11 @@ import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 
-public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlowEdge> {
+public class ControlDependenceGraph extends
+		EvoSuiteGraph<BasicBlock, ControlFlowEdge> {
 
-	private static Logger logger = LoggerFactory.getLogger(ControlDependenceGraph.class);
+	private static Logger logger = LoggerFactory
+			.getLogger(ControlDependenceGraph.class);
 
 	private final ActualControlFlowGraph cfg;
 
@@ -32,18 +34,23 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 	 * Convenience method redirecting to getControlDependentBranches(BasicBlock)
 	 * if the given instruction is known to this CDG. Otherwise an
 	 * IllegalArgumentException will be thrown.
+	 * 
+	 * Should no longer be used: rather ask a BasicBlock for its CDs, so it can
+	 * cache it.
 	 */
-	public Set<Branch> getControlDependentBranches(BytecodeInstruction ins) {
-		if (ins == null)
-			throw new IllegalArgumentException("null not accepted");
-		if (!knowsInstruction(ins))
-			throw new IllegalArgumentException("instruction not known to this CDG: "
-			        + methodName + ins.toString());
-
-		BasicBlock insBlock = ins.getBasicBlock();
-
-		return getControlDependentBranches(insBlock);
-	}
+	// public Set<ControlDependency>
+	// getControlDependentBranches(BytecodeInstruction ins) {
+	// if (ins == null)
+	// throw new IllegalArgumentException("null not accepted");
+	// if (!knowsInstruction(ins))
+	// throw new IllegalArgumentException(
+	// "instruction not known to this CDG: " + methodName
+	// + ins.toString());
+	//
+	// BasicBlock insBlock = ins.getBasicBlock();
+	//
+	// return getControlDependentBranches(insBlock);
+	// }
 
 	/**
 	 * Checks whether this graph knows the given instruction. That is there is a
@@ -61,21 +68,41 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 	 * CDG, the branch instruction of that edge will be added to the returned
 	 * set.
 	 */
-	public Set<Branch> getControlDependentBranches(BasicBlock insBlock) {
+	public Set<ControlDependency> getControlDependentBranches(
+			BasicBlock insBlock) {
 		if (insBlock == null)
 			throw new IllegalArgumentException("null not accepted");
 		if (!containsVertex(insBlock))
-			throw new IllegalArgumentException("unknown block: " + insBlock.getName());
+			throw new IllegalArgumentException("unknown block: "
+					+ insBlock.getName());
 
-		Set<Branch> r = new HashSet<Branch>();
+		if(insBlock.hasControlDependenciesSet())
+			return insBlock.getControlDependencies();
+		
+		Set<ControlDependency> r = retrieveControlDependencies(insBlock, new HashSet<ControlFlowEdge>()); 
+
+		return r;
+	}
+
+	private Set<ControlDependency> retrieveControlDependencies(
+			BasicBlock insBlock, Set<ControlFlowEdge> handled) {
+		
+		Set<ControlDependency> r = new HashSet<ControlDependency>();
 
 		for (ControlFlowEdge e : incomingEdgesOf(insBlock)) {
-			Branch b = e.getBranchInstruction();
-			if (b != null)
-				r.add(b);
+			if(handled.contains(e))
+				continue;
+			handled.add(e);
+			
+			ControlDependency cd = e.getControlDependency();
+			if (cd != null)
+				r.add(cd);
+			else {
+				BasicBlock in = getEdgeSource(e);
+				if (!in.equals(insBlock))
+					r.addAll(retrieveControlDependencies(in,handled));
+			}
 
-			// TODO don't we need to do the same special case treatment as in
-			// isDirectlyControlDependentOn() here?
 		}
 
 		// TODO need RootBranch Object!!!
@@ -104,18 +131,18 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 		return r;
 	}
 
-	public Set<Integer> getControlDependentBranchIds(BytecodeInstruction ins) {
+	public Set<Integer> getControlDependentBranchIds(BasicBlock ins) {
 
-		Set<Branch> dependentbranches = getControlDependentBranches(ins);
+		Set<ControlDependency> dependentBranches = getControlDependentBranches(ins);
 
 		Set<Integer> r = new HashSet<Integer>();
 
-		for (Branch b : dependentbranches) {
-			if (b == null)
+		for (ControlDependency cd : dependentBranches) {
+			if (cd == null)
 				throw new IllegalStateException(
-				        "expect set returned by getControlDependentBranches() not to contain null");
+						"expect set returned by getControlDependentBranches() not to contain null");
 
-			r.add(b.getActualBranchId());
+			r.add(cd.getBranch().getActualBranchId());
 		}
 
 		// to indicate this is only dependent on root branch,
@@ -126,51 +153,54 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 		return r;
 	}
 
-	/**
-	 * Determines whether the given Branch has to be evaluated to true or to
-	 * false in order to reach the given BytecodeInstruction - given the
-	 * instruction is directly control dependent on the given Branch.
-	 * 
-	 * In other words this method checks whether there is an incoming
-	 * ControlFlowEdge to the given instruction's BasicBlock containing the
-	 * given Branch as it's BranchInstruction and if so, that edges
-	 * branchExpressionValue is returned. If the given instruction is directly
-	 * control dependent on the given branch such a ControlFlowEdge must exist.
-	 * Should this assumption be violated an IllegalStateException is thrown.
-	 * 
-	 * If the given instruction is not known to this CDG or not directly control
-	 * dependent on the given Branch an IllegalArgumentException is thrown.
-	 */
-	public boolean getBranchExpressionValue(BytecodeInstruction ins, Branch b) {
-		if (ins == null)
-			throw new IllegalArgumentException("null given");
-		if (!ins.isDirectlyControlDependentOn(b))
-			throw new IllegalArgumentException(
-			        "only allowed to call this method for instructions and their directly control dependent branches");
-		if (b == null)
-			return true; // root branch special case
-
-		BasicBlock insBlock = ins.getBasicBlock();
-
-		for (ControlFlowEdge e : incomingEdgesOf(insBlock)) {
-			if (e.isExceptionEdge())
-				continue;
-
-			Branch current = e.getBranchInstruction();
-			if (current == null)
-				continue;
-			// throw new IllegalStateException(
-			// "expect ControlFlowEdges whithin the CDG that don't come from EntryBlock to have branchInstructions set");
-
-			if (current.equals(b))
-				return e.getBranchExpressionValue();
-		}
-
-		return true;
-		// TODO: FIXXME!
-		//throw new IllegalStateException(
-		//        "expect CDG to contain an incoming edge to the given instructions basic block containing the given branch if isControlDependent() returned true on those two");
-	}
+	// /**
+	// * Determines whether the given Branch has to be evaluated to true or to
+	// * false in order to reach the given BytecodeInstruction - given the
+	// * instruction is directly control dependent on the given Branch.
+	// *
+	// * In other words this method checks whether there is an incoming
+	// * ControlFlowEdge to the given instruction's BasicBlock containing the
+	// * given Branch as it's BranchInstruction and if so, that edges
+	// * branchExpressionValue is returned. If the given instruction is directly
+	// * control dependent on the given branch such a ControlFlowEdge must
+	// exist.
+	// * Should this assumption be violated an IllegalStateException is thrown.
+	// *
+	// * If the given instruction is not known to this CDG or not directly
+	// control
+	// * dependent on the given Branch an IllegalArgumentException is thrown.
+	// */
+	// public boolean getBranchExpressionValue(BytecodeInstruction ins, Branch
+	// b) {
+	// if (ins == null)
+	// throw new IllegalArgumentException("null given");
+	// if (!ins.isDirectlyControlDependentOn(b))
+	// throw new IllegalArgumentException(
+	// "only allowed to call this method for instructions and their directly control dependent branches");
+	// if (b == null)
+	// return true; // root branch special case
+	//
+	// BasicBlock insBlock = ins.getBasicBlock();
+	//
+	// for (ControlFlowEdge e : incomingEdgesOf(insBlock)) {
+	// if (e.isExceptionEdge() && !e.hasControlDependency())
+	// continue;
+	//
+	// Branch current = e.getBranchInstruction();
+	// if (current == null) {
+	// try {
+	// BasicBlock in = getEdgeSource(e);
+	// return getBranchExpressionValue(in.getFirstInstruction(), b);
+	// } catch (Exception ex) {
+	// continue;
+	// }
+	// } else if (current.equals(b))
+	// return e.getBranchExpressionValue();
+	// }
+	//
+	// throw new IllegalStateException(
+	// "expect CDG to contain an incoming edge to the given instructions basic block containing the given branch if isControlDependent() returned true on those two ");
+	// }
 
 	// initialization
 
@@ -184,7 +214,8 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 	 * If the given instruction is not known to this CDG an
 	 * IllegalArgumentException is thrown.
 	 */
-	public boolean isDirectlyControlDependentOn(BytecodeInstruction ins, Branch b) {
+	public boolean isDirectlyControlDependentOn(BytecodeInstruction ins,
+			Branch b) {
 		if (ins == null)
 			throw new IllegalArgumentException("null given");
 
@@ -217,7 +248,7 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 			// you reach one where the above conditions are not met
 
 			for (ControlFlowEdge e : incomming) {
-				if (!e.hasBranchInstructionSet() && !e.isExceptionEdge()) {
+				if (!e.hasControlDependency() && !e.isExceptionEdge()) {
 					return isDirectlyControlDependentOn(getEdgeSource(e), b);
 				}
 			}
@@ -235,7 +266,7 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 			if (e.isExceptionEdge()) {
 				if (current != null)
 					throw new IllegalStateException(
-					        "expect exception edges to have no BranchInstruction set");
+							"expect exception edges to have no BranchInstruction set");
 				else
 					continue;
 			}
@@ -277,10 +308,14 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 		if (isAdjacentToEntryBlock(insBlock))
 			return true;
 
-		for (ControlFlowEdge in : incomingEdgesOf(insBlock))
-			if (!in.hasBranchInstructionSet()
-			        && isAdjacentToEntryBlock(getEdgeSource(in)))
+		for (ControlFlowEdge in : incomingEdgesOf(insBlock)) {
+			if (in.hasControlDependency())
+				continue;
+
+			BasicBlock inBlock = getEdgeSource(in);
+			if (isRootDependent(inBlock) && !!inBlock.equals(insBlock))
 				return true;
+		}
 
 		return false;
 
@@ -340,7 +375,8 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 
 		for (BasicBlock b : vertexSet())
 			if (b.isExitBlock() && !graph.removeVertex(b)) // TODO refactor
-				throw new IllegalStateException("internal error building up CDG");
+				throw new IllegalStateException(
+						"internal error building up CDG");
 
 	}
 
@@ -374,7 +410,8 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 
 						// TODO this is just for now! unsafe and probably not
 						// even correct!
-						Set<ControlFlowEdge> candidates = cfg.outgoingEdgesOf(cd);
+						Set<ControlFlowEdge> candidates = cfg
+								.outgoingEdgesOf(cd);
 						if (candidates.size() < 2)
 							throw new IllegalStateException("unexpected");
 
@@ -382,10 +419,7 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 						boolean skip = false;
 
 						for (ControlFlowEdge e : candidates) {
-							if (!e.hasBranchInstructionSet()) {
-								// FIXXME: Is this necessary?
-								logger.debug("unexpected outgoingEdge without branchInstruction set .. finally block?: "
-								        + b.toString());
+							if (!e.hasControlDependency()) {
 								skip = true;
 								break;
 							}
@@ -411,7 +445,7 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 
 					if (!addEdge(cd, b, new ControlFlowEdge(orig)))
 						throw new IllegalStateException(
-						        "internal error while adding CD edge");
+								"internal error while adding CD edge");
 
 					logger.debug("  " + cd.getName());
 				}
@@ -420,8 +454,13 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 
 	@Override
 	public String getName() {
-//		return "CDG" + graphId + "_" + methodName;
-		return "CDG" + "_" + methodName;
+		// return "CDG" + graphId + "_" + methodName;
+		return methodName + "_" +  "CDG";
+	}
+
+	@Override
+	protected String dotSubFolder() {
+		return toFileString(className) + "/CDG/";
 	}
 
 	public String getClassName() {

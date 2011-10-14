@@ -40,7 +40,7 @@ public class InspectorTrace extends OutputTrace {
 	private final InspectorManager manager = InspectorManager.getInstance();
 
 	// TODO: Add inspectors on public fields?
-	Map<Integer, VariableReference> return_values = new HashMap<Integer, VariableReference>();
+	Map<Integer, Integer> return_values = new HashMap<Integer, Integer>();
 	Map<Integer, List<Object>> inspector_results = new HashMap<Integer, List<Object>>();
 
 	public Map<Integer, Map<Inspector, Object>> calleeMap = new HashMap<Integer, Map<Inspector, Object>>();
@@ -59,7 +59,7 @@ public class InspectorTrace extends OutputTrace {
 		for (Entry<Integer, List<Object>> e : set1)
 			trace.inspector_results.put(e.getKey(), new ArrayList<Object>(e.getValue()));
 
-		for (Entry<Integer, VariableReference> e : return_values.entrySet())
+		for (Entry<Integer, Integer> e : return_values.entrySet())
 			trace.return_values.put(e.getKey(), e.getValue());
 		trace.calleeMap.putAll(calleeMap);
 
@@ -111,10 +111,12 @@ public class InspectorTrace extends OutputTrace {
 				for (int i = 0; i < other_results.size() && i < own_results.size(); i++) {
 					if ((own_results.get(i) == null && other_results.get(i) != null)
 					        || (own_results.get(i) != null && !own_results.get(i).equals(other_results.get(i)))) {
-						logger.debug("Found inspector assertion: ");
+						logger.debug("Found inspector assertion: " + own_results.get(i)
+						        + " vs " + other_results.get(i));
 
 						InspectorAssertion assertion = new InspectorAssertion();
-						assertion.source = return_values.get(line);
+						assertion.source = test.getReturnValue(return_values.get(line));
+						assertion.inspectorSource = test.getReturnValue(return_values.get(line));
 						List<Inspector> inspectors = manager.getInspectors(assertion.source.getVariableClass());
 						//logger.info("Creating inspector assertion for class "+assertion.source.getVariableClass());
 						assertion.inspector = inspectors.get(i);
@@ -142,11 +144,16 @@ public class InspectorTrace extends OutputTrace {
 				for (Entry<Inspector, Object> value : own_values.entrySet()) {
 					if (other_values.containsKey(value.getKey())) {
 
-						if ((value.getValue() == null && other_values.get(value.getKey()) != null)
-						        || (value.getValue() != null && !value.getValue().equals(other_values.get(value.getKey())))) {
+						if (other_values.get(value.getKey()) != null
+						        && value.getValue() != null
+						        && !value.getValue().equals(other_values.get(value.getKey()))) {
+
+							//if ((value.getValue() == null && other_values.get(value.getKey()) != null)
+							//        || (value.getValue() != null && !value.getValue().equals(other_values.get(value.getKey())))) {
 
 							InspectorAssertion assertion = new InspectorAssertion();
-							assertion.source = callee;
+							assertion.source = test.getStatement(line).getReturnValue();
+							assertion.inspectorSource = callee;
 							assertion.inspector = value.getKey();
 							assertion.result = value.getValue();
 							test.getStatement(line).addAssertion(assertion);
@@ -235,7 +242,8 @@ public class InspectorTrace extends OutputTrace {
 				List<Object> own_results = inspector_results.get(line);
 				for (int i = 0; i < own_results.size(); i++) {
 					InspectorAssertion assertion = new InspectorAssertion();
-					assertion.source = return_values.get(line);
+					assertion.source = test.getReturnValue(return_values.get(line));
+					assertion.inspectorSource = test.getReturnValue(return_values.get(line));
 					List<Inspector> inspectors = manager.getInspectors(assertion.source.getVariableClass());
 					//logger.info("Creating inspector assertion for class "+assertion.source.getVariableClass());
 					assertion.inspector = inspectors.get(i);
@@ -250,6 +258,7 @@ public class InspectorTrace extends OutputTrace {
 				VariableReference callee = ms.getCallee();
 				for (Entry<Inspector, Object> value : values.entrySet()) {
 					InspectorAssertion assertion = new InspectorAssertion();
+					assertion.inspectorSource = callee;
 					assertion.source = callee;
 					assertion.inspector = value.getKey();
 					assertion.result = value.getValue();

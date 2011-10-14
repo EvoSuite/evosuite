@@ -18,6 +18,9 @@
 
 package de.unisb.cs.st.evosuite.coverage.branch;
 
+import java.io.Serializable;
+
+import de.unisb.cs.st.evosuite.cfg.ControlDependency;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -30,8 +33,9 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
  * @author Gordon Fraser, Andre Mis
  * 
  */
-public class BranchCoverageGoal extends TestCoverageGoal {
+public class BranchCoverageGoal extends TestCoverageGoal implements Serializable {
 
+	private static final long serialVersionUID = 2962922303111452419L;
 	Branch branch;
 	boolean value;
 
@@ -69,6 +73,10 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 				throw new IllegalArgumentException(
 						"expect explicitly given information about a branch to coincide with the information given by that branch");
 		}
+	}
+	
+	public BranchCoverageGoal(ControlDependency cd, String className, String methodName) {
+		this(cd.getBranch(),cd.getBranchExpressionValue(),className, methodName);
 	}
 
 	/**
@@ -111,19 +119,19 @@ public class BranchCoverageGoal extends TestCoverageGoal {
 						branch);
 	}
 
-	/**
-	 * Returns the number of branches
-	 */
-	public int getDifficulty() {
-		int r = 1;
-
-		// TODO map this to new CDG !
-
-		if (branch != null) {
-			r += branch.getInstruction().getCDGDepth();
-		}
-		return r;
-	}
+//	/**
+//	 * Returns the number of branches
+//	 */
+//	public int getDifficulty() {
+//		int r = 1;
+//
+//		// TODO map this to new CDG !
+//
+//		if (branch != null) {
+//			r += branch.getInstruction().getCDGDepth();
+//		}
+//		return r;
+//	}
 
 	/**
 	 * Determine if there is an existing test case covering this goal

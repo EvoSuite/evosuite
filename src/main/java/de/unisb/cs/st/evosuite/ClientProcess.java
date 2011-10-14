@@ -29,10 +29,11 @@ public class ClientProcess implements SearchListener {
 			System.exit(1);
 		}
 
+		TestSuiteGenerator generator = null;
 		Object population_data = util.receiveInstruction();
 		if (population_data == null) {
 			// Starting a new search
-			TestSuiteGenerator generator = new TestSuiteGenerator();
+			generator = new TestSuiteGenerator();
 			ga = generator.setup();
 			ga.addListener(this);
 			generator.generateTestSuite(ga);
@@ -40,12 +41,21 @@ public class ClientProcess implements SearchListener {
 			System.out.println("* Resuming search on new JVM");
 
 			// Resume an interrupted search
-			TestSuiteGenerator generator = new TestSuiteGenerator();
+			generator = new TestSuiteGenerator();
 			ga = (GeneticAlgorithm) population_data;
 			ga.addListener(this);
 			generator.generateTestSuite(ga);
 		}
-		util.informSearchIsFinished(null);
+		/*
+		 * TODO: RE-FACTOR: add/remove listeners on ga has no effect, as this ga reference is not used
+		 * inside generateTestSuite, and anyway listener here does not do anything (ga si always
+		 * != null)
+		 */
+		ga.removeListener(this);
+		
+		ga = generator.getEmployedGeneticAlgorithm(); 
+		
+		util.informSearchIsFinished(ga);
 	}
 
 	private boolean hasExceededResources() {
@@ -130,7 +140,14 @@ public class ClientProcess implements SearchListener {
 	}
 
 	public static void main(String[] args) {
-		ClientProcess process = new ClientProcess();
-		process.run();
+		try {
+			ClientProcess process = new ClientProcess();
+			process.run();
+		} catch (Throwable t) {
+			System.err.println("Error when generating tests for: "
+			        + Properties.TARGET_CLASS);
+			t.printStackTrace();
+			System.exit(1);
+		}
 	}
 }

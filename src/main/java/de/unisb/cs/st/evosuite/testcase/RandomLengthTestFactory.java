@@ -35,9 +35,6 @@ public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome
 
 	protected static Logger logger = LoggerFactory.getLogger(FixedLengthTestChromosomeFactory.class);
 
-	/** Factory to manipulate and generate method sequences */
-	private final DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
-
 	/**
 	 * Create a random individual
 	 * 
@@ -53,6 +50,8 @@ public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome
 		int length = Randomness.nextInt(size);
 		while (length == 0)
 			length = Randomness.nextInt(size);
+
+		DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 
 		// Then add random stuff
 		while (test.size() < length && num < Properties.MAX_ATTEMPTS) {

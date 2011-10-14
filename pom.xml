@@ -1,238 +1,209 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-    <groupId>de.unisb.cs.st</groupId>
-    <artifactId>evosuite</artifactId>
-    <name>EvoSuite</name>
-    <description>n/a</description>
-    <version>0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
-    <url>http://www.st.cs.uni-saarland.de/</url>
-    <inceptionYear>2010</inceptionYear>
-
-    <developers>
-        <developer>
-            <id>fraser</id>
-            <name>Gordon Fraser</name>
-            <email>fraser@cs.uni-saarland.de</email>
-            <url>http://www.st.cs.uni-saarland.de/~fraser/</url>
-            <organization>Software Engineering Group at Saarland University</organization>
-            <organizationUrl>http://www.st.cs.uni-saarland.de/</organizationUrl>
-            <timezone>2</timezone>
-            <roles>
-                <role>Developer</role>
-            </roles>
-        </developer>
-    </developers>
-
-
-    <scm>
-        <connection>scm:hg:https://hg.st.cs.uni-saarland.de/hg/evosuite</connection>
-        <developerConnection>scm:hg:https://fraser@https://hg.st.cs.uni-saarland.de/hg/evosuite</developerConnection>
-        <url>https://hg.st.cs.uni-saarland.de/hg/evosuite</url>
-    </scm>
-
-    <organization>
-        <name>Software Engineering Group at Saarland University</name>
-        <url>http://www.st.cs.uni-saarland.de/</url>
-    </organization>
-
-    <dependencyManagement/>
-
-    <dependencies>
-      <dependency>
-	<groupId>cvc3</groupId>
-	<artifactId>cvc3</artifactId>
-	<version>2.1.1</version>
-      </dependency>
-
-      <dependency>
-	<groupId>org.smtlib</groupId>
-	<artifactId>smtlib</artifactId>
-	<version>0.1</version>
-      </dependency>
-
-      <dependency>
-       <groupId>mockit</groupId>
-       <artifactId>jmockit</artifactId>
-       <version>0.999.10</version>
-     </dependency>
-      <dependency>
-       <groupId>org.slf4j</groupId>
-       <artifactId>slf4j-api</artifactId>
-       <version>1.6.1</version>
-      </dependency>
-      <dependency>
-       <groupId>ch.qos.logback</groupId>
-       <artifactId>logback-classic</artifactId>
-       <version>0.9.29</version>
-      </dependency>
-      <dependency>
-	<groupId>junit</groupId>
-	<artifactId>junit</artifactId>
-	<version>4.8.2</version>
-      </dependency>
-      <dependency>
-	<groupId>asm</groupId>
-	<artifactId>asm-all</artifactId>
-	<version>3.3</version>
-      </dependency>
-      <!--
-      <dependency>
-        <groupId>choco</groupId>
-        <artifactId>choco</artifactId>
-        <version>2.1.1-20101108.160635-17</version> 
-      </dependency>
-      -->
-<!--      
-      <dependency>
-        <groupId>choco</groupId>
-        <artifactId>choco-contribs</artifactId>
-        <version>2.1.1-20101108.160635-17</version> 
-      </dependency>
-      <dependency>
-        <groupId>choco</groupId>
-        <artifactId>choco-visu</artifactId>
-        <version>2.1.1-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>choco</groupId>
-        <artifactId>choco-solver</artifactId>
-        <version>2.1.1-SNAPSHOT</version>
-      </dependency>
-    -->  
-      <dependency>
-        <groupId>bcel</groupId>
-        <artifactId>bcel</artifactId>
-        <version>5.2</version>
-      </dependency>
-      <dependency>
-        <groupId>jpf</groupId>
-        <artifactId>jpf-core</artifactId>
-        <version>5.0pre2-EvoSuite-3</version>
-      </dependency>
-      <dependency>
-        <groupId>jpf</groupId>
-        <artifactId>jpf-annotations</artifactId>
-        <version>5.0pre2-EvoSuite-3</version>
-        <scope>runtime</scope>
-      </dependency>
-      <dependency>
-        <groupId>jpf</groupId>
-        <artifactId>jpf-classes</artifactId>
-        <version>5.0pre2-EvoSuite-3</version>
-        <scope>runtime</scope>
-      </dependency>
-      <dependency>
-	<groupId>com.googlecode.gentyref</groupId>
-	<artifactId>gentyref</artifactId>
-	<version>1.1.0</version>
-      </dependency>
-      <dependency>
-	<groupId>org.jgrapht</groupId>
-	<artifactId>jgrapht-jdk1.5</artifactId>
-	<version>0.7.3</version>
-      </dependency>
-      <dependency>
-	<groupId>com.panayotis</groupId>
-	<artifactId>JavaPlot</artifactId>
-	<version>0.4.0</version>
-      </dependency>
-
-      <dependency>
-	<groupId>com.thoughtworks.xstream</groupId>
-	<artifactId>xstream</artifactId>
-	<version>1.3.1</version>
-      </dependency>      
- 
-      <dependency> 
-        <groupId>commons-collections</groupId>  
-        <artifactId>commons-collections</artifactId>
-        <version>3.2.1</version>
-      </dependency> 
-      <dependency> 
-        <groupId>commons-lang</groupId>  
-        <artifactId>commons-lang</artifactId>
-        <version>2.6</version>
-      </dependency> 
-      <dependency> 
-        <groupId>commons-io</groupId>  
-        <artifactId>commons-io</artifactId>
-        <version>2.0.1</version>
-      </dependency> 
-      <dependency>
-	<groupId>commons-cli</groupId>
-	<artifactId>commons-cli</artifactId>
-	<version>1.2</version>
-      </dependency>
-<!--      
-      <dependency>
 	<groupId>de.unisb.cs.st</groupId>
-	<artifactId>adabu2-tracer</artifactId>
-	<version>0.4-modified</version>
-      </dependency>
+	<artifactId>evosuite</artifactId>
+	<name>EvoSuite</name>
+	<description>n/a</description>
+	<version>0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	<url>http://www.st.cs.uni-saarland.de/</url>
+	<inceptionYear>2010</inceptionYear>
 
-      
-      <dependency>
-	<groupId>java2html</groupId>
-	<artifactId>j2h</artifactId>
-	<version>1.3.1</version>
-      </dependency>
--->    
-       
-      <dependency>
-	<groupId>org.easymock</groupId>
-	<artifactId>easymock</artifactId>
-	<version>2.3</version>
-	<!--scope>test</scope-->
-      </dependency>
-      
-<dependency>
-  <groupId>org.eclipse.tycho</groupId>
-    <artifactId>org.eclipse.jdt.core</artifactId>
-      <version>3.6.2.v_A76_R36x</version>
-      </dependency>
-      <!--
-      		<dependency>
-			<groupId>org.eclipse.jdt</groupId>
-			<artifactId>core</artifactId>
+	<developers>
+		<developer>
+			<id>fraser</id>
+			<name>Gordon Fraser</name>
+			<email>fraser@cs.uni-saarland.de</email>
+			<url>http://www.st.cs.uni-saarland.de/~fraser/</url>
+			<organization>Software Engineering Group at Saarland University</organization>
+			<organizationUrl>http://www.st.cs.uni-saarland.de/</organizationUrl>
+			<timezone>2</timezone>
+			<roles>
+				<role>Developer</role>
+			</roles>
+		</developer>
+	</developers>
+
+
+	<scm>
+		<connection>scm:hg:https://hg.st.cs.uni-saarland.de/hg/evosuite</connection>
+		<developerConnection>scm:hg:https://fraser@https://hg.st.cs.uni-saarland.de/hg/evosuite</developerConnection>
+		<url>https://hg.st.cs.uni-saarland.de/hg/evosuite</url>
+	</scm>
+
+	<organization>
+		<name>Software Engineering Group at Saarland University</name>
+		<url>http://www.st.cs.uni-saarland.de/</url>
+	</organization>
+
+	<dependencyManagement />
+
+	<dependencies>
+		<dependency>
+			<groupId>cvc3</groupId>
+			<artifactId>cvc3</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.smtlib</groupId>
+			<artifactId>smtlib</artifactId>
+			<version>0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>mockit</groupId>
+			<artifactId>jmockit</artifactId>
+			<version>0.999.10</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>0.9.29</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+		</dependency>
+		<dependency>
+			<groupId>asm</groupId>
+			<artifactId>asm-all</artifactId>
+			<version>3.3</version>
+		</dependency>
+		<!-- <dependency> <groupId>choco</groupId> <artifactId>choco</artifactId> 
+			<version>2.1.1-20101108.160635-17</version> </dependency> -->
+		<!-- <dependency> <groupId>choco</groupId> <artifactId>choco-contribs</artifactId> 
+			<version>2.1.1-20101108.160635-17</version> </dependency> <dependency> <groupId>choco</groupId> 
+			<artifactId>choco-visu</artifactId> <version>2.1.1-SNAPSHOT</version> </dependency> 
+			<dependency> <groupId>choco</groupId> <artifactId>choco-solver</artifactId> 
+			<version>2.1.1-SNAPSHOT</version> </dependency> -->
+		<dependency>
+			<groupId>bcel</groupId>
+			<artifactId>bcel</artifactId>
+			<version>5.2</version>
+		</dependency>
+		<dependency>
+			<groupId>jpf</groupId>
+			<artifactId>jpf-core</artifactId>
+			<version>5.0pre2-EvoSuite-3</version>
+		</dependency>
+		<dependency>
+			<groupId>jpf</groupId>
+			<artifactId>jpf-annotations</artifactId>
+			<version>5.0pre2-EvoSuite-3</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>jpf</groupId>
+			<artifactId>jpf-classes</artifactId>
+			<version>5.0pre2-EvoSuite-3</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.gentyref</groupId>
+			<artifactId>gentyref</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jgrapht</groupId>
+			<artifactId>jgrapht-jdk1.5</artifactId>
+			<version>0.7.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.panayotis</groupId>
+			<artifactId>JavaPlot</artifactId>
+			<version>0.4.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.thoughtworks.xstream</groupId>
+			<artifactId>xstream</artifactId>
+			<version>1.3.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-cli</groupId>
+			<artifactId>commons-cli</artifactId>
+			<version>1.2</version>
+		</dependency>
+		<!-- <dependency> <groupId>de.unisb.cs.st</groupId> <artifactId>adabu2-tracer</artifactId> 
+			<version>0.4-modified</version> </dependency> <dependency> <groupId>java2html</groupId> 
+			<artifactId>j2h</artifactId> <version>1.3.1</version> </dependency> -->
+
+		<dependency>
+			<groupId>org.easymock</groupId>
+			<artifactId>easymock</artifactId>
+			<version>2.3</version>
+			<!--scope>test</scope -->
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>org.eclipse.jdt.core</artifactId>
 			<version>3.6.2.v_A76_R36x</version>
 		</dependency>
-		-->
-		
 		<dependency>
-			<groupId>org.eclipse.jdt</groupId>
-			<artifactId>ui</artifactId>
-			<version>3.6.0</version>
-      </dependency>
+			<groupId>org.eclipse.equinox</groupId>
+			<artifactId>org.eclipse.equinox.common</artifactId>
+			<version>3.6.0.v20100503</version>
+		</dependency>
+		<!-- <dependency> <groupId>org.eclipse.jdt</groupId> <artifactId>core</artifactId> 
+			<version>3.6.2.v_A76_R36x</version> </dependency> -->
 
-      <dependency>
-      	<groupId>org.kohsuke</groupId>
-      	<artifactId>graphviz-api</artifactId>
-      	<version>1.0</version>
-      </dependency>
-      <dependency>
-      	<groupId>jexcelapi</groupId>
-      	<artifactId>jxl</artifactId>
-      	<version>2.6</version>
-      </dependency>
-      <dependency>
-      	<groupId>org.uispec4j</groupId>
-      	<artifactId>uispec4j</artifactId>
-      	<version>2.4</version>
-      	<type>jar</type>
-      	<scope>compile</scope>
-      </dependency>
-      <dependency>
-      	<groupId>com.google.code.javaparser</groupId>
-      	<artifactId>javaparser</artifactId>
-      	<version>1.0.1</version>
-      	<type>jar</type>
-      	<scope>compile</scope>
-      </dependency>
-    </dependencies>
-    <repositories>
+		<!--dependency> <groupId>org.eclipse.jdt</groupId> <artifactId>ui</artifactId> 
+			<version>3.6.0</version> </dependency -->
+
+		<dependency>
+			<groupId>org.kohsuke</groupId>
+			<artifactId>graphviz-api</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.uispec4j</groupId>
+			<artifactId>uispec4j</artifactId>
+			<version>2.4</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.javaparser</groupId>
+			<artifactId>javaparser</artifactId>
+			<version>1.0.1</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+                <dependency>
+                        <groupId>jsyntaxpane</groupId>
+                        <artifactId>jsyntaxpane</artifactId>
+                        <version>0.9.5-b29</version>
+                        <classifier>jar</classifier>
+                </dependency>
+	</dependencies>
+	<repositories>
 
 		<repository>
 			<id>javaparser</id>
@@ -242,42 +213,32 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
-    
-	<repository>
-	   <id>jmockit-svn</id>
-	   <url>http://jmockit.googlecode.com/svn/maven-repo</url>
-	   <releases><checksumPolicy>ignore</checksumPolicy></releases>
-	</repository>
-      <repository>
-	<releases>
-	  <enabled>true</enabled>
-	  <checksumPolicy>warn</checksumPolicy>
-	</releases>
-	<snapshots>
-	  <enabled>true</enabled>
-	  <updatePolicy>never</updatePolicy>
-	  <checksumPolicy>fail</checksumPolicy>
-	</snapshots>
-	<id>titaniaPublic</id>
-	<name>Titania Public Repositories</name>
-	<url>http://titania.fs.uni-saarland.de/nexus/content/groups/public/</url>
-	<layout>default</layout>
-      </repository>
-      <!--
-      <repository>
-        <id>choco.repo</id>
-        <url>http://www.emn.fr/z-info/choco-solver/mvn/repository/</url>
-      </repository>
-      -->
-    </repositories>
 
-    <pluginRepositories>
-        <pluginRepository>
-           <id>codehaus-m2-repository</id>
-           <name>Codehaus Maven 2.x Repository</name>
-           <url>http://repository.codehaus.org</url>
-       </pluginRepository>
-    </pluginRepositories>
+		<repository>
+			<id>jmockit-svn</id>
+			<url>http://jmockit.googlecode.com/svn/maven-repo</url>
+			<releases>
+				<checksumPolicy>ignore</checksumPolicy>
+			</releases>
+		</repository>
+		<repository>
+			<releases>
+				<enabled>true</enabled>
+				<checksumPolicy>warn</checksumPolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</snapshots>
+			<id>titaniaPublic</id>
+			<name>Titania Public Repositories</name>
+			<url>http://titania.fs.uni-saarland.de/nexus/content/groups/public/</url>
+			<layout>default</layout>
+		</repository>
+		<!-- <repository> <id>choco.repo</id> <url>http://www.emn.fr/z-info/choco-solver/mvn/repository/</url> 
+			</repository> -->
+	</repositories>
 
     <build>
         <plugins>
@@ -339,6 +300,7 @@
 		  <descriptors>
 <!--		    <descriptor>src/main/assembly/dependencies.xml</descriptor> -->
 		    <descriptor>src/main/assembly/jar.xml</descriptor> 
+		    <descriptor>src/main/assembly/jar-minimal.xml</descriptor>
 		    <descriptor>src/main/assembly/bin.xml</descriptor>
 		  </descriptors>
 		</configuration>
@@ -425,30 +387,30 @@
                 						<groupId>
                 							org.apache.maven.plugins
                 						</groupId>
-                						<artifactId>
-                							maven-dependency-plugin
+										<artifactId>
+											maven-dependency-plugin
                 						</artifactId>
-                						<versionRange>
-                							[2.1,)
+										<versionRange>
+											[2.1,)
                 						</versionRange>
-                						<goals>
-                							<goal>copy</goal>
-                						</goals>
-                					</pluginExecutionFilter>
-                					<action>
-                						<execute></execute>
-                					</action>
-                				</pluginExecution>
-                			</pluginExecutions>
-                		</lifecycleMappingMetadata>
-                	</configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
+										<goals>
+											<goal>copy</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute></execute>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 
-    <!-- See: http://wiki.st.cs.uni-sb.de/wiki/Maven_Archiva -->
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+	<!-- See: http://wiki.st.cs.uni-sb.de/wiki/Maven_Archiva -->
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 </project>
