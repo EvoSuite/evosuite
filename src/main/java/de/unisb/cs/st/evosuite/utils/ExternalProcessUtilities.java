@@ -29,7 +29,7 @@ public class ExternalProcessUtilities {
 
 		try {
 			connection = new Socket("127.0.0.1", port);
-			out = new DebuggingObjectOutputStream(connection.getOutputStream());
+			out = new ObjectOutputStream(connection.getOutputStream());
 			in = new ObjectInputStream(connection.getInputStream());
 		} catch (Exception e) {
 			logger.error("not possible to connect to main process", e);
