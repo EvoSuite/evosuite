@@ -20,7 +20,6 @@ package de.unisb.cs.st.evosuite.coverage.branch;
 
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
-import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
@@ -49,6 +48,10 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 
 	public Branch getBranch() {
 		return goal.branch;
+	}
+
+	public boolean getBranchExpressionValue() {
+		return goal.value;
 	}
 
 	public double getUnfitness(ExecutableChromosome individual, ExecutionResult result) {
@@ -108,10 +111,10 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	public boolean isSimilarTo(TestFitnessFunction other) {
 		if (other instanceof DefUseCoverageTestFitness) {
 			DefUseCoverageTestFitness duFitness = (DefUseCoverageTestFitness) other;
-			if (duFitness.getGoalDefinitionBranchFitness() != null
-			        && isSimilarTo(duFitness.getGoalDefinitionBranchFitness()))
+			if (duFitness.getGoalDefinitionFitness() != null
+			        && isSimilarTo(duFitness.getGoalDefinitionFitness()))
 				return true;
-			return isSimilarTo(duFitness.getGoalUseBranchFitness());
+			return isSimilarTo(duFitness.getGoalUseFitness());
 		}
 		try {
 			BranchCoverageTestFitness otherFitness = (BranchCoverageTestFitness) other;
@@ -121,21 +124,13 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		}
 	}
 
-	@Override
-	public int getDifficulty() {
-		if (goal == null)
-			return 1;
-		else
-			return goal.getDifficulty();
-	}
-
-	/**
-	 * Store information
-	 */
-	@Override
-	protected void updateIndividual(Chromosome individual, double fitness) {
-		individual.setFitness(fitness);
-	}
+	//	@Override
+	//	public int getDifficulty() {
+	//		if (goal == null)
+	//			return 1;
+	//		else
+	//			return goal.getDifficulty();
+	//	}
 
 	@Override
 	public String toString() {

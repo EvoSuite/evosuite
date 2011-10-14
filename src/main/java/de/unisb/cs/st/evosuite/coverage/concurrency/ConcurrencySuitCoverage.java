@@ -38,7 +38,6 @@ import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 
@@ -51,7 +50,8 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 
 	public final int branchless_methods = BranchPool.getBranchlessMethods().size();
 
-	public final int total_methods = TestCluster.getInstance().num_defined_methods;
+	//	public final int total_methods = TestCluster.getInstance().num_defined_methods;
+	public final int total_methods = CFGMethodAdapter.methods.size();
 
 	public int covered_branches = 0;
 

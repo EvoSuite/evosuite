@@ -10,8 +10,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
@@ -64,11 +68,74 @@ public class ReplaceComparisonOperator implements MutationOperator {
 			                                                   "ReplaceComparisonOperator",
 			                                                   instruction,
 			                                                   mutation,
-			                                                   Mutation.getDefaultInfectionDistance());
+			                                                   getInfectionDistance(node.getOpcode(),
+			                                                                        op));
 			mutations.add(mutationObject);
 		}
 
 		return mutations;
+	}
+
+	public InsnList getInfectionDistance(int opcodeOrig, int opcodeNew) {
+		InsnList distance = new InsnList();
+		switch (opcodeOrig) {
+		case Opcodes.IF_ICMPEQ:
+		case Opcodes.IF_ICMPNE:
+		case Opcodes.IF_ICMPLE:
+		case Opcodes.IF_ICMPLT:
+		case Opcodes.IF_ICMPGE:
+		case Opcodes.IF_ICMPGT:
+			distance.add(new InsnNode(Opcodes.DUP2));
+			distance.add(new LdcInsnNode(opcodeOrig));
+			distance.add(new LdcInsnNode(opcodeNew));
+			distance.add(new MethodInsnNode(
+			        Opcodes.INVOKESTATIC,
+			        "de/unisb/cs/st/evosuite/cfg/instrumentation/mutation/ReplaceComparisonOperator",
+			        "getInfectionDistance", "(IIII)D"));
+			break;
+
+		case Opcodes.IFEQ:
+		case Opcodes.IFNE:
+		case Opcodes.IFLE:
+		case Opcodes.IFLT:
+		case Opcodes.IFGE:
+		case Opcodes.IFGT:
+			distance.add(new InsnNode(Opcodes.DUP));
+			distance.add(new LdcInsnNode(opcodeOrig));
+			distance.add(new LdcInsnNode(opcodeNew));
+			distance.add(new MethodInsnNode(
+			        Opcodes.INVOKESTATIC,
+			        "de/unisb/cs/st/evosuite/cfg/instrumentation/mutation/ReplaceComparisonOperator",
+			        "getInfectionDistance", "(III)D"));
+			break;
+
+		default:
+			distance.add(new LdcInsnNode(0.0));
+		}
+
+		return distance;
+	}
+
+	public static double getInfectionDistance(int left, int right, int opcodeOrig,
+	        int opcodeNew) {
+		if ((opcodeOrig == Opcodes.IF_ICMPLT && opcodeNew == Opcodes.IF_ICMPLE)
+		        || (opcodeOrig == Opcodes.IF_ICMPLE && opcodeNew == Opcodes.IF_ICMPLT)
+		        || (opcodeOrig == Opcodes.IF_ICMPGT && opcodeNew == Opcodes.IF_ICMPGE)
+		        || (opcodeOrig == Opcodes.IF_ICMPGE && opcodeNew == Opcodes.IF_ICMPGT)) {
+
+			return Math.abs(left - right);
+		}
+		return 0.0;
+	}
+
+	public static double getInfectionDistance(int val, int opcodeOrig, int opcodeNew) {
+		if ((opcodeOrig == Opcodes.IFLE && opcodeNew == Opcodes.IFLT)
+		        || (opcodeOrig == Opcodes.IFLT && opcodeNew == Opcodes.IFLE)
+		        || (opcodeOrig == Opcodes.IFGT && opcodeNew == Opcodes.IFGE)
+		        || (opcodeOrig == Opcodes.IFGE && opcodeNew == Opcodes.IFGT)) {
+			return Math.abs(val);
+		}
+		return 0.0;
 	}
 
 	private Set<Integer> getOperators(int opcode) {

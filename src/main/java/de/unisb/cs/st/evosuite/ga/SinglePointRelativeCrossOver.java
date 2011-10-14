@@ -40,19 +40,20 @@ public class SinglePointRelativeCrossOver extends CrossOverFunction {
 	public void crossOver(Chromosome parent1, Chromosome parent2)
 	        throws ConstructionFailedException {
 
-		if (parent1.size() <= 2 || parent2.size() <= 2) {
+		if (parent1.size() < 2 || parent2.size() < 2) {
 			return;
 		}
-		// Choose a position in the middle
-		float split_point = Randomness.nextFloat();
 
 		Chromosome t1 = parent1.clone();
 		Chromosome t2 = parent2.clone();
+		// Choose a position in the middle
+		float split_point = Randomness.nextFloat();
 
-		parent1.crossOver(t2, Math.round(t1.size() * split_point),
-		                  Math.round(t2.size() * split_point));
-		parent2.crossOver(t1, Math.round(t2.size() * split_point),
-		                  Math.round(t1.size() * split_point));
+		int pos1 = ((int)Math.floor((t1.size()-1) * split_point)) + 1;
+		int pos2 = ((int)Math.floor((t2.size()-1) * split_point)) + 1;
+		
+		parent1.crossOver(t2, pos1,pos2);
+		parent2.crossOver(t1, pos2,pos1);
 	}
 
 }

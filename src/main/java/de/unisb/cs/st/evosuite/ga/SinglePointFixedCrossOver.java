@@ -38,7 +38,11 @@ public class SinglePointFixedCrossOver extends CrossOverFunction {
 	public void crossOver(Chromosome parent1, Chromosome parent2)
 	        throws ConstructionFailedException {
 
-		int point = Randomness.nextInt(Math.min(parent1.size(), parent2.size()));
+		if (parent1.size() < 2 || parent2.size() < 2) {
+			return;
+		}
+
+		int point = Randomness.nextInt(Math.min(parent1.size(), parent2.size()) - 1) + 1;
 
 		Chromosome t1 = parent1.clone();
 		Chromosome t2 = parent2.clone();

@@ -3,6 +3,7 @@
  */
 package de.unisb.cs.st.evosuite.testcase;
 
+import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.unisb.cs.st.evosuite.utils.Randomness;
@@ -17,17 +18,38 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 
 	private final T[] constants;
 
+	private final Class<T> enumClass;
+
 	@SuppressWarnings("unchecked")
 	public EnumPrimitiveStatement(TestCase tc, Class<T> clazz) {
-		super(tc, clazz, clazz.getEnumConstants()[0]);
-		constants = (T[]) value.getClass().getEnumConstants();
+		super(tc, clazz, null);
+		enumClass = clazz;
+		if (clazz.getEnumConstants().length > 0) {
+			this.value = clazz.getEnumConstants()[0];
+			constants = clazz.getEnumConstants();
+
+		} else {
+			// Coping with empty enms is a bit of a mess
+			constants = (T[]) new Enum[0];
+		}
 	}
 
 	@SuppressWarnings("unchecked")
 	public EnumPrimitiveStatement(TestCase tc, T value) {
 		super(tc, value.getClass(), value);
-		constants = (T[]) value.getClass().getEnumConstants();
-		assert (constants.length > 0);
+		enumClass = (Class<T>) getEnumClass(value.getClass());
+		constants = (T[]) getEnumClass(value.getClass()).getEnumConstants();
+	}
+
+	private static Class<?> getEnumClass(Class<?> clazz) {
+		if (clazz.isEnum())
+			return clazz;
+		else if (clazz.getEnclosingClass() != null && clazz.getEnclosingClass().isEnum())
+			return clazz.getEnclosingClass();
+		else if (clazz.getDeclaringClass() != null && clazz.getDeclaringClass().isEnum())
+			return clazz.getDeclaringClass();
+		else
+			throw new RuntimeException("Cannot find enum class: " + clazz);
 	}
 
 	/* (non-Javadoc)
@@ -35,6 +57,9 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	 */
 	@Override
 	public void delta() {
+		if (constants.length == 0)
+			return;
+
 		int pos = 0;
 		for (pos = 0; pos < constants.length; pos++) {
 			if (constants[pos].equals(value)) {
@@ -60,6 +85,9 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	 */
 	@Override
 	public void zero() {
+		if (constants.length == 0)
+			return;
+
 		value = constants[0];
 	}
 
@@ -68,8 +96,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	 */
 	@Override
 	protected void pushBytecode(GeneratorAdapter mg) {
-		// TODO Auto-generated method stub
-
+		mg.getStatic(Type.getType(enumClass), value.name(), Type.getType(enumClass));
 	}
 
 	/* (non-Javadoc)
@@ -77,8 +104,10 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	 */
 	@Override
 	public void randomize() {
-		int pos = Randomness.nextInt(constants.length);
-		value = constants[pos];
+		if (constants.length > 1) {
+			int pos = Randomness.nextInt(constants.length);
+			value = constants[pos];
+		}
 	}
 
 	/* (non-Javadoc)
@@ -86,7 +115,11 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	 */
 	@Override
 	public String getCode(Throwable exception) {
-		return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
-		        + " = " + value.getClass().getSimpleName() + "." + value + ";";
+		if (value != null)
+			return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
+			        + " = " + value.getClass().getSimpleName() + "." + value + ";";
+		else
+			return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
+			        + " = (" + ((Class<?>) retval.getType()).getSimpleName() + ") null;";
 	}
 }

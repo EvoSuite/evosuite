@@ -18,7 +18,10 @@
 
 package de.unisb.cs.st.evosuite.sandbox;
 
+import java.util.ArrayList;
+
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
  * Class which controls enabling and disabling sandbox.
@@ -42,6 +45,13 @@ public class Sandbox {
 
 	/** If mocks should be created. */
 	private static final boolean mocksActive = Properties.MOCKS;
+
+	/** Array of files accessed during test generation */
+	private static ArrayList<EvosuiteFile> accessedFiles = new ArrayList<EvosuiteFile>();
+
+	public static EvosuiteFile lastAccessedFile = null;;
+
+	private static PermissionStatistics statistics = PermissionStatistics.getInstance();
 
 	/**
 	 * Set up mocked security manager if sandbox property is true.
@@ -71,6 +81,13 @@ public class Sandbox {
 	 */
 	public static void tearDownMocks() {
 		mocks.tearDownMocks();
+		for (String s : statistics.getRecentFileReadPermissions()) {
+			EvosuiteFile a = new EvosuiteFile(s, "default content");
+			accessedFiles.add(a);
+			lastAccessedFile = a;
+		}
+
+		statistics.resetRecentStatistic();
 	}
 
 	/**
@@ -81,14 +98,30 @@ public class Sandbox {
 		tearDownMockedSecurityManager();
 		tearDownMocks();
 	}
-	
+
 	/**
-	 * Checks if class is currently replaced by its mock.  
+	 * Checks if class is currently replaced by its mock.
 	 * 
-	 * @param clazz class to check
+	 * @param clazz
+	 *            class to check
 	 * @return true if class is mocked, false otherwise
 	 */
-	public static boolean isClassMocked(Class<?> clazz){
+	public static boolean isClassMocked(Class<?> clazz) {
 		return mocks.getClassesMocked().contains(clazz);
+	}
+
+	public static boolean canUseFileContentGeneration() {
+		if (mocksActive && sandboxActive)
+			return !accessedFiles.isEmpty();
+		return false;
+	}
+
+	public static void generateFileContent(EvosuiteFile file, String content) {
+		if (file == null)
+			return;
+		if (content == null)
+			Utils.writeFile(file.getContent(), file.getFileName());
+		else
+			Utils.writeFile(content, file.getFileName());
 	}
 }

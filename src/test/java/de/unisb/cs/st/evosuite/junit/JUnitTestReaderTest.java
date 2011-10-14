@@ -2,6 +2,7 @@ package de.unisb.cs.st.evosuite.junit;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.unisb.cs.st.evosuite.testcase.TestCase;
@@ -10,6 +11,7 @@ public class JUnitTestReaderTest {
 
 	private static final String SRCDIR = "src/test/java/";
 
+	@Ignore
 	@Test
 	public void testReadComplexJUnitTestCase01() {
 		JUnitTestReader reader = new ComplexJUnitTestReader(null, new String[] { SRCDIR });
@@ -23,6 +25,7 @@ public class JUnitTestReaderTest {
 		Assert.assertEquals(result, code);
 	}
 
+	@Ignore
 	@Test
 	public void testReadComplexJUnitTestCase02() {
 		JUnitTestReader reader = new ComplexJUnitTestReader(null, new String[] { SRCDIR });
@@ -36,6 +39,7 @@ public class JUnitTestReaderTest {
 		Assert.assertEquals(result, code);
 	}
 
+	@Ignore
 	@Test
 	public void testReadComplexJUnitTestCase03() {
 		JUnitTestReader reader = new ComplexJUnitTestReader(null, new String[] { SRCDIR });

@@ -58,7 +58,7 @@ public abstract class ASMWrapper {
 	public String getInstructionType() {
 
 		if (asmNode.getOpcode() >= 0
-		        && asmNode.getOpcode() < AbstractVisitor.OPCODES.length)
+				&& asmNode.getOpcode() < AbstractVisitor.OPCODES.length)
 			return AbstractVisitor.OPCODES[asmNode.getOpcode()];
 
 		if (isLineNumber())
@@ -70,7 +70,8 @@ public abstract class ASMWrapper {
 	public String getType() {
 		// TODO explain
 		String type = "";
-		if (asmNode.getType() >= 0 && asmNode.getType() < AbstractVisitor.TYPES.length)
+		if (asmNode.getType() >= 0
+				&& asmNode.getType() < AbstractVisitor.TYPES.length)
 			type = AbstractVisitor.TYPES[asmNode.getType()];
 
 		return type;
@@ -130,7 +131,7 @@ public abstract class ASMWrapper {
 
 	public boolean isBranchLabel() {
 		if (asmNode instanceof LabelNode
-		        && ((LabelNode) asmNode).getLabel().info instanceof Integer) {
+				&& ((LabelNode) asmNode).getLabel().info instanceof Integer) {
 			return true;
 		}
 		return false;
@@ -156,10 +157,10 @@ public abstract class ASMWrapper {
 		return forcedBranch;
 	}
 
-	//	public int getBranchId() {
-	//		// return ((Integer)((LabelNode)node).getLabel().info).intValue();
-	//		return line_no;
-	//	}
+	// public int getBranchId() {
+	// // return ((Integer)((LabelNode)node).getLabel().info).intValue();
+	// return line_no;
+	// }
 
 	public boolean isIfNull() {
 		if (asmNode instanceof JumpInsnNode) {
@@ -205,16 +206,25 @@ public abstract class ASMWrapper {
 		}
 	}
 
-	/**
-	 * 
-	 * @param methodName
-	 * @return
-	 */
-	public boolean isMethodCall(String methodName) {
+//	/**
+//	 * 
+//	 * @param methodName
+//	 * @return
+//	 */
+//	public boolean isMethodCall(String methodName) {
+//		if (asmNode instanceof MethodInsnNode) {
+//			MethodInsnNode mn = (MethodInsnNode) asmNode;
+//			// this is unsafe methods should be identified by a signature
+//			// not by a name
+//			return mn.name.equals(methodName);
+//		}
+//		return false;
+//	}
+	
+	public boolean isMethodCallForClass(String className) {
 		if (asmNode instanceof MethodInsnNode) {
 			MethodInsnNode mn = (MethodInsnNode) asmNode;
-			//#TODO this is unsafe methods should be identified by a signature not by a name
-			return mn.name.equals(methodName);
+			return mn.owner.equals(className.replaceAll("\\.", "/"));
 		}
 		return false;
 	}
@@ -243,17 +253,17 @@ public abstract class ASMWrapper {
 
 	public boolean isFieldDefinition() {
 		return asmNode.getOpcode() == Opcodes.PUTFIELD
-		        || asmNode.getOpcode() == Opcodes.PUTSTATIC;
+				|| asmNode.getOpcode() == Opcodes.PUTSTATIC;
 	}
 
 	public boolean isFieldUse() {
 		return asmNode.getOpcode() == Opcodes.GETFIELD
-		        || asmNode.getOpcode() == Opcodes.GETSTATIC;
+				|| asmNode.getOpcode() == Opcodes.GETSTATIC;
 	}
 
 	public boolean isStaticDefUse() {
 		return asmNode.getOpcode() == Opcodes.PUTSTATIC
-		        || asmNode.getOpcode() == Opcodes.GETSTATIC;
+				|| asmNode.getOpcode() == Opcodes.GETSTATIC;
 	}
 
 	// retrieving information about variable names from ASM
@@ -266,7 +276,9 @@ public abstract class ASMWrapper {
 	}
 
 	protected String getFieldName() {
-		return ((FieldInsnNode) asmNode).name;
+		FieldInsnNode fieldNode = (FieldInsnNode) asmNode;
+		return fieldNode.owner+"."+fieldNode.name;
+//		return fieldNode.name;
 	}
 
 	protected String getLocalVarName() {
@@ -285,20 +297,67 @@ public abstract class ASMWrapper {
 
 	public boolean isLocalVarDefinition() {
 		return asmNode.getOpcode() == Opcodes.ISTORE
-		        || asmNode.getOpcode() == Opcodes.LSTORE
-		        || asmNode.getOpcode() == Opcodes.FSTORE
-		        || asmNode.getOpcode() == Opcodes.DSTORE
-		        || asmNode.getOpcode() == Opcodes.ASTORE
-		        || asmNode.getOpcode() == Opcodes.IINC;
+				|| asmNode.getOpcode() == Opcodes.LSTORE
+				|| asmNode.getOpcode() == Opcodes.FSTORE
+				|| asmNode.getOpcode() == Opcodes.DSTORE
+				|| asmNode.getOpcode() == Opcodes.ASTORE
+				|| asmNode.getOpcode() == Opcodes.IINC;
 	}
 
 	public boolean isLocalVarUse() {
 		return asmNode.getOpcode() == Opcodes.ILOAD
-		        || asmNode.getOpcode() == Opcodes.LLOAD
-		        || asmNode.getOpcode() == Opcodes.FLOAD
-		        || asmNode.getOpcode() == Opcodes.DLOAD
-		        || asmNode.getOpcode() == Opcodes.IINC
-		        || (asmNode.getOpcode() == Opcodes.ALOAD && getLocalVar() != 0); // exclude ALOAD 0 (this)
+				|| asmNode.getOpcode() == Opcodes.LLOAD
+				|| asmNode.getOpcode() == Opcodes.FLOAD
+				|| asmNode.getOpcode() == Opcodes.DLOAD
+				|| asmNode.getOpcode() == Opcodes.IINC
+				|| (asmNode.getOpcode() == Opcodes.ALOAD && getLocalVar() != 0); // exclude
+		// ALOAD_0
+		// (this)
+	}
+	
+	public boolean isDefinitionForVariable(String var) {
+		return (isDefinition() && getDUVariableName().equals(var));
+	}
+
+	public boolean isInvokeSpecial() {
+		return asmNode.getOpcode() == Opcodes.INVOKESPECIAL;
+	}
+
+	/**
+	 * Checks whether this instruction is an INVOKESPECIAL instruction that
+	 * calls a constructor.
+	 */
+	public boolean isConstructorInvocation() {
+		if (!isInvokeSpecial())
+			return false;
+
+		MethodInsnNode invoke = (MethodInsnNode) asmNode;
+//		if (!invoke.owner.equals(className.replaceAll("\\.", "/")))
+//			return false;
+		
+		return invoke.name.equals("<init>");
+	}
+	
+	/**
+	 * Checks whether this instruction is an INVOKESPECIAL instruction that
+	 * calls a constructor of the given class.
+	 */
+	public boolean isConstructorInvocation(String className) {
+		if (!isInvokeSpecial())
+			return false;
+
+		MethodInsnNode invoke = (MethodInsnNode) asmNode;
+		if (!invoke.owner.equals(className.replaceAll("\\.", "/")))
+			return false;
+		
+		return invoke.name.equals("<init>");
+	}
+	
+	public String getCalledMethod() {
+		if(!isMethodCall())
+			return null;
+		MethodInsnNode meth = (MethodInsnNode)asmNode;
+		return meth.name+meth.desc;
 	}
 
 	// other classification methods
@@ -330,7 +389,8 @@ public abstract class ASMWrapper {
 		if (node == null)
 			throw new IllegalArgumentException("null given");
 		if (!node.equals(this.asmNode))
-			throw new IllegalStateException("sanity check failed");
+			throw new IllegalStateException("sanity check failed for "
+					+ node.toString() + " on " + getMethodName() + toString());
 	}
 
 	// inherited from Object

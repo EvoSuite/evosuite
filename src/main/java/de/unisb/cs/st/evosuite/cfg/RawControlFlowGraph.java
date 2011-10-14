@@ -33,7 +33,8 @@ import de.unisb.cs.st.evosuite.coverage.dataflow.Use;
  */
 public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 
-	private static Logger logger = LoggerFactory.getLogger(RawControlFlowGraph.class);
+	private static Logger logger = LoggerFactory
+			.getLogger(RawControlFlowGraph.class);
 
 	public RawControlFlowGraph(String className, String methodName) {
 		super(className, methodName);
@@ -57,103 +58,121 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		return null;
 	}
 
-	@Override
-	public BytecodeInstruction getBranch(int branchId) {
-		for (BytecodeInstruction v : vertexSet()) {
-			if (v.isBranch() && v.getControlDependentBranchId() == branchId) {
-				return v;
-			}
-		}
-		return null;
-	}
+	// @Override
+	// public BytecodeInstruction getBranch(int branchId) {
+	// for (BytecodeInstruction v : vertexSet()) {
+	// if (v.isBranch() && v.getControlDependentBranchId() == branchId) {
+	// return v;
+	// }
+	// }
+	// return null;
+	// }
 
 	protected ControlFlowEdge addEdge(BytecodeInstruction src,
 			BytecodeInstruction target, boolean isExceptionEdge) {
 
-		// TODO clean up!
-		
-		ControlFlowEdge e = new ControlFlowEdge(isExceptionEdge);
-		if (src.isBranch()) { // TODO handle switches?
-			e.setBranchInstruction(src);
-			// TODO unsafe, make better!
-			e.setBranchExpressionValue(!isNonJumpingEdge(src, target));
-			
-			return internalAddEdge(src,target,e);
-		} else if (src.isSwitch()) {
-			
-			if (!target.isLabel())
-				throw new IllegalStateException(
-						"expect control flow edges from switch statements to always target labelNodes");
+		if (src.isBranch())
+			return addBranchEdge(src, target, isExceptionEdge);
+		else if (src.isSwitch())
+			return addSwitchBranchEdge(src, target, isExceptionEdge);
 
-			LabelNode label = (LabelNode) target.getASMNode();
-
-			List<Branch> switchCaseBranches = BranchPool.getBranchForLabel(label);
-
-			if (switchCaseBranches == null) {
-				logger.debug("not a switch case label: "+label.toString()+" "+target.toString());
-				return internalAddEdge(src,target,e);
-			}
-//				throw new IllegalStateException(
-//						"expect BranchPool to contain a Branch for each switch-case-label"+src.toString()+" to "+target.toString());
-
-			// TODO there is an inconsistency when it comes to switches with
-			// empty case: blocks. they do not have their own label, so there
-			// can be multiple ControlFlowEdges from the SWITCH instruction to
-			// one LabelNode.
-			// But currently our RawCFG does not permit multiple edges between
-			// two nodes
-
-			for(Branch switchCaseBranch : switchCaseBranches) {
-				
-				// TODO n^2
-				Set<ControlFlowEdge> soFar = incomingEdgesOf(target);
-				boolean handled = false;
-				for(ControlFlowEdge old : soFar)
-					if(switchCaseBranch.equals(old.getBranchInstruction()))
-						handled = true;
-
-				if(handled)
-					continue;
-//				if(switchCaseBranches.size()>1) {
-//
-//					e = new ControlFlowEdge(isExceptionEdge);
-//					e.setBranchInstruction(switchCaseBranch);
-//					e.setBranchExpressionValue(true);
-//					BytecodeInstruction fakeInstruction = BytecodeInstructionPool.createFakeInstruction(className,methodName);
-//					addVertex(fakeInstruction);
-//					internalAddEdge(src,fakeInstruction,e);
-//					
-//					e = new ControlFlowEdge(isExceptionEdge);
-//					e.setBranchInstruction(switchCaseBranch);
-//					e.setBranchExpressionValue(true);
-//					
-//					e = internalAddEdge(fakeInstruction,target,e);
-//				} else {
-					e = new ControlFlowEdge(isExceptionEdge);
-					e.setBranchInstruction(switchCaseBranch);
-					e.setBranchExpressionValue(true);
-					
-					e = internalAddEdge(src,target,e);
-//				}
-				
-			}
-			
-			return e;
-		}
-		
-		return internalAddEdge(src,target,e);
+		return addUnlabeledEdge(src, target, isExceptionEdge);
 	}
-	
+
+	private ControlFlowEdge addUnlabeledEdge(BytecodeInstruction src,
+			BytecodeInstruction target, boolean isExceptionEdge) {
+
+		return internalAddEdge(src, target,
+				new ControlFlowEdge(isExceptionEdge));
+	}
+
+	private ControlFlowEdge addBranchEdge(BytecodeInstruction src,
+			BytecodeInstruction target, boolean isExceptionEdge) {
+
+		boolean isJumping = !isNonJumpingEdge(src, target);
+		ControlDependency cd = new ControlDependency(src.toBranch(), isJumping);
+
+		ControlFlowEdge e = new ControlFlowEdge(cd, isExceptionEdge);
+
+		return internalAddEdge(src, target, e);
+	}
+
+	private ControlFlowEdge addSwitchBranchEdge(BytecodeInstruction src,
+			BytecodeInstruction target, boolean isExceptionEdge) {
+		if (!target.isLabel())
+			throw new IllegalStateException(
+					"expect control flow edges from switch statements to always target labelNodes");
+
+		LabelNode label = (LabelNode) target.getASMNode();
+
+		List<Branch> switchCaseBranches = BranchPool.getBranchForLabel(label);
+
+		if (switchCaseBranches == null) {
+			logger.debug("not a switch case label: " + label.toString() + " "
+					+ target.toString());
+			return internalAddEdge(src, target, new ControlFlowEdge(
+					isExceptionEdge));
+		}
+		// throw new IllegalStateException(
+		// "expect BranchPool to contain a Branch for each switch-case-label"+src.toString()+" to "+target.toString());
+
+		// TODO there is an inconsistency when it comes to switches with
+		// empty case: blocks. they do not have their own label, so there
+		// can be multiple ControlFlowEdges from the SWITCH instruction to
+		// one LabelNode.
+		// But currently our RawCFG does not permit multiple edges between
+		// two nodes
+
+		for (Branch switchCaseBranch : switchCaseBranches) {
+
+			// TODO n^2
+			Set<ControlFlowEdge> soFar = incomingEdgesOf(target);
+			boolean handled = false;
+			for (ControlFlowEdge old : soFar)
+				if (switchCaseBranch.equals(old.getBranchInstruction()))
+					handled = true;
+
+			if (handled)
+				continue;
+			/*
+			 * previous try to add fake intermediate nodes for each empty case
+			 * block to help the CDG - unsuccessful:
+			 * if(switchCaseBranches.size()>1) { // // e = new
+			 * ControlFlowEdge(isExceptionEdge); //
+			 * e.setBranchInstruction(switchCaseBranch); //
+			 * e.setBranchExpressionValue(true); // BytecodeInstruction
+			 * fakeInstruction =
+			 * BytecodeInstructionPool.createFakeInstruction(className
+			 * ,methodName); // addVertex(fakeInstruction); //
+			 * internalAddEdge(src,fakeInstruction,e); // // e = new
+			 * ControlFlowEdge(isExceptionEdge); //
+			 * e.setBranchInstruction(switchCaseBranch); //
+			 * e.setBranchExpressionValue(true); // // e =
+			 * internalAddEdge(fakeInstruction,target,e); // } else {
+			 */
+
+			ControlDependency cd = new ControlDependency(switchCaseBranch, true);
+			ControlFlowEdge e = new ControlFlowEdge(cd, isExceptionEdge);
+
+			e = internalAddEdge(src, target, e);
+
+		}
+
+		return new ControlFlowEdge(isExceptionEdge);
+	}
+
 	private ControlFlowEdge internalAddEdge(BytecodeInstruction src,
 			BytecodeInstruction target, ControlFlowEdge e) {
 
 		if (!super.addEdge(src, target, e)) {
 			// TODO find out why this still happens
 			logger.debug("unable to add edge from " + src.toString() + " to "
-					+ target.toString() + " into the rawCFG of "+getMethodName());
+					+ target.toString() + " into the rawCFG of "
+					+ getMethodName());
 			e = super.getEdge(src, target);
 			if (e == null)
-				throw new IllegalStateException("internal graph error - completely unexpected");
+				throw new IllegalStateException(
+						"internal graph error - completely unexpected");
 		}
 
 		return e;
@@ -254,10 +273,23 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		// copied from ControlFlowGraph.determineEntryPoint():
 		// there was a back loop to the first instruction within this CFG, so no
 		// candidate
-		// TODO for now return null and handle in super class
-		// RawControlFlowGraph separately by overriding this method
 
 		return getInstructionWithSmallestId();
+	}
+
+	@Override
+	protected Set<BytecodeInstruction> determineExitPoints() {
+
+		Set<BytecodeInstruction> r = super.determineExitPoints();
+
+		// if the last instruction loops back to a previous instruction there is
+		// no node without a child, so just take the last byteCode instruction
+
+		if (r.isEmpty())
+			r.add(getInstructionWithBiggestId());
+
+		return r;
+
 	}
 
 	public BytecodeInstruction getInstructionWithSmallestId() {
@@ -272,12 +304,50 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		return r;
 	}
 
+	public BytecodeInstruction getInstructionWithBiggestId() {
+		BytecodeInstruction r = null;
+
+		for (BytecodeInstruction ins : vertexSet()) {
+			if (r == null || r.getInstructionId() < ins.getInstructionId())
+				r = ins;
+		}
+
+		return r;
+	}
+
+	/**
+	 * In some cases there can be isolated nodes within a CFG. For example in an
+	 * completely empty try-catch-finally. Since these nodes are not reachable
+	 * but cause trouble when determining the entry point of a CFG they get
+	 * removed.
+	 * 
+	 * @return
+	 */
+	public int removeIsolatedNodes() {
+		Set<BytecodeInstruction> candidates = determineEntryPoints();
+
+		int removed = 0;
+		if (candidates.size() > 1) {
+
+			for (BytecodeInstruction instruction : candidates) {
+				if (outDegreeOf(instruction) == 0) {
+					if (graph.removeVertex(instruction)) {
+						removed++;
+						BytecodeInstructionPool.forgetInstruction(instruction);
+					}
+				}
+			}
+
+		}
+		return removed;
+	}
+
 	// control distance functionality
 
 	/**
 	 * Returns the number of byteCode instructions that can potentially be
-	 * executed from entering the method of this CFG until the given BytecodeInstruction
-	 * is reached.
+	 * executed from entering the method of this CFG until the given
+	 * BytecodeInstruction is reached.
 	 */
 	public Set<BytecodeInstruction> getPreviousInstructionsInMethod(
 			BytecodeInstruction v) {
@@ -337,63 +407,69 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		if (!graph.containsVertex(def))
 			throw new IllegalArgumentException("unknown Definition");
 
-		return getUsesForDef(def, def);
+		return getUsesForDef(def, def, new HashSet<BytecodeInstruction>());
 	}
 
 	private Set<Use> getUsesForDef(Definition targetDef,
-			BytecodeInstruction entry) {
-		if (!graph.containsVertex(entry))
+			BytecodeInstruction currentInstruction,
+			Set<BytecodeInstruction> handled) {
+		if (!graph.containsVertex(currentInstruction))
 			throw new IllegalArgumentException("vertex not in graph");
 
 		Set<Use> r = new HashSet<Use>();
 
-		Set<ControlFlowEdge> outgoingEdges = graph.outgoingEdgesOf(entry);
+		if (handled.contains(currentInstruction))
+			return r;
+		handled.add(currentInstruction);
+
+		Set<ControlFlowEdge> outgoingEdges = graph
+				.outgoingEdgesOf(currentInstruction);
 		for (ControlFlowEdge e : outgoingEdges) {
 			BytecodeInstruction edgeTarget = graph.getEdgeTarget(e);
 
-			if (edgeTarget.isDefUse()) {
-				if (targetDef.canBeActiveFor(edgeTarget))
-					r.add(DefUseFactory.makeUse(edgeTarget));
-				if (targetDef.canBecomeActiveDefinition(edgeTarget))
-					continue;
-			}
-			if (edgeTarget.getInstructionId() > entry.getInstructionId()) // dont
+			if (targetDef.canBeActiveFor(edgeTarget))
+				r.add(DefUseFactory.makeUse(edgeTarget));
+			if (canOverwriteDU(targetDef, edgeTarget))
+				continue;
+
+			if (edgeTarget.getInstructionId() > currentInstruction
+					.getInstructionId()) // dont
 				// follow
 				// backedges
 				// (loops)
-				r.addAll(getUsesForDef(targetDef, edgeTarget));
+				r.addAll(getUsesForDef(targetDef, edgeTarget, handled));
 		}
 		return r;
 	}
 
-	public boolean hasDefClearPathToMethodExit(DefUse duVertex) {
+	public boolean hasDefClearPathToMethodExit(Definition duVertex) {
 		if (!graph.containsVertex(duVertex))
 			throw new IllegalArgumentException("vertex not in graph");
 		if (duVertex.isLocalDU())
 			return false;
 
-		return hasDefClearPathToMethodExit(duVertex, duVertex);
+		return hasDefClearPathToMethodExit(duVertex, duVertex,
+				new HashSet<BytecodeInstruction>());
 	}
 
-	public boolean hasDefClearPathFromMethodEntry(DefUse duVertex) {
+	public boolean hasDefClearPathFromMethodEntry(Use duVertex) {
 		if (!graph.containsVertex(duVertex))
 			throw new IllegalArgumentException("vertex not in graph");
 		if (duVertex.isLocalDU())
 			return false;
 
-		return hasDefClearPathFromMethodEntry(duVertex, duVertex);
+		return hasDefClearPathFromMethodEntry(duVertex, duVertex,
+				new HashSet<BytecodeInstruction>());
 	}
 
-	private boolean hasDefClearPathToMethodExit(DefUse targetDefUse,
-			BytecodeInstruction currentVertex) {
+	private boolean hasDefClearPathToMethodExit(Definition targetDefUse,
+			BytecodeInstruction currentVertex, Set<BytecodeInstruction> handled) {
 		if (!graph.containsVertex(currentVertex))
 			throw new IllegalArgumentException("vertex not in graph");
 
-		// TODO corner case when this method is initially called with a
-		// definition?
-		// .. which should never happen cause this method is meant to be called
-		// for uses ...
-		// TODO make this explicit
+		if (handled.contains(currentVertex))
+			return false;
+		handled.add(currentVertex);
 
 		Set<ControlFlowEdge> outgoingEdges = graph
 				.outgoingEdgesOf(currentVertex);
@@ -403,22 +479,26 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		for (ControlFlowEdge e : outgoingEdges) {
 			BytecodeInstruction edgeTarget = graph.getEdgeTarget(e);
 
-			// skip edges going into another def for the same field
-			if (targetDefUse.canBecomeActiveDefinition(edgeTarget))
+			if (canOverwriteDU(targetDefUse, edgeTarget))
 				continue;
 
 			if (edgeTarget.getInstructionId() > currentVertex
 					.getInstructionId() // dont follow backedges (loops)
-					&& hasDefClearPathToMethodExit(targetDefUse, edgeTarget))
+					&& hasDefClearPathToMethodExit(targetDefUse, edgeTarget,
+							handled))
 				return true;
 		}
 		return false;
 	}
 
-	private boolean hasDefClearPathFromMethodEntry(DefUse targetDefUse,
-			BytecodeInstruction currentVertex) {
+	private boolean hasDefClearPathFromMethodEntry(Use targetDefUse,
+			BytecodeInstruction currentVertex, Set<BytecodeInstruction> handled) {
 		if (!graph.containsVertex(currentVertex))
 			throw new IllegalArgumentException("vertex not in graph");
+
+		if (handled.contains(currentVertex))
+			return false;
+		handled.add(currentVertex);
 
 		Set<ControlFlowEdge> incomingEdges = graph
 				.incomingEdgesOf(currentVertex);
@@ -429,16 +509,116 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 			BytecodeInstruction edgeStart = graph.getEdgeSource(e);
 
 			// skip edges coming from a def for the same field
-			if (targetDefUse.canBecomeActiveDefinition(edgeStart))
+			if (canOverwriteDU(targetDefUse, edgeStart, new HashSet<String>()))
 				continue;
 
 			if (edgeStart.getInstructionId() < currentVertex.getInstructionId() // dont
 					// follow
 					// backedges
 					// (loops)
-					&& hasDefClearPathFromMethodEntry(targetDefUse, edgeStart))
+					&& hasDefClearPathFromMethodEntry(targetDefUse, edgeStart,
+							handled))
 				return true;
 		}
+		return false;
+	}
+
+	private boolean canOverwriteDU(Definition targetDefUse,
+			BytecodeInstruction edgeTarget) {
+
+		return canOverwriteDU(targetDefUse, edgeTarget, new HashSet<String>());
+	}
+
+	private boolean canOverwriteDU(DefUse targetDefUse,
+			BytecodeInstruction edgeTarget, Set<String> handle) {
+
+		// skip edges going into another def for the same field
+		if (targetDefUse.canBecomeActiveDefinition(edgeTarget))
+			return true;
+
+		if (callsOverwritingMethod(targetDefUse, edgeTarget, handle))
+			return true;
+
+		return false;
+	}
+
+	private boolean callsOverwritingMethod(DefUse targetDefUse,
+			BytecodeInstruction edgeTarget, Set<String> handle) {
+
+		if (canBeOverwritingMethod(targetDefUse, edgeTarget)) {
+
+			// DONE in this case we should check if there is a deffree path
+			// for this field in the called method if the called method is
+			// also a method from the class of our targetDU
+
+			// TODO this does not take into account if the method call is
+			// invoked on the same object. we should actually check if
+			// "this" is on top of the stack (ALOAD_0 previous instruction
+			// before call)
+
+			RawControlFlowGraph calledGraph = CFGPool.getRawCFG(edgeTarget
+					.getClassName(), edgeTarget.getCalledMethod());
+
+			if (calledGraph == null) {
+				logger.debug("expected cfg to exist for: "
+						+ edgeTarget.getCalledMethod()
+						+ " ... abstract method?");
+				return false;
+			}
+
+			if (!calledGraph.hasDefClearPath(targetDefUse, handle))
+				return true;
+		}
+
+		return false;
+	}
+
+	private boolean canBeOverwritingMethod(DefUse targetDefUse,
+			BytecodeInstruction edgeTarget) {
+
+		return targetDefUse.isFieldDU()
+				&& edgeTarget.isMethodCallForClass(targetDefUse.getClassName());
+	}
+
+	public boolean hasDefClearPath(DefUse targetDU, Set<String> handle) {
+		BytecodeInstruction entry = determineEntryPoint();
+
+		return hasDefClearPath(targetDU, entry, handle);
+
+	}
+
+	private boolean hasDefClearPath(DefUse targetDU,
+			BytecodeInstruction currentVertex, Set<String> handle) {
+		if (!graph.containsVertex(currentVertex))
+			throw new IllegalArgumentException("vertex not in graph");
+
+		handle.add(methodName);
+
+		String targetVariable = targetDU.getDUVariableName();
+
+		if (currentVertex.isDefinitionForVariable(targetVariable))
+			return false;
+
+		Set<ControlFlowEdge> outgoingEdges = graph
+				.outgoingEdgesOf(currentVertex);
+		if (outgoingEdges.size() == 0)
+			return true;
+
+		for (ControlFlowEdge e : outgoingEdges) {
+			BytecodeInstruction edgeTarget = graph.getEdgeTarget(e);
+
+			// handle edgeTarget being another method call!
+			if (canBeOverwritingMethod(targetDU, edgeTarget)
+					&& !handle.contains(edgeTarget.getCalledMethod())
+					&& canOverwriteDU(targetDU, edgeTarget, handle))
+				continue;
+
+			if (edgeTarget.getInstructionId() > currentVertex
+					.getInstructionId() // dont follow backedges (loops)
+					&& hasDefClearPath(targetDU, edgeTarget, handle))
+				return true;
+		}
+
 		return false;
 	}
 
@@ -455,8 +635,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	}
 
 	@Override
-	public String getName() {
-//		return "RawCFG" + graphId + "_" + methodName;
-		return "RawCFG"  + "_" + methodName;
+	public String getCFGType() {
+		return "RCFG";
 	}
 }

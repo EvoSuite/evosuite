@@ -57,7 +57,6 @@ public class Scope {
 	 *            Value
 	 */
 	public synchronized void setObject(VariableReference reference, Object o) {
-
 		// Learn some dynamic information about this object
 		if (reference instanceof ArrayReference) {
 			ArrayReference arrayRef = (ArrayReference) reference;

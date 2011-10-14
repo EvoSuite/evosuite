@@ -39,7 +39,7 @@ public class TestCaseMinimizer {
 
 	private static Logger logger = LoggerFactory.getLogger(TestCaseMinimizer.class);
 
-	private final TestFitnessFunction fitness_function;
+	private final TestFitnessFunction fitnessFunction;
 
 	private double fitness = 0.0;
 
@@ -48,12 +48,12 @@ public class TestCaseMinimizer {
 	/**
 	 * Constructor
 	 * 
-	 * @param fitness_function
+	 * @param fitnessFunction
 	 *            Fitness function with which to measure whether a statement is
 	 *            necessary
 	 */
-	public TestCaseMinimizer(TestFitnessFunction fitness_function) {
-		this.fitness_function = fitness_function;
+	public TestCaseMinimizer(TestFitnessFunction fitnessFunction) {
+		this.fitnessFunction = fitnessFunction;
 	}
 
 	/**
@@ -96,34 +96,22 @@ public class TestCaseMinimizer {
 		}
 		logger.info("Minimizing test case");
 		//logger.info(c.test.toCode());
-		/*
-				Logger logger1 = LoggerFactory.getLogger(fitness_function.getClass());
-				Level old_level1 = logger.getLevel();
-				//logger1.setLevel(Level.OFF);
-				Logger logger2 = LoggerFactory.getLogger(DefaultTestCase.class);
-				Level old_level2 = logger.getLevel();
-				logger2.setLevel(Level.OFF);
 
-				Logger logger3 = LoggerFactory.getLogger(StringTraceExecutionObserver.class);
-				Level old_level3 = logger.getLevel();
-				logger3.setLevel(Level.OFF);
-		*/
 		/** Factory method that handles statement deletion */
+		AbstractTestFactory testFactory = DefaultTestFactory.getInstance();
 
-		AbstractTestFactory test_factory = DefaultTestFactory.getInstance();
-
-		fitness = fitness_function.getFitness(c);
+		fitness = fitnessFunction.getFitness(c);
 		logger.debug("Start fitness value: " + fitness);
 		boolean changed = true;
 		while (changed) {
 			changed = false;
 
 			for (int i = c.test.size() - 1; i >= 0; i--) {
-				logger.debug("Deleting statement " + c.test.getStatement(i).getCode());
+				logger.debug("Deleting statement {}", c.test.getStatement(i).getCode());
 				TestChromosome copy = (TestChromosome) c.clone();
 				try {
 					c.setChanged(true);
-					test_factory.deleteStatementGracefully(c.test, i);
+					testFactory.deleteStatementGracefully(c.test, i);
 				} catch (ConstructionFailedException e) {
 					c.setChanged(false);
 					c.test = copy.test;
@@ -131,7 +119,7 @@ public class TestCaseMinimizer {
 					continue;
 				}
 
-				double new_fitness = fitness_function.getFitness(c);
+				double new_fitness = fitnessFunction.getFitness(c);
 
 				logger.debug("New fitness is " + new_fitness);
 				if (c.compareTo(copy) <= 0) {
@@ -142,16 +130,14 @@ public class TestCaseMinimizer {
 				} else {
 					logger.debug("Keeping original version");
 					c.test = copy.test;
-					c.setLastExecutionResult(copy.getLastExecutionResult());
+					c.copyCachedResults(copy);
 					c.setFitness(copy.getFitness());
 					c.setChanged(false);
 				}
 			}
 
 		}
-		//		logger1.setLevel(old_level1);
-		//logger2.setLevel(old_level2);
-		//logger3.setLevel(old_level3);
+
 		if (logger.isDebugEnabled()) {
 			logger.debug("Minimized test case: ");
 			logger.debug(c.test.toCode());

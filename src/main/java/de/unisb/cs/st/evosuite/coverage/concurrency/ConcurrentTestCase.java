@@ -572,7 +572,7 @@ public class ConcurrentTestCase implements TestCase {
 			}
 
 			@Override
-			public StatementInterface clone(TestCase newTestCase) {
+			public StatementInterface copy(TestCase newTestCase, int offset) {
 				return getPseudoStatement(newTestCase, clazz);
 			}
 
@@ -597,6 +597,12 @@ public class ConcurrentTestCase implements TestCase {
 				return false;
 			}
 
+			/* (non-Javadoc)
+			 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+			 */
+			@Override
+			public void changeClassLoader(ClassLoader loader) {
+			}
 		};
 
 		return st;

@@ -28,30 +28,30 @@ public class StringAssertion extends Assertion {
 	public String getCode() {
 		if (source.isPrimitive() || source.isWrapperType())
 			return "assertEquals(\"" + value + "\", String.valueOf(" + source.getName()
-			+ "));";
+			        + "));";
 		else {
 			String escape = ((String) value).replace("\n", "\\n").replace("\"", "\\\"");
 			return "assertEquals(\"" + escape + "\", " + source.getName()
-			+ ".toString());";
+			        + ".toString());";
 		}
 	}
 
 	@Override
-	public Assertion clone(TestCase newTestCase) {
+	public Assertion copy(TestCase newTestCase, int offset) {
 		StringAssertion s = new StringAssertion();
-		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
+		s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
 		s.value = value;
 		return s;
 	}
 
 	@Override
 	public boolean evaluate(Scope scope) {
-		try{
+		try {
 			if (source.isPrimitive() || source.isWrapperType())
 				return value.toString().equals(String.valueOf(source.getObject(scope)));
 			else
 				return value.toString().equals(source.getObject(scope).toString());
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 	}

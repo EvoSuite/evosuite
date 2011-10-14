@@ -18,8 +18,10 @@
 package de.unisb.cs.st.evosuite.testsuite;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.LocalSearchBudget;
@@ -28,6 +30,7 @@ import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
+import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
 /**
  * @author Gordon Fraser
@@ -67,11 +70,15 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 
 		// Handle TestCallStatements
 		Iterator<TestChromosome> it = tests.iterator();
+		Iterator<Boolean> uit = unmodifiableTests.iterator();
+
 		int num = 0;
 		while (it.hasNext()) {
 			ExecutableChromosome t = it.next();
+			uit.next();
 			if (t.size() == 0) {
 				it.remove();
+				uit.remove();
 				for (TestChromosome test : tests) {
 					for (StatementInterface s : test.getTestCase()) {
 						if (s instanceof TestCallStatement) {
@@ -96,6 +103,8 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		double fitnessBefore = getFitness();
 
 		for (int i = 0; i < tests.size(); i++) {
+			if (unmodifiableTests.get(i))
+				continue;
 			TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective(
 			        (TestSuiteFitnessFunction) objective.getFitnessFunction(), this, i);
 			if (LocalSearchBudget.isFinished()) {
@@ -107,9 +116,11 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			tests.get(i).localSearch(testObjective);
 		}
 		TestSuiteFitnessFunction fitnessFunction = (TestSuiteFitnessFunction) objective.getFitnessFunction();
+		for (TestChromosome test : tests) {
+			test.setChanged(true);
+		}
 		fitnessFunction.getFitness(this);
 
-		/*
 		if (fitnessBefore < getFitness()) {
 			logger.warn("Fitness was " + fitnessBefore + " and now is " + getFitness());
 			//for (TestChromosome chromosome : tests) {
@@ -122,7 +133,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			        + getFitness());
 			assert (false);
 		}
-		*/
+
 		assert (fitnessBefore >= getFitness());
 	}
 
@@ -158,5 +169,33 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	public void applyDSE() {
 		TestSuiteDSE dse = new TestSuiteDSE();
 		dse.applyDSE(this);
+	}
+
+	public Set<TestFitnessFunction> getCoveredGoals() {
+		Set<TestFitnessFunction> goals = new HashSet<TestFitnessFunction>();
+		for (TestChromosome test : tests) {
+			goals.addAll(test.getTestCase().getCoveredGoals());
+		}
+		return goals;
+	}
+	
+	/**
+	 * For manual algorithm
+	 * 
+	 * @param testCase
+	 *            to remove
+	 */
+	public void deleteTest(TestCase testCase) {
+		if (testCase != null) {
+			TestChromosome chromToDel = null;
+			for (TestChromosome test: tests) {
+				if(test.getTestCase().equals((testCase))) {
+					chromToDel = test;
+				}
+			}
+			if (chromToDel != null) {
+				tests.remove(chromToDel);
+			}
+		}
 	}
 }

@@ -54,7 +54,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	protected List<StatementInterface> statements;
 
 	// a list of all goals this test covers
-	private final HashSet<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
+	private transient final HashSet<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
 
 	/**
 	 * Constructor
@@ -141,7 +141,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 		if (!var.isPrimitive()) {
 			// add fields of this object to list
-			for (Field field : TestCluster.getAccessibleFields(var.getVariableClass())) {
+			for (Field field : StaticTestCluster.getAccessibleFields(var.getVariableClass())) {
 				FieldReference f = new FieldReference(this, field, var);
 				if (f.getDepth() <= 2) {
 					if (type != null) {
@@ -416,7 +416,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 			return false;
 
 		for (int i = 0; i < statements.size(); i++) {
-			if (!statements.get(i).equals(t.getStatement(i))) {
+			if (!statements.get(i).same(t.getStatement(i))) {
 				return false;
 			}
 		}
@@ -508,7 +508,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 			StatementInterface copy = s.clone(t);
 			t.statements.add(copy);
 			copy.SetRetval(s.getReturnValue().clone(t));
-			copy.setAssertions(s.cloneAssertions(t));
+			copy.setAssertions(s.copyAssertions(t, 0));
 		}
 		t.coveredGoals.addAll(coveredGoals);
 		//t.exception_statement = exception_statement;
@@ -545,6 +545,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 			} else if (s instanceof ConstructorStatement) {
 				ConstructorStatement cs = (ConstructorStatement) s;
 				accessed_classes.add(cs.getConstructor().getDeclaringClass());
+				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getExceptionTypes()));
 			}
 		}
 		return accessed_classes;
@@ -700,6 +701,11 @@ public class DefaultTestCase implements TestCase, Serializable {
 	@Override
 	public String toString() {
 		return toCode();
+	}
 
+	public void changeClassLoader(ClassLoader loader) {
+		for (StatementInterface s : statements) {
+			s.changeClassLoader(loader);
+		}
 	}
 }

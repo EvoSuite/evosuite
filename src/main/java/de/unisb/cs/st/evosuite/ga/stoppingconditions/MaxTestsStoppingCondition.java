@@ -29,12 +29,12 @@ public class MaxTestsStoppingCondition extends StoppingCondition {
 	private static final long serialVersionUID = -3375236459377313641L;
 
 	/** Current number of tests */
-	protected static int num_tests = 0;
+	protected static long num_tests = 0;
 
 	/** Maximum number of evaluations */
-	protected int max_tests = Properties.GENERATIONS;
+	protected long max_tests = Properties.GENERATIONS;
 
-	public static int getNumExecutedTests() {
+	public static long getNumExecutedTests() {
 		return num_tests;
 	}
 
@@ -56,7 +56,7 @@ public class MaxTestsStoppingCondition extends StoppingCondition {
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
 	@Override
-	public int getCurrentValue() {
+	public long getCurrentValue() {
 		return num_tests;
 	}
 
@@ -64,13 +64,19 @@ public class MaxTestsStoppingCondition extends StoppingCondition {
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
 	@Override
-	public void setLimit(int limit) {
+	public void setLimit(long limit) {
 		max_tests = limit;
 	}
 
 	@Override
-	public int getLimit() {
+	public long getLimit() {
 		return max_tests;
+	}
+
+	@Override
+	public void forceCurrentValue(long value) {
+		// TODO Auto-generated method stub
+		num_tests = value;
 	}
 
 }
