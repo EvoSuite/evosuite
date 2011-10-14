@@ -19,6 +19,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.javaagent.InstrumentingClassLoader;
 
@@ -56,6 +57,8 @@ public abstract class TestCluster {
 	private static List<String> finalClasses = new ArrayList<String>();
 
 	private static Set<Method> staticInitializers = new HashSet<Method>();
+
+	public abstract boolean isTargetClassName(String className);
 
 	public static void registerStaticInitializer(String className) {
 		finalClasses.add(className);

@@ -54,7 +54,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	}
 
 	private boolean isTargetClassName(String className) {
-		return TestCluster.isTargetClassName(className);
+		return TestCluster.getInstance().isTargetClassName(className);
 	}
 
 	private static boolean isJavaagent = false;
