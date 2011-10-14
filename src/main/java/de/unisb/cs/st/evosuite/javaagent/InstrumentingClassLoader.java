@@ -69,7 +69,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 	}
 
 	private boolean isTargetClass(String className) {
-		return TestCluster.isTargetClassName(className);
+		return TestCluster.getInstance().isTargetClassName(className);
 		
 		/*if (className.equals(Properties.TARGET_CLASS)
 		        || className.startsWith(Properties.TARGET_CLASS + "$")) {

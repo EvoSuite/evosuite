@@ -978,7 +978,7 @@ public class TestSuiteGenerator {
 		}
 	}
 
-	private static SecondaryObjective getSecondaryObjective(String name) {
+	public static SecondaryObjective getSecondaryObjective(String name) {
 		if (name.equalsIgnoreCase("size"))
 			return new MinimizeSizeSecondaryObjective();
 		else if (name.equalsIgnoreCase("maxlength"))
@@ -994,7 +994,7 @@ public class TestSuiteGenerator {
 			        + name + "\"");
 	}
 
-	private static void getSecondaryObjectives(GeneticAlgorithm algorithm) {
+	public static void getSecondaryObjectives(GeneticAlgorithm algorithm) {
 		if (Properties.STRATEGY == Strategy.ONEBRANCH) {
 			SecondaryObjective objective = getSecondaryObjective("size");
 			Chromosome.addSecondaryObjective(objective);

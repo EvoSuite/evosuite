@@ -138,7 +138,8 @@ public class StaticTestCluster extends TestCluster {
 	//
 	// In setup script, add all jars / classes found in local dir to classpath?
 
-	public static boolean isTargetClassName(String className) {
+	@Override
+	public boolean isTargetClassName(String className) {
 		if (!Properties.TARGET_CLASS_PREFIX.isEmpty()
 		        && className.startsWith(Properties.TARGET_CLASS_PREFIX)) {
 			return true;
