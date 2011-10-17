@@ -276,6 +276,8 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		logger.debug("Creating random population");
 		for (int i = 0; i < population_size; i++) {
 			population.add(chromosome_factory.getChromosome());
+			if (isFinished())
+				break;
 		}
 		logger.debug("Created " + population.size() + " individuals");
 	}
