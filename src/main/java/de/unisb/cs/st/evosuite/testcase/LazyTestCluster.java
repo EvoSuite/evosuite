@@ -58,8 +58,12 @@ public class LazyTestCluster extends TestCluster {
 	 * Private constructor
 	 */
 	private LazyTestCluster() {
-		analyzeTarget();
 	}
+	
+	@Override
+	protected void init() {
+		analyzeTarget();
+	};
 
 	/**
 	 * Singleton accessor
@@ -996,5 +1000,11 @@ public class LazyTestCluster extends TestCluster {
 	@Override
 	public Set<Class<?>> getAnalyzedClasses() {
 		return analyzedClasses;
+	}
+	
+	@Override
+	public boolean isTargetClassName(String className) {
+	  // TODO: Implement me...
+	  return true;
 	}
 }

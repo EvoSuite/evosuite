@@ -6,10 +6,7 @@ import java.util.*;
 
 import javax.swing.*;
 
-import org.uispec4j.Panel;
-import org.uispec4j.Spinner;
-import org.uispec4j.UIComponent;
-import org.uispec4j.Window;
+import org.uispec4j.*;
 import org.uispec4j.finder.ComponentMatcher;
 import org.uispec4j.utils.UIComponentFactory;
 
@@ -39,7 +36,9 @@ public abstract class FocusOrder {
 				return policy.getFirstComponent(this.container) != null;
 			}
 			
-			return policy.getComponentAfter(this.container, this.currentComponent) != this.firstComponent;
+			Component nextComp = policy.getComponentAfter(this.container, this.currentComponent);
+			
+			return nextComp != this.firstComponent && nextComp != null;
 		}
 
 		@Override
@@ -118,7 +117,58 @@ public abstract class FocusOrder {
 		};
 	}
 	
+	public static void addMenuItemsTo(List<UIComponent> componentList) {
+		ArrayList<UIComponent> copyList = new ArrayList<UIComponent>(componentList);
+
+		for (UIComponent uiComp : copyList) {
+			Component awtComp = uiComp.getAwtComponent();
+			
+			if (awtComp instanceof MenuElement) {
+				addMenuItemsOfTo((MenuElement) awtComp, componentList);
+			}
+		}
+	}
+	
+	private static void addMenuItemsOfTo(MenuElement menuElmt, List<UIComponent> componentList) {
+		//System.out.println("FocusOrder: Processing menuElmt " + menuElmt);
+		
+		componentList.add(UIComponentFactory.createUIComponent((Component) menuElmt));
+		
+		// Optimization: JMenuItems (except for JMenu)
+		// are leafs and never have any submenu items
+		if ((menuElmt instanceof JMenu) || !(menuElmt instanceof JMenuItem)) {
+			for (MenuElement e : menuElmt.getSubElements()) {
+				addMenuItemsOfTo(e, componentList);
+			}
+		}
+	}
+
 	public static Iterable<UIComponent> children(final Panel p) {
+		if (true) {
+			List<UIComponent> result = new ArrayList<UIComponent>(Arrays.asList(p.getUIComponents(new ComponentMatcher() {
+				@Override
+				public boolean matches(Component component) {
+					return !(component instanceof JLabel) && component.isEnabled() && component.isVisible();
+				}
+			})));
+			
+			while (result.remove(null));
+						
+			addMenuItemsTo(result);
+			
+			ListIterator<UIComponent> iter = result.listIterator();
+			while (iter.hasNext()) {
+				UIComponent current = iter.next();
+				Component awtComp = current.getAwtComponent();
+				
+				if (awtComp instanceof JMenu || awtComp instanceof JPopupMenu) {
+					iter.remove();
+				}
+			}
+			
+			return result;
+		}
+		
 		// Special handling for popups
 		if (policy.getFirstComponent(p.getAwtComponent()) == null) {			
 			try {

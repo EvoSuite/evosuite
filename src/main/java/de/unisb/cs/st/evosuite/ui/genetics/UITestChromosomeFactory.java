@@ -28,25 +28,33 @@ public class UITestChromosomeFactory implements ChromosomeFactory<UITestChromoso
 
 	@Override
 	public synchronized UITestChromosome getChromosome() {
-		System.out.println("Call to getChromosome()...");
-		
 		final SimpleCondition cond = new SimpleCondition();
 		
 		try {
-			UIRunner uiRunner = UIRunner.run(this.stateGraph, new RandomWalkUIController(Randomness.nextInt(this.length - 1) + 1) {
+			RandomWalkUIController controller = new RandomWalkUIController(Randomness.nextInt(this.length - 1) + 1) {
 				@Override
 				public void finished(UIRunner uiRunner) {
 					super.finished(uiRunner);
 					cond.signal();
 				}
-			}, this.mainMethodTrigger);
+			};
+			
+			UIRunner uiRunner = UIRunner.run(this.stateGraph, controller, this.mainMethodTrigger);
 
 			cond.awaitUninterruptibly();
-			System.out.println("  Returning " + uiRunner.getActionSequence().shortString());
-			return new UITestChromosome(uiRunner.getActionSequence(), this.stateGraph, this.mainMethodTrigger);
+			
+			UITestChromosome result = new UITestChromosome(uiRunner.getActionSequence(), this.stateGraph, this.mainMethodTrigger); 
+			result.setLastExecutionResult(controller.getExecutionResult());
+			result.setChanged(false);
+			
+			UITestChromosome.executedChromosomes.add(result);
+			
+			return result;
 		} catch (Throwable t) {
 			t.printStackTrace();
-			return getChromosome();
+			System.exit(-1);
+			return null;
+			//return getChromosome();
 		}
 	}
 }

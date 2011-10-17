@@ -45,13 +45,17 @@ public abstract class TestCluster {
 	 * @return
 	 */
 	public static TestCluster getInstance() {
-		if (instance == null)
+	    if (instance == null) {
 			instance = new StaticTestCluster();
+			instance.init();
+	    }
 
 		// TODO: Need property to switch between test clusters
 
 		return instance;
 	}
+
+        protected void init() {}
 
 	private static List<String> finalClasses = new ArrayList<String>();
 
