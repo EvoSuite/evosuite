@@ -58,8 +58,12 @@ public class LazyTestCluster extends TestCluster {
 	 * Private constructor
 	 */
 	private LazyTestCluster() {
-		analyzeTarget();
 	}
+	
+	@Override
+	protected void init() {
+		analyzeTarget();
+	};
 
 	/**
 	 * Singleton accessor

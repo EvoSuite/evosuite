@@ -19,7 +19,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.javaagent.InstrumentingClassLoader;
 
@@ -48,11 +47,15 @@ public abstract class TestCluster {
 	public static TestCluster getInstance() {
 		if (instance == null)
 			instance = new StaticTestCluster();
+		
+		instance.init();
 
 		// TODO: Need property to switch between test clusters
 
 		return instance;
 	}
+
+	protected void init() {}
 
 	private static List<String> finalClasses = new ArrayList<String>();
 

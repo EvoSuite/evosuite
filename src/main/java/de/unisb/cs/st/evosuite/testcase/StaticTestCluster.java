@@ -112,7 +112,10 @@ public class StaticTestCluster extends TestCluster {
 	/**
 	 * Private constructor
 	 */
-	protected StaticTestCluster() {
+	protected StaticTestCluster() {	}
+	
+	@Override
+	protected void init() {
 		populate();
 		addIncludes();
 		analyzeTarget();
@@ -1691,6 +1694,7 @@ public class StaticTestCluster extends TestCluster {
 	/**
 	 * @return the analyzedClasses
 	 */
+	@Override
 	public Set<Class<?>> getAnalyzedClasses() {
 		return analyzedClasses;
 	}
