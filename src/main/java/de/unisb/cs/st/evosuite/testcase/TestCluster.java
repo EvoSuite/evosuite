@@ -45,10 +45,10 @@ public abstract class TestCluster {
 	 * @return
 	 */
 	public static TestCluster getInstance() {
-		if (instance == null)
+		if (instance == null) {
 			instance = new StaticTestCluster();
-		
-		instance.init();
+			instance.init();
+		}
 
 		// TODO: Need property to switch between test clusters
 
