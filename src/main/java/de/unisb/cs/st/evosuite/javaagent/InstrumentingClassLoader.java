@@ -1,12 +1,18 @@
 package de.unisb.cs.st.evosuite.javaagent;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.unisb.cs.st.evosuite.utils.ResourceList;
 
 public class InstrumentingClassLoader extends ClassLoader {
 	private final static Logger logger = LoggerFactory.getLogger(InstrumentingClassLoader.class);
@@ -51,6 +57,15 @@ public class InstrumentingClassLoader extends ClassLoader {
 		return result;
 	}
 
+	private InputStream findTargetResource(String name) throws FileNotFoundException {
+		Pattern pattern = Pattern.compile(name);
+		Collection<String> resources = ResourceList.getResources(pattern);
+		if (resources.isEmpty())
+			throw new FileNotFoundException(name);
+		else
+			return new FileInputStream(resources.iterator().next());
+	}
+
 	private Class<?> instrumentClass(String fullyQualifiedTargetClass)
 	        throws ClassNotFoundException {
 		logger.info("Instrumenting class '" + fullyQualifiedTargetClass + "'.");
@@ -58,8 +73,12 @@ public class InstrumentingClassLoader extends ClassLoader {
 			String className = fullyQualifiedTargetClass.replace('.', '/');
 			InputStream is = ClassLoader.getSystemResourceAsStream(className + ".class");
 			if (is == null) {
-				throw new ClassNotFoundException(
-				        "Class should be in target project, but could not be found!");
+				try {
+					is = findTargetResource(".*" + className + ".class");
+				} catch (FileNotFoundException e) {
+					throw new ClassNotFoundException("Class '" + className
+					        + "' should be in target project, but could not be found!");
+				}
 			}
 			byte[] byteBuffer = instrumentation.transformBytes(className,
 			                                                   new ClassReader(is));
