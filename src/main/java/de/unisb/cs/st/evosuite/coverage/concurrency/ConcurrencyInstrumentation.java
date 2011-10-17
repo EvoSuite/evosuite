@@ -6,6 +6,9 @@ package de.unisb.cs.st.evosuite.coverage.concurrency;
 import java.util.Iterator;
 
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.GeneratorAdapter;
+import org.objectweb.asm.commons.Method;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnList;
@@ -27,6 +30,7 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 	
 	private String className;
 	private String methodName;
+	private GeneratorAdapter generatorAdapter;
 	
 	public String getClassName(){
 		assert(className!=null) : "This should only be called after a call to analyze";
@@ -44,9 +48,10 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 	@SuppressWarnings("unchecked")
 	@Override
 	public void analyze(MethodNode mn, String className, String methodName, int access) {
+		this.generatorAdapter=new GeneratorAdapter(mn, mn.access, mn.name, mn.desc);
 		this.className=className;
 		this.methodName=methodName;
-				
+		
 		RawControlFlowGraph completeCFG = CFGPool.getRawCFG(className, methodName);
 		Iterator<AbstractInsnNode> instructions = mn.instructions.iterator();
 		while (instructions.hasNext()) {
@@ -59,13 +64,13 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 				if (true && 
 						instruction.equals(v.getASMNode()) && 
 						v.isFieldUse() &&
-						instruction instanceof FieldInsnNode &&
-						 //#FIXME steenbuck we should also instrument fields, which access primitive types.
+						instruction instanceof FieldInsnNode )
+						//#FIXME steenbuck we should also instrument fields, which access primitive types.
 						//#FIXME steenbuck apparently some objects (like Boolean, Integer) are not working with this, likely a different Signature (disappears when all getfield/getstatic points are instrumented)
-						((FieldInsnNode)instruction).desc.startsWith("L")) { //we only want objects, as primitive types are passed by value
+						{ //we only want objects, as primitive types are passed by value
 					// adding instrumentation for scheduling-coverage
-					mn.instructions.insert(v.getASMNode(),
-							getConcurrencyInstrumentation(v, v.getControlDependentBranchId()));
+					getConcurrencyInstrumentation(v, v.getControlDependentBranchId(), !((FieldInsnNode)instruction).desc.startsWith("L"));
+					//mn.instructions.insert(v.getASMNode(),	);
 
 					// keeping track of definitions
 					/*if (v.isDefinition())
@@ -81,7 +86,7 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 		}
 	}
 	
-	private InsnList getConcurrencyInstrumentation(BytecodeInstruction v, int currentBranch) {
+	private InsnList getConcurrencyInstrumentation(BytecodeInstruction v, int currentBranch, boolean isPrimitiveType) {
 		InsnList instrumentation = new InsnList();
 		switch (v.getASMNode().getOpcode()) {
 		case Opcodes.GETFIELD:
@@ -92,6 +97,20 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 			LockRuntime.fieldAccToConcInstr.put(accessID, this);
 			LockRuntime.mapFieldAccessIDtoCFGid(accessID, currentBranch, v);
 			instrumentation.add(new InsnNode(Opcodes.DUP));
+			//generatorAdapter.dup();
+			//generatorAdapter.push(accessID);
+			Type owner = Type.getType(LockRuntime.class);
+			Class<?>[] params = {Object.class, int.class};
+			java.lang.reflect.Method m;
+			try {
+				m = LockRuntime.class.getMethod(LockRuntime.RUNTIME_SCHEDULER_CALL_METHOD, params);
+			} catch (Exception e) {
+				throw new AssertionError("This method should exist");
+			}
+			Method method = Method.getMethod(m);
+			
+			//generatorAdapter.invokeStatic(owner, method);
+			//generatorAdapter.valueOf();
 			instrumentation.add(new IntInsnNode(Opcodes.BIPUSH, accessID));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC, 
 					LockRuntime.RUNTIME_CLASS, 

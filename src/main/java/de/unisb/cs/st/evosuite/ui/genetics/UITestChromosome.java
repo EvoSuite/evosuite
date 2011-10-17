@@ -1,5 +1,8 @@
 package de.unisb.cs.st.evosuite.ui.genetics;
 
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -20,6 +23,17 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
 
 public class UITestChromosome extends ExecutableChromosome {
 	private static final long serialVersionUID = 1L;
+
+	static final Set<UITestChromosome> executedChromosomes = Collections.newSetFromMap(new IdentityHashMap<UITestChromosome, Boolean>());
+	static final Set<UITestChromosome> failingChromosomes = Collections.newSetFromMap(new IdentityHashMap<UITestChromosome, Boolean>());
+
+	public static Set<UITestChromosome> getExecutedChromosomes() {
+		return executedChromosomes;
+	}
+
+	public static Set<UITestChromosome> getFailingChromosomes() {
+		return failingChromosomes;
+	}
 
 	private ActionSequence actionSequence;
 
@@ -75,9 +89,25 @@ public class UITestChromosome extends ExecutableChromosome {
 		}
 	}
 
-	private boolean mutationChange() {
-		// TODO
-		return false;
+	/**
+	 * Each action is mutated with probability 1 / size
+	 * 
+	 * @return true if anything was actually changed
+	 */
+	private boolean mutationChange() {		
+		boolean changed = false;
+
+		if (this.size() > 0) {
+			double p = 1 / this.size();
+
+			for (int i = 0; i < this.actionSequence.size(); i++) {
+				if (Randomness.nextDouble() <= p) {
+					changed = this.actionSequence.changeUnsafe(i);
+				}
+			}
+		}
+
+		return changed;
 	}
 
 	/**
@@ -104,18 +134,18 @@ public class UITestChromosome extends ExecutableChromosome {
 
 	/**
 	 * With exponentially decreasing probability, keep inserting statements
-	 * random positions.
+	 * at random positions.
 	 * 
 	 * @return true if anything was actually changed
 	 */
 	private boolean mutationInsert() {
 		boolean changed = false;
-		double p = 0.5;
+		double p = 1.0;
 
 		while (Randomness.nextDouble() <= p
 		        && (!Properties.CHECK_MAX_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {
 			changed |= this.actionSequence.insertRandomActionUnsafe();
-			p *= p;
+			p /= 2;
 		}
 
 		return changed;
@@ -165,6 +195,8 @@ public class UITestChromosome extends ExecutableChromosome {
 	        TestSuiteFitnessFunction testSuiteFitnessFunction) {
 		TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>();
 		InterfaceTestRunnable callable = new ChromosomeUIController(this);
+		
+		executedChromosomes.add(this);
 
 		try {
 			ExecutionResult result = handler.execute(callable, executor,
@@ -172,6 +204,8 @@ public class UITestChromosome extends ExecutableChromosome {
 			                                         Properties.CPU_TIMEOUT);
 			return result;
 		} catch (Exception e) {
+			failingChromosomes.add(this);
+			System.out.println("Exception on executing test chromosome for fitness function:");
 			e.printStackTrace();
 			return null;
 		}

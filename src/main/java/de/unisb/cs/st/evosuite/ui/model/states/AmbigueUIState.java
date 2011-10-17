@@ -5,13 +5,18 @@ import java.util.*;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 
+import y.view.Arrow;
+import y.view.EdgeRealizer;
+import y.view.NodeRealizer;
 import de.unisb.cs.st.evosuite.ui.GraphVizDrawable;
 import de.unisb.cs.st.evosuite.ui.GraphVizEnvironment;
+import de.unisb.cs.st.evosuite.ui.YWorksDrawable;
+import de.unisb.cs.st.evosuite.ui.YWorksEnvironment;
 import de.unisb.cs.st.evosuite.ui.model.DescriptorBoundUIAction;
 import de.unisb.cs.st.evosuite.ui.model.UIActionTargetDescriptor;
 import de.unisb.cs.st.evosuite.ui.model.WindowDescriptor;
 
-public class AmbigueUIState extends AbstractUIState implements GraphVizDrawable {
+public class AmbigueUIState extends AbstractUIState implements GraphVizDrawable, YWorksDrawable {
 	private static final long serialVersionUID = 1L;
 
 	private Map<AbstractUIState, Integer> possibleStates = new HashMap<AbstractUIState, Integer>();
@@ -209,6 +214,38 @@ public class AmbigueUIState extends AbstractUIState implements GraphVizDrawable 
 		
 		return sb.toString();
 	}
+
+	@Override
+	public void addToYWorksEnvironment(YWorksEnvironment env) {
+		NodeRealizer realizer = env.getNodeRealizerFor(this);
+		realizer.setLabelText("Ambigue UIState");
+		
+		for (DescriptorBoundUIAction<?> action : this.ownTransitions.keySet()) {
+			action.addToYWorksEnvironment(env);
+		}
+	}
+	
+	@Override
+	public void addEdgesToYWorksEnvironment(YWorksEnvironment env) {
+		for (DescriptorBoundUIAction<?> action : this.ownTransitions.keySet()) {
+			EdgeRealizer edgeRealizer = env.getEdgeRealizerFor(action.targetDescriptor(), action);
+			edgeRealizer.setSourceArrow(Arrow.CIRCLE);
+			edgeRealizer.setTargetArrow(Arrow.CIRCLE);
+			
+			edgeRealizer = env.getEdgeRealizerFor(action, this.ownTransitions.get(action));
+			edgeRealizer.setArrow(Arrow.CONCAVE);
+		}
+		
+		for (Map.Entry<AbstractUIState, Integer> entry : possibleStates.entrySet()) {
+			AbstractUIState possibleState = entry.getKey();
+			Integer count = entry.getValue();
+			
+			EdgeRealizer edgeRealizer = env.getEdgeRealizerFor(this, possibleState);
+			edgeRealizer.setSourceArrow(Arrow.CIRCLE);
+			edgeRealizer.setArrow(Arrow.CONCAVE);
+			edgeRealizer.setLabelText(count + "x");
+		}
+	};
 
 	public Set<AbstractUIState> getPossibleStates() {
 		return this.possibleStates.keySet();

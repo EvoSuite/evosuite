@@ -154,7 +154,7 @@ public class CFGMethodAdapter extends MethodAdapter {
 		        && (access & Opcodes.ACC_ABSTRACT) == 0
 		        && (access & Opcodes.ACC_NATIVE) == 0) {
 
-			logger.info("Analyzing method " + methodName);
+			logger.info("Analyzing method " + methodName+" in class "+className);
 
 			// MethodNode mn = new CFGMethodNode((MethodNode)mv);
 			// System.out.println("Generating CFG for "+ className+"."+mn.name +
@@ -184,7 +184,7 @@ public class CFGMethodAdapter extends MethodAdapter {
 			logger.info("Created CFG for method " + methodName);
 
 			// add the actual instrumentation
-			logger.info("Instrumenting method " + methodName);
+			logger.info("Instrumenting method " + methodName+" in class "+className);
 			for (MethodInstrumentation instrumentation : instrumentations)
 				instrumentation.analyze(mn, className, methodName, access);
 

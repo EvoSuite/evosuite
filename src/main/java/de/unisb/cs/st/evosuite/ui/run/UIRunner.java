@@ -2,6 +2,8 @@ package de.unisb.cs.st.evosuite.ui.run;
 
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.uispec4j.Trigger;
 import org.uispec4j.UIComponent;
@@ -10,6 +12,7 @@ import org.uispec4j.interception.handlers.InterceptionHandler;
 import org.uispec4j.interception.toolkit.UISpecDisplay;
 
 import de.unisb.cs.st.evosuite.ui.genetics.ActionSequence;
+import de.unisb.cs.st.evosuite.ui.genetics.ActionSequence.ActionError;
 import de.unisb.cs.st.evosuite.ui.model.DescriptorBoundUIAction;
 import de.unisb.cs.st.evosuite.ui.model.UIActionTargetDescriptor;
 import de.unisb.cs.st.evosuite.ui.model.states.AbstractUIState;
@@ -18,6 +21,8 @@ import de.unisb.cs.st.evosuite.ui.model.states.UIStateGraph;
 import de.unisb.cs.st.evosuite.utils.SimpleCondition;
 
 public class UIRunner implements InterceptionHandler {
+	private static final int MAX_ACTION_COUNT = 1000;
+	
 	private UIStateGraph stateGraph = new UIStateGraph();
 	private UIController controller;
 	private UIEnvironment env;
@@ -25,8 +30,10 @@ public class UIRunner implements InterceptionHandler {
 	private ActionSequence unsharpActionSequence;
 	private SimpleCondition condition = null;
 
+	private int actionCount = 0;
 	private boolean firstWindow = true;
 	private boolean finished;
+	
 	private static PrintStream transitionLog;
 
 	static {
@@ -68,7 +75,7 @@ public class UIRunner implements InterceptionHandler {
 		// Having a busy-wait here isn't optimal...
 		while (result.condition == null) {
 			try {
-				Thread.sleep(100);
+				Thread.sleep(10);
 			} catch (InterruptedException e) { }
 		}
 
@@ -78,9 +85,15 @@ public class UIRunner implements InterceptionHandler {
 
 	@Override
 	public void process(Window window) {
-		if (this.finished) return;
+		// System.out.println("UIRunner::process: window = " + window.getAwtComponent() + ": isVisible = " + window.getAwtComponent().isVisible());
 
-		// System.out.println("UIRunner::process: window = " + window.getTitle() + ": isVisible = " + window.getAwtComponent().isVisible());
+		if (this.finished) return;
+		
+		if (!window.isVisible().isTrue()) {
+			this.finished();
+			return;
+		}
+
 		boolean wasFirstWindow;
 		
 		synchronized (this) {
@@ -93,6 +106,7 @@ public class UIRunner implements InterceptionHandler {
 			this.condition.awaitUninterruptibly();
 
 			UIState state = this.env.waitGetNewState(this.stateGraph);
+			state.increaseTimesVisited();
 			
 			try {
 				this.actionSequence = new ActionSequence(state);
@@ -121,20 +135,39 @@ public class UIRunner implements InterceptionHandler {
 	public void executeAction(AbstractUIState state, DescriptorBoundUIAction<?> action) {
 		if (this.finished) return;
 
+		if (this.actionCount > MAX_ACTION_COUNT) {
+			System.out.println("UIRunner: Executed more than " + MAX_ACTION_COUNT + " actions, stopping.");
+			return;
+		}
+
+		this.actionCount++;
+
+		if (this.actionCount > 500) {
+			System.out.println("UIRunner: new action count = " + this.actionCount);
+		}
+		
 		//System.out.println("UIRunner::executeAction(): Before execute of " + action.shortString() + ": " + state.shortString());
 
+		action.increaseTimesExecuted();
 		state.execute(action, this.stateGraph, this.env);
 		UIState newState = this.env.waitGetNewState(this.stateGraph);
+		newState.increaseTimesVisited();
 
 		// System.out.println("UIRunner::executeAction(): After execute of " + action.shortString() + ": " + newState.shortString());
 
 		this.actionSequence.addAction(action, newState);
-		this.unsharpActionSequence.addAction(action);
+		this.unsharpActionSequence.repair();
+		
+		try {
+			this.unsharpActionSequence.addAction(action);
+		} catch (ActionError e) {
+			this.unsharpActionSequence.addAction(action, newState);
+		}
 
 		transitionLog.println(String.format("%s: %s -> %s (%s)\n  %s\n  %s",
 				newState.shortString(), action.shortString(), newState.shortString(),
 				this.controller, this.actionSequence.shortString(),
-				this.unsharpActionSequence.shortString()));		
+				this.unsharpActionSequence.shortString()));	
 
 		this.processState(newState);
 	}
@@ -146,9 +179,27 @@ public class UIRunner implements InterceptionHandler {
 	public ActionSequence getActionSequence() {
 		return actionSequence;
 	}
-
-	public UIComponent resolve(UIActionTargetDescriptor atd) {
-		return atd.resolve(this.env);
+	
+	private Map<UIActionTargetDescriptor, Map<AbstractUIState, UIComponent>> resolveCache =
+			new HashMap<UIActionTargetDescriptor, Map<AbstractUIState, UIComponent>>();
+	
+	private Map<AbstractUIState, UIComponent> cacheForActionTargetDescriptor(UIActionTargetDescriptor atd) {
+		if (!this.resolveCache.containsKey(atd)) {
+			this.resolveCache.put(atd, new HashMap<AbstractUIState, UIComponent>());
+		}
+		
+		return this.resolveCache.get(atd);
+	}
+	
+	public UIComponent resolve(UIActionTargetDescriptor atd) {		
+		AbstractUIState state = this.actionSequence.getFinalState();
+		Map<AbstractUIState, UIComponent> rMap = this.cacheForActionTargetDescriptor(atd);
+		
+		if (!rMap.containsKey(state)) {
+			rMap.put(state, atd.resolve(this.env));
+		}
+		
+		return rMap.get(state);
 	}
 
 	public AbstractUIState getCurrentState() {
