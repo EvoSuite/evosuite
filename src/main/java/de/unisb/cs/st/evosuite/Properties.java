@@ -422,7 +422,7 @@ public class Properties {
 	public static boolean CHECK_CONTRACTS_END = false;
 
 	public enum TestFactory {
-		RANDOM, ALLMETHODS, TOURNAMENT, SEEDING
+		RANDOM, ALLMETHODS, TOURNAMENT, JUNIT
 	}
 
 	@Parameter(key = "test_factory", description = "Which factory creates tests")
