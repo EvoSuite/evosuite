@@ -212,6 +212,9 @@ public class TestSuiteGenerator {
 
 	private List<TestCase> generateTests() {
 		List<TestCase> tests;
+		// Make sure target class is loaded at this point
+		TestCluster.getInstance();
+
 		if (Properties.STRATEGY == Strategy.EVOSUITE)
 			tests = generateWholeSuite();
 		else
@@ -510,8 +513,8 @@ public class TestSuiteGenerator {
 
 		if (Properties.RANDOM_TESTS > 0) {
 			System.out.println("* Bootstrapping initial random test suite");
-		} else
-			System.out.println("* Bootstrapping initial random test suite disabled!");
+		} //else
+		  //	System.out.println("* Bootstrapping initial random test suite disabled!");
 
 		FixedSizeTestSuiteChromosomeFactory factory = new FixedSizeTestSuiteChromosomeFactory(
 		        Properties.RANDOM_TESTS);
@@ -564,17 +567,17 @@ public class TestSuiteGenerator {
 			        - goalComputationStart;
 		// Need to shuffle goals because the order may make a difference
 		if (Properties.SHUFFLE_GOALS) {
-			System.out.println("* Shuffling goals");
+			//System.out.println("* Shuffling goals");
 			Randomness.shuffle(goals);
 		}
 		if (Properties.PREORDER_GOALS_BY_DIFFICULTY) {
 			orderGoalsByDifficulty(goals);
-			System.out.println("* Time taken for difficulty computation: "
-			        + DefUseCoverageTestFitness.difficulty_time + "ms");
-		} else
-			System.out.println("* Goal preordering by difficulty disabled!");
-		if (!Properties.RECYCLE_CHROMOSOMES)
-			System.out.println("* ChromosomeRecycler disabled!");
+			//System.out.println("* Time taken for difficulty computation: "
+			//        + DefUseCoverageTestFitness.difficulty_time + "ms");
+		}// else
+		 //	System.out.println("* Goal preordering by difficulty disabled!");
+		 //if (!Properties.RECYCLE_CHROMOSOMES)
+		 //	System.out.println("* ChromosomeRecycler disabled!");
 
 		System.out.println("* Total number of test goals: " + goals.size());
 
@@ -938,10 +941,10 @@ public class TestSuiteGenerator {
 				logger.info("Using tournament chromosome factory");
 				return new TournamentChromosomeFactory<TestSuiteChromosome>(fitness,
 				        new TestSuiteChromosomeFactory());
-			case SEEDING:
+			case JUNIT:
 				logger.info("Using seeding chromosome factory");
 				return new TestSuiteChromosomeFactory(new JUnitTestChromosomeFactory(
-				        "TODO", new RandomLengthTestFactory()));
+				        new RandomLengthTestFactory()));
 			default:
 				throw new RuntimeException("Unsupported test factory: "
 				        + Properties.TEST_FACTORY);
@@ -958,10 +961,9 @@ public class TestSuiteGenerator {
 				logger.info("Using tournament chromosome factory");
 				return new TournamentChromosomeFactory<TestChromosome>(fitness,
 				        new RandomLengthTestFactory());
-			case SEEDING:
+			case JUNIT:
 				logger.info("Using seeding chromosome factory");
-				return new JUnitTestChromosomeFactory("TODO",
-				        new RandomLengthTestFactory());
+				return new JUnitTestChromosomeFactory(new RandomLengthTestFactory());
 			default:
 				throw new RuntimeException("Unsupported test factory: "
 				        + Properties.TEST_FACTORY);
