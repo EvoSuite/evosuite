@@ -1002,7 +1002,7 @@ public class LazyTestCluster extends TestCluster {
 		return analyzedClasses;
 	}
 	
-	@Override
+//	@Override
 	public boolean isTargetClassName(String className) {
 	  // TODO: Implement me...
 	  return true;
