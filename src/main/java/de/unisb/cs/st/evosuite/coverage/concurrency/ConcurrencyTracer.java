@@ -19,7 +19,9 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class ConcurrencyTracer {
-	private static Logger logger = LoggerFactory.getLogger(ConcurrencyTracer.class);
+	private static Logger logger =  LoggerFactory.getLogger(ConcurrencyTracer.class);
+
+	//private List<SchedulingDecisionTuple> seen;
 
 	private final List<SchedulingDecisionTuple> seen;
 
@@ -50,11 +52,11 @@ public class ConcurrencyTracer {
 
 	}
 
-	private boolean noNull() {
-		for (SchedulingDecisionTuple t : seen) {
-			try {
-				assert (t != null);
-			} catch (Throwable e) {
+	private boolean noNull(){
+		for(SchedulingDecisionTuple t : seen){
+			try{
+				assert(t!=null);
+			}catch(Throwable e){
 				logger.error("oh nooo", e);
 				System.exit(1);
 			}
@@ -62,9 +64,10 @@ public class ConcurrencyTracer {
 		return true;
 	}
 
-	public List<SchedulingDecisionTuple> getTrace() {
-		assert (seen != null);
-		assert (noNull());
+	public List<SchedulingDecisionTuple> getTrace(){
+		assert(seen!=null);
+		assert(noNull());
+
 		return seen;
 	}
 
@@ -79,43 +82,50 @@ public class ConcurrencyTracer {
 
 	private static final int defDistance = 200;
 
-	private static int test(List<SchedulingDecisionTuple> goal,
-	        List<SchedulingDecisionTuple> run) {
-		if (goal.size() > run.size()) {
+	private static int test(List<SchedulingDecisionTuple> goal, List<SchedulingDecisionTuple> run){
+		if(goal.size()>run.size()){
 			return defDistance;
 		}
 
-		if (goal.size() == 1) {
-			if (run.contains(goal.get(0))) {
+		if(goal.size()==1){
+			if(run.contains(goal.get(0))){
 				return 0;
 			} else {
 				return defDistance;
 			}
 		}
 
-		class searchState {
-			public Integer pos = 1;
-			public Integer cost = 0;
-			boolean finished = false;
+		class searchState{
+			public Integer pos=1;
+			public Integer cost=0;
+			boolean finished=false;
 		}
 
 		Set<searchState> states = new HashSet<searchState>();
-		for (SchedulingDecisionTuple t : run) {
-			for (searchState s : states) {
+		
+		for(SchedulingDecisionTuple observedElement : run){
+			//test all already created search states
+			for(searchState currentSearchState : states){
 				//assert(goal.size()>s.pos) : "goal size is only " + goal.size() + " but we will request pos " + s.pos;
-				if (!s.finished && goal.get(s.pos).equals(t)) {
-					s.pos++;
-					if (s.pos == goal.size()) {
-						s.finished = true;
-						if (s.cost == 0)
+				if(!currentSearchState.finished && goal.get(currentSearchState.pos).equals(observedElement)){
+					currentSearchState.pos++;
+					if(currentSearchState.pos==goal.size()){
+						currentSearchState.finished=true;
+						if(currentSearchState.cost==0){
 							return 0;
+						}
 					}
-				} else if (!s.finished) {
-					s.cost++;
+				}else if(!currentSearchState.finished){
+					if(goal.contains(observedElement)){
+						currentSearchState.cost++;
+					}else{
+						//currently we do nothing in this case
+					}
 				}
 			}
 
-			if (goal.get(0).equals(t)) {
+			//the first element of the goal, therefore we create a new searchState
+			if(goal.get(0).equals(observedElement)){
 				states.add(new searchState());
 			}
 
@@ -131,7 +141,7 @@ public class ConcurrencyTracer {
 					}
 				}
 			}
-			states.removeAll(toDrop);
+			//states.removeAll(toDrop);
 		}
 
 		searchState min = new searchState();
