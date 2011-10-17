@@ -13,6 +13,13 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  */
 public abstract class AbstractFitnessFactory implements TestFitnessFactory{
 
+	/**
+	 * A concrete factory can store the time consumed to initially compute all
+	 * coverage goals in this field in order to track this information in
+	 * SearchStatistics.
+	 */
+	public static long goalComputationTime = 0l;
+	
 	@Override
 	public double getFitness(TestSuiteChromosome suite){
 		

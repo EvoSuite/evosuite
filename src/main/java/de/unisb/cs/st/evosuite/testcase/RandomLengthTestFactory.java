@@ -18,7 +18,8 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
@@ -32,10 +33,7 @@ public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome
 
 	private static final long serialVersionUID = -5202578461625984100L;
 
-	protected static Logger logger = Logger.getLogger(FixedLengthTestChromosomeFactory.class);
-
-	/** Factory to manipulate and generate method sequences */
-	private final DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
+	protected static Logger logger = LoggerFactory.getLogger(FixedLengthTestChromosomeFactory.class);
 
 	/**
 	 * Create a random individual
@@ -43,6 +41,8 @@ public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome
 	 * @param size
 	 */
 	private TestCase getRandomTestCase(int size) {
+		ExecutionTracer.disable();
+
 		TestCase test = getNewTestCase();
 		int num = 0;
 
@@ -51,6 +51,8 @@ public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome
 		while (length == 0)
 			length = Randomness.nextInt(size);
 
+		DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
+
 		// Then add random stuff
 		while (test.size() < length && num < Properties.MAX_ATTEMPTS) {
 			test_factory.insertRandomStatement(test);
@@ -58,6 +60,8 @@ public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome
 		}
 		if (logger.isDebugEnabled())
 			logger.debug("Randomized test case:" + test.toCode());
+
+		ExecutionTracer.enable();
 
 		return test;
 	}

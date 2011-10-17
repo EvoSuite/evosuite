@@ -19,6 +19,7 @@ package de.unisb.cs.st.evosuite.classcreation;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,14 +29,15 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
-import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.MarkerAnnotation;
+import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.ReturnStatement;
@@ -44,7 +46,10 @@ import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
  * Generates classes from given abstract methods and constructors.
@@ -63,14 +68,20 @@ public class SourceCodeGenerator {
 	/** Container for the current AST. */
 	private final CompilationUnit unit;
 
-	/** List of the abstract methods for original abstract class */
-	private final List<Method> abstractMethods = new LinkedList<Method>();
+	/** List of the methods for original class */
+	private final List<Method> methods = new LinkedList<Method>();
 
-	/** Original abstract class. */
+	/** Original class */
 	private final Class<?> clazz;
 
-	/** List of the constructors for original abstract class. */
-	private final Constructor<?>[] abstractConstructors;
+	/** Class name */
+	private String className;
+
+	/** Name of the package */
+	private final String packageName;
+
+	/** List of the constructors for original class. */
+	private final Constructor<?>[] constructors;
 
 	/** Information about stub fields and setters */
 	private final Set<StubField> stubFields = new HashSet<StubField>();
@@ -78,23 +89,38 @@ public class SourceCodeGenerator {
 	/** Current name of the field to generate */
 	private String currentFieldName;
 
+	/** If current class if abstract */
+	private boolean abstractClass = false;
+
 	/**
 	 * @param clazz
-	 *            abstract class for which stub should be generated.
+	 *            class for which stub should be generated.
 	 */
 	public SourceCodeGenerator(Class<?> clazz) {
 		ast = AST.newAST(AST.JLS3);
 		unit = ast.newCompilationUnit();
 		this.clazz = clazz;
+		packageName = Utils.getPackageName(clazz);
 
-		// Get constructors and methods of abstract class. 
-		Method[] methods = clazz.getDeclaredMethods();
-		abstractConstructors = clazz.getConstructors();
+		if (clazz.getCanonicalName() == null)
+			className = clazz.getName();
+		else
+			className = clazz.getCanonicalName();
 
-		// Filter method and select only abstract methods.
-		for (Method m : methods)
-			if (java.lang.reflect.Modifier.isAbstract(m.getModifiers()))
-				abstractMethods.add(m);
+		// Get constructors and methods of a class. 
+		Method[] initialMethods = clazz.getDeclaredMethods();
+		constructors = clazz.getConstructors();
+
+		// If class is abstract filter methods and select only 
+		// abstract.
+		if (java.lang.reflect.Modifier.isAbstract(clazz.getModifiers())) {
+			abstractClass = true;
+			for (Method m : initialMethods)
+				if (java.lang.reflect.Modifier.isAbstract(m.getModifiers()))
+					methods.add(m);
+		} else {
+			methods.addAll(Arrays.asList(initialMethods));
+		}
 	}
 
 	/**
@@ -105,24 +131,38 @@ public class SourceCodeGenerator {
 	@SuppressWarnings("unchecked")
 	public CompilationUnit generateSourceCode() {
 		PackageDeclaration pd = ast.newPackageDeclaration();
-		pd.setName(ast.newName(clazz.getPackage().getName()));
+		pd.setName(ast.newName(packageName));
 		unit.setPackage(pd);
 
 		// Create class stub.
 		TypeDeclaration type = ast.newTypeDeclaration();
 		type.setName(ast.newSimpleName(clazz.getSimpleName() + "Stub"));
+
+		if (abstractClass) {
+			// Set inheritance.
+			type.setSuperclassType(ast.newSimpleType(ast.newName(className)));
+
+			// Check for abstract constructors and if any - generate them.
+			if (constructors.length != 0)
+				type.bodyDeclarations().addAll(generateConstructors());
+		} else {
+			// Add jmockit annotation 
+			NormalAnnotation na = ast.newNormalAnnotation();
+			na.setTypeName(ast.newName("mockit.MockClass"));
+			MemberValuePair mvp = ast.newMemberValuePair();
+			mvp.setName(ast.newSimpleName("realClass"));
+			TypeLiteral tl = ast.newTypeLiteral();
+			tl.setType(ast.newSimpleType(ast.newName(className)));
+			mvp.setValue(tl);
+			na.values().add(mvp);
+
+			type.modifiers().add(na);
+		}
 		type.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD));
 
 		type.setInterface(false);
 
-		// Set inheritance.
-		type.setSuperclassType(ast.newSimpleType(ast.newName(clazz.getCanonicalName())));
-
-		// Check for abstract constructors and if any - generate them.
-		if (abstractConstructors.length != 0)
-			type.bodyDeclarations().addAll(generateConstructors());
-
-		// Generate stubs, fields and setters for the abstract methods.
+		// Generate stubs, fields and setters for the methods.
 		List<MethodDeclaration> generatedMethods = generateMethods();
 		List<FieldDeclaration> generatedFields = generateFields();
 		List<MethodDeclaration> generatedSetters = generateSetters();
@@ -144,38 +184,42 @@ public class SourceCodeGenerator {
 	@SuppressWarnings("unchecked")
 	private List<MethodDeclaration> generateMethods() {
 		List<MethodDeclaration> generatedMethods = new LinkedList<MethodDeclaration>();
-		for (Method abstractMethod : abstractMethods) {
-			generateFieldName(abstractMethod);
+		for (Method method : methods) {
+			generateFieldName(method);
 
 			MethodDeclaration md = ast.newMethodDeclaration();
-			md.setName(ast.newSimpleName(abstractMethod.getName()));
+			md.setName(ast.newSimpleName(method.getName()));
 
-			// Set "Override" annotation marker.
-			MarkerAnnotation ma = ast.newMarkerAnnotation();
-			ma.setTypeName(ast.newName("java.lang.Override"));
-			md.modifiers().add(ma);
+			// Set "Override" annotation marker if abstract class.
+			// Otherwise set jmockit annotations
+			NormalAnnotation na = ast.newNormalAnnotation();
+			if (abstractClass)
+				na.setTypeName(ast.newName("java.lang.Override"));
+			else
+				na.setTypeName(ast.newName("mockit.Mock"));
+			md.modifiers().add(na);
 
 			// Get original modifiers of the method, they are either 
 			// public or protected.
-			int modifiers = abstractMethod.getModifiers();
+			int modifiers = method.getModifiers();
 			if (Modifier.isPublic(modifiers))
 				md.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD));
 			else
 				md.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PROTECTED_KEYWORD));
 
 			// Set return type of the method.
-			md.setReturnType2(generateType(abstractMethod.getReturnType()));
+			md.setReturnType2(generateType(method.getReturnType()));
 
 			// Generate method parameters if any.
-			List<?> parameters = generateMethodParameters(abstractMethod.getParameterTypes());
+			List<?> parameters = generateMethodParameters(method.getParameterTypes());
 			if (!parameters.isEmpty())
 				md.parameters().addAll(parameters);
 
 			// Set default return value.
-			md.setBody(generateMethodBody(abstractMethod.getReturnType()));
+			md.setBody(generateMethodBody(method.getReturnType()));
 
 			// Add exceptions thrown by method if any.
-			List<?> exceptions = (generateThrownExceptions(abstractMethod.getExceptionTypes()));
+			List<?> exceptions = (generateThrownExceptions(method.getExceptionTypes()));
 			if (!exceptions.isEmpty())
 				md.thrownExceptions().addAll(exceptions);
 
@@ -248,7 +292,7 @@ public class SourceCodeGenerator {
 	@SuppressWarnings("unchecked")
 	private List<MethodDeclaration> generateConstructors() {
 		List<MethodDeclaration> generatedConstructors = new LinkedList<MethodDeclaration>();
-		for (Constructor<?> abstractConstructor : abstractConstructors) {
+		for (Constructor<?> abstractConstructor : constructors) {
 
 			MethodDeclaration cd = ast.newMethodDeclaration();
 			cd.setName(ast.newSimpleName(clazz.getSimpleName() + "Stub"));
@@ -304,7 +348,7 @@ public class SourceCodeGenerator {
 	 *            array of exception types in original method.generateMethodBody
 	 * @return list of exceptions.
 	 */
-	@SuppressWarnings({ "unchecked" })
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List generateThrownExceptions(Class<?>[] thrownExceptions) {
 		List exceptions = new LinkedList();
 		for (Class<?> exception : thrownExceptions) {
@@ -320,7 +364,7 @@ public class SourceCodeGenerator {
 	 *            types of the parameters in original method.
 	 * @return list of the parameters.
 	 */
-	@SuppressWarnings({ "unchecked" })
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List generateMethodParameters(Class<?>[] parameterTypes) {
 		List parameters = new LinkedList();
 		int counter = 0;
@@ -342,9 +386,22 @@ public class SourceCodeGenerator {
 	 * @return AST representation of the type.
 	 */
 	private Type generateType(Class<?> type) {
+		if (type.isArray())
+			return generateArrayType(type);
 		if (type.isPrimitive())
 			return generatePrimitiveType(type);
 		return generateSimpleType(type);
+	}
+
+	/**
+	 * Generates array type
+	 * 
+	 * @param type
+	 *            reflection represantation of the array type
+	 * @return AST representation of the type
+	 */
+	private Type generateArrayType(Class<?> type) {
+		return ast.newArrayType(generateType(type.getComponentType()));
 	}
 
 	/**
@@ -403,6 +460,13 @@ public class SourceCodeGenerator {
 			rememberFieldParams(sl, ast.newSimpleType(ast.newName("java.lang.String")),
 			                    ast.newSimpleType(ast.newName("java.lang.String")));
 
+			return ast.newSimpleName(currentFieldName);
+		}
+
+		if (returnType.isArray()) {
+			NullLiteral nl = ast.newNullLiteral();
+			rememberFieldParams(nl, generateArrayType(returnType),
+			                    generateArrayType(returnType));
 			return ast.newSimpleName(currentFieldName);
 		}
 
@@ -484,7 +548,6 @@ public class SourceCodeGenerator {
 			                    ast.newPrimitiveType(PrimitiveType.SHORT),
 			                    ast.newPrimitiveType(PrimitiveType.SHORT));
 		}
-
 		return ast.newSimpleName(currentFieldName);
 	}
 
@@ -510,18 +573,20 @@ public class SourceCodeGenerator {
 	/**
 	 * Does some tricky string manipulation to get name of the field.
 	 * 
-	 * @param abstractMethod
+	 * @param method
 	 *            method for which name should be created.
 	 */
-	private void generateFieldName(Method abstractMethod) {
-		String fieldName = abstractMethod.getName();
-		String methodDescriptor = bsh.org.objectweb.asm.Type.getMethodDescriptor(abstractMethod);
+	private void generateFieldName(Method method) {
+		String fieldName = method.getName();
+		String methodDescriptor = org.objectweb.asm.Type.getMethodDescriptor(method);
 		String[] methodParams = methodDescriptor.replace(')', ';').replace('(', ';').split(";");
+
 		for (int i = 1; i < methodParams.length - 1; i++) {
 			String[] temp = methodParams[i].split("/");
 			String paramName = temp[temp.length - 1];
+
 			if (!paramName.equals(""))
-				fieldName += "_" + paramName;
+				fieldName += "_" + paramName.replace('[', 'a');
 		}
 		currentFieldName = fieldName;
 	}
@@ -538,11 +603,12 @@ public class SourceCodeGenerator {
 
 		// Check if class can be instantiated.
 		if (canInstantiate(clazz)) {
-			ClassInstanceCreation cic = ast.newClassInstanceCreation();
+			// let's leave it that way at the moment. 
+			// ClassInstanceCreation cic = ast.newClassInstanceCreation();
+			NullLiteral cic = ast.newNullLiteral();
 			Type classType = ast.newSimpleType(ast.newName(clazz.getCanonicalName()));
 			Type classType2 = ast.newSimpleType(ast.newName(clazz.getCanonicalName()));
-			cic.setType(classType);
-
+			//cic.setType(classType);
 			rememberFieldParams(cic, classType, classType2);
 
 			return ast.newSimpleName(currentFieldName);

@@ -18,6 +18,9 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
@@ -46,12 +49,12 @@ public class ConstructorStatement extends AbstractStatement {
 
 	private static final long serialVersionUID = -3035570485633271957L;
 
-	Constructor<?> constructor;
+	private transient Constructor<?> constructor;
 
 	public List<VariableReference> parameters;
 
 	public ConstructorStatement(TestCase tc, Constructor<?> constructor,
-			java.lang.reflect.Type type, List<VariableReference> parameters) {
+	        java.lang.reflect.Type type, List<VariableReference> parameters) {
 		super(tc, new VariableReferenceImpl(tc, type));
 		this.constructor = constructor;
 		// this.return_type = constructor.getDeclaringClass();
@@ -70,7 +73,7 @@ public class ConstructorStatement extends AbstractStatement {
 	 * @param parameters
 	 */
 	public ConstructorStatement(TestCase tc, Constructor<?> constructor,
-			VariableReference retvar, List<VariableReference> parameters) {
+	        VariableReference retvar, List<VariableReference> parameters) {
 		super(tc, retvar);
 		assert (tc.size() > retvar.getStPosition()); //as an old statement should be replaced by this statement
 		this.constructor = constructor;
@@ -85,8 +88,8 @@ public class ConstructorStatement extends AbstractStatement {
 	// TODO: Handle inner classes (need instance parameter for newInstance)
 	@Override
 	public Throwable execute(final Scope scope, PrintStream out)
-	throws InvocationTargetException, IllegalArgumentException,
-	InstantiationException, IllegalAccessException {
+	        throws InvocationTargetException, IllegalArgumentException,
+	        InstantiationException, IllegalAccessException {
 		PrintStream old_out = System.out;
 		PrintStream old_err = System.err;
 		System.setOut(out);
@@ -100,43 +103,44 @@ public class ConstructorStatement extends AbstractStatement {
 
 				@Override
 				public void execute() throws InvocationTargetException,
-				IllegalArgumentException, IllegalAccessException,
-				InstantiationException {
+				        IllegalArgumentException, IllegalAccessException,
+				        InstantiationException {
 
 					for (int i = 0; i < parameters.size(); i++) {
 						try {
 							inputs[i] = parameters.get(i).getObject(scope);
 						} catch (CodeUnderTestException e) {
-							throw CodeUnderTestException.throwException(e);
-						} catch(Throwable e){
+							throw CodeUnderTestException.throwException(e.getCause());
+						} catch (Throwable e) {
 							throw new EvosuiteError(e);
 						}
-					}	
+					}
 
 					Object ret = constructor.newInstance(inputs);
 
-					try{
-						assert(retval.getVariableClass().isAssignableFrom(ret.getClass())) :"we want an " + retval.getVariableClass() + " but got an " + ret.getClass();
+					try {
+						// assert(retval.getVariableClass().isAssignableFrom(ret.getClass())) :"we want an " + retval.getVariableClass() + " but got an " + ret.getClass();
 						retval.setObject(scope, ret);
 					} catch (CodeUnderTestException e) {
 						throw CodeUnderTestException.throwException(e);
-					} catch(Throwable e){
+					} catch (Throwable e) {
 						throw new EvosuiteError(e);
 					}
 				}
 
 				@Override
-				public Set<Class<? extends Throwable>> throwableExceptions(){
+				public Set<Class<? extends Throwable>> throwableExceptions() {
 					Set<Class<? extends Throwable>> t = new HashSet<Class<? extends Throwable>>();
 					t.add(InvocationTargetException.class);
 					return t;
 				}
 			});
 
-
 		} catch (InvocationTargetException e) {
+			System.setOut(old_out);
+			System.setErr(old_err);
 			exceptionThrown = e.getCause();
-			logger.debug("Exception thrown in constructor: " + e);
+			logger.debug("Exception thrown in constructor: " + e.getCause());
 
 		} finally {
 			System.setOut(old_out);
@@ -164,28 +168,37 @@ public class ConstructorStatement extends AbstractStatement {
 			result += retval.getSimpleClassName() + " ";
 		}
 		result += retval.getName() + " = new "
-		+ ClassUtils.getShortClassName(constructor.getDeclaringClass()) + "("
-		+ parameter_string + ");";
+		        + ClassUtils.getShortClassName(constructor.getDeclaringClass()) + "("
+		        + parameter_string + ");";
 		if (exception != null) {
 			Class<?> ex = exception.getClass();
 			while (!Modifier.isPublic(ex.getModifiers()))
 				ex = ex.getSuperclass();
-			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {}";
+			result += "\n  fail(\"Expecting exception: "
+			        + ClassUtils.getShortClassName(ex) + "\");";
+
+			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {\n";
+			if (exception.getMessage() != null) {
+				for (String msg : exception.getMessage().split("\n")) {
+					result += "  // " + msg + "\n";
+				}
+			}
+			result += "}";
 		}
 
 		return result;
 	}
 
 	@Override
-	public StatementInterface clone(TestCase newTestCase) {
+	public StatementInterface copy(TestCase newTestCase, int offset) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
-			new_params.add(r.clone(newTestCase));
+			new_params.add(r.copy(newTestCase, offset));
 		}
 
 		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor,
-				retval.getType(), new_params);
-		copy.assertions = cloneAssertions(newTestCase);
+		        retval.getType(), new_params);
+		// copy.assertions = copyAssertions(newTestCase, offset);
 
 		return copy;
 	}
@@ -262,7 +275,7 @@ public class ConstructorStatement extends AbstractStatement {
 	 */
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-			Throwable exception) {
+	        Throwable exception) {
 		logger.debug("Invoking constructor");
 		Label start = mg.newLabel();
 		Label end = mg.newLabel();
@@ -278,16 +291,16 @@ public class ConstructorStatement extends AbstractStatement {
 			if (constructor.getParameterTypes()[num].isPrimitive()) {
 				if (!constructor.getParameterTypes()[num].equals(parameter.getVariableClass())) {
 					logger.debug("Types don't match - casting "
-							+ parameter.getVariableClass().getName() + " to "
-							+ constructor.getParameterTypes()[num].getName());
+					        + parameter.getVariableClass().getName() + " to "
+					        + constructor.getParameterTypes()[num].getName());
 					mg.cast(Type.getType(parameter.getVariableClass()),
-							Type.getType(constructor.getParameterTypes()[num]));
+					        Type.getType(constructor.getParameterTypes()[num]));
 				}
 			}
 			num++;
 		}
 		mg.invokeConstructor(Type.getType(retval.getVariableClass()),
-				Method.getMethod(constructor));
+		                     Method.getMethod(constructor));
 		logger.debug("Storing result");
 		retval.storeBytecode(mg, locals);
 
@@ -405,5 +418,62 @@ public class ConstructorStatement extends AbstractStatement {
 	@Override
 	public boolean isAssignmentStatement() {
 		return false;
+	}
+
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+		// Write/save additional fields
+		oos.writeObject(constructor.getDeclaringClass());
+		Constructor<?>[] constructors = constructor.getDeclaringClass().getDeclaredConstructors();
+		for (int i = 0; i < constructors.length; i++) {
+			if (constructors[i].equals(constructor))
+				oos.writeObject(new Integer(i));
+		}
+	}
+
+	// assumes "static java.util.Date aDate;" declared
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+
+		// Read/initialize additional fields
+		Class<?> constructorClass = (Class<?>) ois.readObject();
+		int num = (Integer) ois.readObject();
+
+		constructor = constructorClass.getDeclaredConstructors()[num];
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		try {
+			Class<?> oldClass = constructor.getDeclaringClass();
+			Class<?> newClass = loader.loadClass(oldClass.getName());
+			for (Constructor<?> newConstructor : TestCluster.getConstructors(newClass)) {
+				boolean equals = true;
+				Class<?>[] oldParameters = this.constructor.getParameterTypes();
+				Class<?>[] newParameters = newConstructor.getParameterTypes();
+				if (oldParameters.length != newParameters.length)
+					continue;
+
+				for (int i = 0; i < newParameters.length; i++) {
+					if (!oldParameters[i].getName().equals(newParameters[i].getName())) {
+						equals = false;
+						break;
+					}
+				}
+				if (equals) {
+					this.constructor = newConstructor;
+					return;
+				}
+			}
+		} catch (ClassNotFoundException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		} catch (SecurityException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		}
+		logger.warn("Constructor not found - keeping old class loader ");
 	}
 }

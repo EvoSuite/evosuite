@@ -21,10 +21,13 @@ package de.unisb.cs.st.evosuite.coverage.branch;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.cfg.ControlDependency;
+import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
 
@@ -34,7 +37,7 @@ import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
  */
 public class BranchCoverageFactory extends AbstractFitnessFactory {
 
-	private static Logger logger = Logger.getLogger(BranchCoverageFactory.class);
+	private static Logger logger = LoggerFactory.getLogger(BranchCoverageFactory.class);
 
 	/*
 	 * (non-Javadoc)
@@ -44,41 +47,88 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 	 */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
+		long start = System.currentTimeMillis();
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
 
 		String targetMethod = Properties.TARGET_METHOD;
 
 		// Branchless methods
-		String class_name = Properties.TARGET_CLASS;
+		String targetClass = Properties.TARGET_CLASS;
 		for (String method : BranchPool.getBranchlessMethods()) {
-			if (targetMethod.equals("") || method.endsWith(targetMethod))
-				goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(
-				        class_name, method.substring(method.lastIndexOf(".") + 1))));
+			if (targetMethod.equals("") || method.endsWith(targetMethod)) {
+				goals.add(createRootBranchTestFitness(targetClass, method));
+			}
 		}
 		// Branches
-		logger.info("Getting branches");
+		// logger.info("Getting branches");
 		for (String className : BranchPool.knownClasses()) {
-			for (String methodName : BranchPool.knownMethods(className)) {
+			//if (!targetClass.equals("") && !className.startsWith(targetClass)) {
+			//	continue;
+			//}
 
+			for (String methodName : BranchPool.knownMethods(className)) {
 				if (!targetMethod.equals("") && !methodName.equals(targetMethod)) {
 					logger.info("Method " + methodName + " does not equal target method "
 					        + targetMethod);
 					continue;
 				}
 
-
-				for (Branch b : BranchPool.retrieveBranchesInMethod(className,methodName)) {
-
-					// Identify vertex in CFG
-					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(b,
-					        true, className, methodName)));
-					goals.add(new BranchCoverageTestFitness(new BranchCoverageGoal(b,
-					        false, className, methodName)));
+				for (Branch b : BranchPool.retrieveBranchesInMethod(className, methodName)) {
+					if (!(b.getInstruction().isForcedBranch() || LCSAJPool.isLCSAJBranch(b))) {
+						goals.add(createBranchCoverageTestFitness(b, true));
+						//if (!b.isSwitchCaseBranch())
+						goals.add(createBranchCoverageTestFitness(b, false));
+					}
 				}
 			}
 		}
-
+		goalComputationTime = System.currentTimeMillis() - start;
 		return goals;
 	}
 
+	/**
+	 * Create a fitness function for branch coverage aimed at executing the
+	 * given ControlDependency.
+	 */
+	public static BranchCoverageTestFitness createBranchCoverageTestFitness(
+	        ControlDependency cd) {
+		return createBranchCoverageTestFitness(cd.getBranch(),
+		                                       cd.getBranchExpressionValue());
+	}
+
+	/**
+	 * Create a fitness function for branch coverage aimed at executing the
+	 * Branch identified by b as defined by branchExpressionValue.
+	 */
+	public static BranchCoverageTestFitness createBranchCoverageTestFitness(Branch b,
+	        boolean branchExpressionValue) {
+
+		return new BranchCoverageTestFitness(new BranchCoverageGoal(b,
+		        branchExpressionValue, b.getClassName(), b.getMethodName()));
+	}
+
+	/**
+	 * Create a fitness function for branch coverage aimed at covering the root
+	 * branch of the given method in the given class. Covering a root branch
+	 * means entering the method.
+	 */
+	public static BranchCoverageTestFitness createRootBranchTestFitness(String className,
+	        String method) {
+
+		return new BranchCoverageTestFitness(new BranchCoverageGoal(className,
+		        method.substring(method.lastIndexOf(".") + 1)));
+	}
+
+	/**
+	 * Convenience method calling createRootBranchTestFitness(class,method) with
+	 * the respective class and method of the given BytecodeInstruction.
+	 */
+	public static BranchCoverageTestFitness createRootBranchTestFitness(
+	        BytecodeInstruction instruction) {
+		if (instruction == null)
+			throw new IllegalArgumentException("null given");
+
+		return createRootBranchTestFitness(instruction.getClassName(),
+		                                   instruction.getMethodName());
+	}
 }

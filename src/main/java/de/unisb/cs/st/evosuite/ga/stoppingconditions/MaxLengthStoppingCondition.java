@@ -31,6 +31,8 @@ import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
  */
 public class MaxLengthStoppingCondition extends StoppingCondition {
 
+	private static final long serialVersionUID = 8537667219135128366L;
+
 	private double average_length = 0.0;
 
 	/* (non-Javadoc)
@@ -64,20 +66,26 @@ public class MaxLengthStoppingCondition extends StoppingCondition {
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
 	@Override
-	public int getCurrentValue() {
-		return (int) average_length;
+	public long getCurrentValue() {
+		return (long) average_length;
 	}
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
 	@Override
-	public void setLimit(int limit) {
-		Properties.MAX_LENGTH = limit;
+	public void setLimit(long limit) {
+		Properties.MAX_LENGTH = (int) limit;
 	}
 
 	@Override
-	public int getLimit() {
-		return (int) (Properties.MAX_LENGTH + 0.5);
+	public long getLimit() {
+		return (long) (Properties.MAX_LENGTH + 0.5);
+	}
+
+	@Override
+	public void forceCurrentValue(long value) {
+		// TODO Auto-generated method stub
+		// TODO ?
 	}
 }

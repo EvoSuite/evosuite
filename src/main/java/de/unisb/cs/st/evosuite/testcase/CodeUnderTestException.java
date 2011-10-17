@@ -1,6 +1,7 @@
 package de.unisb.cs.st.evosuite.testcase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Used to wrap exceptions thrown in code under test. This is needed as VariableReference.getObjects/.setObject 
@@ -18,7 +19,7 @@ public class CodeUnderTestException extends Exception{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final Logger logger = Logger.getLogger(CodeUnderTestException.class);
+	private static final Logger logger = LoggerFactory.getLogger(CodeUnderTestException.class);
 	
 	public CodeUnderTestException(Throwable cause){
 		super(cause);
@@ -27,7 +28,7 @@ public class CodeUnderTestException extends Exception{
 	/**
 	 * Used by code calling VariableReference.setObject/2 and .getObject()/1 
 	 * @param e
-	 * @return only there to make the compiler happy, this method always throws and exception
+	 * @return only there to make the compiler happy, this method always throws an exception
 	 * @throws IllegalAccessException
 	 * @throws IllegalArgumentException
 	 * @throws NullPointerException
@@ -35,12 +36,17 @@ public class CodeUnderTestException extends Exception{
 	 * @throws AssertionError if e wasn't one of listed for types
 	 */
 	public static Error throwException(Throwable e) throws IllegalAccessException, IllegalArgumentException, NullPointerException, ExceptionInInitializerError{
+		if(e instanceof CodeUnderTestException){
+			e=e.getCause();
+		}
 		if(e instanceof IllegalAccessException){
 			throw (IllegalAccessException)e;
 		}else if(e instanceof IllegalArgumentException){
 			throw (IllegalArgumentException)e;
 		}else if(e instanceof NullPointerException){
 			throw (NullPointerException)e;
+		}else if(e instanceof ArrayIndexOutOfBoundsException){
+			throw (ArrayIndexOutOfBoundsException)e;
 		}else if(e instanceof ExceptionInInitializerError){
 			throw (ExceptionInInitializerError)e;
 		}else{

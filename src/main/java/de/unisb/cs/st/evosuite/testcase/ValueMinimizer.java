@@ -4,13 +4,10 @@
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.List;
+import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
@@ -22,7 +19,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
  */
 public class ValueMinimizer implements TestVisitor {
 
-	private static Logger logger = Logger.getLogger(ValueMinimizer.class);
+	private static Logger logger = LoggerFactory.getLogger(ValueMinimizer.class);
 
 	private static interface Minimization {
 		public boolean isNotWorse();
@@ -86,6 +83,7 @@ public class ValueMinimizer implements TestVisitor {
 		 */
 		@Override
 		public boolean isNotWorse() {
+			ExecutionResult lastResult = individual.getLastExecutionResult();
 			individual.setChanged(true);
 			suite.setTestChromosome(testIndex, individual);
 			double newFitness = fitness.getFitness(suite);
@@ -96,6 +94,7 @@ public class ValueMinimizer implements TestVisitor {
 				suite.setFitness(lastFitness);
 				return true;
 			} else {
+				individual.setLastExecutionResult(lastResult);
 				suite.setFitness(lastFitness);
 				return false;
 			}
@@ -138,7 +137,7 @@ public class ValueMinimizer implements TestVisitor {
 
 			if (min.equals(max)) {
 				done = true;
-				assert (objective.isNotWorse());
+				//assert (objective.isNotWorse());
 			} else if (objective.isNotWorse()) {
 				// If fitness has not decreased, new max is new value
 				max = statement.getValue();
@@ -165,6 +164,8 @@ public class ValueMinimizer implements TestVisitor {
 			logger.info("Statement before minimization: " + statement.getCode());
 			binarySearch((NumericalPrimitiveStatement<?>) statement);
 			logger.info("Statement after minimization: " + statement.getCode());
+		} else if (statement instanceof StringPrimitiveStatement) {
+			// TODO: Try to delete characters, or at least replace non-ascii characters with ascii characters
 		}
 	}
 
@@ -177,53 +178,21 @@ public class ValueMinimizer implements TestVisitor {
 
 	}
 
-	private int getNumParameters(AccessibleObject o) {
-		int num = 0;
-		if (o instanceof Method) {
-			Method m = (Method) o;
-			if (Modifier.isStatic(m.getModifiers()))
-				num++;
-			num += m.getParameterTypes().length;
-		} else if (o instanceof Constructor<?>) {
-			Constructor<?> c = (Constructor<?>) o;
-			num = c.getParameterTypes().length;
-		} else if (o instanceof Field) {
-			Field f = (Field) o;
-			if (Modifier.isStatic(f.getModifiers()))
-				num++;
-
-		}
-		return num;
-	}
-
-	private boolean isPrimitive(AccessibleObject o) {
-		if (o instanceof Method) {
-			Method m = (Method) o;
-			return m.getReturnType().isPrimitive();
-		} else if (o instanceof Constructor<?>) {
-			return false;
-		} else if (o instanceof Field) {
-			Field f = (Field) o;
-			return f.getType().isPrimitive();
-		}
-		return false;
-	}
-
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitMethodStatement(de.unisb.cs.st.evosuite.testcase.MethodStatement)
 	 */
 	@Override
 	public void visitMethodStatement(MethodStatement statement) {
-
+		//if (true)
+		//	return;
 		try {
 			TestCluster cluster = TestCluster.getInstance();
 			DefaultTestFactory factory = DefaultTestFactory.getInstance();
 
-			int numParameters = statement.parameters.size();
 			StatementInterface copy = statement;
 			int position = copy.getPosition();
 
-			List<AccessibleObject> generators = cluster.getGenerators(statement.getReturnType());
+			Set<AccessibleObject> generators = cluster.getGenerators(statement.getReturnType());
 			logger.info("Trying replacement of " + statement.getCode());
 			//logger.info(test.toCode());
 			for (AccessibleObject generator : generators) {
@@ -232,7 +201,6 @@ public class ValueMinimizer implements TestVisitor {
 					factory.changeCall(test, statement, generator);
 					if (objective.isNotWorse()) {
 						//logger.info(test.toCode());
-						numParameters = getNumParameters(generator);
 						copy = statement;
 						logger.info("Success replacement with " + generator);
 					} else {

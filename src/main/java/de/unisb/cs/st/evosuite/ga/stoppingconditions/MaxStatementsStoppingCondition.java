@@ -21,7 +21,8 @@
 
 package de.unisb.cs.st.evosuite.ga.stoppingconditions;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 
@@ -31,14 +32,16 @@ import de.unisb.cs.st.evosuite.Properties;
  */
 public class MaxStatementsStoppingCondition extends StoppingCondition {
 
-	@SuppressWarnings({ "unused", "hiding" })
-	private static Logger logger = Logger.getLogger(MaxStatementsStoppingCondition.class);
+	private static final long serialVersionUID = 8521297417505862683L;
+
+	@SuppressWarnings({ "unused" })
+	private static Logger logger = LoggerFactory.getLogger(MaxStatementsStoppingCondition.class);
 
 	/** Maximum number of iterations */
-	protected static int max_statements = Properties.GENERATIONS;
+	protected static long max_statements = Properties.GENERATIONS;
 
 	/** Maximum number of iterations */
-	protected static int current_statement = 0;
+	protected static long current_statement = 0;
 
 	/**
 	 * Add a given number of executed statements
@@ -54,7 +57,8 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 	 */
 	@Override
 	public boolean isFinished() {
-		//logger.info("Current number of statements executed: "+current_statement+"/"+max_statements);
+		// logger.info("Current number of statements executed: " + current_statement + "/"
+		//        + max_statements);
 		return current_statement >= max_statements;
 	}
 
@@ -66,7 +70,7 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 		current_statement = 0;
 	}
 
-	public static int getNumExecutedStatements() {
+	public static long getNumExecutedStatements() {
 		return current_statement;
 	}
 
@@ -75,7 +79,7 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 	 * 
 	 * @param max
 	 */
-	public void setMaxExecutedStatements(int max) {
+	public static void setMaxExecutedStatements(int max) {
 		max_statements = max;
 	}
 
@@ -83,7 +87,7 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
 	@Override
-	public int getCurrentValue() {
+	public long getCurrentValue() {
 		return current_statement;
 	}
 
@@ -91,13 +95,18 @@ public class MaxStatementsStoppingCondition extends StoppingCondition {
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
 	@Override
-	public void setLimit(int limit) {
+	public void setLimit(long limit) {
 		max_statements = limit;
 	}
 
 	@Override
-	public int getLimit() {
+	public long getLimit() {
 		return max_statements;
+	}
+
+	@Override
+	public void forceCurrentValue(long value) {
+		current_statement = value;
 	}
 
 }

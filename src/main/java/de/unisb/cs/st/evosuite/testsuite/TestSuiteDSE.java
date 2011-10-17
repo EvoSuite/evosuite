@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
@@ -39,7 +40,7 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
  */
 public class TestSuiteDSE {
 
-	private static Logger logger = Logger.getLogger(TestSuiteDSE.class);
+	private static Logger logger = LoggerFactory.getLogger(TestSuiteDSE.class);
 
 	private final Set<Integer> uncoveredBranches = new HashSet<Integer>();
 
@@ -110,7 +111,7 @@ public class TestSuiteDSE {
 		if (!jpfBranchMap.containsKey(key)) {
 			jpfBranchMap.put(key, new HashSet<Integer>());
 		}
-		jpfBranchMap.get(key).add(b.getJPFId());
+		jpfBranchMap.get(key).add(b.getInstruction().getJPFId());
 	}
 
 	/**
@@ -238,7 +239,6 @@ public class TestSuiteDSE {
 		Map<String, Object> values = solver.getModel(constraints);
 
 		if (values != null) {
-			int num = 0;
 			TestCase newTest = test.clone();
 
 			for (Object key : values.keySet()) {
@@ -258,7 +258,6 @@ public class TestSuiteDSE {
 					logger.debug("New value is null");
 
 				}
-				num++;
 			}
 			return newTest;
 		} else {

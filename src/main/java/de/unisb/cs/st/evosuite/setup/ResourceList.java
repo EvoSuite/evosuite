@@ -13,6 +13,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import de.unisb.cs.st.evosuite.Properties;
+
 /**
  * list resources available from the classpath @ *
  */
@@ -28,39 +30,50 @@ public class ResourceList {
 	 */
 	public static Collection<String> getResources(final Pattern pattern) {
 		final ArrayList<String> retval = new ArrayList<String>();
-		final String classPath = System.getProperty("java.class.path", ".");
-		final String[] classPathElements = classPath.split(":");
+		String classPath = System.getProperty("java.class.path", ".");
+		String[] classPathElements = classPath.split(":");
+		for (final String element : classPathElements) {
+			if (element.contains("evosuite-0.1-SNAPSHOT-dependencies.jar"))
+				continue;
+			retval.addAll(getResources(element, pattern));
+		}
+		classPath = Properties.CP;
+		classPathElements = classPath.split(":");
 		for (final String element : classPathElements) {
 			retval.addAll(getResources(element, pattern));
 		}
 		return retval;
 	}
 
-	private static Collection<String> getResources(final String element,
-			final Pattern pattern) {
+	public static Collection<String> getResources(final String element,
+	        final Pattern pattern) {
 		final ArrayList<String> retval = new ArrayList<String>();
 		final File file = new File(element);
 		if (file.isDirectory()) {
 			try {
 				retval.addAll(getResourcesFromDirectory(file, pattern,
-						file.getCanonicalPath()));
+				                                        file.getCanonicalPath()));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} else if(!file.exists()){
+		} else if (!file.exists()) {
 			//do nothing
-			System.out.println(file.getAbsolutePath() + " is on the class path, but doesn't exist.");
-		}else{
+			//System.out.println(file.getAbsolutePath()
+			//        + " is on the class path, but doesn't exist");
+
+		} else if (file.getName().endsWith(".jar")) {
 			retval.addAll(getResourcesFromJarFile(file, pattern));
 		}
 		return retval;
 	}
 
 	private static Collection<String> getResourcesFromJarFile(final File file,
-			final Pattern pattern) {
-		assert(file.exists()) : "We can only get resources from an existing jar. " + file.getAbsolutePath() + " is not existing";
-		assert(file.isFile()) : "We can only get resources from a FILE. " + file.getAbsolutePath() + " is apparently not a file";
+	        final Pattern pattern) {
+		assert (file.exists()) : "We can only get resources from an existing jar. "
+		        + file.getAbsolutePath() + " is not existing";
+		assert (file.isFile()) : "We can only get resources from a FILE. "
+		        + file.getAbsolutePath() + " is apparently not a file";
 		final ArrayList<String> retval = new ArrayList<String>();
 		ZipFile zf;
 		try {
@@ -90,7 +103,7 @@ public class ResourceList {
 	}
 
 	private static Collection<String> getResourcesFromDirectory(final File directory,
-			final Pattern pattern, final String dirName) {
+	        final Pattern pattern, final String dirName) {
 		final ArrayList<String> retval = new ArrayList<String>();
 		final File[] fileList = directory.listFiles();
 		for (final File file : fileList) {
@@ -99,7 +112,7 @@ public class ResourceList {
 			} else {
 				try {
 					final String fileName = file.getCanonicalPath().replace(dirName + "/",
-					"");
+					                                                        "");
 					final boolean accept = pattern.matcher(fileName).matches();
 					if (accept) {
 						retval.add(fileName);

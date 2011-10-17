@@ -9,7 +9,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cvc3.Expr;
 import cvc3.FlagsMut;
@@ -24,7 +25,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
  */
 public class CVC3Solver extends Thread implements Solver {
 
-	private static Logger logger = Logger.getLogger(Solver.class);
+	private static Logger logger = LoggerFactory.getLogger(Solver.class);
 
 	private ValidityChecker vc = null;
 

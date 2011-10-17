@@ -28,7 +28,7 @@ import de.unisb.cs.st.evosuite.assertion.InspectorTrace;
 import de.unisb.cs.st.evosuite.assertion.NullOutputTrace;
 import de.unisb.cs.st.evosuite.assertion.PrimitiveFieldTrace;
 import de.unisb.cs.st.evosuite.assertion.PrimitiveOutputTrace;
-import de.unisb.cs.st.javalanche.mutation.results.Mutation;
+import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
 
 public class ExecutionResult {
 	public enum Outcome {
@@ -98,6 +98,18 @@ public class ExecutionResult {
 		copy.exceptions.putAll(exceptions);
 		copy.trace = trace.clone();
 		copy.touched.addAll(touched);
+
+		if (comparison_trace != null)
+			copy.comparison_trace = comparison_trace.clone();
+		if (primitive_trace != null)
+			copy.primitive_trace = primitive_trace.clone();
+		if (inspector_trace != null)
+			copy.inspector_trace = inspector_trace.clone();
+		if (field_trace != null)
+			copy.field_trace = field_trace.clone();
+		if (null_trace != null)
+			copy.null_trace = null_trace.clone();
+
 		return copy;
 	}
 

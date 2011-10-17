@@ -11,8 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.commons.GeneratorAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 import de.unisb.cs.st.evosuite.testcase.AbstractTestFactory;
@@ -29,32 +30,38 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  */
 public class ScheduleLogWrapper implements StatementInterface {
 
-	public interface callReporter{
+	public interface callReporter {
 		/**
-		 * called directly before the statement 'caller' is entered by the thread threadID
+		 * called directly before the statement 'caller' is entered by the
+		 * thread threadID
+		 * 
 		 * @param caller
 		 * @param threadID
 		 */
 		public void callStart(StatementInterface caller, Integer threadID);
-		
+
 		/**
-		 * called directly after the statement 'caller' is existed by the thread threadID
+		 * called directly after the statement 'caller' is existed by the thread
+		 * threadID
+		 * 
 		 * @param caller
 		 * @param threadID
 		 */
 		public void callEnd(StatementInterface caller, Integer threadID);
-		
+
 		/**
 		 * Returns the schedule points which are used from within statement st.
-		 * Note that the returned Integer Values are references to pointers in the schedule.
-		 * So the Integer 5 stands for the 6th element in the schedule list
+		 * Note that the returned Integer Values are references to pointers in
+		 * the schedule. So the Integer 5 stands for the 6th element in the
+		 * schedule list
+		 * 
 		 * @param st
 		 * @return
 		 */
 		public Set<Integer> getScheduleIndicesForStatement(StatementInterface st);
 	}
 
-	private static Logger logger = Logger.getLogger(ScheduleLogWrapper.class);
+	private static Logger logger = LoggerFactory.getLogger(ScheduleLogWrapper.class);
 
 	public final StatementInterface wrapped;
 	private callReporter callReporter;
@@ -107,7 +114,7 @@ public class ScheduleLogWrapper implements StatementInterface {
 			callReporter.callStart(this,
 			                       LockRuntime.controller.getThreadID(Thread.currentThread()));
 		} catch (Throwable e) {
-			logger.fatal("test", e);
+			logger.error("test", e);
 		}
 		Throwable t = wrapped.execute(scope, out);
 		callReporter.callEnd(this,
@@ -258,6 +265,11 @@ public class ScheduleLogWrapper implements StatementInterface {
 	}
 
 	@Override
+	public StatementInterface copy(TestCase tc, int offset) {
+		return new ScheduleLogWrapper(wrapped.copy(tc, offset));
+	}
+
+	@Override
 	public int hashCode() {
 		return wrapped.hashCode();
 	}
@@ -311,5 +323,29 @@ public class ScheduleLogWrapper implements StatementInterface {
 	@Override
 	public boolean isAssignmentStatement() {
 		return wrapped.isAssignmentStatement();
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#cloneAssertions(de.unisb.cs.st.evosuite.testcase.TestCase)
+	 */
+	@Override
+	public Set<Assertion> copyAssertions(TestCase newTestCase, int offset) {
+		return wrapped.copyAssertions(newTestCase, offset);
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#setAssertions(java.util.Set)
+	 */
+	@Override
+	public void setAssertions(Set<Assertion> assertions) {
+		wrapped.setAssertions(assertions);
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		wrapped.changeClassLoader(loader);
 	}
 }

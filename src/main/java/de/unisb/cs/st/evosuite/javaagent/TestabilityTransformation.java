@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -32,6 +31,8 @@ import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.tree.analysis.Analyzer;
 import org.objectweb.asm.tree.analysis.BasicValue;
 import org.objectweb.asm.tree.analysis.Frame;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Gordon Fraser
@@ -40,7 +41,7 @@ import org.objectweb.asm.tree.analysis.Frame;
 // TODO: If we transform a method and there already is a method with the transformed descriptor, we need to change the method name as well!
 public class TestabilityTransformation {
 
-	static Logger logger = Logger.getLogger(TestabilityTransformation.class);
+	static Logger logger = LoggerFactory.getLogger(TestabilityTransformation.class);
 
 	private final ClassNode cn;
 
@@ -320,12 +321,10 @@ public class TestabilityTransformation {
 		List<LocalVariableNode> variables = mn.localVariables;
 		if (variables == null)
 			return;
-		int num = 0;
 		for (LocalVariableNode var : variables) {
 			if (Type.getType(var.desc).equals(Type.BOOLEAN_TYPE)) {
 				var.desc = Type.INT_TYPE.getDescriptor();
 			}
-			num++;
 		}
 	}
 
@@ -851,6 +850,7 @@ public class TestabilityTransformation {
 	}
 
 	// TODO: Do we need to transform the IF expression after this (probably not)
+	@SuppressWarnings("unused")
 	private void transformComparisons(MethodNode mn) {
 		logger.info("Transforming comparisons");
 

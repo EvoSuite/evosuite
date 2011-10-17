@@ -21,22 +21,26 @@ package de.unisb.cs.st.evosuite.symbolic;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
@@ -53,7 +57,12 @@ public class ConcolicExecution {
 	@SuppressWarnings("unused")
 	private List<gov.nasa.jpf.Error> errors;
 
-	private static Logger logger = Logger.getLogger(ConcolicExecution.class);
+	private static Logger logger = LoggerFactory.getLogger(ConcolicExecution.class);
+
+	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+
+	private static PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
+	        : new PrintStream(byteStream));
 
 	private PathConstraintCollector pcg;
 
@@ -78,8 +87,9 @@ public class ConcolicExecution {
 		config.setProperty("vm.insn_factory.class",
 		                   "de.unisb.cs.st.evosuite.symbolic.bytecode.IntegerConcolicInstructionFactory");
 		config.setProperty("peer_packages",
-		                   "de.unisb.cs.st.evosuite.symbolic.nativepeer,"
-		                           + config.getProperty("peer_packages"));
+		                   "de.unisb.cs.st.evosuite.symbolic.nativepeer,gov.nasa.jpf.jvm");
+		//		                           + config.getProperty("peer_packages"));
+		//logger.warn(config.getProperty("peer_packages"));
 
 		// We don't want JPF output
 		config.setProperty("report.class",
@@ -97,7 +107,18 @@ public class ConcolicExecution {
 
 		//Run the SUT
 		logger.debug("Running concolic execution");
-		jpf.run();
+		PrintStream old_out = System.out;
+		PrintStream old_err = System.err;
+		System.setOut(out);
+		System.setErr(out);
+		try {
+			jpf.run();
+		} catch (Throwable t) {
+			logger.warn("Exception while executing test: " + classPath + " " + targetName);
+		} finally {
+			System.setOut(old_out);
+			System.setErr(old_err);
+		}
 		logger.debug("Finished concolic execution");
 		logger.debug("Conditions collected: " + pcg.conditions.size());
 
@@ -149,7 +170,7 @@ public class ConcolicExecution {
 			// FIXME: Probably not for Strings?
 			return org.objectweb.asm.commons.Method.getMethod("String mark(String,String)");
 		else {
-			logger.fatal("Found primitive of unknown type: " + clazz.getName());
+			logger.error("Found primitive of unknown type: " + clazz.getName());
 			return null; // FIXME
 		}
 	}
@@ -176,6 +197,7 @@ public class ConcolicExecution {
 		return result;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public List<PrimitiveStatement> getPrimitives(TestCase test) {
 		List<PrimitiveStatement> p = new ArrayList<PrimitiveStatement>();
 		for (StatementInterface s : test) {
@@ -197,7 +219,6 @@ public class ConcolicExecution {
 				}
 			}
 		}
-
 		return p;
 	}
 
@@ -236,7 +257,7 @@ public class ConcolicExecution {
 		else if (clazz.equals(String.class))
 			mg.push(((String) statement.getValue()));
 		else
-			logger.fatal("Found primitive of unknown type: " + clazz.getName());
+			logger.error("Found primitive of unknown type: " + clazz.getName());
 	}
 
 	/**
@@ -247,7 +268,9 @@ public class ConcolicExecution {
 	 * @param test
 	 * @return
 	 */
-	private byte[] getBytecode(List<PrimitiveStatement> target, TestChromosome test) {
+	private byte[] getBytecode(
+	        @SuppressWarnings("rawtypes") List<PrimitiveStatement> target,
+	        TestChromosome test) {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, className, null,
 		         "java/lang/Object", null);
@@ -270,7 +293,7 @@ public class ConcolicExecution {
 		        cw);
 		Map<Integer, Integer> locals = new HashMap<Integer, Integer>();
 		for (StatementInterface statement : test.getTestCase()) {
-			logger.debug("Current statement: " + statement.getCode());
+			logger.debug("Current statement: {}", statement.getCode());
 			if (target.contains(statement)) {
 				PrimitiveStatement<?> p = (PrimitiveStatement<?>) statement;
 				getPrimitiveValue(mg, locals, p); // TODO: Possibly cast?
@@ -299,6 +322,7 @@ public class ConcolicExecution {
 	 * @param statements
 	 * @param test
 	 */
+	@SuppressWarnings("rawtypes")
 	public void writeTestCase(List<PrimitiveStatement> statements, TestChromosome test) {
 		File dir = new File(dirName);
 		dir.mkdir();

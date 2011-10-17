@@ -21,7 +21,8 @@ package de.unisb.cs.st.evosuite.primitives;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.utils.Randomness;
@@ -33,7 +34,7 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
 public class PrimitivePool {
 
 	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(PrimitivePool.class);
+	private static Logger logger = LoggerFactory.getLogger(PrimitivePool.class);
 
 	private static PrimitivePool instance = null;
 
@@ -84,16 +85,20 @@ public class PrimitivePool {
 
 	public void add(Object object) {
 		// Integer, a Float, a Long, a Double a
-
+		logger.debug("Adding to pool: " + object);
 		if (object == null)
 			return;
 		else if (object instanceof String) {
 			if (!((String) object).startsWith("mutationId"))
 				string_pool.add((String) object);
 		} else if (object instanceof Integer) {
-			int val = (Integer) object;
-			if (Math.abs(val) < Properties.MAX_INT && val != Integer.MAX_VALUE
-			        && val != Integer.MIN_VALUE) {
+			if (Properties.RESTRICT_POOL) {
+				int val = (Integer) object;
+				if (Math.abs(val) < Properties.MAX_INT && val != Integer.MAX_VALUE
+				        && val != Integer.MIN_VALUE) {
+					int_pool.add((Integer) object);
+				}
+			} else {
 				int_pool.add((Integer) object);
 			}
 		} else if (object instanceof Float) {
@@ -133,7 +138,8 @@ public class PrimitivePool {
 	}
 
 	public int getRandomInt() {
-		return Randomness.choice(int_pool);
+		int r = Randomness.choice(int_pool);
+		return r;
 	}
 
 	public float getRandomFloat() {

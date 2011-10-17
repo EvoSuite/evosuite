@@ -29,11 +29,13 @@ import de.unisb.cs.st.evosuite.ga.Chromosome;
  */
 public class MaxFitnessEvaluationsStoppingCondition extends StoppingCondition {
 
+	private static final long serialVersionUID = 208241490252275613L;
+
 	/** Maximum number of evaluations */
-	protected int max_evaluations = Properties.GENERATIONS;
+	protected long max_evaluations = Properties.GENERATIONS;
 
 	/** Maximum number of iterations */
-	protected static int current_evaluation = 0;
+	protected static long current_evaluation = 0;
 
 	/**
 	 * Stop when maximum number of fitness evaluations has been reached
@@ -55,7 +57,7 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingCondition {
 	/**
 	 * Static getter method
 	 */
-	public static int getNumFitnessEvaluations() {
+	public static long getNumFitnessEvaluations() {
 		return current_evaluation;
 	}
 
@@ -71,12 +73,12 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingCondition {
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
 	@Override
-	public void setLimit(int limit) {
+	public void setLimit(long limit) {
 		max_evaluations = limit;
 	}
 
 	@Override
-	public int getLimit() {
+	public long getLimit() {
 		return max_evaluations;
 	}
 
@@ -84,8 +86,13 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingCondition {
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
 	@Override
-	public int getCurrentValue() {
+	public long getCurrentValue() {
 		return current_evaluation;
+	}
+
+	@Override
+	public void forceCurrentValue(long value) {
+		current_evaluation = value;
 	}
 
 }

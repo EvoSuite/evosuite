@@ -1,11 +1,18 @@
 package de.unisb.cs.st.evosuite.ui.model;
 
+import java.util.List;
+
+import javax.swing.JMenu;
+import javax.swing.JPopupMenu;
+
 import org.uispec4j.MenuItem;
+import org.uispec4j.UIComponent;
 
 import de.unisb.cs.st.evosuite.ui.run.AbstractUIEnvironment;
 
 final class MenuItemClick extends UIAction<MenuItem> {
 	private static final long serialVersionUID = 1L;
+	private static final UIAction<MenuItem> instance = new MenuItemClick();
 
 	@Override
 	public void executeOn(final AbstractUIEnvironment env, final MenuItem menuItem) {
@@ -22,5 +29,11 @@ final class MenuItemClick extends UIAction<MenuItem> {
 	@Override
 	public String toString() {
 		return "MenuItemClick";
+	}
+
+	public static void addActions(Class<?> type, List<UIAction<? extends UIComponent>> result) {
+		if (!type.equals(JMenu.class) || (!type.equals(JPopupMenu.class))) {
+			result.add(instance);
+		}
 	}
 }

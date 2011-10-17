@@ -22,7 +22,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.utils.PublicCloneable;
 
@@ -32,11 +33,12 @@ import de.unisb.cs.st.evosuite.utils.PublicCloneable;
  * @author Gordon Fraser
  * 
  */
-public abstract class Chromosome implements Comparable<Chromosome>, Serializable, PublicCloneable<Chromosome> {
+public abstract class Chromosome implements Comparable<Chromosome>, Serializable,
+        PublicCloneable<Chromosome> {
 
 	private static final long serialVersionUID = -6921897301005213358L;
 
-	protected static Logger logger = Logger.getLogger(Chromosome.class);
+	protected static Logger logger = LoggerFactory.getLogger(Chromosome.class);
 
 	/**
 	 * Exception to handle the case when a mutation fails
@@ -115,8 +117,8 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 				break;
 			c = so.compareChromosomes(this, o);
 		}
-		logger.debug("Comparison: " + fitness + "/" + size() + " vs " + o.fitness + "/"
-		        + o.size() + " = " + c);
+		//logger.debug("Comparison: " + fitness + "/" + size() + " vs " + o.fitness + "/"
+		//        + o.size() + " = " + c);
 		return c;
 	}
 

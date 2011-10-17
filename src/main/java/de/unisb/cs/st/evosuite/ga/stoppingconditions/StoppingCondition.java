@@ -18,10 +18,12 @@
 
 package de.unisb.cs.st.evosuite.ga.stoppingconditions;
 
+import java.io.Serializable;
 import java.text.NumberFormat;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
@@ -33,9 +35,11 @@ import de.unisb.cs.st.evosuite.ga.SearchListener;
  * @author Gordon Fraser
  * 
  */
-public abstract class StoppingCondition implements SearchListener {
+public abstract class StoppingCondition implements SearchListener, Serializable {
 
-	protected static Logger logger = Logger.getLogger(StoppingCondition.class);
+	private static final long serialVersionUID = -8221978873140881671L;
+
+	protected static Logger logger = LoggerFactory.getLogger(StoppingCondition.class);
 
 	public StoppingCondition() {
 		reset();
@@ -43,13 +47,6 @@ public abstract class StoppingCondition implements SearchListener {
 
 	public abstract boolean isFinished();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.javalanche.ga.SearchListener#searchStarted(de.unisb.cs
-	 * .st.javalanche.ga.FitnessFunction)
-	 */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
 
@@ -105,7 +102,7 @@ public abstract class StoppingCondition implements SearchListener {
 	 * 
 	 * @param limit
 	 */
-	public abstract void setLimit(int limit);
+	public abstract void setLimit(long limit);
 
 	/**
 	 * Get upper limit of resources
@@ -114,35 +111,54 @@ public abstract class StoppingCondition implements SearchListener {
 	 * 
 	 * @return limit
 	 */
-	public abstract int getLimit();
+	public abstract long getLimit();
 
 	/**
 	 * How much of the budget have we used up
 	 * 
 	 * @return
 	 */
-	public abstract int getCurrentValue();
+	public abstract long getCurrentValue();
+	
+	/**
+	 * Force a specific amount of used up budget. Handle with care!
+	 * 
+	 * @param value The new amount of used up budget for this StoppingCondition
+	 */
+	public abstract void forceCurrentValue(long value);
 
 	@Override
 	public String toString() {
 		StringBuilder r = new StringBuilder();
+		String type = getType();
+		type += " :";
+		type = StringUtils.rightPad(type, 24);
+		r.append(type);
+		r.append(getValueString());
+		if (isFinished())
+			r.append(" Finished!");
+
+		return r.toString();
+	}
+	
+	public String getType() {
 		String type = getClass().toString();
 		try { // just to make sure
 			type = type.substring(type.lastIndexOf(".") + 1);
 		} catch (Exception e) {
 		}
-		type = type.substring(0, type.length() - 17); // cut away "StoppingCondition" suffix
-		type += " :";
-		type = StringUtils.rightPad(type, 24);
-		r.append(type);
+		// cut away "StoppingCondition" suffix
+		if (type.endsWith("StoppingCondition"))
+			type = type.substring(0, type.length() - 17);
+		
+		return type;
+	}
+	
+	public String getValueString() {
 		String value = NumberFormat.getIntegerInstance().format(getCurrentValue());
 		value = StringUtils.leftPad(value, 12);
 		String limit = NumberFormat.getIntegerInstance().format(getLimit());
 		limit = StringUtils.rightPad(limit, 12);
-		r.append(value + " / " + limit);
-		if (isFinished())
-			r.append(" Finished!");
-
-		return r.toString();
+		return value + " / " + limit;
 	}
 }

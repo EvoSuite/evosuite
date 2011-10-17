@@ -36,6 +36,7 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("rawtypes")
 	public static CurrentChromosomeTracker<?> getInstance() {
 		if (instance == null)
 			instance = new CurrentChromosomeTracker();
@@ -118,7 +119,8 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 				for (StatementInterface s : test.getTestCase()) {
 					if (s instanceof TestCallStatement) {
 						TestCallStatement call = (TestCallStatement) s;
-						if (call.getTest() != null && call.getTest().equals(changed.getTestCase())) {
+						if (call.getTest() != null
+						        && call.getTest().equals(changed.getTestCase())) {
 							if (!test.isChanged())
 								test.setChanged(true);
 							break;

@@ -24,10 +24,11 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
@@ -37,21 +38,20 @@ import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 
 public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 	private static final long serialVersionUID = 1L;
 
-	@SuppressWarnings("hiding")
-	private static Logger logger = Logger.getLogger(TestSuiteFitnessFunction.class);
+	private static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
 	public final int total_branches = BranchPool.getBranchCounter();
 
 	public final int branchless_methods = BranchPool.getBranchlessMethods().size();
 
-	public final int total_methods = TestCluster.getInstance().num_defined_methods;
+	//	public final int total_methods = TestCluster.getInstance().num_defined_methods;
+	public final int total_methods = CFGMethodAdapter.methods.size();
 
 	public int covered_branches = 0;
 
@@ -138,7 +138,6 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 		}
 
 		int num_covered = 0;
-		int uncovered = 0;
 		//logger.info("Got data for predicates: " + predicate_count.size()+"/"+total_branches);
 		for (Integer key : predicate_count.keySet()) {
 			//logger.info("Key: "+key);
@@ -155,12 +154,8 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 			}
 			if (df == 0.0)
 				num_covered++;
-			else
-				uncovered++;
 			if (dt == 0.0)
 				num_covered++;
-			else
-				uncovered++;
 		}
 		//logger.info("Fitness after branch distances: "+fitness);
 		//for(String call : call_count.keySet()) {
@@ -268,7 +263,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 				concurrentFitness += min;
 			}
 		} catch (Throwable t) {
-			logger.fatal("why?", t);
+			logger.error("why?", t);
 			System.exit(1);
 			throw new Error();
 		}

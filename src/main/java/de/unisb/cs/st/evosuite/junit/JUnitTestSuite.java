@@ -22,11 +22,11 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.junit.runner.JUnitCore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
@@ -40,7 +40,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
  */
 public class JUnitTestSuite {
 
-	private static Logger logger = Logger.getLogger(JUnitTestSuite.class);
+	private static Logger logger = LoggerFactory.getLogger(JUnitTestSuite.class);
 
 	private Set<String> covered_methods;
 
@@ -132,12 +132,12 @@ public class JUnitTestSuite {
 
 			int num = test.size();
 			MaxStatementsStoppingCondition.statementsExecuted(num);
-			result.touched.addAll(HOMObserver.getTouched());
+			//result.touched.addAll(HOMObserver.getTouched());
 
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
-			logger.fatal("TG: Exception caught: ", e);
+			logger.error("TG: Exception caught: ", e);
 			System.exit(1);
 		}
 

@@ -19,6 +19,7 @@
 package de.unisb.cs.st.evosuite.testsuite;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -27,25 +28,29 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import de.unisb.cs.st.ds.util.io.Io;
+import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxFitnessEvaluationsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
-import de.unisb.cs.st.evosuite.mutation.MutationSuiteFitness;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.utils.ReportGenerator;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
  * @author Gordon Fraser
  * 
  */
-public class SearchStatistics extends ReportGenerator {
+public class SearchStatistics extends ReportGenerator implements Serializable {
+
+	private static final long serialVersionUID = 8780927435434567712L;
 
 	private static SearchStatistics instance = null;
 
@@ -58,6 +63,10 @@ public class SearchStatistics extends ReportGenerator {
 			instance = new SearchStatistics();
 		}
 		return instance;
+	}
+
+	public static void setInstance(SearchStatistics statistics) {
+		instance = statistics;
 	}
 
 	/**
@@ -75,14 +84,17 @@ public class SearchStatistics extends ReportGenerator {
 		sb.append("<h1>");
 		sb.append(run.className);
 		sb.append(": ");
-		sb.append(String.format("%.2f", 100.0 * run.covered_goals / run.total_goals));
+		sb.append(String.format("%.2f", 100.0 * run.covered_goals
+				/ run.total_goals));
 		sb.append("%");
 		sb.append("</h1></div></div>\n");
-		sb.append("<p><a href=\"../report-generation.html\">Overview</a></p>\n");
+		sb
+				.append("<p><a href=\"../report-generation.html\">Overview</a></p>\n");
 
 		writeResultTable(sb, run);
 		// writeMutationTable(sb);
-		sb.append("<div id=\"page\"><div id=\"page-bgtop\"><div id=\"page-bgbtm\"><div id=\"content\">");
+		sb
+				.append("<div id=\"page\"><div id=\"page-bgtop\"><div id=\"page-bgbtm\"><div id=\"content\">");
 		sb.append("<div id=\"post\">");
 
 		// Resulting test case
@@ -97,9 +109,9 @@ public class SearchStatistics extends ReportGenerator {
 				 * if(test.exceptionThrown != null) { sb.append("<p>Raises:");
 				 * sb.append(test.exceptionThrown); sb.append("</p>"); }
 				 */
-				sb.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">\n");
+				sb
+						.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">\n");
 				int linecount = 1;
-				int test_line = 0;
 				String code = null;
 				if (run.results.containsKey(test))
 					code = test.toCode(run.results.get(test));
@@ -107,8 +119,11 @@ public class SearchStatistics extends ReportGenerator {
 					code = test.toCode();
 
 				for (String line : code.split("\n")) {
-					sb.append(String.format("<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
-					                        linecount, linecount));
+					sb
+							.append(String
+									.format(
+											"<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
+											linecount, linecount));
 					/*
 					 * if(test.exceptionsThrown != null &&
 					 * test.exception_statement == test_line)
@@ -120,7 +135,6 @@ public class SearchStatistics extends ReportGenerator {
 					 * test.exception_statement == test_line)
 					 * sb.append("</span>");
 					 */
-					test_line++;
 					linecount++;
 					sb.append("\n");
 				}
@@ -151,8 +165,8 @@ public class SearchStatistics extends ReportGenerator {
 			if (run.fitness_history.isEmpty()) {
 				sb.append("<h2>No fitness history</h2>\n");
 			} else {
-				String filename = writeDoubleChart(run.fitness_history, run.className
-				        + "-" + run.id, "Fitness");
+				String filename = writeDoubleChart(run.fitness_history,
+						run.className + "-" + run.id, "Fitness");
 				sb.append("<h2>Fitness</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -165,8 +179,8 @@ public class SearchStatistics extends ReportGenerator {
 			if (run.size_history.isEmpty()) {
 				sb.append("<h2>No size history</h2>\n");
 			} else {
-				String filename = writeIntegerChart(run.size_history, run.className + "-"
-				        + run.id, "Size");
+				String filename = writeIntegerChart(run.size_history,
+						run.className + "-" + run.id, "Size");
 				sb.append("<h2>Size</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -179,8 +193,8 @@ public class SearchStatistics extends ReportGenerator {
 			if (run.length_history.isEmpty()) {
 				sb.append("<h2>No length history</h2>\n");
 			} else {
-				String filename = writeIntegerChart(run.length_history, run.className
-				        + "-" + run.id, "Length");
+				String filename = writeIntegerChart(run.length_history,
+						run.className + "-" + run.id, "Length");
 				sb.append("<h2>Length</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -194,7 +208,7 @@ public class SearchStatistics extends ReportGenerator {
 				sb.append("<h2>No average length history</h2>\n");
 			} else {
 				String filename = writeDoubleChart(run.average_length_history,
-				                                   run.className + "-" + run.id, "Length");
+						run.className + "-" + run.id, "Length");
 				sb.append("<h2>Average Length</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -208,14 +222,19 @@ public class SearchStatistics extends ReportGenerator {
 
 		// Source code
 		try {
-			Iterable<String> source = html_analyzer.getClassContent(run.className);
+			Iterable<String> source = html_analyzer
+					.getClassContent(run.className);
 			sb.append("<h2 class=title>Source Code</h2>\n");
 			sb.append("<p>");
-			sb.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">");
+			sb
+					.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">");
 			int linecount = 1;
 			for (String line : source) {
-				sb.append(String.format("<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
-				                        linecount, linecount));
+				sb
+						.append(String
+								.format(
+										"<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
+										linecount, linecount));
 				if (run.coverage.contains(linecount)) {
 					sb.append("<span style=\"background-color: #ffffcc\">");
 					sb.append(StringEscapeUtils.escapeHtml(line));
@@ -243,7 +262,7 @@ public class SearchStatistics extends ReportGenerator {
 
 		String filename = "report-" + run.className + "-" + run.id + ".html";
 		File file = new File(REPORT_DIR.getAbsolutePath() + "/html/" + filename);
-		Io.writeFile(sb.toString(), file);
+		Utils.writeFile(sb.toString(), file);
 		// return file.getAbsolutePath();
 		return filename;
 	}
@@ -261,8 +280,14 @@ public class SearchStatistics extends ReportGenerator {
 
 		entry.coverage = new HashSet<Integer>();
 
+		// TODO isn't this more or less copy-paste of
+		// BranchCoverageSuiteFitness.getFitness()?
+		// DONE To make this work for other criteria too, it would be perfect if
+		// one
+		// could ask every suite fitness how many goals were covered
+
 		logger.debug("Calculating coverage of best individual with fitness "
-		        + result.getFitness());
+				+ result.getFitness());
 
 		Map<Integer, Double> true_distance = new HashMap<Integer, Double>();
 		Map<Integer, Double> false_distance = new HashMap<Integer, Double>();
@@ -274,7 +299,8 @@ public class SearchStatistics extends ReportGenerator {
 		for (TestChromosome test : best.tests) {
 			// ExecutionTrace trace = test.last_result.trace;
 			// //executeTest(test.test, entry.className);
-			ExecutionTrace trace = executeTest(test.getTestCase(), entry.className);
+			ExecutionTrace trace = executeTest(test.getTestCase(),
+					entry.className);
 
 			// if(test.last_result != null)
 			// trace = test.last_result.trace;
@@ -289,10 +315,11 @@ public class SearchStatistics extends ReportGenerator {
 				if (!predicate_count.containsKey(e.getKey()))
 					predicate_count.put(e.getKey(), 1);
 				else
-					predicate_count.put(e.getKey(), predicate_count.get(e.getKey()) + 1);
+					predicate_count.put(e.getKey(), predicate_count.get(e
+							.getKey()) + 1);
 
 				if (!true_distance.containsKey(e.getKey())
-				        || true_distance.get(e.getKey()) > e.getValue()) {
+						|| true_distance.get(e.getKey()) > e.getValue()) {
 					true_distance.put(e.getKey(), e.getValue());
 				}
 			}
@@ -300,10 +327,11 @@ public class SearchStatistics extends ReportGenerator {
 				if (!predicate_count.containsKey(e.getKey()))
 					predicate_count.put(e.getKey(), 1);
 				else
-					predicate_count.put(e.getKey(), predicate_count.get(e.getKey()) + 1);
+					predicate_count.put(e.getKey(), predicate_count.get(e
+							.getKey()) + 1);
 
 				if (!false_distance.containsKey(e.getKey())
-				        || false_distance.get(e.getKey()) > e.getValue()) {
+						|| false_distance.get(e.getKey()) > e.getValue()) {
 					false_distance.put(e.getKey(), e.getValue());
 				}
 			}
@@ -311,73 +339,42 @@ public class SearchStatistics extends ReportGenerator {
 
 		int num_covered = 0;
 
-		// for(Entry<String, Double> entry : true_distance.entrySet()) {
-		// logger.trace("Branch "+entry.getKey()+": "+normalize(entry.getValue())+"/"+normalize(false_distance.get(entry.getKey())));
-		// }
-		/*
-		 * for(String key : predicate_count.keySet()) { Integer val =
-		 * predicate_count.get(key); if(val == 1 && true_distance.get(key) >
-		 * 0.0) true_distance.put(key, 1.0); else if(val == 1 &&
-		 * false_distance.get(key) > 0.0) false_distance.put(key, 1.0); }
-		 */
-		/*
-		 * for(Double val : true_distance.values()) { num++; if(val == 0)
-		 * num_covered ++; } for(Double val : false_distance.values()) { num++;
-		 * if(val == 0) num_covered ++; }
-		 */
-		int uncovered = 0;
 		for (Integer key : predicate_count.keySet()) {
 			// logger.info("Key: "+key);
 			double df = true_distance.get(key);
 			double dt = false_distance.get(key);
 			if (df == 0.0)
 				num_covered++;
-			else {
-				uncovered++;
-				logger.debug("Branch distance false: " + df);
-			}
 			if (dt == 0.0)
 				num_covered++;
-			else {
-				uncovered++;
-				logger.debug("Branch distance true: " + dt);
-			}
 
 		}
-		if (logger.isDebugEnabled()) {
-			if (predicate_count.size() < entry.total_branches) {
-				logger.debug("Missing some predicates: " + predicate_count.size() + "/"
-				        + (2 * entry.total_branches));
-			}
-			if (predicate_count.size() > entry.total_branches) {
-				logger.debug("Got too many branches: " + predicate_count.size() + "/"
-				        + (2 * entry.total_branches));
-			}
-			if (uncovered > 0)
-				logger.debug("Have not covered " + uncovered + " branches");
-		}
 
-		// entry.total_goals = 2 * CFGMethodAdapter.branch_counter +
-		// entry.branchless_methods;
-		// entry.total_goals = 2 * entry.total_branches +
-		// entry.branchless_methods;
-		entry.total_goals = 2 * entry.total_branches + entry.total_methods;
-		entry.covered_branches = num_covered;
+		entry.covered_branches = num_covered; // + covered branchless methods?
 		entry.covered_methods = covered_methods.size();
-		entry.covered_goals = num_covered;
+
+		// DONE make this work for other criteria too. this will only work for
+		// branch coverage - see searchStarted()/Finished()
+
+		// entry.total_goals = 2 * entry.total_branches +
+		// entry.branchless_methods; - moved to searchStarted()
+		// entry.covered_goals = num_covered; - moved to searchFinished()
+
 		// for(String e : CFGMethodAdapter.branchless_methods) {
-		for (String e : CFGMethodAdapter.methods) {
-			if (covered_methods.contains(e))
-				entry.covered_goals++;
-			else {
-				logger.debug("Method is not covered: " + e);
-			}
-			logger.debug("Covered methods: " + covered_methods.size() + "/"
-			        + entry.total_methods);
-			for (String method : covered_methods) {
-				logger.debug("Covered method: " + method);
-			}
-		}
+		// for (String e : CFGMethodAdapter.methods) {
+		// for (String e : BranchPool.getBranchlessMethods()) {
+		// if (covered_methods.contains(e)) {
+		// logger.info("Covered method: " + e);
+		// entry.covered_goals++;
+		// } else {
+		// logger.info("Method is not covered: " + e);
+		// }
+		/*
+		 * logger.debug("Covered methods: " + covered_methods.size() + "/" +
+		 * entry.total_methods); for (String method : covered_methods) {
+		 * logger.debug("Covered method: " + method); }
+		 */
+		// }
 
 		makeDirs();
 		writeCSV();
@@ -386,14 +383,24 @@ public class SearchStatistics extends ReportGenerator {
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
 		Chromosome result = algorithm.getBestIndividual();
+		StatisticEntry entry = statistics.get(statistics.size() - 1);
+
+		entry.end_time = System.currentTimeMillis();
+		entry.result_tests_executed = MaxTestsStoppingCondition
+				.getNumExecutedTests();
+		entry.result_statements_executed = MaxStatementsStoppingCondition
+				.getNumExecutedStatements();
+		entry.testExecutionTime = TestCaseExecutor.timeExecuted;
+		entry.goalComputationTime = AbstractFitnessFactory.goalComputationTime;
+		entry.covered_goals = TestSuiteFitnessFunction.getCoveredGoals();
+		entry.timedOut = TestSuiteGenerator.global_time.isFinished();
+		entry.stoppingCondition = TestSuiteGenerator.stopping_condition.getCurrentValue();
+		entry.globalTimeStoppingCondition = TestSuiteGenerator.global_time.getCurrentValue();
+
 		if (result instanceof TestSuiteChromosome) {
 			TestSuiteChromosome best = (TestSuiteChromosome) result;
-			StatisticEntry entry = statistics.get(statistics.size() - 1);
 			entry.size_final = best.size();
 			entry.length_final = best.totalLengthOfTestCases();
-			entry.end_time = System.currentTimeMillis();
-			entry.result_tests_executed = MaxTestsStoppingCondition.getNumExecutedTests();
-			entry.result_statements_executed = MaxStatementsStoppingCondition.getNumExecutedStatements();
 		}
 	}
 
@@ -402,17 +409,31 @@ public class SearchStatistics extends ReportGenerator {
 		super.searchStarted(algorithm);
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 
-		if (algorithm.getFitnessFunction() instanceof BranchCoverageSuiteFitness) {
-			BranchCoverageSuiteFitness fitness = (BranchCoverageSuiteFitness) algorithm.getFitnessFunction();
-			entry.total_branches = fitness.total_branches;
-			entry.branchless_methods = fitness.branchless_methods;
-			entry.total_methods = fitness.total_methods;
-		} else if (algorithm.getFitnessFunction() instanceof MutationSuiteFitness) {
-			MutationSuiteFitness fitness = (MutationSuiteFitness) algorithm.getFitnessFunction();
-			entry.total_branches = fitness.getNumGoals();
-			entry.total_methods = 0;
-			entry.branchless_methods = 0;
-		}
+		entry.total_branches = BranchPool.getBranchCounter();
+		entry.branchless_methods = BranchPool.getBranchlessMethods().size();
+		entry.total_methods = CFGMethodAdapter.methods.size();
+
+		// TODO in order for this to work even when the criterion is neither
+		// defuse nor analyze we might need to ensure that du-goal-computation
+		// went through
+		entry.paramDUGoalCount = DefUseCoverageFactory.getParamGoalsCount();
+		entry.intraDUGoalCount = DefUseCoverageFactory.getIntraGoalsCount();
+		entry.interDUGoalCount = DefUseCoverageFactory.getInterGoalsCount();
+
+		entry.total_goals = TestSuiteGenerator.getFitnessFactory()
+				.getCoverageGoals().size();
+
+		// removed the code below with the one above, in order to have these
+		// values for other criteria as well
+
+		// if (algorithm.getFitnessFunction() instanceof
+		// BranchCoverageSuiteFitness) {
+		// BranchCoverageSuiteFitness fitness = (BranchCoverageSuiteFitness)
+		// algorithm.getFitnessFunction();
+		// entry.total_branches = fitness.total_branches;
+		// entry.branchless_methods = fitness.branchless_methods;
+		// entry.total_methods = fitness.total_methods;
+		// }
 	}
 
 	@Override
@@ -422,11 +443,20 @@ public class SearchStatistics extends ReportGenerator {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		Chromosome best = algorithm.getBestIndividual();
 		if (best instanceof TestSuiteChromosome) {
-			entry.length_history.add(((TestSuiteChromosome) best).totalLengthOfTestCases());
+			entry.length_history.add(((TestSuiteChromosome) best)
+					.totalLengthOfTestCases());
 			entry.coverage_history.add(((TestSuiteChromosome) best).coverage);
-			entry.tests_executed.add(MaxTestsStoppingCondition.getNumExecutedTests());
-			entry.statements_executed.add(MaxStatementsStoppingCondition.getNumExecutedStatements());
-			entry.fitness_evaluations.add(MaxFitnessEvaluationsStoppingCondition.getNumFitnessEvaluations());
+			entry.tests_executed.add(MaxTestsStoppingCondition
+					.getNumExecutedTests());
+			entry.statements_executed.add(MaxStatementsStoppingCondition
+					.getNumExecutedStatements());
+			entry.fitness_evaluations
+					.add(MaxFitnessEvaluationsStoppingCondition
+							.getNumFitnessEvaluations());
 		}
+	}
+
+	public StatisticEntry getLastStatisticEntry() {
+		return statistics.get(statistics.size() - 1);
 	}
 }

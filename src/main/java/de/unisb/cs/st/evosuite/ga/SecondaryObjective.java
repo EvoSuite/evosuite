@@ -20,7 +20,8 @@ package de.unisb.cs.st.evosuite.ga;
 
 import java.io.Serializable;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Gordon Fraser
@@ -30,7 +31,7 @@ public abstract class SecondaryObjective implements Serializable {
 
 	private static final long serialVersionUID = -4117187516650844086L;
 
-	protected static Logger logger = Logger.getLogger(SecondaryObjective.class);
+	protected static Logger logger = LoggerFactory.getLogger(SecondaryObjective.class);
 
 	/**
 	 * Compare two chromosomes with each other with respect to this objective.

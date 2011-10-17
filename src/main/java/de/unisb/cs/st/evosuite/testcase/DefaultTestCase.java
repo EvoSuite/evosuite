@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -29,7 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
@@ -42,15 +44,17 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
  * @author Gordon Fraser
  * 
  */
-public class DefaultTestCase implements TestCase {
+public class DefaultTestCase implements TestCase, Serializable {
 
-	private static Logger logger = Logger.getLogger(DefaultTestCase.class);
+	private static final long serialVersionUID = -689512549778944250L;
+
+	private static Logger logger = LoggerFactory.getLogger(DefaultTestCase.class);
 
 	/** The statements */
 	protected List<StatementInterface> statements;
 
 	// a list of all goals this test covers
-	private final HashSet<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
+	private transient final HashSet<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
 
 	/**
 	 * Constructor
@@ -137,7 +141,7 @@ public class DefaultTestCase implements TestCase {
 
 		if (!var.isPrimitive()) {
 			// add fields of this object to list
-			for (Field field : TestCluster.getAccessibleFields(var.getVariableClass())) {
+			for (Field field : StaticTestCluster.getAccessibleFields(var.getVariableClass())) {
 				FieldReference f = new FieldReference(this, field, var);
 				if (f.getDepth() <= 2) {
 					if (type != null) {
@@ -300,7 +304,33 @@ public class DefaultTestCase implements TestCase {
 	@Override
 	public VariableReference addStatement(StatementInterface statement) {
 		statements.add(statement);
-		assert (isValid());
+		try {
+			assert (isValid());
+		} catch (AssertionError e) {
+			logger.info("Is not valid: ");
+			for (StatementInterface s : statements) {
+				try {
+					logger.info(s.getCode());
+				} catch (AssertionError e2) {
+					logger.info("Found error in: " + s);
+					if (s instanceof MethodStatement) {
+						MethodStatement ms = (MethodStatement) s;
+						if (!ms.isStatic()) {
+							logger.info("Callee: ");
+							logger.info(ms.callee.toString());
+						}
+						int num = 0;
+						for (VariableReference v : ms.parameters) {
+							logger.info("Parameter " + num);
+							logger.info(v.getVariableClass().toString());
+							logger.info(v.getClass().toString());
+							logger.info(v.toString());
+						}
+					}
+				}
+			}
+			assert (false);
+		}
 		return statement.getReturnValue();
 	}
 
@@ -386,7 +416,7 @@ public class DefaultTestCase implements TestCase {
 			return false;
 
 		for (int i = 0; i < statements.size(); i++) {
-			if (!statements.get(i).equals(t.getStatement(i))) {
+			if (!statements.get(i).same(t.getStatement(i))) {
 				return false;
 			}
 		}
@@ -478,7 +508,7 @@ public class DefaultTestCase implements TestCase {
 			StatementInterface copy = s.clone(t);
 			t.statements.add(copy);
 			copy.SetRetval(s.getReturnValue().clone(t));
-
+			copy.setAssertions(s.copyAssertions(t, 0));
 		}
 		t.coveredGoals.addAll(coveredGoals);
 		//t.exception_statement = exception_statement;
@@ -515,6 +545,7 @@ public class DefaultTestCase implements TestCase {
 			} else if (s instanceof ConstructorStatement) {
 				ConstructorStatement cs = (ConstructorStatement) s;
 				accessed_classes.add(cs.getConstructor().getDeclaringClass());
+				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getExceptionTypes()));
 			}
 		}
 		return accessed_classes;
@@ -574,19 +605,8 @@ public class DefaultTestCase implements TestCase {
 	 */
 	@Override
 	public boolean isValid() {
-		int num = 0;
 		for (StatementInterface s : statements) {
 			assert (s.isValid());
-			/*
-			if (s.getReturnValue().getStPosition() != num) {
-				logger.error("Test case is invalid at statement " + num + " - "
-				        + s.getReturnValue().getStPosition() + " which is "
-				        + s.getClass() + " " + s.getCode());
-				logger.error("Test code is: " + this.toCode());
-				return false;
-			}
-			*/
-			num++;
 		}
 		return true;
 	}
@@ -672,6 +692,20 @@ public class DefaultTestCase implements TestCase {
 				visitor.visitAssignmentStatement((AssignmentStatement) statement);
 			else if (statement instanceof ArrayStatement)
 				visitor.visitArrayStatement((ArrayStatement) statement);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return toCode();
+	}
+
+	public void changeClassLoader(ClassLoader loader) {
+		for (StatementInterface s : statements) {
+			s.changeClassLoader(loader);
 		}
 	}
 }

@@ -37,14 +37,14 @@ import java.util.regex.Pattern;
 
 import junit.framework.TestCase;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.callgraph.Hierarchy;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
 import de.unisb.cs.st.evosuite.utils.Utils;
-import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
 
 /**
  * @author Gordon Fraser
@@ -52,7 +52,7 @@ import de.unisb.cs.st.javalanche.coverage.distance.Hierarchy;
  */
 public class TestTaskGenerator {
 
-	private static Logger logger = Logger.getLogger(TestTaskGenerator.class);
+	private static Logger logger = LoggerFactory.getLogger(TestTaskGenerator.class);
 
 	static Hierarchy hierarchy = Hierarchy.readFromDefaultLocation();
 
@@ -139,7 +139,7 @@ public class TestTaskGenerator {
 			logger.warn("Exclude file " + property + " does not exist, skipping");
 			return objs;
 		}
-		List<String> lines = Io.getLinesFromFile(file);
+		List<String> lines = Utils.readFile(file);
 		for (String line : lines) {
 			line = line.trim();
 			// Skip comments
@@ -185,14 +185,15 @@ public class TestTaskGenerator {
 		return ret;
 	}
 
-	private static boolean isPurelyAbstract(String classname) {
+	private static boolean isPurelyAbstract(Class<?> clazz) {
 
+		String classname = clazz.getName();
 		List<String> subclasses = getSubClasses(classname);
 		for (String subclass : subclasses) {
-			Class<?> clazz;
+
 			try {
-				clazz = Class.forName(subclass);
-				if (!Modifier.isAbstract(clazz.getModifiers()))
+				Class<?> subclazz = clazz.getClassLoader().loadClass(subclass);
+				if (!Modifier.isAbstract(subclazz.getModifiers()))
 					return false;
 			} catch (ClassNotFoundException e) {
 			}
@@ -256,6 +257,8 @@ public class TestTaskGenerator {
 			logger.info(c + " looks like an anonymous class, ignoring it");
 			return false;
 		}
+		if (c.isEnum())
+			return false;
 
 		return true;
 	}
@@ -268,11 +271,13 @@ public class TestTaskGenerator {
 	 * @return Returns true is method is accessible and not a special case
 	 */
 	public static boolean canUse(Method m) {
+		/*
 		if (m.isBridge()) {
 			logger.debug("Will not use: " + m.toString());
 			logger.debug("  reason: it's a bridge method");
 			return false;
 		}
+		*/
 
 		if (m.isSynthetic()) {
 			logger.debug("Will not use: " + m.toString());
@@ -296,6 +301,17 @@ public class TestTaskGenerator {
 		//TODO we could enable some methods from Object, like getClass
 		if (m.getDeclaringClass().equals(java.lang.Object.class)) {
 			logger.debug("Excluding method declared in Object " + m.toString());
+			return false;
+		}
+
+		if (m.getDeclaringClass().equals(java.lang.Enum.class)) {
+			logger.debug("Excluding method declared in Enum " + m.toString());
+			return false;
+		}
+
+		if (m.getDeclaringClass().isEnum()
+		        && (m.getName().equals("valueOf") || m.getName().equals("values"))) {
+			logger.debug("Excluding valueOf for Enum " + m.toString());
 			return false;
 		}
 
@@ -400,6 +416,7 @@ public class TestTaskGenerator {
 		logger.debug("Adding constructors for class " + clazz.getName());
 		for (Constructor<?> constructor : getConstructors(clazz)) {
 			if (canUse(constructor)
+			        && !clazz.isEnum()
 			        && !isExcluded(clazz.getName(),
 			                       "<init>" + Type.getConstructorDescriptor(constructor))) {
 				logger.debug("Adding constructor " + clazz.getName() + "."
@@ -484,7 +501,8 @@ public class TestTaskGenerator {
 			        && !method.getName().equals("compareTo")
 			        && !method.getName().equals("equals")) {
 				logger.debug("Adding method to signature file " + clazz.getName() + "."
-				        + method.getName() + Type.getMethodDescriptor(method));
+				        + method.getName() + Type.getMethodDescriptor(method)
+				        + " defined in " + method.getDeclaringClass().getName());
 				candidates.add(clazz.getName()
 				        + "."
 				        + method.getName()
@@ -511,11 +529,13 @@ public class TestTaskGenerator {
 		for (Method method : clazz.getMethods()) {
 			if (!Modifier.isProtected(method.getModifiers())
 			        && !Modifier.isPrivate(method.getModifiers())
-			        && (method.getReturnType().isPrimitive() || method.getReturnType().equals(String.class))
+			        && (method.getReturnType().isPrimitive()
+			                || method.getReturnType().equals(String.class) || method.getReturnType().isEnum())
 			        && !method.getReturnType().equals(void.class)
 			        && method.getParameterTypes().length == 0
 			        && !method.getName().equals("hashCode")
-			        && !method.getDeclaringClass().equals(Object.class)) {
+			        && !method.getDeclaringClass().equals(Object.class)
+			        && !method.getName().equals("pop")) { // FIXXME
 				methods.add(method.getName() + Type.getMethodDescriptor(method));
 			}
 		}
@@ -523,7 +543,7 @@ public class TestTaskGenerator {
 			sb.append(method);
 			sb.append("\n");
 		}
-		Io.writeFile(sb.toString(), file);
+		Utils.writeFile(sb.toString(), file);
 	}
 
 	/**
@@ -539,7 +559,7 @@ public class TestTaskGenerator {
 			sb.append(dep);
 			sb.append("\n");
 		}
-		Io.writeFile(sb.toString(), file);
+		Utils.writeFile(sb.toString(), file);
 	}
 
 	protected static void writeObjectMethods(Set<String> methods, String filename) {
@@ -549,10 +569,21 @@ public class TestTaskGenerator {
 			sb.append(method);
 			sb.append("\n");
 		}
-		Io.writeFile(sb.toString(), file);
+		Utils.writeFile(sb.toString(), file);
 	}
 
-	protected static boolean suggestTask(Class<?> clazz) {
+	protected static void writeTestCluster(Class<?> clazz, String filename) {
+
+		StringBuffer sb = new StringBuffer();
+		File file = new File(Properties.OUTPUT_DIR, filename);
+		for (String dependency : ClusterAnalysis.getDependencies(clazz.getName())) {
+			sb.append(dependency);
+			sb.append("\n");
+		}
+		Utils.writeFile(sb.toString(), file);
+	}
+
+	protected static boolean suggestTask(Class<?> clazz) throws Throwable {
 		String classname = clazz.getName();
 
 		if (clazz.getSuperclass() != null && clazz.getSuperclass().equals(TestCase.class)) {
@@ -621,11 +652,12 @@ public class TestTaskGenerator {
 			return false;
 		}
 
+		logger.info("Writing object files " + classname);
 		Set<String> object_methods = new HashSet<String>();
 		addObjectMethods(object_methods, clazz);
 
 		if (Modifier.isAbstract(clazz.getModifiers())) {
-			if (isPurelyAbstract(classname)) {
+			if (isPurelyAbstract(clazz)) {
 				logger.info("Ignoring abstract class without concrete subclasses "
 				        + classname);
 				String classfilename = classname.replace("$", "_");
@@ -642,10 +674,12 @@ public class TestTaskGenerator {
 
 		List<String> dependencies = getSubClasses(clazz.getName());
 		for (String dependency : dependencies) {
+			logger.debug("Analyzing subclass " + dependency);
 			if (dependency.equals(classname))
 				continue;
 			try {
-				Class<?> dep = Class.forName(dependency);
+				Class<?> dep = clazz.getClassLoader().loadClass(dependency);
+
 				addConstructors(suggestion, dep);
 				addMethods(suggestion, dep);
 				addFields(suggestion, dep);
@@ -657,11 +691,16 @@ public class TestTaskGenerator {
 			addObjectMethods(object_methods, ownedClass);
 		}
 
+		String classfilename = classname.replace("$", "_");
 		if (suggestion.isEmpty()) {
 			logger.info("No usable methods found, skipping " + classname);
 			return false;
 		}
-		String classfilename = classname.replace("$", "_");
+		if (Properties.CALCULATE_CLUSTER) {
+			logger.info("Calculating test cluster");
+			writeTestCluster(clazz, classfilename + ".cluster");
+		}
+		logger.info("Writing task file");
 		writeTask(suggestion, classfilename + ".task");
 		logger.info("GenObjects");
 
@@ -670,6 +709,8 @@ public class TestTaskGenerator {
 		logger.info("GenInspectors");
 		writeInspectors(clazz, classfilename + ".inspectors");
 		logger.info("Done");
+		System.out.println("  " + classname);
+
 		return true;
 	}
 
@@ -695,8 +736,13 @@ public class TestTaskGenerator {
 			Class<?> clazz = null;
 			try {
 				clazz = Class.forName(classname);
-				if (suggestTask(clazz))
-					num++;
+				logger.info("Next task: " + clazz);
+				try {
+					if (suggestTask(clazz))
+						num++;
+				} catch (Throwable e) {
+					logger.info("Ignoring class with exception: " + clazz.getName());
+				}
 			} catch (ClassNotFoundException e) {
 				logger.warn("Class not found: " + classname + ", ignoring");
 				continue;
@@ -725,8 +771,15 @@ public class TestTaskGenerator {
 		int num = 0;
 		for (Class<?> clazz : classes) {
 			logger.info("Next task: " + clazz);
-			if (suggestTask(clazz))
-				num++;
+			try {
+				if (suggestTask(clazz))
+					num++;
+			} catch (Throwable e) {
+				logger.info("Error in creating task for class " + clazz.getName() + ": "
+				        + e);
+				//TODO: Make sure that there are no files for this class
+				//e.printStackTrace();
+			}
 		}
 		System.out.println("* Created " + num + " task files");
 	}

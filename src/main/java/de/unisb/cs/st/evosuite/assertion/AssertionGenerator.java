@@ -3,7 +3,8 @@
  */
 package de.unisb.cs.st.evosuite.assertion;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -16,19 +17,19 @@ import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
  */
 public abstract class AssertionGenerator {
 
-	protected static Logger logger = Logger.getLogger(AssertionGenerator.class);
+	protected static Logger logger = LoggerFactory.getLogger(AssertionGenerator.class);
 
-	protected PrimitiveOutputTraceObserver primitive_observer = new PrimitiveOutputTraceObserver();
+	protected static PrimitiveOutputTraceObserver primitive_observer = new PrimitiveOutputTraceObserver();
 
-	protected ComparisonTraceObserver comparison_observer = new ComparisonTraceObserver();
+	protected static ComparisonTraceObserver comparison_observer = new ComparisonTraceObserver();
 
-	protected InspectorTraceObserver inspector_observer = new InspectorTraceObserver();
+	protected static InspectorTraceObserver inspector_observer = new InspectorTraceObserver();
 
-	protected PrimitiveFieldTraceObserver field_observer = new PrimitiveFieldTraceObserver();
+	protected static PrimitiveFieldTraceObserver field_observer = new PrimitiveFieldTraceObserver();
 
-	protected NullOutputObserver null_observer = new NullOutputObserver();
+	protected static NullOutputObserver null_observer = new NullOutputObserver();
 
-	protected TestCaseExecutor executor = TestCaseExecutor.getInstance();
+	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
 	public AssertionGenerator() {
 		executor.addObserver(primitive_observer);
@@ -39,10 +40,6 @@ public abstract class AssertionGenerator {
 	}
 
 	public abstract void addAssertions(TestCase test);
-
-	public static AssertionGenerator getDefaultGenerator() {
-		return new UnitAssertionGenerator();
-	}
 
 	/**
 	 * Execute a test case on the original unit

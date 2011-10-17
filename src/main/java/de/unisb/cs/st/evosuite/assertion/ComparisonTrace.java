@@ -22,22 +22,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.testcase.OutputTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
-import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class ComparisonTrace extends OutputTrace {
 
-	private final static Logger logger = Logger.getLogger(ComparisonTrace.class);
+	private final static Logger logger = LoggerFactory.getLogger(ComparisonTrace.class);
 
-	Map<Integer, VariableReference> return_values = new HashMap<Integer, VariableReference>();
-	Map<Integer, Map<VariableReference, Boolean>> equals_map = new HashMap<Integer, Map<VariableReference, Boolean>>();
-	Map<Integer, Map<VariableReference, Integer>> compare_map = new HashMap<Integer, Map<VariableReference, Integer>>();
+	Map<Integer, Map<Integer, Boolean>> equals_map = new HashMap<Integer, Map<Integer, Boolean>>();
+	Map<Integer, Map<Integer, Integer>> compare_map = new HashMap<Integer, Map<Integer, Integer>>();
 
 	public void clear() {
-		return_values.clear();
 		equals_map.clear();
 		compare_map.clear();
 	}
@@ -45,7 +43,6 @@ public class ComparisonTrace extends OutputTrace {
 	@Override
 	public ComparisonTrace clone() {
 		ComparisonTrace t = new ComparisonTrace();
-		t.return_values.putAll(return_values);
 		t.equals_map.putAll(equals_map);
 		t.compare_map.putAll(compare_map);
 		return t;
@@ -57,21 +54,19 @@ public class ComparisonTrace extends OutputTrace {
 			return true;
 
 		ComparisonTrace other = (ComparisonTrace) other_trace;
-		assert (return_values.size() == equals_map.size());
-		assert (return_values.size() == compare_map.size());
 
 		//if(return_values.size() != other.return_values.size()) {
 		//	return true;
 		//}
 
-		for (Integer line : return_values.keySet()) {
+		for (Integer line : equals_map.keySet()) {
 			if (!other.equals_map.containsKey(line))
 				continue;
 			if (!other.compare_map.containsKey(line))
 				continue;
 
-			Map<VariableReference, Boolean> other_map = other.equals_map.get(line);
-			for (Entry<VariableReference, Boolean> entry : equals_map.get(line).entrySet()) {
+			Map<Integer, Boolean> other_map = other.equals_map.get(line);
+			for (Entry<Integer, Boolean> entry : equals_map.get(line).entrySet()) {
 				if (!other_map.containsKey(entry.getKey()))
 					continue;
 				if (other_map.get(entry.getKey()) == null)
@@ -82,8 +77,8 @@ public class ComparisonTrace extends OutputTrace {
 				}
 			}
 
-			Map<VariableReference, Integer> other_map2 = other.compare_map.get(line);
-			for (Entry<VariableReference, Integer> entry : compare_map.get(line).entrySet()) {
+			Map<Integer, Integer> other_map2 = other.compare_map.get(line);
+			for (Entry<Integer, Integer> entry : compare_map.get(line).entrySet()) {
 				if (!other_map2.containsKey(entry.getKey()))
 					continue;
 				if (other_map.get(entry.getKey()) == null)
@@ -110,8 +105,9 @@ public class ComparisonTrace extends OutputTrace {
 			boolean have_assertion = false;
 
 			if (compare_map.containsKey(line) && other.compare_map.containsKey(line)) {
-				Map<VariableReference, Integer> other_map2 = other.compare_map.get(line);
-				for (Entry<VariableReference, Integer> entry : compare_map.get(line).entrySet()) {
+				logger.debug("Checking comparisons");
+				Map<Integer, Integer> other_map2 = other.compare_map.get(line);
+				for (Entry<Integer, Integer> entry : compare_map.get(line).entrySet()) {
 					if (!other_map2.containsKey(entry.getKey())) {
 						logger.info("Other map does not contain this result.");
 						continue;
@@ -119,8 +115,8 @@ public class ComparisonTrace extends OutputTrace {
 					if (!other_map2.get(entry.getKey()).equals(entry.getValue())) {
 						logger.debug("Found compare assertion");
 						CompareAssertion assertion = new CompareAssertion();
-						assertion.source = return_values.get(line);
-						assertion.dest = entry.getKey();
+						assertion.source = test.getReturnValue(line);
+						assertion.dest = test.getReturnValue(entry.getKey());
 						assertion.value = entry.getValue();
 						if (!other.isDetectedBy(assertion)) {
 							logger.error("Invalid comparison assertion generated!");
@@ -143,19 +139,21 @@ public class ComparisonTrace extends OutputTrace {
 				continue;
 
 			if (equals_map.containsKey(line) && other.equals_map.containsKey(line)) {
-				Map<VariableReference, Boolean> other_map = other.equals_map.get(line);
-				for (Entry<VariableReference, Boolean> entry : equals_map.get(line).entrySet()) {
+				Map<Integer, Boolean> other_map = other.equals_map.get(line);
+				for (Entry<Integer, Boolean> entry : equals_map.get(line).entrySet()) {
 					if (!other_map.containsKey(entry.getKey()))
 						continue;
 					if (!other_map.get(entry.getKey()).equals(entry.getValue())) {
 						logger.debug("Found equals assertion");
 						EqualsAssertion assertion = new EqualsAssertion();
-						assertion.source = return_values.get(line);
-						assertion.dest = entry.getKey();
+						assertion.source = test.getReturnValue(line);
+						assertion.dest = test.getReturnValue(entry.getKey());
 						assertion.value = entry.getValue();
 						if (!other.isDetectedBy(assertion)) {
-							logger.error("Invalid equals assertion generated!");
+							logger.error("Invalid equals assertion generated at position "
+							        + line);
 							logger.error(assertion.getCode());
+							logger.error(test.toCode());
 						} else {
 							test.getStatement(line).addAssertion(assertion);
 							num_assertions++;
@@ -177,14 +175,17 @@ public class ComparisonTrace extends OutputTrace {
 
 		int num = 0;
 
-		for (Entry<Integer, Map<VariableReference, Integer>> entry : compare_map.entrySet()) {
+		logger.debug("numDiffer: " + equals_map.entrySet().size());
+		for (Entry<Integer, Map<Integer, Integer>> entry : compare_map.entrySet()) {
 			if (other.compare_map.containsKey(entry.getKey())) {
+				logger.debug("Checking comparisons");
+
 				//if(entry.getValue() == null && other.compare_map.get(entry.getKey()) != null) {
 				//	num++;
 				//}
 				//else 
 				if (entry.getValue() != null) {
-					for (Entry<VariableReference, Integer> centry : entry.getValue().entrySet()) {
+					for (Entry<Integer, Integer> centry : entry.getValue().entrySet()) {
 						if (other.compare_map.get(entry.getKey()).containsKey(centry.getKey())
 						        && !centry.getValue().equals(other.compare_map.get(entry.getKey()).get(centry.getKey()))) {
 							logger.debug("Retval of " + entry.getKey()
@@ -194,19 +195,23 @@ public class ComparisonTrace extends OutputTrace {
 							        + "/"
 							        + other.compare_map.get(entry.getKey()).get(centry.getKey()));
 							num++;
+						} else {
+							logger.debug("Other trace does not contain key");
 						}
 					}
 				}
+				//} else {
+				//	logger.info("Other map does not contain key " + entry.getKey());
 			}
 		}
-		for (Entry<Integer, Map<VariableReference, Boolean>> entry : equals_map.entrySet()) {
+		for (Entry<Integer, Map<Integer, Boolean>> entry : equals_map.entrySet()) {
 			if (other.equals_map.containsKey(entry.getKey())) {
 				//if(entry.getValue() == null && other.equals_map.get(entry.getKey()) != null) {
 				//	num++;
 				//}
 				//else 
 				if (entry.getValue() != null) {
-					for (Entry<VariableReference, Boolean> centry : entry.getValue().entrySet()) {
+					for (Entry<Integer, Boolean> centry : entry.getValue().entrySet()) {
 						if (other.equals_map.get(entry.getKey()).containsKey(centry.getKey())
 						        && !centry.getValue().equals(other.equals_map.get(entry.getKey()).get(centry.getKey()))) {
 							logger.debug("Equals: "
@@ -214,10 +219,20 @@ public class ComparisonTrace extends OutputTrace {
 							        + "/"
 							        + other.equals_map.get(entry.getKey()).get(centry.getKey()));
 							num++;
+						} else {
+							if (!other.equals_map.get(entry.getKey()).containsKey(centry.getKey())) {
+								logger.debug("Other trace does not contain key "
+								        + centry.getKey());
+							}
 						}
 					}
 				}
+			} else {
+				//logger.info("Other map does not contain key " + entry.getKey());
+				//logger.info(equals_map.keySet().toString());
+				//logger.info(other.equals_map.keySet().toString());
 			}
+
 		}
 
 		/*
@@ -239,17 +254,18 @@ public class ComparisonTrace extends OutputTrace {
 		if (assertion instanceof CompareAssertion) {
 			CompareAssertion c = (CompareAssertion) assertion;
 			if (compare_map.containsKey(c.source.getStPosition())) {
-				if (compare_map.get(c.source.getStPosition()).containsKey(c.dest))
-					if (!c.value.equals(compare_map.get(c.source.getStPosition()).get(c.dest)))
+				if (compare_map.get(c.source.getStPosition()).containsKey(c.dest.getStPosition()))
+					if (!c.value.equals(compare_map.get(c.source.getStPosition()).get(c.dest.getStPosition())))
 						return true;
 			}
 			return false;
 		} else if (assertion instanceof EqualsAssertion) {
 			EqualsAssertion e = (EqualsAssertion) assertion;
 			if (equals_map.containsKey(e.source.getStPosition())) {
-				if (equals_map.get(e.source.getStPosition()).containsKey(e.dest))
-					if (!e.value.equals(equals_map.get(e.source.getStPosition()).get(e.dest)))
+				if (equals_map.get(e.source.getStPosition()).containsKey(e.dest.getStPosition())) {
+					if (!e.value.equals(equals_map.get(e.source.getStPosition()).get(e.dest.getStPosition())))
 						return true;
+				}
 			}
 			return false;
 		} else
@@ -272,11 +288,11 @@ public class ComparisonTrace extends OutputTrace {
 		for (int line = 0; line < test.size(); line++) {
 
 			if (compare_map.containsKey(line)) {
-				for (Entry<VariableReference, Integer> entry : compare_map.get(line).entrySet()) {
+				for (Entry<Integer, Integer> entry : compare_map.get(line).entrySet()) {
 					logger.debug("Found compare assertion");
 					CompareAssertion assertion = new CompareAssertion();
-					assertion.source = return_values.get(line);
-					assertion.dest = entry.getKey();
+					assertion.source = test.getReturnValue(line);
+					assertion.dest = test.getReturnValue(entry.getKey());
 					assertion.value = entry.getValue();
 					test.getStatement(line).addAssertion(assertion);
 					num_assertions++;
@@ -284,11 +300,11 @@ public class ComparisonTrace extends OutputTrace {
 			}
 
 			if (equals_map.containsKey(line)) {
-				for (Entry<VariableReference, Boolean> entry : equals_map.get(line).entrySet()) {
+				for (Entry<Integer, Boolean> entry : equals_map.get(line).entrySet()) {
 					logger.debug("Found equals assertion");
 					EqualsAssertion assertion = new EqualsAssertion();
-					assertion.source = return_values.get(line);
-					assertion.dest = entry.getKey();
+					assertion.source = test.getReturnValue(line);
+					assertion.dest = test.getReturnValue(entry.getKey());
 					assertion.value = entry.getValue();
 					test.getStatement(line).addAssertion(assertion);
 					num_assertions++;

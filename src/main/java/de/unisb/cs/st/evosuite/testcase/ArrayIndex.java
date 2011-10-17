@@ -13,6 +13,8 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  */
 public class ArrayIndex extends VariableReferenceImpl {
 
+	private static final long serialVersionUID = -6603106086182398060L;
+
 	/**
 	 * Index in the array
 	 */
@@ -139,10 +141,14 @@ public class ArrayIndex extends VariableReferenceImpl {
 	@Override
 	public Object getObject(Scope scope) throws CodeUnderTestException {
 		Object arrayObject = array.getObject(scope);
-		if (arrayObject != null) {
-			return Array.get(arrayObject, array_index);
-		} else {
-			return null;
+		try {
+			if (arrayObject != null) {
+				return Array.get(arrayObject, array_index);
+			} else {
+				throw new CodeUnderTestException(new NullPointerException());
+			}
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new CodeUnderTestException(e);
 		}
 	}
 
@@ -155,17 +161,26 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 *            The value to be assigned
 	 */
 	@Override
-	public void setObject(Scope scope, Object value) throws CodeUnderTestException{
+	public void setObject(Scope scope, Object value) throws CodeUnderTestException {
 		Object arrayObject = array.getObject(scope);
-		Array.set(arrayObject, array_index, value);
+		try {
+			if (arrayObject != null) {
+				Array.set(arrayObject, array_index, value);
+			} else {
+				throw new CodeUnderTestException(new NullPointerException());
+			}
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new CodeUnderTestException(e);
+		}
 	}
 
 	/**
 	 * Create a copy of the current variable
 	 */
 	@Override
-	public VariableReference clone(TestCase newTestCase) {
-		ArrayReference otherArray = (ArrayReference) newTestCase.getStatement(array.getStPosition()).getReturnValue(); //must be set as we only use this to clone whole testcases
+	public VariableReference copy(TestCase newTestCase, int offset) {
+		ArrayReference otherArray = (ArrayReference) newTestCase.getStatement(array.getStPosition()
+		                                                                              + offset).getReturnValue(); //must be set as we only use this to clone whole testcases
 		return new ArrayIndex(newTestCase, otherArray, array_index);
 	}
 

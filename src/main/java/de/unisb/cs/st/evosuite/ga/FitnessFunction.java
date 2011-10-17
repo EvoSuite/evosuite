@@ -20,7 +20,8 @@ package de.unisb.cs.st.evosuite.ga;
 
 import java.io.Serializable;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract base class of fitness functions
@@ -32,7 +33,7 @@ public abstract class FitnessFunction implements Serializable {
 
 	private static final long serialVersionUID = -8876797554111396910L;
 
-	protected static Logger logger = Logger.getLogger(FitnessFunction.class);
+	protected static Logger logger = LoggerFactory.getLogger(FitnessFunction.class);
 
 	/**
 	 * Make sure that the individual gets to know about its fitness
@@ -40,7 +41,9 @@ public abstract class FitnessFunction implements Serializable {
 	 * @param individual
 	 * @param fitness
 	 */
-	protected abstract void updateIndividual(Chromosome individual, double fitness);
+	protected void updateIndividual(Chromosome individual, double fitness) {
+		individual.setFitness(fitness);
+	}
 
 	/**
 	 * Calculate and set fitness function #TODO the 'set fitness' part should be
@@ -57,7 +60,17 @@ public abstract class FitnessFunction implements Serializable {
 	 * @param value
 	 * @return
 	 */
-	public static double normalize(double value) {
+	public static double normalize(double value) throws IllegalArgumentException {
+		if (value < 0d) {
+			throw new IllegalArgumentException("Values to normalize cannot be negative");
+		}
 		return value / (1.0 + value);
 	}
+
+	/**
+	 * Do we need to maximize, or minimize this function?
+	 * 
+	 * @return
+	 */
+	public abstract boolean isMaximizationFunction();
 }

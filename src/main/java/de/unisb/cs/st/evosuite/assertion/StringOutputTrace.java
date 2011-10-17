@@ -22,14 +22,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.testcase.OutputTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 public class StringOutputTrace extends OutputTrace {
 
-	private static Logger logger = Logger.getLogger(StringOutputTrace.class);
+	private static Logger logger = LoggerFactory.getLogger(StringOutputTrace.class);
 
 	public Map<Integer, String> trace;
 
