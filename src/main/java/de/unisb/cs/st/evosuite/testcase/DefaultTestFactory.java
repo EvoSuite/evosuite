@@ -817,7 +817,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			currentRecursion.add(o);
 			if (o == null) {
 				if (!testCluster.hasGenerator(type)) {
-					logger.info("We have no generator for class " + type);
+					logger.debug("We have no generator for class " + type);
 				}
 				throw new ConstructionFailedException("Generator is null");
 			} else if (o instanceof Field) {
