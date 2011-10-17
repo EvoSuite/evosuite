@@ -1670,17 +1670,21 @@ public class StaticTestCluster extends TestCluster {
 	 */
 	@Override
 	public Class<?> getClass(String name) throws ClassNotFoundException {
-
 		// First try to find exact match
 		for (Class<?> clazz : analyzedClasses) {
-			if (clazz.getName().equals(name))
+			if (clazz.getName().equals(name)
+			        || clazz.getName().equals(Properties.CLASS_PREFIX + "." + name)
+			        || clazz.getName().equals(Properties.CLASS_PREFIX + "."
+			                                          + name.replace(".", "$"))) {
 				return clazz;
+			}
 		}
 
 		// Then try to match a postfix 
 		for (Class<?> clazz : analyzedClasses) {
-			if (clazz.getName().endsWith(name))
+			if (clazz.getName().endsWith("." + name)) {
 				return clazz;
+			}
 		}
 
 		throw new ClassNotFoundException(name);
@@ -1690,6 +1694,7 @@ public class StaticTestCluster extends TestCluster {
 	/**
 	 * @return the analyzedClasses
 	 */
+	@Override
 	public Set<Class<?>> getAnalyzedClasses() {
 		return analyzedClasses;
 	}
