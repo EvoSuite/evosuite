@@ -1,14 +1,21 @@
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.GeneratorAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class VariableReferenceImpl implements VariableReference {
-	protected static Logger logger = Logger.getLogger(VariableReferenceImpl.class);
+public class VariableReferenceImpl implements VariableReference, Serializable {
+
+	private static final long serialVersionUID = 7014270636820758121L;
+
+	private int distance = 0;
+
+	protected static Logger logger = LoggerFactory.getLogger(VariableReferenceImpl.class);
 
 	/**
 	 * Type (class) of the variable
@@ -18,7 +25,7 @@ public class VariableReferenceImpl implements VariableReference {
 	/**
 	 * The testCase in which this VariableReference is valid
 	 */
-	protected final TestCase testCase;
+	protected TestCase testCase;
 
 	/**
 	 * Constructor
@@ -79,6 +86,11 @@ public class VariableReferenceImpl implements VariableReference {
 	@Override
 	public VariableReference clone(TestCase newTestCase) {
 		return newTestCase.getStatement(getStPosition()).getReturnValue();
+	}
+
+	@Override
+	public VariableReference copy(TestCase newTestCase, int offset) {
+		return newTestCase.getStatement(getStPosition() + offset).getReturnValue();
 	}
 
 	/**
@@ -247,7 +259,7 @@ public class VariableReferenceImpl implements VariableReference {
 	 *            The value to be assigned
 	 */
 	@Override
-	public void setObject(Scope scope, Object value) throws CodeUnderTestException{
+	public void setObject(Scope scope, Object value) throws CodeUnderTestException {
 		scope.setObject(this, value);
 	}
 
@@ -364,10 +376,10 @@ public class VariableReferenceImpl implements VariableReference {
 
 		if (this.getStPosition() != r.getStPosition())
 			return false;
-		
-		if(this.type.equals(r.getGenericClass()))
+
+		if (this.type.equals(r.getGenericClass()))
 			return true;
-		
+
 		return false;
 	}
 
@@ -400,5 +412,21 @@ public class VariableReferenceImpl implements VariableReference {
 	        VariableReference var2) {
 		// no op
 
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#getDistance()
+	 */
+	@Override
+	public int getDistance() {
+		return distance;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#setDistance(int)
+	 */
+	@Override
+	public void setDistance(int distance) {
+		this.distance = distance;
 	}
 }

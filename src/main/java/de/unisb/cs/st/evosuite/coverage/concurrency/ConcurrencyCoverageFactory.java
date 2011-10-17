@@ -21,23 +21,23 @@ package de.unisb.cs.st.evosuite.coverage.concurrency;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
 
 /**
- * @author 
+ * @author
  * 
  */
-public class ConcurrencyCoverageFactory  extends AbstractFitnessFactory {
+public class ConcurrencyCoverageFactory extends AbstractFitnessFactory {
 
-	public static final int THREAD_COUNT=2;
-	
+	public static final int THREAD_COUNT = 2;
+
 	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(ConcurrencyCoverageFactory.class);
+	private static Logger logger = LoggerFactory.getLogger(ConcurrencyCoverageFactory.class);
 
 	/*
 	 * (non-Javadoc)
@@ -54,27 +54,27 @@ public class ConcurrencyCoverageFactory  extends AbstractFitnessFactory {
 		//#TODO assume the TestDeadlock program
 		//Also assume that controll flow is pretty straight forward
 
-		for(Integer fieldAccessId :   LockRuntime.fieldAccessIDToCFGBranch.keySet()){
-			for(Integer combination : LockRuntime.fieldAccessIDToCFGBranch.keySet()){
-				for(Integer comb1 : LockRuntime.fieldAccessIDToCFGBranch.keySet()){
-					if(fieldAccessId<combination){ //No difference if thread 0 runs through point A while 1 waits at B or the other way round
+		for (Integer fieldAccessId : LockRuntime.fieldAccessIDToCFGBranch.keySet()) {
+			for (Integer combination : LockRuntime.fieldAccessIDToCFGBranch.keySet()) {
+				for (Integer comb1 : LockRuntime.fieldAccessIDToCFGBranch.keySet()) {
+					if (fieldAccessId < combination) { //No difference if thread 0 runs through point A while 1 waits at B or the other way round
 
 						List<SchedulingDecisionTuple> scheduleIDs = new ArrayList<SchedulingDecisionTuple>();
-						scheduleIDs.add(new SchedulingDecisionTuple(0,fieldAccessId));
+						scheduleIDs.add(new SchedulingDecisionTuple(0, fieldAccessId));
 						scheduleIDs.add(new SchedulingDecisionTuple(1, combination));
 						scheduleIDs.add(new SchedulingDecisionTuple(0, comb1));
-						
+
 						@SuppressWarnings("unused")
 						List<BranchCoverageGoal> branches = new ArrayList<BranchCoverageGoal>();
-						
+
 						//#TODO branches need to be covered
 						@SuppressWarnings("unused")
-						ConcurrencyCoverageGoal c = new ConcurrencyCoverageGoal(scheduleIDs);
+						ConcurrencyCoverageGoal c = new ConcurrencyCoverageGoal(
+						        scheduleIDs);
 					}
 				}
 			}
 		}
-
 
 		return goals;
 	}

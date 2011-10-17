@@ -88,12 +88,19 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
 		List<ExecutionResult> results = runTestSuite(suite);
 
+		double fitness = branchFitness.getFitness(individual);
+		logger.debug("Branch fitness: {}", fitness);
+
 		//Map<String, Integer> call_count = new HashMap<String, Integer>();
 		HashMap<Integer, Integer> trueExecutions = new HashMap<Integer, Integer>();
 		HashMap<Integer, Integer> falseExecutions = new HashMap<Integer, Integer>();
 		HashMap<LCSAJ, Double> LCSAJFitnesses = new HashMap<LCSAJ, Double>();
 
+		logger.debug("Checking " + LCSAJFitnessFunctions.size() + " LCSAJs against "
+		        + results.size() + " tests = " + LCSAJFitnessFunctions.size()
+		        * results.size() + " test/LCSAJ combinations");
 		for (ExecutionResult result : results) {
+
 			for (LCSAJCoverageTestFitness testFitness : LCSAJFitnessFunctions) {
 				TestChromosome chromosome = new TestChromosome();
 				chromosome.setTestCase(result.test);
@@ -123,30 +130,37 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				}
 			}
 		}
-		double fitness = branchFitness.getFitness(individual);
 
 		for (LCSAJ l : LCSAJFitnesses.keySet()) {
 			fitness += normalize(LCSAJFitnesses.get(l));
 		}
-
+		
+		fitness += branchFitness.getFitness(individual);
+		
+		logger.debug("Combined fitness: " + fitness);
+		double missingBranches = 0.0;
 		for (Integer executedID : expectedTrueExecutions.keySet()) {
 			if (!trueExecutions.containsKey(executedID))
-				fitness += expectedTrueExecutions.get(executedID);
+				missingBranches += expectedTrueExecutions.get(executedID);
 			else {
 				if (trueExecutions.get(executedID) < expectedTrueExecutions.get(executedID))
-					fitness += expectedTrueExecutions.get(executedID)
+					missingBranches += expectedTrueExecutions.get(executedID)
 					        - trueExecutions.get(executedID);
 			}
 		}
 		for (Integer executedID : expectedFalseExecutions.keySet()) {
 			if (!falseExecutions.containsKey(executedID))
-				fitness += expectedFalseExecutions.get(executedID);
+				missingBranches += expectedFalseExecutions.get(executedID);
 			else {
 				if (falseExecutions.get(executedID) < expectedFalseExecutions.get(executedID))
-					fitness += expectedFalseExecutions.get(executedID)
+					missingBranches += expectedFalseExecutions.get(executedID)
 					        - falseExecutions.get(executedID);
 			}
 		}
+
+		fitness += normalize(missingBranches);
+		
+		logger.info("Combined fitness with correction: " + fitness);
 
 		updateIndividual(individual, fitness);
 

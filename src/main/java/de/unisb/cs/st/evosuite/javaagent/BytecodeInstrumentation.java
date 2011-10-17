@@ -18,24 +18,23 @@
 
 package de.unisb.cs.st.evosuite.javaagent;
 
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.util.CheckClassAdapter;
-import org.objectweb.asm.util.TraceClassVisitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.cfg.CFGClassAdapter;
 import de.unisb.cs.st.evosuite.primitives.PrimitiveClassAdapter;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
@@ -48,15 +47,24 @@ import de.unisb.cs.st.evosuite.testcase.TestCluster;
  * 
  */
 public class BytecodeInstrumentation implements ClassFileTransformer {
-	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION;
 
-	protected static Logger logger = Logger.getLogger(BytecodeInstrumentation.class);
+	protected static Logger logger = LoggerFactory.getLogger(BytecodeInstrumentation.class);
 
 	// private static RemoveSystemExitTransformer systemExitTransformer = new
 	// RemoveSystemExitTransformer();
 
+	public boolean isTargetProject(String className) {
+		return className.startsWith(Properties.PROJECT_PREFIX);
+	}
+
 	private boolean isTargetClassName(String className) {
-		return TestCluster.isTargetClassName(className);
+		return TestCluster.getInstance().isTargetClassName(className);
+	}
+
+	private static boolean isJavaagent = false;
+
+	public static boolean isJavaagent() {
+		return isJavaagent;
 	}
 
 	static {
@@ -73,123 +81,129 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	 */
 	@Override
 	public byte[] transform(ClassLoader loader, String className,
-			Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-			byte[] classfileBuffer) throws IllegalClassFormatException {
+	        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+	        byte[] classfileBuffer) throws IllegalClassFormatException {
+		isJavaagent = true;
+		if (className == null) {
+			return classfileBuffer;
+		}
+		String classNameWithDots = className.replace('/', '.');
 
-		if (className != null) {
-			try {
-				String classNameWithDots = className.replace('/', '.');
+		// Some packages we shouldn't touch - hard-coded
+		if (!isTargetProject(classNameWithDots)
+		        && (classNameWithDots.startsWith("java")
+		                || classNameWithDots.startsWith("sun")
+		                || classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
+			return classfileBuffer;
+		}
 
-				// Some packages we shouldn't touch - hard-coded
-				if (!classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
-						&& (classNameWithDots.startsWith("java")
-								|| classNameWithDots.startsWith("sun")
-								|| classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
-					return classfileBuffer;
+
+		if (!isTargetProject(classNameWithDots)) {
+			return classfileBuffer;
+		}
+
+
+		try {
+			byte[] modifiedByteCode = transformBytes(className, new ClassReader(classfileBuffer));
+			String printInstrumentedClasses = System.getProperty("printInstrumentedClasses");
+			try{
+				if(printInstrumentedClasses!=null && printInstrumentedClasses.equals("true")){
+					File f = new File(classNameWithDots + ".class");
+					if(!f.exists()){
+						System.out.println(f.getAbsolutePath());
+						f.createNewFile();
+					}else{
+						f.delete();
+						f.createNewFile();
+					}
+					OutputStream out = new FileOutputStream(f);
+					out.write(modifiedByteCode);
+					out.close();
 				}
-				if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)) {
-
-					// logger.debug("Removing calls to System.exit() from class: "
-					// + classNameWithDots);
-					// classfileBuffer = systemExitTransformer
-					// .transformBytecode(classfileBuffer);
-
-					ClassReader reader = new ClassReader(classfileBuffer);
-					ClassWriter writer = new ClassWriter(
-							org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
-
-					ClassVisitor cv = writer;
-
-					// Print out bytecode if debug is enabled
-					// if(logger.isDebugEnabled())
-					// cv = new TraceClassVisitor(cv, new
-					// PrintWriter(System.out));
-
-					// Apply transformations to class under test and its owned
-					// classes
-					if (isTargetClassName(classNameWithDots)) {
-						cv = new AccessibleClassAdapter(cv, className);
-						cv = new ExecutionPathClassAdapter(cv, className);
-						cv = new CFGClassAdapter(cv, className);
-
-					} else if (Properties.MAKE_ACCESSIBLE) {
-						// Convert protected/default access to public access
-						cv = new AccessibleClassAdapter(cv, className);
-					}
-
-					// Collect constant values for the value pool
-					if (!MUTATION) {
-						cv = new PrimitiveClassAdapter(cv, className);
-					}
-
-					// If we need to reset static constructors, make them
-					// explicit methods
-					if (Properties.STATIC_HACK)
-						cv = new StaticInitializationClassAdapter(cv, className);
-
-					if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
-						ClassNode cn = new ClassNode();
-						reader.accept(cn, ClassReader.SKIP_FRAMES);
-						ComparisonTransformation cmp = new ComparisonTransformation(cn);
-						cmp.transform().accept(cv);
-						if (Properties.TT) {
-							logger.info("Testability Transforming " + className);
-							TestabilityTransformation tt = new TestabilityTransformation(
-									cn);
-							// cv = new TraceClassVisitor(writer, new
-							// PrintWriter(System.out));
-							cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
-							cv = new CheckClassAdapter(cv);
-							tt.transform().accept(cv);
-						}
-
-					} else {
-						reader.accept(cv, ClassReader.SKIP_FRAMES);
-					}
-					// Print out bytecode if debug is enabled
-					// if(logger.isDebugEnabled())
-					// cv = new TraceClassVisitor(cv, new
-					// PrintWriter(System.out));
-					classfileBuffer = writer.toByteArray();
-
-					String printInstrumentedClasses = System.getProperty("printInstrumentedClasses");
-					try{
-						if(printInstrumentedClasses!=null && printInstrumentedClasses.equals("true")){
-							File f = new File(classNameWithDots + ".class");
-							if(!f.exists()){
-								System.out.println(f.getAbsolutePath());
-								f.createNewFile();
-							}else{
-								f.delete();
-								f.createNewFile();
-							}
-							OutputStream out = new FileOutputStream(f);
-							out.write(classfileBuffer);
-							out.close();
-						}
-					}catch(Throwable t){
-						logger.error("Problem printing modified bytecode of class " + classNameWithDots, t);
-					}
-
-					return classfileBuffer;
-
-				}
-
-			} catch (Throwable t) {
-				logger.fatal("Transformation of class " + className + " failed", t);
-				// TODO why all the redundant printStackTrace()s?
-
-				//				StringWriter writer = new StringWriter();
-				//				t.printStackTrace(new PrintWriter(writer));
-				//				logger.fatal(writer.getBuffer().toString());
-				// LogManager.shutdown();
-				System.out.flush();
-				System.exit(0);
-				// throw new RuntimeException(e.getMessage());
+			}catch(Throwable t){
+				logger.error("Problem printing modified bytecode of class " + classNameWithDots, t);
 			}
+		} catch (Throwable t) {
+			logger.error("Transformation of class " + className + " failed", t);
+			// TODO why all the redundant printStackTrace()s?
+			// StringWriter writer = new StringWriter();
+			// t.printStackTrace(new PrintWriter(writer));
+			// logger.fatal(writer.getBuffer().toString());
+			// LogManager.shutdown();
+			System.out.flush();
+			System.exit(0);
+			// throw new RuntimeException(e.getMessage());
 		}
 		return classfileBuffer;
-
 	}
 
+	public byte[] transformBytes(String className, ClassReader reader) {
+		String classNameWithDots = className.replace('/', '.');
+		// logger.debug("Removing calls to System.exit() from class: "
+		// + classNameWithDots);
+		// classfileBuffer = systemExitTransformer
+		// .transformBytecode(classfileBuffer);
+
+		ClassWriter writer = new ClassWriter(org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
+
+		ClassVisitor cv = writer;
+
+		// Print out bytecode if debug is enabled
+		/*if (logger.isDebugEnabled())
+			cv = new TraceClassVisitor(cv, new PrintWriter(System.out));*/
+
+		// Apply transformations to class under test and its owned
+		// classes
+		if (isTargetClassName(classNameWithDots)) {
+			if (Properties.MAKE_ACCESSIBLE) {
+				cv = new AccessibleClassAdapter(cv, className);
+			}
+			cv = new ExecutionPathClassAdapter(cv, className);
+			cv = new CFGClassAdapter(cv, className);
+
+		} else if (Properties.MAKE_ACCESSIBLE) {
+			// Convert protected/default access to public access
+			cv = new AccessibleClassAdapter(cv, className);
+		}
+
+		// Collect constant values for the value pool
+		cv = new PrimitiveClassAdapter(cv, className);
+
+		// If we need to reset static constructors, make them
+		// explicit methods
+		if (Properties.STATIC_HACK)
+			cv = new StaticInitializationClassAdapter(cv, className);
+
+		if (isTargetClassName(classNameWithDots)) { //classNameWithDots.equals(Properties.TARGET_CLASS)) {
+			ClassNode cn = new ClassNode();
+			reader.accept(cn, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
+			ComparisonTransformation cmp = new ComparisonTransformation(cn);
+			cn = cmp.transform();
+
+			if (Properties.STRING_REPLACEMENT) {
+				StringTransformation st = new StringTransformation(cn);
+				cn = st.transform();
+			}
+
+			cn.accept(cv);
+
+			if (Properties.TT) {
+				logger.info("Testability Transforming " + className);
+				TestabilityTransformation tt = new TestabilityTransformation(cn);
+				// cv = new TraceClassVisitor(writer, new
+				// PrintWriter(System.out));
+				//cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+				cv = new CheckClassAdapter(cv);
+				tt.transform().accept(cv);
+			}
+
+		} else {
+			reader.accept(cv, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
+		}
+		// Print out bytecode if debug is enabled
+		/*if(logger.isDebugEnabled())
+			cv = new TraceClassVisitor(cv, new PrintWriter(System.out));*/
+		
+		return writer.toByteArray();
+	}
 }

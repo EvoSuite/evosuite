@@ -10,7 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.smtlib.CharSequenceReader;
 import org.smtlib.ICommand;
 import org.smtlib.IExpr;
@@ -49,7 +50,7 @@ public class SMTSolver {
 	@SuppressWarnings("unused")
 	private final ISort bv32Sort;
 
-	private static Logger logger = Logger.getLogger(SMTSolver.class);
+	private static Logger logger = LoggerFactory.getLogger(SMTSolver.class);
 
 	public SMTSolver() {
 		solver = new org.smtlib.solvers.Solver_cvc(smt.smtConfig,

@@ -26,6 +26,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -38,7 +39,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.panayotis.gnuplot.JavaPlot;
 import com.panayotis.gnuplot.plot.AbstractPlot;
@@ -47,30 +49,32 @@ import com.panayotis.gnuplot.style.Style;
 import com.panayotis.gnuplot.terminal.FileTerminal;
 import com.panayotis.gnuplot.terminal.GNUPlotTerminal;
 
-import de.unisb.cs.st.ds.util.io.Io;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.NoSuchParameterException;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
+import de.unisb.cs.st.evosuite.sandbox.PermissionStatistics;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
-import de.unisb.cs.st.javalanche.mutation.analyze.html.HtmlAnalyzer;
 
 /**
  * @author Gordon Fraser
  * 
  */
-public abstract class ReportGenerator implements SearchListener {
+public abstract class ReportGenerator implements SearchListener, Serializable {
+
+	private static final long serialVersionUID = -920540796220051609L;
 
 	protected final static boolean do_plot = Properties.PLOT;
 
 	protected final static boolean do_html = Properties.HTML;
 
-	protected final Logger logger = Logger.getLogger(ReportGenerator.class);
+	protected static final Logger logger = LoggerFactory
+			.getLogger(ReportGenerator.class);
 
 	protected static final File REPORT_DIR = new File(Properties.REPORT_DIR);
 
@@ -82,7 +86,10 @@ public abstract class ReportGenerator implements SearchListener {
 	 * @author Gordon Fraser
 	 * 
 	 */
-	protected class StatisticEntry {
+	public class StatisticEntry implements Serializable {
+
+		private static final long serialVersionUID = 8690481387977534927L;
+
 		/** Run id */
 		public int id = 0;
 
@@ -129,13 +136,13 @@ public abstract class ReportGenerator implements SearchListener {
 		public List<Double> coverage_history = new ArrayList<Double>();
 
 		/** History of best test length */
-		public List<Integer> tests_executed = new ArrayList<Integer>();
+		public List<Long> tests_executed = new ArrayList<Long>();
 
 		/** History of best test length */
-		public List<Integer> statements_executed = new ArrayList<Integer>();
+		public List<Long> statements_executed = new ArrayList<Long>();
 
 		/** History of best test length */
-		public List<Integer> fitness_evaluations = new ArrayList<Integer>();
+		public List<Long> fitness_evaluations = new ArrayList<Long>();
 
 		/** Number of tests after GA */
 		public int size_final = 0;
@@ -157,30 +164,168 @@ public abstract class ReportGenerator implements SearchListener {
 
 		public long minimized_time;
 
+		public long testExecutionTime;
+
+		public long goalComputationTime;
+
 		public int result_fitness_evaluations = 0;
 
-		public int result_tests_executed = 0;
+		public long result_tests_executed = 0;
 
-		public int result_statements_executed = 0;
+		public long result_statements_executed = 0;
 
 		public int age = 0;
 
 		public double fitness = 0.0;
 
 		public long seed = 0;
+
+		public long stoppingCondition;
+
+		public long globalTimeStoppingCondition;
+
+		public boolean timedOut;
+		
+		public int paramDUGoalCount;
+		
+		public int interDUGoalCount;
+		
+		public int intraDUGoalCount;
+
+		public String getCSVHeader() {
+			StringBuilder r = new StringBuilder();
+			r
+					.append("Class,Predicates,Total Branches,Covered Branches,Total Methods,Branchless Methods,Covered Methods,");
+			r
+					.append("Total Goals,Covered Goals,Coverage,Creation Time,Minimization Time,Total Time,Test Execution Time,Goal Computation Time,Result Size,Result Length,");
+			r.append("Minimized Size,Minimized Length,");
+			// "Bloat Rejections,Fitness Rejections,Fitness Accepts,"
+			r.append("Chromosome Length,Population Size,Random Seed,Budget,");
+
+			// TODO since we currently don't want to change the layout of
+			// statistics.csv i will leave this commented out for future use and
+			// sort of copy this into CoverageStatistics
+			// r.append("parameter DU-goals, intra DU-goals, inter DU-goals,");
+			// r.append("Stopping Condition,Global Time,Timed Out,");
+
+			r
+					.append("AllPermission,SecurityPermission,UnresolvedPermission,AWTPermission,FilePermission,SerializablePermission,ReflectPermission,RuntimePermission,NetPermission,SocketPermission,SQLPermission,PropertyPermission,LoggingPermission,SSLPermission,AuthPermission,AudioPermission,OtherPermission,Threads,");
+
+			r.append("Data File");
+			return r.toString();
+		}
+
+		public String getCSVData() {
+			StringBuilder r = new StringBuilder();
+
+			r.append(className + ",");
+
+			r.append(total_branches + ",");
+			r.append((2 * total_branches) + ",");
+			r.append(covered_branches + ",");
+
+			r.append(total_methods + ",");
+			r.append(branchless_methods + ",");
+			r.append(covered_methods + ",");
+
+			r.append(total_goals + ",");
+			r.append(covered_goals + ",");
+			r.append(getCoverageDouble() + ","); // 9
+
+			// r.append(start_time+",");
+			// r.append(end_time+",");
+			// r.append(minimized_time+",");
+
+			r.append((minimized_time - start_time) + ",");
+			r.append((minimized_time - end_time) + ",");
+			r.append((end_time - start_time) + ",");
+
+			r.append(testExecutionTime + ",");
+			r.append(goalComputationTime + ",");
+
+			r.append(size_final + ",");
+			r.append(length_final + ",");
+			r.append(size_minimized + ",");
+			r.append(length_minimized + ",");
+
+			r.append(chromosome_length + ",");
+			r.append(population_size + ",");
+			r.append(seed + ","); //21
+			r.append(Properties.GENERATIONS + ","); //22
+
+			// TODO since we currently don't want to change the layout of
+			// statistics.csv i will leave this commented out for future use and
+			// sort of copy this into CoverageStatistics
+//			r.append(paramDUGoalCount + ",");
+//			r.append(intraDUGoalCount + ",");
+//			r.append(interDUGoalCount + ",");
+			// r.append(stoppingCondition + ",");
+			// r.append(globalTimeStoppingCondition + ",");
+			// r.append(timedOut + ",");
+
+			PermissionStatistics pstats = PermissionStatistics.getInstance();
+
+			// TODO: This is a bug, AllPermission should only be here once, but we need to keep it for the ICSE12 experiments
+			r.append(pstats.getNumAllPermission() + ",");
+			// TODO remove the line above in the future (awesome comment)
+			r.append(pstats.getNumAllPermission() + ",");
+			r.append(pstats.getNumSecurityPermission() + ",");
+			r.append(pstats.getNumUnresolvedPermission() + ",");
+			r.append(pstats.getNumAWTPermission() + ",");
+			r.append(pstats.getNumFilePermission() + ",");
+			r.append(pstats.getNumSerializablePermission() + ",");
+			r.append(pstats.getNumReflectPermission() + ",");
+			r.append(pstats.getNumRuntimePermission() + ",");
+			r.append(pstats.getNumNetPermission() + ",");
+			r.append(pstats.getNumSocketPermission() + ",");
+			r.append(pstats.getNumSQLPermission() + ",");
+			r.append(pstats.getNumPropertyPermission() + ",");
+			r.append(pstats.getNumLoggingPermission() + ",");
+			r.append(pstats.getNumSSLPermission() + ",");
+			r.append(pstats.getNumAuthPermission() + ",");
+			r.append(pstats.getNumAudioPermission() + ",");
+			r.append(pstats.getNumOtherPermission() + ",");
+			r.append(pstats.getMaxThreads() + ",");
+
+			r.append(getCSVFilepath());
+
+			return r.toString();
+		}
+
+		public String getCSVFilepath() {
+			return REPORT_DIR.getAbsolutePath() + "/data/statistics_"
+					+ className + "-" + id + ".csv";
+		}
+
+		public String getCoverage() {
+			if (total_goals == 0)
+				return "100.00%";
+			else
+				return String.format("%.2f",
+						(100.0 * covered_goals / (1.0 * total_goals)))
+						.replaceAll(",", ".")
+						+ "%";
+		}
+
+		public double getCoverageDouble() {
+			if (total_goals == 0)
+				return 1.0;
+			else
+				return covered_goals / (1.0 * total_goals);
+		}
 	};
 
-	protected final List<StatisticEntry> statistics = new ArrayList<StatisticEntry>();
+	protected List<StatisticEntry> statistics = new ArrayList<StatisticEntry>();
 
-	protected final HtmlAnalyzer html_analyzer = new HtmlAnalyzer();
+	protected static final HtmlAnalyzer html_analyzer = new HtmlAnalyzer();
 
 	protected String writeIntegerChart(List<Integer> values, String className,
-	        String title) {
-		File file = new File(REPORT_DIR.getAbsolutePath() + "/img/statistics_" + title
-		        + "_" + className + ".png");
+			String title) {
+		File file = new File(REPORT_DIR.getAbsolutePath() + "/img/statistics_"
+				+ title + "_" + className + ".png");
 		JavaPlot plot = new JavaPlot();
 		GNUPlotTerminal terminal = new FileTerminal("png", REPORT_DIR
-		        + "/img/statistics_" + title + "_" + className + ".png");
+				+ "/img/statistics_" + title + "_" + className + ".png");
 		plot.setTerminal(terminal);
 
 		plot.set("xlabel", "\"Generation\"");
@@ -203,12 +348,13 @@ public abstract class ReportGenerator implements SearchListener {
 		return file.getName();
 	}
 
-	protected String writeDoubleChart(List<Double> values, String className, String title) {
-		File file = new File(REPORT_DIR.getAbsolutePath() + "/img/statistics_" + title
-		        + "_" + className + ".png");
+	protected String writeDoubleChart(List<Double> values, String className,
+			String title) {
+		File file = new File(REPORT_DIR.getAbsolutePath() + "/img/statistics_"
+				+ title + "_" + className + ".png");
 		JavaPlot plot = new JavaPlot();
 		GNUPlotTerminal terminal = new FileTerminal("png", REPORT_DIR
-		        + "/img/statistics_" + title + "_" + className + ".png");
+				+ "/img/statistics_" + title + "_" + className + ".png");
 		plot.setTerminal(terminal);
 
 		plot.set("xlabel", "\"Generation\"");
@@ -236,16 +382,20 @@ public abstract class ReportGenerator implements SearchListener {
 	 * HTML header
 	 */
 	protected void writeHTMLHeader(StringBuffer buffer, String title) {
-		buffer.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\" \"http://www.w3.org/TR/html4/frameset.dtd\">\n");
+		buffer
+				.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\" \"http://www.w3.org/TR/html4/frameset.dtd\">\n");
 		buffer.append("<html>\n");
 		buffer.append("<head>\n");
 		buffer.append("<title>\n");
 		buffer.append(title);
 		buffer.append("\n</title>\n");
 
-		buffer.append("<link href=\"prettify.css\" type=\"text/css\" rel=\"stylesheet\" />\n");
-		buffer.append("<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\"/>\n");
-		buffer.append("<script type=\"text/javascript\" src=\"prettify.js\"></script>\n");
+		buffer
+				.append("<link href=\"prettify.css\" type=\"text/css\" rel=\"stylesheet\" />\n");
+		buffer
+				.append("<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\"/>\n");
+		buffer
+				.append("<script type=\"text/javascript\" src=\"prettify.js\"></script>\n");
 		buffer.append("</head>\n");
 		buffer.append("<body onload=\"prettyPrint()\">\n");
 		buffer.append("<div id=\"wrapper\">\n");
@@ -262,10 +412,12 @@ public abstract class ReportGenerator implements SearchListener {
 
 	protected void writeCSVData(String filename, List<?>... data) {
 		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
+			BufferedWriter out = new BufferedWriter(new FileWriter(filename,
+					true));
 			int length = Integer.MAX_VALUE;
 
-			out.write("Generation,Fitness,Coverage,Size,Length,AverageLength,Evaluations,Tests,Statements\n");
+			out
+					.write("Generation,Fitness,Coverage,Size,Length,AverageLength,Evaluations,Tests,Statements\n");
 			for (List<?> d : data) {
 				length = Math.min(length, d.size());
 			}
@@ -288,16 +440,18 @@ public abstract class ReportGenerator implements SearchListener {
 			@Override
 			public boolean accept(File dir, String name) {
 				return name.startsWith("statistics_" + className)
-				        && name.endsWith(".csv"); // && !dir.isDirectory();
+						&& name.endsWith(".csv"); // && !dir.isDirectory();
 			}
 		};
 		List<String> filenames = new ArrayList<String>();
 
-		File[] files = (new File(REPORT_DIR.getAbsolutePath() + "/data")).listFiles(filter);
+		File[] files = (new File(REPORT_DIR.getAbsolutePath() + "/data"))
+				.listFiles(filter);
 		if (files != null) {
 			for (File f : files)
 				filenames.add(f.getName());
-			while (filenames.contains("statistics_" + className + "-" + num + ".csv"))
+			while (filenames.contains("statistics_" + className + "-" + num
+					+ ".csv"))
 				num++;
 		}
 
@@ -318,14 +472,17 @@ public abstract class ReportGenerator implements SearchListener {
 		sb.append("<h1>");
 		sb.append(run.className);
 		sb.append(": ");
-		sb.append(String.format("%.2f", 100.0 * run.covered_goals / run.total_goals));
+		sb.append(String.format("%.2f", 100.0 * run.covered_goals
+				/ run.total_goals));
 		sb.append("%");
 		sb.append("</h1></div></div>\n");
-		sb.append("<p><a href=\"../report-generation.html\">Overview</a></p>\n");
+		sb
+				.append("<p><a href=\"../report-generation.html\">Overview</a></p>\n");
 
 		writeResultTable(sb, run);
 		// writeMutationTable(sb);
-		sb.append("<div id=\"page\"><div id=\"page-bgtop\"><div id=\"page-bgbtm\"><div id=\"content\">");
+		sb
+				.append("<div id=\"page\"><div id=\"page-bgtop\"><div id=\"page-bgbtm\"><div id=\"content\">");
 		sb.append("<div id=\"post\">");
 
 		// Resulting test case
@@ -340,9 +497,9 @@ public abstract class ReportGenerator implements SearchListener {
 				 * if(test.exceptionThrown != null) { sb.append("<p>Raises:");
 				 * sb.append(test.exceptionThrown); sb.append("</p>"); }
 				 */
-				sb.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">\n");
+				sb
+						.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">\n");
 				int linecount = 1;
-				int test_line = 0;
 				String code = null;
 				if (run.results.containsKey(test))
 					code = test.toCode(run.results.get(test));
@@ -350,8 +507,11 @@ public abstract class ReportGenerator implements SearchListener {
 					code = test.toCode();
 
 				for (String line : code.split("\n")) {
-					sb.append(String.format("<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
-					                        linecount, linecount));
+					sb
+							.append(String
+									.format(
+											"<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
+											linecount, linecount));
 					/*
 					 * if(test.exceptionsThrown != null &&
 					 * test.exception_statement == test_line)
@@ -363,7 +523,6 @@ public abstract class ReportGenerator implements SearchListener {
 					 * test.exception_statement == test_line)
 					 * sb.append("</span>");
 					 */
-					test_line++;
 					linecount++;
 					sb.append("\n");
 				}
@@ -394,8 +553,8 @@ public abstract class ReportGenerator implements SearchListener {
 			if (run.fitness_history.isEmpty()) {
 				sb.append("<h2>No fitness history</h2>\n");
 			} else {
-				String filename = writeDoubleChart(run.fitness_history, run.className
-				        + "-" + run.id, "Fitness");
+				String filename = writeDoubleChart(run.fitness_history,
+						run.className + "-" + run.id, "Fitness");
 				sb.append("<h2>Fitness</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -408,8 +567,8 @@ public abstract class ReportGenerator implements SearchListener {
 			if (run.size_history.isEmpty()) {
 				sb.append("<h2>No size history</h2>\n");
 			} else {
-				String filename = writeIntegerChart(run.size_history, run.className + "-"
-				        + run.id, "Size");
+				String filename = writeIntegerChart(run.size_history,
+						run.className + "-" + run.id, "Size");
 				sb.append("<h2>Size</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -422,8 +581,8 @@ public abstract class ReportGenerator implements SearchListener {
 			if (run.length_history.isEmpty()) {
 				sb.append("<h2>No length history</h2>\n");
 			} else {
-				String filename = writeIntegerChart(run.length_history, run.className
-				        + "-" + run.id, "Length");
+				String filename = writeIntegerChart(run.length_history,
+						run.className + "-" + run.id, "Length");
 				sb.append("<h2>Length</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -437,7 +596,7 @@ public abstract class ReportGenerator implements SearchListener {
 				sb.append("<h2>No average length history</h2>\n");
 			} else {
 				String filename = writeDoubleChart(run.average_length_history,
-				                                   run.className + "-" + run.id, "Length");
+						run.className + "-" + run.id, "Length");
 				sb.append("<h2>Average Length</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -451,14 +610,19 @@ public abstract class ReportGenerator implements SearchListener {
 
 		// Source code
 		try {
-			Iterable<String> source = html_analyzer.getClassContent(run.className);
+			Iterable<String> source = html_analyzer
+					.getClassContent(run.className);
 			sb.append("<h2 class=title>Source Code</h2>\n");
 			sb.append("<p>");
-			sb.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">");
+			sb
+					.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">");
 			int linecount = 1;
 			for (String line : source) {
-				sb.append(String.format("<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
-				                        linecount, linecount));
+				sb
+						.append(String
+								.format(
+										"<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
+										linecount, linecount));
 				if (run.coverage.contains(linecount)) {
 					sb.append("<span style=\"background-color: #ffffcc\">");
 					sb.append(StringEscapeUtils.escapeHtml(line));
@@ -486,7 +650,7 @@ public abstract class ReportGenerator implements SearchListener {
 
 		String filename = "report-" + run.className + "-" + run.id + ".html";
 		File file = new File(REPORT_DIR.getAbsolutePath() + "/html/" + filename);
-		Io.writeFile(sb.toString(), file);
+		Utils.writeFile(sb.toString(), file);
 		// return file.getAbsolutePath();
 		return filename;
 	}
@@ -501,7 +665,8 @@ public abstract class ReportGenerator implements SearchListener {
 		buffer.append("<ul>\n");
 		for (String key : Properties.getParameters()) {
 			try {
-				buffer.append("<li>" + key + ": " + Properties.getStringValue(key) + "\n"); // TODO
+				buffer.append("<li>" + key + ": "
+						+ Properties.getStringValue(key) + "\n"); // TODO
 			} catch (NoSuchParameterException e) {
 
 			} catch (IllegalArgumentException e) {
@@ -516,11 +681,14 @@ public abstract class ReportGenerator implements SearchListener {
 
 		buffer.append("<h2>Old Parameters</h2>\n");
 		buffer.append("<ul>\n");
-		buffer.append("<li>Algorithm: " + Properties.ALGORITHM.toString() + "\n"); // TODO
+		buffer.append("<li>Algorithm: " + Properties.ALGORITHM.toString()
+				+ "\n"); // TODO
 		buffer.append("<li>Population size: " + entry.population_size + "\n");
-		buffer.append("<li>Initial test length: " + entry.chromosome_length + "\n");
-		buffer.append("<li>Stopping condition: " + Properties.STOPPING_CONDITION + ": "
-		        + Properties.GENERATIONS + "\n");
+		buffer.append("<li>Initial test length: " + entry.chromosome_length
+				+ "\n");
+		buffer.append("<li>Stopping condition: "
+				+ Properties.STOPPING_CONDITION + ": " + Properties.GENERATIONS
+				+ "\n");
 		buffer.append("<li>Bloat control factor: " + Properties.BLOAT_FACTOR);
 		buffer.append("<li>Random seed: " + entry.seed + "\n");
 		buffer.append("</ul>\n");
@@ -536,29 +704,33 @@ public abstract class ReportGenerator implements SearchListener {
 
 		buffer.append("<h2>Statistics</h2>\n");
 		buffer.append("<ul>\n");
-		buffer.append("<li>Start time: " + sdf.format(new Date(entry.start_time)) + "\n");
-		buffer.append("<li>End time: " + sdf.format(new Date(entry.minimized_time))
-		        + "\n");
-		buffer.append("<li>Fitness evaluations: " + entry.result_fitness_evaluations
-		        + "\n");
-		buffer.append("<li>Tests executed: " + entry.result_tests_executed + "\n");
-		buffer.append("<li>Statements executed: " + entry.result_statements_executed
-		        + "\n");
+		buffer.append("<li>Start time: "
+				+ sdf.format(new Date(entry.start_time)) + "\n");
+		buffer.append("<li>End time: "
+				+ sdf.format(new Date(entry.minimized_time)) + "\n");
+		buffer.append("<li>Fitness evaluations: "
+				+ entry.result_fitness_evaluations + "\n");
+		buffer.append("<li>Tests executed: " + entry.result_tests_executed
+				+ "\n");
+		buffer.append("<li>Statements executed: "
+				+ entry.result_statements_executed + "\n");
 		buffer.append("<li>Generations: " + entry.age + "\n");
-		buffer.append("<li>Number of tests before minimization: " + entry.size_final
-		        + "\n");
-		buffer.append("<li>Number of tests after minimization: " + entry.size_minimized
-		        + "\n");
-		buffer.append("<li>Length of tests before minimization: " + entry.length_final
-		        + "\n");
-		buffer.append("<li>Length of tests after minimization: " + entry.length_minimized
-		        + "\n");
+		buffer.append("<li>Number of tests before minimization: "
+				+ entry.size_final + "\n");
+		buffer.append("<li>Number of tests after minimization: "
+				+ entry.size_minimized + "\n");
+		buffer.append("<li>Length of tests before minimization: "
+				+ entry.length_final + "\n");
+		buffer.append("<li>Length of tests after minimization: "
+				+ entry.length_minimized + "\n");
 		buffer.append("<li>Total predicates: " + entry.total_branches + "\n");
-		buffer.append("<li>Total branches: " + (2 * entry.total_branches) + "\n");
+		buffer.append("<li>Total branches: " + (2 * entry.total_branches)
+				+ "\n");
 		buffer.append("<li>Covered branches: " + entry.covered_branches + "\n");
 		buffer.append("<li>Total methods: " + entry.total_methods + "\n");
 		buffer.append("<li>Covered methods: " + entry.covered_methods + "\n");
-		buffer.append("<li>Methods without branches: " + entry.branchless_methods + "\n");
+		buffer.append("<li>Methods without branches: "
+				+ entry.branchless_methods + "\n");
 		buffer.append("<li>Total coverage goal: " + entry.total_goals + "\n");
 		buffer.append("<li>Covered goals: " + entry.covered_goals + "\n");
 
@@ -566,14 +738,14 @@ public abstract class ReportGenerator implements SearchListener {
 		long duration_MI = (entry.minimized_time - entry.end_time) / 1000;
 		long duration_TO = (entry.minimized_time - entry.start_time) / 1000;
 		buffer.append("<li>Time for search: "
-		        + String.format("%d:%02d:%02d", duration_GA / 3600,
-		                        (duration_GA % 3600) / 60, (duration_GA % 60)) + "\n");
+				+ String.format("%d:%02d:%02d", duration_GA / 3600,
+						(duration_GA % 3600) / 60, (duration_GA % 60)) + "\n");
 		buffer.append("<li>Time for minimization: "
-		        + String.format("%d:%02d:%02d", duration_MI / 3600,
-		                        (duration_MI % 3600) / 60, (duration_MI % 60)) + "\n");
+				+ String.format("%d:%02d:%02d", duration_MI / 3600,
+						(duration_MI % 3600) / 60, (duration_MI % 60)) + "\n");
 		buffer.append("<li>Total time: "
-		        + String.format("%d:%02d:%02d", duration_TO / 3600,
-		                        (duration_TO % 3600) / 60, (duration_TO % 60)) + "\n");
+				+ String.format("%d:%02d:%02d", duration_TO / 3600,
+						(duration_TO % 3600) / 60, (duration_TO % 60)) + "\n");
 
 		// buffer.append("<li>Elite: "+System.getProperty("GA.elite")+"\n");
 		// buffer.append("<li>Mutation rate: "+System.getProperty("GA.mutation_rate")+"\n");
@@ -600,12 +772,11 @@ public abstract class ReportGenerator implements SearchListener {
 			long duration_TO = (entry.minimized_time - entry.start_time) / 1000;
 			buffer.append("<td>");
 			buffer.append(String.format("%d:%02d:%02d", duration_TO / 3600,
-			                            (duration_TO % 3600) / 60, (duration_TO % 60)));
+					(duration_TO % 3600) / 60, (duration_TO % 60)));
 			buffer.append("</td>");
 			buffer.append("<td>");
-			buffer.append(String.format("%.2f",
-			                            (100.0 * entry.covered_goals / (1.0 * entry.total_goals))));
-			buffer.append("%</td>");
+			buffer.append(entry.getCoverage());
+			buffer.append("</td>");
 			buffer.append("<td><a href=\"html/");
 			String filename = writeRunPage(entry);
 			buffer.append(filename);
@@ -613,7 +784,7 @@ public abstract class ReportGenerator implements SearchListener {
 			buffer.append(entry.className);
 			buffer.append("</a></td>");
 			buffer.append("<td><a href=\"");
-			buffer.append("data/statistics_" + entry.className + "-" + entry.id + ".csv");
+			buffer.append(entry.getCSVFilepath());
 			buffer.append("\">CSV</a></td>");
 			buffer.append("</tr>\n");
 		}
@@ -628,53 +799,20 @@ public abstract class ReportGenerator implements SearchListener {
 			File f = new File(REPORT_DIR + "/statistics.csv");
 			BufferedWriter out = new BufferedWriter(new FileWriter(f, true));
 			if (f.length() == 0L) {
-				out.write("Class,Predicates,Total Branches,Covered Branches,Total Methods,Branchless Methods,Covered Methods,");
-				out.write("Total Goals,Covered Goals,Coverage,Creation Time,Minimization Time,Total Time, Result Size, Result Length,");
-				out.write("Minimized Size,Minimized Length,Bloat Rejections,Fitness Rejections,Fitness Accepts,Chromosome Length,Population Size,Random Seed,Data File\n");
+				out.write(entry.getCSVHeader() + "\n");
 			}
-			out.write(entry.className + ",");
-
-			out.write(entry.total_branches + ",");
-			out.write((2 * entry.total_branches) + ",");
-			out.write(entry.covered_branches + ",");
-
-			out.write(entry.total_methods + ",");
-			out.write(entry.branchless_methods + ",");
-			out.write(entry.covered_methods + ",");
-
-			out.write(entry.total_goals + ",");
-			out.write(entry.covered_goals + ",");
-			out.write(1.0 * entry.covered_goals / (entry.total_goals) + ",");
-
-			// out.write(entry.start_time+",");
-			// out.write(entry.end_time+",");
-			// out.write(entry.minimized_time+",");
-			out.write((entry.end_time - entry.start_time) + ",");
-			out.write((entry.minimized_time - entry.end_time) + ",");
-			out.write((entry.minimized_time - entry.start_time) + ",");
-
-			out.write(entry.size_final + ",");
-			out.write(entry.length_final + ",");
-			out.write(entry.size_minimized + ",");
-			out.write(entry.length_minimized + ",");
-
-			out.write(entry.chromosome_length + ",");
-			out.write(entry.population_size + ",");
-			out.write(entry.seed + ",");
-			out.write(REPORT_DIR.getAbsolutePath() + "/data/statistics_"
-			        + entry.className + "-" + entry.id + ".csv\n");
+			out.write(entry.getCSVData() + "\n");
 			out.close();
 
 		} catch (IOException e) {
 			logger.warn("Error while writing statistics: " + e.getMessage());
 		}
 
-		writeCSVData(REPORT_DIR.getAbsolutePath() + "/data/statistics_" + entry.className
-		                     + "-" + entry.id + ".csv", entry.fitness_history,
-		             entry.coverage_history,
-		             entry.size_history, entry.length_history,
-		             entry.average_length_history, entry.fitness_evaluations,
-		             entry.tests_executed, entry.statements_executed);
+		writeCSVData(entry.getCSVFilepath(), entry.fitness_history,
+				entry.coverage_history, entry.size_history,
+				entry.length_history, entry.average_length_history,
+				entry.fitness_evaluations, entry.tests_executed,
+				entry.statements_executed);
 
 	}
 
@@ -699,7 +837,8 @@ public abstract class ReportGenerator implements SearchListener {
 		URL systemResource = ClassLoader.getSystemResource("report/" + name);
 		logger.debug("Copying from resource: " + systemResource);
 		copyFile(systemResource, new File(REPORT_DIR, name));
-		copyFile(systemResource, new File(REPORT_DIR.getAbsolutePath() + "/html/" + name));
+		copyFile(systemResource, new File(REPORT_DIR.getAbsolutePath()
+				+ "/html/" + name));
 	}
 
 	/**
@@ -722,7 +861,7 @@ public abstract class ReportGenerator implements SearchListener {
 		StringBuffer report = new StringBuffer();
 
 		if (file.exists()) {
-			List<String> lines = Io.getLinesFromFile(file);
+			List<String> lines = Utils.readFile(file);
 			for (String line : lines) {
 				if (line.contains("<!-- EVOSUITE INSERTION POINT -->")) {
 					break;
@@ -731,21 +870,25 @@ public abstract class ReportGenerator implements SearchListener {
 			}
 		} else {
 
-			writeHTMLHeader(report, "EvoSuite Report for " + Properties.PROJECT_PREFIX);
+			writeHTMLHeader(report, "EvoSuite Report for "
+					+ Properties.PROJECT_PREFIX);
 			report.append("<div id=\"header\"><div id=\"logo\">");
 			report.append("<h1 class=title>EvoSuite Report for "
-			        + Properties.PROJECT_PREFIX + "</h1>\n");
+					+ Properties.PROJECT_PREFIX + "</h1>\n");
 			report.append("</div></div>");
 			try {
 				report.append("Run on "
-				        + java.net.InetAddress.getLocalHost().getHostName() + "\n");
+						+ java.net.InetAddress.getLocalHost().getHostName()
+						+ "\n");
 			} catch (Exception e) {
 			}
 
-			report.append("<div id=\"page\"><div id=\"page-bgtop\"><div id=\"page-bgbtm\"><div id=\"content\">");
+			report
+					.append("<div id=\"page\"><div id=\"page-bgtop\"><div id=\"page-bgbtm\"><div id=\"content\">");
 			report.append("<div id=\"post\">");
 			report.append("<h2 class=\"title\">Test generation runs:</h2>\n");
-			report.append("<div style=\"clear: both;\">&nbsp;</div><div class=\"entry\">");
+			report
+					.append("<div style=\"clear: both;\">&nbsp;</div><div class=\"entry\">");
 			report.append("<table border=1 cellspacing=0 cellpadding=3>");
 			report.append("<tr>");
 			report.append("<td>Run</td>");
@@ -761,14 +904,16 @@ public abstract class ReportGenerator implements SearchListener {
 
 		writeHTMLFooter(report);
 
-		Io.writeFile(report.toString(), file);
+		Utils.writeFile(report.toString(), file);
 	}
 
-	protected Set<Integer> getCoveredLines(ExecutionTrace trace, String className) {
+	public Set<Integer> getCoveredLines(ExecutionTrace trace, String className) {
 		Set<Integer> covered_lines = new HashSet<Integer>();
-		for (Entry<String, Map<String, Map<Integer, Integer>>> entry : trace.coverage.entrySet()) {
+		for (Entry<String, Map<String, Map<Integer, Integer>>> entry : trace.coverage
+				.entrySet()) {
 			if (entry.getKey().startsWith(className)) {
-				for (Map<Integer, Integer> methodentry : entry.getValue().values()) {
+				for (Map<Integer, Integer> methodentry : entry.getValue()
+						.values()) {
 					covered_lines.addAll(methodentry.keySet());
 				}
 			}
@@ -776,18 +921,18 @@ public abstract class ReportGenerator implements SearchListener {
 		return covered_lines;
 	}
 
-	protected ExecutionTrace executeTest(TestCase test, String className) {
+	public ExecutionTrace executeTest(TestCase test, String className) {
 		ExecutionTrace trace = null;
 		try {
 			// logger.trace(test.toCode());
 			TestCaseExecutor executor = TestCaseExecutor.getInstance();
 			ExecutionResult result = executor.execute(test);
-			//		Map<Integer, Throwable> result = executor.run(test);
+			// Map<Integer, Throwable> result = executor.run(test);
 			StatisticEntry entry = statistics.get(statistics.size() - 1);
-			//			entry.results.put(test, result);
+			// entry.results.put(test, result);
 			entry.results.put(test, result.exceptions);
 
-			//			trace = ExecutionTracer.getExecutionTracer().getTrace();
+			// trace = ExecutionTracer.getExecutionTracer().getTrace();
 			trace = result.getTrace();
 
 		} catch (Exception e) {
@@ -840,7 +985,8 @@ public abstract class ReportGenerator implements SearchListener {
 			average += individual.size();
 		}
 
-		entry.average_length_history.add(average / algorithm.getPopulation().size());
+		entry.average_length_history.add(average
+				/ algorithm.getPopulation().size());
 
 		// TODO: Need to get data of average size in here - how? Pass population
 		// as parameter?

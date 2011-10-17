@@ -1,23 +1,32 @@
 package de.unisb.cs.st.evosuite.ui.model;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.uispec4j.UIComponent;
 
+import y.view.NodeRealizer;
 import de.unisb.cs.st.evosuite.ui.GraphVizDrawable;
 import de.unisb.cs.st.evosuite.ui.GraphVizEnvironment;
+import de.unisb.cs.st.evosuite.ui.YWorksDrawable;
+import de.unisb.cs.st.evosuite.ui.YWorksEnvironment;
 import de.unisb.cs.st.evosuite.ui.run.AbstractUIEnvironment;
 import de.unisb.cs.st.evosuite.ui.run.BoundUIAction;
 import de.unisb.cs.st.evosuite.ui.run.UIEnvironment;
 import de.unisb.cs.st.evosuite.utils.HashUtil;
 import de.unisb.cs.st.evosuite.utils.StringUtil;
 
-public class DescriptorBoundUIAction<T extends UIComponent> implements GraphVizDrawable, Serializable {
+public class DescriptorBoundUIAction<T extends UIComponent> implements GraphVizDrawable, YWorksDrawable, Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private UIActionTargetDescriptor target;
 	private UIAction<T> action;
+
+	private static Map<DescriptorBoundUIAction<?>, Integer> timesExecutedMap = Collections.synchronizedMap(
+			new HashMap<DescriptorBoundUIAction<?>, Integer>());
 
 	public DescriptorBoundUIAction(UIAction<T> action, UIActionTargetDescriptor target) {
 		this.action = action;
@@ -42,8 +51,8 @@ public class DescriptorBoundUIAction<T extends UIComponent> implements GraphVizD
 		this.action.executeOn(env, (T) this.target.resolve(env));
 	}
 	
-	public void randomize() {
-		this.action.randomize();
+	public boolean randomize() {
+		return this.action.randomize();
 	}
 	
 	public UIActionTargetDescriptor targetDescriptor() {
@@ -82,5 +91,29 @@ public class DescriptorBoundUIAction<T extends UIComponent> implements GraphVizD
 
 	public String shortString() {
 		return String.format("%s on %s", this.action.toString(), this.targetDescriptor().getCriteria().toString());
+	}
+
+	@Override
+	public void addEdgesToYWorksEnvironment(YWorksEnvironment env) {
+		/* Nothing to do here */
+	}
+
+	@Override
+	public void addToYWorksEnvironment(YWorksEnvironment env) {
+		NodeRealizer realizer = env.getNodeRealizerFor(this);		
+		realizer.setLabelText(String.format("%s (%d x)", this.action.graphVizString(), this.getTimesExecuted()));
+	}
+
+	public int getTimesExecuted() {
+		if (!timesExecutedMap.containsKey(this)) {
+			timesExecutedMap.put(this, 0);
+			return 0;
+		}
+		
+		return timesExecutedMap.get(this);
+	}
+	
+	public void increaseTimesExecuted() {
+		timesExecutedMap.put(this, this.getTimesExecuted() + 1);
 	}
 }

@@ -3,16 +3,19 @@ package de.unisb.cs.st.evosuite.coverage.lcsaj;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Strategy;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 
 public class LCSAJ {
 
-	private static Logger logger = Logger.getLogger(LCSAJ.class);
+	private static Logger logger = LoggerFactory.getLogger(LCSAJ.class);
 
 	// All branches passed in the LCSAJ
 	private final List<Branch> branches = new ArrayList<Branch>();
@@ -23,9 +26,9 @@ public class LCSAJ {
 	// Class and method where the LCSAJ occurs
 	private final String className;
 	private final String methodName;
-	
+
 	private int positionReached = 0;
-	
+
 	public LCSAJ(String className, String methodName, BytecodeInstruction start) {
 		this.className = className;
 		this.methodName = methodName;
@@ -35,9 +38,11 @@ public class LCSAJ {
 			if (methodName.startsWith("<init>") && start.getInstructionId() <= 1) {
 
 			}
-			start.forceBranch();
-			BranchPool.registerAsBranch(start);
-			logger.warn("Registering new branch for start node");
+			if (Properties.STRATEGY != Strategy.EVOSUITE){
+				start.forceBranch();
+				BranchPool.registerAsBranch(start);
+				logger.info("Registering new branch for start node");
+			}
 		}
 
 		Branch branch = BranchPool.getBranchForInstruction(start);
@@ -109,10 +114,10 @@ public class LCSAJ {
 		} else if (instruction.isReturn() || instruction.isThrow()
 		        || instruction.isGoto()) {
 
-			if (!BranchPool.isKnownAsBranch(instruction)) {
+			if (Properties.STRATEGY != Strategy.EVOSUITE && !BranchPool.isKnownAsBranch(instruction)) {
 				instruction.forceBranch();
 				BranchPool.registerAsBranch(instruction);
-				logger.warn("Registering new branch");
+				logger.info("Registering new branch");
 			}
 
 			Branch branch = BranchPool.getBranchForInstruction(instruction);
@@ -135,12 +140,12 @@ public class LCSAJ {
 		//	output += " -> " + b.getASMNodeString() + "\n";
 		return output;
 	}
-	
-	public void setPositionReached(int position){
+
+	public void setPositionReached(int position) {
 		this.positionReached = position;
 	}
-	
-	public int getdPositionReached(){
+
+	public int getdPositionReached() {
 		return this.positionReached;
 	}
 }

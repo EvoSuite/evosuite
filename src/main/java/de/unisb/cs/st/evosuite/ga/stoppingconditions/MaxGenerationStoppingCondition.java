@@ -29,11 +29,13 @@ import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
  */
 public class MaxGenerationStoppingCondition extends StoppingCondition {
 
-	/** Maximum number of iterations */
-	protected int max_iterations = Properties.GENERATIONS;
+	private static final long serialVersionUID = 251196904115160351L;
 
 	/** Maximum number of iterations */
-	protected int current_iteration = 0;
+	protected long max_iterations = Properties.GENERATIONS;
+
+	/** Maximum number of iterations */
+	protected long current_iteration = 0;
 
 	public void setMaxIterations(int max) {
 		max_iterations = max;
@@ -74,12 +76,12 @@ public class MaxGenerationStoppingCondition extends StoppingCondition {
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
 	@Override
-	public void setLimit(int limit) {
+	public void setLimit(long limit) {
 		max_iterations = limit;
 	}
 
 	@Override
-	public int getLimit() {
+	public long getLimit() {
 		return max_iterations;
 	}
 
@@ -87,8 +89,12 @@ public class MaxGenerationStoppingCondition extends StoppingCondition {
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
 	@Override
-	public int getCurrentValue() {
+	public long getCurrentValue() {
 		return current_iteration;
 	}
 
+	@Override
+	public void forceCurrentValue(long value) {
+		current_iteration = value;
+	}
 }

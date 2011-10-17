@@ -5,7 +5,8 @@ package de.unisb.cs.st.evosuite.javaagent;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
@@ -21,7 +22,7 @@ public class BooleanInterpreter extends BasicInterpreter {
 
 	public final static BasicValue BOOLEAN = new BasicValue(null);
 
-	private static Logger logger = Logger.getLogger(BooleanInterpreter.class);
+	private static Logger logger = LoggerFactory.getLogger(BooleanInterpreter.class);
 
 	@Override
 	public Value newOperation(AbstractInsnNode insn) throws AnalyzerException {

@@ -43,6 +43,21 @@ public interface VariableReference extends Comparable<VariableReference> {
 	public int getStPosition();
 
 	/**
+	 * Distance metric used to select variables for mutation based on how close
+	 * they are to the SUT
+	 * 
+	 * @return
+	 */
+	public int getDistance();
+
+	/**
+	 * Set the distance metric
+	 * 
+	 * @param distance
+	 */
+	public void setDistance(int distance);
+
+	/**
 	 * Create a copy of the current variable
 	 */
 	public abstract VariableReference clone();
@@ -51,6 +66,11 @@ public interface VariableReference extends Comparable<VariableReference> {
 	 * Create a copy of the current variable for new test
 	 */
 	public abstract VariableReference clone(TestCase newTest);
+
+	/**
+	 * Create a copy of the current variable for new test
+	 */
+	public abstract VariableReference copy(TestCase newTest, int offset);
 
 	/**
 	 * Return simple class name
@@ -150,10 +170,11 @@ public interface VariableReference extends Comparable<VariableReference> {
 	 * 
 	 * @param scope
 	 *            The scope of the test case execution
-	 * @throws CodeUnderTestException 
-	 * 			  if code from the class under test throws an exception. (E.g. the static init of a field)
+	 * @throws CodeUnderTestException
+	 *             if code from the class under test throws an exception. (E.g.
+	 *             the static init of a field)
 	 */
-	public Object getObject(Scope scope) throws CodeUnderTestException ;
+	public Object getObject(Scope scope) throws CodeUnderTestException;
 
 	/**
 	 * Set the actual object represented by this variable in a given scope
@@ -162,8 +183,9 @@ public interface VariableReference extends Comparable<VariableReference> {
 	 *            The scope of the test case execution
 	 * @param value
 	 *            The value to be assigned
-	 * @throws CodeUnderTestException 
-	 * 			  if code from the class under test throws an exception. (E.g. the static init of a field)
+	 * @throws CodeUnderTestException
+	 *             if code from the class under test throws an exception. (E.g.
+	 *             the static init of a field)
 	 */
 	public void setObject(Scope scope, Object value) throws CodeUnderTestException;
 

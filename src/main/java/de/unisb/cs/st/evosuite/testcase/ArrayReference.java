@@ -1,6 +1,9 @@
 package de.unisb.cs.st.evosuite.testcase;
 
 public class ArrayReference extends VariableReferenceImpl {
+
+	private static final long serialVersionUID = -1473965684542348550L;
+
 	protected int array_length;
 
 	public ArrayReference(TestCase tc, GenericClass clazz, int array_length) {
@@ -22,8 +25,8 @@ public class ArrayReference extends VariableReferenceImpl {
 	 * Create a copy of the current variable
 	 */
 	@Override
-	public VariableReference clone(TestCase newTestCase) {
-		VariableReference newRef = newTestCase.getStatement(getStPosition()).getReturnValue();
+	public VariableReference copy(TestCase newTestCase, int offset) {
+		VariableReference newRef = newTestCase.getStatement(getStPosition() + offset).getReturnValue();
 		if (newRef instanceof ArrayReference) {
 			ArrayReference otherArray = (ArrayReference) newRef;
 			otherArray.setArrayLength(array_length);
@@ -35,7 +38,15 @@ public class ArrayReference extends VariableReferenceImpl {
 				otherArray.setArrayLength(array_length);
 				return otherArray;
 			} else {
-				throw new RuntimeException("After cloning the array disappeared...");
+				// This may happen when cloning a method statement which returns an Object that in fact is an array
+				// We'll just create a new ArrayReference in this case.
+				ArrayReference otherArray = new ArrayReference(newTestCase, type,
+				        array_length);
+				otherArray.setArrayLength(array_length);
+				return otherArray;
+				//				throw new RuntimeException("After cloning the array disappeared: "
+				//				        + getName() + "/" + newRef.getName() + " in test "
+				//				        + newTestCase.toCode() + " / old test: " + testCase.toCode());
 			}
 		}
 	}

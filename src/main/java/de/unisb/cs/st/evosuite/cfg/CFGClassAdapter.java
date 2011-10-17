@@ -18,19 +18,14 @@
 
 package de.unisb.cs.st.evosuite.cfg;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.evosuite.mutation.HOM.HOMSwitcher;
-import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
  * The CFGClassAdapter calls a CFG generator for relevant methods
@@ -40,12 +35,13 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
  */
 public class CFGClassAdapter extends ClassAdapter {
 
-	private static Logger logger = Logger.getLogger(CFGClassAdapter.class);
+	private static Logger logger = LoggerFactory.getLogger(CFGClassAdapter.class);
 
 	/** Current class */
 	private final String className;
 
-	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION;
+	/** Skip methods on enums - at least some */
+	private boolean isEnum = false;
 
 	/**
 	 * Constructor
@@ -56,6 +52,17 @@ public class CFGClassAdapter extends ClassAdapter {
 	public CFGClassAdapter(ClassVisitor visitor, String className) {
 		super(visitor);
 		this.className = className;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.objectweb.asm.ClassAdapter#visit(int, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])
+	 */
+	@Override
+	public void visit(int version, int access, String name, String signature,
+	        String superName, String[] interfaces) {
+		super.visit(version, access, name, signature, superName, interfaces);
+		if (superName.equals("java/lang/Enum"))
+			isEnum = true;
 	}
 
 	/*
@@ -81,15 +88,16 @@ public class CFGClassAdapter extends ClassAdapter {
 			logger.info("Skipping deprecated method " + name);
 			return mv;
 		}
-		String classNameWithDots = className.replace('/', '.');
-		List<Mutation> mutants = new ArrayList<Mutation>();
-		if (MUTATION) {
-			HOMSwitcher switcher = new HOMSwitcher();
-			mutants = switcher.getMutants();
+
+		if (isEnum && (name.equals("valueOf") || name.equals("values"))) {
+			logger.info("Skipping enum valueOf");
+			return mv;
 		}
 
+		String classNameWithDots = className.replace('/', '.');
+
 		mv = new CFGMethodAdapter(classNameWithDots, methodAccess, name, descriptor,
-		        signature, exceptions, mv, mutants);
+		        signature, exceptions, mv);
 		/*
 				if (!exclude) {
 					if(false) {

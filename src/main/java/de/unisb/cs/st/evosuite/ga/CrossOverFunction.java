@@ -20,7 +20,8 @@ package de.unisb.cs.st.evosuite.ga;
 
 import java.io.Serializable;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Cross over two individuals
@@ -32,7 +33,7 @@ public abstract class CrossOverFunction implements Serializable {
 
 	private static final long serialVersionUID = -4765602400132319324L;
 
-	protected static Logger logger = Logger.getLogger(CrossOverFunction.class);
+	protected static Logger logger = LoggerFactory.getLogger(CrossOverFunction.class);
 
 	/**
 	 * Replace parents with crossed over individuals

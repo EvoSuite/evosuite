@@ -29,6 +29,7 @@ public class TestSelectionOperators
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testProportions()
 	{

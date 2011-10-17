@@ -3,10 +3,12 @@
  */
 package de.unisb.cs.st.evosuite.testsuite;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.ga.LocalSearchBudget;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 
@@ -15,6 +17,8 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
  * 
  */
 public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
+
+	private static Logger logger = LoggerFactory.getLogger(TestSuiteLocalSearchObjective.class);
 
 	private final TestSuiteFitnessFunction fitness;
 
@@ -31,6 +35,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 		this.testIndex = index;
 		this.lastFitness = suite.getFitness();
 
+		/*
 		for (TestChromosome test : suite.getTestChromosomes()) {
 			test.setChanged(true);
 			test.setLastExecutionResult(null);
@@ -38,7 +43,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 
 		double fit = fitness.getFitness(suite);
 		assert (fit == this.lastFitness);
-
+		*/
 	}
 
 	/* (non-Javadoc)
@@ -48,12 +53,11 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 	public boolean hasImproved(Chromosome individual) {
 		individual.setChanged(true);
 		suite.setTestChromosome(testIndex, (TestChromosome) individual);
+		LocalSearchBudget.evaluation();
 		double newFitness = fitness.getFitness(suite);
 		if (newFitness < lastFitness) { // TODO: Maximize
-			Logger.getLogger(LocalSearchObjective.class).info("Local search improved fitness from "
-			                                                          + lastFitness
-			                                                          + " to "
-			                                                          + newFitness);
+			logger.info("Local search improved fitness from " + lastFitness + " to "
+			        + newFitness);
 			lastFitness = newFitness;
 			suite.setFitness(lastFitness);
 			return true;

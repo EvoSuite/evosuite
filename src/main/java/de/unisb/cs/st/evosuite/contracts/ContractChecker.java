@@ -6,7 +6,8 @@ package de.unisb.cs.st.evosuite.contracts;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
@@ -20,7 +21,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
  */
 public class ContractChecker extends ExecutionObserver {
 
-	private static Logger logger = Logger.getLogger(ContractChecker.class);
+	private static Logger logger = LoggerFactory.getLogger(ContractChecker.class);
 
 	private final Set<Contract> contracts = new HashSet<Contract>();
 

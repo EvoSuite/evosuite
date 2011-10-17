@@ -22,23 +22,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTracer;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUse;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
 import de.unisb.cs.st.evosuite.coverage.dataflow.Definition;
 import de.unisb.cs.st.evosuite.coverage.dataflow.Use;
-import de.unisb.cs.st.javalanche.mutation.results.Mutation;
 
 /**
  * Keep a trace of the program execution
@@ -48,7 +49,7 @@ import de.unisb.cs.st.javalanche.mutation.results.Mutation;
  */
 public class ExecutionTrace {
 
-	private static Logger logger = Logger.getLogger(ExecutionTrace.class);
+	private static Logger logger = LoggerFactory.getLogger(ExecutionTrace.class);
 
 	public static boolean trace_calls = false;
 
@@ -186,30 +187,32 @@ public class ExecutionTrace {
 	}
 
 	// finished_calls;
-	public List<MethodCall> finished_calls = new ArrayList<MethodCall>();
+	public List<MethodCall> finished_calls = Collections.synchronizedList(new ArrayList<MethodCall>());
 
 	// active calls
 	Deque<MethodCall> stack = new LinkedList<MethodCall>();
 
 	// Coverage information
-	public Map<String, Map<String, Map<Integer, Integer>>> coverage = new HashMap<String, Map<String, Map<Integer, Integer>>>();
+	public Map<String, Map<String, Map<Integer, Integer>>> coverage = Collections.synchronizedMap(new HashMap<String, Map<String, Map<Integer, Integer>>>());
 
 	// Data information
-	public Map<String, Map<String, Map<Integer, Integer>>> return_data = new HashMap<String, Map<String, Map<Integer, Integer>>>();
+	public Map<String, Map<String, Map<Integer, Integer>>> return_data = Collections.synchronizedMap(new HashMap<String, Map<String, Map<Integer, Integer>>>());
 
 	// Refactoring
 
 	// for each Variable-Name these maps hold the data for which objectID 
 	// at which time (duCounter) which Definition or Use was passed
-	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedDefinitions = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
-	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedUses = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
+	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedDefinitions = Collections.synchronizedMap(new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>());
+	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedUses = Collections.synchronizedMap(new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>());
 
-	public Map<String, Integer> covered_methods = new HashMap<String, Integer>();
-	public Map<Integer, Integer> covered_predicates = new HashMap<Integer, Integer>();
-	public Map<Integer, Integer> covered_true = new HashMap<Integer, Integer>();
-	public Map<Integer, Integer> covered_false = new HashMap<Integer, Integer>();
-	public Map<Integer, Double> true_distances = new HashMap<Integer, Double>();
-	public Map<Integer, Double> false_distances = new HashMap<Integer, Double>();
+	public Map<String, Integer> covered_methods = Collections.synchronizedMap(new HashMap<String, Integer>());
+	public Map<Integer, Integer> covered_predicates = Collections.synchronizedMap(new HashMap<Integer, Integer>());
+	public Map<Integer, Integer> covered_true = Collections.synchronizedMap(new HashMap<Integer, Integer>());
+	public Map<Integer, Integer> covered_false = Collections.synchronizedMap(new HashMap<Integer, Integer>());
+	public Map<Integer, Double> true_distances = Collections.synchronizedMap(new HashMap<Integer, Double>());
+	public Map<Integer, Double> false_distances = Collections.synchronizedMap(new HashMap<Integer, Double>());
+	public Map<Integer, Double> mutant_distances = Collections.synchronizedMap(new HashMap<Integer, Double>());
+	public Set<Integer> touchedMutants = Collections.synchronizedSet(new HashSet<Integer>());
 
 	// number of seen Definitions and uses for indexing purposes
 	private int duCounter = 0;
@@ -463,6 +466,15 @@ public class ExecutionTrace {
 		duCounter++;
 	}
 
+	public void mutationPassed(int mutationId, double distance) {
+		touchedMutants.add(mutationId);
+		if (!mutant_distances.containsKey(mutationId))
+			mutant_distances.put(mutationId, distance);
+		else
+			mutant_distances.put(mutationId,
+			                     Math.min(distance, mutant_distances.get(mutationId)));
+	}
+
 	/**
 	 * Returns the objecectId for the given object.
 	 * 
@@ -559,7 +571,7 @@ public class ExecutionTrace {
 		 */
 
 		ExecutionTrace r = clone();
-		Branch targetDUBranch = BranchPool.getBranch(targetDU.getControlDependentBranchId());
+		Branch targetDUBranch = targetDU.getControlDependentBranch();
 		ArrayList<Integer> removableCalls = new ArrayList<Integer>();
 		for (int callPos = 0; callPos < r.finished_calls.size(); callPos++) {
 			MethodCall call = r.finished_calls.get(callPos);
@@ -575,13 +587,10 @@ public class ExecutionTrace {
 
 				if (currentDUCounter < duCounterStart || currentDUCounter > duCounterEnd)
 					removableIndices.add(i);
-				else if (currentBranchBytecode == targetDUBranch.getInstructionId()) {
+				else if (currentBranchBytecode == targetDUBranch.getInstruction().getInstructionId()) {
 					// only remove this point in the trace if it would cover targetDU
 					boolean targetExpressionValue = targetDU.getControlDependentBranchExpressionValue();
-					if (wantToCoverTargetDU)
-						targetExpressionValue = !targetExpressionValue;
 					if (targetExpressionValue) {
-						// TODO as mentioned in CFGVertex.branchExpressionValue-comment: flip it!
 						if (call.trueDistanceTrace.get(i) == 0.0)
 							removableIndices.add(i);
 					} else {
@@ -702,6 +711,8 @@ public class ExecutionTrace {
 		copy.covered_predicates.putAll(covered_predicates);
 		copy.covered_true.putAll(covered_true);
 		copy.covered_false.putAll(covered_false);
+		copy.touchedMutants.addAll(touchedMutants);
+		copy.mutant_distances.putAll(mutant_distances);
 		copy.passedDefinitions.putAll(passedDefinitions);
 		copy.passedUses.putAll(passedUses);
 		copy.methodId = methodId;
@@ -715,13 +726,6 @@ public class ExecutionTrace {
 		while (!stack.isEmpty()) {
 			finished_calls.add(stack.pop());
 		}
-	}
-
-	public boolean isMethodExecuted(Mutation m) {
-		String classname = m.getClassName();
-		String methodname = m.getMethodName();
-
-		return (coverage.containsKey(classname) && coverage.get(classname).containsKey(methodname));
 	}
 
 	/**

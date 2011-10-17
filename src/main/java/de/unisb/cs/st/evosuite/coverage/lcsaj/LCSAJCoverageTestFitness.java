@@ -18,6 +18,8 @@
 
 package de.unisb.cs.st.evosuite.coverage.lcsaj;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Strategy;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
@@ -77,7 +79,8 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 				int lcsaj_position = 0;
 				boolean found = false;
 
-				logger.debug("New call");
+				logger.debug("New call: " + call.className + "." + call.methodName + " "
+				        + call.branchTrace.size());
 				// For each branch that was passed in this call
 				for (int i = 0; i < call.branchTrace.size(); i++) {
 					int actualBranch = call.branchTrace.get(i);
@@ -104,16 +107,16 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 							lcsaj_position = 0;
 							currentFitness = approach;
 							continue;
-						} else if ( false_distance > 0) {
+						} else if (false_distance > 0) {
 							logger.debug("Took a wrong turn with false distance "
-							        + true_distance);
+							        + false_distance);
 							currentFitness += normalize(false_distance);
 
 							if (currentFitness < savedFitness)
 								savedFitness = currentFitness;
 							if (lcsaj_position > lcsaj.getdPositionReached())
 								lcsaj.setPositionReached(lcsaj_position);
-							
+
 							lcsaj_position = 0;
 							currentFitness = approach;
 							continue;
@@ -134,54 +137,46 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 					}
 					//}
 				}
-
-				if (!found) {
-					logger.debug("Looking for approach to initial branch: "
-					        + lcsaj.getStartBranch() + " with ID "
-					        + lcsaj.getStartBranch().getActualBranchId());
-					BranchCoverageGoal goal = new BranchCoverageGoal(
-					        lcsaj.getStartBranch(), true, lcsaj.getClassName(),
-					        lcsaj.getMethodName());
-					BranchCoverageTestFitness dependentFitness = new BranchCoverageTestFitness(
-					        goal);
-					assert (currentFitness == approach);
-					currentFitness += dependentFitness.getFitness(individual, result);
-					if (currentFitness < savedFitness)
-						savedFitness = currentFitness;
-					//logger.debug("Initial branch has distance: "
-					//        + dependentFitness.getFitness(individual, result));
-					//logger.debug("Dependencies of initial branch: ");
-					//for (Branch branch : lcsaj.getStartBranch().getAllControlDependentBranches()) {
-					//	logger.debug(branch);
-					//	}
-
+				if (Properties.STRATEGY != Strategy.EVOSUITE){
+					if (!found) {
+						logger.debug("Looking for approach to initial branch: "
+						        + lcsaj.getStartBranch() + " with ID "
+						        + lcsaj.getStartBranch().getActualBranchId());
+						BranchCoverageGoal goal = new BranchCoverageGoal(
+						        lcsaj.getStartBranch(), true, lcsaj.getClassName(),
+						        lcsaj.getMethodName());
+						BranchCoverageTestFitness dependentFitness = new BranchCoverageTestFitness(
+						        goal);
+						assert (currentFitness == approach);
+						currentFitness += dependentFitness.getFitness(individual, result);
+						if (currentFitness < savedFitness)
+							savedFitness = currentFitness;
+						//logger.debug("Initial branch has distance: "
+						//        + dependentFitness.getFitness(individual, result));
+						//logger.debug("Dependencies of initial branch: ");
+						//for (Branch branch : lcsaj.getStartBranch().getAllControlDependentBranches()) {
+						//	logger.debug(branch);
+						//	}
+					
+					logger.debug("Resulting fitness: " + savedFitness);
 				}
-				logger.debug("Resulting fitness: " + savedFitness);
+					else {
+						logger.debug("Call does not match: " + call.className + "."
+						        + call.methodName + " " + call.branchTrace.size());
+					}
+				}	
 			}
 		}
-
 		updateIndividual(individual, savedFitness);
 		return savedFitness;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.unisb.cs.st.evosuite.ga.FitnessFunction#updateIndividual(de.unisb.
-	 * cs.st.evosuite.ga.Chromosome, double)
-	 */
-	@Override
-	protected void updateIndividual(Chromosome individual, double fitness) {
-		individual.setFitness(fitness);
 	}
 
 	@Override
 	public String toString() {
 		return lcsaj.toString();
 	}
-	
-	public LCSAJ getLcsaj(){
+
+	public LCSAJ getLcsaj() {
 		return this.lcsaj;
 	}
 }

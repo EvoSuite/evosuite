@@ -6,7 +6,8 @@ package de.unisb.cs.st.evosuite.symbolic.smt.smtlib;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.smtlib.IExpr;
 
 import de.unisb.cs.st.evosuite.symbolic.expr.BinaryExpression;
@@ -30,7 +31,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
  */
 public class SMTConverter {
 
-	private static Logger logger = Logger.getLogger(SMTConverter.class);
+	private static Logger logger = LoggerFactory.getLogger(SMTConverter.class);
 
 	private final Set<IExpr.ISymbol> symbols = new HashSet<IExpr.ISymbol>();
 

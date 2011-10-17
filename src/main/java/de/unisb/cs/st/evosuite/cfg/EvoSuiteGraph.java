@@ -1,20 +1,16 @@
 package de.unisb.cs.st.evosuite.cfg;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.ext.DOTExporter;
 import org.jgrapht.ext.IntegerNameProvider;
@@ -22,7 +18,8 @@ import org.jgrapht.ext.StringEdgeNameProvider;
 import org.jgrapht.ext.StringNameProvider;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Supposed to become the super class of all kinds of graphs used within
@@ -51,12 +48,12 @@ import org.jgrapht.graph.DefaultEdge;
  */
 public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 
-	private static Logger logger = Logger.getLogger(EvoSuiteGraph.class);
+	private static Logger logger = LoggerFactory.getLogger(EvoSuiteGraph.class);
 
 	private static int evoSuiteGraphs = 0;
 	protected int graphId;
 
-	protected DefaultDirectedGraph<V, E> graph;
+	protected DirectedGraph<V, E> graph;
 	protected Class<E> edgeClass;
 
 	protected EvoSuiteGraph(Class<E> edgeClass) {
@@ -67,7 +64,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		setId();
 	}
 
-	protected EvoSuiteGraph(DefaultDirectedGraph<V, E> graph, Class<E> edgeClass) {
+	protected EvoSuiteGraph(DirectedGraph<V, E> graph, Class<E> edgeClass) {
 		if (graph == null || edgeClass == null)
 			throw new IllegalArgumentException("null given");
 
@@ -101,7 +98,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	public Set<E> outgoingEdgesOf(V node) {
 		if (!containsVertex(node)) // should this just return null?
 			throw new IllegalArgumentException(
-			"block not contained in this CFG");
+					"block not contained in this CFG");
 		// TODO copy set?
 		return graph.outgoingEdgesOf(node);
 	}
@@ -109,7 +106,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	public Set<E> incomingEdgesOf(V node) {
 		if (!containsVertex(node)) // should this just return null?
 			throw new IllegalArgumentException(
-			"block not contained in this CFG ");
+					"block not contained in this CFG ");
 		// TODO copy set?
 		return graph.incomingEdgesOf(node);
 	}
@@ -117,7 +114,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	public Set<V> getChildren(V node) {
 		if (!containsVertex(node)) // should this just return null?
 			throw new IllegalArgumentException(
-			"block not contained in this CFG");
+					"block not contained in this CFG");
 
 		Set<V> r = new HashSet<V>();
 		for (E e : outgoingEdgesOf(node))
@@ -126,7 +123,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		// sanity check
 		if (r.size() != outDegreeOf(node))
 			throw new IllegalStateException(
-			"expect children count and size of set of all children of a CFGs node to be equals");
+					"expect children count and size of set of all children of a CFGs node to be equals");
 
 		return r;
 	}
@@ -134,7 +131,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	public Set<V> getParents(V node) {
 		if (!containsVertex(node)) // should this just return null?
 			throw new IllegalArgumentException(
-			"block not contained in this CFG");
+					"block not contained in this CFG");
 
 		Set<V> r = new HashSet<V>();
 		for (E e : incomingEdgesOf(node))
@@ -143,17 +140,18 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		// sanity check
 		if (r.size() != inDegreeOf(node))
 			throw new IllegalStateException(
-			"expect parent count and size of set of all parents of a CFGs node to be equals");
+					"expect parent count and size of set of all parents of a CFGs node to be equals");
 
 		return r;
 	}
 
-	// TODO make SetUtils.copySet() or something for the following and other similar methods
+	// TODO make SetUtils.copySet() or something for the following and other
+	// similar methods
 
 	public Set<V> vertexSet() {
 		Set<V> r = new HashSet<V>();
 
-		for(V v : graph.vertexSet())
+		for (V v : graph.vertexSet())
 			r.add(v);
 
 		return r;
@@ -162,7 +160,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	protected Set<E> edgeSet() {
 		Set<E> r = new HashSet<E>();
 
-		for(E e : graph.edgeSet())
+		for (E e : graph.edgeSet())
 			r.add(e);
 
 		return r;
@@ -170,17 +168,19 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 
 	// building the graph
 
-	protected void addVertices(EvoSuiteGraph<V,E> other) {
+	protected void addVertices(EvoSuiteGraph<V, E> other) {
 
 		addVertices(other.vertexSet());
 	}
 
 	protected void addVertices(Collection<V> vs) {
-		if(vs==null)
+		if (vs == null)
 			throw new IllegalArgumentException("null given");
-		for(V v : vs)
-			if(!addVertex(v))
-				throw new IllegalArgumentException("unable to add all nodes in given collection: "+v.toString());
+		for (V v : vs)
+			if (!addVertex(v))
+				throw new IllegalArgumentException(
+						"unable to add all nodes in given collection: "
+								+ v.toString());
 
 	}
 
@@ -190,7 +190,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 
 	protected E addEdge(V src, V target) {
 
-		return graph.addEdge(src,target);
+		return graph.addEdge(src, target);
 	}
 
 	protected boolean addEdge(V src, V target, E e) {
@@ -234,11 +234,12 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	}
 
 	public boolean containsEdge(V v1, V v2) {
-		return graph.containsEdge(v1,v2);
+		return graph.containsEdge(v1, v2);
 	}
 
 	public boolean containsEdge(E e) {
-		return graph.containsEdge(e); // TODO this seems to be buggy, at least for ControlFlowEdges
+		return graph.containsEdge(e); // TODO this seems to be buggy, at least
+		// for ControlFlowEdges
 	}
 
 	public boolean isEmpty() {
@@ -246,8 +247,8 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	}
 
 	/**
-	 * Checks whether each vertex inside this graph is reachable
-	 * from some other vertex   
+	 * Checks whether each vertex inside this graph is reachable from some other
+	 * vertex
 	 */
 	public boolean isConnected() {
 		if (vertexCount() < 2)
@@ -307,22 +308,21 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		if (node == null || !containsVertex(node))
 			return false;
 
-		return inDegreeOf(node) == parents
-		&& outDegreeOf(node) == children;
+		return inDegreeOf(node) == parents && outDegreeOf(node) == children;
 	}
 
 	// utilities
 
 	public V getRandomVertex() {
-		for(V v : vertexSet())
+		for (V v : vertexSet())
 			return v;
 
 		return null;
 	}
 
 	public int getDistance(V v1, V v2) {
-		DijkstraShortestPath<V, E> d = new DijkstraShortestPath<V, E>(
-				graph, v1, v2);
+		DijkstraShortestPath<V, E> d = new DijkstraShortestPath<V, E>(graph,
+				v1, v2);
 		return (int) Math.round(d.getPathLength());
 	}
 
@@ -365,10 +365,9 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 * This is used to revert CFGs in order to determine control dependencies
 	 * for example
 	 */
-	protected DefaultDirectedGraph<V,E> computeReverseJGraph() {
+	protected DefaultDirectedGraph<V, E> computeReverseJGraph() {
 
-		DefaultDirectedGraph<V, E> r = new DefaultDirectedGraph<V, E>(
-				edgeClass);
+		DefaultDirectedGraph<V, E> r = new DefaultDirectedGraph<V, E>(edgeClass);
 
 		for (V v : vertexSet())
 			if (!r.addVertex(v))
@@ -380,75 +379,97 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 			V target = getEdgeTarget(e);
 			if (r.addEdge(target, src) == null)
 				throw new IllegalStateException(
-				"internal error while adding reverse edges");
+						"internal error while adding reverse edges");
 		}
 
 		return r;
 	}
 
-
-	// visualizing the graph TODO !!!
+	// visualizing the graph TODO clean up!
 
 	public void toDot() {
 
 		createGraphDirectory();
 
-		String dotFileName = "evosuite-graphs/"+toFileString(getName())+".dot";
+		String dotFileName = getGraphDirectory() + toFileString(getName())
+				+ ".dot";
 		toDot(dotFileName);
 		createToPNGScript(dotFileName);
 	}
 
-	private String toFileString(String name) {
+	private String getGraphDirectory() {
+		return "evosuite-graphs/" + dotSubFolder();
+	}
 
-		return name.replaceAll("\\(","_").replaceAll("\\)", "_").replaceAll(";", "_").replaceAll("/", "_");
+	/**
+	 * Subclasses can overwrite this method in order to separate their .dot and
+	 * .png export to a special folder.
+	 */
+	protected String dotSubFolder() {
+		return "";
+	}
+
+	protected String toFileString(String name) {
+
+		return name.replaceAll("\\(", "_").replaceAll("\\)", "_").replaceAll(
+				";", "_").replaceAll("/", "_");
 	}
 
 	private void createGraphDirectory() {
 
-		File graphDir = new File("evosuite-graphs/");
+		File graphDir = new File(getGraphDirectory());
 
-		if(!graphDir.exists() && !graphDir.mkdir())
-			throw new IllegalStateException("unable to create directory evosuite-graphs");
+		if (!graphDir.exists() && !graphDir.mkdirs())
+			throw new IllegalStateException(
+					"unable to create directory "+getGraphDirectory());
 	}
 
 	private void createToPNGScript(String filename) {
-		File dotFile= new File(filename);
+		File dotFile = new File(filename);
 
-		//dot -Tpng RawCFG11_exe2_III_I.dot > file.png
-		assert(dotFile.exists() && !dotFile.isDirectory());
+		// dot -Tpng RawCFG11_exe2_III_I.dot > file.png
+		assert (dotFile.exists() && !dotFile.isDirectory());
 
 		try {
-			String[] cmd = {"dot", "-Tpng","-o" + dotFile.getAbsolutePath() + ".png", dotFile.getAbsolutePath()};
+			String[] cmd = { "dot", "-Tpng",
+					"-o" + dotFile.getAbsolutePath() + ".png",
+					dotFile.getAbsolutePath() };
 			Runtime.getRuntime().exec(cmd);
 
 		} catch (IOException e) {
-			logger.fatal("Problem while generating a graph for a dotFile", e);
+			logger.error("Problem while generating a graph for a dotFile", e);
 		}
 	}
 
 	public String getName() {
-		return "EvoSuiteGraph_"+graphId;
+		return "EvoSuiteGraph_" + graphId;
 	}
 
-	public void toDot(String filename) {
+	private void toDot(String filename) {
 
 		try {
 
 			FileWriter fstream = new FileWriter(filename);
 			BufferedWriter out = new BufferedWriter(fstream);
 			if (!graph.vertexSet().isEmpty()) {
-				//FrameVertexNameProvider nameprovider = new FrameVertexNameProvider(mn.instructions);
-				//	DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>();
-				//DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>(new IntegerNameProvider(), nameprovider, new IntegerEdgeNameProvider());
-				//			DOTExporter<Integer,DefaultEdge> exporter = new DOTExporter<Integer,DefaultEdge>(new LineNumberProvider(), new LineNumberProvider(), new IntegerEdgeNameProvider());
+				// FrameVertexNameProvider nameprovider = new
+				// FrameVertexNameProvider(mn.instructions);
+				// DOTExporter<Integer,DefaultEdge> exporter = new
+				// DOTExporter<Integer,DefaultEdge>();
+				// DOTExporter<Integer,DefaultEdge> exporter = new
+				// DOTExporter<Integer,DefaultEdge>(new IntegerNameProvider(),
+				// nameprovider, new IntegerEdgeNameProvider());
+				// DOTExporter<Integer,DefaultEdge> exporter = new
+				// DOTExporter<Integer,DefaultEdge>(new LineNumberProvider(),
+				// new LineNumberProvider(), new IntegerEdgeNameProvider());
 				DOTExporter<V, E> exporter = new DOTExporter<V, E>(
 						new IntegerNameProvider<V>(),
 						new StringNameProvider<V>(),
 						new StringEdgeNameProvider<E>());
-				//				        new IntegerEdgeNameProvider<E>());
+				// new IntegerEdgeNameProvider<E>());
 				exporter.export(out, graph);
 
-				logger.info("exportet "+getName());
+				logger.info("exportet " + getName());
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

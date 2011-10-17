@@ -20,7 +20,6 @@ package de.unisb.cs.st.evosuite.testcase;
 
 import java.util.List;
 
-import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeRecycler;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
@@ -39,6 +38,8 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 
 	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
+	static boolean warnedAboutIsSimilarTo = false;
+
 	/**
 	 * Execute a test case
 	 * 
@@ -54,7 +55,6 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 		ExecutionResult result = new ExecutionResult(test, null);
 
 		try {
-			logger.debug("Executing test");
 			result = executor.execute(test);
 
 			int num = test.size();
@@ -65,7 +65,7 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
-			logger.fatal("TG: Exception caught: ", e);
+			logger.error("TG: Exception caught: ", e);
 			System.exit(1);
 		}
 
@@ -108,9 +108,11 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	 * encouraged in order to avoid unnecessary performance loss
 	 */
 	public boolean isSimilarTo(TestFitnessFunction goal) {
-		if (Properties.RECYCLE_CHROMOSOMES)
-			logger.warn("called default TestFitness.isSimilarTo() though recycling is enabled. "
-			        + "possible performance loss. set property recycle_chromosomes to false");
+		//		if (!warnedAboutIsSimilarTo && Properties.RECYCLE_CHROMOSOMES) {
+		//			logger.warn("called default TestFitness.isSimilarTo() though recycling is enabled. "
+		//			        + "possible performance loss. set property recycle_chromosomes to false");
+		//			warnedAboutIsSimilarTo = true;
+		//		}
 		return false;
 	}
 
@@ -143,9 +145,9 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	 * should be disabled too.
 	 */
 	public int getDifficulty() {
-		if (Properties.PREORDER_GOALS_BY_DIFFICULTY)
-			logger.warn("called default TestFitness.getDifficulty() though preordering is enabled. "
-			        + "possible performance loss. set property preorder_goals_by_difficulty to false");
+		//		if (Properties.PREORDER_GOALS_BY_DIFFICULTY)
+		//			logger.warn("called default TestFitness.getDifficulty() though preordering is enabled. "
+		//			        + "possible performance loss. set property preorder_goals_by_difficulty to false");
 		return 0;
 	}
 
@@ -194,5 +196,13 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 			individual.test.addCoveredGoal(this);
 		}
 		return covered;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#isMaximizationFunction()
+	 */
+	@Override
+	public boolean isMaximizationFunction() {
+		return false;
 	}
 }

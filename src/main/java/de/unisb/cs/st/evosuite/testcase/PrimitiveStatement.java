@@ -30,6 +30,8 @@ import java.util.Set;
 
 import org.objectweb.asm.commons.GeneratorAdapter;
 
+import com.googlecode.gentyref.GenericTypeReflector;
+
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.primitives.PrimitivePool;
 import de.unisb.cs.st.evosuite.utils.Randomness;
@@ -93,6 +95,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	 * @param clazz
 	 * @return
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static PrimitiveStatement<?> getPrimitiveStatement(TestCase tc, Type clazz) {
 		PrimitiveStatement<?> statement;
 
@@ -114,6 +117,8 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 			statement = new BytePrimitiveStatement(tc);
 		} else if (clazz.equals(String.class)) {
 			statement = new StringPrimitiveStatement(tc);
+		} else if (GenericTypeReflector.erase(clazz).isEnum()) {
+			statement = new EnumPrimitiveStatement(tc, GenericTypeReflector.erase(clazz));
 		} else {
 			throw new RuntimeException("Getting unknown type: " + clazz + " / "
 			        + clazz.getClass());
@@ -144,11 +149,13 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	}
 
 	@Override
-	public StatementInterface clone(TestCase newTestCase) {
+	public StatementInterface copy(TestCase newTestCase, int offset) {
 		@SuppressWarnings("unchecked")
 		PrimitiveStatement<T> clone = (PrimitiveStatement<T>) getPrimitiveStatement(newTestCase,
 		                                                                            retval.getType());
 		clone.setValue(value);
+		// clone.assertions = copyAssertions(newTestCase, offset);
+
 		return clone;
 	}
 
@@ -156,13 +163,13 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	public Throwable execute(Scope scope, PrintStream out)
 	        throws InvocationTargetException, IllegalArgumentException,
 	        IllegalAccessException, InstantiationException {
-		// Add primitive variable to pool
-		assert (retval.isPrimitive() || retval.getVariableClass().isAssignableFrom(value.getClass())) : "we want an "
-		        + retval.getVariableClass() + " but got an " + value.getClass();
+
+		//		assert (retval.isPrimitive() || retval.getVariableClass().isAssignableFrom(value.getClass())) : "we want an "
+		//		        + retval.getVariableClass() + " but got an "; // + value.getClass();
 		try {
 			retval.setObject(scope, value);
 		} catch (CodeUnderTestException e) {
-			exceptionThrown=e;
+			exceptionThrown = e;
 		}
 		return exceptionThrown;
 	}
@@ -269,7 +276,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	public boolean mutate(TestCase test, AbstractTestFactory factory) {
 		T oldVal = value;
 		// TODO: Should not be hardcoded
-		while (value == oldVal) {
+		while (value == oldVal && value != null) {
 			if (Randomness.nextDouble() <= 0.2)
 				randomize();
 			else
@@ -291,6 +298,14 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	@Override
 	public boolean isAssignmentStatement() {
 		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		// No-op
 	}
 
 }

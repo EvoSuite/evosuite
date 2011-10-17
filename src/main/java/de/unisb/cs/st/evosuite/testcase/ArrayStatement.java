@@ -48,7 +48,7 @@ public class ArrayStatement extends AbstractStatement {
 
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type) {
 		this(tc, type, Randomness.nextInt(Properties.MAX_ARRAY) + 1);
-
+		logger.debug("Chosen length: " + this.length + "/" + Properties.MAX_ARRAY);
 	}
 
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type, int length) {
@@ -60,9 +60,14 @@ public class ArrayStatement extends AbstractStatement {
 		return length;
 	}
 
+	public void setSize(int size) {
+		this.length = size;
+	}
+
 	@Override
-	public StatementInterface clone(TestCase newTestCase) {
+	public StatementInterface copy(TestCase newTestCase, int offset) {
 		ArrayStatement copy = new ArrayStatement(newTestCase, retval.getType(), length);
+		// copy.assertions = copyAssertions(newTestCase, offset);
 		return copy;
 	}
 
@@ -96,9 +101,10 @@ public class ArrayStatement extends AbstractStatement {
 		// Add array variable to pool
 		try {
 			retval.setObject(scope,
-			                 Array.newInstance((Class<?>) retval.getComponentType(), length));
+			                 Array.newInstance((Class<?>) retval.getComponentType(),
+			                                   length));
 		} catch (CodeUnderTestException e) {
-			exceptionThrown=e.getCause();
+			exceptionThrown = e.getCause();
 		}
 		return exceptionThrown;
 
@@ -106,9 +112,14 @@ public class ArrayStatement extends AbstractStatement {
 
 	@Override
 	public String getCode(Throwable exception) {
-		return retval.getSimpleClassName() + " " + retval.getName() + " = new "
-		        + retval.getSimpleClassName().replaceFirst("\\[\\]", "") + "[" + length
-		        + "];";
+		String type = retval.getSimpleClassName().replaceFirst("\\[\\]", "");
+		String multiDimensions = "";
+		while (type.contains("[]")) {
+			multiDimensions += "[]";
+			type = type.replaceFirst("\\[\\]", "");
+		}
+		return retval.getSimpleClassName() + " " + retval.getName() + " = new " + type
+		        + "[" + length + "]" + multiDimensions + ";";
 	}
 
 	@Override
@@ -204,4 +215,11 @@ public class ArrayStatement extends AbstractStatement {
 		return false;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		// No-op
+	}
 }

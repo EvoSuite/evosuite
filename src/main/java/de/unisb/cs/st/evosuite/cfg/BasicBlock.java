@@ -1,13 +1,12 @@
 package de.unisb.cs.st.evosuite.cfg;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
-import org.apache.log4j.Logger;
-
-import de.unisb.cs.st.evosuite.mutation.Mutateable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is used to represent basic blocks in the control flow graph.
@@ -37,9 +36,11 @@ import de.unisb.cs.st.evosuite.mutation.Mutateable;
  * @see cfg.ActualControlFlowGraph
  * @author Andre Mis
  */
-public class BasicBlock implements Mutateable {
+public class BasicBlock implements Serializable {
 
-	private static Logger logger = Logger.getLogger(BasicBlock.class);
+	private static final long serialVersionUID = -3465486470017841484L;
+
+	private static Logger logger = LoggerFactory.getLogger(BasicBlock.class);
 
 	private static int blockCount = 0;
 
@@ -47,20 +48,23 @@ public class BasicBlock implements Mutateable {
 	protected String className;
 	protected String methodName;
 
+	// experiment: since finding the control dependent branches in the CDG might
+	// take a little to long, we might want to remember them
+	private Set<ControlDependency> controlDependencies;
+	private Set<Integer> controlDependentBranchIDs;
+
 	protected boolean isAuxiliaryBlock = false;
 
-	private List<BytecodeInstruction> instructions = new ArrayList<BytecodeInstruction>();
+	private final List<BytecodeInstruction> instructions = new ArrayList<BytecodeInstruction>();
 
-	private Map<Long, Integer> mutant_distance = new HashMap<Long, Integer>();
-
-	// TODO reference each BytecodeInstruction's BasicBlock at the instruction
-	// TODO determine ControlDependentBranches once for each BasicBlock, then
+	// DONE reference each BytecodeInstruction's BasicBlock at the instruction
+	// DONE determine ControlDependentBranches once for each BasicBlock, then
 	// ask BasicBloc, whenever instruction is asked
 	// TODO remember distance to each control dependent Branch in order to speed
 	// up ControlFlowDistance calculation even more
 
 	public BasicBlock(String className, String methodName,
-			List<BytecodeInstruction> blockNodes) {
+	        List<BytecodeInstruction> blockNodes) {
 		if (className == null || methodName == null || blockNodes == null)
 			throw new IllegalArgumentException("null given");
 
@@ -86,17 +90,76 @@ public class BasicBlock implements Mutateable {
 		this.isAuxiliaryBlock = true;
 	}
 
+	// CDs
+
+	/**
+	 * Returns the ControlDependenceGraph of this instructions method
+	 * 
+	 * Convenience method. Redirects the call to CFGPool.getCDG()
+	 */
+	public ControlDependenceGraph getCDG() {
+
+		ControlDependenceGraph myCDG = CFGPool.getCDG(className, methodName);
+		if (myCDG == null)
+			throw new IllegalStateException(
+			        "expect CFGPool to know CDG for every method for which an instruction is known");
+
+		return myCDG;
+	}
+
+	/**
+	 * Returns all branchIds of Branches this instruction is directly control
+	 * dependent on as determined by the ControlDependenceGraph for this
+	 * instruction's method.
+	 * 
+	 * If this instruction is control dependent on the root branch the id -1
+	 * will be contained in this set
+	 */
+	public Set<Integer> getControlDependentBranchIds() {
+
+		ControlDependenceGraph myDependence = getCDG();
+
+		if (controlDependentBranchIDs == null)
+			controlDependentBranchIDs = myDependence.getControlDependentBranchIds(this);
+
+		return controlDependentBranchIDs;
+	}
+
+	/**
+	 * Returns a cfg.Branch object for each branch this instruction is control
+	 * dependent on as determined by the ControlDependenceGraph. If this
+	 * instruction is only dependent on the root branch this method returns an
+	 * empty set
+	 * 
+	 * If this instruction is a Branch and it is dependent on itself - which can
+	 * happen in loops for example - the returned set WILL contain this. If you
+	 * do not need the full set in order to avoid loops, call
+	 * getAllControlDependentBranches instead
+	 */
+	public Set<ControlDependency> getControlDependencies() {
+
+		if (controlDependencies == null)
+			controlDependencies = getCDG().getControlDependentBranches(this);
+
+		//		return new HashSet<ControlDependency>(controlDependentBranches);
+		return controlDependencies;
+	}
+
+	public boolean hasControlDependenciesSet() {
+		return controlDependencies != null;
+	}
+
 	// initialization
 
 	private void setInstructions(List<BytecodeInstruction> blockNodes) {
 		for (BytecodeInstruction instruction : blockNodes) {
 			if (!appendInstruction(instruction))
 				throw new IllegalStateException(
-						"internal error while addind instruction to basic block list");
+				        "internal error while addind instruction to basic block list");
 		}
 		if (instructions.isEmpty())
 			throw new IllegalStateException(
-					"expect each basic block to contain at least one instruction");
+			        "expect each basic block to contain at least one instruction");
 	}
 
 	private boolean appendInstruction(BytecodeInstruction instruction) {
@@ -104,16 +167,16 @@ public class BasicBlock implements Mutateable {
 			throw new IllegalArgumentException("null given");
 		if (!className.equals(instruction.getClassName()))
 			throw new IllegalArgumentException(
-					"expect elements of a basic block to be inside the same class");
+			        "expect elements of a basic block to be inside the same class");
 		if (!methodName.equals(instruction.getMethodName()))
 			throw new IllegalArgumentException(
-					"expect elements of a basic block to be inside the same class");
+			        "expect elements of a basic block to be inside the same class");
 		if (instruction.hasBasicBlockSet())
 			throw new IllegalArgumentException(
-					"expect to get instruction without BasicBlock already set");
+			        "expect to get instruction without BasicBlock already set");
 		if (instructions.contains(instruction))
 			throw new IllegalArgumentException(
-					"a basic block can not contain the same element twice");
+			        "a basic block can not contain the same element twice");
 
 		// not sure if this holds:
 		// .. apparently it doesn't. at least check
@@ -189,49 +252,6 @@ public class BasicBlock implements Mutateable {
 		return methodName;
 	}
 
-	// mutation part
-
-	public BytecodeInstruction getMutation(long mutationId) {
-		for (BytecodeInstruction instruction : instructions)
-			if (instruction.hasMutation(mutationId))
-				return instruction;
-
-		return null;
-	}
-
-	@Override
-	public int getDistance(long mutationId) {
-		if (mutant_distance.containsKey(mutationId))
-			return mutant_distance.get(mutationId);
-		return Integer.MAX_VALUE;
-	}
-
-	@Override
-	public void setDistance(long mutationId, int distance) {
-		mutant_distance.put(mutationId, distance);
-	}
-
-	@Override
-	public List<Long> getMutationIds() {
-		List<Long> r = new ArrayList<Long>();
-		for (BytecodeInstruction instruction : instructions)
-			r.addAll(instruction.getMutationIds());
-
-		return r;
-	}
-
-	@Override
-	public boolean hasMutation(long mutationId) {
-
-		return getMutationIds().contains(mutationId);
-	}
-
-	@Override
-	public boolean isMutation() {
-
-		return !getMutationIds().isEmpty();
-	}
-
 	public String explain() {
 		StringBuilder r = new StringBuilder();
 		r.append(getName() + ":\n");
@@ -257,7 +277,7 @@ public class BasicBlock implements Mutateable {
 				r = r.trim() + " " + ins.getInstructionType();
 		else
 			r += " " + getFirstInstruction().getInstructionType() + " ... "
-					+ getLastInstruction().getInstructionType();
+			        + getLastInstruction().getInstructionType();
 
 		int startLine = getFirstLine();
 		int endLine = getLastLine();

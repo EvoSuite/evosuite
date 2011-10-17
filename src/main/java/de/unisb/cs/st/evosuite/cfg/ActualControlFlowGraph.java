@@ -3,10 +3,8 @@ package de.unisb.cs.st.evosuite.cfg;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
-import de.unisb.cs.st.evosuite.coverage.branch.Branch;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -53,7 +51,7 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
  */
 public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 
-	private static Logger logger = Logger
+	private static Logger logger = LoggerFactory
 			.getLogger(ActualControlFlowGraph.class);
 
 	private RawControlFlowGraph rawGraph;
@@ -67,9 +65,6 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 
 	public ActualControlFlowGraph(RawControlFlowGraph rawGraph) {
 		super(rawGraph.getClassName(), rawGraph.getMethodName());
-
-		if (rawGraph == null)
-			throw new IllegalArgumentException("null given");
 
 		this.rawGraph = rawGraph;
 
@@ -122,7 +117,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 			if (!belongsToMethod(exitPoint))
 				throw new IllegalArgumentException(
 						"exit point does not belong to this CFGs method");
-			if (!exitPoint.canReturnFromMethod())
+			if (!exitPoint.canBeExitPoint())
 				throw new IllegalArgumentException(
 						"unexpected exitPoint byteCode instruction type: "
 								+ exitPoint.getInstructionType());
@@ -184,6 +179,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 			// to
 			// BranchInstrumentation - then again that instrumentation is needed
 			// anyways i guess
+
 			// if (!BranchPool.isKnownAsBranch(instruction))
 			// throw new IllegalStateException(
 			// "expect BranchPool to know all branching instructions: "
@@ -441,7 +437,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		if (instruction == null)
 			throw new IllegalArgumentException("null given");
 
-		if(instruction.hasBasicBlockSet())
+		if (instruction.hasBasicBlockSet())
 			return containsVertex(instruction.getBasicBlock());
 
 		for (BasicBlock block : vertexSet())
@@ -493,13 +489,13 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 			throw new IllegalArgumentException("null given");
 
 		if (block.containsInstruction(entryPoint)) {
-//			// sanity check
-//			if (!block.getFirstInstruction().equals(entryPoint)) {
-//				logger.error("entryPoint: "+entryPoint.toString());
-//				logger.error("current block: "+block.explain());
-//				throw new IllegalStateException(
-//						"expect entryPoint of a method to be the first instruction from the entryBlock of that method");
-//			}
+			// // sanity check
+			// if (!block.getFirstInstruction().equals(entryPoint)) {
+			// logger.error("entryPoint: "+entryPoint.toString());
+			// logger.error("current block: "+block.explain());
+			// throw new IllegalStateException(
+			// "expect entryPoint of a method to be the first instruction from the entryBlock of that method");
+			// }
 			return true;
 		}
 
@@ -512,10 +508,10 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 
 		for (BytecodeInstruction exitPoint : exitPoints)
 			if (block.containsInstruction(exitPoint)) {
-				// sanity check
-				if (!block.getLastInstruction().equals(exitPoint))
-					throw new IllegalStateException(
-							"expect exitPoints of a method to be the last instruction from an exitBlock of that method");
+//				// sanity check
+//				if (!block.getLastInstruction().equals(exitPoint))
+//					throw new IllegalStateException(
+//							"expect exitPoints of a method to be the last instruction from an exitBlock of that method");
 				return true;
 			}
 
@@ -552,7 +548,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 
 		logger.debug(".. all initInstructions contained");
 
-		checkNodeSanity();
+//		checkNodeSanity();
 
 		checkInstructionsContainedOnceConstraint();
 
@@ -664,42 +660,39 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		return null;
 	}
 
-	@Override
-	public BytecodeInstruction getBranch(int branchId) {
-
-		Branch searchedFor = BranchPool.getBranch(branchId);
-		if (searchedFor == null)
-			return null;
-
-		if (containsInstruction(searchedFor))
-			return searchedFor;
-
-		// TODO more sanity checks?
-
-		return null;
-	}
+	// @Override
+	// public BytecodeInstruction getBranch(int branchId) {
+	//
+	// Branch searchedFor = BranchPool.getBranch(branchId);
+	// if (searchedFor == null)
+	// return null;
+	//
+	// if (containsInstruction(searchedFor.getInstruction()))
+	// return searchedFor.getInstruction();
+	//
+	// // TODO more sanity checks?
+	//
+	// return null;
+	// }
 
 	public BytecodeInstruction getEntryPoint() {
 		return entryPoint;
 	}
 
 	public Set<BytecodeInstruction> getExitPoints() {
-		// TODO copy set, don't return private reference
-		return exitPoints;
+		return new HashSet<BytecodeInstruction>(exitPoints);
 	}
 
 	public Set<BytecodeInstruction> getBranches() {
-		// TODO copy set, don't return private reference
-		return branches;
+		return new HashSet<BytecodeInstruction>(branches);
 	}
 
 	public Set<BytecodeInstruction> getJoins() {
-		// TODO copy set, don't return private reference
-		return joins;
+		return new HashSet<BytecodeInstruction>(joins);
 	}
 
 	@Override
-	public String getName() {
-		return "ActualCFG" + graphId + "_" + methodName; // TODO make nice
+	public String getCFGType() {
+		return "ACFG";
 	}
 }

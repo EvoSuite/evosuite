@@ -26,22 +26,25 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
+import de.unisb.cs.st.evosuite.coverage.mutation.MutationObserver;
+import de.unisb.cs.st.evosuite.coverage.mutation.MutationPool;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import de.unisb.cs.st.evosuite.mutation.HOM.HOMObserver;
-import de.unisb.cs.st.evosuite.mutation.HOM.HOMSwitcher;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.OutputTrace;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
-import de.unisb.cs.st.javalanche.mutation.results.Mutation;
-import de.unisb.cs.st.javalanche.mutation.results.Mutation.MutationType;
+import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
  * This class executes a test case on a unit and all mutants and infers
@@ -54,10 +57,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 	private final List<Mutation> mutants;
 
-	private final HOMSwitcher hom_switcher = new HOMSwitcher();
-
-	@SuppressWarnings("hiding")
-	private final static Logger logger = Logger.getLogger(MutationAssertionGenerator.class);
+	private final static Logger logger = LoggerFactory.getLogger(MutationAssertionGenerator.class);
 
 	private final Map<TestCase, Map<Class<?>, Integer>> assertion_statistics_full = new HashMap<TestCase, Map<Class<?>, Integer>>();
 
@@ -65,42 +65,28 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 	private final Map<TestCase, Map<Class<?>, Integer>> assertion_statistics_killed = new HashMap<TestCase, Map<Class<?>, Integer>>();
 
-	//private final MutationsForRun m_VRO = new MutationsForRun(
-	//        ConfigurationLocator.getJavalancheConfiguration().getMutationIdFile().getPath().replace(".mutants",
-	//                                                                                                "_VRO.mutants"),
-	//        true);
+	private final Set<Integer> killed_ALL = new HashSet<Integer>();
 
-	private final Set<Long> killed_ALL = new HashSet<Long>();
-
-	private final Set<Long> killed_VRO = new HashSet<Long>();
+	private static PrimitiveOutputTraceObserver primitive_observer = new PrimitiveOutputTraceObserver();
+	private static ComparisonTraceObserver comparison_observer = new ComparisonTraceObserver();
+	private static InspectorTraceObserver inspector_observer = new InspectorTraceObserver();
+	private static PrimitiveFieldTraceObserver field_observer = new PrimitiveFieldTraceObserver();
+	private static NullOutputObserver null_observer = new NullOutputObserver();
 
 	/**
 	 * Default constructor
 	 */
 	public MutationAssertionGenerator() {
-		mutants = hom_switcher.getMutants();
-	}
-
-	public int numMutants() {
-		int num = 0;
-		for (Mutation m : mutants)
-			if (!m.getMutationType().equals(MutationType.REPLACE_VARIABLE))
-				num++;
-		return num;
-	}
-
-	public void resetObservers() {
-		executor.newObservers();
-		primitive_observer = new PrimitiveOutputTraceObserver();
-		comparison_observer = new ComparisonTraceObserver();
-		inspector_observer = new InspectorTraceObserver();
-		field_observer = new PrimitiveFieldTraceObserver();
-		null_observer = new NullOutputObserver();
+		mutants = MutationPool.getMutants();
 		executor.addObserver(primitive_observer);
 		executor.addObserver(comparison_observer);
 		executor.addObserver(inspector_observer);
 		executor.addObserver(field_observer);
 		executor.addObserver(null_observer);
+	}
+
+	public int numMutants() {
+		return MutationPool.getMutantCounter();
 	}
 
 	/**
@@ -124,22 +110,18 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	 */
 	private ExecutionResult runTest(TestCase test, Mutation mutant) {
 		ExecutionResult result = new ExecutionResult(test, mutant);
-		resetObservers();
+		//resetObservers();
 		try {
 			logger.debug("Executing test");
-			HOMObserver.resetTouched(); // TODO - is this the right place?
-			if (mutant != null) {
-				hom_switcher.switchOn(mutant);
-			}
+			MutationObserver.activateMutation(mutant);
 
 			result = executor.execute(test);
 
-			if (mutant != null)
-				hom_switcher.switchOff(mutant);
+			MutationObserver.deactivateMutation(mutant);
 
 			int num = test.size();
 			MaxStatementsStoppingCondition.statementsExecuted(num);
-			result.touched.addAll(HOMObserver.getTouched());
+			// result.touched.addAll(HOMObserver.getTouched());
 
 			result.comparison_trace = comparison_observer.getTrace();
 			result.primitive_trace = primitive_observer.getTrace();
@@ -174,7 +156,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	 *            assertion
 	 */
 	private void minimize(TestCase test, List<Mutation> mutants,
-	        List<Assertion> assertions, Map<Integer, Set<Long>> kill_map) {
+	        List<Assertion> assertions, Map<Integer, Set<Integer>> kill_map) {
 
 		class Pair implements Comparable<Object> {
 			Integer assertion;
@@ -191,26 +173,26 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				return num_killed.compareTo(other.num_killed);
 			}
 		}
-		Set<Long> to_kill = new HashSet<Long>();
-		for (Entry<Integer, Set<Long>> entry : kill_map.entrySet()) {
+		Set<Integer> to_kill = new HashSet<Integer>();
+		for (Entry<Integer, Set<Integer>> entry : kill_map.entrySet()) {
 			to_kill.addAll(entry.getValue());
 		}
 
-		Set<Long> killed = new HashSet<Long>();
+		Set<Integer> killed = new HashSet<Integer>();
 		Set<Assertion> result = new HashSet<Assertion>();
 		// First try to do this without string assertions
 		boolean done = false;
 		while (!done) {
 			// logger.info("Have to kill "+to_kill.size());
 			List<Pair> a = new ArrayList<Pair>();
-			for (Entry<Integer, Set<Long>> entry : kill_map.entrySet()) {
+			for (Entry<Integer, Set<Integer>> entry : kill_map.entrySet()) {
 				// if(assertions.get(entry.getKey()) instanceof StringAssertion)
 				// continue;
 				// if(assertions.get(entry.getKey()) instanceof
 				// ExceptionAssertion)
 				// continue;
 				int num = 0;
-				for (Long m : entry.getValue()) {
+				for (Integer m : entry.getValue()) {
 					if (!killed.contains(m))
 						num++;
 				}
@@ -225,7 +207,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				Pair best = Collections.max(a);
 				// logger.info("Chosen "+best.assertion);
 				result.add(assertions.get(best.assertion));
-				for (Long m : kill_map.get(best.assertion)) {
+				for (Integer m : kill_map.get(best.assertion)) {
 					// logger.info("Killed "+m);
 					killed.add(m);
 					to_kill.remove(m);
@@ -237,9 +219,9 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		while (!done) {
 			// logger.info("Have to kill "+to_kill.size());
 			List<Pair> a = new ArrayList<Pair>();
-			for (Entry<Integer, Set<Long>> entry : kill_map.entrySet()) {
+			for (Entry<Integer, Set<Integer>> entry : kill_map.entrySet()) {
 				int num = 0;
-				for (Long m : entry.getValue()) {
+				for (Integer m : entry.getValue()) {
 					if (!killed.contains(m))
 						num++;
 				}
@@ -254,7 +236,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				Pair best = Collections.max(a);
 				// logger.info("Chosen "+best.assertion);
 				result.add(assertions.get(best.assertion));
-				for (Long m : kill_map.get(best.assertion)) {
+				for (Integer m : kill_map.get(best.assertion)) {
 					// logger.info("Killed "+m);
 					killed.add(m);
 					to_kill.remove(m);
@@ -298,11 +280,15 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				logger.error("Found unknown assertion!");
 
 		}
+
+		//Set<Assertion> finalAssertions = test.getStatement(test.size() - 1).getAssertions();
+
 		// TODO: List exception assertion
 		logger.debug("Assertions before minimization: " + test.getAssertions().size()
 		        + "," + num_string_assertions + "," + num_inspector_assertions + ","
 		        + num_field_assertions + "," + num_comparison_assertions + ","
-		        + num_primitive_assertions + "," + num_exception_assertions);
+		        + num_primitive_assertions + "," + num_exception_assertions + ","
+		        + num_null_assertions);
 
 		if (!result.isEmpty()) {
 			test.removeAssertions();
@@ -338,6 +324,16 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		} else {
 			logger.info("Not removing assertions because no new assertions were found");
 		}
+
+		/*
+		// Make sure last statement has some assertion
+		Set<Assertion> finalAssertions2 = test.getStatement(test.size() - 1).getAssertions();
+		if (finalAssertions2.isEmpty() && !finalAssertions.isEmpty()) {
+			// Use an assertion that already covered a mutant
+			assertions.add(Randomness.choice(finalAssertions));
+		}
+		*/
+
 		// TODO: List exception assertion
 		logger.debug("Assertions after minimization: " + test.getAssertions().size()
 		        + "," + num_string_assertions + "," + num_inspector_assertions + ","
@@ -360,12 +356,11 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		logger.debug("Generated " + test.getAssertions().size() + " assertions");
 	}
 
-	public void addAssertions(TestCase test, Set<Long> killed) {
+	public void addAssertions(TestCase test, Set<Integer> killed) {
 		addAssertions(test, killed, mutants);
 	}
 
-	@SuppressWarnings("deprecation")
-	public void addAssertions(TestCase test, Set<Long> killed, List<Mutation> mutants) {
+	public void addAssertions(TestCase test, Set<Integer> killed, List<Mutation> mutants) {
 
 		logger.info("Generating assertions");
 
@@ -409,13 +404,12 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		// TODO: We can do this much nicer
 		// Run test case on all mutations
 		for (Mutation m : mutants) {
-			if (m.getMutationType().equals(MutationType.REPLACE_VARIABLE))
-				continue;
-
 			logger.debug("Running on mutation " + m.getId());
 			// logger.info(m.toString());
 
+			// logger.info("Cloning test: " + test.toCode());
 			ExecutionResult mutant_result = runTest(test.clone(), m);
+			// logger.info("Clone: " + mutant_result.test.toCode());
 			List<OutputTrace> traces = new ArrayList<OutputTrace>();
 			traces.add(mutant_result.comparison_trace);
 			traces.add(mutant_result.primitive_trace);
@@ -502,18 +496,15 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			}
 		}
 
-		int num_before = 0;
-		Set<Long> killed_before = new HashSet<Long>();
+		Set<Integer> killed_before = new HashSet<Integer>();
 		List<Assertion> assertions = test.getAssertions();
 		assertion_statistics_full.get(test).put(StringAssertion.class, assertions.size());
 		logger.info("Got " + assertions.size() + " assertions");
-		Map<Integer, Set<Long>> kill_map = new HashMap<Integer, Set<Long>>();
+		Map<Integer, Set<Integer>> kill_map = new HashMap<Integer, Set<Integer>>();
 		int num = 0;
 		for (Assertion assertion : assertions) {
-			Set<Long> killed_mutations = new HashSet<Long>();
+			Set<Integer> killed_mutations = new HashSet<Integer>();
 			for (Mutation m : mutants) {
-				if (m.getMutationType().equals(MutationType.REPLACE_VARIABLE))
-					continue;
 
 				boolean is_killed = false;
 				for (OutputTrace trace : mutation_traces.get(m)) {
@@ -526,7 +517,6 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				}
 				if (is_killed) {
 					// logger.info("Found assertion for mutation: "+m.getId());
-					num_before++;
 					killed_mutations.add(m.getId());
 					// statistics.setAsserted(m);
 					// } else {
@@ -538,17 +528,13 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		}
 		minimize(test, mutants, assertions, kill_map);
 
-		Set<Long> killed_after = new HashSet<Long>();
-		int num_after = 0;
+		Set<Integer> killed_after = new HashSet<Integer>();
 		assertions = test.getAssertions();
-		int num2 = 0;
 		for (Assertion assertion : assertions) {
 			assertion_statistics_min.get(test).put(assertion.getClass(),
 			                                       assertion_statistics_min.get(test).get(assertion.getClass()) + 1);
 
 			for (Mutation m : mutants) {
-				if (m.getMutationType().equals(MutationType.REPLACE_VARIABLE))
-					continue;
 
 				boolean is_killed = false;
 				for (OutputTrace trace : mutation_traces.get(m)) {
@@ -560,46 +546,84 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 						break;
 					}
 				}
-				if (is_killed) {
-					num_after++;
-				}
 			}
-			num2++;
 		}
 		int s2 = killed.size() - s1;
 		logger.debug("Mutants killed before / after / should be: " + killed_before.size()
 		        + "/" + killed_after.size() + "/" + s2);
-		for (Mutation m : mutants) {
-			if (killed_after.contains(m.getId()) && !m.isKilled())
-				logger.debug("Asserted: " + m.getId());
+
+		assertion_statistics_min.get(test).put(StringAssertion.class, assertions.size());
+
+		TestCase clone = test.clone();
+
+		// IF there are no mutant killing assertions on the last statement, still assert something
+		if (test.getStatement(test.size() - 1).getAssertions().isEmpty()
+		        || justNullAssertion(test.getStatement(test.size() - 1))) {
+			logger.info("No assertions on last statement!");
+			orig_result.comparison_trace.getAllAssertions(test);
+			orig_result.primitive_trace.getAllAssertions(test);
+			orig_result.inspector_trace.getAllAssertions(test);
+			orig_result.field_trace.getAllAssertions(test);
+			orig_result.null_trace.getAllAssertions(test);
+			Set<Assertion> target = new HashSet<Assertion>(
+			        test.getStatement(test.size() - 1).getAssertions());
+			logger.info("Found assertions: " + target.size());
+
+			test.removeAssertions();
+			test.addAssertions(clone);
+			VariableReference targetVar = test.getStatement(test.size() - 1).getReturnValue();
+			if (!targetVar.isVoid()) {
+				int maxAssertions = 3;
+				int numAssertions = 0;
+				for (Assertion ass : target) {
+					if (ass.getReferencedVariables().contains(targetVar)
+					        && !(ass instanceof NullAssertion)) {
+
+						test.getStatement(test.size() - 1).addAssertion(ass);
+						if (++numAssertions >= maxAssertions)
+							break;
+					}
+				}
+			} else {
+				Set<VariableReference> targetVars = test.getStatement(test.size() - 1).getVariableReferences();
+				int maxAssertions = 2;
+				int numAssertions = 0;
+				for (Assertion ass : target) {
+					Set<VariableReference> vars = ass.getReferencedVariables();
+					vars.retainAll(targetVars);
+					if (!vars.isEmpty()) {
+
+						test.getStatement(test.size() - 1).addAssertion(ass);
+						if (++numAssertions >= maxAssertions)
+							break;
+					}
+				}
+
+			}
 		}
 
-		for (Mutation m : mutants) {
-			if (!m.getMutationType().equals(MutationType.REPLACE_VARIABLE))
-				continue;
+	}
 
-			ExecutionResult mutant_result = runTest(test.clone(), m);
-			List<OutputTrace> traces = new ArrayList<OutputTrace>();
-			traces.add(mutant_result.comparison_trace);
-			traces.add(mutant_result.primitive_trace);
-			traces.add(mutant_result.inspector_trace);
-			traces.add(mutant_result.field_trace);
-			// traces.add(mutant_result.output_trace);
-			traces.add(mutant_result.null_trace);
-
-			for (Assertion assertion : assertions) {
-				boolean is_killed = false;
-				for (OutputTrace trace : traces) {
-					is_killed = trace.isDetectedBy(assertion);
-					if (is_killed) {
-						killed_VRO.add(m.getId());
+	private boolean justNullAssertion(StatementInterface statement) {
+		Set<Assertion> assertions = statement.getAssertions();
+		if (assertions.isEmpty())
+			return false;
+		else {
+			Iterator<Assertion> iterator = assertions.iterator();
+			VariableReference ret = statement.getReturnValue();
+			boolean just = true;
+			while (iterator.hasNext()) {
+				Assertion ass = iterator.next();
+				if (!(ass instanceof NullAssertion)) {
+					if (ass.getReferencedVariables().contains(ret)) {
+						just = false;
 						break;
 					}
 				}
 			}
-		}
-		assertion_statistics_min.get(test).put(StringAssertion.class, assertions.size());
 
+			return just;
+		}
 	}
 
 	public boolean isKilled(Mutation mutation, TestCase test) {
@@ -658,8 +682,6 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 				out.write(killed_ALL.size() + ","); // number of mutants killed
 				                                    // out of target mutants
-				out.write(killed_VRO.size() + "\n"); // number of mutants killed
-				                                     // out of VRO mutants
 			}
 			out.close();
 			f = new File(Properties.REPORT_DIR + "/statistics_mutation.csv");
@@ -677,8 +699,6 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			                                         // out of target mutants
 			out.write(killed_ALL.size() + ","); // number of mutants killed out
 			                                    // of target mutants
-			out.write(killed_VRO.size() + ","); // number of mutants killed out
-			                                    // of VRO mutants
 			if (mutants.size() > 0)
 				out.write((1.0 * killed_ALL.size() / num) + ","); // number of
 				                                                  // mutants
@@ -687,11 +707,6 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				                                                  // mutants
 			else
 				out.write("1.0,");
-			if (mutants.size() > num)
-				out.write((1.0 * killed_VRO.size()) / (mutants.size() - num) + "\n"); // number of mutants killed out of VRO mutants
-			else
-				out.write("1.0\n"); // number of mutants killed out of VRO
-				                    // mutants
 			out.close();
 
 		} catch (IOException e) {

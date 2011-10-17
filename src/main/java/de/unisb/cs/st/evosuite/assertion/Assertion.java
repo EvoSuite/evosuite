@@ -21,7 +21,8 @@ package de.unisb.cs.st.evosuite.assertion;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
@@ -41,7 +42,7 @@ public abstract class Assertion {
 	/** Expected value of variable */
 	public Object value;
 
-	protected static Logger logger = Logger.getLogger(Assertion.class);
+	protected static Logger logger = LoggerFactory.getLogger(Assertion.class);
 
 	@Override
 	public int hashCode() {
@@ -94,7 +95,14 @@ public abstract class Assertion {
 	/**
 	 * Return a copy of the assertion, which is valid in newTestCase
 	 */
-	public abstract Assertion clone(TestCase newTestCase);
+	public Assertion clone(TestCase newTestCase) {
+		return copy(newTestCase, 0);
+	}
+
+	/**
+	 * Return a copy of the assertion, which is valid in newTestCase
+	 */
+	public abstract Assertion copy(TestCase newTestCase, int offset);
 
 	/**
 	 * Determine if assertion holds in current scope

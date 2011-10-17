@@ -22,14 +22,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.testcase.OutputTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 public class PrimitiveOutputTrace extends OutputTrace {
 
-	private static Logger logger = Logger.getLogger(PrimitiveOutputTrace.class);
+	private static Logger logger = LoggerFactory.getLogger(PrimitiveOutputTrace.class);
 
 	public Map<Integer, Object> trace = new HashMap<Integer, Object>();
 
@@ -46,17 +47,23 @@ public class PrimitiveOutputTrace extends OutputTrace {
 		//if(trace.size() != other.trace.size()) {
 		//	return true;
 		//}
-
+		logger.debug("Looking for primitive assertion");
 		for (Entry<Integer, Object> entry : trace.entrySet()) {
-			if (!other.trace.containsKey(entry.getKey()))
+			if (!other.trace.containsKey(entry.getKey())) {
+				logger.debug("Other trace does not contain key");
 				continue;
+			}
 
 			if (entry.getValue() == null) {
-				if (other.trace.get(entry.getKey()) != null)
+				logger.debug("Value is null");
+				if (other.trace.get(entry.getKey()) != null) {
+					logger.info("Other value is null");
 					return true;
+				}
 			}
 
 			if (!entry.getValue().equals(other.trace.get(entry.getKey()))) {
+				logger.debug("Traces differ!");
 				//logger.debug("TG: Traces differ at position "+entry.getKey()+" : "+entry.getValue() + "<->" + other.trace.get(entry.getKey()));
 				return true;
 			}
@@ -73,6 +80,8 @@ public class PrimitiveOutputTrace extends OutputTrace {
 
 		int num_assertions = 0;
 		for (int i = 0; i < test.size(); i++) {
+			logger.debug("Looking for primitive assertion");
+
 			/*
 			if((trace.containsKey(i) != other.trace.containsKey(i))) {
 				//logger.info("Found primitive assertion");
@@ -109,7 +118,7 @@ public class PrimitiveOutputTrace extends OutputTrace {
 				num_assertions++;
 			} else if ((trace.containsKey(i) && other.trace.containsKey(i)
 			        && trace.get(i) == null && other.trace.get(i) == null)) {
-				//logger.info("Null in both traces");
+				logger.info("Null in both traces");
 				continue;
 			} else if ((trace.containsKey(i) && other.trace.containsKey(i) && !trace.get(i).equals(other.trace.get(i)))) {
 				logger.debug("Found primitive assertion (non-null): " + trace.get(i)
@@ -129,8 +138,8 @@ public class PrimitiveOutputTrace extends OutputTrace {
 					        + other.trace.get(assertion.source.getStPosition()));
 				}
 
-				//} else {
-				//	logger.info("No value at statement "+i);
+			} else {
+				logger.debug("No value at statement " + i);
 			}
 			/*
 								if((trace.containsKey(i) != other.trace.containsKey(i)) ||

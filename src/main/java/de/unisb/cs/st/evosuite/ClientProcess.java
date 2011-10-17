@@ -3,8 +3,6 @@
  */
 package de.unisb.cs.st.evosuite;
 
-import com.thoughtworks.xstream.XStream;
-
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
@@ -31,23 +29,33 @@ public class ClientProcess implements SearchListener {
 			System.exit(1);
 		}
 
+		TestSuiteGenerator generator = null;
 		Object population_data = util.receiveInstruction();
 		if (population_data == null) {
 			// Starting a new search
-			TestSuiteGenerator generator = new TestSuiteGenerator();
+			generator = new TestSuiteGenerator();
 			ga = generator.setup();
 			ga.addListener(this);
 			generator.generateTestSuite(ga);
 		} else {
 			System.out.println("* Resuming search on new JVM");
+
 			// Resume an interrupted search
-			TestSuiteGenerator generator = new TestSuiteGenerator();
-			XStream xstream = new XStream();
-			GeneticAlgorithm ga = (GeneticAlgorithm) xstream.fromXML((String) population_data);
-			//			ga = (GeneticAlgorithm) population_data;
+			generator = new TestSuiteGenerator();
+			ga = (GeneticAlgorithm) population_data;
+			ga.addListener(this);
 			generator.generateTestSuite(ga);
 		}
-		util.informSearchIsFinished(null);
+		/*
+		 * TODO: RE-FACTOR: add/remove listeners on ga has no effect, as this ga reference is not used
+		 * inside generateTestSuite, and anyway listener here does not do anything (ga si always
+		 * != null)
+		 */
+		ga.removeListener(this);
+		
+		ga = generator.getEmployedGeneticAlgorithm(); 
+		
+		util.informSearchIsFinished(ga);
 	}
 
 	private boolean hasExceededResources() {
@@ -70,7 +78,8 @@ public class ClientProcess implements SearchListener {
 
 			if (freeMem < Properties.MIN_FREE_MEM) {
 				System.out.println("* Running out of memory, giving up: " + freeMem
-				        + " / " + runtime.maxMemory());
+				        + " / " + runtime.maxMemory() + " - need "
+				        + Properties.MIN_FREE_MEM);
 				return true;
 			} else {
 				System.out.println("* Garbage collection recovered sufficient memory: "
@@ -86,8 +95,8 @@ public class ClientProcess implements SearchListener {
 	 */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
-		// TODO Auto-generated method stub
-
+		if (ga == null)
+			ga = algorithm;
 	}
 
 	/* (non-Javadoc)
@@ -95,6 +104,8 @@ public class ClientProcess implements SearchListener {
 	 */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
+		if (ga == null)
+			ga = algorithm;
 	}
 
 	/* (non-Javadoc)
@@ -114,6 +125,7 @@ public class ClientProcess implements SearchListener {
 		//System.out.println("Checking for restart");
 		if (hasExceededResources()) {
 			System.out.println("* Asking for JVM restart");
+			ga.removeListener(this);
 			util.askForRestart(ga);
 		}
 	}
@@ -128,7 +140,14 @@ public class ClientProcess implements SearchListener {
 	}
 
 	public static void main(String[] args) {
-		ClientProcess process = new ClientProcess();
-		process.run();
+		try {
+			ClientProcess process = new ClientProcess();
+			process.run();
+		} catch (Throwable t) {
+			System.err.println("Error when generating tests for: "
+			        + Properties.TARGET_CLASS);
+			t.printStackTrace();
+			System.exit(1);
+		}
 	}
 }

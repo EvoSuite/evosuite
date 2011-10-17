@@ -1,6 +1,7 @@
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 
@@ -11,7 +12,7 @@ import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
  */
 public class DefUse extends BytecodeInstruction {
 
-	private static Logger logger = Logger.getLogger(DefUse.class);
+	private static Logger logger = LoggerFactory.getLogger(DefUse.class);
 	
 	int defuseId;
 	int defId;
@@ -53,8 +54,9 @@ public class DefUse extends BytecodeInstruction {
 		if(!instruction.isDefinition())
 			return false;
 		
-		Definition otherDef = DefUseFactory.makeDefinition(instruction);
-		return sharesVariableWith(otherDef);
+		
+//		Definition otherDef = DefUseFactory.makeDefinition(instruction);
+		return sharesVariableWith(instruction);
 	}
 	
 	/**
@@ -63,6 +65,13 @@ public class DefUse extends BytecodeInstruction {
 	 */
 	public boolean sharesVariableWith(DefUse du) {
 		return varName.equals(du.varName);
+	}
+	
+	public boolean sharesVariableWith(BytecodeInstruction instruction) {
+		if(!instruction.isDefUse())
+			return false;
+		
+		return varName.equals(instruction.getDUVariableName());
 	}
 	
 	public String getDUVariableType() {
@@ -102,24 +111,24 @@ public class DefUse extends BytecodeInstruction {
 
 	// inherited from Object
 	
-	@Override
-	public boolean equals(Object obj) {
-		if(this==obj)
-			return true;
-		if(obj==null)
-			return false;
-
-		// TODO ensure those checks succeed by always having IDs set properly
-		// s. super.equals() for similar prob
-		
-//		if(obj instanceof DefUse) {
-//			DefUse other = (DefUse)obj;
-//			if(defuseId != other.defuseId)
-//				return false;
-//		}
-		
-		return super.equals(obj);
-	}
+//	@Override
+//	public boolean equals(Object obj) {
+//		if(this==obj)
+//			return true;
+//		if(obj==null)
+//			return false;
+//
+//		// TODO ensure those checks succeed by always having IDs set properly
+//		// s. super.equals() for similar prob
+//		
+////		if(obj instanceof DefUse) {
+////			DefUse other = (DefUse)obj;
+////			if(defuseId != other.defuseId)
+////				return false;
+////		}
+//		
+//		return super.equals(obj);
+//	}
 
 	@Override
 	public String toString() {
@@ -134,8 +143,11 @@ public class DefUse extends BytecodeInstruction {
 		r.append(getDUVariableType());
 		r.append("-Variable \"" + getDUVariableName() +"\"");
 		r.append(" in " + getMethodName()+"."+getInstructionId()); 
-		r.append(" branch " + getControlDependentBranchId() + (getControlDependentBranchExpressionValue()?"t":"f"));
-		r.append(" line "+ getLineNumber());
+		if(isRootBranchDependent())
+			r.append(" root-Branch");
+		else
+			r.append(" Branch " + getControlDependentBranchId() + (getControlDependentBranchExpressionValue()?"t":"f"));
+		r.append(" Line "+ getLineNumber());
 		return r.toString();
 	}
 }

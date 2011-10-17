@@ -1,10 +1,6 @@
 package de.unisb.cs.st.evosuite.cfg;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.io.Serializable;
 import java.util.Set;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -26,7 +22,6 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
-import de.unisb.cs.st.evosuite.mutation.Mutateable;
 
 /**
  * Internal representation of a BytecodeInstruction
@@ -41,7 +36,9 @@ import de.unisb.cs.st.evosuite.mutation.Mutateable;
  * @author Gordon Fraser, Andre Mis
  * 
  */
-public class BytecodeInstruction extends ASMWrapper implements Mutateable {
+public class BytecodeInstruction extends ASMWrapper implements Serializable {
+
+	private static final long serialVersionUID = 3630449183355518857L;
 
 	// identification of a byteCode instruction inside EvoSuite
 	protected String className;
@@ -52,24 +49,10 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	// auxiliary information
 	private int lineNumber = -1;
 
-	// --- - Mutations - ---
-	// Calculate distance to each mutation
-	private final Map<Long, Integer> mutant_distance = new HashMap<Long, Integer>();
-	private final List<Long> mutations = new ArrayList<Long>();
-	private boolean mutationBranch = false;
-	private boolean mutatedBranch = false;
-
-	// experiment: since finding the control dependent branches in the CDG might
-	// take a little to long, we might want to remember them
-	private Set<Branch> controlDependentBranches;
-	private Set<Integer> controlDependentBranchIDs;
-
 	// experiment: also searching through all CFG nodes in order to determine an
 	// instruction BasicBlock might be a little to expensive too just to safe
 	// space for one reference
 	private BasicBlock basicBlock;
-
-	// TODO make sure the word CFGVertex appears nowhere anymore
 
 	/**
 	 * Generates a ByteCodeInstruction instance that represents a byteCode
@@ -136,9 +119,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		this.className = className;
 	}
 
-	// --- Field Management --- TODO find out which ones to hide/remove
-
-	// TODO make real getId()!
+	// --- Field Management ---
 
 	@Override
 	public int getInstructionId() {
@@ -158,7 +139,6 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		return className;
 	}
 
-	@Override
 	public String getName() {
 		return "BytecodeInstruction " + instructionId + " in " + methodName;
 	}
@@ -208,89 +188,11 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		return basicBlock != null;
 	}
 
-	// mutation part
-
-	@Override
-	public boolean isMutation() {
-		return !mutations.isEmpty();
-		/*
-		 * if(node instanceof LdcInsnNode) {
-		 * 
-		 * if(((LdcInsnNode)node).cst.toString().contains("mutationId")) {
-		 * logger.info("!!!!! Found mutation!"); } } return false;
-		 */
-	}
-
-	@Override
-	public List<Long> getMutationIds() {
-		return mutations;
-		// String ids = ((LdcInsnNode)node).cst.toString();
-		// return Integer.parseInt(ids.substring(ids.indexOf("_")+1));
-	}
-
-	public boolean isMutationBranch() {
-		return isBranch() && mutationBranch;
-	}
-
-	public void setMutationBranch() {
-		mutationBranch = true;
-	}
-
-	public void setMutatedBranch() {
-		mutatedBranch = true;
-	}
-
-	public void setMutation(long id) {
-		mutations.add(id);
-	}
-
-	@Override
-	public boolean hasMutation(long id) {
-		return mutations.contains(id);
-	}
-
-	public void setMutationBranch(boolean mutationBranch) {
-		this.mutationBranch = mutationBranch;
-	}
-
-	public void setMutatedBranch(boolean mutatedBranch) {
-		this.mutatedBranch = mutatedBranch;
-	}
-
-	public boolean isMutatedBranch() {
-		// Mutated if HOMObserver of MutationObserver are called
-		return isBranch() && mutatedBranch;
-	}
-
-	@Override
-	public int getDistance(long id) {
-		if (mutant_distance.containsKey(id))
-			return mutant_distance.get(id);
-		return Integer.MAX_VALUE;
-	}
-
-	@Override
-	public void setDistance(long id, int distance) {
-		mutant_distance.put(id, distance);
-	}
-
 	@Override
 	public int getLineNumber() {
-		// former method comment
-		// If hasLineNumberSet() returns true, this method returns the
-		// lineNumber of
-		// this instruction Otherwise an IllegalStateException() will be thrown
-		// to
-		// indicate that the field was never initialized properly
 
-		// if (!hasLineNumberSet()) // TODO if lineNumber not set retrieve this
-		// info from ... CFGPool or something
-		// throw new IllegalStateException(
-		// "expect hasLineNumberSet() to be true on a BytecodeInstruction that gets asked for it's lineNumber");
-
-		if (lineNumber == -1 && isLineNumber()) {
+		if (lineNumber == -1 && isLineNumber())
 			retrieveLineNumber();
-		}
 
 		return lineNumber;
 	}
@@ -399,7 +301,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		return myCDG;
 	}
 
-	// --- TODO CDG-Section ---
+	// --- CDG-Section ---
 
 	/**
 	 * Returns a cfg.Branch object for each branch this instruction is control
@@ -412,36 +314,13 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 * do not need the full set in order to avoid loops, call
 	 * getAllControlDependentBranches instead
 	 */
-	public Set<Branch> getAllControlDependentBranches() {
+	public Set<ControlDependency> getControlDependencies() {
 
-		if (controlDependentBranches == null)
-			controlDependentBranches = getCDG().getControlDependentBranches(this);
+		BasicBlock myBlock = getBasicBlock();
 
-		return controlDependentBranches;
-		//		return new HashSet<Branch>(controlDependentBranches);
-	}
-
-	/**
-	 * Returns a cfg.Branch object for each branch this instruction is control
-	 * dependent on as determined by the ControlDependenceGraph. If this
-	 * instruction is only dependent on the root branch this method returns an
-	 * empty set
-	 * 
-	 * If this instruction is a Branch and it is dependent on itself - which can
-	 * happen in loops for example - the returned set will NOT contain this. If
-	 * you need the full set, call getAllControlDependentBranches instead
-	 */
-	public Set<Branch> getControlDependentBranches() {
-
-		Set<Branch> r = new HashSet<Branch>(getAllControlDependentBranches());
-		r.remove(this);
-
-		// TODO im not sure if the following holds
-		// if (r.isEmpty())
-		// throw new
-		// IllegalStateException("expect branch that is control dependent on itself to have at least one other branch it is control dependent on");
-
-		return r;
+		// return new
+		// HashSet<ControlDependency>(myBlock.getControlDependencies());
+		return myBlock.getControlDependencies();
 	}
 
 	/**
@@ -457,12 +336,12 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 */
 	public Branch getControlDependentBranch() {
 
-		Set<Branch> cdIds = getAllControlDependentBranches();
+		Set<ControlDependency> controlDependentBranches = getControlDependencies();
 
-		for (Branch cdId : cdIds)
-			return cdId;
+		for (ControlDependency cd : controlDependentBranches)
+			return cd.getBranch();
 
-		return null;
+		return null; // root branch
 	}
 
 	/**
@@ -475,15 +354,18 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 	 */
 	public Set<Integer> getControlDependentBranchIds() {
 
-		ControlDependenceGraph myDependence = CFGPool.getCDG(className, methodName);
-		if (myDependence == null)
-			throw new IllegalStateException(
-			        "expect CFGPool to know CDG for every method for which an instruction is known");
+		BasicBlock myBlock = getBasicBlock();
 
-		if (controlDependentBranchIDs == null)
-			controlDependentBranchIDs = myDependence.getControlDependentBranchIds(this);
+		return myBlock.getControlDependentBranchIds();
+	}
 
-		return controlDependentBranchIDs;
+	/**
+	 * Determines whether or not this instruction is control dependent on the
+	 * root branch of it's method by calling getControlDependentBranchIds() to
+	 * see if the return contains -1.
+	 */
+	public boolean isRootBranchDependent() {
+		return getControlDependencies().isEmpty();
 	}
 
 	/**
@@ -529,95 +411,112 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		return getBranchExpressionValue(b);
 	}
 
-	/**
-	 *  
-	 */
 	public boolean getBranchExpressionValue(Branch b) {
-		if (b == null)
-			throw new IllegalArgumentException("null given");
 		if (!isDirectlyControlDependentOn(b))
 			throw new IllegalArgumentException(
-			        "this method can only be called for branches that this instruction is directly control dependent on");
+			        "this method can only be called for branches that this instruction is directly control dependent on.");
 
-		return getCDG().getBranchExpressionValue(this, b);
+		if (b == null)
+			return true; // root branch special case
+
+		return getControlDependency(b).getBranchExpressionValue();
 	}
 
 	/**
 	 * Determines whether this BytecodeInstruction is directly control dependent
 	 * on the given Branch. Meaning within this instruction CDG there is an
 	 * incoming ControlFlowEdge to this instructions BasicBlock holding the
-	 * given Branch as it's branchInstruction
+	 * given Branch as it's branchInstruction.
+	 * 
+	 * If the given Branch is null, this method checks whether the this
+	 * instruction is control dependent on the root branch of it's method.
 	 */
 	public boolean isDirectlyControlDependentOn(Branch branch) {
-		return getAllControlDependentBranches().contains(branch);
-	}
+		if (branch == null)
+			return getControlDependentBranchIds().contains(-1);
 
-	/**
-	 * WARNING: better don't user this method right now TODO
-	 * 
-	 * Determines whether the CFGVertex is transitively control dependent on the
-	 * given Branch
-	 * 
-	 * A CFGVertex is transitively control dependent on a given Branch if the
-	 * Branch and the vertex are in the same method and the vertex is either
-	 * directly control dependent on the Branch - look at
-	 * isDirectlyControlDependentOn(Branch) - or the CFGVertex of the control
-	 * dependent branch of this CFGVertex is transitively control dependent on
-	 * the given branch.
-	 * 
-	 */
-	public boolean isTransitivelyControlDependentOn(Branch branch) {
-		if (!getClassName().equals(branch.getClassName()))
-			return false;
-		if (!getMethodName().equals(branch.getMethodName()))
-			return false;
-
-		// TODO: this method does not take into account, that there might be
-		// multiple branches this instruction is control dependent on
-
-		BytecodeInstruction vertexHolder = this;
-		do {
-			if (vertexHolder.isDirectlyControlDependentOn(branch))
+		for (ControlDependency cd : getControlDependencies())
+			if (cd.getBranch().equals(branch))
 				return true;
-			vertexHolder = vertexHolder.getControlDependentBranch();
-		} while (vertexHolder != null);
 
 		return false;
 	}
 
-	/**
-	 * WARNING: better don't user this method right now TODO
-	 * 
-	 * Determines the number of branches that have to be passed in order to pass
-	 * this CFGVertex
-	 * 
-	 * Used to determine TestFitness difficulty
-	 */
-	public int getCDGDepth() {
+	public ControlDependency getControlDependency(Branch branch) {
+		if (!isDirectlyControlDependentOn(branch))
+			throw new IllegalArgumentException(
+			        "instruction not directly control dependent on given branch");
 
-		// TODO: this method does not take into account, that there might be
-		// multiple branches this instruction is control dependent on
+		for (ControlDependency cd : getControlDependencies())
+			if (cd.getBranch().equals(branch))
+				return cd;
 
-		Branch current = getControlDependentBranch();
-		int r = 1;
-		while (current != null) {
-			r++;
-			current = current.getControlDependentBranch();
-		}
-		return r;
+		throw new IllegalStateException(
+		        "expect getControlDependencies() to contain a CD for each branch that isDirectlyControlDependentOn() returns true on");
 	}
+
+	// /**
+	// * WARNING: better don't user this method right now TODO
+	// *
+	// * Determines whether the CFGVertex is transitively control dependent on
+	// the
+	// * given Branch
+	// *
+	// * A CFGVertex is transitively control dependent on a given Branch if the
+	// * Branch and the vertex are in the same method and the vertex is either
+	// * directly control dependent on the Branch - look at
+	// * isDirectlyControlDependentOn(Branch) - or the CFGVertex of the control
+	// * dependent branch of this CFGVertex is transitively control dependent on
+	// * the given branch.
+	// *
+	// */
+	// public boolean isTransitivelyControlDependentOn(Branch branch) {
+	// if (!getClassName().equals(branch.getClassName()))
+	// return false;
+	// if (!getMethodName().equals(branch.getMethodName()))
+	// return false;
+	//
+	// // TODO: this method does not take into account, that there might be
+	// // multiple branches this instruction is control dependent on
+	//
+	// BytecodeInstruction vertexHolder = this;
+	// do {
+	// if (vertexHolder.isDirectlyControlDependentOn(branch))
+	// return true;
+	// vertexHolder = vertexHolder.getControlDependentBranch()
+	// .getInstruction();
+	// } while (vertexHolder != null);
+	//
+	// return false;
+	// }
+
+	// /**
+	// * WARNING: better don't user this method right now TODO
+	// *
+	// * Determines the number of branches that have to be passed in order to
+	// pass
+	// * this CFGVertex
+	// *
+	// * Used to determine TestFitness difficulty
+	// */
+	// public int getCDGDepth() {
+	//
+	// // TODO: this method does not take into account, that there might be
+	// // multiple branches this instruction is control dependent on
+	//
+	// Branch current = getControlDependentBranch();
+	// int r = 1;
+	// while (current != null) {
+	// r++;
+	// current = current.getInstruction().getControlDependentBranch();
+	// }
+	// return r;
+	// }
 
 	// String methods
 
 	public String explain() {
-		if (isMutation()) {
-			String ids = "Mutations: ";
-			for (long l : mutations) {
-				ids += " " + l;
-			}
-			return ids;
-		}
-		if (isActualBranch()) {
+		if (isBranch()) {
 			if (BranchPool.isKnownAsBranch(this)) {
 				Branch b = BranchPool.getBranchForInstruction(this);
 				if (b == null)
@@ -626,7 +525,7 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 
 				return "Branch " + b.getActualBranchId() + " - " + getInstructionType();
 			}
-			return "UNKNOWN Branch i" + instructionId + " " + getInstructionType();
+			return "UNKNOWN Branch I" + instructionId + " " + getInstructionType();
 
 			// + " - " + ((JumpInsnNode) asmNode).label.getLabel();
 		}
@@ -649,7 +548,8 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		if (asmNode instanceof LabelNode) {
 			return "LABEL " + ((LabelNode) asmNode).getLabel().toString();
 		} else if (asmNode instanceof FieldInsnNode)
-			return "Field" + " " + asmNode.getOpcode() + " Type=" + type + ", Opcode="
+			return "Field" + " " + ((FieldInsnNode) asmNode).owner + "."
+			        + ((FieldInsnNode) asmNode).name + " Type=" + type + ", Opcode="
 			        + opcode;
 		else if (asmNode instanceof FrameNode)
 			return "Frame" + " " + asmNode.getOpcode() + " Type=" + type + ", Opcode="
@@ -669,8 +569,9 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 			        + ", Opcode=" + opcode + ", Stack: " + stack + " - Line: "
 			        + lineNumber;
 		else if (asmNode instanceof LdcInsnNode)
-			return "LDC " + ((LdcInsnNode) asmNode).cst + " Type=" + type + ", Opcode="
-			        + opcode; // cst starts with mutationid if
+			return "LDC " + ((LdcInsnNode) asmNode).cst + " Type=" + type; // +
+		// ", Opcode=";
+		// + opcode; // cst starts with mutationid if
 		// this is location of mutation
 		else if (asmNode instanceof LineNumberNode)
 			return "LINE " + " " + ((LineNumberNode) asmNode).line;
@@ -708,28 +609,68 @@ public class BytecodeInstruction extends ASMWrapper implements Mutateable {
 		return r;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof BytecodeInstruction))
-			return false;
+	// @Override
+	// public boolean equals(Object obj) {
+	// if (this == obj)
+	// return true;
+	// if (obj == null)
+	// return false;
+	// if (!(obj instanceof BytecodeInstruction))
+	// return false;
+	//
+	// // TODO ensure that the following checks always succeed
+	// // TODO do this by ensuring that those values are always set correctly
+	//
+	// BytecodeInstruction other = (BytecodeInstruction) obj;
+	//
+	// if (instructionId != other.instructionId)
+	// return false;
+	// if (methodName != null && !methodName.equals(other.methodName))
+	// return false;
+	// if (className != null && !className.equals(other.className))
+	// return false;
+	//
+	// return super.equals(obj);
+	// }
 
-		// TODO ensure that the following checks always succeed
-		// TODO do this by ensuring that those values are always set correctly
+	/**
+	 * Convenience method:
+	 * 
+	 * If this instruction is known by the BranchPool to be a Branch, you can
+	 * call this method in order to retrieve the corresponding Branch object
+	 * registered within the BranchPool.
+	 * 
+	 * Otherwise this method will return null;
+	 */
+	public Branch toBranch() {
 
-		BytecodeInstruction other = (BytecodeInstruction) obj;
-
-		if (instructionId != other.instructionId)
-			return false;
-		if (methodName != null && !methodName.equals(other.methodName))
-			return false;
-		if (className != null && !className.equals(other.className))
-			return false;
-
-		return super.equals(obj);
+		try {
+			return BranchPool.getBranchForInstruction(this);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
+	public boolean proceedsConstructorInvocation() {
+
+		RawControlFlowGraph cfg = getRawCFG();
+		for (BytecodeInstruction other : cfg.vertexSet())
+			if (other.isConstructorInvocation())
+				if (getInstructionId() < other.getInstructionId())
+					return true;
+
+		return false;
+	}
+
+	public boolean isWithinConstructor() {
+		return getMethodName().startsWith("<init>");
+	}
+
+	public boolean isLastInstructionInMethod() {
+		return equals(getRawCFG().getInstructionWithBiggestId());
+	}
+
+	public boolean canBeExitPoint() {
+		return canReturnFromMethod() || isLastInstructionInMethod();
+	}
 }

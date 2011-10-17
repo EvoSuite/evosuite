@@ -21,9 +21,14 @@ package de.unisb.cs.st.evosuite.testsuite;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.dataflow.AllDefsCoverageSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.statement.StatementCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
@@ -40,8 +45,7 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 
 	private static final long serialVersionUID = 7243635497292960457L;
 
-	@SuppressWarnings("hiding")
-	protected static Logger logger = Logger.getLogger(TestSuiteFitnessFunction.class);
+	protected static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
 	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
@@ -61,10 +65,10 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 		try {
 			result = executor.execute(test);
 			/*
-						result.exceptions = executor.run(test);
-						executor.setLogging(true);
-						result.trace = ExecutionTracer.getExecutionTracer().getTrace();
-			*/
+			 * result.exceptions = executor.run(test);
+			 * executor.setLogging(true); result.trace =
+			 * ExecutionTracer.getExecutionTracer().getTrace();
+			 */
 			int num = test.size();
 			MaxStatementsStoppingCondition.statementsExecuted(num);
 		} catch (Exception e) {
@@ -84,7 +88,6 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 		return result;
 	}
 
-	
 	protected static boolean hasTimeout(ExecutionResult result) {
 
 		if (result == null) {
@@ -102,12 +105,8 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 		return false;
 	}
 
-	@Override
-	protected void updateIndividual(Chromosome individual, double fitness) {
-		individual.setFitness(fitness);
-	}
-
-	protected List<ExecutionResult> runTestSuite(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+	protected List<ExecutionResult> runTestSuite(
+	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		CurrentChromosomeTracker.getInstance().modification(suite);
 		List<ExecutionResult> results = new ArrayList<ExecutionResult>();
 
@@ -115,10 +114,10 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 			// Only execute test if it hasn't been changed
 			if (chromosome.isChanged() || chromosome.getLastExecutionResult() == null) {
 				ExecutionResult result = chromosome.executeForFitnessFunction(this);
-				
+
 				if (result != null) {
 					results.add(result);
-				
+
 					chromosome.setLastExecutionResult(result); // .clone();
 					chromosome.setChanged(false);
 				}
@@ -128,5 +127,32 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 		}
 
 		return results;
+	}
+
+	public static int getCoveredGoals() {
+
+		// TODO could be done nicer for arbitrary criteria but tbh right now it
+		// works for me
+
+		switch (Properties.CRITERION) {
+		case DEFUSE:
+			return DefUseCoverageSuiteFitness.mostCoveredGoals;
+		case STATEMENT:
+			return StatementCoverageSuiteFitness.mostCoveredGoals;
+		case BRANCH:
+			return BranchCoverageSuiteFitness.mostCoveredGoals;
+		case ALLDEFS:
+			return AllDefsCoverageSuiteFitness.mostCoveredGoals;
+		default:
+			return -1; // to indicate value is missing
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#isMaximizationFunction()
+	 */
+	@Override
+	public boolean isMaximizationFunction() {
+		return false;
 	}
 }

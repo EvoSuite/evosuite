@@ -4,9 +4,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import org.apache.log4j.Logger;
-
-import com.thoughtworks.xstream.XStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 
@@ -15,7 +14,7 @@ import de.unisb.cs.st.evosuite.Properties;
  */
 
 public class ExternalProcessUtilities {
-	protected static Logger logger = Logger.getLogger(ExternalProcessUtilities.class);
+	protected static Logger logger = LoggerFactory.getLogger(ExternalProcessUtilities.class);
 
 	protected int port;
 	protected Socket connection;
@@ -27,13 +26,13 @@ public class ExternalProcessUtilities {
 	}
 
 	public boolean connectToMainProcess() {
+
 		try {
 			connection = new Socket("127.0.0.1", port);
 			out = new ObjectOutputStream(connection.getOutputStream());
 			in = new ObjectInputStream(connection.getInputStream());
 		} catch (Exception e) {
-			System.out.println("not possible to connect to main process: " + e);
-			e.printStackTrace();
+			logger.error("not possible to connect to main process", e);
 			return false;
 		}
 
@@ -50,7 +49,7 @@ public class ExternalProcessUtilities {
 				return population_data;
 			}
 		} catch (Exception e) {
-			logger.debug("error in receiving message", e);
+			logger.error("error in receiving message", e);
 		}
 
 		throw new RuntimeException("no valid message received");
@@ -65,21 +64,23 @@ public class ExternalProcessUtilities {
 	}
 
 	public void sendFinalMessage(String message, Object population_data) {
-		XStream xstream = new XStream();
-		//System.out.println(xstream.toXML(population_data));
 		try {
 			out.writeObject(message);
 			out.flush();
-			out.writeObject(xstream.toXML(population_data));
+			// FIXXME: Currently not working
+			//out.writeObject(population_data);
+			out.writeObject(null);
 			out.flush();
 		} catch (Exception e) {
-			logger.debug("error in sending messages");
+			logger.error("error in sending messages", e);
 		}
 
 		//main process will kill this one, but we can exit here just to be sure
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
+			logger.warn("Thread interrupted while waiting for results from client process",
+			            e);
 		}
 
 		System.exit(0);

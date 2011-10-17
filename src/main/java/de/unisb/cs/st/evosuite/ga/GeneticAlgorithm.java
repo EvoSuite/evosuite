@@ -18,6 +18,9 @@
 
 package de.unisb.cs.st.evosuite.ga;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,12 +29,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Strategy;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
+import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
@@ -44,7 +50,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	private static final long serialVersionUID = 5155609385855093435L;
 
-	protected static Logger logger = Logger.getLogger(GeneticAlgorithm.class);
+	protected static Logger logger = LoggerFactory.getLogger(GeneticAlgorithm.class);
 
 	/**
 	 * Fitness function to rank individuals
@@ -132,7 +138,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * Apply local search
 	 */
 	protected void applyLocalSearch() {
-		logger.info("Applying local search");
+		logger.debug("Applying local search");
 		for (Chromosome individual : population) {
 			if (isFinished())
 				break;
@@ -457,7 +463,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * 
 	 * @param factory
 	 */
-	public void setChromosomeFactory(ChromosomeFactory<Chromosome> factory) {
+	public void setChromosomeFactory(ChromosomeFactory<? extends Chromosome> factory) {
 		chromosome_factory = factory;
 	}
 
@@ -627,6 +633,60 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	public void printBudget() {
 		System.out.println("* GA-Budget:");
 		for (StoppingCondition sc : stopping_conditions)
-			System.out.println("  - " + sc.toString());
+			System.out.println("\t- " + sc.toString());
+	}
+
+	public String getBudgetString() {
+		String r = "";
+		for (StoppingCondition sc : stopping_conditions)
+			r += sc.toString() + " ";
+
+		return r;
+	}
+
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		if (listeners.contains(SearchStatistics.getInstance())) {
+			removeListener(SearchStatistics.getInstance());
+			oos.defaultWriteObject();
+			oos.writeObject(Boolean.TRUE);
+			// Write/save additional fields
+			oos.writeObject(SearchStatistics.getInstance());
+		} else {
+			oos.defaultWriteObject();
+			oos.writeObject(Boolean.FALSE);
+		}
+	}
+
+	// assumes "static java.util.Date aDate;" declared
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+		boolean addStatistics = (Boolean) ois.readObject();
+		if (addStatistics) {
+			SearchStatistics.setInstance((SearchStatistics) ois.readObject());
+			addListener(SearchStatistics.getInstance());
+		}
+	}
+
+	/**
+	 * Set pause before MA
+	 */
+	public void pauseGlobalTimeStoppingCondition() {
+		for (StoppingCondition c : stopping_conditions) {
+			if (c instanceof GlobalTimeStoppingCondition) {
+				((GlobalTimeStoppingCondition) c).pause();
+			}
+		}
+	}
+
+	/**
+	 * Resume from pause after MA
+	 */
+	public void resumeGlobalTimeStoppingCondition() {
+		for (StoppingCondition c : stopping_conditions) {
+			if (c instanceof GlobalTimeStoppingCondition) {
+				((GlobalTimeStoppingCondition) c).resume();
+			}
+		}
 	}
 }

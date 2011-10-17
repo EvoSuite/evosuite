@@ -3,7 +3,6 @@
  */
 package de.unisb.cs.st.evosuite.coverage.path;
 
-import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
@@ -51,18 +50,19 @@ public class PrimePathTestFitness extends TestFitnessFunction {
 			if (call.className.equals(className) && call.methodName.equals(methodName)) {
 				double matches = 0.0;
 				for (Integer i : call.branchTrace) {
-					logger.debug(" -> " + i);
+					logger.debug(" |-> " + i);
 				}
 				logger.debug("-------");
 				logger.debug(path.toString());
-				for (int i = 0; i < path.getSize(); i++) {
-					if (path.get(i).isBranch())
-						logger.debug(" -> " + path.get(i).getInstructionId());
+				for (int i = 0; i < path.branches.size(); i++) {
+					logger.debug(" -> " + path.branches.get(i).branch + " "
+					        + path.branches.get(i).value);
 				}
 				logger.debug("Length: " + length);
 				int pos_path = 0;
 				int pos_trace = 0;
 				while (pos_path < path.branches.size()) {
+					logger.debug("Current matches: " + matches);
 					if (pos_trace >= call.branchTrace.size()) {
 						logger.debug("End of trace?"
 						        + ": "
@@ -70,34 +70,40 @@ public class PrimePathTestFitness extends TestFitnessFunction {
 
 						matches += 1 - (normalize(call.trueDistanceTrace.get(pos_trace - 1)) + normalize(call.falseDistanceTrace.get(pos_trace - 1)));
 						break;
-					} else if (path.branches.get(pos_path).vertex.getInstructionId() == call.branchTrace.get(pos_trace)) {
+					} else if (path.branches.get(pos_path).branch.getActualBranchId() == call.branchTrace.get(pos_trace)) {
 						logger.debug("Found branch match: "
-						        + path.branches.get(pos_path).vertex.getInstructionId());
+						        + path.branches.get(pos_path).branch);
 						matches++;
 						if (path.branches.get(pos_path).value == true) {
 							if (call.trueDistanceTrace.get(pos_trace) == 0.0) {
-								logger.debug("Truth value match");
+								logger.debug("[True] Truth value match");
 								pos_path++;
 								pos_trace++;
 							} else {
-								logger.debug("Truth value mismatch: "
-								        + (normalize(call.trueDistanceTrace.get(pos_trace))));
-								matches += 1 - (normalize(call.trueDistanceTrace.get(pos_trace)));
+								logger.debug("[True] Truth value mismatch: "
+								        + (normalize(call.trueDistanceTrace.get(pos_trace)))
+								        + " / "
+								        + (normalize(call.falseDistanceTrace.get(pos_trace))));
+								matches -= (normalize(call.trueDistanceTrace.get(pos_trace)));
 								break;
 							}
 						} else {
 							if (call.falseDistanceTrace.get(pos_trace) == 0.0) {
-								logger.debug("Truth value match");
+								logger.debug("[False] Truth value match");
 								pos_path++;
 								pos_trace++;
 							} else {
-								logger.debug("Truth value mismatch: "
-								        + (normalize(call.falseDistanceTrace.get(pos_trace))));
-								matches += 1 - (normalize(call.falseDistanceTrace.get(pos_trace)));
+								logger.debug("[False] Truth value mismatch: "
+								        + (normalize(call.falseDistanceTrace.get(pos_trace)))
+								        + " / "
+								        + (normalize(call.trueDistanceTrace.get(pos_trace))));
+								matches -= (normalize(call.falseDistanceTrace.get(pos_trace)));
 								break;
 							}
 						}
 					} else {
+						logger.warn("Size of trace: " + call.trueDistanceTrace.size());
+						logger.warn("Position: " + pos_trace);
 						logger.debug("Found mismatch at "
 						        + pos_path
 						        + " / "
@@ -105,6 +111,7 @@ public class PrimePathTestFitness extends TestFitnessFunction {
 						        + ": "
 						        + (normalize(call.trueDistanceTrace.get(pos_trace - 1)) + normalize(call.falseDistanceTrace.get(pos_trace - 1))));
 						matches += 1 - (normalize(call.trueDistanceTrace.get(pos_trace - 1)) + normalize(call.falseDistanceTrace.get(pos_trace - 1)));
+						// -1?
 						break;
 					}
 				}
@@ -112,18 +119,11 @@ public class PrimePathTestFitness extends TestFitnessFunction {
 				logger.debug("Current fitness: " + matches);
 				minMatch = Math.min(minMatch, matches);
 				logger.debug("Current best fitness: " + minMatch);
+				assert (minMatch >= 0) : "Fitness is " + minMatch;
 			}
 		}
 		logger.debug("Final Fitness: " + minMatch);
 		return minMatch;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#updateIndividual(de.unisb.cs.st.evosuite.ga.Chromosome, double)
-	 */
-	@Override
-	protected void updateIndividual(Chromosome individual, double fitness) {
-		individual.setFitness(fitness);
 	}
 
 	@Override

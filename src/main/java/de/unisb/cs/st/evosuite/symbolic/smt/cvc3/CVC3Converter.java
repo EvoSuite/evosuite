@@ -5,7 +5,8 @@ package de.unisb.cs.st.evosuite.symbolic.smt.cvc3;
 
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cvc3.Expr;
 import cvc3.ValidityChecker;
@@ -29,7 +30,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
  * 
  */
 public class CVC3Converter {
-	private static Logger logger = Logger.getLogger(CVC3Converter.class);
+	private static Logger logger = LoggerFactory.getLogger(CVC3Converter.class);
 
 	private final CVC3Expr cvc3;
 

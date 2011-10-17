@@ -23,7 +23,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
@@ -33,7 +34,7 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class StringTraceExecutionObserver extends ExecutionObserver {
 
-	private static Logger logger = Logger.getLogger(StringTraceExecutionObserver.class);
+	private static Logger logger = LoggerFactory.getLogger(StringTraceExecutionObserver.class);
 
 	Map<Integer, String> trace = new HashMap<Integer, String>();
 

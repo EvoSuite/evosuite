@@ -5,9 +5,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.cfg.ControlDependency;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -50,7 +52,7 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
  */
 public class ControlFlowDistanceCalculator {
 
-	private static Logger logger = Logger.getLogger(ControlFlowDistanceCalculator.class);
+	private static Logger logger = LoggerFactory.getLogger(ControlFlowDistanceCalculator.class);
 
 	// DONE hold intermediately calculated ControlFlowDistances in
 	// ExecutionResult during computation in order to speed up things -
@@ -109,7 +111,7 @@ public class ControlFlowDistanceCalculator {
 		if (branch == null) {
 			d.setApproachLevel(20);
 		} else {
-			d.setApproachLevel(branch.getActualCFG().getDiameter() + 2);
+			d.setApproachLevel(branch.getInstruction().getActualCFG().getDiameter() + 2);
 		}
 		return d;
 	}
@@ -143,7 +145,7 @@ public class ControlFlowDistanceCalculator {
 		String methodName = branch.getMethodName();
 
 		ControlFlowDistance r = new ControlFlowDistance();
-		r.setApproachLevel(branch.getActualCFG().getDiameter() + 1);
+		r.setApproachLevel(branch.getInstruction().getActualCFG().getDiameter() + 1);
 
 		// Minimal distance between target node and path
 		for (MethodCall call : result.getTrace().finished_calls) {
@@ -218,7 +220,7 @@ public class ControlFlowDistanceCalculator {
 
 		ControlFlowDistance controlDependenceDistance = getControlDependenceDistancesFor(result,
 		                                                                                 call,
-		                                                                                 branch,
+		                                                                                 branch.getInstruction(),
 		                                                                                 className,
 		                                                                                 methodName,
 		                                                                                 handled);
@@ -258,7 +260,7 @@ public class ControlFlowDistanceCalculator {
 	        String className, String methodName, Set<Branch> handled) {
 
 		Set<ControlFlowDistance> r = new HashSet<ControlFlowDistance>();
-		Set<Branch> nextToLookAt = instruction.getControlDependentBranches();
+		Set<ControlDependency> nextToLookAt = instruction.getControlDependencies();
 
 		if (nextToLookAt.isEmpty()) {
 			// instruction only dependent on root branch
@@ -270,9 +272,12 @@ public class ControlFlowDistanceCalculator {
 			r.add(new ControlFlowDistance());
 		}
 
-		for (Branch next : nextToLookAt) {
-			boolean nextValue = instruction.getBranchExpressionValue(next);
-			ControlFlowDistance nextDistance = getNonRootDistance(result, call, next,
+		for (ControlDependency next : nextToLookAt) {
+			if(instruction.equals(next.getBranch()))
+				continue; // avoid loops
+			
+			boolean nextValue = next.getBranchExpressionValue();
+			ControlFlowDistance nextDistance = getNonRootDistance(result, call, next.getBranch(),
 			                                                      nextValue, className,
 			                                                      methodName, handled);
 			r.add(nextDistance);

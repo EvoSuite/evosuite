@@ -5,7 +5,8 @@ package de.unisb.cs.st.evosuite.coverage.concurrency;
 
 import java.util.*;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.coverage.concurrency.ScheduleLogWrapper.callReporter;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
@@ -15,7 +16,7 @@ import de.unisb.cs.st.evosuite.testcase.StatementInterface;
  *
  */
 public class CallLogger implements callReporter, Scheduler.scheduleObserver {
-	private static final Logger logger = Logger.getLogger(CallLogger.class);
+	private static final Logger logger = LoggerFactory.getLogger(CallLogger.class);
 	private final Object SYNC = new Object(); //guard for access to the statementToSchedule and threadIdToCurrentStatement, as those might be accessed concurrently
 	/*
 	 * Maps statements to schedule.

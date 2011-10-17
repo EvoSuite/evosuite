@@ -22,7 +22,8 @@ package de.unisb.cs.st.evosuite.javaagent;
 
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 
@@ -32,7 +33,7 @@ import org.objectweb.asm.MethodVisitor;
  */
 public class ObjectCallAdapter extends MethodAdapter {
 
-	protected static Logger logger = Logger.getLogger(ObjectCallAdapter.class);
+	protected static Logger logger = LoggerFactory.getLogger(ObjectCallAdapter.class);
 	
 	Map<String, String> descriptors = null;
 
