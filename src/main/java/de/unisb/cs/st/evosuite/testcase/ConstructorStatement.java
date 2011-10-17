@@ -27,6 +27,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -350,8 +351,7 @@ public class ConstructorStatement extends AbstractStatement {
 	@Override
 	public Set<Class<?>> getDeclaredExceptions() {
 		Set<Class<?>> ex = super.getDeclaredExceptions();
-		for (Class<?> t : constructor.getExceptionTypes())
-			ex.add(t);
+		ex.addAll(Arrays.asList(constructor.getExceptionTypes()));
 		return ex;
 	}
 
