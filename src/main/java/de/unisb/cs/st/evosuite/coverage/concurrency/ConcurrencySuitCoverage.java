@@ -334,6 +334,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 			schedules = nextRound;
 		}
 		s = schedules;
+		System.out.println("Generated " + schedules.size() + " schedules");
 		return schedules;
 	}
 
@@ -403,7 +404,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 	private Set<SchedulingDecisionTuple> getAllTuples() {
 		if (allTuples != null)
 			return allTuples;
-
+		
 		Set<Integer> threadIDs = LockRuntime.threadIDs;
 		Set<Integer> fieldAccessIDs = LockRuntime.fieldAccessIDToCFGBranch.keySet();
 
@@ -414,7 +415,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 				allTuples.add(new SchedulingDecisionTuple(threadID, fieldAccessID));
 			}
 		}
-
+		
 		return allTuples;
 	}
 
