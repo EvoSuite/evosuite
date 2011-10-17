@@ -37,7 +37,7 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  * 
  */
 public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromosome> {
-	protected TestSuiteChromosome(ChromosomeFactory<TestChromosome> testChromosomeFactory) {
+	public TestSuiteChromosome(ChromosomeFactory<TestChromosome> testChromosomeFactory) {
 		super(testChromosomeFactory);
 	}
 
@@ -178,7 +178,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		}
 		return goals;
 	}
-	
+
 	/**
 	 * For manual algorithm
 	 * 
@@ -188,8 +188,8 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	public void deleteTest(TestCase testCase) {
 		if (testCase != null) {
 			TestChromosome chromToDel = null;
-			for (TestChromosome test: tests) {
-				if(test.getTestCase().equals((testCase))) {
+			for (TestChromosome test : tests) {
+				if (test.getTestCase().equals((testCase))) {
 					chromToDel = test;
 				}
 			}
