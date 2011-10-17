@@ -112,7 +112,9 @@ public class ExternalProcessHandler {
 	}
 
 	public void killProcess() {
-		Runtime.getRuntime().removeShutdownHook(processKillHook);
+		try{ Runtime.getRuntime().removeShutdownHook(processKillHook);}
+		catch(Exception e){ /* do nothing. this can happen if shutdown is in progress */}
+		
 		if (process != null)
 			process.destroy();
 		process = null;

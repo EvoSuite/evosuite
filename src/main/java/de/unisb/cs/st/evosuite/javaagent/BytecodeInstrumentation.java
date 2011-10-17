@@ -18,6 +18,10 @@
 
 package de.unisb.cs.st.evosuite.javaagent;
 
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
@@ -93,12 +97,32 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			return classfileBuffer;
 		}
 
+
 		if (!isTargetProject(classNameWithDots)) {
 			return classfileBuffer;
 		}
 
+
 		try {
-			return transformBytes(className, new ClassReader(classfileBuffer));
+			byte[] modifiedByteCode = transformBytes(className, new ClassReader(classfileBuffer));
+			String printInstrumentedClasses = System.getProperty("printInstrumentedClasses");
+			try{
+				if(printInstrumentedClasses!=null && printInstrumentedClasses.equals("true")){
+					File f = new File(classNameWithDots + ".class");
+					if(!f.exists()){
+						System.out.println(f.getAbsolutePath());
+						f.createNewFile();
+					}else{
+						f.delete();
+						f.createNewFile();
+					}
+					OutputStream out = new FileOutputStream(f);
+					out.write(modifiedByteCode);
+					out.close();
+				}
+			}catch(Throwable t){
+				logger.error("Problem printing modified bytecode of class " + classNameWithDots, t);
+			}
 		} catch (Throwable t) {
 			logger.error("Transformation of class " + className + " failed", t);
 			// TODO why all the redundant printStackTrace()s?
