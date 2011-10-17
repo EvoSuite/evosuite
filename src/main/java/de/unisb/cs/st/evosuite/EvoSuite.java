@@ -108,10 +108,11 @@ public class EvoSuite {
 		//if (propertyFile.exists()) {
 
 		//} else {
-		Properties.PROJECT_PREFIX = prefix;
-		Properties.getInstance().writeConfiguration(Properties.OUTPUT_DIR
-		                                                    + File.separator
-		                                                    + "evosuite.properties");
+		//Properties.PROJECT_PREFIX = prefix;
+		//System.out.println("Determined prefix: " + prefix);
+		//Properties.getInstance().writeConfiguration(Properties.OUTPUT_DIR
+		//                                                   + File.separator
+		//                                                  + "evosuite.properties");
 		//}
 
 	}
