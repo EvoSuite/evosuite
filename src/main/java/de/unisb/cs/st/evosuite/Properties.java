@@ -428,6 +428,12 @@ public class Properties {
 	@Parameter(key = "test_factory", description = "Which factory creates tests")
 	public static TestFactory TEST_FACTORY = TestFactory.RANDOM;
 
+	@Parameter(key = "seed_clone", description = "Probability with which existing individuals are cloned")
+	public static double SEED_CLONE = 0.2;
+
+	@Parameter(key = "seed_mutations", description = "Probability with which cloned individuals are mutated")
+	public static int SEED_MUTATIONS = 2;
+
 	@Parameter(key = "concolic_mutation", description = "Probability of using concolic mutation operator")
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double CONCOLIC_MUTATION = 0.0;

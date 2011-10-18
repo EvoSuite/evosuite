@@ -106,7 +106,7 @@ public class Editor {
 	public boolean saveTest(String testCode) {
 		TestCase currentTestCase = currTCTuple.getTestCase();
 		try {
-			TestCase newTestCase = testParser.parsTest(testCode);
+			TestCase newTestCase = testParser.parseTest(testCode);
 
 			if (newTestCase != null) {
 				// EvoSuite stuff

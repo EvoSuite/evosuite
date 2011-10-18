@@ -424,11 +424,7 @@ public class ConstructorStatement extends AbstractStatement {
 		oos.defaultWriteObject();
 		// Write/save additional fields
 		oos.writeObject(constructor.getDeclaringClass());
-		Constructor<?>[] constructors = constructor.getDeclaringClass().getDeclaredConstructors();
-		for (int i = 0; i < constructors.length; i++) {
-			if (constructors[i].equals(constructor))
-				oos.writeObject(new Integer(i));
-		}
+		oos.writeObject(Type.getConstructorDescriptor(constructor));
 	}
 
 	// assumes "static java.util.Date aDate;" declared
@@ -438,9 +434,14 @@ public class ConstructorStatement extends AbstractStatement {
 
 		// Read/initialize additional fields
 		Class<?> constructorClass = (Class<?>) ois.readObject();
-		int num = (Integer) ois.readObject();
-
-		constructor = constructorClass.getDeclaredConstructors()[num];
+		constructorClass = TestCluster.classLoader.loadClass(constructorClass.getName());
+		String constructorDesc = (String) ois.readObject();
+		for (Constructor<?> constructor : constructorClass.getDeclaredConstructors()) {
+			if (Type.getConstructorDescriptor(constructor).equals(constructorDesc)) {
+				this.constructor = constructor;
+				return;
+			}
+		}
 	}
 
 	/* (non-Javadoc)

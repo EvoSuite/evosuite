@@ -54,7 +54,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	protected List<StatementInterface> statements;
 
 	// a list of all goals this test covers
-	private transient final HashSet<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
+	private final HashSet<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
 
 	/**
 	 * Constructor
@@ -708,4 +708,13 @@ public class DefaultTestCase implements TestCase, Serializable {
 			s.changeClassLoader(loader);
 		}
 	}
+
+	/*
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+
+		coveredGoals = new HashSet<TestFitnessFunction>();
+	}
+	*/
 }
