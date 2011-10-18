@@ -44,16 +44,17 @@ public class MethodStatement extends AbstractStatement {
 
 	private transient Method method;
 
-	VariableReference callee;
+	protected VariableReference callee;
 
-	public List<VariableReference> parameters;
+	protected List<VariableReference> parameters;
 
 	public MethodStatement(TestCase tc, Method method, VariableReference callee,
 	        java.lang.reflect.Type type, List<VariableReference> parameters) {
 		super(tc, type);
 		assert (Modifier.isStatic(method.getModifiers()) || callee != null);
 		assert (parameters != null);
-		assert (method.getParameterTypes().length == parameters.size());
+		assert (method.getParameterTypes().length == parameters.size()) : method.getParameterTypes().length
+		        + " != " + parameters.size();
 		this.method = method;
 		this.callee = callee;
 		this.parameters = parameters;
@@ -573,11 +574,8 @@ public class MethodStatement extends AbstractStatement {
 		oos.defaultWriteObject();
 		// Write/save additional fields
 		oos.writeObject(method.getDeclaringClass());
-		Method[] methods = method.getDeclaringClass().getDeclaredMethods();
-		for (int i = 0; i < methods.length; i++) {
-			if (methods[i].equals(method))
-				oos.writeObject(new Integer(i));
-		}
+		oos.writeObject(method.getName());
+		oos.writeObject(Type.getMethodDescriptor(method));
 	}
 
 	// assumes "static java.util.Date aDate;" declared
@@ -587,9 +585,18 @@ public class MethodStatement extends AbstractStatement {
 
 		// Read/initialize additional fields
 		Class<?> methodClass = (Class<?>) ois.readObject();
-		int num = (Integer) ois.readObject();
+		methodClass = TestCluster.classLoader.loadClass(methodClass.getName());
+		String methodName = (String) ois.readObject();
+		String methodDesc = (String) ois.readObject();
 
-		method = methodClass.getDeclaredMethods()[num];
+		for (Method method : methodClass.getDeclaredMethods()) {
+			if (method.getName().equals(methodName)) {
+				if (Type.getMethodDescriptor(method).equals(methodDesc)) {
+					this.method = method;
+					return;
+				}
+			}
+		}
 	}
 
 	/* (non-Javadoc)

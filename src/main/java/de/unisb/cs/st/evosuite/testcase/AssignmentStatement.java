@@ -78,7 +78,8 @@ public class AssignmentStatement extends AbstractStatement {
 		} catch (Exception e) {
 			logger.info("Error cloning statement " + getCode());
 			logger.info("New test: " + newTestCase.toCode());
-			assert (false);
+			e.printStackTrace();
+			assert (false) : e.toString();
 		}
 		return null;
 	}
