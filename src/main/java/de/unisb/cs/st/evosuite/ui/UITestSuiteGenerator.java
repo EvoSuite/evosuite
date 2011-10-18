@@ -228,12 +228,11 @@ public class UITestSuiteGenerator {
 		}
 	}
 
-	private TestSuiteGenerator base;
 	private Trigger mainMethodTrigger;
 	private UIStateGraph stateGraph;
 
 	public UITestSuiteGenerator(Trigger mainMethodTrigger) {
-		this.base = new TestSuiteGenerator();
+		new TestSuiteGenerator();
 		this.mainMethodTrigger = mainMethodTrigger;
 		this.stateGraph = new UIStateGraph();
 		this.doInitializationRandomWalk();
@@ -288,14 +287,13 @@ public class UITestSuiteGenerator {
 			ChromosomeFactory<UITestChromosome> testFactory = new UITestChromosomeFactory(stateGraph, this.mainMethodTrigger);
 			ChromosomeFactory<UITestSuiteChromosome> testSuiteFactory = new UITestSuiteChromosomeFactory(testFactory);
 
-			GeneticAlgorithm ga = this.base.getGeneticAlgorithm(testSuiteFactory);
-			this.base.getSecondaryObjectives(ga);
+			GeneticAlgorithm ga = TestSuiteGenerator.getGeneticAlgorithm(testSuiteFactory);
+			TestSuiteGenerator.getSecondaryObjectives(ga);
 
 			ga.setStoppingCondition(getStoppingCondition());
 
-			FitnessFunction fitnessFunction = base.getFitnessFunction();
-			// new
-			// SizeRelativeTestSuiteFitnessFunction(base.getFitnessFunction());
+			FitnessFunction fitnessFunction = TestSuiteGenerator.getFitnessFunction();
+
 			ga.setFitnessFunction(fitnessFunction);
 
 			SelectionFunction selectionFunction = TestSuiteGenerator.getSelectionFunction();
