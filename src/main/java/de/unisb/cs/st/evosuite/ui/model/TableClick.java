@@ -13,10 +13,6 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
 class TableClick extends UIAction<Table> {
 	private static final long serialVersionUID = 1L;
 
-	private static final TableClick TABLE_LEFT_CLICK = new TableClick(Mode.LeftClick);
-	private static final TableClick TABLE_RIGHT_CLICK = new TableClick(Mode.RightClick);
-	private static final TableClick TABLE_DOUBLE_CLICK = new TableClick(Mode.DoubleClick);
-
 	enum Mode {
 		LeftClick,
 		RightClick,
@@ -109,8 +105,8 @@ class TableClick extends UIAction<Table> {
 	}
 
 	public static void addActions(List<UIAction<? extends UIComponent>> toList) {
-		toList.add(TABLE_LEFT_CLICK);
-		toList.add(TABLE_RIGHT_CLICK);
-		toList.add(TABLE_DOUBLE_CLICK);
+		toList.add(new TableClick(Mode.LeftClick));
+		toList.add(new TableClick(Mode.RightClick));
+		toList.add(new TableClick(Mode.DoubleClick));
 	}
 }

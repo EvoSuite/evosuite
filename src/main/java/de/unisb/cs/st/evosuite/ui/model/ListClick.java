@@ -13,10 +13,6 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
 public class ListClick extends UIAction<ListBox> {
 	private static final long serialVersionUID = 1L;
 
-	private static final ListClick LIST_LEFT_CLICK = new ListClick(Mode.LeftClick);
-	private static final ListClick LIST_RIGHT_CLICK = new ListClick(Mode.RightClick);
-	private static final ListClick LIST_DOUBLE_CLICK = new ListClick(Mode.DoubleClick);
-
 	enum Mode {
 		LeftClick,
 		RightClick,
@@ -107,8 +103,8 @@ public class ListClick extends UIAction<ListBox> {
 	}
 
 	public static void addActions(List<UIAction<? extends UIComponent>> toList) {
-		toList.add(LIST_LEFT_CLICK);
-		toList.add(LIST_RIGHT_CLICK);
-		toList.add(LIST_DOUBLE_CLICK);
+		toList.add(new ListClick(Mode.LeftClick));
+		toList.add(new ListClick(Mode.RightClick));
+		toList.add(new ListClick(Mode.DoubleClick));
 	}
 }
