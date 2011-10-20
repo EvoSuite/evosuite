@@ -170,6 +170,12 @@ public class UITestChromosome extends ExecutableChromosome {
 		UITestChromosome other = (UITestChromosome) obj;
 		return this.actionSequence.equals(other.actionSequence);
 	}
+	
+
+	@Override
+	public int hashCode() {
+		return this.actionSequence.hashCode();
+	}
 
 	@Override
 	public int size() {
