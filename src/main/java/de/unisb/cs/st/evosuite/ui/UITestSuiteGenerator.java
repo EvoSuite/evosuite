@@ -192,7 +192,9 @@ public class UITestSuiteGenerator {
 			System.out.println("* Resulting TestSuite's coverage: " + solution.getCoverage());
 
 			serializeObjectToFile(solution, "solution.obj");
-
+			
+			writeAllExecutedTests();
+			
 			// Logger logger = Logger.getLogger(UITestSuiteGenerator.class);
 
 			PrintWriter log;
@@ -337,6 +339,21 @@ public class UITestSuiteGenerator {
 			s.close();
 		} catch (Exception e) {
 			System.out.println("Exception on writing state graph:");
+			e.printStackTrace();
+		}
+	}
+	
+	public static void writeAllExecutedTests() {
+		try {
+			PrintWriter pw = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream("tests.txt")), "UTF-8"));
+			
+			for (UITestChromosome testChromosome : UITestChromosome.getExecutedChromosomes()) {
+				pw.println(testChromosome);
+			}
+			
+			pw.close();
+		} catch (Exception e) {
+			System.out.println("Exception on writing executed tests:");
 			e.printStackTrace();
 		}
 	}
