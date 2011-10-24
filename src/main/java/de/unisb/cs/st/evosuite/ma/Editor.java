@@ -12,8 +12,8 @@ import javax.swing.JOptionPane;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
-import de.unisb.cs.st.evosuite.ma.gui.SimpleGUISourceCode;
-import de.unisb.cs.st.evosuite.ma.gui.SimpleGUITestEditor;
+import de.unisb.cs.st.evosuite.ma.gui.SourceCodeGUI;
+import de.unisb.cs.st.evosuite.ma.gui.TestEditorGUI;
 import de.unisb.cs.st.evosuite.ma.parser.TestParser;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
@@ -44,9 +44,9 @@ public class Editor {
 
 	private final Iterable<String> sourceCode;
 
-	public final SimpleGUITestEditor sguiTE;
+	public final TestEditorGUI sguiTE;
 
-	public final SimpleGUISourceCode sguiSC;
+	public final SourceCodeGUI sguiSC;
 
 	private TestParser testParser;
 
@@ -79,8 +79,8 @@ public class Editor {
 		}
 
 		nextTest();
-		sguiSC = new SimpleGUISourceCode();
-		sguiTE = new SimpleGUITestEditor();
+		sguiSC = new SourceCodeGUI();
+		sguiTE = new TestEditorGUI();
 		sguiSC.createWindow(this);
 		sguiTE.createMainWindow(this);
 		testParser = new TestParser(this);
