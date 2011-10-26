@@ -263,10 +263,10 @@ public class TestEditorGUI {
 		
 		mnEditor.addSeparator();
 		
-		JMenuItem mntmSett = new JMenuItem("Settings", KeyEvent.VK_T);
+		JMenuItem mntmSett = new JMenuItem("Settings", KeyEvent.VK_B);
 		mntmSett.addActionListener(menuListener);
-		KeyStroke ctrlTKeyStroke = KeyStroke.getKeyStroke("control T");
-		mntmSett.setAccelerator(ctrlTKeyStroke);
+		KeyStroke ctrlBKeyStroke = KeyStroke.getKeyStroke("control B");
+		mntmSett.setAccelerator(ctrlBKeyStroke);
 		mnEditor.add(mntmSett);	
 
 		mainFrame.addWindowListener(new WindowAdapter() {
@@ -367,7 +367,7 @@ public class TestEditorGUI {
 			} else if (actionEvent.getActionCommand().equals("Quit")) {
 				quit();
 			} else if (actionEvent.getActionCommand().equals("Settings")) {
-				new SettingsGUI();
+				new SettingsGUI(mainFrame);
 			}
 		}
 	}

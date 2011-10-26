@@ -648,7 +648,7 @@ public class TestParser {
 			} catch (ClassNotFoundException e1) {
 				try {
 					String className = editor.showChooseFileMenu(parsType
-							.toString());
+							.toString()).getSelectedFile().getName();
 					if (className != null) {
 						return testCluster.importClass(className);
 					} else {

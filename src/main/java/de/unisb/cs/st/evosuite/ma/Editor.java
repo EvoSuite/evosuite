@@ -1,5 +1,6 @@
 package de.unisb.cs.st.evosuite.ma;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,6 +24,7 @@ import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
 import de.unisb.cs.st.evosuite.utils.HtmlAnalyzer;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
  * @author Yury Pavlov
@@ -42,7 +44,7 @@ public class Editor {
 
 	private final GeneticAlgorithm gaInstance;
 
-	private final Iterable<String> sourceCode;
+	private Iterable<String> sourceCode;
 
 	public final TestEditorGUI sguiTE;
 
@@ -84,6 +86,15 @@ public class Editor {
 		sguiSC.createWindow(this);
 		sguiTE.createMainWindow(this);
 		testParser = new TestParser(this);
+		
+		// see message from html_analyzer.getClassContent(...) to check this
+		if (sourceCode.toString().equals(
+				"[No source found for " + Properties.TARGET_CLASS + "]")) {
+			File srcFile = showChooseFileMenu(Properties.TARGET_CLASS)
+					.getSelectedFile();
+			sourceCode = Utils.readFile(srcFile);
+		}
+
 
 		synchronized (lock) {
 			while (sguiTE.mainFrame.isVisible())
@@ -163,7 +174,7 @@ public class Editor {
 	public TestCaseTuple getCurrTCTup() {
 		return currTCTuple;
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -311,13 +322,13 @@ public class Editor {
 				"Parsing error", JOptionPane.ERROR_MESSAGE);
 	}
 
-	public String showChooseFileMenu(String className) {
+	public JFileChooser showChooseFileMenu(String className) {
 		final JFileChooser fc = new JFileChooser();
-		fc.setDialogTitle("Try to guess where is class: " + className);
+		fc.setDialogTitle("Where is class: " + className);
 		int returnVal = fc.showOpenDialog(sguiTE.mainFrame);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			return fc.getSelectedFile().getName();
+			return fc;
 		}
 
 		return null;
