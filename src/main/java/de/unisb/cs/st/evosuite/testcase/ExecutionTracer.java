@@ -566,22 +566,19 @@ public class ExecutionTracer {
 	 * Called by instrumented code each time a variable gets written to (a
 	 * Definition)
 	 */
-	public static void passedDefinition(String className, String varName,
-	        String methodName, Object caller, int branchID, int defID) {
+	public static void passedDefinition(Object caller, int defID) {
 		if (isThreadNeqCurrentThread())
 			return;
 
 		ExecutionTracer tracer = getExecutionTracer();
 		if (!tracer.disabled)
-			tracer.trace.definitionPassed(className, varName, methodName, caller,
-			                              branchID, defID);
+			tracer.trace.definitionPassed(caller, defID);
 	}
 
 	/**
 	 * Called by instrumented code each time a variable is read from (a Use)
 	 */
-	public static void passedUse(String className, String varName, String methodName,
-	        Object caller, int branchID, int useID) {
+	public static void passedUse(Object caller, int useID) {
 
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)
@@ -590,7 +587,7 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
-		tracer.trace.usePassed(className, varName, methodName, caller, branchID, useID);
+		tracer.trace.usePassed(caller, useID);
 	}
 
 	public static void passedMutation(int mutationId, double distance) {
