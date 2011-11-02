@@ -4,7 +4,7 @@ public class IntegerConstraint extends Constraint<Long> {
 
 	private static final long serialVersionUID = 5345957507046422507L;
 
-	public IntegerConstraint(Expression<Long> left, Comparator cmp, Expression<Long> right) {
+	public IntegerConstraint(Expression<?> left, Comparator cmp, Expression<?> right) {
 		super();
 		this.left = left;
 		this.cmp = cmp;
@@ -13,8 +13,8 @@ public class IntegerConstraint extends Constraint<Long> {
 
 	protected Comparator cmp;
 
-	protected Expression<Long> left;
-	protected Expression<Long> right;
+	protected Expression<?> left;
+	protected Expression<?> right;
 
 	@Override
 	public Comparator getComparator() {
@@ -22,12 +22,12 @@ public class IntegerConstraint extends Constraint<Long> {
 	}
 
 	@Override
-	public Expression<Long> getLeftOperand() {
+	public Expression<?> getLeftOperand() {
 		return left;
 	}
 
 	@Override
-	public Expression<Long> getRightOperand() {
+	public Expression<?> getRightOperand() {
 		return right;
 	}
 
