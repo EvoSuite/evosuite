@@ -161,6 +161,8 @@ public class SteadyStateGA extends GeneticAlgorithm {
 
 		logger.debug("Starting evolution");
 		double bestFitness = Double.MAX_VALUE;
+		if (fitness_function.isMaximizationFunction())
+			bestFitness = 0.0;
 		while (!isFinished()) {
 			logger.info("Population size before: " + population.size());
 			evolve();
@@ -173,7 +175,13 @@ public class SteadyStateGA extends GeneticAlgorithm {
 
 			sortPopulation();
 			double newFitness = getBestIndividual().getFitness();
-			assert (newFitness <= bestFitness);
+
+			if (fitness_function.isMaximizationFunction())
+				assert (newFitness >= bestFitness) : "Best fitness was: " + bestFitness
+				        + ", now best fitness is " + newFitness;
+			else
+				assert (newFitness <= bestFitness) : "Best fitness was: " + bestFitness
+				        + ", now best fitness is " + newFitness;
 			bestFitness = newFitness;
 			logger.info("Current iteration: " + current_iteration);
 			this.notifyIteration();

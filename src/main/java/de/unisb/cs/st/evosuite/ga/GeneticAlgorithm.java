@@ -525,7 +525,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		if (shuffleBeforeSort)
 			Randomness.shuffle(population);
 
-		if (selection_function.maximize) {
+		if (fitness_function.isMaximizationFunction()) {
 			Collections.sort(population, Collections.reverseOrder());
 		} else {
 			Collections.sort(population);
