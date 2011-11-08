@@ -943,8 +943,9 @@ public class TestSuiteGenerator {
 				        new TestSuiteChromosomeFactory());
 			case JUNIT:
 				logger.info("Using seeding chromosome factory");
-				return new TestSuiteChromosomeFactory(new JUnitTestChromosomeFactory(
-				        new RandomLengthTestFactory()));
+				JUnitTestChromosomeFactory factory = new JUnitTestChromosomeFactory(
+				        new RandomLengthTestFactory());
+				return new TestSuiteChromosomeFactory(factory);
 			default:
 				throw new RuntimeException("Unsupported test factory: "
 				        + Properties.TEST_FACTORY);
