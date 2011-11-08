@@ -15,10 +15,6 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
 public class TreeClick extends UIAction<Tree> {
 	private static final long serialVersionUID = 1L;
 
-	private static final TreeClick TREE_LEFT_CLICK = new TreeClick(Mode.LeftClick);
-	private static final TreeClick TREE_RIGHT_CLICK = new TreeClick(Mode.RightClick);
-	private static final TreeClick TREE_DOUBLE_CLICK = new TreeClick(Mode.DoubleClick);
-
 	enum Mode {
 		LeftClick,
 		RightClick,
@@ -137,9 +133,9 @@ public class TreeClick extends UIAction<Tree> {
 	}
 
 	public static void addActions(List<UIAction<? extends UIComponent>> toList) {
-		toList.add(TREE_LEFT_CLICK);
-		toList.add(TREE_RIGHT_CLICK);
-		toList.add(TREE_DOUBLE_CLICK);
+		toList.add(new TreeClick(Mode.LeftClick));
+		toList.add(new TreeClick(Mode.RightClick));
+		toList.add(new TreeClick(Mode.DoubleClick));
 	}
 
 }

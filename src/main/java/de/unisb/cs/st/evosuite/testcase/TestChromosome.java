@@ -160,6 +160,11 @@ public class TestChromosome extends ExecutableChromosome {
 		return true;
 	}
 
+	@Override
+	public int hashCode() {
+		return test.hashCode();
+	}
+	
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#localSearch()
 	 */

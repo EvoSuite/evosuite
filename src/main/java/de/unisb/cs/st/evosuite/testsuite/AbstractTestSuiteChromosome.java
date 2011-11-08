@@ -102,6 +102,12 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		return true;
 	}
 
+	@Override
+	public int hashCode() {
+		return tests.hashCode();
+	}
+
+	
 	/**
 	 * Apply mutation on test suite level
 	 */

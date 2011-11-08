@@ -1,8 +1,6 @@
 package de.unisb.cs.st.evosuite.ui.genetics;
 
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -24,15 +22,19 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
 public class UITestChromosome extends ExecutableChromosome {
 	private static final long serialVersionUID = 1L;
 
+	// If only there was a LinkedIdentityHashSet...
 	static final Set<UITestChromosome> executedChromosomes = Collections.newSetFromMap(new IdentityHashMap<UITestChromosome, Boolean>());
-	static final Set<UITestChromosome> failingChromosomes = Collections.newSetFromMap(new IdentityHashMap<UITestChromosome, Boolean>());
+	static final List<UITestChromosome> executedChromosomeList = new LinkedList<UITestChromosome>();
 
-	public static Set<UITestChromosome> getExecutedChromosomes() {
-		return executedChromosomes;
+	static final Set<UITestChromosome> failingChromosomes = Collections.newSetFromMap(new IdentityHashMap<UITestChromosome, Boolean>());
+	static final List<UITestChromosome> failingChromosomeList = new LinkedList<UITestChromosome>();
+
+	public static Collection<UITestChromosome> getExecutedChromosomes() {
+		return executedChromosomeList;
 	}
 
-	public static Set<UITestChromosome> getFailingChromosomes() {
-		return failingChromosomes;
+	public static Collection<UITestChromosome> getFailingChromosomes() {
+		return failingChromosomeList;
 	}
 
 	private ActionSequence actionSequence;
@@ -170,6 +172,12 @@ public class UITestChromosome extends ExecutableChromosome {
 		UITestChromosome other = (UITestChromosome) obj;
 		return this.actionSequence.equals(other.actionSequence);
 	}
+	
+
+	@Override
+	public int hashCode() {
+		return this.actionSequence.hashCode();
+	}
 
 	@Override
 	public int size() {
@@ -197,6 +205,7 @@ public class UITestChromosome extends ExecutableChromosome {
 		InterfaceTestRunnable callable = new ChromosomeUIController(this);
 		
 		executedChromosomes.add(this);
+		executedChromosomeList.add(this);
 
 		try {
 			ExecutionResult result = handler.execute(callable, executor,
@@ -205,13 +214,14 @@ public class UITestChromosome extends ExecutableChromosome {
 			return result;
 		} catch (Exception e) {
 			failingChromosomes.add(this);
+			failingChromosomeList.add(this);
 			System.out.println("Exception on executing test chromosome for fitness function:");
 			e.printStackTrace();
 			return null;
 		}
 	}
 
-	ActionSequence getActionSequence() {
+	public ActionSequence getActionSequence() {
 		return this.actionSequence;
 	}
 

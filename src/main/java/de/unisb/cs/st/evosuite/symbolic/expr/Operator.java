@@ -60,7 +60,17 @@ public enum Operator {
 	ATAN2("atan2", 2), //
 	LOG("log", 1), //
 	LOG10("log10", 1), //
-	TAN("tan", 1);
+	TAN("tan", 1),
+	
+	// String operators
+	EQUALSIGNORECASE("equalsIgnoreCase", 2),
+	EQUALS("equals", 2),
+	STARTSWITH("startsWith", 3),
+	ENDSWITH("endsWith", 2),
+	CONTAINS("contains", 2),
+	REGIONMATCHES("regionMatches", 6), 
+	SUBSTRING("substring", 2), 
+	APPEND("append", 2);
 
 	private final String str;
 	private final int arity;

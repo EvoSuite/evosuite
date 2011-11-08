@@ -36,6 +36,7 @@ public class ExternalProcessHandler {
 	protected ObjectInputStream in;
 
 	protected Object final_result;
+	protected static final Object WAITING_FOR_DATA = "waiting_for_data_"+System.currentTimeMillis(); 
 	protected final Object MONITOR = new Object();
 
 	protected Thread processKillHook;
@@ -53,6 +54,8 @@ public class ExternalProcessHandler {
 			logger.warn("Already running an external process");
 			return false;
 		}
+		
+		final_result = WAITING_FOR_DATA;
 
 		//the following thread is important to make sure that the external process is killed
 		//when current process ends
@@ -245,6 +248,7 @@ public class ExternalProcessHandler {
 						 */
 						logger.error("Error in reading message ", e);
 						message = Messages.FINISHED_COMPUTATION;
+						data = "";
 					}
 
 					if (message.equals(Messages.FINISHED_COMPUTATION)) {
@@ -300,11 +304,12 @@ public class ExternalProcessHandler {
 	public Object waitForResult(int timeout) {
 		try {
 			synchronized (MONITOR) {
-				MONITOR.wait(timeout);
+				if(WAITING_FOR_DATA.equals(final_result)){
+					MONITOR.wait(timeout);
+				}
 			}
 		} catch (InterruptedException e) {
-			logger.warn("Thread interrupted while waiting for results from client process",
-			            e);
+			logger.warn("Thread interrupted while waiting for results from client process", e);
 		}
 
 		return final_result;
