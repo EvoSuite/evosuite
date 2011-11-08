@@ -278,7 +278,7 @@ public class ReplaceVariable implements MutationOperator {
 			}
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		return alternatives;
 	}
