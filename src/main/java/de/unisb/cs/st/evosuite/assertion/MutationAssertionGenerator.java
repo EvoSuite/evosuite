@@ -135,7 +135,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
-			System.exit(1);
+			//System.exit(1);
 		}
 
 		return result;
