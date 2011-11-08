@@ -94,7 +94,9 @@ public class ConcolicExecution {
 		// We don't want JPF output
 		config.setProperty("report.class",
 		                   "de.unisb.cs.st.evosuite.symbolic.SilentReporter");
-
+		
+		config.setProperty("log.level", "warning");
+		
 		//Configure the search class;
 		config.setProperty("search.class", "de.unisb.cs.st.evosuite.symbolic.PathSearch");
 		config.setProperty("jm.numberOfIterations", "1");

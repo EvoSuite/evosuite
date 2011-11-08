@@ -192,7 +192,9 @@ public class UITestSuiteGenerator {
 			System.out.println("* Resulting TestSuite's coverage: " + solution.getCoverage());
 
 			serializeObjectToFile(solution, "solution.obj");
-
+			
+			writeAllExecutedTests();
+			
 			// Logger logger = Logger.getLogger(UITestSuiteGenerator.class);
 
 			PrintWriter log;
@@ -228,12 +230,11 @@ public class UITestSuiteGenerator {
 		}
 	}
 
-	private TestSuiteGenerator base;
 	private Trigger mainMethodTrigger;
 	private UIStateGraph stateGraph;
 
 	public UITestSuiteGenerator(Trigger mainMethodTrigger) {
-		this.base = new TestSuiteGenerator();
+		new TestSuiteGenerator();
 		this.mainMethodTrigger = mainMethodTrigger;
 		this.stateGraph = new UIStateGraph();
 		this.doInitializationRandomWalk();
@@ -288,14 +289,13 @@ public class UITestSuiteGenerator {
 			ChromosomeFactory<UITestChromosome> testFactory = new UITestChromosomeFactory(stateGraph, this.mainMethodTrigger);
 			ChromosomeFactory<UITestSuiteChromosome> testSuiteFactory = new UITestSuiteChromosomeFactory(testFactory);
 
-			GeneticAlgorithm ga = this.base.getGeneticAlgorithm(testSuiteFactory);
-			this.base.getSecondaryObjectives(ga);
+			GeneticAlgorithm ga = TestSuiteGenerator.getGeneticAlgorithm(testSuiteFactory);
+			TestSuiteGenerator.getSecondaryObjectives(ga);
 
 			ga.setStoppingCondition(getStoppingCondition());
 
-			FitnessFunction fitnessFunction = base.getFitnessFunction();
-			// new
-			// SizeRelativeTestSuiteFitnessFunction(base.getFitnessFunction());
+			FitnessFunction fitnessFunction = TestSuiteGenerator.getFitnessFunction();
+
 			ga.setFitnessFunction(fitnessFunction);
 
 			SelectionFunction selectionFunction = TestSuiteGenerator.getSelectionFunction();
@@ -339,6 +339,21 @@ public class UITestSuiteGenerator {
 			s.close();
 		} catch (Exception e) {
 			System.out.println("Exception on writing state graph:");
+			e.printStackTrace();
+		}
+	}
+	
+	public static void writeAllExecutedTests() {
+		try {
+			PrintWriter pw = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream("tests.txt")), "UTF-8"));
+			
+			for (UITestChromosome testChromosome : UITestChromosome.getExecutedChromosomes()) {
+				pw.println(testChromosome);
+			}
+			
+			pw.close();
+		} catch (Exception e) {
+			System.out.println("Exception on writing executed tests:");
 			e.printStackTrace();
 		}
 	}

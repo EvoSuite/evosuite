@@ -238,6 +238,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 
 		singleFitnessTime += System.currentTimeMillis() - start;
 		
+		updateIndividual(individual, fitness);
+		
 		return fitness;
 	}
 

@@ -407,13 +407,14 @@ public class ExecutionTrace {
 	 * activeDefinitions-field Adds fake trace information to the currently
 	 * active MethodCall in this.stack
 	 */
-	public void definitionPassed(String className, String varName, String methodName,
-	        Object caller, int branchID, int defID) {
+	public void definitionPassed(Object caller, int defID) {
 
 		if (!trace_calls) // TODO ???
 			return;
 
 		Definition def = DefUsePool.getDefinitionByDefId(defID);
+		String varName = def.getDUVariableName();
+		
 		if (def == null)
 			throw new IllegalStateException(
 			        "expect DefUsePool to known defIDs that are passed by instrumented code");
@@ -442,17 +443,17 @@ public class ExecutionTrace {
 	 * Registers the given caller-Object Traces the occurrence of the given use
 	 * in the passedUses-field
 	 */
-	public void usePassed(String className, String varName, String methodName,
-	        Object caller, int branchID, int useID) {
+	public void usePassed(Object caller, int useID) {
 
 		if (!trace_calls) // TODO ???
 			return;
 
+		Use use = DefUsePool.getUseByUseId(useID);
+		String varName = use.getDUVariableName();
+		
 		int objectID = registerObject(caller);
-
 		// if this is a static variable, treat objectID as zero for consistency in the representation of static data
 		if (objectID != 0) {
-			Use use = DefUsePool.getUseByUseId(useID);
 			if (use == null)
 				throw new IllegalStateException(
 				        "expect DefUsePool to known defIDs that are passed by instrumented code");
