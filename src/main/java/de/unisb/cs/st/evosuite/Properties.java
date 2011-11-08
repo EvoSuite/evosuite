@@ -428,6 +428,9 @@ public class Properties {
 	@Parameter(key = "test_factory", description = "Which factory creates tests")
 	public static TestFactory TEST_FACTORY = TestFactory.RANDOM;
 
+	@Parameter(key = "junit_strict", description = "Only include test files containing the target classname")
+	public static boolean JUNIT_STRICT = false;
+
 	@Parameter(key = "seed_clone", description = "Probability with which existing individuals are cloned")
 	public static double SEED_CLONE = 0.2;
 
@@ -634,8 +637,8 @@ public class Properties {
 
 	private void loadPropertiesFile() {
 		properties = new java.util.Properties();
-		String propertiesFile = System.getProperty(PROPERTIES_FILE,
-		                                           "evosuite-files/evosuite.properties");
+		String propertiesFile = System.getProperty(PROPERTIES_FILE, "evosuite-files"
+		        + File.separator + "evosuite.properties");
 		try {
 			InputStream in = null;
 			if (new File(propertiesFile).exists()) {
