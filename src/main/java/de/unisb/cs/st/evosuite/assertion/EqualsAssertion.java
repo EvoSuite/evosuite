@@ -28,6 +28,8 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class EqualsAssertion extends Assertion {
 
+	private static final long serialVersionUID = 1427358542327670617L;
+
 	public VariableReference dest;
 
 	@Override

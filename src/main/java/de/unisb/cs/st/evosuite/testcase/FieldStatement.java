@@ -386,7 +386,7 @@ public class FieldStatement extends AbstractStatement {
 	private void writeObject(ObjectOutputStream oos) throws IOException {
 		oos.defaultWriteObject();
 		// Write/save additional fields
-		oos.writeObject(field.getDeclaringClass());
+		oos.writeObject(field.getDeclaringClass().getName());
 		oos.writeObject(field.getName());
 	}
 
@@ -396,8 +396,7 @@ public class FieldStatement extends AbstractStatement {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
-		Class<?> methodClass = (Class<?>) ois.readObject();
-		methodClass = TestCluster.classLoader.loadClass(methodClass.getName());
+		Class<?> methodClass = TestCluster.classLoader.loadClass((String) ois.readObject());
 		String fieldName = (String) ois.readObject();
 
 		try {

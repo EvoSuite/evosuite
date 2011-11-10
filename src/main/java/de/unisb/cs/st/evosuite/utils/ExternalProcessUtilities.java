@@ -68,7 +68,7 @@ public class ExternalProcessUtilities {
 			out.writeObject(message);
 			out.flush();
 			// FIXXME: Currently not working
-			//out.writeObject(population_data);
+			// out.writeObject(population_data);
 			out.writeObject(null);
 			out.flush();
 		} catch (Exception e) {
