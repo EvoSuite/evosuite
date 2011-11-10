@@ -581,7 +581,7 @@ public class MethodStatement extends AbstractStatement {
 	private void writeObject(ObjectOutputStream oos) throws IOException {
 		oos.defaultWriteObject();
 		// Write/save additional fields
-		oos.writeObject(method.getDeclaringClass());
+		oos.writeObject(method.getDeclaringClass().getName());
 		oos.writeObject(method.getName());
 		oos.writeObject(Type.getMethodDescriptor(method));
 	}
@@ -592,7 +592,7 @@ public class MethodStatement extends AbstractStatement {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
-		Class<?> methodClass = (Class<?>) ois.readObject();
+		Class<?> methodClass = TestCluster.classLoader.loadClass((String) ois.readObject());
 		methodClass = TestCluster.classLoader.loadClass(methodClass.getName());
 		String methodName = (String) ois.readObject();
 		String methodDesc = (String) ois.readObject();

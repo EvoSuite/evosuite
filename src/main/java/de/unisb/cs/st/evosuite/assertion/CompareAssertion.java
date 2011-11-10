@@ -34,6 +34,8 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  */
 public class CompareAssertion extends Assertion {
 
+	private static final long serialVersionUID = 7415863202662602633L;
+
 	public VariableReference dest;
 
 	/**

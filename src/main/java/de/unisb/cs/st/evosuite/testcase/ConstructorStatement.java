@@ -438,7 +438,7 @@ public class ConstructorStatement extends AbstractStatement {
 	private void writeObject(ObjectOutputStream oos) throws IOException {
 		oos.defaultWriteObject();
 		// Write/save additional fields
-		oos.writeObject(constructor.getDeclaringClass());
+		oos.writeObject(constructor.getDeclaringClass().getName());
 		oos.writeObject(Type.getConstructorDescriptor(constructor));
 	}
 
@@ -448,8 +448,7 @@ public class ConstructorStatement extends AbstractStatement {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
-		Class<?> constructorClass = (Class<?>) ois.readObject();
-		constructorClass = TestCluster.classLoader.loadClass(constructorClass.getName());
+		Class<?> constructorClass = TestCluster.classLoader.loadClass((String) ois.readObject());
 		String constructorDesc = (String) ois.readObject();
 		for (Constructor<?> constructor : constructorClass.getDeclaredConstructors()) {
 			if (Type.getConstructorDescriptor(constructor).equals(constructorDesc)) {

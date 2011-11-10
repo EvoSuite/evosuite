@@ -25,6 +25,8 @@ import de.unisb.cs.st.evosuite.utils.NumberFormatter;
 
 public class PrimitiveAssertion extends Assertion {
 
+	private static final long serialVersionUID = -3394333075511344913L;
+
 	@Override
 	public String getCode() {
 

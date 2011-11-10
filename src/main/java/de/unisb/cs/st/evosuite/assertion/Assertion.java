@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,7 +35,9 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  * @author Gordon Fraser
  * 
  */
-public abstract class Assertion {
+public abstract class Assertion implements Serializable {
+
+	private static final long serialVersionUID = 1617423211706717599L;
 
 	/** Variable on which the assertion is made */
 	public VariableReference source;

@@ -23,6 +23,8 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 public class ExceptionAssertion extends Assertion {
 
+	private static final long serialVersionUID = -275599033761054720L;
+
 	Throwable exception = null;
 
 	int statement = 0;

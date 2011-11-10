@@ -24,6 +24,8 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 public class StringAssertion extends Assertion {
 
+	private static final long serialVersionUID = -6676092589944440313L;
+
 	@Override
 	public String getCode() {
 		if (source.isPrimitive() || source.isWrapperType())

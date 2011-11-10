@@ -24,6 +24,8 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 public class ObjectAssertion extends Assertion {
 
+	private static final long serialVersionUID = -7706037962827711840L;
+
 	@Override
 	public String getCode() {
 		return "assert(" + source.getName() + ".equals(" + value + "));";
