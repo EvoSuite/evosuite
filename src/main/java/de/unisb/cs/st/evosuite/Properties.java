@@ -1090,7 +1090,9 @@ public class Properties {
 	public void writeConfiguration(String fileName) {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("CP=");
-		buffer.append(Properties.CP);
+		// Replace backslashes with forwardslashes, as backslashes are dropped during reading
+		// TODO: What if there are weird characters in the code? Need regex
+		buffer.append(Properties.CP.replace("\\", "/"));
 		buffer.append("\nPROJECT_PREFIX=");
 		if (Properties.PROJECT_PREFIX != null)
 			buffer.append(Properties.PROJECT_PREFIX);
