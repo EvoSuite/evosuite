@@ -45,7 +45,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 	public SteadyStateGA(ChromosomeFactory<? extends Chromosome> factory) {
 		super(factory);
 
-		setReplacementFunction(new FitnessReplacementFunction(selection_function));
+		setReplacementFunction(new FitnessReplacementFunction(selectionFunction));
 	}
 
 	protected boolean keepOffspring(Chromosome parent1, Chromosome parent2,
@@ -61,20 +61,20 @@ public class SteadyStateGA extends GeneticAlgorithm {
 
 	@Override
 	protected void evolve() {
-		List<Chromosome> new_generation = new ArrayList<Chromosome>();
+		List<Chromosome> newGeneration = new ArrayList<Chromosome>();
 
 		// Elitism
 		logger.debug("Elitism");
-		new_generation.addAll(elitism());
+		newGeneration.addAll(elitism());
 
 		// Add random elements
 		// new_generation.addAll(randomism());
 
-		while (new_generation.size() < Properties.POPULATION && !isFinished()) {
+		while (!isNextPopulationFull(newGeneration) && !isFinished()) {
 			logger.debug("Generating offspring");
 
-			Chromosome parent1 = selection_function.select(population);
-			Chromosome parent2 = selection_function.select(population);
+			Chromosome parent1 = selectionFunction.select(population);
+			Chromosome parent2 = selectionFunction.select(population);
 
 			Chromosome offspring1 = parent1.clone();
 			Chromosome offspring2 = parent2.clone();
@@ -82,7 +82,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 			try {
 				// Crossover
 				if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
-					crossover_function.crossOver(offspring1, offspring2);
+					crossoverFunction.crossOver(offspring1, offspring2);
 				}
 
 			} catch (ConstructionFailedException e) {
@@ -99,10 +99,10 @@ public class SteadyStateGA extends GeneticAlgorithm {
 			// The two offspring replace the parents if and only if one of
 			// the offspring is not worse than the best parent.
 
-			fitness_function.getFitness(offspring1);
+			fitnessFunction.getFitness(offspring1);
 			notifyEvaluation(offspring1);
 
-			fitness_function.getFitness(offspring2);
+			fitnessFunction.getFitness(offspring2);
 			notifyEvaluation(offspring2);
 
 			// local search
@@ -117,35 +117,35 @@ public class SteadyStateGA extends GeneticAlgorithm {
 				if (isTooLong(offspring1) || offspring1.size() == 0) {
 					rejected++;
 				} else
-					new_generation.add(offspring1);
+					newGeneration.add(offspring1);
 
 				if (isTooLong(offspring2) || offspring2.size() == 0) {
 					rejected++;
 				} else
-					new_generation.add(offspring2);
+					newGeneration.add(offspring2);
 
 				if (rejected == 1)
-					new_generation.add(Randomness.choice(parent1, parent2));
+					newGeneration.add(Randomness.choice(parent1, parent2));
 				else if (rejected == 2) {
-					new_generation.add(parent1);
-					new_generation.add(parent2);
+					newGeneration.add(parent1);
+					newGeneration.add(parent2);
 				}
 			} else {
 				logger.debug("Keeping parents");
-				new_generation.add(parent1);
-				new_generation.add(parent2);
+				newGeneration.add(parent1);
+				newGeneration.add(parent2);
 			}
 		}
 
-		population = new_generation;
+		population = newGeneration;
 
-		current_iteration++;
+		currentIteration++;
 	}
 
 	@Override
 	public void initializePopulation() {
 		notifySearchStarted();
-		current_iteration = 0;
+		currentIteration = 0;
 
 		// Set up initial population
 		generateInitialPopulation(Properties.POPULATION);
@@ -161,7 +161,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 
 		logger.debug("Starting evolution");
 		double bestFitness = Double.MAX_VALUE;
-		if (fitness_function.isMaximizationFunction())
+		if (fitnessFunction.isMaximizationFunction())
 			bestFitness = 0.0;
 		while (!isFinished()) {
 			logger.info("Population size before: " + population.size());
@@ -176,14 +176,14 @@ public class SteadyStateGA extends GeneticAlgorithm {
 			sortPopulation();
 			double newFitness = getBestIndividual().getFitness();
 
-			if (fitness_function.isMaximizationFunction())
+			if (fitnessFunction.isMaximizationFunction())
 				assert (newFitness >= bestFitness) : "Best fitness was: " + bestFitness
 				        + ", now best fitness is " + newFitness;
 			else
 				assert (newFitness <= bestFitness) : "Best fitness was: " + bestFitness
 				        + ", now best fitness is " + newFitness;
 			bestFitness = newFitness;
-			logger.info("Current iteration: " + current_iteration);
+			logger.info("Current iteration: " + currentIteration);
 			this.notifyIteration();
 			logger.info("Population size: " + population.size());
 			logger.info("Best individual has fitness: " + population.get(0).getFitness());

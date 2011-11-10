@@ -46,23 +46,23 @@ public class StandardGA extends GeneticAlgorithm {
 	@Override
 	protected void evolve() {
 
-		List<Chromosome> new_generation = new ArrayList<Chromosome>();
+		List<Chromosome> newGeneration = new ArrayList<Chromosome>();
 
 		// Elitism
-		new_generation.addAll(elitism());
+		newGeneration.addAll(elitism());
 
 		// new_generation.size() < population_size
-		while (new_generation.size() < Properties.POPULATION) {
+		while (!isNextPopulationFull(newGeneration)) {
 
-			Chromosome parent1 = selection_function.select(population);
-			Chromosome parent2 = selection_function.select(population);
+			Chromosome parent1 = selectionFunction.select(population);
+			Chromosome parent2 = selectionFunction.select(population);
 
 			Chromosome offspring1 = parent1.clone();
 			Chromosome offspring2 = parent2.clone();
 
 			try {
 				if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
-					crossover_function.crossOver(offspring1, offspring2);
+					crossoverFunction.crossOver(offspring1, offspring2);
 				}
 
 				notifyMutation(offspring1);
@@ -75,25 +75,25 @@ public class StandardGA extends GeneticAlgorithm {
 			}
 
 			if (!isTooLong(offspring1))
-				new_generation.add(offspring1);
+				newGeneration.add(offspring1);
 			else
-				new_generation.add(parent1);
+				newGeneration.add(parent1);
 
 			if (!isTooLong(offspring2))
-				new_generation.add(offspring2);
+				newGeneration.add(offspring2);
 			else
-				new_generation.add(parent2);
+				newGeneration.add(parent2);
 		}
 
-		population = new_generation;
+		population = newGeneration;
 
-		current_iteration++;
+		currentIteration++;
 	}
 
 	@Override
 	public void initializePopulation() {
 		notifySearchStarted();
-		current_iteration = 0;
+		currentIteration = 0;
 
 		// Set up initial population
 		generateInitialPopulation(Properties.POPULATION);
