@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -219,19 +220,24 @@ public class MethodStatement extends AbstractStatement {
 			}
 			Class<?> declaredParamType = method.getParameterTypes()[i];
 			Class<?> actualParamType = parameters.get(i).getVariableClass();
-			if (!declaredParamType.equals(actualParamType)) {
+			String name = parameters.get(i).getName();
+			if (!declaredParamType.equals(actualParamType) || name.equals("null")) {
 				// && parameters.get(i) instanceof ArrayIndex)
 				parameter_string += "("
 				        + new GenericClass(method.getParameterTypes()[i]).getSimpleName()
 				        + ") ";
 			}
-			parameter_string += parameters.get(i).getName();
+			parameter_string += name;
 		}
 
 		String callee_str = "";
 		if (exception == null
-		        && !retval.getVariableClass().isAssignableFrom(method.getReturnType())) {
-			callee_str = "(" + retval.getSimpleClassName() + ")";
+		        && !retval.getVariableClass().isAssignableFrom(method.getReturnType())
+		        && !retval.getVariableClass().isAnonymousClass()) {
+			String name = retval.getSimpleClassName();
+			if (!name.matches(".*\\.\\d+$")) {
+				callee_str = "(" + name + ")";
+			}
 		}
 
 		if (Modifier.isStatic(method.getModifiers())) {
@@ -257,9 +263,11 @@ public class MethodStatement extends AbstractStatement {
 			        + ClassUtils.getShortClassName(ex) + "\");";
 			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {\n";
 			if (exception.getMessage() != null) {
+				result += "  /*\n";
 				for (String msg : exception.getMessage().split("\n")) {
-					result += "  // " + msg + "\n";
+					result += "  * " + StringEscapeUtils.escapeJava(msg) + "\n";
 				}
+				result += "   */\n";
 			}
 			result += "}";
 		}

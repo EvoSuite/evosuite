@@ -538,6 +538,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 				accessed_classes.addAll(Arrays.asList(ms.getMethod().getExceptionTypes()));
 				accessed_classes.add(ms.getMethod().getDeclaringClass());
 				accessed_classes.add(ms.getMethod().getReturnType());
+				accessed_classes.addAll(Arrays.asList(ms.getMethod().getParameterTypes()));
 			} else if (s instanceof FieldStatement) {
 				FieldStatement fs = (FieldStatement) s;
 				accessed_classes.add(fs.getField().getDeclaringClass());
@@ -546,6 +547,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 				ConstructorStatement cs = (ConstructorStatement) s;
 				accessed_classes.add(cs.getConstructor().getDeclaringClass());
 				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getExceptionTypes()));
+				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getParameterTypes()));
 			}
 		}
 		return accessed_classes;

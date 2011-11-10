@@ -1,21 +1,6 @@
-/*
- * Copyright (C) 2010 Saarland University
+/**
  * 
- * This file is part of EvoSuite.
- * 
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Lesser Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version.
- * 
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.unisb.cs.st.evosuite.junit;
 
 import java.io.File;
@@ -44,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
+import de.unisb.cs.st.evosuite.Properties.OutputFormat;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -54,18 +40,18 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
- * Abstract test suite class.
- * 
  * @author Gordon Fraser
  * 
  */
-public class TestSuite implements Opcodes {
+public class TestSuiteWriter implements Opcodes {
 
-	private final static Logger logger = LoggerFactory.getLogger(TestSuite.class);
-
-	protected List<TestCase> test_cases = new ArrayList<TestCase>();
+	protected final static Logger logger = LoggerFactory.getLogger(TestSuiteWriter.class);
 
 	protected TestCaseExecutor executor = TestCaseExecutor.getInstance();
+
+	protected List<TestCase> testCases = new ArrayList<TestCase>();
+
+	private final UnitTestAdapter adapter = TestSuiteWriter.getAdapter();
 
 	class TestFilter implements IOFileFilter {
 		@Override
@@ -86,13 +72,81 @@ public class TestSuite implements Opcodes {
 		}
 	}
 
-	public TestSuite() {
-
+	/**
+	 * Check if there are test cases
+	 * 
+	 * @return True if there are no test cases
+	 */
+	public boolean isEmpty() {
+		return testCases.isEmpty();
 	}
 
-	public TestSuite(List<TestCase> tests) {
+	public int size() {
+		return testCases.size();
+	}
+
+	/**
+	 * Check if test suite has a test case that is a prefix of test.
+	 * 
+	 * @param test
+	 * @return
+	 */
+	public boolean hasPrefix(TestCase test) {
+		for (TestCase t : testCases) {
+			if (t.isPrefix(test))
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Add test to suite. If the test is a prefix of an existing test, just keep
+	 * existing test. If an existing test is a prefix of the test, replace the
+	 * existing test.
+	 * 
+	 * @param test
+	 * @return Index of the test case
+	 */
+	public int insertTest(TestCase test) {
+		if (Properties.CALL_PROBABILITY <= 0) {
+			for (int i = 0; i < testCases.size(); i++) {
+				if (test.isPrefix(testCases.get(i))) {
+					// It's shorter than an existing one
+					// test_cases.set(i, test);
+					logger.info("This is a prefix of an existing test");
+					testCases.get(i).addAssertions(test);
+					return i;
+				} else {
+					// Already have that one...
+					if (testCases.get(i).isPrefix(test)) {
+						test.addAssertions(testCases.get(i));
+						testCases.set(i, test);
+						logger.info("We have a prefix of this one");
+						return i;
+					}
+				}
+			}
+		}
+		logger.info("Adding new test case:");
+		if (logger.isDebugEnabled()) {
+			logger.debug(test.toCode());
+		}
+		testCases.add(test);
+		return testCases.size() - 1;
+	}
+
+	public void insertTests(List<TestCase> tests) {
 		for (TestCase test : tests)
 			insertTest(test);
+	}
+
+	/**
+	 * Get all test cases
+	 * 
+	 * @return
+	 */
+	public List<TestCase> getTestCases() {
+		return testCases;
 	}
 
 	public ExecutionResult runTest(TestCase test) {
@@ -113,194 +167,32 @@ public class TestSuite implements Opcodes {
 	}
 
 	/**
-	 * Check if there are test cases
+	 * Create subdirectory for package in test directory
 	 * 
-	 * @return True if there are no test cases
-	 */
-	public boolean isEmpty() {
-		return test_cases.isEmpty();
-	}
-
-	public int size() {
-		return test_cases.size();
-	}
-
-	/**
-	 * Check if test suite has a test case that is a prefix of test.
-	 * 
-	 * @param test
+	 * @param directory
 	 * @return
 	 */
-	public boolean hasPrefix(TestCase test) {
-		for (TestCase t : test_cases) {
-			if (t.isPrefix(test))
-				return true;
-		}
-		return false;
+	protected String makeDirectory(String directory) {
+		String dirname = directory + "/" + Properties.CLASS_PREFIX.replace('.', '/'); // +"/GeneratedTests";
+		File dir = new File(dirname);
+		logger.debug("Target directory: " + dirname);
+		dir.mkdirs();
+		return dirname;
 	}
 
 	/**
-	 * Add test to suite. If the test is a prefix of an existing test, just keep
-	 * existing test. If an existing test is a prefix of the test, replace the
-	 * existing test.
+	 * Create subdirectory for package in test directory
 	 * 
-	 * @param test
-	 * @return Index of the test case
-	 */
-	public int insertTest(TestCase test) {
-		if (Properties.CALL_PROBABILITY <= 0) {
-			for (int i = 0; i < test_cases.size(); i++) {
-				if (test.isPrefix(test_cases.get(i))) {
-					// It's shorter than an existing one
-					// test_cases.set(i, test);
-					logger.info("This is a prefix of an existing test");
-					test_cases.get(i).addAssertions(test);
-					return i;
-				} else {
-					// Already have that one...
-					if (test_cases.get(i).isPrefix(test)) {
-						test.addAssertions(test_cases.get(i));
-						test_cases.set(i, test);
-						logger.info("We have a prefix of this one");
-						return i;
-					}
-				}
-			}
-		}
-		logger.info("Adding new test case:");
-		if (logger.isDebugEnabled()) {
-			logger.debug(test.toCode());
-		}
-		test_cases.add(test);
-		return test_cases.size() - 1;
-	}
-
-	public void insertTests(List<TestCase> tests) {
-		for (TestCase test : tests)
-			insertTest(test);
-	}
-
-	/**
-	 * Get all test cases
-	 * 
+	 * @param directory
 	 * @return
 	 */
-	public List<TestCase> getTestCases() {
-		return test_cases;
-	}
-
-	/**
-	 * When writing out the JUnit test file, each test can have a text comment
-	 * 
-	 * @param num
-	 *            Index of test case
-	 * @return Comment for test case
-	 */
-	protected String getInformation(int num) {
-
-		TestCase test = test_cases.get(num);
-		Set<TestFitnessFunction> coveredGoals = test.getCoveredGoals();
-
-		StringBuilder builder = new StringBuilder();
-		builder.append("Test case number: " + num);
-
-		if (!coveredGoals.isEmpty()) {
-			builder.append("\n  /*\n");
-			builder.append("   * ");
-			builder.append(coveredGoals.size() + " covered goal");
-			if (coveredGoals.size() != 1)
-				builder.append("s");
-			builder.append(":");
-			int nr = 1;
-			for (TestFitnessFunction goal : coveredGoals) {
-				builder.append("\n   * " + nr + " " + goal.toString());
-				// TODO only for debugging purposes
-				if (Properties.CRITERION == Criterion.DEFUSE
-				        && (goal instanceof DefUseCoverageTestFitness)) {
-					DefUseCoverageTestFitness duGoal = (DefUseCoverageTestFitness) goal;
-					if (duGoal.getCoveringTrace() != null) {
-						String traceInformation = duGoal.getCoveringTrace().toDefUseTraceInformation(duGoal.getGoalVariable(),
-						                                                                             duGoal.getCoveringObjectId());
-						traceInformation = traceInformation.replaceAll("\n", "");
-						builder.append("\n     * DUTrace: " + traceInformation);
-					}
-				}
-				nr++;
-			}
-
-			builder.append("\n   */");
-		}
-
-		return builder.toString();
-	}
-
-	/**
-	 * JUnit file header
-	 * 
-	 * @param name
-	 * @return
-	 */
-	protected String getHeader(String name, List<ExecutionResult> results) {
-		StringBuilder builder = new StringBuilder();
-		builder.append("/*\n");
-		builder.append(" * This file was automatically generated by EvoSuite\n");
-		//		builder.append(" *\n");
-		//		builder.append(" * Do not edit this directly as it might be overwritten\n");
-		// builder.append(" *\n");
-		builder.append(" */\n\n");
-		/*
-		 * Copyright (C) 2010 Saarland University
-		 * 
-		 * This file is part of EvoSuite.
-		 * 
-		 * EvoSuite is free software: you can redistribute it and/or modify it
-		 * under the terms of the GNU Lesser Public License as published by the
-		 * Free Software Foundation, either version 3 of the License, or (at
-		 * your option) any later version.
-		 * 
-		 * EvoSuite is distributed in the hope that it will be useful, but
-		 * WITHOUT ANY WARRANTY; without even the implied warranty of
-		 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-		 * Lesser Public License for more details.
-		 * 
-		 * You should have received a copy of the GNU Lesser Public License
-		 * along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
-		 */
-		if (!Properties.CLASS_PREFIX.equals("")) {
-			builder.append("package ");
-			builder.append(Properties.CLASS_PREFIX);
-			builder.append(";\n");
-		}
-		// builder.append(Properties.PROJECT_PREFIX);
-
-		// String target_class =
-		// System.getProperty("test.classes").replace("_\\d+.task",
-		// "").replace('_', '.');
-		// String package_string =
-		// Properties.PROJECT_PREFIX.replace('_','.').replaceFirst("TestSuite.",
-		// "").replaceFirst("\\.[^\\.]+$", "");
-		// builder.append(package_string);
-		// builder.append(MutationProperties.PROJECT_PREFIX);
-		// builder.append(".GeneratedTests;");
-		builder.append("\n");
-
-		if (Properties.CRITERION == Criterion.CONCURRENCY) {
-			builder.append("import java.util.concurrent.Callable;\n");
-			builder.append("import java.util.concurrent.FutureTask;\n");
-			builder.append("import de.unisb.cs.st.evosuite.coverage.concurrency.LockRuntime;\n");
-			builder.append("import de.unisb.cs.st.evosuite.coverage.concurrency.ControllerRuntime;\n");
-			builder.append("import de.unisb.cs.st.evosuite.coverage.concurrency.SimpleScheduler;\n");
-			builder.append("import java.util.Set;\n");
-			builder.append("import java.util.HashSet;\n");
-		}
-
-		builder.append("import junit.framework.TestCase;\n");
-		builder.append(getImports(results));
-
-		builder.append("public class ");
-		builder.append(name);
-		builder.append(" extends TestCase {\n");
-		return builder.toString();
+	protected String mainDirectory(String directory) {
+		String dirname = directory + File.separator
+		        + Properties.PROJECT_PREFIX.replace('.', File.separatorChar); // +"/GeneratedTests";
+		File dir = new File(dirname);
+		logger.debug("Target directory: " + dirname);
+		dir.mkdirs();
+		return dirname;
 	}
 
 	/**
@@ -311,7 +203,7 @@ public class TestSuite implements Opcodes {
 	protected String getImports(List<ExecutionResult> results) {
 		StringBuilder builder = new StringBuilder();
 		Set<Class<?>> imports = new HashSet<Class<?>>();
-		for (TestCase test : test_cases) {
+		for (TestCase test : testCases) {
 			imports.addAll(test.getAccessedClasses());
 		}
 		for (ExecutionResult result : results) {
@@ -347,14 +239,103 @@ public class TestSuite implements Opcodes {
 	}
 
 	/**
+	 * When writing out the JUnit test file, each test can have a text comment
+	 * 
+	 * @param num
+	 *            Index of test case
+	 * @return Comment for test case
+	 */
+	protected String getInformation(int num) {
+
+		TestCase test = testCases.get(num);
+		Set<TestFitnessFunction> coveredGoals = test.getCoveredGoals();
+
+		StringBuilder builder = new StringBuilder();
+		builder.append("Test case number: " + num);
+
+		if (!coveredGoals.isEmpty()) {
+			builder.append("\n  /*\n");
+			builder.append("   * ");
+			builder.append(coveredGoals.size() + " covered goal");
+			if (coveredGoals.size() != 1)
+				builder.append("s");
+			builder.append(":");
+			int nr = 1;
+			for (TestFitnessFunction goal : coveredGoals) {
+				builder.append("\n   * " + nr + " " + goal.toString());
+				// TODO only for debugging purposes
+				if (Properties.CRITERION == Criterion.DEFUSE
+				        && (goal instanceof DefUseCoverageTestFitness)) {
+					DefUseCoverageTestFitness duGoal = (DefUseCoverageTestFitness) goal;
+					if (duGoal.getCoveringTrace() != null) {
+						String traceInformation = duGoal.getCoveringTrace().toDefUseTraceInformation(duGoal.getGoalVariable(),
+						                                                                             duGoal.getCoveringObjectId());
+						traceInformation = traceInformation.replaceAll("\n", "");
+						builder.append("\n     * DUTrace: " + traceInformation);
+					}
+				}
+				nr++;
+			}
+
+			builder.append("\n   */");
+		}
+
+		return builder.toString();
+	}
+
+	private static UnitTestAdapter getAdapter() {
+		if (Properties.TEST_FORMAT == OutputFormat.JUNIT3)
+			return new JUnit3TestAdapter();
+		else if (Properties.TEST_FORMAT == OutputFormat.JUNIT4)
+			return new JUnit4TestAdapter();
+		else
+			throw new RuntimeException("Unknown output format: " + Properties.TEST_FORMAT);
+	}
+
+	/**
+	 * JUnit file header
+	 * 
+	 * @param name
+	 * @return
+	 */
+	protected String getHeader(String name, List<ExecutionResult> results) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("/*\n");
+		builder.append(" * This file was automatically generated by EvoSuite\n");
+		builder.append(" */\n\n");
+
+		if (!Properties.CLASS_PREFIX.equals("")) {
+			builder.append("package ");
+			builder.append(Properties.CLASS_PREFIX);
+			builder.append(";\n");
+		}
+		builder.append("\n");
+
+		if (Properties.CRITERION == Criterion.CONCURRENCY) {
+			builder.append("import java.util.concurrent.Callable;\n");
+			builder.append("import java.util.concurrent.FutureTask;\n");
+			builder.append("import de.unisb.cs.st.evosuite.coverage.concurrency.LockRuntime;\n");
+			builder.append("import de.unisb.cs.st.evosuite.coverage.concurrency.ControllerRuntime;\n");
+			builder.append("import de.unisb.cs.st.evosuite.coverage.concurrency.SimpleScheduler;\n");
+			builder.append("import java.util.Set;\n");
+			builder.append("import java.util.HashSet;\n");
+		}
+
+		builder.append(adapter.getImports());
+		builder.append(getImports(results));
+
+		builder.append(adapter.getClassDefinition(name));
+		builder.append(" {\n");
+		return builder.toString();
+	}
+
+	/**
 	 * JUnit file footer
 	 * 
 	 * @return
 	 */
 	protected String getFooter() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("}\n");
-		return builder.toString();
+		return "}\n";
 	}
 
 	/**
@@ -366,14 +347,14 @@ public class TestSuite implements Opcodes {
 	 */
 	protected String getUnitTest(String name) {
 		List<ExecutionResult> results = new ArrayList<ExecutionResult>();
-		for (int i = 0; i < test_cases.size(); i++) {
-			results.add(runTest(test_cases.get(i)));
+		for (int i = 0; i < testCases.size(); i++) {
+			results.add(runTest(testCases.get(i)));
 		}
 
 		StringBuilder builder = new StringBuilder();
 
 		builder.append(getHeader(name, results));
-		for (int i = 0; i < test_cases.size(); i++) {
+		for (int i = 0; i < testCases.size(); i++) {
 			builder.append(testToString(i, results.get(i)));
 		}
 		builder.append(getFooter());
@@ -397,7 +378,7 @@ public class TestSuite implements Opcodes {
 		//#TODO steenbuck work around
 		if (Properties.CRITERION == Criterion.CONCURRENCY) {
 			builder.append("\n");
-			ConcurrentTestCase ctc = (ConcurrentTestCase) test_cases.get(id);
+			ConcurrentTestCase ctc = (ConcurrentTestCase) testCases.get(id);
 			for (String line : ctc.getThreadCode(result.exceptions, id).split("\\r?\\n")) {
 				builder.append("      ");
 				builder.append(line);
@@ -407,10 +388,9 @@ public class TestSuite implements Opcodes {
 			builder.append("   }\n");
 
 		} else {
-			builder.append("\n   public void test");
-			builder.append(id);
-			builder.append("() ");
-			Set<Class<?>> exceptions = test_cases.get(id).getDeclaredExceptions();
+			builder.append("\n");
+			builder.append(adapter.getMethodDefinition("test" + id));
+			Set<Class<?>> exceptions = testCases.get(id).getDeclaredExceptions();
 			if (!exceptions.isEmpty()) {
 				builder.append("throws ");
 				boolean first = true;
@@ -423,7 +403,7 @@ public class TestSuite implements Opcodes {
 				}
 			}
 			builder.append(" {\n");
-			for (String line : test_cases.get(id).toCode(result.exceptions).split("\\r?\\n")) {
+			for (String line : testCases.get(id).toCode(result.exceptions).split("\\r?\\n")) {
 				builder.append("      ");
 				builder.append(line);
 				// builder.append(";\n");
@@ -435,35 +415,6 @@ public class TestSuite implements Opcodes {
 	}
 
 	/**
-	 * Create subdirectory for package in test directory
-	 * 
-	 * @param directory
-	 * @return
-	 */
-	protected String makeDirectory(String directory) {
-		String dirname = directory + "/" + Properties.CLASS_PREFIX.replace('.', '/'); // +"/GeneratedTests";
-		File dir = new File(dirname);
-		logger.debug("Target directory: " + dirname);
-		dir.mkdirs();
-		return dirname;
-	}
-
-	/**
-	 * Create subdirectory for package in test directory
-	 * 
-	 * @param directory
-	 * @return
-	 */
-	protected String mainDirectory(String directory) {
-		String dirname = directory + File.separator
-		        + Properties.PROJECT_PREFIX.replace('.', File.separatorChar); // +"/GeneratedTests";
-		File dir = new File(dirname);
-		logger.debug("Target directory: " + dirname);
-		dir.mkdirs();
-		return dirname;
-	}
-
-	/**
 	 * Update/create the main file of the test suite. The main test file simply
 	 * includes all automatically generated test suites in the same directory
 	 * 
@@ -472,8 +423,6 @@ public class TestSuite implements Opcodes {
 	 */
 	protected void writeTestSuiteMainFile(String directory) {
 		File file = new File(directory + "/GeneratedTestSuite.java");
-		// if(file.exists())
-		// return;
 
 		StringBuilder builder = new StringBuilder();
 		if (!Properties.PROJECT_PREFIX.equals("")) {
@@ -482,10 +431,6 @@ public class TestSuite implements Opcodes {
 		}
 		// builder.append(".GeneratedTests;");
 		builder.append(";\n\n");
-		builder.append("import junit.framework.Test;\n");
-		builder.append("import junit.framework.TestCase;\n");
-		builder.append("import junit.framework.TestSuite;\n\n");
-
 		List<String> suites = new ArrayList<String>();
 
 		File basedir = new File(directory);
@@ -495,43 +440,10 @@ public class TestSuite implements Opcodes {
 			File f = i.next();
 			String name = f.getPath().replace(directory, "").replace(".java", "").replace("/",
 			                                                                              ".");
-			suites.add(name.substring(name.lastIndexOf(".") + 1));
-			builder.append("import ");
-			builder.append(Properties.PROJECT_PREFIX);
-			builder.append(name);
-			builder.append(";\n");
-		}
-		builder.append("\n");
 
-		builder.append("public class GeneratedTestSuite extends TestCase {\n");
-		builder.append("  public static Test suite() {\n");
-		builder.append("    TestSuite suite = new TestSuite();\n");
-		for (String suite : suites) {
-			builder.append("    suite.addTestSuite(");
-			builder.append(suite);
-			builder.append(".class);\n");
+			suites.add(name);
 		}
-		/*
-		 * for(File f : basedir.listFiles(new TestFilter())) {
-		 * builder.append("    suite.addTestSuite(");
-		 * if(!Properties.SUB_PREFIX.equals("")) {
-		 * builder.append(Properties.SUB_PREFIX); builder.append("."); }
-		 * builder.append(f.getName().replace(".java", ""));
-		 * builder.append(".class);\n"); }
-		 */
-		/*
-		 * builder.append("    File basedir = new File(\"");
-		 * builder.append(directory); builder.append("\");\n"); builder.append(
-		 * "    for(File f : basedir.listFiles(new TestFilter())) {\n");
-		 * builder.append("    	try {\n"); builder.append(
-		 * "    		Class clazz = Class.forName(f.getAbsolutePath());\n");
-		 * builder.append("    		suite.addTestSuite(clazz);\n");
-		 * builder.append("    	} catch (ClassNotFoundException e) {}\n");
-		 * builder.append("    }\n");
-		 */
-		builder.append("    return suite;\n");
-		builder.append("  }\n");
-		builder.append("}\n");
+		builder.append(adapter.getSuite(suites));
 		Utils.writeFile(builder.toString(), file);
 	}
 
@@ -567,6 +479,12 @@ public class TestSuite implements Opcodes {
 
 	}
 
+	/**
+	 * Get bytecode representation of test class
+	 * 
+	 * @param name
+	 * @return
+	 */
 	public byte[] getBytecode(String name) {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		String prefix = Properties.TARGET_CLASS.substring(0,
@@ -583,7 +501,7 @@ public class TestSuite implements Opcodes {
 		mg.endMethod();
 
 		int num = 0;
-		for (TestCase test : test_cases) {
+		for (TestCase test : testCases) {
 			ExecutionResult result = runTest(test);
 			m = Method.getMethod("void test" + num + " ()");
 			mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
@@ -611,6 +529,12 @@ public class TestSuite implements Opcodes {
 		return cw.toByteArray();
 	}
 
+	/**
+	 * Create JUnit test suite in bytecode
+	 * 
+	 * @param name
+	 * @param directory
+	 */
 	public void writeTestSuiteClass(String name, String directory) {
 		String dir = makeDirectory(directory);
 		File file = new File(dir + "/" + name + ".class");

@@ -36,7 +36,7 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.ga.MinimizeSizeSecondaryObjective;
-import de.unisb.cs.st.evosuite.junit.TestSuite;
+import de.unisb.cs.st.evosuite.junit.TestSuiteWriter;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -107,7 +107,7 @@ public class TestSuiteMinimizer {
 		List<TestFitnessFunction> goals = testFitnessFactory.getCoverageGoals();
 		Set<TestFitnessFunction> covered = new HashSet<TestFitnessFunction>();
 		List<TestChromosome> minimizedTests = new ArrayList<TestChromosome>();
-		TestSuite minimizedSuite = new TestSuite();
+		TestSuiteWriter minimizedSuite = new TestSuiteWriter();
 
 		for (TestFitnessFunction goal : goals) {
 			for (TestChromosome test : minimizedTests) {

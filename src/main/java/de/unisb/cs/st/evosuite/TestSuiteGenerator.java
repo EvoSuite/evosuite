@@ -89,7 +89,7 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
-import de.unisb.cs.st.evosuite.junit.TestSuite;
+import de.unisb.cs.st.evosuite.junit.TestSuiteWriter;
 import de.unisb.cs.st.evosuite.primitives.ObjectPool;
 import de.unisb.cs.st.evosuite.sandbox.PermissionStatistics;
 import de.unisb.cs.st.evosuite.testcase.AllMethodsTestChromosomeFactory;
@@ -251,7 +251,8 @@ public class TestSuiteGenerator {
 
 	public static void writeJUnitTests(List<TestCase> tests) {
 		if (Properties.JUNIT_TESTS) {
-			TestSuite suite = new TestSuite(tests);
+			TestSuiteWriter suite = new TestSuiteWriter();
+			suite.insertTests(tests);
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 			String testDir = Properties.TEST_DIR;
 			if (analyzing)
