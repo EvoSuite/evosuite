@@ -235,6 +235,13 @@ public class Properties {
 	@IntValue(min = 1)
 	public static int POPULATION = 50;
 
+	public enum PopulationLimit {
+		INDIVIDUALS, TESTS, STATEMENTS;
+	}
+
+	@Parameter(key = "population_limit", group = "Search Algorithm", description = "What to use as limit for the population size")
+	public static PopulationLimit POPULATION_LIMIT = PopulationLimit.INDIVIDUALS;
+
 	@Parameter(key = "generations", group = "Search Algorithm", description = "Maximum search duration")
 	@LongValue(min = 1)
 	public static long GENERATIONS = 1000000;
@@ -638,6 +645,11 @@ public class Properties {
 				logger.info("- Error setting parameter \"" + parameter + "\": " + e);
 			} catch (IllegalAccessException e) {
 				logger.info("- Error setting parameter \"" + parameter + "\": " + e);
+			}
+		}
+		if (POPULATION_LIMIT == PopulationLimit.STATEMENTS) {
+			if (MAX_LENGTH < POPULATION) {
+				MAX_LENGTH = POPULATION;
 			}
 		}
 	}
