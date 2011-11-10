@@ -73,6 +73,8 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	private static PrimitiveFieldTraceObserver field_observer = new PrimitiveFieldTraceObserver();
 	private static NullOutputObserver null_observer = new NullOutputObserver();
 
+	private final Map<Mutation, Integer> timedOutMutations = new HashMap<Mutation, Integer>();
+
 	/**
 	 * Default constructor
 	 */
@@ -399,12 +401,25 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		logger.debug("Running on original");
 		ExecutionResult orig_result = runTest(test);
 
+		if (orig_result.hasTimeout()) {
+			logger.info("Skipping test, as it has timeouts");
+			return;
+		}
+
 		Map<Mutation, List<OutputTrace>> mutation_traces = new HashMap<Mutation, List<OutputTrace>>();
 
 		// TODO: We can do this much nicer
 		// Run test case on all mutations
 		for (Mutation m : mutants) {
-			logger.debug("Running on mutation " + m.getId());
+
+			if (timedOutMutations.containsKey(m)) {
+				if (timedOutMutations.get(m) >= Properties.MUTATION_TIMEOUTS) {
+					logger.info("Skipping timed out mutant");
+					continue;
+				}
+			}
+
+			logger.info("Running on mutation " + m.getId());
 			// logger.info(m.toString());
 
 			// logger.info("Cloning test: " + test.toCode());
@@ -419,6 +434,13 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			traces.add(mutant_result.null_trace);
 			// traces.add(mutant_exception_trace); // TODO!
 			mutation_traces.put(m, traces);
+			if (mutant_result.hasTimeout()) {
+				if (!timedOutMutations.containsKey(m)) {
+					timedOutMutations.put(m, 0);
+				} else {
+					timedOutMutations.put(m, timedOutMutations.get(m) + 1);
+				}
+			}
 
 			int num_killed = 0;
 
@@ -488,7 +510,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				last_num = num_killed;
 			}
 
-			if (num_killed > 0) {
+			if (num_killed > 0 || mutant_result.hasTimeout()) {
 				killed.add(m.getId());
 
 				// logger.info("Setting mutant asserted "+m.getId());
@@ -507,13 +529,17 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			for (Mutation m : mutants) {
 
 				boolean is_killed = false;
-				for (OutputTrace trace : mutation_traces.get(m)) {
-					is_killed = trace.isDetectedBy(assertion);
-					if (is_killed) {
-						killed_ALL.add(m.getId());
-						killed_before.add(m.getId());
-						break;
+				if (mutation_traces.containsKey(m)) {
+					for (OutputTrace trace : mutation_traces.get(m)) {
+						is_killed = trace.isDetectedBy(assertion);
+						if (is_killed) {
+							killed_ALL.add(m.getId());
+							killed_before.add(m.getId());
+							break;
+						}
 					}
+				} else {
+					is_killed = true;
 				}
 				if (is_killed) {
 					// logger.info("Found assertion for mutation: "+m.getId());
@@ -537,14 +563,18 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			for (Mutation m : mutants) {
 
 				boolean is_killed = false;
-				for (OutputTrace trace : mutation_traces.get(m)) {
-					is_killed = trace.isDetectedBy(assertion);
-					if (is_killed) {
-						assertion_statistics_killed.get(test).put(assertion.getClass(),
-						                                          assertion_statistics_killed.get(test).get(assertion.getClass()) + 1);
-						killed_after.add(m.getId());
-						break;
+				if (mutation_traces.containsKey(m)) {
+					for (OutputTrace trace : mutation_traces.get(m)) {
+						is_killed = trace.isDetectedBy(assertion);
+						if (is_killed) {
+							assertion_statistics_killed.get(test).put(assertion.getClass(),
+							                                          assertion_statistics_killed.get(test).get(assertion.getClass()) + 1);
+							killed_after.add(m.getId());
+							break;
+						}
 					}
+				} else {
+					is_killed = true;
 				}
 			}
 		}
