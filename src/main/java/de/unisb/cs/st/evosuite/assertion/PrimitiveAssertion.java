@@ -18,38 +18,44 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.utils.NumberFormatter;
 
 public class PrimitiveAssertion extends Assertion {
 
 	@Override
 	public String getCode() {
+
 		if (value == null) {
 			return "assertNull(" + source.getName() + ");";
-		} else if (value.getClass().equals(Long.class)) {
-			String val = value.toString();
-			return "assertEquals(" + source.getName() + ", " + val + "L);";
-		} else if (value.getClass().equals(Float.class)) {
-			String val = value.toString();
-			return "assertEquals(" + source.getName() + ", " + val + "F, 0.01F);";
-		} else if (value.getClass().equals(Double.class)) {
-			String val = value.toString();
-			return "assertEquals(" + source.getName() + ", " + val + "D, 0.01D);";
-		} else if (value.getClass().equals(Character.class)) {
-			String val = StringEscapeUtils.escapeJava(((Character) value).toString());
-			return "assertEquals(" + source.getName() + ", '" + val + "');";
-		} else if (value.getClass().equals(String.class)) {
-			return "assertEquals(" + source.getName() + ", \""
-			        + StringEscapeUtils.escapeJava((String) value) + "\");";
+		} else if (source.getVariableClass().equals(float.class)) {
+			return "assertEquals(" + source.getName() + ", "
+			        + NumberFormatter.getNumberString(value) + ", 0.01F);";
+		} else if (source.getVariableClass().equals(double.class)) {
+			return "assertEquals(" + source.getName() + ", "
+			        + NumberFormatter.getNumberString(value) + ", 0.01D);";
 		} else if (value.getClass().isEnum()) {
 			return "assertEquals(" + source.getName() + ", "
 			        + this.source.getSimpleClassName() + "." + value + ");";
+		} else if (source.isWrapperType()) {
+			if (source.getVariableClass().equals(Float.class)) {
+				return "assertEquals((float)" + source.getName() + ", "
+				        + NumberFormatter.getNumberString(value) + ", 0.01F);";
+			} else if (source.getVariableClass().equals(Double.class)) {
+				return "assertEquals((double)" + source.getName() + ", "
+				        + NumberFormatter.getNumberString(value) + ", 0.01D);";
+			} else if (value.getClass().isEnum()) {
+				return "assertEquals(" + source.getName() + ", "
+				        + this.source.getSimpleClassName() + "." + value + ");";
+			} else
+				return "assertEquals((" + NumberFormatter.getBoxedClassName(value) + ")"
+				        + source.getName() + ", " + value + ");";
 		} else
-			return "assertEquals(" + source.getName() + ", " + value + ");";
+			return "assertEquals(" + source.getName() + ", "
+			        + NumberFormatter.getNumberString(value) + ");";
+
 	}
 
 	@Override

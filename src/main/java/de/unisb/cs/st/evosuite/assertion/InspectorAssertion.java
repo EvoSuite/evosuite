@@ -19,12 +19,12 @@
 package de.unisb.cs.st.evosuite.assertion;
 
 import org.apache.commons.lang.ClassUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 
 import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
+import de.unisb.cs.st.evosuite.utils.NumberFormatter;
 
 public class InspectorAssertion extends Assertion {
 
@@ -61,25 +61,25 @@ public class InspectorAssertion extends Assertion {
 			return "assertEquals(" + inspectorSource.getName() + "."
 			        + inspector.getMethodCall() + "(), null);";
 		} else if (result.getClass().equals(Long.class)) {
-			String val = result.toString();
 			return "assertEquals(" + inspectorSource.getName() + "."
-			        + inspector.getMethodCall() + "(), " + val + "L);";
+			        + inspector.getMethodCall() + "(), "
+			        + NumberFormatter.getNumberString(result) + ");";
 		} else if (result.getClass().equals(Float.class)) {
-			String val = result.toString();
 			return "assertEquals(" + inspectorSource.getName() + "."
-			        + inspector.getMethodCall() + "(), " + val + "F, 0.01F);";
+			        + inspector.getMethodCall() + "(), "
+			        + NumberFormatter.getNumberString(result) + ", 0.01F);";
 		} else if (result.getClass().equals(Double.class)) {
-			String val = result.toString();
 			return "assertEquals(" + inspectorSource.getName() + "."
-			        + inspector.getMethodCall() + "(), " + val + "D, 0.01D);";
+			        + inspector.getMethodCall() + "(), "
+			        + NumberFormatter.getNumberString(result) + ", 0.01D);";
 		} else if (result.getClass().equals(Character.class)) {
-			String val = result.toString();
 			return "assertEquals(" + inspectorSource.getName() + "."
-			        + inspector.getMethodCall() + "(), '" + val + "');";
+			        + inspector.getMethodCall() + "(), "
+			        + NumberFormatter.getNumberString(result) + ");";
 		} else if (result.getClass().equals(String.class)) {
 			return "assertEquals(" + inspectorSource.getName() + "."
-			        + inspector.getMethodCall() + "(), \""
-			        + StringEscapeUtils.escapeJava((String) result) + "\");";
+			        + inspector.getMethodCall() + "(), "
+			        + NumberFormatter.getNumberString(result) + ");";
 		} else if (result.getClass().isEnum()) {
 			return "assertEquals(" + inspectorSource.getName() + "."
 			        + inspector.getMethodCall() + "(),"

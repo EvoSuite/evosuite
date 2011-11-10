@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -155,10 +156,22 @@ public class ConstructorStatement extends AbstractStatement {
 		String parameter_string = "";
 		String result = "";
 		if (!parameters.isEmpty()) {
-			parameter_string += parameters.get(0).getName();
-			for (int i = 1; i < parameters.size(); i++) {
-				parameter_string += ", " + parameters.get(i).getName();
+			for (int i = 0; i < parameters.size(); i++) {
+				if (i > 0) {
+					parameter_string += ", ";
+				}
+				Class<?> declaredParamType = constructor.getParameterTypes()[i];
+				Class<?> actualParamType = parameters.get(i).getVariableClass();
+				String name = parameters.get(i).getName();
+				if (!declaredParamType.equals(actualParamType) || name.equals("null")) {
+					// && parameters.get(i) instanceof ArrayIndex)
+					parameter_string += "("
+					        + new GenericClass(constructor.getParameterTypes()[i]).getSimpleName()
+					        + ") ";
+				}
+				parameter_string += name;
 			}
+
 		}
 		// String result = ((Class<?>) retval.getType()).getSimpleName()
 		// +" "+retval.getName()+ " = null;\n";
@@ -180,9 +193,11 @@ public class ConstructorStatement extends AbstractStatement {
 
 			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {\n";
 			if (exception.getMessage() != null) {
+				result += "  /*\n";
 				for (String msg : exception.getMessage().split("\n")) {
-					result += "  // " + msg + "\n";
+					result += "  * " + StringEscapeUtils.escapeJava(msg) + "\n";
 				}
+				result += "   */\n";
 			}
 			result += "}";
 		}

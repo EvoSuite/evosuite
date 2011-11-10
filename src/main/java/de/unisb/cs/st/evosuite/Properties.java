@@ -303,6 +303,13 @@ public class Properties {
 
 	// ---------------------------------------------------------------
 	// Output
+	public enum OutputFormat {
+		JUNIT3, JUNIT4, TESTNG
+	}
+
+	@Parameter(key = "test_format", group = "Output", description = "Format of the resulting test cases")
+	public static OutputFormat TEST_FORMAT = OutputFormat.JUNIT4;
+
 	@Parameter(key = "print_to_system", group = "Output", description = "Allow test output on console")
 	public static boolean PRINT_TO_SYSTEM = false;
 
