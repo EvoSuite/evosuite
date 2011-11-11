@@ -251,7 +251,7 @@ public class ExternalProcessHandler {
 						 */
 						logger.error("Error in reading message ", e);
 						message = Messages.FINISHED_COMPUTATION;
-						data = "";
+						data = null;
 					}
 
 					if (message.equals(Messages.FINISHED_COMPUTATION)) {
