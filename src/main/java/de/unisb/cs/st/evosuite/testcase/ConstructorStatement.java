@@ -195,7 +195,7 @@ public class ConstructorStatement extends AbstractStatement {
 			if (exception.getMessage() != null) {
 				result += "  /*\n";
 				for (String msg : exception.getMessage().split("\n")) {
-					result += "  * " + StringEscapeUtils.escapeJava(msg) + "\n";
+					result += "   * " + StringEscapeUtils.escapeJava(msg) + "\n";
 				}
 				result += "   */\n";
 			}

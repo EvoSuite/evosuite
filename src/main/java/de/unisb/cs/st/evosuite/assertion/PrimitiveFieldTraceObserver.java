@@ -53,7 +53,7 @@ public class PrimitiveFieldTraceObserver extends
 					        && !field.getType().equals(void.class)
 					        && field.getType().isPrimitive()) {
 						try {
-							logger.info("Keeping field " + field + " with value "
+							logger.debug("Keeping field " + field + " with value "
 							        + field.get(object));
 							entry.addValue(field, field.get(object));
 						} catch (IllegalArgumentException e) {

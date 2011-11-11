@@ -107,22 +107,19 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	private ExecutionResult runTest(TestCase test, Mutation mutant) {
 		ExecutionResult result = new ExecutionResult(test, mutant);
 		//resetObservers();
-		//		comparison_observer.clear();
-		//		primitive_observer.clear();
-		//		inspector_observer.clear();
-		//		field_observer.clear();
-		//		null_observer.clear();
+		comparison_observer.clear();
+		primitive_observer.clear();
+		inspector_observer.clear();
+		field_observer.clear();
+		null_observer.clear();
 		try {
 			logger.debug("Executing test");
 			MutationObserver.activateMutation(mutant);
-
 			result = executor.execute(test);
-
 			MutationObserver.deactivateMutation(mutant);
 
 			int num = test.size();
 			MaxStatementsStoppingCondition.statementsExecuted(num);
-			// result.touched.addAll(HOMObserver.getTouched());
 
 			result.setTrace(comparison_observer.getTrace(), ComparisonTraceEntry.class);
 			result.setTrace(primitive_observer.getTrace(), PrimitiveTraceEntry.class);
@@ -130,9 +127,6 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			result.setTrace(field_observer.getTrace(), PrimitiveFieldTraceEntry.class);
 			result.setTrace(null_observer.getTrace(), NullTraceEntry.class);
 
-			// for(TestObserver observer : observers) {
-			// observer.testResult(result);
-			// }
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
@@ -282,10 +276,23 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		logger.debug("Generated " + test.getAssertions().size() + " assertions");
 	}
 
+	/**
+	 * Generate assertions to kill all the mutants defined in the pool
+	 * 
+	 * @param test
+	 * @param killed
+	 */
 	public void addAssertions(TestCase test, Set<Integer> killed) {
 		addAssertions(test, killed, mutants);
 	}
 
+	/**
+	 * Add assertions to current test set for given set of mutants
+	 * 
+	 * @param test
+	 * @param killed
+	 * @param mutants
+	 */
 	public void addAssertions(TestCase test, Set<Integer> killed, List<Mutation> mutants) {
 
 		logger.info("Generating assertions");
@@ -312,11 +319,14 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				}
 			}
 
-			logger.info("Running on mutation " + m.getId());
-			ExecutionResult mutant_result = runTest(test.clone(), m);
+			logger.debug("Running on mutation " + m.getId());
+			ExecutionResult mutant_result = runTest(test, m);
 
 			int numKilled = 0;
 			for (Class<?> observerClass : observerClasses) {
+				if (mutant_result.getTrace(observerClass) == null
+				        || orig_result.getTrace(observerClass) == null)
+					continue;
 				numKilled += orig_result.getTrace(observerClass).getAssertions(test,
 				                                                               mutant_result.getTrace(observerClass));
 			}

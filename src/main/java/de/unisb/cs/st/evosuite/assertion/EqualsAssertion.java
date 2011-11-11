@@ -35,8 +35,14 @@ public class EqualsAssertion extends Assertion {
 	@Override
 	public Assertion copy(TestCase newTestCase, int offset) {
 		EqualsAssertion s = new EqualsAssertion();
-		s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
-		s.dest = newTestCase.getStatement(dest.getStPosition() + offset).getReturnValue();
+		s.source = source.copy(newTestCase, offset);
+		try {
+			s.dest = dest.copy(newTestCase, offset);
+		} catch (IndexOutOfBoundsException e) {
+			logger.warn("Index out of bounds: " + newTestCase.toCode() + ", " + dest);
+		} catch (NullPointerException e) {
+			logger.warn("Dest is null: " + newTestCase.toCode() + ", " + dest);
+		}
 		s.value = value;
 		return s;
 	}

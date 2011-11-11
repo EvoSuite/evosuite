@@ -19,6 +19,7 @@
 package de.unisb.cs.st.evosuite.assertion;
 
 import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
+import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
@@ -32,6 +33,8 @@ public class ComparisonTraceObserver extends AssertionTraceObserver<ComparisonTr
 	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
 		try {
 			Object object = var.getObject(scope);
+			if (object == null)
+				return;
 
 			ComparisonTraceEntry entry = new ComparisonTraceEntry(var);
 
@@ -43,6 +46,10 @@ public class ComparisonTraceObserver extends AssertionTraceObserver<ComparisonTr
 
 				if (object == otherObject)
 					continue; // Don't compare with self?
+
+				if (statement instanceof PrimitiveStatement
+				        && currentTest.getStatement(other.getStPosition()) instanceof PrimitiveStatement)
+					continue; // Don't compare two primitives
 
 				try {
 					logger.debug("Comparison of " + var + " with " + other + " is: "

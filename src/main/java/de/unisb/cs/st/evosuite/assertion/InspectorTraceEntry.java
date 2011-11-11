@@ -66,6 +66,11 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 		if (other instanceof InspectorTraceEntry) {
 			InspectorTraceEntry otherEntry = (InspectorTraceEntry) other;
 			for (Inspector inspector : inspectorMap.keySet()) {
+				if (!otherEntry.inspectorMap.containsKey(inspector)
+				        || otherEntry.inspectorMap.get(inspector) == null
+				        || inspectorMap.get(inspector) == null)
+					continue;
+
 				if (!otherEntry.inspectorMap.get(inspector).equals(inspectorMap.get(inspector))) {
 					InspectorAssertion assertion = new InspectorAssertion();
 					assertion.value = inspectorMap.get(inspector);
@@ -102,7 +107,8 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 	public boolean isDetectedBy(Assertion assertion) {
 		if (assertion instanceof InspectorAssertion) {
 			InspectorAssertion ass = (InspectorAssertion) assertion;
-			if (ass.source.equals(var))
+			if (ass.source.equals(var) && inspectorMap.containsKey(ass.inspector)
+			        && inspectorMap.get(ass.inspector) != null && ass.value != null)
 				return !inspectorMap.get(ass.inspector).equals(ass.value);
 		}
 		return false;
