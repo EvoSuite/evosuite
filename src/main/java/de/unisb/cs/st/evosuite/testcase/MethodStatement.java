@@ -105,14 +105,6 @@ public class MethodStatement extends AbstractStatement {
 		return !Modifier.isStatic(method.getModifiers());
 	}
 
-	/*	
-	} catch (CodeUnderTestException e) {
-		throw CodeUnderTestException.throwException(e);
-	} catch(Throwable e){
-		throw new EvosuiteError(e);
-	}
-	 */
-
 	@Override
 	public Throwable execute(final Scope scope, PrintStream out)
 	        throws InvocationTargetException, IllegalArgumentException,

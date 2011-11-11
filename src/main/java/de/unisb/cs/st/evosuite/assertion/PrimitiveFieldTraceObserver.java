@@ -20,71 +20,52 @@ package de.unisb.cs.st.evosuite.assertion;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Map;
 
 import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
-import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
-public class PrimitiveFieldTraceObserver extends ExecutionObserver {
+public class PrimitiveFieldTraceObserver extends
+        AssertionTraceObserver<PrimitiveFieldTraceEntry> {
 
-	private final PrimitiveFieldTrace trace = new PrimitiveFieldTrace();
-
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.assertion.AssertionTraceObserver#visit(de.unisb.cs.st.evosuite.testcase.StatementInterface, de.unisb.cs.st.evosuite.testcase.Scope, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
 	@Override
-	public void clear() {
-		trace.trace.clear();
-	}
-
-	@Override
-	public void output(int position, String output) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
-		try{
-			VariableReference retval = statement.getReturnValue();
-
-			if (retval == null)
+	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
+		logger.debug("Checking fields of " + var);
+		try {
+			if (var == null)
 				return;
 
-			Object object = retval.getObject(scope);
-			if (object != null && !object.getClass().isPrimitive()
-					&& !object.getClass().isEnum() && !isWrapperType(object.getClass())) {
-				//List<Object> fields = new ArrayList<Object>();
-				//List<Field> valid_fields = new ArrayList<Field>();
-				Map<Field, Object> fieldMap = new HashMap<Field, Object>();
+			Object object = var.getObject(scope);
+			int position = statement.getPosition();
 
-				for (Field field : retval.getVariableClass().getFields()) {
+			if (object != null && !object.getClass().isPrimitive()
+			        && !object.getClass().isEnum() && !isWrapperType(object.getClass())) {
+
+				PrimitiveFieldTraceEntry entry = new PrimitiveFieldTraceEntry(var);
+
+				for (Field field : var.getVariableClass().getFields()) {
 					// TODO Check for wrapper types
-					if ((!Modifier.isProtected(field.getModifiers()) && !Modifier.isPrivate(field.getModifiers()))
-							&& !field.getType().equals(void.class)
-							&& field.getType().isPrimitive()) {
+					if (Modifier.isPublic(field.getModifiers())
+					        && !field.getType().equals(void.class)
+					        && field.getType().isPrimitive()) {
 						try {
-							fieldMap.put(field, field.get(object));
-							//fields.add(field.get(object)); // TODO: Create copy
-							//valid_fields.add(field);
+							logger.info("Keeping field " + field + " with value "
+							        + field.get(object));
+							entry.addValue(field, field.get(object));
 						} catch (IllegalArgumentException e) {
 						} catch (IllegalAccessException e) {
 						}
 					}
 				}
-				//if (!trace.fields.containsKey(statement.getPosition()))
-				//	trace.fields.put(retval.getType(), valid_fields);
-				//trace.trace.put(statement.getPosition(), fields);
-				trace.fieldMap.put(statement.getPosition(), fieldMap);
+				trace.addEntry(position, var, entry);
 			}
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
-	}
-
-	public PrimitiveFieldTrace getTrace() {
-		return trace.clone();
 	}
 
 }

@@ -30,6 +30,7 @@ import java.util.Set;
  */
 public abstract class ExecutionObserver {
 
+	/** The test case being monitored and executed */
 	protected static TestCase currentTest = null;
 
 	@SuppressWarnings("unchecked")
@@ -42,17 +43,59 @@ public abstract class ExecutionObserver {
 		return WRAPPER_TYPES.contains(clazz);
 	}
 
-	public static void currentTest(TestCase test) {
+	/**
+	 * Setter method for current test case
+	 * 
+	 * @param test
+	 */
+	public static void setCurrentTest(TestCase test) {
 		currentTest = test;
 	}
 
+	/**
+	 * Getter method for current test case
+	 * 
+	 * @return
+	 */
 	public static TestCase getCurrentTest() {
 		return currentTest;
 	}
 
+	/**
+	 * This is called with the console output of each statement
+	 * 
+	 * @param position
+	 * @param output
+	 */
 	public abstract void output(int position, String output);
 
-	public abstract void statement(StatementInterface statement, Scope scope, Throwable exception);
+	/**
+	 * After execution of a statement, the result is passed to the observer
+	 * 
+	 * @param statement
+	 * @param scope
+	 * @param exception
+	 */
+	public abstract void statement(StatementInterface statement, Scope scope,
+	        Throwable exception);
 
+	/**
+	 * Need a way to clear previously produced results
+	 */
 	public abstract void clear();
+
+	/**
+	 * Determine the set of variables that somehow lead to this statement
+	 * 
+	 * @param statement
+	 * @return
+	 */
+	protected Set<VariableReference> getDependentVariables(StatementInterface statement) {
+		Set<VariableReference> dependencies = new HashSet<VariableReference>();
+		for (VariableReference var : statement.getVariableReferences()) {
+			dependencies.add(var);
+			dependencies.addAll(currentTest.getDependencies(var));
+		}
+		return dependencies;
+	}
 }

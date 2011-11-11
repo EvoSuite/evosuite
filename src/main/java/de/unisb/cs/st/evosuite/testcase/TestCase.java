@@ -182,7 +182,23 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 */
 	public boolean hasReferences(VariableReference var);
 
+	/**
+	 * Determine the set of variables that depend on var
+	 * 
+	 * @param var
+	 *            Variable to check for
+	 * @return Set of dependent variables
+	 */
 	public Set<VariableReference> getReferences(VariableReference var);
+
+	/**
+	 * Determine the set of variables that var depends on
+	 * 
+	 * @param var
+	 *            Variable to check for
+	 * @return Set of dependency variables
+	 */
+	public Set<VariableReference> getDependencies(VariableReference var);
 
 	/**
 	 * Remove statement at position and fix variable references

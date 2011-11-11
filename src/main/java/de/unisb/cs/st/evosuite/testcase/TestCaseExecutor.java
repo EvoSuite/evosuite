@@ -177,7 +177,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		if (Properties.STATIC_HACK)
 			TestCluster.getInstance().resetStaticClasses();
 		resetObservers();
-		ExecutionObserver.currentTest(tc);
+		ExecutionObserver.setCurrentTest(tc);
 		MaxTestsStoppingCondition.testExecuted();
 
 		long startTime = System.currentTimeMillis();

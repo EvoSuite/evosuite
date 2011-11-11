@@ -51,7 +51,8 @@ public class TestMutationAssertion extends SystemTest {
 
 		Assert.assertTrue(suite.size() > 0);
 		for (TestCase test : suite.getTests()) {
-			Assert.assertTrue(test.hasAssertions());
+			Assert.assertTrue("Test has no assertions: " + test.toCode(),
+			                  test.hasAssertions());
 		}
 	}
 
@@ -61,7 +62,8 @@ public class TestMutationAssertion extends SystemTest {
 
 		Assert.assertTrue(suite.size() > 0);
 		for (TestCase test : suite.getTests()) {
-			Assert.assertTrue(test.hasAssertions());
+			Assert.assertTrue("Test has no assertions: " + test.toCode(),
+			                  test.hasAssertions());
 		}
 	}
 
@@ -71,7 +73,8 @@ public class TestMutationAssertion extends SystemTest {
 
 		Assert.assertTrue(suite.size() > 0);
 		for (TestCase test : suite.getTests()) {
-			Assert.assertTrue(test.hasAssertions());
+			Assert.assertTrue("Test has no assertions: " + test.toCode(),
+			                  test.hasAssertions());
 		}
 	}
 
@@ -81,7 +84,8 @@ public class TestMutationAssertion extends SystemTest {
 
 		Assert.assertTrue(suite.size() > 0);
 		for (TestCase test : suite.getTests()) {
-			Assert.assertTrue(test.hasAssertions());
+			Assert.assertTrue("Test has no assertions: " + test.toCode(),
+			                  test.hasAssertions());
 		}
 	}
 }

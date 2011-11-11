@@ -315,7 +315,7 @@ public class TestSuiteGenerator {
 			asserter.addAssertions(test, killed);
 			tkilled.addAll(killed);
 		}
-		asserter.writeStatistics();
+		// asserter.writeStatistics();
 		//System.out.println("Killed: " + tkilled.size() + "/" + asserter.numMutants());
 	}
 

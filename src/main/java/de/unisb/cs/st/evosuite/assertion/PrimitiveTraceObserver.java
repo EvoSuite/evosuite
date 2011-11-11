@@ -18,67 +18,46 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
-import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
-public class PrimitiveOutputTraceObserver extends ExecutionObserver {
-
-	private static Logger logger = LoggerFactory.getLogger(PrimitiveOutputTraceObserver.class);
-
-	private final PrimitiveOutputTrace trace = new PrimitiveOutputTrace();
-
-	@Override
-	public void output(int position, String output) {
-		// TODO Auto-generated method stub
-
-	}
+public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTraceEntry> {
 
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
-		try {
-			VariableReference retval = statement.getReturnValue();
+		visitReturnValue(statement, scope);
+	}
 
-			if (retval == null || exception != null)
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.assertion.AssertionTraceObserver#visit(de.unisb.cs.st.evosuite.testcase.StatementInterface, de.unisb.cs.st.evosuite.testcase.Scope, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
+		logger.debug("Checking primitive " + var);
+		try {
+			// Need only legal values
+			if (var == null)
 				return;
 
+			// We don't need assertions on constant values
 			if (statement instanceof PrimitiveStatement<?>)
 				return;
 
-			Object object = retval.getObject(scope);
+			Object object = var.getObject(scope);
 			if (object == null || object.getClass().isPrimitive()
 			        || object.getClass().isEnum() || isWrapperType(object.getClass())
 			        || object instanceof String) {
 				logger.debug("Observed value " + object + " for statement "
 				        + statement.getCode());
-				trace.trace.put(statement.getPosition(), object);
-				/*
-				if(object == null)
-				logger.info("Adding null (Type: "+retval.type.getName()+")");
-				else
-				logger.info("Adding object of type "+object.getClass().getName());
-				 */
+				trace.addEntry(statement.getPosition(), var, new PrimitiveTraceEntry(var,
+				        object));
+
 			}
-			//else
-			//	logger.info("Not adding object of type "+object.getClass().getName());
 		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 	}
-
-	@Override
-	public void clear() {
-		trace.trace.clear();
-	}
-
-	public PrimitiveOutputTrace getTrace() {
-		return trace.clone();
-	}
-
 }

@@ -384,6 +384,34 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getDependencies(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public Set<VariableReference> getDependencies(VariableReference var) {
+		Set<VariableReference> dependencies = new HashSet<VariableReference>();
+
+		if (var == null || var.getStPosition() == -1)
+			return dependencies;
+
+		Set<StatementInterface> dependentStatements = new HashSet<StatementInterface>();
+		dependentStatements.add(statements.get(var.getStPosition()));
+
+		for (int i = var.getStPosition(); i >= 0; i--) {
+			Set<StatementInterface> newStatements = new HashSet<StatementInterface>();
+			for (StatementInterface s : dependentStatements) {
+				if (s.references(statements.get(i).getReturnValue())) {
+					newStatements.add(statements.get(i));
+					dependencies.add(statements.get(i).getReturnValue());
+					break;
+				}
+			}
+			dependentStatements.addAll(newStatements);
+		}
+
+		return dependencies;
+	}
+
+	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#remove(int)
 	 */
 	@Override

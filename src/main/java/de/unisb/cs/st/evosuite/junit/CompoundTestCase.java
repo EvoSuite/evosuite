@@ -159,12 +159,14 @@ public class CompoundTestCase implements TestCase {
 	}
 
 	@Override
-	public VariableReference getRandomObject(Type type) throws ConstructionFailedException {
+	public VariableReference getRandomObject(Type type)
+	        throws ConstructionFailedException {
 		return delegate.getRandomObject(type);
 	}
 
 	@Override
-	public VariableReference getRandomObject(Type type, int position) throws ConstructionFailedException {
+	public VariableReference getRandomObject(Type type, int position)
+	        throws ConstructionFailedException {
 		return delegate.getRandomObject(type, position);
 	}
 
@@ -311,5 +313,14 @@ public class CompoundTestCase implements TestCase {
 		result.addAll(beforeClass);
 		result.addAll(before);
 		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getDependencies(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public Set<VariableReference> getDependencies(VariableReference var) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
