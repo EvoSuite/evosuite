@@ -57,6 +57,7 @@ public class ReplaceVariable implements MutationOperator {
 			                                                   Mutation.getDefaultInfectionDistance());
 			mutations.add(mutationObject);
 		}
+		logger.info("Finished variable replacement in " + methodName);
 		return mutations;
 	}
 
@@ -105,11 +106,14 @@ public class ReplaceVariable implements MutationOperator {
 
 			try {
 				LocalVariableNode origVar = getLocal(mn, node, var.var);
+
 				//LocalVariableNode origVar = (LocalVariableNode) mn.localVariables.get(var.var);
 				logger.info("Looking for replacements for " + origVar.name + " of type "
 				        + origVar.desc + " at index " + origVar.index);
 
-				variables.addAll(getLocalReplacements(mn, origVar.desc, node));
+				// FIXXME: ASM gets scopes wrong, so we only use primitive vars?
+				if (!origVar.desc.startsWith("L"))
+					variables.addAll(getLocalReplacements(mn, origVar.desc, node));
 				variables.addAll(getFieldReplacements(mn, className, origVar.desc, node));
 			} catch (RuntimeException e) {
 				logger.info("Could not find variable, not replacing it: " + var.var);
@@ -129,7 +133,7 @@ public class ReplaceVariable implements MutationOperator {
 			variables.addAll(getLocalReplacementsInc(mn, origVar.desc, incNode));
 
 		} else {
-			throw new RuntimeException("Unknown type: " + node);
+			//throw new RuntimeException("Unknown type: " + node);
 		}
 
 		return variables;
@@ -155,6 +159,9 @@ public class ReplaceVariable implements MutationOperator {
 	private List<InsnList> getLocalReplacements(MethodNode mn, String desc,
 	        AbstractInsnNode node) {
 		List<InsnList> replacements = new ArrayList<InsnList>();
+
+		if (desc.equals("I"))
+			return replacements;
 
 		int otherNum = -1;
 		if (node instanceof VarInsnNode) {
@@ -182,7 +189,8 @@ public class ReplaceVariable implements MutationOperator {
 			        && currentId >= startId && currentId <= endId) {
 
 				logger.info("Adding local variable " + localVar.name + " of type "
-				        + localVar.desc + " at index " + localVar.index);
+				        + localVar.desc + " at index " + localVar.index + ",  " + startId
+				        + "-" + endId + ", " + currentId);
 				InsnList list = new InsnList();
 				if (node.getOpcode() == Opcodes.GETFIELD) {
 					list.add(new InsnNode(Opcodes.POP)); // Remove field owner from stack
