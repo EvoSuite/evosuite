@@ -20,32 +20,26 @@ package de.unisb.cs.st.evosuite.assertion;
 
 import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.Scope;
-import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
+import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
-public class ObjectAssertion extends Assertion {
+public class NullTraceObserver extends AssertionTraceObserver<NullTraceEntry> {
 
-	private static final long serialVersionUID = -7706037962827711840L;
-
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.assertion.AssertionTraceObserver#visit(de.unisb.cs.st.evosuite.testcase.StatementInterface, de.unisb.cs.st.evosuite.testcase.Scope, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
 	@Override
-	public String getCode() {
-		return "assert(" + source.getName() + ".equals(" + value + "));";
-	}
-
-	@Override
-	public Assertion copy(TestCase newTestCase, int offset) {
-		ObjectAssertion s = new ObjectAssertion();
-		s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
-		s.value = value;
-		return s;
-	}
-
-	@Override
-	public boolean evaluate(Scope scope) {
+	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
+		logger.debug("Checking for null of " + var);
 		try {
-			return source.getObject(scope).equals(value);
+			if (var == null || var.isPrimitive())
+				return;
+
+			Object object = var.getObject(scope);
+			trace.addEntry(statement.getPosition(), var, new NullTraceEntry(var,
+			        object == null));
 		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 	}
-
 }

@@ -18,116 +18,50 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
-import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
-public class ComparisonTraceObserver extends ExecutionObserver {
+public class ComparisonTraceObserver extends AssertionTraceObserver<ComparisonTraceEntry> {
 
-	private final static Logger logger = LoggerFactory.getLogger(ComparisonTraceObserver.class);
-
-	private final ComparisonTrace trace = new ComparisonTrace();
-
-	public ComparisonTraceObserver() {
-	}
-
-	@SuppressWarnings("unchecked")
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.assertion.AssertionTraceObserver#visit(de.unisb.cs.st.evosuite.testcase.StatementInterface, de.unisb.cs.st.evosuite.testcase.Scope, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
 	@Override
-	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
+	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
 		try {
-			VariableReference retval = statement.getReturnValue();
-			if (retval == null || retval.isEnum() || retval.isPrimitive()
-			        || exception != null)
-				return;
-			Object object = retval.getObject(scope);
-			if (object == null) {
-				logger.debug("Statement adds null value");
-				return; // TODO: Add different check?
-			}
-			if (isWrapperType(object.getClass()))
-				return;
-			Map<Integer, Boolean> eqmap = new HashMap<Integer, Boolean>();
-			Map<Integer, Integer> cmpmap = new HashMap<Integer, Integer>();
+			Object object = var.getObject(scope);
 
-			logger.debug("Comparing to other objects of type " + retval.getClassName());
-			//scope.printScope();
-			//if(scope.hasObjects(retval.type)) {
-			for (VariableReference other : scope.getElements(retval.getType())) {
-				//logger.info("Found other object of type "+retval.type.getName()+" in scope");
-				Object other_object = other.getObject(scope);
+			ComparisonTraceEntry entry = new ComparisonTraceEntry(var);
+
+			for (VariableReference other : scope.getElements(var.getType())) {
+				Object otherObject = other.getObject(scope);
 				// TODO: Create a matrix of object comparisons?
-				if (other_object == null)
+				if (otherObject == null)
 					continue; // TODO: Don't do this?
 
-				if (object == other_object)
+				if (object == otherObject)
 					continue; // Don't compare with self?
 
 				try {
-					logger.debug("Comparison of " + retval + " with " + other + " is: "
-					        + object.equals(other_object));
-					eqmap.put(other.getStPosition(), object.equals(other_object));
+					logger.debug("Comparison of " + var + " with " + other + " is: "
+					        + object.equals(otherObject));
+					entry.addEntry(other, object.equals(otherObject));
 				} catch (Throwable t) {
 					logger.debug("Exception during equals: " + t);
-					/*
-					logger.info("Type of retval: "+retval.getType());
-					logger.info(object);
-					logger.info(other_object);
-					logger.info(object.getClass()+": "+object);
-					logger.info(other_object.getClass()+": "+other_object);
-					 */
 					// ignore?
 				}
 				if (object instanceof Comparable<?>) {
-					Comparable<Object> c = (Comparable<Object>) object;
-					try {
-						cmpmap.put(other.getStPosition(), c.compareTo(other_object));
-					} catch (Throwable t) {
-						logger.debug("Exception during compareto: " + t);
-						/*
-						logger.info("Type of retval: "+retval.getType());
-						logger.info(object.getClass()+": "+object);
-						logger.info(other_object.getClass()+": "+other_object);
-						 */
-						// ignore?
-					}
+					// TODO
 				}
 			}
 
-			int position = statement.getPosition();
-			trace.equals_map.put(position, eqmap);
-			if (object instanceof Comparable<?>) {
-				trace.compare_map.put(position, cmpmap);
-			}
-			// trace.return_values.put(position, retval.getStPosition());
-			//} else {
-			//	logger.info("No other objects of type "+retval.type.getName()+" in scope");
-			//}
+			trace.addEntry(statement.getPosition(), var, entry);
 		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
-	}
 
-	public ComparisonTrace getTrace() {
-		return trace.clone();
-	}
-
-	@Override
-	public void output(int position, String output) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void clear() {
-		trace.clear();
 	}
 
 }

@@ -458,6 +458,7 @@ public class TestSuiteWriter implements Opcodes {
 	public void writeTestSuite(String name, String directory) {
 		String dir = makeDirectory(directory);
 		File file = new File(dir + "/" + name + ".java");
+		executor.newObservers();
 		Utils.writeFile(getUnitTest(name), file);
 
 		dir = mainDirectory(directory);

@@ -259,7 +259,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 		if (assertion == null) {
 			logger.warn("Trying to add null assertion!");
 		} else {
-			logger.debug("Adding assertion");
+			logger.debug("Adding assertion " + assertion.getCode());
 			assertions.add(assertion);
 		}
 	}
