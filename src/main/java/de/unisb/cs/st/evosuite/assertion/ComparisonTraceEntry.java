@@ -57,6 +57,12 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 		if (other instanceof ComparisonTraceEntry) {
 			ComparisonTraceEntry otherEntry = (ComparisonTraceEntry) other;
 			for (VariableReference otherVar : equalityMap.keySet()) {
+				if (!otherEntry.equalityMap.containsKey(otherVar))
+					continue;
+
+				if (otherVar == null)
+					continue;
+
 				if (!otherEntry.equalityMap.get(otherVar).equals(equalityMap.get(otherVar))) {
 					EqualsAssertion assertion = new EqualsAssertion();
 					assertion.source = var;
@@ -77,6 +83,9 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 		Set<Assertion> assertions = new HashSet<Assertion>();
 
 		for (VariableReference otherVar : equalityMap.keySet()) {
+			if (otherVar == null)
+				continue;
+
 			EqualsAssertion assertion = new EqualsAssertion();
 			assertion.source = var;
 			assertion.dest = otherVar;
@@ -93,7 +102,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 	public boolean isDetectedBy(Assertion assertion) {
 		if (assertion instanceof EqualsAssertion) {
 			EqualsAssertion ass = (EqualsAssertion) assertion;
-			if (ass.source.equals(var))
+			if (ass.source.equals(var) && equalityMap.containsKey(ass.dest))
 				return !equalityMap.get(ass.dest).equals(ass.value);
 		}
 		return false;

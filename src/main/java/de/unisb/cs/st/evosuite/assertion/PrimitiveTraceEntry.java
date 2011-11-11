@@ -6,6 +6,9 @@ package de.unisb.cs.st.evosuite.assertion;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
@@ -13,6 +16,8 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  * 
  */
 public class PrimitiveTraceEntry implements OutputTraceEntry {
+
+	private static Logger logger = LoggerFactory.getLogger(PrimitiveTraceEntry.class);
 
 	protected VariableReference var;
 
@@ -44,12 +49,14 @@ public class PrimitiveTraceEntry implements OutputTraceEntry {
 		Set<Assertion> assertions = new HashSet<Assertion>();
 		if (other instanceof PrimitiveTraceEntry) {
 			PrimitiveTraceEntry otherEntry = (PrimitiveTraceEntry) other;
-			if (!value.equals(otherEntry.value)) {
-				PrimitiveAssertion assertion = new PrimitiveAssertion();
-				assertion.value = value;
-				assertion.source = var;
-				assertions.add(assertion);
-			}
+			if (otherEntry != null && otherEntry.value != null && value != null
+			        && var.equals(otherEntry.var))
+				if (!value.equals(otherEntry.value)) {
+					PrimitiveAssertion assertion = new PrimitiveAssertion();
+					assertion.value = value;
+					assertion.source = var;
+					assertions.add(assertion);
+				}
 		}
 		return assertions;
 	}
@@ -74,7 +81,7 @@ public class PrimitiveTraceEntry implements OutputTraceEntry {
 	public boolean isDetectedBy(Assertion assertion) {
 		if (assertion instanceof PrimitiveAssertion) {
 			PrimitiveAssertion ass = (PrimitiveAssertion) assertion;
-			if (var.equals(ass.source))
+			if (var.equals(ass.source) && ass.value != null && value != null)
 				return !value.equals(ass.value);
 		}
 		return false;

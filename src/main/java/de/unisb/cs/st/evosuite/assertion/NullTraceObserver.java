@@ -19,11 +19,17 @@
 package de.unisb.cs.st.evosuite.assertion;
 
 import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
+import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class NullTraceObserver extends AssertionTraceObserver<NullTraceEntry> {
+
+	@Override
+	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
+		visitReturnValue(statement, scope);
+	}
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.assertion.AssertionTraceObserver#visit(de.unisb.cs.st.evosuite.testcase.StatementInterface, de.unisb.cs.st.evosuite.testcase.Scope, de.unisb.cs.st.evosuite.testcase.VariableReference)
@@ -32,7 +38,9 @@ public class NullTraceObserver extends AssertionTraceObserver<NullTraceEntry> {
 	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
 		logger.debug("Checking for null of " + var);
 		try {
-			if (var == null || var.isPrimitive())
+			if (var == null
+			        || var.isPrimitive()
+			        || currentTest.getStatement(var.getStPosition()) instanceof PrimitiveStatement)
 				return;
 
 			Object object = var.getObject(scope);
