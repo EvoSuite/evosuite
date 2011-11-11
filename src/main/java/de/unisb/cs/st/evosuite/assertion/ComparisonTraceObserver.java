@@ -67,6 +67,9 @@ public class ComparisonTraceObserver extends ExecutionObserver {
 				if (other_object == null)
 					continue; // TODO: Don't do this?
 
+				if (object == other_object)
+					continue; // Don't compare with self?
+
 				try {
 					logger.debug("Comparison of " + retval + " with " + other + " is: "
 					        + object.equals(other_object));
