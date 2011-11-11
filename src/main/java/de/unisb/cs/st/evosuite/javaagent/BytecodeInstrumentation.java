@@ -155,8 +155,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		if (isTargetClassName(classNameWithDots)) {
 			// Print out bytecode if debug is enabled
 			cv = new AccessibleClassAdapter(cv, className);
-			// cv = new CheckClassAdapter(cv);
 			// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+			// cv = new CheckClassAdapter(cv, true);
 			// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 			for (ClassAdapterFactory factory : externalPostVisitors) {
 				cv = factory.getVisitor(cv, className);
@@ -185,7 +185,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 		if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
 			ClassNode cn = new ClassNode();
-			reader.accept(cn, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
+			reader.accept(cn, ClassReader.SKIP_FRAMES); //  | ClassReader.SKIP_DEBUG
 			ComparisonTransformation cmp = new ComparisonTransformation(cn);
 			cn = cmp.transform();
 
@@ -207,13 +207,12 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			}
 
 		} else {
-			reader.accept(cv, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
+			reader.accept(cv, ClassReader.SKIP_FRAMES); //  | ClassReader.SKIP_DEBUG
 		}
 
 		// Print out bytecode if debug is enabled
 		// if(logger.isDebugEnabled())
-		// cv = new TraceClassVisitor(cv, new
-		// PrintWriter(System.out));
+		// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 		return writer.toByteArray();
 	}
 }

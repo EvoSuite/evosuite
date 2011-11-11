@@ -13,6 +13,8 @@ import de.unisb.cs.st.evosuite.Properties;
  */
 public class SizePopulationLimit implements PopulationLimit {
 
+	private static final long serialVersionUID = 7978512501601348014L;
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.PopulationLimit#isPopulationFull(java.util.List)
 	 */
