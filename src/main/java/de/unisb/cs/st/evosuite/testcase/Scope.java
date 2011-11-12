@@ -75,7 +75,8 @@ public class Scope {
 			if (Modifier.isPublic(o.getClass().getModifiers())
 			        && !o.getClass().isAnonymousClass()
 			        && !o.getClass().getName().matches(".*\\.\\d+$")
-			        && !o.getClass().getName().matches(".*\\$\\d+$"))
+			        && !o.getClass().getName().matches(".*\\$\\d+$")
+			        && !o.getClass().getName().startsWith("sun."))
 				reference.setType(o.getClass());
 		}
 		pool.put(reference, o);
