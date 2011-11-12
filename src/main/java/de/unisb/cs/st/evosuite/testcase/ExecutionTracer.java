@@ -84,7 +84,6 @@ public class ExecutionTracer {
 
 	public static void setKillSwitch(boolean value) {
 		ExecutionTracer tracer = ExecutionTracer.getExecutionTracer();
-		logger.warn("Setting killswitch to " + value);
 		tracer.killSwitch = value;
 	}
 
