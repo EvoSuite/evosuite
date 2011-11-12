@@ -793,8 +793,13 @@ public class StaticTestCluster extends TestCluster {
 		        && !Modifier.isStatic(c.getDeclaringClass().getModifiers()))
 			return false;
 
+		if (c.isSynthetic()) {
+			logger.debug("Skipping synthetic constructor " + c.getName());
+			return false;
+		}
+
 		if (!Properties.USE_DEPRECATED && c.getAnnotation(Deprecated.class) != null) {
-			logger.debug("Skipping deprecated method " + c.getName());
+			logger.debug("Skipping deprecated constructor " + c.getName());
 			return false;
 		}
 
