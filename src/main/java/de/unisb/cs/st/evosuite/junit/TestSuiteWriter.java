@@ -221,9 +221,10 @@ public class TestSuiteWriter implements Opcodes {
 				continue;
 			if (!imp.getName().contains("."))
 				continue;
+			// TODO: Check for anonymous type?
 			if (imp.getName().contains("$"))
-				import_names.add(imp.getName().substring(0, imp.getName().indexOf("$")));
-			// import_names.add(imp.getName().replace("$","."));
+				//	import_names.add(imp.getName().substring(0, imp.getName().indexOf("$")));
+				import_names.add(imp.getName().replace("$", "."));
 			else
 				import_names.add(imp.getName());
 		}
