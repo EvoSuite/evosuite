@@ -260,6 +260,9 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 			logger.warn("Trying to add null assertion!");
 		} else {
 			logger.debug("Adding assertion " + assertion.getCode());
+			assert (assertion.isValid()) : "Invalid assertion detected: "
+			        + assertion.getCode() + ", " + assertion.source + ", "
+			        + assertion.value;
 			assertions.add(assertion);
 		}
 	}

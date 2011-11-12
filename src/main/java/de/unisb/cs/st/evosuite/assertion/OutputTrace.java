@@ -146,6 +146,8 @@ public class OutputTrace<T extends OutputTraceEntry> {
 			if (other.trace.containsKey(statement)) {
 				for (VariableReference var : trace.get(statement).keySet()) {
 					for (Assertion assertion : trace.get(statement).get(var).getAssertions(other.trace.get(statement).get(var))) {
+						assert (assertion.isValid()) : "Invalid assertion: "
+						        + assertion.getCode() + ", " + assertion.value;
 						test.getStatement(statement).addAssertion(assertion);
 						num++;
 					}
@@ -168,6 +170,8 @@ public class OutputTrace<T extends OutputTraceEntry> {
 		for (Integer statement : trace.keySet()) {
 			for (VariableReference var : trace.get(statement).keySet()) {
 				for (Assertion assertion : trace.get(statement).get(var).getAssertions()) {
+					assert (assertion.isValid()) : "Invalid assertion: "
+					        + assertion.getCode() + ", " + assertion.value;
 					test.getStatement(statement).addAssertion(assertion);
 					num++;
 				}
@@ -184,6 +188,8 @@ public class OutputTrace<T extends OutputTraceEntry> {
 	 * @return
 	 */
 	public boolean isDetectedBy(Assertion assertion) {
+		assert (assertion.isValid());
+
 		for (Integer statement : trace.keySet()) {
 			for (VariableReference var : trace.get(statement).keySet()) {
 				if (trace.get(statement).get(var).isDetectedBy(assertion))

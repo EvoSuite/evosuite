@@ -47,9 +47,13 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 				return;
 
 			Object object = var.getObject(scope);
-			if (object == null || object.getClass().isPrimitive()
-			        || object.getClass().isEnum() || isWrapperType(object.getClass())
-			        || object instanceof String) {
+
+			// We don't need to compare to null
+			if (object == null)
+				return;
+
+			if (object.getClass().isPrimitive() || object.getClass().isEnum()
+			        || isWrapperType(object.getClass()) || object instanceof String) {
 				logger.debug("Observed value " + object + " for statement "
 				        + statement.getCode());
 				trace.addEntry(statement.getPosition(), var, new PrimitiveTraceEntry(var,

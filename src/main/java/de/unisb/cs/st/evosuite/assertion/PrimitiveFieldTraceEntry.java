@@ -9,6 +9,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
@@ -16,6 +19,8 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  * 
  */
 public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
+
+	private static Logger logger = LoggerFactory.getLogger(PrimitiveTraceEntry.class);
 
 	private final Map<Field, Object> fieldMap = new HashMap<Field, Object>();
 
@@ -67,6 +72,8 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 					assertion.field = field;
 					assertion.source = var;
 					assertions.add(assertion);
+					assert (assertion.isValid());
+
 				}
 			}
 
@@ -86,6 +93,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 			assertion.field = field;
 			assertion.source = var;
 			assertions.add(assertion);
+			assert (assertion.isValid());
 		}
 		return assertions;
 	}

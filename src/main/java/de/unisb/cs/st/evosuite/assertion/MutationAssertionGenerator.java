@@ -1,19 +1,19 @@
 /*
- * Copyright (C) 2009 Saarland University
+ * Copyright (C) 2010 Saarland University
  * 
- * This file is part of Javalanche.
+ * This file is part of EvoSuite.
  * 
- * Javalanche is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Lesser Public License as published by the Free Software
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
  * 
- * Javalanche is distributed in the hope that it will be useful, but WITHOUT ANY
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser Public License along with
- * Javalanche. If not, see <http://www.gnu.org/licenses/>.
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package de.unisb.cs.st.evosuite.assertion;
@@ -50,7 +50,7 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  */
 public class MutationAssertionGenerator extends AssertionGenerator {
 
-	private final List<Mutation> mutants;
+	private final Map<Integer, Mutation> mutants = new HashMap<Integer, Mutation>();
 
 	private final static Logger logger = LoggerFactory.getLogger(MutationAssertionGenerator.class);
 
@@ -62,7 +62,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	private static PrimitiveFieldTraceObserver field_observer = new PrimitiveFieldTraceObserver();
 	private static NullTraceObserver null_observer = new NullTraceObserver();
 
-	private final Map<Mutation, Integer> timedOutMutations = new HashMap<Mutation, Integer>();
+	private final static Map<Mutation, Integer> timedOutMutations = new HashMap<Mutation, Integer>();
 
 	protected static Class<?>[] observerClasses = { PrimitiveTraceEntry.class,
 	        ComparisonTraceEntry.class, InspectorTraceEntry.class,
@@ -72,7 +72,9 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	 * Default constructor
 	 */
 	public MutationAssertionGenerator() {
-		mutants = MutationPool.getMutants();
+		for (Mutation m : MutationPool.getMutants()) {
+			mutants.put(m.getId(), m);
+		}
 		executor.newObservers();
 		executor.addObserver(primitive_observer);
 		executor.addObserver(comparison_observer);
@@ -293,13 +295,14 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	 * @param killed
 	 * @param mutants
 	 */
-	public void addAssertions(TestCase test, Set<Integer> killed, List<Mutation> mutants) {
+	public void addAssertions(TestCase test, Set<Integer> killed,
+	        Map<Integer, Mutation> mutants) {
 
 		logger.info("Generating assertions");
 
 		int s1 = killed.size();
 
-		logger.debug("Running on original");
+		logger.info("Running on original");
 		ExecutionResult orig_result = runTest(test);
 
 		if (orig_result.hasTimeout()) {
@@ -308,18 +311,33 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		}
 
 		Map<Mutation, List<OutputTrace<?>>> mutation_traces = new HashMap<Mutation, List<OutputTrace<?>>>();
+		List<Mutation> executedMutants = new ArrayList<Mutation>();
 
-		// Run test case on all mutations
-		for (Mutation m : mutants) {
+		for (Integer mutationId : orig_result.getTrace().touchedMutants) {
+			executedMutants.add(mutants.get(mutationId));
+		}
+		logger.info("Running test " + test.hashCode() + " on " + executedMutants.size()
+		        + "/" + mutants.size() + " mutants");
+
+		for (Mutation m : executedMutants) {
 
 			if (timedOutMutations.containsKey(m)) {
+				logger.info("CURRENT MUTANT TIMEOUTS: " + timedOutMutations.get(m));
 				if (timedOutMutations.get(m) >= Properties.MUTATION_TIMEOUTS) {
 					logger.info("Skipping timed out mutant");
 					continue;
 				}
 			}
 
-			logger.debug("Running on mutation " + m.getId());
+			/*
+			if (killed.contains(m.getId())) {
+				logger.info("Skipping dead mutant");
+				continue;
+			}
+			*/
+
+			logger.info("Running test " + test.hashCode() + " on mutation "
+			        + m.getMutationName());
 			ExecutionResult mutant_result = runTest(test, m);
 
 			int numKilled = 0;
@@ -337,10 +355,11 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 			if (mutant_result.hasTimeout()) {
 				if (!timedOutMutations.containsKey(m)) {
-					timedOutMutations.put(m, 0);
+					timedOutMutations.put(m, 1);
 				} else {
 					timedOutMutations.put(m, timedOutMutations.get(m) + 1);
 				}
+				logger.info("SET TIMEOUTS TO: " + timedOutMutations.get(m));
 			}
 
 			if (numKilled > 0 || mutant_result.hasTimeout()) {
@@ -355,7 +374,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		int num = 0;
 		for (Assertion assertion : assertions) {
 			Set<Integer> killed_mutations = new HashSet<Integer>();
-			for (Mutation m : mutants) {
+			for (Mutation m : executedMutants) {
 
 				boolean is_killed = false;
 				if (mutation_traces.containsKey(m)) {
@@ -381,12 +400,12 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			kill_map.put(num, killed_mutations);
 			num++;
 		}
-		minimize(test, mutants, assertions, kill_map);
+		minimize(test, executedMutants, assertions, kill_map);
 
 		Set<Integer> killed_after = new HashSet<Integer>();
 		assertions = test.getAssertions();
 		for (Assertion assertion : assertions) {
-			for (Mutation m : mutants) {
+			for (Mutation m : executedMutants) {
 
 				boolean is_killed = false;
 				if (mutation_traces.containsKey(m)) {
@@ -411,7 +430,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		// IF there are no mutant killing assertions on the last statement, still assert something
 		if (test.getStatement(test.size() - 1).getAssertions().isEmpty()
 		        || justNullAssertion(test.getStatement(test.size() - 1))) {
-			logger.info("No assertions on last statement!");
+			logger.info("No assertions on last statement: " + test.toCode());
 			for (OutputTrace<?> trace : orig_result.getTraces()) {
 				trace.getAllAssertions(test);
 			}

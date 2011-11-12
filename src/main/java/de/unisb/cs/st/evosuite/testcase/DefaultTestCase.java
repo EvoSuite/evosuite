@@ -554,8 +554,10 @@ public class DefaultTestCase implements TestCase, Serializable {
 			for (VariableReference var : s.getVariableReferences()) {
 				if (var != null && !var.isPrimitive()) {
 					Class<?> clazz = var.getVariableClass();
-					while (clazz.isMemberClass())
+					while (clazz.isMemberClass()) {
+						accessed_classes.add(clazz);
 						clazz = clazz.getEnclosingClass();
+					}
 					while (clazz.isArray())
 						clazz = clazz.getComponentType();
 					accessed_classes.add(clazz);

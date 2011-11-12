@@ -18,10 +18,8 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import de.unisb.cs.st.evosuite.assertion.OutputTrace;
@@ -37,7 +35,6 @@ public class ExecutionResult {
 
 	private ExecutionTrace trace;
 	private final Map<Class<?>, OutputTrace<?>> traces = new HashMap<Class<?>, OutputTrace<?>>();
-	public List<Long> touched = new ArrayList<Long>();
 
 	// experiment .. tried to remember intermediately calculated ControlFlowDistances .. no real speed up
 	//	public Map<Branch, ControlFlowDistance> intermediateDistances;
@@ -94,7 +91,6 @@ public class ExecutionResult {
 		ExecutionResult copy = new ExecutionResult(test, mutation);
 		copy.exceptions.putAll(exceptions);
 		copy.trace = trace.clone();
-		copy.touched.addAll(touched);
 		for (Class<?> clazz : traces.keySet()) {
 			copy.traces.put(clazz, traces.get(clazz).clone());
 		}

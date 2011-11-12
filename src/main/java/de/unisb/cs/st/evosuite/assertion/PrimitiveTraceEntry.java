@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
- * @author fraser
+ * @author Gordon Fraser
  * 
  */
 public class PrimitiveTraceEntry implements OutputTraceEntry {
@@ -56,6 +56,7 @@ public class PrimitiveTraceEntry implements OutputTraceEntry {
 					assertion.value = value;
 					assertion.source = var;
 					assertions.add(assertion);
+					assert (assertion.isValid());
 				}
 		}
 		return assertions;
@@ -71,6 +72,8 @@ public class PrimitiveTraceEntry implements OutputTraceEntry {
 		assertion.source = var;
 		assertion.value = value;
 		assertions.add(assertion);
+		assert (assertion.isValid());
+
 		return assertions;
 	}
 
@@ -81,7 +84,7 @@ public class PrimitiveTraceEntry implements OutputTraceEntry {
 	public boolean isDetectedBy(Assertion assertion) {
 		if (assertion instanceof PrimitiveAssertion) {
 			PrimitiveAssertion ass = (PrimitiveAssertion) assertion;
-			if (var.equals(ass.source) && ass.value != null && value != null)
+			if (var.equals(ass.source))
 				return !value.equals(ass.value);
 		}
 		return false;

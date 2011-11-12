@@ -151,4 +151,12 @@ public class CompareAssertion extends Assertion {
 		return vars;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.assertion.Assertion#isValid()
+	 */
+	@Override
+	public boolean isValid() {
+		return super.isValid() && dest != null;
+	}
+
 }
