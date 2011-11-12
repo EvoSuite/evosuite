@@ -49,7 +49,15 @@ public class NumberFormatter {
 		        || value.getClass().equals(Short.class)) {
 			return "(short)" + value;
 		} else if (value.getClass().isEnum()) {
-			return value.getClass().getSimpleName() + "." + value;
+			try {
+				if (value.getClass().getField(value.toString()) != null)
+					return value.getClass().getSimpleName() + "." + value;
+				else
+					return value.getClass().getSimpleName() + ".valueOf(\"" + value
+					        + "\")";
+			} catch (Exception e) {
+				return value.getClass().getSimpleName() + ".valueOf(\"" + value + "\")";
+			}
 
 		} else
 			return value.toString();
