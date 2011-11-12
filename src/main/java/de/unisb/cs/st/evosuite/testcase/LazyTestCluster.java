@@ -59,7 +59,7 @@ public class LazyTestCluster extends TestCluster {
 	 */
 	private LazyTestCluster() {
 	}
-	
+
 	@Override
 	protected void init() {
 		analyzeTarget();
@@ -860,6 +860,11 @@ public class LazyTestCluster extends TestCluster {
 			return false;
 		}
 
+		if (c.isSynthetic()) {
+			logger.debug("Skipping synthetic constructor " + c.getName());
+			return false;
+		}
+
 		if (!Properties.USE_DEPRECATED && c.getAnnotation(Deprecated.class) != null) {
 			logger.debug("Skipping deprecated method " + c.getName());
 			return false;
@@ -1003,7 +1008,7 @@ public class LazyTestCluster extends TestCluster {
 	}
 
 	public boolean isTargetClassName(String className) {
-	  // TODO: Implement me...
-	  return true;
+		// TODO: Implement me...
+		return true;
 	}
 }
