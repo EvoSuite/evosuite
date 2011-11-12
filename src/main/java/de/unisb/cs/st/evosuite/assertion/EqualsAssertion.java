@@ -36,24 +36,26 @@ public class EqualsAssertion extends Assertion {
 	public Assertion copy(TestCase newTestCase, int offset) {
 		EqualsAssertion s = new EqualsAssertion();
 		s.source = source.copy(newTestCase, offset);
-		try {
-			s.dest = dest.copy(newTestCase, offset);
-		} catch (IndexOutOfBoundsException e) {
-			logger.warn("Index out of bounds: " + newTestCase.toCode() + ", " + dest);
-		} catch (NullPointerException e) {
-			logger.warn("Dest is null: " + newTestCase.toCode() + ", " + dest);
-		}
+		s.dest = dest.copy(newTestCase, offset);
 		s.value = value;
 		return s;
 	}
 
 	@Override
 	public String getCode() {
-		if (((Boolean) value).booleanValue())
-			return "assertTrue(" + source.getName() + ".equals(" + dest.getName() + "));";
-		else
-			return "assertFalse(" + source.getName() + ".equals(" + dest.getName()
-			        + "));";
+		if (source.isPrimitive() && dest.isPrimitive()) {
+			if (((Boolean) value).booleanValue())
+				return "assertTrue(" + source.getName() + " == " + dest.getName() + ");";
+			else
+				return "assertFalse(" + source.getName() + " == " + dest.getName() + ");";
+		} else {
+			if (((Boolean) value).booleanValue())
+				return "assertTrue(" + source.getName() + ".equals(" + dest.getName()
+				        + "));";
+			else
+				return "assertFalse(" + source.getName() + ".equals(" + dest.getName()
+				        + "));";
+		}
 	}
 
 	@Override

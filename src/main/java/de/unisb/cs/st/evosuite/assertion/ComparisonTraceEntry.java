@@ -8,6 +8,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
@@ -15,6 +18,8 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  * 
  */
 public class ComparisonTraceEntry implements OutputTraceEntry {
+
+	private static Logger logger = LoggerFactory.getLogger(PrimitiveTraceEntry.class);
 
 	private final VariableReference var;
 
@@ -69,6 +74,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 					assertion.dest = otherVar;
 					assertion.value = equalityMap.get(otherVar);
 					assertions.add(assertion);
+					assert (assertion.isValid());
 				}
 			}
 		}
@@ -91,6 +97,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 			assertion.dest = otherVar;
 			assertion.value = equalityMap.get(otherVar);
 			assertions.add(assertion);
+			assert (assertion.isValid());
 		}
 		return assertions;
 	}

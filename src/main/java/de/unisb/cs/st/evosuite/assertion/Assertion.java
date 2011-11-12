@@ -126,4 +126,13 @@ public abstract class Assertion implements Serializable {
 		return vars;
 	}
 
+	/**
+	 * Self-check
+	 * 
+	 * @return
+	 */
+	public boolean isValid() {
+		return source != null && value != null;
+	}
+
 }

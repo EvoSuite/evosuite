@@ -77,6 +77,8 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 					assertion.inspector = inspector;
 					assertion.source = var;
 					assertions.add(assertion);
+					assert (assertion.isValid());
+
 				}
 			}
 		}
@@ -96,6 +98,7 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 			assertion.inspector = inspector;
 			assertion.source = var;
 			assertions.add(assertion);
+			assert (assertion.isValid());
 		}
 		return assertions;
 	}

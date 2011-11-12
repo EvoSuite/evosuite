@@ -31,6 +31,7 @@ public class NullAssertion extends Assertion {
 		NullAssertion s = new NullAssertion();
 		s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
 		s.value = value;
+		assert (s.isValid());
 		return s;
 	}
 

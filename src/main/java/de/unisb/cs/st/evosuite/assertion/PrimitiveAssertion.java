@@ -40,7 +40,7 @@ public class PrimitiveAssertion extends Assertion {
 			        + NumberFormatter.getNumberString(value) + ", 0.01D);";
 		} else if (value.getClass().isEnum()) {
 			return "assertEquals(" + source.getName() + ", "
-			        + this.source.getSimpleClassName() + "." + value + ");";
+			        + NumberFormatter.getNumberString(value) + ");";
 		} else if (source.isWrapperType()) {
 			if (source.getVariableClass().equals(Float.class)) {
 				return "assertEquals((float)" + source.getName() + ", "
@@ -50,7 +50,7 @@ public class PrimitiveAssertion extends Assertion {
 				        + NumberFormatter.getNumberString(value) + ", 0.01D);";
 			} else if (value.getClass().isEnum()) {
 				return "assertEquals(" + source.getName() + ", "
-				        + this.source.getSimpleClassName() + "." + value + ");";
+				        + NumberFormatter.getNumberString(value) + ");";
 			} else
 				return "assertEquals((" + NumberFormatter.getBoxedClassName(value) + ")"
 				        + source.getName() + ", " + value + ");";
