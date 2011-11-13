@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.testcase.Scope;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
@@ -40,10 +41,13 @@ public abstract class Assertion implements Serializable {
 	private static final long serialVersionUID = 1617423211706717599L;
 
 	/** Variable on which the assertion is made */
-	public VariableReference source;
+	protected VariableReference source;
 
 	/** Expected value of variable */
-	public Object value;
+	protected Object value;
+
+	/** Statement to which the assertion is added */
+	protected StatementInterface statement;
 
 	protected static Logger logger = LoggerFactory.getLogger(Assertion.class);
 
@@ -78,8 +82,40 @@ public abstract class Assertion implements Serializable {
 		return true;
 	}
 
+	/**
+	 * Setter for statement to which assertion is added
+	 * 
+	 * @param statement
+	 */
+	public void setStatement(StatementInterface statement) {
+		this.statement = statement;
+	}
+
+	/**
+	 * Getter for statement to which assertion is added
+	 * 
+	 * @return
+	 */
+	public StatementInterface getStatement() {
+		return statement;
+	}
+
+	/**
+	 * Getter for source variable
+	 * 
+	 * @return
+	 */
 	public VariableReference getSource() {
 		return source;
+	}
+
+	/**
+	 * Getter for value object
+	 * 
+	 * @return
+	 */
+	public Object getValue() {
+		return value;
 	}
 
 	/**

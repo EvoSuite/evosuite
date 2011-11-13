@@ -555,7 +555,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 				if (var != null && !var.isPrimitive()) {
 					Class<?> clazz = var.getVariableClass();
 					while (clazz.isMemberClass()) {
-						accessed_classes.add(clazz);
+						//accessed_classes.add(clazz);
 						clazz = clazz.getEnclosingClass();
 					}
 					while (clazz.isArray())
