@@ -32,7 +32,7 @@ public class Connector {
 		 * Call manual edition when coverage is smaller then 100% and delta is
 		 * too small and not change in few iterations
 		 */
-		if (newCoverage > 0)
+		if (newCoverage >= 0)
 			if (deltaCoverage < Properties.MIN_DELTA_COVERAGE) {
 				iterCount++;
 

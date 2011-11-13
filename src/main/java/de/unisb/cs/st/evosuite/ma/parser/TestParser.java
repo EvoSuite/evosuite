@@ -88,9 +88,15 @@ public class TestParser {
 	 * Editor
 	 * 
 	 * @param cu
+	 * @throws ParseException
 	 */
-	private List<Expression> getExpressionStmt(CompilationUnit cu) {
+	private List<Expression> getExpressionStmt(CompilationUnit cu) throws ParseException {
 		List<Expression> res = new ArrayList<Expression>();
+		
+		if (cu == null) {
+			throw new ParseException(null, "Wrong or empty testcase.");
+		}
+		
 		TypeDeclaration typeDeclaration = cu.getTypes().get(0);
 		BodyDeclaration member = typeDeclaration.getMembers().get(0);
 		// There is only one method in new TestCase - Dummy
@@ -98,6 +104,10 @@ public class TestParser {
 
 		if (member instanceof MethodDeclaration) {
 			method = (MethodDeclaration) member;
+		}
+
+		if (method.getBody().getStmts() == null) {
+			throw new ParseException(null, "Wrong or empty testcase.");
 		}
 
 		for (Statement statement : method.getBody().getStmts()) {
@@ -118,18 +128,17 @@ public class TestParser {
 	 * @param testCode
 	 *            to parse
 	 * @throws IOException
+	 * @throws ParseException 
 	 */
-	public TestCase parsTest(String testCode) throws IOException {
+	public TestCase parsTest(String testCode) throws IOException, ParseException{
 		CompilationUnit cu = null;
 		tt = new TypeTable();
-
+		
 		testCode = "class DummyCl{void DummyMt(){" + testCode + "}}";
 		InputStream inputStream = new ByteArrayInputStream(testCode.getBytes());
 
 		try {
 			cu = JavaParser.parse(inputStream);
-		} catch (ParseException e) {
-			editor.showParseException(e.getMessage());
 		} finally {
 			inputStream.close();
 		}
@@ -274,6 +283,7 @@ public class TestParser {
 			} else if (initExpr instanceof StringLiteralExpr) {
 				res = new StringPrimitiveStatement(newTestCase,
 						((StringLiteralExpr) initExpr).getValue());
+				System.out.println("String: " + ((StringLiteralExpr) initExpr).getValue());
 			} else if (initExpr instanceof NullLiteralExpr) {
 				res = new NullStatement(newTestCase, typeToClass(parsType));
 			}
@@ -665,7 +675,7 @@ public class TestParser {
 		}
 	}
 
-	public Class<?> getClass(String name) throws ClassNotFoundException {
+	private Class<?> getClass(String name) throws ClassNotFoundException {
 
 		// First try to find exact match
 		for (Class<?> clazz : testCluster.getAnalyzedClasses()) {

@@ -24,8 +24,6 @@ import de.unisb.cs.st.evosuite.ma.Editor;
  */
 public class SourceCodeGUI {
 
-	public boolean ready = false;
-
 	private final static Color LIGHT_GREEN = new Color(200, 255, 200);
 
 	private final static Color LIGHT_RED = new Color(255, 200, 200);
