@@ -46,10 +46,10 @@ public class MuPlusLambdaGA extends SteadyStateGA {
 	@Override
 	protected void evolve() {
 		logger.debug("Generating offspring");
-		current_iteration++;
+		currentIteration++;
 
-		Chromosome parent1 = selection_function.select(population);
-		Chromosome parent2 = selection_function.select(population);
+		Chromosome parent1 = selectionFunction.select(population);
+		Chromosome parent2 = selectionFunction.select(population);
 
 		Chromosome offspring1 = parent1.clone();
 		Chromosome offspring2 = parent2.clone();
@@ -57,7 +57,7 @@ public class MuPlusLambdaGA extends SteadyStateGA {
 		try {
 			// Crossover
 			if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
-				crossover_function.crossOver(offspring1, offspring2);
+				crossoverFunction.crossOver(offspring1, offspring2);
 			}
 
 			// Mutation
@@ -74,10 +74,10 @@ public class MuPlusLambdaGA extends SteadyStateGA {
 		// The two offspring replace the parents if and only if one of
 		// the offspring is not worse than the best parent.
 
-		fitness_function.getFitness(offspring1);
+		fitnessFunction.getFitness(offspring1);
 		notifyEvaluation(offspring1);
 
-		fitness_function.getFitness(offspring2);
+		fitnessFunction.getFitness(offspring2);
 		notifyEvaluation(offspring2);
 
 		// if (replacement_function.keepOffspring(parent1, parent2, offspring1,

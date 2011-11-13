@@ -19,42 +19,35 @@
 package de.unisb.cs.st.evosuite.assertion;
 
 import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
-import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
+import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
-public class NullOutputObserver extends ExecutionObserver {
-
-	private final NullOutputTrace trace = new NullOutputTrace();
-
-	@Override
-	public void clear() {
-		trace.trace.clear();
-	}
-
-	@Override
-	public void output(int position, String output) {
-		// TODO Auto-generated method stub
-
-	}
+public class NullTraceObserver extends AssertionTraceObserver<NullTraceEntry> {
 
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
-		try {
-			VariableReference retval = statement.getReturnValue();
+		visitReturnValue(statement, scope);
+	}
 
-			if (retval == null || retval.isPrimitive() || exception != null)
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.assertion.AssertionTraceObserver#visit(de.unisb.cs.st.evosuite.testcase.StatementInterface, de.unisb.cs.st.evosuite.testcase.Scope, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
+		logger.debug("Checking for null of " + var);
+		try {
+			if (var == null
+			        || var.isPrimitive()
+			        || currentTest.getStatement(var.getStPosition()) instanceof PrimitiveStatement)
 				return;
 
-			Object object = retval.getObject(scope);
-			trace.trace.put(statement.getPosition(), object == null);
+			Object object = var.getObject(scope);
+			trace.addEntry(statement.getPosition(), var, new NullTraceEntry(var,
+			        object == null));
 		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
-	}
-
-	public NullOutputTrace getTrace() {
-		return trace.clone();
 	}
 }

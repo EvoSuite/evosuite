@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -44,16 +45,17 @@ public class MethodStatement extends AbstractStatement {
 
 	private transient Method method;
 
-	VariableReference callee;
+	protected VariableReference callee;
 
-	public List<VariableReference> parameters;
+	protected List<VariableReference> parameters;
 
 	public MethodStatement(TestCase tc, Method method, VariableReference callee,
 	        java.lang.reflect.Type type, List<VariableReference> parameters) {
 		super(tc, type);
 		assert (Modifier.isStatic(method.getModifiers()) || callee != null);
 		assert (parameters != null);
-		assert (method.getParameterTypes().length == parameters.size());
+		assert (method.getParameterTypes().length == parameters.size()) : method.getParameterTypes().length
+		        + " != " + parameters.size();
 		this.method = method;
 		this.callee = callee;
 		this.parameters = parameters;
@@ -102,14 +104,6 @@ public class MethodStatement extends AbstractStatement {
 	private boolean isInstanceMethod() {
 		return !Modifier.isStatic(method.getModifiers());
 	}
-
-	/*	
-	} catch (CodeUnderTestException e) {
-		throw CodeUnderTestException.throwException(e);
-	} catch(Throwable e){
-		throw new EvosuiteError(e);
-	}
-	 */
 
 	@Override
 	public Throwable execute(final Scope scope, PrintStream out)
@@ -218,19 +212,24 @@ public class MethodStatement extends AbstractStatement {
 			}
 			Class<?> declaredParamType = method.getParameterTypes()[i];
 			Class<?> actualParamType = parameters.get(i).getVariableClass();
-			if (!declaredParamType.equals(actualParamType)) {
+			String name = parameters.get(i).getName();
+			if (!declaredParamType.equals(actualParamType) || name.equals("null")) {
 				// && parameters.get(i) instanceof ArrayIndex)
 				parameter_string += "("
 				        + new GenericClass(method.getParameterTypes()[i]).getSimpleName()
 				        + ") ";
 			}
-			parameter_string += parameters.get(i).getName();
+			parameter_string += name;
 		}
 
 		String callee_str = "";
 		if (exception == null
-		        && !retval.getVariableClass().isAssignableFrom(method.getReturnType())) {
-			callee_str = "(" + retval.getSimpleClassName() + ")";
+		        && !retval.getVariableClass().isAssignableFrom(method.getReturnType())
+		        && !retval.getVariableClass().isAnonymousClass()) {
+			String name = retval.getSimpleClassName();
+			if (!name.matches(".*\\.\\d+$")) {
+				callee_str = "(" + name + ")";
+			}
 		}
 
 		if (Modifier.isStatic(method.getModifiers())) {
@@ -256,9 +255,11 @@ public class MethodStatement extends AbstractStatement {
 			        + ClassUtils.getShortClassName(ex) + "\");";
 			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {\n";
 			if (exception.getMessage() != null) {
+				result += "  /*\n";
 				for (String msg : exception.getMessage().split("\n")) {
-					result += "  // " + msg + "\n";
+					result += "   * " + StringEscapeUtils.escapeJava(msg) + "\n";
 				}
+				result += "   */\n";
 			}
 			result += "}";
 		}
@@ -572,12 +573,9 @@ public class MethodStatement extends AbstractStatement {
 	private void writeObject(ObjectOutputStream oos) throws IOException {
 		oos.defaultWriteObject();
 		// Write/save additional fields
-		oos.writeObject(method.getDeclaringClass());
-		Method[] methods = method.getDeclaringClass().getDeclaredMethods();
-		for (int i = 0; i < methods.length; i++) {
-			if (methods[i].equals(method))
-				oos.writeObject(new Integer(i));
-		}
+		oos.writeObject(method.getDeclaringClass().getName());
+		oos.writeObject(method.getName());
+		oos.writeObject(Type.getMethodDescriptor(method));
 	}
 
 	// assumes "static java.util.Date aDate;" declared
@@ -586,10 +584,19 @@ public class MethodStatement extends AbstractStatement {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
-		Class<?> methodClass = (Class<?>) ois.readObject();
-		int num = (Integer) ois.readObject();
+		Class<?> methodClass = TestCluster.classLoader.loadClass((String) ois.readObject());
+		methodClass = TestCluster.classLoader.loadClass(methodClass.getName());
+		String methodName = (String) ois.readObject();
+		String methodDesc = (String) ois.readObject();
 
-		method = methodClass.getDeclaredMethods()[num];
+		for (Method method : methodClass.getDeclaredMethods()) {
+			if (method.getName().equals(methodName)) {
+				if (Type.getMethodDescriptor(method).equals(methodDesc)) {
+					this.method = method;
+					return;
+				}
+			}
+		}
 	}
 
 	/* (non-Javadoc)

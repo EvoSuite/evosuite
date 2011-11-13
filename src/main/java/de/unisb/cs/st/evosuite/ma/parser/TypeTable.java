@@ -2,7 +2,6 @@ package de.unisb.cs.st.evosuite.ma.parser;
 
 import japa.parser.ParseException;
 import japa.parser.ast.expr.Expression;
-import japa.parser.ast.expr.FieldAccessExpr;
 import japa.parser.ast.expr.NameExpr;
 import japa.parser.ast.type.Type;
 
@@ -18,31 +17,47 @@ public class TypeTable {
 
 	private final ArrayList<Var> typeTable = new ArrayList<Var>();
 
+	@Override
+	public TypeTable clone() {
+		TypeTable copy = new TypeTable();
+		copy.typeTable.addAll(typeTable);
+		return copy;
+	}
+
 	public void addVar(Var var) {
 		typeTable.add(var);
+	}
+
+	public boolean hasVar(String varName) {
+		for (Var tmpVar : typeTable) {
+			if (tmpVar.getVarName().equals(varName)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
 	 * Return Type of var if exist. For Static var (first letter is capital)
 	 * return null.
 	 * 
-	 * @param varName String
+	 * @param varName
+	 *            String
 	 * @return Type of variable.
 	 * @throws ParseException
 	 *             if var not found in TT.
 	 */
 	public Type getType(String varName) throws ParseException {
-		if (!TestParser.isStatic(varName)) {
-			for (Var tmpVar : typeTable) {
-				if (tmpVar.getVarName().equals(varName)) {
-					return tmpVar.getVarType();
-				}
+		//if (!TestParser.isStatic(varName)) {
+		for (Var tmpVar : typeTable) {
+			if (tmpVar.getVarName().equals(varName)) {
+				return tmpVar.getVarType();
 			}
-			throw new ParseException(null, "Type of: " + varName
-					+ " not found!");
 		}
+		throw new ParseException(null, "Type of: " + varName + " not found!");
+		//}
 
-		return null;
+		//return null;
 	}
 
 	/**
@@ -54,13 +69,14 @@ public class TypeTable {
 		if (expr instanceof NameExpr) {
 			return getType(((NameExpr) expr).getName());
 		}
+		/*
 		if (expr instanceof FieldAccessExpr) {
 			FieldAccessExpr fieldExpr = (FieldAccessExpr) expr;
 			if (!TestParser.isStatic(fieldExpr.getScope().toString())) {
 				return getType(fieldExpr.getScope().toString());
 			}
 		}
-
+		*/
 		return null;
 	}
 
@@ -71,15 +87,13 @@ public class TypeTable {
 	 * @throws ParseException
 	 */
 	// TODO implement with HashSet
-	public VariableReference getVarReference(String varName)
-			throws ParseException {
+	public VariableReference getVarReference(String varName) throws ParseException {
 		for (Var var : typeTable) {
 			if (var.getVarName().equals(varName)) {
 				return var.getVarRef();
 			}
 		}
-		throw new ParseException(null, "Var ref of: " + varName
-				+ " not found in TT.");
+		throw new ParseException(null, "Var ref of: " + varName + " not found in TT.");
 	}
 
 	/*

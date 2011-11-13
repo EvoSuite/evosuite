@@ -235,6 +235,13 @@ public class Properties {
 	@IntValue(min = 1)
 	public static int POPULATION = 50;
 
+	public enum PopulationLimit {
+		INDIVIDUALS, TESTS, STATEMENTS;
+	}
+
+	@Parameter(key = "population_limit", group = "Search Algorithm", description = "What to use as limit for the population size")
+	public static PopulationLimit POPULATION_LIMIT = PopulationLimit.INDIVIDUALS;
+
 	@Parameter(key = "generations", group = "Search Algorithm", description = "Maximum search duration")
 	@LongValue(min = 1)
 	public static long GENERATIONS = 1000000;
@@ -303,6 +310,13 @@ public class Properties {
 
 	// ---------------------------------------------------------------
 	// Output
+	public enum OutputFormat {
+		JUNIT3, JUNIT4, TESTNG
+	}
+
+	@Parameter(key = "test_format", group = "Output", description = "Format of the resulting test cases")
+	public static OutputFormat TEST_FORMAT = OutputFormat.JUNIT4;
+
 	@Parameter(key = "print_to_system", group = "Output", description = "Allow test output on console")
 	public static boolean PRINT_TO_SYSTEM = false;
 
@@ -427,6 +441,15 @@ public class Properties {
 
 	@Parameter(key = "test_factory", description = "Which factory creates tests")
 	public static TestFactory TEST_FACTORY = TestFactory.RANDOM;
+
+	@Parameter(key = "junit_strict", description = "Only include test files containing the target classname")
+	public static boolean JUNIT_STRICT = false;
+
+	@Parameter(key = "seed_clone", description = "Probability with which existing individuals are cloned")
+	public static double SEED_CLONE = 0.2;
+
+	@Parameter(key = "seed_mutations", description = "Probability with which cloned individuals are mutated")
+	public static int SEED_MUTATIONS = 2;
 
 	@Parameter(key = "concolic_mutation", description = "Probability of using concolic mutation operator")
 	@DoubleValue(min = 0.0, max = 1.0)
@@ -624,12 +647,17 @@ public class Properties {
 				logger.info("- Error setting parameter \"" + parameter + "\": " + e);
 			}
 		}
+		if (POPULATION_LIMIT == PopulationLimit.STATEMENTS) {
+			if (MAX_LENGTH < POPULATION) {
+				MAX_LENGTH = POPULATION;
+			}
+		}
 	}
 
 	private void loadPropertiesFile() {
 		properties = new java.util.Properties();
-		String propertiesFile = System.getProperty(PROPERTIES_FILE,
-		                                           "evosuite-files/evosuite.properties");
+		String propertiesFile = System.getProperty(PROPERTIES_FILE, "evosuite-files"
+		        + File.separator + "evosuite.properties");
 		try {
 			InputStream in = null;
 			if (new File(propertiesFile).exists()) {
@@ -1074,7 +1102,9 @@ public class Properties {
 	public void writeConfiguration(String fileName) {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("CP=");
-		buffer.append(Properties.CP);
+		// Replace backslashes with forwardslashes, as backslashes are dropped during reading
+		// TODO: What if there are weird characters in the code? Need regex
+		buffer.append(Properties.CP.replace("\\", "/"));
 		buffer.append("\nPROJECT_PREFIX=");
 		if (Properties.PROJECT_PREFIX != null)
 			buffer.append(Properties.PROJECT_PREFIX);

@@ -76,7 +76,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 				try {
 					is = findTargetResource(".*" + className + ".class");
 				} catch (FileNotFoundException e) {
-					throw new ClassNotFoundException("Class '" + className
+					throw new ClassNotFoundException("Class '" + className + ".class"
 					        + "' should be in target project, but could not be found!");
 				}
 			}
