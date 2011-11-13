@@ -1,5 +1,7 @@
 package de.unisb.cs.st.evosuite.ma;
 
+import japa.parser.ParseException;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -144,6 +146,8 @@ public class Editor {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (ParseException e) {
+			showParseException(e.getMessage());
 		}
 		return false;
 	}
