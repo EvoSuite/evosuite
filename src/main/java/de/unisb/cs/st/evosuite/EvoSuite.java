@@ -21,6 +21,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
 
+import de.unisb.cs.st.evosuite.utils.ClassPathHacker;
 import de.unisb.cs.st.evosuite.utils.ExternalProcessHandler;
 
 /**
@@ -197,6 +198,14 @@ public class EvoSuite {
 		 */
 		Properties.getInstance();//should force the load
 		Properties.TARGET_CLASS = target;
+
+		for (String entry : Properties.CP.split(File.pathSeparator)) {
+			try {
+				ClassPathHacker.addFile(entry);
+			} catch (IOException e) {
+				System.out.println("* Error while adding classpath entry: " + entry);
+			}
+		}
 
 		Object result = null;
 		if (handler.startProcess(newArgs)) {

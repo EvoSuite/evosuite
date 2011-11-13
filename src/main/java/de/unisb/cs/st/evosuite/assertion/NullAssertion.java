@@ -24,11 +24,14 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 public class NullAssertion extends Assertion {
 
+	private static final long serialVersionUID = 8486987896764253928L;
+
 	@Override
 	public Assertion copy(TestCase newTestCase, int offset) {
 		NullAssertion s = new NullAssertion();
 		s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
 		s.value = value;
+		assert (s.isValid());
 		return s;
 	}
 

@@ -68,15 +68,18 @@ import de.unisb.cs.st.evosuite.ga.CrossOverFunction;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.FitnessProportionateSelection;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
+import de.unisb.cs.st.evosuite.ga.IndividualPopulationLimit;
 import de.unisb.cs.st.evosuite.ga.MinimizeSizeSecondaryObjective;
 import de.unisb.cs.st.evosuite.ga.MuPlusLambdaGA;
 import de.unisb.cs.st.evosuite.ga.OnePlusOneEA;
+import de.unisb.cs.st.evosuite.ga.PopulationLimit;
 import de.unisb.cs.st.evosuite.ga.RankSelection;
 import de.unisb.cs.st.evosuite.ga.SecondaryObjective;
 import de.unisb.cs.st.evosuite.ga.SelectionFunction;
 import de.unisb.cs.st.evosuite.ga.SinglePointCrossOver;
 import de.unisb.cs.st.evosuite.ga.SinglePointFixedCrossOver;
 import de.unisb.cs.st.evosuite.ga.SinglePointRelativeCrossOver;
+import de.unisb.cs.st.evosuite.ga.SizePopulationLimit;
 import de.unisb.cs.st.evosuite.ga.StandardGA;
 import de.unisb.cs.st.evosuite.ga.SteadyStateGA;
 import de.unisb.cs.st.evosuite.ga.TournamentChromosomeFactory;
@@ -89,7 +92,7 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
-import de.unisb.cs.st.evosuite.junit.TestSuite;
+import de.unisb.cs.st.evosuite.junit.TestSuiteWriter;
 import de.unisb.cs.st.evosuite.primitives.ObjectPool;
 import de.unisb.cs.st.evosuite.sandbox.PermissionStatistics;
 import de.unisb.cs.st.evosuite.testcase.AllMethodsTestChromosomeFactory;
@@ -116,6 +119,7 @@ import de.unisb.cs.st.evosuite.testsuite.MinimizeMaxLengthSecondaryObjective;
 import de.unisb.cs.st.evosuite.testsuite.MinimizeTotalLengthSecondaryObjective;
 import de.unisb.cs.st.evosuite.testsuite.RelativeSuiteLengthBloatControl;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
+import de.unisb.cs.st.evosuite.testsuite.StatementsPopulationLimit;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosomeFactory;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunc_to_TestFitnessFactory_Adapter;
@@ -251,7 +255,8 @@ public class TestSuiteGenerator {
 
 	public static void writeJUnitTests(List<TestCase> tests) {
 		if (Properties.JUNIT_TESTS) {
-			TestSuite suite = new TestSuite(tests);
+			TestSuiteWriter suite = new TestSuiteWriter();
+			suite.insertTests(tests);
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 			String testDir = Properties.TEST_DIR;
 			if (analyzing)
@@ -310,7 +315,7 @@ public class TestSuiteGenerator {
 			asserter.addAssertions(test, killed);
 			tkilled.addAll(killed);
 		}
-		asserter.writeStatistics();
+		// asserter.writeStatistics();
 		//System.out.println("Killed: " + tkilled.size() + "/" + asserter.numMutants());
 	}
 
@@ -943,8 +948,9 @@ public class TestSuiteGenerator {
 				        new TestSuiteChromosomeFactory());
 			case JUNIT:
 				logger.info("Using seeding chromosome factory");
-				return new TestSuiteChromosomeFactory(new JUnitTestChromosomeFactory(
-				        new RandomLengthTestFactory()));
+				JUnitTestChromosomeFactory factory = new JUnitTestChromosomeFactory(
+				        new RandomLengthTestFactory());
+				return new TestSuiteChromosomeFactory(factory);
 			default:
 				throw new RuntimeException("Unsupported test factory: "
 				        + Properties.TEST_FACTORY);
@@ -1017,6 +1023,19 @@ public class TestSuiteGenerator {
 		}
 	}
 
+	public static PopulationLimit getPopulationLimit() {
+		switch (Properties.POPULATION_LIMIT) {
+		case INDIVIDUALS:
+			return new IndividualPopulationLimit();
+		case TESTS:
+			return new SizePopulationLimit();
+		case STATEMENTS:
+			return new StatementsPopulationLimit();
+		default:
+			throw new RuntimeException("Unsupported population limit");
+		}
+	}
+
 	public static GeneticAlgorithm getGeneticAlgorithm(
 	        ChromosomeFactory<? extends Chromosome> factory) {
 		switch (Properties.ALGORITHM) {
@@ -1077,6 +1096,8 @@ public class TestSuiteGenerator {
 			ga.addStoppingCondition(global_time);
 		if (Properties.CRITERION == Criterion.MUTATION)
 			ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
+
+		ga.setPopulationLimit(getPopulationLimit());
 
 		// How to cross over
 		CrossOverFunction crossover_function = getCrossoverFunction();

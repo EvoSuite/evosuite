@@ -45,6 +45,10 @@ public abstract class ExecutableChromosome extends Chromosome {
 		lastMutationResult.clear();
 	}
 
+	public void clearCachedMutationResults() {
+		lastMutationResult.clear();
+	}
+
 	protected abstract void copyCachedResults(ExecutableChromosome other);
 
 	abstract public ExecutionResult executeForFitnessFunction(

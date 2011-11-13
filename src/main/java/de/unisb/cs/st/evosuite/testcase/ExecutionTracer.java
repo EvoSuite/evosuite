@@ -127,6 +127,10 @@ public class ExecutionTracer {
 		if (!checkCallerThread) {
 			return false;
 		}
+		if (getExecutionTracer().killSwitch) {
+			logger.info("Raising TimeoutException as kill switch is active - passedLine");
+			throw new TestCaseExecutor.TimeoutExceeded();
+		}
 		if (currentThread == null) {
 			logger.warn("CurrentThread has not been set!");
 			Map<Thread, StackTraceElement[]> map = Thread.getAllStackTraces();
@@ -166,10 +170,10 @@ public class ExecutionTracer {
 	public static void enteredMethod(String classname, String methodname, Object caller)
 	        throws TestCaseExecutor.TimeoutExceeded {
 		ExecutionTracer tracer = getExecutionTracer();
-		
+
 		if (tracer.disabled)
 			return;
-		
+
 		if (isThreadNeqCurrentThread())
 			return;
 
@@ -340,6 +344,11 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
+		if (tracer.killSwitch) {
+			logger.info("Raising TimeoutException as kill switch is active - passedLine");
+			throw new TestCaseExecutor.TimeoutExceeded();
+		}
+
 		// logger.trace("Called passedBranch1 with opcode "+AbstractVisitor.OPCODES[opcode]+" and val "+val+" in branch "+branch);
 		double distance_true = 0.0;
 		double distance_false = 0.0;
@@ -405,6 +414,11 @@ public class ExecutionTracer {
 
 		if (isThreadNeqCurrentThread())
 			return;
+
+		if (tracer.killSwitch) {
+			logger.info("Raising TimeoutException as kill switch is active - passedLine");
+			throw new TestCaseExecutor.TimeoutExceeded();
+		}
 
 		/* logger.trace("Called passedBranch2 with opcode "
 		        + AbstractVisitor.OPCODES[opcode] + ", val1=" + val1 + ", val2=" + val2
@@ -479,6 +493,11 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
+		if (tracer.killSwitch) {
+			logger.info("Raising TimeoutException as kill switch is active - passedLine");
+			throw new TestCaseExecutor.TimeoutExceeded();
+		}
+
 		// logger.trace("Called passedBranch3 with opcode "
 		//        + AbstractVisitor.OPCODES[opcode]); // +", val1="+val1+", val2="+val2+" in branch "+branch);
 		double distance_true = 0;
@@ -540,6 +559,11 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
+		if (tracer.killSwitch) {
+			logger.info("Raising TimeoutException as kill switch is active - passedLine");
+			throw new TestCaseExecutor.TimeoutExceeded();
+		}
+
 		double distance_true = 0;
 		double distance_false = 0;
 		switch (opcode) {
@@ -566,22 +590,19 @@ public class ExecutionTracer {
 	 * Called by instrumented code each time a variable gets written to (a
 	 * Definition)
 	 */
-	public static void passedDefinition(String className, String varName,
-	        String methodName, Object caller, int branchID, int defID) {
+	public static void passedDefinition(Object caller, int defID) {
 		if (isThreadNeqCurrentThread())
 			return;
 
 		ExecutionTracer tracer = getExecutionTracer();
 		if (!tracer.disabled)
-			tracer.trace.definitionPassed(className, varName, methodName, caller,
-			                              branchID, defID);
+			tracer.trace.definitionPassed(caller, defID);
 	}
 
 	/**
 	 * Called by instrumented code each time a variable is read from (a Use)
 	 */
-	public static void passedUse(String className, String varName, String methodName,
-	        Object caller, int branchID, int useID) {
+	public static void passedUse(Object caller, int useID) {
 
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)
@@ -590,7 +611,7 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
-		tracer.trace.usePassed(className, varName, methodName, caller, branchID, useID);
+		tracer.trace.usePassed(caller, useID);
 	}
 
 	public static void passedMutation(int mutationId, double distance) {
@@ -600,6 +621,11 @@ public class ExecutionTracer {
 
 		if (isThreadNeqCurrentThread())
 			return;
+
+		if (tracer.killSwitch) {
+			logger.info("Raising TimeoutException as kill switch is active - passedLine");
+			throw new TestCaseExecutor.TimeoutExceeded();
+		}
 
 		tracer.trace.mutationPassed(mutationId, distance);
 	}
@@ -611,6 +637,11 @@ public class ExecutionTracer {
 
 		if (isThreadNeqCurrentThread())
 			return;
+
+		if (tracer.killSwitch) {
+			logger.info("Raising TimeoutException as kill switch is active - passedLine");
+			throw new TestCaseExecutor.TimeoutExceeded();
+		}
 
 		tracer.num_statements++;
 	}

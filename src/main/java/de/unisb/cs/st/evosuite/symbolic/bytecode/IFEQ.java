@@ -22,6 +22,10 @@
 
 package de.unisb.cs.st.evosuite.symbolic.bytecode;
 
+
+import gov.nasa.jpf.JPF;
+import java.util.logging.Logger;
+
 import gov.nasa.jpf.jvm.ThreadInfo;
 import de.unisb.cs.st.evosuite.symbolic.expr.Comparator;
 import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
@@ -29,13 +33,15 @@ import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
 
 public class IFEQ extends gov.nasa.jpf.jvm.bytecode.IFEQ {
-
+	
+	
+	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.ifeq");
+	
+	
 	public IFEQ(int targetPc) {
 		super(targetPc);
-		// TODO Auto-generated constructor stub
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean popConditionValue(ThreadInfo ti) {
 		Expression<Long> sym = (Expression<Long>) ti.getOperandAttr();

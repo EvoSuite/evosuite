@@ -54,7 +54,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	protected List<StatementInterface> statements;
 
 	// a list of all goals this test covers
-	private transient final HashSet<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
+	private final HashSet<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
 
 	/**
 	 * Constructor
@@ -384,6 +384,34 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getDependencies(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public Set<VariableReference> getDependencies(VariableReference var) {
+		Set<VariableReference> dependencies = new HashSet<VariableReference>();
+
+		if (var == null || var.getStPosition() == -1)
+			return dependencies;
+
+		Set<StatementInterface> dependentStatements = new HashSet<StatementInterface>();
+		dependentStatements.add(statements.get(var.getStPosition()));
+
+		for (int i = var.getStPosition(); i >= 0; i--) {
+			Set<StatementInterface> newStatements = new HashSet<StatementInterface>();
+			for (StatementInterface s : dependentStatements) {
+				if (s.references(statements.get(i).getReturnValue())) {
+					newStatements.add(statements.get(i));
+					dependencies.add(statements.get(i).getReturnValue());
+					break;
+				}
+			}
+			dependentStatements.addAll(newStatements);
+		}
+
+		return dependencies;
+	}
+
+	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#remove(int)
 	 */
 	@Override
@@ -526,8 +554,10 @@ public class DefaultTestCase implements TestCase, Serializable {
 			for (VariableReference var : s.getVariableReferences()) {
 				if (var != null && !var.isPrimitive()) {
 					Class<?> clazz = var.getVariableClass();
-					while (clazz.isMemberClass())
+					while (clazz.isMemberClass()) {
+						//accessed_classes.add(clazz);
 						clazz = clazz.getEnclosingClass();
+					}
 					while (clazz.isArray())
 						clazz = clazz.getComponentType();
 					accessed_classes.add(clazz);
@@ -538,6 +568,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 				accessed_classes.addAll(Arrays.asList(ms.getMethod().getExceptionTypes()));
 				accessed_classes.add(ms.getMethod().getDeclaringClass());
 				accessed_classes.add(ms.getMethod().getReturnType());
+				accessed_classes.addAll(Arrays.asList(ms.getMethod().getParameterTypes()));
 			} else if (s instanceof FieldStatement) {
 				FieldStatement fs = (FieldStatement) s;
 				accessed_classes.add(fs.getField().getDeclaringClass());
@@ -546,6 +577,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 				ConstructorStatement cs = (ConstructorStatement) s;
 				accessed_classes.add(cs.getConstructor().getDeclaringClass());
 				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getExceptionTypes()));
+				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getParameterTypes()));
 			}
 		}
 		return accessed_classes;
@@ -708,4 +740,13 @@ public class DefaultTestCase implements TestCase, Serializable {
 			s.changeClassLoader(loader);
 		}
 	}
+
+	/*
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+
+		coveredGoals = new HashSet<TestFitnessFunction>();
+	}
+	*/
 }

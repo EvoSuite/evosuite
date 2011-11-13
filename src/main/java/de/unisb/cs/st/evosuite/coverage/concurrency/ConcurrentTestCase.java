@@ -386,6 +386,11 @@ public class ConcurrentTestCase implements TestCase {
 	}
 
 	@Override
+	public Set<VariableReference> getDependencies(VariableReference var) {
+		return test.getDependencies(var);
+	}
+
+	@Override
 	public void remove(int position) {
 		markScheduleDeleted(getStatement(position));
 		test.remove(position);

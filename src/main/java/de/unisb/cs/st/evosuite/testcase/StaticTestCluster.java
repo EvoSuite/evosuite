@@ -112,8 +112,9 @@ public class StaticTestCluster extends TestCluster {
 	/**
 	 * Private constructor
 	 */
-	protected StaticTestCluster() {	}
-	
+	protected StaticTestCluster() {
+	}
+
 	@Override
 	protected void init() {
 		populate();
@@ -141,7 +142,6 @@ public class StaticTestCluster extends TestCluster {
 	//
 	// In setup script, add all jars / classes found in local dir to classpath?
 
-	
 	public static boolean isTargetClassName(String className) {
 		if (!Properties.TARGET_CLASS_PREFIX.isEmpty()
 		        && className.startsWith(Properties.TARGET_CLASS_PREFIX)) {
@@ -607,6 +607,11 @@ public class StaticTestCluster extends TestCluster {
 		                                          // !(Modifier.isProtected(c.getModifiers())))
 			return false;
 
+		if (!Properties.USE_DEPRECATED && c.isAnnotationPresent(Deprecated.class)) {
+			logger.debug("Skipping deprecated class " + c.getName());
+			return false;
+		}
+
 		/*
 		 * if(Modifier.isAbstract(c.getModifiers())) return false;
 		 * 
@@ -643,6 +648,11 @@ public class StaticTestCluster extends TestCluster {
 		if (f.getDeclaringClass().equals(java.lang.Thread.class))
 			return false;// handled here to avoid printing reasons
 
+		if (!Properties.USE_DEPRECATED && f.isAnnotationPresent(Deprecated.class)) {
+			logger.debug("Skipping deprecated field " + f.getName());
+			return false;
+		}
+
 		if (Modifier.isPublic(f.getModifiers()))
 			return true;
 
@@ -675,7 +685,7 @@ public class StaticTestCluster extends TestCluster {
 			return false;
 		}
 
-		if (!Properties.USE_DEPRECATED && m.getAnnotation(Deprecated.class) != null) {
+		if (!Properties.USE_DEPRECATED && m.isAnnotationPresent(Deprecated.class)) {
 			logger.debug("Skipping deprecated method " + m.getName());
 			return false;
 		}
@@ -783,8 +793,13 @@ public class StaticTestCluster extends TestCluster {
 		        && !Modifier.isStatic(c.getDeclaringClass().getModifiers()))
 			return false;
 
+		if (c.isSynthetic()) {
+			logger.debug("Skipping synthetic constructor " + c.getName());
+			return false;
+		}
+
 		if (!Properties.USE_DEPRECATED && c.getAnnotation(Deprecated.class) != null) {
-			logger.debug("Skipping deprecated method " + c.getName());
+			logger.debug("Skipping deprecated constructor " + c.getName());
 			return false;
 		}
 

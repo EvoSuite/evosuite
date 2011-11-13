@@ -19,7 +19,7 @@ public abstract class AssertionGenerator {
 
 	protected static Logger logger = LoggerFactory.getLogger(AssertionGenerator.class);
 
-	protected static PrimitiveOutputTraceObserver primitive_observer = new PrimitiveOutputTraceObserver();
+	protected static PrimitiveTraceObserver primitive_observer = new PrimitiveTraceObserver();
 
 	protected static ComparisonTraceObserver comparison_observer = new ComparisonTraceObserver();
 
@@ -27,7 +27,7 @@ public abstract class AssertionGenerator {
 
 	protected static PrimitiveFieldTraceObserver field_observer = new PrimitiveFieldTraceObserver();
 
-	protected static NullOutputObserver null_observer = new NullOutputObserver();
+	protected static NullTraceObserver null_observer = new NullTraceObserver();
 
 	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
@@ -54,11 +54,11 @@ public abstract class AssertionGenerator {
 			result = executor.execute(test);
 			int num = test.size();
 			MaxStatementsStoppingCondition.statementsExecuted(num);
-			result.comparison_trace = comparison_observer.getTrace();
-			result.primitive_trace = primitive_observer.getTrace();
-			result.inspector_trace = inspector_observer.getTrace();
-			result.field_trace = field_observer.getTrace();
-			result.null_trace = null_observer.getTrace();
+			result.setTrace(comparison_observer.getTrace(), ComparisonTraceEntry.class);
+			result.setTrace(primitive_observer.getTrace(), PrimitiveTraceEntry.class);
+			result.setTrace(inspector_observer.getTrace(), InspectorTraceEntry.class);
+			result.setTrace(field_observer.getTrace(), PrimitiveFieldTraceEntry.class);
+			result.setTrace(null_observer.getTrace(), NullTraceEntry.class);
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
