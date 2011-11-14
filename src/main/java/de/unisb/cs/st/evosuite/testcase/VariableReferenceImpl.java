@@ -1,6 +1,5 @@
 package de.unisb.cs.st.evosuite.testcase;
 
-import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Map;
 
@@ -9,13 +8,14 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VariableReferenceImpl implements VariableReference, Serializable {
+import de.unisb.cs.st.evosuite.utils.PassiveChangeListener;
 
+public class VariableReferenceImpl implements VariableReference {
 	private static final long serialVersionUID = 7014270636820758121L;
 
 	private int distance = 0;
 
-	protected static Logger logger = LoggerFactory.getLogger(VariableReferenceImpl.class);
+	private static Logger logger = LoggerFactory.getLogger(VariableReferenceImpl.class);
 
 	/**
 	 * Type (class) of the variable
@@ -26,6 +26,8 @@ public class VariableReferenceImpl implements VariableReference, Serializable {
 	 * The testCase in which this VariableReference is valid
 	 */
 	protected TestCase testCase;
+	protected final PassiveChangeListener<Void> changeListener = new PassiveChangeListener<Void>();
+	protected Integer stPosition;
 
 	/**
 	 * Constructor
@@ -40,6 +42,7 @@ public class VariableReferenceImpl implements VariableReference, Serializable {
 	public VariableReferenceImpl(TestCase testCase, GenericClass type) {
 		this.testCase = testCase;
 		this.type = type;
+		testCase.addListener(changeListener);
 	}
 
 	public VariableReferenceImpl(TestCase testCase, Type type) {
@@ -54,14 +57,20 @@ public class VariableReferenceImpl implements VariableReference, Serializable {
 	 */
 	@Override
 	public int getStPosition() {
-		for (int i = 0; i < testCase.size(); i++) {
-			if (testCase.getStatement(i).getReturnValue().equals(this)) {
-				return i;
+		if ((stPosition == null) || changeListener.hasChanged()) {
+			stPosition = null;
+			for (int i = 0; i < testCase.size(); i++) {
+				if (testCase.getStatement(i).getReturnValue().equals(this)) {
+					stPosition = i;
+					break;
+				}
+			}
+			if (stPosition == null) {
+				throw new AssertionError(
+		        	"A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase");
 			}
 		}
-
-		throw new AssertionError(
-		        "A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase");
+		return stPosition;
 	}
 
 	/**
@@ -269,14 +278,6 @@ public class VariableReferenceImpl implements VariableReference, Serializable {
 	@Override
 	public boolean equals(Object obj) {
 		return super.equals(obj); //We can use the object equals as each VariableReference is only defined once
-	}
-
-	/**
-	 * Hash function
-	 */
-	@Override
-	public int hashCode() {
-		return super.hashCode(); //as each return value exists exactly once
 	}
 
 	/**

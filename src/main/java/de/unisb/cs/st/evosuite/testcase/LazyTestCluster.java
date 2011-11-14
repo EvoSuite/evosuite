@@ -29,6 +29,8 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
  * 
  */
 public class LazyTestCluster extends TestCluster {
+	
+	private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LazyTestCluster.class);
 
 	/** Instance variable */
 	private static LazyTestCluster instance = null;

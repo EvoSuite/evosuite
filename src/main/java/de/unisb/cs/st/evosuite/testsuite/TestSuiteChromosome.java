@@ -67,8 +67,10 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	@Override
 	public void mutate() {
 		super.mutate();
+		handleTestCallStatements();
+	}
 
-		// Handle TestCallStatements
+	protected void handleTestCallStatements(){
 		Iterator<TestChromosome> it = tests.iterator();
 		Iterator<Boolean> uit = unmodifiableTests.iterator();
 
@@ -94,7 +96,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			}
 		}
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#localSearch()
 	 */

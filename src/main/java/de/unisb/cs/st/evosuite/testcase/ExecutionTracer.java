@@ -42,6 +42,7 @@ public class ExecutionTracer {
 
 	private static ExecutionTracer instance = null;
 
+	
 	/**
 	 * We need to disable the execution tracer sometimes, e.g. when calling
 	 * equals in the branch distance function
@@ -141,10 +142,8 @@ public class ExecutionTracer {
 				}
 			}
 			currentThread = Thread.currentThread();
-			return false;
-		} else {
-			return (Thread.currentThread() != currentThread);
-		}
+		} 
+		return Thread.currentThread() != currentThread;
 	}
 
 	/**
@@ -156,9 +155,9 @@ public class ExecutionTracer {
 		trace.finishCalls();
 		return trace;
 
-		//ExecutionTrace copy = trace.clone();
-		//// copy.finishCalls();
-		//return copy;
+		// ExecutionTrace copy = trace.clone();
+		// // copy.finishCalls();
+		// return copy;
 	}
 
 	/**
@@ -248,7 +247,7 @@ public class ExecutionTracer {
 			for (index = position + 1; index < position + 17 && index < tmp.length(); index++) {
 				c = tmp.charAt(index);
 				if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')
-				        || (c >= 'A' && c <= 'F')) {
+						|| (c >= 'A' && c <= 'F')) {
 					found = true;
 				} else {
 					break;
@@ -407,7 +406,7 @@ public class ExecutionTracer {
 	 * @param line
 	 */
 	public static void passedBranch(int val1, int val2, int opcode, int branch,
-	        int bytecode_id) {
+			int bytecode_id) {
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)
 			return;
@@ -426,43 +425,40 @@ public class ExecutionTracer {
 		double distance_true = 0;
 		double distance_false = 0;
 		switch (opcode) {
+		// Problem is that the JVM is a stack machine
+		// x < 5 gets compiled to a val2 > val1,
+		// because operators are on the stack in reverse order
 		case Opcodes.IF_ICMPEQ:
-			distance_true = Math.abs((double) val1 - (double) val2); // The
-			// greater
-			// the
-			// difference,
-			// the
-			// further
-			// away
-			distance_false = distance_true == 0 ? 1.0 : 0.0; // Anything but 0
-			// is good
+			// The greater the difference, the further away
+			distance_true = Math.abs((double) val1 - (double) val2); 
+			// Anything but 0 is good
+			distance_false = distance_true == 0 ? 1.0 : 0.0; 
 			break;
 		case Opcodes.IF_ICMPNE:
-			distance_false = Math.abs((double) val1 - (double) val2); // The
-			// greater
-			// abs is,
-			// the
-			// further
-			// away
-			// from 0
-			distance_true = distance_false == 0 ? 1.0 : 0.0; // Anything but 0
-			// leads to NE
+			// The greater abs is, the further away from 0
+			distance_false = Math.abs((double) val1 - (double) val2); 
+			// Anything but 0 leads to NE
+			distance_true = distance_false == 0 ? 1.0 : 0.0; 
 			break;
-		case Opcodes.IF_ICMPLT: // val1 < val2?
-			distance_true = val1 >= val2 ? (double) val1 - (double) val2 + 1.0 : 0.0; // The greater, the further away from < 0
-			distance_false = val1 < val2 ? (double) val2 - (double) val1 + 1.0 : 0.0; // The smaller, the further away from < 0
+		case Opcodes.IF_ICMPLT: 
+			// val1 >= val2?
+			distance_true = val1 >= val2 ? 0.0: (double) val2 - (double) val1; 
+			distance_false = val1 < val2 ? 0.0 : (double) val1 - (double) val2 + 1.0; 
 			break;
-		case Opcodes.IF_ICMPGE:
-			distance_false = val1 >= val2 ? (double) val1 - (double) val2 + 1.0 : 0.0; // The greater, the further away from < 0
-			distance_true = val1 < val2 ? (double) val2 - (double) val1 + 1.0 : 0.0; // The smaller, the further away from < 0
+		case Opcodes.IF_ICMPGE: 
+			// val1 < val2?
+			distance_true = val1 < val2 ? 0.0 : (double) val1 - (double) val2 + 1.0; 
+			distance_false = val1 >= val2 ? 0.0 : (double) val2 - (double) val1; 
 			break;
-		case Opcodes.IF_ICMPGT:
-			distance_false = val1 > val2 ? (double) val1 - (double) val2 + 1.0 : 0.0; // The greater, the further away from < 0
-			distance_true = val1 <= val2 ? (double) val2 - (double) val1 + 1.0 : 0.0; // The smaller, the further away from < 0
+		case Opcodes.IF_ICMPGT: 
+			// val1 <= val2?
+			distance_true = val1 <= val2 ? 0.0 : (double) val1 - (double) val2; 
+			distance_false = val1 > val2 ? 0.0 : (double) val2 - (double) val1 + 1.0; 
 			break;
 		case Opcodes.IF_ICMPLE:
-			distance_true = val1 > val2 ? (double) val1 - (double) val2 + 1.0 : 0.0; // The greater, the further away from < 0
-			distance_false = val1 <= val2 ? (double) val2 - (double) val1 + 1.0 : 0.0; // The smaller, the further away from < 0
+			// val1 > val2?
+			distance_true = val1 > val2 ? 0.0 : (double) val2 - (double) val1 + 1.0; 
+			distance_false = val1 <= val2 ? 0.0 : (double) val1 - (double) val2; 
 			break;
 		default:
 			logger.error("Unknown opcode: " + opcode);
@@ -598,7 +594,7 @@ public class ExecutionTracer {
 		if (!tracer.disabled)
 			tracer.trace.definitionPassed(caller, defID);
 	}
-
+	
 	/**
 	 * Called by instrumented code each time a variable is read from (a Use)
 	 */
