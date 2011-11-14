@@ -27,6 +27,8 @@ package de.unisb.cs.st.evosuite.ga;
 public class OnePlusOneEA extends GeneticAlgorithm {
 
 	private static final long serialVersionUID = 5229089847512798127L;
+	
+	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OnePlusOneEA.class);
 
 	/**
 	 * Constructor

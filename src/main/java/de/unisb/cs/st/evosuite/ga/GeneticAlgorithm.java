@@ -49,7 +49,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	private static final long serialVersionUID = 5155609385855093435L;
 
-	protected static Logger logger = LoggerFactory.getLogger(GeneticAlgorithm.class);
+	private static Logger logger = LoggerFactory.getLogger(GeneticAlgorithm.class);
 
 	/**
 	 * Fitness function to rank individuals
@@ -167,9 +167,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	protected void applyDSE() {
 		logger.info("Applying DSE");
 		getBestIndividual().applyDSE();
-		//		for (Chromosome individual : population) {
-		//			individual.applyDSE();
-		//		}
+		// for (Chromosome individual : population) {
+		// individual.applyDSE();
+		// }
 	}
 
 	/**
@@ -462,7 +462,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * 
 	 * @param factory
 	 */
-	public void setChromosomeFactory(ChromosomeFactory<Chromosome> factory) {
+	public void setChromosomeFactory(ChromosomeFactory<? extends Chromosome> factory) {
 		chromosome_factory = factory;
 	}
 

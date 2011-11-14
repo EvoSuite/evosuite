@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
+
 import de.unisb.cs.st.evosuite.ma.Connector;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
@@ -37,6 +38,8 @@ public class SteadyStateGA extends GeneticAlgorithm {
 
 	protected ReplacementFunction replacement_function;
 
+	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SteadyStateGA.class);
+	
 	/**
 	 * Constructor
 	 * 
@@ -158,7 +161,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 
 		logger.debug("Starting evolution");
 		while (!isFinished()) {
-			logger.info("Population size before: " + population.size());
+//			logger.info("Population size before: " + population.size());
 			evolve();
 
 			if (shouldApplyDSE())
@@ -168,13 +171,12 @@ public class SteadyStateGA extends GeneticAlgorithm {
 				applyLocalSearch();
 
 			sortPopulation();
-			logger.info("Current iteration: " + current_iteration);
 			this.notifyIteration();
-			logger.info("Population size: " + population.size());
-			logger.info("Best individual has fitness: " + population.get(0).getFitness());
-			logger.info("Worst individual has fitness: "
-			        + population.get(population.size() - 1).getFitness());
 
+//			logger.info("Population size: " + population.size());
+			logger.info("In the {}th iteration, best individual has fitness of {} and worst individual has fitness {}.", 
+					new Object[]{ current_iteration, population.get(0).getFitness(), population.get(population.size() - 1).getFitness()});
+			
 			if (Properties.MA_ACTIVE) {
 				// call manual algorithm
 				Connector.externalCall(this);
