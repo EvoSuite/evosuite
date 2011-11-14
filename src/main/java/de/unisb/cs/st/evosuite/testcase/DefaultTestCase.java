@@ -36,6 +36,8 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.testsuite.TestCallStatement;
+import de.unisb.cs.st.evosuite.utils.Listener;
+import de.unisb.cs.st.evosuite.utils.ListenableList;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
@@ -51,16 +53,21 @@ public class DefaultTestCase implements TestCase, Serializable {
 	private static Logger logger = LoggerFactory.getLogger(DefaultTestCase.class);
 
 	/** The statements */
-	protected List<StatementInterface> statements;
+	protected final ListenableList<StatementInterface> statements;
 
 	// a list of all goals this test covers
 	private final HashSet<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
 
+	@Override
+	public void addStatements(List<? extends StatementInterface> statements) {
+		this.statements.addAll(statements);
+	}
+		
 	/**
 	 * Constructor
 	 */
 	public DefaultTestCase() {
-		statements = new ArrayList<StatementInterface>();
+		statements = new ListenableList<StatementInterface>(new ArrayList<StatementInterface>());
 	}
 
 	/**
@@ -69,7 +76,11 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 * @param statements
 	 */
 	public DefaultTestCase(List<StatementInterface> statements) {
-		this.statements = statements;
+		if (statements instanceof ListenableList) {
+			this.statements = (ListenableList<StatementInterface>)statements;
+		} else {
+			this.statements = new ListenableList<StatementInterface>(statements);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -437,10 +448,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((statements == null) ? 0 : statements.hashCode());
-		return result;
+		return statements.hashCode();
 	}
 
 	@Override
@@ -658,6 +666,16 @@ public class DefaultTestCase implements TestCase, Serializable {
 	@Override
 	public Iterator<StatementInterface> iterator() {
 		return statements.iterator();
+	}
+	
+	@Override
+	public void addListener(Listener<Void> listener) {
+		statements.addListener(listener);
+	}
+
+	@Override
+	public void deleteListener(Listener<Void> listener) {
+		statements.deleteListener(listener);
 	}
 
 	/* (non-Javadoc)
