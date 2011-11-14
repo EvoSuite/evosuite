@@ -17,6 +17,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import de.unisb.cs.st.evosuite.Properties;
+
 /**
  * list resources available from the classpath @ *
  */
@@ -32,8 +34,8 @@ public class ResourceList {
 	 */
 	public static Collection<String> getResources(final Pattern pattern) {
 		final ArrayList<String> retval = new ArrayList<String>();
-		final String classPath = System.getProperty("java.class.path", ".");
-		final String[] classPathElements = classPath.split(":");
+		//final String classPath = System.getProperty("java.class.path", ".");
+		final String[] classPathElements = Properties.CP.split(":");
 		for (final String element : classPathElements) {
 			retval.addAll(getResources(element, pattern));
 		}
@@ -46,7 +48,7 @@ public class ResourceList {
 		final File file = new File(element);
 		if (file.isDirectory()) {
 			retval.addAll(getResourcesFromDirectory(file, pattern));
-		} else {
+		} else if (file.getName().endsWith(".jar")) {
 			retval.addAll(getResourcesFromJarFile(file, pattern));
 		}
 		return retval;

@@ -1,5 +1,6 @@
 package de.unisb.cs.st.evosuite.ui.genetics;
 
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -21,13 +22,29 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
 public class UITestChromosome extends ExecutableChromosome {
 	private static final long serialVersionUID = 1L;
 
+	// If only there was a LinkedIdentityHashSet...
+	static final Set<UITestChromosome> executedChromosomes = Collections.newSetFromMap(new IdentityHashMap<UITestChromosome, Boolean>());
+	static final List<UITestChromosome> executedChromosomeList = new LinkedList<UITestChromosome>();
+
+	static final Set<UITestChromosome> failingChromosomes = Collections.newSetFromMap(new IdentityHashMap<UITestChromosome, Boolean>());
+	static final List<UITestChromosome> failingChromosomeList = new LinkedList<UITestChromosome>();
+
+	public static Collection<UITestChromosome> getExecutedChromosomes() {
+		return executedChromosomeList;
+	}
+
+	public static Collection<UITestChromosome> getFailingChromosomes() {
+		return failingChromosomeList;
+	}
+
 	private ActionSequence actionSequence;
 
-	private UIStateGraph stateGraph;
+	private final UIStateGraph stateGraph;
 
-	private Trigger mainMethodTrigger;
+	private final Trigger mainMethodTrigger;
 
-	public UITestChromosome(ActionSequence actionSequence, UIStateGraph stateGraph, Trigger mainMethodTrigger) {
+	public UITestChromosome(ActionSequence actionSequence, UIStateGraph stateGraph,
+	        Trigger mainMethodTrigger) {
 		assert (actionSequence != null);
 
 		this.actionSequence = actionSequence;
@@ -36,8 +53,10 @@ public class UITestChromosome extends ExecutableChromosome {
 	}
 
 	@Override
-	public void crossOver(Chromosome other, int position1, int position2) throws ConstructionFailedException {
-		throw new UnsupportedOperationException("UITestChromosome doesn't support cross-over at arbitrary positions");
+	public void crossOver(Chromosome other, int position1, int position2)
+	        throws ConstructionFailedException {
+		throw new UnsupportedOperationException(
+		        "UITestChromosome doesn't support cross-over at arbitrary positions");
 	}
 
 	public void replaceWithCrossOverResult(UITestChromosome partner) {
@@ -68,13 +87,29 @@ public class UITestChromosome extends ExecutableChromosome {
 		if (changed) {
 			this.actionSequence.repair();
 			this.setChanged(true);
-			this.setLastExecutionResult(null);
+			this.clearCachedResults();
 		}
 	}
 
-	private boolean mutationChange() {
-		// TODO
-		return false;
+	/**
+	 * Each action is mutated with probability 1 / size
+	 * 
+	 * @return true if anything was actually changed
+	 */
+	private boolean mutationChange() {		
+		boolean changed = false;
+
+		if (this.size() > 0) {
+			double p = 1 / this.size();
+
+			for (int i = 0; i < this.actionSequence.size(); i++) {
+				if (Randomness.nextDouble() <= p) {
+					changed = this.actionSequence.changeUnsafe(i);
+				}
+			}
+		}
+
+		return changed;
 	}
 
 	/**
@@ -101,17 +136,18 @@ public class UITestChromosome extends ExecutableChromosome {
 
 	/**
 	 * With exponentially decreasing probability, keep inserting statements
-	 * random positions.
+	 * at random positions.
 	 * 
 	 * @return true if anything was actually changed
 	 */
 	private boolean mutationInsert() {
 		boolean changed = false;
-		double p = 0.5;
+		double p = 1.0;
 
-		while (Randomness.nextDouble() <= p && (!Properties.CHECK_MAX_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {
+		while (Randomness.nextDouble() <= p
+		        && (!Properties.CHECK_MAX_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {
 			changed |= this.actionSequence.insertRandomActionUnsafe();
-			p *= p;
+			p /= 2;
 		}
 
 		return changed;
@@ -119,8 +155,8 @@ public class UITestChromosome extends ExecutableChromosome {
 
 	@Override
 	public Chromosome clone() {
-		return new UITestChromosome((ActionSequence) this.actionSequence.clone(), this.stateGraph,
-				this.mainMethodTrigger);
+		return new UITestChromosome((ActionSequence) this.actionSequence.clone(),
+		        this.stateGraph, this.mainMethodTrigger);
 	}
 
 	@Override
@@ -136,6 +172,12 @@ public class UITestChromosome extends ExecutableChromosome {
 		UITestChromosome other = (UITestChromosome) obj;
 		return this.actionSequence.equals(other.actionSequence);
 	}
+	
+
+	@Override
+	public int hashCode() {
+		return this.actionSequence.hashCode();
+	}
 
 	@Override
 	public int size() {
@@ -144,31 +186,42 @@ public class UITestChromosome extends ExecutableChromosome {
 
 	@Override
 	public void localSearch(LocalSearchObjective objective) {
-		throw new UnsupportedOperationException("UITestChromosome doesn't support localSearch() (yet?)");
+		throw new UnsupportedOperationException(
+		        "UITestChromosome doesn't support localSearch() (yet?)");
 	}
 
 	@Override
 	public void applyDSE() {
-		throw new UnsupportedOperationException("UITestChromosome doesn't support applyDSE() (yet?)");
+		throw new UnsupportedOperationException(
+		        "UITestChromosome doesn't support applyDSE() (yet?)");
 	}
 
 	private static final ExecutorService executor = Executors.newSingleThreadExecutor(TestCaseExecutor.getInstance());
 
 	@Override
-	public ExecutionResult executeForFitnessFunction(TestSuiteFitnessFunction testSuiteFitnessFunction) {
+	public ExecutionResult executeForFitnessFunction(
+	        TestSuiteFitnessFunction testSuiteFitnessFunction) {
 		TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>();
 		InterfaceTestRunnable callable = new ChromosomeUIController(this);
+		
+		executedChromosomes.add(this);
+		executedChromosomeList.add(this);
 
 		try {
-			ExecutionResult result = handler.execute(callable, executor, Properties.TIMEOUT, Properties.CPU_TIMEOUT);
+			ExecutionResult result = handler.execute(callable, executor,
+			                                         Properties.TIMEOUT,
+			                                         Properties.CPU_TIMEOUT);
 			return result;
 		} catch (Exception e) {
+			failingChromosomes.add(this);
+			failingChromosomeList.add(this);
+			System.out.println("Exception on executing test chromosome for fitness function:");
 			e.printStackTrace();
 			return null;
 		}
 	}
 
-	ActionSequence getActionSequence() {
+	public ActionSequence getActionSequence() {
 		return this.actionSequence;
 	}
 
@@ -191,5 +244,13 @@ public class UITestChromosome extends ExecutableChromosome {
 
 	public void repair() {
 		this.actionSequence.repair();
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.ExecutableChromosome#copyCachedResults(de.unisb.cs.st.evosuite.testcase.ExecutableChromosome)
+	 */
+	@Override
+	protected void copyCachedResults(ExecutableChromosome other) {
+		this.lastExecutionResult = other.getLastExecutionResult();
 	}
 }

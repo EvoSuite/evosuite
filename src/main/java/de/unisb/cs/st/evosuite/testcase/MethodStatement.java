@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -44,16 +45,17 @@ public class MethodStatement extends AbstractStatement {
 
 	private transient Method method;
 
-	VariableReference callee;
+	protected VariableReference callee;
 
-	public List<VariableReference> parameters;
+	protected List<VariableReference> parameters;
 
 	public MethodStatement(TestCase tc, Method method, VariableReference callee,
 	        java.lang.reflect.Type type, List<VariableReference> parameters) {
 		super(tc, type);
 		assert (Modifier.isStatic(method.getModifiers()) || callee != null);
 		assert (parameters != null);
-		assert (method.getParameterTypes().length == parameters.size());
+		assert (method.getParameterTypes().length == parameters.size()) : method.getParameterTypes().length
+		        + " != " + parameters.size();
 		this.method = method;
 		this.callee = callee;
 		this.parameters = parameters;
@@ -102,14 +104,6 @@ public class MethodStatement extends AbstractStatement {
 	private boolean isInstanceMethod() {
 		return !Modifier.isStatic(method.getModifiers());
 	}
-
-	/*	
-	} catch (CodeUnderTestException e) {
-		throw CodeUnderTestException.throwException(e);
-	} catch(Throwable e){
-		throw new EvosuiteError(e);
-	}
-	 */
 
 	@Override
 	public Throwable execute(final Scope scope, PrintStream out)
@@ -167,9 +161,9 @@ public class MethodStatement extends AbstractStatement {
 			});
 
 		} catch (InvocationTargetException e) {
+			exceptionThrown = e.getCause();
 			System.setOut(old_out);
 			System.setErr(old_err);
-			exceptionThrown = e.getCause();
 			logger.debug("Exception thrown in method {}: {}", method.getName(),
 			             exceptionThrown);
 		} finally {
@@ -218,16 +212,24 @@ public class MethodStatement extends AbstractStatement {
 			}
 			Class<?> declaredParamType = method.getParameterTypes()[i];
 			Class<?> actualParamType = parameters.get(i).getVariableClass(); 
-			if (!declaredParamType.isAssignableFrom(actualParamType)){
+			String name = parameters.get(i).getName();
+			if (!declaredParamType.isAssignableFrom(actualParamType) || name.equals("null")){
 					// && parameters.get(i) instanceof ArrayIndex)
-				parameter_string += "(" + new GenericClass(method.getParameterTypes()[i]).getSimpleName() + ") ";
+				parameter_string += "("
+				        + new GenericClass(method.getParameterTypes()[i]).getSimpleName()
+				        + ") ";
 			}
-			parameter_string += parameters.get(i).getName();
+			parameter_string += name;
 		}
 
 		String callee_str = "";
-		if (!retval.getVariableClass().isAssignableFrom(method.getReturnType())) {
-			callee_str = "(" + retval.getSimpleClassName() + ")";
+		if (exception == null
+		        && !retval.getVariableClass().isAssignableFrom(method.getReturnType())
+		        && !retval.getVariableClass().isAnonymousClass()) {
+			String name = retval.getSimpleClassName();
+			if (!name.matches(".*\\.\\d+$")) {
+				callee_str = "(" + name + ")";
+			}
 		}
 
 		if (Modifier.isStatic(method.getModifiers())) {
@@ -249,17 +251,27 @@ public class MethodStatement extends AbstractStatement {
 			Class<?> ex = exception.getClass();
 			while (!Modifier.isPublic(ex.getModifiers()))
 				ex = ex.getSuperclass();
-			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {}";
+			result += "\n  fail(\"Expecting exception: "
+			        + ClassUtils.getShortClassName(ex) + "\");";
+			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {\n";
+			if (exception.getMessage() != null) {
+				result += "  /*\n";
+				for (String msg : exception.getMessage().split("\n")) {
+					result += "   * " + StringEscapeUtils.escapeJava(msg) + "\n";
+				}
+				result += "   */\n";
+			}
+			result += "}";
 		}
 
 		return result;
 	}
 
 	@Override
-	public StatementInterface clone(TestCase newTestCase) {
+	public StatementInterface copy(TestCase newTestCase, int offset) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
-			new_params.add(r.clone(newTestCase));
+			new_params.add(r.copy(newTestCase, offset));
 		}
 
 		MethodStatement m;
@@ -269,13 +281,13 @@ public class MethodStatement extends AbstractStatement {
 			m = new MethodStatement(newTestCase, method, null, retval.getType(),
 			        new_params);
 		} else {
-			VariableReference newCallee = callee.clone(newTestCase);
+			VariableReference newCallee = callee.copy(newTestCase, offset);
 			m = new MethodStatement(newTestCase, method, newCallee, retval.getType(),
 			        new_params);
 
 		}
 
-		// m.assertions = cloneAssertions(newTestCase);
+		// m.assertions = copyAssertions(newTestCase, offset);
 
 		return m;
 	}
@@ -561,12 +573,9 @@ public class MethodStatement extends AbstractStatement {
 	private void writeObject(ObjectOutputStream oos) throws IOException {
 		oos.defaultWriteObject();
 		// Write/save additional fields
-		oos.writeObject(method.getDeclaringClass());
-		Method[] methods = method.getDeclaringClass().getDeclaredMethods();
-		for (int i = 0; i < methods.length; i++) {
-			if (methods[i].equals(method))
-				oos.writeObject(new Integer(i));
-		}
+		oos.writeObject(method.getDeclaringClass().getName());
+		oos.writeObject(method.getName());
+		oos.writeObject(Type.getMethodDescriptor(method));
 	}
 
 	// assumes "static java.util.Date aDate;" declared
@@ -575,9 +584,55 @@ public class MethodStatement extends AbstractStatement {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
-		Class<?> methodClass = (Class<?>) ois.readObject();
-		int num = (Integer) ois.readObject();
+		Class<?> methodClass = TestCluster.classLoader.loadClass((String) ois.readObject());
+		methodClass = TestCluster.classLoader.loadClass(methodClass.getName());
+		String methodName = (String) ois.readObject();
+		String methodDesc = (String) ois.readObject();
 
-		method = methodClass.getDeclaredMethods()[num];
+		for (Method method : methodClass.getDeclaredMethods()) {
+			if (method.getName().equals(methodName)) {
+				if (Type.getMethodDescriptor(method).equals(methodDesc)) {
+					this.method = method;
+					return;
+				}
+			}
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		try {
+			Class<?> oldClass = method.getDeclaringClass();
+			Class<?> newClass = loader.loadClass(oldClass.getName());
+			for (Method newMethod : TestCluster.getMethods(newClass)) {
+				if (newMethod.getName().equals(this.method.getName())) {
+					boolean equals = true;
+					Class<?>[] oldParameters = this.method.getParameterTypes();
+					Class<?>[] newParameters = newMethod.getParameterTypes();
+					if (oldParameters.length != newParameters.length)
+						continue;
+
+					for (int i = 0; i < newParameters.length; i++) {
+						if (!oldParameters[i].getName().equals(newParameters[i].getName())) {
+							equals = false;
+							break;
+						}
+					}
+					if (equals) {
+						this.method = newMethod;
+						return;
+					}
+				}
+			}
+		} catch (ClassNotFoundException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		} catch (SecurityException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		}
+		logger.warn("Method not found - keeping old class loader ");
+
 	}
 }

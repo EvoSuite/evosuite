@@ -2,15 +2,16 @@ package de.unisb.cs.st.evosuite.symbolic.expr;
 
 import java.io.Serializable;
 
-public abstract class Constraint<T extends Number> implements Serializable {
+//TODO <maybe wrong> changed Constraint<T extends Number> to the following
+public abstract class Constraint<T extends Object> implements Serializable {
 
 	private static final long serialVersionUID = 7547747352755232472L;
 
 	abstract public Comparator getComparator();
 
-	abstract public Expression<T> getLeftOperand();
+	abstract public Expression<?> getLeftOperand();
 
-	abstract public Expression<T> getRightOperand();
+	abstract public Expression<?> getRightOperand();
 
 	private int hash = 0;
 

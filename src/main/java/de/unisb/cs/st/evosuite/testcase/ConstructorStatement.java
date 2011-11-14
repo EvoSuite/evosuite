@@ -27,12 +27,14 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -140,7 +142,7 @@ public class ConstructorStatement extends AbstractStatement {
 			System.setOut(old_out);
 			System.setErr(old_err);
 			exceptionThrown = e.getCause();
-			logger.debug("Exception thrown in constructor: " + e);
+			logger.debug("Exception thrown in constructor: " + e.getCause());
 
 		} finally {
 			System.setOut(old_out);
@@ -154,10 +156,22 @@ public class ConstructorStatement extends AbstractStatement {
 		String parameter_string = "";
 		String result = "";
 		if (!parameters.isEmpty()) {
-			parameter_string += parameters.get(0).getName();
-			for (int i = 1; i < parameters.size(); i++) {
-				parameter_string += ", " + parameters.get(i).getName();
+			for (int i = 0; i < parameters.size(); i++) {
+				if (i > 0) {
+					parameter_string += ", ";
+				}
+				Class<?> declaredParamType = constructor.getParameterTypes()[i];
+				Class<?> actualParamType = parameters.get(i).getVariableClass();
+				String name = parameters.get(i).getName();
+				if (!declaredParamType.equals(actualParamType) || name.equals("null")) {
+					// && parameters.get(i) instanceof ArrayIndex)
+					parameter_string += "("
+					        + new GenericClass(constructor.getParameterTypes()[i]).getSimpleName()
+					        + ") ";
+				}
+				parameter_string += name;
 			}
+
 		}
 		// String result = ((Class<?>) retval.getType()).getSimpleName()
 		// +" "+retval.getName()+ " = null;\n";
@@ -174,22 +188,33 @@ public class ConstructorStatement extends AbstractStatement {
 			Class<?> ex = exception.getClass();
 			while (!Modifier.isPublic(ex.getModifiers()))
 				ex = ex.getSuperclass();
-			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {}";
+			result += "\n  fail(\"Expecting exception: "
+			        + ClassUtils.getShortClassName(ex) + "\");";
+
+			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {\n";
+			if (exception.getMessage() != null) {
+				result += "  /*\n";
+				for (String msg : exception.getMessage().split("\n")) {
+					result += "   * " + StringEscapeUtils.escapeJava(msg) + "\n";
+				}
+				result += "   */\n";
+			}
+			result += "}";
 		}
 
 		return result;
 	}
 
 	@Override
-	public StatementInterface clone(TestCase newTestCase) {
+	public StatementInterface copy(TestCase newTestCase, int offset) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
-			new_params.add(r.clone(newTestCase));
+			new_params.add(r.copy(newTestCase, offset));
 		}
 
 		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor,
 		        retval.getType(), new_params);
-		//copy.assertions = cloneAssertions(newTestCase);
+		// copy.assertions = copyAssertions(newTestCase, offset);
 
 		return copy;
 	}
@@ -341,8 +366,7 @@ public class ConstructorStatement extends AbstractStatement {
 	@Override
 	public Set<Class<?>> getDeclaredExceptions() {
 		Set<Class<?>> ex = super.getDeclaredExceptions();
-		for (Class<?> t : constructor.getExceptionTypes())
-			ex.add(t);
+		ex.addAll(Arrays.asList(constructor.getExceptionTypes()));
 		return ex;
 	}
 
@@ -414,12 +438,8 @@ public class ConstructorStatement extends AbstractStatement {
 	private void writeObject(ObjectOutputStream oos) throws IOException {
 		oos.defaultWriteObject();
 		// Write/save additional fields
-		oos.writeObject(constructor.getDeclaringClass());
-		Constructor<?>[] constructors = constructor.getDeclaringClass().getDeclaredConstructors();
-		for (int i = 0; i < constructors.length; i++) {
-			if (constructors[i].equals(constructor))
-				oos.writeObject(new Integer(i));
-		}
+		oos.writeObject(constructor.getDeclaringClass().getName());
+		oos.writeObject(Type.getConstructorDescriptor(constructor));
 	}
 
 	// assumes "static java.util.Date aDate;" declared
@@ -428,9 +448,47 @@ public class ConstructorStatement extends AbstractStatement {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
-		Class<?> constructorClass = (Class<?>) ois.readObject();
-		int num = (Integer) ois.readObject();
+		Class<?> constructorClass = TestCluster.classLoader.loadClass((String) ois.readObject());
+		String constructorDesc = (String) ois.readObject();
+		for (Constructor<?> constructor : constructorClass.getDeclaredConstructors()) {
+			if (Type.getConstructorDescriptor(constructor).equals(constructorDesc)) {
+				this.constructor = constructor;
+				return;
+			}
+		}
+	}
 
-		constructor = constructorClass.getDeclaredConstructors()[num];
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		try {
+			Class<?> oldClass = constructor.getDeclaringClass();
+			Class<?> newClass = loader.loadClass(oldClass.getName());
+			for (Constructor<?> newConstructor : TestCluster.getConstructors(newClass)) {
+				boolean equals = true;
+				Class<?>[] oldParameters = this.constructor.getParameterTypes();
+				Class<?>[] newParameters = newConstructor.getParameterTypes();
+				if (oldParameters.length != newParameters.length)
+					continue;
+
+				for (int i = 0; i < newParameters.length; i++) {
+					if (!oldParameters[i].getName().equals(newParameters[i].getName())) {
+						equals = false;
+						break;
+					}
+				}
+				if (equals) {
+					this.constructor = newConstructor;
+					return;
+				}
+			}
+		} catch (ClassNotFoundException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		} catch (SecurityException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		}
+		logger.warn("Constructor not found - keeping old class loader ");
 	}
 }

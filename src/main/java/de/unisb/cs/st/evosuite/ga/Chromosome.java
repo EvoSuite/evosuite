@@ -100,7 +100,10 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	@Override
 	public abstract boolean equals(Object obj);
-
+	
+	@Override
+	public abstract int hashCode();
+	
 	/**
 	 * Determine relative ordering of this chromosome to another chromosome. If
 	 * the fitness values are equal, go through all secondary objectives and try

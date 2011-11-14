@@ -84,27 +84,39 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 		// TODO Auto-generated method stub
 
 	}
-
+	
 	@Override
 	public String toString() {
 		StringBuilder r = new StringBuilder();
+		String type = getType();
+		type += " :";
+		type = StringUtils.rightPad(type, 24);
+		r.append(type);
+		r.append(getValueString());
+		if (isFinished())
+			r.append(" Finished!");
+
+		return r.toString();
+	}
+	
+	public String getType() {
 		String type = getClass().toString();
 		try { // just to make sure
 			type = type.substring(type.lastIndexOf(".") + 1);
 		} catch (Exception e) {
 		}
-		type = type.substring(0, type.length() - 17); // cut away "StoppingCondition" suffix
-		type += " :";
-		type = StringUtils.rightPad(type, 24);
-		r.append(type);
+		// cut away "StoppingCondition" suffix
+		if (type.endsWith("StoppingCondition"))
+			type = type.substring(0, type.length() - 17);
+		
+		return type;
+	}
+	
+	public String getValueString() {
 		String value = NumberFormat.getIntegerInstance().format(getCurrentValue());
 		value = StringUtils.leftPad(value, 12);
 		String limit = NumberFormat.getIntegerInstance().format(getLimit());
 		limit = StringUtils.rightPad(limit, 12);
-		r.append(value + " / " + limit);
-		if (isFinished())
-			r.append(" Finished!");
-
-		return r.toString();
+		return value + " / " + limit;
 	}
 }

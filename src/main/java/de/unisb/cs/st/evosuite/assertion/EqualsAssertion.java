@@ -28,29 +28,39 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 public class EqualsAssertion extends Assertion {
 
+	private static final long serialVersionUID = 1427358542327670617L;
+
 	public VariableReference dest;
 
 	@Override
-	public Assertion clone(TestCase newTestCase) {
+	public Assertion copy(TestCase newTestCase, int offset) {
 		EqualsAssertion s = new EqualsAssertion();
-		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
-		s.dest = newTestCase.getStatement(dest.getStPosition()).getReturnValue();
+		s.source = source.copy(newTestCase, offset);
+		s.dest = dest.copy(newTestCase, offset);
 		s.value = value;
 		return s;
 	}
 
 	@Override
 	public String getCode() {
-		if (((Boolean) value).booleanValue())
-			return "assertTrue(" + source.getName() + ".equals(" + dest.getName() + "));";
-		else
-			return "assertFalse(" + source.getName() + ".equals(" + dest.getName()
-			+ "));";
+		if (source.isPrimitive() && dest.isPrimitive()) {
+			if (((Boolean) value).booleanValue())
+				return "assertTrue(" + source.getName() + " == " + dest.getName() + ");";
+			else
+				return "assertFalse(" + source.getName() + " == " + dest.getName() + ");";
+		} else {
+			if (((Boolean) value).booleanValue())
+				return "assertTrue(" + source.getName() + ".equals(" + dest.getName()
+				        + "));";
+			else
+				return "assertFalse(" + source.getName() + ".equals(" + dest.getName()
+				        + "));";
+		}
 	}
 
 	@Override
 	public boolean evaluate(Scope scope) {
-		try{
+		try {
 			if (((Boolean) value).booleanValue()) {
 				if (source.getObject(scope) == null)
 					return dest.getObject(scope) == null;
@@ -62,7 +72,7 @@ public class EqualsAssertion extends Assertion {
 				else
 					return !source.getObject(scope).equals(dest.getObject(scope));
 			}
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 	}

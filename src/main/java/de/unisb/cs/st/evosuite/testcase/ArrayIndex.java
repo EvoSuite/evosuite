@@ -178,8 +178,9 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 * Create a copy of the current variable
 	 */
 	@Override
-	public VariableReference clone(TestCase newTestCase) {
-		ArrayReference otherArray = (ArrayReference) newTestCase.getStatement(array.getStPosition()).getReturnValue(); //must be set as we only use this to clone whole testcases
+	public VariableReference copy(TestCase newTestCase, int offset) {
+		ArrayReference otherArray = (ArrayReference) newTestCase.getStatement(array.getStPosition()
+		                                                                              + offset).getReturnValue(); //must be set as we only use this to clone whole testcases
 		return new ArrayIndex(newTestCase, otherArray, array_index);
 	}
 

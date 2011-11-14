@@ -32,7 +32,7 @@ public class MaxTimeStoppingCondition extends StoppingConditionImpl {
 	private static final long serialVersionUID = -4524853279562896768L;
 
 	/** Maximum number of seconds */
-	protected int max_seconds = Properties.GENERATIONS;
+	protected long max_seconds = Properties.GENERATIONS;
 
 	protected long start_time;
 
@@ -62,12 +62,12 @@ public class MaxTimeStoppingCondition extends StoppingConditionImpl {
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
 	@Override
-	public void setLimit(int limit) {
+	public void setLimit(long limit) {
 		max_seconds = limit;
 	}
 
 	@Override
-	public int getLimit() {
+	public long getLimit() {
 		return max_seconds;
 	}
 
@@ -75,9 +75,14 @@ public class MaxTimeStoppingCondition extends StoppingConditionImpl {
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
 	@Override
-	public int getCurrentValue() {
+	public long getCurrentValue() {
 		long current_time = System.currentTimeMillis();
-		return (int) ((current_time - start_time) / 1000);
+		return (current_time - start_time) / 1000;
+	}
+
+	@Override
+	public void forceCurrentValue(long value) {
+		start_time = value;
 	}
 
 }

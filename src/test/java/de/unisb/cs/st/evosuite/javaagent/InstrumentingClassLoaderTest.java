@@ -2,6 +2,7 @@ package de.unisb.cs.st.evosuite.javaagent;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.unisb.cs.st.evosuite.Properties;
@@ -14,6 +15,7 @@ public class InstrumentingClassLoaderTest {
 	/*
 	 * Tests the child-first/parent-last property of the classloader.
 	 */
+	@Ignore
 	@Test
 	public void testDependingInstrumentation() throws Exception {
 		Class<?> originalClass = DependentClassLoaderTestSubject.class;
@@ -34,6 +36,7 @@ public class InstrumentingClassLoaderTest {
 		ExecutionTracer.getExecutionTracer().clear();
 	}
 
+	@Ignore
 	@Test
 	public void testDirectInstrumentation() throws Exception {
 		Class<?> originalClass = ClassLoaderTestSubject.class;
@@ -68,6 +71,7 @@ public class InstrumentingClassLoaderTest {
 		ExecutionTracer.getExecutionTracer().clear();
 	}
 	
+	@Ignore
 	@Test
 	public void testInnerClasses() throws Exception
 	{

@@ -18,12 +18,12 @@
 
 package de.unisb.cs.st.evosuite.cfg;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 
@@ -40,6 +40,9 @@ public class CFGClassAdapter extends ClassAdapter {
 	/** Current class */
 	private final String className;
 
+	/** Skip methods on enums - at least some */
+	private boolean isEnum = false;
+
 	/**
 	 * Constructor
 	 * 
@@ -49,6 +52,17 @@ public class CFGClassAdapter extends ClassAdapter {
 	public CFGClassAdapter(ClassVisitor visitor, String className) {
 		super(visitor);
 		this.className = className;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.objectweb.asm.ClassAdapter#visit(int, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])
+	 */
+	@Override
+	public void visit(int version, int access, String name, String signature,
+	        String superName, String[] interfaces) {
+		super.visit(version, access, name, signature, superName, interfaces);
+		if (superName.equals("java/lang/Enum"))
+			isEnum = true;
 	}
 
 	/*
@@ -74,6 +88,12 @@ public class CFGClassAdapter extends ClassAdapter {
 			logger.info("Skipping deprecated method " + name);
 			return mv;
 		}
+
+		if (isEnum && (name.equals("valueOf") || name.equals("values"))) {
+			logger.info("Skipping enum valueOf");
+			return mv;
+		}
+
 		String classNameWithDots = className.replace('/', '.');
 
 		mv = new CFGMethodAdapter(classNameWithDots, methodAccess, name, descriptor,

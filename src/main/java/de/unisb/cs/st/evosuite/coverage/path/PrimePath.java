@@ -6,7 +6,12 @@ package de.unisb.cs.st.evosuite.coverage.path;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.coverage.branch.Branch;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 
 /**
  * @author Gordon Fraser
@@ -14,10 +19,12 @@ import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
  */
 public class PrimePath {
 
+	private static Logger logger = LoggerFactory.getLogger(PrimePath.class);
+
 	List<BytecodeInstruction> nodes = new ArrayList<BytecodeInstruction>();
 
 	class PathEntry {
-		BytecodeInstruction vertex;
+		Branch branch;
 		boolean value;
 	}
 
@@ -56,10 +63,16 @@ public class PrimePath {
 			BytecodeInstruction node = nodes.get(position);
 			if (node.isBranch() && position < (nodes.size() - 1)) {
 				PathEntry entry = new PathEntry();
-				entry.vertex = node;
+				entry.branch = BranchPool.getBranchForInstruction(node);
 				if (nodes.get(position + 1).getInstructionId() == (node.getInstructionId() + 1)) {
+					logger.info("FALSE: Next ID is "
+					        + nodes.get(position + 1).getInstructionId() + " / "
+					        + (node.getInstructionId() + 1));
 					entry.value = false;
 				} else {
+					logger.info("TRUE: Next ID is "
+					        + nodes.get(position + 1).getInstructionId() + " / "
+					        + (node.getInstructionId() + 1));
 					entry.value = true;
 				}
 				branches.add(entry);

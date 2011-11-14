@@ -66,6 +66,11 @@ public class CFGGenerator {
 	 * CFGPool
 	 */
 	public void registerCFGs() {
+
+		int removed = getRawGraph().removeIsolatedNodes();
+		if(removed>0)
+			logger.info("removed isolated nodes: "+removed+" in "+methodName);
+		
 		// non-minimized cfg needed for defuse-coverage and control
 		// dependence calculation
 		CFGPool.registerRawCFG(getRawGraph());

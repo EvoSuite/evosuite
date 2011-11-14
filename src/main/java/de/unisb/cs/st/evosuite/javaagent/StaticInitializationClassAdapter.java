@@ -21,12 +21,15 @@ package de.unisb.cs.st.evosuite.javaagent;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.unisb.cs.st.evosuite.testcase.TestCluster;
 
 /**
  * Duplicate static initializers in methods, such that we can explicitly restore
@@ -45,6 +48,8 @@ public class StaticInitializationClassAdapter extends ClassAdapter {
 
 	private boolean isInterface = false;
 
+	private final List<String> finalFields = new ArrayList<String>();
+
 	public StaticInitializationClassAdapter(ClassVisitor visitor, String className) {
 		super(visitor);
 		this.className = className;
@@ -57,6 +62,18 @@ public class StaticInitializationClassAdapter extends ClassAdapter {
 		isInterface = ((access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.objectweb.asm.ClassAdapter#visitField(int, java.lang.String, java.lang.String, java.lang.String, java.lang.Object)
+	 */
+	@Override
+	public FieldVisitor visitField(int access, String name, String desc,
+	        String signature, Object value) {
+		if ((access & Opcodes.ACC_FINAL) == Opcodes.ACC_FINAL)
+			finalFields.add(name);
+
+		return super.visitField(access, name, desc, signature, value);
+	}
+
 	@Override
 	public MethodVisitor visitMethod(int methodAccess, String name, String descriptor,
 	        String signature, String[] exceptions) {
@@ -65,12 +82,13 @@ public class StaticInitializationClassAdapter extends ClassAdapter {
 		                                     exceptions);
 		if (name.equals("<clinit>") && !isInterface) {
 			logger.info("Found static initializer in class " + className);
-			MethodVisitor mv2 = super.visitMethod(methodAccess | Opcodes.ACC_PUBLIC
-			                                              | Opcodes.ACC_STATIC,
-			                                      "__STATIC_RESET", descriptor,
-			                                      signature,
-			                                      exceptions);
+			MethodVisitor mv2 = new RemoveFinalMethodAdapter(className,
+			        super.visitMethod(methodAccess | Opcodes.ACC_PUBLIC
+			                                  | Opcodes.ACC_STATIC, "__STATIC_RESET",
+			                          descriptor,
+			                          signature, exceptions), finalFields);
 			static_classes.add(className.replace('/', '.'));
+			TestCluster.registerStaticInitializer(className.replace("/", "."));
 			return new MultiMethodVisitor(mv2, mv);
 		}
 		return mv;

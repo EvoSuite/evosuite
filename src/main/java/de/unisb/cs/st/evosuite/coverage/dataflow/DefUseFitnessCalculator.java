@@ -30,14 +30,14 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  */
 public class DefUseFitnessCalculator {
 
+	public static long alternativeTime = 0l;
+	
 	private final static boolean DEBUG = Properties.DEFUSE_DEBUG_MODE;
 
 	private static Logger logger = LoggerFactory
 			.getLogger(DefUseFitnessCalculator.class);
 
-	// TODO: move these to Properties?
-
-	// alternative fitness calculation
+	// alternative fitness calculation - experiment failed
 	public static final boolean ENABLE_ALTERNATIVE_FITNESS_CALCULATION = Properties.ENABLE_ALTERNATIVE_FITNESS_CALCULATION;
 
 	// if alternative fitness calculation is disabled ignore the following
@@ -45,22 +45,22 @@ public class DefUseFitnessCalculator {
 	// private static final String ALTERNATIVE_FITNESS_CALCULATION_MODE =
 	// Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE;
 	// if the mode isn't "sum" the following are ignored
-	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT = Properties.PENALIZE_OVERWRITING_DEFINITIONS_FLAT;
-	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY = Properties.PENALIZE_OVERWRITING_DEFINITIONS_LINEARLY;
-	private static double SINGLE_ALTERNATIVE_FITNESS_RANGE = 100.0;// Properties.ALTERNATIVE_FITNESS_RANGE;
+//	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT = Properties.PENALIZE_OVERWRITING_DEFINITIONS_FLAT;
+//	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY = Properties.PENALIZE_OVERWRITING_DEFINITIONS_LINEARLY;
+	private static double SINGLE_ALTERNATIVE_FITNESS_RANGE = 1.0; // Properties.ALTERNATIVE_FITNESS_RANGE;
 	// ensure alternative fitness configuration is valid
 	static {
 		if (Properties.CRITERION == Criterion.DEFUSE)
 			if (ENABLE_ALTERNATIVE_FITNESS_CALCULATION) {
 				System.out.println("* Alternative fitness calculation enabled");
 				// + Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE);
-				if (!Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
-						.equals(AlternativeFitnessCalculationMode.SUM)) {
-
-					PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT = false;
-					PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY = false;
-					SINGLE_ALTERNATIVE_FITNESS_RANGE = 1;
-				}
+//				if (!Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
+//						.equals(AlternativeFitnessCalculationMode.SUM)) {
+//
+//					PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT = false;
+//					PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY = false;
+//					SINGLE_ALTERNATIVE_FITNESS_RANGE = 1;
+//				}
 				// else {
 				// System.out.println("  - Single alternative fitness range: "
 				// + SINGLE_ALTERNATIVE_FITNESS_RANGE);
@@ -141,8 +141,8 @@ public class DefUseFitnessCalculator {
 	 */
 	public double calculateDUFitness() {
 
-		if (!goalVariable.equals("targetField"))
-			return 0.0;
+//		if (!goalVariable.equals("targetField"))
+//			return 0.0;
 
 		// at first handle special cases where definition is assumed to be
 		// covered if use is covered:
@@ -215,7 +215,7 @@ public class DefUseFitnessCalculator {
 			double useFitness = callTestFitnessFunctionForTrace(objectTrace,
 					goalUseFitness);
 			fitness = normalize(useFitness);
-			if (fitness == 0.0)
+			if (Properties.CRITERION == Criterion.DEFUSE && fitness == 0.0)
 				goal.setCovered(individual, objectTrace, objectId);
 			return fitness;
 		}
@@ -232,10 +232,14 @@ public class DefUseFitnessCalculator {
 							objectId);
 			if (activeDefId == goalDefinition.getDefId()) {
 				// Case 3.1.
-				goal.setCovered(individual, objectTrace, objectId);
+				if(Properties.CRITERION == Criterion.DEFUSE)
+					goal.setCovered(individual, objectTrace, objectId);
 				return 0.0;
 			} else {
-				if (ENABLE_ALTERNATIVE_FITNESS_CALCULATION) { // currently buggy
+				if (ENABLE_ALTERNATIVE_FITNESS_CALCULATION) {
+					
+					long start = System.currentTimeMillis();
+					
 					// goalDefinition was not active at usePos
 					// if it was active before, we might have a overwriting
 					// definition
@@ -246,8 +250,7 @@ public class DefUseFitnessCalculator {
 
 						// first check if there was yet another occurrence of
 						// goalUse between usePos and goalDefPos. if so, we
-						// discard that as an overwriting definition for now
-						// (TODO)
+						// discard that as an overwriting definition
 						if (!hasEntryInBetween(usePositions, goalDefPos, usePos)) {
 
 							// Case 3.2.1
@@ -258,7 +261,7 @@ public class DefUseFitnessCalculator {
 							if (alternativeFitness <= 0.0
 									|| alternativeFitness > 1.0)
 								throw new IllegalStateException(
-										"alternative fitness expected to be in (0,1]");
+										"alternative fitness expected to be in (0,1] "+alternativeFitness);
 							if (alternativeFitness < fitness) {
 //								System.out
 //										.println("alternative boost: "
@@ -268,6 +271,7 @@ public class DefUseFitnessCalculator {
 							}
 						}
 					}
+					alternativeTime += System.currentTimeMillis() - start;
 				}
 			}
 		}
@@ -279,7 +283,8 @@ public class DefUseFitnessCalculator {
 		// totally unnecessary
 		// idea: you only have to do this if the last definition for goalVar was
 		// not goalDefinitionId
-		if (!goalUse.isRootBranchDependent()) // if goal use is root branch
+		if (!goalUse.isRootBranchDependent()) 
+			// if goal use is root branch
 			// dependent useFitness will
 			// always be 1.0
 			for (Integer goalDefinitionPos : goalDefinitionPositions) {
@@ -353,8 +358,8 @@ public class DefUseFitnessCalculator {
 		// if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
 		// .equals(AlternativeFitnessCalculationMode.SINGLE)
 		// &&
-//		if (overwritingDefs.keySet().size() != 1)
-//			return 1.0;
+		if (overwritingDefs.keySet().size() != 1)
+			return 1.0;
 
 		double alternativeFitness = 0.0;
 		// if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
@@ -404,9 +409,8 @@ public class DefUseFitnessCalculator {
 		// System.out.println("calculated alternative fitness: "
 		// + alternativeFitness);
 
-//		System.out.println(overwritingDefs.size() + " " + alternativeFitness);
-
-		return normalize(alternativeFitness);
+		return alternativeFitness;
+//		return normalize(alternativeFitness);
 	}
 
 	/**
@@ -445,7 +449,7 @@ public class DefUseFitnessCalculator {
 							+ overwritingDefId);
 
 		// if the overwritingDefinition is in a root-branch it's not really
-		// avoidable TODO might still have another non root dependency
+		// avoidable
 		if (overwritingDefinition.isRootBranchDependent())
 			return SINGLE_ALTERNATIVE_FITNESS_RANGE;
 
@@ -879,10 +883,9 @@ public class DefUseFitnessCalculator {
 			// use not reached
 			if (usePositions.size() == 0)
 				continue;
-			if (goalUse.isParameterUse())
-				return true;
-			if (goalDefinition.isStaticDefUse()
-					&& goalDefinition.getMethodName().startsWith("<clinit>"))
+//			if (goalUse.isParameterUse())
+//				return true;
+			if (isSpecialDefinition(goalDefinition))
 				return true;
 
 			for (Integer usePos : usePositions) {

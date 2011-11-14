@@ -72,10 +72,10 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 	public Map<Integer, Throwable> exceptionsThrown = new HashMap<Integer, Throwable>();
 
 	//#TODO steenbuck should be private
-	public List<ExecutionObserver> observers;
+	public Set<ExecutionObserver> observers;
 
 	public ConcurrentTestRunnable(TestCase tc, Scope scope,
-	        List<ExecutionObserver> observers) {
+	        Set<ExecutionObserver> observers) {
 		if (tc instanceof ConcurrentTestCase) {
 			test = (ConcurrentTestCase) tc;
 		} else {

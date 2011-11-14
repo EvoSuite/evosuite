@@ -6,10 +6,7 @@ import java.util.*;
 
 import javax.swing.*;
 
-import org.uispec4j.Panel;
-import org.uispec4j.Spinner;
-import org.uispec4j.UIComponent;
-import org.uispec4j.Window;
+import org.uispec4j.*;
 import org.uispec4j.finder.ComponentMatcher;
 import org.uispec4j.utils.UIComponentFactory;
 
@@ -39,7 +36,9 @@ public abstract class FocusOrder {
 				return policy.getFirstComponent(this.container) != null;
 			}
 			
-			return policy.getComponentAfter(this.container, this.currentComponent) != this.firstComponent;
+			Component nextComp = policy.getComponentAfter(this.container, this.currentComponent);
+			
+			return nextComp != this.firstComponent && nextComp != null;
 		}
 
 		@Override
@@ -60,36 +59,6 @@ public abstract class FocusOrder {
 		}
 	}
 	
-	private static final class UIComponentFocusIterator implements Iterator<UIComponent> {
-		private ComponentFocusIterator baseIterator;
-		private Map<Component, UIComponent> map;
-
-		public UIComponentFocusIterator(Panel p) {
-			this.baseIterator = new ComponentFocusIterator(p.getAwtComponent());
-			this.map = new IdentityHashMap<Component, UIComponent>();
-			
-			for (UIComponent uiComp : p.getUIComponents(ComponentMatcher.ALL)) {
-				if (uiComp != null) {
-					this.map.put(uiComp.getAwtComponent(), uiCompFor(uiComp));
-				}
-			}
-		}
-
-		@Override
-		public boolean hasNext() {
-			return this.baseIterator.hasNext();
-		}
-
-		@Override
-		public UIComponent next() {
-			return this.map.get(this.baseIterator.next());
-		}
-
-		@Override
-		public void remove() {
-			this.baseIterator.remove();
-		}
-	}
 
 	private static final LayoutFocusTraversalPolicy policy = new LayoutFocusTraversalPolicy();
 
@@ -118,24 +87,55 @@ public abstract class FocusOrder {
 		};
 	}
 	
-	public static Iterable<UIComponent> children(final Panel p) {
-		// Special handling for popups
-		if (policy.getFirstComponent(p.getAwtComponent()) == null) {			
-			try {
-				JPopupMenu popup = (JPopupMenu) p.findSwingComponent(popupMatcher);
+	public static void addMenuItemsTo(List<UIComponent> componentList) {
+		ArrayList<UIComponent> copyList = new ArrayList<UIComponent>(componentList);
 
-				if (popup != null) {
-					return menuItemsFromPopUp(popup);
-				}
-			} catch (Exception e) { /* OK */ }
-		}
-
-		return new Iterable<UIComponent>() {
-			@Override
-			public Iterator<UIComponent> iterator() {
-				return new UIComponentFocusIterator(p);
+		for (UIComponent uiComp : copyList) {
+			Component awtComp = uiComp.getAwtComponent();
+			
+			if (awtComp instanceof MenuElement) {
+				addMenuItemsOfTo((MenuElement) awtComp, componentList);
 			}
-		};
+		}
+	}
+	
+	private static void addMenuItemsOfTo(MenuElement menuElmt, List<UIComponent> componentList) {
+		//System.out.println("FocusOrder: Processing menuElmt " + menuElmt);
+		
+		componentList.add(UIComponentFactory.createUIComponent((Component) menuElmt));
+		
+		// Optimization: JMenuItems (except for JMenu)
+		// are leafs and never have any submenu items
+		if ((menuElmt instanceof JMenu) || !(menuElmt instanceof JMenuItem)) {
+			for (MenuElement e : menuElmt.getSubElements()) {
+				addMenuItemsOfTo(e, componentList);
+			}
+		}
+	}
+
+	public static Iterable<UIComponent> children(final Panel p) {
+		List<UIComponent> result = new ArrayList<UIComponent>(Arrays.asList(p.getUIComponents(new ComponentMatcher() {
+			@Override
+			public boolean matches(Component component) {
+				return !(component instanceof JLabel) && component.isEnabled() && component.isVisible();
+			}
+		})));
+		
+		while (result.remove(null));
+					
+		addMenuItemsTo(result);
+		
+		ListIterator<UIComponent> iter = result.listIterator();
+		while (iter.hasNext()) {
+			UIComponent current = iter.next();
+			Component awtComp = current.getAwtComponent();
+			
+			if (awtComp instanceof JMenu || awtComp instanceof JPopupMenu) {
+				iter.remove();
+			}
+		}
+		
+		return result;
 	}
 	
 	private static List<UIComponent> menuItemsFromPopUp(Container popup) {
@@ -154,21 +154,5 @@ public abstract class FocusOrder {
 				addMenuItemsFromPopUpTo(result, (Container)c);
 			}
 		}
-	}
-
-	private static UIComponent uiCompFor(UIComponent uiComp) {
-		if (uiComp == null) {
-			return null;
-		}
-		
-		Component comp = uiComp.getAwtComponent();
-		Container parent = comp.getParent();
-		Container parentParent = parent != null ? parent.getParent() : null;
-		
-		if ((comp instanceof JFormattedTextField) && parentParent != null && (parentParent instanceof JSpinner)) {
-			return new Spinner((JSpinner) parentParent);
-		}
-		
-		return uiComp;
 	}
 }

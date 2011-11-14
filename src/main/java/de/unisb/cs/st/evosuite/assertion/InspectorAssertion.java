@@ -18,75 +18,76 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.utils.NumberFormatter;
 
 public class InspectorAssertion extends Assertion {
 
+	private static final long serialVersionUID = -4080051661226820222L;
+
 	// VariableReference value;
 	public Inspector inspector;
-	public int num_inspector;
-	public Object result;
 
 	@Override
-	public Assertion clone(TestCase newTestCase) {
-		// TODO Auto-generated method stub
-		return null;
+	public Assertion copy(TestCase newTestCase, int offset) {
+		InspectorAssertion s = new InspectorAssertion();
+		s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
+		s.inspector = inspector;
+		s.value = value;
+		return s;
+
 	}
 
 	@Override
 	public String getCode() {
-		/*
-		 * if(result.getClass().equals(Boolean.class)) { if(result) return
-		 * "assertTrue(var"+value.statement+"."+inspector.getMethodCall()+"())";
-		 * else return
-		 * "assertFalse(var"+value.statement+"."+inspector.getMethodCall
-		 * ()+"())"; } else {
-		 */
-		if (result == null) {
+		if (value == null) {
 			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			+ "(), null);";
-		} else if (result.getClass().equals(Long.class)) {
-			String val = result.toString();
+			        + "(), null);";
+		} else if (value.getClass().equals(Long.class)) {
 			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			+ "(), " + val + "L);";
-		} else if (result.getClass().equals(Float.class)) {
-			String val = result.toString();
+			        + "(), " + NumberFormatter.getNumberString(value) + ");";
+		} else if (value.getClass().equals(Float.class)) {
 			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			+ "(), " + val + "F);";
-		} else if (result.getClass().equals(Character.class)) {
-			String val = result.toString();
+			        + "(), " + NumberFormatter.getNumberString(value) + ", 0.01F);";
+		} else if (value.getClass().equals(Double.class)) {
 			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			+ "(), '" + val + "');";
-		} else if (result.getClass().equals(String.class)) {
+			        + "(), " + NumberFormatter.getNumberString(value) + ", 0.01D);";
+		} else if (value.getClass().equals(Character.class)) {
 			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			+ "(), \"" + StringEscapeUtils.escapeJava((String) result) + "\");";
+			        + "(), " + NumberFormatter.getNumberString(value) + ");";
+		} else if (value.getClass().equals(String.class)) {
+			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
+			        + "(), " + NumberFormatter.getNumberString(value) + ");";
+		} else if (value.getClass().isEnum()) {
+			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
+			        + "(), " + NumberFormatter.getNumberString(value) + ");";
+
 		} else
 			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			+ "(), " + result + ");";
+			        + "(), " + value + ");";
 	}
 
 	@Override
 	public boolean evaluate(Scope scope) {
-		try{
+		try {
 			if (source.getObject(scope) == null)
 				return true; // TODO - true or false?
 			else {
 				try {
 					Object val = inspector.getValue(source.getObject(scope));
 					if (val == null)
-						return val == result;
+						return val == value;
 					else
-						return val.equals(result);
+						return val.equals(value);
 				} catch (Exception e) {
-					logger.info("Exception during call to inspector: " + e);
+					logger.info("* Exception during call to inspector: " + e + ": "
+					        + e.getCause());
 					return true;
 				}
 			}
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 	}
@@ -96,8 +97,6 @@ public class InspectorAssertion extends Assertion {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((inspector == null) ? 0 : inspector.hashCode());
-		result = prime * result + num_inspector;
-		result = prime * result + ((this.result == null) ? 0 : this.result.hashCode());
 		return result;
 	}
 
@@ -115,13 +114,7 @@ public class InspectorAssertion extends Assertion {
 				return false;
 		} else if (!inspector.equals(other.inspector))
 			return false;
-		if (num_inspector != other.num_inspector)
-			return false;
-		if (result == null) {
-			if (other.result != null)
-				return false;
-		} else if (!result.equals(other.result))
-			return false;
+
 		return true;
 	}
 

@@ -3,11 +3,16 @@
  */
 package de.unisb.cs.st.evosuite.ui.model;
 
+import java.util.List;
+
 import org.uispec4j.AbstractButton;
+import org.uispec4j.UIComponent;
 
 import de.unisb.cs.st.evosuite.ui.run.AbstractUIEnvironment;
 
 final class ButtonClick extends UIAction<AbstractButton> {
+	private static UIAction<AbstractButton> instance = new ButtonClick();
+	
 	private static final long serialVersionUID = 1L;
 
 	@Override
@@ -38,5 +43,9 @@ final class ButtonClick extends UIAction<AbstractButton> {
 	@Override
 	public String toString() {
 		return "ButtonClick";
+	}
+
+	public static void addActions(List<UIAction<? extends UIComponent>> result) {
+		result.add(instance);
 	}
 }

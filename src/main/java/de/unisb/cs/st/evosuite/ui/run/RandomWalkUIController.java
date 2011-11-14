@@ -2,19 +2,38 @@ package de.unisb.cs.st.evosuite.ui.run;
 
 import java.util.List;
 
+import org.slf4j.LoggerFactory;
 import org.uispec4j.UIComponent;
 
+import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
+import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
+import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.ui.model.DescriptorBoundUIAction;
-import de.unisb.cs.st.evosuite.ui.model.UIActionTargetDescriptor;
 import de.unisb.cs.st.evosuite.ui.model.states.AbstractUIState;
-import de.unisb.cs.st.evosuite.utils.ListUtil;
 
 public class RandomWalkUIController implements UIController {
 	private int statesSeen = 0;
-	private int targetLength; 
+	private int targetLength;
+	private ExecutionResult executionResult; 
 	
 	public RandomWalkUIController(int wantedLength) {
 		this.targetLength = wantedLength;
+		this.reset();
+		
+		ExecutionTracer.enable();
+		ExecutionTracer.setThread(Thread.currentThread());
+	}
+	
+	private void reset() {
+		this.executionResult = new ExecutionResult(new DefaultTestCase(), null); /* TODO... */
+
+		ExecutionTracer.getExecutionTracer().clear();
+		
+		// TODO: It would be much better if the current thread check in ExecutionTracer
+		// correctly included threads spawned by the thread it is currently tracing...   
+		ExecutionTracer.setCheckCallerThread(false);
+
+		this.executionResult.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 	}
 	
 	@Override
@@ -23,19 +42,49 @@ public class RandomWalkUIController implements UIController {
 			return;
 		}
 
-		List<UIActionTargetDescriptor> actionTargets = ListUtil.shuffledList(state.getActionTargetDescriptors());
+		/*List<UIActionTargetDescriptor> actionTargets = ListUtil.shuffledList(state.getActionTargetDescriptors());
 
 		for (UIActionTargetDescriptor atd : actionTargets) {
 			UIComponent at = uiRunner.resolve(atd);
+			
 			List<DescriptorBoundUIAction<? extends UIComponent>> actions = ListUtil.shuffledList(atd.getActions());
 
 			if (at != null && actions.size() > 0) {
-				uiRunner.executeAction(state, actions.get(0));
-				return;
+				try {
+					uiRunner.executeAction(state, actions.get(0));
+					return;
+				} catch (Throwable t) {
+					System.err.println("Error in random walk: ");
+					t.printStackTrace();
+				}
+			}
+		}*/
+		
+		List<DescriptorBoundUIAction<? extends UIComponent>> actions =
+				state.allActionsShuffledUnexploredFirst();
+		
+		for (DescriptorBoundUIAction<? extends UIComponent> action : actions) {
+			if (action != null) {
+				try {
+					uiRunner.executeAction(state, action);
+					return;
+				} catch (Throwable t) {
+					System.err.println("Error in random walk: ");
+					t.printStackTrace();
+				}
 			}
 		}
+		
+		LoggerFactory.getLogger(this.getClass()).warn("End of processState() reached without found action");
 	}
 
 	@Override
-	public void finished(UIRunner uiRunner) { }
+	public void finished(UIRunner uiRunner) {
+		ExecutionTracer.disable();
+		this.executionResult.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
+	}
+
+	public ExecutionResult getExecutionResult() {
+		return this.executionResult;
+	}
 }

@@ -152,7 +152,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 		if (!var.isPrimitive()) {
 			// add fields of this object to list
-			for (Field field : TestCluster.getAccessibleFields(var.getVariableClass())) {
+			for (Field field : StaticTestCluster.getAccessibleFields(var.getVariableClass())) {
 				FieldReference f = new FieldReference(this, field, var);
 				if (f.getDepth() <= 2) {
 					if (type != null) {
@@ -395,6 +395,34 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getDependencies(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public Set<VariableReference> getDependencies(VariableReference var) {
+		Set<VariableReference> dependencies = new HashSet<VariableReference>();
+
+		if (var == null || var.getStPosition() == -1)
+			return dependencies;
+
+		Set<StatementInterface> dependentStatements = new HashSet<StatementInterface>();
+		dependentStatements.add(statements.get(var.getStPosition()));
+
+		for (int i = var.getStPosition(); i >= 0; i--) {
+			Set<StatementInterface> newStatements = new HashSet<StatementInterface>();
+			for (StatementInterface s : dependentStatements) {
+				if (s.references(statements.get(i).getReturnValue())) {
+					newStatements.add(statements.get(i));
+					dependencies.add(statements.get(i).getReturnValue());
+					break;
+				}
+			}
+			dependentStatements.addAll(newStatements);
+		}
+
+		return dependencies;
+	}
+
+	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#remove(int)
 	 */
 	@Override
@@ -427,7 +455,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 			return false;
 
 		for (int i = 0; i < statements.size(); i++) {
-			if (!statements.get(i).equals(t.getStatement(i))) {
+			if (!statements.get(i).same(t.getStatement(i))) {
 				return false;
 			}
 		}
@@ -516,7 +544,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 			StatementInterface copy = s.clone(t);
 			t.statements.add(copy);
 			copy.SetRetval(s.getReturnValue().clone(t));
-			copy.setAssertions(s.cloneAssertions(t));
+			copy.setAssertions(s.copyAssertions(t, 0));
 		}
 		t.coveredGoals.addAll(coveredGoals);
 		//t.exception_statement = exception_statement;
@@ -534,8 +562,10 @@ public class DefaultTestCase implements TestCase, Serializable {
 			for (VariableReference var : s.getVariableReferences()) {
 				if (var != null && !var.isPrimitive()) {
 					Class<?> clazz = var.getVariableClass();
-					while (clazz.isMemberClass())
+					while (clazz.isMemberClass()) {
+						//accessed_classes.add(clazz);
 						clazz = clazz.getEnclosingClass();
+					}
 					while (clazz.isArray())
 						clazz = clazz.getComponentType();
 					accessed_classes.add(clazz);
@@ -546,6 +576,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 				accessed_classes.addAll(Arrays.asList(ms.getMethod().getExceptionTypes()));
 				accessed_classes.add(ms.getMethod().getDeclaringClass());
 				accessed_classes.add(ms.getMethod().getReturnType());
+				accessed_classes.addAll(Arrays.asList(ms.getMethod().getParameterTypes()));
 			} else if (s instanceof FieldStatement) {
 				FieldStatement fs = (FieldStatement) s;
 				accessed_classes.add(fs.getField().getDeclaringClass());
@@ -553,6 +584,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 			} else if (s instanceof ConstructorStatement) {
 				ConstructorStatement cs = (ConstructorStatement) s;
 				accessed_classes.add(cs.getConstructor().getDeclaringClass());
+				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getExceptionTypes()));
+				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getParameterTypes()));
 			}
 		}
 		return accessed_classes;
@@ -718,6 +751,20 @@ public class DefaultTestCase implements TestCase, Serializable {
 	@Override
 	public String toString() {
 		return toCode();
-
 	}
+
+	public void changeClassLoader(ClassLoader loader) {
+		for (StatementInterface s : statements) {
+			s.changeClassLoader(loader);
+		}
+	}
+
+	/*
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+
+		coveredGoals = new HashSet<TestFitnessFunction>();
+	}
+	*/
 }

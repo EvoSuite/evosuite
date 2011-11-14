@@ -3,8 +3,10 @@
  */
 package de.unisb.cs.st.evosuite.testcase;
 
+import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
+import de.unisb.cs.st.evosuite.utils.NumberFormatter;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
@@ -17,9 +19,12 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 
 	private final T[] constants;
 
+	private final Class<T> enumClass;
+
 	@SuppressWarnings("unchecked")
 	public EnumPrimitiveStatement(TestCase tc, Class<T> clazz) {
 		super(tc, clazz, null);
+		enumClass = clazz;
 		if (clazz.getEnumConstants().length > 0) {
 			this.value = clazz.getEnumConstants()[0];
 			constants = clazz.getEnumConstants();
@@ -33,6 +38,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	@SuppressWarnings("unchecked")
 	public EnumPrimitiveStatement(TestCase tc, T value) {
 		super(tc, value.getClass(), value);
+		enumClass = (Class<T>) getEnumClass(value.getClass());
 		constants = (T[]) getEnumClass(value.getClass()).getEnumConstants();
 	}
 
@@ -91,8 +97,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	 */
 	@Override
 	protected void pushBytecode(GeneratorAdapter mg) {
-		// TODO Auto-generated method stub
-
+		mg.getStatic(Type.getType(enumClass), value.name(), Type.getType(enumClass));
 	}
 
 	/* (non-Javadoc)
@@ -113,7 +118,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	public String getCode(Throwable exception) {
 		if (value != null)
 			return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
-			        + " = " + value.getClass().getSimpleName() + "." + value + ";";
+			        + " = " + NumberFormatter.getNumberString(value) + ";";
 		else
 			return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
 			        + " = (" + ((Class<?>) retval.getType()).getSimpleName() + ") null;";

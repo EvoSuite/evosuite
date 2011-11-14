@@ -8,12 +8,15 @@ import java.util.Map;
 import org.uispec4j.UIComponent;
 import org.uispec4j.Window;
 
+import y.view.NodeRealizer;
 import de.unisb.cs.st.evosuite.ui.GraphVizDrawable;
 import de.unisb.cs.st.evosuite.ui.GraphVizEnvironment;
+import de.unisb.cs.st.evosuite.ui.YWorksDrawable;
+import de.unisb.cs.st.evosuite.ui.YWorksEnvironment;
 import de.unisb.cs.st.evosuite.ui.run.AbstractUIEnvironment;
 import de.unisb.cs.st.evosuite.utils.HashUtil;
 
-public class UIActionTargetDescriptor implements GraphVizDrawable, Serializable {
+public class UIActionTargetDescriptor implements GraphVizDrawable, YWorksDrawable, Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private WindowDescriptor windowDescriptor;
@@ -28,7 +31,7 @@ public class UIActionTargetDescriptor implements GraphVizDrawable, Serializable 
 	public List<DescriptorBoundUIAction<? extends UIComponent>> getActions() {
 		List<DescriptorBoundUIAction<? extends UIComponent>> result = new LinkedList<DescriptorBoundUIAction<? extends UIComponent>>();
 		
-		for (UIAction<? extends UIComponent> action : UIAction.actionsForType(this.targetDescriptor.getType())) {
+		for (UIAction<? extends UIComponent> action : UIAction.actionsForDescriptor(this.targetDescriptor)) {
 			result.add(action.bind(this));
 		}
 		
@@ -84,5 +87,16 @@ public class UIActionTargetDescriptor implements GraphVizDrawable, Serializable 
 	
 	public WindowlessUIActionTargetDescriptor getTargetDescriptor() {
 		return targetDescriptor;
+	}
+
+	@Override
+	public void addToYWorksEnvironment(YWorksEnvironment env) {
+		NodeRealizer realizer = env.getNodeRealizerFor(this);
+		realizer.setLabelText(this.targetDescriptor.innerString());
+		env.setDescription(env.getNodeFor(this), this.targetDescriptor.getDescription());
+	}
+
+	@Override
+	public void addEdgesToYWorksEnvironment(YWorksEnvironment env) {
 	}
 }

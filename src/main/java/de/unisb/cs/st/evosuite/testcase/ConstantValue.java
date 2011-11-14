@@ -5,7 +5,7 @@ package de.unisb.cs.st.evosuite.testcase;
 
 import java.lang.reflect.Type;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import de.unisb.cs.st.evosuite.utils.NumberFormatter;
 
 /**
  * @author Gordon Fraser
@@ -31,7 +31,7 @@ public class ConstantValue extends VariableReferenceImpl {
 	 * Create a copy of the current variable
 	 */
 	@Override
-	public VariableReference clone(TestCase newTestCase) {
+	public VariableReference copy(TestCase newTestCase, int offset) {
 		ConstantValue ret = new ConstantValue(newTestCase, type);
 		ret.setValue(value);
 		return ret;
@@ -72,21 +72,7 @@ public class ConstantValue extends VariableReferenceImpl {
 	 */
 	@Override
 	public String getName() {
-		if (value == null)
-			return "null";
-		else if (value.getClass().equals(char.class)
-		        || value.getClass().equals(Character.class))
-			return "'" + StringEscapeUtils.escapeJava(value.toString()) + "'";
-		else if (value.getClass().equals(String.class)) {
-			return "\"" + StringEscapeUtils.escapeJava((String) value) + "\"";
-		} else if (value.getClass().equals(float.class)
-		        || value.getClass().equals(Float.class)) {
-			return value + "F";
-		} else if (value.getClass().equals(long.class)
-		        || value.getClass().equals(Long.class)) {
-			return value + "L";
-		} else
-			return "" + value;
+		return NumberFormatter.getNumberString(value);
 	}
 
 	/**
@@ -98,6 +84,28 @@ public class ConstantValue extends VariableReferenceImpl {
 	@Override
 	public Object getObject(Scope scope) {
 		return value;
+	}
+
+	@Override
+	public boolean same(VariableReference r) {
+		if (r == null)
+			return false;
+
+		if (!this.type.equals(r.getGenericClass()))
+			return false;
+
+		if (r instanceof ConstantValue) {
+			ConstantValue v = (ConstantValue) r;
+			if (this.value == null) {
+				if (v.getValue() == null)
+					return true;
+			} else {
+				if (this.value.equals(v.getValue()))
+					return true;
+			}
+		}
+
+		return false;
 	}
 
 }

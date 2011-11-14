@@ -57,7 +57,6 @@ public class Scope {
 	 *            Value
 	 */
 	public synchronized void setObject(VariableReference reference, Object o) {
-
 		// Learn some dynamic information about this object
 		if (reference instanceof ArrayReference) {
 			ArrayReference arrayRef = (ArrayReference) reference;
@@ -73,7 +72,11 @@ public class Scope {
 		// TODO: Changing array types might invalidate array assignments - how to treat this properly?
 		if (o != null && !o.getClass().equals(reference.getVariableClass())
 		        && !reference.isPrimitive()) { // && !(reference instanceof ArrayReference)) {
-			if (Modifier.isPublic(o.getClass().getModifiers()))
+			if (Modifier.isPublic(o.getClass().getModifiers())
+			        && !o.getClass().isAnonymousClass()
+			        && !o.getClass().getName().matches(".*\\.\\d+$")
+			        && !o.getClass().getName().matches(".*\\$\\d+$")
+			        && !o.getClass().getName().startsWith("sun."))
 				reference.setType(o.getClass());
 		}
 		pool.put(reference, o);

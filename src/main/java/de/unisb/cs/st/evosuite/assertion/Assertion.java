@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.testcase.Scope;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
@@ -34,13 +36,18 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  * @author Gordon Fraser
  * 
  */
-public abstract class Assertion {
+public abstract class Assertion implements Serializable {
+
+	private static final long serialVersionUID = 1617423211706717599L;
 
 	/** Variable on which the assertion is made */
-	public VariableReference source;
+	protected VariableReference source;
 
 	/** Expected value of variable */
-	public Object value;
+	protected Object value;
+
+	/** Statement to which the assertion is added */
+	protected StatementInterface statement;
 
 	protected static Logger logger = LoggerFactory.getLogger(Assertion.class);
 
@@ -75,8 +82,40 @@ public abstract class Assertion {
 		return true;
 	}
 
+	/**
+	 * Setter for statement to which assertion is added
+	 * 
+	 * @param statement
+	 */
+	public void setStatement(StatementInterface statement) {
+		this.statement = statement;
+	}
+
+	/**
+	 * Getter for statement to which assertion is added
+	 * 
+	 * @return
+	 */
+	public StatementInterface getStatement() {
+		return statement;
+	}
+
+	/**
+	 * Getter for source variable
+	 * 
+	 * @return
+	 */
 	public VariableReference getSource() {
 		return source;
+	}
+
+	/**
+	 * Getter for value object
+	 * 
+	 * @return
+	 */
+	public Object getValue() {
+		return value;
 	}
 
 	/**
@@ -95,7 +134,14 @@ public abstract class Assertion {
 	/**
 	 * Return a copy of the assertion, which is valid in newTestCase
 	 */
-	public abstract Assertion clone(TestCase newTestCase);
+	public Assertion clone(TestCase newTestCase) {
+		return copy(newTestCase, 0);
+	}
+
+	/**
+	 * Return a copy of the assertion, which is valid in newTestCase
+	 */
+	public abstract Assertion copy(TestCase newTestCase, int offset);
 
 	/**
 	 * Determine if assertion holds in current scope
@@ -114,6 +160,15 @@ public abstract class Assertion {
 		Set<VariableReference> vars = new HashSet<VariableReference>();
 		vars.add(source);
 		return vars;
+	}
+
+	/**
+	 * Self-check
+	 * 
+	 * @return
+	 */
+	public boolean isValid() {
+		return source != null && value != null;
 	}
 
 }

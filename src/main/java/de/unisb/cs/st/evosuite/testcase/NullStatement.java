@@ -36,7 +36,7 @@ public class NullStatement extends AbstractStatement {
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#clone(de.unisb.cs.st.evosuite.testcase.TestCase)
 	 */
 	@Override
-	public StatementInterface clone(TestCase newTestCase) {
+	public StatementInterface copy(TestCase newTestCase, int offset) {
 		return new NullStatement(newTestCase, retval.getType());
 	}
 
@@ -117,6 +117,14 @@ public class NullStatement extends AbstractStatement {
 	@Override
 	public boolean isAssignmentStatement() {
 		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		// No-op
 	}
 
 }

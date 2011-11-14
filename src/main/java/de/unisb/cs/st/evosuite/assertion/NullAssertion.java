@@ -24,23 +24,26 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 public class NullAssertion extends Assertion {
 
+	private static final long serialVersionUID = 8486987896764253928L;
+
 	@Override
-	public Assertion clone(TestCase newTestCase) {
+	public Assertion copy(TestCase newTestCase, int offset) {
 		NullAssertion s = new NullAssertion();
-		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
+		s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
 		s.value = value;
+		assert (s.isValid());
 		return s;
 	}
 
 	@Override
 	public boolean evaluate(Scope scope) {
-		try{
+		try {
 			if (((Boolean) value).booleanValue()) {
 				return source.getObject(scope) == null;
-			} else{
+			} else {
 				return source.getObject(scope) != null;
 			}
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 

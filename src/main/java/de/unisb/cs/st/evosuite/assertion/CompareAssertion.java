@@ -34,16 +34,18 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  */
 public class CompareAssertion extends Assertion {
 
+	private static final long serialVersionUID = 7415863202662602633L;
+
 	public VariableReference dest;
 
 	/**
 	 * Create a copy of the compare assertion
 	 */
 	@Override
-	public Assertion clone(TestCase newTestCase) {
+	public Assertion copy(TestCase newTestCase, int offset) {
 		CompareAssertion s = new CompareAssertion();
-		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
-		s.dest = newTestCase.getStatement(dest.getStPosition()).getReturnValue();
+		s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
+		s.dest = newTestCase.getStatement(dest.getStPosition() + offset).getReturnValue();
 		s.value = value;
 		return s;
 	}
@@ -63,7 +65,7 @@ public class CompareAssertion extends Assertion {
 
 		} else {
 			return "assertEquals(" + source.getName() + ".compareTo(" + dest.getName()
-			+ "), " + value + ");";
+			        + "), " + value + ");";
 		}
 	}
 
@@ -76,7 +78,7 @@ public class CompareAssertion extends Assertion {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean evaluate(Scope scope) {
-		try{
+		try {
 			Comparable<Object> comparable = (Comparable<Object>) source.getObject(scope);
 			if (comparable == null)
 				if ((Integer) value == 0)
@@ -90,7 +92,7 @@ public class CompareAssertion extends Assertion {
 					return true; // TODO - true or false?
 				}
 			}
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 	}
@@ -147,6 +149,14 @@ public class CompareAssertion extends Assertion {
 		vars.add(source);
 		vars.add(dest);
 		return vars;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.assertion.Assertion#isValid()
+	 */
+	@Override
+	public boolean isValid() {
+		return super.isValid() && dest != null;
 	}
 
 }

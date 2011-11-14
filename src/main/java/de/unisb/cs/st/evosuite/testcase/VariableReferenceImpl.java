@@ -3,15 +3,17 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.GeneratorAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.utils.PassiveChangeListener;
 
 public class VariableReferenceImpl implements VariableReference {
 	private static final long serialVersionUID = 7014270636820758121L;
+
+	private int distance = 0;
 
 	private static Logger logger = LoggerFactory.getLogger(VariableReferenceImpl.class);
 
@@ -23,7 +25,7 @@ public class VariableReferenceImpl implements VariableReference {
 	/**
 	 * The testCase in which this VariableReference is valid
 	 */
-	protected final TestCase testCase;
+	protected TestCase testCase;
 	protected final PassiveChangeListener<Void> changeListener = new PassiveChangeListener<Void>();
 	protected Integer stPosition;
 
@@ -93,6 +95,11 @@ public class VariableReferenceImpl implements VariableReference {
 	@Override
 	public VariableReference clone(TestCase newTestCase) {
 		return newTestCase.getStatement(getStPosition()).getReturnValue();
+	}
+
+	@Override
+	public VariableReference copy(TestCase newTestCase, int offset) {
+		return newTestCase.getStatement(getStPosition() + offset).getReturnValue();
 	}
 
 	/**
@@ -406,5 +413,21 @@ public class VariableReferenceImpl implements VariableReference {
 	        VariableReference var2) {
 		// no op
 
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#getDistance()
+	 */
+	@Override
+	public int getDistance() {
+		return distance;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#setDistance(int)
+	 */
+	@Override
+	public void setDistance(int distance) {
+		this.distance = distance;
 	}
 }

@@ -18,12 +18,14 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
 import de.unisb.cs.st.evosuite.coverage.concurrency.Schedule;
+import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.ga.LocalSearchBudget;
@@ -48,19 +50,9 @@ public class TestChromosome extends ExecutableChromosome {
 	/** The test case encoded in this chromosome */
 	protected TestCase test = new DefaultTestCase();
 
-	/** Factory to manipulate and generate method sequences */
-	private static AbstractTestFactory test_factory = null;
-
 	/** True if this leads to an exception */
 	private final boolean has_exception = false;
 
-	public TestChromosome() {
-		//#TODO steenbuck similar logic is repeated in TestSuiteChromosomeFactory
-		if (test_factory == null) {
-			test_factory = DefaultTestFactory.getInstance();
-		}
-	}
-	
 	public void setTestCase(TestCase testCase) {
 		test = testCase;
 	}
@@ -72,6 +64,8 @@ public class TestChromosome extends ExecutableChromosome {
 	@Override
 	public void setChanged(boolean changed) {
 		super.setChanged(changed);
+		if (changed)
+			clearCachedResults();
 		CurrentChromosomeTracker.getInstance().changed(this);
 	}
 
@@ -83,6 +77,7 @@ public class TestChromosome extends ExecutableChromosome {
 		TestChromosome c = new TestChromosome();
 		c.test = test.clone();
 		//assert (test.toCode().equals(c.test.toCode()));
+		/*
 		assert (test.isValid());
 		try {
 			c.test.isValid();
@@ -90,15 +85,34 @@ public class TestChromosome extends ExecutableChromosome {
 			logger.warn(c.test.toCode());
 		}
 		assert (c.test.isValid());
-
+		*/
 		c.setFitness(getFitness());
 		c.solution = solution;
+		c.copyCachedResults(this);
 		c.setChanged(isChanged());
-		if (getLastExecutionResult() != null) {
-			c.setLastExecutionResult(this.lastExecutionResult); //.clone(); // TODO: Clone?
-			c.getLastExecutionResult().test = c.test;
-		}
+
 		return c;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.ExecutableChromosome#copyCachedResults(de.unisb.cs.st.evosuite.testcase.ExecutableChromosome)
+	 */
+	@Override
+	protected void copyCachedResults(ExecutableChromosome other) {
+		if (test == null)
+			throw new RuntimeException("Test is null!");
+		this.lastExecutionResult = other.lastExecutionResult; //.clone();
+		if (this.lastExecutionResult != null) {
+			this.lastExecutionResult.test = this.test;
+		}
+
+		if (other.lastMutationResult != null) {
+			for (Mutation mutation : other.lastMutationResult.keySet()) {
+				ExecutionResult copy = other.lastMutationResult.get(mutation); //.clone();
+				copy.test = test;
+				this.lastMutationResult.put(mutation, copy);
+			}
+		}
 	}
 
 	/**
@@ -111,6 +125,7 @@ public class TestChromosome extends ExecutableChromosome {
 	        throws ConstructionFailedException {
 		logger.debug("Crossover starting");
 		TestChromosome offspring = new TestChromosome();
+		DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 
 		for (int i = 0; i < position1; i++) {
 			offspring.test.addStatement(test.getStatement(i).clone(offspring.test));
@@ -145,6 +160,11 @@ public class TestChromosome extends ExecutableChromosome {
 		return true;
 	}
 
+	@Override
+	public int hashCode() {
+		return test.hashCode();
+	}
+	
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#localSearch()
 	 */
@@ -157,9 +177,9 @@ public class TestChromosome extends ExecutableChromosome {
 			if (LocalSearchBudget.isFinished())
 				break;
 
+			LocalSearch search = null;
 			if (test.getStatement(i) instanceof PrimitiveStatement<?>) {
 				Class<?> type = test.getReturnValue(i).getVariableClass();
-				LocalSearch search = null;
 				if (type.equals(Integer.class) || type.equals(int.class)) {
 					search = new IntegerLocalSearch<Integer>();
 				} else if (type.equals(Byte.class) || type.equals(byte.class)) {
@@ -180,10 +200,12 @@ public class TestChromosome extends ExecutableChromosome {
 					search = new BooleanLocalSearch();
 				}
 
+			} else if (test.getStatement(i) instanceof ArrayStatement) {
+				search = new ArrayLocalSearch();
+			}
 				if (search != null)
 					search.doSearch(this, i, objective);
 			}
-		}
 		assert (getFitness() <= oldFitness);
 		//logger.info("Test after local search: " + test.toCode());
 
@@ -245,7 +267,6 @@ public class TestChromosome extends ExecutableChromosome {
 
 		if (changed) {
 			setChanged(true);
-			setLastExecutionResult(null);
 		}
 	}
 
@@ -257,6 +278,8 @@ public class TestChromosome extends ExecutableChromosome {
 	private boolean mutationDelete() {
 		boolean changed = false;
 		double pl = 1d / test.size();
+		DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
+
 		for (int num = test.size() - 1; num >= 0; num--) {
 
 			// Each statement is deleted with probability 1/l
@@ -359,6 +382,7 @@ public class TestChromosome extends ExecutableChromosome {
 	private boolean mutationChange() {
 		boolean changed = false;
 		double pl = 1d / test.size();
+		DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 
 		if (Randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
 			try {
@@ -373,6 +397,7 @@ public class TestChromosome extends ExecutableChromosome {
 			for (StatementInterface statement : test) {
 				if (Randomness.nextDouble() <= pl) {
 					assert (test.isValid());
+					int oldDistance = statement.getReturnValue().getDistance();
 					if (statement.mutate(test, test_factory)) {
 						changed = true;
 						assert (test.isValid());
@@ -381,6 +406,7 @@ public class TestChromosome extends ExecutableChromosome {
 							changed = true;
 						assert (test.isValid());
 					}
+					statement.getReturnValue().setDistance(oldDistance);
 					//					} else if (statement.getReturnValue() instanceof ArrayReference) {
 				}
 			}
@@ -398,6 +424,7 @@ public class TestChromosome extends ExecutableChromosome {
 		boolean changed = false;
 		final double ALPHA = 0.5;
 		int count = 0;
+		DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 
 		while (Randomness.nextDouble() <= Math.pow(ALPHA, count)
 		        && (!Properties.CHECK_MAX_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {
@@ -422,26 +449,41 @@ public class TestChromosome extends ExecutableChromosome {
 
 		// Apply DSE to gather constraints
 		List<BranchCondition> branches = concolicExecution.getSymbolicPath(this);
+		logger.debug("Conditions: " + branches);
 		if (branches.isEmpty())
 			return false;
 
 		boolean mutated = false;
-
+		List<BranchCondition> targetBranches = new ArrayList<BranchCondition>();
+		for (BranchCondition branch : branches) {
+			if (branch.ins.getMethodInfo().getClassName().equals(Properties.TARGET_CLASS))
+				targetBranches.add(branch);
+		}
 		// Select random branch
-		BranchCondition branch = Randomness.choice(branches);
-		logger.info("Trying to negate branch " + branch.ins.getInstructionIndex());
+		BranchCondition branch = null;
+		if (targetBranches.isEmpty())
+			branch = Randomness.choice(branches);
+		else
+			branch = Randomness.choice(targetBranches);
+
+		logger.debug("Trying to negate branch " + branch.ins.getInstructionIndex()
+		        + " - have " + targetBranches.size() + "/" + branches.size()
+		        + " target branches");
 
 		// Try to solve negated constraint
 		TestCase newTest = ConcolicMutation.negateCondition(branch, test);
 
 		// If successful, add resulting test to test suite
 		if (newTest != null) {
-			logger.info("Created new test");
+			logger.debug("CONCOLIC: Created new test");
 			// logger.info(newTest.toCode());
 			// logger.info("Old test");
 			// logger.info(test.toCode());
 			this.test = newTest;
 			this.changed = true;
+			this.lastExecutionResult = null;
+		} else {
+			logger.debug("CONCOLIC: Did not create new test");
 		}
 
 		return mutated;

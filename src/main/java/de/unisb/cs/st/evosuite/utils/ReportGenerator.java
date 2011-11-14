@@ -54,9 +54,11 @@ import de.unisb.cs.st.evosuite.Properties.NoSuchParameterException;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
+import de.unisb.cs.st.evosuite.sandbox.PermissionStatistics;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
+import de.unisb.cs.st.evosuite.testcase.JUnitTestChromosomeFactory;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 
@@ -84,7 +86,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 * @author Gordon Fraser
 	 * 
 	 */
-	protected class StatisticEntry implements Serializable {
+	public class StatisticEntry implements Serializable {
 
 		private static final long serialVersionUID = 8690481387977534927L;
 
@@ -134,13 +136,13 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		public List<Double> coverage_history = new ArrayList<Double>();
 
 		/** History of best test length */
-		public List<Integer> tests_executed = new ArrayList<Integer>();
+		public List<Long> tests_executed = new ArrayList<Long>();
 
 		/** History of best test length */
-		public List<Integer> statements_executed = new ArrayList<Integer>();
+		public List<Long> statements_executed = new ArrayList<Long>();
 
 		/** History of best test length */
-		public List<Integer> fitness_evaluations = new ArrayList<Integer>();
+		public List<Long> fitness_evaluations = new ArrayList<Long>();
 
 		/** Number of tests after GA */
 		public int size_final = 0;
@@ -162,17 +164,153 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public long minimized_time;
 
+		public long testExecutionTime;
+
+		public long goalComputationTime;
+
 		public int result_fitness_evaluations = 0;
 
-		public int result_tests_executed = 0;
+		public long result_tests_executed = 0;
 
-		public int result_statements_executed = 0;
+		public long result_statements_executed = 0;
 
 		public int age = 0;
 
 		public double fitness = 0.0;
 
 		public long seed = 0;
+
+		public long stoppingCondition;
+
+		public long globalTimeStoppingCondition;
+
+		public boolean timedOut;
+
+		public int paramDUGoalCount;
+
+		public int interDUGoalCount;
+
+		public int intraDUGoalCount;
+
+		public String getCSVHeader() {
+			StringBuilder r = new StringBuilder();
+			r.append("Class,Predicates,Total Branches,Covered Branches,Total Methods,Branchless Methods,Covered Methods,");
+			r.append("Total Goals,Covered Goals,Coverage,Creation Time,Minimization Time,Total Time,Test Execution Time,Goal Computation Time,Result Size,Result Length,");
+			r.append("Minimized Size,Minimized Length,");
+			// "Bloat Rejections,Fitness Rejections,Fitness Accepts,"
+			r.append("Chromosome Length,Population Size,Random Seed,Budget,");
+
+			// TODO since we currently don't want to change the layout of
+			// statistics.csv i will leave this commented out for future use and
+			// sort of copy this into CoverageStatistics
+			// r.append("parameter DU-goals, intra DU-goals, inter DU-goals,");
+			// r.append("Stopping Condition,Global Time,Timed Out,");
+
+			r.append("AllPermission,SecurityPermission,UnresolvedPermission,AWTPermission,FilePermission,SerializablePermission,ReflectPermission,RuntimePermission,NetPermission,SocketPermission,SQLPermission,PropertyPermission,LoggingPermission,SSLPermission,AuthPermission,AudioPermission,OtherPermission,Threads,");
+
+			r.append("JUnitTests,");
+			r.append("Data File");
+			return r.toString();
+		}
+
+		public String getCSVData() {
+			StringBuilder r = new StringBuilder();
+
+			r.append(className + ",");
+
+			r.append(total_branches + ",");
+			r.append((2 * total_branches) + ",");
+			r.append(covered_branches + ",");
+
+			r.append(total_methods + ",");
+			r.append(branchless_methods + ",");
+			r.append(covered_methods + ",");
+
+			r.append(total_goals + ",");
+			r.append(covered_goals + ",");
+			r.append(getCoverageDouble() + ","); // 9
+
+			// r.append(start_time+",");
+			// r.append(end_time+",");
+			// r.append(minimized_time+",");
+
+			r.append((minimized_time - start_time) + ",");
+			r.append((minimized_time - end_time) + ",");
+			r.append((end_time - start_time) + ",");
+
+			r.append(testExecutionTime + ",");
+			r.append(goalComputationTime + ",");
+
+			r.append(size_final + ",");
+			r.append(length_final + ",");
+			r.append(size_minimized + ",");
+			r.append(length_minimized + ",");
+
+			r.append(chromosome_length + ",");
+			r.append(population_size + ",");
+			r.append(seed + ","); //21
+			r.append(Properties.GENERATIONS + ","); //22
+
+			// TODO since we currently don't want to change the layout of
+			// statistics.csv i will leave this commented out for future use and
+			// sort of copy this into CoverageStatistics
+			//			r.append(paramDUGoalCount + ",");
+			//			r.append(intraDUGoalCount + ",");
+			//			r.append(interDUGoalCount + ",");
+			// r.append(stoppingCondition + ",");
+			// r.append(globalTimeStoppingCondition + ",");
+			// r.append(timedOut + ",");
+
+			PermissionStatistics pstats = PermissionStatistics.getInstance();
+
+			// TODO: This is a bug, AllPermission should only be here once, but we need to keep it for the ICSE12 experiments
+			r.append(pstats.getNumAllPermission() + ",");
+			// TODO remove the line above in the future (awesome comment)
+			r.append(pstats.getNumAllPermission() + ",");
+			r.append(pstats.getNumSecurityPermission() + ",");
+			r.append(pstats.getNumUnresolvedPermission() + ",");
+			r.append(pstats.getNumAWTPermission() + ",");
+			r.append(pstats.getNumFilePermission() + ",");
+			r.append(pstats.getNumSerializablePermission() + ",");
+			r.append(pstats.getNumReflectPermission() + ",");
+			r.append(pstats.getNumRuntimePermission() + ",");
+			r.append(pstats.getNumNetPermission() + ",");
+			r.append(pstats.getNumSocketPermission() + ",");
+			r.append(pstats.getNumSQLPermission() + ",");
+			r.append(pstats.getNumPropertyPermission() + ",");
+			r.append(pstats.getNumLoggingPermission() + ",");
+			r.append(pstats.getNumSSLPermission() + ",");
+			r.append(pstats.getNumAuthPermission() + ",");
+			r.append(pstats.getNumAudioPermission() + ",");
+			r.append(pstats.getNumOtherPermission() + ",");
+			r.append(pstats.getMaxThreads() + ",");
+			r.append(JUnitTestChromosomeFactory.getNumTests() + ",");
+			r.append(getCSVFilepath());
+
+			return r.toString();
+		}
+
+		public String getCSVFilepath() {
+			return REPORT_DIR.getAbsolutePath() + "/data/statistics_" + className + "-"
+			        + id + ".csv";
+		}
+
+		public String getCoverage() {
+			if (total_goals == 0)
+				return "100.00%";
+			else
+				return String.format("%.2f",
+				                     (100.0 * covered_goals / (1.0 * total_goals))).replaceAll(",",
+				                                                                               ".")
+				        + "%";
+		}
+
+		public double getCoverageDouble() {
+			if (total_goals == 0)
+				return 1.0;
+			else
+				return covered_goals / (1.0 * total_goals);
+		}
 	};
 
 	protected List<StatisticEntry> statistics = new ArrayList<StatisticEntry>();
@@ -606,9 +744,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			                            (duration_TO % 3600) / 60, (duration_TO % 60)));
 			buffer.append("</td>");
 			buffer.append("<td>");
-			buffer.append(String.format("%.2f",
-			                            (100.0 * entry.covered_goals / (1.0 * entry.total_goals))));
-			buffer.append("%</td>");
+			buffer.append(entry.getCoverage());
+			buffer.append("</td>");
 			buffer.append("<td><a href=\"html/");
 			String filename = writeRunPage(entry);
 			buffer.append(filename);
@@ -616,7 +753,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			buffer.append(entry.className);
 			buffer.append("</a></td>");
 			buffer.append("<td><a href=\"");
-			buffer.append("data/statistics_" + entry.className + "-" + entry.id + ".csv");
+			buffer.append(entry.getCSVFilepath());
 			buffer.append("\">CSV</a></td>");
 			buffer.append("</tr>\n");
 		}
@@ -631,51 +768,17 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			File f = new File(REPORT_DIR + "/statistics.csv");
 			BufferedWriter out = new BufferedWriter(new FileWriter(f, true));
 			if (f.length() == 0L) {
-				out.write("Class,Predicates,Total Branches,Covered Branches,Total Methods,Branchless Methods,Covered Methods,");
-				out.write("Total Goals,Covered Goals,Coverage,Creation Time,Minimization Time,Total Time, Result Size, Result Length,");
-				out.write("Minimized Size,Minimized Length,Bloat Rejections,Fitness Rejections,Fitness Accepts,Chromosome Length,Population Size,Random Seed,Data File\n");
+				out.write(entry.getCSVHeader() + "\n");
 			}
-			out.write(entry.className + ",");
-
-			out.write(entry.total_branches + ",");
-			out.write((2 * entry.total_branches) + ",");
-			out.write(entry.covered_branches + ",");
-
-			out.write(entry.total_methods + ",");
-			out.write(entry.branchless_methods + ",");
-			out.write(entry.covered_methods + ",");
-
-			out.write(entry.total_goals + ",");
-			out.write(entry.covered_goals + ",");
-			out.write(1.0 * entry.covered_goals / (entry.total_goals) + ",");
-
-			// out.write(entry.start_time+",");
-			// out.write(entry.end_time+",");
-			// out.write(entry.minimized_time+",");
-			out.write((entry.end_time - entry.start_time) + ",");
-			out.write((entry.minimized_time - entry.end_time) + ",");
-			out.write((entry.minimized_time - entry.start_time) + ",");
-
-			out.write(entry.size_final + ",");
-			out.write(entry.length_final + ",");
-			out.write(entry.size_minimized + ",");
-			out.write(entry.length_minimized + ",");
-
-			out.write(entry.chromosome_length + ",");
-			out.write(entry.population_size + ",");
-			out.write(entry.seed + ",");
-			out.write(REPORT_DIR.getAbsolutePath() + "/data/statistics_"
-			        + entry.className + "-" + entry.id + ".csv\n");
+			out.write(entry.getCSVData() + "\n");
 			out.close();
 
 		} catch (IOException e) {
 			logger.warn("Error while writing statistics: " + e.getMessage());
 		}
 
-		writeCSVData(REPORT_DIR.getAbsolutePath() + "/data/statistics_" + entry.className
-		                     + "-" + entry.id + ".csv", entry.fitness_history,
-		             entry.coverage_history,
-		             entry.size_history, entry.length_history,
+		writeCSVData(entry.getCSVFilepath(), entry.fitness_history,
+		             entry.coverage_history, entry.size_history, entry.length_history,
 		             entry.average_length_history, entry.fitness_evaluations,
 		             entry.tests_executed, entry.statements_executed);
 
@@ -785,12 +888,12 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			// logger.trace(test.toCode());
 			TestCaseExecutor executor = TestCaseExecutor.getInstance();
 			ExecutionResult result = executor.execute(test);
-			//		Map<Integer, Throwable> result = executor.run(test);
+			// Map<Integer, Throwable> result = executor.run(test);
 			StatisticEntry entry = statistics.get(statistics.size() - 1);
-			//			entry.results.put(test, result);
+			// entry.results.put(test, result);
 			entry.results.put(test, result.exceptions);
 
-			//			trace = ExecutionTracer.getExecutionTracer().getTrace();
+			// trace = ExecutionTracer.getExecutionTracer().getTrace();
 			trace = result.getTrace();
 
 		} catch (Exception e) {

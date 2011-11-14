@@ -18,53 +18,66 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.utils.NumberFormatter;
 
 public class PrimitiveAssertion extends Assertion {
 
+	private static final long serialVersionUID = -3394333075511344913L;
+
 	@Override
 	public String getCode() {
+
 		if (value == null) {
 			return "assertNull(" + source.getName() + ");";
-		} else if (value.getClass().equals(Long.class)) {
-			String val = value.toString();
-			return "assertEquals(" + source.getName() + ", " + val + "L);";
-		} else if (value.getClass().equals(Float.class)) {
-			String val = value.toString();
-			return "assertEquals(" + source.getName() + ", " + val + "F);";
-		} else if (value.getClass().equals(Character.class)) {
-			String val = StringEscapeUtils.escapeJava(((Character) value).toString());
-			return "assertEquals(" + source.getName() + ", '" + val + "');";
-		} else if (value.getClass().equals(String.class)) {
-			return "assertEquals(" + source.getName() + ", \""
-			+ StringEscapeUtils.escapeJava((String) value) + "\");";
+		} else if (source.getVariableClass().equals(float.class)) {
+			return "assertEquals(" + source.getName() + ", "
+			        + NumberFormatter.getNumberString(value) + ", 0.01F);";
+		} else if (source.getVariableClass().equals(double.class)) {
+			return "assertEquals(" + source.getName() + ", "
+			        + NumberFormatter.getNumberString(value) + ", 0.01D);";
+		} else if (value.getClass().isEnum()) {
+			return "assertEquals(" + source.getName() + ", "
+			        + NumberFormatter.getNumberString(value) + ");";
+		} else if (source.isWrapperType()) {
+			if (source.getVariableClass().equals(Float.class)) {
+				return "assertEquals((float)" + source.getName() + ", "
+				        + NumberFormatter.getNumberString(value) + ", 0.01F);";
+			} else if (source.getVariableClass().equals(Double.class)) {
+				return "assertEquals((double)" + source.getName() + ", "
+				        + NumberFormatter.getNumberString(value) + ", 0.01D);";
+			} else if (value.getClass().isEnum()) {
+				return "assertEquals(" + source.getName() + ", "
+				        + NumberFormatter.getNumberString(value) + ");";
+			} else
+				return "assertEquals((" + NumberFormatter.getBoxedClassName(value) + ")"
+				        + source.getName() + ", " + value + ");";
 		} else
-			return "assertEquals(" + source.getName() + ", " + value + ");";
+			return "assertEquals(" + source.getName() + ", "
+			        + NumberFormatter.getNumberString(value) + ");";
+
 	}
 
 	@Override
-	public Assertion clone(TestCase newTestCase) {
+	public Assertion copy(TestCase newTestCase, int offset) {
 		PrimitiveAssertion s = new PrimitiveAssertion();
-		s.source = source.clone(newTestCase);
+		s.source = source.copy(newTestCase, offset);
 		s.value = value;
 		return s;
 	}
 
 	@Override
 	public boolean evaluate(Scope scope) {
-		try{
+		try {
 			if (value != null)
 				return value.equals(source.getObject(scope));
 			else
 				return source.getObject(scope) == null;
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 	}
-
 
 }

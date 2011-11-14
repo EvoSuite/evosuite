@@ -3,19 +3,14 @@
  */
 package de.unisb.cs.st.evosuite.coverage.mutation;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import de.unisb.cs.st.evosuite.assertion.ComparisonTraceObserver;
-import de.unisb.cs.st.evosuite.assertion.InspectorTraceObserver;
-import de.unisb.cs.st.evosuite.assertion.NullOutputObserver;
-import de.unisb.cs.st.evosuite.assertion.PrimitiveFieldTraceObserver;
-import de.unisb.cs.st.evosuite.assertion.PrimitiveOutputTraceObserver;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
-import de.unisb.cs.st.evosuite.ga.FitnessFunction;
-import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
@@ -36,20 +31,10 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
 	private final List<TestFitnessFunction> mutationGoals;
 
-	protected PrimitiveOutputTraceObserver primitiveObserver = new PrimitiveOutputTraceObserver();
-	protected ComparisonTraceObserver comparisonObserver = new ComparisonTraceObserver();
-	protected InspectorTraceObserver inspectorObserver = new InspectorTraceObserver();
-	protected PrimitiveFieldTraceObserver fieldObserver = new PrimitiveFieldTraceObserver();
-	protected NullOutputObserver nullObserver = new NullOutputObserver();
-
 	public MutationSuiteFitness() {
 		MutationFactory factory = new MutationFactory();
 		mutationGoals = factory.getCoverageGoals();
-		executor.addObserver(primitiveObserver);
-		executor.addObserver(comparisonObserver);
-		executor.addObserver(inspectorObserver);
-		executor.addObserver(fieldObserver);
-		executor.addObserver(nullObserver);
+		logger.info("Mutation goals: " + mutationGoals.size());
 		branchFitness = new BranchCoverageSuiteFitness();
 	}
 
@@ -60,43 +45,7 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
 	public ExecutionResult runTest(TestCase test, Mutation mutant) {
 
-		ExecutionResult result = new ExecutionResult(test, mutant);
-
-		try {
-			if (mutant != null)
-				logger.debug("Executing test for mutant " + mutant.getId());
-			else
-				logger.debug("Executing test without mutant");
-
-			if (mutant != null)
-				MutationObserver.activateMutation(mutant);
-			result = executor.execute(test);
-			if (mutant != null)
-				MutationObserver.deactivateMutation(mutant);
-
-			int num = test.size();
-			MaxStatementsStoppingCondition.statementsExecuted(num);
-
-			result.comparison_trace = comparisonObserver.getTrace();
-			result.primitive_trace = primitiveObserver.getTrace();
-			result.inspector_trace = inspectorObserver.getTrace();
-			result.field_trace = fieldObserver.getTrace();
-			result.null_trace = nullObserver.getTrace();
-			/*
-						executor.removeObserver(primitiveObserver);
-						executor.removeObserver(comparisonObserver);
-						executor.removeObserver(inspectorObserver);
-						executor.removeObserver(fieldObserver);
-						executor.removeObserver(nullObserver);
-						*/
-
-		} catch (Exception e) {
-			System.out.println("TG: Exception caught: " + e);
-			e.printStackTrace();
-			System.exit(1);
-		}
-
-		return result;
+		return MutationTestFitness.runTest(test, mutant);
 	}
 
 	/* (non-Javadoc)
@@ -104,13 +53,20 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	@Override
 	public double getFitness(Chromosome individual) {
-		// TODO Auto-generated method stub
 		runTestSuite((TestSuiteChromosome) individual);
 
+		Set<TestFitnessFunction> coveredMutants = ((TestSuiteChromosome) individual).getCoveredGoals();
+
+		Set<TestFitnessFunction> uncoveredMutants = new HashSet<TestFitnessFunction>();
+		for (TestFitnessFunction mutation : mutationGoals) {
+			if (!coveredMutants.contains(mutation))
+				uncoveredMutants.add(mutation);
+		}
+
 		// First objective: achieve branch coverage
-		logger.info("Calculating branch fitness: ");
-		double fitness = branchFitness.getFitness(individual);
-		logger.info("Branch fitness: " + fitness);
+		logger.debug("Calculating branch fitness: ");
+		double fitness = normalize(branchFitness.getFitness(individual));
+		//logger.info("Branch fitness: " + fitness);
 
 		// Additional objective 1: all mutants need to be touched
 
@@ -118,18 +74,34 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
 		Set<Integer> touchedMutants = new HashSet<Integer>();
 		//Map<Integer, Double> infectionDistance = new HashMap<Integer, Double>();
-
+		Map<Mutation, Double> minMutantFitness = new HashMap<Mutation, Double>();
+		for (TestFitnessFunction mutant : uncoveredMutants) {
+			MutationTestFitness mutantFitness = (MutationTestFitness) mutant;
+			minMutantFitness.put(mutantFitness.getMutation(), 1.0);
+		}
+		Set<TestChromosome> safeCopies = new HashSet<TestChromosome>();
 		for (TestChromosome test : suite.getTestChromosomes()) {
 			ExecutionResult result = test.getLastExecutionResult();
 			ExecutionTrace trace = result.getTrace();
 			touchedMutants.addAll(trace.touchedMutants);
 
-			for (TestFitnessFunction mutant : mutationGoals) {
+			boolean coversNewMutants = false;
+			for (TestFitnessFunction mutant : uncoveredMutants) {
 				MutationTestFitness mutantFitness = (MutationTestFitness) mutant;
-				if (trace.touchedMutants.contains(mutantFitness.getMutation().getId()))
-					fitness += FitnessFunction.normalize(mutant.getFitness(test, result));
-				else
-					fitness += 1.0;
+				if (trace.touchedMutants.contains(mutantFitness.getMutation().getId())) {
+					double mutantFitnessValue = mutant.getFitness(test, result);
+					minMutantFitness.put(mutantFitness.getMutation(),
+					                     Math.min(normalize(mutantFitnessValue),
+					                              minMutantFitness.get(mutantFitness.getMutation())));
+					if (mutantFitnessValue == 0.0)
+						coversNewMutants = true;
+					//fitness += FitnessFunction.normalize(mutantFitnessValue);
+				}// else
+				 //fitness += 1.0;
+
+			}
+			if (coversNewMutants) {
+				safeCopies.add((TestChromosome) test.clone());
 			}
 
 			/*
@@ -142,6 +114,20 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 								                               infectionDistance.get(mutation.getKey())));
 						}
 						*/
+		}
+
+		for (TestChromosome copy : safeCopies) {
+			suite.addUnmodifiableTest(copy);
+		}
+		logger.debug("Mutants killed: {}",
+		             ((TestSuiteChromosome) individual).getCoveredGoals().size());
+
+		//logger.info("Fitness values for " + minMutantFitness.size() + " mutants");
+		int numKilled = coveredMutants.size();
+		for (Double fit : minMutantFitness.values()) {
+			if (fit == 0.0)
+				numKilled++;
+			fitness += fit;
 		}
 
 		/*
@@ -166,6 +152,7 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 		// TODO: Each statement needs to be covered at least as often as it is mutated? No.
 		*/
 		updateIndividual(individual, fitness);
+		suite.setCoverage(1.0 * numKilled / mutationGoals.size());
 
 		return fitness;
 	}
