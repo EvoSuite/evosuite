@@ -240,7 +240,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			if (Properties.LOG_TIMEOUT) {
 				System.err.println("Timeout occurred for " + Properties.TARGET_CLASS);
 			}
-			logger.info("TimeoutException, need to stop runner");
+			logger.info("TimeoutException, need to stop runner", e1);
 			ExecutionTracer.setKillSwitch(true);
 			ExecutionTracer.disable();
 			//task.cancel(true);

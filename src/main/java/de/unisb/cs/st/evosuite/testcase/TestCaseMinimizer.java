@@ -149,9 +149,9 @@ public class TestCaseMinimizer {
 			}
 
 		}
-		//		logger1.setLevel(old_level1);
-		//logger2.setLevel(old_level2);
-		//logger3.setLevel(old_level3);
+		// logger1.setLevel(old_level1);
+		// logger2.setLevel(old_level2);
+		// logger3.setLevel(old_level3);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Minimized test case: ");
 			logger.debug(c.test.toCode());

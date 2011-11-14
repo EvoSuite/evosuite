@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -165,10 +167,22 @@ public class TestCluster {
 	//
 	// In setup script, add all jars / classes found in local dir to classpath?
 
+	private final static Pattern testPattern = Pattern.compile(".*?\\.(Test[a-zA-Z0-9]+)|([a-zA-Z0-9]+Test)");
+	
+	private static boolean isTest(String className) {
+		// TODO-JRO Identifying tests should be done differently:
+		// If the class either contains methods
+		// annotated with @Test (> JUnit 4.0)
+		// or contains Test or Suite in it's inheritance structure
+			Matcher testMatcher = testPattern.matcher(className);
+			return testMatcher.find();
+	}
+	
 	public static boolean isTargetClassName(String className) {
 		if (!Properties.TARGET_CLASS_PREFIX.isEmpty()
 		        && className.startsWith(Properties.TARGET_CLASS_PREFIX)) {
-			return true;
+			// exclude existing tests from the target project
+			return !isTest(className);
 		}
 
 		if (className.equals(Properties.TARGET_CLASS)

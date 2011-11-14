@@ -42,6 +42,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 	public List<ExecutionObserver> observers;
 
 	private final boolean breakOnUndeclaredException;
+	
+	private final boolean breakOnException = Properties.BREAK_ON_EXCEPTION;
 
 	public TestRunnable(TestCase tc, Scope scope, List<ExecutionObserver> observers) {
 		this(tc, scope, observers, true);
@@ -102,6 +104,10 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 					if (exceptionThrown instanceof SecurityException) {
 						logger.debug("Security exception found: " + exceptionThrown);
+						break;
+					}
+					
+					if(breakOnException){
 						break;
 					}
 

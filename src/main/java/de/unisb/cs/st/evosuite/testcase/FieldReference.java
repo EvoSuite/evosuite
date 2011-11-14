@@ -17,6 +17,8 @@ public class FieldReference extends VariableReferenceImpl {
 
 	private static final long serialVersionUID = -5958137620746406320L;
 
+	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(FieldReference.class);
+	
 	private transient Field field;
 
 	private VariableReference source;
