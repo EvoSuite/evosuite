@@ -1,15 +1,20 @@
 package de.unisb.cs.st.evosuite.ui.model;
 
 import java.awt.Component;
+import java.awt.Container;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.uispec4j.Window;
 
+import y.view.NodeRealizer;
 import de.unisb.cs.st.evosuite.ui.GraphVizDrawable;
 import de.unisb.cs.st.evosuite.ui.GraphVizEnvironment;
+import de.unisb.cs.st.evosuite.ui.YWorksDrawable;
+import de.unisb.cs.st.evosuite.ui.YWorksEnvironment;
 import de.unisb.cs.st.evosuite.ui.model.WindowlessUIActionTargetDescriptor.Criteria;
 import de.unisb.cs.st.evosuite.ui.run.AbstractUIEnvironment;
 import de.unisb.cs.st.evosuite.ui.run.UIEnvironment;
@@ -17,7 +22,7 @@ import de.unisb.cs.st.evosuite.utils.HashUtil;
 import de.unisb.cs.st.evosuite.utils.ListUtil;
 import de.unisb.cs.st.evosuite.utils.StringUtil;
 
-public class WindowDescriptor implements GraphVizDrawable, Serializable {
+public class WindowDescriptor implements GraphVizDrawable, YWorksDrawable, Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public static WindowDescriptor forWindow(Window window, List<Window> windows) {
@@ -46,6 +51,7 @@ public class WindowDescriptor implements GraphVizDrawable, Serializable {
 	private List<WindowlessUIActionTargetDescriptor> windowlessActionTargetDescriptors;
 	private List<UIActionTargetDescriptor> actionTargetDescriptors;
 	private int matchIdx;
+	private String description;
 		
 	/* TODO: Add state descriptors used for differentiating windows in UIStates.
 	 * 
@@ -59,11 +65,35 @@ public class WindowDescriptor implements GraphVizDrawable, Serializable {
 	 * state transitions, some nondeterminism would still remain based on application
 	 * state that can not be observed from the user interface.
 	 */
+
+	private static String deepToString(Component awtComponent) {
+		StringBuilder result = new StringBuilder();
+		deepToString(awtComponent, result, 0);
+		return result.toString();
+	}
 	
+	private static void deepToString(Component awtComponent, StringBuilder result, int depth) {
+		for (int i = 0; i < depth; i++)
+			result.append(" ____");
+		
+		result.append("* ");
+		result.append(StringEscapeUtils.escapeXml(awtComponent.toString()));
+		result.append("\n");
+		
+		if (awtComponent instanceof Container) {
+			Container awtContainer = (Container) awtComponent;
+			
+			for (Component childComp : awtContainer.getComponents()) {
+				deepToString(childComp, result, depth + 1);
+			}
+		}
+	}
+
 	private WindowDescriptor(Window window, List<Window> windows) {
 		this.windowCriteria = WindowlessUIActionTargetDescriptor.Criteria.forComponent(window);
 		this.windowlessActionTargetDescriptors = WindowlessUIActionTargetDescriptor.allFor(window);
 		this.matchIdx = matchIdxFor(this.windowCriteria, this.windowlessActionTargetDescriptors, windows, window);
+		this.description = deepToString(window.getAwtComponent());
 		
 		this.actionTargetDescriptors = new ArrayList<UIActionTargetDescriptor>(this.windowlessActionTargetDescriptors.size());
 		
@@ -180,5 +210,23 @@ public class WindowDescriptor implements GraphVizDrawable, Serializable {
 	
 	public List<UIActionTargetDescriptor> getActionTargetDescriptors() {
 		return Collections.unmodifiableList(this.actionTargetDescriptors);
+	}
+
+	@Override
+	public void addToYWorksEnvironment(YWorksEnvironment env) {
+		NodeRealizer realizer = env.realizerPushGroupNodeFor(this);
+		realizer.setLabelText("Window: " + this.innerString());
+
+		env.setDescription(env.getGroupNodeFor(this), this.description);
+		
+		for (UIActionTargetDescriptor td : this.actionTargetDescriptors) {
+			td.addToYWorksEnvironment(env);
+		}
+		
+		env.popGroupNode();
+	}
+
+	@Override
+	public void addEdgesToYWorksEnvironment(YWorksEnvironment env) {
 	}
 }

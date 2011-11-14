@@ -55,7 +55,7 @@ public class ShutdownTestWriter extends StoppingConditionImpl implements SignalH
 	 * @see de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition#setLimit(int)
 	 */
 	@Override
-	public void setLimit(int limit) {
+	public void setLimit(long limit) {
 		// TODO Auto-generated method stub
 
 	}
@@ -64,7 +64,7 @@ public class ShutdownTestWriter extends StoppingConditionImpl implements SignalH
 	 * @see de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition#getLimit()
 	 */
 	@Override
-	public int getLimit() {
+	public long getLimit() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -73,9 +73,15 @@ public class ShutdownTestWriter extends StoppingConditionImpl implements SignalH
 	 * @see de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition#getCurrentValue()
 	 */
 	@Override
-	public int getCurrentValue() {
+	public long getCurrentValue() {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	@Override
+	public void forceCurrentValue(long value) {
+		// TODO Auto-generated method stub
+		// TODO ?
 	}
 
 }

@@ -36,7 +36,7 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.ga.MinimizeSizeSecondaryObjective;
-import de.unisb.cs.st.evosuite.junit.TestSuite;
+import de.unisb.cs.st.evosuite.junit.TestSuiteWriter;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -55,9 +55,6 @@ public class TestSuiteMinimizer {
 
 	/** Logger */
 	private final static Logger logger = LoggerFactory.getLogger(TestSuiteMinimizer.class);
-
-	/** Factory method that handles statement deletion */
-	private final DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 
 	private final TestFitnessFactory testFitnessFactory;
 
@@ -96,6 +93,8 @@ public class TestSuiteMinimizer {
 	 */
 	public void minimizeTests(TestSuiteChromosome suite) {
 
+		logger.info("Minimizing per test");
+
 		Properties.RECYCLE_CHROMOSOMES = false; // TODO: FIXXME!
 		ExecutionTrace.enableTraceCalls();
 
@@ -108,7 +107,7 @@ public class TestSuiteMinimizer {
 		List<TestFitnessFunction> goals = testFitnessFactory.getCoverageGoals();
 		Set<TestFitnessFunction> covered = new HashSet<TestFitnessFunction>();
 		List<TestChromosome> minimizedTests = new ArrayList<TestChromosome>();
-		TestSuite minimizedSuite = new TestSuite();
+		TestSuiteWriter minimizedSuite = new TestSuiteWriter();
 
 		for (TestFitnessFunction goal : goals) {
 			for (TestChromosome test : minimizedTests) {
@@ -240,7 +239,7 @@ public class TestSuiteMinimizer {
 		// in the case of whole suite generation
 		for (ExecutableChromosome test : suite.getTestChromosomes()) {
 			test.setChanged(true);
-			test.setLastExecutionResult(null);
+			test.clearCachedResults();
 		}
 
 		boolean size = false;
@@ -307,6 +306,7 @@ public class TestSuiteMinimizer {
 					TestChromosome orgiginalTestChromosome = (TestChromosome) testChromosome.clone();
 
 					try {
+						DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 						test_factory.deleteStatementGracefully(testChromosome.getTestCase(),
 						                                       i);
 						testChromosome.setChanged(true);

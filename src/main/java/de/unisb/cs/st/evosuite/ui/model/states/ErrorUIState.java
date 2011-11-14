@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import de.unisb.cs.st.evosuite.ui.YWorksEnvironment;
 import de.unisb.cs.st.evosuite.ui.model.DescriptorBoundUIAction;
 import de.unisb.cs.st.evosuite.ui.model.UIActionTargetDescriptor;
 import de.unisb.cs.st.evosuite.ui.model.WindowDescriptor;
@@ -42,4 +43,7 @@ public class ErrorUIState extends AbstractUIState {
 	public TriBoolean canExecuteActionSequence(List<DescriptorBoundUIAction<?>> actionSequence) {
 		return actionSequence.isEmpty() ? TriBoolean.True : TriBoolean.False;
 	}
+	
+	@Override
+	public void addToYWorksEnvironment(YWorksEnvironment env) {}
 }

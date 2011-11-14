@@ -88,8 +88,9 @@ public class CFGMethodAdapter extends MethodAdapter {
 	public CFGMethodAdapter(String className, int access, String name, String desc,
 	        String signature, String[] exceptions, MethodVisitor mv) {
 
-		//		super(new MethodNode(access, name, desc, signature, exceptions), className,
-		//		        name.replace('/', '.'), null, desc);
+		// super(new MethodNode(access, name, desc, signature, exceptions),
+		// className,
+		// name.replace('/', '.'), null, desc);
 
 		super(new MethodNode(access, name, desc, signature, exceptions));
 
@@ -114,7 +115,8 @@ public class CFGMethodAdapter extends MethodAdapter {
 		} else if (Properties.CRITERION == Criterion.LCSAJ) {
 			instrumentations.add(new LCSAJsInstrumentation());
 			instrumentations.add(new BranchInstrumentation());
-		} else if (Properties.CRITERION == Criterion.DEFUSE) {
+		} else if (Properties.CRITERION == Criterion.DEFUSE
+		        || Properties.CRITERION == Criterion.ALLDEFS) {
 			instrumentations.add(new BranchInstrumentation());
 			instrumentations.add(new DefUseInstrumentation());
 		} else if (Properties.CRITERION == Criterion.ANALYZE) {
@@ -146,12 +148,13 @@ public class CFGMethodAdapter extends MethodAdapter {
 		// Generate CFG of method
 		MethodNode mn = (MethodNode) mv;
 
-		//Only instrument if the method is (not main and not excluded) or (the MethodInstrumentation wants it anyway)
+		// Only instrument if the method is (not main and not excluded) or (the
+		// MethodInstrumentation wants it anyway)
 		if ((!isMainMethod || executeOnMain) && (!isExcludedMethod || executeOnExcluded)
 		        && (access & Opcodes.ACC_ABSTRACT) == 0
 		        && (access & Opcodes.ACC_NATIVE) == 0) {
 
-			logger.info("Analyzing method " + methodName);
+			logger.info("Analyzing method " + methodName+" in class "+className);
 
 			// MethodNode mn = new CFGMethodNode((MethodNode)mv);
 			// System.out.println("Generating CFG for "+ className+"."+mn.name +
@@ -160,7 +163,7 @@ public class CFGMethodAdapter extends MethodAdapter {
 			logger.info("Generating CFG for method " + methodName);
 
 			try {
-				
+
 				bytecodeAnalyzer.analyze(className, methodName, mn);
 				logger.trace("Method graph for "
 				        + className
@@ -180,8 +183,8 @@ public class CFGMethodAdapter extends MethodAdapter {
 			bytecodeAnalyzer.retrieveCFGGenerator().registerCFGs();
 			logger.info("Created CFG for method " + methodName);
 
-			//add the actual instrumentation
-			logger.info("Instrumenting method " + methodName);
+			// add the actual instrumentation
+			logger.info("Instrumenting method " + methodName+" in class "+className);
 			for (MethodInstrumentation instrumentation : instrumentations)
 				instrumentation.analyze(mn, className, methodName, access);
 
@@ -195,6 +198,17 @@ public class CFGMethodAdapter extends MethodAdapter {
 
 		}
 		mn.accept(next);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.objectweb.asm.commons.LocalVariablesSorter#visitMaxs(int, int)
+	 */
+	@Override
+	public void visitMaxs(int maxStack, int maxLocals) {
+		int maxNum = 7;
+		super.visitMaxs(Math.max(maxNum, maxStack), maxLocals);
 	}
 
 	private void handleBranchlessMethods() {

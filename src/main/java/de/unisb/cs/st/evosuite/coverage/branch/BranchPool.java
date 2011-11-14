@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 
@@ -100,7 +100,7 @@ public class BranchPool {
 	private static void registerInstruction(BytecodeInstruction v) {
 		if (isKnownAsBranch(v))
 			throw new IllegalStateException(
-					"expect registerInstruction() to be called at most once for each instruction");
+			        "expect registerInstruction() to be called at most once for each instruction");
 
 		if (v.isBranch())
 			registerNormalBranchInstruction(v);
@@ -108,17 +108,16 @@ public class BranchPool {
 			registerSwitchInstruction(v);
 		else
 			throw new IllegalArgumentException(
-					"expect given instruction to be an actual branch");
+			        "expect given instruction to be an actual branch");
 	}
 
 	private static void registerNormalBranchInstruction(BytecodeInstruction v) {
 		if (!v.isBranch())
-			throw new IllegalArgumentException(
-					"normal branch instruction expceted");
+			throw new IllegalArgumentException("normal branch instruction expceted");
 
 		if (registeredNormalBranches.containsKey(v))
 			throw new IllegalArgumentException(
-					"instruction already registered as a normal branch");
+			        "instruction already registered as a normal branch");
 
 		branchCounter++;
 		registeredNormalBranches.put(v, branchCounter);
@@ -127,9 +126,7 @@ public class BranchPool {
 		addBranchToMap(b);
 		branchIdMap.put(branchCounter, b);
 
-		logger
-				.info("Branch " + branchCounter + " at line "
-						+ v.getLineNumber());
+		logger.info("Branch " + branchCounter + " at line " + v.getLineNumber());
 
 	}
 
@@ -141,28 +138,25 @@ public class BranchPool {
 
 		switch (v.getASMNode().getOpcode()) {
 		case Opcodes.TABLESWITCH:
-			TableSwitchInsnNode tableSwitchNode = (TableSwitchInsnNode) v
-					.getASMNode();
+			TableSwitchInsnNode tableSwitchNode = (TableSwitchInsnNode) v.getASMNode();
 			registerTableSwitchCases(v, tableSwitchNode);
 			defaultLabel = tableSwitchNode.dflt;
 
 			break;
 		case Opcodes.LOOKUPSWITCH:
-			LookupSwitchInsnNode lookupSwitchNode = (LookupSwitchInsnNode) v
-					.getASMNode();
+			LookupSwitchInsnNode lookupSwitchNode = (LookupSwitchInsnNode) v.getASMNode();
 			registerLookupSwitchCases(v, lookupSwitchNode);
 			defaultLabel = lookupSwitchNode.dflt;
 			break;
 		default:
 			throw new IllegalStateException(
-					"expect ASMNode of a switch to either be a LOOKUP- or TABLESWITCH");
+			        "expect ASMNode of a switch to either be a LOOKUP- or TABLESWITCH");
 		}
 
 		registerDefaultCase(v, defaultLabel);
 	}
 
-	private static void registerDefaultCase(BytecodeInstruction v,
-			LabelNode defaultLabel) {
+	private static void registerDefaultCase(BytecodeInstruction v, LabelNode defaultLabel) {
 
 		if (defaultLabel == null)
 			throw new IllegalStateException("expect variable to bet set");
@@ -170,44 +164,44 @@ public class BranchPool {
 		Branch defaultBranch = createSwitchCaseBranch(v, null, defaultLabel);
 		if (!defaultBranch.isSwitchCaseBranch() || !defaultBranch.isDefaultCase())
 			throw new IllegalStateException(
-					"expect created branch to be a default case branch of a switch");
+			        "expect created branch to be a default case branch of a switch");
 	}
 
 	private static void registerTableSwitchCases(BytecodeInstruction v,
-			TableSwitchInsnNode tableSwitchNode) {
+	        TableSwitchInsnNode tableSwitchNode) {
 
 		int num = 0;
-		
+
 		for (int i = tableSwitchNode.min; i <= tableSwitchNode.max; i++) {
 			LabelNode targetLabel = (LabelNode) tableSwitchNode.labels.get(num);
 			Branch switchBranch = createSwitchCaseBranch(v, i, targetLabel);
 			if (!switchBranch.isSwitchCaseBranch() || !switchBranch.isActualCase())
 				throw new IllegalStateException(
-						"expect created branch to be an actual case branch of a switch");
+				        "expect created branch to be an actual case branch of a switch");
 			num++;
 		}
 	}
 
 	private static void registerLookupSwitchCases(BytecodeInstruction v,
-			LookupSwitchInsnNode lookupSwitchNode) {
+	        LookupSwitchInsnNode lookupSwitchNode) {
 
 		for (int i = 0; i < lookupSwitchNode.keys.size(); i++) {
 			LabelNode targetLabel = (LabelNode) lookupSwitchNode.labels.get(i);
 			Branch switchBranch = createSwitchCaseBranch(v,
-					(Integer) lookupSwitchNode.keys.get(i), targetLabel);
+			                                             (Integer) lookupSwitchNode.keys.get(i),
+			                                             targetLabel);
 			if (!switchBranch.isSwitchCaseBranch() || !switchBranch.isActualCase())
 				throw new IllegalStateException(
-						"expect created branch to be an actual case branch of a switch");
+				        "expect created branch to be an actual case branch of a switch");
 		}
 	}
 
 	private static Branch createSwitchCaseBranch(BytecodeInstruction v,
-			Integer caseValue, LabelNode targetLabel) {
+	        Integer caseValue, LabelNode targetLabel) {
 
 		branchCounter++;
 
-		Branch switchBranch = new Branch(v, caseValue, targetLabel,
-				branchCounter);
+		Branch switchBranch = new Branch(v, caseValue, targetLabel, branchCounter);
 		registerSwitchBranch(v, switchBranch);
 		addBranchToMap(switchBranch);
 		branchIdMap.put(branchCounter, switchBranch);
@@ -218,29 +212,29 @@ public class BranchPool {
 		if (caseValue == null) {
 			if (registeredDefaultCases.containsKey(v))
 				throw new IllegalStateException(
-						"instruction already registered as a branch");
+				        "instruction already registered as a branch");
 			registeredDefaultCases.put(v, switchBranch);
 		}
 
 		if (!switchBranch.isSwitchCaseBranch())
-			throw new IllegalStateException(
-					"expect created Branch to be a switch branch");
+			throw new IllegalStateException("expect created Branch to be a switch branch");
 
 		return switchBranch;
 	}
 
 	private static void registerSwitchLabel(Branch b, LabelNode targetLabel) {
 
-		if(switchLabels.get(targetLabel) == null)
+		if (switchLabels.get(targetLabel) == null)
 			switchLabels.put(targetLabel, new ArrayList<Branch>());
-		
+
 		List<Branch> oldList = switchLabels.get(targetLabel);
-		
-		if(oldList.contains(b))
-			throw new IllegalStateException("branch already registered for this switch label");
-		
+
+		if (oldList.contains(b))
+			throw new IllegalStateException(
+			        "branch already registered for this switch label");
+
 		oldList.add(b);
-		
+
 		// TODO several Branches can map to one Label, so switchLabels should
 		// either map from branches to labels, not the other way around. or it
 		// should map labels to a list of branches
@@ -252,8 +246,7 @@ public class BranchPool {
 		switchLabels.put(targetLabel, oldList);
 	}
 
-	private static void registerSwitchBranch(BytecodeInstruction v,
-			Branch switchBranch) {
+	private static void registerSwitchBranch(BytecodeInstruction v, Branch switchBranch) {
 		if (!v.isSwitch())
 			throw new IllegalArgumentException("switch instruction expected");
 
@@ -263,9 +256,8 @@ public class BranchPool {
 		List<Branch> oldList = registeredSwitches.get(v);
 
 		if (oldList.contains(v))
-			throw new IllegalArgumentException(
-					"switch branch already registered  "
-							+ switchBranch.toString());
+			throw new IllegalArgumentException("switch branch already registered  "
+			        + switchBranch.toString());
 
 		oldList.add(switchBranch);
 
@@ -294,43 +286,38 @@ public class BranchPool {
 	 */
 	public static boolean isKnownAsBranch(BytecodeInstruction instruction) {
 		return isKnownAsNormalBranchInstruction(instruction)
-				|| isKnownAsSwitchBranchInstruction(instruction);
+		        || isKnownAsSwitchBranchInstruction(instruction);
 	}
 
-	public static boolean isKnownAsNormalBranchInstruction(
-			BytecodeInstruction ins) {
+	public static boolean isKnownAsNormalBranchInstruction(BytecodeInstruction ins) {
 
 		return registeredNormalBranches.containsKey(ins);
 	}
 
-	public static boolean isKnownAsSwitchBranchInstruction(
-			BytecodeInstruction instruction) {
+	public static boolean isKnownAsSwitchBranchInstruction(BytecodeInstruction instruction) {
 
 		return registeredSwitches.containsKey(instruction);
 	}
 
-	public static int getActualBranchIdForNormalBranchInstruction(
-			BytecodeInstruction ins) {
+	public static int getActualBranchIdForNormalBranchInstruction(BytecodeInstruction ins) {
 		if (!isKnownAsNormalBranchInstruction(ins))
 			throw new IllegalArgumentException(
-					"instruction not registered as a normal branch");
+			        "instruction not registered as a normal branch");
 
 		if (registeredNormalBranches.containsKey(ins))
 			return registeredNormalBranches.get(ins);
 
 		throw new IllegalStateException(
-				"expect registeredNormalBranches to contain a key for each known normal branch instruction");
+		        "expect registeredNormalBranches to contain a key for each known normal branch instruction");
 	}
 
-	public static List<Branch> getCaseBranchesForSwitch(
-			BytecodeInstruction instruction) {
+	public static List<Branch> getCaseBranchesForSwitch(BytecodeInstruction instruction) {
 		if (instruction == null)
 			throw new IllegalArgumentException("null given");
 		if (!instruction.isSwitch())
 			throw new IllegalArgumentException("switch instruction expected");
 		if (!isKnownAsSwitchBranchInstruction(instruction))
-			throw new IllegalArgumentException(
-					"not registered as a switch instruction");
+			throw new IllegalArgumentException("not registered as a switch instruction");
 
 		return registeredSwitches.get(instruction);
 	}
@@ -340,7 +327,7 @@ public class BranchPool {
 			throw new IllegalArgumentException("null given");
 		if (!isKnownAsNormalBranchInstruction(instruction))
 			throw new IllegalArgumentException(
-					"expect given instruction to be known as a normal branch");
+			        "expect given instruction to be known as a normal branch");
 
 		return getBranch(registeredNormalBranches.get(instruction));
 	}
@@ -358,8 +345,7 @@ public class BranchPool {
 	 * 
 	 * @return The number of currently known Branches inside the given method
 	 */
-	public static int getBranchCountForMethod(String className,
-			String methodName) {
+	public static int getBranchCountForMethod(String className, String methodName) {
 		if (branchMap.get(className) == null)
 			return 0;
 		if (branchMap.get(className).get(methodName) == null)
@@ -428,7 +414,7 @@ public class BranchPool {
 	 * Should no such Branch exist an empty List is returned
 	 */
 	public static List<Branch> retrieveBranchesInMethod(String className,
-			String methodName) {
+	        String methodName) {
 		List<Branch> r = new ArrayList<Branch>();
 		if (branchMap.get(className) == null)
 			return r;
@@ -443,22 +429,33 @@ public class BranchPool {
 			throw new IllegalArgumentException("switch instruction expected");
 		if (!isKnownAsSwitchBranchInstruction(v))
 			throw new IllegalArgumentException(
-					"instruction not known to be a switch instruction");
+			        "instruction not known to be a switch instruction");
 		if (!registeredDefaultCases.containsKey(v))
 			throw new IllegalArgumentException(
-					"there is no registered default case for this instruction");
+			        "there is no registered default case for this instruction");
 
 		return registeredDefaultCases.get(v);
 	}
-	
-	public static int getRealBranches(String className){
+
+	public static int getRealBranches(String className) {
 		int real = 0;
 		for (String methodName : branchMap.get(className).keySet())
-			for (Branch b : (branchMap.get(className).get(methodName))){
+			for (Branch b : (branchMap.get(className).get(methodName))) {
 				if (!b.getInstruction().isForcedBranch())
 					real++;
-		}
-			
+			}
+
 		return real;
+	}
+
+	public static void clear() {
+		branchCounter = 0;
+		branchMap.clear();
+		branchIdMap.clear();
+		branchlessMethods.clear();
+		switchLabels.clear();
+		registeredDefaultCases.clear();
+		registeredNormalBranches.clear();
+		registeredSwitches.clear();
 	}
 }

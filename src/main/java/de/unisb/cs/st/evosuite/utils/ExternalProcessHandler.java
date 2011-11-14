@@ -36,21 +36,14 @@ public class ExternalProcessHandler {
 	protected ObjectInputStream in;
 
 	protected Object final_result;
+	protected static final Object WAITING_FOR_DATA = "waiting_for_data_"
+	        + System.currentTimeMillis();
 	protected final Object MONITOR = new Object();
 
+	protected Thread processKillHook;
+
 	public ExternalProcessHandler() {
-		//the following thread is important to make sure that the external process is killed
-		//when current process ends
 
-		Thread t = new Thread() {
-			@Override
-			public void run() {
-				killProcess();
-				closeServer();
-			}
-		};
-
-		Runtime.getRuntime().addShutdownHook(t);
 	}
 
 	public boolean startProcess(String[] command) {
@@ -63,6 +56,20 @@ public class ExternalProcessHandler {
 			return false;
 		}
 
+		final_result = WAITING_FOR_DATA;
+
+		//the following thread is important to make sure that the external process is killed
+		//when current process ends
+
+		processKillHook = new Thread() {
+			@Override
+			public void run() {
+				killProcess();
+				closeServer();
+			}
+		};
+
+		Runtime.getRuntime().addShutdownHook(processKillHook);
 		// now start the process
 
 		File dir = new File(System.getProperty("user.dir"));
@@ -109,6 +116,11 @@ public class ExternalProcessHandler {
 	}
 
 	public void killProcess() {
+		try {
+			Runtime.getRuntime().removeShutdownHook(processKillHook);
+		} catch (Exception e) { /* do nothing. this can happen if shutdown is in progress */
+		}
+
 		if (process != null)
 			process.destroy();
 		process = null;
@@ -120,7 +132,6 @@ public class ExternalProcessHandler {
 		if (error_printer != null && error_printer.isAlive())
 			error_printer.interrupt();
 		error_printer = null;
-
 
 		if (message_handler != null && message_handler.isAlive()) {
 			message_handler.interrupt();
@@ -162,14 +173,13 @@ public class ExternalProcessHandler {
 
 	protected void startExternalProcessPrinter() {
 
-		if(output_printer == null || !output_printer.isAlive())
-		{
+		if (output_printer == null || !output_printer.isAlive()) {
 			output_printer = new Thread() {
 				@Override
 				public void run() {
 					try {
-						BufferedReader proc_in = new BufferedReader(new InputStreamReader(
-								process.getInputStream()));
+						BufferedReader proc_in = new BufferedReader(
+						        new InputStreamReader(process.getInputStream()));
 
 						int data = 0;
 						while (data != -1 && !isInterrupted()) {
@@ -179,22 +189,22 @@ public class ExternalProcessHandler {
 						}
 
 					} catch (Exception e) {
-						logger.error("Exception while reading output of client process", e);
+						logger.error("Exception while reading output of client process",
+						             e);
 					}
 				}
 			};
 
 			output_printer.start();
 		}
-		
-		if(error_printer == null || !error_printer.isAlive())
-		{
+
+		if (error_printer == null || !error_printer.isAlive()) {
 			error_printer = new Thread() {
 				@Override
 				public void run() {
 					try {
-						BufferedReader proc_in = new BufferedReader(new InputStreamReader(
-								process.getErrorStream()));
+						BufferedReader proc_in = new BufferedReader(
+						        new InputStreamReader(process.getErrorStream()));
 
 						int data = 0;
 						while (data != -1 && !isInterrupted()) {
@@ -204,14 +214,15 @@ public class ExternalProcessHandler {
 						}
 
 					} catch (Exception e) {
-						logger.error("Exception while reading output of client process", e);
+						logger.error("Exception while reading output of client process",
+						             e);
 					}
 				}
 			};
 
 			error_printer.start();
 		}
-		
+
 	}
 
 	protected void startExternalProcessMessageHandler() {
@@ -230,8 +241,17 @@ public class ExternalProcessHandler {
 						message = (String) in.readObject();
 						data = in.readObject();
 					} catch (Exception e) {
+						/*
+						 * TODO: this parts need to be improved.
+						 * An exception here is most likely due to the client crashing.
+						 * If there is still enough budget (this might not be trivial to check,
+						 * eg it could be fine for time, but not number of fitness evaluations), then
+						 * we should try to re-start based on the partial info received so far, eg
+						 * the best solutions found so far which was sent to master
+						 */
 						logger.error("Error in reading message ", e);
 						message = Messages.FINISHED_COMPUTATION;
+						data = null;
 					}
 
 					if (message.equals(Messages.FINISHED_COMPUTATION)) {
@@ -246,6 +266,10 @@ public class ExternalProcessHandler {
 						//now data represent the current generation
 						System.out.println("* Restarting client process");
 						killProcess();
+						/*
+						 * TODO: this will need to be changed, to take into account
+						 * a possible reduced budget
+						 */
 						startProcess(last_command, data);
 					} else {
 						killProcess();
@@ -269,7 +293,8 @@ public class ExternalProcessHandler {
 					System.exit(0);
 				try {
 					interrupted = true;
-					process.waitFor();
+					if (process != null)
+						process.waitFor();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -282,11 +307,13 @@ public class ExternalProcessHandler {
 	public Object waitForResult(int timeout) {
 		try {
 			synchronized (MONITOR) {
-				MONITOR.wait(timeout);
+				if (WAITING_FOR_DATA.equals(final_result)) {
+					MONITOR.wait(timeout);
+				}
 			}
 		} catch (InterruptedException e) {
 			logger.warn("Thread interrupted while waiting for results from client process",
-					e);
+			            e);
 		}
 
 		return final_result;

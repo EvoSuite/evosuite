@@ -22,6 +22,8 @@ import java.io.PrintWriter;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -35,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.CFGClassAdapter;
 import de.unisb.cs.st.evosuite.primitives.PrimitiveClassAdapter;
-import de.unisb.cs.st.evosuite.testcase.TestCluster;
+import de.unisb.cs.st.evosuite.testcase.StaticTestCluster;
 
 /**
  * The bytecode transformer - transforms bytecode depending on package and
@@ -47,21 +49,39 @@ import de.unisb.cs.st.evosuite.testcase.TestCluster;
 public class BytecodeInstrumentation implements ClassFileTransformer {
 
 	private static Logger logger = LoggerFactory.getLogger(BytecodeInstrumentation.class);
+	
+	private static List<ClassAdapterFactory> externalPreVisitors = new ArrayList<ClassAdapterFactory>();
 
-	// private static RemoveSystemExitTransformer systemExitTransformer = new
-	// RemoveSystemExitTransformer();
+	private static List<ClassAdapterFactory> externalPostVisitors = new ArrayList<ClassAdapterFactory>();
 
-	static {
-		logger.info("Loading bytecode transformer for " + Properties.PROJECT_PREFIX);
+	public static void addClassAdapter(ClassAdapterFactory factory) {
+		externalPostVisitors.add(factory);
 	}
 
-	static {
-		logger.info("Loading bytecode transformer for "
-				+ Properties.PROJECT_PREFIX);
+	public static void addPreClassAdapter(ClassAdapterFactory factory) {
+		externalPreVisitors.add(factory);
+	}
+
+	public boolean isJavaClass(String className) {
+		return className.startsWith("java.") || className.startsWith("sun.")
+		        || className.startsWith("javax.");
+	}
+
+	public boolean isTargetProject(String className) {
+		return className.startsWith(Properties.PROJECT_PREFIX)
+		        && !className.startsWith("java.") && !className.startsWith("sun.")
+		        && !className.startsWith("de.unisb.cs.st.evosuite")
+		        && !className.startsWith("javax.")
+		        && !className.startsWith("org.xml.sax");
+	}
+
+	private boolean isTargetClassName(String className) {
+		// TODO: Need to replace this in the long term
+		return StaticTestCluster.isTargetClassName(className);
 	}
 	
-	public boolean isTargetProject(String className) {
-		return className.startsWith(Properties.PROJECT_PREFIX);
+	static {
+		logger.info("Loading bytecode transformer for " + Properties.PROJECT_PREFIX);
 	}
 
 	/*
@@ -85,9 +105,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		if (!isTargetProject(classNameWithDots)
 				&& (classNameWithDots.startsWith("java")
 						|| classNameWithDots.startsWith("sun")
-						|| classNameWithDots
-								.startsWith("org.aspectj.org.eclipse") || classNameWithDots
-						.startsWith("org.mozilla.javascript.gen.c"))) {
+		                || classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
 			return classfileBuffer;
 		}
 
@@ -118,23 +136,30 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		// classfileBuffer = systemExitTransformer
 		// .transformBytecode(classfileBuffer);
 
-		ClassWriter writer = new ClassWriter(
-				org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
+		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
 		ClassVisitor cv = writer;
-
-		// Print out bytecode if debug is enabled
 		// if(logger.isDebugEnabled())
-		// cv = new TraceClassVisitor(cv, new
-		// PrintWriter(System.out));
+		if (logger.isDebugEnabled())
+			cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 
 		// Apply transformations to class under test and its owned
 		// classes
 		if (isTargetClassName(classNameWithDots)) {
-//			cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+			// Print out bytecode if debug is enabled
 			cv = new AccessibleClassAdapter(cv, className);
+			// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+			// cv = new CheckClassAdapter(cv, true);
+			// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+			for (ClassAdapterFactory factory : externalPostVisitors) {
+				cv = factory.getVisitor(cv, className);
+			}
 			cv = new ExecutionPathClassAdapter(cv, className);
 			cv = new CFGClassAdapter(cv, className);
+
+			for (ClassAdapterFactory factory : externalPreVisitors) {
+				cv = factory.getVisitor(cv, className);
+			}
 
 		} else if (Properties.MAKE_ACCESSIBLE) {
 			// Convert protected/default access to public access
@@ -152,7 +177,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 		if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
 			ClassNode cn = new ClassNode();
-			reader.accept(cn, ClassReader.SKIP_FRAMES);
+			reader.accept(cn, ClassReader.SKIP_FRAMES); //  | ClassReader.SKIP_DEBUG
 			ComparisonTransformation cmp = new ComparisonTransformation(cn);
 			cn = cmp.transform();
 
@@ -174,18 +199,13 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			}
 
 		} else {
-			reader.accept(cv, ClassReader.SKIP_FRAMES);
+			reader.accept(cv, ClassReader.SKIP_FRAMES); //  | ClassReader.SKIP_DEBUG
 		}
 
 		// Print out bytecode if debug is enabled
 		// if(logger.isDebugEnabled())
-		// cv = new TraceClassVisitor(cv, new
-		// PrintWriter(System.out));
+		// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 		return writer.toByteArray();
-	}
-	
-	protected boolean isTargetClassName(String className) {
-		return TestCluster.isTargetClassName(className);
 	}
 
 }

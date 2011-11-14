@@ -163,7 +163,7 @@ public class FieldReference extends VariableReferenceImpl {
 		} catch (IllegalArgumentException e) {
 			logger.error("Error while assigning field: " + getName() + " with value "
 			        + value + " on object " + sourceObject + ": " + e, e);
-			e.printStackTrace();
+			//e.printStackTrace();
 			throw e;
 		} catch (IllegalAccessException e) {
 			logger.error("Error while assigning field: " + e, e);
@@ -252,10 +252,10 @@ public class FieldReference extends VariableReferenceImpl {
 	 * Create a copy of the current variable
 	 */
 	@Override
-	public VariableReference clone(TestCase newTestCase) {
+	public VariableReference copy(TestCase newTestCase, int offset) {
 		if (source != null) {
 			//			VariableReference otherSource = newTestCase.getStatement(source.getStPosition()).getReturnValue();
-			VariableReference otherSource = source.clone(newTestCase);
+			VariableReference otherSource = source.copy(newTestCase, offset);
 			return new FieldReference(newTestCase, field, otherSource);
 		} else {
 			return new FieldReference(newTestCase, field);

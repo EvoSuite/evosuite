@@ -1,6 +1,6 @@
 package de.unisb.cs.st.evosuite.cfg;
 
-import java.util.HashSet;
+import java.io.Serializable;
 import java.util.Set;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -36,7 +36,9 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
  * @author Gordon Fraser, Andre Mis
  * 
  */
-public class BytecodeInstruction extends ASMWrapper {
+public class BytecodeInstruction extends ASMWrapper implements Serializable {
+
+	private static final long serialVersionUID = 3630449183355518857L;
 
 	// identification of a byteCode instruction inside EvoSuite
 	protected String className;
@@ -46,11 +48,6 @@ public class BytecodeInstruction extends ASMWrapper {
 
 	// auxiliary information
 	private int lineNumber = -1;
-
-	// experiment: since finding the control dependent branches in the CDG might
-	// take a little to long, we might want to remember them
-	private Set<ControlDependency> controlDependentBranches;
-	private Set<Integer> controlDependentBranchIDs;
 
 	// experiment: also searching through all CFG nodes in order to determine an
 	// instruction BasicBlock might be a little to expensive too just to safe
@@ -62,14 +59,14 @@ public class BytecodeInstruction extends ASMWrapper {
 	 * instruction as indicated by the given ASMNode in the given method and
 	 * class
 	 */
-	public BytecodeInstruction(String className, String methodName,
-			int instructionId, int jpfId, AbstractInsnNode asmNode) {
+	public BytecodeInstruction(String className, String methodName, int instructionId,
+	        int jpfId, AbstractInsnNode asmNode) {
 
 		if (className == null || methodName == null || asmNode == null)
 			throw new IllegalArgumentException("null given");
 		if (instructionId < 0)
 			throw new IllegalArgumentException(
-					"expect instructionId to be positive, not " + instructionId);
+			        "expect instructionId to be positive, not " + instructionId);
 
 		this.instructionId = instructionId;
 		this.jpfId = jpfId;
@@ -85,22 +82,20 @@ public class BytecodeInstruction extends ASMWrapper {
 	public BytecodeInstruction(BytecodeInstruction wrap) {
 
 		this(wrap.className, wrap.methodName, wrap.instructionId, wrap.jpfId,
-				wrap.asmNode, wrap.lineNumber, wrap.basicBlock);
+		        wrap.asmNode, wrap.lineNumber, wrap.basicBlock);
 		this.forcedBranch = wrap.forcedBranch;
 	}
 
-	public BytecodeInstruction(String className, String methodName,
-			int instructionId, int jpfId, AbstractInsnNode asmNode,
-			int lineNumber, BasicBlock basicBlock) {
+	public BytecodeInstruction(String className, String methodName, int instructionId,
+	        int jpfId, AbstractInsnNode asmNode, int lineNumber, BasicBlock basicBlock) {
 
 		this(className, methodName, instructionId, jpfId, asmNode, lineNumber);
 
 		this.basicBlock = basicBlock;
 	}
 
-	public BytecodeInstruction(String className, String methodName,
-			int instructionId, int jpfId, AbstractInsnNode asmNode,
-			int lineNumber) {
+	public BytecodeInstruction(String className, String methodName, int instructionId,
+	        int jpfId, AbstractInsnNode asmNode, int lineNumber) {
 
 		this(className, methodName, instructionId, jpfId, asmNode);
 
@@ -175,12 +170,12 @@ public class BytecodeInstruction extends ASMWrapper {
 			throw new IllegalArgumentException("null given");
 
 		if (!block.getClassName().equals(getClassName())
-				|| !block.getMethodName().equals(getMethodName()))
+		        || !block.getMethodName().equals(getMethodName()))
 			throw new IllegalArgumentException(
-					"expect block to be for the same method and class as this instruction");
+			        "expect block to be for the same method and class as this instruction");
 		if (this.basicBlock != null)
 			throw new IllegalArgumentException(
-					"basicBlock already set! not allowed to overwrite");
+			        "basicBlock already set! not allowed to overwrite");
 
 		this.basicBlock = block;
 	}
@@ -207,8 +202,7 @@ public class BytecodeInstruction extends ASMWrapper {
 	 */
 	public void setLineNumber(int lineNumber) {
 		if (lineNumber <= 0)
-			throw new IllegalArgumentException(
-					"expect lineNumber value to be positive");
+			throw new IllegalArgumentException("expect lineNumber value to be positive");
 
 		if (isLabel())
 			return;
@@ -218,7 +212,7 @@ public class BytecodeInstruction extends ASMWrapper {
 			// sanity check
 			if (lineNumber != -1 && asmLine != lineNumber)
 				throw new IllegalStateException(
-						"linenumber instruction has lineNumber field set to a value different from instruction linenumber");
+				        "linenumber instruction has lineNumber field set to a value different from instruction linenumber");
 			this.lineNumber = asmLine;
 		} else {
 			this.lineNumber = lineNumber;
@@ -255,7 +249,7 @@ public class BytecodeInstruction extends ASMWrapper {
 			// sanity check
 			if (this.lineNumber != -1 && asmLine != this.lineNumber)
 				throw new IllegalStateException(
-						"lineNumber field was manually set to a value different from the actual lineNumber contained in LineNumberNode");
+				        "lineNumber field was manually set to a value different from the actual lineNumber contained in LineNumberNode");
 			this.lineNumber = asmLine;
 		}
 	}
@@ -269,11 +263,10 @@ public class BytecodeInstruction extends ASMWrapper {
 	 */
 	public ActualControlFlowGraph getActualCFG() {
 
-		ActualControlFlowGraph myCFG = CFGPool.getActualCFG(className,
-				methodName);
+		ActualControlFlowGraph myCFG = CFGPool.getActualCFG(className, methodName);
 		if (myCFG == null)
 			throw new IllegalStateException(
-					"expect CFGPool to know CFG for every method for which an instruction is known");
+			        "expect CFGPool to know CFG for every method for which an instruction is known");
 
 		return myCFG;
 	}
@@ -288,7 +281,7 @@ public class BytecodeInstruction extends ASMWrapper {
 		RawControlFlowGraph myCFG = CFGPool.getRawCFG(className, methodName);
 		if (myCFG == null)
 			throw new IllegalStateException(
-					"expect CFGPool to know CFG for every method for which an instruction is known");
+			        "expect CFGPool to know CFG for every method for which an instruction is known");
 
 		return myCFG;
 	}
@@ -303,7 +296,7 @@ public class BytecodeInstruction extends ASMWrapper {
 		ControlDependenceGraph myCDG = CFGPool.getCDG(className, methodName);
 		if (myCDG == null)
 			throw new IllegalStateException(
-					"expect CFGPool to know CDG for every method for which an instruction is known");
+			        "expect CFGPool to know CDG for every method for which an instruction is known");
 
 		return myCDG;
 	}
@@ -323,12 +316,11 @@ public class BytecodeInstruction extends ASMWrapper {
 	 */
 	public Set<ControlDependency> getControlDependencies() {
 
-		if (controlDependentBranches == null)
-			controlDependentBranches = getCDG().getControlDependentBranches(
-					this);
+		BasicBlock myBlock = getBasicBlock();
 
-		return new HashSet<ControlDependency>(controlDependentBranches);
-		// return new HashSet<Branch>(controlDependentBranches);
+		// return new
+		// HashSet<ControlDependency>(myBlock.getControlDependencies());
+		return myBlock.getControlDependencies();
 	}
 
 	/**
@@ -362,13 +354,9 @@ public class BytecodeInstruction extends ASMWrapper {
 	 */
 	public Set<Integer> getControlDependentBranchIds() {
 
-		ControlDependenceGraph myDependence = getCDG();
+		BasicBlock myBlock = getBasicBlock();
 
-		if (controlDependentBranchIDs == null)
-			controlDependentBranchIDs = myDependence
-					.getControlDependentBranchIds(this);
-
-		return controlDependentBranchIDs;
+		return myBlock.getControlDependentBranchIds();
 	}
 
 	/**
@@ -425,7 +413,8 @@ public class BytecodeInstruction extends ASMWrapper {
 
 	public boolean getBranchExpressionValue(Branch b) {
 		if (!isDirectlyControlDependentOn(b))
-			throw new IllegalArgumentException("this method can only be called for branches that this instruction is directly control dependent on.");
+			throw new IllegalArgumentException(
+			        "this method can only be called for branches that this instruction is directly control dependent on.");
 
 		if (b == null)
 			return true; // root branch special case
@@ -445,80 +434,84 @@ public class BytecodeInstruction extends ASMWrapper {
 	public boolean isDirectlyControlDependentOn(Branch branch) {
 		if (branch == null)
 			return getControlDependentBranchIds().contains(-1);
-		
-		for(ControlDependency cd : getControlDependencies())
-			if(cd.getBranch().equals(branch))
+
+		for (ControlDependency cd : getControlDependencies())
+			if (cd.getBranch().equals(branch))
 				return true;
-		
+
 		return false;
 	}
 
 	public ControlDependency getControlDependency(Branch branch) {
-		if(!isDirectlyControlDependentOn(branch))
-			throw new IllegalArgumentException("instruction not directly control dependent on given branch");
-		
-		for(ControlDependency cd : getControlDependencies())
-			if(cd.getBranch().equals(branch))
+		if (!isDirectlyControlDependentOn(branch))
+			throw new IllegalArgumentException(
+			        "instruction not directly control dependent on given branch");
+
+		for (ControlDependency cd : getControlDependencies())
+			if (cd.getBranch().equals(branch))
 				return cd;
-		
-		throw new IllegalStateException("expect getControlDependencies() to contain a CD for each branch that isDirectlyControlDependentOn() returns true on");
+
+		throw new IllegalStateException(
+		        "expect getControlDependencies() to contain a CD for each branch that isDirectlyControlDependentOn() returns true on");
 	}
 
-//	/**
-//	 * WARNING: better don't user this method right now TODO
-//	 * 
-//	 * Determines whether the CFGVertex is transitively control dependent on the
-//	 * given Branch
-//	 * 
-//	 * A CFGVertex is transitively control dependent on a given Branch if the
-//	 * Branch and the vertex are in the same method and the vertex is either
-//	 * directly control dependent on the Branch - look at
-//	 * isDirectlyControlDependentOn(Branch) - or the CFGVertex of the control
-//	 * dependent branch of this CFGVertex is transitively control dependent on
-//	 * the given branch.
-//	 * 
-//	 */
-//	public boolean isTransitivelyControlDependentOn(Branch branch) {
-//		if (!getClassName().equals(branch.getClassName()))
-//			return false;
-//		if (!getMethodName().equals(branch.getMethodName()))
-//			return false;
-//
-//		// TODO: this method does not take into account, that there might be
-//		// multiple branches this instruction is control dependent on
-//
-//		BytecodeInstruction vertexHolder = this;
-//		do {
-//			if (vertexHolder.isDirectlyControlDependentOn(branch))
-//				return true;
-//			vertexHolder = vertexHolder.getControlDependentBranch()
-//					.getInstruction();
-//		} while (vertexHolder != null);
-//
-//		return false;
-//	}
+	// /**
+	// * WARNING: better don't user this method right now TODO
+	// *
+	// * Determines whether the CFGVertex is transitively control dependent on
+	// the
+	// * given Branch
+	// *
+	// * A CFGVertex is transitively control dependent on a given Branch if the
+	// * Branch and the vertex are in the same method and the vertex is either
+	// * directly control dependent on the Branch - look at
+	// * isDirectlyControlDependentOn(Branch) - or the CFGVertex of the control
+	// * dependent branch of this CFGVertex is transitively control dependent on
+	// * the given branch.
+	// *
+	// */
+	// public boolean isTransitivelyControlDependentOn(Branch branch) {
+	// if (!getClassName().equals(branch.getClassName()))
+	// return false;
+	// if (!getMethodName().equals(branch.getMethodName()))
+	// return false;
+	//
+	// // TODO: this method does not take into account, that there might be
+	// // multiple branches this instruction is control dependent on
+	//
+	// BytecodeInstruction vertexHolder = this;
+	// do {
+	// if (vertexHolder.isDirectlyControlDependentOn(branch))
+	// return true;
+	// vertexHolder = vertexHolder.getControlDependentBranch()
+	// .getInstruction();
+	// } while (vertexHolder != null);
+	//
+	// return false;
+	// }
 
-//	/**
-//	 * WARNING: better don't user this method right now TODO
-//	 * 
-//	 * Determines the number of branches that have to be passed in order to pass
-//	 * this CFGVertex
-//	 * 
-//	 * Used to determine TestFitness difficulty
-//	 */
-//	public int getCDGDepth() {
-//
-//		// TODO: this method does not take into account, that there might be
-//		// multiple branches this instruction is control dependent on
-//
-//		Branch current = getControlDependentBranch();
-//		int r = 1;
-//		while (current != null) {
-//			r++;
-//			current = current.getInstruction().getControlDependentBranch();
-//		}
-//		return r;
-//	}
+	// /**
+	// * WARNING: better don't user this method right now TODO
+	// *
+	// * Determines the number of branches that have to be passed in order to
+	// pass
+	// * this CFGVertex
+	// *
+	// * Used to determine TestFitness difficulty
+	// */
+	// public int getCDGDepth() {
+	//
+	// // TODO: this method does not take into account, that there might be
+	// // multiple branches this instruction is control dependent on
+	//
+	// Branch current = getControlDependentBranch();
+	// int r = 1;
+	// while (current != null) {
+	// r++;
+	// current = current.getInstruction().getControlDependentBranch();
+	// }
+	// return r;
+	// }
 
 	// String methods
 
@@ -528,13 +521,11 @@ public class BytecodeInstruction extends ASMWrapper {
 				Branch b = BranchPool.getBranchForInstruction(this);
 				if (b == null)
 					throw new IllegalStateException(
-							"expect BranchPool to be able to return Branches for instructions fullfilling BranchPool.isKnownAsBranch()");
+					        "expect BranchPool to be able to return Branches for instructions fullfilling BranchPool.isKnownAsBranch()");
 
-				return "Branch " + b.getActualBranchId() + " - "
-						+ getInstructionType();
+				return "Branch " + b.getActualBranchId() + " - " + getInstructionType();
 			}
-			return "UNKNOWN Branch I" + instructionId + " "
-					+ getInstructionType();
+			return "UNKNOWN Branch I" + instructionId + " " + getInstructionType();
 
 			// + " - " + ((JumpInsnNode) asmNode).label.getLabel();
 		}
@@ -558,25 +549,25 @@ public class BytecodeInstruction extends ASMWrapper {
 			return "LABEL " + ((LabelNode) asmNode).getLabel().toString();
 		} else if (asmNode instanceof FieldInsnNode)
 			return "Field" + " " + ((FieldInsnNode) asmNode).owner + "."
-					+ ((FieldInsnNode) asmNode).name + " Type=" + type
-					+ ", Opcode=" + opcode;
+			        + ((FieldInsnNode) asmNode).name + " Type=" + type + ", Opcode="
+			        + opcode;
 		else if (asmNode instanceof FrameNode)
-			return "Frame" + " " + asmNode.getOpcode() + " Type=" + type
-					+ ", Opcode=" + opcode;
+			return "Frame" + " " + asmNode.getOpcode() + " Type=" + type + ", Opcode="
+			        + opcode;
 		else if (asmNode instanceof IincInsnNode)
-			return "IINC " + ((IincInsnNode) asmNode).var + " Type=" + type
-					+ ", Opcode=" + opcode;
+			return "IINC " + ((IincInsnNode) asmNode).var + " Type=" + type + ", Opcode="
+			        + opcode;
 		else if (asmNode instanceof InsnNode)
 			return "" + opcode;
 		else if (asmNode instanceof IntInsnNode)
 			return "INT " + ((IntInsnNode) asmNode).operand + " Type=" + type
-					+ ", Opcode=" + opcode;
+			        + ", Opcode=" + opcode;
 		else if (asmNode instanceof MethodInsnNode)
 			return opcode + " " + ((MethodInsnNode) asmNode).name;
 		else if (asmNode instanceof JumpInsnNode)
-			return "JUMP " + ((JumpInsnNode) asmNode).label.getLabel()
-					+ " Type=" + type + ", Opcode=" + opcode + ", Stack: "
-					+ stack + " - Line: " + lineNumber;
+			return "JUMP " + ((JumpInsnNode) asmNode).label.getLabel() + " Type=" + type
+			        + ", Opcode=" + opcode + ", Stack: " + stack + " - Line: "
+			        + lineNumber;
 		else if (asmNode instanceof LdcInsnNode)
 			return "LDC " + ((LdcInsnNode) asmNode).cst + " Type=" + type; // +
 		// ", Opcode=";
@@ -585,14 +576,14 @@ public class BytecodeInstruction extends ASMWrapper {
 		else if (asmNode instanceof LineNumberNode)
 			return "LINE " + " " + ((LineNumberNode) asmNode).line;
 		else if (asmNode instanceof LookupSwitchInsnNode)
-			return "LookupSwitchInsnNode" + " " + asmNode.getOpcode()
-					+ " Type=" + type + ", Opcode=" + opcode;
+			return "LookupSwitchInsnNode" + " " + asmNode.getOpcode() + " Type=" + type
+			        + ", Opcode=" + opcode;
 		else if (asmNode instanceof MultiANewArrayInsnNode)
-			return "MULTIANEWARRAY " + " " + asmNode.getOpcode() + " Type="
-					+ type + ", Opcode=" + opcode;
+			return "MULTIANEWARRAY " + " " + asmNode.getOpcode() + " Type=" + type
+			        + ", Opcode=" + opcode;
 		else if (asmNode instanceof TableSwitchInsnNode)
-			return "TableSwitchInsnNode" + " " + asmNode.getOpcode() + " Type="
-					+ type + ", Opcode=" + opcode;
+			return "TableSwitchInsnNode" + " " + asmNode.getOpcode() + " Type=" + type
+			        + ", Opcode=" + opcode;
 		else if (asmNode instanceof TypeInsnNode)
 			return "NEW " + ((TypeInsnNode) asmNode).desc;
 		// return "TYPE " + " " + node.getOpcode() + " Type=" + type
@@ -618,46 +609,68 @@ public class BytecodeInstruction extends ASMWrapper {
 		return r;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof BytecodeInstruction))
-			return false;
-
-		// TODO ensure that the following checks always succeed
-		// TODO do this by ensuring that those values are always set correctly
-
-		BytecodeInstruction other = (BytecodeInstruction) obj;
-
-		if (instructionId != other.instructionId)
-			return false;
-		if (methodName != null && !methodName.equals(other.methodName))
-			return false;
-		if (className != null && !className.equals(other.className))
-			return false;
-
-		return super.equals(obj);
-	}
+	// @Override
+	// public boolean equals(Object obj) {
+	// if (this == obj)
+	// return true;
+	// if (obj == null)
+	// return false;
+	// if (!(obj instanceof BytecodeInstruction))
+	// return false;
+	//
+	// // TODO ensure that the following checks always succeed
+	// // TODO do this by ensuring that those values are always set correctly
+	//
+	// BytecodeInstruction other = (BytecodeInstruction) obj;
+	//
+	// if (instructionId != other.instructionId)
+	// return false;
+	// if (methodName != null && !methodName.equals(other.methodName))
+	// return false;
+	// if (className != null && !className.equals(other.className))
+	// return false;
+	//
+	// return super.equals(obj);
+	// }
 
 	/**
 	 * Convenience method:
 	 * 
-	 * If this instruction is known by the BranchPool to be a Branch,
-	 * you can call this method in order to retrieve the corresponding Branch
-	 * object registered within the BranchPool.
+	 * If this instruction is known by the BranchPool to be a Branch, you can
+	 * call this method in order to retrieve the corresponding Branch object
+	 * registered within the BranchPool.
 	 * 
 	 * Otherwise this method will return null;
 	 */
 	public Branch toBranch() {
-		
+
 		try {
 			return BranchPool.getBranchForInstruction(this);
-		} catch(Exception e) {
+		} catch (Exception e) {
 			return null;
 		}
 	}
 
+	public boolean proceedsConstructorInvocation() {
+
+		RawControlFlowGraph cfg = getRawCFG();
+		for (BytecodeInstruction other : cfg.vertexSet())
+			if (other.isConstructorInvocation())
+				if (getInstructionId() < other.getInstructionId())
+					return true;
+
+		return false;
+	}
+
+	public boolean isWithinConstructor() {
+		return getMethodName().startsWith("<init>");
+	}
+
+	public boolean isLastInstructionInMethod() {
+		return equals(getRawCFG().getInstructionWithBiggestId());
+	}
+
+	public boolean canBeExitPoint() {
+		return canReturnFromMethod() || isLastInstructionInMethod();
+	}
 }

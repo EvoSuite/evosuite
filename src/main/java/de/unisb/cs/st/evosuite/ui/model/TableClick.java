@@ -1,6 +1,11 @@
 package de.unisb.cs.st.evosuite.ui.model;
 
+import java.util.List;
+
+import org.uispec4j.Key.Modifier;
+import org.uispec4j.Key;
 import org.uispec4j.Table;
+import org.uispec4j.UIComponent;
 
 import de.unisb.cs.st.evosuite.ui.run.AbstractUIEnvironment;
 import de.unisb.cs.st.evosuite.utils.Randomness;
@@ -8,20 +13,20 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
 class TableClick extends UIAction<Table> {
 	private static final long serialVersionUID = 1L;
 
-	public static TableClick newLeftClick() {
-		return new TableClick(false);
+	enum Mode {
+		LeftClick,
+		RightClick,
+		DoubleClick
 	}
-
-	public static TableClick newRightClick() {
-		return new TableClick(true);
-	}
-
+	
 	private double rowRand;
 	private double colRand;
-	private boolean isRightClick;
+	private Mode mode;
+	private Modifier modifier;
 	
-	TableClick(boolean isRightClick) {
-		this.isRightClick = isRightClick;
+	TableClick(Mode mode) {
+		assert(mode != null);
+		this.mode = mode;
 	}
 
 	@Override
@@ -34,10 +39,18 @@ class TableClick extends UIAction<Table> {
 				int rowIdx = (int) (TableClick.this.rowRand * table.getRowCount());
 				int colIdx = (int) (TableClick.this.colRand * table.getColumnCount());
 
-				if (TableClick.this.isRightClick) {
+				switch (TableClick.this.mode) {
+				case LeftClick:
+					table.click(rowIdx, colIdx, TableClick.this.modifier);
+					break;
+				
+				case RightClick:
 					table.rightClick(rowIdx, colIdx);
-				} else {
-					table.click(rowIdx, colIdx);
+					break;
+					
+				case DoubleClick:
+					table.doubleClick(rowIdx, colIdx);
+					break;
 				}
 			}
 		});
@@ -45,16 +58,20 @@ class TableClick extends UIAction<Table> {
 	}
 
 	@Override
-	public void randomize() {
+	public boolean randomize() {
 		this.rowRand = Randomness.nextDouble();
 		this.colRand = Randomness.nextDouble();
+		this.modifier = Randomness.nextDouble() > 0.5 ? Randomness.choice(Key.Modifier.ALT, Key.Modifier.CONTROL, Key.Modifier.META, Key.Modifier.SHIFT) : Key.Modifier.NONE;
+		
+		super.randomize();
+		return true;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + (isRightClick ? 1231 : 1237);
+		result = prime * result + ((mode == null) ? 0 : mode.hashCode());
 		return result;
 	}
 
@@ -67,7 +84,7 @@ class TableClick extends UIAction<Table> {
 		if (getClass() != obj.getClass())
 			return false;
 		TableClick other = (TableClick) obj;
-		if (isRightClick != other.isRightClick)
+		if (mode != other.mode)
 			return false;
 		return true;
 	}
@@ -79,6 +96,17 @@ class TableClick extends UIAction<Table> {
 	
 	@Override
 	public String graphVizString() {
-		return isRightClick ? "TableRightClick" : "TableClick";
+		switch (this.mode) {
+		case LeftClick: return "TableClick";
+		case RightClick: return "TableRightClick";
+		case DoubleClick: return "TableDoubleClick";
+		default: return "TableUnknownClick";
+		}
+	}
+
+	public static void addActions(List<UIAction<? extends UIComponent>> toList) {
+		toList.add(new TableClick(Mode.LeftClick));
+		toList.add(new TableClick(Mode.RightClick));
+		toList.add(new TableClick(Mode.DoubleClick));
 	}
 }

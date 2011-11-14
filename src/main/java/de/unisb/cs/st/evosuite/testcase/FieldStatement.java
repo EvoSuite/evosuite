@@ -147,17 +147,20 @@ public class FieldStatement extends AbstractStatement {
 	}
 
 	@Override
-	public StatementInterface clone(TestCase newTestCase) {
+	public StatementInterface copy(TestCase newTestCase, int offset) {
 		if (Modifier.isStatic(field.getModifiers())) {
 			FieldStatement s = new FieldStatement(newTestCase, field, null,
 			        retval.getType());
+			// s.assertions = copyAssertions(newTestCase, offset);
 			return s;
 		} else {
-			VariableReference newSource = source.clone(newTestCase);
+			VariableReference newSource = source.copy(newTestCase, offset);
 			FieldStatement s = new FieldStatement(newTestCase, field, newSource,
 			        retval.getType());
+			// s.assertions = copyAssertions(newTestCase, offset);
 			return s;
 		}
+
 	}
 
 	@Override
@@ -383,12 +386,8 @@ public class FieldStatement extends AbstractStatement {
 	private void writeObject(ObjectOutputStream oos) throws IOException {
 		oos.defaultWriteObject();
 		// Write/save additional fields
-		oos.writeObject(field.getDeclaringClass());
-		Field[] fields = field.getDeclaringClass().getDeclaredFields();
-		for (int i = 0; i < fields.length; i++) {
-			if (fields[i].equals(field))
-				oos.writeObject(new Integer(i));
-		}
+		oos.writeObject(field.getDeclaringClass().getName());
+		oos.writeObject(field.getName());
 	}
 
 	// assumes "static java.util.Date aDate;" declared
@@ -397,9 +396,35 @@ public class FieldStatement extends AbstractStatement {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
-		Class<?> methodClass = (Class<?>) ois.readObject();
-		int num = (Integer) ois.readObject();
+		Class<?> methodClass = TestCluster.classLoader.loadClass((String) ois.readObject());
+		String fieldName = (String) ois.readObject();
 
-		field = methodClass.getDeclaredFields()[num];
+		try {
+			field = methodClass.getField(fieldName);
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchFieldException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		try {
+			Class<?> oldClass = field.getDeclaringClass();
+			Class<?> newClass = loader.loadClass(oldClass.getName());
+			this.field = newClass.getField(field.getName());
+		} catch (ClassNotFoundException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		} catch (SecurityException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		} catch (NoSuchFieldException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		}
 	}
 }

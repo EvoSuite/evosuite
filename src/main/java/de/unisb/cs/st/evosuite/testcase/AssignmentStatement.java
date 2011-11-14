@@ -64,19 +64,26 @@ public class AssignmentStatement extends AbstractStatement {
 	}
 
 	@Override
-	public StatementInterface clone(TestCase newTestCase) {
+	public StatementInterface copy(TestCase newTestCase, int offset) {
 		try {
 			//logger.info("CLoning : " + getCode());
-			VariableReference newParam = parameter.clone(newTestCase);
-			VariableReference newTarget = retval.clone(newTestCase);
+			VariableReference newParam = parameter.copy(newTestCase, offset);
+			VariableReference newTarget;
+			if (retval.getAdditionalVariableReference() != null)
+				newTarget = retval.copy(newTestCase, offset);
+			else
+				newTarget = new VariableReferenceImpl(newTestCase, retval.getType());
 			AssignmentStatement copy = new AssignmentStatement(newTestCase, newTarget,
 			        newParam);
+			// copy.assertions = copyAssertions(newTestCase, offset);
+
 			//logger.info("Copy of statement is: " + copy.getCode());
 			return copy;
 		} catch (Exception e) {
 			logger.info("Error cloning statement " + getCode());
 			logger.info("New test: " + newTestCase.toCode());
-			assert (false);
+			e.printStackTrace();
+			assert (false) : e.toString();
 		}
 		return null;
 	}
@@ -320,5 +327,13 @@ public class AssignmentStatement extends AbstractStatement {
 	@Override
 	public boolean isAssignmentStatement() {
 		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		// No-op
 	}
 }

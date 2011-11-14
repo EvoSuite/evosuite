@@ -55,11 +55,16 @@ public class ChromosomeUIController implements InterfaceTestRunnable, UIControll
 	public synchronized ExecutionResult call() throws Exception {
 		this.reset();
 		
+		ExecutionTracer.enable();
+		ExecutionTracer.setThread(Thread.currentThread());
+		
 		UIRunner runner = UIRunner.run(this.chromosome.getStateGraph(), this, this.chromosome.getMainMethodTrigger());
 		this.simpleCondition.awaitUninterruptibly();
 		
+		ExecutionTracer.disable();
 		this.executionResult.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
-
+		this.executionResult.exceptions = this.exceptionsThrown;
+		
 		this.chromosome.setActionSequence(runner.getActionSequence());
 		
 		if (this.exception != null) {

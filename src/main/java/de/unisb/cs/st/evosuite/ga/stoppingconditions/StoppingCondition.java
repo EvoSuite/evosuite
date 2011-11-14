@@ -5,11 +5,19 @@ import de.unisb.cs.st.evosuite.ga.SearchListener;
 public interface StoppingCondition extends SearchListener {
 
 	/**
+	 * Force a specific amount of used up budget. Handle with care!
+	 * 
+	 * @param value
+	 *            The new amount of used up budget for this StoppingCondition
+	 */
+	public abstract void forceCurrentValue(long value);
+
+	/**
 	 * How much of the budget have we used up
 	 * 
 	 * @return
 	 */
-	int getCurrentValue();
+	public abstract long getCurrentValue();
 
 	/**
 	 * Get upper limit of resources
@@ -18,7 +26,7 @@ public interface StoppingCondition extends SearchListener {
 	 * 
 	 * @return limit
 	 */
-	int getLimit();
+	public abstract long getLimit();
 
 	boolean isFinished();
 
@@ -32,5 +40,5 @@ public interface StoppingCondition extends SearchListener {
 	 * 
 	 * @param limit
 	 */
-	void setLimit(int limit);
+	void setLimit(long limit);
 }

@@ -1,25 +1,24 @@
 package de.unisb.cs.st.evosuite.ui.model.states;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import de.unisb.cs.st.evosuite.ui.GraphVizDrawable;
 import de.unisb.cs.st.evosuite.ui.GraphVizEnvironment;
+import de.unisb.cs.st.evosuite.ui.YWorksDrawable;
+import de.unisb.cs.st.evosuite.ui.YWorksEnvironment;
 import de.unisb.cs.st.evosuite.ui.model.states.UIState.Descriptor;
 import de.unisb.cs.st.evosuite.ui.run.AbstractUIEnvironment;
 
-public class UIStateGraph implements GraphVizDrawable, Serializable {
+public class UIStateGraph implements GraphVizDrawable, YWorksDrawable, Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private final Map<Descriptor, UIState> stateMap = new HashMap<Descriptor, UIState>();
-	final Set<AmbigueUIState> ambigueStates = new HashSet<AmbigueUIState>();
+	private final Map<Descriptor, UIState> stateMap = Collections.synchronizedMap(new HashMap<Descriptor, UIState>());
+	final Set<AmbigueUIState> ambigueStates = Collections.synchronizedSet(new HashSet<AmbigueUIState>());
 	private int lastAssignedId = -1;
 	private UIState initialState = null;	
 
-	UIState getState(Descriptor descriptor) {		
+	synchronized UIState getState(Descriptor descriptor) {		
 		if (!this.stateMap.containsKey(descriptor)) {
 			UIState uiState = new UIState(this, descriptor);
 			this.stateMap.put(descriptor, uiState);
@@ -40,7 +39,7 @@ public class UIStateGraph implements GraphVizDrawable, Serializable {
 		return getState(Descriptor.forEnvironment(env));
 	}
 	
-	public void mergeIn(UIStateGraph other) {
+	public synchronized void mergeIn(UIStateGraph other) {
 		for (Descriptor otherDescriptor : other.stateMap.keySet()) {
 			UIState otherState = other.stateMap.get(otherDescriptor);
 			getState(otherDescriptor).mergeIn(otherState);
@@ -56,7 +55,7 @@ public class UIStateGraph implements GraphVizDrawable, Serializable {
 	}
 	
 	@Override
-	public String toGraphViz(GraphVizEnvironment env) {
+	public synchronized String toGraphViz(GraphVizEnvironment env) {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("digraph G {\n");
@@ -92,4 +91,32 @@ public class UIStateGraph implements GraphVizDrawable, Serializable {
 		return sb.toString();
 	}
 
+	@Override
+	public synchronized void addToYWorksEnvironment(YWorksEnvironment env) {
+		for (UIState state : this.stateMap.values()) {
+			state.addToYWorksEnvironment(env);
+		}
+	
+		for (AmbigueUIState state : this.ambigueStates) {
+			state.addToYWorksEnvironment(env);
+		}
+
+		for (UIState state : this.stateMap.values()) {
+			state.addEdgesToYWorksEnvironment(env);
+		}
+	
+		for (AmbigueUIState state : this.ambigueStates) {
+			state.addEdgesToYWorksEnvironment(env);
+		}
+	}
+	
+	public YWorksEnvironment addToYWorksEnvironment() {
+		YWorksEnvironment env = new YWorksEnvironment();
+		this.addToYWorksEnvironment(env);
+		return env;
+	}
+
+	@Override
+	public void addEdgesToYWorksEnvironment(YWorksEnvironment env) {
+	}
 }

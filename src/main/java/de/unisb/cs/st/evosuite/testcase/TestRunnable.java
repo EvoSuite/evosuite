@@ -5,15 +5,17 @@ package de.unisb.cs.st.evosuite.testcase;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.sandbox.EvosuiteFile;
 import de.unisb.cs.st.evosuite.sandbox.Sandbox;
 
 /**
@@ -39,13 +41,13 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 	public Map<Integer, Throwable> exceptionsThrown = new HashMap<Integer, Throwable>();
 
-	public List<ExecutionObserver> observers;
+	public Set<ExecutionObserver> observers;
 
 	private final boolean breakOnUndeclaredException;
 	
 	private final boolean breakOnException = Properties.BREAK_ON_EXCEPTION;
 
-	public TestRunnable(TestCase tc, Scope scope, List<ExecutionObserver> observers) {
+	public TestRunnable(TestCase tc, Scope scope, Set<ExecutionObserver> observers) {
 		this(tc, scope, observers, true);
 	}
 
@@ -59,7 +61,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	 *            returns an UndeclaredException. (Note that undeclaredException
 	 *            is defined by StatementInterface.isDeclaredException/1)
 	 */
-	public TestRunnable(TestCase tc, Scope scope, List<ExecutionObserver> observers,
+	public TestRunnable(TestCase tc, Scope scope, Set<ExecutionObserver> observers,
 	        boolean breakOnUndeclaredException) {
 		test = tc;
 		this.scope = scope;
@@ -116,8 +118,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 					 * As those test cases are not going to be executed after the statement (i.e. no coverage for those parts is generated) 
 					 * This comment should explain, why that behavior is desirable 
 					 */
-					if (breakOnUndeclaredException
-					        && !s.isDeclaredException(exceptionThrown))
+					if (breakOnUndeclaredException)
+						//					        && !s.isDeclaredException(exceptionThrown))
 						break;
 
 					// exception_statement = num; 
@@ -137,9 +139,9 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 		} catch (ThreadDeath e) {// can't stop these guys
 			Sandbox.tearDownEverything();
-			logger.info("Found error:");
-			logger.info(test.toCode());
-			logger.warn("Found error in " + test.toCode(), e);
+			//logger.info("Found error:");
+			//logger.info(test.toCode());
+			logger.info("Found error in " + test.toCode(), e);
 			runFinished = true;
 			throw e;
 		} catch (TimeoutException e) {
@@ -165,7 +167,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
 			// exceptionThrown = e;
-			logger.warn("Error while executing statement " + test.toCode(), e);
+			logger.info("Error while executing statement " + test.toCode(), e);
 			// System.exit(1);
 
 		} // finally {
@@ -173,7 +175,19 @@ public class TestRunnable implements InterfaceTestRunnable {
 		Sandbox.tearDownMocks();
 
 		result.exceptions = exceptionsThrown;
-
+		if (Sandbox.canUseFileContentGeneration())
+			try {
+				logger.debug("Enabling file handling");
+				Method m = Sandbox.class.getMethod("generateFileContent",
+				                                   EvosuiteFile.class, String.class);
+				// TODO: Re-insert!
+				// if (!TestCluster.getInstance().test_methods.contains(m))
+				//	TestCluster.getInstance().test_methods.add(m);
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			}
 		return result;
 		//}
 	}

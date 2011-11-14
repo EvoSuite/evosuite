@@ -1,14 +1,18 @@
 package de.unisb.cs.st.evosuite.javaagent;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.unisb.cs.st.evosuite.utils.ResourceList;
 
 /**
  * <em>Note:</em> Do not inadvertently use multiple instances of this class in
@@ -60,14 +64,27 @@ public class InstrumentingClassLoader extends ClassLoader {
 		return result;
 	}
 
+	private InputStream findTargetResource(String name) throws FileNotFoundException {
+		Pattern pattern = Pattern.compile(name);
+		Collection<String> resources = ResourceList.getResources(pattern);
+		if (resources.isEmpty())
+			throw new FileNotFoundException(name);
+		else
+			return new FileInputStream(resources.iterator().next());
+	}
+
 	private Class<?> instrumentClass(String fullyQualifiedTargetClass) throws ClassNotFoundException {
 		logger.info("Instrumenting class '" + fullyQualifiedTargetClass + "'.");
 		try {
 			String className = fullyQualifiedTargetClass.replace('.', '/');
 			InputStream is = ClassLoader.getSystemResourceAsStream(className + ".class");
 			if (is == null) {
-				throw new ClassNotFoundException("Class '" + className
-						+ "' should be in target project, but could not be found!");
+				try {
+					is = findTargetResource(".*" + className + ".class");
+				} catch (FileNotFoundException e) {
+					throw new ClassNotFoundException("Class '" + className + ".class"
+					        + "' should be in target project, but could not be found!");
+				}
 			}
 			byte[] byteBuffer = instrumentation.transformBytes(className, new ClassReader(is));
 			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0, byteBuffer.length);
@@ -79,27 +96,4 @@ public class InstrumentingClassLoader extends ClassLoader {
 		}
 	}
 
-	private Class<?> loadClassByteCode(String name) throws ClassNotFoundException {
-		if (name.startsWith("java.") || name.startsWith("sun.")) {
-			throw new IllegalStateException("Cannot load java system class: " + name);
-		}
-		try {
-			InputStream is = ClassLoader.getSystemResourceAsStream(name.replace('.', '/') + ".class");
-			if (is == null) {
-				throw new ClassNotFoundException("Class should be in target project, but could not be found!");
-			}
-			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-			int nRead;
-			byte[] data = new byte[16384];
-			while ((nRead = is.read(data, 0, data.length)) != -1) {
-				buffer.write(data, 0, nRead);
-			}
-			buffer.flush();
-			byte[] byteBuffer = buffer.toByteArray();
-			Class<?> result = defineClass(name, byteBuffer, 0, byteBuffer.length);
-			return result;
-		} catch (IOException exc) {
-			return null;
-		}
-	}
 }

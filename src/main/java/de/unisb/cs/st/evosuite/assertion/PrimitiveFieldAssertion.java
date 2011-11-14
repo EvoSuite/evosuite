@@ -20,13 +20,14 @@ package de.unisb.cs.st.evosuite.assertion;
 
 import java.lang.reflect.Field;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.utils.NumberFormatter;
 
 public class PrimitiveFieldAssertion extends Assertion {
+
+	private static final long serialVersionUID = 2827276810722210456L;
 
 	public Field field;
 
@@ -35,29 +36,29 @@ public class PrimitiveFieldAssertion extends Assertion {
 		if (value == null) {
 			return "assertNull(" + source.getName() + "." + field.getName() + ");";
 		} else if (value.getClass().equals(Long.class)) {
-			String val = value.toString();
 			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
-			+ val + "L);";
+			        + NumberFormatter.getNumberString(value) + ");";
 		} else if (value.getClass().equals(Float.class)) {
-			String val = value.toString();
 			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
-			+ val + "F);";
+			        + NumberFormatter.getNumberString(value) + "F, 0.01F);";
+		} else if (value.getClass().equals(Double.class)) {
+			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
+			        + NumberFormatter.getNumberString(value) + "D, 0.01D);";
 		} else if (value.getClass().equals(Character.class)) {
-			String val = StringEscapeUtils.escapeJava(((Character) value).toString());
-			return "assertEquals(" + source.getName() + "." + field.getName() + ", '"
-			+ val + "');";
+			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
+			        + NumberFormatter.getNumberString(value) + ");";
 		} else if (value.getClass().equals(String.class)) {
-			return "assertEquals(" + source.getName() + "." + field.getName() + ", \""
-			+ StringEscapeUtils.escapeJava((String) value) + "\");";
+			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
+			        + NumberFormatter.getNumberString(value) + ");";
 		} else
 			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
-			+ value + ");";
+			        + NumberFormatter.getNumberString(value) + ");";
 	}
 
 	@Override
-	public Assertion clone(TestCase newTestCase) {
+	public Assertion copy(TestCase newTestCase, int offset) {
 		PrimitiveFieldAssertion s = new PrimitiveFieldAssertion();
-		s.source = newTestCase.getStatement(source.getStPosition()).getReturnValue();
+		s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
 		s.value = value;
 		s.field = field;
 		return s;
@@ -65,7 +66,7 @@ public class PrimitiveFieldAssertion extends Assertion {
 
 	@Override
 	public boolean evaluate(Scope scope) {
-		try{
+		try {
 			Object obj = source.getObject(scope);
 			if (obj != null) {
 				try {
@@ -79,7 +80,7 @@ public class PrimitiveFieldAssertion extends Assertion {
 				}
 			} else
 				return true;
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 	}

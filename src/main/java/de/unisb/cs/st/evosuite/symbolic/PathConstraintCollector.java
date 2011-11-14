@@ -17,8 +17,10 @@
  */
 package de.unisb.cs.st.evosuite.symbolic;
 
+
 import gov.nasa.jpf.ListenerAdapter;
 import gov.nasa.jpf.jvm.JVM;
+import gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL;
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.jvm.bytecode.Instruction;
 import gov.nasa.jpf.jvm.bytecode.SwitchInstruction;
@@ -27,8 +29,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
+
+import gov.nasa.jpf.JPF;
+import java.util.logging.Logger;
 
 import de.unisb.cs.st.evosuite.symbolic.bytecode.PathConstraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
@@ -41,9 +46,11 @@ import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
  */
 public class PathConstraintCollector extends ListenerAdapter {
 
-	@SuppressWarnings("unused")
-	private static Logger logger = LoggerFactory.getLogger(PathConstraintCollector.class);
-
+	//@SuppressWarnings("unused")
+	//private static Logger logger = LoggerFactory.getLogger(PathConstraintCollector.class);
+	
+	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic");
+	
 	private HashTableSet<Constraint<?>> last;
 
 	public List<BranchCondition> conditions = new ArrayList<BranchCondition>();
@@ -62,7 +69,6 @@ public class PathConstraintCollector extends ListenerAdapter {
 	@Override
 	public void executeInstruction(JVM vm) {
 		Instruction ins = vm.getNextInstruction();
-		//logger.info("Going to execute: " + ins);
 		if (ins instanceof IfInstruction || ins instanceof SwitchInstruction) {
 			last = PathConstraint.getInstance().getCurrentConstraints();
 		}

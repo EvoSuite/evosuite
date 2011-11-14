@@ -53,7 +53,7 @@ public class Randomness implements Serializable {
 				logger.info("Random seed: {}", seed);
 			} catch (Exception e) {
 				seed = System.currentTimeMillis();
-				logger.warn("Could not parse {}, using seed: {}",seed_parameter, seed);
+				logger.warn("Could not parse parameter \"{}\", using random seed: {}",seed_parameter, seed);
 			}
 		} else {
 			seed = System.currentTimeMillis();

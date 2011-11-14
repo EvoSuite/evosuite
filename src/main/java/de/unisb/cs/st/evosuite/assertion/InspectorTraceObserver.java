@@ -18,103 +18,50 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
-import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
-import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
-public class InspectorTraceObserver extends ExecutionObserver {
-
-	private final static Logger logger = LoggerFactory.getLogger(InspectorTraceObserver.class);
+public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTraceEntry> {
 
 	private final InspectorManager manager = InspectorManager.getInstance();
 
-	private final InspectorTrace trace = new InspectorTrace();
-
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.assertion.AssertionTraceObserver#visit(de.unisb.cs.st.evosuite.testcase.StatementInterface, de.unisb.cs.st.evosuite.testcase.Scope, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
 	@Override
-	public void clear() {
-		trace.clear();
-	}
+	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
+		// TODO: Check the variable class is complex?
+		logger.debug("Checking for inspectors of " + var + " at statement "
+		        + statement.getPosition());
+		List<Inspector> inspectors = manager.getInspectors(var.getVariableClass());
 
-	@Override
-	public void output(int position, String output) {
-		// TODO Auto-generated method stub
+		InspectorTraceEntry entry = new InspectorTraceEntry(var);
 
-	}
+		for (Inspector i : inspectors) {
+			try {
+				Object target = var.getObject(scope);
+				if (target != null) {
+					Object value = i.getValue(target);
+					logger.debug("Inspector " + i.getMethodCall() + " is: " + value);
 
-	@Override
-	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
-		try{
-			VariableReference retval = statement.getReturnValue();
-
-			if (retval == null)
-				return;
-
-			// Add inspector calls on return value
-			List<Inspector> inspectors = manager.getInspectors(retval.getVariableClass());
-			if (retval.getObject(scope) != null && !inspectors.isEmpty()) {
-				List<Object> result = new ArrayList<Object>();
-				for (Inspector i : inspectors) {
-					try {
-						Object value = i.getValue(retval.getObject(scope));
-						result.add(value);
-						// TODO: Need to keep reference to inspector if exception is thrown!
-					} catch (IllegalArgumentException e) {
-						logger.info("Exception during call to inspector: " + e);
-						continue;
-					} catch (IllegalAccessException e) {
-						logger.info("Exception during call to inspector: " + e);
-						continue;
-					} catch (InvocationTargetException e) {
-						logger.info("Exception during call to inspector: " + e.getCause());
-						continue;
-					}
+					entry.addValue(i, value);
 				}
-
-				trace.inspector_results.put(statement.getPosition(), result);
-				trace.return_values.put(statement.getPosition(), retval);
-			}
-
-			// Add inspector calls on callee
-			if (statement instanceof MethodStatement) {
-				MethodStatement ms = (MethodStatement) statement;
-				if (!ms.isStatic()) {
-					inspectors = manager.getInspectors(ms.getMethod().getDeclaringClass());
-					if (!inspectors.isEmpty()) {
-						trace.calleeMap.put(statement.getPosition(),
-								new HashMap<Inspector, Object>());
-
-						VariableReference callee = ms.getCallee();
-						if (callee.getObject(scope) == null)
-							return;
-						for (Inspector i : inspectors) {
-							try {
-								Object value = i.getValue(callee.getObject(scope));
-								trace.calleeMap.get(statement.getPosition()).put(i, value);
-							} catch (Exception e) {
-								logger.info("Exception during call to inspector: " + e);
-							}
-						}
-					}
+			} catch (Exception e) {
+				logger.debug("Exception " + e + " / " + e.getCause());
+				if (e.getCause() != null
+				        && !e.getCause().getClass().equals(NullPointerException.class)) {
+					logger.debug("Exception during call to inspector: " + e + " - "
+					        + e.getCause());
 				}
 			}
-		}catch(CodeUnderTestException e){
-			throw new UnsupportedOperationException();
 		}
+		logger.debug("Found " + entry.size() + " inspectors for " + var
+		        + " at statement " + statement.getPosition());
 
-	}
+		trace.addEntry(statement.getPosition(), var, entry);
 
-	public InspectorTrace getTrace() {
-		return trace.clone();
 	}
 }

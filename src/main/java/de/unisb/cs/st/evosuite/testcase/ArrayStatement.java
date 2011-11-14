@@ -60,9 +60,14 @@ public class ArrayStatement extends AbstractStatement {
 		return length;
 	}
 
+	public void setSize(int size) {
+		this.length = size;
+	}
+
 	@Override
-	public StatementInterface clone(TestCase newTestCase) {
+	public StatementInterface copy(TestCase newTestCase, int offset) {
 		ArrayStatement copy = new ArrayStatement(newTestCase, retval.getType(), length);
+		// copy.assertions = copyAssertions(newTestCase, offset);
 		return copy;
 	}
 
@@ -107,9 +112,14 @@ public class ArrayStatement extends AbstractStatement {
 
 	@Override
 	public String getCode(Throwable exception) {
-		return retval.getSimpleClassName() + " " + retval.getName() + " = new "
-		        + retval.getSimpleClassName().replaceFirst("\\[\\]", "") + "[" + length
-		        + "];";
+		String type = retval.getSimpleClassName().replaceFirst("\\[\\]", "");
+		String multiDimensions = "";
+		while (type.contains("[]")) {
+			multiDimensions += "[]";
+			type = type.replaceFirst("\\[\\]", "");
+		}
+		return retval.getSimpleClassName() + " " + retval.getName() + " = new " + type
+		        + "[" + length + "]" + multiDimensions + ";";
 	}
 
 	@Override
@@ -205,4 +215,11 @@ public class ArrayStatement extends AbstractStatement {
 		return false;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		// No-op
+	}
 }

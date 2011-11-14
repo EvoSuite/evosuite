@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.primitives;
 
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -42,6 +43,7 @@ public class PrimitivePoolMethodAdapter extends MethodAdapter {
 	 * threaded stuff. This will be replaced with something nicer once Sebastian
 	 * has found a solution
 	 */
+	/*
 	@Override
 	public void visitInsn(int opcode) {
 		if (opcode != Opcodes.MONITORENTER && opcode != Opcodes.MONITOREXIT)
@@ -49,6 +51,18 @@ public class PrimitivePoolMethodAdapter extends MethodAdapter {
 		else
 			super.visitInsn(Opcodes.POP);
 
+	}
+	*/
+
+	/* (non-Javadoc)
+	 * @see org.objectweb.asm.MethodAdapter#visitLookupSwitchInsn(org.objectweb.asm.Label, int[], org.objectweb.asm.Label[])
+	 */
+	@Override
+	public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
+		for (int key : keys) {
+			primitive_pool.add(key);
+		}
+		super.visitLookupSwitchInsn(dflt, keys, labels);
 	}
 
 	@Override

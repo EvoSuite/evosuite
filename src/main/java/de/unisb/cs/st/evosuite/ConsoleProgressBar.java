@@ -3,6 +3,8 @@
  */
 package de.unisb.cs.st.evosuite;
 
+import java.io.Serializable;
+
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
@@ -10,10 +12,12 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 
 /**
- * @author fraser
+ * @author Gordon Fraser
  * 
  */
-public class ConsoleProgressBar implements SearchListener {
+public class ConsoleProgressBar implements SearchListener, Serializable {
+
+	private static final long serialVersionUID = 7303558940966638158L;
 
 	public static void printProgressBar(int percent, int coverage) {
 		StringBuilder bar = new StringBuilder("[Progress:");
@@ -42,7 +46,7 @@ public class ConsoleProgressBar implements SearchListener {
 			}
 		}
 
-		bar.append(Math.min(100, percent) + "%][Cov:");
+		bar.append(Math.min(100, percent) + "%] [Cov:");
 
 		for (int i = 0; i < 35; i++) {
 			if (i < (int) (coverage * 0.35)) {
@@ -62,7 +66,7 @@ public class ConsoleProgressBar implements SearchListener {
 
 	private StoppingCondition stoppingCondition = null;
 
-	private int max = 1;
+	private long max = 1;
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.SearchListener#searchStarted(de.unisb.cs.st.evosuite.ga.GeneticAlgorithm)
@@ -78,9 +82,9 @@ public class ConsoleProgressBar implements SearchListener {
 	 */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
-		int current = stoppingCondition.getCurrentValue();
-		printProgressBar(100 * current / max,
-		                 (int) Math.round(((TestSuiteChromosome) algorithm.getBestIndividual()).getCoverage() * 100));
+		long current = stoppingCondition.getCurrentValue();
+		printProgressBar((int) (100 * current / max),
+		                 (int) Math.floor(((TestSuiteChromosome) algorithm.getBestIndividual()).getCoverage() * 100));
 	}
 
 	/* (non-Javadoc)

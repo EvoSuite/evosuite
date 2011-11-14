@@ -17,23 +17,36 @@ import de.unisb.cs.st.evosuite.utils.SimpleCondition;
 public abstract class UIAction<T extends UIComponent> implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	public static UIAction<AbstractButton> buttonClick = new ButtonClick();
-	public static UIAction<MenuItem> menuClick = new MenuItemClick();
-	
-	public static List<UIAction<? extends UIComponent>> actionsForType(Class<? extends UIComponent> type) {
+	public static List<UIAction<? extends UIComponent>> actionsForDescriptor(WindowlessUIActionTargetDescriptor targetDescriptor) {
 		List<UIAction<? extends UIComponent>> result = new LinkedList<UIAction<? extends UIComponent>>();
+		Class<?> type = targetDescriptor.getType();
 		
 		if (AbstractButton.class.isAssignableFrom(type)) {
-			result.add(buttonClick);
+			ButtonClick.addActions(result);
 		}
 		
 		if (MenuItem.class.isAssignableFrom(type)) {
-			result.add(menuClick);
+			MenuItemClick.addActions(type, result);
 		}
 		
 		if (Table.class.isAssignableFrom(type)) {
-			result.add(TableClick.newLeftClick());
-			result.add(TableClick.newRightClick());
+			TableClick.addActions(result);
+		}
+		
+		if (TextBox.class.isAssignableFrom(type)) {
+			EnterText.addActions(result);
+		}
+		
+		if (ComboBox.class.isAssignableFrom(type)) {
+			ComboBoxSelect.addActions(targetDescriptor, result);
+		}
+		
+		if (ListBox.class.isAssignableFrom(type)) {
+			ListClick.addActions(result);
+		}
+		
+		if (Tree.class.isAssignableFrom(type)) {
+			TreeClick.addActions(result);
 		}
 		
 		return result;
@@ -45,8 +58,9 @@ public abstract class UIAction<T extends UIComponent> implements Serializable {
 		this.randomize();
 	}
 	
-	public void randomize() {
+	public boolean randomize() {
 		/* Default implementation does nothing */
+		return false;
 	}
 	
 	protected void checkTarget(T target) {

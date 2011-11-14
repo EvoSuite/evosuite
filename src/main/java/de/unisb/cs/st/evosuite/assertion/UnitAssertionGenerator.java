@@ -39,11 +39,9 @@ public class UnitAssertionGenerator extends AssertionGenerator {
 	@Override
 	public void addAssertions(TestCase test) {
 		ExecutionResult result = runTest(test);
-		result.comparison_trace.getAllAssertions(test);
-		result.primitive_trace.getAllAssertions(test);
-		result.inspector_trace.getAllAssertions(test);
-		result.field_trace.getAllAssertions(test);
-		result.null_trace.getAllAssertions(test);
+		for (OutputTrace<?> trace : result.getTraces()) {
+			trace.getAllAssertions(test);
+		}
 
 		for (int i = 0; i < test.size(); i++) {
 			StatementInterface s = test.getStatement(i);

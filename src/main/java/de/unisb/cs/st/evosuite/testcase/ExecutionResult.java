@@ -18,52 +18,34 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import de.unisb.cs.st.evosuite.assertion.ComparisonTrace;
-import de.unisb.cs.st.evosuite.assertion.InspectorTrace;
-import de.unisb.cs.st.evosuite.assertion.NullOutputTrace;
-import de.unisb.cs.st.evosuite.assertion.PrimitiveFieldTrace;
-import de.unisb.cs.st.evosuite.assertion.PrimitiveOutputTrace;
+import de.unisb.cs.st.evosuite.assertion.OutputTrace;
 import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
 
 public class ExecutionResult {
-	public enum Outcome {
-		SUCCESS, FAIL
-	};
-
-	public Outcome result;
 	public TestCase test;
+
 	public Mutation mutation;
-	public int exception_statement = 0;
 
 	/** Map statement number to raised exception */
 	public Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
 
 	private ExecutionTrace trace;
-	// public StringOutputTrace output_trace;
-	public ComparisonTrace comparison_trace;
-	public PrimitiveOutputTrace primitive_trace;
-	public InspectorTrace inspector_trace;
-	public PrimitiveFieldTrace field_trace;
-	public NullOutputTrace null_trace;
-	public List<Long> touched = new ArrayList<Long>();
+	private final Map<Class<?>, OutputTrace<?>> traces = new HashMap<Class<?>, OutputTrace<?>>();
 
 	// experiment .. tried to remember intermediately calculated ControlFlowDistances .. no real speed up
 	//	public Map<Branch, ControlFlowDistance> intermediateDistances;
 
 	public ExecutionResult(TestCase t) {
-		exception_statement = 0;
 		trace = null;
 		mutation = null;
 		test = t;
 	}
 
 	public ExecutionResult(TestCase t, Mutation m) {
-		exception_statement = 0;
 		trace = null;
 		mutation = m;
 		test = t;
@@ -76,6 +58,18 @@ public class ExecutionResult {
 	public void setTrace(ExecutionTrace trace) {
 		assert (trace != null);
 		this.trace = trace;
+	}
+
+	public void setTrace(OutputTrace<?> trace, Class<?> clazz) {
+		traces.put(clazz, trace);
+	}
+
+	public OutputTrace<?> getTrace(Class<?> clazz) {
+		return traces.get(clazz);
+	}
+
+	public Collection<OutputTrace<?>> getTraces() {
+		return traces.values();
 	}
 
 	public boolean hasTimeout() {
@@ -97,7 +91,10 @@ public class ExecutionResult {
 		ExecutionResult copy = new ExecutionResult(test, mutation);
 		copy.exceptions.putAll(exceptions);
 		copy.trace = trace.clone();
-		copy.touched.addAll(touched);
+		for (Class<?> clazz : traces.keySet()) {
+			copy.traces.put(clazz, traces.get(clazz).clone());
+		}
+
 		return copy;
 	}
 
