@@ -30,6 +30,8 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
 public class MuPlusLambdaGA extends SteadyStateGA {
 
 	private static final long serialVersionUID = 7301010503732698233L;
+	
+	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MuPlusLambdaGA.class);
 
 	/**
 	 * Generate a new search object

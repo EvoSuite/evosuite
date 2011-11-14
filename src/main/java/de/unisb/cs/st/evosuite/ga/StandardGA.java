@@ -33,6 +33,8 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
 public class StandardGA extends GeneticAlgorithm {
 
 	private static final long serialVersionUID = 5043503777821916152L;
+	
+	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StandardGA.class);
 
 	/**
 	 * Constructor
