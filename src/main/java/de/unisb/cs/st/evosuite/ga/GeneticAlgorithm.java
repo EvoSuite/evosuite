@@ -50,7 +50,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	private static final long serialVersionUID = 5155609385855093435L;
 
-	protected static Logger logger = LoggerFactory.getLogger(GeneticAlgorithm.class);
+	private static Logger logger = LoggerFactory.getLogger(GeneticAlgorithm.class);
 
 	/** Fitness function to rank individuals */
 	protected FitnessFunction fitnessFunction;

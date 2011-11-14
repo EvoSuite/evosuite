@@ -27,7 +27,7 @@ import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
  * @author Gordon Fraser
  * 
  */
-public class MaxTimeStoppingCondition extends StoppingCondition {
+public class MaxTimeStoppingCondition extends StoppingConditionImpl {
 
 	private static final long serialVersionUID = -4524853279562896768L;
 

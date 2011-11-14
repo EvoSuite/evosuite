@@ -10,6 +10,7 @@ import java.util.Set;
 
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.utils.Listenable;
 
 /**
  * 
@@ -18,7 +19,7 @@ import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
  * @author Sebastian Steenbuck
  * 
  */
-public interface TestCase extends Iterable<StatementInterface>, Cloneable {
+public interface TestCase extends Iterable<StatementInterface>, Cloneable, Listenable<Void> {
 
 	/**
 	 * 
@@ -26,6 +27,8 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable {
 	 */
 	public int size();
 
+	public void addStatements(List<? extends StatementInterface> statements);
+	
 	/**
 	 * 
 	 * @return true if size()==0

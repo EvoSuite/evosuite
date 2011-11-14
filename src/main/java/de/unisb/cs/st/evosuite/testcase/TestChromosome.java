@@ -203,10 +203,9 @@ public class TestChromosome extends ExecutableChromosome {
 			} else if (test.getStatement(i) instanceof ArrayStatement) {
 				search = new ArrayLocalSearch();
 			}
-			if (search != null)
-				search.doSearch(this, i, objective);
-
-		}
+				if (search != null)
+					search.doSearch(this, i, objective);
+			}
 		assert (getFitness() <= oldFitness);
 		//logger.info("Test after local search: " + test.toCode());
 
@@ -248,24 +247,22 @@ public class TestChromosome extends ExecutableChromosome {
 			P = 1d / 3d;
 		}
 
-		logger.debug("Mutation: delete");
-		// Delete
-		if (Randomness.nextDouble() <= P) {
+		int which = Randomness.nextInt(3);
+		switch (which) {
+		case 0:
+			logger.debug("Mutation: delete");
 			changed = mutationDelete();
-		}
-
-		logger.debug("Mutation: change");
-		// Change
-		if (Randomness.nextDouble() <= P) {
+			break;
+		case 1:
+			logger.debug("Mutation: change");
 			if (mutationChange())
 				changed = true;
-		}
-
-		logger.debug("Mutation: insert");
-		// Insert
-		if (Randomness.nextDouble() <= P) {
+			break;
+		case 2:
+			logger.debug("Mutation: insert");
 			if (mutationInsert())
 				changed = true;
+			break;
 		}
 
 		if (changed) {
@@ -388,9 +385,12 @@ public class TestChromosome extends ExecutableChromosome {
 		DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 
 		if (Randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
-			//logger.info("Test before concolic: " + test.toCode());
-			changed = mutationConcolic();
-			//logger.info("Test after concolic: " + test.toCode());
+			try {
+				changed = mutationConcolic();
+			} catch(Exception exc) {
+				logger.info("Encountered exception when trying to use concolic mutation.", exc.getMessage());
+				logger.debug("Detailed exception trace: ", exc);
+			}
 		}
 
 		if (!changed) {
@@ -476,9 +476,9 @@ public class TestChromosome extends ExecutableChromosome {
 		// If successful, add resulting test to test suite
 		if (newTest != null) {
 			logger.debug("CONCOLIC: Created new test");
-			//logger.info(newTest.toCode());
-			//logger.info("Old test");
-			//logger.info(test.toCode());
+			// logger.info(newTest.toCode());
+			// logger.info("Old test");
+			// logger.info(test.toCode());
 			this.test = newTest;
 			this.changed = true;
 			this.lastExecutionResult = null;
@@ -498,6 +498,21 @@ public class TestChromosome extends ExecutableChromosome {
 	}
 
 	@Override
+	public int compareTo(Chromosome o) {
+		int result = super.compareTo(o);
+		if (result != 0) {
+			return result;
+		}
+		// make this deliberately not 0
+		// because then ordering of results will be random 
+		// among tests of equal fitness
+		if (o instanceof TestChromosome) {
+			return test.toCode().compareTo(((TestChromosome) o).test.toCode());
+		}
+		return result;
+	}
+	
+	@Override
 	public String toString() {
 		return test.toCode();
 	}
@@ -505,16 +520,15 @@ public class TestChromosome extends ExecutableChromosome {
 	public boolean hasException() {
 		return has_exception;
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#applyDSE()
 	 */
 	@Override
 	public void applyDSE() {
 		// TODO Auto-generated method stub
-
 	}
-
+	
 	@Override
 	public ExecutionResult executeForFitnessFunction(
 	        TestSuiteFitnessFunction testSuiteFitnessFunction) {

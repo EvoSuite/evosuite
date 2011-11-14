@@ -26,7 +26,7 @@ import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
  * @author Gordon Fraser
  * 
  */
-public class ZeroFitnessStoppingCondition extends StoppingCondition {
+public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
 
 	private static final long serialVersionUID = -6925872054053635256L;
 

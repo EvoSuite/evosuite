@@ -30,6 +30,8 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
 public class MuPlusLambdaGA extends SteadyStateGA {
 
 	private static final long serialVersionUID = 7301010503732698233L;
+	
+	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MuPlusLambdaGA.class);
 
 	/**
 	 * Generate a new search object
@@ -50,15 +52,15 @@ public class MuPlusLambdaGA extends SteadyStateGA {
 
 		Chromosome parent1 = selectionFunction.select(population);
 		Chromosome parent2 = selectionFunction.select(population);
-
+		
 		Chromosome offspring1 = parent1.clone();
 		Chromosome offspring2 = parent2.clone();
 
 		try {
 			// Crossover
 			if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
-				crossoverFunction.crossOver(offspring1, offspring2);
-			}
+							crossoverFunction.crossOver(offspring1, offspring2);
+}
 
 			// Mutation
 			notifyMutation(offspring1);

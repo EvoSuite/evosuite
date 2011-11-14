@@ -43,13 +43,14 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	 * Constructor - fitness is specific to a branch
 	 */
 	public BranchCoverageTestFitness(BranchCoverageGoal goal) {
+		assert goal != null;
 		this.goal = goal;
 	}
 
 	public Branch getBranch() {
 		return goal.branch;
 	}
-
+	
 	public boolean getBranchExpressionValue() {
 		return goal.value;
 	}
@@ -64,22 +65,24 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 			if (call.className.equals(goal.className)
 			        && call.methodName.equals(goal.methodName)) {
 				methodExecuted = true;
-				for (int i = 0; i < call.branchTrace.size(); i++) {
-					if (call.branchTrace.get(i) == goal.branch.getInstruction().getInstructionId()) {
-						//logger.info("Found target branch with distances "
-						//        + call.trueDistanceTrace.get(i) + "/"
-						//        + call.falseDistanceTrace.get(i));
-						if (goal.value)
-							sum += call.falseDistanceTrace.get(i);
-						else
-							sum += call.trueDistanceTrace.get(i);
+				if (goal.branch != null) {
+					for (int i = 0; i < call.branchTrace.size(); i++) {
+						if (call.branchTrace.get(i) == goal.branch.getInstruction().getInstructionId()) {
+							// logger.info("Found target branch with distances "
+							// + call.trueDistanceTrace.get(i) + "/"
+							// + call.falseDistanceTrace.get(i));
+							if (goal.value)
+								sum += call.falseDistanceTrace.get(i);
+							else
+								sum += call.trueDistanceTrace.get(i);
+						}
 					}
 				}
 			}
 		}
 
 		if (goal.branch == null) {
-			//logger.info("Branch is null? " + goal.branch);
+			// logger.info("Branch is null? " + goal.branch);
 			if (goal.value)
 				sum = methodExecuted ? 1.0 : 0.0;
 			else
@@ -99,9 +102,8 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 
 		double fitness = distance.getResultingBranchFitness();
 
-		logger.debug("Approach level: " + distance.getApproachLevel()
-		        + " / branch distance: " + distance.getBranchDistance() + ", fitness = "
-		        + fitness);
+		logger.debug("Approach level: " + distance.getApproachLevel() + " / branch distance: "
+				+ distance.getBranchDistance() + ", fitness = " + fitness);
 
 		updateIndividual(individual, fitness);
 		return fitness;
@@ -124,13 +126,13 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		}
 	}
 
-	//	@Override
-	//	public int getDifficulty() {
-	//		if (goal == null)
-	//			return 1;
-	//		else
-	//			return goal.getDifficulty();
-	//	}
+//	@Override
+//	public int getDifficulty() {
+//		if (goal == null)
+//			return 1;
+//		else
+//			return goal.getDifficulty();
+//	}
 
 	@Override
 	public String toString() {

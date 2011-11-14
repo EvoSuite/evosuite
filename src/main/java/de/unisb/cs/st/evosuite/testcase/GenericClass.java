@@ -282,6 +282,11 @@ public class GenericClass implements Serializable {
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
+	
+	@Override
+	public String toString(){
+		return type.toString();
+	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -337,6 +342,6 @@ public class GenericClass implements Serializable {
 		this.raw_class = getClass(name);
 		// TODO: Currently, type information gets lost by serialization
 		this.type = raw_class;
-	}
+		}
 
 }
