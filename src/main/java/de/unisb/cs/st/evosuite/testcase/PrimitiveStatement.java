@@ -58,6 +58,11 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	 */
 	T value;
 
+	public PrimitiveStatement(TestCase tc, VariableReference varRef, T value) {
+		super(tc, varRef);
+		this.value = value;
+	}
+	
 	/**
 	 * Constructor
 	 * 
@@ -267,10 +272,15 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 		return (retval.same(ps.retval) && value.equals(ps.value));
 	}
 
+	@Override
+	public String toString() {
+		return getCode();
+	}
+	
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#mutate(de.unisb.cs.st.evosuite.testcase.TestCase)
 	 */
-	@Override
 	public boolean mutate(TestCase test, AbstractTestFactory factory) {
 		T oldVal = value;
 		// TODO: Should not be hardcoded
@@ -297,5 +307,5 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	public boolean isAssignmentStatement() {
 		return false;
 	}
-
+	
 }

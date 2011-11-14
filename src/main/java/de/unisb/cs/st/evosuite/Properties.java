@@ -395,6 +395,9 @@ public class Properties {
 
 	@Parameter(key = "check_contracts_end", description = "Check contracts only once per test")
 	public static boolean CHECK_CONTRACTS_END = false;
+	
+	@Parameter(key = "BREAK_ON_EXCEPTION", description = "Stop test execution if exception occurrs")
+	public static boolean BREAK_ON_EXCEPTION = false;
 
 	public enum TestFactory {
 		RANDOM, OUM
@@ -479,7 +482,7 @@ public class Properties {
 	// Runtime parameters
 
 	public enum Criterion {
-		CONCURRENCY, LCSAJ, DEFUSE, PATH, BRANCH, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT, ANALYZE
+		CONCURRENCY, LCSAJ, DEFUSE, PATH, BRANCH, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT, ANALYZE, DATA
 	}
 
 	/** Cache target class */
@@ -581,7 +584,7 @@ public class Properties {
 	 * Initialize properties from property file or command line parameters
 	 */
 	private void loadProperties() {
-		loadPropertiesFile();
+		loadPropertiesFile(System.getProperty(PROPERTIES_FILE, "evosuite-files/evosuite.properties"));
 
 		for (String parameter : parameterMap.keySet()) {
 			try {
@@ -604,26 +607,26 @@ public class Properties {
 		}
 	}
 
-	private void loadPropertiesFile() {
+	public void loadPropertiesFile(String propertiesPath) {
 		properties = new java.util.Properties();
-		String propertiesFile = System.getProperty(PROPERTIES_FILE,
-		                                           "evosuite-files/evosuite.properties");
 		try {
 			InputStream in = null;
-			if (new File(propertiesFile).exists()) {
-				in = new FileInputStream(propertiesFile);
+			File propertiesFile = new File(propertiesPath);
+			if (propertiesFile.exists()) {
+				in = new FileInputStream(propertiesPath);
+				logger.info("* Properties loaded from configuration file " + propertiesFile.getAbsolutePath());
 			} else {
-				propertiesFile = "evosuite.properties";
-				in = this.getClass().getClassLoader().getResourceAsStream(propertiesFile);
+				propertiesPath = "evosuite.properties";
+				in = this.getClass().getClassLoader().getResourceAsStream(propertiesPath);
+				logger.info("* Properties loaded from default configuration file.");
 			}
 			properties.load(in);
-			logger.info("* Properties loaded from configuration file " + propertiesFile);
 		} catch (FileNotFoundException e) {
-			logger.info("- Error: Could not find configuration file " + propertiesFile);
+			logger.info("- Error: Could not find configuration file " + propertiesPath);
 		} catch (IOException e) {
-			logger.info("- Error: Could not find configuration file " + propertiesFile);
+			logger.info("- Error: Could not find configuration file " + propertiesPath);
 		} catch (Exception e) {
-			logger.info("- Error: Could not find configuration file " + propertiesFile);
+			logger.info("- Error: Could not find configuration file " + propertiesPath);
 		}
 	}
 

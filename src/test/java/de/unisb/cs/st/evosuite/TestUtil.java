@@ -3,18 +3,14 @@ package de.unisb.cs.st.evosuite;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 import junit.framework.Assert;
-import de.unisb.cs.st.evosuite.javaagent.BytecodeInstrumentation;
 import de.unisb.cs.st.evosuite.javaagent.InstrumentingClassLoader;
 
 public class TestUtil {
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestUtil.class);
+
 	public static void assertCorrectStart(Class<?> clazz) {
-		Assert.assertTrue("Must start test with '-javaagent:path/javaagent.jar=generate'.",
-				BytecodeInstrumentation.isJavaagent());
 		String projectPrefix = clazz.getPackage().getName();
 		Assert.assertEquals("Must start test with '-DDPROJECT_PREFIX=" + projectPrefix + "'.",
 				Properties.PROJECT_PREFIX, projectPrefix);
@@ -29,8 +25,6 @@ public class TestUtil {
 		// ClassTransformer.getInstance().instrumentClass(clazz);
 		// TODO When doing so remember to also remove the -javaagent param from
 		// the launch config
-		Assert.assertTrue("Must start test with '-javaagent:path/javaagent.jar=generate'.",
-				BytecodeInstrumentation.isJavaagent());
 		String projectPrefix = clazz.substring(0, clazz.lastIndexOf("."));
 		Assert.assertEquals("Must start test with '-DDPROJECT_PREFIX=" + projectPrefix + "'.",
 				Properties.PROJECT_PREFIX, projectPrefix);
@@ -39,29 +33,31 @@ public class TestUtil {
 				targetClass);
 	}
 
-	public static <T> Set<T> createHashSet(T... elements) {
-		return new HashSet<T>(Arrays.asList(elements));
-	}
-
 	public static String getPrefix(String fullyQualifiedClass) {
 		return fullyQualifiedClass.substring(0, fullyQualifiedClass.lastIndexOf("."));
 	}
 
-	public static Object invokeMethod(Object target, String methodName, Object... args) {
+	public static Object invokeMethod(Class<?> targetClass, Object target, String methodName, Class<?>[] argClasses,
+			Object[] args) {
 		try {
-			Class<?>[] argClasses = getArgClasses(args);
-			Method method = target.getClass().getMethod(methodName, argClasses);
+			Method method = targetClass.getDeclaredMethod(methodName, argClasses);
 			method.setAccessible(true);
 			return method.invoke(target, args);
 		} catch (Exception exc) {
+			logger.error("Encountered exception when calling method:", exc);
 			throw new RuntimeException(exc);
 		}
+	}
+
+	public static Object invokeMethod(Object target, String methodName, Object... args) {
+		return invokeMethod(target.getClass(), target, methodName, getArgClasses(args), args);
 	}
 
 	public static Object loadInstrumented(String className, Object... constructorArgs) {
 		try {
 			Properties.TARGET_CLASS = className;
 			Properties.PROJECT_PREFIX = getPrefix(className);
+			Properties.TARGET_CLASS_PREFIX = Properties.PROJECT_PREFIX;
 			InstrumentingClassLoader classLoader = new InstrumentingClassLoader();
 			Class<?> factsComparatorClass = classLoader.loadClass(className);
 			Class<?>[] argClasses = getArgClasses(constructorArgs);

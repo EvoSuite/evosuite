@@ -10,8 +10,13 @@ import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.evosuite.Properties;
-
+/**
+ * <em>Note:</em> Do not inadvertently use multiple instances of this class in
+ * the application! This may lead to hard to detect and debug errors. Yet this
+ * class cannot be an singleton as it might be necessary to do so...
+ * 
+ * @author roessler
+ */
 public class InstrumentingClassLoader extends ClassLoader {
 	private final static Logger logger = LoggerFactory.getLogger(InstrumentingClassLoader.class);
 	private final BytecodeInstrumentation instrumentation;
@@ -55,34 +60,23 @@ public class InstrumentingClassLoader extends ClassLoader {
 		return result;
 	}
 
-	private Class<?> instrumentClass(String fullyQualifiedTargetClass)
-	        throws ClassNotFoundException {
+	private Class<?> instrumentClass(String fullyQualifiedTargetClass) throws ClassNotFoundException {
 		logger.info("Instrumenting class '" + fullyQualifiedTargetClass + "'.");
 		try {
 			String className = fullyQualifiedTargetClass.replace('.', '/');
 			InputStream is = ClassLoader.getSystemResourceAsStream(className + ".class");
 			if (is == null) {
-				throw new ClassNotFoundException(
-				        "Class should be in target project, but could not be found!");
+				throw new ClassNotFoundException("Class '" + className
+						+ "' should be in target project, but could not be found!");
 			}
-			byte[] byteBuffer = instrumentation.transformBytes(className,
-			                                                   new ClassReader(is));
-			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,
-			                              byteBuffer.length);
+			byte[] byteBuffer = instrumentation.transformBytes(className, new ClassReader(is));
+			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0, byteBuffer.length);
 			classes.put(fullyQualifiedTargetClass, result);
 			logger.info("Keeping class: " + fullyQualifiedTargetClass);
 			return result;
 		} catch (Exception e) {
-			throw new ClassNotFoundException(e.getMessage(),e);
+			throw new ClassNotFoundException(e.getMessage(), e);
 		}
-	}
-
-	private boolean isTargetClass(String className) {
-		if (className.equals(Properties.TARGET_CLASS)
-		        || className.startsWith(Properties.TARGET_CLASS + "$")) {
-			return true;
-		}
-		return false;
 	}
 
 	private Class<?> loadClassByteCode(String name) throws ClassNotFoundException {
@@ -90,11 +84,9 @@ public class InstrumentingClassLoader extends ClassLoader {
 			throw new IllegalStateException("Cannot load java system class: " + name);
 		}
 		try {
-			InputStream is = ClassLoader.getSystemResourceAsStream(name.replace('.', '/')
-			        + ".class");
+			InputStream is = ClassLoader.getSystemResourceAsStream(name.replace('.', '/') + ".class");
 			if (is == null) {
-				throw new ClassNotFoundException(
-				        "Class should be in target project, but could not be found!");
+				throw new ClassNotFoundException("Class should be in target project, but could not be found!");
 			}
 			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 			int nRead;

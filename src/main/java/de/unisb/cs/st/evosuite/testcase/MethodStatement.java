@@ -218,7 +218,7 @@ public class MethodStatement extends AbstractStatement {
 			}
 			Class<?> declaredParamType = method.getParameterTypes()[i];
 			Class<?> actualParamType = parameters.get(i).getVariableClass(); 
-			if (!declaredParamType.equals(actualParamType)){
+			if (!declaredParamType.isAssignableFrom(actualParamType)){
 					// && parameters.get(i) instanceof ArrayIndex)
 				parameter_string += "(" + new GenericClass(method.getParameterTypes()[i]).getSimpleName() + ") ";
 			}

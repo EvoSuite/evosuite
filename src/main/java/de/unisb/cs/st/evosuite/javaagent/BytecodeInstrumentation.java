@@ -46,29 +46,22 @@ import de.unisb.cs.st.evosuite.testcase.TestCluster;
  */
 public class BytecodeInstrumentation implements ClassFileTransformer {
 
-	protected static Logger logger = LoggerFactory
-			.getLogger(BytecodeInstrumentation.class);
+	private static Logger logger = LoggerFactory.getLogger(BytecodeInstrumentation.class);
 
 	// private static RemoveSystemExitTransformer systemExitTransformer = new
 	// RemoveSystemExitTransformer();
 
-	public boolean isTargetProject(String className) {
-		return className.startsWith(Properties.PROJECT_PREFIX);
-	}
-
-	private boolean isTargetClassName(String className) {
-		return TestCluster.isTargetClassName(className);
-	}
-
-	private static boolean isJavaagent = false;
-
-	public static boolean isJavaagent() {
-		return isJavaagent;
+	static {
+		logger.info("Loading bytecode transformer for " + Properties.PROJECT_PREFIX);
 	}
 
 	static {
 		logger.info("Loading bytecode transformer for "
 				+ Properties.PROJECT_PREFIX);
+	}
+	
+	public boolean isTargetProject(String className) {
+		return className.startsWith(Properties.PROJECT_PREFIX);
 	}
 
 	/*
@@ -83,7 +76,6 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	public byte[] transform(ClassLoader loader, String className,
 			Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
 			byte[] classfileBuffer) throws IllegalClassFormatException {
-		isJavaagent = true;
 		if (className == null) {
 			return classfileBuffer;
 		}
@@ -154,8 +146,9 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 		// If we need to reset static constructors, make them
 		// explicit methods
-		if (Properties.STATIC_HACK)
+		if (Properties.STATIC_HACK) {
 			cv = new StaticInitializationClassAdapter(cv, className);
+		}
 
 		if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
 			ClassNode cn = new ClassNode();
@@ -190,4 +183,9 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		// PrintWriter(System.out));
 		return writer.toByteArray();
 	}
+	
+	protected boolean isTargetClassName(String className) {
+		return TestCluster.isTargetClassName(className);
+	}
+
 }
