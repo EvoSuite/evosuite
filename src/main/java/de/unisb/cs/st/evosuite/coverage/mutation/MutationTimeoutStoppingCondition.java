@@ -7,13 +7,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingConditionImpl;
 
 /**
  * @author Gordon Fraser
  * 
  */
-public class MutationTimeoutStoppingCondition extends StoppingCondition {
+public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
+	
+	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MutationTimeoutStoppingCondition.class);
 
 	//public static Map<Mutation, Integer> timeouts = new HashMap<Mutation, Integer>();
 

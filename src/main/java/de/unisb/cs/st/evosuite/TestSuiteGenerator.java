@@ -1019,8 +1019,7 @@ public class TestSuiteGenerator {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-
+	public static void main(String... args) {
 		TestSuiteGenerator generator = new TestSuiteGenerator();
 		generator.generateTestSuite(null);
 
