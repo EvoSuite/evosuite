@@ -5,14 +5,14 @@ package de.unisb.cs.st.evosuite;
 
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
-import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
+import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingConditionImpl;
 
 /**
  * @author Gordon Fraser
  * 
  */
 @SuppressWarnings("restriction")
-public class ShutdownTestWriter extends StoppingCondition implements SignalHandler {
+public class ShutdownTestWriter extends StoppingConditionImpl implements SignalHandler {
 
 	private static final long serialVersionUID = -5703624299360241009L;
 

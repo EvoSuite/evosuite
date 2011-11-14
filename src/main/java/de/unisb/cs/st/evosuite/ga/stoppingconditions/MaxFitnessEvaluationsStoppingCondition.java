@@ -27,7 +27,10 @@ import de.unisb.cs.st.evosuite.ga.Chromosome;
  * @author Gordon Fraser
  * 
  */
-public class MaxFitnessEvaluationsStoppingCondition extends StoppingCondition {
+public class MaxFitnessEvaluationsStoppingCondition extends StoppingConditionImpl {
+	
+	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory
+			.getLogger(MaxFitnessEvaluationsStoppingCondition.class);
 
 	private static final long serialVersionUID = 208241490252275613L;
 
