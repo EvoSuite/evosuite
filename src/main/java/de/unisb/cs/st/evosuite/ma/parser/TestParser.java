@@ -1368,7 +1368,7 @@ public class TestParser {
 		} else if (expr instanceof CastExpr) {
 			return ((CastExpr) expr).getType();
 		} else if (expr instanceof StringLiteralExpr) {
-			StringLiteralExpr sexpr = (StringLiteralExpr) expr;
+//			StringLiteralExpr sexpr = (StringLiteralExpr) expr;
 			return new ClassOrInterfaceType(0, 0, 0, 0, null, "java.lang.String", null);
 		} else {
 			logger.debug("Scope is unknown expr: " + expr);
@@ -1518,7 +1518,7 @@ public class TestParser {
 						return testCluster.importClass("java.lang." + parsType.toString());
 					}
 				}
-				String className = editor.showChooseFileMenu(parsType.toString());
+				String className = editor.showChooseFileMenu(parsType.toString()).getSelectedFile().getName();
 				if (className != null) {
 					return testCluster.importClass(className);
 				} else {
