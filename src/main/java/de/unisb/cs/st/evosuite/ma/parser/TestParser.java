@@ -550,9 +550,9 @@ public class TestParser {
 		// logger.debug("\n-------------------------------------------");
 		// logger.debug(newTestCase.toCode());
 		// logger.debug("===========================================");
-		System.out.println("\n-------------------------------------------");
-		System.out.println(newTestCase.toCode());
-		System.out.println("===========================================");
+		// System.out.println("\n-------------------------------------------");
+		// System.out.println(newTestCase.toCode());
+		// System.out.println("===========================================");
 		return newTestCase;
 	}
 
@@ -679,9 +679,9 @@ public class TestParser {
 		else if (valueClass.equals(boolean.class))
 			return new BooleanPrimitiveStatement(newTestCase,
 					Boolean.parseBoolean(init));
-		else if (valueClass.equals(String.class))
+		else if (valueClass.equals(String.class)) {
 			return new StringPrimitiveStatement(newTestCase, init);
-		else
+		} else
 			throw new ParseException(null, "Can't obtain primitive type.");
 	}
 
@@ -742,17 +742,12 @@ public class TestParser {
 		Expression initExpr = varDeclExpr.getVars().get(0).getInit();
 		Type parsType = varDeclExpr.getType();
 
-		System.out.println("VarDecl: " + varDeclExpr);
-
 		return createReferenceType(initExpr, parsType);
 	}
 
 	private AbstractStatement createReferenceType(Expression initExpr,
 			Type parsType) throws ParseException {
 		AbstractStatement res = null;
-
-		System.out.println("initExpr:" + initExpr);
-		System.out.println("parsType: " + parsType);
 
 		if (initExpr != null) {
 			if (initExpr instanceof ObjectCreationExpr) {
@@ -795,9 +790,6 @@ public class TestParser {
 						arraySize);
 			} else if (initExpr instanceof CastExpr) {
 				CastExpr castExpr = (CastExpr) initExpr;
-
-				System.out.println("castExpr: " + castExpr);
-
 				logger.debug("Cast expression: " + castExpr);
 				if (castExpr.getExpr() instanceof MethodCallExpr) {
 					logger.debug("Cast expression in method call: "
@@ -821,7 +813,7 @@ public class TestParser {
 			} else if (initExpr instanceof BinaryExpr) {
 				BinaryExpr bexpr = (BinaryExpr) initExpr;
 				// Just use one of the two
-				return createReferenceType(bexpr.getLeft(), parsType); 
+				return createReferenceType(bexpr.getLeft(), parsType);
 			} else if (initExpr instanceof ArrayInitializerExpr) {
 				ArrayInitializerExpr arrayCreationExpr = (ArrayInitializerExpr) initExpr;
 
@@ -848,13 +840,11 @@ public class TestParser {
 				// assert (false) : "Expression not implemented: " +
 				// initExpr.getClass();
 			} else if (initExpr instanceof FieldAccessExpr) {
-				System.out.println("try to get field");
 				Field field = getField(initExpr);
-				System.out.println("became field: " + field);
 				Class<?> type = field.getType();
-				VariableReference source = new VariableReferenceImpl(
-						newTestCase, type);
-				System.out.println("field type: " + type);
+				VariableReference source = null;
+				source = tt.getVarReference(((FieldAccessExpr) initExpr)
+						.getScope().toString());
 				res = new FieldStatement(newTestCase, field, source, type);
 			}
 
@@ -914,10 +904,9 @@ public class TestParser {
 	 */
 	private AbstractStatement createAssignSttm(AssignExpr assignExpr)
 			throws ParseException {
-		VariableReference varRef = getVarRef(assignExpr.getTarget());
+		VariableReference tarRef = getVarRef(assignExpr.getTarget());
 		VariableReference valRef = getVarRef(assignExpr.getValue());
-
-		if (varRef == null) {
+		if (tarRef == null) {
 			throw new ParseException(null,
 					"Can not create or find the var reference: "
 							+ assignExpr.getTarget());
@@ -928,7 +917,7 @@ public class TestParser {
 							+ assignExpr.getValue());
 		}
 
-		return new AssignmentStatement(newTestCase, varRef, valRef);
+		return new AssignmentStatement(newTestCase, tarRef, valRef);
 	}
 
 	/**
@@ -1006,13 +995,15 @@ public class TestParser {
 			FieldAccessExpr fieldAccExpr = (FieldAccessExpr) expr;
 			logger.debug("Found field access: " + expr + " with scope "
 					+ fieldAccExpr.getScope().toString());
-			try {
-				ClassOrInterfaceType type = new ClassOrInterfaceType(0, 0, 0,
-						0, null, fieldAccExpr.toString(), null);
-				typeToClass(type);
-				return null; // Static access!
-			} catch (ParseException e) {
-				// Expected behavior
+			if (!tt.hasVar(fieldAccExpr.getScope().toString())) {
+				try {
+					ClassOrInterfaceType type = new ClassOrInterfaceType(0, 0,
+							0, 0, null, fieldAccExpr.toString(), null);
+					typeToClass(type);
+					return null; // Static access!
+				} catch (ParseException e) {
+					// Expected behavior
+				}
 			}
 			if (fieldAccExpr.getScope().toString().equals("this")) {
 				return resolve(fieldAccExpr.getField());
@@ -1048,7 +1039,7 @@ public class TestParser {
 			// resolve(arrayAccExpr.getName().toString());
 			int arrayInd = 0;
 			try {
-				Integer.parseInt(arrayAccExpr.getIndex().toString());
+				arrayInd = Integer.parseInt(arrayAccExpr.getIndex().toString());
 			} catch (NumberFormatException e) {
 				// If we can't parse it, just use 0
 			}
@@ -1220,9 +1211,6 @@ public class TestParser {
 		Expression scope = fieldExpr.getScope();
 
 		Class<?> clazz = null;
-
-		System.out.println("wtf: " + fieldExpr.getScope());
-
 		if (!tt.hasVar(scope.toString())) {
 			ClassOrInterfaceType type = new ClassOrInterfaceType(0, 0, 0, 0,
 					null, scope.toString(), null);
