@@ -10,7 +10,9 @@ import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
  * @author Gordon Fraser
  * 
  */
-public class GlobalTimeStoppingCondition extends StoppingCondition {
+public class GlobalTimeStoppingCondition extends StoppingConditionImpl {
+	
+	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GlobalTimeStoppingCondition.class);
 
 	private static final long serialVersionUID = -4880914182984895075L;
 

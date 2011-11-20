@@ -199,6 +199,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			ExecutionResult result = handler.execute(callable, executor,
 			                                         Properties.TIMEOUT,
 			                                         Properties.CPU_TIMEOUT);
+
 			long endTime = System.currentTimeMillis();
 			timeExecuted += endTime - startTime;
 			testsExecuted++;
@@ -249,7 +250,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			if (Properties.LOG_TIMEOUT) {
 				System.err.println("Timeout occurred for " + Properties.TARGET_CLASS);
 			}
-			logger.info("TimeoutException, need to stop runner");
+			logger.info("TimeoutException, need to stop runner", e1);
 			ExecutionTracer.setKillSwitch(true);
 			ExecutionTracer.disable();
 			//task.cancel(true);
@@ -320,7 +321,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		}
 		threadGroup = new ThreadGroup("Test Execution");
 		currentThread = new Thread(threadGroup, r);
-		currentThread.setContextClassLoader(TestCluster.classLoader);
+			currentThread.setContextClassLoader(TestCluster.classLoader);
 		ExecutionTracer.setThread(currentThread);
 		return currentThread;
 	}
