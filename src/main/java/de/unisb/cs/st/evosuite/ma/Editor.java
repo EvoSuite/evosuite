@@ -15,8 +15,6 @@ import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ma.gui.SourceCodeGUI;
 import de.unisb.cs.st.evosuite.ma.gui.TestEditorGUI;
-import de.unisb.cs.st.evosuite.ma.parser.AstVisitor;
-import de.unisb.cs.st.evosuite.ma.parser.SEParser;
 import de.unisb.cs.st.evosuite.ma.parser.TestParser;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
@@ -88,7 +86,7 @@ public class Editor {
 		sguiSC.createWindow(this);
 		sguiTE.createMainWindow(this);
 		testParser = new TestParser(this);
-		
+
 		// see message from html_analyzer.getClassContent(...) to check this
 		if (sourceCode.toString().equals(
 				"[No source found for " + Properties.TARGET_CLASS + "]")) {
@@ -96,7 +94,6 @@ public class Editor {
 					.getSelectedFile();
 			sourceCode = Utils.readFile(srcFile);
 		}
-
 
 		synchronized (lock) {
 			while (sguiTE.mainFrame.isVisible())
@@ -115,15 +112,12 @@ public class Editor {
 	 * EvoSuite's population. Create coverage for the new TestCase.
 	 * 
 	 * @param testSource
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	public boolean saveTest(String testCode){
+	public boolean saveTest(String testCode) {
 		TestCase currentTestCase = currTCTuple.getTestCase();
 		try {
 			TestCase newTestCase = testParser.parseTest(testCode);
-			
-//			SEParser separser = new SEParser();
-//			AstVisitor visitor = separser.visitString(testCode);
 
 			if (newTestCase != null) {
 				// EvoSuite stuff
