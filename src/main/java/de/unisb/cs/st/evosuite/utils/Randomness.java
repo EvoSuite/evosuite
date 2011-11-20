@@ -21,6 +21,7 @@ package de.unisb.cs.st.evosuite.utils;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public class Randomness implements Serializable {
 
 	private static long seed = 0;
 
-	private static MersenneTwister random = null;
+	private static Random random = null;
 
 	private static Randomness instance = new Randomness();
 
@@ -49,14 +50,15 @@ public class Randomness implements Serializable {
 		if (seed_parameter != null) {
 			try {
 				seed = Long.parseLong(seed_parameter);
+				logger.info("Random seed: {}", seed);
 			} catch (Exception e) {
 				seed = System.currentTimeMillis();
-				logger.warn("Could not parse seed parameter \"" + seed
-				        + "\", using random seed: " + seed);
+				logger.warn("Could not parse parameter \"{}\", using random seed: {}",seed_parameter, seed);
 			}
-		} else
+		} else {
 			seed = System.currentTimeMillis();
-		logger.info("Random seed: " + seed);
+			logger.info("No seed given. Using {}.", seed);
+		}
 		random = new MersenneTwister(seed);
 	}
 

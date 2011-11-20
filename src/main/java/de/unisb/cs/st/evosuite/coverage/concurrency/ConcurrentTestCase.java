@@ -34,6 +34,7 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testcase.TestVisitor;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 import de.unisb.cs.st.evosuite.testcase.VariableReferenceImpl;
+import de.unisb.cs.st.evosuite.utils.Listener;
 
 // #FIXME irgendwo in dieser software gibt es nicht deterministische prozesse,
 // das sollte nicht sein
@@ -48,6 +49,14 @@ import de.unisb.cs.st.evosuite.testcase.VariableReferenceImpl;
  * @author sebastian steenbuck
  */
 public class ConcurrentTestCase implements TestCase {
+
+	public void addListener(Listener<Void> listener) {
+		test.addListener(listener);
+	}
+
+	public void deleteListener(Listener<Void> listener) {
+		test.deleteListener(listener);
+	}
 
 	private static Logger logger = LoggerFactory.getLogger(ConcurrentTestCase.class);
 
@@ -119,6 +128,13 @@ public class ConcurrentTestCase implements TestCase {
 	@Override
 	public int hashCode() {
 		return test.hashCode() + schedule.hashCode();
+	}
+	
+	@Override
+	public void addStatements(List<? extends StatementInterface> statements) {
+		for (StatementInterface statementInterface : statements) {
+			this.addStatement(statementInterface);
+		}
 	}
 
 	/**

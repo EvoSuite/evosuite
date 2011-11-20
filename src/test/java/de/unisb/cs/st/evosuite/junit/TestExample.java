@@ -18,9 +18,19 @@ public class TestExample extends ParentTestExample {
 			this.song = song;
 		}
 
+		public MockingBird doIt(String song) {
+			return this;
+		}
+
 		public void executeCmd(int x) {
 			if (song.equals("killSelf") && (x > 7)) {
 				throw new RuntimeException("It's a sin to kill a mockingbird.");
+			}
+		}
+
+		public void thisIsIt(String... args) {
+			if (args.length > 0) {
+				System.out.println(args);
 			}
 		}
 	}
