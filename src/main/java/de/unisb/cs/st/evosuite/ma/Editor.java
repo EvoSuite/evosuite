@@ -30,7 +30,7 @@ import de.unisb.cs.st.evosuite.utils.Utils;
  * @author Yury Pavlov
  * 
  */
-public class Editor {
+public class Editor implements UserFeedback {
 
 	public final Object lock = new Object();
 
@@ -90,8 +90,7 @@ public class Editor {
 		// see message from html_analyzer.getClassContent(...) to check this
 		if (sourceCode.toString().equals(
 				"[No source found for " + Properties.TARGET_CLASS + "]")) {
-			File srcFile = showChooseFileMenu(Properties.TARGET_CLASS)
-					.getSelectedFile();
+			File srcFile = chooseTargetFile(Properties.TARGET_CLASS);
 			sourceCode = Utils.readFile(srcFile);
 		}
 
@@ -317,18 +316,20 @@ public class Editor {
 		return (int) (testSuiteChr.getCoverage() * 100);
 	}
 
+	@Override
 	public void showParseException(String message) {
 		JOptionPane.showMessageDialog(sguiTE.mainFrame, message,
 				"Parsing error", JOptionPane.ERROR_MESSAGE);
 	}
 
-	public JFileChooser showChooseFileMenu(String className) {
+	@Override
+	public File chooseTargetFile(String className) {
 		final JFileChooser fc = new JFileChooser();
 		fc.setDialogTitle("Where is class: " + className);
 		int returnVal = fc.showOpenDialog(sguiTE.mainFrame);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			return fc;
+			return fc.getSelectedFile();
 		}
 
 		return null;

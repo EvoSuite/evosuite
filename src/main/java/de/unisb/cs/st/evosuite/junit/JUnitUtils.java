@@ -1,16 +1,44 @@
 package de.unisb.cs.st.evosuite.junit;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Set;
+
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.ma.UserFeedback;
+import de.unisb.cs.st.evosuite.ma.parser.TestParser;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 
+@SuppressWarnings("synthetic-access")
 public class JUnitUtils {
+
+	private static class LoggingUserFeedback implements UserFeedback {
+		private final String resultsPath;
+
+		public LoggingUserFeedback(String resultsPath) {
+			super();
+			this.resultsPath = resultsPath;
+		}
+
+		@Override
+		public File chooseTargetFile(String className) {
+			return new File(resultsPath + File.pathSeparator + className);
+		}
+
+		@Override
+		public void showParseException(String message) {
+			logger.error("ParseException: {}", message);
+		}
+
+	}
+
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JUnitUtils.class);
 
 	public static TestCase readTestCase(String failingTest) {
@@ -18,6 +46,17 @@ public class JUnitUtils {
 		String[] sources = Properties.SOURCEPATH;
 		TestCase testCase = new JUnitTestReader(classpath, sources).readJUnitTestCase(failingTest);
 		return testCase;
+	}
+
+	public static Set<TestCase> readTestCases(String failingTest) {
+		try {
+			File failingTestFile = new File(failingTest);
+			UserFeedback userFeedback = new LoggingUserFeedback(failingTestFile.getAbsoluteFile().getParent());
+			TestParser parser = new TestParser(userFeedback);
+			return parser.parseFile(failingTest);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static TestRun runTest(String originalTest) {
@@ -40,7 +79,7 @@ public class JUnitUtils {
 	}
 
 	public static ExecutionResult runTest(TestCase testCase) {
-		Properties.TIMEOUT = 60 * 3;
+		Properties.TIMEOUT = 60 * 3 * 100;
 		logger.debug("Execution testCase with timeout {}: \n{}", Properties.TIMEOUT, testCase.toCode());
 		return TestCaseExecutor.getInstance().execute(testCase);
 	}
