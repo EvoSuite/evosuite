@@ -41,11 +41,22 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 		InspectorTraceEntry entry = new InspectorTraceEntry(var);
 
 		for (Inspector i : inspectors) {
+
+			// No inspectors from java.lang.Object
+			if (i.getMethod().getDeclaringClass().equals(Object.class))
+				continue;
+
 			try {
 				Object target = var.getObject(scope);
 				if (target != null) {
 					Object value = i.getValue(target);
 					logger.debug("Inspector " + i.getMethodCall() + " is: " + value);
+
+					// We need no assertions that include the memory location
+					if (i.getMethodCall().equals("toString")) {
+						if (!value.toString().matches("@[abcdef\\d]+"))
+							continue;
+					}
 
 					entry.addValue(i, value);
 				}

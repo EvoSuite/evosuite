@@ -39,6 +39,9 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 
 			ComparisonTraceEntry otherEntry = (ComparisonTraceEntry) other;
 			for (VariableReference otherVar : equalityMap.keySet()) {
+				if (!otherEntry.equalityMap.containsKey(otherVar))
+					continue;
+
 				if (!otherEntry.equalityMap.get(otherVar).equals(equalityMap.get(otherVar)))
 					return true;
 			}
