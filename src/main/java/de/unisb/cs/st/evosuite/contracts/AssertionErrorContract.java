@@ -20,6 +20,9 @@ public class AssertionErrorContract extends Contract {
 	 */
 	@Override
 	public boolean check(StatementInterface statement, Scope scope, Throwable exception) {
+		if (!isTargetStatement(statement))
+			return true;
+
 		if (exception != null) {
 			// method throws no AssertionError
 			if (exception instanceof AssertionError) {

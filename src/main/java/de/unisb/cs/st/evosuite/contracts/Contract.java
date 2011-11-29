@@ -7,12 +7,18 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.FieldStatement;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 
 /**
  * Based on ObjectContract / Randoop
@@ -20,6 +26,8 @@ import de.unisb.cs.st.evosuite.testcase.StatementInterface;
  * @author Gordon Fraser
  */
 public abstract class Contract {
+
+	protected static Logger logger = LoggerFactory.getLogger(Contract.class);
 
 	protected class Pair {
 		Object object1;
@@ -32,12 +40,13 @@ public abstract class Contract {
 	}
 
 	protected Collection<Object> getAllObjects(Scope scope) {
-		return scope.getObjects();
+		// TODO: Assignable classes and subclasses?
+		return scope.getObjects(Properties.getTargetClass());
 	}
 
 	protected Collection<Pair> getAllObjectPairs(Scope scope) {
 		Set<Pair> pairs = new HashSet<Pair>();
-		for (Object o1 : scope.getObjects()) {
+		for (Object o1 : scope.getObjects(Properties.getTargetClass())) {
 			for (Object o2 : scope.getObjects(o1.getClass())) {
 				pairs.add(new Pair(o1, o2));
 			}
@@ -46,11 +55,11 @@ public abstract class Contract {
 	}
 
 	protected Collection<Object> getAffectedObjects(StatementInterface statement,
-			Scope scope) {
-		try{
+	        Scope scope) {
+		try {
 			Set<Object> objects = new HashSet<Object>();
 			if (statement instanceof ConstructorStatement
-					|| statement instanceof FieldStatement) {
+			        || statement instanceof FieldStatement) {
 				objects.add(statement.getReturnValue().getObject(scope));
 			} else if (statement instanceof MethodStatement) {
 				MethodStatement ms = (MethodStatement) statement;
@@ -61,19 +70,19 @@ public abstract class Contract {
 					objects.add(ms.getCallee().getObject(scope));
 			}
 			return objects;
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 
 	}
 
 	protected Collection<Pair> getAffectedObjectPairs(StatementInterface statement,
-			Scope scope) {
-		try{
+	        Scope scope) {
+		try {
 			Set<Pair> pairs = new HashSet<Pair>();
 
 			if (statement instanceof ConstructorStatement
-					|| statement instanceof FieldStatement) {
+			        || statement instanceof FieldStatement) {
 				Object o = statement.getReturnValue().getObject(scope);
 				if (o != null) {
 					for (Object o1 : scope.getObjects(o.getClass())) {
@@ -104,12 +113,57 @@ public abstract class Contract {
 				}
 			}
 			return pairs;
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 	}
 
+	/**
+	 * Check if this statement is related to the unit under test
+	 * 
+	 * @param statement
+	 * @return
+	 */
+	protected boolean isTargetStatement(StatementInterface statement) {
+		//if (statement.getReturnClass().equals(Properties.getTargetClass()))
+		//	return true;
+
+		if (statement instanceof MethodStatement) {
+			MethodStatement ms = (MethodStatement) statement;
+			if (Properties.getTargetClass().equals(ms.getMethod().getDeclaringClass()))
+				return true;
+		} else if (statement instanceof ConstructorStatement) {
+			ConstructorStatement cs = (ConstructorStatement) statement;
+			if (Properties.getTargetClass().equals(cs.getConstructor().getDeclaringClass()))
+				return true;
+		} else if (statement instanceof FieldStatement) {
+			FieldStatement fs = (FieldStatement) statement;
+			if (Properties.getTargetClass().equals(fs.getField().getDeclaringClass()))
+				return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Run the test against this contract and determine whether it reports a
+	 * failure
+	 * 
+	 * @param test
+	 * @return
+	 */
+	public boolean fails(TestCase test) {
+		ContractChecker.setActive(false);
+		TestCaseExecutor executor = TestCaseExecutor.getInstance();
+		SingleContractChecker checker = new SingleContractChecker(this);
+		executor.addObserver(checker);
+		TestCaseExecutor.runTest(test);
+		executor.removeObserver(checker);
+		ContractChecker.setActive(true);
+		return !checker.isValid();
+	}
+
 	public abstract boolean check(StatementInterface statement, Scope scope,
-			Throwable exception);
+	        Throwable exception);
 
 }
