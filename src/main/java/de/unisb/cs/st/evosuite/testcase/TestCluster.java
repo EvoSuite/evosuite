@@ -45,17 +45,19 @@ public abstract class TestCluster {
 	 * @return
 	 */
 	public static TestCluster getInstance() {
-	    if (instance == null) {
+		if (instance == null) {
 			instance = new StaticTestCluster();
+			//instance = LazyTestCluster.getInstance();
 			instance.init();
-	    }
+		}
 
 		// TODO: Need property to switch between test clusters
 
 		return instance;
 	}
 
-        protected void init() {}
+	protected void init() {
+	}
 
 	private static List<String> finalClasses = new ArrayList<String>();
 
@@ -96,6 +98,11 @@ public abstract class TestCluster {
 		loadStaticInitializers();
 		logger.debug("Static initializers: " + staticInitializers.size());
 		for (Method m : staticInitializers) {
+			//if (!m.getDeclaringClass().equals(Properties.getTargetClass()))
+			//	continue;
+
+			//logger.warn("Resetting " + m);
+
 			try {
 				m.invoke(null, (Object[]) null);
 			} catch (IllegalArgumentException e) {

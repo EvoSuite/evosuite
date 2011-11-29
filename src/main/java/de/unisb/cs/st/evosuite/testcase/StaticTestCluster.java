@@ -145,16 +145,16 @@ public class StaticTestCluster extends TestCluster {
 	// In setup script, add all jars / classes found in local dir to classpath?
 
 	private final static Pattern testPattern = Pattern.compile(".*?\\.(Test[a-zA-Z0-9]+)|([a-zA-Z0-9]+Test)");
-	
+
 	private static boolean isTest(String className) {
 		// TODO-JRO Identifying tests should be done differently:
 		// If the class either contains methods
 		// annotated with @Test (> JUnit 4.0)
 		// or contains Test or Suite in it's inheritance structure
-			Matcher testMatcher = testPattern.matcher(className);
-			return testMatcher.find();
+		Matcher testMatcher = testPattern.matcher(className);
+		return testMatcher.find();
 	}
-	
+
 	public static boolean isTargetClassName(String className) {
 		if (!Properties.TARGET_CLASS_PREFIX.isEmpty()
 		        && className.startsWith(Properties.TARGET_CLASS_PREFIX)) {
@@ -1629,6 +1629,10 @@ public class StaticTestCluster extends TestCluster {
 	public void resetStaticClasses() {
 		ExecutionTracer.disable();
 		for (Method m : static_initializers) {
+			// TODO: Which classes need to be reset? All?
+			if (!m.getDeclaringClass().equals(Properties.getTargetClass()))
+				continue;
+
 			try {
 				m.invoke(null, (Object[]) null);
 			} catch (IllegalArgumentException e) {

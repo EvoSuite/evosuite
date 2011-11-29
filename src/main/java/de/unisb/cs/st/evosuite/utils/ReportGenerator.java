@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -499,7 +499,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 					 * test.exception_statement == test_line)
 					 * sb.append("<span style=\"background: #FF0000\">");
 					 */
-					sb.append(StringEscapeUtils.escapeHtml(line));
+					sb.append(StringEscapeUtils.escapeHtml4(line));
 					/*
 					 * if(test.exceptionThrown != null &&
 					 * test.exception_statement == test_line)
@@ -602,12 +602,12 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				                        linecount, linecount));
 				if (run.coverage.contains(linecount)) {
 					sb.append("<span style=\"background-color: #ffffcc\">");
-					sb.append(StringEscapeUtils.escapeHtml(line));
+					sb.append(StringEscapeUtils.escapeHtml4(line));
 					sb.append("</span>");
 				}
 
 				else
-					sb.append(StringEscapeUtils.escapeHtml(line));
+					sb.append(StringEscapeUtils.escapeHtml4(line));
 				sb.append("\n");
 				linecount++;
 			}

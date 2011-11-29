@@ -76,9 +76,6 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	/** Bloat control, to avoid too long chromosomes */
 	protected Set<BloatControlFunction> bloatControl = new HashSet<BloatControlFunction>();
 
-	/** Secondary objectives used during replacement */
-	protected final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();
-
 	/** Local search might need a different local objective */
 	protected LocalSearchObjective localObjective;
 
@@ -617,30 +614,6 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		for (StoppingCondition c : stoppingConditions) {
 			c.setLimit(value);
 		}
-	}
-
-	/**
-	 * Add an additional secondary objective to the end of the list of
-	 * objectives
-	 * 
-	 * @param objective
-	 */
-	public void addSecondaryObjective(SecondaryObjective objective) {
-		secondaryObjectives.add(objective);
-	}
-
-	/**
-	 * Remove secondary objective from list, if it is there
-	 * 
-	 * @param objective
-	 */
-	public void removeSecondaryObjective(SecondaryObjective objective) {
-		secondaryObjectives.remove(objective);
-	}
-
-	public void clearSecondaryObjectives() {
-		secondaryObjectives.clear();
-		Chromosome.clearSecondaryObjectives();
 	}
 
 	protected boolean isBetterOrEqual(Chromosome chromosome1, Chromosome chromosome2) {

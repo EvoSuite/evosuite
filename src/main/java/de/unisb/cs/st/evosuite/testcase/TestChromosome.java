@@ -30,6 +30,7 @@ import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.ga.LocalSearchBudget;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
+import de.unisb.cs.st.evosuite.ga.SecondaryObjective;
 import de.unisb.cs.st.evosuite.symbolic.BranchCondition;
 import de.unisb.cs.st.evosuite.symbolic.ConcolicExecution;
 import de.unisb.cs.st.evosuite.symbolic.ConcolicMutation;
@@ -52,6 +53,9 @@ public class TestChromosome extends ExecutableChromosome {
 
 	/** True if this leads to an exception */
 	private final boolean has_exception = false;
+
+	/** Secondary objectives used during ranking */
+	private static final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();
 
 	public void setTestCase(TestCase testCase) {
 		test = testCase;
@@ -164,7 +168,7 @@ public class TestChromosome extends ExecutableChromosome {
 	public int hashCode() {
 		return test.hashCode();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#localSearch()
 	 */
@@ -203,9 +207,9 @@ public class TestChromosome extends ExecutableChromosome {
 			} else if (test.getStatement(i) instanceof ArrayStatement) {
 				search = new ArrayLocalSearch();
 			}
-				if (search != null)
-					search.doSearch(this, i, objective);
-			}
+			if (search != null)
+				search.doSearch(this, i, objective);
+		}
 		assert (getFitness() <= oldFitness);
 		//logger.info("Test after local search: " + test.toCode());
 
@@ -387,8 +391,9 @@ public class TestChromosome extends ExecutableChromosome {
 		if (Randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
 			try {
 				changed = mutationConcolic();
-			} catch(Exception exc) {
-				logger.info("Encountered exception when trying to use concolic mutation.", exc.getMessage());
+			} catch (Exception exc) {
+				logger.info("Encountered exception when trying to use concolic mutation.",
+				            exc.getMessage());
 				logger.debug("Detailed exception trace: ", exc);
 			}
 		}
@@ -511,7 +516,7 @@ public class TestChromosome extends ExecutableChromosome {
 		}
 		return result;
 	}
-	
+
 	@Override
 	public String toString() {
 		return test.toCode();
@@ -520,7 +525,7 @@ public class TestChromosome extends ExecutableChromosome {
 	public boolean hasException() {
 		return has_exception;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#applyDSE()
 	 */
@@ -528,10 +533,49 @@ public class TestChromosome extends ExecutableChromosome {
 	public void applyDSE() {
 		// TODO Auto-generated method stub
 	}
-	
+
 	@Override
 	public ExecutionResult executeForFitnessFunction(
 	        TestSuiteFitnessFunction testSuiteFitnessFunction) {
 		return testSuiteFitnessFunction.runTest(this.test);
 	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#compareSecondaryObjective(de.unisb.cs.st.evosuite.ga.Chromosome)
+	 */
+	@Override
+	public int compareSecondaryObjective(Chromosome o) {
+		int objective = 0;
+		int c = 0;
+
+		while (c == 0 && objective < secondaryObjectives.size()) {
+			SecondaryObjective so = secondaryObjectives.get(objective++);
+			if (so == null)
+				break;
+			c = so.compareChromosomes(this, o);
+		}
+		//logger.debug("Comparison: " + fitness + "/" + size() + " vs " + o.fitness + "/"
+		//        + o.size() + " = " + c);
+		return c;
+	}
+
+	/**
+	 * Add an additional secondary objective to the end of the list of
+	 * objectives
+	 * 
+	 * @param objective
+	 */
+	public static void addSecondaryObjective(SecondaryObjective objective) {
+		secondaryObjectives.add(objective);
+	}
+
+	/**
+	 * Remove secondary objective from list, if it is there
+	 * 
+	 * @param objective
+	 */
+	public static void removeSecondaryObjective(SecondaryObjective objective) {
+		secondaryObjectives.remove(objective);
+	}
+
 }

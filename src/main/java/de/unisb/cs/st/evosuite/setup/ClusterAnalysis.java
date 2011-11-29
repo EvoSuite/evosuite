@@ -208,7 +208,7 @@ public class ClusterAnalysis {
 			        || name.startsWith("com/sun") || name.startsWith("javax/swing")
 			        || name.startsWith("java/awt"))
 				continue;
-			logger.info("Analyzing class " + name);
+			logger.warn("Analyzing class " + name);
 			try {
 				ClassReader reader = new ClassReader(
 				        name.replace("/", ".").replace(".class", ""));
@@ -232,7 +232,7 @@ public class ClusterAnalysis {
 			inheritanceData.put(superClass, new LinkedHashSet<String>());
 
 		inheritanceData.get(superClass).add(subClass);
-		System.out.println("Subclass relation: " + superClass + " <- " + subClass);
+		// System.out.println("Subclass relation: " + superClass + " <- " + subClass);
 	}
 
 	public static void addParameter(String className, String parameterClass) {
