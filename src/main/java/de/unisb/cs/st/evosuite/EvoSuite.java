@@ -35,7 +35,7 @@ public class EvoSuite {
 	public final static String JAVA_CMD = javaHome + separator + "bin" + separator
 	        + "java";
 
-	private static void setup(String target, String[] args) {
+	private static void setup(String target, String[] args, List<String> javaArgs) {
 		String classPath = System.getProperty("java.class.path");
 		Properties.CP = "";
 		if (args.length > 0) {
@@ -78,6 +78,7 @@ public class EvoSuite {
 		parameters.add("-Dshow_progress=true");
 		parameters.add("-Djava.awt.headless=true");
 		parameters.add("-Dlogback.configurationFile=logback.xml");
+		parameters.addAll(javaArgs);
 		parameters.add("de.unisb.cs.st.evosuite.setup.ScanProject");
 		parameters.add(targetParam);
 
@@ -237,6 +238,8 @@ public class EvoSuite {
 		Option mocks = new Option("mocks", "Use mock classes");
 		Option stubs = new Option("stubs", "Use stubs");
 		Option assertions = new Option("assertions", "Add assertions");
+		Option signature = new Option("signature",
+		        "Allow manual tweaking of method signatures");
 
 		options.addOption(help);
 		options.addOption(generateSuite);
@@ -247,6 +250,7 @@ public class EvoSuite {
 		options.addOption(seed);
 		options.addOption(mem);
 		options.addOption(assertions);
+		options.addOption(signature);
 
 		options.addOption(sandbox);
 		options.addOption(mocks);
@@ -286,12 +290,14 @@ public class EvoSuite {
 				javaOpts.add("-Drandom.seed=" + line.getOptionValue("seed"));
 			if (line.hasOption("assertions"))
 				javaOpts.add("-Dassertions=true");
+			if (line.hasOption("signature"))
+				javaOpts.add("-Dgenerate_objects=true");
 
 			if (line.hasOption("help")) {
 				HelpFormatter formatter = new HelpFormatter();
 				formatter.printHelp("EvoSuite", options);
 			} else if (line.hasOption("setup")) {
-				setup(line.getOptionValue("setup"), line.getArgs());
+				setup(line.getOptionValue("setup"), line.getArgs(), javaOpts);
 			} else if (line.hasOption("generateTests")) {
 				if (line.hasOption("class"))
 					result = generateTests(false, line.getOptionValue("class"), javaOpts);
