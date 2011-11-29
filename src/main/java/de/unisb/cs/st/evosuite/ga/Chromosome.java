@@ -19,8 +19,6 @@
 package de.unisb.cs.st.evosuite.ga;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,9 +54,6 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/** Has this chromosome changed since its fitness was last evaluated? */
 	protected boolean changed = true;
-
-	/** Secondary objectives used during ranking */
-	private static final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();
 
 	/**
 	 * Return current fitness value
@@ -100,10 +95,10 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	@Override
 	public abstract boolean equals(Object obj);
-	
+
 	@Override
 	public abstract int hashCode();
-	
+
 	/**
 	 * Determine relative ordering of this chromosome to another chromosome. If
 	 * the fitness values are equal, go through all secondary objectives and try
@@ -112,18 +107,20 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	@Override
 	public int compareTo(Chromosome o) {
 		int c = (int) Math.signum(fitness - o.fitness);
-		int objective = 0;
+		if (c == 0)
+			return compareSecondaryObjective(o);
+		else
+			return c;
 
-		while (c == 0 && objective < secondaryObjectives.size()) {
-			SecondaryObjective so = secondaryObjectives.get(objective++);
-			if (so == null)
-				break;
-			c = so.compareChromosomes(this, o);
-		}
-		//logger.debug("Comparison: " + fitness + "/" + size() + " vs " + o.fitness + "/"
-		//        + o.size() + " = " + c);
-		return c;
 	}
+
+	/**
+	 * Secondary Objectives are specific to chromosome types
+	 * 
+	 * @param o
+	 * @return
+	 */
+	public abstract int compareSecondaryObjective(Chromosome o);
 
 	/**
 	 * Apply mutation
@@ -187,28 +184,5 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 */
 	public void setChanged(boolean changed) {
 		this.changed = changed;
-	}
-
-	/**
-	 * Add an additional secondary objective to the end of the list of
-	 * objectives
-	 * 
-	 * @param objective
-	 */
-	public static void addSecondaryObjective(SecondaryObjective objective) {
-		secondaryObjectives.add(objective);
-	}
-
-	/**
-	 * Remove secondary objective from list, if it is there
-	 * 
-	 * @param objective
-	 */
-	public static void removeSecondaryObjective(SecondaryObjective objective) {
-		secondaryObjectives.remove(objective);
-	}
-
-	public static void clearSecondaryObjectives() {
-		secondaryObjectives.clear();
 	}
 }

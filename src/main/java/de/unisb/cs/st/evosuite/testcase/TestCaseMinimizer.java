@@ -126,6 +126,8 @@ public class TestCaseMinimizer {
 					logger.debug("Keeping shorter version");
 					fitness = new_fitness;
 					changed = true;
+					logger.warn("Number of exceptions changed to: "
+					        + c.lastExecutionResult.exceptions.size());
 					break;
 				} else {
 					logger.debug("Keeping original version");

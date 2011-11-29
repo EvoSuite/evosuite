@@ -156,6 +156,8 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 						covered_lines.addAll(coveredLines.keySet());
 				}
 			}
+			//if (result.hasUndeclaredException())
+			//	fitness += 1.0;
 		}
 
 		int num_covered = 0;

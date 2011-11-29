@@ -33,7 +33,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -282,9 +282,9 @@ public class GenericClass implements Serializable {
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
-	
+
 	@Override
-	public String toString(){
+	public String toString() {
 		return type.toString();
 	}
 
@@ -342,6 +342,6 @@ public class GenericClass implements Serializable {
 		this.raw_class = getClass(name);
 		// TODO: Currently, type information gets lost by serialization
 		this.type = raw_class;
-		}
+	}
 
 }

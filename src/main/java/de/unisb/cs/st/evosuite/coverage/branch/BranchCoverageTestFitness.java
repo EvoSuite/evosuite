@@ -50,7 +50,7 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	public Branch getBranch() {
 		return goal.branch;
 	}
-	
+
 	public boolean getBranchExpressionValue() {
 		return goal.value;
 	}
@@ -102,8 +102,13 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 
 		double fitness = distance.getResultingBranchFitness();
 
-		logger.debug("Approach level: " + distance.getApproachLevel() + " / branch distance: "
-				+ distance.getBranchDistance() + ", fitness = " + fitness);
+		// If there is an undeclared exception it is a failing test
+		//if (result.hasUndeclaredException())
+		//	fitness += 1;
+
+		logger.debug("Approach level: " + distance.getApproachLevel()
+		        + " / branch distance: " + distance.getBranchDistance() + ", fitness = "
+		        + fitness);
 
 		updateIndividual(individual, fitness);
 		return fitness;
@@ -126,13 +131,13 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		}
 	}
 
-//	@Override
-//	public int getDifficulty() {
-//		if (goal == null)
-//			return 1;
-//		else
-//			return goal.getDifficulty();
-//	}
+	//	@Override
+	//	public int getDifficulty() {
+	//		if (goal == null)
+	//			return 1;
+	//		else
+	//			return goal.getDifficulty();
+	//	}
 
 	@Override
 	public String toString() {

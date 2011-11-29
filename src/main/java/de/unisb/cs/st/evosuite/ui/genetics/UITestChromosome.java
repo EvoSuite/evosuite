@@ -1,6 +1,11 @@
 package de.unisb.cs.st.evosuite.ui.genetics;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -96,7 +101,7 @@ public class UITestChromosome extends ExecutableChromosome {
 	 * 
 	 * @return true if anything was actually changed
 	 */
-	private boolean mutationChange() {		
+	private boolean mutationChange() {
 		boolean changed = false;
 
 		if (this.size() > 0) {
@@ -135,8 +140,8 @@ public class UITestChromosome extends ExecutableChromosome {
 	}
 
 	/**
-	 * With exponentially decreasing probability, keep inserting statements
-	 * at random positions.
+	 * With exponentially decreasing probability, keep inserting statements at
+	 * random positions.
 	 * 
 	 * @return true if anything was actually changed
 	 */
@@ -172,7 +177,6 @@ public class UITestChromosome extends ExecutableChromosome {
 		UITestChromosome other = (UITestChromosome) obj;
 		return this.actionSequence.equals(other.actionSequence);
 	}
-	
 
 	@Override
 	public int hashCode() {
@@ -203,7 +207,7 @@ public class UITestChromosome extends ExecutableChromosome {
 	        TestSuiteFitnessFunction testSuiteFitnessFunction) {
 		TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>();
 		InterfaceTestRunnable callable = new ChromosomeUIController(this);
-		
+
 		executedChromosomes.add(this);
 		executedChromosomeList.add(this);
 
@@ -252,5 +256,14 @@ public class UITestChromosome extends ExecutableChromosome {
 	@Override
 	protected void copyCachedResults(ExecutableChromosome other) {
 		this.lastExecutionResult = other.getLastExecutionResult();
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#compareSecondaryObjective(de.unisb.cs.st.evosuite.ga.Chromosome)
+	 */
+	@Override
+	public int compareSecondaryObjective(Chromosome o) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

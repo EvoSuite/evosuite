@@ -3,18 +3,14 @@
  */
 package de.unisb.cs.st.evosuite.testcase;
 
-import java.lang.reflect.AccessibleObject;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
- * @author fraser
+ * @author Gordon Fraser
  * 
  */
 public class ValueMinimizer implements TestVisitor {
@@ -153,6 +149,47 @@ public class ValueMinimizer implements TestVisitor {
 		}
 	}
 
+	private void removeCharacters(StringPrimitiveStatement p) {
+
+		String oldString = p.getValue();
+
+		for (int i = oldString.length() - 1; i >= 0; i--) {
+			String newString = oldString.substring(0, i) + oldString.substring(i + 1);
+			p.setValue(newString);
+			//logger.info(" " + i + " " + oldValue + "/" + oldValue.length() + " -> "
+			//        + newString + "/" + newString.length());
+			if (objective.isNotWorse()) {
+				oldString = p.getValue();
+			} else {
+				p.setValue(oldString);
+			}
+		}
+	}
+
+	/**
+	 * Try to remove non-ASCII characters
+	 * 
+	 * @param statement
+	 */
+	private void cleanString(StringPrimitiveStatement statement) {
+		String oldString = statement.getValue();
+		String newString = oldString.replaceAll("[^\\p{ASCII}]", "").replaceAll("\\p{Cntrl}",
+		                                                                        "");
+		statement.setValue(newString);
+		if (!objective.isNotWorse()) {
+			statement.setValue(oldString);
+		}
+
+		oldString = newString;
+		newString = newString.replaceAll("[^\\p{L}\\p{N}]", "");
+		statement.setValue(newString);
+		if (!objective.isNotWorse()) {
+			statement.setValue(oldString);
+		}
+
+		removeCharacters(statement);
+	}
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitPrimitiveStatement(de.unisb.cs.st.evosuite.testcase.PrimitiveStatement)
 	 */
@@ -165,6 +202,7 @@ public class ValueMinimizer implements TestVisitor {
 			binarySearch((NumericalPrimitiveStatement<?>) statement);
 			logger.info("Statement after minimization: " + statement.getCode());
 		} else if (statement instanceof StringPrimitiveStatement) {
+			cleanString((StringPrimitiveStatement) statement);
 			// TODO: Try to delete characters, or at least replace non-ascii characters with ascii characters
 		}
 	}
@@ -185,6 +223,7 @@ public class ValueMinimizer implements TestVisitor {
 	public void visitMethodStatement(MethodStatement statement) {
 		//if (true)
 		//	return;
+		/*
 		try {
 			TestCluster cluster = TestCluster.getInstance();
 			DefaultTestFactory factory = DefaultTestFactory.getInstance();
@@ -219,7 +258,7 @@ public class ValueMinimizer implements TestVisitor {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		*/
 	}
 
 	/* (non-Javadoc)

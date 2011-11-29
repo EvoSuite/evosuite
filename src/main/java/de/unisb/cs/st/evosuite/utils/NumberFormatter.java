@@ -3,7 +3,7 @@
  */
 package de.unisb.cs.st.evosuite.utils;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
  * @author Gordon Fraser
@@ -49,14 +49,19 @@ public class NumberFormatter {
 		        || value.getClass().equals(Short.class)) {
 			return "(short)" + value;
 		} else if (value.getClass().isEnum()) {
+			Class<?> clazz = value.getClass();
+			String className = clazz.getSimpleName();
+			while (clazz.getEnclosingClass() != null) {
+				className = clazz.getEnclosingClass().getSimpleName() + "." + className;
+				clazz = clazz.getEnclosingClass();
+			}
 			try {
 				if (value.getClass().getField(value.toString()) != null)
-					return value.getClass().getSimpleName() + "." + value;
+					return className + "." + value;
 				else
-					return value.getClass().getSimpleName() + ".valueOf(\"" + value
-					        + "\")";
+					return className + ".valueOf(\"" + value + "\")";
 			} catch (Exception e) {
-				return value.getClass().getSimpleName() + ".valueOf(\"" + value + "\")";
+				return className + ".valueOf(\"" + value + "\")";
 			}
 
 		} else

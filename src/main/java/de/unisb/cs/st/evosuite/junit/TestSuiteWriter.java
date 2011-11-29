@@ -217,8 +217,11 @@ public class TestSuiteWriter implements Opcodes {
 				imp = imp.getComponentType();
 			if (imp.isPrimitive())
 				continue;
-			if (imp.getName().startsWith("java.lang"))
-				continue;
+			if (imp.getName().startsWith("java.lang")) {
+				String name = imp.getName().replace("java.lang.", "");
+				if (!name.contains("."))
+					continue;
+			}
 			if (!imp.getName().contains("."))
 				continue;
 			// TODO: Check for anonymous type?
@@ -346,7 +349,7 @@ public class TestSuiteWriter implements Opcodes {
 	 *            Name of the class file
 	 * @return String representation of JUnit test file
 	 */
-	protected String getUnitTest(String name) {
+	public String getUnitTest(String name) {
 		List<ExecutionResult> results = new ArrayList<ExecutionResult>();
 		for (int i = 0; i < testCases.size(); i++) {
 			results.add(runTest(testCases.get(i)));
@@ -422,8 +425,9 @@ public class TestSuiteWriter implements Opcodes {
 	 * @param directory
 	 *            Directory of generated test files
 	 */
-	protected void writeTestSuiteMainFile(String directory) {
-		File file = new File(directory + "/GeneratedTestSuite.java");
+	public void writeTestSuiteMainFile(String directory) {
+
+		File file = new File(mainDirectory(directory) + "/GeneratedTestSuite.java");
 
 		StringBuilder builder = new StringBuilder();
 		if (!Properties.PROJECT_PREFIX.equals("")) {
@@ -461,9 +465,6 @@ public class TestSuiteWriter implements Opcodes {
 		File file = new File(dir + "/" + name + ".java");
 		executor.newObservers();
 		Utils.writeFile(getUnitTest(name), file);
-
-		dir = mainDirectory(directory);
-		writeTestSuiteMainFile(dir);
 	}
 
 	private void testToBytecode(TestCase test, GeneratorAdapter mg,

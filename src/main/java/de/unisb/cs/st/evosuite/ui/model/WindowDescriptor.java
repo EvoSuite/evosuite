@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.uispec4j.Window;
 
 import y.view.NodeRealizer;
@@ -29,10 +29,12 @@ public class WindowDescriptor implements GraphVizDrawable, YWorksDrawable, Seria
 		return new WindowDescriptor(window, windows);
 	}
 
-	private static int matchIdxFor(Criteria windowCriteria, List<WindowlessUIActionTargetDescriptor> childrenDescriptors, List<Window> windows, Window targetWindow) {
+	private static int matchIdxFor(Criteria windowCriteria,
+	        List<WindowlessUIActionTargetDescriptor> childrenDescriptors,
+	        List<Window> windows, Window targetWindow) {
 		Component targetComp = targetWindow.getAwtComponent();
 		int matchIdx = -1;
-		
+
 		for (Window w : windows) {
 			if (doesMatch(windowCriteria, childrenDescriptors, w)) {
 				matchIdx++;
@@ -42,17 +44,17 @@ public class WindowDescriptor implements GraphVizDrawable, YWorksDrawable, Seria
 				return matchIdx;
 			}
 		}
-		
+
 		assert (false);
 		return -1;
 	}
 
-	private Criteria windowCriteria;
-	private List<WindowlessUIActionTargetDescriptor> windowlessActionTargetDescriptors;
-	private List<UIActionTargetDescriptor> actionTargetDescriptors;
-	private int matchIdx;
-	private String description;
-		
+	private final Criteria windowCriteria;
+	private final List<WindowlessUIActionTargetDescriptor> windowlessActionTargetDescriptors;
+	private final List<UIActionTargetDescriptor> actionTargetDescriptors;
+	private final int matchIdx;
+	private final String description;
+
 	/* TODO: Add state descriptors used for differentiating windows in UIStates.
 	 * 
 	 * These would allow us to differentiate between two calculators with the same
@@ -71,18 +73,19 @@ public class WindowDescriptor implements GraphVizDrawable, YWorksDrawable, Seria
 		deepToString(awtComponent, result, 0);
 		return result.toString();
 	}
-	
-	private static void deepToString(Component awtComponent, StringBuilder result, int depth) {
+
+	private static void deepToString(Component awtComponent, StringBuilder result,
+	        int depth) {
 		for (int i = 0; i < depth; i++)
 			result.append(" ____");
-		
+
 		result.append("* ");
 		result.append(StringEscapeUtils.escapeXml(awtComponent.toString()));
 		result.append("\n");
-		
+
 		if (awtComponent instanceof Container) {
 			Container awtContainer = (Container) awtComponent;
-			
+
 			for (Component childComp : awtContainer.getComponents()) {
 				deepToString(childComp, result, depth + 1);
 			}
@@ -92,32 +95,36 @@ public class WindowDescriptor implements GraphVizDrawable, YWorksDrawable, Seria
 	private WindowDescriptor(Window window, List<Window> windows) {
 		this.windowCriteria = WindowlessUIActionTargetDescriptor.Criteria.forComponent(window);
 		this.windowlessActionTargetDescriptors = WindowlessUIActionTargetDescriptor.allFor(window);
-		this.matchIdx = matchIdxFor(this.windowCriteria, this.windowlessActionTargetDescriptors, windows, window);
+		this.matchIdx = matchIdxFor(this.windowCriteria,
+		                            this.windowlessActionTargetDescriptors, windows,
+		                            window);
 		this.description = deepToString(window.getAwtComponent());
-		
-		this.actionTargetDescriptors = new ArrayList<UIActionTargetDescriptor>(this.windowlessActionTargetDescriptors.size());
-		
+
+		this.actionTargetDescriptors = new ArrayList<UIActionTargetDescriptor>(
+		        this.windowlessActionTargetDescriptors.size());
+
 		for (WindowlessUIActionTargetDescriptor windowlessDescriptor : this.windowlessActionTargetDescriptors) {
-			this.actionTargetDescriptors.add(new UIActionTargetDescriptor(this, windowlessDescriptor));
+			this.actionTargetDescriptors.add(new UIActionTargetDescriptor(this,
+			        windowlessDescriptor));
 		}
 	}
 
 	private Window resolveWindowList(List<Window> windows) {
 		int curMatchIdx = -1;
-		
+
 		for (Window w : windows) {
 			if (doesMatch(this.windowCriteria, this.windowlessActionTargetDescriptors, w)) {
 				curMatchIdx++;
-				
+
 				if (curMatchIdx == this.matchIdx) {
 					return w;
 				}
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	public Window resolve(AbstractUIEnvironment env) {
 		return this.resolveWindowList(env.getTargetableWindows());
 	}
@@ -142,12 +149,12 @@ public class WindowDescriptor implements GraphVizDrawable, YWorksDrawable, Seria
 		return this.resolve(windowDescriptor) != null;
 	}
 
-	
 	/**
 	 * @param window
 	 * @return true if the given criteria match the given window
 	 */
-	private static boolean doesMatch(Criteria matchCriteria, List<WindowlessUIActionTargetDescriptor> matchChildren, Window window) {
+	private static boolean doesMatch(Criteria matchCriteria,
+	        List<WindowlessUIActionTargetDescriptor> matchChildren, Window window) {
 		Criteria otherCriteria = WindowlessUIActionTargetDescriptor.Criteria.forComponent(window);
 		List<WindowlessUIActionTargetDescriptor> otherChildren = WindowlessUIActionTargetDescriptor.allFor(window);
 
@@ -155,7 +162,9 @@ public class WindowDescriptor implements GraphVizDrawable, YWorksDrawable, Seria
 	}
 
 	public boolean actionTargetEquals(WindowDescriptor other) {
-		return this.matchIdx == other.matchIdx && this.windowCriteria.equals(other.windowCriteria) && this.windowlessActionTargetDescriptors.equals(other.windowlessActionTargetDescriptors);
+		return this.matchIdx == other.matchIdx
+		        && this.windowCriteria.equals(other.windowCriteria)
+		        && this.windowlessActionTargetDescriptors.equals(other.windowlessActionTargetDescriptors);
 	}
 
 	@Override
@@ -163,23 +172,26 @@ public class WindowDescriptor implements GraphVizDrawable, YWorksDrawable, Seria
 		if (obj == null || !(obj instanceof WindowDescriptor)) {
 			return false;
 		}
-		
+
 		WindowDescriptor other = (WindowDescriptor) obj;
 		return this.actionTargetEquals(other);
 	}
 
 	@Override
 	public int hashCode() {
-		return HashUtil.hashCode(this.matchIdx, this.windowCriteria, this.windowlessActionTargetDescriptors);
+		return HashUtil.hashCode(this.matchIdx, this.windowCriteria,
+		                         this.windowlessActionTargetDescriptors);
 	}
 
 	private String innerString() {
-		return String.format("match #%d of criteria = %s", this.matchIdx, this.windowCriteria);
+		return String.format("match #%d of criteria = %s", this.matchIdx,
+		                     this.windowCriteria);
 	}
-	
+
 	@Override
 	public String toString() {
-		return String.format("WindowDescriptor[%s, children = %s]", this.innerString(), this.windowlessActionTargetDescriptors);
+		return String.format("WindowDescriptor[%s, children = %s]", this.innerString(),
+		                     this.windowlessActionTargetDescriptors);
 	}
 
 	public Object shortString() {
@@ -190,24 +202,25 @@ public class WindowDescriptor implements GraphVizDrawable, YWorksDrawable, Seria
 	public String toGraphViz(GraphVizEnvironment env) {
 		String id = env.getId(this);
 		StringBuilder sb = new StringBuilder();
-		
+
 		sb.append(String.format("subgraph cluster_%s {\n", id));
-		sb.append(String.format("rankdir=LR\nstyle=filled\ncolor=black\nfillcolor=slategray1\nlabel=\"%s\"\n\n", StringUtil.escapeQuotes("Window: " + this.innerString())));
-		
+		sb.append(String.format("rankdir=LR\nstyle=filled\ncolor=black\nfillcolor=slategray1\nlabel=\"%s\"\n\n",
+		                        StringUtil.escapeQuotes("Window: " + this.innerString())));
+
 		for (UIActionTargetDescriptor td : this.actionTargetDescriptors) {
 			sb.append(td.toGraphViz(env));
 			sb.append("\n");
 		}
-		
+
 		if (this.actionTargetDescriptors.isEmpty()) {
 			sb.append(String.format("dummy_%s [label=\"\",style=invis]\n", id));
 		}
-		
+
 		sb.append("}\n");
-		
+
 		return sb.toString();
 	}
-	
+
 	public List<UIActionTargetDescriptor> getActionTargetDescriptors() {
 		return Collections.unmodifiableList(this.actionTargetDescriptors);
 	}
@@ -218,11 +231,11 @@ public class WindowDescriptor implements GraphVizDrawable, YWorksDrawable, Seria
 		realizer.setLabelText("Window: " + this.innerString());
 
 		env.setDescription(env.getGroupNodeFor(this), this.description);
-		
+
 		for (UIActionTargetDescriptor td : this.actionTargetDescriptors) {
 			td.addToYWorksEnvironment(env);
 		}
-		
+
 		env.popGroupNode();
 	}
 

@@ -86,6 +86,24 @@ public class ExecutionResult {
 		return false;
 	}
 
+	/**
+	 * Is there an undeclared exception in the trace?
+	 * 
+	 * @return
+	 */
+	public boolean hasUndeclaredException() {
+		if (test == null)
+			return false;
+
+		for (Integer i : exceptions.keySet()) {
+			Throwable t = exceptions.get(i);
+			if (!test.getStatement(i).getDeclaredExceptions().contains(t))
+				return true;
+		}
+
+		return false;
+	}
+
 	@Override
 	public ExecutionResult clone() {
 		ExecutionResult copy = new ExecutionResult(test, mutation);
