@@ -22,9 +22,7 @@ import de.unisb.cs.st.evosuite.ma.Editor;
  * @author Yury Pavlov
  * 
  */
-public class SimpleGUISourceCode {
-
-	public boolean ready = false;
+public class SourceCodeGUI {
 
 	private final static Color LIGHT_GREEN = new Color(200, 255, 200);
 
