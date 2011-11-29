@@ -34,7 +34,7 @@ import de.unisb.cs.st.evosuite.ma.Editor;
 /**
  * @author Yury Pavlov
  */
-public class SimpleGUITestEditor {
+public class TestEditorGUI {
 
 	public final JFrame mainFrame = new JFrame("MA Editor");
 
@@ -185,16 +185,16 @@ public class SimpleGUITestEditor {
 		mnTestCaseEditor.setMnemonic(KeyEvent.VK_T);
 		menuBar.add(mnTestCaseEditor);
 
-		JMenuItem mntmPrevTest = new JMenuItem("Prev test", KeyEvent.VK_P);
+		JMenuItem mntmPrevTest = new JMenuItem("Prev test", KeyEvent.VK_O);
 		mntmPrevTest.addActionListener(menuListener);
-		KeyStroke ctrlPKeyStroke = KeyStroke.getKeyStroke("control P");
-		mntmPrevTest.setAccelerator(ctrlPKeyStroke);
+		KeyStroke ctrlOKeyStroke = KeyStroke.getKeyStroke("control O");
+		mntmPrevTest.setAccelerator(ctrlOKeyStroke);
 		mnTestCaseEditor.add(mntmPrevTest);
 
-		JMenuItem mntmNextTest = new JMenuItem("Next test", KeyEvent.VK_E);
+		JMenuItem mntmNextTest = new JMenuItem("Next test", KeyEvent.VK_P);
 		mntmNextTest.addActionListener(menuListener);
-		KeyStroke ctrlEKeyStroke = KeyStroke.getKeyStroke("control E");
-		mntmNextTest.setAccelerator(ctrlEKeyStroke);
+		KeyStroke ctrlPKeyStroke = KeyStroke.getKeyStroke("control P");
+		mntmNextTest.setAccelerator(ctrlPKeyStroke);
 		mnTestCaseEditor.add(mntmNextTest);
 
 		mnTestCaseEditor.addSeparator();
@@ -260,6 +260,14 @@ public class SimpleGUITestEditor {
 		KeyStroke ctrlYKeyStroke = KeyStroke.getKeyStroke("control Y");
 		mntmReDo.setAccelerator(ctrlYKeyStroke);
 		mnEditor.add(mntmReDo);
+		
+		mnEditor.addSeparator();
+		
+		JMenuItem mntmSett = new JMenuItem("Settings", KeyEvent.VK_B);
+		mntmSett.addActionListener(menuListener);
+		KeyStroke ctrlBKeyStroke = KeyStroke.getKeyStroke("control B");
+		mntmSett.setAccelerator(ctrlBKeyStroke);
+		mnEditor.add(mntmSett);	
 
 		mainFrame.addWindowListener(new WindowAdapter() {
 			@Override
@@ -358,6 +366,8 @@ public class SimpleGUITestEditor {
 				saveTest();
 			} else if (actionEvent.getActionCommand().equals("Quit")) {
 				quit();
+			} else if (actionEvent.getActionCommand().equals("Settings")) {
+				new SettingsGUI(mainFrame);
 			}
 		}
 	}

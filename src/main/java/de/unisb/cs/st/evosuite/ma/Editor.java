@@ -1,5 +1,6 @@
 package de.unisb.cs.st.evosuite.ma;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -12,8 +13,8 @@ import javax.swing.JOptionPane;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
-import de.unisb.cs.st.evosuite.ma.gui.SimpleGUISourceCode;
-import de.unisb.cs.st.evosuite.ma.gui.SimpleGUITestEditor;
+import de.unisb.cs.st.evosuite.ma.gui.SourceCodeGUI;
+import de.unisb.cs.st.evosuite.ma.gui.TestEditorGUI;
 import de.unisb.cs.st.evosuite.ma.parser.TestParser;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
@@ -23,12 +24,13 @@ import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
 import de.unisb.cs.st.evosuite.utils.HtmlAnalyzer;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
  * @author Yury Pavlov
  * 
  */
-public class Editor {
+public class Editor implements UserFeedback {
 
 	public final Object lock = new Object();
 
@@ -42,11 +44,11 @@ public class Editor {
 
 	private final GeneticAlgorithm gaInstance;
 
-	private final Iterable<String> sourceCode;
+	private Iterable<String> sourceCode;
 
-	public final SimpleGUITestEditor sguiTE;
+	public final TestEditorGUI sguiTE;
 
-	public final SimpleGUISourceCode sguiSC;
+	public final SourceCodeGUI sguiSC;
 
 	private TestParser testParser;
 
@@ -79,11 +81,18 @@ public class Editor {
 		}
 
 		nextTest();
-		sguiSC = new SimpleGUISourceCode();
-		sguiTE = new SimpleGUITestEditor();
+		sguiSC = new SourceCodeGUI();
+		sguiTE = new TestEditorGUI();
 		sguiSC.createWindow(this);
 		sguiTE.createMainWindow(this);
 		testParser = new TestParser(this);
+
+		// see message from html_analyzer.getClassContent(...) to check this
+		if (sourceCode.toString().equals(
+				"[No source found for " + Properties.TARGET_CLASS + "]")) {
+			File srcFile = chooseTargetFile(Properties.TARGET_CLASS);
+			sourceCode = Utils.readFile(srcFile);
+		}
 
 		synchronized (lock) {
 			while (sguiTE.mainFrame.isVisible())
@@ -102,6 +111,7 @@ public class Editor {
 	 * EvoSuite's population. Create coverage for the new TestCase.
 	 * 
 	 * @param testSource
+	 * @throws IOException
 	 */
 	public boolean saveTest(String testCode) {
 		TestCase currentTestCase = currTCTuple.getTestCase();
@@ -163,7 +173,7 @@ public class Editor {
 	public TestCaseTuple getCurrTCTup() {
 		return currTCTuple;
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -306,18 +316,20 @@ public class Editor {
 		return (int) (testSuiteChr.getCoverage() * 100);
 	}
 
+	@Override
 	public void showParseException(String message) {
 		JOptionPane.showMessageDialog(sguiTE.mainFrame, message,
 				"Parsing error", JOptionPane.ERROR_MESSAGE);
 	}
 
-	public String showChooseFileMenu(String className) {
+	@Override
+	public File chooseTargetFile(String className) {
 		final JFileChooser fc = new JFileChooser();
-		fc.setDialogTitle("Try to guess where is class: " + className);
+		fc.setDialogTitle("Where is class: " + className);
 		int returnVal = fc.showOpenDialog(sguiTE.mainFrame);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			return fc.getSelectedFile().getName();
+			return fc.getSelectedFile();
 		}
 
 		return null;
