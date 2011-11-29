@@ -18,6 +18,8 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
+import java.lang.reflect.Modifier;
+
 import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.Scope;
@@ -50,6 +52,11 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 
 			// We don't need to compare to null
 			if (object == null)
+				return;
+
+			// We can't check private member enums
+			if (object.getClass().isEnum()
+			        && !Modifier.isPublic(object.getClass().getModifiers()))
 				return;
 
 			if (object.getClass().isPrimitive() || object.getClass().isEnum()

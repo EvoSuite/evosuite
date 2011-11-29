@@ -53,7 +53,8 @@ public class PrimitiveAssertion extends Assertion {
 				        + NumberFormatter.getNumberString(value) + ");";
 			} else
 				return "assertEquals((" + NumberFormatter.getBoxedClassName(value) + ")"
-				        + source.getName() + ", " + value + ");";
+				        + source.getName() + ", "
+				        + NumberFormatter.getNumberString(value) + ");";
 		} else
 			return "assertEquals(" + source.getName() + ", "
 			        + NumberFormatter.getNumberString(value) + ");";

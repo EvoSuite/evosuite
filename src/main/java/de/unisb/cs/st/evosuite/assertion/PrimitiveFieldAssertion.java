@@ -40,10 +40,10 @@ public class PrimitiveFieldAssertion extends Assertion {
 			        + NumberFormatter.getNumberString(value) + ");";
 		} else if (value.getClass().equals(Float.class)) {
 			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
-			        + NumberFormatter.getNumberString(value) + "F, 0.01F);";
+			        + NumberFormatter.getNumberString(value) + ", 0.01F);";
 		} else if (value.getClass().equals(Double.class)) {
 			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
-			        + NumberFormatter.getNumberString(value) + "D, 0.01D);";
+			        + NumberFormatter.getNumberString(value) + ", 0.01D);";
 		} else if (value.getClass().equals(Character.class)) {
 			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
 			        + NumberFormatter.getNumberString(value) + ");";
