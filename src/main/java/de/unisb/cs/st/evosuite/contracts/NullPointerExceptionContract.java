@@ -24,7 +24,10 @@ public class NullPointerExceptionContract extends Contract {
 	 */
 	@Override
 	public boolean check(StatementInterface statement, Scope scope, Throwable exception) {
-		try{
+		if (!isTargetStatement(statement))
+			return true;
+
+		try {
 			if (exception != null) {
 				// method throws no NullPointerException if no input parameter was null
 				if (exception instanceof NullPointerException) {
@@ -52,7 +55,7 @@ public class NullPointerExceptionContract extends Contract {
 			}
 
 			return true;
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
 	}
