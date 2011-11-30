@@ -119,12 +119,4 @@ public class NullStatement extends AbstractStatement {
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
-	 */
-	@Override
-	public void changeClassLoader(ClassLoader loader) {
-		// No-op
-	}
-
 }

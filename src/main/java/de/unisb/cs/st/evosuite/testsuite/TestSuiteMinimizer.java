@@ -115,17 +115,22 @@ public class TestSuiteMinimizer {
 			if (covered.contains(goal))
 				continue;
 
+			List<TestChromosome> coveredTests = new ArrayList<TestChromosome>();
 			for (TestChromosome test : suite.getTestChromosomes()) {
 				if (goal.isCovered(test)) {
-					de.unisb.cs.st.evosuite.testcase.TestCaseMinimizer minimizer = new de.unisb.cs.st.evosuite.testcase.TestCaseMinimizer(
-					        goal);
-					TestChromosome copy = (TestChromosome) test.clone();
-					minimizer.minimize(copy);
-					minimizedTests.add(copy);
-					minimizedSuite.insertTest(copy.getTestCase());
-					covered.add(goal);
-					break;
+					coveredTests.add(test);
 				}
+			}
+			Collections.sort(coveredTests);
+			if (!coveredTests.isEmpty()) {
+				TestChromosome test = coveredTests.get(0);
+				de.unisb.cs.st.evosuite.testcase.TestCaseMinimizer minimizer = new de.unisb.cs.st.evosuite.testcase.TestCaseMinimizer(
+				        goal);
+				TestChromosome copy = (TestChromosome) test.clone();
+				minimizer.minimize(copy);
+				minimizedTests.add(copy);
+				minimizedSuite.insertTest(copy.getTestCase());
+				covered.add(goal);
 
 			}
 		}

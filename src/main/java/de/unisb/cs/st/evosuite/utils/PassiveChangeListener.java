@@ -1,6 +1,10 @@
 package de.unisb.cs.st.evosuite.utils;
 
-public class PassiveChangeListener<T> implements Listener<T> {
+import java.io.Serializable;
+
+public class PassiveChangeListener<T> implements Listener<T>, Serializable {
+
+	private static final long serialVersionUID = -8661407199741916844L;
 
 	protected boolean changed = false;
 

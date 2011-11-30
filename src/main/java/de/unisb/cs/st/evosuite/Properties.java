@@ -381,6 +381,9 @@ public class Properties {
 	@Parameter(key = "show_progress", group = "Output", description = "Show progress bar on console")
 	public static boolean SHOW_PROGRESS = true;
 
+	@Parameter(key = "serialize_result", group = "Output", description = "Serialize result of search to main process")
+	public static boolean SERIALIZE_RESULT = false;
+
 	//---------------------------------------------------------------
 	// Sandbox
 	@Parameter(key = "sandbox", group = "Sandbox", description = "Execute tests in a sandbox environment")

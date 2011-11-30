@@ -359,13 +359,12 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		logger.debug("Mutants killed before / after / should be: " + killedBefore + "/"
 		        + killedAfter + "/" + s2);
 
-		TestCase clone = test.clone();
+		//TestCase clone = test.clone();
 
 		// IF there are no mutant killing assertions on the last statement, still assert something
 		if (test.getStatement(test.size() - 1).getAssertions().isEmpty()
 		        || justNullAssertion(test.getStatement(test.size() - 1))) {
 			if (test.getStatement(test.size() - 1).getAssertions().isEmpty()) {
-				logger.info("No assertions on last statement: " + test.toCode());
 				logger.info("Last statement: "
 				        + test.getStatement(test.size() - 1).getCode());
 			}
@@ -374,6 +373,13 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 			if (justNullAssertion(test.getStatement(test.size() - 1)))
 				logger.info("Just null assertions on last statement: " + test.toCode());
+
+			for (Assertion assertion : assertions) {
+				if (assertion.getStatement().equals(test.getStatement(test.size() - 1))) {
+					test.getStatement(test.size() - 1).addAssertion(assertion);
+				}
+			}
+			/*
 			for (OutputTrace<?> trace : origResult.getTraces()) {
 				trace.getAllAssertions(test);
 			}
@@ -386,6 +392,8 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			test.addAssertions(clone);
 			VariableReference targetVar = test.getStatement(test.size() - 1).getReturnValue();
 			if (!targetVar.isVoid()) {
+				logger.info("Return value is non void");
+
 				int maxAssertions = 1;
 				int numAssertions = 0;
 				for (Assertion ass : target) {
@@ -393,11 +401,16 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 					        && !(ass instanceof NullAssertion)) {
 
 						test.getStatement(test.size() - 1).addAssertion(ass);
+						logger.info("Adding assertion " + ass.getCode());
 						if (++numAssertions >= maxAssertions)
 							break;
+					} else {
+						logger.info("Assertion does not contain target: " + ass.getCode());
 					}
 				}
 			} else {
+				logger.info("Return value is void");
+
 				Set<VariableReference> targetVars = test.getStatement(test.size() - 1).getVariableReferences();
 				int maxAssertions = 2;
 				int numAssertions = 0;
@@ -412,6 +425,14 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 					}
 				}
 
+			}
+			*/
+		}
+
+		if (!origResult.exceptions.isEmpty()) {
+			if (!test.getStatement(test.size() - 1).getAssertions().isEmpty()) {
+				logger.info("Removing assertions after exception");
+				test.getStatement(test.size() - 1).removeAssertions();
 			}
 		}
 

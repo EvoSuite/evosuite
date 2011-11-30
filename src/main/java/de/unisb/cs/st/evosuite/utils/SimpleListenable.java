@@ -5,6 +5,8 @@ import java.util.Collection;
 
 public class SimpleListenable<T> implements Listenable<T> {
 
+	private static final long serialVersionUID = 8100518628763448338L;
+
 	protected final Collection<Listener<T>> listeners = new ArrayList<Listener<T>>();
 
 	@Override

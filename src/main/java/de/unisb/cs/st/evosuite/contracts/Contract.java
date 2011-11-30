@@ -159,7 +159,7 @@ public abstract class Contract {
 		executor.addObserver(checker);
 		TestCaseExecutor.runTest(test);
 		executor.removeObserver(checker);
-		ContractChecker.setActive(true);
+		//ContractChecker.setActive(true);
 		return !checker.isValid();
 	}
 

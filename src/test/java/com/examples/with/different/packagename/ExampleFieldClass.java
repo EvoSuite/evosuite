@@ -9,4 +9,8 @@ package com.examples.with.different.packagename;
  */
 public class ExampleFieldClass {
 	public int x;
+
+	public void foo(int x) {
+		this.x = x;
+	}
 }

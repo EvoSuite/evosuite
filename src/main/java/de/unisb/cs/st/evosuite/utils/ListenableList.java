@@ -1,12 +1,21 @@
 package de.unisb.cs.st.evosuite.utils;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-public class ListenableList<E> extends SimpleListenable<Void> implements List<E> {
-	private static class ObservableListIterator<E> extends SimpleListenable<Void> implements ListIterator<E> {
+public class ListenableList<E> extends SimpleListenable<Void> implements List<E>,
+        Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	private static class ObservableListIterator<E> extends SimpleListenable<Void>
+	        implements ListIterator<E> {
+
+		private static final long serialVersionUID = 1L;
+
 		private final ListIterator<E> delegate;
 
 		public ObservableListIterator(ListIterator<E> delegate) {
@@ -64,6 +73,8 @@ public class ListenableList<E> extends SimpleListenable<Void> implements List<E>
 	}
 
 	private final Listener<Void> listener = new Listener<Void>() {
+
+		private static final long serialVersionUID = 1L;
 
 		@Override
 		public void receiveEvent(Void event) {
@@ -158,14 +169,16 @@ public class ListenableList<E> extends SimpleListenable<Void> implements List<E>
 
 	@Override
 	public ListIterator<E> listIterator() {
-		ObservableListIterator<E> result = new ObservableListIterator<E>(delegate.listIterator());
+		ObservableListIterator<E> result = new ObservableListIterator<E>(
+		        delegate.listIterator());
 		result.addListener(listener);
 		return result;
 	}
 
 	@Override
 	public ListIterator<E> listIterator(int index) {
-		ObservableListIterator<E> result = new ObservableListIterator<E>(delegate.listIterator(index));
+		ObservableListIterator<E> result = new ObservableListIterator<E>(
+		        delegate.listIterator(index));
 		result.addListener(listener);
 		return result;
 	}
@@ -212,7 +225,8 @@ public class ListenableList<E> extends SimpleListenable<Void> implements List<E>
 
 	@Override
 	public List<E> subList(int fromIndex, int toIndex) {
-		ListenableList<E> result = new ListenableList<E>(delegate.subList(fromIndex, toIndex));
+		ListenableList<E> result = new ListenableList<E>(delegate.subList(fromIndex,
+		                                                                  toIndex));
 		result.addListener(listener);
 		return result;
 	}

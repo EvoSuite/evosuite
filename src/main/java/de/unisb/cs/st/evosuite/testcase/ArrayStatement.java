@@ -214,12 +214,4 @@ public class ArrayStatement extends AbstractStatement {
 	public boolean isAssignmentStatement() {
 		return false;
 	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
-	 */
-	@Override
-	public void changeClassLoader(ClassLoader loader) {
-		// No-op
-	}
 }

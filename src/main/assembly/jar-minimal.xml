@@ -13,7 +13,6 @@
       <excludes>
 	<exclude>*.jar</exclude>
         <exclude>de/unisb/cs/st/evosuite/ui/**/*.class</exclude>
-        <exclude>de/unisb/cs/st/evosuite/contracts/*.class</exclude>
         <exclude>de/unisb/cs/st/evosuite/ma/*.class</exclude>
         <exclude>de/unisb/cs/st/evosuite/ma/parser/*.class</exclude>
         <exclude>de/unisb/cs/st/evosuite/ma/gui/*.class</exclude>

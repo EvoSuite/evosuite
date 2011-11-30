@@ -2,7 +2,7 @@ package de.unisb.cs.st.evosuite.testcase;
 
 public class ArrayReference extends VariableReferenceImpl {
 
-	private static final long serialVersionUID = -1473965684542348550L;
+	private static final long serialVersionUID = 3309591356542131910L;
 
 	protected int array_length;
 

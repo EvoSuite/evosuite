@@ -578,4 +578,12 @@ public class TestChromosome extends ExecutableChromosome {
 		secondaryObjectives.remove(objective);
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	public static List<SecondaryObjective> getSecondaryObjectives() {
+		return secondaryObjectives;
+	}
+
 }

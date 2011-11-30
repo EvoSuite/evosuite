@@ -13,7 +13,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  */
 public class ArrayIndex extends VariableReferenceImpl {
 
-	private static final long serialVersionUID = -6603106086182398060L;
+	private static final long serialVersionUID = -4492869536935582711L;
 
 	/**
 	 * Index in the array

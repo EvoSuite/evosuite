@@ -85,7 +85,7 @@ public class ValueMinimizer implements TestVisitor {
 			double newFitness = fitness.getFitness(suite);
 			// individual.setChanged(true);
 			if (newFitness <= lastFitness) { // TODO: Maximize
-				logger.info("Fitness changed from " + lastFitness + " to " + newFitness);
+				logger.debug("Fitness changed from " + lastFitness + " to " + newFitness);
 				lastFitness = newFitness;
 				suite.setFitness(lastFitness);
 				return true;
@@ -99,11 +99,8 @@ public class ValueMinimizer implements TestVisitor {
 
 	private Minimization objective;
 
-	private TestCase test;
-
 	public void minimize(TestChromosome test, TestFitnessFunction objective) {
 		this.objective = new TestMinimization(objective, test);
-		this.test = test.test;
 		test.test.accept(this);
 	}
 
@@ -111,7 +108,6 @@ public class ValueMinimizer implements TestVisitor {
 		int i = 0;
 		for (TestChromosome test : suite.getTestChromosomes()) {
 			this.objective = new SuiteMinimization(objective, suite, i);
-			this.test = test.test;
 			test.test.accept(this);
 			i++;
 		}

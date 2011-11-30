@@ -426,5 +426,6 @@ public class FieldStatement extends AbstractStatement {
 		} catch (NoSuchFieldException e) {
 			logger.warn("Class not found - keeping old class loader ", e);
 		}
+		super.changeClassLoader(loader);
 	}
 }
