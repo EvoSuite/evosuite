@@ -55,6 +55,11 @@ public class ConstructorStatement extends AbstractStatement {
 
 	public List<VariableReference> parameters;
 
+	private static List<String> primitiveClasses = Arrays.asList("char", "int", "short",
+	                                                             "long", "boolean",
+	                                                             "float", "double",
+	                                                             "byte");
+
 	public ConstructorStatement(TestCase tc, Constructor<?> constructor,
 	        java.lang.reflect.Type type, List<VariableReference> parameters) {
 		super(tc, new VariableReferenceImpl(tc, type));
@@ -87,6 +92,14 @@ public class ConstructorStatement extends AbstractStatement {
 		return constructor;
 	}
 
+	private static String getReturnType(Class<?> clazz) {
+		String retVal = ClassUtils.getShortClassName(clazz);
+		if (primitiveClasses.contains(retVal))
+			return clazz.getSimpleName();
+
+		return retVal;
+	}
+
 	// TODO: Handle inner classes (need instance parameter for newInstance)
 	@Override
 	public Throwable execute(final Scope scope, PrintStream out)
@@ -114,6 +127,8 @@ public class ConstructorStatement extends AbstractStatement {
 						} catch (CodeUnderTestException e) {
 							throw CodeUnderTestException.throwException(e.getCause());
 						} catch (Throwable e) {
+							logger.error("Error encountered: " + e);
+							assert (false);
 							throw new EvosuiteError(e);
 						}
 					}
@@ -183,23 +198,25 @@ public class ConstructorStatement extends AbstractStatement {
 			result += retval.getSimpleClassName() + " ";
 		}
 		result += retval.getName() + " = new "
-		        + ClassUtils.getShortClassName(constructor.getDeclaringClass()) + "("
-		        + parameter_string + ");";
+		        + getReturnType(constructor.getDeclaringClass()) + "(" + parameter_string
+		        + ");";
+		logger.info("Class: " + constructor.getDeclaringClass().getName() + " ->"
+		        + ClassUtils.getShortClassName(constructor.getDeclaringClass()));
 		if (exception != null) {
 			Class<?> ex = exception.getClass();
-			boolean isExpected = getDeclaredExceptions().contains(ex);
+			//boolean isExpected = getDeclaredExceptions().contains(ex);
 
 			while (!Modifier.isPublic(ex.getModifiers()))
 				ex = ex.getSuperclass();
-			if (isExpected)
-				result += "\n  fail(\"Expecting exception: "
-				        + ClassUtils.getShortClassName(ex) + "\");";
+			//if (isExpected)
+			result += "\n  fail(\"Expecting exception: "
+			        + ClassUtils.getShortClassName(ex) + "\");";
 
 			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {\n";
 			if (exception.getMessage() != null) {
-				if (!isExpected)
-					result += "\n  fail(\"Undeclared exception: "
-					        + ClassUtils.getShortClassName(ex) + "\");\n";
+				//if (!isExpected)
+				//	result += "\n  fail(\"Undeclared exception: "
+				//	        + ClassUtils.getShortClassName(ex) + "\");\n";
 				result += "  /*\n";
 				for (String msg : exception.getMessage().split("\n")) {
 					result += "   * " + StringEscapeUtils.escapeJava(msg) + "\n";
@@ -488,7 +505,7 @@ public class ConstructorStatement extends AbstractStatement {
 				}
 				if (equals) {
 					this.constructor = newConstructor;
-					return;
+					break;
 				}
 			}
 		} catch (ClassNotFoundException e) {
@@ -496,6 +513,7 @@ public class ConstructorStatement extends AbstractStatement {
 		} catch (SecurityException e) {
 			logger.warn("Class not found - keeping old class loader ", e);
 		}
+		super.changeClassLoader(loader);
 		logger.warn("Constructor not found - keeping old class loader ");
 	}
 }
