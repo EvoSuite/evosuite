@@ -6,16 +6,22 @@ package de.unisb.cs.st.evosuite.contracts;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.junit.TestSuiteWriter;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 
 /**
  * @author Gordon Fraser
  * 
  */
 public class FailingTestSet {
+
+	private static Logger logger = LoggerFactory.getLogger(FailingTestSet.class);
 
 	/** The violated tracked */
 	private static final List<ContractViolation> violations = new ArrayList<ContractViolation>();
@@ -63,11 +69,15 @@ public class FailingTestSet {
 	 * Output the failing tests in a JUnit test suite
 	 */
 	public static void writeJUnitTestSuite() {
+		logger.info("Writing {} failing tests", violations.size());
 		TestSuiteWriter writer = new TestSuiteWriter();
 		ContractChecker.setActive(false);
+		TestCaseExecutor.getInstance().newObservers();
 		for (int i = 0; i < violations.size(); i++) {
+			logger.debug("Writing test {}/{}", i, violations.size());
 			ContractViolation violation = violations.get(i);
 			violation.minimizeTest();
+			// TODO: Add comment about contract violation
 			writer.insertTest(violation.getTestCase());
 		}
 		String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);

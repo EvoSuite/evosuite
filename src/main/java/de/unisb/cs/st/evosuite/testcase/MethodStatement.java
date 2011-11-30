@@ -179,7 +179,7 @@ public class MethodStatement extends AbstractStatement {
 			if (declaredException.isAssignableFrom(t.getClass()))
 				return true;
 		}
-		return true;
+		return false;
 	}
 
 	@Override
@@ -249,18 +249,18 @@ public class MethodStatement extends AbstractStatement {
 		}
 
 		if (exception != null) {
-			boolean isExpected = getDeclaredExceptions().contains(exception.getClass());
+			//boolean isExpected = getDeclaredExceptions().contains(exception.getClass());
 			Class<?> ex = exception.getClass();
 			while (!Modifier.isPublic(ex.getModifiers()))
 				ex = ex.getSuperclass();
-			if (isExpected)
-				result += "\n  fail(\"Expecting exception: "
-				        + ClassUtils.getShortClassName(ex) + "\");";
+			//if (isExpected)
+			result += "\n  fail(\"Expecting exception: "
+			        + ClassUtils.getShortClassName(ex) + "\");";
 			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {\n";
 			if (exception.getMessage() != null) {
-				if (!isExpected)
-					result += "\n  fail(\"Undeclared exception: "
-					        + ClassUtils.getShortClassName(ex) + "\");\n";
+				//if (!isExpected)
+				//	result += "\n  fail(\"Undeclared exception: "
+				//	        + ClassUtils.getShortClassName(ex) + "\");\n";
 				result += "  /*\n";
 				for (String msg : exception.getMessage().split("\n")) {
 					result += "   * " + StringEscapeUtils.escapeJava(msg) + "\n";
@@ -629,7 +629,7 @@ public class MethodStatement extends AbstractStatement {
 					}
 					if (equals) {
 						this.method = newMethod;
-						return;
+						break;
 					}
 				}
 			}
@@ -638,6 +638,7 @@ public class MethodStatement extends AbstractStatement {
 		} catch (SecurityException e) {
 			logger.warn("Class not found - keeping old class loader ", e);
 		}
+		super.changeClassLoader(loader);
 		logger.warn("Method not found - keeping old class loader ");
 
 	}

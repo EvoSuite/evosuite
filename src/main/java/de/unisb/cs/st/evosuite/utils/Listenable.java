@@ -1,5 +1,7 @@
 package de.unisb.cs.st.evosuite.utils;
 
+import java.io.Serializable;
+
 /**
  * {@link java.util.Observable} should be an interface. It is not so we cannot
  * use it if the class to implement it has already a certain parent.
@@ -9,7 +11,7 @@ package de.unisb.cs.st.evosuite.utils;
  * @param <T>
  *            The type of the event.
  */
-public interface Listenable<T> {
+public interface Listenable<T> extends Serializable {
 
 	/**
 	 * Add a listener. He will be notified of changes via the

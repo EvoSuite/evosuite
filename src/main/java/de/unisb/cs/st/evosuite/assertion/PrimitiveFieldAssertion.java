@@ -18,18 +18,22 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 
 import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.utils.NumberFormatter;
 
 public class PrimitiveFieldAssertion extends Assertion {
 
 	private static final long serialVersionUID = 2827276810722210456L;
 
-	public Field field;
+	public transient Field field;
 
 	@Override
 	public String getCode() {
@@ -108,5 +112,32 @@ public class PrimitiveFieldAssertion extends Assertion {
 		} else if (!field.equals(other.field))
 			return false;
 		return true;
+	}
+
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+		// Write/save additional fields
+		oos.writeObject(field.getDeclaringClass().getName());
+		oos.writeObject(field.getName());
+	}
+
+	// assumes "static java.util.Date aDate;" declared
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+
+		// Read/initialize additional fields
+		Class<?> methodClass = TestCluster.classLoader.loadClass((String) ois.readObject());
+		String fieldName = (String) ois.readObject();
+
+		try {
+			field = methodClass.getField(fieldName);
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchFieldException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

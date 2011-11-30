@@ -387,30 +387,16 @@ public class TestSuiteGenerator {
 
 		double fitness = best.getFitness();
 
-		for (TestChromosome test : best.getTestChromosomes()) {
-			test.setChanged(true);
-		}
-		fitness_function.getFitness(best);
-		assert (fitness >= best.getFitness());
-
 		if (Properties.MINIMIZE_VALUES) {
 			System.out.println("* Minimizing values");
 			ValueMinimizer minimizer = new ValueMinimizer();
 			minimizer.minimize(best, (TestSuiteFitnessFunction) fitness_function);
-			for (TestChromosome test : best.getTestChromosomes()) {
-				test.setChanged(true);
-			}
-			fitness_function.getFitness(best);
 			assert (fitness >= best.getFitness());
 		}
 
 		if (Properties.INLINE) {
 			ConstantInliner inliner = new ConstantInliner();
 			inliner.inline(best);
-			for (TestChromosome test : best.getTestChromosomes()) {
-				test.setChanged(true);
-			}
-			fitness_function.getFitness(best);
 			assert (fitness >= best.getFitness());
 		}
 
@@ -646,7 +632,7 @@ public class TestSuiteGenerator {
 		        + NumberFormat.getIntegerInstance().format(total_budget));
 
 		while (current_budget < total_budget && covered_goals < total_goals
-		        && !global_time.isFinished() && !ShutdownTestWriter.isInterrupted()) {
+		        && !global_time.isFinished() && !ShutdownTestWriter.hasBeenCalled()) {
 			long budget = (total_budget - current_budget) / (total_goals - covered_goals);
 			logger.info("Budget: " + budget + "/" + (total_budget - current_budget));
 			logger.info("Statements: " + current_budget + "/" + total_budget);
@@ -673,7 +659,7 @@ public class TestSuiteGenerator {
 				logger.info("Goal " + num + "/" + (total_goals - covered_goals) + ": "
 				        + fitness_function);
 
-				if (ShutdownTestWriter.isInterrupted()) {
+				if (ShutdownTestWriter.hasBeenCalled()) {
 					num++;
 					continue;
 				}
@@ -1176,8 +1162,10 @@ public class TestSuiteGenerator {
 		}
 
 		if (Properties.SHUTDOWN_HOOK) {
+			//ShutdownTestWriter writer = new ShutdownTestWriter(Thread.currentThread());
 			ShutdownTestWriter writer = new ShutdownTestWriter();
 			ga.addStoppingCondition(writer);
+
 			//Runtime.getRuntime().addShutdownHook(writer);
 			Signal.handle(new Signal("INT"), writer);
 		}

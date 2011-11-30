@@ -200,8 +200,7 @@ public class ConstructorStatement extends AbstractStatement {
 		result += retval.getName() + " = new "
 		        + getReturnType(constructor.getDeclaringClass()) + "(" + parameter_string
 		        + ");";
-		logger.info("Class: " + constructor.getDeclaringClass().getName() + " ->"
-		        + ClassUtils.getShortClassName(constructor.getDeclaringClass()));
+
 		if (exception != null) {
 			Class<?> ex = exception.getClass();
 			//boolean isExpected = getDeclaredExceptions().contains(ex);

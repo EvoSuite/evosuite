@@ -33,7 +33,8 @@ public class TestAllAssertion extends SystemTest {
 		        //EvoSuite.JAVA_CMD,
 		        "-generateTests", "-class", targetClass, "-Dhtml=false", "-Dplot=false",
 		        "-Djunit_tests=false", "-Dshow_progress=false",
-		        "-Dgenerations=" + generations, "-assertions", "-Dassertion_strategy=all" };
+		        "-Dgenerations=" + generations, "-assertions",
+		        "-Dassertion_strategy=all", "-Dserialize_result=true" };
 
 		Object result = evosuite.parseCommandLine(command);
 
