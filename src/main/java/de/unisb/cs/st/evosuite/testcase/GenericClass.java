@@ -118,7 +118,6 @@ public class GenericClass implements Serializable {
 		return WRAPPER_TYPES.contains(raw_class);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static boolean isSubclass(Type superclass, Type subclass) {
 		List<Class<?>> superclasses = ClassUtils.getAllSuperclasses((Class<?>) subclass);
 		List<Class<?>> interfaces = ClassUtils.getAllInterfaces((Class<?>) subclass);
@@ -268,9 +267,18 @@ public class GenericClass implements Serializable {
 		return raw_class.getName();
 	}
 
+	private static List<String> primitiveClasses = Arrays.asList("char", "int", "short",
+	                                                             "long", "boolean",
+	                                                             "float", "double",
+	                                                             "byte");
+
 	public String getSimpleName() {
 		// return raw_class.getSimpleName();
-		return ClassUtils.getShortClassName(raw_class).replace(";", "[]");
+		String name = ClassUtils.getShortClassName(raw_class).replace(";", "[]");
+		if (!isPrimitive() && primitiveClasses.contains(name))
+			return raw_class.getSimpleName().replace(";", "[]");
+
+		return name;
 	}
 
 	@Override
