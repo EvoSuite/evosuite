@@ -10,10 +10,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -260,6 +263,59 @@ public class ClusterAnalysis {
 
 	public static void addAbstract(String className) {
 		abstractClasses.add(className);
+	}
+
+	/**
+	 * Calculate package distance between two classnames
+	 * 
+	 * @param className1
+	 * @param className2
+	 * @return
+	 */
+	private static int getDistance(String className1, String className2) {
+		String[] package1 = className1.split(".");
+		String[] package2 = className2.split(".");
+		int distance = 0;
+		int same = 0;
+		int num = 0;
+		while (num < package1.length && num < package2.length
+		        && package1[num].equals(package2[num]))
+			same++;
+
+		if (package1.length > same)
+			distance += package1.length - same;
+
+		if (package2.length > same)
+			distance += package2.length - same;
+
+		return distance;
+	}
+
+	/**
+	 * Determine the closest concrete implementation of this type
+	 * 
+	 * @param className
+	 * @return
+	 */
+	public static String getFirstSubclass(final String className) {
+		List<String> subClasses = new ArrayList<String>(getSubclasses(className));
+		Comparator<String> packageSorter = new Comparator<String>() {
+
+			@Override
+			public int compare(String arg0, String arg1) {
+				return getDistance(arg0, className) - getDistance(arg1, className);
+			}
+		};
+
+		Collections.sort(subClasses, packageSorter);
+
+		System.out.println("Sorted classes related to " + className);
+		for (String subClass : subClasses) {
+			System.out.println(subClass + ": " + getDistance(subClass, className));
+		}
+
+		return subClasses.get(0);
+
 	}
 
 	/**
