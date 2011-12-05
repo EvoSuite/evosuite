@@ -52,6 +52,10 @@ public class Inspector implements Serializable {
 		return ret;
 	}
 
+	public Method getMethod() {
+		return method;
+	}
+
 	public String getMethodCall() {
 		return method.getName();
 	}

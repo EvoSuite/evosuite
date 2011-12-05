@@ -272,7 +272,7 @@ public class Properties {
 	// TODO: Fix values
 	@Parameter(key = "secondary_objectives", group = "Search Algorithm", description = "Secondary objective during search")
 	// @SetValue(values = { "maxlength", "maxsize", "avglength", "none" })
-	public static String SECONDARY_OBJECTIVE = "totallength";
+	public static String SECONDARY_OBJECTIVE = "exceptions:totallength";
 
 	@Parameter(key = "bloat_factor", group = "Search Algorithm", description = "Maximum relative increase in length")
 	public static int BLOAT_FACTOR = 2;
@@ -381,6 +381,9 @@ public class Properties {
 	@Parameter(key = "show_progress", group = "Output", description = "Show progress bar on console")
 	public static boolean SHOW_PROGRESS = true;
 
+	@Parameter(key = "serialize_result", group = "Output", description = "Serialize result of search to main process")
+	public static boolean SERIALIZE_RESULT = false;
+
 	//---------------------------------------------------------------
 	// Sandbox
 	@Parameter(key = "sandbox", group = "Sandbox", description = "Execute tests in a sandbox environment")
@@ -434,7 +437,7 @@ public class Properties {
 
 	@Parameter(key = "check_contracts_end", description = "Check contracts only once per test")
 	public static boolean CHECK_CONTRACTS_END = false;
-	
+
 	@Parameter(key = "BREAK_ON_EXCEPTION", description = "Stop test execution if exception occurrs")
 	public static boolean BREAK_ON_EXCEPTION = false;
 
@@ -629,7 +632,8 @@ public class Properties {
 	 * Initialize properties from property file or command line parameters
 	 */
 	private void loadProperties() {
-		loadPropertiesFile(System.getProperty(PROPERTIES_FILE, "evosuite-files/evosuite.properties"));
+		loadPropertiesFile(System.getProperty(PROPERTIES_FILE,
+		                                      "evosuite-files/evosuite.properties"));
 
 		for (String parameter : parameterMap.keySet()) {
 			try {
@@ -664,7 +668,8 @@ public class Properties {
 			File propertiesFile = new File(propertiesPath);
 			if (propertiesFile.exists()) {
 				in = new FileInputStream(propertiesPath);
-				logger.info("* Properties loaded from configuration file " + propertiesFile.getAbsolutePath());
+				logger.info("* Properties loaded from configuration file "
+				        + propertiesFile.getAbsolutePath());
 			} else {
 				propertiesPath = "evosuite.properties";
 				in = this.getClass().getClassLoader().getResourceAsStream(propertiesPath);
@@ -1059,8 +1064,8 @@ public class Properties {
 			loadProperties();
 		if (TARGET_CLASS != null && !TARGET_CLASS.equals("")) {
 			if (TARGET_CLASS.contains(".")) {
-			CLASS_PREFIX = TARGET_CLASS.substring(0, TARGET_CLASS.lastIndexOf('.'));
-			SUB_PREFIX = CLASS_PREFIX.replace(PROJECT_PREFIX + ".", "");
+				CLASS_PREFIX = TARGET_CLASS.substring(0, TARGET_CLASS.lastIndexOf('.'));
+				SUB_PREFIX = CLASS_PREFIX.replace(PROJECT_PREFIX + ".", "");
 			}
 			if (PROJECT_PREFIX == null || PROJECT_PREFIX.equals("")) {
 				if (CLASS_PREFIX.contains("."))

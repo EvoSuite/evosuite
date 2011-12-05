@@ -328,12 +328,4 @@ public class AssignmentStatement extends AbstractStatement {
 	public boolean isAssignmentStatement() {
 		return true;
 	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
-	 */
-	@Override
-	public void changeClassLoader(ClassLoader loader) {
-		// No-op
-	}
 }

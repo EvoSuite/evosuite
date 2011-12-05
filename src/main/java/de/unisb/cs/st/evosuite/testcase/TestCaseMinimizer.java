@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.ga.FitnessFunction;
+import de.unisb.cs.st.evosuite.ga.SecondaryObjective;
 
 /**
  * Remove all statements from a test case that do not contribute to the fitness
@@ -84,6 +86,24 @@ public class TestCaseMinimizer {
 		return has_deleted;
 	}
 
+	private static boolean isWorse(FitnessFunction fitness, TestChromosome oldChromosome,
+	        TestChromosome newChromosome) {
+		if (fitness.isMaximizationFunction()) {
+			if (oldChromosome.getFitness() > newChromosome.getFitness())
+				return true;
+		} else {
+			if (newChromosome.getFitness() > oldChromosome.getFitness())
+				return true;
+		}
+
+		for (SecondaryObjective objective : TestChromosome.getSecondaryObjectives()) {
+			if (objective.compareChromosomes(oldChromosome, newChromosome) < 0)
+				return true;
+		}
+
+		return false;
+	}
+
 	/**
 	 * Central minimization function. Loop and try to remove until all
 	 * statements have been checked.
@@ -121,8 +141,7 @@ public class TestCaseMinimizer {
 
 				double new_fitness = fitnessFunction.getFitness(c);
 
-				logger.debug("New fitness is " + new_fitness);
-				if (c.compareTo(copy) <= 0) {
+				if (!isWorse(fitnessFunction, copy, c)) {
 					logger.debug("Keeping shorter version");
 					fitness = new_fitness;
 					changed = true;

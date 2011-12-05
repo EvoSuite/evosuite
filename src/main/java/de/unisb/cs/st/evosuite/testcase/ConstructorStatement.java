@@ -33,8 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.ClassUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -54,6 +54,11 @@ public class ConstructorStatement extends AbstractStatement {
 	private transient Constructor<?> constructor;
 
 	public List<VariableReference> parameters;
+
+	private static List<String> primitiveClasses = Arrays.asList("char", "int", "short",
+	                                                             "long", "boolean",
+	                                                             "float", "double",
+	                                                             "byte");
 
 	public ConstructorStatement(TestCase tc, Constructor<?> constructor,
 	        java.lang.reflect.Type type, List<VariableReference> parameters) {
@@ -87,6 +92,14 @@ public class ConstructorStatement extends AbstractStatement {
 		return constructor;
 	}
 
+	private static String getReturnType(Class<?> clazz) {
+		String retVal = ClassUtils.getShortClassName(clazz);
+		if (primitiveClasses.contains(retVal))
+			return clazz.getSimpleName();
+
+		return retVal;
+	}
+
 	// TODO: Handle inner classes (need instance parameter for newInstance)
 	@Override
 	public Throwable execute(final Scope scope, PrintStream out)
@@ -114,6 +127,8 @@ public class ConstructorStatement extends AbstractStatement {
 						} catch (CodeUnderTestException e) {
 							throw CodeUnderTestException.throwException(e.getCause());
 						} catch (Throwable e) {
+							logger.error("Error encountered: " + e);
+							assert (false);
 							throw new EvosuiteError(e);
 						}
 					}
@@ -163,8 +178,9 @@ public class ConstructorStatement extends AbstractStatement {
 				Class<?> declaredParamType = constructor.getParameterTypes()[i];
 				Class<?> actualParamType = parameters.get(i).getVariableClass();
 				String name = parameters.get(i).getName();
-				if (!declaredParamType.equals(actualParamType) || name.equals("null")) {
-					// && parameters.get(i) instanceof ArrayIndex)
+				if ((!declaredParamType.isAssignableFrom(actualParamType) || name.equals("null"))
+				        && !constructor.getParameterTypes()[i].equals(Object.class)
+				        && !constructor.getParameterTypes()[i].equals(Comparable.class)) {
 					parameter_string += "("
 					        + new GenericClass(constructor.getParameterTypes()[i]).getSimpleName()
 					        + ") ";
@@ -182,17 +198,24 @@ public class ConstructorStatement extends AbstractStatement {
 			result += retval.getSimpleClassName() + " ";
 		}
 		result += retval.getName() + " = new "
-		        + ClassUtils.getShortClassName(constructor.getDeclaringClass()) + "("
-		        + parameter_string + ");";
+		        + getReturnType(constructor.getDeclaringClass()) + "(" + parameter_string
+		        + ");";
+
 		if (exception != null) {
 			Class<?> ex = exception.getClass();
+			//boolean isExpected = getDeclaredExceptions().contains(ex);
+
 			while (!Modifier.isPublic(ex.getModifiers()))
 				ex = ex.getSuperclass();
+			//if (isExpected)
 			result += "\n  fail(\"Expecting exception: "
 			        + ClassUtils.getShortClassName(ex) + "\");";
 
 			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {\n";
 			if (exception.getMessage() != null) {
+				//if (!isExpected)
+				//	result += "\n  fail(\"Undeclared exception: "
+				//	        + ClassUtils.getShortClassName(ex) + "\");\n";
 				result += "  /*\n";
 				for (String msg : exception.getMessage().split("\n")) {
 					result += "   * " + StringEscapeUtils.escapeJava(msg) + "\n";
@@ -481,7 +504,7 @@ public class ConstructorStatement extends AbstractStatement {
 				}
 				if (equals) {
 					this.constructor = newConstructor;
-					return;
+					break;
 				}
 			}
 		} catch (ClassNotFoundException e) {
@@ -489,6 +512,7 @@ public class ConstructorStatement extends AbstractStatement {
 		} catch (SecurityException e) {
 			logger.warn("Class not found - keeping old class loader ", e);
 		}
+		super.changeClassLoader(loader);
 		logger.warn("Constructor not found - keeping old class loader ");
 	}
 }

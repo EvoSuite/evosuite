@@ -1,7 +1,5 @@
 package de.unisb.cs.st.evosuite.ma;
 
-import japa.parser.ParseException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,7 +15,6 @@ import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ma.gui.SourceCodeGUI;
 import de.unisb.cs.st.evosuite.ma.gui.TestEditorGUI;
-import de.unisb.cs.st.evosuite.ma.parser.SEParser;
 import de.unisb.cs.st.evosuite.ma.parser.TestParser;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
@@ -33,7 +30,7 @@ import de.unisb.cs.st.evosuite.utils.Utils;
  * @author Yury Pavlov
  * 
  */
-public class Editor {
+public class Editor implements UserFeedback {
 
 	public final Object lock = new Object();
 
@@ -49,15 +46,13 @@ public class Editor {
 
 	private Iterable<String> sourceCode;
 
-	public final TestEditorGUI sguiTE = new TestEditorGUI();
+	public final TestEditorGUI sguiTE;
 
-	public final SourceCodeGUI sguiSC = new SourceCodeGUI();
+	public final SourceCodeGUI sguiSC;
 
 	private TestParser testParser;
 
 	private TestCaseTuple currTCTuple;
-
-	private final SEParser sep = new SEParser(this);
 
 	/**
 	 * Create instance of manual editor.
@@ -86,6 +81,8 @@ public class Editor {
 		}
 
 		nextTest();
+		sguiSC = new SourceCodeGUI();
+		sguiTE = new TestEditorGUI();
 		sguiSC.createWindow(this);
 		sguiTE.createMainWindow(this);
 		testParser = new TestParser(this);
@@ -93,8 +90,7 @@ public class Editor {
 		// see message from html_analyzer.getClassContent(...) to check this
 		if (sourceCode.toString().equals(
 				"[No source found for " + Properties.TARGET_CLASS + "]")) {
-			File srcFile = showChooseFileMenu(Properties.TARGET_CLASS)
-					.getSelectedFile();
+			File srcFile = chooseTargetFile(Properties.TARGET_CLASS);
 			sourceCode = Utils.readFile(srcFile);
 		}
 
@@ -119,11 +115,8 @@ public class Editor {
 	 */
 	public boolean saveTest(String testCode) {
 		TestCase currentTestCase = currTCTuple.getTestCase();
-
 		try {
-			TestCase newTestCase;
-			// newTestCase = testParser.parseTest(testCode);
-			newTestCase = sep.parseTest(testCode);
+			TestCase newTestCase = testParser.parseTest(testCode);
 
 			if (newTestCase != null) {
 				// EvoSuite stuff
@@ -150,8 +143,6 @@ public class Editor {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-		} catch (ParseException e) {
-			showParseException(e.getMessage());
 		}
 		return false;
 	}
@@ -325,18 +316,20 @@ public class Editor {
 		return (int) (testSuiteChr.getCoverage() * 100);
 	}
 
+	@Override
 	public void showParseException(String message) {
 		JOptionPane.showMessageDialog(sguiTE.mainFrame, message,
 				"Parsing error", JOptionPane.ERROR_MESSAGE);
 	}
 
-	public JFileChooser showChooseFileMenu(String className) {
+	@Override
+	public File chooseTargetFile(String className) {
 		final JFileChooser fc = new JFileChooser();
 		fc.setDialogTitle("Where is class: " + className);
 		int returnVal = fc.showOpenDialog(sguiTE.mainFrame);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			return fc;
+			return fc.getSelectedFile();
 		}
 
 		return null;
