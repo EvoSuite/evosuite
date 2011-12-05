@@ -48,16 +48,16 @@ public class TypeTable {
 	 *             if var not found in TT.
 	 */
 	public Type getType(String varName) throws ParseException {
-		//if (!TestParser.isStatic(varName)) {
+		// if (!TestParser.isStatic(varName)) {
 		for (Var tmpVar : typeTable) {
 			if (tmpVar.getVarName().equals(varName)) {
 				return tmpVar.getVarType();
 			}
 		}
 		throw new ParseException(null, "Type of: " + varName + " not found!");
-		//}
+		// }
 
-		//return null;
+		// return null;
 	}
 
 	/**
@@ -69,14 +69,6 @@ public class TypeTable {
 		if (expr instanceof NameExpr) {
 			return getType(((NameExpr) expr).getName());
 		}
-		/*
-		if (expr instanceof FieldAccessExpr) {
-			FieldAccessExpr fieldExpr = (FieldAccessExpr) expr;
-			if (!TestParser.isStatic(fieldExpr.getScope().toString())) {
-				return getType(fieldExpr.getScope().toString());
-			}
-		}
-		*/
 		return null;
 	}
 
@@ -87,13 +79,15 @@ public class TypeTable {
 	 * @throws ParseException
 	 */
 	// TODO implement with HashSet
-	public VariableReference getVarReference(String varName) throws ParseException {
+	public VariableReference getVarReference(String varName)
+			throws ParseException {
 		for (Var var : typeTable) {
 			if (var.getVarName().equals(varName)) {
 				return var.getVarRef();
 			}
 		}
-		throw new ParseException(null, "Var ref of: " + varName + " not found in TT.");
+		throw new ParseException(null, "Var ref of: " + varName
+				+ " not found in TT.");
 	}
 
 	/*
@@ -103,11 +97,33 @@ public class TypeTable {
 	 */
 	@Override
 	public String toString() {
-		String res = "";
+		StringBuilder res = new StringBuilder();
 		for (Var var : typeTable) {
-			res += var + "\n";
+			res.append(var + "\n");
 		}
-		return res;
+		return res.toString();
+	}
+
+	/**
+	 * 
+	 */
+	public void reset() {
+		typeTable.clear();
+	}
+
+	/**
+	 * @param name
+	 * @return
+	 * @throws ParseException 
+	 */
+	public Class<?> getClass(String name) throws ParseException {
+		for (Var var : typeTable) {
+			if (var.getVarName().equals(name)) {
+				return var.getVarRef().getVariableClass();
+			}
+		}
+		throw new ParseException(null, "Var's class of: " + name
+				+ " not found in TT.");
 	}
 
 }

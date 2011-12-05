@@ -105,4 +105,9 @@ public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boole
 	public boolean isPositive() {
 		return !value;
 	}
+	
+	@Override
+	public void negate() {
+		value = !value;
+	}
 }

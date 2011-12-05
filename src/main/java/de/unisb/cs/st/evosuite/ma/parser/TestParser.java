@@ -928,12 +928,8 @@ public class TestParser {
 	 */
 	private void addNewVarToTT(VariableDeclarationExpr varDeclExpr,
 			AbstractStatement newStatement) throws ParseException {
-		ArrayList<VariableReference> varRefArray = new ArrayList<VariableReference>();
-		varRefArray.addAll(newStatement.getVariableReferences());
-		VariableReference varRef = newStatement.getReturnValue();
-
 		tt.addVar(new Var(varDeclExpr.getVars().get(0).getId().getName(),
-				varDeclExpr.getType(), varRef));
+				varDeclExpr.getType(), newStatement.getReturnValue()));
 	}
 
 	/**

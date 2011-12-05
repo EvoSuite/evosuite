@@ -126,4 +126,9 @@ public class FloatPrimitiveStatement extends NumericalPrimitiveStatement<Float> 
 	public boolean isPositive() {
 		return value > 0;
 	}
+	
+	@Override
+	public void negate() {
+		value = -value;
+	}
 }
