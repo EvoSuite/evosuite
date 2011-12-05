@@ -536,8 +536,8 @@ public class TestVisitor extends
 		try {
 			return testCluster.getClass(name);
 		} catch (ClassNotFoundException e) {
-			String className = editor.showChooseFileMenu(name)
-					.getSelectedFile().getName();
+			String className = editor.chooseTargetFile(name)
+					.getName();
 			if (className != null) {
 				try {
 					return testCluster.importClass(className);
