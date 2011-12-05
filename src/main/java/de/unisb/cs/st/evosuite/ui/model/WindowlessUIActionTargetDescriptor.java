@@ -2,14 +2,18 @@ package de.unisb.cs.st.evosuite.ui.model;
 
 import java.awt.Component;
 import java.io.Serializable;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.text.JTextComponent;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.uispec4j.ComboBox;
 import org.uispec4j.Panel;
 import org.uispec4j.UIComponent;
@@ -64,7 +68,7 @@ class WindowlessUIActionTargetDescriptor implements Serializable {
 
 				try {
 					StringBuilder newLabel = new StringBuilder(
-							comboBox.getRenderedValue(-1));
+					        comboBox.getRenderedValue(-1));
 					newLabel.append(" out of [");
 
 					String[] values = comboBox.getContent();
@@ -90,7 +94,8 @@ class WindowlessUIActionTargetDescriptor implements Serializable {
 					newLabel.append("]");
 
 					label = newLabel.toString();
-				} catch (Throwable t) { /* OK */ }
+				} catch (Throwable t) { /* OK */
+				}
 			}
 
 			// Note: the following criteria do not matter in selecting action
@@ -122,20 +127,17 @@ class WindowlessUIActionTargetDescriptor implements Serializable {
 			else {
 				// XXX Hack: Maps "Undo nameOfAnAction" to plain "Undo" to avoid
 				// state explosion
-				if (label.contains("Rückgängig")
-						|| label.contains("Widerrufen")
-						|| label.contains("Undo")) {
+				if (label.contains("Rückgängig") || label.contains("Widerrufen")
+				        || label.contains("Undo")) {
 					label = "Undo";
-				} else if (label.contains("Wiederholen")
-						|| label.contains("Redo")) {
+				} else if (label.contains("Wiederholen") || label.contains("Redo")) {
 					label = "Redo";
 				}
 			}
 
 			result.put("class", awtComp.getClass().getName());
 			result.put("label", label);
-			result.put("name", !(comp instanceof Window) ? comp.getName()
-					: null);
+			result.put("name", !(comp instanceof Window) ? comp.getName() : null);
 
 			return result;
 		}
@@ -172,8 +174,8 @@ class WindowlessUIActionTargetDescriptor implements Serializable {
 					parts.add(String.format("name=%s", name));
 				}
 
-				String criteria = parts.isEmpty() ? "" : String.format("[%s]",
-						StringUtils.join(parts, ", "));
+				String criteria = parts.isEmpty() ? ""
+				        : String.format("[%s]", StringUtils.join(parts, ", "));
 
 				return String.format("%s%s", this.get("class"), criteria);
 			} else {
@@ -216,16 +218,15 @@ class WindowlessUIActionTargetDescriptor implements Serializable {
 
 		for (UIComponent comp : children) {
 			if (comp != null && isComponentEnabled(comp)) {
-				result.add(new WindowlessUIActionTargetDescriptor(children,
-						comp));
+				result.add(new WindowlessUIActionTargetDescriptor(children, comp));
 			}
 		}
 
 		return result;
 	}
 
-	private static int matchIdxFor(Iterable<UIComponent> children,
-			UIComponent comp, Criteria criteria) {
+	private static int matchIdxFor(Iterable<UIComponent> children, UIComponent comp,
+	        Criteria criteria) {
 		Component targetComp = comp.getAwtComponent();
 
 		int matchIdx = -1;
@@ -244,22 +245,21 @@ class WindowlessUIActionTargetDescriptor implements Serializable {
 		return -1;
 	}
 
-	private Criteria criteria;
-	private int matchIdx;
-	private Class<? extends UIComponent> type;
-	private String description;
+	private final Criteria criteria;
+	private final int matchIdx;
+	private final Class<? extends UIComponent> type;
+	private final String description;
 
 	public WindowlessUIActionTargetDescriptor(Iterable<UIComponent> children,
-			UIComponent comp) {
+	        UIComponent comp) {
 		assert (children != null);
 		assert (comp != null);
 
 		this.criteria = Criteria.forComponent(comp);
 		this.matchIdx = matchIdxFor(children, comp, criteria);
 		this.type = comp.getClass();
-		this.description = String.format("%s: %s",
-				comp.getClass().toString(),
-				comp.getAwtComponent().toString());
+		this.description = String.format("%s: %s", comp.getClass().toString(),
+		                                 comp.getAwtComponent().toString());
 	}
 
 	public UIComponent resolve(Panel container) {
@@ -280,8 +280,7 @@ class WindowlessUIActionTargetDescriptor implements Serializable {
 	}
 
 	public boolean canResolve(WindowDescriptor windowDescriptor) {
-		for (UIActionTargetDescriptor desc : windowDescriptor
-				.getActionTargetDescriptors()) {
+		for (UIActionTargetDescriptor desc : windowDescriptor.getActionTargetDescriptors()) {
 			if (this.canResolve(desc.getTargetDescriptor())) {
 				return true;
 			}
@@ -290,8 +289,7 @@ class WindowlessUIActionTargetDescriptor implements Serializable {
 		return false;
 	}
 
-	public boolean canResolve(
-			WindowlessUIActionTargetDescriptor targetDescriptor) {
+	public boolean canResolve(WindowlessUIActionTargetDescriptor targetDescriptor) {
 		return this.equals(targetDescriptor);
 	}
 
@@ -302,8 +300,7 @@ class WindowlessUIActionTargetDescriptor implements Serializable {
 		}
 
 		WindowlessUIActionTargetDescriptor other = (WindowlessUIActionTargetDescriptor) obj;
-		return this.matchIdx == other.matchIdx
-				&& this.criteria.equals(other.criteria);
+		return this.matchIdx == other.matchIdx && this.criteria.equals(other.criteria);
 	}
 
 	@Override
@@ -317,8 +314,7 @@ class WindowlessUIActionTargetDescriptor implements Serializable {
 
 	@Override
 	public String toString() {
-		return String.format("WindowlessUIActionTargetDescriptor[%s]",
-				this.innerString());
+		return String.format("WindowlessUIActionTargetDescriptor[%s]", this.innerString());
 	}
 
 	public Class<? extends UIComponent> getType() {

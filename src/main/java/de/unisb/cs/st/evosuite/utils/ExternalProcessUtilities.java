@@ -67,9 +67,10 @@ public class ExternalProcessUtilities {
 		try {
 			out.writeObject(message);
 			out.flush();
-			// FIXXME: Currently not working
-			//out.writeObject(population_data);
-			out.writeObject(null);
+			if (Properties.SERIALIZE_RESULT)
+				out.writeObject(population_data);
+			else
+				out.writeObject(null);
 			out.flush();
 		} catch (Exception e) {
 			logger.error("error in sending messages", e);

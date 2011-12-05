@@ -11,7 +11,8 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.utils.PassiveChangeListener;
 
 public class VariableReferenceImpl implements VariableReference {
-	private static final long serialVersionUID = 7014270636820758121L;
+
+	private static final long serialVersionUID = -2621368452798208805L;
 
 	private int distance = 0;
 
@@ -67,7 +68,7 @@ public class VariableReferenceImpl implements VariableReference {
 			}
 			if (stPosition == null) {
 				throw new AssertionError(
-		        	"A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase");
+				        "A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase");
 			}
 		}
 		return stPosition;
@@ -111,6 +112,7 @@ public class VariableReferenceImpl implements VariableReference {
 		if (type.isPrimitive()
 		        || (type.isArray() && new GenericClass(type.getComponentType()).isPrimitive()))
 			return type.getRawClass().getSimpleName();
+
 		return type.getSimpleName();
 	}
 
@@ -429,5 +431,13 @@ public class VariableReferenceImpl implements VariableReference {
 	@Override
 	public void setDistance(int distance) {
 		this.distance = distance;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		// No-op	    
 	}
 }

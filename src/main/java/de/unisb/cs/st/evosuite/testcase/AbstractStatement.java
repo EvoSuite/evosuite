@@ -368,9 +368,13 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 		return copy(newTestCase, 0);
 	}
 
-	/*
-	 * Primitive overwrite this method
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
 	 */
-	public void negate() {
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		for (VariableReference var : getVariableReferences()) {
+			var.changeClassLoader(loader);
+		}
 	}
 }

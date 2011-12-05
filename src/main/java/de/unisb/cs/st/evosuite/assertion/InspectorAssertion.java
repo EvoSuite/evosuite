@@ -118,4 +118,11 @@ public class InspectorAssertion extends Assertion {
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.assertion.Assertion#isValid()
+	 */
+	@Override
+	public boolean isValid() {
+		return source != null;
+	}
 }

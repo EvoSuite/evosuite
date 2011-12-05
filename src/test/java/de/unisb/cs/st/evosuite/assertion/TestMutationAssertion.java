@@ -33,7 +33,7 @@ public class TestMutationAssertion extends SystemTest {
 		        "-generateTests", "-class", targetClass, "-Dhtml=false", "-Dplot=false",
 		        "-Djunit_tests=false", "-Dshow_progress=false",
 		        "-Dgenerations=" + generations, "-assertions",
-		        "-Dassertion_strategy=mutation" };
+		        "-Dassertion_strategy=mutation", "-Dserialize_result=true" };
 
 		Object result = evosuite.parseCommandLine(command);
 
@@ -84,8 +84,9 @@ public class TestMutationAssertion extends SystemTest {
 
 		Assert.assertTrue(suite.size() > 0);
 		for (TestCase test : suite.getTests()) {
-			Assert.assertTrue("Test has no assertions: " + test.toCode(),
-			                  test.hasAssertions());
+			if (test.size() > 1)
+				Assert.assertTrue("Test has no assertions: " + test.toCode(),
+				                  test.hasAssertions());
 		}
 	}
 }

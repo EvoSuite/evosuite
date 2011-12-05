@@ -156,6 +156,7 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 		return new HashSet<File>(javaFiles);
 	}
 
+	@SuppressWarnings("unused")
 	private void getManualCoverage() {
 		BranchCoverageSuiteFitness fitness = new BranchCoverageSuiteFitness();
 		TestSuiteChromosome chromosome = new TestSuiteChromosome(
@@ -166,8 +167,8 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 			totalLength += test.size();
 		}
 		fitness.getFitness(chromosome);
-		//System.out.println("PARSED," + Properties.TARGET_CLASS + "," + userTests.size()
-		//        + "," + totalLength + "," + chromosome.getCoverage());
+		System.out.println("PARSED," + Properties.TARGET_CLASS + "," + userTests.size()
+		        + "," + totalLength + "," + chromosome.getCoverage());
 	}
 
 	/* (non-Javadoc)

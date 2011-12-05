@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.ClassUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -179,7 +179,7 @@ public class MethodStatement extends AbstractStatement {
 			if (declaredException.isAssignableFrom(t.getClass()))
 				return true;
 		}
-		return true;
+		return false;
 	}
 
 	@Override
@@ -211,10 +211,11 @@ public class MethodStatement extends AbstractStatement {
 				parameter_string += ", ";
 			}
 			Class<?> declaredParamType = method.getParameterTypes()[i];
-			Class<?> actualParamType = parameters.get(i).getVariableClass(); 
+			Class<?> actualParamType = parameters.get(i).getVariableClass();
 			String name = parameters.get(i).getName();
-			if (!declaredParamType.isAssignableFrom(actualParamType) || name.equals("null")){
-					// && parameters.get(i) instanceof ArrayIndex)
+			if ((!declaredParamType.isAssignableFrom(actualParamType) || name.equals("null"))
+			        && !method.getParameterTypes()[i].equals(Object.class)
+			        && !method.getParameterTypes()[i].equals(Comparable.class)) {
 				parameter_string += "("
 				        + new GenericClass(method.getParameterTypes()[i]).getSimpleName()
 				        + ") ";
@@ -248,13 +249,18 @@ public class MethodStatement extends AbstractStatement {
 		}
 
 		if (exception != null) {
+			//boolean isExpected = getDeclaredExceptions().contains(exception.getClass());
 			Class<?> ex = exception.getClass();
 			while (!Modifier.isPublic(ex.getModifiers()))
 				ex = ex.getSuperclass();
+			//if (isExpected)
 			result += "\n  fail(\"Expecting exception: "
 			        + ClassUtils.getShortClassName(ex) + "\");";
 			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {\n";
 			if (exception.getMessage() != null) {
+				//if (!isExpected)
+				//	result += "\n  fail(\"Undeclared exception: "
+				//	        + ClassUtils.getShortClassName(ex) + "\");\n";
 				result += "  /*\n";
 				for (String msg : exception.getMessage().split("\n")) {
 					result += "   * " + StringEscapeUtils.escapeJava(msg) + "\n";
@@ -623,7 +629,7 @@ public class MethodStatement extends AbstractStatement {
 					}
 					if (equals) {
 						this.method = newMethod;
-						return;
+						break;
 					}
 				}
 			}
@@ -632,6 +638,7 @@ public class MethodStatement extends AbstractStatement {
 		} catch (SecurityException e) {
 			logger.warn("Class not found - keeping old class loader ", e);
 		}
+		super.changeClassLoader(loader);
 		logger.warn("Method not found - keeping old class loader ");
 
 	}

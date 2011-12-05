@@ -21,7 +21,7 @@ package de.unisb.cs.st.evosuite.ga.stoppingconditions;
 import java.io.Serializable;
 import java.text.NumberFormat;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
@@ -84,7 +84,7 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 		// TODO Auto-generated method stub
 
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder r = new StringBuilder();
@@ -98,7 +98,7 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 
 		return r.toString();
 	}
-	
+
 	public String getType() {
 		String type = getClass().toString();
 		try { // just to make sure
@@ -108,10 +108,10 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 		// cut away "StoppingCondition" suffix
 		if (type.endsWith("StoppingCondition"))
 			type = type.substring(0, type.length() - 17);
-		
+
 		return type;
 	}
-	
+
 	public String getValueString() {
 		String value = NumberFormat.getIntegerInstance().format(getCurrentValue());
 		value = StringUtils.leftPad(value, 12);

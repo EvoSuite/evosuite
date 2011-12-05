@@ -71,6 +71,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ma.Editor;
+import de.unisb.cs.st.evosuite.ma.UserFeedback;
 import de.unisb.cs.st.evosuite.setup.ResourceList;
 import de.unisb.cs.st.evosuite.testcase.AbstractStatement;
 import de.unisb.cs.st.evosuite.testcase.ArrayIndex;
@@ -110,7 +111,7 @@ public class TestParser {
 
 	private TypeTable tt;
 
-	private final Editor editor;
+	private final UserFeedback editor;
 
 	private TestCase newTestCase;
 
@@ -126,7 +127,7 @@ public class TestParser {
 
 	private final TestCluster testCluster = TestCluster.getInstance();
 
-	public TestParser(Editor editor) {
+	public TestParser(UserFeedback editor) {
 		this.editor = editor;
 	}
 
@@ -928,8 +929,12 @@ public class TestParser {
 	 */
 	private void addNewVarToTT(VariableDeclarationExpr varDeclExpr,
 			AbstractStatement newStatement) throws ParseException {
+		ArrayList<VariableReference> varRefArray = new ArrayList<VariableReference>();
+		varRefArray.addAll(newStatement.getVariableReferences());
+		VariableReference varRef = newStatement.getReturnValue();
+
 		tt.addVar(new Var(varDeclExpr.getVars().get(0).getId().getName(),
-				varDeclExpr.getType(), newStatement.getReturnValue()));
+				varDeclExpr.getType(), varRef));
 	}
 
 	/**
@@ -1561,8 +1566,7 @@ public class TestParser {
 					}
 				}
 				String className = editor
-						.showChooseFileMenu(parsType.toString())
-						.getSelectedFile().getName();
+						.chooseTargetFile(parsType.toString()).getName();
 				if (className != null) {
 					return testCluster.importClass(className);
 				} else {

@@ -30,7 +30,8 @@ public class TestSUTWithSimpleSingleMethod extends SystemTest{
 				"-Dplot=false",
 				"-Djunit_tests=false",
 				"-Dshow_progress=false",
-				"-Dgenerations="+generations
+				"-Dgenerations="+generations,
+				"-Dserialize_result=true"
 		};
 		
 		Object result = evosuite.parseCommandLine(command);

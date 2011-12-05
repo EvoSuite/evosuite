@@ -1,5 +1,6 @@
 package de.unisb.cs.st.evosuite.ui.genetics;
 
+import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
 import de.unisb.cs.st.evosuite.testsuite.AbstractTestSuiteChromosome;
@@ -22,16 +23,27 @@ public class UITestSuiteChromosome extends AbstractTestSuiteChromosome<UITestChr
 
 	@Override
 	public void localSearch(LocalSearchObjective objective) {
-		throw new UnsupportedOperationException("UITestSuiteChromosome doesn't support localSearch (yet?)");
+		throw new UnsupportedOperationException(
+		        "UITestSuiteChromosome doesn't support localSearch (yet?)");
 	}
 
 	@Override
 	public void applyDSE() {
-		throw new UnsupportedOperationException("UITestSuiteChromosome doesn't support applyDSE() (yet?)");
+		throw new UnsupportedOperationException(
+		        "UITestSuiteChromosome doesn't support applyDSE() (yet?)");
 	}
 
 	@Override
 	public String toString() {
 		return "UITestSuiteChromosome [tests=" + tests + "]";
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#compareSecondaryObjective(de.unisb.cs.st.evosuite.ga.Chromosome)
+	 */
+	@Override
+	public int compareSecondaryObjective(Chromosome o) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

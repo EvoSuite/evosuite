@@ -35,7 +35,6 @@ import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
-import de.unisb.cs.st.evosuite.ga.MinimizeSizeSecondaryObjective;
 import de.unisb.cs.st.evosuite.junit.TestSuiteWriter;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
@@ -101,9 +100,6 @@ public class TestSuiteMinimizer {
 		for (TestChromosome test : suite.getTestChromosomes())
 			test.setChanged(true);
 
-		TestChromosome.clearSecondaryObjectives();
-		TestChromosome.addSecondaryObjective(new MinimizeSizeSecondaryObjective());
-
 		List<TestFitnessFunction> goals = testFitnessFactory.getCoverageGoals();
 		Set<TestFitnessFunction> covered = new HashSet<TestFitnessFunction>();
 		List<TestChromosome> minimizedTests = new ArrayList<TestChromosome>();
@@ -119,17 +115,22 @@ public class TestSuiteMinimizer {
 			if (covered.contains(goal))
 				continue;
 
+			List<TestChromosome> coveredTests = new ArrayList<TestChromosome>();
 			for (TestChromosome test : suite.getTestChromosomes()) {
 				if (goal.isCovered(test)) {
-					de.unisb.cs.st.evosuite.testcase.TestCaseMinimizer minimizer = new de.unisb.cs.st.evosuite.testcase.TestCaseMinimizer(
-					        goal);
-					TestChromosome copy = (TestChromosome) test.clone();
-					minimizer.minimize(copy);
-					minimizedTests.add(copy);
-					minimizedSuite.insertTest(copy.getTestCase());
-					covered.add(goal);
-					break;
+					coveredTests.add(test);
 				}
+			}
+			Collections.sort(coveredTests);
+			if (!coveredTests.isEmpty()) {
+				TestChromosome test = coveredTests.get(0);
+				de.unisb.cs.st.evosuite.testcase.TestCaseMinimizer minimizer = new de.unisb.cs.st.evosuite.testcase.TestCaseMinimizer(
+				        goal);
+				TestChromosome copy = (TestChromosome) test.clone();
+				minimizer.minimize(copy);
+				minimizedTests.add(copy);
+				minimizedSuite.insertTest(copy.getTestCase());
+				covered.add(goal);
 
 			}
 		}

@@ -38,6 +38,8 @@ import de.unisb.cs.st.evosuite.assertion.MutationAssertionGenerator;
 import de.unisb.cs.st.evosuite.assertion.UnitAssertionGenerator;
 import de.unisb.cs.st.evosuite.cfg.LCSAJGraph;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
+import de.unisb.cs.st.evosuite.contracts.ContractChecker;
+import de.unisb.cs.st.evosuite.contracts.FailingTestSet;
 import de.unisb.cs.st.evosuite.coverage.FitnessLogger;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
@@ -245,6 +247,11 @@ public class TestSuiteGenerator {
 
 		writeJUnitTests(tests);
 
+		if (Properties.CHECK_CONTRACTS) {
+			System.out.println("* Writing failing test cases");
+			FailingTestSet.writeJUnitTestSuite();
+		}
+
 		writeObjectPool(tests);
 
 		if (analyzing)
@@ -263,11 +270,14 @@ public class TestSuiteGenerator {
 				testDir = testDir + "/" + Properties.CRITERION;
 			System.out.println("* Writing JUnit test cases to " + testDir);
 			suite.writeTestSuite("Test" + name, testDir);
+			suite.writeTestSuiteMainFile(testDir);
 		}
 	}
 
 	private void addAssertions(List<TestCase> tests) {
 		AssertionGenerator asserter;
+		ContractChecker.setActive(false);
+
 		if (Properties.ASSERTION_STRATEGY == AssertionStrategy.MUTATION) {
 			Criterion oldCriterion = Properties.CRITERION;
 			if (Properties.CRITERION != Criterion.MUTATION) {
@@ -375,15 +385,19 @@ public class TestSuiteGenerator {
 		        + MaxStatementsStoppingCondition.getNumExecutedStatements()
 		        + " statements, best individual has fitness " + best.getFitness());
 
+		double fitness = best.getFitness();
+
 		if (Properties.MINIMIZE_VALUES) {
 			System.out.println("* Minimizing values");
 			ValueMinimizer minimizer = new ValueMinimizer();
 			minimizer.minimize(best, (TestSuiteFitnessFunction) fitness_function);
+			assert (fitness >= best.getFitness());
 		}
 
 		if (Properties.INLINE) {
 			ConstantInliner inliner = new ConstantInliner();
 			inliner.inline(best);
+			assert (fitness >= best.getFitness());
 		}
 
 		if (Properties.MINIMIZE) {
@@ -391,6 +405,7 @@ public class TestSuiteGenerator {
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
 			minimizer.minimize((TestSuiteChromosome) ga.getBestIndividual());
 		}
+
 		statistics.iteration(ga);
 		statistics.minimized(ga.getBestIndividual());
 		System.out.println("* Generated " + best.size() + " tests with total length "
@@ -617,7 +632,7 @@ public class TestSuiteGenerator {
 		        + NumberFormat.getIntegerInstance().format(total_budget));
 
 		while (current_budget < total_budget && covered_goals < total_goals
-		        && !global_time.isFinished() && !ShutdownTestWriter.isInterrupted()) {
+		        && !global_time.isFinished() && !ShutdownTestWriter.hasBeenCalled()) {
 			long budget = (total_budget - current_budget) / (total_goals - covered_goals);
 			logger.info("Budget: " + budget + "/" + (total_budget - current_budget));
 			logger.info("Statements: " + current_budget + "/" + total_budget);
@@ -644,7 +659,7 @@ public class TestSuiteGenerator {
 				logger.info("Goal " + num + "/" + (total_goals - covered_goals) + ": "
 				        + fitness_function);
 
-				if (ShutdownTestWriter.isInterrupted()) {
+				if (ShutdownTestWriter.hasBeenCalled()) {
 					num++;
 					continue;
 				}
@@ -986,7 +1001,17 @@ public class TestSuiteGenerator {
 		}
 	}
 
-	public static SecondaryObjective getSecondaryObjective(String name) {
+	public static SecondaryObjective getSecondaryTestObjective(String name) {
+		if (name.equalsIgnoreCase("size"))
+			return new MinimizeSizeSecondaryObjective();
+		else if (name.equalsIgnoreCase("exceptions"))
+			return new de.unisb.cs.st.evosuite.testcase.MinimizeExceptionsSecondaryObjective();
+		else
+			throw new RuntimeException("ERROR: asked for unknown secondary objective \""
+			        + name + "\"");
+	}
+
+	public static SecondaryObjective getSecondarySuiteObjective(String name) {
 		if (name.equalsIgnoreCase("size"))
 			return new MinimizeSizeSecondaryObjective();
 		else if (name.equalsIgnoreCase("maxlength"))
@@ -1003,23 +1028,19 @@ public class TestSuiteGenerator {
 	}
 
 	public static void getSecondaryObjectives(GeneticAlgorithm algorithm) {
-		if (Properties.STRATEGY == Strategy.ONEBRANCH) {
-			SecondaryObjective objective = getSecondaryObjective("size");
-			Chromosome.addSecondaryObjective(objective);
-			algorithm.addSecondaryObjective(objective);
-		} else {
-			String objectives = Properties.SECONDARY_OBJECTIVE;
+		String objectives = Properties.SECONDARY_OBJECTIVE;
 
-			// check if there are no secondary objectives to optimize
-			if (objectives == null || objectives.trim().length() == 0
-			        || objectives.trim().equalsIgnoreCase("none"))
-				return;
+		// check if there are no secondary objectives to optimize
+		if (objectives == null || objectives.trim().length() == 0
+		        || objectives.trim().equalsIgnoreCase("none"))
+			return;
 
-			for (String name : objectives.split(":")) {
-				SecondaryObjective objective = getSecondaryObjective(name.trim());
-				Chromosome.addSecondaryObjective(objective);
-				algorithm.addSecondaryObjective(objective);
-			}
+		for (String name : objectives.split(":")) {
+			try {
+				TestChromosome.addSecondaryObjective(getSecondaryTestObjective(name.trim()));
+			} catch (Throwable t) {
+			} // Not all objectives make sense for tests
+			TestSuiteChromosome.addSecondaryObjective(getSecondarySuiteObjective(name.trim()));
 		}
 	}
 
@@ -1141,8 +1162,11 @@ public class TestSuiteGenerator {
 		}
 
 		if (Properties.SHUTDOWN_HOOK) {
+			//ShutdownTestWriter writer = new ShutdownTestWriter(Thread.currentThread());
 			ShutdownTestWriter writer = new ShutdownTestWriter();
 			ga.addStoppingCondition(writer);
+
+			//Runtime.getRuntime().addShutdownHook(writer);
 			Signal.handle(new Signal("INT"), writer);
 		}
 
