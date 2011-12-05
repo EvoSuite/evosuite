@@ -1,5 +1,7 @@
 package de.unisb.cs.st.evosuite.ma;
 
+import japa.parser.ParseException;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ma.gui.SourceCodeGUI;
 import de.unisb.cs.st.evosuite.ma.gui.TestEditorGUI;
+import de.unisb.cs.st.evosuite.ma.parser.SEParser;
 import de.unisb.cs.st.evosuite.ma.parser.TestParser;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
@@ -46,13 +49,15 @@ public class Editor {
 
 	private Iterable<String> sourceCode;
 
-	public final TestEditorGUI sguiTE;
+	public final TestEditorGUI sguiTE = new TestEditorGUI();
 
-	public final SourceCodeGUI sguiSC;
+	public final SourceCodeGUI sguiSC = new SourceCodeGUI();
 
 	private TestParser testParser;
 
 	private TestCaseTuple currTCTuple;
+
+	private final SEParser sep = new SEParser(this);
 
 	/**
 	 * Create instance of manual editor.
@@ -81,8 +86,6 @@ public class Editor {
 		}
 
 		nextTest();
-		sguiSC = new SourceCodeGUI();
-		sguiTE = new TestEditorGUI();
 		sguiSC.createWindow(this);
 		sguiTE.createMainWindow(this);
 		testParser = new TestParser(this);
@@ -116,8 +119,11 @@ public class Editor {
 	 */
 	public boolean saveTest(String testCode) {
 		TestCase currentTestCase = currTCTuple.getTestCase();
+
 		try {
-			TestCase newTestCase = testParser.parseTest(testCode);
+			TestCase newTestCase;
+			// newTestCase = testParser.parseTest(testCode);
+			newTestCase = sep.parseTest(testCode);
 
 			if (newTestCase != null) {
 				// EvoSuite stuff
@@ -144,6 +150,8 @@ public class Editor {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (ParseException e) {
+			showParseException(e.getMessage());
 		}
 		return false;
 	}

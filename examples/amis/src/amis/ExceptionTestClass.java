@@ -9,6 +9,8 @@ import java.io.*;
 public class ExceptionTestClass {
 
 	private int field;
+	public int publicField = 0;
+	public static boolean staticField = true; 
 
 	public ExceptionTestClass(int anInt) {
 		field = anInt;
@@ -20,6 +22,13 @@ public class ExceptionTestClass {
 
 	public int getField() {
 		return field;
+	}
+	
+	public int objMethod(Object o) {
+		if (o instanceof Integer) {
+			return 1;
+		}
+		return 0;
 	}
 
 	public void illegalArgumentThrower(int val) throws Exception {

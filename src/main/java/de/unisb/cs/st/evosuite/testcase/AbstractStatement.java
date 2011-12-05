@@ -367,4 +367,10 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	public StatementInterface clone(TestCase newTestCase) {
 		return copy(newTestCase, 0);
 	}
+
+	/*
+	 * Primitive overwrite this method
+	 */
+	public void negate() {
+	}
 }

@@ -117,4 +117,9 @@ public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double
 	public boolean isPositive() {
 		return value >= 0;
 	}
+	
+	@Override
+	public void negate() {
+		value = -value;
+	}
 }
