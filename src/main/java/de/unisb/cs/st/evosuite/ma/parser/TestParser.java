@@ -112,7 +112,7 @@ public class TestParser {
 	private TypeTable tt;
 
 	private final UserFeedback editor;
-
+	
 	private TestCase newTestCase;
 
 	private TestCase setupSequence = new DefaultTestCase();
@@ -929,12 +929,8 @@ public class TestParser {
 	 */
 	private void addNewVarToTT(VariableDeclarationExpr varDeclExpr,
 			AbstractStatement newStatement) throws ParseException {
-		ArrayList<VariableReference> varRefArray = new ArrayList<VariableReference>();
-		varRefArray.addAll(newStatement.getVariableReferences());
-		VariableReference varRef = newStatement.getReturnValue();
-
 		tt.addVar(new Var(varDeclExpr.getVars().get(0).getId().getName(),
-				varDeclExpr.getType(), varRef));
+				varDeclExpr.getType(), newStatement.getReturnValue()));
 	}
 
 	/**
@@ -1565,8 +1561,8 @@ public class TestParser {
 								+ parsType.toString());
 					}
 				}
-				String className = editor
-						.chooseTargetFile(parsType.toString()).getName();
+					String className = editor
+					.chooseTargetFile(parsType.toString()).getName();
 				if (className != null) {
 					return testCluster.importClass(className);
 				} else {

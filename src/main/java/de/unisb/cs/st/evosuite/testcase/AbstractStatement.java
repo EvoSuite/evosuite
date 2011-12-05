@@ -377,4 +377,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 			var.changeClassLoader(loader);
 		}
 	}
+	
+	public void negate() {
+	}
 }
