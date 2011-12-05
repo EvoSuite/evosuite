@@ -632,7 +632,7 @@ public class TestSuiteGenerator {
 		        + NumberFormat.getIntegerInstance().format(total_budget));
 
 		while (current_budget < total_budget && covered_goals < total_goals
-		        && !global_time.isFinished() && !ShutdownTestWriter.hasBeenCalled()) {
+		        && !global_time.isFinished() && !ShutdownTestWriter.isInterrupted()) {
 			long budget = (total_budget - current_budget) / (total_goals - covered_goals);
 			logger.info("Budget: " + budget + "/" + (total_budget - current_budget));
 			logger.info("Statements: " + current_budget + "/" + total_budget);
@@ -659,7 +659,7 @@ public class TestSuiteGenerator {
 				logger.info("Goal " + num + "/" + (total_goals - covered_goals) + ": "
 				        + fitness_function);
 
-				if (ShutdownTestWriter.hasBeenCalled()) {
+				if (ShutdownTestWriter.isInterrupted()) {
 					num++;
 					continue;
 				}
