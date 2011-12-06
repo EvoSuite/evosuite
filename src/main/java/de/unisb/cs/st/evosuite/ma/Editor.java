@@ -122,7 +122,7 @@ public class Editor implements UserFeedback {
 		try {
 			TestCase newTestCase;
 			// newTestCase = testParser.parseTest(testCode);
-			newTestCase = sep.parseTest(testCode);
+			newTestCase = sep.parseTest(testCode);			
 
 			if (newTestCase != null) {
 				// EvoSuite stuff
@@ -141,10 +141,9 @@ public class Editor implements UserFeedback {
 				TestCaseTuple newTestCaseTuple = new TestCaseTuple(newTestCase,
 						testCaseCoverega);
 				currTCTuple = newTestCaseTuple;
-				testParser = new TestParser(this);
+				// testParser = new TestParser(this);
 				testCases.add(newTestCaseTuple);
 				updateCoverage();
-
 				return true;
 			}
 		} catch (IOException e) {

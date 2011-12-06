@@ -114,4 +114,9 @@ public class IntPrimitiveStatement extends NumericalPrimitiveStatement<Integer> 
 	public void negate() {
 		value = -value;
 	}
+	
+	@Override
+	public Integer getValue() {
+		return value;
+	}
 }
