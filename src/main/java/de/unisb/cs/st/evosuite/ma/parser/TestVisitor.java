@@ -684,18 +684,17 @@ public class TestVisitor extends
 			VariableReference avRef = getVarRef(arrayAccExpr.getName());
 			ArrayReference arrayRef = null;
 			if (avRef instanceof ArrayReference) {
-				System.out.println("2) Have array variable of type: "
+				System.out.println("2) Have array's variable of type: "
 						+ avRef.getVariableClass());
-				arrayRef = (ArrayReference) getVarRef(arrayAccExpr.getName());
+				arrayRef = (ArrayReference) avRef;
 			} else {
 				System.out.println("1) Have array variable of type: "
 						+ avRef.getVariableClass() + " / "
 						+ avRef.getComponentType());
-				Object array = Array.newInstance(avRef.getVariableClass(), 0);
 				int size = ((ArrayStatement) newTC.getStatement(avRef
 						.getStPosition())).size();
 				AbstractStatement newArray = new ArrayStatement(newTC,
-						array.getClass(), size);
+						avRef.getVariableClass(), size);
 				AbstractStatement assign = new AssignmentStatement(newTC,
 						newArray.getReturnValue(), avRef);
 				newTC.addStatement(newArray);
