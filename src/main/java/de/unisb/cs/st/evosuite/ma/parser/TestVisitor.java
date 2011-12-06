@@ -32,9 +32,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Queue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +61,7 @@ import de.unisb.cs.st.evosuite.testcase.IntPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.LongPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.NullStatement;
+import de.unisb.cs.st.evosuite.testcase.NumericalPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.ShortPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.StringPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
@@ -99,8 +102,7 @@ public class TestVisitor extends
 		System.out.println("getType(): " + n.getType());
 		Expression init = n.getVars().get(0).getInit();
 		String name = n.getVars().get(0).getId().getName();
-		AbstractStatement res = separator(init, n.getType(), name);
-		return res;
+		return separator(init, n.getType(), name);
 	}
 
 	/**
@@ -123,19 +125,21 @@ public class TestVisitor extends
 		} else if (init instanceof StringLiteralExpr) {
 			res = visit((StringLiteralExpr) init, null);
 		} else if (init instanceof UnaryExpr) {
-			res = visit((UnaryExpr) init, arg);
+			res = parse((UnaryExpr) init, arg);
 		} else if (init instanceof ObjectCreationExpr) {
 			res = visit((ObjectCreationExpr) init, null);
 		} else if (init instanceof FieldAccessExpr) {
 			res = visit((FieldAccessExpr) init, null);
 		} else if (init instanceof ArrayCreationExpr) {
-			res = visit((ArrayCreationExpr) init, null);
+			res = visit((ArrayCreationExpr) init, arg);
 		} else if (init instanceof NullLiteralExpr) {
-			res = visit((NullLiteralExpr) init, arg);
+			res = parse((NullLiteralExpr) init, arg);
 		} else if (init instanceof CastExpr) {
-			res = visit((CastExpr) init, null);
+			res = parse((CastExpr) init, null);
 		} else if (init instanceof MethodCallExpr) {
 			res = visit((MethodCallExpr) init, null);
+		} else if (init instanceof NameExpr) {
+			res = parse((NameExpr) init, null);
 		} else {
 			System.out.println("Uppsss!");
 			res = visit(init, arg);
@@ -154,7 +158,7 @@ public class TestVisitor extends
 
 	public AbstractStatement visit(IntegerLiteralExpr n, Object arg) {
 		AbstractStatement res = null;
-		System.out.println("i'm here: IntegerLiteralExpr");
+		System.out.println("i'm here IntegerLiteralExpr: " + n);
 		String init = n.getValue();
 		if (arg instanceof PrimitiveType) {
 			PrimitiveType primType = (PrimitiveType) arg;
@@ -270,34 +274,6 @@ public class TestVisitor extends
 		return res;
 	}
 
-	public AbstractStatement visit(UnaryExpr init, Object arg) {
-		AbstractStatement res = null;
-		Expression expr = init.getExpr();
-		Operator op = init.getOperator();
-		System.out.println("i'm here UnaryExpr");
-		System.out.println(init.getOperator());
-		if (expr instanceof IntegerLiteralExpr) {
-			res = visit((IntegerLiteralExpr) expr, arg);
-		} else if (expr instanceof LongLiteralExpr) {
-			res = visit((LongLiteralExpr) expr, null);
-		} else if (expr instanceof DoubleLiteralExpr) {
-			res = visit((DoubleLiteralExpr) expr, arg);
-		} else if (expr instanceof BooleanLiteralExpr) {
-			res = visit((BooleanLiteralExpr) expr, null);
-		} else if (expr instanceof UnaryExpr) {
-			res = visit((UnaryExpr) expr, arg);
-		} else {
-			System.out.println("Blja!");
-			res = visit(init, arg);
-		}
-		if (res != null) {
-			if (op == Operator.negative || op == Operator.not) {
-				res.negate();
-			}
-		}
-		return res;
-	}
-
 	public AbstractStatement visit(ObjectCreationExpr n, Object arg) {
 		System.out.println("Visit new Object: " + n);
 		AbstractStatement res = null;
@@ -357,86 +333,100 @@ public class TestVisitor extends
 	}
 
 	public AbstractStatement visit(ArrayCreationExpr n, Object arg) {
-		AbstractStatement res = null;
+		System.out.println("i'm here ArrayCreationExpr: " + n);
 		List<Expression> dims = n.getDimensions();
+		System.out.println("getArrayCount: " + n.getArrayCount());
 		int[] sizes;
 		if (dims == null && n.getInitializer().getValues() != null) {
-			// init over values
-			// TODO multi-dim
+			// TODO: init over values
 			sizes = new int[1];
 			sizes[0] = n.getInitializer().getValues().size();
 		} else {
+			System.out.println("There are dims: " + dims.size());
 			sizes = new int[dims.size()];
 			int i = 0;
-			try {
-				if (dims != null && !dims.isEmpty()) {
-					for (Expression expr : dims) {
+			if (dims != null && !dims.isEmpty()) {
+				for (Expression expr : dims) {
+					try {
 						// only int value is possible see ArraySttm
 						sizes[i++] = Integer.parseInt(expr.toString());
+					} catch (NumberFormatException e) {
+						// TODO: Better value
+						sizes[i++] = 1;
 					}
 				}
-			} catch (NumberFormatException e) {
-				// TODO: Better value
-				sizes[i++] = 1;
 			}
 		}
+		return createMultiDimArray(n, sizes);
+	}
+
+	/**
+	 * @param n
+	 * @param res
+	 * @param sizes
+	 * @return
+	 */
+	private AbstractStatement createMultiDimArray(ArrayCreationExpr n,
+			int[] sizes) {
+		AbstractStatement res = null;
 		Class<?> clazz = null;
 		try {
+			System.out.println("Array's type: " + n.getType().toString());
 			clazz = getClass(n.getType().toString());
 		} catch (ParseException e) {
 			addParsError(e.getMessage(), n);
 		}
-		for (int i = 0; i < sizes.length ; i++) {
+		// for array of arrays without dim information
+		for (int i = 0; i < n.getArrayCount(); i++) {
+			Object array = Array.newInstance(clazz, 0);
+			clazz = array.getClass();
+		}
+		Queue<ArrayStatement> prevDim = new ArrayDeque<ArrayStatement>();
+		ArrayList<ArrayStatement> currentDim = new ArrayList<ArrayStatement>();
+		// how much first (1-dim) level arrays we need
+		int arraysAmount = 1;
+		for (int i = 1; i < sizes.length; i++) {
+			arraysAmount *= sizes[i];
+		}
+		// how much dims has array
+		for (int i = 0; i < sizes.length; i++) {
+			System.out.println("Creating: " + i + " level of arrays");
+			System.out.println("ArraysAmount: " + arraysAmount);
 			Object array = Array.newInstance(clazz, sizes[i]);
-			if (i + 1 < sizes.length) {
-				for (int j = 0; j < sizes[i+1]; j++) {
-					res = new ArrayStatement(newTC, array.getClass(), sizes[i]);
-					checkedAddNewSttm(n, res);
-				}
-			} else {
-			res = new ArrayStatement(newTC, array.getClass(), sizes[i]);
-			checkedAddNewSttm(n, res); 
+			// how much elemts (current arrays) has next dim
+			for (int j = 0; j < arraysAmount; j++) {
+				res = new ArrayStatement(newTC, array.getClass(), sizes[i]);
+				checkedAddNewSttm(n, res);
+				currentDim.add((ArrayStatement) res);
+				System.out.println("Create new array");
 			}
+			// we are at least on the second dim of array
+			if (!prevDim.isEmpty()) {
+				// for all current level arrays add prev. level arrays
+				for (int j = 0; j < currentDim.size(); j++) {
+					for (int k = 0; k < sizes[i]; k++) {
+						// System.out.println("Add array: " +
+						// lowArrays.remove());
+						VariableReference haElRef = new ArrayIndex(newTC,
+								(ArrayReference) currentDim.get(j)
+										.getReturnValue(), k);
+						AbstractStatement tmpAs = new AssignmentStatement(
+								newTC, haElRef, prevDim.remove()
+										.getReturnValue());
+						checkedAddNewSttm(n, tmpAs);
+					}
+					System.out.println("Switch to the next ha");
+				}
+			}
+			// update number of arrays for the next level
+			if (i + 1 < sizes.length) {
+				arraysAmount /= sizes[i + 1];
+			}
+			prevDim.addAll(currentDim);
+			System.out.println("la has size: " + prevDim.size());
+			currentDim.clear();
 			clazz = res.getReturnClass();
 		}
-		return res;
-	}
-
-	public AbstractStatement visit(NullLiteralExpr n, Object arg) {
-		AbstractStatement res = null;
-		try {
-			res = new NullStatement(newTC, getClass(arg.toString()));
-		} catch (ParseException e) {
-			addParsError(e.getMessage(), n);
-		}
-		checkedAddNewSttm(n, res);
-		return res;
-	}
-
-	public AbstractStatement visit(CastExpr n, Object arg) {
-		// TODO check later
-		if (n.getExpr() instanceof MethodCallExpr) {
-			return visit((MethodCallExpr) n.getExpr(), null);
-		} else {
-			return visit(n.getExpr(), null);
-		}
-	}
-
-	public AbstractStatement visit(MethodCallExpr n, Object arg) {
-		AbstractStatement res = null;
-		List<Expression> args = n.getArgs();
-		try {
-			System.out.println("MethodCallExpr method's args: " + args);
-			List<VariableReference> paramReferences = getVarRefs(args);
-			Class<?>[] paramClasses = getVarClasses(paramReferences);
-			Method method = getMethod(n, paramClasses);
-			VariableReference callee = getVarRef(n.getScope());
-			res = new MethodStatement(newTC, method, callee,
-					method.getReturnType(), paramReferences);
-		} catch (ParseException e) {
-			addParsError(e.getMessage(), n);
-		}
-		checkedAddNewSttm(n, res);
 		return res;
 	}
 
@@ -459,7 +449,7 @@ public class TestVisitor extends
 			// try to create var for this value
 			System.out.println("Try create new RHS");
 			AbstractStatement rhsSttm = separator(value, null,
-					"tEmPoRaLvArIaBlE" + n.getBeginColumn());
+					"tEmPoRaLvArIaBlE" + n.getBeginLine() + n.getBeginColumn());
 			System.out.println("rhs created: " + rhsSttm);
 			rhs = rhsSttm.getReturnValue();
 			System.out.println("New RHS is: " + rhs);
@@ -467,6 +457,85 @@ public class TestVisitor extends
 		res = new AssignmentStatement(newTC, lhs, rhs);
 		checkedAddNewSttm(n, res);
 		System.out.println("Add new assign Sttm");
+		return res;
+	}
+
+	public AbstractStatement visit(MethodCallExpr n, Object arg) {
+		AbstractStatement res = null;
+		List<Expression> args = n.getArgs();
+		try {
+			System.out.println("MethodCallExpr method's args: " + args);
+			List<VariableReference> paramReferences = getVarRefs(args);
+			Class<?>[] paramClasses = getVarClasses(paramReferences);
+			Method method = getMethod(n, paramClasses);
+			VariableReference callee = getVarRef(n.getScope());
+			res = new MethodStatement(newTC, method, callee,
+					method.getReturnType(), paramReferences);
+		} catch (ParseException e) {
+			addParsError(e.getMessage(), n);
+		}
+		checkedAddNewSttm(n, res);
+		return res;
+	}
+
+	private AbstractStatement parse(UnaryExpr n, Object arg) {
+		AbstractStatement res = null;
+		Expression expr = n.getExpr();
+		Operator op = n.getOperator();
+		System.out.println("i'm here UnaryExpr");
+		System.out.println(n.getOperator());
+		res = separator(expr, arg,
+				"tEmPoRaLvArIaBlE" + n.getBeginLine() + n.getBeginColumn());
+		if (res != null) {
+			if (op == Operator.negative || op == Operator.not) {
+				res.negate();
+			}
+		} else {
+			addParsError("Can't parse unary expr.", n);
+		}
+		return res;
+	}
+
+	private AbstractStatement parse(NullLiteralExpr n, Object arg) {
+		AbstractStatement res = null;
+		try {
+			res = new NullStatement(newTC, getClass(arg.toString()));
+		} catch (ParseException e) {
+			addParsError(e.getMessage(), n);
+		}
+		checkedAddNewSttm(n, res);
+		return res;
+	}
+
+	private AbstractStatement parse(CastExpr n, Object arg) {
+		// TODO check later
+		if (n.getExpr() instanceof MethodCallExpr) {
+			return visit((MethodCallExpr) n.getExpr(), null);
+		} else {
+			return visit(n.getExpr(), null);
+		}
+	}
+
+	private AbstractStatement parse(NameExpr n, Object arg) {
+		AbstractStatement res = null;
+		System.out.println("i'm here parse NameExpr: " + n);
+		String varName = ((NameExpr) n).getName();
+		// create new var with negated value of current and assign new var
+		if (tt.hasVar(varName)) {
+			try {
+				tt.getVarReference(varName);
+				// find ref of var -> find pos. of ref's sttm & get sttm it
+				// self for manipulation
+				AbstractStatement tmpAS = (AbstractStatement) newTC
+						.getStatement(tt.getVarReference(varName)
+								.getStPosition());
+				// TODO must be inserted in TT??? check later
+				res = (AbstractStatement) tmpAS.clone(newTC);
+				checkedAddNewSttm(n, res);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
 		return res;
 	}
 
@@ -536,8 +605,7 @@ public class TestVisitor extends
 		try {
 			return testCluster.getClass(name);
 		} catch (ClassNotFoundException e) {
-			String className = editor.chooseTargetFile(name)
-					.getName();
+			String className = editor.chooseTargetFile(name).getName();
 			if (className != null) {
 				try {
 					return testCluster.importClass(className);
@@ -582,7 +650,7 @@ public class TestVisitor extends
 	private VariableReference getVarRef(Expression expr) throws ParseException {
 		System.out.println("Try to find ref for expr: " + expr);
 		if (expr instanceof NameExpr) {
-			System.out.println("This is NameExpr: " + expr);
+			System.out.println("getVarRef. This is NameExpr: " + expr);
 			String varName = ((NameExpr) expr).getName();
 			if (tt.hasVar(varName)) {
 				return tt.getVarReference(varName);
@@ -604,24 +672,37 @@ public class TestVisitor extends
 			}
 		} else if (expr instanceof ArrayAccessExpr) {
 			ArrayAccessExpr arrayAccExpr = (ArrayAccessExpr) expr;
-			System.out.println("Getting array variable for " + expr);
+			System.out.println("arrayAccExpr.getClass(): "
+					+ arrayAccExpr.getClass());
+			System.out.println("arrayAccExpr.getData(): "
+					+ arrayAccExpr.getData());
+			System.out.println("arrayAccExpr.getIndex(): "
+					+ arrayAccExpr.getIndex());
+			System.out.println("arrayAccExpr.getName(): "
+					+ arrayAccExpr.getName());
+			System.out.println("-----Getting array variable for " + expr);
 			VariableReference avRef = getVarRef(arrayAccExpr.getName());
 			ArrayReference arrayRef = null;
-			if (!(avRef instanceof ArrayReference)) {
+			if (avRef instanceof ArrayReference) {
+				System.out.println("2) Have array variable of type: "
+						+ avRef.getVariableClass());
+				arrayRef = (ArrayReference) getVarRef(arrayAccExpr.getName());
+			} else {
 				System.out.println("1) Have array variable of type: "
 						+ avRef.getVariableClass() + " / "
 						+ avRef.getComponentType());
 				Object array = Array.newInstance(avRef.getVariableClass(), 0);
+				int size = ((ArrayStatement) newTC.getStatement(avRef
+						.getStPosition())).size();
+				AbstractStatement newArray = new ArrayStatement(newTC,
+						array.getClass(), size);
 				AbstractStatement assign = new AssignmentStatement(newTC,
-						new ArrayReference(newTC, new GenericClass(
-								array.getClass()), 0), avRef);
+						newArray.getReturnValue(), avRef);
+				newTC.addStatement(newArray);
 				arrayRef = (ArrayReference) newTC.addStatement(assign);
-			} else {
-				System.out.println("2) Have array variable of type: "
-						+ avRef.getVariableClass());
-				arrayRef = (ArrayReference) getVarRef(arrayAccExpr.getName());
 			}
 			System.out.println("Got array reference " + arrayAccExpr.getName());
+
 			int arrayInd = 0;
 			try {
 				arrayInd = Integer.parseInt(arrayAccExpr.getIndex().toString());
@@ -631,6 +712,7 @@ public class TestVisitor extends
 			System.out.println("Array reference: " + arrayRef + ", index "
 					+ arrayInd);
 			return new ArrayIndex(newTC, arrayRef, arrayInd);
+
 		} else if (expr instanceof CastExpr) {
 			return getVarRef(((CastExpr) expr).getExpr());
 		} else if (expr instanceof MethodCallExpr) {
@@ -641,7 +723,7 @@ public class TestVisitor extends
 					"tEmPoRaLvArIaBlE" + expr.getBeginColumn())
 					.getReturnValue();
 		} else if (expr instanceof UnaryExpr) {
-			return visit((UnaryExpr) expr, null).getReturnValue();
+			return parse((UnaryExpr) expr, null).getReturnValue();
 		} else if (expr instanceof BinaryExpr) {
 			// Just use one of the two
 			return getVarRef(((BinaryExpr) expr).getLeft());
