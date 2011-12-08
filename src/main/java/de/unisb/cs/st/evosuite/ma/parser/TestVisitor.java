@@ -35,6 +35,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
 
@@ -86,13 +87,15 @@ public class TestVisitor extends
 
 	private final ArrayList<String> parsErrors = new ArrayList<String>();
 
-	private final Editor editor;
+	// if we use it from GUI
+	private boolean guiActive = false;
 
-	/**
-	 * @param editor
-	 */
-	public TestVisitor(Editor editor) {
-		this.editor = editor;
+	public TestVisitor() {
+		// to use it with out GUI
+	}
+
+	public TestVisitor(boolean guiActive) {
+		this.guiActive = guiActive;
 	}
 
 	@Override
@@ -609,19 +612,38 @@ public class TestVisitor extends
 		try {
 			return testCluster.getClass(name);
 		} catch (ClassNotFoundException e) {
-			String className = editor.chooseTargetFile(name).getName();
-			if (className != null) {
-				try {
-					return testCluster.importClass(className);
-				} catch (ClassNotFoundException e1) {
-					throw new ParseException(null, "Class not found: "
-							+ e1.getMessage());
+			if (guiActive) {
+				String className = null;
+				while ((className = Editor.enterClassName(name)) != null) {
+					{
+						try {
+							return testCluster.importClass(className);
+						} catch (ClassNotFoundException e1) {
+							// just try again or press cancel
+						}
+					}
 				}
-			} else {
-				throw new ParseException(null, "Class not found: "
-						+ e.getMessage());
+				
+				Collection<String> allClasses = testCluster.getMatchingClasses(name);
+				String[] choices = new String[allClasses.size()];
+				allClasses.toArray(choices);
+				if (choices.length == 0) {
+					choices = new String[1];
+					choices[0] = "Nothing to choose :p";
+				}
+				while ((className = Editor.chooseClassName(choices)) != null) {
+					System.out.println("ClassDialog return: " + className);
+					{
+						try {
+							return testCluster.importClass(className);
+						} catch (ClassNotFoundException e1) {
+							// just try again or press cancel
+						}
+					}
+				}
 			}
 		}
+		throw new ParseException(null, "Can't load class: " + name);
 	}
 
 	private Class<?>[] getVarClasses(List<VariableReference> args)
@@ -630,22 +652,21 @@ public class TestVisitor extends
 
 		if (args != null) {
 			for (VariableReference varRef : args) {
-				res.add(varRef.getVariableClass());
+				if (varRef != null) {
+					res.add(varRef.getVariableClass());
+				}
 			}
 		}
 		return res.toArray(new Class<?>[res.size()]);
 	}
 
-	private List<VariableReference> getVarRefs(List<Expression> args) {
+	private List<VariableReference> getVarRefs(List<Expression> args)
+			throws ParseException {
 		List<VariableReference> res = new ArrayList<VariableReference>();
 		if (args != null) {
 			for (Expression expr : args) {
 				logger.debug("Arg: " + expr);
-				try {
-					res.add(getVarRef(expr));
-				} catch (ParseException e) {
-					addParsError(e.getMessage(), null);
-				}
+				res.add(getVarRef(expr));
 			}
 		}
 		return res;
@@ -781,11 +802,6 @@ public class TestVisitor extends
 		return null;
 	}
 
-	/**
-	 * @param expr
-	 * @return
-	 * @throws ParseException
-	 */
 	private Method getMethod(MethodCallExpr expr, Class<?>[] paramClasses)
 			throws ParseException {
 		Expression scope = expr.getScope();
