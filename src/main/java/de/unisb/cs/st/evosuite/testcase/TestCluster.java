@@ -10,17 +10,20 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.javaagent.InstrumentingClassLoader;
+import de.unisb.cs.st.evosuite.utils.ResourceList;
 
 /**
  * @author Gordon Fraser
@@ -141,6 +144,32 @@ public abstract class TestCluster {
 	 * @throws ClassNotFoundException
 	 */
 	public abstract Class<?> importClass(String name) throws ClassNotFoundException;
+
+	/**
+	 * Retrieve all classes that match the given postfix
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public abstract Collection<Class<?>> getKnownMatchingClasses(String name);
+
+	/**
+	 * Retrieve all classes in the classpath that match the given postfix
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public Collection<String> getMatchingClasses(String name) {
+		Pattern pattern = Pattern.compile(".*" + name + ".class");
+		Collection<String> resources = ResourceList.getResources(pattern);
+
+		Set<String> classes = new HashSet<String>();
+		for (String className : resources) {
+			classes.add(className.replace(".class", "").replace("/", "."));
+		}
+
+		return classes;
+	}
 
 	/**
 	 * Set of classes that have been analyzed already

@@ -1851,4 +1851,18 @@ public class StaticTestCluster extends TestCluster {
 		testCalls.addAll(test_methods);
 		return testCalls;
 	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#getKnownMatchingClasses(java.lang.String)
+	 */
+	@Override
+	public Collection<Class<?>> getKnownMatchingClasses(String name) {
+		Set<Class<?>> classes = new HashSet<Class<?>>();
+		for (Class<?> c : analyzedClasses) {
+			if (c.getName().endsWith(name))
+				classes.add(c);
+		}
+		return classes;
+	}
+
 }
