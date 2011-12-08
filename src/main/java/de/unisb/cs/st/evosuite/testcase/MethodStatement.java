@@ -639,7 +639,5 @@ public class MethodStatement extends AbstractStatement {
 			logger.warn("Class not found - keeping old class loader ", e);
 		}
 		super.changeClassLoader(loader);
-		logger.warn("Method not found - keeping old class loader ");
-
 	}
 }

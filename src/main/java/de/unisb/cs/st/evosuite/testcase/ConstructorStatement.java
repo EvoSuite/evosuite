@@ -513,6 +513,5 @@ public class ConstructorStatement extends AbstractStatement {
 			logger.warn("Class not found - keeping old class loader ", e);
 		}
 		super.changeClassLoader(loader);
-		logger.warn("Constructor not found - keeping old class loader ");
 	}
 }
