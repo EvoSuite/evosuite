@@ -23,13 +23,10 @@ public class SEParser {
 	private final TestVisitor tv;
 	
 	private final Editor editor;
-
-	/**
-	 * @param editor
-	 */
+	
 	public SEParser(Editor editor) {
-		tv = new TestVisitor(editor);
 		this.editor = editor;
+		tv = new TestVisitor(true);
 	}
 
 	public TestCase parseTest(String testCode) throws IOException,

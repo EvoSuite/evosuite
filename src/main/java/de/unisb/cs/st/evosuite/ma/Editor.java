@@ -18,7 +18,6 @@ import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ma.gui.SourceCodeGUI;
 import de.unisb.cs.st.evosuite.ma.gui.TestEditorGUI;
 import de.unisb.cs.st.evosuite.ma.parser.SEParser;
-import de.unisb.cs.st.evosuite.ma.parser.TestParser;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
@@ -53,7 +52,7 @@ public class Editor implements UserFeedback {
 
 	public final SourceCodeGUI sguiSC = new SourceCodeGUI();
 
-	private TestParser testParser;
+	// private TestParser testParser;
 
 	private TestCaseTuple currTCTuple;
 
@@ -88,7 +87,7 @@ public class Editor implements UserFeedback {
 		nextTest();
 		sguiSC.createWindow(this);
 		sguiTE.createMainWindow(this);
-		testParser = new TestParser(this);
+		// testParser = new TestParser(this);
 
 		// see message from html_analyzer.getClassContent(...) to check this
 		if (sourceCode.toString().equals(
@@ -122,7 +121,7 @@ public class Editor implements UserFeedback {
 		try {
 			TestCase newTestCase;
 			// newTestCase = testParser.parseTest(testCode);
-			newTestCase = sep.parseTest(testCode);			
+			newTestCase = sep.parseTest(testCode);
 
 			if (newTestCase != null) {
 				// EvoSuite stuff
@@ -330,9 +329,9 @@ public class Editor implements UserFeedback {
 	}
 
 	@Override
-	public File chooseTargetFile(String className) {
+	public File chooseTargetFile(String fileName) {
 		final JFileChooser fc = new JFileChooser();
-		fc.setDialogTitle("Where is class: " + className);
+		fc.setDialogTitle("Where is: " + fileName);
 		int returnVal = fc.showOpenDialog(sguiTE.mainFrame);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -341,4 +340,16 @@ public class Editor implements UserFeedback {
 
 		return null;
 	}
+
+	public static String enterClassName(String className) {
+		return JOptionPane.showInputDialog(null, "Where is class " + className
+				+ "?", "Please enter full name", JOptionPane.QUESTION_MESSAGE);
+	}
+
+	public static String chooseClassName(String[] choices) {
+		return (String) JOptionPane.showInputDialog(null, "Choose now...",
+				"The Choice of a Lifetime", JOptionPane.QUESTION_MESSAGE, null,
+				choices, choices[0]);
+	}
+
 }
