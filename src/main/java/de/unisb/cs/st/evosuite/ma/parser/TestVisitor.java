@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,6 +95,7 @@ public class TestVisitor extends
 		this.editor = editor;
 	}
 
+	@Override
 	public AbstractStatement visit(VariableDeclarationExpr n, Object arg) {
 		// use right side to get properly Statement
 		logger.debug("getInit(): " + n.getVars().get(0).getInit());
@@ -154,6 +156,7 @@ public class TestVisitor extends
 		return res;
 	}
 
+	@Override
 	public AbstractStatement visit(IntegerLiteralExpr n, Object arg) {
 		AbstractStatement res = null;
 		logger.debug("i'm here IntegerLiteralExpr: " + n);
@@ -189,6 +192,7 @@ public class TestVisitor extends
 		return res;
 	}
 
+	@Override
 	public AbstractStatement visit(CharLiteralExpr n, Object arg) {
 		AbstractStatement res = null;
 		logger.debug("i'm here CharLiteralExpr");
@@ -202,6 +206,7 @@ public class TestVisitor extends
 		return res;
 	}
 
+	@Override
 	public AbstractStatement visit(LongLiteralExpr n, Object arg) {
 		AbstractStatement res = null;
 		logger.debug("i'm here LongLiteralExpr");
@@ -216,6 +221,7 @@ public class TestVisitor extends
 		return res;
 	}
 
+	@Override
 	public AbstractStatement visit(DoubleLiteralExpr n, Object arg) {
 		AbstractStatement res = null;
 		logger.debug("i'm here DoubleLiteralExpr");
@@ -248,6 +254,7 @@ public class TestVisitor extends
 		return res;
 	}
 
+	@Override
 	public AbstractStatement visit(BooleanLiteralExpr n, Object arg) {
 		AbstractStatement res = null;
 		logger.debug("i'm here BooleanLiteralExpr");
@@ -260,11 +267,13 @@ public class TestVisitor extends
 		return res;
 	}
 
+	@Override
 	public AbstractStatement visit(StringLiteralExpr n, Object arg) {
 		AbstractStatement res = null;
 		logger.debug("i'm here StringLiteralExpr");
 		try {
-			res = new StringPrimitiveStatement(newTC, n.getValue());
+			String value = StringEscapeUtils.unescapeJava(n.getValue());
+			res = new StringPrimitiveStatement(newTC, value);
 		} catch (NumberFormatException e) {
 			addParsError("Primitive is assigned a var, not implemented yet.", n);
 		}
@@ -272,6 +281,7 @@ public class TestVisitor extends
 		return res;
 	}
 
+	@Override
 	public AbstractStatement visit(ObjectCreationExpr n, Object arg) {
 		logger.debug("Visit new Object: " + n);
 		AbstractStatement res = null;
@@ -302,6 +312,7 @@ public class TestVisitor extends
 		return res;
 	}
 
+	@Override
 	public AbstractStatement visit(FieldAccessExpr n, Object arg) {
 		AbstractStatement res = null;
 		Field field = null;
@@ -330,6 +341,7 @@ public class TestVisitor extends
 		return res;
 	}
 
+	@Override
 	public AbstractStatement visit(ArrayCreationExpr n, Object arg) {
 		logger.debug("i'm here ArrayCreationExpr: " + n);
 		List<Expression> dims = n.getDimensions();
@@ -422,6 +434,7 @@ public class TestVisitor extends
 		return res;
 	}
 
+	@Override
 	public AbstractStatement visit(AssignExpr n, Object arg) {
 		AbstractStatement res = null;
 		VariableReference rhs = null, lhs = null;
@@ -452,6 +465,7 @@ public class TestVisitor extends
 		return res;
 	}
 
+	@Override
 	public AbstractStatement visit(MethodCallExpr n, Object arg) {
 		AbstractStatement res = null;
 		List<Expression> args = n.getArgs();
@@ -691,8 +705,7 @@ public class TestVisitor extends
 			} catch (NumberFormatException e) {
 				// If we can't parse it, just use 0
 			}
-			logger.debug("Array reference: " + arrayRef + ", index "
-					+ arrayInd);
+			logger.debug("Array reference: " + arrayRef + ", index " + arrayInd);
 			return new ArrayIndex(newTC, arrayRef, arrayInd);
 		} else if (expr instanceof CastExpr) {
 			return getVarRef(((CastExpr) expr).getExpr());
@@ -787,23 +800,21 @@ public class TestVisitor extends
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (NoSuchMethodException e) {
-			logger.debug("Looking for method " + methodName
-					+ " in class " + clazz.getName() + " with parameters "
+			logger.debug("Looking for method " + methodName + " in class "
+					+ clazz.getName() + " with parameters "
 					+ Arrays.asList(paramClasses));
 			for (Method meth : TestCluster.getMethods(clazz)) {
 				if (meth.getName().equals(methodName)) {
 					if (meth.getParameterTypes().length == paramClasses.length) {
 						Class<?>[] methParams = meth.getParameterTypes();
-						logger.debug("Checking "
-								+ Arrays.asList(methParams));
+						logger.debug("Checking " + Arrays.asList(methParams));
 						for (int i = 0; i < methParams.length; i++) {
 							if (paramClasses[i] == null
 									|| methParams[i]
 											.isAssignableFrom(paramClasses[i])
 									|| (methParams[i].equals(int.class) && paramClasses[i]
 											.equals(char.class))) {
-								logger.debug("Parameter " + i
-										+ " matches");
+								logger.debug("Parameter " + i + " matches");
 								if (i == methParams.length - 1) {
 									return meth;
 								}
