@@ -11,6 +11,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1015,6 +1016,19 @@ public class LazyTestCluster extends TestCluster {
 	@Override
 	public Set<Class<?>> getAnalyzedClasses() {
 		return analyzedClasses;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#getKnownMatchingClasses(java.lang.String)
+	 */
+	@Override
+	public Collection<Class<?>> getKnownMatchingClasses(String name) {
+		Set<Class<?>> classes = new HashSet<Class<?>>();
+		for (Class<?> c : analyzedClasses) {
+			if (c.getName().endsWith(name))
+				classes.add(c);
+		}
+		return classes;
 	}
 
 	public boolean isTargetClassName(String className) {
