@@ -11,8 +11,9 @@ import java.util.ArrayList;
  */
 public class Transactions {
 
-	ArrayList<Record> records = new ArrayList<Record>();
-	ArrayList<Record> alternativeRecords = new ArrayList<Record>();
+	private ArrayList<Record> records = new ArrayList<Record>();
+	
+	private ArrayList<Record> alternativeRecords = new ArrayList<Record>();
 
 	/**
 	 * Create instance with unchangeable init values
@@ -41,7 +42,7 @@ public class Transactions {
 	 * 
 	 * @return
 	 */
-	public Record prev() {
+	public ArrayList<TCTuple> prev() {
 		Record res = null;
 		if (records.size() > 1) {
 			// current record to alternative records
@@ -52,7 +53,7 @@ public class Transactions {
 		} else {
 			res = records.get(0);
 		}
-		return res;
+		return res.getTestCases();
 	}
 
 	/**
@@ -61,14 +62,14 @@ public class Transactions {
 	 * 
 	 * @return
 	 */
-	public Record next() {
+	public ArrayList<TCTuple> next() {
 		if (alternativeRecords.size() > 0) {
 			// return alternative last record to current and restore it state
 			Record res = alternativeRecords
 					.remove(alternativeRecords.size() - 1);
 			records.add(res);
 		}
-		return records.get(records.size() - 1);
+		return records.get(records.size() - 1).getTestCases();
 	}
 
 	/**
@@ -76,11 +77,11 @@ public class Transactions {
 	 * 
 	 * @return
 	 */
-	public Record reset() {
+	public ArrayList<TCTuple> reset() {
 		alternativeRecords = new ArrayList<Record>(records.subList(1,
 				records.size()));
 		records = new ArrayList<Record>(records.subList(0, 1));
-		return records.get(0);
+		return records.get(0).getTestCases();
 	}
 
 	/*
@@ -103,5 +104,5 @@ public class Transactions {
 		}
 		return res.toString();
 	}
-
+	
 }

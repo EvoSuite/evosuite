@@ -41,7 +41,11 @@ public class Record {
 	 * @return the testCases
 	 */
 	public ArrayList<TCTuple> getTestCases() {
-		return testCases;
+		ArrayList<TCTuple> res = new ArrayList<TCTuple>();
+		for (TCTuple tcTuple : testCases) {
+			res.add(tcTuple.clone());
+		}
+		return res;
 	}
 	
 }

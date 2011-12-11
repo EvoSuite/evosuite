@@ -207,7 +207,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			System.out.println("Alarm?!?!?!?!?!?");
 		}
 		if (testCase != null) {
-			for (int i = 0; i > tests.size(); i++) {
+			for (int i = 0; i < tests.size(); i++) {
 				if (tests.get(i).getTestCase().equals((testCase))) {
 					tests.remove(i);
 					unmodifiableTests.remove(i);
