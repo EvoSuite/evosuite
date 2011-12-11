@@ -326,9 +326,8 @@ public class Editor implements UserFeedback {
 	public int getSuiteCoveratgeVal() {
 		gaInstance.getFitnessFunction().getFitness(testSuiteChr);
 		int newValue = (int) (testSuiteChr.getCoverage() * 100);
-		System.out.println("\nprevSuiteCoverage: " + prevSuiteCoverage);
-		System.out.println("newValue: " + newValue);
 		if (newValue < prevSuiteCoverage) {
+			prevSuiteCoverage = newValue;
 			showWarning("New coverage is smaller!.");
 		} else {
 			prevSuiteCoverage = newValue;
@@ -381,22 +380,19 @@ public class Editor implements UserFeedback {
 	}
 
 	public void undo() {
-		Record res = transactions.prev();
-		updateAfterTransaction(res);
+		updateAfterTransaction(transactions.prev());
 	}
 
 	public void redo() {
-		Record res = transactions.next();
-		updateAfterTransaction(res);
+		updateAfterTransaction(transactions.next());
 	}
 
 	public void reset() {
-		Record res = transactions.reset();
-		updateAfterTransaction(res);
+		updateAfterTransaction(transactions.reset());
 	}
 
-	private void updateAfterTransaction(Record res) {
-		tcTuples = res.getTestCases();
+	private void updateAfterTransaction(ArrayList<TCTuple> trns) {
+		tcTuples = trns;
 		nextTest();
 		ArrayList<TestCase> tests = new ArrayList<TestCase>();
 		for (TCTuple tcTupel : tcTuples) {
@@ -404,7 +400,6 @@ public class Editor implements UserFeedback {
 		}
 		testSuiteChr.restoreTests(tests);
 		updateCoverage();
-		System.out.println(transactions);
 	}
 
 }
