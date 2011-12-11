@@ -31,6 +31,7 @@ import de.unisb.cs.st.evosuite.ga.SecondaryObjective;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
@@ -58,7 +59,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		c.setTestCase(test);
 		addTest(c);
 	}
-
+	
 	/**
 	 * Create a deep copy of this test suite
 	 */
@@ -202,16 +203,26 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 *            to remove
 	 */
 	public void deleteTest(TestCase testCase) {
+		if (tests.size() != unmodifiableTests.size()) {
+			System.out.println("Alarm?!?!?!?!?!?");
+		}
 		if (testCase != null) {
-			TestChromosome chromToDel = null;
-			for (TestChromosome test : tests) {
-				if (test.getTestCase().equals((testCase))) {
-					chromToDel = test;
+			for (int i = 0; i > tests.size(); i++) {
+				if (tests.get(i).getTestCase().equals((testCase))) {
+					tests.remove(i);
+					unmodifiableTests.remove(i);
 				}
 			}
-			if (chromToDel != null) {
-				tests.remove(chromToDel);
-			}
+		}
+	}
+	
+	public void restoreTests(ArrayList<TestCase> backup) {
+		tests.clear();
+		unmodifiableTests.clear();
+		TestCaseExecutor executor = TestCaseExecutor.getInstance();
+		for (TestCase testCase : backup) {
+			addTest(testCase);
+			executor.execute(testCase);
 		}
 	}
 

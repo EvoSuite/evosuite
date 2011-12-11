@@ -40,7 +40,7 @@ public class Editor implements UserFeedback {
 
 	private final Set<Integer> suiteCoveredLines = new HashSet<Integer>();
 
-	private final List<TestCaseTuple> testCases = new ArrayList<TestCaseTuple>();
+	private ArrayList<TCTuple> tcTuples = new ArrayList<TCTuple>();
 
 	private final TestSuiteChromosome testSuiteChr;
 
@@ -54,9 +54,13 @@ public class Editor implements UserFeedback {
 
 	// private TestParser testParser;
 
-	private TestCaseTuple currTCTuple;
+	private TCTuple currTCTuple;
 
 	private final SEParser sep = new SEParser(this);
+
+	private final Transactions transactions;
+
+	private int prevSuiteCoverage;
 
 	/**
 	 * Create instance of manual editor.
@@ -80,13 +84,14 @@ public class Editor implements UserFeedback {
 		Set<Integer> testCaseCoverega;
 		for (TestCase testCase : tests) {
 			testCaseCoverega = retrieveCoverage(testCase);
-			testCases.add(new TestCaseTuple(testCase, testCaseCoverega));
+			tcTuples.add(new TCTuple(testCase, testCaseCoverega));
 			suiteCoveredLines.addAll(testCaseCoverega);
 		}
 
 		nextTest();
 		sguiSC.createWindow(this);
 		sguiTE.createMainWindow(this);
+		transactions = new Transactions(tcTuples, currTCTuple);
 		// testParser = new TestParser(this);
 
 		// see message from html_analyzer.getClassContent(...) to check this
@@ -125,24 +130,24 @@ public class Editor implements UserFeedback {
 
 			if (newTestCase != null) {
 				// EvoSuite stuff
-				testSuiteChr.setChanged(true);
 				TestCaseExecutor executor = TestCaseExecutor.getInstance();
 				executor.execute(newTestCase);
 
 				// If we change already existed testCase, remove old version
 				testSuiteChr.deleteTest(currentTestCase);
-				testCases.remove(currTCTuple);
+				tcTuples.remove(currTCTuple);
 				testSuiteChr.addTest(newTestCase);
 
 				// MA stuff
 				Set<Integer> testCaseCoverega = retrieveCoverage(newTestCase);
 				suiteCoveredLines.addAll(testCaseCoverega);
-				TestCaseTuple newTestCaseTuple = new TestCaseTuple(newTestCase,
+				TCTuple newTestCaseTuple = new TCTuple(newTestCase,
 						testCaseCoverega);
 				currTCTuple = newTestCaseTuple;
 				// testParser = new TestParser(this);
-				testCases.add(newTestCaseTuple);
+				tcTuples.add(newTestCaseTuple);
 				updateCoverage();
+				writeTransaction();
 				return true;
 			}
 		} catch (IOException e) {
@@ -159,7 +164,7 @@ public class Editor implements UserFeedback {
 	 * @return int
 	 */
 	public int getNumOfTestCases() {
-		return testCases.size();
+		return tcTuples.size();
 	}
 
 	/**
@@ -168,7 +173,7 @@ public class Editor implements UserFeedback {
 	 * @return int
 	 */
 	public int getNumOfCurrTest() {
-		return testCases.indexOf(currTCTuple);
+		return tcTuples.indexOf(currTCTuple);
 	}
 
 	/**
@@ -176,7 +181,7 @@ public class Editor implements UserFeedback {
 	 * 
 	 * @return TestCaseTupel
 	 */
-	public TestCaseTuple getCurrTCTup() {
+	public TCTuple getCurrTCTup() {
 		return currTCTuple;
 	}
 
@@ -191,21 +196,21 @@ public class Editor implements UserFeedback {
 	 * Set currentTestCase to the next testCase.
 	 */
 	public void nextTest() {
-		if (currTCTuple == null && testCases.size() > 0) {
-			currTCTuple = testCases.get(0);
-		} else if (currTCTuple != null && testCases.size() > 0) {
+		if (currTCTuple == null && tcTuples.size() > 0) {
+			currTCTuple = tcTuples.get(0);
+		} else if (currTCTuple != null && tcTuples.size() > 0) {
 
 			int j = 0;
-			for (int i = 0; i < testCases.size(); i++) {
-				if (currTCTuple == testCases.get(i)) {
-					if (i == testCases.size() - 1) {
+			for (int i = 0; i < tcTuples.size(); i++) {
+				if (currTCTuple == tcTuples.get(i)) {
+					if (i == tcTuples.size() - 1) {
 						j = 0;
 					} else {
 						j = i + 1;
 					}
 				}
 			}
-			currTCTuple = testCases.get(j);
+			currTCTuple = tcTuples.get(j);
 		} else {
 			createNewTestCase();
 		}
@@ -215,21 +220,21 @@ public class Editor implements UserFeedback {
 	 * Set currentTestCase to previous testCase.
 	 */
 	public void prevTest() {
-		if (currTCTuple == null && testCases.size() > 0) {
-			currTCTuple = testCases.get(0);
-		} else if (currTCTuple != null && testCases.size() > 0) {
+		if (currTCTuple == null && tcTuples.size() > 0) {
+			currTCTuple = tcTuples.get(0);
+		} else if (currTCTuple != null && tcTuples.size() > 0) {
 
 			int j = 0;
-			for (int i = 0; i < testCases.size(); i++) {
-				if (currTCTuple == testCases.get(i)) {
+			for (int i = 0; i < tcTuples.size(); i++) {
+				if (currTCTuple == tcTuples.get(i)) {
 					if (i == 0) {
-						j = testCases.size() - 1;
+						j = tcTuples.size() - 1;
 					} else {
 						j = i - 1;
 					}
 				}
 			}
-			currTCTuple = testCases.get(j);
+			currTCTuple = tcTuples.get(j);
 		} else {
 			createNewTestCase();
 		}
@@ -250,8 +255,8 @@ public class Editor implements UserFeedback {
 	 * 
 	 */
 	public void createNewTestCase() {
-		TestCaseTuple newTestCaseTuple = new TestCaseTuple(
-				new DefaultTestCase(), new HashSet<Integer>());
+		TCTuple newTestCaseTuple = new TCTuple(new DefaultTestCase(),
+				new HashSet<Integer>());
 		currTCTuple = newTestCaseTuple;
 	}
 
@@ -262,9 +267,10 @@ public class Editor implements UserFeedback {
 	public void delCurrTC() {
 		TestCase testCaseForDeleting = currTCTuple.getTestCase();
 		testSuiteChr.deleteTest(testCaseForDeleting);
-		testCases.remove(currTCTuple);
+		tcTuples.remove(currTCTuple);
 		updateCoverage();
 		nextTest();
+		writeTransaction();
 	}
 
 	/**
@@ -272,7 +278,7 @@ public class Editor implements UserFeedback {
 	 */
 	private void updateCoverage() {
 		suiteCoveredLines.clear();
-		for (TestCaseTuple tct : testCases) {
+		for (TCTuple tct : tcTuples) {
 			suiteCoveredLines.addAll(tct.getCoverage());
 		}
 
@@ -319,7 +325,15 @@ public class Editor implements UserFeedback {
 	 */
 	public int getSuiteCoveratgeVal() {
 		gaInstance.getFitnessFunction().getFitness(testSuiteChr);
-		return (int) (testSuiteChr.getCoverage() * 100);
+		int newValue = (int) (testSuiteChr.getCoverage() * 100);
+		System.out.println("\nprevSuiteCoverage: " + prevSuiteCoverage);
+		System.out.println("newValue: " + newValue);
+		if (newValue < prevSuiteCoverage) {
+			showWarning("New coverage is smaller!.");
+		} else {
+			prevSuiteCoverage = newValue;
+		}
+		return newValue;
 	}
 
 	@Override
@@ -350,6 +364,47 @@ public class Editor implements UserFeedback {
 		return (String) JOptionPane.showInputDialog(null, "Choose now...",
 				"The Choice of a Lifetime", JOptionPane.QUESTION_MESSAGE, null,
 				choices, choices[0]);
+	}
+
+	/**
+	 * Show warning
+	 * 
+	 * @param message
+	 */
+	public static void showWarning(String message) {
+		JOptionPane.showMessageDialog(null, message, "Warning",
+				JOptionPane.ERROR_MESSAGE);
+	}
+
+	private void writeTransaction() {
+		transactions.push(tcTuples, currTCTuple);
+	}
+
+	public void undo() {
+		Record res = transactions.prev();
+		updateAfterTransaction(res);
+	}
+
+	public void redo() {
+		Record res = transactions.next();
+		updateAfterTransaction(res);
+	}
+
+	public void reset() {
+		Record res = transactions.reset();
+		updateAfterTransaction(res);
+	}
+
+	private void updateAfterTransaction(Record res) {
+		tcTuples = res.getTestCases();
+		nextTest();
+		ArrayList<TestCase> tests = new ArrayList<TestCase>();
+		for (TCTuple tcTupel : tcTuples) {
+			tests.add(tcTupel.getTestCase());
+		}
+		testSuiteChr.restoreTests(tests);
+		updateCoverage();
+		System.out.println(transactions);
 	}
 
 }

@@ -50,7 +50,7 @@ public abstract class TestCluster {
 	public static TestCluster getInstance() {
 		if (instance == null) {
 			instance = new StaticTestCluster();
-			//instance = LazyTestCluster.getInstance();
+			// instance = LazyTestCluster.getInstance();
 			instance.init();
 		}
 
@@ -85,7 +85,8 @@ public abstract class TestCluster {
 				// TODO Auto-generated catch block
 				// e.printStackTrace();
 			} catch (NoSuchMethodException e) {
-				logger.info("Static: Could not find method clinit in : " + className);
+				logger.info("Static: Could not find method clinit in : "
+						+ className);
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -101,10 +102,10 @@ public abstract class TestCluster {
 		loadStaticInitializers();
 		logger.debug("Static initializers: " + staticInitializers.size());
 		for (Method m : staticInitializers) {
-			//if (!m.getDeclaringClass().equals(Properties.getTargetClass()))
-			//	continue;
+			// if (!m.getDeclaringClass().equals(Properties.getTargetClass()))
+			// continue;
 
-			//logger.warn("Resetting " + m);
+			// logger.warn("Resetting " + m);
 
 			try {
 				m.invoke(null, (Object[]) null);
@@ -135,7 +136,8 @@ public abstract class TestCluster {
 	 * @return
 	 * @throws ClassNotFoundException
 	 */
-	public abstract Class<?> getClass(String name) throws ClassNotFoundException;
+	public abstract Class<?> getClass(String name)
+			throws ClassNotFoundException;
 
 	/**
 	 * Integrate a new class into the test cluster
@@ -143,7 +145,8 @@ public abstract class TestCluster {
 	 * @param name
 	 * @throws ClassNotFoundException
 	 */
-	public abstract Class<?> importClass(String name) throws ClassNotFoundException;
+	public abstract Class<?> importClass(String name)
+			throws ClassNotFoundException;
 
 	/**
 	 * Retrieve all classes that match the given postfix
@@ -160,7 +163,8 @@ public abstract class TestCluster {
 	 * @return
 	 */
 	public Collection<String> getMatchingClasses(String name) {
-		Pattern pattern = Pattern.compile(".*" + name + ".class");
+		// Pattern pattern = Pattern.compile(".*" + name + ".class");
+		Pattern pattern = Pattern.compile(".*");
 		Collection<String> resources = ResourceList.getResources(pattern);
 
 		Set<String> classes = new HashSet<String>();
@@ -195,7 +199,7 @@ public abstract class TestCluster {
 	 * @throws ConstructionFailedException
 	 */
 	public abstract AccessibleObject getRandomGenerator(Type type)
-	        throws ConstructionFailedException;
+			throws ConstructionFailedException;
 
 	/**
 	 * Randomly select one generator
@@ -205,7 +209,7 @@ public abstract class TestCluster {
 	 * @throws ConstructionFailedException
 	 */
 	public abstract AccessibleObject getRandomGenerator(Type type,
-	        Set<AccessibleObject> excluded) throws ConstructionFailedException;
+			Set<AccessibleObject> excluded) throws ConstructionFailedException;
 
 	/**
 	 * Get a list of all generator objects for the type
@@ -215,7 +219,7 @@ public abstract class TestCluster {
 	 * @throws ConstructionFailedException
 	 */
 	public abstract Set<AccessibleObject> getGenerators(Type type)
-	        throws ConstructionFailedException;
+			throws ConstructionFailedException;
 
 	/**
 	 * Return all calls that have a parameter with given type
@@ -267,19 +271,15 @@ public abstract class TestCluster {
 
 		Set<Constructor<?>> constructors = new HashSet<Constructor<?>>();
 		/*
-		if (clazz.getSuperclass() != null) {
-			// constructors.addAll(getConstructors(clazz.getSuperclass()));
-			for (Constructor<?> c : getConstructors(clazz.getSuperclass())) {
-				helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c), c);
-			}
-		}
-		for (Class<?> in : clazz.getInterfaces()) {
-			for (Constructor<?> c : getConstructors(in)) {
-				helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c), c);
-			}
-			// constructors.addAll(getConstructors(in));
-		}
-		*/
+		 * if (clazz.getSuperclass() != null) { //
+		 * constructors.addAll(getConstructors(clazz.getSuperclass())); for
+		 * (Constructor<?> c : getConstructors(clazz.getSuperclass())) {
+		 * helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c), c); }
+		 * } for (Class<?> in : clazz.getInterfaces()) { for (Constructor<?> c :
+		 * getConstructors(in)) {
+		 * helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c), c); }
+		 * // constructors.addAll(getConstructors(in)); }
+		 */
 
 		// for(Constructor c : clazz.getConstructors()) {
 		// constructors.add(c);
@@ -307,12 +307,18 @@ public abstract class TestCluster {
 		if (clazz.getSuperclass() != null) {
 			// constructors.addAll(getConstructors(clazz.getSuperclass()));
 			for (Method m : getMethods(clazz.getSuperclass())) {
-				helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
+				helper.put(
+						m.getName()
+								+ org.objectweb.asm.Type.getMethodDescriptor(m),
+						m);
 			}
 		}
 		for (Class<?> in : clazz.getInterfaces()) {
 			for (Method m : getMethods(in)) {
-				helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
+				helper.put(
+						m.getName()
+								+ org.objectweb.asm.Type.getMethodDescriptor(m),
+						m);
 			}
 			// constructors.addAll(getConstructors(in));
 		}
@@ -321,19 +327,19 @@ public abstract class TestCluster {
 		// constructors.add(c);
 		// }
 		for (Method m : clazz.getDeclaredMethods()) {
-			helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
+			helper.put(
+					m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m),
+					m);
 		}
 
 		Set<Method> methods = new HashSet<Method>();
 		methods.addAll(helper.values());
 		/*
-		for (Method m : helper.values()) {
-			String name = m.getName() + "|"
-			        + org.objectweb.asm.Type.getMethodDescriptor(m);
-
-			methods.add(m);
-		}
-		*/
+		 * for (Method m : helper.values()) { String name = m.getName() + "|" +
+		 * org.objectweb.asm.Type.getMethodDescriptor(m);
+		 * 
+		 * methods.add(m); }
+		 */
 		return methods;
 	}
 

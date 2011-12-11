@@ -129,14 +129,14 @@ public class TestEditorGUI {
 		btnNextTestButton.setBounds(143, 12, 119, 25);
 		controlPanel.add(btnNextTestButton);
 
-		JButton btnDeleteTest = new JButton("Delete test");
+		JButton btnDeleteTest = new JButton("Del test");
 		btnDeleteTest.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				deleteTest();
 			}
 		});
-		btnDeleteTest.setBounds(661, 43, 119, 25);
+		btnDeleteTest.setBounds(690, 12, 90, 25);
 		controlPanel.add(btnDeleteTest);
 
 		JButton btnNewTestButton = new JButton("New test");
@@ -177,6 +177,36 @@ public class TestEditorGUI {
 		});
 		btnQuitButton.setBounds(405, 43, 119, 25);
 		controlPanel.add(btnQuitButton);
+		
+		JButton btnUndo = new JButton("UnDo");
+		btnUndo.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				unDo();
+			}
+		});
+		btnUndo.setBounds(588, 43, 90, 25);
+		controlPanel.add(btnUndo);
+		
+		JButton btnRedo = new JButton("ReDo");
+		btnRedo.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				reDo();
+			}
+		});
+		btnRedo.setBounds(690, 43, 90, 25);
+		controlPanel.add(btnRedo);
+		
+		JButton btnReset = new JButton("Reset");
+		btnReset.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				reset();
+			}
+		});
+		btnReset.setBounds(588, 12, 90, 25);
+		controlPanel.add(btnReset);
 
 		JMenuBar menuBar = new JMenuBar();
 		mainFrame.setJMenuBar(menuBar);
@@ -340,7 +370,31 @@ public class TestEditorGUI {
 			updateTitle();
 		}
 	}
+	
+	private void unDo() {
+		editor.undo();
+		editor.sguiSC.printSourceCode();
+		testEditorPane.setText(editor.getCurrTCCode());
+		setTestCaseUnchanged();
+		updateTitle();
+	}
 
+	private void reDo() {
+		editor.redo();
+		editor.sguiSC.printSourceCode();
+		testEditorPane.setText(editor.getCurrTCCode());
+		setTestCaseUnchanged();
+		updateTitle();
+	}
+	
+	private void reset() {
+		editor.reset();
+		editor.sguiSC.printSourceCode();
+		testEditorPane.setText(editor.getCurrTCCode());
+		setTestCaseUnchanged();
+		updateTitle();
+	}
+	
 	private void quit() {
 		editor.sguiSC.close();
 		mainFrame.setVisible(false);
@@ -371,5 +425,4 @@ public class TestEditorGUI {
 			}
 		}
 	}
-
 }
