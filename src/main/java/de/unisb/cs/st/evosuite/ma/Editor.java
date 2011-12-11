@@ -365,11 +365,6 @@ public class Editor implements UserFeedback {
 				choices, choices[0]);
 	}
 
-	/**
-	 * Show warning
-	 * 
-	 * @param message
-	 */
 	public static void showWarning(String message) {
 		JOptionPane.showMessageDialog(null, message, "Warning",
 				JOptionPane.ERROR_MESSAGE);
