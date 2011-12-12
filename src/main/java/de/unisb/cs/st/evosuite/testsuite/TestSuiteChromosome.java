@@ -203,9 +203,6 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 *            to remove
 	 */
 	public void deleteTest(TestCase testCase) {
-		if (tests.size() != unmodifiableTests.size()) {
-			System.out.println("Alarm?!?!?!?!?!?");
-		}
 		if (testCase != null) {
 			for (int i = 0; i < tests.size(); i++) {
 				if (tests.get(i).getTestCase().equals((testCase))) {
