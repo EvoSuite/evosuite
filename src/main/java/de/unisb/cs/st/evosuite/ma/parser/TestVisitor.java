@@ -299,8 +299,10 @@ public class TestVisitor extends
 			}
 
 			ArrayList<Class<?>> paramClasses = new ArrayList<Class<?>>();
-			for (VariableReference refs : params) {
-				paramClasses.add(refs.getVariableClass());
+			for (VariableReference paramRef : params) {
+				if (paramRef != null) {
+					paramClasses.add(paramRef.getVariableClass());
+				}
 			}
 			for (Class<?> class1 : paramClasses) {
 				logger.debug("Params clazzs loaded: " + class1);
@@ -614,17 +616,10 @@ public class TestVisitor extends
 		} catch (ClassNotFoundException e) {
 			if (guiActive) {
 				String className = null;
-				while ((className = Editor.enterClassName(name)) != null) {
-					{
-						try {
-							return testCluster.importClass(className);
-						} catch (ClassNotFoundException e1) {
-							// just try again or press cancel
-						}
-					}
-				}
-				
-				Collection<String> allClasses = testCluster.getMatchingClasses(name);
+
+				// choosing part
+				Collection<String> allClasses = testCluster
+						.getMatchingClasses(name);
 				String[] choices = new String[allClasses.size()];
 				allClasses.toArray(choices);
 				if (choices.length == 0) {
@@ -641,8 +636,20 @@ public class TestVisitor extends
 						}
 					}
 				}
+
+				// last chance to find class
+				while ((className = Editor.enterClassName(name)) != null) {
+					{
+						try {
+							return testCluster.importClass(className);
+						} catch (ClassNotFoundException e1) {
+							// just try again or press cancel
+						}
+					}
+				}
 			}
 		}
+		System.out.println("Rrrrr throw now.");
 		throw new ParseException(null, "Can't load class: " + name);
 	}
 
