@@ -450,8 +450,14 @@ public class TestVisitor extends
 		logger.debug("AssignExpr.getValue(): " + value);
 		try {
 			lhs = getVarRef(target);
-		} catch (ParseException e) {
-			addParsError(e.getMessage(), n);
+ 		} catch (ParseException e) {
+			// try to create var for this value
+			logger.debug("Try create new RHS");
+			AbstractStatement lhsSttm = separator(value, null,
+					"tEmPoRaLvArIaBlE" + n.getBeginLine() + n.getBeginColumn());
+			logger.debug("rhs created: " + lhsSttm);
+			lhs = lhsSttm.getReturnValue();
+			logger.debug("New RHS is: " + lhs);
 		}
 		try {
 			rhs = getVarRef(value);

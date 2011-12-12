@@ -22,6 +22,7 @@ import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
+import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
@@ -38,8 +39,6 @@ public class Editor implements UserFeedback {
 
 	private final SearchStatistics statistics = SearchStatistics.getInstance();
 
-	private final Set<Integer> suiteCoveredLines = new HashSet<Integer>();
-
 	private ArrayList<TCTuple> tcTuples = new ArrayList<TCTuple>();
 
 	private final TestSuiteChromosome testSuiteChr;
@@ -52,8 +51,6 @@ public class Editor implements UserFeedback {
 
 	public final SourceCodeGUI sguiSC = new SourceCodeGUI();
 
-	// private TestParser testParser;
-
 	private TCTuple currTCTuple;
 
 	private final SEParser sep = new SEParser(this);
@@ -61,6 +58,8 @@ public class Editor implements UserFeedback {
 	private final Transactions transactions;
 
 	private int prevSuiteCoverage;
+
+	// private TestParser testParser;
 
 	/**
 	 * Create instance of manual editor.
@@ -71,7 +70,8 @@ public class Editor implements UserFeedback {
 	public Editor(GeneticAlgorithm ga) {
 		gaInstance = ga;
 		ga.pauseGlobalTimeStoppingCondition();
-		testSuiteChr = (TestSuiteChromosome) gaInstance.getBestIndividual();
+		testSuiteChr = (TestSuiteChromosome) gaInstance.getBestIndividual()
+				.clone();
 
 		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(
 				TestSuiteGenerator.getFitnessFactory());
@@ -85,7 +85,6 @@ public class Editor implements UserFeedback {
 		for (TestCase testCase : tests) {
 			testCaseCoverega = retrieveCoverage(testCase);
 			tcTuples.add(new TCTuple(testCase, testCaseCoverega));
-			suiteCoveredLines.addAll(testCaseCoverega);
 		}
 
 		nextTest();
@@ -101,6 +100,7 @@ public class Editor implements UserFeedback {
 			sourceCode = Utils.readFile(srcFile);
 		}
 
+		// here is gui active
 		synchronized (lock) {
 			while (sguiTE.mainFrame.isVisible())
 				try {
@@ -109,6 +109,45 @@ public class Editor implements UserFeedback {
 					e.printStackTrace();
 				}
 		}
+
+		// resuming part
+		System.out.println("returning");
+		// prepare TFF from new chromosome
+		minimizer.minimize(testSuiteChr);
+		HashSet<TestFitnessFunction> newTFF = (HashSet<TestFitnessFunction>) testSuiteChr
+				.getCoveredGoals();
+
+		// prepare TFF from original ES's chromosome
+		TestSuiteChromosome origTSH = (TestSuiteChromosome) gaInstance
+				.getBestIndividual();
+		minimizer.minimize(origTSH);
+		HashSet<TestFitnessFunction> origTFF = (HashSet<TestFitnessFunction>) origTSH
+				.getCoveredGoals();
+
+		// all TCs from manual editor
+		ArrayList<TestCase> testCases = getTests();
+		// testCases.get(0).
+
+		for (TestFitnessFunction tmpTFF : newTFF) {
+			// if originale don't cover any goal
+			if (!origTFF.contains(tmpTFF)) {
+				// find TC which covered
+				for (TestCase tmpTC : testCases) {
+					// add it to original chromosome if it's not already there
+					if (tmpTFF.isCovered(tmpTC)) {
+						if (!origTSH.getTests().contains(tmpTC)) {
+							origTSH.addTest(tmpTC);
+						}
+						break;
+					}
+				}
+			}
+		}
+		
+		for (TestCase testCase : origTSH.getTests()) {
+			System.out.println("blabla: " + testCase);
+		}
+
 		// when work is done reset time
 		ga.resumeGlobalTimeStoppingCondition();
 	}
@@ -140,13 +179,11 @@ public class Editor implements UserFeedback {
 
 				// MA stuff
 				Set<Integer> testCaseCoverega = retrieveCoverage(newTestCase);
-				suiteCoveredLines.addAll(testCaseCoverega);
 				TCTuple newTestCaseTuple = new TCTuple(newTestCase,
 						testCaseCoverega);
 				currTCTuple = newTestCaseTuple;
 				// testParser = new TestParser(this);
 				tcTuples.add(newTestCaseTuple);
-				updateCoverage();
 				writeTransaction();
 				return true;
 			}
@@ -268,20 +305,8 @@ public class Editor implements UserFeedback {
 		TestCase testCaseForDeleting = currTCTuple.getTestCase();
 		testSuiteChr.deleteTest(testCaseForDeleting);
 		tcTuples.remove(currTCTuple);
-		updateCoverage();
 		nextTest();
 		writeTransaction();
-	}
-
-	/**
-	 * Rebuild set of covered lines.
-	 */
-	private void updateCoverage() {
-		suiteCoveredLines.clear();
-		for (TCTuple tct : tcTuples) {
-			suiteCoveredLines.addAll(tct.getCoverage());
-		}
-
 	}
 
 	/**
@@ -315,7 +340,11 @@ public class Editor implements UserFeedback {
 	 * @return Set of Integers
 	 */
 	public Set<Integer> getSuiteCoveredLines() {
-		return suiteCoveredLines;
+		Set<Integer> res = new HashSet<Integer>();
+		for (TCTuple tct : tcTuples) {
+			res.addAll(tct.getCoverage());
+		}
+		return res;
 	}
 
 	/**
@@ -389,12 +418,15 @@ public class Editor implements UserFeedback {
 	private void updateAfterTransaction(ArrayList<TCTuple> trns) {
 		tcTuples = trns;
 		nextTest();
-		ArrayList<TestCase> tests = new ArrayList<TestCase>();
+		testSuiteChr.restoreTests(getTests());
+	}
+
+	private ArrayList<TestCase> getTests() {
+		ArrayList<TestCase> res = new ArrayList<TestCase>();
 		for (TCTuple tcTupel : tcTuples) {
-			tests.add(tcTupel.getTestCase());
+			res.add(tcTupel.getTestCase());
 		}
-		testSuiteChr.restoreTests(tests);
-		updateCoverage();
+		return res;
 	}
 
 }
