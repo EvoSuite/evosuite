@@ -12,6 +12,9 @@ import java.util.Set;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
@@ -34,6 +37,8 @@ import de.unisb.cs.st.evosuite.utils.Utils;
  * 
  */
 public class Editor implements UserFeedback {
+
+	private static Logger logger = LoggerFactory.getLogger(Editor.class);
 
 	public final Object lock = new Object();
 
@@ -70,12 +75,12 @@ public class Editor implements UserFeedback {
 	public Editor(GeneticAlgorithm ga) {
 		gaInstance = ga;
 		ga.pauseGlobalTimeStoppingCondition();
-		testSuiteChr = (TestSuiteChromosome) gaInstance.getBestIndividual()
-				.clone();
+		testSuiteChr = (TestSuiteChromosome) gaInstance.getBestIndividual().clone();
 
 		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(
-				TestSuiteGenerator.getFitnessFactory());
+		        TestSuiteGenerator.getFitnessFactory());
 		minimizer.minimize(testSuiteChr);
+		Set<TestFitnessFunction> originalGoals = testSuiteChr.getCoveredGoals();
 
 		List<TestCase> tests = testSuiteChr.getTests();
 		HtmlAnalyzer html_analyzer = new HtmlAnalyzer();
@@ -94,8 +99,8 @@ public class Editor implements UserFeedback {
 		// testParser = new TestParser(this);
 
 		// see message from html_analyzer.getClassContent(...) to check this
-		if (sourceCode.toString().equals(
-				"[No source found for " + Properties.TARGET_CLASS + "]")) {
+		if (sourceCode.toString().equals("[No source found for "
+		                                         + Properties.TARGET_CLASS + "]")) {
 			File srcFile = chooseTargetFile(Properties.TARGET_CLASS);
 			sourceCode = Utils.readFile(srcFile);
 		}
@@ -112,41 +117,29 @@ public class Editor implements UserFeedback {
 
 		// resuming part
 		System.out.println("returning");
-		// prepare TFF from new chromosome
-		minimizer.minimize(testSuiteChr);
-		HashSet<TestFitnessFunction> newTFF = (HashSet<TestFitnessFunction>) testSuiteChr
-				.getCoveredGoals();
+		Set<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
+		for (TestFitnessFunction goal : TestSuiteGenerator.getFitnessFactory().getCoverageGoals()) {
+			if (goal.isCovered(testSuiteChr.getTests()))
+				coveredGoals.add(goal);
+		}
 
-		// prepare TFF from original ES's chromosome
-		TestSuiteChromosome origTSH = (TestSuiteChromosome) gaInstance
-				.getBestIndividual();
-		minimizer.minimize(origTSH);
-		HashSet<TestFitnessFunction> origTFF = (HashSet<TestFitnessFunction>) origTSH
-				.getCoveredGoals();
-
-		// all TCs from manual editor
-		ArrayList<TestCase> testCases = getTests();
-		// testCases.get(0).
-
-		for (TestFitnessFunction tmpTFF : newTFF) {
-			// if originale don't cover any goal
-			if (!origTFF.contains(tmpTFF)) {
-				// find TC which covered
-				for (TestCase tmpTC : testCases) {
-					// add it to original chromosome if it's not already there
-					if (tmpTFF.isCovered(tmpTC)) {
-						if (!origTSH.getTests().contains(tmpTC)) {
-							origTSH.addTest(tmpTC);
-						}
+		originalGoals.removeAll(coveredGoals);
+		if (!originalGoals.isEmpty()) {
+			logger.info("Coverage dropped, copying old tests");
+			TestSuiteChromosome origTSH = (TestSuiteChromosome) gaInstance.getBestIndividual();
+			for (TestFitnessFunction goal : originalGoals) {
+				for (TestCase test : origTSH.getTests()) {
+					if (goal.isCovered(test)) {
+						testSuiteChr.addTest(test.clone());
 						break;
 					}
 				}
 			}
 		}
-		
-		for (TestCase testCase : origTSH.getTests()) {
-			System.out.println("blabla: " + testCase);
-		}
+
+		// Insert result into population
+		ga.getFitnessFunction().getFitness(testSuiteChr);
+		ga.getPopulation().set(0, testSuiteChr);
 
 		// when work is done reset time
 		ga.resumeGlobalTimeStoppingCondition();
@@ -179,8 +172,7 @@ public class Editor implements UserFeedback {
 
 				// MA stuff
 				Set<Integer> testCaseCoverega = retrieveCoverage(newTestCase);
-				TCTuple newTestCaseTuple = new TCTuple(newTestCase,
-						testCaseCoverega);
+				TCTuple newTestCaseTuple = new TCTuple(newTestCase, testCaseCoverega);
 				currTCTuple = newTestCaseTuple;
 				// testParser = new TestParser(this);
 				tcTuples.add(newTestCaseTuple);
@@ -293,7 +285,7 @@ public class Editor implements UserFeedback {
 	 */
 	public void createNewTestCase() {
 		TCTuple newTestCaseTuple = new TCTuple(new DefaultTestCase(),
-				new HashSet<Integer>());
+		        new HashSet<Integer>());
 		currTCTuple = newTestCaseTuple;
 	}
 
@@ -317,10 +309,8 @@ public class Editor implements UserFeedback {
 	 * @return Set of Integers
 	 */
 	private Set<Integer> retrieveCoverage(TestCase testCase) {
-		ExecutionTrace trace = statistics.executeTest(testCase,
-				Properties.TARGET_CLASS);
-		Set<Integer> result = statistics.getCoveredLines(trace,
-				Properties.TARGET_CLASS);
+		ExecutionTrace trace = statistics.executeTest(testCase, Properties.TARGET_CLASS);
+		Set<Integer> result = statistics.getCoveredLines(trace, Properties.TARGET_CLASS);
 
 		return result;
 	}
@@ -366,8 +356,8 @@ public class Editor implements UserFeedback {
 
 	@Override
 	public void showParseException(String message) {
-		JOptionPane.showMessageDialog(sguiTE.mainFrame, message,
-				"Parsing error", JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(sguiTE.mainFrame, message, "Parsing error",
+		                              JOptionPane.ERROR_MESSAGE);
 	}
 
 	@Override
@@ -384,19 +374,20 @@ public class Editor implements UserFeedback {
 	}
 
 	public static String enterClassName(String className) {
-		return JOptionPane.showInputDialog(null, "Where is class " + className
-				+ "?", "Please enter full name", JOptionPane.QUESTION_MESSAGE);
+		return JOptionPane.showInputDialog(null, "Where is class " + className + "?",
+		                                   "Please enter full name",
+		                                   JOptionPane.QUESTION_MESSAGE);
 	}
 
 	public static String chooseClassName(String[] choices) {
 		return (String) JOptionPane.showInputDialog(null, "Choose now...",
-				"The Choice of a Lifetime", JOptionPane.QUESTION_MESSAGE, null,
-				choices, choices[0]);
+		                                            "The Choice of a Lifetime",
+		                                            JOptionPane.QUESTION_MESSAGE, null,
+		                                            choices, choices[0]);
 	}
 
 	public static void showWarning(String message) {
-		JOptionPane.showMessageDialog(null, message, "Warning",
-				JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(null, message, "Warning", JOptionPane.ERROR_MESSAGE);
 	}
 
 	private void writeTransaction() {
