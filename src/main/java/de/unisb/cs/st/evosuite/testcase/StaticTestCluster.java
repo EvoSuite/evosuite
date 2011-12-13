@@ -1724,6 +1724,13 @@ public class StaticTestCluster extends TestCluster {
 			}
 		}
 
+		// Or try java.lang
+		try {
+			classLoader.loadClass("java.lang." + name);
+		} catch (ClassNotFoundException e) {
+			// Ignore it as we throw our own
+		}
+
 		throw new ClassNotFoundException(name);
 
 	}
