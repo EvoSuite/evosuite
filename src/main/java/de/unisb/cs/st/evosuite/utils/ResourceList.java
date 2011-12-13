@@ -42,12 +42,50 @@ public class ResourceList {
 		return retval;
 	}
 
+	public static Collection<String> getAllResources(final Pattern pattern) {
+		final ArrayList<String> retval = new ArrayList<String>();
+		String[] classPathElements = System.getProperty("java.class.path", ".").split(":");
+		for (final String element : classPathElements) {
+			retval.addAll(getResources(element, pattern));
+		}
+		return retval;
+	}
+
+	/**
+	 * for all elements of java.class.path get a Collection of resources Pattern
+	 * pattern = Pattern.compile(".*"); gets all resources
+	 * 
+	 * @param pattern
+	 *            the pattern to match
+	 * @return the resources in the order they are found
+	 */
+	public static Collection<String> getBootResources(final Pattern pattern) {
+		Collection<String> result = getResources(pattern);
+		String classPath = System.getProperty("sun.boot.class.path", ".");
+		String[] classPathElements = classPath.split(":");
+		for (final String element : classPathElements) {
+			result.addAll(getResources(element, pattern));
+		}
+		return result;
+	}
+
 	private static Collection<String> getResources(final String element,
 	        final Pattern pattern) {
 		final ArrayList<String> retval = new ArrayList<String>();
 		final File file = new File(element);
 		if (file.isDirectory()) {
-			retval.addAll(getResourcesFromDirectory(file, pattern));
+			try {
+				retval.addAll(getResourcesFromDirectory(file, pattern,
+				                                        file.getCanonicalPath()));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else if (!file.exists()) {
+			//do nothing
+			//System.out.println(file.getAbsolutePath()
+			//        + " is on the class path, but doesn't exist");
+
 		} else if (file.getName().endsWith(".jar")) {
 			retval.addAll(getResourcesFromJarFile(file, pattern));
 		}
@@ -83,15 +121,16 @@ public class ResourceList {
 	}
 
 	private static Collection<String> getResourcesFromDirectory(final File directory,
-	        final Pattern pattern) {
+	        final Pattern pattern, final String dirName) {
 		final ArrayList<String> retval = new ArrayList<String>();
 		final File[] fileList = directory.listFiles();
 		for (final File file : fileList) {
 			if (file.isDirectory()) {
-				retval.addAll(getResourcesFromDirectory(file, pattern));
+				retval.addAll(getResourcesFromDirectory(file, pattern, dirName));
 			} else {
 				try {
-					final String fileName = file.getCanonicalPath();
+					final String fileName = file.getCanonicalPath().replace(dirName + "/",
+					                                                        "");
 					final boolean accept = pattern.matcher(fileName).matches();
 					if (accept) {
 						retval.add(fileName);
