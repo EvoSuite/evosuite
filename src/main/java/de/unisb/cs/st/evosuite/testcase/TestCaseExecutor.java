@@ -244,8 +244,8 @@ public class TestCaseExecutor implements ThreadFactory {
 			return result;
 		} catch (TimeoutException e1) {
 			Sandbox.tearDownEverything();
-			System.setOut(systemOut);
-			System.setErr(systemErr);
+			//System.setOut(systemOut);
+			//System.setErr(systemErr);
 
 			if (Properties.LOG_TIMEOUT) {
 				System.err.println("Timeout occurred for " + Properties.TARGET_CLASS);
@@ -290,6 +290,8 @@ public class TestCaseExecutor implements ThreadFactory {
 			ExecutionTracer.getExecutionTracer().clear();
 			ExecutionTracer.setKillSwitch(false);
 			ExecutionTracer.enable();
+			System.setOut(systemOut);
+			System.setErr(systemErr);
 
 			return result;
 		} finally {
@@ -321,7 +323,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		}
 		threadGroup = new ThreadGroup("Test Execution");
 		currentThread = new Thread(threadGroup, r);
-			currentThread.setContextClassLoader(TestCluster.classLoader);
+		currentThread.setContextClassLoader(TestCluster.classLoader);
 		ExecutionTracer.setThread(currentThread);
 		return currentThread;
 	}
