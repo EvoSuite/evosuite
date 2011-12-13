@@ -85,8 +85,7 @@ public abstract class TestCluster {
 				// TODO Auto-generated catch block
 				// e.printStackTrace();
 			} catch (NoSuchMethodException e) {
-				logger.info("Static: Could not find method clinit in : "
-						+ className);
+				logger.info("Static: Could not find method clinit in : " + className);
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -136,8 +135,7 @@ public abstract class TestCluster {
 	 * @return
 	 * @throws ClassNotFoundException
 	 */
-	public abstract Class<?> getClass(String name)
-			throws ClassNotFoundException;
+	public abstract Class<?> getClass(String name) throws ClassNotFoundException;
 
 	/**
 	 * Integrate a new class into the test cluster
@@ -145,8 +143,7 @@ public abstract class TestCluster {
 	 * @param name
 	 * @throws ClassNotFoundException
 	 */
-	public abstract Class<?> importClass(String name)
-			throws ClassNotFoundException;
+	public abstract Class<?> importClass(String name) throws ClassNotFoundException;
 
 	/**
 	 * Retrieve all classes that match the given postfix
@@ -163,9 +160,10 @@ public abstract class TestCluster {
 	 * @return
 	 */
 	public Collection<String> getMatchingClasses(String name) {
-		// Pattern pattern = Pattern.compile(".*" + name + ".class");
-		Pattern pattern = Pattern.compile(".*");
-		Collection<String> resources = ResourceList.getResources(pattern);
+		Pattern pattern = Pattern.compile(".*" + name + ".class");
+		// Pattern pattern = Pattern.compile(".*");
+		Collection<String> resources = ResourceList.getAllResources(pattern);
+		resources.addAll(ResourceList.getBootResources(pattern));
 
 		Set<String> classes = new HashSet<String>();
 		for (String className : resources) {
@@ -199,7 +197,7 @@ public abstract class TestCluster {
 	 * @throws ConstructionFailedException
 	 */
 	public abstract AccessibleObject getRandomGenerator(Type type)
-			throws ConstructionFailedException;
+	        throws ConstructionFailedException;
 
 	/**
 	 * Randomly select one generator
@@ -209,7 +207,7 @@ public abstract class TestCluster {
 	 * @throws ConstructionFailedException
 	 */
 	public abstract AccessibleObject getRandomGenerator(Type type,
-			Set<AccessibleObject> excluded) throws ConstructionFailedException;
+	        Set<AccessibleObject> excluded) throws ConstructionFailedException;
 
 	/**
 	 * Get a list of all generator objects for the type
@@ -219,7 +217,7 @@ public abstract class TestCluster {
 	 * @throws ConstructionFailedException
 	 */
 	public abstract Set<AccessibleObject> getGenerators(Type type)
-			throws ConstructionFailedException;
+	        throws ConstructionFailedException;
 
 	/**
 	 * Return all calls that have a parameter with given type
@@ -307,18 +305,12 @@ public abstract class TestCluster {
 		if (clazz.getSuperclass() != null) {
 			// constructors.addAll(getConstructors(clazz.getSuperclass()));
 			for (Method m : getMethods(clazz.getSuperclass())) {
-				helper.put(
-						m.getName()
-								+ org.objectweb.asm.Type.getMethodDescriptor(m),
-						m);
+				helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
 			}
 		}
 		for (Class<?> in : clazz.getInterfaces()) {
 			for (Method m : getMethods(in)) {
-				helper.put(
-						m.getName()
-								+ org.objectweb.asm.Type.getMethodDescriptor(m),
-						m);
+				helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
 			}
 			// constructors.addAll(getConstructors(in));
 		}
@@ -327,9 +319,7 @@ public abstract class TestCluster {
 		// constructors.add(c);
 		// }
 		for (Method m : clazz.getDeclaredMethods()) {
-			helper.put(
-					m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m),
-					m);
+			helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
 		}
 
 		Set<Method> methods = new HashSet<Method>();
