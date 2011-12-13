@@ -51,9 +51,6 @@ public class TestChromosome extends ExecutableChromosome {
 	/** The test case encoded in this chromosome */
 	protected TestCase test = new DefaultTestCase();
 
-	/** True if this leads to an exception */
-	private final boolean has_exception = false;
-
 	/** Secondary objectives used during ranking */
 	private static final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();
 
@@ -523,7 +520,8 @@ public class TestChromosome extends ExecutableChromosome {
 	}
 
 	public boolean hasException() {
-		return has_exception;
+		return lastExecutionResult == null ? false
+		        : !lastExecutionResult.exceptions.isEmpty();
 	}
 
 	/* (non-Javadoc)
