@@ -1309,14 +1309,16 @@ public class StaticTestCluster extends TestCluster {
 		Collection<String> all_classes = getCluster();
 		Set<Class<?>> dependencies = new HashSet<Class<?>>();
 
-		try {
-			calls.add(Sandbox.class.getDeclaredField("accessedFiles"));
-			calls.add(Sandbox.class.getDeclaredField("lastAccessedFile"));
-			logger.info("Added file handling");
-		} catch (SecurityException e) {
-			logger.info("Failed to add file handling: ", e);
-		} catch (NoSuchFieldException e) {
-			logger.info("Failed to add file handling: ", e);
+		if (Properties.STUBS) {
+			try {
+				calls.add(Sandbox.class.getDeclaredField("accessedFiles"));
+				calls.add(Sandbox.class.getDeclaredField("lastAccessedFile"));
+				logger.info("Added file handling");
+			} catch (SecurityException e) {
+				logger.info("Failed to add file handling: ", e);
+			} catch (NoSuchFieldException e) {
+				logger.info("Failed to add file handling: ", e);
+			}
 		}
 
 		// Analyze each class
