@@ -446,6 +446,8 @@ public class TestSuiteWriter implements Opcodes {
 			String name = f.getPath().replace(directory, "").replace(".java", "").replace("/",
 			                                                                              ".");
 
+			if (name.startsWith("."))
+				name = name.substring(1);
 			suites.add(name);
 		}
 		builder.append(adapter.getSuite(suites));
