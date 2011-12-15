@@ -15,7 +15,11 @@ public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective {
 	private static final long serialVersionUID = -4405276303273532040L;
 
 	private int getNumExceptions(Chromosome chromosome) {
-		return ((ExecutableChromosome) chromosome).getLastExecutionResult().exceptions.size();
+		ExecutionResult result = ((ExecutableChromosome) chromosome).getLastExecutionResult();
+		if (result != null)
+			return result.exceptions.size();
+		else
+			return 0;
 	}
 
 	/* (non-Javadoc)

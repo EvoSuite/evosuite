@@ -142,7 +142,6 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		double r = Randomness.nextDouble();
 		int position = Randomness.nextInt(test.size() + 1);
 
-		logger.debug("\n\n*** Mutation\n\n");
 		for (int i = 0; i < test.size(); i++) {
 			logger.debug(test.getStatement(i).getCode() + ": Distance = "
 			        + test.getStatement(i).getReturnValue().getDistance());
