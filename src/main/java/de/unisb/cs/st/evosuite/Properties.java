@@ -528,6 +528,9 @@ public class Properties {
 
 	@Parameter(key = "ma_active", group = "Manual algorithm", description = "MA active")
 	public static boolean MA_ACTIVE = false;
+	
+	@Parameter(key = "ma_wide_gui", group = "Manual algorithm", description = "Activate wide GUI")
+	public static boolean MA_WIDE_GUI = false;
 
 	// ---------------------------------------------------------------
 	// Runtime parameters

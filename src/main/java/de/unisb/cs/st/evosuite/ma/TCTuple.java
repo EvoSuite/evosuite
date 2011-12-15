@@ -17,10 +17,18 @@ public class TCTuple implements Cloneable {
 	private TestCase testCase;
 
 	private Set<Integer> coverage = new HashSet<Integer>();
+	
+	private String origSourceCode = "";
 
 	public TCTuple(TestCase testCase, Set<Integer> coverage) {
 		this.testCase = testCase;
 		this.coverage = coverage;
+	}
+	
+	public TCTuple(TestCase testCase, Set<Integer> coverage, String origSourceCode) {
+		this.testCase = testCase;
+		this.coverage = coverage;
+		this.origSourceCode = origSourceCode;
 	}
 
 	/**
@@ -81,6 +89,23 @@ public class TCTuple implements Cloneable {
 				+ "\n" + "Source code: \n" + testCase.toCode();
 
 		return res;
+	}
+	
+	/**
+	 * @param origSourceCode the origSourceCode to set
+	 */
+	public void setOrigSourceCode(String origSourceCode) {
+		this.origSourceCode = origSourceCode;
+	}
+	
+	/**
+	 * @return the origSourceCode
+	 */
+	public String getOrigSourceCode() {
+		if (origSourceCode.toString().equals("")) {
+			return testCase.toCode();
+		}
+		return origSourceCode;
 	}
 
 }

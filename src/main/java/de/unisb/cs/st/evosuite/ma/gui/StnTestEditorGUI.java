@@ -34,14 +34,14 @@ import de.unisb.cs.st.evosuite.ma.Editor;
 /**
  * @author Yury Pavlov
  */
-public class TestEditorGUI {
+public class StnTestEditorGUI implements ActionListener, TestEditorGUI {
 
 	public final JFrame mainFrame = new JFrame("MA Editor");
 
 	private final JButton btnSaveTestCaseButton = new JButton("Save");
 
-	private final TitledBorder editorTitledBorder = new TitledBorder(null,
-			"Test Editor", TitledBorder.LEADING, TitledBorder.TOP, null, null);
+	private final TitledBorder editorTitledBorder = new TitledBorder(null, "Test Editor", TitledBorder.LEADING,
+			TitledBorder.TOP, null, null);
 
 	private final JPanel testPanel = new JPanel();
 
@@ -54,9 +54,7 @@ public class TestEditorGUI {
 	 */
 	public void createMainWindow(final Editor editor) {
 		this.editor = editor;
-
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		ActionListener menuListener = new MenuActionListener();
 
 		mainFrame.setAlwaysOnTop(true);
 		mainFrame.setLocation(new Point(dim.width - 585, dim.height - 600));
@@ -86,7 +84,7 @@ public class TestEditorGUI {
 
 		testPanel.add(testScrollPane);
 
-		testEditorPane.setText(editor.getCurrTCCode());
+		testEditorPane.setText(editor.getCurrESTCCode());
 		updateTitle();
 
 		testEditorPane.addCaretListener(new CaretListener() {
@@ -177,7 +175,7 @@ public class TestEditorGUI {
 		});
 		btnQuitButton.setBounds(405, 43, 119, 25);
 		controlPanel.add(btnQuitButton);
-		
+
 		JButton btnUndo = new JButton("UnDo");
 		btnUndo.addMouseListener(new MouseAdapter() {
 			@Override
@@ -187,7 +185,7 @@ public class TestEditorGUI {
 		});
 		btnUndo.setBounds(588, 43, 90, 25);
 		controlPanel.add(btnUndo);
-		
+
 		JButton btnRedo = new JButton("ReDo");
 		btnRedo.addMouseListener(new MouseAdapter() {
 			@Override
@@ -197,7 +195,7 @@ public class TestEditorGUI {
 		});
 		btnRedo.setBounds(690, 43, 90, 25);
 		controlPanel.add(btnRedo);
-		
+
 		JButton btnReset = new JButton("Reset");
 		btnReset.addMouseListener(new MouseAdapter() {
 			@Override
@@ -216,13 +214,13 @@ public class TestEditorGUI {
 		menuBar.add(mnTestCaseEditor);
 
 		JMenuItem mntmPrevTest = new JMenuItem("Prev test", KeyEvent.VK_O);
-		mntmPrevTest.addActionListener(menuListener);
+		mntmPrevTest.addActionListener(this);
 		KeyStroke ctrlOKeyStroke = KeyStroke.getKeyStroke("control O");
 		mntmPrevTest.setAccelerator(ctrlOKeyStroke);
 		mnTestCaseEditor.add(mntmPrevTest);
 
 		JMenuItem mntmNextTest = new JMenuItem("Next test", KeyEvent.VK_P);
-		mntmNextTest.addActionListener(menuListener);
+		mntmNextTest.addActionListener(this);
 		KeyStroke ctrlPKeyStroke = KeyStroke.getKeyStroke("control P");
 		mntmNextTest.setAccelerator(ctrlPKeyStroke);
 		mnTestCaseEditor.add(mntmNextTest);
@@ -230,19 +228,19 @@ public class TestEditorGUI {
 		mnTestCaseEditor.addSeparator();
 
 		JMenuItem mntmNewTest = new JMenuItem("New test", KeyEvent.VK_N);
-		mntmNewTest.addActionListener(menuListener);
+		mntmNewTest.addActionListener(this);
 		KeyStroke ctrlNKeyStroke = KeyStroke.getKeyStroke("control N");
 		mntmNewTest.setAccelerator(ctrlNKeyStroke);
 		mnTestCaseEditor.add(mntmNewTest);
 
 		JMenuItem mntmCloneTest = new JMenuItem("Clone test", KeyEvent.VK_L);
-		mntmCloneTest.addActionListener(menuListener);
+		mntmCloneTest.addActionListener(this);
 		KeyStroke ctrlLKeyStroke = KeyStroke.getKeyStroke("control L");
 		mntmCloneTest.setAccelerator(ctrlLKeyStroke);
 		mnTestCaseEditor.add(mntmCloneTest);
 
 		JMenuItem mntmSaveTest = new JMenuItem("Save", KeyEvent.VK_S);
-		mntmSaveTest.addActionListener(menuListener);
+		mntmSaveTest.addActionListener(this);
 		KeyStroke ctrlSKeyStroke = KeyStroke.getKeyStroke("control S");
 		mntmSaveTest.setAccelerator(ctrlSKeyStroke);
 		mnTestCaseEditor.add(mntmSaveTest);
@@ -250,7 +248,7 @@ public class TestEditorGUI {
 		mnTestCaseEditor.addSeparator();
 
 		JMenuItem mntmQuit = new JMenuItem("Quit", KeyEvent.VK_Q);
-		mntmQuit.addActionListener(menuListener);
+		mntmQuit.addActionListener(this);
 		KeyStroke ctrlQKeyStroke = KeyStroke.getKeyStroke("control Q");
 		mntmQuit.setAccelerator(ctrlQKeyStroke);
 		mnTestCaseEditor.add(mntmQuit);
@@ -260,19 +258,19 @@ public class TestEditorGUI {
 		menuBar.add(mnEditor);
 
 		JMenuItem mntmCopy = new JMenuItem("Copy", KeyEvent.VK_C);
-		mntmCopy.addActionListener(menuListener);
+		mntmCopy.addActionListener(this);
 		KeyStroke ctrlCKeyStroke = KeyStroke.getKeyStroke("control C");
 		mntmCopy.setAccelerator(ctrlCKeyStroke);
 		mnEditor.add(mntmCopy);
 
 		JMenuItem mntmCut = new JMenuItem("Cut", KeyEvent.VK_X);
-		mntmCut.addActionListener(menuListener);
+		mntmCut.addActionListener(this);
 		KeyStroke ctrlXKeyStroke = KeyStroke.getKeyStroke("control X");
 		mntmCut.setAccelerator(ctrlXKeyStroke);
 		mnEditor.add(mntmCut);
 
 		JMenuItem mntmPaste = new JMenuItem("Paste", KeyEvent.VK_V);
-		mntmPaste.addActionListener(menuListener);
+		mntmPaste.addActionListener(this);
 		KeyStroke ctrlVKeyStroke = KeyStroke.getKeyStroke("control V");
 		mntmPaste.setAccelerator(ctrlVKeyStroke);
 		mnEditor.add(mntmPaste);
@@ -280,24 +278,24 @@ public class TestEditorGUI {
 		mnEditor.addSeparator();
 
 		JMenuItem mntmUnDo = new JMenuItem("Undo", KeyEvent.VK_Z);
-		mntmUnDo.addActionListener(menuListener);
+		mntmUnDo.addActionListener(this);
 		KeyStroke ctrlZKeyStroke = KeyStroke.getKeyStroke("control Z");
 		mntmUnDo.setAccelerator(ctrlZKeyStroke);
 		mnEditor.add(mntmUnDo);
 
 		JMenuItem mntmReDo = new JMenuItem("Redo", KeyEvent.VK_Y);
-		mntmReDo.addActionListener(menuListener);
+		mntmReDo.addActionListener(this);
 		KeyStroke ctrlYKeyStroke = KeyStroke.getKeyStroke("control Y");
 		mntmReDo.setAccelerator(ctrlYKeyStroke);
 		mnEditor.add(mntmReDo);
-		
+
 		mnEditor.addSeparator();
-		
+
 		JMenuItem mntmSett = new JMenuItem("Settings", KeyEvent.VK_B);
-		mntmSett.addActionListener(menuListener);
+		mntmSett.addActionListener(this);
 		KeyStroke ctrlBKeyStroke = KeyStroke.getKeyStroke("control B");
 		mntmSett.setAccelerator(ctrlBKeyStroke);
-		mnEditor.add(mntmSett);	
+		mnEditor.add(mntmSett);
 
 		mainFrame.addWindowListener(new WindowAdapter() {
 			@Override
@@ -318,17 +316,15 @@ public class TestEditorGUI {
 	}
 
 	private void updateTitle() {
-		editorTitledBorder.setTitle("Test Editor     "
-				+ (editor.getNumOfCurrTest() + 1) + " / "
-				+ editor.getNumOfTestCases() + "     Coverage: "
-				+ editor.getSuiteCoveratgeVal() + "%");
+		editorTitledBorder.setTitle("Test Editor     " + (editor.getNumOfCurrTest() + 1) + " / "
+				+ editor.getNumOfTestCases() + "     Coverage: " + editor.getSuiteCoveratgeVal() + "%");
 		testPanel.repaint();
 	}
 
 	private void prevTest() {
 		editor.prevTest();
 		editor.sguiSC.printSourceCode();
-		testEditorPane.setText(editor.getCurrTCCode());
+		testEditorPane.setText(editor.getCurrESTCCode());
 		setTestCaseUnchanged();
 		updateTitle();
 	}
@@ -336,7 +332,7 @@ public class TestEditorGUI {
 	private void nextTest() {
 		editor.nextTest();
 		editor.sguiSC.printSourceCode();
-		testEditorPane.setText(editor.getCurrTCCode());
+		testEditorPane.setText(editor.getCurrESTCCode());
 		setTestCaseUnchanged();
 		updateTitle();
 	}
@@ -344,7 +340,7 @@ public class TestEditorGUI {
 	private void deleteTest() {
 		editor.delCurrTC();
 		editor.sguiSC.printSourceCode();
-		testEditorPane.setText(editor.getCurrTCCode());
+		testEditorPane.setText(editor.getCurrESTCCode());
 		setTestCaseUnchanged();
 		updateTitle();
 	}
@@ -365,16 +361,16 @@ public class TestEditorGUI {
 	private void saveTest() {
 		if (editor.saveTest(testEditorPane.getText())) {
 			editor.sguiSC.printSourceCode();
-			testEditorPane.setText(editor.getCurrTCCode());
+			testEditorPane.setText(editor.getCurrESTCCode());
 			setTestCaseUnchanged();
 			updateTitle();
 		}
 	}
-	
+
 	private void unDo() {
 		editor.undo();
 		editor.sguiSC.printSourceCode();
-		testEditorPane.setText(editor.getCurrTCCode());
+		testEditorPane.setText(editor.getCurrESTCCode());
 		setTestCaseUnchanged();
 		updateTitle();
 	}
@@ -382,19 +378,19 @@ public class TestEditorGUI {
 	private void reDo() {
 		editor.redo();
 		editor.sguiSC.printSourceCode();
-		testEditorPane.setText(editor.getCurrTCCode());
+		testEditorPane.setText(editor.getCurrESTCCode());
 		setTestCaseUnchanged();
 		updateTitle();
 	}
-	
+
 	private void reset() {
 		editor.reset();
 		editor.sguiSC.printSourceCode();
-		testEditorPane.setText(editor.getCurrTCCode());
+		testEditorPane.setText(editor.getCurrESTCCode());
 		setTestCaseUnchanged();
 		updateTitle();
 	}
-	
+
 	private void quit() {
 		editor.sguiSC.close();
 		mainFrame.setVisible(false);
@@ -404,25 +400,32 @@ public class TestEditorGUI {
 		mainFrame.dispose();
 	}
 
-	class MenuActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent actionEvent) {
-			if (actionEvent.getActionCommand().equals("Prev test")) {
-				prevTest();
-			} else if (actionEvent.getActionCommand().equals("Next test")) {
-				nextTest();
-			} else if (actionEvent.getActionCommand().equals("Delete test")) {
-				deleteTest();
-			} else if (actionEvent.getActionCommand().equals("New test")) {
-				newTest();
-			} else if (actionEvent.getActionCommand().equals("Clone test")) {
-				cloneTest();
-			} else if (actionEvent.getActionCommand().equals("Save")) {
-				saveTest();
-			} else if (actionEvent.getActionCommand().equals("Quit")) {
-				quit();
-			} else if (actionEvent.getActionCommand().equals("Settings")) {
-				new SettingsGUI(mainFrame);
-			}
+	public void actionPerformed(ActionEvent actionEvent) {
+		if (actionEvent.getActionCommand().equals("Prev test")) {
+			prevTest();
+		} else if (actionEvent.getActionCommand().equals("Next test")) {
+			nextTest();
+		} else if (actionEvent.getActionCommand().equals("Delete test")) {
+			deleteTest();
+		} else if (actionEvent.getActionCommand().equals("New test")) {
+			newTest();
+		} else if (actionEvent.getActionCommand().equals("Clone test")) {
+			cloneTest();
+		} else if (actionEvent.getActionCommand().equals("Save")) {
+			saveTest();
+		} else if (actionEvent.getActionCommand().equals("Quit")) {
+			quit();
+		} else if (actionEvent.getActionCommand().equals("Settings")) {
+			new SettingsGUI(mainFrame);
 		}
 	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ma.gui.TestEditorGUI#getMainFrame()
+	 */
+	@Override
+	public JFrame getMainFrame() {
+		return mainFrame;
+	}
+
 }
