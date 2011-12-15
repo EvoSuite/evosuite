@@ -5,8 +5,6 @@ package de.unisb.cs.st.evosuite.junit;
 
 import java.util.List;
 
-import de.unisb.cs.st.evosuite.Properties;
-
 /**
  * @author fraser
  * 
@@ -49,7 +47,7 @@ public class JUnit3TestAdapter implements UnitTestAdapter {
 
 		for (String suite : suites) {
 			builder.append("import ");
-			builder.append(Properties.PROJECT_PREFIX);
+			// builder.append(Properties.PROJECT_PREFIX);
 			builder.append(suite);
 			builder.append(";\n");
 		}
