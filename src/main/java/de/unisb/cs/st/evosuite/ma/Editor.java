@@ -19,7 +19,9 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ma.gui.SourceCodeGUI;
+import de.unisb.cs.st.evosuite.ma.gui.StnTestEditorGUI;
 import de.unisb.cs.st.evosuite.ma.gui.TestEditorGUI;
+import de.unisb.cs.st.evosuite.ma.gui.WideTestEditorGUI;
 import de.unisb.cs.st.evosuite.ma.parser.SEParser;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
@@ -52,7 +54,7 @@ public class Editor implements UserFeedback {
 
 	private Iterable<String> sourceCode;
 
-	public final TestEditorGUI sguiTE = new TestEditorGUI();
+	public final TestEditorGUI sguiTE;
 
 	public final SourceCodeGUI sguiSC = new SourceCodeGUI();
 
@@ -77,8 +79,7 @@ public class Editor implements UserFeedback {
 		ga.pauseGlobalTimeStoppingCondition();
 		testSuiteChr = (TestSuiteChromosome) gaInstance.getBestIndividual().clone();
 
-		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(
-		        TestSuiteGenerator.getFitnessFactory());
+		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(TestSuiteGenerator.getFitnessFactory());
 		minimizer.minimize(testSuiteChr);
 		Set<TestFitnessFunction> originalGoals = testSuiteChr.getCoveredGoals();
 
@@ -92,22 +93,26 @@ public class Editor implements UserFeedback {
 			tcTuples.add(new TCTuple(testCase, testCaseCoverega));
 		}
 
-		nextTest();
-		sguiSC.createWindow(this);
-		sguiTE.createMainWindow(this);
-		transactions = new Transactions(tcTuples, currTCTuple);
-		// testParser = new TestParser(this);
-
 		// see message from html_analyzer.getClassContent(...) to check this
-		if (sourceCode.toString().equals("[No source found for "
-		                                         + Properties.TARGET_CLASS + "]")) {
+		if (sourceCode.toString().equals("[No source found for " + Properties.TARGET_CLASS + "]")) {
 			File srcFile = chooseTargetFile(Properties.TARGET_CLASS);
 			sourceCode = Utils.readFile(srcFile);
 		}
 
+		nextTest();
+		sguiSC.createWindow(this);
+		if (Properties.MA_WIDE_GUI) {
+			sguiTE = new WideTestEditorGUI();
+		} else {
+			sguiTE = new StnTestEditorGUI();
+		}
+		sguiTE.createMainWindow(this);
+		transactions = new Transactions(tcTuples, currTCTuple);
+		// testParser = new TestParser(this);
+
 		// here is gui active
 		synchronized (lock) {
-			while (sguiTE.mainFrame.isVisible())
+			while (sguiTE.getMainFrame().isVisible())
 				try {
 					lock.wait();
 				} catch (InterruptedException e) {
@@ -172,7 +177,7 @@ public class Editor implements UserFeedback {
 
 				// MA stuff
 				Set<Integer> testCaseCoverega = retrieveCoverage(newTestCase);
-				TCTuple newTestCaseTuple = new TCTuple(newTestCase, testCaseCoverega);
+				TCTuple newTestCaseTuple = new TCTuple(newTestCase, testCaseCoverega, testCode);
 				currTCTuple = newTestCaseTuple;
 				// testParser = new TestParser(this);
 				tcTuples.add(newTestCaseTuple);
@@ -215,10 +220,17 @@ public class Editor implements UserFeedback {
 	}
 
 	/**
-	 * 
+	 * Return the source code of test case in form EvoSuite
 	 */
-	public String getCurrTCCode() {
+	public String getCurrESTCCode() {
 		return currTCTuple.getTestCase().toCode();
+	}
+	
+	/**
+	 * Return the manual source code of test case
+	 */
+	public String getCurrOrigTCCode() {
+		return currTCTuple.getOrigSourceCode();
 	}
 
 	/**
@@ -284,8 +296,7 @@ public class Editor implements UserFeedback {
 	 * 
 	 */
 	public void createNewTestCase() {
-		TCTuple newTestCaseTuple = new TCTuple(new DefaultTestCase(),
-		        new HashSet<Integer>());
+		TCTuple newTestCaseTuple = new TCTuple(new DefaultTestCase(), new HashSet<Integer>());
 		currTCTuple = newTestCaseTuple;
 	}
 
@@ -356,15 +367,14 @@ public class Editor implements UserFeedback {
 
 	@Override
 	public void showParseException(String message) {
-		JOptionPane.showMessageDialog(sguiTE.mainFrame, message, "Parsing error",
-		                              JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(sguiTE.getMainFrame(), message, "Parsing error", JOptionPane.ERROR_MESSAGE);
 	}
 
 	@Override
 	public File chooseTargetFile(String fileName) {
 		final JFileChooser fc = new JFileChooser();
 		fc.setDialogTitle("Where is: " + fileName);
-		int returnVal = fc.showOpenDialog(sguiTE.mainFrame);
+		int returnVal = fc.showOpenDialog(sguiTE.getMainFrame());
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			return fc.getSelectedFile();
@@ -374,16 +384,13 @@ public class Editor implements UserFeedback {
 	}
 
 	public static String enterClassName(String className) {
-		return JOptionPane.showInputDialog(null, "Where is class " + className + "?",
-		                                   "Please enter full name",
-		                                   JOptionPane.QUESTION_MESSAGE);
+		return JOptionPane.showInputDialog(null, "Where is class " + className + "?", "Please enter full name",
+				JOptionPane.QUESTION_MESSAGE);
 	}
 
-	public static String chooseClassName(String[] choices) {
-		return (String) JOptionPane.showInputDialog(null, "Choose now...",
-		                                            "The Choice of a Lifetime",
-		                                            JOptionPane.QUESTION_MESSAGE, null,
-		                                            choices, choices[0]);
+	public static String chooseClassName(String[] choices, String className) {
+		return (String) JOptionPane.showInputDialog(null, "Choose now... " + className, "The Choice of a Lifetime",
+				JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]);
 	}
 
 	public static void showWarning(String message) {
