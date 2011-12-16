@@ -274,6 +274,11 @@ public class FieldStatement extends AbstractStatement {
 		return field;
 	}
 
+	public void setField(Field field) {
+		assert (this.field.getType().equals(field.getType()));
+		this.field = field;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

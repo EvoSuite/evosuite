@@ -92,6 +92,10 @@ public class ConstructorStatement extends AbstractStatement {
 		return constructor;
 	}
 
+	public void setConstructor(Constructor<?> constructor) {
+		this.constructor = constructor;
+	}
+
 	private static String getReturnType(Class<?> clazz) {
 		String retVal = ClassUtils.getShortClassName(clazz);
 		if (primitiveClasses.contains(retVal))

@@ -89,6 +89,11 @@ public class MethodStatement extends AbstractStatement {
 		return method;
 	}
 
+	public void setMethod(Method method) {
+		assert (method.getReturnType().equals(this.method.getReturnType()));
+		this.method = method;
+	}
+
 	public VariableReference getCallee() {
 		return callee;
 	}
