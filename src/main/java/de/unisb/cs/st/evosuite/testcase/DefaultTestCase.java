@@ -36,8 +36,8 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.testsuite.TestCallStatement;
-import de.unisb.cs.st.evosuite.utils.Listener;
 import de.unisb.cs.st.evosuite.utils.ListenableList;
+import de.unisb.cs.st.evosuite.utils.Listener;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
@@ -62,12 +62,13 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public void addStatements(List<? extends StatementInterface> statements) {
 		this.statements.addAll(statements);
 	}
-		
+
 	/**
 	 * Constructor
 	 */
 	public DefaultTestCase() {
-		statements = new ListenableList<StatementInterface>(new ArrayList<StatementInterface>());
+		statements = new ListenableList<StatementInterface>(
+		        new ArrayList<StatementInterface>());
 	}
 
 	/**
@@ -77,7 +78,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 */
 	public DefaultTestCase(List<StatementInterface> statements) {
 		if (statements instanceof ListenableList) {
-			this.statements = (ListenableList<StatementInterface>)statements;
+			this.statements = (ListenableList<StatementInterface>) statements;
 		} else {
 			this.statements = new ListenableList<StatementInterface>(statements);
 		}
@@ -700,7 +701,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public Iterator<StatementInterface> iterator() {
 		return statements.iterator();
 	}
-	
+
 	@Override
 	public void addListener(Listener<Void> listener) {
 		statements.addListener(listener);
@@ -729,7 +730,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 		Iterator<StatementInterface> iterator = statements.iterator();
 		while (iterator.hasNext()) {
 			StatementInterface statement = iterator.next();
-			logger.info("Visiting statment " + statement.getCode());
+			logger.debug("Visiting statement " + statement.getCode());
 			if (statement instanceof PrimitiveStatement<?>)
 				visitor.visitPrimitiveStatement((PrimitiveStatement<?>) statement);
 			else if (statement instanceof FieldStatement)
