@@ -40,23 +40,23 @@ public class PrimitiveFieldAssertion extends Assertion {
 		if (value == null) {
 			return "assertNull(" + source.getName() + "." + field.getName() + ");";
 		} else if (value.getClass().equals(Long.class)) {
-			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
-			        + NumberFormatter.getNumberString(value) + ");";
+			return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			        + source.getName() + "." + field.getName() + ");";
 		} else if (value.getClass().equals(Float.class)) {
-			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
-			        + NumberFormatter.getNumberString(value) + ", 0.01F);";
+			return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			        + source.getName() + "." + field.getName() + ", 0.01F);";
 		} else if (value.getClass().equals(Double.class)) {
-			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
-			        + NumberFormatter.getNumberString(value) + ", 0.01D);";
+			return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			        + source.getName() + "." + field.getName() + ", 0.01D);";
 		} else if (value.getClass().equals(Character.class)) {
-			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
-			        + NumberFormatter.getNumberString(value) + ");";
+			return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			        + source.getName() + "." + field.getName() + ");";
 		} else if (value.getClass().equals(String.class)) {
-			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
-			        + NumberFormatter.getNumberString(value) + ");";
+			return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			        + source.getName() + "." + field.getName() + ");";
 		} else
-			return "assertEquals(" + source.getName() + "." + field.getName() + ", "
-			        + NumberFormatter.getNumberString(value) + ");";
+			return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			        + source.getName() + "." + field.getName() + ");";
 	}
 
 	@Override
