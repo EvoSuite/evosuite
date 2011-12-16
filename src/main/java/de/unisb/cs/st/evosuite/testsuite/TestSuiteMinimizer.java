@@ -97,8 +97,10 @@ public class TestSuiteMinimizer {
 		Properties.RECYCLE_CHROMOSOMES = false; // TODO: FIXXME!
 		ExecutionTrace.enableTraceCalls();
 
-		for (TestChromosome test : suite.getTestChromosomes())
+		for (TestChromosome test : suite.getTestChromosomes()) {
 			test.setChanged(true);
+			test.clearCachedResults();
+		}
 
 		List<TestFitnessFunction> goals = testFitnessFactory.getCoverageGoals();
 		Set<TestFitnessFunction> covered = new HashSet<TestFitnessFunction>();
