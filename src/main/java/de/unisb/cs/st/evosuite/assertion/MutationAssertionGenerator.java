@@ -346,7 +346,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		}
 
 		int killedBefore = getNumKilledMutants(test, mutationTraces, executedMutants);
-		logger.debug(test.toCode());
+
 		logger.info("Need to kill mutants: " + killedBefore);
 		logger.info(killMap.toString());
 		minimize(test, executedMutants, assertions, killMap);
@@ -374,11 +374,26 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			if (justNullAssertion(test.getStatement(test.size() - 1)))
 				logger.info("Just null assertions on last statement: " + test.toCode());
 
+			boolean haveAssertion = false;
 			for (Assertion assertion : assertions) {
-				if (assertion.getStatement().equals(test.getStatement(test.size() - 1))) {
-					test.getStatement(test.size() - 1).addAssertion(assertion);
+				if (assertion instanceof PrimitiveAssertion) {
+					if (assertion.getStatement().equals(test.getStatement(test.size() - 1))) {
+						test.getStatement(test.size() - 1).addAssertion(assertion);
+						haveAssertion = true;
+						break;
+					}
 				}
 			}
+			if (!haveAssertion) {
+				for (Assertion assertion : assertions) {
+					if (assertion.getStatement().equals(test.getStatement(test.size() - 1))) {
+						test.getStatement(test.size() - 1).addAssertion(assertion);
+						haveAssertion = true;
+						break;
+					}
+				}
+			}
+
 			/*
 			for (OutputTrace<?> trace : origResult.getTraces()) {
 				trace.getAllAssertions(test);

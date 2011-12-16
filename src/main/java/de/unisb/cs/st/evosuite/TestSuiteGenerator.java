@@ -321,9 +321,9 @@ public class TestSuiteGenerator {
 		MutationAssertionGenerator asserter = new MutationAssertionGenerator();
 		Set<Integer> tkilled = new HashSet<Integer>();
 		for (TestCase test : tests) {
-			Set<Integer> killed = new HashSet<Integer>();
-			asserter.addAssertions(test, killed);
-			tkilled.addAll(killed);
+			//Set<Integer> killed = new HashSet<Integer>();
+			asserter.addAssertions(test, tkilled);
+			//tkilled.addAll(killed);
 		}
 		// asserter.writeStatistics();
 		//System.out.println("Killed: " + tkilled.size() + "/" + asserter.numMutants());
