@@ -73,11 +73,15 @@ public class MethodEntryAdapter extends AdviceAdapter {
 	@Override
 	public void onMethodExit(int opcode) {
 		// TODO: Check for <clinit>
-		mv.visitLdcInsn(className);
-		mv.visitLdcInsn(fullMethodName);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-		                   "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-		                   "leftMethod", "(Ljava/lang/String;Ljava/lang/String;)V");
+
+		if (opcode != Opcodes.ATHROW) {
+
+			mv.visitLdcInsn(className);
+			mv.visitLdcInsn(fullMethodName);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+			                   "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+			                   "leftMethod", "(Ljava/lang/String;Ljava/lang/String;)V");
+		}
 		super.onMethodExit(opcode);
 	}
 
