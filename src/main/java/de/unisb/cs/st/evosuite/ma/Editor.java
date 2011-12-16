@@ -25,6 +25,7 @@ import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
+import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
@@ -76,10 +77,12 @@ public class Editor implements UserFeedback {
 		gaInstance = ga;
 		ga.pauseGlobalTimeStoppingCondition();
 		testSuiteChr = (TestSuiteChromosome) gaInstance.getBestIndividual().clone();
+		double originalFitness = testSuiteChr.getFitness();
 
 		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(
 		        TestSuiteGenerator.getFitnessFactory());
 		minimizer.minimize(testSuiteChr);
+
 		Set<TestFitnessFunction> originalGoals = testSuiteChr.getCoveredGoals();
 
 		List<TestCase> tests = testSuiteChr.getTests();
@@ -116,30 +119,30 @@ public class Editor implements UserFeedback {
 		}
 
 		// resuming part
-		System.out.println("returning");
-		Set<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
-		for (TestFitnessFunction goal : TestSuiteGenerator.getFitnessFactory().getCoverageGoals()) {
-			if (goal.isCovered(testSuiteChr.getTests()))
-				coveredGoals.add(goal);
-		}
-
-		originalGoals.removeAll(coveredGoals);
-		if (!originalGoals.isEmpty()) {
-			logger.info("Coverage dropped, copying old tests");
-			TestSuiteChromosome origTSH = (TestSuiteChromosome) gaInstance.getBestIndividual();
-			for (TestFitnessFunction goal : originalGoals) {
-				for (TestCase test : origTSH.getTests()) {
-					if (goal.isCovered(test)) {
-						testSuiteChr.addTest(test.clone());
-						break;
-					}
-				}
-			}
-		}
+		// System.out.println("returning");
 
 		// Insert result into population
 		ga.getFitnessFunction().getFitness(testSuiteChr);
+
+		// Fitness might decrease, because we only keep what is _covered_ during minimization
+		if (testSuiteChr.getFitness() > originalFitness) {
+			logger.debug("Fitness has increased from " + originalFitness + " to "
+			        + testSuiteChr.getFitness());
+			double lastFitness = testSuiteChr.getFitness();
+
+			TestSuiteChromosome original = (TestSuiteChromosome) ga.getBestIndividual();
+			for (TestChromosome test : original.getTestChromosomes()) {
+				testSuiteChr.addTest(test);
+				ga.getFitnessFunction().getFitness(testSuiteChr);
+				if (testSuiteChr.getFitness() < lastFitness) {
+					lastFitness = testSuiteChr.getFitness();
+				} else {
+					testSuiteChr.deleteTest(test.getTestCase());
+				}
+			}
+		}
 		ga.getPopulation().set(0, testSuiteChr);
+		logger.info("Resulting individual: " + ga.getBestIndividual().toString());
 
 		// when work is done reset time
 		ga.resumeGlobalTimeStoppingCondition();
