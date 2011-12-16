@@ -43,6 +43,11 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 
 			InspectorTraceEntry otherEntry = (InspectorTraceEntry) other;
 			for (Inspector inspector : inspectorMap.keySet()) {
+				if (!otherEntry.inspectorMap.containsKey(inspector)
+				        || otherEntry.inspectorMap.get(inspector) == null
+				        || inspectorMap.get(inspector) == null)
+					continue;
+
 				if (!otherEntry.inspectorMap.get(inspector).equals(inspectorMap.get(inspector)))
 					return true;
 			}
