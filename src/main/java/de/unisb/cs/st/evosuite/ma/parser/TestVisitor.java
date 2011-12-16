@@ -632,7 +632,7 @@ public class TestVisitor extends
 					choices = new String[1];
 					choices[0] = "Nothing to choose :p";
 				}
-				while ((className = Editor.chooseClassName(choices)) != null) {
+				while ((className = Editor.chooseClassName(choices, name)) != null) {
 					System.out.println("ClassDialog return: " + className);
 					{
 						try {
@@ -818,9 +818,10 @@ public class TestVisitor extends
 	private Method getMethod(MethodCallExpr expr, Class<?>[] paramClasses)
 			throws ParseException {
 		Expression scope = expr.getScope();
-		logger.debug("Method's scope: " + scope);
+		System.out.println("getMethod(MethodCallExpr expr: " + expr);
+		System.out.println("Method's scope: " + scope);
 		Class<?> clazz = getClass(scope.toString());
-		logger.debug("Clazz for method is loaded: " + clazz);
+		System.out.println("Clazz for method is loaded: " + clazz);
 
 		String methodName = expr.getName();
 		StringBuilder classNames = new StringBuilder();
