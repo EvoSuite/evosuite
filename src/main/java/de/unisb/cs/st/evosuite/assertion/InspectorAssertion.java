@@ -43,30 +43,30 @@ public class InspectorAssertion extends Assertion {
 	@Override
 	public String getCode() {
 		if (value == null) {
-			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			        + "(), null);";
+			return "assertNull(" + source.getName() + "." + inspector.getMethodCall()
+			        + "());";
 		} else if (value.getClass().equals(Long.class)) {
-			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			        + "(), " + NumberFormatter.getNumberString(value) + ");";
+			return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			        + source.getName() + "." + inspector.getMethodCall() + "());";
 		} else if (value.getClass().equals(Float.class)) {
-			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			        + "(), " + NumberFormatter.getNumberString(value) + ", 0.01F);";
+			return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			        + source.getName() + "." + inspector.getMethodCall() + "(), 0.01F);";
 		} else if (value.getClass().equals(Double.class)) {
-			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			        + "(), " + NumberFormatter.getNumberString(value) + ", 0.01D);";
+			return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			        + source.getName() + "." + inspector.getMethodCall() + "(), 0.01D);";
 		} else if (value.getClass().equals(Character.class)) {
-			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			        + "(), " + NumberFormatter.getNumberString(value) + ");";
+			return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			        + source.getName() + "." + inspector.getMethodCall() + "());";
 		} else if (value.getClass().equals(String.class)) {
-			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			        + "(), " + NumberFormatter.getNumberString(value) + ");";
+			return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			        + source.getName() + "." + inspector.getMethodCall() + "());";
 		} else if (value.getClass().isEnum()) {
-			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			        + "(), " + NumberFormatter.getNumberString(value) + ");";
+			return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			        + source.getName() + "." + inspector.getMethodCall() + "());";
 
 		} else
-			return "assertEquals(" + source.getName() + "." + inspector.getMethodCall()
-			        + "(), " + value + ");";
+			return "assertEquals(" + value + ", " + source.getName() + "."
+			        + inspector.getMethodCall() + "());";
 	}
 
 	@Override

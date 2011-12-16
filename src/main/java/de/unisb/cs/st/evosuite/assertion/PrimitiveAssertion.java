@@ -33,31 +33,31 @@ public class PrimitiveAssertion extends Assertion {
 		if (value == null) {
 			return "assertNull(" + source.getName() + ");";
 		} else if (source.getVariableClass().equals(float.class)) {
-			return "assertEquals(" + source.getName() + ", "
-			        + NumberFormatter.getNumberString(value) + ", 0.01F);";
+			return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			        + source.getName() + ", 0.01F);";
 		} else if (source.getVariableClass().equals(double.class)) {
-			return "assertEquals(" + source.getName() + ", "
-			        + NumberFormatter.getNumberString(value) + ", 0.01D);";
+			return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			        + source.getName() + ", 0.01D);";
 		} else if (value.getClass().isEnum()) {
-			return "assertEquals(" + source.getName() + ", "
-			        + NumberFormatter.getNumberString(value) + ");";
+			return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			        + source.getName() + ");";
 		} else if (source.isWrapperType()) {
 			if (source.getVariableClass().equals(Float.class)) {
-				return "assertEquals((float)" + source.getName() + ", "
-				        + NumberFormatter.getNumberString(value) + ", 0.01F);";
+				return "assertEquals(" + NumberFormatter.getNumberString(value)
+				        + "(float)" + source.getName() + ", 0.01F);";
 			} else if (source.getVariableClass().equals(Double.class)) {
-				return "assertEquals((double)" + source.getName() + ", "
-				        + NumberFormatter.getNumberString(value) + ", 0.01D);";
+				return "assertEquals(" + NumberFormatter.getNumberString(value)
+				        + "(double)" + source.getName() + ", 0.01D);";
 			} else if (value.getClass().isEnum()) {
-				return "assertEquals(" + source.getName() + ", "
-				        + NumberFormatter.getNumberString(value) + ");";
+				return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+				        + source.getName() + ");";
 			} else
-				return "assertEquals((" + NumberFormatter.getBoxedClassName(value) + ")"
-				        + source.getName() + ", "
-				        + NumberFormatter.getNumberString(value) + ");";
+				return "assertEquals(" + NumberFormatter.getNumberString(value) + ", ("
+				        + NumberFormatter.getBoxedClassName(value) + ")"
+				        + source.getName() + ");";
 		} else
-			return "assertEquals(" + source.getName() + ", "
-			        + NumberFormatter.getNumberString(value) + ");";
+			return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			        + source.getName() + ");";
 
 	}
 
