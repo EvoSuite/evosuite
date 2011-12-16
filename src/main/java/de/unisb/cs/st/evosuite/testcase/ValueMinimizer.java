@@ -127,7 +127,8 @@ public class ValueMinimizer implements TestVisitor {
 			statement.setMid(min, max);
 			logger.info("Trying " + statement.getValue() + " " + min + "/" + max);
 
-			if (min.equals(max)) {
+			if (min.equals(max) || statement.getValue().equals(min)
+			        || statement.getValue().equals(max)) {
 				done = true;
 				//assert (objective.isNotWorse());
 			} else if (objective.isNotWorse()) {
