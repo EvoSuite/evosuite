@@ -18,6 +18,8 @@
 
 package de.unisb.cs.st.evosuite.coverage.branch;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,6 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +38,8 @@ import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.javaagent.LinePool;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
+import de.unisb.cs.st.evosuite.testcase.MethodStatement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testsuite.AbstractTestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 
@@ -72,9 +77,46 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	protected boolean check = false;
 
+	private final Set<String> publicTargetMethods = new HashSet<String>();
+
 	public BranchCoverageSuiteFitness() {
 		logger.info("Total branch coverage goals: " + total_goals);
 		logger.info("Total branches: " + total_branches);
+		getPublicMethods();
+	}
+
+	private void getPublicMethods() {
+		for (Method method : Properties.getTargetClass().getDeclaredMethods()) {
+			if (Modifier.isPublic(method.getModifiers())) {
+				String name = method.getName() + Type.getMethodDescriptor(method);
+				publicTargetMethods.add(name);
+			}
+		}
+	}
+
+	private Set<String> getDirectlyCoveredMethods(
+	        AbstractTestSuiteChromosome<ExecutableChromosome> suite) {
+		Set<String> covered = new HashSet<String>();
+		for (ExecutableChromosome test : suite.getTestChromosomes()) {
+			ExecutionResult result = test.getLastExecutionResult();
+			int limit = test.size();
+			if (!result.exceptions.isEmpty()) {
+				limit = result.exceptions.keySet().iterator().next() + 1;
+			}
+			for (int i = 0; i < limit; i++) {
+				StatementInterface statement = result.test.getStatement(i);
+				if (statement instanceof MethodStatement) {
+					MethodStatement methodStatement = (MethodStatement) statement;
+					Method method = methodStatement.getMethod();
+					if (method.getDeclaringClass().equals(Properties.getTargetClass())
+					        && Modifier.isPublic(method.getModifiers())) {
+						String name = method.getName() + Type.getMethodDescriptor(method);
+						covered.add(name);
+					}
+				}
+			}
+		}
+		return covered;
 	}
 
 	/**
@@ -258,6 +300,18 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			//fitness += totalLines - covered_lines.size();
 		}
 		//logger.info("Fitness: "+fitness+", size: "+suite.size()+", length: "+suite.length());
+
+		/*
+		Set<String> coveredPublicMethods = getDirectlyCoveredMethods(suite);
+		Set<String> uncoveredPublicMethods = new HashSet<String>(publicTargetMethods);
+		uncoveredPublicMethods.removeAll(coveredPublicMethods);
+		fitness += uncoveredPublicMethods.size();
+		logger.debug("Adding penalty for public methods: "
+		        + uncoveredPublicMethods.size());
+		for (String method : uncoveredPublicMethods) {
+			logger.debug(method);
+		}
+		*/
 		updateIndividual(individual, fitness);
 
 		long end = System.currentTimeMillis();
