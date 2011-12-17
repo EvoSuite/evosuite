@@ -95,21 +95,20 @@ public class Editor implements UserFeedback {
 			testCaseCoverega = retrieveCoverage(testCase);
 			tcTuples.add(new TCTuple(testCase, testCaseCoverega));
 		}
-
-		// see message from html_analyzer.getClassContent(...) to check this
-		if (sourceCode.toString().equals("[No source found for " + Properties.TARGET_CLASS + "]")) {
-			File srcFile = chooseTargetFile(Properties.TARGET_CLASS);
-			sourceCode = Utils.readFile(srcFile);
-		}
-
 		nextTest();
-		sguiSC.createWindow(this);
+
 		if (Properties.MA_WIDE_GUI) {
 			sguiTE = new WideTestEditorGUI();
 		} else {
 			sguiTE = new StnTestEditorGUI();
 		}
 		sguiTE.createMainWindow(this);
+		// see message from html_analyzer.getClassContent(...) to check this
+		if (sourceCode.toString().equals("[No source found for " + Properties.TARGET_CLASS + "]")) {
+			File srcFile = chooseTargetFile(Properties.TARGET_CLASS);
+			sourceCode = Utils.readFile(srcFile);
+		}
+		sguiSC.createWindow(this);
 		transactions = new Transactions(tcTuples, currTCTuple);
 		// testParser = new TestParser(this);
 
@@ -124,8 +123,6 @@ public class Editor implements UserFeedback {
 		}
 
 		// resuming part
-		// System.out.println("returning");
-
 		// Insert result into population
 		ga.getFitnessFunction().getFitness(testSuiteChr);
 
