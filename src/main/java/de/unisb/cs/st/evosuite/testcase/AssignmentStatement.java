@@ -124,15 +124,6 @@ public class AssignmentStatement extends AbstractStatement {
 	}
 
 	@Override
-	public String getCode(Throwable exception) {
-		String cast = "";
-		if (!retval.getVariableClass().equals(parameter.getVariableClass()))
-			cast = "(" + retval.getSimpleClassName() + ") ";
-
-		return retval.getName() + " = " + cast + parameter.getName() + ";";
-	}
-
-	@Override
 	public Set<VariableReference> getVariableReferences() {
 		Set<VariableReference> vars = new HashSet<VariableReference>();
 		vars.add(retval);
@@ -142,6 +133,7 @@ public class AssignmentStatement extends AbstractStatement {
 			vars.add(retval.getAdditionalVariableReference());
 		if (parameter.getAdditionalVariableReference() != null)
 			vars.add(parameter.getAdditionalVariableReference());
+		vars.addAll(getAssertionReferences());
 
 		return vars;
 	}

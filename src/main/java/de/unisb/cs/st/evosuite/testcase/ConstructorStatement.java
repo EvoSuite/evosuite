@@ -25,7 +25,6 @@ import java.io.PrintStream;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -34,7 +33,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -96,7 +94,7 @@ public class ConstructorStatement extends AbstractStatement {
 		this.constructor = constructor;
 	}
 
-	private static String getReturnType(Class<?> clazz) {
+	public static String getReturnType(Class<?> clazz) {
 		String retVal = ClassUtils.getShortClassName(clazz);
 		if (primitiveClasses.contains(retVal))
 			return clazz.getSimpleName();
@@ -171,68 +169,6 @@ public class ConstructorStatement extends AbstractStatement {
 	}
 
 	@Override
-	public String getCode(Throwable exception) {
-		String parameter_string = "";
-		String result = "";
-		if (!parameters.isEmpty()) {
-			for (int i = 0; i < parameters.size(); i++) {
-				if (i > 0) {
-					parameter_string += ", ";
-				}
-				Class<?> declaredParamType = constructor.getParameterTypes()[i];
-				Class<?> actualParamType = parameters.get(i).getVariableClass();
-				String name = parameters.get(i).getName();
-				if ((!declaredParamType.isAssignableFrom(actualParamType) || name.equals("null"))
-				        && !constructor.getParameterTypes()[i].equals(Object.class)
-				        && !constructor.getParameterTypes()[i].equals(Comparable.class)) {
-					parameter_string += "("
-					        + new GenericClass(constructor.getParameterTypes()[i]).getSimpleName()
-					        + ") ";
-				}
-				parameter_string += name;
-			}
-
-		}
-		// String result = ((Class<?>) retval.getType()).getSimpleName()
-		// +" "+retval.getName()+ " = null;\n";
-		if (exception != null) {
-			result = retval.getSimpleClassName() + " " + retval.getName() + " = null;\n";
-			result += "try {\n  ";
-		} else {
-			result += retval.getSimpleClassName() + " ";
-		}
-		result += retval.getName() + " = new "
-		        + getReturnType(constructor.getDeclaringClass()) + "(" + parameter_string
-		        + ");";
-
-		if (exception != null) {
-			Class<?> ex = exception.getClass();
-			//boolean isExpected = getDeclaredExceptions().contains(ex);
-
-			while (!Modifier.isPublic(ex.getModifiers()))
-				ex = ex.getSuperclass();
-			//if (isExpected)
-			result += "\n  fail(\"Expecting exception: "
-			        + ClassUtils.getShortClassName(ex) + "\");";
-
-			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {\n";
-			if (exception.getMessage() != null) {
-				//if (!isExpected)
-				//	result += "\n  fail(\"Undeclared exception: "
-				//	        + ClassUtils.getShortClassName(ex) + "\");\n";
-				result += "  /*\n";
-				for (String msg : exception.getMessage().split("\n")) {
-					result += "   * " + StringEscapeUtils.escapeJava(msg) + "\n";
-				}
-				result += "   */\n";
-			}
-			result += "}";
-		}
-
-		return result;
-	}
-
-	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
@@ -255,6 +191,8 @@ public class ConstructorStatement extends AbstractStatement {
 			if (param.getAdditionalVariableReference() != null)
 				references.add(param.getAdditionalVariableReference());
 		}
+		references.addAll(getAssertionReferences());
+
 		return references;
 	}
 

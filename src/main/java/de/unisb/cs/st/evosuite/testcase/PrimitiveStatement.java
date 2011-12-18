@@ -62,7 +62,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 		super(tc, varRef);
 		this.value = value;
 	}
-	
+
 	/**
 	 * Constructor
 	 * 
@@ -148,19 +148,12 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	}
 
 	@Override
-	public String getCode(Throwable exception) {
-		return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
-		        + " = " + value + ";";
-	}
-
-	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
 		@SuppressWarnings("unchecked")
 		PrimitiveStatement<T> clone = (PrimitiveStatement<T>) getPrimitiveStatement(newTestCase,
 		                                                                            retval.getType());
 		clone.setValue(value);
 		// clone.assertions = copyAssertions(newTestCase, offset);
-
 		return clone;
 	}
 
@@ -278,11 +271,11 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	public String toString() {
 		return getCode();
 	}
-	
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#mutate(de.unisb.cs.st.evosuite.testcase.TestCase)
 	 */
+	@Override
 	public boolean mutate(TestCase test, AbstractTestFactory factory) {
 		T oldVal = value;
 		// TODO: Should not be hardcoded
@@ -309,7 +302,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	public boolean isAssignmentStatement() {
 		return false;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
 	 */

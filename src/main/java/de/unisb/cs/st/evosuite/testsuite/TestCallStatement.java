@@ -125,6 +125,8 @@ public class TestCallStatement extends AbstractStatement {
 	 * @see
 	 * de.unisb.cs.st.evosuite.testcase.Statement#getCode(java.lang.Throwable)
 	 */
+	// TODO!
+	/*
 	@Override
 	public String getCode(Throwable exception) {
 
@@ -145,6 +147,7 @@ public class TestCallStatement extends AbstractStatement {
 		return retval.getSimpleClassName() + " " + retval.getName()
 		        + " = Call to test case (null) ";
 	}
+	*/
 
 	/*
 	 * (non-Javadoc)

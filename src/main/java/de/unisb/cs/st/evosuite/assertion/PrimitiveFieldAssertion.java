@@ -33,7 +33,11 @@ public class PrimitiveFieldAssertion extends Assertion {
 
 	private static final long serialVersionUID = 2827276810722210456L;
 
-	public transient Field field;
+	protected transient Field field;
+
+	public Field getField() {
+		return field;
+	}
 
 	@Override
 	public String getCode() {
