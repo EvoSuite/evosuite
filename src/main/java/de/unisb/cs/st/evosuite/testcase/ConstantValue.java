@@ -13,6 +13,8 @@ import de.unisb.cs.st.evosuite.utils.NumberFormatter;
  */
 public class ConstantValue extends VariableReferenceImpl {
 
+	private static final long serialVersionUID = -3760942087575495415L;
+
 	/**
 	 * @param testCase
 	 * @param type

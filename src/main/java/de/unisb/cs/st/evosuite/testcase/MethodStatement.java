@@ -32,8 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -188,97 +186,6 @@ public class MethodStatement extends AbstractStatement {
 	}
 
 	@Override
-	public String getCode(Throwable exception) {
-
-		String result = "";
-
-		if (exception != null && !isDeclaredException(exception)) {
-			result += "// Undeclared exception!\n";
-		}
-
-		boolean lastStatement = getPosition() == tc.size() - 1;
-
-		if (retval.getType() != Void.TYPE
-		        && retval.getAdditionalVariableReference() == null) {
-			if (exception != null) {
-				if (!lastStatement)
-					result += retval.getSimpleClassName() + " " + retval.getName()
-					        + " = " + retval.getDefaultValueString() + ";\n";
-			} else
-				result += retval.getSimpleClassName() + " ";
-		}
-		if (exception != null)
-			result += "try {\n  ";
-
-		String parameter_string = "";
-		for (int i = 0; i < parameters.size(); i++) {
-			if (i > 0) {
-				parameter_string += ", ";
-			}
-			Class<?> declaredParamType = method.getParameterTypes()[i];
-			Class<?> actualParamType = parameters.get(i).getVariableClass();
-			String name = parameters.get(i).getName();
-			if ((!declaredParamType.isAssignableFrom(actualParamType) || name.equals("null"))
-			        && !method.getParameterTypes()[i].equals(Object.class)
-			        && !method.getParameterTypes()[i].equals(Comparable.class)) {
-				parameter_string += "("
-				        + new GenericClass(method.getParameterTypes()[i]).getSimpleName()
-				        + ") ";
-			}
-			parameter_string += name;
-		}
-
-		String callee_str = "";
-		if (exception == null
-		        && !retval.getVariableClass().isAssignableFrom(method.getReturnType())
-		        && !retval.getVariableClass().isAnonymousClass()) {
-			String name = retval.getSimpleClassName();
-			if (!name.matches(".*\\.\\d+$")) {
-				callee_str = "(" + name + ")";
-			}
-		}
-
-		if (Modifier.isStatic(method.getModifiers())) {
-			callee_str += method.getDeclaringClass().getSimpleName();
-		} else {
-			callee_str += callee.getName();
-		}
-
-		if (retval.getType() == Void.TYPE) {
-			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
-		} else {
-			if (exception == null || !lastStatement)
-				result += retval.getName() + " = ";
-
-			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
-		}
-
-		if (exception != null) {
-			//boolean isExpected = getDeclaredExceptions().contains(exception.getClass());
-			Class<?> ex = exception.getClass();
-			while (!Modifier.isPublic(ex.getModifiers()))
-				ex = ex.getSuperclass();
-			//if (isExpected)
-			result += "\n  fail(\"Expecting exception: "
-			        + ClassUtils.getShortClassName(ex) + "\");";
-			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {\n";
-			if (exception.getMessage() != null) {
-				//if (!isExpected)
-				//	result += "\n  fail(\"Undeclared exception: "
-				//	        + ClassUtils.getShortClassName(ex) + "\");\n";
-				result += "  /*\n";
-				for (String msg : exception.getMessage().split("\n")) {
-					result += "   * " + StringEscapeUtils.escapeJava(msg) + "\n";
-				}
-				result += "   */\n";
-			}
-			result += "}";
-		}
-
-		return result;
-	}
-
-	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
@@ -317,7 +224,7 @@ public class MethodStatement extends AbstractStatement {
 			if (param.getAdditionalVariableReference() != null)
 				references.add(param.getAdditionalVariableReference());
 		}
-
+		references.addAll(getAssertionReferences());
 		return references;
 	}
 

@@ -87,15 +87,6 @@ public class FloatPrimitiveStatement extends NumericalPrimitiveStatement<Float> 
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#getCode(java.lang.Throwable)
-	 */
-	@Override
-	public String getCode(Throwable exception) {
-		return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
-		        + " = " + value + "F;";
-	}
-
-	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#increment()
 	 */
 	@Override
@@ -126,7 +117,7 @@ public class FloatPrimitiveStatement extends NumericalPrimitiveStatement<Float> 
 	public boolean isPositive() {
 		return value > 0;
 	}
-	
+
 	@Override
 	public void negate() {
 		value = -value;

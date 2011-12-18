@@ -59,13 +59,6 @@ public interface StatementInterface {
 	        IllegalAccessException, InstantiationException;
 
 	/**
-	 * Get Java representation of statement
-	 * 
-	 * @return
-	 */
-	public String getCode();
-
-	/**
 	 * Various consistency checks. This method might also return with an
 	 * assertionError Functionality might depend on the status of
 	 * enableAssertions in this JVM
@@ -73,13 +66,6 @@ public interface StatementInterface {
 	 * @return
 	 */
 	public boolean isValid();
-
-	/**
-	 * Get Java representation of statement
-	 * 
-	 * @return
-	 */
-	public String getCode(Throwable exception);
 
 	/**
 	 * Generate bytecode by calling method generator
@@ -116,6 +102,20 @@ public interface StatementInterface {
 	 */
 	@Override
 	public int hashCode();
+
+	/**
+	 * Create a string representing the statement as Java code
+	 * 
+	 * @return
+	 */
+	public String getCode();
+
+	/**
+	 * Create a string representing the statement as Java code
+	 * 
+	 * @return
+	 */
+	public String getCode(Throwable exception);
 
 	/**
 	 * @return Variable representing return value

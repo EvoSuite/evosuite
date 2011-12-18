@@ -50,10 +50,12 @@ import de.unisb.cs.st.evosuite.utils.Listener;
  */
 public class ConcurrentTestCase implements TestCase {
 
+	@Override
 	public void addListener(Listener<Void> listener) {
 		test.addListener(listener);
 	}
 
+	@Override
 	public void deleteListener(Listener<Void> listener) {
 		test.deleteListener(listener);
 	}
@@ -129,7 +131,7 @@ public class ConcurrentTestCase implements TestCase {
 	public int hashCode() {
 		return test.hashCode() + schedule.hashCode();
 	}
-	
+
 	@Override
 	public void addStatements(List<? extends StatementInterface> statements) {
 		for (StatementInterface statementInterface : statements) {

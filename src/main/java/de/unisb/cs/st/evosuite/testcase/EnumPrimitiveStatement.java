@@ -6,7 +6,6 @@ package de.unisb.cs.st.evosuite.testcase;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
-import de.unisb.cs.st.evosuite.utils.NumberFormatter;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
@@ -111,16 +110,4 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#getCode(java.lang.Throwable)
-	 */
-	@Override
-	public String getCode(Throwable exception) {
-		if (value != null)
-			return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
-			        + " = " + NumberFormatter.getNumberString(value) + ";";
-		else
-			return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
-			        + " = (" + ((Class<?>) retval.getType()).getSimpleName() + ") null;";
-	}
 }

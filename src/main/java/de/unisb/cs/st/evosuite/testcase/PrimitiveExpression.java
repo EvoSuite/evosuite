@@ -101,11 +101,6 @@ public class PrimitiveExpression extends AbstractStatement {
 	}
 
 	@Override
-	public String getCode(Throwable exception) {
-		throw new UnsupportedOperationException("Method getCode not implemented!");
-	}
-
-	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
 		throw new UnsupportedOperationException(
 		        "Method getUniqueVariableReferences not implemented!");

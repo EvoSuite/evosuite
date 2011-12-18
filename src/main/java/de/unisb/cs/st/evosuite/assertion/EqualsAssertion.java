@@ -30,7 +30,15 @@ public class EqualsAssertion extends Assertion {
 
 	private static final long serialVersionUID = 1427358542327670617L;
 
-	public VariableReference dest;
+	protected VariableReference dest;
+
+	public VariableReference getDest() {
+		return dest;
+	}
+
+	public void setDest(VariableReference dest) {
+		this.dest = dest;
+	}
 
 	@Override
 	public Assertion copy(TestCase newTestCase, int offset) {
