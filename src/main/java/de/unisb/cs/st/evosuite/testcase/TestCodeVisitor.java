@@ -71,16 +71,33 @@ public class TestCodeVisitor implements TestVisitor {
 			VariableReference array = ((ArrayIndex) var).getArray();
 			int index = ((ArrayIndex) var).getArrayIndex();
 			return getVariableName(array) + "[" + index + "]";
+		} else if (var instanceof ArrayReference) {
+
+			String className = var.getSimpleClassName();
+			int num = 0;
+			for (VariableReference otherVar : variableNames.keySet()) {
+				if (!otherVar.equals(var)
+				        && otherVar.getVariableClass().equals(var.getVariableClass()))
+					num++;
+			}
+			String variableName = className.substring(0, 1).toLowerCase()
+			        + className.substring(1) + "Array" + num;
+			variableName = variableName.replace(".", "_").replace("[]", "");
+			variableNames.put(var, variableName);
 		} else if (!variableNames.containsKey(var)) {
 			String className = var.getSimpleClassName();
 			int num = 0;
 			for (VariableReference otherVar : variableNames.keySet()) {
-				if (otherVar.getVariableClass().equals(var.getVariableClass()))
+				if (!otherVar.equals(var)
+				        && otherVar.getVariableClass().equals(var.getVariableClass()))
 					num++;
 			}
 			String variableName = className.substring(0, 1).toLowerCase()
 			        + className.substring(1) + num;
-			variableName = variableName.replace(".", "_").replace("[]", "");
+			if (variableName.contains("[]")) {
+				variableName = variableName.replace("[]", "Array");
+			}
+			variableName = variableName.replace(".", "_");
 			variableNames.put(var, variableName);
 		}
 		return variableNames.get(var);
