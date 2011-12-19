@@ -209,7 +209,8 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 		TestCodeVisitor visitor = new TestCodeVisitor();
 		visitor.setException(this, exception);
 		visitor.visitStatement(this);
-		return visitor.getCode();
+		String code = visitor.getCode();
+		return code.substring(0, code.length() - 2);
 	}
 
 	@Override
