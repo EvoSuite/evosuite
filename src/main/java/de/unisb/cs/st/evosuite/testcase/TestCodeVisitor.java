@@ -60,6 +60,17 @@ public class TestCodeVisitor implements TestVisitor {
 	private String getVariableName(VariableReference var) {
 		if (var instanceof ConstantValue) {
 			return var.getName();
+		} else if (var instanceof FieldReference) {
+			VariableReference source = ((FieldReference) var).getSource();
+			Field field = ((FieldReference) var).getField();
+			if (source != null)
+				return getVariableName(source) + "." + field.getName();
+			else
+				return field.getDeclaringClass().getSimpleName() + "." + field.getName();
+		} else if (var instanceof ArrayIndex) {
+			VariableReference array = ((ArrayIndex) var).getArray();
+			int index = ((ArrayIndex) var).getArrayIndex();
+			return getVariableName(array) + "[" + index + "]";
 		} else if (!variableNames.containsKey(var)) {
 			String className = var.getSimpleClassName();
 			int num = 0;
@@ -69,7 +80,7 @@ public class TestCodeVisitor implements TestVisitor {
 			}
 			String variableName = className.substring(0, 1).toLowerCase()
 			        + className.substring(1) + num;
-			variableName = variableName.replace(".", "_");
+			variableName = variableName.replace(".", "_").replace("[]", "");
 			variableNames.put(var, variableName);
 		}
 		return variableNames.get(var);
