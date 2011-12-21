@@ -43,11 +43,16 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	 * Constructor - fitness is specific to a branch
 	 */
 	public BranchCoverageTestFitness(BranchCoverageGoal goal) {
+		assert goal != null;
 		this.goal = goal;
 	}
 
 	public Branch getBranch() {
 		return goal.branch;
+	}
+
+	public String getMethod() {
+		return goal.methodName;
 	}
 
 	public boolean getBranchExpressionValue() {
@@ -64,22 +69,24 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 			if (call.className.equals(goal.className)
 			        && call.methodName.equals(goal.methodName)) {
 				methodExecuted = true;
-				for (int i = 0; i < call.branchTrace.size(); i++) {
-					if (call.branchTrace.get(i) == goal.branch.getInstruction().getInstructionId()) {
-						//logger.info("Found target branch with distances "
-						//        + call.trueDistanceTrace.get(i) + "/"
-						//        + call.falseDistanceTrace.get(i));
-						if (goal.value)
-							sum += call.falseDistanceTrace.get(i);
-						else
-							sum += call.trueDistanceTrace.get(i);
+				if (goal.branch != null) {
+					for (int i = 0; i < call.branchTrace.size(); i++) {
+						if (call.branchTrace.get(i) == goal.branch.getInstruction().getInstructionId()) {
+							// logger.info("Found target branch with distances "
+							// + call.trueDistanceTrace.get(i) + "/"
+							// + call.falseDistanceTrace.get(i));
+							if (goal.value)
+								sum += call.falseDistanceTrace.get(i);
+							else
+								sum += call.trueDistanceTrace.get(i);
+						}
 					}
 				}
 			}
 		}
 
 		if (goal.branch == null) {
-			//logger.info("Branch is null? " + goal.branch);
+			// logger.info("Branch is null? " + goal.branch);
 			if (goal.value)
 				sum = methodExecuted ? 1.0 : 0.0;
 			else
@@ -98,6 +105,10 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		ControlFlowDistance distance = goal.getDistance(result);
 
 		double fitness = distance.getResultingBranchFitness();
+
+		// If there is an undeclared exception it is a failing test
+		//if (result.hasUndeclaredException())
+		//	fitness += 1;
 
 		logger.debug("Approach level: " + distance.getApproachLevel()
 		        + " / branch distance: " + distance.getBranchDistance() + ", fitness = "

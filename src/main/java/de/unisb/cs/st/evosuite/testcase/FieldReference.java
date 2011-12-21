@@ -15,7 +15,9 @@ import java.lang.reflect.Modifier;
  */
 public class FieldReference extends VariableReferenceImpl {
 
-	private static final long serialVersionUID = -5958137620746406320L;
+	private static final long serialVersionUID = 834164966411781655L;
+
+	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(FieldReference.class);
 
 	private transient Field field;
 
@@ -303,6 +305,24 @@ public class FieldReference extends VariableReferenceImpl {
 		} else if (!source.equals(other.source))
 			return false;
 		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		try {
+			Class<?> oldClass = field.getDeclaringClass();
+			Class<?> newClass = loader.loadClass(oldClass.getName());
+			this.field = newClass.getField(field.getName());
+		} catch (ClassNotFoundException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		} catch (SecurityException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		} catch (NoSuchFieldException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		}
 	}
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {

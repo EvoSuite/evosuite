@@ -5,7 +5,7 @@ package de.unisb.cs.st.evosuite.testcase;
 
 import java.lang.reflect.Type;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import de.unisb.cs.st.evosuite.utils.NumberFormatter;
 
 /**
  * @author Gordon Fraser
@@ -13,7 +13,7 @@ import org.apache.commons.lang.StringEscapeUtils;
  */
 public class ConstantValue extends VariableReferenceImpl {
 
-	private static final long serialVersionUID = 3236013296410662388L;
+	private static final long serialVersionUID = -3760942087575495415L;
 
 	/**
 	 * @param testCase
@@ -72,24 +72,7 @@ public class ConstantValue extends VariableReferenceImpl {
 	 */
 	@Override
 	public String getName() {
-		if (value == null)
-			return "null";
-		else if (value.getClass().equals(char.class)
-		        || value.getClass().equals(Character.class))
-			return "'" + StringEscapeUtils.escapeJava(value.toString()) + "'";
-		else if (value.getClass().equals(String.class)) {
-			return "\"" + StringEscapeUtils.escapeJava((String) value) + "\"";
-		} else if (value.getClass().equals(float.class)
-		        || value.getClass().equals(Float.class)) {
-			return value + "F";
-		} else if (value.getClass().equals(long.class)
-		        || value.getClass().equals(Long.class)) {
-			return value + "L";
-		} else if (value.getClass().isEnum()) {
-			return value.getClass().getSimpleName() + "." + value;
-
-		} else
-			return "" + value;
+		return NumberFormatter.getNumberString(value);
 	}
 
 	/**

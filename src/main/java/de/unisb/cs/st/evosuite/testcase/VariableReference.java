@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Map;
 
@@ -32,7 +33,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  * @author Gordon Fraser
  * 
  */
-public interface VariableReference extends Comparable<VariableReference> {
+public interface VariableReference extends Comparable<VariableReference>, Serializable {
 
 	/**
 	 * The position of the statement, defining this VariableReference, in the
@@ -224,6 +225,8 @@ public interface VariableReference extends Comparable<VariableReference> {
 	public void loadBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals);
 
 	public void storeBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals);
+
+	public void changeClassLoader(ClassLoader loader);
 
 	public Object getDefaultValue();
 

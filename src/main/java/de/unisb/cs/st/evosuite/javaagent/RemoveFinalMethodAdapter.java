@@ -39,11 +39,11 @@ public class RemoveFinalMethodAdapter extends MethodAdapter {
 		        && owner.equals(className)) {
 
 			if (!finalFields.contains(name)) {
-				System.out.println("Keeping non-final field " + name + " in class "
-				        + owner);
+				//System.out.println("Keeping non-final field " + name + " in class "
+				//        + owner);
 				super.visitFieldInsn(opcode, owner, name, desc);
 			} else {
-				System.out.println("Omitting final field " + name + " in class " + owner);
+				//System.out.println("Omitting final field " + name + " in class " + owner);
 				Type type = Type.getType(desc);
 				if (type.getSize() == 1)
 					super.visitInsn(Opcodes.POP);
@@ -51,8 +51,8 @@ public class RemoveFinalMethodAdapter extends MethodAdapter {
 					super.visitInsn(Opcodes.POP2);
 			}
 		} else {
-			if (!owner.equals(className))
-				System.out.println("Mismatch: " + className + " / " + owner);
+			//if (!owner.equals(className))
+			//	System.out.println("Mismatch: " + className + " / " + owner);
 			super.visitFieldInsn(opcode, owner, name, desc);
 		}
 	}

@@ -13,7 +13,9 @@ public class SimpleTestExample03 {
 	public void test() throws ParseException {
 		SimpleDateFormat formatter = new SimpleDateFormat("dd.MMM.yyyy", Locale.FRENCH);
 		System.out.println(formatter.format(System.currentTimeMillis()));
-		Date result = formatter.parse("11.sept..2007");
+		String date = "11.sept..2007";
+		System.out.println(date);
+		Date result = formatter.parse(date);
 		// Assert.assertNotNull(result);
 	}
 }

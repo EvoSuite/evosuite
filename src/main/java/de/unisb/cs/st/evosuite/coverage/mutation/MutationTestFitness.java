@@ -5,23 +5,28 @@ package de.unisb.cs.st.evosuite.coverage.mutation;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import de.unisb.cs.st.evosuite.assertion.AssertionTraceObserver;
+import de.unisb.cs.st.evosuite.assertion.ComparisonTraceEntry;
 import de.unisb.cs.st.evosuite.assertion.ComparisonTraceObserver;
+import de.unisb.cs.st.evosuite.assertion.InspectorTraceEntry;
 import de.unisb.cs.st.evosuite.assertion.InspectorTraceObserver;
-import de.unisb.cs.st.evosuite.assertion.NullOutputObserver;
+import de.unisb.cs.st.evosuite.assertion.NullTraceEntry;
+import de.unisb.cs.st.evosuite.assertion.NullTraceObserver;
+import de.unisb.cs.st.evosuite.assertion.OutputTrace;
+import de.unisb.cs.st.evosuite.assertion.PrimitiveFieldTraceEntry;
 import de.unisb.cs.st.evosuite.assertion.PrimitiveFieldTraceObserver;
-import de.unisb.cs.st.evosuite.assertion.PrimitiveOutputTraceObserver;
+import de.unisb.cs.st.evosuite.assertion.PrimitiveTraceEntry;
+import de.unisb.cs.st.evosuite.assertion.PrimitiveTraceObserver;
 import de.unisb.cs.st.evosuite.cfg.ActualControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import de.unisb.cs.st.evosuite.testcase.ExecutionObserver;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
@@ -40,24 +45,24 @@ public class MutationTestFitness extends TestFitnessFunction {
 
 	private final Set<BranchCoverageGoal> controlDependencies = new HashSet<BranchCoverageGoal>();
 
-	protected List<ExecutionObserver> observers;
+	protected static Class<?>[] observerClasses = { PrimitiveTraceEntry.class,
+	        ComparisonTraceEntry.class, InspectorTraceEntry.class,
+	        PrimitiveFieldTraceEntry.class, NullTraceEntry.class };
 
-	protected static PrimitiveOutputTraceObserver primitiveObserver = new PrimitiveOutputTraceObserver();
-	protected static ComparisonTraceObserver comparisonObserver = new ComparisonTraceObserver();
-	protected static InspectorTraceObserver inspectorObserver = new InspectorTraceObserver();
-	protected static PrimitiveFieldTraceObserver fieldObserver = new PrimitiveFieldTraceObserver();
-	protected static NullOutputObserver nullObserver = new NullOutputObserver();
+	@SuppressWarnings("unchecked")
+	protected static AssertionTraceObserver<?>[] observers = {
+	        new PrimitiveTraceObserver(), new ComparisonTraceObserver(),
+	        new InspectorTraceObserver(), new PrimitiveFieldTraceObserver(),
+	        new NullTraceObserver() };
 
 	private final int diameter;
 
 	public MutationTestFitness(Mutation mutation) {
 		this.mutation = mutation;
 		controlDependencies.addAll(mutation.getControlDependencies());
-		executor.addObserver(primitiveObserver);
-		executor.addObserver(comparisonObserver);
-		executor.addObserver(inspectorObserver);
-		executor.addObserver(fieldObserver);
-		executor.addObserver(nullObserver);
+		for (AssertionTraceObserver<?> observer : observers) {
+			executor.addObserver(observer);
+		}
 
 		ActualControlFlowGraph cfg = CFGPool.getActualCFG(mutation.getClassName(),
 		                                                  mutation.getMethodName());
@@ -92,12 +97,10 @@ public class MutationTestFitness extends TestFitnessFunction {
 			int num = test.size();
 			//if (mutant == null)
 			MaxStatementsStoppingCondition.statementsExecuted(num);
-
-			result.comparison_trace = comparisonObserver.getTrace();
-			result.primitive_trace = primitiveObserver.getTrace();
-			result.inspector_trace = inspectorObserver.getTrace();
-			result.field_trace = fieldObserver.getTrace();
-			result.null_trace = nullObserver.getTrace();
+			int i = 0;
+			for (AssertionTraceObserver<?> observer : observers) {
+				result.setTrace(observer.getTrace(), observerClasses[i++]);
+			}
 
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
@@ -216,37 +219,18 @@ public class MutationTestFitness extends TestFitnessFunction {
 		return normalize(coverage_impact) + normalize(data_impact) + branch_impact;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private int getNumAssertions(ExecutionResult orig_result,
 	        ExecutionResult mutant_result) {
 		int num = 0;
 		if (orig_result.test.size() == 0)
 			return 0;
 
-		int last_num = 0;
-		// num +=
-		// orig_result.output_trace.numDiffer(mutant_result.output_trace);
-		// if (num > last_num)
-		// logger.debug("Found " + (num - last_num) + " output assertions!");
-		// last_num = num;
-		num += orig_result.comparison_trace.numDiffer(mutant_result.comparison_trace);
-		if (num > last_num)
-			logger.debug("Found " + (num - last_num) + " comparison assertions!");
-		last_num = num;
-		num += orig_result.primitive_trace.numDiffer(mutant_result.primitive_trace);
-		if (num > last_num)
-			logger.debug("Found " + (num - last_num) + " primitive assertions!");
-		last_num = num;
-		num += orig_result.inspector_trace.numDiffer(mutant_result.inspector_trace);
-		if (num > last_num)
-			logger.debug("Found " + (num - last_num) + " inspector assertions!");
-		last_num = num;
-		num += orig_result.field_trace.numDiffer(mutant_result.field_trace);
-		if (num > last_num)
-			logger.debug("Found " + (num - last_num) + " field assertions!");
-		last_num = num;
-		num += orig_result.null_trace.numDiffer(mutant_result.null_trace);
-		if (num > last_num)
-			logger.debug("Found " + (num - last_num) + " null assertions!");
+		for (Class<?> observerClass : observerClasses) {
+			OutputTrace trace = mutant_result.getTrace(observerClass);
+			OutputTrace orig = orig_result.getTrace(observerClass);
+			num += orig.numDiffer(trace);
+		}
 
 		logger.debug("Found " + num + " assertions!");
 		return num;

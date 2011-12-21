@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -34,7 +32,7 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 
 	private static Logger logger = LoggerFactory.getLogger(JUnitTestChromosomeFactory.class);
 
-	private final Set<TestCase> userTests = new LinkedHashSet<TestCase>();
+	private final static Set<TestCase> userTests = new LinkedHashSet<TestCase>();
 
 	private final ChromosomeFactory<TestChromosome> defaultFactory;
 
@@ -45,67 +43,78 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 	 */
 	public JUnitTestChromosomeFactory(ChromosomeFactory<TestChromosome> defaultFactory) {
 		this.defaultFactory = defaultFactory;
-		readTestCases();
+		if (userTests.isEmpty())
+			userTests.addAll(filter(readTestCases()));
+		System.out.println("* Found " + userTests.size() + " relevant tests");
+		// getManualCoverage();
+
 	}
 
-	private void readTestCases() {
-		logger.info("Loading sequences from file");
-		/*
-		String SUTName = Properties.TARGET_CLASS_PREFIX.replace(".", "/");
-		String className = Properties.getTargetClass().getSimpleName();
-		Pattern pattern = Pattern.compile(SUTName + ".*" + className + ".*.java");
-		for (String resource : ResourceList.getResources(pattern)) {
-			logger.info("Trying to read test file " + resource);
-			readTestCase(resource);
-		}
-		*/
-		for (String testFile : getTestFiles(Properties.TARGET_CLASS)) {
-			logger.info("Trying to read test file " + testFile);
-			readTestCase(testFile);
-		}
-		logger.info("In total, we parsed " + userTests.size() + " test cases");
-		getManualCoverage();
+	public static int getNumTests() {
+		return userTests.size();
 	}
 
-	private void readTestCase(String fileName) {
-		//JUnitTestReader reader = new ComplexJUnitTestReader(null,
-		//        new String[] { fileName }); // TODO
-		//reader.readJUnitTestCase(SimpleTestExample01.class.getName() + "#test");
-
-		TestParser parser = new TestParser(null);
-		List<TestCase> tests;
-		try {
-			tests = new ArrayList<TestCase>(); //parser.parseFile(fileName);
-			logger.info("Parsed " + tests.size() + " test cases");
-			for (TestCase test : tests) {
-				if (test.getAccessedClasses().contains(Properties.getTargetClass())) {
-					logger.info("Test accesses target class");
-					userTests.add(test);
-				} else {
-					logger.info("Test does not access target class");
+	private Set<TestCase> filter(Set<TestCase> tests) {
+		Set<TestCase> relevantTests = new HashSet<TestCase>();
+		for (TestCase test : tests) {
+			for (Class<?> clazz : test.getAccessedClasses()) {
+				if (clazz.getName().equals(Properties.TARGET_CLASS)) {
+					relevantTests.add(test);
+					logger.info("TestCase: " + test.toCode());
+					break;
 				}
 			}
-			// userTests.addAll(tests);
-		} catch (Exception e) { //(IOException e) {
+		}
+		return relevantTests;
+	}
+
+	private Set<TestCase> readTestCases() {
+		logger.info("Loading sequences from file");
+
+		Set<TestCase> tests = new HashSet<TestCase>();
+		for (String testFile : getTestFiles(Properties.TARGET_CLASS)) {
+			logger.info("Trying to read test file " + testFile);
+			tests.addAll(readTestCase(testFile));
+		}
+
+		System.out.println("* Parsed " + tests.size() + " JUnit test cases");
+		return tests;
+	}
+
+	private Set<TestCase> readTestCase(String fileName) {
+		TestParser parser = new TestParser(null);
+		Set<TestCase> tests = new HashSet<TestCase>();
+		try {
+			System.out.print("* Parsing tests from " + fileName + ": ");
+			tests.addAll(parser.parseFile(fileName));
+			System.out.println(". Parsed " + tests.size() + " test cases");
+		} catch (IOException e) {
 			logger.info("Error parsing file " + fileName + ": " + e);
 		}
+		return tests;
 
 	}
 
 	public Set<String> getTestFiles(String fullClassName) {
 		String shortClassName = Properties.getTargetClass().getSimpleName();
+		Pattern pattern1 = Pattern.compile(".*Test.*");
+		Pattern pattern2 = Pattern.compile(".*Test.java");
+		if (Properties.JUNIT_STRICT) {
+			pattern1 = Pattern.compile(".*Test" + shortClassName + ".*");
+			pattern2 = Pattern.compile(".*" + shortClassName + "Test.java");
+		}
 		//Pattern pattern1 = Pattern.compile(Properties.CLASS_PREFIX + ".Test*"
 		//        + shortClassName + ".*");
 		//Pattern pattern2 = Pattern.compile(Properties.CLASS_PREFIX + "." + shortClassName
 		//        + "Test");
-		Pattern pattern1 = Pattern.compile(Properties.CLASS_PREFIX + ".Test*" + ".*");
-		Pattern pattern2 = Pattern.compile(Properties.CLASS_PREFIX + ".*" + "Test");
+		//Pattern pattern1 = Pattern.compile(Properties.CLASS_PREFIX + ".Test*" + ".*");
+		//Pattern pattern2 = Pattern.compile(Properties.CLASS_PREFIX + ".*" + "Test");
 
 		Set<File> files = initFiles();
 		Set<String> testFiles = new HashSet<String>();
 		logger.info("Looking for tests of class " + fullClassName + " in " + files.size()
 		        + " files.");
-		logger.debug("Files: " + files);
+		//System.out.println("Files: " + files);
 		for (File f : files) {
 			String name = getContainingClassName(f);
 			//if (name.endsWith(className) && !name.endsWith("Test" + className)) {
@@ -118,7 +127,7 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 				logger.info("Found match: " + f.getName());
 				testFiles.add(f.getAbsolutePath());
 			} else {
-				logger.info("No match: " + f.getName());
+				logger.debug("No match: " + f.getName());
 			}
 		}
 		return testFiles;
@@ -147,23 +156,19 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 		return new HashSet<File>(javaFiles);
 	}
 
-	private String getClassName(String name) {
-		if (name.contains("$")) {
-			name = name.substring(0, name.indexOf('$'));
-		}
-		return name;
-	}
-
+	@SuppressWarnings("unused")
 	private void getManualCoverage() {
 		BranchCoverageSuiteFitness fitness = new BranchCoverageSuiteFitness();
 		TestSuiteChromosome chromosome = new TestSuiteChromosome(
 		        new RandomLengthTestFactory());
+		int totalLength = 0;
 		for (TestCase test : userTests) {
 			chromosome.addTest(test);
+			totalLength += test.size();
 		}
 		fitness.getFitness(chromosome);
-		System.out.println("* Parsed tests cover " + chromosome.getCoverage()
-		        + " of branches");
+		System.out.println("PARSED," + Properties.TARGET_CLASS + "," + userTests.size()
+		        + "," + totalLength + "," + chromosome.getCoverage());
 	}
 
 	/* (non-Javadoc)
@@ -171,9 +176,8 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 	 */
 	@Override
 	public TestChromosome getChromosome() {
-		double P_delta = 0.2d;
-		double P_clone = 1.0d;
-		int MAX_CHANGES = 10;
+		int N_mutations = Properties.SEED_MUTATIONS;
+		double P_clone = Properties.SEED_CLONE;
 
 		if (Randomness.nextDouble() >= P_clone || userTests.isEmpty()) {
 			logger.info("Using random test");
@@ -181,16 +185,16 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 		}
 
 		// Cloning
-		logger.info("Cloning user test");
+		logger.debug("Cloning user test");
+		TestCase test = Randomness.choice(userTests);
 		TestChromosome chromosome = new TestChromosome();
-		chromosome.setTestCase(Randomness.choice(userTests).clone());
+		chromosome.setTestCase(test.clone());
+		if (N_mutations > 0) {
+			int numMutations = Randomness.nextInt(N_mutations);
+			logger.debug("Mutations: " + numMutations);
 
-		// Delta
-		if (Randomness.nextDouble() < P_delta) {
-			logger.info("Mutating user test");
-			// TODO: Use decreasing probability like during insertion?
-			int numChanges = Randomness.nextInt(1, MAX_CHANGES);
-			for (int i = 0; i < numChanges; i++) {
+			// Delta
+			for (int i = 0; i < numMutations; i++) {
 				chromosome.mutate();
 			}
 		}

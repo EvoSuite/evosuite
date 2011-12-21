@@ -177,7 +177,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		if (Properties.STATIC_HACK)
 			TestCluster.getInstance().resetStaticClasses();
 		resetObservers();
-		ExecutionObserver.currentTest(tc);
+		ExecutionObserver.setCurrentTest(tc);
 		MaxTestsStoppingCondition.testExecuted();
 
 		long startTime = System.currentTimeMillis();
@@ -199,6 +199,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			ExecutionResult result = handler.execute(callable, executor,
 			                                         Properties.TIMEOUT,
 			                                         Properties.CPU_TIMEOUT);
+
 			long endTime = System.currentTimeMillis();
 			timeExecuted += endTime - startTime;
 			testsExecuted++;
@@ -243,13 +244,13 @@ public class TestCaseExecutor implements ThreadFactory {
 			return result;
 		} catch (TimeoutException e1) {
 			Sandbox.tearDownEverything();
-			System.setOut(systemOut);
-			System.setErr(systemErr);
+			//System.setOut(systemOut);
+			//System.setErr(systemErr);
 
 			if (Properties.LOG_TIMEOUT) {
 				System.err.println("Timeout occurred for " + Properties.TARGET_CLASS);
 			}
-			logger.info("TimeoutException, need to stop runner");
+			logger.info("TimeoutException, need to stop runner", e1);
 			ExecutionTracer.setKillSwitch(true);
 			ExecutionTracer.disable();
 			//task.cancel(true);
@@ -289,6 +290,8 @@ public class TestCaseExecutor implements ThreadFactory {
 			ExecutionTracer.getExecutionTracer().clear();
 			ExecutionTracer.setKillSwitch(false);
 			ExecutionTracer.enable();
+			System.setOut(systemOut);
+			System.setErr(systemErr);
 
 			return result;
 		} finally {

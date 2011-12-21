@@ -110,4 +110,9 @@ public class ShortPrimitiveStatement extends NumericalPrimitiveStatement<Short> 
 	public boolean isPositive() {
 		return value >= 0;
 	}
+	
+	@Override
+	public void negate() {
+		value = (short) -value;
+	}
 }

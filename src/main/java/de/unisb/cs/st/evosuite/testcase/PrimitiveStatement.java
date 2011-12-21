@@ -58,6 +58,11 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	 */
 	T value;
 
+	public PrimitiveStatement(TestCase tc, VariableReference varRef, T value) {
+		super(tc, varRef);
+		this.value = value;
+	}
+
 	/**
 	 * Constructor
 	 * 
@@ -143,19 +148,12 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	}
 
 	@Override
-	public String getCode(Throwable exception) {
-		return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
-		        + " = " + value + ";";
-	}
-
-	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
 		@SuppressWarnings("unchecked")
 		PrimitiveStatement<T> clone = (PrimitiveStatement<T>) getPrimitiveStatement(newTestCase,
 		                                                                            retval.getType());
 		clone.setValue(value);
 		// clone.assertions = copyAssertions(newTestCase, offset);
-
 		return clone;
 	}
 
@@ -267,6 +265,11 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 		PrimitiveStatement<?> ps = (PrimitiveStatement<?>) s;
 		return (retval.same(ps.retval) && value.equals(ps.value));
+	}
+
+	@Override
+	public String toString() {
+		return getCode();
 	}
 
 	/* (non-Javadoc)

@@ -291,7 +291,8 @@ public class MethodDescriptorReplacement implements Serializable {
 		//String className = System.getProperty("target.class");;
 		//File file = new File(MutationProperties.OUTPUT_DIR+"/"+className+".obj");
 		File dir = new File(Properties.OUTPUT_DIR);
-
+		assert dir.exists() : "OutputDir '" + dir + "' does not exist!";
+		
 		FilenameFilter filter = new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
@@ -299,7 +300,7 @@ public class MethodDescriptorReplacement implements Serializable {
 			}
 		};
 		File[] files = dir.listFiles(filter);
-
+		assert files != null : "OutputDir '" + dir + "' does not exist!";
 		for (File file : files) {
 			if (file.isDirectory())
 				continue;

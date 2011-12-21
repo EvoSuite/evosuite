@@ -180,6 +180,14 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 		return getVariableReferences().contains(var);
 	}
 
+	protected Set<VariableReference> getAssertionReferences() {
+		Set<VariableReference> variables = new HashSet<VariableReference>();
+		for (Assertion assertion : assertions) {
+			variables.addAll(assertion.getReferencedVariables());
+		}
+		return variables;
+	}
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#SetRetval(de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
@@ -194,6 +202,15 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	@Override
 	public String getCode() {
 		return getCode(null);
+	}
+
+	@Override
+	public String getCode(Throwable exception) {
+		TestCodeVisitor visitor = new TestCodeVisitor();
+		visitor.setException(this, exception);
+		visitor.visitStatement(this);
+		String code = visitor.getCode();
+		return code.substring(0, code.length() - 2);
 	}
 
 	@Override
@@ -259,7 +276,11 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 		if (assertion == null) {
 			logger.warn("Trying to add null assertion!");
 		} else {
-			logger.debug("Adding assertion");
+			logger.debug("Adding assertion " + assertion.getCode());
+			assert (assertion.isValid()) : "Invalid assertion detected: "
+			        + assertion.getCode() + ", " + assertion.getSource() + ", "
+			        + assertion.getValue();
+			assertion.setStatement(this);
 			assertions.add(assertion);
 		}
 	}
@@ -269,6 +290,9 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	 */
 	@Override
 	public void setAssertions(Set<Assertion> assertions) {
+		for (Assertion assertion : assertions)
+			assertion.setStatement(this);
+
 		this.assertions = assertions;
 	}
 
@@ -359,5 +383,18 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
 		return copy(newTestCase, 0);
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		for (VariableReference var : getVariableReferences()) {
+			var.changeClassLoader(loader);
+		}
+	}
+
+	public void negate() {
 	}
 }

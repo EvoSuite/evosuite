@@ -121,4 +121,9 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	@Override
+	public void negate() {
+		value = (byte) -value;
+	}
 }

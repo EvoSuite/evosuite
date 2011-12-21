@@ -45,6 +45,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 	private final boolean breakOnUndeclaredException;
 
+	private final boolean breakOnException = Properties.BREAK_ON_EXCEPTION;
+
 	public TestRunnable(TestCase tc, Scope scope, Set<ExecutionObserver> observers) {
 		this(tc, scope, observers, true);
 	}
@@ -107,14 +109,22 @@ public class TestRunnable implements InterfaceTestRunnable {
 						break;
 					}
 
+					if (breakOnException) {
+						break;
+					}
+
 					/*
 					 * #TODO this is a penalty for test cases which contain a statement that throws an undeclared exception.
 					 * As those test cases are not going to be executed after the statement (i.e. no coverage for those parts is generated) 
 					 * This comment should explain, why that behavior is desirable 
 					 */
-					if (breakOnUndeclaredException)
+					if (breakOnUndeclaredException) {
 						//					        && !s.isDeclaredException(exceptionThrown))
+						for (ExecutionObserver observer : observers) {
+							observer.statement(s, scope, exceptionThrown);
+						}
 						break;
+					}
 
 					// exception_statement = num; 
 					if (log && logger.isDebugEnabled())
