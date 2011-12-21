@@ -64,8 +64,9 @@ class WindowlessUIActionTargetDescriptor implements Serializable {
 
 				try {
 					StringBuilder newLabel = new StringBuilder(
-							comboBox.getRenderedValue(-1));
-					newLabel.append(" out of [");
+							comboBox.getRenderedValue(comboBox.getAwtComponent().getSelectedItem(), -1)
+					);
+					newLabel.append(" from [");
 
 					String[] values = comboBox.getContent();
 					result.comboBoxValues = Arrays.asList(values);
