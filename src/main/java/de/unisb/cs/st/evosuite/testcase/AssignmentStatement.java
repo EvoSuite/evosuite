@@ -68,7 +68,11 @@ public class AssignmentStatement extends AbstractStatement {
 		try {
 			//logger.info("CLoning : " + getCode());
 			VariableReference newParam = parameter.copy(newTestCase, offset);
-			VariableReference newTarget = retval.copy(newTestCase, offset);
+			VariableReference newTarget;
+			if (retval.getAdditionalVariableReference() != null)
+				newTarget = retval.copy(newTestCase, offset);
+			else
+				newTarget = new VariableReferenceImpl(newTestCase, retval.getType());
 			AssignmentStatement copy = new AssignmentStatement(newTestCase, newTarget,
 			        newParam);
 			// copy.assertions = copyAssertions(newTestCase, offset);
@@ -78,7 +82,8 @@ public class AssignmentStatement extends AbstractStatement {
 		} catch (Exception e) {
 			logger.info("Error cloning statement " + getCode());
 			logger.info("New test: " + newTestCase.toCode());
-			assert (false);
+			e.printStackTrace();
+			assert (false) : e.toString();
 		}
 		return null;
 	}
@@ -119,15 +124,6 @@ public class AssignmentStatement extends AbstractStatement {
 	}
 
 	@Override
-	public String getCode(Throwable exception) {
-		String cast = "";
-		if (!retval.getVariableClass().equals(parameter.getVariableClass()))
-			cast = "(" + retval.getSimpleClassName() + ") ";
-
-		return retval.getName() + " = " + cast + parameter.getName() + ";";
-	}
-
-	@Override
 	public Set<VariableReference> getVariableReferences() {
 		Set<VariableReference> vars = new HashSet<VariableReference>();
 		vars.add(retval);
@@ -137,6 +133,7 @@ public class AssignmentStatement extends AbstractStatement {
 			vars.add(retval.getAdditionalVariableReference());
 		if (parameter.getAdditionalVariableReference() != null)
 			vars.add(parameter.getAdditionalVariableReference());
+		vars.addAll(getAssertionReferences());
 
 		return vars;
 	}
@@ -322,13 +319,5 @@ public class AssignmentStatement extends AbstractStatement {
 	@Override
 	public boolean isAssignmentStatement() {
 		return true;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
-	 */
-	@Override
-	public void changeClassLoader(ClassLoader loader) {
-		// No-op
 	}
 }

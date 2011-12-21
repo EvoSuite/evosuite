@@ -11,6 +11,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +30,8 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
  * 
  */
 public class LazyTestCluster extends TestCluster {
+
+	private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LazyTestCluster.class);
 
 	/** Instance variable */
 	private static LazyTestCluster instance = null;
@@ -59,7 +62,7 @@ public class LazyTestCluster extends TestCluster {
 	 */
 	private LazyTestCluster() {
 	}
-	
+
 	@Override
 	protected void init() {
 		analyzeTarget();
@@ -477,12 +480,14 @@ public class LazyTestCluster extends TestCluster {
 		}
 		logger.info("Analyzing class " + target.getName());
 
+		/*
 		if (analyzedClasses.isEmpty()) // && Modifier.isAbstract(target.getModifiers()))
 			ClusterAnalysis.readAllClasses();
 		else if (analyzedClasses.isEmpty()) {
 			logger.info("Read no classes!");
 			return;
 		}
+		*/
 
 		analyzedClasses.add(target);
 
@@ -495,40 +500,46 @@ public class LazyTestCluster extends TestCluster {
 		for (Field f : getFields(target)) {
 			addField(f.getType(), f);
 		}
-		logger.info("Loading subclasses of " + target.getName());
 
-		for (String subclass : ClusterAnalysis.getSubclasses(target.getName())) {
-			if (subclass.equals(target.getName()))
-				continue;
-			logger.info("Checking subclass of " + target.getName() + ": " + subclass);
-			try {
-				loadClass(subclass);
-			} catch (Throwable t) {
-				logger.info("Exception while loading subclass: " + subclass);
-			}
+		if (target.isInterface() || Modifier.isAbstract(target.getModifiers())) {
+			if (analyzedClasses.isEmpty()) // && Modifier.isAbstract(target.getModifiers()))
+				ClusterAnalysis.readAllClasses();
 
-		}
-		logger.info("Loading generators of " + target.getName());
-		for (String generator : ClusterAnalysis.getGenerators(target.getName())) {
-			try {
-				logger.info("Checking generator of " + target.getName() + ": "
-				        + generator);
-				Class<?> generatorClass = classLoader.loadClass(generator);
-				if (canUse(generatorClass))
-					loadGenerators(target, generatorClass);
-			} catch (ClassNotFoundException e) {
-				logger.info("Exception while loading class: " + e);
-			} catch (NoClassDefFoundError e) {
-				logger.info("Exception while loading class: " + e);
-			} catch (Throwable t) {
-				logger.info("Exception while loading class: " + t);
+			logger.info("Loading subclasses of " + target.getName());
+
+			for (String subclass : ClusterAnalysis.getSubclasses(target.getName())) {
+				if (subclass.equals(target.getName()))
+					continue;
+				logger.info("Checking subclass of " + target.getName() + ": " + subclass);
+				try {
+					loadClass(subclass);
+				} catch (Throwable t) {
+					logger.info("Exception while loading subclass: " + subclass);
+				}
 			}
 		}
+
 		if (generators.containsKey(target)) {
 			logger.info("Generators for class " + target.getName() + ": "
 			        + generators.get(target).size());
 		} else {
 			logger.info("Found no generators for class " + target.getName());
+			logger.info("Loading generators of " + target.getName());
+			for (String generator : ClusterAnalysis.getGenerators(target.getName())) {
+				try {
+					logger.info("Checking generator of " + target.getName() + ": "
+					        + generator);
+					Class<?> generatorClass = classLoader.loadClass(generator);
+					if (canUse(generatorClass))
+						loadGenerators(target, generatorClass);
+				} catch (ClassNotFoundException e) {
+					logger.info("Exception while loading class: " + e);
+				} catch (NoClassDefFoundError e) {
+					logger.info("Exception while loading class: " + e);
+				} catch (Throwable t) {
+					logger.info("Exception while loading class: " + t);
+				}
+			}
 		}
 
 	}
@@ -860,6 +871,11 @@ public class LazyTestCluster extends TestCluster {
 			return false;
 		}
 
+		if (c.isSynthetic()) {
+			logger.debug("Skipping synthetic constructor " + c.getName());
+			return false;
+		}
+
 		if (!Properties.USE_DEPRECATED && c.getAnnotation(Deprecated.class) != null) {
 			logger.debug("Skipping deprecated method " + c.getName());
 			return false;
@@ -1002,8 +1018,21 @@ public class LazyTestCluster extends TestCluster {
 		return analyzedClasses;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#getKnownMatchingClasses(java.lang.String)
+	 */
+	@Override
+	public Collection<Class<?>> getKnownMatchingClasses(String name) {
+		Set<Class<?>> classes = new HashSet<Class<?>>();
+		for (Class<?> c : analyzedClasses) {
+			if (c.getName().endsWith(name))
+				classes.add(c);
+		}
+		return classes;
+	}
+
 	public boolean isTargetClassName(String className) {
-	  // TODO: Implement me...
-	  return true;
+		// TODO: Implement me...
+		return true;
 	}
 }

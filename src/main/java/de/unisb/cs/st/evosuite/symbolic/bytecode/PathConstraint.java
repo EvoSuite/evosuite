@@ -108,7 +108,7 @@ public class PathConstraint {
 	private Constraint<?> removeCMPFormConstraint(Constraint<?> c) {
 		if (c.getLeftOperand() instanceof IntegerComparison) {
 			IntegerComparison cmp = (IntegerComparison) c.getLeftOperand();
-			int value = c.getRightOperand().getConcreteValue().intValue();
+			int value = ( (Number) c.getRightOperand().getConcreteValue()).intValue();
 			Comparator op = c.getComparator();
 			switch (op) {
 			case EQ:
@@ -176,7 +176,9 @@ public class PathConstraint {
 			}
 		} else if (c.getLeftOperand() instanceof RealComparison) {
 			RealComparison cmp = (RealComparison) c.getLeftOperand();
-			int value = c.getRightOperand().getConcreteValue().intValue();
+			
+			//FIXME shouldn't value be Real here???
+			int value = ((Number) c.getRightOperand().getConcreteValue()).intValue();
 			Comparator op = c.getComparator();
 			switch (op) {
 			case EQ:
@@ -244,7 +246,7 @@ public class PathConstraint {
 			}
 		} else if (c.getRightOperand() instanceof IntegerComparison) {
 			IntegerComparison cmp = (IntegerComparison) c.getRightOperand();
-			int value = c.getRightOperand().getConcreteValue().intValue();
+			int value = ((Number) c.getRightOperand().getConcreteValue()).intValue();
 			Comparator op = c.getComparator();
 			switch (op) {
 			case EQ:
@@ -312,7 +314,9 @@ public class PathConstraint {
 			}
 		} else if (c.getRightOperand() instanceof RealComparison) {
 			RealComparison cmp = (RealComparison) c.getRightOperand();
-			int value = c.getRightOperand().getConcreteValue().intValue();
+			
+			//FIXME shouldn't value be Real here???
+			int value = ((Number) c.getRightOperand().getConcreteValue()).intValue();
 			Comparator op = c.getComparator();
 			switch (op) {
 			case EQ:

@@ -40,6 +40,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -112,8 +114,9 @@ public class StaticTestCluster extends TestCluster {
 	/**
 	 * Private constructor
 	 */
-	protected StaticTestCluster() {	}
-	
+	protected StaticTestCluster() {
+	}
+
 	@Override
 	protected void init() {
 		populate();
@@ -141,11 +144,22 @@ public class StaticTestCluster extends TestCluster {
 	//
 	// In setup script, add all jars / classes found in local dir to classpath?
 
-	
+	private final static Pattern testPattern = Pattern.compile(".*?\\.(Test[a-zA-Z0-9]+)|([a-zA-Z0-9]+Test)");
+
+	private static boolean isTest(String className) {
+		// TODO-JRO Identifying tests should be done differently:
+		// If the class either contains methods
+		// annotated with @Test (> JUnit 4.0)
+		// or contains Test or Suite in it's inheritance structure
+		Matcher testMatcher = testPattern.matcher(className);
+		return testMatcher.find();
+	}
+
 	public static boolean isTargetClassName(String className) {
 		if (!Properties.TARGET_CLASS_PREFIX.isEmpty()
 		        && className.startsWith(Properties.TARGET_CLASS_PREFIX)) {
-			return true;
+			// exclude existing tests from the target project
+			return !isTest(className);
 		}
 
 		if (className.equals(Properties.TARGET_CLASS)
@@ -607,6 +621,11 @@ public class StaticTestCluster extends TestCluster {
 		                                          // !(Modifier.isProtected(c.getModifiers())))
 			return false;
 
+		if (!Properties.USE_DEPRECATED && c.isAnnotationPresent(Deprecated.class)) {
+			logger.debug("Skipping deprecated class " + c.getName());
+			return false;
+		}
+
 		/*
 		 * if(Modifier.isAbstract(c.getModifiers())) return false;
 		 * 
@@ -643,6 +662,11 @@ public class StaticTestCluster extends TestCluster {
 		if (f.getDeclaringClass().equals(java.lang.Thread.class))
 			return false;// handled here to avoid printing reasons
 
+		if (!Properties.USE_DEPRECATED && f.isAnnotationPresent(Deprecated.class)) {
+			logger.debug("Skipping deprecated field " + f.getName());
+			return false;
+		}
+
 		if (Modifier.isPublic(f.getModifiers()))
 			return true;
 
@@ -675,7 +699,7 @@ public class StaticTestCluster extends TestCluster {
 			return false;
 		}
 
-		if (!Properties.USE_DEPRECATED && m.getAnnotation(Deprecated.class) != null) {
+		if (!Properties.USE_DEPRECATED && m.isAnnotationPresent(Deprecated.class)) {
 			logger.debug("Skipping deprecated method " + m.getName());
 			return false;
 		}
@@ -783,8 +807,13 @@ public class StaticTestCluster extends TestCluster {
 		        && !Modifier.isStatic(c.getDeclaringClass().getModifiers()))
 			return false;
 
+		if (c.isSynthetic()) {
+			logger.debug("Skipping synthetic constructor " + c.getName());
+			return false;
+		}
+
 		if (!Properties.USE_DEPRECATED && c.getAnnotation(Deprecated.class) != null) {
-			logger.debug("Skipping deprecated method " + c.getName());
+			logger.debug("Skipping deprecated constructor " + c.getName());
 			return false;
 		}
 
@@ -1280,14 +1309,16 @@ public class StaticTestCluster extends TestCluster {
 		Collection<String> all_classes = getCluster();
 		Set<Class<?>> dependencies = new HashSet<Class<?>>();
 
-		try {
-			calls.add(Sandbox.class.getDeclaredField("accessedFiles"));
-			calls.add(Sandbox.class.getDeclaredField("lastAccessedFile"));
-			logger.info("Added file handling");
-		} catch (SecurityException e) {
-			logger.info("Failed to add file handling: ", e);
-		} catch (NoSuchFieldException e) {
-			logger.info("Failed to add file handling: ", e);
+		if (Properties.STUBS) {
+			try {
+				calls.add(Sandbox.class.getDeclaredField("accessedFiles"));
+				calls.add(Sandbox.class.getDeclaredField("lastAccessedFile"));
+				logger.info("Added file handling");
+			} catch (SecurityException e) {
+				logger.info("Failed to add file handling: ", e);
+			} catch (NoSuchFieldException e) {
+				logger.info("Failed to add file handling: ", e);
+			}
 		}
 
 		// Analyze each class
@@ -1600,6 +1631,10 @@ public class StaticTestCluster extends TestCluster {
 	public void resetStaticClasses() {
 		ExecutionTracer.disable();
 		for (Method m : static_initializers) {
+			// TODO: Which classes need to be reset? All?
+			if (!m.getDeclaringClass().equals(Properties.getTargetClass()))
+				continue;
+
 			try {
 				m.invoke(null, (Object[]) null);
 			} catch (IllegalArgumentException e) {
@@ -1689,6 +1724,13 @@ public class StaticTestCluster extends TestCluster {
 			if (clazz.getName().endsWith("." + name)) {
 				return clazz;
 			}
+		}
+
+		// Or try java.lang
+		try {
+			classLoader.loadClass("java.lang." + name);
+		} catch (ClassNotFoundException e) {
+			// Ignore it as we throw our own
 		}
 
 		throw new ClassNotFoundException(name);
@@ -1818,4 +1860,18 @@ public class StaticTestCluster extends TestCluster {
 		testCalls.addAll(test_methods);
 		return testCalls;
 	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#getKnownMatchingClasses(java.lang.String)
+	 */
+	@Override
+	public Collection<Class<?>> getKnownMatchingClasses(String name) {
+		Set<Class<?>> classes = new HashSet<Class<?>>();
+		for (Class<?> c : analyzedClasses) {
+			if (c.getName().endsWith(name))
+				classes.add(c);
+		}
+		return classes;
+	}
+
 }

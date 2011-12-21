@@ -27,7 +27,9 @@ import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
  * @author Gordon Fraser
  * 
  */
-public class MaxGenerationStoppingCondition extends StoppingCondition {
+public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
+	
+	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MaxGenerationStoppingCondition.class);
 
 	private static final long serialVersionUID = 251196904115160351L;
 

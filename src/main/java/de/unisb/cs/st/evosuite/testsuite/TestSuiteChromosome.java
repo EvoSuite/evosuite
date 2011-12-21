@@ -23,12 +23,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.LocalSearchBudget;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
+import de.unisb.cs.st.evosuite.ga.SecondaryObjective;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 
@@ -37,6 +40,10 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
  * 
  */
 public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromosome> {
+
+	/** Secondary objectives used during ranking */
+	private static final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();
+
 	public TestSuiteChromosome(ChromosomeFactory<TestChromosome> testChromosomeFactory) {
 		super(testChromosomeFactory);
 	}
@@ -52,7 +59,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		c.setTestCase(test);
 		addTest(c);
 	}
-
+	
 	/**
 	 * Create a deep copy of this test suite
 	 */
@@ -67,8 +74,10 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	@Override
 	public void mutate() {
 		super.mutate();
+		handleTestCallStatements();
+	}
 
-		// Handle TestCallStatements
+	protected void handleTestCallStatements() {
 		Iterator<TestChromosome> it = tests.iterator();
 		Iterator<Boolean> uit = unmodifiableTests.iterator();
 
@@ -100,8 +109,14 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 */
 	@Override
 	public void localSearch(LocalSearchObjective objective) {
+		//TestSuiteFitnessFunction fitnessFunction = (TestSuiteFitnessFunction) objective.getFitnessFunction();
+		/*
+		for (TestChromosome test : tests) {
+			test.setChanged(true);
+		}
+		fitnessFunction.getFitness(this);
+		*/
 		double fitnessBefore = getFitness();
-
 		for (int i = 0; i < tests.size(); i++) {
 			if (unmodifiableTests.get(i))
 				continue;
@@ -115,12 +130,12 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 
 			tests.get(i).localSearch(testObjective);
 		}
-		TestSuiteFitnessFunction fitnessFunction = (TestSuiteFitnessFunction) objective.getFitnessFunction();
+		/*
 		for (TestChromosome test : tests) {
 			test.setChanged(true);
 		}
-		fitnessFunction.getFitness(this);
 
+		fitnessFunction.getFitness(this);
 		if (fitnessBefore < getFitness()) {
 			logger.warn("Fitness was " + fitnessBefore + " and now is " + getFitness());
 			//for (TestChromosome chromosome : tests) {
@@ -133,8 +148,10 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			        + getFitness());
 			assert (false);
 		}
+		*/
 
 		assert (fitnessBefore >= getFitness());
+
 	}
 
 	/**
@@ -187,15 +204,60 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 */
 	public void deleteTest(TestCase testCase) {
 		if (testCase != null) {
-			TestChromosome chromToDel = null;
-			for (TestChromosome test : tests) {
-				if (test.getTestCase().equals((testCase))) {
-					chromToDel = test;
+			for (int i = 0; i < tests.size(); i++) {
+				if (tests.get(i).getTestCase().equals((testCase))) {
+					tests.remove(i);
+					unmodifiableTests.remove(i);
 				}
 			}
-			if (chromToDel != null) {
-				tests.remove(chromToDel);
-			}
 		}
+	}
+	
+	public void restoreTests(ArrayList<TestCase> backup) {
+		tests.clear();
+		unmodifiableTests.clear();
+		TestCaseExecutor executor = TestCaseExecutor.getInstance();
+		for (TestCase testCase : backup) {
+			addTest(testCase);
+			executor.execute(testCase);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#compareSecondaryObjective(de.unisb.cs.st.evosuite.ga.Chromosome)
+	 */
+	@Override
+	public int compareSecondaryObjective(Chromosome o) {
+		int objective = 0;
+		int c = 0;
+
+		while (c == 0 && objective < secondaryObjectives.size()) {
+			SecondaryObjective so = secondaryObjectives.get(objective++);
+			if (so == null)
+				break;
+			c = so.compareChromosomes(this, o);
+		}
+		//logger.debug("Comparison: " + fitness + "/" + size() + " vs " + o.fitness + "/"
+		//        + o.size() + " = " + c);
+		return c;
+	}
+
+	/**
+	 * Add an additional secondary objective to the end of the list of
+	 * objectives
+	 * 
+	 * @param objective
+	 */
+	public static void addSecondaryObjective(SecondaryObjective objective) {
+		secondaryObjectives.add(objective);
+	}
+
+	/**
+	 * Remove secondary objective from list, if it is there
+	 * 
+	 * @param objective
+	 */
+	public static void removeSecondaryObjective(SecondaryObjective objective) {
+		secondaryObjectives.remove(objective);
 	}
 }

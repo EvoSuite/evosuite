@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -21,6 +20,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
 
+import de.unisb.cs.st.evosuite.utils.ClassPathHacker;
 import de.unisb.cs.st.evosuite.utils.ExternalProcessHandler;
 
 /**
@@ -34,8 +34,9 @@ public class EvoSuite {
 	public final static String JAVA_CMD = javaHome + separator + "bin" + separator
 	        + "java";
 
-	private static void setup(String target, String[] args) {
+	private static void setup(String target, String[] args, List<String> javaArgs) {
 		String classPath = System.getProperty("java.class.path");
+
 		Properties.CP = "";
 		if (args.length > 0) {
 			for (int i = 0; i < args.length; i++) {
@@ -46,7 +47,6 @@ public class EvoSuite {
 			}
 		}
 		Properties.MIN_FREE_MEM = 0;
-
 		File directory = new File(Properties.OUTPUT_DIR);
 		if (!directory.exists()) {
 			directory.mkdir();
@@ -77,6 +77,7 @@ public class EvoSuite {
 		parameters.add("-Dshow_progress=true");
 		parameters.add("-Djava.awt.headless=true");
 		parameters.add("-Dlogback.configurationFile=logback.xml");
+		parameters.addAll(javaArgs);
 		parameters.add("de.unisb.cs.st.evosuite.setup.ScanProject");
 		parameters.add(targetParam);
 
@@ -161,7 +162,7 @@ public class EvoSuite {
 			return null;
 		}
 		String classPath = System.getProperty("java.class.path");
-		if (Properties.CP.charAt(0) == '"')
+		if (Properties.CP.length() > 0 && Properties.CP.charAt(0) == '"')
 			Properties.CP = Properties.CP.substring(1, Properties.CP.length() - 1);
 		classPath += File.pathSeparator + Properties.CP;
 		ExternalProcessHandler handler = new ExternalProcessHandler();
@@ -198,6 +199,14 @@ public class EvoSuite {
 		Properties.getInstance();//should force the load
 		Properties.TARGET_CLASS = target;
 
+		for (String entry : Properties.CP.split(File.pathSeparator)) {
+			try {
+				ClassPathHacker.addFile(entry);
+			} catch (IOException e) {
+				System.out.println("* Error while adding classpath entry: " + entry);
+			}
+		}
+
 		Object result = null;
 		if (handler.startProcess(newArgs)) {
 			result = handler.waitForResult((Properties.GLOBAL_TIMEOUT
@@ -228,6 +237,8 @@ public class EvoSuite {
 		Option mocks = new Option("mocks", "Use mock classes");
 		Option stubs = new Option("stubs", "Use stubs");
 		Option assertions = new Option("assertions", "Add assertions");
+		Option signature = new Option("signature",
+		        "Allow manual tweaking of method signatures");
 
 		options.addOption(help);
 		options.addOption(generateSuite);
@@ -238,6 +249,7 @@ public class EvoSuite {
 		options.addOption(seed);
 		options.addOption(mem);
 		options.addOption(assertions);
+		options.addOption(signature);
 
 		options.addOption(sandbox);
 		options.addOption(mocks);
@@ -246,10 +258,11 @@ public class EvoSuite {
 		List<String> javaOpts = new ArrayList<String>();
 		List<String> cmdOpts = new ArrayList<String>();
 		for (String arg : args) {
-			if (arg.startsWith("-D"))
+			if (arg.startsWith("-D")) {
 				javaOpts.add(arg);
-			else
+			} else {
 				cmdOpts.add(arg);
+			}
 		}
 
 		Object result = null;
@@ -261,7 +274,7 @@ public class EvoSuite {
 			String[] cargs = new String[cmdOpts.size()];
 			cmdOpts.toArray(cargs);
 			CommandLine line = parser.parse(options, cargs);
-			javaOpts.addAll(Arrays.asList(line.getArgs()));
+			//javaOpts.addAll(Arrays.asList(line.getArgs()));
 
 			if (line.hasOption("mem"))
 				javaOpts.add("-Xmx" + line.getOptionValue("mem") + "M");
@@ -277,12 +290,14 @@ public class EvoSuite {
 				javaOpts.add("-Drandom.seed=" + line.getOptionValue("seed"));
 			if (line.hasOption("assertions"))
 				javaOpts.add("-Dassertions=true");
+			if (line.hasOption("signature"))
+				javaOpts.add("-Dgenerate_objects=true");
 
 			if (line.hasOption("help")) {
 				HelpFormatter formatter = new HelpFormatter();
 				formatter.printHelp("EvoSuite", options);
 			} else if (line.hasOption("setup")) {
-				setup(line.getOptionValue("setup"), line.getArgs());
+				setup(line.getOptionValue("setup"), line.getArgs(), javaOpts);
 			} else if (line.hasOption("generateTests")) {
 				if (line.hasOption("class"))
 					result = generateTests(false, line.getOptionValue("class"), javaOpts);

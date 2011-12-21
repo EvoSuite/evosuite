@@ -18,7 +18,11 @@
 
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -29,7 +33,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,7 +118,6 @@ public class GenericClass implements Serializable {
 		return WRAPPER_TYPES.contains(raw_class);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static boolean isSubclass(Type superclass, Type subclass) {
 		List<Class<?>> superclasses = ClassUtils.getAllSuperclasses((Class<?>) subclass);
 		List<Class<?>> interfaces = ClassUtils.getAllInterfaces((Class<?>) subclass);
@@ -236,8 +239,8 @@ public class GenericClass implements Serializable {
 		return true;
 	}
 
-	Class<?> raw_class = null;
-	Type type = null;
+	transient Class<?> raw_class = null;
+	transient Type type = null;
 
 	public GenericClass(Type type) {
 		this.type = type;
@@ -264,9 +267,18 @@ public class GenericClass implements Serializable {
 		return raw_class.getName();
 	}
 
+	private static List<String> primitiveClasses = Arrays.asList("char", "int", "short",
+	                                                             "long", "boolean",
+	                                                             "float", "double",
+	                                                             "byte");
+
 	public String getSimpleName() {
 		// return raw_class.getSimpleName();
-		return ClassUtils.getShortClassName(raw_class).replace(";", "[]");
+		String name = ClassUtils.getShortClassName(raw_class).replace(";", "[]");
+		if (!isPrimitive() && primitiveClasses.contains(name))
+			return raw_class.getSimpleName().replace(";", "[]");
+
+		return name;
 	}
 
 	@Override
@@ -277,6 +289,11 @@ public class GenericClass implements Serializable {
 		//		+ ((raw_class == null) ? 0 : raw_class.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
+	}
+
+	@Override
+	public String toString() {
+		return type.toString();
 	}
 
 	@Override
@@ -296,10 +313,43 @@ public class GenericClass implements Serializable {
 		return true;
 	}
 
-	/*
-		public boolean equals(GenericClass other) {
-			return other.type.equals(type);
-		}
-		*/
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.writeObject(raw_class.getName());
+	}
+
+	private static Class<?> getClass(String name) throws ClassNotFoundException {
+		if (name.equals("void"))
+			return void.class;
+		else if (name.equals("int"))
+			return int.class;
+		else if (name.equals("short"))
+			return short.class;
+		else if (name.equals("long"))
+			return long.class;
+		else if (name.equals("float"))
+			return float.class;
+		else if (name.equals("double"))
+			return double.class;
+		else if (name.equals("boolean"))
+			return boolean.class;
+		else if (name.equals("byte"))
+			return byte.class;
+		else if (name.equals("char"))
+			return char.class;
+		else if (name.startsWith("[")) {
+			Class<?> componentType = getClass(name.substring(2, name.length() - 1));
+			Object array = Array.newInstance(componentType, 0);
+			return array.getClass();
+		} else
+			return TestCluster.classLoader.loadClass(name);
+	}
+
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		String name = (String) ois.readObject();
+		this.raw_class = getClass(name);
+		// TODO: Currently, type information gets lost by serialization
+		this.type = raw_class;
+	}
 
 }

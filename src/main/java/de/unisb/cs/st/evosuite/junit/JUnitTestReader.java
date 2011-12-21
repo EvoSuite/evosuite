@@ -10,7 +10,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
-public abstract class JUnitTestReader {
+public class JUnitTestReader {
 
 	protected final String[] sources;
 	protected final String[] classpath;
@@ -21,7 +21,17 @@ public abstract class JUnitTestReader {
 		this.sources = sources;
 	}
 
-	public abstract TestCase readJUnitTestCase(String qualifiedTestMethod);
+	public TestCase readJUnitTestCase(String qualifiedTestMethod) {
+		String javaFile = findTestFile(qualifiedTestMethod);
+		String fileContents = readJavaFile(javaFile);
+		CompilationUnit compilationUnit = parseJavaFile(javaFile, fileContents);
+		CompoundTestCase testCase = new CompoundTestCase();
+		TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase, qualifiedTestMethod);
+		compilationUnit.accept(testExtractingVisitor);
+		// TODO-JRO Implement iteration over parents
+		testCase.finalizeTestCase();
+		return testCase;
+	}
 
 	protected String extractJavaFile(String srcDir, String testMethod) {
 		String clazz = testMethod.substring(0, testMethod.indexOf("#"));

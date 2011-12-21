@@ -25,7 +25,6 @@ import java.io.PrintStream;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -33,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -53,6 +52,11 @@ public class ConstructorStatement extends AbstractStatement {
 	private transient Constructor<?> constructor;
 
 	public List<VariableReference> parameters;
+
+	private static List<String> primitiveClasses = Arrays.asList("char", "int", "short",
+	                                                             "long", "boolean",
+	                                                             "float", "double",
+	                                                             "byte");
 
 	public ConstructorStatement(TestCase tc, Constructor<?> constructor,
 	        java.lang.reflect.Type type, List<VariableReference> parameters) {
@@ -86,6 +90,18 @@ public class ConstructorStatement extends AbstractStatement {
 		return constructor;
 	}
 
+	public void setConstructor(Constructor<?> constructor) {
+		this.constructor = constructor;
+	}
+
+	public static String getReturnType(Class<?> clazz) {
+		String retVal = ClassUtils.getShortClassName(clazz);
+		if (primitiveClasses.contains(retVal))
+			return clazz.getSimpleName();
+
+		return retVal;
+	}
+
 	// TODO: Handle inner classes (need instance parameter for newInstance)
 	@Override
 	public Throwable execute(final Scope scope, PrintStream out)
@@ -113,6 +129,8 @@ public class ConstructorStatement extends AbstractStatement {
 						} catch (CodeUnderTestException e) {
 							throw CodeUnderTestException.throwException(e.getCause());
 						} catch (Throwable e) {
+							logger.error("Error encountered: " + e);
+							assert (false);
 							throw new EvosuiteError(e);
 						}
 					}
@@ -151,46 +169,6 @@ public class ConstructorStatement extends AbstractStatement {
 	}
 
 	@Override
-	public String getCode(Throwable exception) {
-		String parameter_string = "";
-		String result = "";
-		if (!parameters.isEmpty()) {
-			parameter_string += parameters.get(0).getName();
-			for (int i = 1; i < parameters.size(); i++) {
-				parameter_string += ", " + parameters.get(i).getName();
-			}
-		}
-		// String result = ((Class<?>) retval.getType()).getSimpleName()
-		// +" "+retval.getName()+ " = null;\n";
-		if (exception != null) {
-			result = retval.getSimpleClassName() + " " + retval.getName() + " = null;\n";
-			result += "try {\n  ";
-		} else {
-			result += retval.getSimpleClassName() + " ";
-		}
-		result += retval.getName() + " = new "
-		        + ClassUtils.getShortClassName(constructor.getDeclaringClass()) + "("
-		        + parameter_string + ");";
-		if (exception != null) {
-			Class<?> ex = exception.getClass();
-			while (!Modifier.isPublic(ex.getModifiers()))
-				ex = ex.getSuperclass();
-			result += "\n  fail(\"Expecting exception: "
-			        + ClassUtils.getShortClassName(ex) + "\");";
-
-			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {\n";
-			if (exception.getMessage() != null) {
-				for (String msg : exception.getMessage().split("\n")) {
-					result += "  // " + msg + "\n";
-				}
-			}
-			result += "}";
-		}
-
-		return result;
-	}
-
-	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
@@ -213,6 +191,8 @@ public class ConstructorStatement extends AbstractStatement {
 			if (param.getAdditionalVariableReference() != null)
 				references.add(param.getAdditionalVariableReference());
 		}
+		references.addAll(getAssertionReferences());
+
 		return references;
 	}
 
@@ -423,12 +403,8 @@ public class ConstructorStatement extends AbstractStatement {
 	private void writeObject(ObjectOutputStream oos) throws IOException {
 		oos.defaultWriteObject();
 		// Write/save additional fields
-		oos.writeObject(constructor.getDeclaringClass());
-		Constructor<?>[] constructors = constructor.getDeclaringClass().getDeclaredConstructors();
-		for (int i = 0; i < constructors.length; i++) {
-			if (constructors[i].equals(constructor))
-				oos.writeObject(new Integer(i));
-		}
+		oos.writeObject(constructor.getDeclaringClass().getName());
+		oos.writeObject(Type.getConstructorDescriptor(constructor));
 	}
 
 	// assumes "static java.util.Date aDate;" declared
@@ -437,10 +413,14 @@ public class ConstructorStatement extends AbstractStatement {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
-		Class<?> constructorClass = (Class<?>) ois.readObject();
-		int num = (Integer) ois.readObject();
-
-		constructor = constructorClass.getDeclaredConstructors()[num];
+		Class<?> constructorClass = TestCluster.classLoader.loadClass((String) ois.readObject());
+		String constructorDesc = (String) ois.readObject();
+		for (Constructor<?> constructor : constructorClass.getDeclaredConstructors()) {
+			if (Type.getConstructorDescriptor(constructor).equals(constructorDesc)) {
+				this.constructor = constructor;
+				return;
+			}
+		}
 	}
 
 	/* (non-Javadoc)
@@ -466,7 +446,7 @@ public class ConstructorStatement extends AbstractStatement {
 				}
 				if (equals) {
 					this.constructor = newConstructor;
-					return;
+					break;
 				}
 			}
 		} catch (ClassNotFoundException e) {
@@ -474,6 +454,6 @@ public class ConstructorStatement extends AbstractStatement {
 		} catch (SecurityException e) {
 			logger.warn("Class not found - keeping old class loader ", e);
 		}
-		logger.warn("Constructor not found - keeping old class loader ");
+		super.changeClassLoader(loader);
 	}
 }

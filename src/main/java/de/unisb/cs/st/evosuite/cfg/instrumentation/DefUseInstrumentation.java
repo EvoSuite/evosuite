@@ -60,7 +60,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 				// completeCFG.getInstruction(v.getId()).getBranchId();
 
 				if ((Properties.CRITERION == Criterion.DEFUSE
-						|| Properties.CRITERION == Criterion.ALLDEFS || TestSuiteGenerator.analyzing)
+						|| Properties.CRITERION == Criterion.ALLDEFS || Properties.CRITERION == Criterion.ANALYZE || TestSuiteGenerator.analyzing)
 						&& in.equals(v.getASMNode()) && (v.isDefUse())) {
 
 					// keeping track of uses
@@ -101,7 +101,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			boolean staticContext, String className, String methodName) {
 		InsnList instrumentation = new InsnList();
 
-		// TODO you only have to pass the defID/useID and not the variable and
+		// DONE you only have to pass the defID/useID and not the variable and
 		// class anymore, that can be retrieved from the DefUsePool
 		// TODO clean up
 		// TODO sanity check matching method/class names and field values of v?
@@ -118,9 +118,9 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 				throw new IllegalStateException(v.toString() + " "
 						+ targetDU.toString());
 
-			instrumentation.add(new LdcInsnNode(className));
-			instrumentation.add(new LdcInsnNode(targetDU.getDUVariableName()));
-			instrumentation.add(new LdcInsnNode(methodName));
+//			instrumentation.add(new LdcInsnNode(className));
+//			instrumentation.add(new LdcInsnNode(targetDU.getDUVariableName()));
+//			instrumentation.add(new LdcInsnNode(methodName));
 			if (staticContext) {
 				instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
 			} else {
@@ -131,12 +131,12 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 					.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 							"de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 							"passedUse",
-							"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;I)V"));
+							"(Ljava/lang/Object;I)V"));
 		}
 		if (DefUsePool.isKnownAsDefinition(v)) {
-			instrumentation.add(new LdcInsnNode(className));
-			instrumentation.add(new LdcInsnNode(targetDU.getDUVariableName()));
-			instrumentation.add(new LdcInsnNode(methodName));
+//			instrumentation.add(new LdcInsnNode(className));
+//			instrumentation.add(new LdcInsnNode(targetDU.getDUVariableName()));
+//			instrumentation.add(new LdcInsnNode(methodName));
 			if (staticContext) {
 				instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
 			} else {
@@ -147,7 +147,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 					.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 							"de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 							"passedDefinition",
-							"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;I)V"));
+							"(Ljava/lang/Object;I)V"));
 		}
 		return instrumentation;
 	}

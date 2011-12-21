@@ -127,6 +127,10 @@ public class ExecutionTracer {
 		if (!checkCallerThread) {
 			return false;
 		}
+		if (getExecutionTracer().killSwitch) {
+			logger.info("Raising TimeoutException as kill switch is active - passedLine");
+			throw new TestCaseExecutor.TimeoutExceeded();
+		}
 		if (currentThread == null) {
 			logger.warn("CurrentThread has not been set!");
 			Map<Thread, StackTraceElement[]> map = Thread.getAllStackTraces();
@@ -137,10 +141,8 @@ public class ExecutionTracer {
 				}
 			}
 			currentThread = Thread.currentThread();
-			return false;
-		} else {
-			return (Thread.currentThread() != currentThread);
 		}
+		return Thread.currentThread() != currentThread;
 	}
 
 	/**
@@ -152,9 +154,9 @@ public class ExecutionTracer {
 		trace.finishCalls();
 		return trace;
 
-		//ExecutionTrace copy = trace.clone();
-		//// copy.finishCalls();
-		//return copy;
+		// ExecutionTrace copy = trace.clone();
+		// // copy.finishCalls();
+		// return copy;
 	}
 
 	/**
@@ -166,10 +168,10 @@ public class ExecutionTracer {
 	public static void enteredMethod(String classname, String methodname, Object caller)
 	        throws TestCaseExecutor.TimeoutExceeded {
 		ExecutionTracer tracer = getExecutionTracer();
-		
+
 		if (tracer.disabled)
 			return;
-		
+
 		if (isThreadNeqCurrentThread())
 			return;
 
@@ -340,6 +342,11 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
+		if (tracer.killSwitch) {
+			logger.info("Raising TimeoutException as kill switch is active - passedLine");
+			throw new TestCaseExecutor.TimeoutExceeded();
+		}
+
 		// logger.trace("Called passedBranch1 with opcode "+AbstractVisitor.OPCODES[opcode]+" and val "+val+" in branch "+branch);
 		double distance_true = 0.0;
 		double distance_false = 0.0;
@@ -406,49 +413,51 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
+		if (tracer.killSwitch) {
+			logger.info("Raising TimeoutException as kill switch is active - passedLine");
+			throw new TestCaseExecutor.TimeoutExceeded();
+		}
+
 		/* logger.trace("Called passedBranch2 with opcode "
 		        + AbstractVisitor.OPCODES[opcode] + ", val1=" + val1 + ", val2=" + val2
 		        + " in branch " + branch); */
 		double distance_true = 0;
 		double distance_false = 0;
 		switch (opcode) {
+		// Problem is that the JVM is a stack machine
+		// x < 5 gets compiled to a val2 > val1,
+		// because operators are on the stack in reverse order
 		case Opcodes.IF_ICMPEQ:
-			distance_true = Math.abs((double) val1 - (double) val2); // The
-			// greater
-			// the
-			// difference,
-			// the
-			// further
-			// away
-			distance_false = distance_true == 0 ? 1.0 : 0.0; // Anything but 0
-			// is good
+			// The greater the difference, the further away
+			distance_true = Math.abs((double) val1 - (double) val2);
+			// Anything but 0 is good
+			distance_false = distance_true == 0 ? 1.0 : 0.0;
 			break;
 		case Opcodes.IF_ICMPNE:
-			distance_false = Math.abs((double) val1 - (double) val2); // The
-			// greater
-			// abs is,
-			// the
-			// further
-			// away
-			// from 0
-			distance_true = distance_false == 0 ? 1.0 : 0.0; // Anything but 0
-			// leads to NE
+			// The greater abs is, the further away from 0
+			distance_false = Math.abs((double) val1 - (double) val2);
+			// Anything but 0 leads to NE
+			distance_true = distance_false == 0 ? 1.0 : 0.0;
 			break;
-		case Opcodes.IF_ICMPLT: // val1 < val2?
-			distance_true = val1 >= val2 ? (double) val1 - (double) val2 + 1.0 : 0.0; // The greater, the further away from < 0
-			distance_false = val1 < val2 ? (double) val2 - (double) val1 + 1.0 : 0.0; // The smaller, the further away from < 0
+		case Opcodes.IF_ICMPLT:
+			// val1 >= val2?
+			distance_true = val1 >= val2 ? 0.0 : (double) val2 - (double) val1;
+			distance_false = val1 < val2 ? 0.0 : (double) val1 - (double) val2 + 1.0;
 			break;
 		case Opcodes.IF_ICMPGE:
-			distance_false = val1 >= val2 ? (double) val1 - (double) val2 + 1.0 : 0.0; // The greater, the further away from < 0
-			distance_true = val1 < val2 ? (double) val2 - (double) val1 + 1.0 : 0.0; // The smaller, the further away from < 0
+			// val1 < val2?
+			distance_true = val1 < val2 ? 0.0 : (double) val1 - (double) val2 + 1.0;
+			distance_false = val1 >= val2 ? 0.0 : (double) val2 - (double) val1;
 			break;
 		case Opcodes.IF_ICMPGT:
-			distance_false = val1 > val2 ? (double) val1 - (double) val2 + 1.0 : 0.0; // The greater, the further away from < 0
-			distance_true = val1 <= val2 ? (double) val2 - (double) val1 + 1.0 : 0.0; // The smaller, the further away from < 0
+			// val1 <= val2?
+			distance_true = val1 <= val2 ? 0.0 : (double) val1 - (double) val2;
+			distance_false = val1 > val2 ? 0.0 : (double) val2 - (double) val1 + 1.0;
 			break;
 		case Opcodes.IF_ICMPLE:
-			distance_true = val1 > val2 ? (double) val1 - (double) val2 + 1.0 : 0.0; // The greater, the further away from < 0
-			distance_false = val1 <= val2 ? (double) val2 - (double) val1 + 1.0 : 0.0; // The smaller, the further away from < 0
+			// val1 > val2?
+			distance_true = val1 > val2 ? 0.0 : (double) val2 - (double) val1 + 1.0;
+			distance_false = val1 <= val2 ? 0.0 : (double) val1 - (double) val2;
 			break;
 		default:
 			logger.error("Unknown opcode: " + opcode);
@@ -478,6 +487,11 @@ public class ExecutionTracer {
 
 		if (isThreadNeqCurrentThread())
 			return;
+
+		if (tracer.killSwitch) {
+			logger.info("Raising TimeoutException as kill switch is active - passedLine");
+			throw new TestCaseExecutor.TimeoutExceeded();
+		}
 
 		// logger.trace("Called passedBranch3 with opcode "
 		//        + AbstractVisitor.OPCODES[opcode]); // +", val1="+val1+", val2="+val2+" in branch "+branch);
@@ -540,6 +554,11 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
+		if (tracer.killSwitch) {
+			logger.info("Raising TimeoutException as kill switch is active - passedLine");
+			throw new TestCaseExecutor.TimeoutExceeded();
+		}
+
 		double distance_true = 0;
 		double distance_false = 0;
 		switch (opcode) {
@@ -566,22 +585,19 @@ public class ExecutionTracer {
 	 * Called by instrumented code each time a variable gets written to (a
 	 * Definition)
 	 */
-	public static void passedDefinition(String className, String varName,
-	        String methodName, Object caller, int branchID, int defID) {
+	public static void passedDefinition(Object caller, int defID) {
 		if (isThreadNeqCurrentThread())
 			return;
 
 		ExecutionTracer tracer = getExecutionTracer();
 		if (!tracer.disabled)
-			tracer.trace.definitionPassed(className, varName, methodName, caller,
-			                              branchID, defID);
+			tracer.trace.definitionPassed(caller, defID);
 	}
 
 	/**
 	 * Called by instrumented code each time a variable is read from (a Use)
 	 */
-	public static void passedUse(String className, String varName, String methodName,
-	        Object caller, int branchID, int useID) {
+	public static void passedUse(Object caller, int useID) {
 
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)
@@ -590,7 +606,7 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
-		tracer.trace.usePassed(className, varName, methodName, caller, branchID, useID);
+		tracer.trace.usePassed(caller, useID);
 	}
 
 	public static void passedMutation(int mutationId, double distance) {
@@ -600,6 +616,11 @@ public class ExecutionTracer {
 
 		if (isThreadNeqCurrentThread())
 			return;
+
+		if (tracer.killSwitch) {
+			logger.info("Raising TimeoutException as kill switch is active - passedLine");
+			throw new TestCaseExecutor.TimeoutExceeded();
+		}
 
 		tracer.trace.mutationPassed(mutationId, distance);
 	}
@@ -611,6 +632,11 @@ public class ExecutionTracer {
 
 		if (isThreadNeqCurrentThread())
 			return;
+
+		if (tracer.killSwitch) {
+			logger.info("Raising TimeoutException as kill switch is active - passedLine");
+			throw new TestCaseExecutor.TimeoutExceeded();
+		}
 
 		tracer.num_statements++;
 	}

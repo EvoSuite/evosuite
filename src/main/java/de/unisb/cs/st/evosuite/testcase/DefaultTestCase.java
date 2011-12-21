@@ -36,6 +36,8 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.testsuite.TestCallStatement;
+import de.unisb.cs.st.evosuite.utils.ListenableList;
+import de.unisb.cs.st.evosuite.utils.Listener;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
@@ -51,16 +53,22 @@ public class DefaultTestCase implements TestCase, Serializable {
 	private static Logger logger = LoggerFactory.getLogger(DefaultTestCase.class);
 
 	/** The statements */
-	protected List<StatementInterface> statements;
+	protected final ListenableList<StatementInterface> statements;
 
 	// a list of all goals this test covers
-	private transient final HashSet<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
+	private final HashSet<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
+
+	@Override
+	public void addStatements(List<? extends StatementInterface> statements) {
+		this.statements.addAll(statements);
+	}
 
 	/**
 	 * Constructor
 	 */
 	public DefaultTestCase() {
-		statements = new ArrayList<StatementInterface>();
+		statements = new ListenableList<StatementInterface>(
+		        new ArrayList<StatementInterface>());
 	}
 
 	/**
@@ -69,7 +77,11 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 * @param statements
 	 */
 	public DefaultTestCase(List<StatementInterface> statements) {
-		this.statements = statements;
+		if (statements instanceof ListenableList) {
+			this.statements = (ListenableList<StatementInterface>) statements;
+		} else {
+			this.statements = new ListenableList<StatementInterface>(statements);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -103,6 +115,10 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 */
 	@Override
 	public String toCode() {
+		TestCodeVisitor visitor = new TestCodeVisitor();
+		accept(visitor);
+		return visitor.getCode();
+		/*
 		String code = "";
 		for (StatementInterface s : statements) {
 			code += s.getCode() + "\n";
@@ -111,6 +127,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 				code += assertions + "\n";
 		}
 		return code;
+		*/
 	}
 
 	/* (non-Javadoc)
@@ -118,22 +135,28 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 */
 	@Override
 	public String toCode(Map<Integer, Throwable> exceptions) {
-		String code = "";
-		for (int i = 0; i < size(); i++) {
-			StatementInterface s = statements.get(i);
-			if (exceptions.containsKey(i)) {
-				code += s.getCode(exceptions.get(i)) + "\n";
-				String assertions = s.getAssertionCode();
-				if (!assertions.equals(""))
-					code += assertions + "\n";
-			} else {
-				code += s.getCode() + "\n";
-				String assertions = s.getAssertionCode();
-				if (!assertions.equals(""))
-					code += assertions + "\n";
-			}
-		}
-		return code;
+		TestCodeVisitor visitor = new TestCodeVisitor();
+		visitor.setExceptions(exceptions);
+		accept(visitor);
+		return visitor.getCode();
+		/*
+				String code = "";
+				for (int i = 0; i < size(); i++) {
+					StatementInterface s = statements.get(i);
+					if (exceptions.containsKey(i)) {
+						code += s.getCode(exceptions.get(i)) + "\n";
+						String assertions = s.getAssertionCode();
+						if (!assertions.equals(""))
+							code += assertions + "\n";
+					} else {
+						code += s.getCode() + "\n";
+						String assertions = s.getAssertionCode();
+						if (!assertions.equals(""))
+							code += assertions + "\n";
+					}
+				}
+				return code;
+				*/
 	}
 
 	private void addFields(List<VariableReference> variables, VariableReference var,
@@ -354,6 +377,10 @@ public class DefaultTestCase implements TestCase, Serializable {
 			if (statements.get(i).references(var))
 				return true;
 		}
+		for (Assertion assertion : statements.get(var.getStPosition()).getAssertions()) {
+			if (assertion.getReferencedVariables().contains(var))
+				return true;
+		}
 		return false;
 	}
 
@@ -381,6 +408,34 @@ public class DefaultTestCase implements TestCase, Serializable {
 		}
 
 		return references;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getDependencies(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public Set<VariableReference> getDependencies(VariableReference var) {
+		Set<VariableReference> dependencies = new HashSet<VariableReference>();
+
+		if (var == null || var.getStPosition() == -1)
+			return dependencies;
+
+		Set<StatementInterface> dependentStatements = new HashSet<StatementInterface>();
+		dependentStatements.add(statements.get(var.getStPosition()));
+
+		for (int i = var.getStPosition(); i >= 0; i--) {
+			Set<StatementInterface> newStatements = new HashSet<StatementInterface>();
+			for (StatementInterface s : dependentStatements) {
+				if (s.references(statements.get(i).getReturnValue())) {
+					newStatements.add(statements.get(i));
+					dependencies.add(statements.get(i).getReturnValue());
+					break;
+				}
+			}
+			dependentStatements.addAll(newStatements);
+		}
+
+		return dependencies;
 	}
 
 	/* (non-Javadoc)
@@ -437,10 +492,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((statements == null) ? 0 : statements.hashCode());
-		return result;
+		return statements.hashCode();
 	}
 
 	@Override
@@ -526,8 +578,10 @@ public class DefaultTestCase implements TestCase, Serializable {
 			for (VariableReference var : s.getVariableReferences()) {
 				if (var != null && !var.isPrimitive()) {
 					Class<?> clazz = var.getVariableClass();
-					while (clazz.isMemberClass())
+					while (clazz.isMemberClass()) {
+						//accessed_classes.add(clazz);
 						clazz = clazz.getEnclosingClass();
+					}
 					while (clazz.isArray())
 						clazz = clazz.getComponentType();
 					accessed_classes.add(clazz);
@@ -538,6 +592,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 				accessed_classes.addAll(Arrays.asList(ms.getMethod().getExceptionTypes()));
 				accessed_classes.add(ms.getMethod().getDeclaringClass());
 				accessed_classes.add(ms.getMethod().getReturnType());
+				accessed_classes.addAll(Arrays.asList(ms.getMethod().getParameterTypes()));
 			} else if (s instanceof FieldStatement) {
 				FieldStatement fs = (FieldStatement) s;
 				accessed_classes.add(fs.getField().getDeclaringClass());
@@ -546,6 +601,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 				ConstructorStatement cs = (ConstructorStatement) s;
 				accessed_classes.add(cs.getConstructor().getDeclaringClass());
 				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getExceptionTypes()));
+				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getParameterTypes()));
 			}
 		}
 		return accessed_classes;
@@ -661,6 +717,16 @@ public class DefaultTestCase implements TestCase, Serializable {
 		return statements.iterator();
 	}
 
+	@Override
+	public void addListener(Listener<Void> listener) {
+		statements.addListener(listener);
+	}
+
+	@Override
+	public void deleteListener(Listener<Void> listener) {
+		statements.deleteListener(listener);
+	}
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
@@ -676,10 +742,12 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 */
 	@Override
 	public void accept(TestVisitor visitor) {
+		visitor.visitTestCase(this);
+
 		Iterator<StatementInterface> iterator = statements.iterator();
 		while (iterator.hasNext()) {
 			StatementInterface statement = iterator.next();
-			logger.info("Visiting statment " + statement.getCode());
+			logger.debug("Visiting statement " + statement.getCode());
 			if (statement instanceof PrimitiveStatement<?>)
 				visitor.visitPrimitiveStatement((PrimitiveStatement<?>) statement);
 			else if (statement instanceof FieldStatement)
@@ -692,6 +760,10 @@ public class DefaultTestCase implements TestCase, Serializable {
 				visitor.visitAssignmentStatement((AssignmentStatement) statement);
 			else if (statement instanceof ArrayStatement)
 				visitor.visitArrayStatement((ArrayStatement) statement);
+			else if (statement instanceof NullStatement)
+				visitor.visitNullStatement((NullStatement) statement);
+			else
+				throw new RuntimeException("Unknown statement type: " + statement);
 		}
 	}
 
@@ -708,4 +780,13 @@ public class DefaultTestCase implements TestCase, Serializable {
 			s.changeClassLoader(loader);
 		}
 	}
+
+	/*
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+
+		coveredGoals = new HashSet<TestFitnessFunction>();
+	}
+	*/
 }

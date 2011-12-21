@@ -61,14 +61,6 @@ public class NullStatement extends AbstractStatement {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getCode(java.lang.Throwable)
-	 */
-	@Override
-	public String getCode(Throwable exception) {
-		return retval.getSimpleClassName() + " " + retval.getName() + " = null;";
-	}
-
-	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getUniqueVariableReferences()
 	 */
 	@Override
@@ -117,14 +109,6 @@ public class NullStatement extends AbstractStatement {
 	@Override
 	public boolean isAssignmentStatement() {
 		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
-	 */
-	@Override
-	public void changeClassLoader(ClassLoader loader) {
-		// No-op
 	}
 
 }

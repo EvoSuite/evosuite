@@ -50,60 +50,40 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	private static final long serialVersionUID = 5155609385855093435L;
 
-	protected static Logger logger = LoggerFactory.getLogger(GeneticAlgorithm.class);
+	private static Logger logger = LoggerFactory.getLogger(GeneticAlgorithm.class);
 
-	/**
-	 * Fitness function to rank individuals
-	 */
-	protected FitnessFunction fitness_function;
+	/** Fitness function to rank individuals */
+	protected FitnessFunction fitnessFunction;
 
-	/**
-	 * Selection function to select parents
-	 */
-	protected SelectionFunction selection_function = new RankSelection();
+	/** Selection function to select parents */
+	protected SelectionFunction selectionFunction = new RankSelection();
 
-	/**
-	 * CrossOver function
-	 */
-	protected CrossOverFunction crossover_function = new SinglePointCrossOver();
+	/** CrossOver function */
+	protected CrossOverFunction crossoverFunction = new SinglePointCrossOver();
 
-	/**
-	 * Current population
-	 */
+	/** Current population */
 	protected List<Chromosome> population = new ArrayList<Chromosome>();
 
-	/**
-	 * Generator for initial population
-	 */
-	protected ChromosomeFactory<? extends Chromosome> chromosome_factory;
+	/** Generator for initial population */
+	protected ChromosomeFactory<? extends Chromosome> chromosomeFactory;
 
-	/**
-	 * Listeners
-	 */
+	/** Listeners */
 	protected Set<SearchListener> listeners = new HashSet<SearchListener>();
 
-	/**
-	 * List of conditions on which to end the search
-	 */
-	protected Set<StoppingCondition> stopping_conditions = new HashSet<StoppingCondition>();
+	/** List of conditions on which to end the search */
+	protected Set<StoppingCondition> stoppingConditions = new HashSet<StoppingCondition>();
 
-	/**
-	 * Bloat control, to avoid too long chromosomes
-	 */
-	protected Set<BloatControlFunction> bloat_control = new HashSet<BloatControlFunction>();
-
-	/** Secondary objectives used during replacement */
-	protected final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();
+	/** Bloat control, to avoid too long chromosomes */
+	protected Set<BloatControlFunction> bloatControl = new HashSet<BloatControlFunction>();
 
 	/** Local search might need a different local objective */
 	protected LocalSearchObjective localObjective;
 
-	private final boolean shuffleBeforeSort = Properties.SHUFFLE_GOALS;
+	/** The population limit decides when an iteration is done */
+	protected PopulationLimit populationLimit = new IndividualPopulationLimit();
 
-	/**
-	 * Age of the population
-	 */
-	protected int current_iteration = 0;
+	/** Age of the population */
+	protected int currentIteration = 0;
 
 	/**
 	 * Constructor
@@ -111,7 +91,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * @param factory
 	 */
 	public GeneticAlgorithm(ChromosomeFactory<? extends Chromosome> factory) {
-		chromosome_factory = factory;
+		chromosomeFactory = factory;
 		addStoppingCondition(new MaxGenerationStoppingCondition());
 		addListener(new LocalSearchBudget());
 		// addBloatControl(new MaxSizeBloatControl());
@@ -163,14 +143,11 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	}
 
 	/**
-	 * Apply local search
+	 * Apply dynamic symbolic execution
 	 */
 	protected void applyDSE() {
 		logger.info("Applying DSE");
 		getBestIndividual().applyDSE();
-		//		for (Chromosome individual : population) {
-		//			individual.applyDSE();
-		//		}
 	}
 
 	/**
@@ -213,10 +190,10 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * TestFitnessFunction.isSimilarTo()
 	 */
 	protected void recycleChromosomes(int population_size) {
-		if (fitness_function == null)
+		if (fitnessFunction == null)
 			return;
 		ChromosomeRecycler recycler = ChromosomeRecycler.getInstance();
-		Set<Chromosome> recycables = recycler.getRecycableChromosomes(fitness_function);
+		Set<Chromosome> recycables = recycler.getRecycableChromosomes(fitnessFunction);
 		for (Chromosome recycable : recycables) {
 			population.add(recycable);
 		}
@@ -275,7 +252,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	protected void generateRandomPopulation(int population_size) {
 		logger.debug("Creating random population");
 		for (int i = 0; i < population_size; i++) {
-			population.add(chromosome_factory.getChromosome());
+			population.add(chromosomeFactory.getChromosome());
 			if (isFinished())
 				break;
 		}
@@ -296,7 +273,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * @param function
 	 */
 	public void setFitnessFunction(FitnessFunction function) {
-		fitness_function = function;
+		fitnessFunction = function;
 		localObjective = new DefaultLocalSearchObjective(function);
 	}
 
@@ -306,7 +283,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * @return
 	 */
 	public FitnessFunction getFitnessFunction() {
-		return fitness_function;
+		return fitnessFunction;
 	}
 
 	/**
@@ -315,7 +292,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * @param function
 	 */
 	public void setSelectionFunction(SelectionFunction function) {
-		selection_function = function;
+		selectionFunction = function;
 	}
 
 	/**
@@ -324,7 +301,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * @return
 	 */
 	public SelectionFunction getSelectionFunction() {
-		return selection_function;
+		return selectionFunction;
 	}
 
 	/**
@@ -333,7 +310,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * @param bloat_control
 	 */
 	public void setBloatControl(BloatControlFunction bloat_control) {
-		this.bloat_control.clear();
+		this.bloatControl.clear();
 		addBloatControl(bloat_control);
 	}
 
@@ -343,14 +320,14 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * @param bloat_control
 	 */
 	public void addBloatControl(BloatControlFunction bloat_control) {
-		this.bloat_control.add(bloat_control);
+		this.bloatControl.add(bloat_control);
 	}
 
 	/**
 	 * Check whether individual is suitable according to bloat control functions
 	 */
 	public boolean isTooLong(Chromosome chromosome) {
-		for (BloatControlFunction b : bloat_control) {
+		for (BloatControlFunction b : bloatControl) {
 			if (b.isTooLong(chromosome))
 				return true;
 		}
@@ -363,7 +340,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * @return Number of iterations
 	 */
 	public int getAge() {
-		return current_iteration;
+		return currentIteration;
 	}
 
 	/**
@@ -373,7 +350,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		logger.debug("Calculating fitness for " + population.size() + " individuals");
 
 		for (Chromosome c : population) {
-			fitness_function.getFitness(c);
+			fitnessFunction.getFitness(c);
 			notifyEvaluation(c);
 		}
 
@@ -411,7 +388,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		List<Chromosome> randoms = new ArrayList<Chromosome>();
 
 		for (int i = 0; i < Properties.ELITE; i++) {
-			randoms.add(chromosome_factory.getChromosome());
+			randoms.add(chromosomeFactory.getChromosome());
 		}
 		return randoms;
 	}
@@ -441,7 +418,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 		if (!unique) {
 			logger.debug("Applying kin compensation");
-			if (selection_function.maximize)
+			if (selectionFunction.maximize)
 				individual.setFitness(individual.getFitness()
 				        * Properties.KINCOMPENSATION);
 			else
@@ -466,11 +443,16 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * @param factory
 	 */
 	public void setChromosomeFactory(ChromosomeFactory<? extends Chromosome> factory) {
-		chromosome_factory = factory;
+		chromosomeFactory = factory;
 	}
 
+	/**
+	 * Set a new xover function
+	 * 
+	 * @param crossover
+	 */
 	public void setCrossOverFunction(CrossOverFunction crossover) {
-		this.crossover_function = crossover;
+		this.crossoverFunction = crossover;
 	}
 
 	/**
@@ -491,53 +473,100 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		listeners.remove(listener);
 	}
 
+	/**
+	 * Notify all search listeners of search start
+	 */
 	protected void notifySearchStarted() {
 		for (SearchListener listener : listeners) {
 			listener.searchStarted(this);
 		}
 	}
 
+	/**
+	 * Notify all search listeners of search end
+	 */
 	protected void notifySearchFinished() {
 		for (SearchListener listener : listeners) {
 			listener.searchFinished(this);
 		}
 	}
 
+	/**
+	 * Notify all search listeners of iteration
+	 */
 	protected void notifyIteration() {
 		for (SearchListener listener : listeners) {
 			listener.iteration(this);
 		}
 	}
 
+	/**
+	 * Notify all search listeners of fitness evaluation
+	 */
 	protected void notifyEvaluation(Chromosome chromosome) {
 		for (SearchListener listener : listeners) {
 			listener.fitnessEvaluation(chromosome);
 		}
 	}
 
+	/**
+	 * Notify all search listeners of a mutation
+	 */
 	protected void notifyMutation(Chromosome chromosome) {
 		for (SearchListener listener : listeners) {
 			listener.modification(chromosome);
 		}
 	}
 
+	/**
+	 * Sort the population by fitness
+	 */
 	protected void sortPopulation() {
-		if (shuffleBeforeSort)
+		if (Properties.SHUFFLE_GOALS)
 			Randomness.shuffle(population);
 
-		if (selection_function.maximize) {
+		if (fitnessFunction.isMaximizationFunction()) {
 			Collections.sort(population, Collections.reverseOrder());
 		} else {
 			Collections.sort(population);
 		}
 	}
 
+	/**
+	 * Accessor for population
+	 * 
+	 * @return
+	 */
 	public List<Chromosome> getPopulation() {
 		return population;
 	}
 
+	/**
+	 * Determine if the next generation has reached its size limit
+	 * 
+	 * @param nextGeneration
+	 * @return
+	 */
+	public boolean isNextPopulationFull(List<Chromosome> nextGeneration) {
+		return populationLimit.isPopulationFull(nextGeneration);
+	}
+
+	/**
+	 * Set a new population limit function
+	 * 
+	 * @param limit
+	 */
+	public void setPopulationLimit(PopulationLimit limit) {
+		this.populationLimit = limit;
+	}
+
+	/**
+	 * Determine whether any of the stopping conditions hold
+	 * 
+	 * @return
+	 */
 	protected boolean isFinished() {
-		for (StoppingCondition c : stopping_conditions) {
+		for (StoppingCondition c : stoppingConditions) {
 			if (c.isFinished())
 				return true;
 		}
@@ -546,27 +575,27 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	// TODO: Override equals method in StoppingCondition
 	public void addStoppingCondition(StoppingCondition condition) {
-		Iterator<StoppingCondition> it = stopping_conditions.iterator();
+		Iterator<StoppingCondition> it = stoppingConditions.iterator();
 		while (it.hasNext()) {
 			if (it.next().getClass().equals(condition.getClass())) {
 				return;
 			}
 		}
 		logger.debug("Adding new stopping condition");
-		stopping_conditions.add(condition);
+		stoppingConditions.add(condition);
 		addListener(condition);
 	}
 
 	// TODO: Override equals method in StoppingCondition
 	public void setStoppingCondition(StoppingCondition condition) {
-		stopping_conditions.clear();
+		stoppingConditions.clear();
 		logger.debug("Setting stopping condition");
-		stopping_conditions.add(condition);
+		stoppingConditions.add(condition);
 		addListener(condition);
 	}
 
 	public void removeStoppingCondition(StoppingCondition condition) {
-		Iterator<StoppingCondition> it = stopping_conditions.iterator();
+		Iterator<StoppingCondition> it = stoppingConditions.iterator();
 		while (it.hasNext()) {
 			if (it.next().getClass().equals(condition.getClass())) {
 				it.remove();
@@ -576,43 +605,19 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	}
 
 	public void resetStoppingConditions() {
-		for (StoppingCondition c : stopping_conditions) {
+		for (StoppingCondition c : stoppingConditions) {
 			c.reset();
 		}
 	}
 
 	public void setStoppingConditionLimit(int value) {
-		for (StoppingCondition c : stopping_conditions) {
+		for (StoppingCondition c : stoppingConditions) {
 			c.setLimit(value);
 		}
 	}
 
-	/**
-	 * Add an additional secondary objective to the end of the list of
-	 * objectives
-	 * 
-	 * @param objective
-	 */
-	public void addSecondaryObjective(SecondaryObjective objective) {
-		secondaryObjectives.add(objective);
-	}
-
-	/**
-	 * Remove secondary objective from list, if it is there
-	 * 
-	 * @param objective
-	 */
-	public void removeSecondaryObjective(SecondaryObjective objective) {
-		secondaryObjectives.remove(objective);
-	}
-
-	public void clearSecondaryObjectives() {
-		secondaryObjectives.clear();
-		Chromosome.clearSecondaryObjectives();
-	}
-
 	protected boolean isBetterOrEqual(Chromosome chromosome1, Chromosome chromosome2) {
-		if (selection_function.isMaximize()) {
+		if (selectionFunction.isMaximize()) {
 			return chromosome1.compareTo(chromosome2) >= 0;
 		} else {
 			return chromosome1.compareTo(chromosome2) <= 0;
@@ -634,13 +639,13 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 */
 	public void printBudget() {
 		System.out.println("* GA-Budget:");
-		for (StoppingCondition sc : stopping_conditions)
+		for (StoppingCondition sc : stoppingConditions)
 			System.out.println("\t- " + sc.toString());
 	}
 
 	public String getBudgetString() {
 		String r = "";
-		for (StoppingCondition sc : stopping_conditions)
+		for (StoppingCondition sc : stoppingConditions)
 			r += sc.toString() + " ";
 
 		return r;
@@ -674,7 +679,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * Set pause before MA
 	 */
 	public void pauseGlobalTimeStoppingCondition() {
-		for (StoppingCondition c : stopping_conditions) {
+		for (StoppingCondition c : stoppingConditions) {
 			if (c instanceof GlobalTimeStoppingCondition) {
 				((GlobalTimeStoppingCondition) c).pause();
 			}
@@ -685,7 +690,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * Resume from pause after MA
 	 */
 	public void resumeGlobalTimeStoppingCondition() {
-		for (StoppingCondition c : stopping_conditions) {
+		for (StoppingCondition c : stoppingConditions) {
 			if (c instanceof GlobalTimeStoppingCondition) {
 				((GlobalTimeStoppingCondition) c).resume();
 			}

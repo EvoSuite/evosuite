@@ -18,6 +18,9 @@
 
 package de.unisb.cs.st.evosuite.coverage.branch;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import de.unisb.cs.st.evosuite.cfg.ControlDependency;
@@ -36,7 +39,7 @@ import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 public class BranchCoverageGoal extends TestCoverageGoal implements Serializable {
 
 	private static final long serialVersionUID = 2962922303111452419L;
-	Branch branch;
+	transient Branch branch;
 	boolean value;
 
 	String className;
@@ -54,12 +57,12 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 	 * true, make the branchInstruction jump and visa versa
 	 */
 	public BranchCoverageGoal(Branch branch, boolean value, String className,
-			String methodName) {
+	        String methodName) {
 		if (className == null || methodName == null)
 			throw new IllegalArgumentException("null given");
 		if (branch == null && !value)
 			throw new IllegalArgumentException(
-					"expect goals for a root branch to always have value set to true");
+			        "expect goals for a root branch to always have value set to true");
 
 		this.branch = branch;
 		this.value = value;
@@ -69,14 +72,14 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 
 		if (branch != null) {
 			if (!branch.getMethodName().equals(methodName)
-					|| !branch.getClassName().equals(className))
+			        || !branch.getClassName().equals(className))
 				throw new IllegalArgumentException(
-						"expect explicitly given information about a branch to coincide with the information given by that branch");
+				        "expect explicitly given information about a branch to coincide with the information given by that branch");
 		}
 	}
-	
+
 	public BranchCoverageGoal(ControlDependency cd, String className, String methodName) {
-		this(cd.getBranch(),cd.getBranchExpressionValue(),className, methodName);
+		this(cd.getBranch(), cd.getBranchExpressionValue(), className, methodName);
 	}
 
 	/**
@@ -107,31 +110,28 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 	public boolean isConnectedTo(BranchCoverageGoal goal) {
 		if (branch == null || goal.branch == null) {
 			// one of the goals targets a root branch
-			return goal.methodName.equals(methodName)
-					&& goal.className.equals(className);
+			return goal.methodName.equals(methodName) && goal.className.equals(className);
 		}
 
 		// TODO map this to new CDG !
 
-		return branch.getInstruction()
-				.isDirectlyControlDependentOn(goal.branch)
-				|| goal.branch.getInstruction().isDirectlyControlDependentOn(
-						branch);
+		return branch.getInstruction().isDirectlyControlDependentOn(goal.branch)
+		        || goal.branch.getInstruction().isDirectlyControlDependentOn(branch);
 	}
 
-//	/**
-//	 * Returns the number of branches
-//	 */
-//	public int getDifficulty() {
-//		int r = 1;
-//
-//		// TODO map this to new CDG !
-//
-//		if (branch != null) {
-//			r += branch.getInstruction().getCDGDepth();
-//		}
-//		return r;
-//	}
+	//	/**
+	//	 * Returns the number of branches
+	//	 */
+	//	public int getDifficulty() {
+	//		int r = 1;
+	//
+	//		// TODO map this to new CDG !
+	//
+	//		if (branch != null) {
+	//			r += branch.getInstruction().getCDGDepth();
+	//		}
+	//		return r;
+	//	}
 
 	/**
 	 * Determine if there is an existing test case covering this goal
@@ -150,8 +150,10 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 
 	public ControlFlowDistance getDistance(ExecutionResult result) {
 
-		ControlFlowDistance r = ControlFlowDistanceCalculator.getDistance(
-				result, branch, value, className, methodName);
+		ControlFlowDistance r = ControlFlowDistanceCalculator.getDistance(result, branch,
+		                                                                  value,
+		                                                                  className,
+		                                                                  methodName);
 
 		return r;
 	}
@@ -229,18 +231,15 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + (branch == null ? 0 : branch.getActualBranchId());
 		result = prime * result
-				+ (branch == null ? 0 : branch.getActualBranchId());
-		result = prime
-				* result
-				+ (branch == null ? 0 : branch.getInstruction()
-						.getInstructionId());
+		        + (branch == null ? 0 : branch.getInstruction().getInstructionId());
 		// TODO sure you want to call hashCode() on the cfg? doesn't that take
 		// long?
 		result = prime
-				* result
-				+ ((branch == null) ? 0 : branch.getInstruction()
-						.getActualCFG().hashCode());
+		        * result
+		        + ((branch == null) ? 0
+		                : branch.getInstruction().getActualCFG().hashCode());
 		result = prime * result + className.hashCode();
 		result = prime * result + methodName.hashCode();
 		result = prime * result + (value ? 1231 : 1237);
@@ -265,7 +264,7 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 				// i don't have to check for value at this point, because if
 				// branch is null we are talking about the root branch here
 				return this.methodName.equals(other.methodName)
-						&& this.className.equals(other.className);
+				        && this.className.equals(other.className);
 		}
 		// well i am not, if you are we are different
 		if (other.branch == null)
@@ -278,6 +277,27 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 		else {
 			return this.value == other.value;
 		}
+	}
+
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+		// Write/save additional fields
+		if (branch != null)
+			oos.writeInt(branch.getActualBranchId());
+		else
+			oos.writeInt(-1);
+	}
+
+	// assumes "static java.util.Date aDate;" declared
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+
+		int branchId = ois.readInt();
+		if (branchId >= 0)
+			this.branch = BranchPool.getBranch(branchId);
+		else
+			this.branch = null;
 	}
 
 }

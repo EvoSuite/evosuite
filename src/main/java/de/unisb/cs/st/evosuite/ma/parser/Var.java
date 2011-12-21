@@ -16,14 +16,17 @@ public class Var {
 
 	private VariableReference varRef;
 
-	public Var(String varName, Type varType,
-			VariableReference varRef) throws ParseException {
+	public Var(String varName, Type varType, VariableReference varRef)
+			throws ParseException {
 		if (varName == "") {
-			throw new ParseException(null, "A var's name can't be leer.");
-		} else if (varType == null) {
-			throw new ParseException(null, "A var's type can't be null.");
+			throw new ParseException(null,
+					"Creating new Var. A var's name can't be leer.");
+			// } else if (varType == null) {
+			// throw new ParseException(null,
+			// "Creating new Var. A var's type can't be null.");
 		} else if (varRef == null) {
-			throw new ParseException(null, "A var's references can't be null.");
+			throw new ParseException(null,
+					"Creating new Var. A var's references can't be null.");
 		}
 
 		this.varName = varName;

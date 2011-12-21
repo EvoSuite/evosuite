@@ -18,13 +18,24 @@
 
 package de.unisb.cs.st.evosuite.assertion;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class Inspector {
+import org.objectweb.asm.Type;
 
-	Class<?> clazz;
-	Method method;
+import de.unisb.cs.st.evosuite.testcase.TestCluster;
+
+public class Inspector implements Serializable {
+
+	private static final long serialVersionUID = -6865880297202184953L;
+
+	private transient Class<?> clazz;
+
+	private transient Method method;
 
 	public Inspector(Class<?> clazz, Method m) {
 		this.clazz = clazz;
@@ -33,21 +44,16 @@ public class Inspector {
 
 	public Object getValue(Object object) throws IllegalArgumentException,
 	        IllegalAccessException, InvocationTargetException {
-		//try {
+
 		Object ret = this.method.invoke(object);
 		if (ret instanceof String) {
 			ret = ((String) ret).replaceAll("@[abcdef\\d]+", "");
 		}
 		return ret;
-		/*	
-		} catch (IllegalArgumentException e) {
-			return null;
-		} catch (IllegalAccessException e) {
-			return null;
-		} catch (InvocationTargetException e) {
-			return null;
-		}
-		*/
+	}
+
+	public Method getMethod() {
+		return method;
 	}
 
 	public String getMethodCall() {
@@ -93,4 +99,34 @@ public class Inspector {
 		return true;
 	}
 
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+		// Write/save additional fields
+		oos.writeObject(clazz.getName());
+		oos.writeObject(method.getDeclaringClass().getName());
+		oos.writeObject(method.getName());
+		oos.writeObject(Type.getMethodDescriptor(method));
+	}
+
+	// assumes "static java.util.Date aDate;" declared
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+
+		// Read/initialize additional fields
+		this.clazz = TestCluster.classLoader.loadClass((String) ois.readObject());
+		Class<?> methodClass = TestCluster.classLoader.loadClass((String) ois.readObject());
+
+		String methodName = (String) ois.readObject();
+		String methodDesc = (String) ois.readObject();
+
+		for (Method method : methodClass.getDeclaredMethods()) {
+			if (method.getName().equals(methodName)) {
+				if (Type.getMethodDescriptor(method).equals(methodDesc)) {
+					this.method = method;
+					return;
+				}
+			}
+		}
+	}
 }

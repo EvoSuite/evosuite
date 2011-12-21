@@ -34,7 +34,17 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  */
 public class CompareAssertion extends Assertion {
 
-	public VariableReference dest;
+	private static final long serialVersionUID = 7415863202662602633L;
+
+	protected VariableReference dest;
+
+	public VariableReference getDest() {
+		return dest;
+	}
+
+	public void setDest(VariableReference dest) {
+		this.dest = dest;
+	}
 
 	/**
 	 * Create a copy of the compare assertion
@@ -147,6 +157,14 @@ public class CompareAssertion extends Assertion {
 		vars.add(source);
 		vars.add(dest);
 		return vars;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.assertion.Assertion#isValid()
+	 */
+	@Override
+	public boolean isValid() {
+		return super.isValid() && dest != null;
 	}
 
 }

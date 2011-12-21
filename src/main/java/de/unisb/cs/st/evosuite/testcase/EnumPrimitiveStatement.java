@@ -110,16 +110,4 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#getCode(java.lang.Throwable)
-	 */
-	@Override
-	public String getCode(Throwable exception) {
-		if (value != null)
-			return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
-			        + " = " + value.getClass().getSimpleName() + "." + value + ";";
-		else
-			return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
-			        + " = (" + ((Class<?>) retval.getType()).getSimpleName() + ") null;";
-	}
 }

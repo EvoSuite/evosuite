@@ -38,6 +38,8 @@ import de.unisb.cs.st.evosuite.assertion.MutationAssertionGenerator;
 import de.unisb.cs.st.evosuite.assertion.UnitAssertionGenerator;
 import de.unisb.cs.st.evosuite.cfg.LCSAJGraph;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
+import de.unisb.cs.st.evosuite.contracts.ContractChecker;
+import de.unisb.cs.st.evosuite.contracts.FailingTestSet;
 import de.unisb.cs.st.evosuite.coverage.FitnessLogger;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
@@ -68,15 +70,18 @@ import de.unisb.cs.st.evosuite.ga.CrossOverFunction;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.FitnessProportionateSelection;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
+import de.unisb.cs.st.evosuite.ga.IndividualPopulationLimit;
 import de.unisb.cs.st.evosuite.ga.MinimizeSizeSecondaryObjective;
 import de.unisb.cs.st.evosuite.ga.MuPlusLambdaGA;
 import de.unisb.cs.st.evosuite.ga.OnePlusOneEA;
+import de.unisb.cs.st.evosuite.ga.PopulationLimit;
 import de.unisb.cs.st.evosuite.ga.RankSelection;
 import de.unisb.cs.st.evosuite.ga.SecondaryObjective;
 import de.unisb.cs.st.evosuite.ga.SelectionFunction;
 import de.unisb.cs.st.evosuite.ga.SinglePointCrossOver;
 import de.unisb.cs.st.evosuite.ga.SinglePointFixedCrossOver;
 import de.unisb.cs.st.evosuite.ga.SinglePointRelativeCrossOver;
+import de.unisb.cs.st.evosuite.ga.SizePopulationLimit;
 import de.unisb.cs.st.evosuite.ga.StandardGA;
 import de.unisb.cs.st.evosuite.ga.SteadyStateGA;
 import de.unisb.cs.st.evosuite.ga.TournamentChromosomeFactory;
@@ -89,7 +94,7 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
-import de.unisb.cs.st.evosuite.junit.TestSuite;
+import de.unisb.cs.st.evosuite.junit.TestSuiteWriter;
 import de.unisb.cs.st.evosuite.primitives.ObjectPool;
 import de.unisb.cs.st.evosuite.sandbox.PermissionStatistics;
 import de.unisb.cs.st.evosuite.testcase.AllMethodsTestChromosomeFactory;
@@ -116,6 +121,7 @@ import de.unisb.cs.st.evosuite.testsuite.MinimizeMaxLengthSecondaryObjective;
 import de.unisb.cs.st.evosuite.testsuite.MinimizeTotalLengthSecondaryObjective;
 import de.unisb.cs.st.evosuite.testsuite.RelativeSuiteLengthBloatControl;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
+import de.unisb.cs.st.evosuite.testsuite.StatementsPopulationLimit;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosomeFactory;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunc_to_TestFitnessFactory_Adapter;
@@ -241,6 +247,11 @@ public class TestSuiteGenerator {
 
 		writeJUnitTests(tests);
 
+		if (Properties.CHECK_CONTRACTS) {
+			System.out.println("* Writing failing test cases");
+			FailingTestSet.writeJUnitTestSuite();
+		}
+
 		writeObjectPool(tests);
 
 		if (analyzing)
@@ -251,18 +262,22 @@ public class TestSuiteGenerator {
 
 	public static void writeJUnitTests(List<TestCase> tests) {
 		if (Properties.JUNIT_TESTS) {
-			TestSuite suite = new TestSuite(tests);
+			TestSuiteWriter suite = new TestSuiteWriter();
+			suite.insertTests(tests);
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 			String testDir = Properties.TEST_DIR;
 			if (analyzing)
 				testDir = testDir + "/" + Properties.CRITERION;
 			System.out.println("* Writing JUnit test cases to " + testDir);
 			suite.writeTestSuite("Test" + name, testDir);
+			suite.writeTestSuiteMainFile(testDir);
 		}
 	}
 
 	private void addAssertions(List<TestCase> tests) {
 		AssertionGenerator asserter;
+		ContractChecker.setActive(false);
+
 		if (Properties.ASSERTION_STRATEGY == AssertionStrategy.MUTATION) {
 			Criterion oldCriterion = Properties.CRITERION;
 			if (Properties.CRITERION != Criterion.MUTATION) {
@@ -306,11 +321,11 @@ public class TestSuiteGenerator {
 		MutationAssertionGenerator asserter = new MutationAssertionGenerator();
 		Set<Integer> tkilled = new HashSet<Integer>();
 		for (TestCase test : tests) {
-			Set<Integer> killed = new HashSet<Integer>();
-			asserter.addAssertions(test, killed);
-			tkilled.addAll(killed);
+			//Set<Integer> killed = new HashSet<Integer>();
+			asserter.addAssertions(test, tkilled);
+			//tkilled.addAll(killed);
 		}
-		asserter.writeStatistics();
+		// asserter.writeStatistics();
 		//System.out.println("Killed: " + tkilled.size() + "/" + asserter.numMutants());
 	}
 
@@ -370,15 +385,19 @@ public class TestSuiteGenerator {
 		        + MaxStatementsStoppingCondition.getNumExecutedStatements()
 		        + " statements, best individual has fitness " + best.getFitness());
 
+		double fitness = best.getFitness();
+
 		if (Properties.MINIMIZE_VALUES) {
 			System.out.println("* Minimizing values");
 			ValueMinimizer minimizer = new ValueMinimizer();
 			minimizer.minimize(best, (TestSuiteFitnessFunction) fitness_function);
+			assert (fitness >= best.getFitness());
 		}
 
 		if (Properties.INLINE) {
 			ConstantInliner inliner = new ConstantInliner();
 			inliner.inline(best);
+			assert (fitness >= best.getFitness());
 		}
 
 		if (Properties.MINIMIZE) {
@@ -386,6 +405,7 @@ public class TestSuiteGenerator {
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
 			minimizer.minimize((TestSuiteChromosome) ga.getBestIndividual());
 		}
+
 		statistics.iteration(ga);
 		statistics.minimized(ga.getBestIndividual());
 		System.out.println("* Generated " + best.size() + " tests with total length "
@@ -943,8 +963,9 @@ public class TestSuiteGenerator {
 				        new TestSuiteChromosomeFactory());
 			case JUNIT:
 				logger.info("Using seeding chromosome factory");
-				return new TestSuiteChromosomeFactory(new JUnitTestChromosomeFactory(
-				        new RandomLengthTestFactory()));
+				JUnitTestChromosomeFactory factory = new JUnitTestChromosomeFactory(
+				        new RandomLengthTestFactory());
+				return new TestSuiteChromosomeFactory(factory);
 			default:
 				throw new RuntimeException("Unsupported test factory: "
 				        + Properties.TEST_FACTORY);
@@ -980,7 +1001,17 @@ public class TestSuiteGenerator {
 		}
 	}
 
-	public static SecondaryObjective getSecondaryObjective(String name) {
+	public static SecondaryObjective getSecondaryTestObjective(String name) {
+		if (name.equalsIgnoreCase("size"))
+			return new MinimizeSizeSecondaryObjective();
+		else if (name.equalsIgnoreCase("exceptions"))
+			return new de.unisb.cs.st.evosuite.testcase.MinimizeExceptionsSecondaryObjective();
+		else
+			throw new RuntimeException("ERROR: asked for unknown secondary objective \""
+			        + name + "\"");
+	}
+
+	public static SecondaryObjective getSecondarySuiteObjective(String name) {
 		if (name.equalsIgnoreCase("size"))
 			return new MinimizeSizeSecondaryObjective();
 		else if (name.equalsIgnoreCase("maxlength"))
@@ -997,23 +1028,32 @@ public class TestSuiteGenerator {
 	}
 
 	public static void getSecondaryObjectives(GeneticAlgorithm algorithm) {
-		if (Properties.STRATEGY == Strategy.ONEBRANCH) {
-			SecondaryObjective objective = getSecondaryObjective("size");
-			Chromosome.addSecondaryObjective(objective);
-			algorithm.addSecondaryObjective(objective);
-		} else {
-			String objectives = Properties.SECONDARY_OBJECTIVE;
+		String objectives = Properties.SECONDARY_OBJECTIVE;
 
-			// check if there are no secondary objectives to optimize
-			if (objectives == null || objectives.trim().length() == 0
-			        || objectives.trim().equalsIgnoreCase("none"))
-				return;
+		// check if there are no secondary objectives to optimize
+		if (objectives == null || objectives.trim().length() == 0
+		        || objectives.trim().equalsIgnoreCase("none"))
+			return;
 
-			for (String name : objectives.split(":")) {
-				SecondaryObjective objective = getSecondaryObjective(name.trim());
-				Chromosome.addSecondaryObjective(objective);
-				algorithm.addSecondaryObjective(objective);
-			}
+		for (String name : objectives.split(":")) {
+			try {
+				TestChromosome.addSecondaryObjective(getSecondaryTestObjective(name.trim()));
+			} catch (Throwable t) {
+			} // Not all objectives make sense for tests
+			TestSuiteChromosome.addSecondaryObjective(getSecondarySuiteObjective(name.trim()));
+		}
+	}
+
+	public static PopulationLimit getPopulationLimit() {
+		switch (Properties.POPULATION_LIMIT) {
+		case INDIVIDUALS:
+			return new IndividualPopulationLimit();
+		case TESTS:
+			return new SizePopulationLimit();
+		case STATEMENTS:
+			return new StatementsPopulationLimit();
+		default:
+			throw new RuntimeException("Unsupported population limit");
 		}
 	}
 
@@ -1078,6 +1118,8 @@ public class TestSuiteGenerator {
 		if (Properties.CRITERION == Criterion.MUTATION)
 			ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
 
+		ga.setPopulationLimit(getPopulationLimit());
+
 		// How to cross over
 		CrossOverFunction crossover_function = getCrossoverFunction();
 		ga.setCrossOverFunction(crossover_function);
@@ -1120,8 +1162,11 @@ public class TestSuiteGenerator {
 		}
 
 		if (Properties.SHUTDOWN_HOOK) {
+			//ShutdownTestWriter writer = new ShutdownTestWriter(Thread.currentThread());
 			ShutdownTestWriter writer = new ShutdownTestWriter();
 			ga.addStoppingCondition(writer);
+
+			//Runtime.getRuntime().addShutdownHook(writer);
 			Signal.handle(new Signal("INT"), writer);
 		}
 

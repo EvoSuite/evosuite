@@ -45,6 +45,24 @@ public class ResourceList {
 		return retval;
 	}
 
+	/**
+	 * for all elements of java.class.path get a Collection of resources Pattern
+	 * pattern = Pattern.compile(".*"); gets all resources
+	 * 
+	 * @param pattern
+	 *            the pattern to match
+	 * @return the resources in the order they are found
+	 */
+	public static Collection<String> getBootResources(final Pattern pattern) {
+		Collection<String> result = getResources(pattern);
+		String classPath = System.getProperty("sun.boot.class.path", ".");
+		String[] classPathElements = classPath.split(":");
+		for (final String element : classPathElements) {
+			result.addAll(getResources(element, pattern));
+		}
+		return result;
+	}
+
 	public static Collection<String> getResources(final String element,
 	        final Pattern pattern) {
 		final ArrayList<String> retval = new ArrayList<String>();

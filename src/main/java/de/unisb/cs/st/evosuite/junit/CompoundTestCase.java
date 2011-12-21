@@ -2,6 +2,7 @@ package de.unisb.cs.st.evosuite.junit;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testcase.TestVisitor;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
+import de.unisb.cs.st.evosuite.utils.Listener;
 
 /**
  * A compound test case is a test case that is read from an existing JUnit test
@@ -39,6 +41,7 @@ public class CompoundTestCase implements TestCase {
 	private CompoundTestCase parent;
 	private final List<StatementInterface> staticCode = new ArrayList<StatementInterface>();
 	private final List<StatementInterface> testMethod = new ArrayList<StatementInterface>();
+	private final Set<Listener<Void>> listeners = new HashSet<Listener<Void>>();
 
 	@Override
 	public void accept(TestVisitor visitor) {
@@ -56,6 +59,11 @@ public class CompoundTestCase implements TestCase {
 	}
 
 	@Override
+	public void addListener(Listener<Void> listener) {
+		listeners.add(listener);
+	}
+
+	@Override
 	public VariableReference addStatement(StatementInterface statement) {
 		return delegate.addStatement(statement);
 	}
@@ -63,6 +71,13 @@ public class CompoundTestCase implements TestCase {
 	@Override
 	public VariableReference addStatement(StatementInterface statement, int position) {
 		return delegate.addStatement(statement, position);
+	}
+
+	@Override
+	public void addStatements(List<? extends StatementInterface> statements) {
+		for (StatementInterface statement : statements) {
+			delegate.addStatement(statement);
+		}
 	}
 
 	@Override
@@ -75,11 +90,19 @@ public class CompoundTestCase implements TestCase {
 		return delegate.clone();
 	}
 
+	@Override
+	public void deleteListener(Listener<Void> listener) {
+		listeners.remove(listener);
+	}
+
 	public void finalizeTestCase() {
 		delegate = new DefaultTestCase();
 		addStatements(getInitializationCode());
 		addStatements(testMethod);
 		addStatements(getDeinitializationCode());
+		for (Listener<Void> listener : listeners) {
+			delegate.addListener(listener);
+		}
 	}
 
 	@Override
@@ -159,12 +182,14 @@ public class CompoundTestCase implements TestCase {
 	}
 
 	@Override
-	public VariableReference getRandomObject(Type type) throws ConstructionFailedException {
+	public VariableReference getRandomObject(Type type)
+	        throws ConstructionFailedException {
 		return delegate.getRandomObject(type);
 	}
 
 	@Override
-	public VariableReference getRandomObject(Type type, int position) throws ConstructionFailedException {
+	public VariableReference getRandomObject(Type type, int position)
+	        throws ConstructionFailedException {
 		return delegate.getRandomObject(type, position);
 	}
 
@@ -282,10 +307,12 @@ public class CompoundTestCase implements TestCase {
 		return delegate.toCode(exceptions);
 	}
 
-	private void addStatements(List<StatementInterface> statements) {
-		for (StatementInterface statement : statements) {
-			delegate.addStatement(statement);
+	@Override
+	public String toString() {
+		if (delegate != null) {
+			return delegate.toString();
 		}
+		return super.toString();
 	}
 
 	private List<StatementInterface> getDeinitializationCode() {
@@ -311,5 +338,14 @@ public class CompoundTestCase implements TestCase {
 		result.addAll(beforeClass);
 		result.addAll(before);
 		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getDependencies(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 */
+	@Override
+	public Set<VariableReference> getDependencies(VariableReference var) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

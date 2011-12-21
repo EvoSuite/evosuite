@@ -76,6 +76,10 @@ public class Mutation {
 		return 0;
 	}
 
+	public String getMutationName() {
+		return id + ": " + mutationName + ", line " + original.getLineNumber();
+	}
+
 	public Set<BranchCoverageGoal> getControlDependencies() {
 		Set<BranchCoverageGoal> goals = new HashSet<BranchCoverageGoal>();
 		for (ControlDependency cd : original.getControlDependencies()) {

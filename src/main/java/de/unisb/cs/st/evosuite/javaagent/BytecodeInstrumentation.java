@@ -48,8 +48,8 @@ import de.unisb.cs.st.evosuite.testcase.StaticTestCluster;
  */
 public class BytecodeInstrumentation implements ClassFileTransformer {
 
-	protected static Logger logger = LoggerFactory.getLogger(BytecodeInstrumentation.class);
-
+	private static Logger logger = LoggerFactory.getLogger(BytecodeInstrumentation.class);
+	
 	private static List<ClassAdapterFactory> externalPreVisitors = new ArrayList<ClassAdapterFactory>();
 
 	private static List<ClassAdapterFactory> externalPostVisitors = new ArrayList<ClassAdapterFactory>();
@@ -79,13 +79,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		// TODO: Need to replace this in the long term
 		return StaticTestCluster.isTargetClassName(className);
 	}
-
-	private static boolean isJavaagent = false;
-
-	public static boolean isJavaagent() {
-		return isJavaagent;
-	}
-
+	
 	static {
 		logger.info("Loading bytecode transformer for " + Properties.PROJECT_PREFIX);
 	}
@@ -100,9 +94,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	 */
 	@Override
 	public byte[] transform(ClassLoader loader, String className,
-	        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-	        byte[] classfileBuffer) throws IllegalClassFormatException {
-		isJavaagent = true;
+			Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+			byte[] classfileBuffer) throws IllegalClassFormatException {
 		if (className == null) {
 			return classfileBuffer;
 		}
@@ -110,8 +103,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 		// Some packages we shouldn't touch - hard-coded
 		if (!isTargetProject(classNameWithDots)
-		        && (classNameWithDots.startsWith("java")
-		                || classNameWithDots.startsWith("sun")
+				&& (classNameWithDots.startsWith("java")
+						|| classNameWithDots.startsWith("sun")
 		                || classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
 			return classfileBuffer;
 		}
@@ -155,8 +148,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		if (isTargetClassName(classNameWithDots)) {
 			// Print out bytecode if debug is enabled
 			cv = new AccessibleClassAdapter(cv, className);
-			// cv = new CheckClassAdapter(cv);
 			// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+			// cv = new CheckClassAdapter(cv, true);
 			// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 			for (ClassAdapterFactory factory : externalPostVisitors) {
 				cv = factory.getVisitor(cv, className);
@@ -179,13 +172,12 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		// If we need to reset static constructors, make them
 		// explicit methods
 		if (Properties.STATIC_HACK) {
-			// cv = new CheckClassAdapter(cv);
 			cv = new StaticInitializationClassAdapter(cv, className);
 		}
 
 		if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
 			ClassNode cn = new ClassNode();
-			reader.accept(cn, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
+			reader.accept(cn, ClassReader.SKIP_FRAMES); //  | ClassReader.SKIP_DEBUG
 			ComparisonTransformation cmp = new ComparisonTransformation(cn);
 			cn = cmp.transform();
 
@@ -207,13 +199,13 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			}
 
 		} else {
-			reader.accept(cv, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
+			reader.accept(cv, ClassReader.SKIP_FRAMES); //  | ClassReader.SKIP_DEBUG
 		}
 
 		// Print out bytecode if debug is enabled
 		// if(logger.isDebugEnabled())
-		// cv = new TraceClassVisitor(cv, new
-		// PrintWriter(System.out));
+		// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 		return writer.toByteArray();
 	}
+
 }

@@ -33,6 +33,11 @@ public class ConcolicInstructionFactory extends InstructionFactory implements Cl
 	}
 
 	@Override
+	public INVOKEVIRTUAL invokevirtual(String clsName, String methodName, String methodSignature){
+		return new INVOKEVIRTUAL(clsName, methodName, methodSignature);
+	}
+	
+	@Override
 	public D2F d2f() {
 		return new D2F();
 	}

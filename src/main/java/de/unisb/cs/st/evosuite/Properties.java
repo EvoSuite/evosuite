@@ -235,6 +235,13 @@ public class Properties {
 	@IntValue(min = 1)
 	public static int POPULATION = 50;
 
+	public enum PopulationLimit {
+		INDIVIDUALS, TESTS, STATEMENTS;
+	}
+
+	@Parameter(key = "population_limit", group = "Search Algorithm", description = "What to use as limit for the population size")
+	public static PopulationLimit POPULATION_LIMIT = PopulationLimit.INDIVIDUALS;
+
 	@Parameter(key = "generations", group = "Search Algorithm", description = "Maximum search duration")
 	@LongValue(min = 1)
 	public static long GENERATIONS = 1000000;
@@ -265,7 +272,7 @@ public class Properties {
 	// TODO: Fix values
 	@Parameter(key = "secondary_objectives", group = "Search Algorithm", description = "Secondary objective during search")
 	// @SetValue(values = { "maxlength", "maxsize", "avglength", "none" })
-	public static String SECONDARY_OBJECTIVE = "totallength";
+	public static String SECONDARY_OBJECTIVE = "exceptions:totallength";
 
 	@Parameter(key = "bloat_factor", group = "Search Algorithm", description = "Maximum relative increase in length")
 	public static int BLOAT_FACTOR = 2;
@@ -303,6 +310,13 @@ public class Properties {
 
 	// ---------------------------------------------------------------
 	// Output
+	public enum OutputFormat {
+		JUNIT3, JUNIT4, TESTNG
+	}
+
+	@Parameter(key = "test_format", group = "Output", description = "Format of the resulting test cases")
+	public static OutputFormat TEST_FORMAT = OutputFormat.JUNIT4;
+
 	@Parameter(key = "print_to_system", group = "Output", description = "Allow test output on console")
 	public static boolean PRINT_TO_SYSTEM = false;
 
@@ -367,6 +381,9 @@ public class Properties {
 	@Parameter(key = "show_progress", group = "Output", description = "Show progress bar on console")
 	public static boolean SHOW_PROGRESS = true;
 
+	@Parameter(key = "serialize_result", group = "Output", description = "Serialize result of search to main process")
+	public static boolean SERIALIZE_RESULT = false;
+
 	//---------------------------------------------------------------
 	// Sandbox
 	@Parameter(key = "sandbox", group = "Sandbox", description = "Execute tests in a sandbox environment")
@@ -421,12 +438,24 @@ public class Properties {
 	@Parameter(key = "check_contracts_end", description = "Check contracts only once per test")
 	public static boolean CHECK_CONTRACTS_END = false;
 
+	@Parameter(key = "BREAK_ON_EXCEPTION", description = "Stop test execution if exception occurrs")
+	public static boolean BREAK_ON_EXCEPTION = false;
+
 	public enum TestFactory {
 		RANDOM, ALLMETHODS, TOURNAMENT, JUNIT
 	}
 
 	@Parameter(key = "test_factory", description = "Which factory creates tests")
 	public static TestFactory TEST_FACTORY = TestFactory.RANDOM;
+
+	@Parameter(key = "junit_strict", description = "Only include test files containing the target classname")
+	public static boolean JUNIT_STRICT = false;
+
+	@Parameter(key = "seed_clone", description = "Probability with which existing individuals are cloned")
+	public static double SEED_CLONE = 0.2;
+
+	@Parameter(key = "seed_mutations", description = "Probability with which cloned individuals are mutated")
+	public static int SEED_MUTATIONS = 2;
 
 	@Parameter(key = "concolic_mutation", description = "Probability of using concolic mutation operator")
 	@DoubleValue(min = 0.0, max = 1.0)
@@ -499,6 +528,9 @@ public class Properties {
 
 	@Parameter(key = "ma_active", group = "Manual algorithm", description = "MA active")
 	public static boolean MA_ACTIVE = false;
+	
+	@Parameter(key = "ma_wide_gui", group = "Manual algorithm", description = "Activate wide GUI")
+	public static boolean MA_WIDE_GUI = false;
 
 	// ---------------------------------------------------------------
 	// UI Test generation parameters
@@ -511,7 +543,7 @@ public class Properties {
 	// Runtime parameters
 
 	public enum Criterion {
-		CONCURRENCY, LCSAJ, DEFUSE, ALLDEFS, PATH, BRANCH, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT, ANALYZE
+		CONCURRENCY, LCSAJ, DEFUSE, ALLDEFS, PATH, BRANCH, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT, ANALYZE, DATA
 	}
 
 	/** Cache target class */
@@ -610,7 +642,8 @@ public class Properties {
 	 * Initialize properties from property file or command line parameters
 	 */
 	private void loadProperties() {
-		loadPropertiesFile();
+		loadPropertiesFile(System.getProperty(PROPERTIES_FILE,
+		                                      "evosuite-files/evosuite.properties"));
 
 		for (String parameter : parameterMap.keySet()) {
 			try {
@@ -631,28 +664,34 @@ public class Properties {
 				logger.info("- Error setting parameter \"" + parameter + "\": " + e);
 			}
 		}
+		if (POPULATION_LIMIT == PopulationLimit.STATEMENTS) {
+			if (MAX_LENGTH < POPULATION) {
+				MAX_LENGTH = POPULATION;
+			}
+		}
 	}
 
-	private void loadPropertiesFile() {
+	public void loadPropertiesFile(String propertiesPath) {
 		properties = new java.util.Properties();
-		String propertiesFile = System.getProperty(PROPERTIES_FILE,
-		                                           "evosuite-files/evosuite.properties");
 		try {
 			InputStream in = null;
-			if (new File(propertiesFile).exists()) {
-				in = new FileInputStream(propertiesFile);
+			File propertiesFile = new File(propertiesPath);
+			if (propertiesFile.exists()) {
+				in = new FileInputStream(propertiesPath);
+				logger.info("* Properties loaded from configuration file "
+				        + propertiesFile.getAbsolutePath());
 			} else {
-				propertiesFile = "evosuite.properties";
-				in = this.getClass().getClassLoader().getResourceAsStream(propertiesFile);
+				propertiesPath = "evosuite.properties";
+				in = this.getClass().getClassLoader().getResourceAsStream(propertiesPath);
+				logger.info("* Properties loaded from default configuration file.");
 			}
 			properties.load(in);
-			logger.info("* Properties loaded from configuration file " + propertiesFile);
 		} catch (FileNotFoundException e) {
-			logger.info("- Error: Could not find configuration file " + propertiesFile);
+			logger.info("- Error: Could not find configuration file " + propertiesPath);
 		} catch (IOException e) {
-			logger.info("- Error: Could not find configuration file " + propertiesFile);
+			logger.info("- Error: Could not find configuration file " + propertiesPath);
 		} catch (Exception e) {
-			logger.info("- Error: Could not find configuration file " + propertiesFile);
+			logger.info("- Error: Could not find configuration file " + propertiesPath);
 		}
 	}
 
@@ -1081,7 +1120,9 @@ public class Properties {
 	public void writeConfiguration(String fileName) {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("CP=");
-		buffer.append(Properties.CP);
+		// Replace backslashes with forwardslashes, as backslashes are dropped during reading
+		// TODO: What if there are weird characters in the code? Need regex
+		buffer.append(Properties.CP.replace("\\", "/"));
 		buffer.append("\nPROJECT_PREFIX=");
 		if (Properties.PROJECT_PREFIX != null)
 			buffer.append(Properties.PROJECT_PREFIX);

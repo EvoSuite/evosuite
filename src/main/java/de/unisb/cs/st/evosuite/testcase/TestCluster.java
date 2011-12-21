@@ -10,17 +10,20 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.javaagent.InstrumentingClassLoader;
+import de.unisb.cs.st.evosuite.utils.ResourceList;
 
 /**
  * @author Gordon Fraser
@@ -45,17 +48,19 @@ public abstract class TestCluster {
 	 * @return
 	 */
 	public static TestCluster getInstance() {
-	    if (instance == null) {
+		if (instance == null) {
 			instance = new StaticTestCluster();
+			// instance = LazyTestCluster.getInstance();
 			instance.init();
-	    }
+		}
 
 		// TODO: Need property to switch between test clusters
 
 		return instance;
 	}
 
-        protected void init() {}
+	protected void init() {
+	}
 
 	private static List<String> finalClasses = new ArrayList<String>();
 
@@ -96,6 +101,11 @@ public abstract class TestCluster {
 		loadStaticInitializers();
 		logger.debug("Static initializers: " + staticInitializers.size());
 		for (Method m : staticInitializers) {
+			// if (!m.getDeclaringClass().equals(Properties.getTargetClass()))
+			// continue;
+
+			// logger.warn("Resetting " + m);
+
 			try {
 				m.invoke(null, (Object[]) null);
 			} catch (IllegalArgumentException e) {
@@ -134,6 +144,34 @@ public abstract class TestCluster {
 	 * @throws ClassNotFoundException
 	 */
 	public abstract Class<?> importClass(String name) throws ClassNotFoundException;
+
+	/**
+	 * Retrieve all classes that match the given postfix
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public abstract Collection<Class<?>> getKnownMatchingClasses(String name);
+
+	/**
+	 * Retrieve all classes in the classpath that match the given postfix
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public Collection<String> getMatchingClasses(String name) {
+		Pattern pattern = Pattern.compile(".*" + name + ".class");
+		// Pattern pattern = Pattern.compile(".*");
+		Collection<String> resources = ResourceList.getAllResources(pattern);
+		resources.addAll(ResourceList.getBootResources(pattern));
+
+		Set<String> classes = new HashSet<String>();
+		for (String className : resources) {
+			classes.add(className.replace(".class", "").replace("/", "."));
+		}
+
+		return classes;
+	}
 
 	/**
 	 * Set of classes that have been analyzed already
@@ -231,19 +269,15 @@ public abstract class TestCluster {
 
 		Set<Constructor<?>> constructors = new HashSet<Constructor<?>>();
 		/*
-		if (clazz.getSuperclass() != null) {
-			// constructors.addAll(getConstructors(clazz.getSuperclass()));
-			for (Constructor<?> c : getConstructors(clazz.getSuperclass())) {
-				helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c), c);
-			}
-		}
-		for (Class<?> in : clazz.getInterfaces()) {
-			for (Constructor<?> c : getConstructors(in)) {
-				helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c), c);
-			}
-			// constructors.addAll(getConstructors(in));
-		}
-		*/
+		 * if (clazz.getSuperclass() != null) { //
+		 * constructors.addAll(getConstructors(clazz.getSuperclass())); for
+		 * (Constructor<?> c : getConstructors(clazz.getSuperclass())) {
+		 * helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c), c); }
+		 * } for (Class<?> in : clazz.getInterfaces()) { for (Constructor<?> c :
+		 * getConstructors(in)) {
+		 * helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c), c); }
+		 * // constructors.addAll(getConstructors(in)); }
+		 */
 
 		// for(Constructor c : clazz.getConstructors()) {
 		// constructors.add(c);
@@ -291,13 +325,11 @@ public abstract class TestCluster {
 		Set<Method> methods = new HashSet<Method>();
 		methods.addAll(helper.values());
 		/*
-		for (Method m : helper.values()) {
-			String name = m.getName() + "|"
-			        + org.objectweb.asm.Type.getMethodDescriptor(m);
-
-			methods.add(m);
-		}
-		*/
+		 * for (Method m : helper.values()) { String name = m.getName() + "|" +
+		 * org.objectweb.asm.Type.getMethodDescriptor(m);
+		 * 
+		 * methods.add(m); }
+		 */
 		return methods;
 	}
 

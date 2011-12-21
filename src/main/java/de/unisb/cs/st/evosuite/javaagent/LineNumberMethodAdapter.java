@@ -34,8 +34,6 @@ import org.slf4j.LoggerFactory;
  */
 public class LineNumberMethodAdapter extends MethodAdapter {
 
-	public static int branch_id = 0;
-
 	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(LineNumberMethodAdapter.class);
 
@@ -45,7 +43,9 @@ public class LineNumberMethodAdapter extends MethodAdapter {
 
 	private final String className;
 
-	int current_line = 0;
+	private boolean hadInvokeSpecial = false;
+
+	int currentLine = 0;
 
 	public LineNumberMethodAdapter(MethodVisitor mv, String className, String methodName,
 	        String desc) {
@@ -53,12 +53,19 @@ public class LineNumberMethodAdapter extends MethodAdapter {
 		fullMethodName = methodName + desc;
 		this.className = className;
 		this.methodName = methodName;
+		if (!methodName.equals("<init>"))
+			hadInvokeSpecial = true;
 	}
 
 	@Override
 	public void visitLineNumber(int line, Label start) {
 		super.visitLineNumber(line, start);
+		currentLine = line;
+
 		if (methodName.equals("<clinit>"))
+			return;
+
+		if (!hadInvokeSpecial)
 			return;
 
 		LinePool.addLine(className, methodName, line);
@@ -68,7 +75,18 @@ public class LineNumberMethodAdapter extends MethodAdapter {
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC,
 		                   "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
 		                   "passedLine", "(Ljava/lang/String;Ljava/lang/String;I)V");
-		current_line = line;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.objectweb.asm.MethodAdapter#visitMethodInsn(int, java.lang.String, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+		if (opcode == Opcodes.INVOKESPECIAL) {
+			if (methodName.equals("<init>"))
+				hadInvokeSpecial = true;
+		}
+		super.visitMethodInsn(opcode, owner, name, desc);
 	}
 
 	/* (non-Javadoc)

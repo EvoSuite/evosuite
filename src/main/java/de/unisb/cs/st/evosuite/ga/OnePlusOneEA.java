@@ -27,6 +27,8 @@ package de.unisb.cs.st.evosuite.ga;
 public class OnePlusOneEA extends GeneticAlgorithm {
 
 	private static final long serialVersionUID = 5229089847512798127L;
+	
+	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OnePlusOneEA.class);
 
 	/**
 	 * Constructor
@@ -48,7 +50,7 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 			offspring.mutate();
 		} while (!offspring.changed);
 
-		fitness_function.getFitness(offspring);
+		fitnessFunction.getFitness(offspring);
 		notifyEvaluation(offspring);
 		//logger.info("New individual: " + offspring);
 
@@ -58,17 +60,17 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 		} else {
 			//logger.info("Keeping old population");
 		}
-		current_iteration++;
+		currentIteration++;
 	}
 
 	@Override
 	public void initializePopulation() {
 		notifySearchStarted();
-		current_iteration = 0;
+		currentIteration = 0;
 
 		// Only one parent
 		generateRandomPopulation(1);
-		fitness_function.getFitness(population.get(0));
+		fitnessFunction.getFitness(population.get(0));
 		this.notifyIteration();
 		logger.info("Initial fitness: " + population.get(0).getFitness());
 	}
@@ -80,8 +82,8 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 
 		double fitness = population.get(0).getFitness();
 		while (!isFinished()) {
-			if ((selection_function.isMaximize() && getBestIndividual().getFitness() > fitness)
-			        || (!selection_function.isMaximize() && getBestIndividual().getFitness() < fitness)) {
+			if ((selectionFunction.isMaximize() && getBestIndividual().getFitness() > fitness)
+			        || (!selectionFunction.isMaximize() && getBestIndividual().getFitness() < fitness)) {
 				logger.info("Current population: " + getAge());
 				logger.info("Best fitness: " + getBestIndividual().getFitness());
 				fitness = population.get(0).getFitness();

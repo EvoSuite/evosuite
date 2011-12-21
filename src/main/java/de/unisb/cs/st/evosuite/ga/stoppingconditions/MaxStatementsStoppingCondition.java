@@ -30,7 +30,7 @@ import de.unisb.cs.st.evosuite.Properties;
  * @author Gordon Fraser
  * 
  */
-public class MaxStatementsStoppingCondition extends StoppingCondition {
+public class MaxStatementsStoppingCondition extends StoppingConditionImpl {
 
 	private static final long serialVersionUID = 8521297417505862683L;
 
