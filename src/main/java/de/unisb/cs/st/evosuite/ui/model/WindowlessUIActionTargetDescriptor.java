@@ -9,7 +9,7 @@ import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.text.JTextComponent;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.uispec4j.ComboBox;
 import org.uispec4j.Panel;
 import org.uispec4j.UIComponent;
