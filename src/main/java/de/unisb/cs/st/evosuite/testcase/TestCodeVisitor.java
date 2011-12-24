@@ -72,7 +72,6 @@ public class TestCodeVisitor implements TestVisitor {
 			int index = ((ArrayIndex) var).getArrayIndex();
 			return getVariableName(array) + "[" + index + "]";
 		} else if (var instanceof ArrayReference) {
-
 			String className = var.getSimpleClassName();
 			int num = 0;
 			for (VariableReference otherVar : variableNames.keySet()) {
@@ -88,8 +87,7 @@ public class TestCodeVisitor implements TestVisitor {
 			String className = var.getSimpleClassName();
 			int num = 0;
 			for (VariableReference otherVar : variableNames.keySet()) {
-				if (!otherVar.equals(var)
-				        && otherVar.getVariableClass().equals(var.getVariableClass()))
+				if (otherVar.getVariableClass().equals(var.getVariableClass()))
 					num++;
 			}
 			String variableName = className.substring(0, 1).toLowerCase()
@@ -301,31 +299,31 @@ public class TestCodeVisitor implements TestVisitor {
 
 		if (statement instanceof StringPrimitiveStatement) {
 			testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-			        + retval.getName() + " = \""
+			        + getVariableName(retval) + " = \""
 			        + StringEscapeUtils.escapeJava((String) value) + "\";\n";
 		} else if (statement instanceof LongPrimitiveStatement) {
 			testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-			        + retval.getName() + " = " + value + "L;\n";
+			        + getVariableName(retval) + " = " + value + "L;\n";
 		} else if (statement instanceof FloatPrimitiveStatement) {
 			testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-			        + retval.getName() + " = " + value + "F;\n";
+			        + getVariableName(retval) + " = " + value + "F;\n";
 		} else if (statement instanceof CharPrimitiveStatement) {
 			testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-			        + retval.getName() + " = '"
+			        + getVariableName(retval) + " = '"
 			        + StringEscapeUtils.escapeJava(value.toString()) + "';\n";
 		} else if (statement instanceof EnumPrimitiveStatement) {
 			if (value != null)
 				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-				        + retval.getName() + " = "
+				        + getVariableName(retval) + " = "
 				        + NumberFormatter.getNumberString(value) + ";\n";
 			else
 				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-				        + retval.getName() + " = ("
+				        + getVariableName(retval) + " = ("
 				        + ((Class<?>) retval.getType()).getSimpleName() + ") null;\n";
+		} else {
+			testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
+			        + getVariableName(retval) + " = " + value + ";\n";
 		}
-
-		testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-		        + getVariableName(retval) + " = " + value + ";\n";
 		addAssertions(statement);
 	}
 
