@@ -533,6 +533,13 @@ public class Properties {
 	public static boolean MA_WIDE_GUI = false;
 
 	// ---------------------------------------------------------------
+	// UI Test generation parameters
+	@Parameter(key = "UI_BACKGROUND_COVERAGE_DELAY", group = "EXSYST", description = "How often to write out coverage information in the background (in ms). -1 to disable.")
+	public static int UI_BACKGROUND_COVERAGE_DELAY = -1;
+	
+	
+	
+	// ---------------------------------------------------------------
 	// Runtime parameters
 
 	public enum Criterion {
