@@ -438,6 +438,6 @@ public class VariableReferenceImpl implements VariableReference {
 	 */
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
-		// No-op	    
+		type.changeClassLoader(loader);
 	}
 }
