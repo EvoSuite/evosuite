@@ -71,11 +71,14 @@ public class UITestSuiteGenerator {
 
 			@Override
 			public void run() {
-				long delay = 60000;
+				long delay = Properties.UI_BACKGROUND_COVERAGE_DELAY;
+				
+				if (delay < 0)
+					return;
 
 				long currentTime = System.currentTimeMillis();
 				long nextTime = currentTime + delay;
-
+				
 				while (true) {
 					currentTime = System.currentTimeMillis();
 

@@ -42,6 +42,16 @@ public class ConcolicMarker {
 		return b;
 	}
 	
+	public static String mark(String b)
+	{
+		return b;
+	}
+	
+	public static String mark(String b, String symbolicName)
+	{
+		return b;
+	}
+	
 	public static boolean mark(boolean b , String symbolicName)
 	{
 		return b;
@@ -81,4 +91,6 @@ public class ConcolicMarker {
 	{
 		return b;
 	}
+	
+
 }
