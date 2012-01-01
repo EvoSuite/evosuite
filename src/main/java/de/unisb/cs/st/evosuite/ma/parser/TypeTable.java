@@ -61,18 +61,6 @@ public class TypeTable {
 	}
 
 	/**
-	 * @param scope
-	 * @return
-	 * @throws ParseException
-	 */
-	public Type getType(Expression expr) throws ParseException {
-		if (expr instanceof NameExpr) {
-			return getType(((NameExpr) expr).getName());
-		}
-		return null;
-	}
-
-	/**
 	 * @param methodCallExpr
 	 * @param newTestCase
 	 * @return

@@ -337,7 +337,7 @@ public class WideTestEditorGUI implements ActionListener, TestEditorGUI {
 	}
 
 	private void prevTest() {
-		editor.prevTest();
+		editor.prevTCT();
 		editor.sguiSC.printSourceCode();
 		origTestEditorPane.setText(editor.getCurrOrigTCCode());
 		esTestEditorPane.setText(editor.getCurrESTCCode());
@@ -346,7 +346,7 @@ public class WideTestEditorGUI implements ActionListener, TestEditorGUI {
 	}
 
 	private void nextTest() {
-		editor.nextTest();
+		editor.nextTCT();
 		editor.sguiSC.printSourceCode();
 		origTestEditorPane.setText(editor.getCurrOrigTCCode());
 		esTestEditorPane.setText(editor.getCurrESTCCode());
@@ -355,7 +355,7 @@ public class WideTestEditorGUI implements ActionListener, TestEditorGUI {
 	}
 
 	private void deleteTest() {
-		editor.delCurrTC();
+		editor.delCurrTCT();
 		editor.sguiSC.printSourceCode();
 		origTestEditorPane.setText(editor.getCurrOrigTCCode());
 		esTestEditorPane.setText(editor.getCurrESTCCode());
@@ -364,7 +364,7 @@ public class WideTestEditorGUI implements ActionListener, TestEditorGUI {
 	}
 
 	private void newTest() {
-		editor.createNewTestCase();
+		editor.createNewTCT();
 		origTestEditorPane.setText("");
 		esTestEditorPane.setText("");
 		setTestCaseChanged();
@@ -372,7 +372,7 @@ public class WideTestEditorGUI implements ActionListener, TestEditorGUI {
 	}
 
 	private void cloneTest() {
-		editor.createNewTestCase();
+		editor.createNewTCT();
 		setTestCaseChanged();
 		updateTitle();
 	}
