@@ -91,7 +91,7 @@ public class TestVisitor extends
 	private boolean guiActive = false;
 
 	public TestVisitor() {
-		// to use it with out GUI
+		// to use it without GUI
 	}
 
 	public TestVisitor(boolean guiActive) {

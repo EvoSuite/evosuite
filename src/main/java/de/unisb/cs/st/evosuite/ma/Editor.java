@@ -95,7 +95,7 @@ public class Editor implements UserFeedback {
 			testCaseCoverega = retrieveCoverage(testCase);
 			tcTuples.add(new TCTuple(testCase, testCaseCoverega));
 		}
-		nextTest();
+		nextTCT();
 
 		if (Properties.MA_WIDE_GUI) {
 			sguiTE = new WideTestEditorGUI();
@@ -234,9 +234,9 @@ public class Editor implements UserFeedback {
 	}
 
 	/**
-	 * Set currentTestCase to the next testCase.
+	 * Set currentTestCaseTuple to the next.
 	 */
-	public void nextTest() {
+	public void nextTCT() {
 		if (currTCTuple == null && tcTuples.size() > 0) {
 			currTCTuple = tcTuples.get(0);
 		} else if (currTCTuple != null && tcTuples.size() > 0) {
@@ -253,14 +253,14 @@ public class Editor implements UserFeedback {
 			}
 			currTCTuple = tcTuples.get(j);
 		} else {
-			createNewTestCase();
+			createNewTCT();
 		}
 	}
 
 	/**
-	 * Set currentTestCase to previous testCase.
+	 * Set currentTestCaseTuple to previous.
 	 */
-	public void prevTest() {
+	public void prevTCT() {
 		if (currTCTuple == null && tcTuples.size() > 0) {
 			currTCTuple = tcTuples.get(0);
 		} else if (currTCTuple != null && tcTuples.size() > 0) {
@@ -277,7 +277,7 @@ public class Editor implements UserFeedback {
 			}
 			currTCTuple = tcTuples.get(j);
 		} else {
-			createNewTestCase();
+			createNewTCT();
 		}
 	}
 
@@ -295,7 +295,7 @@ public class Editor implements UserFeedback {
 	 * information. Set current TestCase to this.
 	 * 
 	 */
-	public void createNewTestCase() {
+	public void createNewTCT() {
 		TCTuple newTestCaseTuple = new TCTuple(new DefaultTestCase(), new HashSet<Integer>());
 		currTCTuple = newTestCaseTuple;
 	}
@@ -304,11 +304,11 @@ public class Editor implements UserFeedback {
 	 * Delete from testSuiteChromosome currentTestCase. Set current TestCase to
 	 * the next.
 	 */
-	public void delCurrTC() {
+	public void delCurrTCT() {
 		TestCase testCaseForDeleting = currTCTuple.getTestCase();
 		testSuiteChr.deleteTest(testCaseForDeleting);
 		tcTuples.remove(currTCTuple);
-		nextTest();
+		nextTCT();
 		writeTransaction();
 	}
 
@@ -415,7 +415,7 @@ public class Editor implements UserFeedback {
 
 	private void updateAfterTransaction(ArrayList<TCTuple> trns) {
 		tcTuples = trns;
-		nextTest();
+		nextTCT();
 		testSuiteChr.restoreTests(getTests());
 	}
 
