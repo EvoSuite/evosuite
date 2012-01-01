@@ -188,6 +188,13 @@ public class ValueMinimizer implements TestVisitor {
 	}
 
 	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitTestCase(de.unisb.cs.st.evosuite.testcase.TestCase)
+	 */
+	@Override
+	public void visitTestCase(TestCase test) {
+	}
+
+	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitPrimitiveStatement(de.unisb.cs.st.evosuite.testcase.PrimitiveStatement)
 	 */
 	@Override
@@ -281,6 +288,15 @@ public class ValueMinimizer implements TestVisitor {
 	 */
 	@Override
 	public void visitAssignmentStatement(AssignmentStatement statement) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitNullStatement(de.unisb.cs.st.evosuite.testcase.NullStatement)
+	 */
+	@Override
+	public void visitNullStatement(NullStatement statement) {
 		// TODO Auto-generated method stub
 
 	}

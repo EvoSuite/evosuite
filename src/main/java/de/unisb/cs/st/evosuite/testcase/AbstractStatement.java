@@ -180,6 +180,14 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 		return getVariableReferences().contains(var);
 	}
 
+	protected Set<VariableReference> getAssertionReferences() {
+		Set<VariableReference> variables = new HashSet<VariableReference>();
+		for (Assertion assertion : assertions) {
+			variables.addAll(assertion.getReferencedVariables());
+		}
+		return variables;
+	}
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#SetRetval(de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
@@ -194,6 +202,15 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	@Override
 	public String getCode() {
 		return getCode(null);
+	}
+
+	@Override
+	public String getCode(Throwable exception) {
+		TestCodeVisitor visitor = new TestCodeVisitor();
+		visitor.setException(this, exception);
+		visitor.visitStatement(this);
+		String code = visitor.getCode();
+		return code.substring(0, code.length() - 2);
 	}
 
 	@Override
@@ -377,7 +394,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 			var.changeClassLoader(loader);
 		}
 	}
-	
+
 	public void negate() {
 	}
 }

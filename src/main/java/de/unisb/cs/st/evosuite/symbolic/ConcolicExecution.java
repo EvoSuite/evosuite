@@ -94,9 +94,9 @@ public class ConcolicExecution {
 		// We don't want JPF output
 		config.setProperty("report.class",
 		                   "de.unisb.cs.st.evosuite.symbolic.SilentReporter");
-		
+
 		config.setProperty("log.level", "warning");
-		
+
 		//Configure the search class;
 		config.setProperty("search.class", "de.unisb.cs.st.evosuite.symbolic.PathSearch");
 		config.setProperty("jm.numberOfIterations", "1");
@@ -151,6 +151,7 @@ public class ConcolicExecution {
 	 * @return
 	 */
 	private Method getMarkMethod(PrimitiveStatement<?> statement) {
+		logger.info("Statement: " + statement.getCode());
 		Class<?> clazz = statement.getReturnValue().getVariableClass();
 		if (clazz.equals(Boolean.class) || clazz.equals(boolean.class))
 			return org.objectweb.asm.commons.Method.getMethod("boolean mark(boolean,String)");
@@ -217,6 +218,8 @@ public class ConcolicExecution {
 				} else if (t.equals(Long.class) || t.equals(long.class)) {
 					p.add(ps);
 				} else if (t.equals(Character.class) || t.equals(char.class)) {
+					p.add(ps);
+				} else if (t.equals(String.class)) {
 					p.add(ps);
 				}
 			}
@@ -333,6 +336,9 @@ public class ConcolicExecution {
 			FileOutputStream stream = new FileOutputStream(file);
 			byte[] bytecode = getBytecode(statements, test);
 			stream.write(bytecode);
+			//logger.info(dirName);
+			//logger.info(test.getTestCase().toCode());
+			//System.exit(0);
 		} catch (FileNotFoundException e) {
 		} catch (IOException e) {
 		}

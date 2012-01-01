@@ -115,6 +115,10 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 */
 	@Override
 	public String toCode() {
+		TestCodeVisitor visitor = new TestCodeVisitor();
+		accept(visitor);
+		return visitor.getCode();
+		/*
 		String code = "";
 		for (StatementInterface s : statements) {
 			code += s.getCode() + "\n";
@@ -123,6 +127,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 				code += assertions + "\n";
 		}
 		return code;
+		*/
 	}
 
 	/* (non-Javadoc)
@@ -130,22 +135,28 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 */
 	@Override
 	public String toCode(Map<Integer, Throwable> exceptions) {
-		String code = "";
-		for (int i = 0; i < size(); i++) {
-			StatementInterface s = statements.get(i);
-			if (exceptions.containsKey(i)) {
-				code += s.getCode(exceptions.get(i)) + "\n";
-				String assertions = s.getAssertionCode();
-				if (!assertions.equals(""))
-					code += assertions + "\n";
-			} else {
-				code += s.getCode() + "\n";
-				String assertions = s.getAssertionCode();
-				if (!assertions.equals(""))
-					code += assertions + "\n";
-			}
-		}
-		return code;
+		TestCodeVisitor visitor = new TestCodeVisitor();
+		visitor.setExceptions(exceptions);
+		accept(visitor);
+		return visitor.getCode();
+		/*
+				String code = "";
+				for (int i = 0; i < size(); i++) {
+					StatementInterface s = statements.get(i);
+					if (exceptions.containsKey(i)) {
+						code += s.getCode(exceptions.get(i)) + "\n";
+						String assertions = s.getAssertionCode();
+						if (!assertions.equals(""))
+							code += assertions + "\n";
+					} else {
+						code += s.getCode() + "\n";
+						String assertions = s.getAssertionCode();
+						if (!assertions.equals(""))
+							code += assertions + "\n";
+					}
+				}
+				return code;
+				*/
 	}
 
 	private void addFields(List<VariableReference> variables, VariableReference var,
@@ -364,6 +375,10 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 		for (int i = var.getStPosition() + 1; i < statements.size(); i++) {
 			if (statements.get(i).references(var))
+				return true;
+		}
+		for (Assertion assertion : statements.get(var.getStPosition()).getAssertions()) {
+			if (assertion.getReferencedVariables().contains(var))
 				return true;
 		}
 		return false;
@@ -727,6 +742,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 */
 	@Override
 	public void accept(TestVisitor visitor) {
+		visitor.visitTestCase(this);
+
 		Iterator<StatementInterface> iterator = statements.iterator();
 		while (iterator.hasNext()) {
 			StatementInterface statement = iterator.next();
@@ -743,6 +760,10 @@ public class DefaultTestCase implements TestCase, Serializable {
 				visitor.visitAssignmentStatement((AssignmentStatement) statement);
 			else if (statement instanceof ArrayStatement)
 				visitor.visitArrayStatement((ArrayStatement) statement);
+			else if (statement instanceof NullStatement)
+				visitor.visitNullStatement((NullStatement) statement);
+			else
+				throw new RuntimeException("Unknown statement type: " + statement);
 		}
 	}
 

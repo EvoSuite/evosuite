@@ -339,7 +339,6 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			if (var.equals(r.getAdditionalVariableReference()))
 				replacement.remove();
 		}
-
 		if (!alternatives.isEmpty()) {
 			// Change all references to return value at position to something
 			// else
@@ -347,6 +346,32 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				StatementInterface s = test.getStatement(i);
 				if (s.references(var)) {
 					s.replace(var, Randomness.choice(alternatives));
+				}
+			}
+		}
+
+		if (var instanceof ArrayReference) {
+			alternatives = test.getObjects(var.getComponentType(), position);
+			// Remove self, and all field or array references to self
+			alternatives.remove(var);
+			replacement = alternatives.iterator();
+			while (replacement.hasNext()) {
+				VariableReference r = replacement.next();
+				if (var.equals(r.getAdditionalVariableReference()))
+					replacement.remove();
+			}
+			if (!alternatives.isEmpty()) {
+				// Change all references to return value at position to something
+				// else
+				for (int i = position; i < test.size(); i++) {
+					StatementInterface s = test.getStatement(i);
+					for (VariableReference var2 : s.getVariableReferences()) {
+						if (var2 instanceof ArrayIndex) {
+							ArrayIndex ai = (ArrayIndex) var2;
+							if (ai.getArray().equals(var))
+								s.replace(var2, Randomness.choice(alternatives));
+						}
+					}
 				}
 			}
 		}

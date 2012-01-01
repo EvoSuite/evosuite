@@ -45,6 +45,8 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  * This class executes a test case on a unit and all mutants and infers
  * assertions from the resulting traces.
  * 
+ * TODO: This class is a mess.
+ * 
  * @author Gordon Fraser
  * 
  */
@@ -161,7 +163,11 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			@Override
 			public int compareTo(Object o) {
 				Pair other = (Pair) o;
-				return num_killed.compareTo(other.num_killed);
+				if (num_killed == other.num_killed)
+					return assertion.compareTo(other.assertion);
+				//				return other.assertion.compareTo(assertion);
+				else
+					return num_killed.compareTo(other.num_killed);
 			}
 		}
 		Set<Integer> to_kill = new HashSet<Integer>();
@@ -364,6 +370,8 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		// IF there are no mutant killing assertions on the last statement, still assert something
 		if (test.getStatement(test.size() - 1).getAssertions().isEmpty()
 		        || justNullAssertion(test.getStatement(test.size() - 1))) {
+			logger.info("Last statement has no assertions: " + test.toCode());
+
 			if (test.getStatement(test.size() - 1).getAssertions().isEmpty()) {
 				logger.info("Last statement: "
 				        + test.getStatement(test.size() - 1).getCode());
@@ -394,59 +402,75 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				}
 			}
 
-			/*
-			for (OutputTrace<?> trace : origResult.getTraces()) {
-				trace.getAllAssertions(test);
-			}
+			if (!test.hasAssertions()) {
 
-			Set<Assertion> target = new HashSet<Assertion>(
-			        test.getStatement(test.size() - 1).getAssertions());
-			logger.info("Found assertions: " + target.size());
-
-			test.removeAssertions();
-			test.addAssertions(clone);
-			VariableReference targetVar = test.getStatement(test.size() - 1).getReturnValue();
-			if (!targetVar.isVoid()) {
-				logger.info("Return value is non void");
-
-				int maxAssertions = 1;
-				int numAssertions = 0;
-				for (Assertion ass : target) {
-					if (ass.getReferencedVariables().contains(targetVar)
-					        && !(ass instanceof NullAssertion)) {
-
-						test.getStatement(test.size() - 1).addAssertion(ass);
-						logger.info("Adding assertion " + ass.getCode());
-						if (++numAssertions >= maxAssertions)
-							break;
-					} else {
-						logger.info("Assertion does not contain target: " + ass.getCode());
-					}
-				}
-			} else {
-				logger.info("Return value is void");
-
-				Set<VariableReference> targetVars = test.getStatement(test.size() - 1).getVariableReferences();
-				int maxAssertions = 2;
-				int numAssertions = 0;
-				for (Assertion ass : target) {
-					Set<VariableReference> vars = ass.getReferencedVariables();
-					vars.retainAll(targetVars);
-					if (!vars.isEmpty()) {
-
-						test.getStatement(test.size() - 1).addAssertion(ass);
-						if (++numAssertions >= maxAssertions)
-							break;
-					}
+				for (OutputTrace<?> trace : origResult.getTraces()) {
+					trace.getAllAssertions(test);
 				}
 
+				Set<Assertion> target = new HashSet<Assertion>(
+				        test.getStatement(test.size() - 1).getAssertions());
+				logger.debug("Found assertions: " + target.size());
+
+				test.removeAssertions();
+				//test.addAssertions(clone);
+				VariableReference targetVar = test.getStatement(test.size() - 1).getReturnValue();
+				if (!targetVar.isVoid()) {
+					logger.debug("Return value is non void: " + targetVar.getClassName());
+
+					int maxAssertions = 1;
+					int numAssertions = 0;
+					for (Assertion ass : target) {
+						if (ass.getReferencedVariables().contains(targetVar)
+						        && !(ass instanceof NullAssertion)) {
+
+							test.getStatement(test.size() - 1).addAssertion(ass);
+							logger.debug("Adding assertion " + ass.getCode());
+							if (++numAssertions >= maxAssertions)
+								break;
+						} else {
+							logger.debug("Assertion does not contain target: "
+							        + ass.getCode());
+						}
+					}
+					if (numAssertions == 0) {
+						for (Assertion ass : target) {
+							if (ass.getReferencedVariables().contains(targetVar)) {
+
+								test.getStatement(test.size() - 1).addAssertion(ass);
+								logger.debug("Adding assertion " + ass.getCode());
+								if (++numAssertions >= maxAssertions)
+									break;
+							} else {
+								logger.debug("Assertion does not contain target: "
+								        + ass.getCode());
+							}
+						}
+					}
+				} else {
+					logger.debug("Return value is void");
+
+					Set<VariableReference> targetVars = test.getStatement(test.size() - 1).getVariableReferences();
+					int maxAssertions = 1;
+					int numAssertions = 0;
+					for (Assertion ass : target) {
+						Set<VariableReference> vars = ass.getReferencedVariables();
+						vars.retainAll(targetVars);
+						if (!vars.isEmpty()) {
+
+							test.getStatement(test.size() - 1).addAssertion(ass);
+							if (++numAssertions >= maxAssertions)
+								break;
+						}
+					}
+
+				}
 			}
-			*/
 		}
 
 		if (!origResult.exceptions.isEmpty()) {
 			if (!test.getStatement(test.size() - 1).getAssertions().isEmpty()) {
-				logger.info("Removing assertions after exception");
+				logger.debug("Removing assertions after exception");
 				test.getStatement(test.size() - 1).removeAssertions();
 			}
 		}

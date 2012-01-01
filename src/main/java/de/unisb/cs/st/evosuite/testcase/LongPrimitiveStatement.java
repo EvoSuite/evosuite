@@ -79,15 +79,6 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#getCode(java.lang.Throwable)
-	 */
-	@Override
-	public String getCode(Throwable exception) {
-		return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
-		        + " = " + value + "L;";
-	}
-
-	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#increment()
 	 */
 	@Override
@@ -118,7 +109,7 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	public boolean isPositive() {
 		return value >= 0;
 	}
-	
+
 	@Override
 	public void negate() {
 		value = -value;

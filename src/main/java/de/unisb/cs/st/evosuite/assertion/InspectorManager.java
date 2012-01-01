@@ -84,12 +84,17 @@ public class InspectorManager {
 					scanner.close();
 				}
 
-				for (Method m : clazz.getMethods()) {
-					if (inspector_names.contains(m.getName()
-					        + Type.getMethodDescriptor(m))) {
-						addInspector(clazz, m);
-						num++;
+				try {
+					for (Method m : clazz.getMethods()) {
+						if (inspector_names.contains(m.getName()
+						        + Type.getMethodDescriptor(m))) {
+							addInspector(clazz, m);
+							num++;
+						}
 					}
+				} catch (Throwable t) {
+					logger.warn("Error while determining inspectors of class "
+					        + clazz.getSimpleName() + ": " + t);
 				}
 				logger.debug("Found inspector: " + name + " -> " + (num - num_old)
 				        + " for class " + clazz.getName() + " in file " + name);
