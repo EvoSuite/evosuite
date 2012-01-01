@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -113,37 +112,6 @@ public class FieldStatement extends AbstractStatement {
 
 	public boolean isStatic() {
 		return Modifier.isStatic(field.getModifiers());
-	}
-
-	@Override
-	public String getCode(Throwable exception) {
-		String cast_str = "";
-		String result = "";
-		if (!retval.getVariableClass().isAssignableFrom(field.getType())) {
-			cast_str += "(" + retval.getSimpleClassName() + ")";
-		}
-
-		if (exception != null) {
-			result = retval.getSimpleClassName() + " " + retval.getName() + " = null;\n";
-			result += "try {\n  ";
-		} else {
-			result = retval.getSimpleClassName() + " ";
-		}
-		if (!Modifier.isStatic(field.getModifiers()))
-			result += retval.getName() + " = " + cast_str + source.getName() + "."
-			        + field.getName() + ";";
-		else
-			result += retval.getName() + " = " + cast_str
-			        + field.getDeclaringClass().getSimpleName() + "." + field.getName()
-			        + ";";
-		if (exception != null) {
-			Class<?> ex = exception.getClass();
-			while (!Modifier.isPublic(ex.getModifiers()))
-				ex = ex.getSuperclass();
-			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {}";
-		}
-
-		return result;
 	}
 
 	@Override

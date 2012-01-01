@@ -3,7 +3,6 @@
  */
 package de.unisb.cs.st.evosuite.testcase;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.unisb.cs.st.evosuite.Properties;
@@ -76,15 +75,6 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	@Override
 	public void randomize() {
 		value = (char) (Randomness.nextChar());
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#getCode(java.lang.Throwable)
-	 */
-	@Override
-	public String getCode(Throwable exception) {
-		return ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName()
-		        + " = '" + StringEscapeUtils.escapeJava(value.toString()) + "';";
 	}
 
 	/* (non-Javadoc)

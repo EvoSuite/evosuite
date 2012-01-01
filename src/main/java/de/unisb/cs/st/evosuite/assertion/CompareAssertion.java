@@ -36,7 +36,15 @@ public class CompareAssertion extends Assertion {
 
 	private static final long serialVersionUID = 7415863202662602633L;
 
-	public VariableReference dest;
+	protected VariableReference dest;
+
+	public VariableReference getDest() {
+		return dest;
+	}
+
+	public void setDest(VariableReference dest) {
+		this.dest = dest;
+	}
 
 	/**
 	 * Create a copy of the compare assertion

@@ -45,34 +45,44 @@ public class DeleteStatement implements MutationOperator {
 
 		// insert mutation into bytecode with conditional
 		InsnList mutation = new InsnList();
-		logger.debug("Mutation deletestatement for statement " + node.name + node.desc);
+		logger.info("Mutation deletestatement for statement " + node.name + node.desc);
 		for (Type argType : Type.getArgumentTypes(node.desc)) {
 			if (argType.getSize() == 0)
-				logger.debug("Ignoring parameter of type " + argType);
+				logger.info("Ignoring parameter of type " + argType);
 			else if (argType.getSize() == 2) {
 				mutation.insert(new InsnNode(Opcodes.POP2));
-				logger.debug("Deleting parameter of 2 type " + argType);
+				logger.info("Deleting parameter of 2 type " + argType);
 			} else {
-				logger.debug("Deleting parameter of 1 type " + argType);
+				logger.info("Deleting parameter of 1 type " + argType);
 				mutation.insert(new InsnNode(Opcodes.POP));
 			}
 		}
 		if (node.getOpcode() == Opcodes.INVOKEVIRTUAL) {
-			logger.debug("Deleting callee of type " + node.owner);
+			logger.info("Deleting callee of type " + node.owner);
 			mutation.add(new InsnNode(Opcodes.POP));
 		} else if (node.getOpcode() == Opcodes.INVOKEINTERFACE) {
+			boolean isStatic = false;
 			try {
 				Class<?> clazz = Class.forName(node.owner.replace("/", "."));
-				if (!Modifier.isStatic(clazz.getModifiers())) {
-					logger.debug("Deleting callee of type " + node.owner);
-					mutation.add(new InsnNode(Opcodes.POP));
+				for (java.lang.reflect.Method method : clazz.getMethods()) {
+					if (method.getName().equals(node.name)) {
+						if (Type.getMethodDescriptor(method).equals(node.desc)) {
+							if (Modifier.isStatic(method.getModifiers()))
+								isStatic = true;
+						}
+					}
 				}
 			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("Could not find class: " + node.owner
+				        + ", this is likely a severe problem");
+			}
+			if (!isStatic) {
+				logger.info("Deleting callee of type " + node.owner);
+				mutation.add(new InsnNode(Opcodes.POP));
 			}
 		}
 		mutation.add(getDefault(returnType));
+
 		// insert mutation into pool
 		Mutation mutationObject = MutationPool.addMutation(className,
 		                                                   methodName,

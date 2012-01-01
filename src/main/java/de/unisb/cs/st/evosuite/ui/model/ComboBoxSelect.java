@@ -70,10 +70,7 @@ public class ComboBoxSelect extends UIAction<ComboBox> {
 
 	@Override
 	public String toString() {
-		if (this.values.size() < DISTINGUISH_BETWEEN_VALUE_TRESHOLD)
-			return String.format("ComboBoxSelect[%s]", this.value);
-		else
-			return "ComboBoxSelect";
+		return String.format("ComboBoxSelect[%s]", this.value);
 	}
 
 	@Override

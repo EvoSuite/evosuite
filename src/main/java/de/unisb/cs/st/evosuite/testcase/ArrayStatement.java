@@ -111,18 +111,6 @@ public class ArrayStatement extends AbstractStatement {
 	}
 
 	@Override
-	public String getCode(Throwable exception) {
-		String type = retval.getSimpleClassName().replaceFirst("\\[\\]", "");
-		String multiDimensions = "";
-		while (type.contains("[]")) {
-			multiDimensions += "[]";
-			type = type.replaceFirst("\\[\\]", "");
-		}
-		return retval.getSimpleClassName() + " " + retval.getName() + " = new " + type
-		        + "[" + length + "]" + multiDimensions + ";";
-	}
-
-	@Override
 	public Set<VariableReference> getVariableReferences() {
 		Set<VariableReference> references = new HashSet<VariableReference>();
 		references.add(retval);
