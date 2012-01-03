@@ -163,7 +163,11 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			@Override
 			public int compareTo(Object o) {
 				Pair other = (Pair) o;
-				return num_killed.compareTo(other.num_killed);
+				if (num_killed == other.num_killed)
+					return assertion.compareTo(other.assertion);
+				//				return other.assertion.compareTo(assertion);
+				else
+					return num_killed.compareTo(other.num_killed);
 			}
 		}
 		Set<Integer> to_kill = new HashSet<Integer>();
