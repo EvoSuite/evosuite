@@ -297,6 +297,29 @@ public class BooleanHelper {
 		return StringEquals(s1.substring(thisStart, length), s2.substring(start, length));
 	}
 
+	
+	//TODO ask Gordon what's with the K and why editDistance() is giving 0 when equal 
+	public static int StringContains(String val, CharSequence subStr) {
+		int val_length = val.length();
+		int subStr_length = subStr.length();
+		int min_dist = Integer.MAX_VALUE;
+		String sub = subStr.toString();
+		
+		if (subStr_length > val_length) {
+			return -editDistance(val, sub);
+		} else {
+			int diff = val_length - subStr_length;
+			for (int i = 0; i < diff+1; i++) {
+				int res = StringEquals(val.substring(i, subStr_length + i), sub);
+				if (res < min_dist) {
+					min_dist = res;
+				}
+			}
+		}
+		return min_dist;
+	}
+	
+	
 	public static int instanceOf(Object o, Class<?> c) {
 		if (o == null)
 			return -K;
