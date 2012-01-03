@@ -9,27 +9,17 @@ import java.util.ArrayList;
  * @author krusev
  *
  */
-public class StringMultipleComparison extends StringExpression implements
+public class StringMultipleComparison extends StringComparison implements
 BinaryExpression<String>{
 
 
 	private static final long serialVersionUID = -3844726361666119758L;
 
-	protected Long concretValue;
-
-	protected Operator op;
-
-	protected Expression<String> left;
-	protected Expression<?> right;
 	protected ArrayList<Expression<?>> other_v;
 
 	public StringMultipleComparison(Expression<String> _left, Operator _op,
 	        Expression<?> _right, ArrayList<Expression<?>> _other, Long con) {
-		super();
-		this.concretValue = con;
-		this.left = _left;
-		this.right = _right;
-		this.op = _op;
+		super(_left, _op, _right, con);
 		this.other_v = _other;
 	}
 
@@ -42,7 +32,7 @@ BinaryExpression<String>{
 
 	@Override
 	public Long getConcreteValue() {
-		return concretValue;
+		return conVal;
 	}
 
 	@Override
@@ -67,7 +57,7 @@ BinaryExpression<String>{
 			str_other_v += " " + this.other_v.get(i).toString();
 		}
 		
-		return "(" + left + op.toString() + right + str_other_v + ")";
+		return "(" + left + op.toString() + (right==null ? "" : right) + str_other_v + ")";
 	}
 
 	@Override
