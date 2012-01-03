@@ -38,7 +38,7 @@ public class StringComparisonRegionMatches extends StringComparison {
 		}
 		if (obj instanceof StringComparisonRegionMatches) {
 			StringComparisonRegionMatches other = (StringComparisonRegionMatches) obj;
-			return this.op.equals(other.op) && this.con.equals(other.con) 
+			return this.op.equals(other.op) && this.conVal.equals(other.conVal) 
 					&& this.left.equals(other.left) 
 					&& this.right.equals(other.right)
 					&& this.ignore_case.equals(other.ignore_case)
