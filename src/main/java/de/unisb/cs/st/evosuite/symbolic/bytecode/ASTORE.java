@@ -41,25 +41,30 @@ public class ASTORE extends gov.nasa.jpf.jvm.bytecode.ASTORE {
 		
 		StringExpression new_expr = (StringExpression) sf.getOperandAttr();
 		StringExpression curr_expr = (StringExpression) sf.getOperandAttr(offset);
-		
+
+		//log.warning("curr_expr" + curr_expr + " new_expr: " + new_expr);
 		
 		if (new_expr != null) {
 			//if this here is true we are initializing a variable with a constant 
 			if ( (new_expr instanceof StringConstant) ){
 				if (curr_expr != null) {
 					if (curr_expr instanceof StringVariable) {
-						sf.setOperandAttr(offset,
-								new StringVariable(
-										((StringVariable) curr_expr).getName(), 
-										((StringConstant)new_expr).getConcreteValue(), 
-										null) 
-						);
+						((StringVariable) curr_expr).setMinValue(((StringConstant)new_expr).getConcreteValue());
+						
+//						sf.setOperandAttr(offset,
+//								new StringVariable(
+//										((StringVariable) curr_expr).getName(), 
+//										((StringConstant)new_expr).getConcreteValue(), 
+//										null) 
+//						);
 					}
 				}
 
 			} else {
 		 		sf.setOperandAttr(offset, new_expr);
 			}
+		} else {
+			
 		}
 		
 		//order is crucial this should come last

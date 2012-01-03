@@ -38,7 +38,7 @@ import java.util.logging.Logger;
  */
 public class INVOKEVIRTUAL extends gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL {
 
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.invokevitrual");
+	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.bytecode.invokevitrual");
 	
 	protected INVOKEVIRTUAL (String clsDescriptor, String methodName, String signature){
 	    super(clsDescriptor, methodName, signature);
@@ -58,7 +58,6 @@ public class INVOKEVIRTUAL extends gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL {
 			return ti.createAndThrowException("java.lang.NullPointerException", "Calling '" + mname + "' on null object");
 		}
 
-
 		//Check if we are in some String function
 		if (cname.equals("java.lang.String")) {
 			
@@ -67,32 +66,72 @@ public class INVOKEVIRTUAL extends gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL {
 			try {
 				if (mname.startsWith("equalsIgnoreCase")) {
 					
-					return InvVStringHelper.str_fnc_equalsIgnoreCase(ks, ti, this);
+					return InvVStringHelper.strFncEqualsIgnoreCase(ks, ti, this);
 					
 				} else if (mname.startsWith("equals")) {
 					
-					return InvVStringHelper.str_fnc_equals(ks, ti, this);
+					return InvVStringHelper.strFncEquals(ks, ti, this);
 					
 				} else if (mname.startsWith("startsWith")) {
 
-					return InvVStringHelper.str_fnc_startsWith(ks, ti, this);
+					return InvVStringHelper.strFncStartsWith(ks, ti, this);
 					
 				} else if (mname.startsWith("endsWith")) {
 					
-					return InvVStringHelper.str_fnc_endsWith(ks, ti, this);
+					return InvVStringHelper.strFncEndsWith(ks, ti, this);
 					
 				} else if (mname.startsWith("contains")) {
 					
-					return InvVStringHelper.str_fnc_contains(ks, ti, this);
+					return InvVStringHelper.strFncContains(ks, ti, this);
 					
 				} else if (mname.startsWith("regionMatches")) {
 
-					return InvVStringHelper.str_fnc_regionMatches(ks, ti, this);
+					return InvVStringHelper.strFncRegionMatches(ks, ti, this);
 					
 				} else if (mname.startsWith("substring")) {
 					
-					return InvVStringHelper.str_fnc_substring(ks, ti, this);
+					return InvVStringHelper.strFncSubstring(ks, ti, this);
+				
+				} else if (mname.startsWith("trim")) {
 					
+					return InvVStringHelper.strFncTrim(ks, ti, this);
+
+				} else if (mname.startsWith("toLowerCase")) {
+					
+					return InvVStringHelper.strFncToLowerCase(ks, ti, this);
+								
+				} else if (mname.startsWith("compareTo(")) {
+					
+					return InvVStringHelper.strFncCompareTo(ks, ti, this);
+								
+				} else if (mname.startsWith("compareToIgnoreCase")) {
+					
+					return InvVStringHelper.strFncCompareToIgnoreCase(ks, ti, this);
+								
+				} else if (mname.startsWith("replace(")) {
+					
+					return InvVStringHelper.strFncReplace(ks, ti, this);
+							
+				} else if (mname.startsWith("replaceAll(")) {
+					
+					return InvVStringHelper.strFncReplaceAll(ks, ti, this);
+						
+				} else if (mname.startsWith("replaceFirst(")) {
+					
+					return InvVStringHelper.strFncReplaceFirst(ks, ti, this);
+						
+				} else if (mname.startsWith("concat(")) {
+					
+					return InvVStringHelper.strFncConcat(ks, ti, this);
+				
+				} else if (mname.startsWith("length(")) {
+					
+					return InvVStringHelper.strFncLength(ks, ti, this);
+						
+				} else if (mname.startsWith("indexOf(")) {
+					
+					return InvVStringHelper.strFncIndexOf(ks, ti, this);
+							
 				} else {
 					InvVFunctionLogger.LogStringFnc("StringFunctions.txt", this);
 				}
