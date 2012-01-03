@@ -11,7 +11,7 @@ import de.unisb.cs.st.evosuite.utils.ClassTransformer;
 
 public class TestExecutionTracer {
 
-	private static final String fullyQualifiedTargetClass = "de.unisb.cs.st.evosuite.testcase.IF_CMP_Test";
+	private static final String fullyQualifiedTargetClass = "com.examples.with.different.packagename.IF_CMP_Test";
 	private static final String signature = "(Ljava/lang/Integer;Ljava/lang/Integer;)V";
 	private static final double DELTA = 0.0;
 	private final ClassTransformer classTransformer = ClassTransformer.getInstance();
