@@ -6,6 +6,7 @@ package de.unisb.cs.st.evosuite.testsuite;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -23,9 +24,11 @@ import de.unisb.cs.st.evosuite.symbolic.expr.BinaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
-import de.unisb.cs.st.evosuite.symbolic.smt.cvc3.CVC3Solver;
+import de.unisb.cs.st.evosuite.symbolic.search.Seeker;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
@@ -213,7 +216,8 @@ public class TestSuiteDSE {
 	 * @param test
 	 * @return
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	//@SuppressWarnings("rawtypes")
+	@SuppressWarnings("unchecked")
 	private TestCase negateCondition(BranchCondition condition, TestCase test) {
 		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
 		constraints.addAll(condition.reachingConstraints);
@@ -234,10 +238,18 @@ public class TestSuiteDSE {
 			constraints = reduce(constraints);
 			logger.info("Reduced constraints from " + size + " to " + constraints.size());
 		}
+		
+		int counter = 0;
+		for (Constraint cnstr : constraints ) {
+			logger.warn("Cnstr: " + (counter++) + " " +  cnstr);
+		}
+		
+		Seeker skr = new Seeker();
+		Map<String, Object> values = skr.getModel(constraints);
 
-		CVC3Solver solver = new CVC3Solver();
-		Map<String, Object> values = solver.getModel(constraints);
-
+//		CVC3Solver solver = new CVC3Solver();
+//		Map<String, Object> values = solver.getModel(constraints);
+//
 		if (values != null) {
 			TestCase newTest = test.clone();
 
@@ -251,8 +263,15 @@ public class TestSuiteDSE {
 						PrimitiveStatement p = getStatement(newTest, name);
 						assert (p != null);
 						p.setValue(value.intValue());
+					} else if (val instanceof String) {
+						
+						String name = ((String) key).replace("__SYM", "");
+						PrimitiveStatement p = getStatement(newTest, name);
+						logger.warn("key: "+ key + " val: " + val + " pStatement: " + p);
+						assert (p != null);
+						p.setValue(val.toString());
 					} else {
-						logger.debug("New value is not long " + val);
+						logger.debug("New value is of an unsupported type: " + val);
 					}
 				} else {
 					logger.debug("New value is null");
@@ -275,6 +294,7 @@ public class TestSuiteDSE {
 	 */
 	private PrimitiveStatement<?> getStatement(TestCase test, String name) {
 		for (StatementInterface statement : test) {
+			
 			if (statement instanceof PrimitiveStatement<?>) {
 				if (statement.getReturnValue().getName().equals(name))
 					return (PrimitiveStatement<?>) statement;
@@ -363,8 +383,22 @@ public class TestSuiteDSE {
 	 * @param variables
 	 */
 	private void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
-		if (expr instanceof Variable) {
+		if (expr instanceof Variable<?>) {
 			variables.add((Variable<?>) expr);
+		} else if (expr instanceof StringMultipleComparison){
+			StringMultipleComparison smc = (StringMultipleComparison) expr;
+			getVariables(smc.getLeftOperand(), variables);
+			getVariables(smc.getRightOperand(), variables);
+			ArrayList<Expression<?>> ar_l_ex = smc.getOther();
+			Iterator<Expression<?>> itr = ar_l_ex.iterator();
+		    while (itr.hasNext()) {
+		    	Expression<?> element = itr.next();
+		    	getVariables(element, variables);
+		    }
+		} else if (expr instanceof StringComparison){
+			StringComparison sc = (StringComparison) expr;
+			getVariables(sc.getLeftOperand(), variables);
+			getVariables(sc.getRightOperand(), variables);
 		} else if (expr instanceof BinaryExpression<?>) {
 			BinaryExpression<?> bin = (BinaryExpression<?>) expr;
 			getVariables(bin.getLeftOperand(), variables);
