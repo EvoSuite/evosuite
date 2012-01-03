@@ -287,6 +287,25 @@ public class ExecutionTracer {
 	 * 
 	 * @param line
 	 */
+	public static void checkTimeout() {
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.disabled)
+			return;
+
+		if (isThreadNeqCurrentThread())
+			return;
+
+		if (tracer.killSwitch) {
+			logger.info("Raising TimeoutException as kill switch is active - passedLine");
+			throw new TestCaseExecutor.TimeoutExceeded();
+		}
+	}
+
+	/**
+	 * Called by the instrumented code each time a new source line is executed
+	 * 
+	 * @param line
+	 */
 	public static void passedLine(String className, String methodName, int line) {
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)
@@ -389,8 +408,8 @@ public class ExecutionTracer {
 			logger.error("Unknown opcode: " + opcode);
 
 		}
-		// logger.trace("Branch distance true : " + distance_true);
-		// logger.trace("Branch distance false: " + distance_false);
+		// logger.trace("1 Branch distance true : " + distance_true);
+		// logger.trace("1 Branch distance false: " + distance_false);
 
 		// Add current branch to control trace
 		tracer.trace.branchPassed(branch, bytecode_id, distance_true, distance_false);
@@ -441,29 +460,29 @@ public class ExecutionTracer {
 			break;
 		case Opcodes.IF_ICMPLT:
 			// val1 >= val2?
-			distance_true = val1 >= val2 ? (double) val2 - (double) val1 : 0.0;
-			distance_false = val1 < val2 ? (double) val1 - (double) val2 + 1.0 : 0.0;
+			distance_true = val1 >= val2 ? (double) val1 - (double) val2 + 1.0 : 0.0;
+			distance_false = val1 < val2 ? (double) val2 - (double) val1 + 1.0 : 0.0;
 			break;
 		case Opcodes.IF_ICMPGE:
 			// val1 < val2?
-			distance_true = val1 < val2 ? (double) val1 - (double) val2 + 1.0 : 0.0;
-			distance_false = val1 >= val2 ? (double) val2 - (double) val1 : 0.0;
+			distance_true = val1 < val2 ? (double) val2 - (double) val1 + 1.0 : 0.0;
+			distance_false = val1 >= val2 ? (double) val1 - (double) val2 + 1.0 : 0.0;
 			break;
 		case Opcodes.IF_ICMPGT:
 			// val1 <= val2?
-			distance_true = val1 <= val2 ? (double) val1 - (double) val2 : 0.0;
-			distance_false = val1 > val2 ? (double) val2 - (double) val1 + 1.0 : 0.0;
+			distance_true = val1 <= val2 ? (double) val2 - (double) val1 + 1.0 : 0.0;
+			distance_false = val1 > val2 ? (double) val1 - (double) val2 + 1.0 : 0.0;
 			break;
 		case Opcodes.IF_ICMPLE:
 			// val1 > val2?
-			distance_true = val1 > val2 ? (double) val2 - (double) val1 + 1.0 : 0.0;
-			distance_false = val1 <= val2 ? (double) val1 - (double) val2 : 0.0;
+			distance_true = val1 > val2 ? (double) val1 - (double) val2 + 1.0 : 0.0;
+			distance_false = val1 <= val2 ? (double) val2 - (double) val1 + 1.0 : 0.0;
 			break;
 		default:
 			logger.error("Unknown opcode: " + opcode);
 		}
-		// logger.trace("Branch distance true: " + distance_true);
-		// logger.trace("Branch distance false: " + distance_false);
+		// logger.trace("2 Branch distance true: " + distance_true);
+		// logger.trace("2 Branch distance false: " + distance_false);
 
 		// Add current branch to control trace
 		tracer.trace.branchPassed(branch, bytecode_id, distance_true, distance_false);
