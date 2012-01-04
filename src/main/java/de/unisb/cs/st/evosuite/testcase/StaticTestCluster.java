@@ -1454,7 +1454,7 @@ public class StaticTestCluster extends TestCluster {
 		logger.info("Unsatisfied dependencies:");
 		Set<Class<?>> neededDependencies = new HashSet<Class<?>>();
 		for (Class<?> clazz : dependencies) {
-			if (clazz.isArray()) {
+			while (clazz.isArray()) {
 				clazz = clazz.getComponentType();
 			}
 			if (clazz.isPrimitive())
