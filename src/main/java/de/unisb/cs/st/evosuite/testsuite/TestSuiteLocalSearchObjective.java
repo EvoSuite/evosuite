@@ -28,12 +28,15 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 
 	private double lastFitness;
 
+	private double lastCoverage;
+
 	public TestSuiteLocalSearchObjective(TestSuiteFitnessFunction fitness,
 	        TestSuiteChromosome suite, int index) {
 		this.fitness = fitness;
 		this.suite = suite;
 		this.testIndex = index;
 		this.lastFitness = suite.getFitness();
+		this.lastCoverage = suite.getCoverage();
 
 		/*
 		for (TestChromosome test : suite.getTestChromosomes()) {
@@ -59,10 +62,12 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 			logger.info("Local search improved fitness from " + lastFitness + " to "
 			        + newFitness);
 			lastFitness = newFitness;
+			lastCoverage = suite.getCoverage();
 			suite.setFitness(lastFitness);
 			return true;
 		} else {
 			suite.setFitness(lastFitness);
+			suite.setCoverage(lastCoverage);
 			return false;
 		}
 	}
