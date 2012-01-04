@@ -31,6 +31,8 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
 	private final List<TestFitnessFunction> mutationGoals;
 
+	public static int mostCoveredGoals = 0;
+
 	public MutationSuiteFitness() {
 		MutationFactory factory = new MutationFactory();
 		mutationGoals = factory.getCoverageGoals();
@@ -55,17 +57,22 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	public double getFitness(Chromosome individual) {
 		runTestSuite((TestSuiteChromosome) individual);
 
-		Set<TestFitnessFunction> coveredMutants = ((TestSuiteChromosome) individual).getCoveredGoals();
+		Set<MutationTestFitness> uncoveredMutants = MutationTestPool.getUncoveredFitnessFunctions();
 
+		/*
+		Set<TestFitnessFunction> coveredMutants = ((TestSuiteChromosome) individual).getCoveredGoals();
+		logger.info("Test suite covers mutants: {}", coveredMutants.size());
 		Set<TestFitnessFunction> uncoveredMutants = new HashSet<TestFitnessFunction>();
 		for (TestFitnessFunction mutation : mutationGoals) {
 			if (!coveredMutants.contains(mutation))
 				uncoveredMutants.add(mutation);
 		}
+		*/
 
 		// First objective: achieve branch coverage
 		logger.debug("Calculating branch fitness: ");
 		double fitness = normalize(branchFitness.getFitness(individual));
+		//double fitness = branchFitness.getFitness(individual);
 		//logger.info("Branch fitness: " + fitness);
 
 		// Additional objective 1: all mutants need to be touched
@@ -77,32 +84,53 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 		Map<Mutation, Double> minMutantFitness = new HashMap<Mutation, Double>();
 		for (TestFitnessFunction mutant : uncoveredMutants) {
 			MutationTestFitness mutantFitness = (MutationTestFitness) mutant;
-			minMutantFitness.put(mutantFitness.getMutation(), 1.0);
+			minMutantFitness.put(mutantFitness.getMutation(), 3.0);
 		}
-		Set<TestChromosome> safeCopies = new HashSet<TestChromosome>();
+		//Set<TestChromosome> safeCopies = new HashSet<TestChromosome>();
+		int mutantsChecked = 0;
 		for (TestChromosome test : suite.getTestChromosomes()) {
 			ExecutionResult result = test.getLastExecutionResult();
 			ExecutionTrace trace = result.getTrace();
 			touchedMutants.addAll(trace.touchedMutants);
 
+			if (result.hasTimeout()) {
+				logger.debug("Skipping test with timeout");
+				continue;
+			}
+
 			boolean coversNewMutants = false;
 			for (TestFitnessFunction mutant : uncoveredMutants) {
+
 				MutationTestFitness mutantFitness = (MutationTestFitness) mutant;
+				if (MutationTimeoutStoppingCondition.isDisabled(mutantFitness.getMutation())) {
+					logger.debug("Skipping timed out mutation "
+					        + mutantFitness.getMutation().getId());
+					continue;
+				}
+				if (MutationTestPool.isCovered(mutantFitness.getMutation()))
+					continue;
+
 				if (trace.touchedMutants.contains(mutantFitness.getMutation().getId())) {
+					mutantsChecked++;
+					logger.debug("Executing test against mutant "
+					        + mutantFitness.getMutation());
 					double mutantFitnessValue = mutant.getFitness(test, result);
 					minMutantFitness.put(mutantFitness.getMutation(),
 					                     Math.min(normalize(mutantFitnessValue),
 					                              minMutantFitness.get(mutantFitness.getMutation())));
-					if (mutantFitnessValue == 0.0)
+					if (mutantFitnessValue == 0.0) {
+						MutationTestPool.addTest(mutantFitness.getMutation(), test);
 						coversNewMutants = true;
+						break;
+					}
 					//fitness += FitnessFunction.normalize(mutantFitnessValue);
 				}// else
 				 //fitness += 1.0;
 
 			}
-			if (coversNewMutants) {
-				safeCopies.add((TestChromosome) test.clone());
-			}
+			//if (coversNewMutants) {
+			//	safeCopies.add((TestChromosome) test.clone());
+			//}
 
 			/*
 						for (Entry<Integer, Double> mutation : trace.mutant_distances.entrySet()) {
@@ -116,19 +144,23 @@ public class MutationSuiteFitness extends TestSuiteFitnessFunction {
 						*/
 		}
 
-		for (TestChromosome copy : safeCopies) {
-			suite.addUnmodifiableTest(copy);
-		}
-		logger.debug("Mutants killed: {}",
-		             ((TestSuiteChromosome) individual).getCoveredGoals().size());
+		//for (TestChromosome copy : safeCopies) {
+		//	suite.addUnmodifiableTest(copy);
+		//}
+		int coverage = ((TestSuiteChromosome) individual).getCoveredGoals().size();
+
+		if (mostCoveredGoals < coverage)
+			mostCoveredGoals = coverage;
 
 		//logger.info("Fitness values for " + minMutantFitness.size() + " mutants");
-		int numKilled = coveredMutants.size();
+		int numKilled = MutationTestPool.getCoveredMutants();
 		for (Double fit : minMutantFitness.values()) {
-			if (fit == 0.0)
-				numKilled++;
+			//if (fit == 0.0)
+			//	numKilled++;
 			fitness += fit;
 		}
+		fitness += mutationGoals.size() - MutationTestPool.getCoveredMutants();
+		logger.info("Mutants killed: {} (Checked: {})", numKilled, mutantsChecked);
 
 		/*
 		logger.info("Touched " + touchedMutants.size() + " / " + numMutations

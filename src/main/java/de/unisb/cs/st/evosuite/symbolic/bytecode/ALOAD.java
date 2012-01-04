@@ -14,7 +14,6 @@ import gov.nasa.jpf.jvm.bytecode.Instruction;
 import java.util.logging.Logger;
 
 import de.unisb.cs.st.evosuite.symbolic.expr.StringConstant;
-import de.unisb.cs.st.evosuite.symbolic.expr.StringVariable;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringExpression;
 
 
@@ -40,11 +39,15 @@ public class ALOAD extends gov.nasa.jpf.jvm.bytecode.ALOAD {
 		
 		//get the type of the variable that we are loading
 		String type = "";
+		ElementInfo el_inf = null;
+		
 		try {
 			int pos = sf.getTopPos();
 			//Only try go get the type if this is a reference
 		    if (sf.isReferenceSlot(pos)) {
-		    	ElementInfo el_inf = ks.heap.get(sf.peek(pos-index));
+		    	el_inf = ks.heap.get(sf.peek(pos-index));
+		    	
+		    	
 		    	//For some reason (maybe when reserving only space) the Element Info is sometimes empty
 		    	//So only try to get the type when it is not empty
 		    	if (el_inf != null) {
@@ -69,8 +72,10 @@ public class ALOAD extends gov.nasa.jpf.jvm.bytecode.ALOAD {
 			 * maybe also add the method name (most probably wrong)
 			 * or make a list of all variables (this could also be helpful in the future)
 			 */
-			String name = th.getMethod().getName() + "_StrVar_" + index;
+			//String name = th.getMethod().getName() + "_StrVar_" + index;
 			
+			//TODO el_inf may be null. Handle!!
+			String value =  el_inf.asString();
 			
 			
 			//compute the offset of the variable from the top position
@@ -81,18 +86,24 @@ public class ALOAD extends gov.nasa.jpf.jvm.bytecode.ALOAD {
 			//get the expression on that offset
 			StringExpression ex = (StringExpression) sf.getOperandAttr(offset);
 			
-			
 			//if the expression does not exist make a new one and put it both 
 			//		an the variable stack and the operand stack
 			//else load the existing expression
-			
-			if (ex == null || ex instanceof StringConstant) {
-				StringVariable s = new StringVariable(name, null, null);
-				sf.setOperandAttr(offset, s);
+//			
+//			if (ex == null || ex instanceof StringConstant) {
+//				StringVariable s = new StringVariable(name, value, null);
+//				sf.setOperandAttr(offset, s);
+//				sf.setOperandAttr(s);
+//			} else {
+//				sf.setOperandAttr(ex);
+//			}
+			if (ex == null) {
+				StringConstant s = new StringConstant(value);
 				sf.setOperandAttr(s);
 			} else {
 				sf.setOperandAttr(ex);
 			}
+			
 				
 		}
 

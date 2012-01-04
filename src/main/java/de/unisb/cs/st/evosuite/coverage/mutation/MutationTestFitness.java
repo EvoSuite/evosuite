@@ -95,6 +95,10 @@ public class MutationTestFitness extends TestFitnessFunction {
 				MutationObserver.deactivateMutation(mutant);
 
 			int num = test.size();
+			if (!result.exceptions.isEmpty()) {
+				num = result.exceptions.keySet().iterator().next();
+			}
+
 			//if (mutant == null)
 			MaxStatementsStoppingCondition.statementsExecuted(num);
 			int i = 0;
@@ -108,6 +112,28 @@ public class MutationTestFitness extends TestFitnessFunction {
 			System.exit(1);
 		}
 
+		return result;
+	}
+
+	private MutationExecutionResult getMutationResult(ExecutionResult originalResult,
+	        ExecutionResult mutationResult) {
+
+		MutationExecutionResult result = new MutationExecutionResult();
+
+		if (TestCoverageGoal.hasTimeout(mutationResult)) {
+			logger.debug("Found timeout in mutant!");
+			MutationTimeoutStoppingCondition.timeOut(mutation);
+			result.setHasTimeout(true);
+		}
+
+		int numAssertions = getNumAssertions(originalResult, mutationResult);
+		result.setNumAssertions(numAssertions);
+
+		if (numAssertions == 0) {
+			double impact = getSumDistance(originalResult.getTrace(),
+			                               mutationResult.getTrace());
+			result.setImpact(impact);
+		}
 		return result;
 	}
 
@@ -316,19 +342,20 @@ public class MutationTestFitness extends TestFitnessFunction {
 			// If infected check if it is also killed
 			if (infectionDistance <= 0) {
 				logger.debug("Running test on mutant " + mutation.getId());
-				ExecutionResult mutationResult = individual.getLastExecutionResult(mutation);
+				MutationExecutionResult mutationResult = individual.getLastExecutionResult(mutation);
+
 				if (mutationResult == null) {
-					mutationResult = runTest(individual.getTestCase(), mutation);
+					ExecutionResult exResult = runTest(individual.getTestCase(), mutation);
+					mutationResult = getMutationResult(result, exResult);
 					individual.setLastExecutionResult(mutationResult, mutation);
 				}
-				if (TestCoverageGoal.hasTimeout(mutationResult)) {
+				if (mutationResult.isHasTimeout()) {
 					logger.debug("Found timeout in mutant!");
 					MutationTimeoutStoppingCondition.timeOut(mutation);
 				}
 
-				if (getNumAssertions(result, mutationResult) == 0) {
-					double impact = getSumDistance(result.getTrace(),
-					                               mutationResult.getTrace());
+				if (mutationResult.getNumAssertions() == 0) {
+					double impact = mutationResult.getImpact();
 					logger.debug("Impact is " + impact + " (" + (1.0 / (1.0 + impact))
 					        + ")");
 					impactDistance = 1.0 / (1.0 + impact);
@@ -341,10 +368,12 @@ public class MutationTestFitness extends TestFitnessFunction {
 		}
 
 		fitness = impactDistance + infectionDistance + executionDistance;
-		if (fitness == 0.0) {
-			assert (getNumAssertions(individual.getLastExecutionResult(),
-			                         individual.getLastExecutionResult(mutation)) > 0);
-		}
+		logger.debug("Individual fitness: " + impactDistance + " + " + infectionDistance
+		        + " + " + executionDistance + " = " + fitness);
+		//if (fitness == 0.0) {
+		//	assert (getNumAssertions(individual.getLastExecutionResult(),
+		//	                         individual.getLastExecutionResult(mutation)) > 0);
+		//}
 
 		updateIndividual(individual, fitness);
 		if (fitness == 0.0) {

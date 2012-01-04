@@ -23,6 +23,10 @@ public class StringVariable extends StringExpression implements Variable<String>
 		this.minValue = minValue;
 		this.maxValue = maxValue;
 	}	
+//	
+//	@Override
+//	public void execute() {
+//	}
 	
 	@Override
 	public String getConcreteValue() {
@@ -37,11 +41,25 @@ public class StringVariable extends StringExpression implements Variable<String>
 		return maxValue;
 	}
 
+	/**
+	 * @param maxValue the maxValue to set
+	 */
+	public void setMaxValue(String maxValue) {
+		this.maxValue = maxValue;
+	}
+	
 	@Override
 	public String getMinValue() {
 		return minValue;
 	}
 
+	/**
+	 * @param minValue the minValue to set
+	 */
+	public void setMinValue(String minValue) {
+		this.minValue = minValue;
+	}
+	
 	@Override
 	public String getName() {
 		return name;
@@ -49,7 +67,7 @@ public class StringVariable extends StringExpression implements Variable<String>
 	
 	@Override
 	public String toString() {
-		return name;
+		return name + "(" + minValue + ")";
 	}
 	
 	@Override

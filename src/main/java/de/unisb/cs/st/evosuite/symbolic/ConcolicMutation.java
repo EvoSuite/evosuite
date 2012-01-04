@@ -58,7 +58,8 @@ public class ConcolicMutation {
 	 * @param test
 	 * @return
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+//	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings("unchecked")
 	public static TestCase negateCondition(BranchCondition condition, TestCase test) {
 		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
 		constraints.addAll(condition.reachingConstraints);
@@ -191,7 +192,7 @@ public class ConcolicMutation {
 	 * @param variables
 	 */
 	private static void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
-		if (expr instanceof Variable) {
+		if (expr instanceof Variable<?>) {
 			variables.add((Variable<?>) expr);
 		} else if (expr instanceof BinaryExpression<?>) {
 			BinaryExpression<?> bin = (BinaryExpression<?>) expr;
