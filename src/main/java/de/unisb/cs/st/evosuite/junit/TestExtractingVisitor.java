@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -763,7 +764,13 @@ public class TestExtractingVisitor extends ASTVisitor {
 
 	private VariableReference retrieveVariableReference(ArrayCreation arrayCreation) {
 		Class<?> arrayType = retrieveTypeClass(arrayCreation.getType());
-		ArrayStatement arrayAssignment = new ArrayStatement(testCase, arrayType);
+		AbstractList<?> dimensions = ((AbstractList<?>) arrayCreation
+				.getStructuralProperty(ArrayCreation.DIMENSIONS_PROPERTY));
+		if (dimensions.size() > 1) {
+			throw new RuntimeException("Multidimensional arrays not implemented!");
+		}
+		Integer length = (Integer) ((NumberLiteral) dimensions.get(0)).resolveConstantExpressionValue();
+		ArrayStatement arrayAssignment = new ArrayStatement(testCase, arrayType, length);
 		currentScope.add(arrayAssignment);
 		return arrayAssignment.getReturnValue();
 	}
