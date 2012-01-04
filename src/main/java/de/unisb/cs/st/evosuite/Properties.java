@@ -481,6 +481,9 @@ public class Properties {
 	@Parameter(key = "mutation_timeouts", group = "Test Execution", description = "Number of timeouts before we consider a mutant killed")
 	public static int MUTATION_TIMEOUTS = 3;
 
+	@Parameter(key = "max_mutants", group = "Test Execution", description = "Maximum number of mutants to target at the same time")
+	public static int MAX_MUTANTS = 100;
+
 	// ---------------------------------------------------------------
 	// TODO: Fix description
 	public enum AlternativeFitnessCalculationMode {
@@ -528,7 +531,7 @@ public class Properties {
 
 	@Parameter(key = "ma_active", group = "Manual algorithm", description = "MA active")
 	public static boolean MA_ACTIVE = false;
-	
+
 	@Parameter(key = "ma_wide_gui", group = "Manual algorithm", description = "Activate wide GUI")
 	public static boolean MA_WIDE_GUI = false;
 
@@ -536,9 +539,7 @@ public class Properties {
 	// UI Test generation parameters
 	@Parameter(key = "UI_BACKGROUND_COVERAGE_DELAY", group = "EXSYST", description = "How often to write out coverage information in the background (in ms). -1 to disable.")
 	public static int UI_BACKGROUND_COVERAGE_DELAY = -1;
-	
-	
-	
+
 	// ---------------------------------------------------------------
 	// Runtime parameters
 

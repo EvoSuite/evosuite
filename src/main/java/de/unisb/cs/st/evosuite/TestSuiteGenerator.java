@@ -59,6 +59,7 @@ import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageTestFitness;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationFactory;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationPool;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.mutation.MutationTestPool;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathSuiteFitness;
@@ -1116,7 +1117,10 @@ public class TestSuiteGenerator {
 		if (!(stopping_condition instanceof MaxTimeStoppingCondition))
 			ga.addStoppingCondition(global_time);
 		if (Properties.CRITERION == Criterion.MUTATION)
-			ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
+			if (Properties.STRATEGY == Strategy.ONEBRANCH)
+				ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
+			else
+				ga.addListener(new MutationTestPool());
 
 		ga.setPopulationLimit(getPopulationLimit());
 
@@ -1146,6 +1150,7 @@ public class TestSuiteGenerator {
 		// Some statistics
 		if (Properties.STRATEGY == Strategy.EVOSUITE)
 			ga.addListener(SearchStatistics.getInstance());
+		//ga.addListener(new MemoryMonitor());
 		// ga.addListener(MutationStatistics.getInstance());
 		// ga.addListener(BestChromosomeTracker.getInstance());
 
