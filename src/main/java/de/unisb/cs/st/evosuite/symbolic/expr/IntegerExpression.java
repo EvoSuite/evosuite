@@ -6,6 +6,18 @@ public abstract class IntegerExpression implements Expression<Long> {
 
 	protected int hash = 0;
 
+	
+	private Expression<?> parent = null;
+	
+	public Expression<?> getParent() {
+		return this.parent;
+	}
+	
+	public void setParent(Expression<?> expr) {
+		this.parent = expr;
+	}
+
+	
 	@Override
 	public int hashCode() {
 		if (hash == 0) {

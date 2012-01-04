@@ -16,6 +16,10 @@ public class IntegerVariable extends IntegerExpression implements Variable<Long>
 		this.minValue = minValue;
 		this.maxValue = maxValue;
 	}
+	
+//	@Override
+//	public void execute() {
+//	}
 
 	@Override
 	public Long getConcreteValue() {

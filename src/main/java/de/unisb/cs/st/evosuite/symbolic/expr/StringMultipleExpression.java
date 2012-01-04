@@ -9,25 +9,16 @@ import java.util.ArrayList;
  * @author krusev
  *
  */
-public class StringMultipleExpression extends StringExpression implements
+public class StringMultipleExpression extends StringBinaryExpression implements
 BinaryExpression<String>{
 
 	private static final long serialVersionUID = 7172041118401792672L;
 
-	protected String concretValue;
-
-	protected Operator op;
-
-	protected Expression<String> left;
-	protected Expression<?> right;
 	protected ArrayList<Expression<?>> other_v;
 
 	public StringMultipleExpression(Expression<String> _left, Operator _op,
 	        Expression<?> _right, ArrayList<Expression<?>> _other, String con) {
-		this.concretValue = con;
-		this.left = _left;
-		this.right = _right;
-		this.op = _op;
+		super(_left, _op, _right, con);
 		this.other_v = _other;
 	}
 
@@ -40,22 +31,22 @@ BinaryExpression<String>{
 
 	@Override
 	public String getConcreteValue() {
-		return concretValue;
+		return super.getConcreteValue();
 	}
 
 	@Override
 	public Operator getOperator() {
-		return op;
+		return super.getOperator();
 	}
 
 	@Override
 	public Expression<String> getLeftOperand() {
-		return left;
+		return super.getLeftOperand();
 	}
 
 	@Override
 	public Expression<?> getRightOperand() {
-		return right;
+		return super.getRightOperand();
 	}
 
 	@Override
@@ -65,7 +56,7 @@ BinaryExpression<String>{
 			str_other_v += " " + this.other_v.get(i).toString();
 		}
 		
-		return "(" + left + op.toString() + right + str_other_v + ")";
+		return "(" + left + op.toString() + (right==null ? "": right) + str_other_v + ")";
 	}
 
 	@Override

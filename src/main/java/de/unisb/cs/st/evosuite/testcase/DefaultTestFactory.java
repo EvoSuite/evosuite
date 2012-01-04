@@ -723,6 +723,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 					iterator.remove();
 			}
 		}
+		objects.remove(statement.retval);
 		logger.debug("Found assignable objects: " + objects.size());
 		for (int i = 0; i < statement.size(); i++) {
 			logger.debug("Assigning array index " + i);

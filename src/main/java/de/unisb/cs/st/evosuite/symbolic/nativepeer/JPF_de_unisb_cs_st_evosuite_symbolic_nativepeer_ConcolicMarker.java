@@ -67,23 +67,23 @@ public class JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker {
 	//here are the two new ones ===============================================
 	
 
-	public static String mark__Ljava_lang_String_2__Ljava_lang_String_2(MJIEnv env, 
+	public static int mark__Ljava_lang_String_2__Ljava_lang_String_2(MJIEnv env, 
 			int rcls, int rString) {
 		String str = env.getStringObject(rString);
 		
 		env.setReturnAttribute(new StringVariable("mark" + counter++ + "__SYM",
 		        str, null));
 
-		return str;
+		return rString;
 	}
 
-	public static String mark__Ljava_lang_String_2Ljava_lang_String_2__Ljava_lang_String_2(
+	public static int mark__Ljava_lang_String_2Ljava_lang_String_2__Ljava_lang_String_2(
 			MJIEnv env, int rcls, int rString, int rString1) {
 		String str = env.getStringObject(rString);
 
 		env.setReturnAttribute(new StringVariable(env.getStringObject(rString1) + "__SYM", str, null));
 
-		return str;
+		return rString;
 	}
 
 	

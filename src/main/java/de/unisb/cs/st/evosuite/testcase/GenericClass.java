@@ -350,12 +350,13 @@ public class GenericClass implements Serializable {
 		this.raw_class = getClass(name);
 		// TODO: Currently, type information gets lost by serialization
 		this.type = raw_class;
+
 	}
 
 	public void changeClassLoader(ClassLoader loader) {
 		try {
-			if (!isPrimitive())
-				raw_class = loader.loadClass(raw_class.getName());
+			raw_class = getClass(raw_class.getName());
+			this.type = raw_class;
 		} catch (ClassNotFoundException e) {
 			logger.warn("Class not found - keeping old class loader ", e);
 		} catch (SecurityException e) {

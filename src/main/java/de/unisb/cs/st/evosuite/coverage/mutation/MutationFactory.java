@@ -40,6 +40,8 @@ public class MutationFactory extends AbstractFitnessFactory {
 		}
 		*/
 		for (Mutation m : MutationPool.getMutants()) {
+			if (MutationTimeoutStoppingCondition.isDisabled(m))
+				continue;
 			logger.info("Goal: " + m);
 			goals.add(new MutationTestFitness(m));
 		}

@@ -96,7 +96,9 @@ public class ConcolicExecution {
 		                   "de.unisb.cs.st.evosuite.symbolic.SilentReporter");
 
 		config.setProperty("log.level", "warning");
-
+		//config.setProperty("log.level", "info");
+		
+		
 		//Configure the search class;
 		config.setProperty("search.class", "de.unisb.cs.st.evosuite.symbolic.PathSearch");
 		config.setProperty("jm.numberOfIterations", "1");
@@ -116,7 +118,9 @@ public class ConcolicExecution {
 		try {
 			jpf.run();
 		} catch (Throwable t) {
-			logger.warn("Exception while executing test: " + classPath + " " + targetName);
+			logger.warn("Exception while executing test: " + classPath + " " + targetName
+			        + ": " + t);
+			t.printStackTrace();
 		} finally {
 			System.setOut(old_out);
 			System.setErr(old_err);
@@ -130,7 +134,7 @@ public class ConcolicExecution {
 	}
 
 	/**
-	 * Retrieve the path condition for a given test cae
+	 * Retrieve the path condition for a given test case
 	 * 
 	 * @param test
 	 * @return
@@ -200,10 +204,13 @@ public class ConcolicExecution {
 		return result;
 	}
 
-	@SuppressWarnings("rawtypes")
+//	@SuppressWarnings("rawtypes")
+	@SuppressWarnings("unchecked")
 	public List<PrimitiveStatement> getPrimitives(TestCase test) {
+
 		List<PrimitiveStatement> p = new ArrayList<PrimitiveStatement>();
 		for (StatementInterface s : test) {
+
 			if (s instanceof PrimitiveStatement) {
 				PrimitiveStatement ps = (PrimitiveStatement) s;
 				Class<?> t = ps.getReturnClass();
@@ -242,7 +249,6 @@ public class ConcolicExecution {
 			mg.cast(org.objectweb.asm.Type.getType(clazz),
 			        org.objectweb.asm.Type.getType(statement.getReturnValue().getVariableClass()));
 		}
-
 		if (clazz.equals(Boolean.class) || clazz.equals(boolean.class))
 			mg.push(((Boolean) statement.getValue()).booleanValue());
 		else if (clazz.equals(Character.class) || clazz.equals(char.class))
@@ -259,8 +265,9 @@ public class ConcolicExecution {
 			mg.push(((Double) statement.getValue()).doubleValue());
 		else if (clazz.equals(Byte.class) || clazz.equals(byte.class))
 			mg.push(((Byte) statement.getValue()).byteValue());
-		else if (clazz.equals(String.class))
+		else if (clazz.equals(String.class)) {
 			mg.push(((String) statement.getValue()));
+		}
 		else
 			logger.error("Found primitive of unknown type: " + clazz.getName());
 	}
@@ -273,9 +280,9 @@ public class ConcolicExecution {
 	 * @param test
 	 * @return
 	 */
-	private byte[] getBytecode(
-	        @SuppressWarnings("rawtypes") List<PrimitiveStatement> target,
-	        TestChromosome test) {
+//	@SuppressWarnings("rawtypes") 
+	@SuppressWarnings("unchecked")
+	private byte[] getBytecode(List<PrimitiveStatement> target, TestChromosome test) {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, className, null,
 		         "java/lang/Object", null);
@@ -305,6 +312,7 @@ public class ConcolicExecution {
 				mg.push(p.getReturnValue().getName());
 				//mg.invokeStatic(Type.getType("Ljpf/mytest/primitive/ConcolicMarker;"),
 				//                getMarkMethod(p));
+
 				mg.invokeStatic(Type.getType("Lde/unisb/cs/st/evosuite/symbolic/nativepeer/ConcolicMarker;"),
 				                getMarkMethod(p));
 				p.getReturnValue().storeBytecode(mg, locals);
@@ -327,7 +335,8 @@ public class ConcolicExecution {
 	 * @param statements
 	 * @param test
 	 */
-	@SuppressWarnings("rawtypes")
+//	@SuppressWarnings("rawtypes") 
+	@SuppressWarnings("unchecked")
 	public void writeTestCase(List<PrimitiveStatement> statements, TestChromosome test) {
 		File dir = new File(dirName);
 		dir.mkdir();
@@ -336,9 +345,9 @@ public class ConcolicExecution {
 			FileOutputStream stream = new FileOutputStream(file);
 			byte[] bytecode = getBytecode(statements, test);
 			stream.write(bytecode);
-			//logger.info(dirName);
-			//logger.info(test.getTestCase().toCode());
-			//System.exit(0);
+//			logger.info(dirName);
+//			logger.warn(test.getTestCase().toCode());
+//			System.exit(0);
 		} catch (FileNotFoundException e) {
 		} catch (IOException e) {
 		}

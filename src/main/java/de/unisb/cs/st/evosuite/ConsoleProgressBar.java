@@ -68,6 +68,8 @@ public class ConsoleProgressBar implements SearchListener, Serializable {
 
 	private long max = 1;
 
+	private int currentCoverage = 0;
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.SearchListener#searchStarted(de.unisb.cs.st.evosuite.ga.GeneticAlgorithm)
 	 */
@@ -83,8 +85,8 @@ public class ConsoleProgressBar implements SearchListener, Serializable {
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
 		long current = stoppingCondition.getCurrentValue();
-		printProgressBar((int) (100 * current / max),
-		                 (int) Math.floor(((TestSuiteChromosome) algorithm.getBestIndividual()).getCoverage() * 100));
+		currentCoverage = (int) Math.floor(((TestSuiteChromosome) algorithm.getBestIndividual()).getCoverage() * 100);
+		printProgressBar((int) (100 * current / max), currentCoverage);
 	}
 
 	/* (non-Javadoc)
@@ -101,8 +103,8 @@ public class ConsoleProgressBar implements SearchListener, Serializable {
 	 */
 	@Override
 	public void fitnessEvaluation(Chromosome individual) {
-		// TODO Auto-generated method stub
-
+		long current = stoppingCondition.getCurrentValue();
+		printProgressBar((int) (100 * current / max), currentCoverage);
 	}
 
 	/* (non-Javadoc)

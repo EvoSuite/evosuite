@@ -26,6 +26,7 @@ import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
 import de.unisb.cs.st.evosuite.coverage.concurrency.Schedule;
 import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
+import de.unisb.cs.st.evosuite.coverage.mutation.MutationExecutionResult;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.ga.LocalSearchBudget;
@@ -109,8 +110,8 @@ public class TestChromosome extends ExecutableChromosome {
 
 		if (other.lastMutationResult != null) {
 			for (Mutation mutation : other.lastMutationResult.keySet()) {
-				ExecutionResult copy = other.lastMutationResult.get(mutation); //.clone();
-				copy.test = test;
+				MutationExecutionResult copy = other.lastMutationResult.get(mutation); //.clone();
+				//copy.test = test;
 				this.lastMutationResult.put(mutation, copy);
 			}
 		}

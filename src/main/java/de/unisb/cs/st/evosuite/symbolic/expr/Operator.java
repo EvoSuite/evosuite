@@ -70,7 +70,21 @@ public enum Operator {
 	CONTAINS("contains", 2),
 	REGIONMATCHES("regionMatches", 6), 
 	SUBSTRING("substring", 2), 
-	APPEND("append", 2);
+	APPEND("append", 2), 
+	TRIM("trim", 1), 
+	TOLOWERCASE("toLowerCase", 1), 
+	COMPARETO("compareTo", 2), 
+	COMPARETOIGNORECASE("compareToIgnoreCase", 2), 
+	REPLACEC("replacec", 3),
+	REPLACECS("replacecs", 3), 
+	REPLACEALL("replaceAll", 3),
+	REPLACEFIRST("replaceFirst", 3), 
+	CONCAT("concat", 2), 
+	LENGTH("length", 1), 
+	INDEXOFC("indexOfC", 2),
+	INDEXOFS("indexOfS", 2),
+	INDEXOFCI("indexOfCI", 3),
+	INDEXOFSI("indexOfSI", 3);
 
 	private final String str;
 	private final int arity;
