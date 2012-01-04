@@ -49,7 +49,7 @@ import de.unisb.cs.st.evosuite.testcase.StaticTestCluster;
 public class BytecodeInstrumentation implements ClassFileTransformer {
 
 	private static Logger logger = LoggerFactory.getLogger(BytecodeInstrumentation.class);
-	
+
 	private static List<ClassAdapterFactory> externalPreVisitors = new ArrayList<ClassAdapterFactory>();
 
 	private static List<ClassAdapterFactory> externalPostVisitors = new ArrayList<ClassAdapterFactory>();
@@ -79,7 +79,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		// TODO: Need to replace this in the long term
 		return StaticTestCluster.isTargetClassName(className);
 	}
-	
+
 	static {
 		logger.info("Loading bytecode transformer for " + Properties.PROJECT_PREFIX);
 	}
@@ -94,8 +94,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	 */
 	@Override
 	public byte[] transform(ClassLoader loader, String className,
-			Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-			byte[] classfileBuffer) throws IllegalClassFormatException {
+	        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+	        byte[] classfileBuffer) throws IllegalClassFormatException {
 		if (className == null) {
 			return classfileBuffer;
 		}
@@ -103,8 +103,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 		// Some packages we shouldn't touch - hard-coded
 		if (!isTargetProject(classNameWithDots)
-				&& (classNameWithDots.startsWith("java")
-						|| classNameWithDots.startsWith("sun")
+		        && (classNameWithDots.startsWith("java")
+		                || classNameWithDots.startsWith("sun")
 		                || classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
 			return classfileBuffer;
 		}
@@ -146,6 +146,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		// Apply transformations to class under test and its owned
 		// classes
 		if (isTargetClassName(classNameWithDots)) {
+			logger.debug("Applying target transformation");
 			// Print out bytecode if debug is enabled
 			cv = new AccessibleClassAdapter(cv, className);
 			// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
@@ -161,9 +162,14 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 				cv = factory.getVisitor(cv, className);
 			}
 
-		} else if (Properties.MAKE_ACCESSIBLE) {
-			// Convert protected/default access to public access
-			cv = new AccessibleClassAdapter(cv, className);
+		} else {
+			logger.debug("Not applying target transformation");
+			cv = new YieldAtLineNumberClassAdapter(cv);
+
+			if (Properties.MAKE_ACCESSIBLE) {
+				// Convert protected/default access to public access
+				cv = new AccessibleClassAdapter(cv, className);
+			}
 		}
 
 		// Collect constant values for the value pool
