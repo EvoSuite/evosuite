@@ -299,6 +299,8 @@ public class ExecutionTrace {
 	public void branchPassed(int branch, int bytecode_id, double true_distance,
 	        double false_distance) {
 
+		assert (true_distance >= 0.0);
+		assert (false_distance >= 0.0);
 		updateTopStackMethodCall(branch, bytecode_id, true_distance, false_distance);
 
 		if (trace_coverage) {
