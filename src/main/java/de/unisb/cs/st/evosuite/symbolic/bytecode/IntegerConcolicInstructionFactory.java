@@ -14,7 +14,8 @@ public class IntegerConcolicInstructionFactory extends InstructionFactory implem
 		//yes we do not clone
 		return this;
 	}
-	
+
+	/*
 	@Override
 	public ASTORE astore(int index) {
 		return new ASTORE(index);
@@ -29,12 +30,13 @@ public class IntegerConcolicInstructionFactory extends InstructionFactory implem
 	public LDC ldc(String s, boolean isClass) {
 		return new LDC(s, isClass);
 	}
-
+	*/
 	@Override
-	public INVOKEVIRTUAL invokevirtual(String clsName, String methodName, String methodSignature){
+	public INVOKEVIRTUAL invokevirtual(String clsName, String methodName,
+	        String methodSignature) {
 		return new INVOKEVIRTUAL(clsName, methodName, methodSignature);
 	}
-	
+
 	@Override
 	public I2B i2b() {
 		return new I2B();
