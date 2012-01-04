@@ -1,6 +1,5 @@
 package de.unisb.cs.st.evosuite.symbolic.nativepeer;
 
-
 import gov.nasa.jpf.jvm.MJIEnv;
 
 import org.slf4j.Logger;
@@ -14,7 +13,7 @@ public class JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker {
 	private static int counter = 0;
 
 	private static Logger logger = LoggerFactory.getLogger(JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker.class);
-	
+
 	public static boolean mark__Z__Z(MJIEnv env, int rcls, boolean v0) {
 		env.setReturnAttribute(new IntegerVariable("mark" + counter++ + "__SYM",
 		        Integer.MIN_VALUE, Integer.MAX_VALUE));
@@ -63,16 +62,12 @@ public class JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker {
 		        -Double.MAX_VALUE, Double.MAX_VALUE));
 		return v0;
 	}
-	
+
 	//here are the two new ones ===============================================
-	
 
 	public static int mark__Ljava_lang_String_2__Ljava_lang_String_2(MJIEnv env, 
 			int rcls, int rString) {
 		String str = env.getStringObject(rString);
-		
-		env.setReturnAttribute(new StringVariable("mark" + counter++ + "__SYM",
-		        str, null));
 
 		return rString;
 	}
@@ -81,16 +76,15 @@ public class JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker {
 			MJIEnv env, int rcls, int rString, int rString1) {
 		String str = env.getStringObject(rString);
 
-		env.setReturnAttribute(new StringVariable(env.getStringObject(rString1) + "__SYM", str, null));
+		env.setReturnAttribute(new StringVariable(
+		        env.getStringObject(rString1) + "__SYM", str, null));
+		logger.warn("Marking string");
 
 		return rString;
 	}
 
-	
 	//=========================================================================
-	
-	
-	
+
 	public static boolean mark__ZLjava_lang_String_2__Z(MJIEnv env, int rcls, boolean v0,
 	        int rString1) {
 		env.setReturnAttribute(new IntegerVariable(env.getStringObject(rString1)

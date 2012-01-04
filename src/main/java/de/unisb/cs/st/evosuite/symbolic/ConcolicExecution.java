@@ -118,7 +118,9 @@ public class ConcolicExecution {
 		try {
 			jpf.run();
 		} catch (Throwable t) {
-			logger.warn("Exception while executing test: " + classPath + " " + targetName);
+			logger.warn("Exception while executing test: " + classPath + " " + targetName
+			        + ": " + t);
+			t.printStackTrace();
 		} finally {
 			System.setOut(old_out);
 			System.setErr(old_err);
