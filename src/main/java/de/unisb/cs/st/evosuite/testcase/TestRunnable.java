@@ -112,6 +112,9 @@ public class TestRunnable implements InterfaceTestRunnable {
 					if (breakOnException) {
 						break;
 					}
+					if (Thread.interrupted()) {
+						break;
+					}
 
 					/*
 					 * #TODO this is a penalty for test cases which contain a statement that throws an undeclared exception.

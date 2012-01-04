@@ -204,6 +204,13 @@ public class TestCaseExecutor implements ThreadFactory {
 			timeExecuted += endTime - startTime;
 			testsExecuted++;
 
+			if (!result.exceptions.isEmpty()) {
+				Throwable e = result.exceptions.values().iterator().next();
+				if (e instanceof ThreadDeath) {
+					logger.warn("THREAD DEATH!");
+				}
+			}
+
 			return result;
 		} catch (ThreadDeath t) {
 			logger.warn("Caught ThreadDeath during test execution");
@@ -252,8 +259,12 @@ public class TestCaseExecutor implements ThreadFactory {
 			}
 			logger.info("TimeoutException, need to stop runner", e1);
 			ExecutionTracer.setKillSwitch(true);
-			ExecutionTracer.disable();
 			//task.cancel(true);
+			logger.info("Cancelling thread:");
+			for (StackTraceElement elem : currentThread.getStackTrace()) {
+				logger.info(elem.toString());
+			}
+
 			handler.getLastTask().cancel(true);
 
 			if (!callable.isRunFinished()) {
@@ -273,6 +284,10 @@ public class TestCaseExecutor implements ThreadFactory {
 							for (StackTraceElement element : currentThread.getStackTrace()) {
 								logger.info(element.toString());
 							}
+							logger.info("Killing thread:");
+							for (StackTraceElement elem : currentThread.getStackTrace()) {
+								logger.info(elem.toString());
+							}
 							currentThread.stop();
 						}
 					} catch (ThreadDeath t) {
@@ -280,9 +295,12 @@ public class TestCaseExecutor implements ThreadFactory {
 					} catch (Throwable t) {
 						logger.info("Throwable: " + t);
 					}
+					ExecutionTracer.disable();
 					executor = Executors.newSingleThreadExecutor(this);
 				}
 			}
+			ExecutionTracer.disable();
+
 			ExecutionResult result = new ExecutionResult(tc, null);
 			result.exceptions = callable.getExceptionsThrown();
 			result.exceptions.put(tc.size(), new TestCaseExecutor.TimeoutExceeded());
@@ -315,7 +333,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		if (currentThread != null && currentThread.isAlive()) {
 			currentThread.setPriority(Thread.MIN_PRIORITY);
 			stalledThreads.add(currentThread);
-			logger.info("Current number of stalled threads: " + stalledThreads.size());
+			logger.info("Current number of stalled threads: " + getNumStalledThreads());
 		}
 
 		if (threadGroup != null) {
