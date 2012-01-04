@@ -120,6 +120,7 @@ public class InsertUnaryOperator implements MutationOperator {
 		case Opcodes.DLOAD:
 			return true;
 		case Opcodes.GETFIELD:
+		case Opcodes.GETSTATIC:
 			FieldInsnNode fieldNode = (FieldInsnNode) instruction.getASMNode();
 			Type type = Type.getType(fieldNode.desc);
 			if (type == Type.BYTE_TYPE || type == Type.SHORT_TYPE
