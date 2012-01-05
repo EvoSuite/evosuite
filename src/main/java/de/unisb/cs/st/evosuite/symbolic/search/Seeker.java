@@ -22,6 +22,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
 
 import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringVariable;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
 
@@ -55,6 +56,9 @@ public class Seeker implements Solver {
 		List<Constraint<?>> cnstr = (List<Constraint<?>>)constraints;
 		Constraint<?> target = cnstr.get(cnstr.size()-1);
 		
+		//remove the target from the constraints
+		constraints.remove(target);
+		
 		boolean desCnstrValue; 
 		switch (target.getComparator()) {
 		case EQ:	//TODO what to do if we don't want to satisfy the condition? Just exit?
@@ -72,38 +76,44 @@ public class Seeker implements Solver {
 		}
 		
 		Expression<?> expr = target.getLeftOperand();
-		log.warning("int.min: " + expr);
+		
 		if (!(expr instanceof StringComparison)) {
 			return null;
 		}
 		StringComparison sc = (StringComparison) expr;
 		
-		setupTree(sc);
+		/* We don't need this functionality for now
+		 * If we don't need it at all delete "parent" stuff in Expression
+		 */
+		//setupTree(sc);
 		
-		Set<Variable<?>> vars = getVariables(target);
+		Set<StringVariable> vars = getStringVariables(target);
 		
-		int distance = DistanceEstimator.getDistance(sc);
+		int fitness = DistanceEstimator.getFitness(sc);
 		boolean reachable = true;
 		
 		for (int i = 0; i < maxStepsForAll ; i++ ) {
-			for (Variable<?> var : vars) {
+			for (StringVariable var : vars) {
 				Changer changer = new Changer();
-				String strVal = var.getMinValue().toString();
+				String strVal = var.getMaxValue();
 				
 				for (int j = 0; j < maxStepsForEach ; j++ ) {
-					String newVal = changer.changeVar(strVal, distance, reachable);
-					//TODO assign var the new value (in MaxValue)
+					String newVal = changer.changeVar(strVal, fitness, reachable);
+					//assign working value in var.MinValue)
+					var.setMinValue(newVal);
 					reachable = DistanceEstimator.areReachable(constraints);
 					//if unreachable values will be reverted automatically by changeVar()
 					if (reachable) {
-						int newDist = DistanceEstimator.getDistance(sc);
-						if (newDist >= 0) {
+						int newFit = DistanceEstimator.getFitness(sc);
+						if (newFit > fitness) {
+							var.setMaxValue(newVal);
+							result.put(var.getName() , newVal);
+						}	
+						if (newFit >= 0) {
 							//we are ready 
-							
-							//TODO save the new value for the var and return 
-							
-						} else {
-							distance = newDist;
+							return result;
+						} else {							
+							fitness = newFit;
 							strVal = newVal;
 						}
 					}
@@ -160,6 +170,7 @@ public class Seeker implements Solver {
 		return result;
 	}
 	
+	@SuppressWarnings("unused")
 	private void setupTree(Expression<?> expr) {
 		if (expr instanceof Variable<?>) {
 			//done
@@ -212,10 +223,10 @@ public class Seeker implements Solver {
 	 * @param constraint
 	 * @return
 	 */
-	private Set<Variable<?>> getVariables(Constraint<?> constraint) {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
-		getVariables(constraint.getLeftOperand(), variables);
-		getVariables(constraint.getRightOperand(), variables);
+	private Set<StringVariable> getStringVariables(Constraint<?> constraint) {
+		Set<StringVariable> variables = new HashSet<StringVariable>();
+		getStringVariables(constraint.getLeftOperand(), variables);
+		getStringVariables(constraint.getRightOperand(), variables);
 		return variables;
 	}
 
@@ -225,30 +236,30 @@ public class Seeker implements Solver {
 	 * @param expr
 	 * @param variables
 	 */
-	private void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
-		if (expr instanceof Variable<?>) {
-			variables.add((Variable<?>) expr);
+	private void getStringVariables(Expression<?> expr, Set<StringVariable> variables) {
+		if (expr instanceof StringVariable) {
+			variables.add((StringVariable) expr);
 		} else if (expr instanceof StringMultipleComparison){
 			StringMultipleComparison smc = (StringMultipleComparison) expr;
-			getVariables(smc.getLeftOperand(), variables);
-			getVariables(smc.getRightOperand(), variables);
+			getStringVariables(smc.getLeftOperand(), variables);
+			getStringVariables(smc.getRightOperand(), variables);
 			ArrayList<Expression<?>> ar_l_ex = smc.getOther();
 			Iterator<Expression<?>> itr = ar_l_ex.iterator();
 		    while (itr.hasNext()) {
 		    	Expression<?> element = itr.next();
-		    	getVariables(element, variables);
+		    	getStringVariables(element, variables);
 		    }
 		} else if (expr instanceof StringComparison){
 			StringComparison sc = (StringComparison) expr;
-			getVariables(sc.getLeftOperand(), variables);
-			getVariables(sc.getRightOperand(), variables);
+			getStringVariables(sc.getLeftOperand(), variables);
+			getStringVariables(sc.getRightOperand(), variables);
 		} else if (expr instanceof BinaryExpression<?>) {
 			BinaryExpression<?> bin = (BinaryExpression<?>) expr;
-			getVariables(bin.getLeftOperand(), variables);
-			getVariables(bin.getRightOperand(), variables);
+			getStringVariables(bin.getLeftOperand(), variables);
+			getStringVariables(bin.getRightOperand(), variables);
 		} else if (expr instanceof UnaryExpression<?>) {
 			UnaryExpression<?> un = (UnaryExpression<?>) expr;
-			getVariables(un.getOperand(), variables);
+			getStringVariables(un.getOperand(), variables);
 		} else if (expr instanceof Constraint<?>) {
 			// ignore
 

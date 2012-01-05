@@ -3,6 +3,12 @@
  */
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
+import gov.nasa.jpf.JPF;
+
+import java.util.logging.Logger;
+
+import de.unisb.cs.st.evosuite.javaagent.BooleanHelper;
+
 /**
  * @author krusev
  *
@@ -11,6 +17,8 @@ public class StringComparison extends StringExpression {
 
 	private static final long serialVersionUID = -2959676064390810341L;
 
+	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.expr.StringComparison");
+	
 	public StringComparison(Expression<String> left, Operator op, Expression<?> right2, Long con) {
 		super();
 		this.left = left;
@@ -69,6 +77,30 @@ public class StringComparison extends StringExpression {
 
 	public Operator getOperator() {
 		return op;
+	}
+
+	@Override
+	public Long execute() {
+		String first = (String)left.execute();
+		String second = (String)right.execute();
+		
+		switch (op) {
+		case EQUALSIGNORECASE:
+			return (long)BooleanHelper.StringEqualsIgnoreCase(first, second);
+		case EQUALS:
+			return (long)BooleanHelper.StringEquals(first, second);
+		case ENDSWITH:
+			return (long)BooleanHelper.StringEndsWith(first, second);
+		case CONTAINS:
+			return (long)BooleanHelper.StringContains(first, second);
+		case COMPARETO:
+			return (long) first.compareTo(second);
+		case COMPARETOIGNORECASE:
+			return (long) first.compareToIgnoreCase(second);
+		default:
+			log.warning("StringComparison: unimplemented operator!");
+			return null;
+		}		
 	}
 
 }

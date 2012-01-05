@@ -4,7 +4,9 @@ import gov.nasa.jpf.JPF;
 import java.util.Collection;
 import java.util.logging.Logger;
 
+import de.unisb.cs.st.evosuite.symbolic.expr.Comparator;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
+import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
 
 /**
@@ -23,11 +25,15 @@ public abstract class DistanceEstimator {
 	 * @param sc
 	 * @return
 	 */
-	public static int getDistance(StringComparison sc) {
-		// TODO Auto-generated method stub
-		// Estimation should be done on MaxValue of the vars 
-		// 					on MinValue if MaxValue == null
-		return -(int)(Math.random()*10);
+	public static int getFitness(StringComparison sc) {
+		
+		long result = sc.execute();
+		//log.warning("comparison: " + sc + " distance: " + result);
+		//System.exit(0); 
+		
+		// Estimation should be done on MinValue
+		
+		return (int)result;
 	}
 
 	/**
@@ -39,10 +45,30 @@ public abstract class DistanceEstimator {
 	 * @return true if all but the last constraint (which is the target) are reachable
 	 */
 	public static boolean areReachable(Collection<Constraint<?>> constraints) {
-		// TODO Auto-generated method stub
-		// Estimation should be done on MaxValue of the vars 
-		// 					on MinValue if MaxValue == null
-		return true;
+		boolean result = true;
+
+		//TODO forgot to scip the last one
+
+		for (Constraint<?> c : constraints) {
+			Expression<?> expr = c.getLeftOperand();
+			if(expr instanceof StringComparison) {
+				StringComparison sc = (StringComparison) expr;
+				Comparator op = c.getComparator();
+//				log.warning("condition: " + sc);
+				long dis = sc.execute();
+				if (op.equals(Comparator.NE)) {
+					//we want to satisfy
+					result = (dis >= 0);
+				}
+				if (op.equals(Comparator.EQ)) {
+					//we DON'T want to satisfy
+					result = (dis < 0);
+				}
+			}
+		}
+//		log.warning("are reachable says: " + result);
+//		System.exit(0);
+		return result;
 	}
 	
 	
