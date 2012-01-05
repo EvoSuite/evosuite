@@ -182,7 +182,7 @@ public abstract class InvVStringBuilderHelper {
 		StringBuilderExpression se0 = (StringBuilderExpression) sf.getOperandAttr(0);
 		
 		//TODO talk with Gordon about this
-		//If we had an undefined append we lose everything this should be signalized somehow
+		//If we had an undefined append we lose everything this should be signaled somehow
 		
 		return (se0 == null) ? !strB_expr.has_undef_func() : !se0.has_undef_func() ;
 	}

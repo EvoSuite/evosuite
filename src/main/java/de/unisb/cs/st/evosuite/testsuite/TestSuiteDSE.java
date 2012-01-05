@@ -239,10 +239,14 @@ public class TestSuiteDSE {
 			logger.info("Reduced constraints from " + size + " to " + constraints.size());
 		}
 		
-		int counter = 0;
-		for (Constraint cnstr : constraints ) {
-			logger.warn("Cnstr: " + (counter++) + " " +  cnstr);
-		}
+//		int counter = 0;
+//		for (Constraint cnstr : constraints ) {
+//			logger.warn("Cnstr: " + (counter++) + " " +  cnstr);
+//		}
+		
+		//return null;
+		
+		
 		
 		Seeker skr = new Seeker();
 		Map<String, Object> values = skr.getModel(constraints);
@@ -267,9 +271,10 @@ public class TestSuiteDSE {
 						
 						String name = ((String) key).replace("__SYM", "");
 						PrimitiveStatement p = getStatement(newTest, name);
-						logger.warn("key: "+ key + " val: " + val + " pStatement: " + p);
+						//logger.warn("key: "+ key + " val: " + val + " pStatement: " + p);
 						assert (p != null);
 						p.setValue(val.toString());
+						//logger.warn("newTest: "+ newTest );
 					} else {
 						logger.debug("New value is of an unsupported type: " + val);
 					}
@@ -283,6 +288,7 @@ public class TestSuiteDSE {
 			logger.debug("Got null :-(");
 			return null;
 		}
+		
 	}
 
 	/**

@@ -62,19 +62,20 @@ public enum Operator {
 	LOG10("log10", 1), //
 	TAN("tan", 1),
 	
-	// String operators
+	// String comparisons
 	EQUALSIGNORECASE("equalsIgnoreCase", 2),
 	EQUALS("equals", 2),
 	STARTSWITH("startsWith", 3),
 	ENDSWITH("endsWith", 2),
 	CONTAINS("contains", 2),
 	REGIONMATCHES("regionMatches", 6), 
-	SUBSTRING("substring", 2), 
+	COMPARETO("compareTo", 2), 
+	COMPARETOIGNORECASE("compareToIgnoreCase", 2),
+	// String operators
+	SUBSTRING("substring", 3), 
 	APPEND("append", 2), 
 	TRIM("trim", 1), 
 	TOLOWERCASE("toLowerCase", 1), 
-	COMPARETO("compareTo", 2), 
-	COMPARETOIGNORECASE("compareToIgnoreCase", 2), 
 	REPLACEC("replacec", 3),
 	REPLACECS("replacecs", 3), 
 	REPLACEALL("replaceAll", 3),

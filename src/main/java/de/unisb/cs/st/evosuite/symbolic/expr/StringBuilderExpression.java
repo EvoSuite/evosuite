@@ -80,4 +80,11 @@ public class StringBuilderExpression extends StringExpression {
 		return (String) expr.getConcreteValue();
 	}
 
+
+	@Override
+	public String execute() {
+		// TODO Auto-generated method stub
+		return (String) expr.execute();
+	}
+
 }

@@ -50,4 +50,10 @@ public class IntegerToRealCast extends RealExpression {
 		return size;
 	}
 
+	@Override
+	public Object execute() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

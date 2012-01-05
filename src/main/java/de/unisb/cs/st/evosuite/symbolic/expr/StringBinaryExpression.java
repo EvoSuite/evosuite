@@ -3,6 +3,10 @@
  */
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
+import gov.nasa.jpf.JPF;
+
+import java.util.logging.Logger;
+
 /**
  * @author krusev
  *
@@ -12,6 +16,8 @@ BinaryExpression<String>{
 
 	private static final long serialVersionUID = -986689442489666986L;
 
+	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.expr.StringBinaryExpression");
+	
 	protected String concretValue;
 
 	protected Operator op;
@@ -76,6 +82,31 @@ BinaryExpression<String>{
 //			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
 //		}
 //		return size;
+	}
+
+	@Override
+	public String execute() {
+		String first = (String)left.execute();
+		Object second = right.execute();
+		
+		switch (op) {
+
+		case CONCAT:
+			return first.concat((String)second);
+		case INDEXOFC:
+			long ch = (Long) second;
+			return Integer.toString(first.indexOf((char)ch));
+		case INDEXOFS:
+			return Integer.toString(first.indexOf((String)second));
+		case APPEND: 
+			return first + ((String) second);
+		default:
+			log.warning("StringBinaryExpression: unimplemented operator!");
+			return null;
+		}
+		
+		
+		
 	}
 
 }
