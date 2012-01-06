@@ -99,7 +99,7 @@ public class DeleteField implements MutationOperator {
 		        original.name, original.desc));
 		Type type = Type.getType(original.desc);
 
-		if (type.getDescriptor().startsWith("L")) {
+		if (type.getDescriptor().startsWith("L") || type.getDescriptor().startsWith("[")) {
 			ReplaceVariable.addReferenceDistanceCheck(distance, type, mutant);
 		} else {
 			ReplaceVariable.addPrimitiveDistanceCheck(distance, type, mutant);
