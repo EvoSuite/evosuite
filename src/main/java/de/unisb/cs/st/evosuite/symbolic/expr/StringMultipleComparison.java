@@ -3,7 +3,12 @@
  */
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
+import gov.nasa.jpf.JPF;
+
 import java.util.ArrayList;
+import java.util.logging.Logger;
+
+import de.unisb.cs.st.evosuite.javaagent.BooleanHelper;
 
 /**
  * @author krusev
@@ -12,9 +17,10 @@ import java.util.ArrayList;
 public class StringMultipleComparison extends StringComparison implements
 BinaryExpression<String>{
 
-
 	private static final long serialVersionUID = -3844726361666119758L;
 
+	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison");
+	
 	protected ArrayList<Expression<?>> other_v;
 
 	public StringMultipleComparison(Expression<String> _left, Operator _op,
@@ -98,6 +104,33 @@ BinaryExpression<String>{
 //			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
 //		}
 //		return size;
+	}
+	
+	
+
+	@Override
+	public Long execute() {
+		String first = (String)left.execute();
+		String second = (String)right.execute();
+		
+		
+		switch (op) {
+		case STARTSWITH:
+			long start = (Long) other_v.get(0).execute();
+
+			return (long)BooleanHelper.StringStartsWith(first, second, (int) start);
+		case REGIONMATCHES:
+			long frstStart = (Long) other_v.get(0).execute();			
+			long secStart = (Long) other_v.get(1).execute();
+			long length = (Long) other_v.get(2).execute();
+			long ignoreCase = (Long) other_v.get(3).execute();
+
+			return (long)BooleanHelper.StringRegionMatches(first, (int) frstStart, 
+					second, (int) secStart, (int) length, ignoreCase != 0);
+		default:
+			log.warning("StringMultipleComparison: unimplemented operator!");
+			return null;
+		}		
 	}
 
 }

@@ -56,4 +56,10 @@ public class RealUnaryExpression extends RealExpression implements
 		return size;
 	}
 
+	@Override
+	public Object execute() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

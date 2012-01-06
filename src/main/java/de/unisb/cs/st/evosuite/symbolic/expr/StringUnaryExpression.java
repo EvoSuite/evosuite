@@ -3,6 +3,10 @@
  */
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
+import java.util.logging.Logger;
+
+import gov.nasa.jpf.JPF;
+
 /**
  * @author krusev
  *
@@ -12,6 +16,8 @@ UnaryExpression<String>{
 
 	private static final long serialVersionUID = -384874147850376188L;
 
+	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.expr.StringUnaryExpression");
+	
 	protected String concretValue;
 
 	//protected int conretIntValue;
@@ -70,6 +76,26 @@ UnaryExpression<String>{
 //			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
 //		}
 //		return size;
+	}
+
+	@Override
+	public Object execute() {
+		String exOn = (String)val.execute();
+		
+		switch (op) {
+		case TOLOWERCASE:
+			return exOn.toLowerCase();
+		case TRIM:
+			return exOn.trim();
+		case LENGTH:
+			//TODO what to do here
+			return Integer.toString(exOn.length());
+		default:
+			log.warning("StringUnaryExpression: unimplemented operator!");
+			return null;
+		}
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -9,7 +9,7 @@ public abstract interface Expression<T extends Object> extends Serializable{
 	
 	public void setParent(Expression<?> expr);
 	
-//	public void execute();
+	public Object execute();
 	
 	//TODO <maybe wrong> changed public T getConcreteValue(); to this
 	public Object getConcreteValue();
