@@ -3,6 +3,8 @@
  */
 package de.unisb.cs.st.evosuite.javaagent;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Stack;
 
 import org.objectweb.asm.Opcodes;
@@ -45,6 +47,95 @@ public class BooleanHelper {
 			stackStack.clear();
 		if (distanceStack != null)
 			distanceStack.clear();
+	}
+
+	/**
+	 * Helper function that is called instead of Object.equals
+	 * 
+	 * @param obj1
+	 * @param obj2
+	 * @return
+	 */
+	public static int objectEquals(Object obj1, Object obj2) {
+		return obj1.equals(obj2) ? K : -K;
+	}
+
+	/**
+	 * Helper function that is called instead of Collection.isEmpty
+	 * 
+	 * @param c
+	 * @return
+	 */
+	public static int collectionIsEmpty(Collection<?> c) {
+		return c.isEmpty() ? K : -c.size();
+	}
+
+	/**
+	 * Helper function that is called instead of Collection.contains
+	 * 
+	 * @param c
+	 * @param o1
+	 * @return
+	 */
+	public static int collectionContains(Collection<?> c, Object o1) {
+		int matching = 0;
+		for (Object o2 : c) {
+			if (o2.equals(o1))
+				matching++;
+		}
+		return matching > 0 ? matching : -c.size();
+	}
+
+	/**
+	 * Helper function that is called instead of Collection.containsAll
+	 * 
+	 * @param c
+	 * @param o1
+	 * @return
+	 */
+	public static int collectionContainsAll(Collection<?> c, Collection<?> c2) {
+		int mismatch = 0;
+		for (Object o : c2) {
+			if (c.contains(o))
+				mismatch++;
+		}
+		return mismatch > 0 ? -mismatch : c2.size();
+	}
+
+	/**
+	 * Helper function that is called instead of Map.containsKey
+	 * 
+	 * @param c
+	 * @param o1
+	 * @return
+	 */
+	public static int mapContainsKey(Map<?, ?> m, Object o1) {
+		return collectionContains(m.keySet(), o1);
+	}
+
+	/**
+	 * Helper function that is called instead of Map.containsValue
+	 * 
+	 * @param c
+	 * @param o1
+	 * @return
+	 */
+	public static int mapContainsValue(Map<?, ?> m, Object o1) {
+		return collectionContains(m.values(), o1);
+	}
+
+	/**
+	 * Helper function that is called instead of Map.isEmpty
+	 * 
+	 * @param c
+	 * @return
+	 */
+	public static int mapIsEmpty(Map<?, ?> m) {
+		return m.isEmpty() ? K : -m.size();
+	}
+
+	public static void pushPredicate(int branchId, int distance) {
+
 	}
 
 	public static void pushPredicate(int distance) {
@@ -297,19 +388,18 @@ public class BooleanHelper {
 		return StringEquals(s1.substring(thisStart, length), s2.substring(start, length));
 	}
 
-	
 	//TODO ask Gordon what's with the K and why editDistance() is giving 0 when equal 
 	public static int StringContains(String val, CharSequence subStr) {
 		int val_length = val.length();
 		int subStr_length = subStr.length();
 		int min_dist = Integer.MAX_VALUE;
 		String sub = subStr.toString();
-		
+
 		if (subStr_length > val_length) {
 			return -editDistance(val, sub);
 		} else {
 			int diff = val_length - subStr_length;
-			for (int i = 0; i < diff+1; i++) {
+			for (int i = 0; i < diff + 1; i++) {
 				int res = StringEquals(val.substring(i, subStr_length + i), sub);
 				if (res < min_dist) {
 					min_dist = res;
@@ -318,8 +408,7 @@ public class BooleanHelper {
 		}
 		return min_dist;
 	}
-	
-	
+
 	public static int instanceOf(Object o, Class<?> c) {
 		if (o == null)
 			return -K;
