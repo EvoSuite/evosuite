@@ -42,4 +42,10 @@ public class StringConstant extends StringExpression {
 		return -1;
 	}
 
+	@Override
+	public String execute() {
+		return value;
+		
+	}
+
 }

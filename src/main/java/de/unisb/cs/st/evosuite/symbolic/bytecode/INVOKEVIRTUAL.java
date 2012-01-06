@@ -61,6 +61,8 @@ public class INVOKEVIRTUAL extends gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL {
 		if (cname.equals("java.lang.String")) {
 
 			//Check in which function we are and handle appropriately 
+			//TODO this ugly thing here can also be done with java reflection
+			//	new methods in the helper classes will not have to be added her too
 			try {
 				if (mname.startsWith("equalsIgnoreCase")) {
 					

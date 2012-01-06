@@ -41,66 +41,8 @@ public abstract class InvVStringHelper {
 	 */
 	
 	
-	public static Instruction strFncSubstring(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins) {
-		boolean case_one = ins.getInvokedMethodSignature().equals("(I)Ljava/lang/String;");
-		/*
-		 * case one: val.substring(int start);
-		 * case two: val.substring(int start, int end);
-		 */
-		
-		int offset = ((case_one) ? 0 : 1);
-		
-		StackFrame sf = ti.getTopFrame();
-		
-		//get values from the fake stack 
-		Expression<?> se_end = null;
-		if (!case_one){ 
-			se_end = (Expression<?>) sf.getOperandAttr(0);
-		}
-		Expression<?> se0 = (Expression<?>) sf.getOperandAttr(0 + offset);
-		StringExpression se1 = (StringExpression) sf.getOperandAttr(1 + offset);
 
-		//get the Strings using the positions from the stack. Order is crucial here
-		int end = -1;
-		if (!case_one){ 
-			end = sf.pop();
-		}
-		int start = sf.pop();
-		String firstStr = ks.heap.get(sf.pop()).asString();
-
-		if (!case_one && se_end == null)
-			se_end = new IntegerConstant(end);
-			
-		if (se0 == null) {
-			se0 = new IntegerConstant(start);
-		}
-		
-		//TODO offset could be out of range 
-		//substring throws an exception
-		// ask Gordon how EvoSuite could handle this
-
-		
-		//compute the resulting value and push it on the real stack
-		String result = null;
-		if (case_one) {
-			result = firstStr.substring(start);
-		} else {
-			result = firstStr.substring(start, end);
-		}
-		
-		int pointer = ks.heap.newString(result, ti); 
-		sf.push(pointer, true);
-		
-		ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
-		other.add(se_end);
-		
-		//push a StringComparation expression on the fake stack
-		sf.setOperandAttr(
-			new StringMultipleExpression(se1, Operator.SUBSTRING, se0, other, result));
-		
-		//return the next instruction that followed the function call
-		return ins.getNext(ti);
-	}
+	//String Comparisons
 
 	public static Instruction strFncEqualsIgnoreCase(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins) {
 		
@@ -180,7 +122,7 @@ public abstract class InvVStringHelper {
 		if (case_one) {
 			offs_expr = (Expression<Long>) sf.getOperandAttr(0);
 		} else {
-			offs_expr = new IntegerConstant(-1);
+			offs_expr = new IntegerConstant(0);
 		}
 		StringExpression se0 = (StringExpression) sf.getOperandAttr(0 + sf_offs_int);
 		StringExpression se1 = (StringExpression) sf.getOperandAttr(1 + sf_offs_int);
@@ -403,6 +345,74 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	
+	// String Operations
+	
+	public static Instruction strFncSubstring(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins) {
+		boolean case_one = ins.getInvokedMethodSignature().equals("(I)Ljava/lang/String;");
+		/*
+		 * case one: val.substring(int start);
+		 * case two: val.substring(int start, int end);
+		 */
+		
+		int offset = ((case_one) ? 0 : 1);
+		
+		StackFrame sf = ti.getTopFrame();
+		
+		//get values from the fake stack 
+		Expression<?> se_end = null;
+		if (!case_one){ 
+			se_end = (Expression<?>) sf.getOperandAttr(0);
+		}
+		Expression<?> se0 = (Expression<?>) sf.getOperandAttr(0 + offset);
+		StringExpression se1 = (StringExpression) sf.getOperandAttr(1 + offset);
+
+		//get the Strings using the positions from the stack. Order is crucial here
+		int end = -1;
+		if (!case_one){ 
+			end = sf.pop();
+		}
+		int start = sf.pop();
+		String firstStr = ks.heap.get(sf.pop()).asString();
+
+		if (case_one) {
+			end = firstStr.length();
+		}
+		
+		if (!case_one && se_end == null)
+			se_end = new IntegerConstant(end);
+			
+		if (se0 == null) {
+			se0 = new IntegerConstant(start);
+		}
+		
+		//TODO offset could be out of range 
+		//substring throws an exception
+		// ask Gordon how EvoSuite could handle this
+
+		
+		//compute the resulting value and push it on the real stack
+		String result = null;
+		if (case_one) {
+			result = firstStr.substring(start);
+		} else {
+			result = firstStr.substring(start, end);
+		}
+		
+		int pointer = ks.heap.newString(result, ti); 
+		sf.push(pointer, true);
+		
+		ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
+		other.add(se_end);
+		
+		//push a StringComparation expression on the fake stack
+		sf.setOperandAttr(
+			new StringMultipleExpression(se1, Operator.SUBSTRING, se0, other, result));
+		
+		//return the next instruction that followed the function call
+		return ins.getNext(ti);
+	}
+	
 	public static Instruction strFncReplace(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
 		/* 
 		 * case one:

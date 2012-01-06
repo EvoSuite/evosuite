@@ -50,12 +50,14 @@ public class Changer {
 	 */
 	public String changeVar (String currVal, int currFitness, boolean reachable) {
 		String result = currVal;
-		
+		//log.warning("reachable"+reachable);
 		//If the fitness got worse or the target is no longer reachable 
 		//		revert to last value and don't use the same operator
 		//think about using the same operator but on different position
 		if (lastFitness > currFitness || !reachable) {
-			result = lastVal;
+			if ( lastVal != null){
+				result = lastVal;
+			}
 			Change allChngs[] = Change.values();
 			int rnd = (int) (Math.random() * (allChngs.length));
 			if (allChngs[rnd] == change) {
@@ -68,7 +70,7 @@ public class Changer {
 			lastFitness = currFitness;
 		}
 		
-		//If the string that we handle is empty we don't have any other choise
+		//If the string that we handle is empty we don't have any other choice
 		if (result.isEmpty()) {
 			change = Change.ADD;
 		}

@@ -15,7 +15,6 @@ public class IntegerConcolicInstructionFactory extends InstructionFactory implem
 		return this;
 	}
 
-	/*
 	@Override
 	public ASTORE astore(int index) {
 		return new ASTORE(index);
@@ -30,7 +29,7 @@ public class IntegerConcolicInstructionFactory extends InstructionFactory implem
 	public LDC ldc(String s, boolean isClass) {
 		return new LDC(s, isClass);
 	}
-	*/
+	
 	@Override
 	public INVOKEVIRTUAL invokevirtual(String clsName, String methodName,
 	        String methodSignature) {

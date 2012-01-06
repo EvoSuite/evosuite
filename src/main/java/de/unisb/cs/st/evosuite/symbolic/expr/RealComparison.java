@@ -57,4 +57,10 @@ public class RealComparison extends IntegerExpression {
 		}
 		return size;
 	}
+
+	@Override
+	public Object execute() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

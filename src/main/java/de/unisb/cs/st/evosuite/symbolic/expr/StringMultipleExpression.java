@@ -98,5 +98,49 @@ BinaryExpression<String>{
 //		}
 //		return size;
 	}
+	
+	@Override
+	public String execute() {
+		String first = (String)left.execute();
+		Object second = right.execute();		
+		Object third = other_v.get(0).execute();
+		long secLong, thrdLong;
+		String secStr, thrdStr;
+		
+		switch (op) {
+		
+		case INDEXOFCI:
+			secLong = (Long) second;
+			thrdLong = (Long) third;
+			return Integer.toString(first.indexOf((int)secLong, (int)thrdLong));
+		case INDEXOFSI:
+			secStr = (String) second;
+			thrdLong = (Long) third;
+			return Integer.toString(first.indexOf(secStr, (int)thrdLong));
+		case SUBSTRING:
+			secLong = (Long) second;
+			thrdLong = (Long) third;
+			return first.substring((int) secLong, (int) thrdLong);
+		case REPLACEC:
+			secLong = (Long) second;
+			thrdLong = (Long) third;
+			return first.replace((char) secLong, (char) thrdLong);
+		case REPLACECS:
+			secStr = (String) second;
+			thrdStr = (String) third;
+			return first.replace(secStr, thrdStr);
+		case REPLACEALL:
+			secStr = (String) second;
+			thrdStr = (String) third;
+			return first.replaceAll(secStr, thrdStr);
+		case REPLACEFIRST:				
+			secStr = (String) second;
+			thrdStr = (String) third;
+			return first.replaceFirst(secStr, thrdStr);
+		default:
+			log.warning("StringBinaryExpression: unimplemented operator!");
+			return null;
+		}
+	}
 
 }
