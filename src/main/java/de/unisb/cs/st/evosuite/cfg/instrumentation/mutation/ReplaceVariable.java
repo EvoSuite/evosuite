@@ -138,7 +138,8 @@ public class ReplaceVariable implements MutationOperator {
 		if (original instanceof VarInsnNode) {
 			VarInsnNode node = (VarInsnNode) original;
 			distance.add(new VarInsnNode(node.getOpcode(), node.var));
-			if (type.getDescriptor().startsWith("L"))
+			if (type.getDescriptor().startsWith("L")
+			        || type.getDescriptor().startsWith("["))
 				addReferenceDistanceCheck(distance, type, mutant);
 			else
 				addPrimitiveDistanceCheck(distance, type, mutant);

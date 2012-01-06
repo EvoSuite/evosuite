@@ -85,14 +85,10 @@ public class MutationInstrumentation implements MethodInstrumentation {
 			AbstractInsnNode in = j.next();
 			if (!constructorInvoked) {
 				if (in.getOpcode() == Opcodes.INVOKESPECIAL) {
-					logger.info("Found constructor invocation");
 					constructorInvoked = true;
 				} else {
-					logger.info("Constructor not yet invoced");
 					continue;
 				}
-			} else {
-				logger.info("Constructor already invoked, allowing mutation");
 			}
 
 			for (BytecodeInstruction v : graph.vertexSet()) {
