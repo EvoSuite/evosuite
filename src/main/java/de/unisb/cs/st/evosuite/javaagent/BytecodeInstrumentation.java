@@ -181,7 +181,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			cv = new StaticInitializationClassAdapter(cv, className);
 		}
 
-		if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
+		//		if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
+		if (classNameWithDots.startsWith(Properties.CLASS_PREFIX)) {
 			ClassNode cn = new ClassNode();
 			reader.accept(cn, ClassReader.SKIP_FRAMES); //  | ClassReader.SKIP_DEBUG
 			ComparisonTransformation cmp = new ComparisonTransformation(cn);
@@ -190,9 +191,10 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			if (Properties.STRING_REPLACEMENT) {
 				StringTransformation st = new StringTransformation(cn);
 				cn = st.transform();
-			}
 
-			cn.accept(cv);
+				ContainerTransformation ct = new ContainerTransformation(cn);
+				cn = ct.transform();
+			}
 
 			if (Properties.TT) {
 				logger.info("Testability Transforming " + className);
@@ -201,8 +203,11 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 				// PrintWriter(System.out));
 				cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 				cv = new CheckClassAdapter(cv);
-				tt.transform().accept(cv);
+				//tt.transform().accept(cv);
+				cn = tt.transform();
+				logger.info("Testability Transformation done: " + className);
 			}
+			cn.accept(cv);
 
 		} else {
 			reader.accept(cv, ClassReader.SKIP_FRAMES); //  | ClassReader.SKIP_DEBUG
