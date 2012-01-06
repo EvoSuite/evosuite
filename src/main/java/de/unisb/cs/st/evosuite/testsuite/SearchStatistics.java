@@ -255,6 +255,11 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		return filename;
 	}
 
+	public void mutationScore(double mutationScore) {
+		StatisticEntry entry = statistics.get(statistics.size() - 1);
+		entry.mutationScore = mutationScore;
+	}
+
 	@Override
 	public void minimized(Chromosome result) {
 		TestSuiteChromosome best = (TestSuiteChromosome) result;
@@ -361,6 +366,9 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		 */
 		// }
 
+	}
+
+	public void writeStatistics() {
 		makeDirs();
 		writeCSV();
 	}

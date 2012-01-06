@@ -59,8 +59,8 @@ public class StringTransformation {
 			if (node instanceof MethodInsnNode) {
 				MethodInsnNode min = (MethodInsnNode) node;
 				if (min.owner.equals("java/lang/String")) {
-					changed = true;
 					if (min.name.equals("equals")) {
+						changed = true;
 						MethodInsnNode equalCheck = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
 						        Type.getInternalName(BooleanHelper.class),
@@ -73,6 +73,7 @@ public class StringTransformation {
 						mn.instructions.remove(node);
 
 					} else if (min.name.equals("equalsIgnoreCase")) {
+						changed = true;
 						MethodInsnNode equalCheck = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
 						        Type.getInternalName(BooleanHelper.class),
@@ -85,6 +86,7 @@ public class StringTransformation {
 						mn.instructions.remove(node);
 
 					} else if (min.name.equals("startsWith")) {
+						changed = true;
 						if (min.desc.equals("(Ljava/lang/String;)Z")) {
 							mn.instructions.insertBefore(node, new InsnNode(
 							        Opcodes.ICONST_0));
@@ -102,6 +104,7 @@ public class StringTransformation {
 						mn.instructions.remove(node);
 
 					} else if (min.name.equals("endsWith")) {
+						changed = true;
 						MethodInsnNode equalCheck = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
 						        Type.getInternalName(BooleanHelper.class),
@@ -114,6 +117,7 @@ public class StringTransformation {
 						mn.instructions.remove(node);
 
 					} else if (min.name.equals("isEmpty")) {
+						changed = true;
 						MethodInsnNode equalCheck = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
 						        Type.getInternalName(BooleanHelper.class),

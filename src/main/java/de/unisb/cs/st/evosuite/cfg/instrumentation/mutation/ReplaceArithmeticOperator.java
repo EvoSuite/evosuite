@@ -11,8 +11,12 @@ import java.util.Set;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
@@ -32,7 +36,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 
 	private static Set<Integer> opcodesDouble = new HashSet<Integer>();
 
-	// TODO: Unary operators
+	private int numVariable = 0;
 
 	static {
 		opcodesInt.addAll(Arrays.asList(new Integer[] { Opcodes.IADD, Opcodes.ISUB,
@@ -48,12 +52,45 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 		        Opcodes.DMUL, Opcodes.DDIV, Opcodes.DREM }));
 	}
 
+	private String getOp(int opcode) {
+		switch (opcode) {
+		case Opcodes.IADD:
+		case Opcodes.LADD:
+		case Opcodes.FADD:
+		case Opcodes.DADD:
+			return "+";
+		case Opcodes.ISUB:
+		case Opcodes.LSUB:
+		case Opcodes.FSUB:
+		case Opcodes.DSUB:
+			return "-";
+		case Opcodes.IMUL:
+		case Opcodes.LMUL:
+		case Opcodes.FMUL:
+		case Opcodes.DMUL:
+			return "*";
+		case Opcodes.IDIV:
+		case Opcodes.LDIV:
+		case Opcodes.FDIV:
+		case Opcodes.DDIV:
+			return "/";
+		case Opcodes.IREM:
+		case Opcodes.LREM:
+		case Opcodes.FREM:
+		case Opcodes.DREM:
+			return "%";
+		}
+		throw new RuntimeException("Unknown opcode: " + opcode);
+	}
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.cfg.instrumentation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, de.unisb.cs.st.evosuite.cfg.BytecodeInstruction)
 	 */
 	@Override
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
 	        BytecodeInstruction instruction) {
+
+		numVariable = mn.localVariables.size() + 1;
 
 		List<Mutation> mutations = new LinkedList<Mutation>();
 
@@ -65,10 +102,14 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 			// insert mutation into pool
 			Mutation mutationObject = MutationPool.addMutation(className,
 			                                                   methodName,
-			                                                   "ReplaceArithmeticOperator",
+			                                                   "ReplaceArithmeticOperator "
+			                                                           + getOp(node.getOpcode())
+			                                                           + " -> "
+			                                                           + getOp(opcode),
 			                                                   instruction,
 			                                                   mutation,
-			                                                   Mutation.getDefaultInfectionDistance());
+			                                                   getInfectionDistance(node.getOpcode(),
+			                                                                        opcode));
 			mutations.add(mutationObject);
 		}
 
@@ -88,6 +129,146 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 
 		replacement.remove(opcode);
 		return replacement;
+	}
+
+	public InsnList getInfectionDistance(int opcodeOrig, int opcodeNew) {
+		InsnList distance = new InsnList();
+
+		if (opcodesInt.contains(opcodeOrig)) {
+			distance.add(new InsnNode(Opcodes.DUP2));
+			distance.add(new LdcInsnNode(opcodeOrig));
+			distance.add(new LdcInsnNode(opcodeNew));
+			distance.add(new MethodInsnNode(
+			        Opcodes.INVOKESTATIC,
+			        "de/unisb/cs/st/evosuite/cfg/instrumentation/mutation/ReplaceArithmeticOperator",
+			        "getInfectionDistanceInt", "(IIII)D"));
+		} else if (opcodesLong.contains(opcodeOrig)) {
+			distance.add(new VarInsnNode(Opcodes.LSTORE, numVariable));
+			distance.add(new InsnNode(Opcodes.DUP2));
+			distance.add(new VarInsnNode(Opcodes.LLOAD, numVariable));
+			distance.add(new InsnNode(Opcodes.DUP2_X2));
+			distance.add(new LdcInsnNode(opcodeOrig));
+			distance.add(new LdcInsnNode(opcodeNew));
+			distance.add(new MethodInsnNode(
+			        Opcodes.INVOKESTATIC,
+			        "de/unisb/cs/st/evosuite/cfg/instrumentation/mutation/ReplaceArithmeticOperator",
+			        "getInfectionDistanceLong", "(JJII)D"));
+			numVariable += 2;
+		} else if (opcodesFloat.contains(opcodeOrig)) {
+			distance.add(new InsnNode(Opcodes.DUP2));
+			distance.add(new LdcInsnNode(opcodeOrig));
+			distance.add(new LdcInsnNode(opcodeNew));
+			distance.add(new MethodInsnNode(
+			        Opcodes.INVOKESTATIC,
+			        "de/unisb/cs/st/evosuite/cfg/instrumentation/mutation/ReplaceArithmeticOperator",
+			        "getInfectionDistanceFloat", "(FFII)D"));
+		} else if (opcodesDouble.contains(opcodeOrig)) {
+			distance.add(new VarInsnNode(Opcodes.DSTORE, numVariable));
+			distance.add(new InsnNode(Opcodes.DUP2));
+			distance.add(new VarInsnNode(Opcodes.DLOAD, numVariable));
+			distance.add(new InsnNode(Opcodes.DUP2_X2));
+			distance.add(new LdcInsnNode(opcodeOrig));
+			distance.add(new LdcInsnNode(opcodeNew));
+			distance.add(new MethodInsnNode(
+			        Opcodes.INVOKESTATIC,
+			        "de/unisb/cs/st/evosuite/cfg/instrumentation/mutation/ReplaceArithmeticOperator",
+			        "getInfectionDistanceDouble", "(DDII)D"));
+			numVariable += 2;
+		}
+
+		return distance;
+	}
+
+	public static double getInfectionDistanceInt(int x, int y, int opcodeOrig,
+	        int opcodeNew) {
+		int origValue = calculate(x, y, opcodeOrig);
+		int newValue = calculate(x, y, opcodeNew);
+		return origValue == newValue ? 1.0 : 0.0;
+	}
+
+	public static double getInfectionDistanceLong(long x, long y, int opcodeOrig,
+	        int opcodeNew) {
+		long origValue = calculate(x, y, opcodeOrig);
+		long newValue = calculate(x, y, opcodeNew);
+		return origValue == newValue ? 1.0 : 0.0;
+	}
+
+	public static double getInfectionDistanceFloat(float x, float y, int opcodeOrig,
+	        int opcodeNew) {
+		float origValue = calculate(x, y, opcodeOrig);
+		float newValue = calculate(x, y, opcodeNew);
+		return origValue == newValue ? 1.0 : 0.0;
+	}
+
+	public static double getInfectionDistanceDouble(double x, double y, int opcodeOrig,
+	        int opcodeNew) {
+		double origValue = calculate(x, y, opcodeOrig);
+		double newValue = calculate(x, y, opcodeNew);
+		return origValue == newValue ? 1.0 : 0.0;
+	}
+
+	public static int calculate(int x, int y, int opcode) {
+		switch (opcode) {
+		case Opcodes.IADD:
+			return x + y;
+		case Opcodes.ISUB:
+			return x - y;
+		case Opcodes.IMUL:
+			return x * y;
+		case Opcodes.IDIV:
+			return x / y;
+		case Opcodes.IREM:
+			return x % y;
+		}
+		throw new RuntimeException("Unknown integer opcode: " + opcode);
+	}
+
+	public static long calculate(long x, long y, int opcode) {
+		switch (opcode) {
+		case Opcodes.LADD:
+			return x + y;
+		case Opcodes.LSUB:
+			return x - y;
+		case Opcodes.LMUL:
+			return x * y;
+		case Opcodes.LDIV:
+			return x / y;
+		case Opcodes.LREM:
+			return x % y;
+		}
+		throw new RuntimeException("Unknown integer opcode: " + opcode);
+	}
+
+	public static float calculate(float x, float y, int opcode) {
+		switch (opcode) {
+		case Opcodes.FADD:
+			return x + y;
+		case Opcodes.FSUB:
+			return x - y;
+		case Opcodes.FMUL:
+			return x * y;
+		case Opcodes.FDIV:
+			return x / y;
+		case Opcodes.FREM:
+			return x % y;
+		}
+		throw new RuntimeException("Unknown integer opcode: " + opcode);
+	}
+
+	public static double calculate(double x, double y, int opcode) {
+		switch (opcode) {
+		case Opcodes.DADD:
+			return x + y;
+		case Opcodes.DSUB:
+			return x - y;
+		case Opcodes.DMUL:
+			return x * y;
+		case Opcodes.DDIV:
+			return x / y;
+		case Opcodes.DREM:
+			return x % y;
+		}
+		throw new RuntimeException("Unknown integer opcode: " + opcode);
 	}
 
 	/* (non-Javadoc)

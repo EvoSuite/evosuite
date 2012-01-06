@@ -58,9 +58,10 @@ import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageTestFitness;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationFactory;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationPool;
-import de.unisb.cs.st.evosuite.coverage.mutation.MutationSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationTestPool;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
+import de.unisb.cs.st.evosuite.coverage.mutation.StrongMutationSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.mutation.WeakMutationSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.statement.StatementCoverageFactory;
@@ -185,6 +186,7 @@ public class TestSuiteGenerator {
 		 * need to handle the gathering of the statistics. 
 		 */
 		statistics.writeReport();
+		statistics.writeStatistics();
 		PermissionStatistics.getInstance().printStatistics();
 
 		System.out.println("* Done!");
@@ -238,12 +240,16 @@ public class TestSuiteGenerator {
 			        + DefUseCoverageTestFitness.singleFitnessTime + "ms");
 		}
 
-		if (Properties.CRITERION == Criterion.MUTATION) {
+		if (Properties.ASSERTIONS) {
 			System.out.println("* Generating assertions");
-			handleMutations(tests);
-		} else if (Properties.ASSERTIONS) {
-			System.out.println("* Generating assertions");
-			addAssertions(tests);
+			if (Properties.CRITERION == Criterion.MUTATION
+			        || Properties.CRITERION == Criterion.STRONGMUTATION
+			        || Properties.CRITERION == Criterion.WEAKMUTATION) {
+				handleMutations(tests);
+			} else {
+				// If we're not using mutation testing, we need to re-instrument
+				addAssertions(tests);
+			}
 		}
 
 		writeJUnitTests(tests);
@@ -302,6 +308,7 @@ public class TestSuiteGenerator {
 			Properties.CRITERION = oldCriterion;
 			double score = (double) tkilled.size()
 			        / (double) MutationPool.getMutantCounter();
+			SearchStatistics.getInstance().mutationScore(score);
 			System.out.println("* Resulting test suite's mutation score: "
 			        + NumberFormat.getPercentInstance().format(score));
 
@@ -326,6 +333,8 @@ public class TestSuiteGenerator {
 			asserter.addAssertions(test, tkilled);
 			//tkilled.addAll(killed);
 		}
+		double score = (double) tkilled.size() / (double) MutationPool.getMutantCounter();
+		SearchStatistics.getInstance().mutationScore(score);
 		// asserter.writeStatistics();
 		//System.out.println("Killed: " + tkilled.size() + "/" + asserter.numMutants());
 	}
@@ -429,8 +438,12 @@ public class TestSuiteGenerator {
 
 	private void printTestCriterion() {
 		switch (Properties.CRITERION) {
+		case WEAKMUTATION:
+			System.out.println("* Test criterion: Mutation testing (weak)");
+			break;
+		case STRONGMUTATION:
 		case MUTATION:
-			System.out.println("* Test criterion: Mutation testing");
+			System.out.println("* Test criterion: Mutation testing (strong)");
 			break;
 		case LCSAJ:
 			System.out.println("* Test criterion: LCSAJ");
@@ -464,8 +477,12 @@ public class TestSuiteGenerator {
 
 	public static TestSuiteFitnessFunction getFitnessFunction(Criterion criterion) {
 		switch (criterion) {
+		case STRONGMUTATION:
+			return new StrongMutationSuiteFitness();
+		case WEAKMUTATION:
+			return new WeakMutationSuiteFitness();
 		case MUTATION:
-			return new MutationSuiteFitness();
+			return new StrongMutationSuiteFitness();
 		case LCSAJ:
 			return new LCSAJCoverageSuiteFitness();
 		case DEFUSE:
@@ -493,8 +510,11 @@ public class TestSuiteGenerator {
 
 	public static TestFitnessFactory getFitnessFactory(Criterion crit) {
 		switch (crit) {
+		case STRONGMUTATION:
 		case MUTATION:
 			return new MutationFactory();
+		case WEAKMUTATION:
+			return new MutationFactory(false);
 		case LCSAJ:
 			return new LCSAJCoverageFactory();
 		case DEFUSE:
@@ -711,7 +731,7 @@ public class TestSuiteGenerator {
 					}
 
 				} else {
-					logger.info("Found no solution at "
+					logger.info("Found no solution for " + fitness_function + " at "
 					        + MaxStatementsStoppingCondition.getNumExecutedStatements());
 				}
 

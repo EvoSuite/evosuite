@@ -627,7 +627,7 @@ public class ExecutionTracer {
 		tracer.trace.usePassed(caller, useID);
 	}
 
-	public static void passedMutation(int mutationId, double distance) {
+	public static void passedMutation(double distance, int mutationId) {
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)
 			return;

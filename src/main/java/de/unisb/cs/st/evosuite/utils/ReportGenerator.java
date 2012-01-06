@@ -117,6 +117,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public Set<Integer> coverage = new HashSet<Integer>();
 
+		public double mutationScore = 0.0;
+
 		/** Resulting test cases */
 		public List<TestCase> tests = null;
 
@@ -209,6 +211,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append("AllPermission,SecurityPermission,UnresolvedPermission,AWTPermission,FilePermission,SerializablePermission,ReflectPermission,RuntimePermission,NetPermission,SocketPermission,SQLPermission,PropertyPermission,LoggingPermission,SSLPermission,AuthPermission,AudioPermission,OtherPermission,Threads,");
 
 			r.append("JUnitTests,");
+			r.append("MutationScore,");
 			r.append("Data File");
 			return r.toString();
 		}
@@ -285,6 +288,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append(pstats.getNumOtherPermission() + ",");
 			r.append(pstats.getMaxThreads() + ",");
 			r.append(JUnitTestChromosomeFactory.getNumTests() + ",");
+			r.append(mutationScore);
 			r.append(getCSVFilepath());
 
 			return r.toString();

@@ -45,7 +45,7 @@ public class DeleteField implements MutationOperator {
 		InsnList mutation = new InsnList();
 		logger.debug("Mutation deletefield for statement " + node.name + node.desc);
 		if (node.getOpcode() == Opcodes.GETFIELD) {
-			logger.debug("Deleting callee of type " + node.owner);
+			logger.debug("Deleting source of type " + node.owner);
 			mutation.add(new InsnNode(Opcodes.POP));
 		}
 		mutation.add(getDefault(fieldType));
@@ -56,7 +56,8 @@ public class DeleteField implements MutationOperator {
 		                                                           + node.desc,
 		                                                   instruction,
 		                                                   mutation,
-		                                                   Mutation.getDefaultInfectionDistance());
+		                                                   getInfectionDistance(node,
+		                                                                        mutation));
 
 		mutations.add(mutationObject);
 		return mutations;
@@ -85,6 +86,37 @@ public class DeleteField implements MutationOperator {
 			return new LabelNode();
 		} else {
 			return new InsnNode(Opcodes.ACONST_NULL);
+		}
+	}
+
+	public InsnList getInfectionDistance(FieldInsnNode original, InsnList mutant) {
+		InsnList distance = new InsnList();
+
+		if (original.getOpcode() == Opcodes.GETFIELD)
+			distance.add(new InsnNode(Opcodes.DUP)); //make sure to re-load this for GETFIELD
+
+		distance.add(new FieldInsnNode(original.getOpcode(), original.owner,
+		        original.name, original.desc));
+		Type type = Type.getType(original.desc);
+
+		if (type.getDescriptor().startsWith("L")) {
+			ReplaceVariable.addReferenceDistanceCheck(distance, type, mutant);
+		} else {
+			ReplaceVariable.addPrimitiveDistanceCheck(distance, type, mutant);
+		}
+
+		return distance;
+	}
+
+	public static double getDistance(double val1, double val2) {
+		return val1 == val2 ? 1.0 : 0.0;
+	}
+
+	public static double getDistance(Object obj1, Object obj2) {
+		if (obj1 == null) {
+			return obj2 == null ? 1.0 : 0.0;
+		} else {
+			return obj1.equals(obj2) ? 1.0 : 0.0;
 		}
 	}
 
