@@ -145,6 +145,8 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 		case ALLDEFS:
 			return AllDefsCoverageSuiteFitness.mostCoveredGoals;
 		case MUTATION:
+		case WEAKMUTATION:
+		case STRONGMUTATION:
 			return MutationSuiteFitness.mostCoveredGoals;
 		default:
 			return -1; // to indicate value is missing

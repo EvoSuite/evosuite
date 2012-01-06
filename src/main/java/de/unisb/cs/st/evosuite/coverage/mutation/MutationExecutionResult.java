@@ -15,6 +15,8 @@ public class MutationExecutionResult {
 
 	boolean hasTimeout = false;
 
+	boolean hasException = false;
+
 	/**
 	 * @return the numAssertions
 	 */
@@ -48,7 +50,7 @@ public class MutationExecutionResult {
 	/**
 	 * @return the hasTimeout
 	 */
-	public boolean isHasTimeout() {
+	public boolean hasTimeout() {
 		return hasTimeout;
 	}
 
@@ -60,4 +62,18 @@ public class MutationExecutionResult {
 		this.hasTimeout = hasTimeout;
 	}
 
+	/**
+	 * @return the hasException
+	 */
+	public boolean hasException() {
+		return hasException;
+	}
+
+	/**
+	 * @param hasTimeout
+	 *            the hasTimeout to set
+	 */
+	public void setHasException(boolean hasException) {
+		this.hasException = hasException;
+	}
 }
