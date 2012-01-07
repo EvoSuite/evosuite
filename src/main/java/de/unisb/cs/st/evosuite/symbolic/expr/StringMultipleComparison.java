@@ -8,7 +8,7 @@ import gov.nasa.jpf.JPF;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-import de.unisb.cs.st.evosuite.javaagent.BooleanHelper;
+import de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator;
 
 /**
  * @author krusev
@@ -118,14 +118,14 @@ BinaryExpression<String>{
 		case STARTSWITH:
 			long start = (Long) other_v.get(0).execute();
 
-			return (long)BooleanHelper.StringStartsWith(first, second, (int) start);
+			return (long)DistanceEstimator.StrStartsWith(first, second, (int) start);
 		case REGIONMATCHES:
 			long frstStart = (Long) other_v.get(0).execute();			
 			long secStart = (Long) other_v.get(1).execute();
 			long length = (Long) other_v.get(2).execute();
 			long ignoreCase = (Long) other_v.get(3).execute();
 
-			return (long)BooleanHelper.StringRegionMatches(first, (int) frstStart, 
+			return (long)DistanceEstimator.StrRegionMatches(first, (int) frstStart, 
 					second, (int) secStart, (int) length, ignoreCase != 0);
 		default:
 			log.warning("StringMultipleComparison: unimplemented operator!");
