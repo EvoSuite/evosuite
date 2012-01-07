@@ -386,7 +386,7 @@ public class BooleanHelper {
 		}
 
 		return StringEquals(s1.substring(thisStart, length + thisStart), 
-							s2.substring(start, length+start));
+							s2.substring(start, length + start));
 	}
 
 	public static int instanceOf(Object o, Class<?> c) {
