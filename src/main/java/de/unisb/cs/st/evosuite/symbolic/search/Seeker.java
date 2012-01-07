@@ -39,9 +39,6 @@ public class Seeker implements Solver {
 	//TODO figure out what values should be given to these fields
 	private int maxStepsForAll = 3;
 	
-	//TODO Should this be dependable on the length of the String?
-	private int maxStepsForEach = 1000;
-	
 	
 	/* The idea here is to get the expressions and build the constraint 
 	 * dynamically here using Java reflection. This should save us some time
@@ -70,31 +67,31 @@ public class Seeker implements Solver {
 		//remove the target from the constraints
 		cnstr.remove(target);
 		
+		outerloop:
 		for (int i = 0; i < maxStepsForAll ; i++ ) {
 			for (Variable<?> var : vars) {
-				//You can make this abstract later (if you can)
+				
 				Changer changer = new Changer();
-				Object newVal = null;
 				
 				if (var instanceof StringVariable) {
 					StringVariable strVar = (StringVariable) var;
-					newVal = changer.strLocalSearch(strVar, target, cnstr);
+					if (changer.strLocalSearch(strVar, target, cnstr, result)) {
+						break outerloop;
+					}
 				}
-				/* These two are not yet implemented
+				// These two are not yet implemented
 				if (var instanceof IntegerVariable) {
 					IntegerVariable intVar = (IntegerVariable) var;
-					newVal = changer.intLocalSearch(intVar, target, cnstr);
+					if (changer.intLocalSearch(intVar, target, cnstr, result)) {
+						break outerloop;
+					}
 				}
 				if (var instanceof RealVariable) {
 					RealVariable realVar = (RealVariable) var;
-					newVal = changer.realLocalSearch(realVar, target, cnstr);
-				}
-				*/
-				
-				if (newVal != null) {
-					result.put(var.getName() , newVal);
-				}
-				
+					if (changer.realLocalSearch(realVar, target, cnstr, result)) {
+						break outerloop;
+					}
+				}				
 			}
 		}
 		
@@ -104,10 +101,10 @@ public class Seeker implements Solver {
 	
 	
 	
-	
-	
+
 	
 	/*
+	//Old getModel. Please remove me!
 	public Map<String, Object> getModel(Collection<Constraint<?>> constraints){
 		HashMap<String, Object> result = new HashMap<String, Object>();
 
@@ -181,46 +178,7 @@ public class Seeker implements Solver {
 				}
 			}
 		}
-
-		
-//		for (Variable<?> var : vars) {
-//			
-//			if ( var.getParent() instanceof StringComparison ) {
-//			
-//				StringComparison parent = (StringComparison)var.getParent();
-//				//Special case var.equals(constant) or constant.equals(var)
-//				if ( (	parent.getOperator() == Operator.EQUALS 
-//						|| parent.getOperator() == Operator.EQUALSIGNORECASE) 
-//							&& (parent.getRightOperand() instanceof StringConstant
-//								|| parent.getLeftOperand() instanceof StringConstant)) {
-//					
-//					boolean rightCnst = parent.getRightOperand() instanceof StringConstant;
-//					StringConstant strCnst;
-//					if ( rightCnst ) { 
-//						strCnst = (StringConstant) parent.getRightOperand();
-//					} else {
-//						strCnst = (StringConstant) parent.getLeftOperand();
-//					}
-//					if (desCnstrValue && !var.getMinValue().equals(strCnst.getConcreteValue())) {
-//						log.warning("test?!?");
-//						result.put(var.getName() , strCnst.getConcreteValue());
-//					} else {
-//						//we should put something != strCnst.getConcreteValue()
-//					}
-//					//TODO think about a break here!
-//				}
-//				
-//				
-//				//TODO use reflection to 
-//				
-//				
-//				
-//			}
-//		}
-		
-		return result;
-	}
-	*/
+	 	*/
 	
 	
 	@SuppressWarnings("unused")

@@ -21,15 +21,11 @@ public abstract class DistanceEstimator {
 	 * @param sc
 	 * @return
 	 */
-	public static int getFitness(StringComparison sc) {
+	public static double getStringDistance(StringComparison sc) {
 
 		long result = sc.execute();
-		//log.warning("comparison: " + sc + " distance: " + result);
-		//System.exit(0); 
-		
-		// Estimation should be done on MinValue
-		
-		return (int)result;
+		//log.warning("comparison: " + sc + " distance: " + result);		
+		return result;
 	}
 
 	/**
@@ -44,7 +40,6 @@ public abstract class DistanceEstimator {
 			if(expr instanceof StringComparison) {
 				StringComparison sc = (StringComparison) expr;
 				Comparator op = c.getComparator();
-//				log.warning("condition: " + sc);
 				long dis = sc.execute();
 				if (op.equals(Comparator.NE)) {
 					//we want to satisfy
@@ -56,8 +51,7 @@ public abstract class DistanceEstimator {
 				}
 			}
 		}
-//		log.warning("are reachable says: " + result);
-//		System.exit(0);
+
 		return result;
 	}
 	
@@ -110,7 +104,8 @@ public abstract class DistanceEstimator {
 		}
 		
 		//If the length is different return same distance but negated
-		return (m!=n) ? -d[n][m] : d[n][m];
+		//return (m!=n) ? -d[n][m] : d[n][m];
+		return d[n][m];
 	}
 
 	public static int StrEquals(String first, Object second) {
