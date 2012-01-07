@@ -2,7 +2,18 @@ package de.unisb.cs.st.evosuite.symbolic.search;
 
 import gov.nasa.jpf.JPF;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Logger;
+
+import de.unisb.cs.st.evosuite.symbolic.expr.Comparator;
+import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
+import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
+import de.unisb.cs.st.evosuite.symbolic.expr.IntegerVariable;
+import de.unisb.cs.st.evosuite.symbolic.expr.RealVariable;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringVariable;
 
 /**
  * @author krusev
@@ -11,98 +22,189 @@ import java.util.logging.Logger;
 public class Changer {
 
 	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.search.Changer");
-	
-	private int lastFitness = Integer.MIN_VALUE;
 
-	private String lastVal = null;
-	
-	private Change change;
-	
-	public enum Change {DEL, ADD, REPLACE}
+	private double oldDistance = Double.MAX_VALUE;
 	
 	public Changer () {
-		//Chose a random operator
-		Change allChngs[] = Change.values();
-		int rnd = (int) (Math.random() * (allChngs.length));
-		change = allChngs[rnd]; 
+
 	}
 	
-	/*
-	 * maybe think of a better design here.
-	 * The Idea now is that this can be easily extended to support 
-	 * changing just the added or replaced char and not the whole 
-	 * operator.
-	 * 
-	 * This can also be done using objects. 
-	 * But will this improve the readability?
-	 */
-	/**
-	 * Changes a String value using DEL, ADD or REPLACE char by char. 
-	 * 
-	 * Please define a new instance of the Changer class for each variable! 
-	 * 
-	 *  If the fitness given is worst that the previous one the String will be 
-	 *  reverted to the previous condition. 
-	 *
-	 * @param currVal the String that we want to change 
-	 * @param currFitness the fitness for that string
-	 * @return the changed String
-	 */
-	public String changeVar (String currVal, int currFitness, boolean reachable) {
-		String result = currVal;
-		//log.warning("reachable"+reachable);
-		//If the fitness got worse or the target is no longer reachable 
-		//		revert to last value and don't use the same operator
-		//think about using the same operator but on different position
-		if (lastFitness > currFitness || !reachable) {
-			if ( lastVal != null){
-				result = lastVal;
-			}
-			Change allChngs[] = Change.values();
-			int rnd = (int) (Math.random() * (allChngs.length));
-			if (allChngs[rnd] == change) {
-				rnd = (rnd+1)%(allChngs.length);
-			}
-			change = allChngs[rnd];
-		} else {
-			//We are either in the first execution or in a normal run
-			lastVal = currVal;
-			lastFitness = currFitness;
+	private boolean distanceImproved(double newDistance) {
+		return newDistance < oldDistance;
+	}
+	
+	private void backup(StringVariable var, double fitness) {
+		//oldStrValue = var.execute();
+		
+		var.setMaxValue(var.getMinValue());
+		oldDistance = fitness;
+	}
+	
+	private void restore(StringVariable var) {		
+		var.setMinValue(var.getMaxValue());
+	}
+	
+	
+	public boolean strLocalSearch(StringVariable strVar, Constraint<?> target,
+			List<Constraint<?>> cnstr, HashMap<String, Object> result) {
+		Expression<?> expr = target.getLeftOperand();
+		//String result = strVar.execute();
+		StringComparison scTarget;
+		boolean satisfy = true;
+		
+
+		if (!(expr instanceof StringComparison)) {
+
+			return false;
+		}
+		scTarget = (StringComparison) expr;
+		// See if we want to satisfy the condition
+		satisfy = (target.getComparator() == Comparator.NE); 
+		if (!satisfy) {
+
+			return false; //TODO think about what to do here
 		}
 		
-		//If the string that we handle is empty we don't have any other choice
-		if (result.isEmpty()) {
-			change = Change.ADD;
+
+		
+		// try to remove each
+
+		backup(strVar, DistanceEstimator.getStringDistance(scTarget));
+		//String workStr = strVar.execute(); 
+		
+		for (int i = strVar.execute().length() - 1; i >= 0 ; i--) {
+			String newStr = strVar.execute().substring(0, i) + strVar.execute().substring(i + 1);
+			strVar.setMinValue(newStr);
+			//logger.info(" " + i + " " + strVar.execute() + "/" + strVar.execute().length() + " -> "
+			//        + newString + "/" + newString.length());
+			double newDist = DistanceEstimator.getStringDistance(scTarget);
+			boolean reachable = DistanceEstimator.areReachable(cnstr);
+			if (newDist == 0 && reachable) {
+				log.warning("newVar: " + newStr);
+				result.put(strVar.getName(), newStr);
+				return true;
+			}
+			if (distanceImproved(newDist) && reachable) {
+				backup(strVar, newDist);
+			} else {
+				restore(strVar);
+			}
+		}
+
+		
+		
+		
+		// try to replace each 
+		
+		backup(strVar, DistanceEstimator.getStringDistance(scTarget));
+
+		for (int i = 0; i < strVar.execute().length(); i++) {
+			char oldChar = strVar.execute().charAt(i);
+			char[] characters = strVar.execute().toCharArray();
+			for (char replacement = 0; replacement < 128; replacement++) {
+				if (replacement != oldChar) {
+					characters[i] = replacement;
+					String newStr = new String(characters);
+					strVar.setMinValue(newStr);
+					//logger.debug(" " + i + " " + strVar.execute() + "/" + strVar.execute().length()
+					//        + " -> " + newString + "/" + newString.length());
+
+					double newDist = DistanceEstimator.getStringDistance(scTarget);
+					boolean reachable = DistanceEstimator.areReachable(cnstr);
+					if (newDist == 0 && reachable) {
+						log.warning("newVar: " + newStr);
+						result.put(strVar.getName(), newStr);
+						return true;
+					}
+					if (distanceImproved(newDist) && reachable) {
+						backup(strVar, newDist);
+						break;//TODO check if this is correct
+					} else {
+						restore(strVar);
+					}
+				}
+			}
 		}
 		
+		// try to add in front and back		
 		
-		int rndIndx;
-		switch (change) {
-		case ADD:
-			rndIndx = (int) (Math.random() * (result.length()+1));
-			return result.substring(0, rndIndx) + getRandomChar() + result.substring(rndIndx, result.length());
-		case DEL:
-			rndIndx = (int) (Math.random() * (result.length()-1));
-			return result.substring(0, rndIndx) + result.substring(rndIndx + 1, result.length());
-		case REPLACE:
-			rndIndx = (int) (Math.random() * (result.length()-1));
-			return result.substring(0, rndIndx) + getRandomChar() + result.substring(rndIndx + 1, result.length());
-		default:
-			log.warning("de.unisb.cs.st.evosuite.symbolic.search.Changer: Forgot to implemt Operator!");
-			return currVal;
-		}		
+		backup(strVar, DistanceEstimator.getStringDistance(scTarget));
+
+		boolean add = true;
+
+		while (add) {
+			add = false;
+			int position = strVar.execute().length();
+			char[] characters = Arrays.copyOf(strVar.execute().toCharArray(), position + 1);
+			for (char replacement = 0; replacement < 128; replacement++) {
+				characters[position] = replacement;
+				String newStr = new String(characters);
+				strVar.setMinValue(newStr);
+				//logger.debug(" " + strVar.execute() + "/" + strVar.execute().length() + " -> " + newString
+				//        + "/" + newString.length());
+				
+				double newDist = DistanceEstimator.getStringDistance(scTarget);
+				boolean reachable = DistanceEstimator.areReachable(cnstr);
+				if (newDist == 0 && reachable) {
+					log.warning("newVar: " + newStr);
+					result.put(strVar.getName(), newStr);
+					return true;
+				}
+				if (distanceImproved(newDist) && reachable) {
+					backup(strVar, newDist);
+					add = true;
+					break;
+				} else {
+					restore(strVar);
+				}
+			}
+		}
+
+		add = true;
+		while (add) {
+			add = false;
+			int position = 0;
+			char[] characters = (" " + strVar.execute()).toCharArray();
+			for (char replacement = 0; replacement < 128; replacement++) {
+				characters[position] = replacement;
+				String newStr = new String(characters);
+				strVar.setMinValue(newStr);
+				//logger.debug(" " + strVar.execute() + "/" + strVar.execute().length() + " -> " + newString
+				//        + "/" + newString.length());
+
+				double newDist = DistanceEstimator.getStringDistance(scTarget);
+				boolean reachable = DistanceEstimator.areReachable(cnstr);
+				if (newDist == 0 && reachable) {
+					log.warning("newVar: " + newStr);
+					result.put(strVar.getName(), newStr);
+					return true;
+				}
+				if (distanceImproved(newDist) && reachable) {
+					backup(strVar, newDist);
+					add = true;
+					break;
+				} else {
+					restore(strVar);
+				}
+			}
+		}
+
+		return false;
+	} 
+
+
+	public boolean intLocalSearch(IntegerVariable strVar, Constraint<?> target,
+			List<Constraint<?>> cnstr, HashMap<String, Object> result) {
+		// TODO Auto-generated method stub
+	
+		return false;
 	}
 
-	/**
-	 * 
-	 * @return returns a random char 
-	 */
-	private char getRandomChar() {
+	public boolean realLocalSearch(RealVariable realVar, Constraint<?> target,
+			List<Constraint<?>> cnstr, HashMap<String, Object> result) {
+		// TODO Auto-generated method stub
 		
-		int rnd = (int) (Math.random() * 52);
-	    char base = (rnd < 26) ? 'A' : 'a';
-	    return (char) (base + rnd % 26);
+		return false;
 	} 
-	
-	
+
 }

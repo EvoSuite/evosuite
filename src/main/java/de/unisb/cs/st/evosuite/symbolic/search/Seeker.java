@@ -20,6 +20,8 @@ import de.unisb.cs.st.evosuite.symbolic.expr.BinaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
 
+import de.unisb.cs.st.evosuite.symbolic.expr.IntegerVariable;
+import de.unisb.cs.st.evosuite.symbolic.expr.RealVariable;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringVariable;
@@ -37,18 +39,72 @@ public class Seeker implements Solver {
 	//TODO figure out what values should be given to these fields
 	private int maxStepsForAll = 3;
 	
-	//TODO Should this be dependable on the length of the String?
-	private int maxStepsForEach = 1000;
 	
-	
-	/* The idea here is to get the expressions and build the constraint dynamically here
-	 * using Java reflection. This should save us some time since we wan't do the evaluation 
-	 * of the constraints in JPF 
+	/* The idea here is to get the expressions and build the constraint 
+	 * dynamically here using Java reflection. This should save us some time
+	 * since we wan't do the evaluation of the constraints in JPF 
 	 * 
-	 * In getModel we need to build the constraints and search for better input values for 
-	 * the String variables. 
+	 * In getModel we need to build the constraints and search for better input 
+	 * values for the String variables. 
 	 */
+	public Map<String, Object> getModel(Collection<Constraint<?>> constraints){
+		HashMap<String, Object> result = new HashMap<String, Object>();
 	
+		//This actually does get a list every time the super class Solver is 
+		// implemented using a collection so if we are going to throw away 
+		// the other Solvers we might as well change this
+		List<Constraint<?>> cnstr = null;
+		if (constraints instanceof List<?>) {
+			cnstr = (List<Constraint<?>>)constraints;
+		} else {
+			log.warning("Seeker got other type of collections!");
+			return null;
+		}
+		
+		//Get the target cnstr and the variables in it
+		Constraint<?> target = cnstr.get(cnstr.size()-1);
+		Set<Variable<?>> vars = getVariables(target);
+		//remove the target from the constraints
+		cnstr.remove(target);
+		
+		outerloop:
+		for (int i = 0; i < maxStepsForAll ; i++ ) {
+			for (Variable<?> var : vars) {
+				
+				Changer changer = new Changer();
+				
+				if (var instanceof StringVariable) {
+					StringVariable strVar = (StringVariable) var;
+					if (changer.strLocalSearch(strVar, target, cnstr, result)) {
+						break outerloop;
+					}
+				}
+				// These two are not yet implemented
+				if (var instanceof IntegerVariable) {
+					IntegerVariable intVar = (IntegerVariable) var;
+					if (changer.intLocalSearch(intVar, target, cnstr, result)) {
+						break outerloop;
+					}
+				}
+				if (var instanceof RealVariable) {
+					RealVariable realVar = (RealVariable) var;
+					if (changer.realLocalSearch(realVar, target, cnstr, result)) {
+						break outerloop;
+					}
+				}				
+			}
+		}
+		
+		
+		return result;
+	}
+	
+	
+	
+
+	
+	/*
+	//Old getModel. Please remove me!
 	public Map<String, Object> getModel(Collection<Constraint<?>> constraints){
 		HashMap<String, Object> result = new HashMap<String, Object>();
 
@@ -82,18 +138,19 @@ public class Seeker implements Solver {
 		}
 		StringComparison sc = (StringComparison) expr;
 		
-		/* We don't need this functionality for now
-		 * If we don't need it at all delete "parent" stuff in Expression
-		 */
+		// We don't need this functionality for now
+		// If we don't need it at all delete "parent" stuff in Expression
+
 		//setupTree(sc);
 		
 		Set<StringVariable> vars = getStringVariables(target);
 		
-		int fitness = DistanceEstimator.getFitness(sc);
+		int fitness;// = DistanceEstimator.getFitness(sc);
 		boolean reachable = true;
 		
 		for (int i = 0; i < maxStepsForAll ; i++ ) {
-			for (StringVariable var : vars) {
+			for (Variable<?> var : vars) {
+				fitness = DistanceEstimator.getFitness(sc);
 				Changer changer = new Changer();
 				String strVal = var.getMaxValue();
 				
@@ -111,6 +168,7 @@ public class Seeker implements Solver {
 						}	
 						if (newFit >= 0) {
 							//we are ready 
+							log.warning("we got: " + result);
 							return result;
 						} else {							
 							fitness = newFit;
@@ -120,55 +178,8 @@ public class Seeker implements Solver {
 				}
 			}
 		}
-		
-		
-		
-		
-		
-		
+	 	*/
 	
-		
-		
-		
-
-		
-//		for (Variable<?> var : vars) {
-//			
-//			if ( var.getParent() instanceof StringComparison ) {
-//			
-//				StringComparison parent = (StringComparison)var.getParent();
-//				//Special case var.equals(constant) or constant.equals(var)
-//				if ( (	parent.getOperator() == Operator.EQUALS 
-//						|| parent.getOperator() == Operator.EQUALSIGNORECASE) 
-//							&& (parent.getRightOperand() instanceof StringConstant
-//								|| parent.getLeftOperand() instanceof StringConstant)) {
-//					
-//					boolean rightCnst = parent.getRightOperand() instanceof StringConstant;
-//					StringConstant strCnst;
-//					if ( rightCnst ) { 
-//						strCnst = (StringConstant) parent.getRightOperand();
-//					} else {
-//						strCnst = (StringConstant) parent.getLeftOperand();
-//					}
-//					if (desCnstrValue && !var.getMinValue().equals(strCnst.getConcreteValue())) {
-//						log.warning("test?!?");
-//						result.put(var.getName() , strCnst.getConcreteValue());
-//					} else {
-//						//we should put something != strCnst.getConcreteValue()
-//					}
-//					//TODO think about a break here!
-//				}
-//				
-//				
-//				//TODO use reflection to 
-//				
-//				
-//				
-//			}
-//		}
-		
-		return result;
-	}
 	
 	@SuppressWarnings("unused")
 	private void setupTree(Expression<?> expr) {
@@ -223,10 +234,10 @@ public class Seeker implements Solver {
 	 * @param constraint
 	 * @return
 	 */
-	private Set<StringVariable> getStringVariables(Constraint<?> constraint) {
-		Set<StringVariable> variables = new HashSet<StringVariable>();
-		getStringVariables(constraint.getLeftOperand(), variables);
-		getStringVariables(constraint.getRightOperand(), variables);
+	private Set<Variable<?>> getVariables(Constraint<?> constraint) {
+		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		getVariables(constraint.getLeftOperand(), variables);
+		getVariables(constraint.getRightOperand(), variables);
 		return variables;
 	}
 
@@ -236,30 +247,30 @@ public class Seeker implements Solver {
 	 * @param expr
 	 * @param variables
 	 */
-	private void getStringVariables(Expression<?> expr, Set<StringVariable> variables) {
-		if (expr instanceof StringVariable) {
-			variables.add((StringVariable) expr);
+	private void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
+		if (expr instanceof Variable<?>) {
+			variables.add((Variable<?>) expr);
 		} else if (expr instanceof StringMultipleComparison){
 			StringMultipleComparison smc = (StringMultipleComparison) expr;
-			getStringVariables(smc.getLeftOperand(), variables);
-			getStringVariables(smc.getRightOperand(), variables);
+			getVariables(smc.getLeftOperand(), variables);
+			getVariables(smc.getRightOperand(), variables);
 			ArrayList<Expression<?>> ar_l_ex = smc.getOther();
 			Iterator<Expression<?>> itr = ar_l_ex.iterator();
 		    while (itr.hasNext()) {
 		    	Expression<?> element = itr.next();
-		    	getStringVariables(element, variables);
+		    	getVariables(element, variables);
 		    }
 		} else if (expr instanceof StringComparison){
 			StringComparison sc = (StringComparison) expr;
-			getStringVariables(sc.getLeftOperand(), variables);
-			getStringVariables(sc.getRightOperand(), variables);
+			getVariables(sc.getLeftOperand(), variables);
+			getVariables(sc.getRightOperand(), variables);
 		} else if (expr instanceof BinaryExpression<?>) {
 			BinaryExpression<?> bin = (BinaryExpression<?>) expr;
-			getStringVariables(bin.getLeftOperand(), variables);
-			getStringVariables(bin.getRightOperand(), variables);
+			getVariables(bin.getLeftOperand(), variables);
+			getVariables(bin.getRightOperand(), variables);
 		} else if (expr instanceof UnaryExpression<?>) {
 			UnaryExpression<?> un = (UnaryExpression<?>) expr;
-			getStringVariables(un.getOperand(), variables);
+			getVariables(un.getOperand(), variables);
 		} else if (expr instanceof Constraint<?>) {
 			// ignore
 
