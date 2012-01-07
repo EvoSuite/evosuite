@@ -36,4 +36,13 @@ public class DefaultLocalSearchObjective implements LocalSearchObjective, Serial
 		return fitness;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.LocalSearchObjective#hasChanged(de.unisb.cs.st.evosuite.ga.Chromosome)
+	 */
+	@Override
+	public int hasChanged(Chromosome individual) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }
