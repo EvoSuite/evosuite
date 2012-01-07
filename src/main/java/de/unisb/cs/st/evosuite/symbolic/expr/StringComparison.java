@@ -7,7 +7,7 @@ import gov.nasa.jpf.JPF;
 
 import java.util.logging.Logger;
 
-import de.unisb.cs.st.evosuite.javaagent.BooleanHelper;
+import de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator;
 
 /**
  * @author krusev
@@ -86,13 +86,13 @@ public class StringComparison extends StringExpression {
 		
 		switch (op) {
 		case EQUALSIGNORECASE:
-			return (long)BooleanHelper.StringEqualsIgnoreCase(first, second);
+			return (long)DistanceEstimator.StrEqualsIgnoreCase(first, second);
 		case EQUALS:
-			return (long)BooleanHelper.StringEquals(first, second);
+			return (long)DistanceEstimator.StrEquals(first, second);
 		case ENDSWITH:
-			return (long)BooleanHelper.StringEndsWith(first, second);
+			return (long)DistanceEstimator.StrEndsWith(first, second);
 		case CONTAINS:
-			return (long)BooleanHelper.StringContains(first, second);
+			return (long)DistanceEstimator.StrContains(first, second);
 		case COMPARETO:
 			return (long) first.compareTo(second);
 		case COMPARETOIGNORECASE:

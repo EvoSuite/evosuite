@@ -18,16 +18,22 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+import de.unisb.cs.st.evosuite.javaagent.BooleanHelper;
 import de.unisb.cs.st.evosuite.symbolic.BranchCondition;
 import de.unisb.cs.st.evosuite.symbolic.ConcolicExecution;
 import de.unisb.cs.st.evosuite.symbolic.expr.BinaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
+import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
+import de.unisb.cs.st.evosuite.symbolic.expr.Operator;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringConstant;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
+import de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator;
 import de.unisb.cs.st.evosuite.symbolic.search.Seeker;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -244,7 +250,39 @@ public class TestSuiteDSE {
 //			logger.warn("Cnstr: " + (counter++) + " " +  cnstr);
 //		}
 		
-		//return null;
+//		String a = "two";
+//		String b = "awwo";
+//		logger.warn("\ndistance " + a + " to " + b + ": " + BooleanHelper.editDistance(a, b));
+//		logger.warn("\nInt.Max: " + Integer.MAX_VALUE + 
+//					"\nInt.Max-1: " + (Integer.MAX_VALUE - 1) + 
+//					"\n-Int.Max: " + (-Integer.MAX_VALUE) + 
+//					"\n-(Int.Max-1): " + (-(Integer.MAX_VALUE-2) ) +
+//					"\nInt.Min: " + ((Integer.MIN_VALUE)));
+//
+//		int mask = Integer.MIN_VALUE;
+//		int a = -52;
+//		logger.warn("int"+a);
+//		logger.warn("mask"+(mask));
+//		logger.warn("int|mask"+(a|mask));
+//		logger.warn("int|mask&mask"+((a|mask)&mask));
+//		logger.warn("int|mask^mask"+((a|mask)^mask));
+//
+//		
+//		ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
+//		other.add(new IntegerConstant(3));
+//		other.add(new IntegerConstant(0));
+//		other.add(new IntegerConstant(3));
+//		other.add(new IntegerConstant(0));
+//		StringExpression se1 = new StringConstant("hi al!");
+//		StringExpression se0 = new StringConstant("all");
+//		StringMultipleComparison rm = new StringMultipleComparison(
+//				se1 , Operator.REGIONMATCHES, se0, other, (long)0);
+//		
+//		
+//		StringComparison sc = new StringComparison(se1, Operator.CONTAINS, se0, (long)0);
+//		
+//		logger.warn("\nexpr: " + sc + " dis: "+ sc.execute() + " " + "hi all!".reg("all"));
+//		System.exit(0);
 		
 		
 		
