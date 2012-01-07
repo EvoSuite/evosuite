@@ -338,6 +338,8 @@ public class ReplaceVariable implements MutationOperator {
 	        String desc, AbstractInsnNode node) {
 		List<InsnList> alternatives = new ArrayList<InsnList>();
 
+		boolean isStatic = (mn.access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC;
+
 		String otherName = "";
 		if (node instanceof FieldInsnNode) {
 			FieldInsnNode fNode = (FieldInsnNode) node;
@@ -352,6 +354,9 @@ public class ReplaceVariable implements MutationOperator {
 				logger.info("Checking replacement field variable " + field.getName());
 
 				if (field.getName().equals(otherName))
+					continue;
+
+				if (isStatic && !(Modifier.isStatic(field.getModifiers())))
 					continue;
 
 				if (type.getDescriptor().equals(desc)) {
