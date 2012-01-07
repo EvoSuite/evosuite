@@ -73,6 +73,32 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 	}
 
 	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.LocalSearchObjective#hasChanged(de.unisb.cs.st.evosuite.ga.Chromosome)
+	 */
+	@Override
+	public int hasChanged(Chromosome individual) {
+		individual.setChanged(true);
+		suite.setTestChromosome(testIndex, (TestChromosome) individual);
+		LocalSearchBudget.evaluation();
+		double newFitness = fitness.getFitness(suite);
+		if (newFitness < lastFitness) { // TODO: Maximize
+			logger.info("Local search improved fitness from " + lastFitness + " to "
+			        + newFitness);
+			lastFitness = newFitness;
+			lastCoverage = suite.getCoverage();
+			suite.setFitness(lastFitness);
+			return -1;
+		} else if (newFitness > lastFitness) {
+			suite.setFitness(lastFitness);
+			suite.setCoverage(lastCoverage);
+			return 1;
+		} else {
+			lastCoverage = suite.getCoverage();
+			return 0;
+		}
+	}
+
+	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.LocalSearchObjective#getFitnessFunction()
 	 */
 	@Override

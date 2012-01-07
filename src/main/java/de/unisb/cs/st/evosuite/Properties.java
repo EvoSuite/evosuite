@@ -100,7 +100,7 @@ public class Properties {
 	public static boolean MAKE_ACCESSIBLE = true;
 
 	@Parameter(key = "string_replacement", group = "Test Creation", description = "Replace string.equals with levenshtein distance")
-	public static boolean STRING_REPLACEMENT = false;
+	public static boolean STRING_REPLACEMENT = true;
 
 	@Parameter(key = "static_hack", group = "Test Creation", description = "Call static constructors after each test execution")
 	public static boolean STATIC_HACK = false;
