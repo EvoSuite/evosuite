@@ -5,15 +5,18 @@ package de.unisb.cs.st.evosuite.cfg.instrumentation.mutation;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
@@ -83,6 +86,21 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 		throw new RuntimeException("Unknown opcode: " + opcode);
 	}
 
+	public static int getNextIndex(MethodNode mn) {
+		Iterator it = mn.localVariables.iterator();
+		int max = 0;
+		int next = 0;
+		while (it.hasNext()) {
+			LocalVariableNode var = (LocalVariableNode) it.next();
+			int index = var.index;
+			if (index > max) {
+				max = index;
+				next = max + Type.getType(var.desc).getSize();
+			}
+		}
+		return next;
+	}
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.cfg.instrumentation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, de.unisb.cs.st.evosuite.cfg.BytecodeInstruction)
 	 */
@@ -90,7 +108,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
 	        BytecodeInstruction instruction) {
 
-		numVariable = mn.localVariables.size() + 1;
+		numVariable = getNextIndex(mn);
 
 		List<Mutation> mutations = new LinkedList<Mutation>();
 
