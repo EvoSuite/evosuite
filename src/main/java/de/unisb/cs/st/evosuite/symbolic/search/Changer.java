@@ -2,7 +2,13 @@ package de.unisb.cs.st.evosuite.symbolic.search;
 
 import gov.nasa.jpf.JPF;
 
+import java.util.List;
 import java.util.logging.Logger;
+
+import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
+import de.unisb.cs.st.evosuite.symbolic.expr.IntegerVariable;
+import de.unisb.cs.st.evosuite.symbolic.expr.RealVariable;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringVariable;
 
 /**
  * @author krusev
@@ -12,7 +18,7 @@ public class Changer {
 
 	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.search.Changer");
 	
-	private int lastFitness = Integer.MIN_VALUE;
+	private int lastFitness = Integer.MAX_VALUE;
 
 	private String lastVal = null;
 	
@@ -22,9 +28,16 @@ public class Changer {
 	
 	public Changer () {
 		//Chose a random operator
-		Change allChngs[] = Change.values();
-		int rnd = (int) (Math.random() * (allChngs.length));
-		change = allChngs[rnd]; 
+//		Change allChngs[] = Change.values();
+//		int rnd = (int) (Math.random() * (allChngs.length));
+//		change = allChngs[rnd]; 
+		
+		
+		if ( (Math.random() > 0.5 ) ) {
+			change = Change.ADD;
+		} else {
+			change = Change.DEL;
+		}
 	}
 	
 	/*
@@ -70,10 +83,53 @@ public class Changer {
 			lastFitness = currFitness;
 		}
 		
+		if (currFitness == -(Integer.MAX_VALUE) ) {
+			if ( (Math.random() > 0.5 ) ) {
+				change = Change.ADD;
+			} else {
+				change = Change.DEL;
+			}
+			
+		} else {
+			change = Change.REPLACE;
+		}
+		
 		//If the string that we handle is empty we don't have any other choice
 		if (result.isEmpty()) {
 			change = Change.ADD;
 		}
+		
+		//======================================
+		
+
+//		boolean length_diff = false;
+//		if (currFitness < 0) {
+//			currFitness = -currFitness;
+//			length_diff = true;
+//		}
+//		
+//		
+//		if (length_diff) {
+//			if (lastFitness < currFitness) {
+//				if ( lastVal != null ){
+//					result = lastVal;
+//				}
+//				if (change == Change.ADD) {
+//					change = Change.DEL;
+//				} else {
+//					change = Change.ADD;
+//				}
+//			} else {
+//				lastFitness = currFitness;
+//			}
+//			
+//			
+//			
+//		} else {
+//			change = Change.REPLACE;
+//			lastFitness = currFitness;
+//
+//		}
 		
 		
 		int rndIndx;
@@ -99,9 +155,32 @@ public class Changer {
 	 */
 	private char getRandomChar() {
 		
-		int rnd = (int) (Math.random() * 52);
-	    char base = (rnd < 26) ? 'A' : 'a';
-	    return (char) (base + rnd % 26);
+//		int rnd = (int) (Math.random() * 52);
+//	    char base = (rnd < 26) ? 'A' : 'a';i
+//	    return (char) (base + rnd % 26);
+		int rnd = (int) (Math.random() * 26);
+	    return (char) ('a' + rnd);
+	}
+
+	public String strLocalSearch(StringVariable strVar, Constraint<?> target,
+			List<Constraint<?>> cnstr) {
+		// TODO Auto-generated method stub
+		
+		return null;
+	} 
+	
+	public long intLocalSearch(IntegerVariable strVar, Constraint<?> target,
+			List<Constraint<?>> cnstr) {
+		// TODO Auto-generated method stub
+	
+		return 0;
+	}
+
+	public double realLocalSearch(RealVariable realVar, Constraint<?> target,
+			List<Constraint<?>> cnstr) {
+		// TODO Auto-generated method stub
+		
+		return 0;
 	} 
 	
 	
