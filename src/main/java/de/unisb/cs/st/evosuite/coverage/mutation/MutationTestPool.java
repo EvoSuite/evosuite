@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
@@ -31,7 +33,10 @@ public class MutationTestPool implements SearchListener {
 
 	static {
 		for (Mutation m : allMutants) {
-			allMutantFitnessFunctions.add(new MutationTestFitness(m));
+			if (Properties.CRITERION == Criterion.WEAKMUTATION)
+				allMutantFitnessFunctions.add(new WeakMutationTestFitness(m));
+			else
+				allMutantFitnessFunctions.add(new StrongMutationTestFitness(m));
 		}
 		Randomness.shuffle(allMutantFitnessFunctions);
 	}
@@ -127,4 +132,5 @@ public class MutationTestPool implements SearchListener {
 		// TODO Auto-generated method stub
 
 	}
+
 }

@@ -20,6 +20,15 @@ public class MutationFactory extends AbstractFitnessFactory {
 
 	private static Logger logger = LoggerFactory.getLogger(MutationFactory.class);
 
+	private boolean strong = true;
+
+	public MutationFactory() {
+	}
+
+	public MutationFactory(boolean strongMutation) {
+		this.strong = strongMutation;
+	}
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
 	 */
@@ -43,7 +52,10 @@ public class MutationFactory extends AbstractFitnessFactory {
 			if (MutationTimeoutStoppingCondition.isDisabled(m))
 				continue;
 			logger.info("Goal: " + m);
-			goals.add(new MutationTestFitness(m));
+			if (strong)
+				goals.add(new StrongMutationTestFitness(m));
+			else
+				goals.add(new WeakMutationTestFitness(m));
 		}
 		return goals;
 	}

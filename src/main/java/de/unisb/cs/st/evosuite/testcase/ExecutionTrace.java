@@ -785,6 +785,7 @@ public class ExecutionTrace {
 	}
 
 	public void mutationPassed(int mutationId, double distance) {
+
 		touchedMutants.add(mutationId);
 		if (!mutant_distances.containsKey(mutationId)) {
 			mutant_distances.put(mutationId, distance);

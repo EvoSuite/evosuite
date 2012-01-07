@@ -747,7 +747,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 		Iterator<StatementInterface> iterator = statements.iterator();
 		while (iterator.hasNext()) {
 			StatementInterface statement = iterator.next();
-			logger.debug("Visiting statement " + statement.getCode());
+			logger.trace("Visiting statement " + statement.getCode());
 			if (statement instanceof PrimitiveStatement<?>)
 				visitor.visitPrimitiveStatement((PrimitiveStatement<?>) statement);
 			else if (statement instanceof FieldStatement)

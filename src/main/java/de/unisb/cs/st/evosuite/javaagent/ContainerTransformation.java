@@ -3,14 +3,15 @@
  */
 package de.unisb.cs.st.evosuite.javaagent;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -23,13 +24,13 @@ import org.slf4j.LoggerFactory;
  * @author fraser
  * 
  */
-public class StringTransformation {
+public class ContainerTransformation {
 
-	private static Logger logger = LoggerFactory.getLogger(StringTransformation.class);
+	private static Logger logger = LoggerFactory.getLogger(ContainerTransformation.class);
 
 	ClassNode cn;
 
-	public StringTransformation(ClassNode cn) {
+	public ContainerTransformation(ClassNode cn) {
 		this.cn = cn;
 	}
 
@@ -51,86 +52,90 @@ public class StringTransformation {
 	 * @param mn
 	 */
 	@SuppressWarnings("unchecked")
-	private boolean transformStrings(MethodNode mn) {
+	private boolean transformContainers(MethodNode mn) {
 		boolean changed = false;
 		ListIterator<AbstractInsnNode> iterator = mn.instructions.iterator();
 		while (iterator.hasNext()) {
 			AbstractInsnNode node = iterator.next();
+
 			if (node instanceof MethodInsnNode) {
-				MethodInsnNode min = (MethodInsnNode) node;
-				if (min.owner.equals("java/lang/String")) {
-					if (min.name.equals("equals")) {
-						changed = true;
-						MethodInsnNode equalCheck = new MethodInsnNode(
+				MethodInsnNode methodNode = (MethodInsnNode) node;
+				if (methodNode.owner.equals("java/util/Collection")
+				        || methodNode.owner.equals("java/util/List")
+				        || methodNode.owner.equals("java/util/Set")
+				        || methodNode.owner.equals("java/util/Queue")
+				        || methodNode.owner.equals("java/util/SortedSet")) {
+					if (methodNode.name.equals("isEmpty")) {
+						MethodInsnNode n = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
 						        Type.getInternalName(BooleanHelper.class),
-						        "StringEquals",
+						        "collectionIsEmpty",
+						        Type.getMethodDescriptor(Type.INT_TYPE,
+						                                 new Type[] { Type.getType(Collection.class) }));
+						mn.instructions.insertBefore(node, n);
+						mn.instructions.remove(node);
+						changed = true;
+					} else if (methodNode.name.equals("contains")) {
+						MethodInsnNode n = new MethodInsnNode(
+						        Opcodes.INVOKESTATIC,
+						        Type.getInternalName(BooleanHelper.class),
+						        "collectionContains",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
-						                                         Type.getType(String.class),
+						                                         Type.getType(Collection.class),
 						                                         Type.getType(Object.class) }));
-						mn.instructions.insertBefore(node, equalCheck);
+						mn.instructions.insertBefore(node, n);
 						mn.instructions.remove(node);
-
-					} else if (min.name.equals("equalsIgnoreCase")) {
 						changed = true;
-						MethodInsnNode equalCheck = new MethodInsnNode(
+					} else if (methodNode.name.equals("containsAll")) {
+						MethodInsnNode n = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
 						        Type.getInternalName(BooleanHelper.class),
-						        "StringEqualsIgnoreCase",
+						        "collectionContainsAll",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
-						                                         Type.getType(String.class),
-						                                         Type.getType(String.class) }));
-						mn.instructions.insertBefore(node, equalCheck);
+						                                         Type.getType(Collection.class),
+						                                         Type.getType(Collection.class) }));
+						mn.instructions.insertBefore(node, n);
 						mn.instructions.remove(node);
-
-					} else if (min.name.equals("startsWith")) {
 						changed = true;
-						if (min.desc.equals("(Ljava/lang/String;)Z")) {
-							mn.instructions.insertBefore(node, new InsnNode(
-							        Opcodes.ICONST_0));
-						}
-						MethodInsnNode equalCheck = new MethodInsnNode(
-						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
-						        "StringStartsWith",
-						        Type.getMethodDescriptor(Type.INT_TYPE,
-						                                 new Type[] {
-						                                         Type.getType(String.class),
-						                                         Type.getType(String.class),
-						                                         Type.INT_TYPE }));
-						mn.instructions.insertBefore(node, equalCheck);
-						mn.instructions.remove(node);
-
-					} else if (min.name.equals("endsWith")) {
-						changed = true;
-						MethodInsnNode equalCheck = new MethodInsnNode(
-						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
-						        "StringEndsWith",
-						        Type.getMethodDescriptor(Type.INT_TYPE,
-						                                 new Type[] {
-						                                         Type.getType(String.class),
-						                                         Type.getType(String.class) }));
-						mn.instructions.insertBefore(node, equalCheck);
-						mn.instructions.remove(node);
-
-					} else if (min.name.equals("isEmpty")) {
-						changed = true;
-						MethodInsnNode equalCheck = new MethodInsnNode(
-						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
-						        "StringIsEmpty",
-						        Type.getMethodDescriptor(Type.INT_TYPE,
-						                                 new Type[] { Type.getType(String.class) }));
-						mn.instructions.insertBefore(node, equalCheck);
-						mn.instructions.remove(node);
-
-					} else if (min.name.equals("regionMatches")) {
-						// TODO
 					}
-
+				} else if (methodNode.owner.equals("java/util/Map")) {
+					if (methodNode.name.equals("isEmpty")) {
+						MethodInsnNode n = new MethodInsnNode(
+						        Opcodes.INVOKESTATIC,
+						        Type.getInternalName(BooleanHelper.class),
+						        "mapIsEmpty",
+						        Type.getMethodDescriptor(Type.INT_TYPE,
+						                                 new Type[] { Type.getType(Map.class) }));
+						mn.instructions.insertBefore(node, n);
+						mn.instructions.remove(node);
+						changed = true;
+					} else if (methodNode.name.equals("containsKey")) {
+						MethodInsnNode n = new MethodInsnNode(
+						        Opcodes.INVOKESTATIC,
+						        Type.getInternalName(BooleanHelper.class),
+						        "mapContainsKey",
+						        Type.getMethodDescriptor(Type.INT_TYPE,
+						                                 new Type[] {
+						                                         Type.getType(Map.class),
+						                                         Type.getType(Object.class) }));
+						mn.instructions.insertBefore(node, n);
+						mn.instructions.remove(node);
+						changed = true;
+					} else if (methodNode.name.equals("containsValue")) {
+						MethodInsnNode n = new MethodInsnNode(
+						        Opcodes.INVOKESTATIC,
+						        Type.getInternalName(BooleanHelper.class),
+						        "mapContainsValue",
+						        Type.getMethodDescriptor(Type.INT_TYPE,
+						                                 new Type[] {
+						                                         Type.getType(Map.class),
+						                                         Type.getType(Object.class) }));
+						mn.instructions.insertBefore(node, n);
+						mn.instructions.remove(node);
+						changed = true;
+					}
 				}
 			}
 		}
@@ -138,10 +143,11 @@ public class StringTransformation {
 	}
 
 	public boolean transformMethod(MethodNode mn) {
-		boolean changed = transformStrings(mn);
+
+		boolean changed = transformContainers(mn);
 		if (changed) {
 			try {
-				Analyzer a = new Analyzer(new StringBooleanInterpreter());
+				Analyzer a = new Analyzer(new ContainerBooleanInterpreter());
 				a.analyze(cn.name, mn);
 				Frame[] frames = a.getFrames();
 				AbstractInsnNode node = mn.instructions.getFirst();
@@ -151,13 +157,13 @@ public class StringTransformation {
 					int size = current.getStackSize();
 					if (node.getOpcode() == Opcodes.IFNE) {
 						JumpInsnNode branch = (JumpInsnNode) node;
-						if (current.getStack(size - 1) == StringBooleanInterpreter.STRING_BOOLEAN) {
+						if (current.getStack(size - 1) == ContainerBooleanInterpreter.CONTAINER_BOOLEAN) {
 							logger.info("IFNE -> IFGT");
 							branch.setOpcode(Opcodes.IFGT);
 						}
 					} else if (node.getOpcode() == Opcodes.IFEQ) {
 						JumpInsnNode branch = (JumpInsnNode) node;
-						if (current.getStack(size - 1) == StringBooleanInterpreter.STRING_BOOLEAN) {
+						if (current.getStack(size - 1) == ContainerBooleanInterpreter.CONTAINER_BOOLEAN) {
 							logger.info("IFEQ -> IFLE");
 							branch.setOpcode(Opcodes.IFLE);
 						}
@@ -171,4 +177,5 @@ public class StringTransformation {
 		}
 		return changed;
 	}
+
 }

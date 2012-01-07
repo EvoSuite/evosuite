@@ -6,6 +6,7 @@ package de.unisb.cs.st.evosuite.cfg.instrumentation.mutation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,7 +17,9 @@ import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.LocalVariableNode;
+import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.slf4j.Logger;
@@ -25,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationPool;
+import de.unisb.cs.st.evosuite.testcase.TestCluster;
 
 /**
  * @author fraser
@@ -46,49 +50,128 @@ public class ReplaceVariable implements MutationOperator {
 			logger.info("Have no information about local variables - recompile with full debug information");
 			return mutations;
 		}
+		logger.info("Starting variable replacement in " + methodName);
 
 		for (InsnList mutation : getReplacements(mn, className, instruction.getASMNode())) {
 			// insert mutation into pool			
 			Mutation mutationObject = MutationPool.addMutation(className,
 			                                                   methodName,
-			                                                   "ReplaceVariable",
+			                                                   "ReplaceVariable ",
 			                                                   instruction,
 			                                                   mutation,
-			                                                   Mutation.getDefaultInfectionDistance());
+			                                                   getInfectionDistance(getType(mn,
+			                                                                                instruction.getASMNode()),
+			                                                                        instruction.getASMNode(),
+			                                                                        mutation));
 			mutations.add(mutationObject);
 		}
 		logger.info("Finished variable replacement in " + methodName);
 		return mutations;
 	}
 
+	private Type getType(MethodNode mn, AbstractInsnNode node) {
+		if (node instanceof VarInsnNode) {
+			LocalVariableNode var = getLocal(mn, node, ((VarInsnNode) node).var);
+			return Type.getType(var.desc);
+		} else if (node instanceof FieldInsnNode) {
+			return Type.getType(((FieldInsnNode) node).desc);
+		} else if (node instanceof IincInsnNode) {
+			IincInsnNode incNode = (IincInsnNode) node;
+			LocalVariableNode var = getLocal(mn, node, incNode.var);
+
+			return Type.getType(var.desc);
+
+		} else {
+			throw new RuntimeException("Unknown variable node: " + node);
+		}
+
+	}
+
+	public static InsnList copy(InsnList orig) {
+		Iterator it = orig.iterator();
+		InsnList copy = new InsnList();
+		while (it.hasNext()) {
+			AbstractInsnNode node = (AbstractInsnNode) it.next();
+
+			if (node instanceof VarInsnNode) {
+				VarInsnNode vn = (VarInsnNode) node;
+				copy.add(new VarInsnNode(vn.getOpcode(), vn.var));
+			} else if (node instanceof FieldInsnNode) {
+				FieldInsnNode fn = (FieldInsnNode) node;
+				copy.add(new FieldInsnNode(fn.getOpcode(), fn.owner, fn.name, fn.desc));
+			} else if (node instanceof InsnNode) {
+				if (node.getOpcode() != Opcodes.POP)
+					copy.add(new InsnNode(node.getOpcode()));
+			} else if (node instanceof LdcInsnNode) {
+				copy.add(new LdcInsnNode(((LdcInsnNode) node).cst));
+			} else {
+				throw new RuntimeException("Unexpected node type: " + node.getClass());
+			}
+		}
+		return copy;
+	}
+
+	public static void addPrimitiveDistanceCheck(InsnList distance, Type type,
+	        InsnList mutant) {
+		distance.add(cast(type, Type.DOUBLE_TYPE));
+		distance.add(copy(mutant));
+		distance.add(cast(type, Type.DOUBLE_TYPE));
+		distance.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+		        "de/unisb/cs/st/evosuite/cfg/instrumentation/mutation/ReplaceVariable",
+		        "getDistance", "(DD)D"));
+	}
+
+	public static void addReferenceDistanceCheck(InsnList distance, Type type,
+	        InsnList mutant) {
+		distance.add(copy(mutant));
+		distance.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+		        "de/unisb/cs/st/evosuite/cfg/instrumentation/mutation/ReplaceVariable",
+		        "getDistance", "(Ljava/lang/Object;Ljava/lang/Object;)D"));
+	}
+
 	public InsnList getInfectionDistance(Type type, AbstractInsnNode original,
 	        InsnList mutant) {
-		// Load the original value
-		// Load the new value
-		// Take the difference
-		// Math.abs
+		// TODO: Treat reference types different!
+
 		InsnList distance = new InsnList();
-		distance.add(original);
-		distance.add(mutant);
+
 		if (original instanceof VarInsnNode) {
-			distance.add(original);
-			distance.add(mutant);
-			distance.add(new InsnNode(type.getOpcode(Opcodes.ISUB)));
-			distance.add(cast(type, Type.DOUBLE_TYPE));
+			VarInsnNode node = (VarInsnNode) original;
+			distance.add(new VarInsnNode(node.getOpcode(), node.var));
+			if (type.getDescriptor().startsWith("L")
+			        || type.getDescriptor().startsWith("["))
+				addReferenceDistanceCheck(distance, type, mutant);
+			else
+				addPrimitiveDistanceCheck(distance, type, mutant);
 
 		} else if (original instanceof FieldInsnNode) {
 			if (original.getOpcode() == Opcodes.GETFIELD)
 				distance.add(new InsnNode(Opcodes.DUP)); //make sure to re-load this for GETFIELD
 
-			distance.add(original);
-			distance.add(mutant);
-			distance.add(new InsnNode(type.getOpcode(Opcodes.ISUB)));
-			distance.add(cast(type, Type.DOUBLE_TYPE));
+			FieldInsnNode node = (FieldInsnNode) original;
+			distance.add(new FieldInsnNode(node.getOpcode(), node.owner, node.name,
+			        node.desc));
+			if (type.getDescriptor().startsWith("L"))
+				addReferenceDistanceCheck(distance, type, mutant);
+			else
+				addPrimitiveDistanceCheck(distance, type, mutant);
 
 		} else if (original instanceof IincInsnNode) {
 			distance.add(Mutation.getDefaultInfectionDistance());
 		}
 		return distance;
+	}
+
+	public static double getDistance(double val1, double val2) {
+		return val1 == val2 ? 1.0 : 0.0;
+	}
+
+	public static double getDistance(Object obj1, Object obj2) {
+		if (obj1 == null) {
+			return obj2 == null ? 1.0 : 0.0;
+		} else {
+			return obj1.equals(obj2) ? 1.0 : 0.0;
+		}
 	}
 
 	/**
@@ -112,11 +195,18 @@ public class ReplaceVariable implements MutationOperator {
 				        + origVar.desc + " at index " + origVar.index);
 
 				// FIXXME: ASM gets scopes wrong, so we only use primitive vars?
-				if (!origVar.desc.startsWith("L"))
-					variables.addAll(getLocalReplacements(mn, origVar.desc, node));
+				//if (!origVar.desc.startsWith("L"))
+				variables.addAll(getLocalReplacements(mn, origVar.desc, node));
 				variables.addAll(getFieldReplacements(mn, className, origVar.desc, node));
 			} catch (RuntimeException e) {
 				logger.info("Could not find variable, not replacing it: " + var.var);
+				Iterator it = mn.localVariables.iterator();
+				while (it.hasNext()) {
+					LocalVariableNode n = (LocalVariableNode) it.next();
+					logger.info(n.index + ": " + n.name);
+				}
+				logger.info(e.toString());
+				e.printStackTrace();
 			}
 		} else if (node instanceof FieldInsnNode) {
 			FieldInsnNode field = (FieldInsnNode) node;
@@ -160,8 +250,8 @@ public class ReplaceVariable implements MutationOperator {
 	        AbstractInsnNode node) {
 		List<InsnList> replacements = new ArrayList<InsnList>();
 
-		if (desc.equals("I"))
-			return replacements;
+		//if (desc.equals("I"))
+		//	return replacements;
 
 		int otherNum = -1;
 		if (node instanceof VarInsnNode) {
@@ -218,13 +308,13 @@ public class ReplaceVariable implements MutationOperator {
 			logger.info("Checking local variable " + localVar.name + " of type "
 			        + localVar.desc + " at index " + localVar.index);
 			if (!localVar.desc.equals(desc))
-				logger.info("- Types do not match");
+				logger.info("- Types do not match: " + localVar.name);
 			if (localVar.index == otherNum)
-				logger.info("- Replacement = original");
+				logger.info("- Replacement = original " + localVar.name);
 			if (currentId < startId)
-				logger.info("- Out of scope (start)");
+				logger.info("- Out of scope (start) " + localVar.name);
 			if (currentId > endId)
-				logger.info("- Out of scope (end)");
+				logger.info("- Out of scope (end) " + localVar.name);
 
 			if (localVar.desc.equals(desc) && localVar.index != otherNum
 			        && currentId >= startId && currentId <= endId) {
@@ -256,7 +346,8 @@ public class ReplaceVariable implements MutationOperator {
 		try {
 			logger.info("Checking class " + className);
 			Class<?> clazz = Class.forName(className);
-			for (Field field : clazz.getFields()) {
+
+			for (Field field : TestCluster.getFields(clazz)) {
 				Type type = Type.getType(field.getType());
 				logger.info("Checking replacement field variable " + field.getName());
 
@@ -282,9 +373,13 @@ public class ReplaceVariable implements MutationOperator {
 						        type.getDescriptor()));
 					}
 					alternatives.add(list);
+				} else {
+					logger.info("Descriptor does not match: " + field.getName() + " - "
+					        + type.getDescriptor());
 				}
 			}
 		} catch (ClassNotFoundException e) {
+			logger.info("Class not found: " + className);
 			// TODO Auto-generated catch block
 			//e.printStackTrace();
 		}
@@ -300,7 +395,7 @@ public class ReplaceVariable implements MutationOperator {
 	 * @param to
 	 *            the type into which this value must be cast.
 	 */
-	public InsnList cast(final Type from, final Type to) {
+	public static InsnList cast(final Type from, final Type to) {
 		InsnList list = new InsnList();
 
 		if (from != to) {
