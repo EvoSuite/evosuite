@@ -141,4 +141,10 @@ public class InspectorManager {
 			determineInspectors(clazz);
 		return inspectors.get(clazz);
 	}
+
+	public void removeInspector(Class<?> clazz, Inspector inspector) {
+		if (inspectors.containsKey(clazz)) {
+			inspectors.get(clazz).remove(inspector);
+		}
+	}
 }

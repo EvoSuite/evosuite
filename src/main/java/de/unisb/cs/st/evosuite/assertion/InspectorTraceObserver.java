@@ -19,6 +19,7 @@
 package de.unisb.cs.st.evosuite.assertion;
 
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
@@ -61,6 +62,11 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 					entry.addValue(i, value);
 				}
 			} catch (Exception e) {
+				if (e instanceof TimeoutException) {
+					logger.info("Timeout during inspector call - deactivating inspector "
+					        + i.getMethodCall());
+					manager.removeInspector(var.getVariableClass(), i);
+				}
 				logger.debug("Exception " + e + " / " + e.getCause());
 				if (e.getCause() != null
 				        && !e.getCause().getClass().equals(NullPointerException.class)) {
