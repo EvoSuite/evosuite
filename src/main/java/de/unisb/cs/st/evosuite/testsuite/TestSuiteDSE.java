@@ -22,6 +22,7 @@ import de.unisb.cs.st.evosuite.javaagent.BooleanHelper;
 import de.unisb.cs.st.evosuite.symbolic.BranchCondition;
 import de.unisb.cs.st.evosuite.symbolic.ConcolicExecution;
 import de.unisb.cs.st.evosuite.symbolic.expr.BinaryExpression;
+import de.unisb.cs.st.evosuite.symbolic.expr.Comparator;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstant;
@@ -29,10 +30,13 @@ import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.Operator;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringConstant;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringConstraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringVariable;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
+import de.unisb.cs.st.evosuite.symbolic.search.Changer;
 import de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator;
 import de.unisb.cs.st.evosuite.symbolic.search.Seeker;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
@@ -245,43 +249,39 @@ public class TestSuiteDSE {
 			logger.info("Reduced constraints from " + size + " to " + constraints.size());
 		}
 		
+
+		
 //		int counter = 0;
 //		for (Constraint cnstr : constraints ) {
 //			logger.warn("Cnstr: " + (counter++) + " " +  cnstr);
 //		}
 		
-//		String a = "two";
-//		String b = "awwo";
-//		logger.warn("\ndistance " + a + " to " + b + ": " + BooleanHelper.editDistance(a, b));
-//		logger.warn("\nInt.Max: " + Integer.MAX_VALUE + 
-//					"\nInt.Max-1: " + (Integer.MAX_VALUE - 1) + 
-//					"\n-Int.Max: " + (-Integer.MAX_VALUE) + 
-//					"\n-(Int.Max-1): " + (-(Integer.MAX_VALUE-2) ) +
-//					"\nInt.Min: " + ((Integer.MIN_VALUE)));
-//
-//		int mask = Integer.MIN_VALUE;
-//		int a = -52;
-//		logger.warn("int"+a);
-//		logger.warn("mask"+(mask));
-//		logger.warn("int|mask"+(a|mask));
-//		logger.warn("int|mask&mask"+((a|mask)&mask));
-//		logger.warn("int|mask^mask"+((a|mask)^mask));
-//
+		
+		//TODO Throw away the garbage, what else? 
+		//These are some testing stuff. Delete when not needed anymore!
+
 //		
 //		ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
 //		other.add(new IntegerConstant(3));
 //		other.add(new IntegerConstant(0));
 //		other.add(new IntegerConstant(3));
 //		other.add(new IntegerConstant(0));
-//		StringExpression se1 = new StringConstant("hi al!");
-//		StringExpression se0 = new StringConstant("all");
+		
 //		StringMultipleComparison rm = new StringMultipleComparison(
 //				se1 , Operator.REGIONMATCHES, se0, other, (long)0);
 //		
 //		
 //		StringComparison sc = new StringComparison(se1, Operator.CONTAINS, se0, (long)0);
 //		
-//		logger.warn("\nexpr: " + sc + " dis: "+ sc.execute() + " " + "hi all!".reg("all"));
+		
+//		StringVariable se1 = new StringVariable("var1", "hi you ll idiots", "hi you ll idiots", "hi you ll idiots");
+//		StringExpression se0 = new StringConstant("all");
+//		StringComparison sc = new StringComparison(se1, Operator.EQUALS, se0, (long)0);
+//		IntegerConstraint cnstr = new IntegerConstraint(sc, Comparator.NE, new IntegerConstant(0));
+//		
+//		Changer ch = new Changer();
+//		List<Constraint<?>> cList = new LinkedList<Constraint<?>>();
+//		logger.warn("\nexpr: " + cnstr + "  " + ch.strLocalSearch(se1, cnstr, cList, null));
 //		System.exit(0);
 		
 		
@@ -289,9 +289,10 @@ public class TestSuiteDSE {
 		Seeker skr = new Seeker();
 		Map<String, Object> values = skr.getModel(constraints);
 
+		//TODO Let's hope you get to delete this at some point ;P
 //		CVC3Solver solver = new CVC3Solver();
 //		Map<String, Object> values = solver.getModel(constraints);
-//
+
 		if (values != null) {
 			TestCase newTest = test.clone();
 
