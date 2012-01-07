@@ -125,7 +125,9 @@ public class CFGMethodAdapter extends MethodAdapter {
 		} else if (Properties.CRITERION == Criterion.PATH) {
 			instrumentations.add(new PrimePathInstrumentation());
 			instrumentations.add(new BranchInstrumentation());
-		} else if (Properties.CRITERION == Criterion.MUTATION) {
+		} else if (Properties.CRITERION == Criterion.MUTATION
+		        || Properties.CRITERION == Criterion.WEAKMUTATION
+		        || Properties.CRITERION == Criterion.STRONGMUTATION) {
 			instrumentations.add(new BranchInstrumentation());
 			instrumentations.add(new MutationInstrumentation());
 		} else if (Properties.CRITERION == Criterion.COMP_LCSAJ_BRANCH) {
@@ -154,7 +156,7 @@ public class CFGMethodAdapter extends MethodAdapter {
 		        && (access & Opcodes.ACC_ABSTRACT) == 0
 		        && (access & Opcodes.ACC_NATIVE) == 0) {
 
-			logger.info("Analyzing method " + methodName+" in class "+className);
+			logger.info("Analyzing method " + methodName + " in class " + className);
 
 			// MethodNode mn = new CFGMethodNode((MethodNode)mv);
 			// System.out.println("Generating CFG for "+ className+"."+mn.name +
@@ -184,7 +186,7 @@ public class CFGMethodAdapter extends MethodAdapter {
 			logger.info("Created CFG for method " + methodName);
 
 			// add the actual instrumentation
-			logger.info("Instrumenting method " + methodName+" in class "+className);
+			logger.info("Instrumenting method " + methodName + " in class " + className);
 			for (MethodInstrumentation instrumentation : instrumentations)
 				instrumentation.analyze(mn, className, methodName, access);
 

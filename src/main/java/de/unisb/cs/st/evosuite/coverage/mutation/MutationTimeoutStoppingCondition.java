@@ -14,7 +14,7 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingConditionImpl;
  * 
  */
 public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
-	
+
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MutationTimeoutStoppingCondition.class);
 
 	//public static Map<Mutation, Integer> timeouts = new HashMap<Mutation, Integer>();
@@ -22,6 +22,8 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 	private static final long serialVersionUID = -7347443938884126325L;
 
 	private static int timeouts = 0;
+
+	private static boolean hasException = false;
 
 	private static int MAX_TIMEOUTS = Properties.MUTATION_TIMEOUTS;
 
@@ -50,7 +52,7 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 		if (timeouts >= MAX_TIMEOUTS) {
 			System.out.println("Mutation timed out, stopping search");
 		}
-		return timeouts >= MAX_TIMEOUTS;
+		return timeouts >= MAX_TIMEOUTS || hasException;
 	}
 
 	/* (non-Javadoc)
@@ -59,6 +61,7 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 	@Override
 	public void reset() {
 		timeouts = 0;
+		hasException = false;
 	}
 
 	/* (non-Javadoc)
@@ -78,6 +81,12 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 		timeouts++;
 		if (timeouts >= MAX_TIMEOUTS)
 			disabled.add(mutation);
+	}
+
+	// TODO: Still need a good way to call this
+	public static void raisedException(Mutation mutation) {
+		hasException = true;
+		disabled.add(mutation);
 	}
 
 	@Override
