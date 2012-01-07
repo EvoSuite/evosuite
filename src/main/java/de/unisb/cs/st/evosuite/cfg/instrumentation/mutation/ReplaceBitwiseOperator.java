@@ -59,7 +59,7 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
 	        BytecodeInstruction instruction) {
 
-		numVariable = mn.localVariables.size() + 1;
+		numVariable = ReplaceArithmeticOperator.getNextIndex(mn);
 
 		// TODO: Check if this operator is applicable at all first
 		// Should we do this via a method defined in the interface?
