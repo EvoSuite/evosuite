@@ -249,22 +249,24 @@ public class TestChromosome extends ExecutableChromosome {
 			P = 1d / 3d;
 		}
 
-		int which = Randomness.nextInt(3);
-		switch (which) {
-		case 0:
-			logger.debug("Mutation: delete");
+		logger.debug("Mutation: delete");
+		// Delete
+		if (Randomness.nextDouble() <= P) {
 			changed = mutationDelete();
-			break;
-		case 1:
-			logger.debug("Mutation: change");
+		}
+
+		logger.debug("Mutation: change");
+		// Change
+		if (Randomness.nextDouble() <= P) {
 			if (mutationChange())
 				changed = true;
-			break;
-		case 2:
-			logger.debug("Mutation: insert");
+		}
+
+		logger.debug("Mutation: insert");
+		// Insert
+		if (Randomness.nextDouble() <= P) {
 			if (mutationInsert())
 				changed = true;
-			break;
 		}
 
 		if (changed) {
