@@ -65,48 +65,50 @@ public abstract class DistanceEstimator {
 
 	
 	public static int editDistance(String s, String t) {
-		int d[][]; // matrix
-		int n, m; // length of s and t
-		int i, j; // iterates through s and t
-		char s_i, t_j; // i-th and j-th character of s and t
+		int n = s.length(); // length of s
+		int m = t.length(); // length of t
 
-		//If one of the strings is empty return the length of the other one
-		n = s.length();
-		m = t.length();
 		if (n == 0) {
 			return m;
-		}
-		if (m == 0) {
+		} else if (m == 0) {
 			return n;
 		}
-		
-		//Initialize the computation matrix
-		d = new int[n + 1][m + 1];
+
+		int p[] = new int[n + 1]; //'previous' cost array, horizontally
+		int d[] = new int[n + 1]; // cost array, horizontally
+		int _d[]; //placeholder to assist in swapping p and d
+
+		// indexes into strings s and t
+		int i; // iterates through s
+		int j; // iterates through t
+
+		char t_j; // jth character of t
+
+		int cost; // cost
+
 		for (i = 0; i <= n; i++) {
-			d[i][0] = i;
-		}
-		for (j = 0; j <= m; j++) {
-			d[0][j] = j;
+			p[i] = i;
 		}
 
-		//Compute the distance
-		for (i = 1; i <= n; i++) {
-			s_i = s.charAt(i - 1);
-			for (j = 1; j <= m; j++) {
-				t_j = t.charAt(j - 1);
-				if (s_i == t_j) {
-					d[i][j] = d[i-1][j-1];
-				} else {
-					d[i][j] = min(	d[i - 1][j] + 1, 		// deletion
-									d[i][j - 1] + 1,  		// insertion
-									d[i - 1][j - 1] + 1);	// substitution
-				}
+		for (j = 1; j <= m; j++) {
+			t_j = t.charAt(j - 1);
+			d[0] = j;
+
+			for (i = 1; i <= n; i++) {
+				cost = s.charAt(i - 1) == t_j ? 0 : 1;
+				// minimum of cell to the left+1, to the top+1, diagonally left and up +cost				
+				d[i] = Math.min(Math.min(d[i - 1] + 1, p[i] + 1), p[i - 1] + cost);
 			}
+
+			// copy current distance counts to 'previous row' distance counts
+			_d = p;
+			p = d;
+			d = _d;
 		}
-		
-		//If the length is different return same distance but negated
-		//return (m!=n) ? -d[n][m] : d[n][m];
-		return d[n][m];
+
+		// our last action in the above loop was to switch d and p, so p now 
+		// actually has the most recent cost counts
+		return p[n];
 	}
 
 	public static int StrEquals(String first, Object second) {
@@ -147,12 +149,10 @@ public abstract class DistanceEstimator {
 			throw new NullPointerException();
 
 		if (start < 0 || string.length() - start < length) {
-			log.warning("are we here1");
 			return length - string.length() + start;//TODO test	
 		}
 
 		if (thisStart < 0 || value.length() - thisStart < length) {
-			log.warning("are we here2");
 			return length - value.length() + thisStart;//TODO
 		}
 		if (length <= 0) {
