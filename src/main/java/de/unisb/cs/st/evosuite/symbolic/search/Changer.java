@@ -2,7 +2,6 @@ package de.unisb.cs.st.evosuite.symbolic.search;
 
 import gov.nasa.jpf.JPF;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
@@ -65,9 +64,6 @@ public class Changer {
 			return false; //TODO think about what to do here
 		}
 		
-		
-		//TODO this will not work for spp and sepp 
-		//FIX!!!
 
 		
 		// try to remove each
@@ -133,65 +129,38 @@ public class Changer {
 		
 		backup(strVar, DistanceEstimator.getStringDistance(scTarget));
 
-		boolean add = true;
-
-		while (add) {
-			add = false;
-			int position = strVar.execute().length();
-			char[] characters = Arrays.copyOf(strVar.execute().toCharArray(), position + 1);
-			for (char replacement = 0; replacement < 128; replacement++) {
-				characters[position] = replacement;
-				String newStr = new String(characters);
-				strVar.setMinValue(newStr);
-				//logger.debug(" " + strVar.execute() + "/" + strVar.execute().length() + " -> " + newString
-				//        + "/" + newString.length());
-				
-				double newDist = DistanceEstimator.getStringDistance(scTarget);
-				boolean reachable = DistanceEstimator.areReachable(cnstr);
-				if (newDist == 0 && reachable) {
-					log.warning("newVar: " + newStr);
-					result.put(strVar.getName(), newStr);
-					return true;
-				}
-				if (distanceImproved(newDist) && reachable) {
-					backup(strVar, newDist);
-					add = true;
-					break;
-				} else {
-					restore(strVar);
-				}
-			}
-		}
-
-		add = true;
-		while (add) {
-			add = false;
-			int position = 0;
-			char[] characters = (" " + strVar.execute()).toCharArray();
-			for (char replacement = 0; replacement < 128; replacement++) {
-				characters[position] = replacement;
-				String newStr = new String(characters);
-				strVar.setMinValue(newStr);
-				//logger.debug(" " + strVar.execute() + "/" + strVar.execute().length() + " -> " + newString
-				//        + "/" + newString.length());
-
-				double newDist = DistanceEstimator.getStringDistance(scTarget);
-				boolean reachable = DistanceEstimator.areReachable(cnstr);
-				if (newDist == 0 && reachable) {
-					log.warning("newVar: " + newStr);
-					result.put(strVar.getName(), newStr);
-					return true;
-				}
-				if (distanceImproved(newDist) && reachable) {
-					backup(strVar, newDist);
-					add = true;
-					break;
-				} else {
-					restore(strVar);
+		for (int i = 0; i < strVar.execute().length() + 1; i++) {
+			boolean add = true;
+			while (add) {
+				add = false;
+				//int position = strVar.execute().length();
+				//char[] characters = Arrays.copyOf(strVar.execute().toCharArray(), position + 1);
+				for (char replacement = 0; replacement < 128; replacement++) {
+					//characters[position] = replacement;
+					//String newStr = new String(characters);
+					
+					String newStr = strVar.execute().substring(0, i) + replacement + strVar.execute().substring(i);
+					strVar.setMinValue(newStr);
+					//logger.debug(" " + strVar.execute() + "/" + strVar.execute().length() + " -> " + newString
+					//        + "/" + newString.length());
+					
+					double newDist = DistanceEstimator.getStringDistance(scTarget);
+					boolean reachable = DistanceEstimator.areReachable(cnstr);
+					if (newDist == 0 && reachable) {
+						log.warning("newVar: " + newStr);
+						result.put(strVar.getName(), newStr);
+						return true;
+					}
+					if (distanceImproved(newDist) && reachable) {
+						backup(strVar, newDist);
+						add = true;
+						break;
+					} else {
+						restore(strVar);
+					}
 				}
 			}
 		}
-
 		return false;
 	} 
 
