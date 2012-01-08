@@ -140,6 +140,9 @@ public class Properties {
 	@Parameter(key = "max_delta", group = "Test Creation", description = "Maximum size of delta for numbers during mutation")
 	public static int MAX_DELTA = 20;
 
+	@Parameter(key = "random_perturbation", group = "Test Creation", description = "Probability to replace a primitive with a random new value rather than adding a delta")
+	public static double RANDOM_PERTURBATION = 0.2;
+
 	@Parameter(key = "max_array", group = "Test Creation", description = "Maximum length of randomly generated arrays")
 	public static int MAX_ARRAY = 10;
 
@@ -173,6 +176,15 @@ public class Properties {
 
 	@Parameter(key = "generate_objects", group = "Test Creation", description = "Generate .object files that allow adapting method signatures")
 	public static boolean GENERATE_OBJECTS = false;
+
+	@Parameter(key = "insertion_score_uut", group = "Test Creation", description = "Score for selection of insertion of UUT calls")
+	public static int INSERTION_SCORE_UUT = 1;
+
+	@Parameter(key = "insertion_score_object", group = "Test Creation", description = "Score for selection of insertion of call on existing object")
+	public static int INSERTION_SCORE_OBJECT = 1;
+
+	@Parameter(key = "insertion_score_parameter", group = "Test Creation", description = "Score for selection of insertion call with existing object")
+	public static int INSERTION_SCORE_PARAMETER = 1;
 
 	// ---------------------------------------------------------------
 	// Search algorithm
@@ -213,6 +225,21 @@ public class Properties {
 	@Parameter(key = "crossover_rate", group = "Search Algorithm", description = "Probability of crossover")
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double CROSSOVER_RATE = 0.75;
+
+	@Parameter(key = "p_test_insertion", group = "Search Algorithm", description = "Initial probability of inserting a new test in a test suite")
+	public static double P_TEST_INSERTION = 0.1;
+
+	@Parameter(key = "p_statement_insertion", group = "Search Algorithm", description = "Initial probability of inserting a new statement in a test case")
+	public static double P_STATEMENT_INSERTION = 0.5;
+
+	@Parameter(key = "p_test_delete", group = "Search Algorithm", description = "Probability of deleting statements during mutation")
+	public static double P_TEST_DELETE = 1d / 3d;
+
+	@Parameter(key = "p_test_change", group = "Search Algorithm", description = "Probability of changing statements during mutation")
+	public static double P_TEST_CHANGE = 1d / 3d;
+
+	@Parameter(key = "p_test_insert", group = "Search Algorithm", description = "Probability of inserting new statements during mutation")
+	public static double P_TEST_INSERT = 1d / 3d;
 
 	@Parameter(key = "kincompensation", group = "Search Algorithm", description = "Penalty for duplicate individuals")
 	@DoubleValue(min = 0.0, max = 1.0)
