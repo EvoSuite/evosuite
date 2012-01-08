@@ -24,7 +24,7 @@ public abstract class DistanceEstimator {
 	public static double getStringDistance(StringComparison sc) {
 
 		long result = sc.execute();
-		//log.warning("comparison: " + sc + " distance: " + result);		
+//		log.warning("comparison: " + sc + " distance: " + result);		
 		return result;
 	}
 
@@ -63,6 +63,7 @@ public abstract class DistanceEstimator {
 			return Math.min(b, c);
 	}
 
+	
 	public static int editDistance(String s, String t) {
 		int d[][]; // matrix
 		int n, m; // length of s and t

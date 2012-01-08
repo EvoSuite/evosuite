@@ -65,6 +65,9 @@ public class Changer {
 			return false; //TODO think about what to do here
 		}
 		
+		
+		//TODO this will not work for spp and sepp 
+		//FIX!!!
 
 		
 		// try to remove each
