@@ -337,7 +337,7 @@ public class GenericClass implements Serializable {
 		else if (name.equals("char"))
 			return char.class;
 		else if (name.startsWith("[")) {
-			Class<?> componentType = getClass(name.substring(2, name.length() - 1));
+			Class<?> componentType = getClass(name.substring(1, name.length()));
 			Object array = Array.newInstance(componentType, 0);
 			return array.getClass();
 		} else
