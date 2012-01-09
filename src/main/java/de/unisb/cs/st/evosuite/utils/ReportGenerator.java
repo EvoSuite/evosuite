@@ -288,7 +288,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append(pstats.getNumOtherPermission() + ",");
 			r.append(pstats.getMaxThreads() + ",");
 			r.append(JUnitTestChromosomeFactory.getNumTests() + ",");
-			r.append(mutationScore);
+			r.append(mutationScore + ",");
 			r.append(getCSVFilepath());
 
 			return r.toString();
