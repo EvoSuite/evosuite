@@ -226,6 +226,9 @@ public class Properties {
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double CROSSOVER_RATE = 0.75;
 
+	@Parameter(key = "number_of_mutations", group = "Search Algorithm", description = "Number of single mutations applied on an individual when a mutation event occurs")
+	public static int NUMBER_OF_MUTATIONS = 1;
+
 	@Parameter(key = "p_test_insertion", group = "Search Algorithm", description = "Initial probability of inserting a new test in a test suite")
 	public static double P_TEST_INSERTION = 0.1;
 

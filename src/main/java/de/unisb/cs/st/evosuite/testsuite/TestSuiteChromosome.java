@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.LocalSearchBudget;
@@ -73,7 +74,9 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 */
 	@Override
 	public void mutate() {
-		super.mutate();
+		for(int i=0; i<Properties.NUMBER_OF_MUTATIONS; i++){
+			super.mutate();
+		}
 		handleTestCallStatements();
 	}
 

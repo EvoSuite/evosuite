@@ -6,7 +6,12 @@ package de.unisb.cs.st.evosuite.symbolic.bytecode;
 import java.util.logging.Logger;
 
 import de.unisb.cs.st.evosuite.symbolic.bytecode.INVOKEVIRTUAL;
+import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
+import de.unisb.cs.st.evosuite.symbolic.expr.IntToStringCast;
+import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstant;
+import de.unisb.cs.st.evosuite.symbolic.expr.IntegerVariable;
 import de.unisb.cs.st.evosuite.symbolic.expr.Operator;
+import de.unisb.cs.st.evosuite.symbolic.expr.RealExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringBinaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringBuilderExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringConstant;
@@ -64,10 +69,26 @@ public abstract class InvVStringBuilderHelper {
 		
 		StackFrame sf = ti.getTopFrame();
 		String pp = ins.getPrev().getPrev().toString();
-		StringExpression se0 =  (StringExpression) sf.getOperandAttr(0);
+		Expression<?> expr =  (Expression<?>) sf.getOperandAttr(0);
 
+		StringExpression se0 = null;
+		if (expr instanceof StringExpression) {
+			se0 = (StringExpression) expr;
+		} 
 
+		if (expr instanceof IntegerConstant) {
+			se0 = new StringConstant(Long.toString(((IntegerConstant)expr).getConcreteValue()));
+		} 
+			
 
+		if (expr instanceof IntegerVariable) {
+			se0 = new IntToStringCast((IntegerVariable)expr);
+		} 
+
+		if (expr instanceof RealExpression) {
+			//TODO see below
+			log.warning("InvVStringBuilderHelper: We haven't implemented realToStringCast yet!");
+		}
 
 		
 		
