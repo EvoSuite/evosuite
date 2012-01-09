@@ -22,6 +22,8 @@ public class MutationFactory extends AbstractFitnessFactory {
 
 	private boolean strong = true;
 
+	private List<TestFitnessFunction> goals = null;
+
 	public MutationFactory() {
 	}
 
@@ -34,7 +36,10 @@ public class MutationFactory extends AbstractFitnessFactory {
 	 */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
-		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
+		if (goals != null)
+			return goals;
+
+		goals = new ArrayList<TestFitnessFunction>();
 
 		// String targetMethod = Properties.TARGET_METHOD;
 
@@ -51,7 +56,6 @@ public class MutationFactory extends AbstractFitnessFactory {
 		for (Mutation m : MutationPool.getMutants()) {
 			if (MutationTimeoutStoppingCondition.isDisabled(m))
 				continue;
-			logger.info("Goal: " + m);
 			if (strong)
 				goals.add(new StrongMutationTestFitness(m));
 			else

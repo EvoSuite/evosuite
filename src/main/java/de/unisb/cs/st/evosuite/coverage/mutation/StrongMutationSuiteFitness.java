@@ -43,6 +43,22 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 		runTestSuite((TestSuiteChromosome) individual);
 
 		Set<MutationTestFitness> uncoveredMutants = MutationTestPool.getUncoveredFitnessFunctions();
+		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
+
+		for (TestChromosome test : suite.getTestChromosomes()) {
+			ExecutionResult result = test.getLastExecutionResult();
+
+			if (result.hasTimeout()) {
+				logger.debug("Skipping test with timeout");
+				double fitness = branchFitness.total_branches * 2
+				        + branchFitness.total_methods + 3 * mutationGoals.size();
+				updateIndividual(individual, fitness);
+				suite.setCoverage(0.0);
+				logger.info("Test case has timed out, setting fitness to max value "
+				        + fitness);
+				return fitness;
+			}
+		}
 
 		/*
 		Set<TestFitnessFunction> coveredMutants = ((TestSuiteChromosome) individual).getCoveredGoals();
@@ -56,14 +72,14 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 
 		// First objective: achieve branch coverage
 		logger.debug("Calculating branch fitness: ");
-		double fitness = normalize(branchFitness.getFitness(individual));
-		//double fitness = branchFitness.getFitness(individual);
+		//double fitness = normalize(branchFitness.getFitness(individual));
+		double fitness = branchFitness.getFitness(individual);
 		//logger.info("Branch fitness: " + fitness);
 
 		// Additional objective 1: all mutants need to be touched
 
 		// Count number of touched mutations (ask MutationObserver)
-		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
+
 		Set<Integer> touchedMutants = new HashSet<Integer>();
 		//Map<Integer, Double> infectionDistance = new HashMap<Integer, Double>();
 		Map<Mutation, Double> minMutantFitness = new HashMap<Mutation, Double>();
@@ -77,11 +93,6 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 			ExecutionResult result = test.getLastExecutionResult();
 			ExecutionTrace trace = result.getTrace();
 			touchedMutants.addAll(trace.touchedMutants);
-
-			if (result.hasTimeout()) {
-				logger.debug("Skipping test with timeout");
-				continue;
-			}
 
 			boolean coversNewMutants = false;
 			for (TestFitnessFunction mutant : uncoveredMutants) {

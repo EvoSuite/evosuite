@@ -74,7 +74,7 @@ public class TestSuiteMinimizer {
 		if (strategy.contains(":"))
 			strategy = strategy.substring(0, strategy.indexOf(':'));
 
-		logger.info("Minimization Strategy: " + strategy);
+		logger.info("Minimization Strategy: " + strategy + ", " + suite.size() + " tests");
 
 		if (Properties.MINIMIZE_OLD)
 			minimizeSuite(suite);
@@ -110,6 +110,7 @@ public class TestSuiteMinimizer {
 		for (TestFitnessFunction goal : goals) {
 			for (TestChromosome test : minimizedTests) {
 				if (goal.isCovered(test)) {
+					logger.info("Already covered: " + goal);
 					covered.add(goal);
 					break;
 				}
@@ -133,10 +134,14 @@ public class TestSuiteMinimizer {
 				minimizedTests.add(copy);
 				minimizedSuite.insertTest(copy.getTestCase());
 				covered.add(goal);
+				logger.info("After new test the suite covers " + covered.size() + "/"
+				        + goals.size() + " goals");
 
 			}
 		}
 
+		logger.info("Minimized suite covers " + covered.size() + "/" + goals.size()
+		        + " goals");
 		suite.tests.clear();
 		for (TestCase test : minimizedSuite.getTestCases()) {
 			suite.addTest(test);

@@ -136,19 +136,22 @@ public class TestCaseExecutor implements ThreadFactory {
 	}
 
 	public void addObserver(ExecutionObserver observer) {
-		if (!observers.contains(observer))
+		if (!observers.contains(observer)) {
 			logger.debug("Adding observer " + observer);
+			observers.add(observer);
+		}
 		// FIXXME: Find proper solution for this
 		//for (ExecutionObserver o : observers)
 		//	if (o.getClass().equals(observer.getClass()))
 		//		return;
-		observers.add(observer);
+
 	}
 
 	public void removeObserver(ExecutionObserver observer) {
-		if (observers.contains(observer))
+		if (observers.contains(observer)) {
 			logger.debug("Removing observer " + observer);
-		observers.remove(observer);
+			observers.remove(observer);
+		}
 	}
 
 	public void newObservers() {
@@ -298,6 +301,10 @@ public class TestCaseExecutor implements ThreadFactory {
 					ExecutionTracer.disable();
 					executor = Executors.newSingleThreadExecutor(this);
 				}
+			} else {
+				logger.info("Run is finished - " + currentThread.isAlive() + ": "
+				        + getNumStalledThreads());
+
 			}
 			ExecutionTracer.disable();
 
@@ -334,6 +341,8 @@ public class TestCaseExecutor implements ThreadFactory {
 			currentThread.setPriority(Thread.MIN_PRIORITY);
 			stalledThreads.add(currentThread);
 			logger.info("Current number of stalled threads: " + getNumStalledThreads());
+		} else {
+			logger.info("No stalled threads");
 		}
 
 		if (threadGroup != null) {

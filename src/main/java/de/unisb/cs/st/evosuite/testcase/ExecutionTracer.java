@@ -292,9 +292,6 @@ public class ExecutionTracer {
 		if (tracer.disabled)
 			return;
 
-		if (isThreadNeqCurrentThread())
-			return;
-
 		if (tracer.killSwitch) {
 			logger.info("Raising TimeoutException as kill switch is active - passedLine");
 			throw new TestCaseExecutor.TimeoutExceeded();

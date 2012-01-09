@@ -1136,7 +1136,8 @@ public class TestSuiteGenerator {
 		}
 		if (!(stopping_condition instanceof MaxTimeStoppingCondition))
 			ga.addStoppingCondition(global_time);
-		if (Properties.CRITERION == Criterion.MUTATION)
+		if (Properties.CRITERION == Criterion.MUTATION
+		        || Properties.CRITERION == Criterion.STRONGMUTATION)
 			if (Properties.STRATEGY == Strategy.ONEBRANCH)
 				ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
 			else

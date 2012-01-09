@@ -5,6 +5,8 @@ package de.unisb.cs.st.evosuite.coverage.mutation;
 
 import java.util.List;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -27,7 +29,8 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	public static int mostCoveredGoals = 0;
 
 	public MutationSuiteFitness() {
-		MutationFactory factory = new MutationFactory();
+		MutationFactory factory = new MutationFactory(
+		        Properties.CRITERION == Criterion.WEAKMUTATION ? false : true);
 		mutationGoals = factory.getCoverageGoals();
 		logger.info("Mutation goals: " + mutationGoals.size());
 		branchFitness = new BranchCoverageSuiteFitness();
