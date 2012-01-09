@@ -48,6 +48,7 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 	public StrongMutationTestFitness(Mutation mutation) {
 		super(mutation);
 		for (AssertionTraceObserver<?> observer : observers) {
+			logger.debug("StrongMutation adding observer " + observer);
 			executor.addObserver(observer);
 		}
 	}

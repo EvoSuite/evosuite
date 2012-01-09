@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -25,6 +28,8 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
  */
 public class MutationTestPool implements SearchListener {
 
+	private final Logger logger = LoggerFactory.getLogger(MutationTestPool.class);
+
 	private static Map<Mutation, TestChromosome> testMap = new HashMap<Mutation, TestChromosome>();
 
 	private final static List<Mutation> allMutants = MutationPool.getMutants();
@@ -35,8 +40,9 @@ public class MutationTestPool implements SearchListener {
 		for (Mutation m : allMutants) {
 			if (Properties.CRITERION == Criterion.WEAKMUTATION)
 				allMutantFitnessFunctions.add(new WeakMutationTestFitness(m));
-			else
+			else {
 				allMutantFitnessFunctions.add(new StrongMutationTestFitness(m));
+			}
 		}
 		Randomness.shuffle(allMutantFitnessFunctions);
 	}
@@ -59,7 +65,7 @@ public class MutationTestPool implements SearchListener {
 
 	public static Set<MutationTestFitness> getUncoveredFitnessFunctions() {
 		Set<MutationTestFitness> mutants = new HashSet<MutationTestFitness>();
-		int num = 0;
+		//int num = 0;
 		for (MutationTestFitness m : allMutantFitnessFunctions) {
 			if (MutationTimeoutStoppingCondition.isDisabled(m.getMutation()))
 				continue;
@@ -110,8 +116,11 @@ public class MutationTestPool implements SearchListener {
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
 		TestSuiteChromosome solution = (TestSuiteChromosome) algorithm.getBestIndividual();
+
+		logger.info("Search finished with size " + solution.size());
 		for (TestChromosome test : testMap.values())
 			solution.addTest(test);
+		logger.info("Adding mutation tests to size " + solution.size());
 
 	}
 

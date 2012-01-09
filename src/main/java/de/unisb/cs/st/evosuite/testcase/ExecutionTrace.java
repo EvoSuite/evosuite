@@ -406,6 +406,8 @@ public class ExecutionTrace {
 		knownCallerObjects = new HashMap<Integer, Object>();
 		true_distances = new HashMap<Integer, Double>();
 		false_distances = new HashMap<Integer, Double>();
+		mutant_distances = new HashMap<Integer, Double>();
+		touchedMutants = new HashSet<Integer>();
 		covered_methods = new HashMap<String, Integer>();
 		covered_predicates = new HashMap<Integer, Integer>();
 		covered_true = new HashMap<Integer, Integer>();
@@ -601,7 +603,7 @@ public class ExecutionTrace {
 		}
 	}
 
-	public void finishCalls() {
+	public synchronized void finishCalls() {
 		logger.debug("At the end, we have " + stack.size() + " calls left on stack");
 		while (!stack.isEmpty()) {
 			finished_calls.add(stack.pop());
