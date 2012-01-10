@@ -151,7 +151,8 @@ public class ReplaceVariable implements MutationOperator {
 			FieldInsnNode node = (FieldInsnNode) original;
 			distance.add(new FieldInsnNode(node.getOpcode(), node.owner, node.name,
 			        node.desc));
-			if (type.getDescriptor().startsWith("L"))
+			if (type.getDescriptor().startsWith("L")
+			        || type.getDescriptor().startsWith("["))
 				addReferenceDistanceCheck(distance, type, mutant);
 			else
 				addPrimitiveDistanceCheck(distance, type, mutant);
