@@ -726,6 +726,10 @@ public class StaticTestCluster extends TestCluster {
 			// return false;//handled here to avoid printing reasons
 		}
 
+		if (m.getDeclaringClass().equals(java.lang.Enum.class)) {
+			return false;
+		}
+
 		if (m.getDeclaringClass().equals(java.lang.Thread.class))
 			return false;// handled here to avoid printing reasons
 
