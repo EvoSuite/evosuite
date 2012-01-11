@@ -45,54 +45,6 @@ public class INVOKEVIRTUAL extends gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL {
 	public INVOKEVIRTUAL () {
 		super();
 	}
-
-	
-	
-	/*
-	 * This here is done: (but not extensively tested)
-	 * 
-* Generating tests for class scs.NotyPevar
-* Test criterion: Branch coverage
-* Setting up search algorithm for whole suite generation
-* Total number of test goals: 9
-* Starting evolution
-[Progress:>                             0%] [Cov:==========================>        77%][WARNING] INVOKEVIRTUAL: java.lang.ClassCastException: de.unisb.cs.st.evosuite.symbolic.expr.IntegerVariable cannot be cast to de.unisb.cs.st.evosuite.symbolic.expr.StringExpression
-[WARNING] INVOKEVIRTUAL: java.lang.ClassCastException: de.unisb.cs.st.evosuite.symbolic.expr.IntegerVariable cannot be cast to de.unisb.cs.st.evosuite.symbolic.expr.StringExpression
-
-	 * 
-	 * 
-	 * TODO fix bugs:
-	 * 
-* Generating tests for class scs.Stemmer
-* Test criterion: Branch coverage
-* Setting up search algorithm for whole suite generation
-* Total number of test goals: 344
-* Starting evolution
-[Progress:>                             3%] [Cov:===========>                       34%][SEVERE] JPF configuration error: no classname entry for: "vm.class"
-Exception in thread "main" gov.nasa.jpf.JPF$ExitException: JPF configuration error: no classname entry for: "vm.class"
-	at gov.nasa.jpf.JPF.initialize(JPF.java:264)
-	at gov.nasa.jpf.JPF.<init>(JPF.java:232)
-	at de.unisb.cs.st.evosuite.symbolic.ConcolicExecution.executeConcolic(ConcolicExecution.java:107)
-	at de.unisb.cs.st.evosuite.symbolic.ConcolicExecution.getSymbolicPath(ConcolicExecution.java:145)
-	at de.unisb.cs.st.evosuite.testsuite.TestSuiteDSE.applyDSE(TestSuiteDSE.java:78)
-	at de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome.applyDSE(TestSuiteChromosome.java:188)
-	at de.unisb.cs.st.evosuite.ga.GeneticAlgorithm.applyDSE(GeneticAlgorithm.java:150)
-	at de.unisb.cs.st.evosuite.ga.SteadyStateGA.generateSolution(SteadyStateGA.java:174)
-	at de.unisb.cs.st.evosuite.TestSuiteGenerator.generateWholeSuite(TestSuiteGenerator.java:389)
-	at de.unisb.cs.st.evosuite.TestSuiteGenerator.generateTests(TestSuiteGenerator.java:228)
-	at de.unisb.cs.st.evosuite.TestSuiteGenerator.generateTestSuite(TestSuiteGenerator.java:181)
-	at de.unisb.cs.st.evosuite.TestSuiteGenerator.main(TestSuiteGenerator.java:1207)
-Caused by: JPF configuration error: no classname entry for: "vm.class"
-	at gov.nasa.jpf.Config.getEssentialClass(Config.java:1503)
-	at gov.nasa.jpf.Config.getEssentialInstance(Config.java:1690)
-	at gov.nasa.jpf.JPF.initialize(JPF.java:251)
-	... 11 more
-
-	 */
-	
-	
-	
-	
 	
 	@Override
 	public Instruction execute(SystemState ss, KernelState ks, ThreadInfo ti) {
@@ -179,6 +131,10 @@ Caused by: JPF configuration error: no classname entry for: "vm.class"
 				} else if (mname.startsWith("indexOf(")) {
 					
 					return InvVStringHelper.strFncIndexOf(ks, ti, this);
+							
+				} else if (mname.startsWith("charAt(")) {
+					
+					return InvVStringHelper.strFncCharAt(ks, ti, this);
 							
 				} else {
 					InvVFunctionLogger.LogStringFnc("StringFunctions.txt", this);

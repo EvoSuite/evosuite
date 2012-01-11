@@ -780,6 +780,39 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 	
+	public static Instruction strFncCharAt(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
+
+		StackFrame sf = ti.getTopFrame();
+		
+		//get values from the fake stack 
+		Expression<?> indx_expr = (Expression<?>) sf.getOperandAttr(0);
+		StringExpression se1 = (StringExpression) sf.getOperandAttr(1);
+	
+		//get the Strings using the positions from the stack. Order is crucial here
+		int indx = sf.pop();
+		String firstStr = ks.heap.get(sf.pop()).asString();
+		
+		if (indx_expr == null) {
+			indx_expr = new IntegerConstant(indx);
+		}
+		
+		//compute the resulting value and push it on the real stack
+		char result = firstStr.charAt(indx);
+		sf.push((int) result);
+
+		//push a StringComparation expression on the fake stack
+		sf.setOperandAttr(
+			new StringBinaryExpression(se1, Operator.CHARAT, indx_expr, Character.toString(result)));
+		
+		//return the next instruction that followed the function call
+		return ins.getNext(ti);
+	}
+	
+	//TODO see how we can handle this! The function has to give a string Array back. 
+//	public static Instruction strFncSplit(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
+//		return null;
+//	}
+	
 	
 	/**	To implement?!?
 	 
