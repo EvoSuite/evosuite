@@ -7,6 +7,8 @@ import java.util.logging.Logger;
 import de.unisb.cs.st.evosuite.symbolic.expr.Comparator;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
+import de.unisb.cs.st.evosuite.symbolic.expr.ExpressionHelper;
+import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
 
 /**
@@ -17,6 +19,68 @@ public abstract class DistanceEstimator {
 	
 	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator");
 
+	
+	
+	public static double getStringDist(Constraint<?> target) {
+		Expression<?> exprLeft = target.getLeftOperand();
+		Comparator cmpr = target.getComparator();
+		Expression<?> exprRight = target.getRightOperand();
+		int diffConst = 1;
+		
+		
+		//TODO all this should be in the getDistance function
+		//this will also solve the next todo
+		
+		//check if we have a string comparison
+		if (	exprLeft instanceof StringComparison 
+			 &&	exprRight instanceof IntegerConstant ) {
+			StringComparison scTarget = (StringComparison) exprLeft;
+			
+			if (((IntegerConstant)exprRight).getConcreteValue() == 0 ) {
+				
+				//check whether we want to satisfy the condition
+				if (cmpr == Comparator.NE) {
+					return scTarget.execute();
+				} else {
+					//if we don't want to satisfy return 0 if not satisfied 1 else
+					return scTarget.execute() > 0 ? 0 : diffConst;
+				}
+			} else {
+				log.warning("getStringDist: StringComparison compared to non zero");
+				return Double.MAX_VALUE;
+			}
+		} else { 
+			//Since we have only String vars here the only other possibility is we have 
+			//		some int returning function
+			long left = ExpressionHelper.getLongResult(exprLeft);
+			long right = ExpressionHelper.getLongResult(exprRight);
+			
+			switch (cmpr) {
+			case EQ:
+				return Math.abs(left-right);
+			case NE:
+							
+				return (left-right) != 0 ? 0 : diffConst;
+			case LT:
+				
+				return left-right < 0 ? 0 : diffConst;
+			case LE:
+				
+				return left-right <= 0 ? 0 : diffConst;
+			case GT:
+				
+				return left-right > 0 ? 0 : diffConst;
+			case GE:
+				
+				return left-right >= 0 ? 0 : diffConst;
+				
+			default:
+				log.warning("getStringDist: unimplemented comparator");
+				return Double.MAX_VALUE;
+			}
+		}
+	}
+	
 	/**
 	 * @param sc
 	 * @return
@@ -43,11 +107,11 @@ public abstract class DistanceEstimator {
 				long dis = sc.execute();
 				if (op.equals(Comparator.NE)) {
 					//we want to satisfy
-					result = (dis >= 0);
+					result = (dis <= 0);
 				}
 				if (op.equals(Comparator.EQ)) {
 					//we DON'T want to satisfy
-					result = (dis < 0);
+					result = (dis > 0);
 				}
 			}
 		}
@@ -190,5 +254,7 @@ public abstract class DistanceEstimator {
 		}
 		return min_dist;
 	}
+
+
 	
 }
