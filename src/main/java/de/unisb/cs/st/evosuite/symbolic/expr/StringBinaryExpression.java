@@ -94,12 +94,16 @@ BinaryExpression<String>{
 		case CONCAT:
 			return first.concat((String)second);
 		case INDEXOFC:
-			long ch = (Long) second;
+			long ch = ExpressionHelper.getLongResult(right);
 			return Integer.toString(first.indexOf((char)ch));
 		case INDEXOFS:
 			return Integer.toString(first.indexOf((String)second));
 		case APPEND: 
 			return first + ((String) second);
+		case CHARAT:
+			//TODO handle exception here
+			int indx = (int) ExpressionHelper.getLongResult(right);
+			return Integer.toString(first.charAt(indx));
 		default:
 			log.warning("StringBinaryExpression: unimplemented operator!");
 			return null;
