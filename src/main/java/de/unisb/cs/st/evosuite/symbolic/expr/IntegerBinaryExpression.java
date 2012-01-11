@@ -1,10 +1,16 @@
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
+import gov.nasa.jpf.JPF;
+
+import java.util.logging.Logger;
+
 public class IntegerBinaryExpression extends IntegerExpression implements
         BinaryExpression<Long> {
 
 	private static final long serialVersionUID = -986689442489666986L;
 
+	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.expr.IntegerBinaryExpression");
+	
 	protected Long concretValue;
 
 	protected Operator op;
@@ -70,9 +76,26 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 	}
 
 	@Override
-	public Object execute() {
-		// TODO Auto-generated method stub
-		return null;
+	public Long execute() {
+		long leftVal = ExpressionHelper.getLongResult(left);
+		long rightVal = ExpressionHelper.getLongResult(right);
+		
+		switch (op) {
+
+		case DIV:
+			return leftVal/rightVal;
+		case MUL:
+			return leftVal*rightVal;
+		case MINUS:
+			return leftVal-rightVal;
+		case PLUS: 
+			return leftVal+rightVal;
+		case REM: 
+			return leftVal%rightVal;	
+		default:
+			log.warning("IntegerBinaryExpression: unimplemented operator!");
+			return null;
+		}
 	}
 
 }

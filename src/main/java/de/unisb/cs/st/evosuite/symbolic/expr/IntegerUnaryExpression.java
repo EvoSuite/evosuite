@@ -1,10 +1,16 @@
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
+import gov.nasa.jpf.JPF;
+
+import java.util.logging.Logger;
+
 public class IntegerUnaryExpression extends IntegerExpression implements
         UnaryExpression<Long> {
 
 	private static final long serialVersionUID = 1966395070897274841L;
 
+	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.expr.IntegerUnaryExpression");
+	
 	protected Long concretValue;
 
 	protected Operator op;
@@ -58,9 +64,16 @@ public class IntegerUnaryExpression extends IntegerExpression implements
 	}
 
 	@Override
-	public Object execute() {
-		// TODO Auto-generated method stub
-		return null;
+	public Long execute() {
+		long leftVal = (Long) expr.execute();
+		
+		switch (op) {
+		case NEG:
+			return -leftVal;
+		default:
+			log.warning("IntegerUnaryExpression: unimplemented operator!");
+			return null;
+		}
 	}
 
 }

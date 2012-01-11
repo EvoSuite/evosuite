@@ -24,11 +24,11 @@ UnaryExpression<String>{
 	
 	protected Operator op;
 
-	protected Expression<String> val;
+	protected Expression<String> left;
 
 	public StringUnaryExpression(Expression<String> left2, Operator op2, String con) {
 		this.concretValue = con;
-		this.val = left2;
+		this.left = left2;
 		this.op = op2;
 	}
 
@@ -44,12 +44,12 @@ UnaryExpression<String>{
 
 	@Override
 	public Expression<String> getOperand() {
-		return val;
+		return left;
 	}
 
 	@Override
 	public String toString() {
-		return val + "." + op.toString().trim() + "(" + ")";
+		return left + "." + op.toString().trim() + "(" + ")";
 	}
 
 	@Override
@@ -60,7 +60,7 @@ UnaryExpression<String>{
 		if (obj instanceof StringUnaryExpression) {
 			StringUnaryExpression other = (StringUnaryExpression) obj;
 			return this.op.equals(other.op) && this.getSize() == other.getSize()
-			        && this.val.equals(other.val);
+			        && this.left.equals(other.left);
 		}
 
 		return false;
@@ -79,8 +79,8 @@ UnaryExpression<String>{
 	}
 
 	@Override
-	public Object execute() {
-		String exOn = (String)val.execute();
+	public String execute() {
+		String exOn = (String)left.execute();
 		
 		switch (op) {
 		case TOLOWERCASE:
