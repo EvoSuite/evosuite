@@ -86,6 +86,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 		throw new RuntimeException("Unknown opcode: " + opcode);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public static int getNextIndex(MethodNode mn) {
 		Iterator it = mn.localVariables.iterator();
 		int max = 0;
@@ -93,7 +94,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 		while (it.hasNext()) {
 			LocalVariableNode var = (LocalVariableNode) it.next();
 			int index = var.index;
-			if (index > max) {
+			if (index >= max) {
 				max = index;
 				next = max + Type.getType(var.desc).getSize();
 			}
@@ -109,7 +110,6 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 	        BytecodeInstruction instruction) {
 
 		numVariable = getNextIndex(mn);
-
 		List<Mutation> mutations = new LinkedList<Mutation>();
 
 		InsnNode node = (InsnNode) instruction.getASMNode();
@@ -197,8 +197,27 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 		return distance;
 	}
 
+	private static boolean hasDivZeroError(int opcode) {
+		switch (opcode) {
+		case Opcodes.IDIV:
+		case Opcodes.IREM:
+		case Opcodes.FDIV:
+		case Opcodes.FREM:
+		case Opcodes.LDIV:
+		case Opcodes.LREM:
+		case Opcodes.DDIV:
+		case Opcodes.DREM:
+			return true;
+		default:
+			return false;
+		}
+	}
+
 	public static double getInfectionDistanceInt(int x, int y, int opcodeOrig,
 	        int opcodeNew) {
+		if (y == 0) {
+			return hasDivZeroError(opcodeOrig) == hasDivZeroError(opcodeNew) ? 1.0 : 0.0;
+		}
 		int origValue = calculate(x, y, opcodeOrig);
 		int newValue = calculate(x, y, opcodeNew);
 		return origValue == newValue ? 1.0 : 0.0;
@@ -206,6 +225,9 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 
 	public static double getInfectionDistanceLong(long x, long y, int opcodeOrig,
 	        int opcodeNew) {
+		if (y == 0L) {
+			return hasDivZeroError(opcodeOrig) == hasDivZeroError(opcodeNew) ? 1.0 : 0.0;
+		}
 		long origValue = calculate(x, y, opcodeOrig);
 		long newValue = calculate(x, y, opcodeNew);
 		return origValue == newValue ? 1.0 : 0.0;
@@ -213,6 +235,9 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 
 	public static double getInfectionDistanceFloat(float x, float y, int opcodeOrig,
 	        int opcodeNew) {
+		if (y == 0.0F) {
+			return hasDivZeroError(opcodeOrig) == hasDivZeroError(opcodeNew) ? 1.0 : 0.0;
+		}
 		float origValue = calculate(x, y, opcodeOrig);
 		float newValue = calculate(x, y, opcodeNew);
 		return origValue == newValue ? 1.0 : 0.0;
@@ -220,6 +245,9 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 
 	public static double getInfectionDistanceDouble(double x, double y, int opcodeOrig,
 	        int opcodeNew) {
+		if (y == 0.0) {
+			return hasDivZeroError(opcodeOrig) == hasDivZeroError(opcodeNew) ? 1.0 : 0.0;
+		}
 		double origValue = calculate(x, y, opcodeOrig);
 		double newValue = calculate(x, y, opcodeNew);
 		return origValue == newValue ? 1.0 : 0.0;
