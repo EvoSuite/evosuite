@@ -34,7 +34,7 @@ public class Mutation {
 
 	private final InsnList infection;
 
-	private int lineNo;
+	private final int lineNo;
 
 	public Mutation(String className, String methodName, String mutationName, int id,
 	        BytecodeInstruction original, AbstractInsnNode mutation, InsnList distance) {
@@ -58,6 +58,7 @@ public class Mutation {
 		this.original = original;
 		this.mutation = mutation;
 		this.infection = distance;
+		this.lineNo = original.getLineNumber();
 	}
 
 	public int getId() {
