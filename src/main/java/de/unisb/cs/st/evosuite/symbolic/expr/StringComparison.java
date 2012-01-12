@@ -45,7 +45,8 @@ public class StringComparison extends StringExpression {
 		if (obj instanceof StringComparison) {
 			StringComparison other = (StringComparison) obj;
 			return this.op.equals(other.op) && this.conVal.equals(other.conVal) 
-					&& this.getSize() == other.getSize() && this.left.equals(other.left) 
+//					&& this.getSize() == other.getSize() 
+					&& this.left.equals(other.left) 
 					&& this.right.equals(other.right);
 		}
 
@@ -67,13 +68,13 @@ public class StringComparison extends StringExpression {
 
 	protected int size = 0;
 
-	@Override
-	public int getSize() {
-		if (size == 0) {
-			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
-		}
-		return size;
-	}
+//	@Override
+//	public int getSize() {
+//		if (size == 0) {
+//			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
+//		}
+//		return size;
+//	}
 
 	public Operator getOperator() {
 		return op;
@@ -93,12 +94,8 @@ public class StringComparison extends StringExpression {
 			return (long)DistanceEstimator.StrEndsWith(first, second);
 		case CONTAINS:
 			return (long)DistanceEstimator.StrContains(first, second);
-		case COMPARETO:
-			return (long) first.compareTo(second);
-		case COMPARETOIGNORECASE:
-			return (long) first.compareToIgnoreCase(second);
 		default:
-			log.warning("StringComparison: unimplemented operator!");
+			log.warning("StringComparison: unimplemented operator!" + op);
 			return null;
 		}		
 	}

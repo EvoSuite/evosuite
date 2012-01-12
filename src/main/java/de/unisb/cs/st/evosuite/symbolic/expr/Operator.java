@@ -69,13 +69,15 @@ public enum Operator {
 	ENDSWITH("endsWith", 2),
 	CONTAINS("contains", 2),
 	REGIONMATCHES("regionMatches", 6), 
-	COMPARETO("compareTo", 2), 
 	COMPARETOIGNORECASE("compareToIgnoreCase", 2),
+
 	// String operators
+	COMPARETO("compareTo", 2), 
 	
 	TRIM("trim", 1), 
 	LENGTH("length", 1), 
 	TOLOWERCASE("toLowerCase", 1), 
+	TOUPPERCASE("toUpperCase", 1),
 	
 	CONCAT("concat", 2), 
 	APPEND("append", 2), 

@@ -82,7 +82,6 @@ public class Seeker implements Solver {
 				}
 				// These two are not yet implemented
 				if (var instanceof IntegerVariable) {
-					
 					IntegerVariable intVar = (IntegerVariable) var;
 					if (changer.intLocalSearch(intVar, target, cnstr, result)) {
 						break outerloop;
@@ -100,87 +99,7 @@ public class Seeker implements Solver {
 		
 		return result;
 	}
-	
-	
-	
 
-	
-	/*
-	//Old getModel. Please remove me!
-	public Map<String, Object> getModel(Collection<Constraint<?>> constraints){
-		HashMap<String, Object> result = new HashMap<String, Object>();
-
-		
-		List<Constraint<?>> cnstr = (List<Constraint<?>>)constraints;
-		Constraint<?> target = cnstr.get(cnstr.size()-1);
-		
-		//remove the target from the constraints
-		constraints.remove(target);
-		
-		boolean desCnstrValue; 
-		switch (target.getComparator()) {
-		case EQ:	//TODO what to do if we don't want to satisfy the condition? Just exit?
-			desCnstrValue = false;
-			break;
-		case NE:	//this means we want to satisfy the condition
-			desCnstrValue = true;
-			break;
-		case GE:	// We should't get any of this for Strings 
-		case GT:	//TODO also handle integers
-		case LE:
-		case LT:
-		default:
-			throw new RuntimeException("Unsupported comparison: " + target.getComparator());
-		}
-		
-		Expression<?> expr = target.getLeftOperand();
-		
-		if (!(expr instanceof StringComparison)) {
-			return null;
-		}
-		StringComparison sc = (StringComparison) expr;
-		
-		// We don't need this functionality for now
-		// If we don't need it at all delete "parent" stuff in Expression
-
-		//setupTree(sc);
-		
-		Set<StringVariable> vars = getStringVariables(target);
-		
-		int fitness;// = DistanceEstimator.getFitness(sc);
-		boolean reachable = true;
-		
-		for (int i = 0; i < maxStepsForAll ; i++ ) {
-			for (Variable<?> var : vars) {
-				fitness = DistanceEstimator.getFitness(sc);
-				Changer changer = new Changer();
-				String strVal = var.getMaxValue();
-				
-				for (int j = 0; j < maxStepsForEach ; j++ ) {
-					String newVal = changer.changeVar(strVal, fitness, reachable);
-					//assign working value in var.MinValue)
-					var.setMinValue(newVal);
-					reachable = DistanceEstimator.areReachable(constraints);
-					//if unreachable values will be reverted automatically by changeVar()
-					if (reachable) {
-						int newFit = DistanceEstimator.getFitness(sc);
-						if (newFit > fitness) {
-							var.setMaxValue(newVal);
-							result.put(var.getName() , newVal);
-						}	
-						if (newFit >= 0) {
-							//we are ready 
-							log.warning("we got: " + result);
-							return result;
-						} else {							
-							fitness = newFit;
-							strVal = newVal;
-						}
-					}
-				}
-			}
-		}
-	 	*/
 	
 	
 	@SuppressWarnings("unused")

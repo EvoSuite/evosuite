@@ -59,7 +59,8 @@ UnaryExpression<String>{
 		}
 		if (obj instanceof StringUnaryExpression) {
 			StringUnaryExpression other = (StringUnaryExpression) obj;
-			return this.op.equals(other.op) && this.getSize() == other.getSize()
+			return this.op.equals(other.op) 
+//					&& this.getSize() == other.getSize()
 			        && this.left.equals(other.left);
 		}
 
@@ -68,34 +69,34 @@ UnaryExpression<String>{
 
 	protected int size = 0;
 
-	@Override
-	public int getSize() {
-		//TODO fix this
-		return -1;
-//		if (size == 0) {
-//			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
-//		}
-//		return size;
-	}
+//	@Override
+//	public int getSize() {
+//		//TODO fix this
+//		return -1;
+////		if (size == 0) {
+////			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
+////		}
+////		return size;
+//	}
 
 	@Override
 	public String execute() {
 		String exOn = (String)left.execute();
 		
 		switch (op) {
+		
 		case TOLOWERCASE:
 			return exOn.toLowerCase();
+		case TOUPPERCASE:
+			return exOn.toUpperCase();
 		case TRIM:
 			return exOn.trim();
 		case LENGTH:
-			//TODO what to do here
 			return Integer.toString(exOn.length());
 		default:
 			log.warning("StringUnaryExpression: unimplemented operator!");
 			return null;
-		}
-		// TODO Auto-generated method stub
-		
+		}		
 	}
 
 }

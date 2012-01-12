@@ -34,7 +34,8 @@ public class IntegerToRealCast extends RealExpression {
 		}
 		if (obj instanceof IntegerToRealCast) {
 			IntegerToRealCast other = (IntegerToRealCast) obj;
-			return this.getSize() == other.getSize() && this.expr.equals(other.expr);
+			return this.expr.equals(other.expr);
+//					 && this.getSize() == other.getSize();
 		}
 
 		return false;
@@ -42,13 +43,13 @@ public class IntegerToRealCast extends RealExpression {
 
 	protected int size = 0;
 
-	@Override
-	public int getSize() {
-		if (size == 0) {
-			size = 1 + getExpression().getSize();
-		}
-		return size;
-	}
+//	@Override
+//	public int getSize() {
+//		if (size == 0) {
+//			size = 1 + getExpression().getSize();
+//		}
+//		return size;
+//	}
 
 	@Override
 	public Object execute() {
