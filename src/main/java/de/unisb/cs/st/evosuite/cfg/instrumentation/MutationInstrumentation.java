@@ -51,6 +51,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 	public MutationInstrumentation() {
 		mutationOperators = new ArrayList<MutationOperator>();
 
+		// FIXME: Don't include > < >= <= for boolean comparisons
 		mutationOperators.add(new ReplaceComparisonOperator());
 		mutationOperators.add(new ReplaceBitwiseOperator());
 		mutationOperators.add(new ReplaceArithmeticOperator());
@@ -58,6 +59,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 
 		mutationOperators.add(new ReplaceConstant());
 		mutationOperators.add(new NegateCondition());
+		// FIXME: Don't apply to boolean values!
 		mutationOperators.add(new InsertUnaryOperator());
 
 		// FIXME: Can't check return types because of side effects
