@@ -508,6 +508,9 @@ public class Properties {
 	@Parameter(key = "timeout", group = "Test Execution", description = "Milliseconds allowed per test")
 	public static int TIMEOUT = 5000;
 
+	@Parameter(key = "shutdown_timeout", group = "Test Execution", description = "Milliseconds grace time to shut down test cleanly")
+	public static int SHUTDOWN_TIMEOUT = 1000;
+
 	@Parameter(key = "mutation_timeouts", group = "Test Execution", description = "Number of timeouts before we consider a mutant killed")
 	public static int MUTATION_TIMEOUTS = 3;
 
