@@ -29,7 +29,9 @@ public class RealComparison extends IntegerExpression {
 		if(obj instanceof RealComparison)
 		{
 			RealComparison other=(RealComparison) obj;
-			return  this.con.equals(other.con) &&this.getSize()==other.getSize()&&this.left.equals(other.left)&&this.right.equals(other.right);
+			return  this.con.equals(other.con) 
+//					&& this.getSize()==other.getSize() 
+					&& this.left.equals(other.left) && this.right.equals(other.right);
 		}
 
 		return false;
@@ -48,15 +50,15 @@ public class RealComparison extends IntegerExpression {
 		return "("+left+" cmp "+right+")";
 	}
 	
-	protected int size=0;
-	@Override
-	public int getSize() {
-		if(size==0)
-		{
-			size=1+getLeftOperant().getSize()+getRightOperant().getSize();
-		}
-		return size;
-	}
+//	protected int size=0;
+//	@Override
+//	public int getSize() {
+//		if(size==0)
+//		{
+//			size=1+getLeftOperant().getSize()+getRightOperant().getSize();
+//		}
+//		return size;
+//	}
 
 	@Override
 	public Object execute() {

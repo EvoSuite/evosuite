@@ -17,6 +17,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.Operator;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringBinaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleExpression;
@@ -32,16 +33,6 @@ public abstract class InvVStringHelper {
 	
 	private enum Fcase {ONE, TWO, THREE, FOUR}
 	
-	/* TODO all if (equals(...)) are actually replaced with (equals(...) == 0) or != 0 )
-	 * this if we change the compare functions to the ones in BooleanHelper this is no longer correct 
-	 * since BooleanHelper.StringEquals("aa", "bb") == 0 evaluates to -254 == 0 which is obviously not true.
-	 * The condition is then marked as unsolved. This is not such a big problem but and can be 
-	 * fixed but is doesn't really make of sense to do this things here. 
-	 * See de.unisb.cs.st.evosuite.symbolic.search.Seeker for more details.
-	 */
-	
-	
-
 	//String Comparisons
 
 	public static Instruction strFncEqualsIgnoreCase(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins) {
@@ -181,7 +172,6 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 	
-	//TODO this actually takes CharSequanse as input. Think about implementing it this way is correct.
 	public static Instruction strFncContains(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins) {
 		
 		StackFrame sf = ti.getTopFrame();
@@ -194,6 +184,10 @@ public abstract class InvVStringHelper {
 		String secondStr = ks.heap.get(sf.pop()).asString();
 		String firstStr = ks.heap.get(sf.pop()).asString();		
 		
+		//If we indeed have a CharSequanse we won't have an expr for it
+		if (se0 == null) {
+			se0 = new StringConstant(secondStr);
+		}
 		
 		//compute the resulting value and push it on the real stack
 		//int result = BooleanHelper.StringContains(firstStr, secondStr);
@@ -297,6 +291,8 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	// String Operations
+	
 	public static Instruction strFncCompareTo(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
 
 		StackFrame sf = ti.getTopFrame();
@@ -315,7 +311,7 @@ public abstract class InvVStringHelper {
 
 		//push a StringComparation expression on the fake stack
 		sf.setOperandAttr(
-			new StringComparison(se1, Operator.COMPARETO, se0, (long)result));
+			new StringBinaryExpression(se1, Operator.COMPARETO, se0, Integer.toString(result)));
 		
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
@@ -339,14 +335,11 @@ public abstract class InvVStringHelper {
 
 		//push a StringComparation expression on the fake stack
 		sf.setOperandAttr(
-			new StringComparison(se1, Operator.COMPARETOIGNORECASE, se0, (long)result));
+			new StringBinaryExpression(se1, Operator.COMPARETOIGNORECASE, se0, Integer.toString(result)));
 		
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
 	}
-
-	
-	// String Operations
 	
 	public static Instruction strFncSubstring(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins) {
 		boolean case_one = ins.getInvokedMethodSignature().equals("(I)Ljava/lang/String;");
@@ -389,7 +382,6 @@ public abstract class InvVStringHelper {
 		//TODO offset could be out of range 
 		//substring throws an exception
 		// ask Gordon how EvoSuite could handle this
-
 		
 		//compute the resulting value and push it on the real stack
 		String result = null;
@@ -412,6 +404,7 @@ public abstract class InvVStringHelper {
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
 	}
+	
 	
 	public static Instruction strFncReplace(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
 		/* 
@@ -490,6 +483,7 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	
 	public static Instruction strFncReplaceAll(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
 
 		StackFrame sf = ti.getTopFrame();
@@ -523,6 +517,7 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	
 	public static Instruction strFncReplaceFirst(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
 
 		StackFrame sf = ti.getTopFrame();
@@ -556,6 +551,7 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 	
+	
 	public static Instruction strFncToLowerCase(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
 		StackFrame sf = ti.getTopFrame();
 		
@@ -581,6 +577,33 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	
+	public static Instruction strFncToUpperCase(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
+		StackFrame sf = ti.getTopFrame();
+		
+		//get values from the fake stack 
+		StringExpression se1 = (StringExpression) sf.getOperandAttr(0);
+	
+		//get the Strings using the positions from the stack. Order is crucial here
+		String value = ks.heap.get(sf.pop()).asString();
+
+		
+		//compute the resulting value and push it on the real stack
+		String result = value.toUpperCase();
+
+		int pointer = ks.heap.newString(result, ti); 
+		sf.push(pointer, true);
+
+
+		//push a StringComparation expression on the fake stack
+		sf.setOperandAttr(
+			new StringUnaryExpression(se1, Operator.TOUPPERCASE, result));
+		
+		//return the next instruction that followed the function call
+		return ins.getNext(ti);
+	}
+	
+	
 	public static Instruction strFncTrim(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
 		StackFrame sf = ti.getTopFrame();
 		
@@ -603,6 +626,7 @@ public abstract class InvVStringHelper {
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
 	}
+	
 	
 	public static Instruction strFncConcat(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
 
@@ -629,6 +653,7 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 	
+	
 	public static Instruction strFncLength(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
 
 		StackFrame sf = ti.getTopFrame();
@@ -651,6 +676,7 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	
 	public static Instruction strFncIndexOf(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
 		StackFrame sf = ti.getTopFrame();
 		
@@ -796,6 +822,9 @@ public abstract class InvVStringHelper {
 			indx_expr = new IntegerConstant(indx);
 		}
 		
+		
+		//TODO this here throws an exception
+		// ask Gordon how to handle this
 		//compute the resulting value and push it on the real stack
 		char result = firstStr.charAt(indx);
 		sf.push((int) result);
@@ -808,20 +837,19 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 	
+	
 	//TODO see how we can handle this! The function has to give a string Array back. 
 //	public static Instruction strFncSplit(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
 //		return null;
 //	}
 	
-	
+
 	/**	To implement?!?
 	 
 	lastIndexOf()
-	toUpperCase()
 	matches()
 	 
 	getChars(II[CI)V
-	charAt(I)C
 	
 	//this thing here is funny it would not work with 
 	intern()Ljava/lang/String;
@@ -829,9 +857,6 @@ public abstract class InvVStringHelper {
 	
 	this here is some joda time function. It does not
 	compare(Ljava/lang/String;Ljava/lang/String;)I
-	
-	
-	compareTo(Ljava/lang/Object;)I
 	
 	 */
 	

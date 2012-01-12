@@ -41,20 +41,22 @@ public class RealUnaryExpression extends RealExpression implements
 		if(obj instanceof RealUnaryExpression)
 		{
 			RealUnaryExpression v=(RealUnaryExpression) obj;
-			return this.op.equals(v.op) && this.getSize()==v.getSize()  && this.expr.equals(v.expr);
+			return this.op.equals(v.op) 
+//						&& this.getSize()==v.getSize() 
+						&& this.expr.equals(v.expr);
 		}
 		return false;
 	}
 	
-	protected int size=0;
-	@Override
-	public int getSize() {
-		if(size == 0)
-		{
-			size=1+ getOperand().getSize();
-		}
-		return size;
-	}
+//	protected int size=0;
+//	@Override
+//	public int getSize() {
+//		if(size == 0)
+//		{
+//			size=1+ getOperand().getSize();
+//		}
+//		return size;
+//	}
 
 	@Override
 	public Object execute() {

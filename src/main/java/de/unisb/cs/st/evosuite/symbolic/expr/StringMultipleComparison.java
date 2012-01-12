@@ -86,7 +86,8 @@ BinaryExpression<String>{
 				other_v_eq = false;
 			}
 			
-			return this.op.equals(other.op) && this.getSize() == other.getSize()
+			return this.op.equals(other.op) 
+//					&& this.getSize() == other.getSize()
 			        && this.left.equals(other.left) && this.right.equals(other.right)
 			        && other_v_eq;
 		}
@@ -96,15 +97,14 @@ BinaryExpression<String>{
 
 	protected int size = 0;
 
-	@Override
-	public int getSize() {
-		//TODO fix this
-		return -1;
-//		if (size == 0) {
-//			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
-//		}
-//		return size;
-	}
+//	@Override
+//	public int getSize() {
+//		return -1;
+////		if (size == 0) {
+////			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
+////		}
+////		return size;
+//	}
 	
 	
 

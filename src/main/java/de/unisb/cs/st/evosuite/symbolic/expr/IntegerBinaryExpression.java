@@ -58,7 +58,8 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 		}
 		if (obj instanceof IntegerBinaryExpression) {
 			IntegerBinaryExpression other = (IntegerBinaryExpression) obj;
-			return this.op.equals(other.op) && this.getSize() == other.getSize()
+			return this.op.equals(other.op) 
+//					&& this.getSize() == other.getSize()
 			        && this.left.equals(other.left) && this.right.equals(other.right);
 		}
 
@@ -67,13 +68,13 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 
 	protected int size = 0;
 
-	@Override
-	public int getSize() {
-		if (size == 0) {
-			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
-		}
-		return size;
-	}
+//	@Override
+//	public int getSize() {
+//		if (size == 0) {
+//			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
+//		}
+//		return size;
+//	}
 
 	@Override
 	public Long execute() {

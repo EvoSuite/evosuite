@@ -47,7 +47,8 @@ public class IntegerUnaryExpression extends IntegerExpression implements
 	public boolean equals(Object obj) {
 		if (obj instanceof IntegerUnaryExpression) {
 			IntegerUnaryExpression v = (IntegerUnaryExpression) obj;
-			return this.op.equals(v.op) && this.getSize() == v.getSize()
+			return this.op.equals(v.op) 
+//					&& this.getSize() == v.getSize()
 			        && this.expr.equals(v.expr);
 		}
 		return false;
@@ -55,13 +56,13 @@ public class IntegerUnaryExpression extends IntegerExpression implements
 
 	protected int size = 0;
 
-	@Override
-	public int getSize() {
-		if (size == 0) {
-			size = 1 + getOperand().getSize();
-		}
-		return size;
-	}
+//	@Override
+//	public int getSize() {
+//		if (size == 0) {
+//			size = 1 + getOperand().getSize();
+//		}
+//		return size;
+//	}
 
 	@Override
 	public Long execute() {

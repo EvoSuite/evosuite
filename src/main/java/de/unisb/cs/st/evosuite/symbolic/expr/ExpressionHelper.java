@@ -36,7 +36,9 @@ public abstract class ExpressionHelper {
 		} else if (expr instanceof StringBinaryExpression) {
 			if (((StringBinaryExpression)expr).getOperator() == Operator.INDEXOFC
 					|| ((StringBinaryExpression)expr).getOperator() == Operator.INDEXOFS
-					|| ((StringBinaryExpression)expr).getOperator() == Operator.CHARAT ) {
+					|| ((StringBinaryExpression)expr).getOperator() == Operator.CHARAT 
+					|| ((StringBinaryExpression)expr).getOperator() == Operator.COMPARETO 
+					|| ((StringBinaryExpression)expr).getOperator() == Operator.COMPARETOIGNORECASE ) {
 				return Long.parseLong(((StringBinaryExpression)expr).execute());
 			}
 		} else if (expr instanceof StringMultipleExpression) {
@@ -47,7 +49,7 @@ public abstract class ExpressionHelper {
 		}
 
 		//We shouldn't get here
-		log.warning("Changer.getIntResult: got something weird!?!");
+		log.warning("Changer.getIntResult: got something weird!?!" + expr);
 		return 0;
 	}
 	

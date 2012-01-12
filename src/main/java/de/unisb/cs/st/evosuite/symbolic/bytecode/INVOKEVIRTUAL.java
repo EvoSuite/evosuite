@@ -100,6 +100,10 @@ public class INVOKEVIRTUAL extends gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL {
 					
 					return InvVStringHelper.strFncToLowerCase(ks, ti, this);
 								
+				} else if (mname.startsWith("toUpperCase")) {
+					
+					return InvVStringHelper.strFncToUpperCase(ks, ti, this);
+								
 				} else if (mname.startsWith("compareTo(")) {
 					
 					return InvVStringHelper.strFncCompareTo(ks, ti, this);

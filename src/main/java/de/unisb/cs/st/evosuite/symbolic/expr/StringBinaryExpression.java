@@ -65,7 +65,8 @@ BinaryExpression<String>{
 		}
 		if (obj instanceof StringBinaryExpression) {
 			StringBinaryExpression other = (StringBinaryExpression) obj;
-			return this.op.equals(other.op) && this.getSize() == other.getSize()
+			return this.op.equals(other.op) 
+//					&& this.getSize() == other.getSize()
 			        && this.left.equals(other.left) && this.right.equals(other.right);
 		}
 
@@ -74,15 +75,15 @@ BinaryExpression<String>{
 
 	protected int size = 0;
 
-	@Override
-	public int getSize() {
-		//TODO fix this
-		return -1;
-//		if (size == 0) {
-//			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
-//		}
-//		return size;
-	}
+//	@Override
+//	public int getSize() {
+//		//TODO fix this
+//		return -1;
+////		if (size == 0) {
+////			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
+////		}
+////		return size;
+//	}
 
 	@Override
 	public String execute() {
@@ -90,7 +91,11 @@ BinaryExpression<String>{
 		Object second = right.execute();
 		
 		switch (op) {
-
+		
+		case COMPARETO:
+			return Integer.toString(first.compareTo((String)second));
+		case COMPARETOIGNORECASE:
+			return Integer.toString(first.compareToIgnoreCase((String)second));
 		case CONCAT:
 			return first.concat((String)second);
 		case INDEXOFC:
