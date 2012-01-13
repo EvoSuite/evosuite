@@ -17,6 +17,8 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
@@ -27,6 +29,8 @@ import de.unisb.cs.st.evosuite.coverage.mutation.MutationPool;
  * 
  */
 public class ReplaceComparisonOperator implements MutationOperator {
+
+	private static final Logger logger = LoggerFactory.getLogger(ReplaceComparisonOperator.class);
 
 	private static Set<Integer> opcodesReference = new HashSet<Integer>();
 
@@ -104,6 +108,32 @@ public class ReplaceComparisonOperator implements MutationOperator {
 			                                                   getInfectionDistance(node.getOpcode(),
 			                                                                        op));
 			mutations.add(mutationObject);
+			String equiv = System.getProperty("EQUIVID");
+			if (equiv != null) {
+				int id = Integer.parseInt(equiv);
+				if (mutationObject.getId() == id) {
+
+					logger.info("Found equivalent mutation " + mutationObject);
+					int num = Integer.parseInt(System.getProperty("NUM_INFEASIBLE"));
+					for (int i = 1; i < num; i++) {
+						// insert mutation into bytecode with conditional
+						JumpInsnNode mutation2 = new JumpInsnNode(op, target);
+						// insert mutation into pool
+						Mutation mutationObject2 = MutationPool.addMutation(className,
+						                                                    methodName,
+						                                                    "ReplaceComparisonOperator "
+						                                                            + getOp(node.getOpcode())
+						                                                            + " -> "
+						                                                            + getOp(op),
+						                                                    instruction,
+						                                                    mutation2,
+						                                                    getInfectionDistance(node.getOpcode(),
+						                                                                         op));
+						mutations.add(mutationObject2);
+
+					}
+				}
+			}
 		}
 
 		return mutations;
@@ -151,11 +181,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 
 	public static double getInfectionDistance(int left, int right, int opcodeOrig,
 	        int opcodeNew) {
-		int val = left - right;
-		if (val == Integer.MAX_VALUE)
-			val--;
-		else if (val == Integer.MIN_VALUE)
-			val++;
+		long val = (long) left - (long) right;
 		switch (opcodeOrig) {
 		case Opcodes.IF_ICMPLT:
 			switch (opcodeNew) {
@@ -265,11 +291,8 @@ public class ReplaceComparisonOperator implements MutationOperator {
 		        + opcodeNew);
 	}
 
-	public static double getInfectionDistance(int val, int opcodeOrig, int opcodeNew) {
-		if (val == Integer.MAX_VALUE)
-			val--;
-		else if (val == Integer.MIN_VALUE)
-			val++;
+	public static double getInfectionDistance(int intVal, int opcodeOrig, int opcodeNew) {
+		long val = intVal;
 		switch (opcodeOrig) {
 		case Opcodes.IFLT:
 			switch (opcodeNew) {
