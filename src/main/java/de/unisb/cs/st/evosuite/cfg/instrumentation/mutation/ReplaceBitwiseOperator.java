@@ -181,6 +181,7 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 
 				return 0.0;
 			} else
+				// TODO x >= 0?
 				return y != 0 && x > 0 ? x + 1 : 1.0;
 		}
 		int origValue = calculate(x, y, opcodeOrig);
