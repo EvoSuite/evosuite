@@ -238,21 +238,18 @@ public class TestSuiteDSE {
 			constraints = reduce(constraints);
 			logger.info("Reduced constraints from " + size + " to " + constraints.size());
 		}
-		
 
-		
-//		int counter = 0;
-//		for (Constraint cnstr : constraints ) {
-//			logger.warn("Cnstr: " + (counter++) + " " +  cnstr);
-//		}
-		
-		
+		//		int counter = 0;
+		//		for (Constraint cnstr : constraints ) {
+		//			logger.warn("Cnstr: " + (counter++) + " " +  cnstr);
+		//		}
+
 		Seeker skr = new Seeker();
 		Map<String, Object> values = skr.getModel(constraints);
 
 		//TODO Let's hope you get to delete this at some point ;P
-//		CVC3Solver solver = new CVC3Solver();
-//		Map<String, Object> values = solver.getModel(constraints);
+		//		CVC3Solver solver = new CVC3Solver();
+		//		Map<String, Object> values = solver.getModel(constraints);
 
 		if (values != null) {
 			TestCase newTest = test.clone();
@@ -266,9 +263,13 @@ public class TestSuiteDSE {
 						logger.debug("New value for " + name + " is " + value);
 						PrimitiveStatement p = getStatement(newTest, name);
 						assert (p != null);
-						p.setValue(value.intValue());
+						if (p.getValue().getClass().equals(Character.class)) {
+							p.setValue((char) value.intValue());
+						} else {
+							p.setValue(value.intValue());
+						}
 					} else if (val instanceof String) {
-						
+
 						String name = ((String) key).replace("__SYM", "");
 						PrimitiveStatement p = getStatement(newTest, name);
 						//logger.warn("key: "+ key + " val: " + val + " pStatement: " + p);
@@ -288,7 +289,7 @@ public class TestSuiteDSE {
 			logger.debug("Got null :-(");
 			return null;
 		}
-		
+
 	}
 
 	/**
@@ -300,7 +301,7 @@ public class TestSuiteDSE {
 	 */
 	private PrimitiveStatement<?> getStatement(TestCase test, String name) {
 		for (StatementInterface statement : test) {
-			
+
 			if (statement instanceof PrimitiveStatement<?>) {
 				if (statement.getReturnValue().getName().equals(name))
 					return (PrimitiveStatement<?>) statement;
@@ -391,17 +392,17 @@ public class TestSuiteDSE {
 	private void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
 		if (expr instanceof Variable<?>) {
 			variables.add((Variable<?>) expr);
-		} else if (expr instanceof StringMultipleComparison){
+		} else if (expr instanceof StringMultipleComparison) {
 			StringMultipleComparison smc = (StringMultipleComparison) expr;
 			getVariables(smc.getLeftOperand(), variables);
 			getVariables(smc.getRightOperand(), variables);
 			ArrayList<Expression<?>> ar_l_ex = smc.getOther();
 			Iterator<Expression<?>> itr = ar_l_ex.iterator();
-		    while (itr.hasNext()) {
-		    	Expression<?> element = itr.next();
-		    	getVariables(element, variables);
-		    }
-		} else if (expr instanceof StringComparison){
+			while (itr.hasNext()) {
+				Expression<?> element = itr.next();
+				getVariables(element, variables);
+			}
+		} else if (expr instanceof StringComparison) {
 			StringComparison sc = (StringComparison) expr;
 			getVariables(sc.getLeftOperand(), variables);
 			getVariables(sc.getRightOperand(), variables);
