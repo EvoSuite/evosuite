@@ -112,16 +112,23 @@ public class ReplaceConstant implements MutationOperator {
 
 	private Object[] getReplacement(int value) {
 		List<Object> values = new LinkedList<Object>();
-		if (value != 0)
-			values.add(0);
-		if (value != 1)
+		// TODO: Should be replaced with a proper check for booleans
+		if (value == 0)
 			values.add(1);
-		if (value != -1)
-			values.add(-1);
-		if (!values.contains(value - 1))
-			values.add(value - 1);
-		if (!values.contains(value + 1))
-			values.add(value + 1);
+		else if (value == 1)
+			values.add(0);
+		else {
+			if (value != 0)
+				values.add(0);
+			if (value != 1)
+				values.add(1);
+			if (value != -1)
+				values.add(-1);
+			if (!values.contains(value - 1))
+				values.add(value - 1);
+			if (!values.contains(value + 1))
+				values.add(value + 1);
+		}
 
 		return values.toArray();
 	}
