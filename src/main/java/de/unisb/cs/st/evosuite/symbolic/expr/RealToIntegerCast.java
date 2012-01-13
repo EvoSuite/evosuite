@@ -35,21 +35,22 @@ public class RealToIntegerCast extends IntegerExpression {
 		if(obj instanceof RealToIntegerCast)
 		{
 			RealToIntegerCast other=(RealToIntegerCast) obj;
-			return this.getSize()==other.getSize() && this.expr.equals(other.expr);
+			return this.expr.equals(other.expr);
+//					 && this.getSize()==other.getSize()
 		}
 
 		return false;
 	}
 	
-	protected int size=0;
-	@Override
-	public int getSize() {
-		if(size == 0)
-		{
-			size=1+ getExpression().getSize();
-		}
-		return size;
-	}
+//	protected int size=0;
+//	@Override
+//	public int getSize() {
+//		if(size == 0)
+//		{
+//			size=1+ getExpression().getSize();
+//		}
+//		return size;
+//	}
 
 	@Override
 	public Object execute() {

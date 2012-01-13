@@ -27,7 +27,8 @@ public class IntegerComparison extends IntegerExpression {
 		}
 		if (obj instanceof IntegerComparison) {
 			IntegerComparison other = (IntegerComparison) obj;
-			return this.con.equals(other.con) && this.getSize() == other.getSize()
+			return this.con.equals(other.con) 
+//					&& this.getSize() == other.getSize()
 			        && this.left.equals(other.left) && this.right.equals(other.right);
 		}
 
@@ -49,13 +50,13 @@ public class IntegerComparison extends IntegerExpression {
 
 	protected int size = 0;
 
-	@Override
-	public int getSize() {
-		if (size == 0) {
-			size = 1 + getLeftOperant().getSize() + getRightOperant().getSize();
-		}
-		return size;
-	}
+//	@Override
+//	public int getSize() {
+//		if (size == 0) {
+//			size = 1 + getLeftOperant().getSize() + getRightOperant().getSize();
+//		}
+//		return size;
+//	}
 
 	@Override
 	public Object execute() {

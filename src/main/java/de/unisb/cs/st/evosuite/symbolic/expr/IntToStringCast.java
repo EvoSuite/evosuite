@@ -35,10 +35,24 @@ public class IntToStringCast extends StringExpression implements Cast<Long>{
 	}
 
 	@Override
-	public int getSize() {
-		// TODO Auto-generated method stub
-		return 0;
+	public boolean equals(Object obj) {
+		if (obj == this) {
+			return true;
+		}
+		if (obj instanceof IntToStringCast) {
+			IntToStringCast other = (IntToStringCast) obj;
+			return this.intVar.equals(other.intVar);
+//					 && this.getSize() == other.getSize();
+		}
+
+		return false;
 	}
+	
+//	@Override
+//	public int getSize() {
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
 
 	@Override
 	public IntegerVariable getConcreteObject() {

@@ -260,7 +260,7 @@ public class TestSuiteDSE {
 					if (val instanceof Long) {
 						Long value = (Long) val;
 						String name = ((String) key).replace("__SYM", "");
-						logger.debug("New value for " + name + " is " + value);
+//						logger.warn("New long value for " + name + " is " + value);
 						PrimitiveStatement p = getStatement(newTest, name);
 						assert (p != null);
 						if (p.getValue().getClass().equals(Character.class)) {
@@ -269,13 +269,11 @@ public class TestSuiteDSE {
 							p.setValue(value.intValue());
 						}
 					} else if (val instanceof String) {
-
 						String name = ((String) key).replace("__SYM", "");
 						PrimitiveStatement p = getStatement(newTest, name);
-						//logger.warn("key: "+ key + " val: " + val + " pStatement: " + p);
+//						logger.warn("New string value for " + name + " is " + val);
 						assert (p != null);
 						p.setValue(val.toString());
-						//logger.warn("newTest: "+ newTest );
 					} else {
 						logger.debug("New value is of an unsupported type: " + val);
 					}

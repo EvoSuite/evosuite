@@ -55,7 +55,8 @@ public class StringBuilderExpression extends StringExpression {
 		}
 		if (obj instanceof StringBuilderExpression) {
 			StringBuilderExpression other = (StringBuilderExpression) obj;
-			return this.expr.equals(other.expr) && this.getSize() == other.getSize();
+			return this.expr.equals(other.expr); 
+//						&& this.getSize() == other.getSize();
 		}
 
 		return false;
@@ -63,15 +64,15 @@ public class StringBuilderExpression extends StringExpression {
 
 	protected int size = 0;
 
-	@Override
-	public int getSize() {
-		//TODO fix this
-		return -1;
-//		if (size == 0) {
-//			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
-//		}
-//		return size;
-	}
+//	@Override
+//	public int getSize() {
+//		//TODO fix this
+//		return -1;
+////		if (size == 0) {
+////			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
+////		}
+////		return size;
+//	}
 
 
 	@Override

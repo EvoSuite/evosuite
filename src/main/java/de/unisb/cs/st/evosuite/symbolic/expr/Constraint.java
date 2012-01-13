@@ -26,14 +26,14 @@ public abstract class Constraint<T extends Object> implements Serializable {
 		return hash;
 	}
 
-	protected int size = 0;
-
-	public int getSize() {
-		if (size == 0) {
-			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
-		}
-		return size;
-	}
+//	protected int size = 0;
+//
+//	public int getSize() {
+//		if (size == 0) {
+//			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
+//		}
+//		return size;
+//	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -46,7 +46,7 @@ public abstract class Constraint<T extends Object> implements Serializable {
 
 		Constraint<?> other = (Constraint<?>) obj;
 		if (this.getComparator().equals(other.getComparator())
-		        && this.getSize() == other.getSize()
+//		        && this.getSize() == other.getSize()
 		        && this.getLeftOperand().equals(other.getLeftOperand())
 		        && this.getRightOperand().equals(other.getRightOperand())) {
 			return true;
