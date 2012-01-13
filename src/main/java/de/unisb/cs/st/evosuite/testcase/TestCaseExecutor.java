@@ -262,18 +262,31 @@ public class TestCaseExecutor implements ThreadFactory {
 			}
 			logger.info("TimeoutException, need to stop runner", e1);
 			ExecutionTracer.setKillSwitch(true);
-			//task.cancel(true);
-			logger.info("Cancelling thread:");
-			for (StackTraceElement elem : currentThread.getStackTrace()) {
-				logger.info(elem.toString());
+			try {
+				handler.getLastTask().get(Properties.SHUTDOWN_TIMEOUT,
+				                          TimeUnit.MILLISECONDS);
+			} catch (InterruptedException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			} catch (ExecutionException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			} catch (TimeoutException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
 			}
-
-			handler.getLastTask().cancel(true);
+			//task.cancel(true);
 
 			if (!callable.isRunFinished()) {
+				logger.info("Cancelling thread:");
+				for (StackTraceElement elem : currentThread.getStackTrace()) {
+					logger.info(elem.toString());
+				}
+				handler.getLastTask().cancel(true);
 				logger.info("Run not finished, waiting...");
 				try {
-					executor.awaitTermination(Properties.TIMEOUT, TimeUnit.MILLISECONDS);
+					executor.awaitTermination(Properties.SHUTDOWN_TIMEOUT,
+					                          TimeUnit.MILLISECONDS);
 				} catch (InterruptedException e) {
 					logger.info("Interrupted");
 					e.printStackTrace();
