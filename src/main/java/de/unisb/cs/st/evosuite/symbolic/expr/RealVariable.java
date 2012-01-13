@@ -62,10 +62,10 @@ public class RealVariable extends RealExpression implements Variable<Double>{
 		return hash;
 	}
 
-	@Override
-	public int getSize() {
-		return 1;
-	}
+//	@Override
+//	public int getSize() {
+//		return 1;
+//	}
 
 	@Override
 	public Object execute() {

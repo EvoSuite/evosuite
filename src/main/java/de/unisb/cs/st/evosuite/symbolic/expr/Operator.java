@@ -69,23 +69,29 @@ public enum Operator {
 	ENDSWITH("endsWith", 2),
 	CONTAINS("contains", 2),
 	REGIONMATCHES("regionMatches", 6), 
-	COMPARETO("compareTo", 2), 
 	COMPARETOIGNORECASE("compareToIgnoreCase", 2),
+
 	// String operators
-	SUBSTRING("substring", 3), 
-	APPEND("append", 2), 
+	COMPARETO("compareTo", 2), 
+	
 	TRIM("trim", 1), 
+	LENGTH("length", 1), 
 	TOLOWERCASE("toLowerCase", 1), 
+	TOUPPERCASE("toUpperCase", 1),
+	
+	CONCAT("concat", 2), 
+	APPEND("append", 2), 
+	INDEXOFC("indexOfC", 2),
+	INDEXOFS("indexOfS", 2),
+	CHARAT("charAt", 2),
+	
 	REPLACEC("replacec", 3),
 	REPLACECS("replacecs", 3), 
 	REPLACEALL("replaceAll", 3),
-	REPLACEFIRST("replaceFirst", 3), 
-	CONCAT("concat", 2), 
-	LENGTH("length", 1), 
-	INDEXOFC("indexOfC", 2),
-	INDEXOFS("indexOfS", 2),
+	REPLACEFIRST("replaceFirst", 3),
 	INDEXOFCI("indexOfCI", 3),
-	INDEXOFSI("indexOfSI", 3);
+	INDEXOFSI("indexOfSI", 3),
+	SUBSTRING("substring", 3) ;
 
 	private final String str;
 	private final int arity;

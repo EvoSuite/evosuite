@@ -65,7 +65,8 @@ BinaryExpression<String>{
 		}
 		if (obj instanceof StringBinaryExpression) {
 			StringBinaryExpression other = (StringBinaryExpression) obj;
-			return this.op.equals(other.op) && this.getSize() == other.getSize()
+			return this.op.equals(other.op) 
+//					&& this.getSize() == other.getSize()
 			        && this.left.equals(other.left) && this.right.equals(other.right);
 		}
 
@@ -74,15 +75,15 @@ BinaryExpression<String>{
 
 	protected int size = 0;
 
-	@Override
-	public int getSize() {
-		//TODO fix this
-		return -1;
-//		if (size == 0) {
-//			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
-//		}
-//		return size;
-	}
+//	@Override
+//	public int getSize() {
+//		//TODO fix this
+//		return -1;
+////		if (size == 0) {
+////			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
+////		}
+////		return size;
+//	}
 
 	@Override
 	public String execute() {
@@ -90,16 +91,24 @@ BinaryExpression<String>{
 		Object second = right.execute();
 		
 		switch (op) {
-
+		
+		case COMPARETO:
+			return Integer.toString(first.compareTo((String)second));
+		case COMPARETOIGNORECASE:
+			return Integer.toString(first.compareToIgnoreCase((String)second));
 		case CONCAT:
 			return first.concat((String)second);
 		case INDEXOFC:
-			long ch = (Long) second;
+			long ch = ExpressionHelper.getLongResult(right);
 			return Integer.toString(first.indexOf((char)ch));
 		case INDEXOFS:
 			return Integer.toString(first.indexOf((String)second));
 		case APPEND: 
 			return first + ((String) second);
+		case CHARAT:
+			//TODO handle exception here
+			int indx = (int) ExpressionHelper.getLongResult(right);
+			return Integer.toString(first.charAt(indx));
 		default:
 			log.warning("StringBinaryExpression: unimplemented operator!");
 			return null;

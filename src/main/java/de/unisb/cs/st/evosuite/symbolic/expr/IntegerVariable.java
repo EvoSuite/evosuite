@@ -19,14 +19,14 @@ public class IntegerVariable extends IntegerExpression implements Variable<Long>
 		this.minValue = minValue;
 		this.maxValue = maxValue;
 	}
-	
-//	@Override
-//	public void execute() {
-//	}
 
 	@Override
 	public Long getConcreteValue() {
 		return concreteValue;
+	}
+	
+	public void setConcreteValue(Long con) {
+		concreteValue = con;
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class IntegerVariable extends IntegerExpression implements Variable<Long>
 
 	@Override
 	public String toString() {
-		return this.name;
+		return this.name + "(" + concreteValue + ")";
 	}
 
 	@SuppressWarnings("unchecked")
@@ -67,10 +67,10 @@ public class IntegerVariable extends IntegerExpression implements Variable<Long>
 		return hash;
 	}
 
-	@Override
-	public int getSize() {
-		return 1;
-	}
+//	@Override
+//	public int getSize() {
+//		return 1;
+//	}
 
 	@Override
 	public Long execute() {

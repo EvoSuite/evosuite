@@ -24,11 +24,11 @@ UnaryExpression<String>{
 	
 	protected Operator op;
 
-	protected Expression<String> val;
+	protected Expression<String> left;
 
 	public StringUnaryExpression(Expression<String> left2, Operator op2, String con) {
 		this.concretValue = con;
-		this.val = left2;
+		this.left = left2;
 		this.op = op2;
 	}
 
@@ -44,12 +44,12 @@ UnaryExpression<String>{
 
 	@Override
 	public Expression<String> getOperand() {
-		return val;
+		return left;
 	}
 
 	@Override
 	public String toString() {
-		return val + "." + op.toString().trim() + "(" + ")";
+		return left + "." + op.toString().trim() + "(" + ")";
 	}
 
 	@Override
@@ -59,8 +59,9 @@ UnaryExpression<String>{
 		}
 		if (obj instanceof StringUnaryExpression) {
 			StringUnaryExpression other = (StringUnaryExpression) obj;
-			return this.op.equals(other.op) && this.getSize() == other.getSize()
-			        && this.val.equals(other.val);
+			return this.op.equals(other.op) 
+//					&& this.getSize() == other.getSize()
+			        && this.left.equals(other.left);
 		}
 
 		return false;
@@ -68,34 +69,34 @@ UnaryExpression<String>{
 
 	protected int size = 0;
 
-	@Override
-	public int getSize() {
-		//TODO fix this
-		return -1;
-//		if (size == 0) {
-//			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
-//		}
-//		return size;
-	}
+//	@Override
+//	public int getSize() {
+//		//TODO fix this
+//		return -1;
+////		if (size == 0) {
+////			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
+////		}
+////		return size;
+//	}
 
 	@Override
-	public Object execute() {
-		String exOn = (String)val.execute();
+	public String execute() {
+		String exOn = (String)left.execute();
 		
 		switch (op) {
+		
 		case TOLOWERCASE:
 			return exOn.toLowerCase();
+		case TOUPPERCASE:
+			return exOn.toUpperCase();
 		case TRIM:
 			return exOn.trim();
 		case LENGTH:
-			//TODO what to do here
 			return Integer.toString(exOn.length());
 		default:
 			log.warning("StringUnaryExpression: unimplemented operator!");
 			return null;
-		}
-		// TODO Auto-generated method stub
-		
+		}		
 	}
 
 }

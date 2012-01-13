@@ -14,6 +14,6 @@ public abstract interface Expression<T extends Object> extends Serializable{
 	//TODO <maybe wrong> changed public T getConcreteValue(); to this
 	public Object getConcreteValue();
 	
-	public int getSize();
+	//public int getSize();
 
 }
