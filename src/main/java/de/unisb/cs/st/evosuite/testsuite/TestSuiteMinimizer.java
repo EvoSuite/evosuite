@@ -146,6 +146,10 @@ public class TestSuiteMinimizer {
 		for (TestCase test : minimizedSuite.getTestCases()) {
 			suite.addTest(test);
 		}
+		for (TestFitnessFunction goal : goals) {
+			if (!covered.contains(goal))
+				logger.info("Failed to cover: " + goal);
+		}
 		// suite.tests = minimizedTests;
 	}
 
