@@ -184,8 +184,12 @@ public class TestSuiteDSE {
 		}
 
 		String jpfName = branch.ins.getMethodInfo().getFullName();
-		if (!jpfBranchMap.containsKey(jpfName))
+		if (!jpfBranchMap.containsKey(jpfName)) {
 			return false;
+		}
+
+		//TODO double conditions are marked as covered because of a mismatch of the instruction indices
+//		logger.warn("\njpfName: " +jpfName +"\n\nbranch.ins: " + branch.ins + "\njpfBranchMap.get(jpfName) " + jpfBranchMap.get(jpfName) + "\nbranch.ins.getInstructionIndex(): " + branch.ins.getInstructionIndex());
 
 		if (jpfBranchMap.get(jpfName).contains(branch.ins.getInstructionIndex())) {
 			return true;
@@ -248,8 +252,8 @@ public class TestSuiteDSE {
 		Map<String, Object> values = skr.getModel(constraints);
 
 		//TODO Let's hope you get to delete this at some point ;P
-		//		CVC3Solver solver = new CVC3Solver();
-		//		Map<String, Object> values = solver.getModel(constraints);
+//		CVC3Solver solver = new CVC3Solver();
+//		Map<String, Object> values = solver.getModel(constraints);
 
 		if (values != null) {
 			TestCase newTest = test.clone();
@@ -263,17 +267,21 @@ public class TestSuiteDSE {
 //						logger.warn("New long value for " + name + " is " + value);
 						PrimitiveStatement p = getStatement(newTest, name);
 						assert (p != null);
-						if (p.getValue().getClass().equals(Character.class)) {
-							p.setValue((char) value.intValue());
-						} else {
+						if(p.getValue().getClass().equals(Character.class))
+							p.setValue((char)value.intValue());
+						else if(p.getValue().getClass().equals(Long.class))
+							p.setValue(value);
+						else//TODO change this for floats
 							p.setValue(value.intValue());
-						}
 					} else if (val instanceof String) {
 						String name = ((String) key).replace("__SYM", "");
 						PrimitiveStatement p = getStatement(newTest, name);
 //						logger.warn("New string value for " + name + " is " + val);
 						assert (p != null);
-						p.setValue(val.toString());
+						if(p.getValue().getClass().equals(Character.class))
+							p.setValue((char)Integer.parseInt(val.toString()));
+						else //TODO change for ints or whatever
+							p.setValue(val.toString());
 					} else {
 						logger.debug("New value is of an unsupported type: " + val);
 					}
@@ -287,7 +295,7 @@ public class TestSuiteDSE {
 			logger.debug("Got null :-(");
 			return null;
 		}
-
+		
 	}
 
 	/**
@@ -299,7 +307,7 @@ public class TestSuiteDSE {
 	 */
 	private PrimitiveStatement<?> getStatement(TestCase test, String name) {
 		for (StatementInterface statement : test) {
-
+			
 			if (statement instanceof PrimitiveStatement<?>) {
 				if (statement.getReturnValue().getName().equals(name))
 					return (PrimitiveStatement<?>) statement;
@@ -390,17 +398,17 @@ public class TestSuiteDSE {
 	private void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
 		if (expr instanceof Variable<?>) {
 			variables.add((Variable<?>) expr);
-		} else if (expr instanceof StringMultipleComparison) {
+		} else if (expr instanceof StringMultipleComparison){
 			StringMultipleComparison smc = (StringMultipleComparison) expr;
 			getVariables(smc.getLeftOperand(), variables);
 			getVariables(smc.getRightOperand(), variables);
 			ArrayList<Expression<?>> ar_l_ex = smc.getOther();
 			Iterator<Expression<?>> itr = ar_l_ex.iterator();
-			while (itr.hasNext()) {
-				Expression<?> element = itr.next();
-				getVariables(element, variables);
-			}
-		} else if (expr instanceof StringComparison) {
+		    while (itr.hasNext()) {
+		    	Expression<?> element = itr.next();
+		    	getVariables(element, variables);
+		    }
+		} else if (expr instanceof StringComparison){
 			StringComparison sc = (StringComparison) expr;
 			getVariables(sc.getLeftOperand(), variables);
 			getVariables(sc.getRightOperand(), variables);
@@ -412,6 +420,7 @@ public class TestSuiteDSE {
 			UnaryExpression<?> un = (UnaryExpression<?>) expr;
 			getVariables(un.getOperand(), variables);
 		} else if (expr instanceof Constraint<?>) {
+
 			// ignore
 
 		}

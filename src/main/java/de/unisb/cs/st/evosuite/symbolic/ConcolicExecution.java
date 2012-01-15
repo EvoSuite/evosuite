@@ -84,8 +84,10 @@ public class ConcolicExecution {
 		config.setProperty("classpath", config.getProperty("classpath") + "," + classPath);
 		config.setTarget(targetName);
 
+//		config.setProperty("vm.insn_factory.class",
+//		                   "de.unisb.cs.st.evosuite.symbolic.bytecode.IntegerConcolicInstructionFactory");
 		config.setProperty("vm.insn_factory.class",
-		                   "de.unisb.cs.st.evosuite.symbolic.bytecode.IntegerConcolicInstructionFactory");
+        "de.unisb.cs.st.evosuite.symbolic.bytecode.ConcolicInstructionFactory");
 		config.setProperty("peer_packages",
 		                   "de.unisb.cs.st.evosuite.symbolic.nativepeer,gov.nasa.jpf.jvm");
 		//		                           + config.getProperty("peer_packages"));
@@ -226,6 +228,12 @@ public class ConcolicExecution {
 					p.add(ps);
 				} else if (t.equals(Character.class) || t.equals(char.class)) {
 					p.add(ps);
+			//==========-------- XXX added for real search
+				} else if (t.equals(Float.class) || t.equals(float.class)) {
+					p.add(ps);
+				} else if (t.equals(Double.class) || t.equals(double.class)) {
+					p.add(ps);
+			//==========--------
 				} else if (t.equals(String.class)) {
 					p.add(ps);
 				}

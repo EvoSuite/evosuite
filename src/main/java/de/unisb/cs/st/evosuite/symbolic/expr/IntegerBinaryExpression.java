@@ -82,17 +82,30 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 		long rightVal = ExpressionHelper.getLongResult(right);
 		
 		switch (op) {
-
+		
+		case SHL:
+			return leftVal << rightVal;
+		case SHR:
+			return leftVal >> rightVal;
+		case AND:
+		case IAND:
+			return leftVal & rightVal;
+		case OR:
+		case IOR:
+			return leftVal | rightVal;
+		case XOR:
+		case IXOR:
+			return leftVal ^ rightVal;
 		case DIV:
-			return leftVal/rightVal;
+			return leftVal / rightVal;
 		case MUL:
-			return leftVal*rightVal;
+			return leftVal * rightVal;
 		case MINUS:
-			return leftVal-rightVal;
+			return leftVal - rightVal;
 		case PLUS: 
-			return leftVal+rightVal;
+			return leftVal + rightVal;
 		case REM: 
-			return leftVal%rightVal;	
+			return leftVal % rightVal;	
 		default:
 			log.warning("IntegerBinaryExpression: unimplemented operator!");
 			return null;

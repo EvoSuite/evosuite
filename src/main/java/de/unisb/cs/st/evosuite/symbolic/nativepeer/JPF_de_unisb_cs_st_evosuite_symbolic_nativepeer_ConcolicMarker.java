@@ -54,13 +54,13 @@ public class JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker {
 
 	public static float mark__F__F(MJIEnv env, int rcls, float v0) {
 		env.setReturnAttribute(new RealVariable("mark" + counter++ + "__SYM",
-		        -Float.MAX_VALUE, Float.MAX_VALUE));
+				v0, -Float.MAX_VALUE, Float.MAX_VALUE));
 		return v0;
 	}
 
 	public static double mark__D__D(MJIEnv env, int rcls, double v0) {
 		env.setReturnAttribute(new RealVariable("mark" + counter++ + "__SYM",
-		        -Double.MAX_VALUE, Double.MAX_VALUE));
+				v0, -Double.MAX_VALUE, Double.MAX_VALUE));
 		return v0;
 	}
 	
@@ -137,14 +137,14 @@ public class JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker {
 	public static float mark__FLjava_lang_String_2__F(MJIEnv env, int rcls, float v0,
 	        int rString1) {
 		env.setReturnAttribute(new RealVariable(env.getStringObject(rString1) + "__SYM",
-		        -Float.MAX_VALUE, Float.MAX_VALUE));
+		        v0, -Float.MAX_VALUE, Float.MAX_VALUE));
 		return v0;
 	}
 
 	public static double mark__DLjava_lang_String_2__D(MJIEnv env, int rcls, double v0,
 	        int rString1) {
 		env.setReturnAttribute(new RealVariable(env.getStringObject(rString1) + "__SYM",
-		        -Double.MAX_VALUE, Double.MAX_VALUE));
+				v0, -Double.MAX_VALUE, Double.MAX_VALUE));
 		return v0;
 	}
 }
