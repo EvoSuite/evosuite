@@ -48,48 +48,34 @@ public class Seeker implements Solver {
 	 * In getModel we need to build the constraints and search for better input 
 	 * values for the String variables. 
 	 */
-	public Map<String, Object> getModel(Collection<Constraint<?>> constraints){
+	public Map<String, Object> getModel(Collection<Constraint<?>> constr){
 		HashMap<String, Object> result = new HashMap<String, Object>();
-	
-		//This actually does get a list every time the super class Solver is 
-		// implemented using a collection so if we are going to throw away 
-		// the other Solvers we might as well change this
-		List<Constraint<?>> cnstr = null;
-		if (constraints instanceof List<?>) {
-			cnstr = (List<Constraint<?>>)constraints;
-		} else {
-			log.warning("Seeker got other type of collections!");
-			return null;
-		}
 		
-		//Get the target cnstr and the variables in it
-		Constraint<?> target = cnstr.get(cnstr.size()-1);
-		Set<Variable<?>> vars = getVariables(target);
-		//remove the target from the constraints
-		cnstr.remove(target);
-		
+		List<Constraint<?>> constraints = (List<Constraint<?>>) constr;
+		Set<Variable<?>> vars = getVarsOfTarget((List<Constraint<?>>) constraints);
+
 		outerloop:
 		for (int i = 0; i < maxStepsForAll ; i++ ) {
 			for (Variable<?> var : vars) {
-				
+
 				Changer changer = new Changer();
 				
 				if (var instanceof StringVariable) {
 					StringVariable strVar = (StringVariable) var;
-					if (changer.strLocalSearch(strVar, target, cnstr, result)) {
+					if (changer.strLocalSearch(strVar, constraints, result)) {
 						break outerloop;
 					}
 				}
 				// These two are not yet implemented
 				if (var instanceof IntegerVariable) {
 					IntegerVariable intVar = (IntegerVariable) var;
-					if (changer.intLocalSearch(intVar, target, cnstr, result)) {
+					if (changer.intLocalSearchV2(intVar, constraints, result)) {
 						break outerloop;
 					}
 				}
 				if (var instanceof RealVariable) {
 					RealVariable realVar = (RealVariable) var;
-					if (changer.realLocalSearch(realVar, target, cnstr, result)) {
+					if (changer.realLocalSearch(realVar, constraints, result)) {
 						break outerloop;
 					}
 				}				
@@ -155,10 +141,13 @@ public class Seeker implements Solver {
 	 * @param constraint
 	 * @return
 	 */
-	private Set<Variable<?>> getVariables(Constraint<?> constraint) {
+	private Set<Variable<?>> getVarsOfTarget(List<Constraint<?>> constraint) {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
-		getVariables(constraint.getLeftOperand(), variables);
-		getVariables(constraint.getRightOperand(), variables);
+		
+		Constraint<?> target = constraint.get(constraint.size()-1);
+		
+		getVariables(target.getLeftOperand(), variables);
+		getVariables(target.getRightOperand(), variables);
 		return variables;
 	}
 

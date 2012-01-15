@@ -54,7 +54,7 @@ public class IntegerUnaryExpression extends IntegerExpression implements
 		return false;
 	}
 
-	protected int size = 0;
+//	protected int size = 0;
 
 //	@Override
 //	public int getSize() {
@@ -66,11 +66,14 @@ public class IntegerUnaryExpression extends IntegerExpression implements
 
 	@Override
 	public Long execute() {
-		long leftVal = (Long) expr.execute();
+		long leftVal = ExpressionHelper.getLongResult(expr);
 		
 		switch (op) {
+		
 		case NEG:
 			return -leftVal;
+		case ABS:
+			return Math.abs(leftVal);
 		default:
 			log.warning("IntegerUnaryExpression: unimplemented operator!");
 			return null;

@@ -110,26 +110,29 @@ BinaryExpression<String>{
 
 	@Override
 	public Long execute() {
-		String first = (String)left.execute();
-		String second = (String)right.execute();
-		
-		
-		switch (op) {
-		case STARTSWITH:
-			long start = (Long) other_v.get(0).execute();
+		try {
+			String first = (String)left.execute();
+			String second = (String)right.execute();
+			
+			switch (op) {
+			case STARTSWITH:
+				long start = (Long) other_v.get(0).execute();
 
-			return (long)DistanceEstimator.StrStartsWith(first, second, (int) start);
-		case REGIONMATCHES:
-			long frstStart = (Long) other_v.get(0).execute();			
-			long secStart = (Long) other_v.get(1).execute();
-			long length = (Long) other_v.get(2).execute();
-			long ignoreCase = (Long) other_v.get(3).execute();
+				return (long)DistanceEstimator.StrStartsWith(first, second, (int) start);
+			case REGIONMATCHES:
+				long frstStart = (Long) other_v.get(0).execute();			
+				long secStart = (Long) other_v.get(1).execute();
+				long length = (Long) other_v.get(2).execute();
+				long ignoreCase = (Long) other_v.get(3).execute();
 
-			return (long)DistanceEstimator.StrRegionMatches(first, (int) frstStart, 
-					second, (int) secStart, (int) length, ignoreCase != 0);
-		default:
-			log.warning("StringMultipleComparison: unimplemented operator!");
-			return null;
+				return (long)DistanceEstimator.StrRegionMatches(first, (int) frstStart, 
+						second, (int) secStart, (int) length, ignoreCase != 0);
+			default:
+				log.warning("StringMultipleComparison: unimplemented operator!");
+				return null;
+			}
+		} catch (Exception e) {
+			return Long.MAX_VALUE;
 		}		
 	}
 

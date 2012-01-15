@@ -82,21 +82,25 @@ public class StringComparison extends StringExpression {
 
 	@Override
 	public Long execute() {
-		String first = (String)left.execute();
-		String second = (String)right.execute();
-		
-		switch (op) {
-		case EQUALSIGNORECASE:
-			return (long)DistanceEstimator.StrEqualsIgnoreCase(first, second);
-		case EQUALS:
-			return (long)DistanceEstimator.StrEquals(first, second);
-		case ENDSWITH:
-			return (long)DistanceEstimator.StrEndsWith(first, second);
-		case CONTAINS:
-			return (long)DistanceEstimator.StrContains(first, second);
-		default:
-			log.warning("StringComparison: unimplemented operator!" + op);
-			return null;
+		try {
+			String first = (String)left.execute();
+			String second = (String)right.execute();
+			
+			switch (op) {
+			case EQUALSIGNORECASE:
+				return (long)DistanceEstimator.StrEqualsIgnoreCase(first, second);
+			case EQUALS:
+				return (long)DistanceEstimator.StrEquals(first, second);
+			case ENDSWITH:
+				return (long)DistanceEstimator.StrEndsWith(first, second);
+			case CONTAINS:
+				return (long)DistanceEstimator.StrContains(first, second);
+			default:
+				log.warning("StringComparison: unimplemented operator!" + op);
+				return null;
+			}
+		} catch (Exception e) {
+			return Long.MAX_VALUE;
 		}		
 	}
 

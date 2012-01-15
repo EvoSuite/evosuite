@@ -16,6 +16,12 @@ public class IntegerConcolicInstructionFactory extends InstructionFactory implem
 	}
 
 	@Override
+	public INVOKEVIRTUAL invokevirtual(String clsName, String methodName,
+			String methodSignature){
+		return new INVOKEVIRTUAL(clsName, methodName, methodSignature);
+	}
+	
+	@Override
 	public ASTORE astore(int index) {
 		return new ASTORE(index);
 	}
@@ -31,9 +37,13 @@ public class IntegerConcolicInstructionFactory extends InstructionFactory implem
 	}
 	
 	@Override
-	public INVOKEVIRTUAL invokevirtual(String clsName, String methodName,
-	        String methodSignature) {
-		return new INVOKEVIRTUAL(clsName, methodName, methodSignature);
+	public DCMPG dcmpg() {
+		return new DCMPG();
+	}
+
+	@Override
+	public DCMPL dcmpl() {
+		return new DCMPL();
 	}
 
 	@Override

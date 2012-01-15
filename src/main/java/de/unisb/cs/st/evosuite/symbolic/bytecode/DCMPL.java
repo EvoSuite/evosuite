@@ -22,6 +22,9 @@
 
 package de.unisb.cs.st.evosuite.symbolic.bytecode;
 
+import java.util.logging.Logger;
+
+import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.jvm.KernelState;
 import gov.nasa.jpf.jvm.StackFrame;
 import gov.nasa.jpf.jvm.SystemState;
@@ -33,6 +36,9 @@ import de.unisb.cs.st.evosuite.symbolic.expr.RealComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.RealConstant;
 
 public class DCMPL extends gov.nasa.jpf.jvm.bytecode.DCMPL {
+	
+	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.bytecode.DCMPL");
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public Instruction execute(SystemState ss, KernelState ks, ThreadInfo th) {

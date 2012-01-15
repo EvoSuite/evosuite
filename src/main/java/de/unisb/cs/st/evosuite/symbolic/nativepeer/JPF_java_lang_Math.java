@@ -19,9 +19,13 @@
 
 package de.unisb.cs.st.evosuite.symbolic.nativepeer;
 
+import java.util.logging.Logger;
+
+import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.jvm.MJIEnv;
 import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerExpression;
+import de.unisb.cs.st.evosuite.symbolic.expr.IntegerUnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Operator;
 import de.unisb.cs.st.evosuite.symbolic.expr.RealBinaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.RealConstant;
@@ -34,6 +38,28 @@ import de.unisb.cs.st.evosuite.symbolic.expr.RealUnaryExpression;
 
 public class JPF_java_lang_Math {
 
+	@SuppressWarnings("unused")
+	private static Logger log = JPF.getLogger(JPF_java_lang_Math.class.toString());
+	
+	@SuppressWarnings("unchecked")
+	public static int abs__I__I(MJIEnv env, int clsObjRef, int a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.abs(a);
+		}
+		Expression<Long> sym_arg = (Expression<Long>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.abs(a);
+		} else {
+			int ret = Math.abs(a);
+			IntegerUnaryExpression result = new IntegerUnaryExpression(sym_arg, Operator.ABS,
+			        (long)ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+
+	}
+	
 	@SuppressWarnings("unchecked")
 	public static double acos__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -189,6 +215,7 @@ public class JPF_java_lang_Math {
 
 	@SuppressWarnings("unchecked")
 	public static double pow__DD__D(MJIEnv env, int clsObjRef, double a, double b) {
+		
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
 			return Math.atan2(a, b);

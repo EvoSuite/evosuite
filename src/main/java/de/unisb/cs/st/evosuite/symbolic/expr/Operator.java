@@ -20,6 +20,7 @@ package de.unisb.cs.st.evosuite.symbolic.expr;
 
 public enum Operator {
 
+	//ALL with ### are not yet implemented in the execute of the according expression
 	// Simple operators
 	DIV("/", 2), //
 	MUL("*", 2), //
@@ -34,9 +35,9 @@ public enum Operator {
 	XOR("^", 2), //
 
 	// special operators
-	D2L("d2l", 1), //
-	L2D("l2d", 1), //
-	CMP("cmp", 2), //
+	D2L("d2l", 1), // ###
+	L2D("l2d", 1), // ###
+	CMP("cmp", 2), // ###
 
 	// Integer operators
 	IAND("iand", 2), //
@@ -46,21 +47,22 @@ public enum Operator {
 	IXOR("ixor", 2), //
 
 	// More complex Math operators
-	SIN("sin", 1), //
-	COS("cos", 1), //
-	POW("pow", 2), //
-	SQRT("sqrt", 1), //
-	ROUND("round", 1), //
-	FLOOR("floor",1),
-	CEIL("ceil",1),
-	EXP("exp", 1), //
-	ASIN("asin", 1), //
-	ACOS("acos", 1), //
-	ATAN("atan", 1), //
-	ATAN2("atan2", 2), //
-	LOG("log", 1), //
-	LOG10("log10", 1), //
-	TAN("tan", 1),
+	ABS("abs", 1), //
+	SIN("sin", 1), // ###
+	COS("cos", 1), // ###
+	POW("pow", 2), // ###
+	SQRT("sqrt", 1), // ###
+	ROUND("round", 1), // ###
+	FLOOR("floor",1), // ###
+	CEIL("ceil",1), // ###
+	EXP("exp", 1), // ###
+	ASIN("asin", 1), // ###
+	ACOS("acos", 1), // ###
+	ATAN("atan", 1), // ###
+	ATAN2("atan2", 2), // ###
+	LOG("log", 1), // ###
+	LOG10("log10", 1), // ###
+	TAN("tan", 1), // ###
 	
 	// String comparisons
 	EQUALSIGNORECASE("equalsIgnoreCase", 2),

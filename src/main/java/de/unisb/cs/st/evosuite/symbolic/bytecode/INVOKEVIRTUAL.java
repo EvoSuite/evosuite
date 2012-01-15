@@ -63,7 +63,7 @@ public class INVOKEVIRTUAL extends gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL {
 			//Check in which function we are and handle appropriately 
 			//TODO this ugly thing here can also be done with java reflection
 			//	new methods in the helper classes will not have to be added her too
-			try {
+//			try {
 				if (mname.startsWith("equalsIgnoreCase")) {
 					
 					return InvVStringHelper.strFncEqualsIgnoreCase(ks, ti, this);
@@ -144,10 +144,10 @@ public class INVOKEVIRTUAL extends gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL {
 					InvVFunctionLogger.LogStringFnc("StringFunctions.txt", this);
 				}
 
-			} catch (Exception e) {
-
-				log.warning("Exception: " + e.toString());
-			}
+//			} catch (Exception e) {
+//
+//				log.warning("Exception: " + e.toString());
+//			}
 
 		} else if (cname.equals("java.lang.StringBuilder")) {
 
