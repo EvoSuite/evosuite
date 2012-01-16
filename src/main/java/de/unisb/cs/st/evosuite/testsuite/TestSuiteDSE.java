@@ -29,13 +29,22 @@ import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
 import de.unisb.cs.st.evosuite.symbolic.search.Seeker;
+import de.unisb.cs.st.evosuite.testcase.ArrayStatement;
+import de.unisb.cs.st.evosuite.testcase.AssignmentStatement;
+import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
+import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
+import de.unisb.cs.st.evosuite.testcase.FieldStatement;
+import de.unisb.cs.st.evosuite.testcase.MethodStatement;
+import de.unisb.cs.st.evosuite.testcase.NullStatement;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
+import de.unisb.cs.st.evosuite.testcase.TestVisitor;
+import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
  * @author Gordon Fraser
@@ -73,6 +82,11 @@ public class TestSuiteDSE {
 			// Only apply DSE if if makes any sense
 			if (hasUncoveredBranches(test)) {
 				logger.info("Found uncovered branches in test, applying DSE");
+
+				// TODO: Mapping back to original is missing
+				TestCase expandedTest = expandTestCase(test.getTestCase());
+				test.setTestCase(expandedTest);
+				test.clearCachedResults();
 
 				// Apply DSE to gather constraints
 				List<BranchCondition> branches = concolicExecution.getSymbolicPath(test);
@@ -189,7 +203,7 @@ public class TestSuiteDSE {
 		}
 
 		//TODO double conditions are marked as covered because of a mismatch of the instruction indices
-//		logger.warn("\njpfName: " +jpfName +"\n\nbranch.ins: " + branch.ins + "\njpfBranchMap.get(jpfName) " + jpfBranchMap.get(jpfName) + "\nbranch.ins.getInstructionIndex(): " + branch.ins.getInstructionIndex());
+		//		logger.warn("\njpfName: " +jpfName +"\n\nbranch.ins: " + branch.ins + "\njpfBranchMap.get(jpfName) " + jpfBranchMap.get(jpfName) + "\nbranch.ins.getInstructionIndex(): " + branch.ins.getInstructionIndex());
 
 		if (jpfBranchMap.get(jpfName).contains(branch.ins.getInstructionIndex())) {
 			return true;
@@ -252,8 +266,8 @@ public class TestSuiteDSE {
 		Map<String, Object> values = skr.getModel(constraints);
 
 		//TODO Let's hope you get to delete this at some point ;P
-//		CVC3Solver solver = new CVC3Solver();
-//		Map<String, Object> values = solver.getModel(constraints);
+		//		CVC3Solver solver = new CVC3Solver();
+		//		Map<String, Object> values = solver.getModel(constraints);
 
 		if (values != null) {
 			TestCase newTest = test.clone();
@@ -264,23 +278,25 @@ public class TestSuiteDSE {
 					if (val instanceof Long) {
 						Long value = (Long) val;
 						String name = ((String) key).replace("__SYM", "");
-//						logger.warn("New long value for " + name + " is " + value);
+						//						logger.warn("New long value for " + name + " is " + value);
 						PrimitiveStatement p = getStatement(newTest, name);
 						assert (p != null);
-						if(p.getValue().getClass().equals(Character.class))
-							p.setValue((char)value.intValue());
-						else if(p.getValue().getClass().equals(Long.class))
+						if (p.getValue().getClass().equals(Character.class))
+							p.setValue((char) value.intValue());
+						else if (p.getValue().getClass().equals(Long.class))
 							p.setValue(value);
-						else//TODO change this for floats
+						else
+							//TODO change this for floats
 							p.setValue(value.intValue());
 					} else if (val instanceof String) {
 						String name = ((String) key).replace("__SYM", "");
 						PrimitiveStatement p = getStatement(newTest, name);
-//						logger.warn("New string value for " + name + " is " + val);
+						//						logger.warn("New string value for " + name + " is " + val);
 						assert (p != null);
-						if(p.getValue().getClass().equals(Character.class))
-							p.setValue((char)Integer.parseInt(val.toString()));
-						else //TODO change for ints or whatever
+						if (p.getValue().getClass().equals(Character.class))
+							p.setValue((char) Integer.parseInt(val.toString()));
+						else
+							//TODO change for ints or whatever
 							p.setValue(val.toString());
 					} else {
 						logger.debug("New value is of an unsupported type: " + val);
@@ -295,7 +311,7 @@ public class TestSuiteDSE {
 			logger.debug("Got null :-(");
 			return null;
 		}
-		
+
 	}
 
 	/**
@@ -307,7 +323,7 @@ public class TestSuiteDSE {
 	 */
 	private PrimitiveStatement<?> getStatement(TestCase test, String name) {
 		for (StatementInterface statement : test) {
-			
+
 			if (statement instanceof PrimitiveStatement<?>) {
 				if (statement.getReturnValue().getName().equals(name))
 					return (PrimitiveStatement<?>) statement;
@@ -398,17 +414,17 @@ public class TestSuiteDSE {
 	private void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
 		if (expr instanceof Variable<?>) {
 			variables.add((Variable<?>) expr);
-		} else if (expr instanceof StringMultipleComparison){
+		} else if (expr instanceof StringMultipleComparison) {
 			StringMultipleComparison smc = (StringMultipleComparison) expr;
 			getVariables(smc.getLeftOperand(), variables);
 			getVariables(smc.getRightOperand(), variables);
 			ArrayList<Expression<?>> ar_l_ex = smc.getOther();
 			Iterator<Expression<?>> itr = ar_l_ex.iterator();
-		    while (itr.hasNext()) {
-		    	Expression<?> element = itr.next();
-		    	getVariables(element, variables);
-		    }
-		} else if (expr instanceof StringComparison){
+			while (itr.hasNext()) {
+				Expression<?> element = itr.next();
+				getVariables(element, variables);
+			}
+		} else if (expr instanceof StringComparison) {
 			StringComparison sc = (StringComparison) expr;
 			getVariables(sc.getLeftOperand(), variables);
 			getVariables(sc.getRightOperand(), variables);
@@ -424,6 +440,123 @@ public class TestSuiteDSE {
 			// ignore
 
 		}
+	}
+
+	private TestCase expandTestCase(TestCase test) {
+		ExpandingVisitor visitor = new ExpandingVisitor();
+		test.accept(visitor);
+		return visitor.getExpandedCopy();
+	}
+
+	private class ExpandingVisitor implements TestVisitor {
+
+		Set<VariableReference> usedVariables = new HashSet<VariableReference>();
+
+		TestCase copy = new DefaultTestCase();
+
+		/* (non-Javadoc)
+		 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitTestCase(de.unisb.cs.st.evosuite.testcase.TestCase)
+		 */
+		@Override
+		public void visitTestCase(TestCase test) {
+			usedVariables.clear();
+		}
+
+		public TestCase getExpandedCopy() {
+			return copy;
+		}
+
+		/* (non-Javadoc)
+		 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitPrimitiveStatement(de.unisb.cs.st.evosuite.testcase.PrimitiveStatement)
+		 */
+		@Override
+		public void visitPrimitiveStatement(PrimitiveStatement<?> statement) {
+			copy.addStatement(statement.clone(copy));
+		}
+
+		/* (non-Javadoc)
+		 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitFieldStatement(de.unisb.cs.st.evosuite.testcase.FieldStatement)
+		 */
+		@Override
+		public void visitFieldStatement(FieldStatement statement) {
+			copy.addStatement(statement.clone(copy));
+		}
+
+		private VariableReference duplicateStatement(TestCase test,
+		        VariableReference owner) {
+			StatementInterface statement = test.getStatement(owner.getStPosition());
+			return test.addStatement(statement.clone(test), owner.getStPosition() + 1);
+		}
+
+		/* (non-Javadoc)
+		 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitMethodStatement(de.unisb.cs.st.evosuite.testcase.MethodStatement)
+		 */
+		@Override
+		public void visitMethodStatement(MethodStatement statement) {
+			MethodStatement statementCopy = (MethodStatement) statement.clone(copy);
+			copy.addStatement(statementCopy);
+
+			int i = 0;
+			for (VariableReference var : statementCopy.getParameterReferences()) {
+				logger.info(var.toString());
+				if (var.isPrimitive()) {
+					if (usedVariables.contains(var)) {
+						// Duplicate and replace
+						VariableReference varCopy = duplicateStatement(copy, var);
+						statementCopy.replaceParameterReference(varCopy, i);
+					}
+					usedVariables.add(var);
+				}
+				i++;
+			}
+		}
+
+		/* (non-Javadoc)
+		 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitConstructorStatement(de.unisb.cs.st.evosuite.testcase.ConstructorStatement)
+		 */
+		@Override
+		public void visitConstructorStatement(ConstructorStatement statement) {
+			ConstructorStatement statementCopy = (ConstructorStatement) statement.clone(copy);
+			copy.addStatement(statementCopy);
+
+			int i = 0;
+			for (VariableReference var : statementCopy.getParameterReferences()) {
+				if (var.isPrimitive()) {
+					if (usedVariables.contains(var)) {
+						// Duplicate and replace
+						VariableReference varCopy = duplicateStatement(copy, var);
+						statementCopy.replaceParameterReference(varCopy, i);
+					}
+					usedVariables.add(var);
+				}
+				i++;
+			}
+		}
+
+		/* (non-Javadoc)
+		 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitArrayStatement(de.unisb.cs.st.evosuite.testcase.ArrayStatement)
+		 */
+		@Override
+		public void visitArrayStatement(ArrayStatement statement) {
+			copy.addStatement(statement.clone(copy));
+		}
+
+		/* (non-Javadoc)
+		 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitAssignmentStatement(de.unisb.cs.st.evosuite.testcase.AssignmentStatement)
+		 */
+		@Override
+		public void visitAssignmentStatement(AssignmentStatement statement) {
+			copy.addStatement(statement.clone(copy));
+		}
+
+		/* (non-Javadoc)
+		 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitNullStatement(de.unisb.cs.st.evosuite.testcase.NullStatement)
+		 */
+		@Override
+		public void visitNullStatement(NullStatement statement) {
+			copy.addStatement(statement.clone(copy));
+		}
+
 	}
 
 }
