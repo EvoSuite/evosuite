@@ -52,7 +52,7 @@ public class BytecodeAnalyzer extends Analyzer {
 	 * the CFGGenerator and thus the BytecodeInstructionPool for the given
 	 * method in the given class.
 	 */
-	CFGFrame analyze(String owner, String method, MethodNode node)
+	public CFGFrame analyze(String owner, String method, MethodNode node)
 	        throws AnalyzerException {
 
 		cfgGenerator = new CFGGenerator(owner, method, node);
@@ -71,7 +71,7 @@ public class BytecodeAnalyzer extends Analyzer {
 	 * further processing of the gathered information from analyze() within the
 	 * ByteCode representation of EvoSuite
 	 */
-	CFGGenerator retrieveCFGGenerator() {
+	public CFGGenerator retrieveCFGGenerator() {
 		if (cfgGenerator == null)
 			throw new IllegalStateException(
 			        "you have to call analyze() first before retrieving the CFGGenerator");

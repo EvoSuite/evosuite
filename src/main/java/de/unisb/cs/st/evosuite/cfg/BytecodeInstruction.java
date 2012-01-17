@@ -499,19 +499,29 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 	// *
 	// * Used to determine TestFitness difficulty
 	// */
-	// public int getCDGDepth() {
-	//
-	// // TODO: this method does not take into account, that there might be
-	// // multiple branches this instruction is control dependent on
-	//
-	// Branch current = getControlDependentBranch();
-	// int r = 1;
-	// while (current != null) {
-	// r++;
-	// current = current.getInstruction().getControlDependentBranch();
-	// }
-	// return r;
-	// }
+	public int getCDGDepth() {
+		int min = Integer.MAX_VALUE;
+		Set<ControlDependency> dependencies = getControlDependencies();
+		if (dependencies.isEmpty())
+			min = 1;
+		for (ControlDependency dependency : dependencies) {
+			int depth = getCDG().getControlDependenceDepth(dependency);
+			if (depth < min)
+				min = depth;
+		}
+		return min;
+		/*
+		// TODO: this method does not take into account, that there might be
+		// multiple branches this instruction is control dependent on		
+		Branch current = getControlDependentBranch();
+		int r = 1;
+		while (current != null) {
+			r++;
+			current = current.getInstruction().getControlDependentBranch();
+		}
+		return r;
+		*/
+	}
 
 	// String methods
 

@@ -21,11 +21,12 @@ package de.unisb.cs.st.evosuite.cfg;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodNode;
@@ -55,7 +56,7 @@ import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyInstrumentation;
  * @author Gordon Fraser
  * 
  */
-public class CFGMethodAdapter extends MethodAdapter {
+public class CFGMethodAdapter extends MethodVisitor {
 
 	private static Logger logger = LoggerFactory.getLogger(CFGMethodAdapter.class);
 
@@ -71,7 +72,7 @@ public class CFGMethodAdapter extends MethodAdapter {
 	 * The set of all methods which can be used during test case generation This
 	 * excludes e.g. synthetic, initializers, private and deprecated methods
 	 */
-	public static Set<String> methods = new HashSet<String>();
+	public static Map<String, Set<String>> methods = new HashMap<String, Set<String>>();
 
 	/**
 	 * This is the name + the description of the method. It is more like the
@@ -92,7 +93,7 @@ public class CFGMethodAdapter extends MethodAdapter {
 		// className,
 		// name.replace('/', '.'), null, desc);
 
-		super(new MethodNode(access, name, desc, signature, exceptions));
+		super(Opcodes.ASM4, new MethodNode(access, name, desc, signature, exceptions));
 
 		this.next = mv;
 		this.className = className; // .replace('/', '.');
@@ -108,33 +109,36 @@ public class CFGMethodAdapter extends MethodAdapter {
 		boolean isMainMethod = plain_name.equals("main") && Modifier.isStatic(access);
 
 		List<MethodInstrumentation> instrumentations = new ArrayList<MethodInstrumentation>();
-
-		if (Properties.CRITERION == Criterion.CONCURRENCY) {
-			instrumentations.add(new ConcurrencyInstrumentation());
-			instrumentations.add(new BranchInstrumentation());
-		} else if (Properties.CRITERION == Criterion.LCSAJ) {
-			instrumentations.add(new LCSAJsInstrumentation());
-			instrumentations.add(new BranchInstrumentation());
-		} else if (Properties.CRITERION == Criterion.DEFUSE
-		        || Properties.CRITERION == Criterion.ALLDEFS) {
-			instrumentations.add(new BranchInstrumentation());
-			instrumentations.add(new DefUseInstrumentation());
-		} else if (Properties.CRITERION == Criterion.ANALYZE) {
-			instrumentations.add(new BranchInstrumentation());
-			instrumentations.add(new DefUseInstrumentation());
-		} else if (Properties.CRITERION == Criterion.PATH) {
-			instrumentations.add(new PrimePathInstrumentation());
-			instrumentations.add(new BranchInstrumentation());
-		} else if (Properties.CRITERION == Criterion.MUTATION
-		        || Properties.CRITERION == Criterion.WEAKMUTATION
-		        || Properties.CRITERION == Criterion.STRONGMUTATION) {
-			instrumentations.add(new BranchInstrumentation());
-			instrumentations.add(new MutationInstrumentation());
-		} else if (Properties.CRITERION == Criterion.COMP_LCSAJ_BRANCH) {
-			instrumentations.add(new LCSAJsInstrumentation());
-			instrumentations.add(new BranchInstrumentation());
+		if (className.equals(Properties.TARGET_CLASS)) {
+			if (Properties.CRITERION == Criterion.CONCURRENCY) {
+				instrumentations.add(new ConcurrencyInstrumentation());
+				instrumentations.add(new BranchInstrumentation());
+			} else if (Properties.CRITERION == Criterion.LCSAJ) {
+				instrumentations.add(new LCSAJsInstrumentation());
+				instrumentations.add(new BranchInstrumentation());
+			} else if (Properties.CRITERION == Criterion.DEFUSE
+			        || Properties.CRITERION == Criterion.ALLDEFS) {
+				instrumentations.add(new BranchInstrumentation());
+				instrumentations.add(new DefUseInstrumentation());
+			} else if (Properties.CRITERION == Criterion.ANALYZE) {
+				instrumentations.add(new BranchInstrumentation());
+				instrumentations.add(new DefUseInstrumentation());
+			} else if (Properties.CRITERION == Criterion.PATH) {
+				instrumentations.add(new PrimePathInstrumentation());
+				instrumentations.add(new BranchInstrumentation());
+			} else if (Properties.CRITERION == Criterion.MUTATION
+			        || Properties.CRITERION == Criterion.WEAKMUTATION
+			        || Properties.CRITERION == Criterion.STRONGMUTATION) {
+				instrumentations.add(new BranchInstrumentation());
+				instrumentations.add(new MutationInstrumentation());
+			} else if (Properties.CRITERION == Criterion.COMP_LCSAJ_BRANCH) {
+				instrumentations.add(new LCSAJsInstrumentation());
+				instrumentations.add(new BranchInstrumentation());
+			} else {
+				instrumentations.add(new BranchInstrumentation());
+			}
 		} else {
-			instrumentations.add(new BranchInstrumentation());
+			//instrumentations.add(new BranchInstrumentation());
 		}
 
 		boolean executeOnMain = false;
@@ -157,10 +161,12 @@ public class CFGMethodAdapter extends MethodAdapter {
 		        && (access & Opcodes.ACC_NATIVE) == 0) {
 
 			logger.info("Analyzing method " + methodName + " in class " + className);
+			methods.put(className, new HashSet<String>());
 
 			// MethodNode mn = new CFGMethodNode((MethodNode)mv);
 			// System.out.println("Generating CFG for "+ className+"."+mn.name +
 			// " ("+mn.desc +")");
+
 			BytecodeAnalyzer bytecodeAnalyzer = new BytecodeAnalyzer();
 			logger.info("Generating CFG for method " + methodName);
 
@@ -194,9 +200,22 @@ public class CFGMethodAdapter extends MethodAdapter {
 
 			String id = className + "." + methodName;
 			if (isUsable()) {
-				methods.add(id);
+				methods.get(className).add(id);
 				logger.debug("Counting: " + id);
 			}
+			/*
+						if (Properties.TT) {
+							try {
+								BooleanTestabilityPlaceholderTransformer.transform(mn, className);
+							} catch (Throwable t) {
+								logger.info("2 Error: " + t);
+								t.printStackTrace();
+								System.exit(0);
+
+							}
+
+						}
+						*/
 
 		}
 		mn.accept(next);
@@ -218,7 +237,7 @@ public class CFGMethodAdapter extends MethodAdapter {
 		if (BranchPool.getBranchCountForMethod(className, methodName) == 0) {
 			if (isUsable()) {
 				logger.debug("Method has no branches: " + id);
-				BranchPool.addBranchlessMethod(id);
+				BranchPool.addBranchlessMethod(className, id);
 			}
 		}
 	}

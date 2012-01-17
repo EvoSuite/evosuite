@@ -4,6 +4,7 @@
 package de.unisb.cs.st.evosuite.javaagent;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
@@ -24,6 +25,11 @@ public class BooleanHelper {
 	private static final int MAX_STACK = Properties.TT_stack;
 
 	public static final int K = Integer.MAX_VALUE - 2;
+	//public static final int K = 1000;
+
+	private static final int TRUE = K;
+
+	private static final int FALSE = -K;
 
 	public static void clearPredicates() {
 		distanceStack.clear();
@@ -47,6 +53,7 @@ public class BooleanHelper {
 			stackStack.clear();
 		if (distanceStack != null)
 			distanceStack.clear();
+		lastDistance.clear();
 	}
 
 	/**
@@ -57,7 +64,7 @@ public class BooleanHelper {
 	 * @return
 	 */
 	public static int objectEquals(Object obj1, Object obj2) {
-		return obj1.equals(obj2) ? K : -K;
+		return obj1.equals(obj2) ? TRUE : FALSE;
 	}
 
 	/**
@@ -67,7 +74,7 @@ public class BooleanHelper {
 	 * @return
 	 */
 	public static int collectionIsEmpty(Collection<?> c) {
-		return c.isEmpty() ? K : -c.size();
+		return c.isEmpty() ? TRUE : -c.size();
 	}
 
 	/**
@@ -131,11 +138,50 @@ public class BooleanHelper {
 	 * @return
 	 */
 	public static int mapIsEmpty(Map<?, ?> m) {
-		return m.isEmpty() ? K : -m.size();
+		return m.isEmpty() ? TRUE : -m.size();
 	}
 
-	public static void pushPredicate(int branchId, int distance) {
+	static Map<Integer, Integer> lastDistance = new HashMap<Integer, Integer>();
 
+	/**
+	 * Keep track of the distance for this predicate
+	 * 
+	 * @param branchId
+	 * @param distance
+	 */
+	public static void pushPredicate(int distance, int branchId) {
+		//		Branch branch = BranchPool.getBranch(branchId);
+		//		//if (branch.getClassName().equals(Properties.TARGET_CLASS))
+		//		System.out.println("Keeping branch id: " + branch.getClassName() + " - "
+		//		        + branchId + " - " + distance);
+		System.out.println("Keeping branch id: " + branchId + " - " + distance);
+		lastDistance.put(branchId, distance);
+	}
+
+	public static int getDistance(int branchId, int approximationLevel, int value) {
+		int distance = 0;
+		//		if (approximationLevel < 0)
+		//			approximationLevel = 0;
+		if (branchId > 0) {
+			if (lastDistance.containsKey(branchId)) {
+				distance = lastDistance.get(branchId);
+			}
+		}
+		//		Branch branch = BranchPool.getBranch(branchId);
+		//if (branch.getClassName().equals(Properties.TARGET_CLASS))
+		System.out.println("Getting branch id: " + approximationLevel + "/" + branchId
+		        + "/" + value + " - " + distance);
+
+		//		System.out.println("Getting branch id: " + branch.getClassName() + " - "
+		//		        + branchId + " - " + distance);
+		//		double val = (1.0 + normalize(distance)) / Math.pow(2.0, approximationLevel);
+		double val = (1.0 + Math.abs(distance)) / Math.pow(2.0, approximationLevel);
+
+		int d = (int) Math.ceil(K * val / (val + 1));
+		if (value <= 0)
+			d = -d;
+		System.out.println("Value: " + distance + ", Distance: " + d);
+		return d;
 	}
 
 	public static void pushPredicate(int distance) {
@@ -460,29 +506,37 @@ public class BooleanHelper {
 			s2 = s2.toLowerCase();
 		}
 
-		return StringEquals(s1.substring(thisStart, length + thisStart), 
-							s2.substring(start, length + start));
+		return StringEquals(s1.substring(thisStart, length + thisStart),
+		                    s2.substring(start, length + start));
 	}
 
+	/**
+	 * Replacement function for the Java instanceof instruction, which returns a
+	 * distance integer
+	 * 
+	 * @param o
+	 * @param c
+	 * @return
+	 */
 	public static int instanceOf(Object o, Class<?> c) {
 		if (o == null)
-			return -K;
-		//logger.info("Checking whether " + o.getClass().getName() + " can be assigned to "
-		//        + c.getName());
-		if (c.isAssignableFrom(o.getClass())) {
-			//logger.info("Yes");
-			return K;
-		} else {
-			//logger.info("No");
-			return -K;
-		}
+			return FALSE;
+		return c.isAssignableFrom(o.getClass()) ? TRUE : FALSE;
 	}
 
+	/**
+	 * Replacement function for the Java IFNULL instruction, returning a
+	 * distance integer
+	 * 
+	 * @param o
+	 * @param opcode
+	 * @return
+	 */
 	public static int isNull(Object o, int opcode) {
 		if (opcode == Opcodes.IFNULL)
-			return o == null ? K : -K;
+			return o == null ? TRUE : FALSE;
 		else
-			return o != null ? K : -K;
+			return o != null ? TRUE : FALSE;
 	}
 
 	public static int IOR(int a, int b) {
