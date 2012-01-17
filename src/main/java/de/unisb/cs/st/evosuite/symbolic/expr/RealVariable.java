@@ -75,9 +75,8 @@ public class RealVariable extends RealExpression implements Variable<Double>{
 //	}
 
 	@Override
-	public Object execute() {
-		// TODO Auto-generated method stub
-		return null;
+	public Double execute() {
+		return concreteValue;
 	}
 	
 	
