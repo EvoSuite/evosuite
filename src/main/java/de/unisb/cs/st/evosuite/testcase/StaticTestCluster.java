@@ -862,10 +862,11 @@ public class StaticTestCluster extends TestCluster {
 			num_defined_methods = getMethods(Properties.getTargetClass()).size();
 		logger.info("Target class has " + num_defined_methods + " functions");
 		logger.info("Target class has " + BranchPool.getBranchCounter() + " branches");
-		logger.info("Target class has " + BranchPool.getBranchlessMethods().size()
+		logger.info("Target class has "
+		        + BranchPool.getBranchlessMethods(Properties.TARGET_CLASS).size()
 		        + " methods without branches");
 		logger.info("That means for coverage information: "
-		        + (BranchPool.getBranchlessMethods().size() + 2 * BranchPool.getBranchCounter()));
+		        + (BranchPool.getBranchlessMethods(Properties.TARGET_CLASS).size() + 2 * BranchPool.getBranchCountForClass(Properties.TARGET_CLASS)));
 	}
 
 	private static String getName(AccessibleObject o) {
