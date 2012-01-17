@@ -23,9 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ import de.unisb.cs.st.evosuite.utils.Utils;
  * @author Gordon Fraser
  * 
  */
-public class ObjectSignatureAdapter extends ClassAdapter {
+public class ObjectSignatureAdapter extends ClassVisitor {
 
 	protected static Logger logger = LoggerFactory.getLogger(ObjectSignatureAdapter.class);
 
@@ -53,7 +53,7 @@ public class ObjectSignatureAdapter extends ClassAdapter {
 	 * 
 	 */
 	public ObjectSignatureAdapter(ClassVisitor visitor, String className) {
-		super(visitor);
+		super(Opcodes.ASM4, visitor);
 
 		this.className = className.replace('/', '.');
 

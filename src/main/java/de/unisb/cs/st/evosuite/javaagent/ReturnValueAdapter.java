@@ -18,11 +18,10 @@
 
 package de.unisb.cs.st.evosuite.javaagent;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Instrument classes to trace return values
@@ -30,7 +29,7 @@ import org.objectweb.asm.Opcodes;
  * @author Gordon Fraser
  * 
  */
-public class ReturnValueAdapter extends MethodAdapter {
+public class ReturnValueAdapter extends MethodVisitor {
 
 	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(LineNumberMethodAdapter.class);
@@ -43,7 +42,7 @@ public class ReturnValueAdapter extends MethodAdapter {
 
 	public ReturnValueAdapter(MethodVisitor mv, String className, String methodName,
 	        String desc) {
-		super(mv);
+		super(Opcodes.ASM4, mv);
 		fullMethodName = methodName + desc;
 		this.methodName = methodName;
 		this.className = className;
