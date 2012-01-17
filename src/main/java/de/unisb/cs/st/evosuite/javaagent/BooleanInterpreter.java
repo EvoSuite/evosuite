@@ -5,14 +5,13 @@ package de.unisb.cs.st.evosuite.javaagent;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.objectweb.asm.tree.analysis.BasicInterpreter;
 import org.objectweb.asm.tree.analysis.BasicValue;
-import org.objectweb.asm.tree.analysis.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Gordon Fraser
@@ -25,7 +24,7 @@ public class BooleanInterpreter extends BasicInterpreter {
 	private static Logger logger = LoggerFactory.getLogger(BooleanInterpreter.class);
 
 	@Override
-	public Value newOperation(AbstractInsnNode insn) throws AnalyzerException {
+	public BasicValue newOperation(AbstractInsnNode insn) throws AnalyzerException {
 
 		if (insn.getOpcode() == ICONST_0) {
 			logger.info("Found BOOLEAN");
@@ -40,7 +39,7 @@ public class BooleanInterpreter extends BasicInterpreter {
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public Value naryOperation(AbstractInsnNode insn, List values)
+	public BasicValue naryOperation(AbstractInsnNode insn, List values)
 	        throws AnalyzerException {
 		if (insn.getOpcode() == INVOKESTATIC) {
 			MethodInsnNode mn = (MethodInsnNode) insn;

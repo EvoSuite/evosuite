@@ -45,7 +45,7 @@ public class BytecodeInstructionPool {
 	 */
 	public static List<BytecodeInstruction> registerMethodNode(MethodNode node,
 	        String className, String methodName) {
-
+		logger.info("REGISTERING " + className + " " + methodName);
 		registerMethodNode(node);
 
 		int lastLineNumber = -1;
@@ -91,7 +91,7 @@ public class BytecodeInstructionPool {
 		knownMethodNodes.add(node);
 	}
 
-	private static void registerInstruction(BytecodeInstruction instruction) {
+	public static void registerInstruction(BytecodeInstruction instruction) {
 		String className = instruction.getClassName();
 		String methodName = instruction.getMethodName();
 
@@ -124,11 +124,13 @@ public class BytecodeInstructionPool {
 	        int instructionId) {
 
 		if (instructionMap.get(className) == null) {
-			logger.debug("unknown class");
+			logger.debug("unknown class: " + className);
+			logger.debug(instructionMap.keySet().toString());
 			return null;
 		}
 		if (instructionMap.get(className).get(methodName) == null) {
-			logger.debug("unknown method");
+			logger.debug("unknown method: " + methodName);
+			logger.debug(instructionMap.get(className).keySet().toString());
 			return null;
 		}
 		for (BytecodeInstruction instruction : instructionMap.get(className).get(methodName)) {
@@ -136,7 +138,35 @@ public class BytecodeInstructionPool {
 				return instruction;
 		}
 
-		logger.debug("unknown instruction");
+		logger.debug("unknown instruction " + instructionId + ", have "
+		        + instructionMap.get(className).get(methodName).size()
+		        + " instructions for this method");
+
+		return null;
+	}
+
+	public static BytecodeInstruction getInstruction(String className, String methodName,
+	        AbstractInsnNode node) {
+
+		if (instructionMap.get(className) == null) {
+			logger.debug("unknown class: " + className);
+			logger.debug(instructionMap.keySet().toString());
+			return null;
+		}
+		if (instructionMap.get(className).get(methodName) == null) {
+			logger.debug("unknown method: " + methodName);
+			logger.debug(instructionMap.get(className).keySet().toString());
+			return null;
+		}
+		for (BytecodeInstruction instruction : instructionMap.get(className).get(methodName)) {
+			if (instruction.asmNode == node)
+				return instruction;
+		}
+
+		logger.debug("unknown instruction: " + node + ", have "
+		        + instructionMap.get(className).get(methodName).size()
+		        + " instructions for this method");
+		logger.debug(instructionMap.get(className).get(methodName).toString());
 
 		return null;
 	}
@@ -201,13 +231,22 @@ public class BytecodeInstructionPool {
 		instructionMap.clear();
 		knownMethodNodes.clear();
 	}
-	
+
+	public static void clear(String className) {
+		instructionMap.remove(className);
+	}
+
+	public static void clear(String className, String methodName) {
+		if (instructionMap.containsKey(className))
+			instructionMap.get(className).remove(methodName);
+	}
+
 	public static boolean forgetInstruction(BytecodeInstruction ins) {
-		if(!instructionMap.containsKey(ins.getClassName()))
+		if (!instructionMap.containsKey(ins.getClassName()))
 			return false;
-		if(!instructionMap.get(ins.getClassName()).containsKey(ins.getMethodName()))
+		if (!instructionMap.get(ins.getClassName()).containsKey(ins.getMethodName()))
 			return false;
-		
+
 		return instructionMap.get(ins.getClassName()).get(ins.getMethodName()).remove(ins);
 	}
 }

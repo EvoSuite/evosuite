@@ -29,7 +29,6 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,6 +142,14 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		if (logger.isDebugEnabled())
 			cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 
+		/*
+		if (Properties.TT && classNameWithDots.startsWith(Properties.CLASS_PREFIX)) {
+			ClassNode cn = new ClassNode();
+			reader.accept(cn, ClassReader.SKIP_FRAMES); //  | ClassReader.SKIP_DEBUG
+			BooleanTestabilityPlaceholderTransformer.transform(cn);
+			cv = cn;
+		}
+		*/
 		// Apply transformations to class under test and its owned
 		// classes
 		if (isTargetClassName(classNameWithDots)) {
@@ -169,6 +176,9 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			if (Properties.MAKE_ACCESSIBLE) {
 				// Convert protected/default access to public access
 				cv = new AccessibleClassAdapter(cv, className);
+			}
+			if (Properties.TT && classNameWithDots.startsWith(Properties.CLASS_PREFIX)) {
+				cv = new CFGClassAdapter(cv, className);
 			}
 		}
 
@@ -198,13 +208,22 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 			if (Properties.TT) {
 				logger.info("Testability Transforming " + className);
-				TestabilityTransformation tt = new TestabilityTransformation(cn);
+				//TestabilityTransformation tt = new TestabilityTransformation(cn);
+				BooleanTestabilityTransformation tt = new BooleanTestabilityTransformation(
+				        cn);
 				// cv = new TraceClassVisitor(writer, new
 				// PrintWriter(System.out));
 				cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
-				cv = new CheckClassAdapter(cv);
-				//tt.transform().accept(cv);
-				cn = tt.transform();
+				//cv = new CheckClassAdapter(cv);
+				try {
+					//tt.transform().accept(cv);
+					cn = tt.transform();
+				} catch (Throwable t) {
+					logger.info("1 Error: " + t);
+					t.printStackTrace();
+					System.exit(0);
+				}
+
 				logger.info("Testability Transformation done: " + className);
 			}
 			cn.accept(cv);

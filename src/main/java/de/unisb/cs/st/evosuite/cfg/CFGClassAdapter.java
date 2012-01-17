@@ -18,7 +18,6 @@
 
 package de.unisb.cs.st.evosuite.cfg;
 
-import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -33,7 +32,7 @@ import de.unisb.cs.st.evosuite.Properties;
  * @author Gordon Fraser
  * 
  */
-public class CFGClassAdapter extends ClassAdapter {
+public class CFGClassAdapter extends ClassVisitor {
 
 	private static Logger logger = LoggerFactory.getLogger(CFGClassAdapter.class);
 
@@ -50,7 +49,7 @@ public class CFGClassAdapter extends ClassAdapter {
 	 * @param className
 	 */
 	public CFGClassAdapter(ClassVisitor visitor, String className) {
-		super(visitor);
+		super(Opcodes.ASM4, visitor);
 		this.className = className;
 	}
 

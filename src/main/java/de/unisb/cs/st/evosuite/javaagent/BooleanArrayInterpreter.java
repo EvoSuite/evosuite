@@ -5,15 +5,14 @@ package de.unisb.cs.st.evosuite.javaagent;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.objectweb.asm.tree.analysis.BasicInterpreter;
 import org.objectweb.asm.tree.analysis.BasicValue;
-import org.objectweb.asm.tree.analysis.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Gordon Fraser
@@ -34,7 +33,7 @@ public class BooleanArrayInterpreter extends BasicInterpreter {
 	public final static BasicValue INT_ARRAY = new BasicValue(null);
 
 	@Override
-	public Value newValue(Type type) {
+	public BasicValue newValue(Type type) {
 		if (type == null) {
 			return BasicValue.UNINITIALIZED_VALUE;
 		}
@@ -139,7 +138,7 @@ public class BooleanArrayInterpreter extends BasicInterpreter {
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public Value naryOperation(AbstractInsnNode insn, List values)
+	public BasicValue naryOperation(AbstractInsnNode insn, List values)
 	        throws AnalyzerException {
 		if (insn.getOpcode() == INVOKESTATIC || insn.getOpcode() == INVOKEVIRTUAL
 		        || insn.getOpcode() == INVOKEINTERFACE) {

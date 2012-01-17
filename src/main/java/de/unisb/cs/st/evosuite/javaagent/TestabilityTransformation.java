@@ -823,6 +823,12 @@ public class TestabilityTransformation {
 		}
 	}
 
+	/**
+	 * This transformation handles all definitions of Boolean variables, and
+	 * changes them to integers
+	 * 
+	 * @param mn
+	 */
 	private void transformBooleanAssignments(MethodNode mn) {
 		logger.info("Transforming boolean assignments");
 
@@ -830,6 +836,8 @@ public class TestabilityTransformation {
 		while (node != mn.instructions.getLast()) {
 
 			if (node instanceof InsnNode) {
+				// First case: Definition of a Boolean constant
+
 				// TODO: Only transform if this is a proper flag assignment
 				// -> Which is either an ISTORE, a field assignment, or a return
 				InsnNode in = (InsnNode) node;
@@ -841,6 +849,7 @@ public class TestabilityTransformation {
 					insertGet(node, mn.instructions);
 					flagDefs.add(node);
 				}
+
 			} else if (node instanceof VarInsnNode) {
 				// Special case for implicit else branch
 				VarInsnNode vn1 = (VarInsnNode) node;

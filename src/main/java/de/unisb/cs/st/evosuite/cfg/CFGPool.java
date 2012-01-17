@@ -43,8 +43,11 @@ public class CFGPool {
 
 	public static RawControlFlowGraph getRawCFG(String className, String methodName) {
 		logger.debug("Getting complete CFG for " + className + "." + methodName);
-		if (rawCFGs.get(className) == null)
+		if (rawCFGs.get(className) == null) {
+			logger.warn("Class unknown: " + className);
+			logger.warn(rawCFGs.keySet().toString());
 			return null;
+		}
 
 		return rawCFGs.get(className).get(methodName);
 	}
@@ -143,6 +146,21 @@ public class CFGPool {
 		rawCFGs.clear();
 		actualCFGs.clear();
 		controlDependencies.clear();
+	}
+
+	public static void clear(String className) {
+		rawCFGs.remove(className);
+		actualCFGs.remove(className);
+		controlDependencies.remove(className);
+	}
+
+	public static void clear(String className, String methodName) {
+		if (rawCFGs.containsKey(className))
+			rawCFGs.get(className).remove(methodName);
+		if (actualCFGs.containsKey(className))
+			actualCFGs.get(className).remove(methodName);
+		if (controlDependencies.containsKey(className))
+			controlDependencies.get(className).remove(methodName);
 	}
 
 }

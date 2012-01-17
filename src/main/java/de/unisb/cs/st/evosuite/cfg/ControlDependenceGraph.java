@@ -8,11 +8,9 @@ import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 
-public class ControlDependenceGraph extends
-		EvoSuiteGraph<BasicBlock, ControlFlowEdge> {
+public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlowEdge> {
 
-	private static Logger logger = LoggerFactory
-			.getLogger(ControlDependenceGraph.class);
+	private static Logger logger = LoggerFactory.getLogger(ControlDependenceGraph.class);
 
 	private final ActualControlFlowGraph cfg;
 
@@ -60,6 +58,45 @@ public class ControlDependenceGraph extends
 		return cfg.knowsInstruction(ins);
 	}
 
+	public int getControlDependenceDepth(ControlDependency dependence) {
+		int min = Integer.MAX_VALUE;
+		for (BasicBlock root : determineEntryPoints()) {
+			int distance = getDistance(root,
+			                           dependence.getBranch().getInstruction().getBasicBlock());
+			if (distance < min)
+				min = distance;
+		}
+		return min;
+	}
+
+	public Set<BasicBlock> getAlternativeBlocks(ControlDependency dependency) {
+		Set<BasicBlock> blocks = new HashSet<BasicBlock>();
+		Branch branch = dependency.getBranch();
+
+		BasicBlock block = branch.getInstruction().getBasicBlock();
+		for (ControlFlowEdge e : outgoingEdgesOf(block)) {
+			if (e.getControlDependency().equals(dependency))
+				continue;
+			BasicBlock next = getEdgeTarget(e);
+			blocks.add(next);
+			blocks.addAll(getReachableBasicBlocks(next));
+		}
+		return blocks;
+	}
+
+	private Set<BasicBlock> getReachableBasicBlocks(BasicBlock start) {
+		Set<BasicBlock> blocks = new HashSet<BasicBlock>();
+
+		for (ControlFlowEdge e : outgoingEdgesOf(start)) {
+			BasicBlock next = getEdgeTarget(e);
+			if (!blocks.contains(next)) {
+				blocks.add(next);
+				blocks.addAll(getReachableBasicBlocks(next));
+			}
+		}
+		return blocks;
+	}
+
 	/**
 	 * Returns a Set containing all Branches the given BasicBlock is control
 	 * dependent on.
@@ -68,39 +105,38 @@ public class ControlDependenceGraph extends
 	 * CDG, the branch instruction of that edge will be added to the returned
 	 * set.
 	 */
-	public Set<ControlDependency> getControlDependentBranches(
-			BasicBlock insBlock) {
+	public Set<ControlDependency> getControlDependentBranches(BasicBlock insBlock) {
 		if (insBlock == null)
 			throw new IllegalArgumentException("null not accepted");
 		if (!containsVertex(insBlock))
-			throw new IllegalArgumentException("unknown block: "
-					+ insBlock.getName());
+			throw new IllegalArgumentException("unknown block: " + insBlock.getName());
 
-		if(insBlock.hasControlDependenciesSet())
+		if (insBlock.hasControlDependenciesSet())
 			return insBlock.getControlDependencies();
-		
-		Set<ControlDependency> r = retrieveControlDependencies(insBlock, new HashSet<ControlFlowEdge>()); 
+
+		Set<ControlDependency> r = retrieveControlDependencies(insBlock,
+		                                                       new HashSet<ControlFlowEdge>());
 
 		return r;
 	}
 
-	private Set<ControlDependency> retrieveControlDependencies(
-			BasicBlock insBlock, Set<ControlFlowEdge> handled) {
-		
+	private Set<ControlDependency> retrieveControlDependencies(BasicBlock insBlock,
+	        Set<ControlFlowEdge> handled) {
+
 		Set<ControlDependency> r = new HashSet<ControlDependency>();
 
 		for (ControlFlowEdge e : incomingEdgesOf(insBlock)) {
-			if(handled.contains(e))
+			if (handled.contains(e))
 				continue;
 			handled.add(e);
-			
+
 			ControlDependency cd = e.getControlDependency();
 			if (cd != null)
 				r.add(cd);
 			else {
 				BasicBlock in = getEdgeSource(e);
 				if (!in.equals(insBlock))
-					r.addAll(retrieveControlDependencies(in,handled));
+					r.addAll(retrieveControlDependencies(in, handled));
 			}
 
 		}
@@ -140,7 +176,7 @@ public class ControlDependenceGraph extends
 		for (ControlDependency cd : dependentBranches) {
 			if (cd == null)
 				throw new IllegalStateException(
-						"expect set returned by getControlDependentBranches() not to contain null");
+				        "expect set returned by getControlDependentBranches() not to contain null");
 
 			r.add(cd.getBranch().getActualBranchId());
 		}
@@ -214,8 +250,7 @@ public class ControlDependenceGraph extends
 	 * If the given instruction is not known to this CDG an
 	 * IllegalArgumentException is thrown.
 	 */
-	public boolean isDirectlyControlDependentOn(BytecodeInstruction ins,
-			Branch b) {
+	public boolean isDirectlyControlDependentOn(BytecodeInstruction ins, Branch b) {
 		if (ins == null)
 			throw new IllegalArgumentException("null given");
 
@@ -266,7 +301,7 @@ public class ControlDependenceGraph extends
 			if (e.isExceptionEdge()) {
 				if (current != null)
 					throw new IllegalStateException(
-							"expect exception edges to have no BranchInstruction set");
+					        "expect exception edges to have no BranchInstruction set");
 				else
 					continue;
 			}
@@ -375,8 +410,7 @@ public class ControlDependenceGraph extends
 
 		for (BasicBlock b : vertexSet())
 			if (b.isExitBlock() && !graph.removeVertex(b)) // TODO refactor
-				throw new IllegalStateException(
-						"internal error building up CDG");
+				throw new IllegalStateException("internal error building up CDG");
 
 	}
 
@@ -410,8 +444,7 @@ public class ControlDependenceGraph extends
 
 						// TODO this is just for now! unsafe and probably not
 						// even correct!
-						Set<ControlFlowEdge> candidates = cfg
-								.outgoingEdgesOf(cd);
+						Set<ControlFlowEdge> candidates = cfg.outgoingEdgesOf(cd);
 						if (candidates.size() < 2)
 							throw new IllegalStateException("unexpected");
 
@@ -445,7 +478,7 @@ public class ControlDependenceGraph extends
 
 					if (!addEdge(cd, b, new ControlFlowEdge(orig)))
 						throw new IllegalStateException(
-								"internal error while adding CD edge");
+						        "internal error while adding CD edge");
 
 					logger.debug("  " + cd.getName());
 				}
@@ -455,7 +488,7 @@ public class ControlDependenceGraph extends
 	@Override
 	public String getName() {
 		// return "CDG" + graphId + "_" + methodName;
-		return methodName + "_" +  "CDG";
+		return methodName + "_" + "CDG";
 	}
 
 	@Override
