@@ -499,8 +499,9 @@ public class TestSuiteDSE {
 			int i = 0;
 			for (VariableReference var : statementCopy.getParameterReferences()) {
 				logger.info(var.toString());
-				if (var.isPrimitive()) {
-					if (usedVariables.contains(var)) {
+				if (var.isPrimitive() || var.isString()) {
+					if (usedVariables.contains(var)
+					        && copy.getStatement(var.getStPosition()) instanceof PrimitiveStatement) {
 						// Duplicate and replace
 						VariableReference varCopy = duplicateStatement(copy, var);
 						statementCopy.replaceParameterReference(varCopy, i);
@@ -521,8 +522,9 @@ public class TestSuiteDSE {
 
 			int i = 0;
 			for (VariableReference var : statementCopy.getParameterReferences()) {
-				if (var.isPrimitive()) {
-					if (usedVariables.contains(var)) {
+				if (var.isPrimitive() || var.isString()) {
+					if (usedVariables.contains(var)
+					        && copy.getStatement(var.getStPosition()) instanceof PrimitiveStatement) {
 						// Duplicate and replace
 						VariableReference varCopy = duplicateStatement(copy, var);
 						statementCopy.replaceParameterReference(varCopy, i);
