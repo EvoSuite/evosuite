@@ -29,21 +29,15 @@ import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
 import de.unisb.cs.st.evosuite.symbolic.search.Seeker;
-import de.unisb.cs.st.evosuite.testcase.ArrayStatement;
-import de.unisb.cs.st.evosuite.testcase.AssignmentStatement;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
-import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.FieldStatement;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
-import de.unisb.cs.st.evosuite.testcase.NullStatement;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
-import de.unisb.cs.st.evosuite.testcase.TestVisitor;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
@@ -443,68 +437,53 @@ public class TestSuiteDSE {
 	}
 
 	private TestCase expandTestCase(TestCase test) {
-		ExpandingVisitor visitor = new ExpandingVisitor();
-		test.accept(visitor);
-		return visitor.getExpandedCopy();
+		TestCaseExpander expander = new TestCaseExpander();
+		return expander.expandTestCase(test);
 	}
 
-	private class ExpandingVisitor implements TestVisitor {
+	private class TestCaseExpander {
 
-		Set<VariableReference> usedVariables = new HashSet<VariableReference>();
+		private final Set<VariableReference> usedVariables = new HashSet<VariableReference>();
 
-		TestCase copy = new DefaultTestCase();
+		private int currentPosition = 0;
 
-		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitTestCase(de.unisb.cs.st.evosuite.testcase.TestCase)
-		 */
-		@Override
-		public void visitTestCase(TestCase test) {
-			usedVariables.clear();
-		}
-
-		public TestCase getExpandedCopy() {
-			return copy;
-		}
-
-		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitPrimitiveStatement(de.unisb.cs.st.evosuite.testcase.PrimitiveStatement)
-		 */
-		@Override
-		public void visitPrimitiveStatement(PrimitiveStatement<?> statement) {
-			copy.addStatement(statement.clone(copy));
-		}
-
-		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitFieldStatement(de.unisb.cs.st.evosuite.testcase.FieldStatement)
-		 */
-		@Override
-		public void visitFieldStatement(FieldStatement statement) {
-			copy.addStatement(statement.clone(copy));
+		public TestCase expandTestCase(TestCase test) {
+			TestCase expandedTest = test.clone();
+			while (currentPosition < expandedTest.size()) {
+				StatementInterface statement = expandedTest.getStatement(currentPosition);
+				if (statement instanceof MethodStatement) {
+					visitMethodStatement(expandedTest, (MethodStatement) statement);
+				} else if (statement instanceof ConstructorStatement) {
+					visitConstructorStatement(expandedTest,
+					                          (ConstructorStatement) statement);
+				}
+				currentPosition++;
+			}
+			return expandedTest;
 		}
 
 		private VariableReference duplicateStatement(TestCase test,
 		        VariableReference owner) {
 			StatementInterface statement = test.getStatement(owner.getStPosition());
+			currentPosition++;
 			return test.addStatement(statement.clone(test), owner.getStPosition() + 1);
 		}
 
 		/* (non-Javadoc)
 		 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitMethodStatement(de.unisb.cs.st.evosuite.testcase.MethodStatement)
 		 */
-		@Override
-		public void visitMethodStatement(MethodStatement statement) {
-			MethodStatement statementCopy = (MethodStatement) statement.clone(copy);
-			copy.addStatement(statementCopy);
+		public void visitMethodStatement(TestCase test, MethodStatement statement) {
+			// The problem is that at this point in the test case the parameters might have already changed
 
 			int i = 0;
-			for (VariableReference var : statementCopy.getParameterReferences()) {
-				logger.info(var.toString());
+			for (VariableReference var : statement.getParameterReferences()) {
 				if (var.isPrimitive() || var.isString()) {
 					if (usedVariables.contains(var)
-					        && copy.getStatement(var.getStPosition()) instanceof PrimitiveStatement) {
+					        && test.getStatement(var.getStPosition()) instanceof PrimitiveStatement) {
 						// Duplicate and replace
-						VariableReference varCopy = duplicateStatement(copy, var);
-						statementCopy.replaceParameterReference(varCopy, i);
+						VariableReference varCopy = duplicateStatement(test, var);
+						statement.replaceParameterReference(varCopy, i);
+						usedVariables.add(varCopy);
 					}
 					usedVariables.add(var);
 				}
@@ -515,48 +494,22 @@ public class TestSuiteDSE {
 		/* (non-Javadoc)
 		 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitConstructorStatement(de.unisb.cs.st.evosuite.testcase.ConstructorStatement)
 		 */
-		@Override
-		public void visitConstructorStatement(ConstructorStatement statement) {
-			ConstructorStatement statementCopy = (ConstructorStatement) statement.clone(copy);
-			copy.addStatement(statementCopy);
-
+		public void visitConstructorStatement(TestCase test,
+		        ConstructorStatement statement) {
 			int i = 0;
-			for (VariableReference var : statementCopy.getParameterReferences()) {
+			for (VariableReference var : statement.getParameterReferences()) {
 				if (var.isPrimitive() || var.isString()) {
 					if (usedVariables.contains(var)
-					        && copy.getStatement(var.getStPosition()) instanceof PrimitiveStatement) {
+					        && test.getStatement(var.getStPosition()) instanceof PrimitiveStatement) {
 						// Duplicate and replace
-						VariableReference varCopy = duplicateStatement(copy, var);
-						statementCopy.replaceParameterReference(varCopy, i);
+						VariableReference varCopy = duplicateStatement(test, var);
+						statement.replaceParameterReference(varCopy, i);
+						usedVariables.add(varCopy);
 					}
 					usedVariables.add(var);
 				}
 				i++;
 			}
-		}
-
-		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitArrayStatement(de.unisb.cs.st.evosuite.testcase.ArrayStatement)
-		 */
-		@Override
-		public void visitArrayStatement(ArrayStatement statement) {
-			copy.addStatement(statement.clone(copy));
-		}
-
-		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitAssignmentStatement(de.unisb.cs.st.evosuite.testcase.AssignmentStatement)
-		 */
-		@Override
-		public void visitAssignmentStatement(AssignmentStatement statement) {
-			copy.addStatement(statement.clone(copy));
-		}
-
-		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitNullStatement(de.unisb.cs.st.evosuite.testcase.NullStatement)
-		 */
-		@Override
-		public void visitNullStatement(NullStatement statement) {
-			copy.addStatement(statement.clone(copy));
 		}
 
 	}
