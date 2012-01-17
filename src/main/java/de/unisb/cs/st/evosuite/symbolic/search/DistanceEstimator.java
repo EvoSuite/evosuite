@@ -13,13 +13,15 @@ import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
 import de.unisb.cs.st.evosuite.symbolic.expr.ExpressionHelper;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstant;
+import de.unisb.cs.st.evosuite.symbolic.expr.IntegerExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerVariable;
-import de.unisb.cs.st.evosuite.symbolic.expr.IntegerUnaryExpression;
-import de.unisb.cs.st.evosuite.symbolic.expr.IntegerBinaryExpression;
-import de.unisb.cs.st.evosuite.symbolic.expr.StringUnaryExpression;
+import de.unisb.cs.st.evosuite.symbolic.expr.RealConstant;
+import de.unisb.cs.st.evosuite.symbolic.expr.RealExpression;
+import de.unisb.cs.st.evosuite.symbolic.expr.RealVariable;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringBinaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringUnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
 
@@ -42,19 +44,22 @@ public abstract class DistanceEstimator {
 		try {
 			for (Constraint<?> c : constraints) {
 				if (isStrConstraint(c)) {
-					double strD = ((double)getStrDist(c))/Long.MAX_VALUE;
-					result = (result + strD)/2.0;
+					double strD = (double)getStrDist(c);
+					result += strD/(1.0 + strD);//Long.MAX_VALUE;
 				} else if (isLongConstraint(c)) {
-					double intD = ((double)getIntegerDist(c))/Long.MAX_VALUE;
-					result = (result + intD)/2.0;
+					double intD = (double)getIntegerDist(c);
+					result += intD/(1.0 + intD);//Long.MAX_VALUE;
 				} else if (isRealConstraint(c)) {
-					log.warning("DistanceEstimator.getDistance(): " +
-							"got a real constraint: " + c);
-					return 1;
+//					log.warning("DistanceEstimator.getDistance(): " +
+//							"got a real constraint: " + c);
+					
+					double realD = getRealDist(c);
+//					log.warning("we are here " + realD);
+					result += realD/(1.0 + realD);//Double.MAX_VALUE;
 				} else {
 					log.warning("DistanceEstimator.getDistance(): " +
 							"got an unknown constraint: " + c);
-					return 1;
+					return Double.MAX_VALUE;
 				}
 			}
 			return result;
@@ -64,8 +69,18 @@ public abstract class DistanceEstimator {
 	}
 	
 	private static boolean isRealConstraint(Constraint<?> c) {
-		// TODO Auto-generated method stub
-		return false;
+		Expression<?> exprLeft = c.getLeftOperand();
+		Expression<?> exprRight = c.getRightOperand();
+		
+		boolean leftSide = 	exprLeft instanceof RealVariable
+					||		exprLeft instanceof RealConstant
+					||		exprLeft instanceof RealExpression;
+		
+		boolean rightSide =	exprRight instanceof RealVariable
+					||		exprRight instanceof RealConstant
+					||		exprRight instanceof RealExpression;
+		
+		return leftSide && rightSide;
 	}
 
 	private static boolean isLongConstraint(Constraint<?> c) {
@@ -74,15 +89,17 @@ public abstract class DistanceEstimator {
 		
 		boolean leftSide = 	exprLeft instanceof IntegerVariable
 					||		exprLeft instanceof IntegerConstant
-					||		exprLeft instanceof IntegerUnaryExpression
-					||		exprLeft instanceof IntegerBinaryExpression
+					||		exprLeft instanceof IntegerExpression
+//					||		exprLeft instanceof IntegerUnaryExpression
+//					||		exprLeft instanceof IntegerBinaryExpression
 					||		exprLeft instanceof StringUnaryExpression
 					||		exprLeft instanceof StringBinaryExpression;
 		
 		boolean rightSide =	exprRight instanceof IntegerVariable
 					||		exprRight instanceof IntegerConstant
-					||		exprRight instanceof IntegerUnaryExpression
-					||		exprRight instanceof IntegerBinaryExpression
+					||		exprRight instanceof IntegerExpression
+//					||		exprRight instanceof IntegerUnaryExpression
+//					||		exprRight instanceof IntegerBinaryExpression
 					||		exprRight instanceof StringUnaryExpression
 					||		exprRight instanceof StringBinaryExpression;
 		
@@ -104,6 +121,41 @@ public abstract class DistanceEstimator {
 		return false;
 	}
 
+	private static double getRealDist(Constraint<?> target) {
+		double left = ExpressionHelper.getDoubleResult(target.getLeftOperand());
+		double right = ExpressionHelper.getDoubleResult(target.getRightOperand());
+
+		
+		Comparator cmpr = target.getComparator();
+		
+		switch (cmpr) {
+		
+		case EQ:
+			
+			return Math.abs(left - right);
+		case NE:
+						
+			return (left - right) != 0 ? 0 : 1;
+		case LT:
+			
+			return left - right < 0 ? 0 : left - right + 1;
+		case LE:
+			
+			return left - right <= 0 ? 0 : left - right;
+		case GT:
+			
+			return left - right > 0 ? 0 : right - left + 1;
+		case GE:
+			
+			return left - right >= 0 ? 0 : right - left;
+			
+		default:
+			log.warning("getIntegerDist: unimplemented comparator");
+			return Double.MAX_VALUE;
+		}
+	}
+
+	
 	public static long getIntegerDist(Constraint<?> target) {
 
 		long left = ExpressionHelper.getLongResult(target.getLeftOperand());

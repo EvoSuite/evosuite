@@ -52,6 +52,15 @@ public abstract class ExpressionHelper {
 		log.warning("Changer.getIntResult: got something weird!?!" + expr);
 		return 0;
 	}
+
+	public static double getDoubleResult(Expression<?> expr) {
+		if (expr instanceof RealExpression) {
+			return (Double)((RealExpression)expr).execute();
+		}
+			
+		log.warning("Changer.getDoubleResult: got something weird!?!" + expr);
+		return 0;
+	}
 	
 	
 }

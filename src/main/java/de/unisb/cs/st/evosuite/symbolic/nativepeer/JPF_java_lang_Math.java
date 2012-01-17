@@ -42,6 +42,26 @@ public class JPF_java_lang_Math {
 	private static Logger log = JPF.getLogger(JPF_java_lang_Math.class.toString());
 	
 	@SuppressWarnings("unchecked")
+	public static double abs__D__D(MJIEnv env, int clsObjRef, double a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.abs(a);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.abs(a);
+		} else {
+			double ret = Math.abs(a);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.ABS,
+			        (double)ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+
+	}
+	
+	
+	@SuppressWarnings("unchecked")
 	public static int abs__I__I(MJIEnv env, int clsObjRef, int a) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
