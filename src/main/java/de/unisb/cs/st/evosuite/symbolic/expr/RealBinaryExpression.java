@@ -1,10 +1,16 @@
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
+import gov.nasa.jpf.JPF;
+
+import java.util.logging.Logger;
+
 public class RealBinaryExpression extends RealExpression implements
         BinaryExpression<Double> {
 
 	private static final long serialVersionUID = 3095108718393239244L;
 
+	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.expr.IntegerBinaryExpression");
+	
 	protected Double concretValue;
 
 	protected Operator op;
@@ -72,8 +78,27 @@ public class RealBinaryExpression extends RealExpression implements
 
 	@Override
 	public Object execute() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		double leftVal = ExpressionHelper.getDoubleResult(left);
+		double rightVal = ExpressionHelper.getDoubleResult(right);
+		
+		switch (op) {
+		
+		case DIV:
+			return leftVal / rightVal;
+		case MUL:
+			return leftVal * rightVal;
+		case MINUS:
+			return leftVal - rightVal;
+		case PLUS: 
+			return leftVal + rightVal;
+		case REM: 
+			return leftVal % rightVal;	
+		default:
+			log.warning("IntegerBinaryExpression: unimplemented operator!");
+			return null;
+		}
+
 	}
 
 }

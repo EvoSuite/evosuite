@@ -1,6 +1,6 @@
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
-public class RealComparison extends IntegerExpression {
+public class RealComparison extends RealExpression {
 	private static final long serialVersionUID = 1L;
 
 	public RealComparison(Expression<Double> left, Expression<Double> right,
@@ -61,7 +61,7 @@ public class RealComparison extends IntegerExpression {
 //	}
 
 	@Override
-	public Object execute() {
+	public Double execute() {
 		// TODO Auto-generated method stub
 		return null;
 	}
