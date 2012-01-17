@@ -5,7 +5,6 @@ package de.unisb.cs.st.evosuite.javaagent;
 
 import java.util.List;
 
-import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -14,7 +13,7 @@ import org.objectweb.asm.Type;
  * @author Gordon Fraser
  * 
  */
-public class RemoveFinalMethodAdapter extends MethodAdapter {
+public class RemoveFinalMethodAdapter extends MethodVisitor {
 
 	private final List<String> finalFields;
 
@@ -25,7 +24,7 @@ public class RemoveFinalMethodAdapter extends MethodAdapter {
 	 */
 	public RemoveFinalMethodAdapter(String className, MethodVisitor mv,
 	        List<String> finalFields) {
-		super(mv);
+		super(Opcodes.ASM4, mv);
 		this.finalFields = finalFields;
 		this.className = className;
 	}

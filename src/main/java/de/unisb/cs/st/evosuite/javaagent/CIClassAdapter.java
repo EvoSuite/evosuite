@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.utils.Utils;
@@ -21,12 +21,12 @@ import de.unisb.cs.st.evosuite.utils.Utils;
  * @author Andrey Tarasevich
  * 
  */
-public class CIClassAdapter extends ClassAdapter {
+public class CIClassAdapter extends ClassVisitor {
 
 	private String className;
 
 	public CIClassAdapter(ClassVisitor cv) {
-		super(cv);
+		super(Opcodes.ASM4, cv);
 	}
 
 	CIMethodAdapter mv = new CIMethodAdapter();

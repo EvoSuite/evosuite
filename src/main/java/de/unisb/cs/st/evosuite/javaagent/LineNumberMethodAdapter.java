@@ -19,7 +19,6 @@
 package de.unisb.cs.st.evosuite.javaagent;
 
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
@@ -32,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * @author Gordon Fraser
  * 
  */
-public class LineNumberMethodAdapter extends MethodAdapter {
+public class LineNumberMethodAdapter extends MethodVisitor {
 
 	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(LineNumberMethodAdapter.class);
@@ -49,7 +48,7 @@ public class LineNumberMethodAdapter extends MethodAdapter {
 
 	public LineNumberMethodAdapter(MethodVisitor mv, String className, String methodName,
 	        String desc) {
-		super(mv);
+		super(Opcodes.ASM4, mv);
 		fullMethodName = methodName + desc;
 		this.className = className;
 		this.methodName = methodName;

@@ -18,12 +18,11 @@
 
 package de.unisb.cs.st.evosuite.javaagent;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
@@ -34,7 +33,7 @@ import de.unisb.cs.st.evosuite.Properties.Criterion;
  * @author Gordon Fraser
  * 
  */
-public class ExecutionPathClassAdapter extends ClassAdapter {
+public class ExecutionPathClassAdapter extends ClassVisitor {
 
 	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION;
 
@@ -44,7 +43,7 @@ public class ExecutionPathClassAdapter extends ClassAdapter {
 	private static Logger logger = LoggerFactory.getLogger(ExecutionPathClassAdapter.class);
 
 	public ExecutionPathClassAdapter(ClassVisitor visitor, String className) {
-		super(visitor);
+		super(Opcodes.ASM4, visitor);
 		this.className = className.replace('/', '.');
 	}
 

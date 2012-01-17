@@ -4,7 +4,6 @@
 package de.unisb.cs.st.evosuite.javaagent;
 
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
@@ -14,7 +13,7 @@ import org.slf4j.LoggerFactory;
  * @author fraser
  * 
  */
-public class YieldAtLineNumberMethodAdapter extends MethodAdapter {
+public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
 	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(LineNumberMethodAdapter.class);
 
@@ -25,7 +24,7 @@ public class YieldAtLineNumberMethodAdapter extends MethodAdapter {
 	int currentLine = 0;
 
 	public YieldAtLineNumberMethodAdapter(MethodVisitor mv, String methodName) {
-		super(mv);
+		super(Opcodes.ASM4, mv);
 		this.methodName = methodName;
 		if (!methodName.equals("<init>"))
 			hadInvokeSpecial = true;
