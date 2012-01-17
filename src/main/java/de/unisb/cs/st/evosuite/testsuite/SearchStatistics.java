@@ -28,6 +28,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
@@ -400,8 +401,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		super.searchStarted(algorithm);
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 
-		entry.total_branches = BranchPool.getBranchCounter();
-		entry.branchless_methods = BranchPool.getBranchlessMethods().size();
+		entry.total_branches = BranchPool.getBranchCountForClass(Properties.TARGET_CLASS);
+		entry.branchless_methods = BranchPool.getBranchlessMethods(Properties.TARGET_CLASS).size();
 		entry.total_methods = CFGMethodAdapter.methods.size();
 
 		// TODO in order for this to work even when the criterion is neither
