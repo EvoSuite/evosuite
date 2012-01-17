@@ -56,12 +56,17 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
 	//	public static final int total_methods = TestCluster.getInstance().num_defined_methods;
-	public static final int total_methods = CFGMethodAdapter.methods.size();
+	public static final int total_methods = CFGMethodAdapter.methods.get(Properties.TARGET_CLASS).size();
 
-	public static final int total_branches = BranchPool.getBranchCounter()
-	        - LCSAJPool.lcsaj_branches.size();
+	//	public static final int total_branches = BranchPool.getBranchCounter()
+	//	        - LCSAJPool.lcsaj_branches.size();
 
-	public static final int branchless_methods = BranchPool.getBranchlessMethods().size();
+	public static final int total_branches = BranchPool.getBranchCountForClass(Properties.TARGET_CLASS);
+
+	public static final int numBranchlessMethods = BranchPool.getNumBranchlessMethods(Properties.TARGET_CLASS);
+	//	public static final int branchless_methods = BranchPool.getBranchlessMethods().size();
+
+	private static final Set<String> branchlessMethods = BranchPool.getBranchlessMethods(Properties.TARGET_CLASS);
 
 	public static final Set<Integer> lines = LinePool.getLines(Properties.TARGET_CLASS);
 
@@ -71,7 +76,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	public double best_fitness = Double.MAX_VALUE;
 
-	public static final int total_goals = 2 * total_branches + branchless_methods;
+	public static final int total_goals = 2 * total_branches + numBranchlessMethods;
 
 	public static int mostCoveredGoals = 0;
 
@@ -239,7 +244,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		*/
 		//		logger.info("Method calls : "+(total_methods - call_count.size())+"/"+total_methods+" ("+CFGMethodAdapter.methods.size()+")");
 		int missing_methods = 0;
-		for (String e : CFGMethodAdapter.methods) {
+		for (String e : CFGMethodAdapter.methods.get(Properties.TARGET_CLASS)) {
 			if (!call_count.containsKey(e)) {
 				//logger.debug("Missing method: " + e);
 				fitness += 1.0;
@@ -320,7 +325,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			logger.info("Calculating fitness took: " + (end - start) + "ms");
 		}
 		double coverage = num_covered;
-		for (String e : BranchPool.getBranchlessMethods()) {
+		for (String e : branchlessMethods) {
 			if (call_count.keySet().contains(e))
 				coverage += 1.0;
 

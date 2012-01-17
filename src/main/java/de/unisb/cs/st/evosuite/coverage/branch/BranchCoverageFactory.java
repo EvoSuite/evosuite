@@ -54,7 +54,7 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 
 		// Branchless methods
 		String targetClass = Properties.TARGET_CLASS;
-		for (String method : BranchPool.getBranchlessMethods()) {
+		for (String method : BranchPool.getBranchlessMethods(targetClass)) {
 			if (targetMethod.equals("") || method.endsWith(targetMethod)) {
 				goals.add(createRootBranchTestFitness(targetClass, method));
 			}
@@ -65,6 +65,9 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 			//if (!targetClass.equals("") && !className.startsWith(targetClass)) {
 			//	continue;
 			//}
+			// TODO: Need to handle multi-class covering properly
+			if (!className.equals(Properties.TARGET_CLASS))
+				continue;
 
 			for (String methodName : BranchPool.knownMethods(className)) {
 				if (!targetMethod.equals("") && !methodName.equals(targetMethod)) {

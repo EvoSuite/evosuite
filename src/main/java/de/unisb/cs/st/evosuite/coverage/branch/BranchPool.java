@@ -46,7 +46,7 @@ public class BranchPool {
 	private static Map<String, Map<String, List<Branch>>> branchMap = new HashMap<String, Map<String, List<Branch>>>();
 
 	// set of all known methods without a Branch
-	private static Set<String> branchlessMethods = new HashSet<String>();
+	private static Map<String, Set<String>> branchlessMethods = new HashMap<String, Set<String>>();
 
 	// maps the branchIDs assigned by this pool to their respective Branches
 	private static Map<Integer, Branch> branchIdMap = new HashMap<Integer, Branch>();
@@ -75,8 +75,10 @@ public class BranchPool {
 	 *            Unique methodName - consisting of <className>.<methodName> -
 	 *            of a method without Branches
 	 */
-	public static void addBranchlessMethod(String methodName) {
-		branchlessMethods.add(methodName);
+	public static void addBranchlessMethod(String className, String methodName) {
+		if (!branchlessMethods.containsKey(className))
+			branchlessMethods.put(className, new HashSet<String>());
+		branchlessMethods.get(className).add(methodName);
 	}
 
 	/**
@@ -355,6 +357,21 @@ public class BranchPool {
 	}
 
 	/**
+	 * Returns the number of known Branches for a given class
+	 * 
+	 * @return The number of currently known Branches inside the given class
+	 */
+	public static int getBranchCountForClass(String className) {
+		if (branchMap.get(className) == null)
+			return 0;
+		int total = 0;
+		for (String method : branchMap.get(className).keySet()) {
+			total += branchMap.get(className).get(method).size();
+		}
+		return total;
+	}
+
+	/**
 	 * Returns the number of currently known Branches
 	 * 
 	 * @return The number of currently known Branches
@@ -380,8 +397,22 @@ public class BranchPool {
 	 * 
 	 * @return A set with all unique methodNames of methods without Branches.
 	 */
-	public static Set<String> getBranchlessMethods() {
-		return branchlessMethods;
+	public static Set<String> getBranchlessMethods(String className) {
+		if (!branchlessMethods.containsKey(className))
+			return new HashSet<String>();
+
+		return branchlessMethods.get(className);
+	}
+
+	/**
+	 * Returns the number of methods without Branches for class className
+	 * 
+	 * @return The number of methods without Branches.
+	 */
+	public static int getNumBranchlessMethods(String className) {
+		if (!branchlessMethods.containsKey(className))
+			return 0;
+		return branchlessMethods.get(className).size();
 	}
 
 	/**
@@ -458,4 +489,25 @@ public class BranchPool {
 		registeredNormalBranches.clear();
 		registeredSwitches.clear();
 	}
+
+	public static void clear(String className) {
+		branchMap.remove(className);
+		branchlessMethods.remove(className);
+	}
+
+	public static void clear(String className, String methodName) {
+		int numBranches = 0;
+
+		if (branchMap.containsKey(className)) {
+			if (branchMap.get(className).containsKey(methodName))
+				numBranches = branchMap.get(className).get(methodName).size();
+			branchMap.get(className).remove(methodName);
+		}
+		if (branchlessMethods.containsKey(className))
+			branchlessMethods.get(className).remove(methodName);
+		logger.info("Resetting branchCounter from " + branchCounter + " to "
+		        + (branchCounter - numBranches));
+		branchCounter -= numBranches;
+	}
+
 }
