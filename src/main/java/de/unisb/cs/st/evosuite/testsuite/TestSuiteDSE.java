@@ -21,13 +21,21 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.symbolic.BranchCondition;
 import de.unisb.cs.st.evosuite.symbolic.ConcolicExecution;
 import de.unisb.cs.st.evosuite.symbolic.expr.BinaryExpression;
+import de.unisb.cs.st.evosuite.symbolic.expr.Comparator;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
+import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
+import de.unisb.cs.st.evosuite.symbolic.expr.RealComparison;
+import de.unisb.cs.st.evosuite.symbolic.expr.RealConstant;
+import de.unisb.cs.st.evosuite.symbolic.expr.RealConstraint;
+import de.unisb.cs.st.evosuite.symbolic.expr.RealVariable;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
+import de.unisb.cs.st.evosuite.symbolic.search.Changer;
+import de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator;
 import de.unisb.cs.st.evosuite.symbolic.search.Seeker;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
@@ -77,6 +85,27 @@ public class TestSuiteDSE {
 			if (hasUncoveredBranches(test)) {
 				logger.info("Found uncovered branches in test, applying DSE");
 
+				/* TODO Long variables produce the following Exception
+				 * [Progress:>                             0%] [Cov:========================>          71%]Exception in thread "main" java.lang.NullPointerException
+					at java.lang.String.<init>(String.java:228)
+					at org.objectweb.asm.Type.getInternalName(Unknown Source)
+					at org.objectweb.asm.commons.GeneratorAdapter.invokeInsn(Unknown Source)
+					at org.objectweb.asm.commons.GeneratorAdapter.invokeVirtual(Unknown Source)
+					at de.unisb.cs.st.evosuite.testcase.MethodStatement.getBytecode(MethodStatement.java:353)
+					at de.unisb.cs.st.evosuite.symbolic.ConcolicExecution.getBytecode(ConcolicExecution.java:329)
+					at de.unisb.cs.st.evosuite.symbolic.ConcolicExecution.writeTestCase(ConcolicExecution.java:354)
+					at de.unisb.cs.st.evosuite.symbolic.ConcolicExecution.getSymbolicPath(ConcolicExecution.java:146)
+					at de.unisb.cs.st.evosuite.testsuite.TestSuiteDSE.applyDSE(TestSuiteDSE.java:100)
+					at de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome.applyDSE(TestSuiteChromosome.java:191)
+					at de.unisb.cs.st.evosuite.ga.GeneticAlgorithm.applyDSE(GeneticAlgorithm.java:150)
+					at de.unisb.cs.st.evosuite.ga.SteadyStateGA.generateSolution(SteadyStateGA.java:174)
+					at de.unisb.cs.st.evosuite.TestSuiteGenerator.generateWholeSuite(TestSuiteGenerator.java:389)
+					at de.unisb.cs.st.evosuite.TestSuiteGenerator.generateTests(TestSuiteGenerator.java:228)
+					at de.unisb.cs.st.evosuite.TestSuiteGenerator.generateTestSuite(TestSuiteGenerator.java:181)
+					at de.unisb.cs.st.evosuite.TestSuiteGenerator.main(TestSuiteGenerator.java:1208)
+
+				 */
+				
 				// TODO: Mapping back to original is missing
 				TestCase expandedTest = expandTestCase(test.getTestCase());
 				test.setTestCase(expandedTest);
@@ -251,11 +280,34 @@ public class TestSuiteDSE {
 			logger.info("Reduced constraints from " + size + " to " + constraints.size());
 		}
 
-		//		int counter = 0;
-		//		for (Constraint cnstr : constraints ) {
-		//			logger.warn("Cnstr: " + (counter++) + " " +  cnstr);
-		//		}
+		int counter = 0;
+		for (Constraint cnstr : constraints ) {
+			logger.warn("Cnstr " + (counter++) + " : " +  cnstr + " dist: " + DistanceEstimator.getDistance(constraints));
+		}
 
+		
+//		RealVariable rVar = new RealVariable("var1", -234234, -Double.MAX_VALUE, Double.MAX_VALUE);
+//		RealConstant rCon = new RealConstant(4.67890);
+//		
+//		RealComparison rComp = new RealComparison(rVar, rCon, (long)-1);
+//		
+//		IntegerConstraint iCnstr = new IntegerConstraint(rComp, Comparator.NE, new IntegerConstant(0));
+//		
+//		
+//		
+//		List<Constraint<?>> lCn = new LinkedList<Constraint<?>>();
+//		lCn.add(iCnstr);
+//		
+//		logger.warn("iCnstr: " + iCnstr + " dist" + DistanceEstimator.getDistance(lCn) );
+//		
+//		Changer chng = new Changer();
+//		
+//		chng.realLocalSearch(rVar, lCn, null);
+//		
+//		System.exit(0);
+		
+		
+		
 		Seeker skr = new Seeker();
 		Map<String, Object> values = skr.getModel(constraints);
 
@@ -272,26 +324,40 @@ public class TestSuiteDSE {
 					if (val instanceof Long) {
 						Long value = (Long) val;
 						String name = ((String) key).replace("__SYM", "");
-						//						logger.warn("New long value for " + name + " is " + value);
+//						logger.warn("New long value for " + name + " is " + value);
 						PrimitiveStatement p = getStatement(newTest, name);
 						assert (p != null);
 						if (p.getValue().getClass().equals(Character.class))
 							p.setValue((char) value.intValue());
 						else if (p.getValue().getClass().equals(Long.class))
 							p.setValue(value);
-						else
-							//TODO change this for floats
+						else if (p.getValue().getClass().equals(Integer.class))
 							p.setValue(value.intValue());
+						else
+							logger.warn("New value is of an unsupported type: " + val);
 					} else if (val instanceof String) {
 						String name = ((String) key).replace("__SYM", "");
 						PrimitiveStatement p = getStatement(newTest, name);
-						//						logger.warn("New string value for " + name + " is " + val);
+//						logger.warn("New string value for " + name + " is " + val);
 						assert (p != null);
 						if (p.getValue().getClass().equals(Character.class))
 							p.setValue((char) Integer.parseInt(val.toString()));
 						else
 							//TODO change for ints or whatever
 							p.setValue(val.toString());
+					} else if (val instanceof Double) {
+						Double value = (Double) val;
+						String name = ((String) key).replace("__SYM", "");
+						PrimitiveStatement p = getStatement(newTest, name);
+//						logger.warn("New double value for " + name + " is " + value);
+						assert (p != null);
+						
+						if (p.getValue().getClass().equals(Double.class))
+							p.setValue(value);
+						else if (p.getValue().getClass().equals(Float.class))
+							p.setValue(value.floatValue());
+						else
+							logger.warn("New value is of an unsupported type: " + val);
 					} else {
 						logger.debug("New value is of an unsupported type: " + val);
 					}

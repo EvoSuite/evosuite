@@ -1,9 +1,16 @@
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
+import gov.nasa.jpf.JPF;
+
+import java.util.logging.Logger;
+
 public class RealUnaryExpression extends RealExpression implements
 		UnaryExpression<Double> {
-	private static final long serialVersionUID = 1L;
 
+	private static final long serialVersionUID = 9086637495150131445L;
+
+	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.expr.RealUnaryExpression");
+	
 	protected Double concretValue;
 	
 	protected Operator op;
@@ -59,9 +66,19 @@ public class RealUnaryExpression extends RealExpression implements
 //	}
 
 	@Override
-	public Object execute() {
-		// TODO Auto-generated method stub
-		return null;
+	public Double execute() {
+		double leftVal = ExpressionHelper.getDoubleResult(expr);
+		
+		switch (op) {
+		
+		case NEG:
+			return -leftVal;
+		case ABS:
+			return Math.abs(leftVal);
+		default:
+			log.warning("IntegerUnaryExpression: unimplemented operator!");
+			return null;
+		}
 	}
 
 }

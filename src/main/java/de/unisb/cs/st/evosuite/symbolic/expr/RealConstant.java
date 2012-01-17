@@ -34,8 +34,8 @@ public class RealConstant extends RealExpression{
 //	}
 
 	@Override
-	public Object execute() {
+	public Double execute() {
 		// TODO Auto-generated method stub
-		return null;
+		return value;
 	}
 }
