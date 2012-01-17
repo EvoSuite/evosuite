@@ -30,6 +30,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.cfg.CFGPool;
@@ -48,10 +49,10 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 
 	public final int total_branches = BranchPool.getBranchCounter();
 
-	public final int branchless_methods = BranchPool.getBranchlessMethods().size();
+	public final int branchless_methods = BranchPool.getNumBranchlessMethods(Properties.TARGET_CLASS);
 
 	//	public final int total_methods = TestCluster.getInstance().num_defined_methods;
-	public final int total_methods = CFGMethodAdapter.methods.size();
+	public final int total_methods = CFGMethodAdapter.methods.get(Properties.TARGET_CLASS).size();
 
 	public int covered_branches = 0;
 
@@ -96,7 +97,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 				updateIndividual(individual, total_branches * 2 + total_methods);
 				suite.setCoverage(0.0);
 				logger.info("Test case has timed out, setting fitness to max value "
-						+ (total_branches * 2 + total_methods));
+				        + (total_branches * 2 + total_methods));
 				return total_branches * 2 + total_methods;
 			}
 
@@ -105,7 +106,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 					call_count.put(entry.getKey(), entry.getValue());
 				else {
 					call_count.put(entry.getKey(),
-							call_count.get(entry.getKey()) + entry.getValue());
+					               call_count.get(entry.getKey()) + entry.getValue());
 				}
 			}
 			for (Entry<Integer, Integer> entry : result.getTrace().covered_predicates.entrySet()) {
@@ -113,8 +114,8 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 					predicate_count.put(entry.getKey(), entry.getValue());
 				else {
 					predicate_count.put(entry.getKey(),
-							predicate_count.get(entry.getKey())
-							+ entry.getValue());
+					                    predicate_count.get(entry.getKey())
+					                            + entry.getValue());
 				}
 			}
 			for (Entry<Integer, Double> entry : result.getTrace().true_distances.entrySet()) {
@@ -122,8 +123,8 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 					true_distance.put(entry.getKey(), entry.getValue());
 				else {
 					true_distance.put(entry.getKey(),
-							Math.min(true_distance.get(entry.getKey()),
-									entry.getValue()));
+					                  Math.min(true_distance.get(entry.getKey()),
+					                           entry.getValue()));
 				}
 			}
 			for (Entry<Integer, Double> entry : result.getTrace().false_distances.entrySet()) {
@@ -131,8 +132,8 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 					false_distance.put(entry.getKey(), entry.getValue());
 				else {
 					false_distance.put(entry.getKey(),
-							Math.min(false_distance.get(entry.getKey()),
-									entry.getValue()));
+					                   Math.min(false_distance.get(entry.getKey()),
+					                            entry.getValue()));
 				}
 			}
 		}
@@ -169,7 +170,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 		 */
 		//		logger.info("Method calls : "+(total_methods - call_count.size())+"/"+total_methods+" ("+CFGMethodAdapter.methods.size()+")");
 		int missing_methods = 0;
-		for (String e : CFGMethodAdapter.methods) {
+		for (String e : CFGMethodAdapter.methods.get(Properties.TARGET_CLASS)) {
 			if (!call_count.containsKey(e)) {
 				logger.debug("Missing method: " + e);
 				fitness += 1.0;
@@ -194,35 +195,35 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 		if (num_covered > covered_branches) {
 			covered_branches = Math.max(covered_branches, num_covered);
 			logger.info("(Branches) Best individual covers " + covered_branches + "/"
-					+ (total_branches * 2) + " branches and "
-					+ (total_methods - missing_methods) + "/" + total_methods
-					+ " methods");
+			        + (total_branches * 2) + " branches and "
+			        + (total_methods - missing_methods) + "/" + total_methods
+			        + " methods");
 			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
-					+ suite.totalLengthOfTestCases());
+			        + suite.totalLengthOfTestCases());
 		}
 		//		if(call_count.size() > covered_methods) {
 		if ((total_methods - missing_methods) > covered_methods) {
 			logger.info("(Methods) Best individual covers " + covered_branches + "/"
-					+ (total_branches * 2) + " branches and "
-					+ (total_methods - missing_methods) + "/" + total_methods
-					+ " methods");
+			        + (total_branches * 2) + " branches and "
+			        + (total_methods - missing_methods) + "/" + total_methods
+			        + " methods");
 			covered_methods = (total_methods - missing_methods);
 			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
-					+ suite.totalLengthOfTestCases());
+			        + suite.totalLengthOfTestCases());
 
 		}
 		if (fitness < best_fitness) {
 			logger.info("(Fitness) Best individual covers " + covered_branches + "/"
-					+ (total_branches * 2) + " branches and "
-					+ (total_methods - missing_methods) + "/" + total_methods
-					+ " methods");
+			        + (total_branches * 2) + " branches and "
+			        + (total_methods - missing_methods) + "/" + total_methods
+			        + " methods");
 			best_fitness = fitness;
 			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
-					+ suite.totalLengthOfTestCases());
+			        + suite.totalLengthOfTestCases());
 		}
 
 		double coverage = num_covered;
-		for (String e : BranchPool.getBranchlessMethods()) {
+		for (String e : BranchPool.getBranchlessMethods(Properties.TARGET_CLASS)) {
 			if (call_count.keySet().contains(e))
 				coverage += 1.0;
 
@@ -234,13 +235,13 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 		double concurrentFitness = 0.0;
 		try {
 			assert (LockRuntime.threadIDs.size() > 1) : "We should expect the LockRuntime to know more than 0 threads. But apparently it only knows "
-				+ LockRuntime.threadIDs.size();
+			        + LockRuntime.threadIDs.size();
 			long t1 = System.currentTimeMillis();
 			Set<SchedulingDecisionList> goalSchedules = getSchedules(4,
-					LockRuntime.threadIDs);
+			                                                         LockRuntime.threadIDs);
 			logger.info("We generated " + goalSchedules.size()
-					+ " schedules which should be covered. In : "
-					+ (System.currentTimeMillis() - t1));
+			        + " schedules which should be covered. In : "
+			        + (System.currentTimeMillis() - t1));
 			assert (goalSchedules.size() > 0) : "it appears odd, that zero goals were generated";
 
 			for (SchedulingDecisionList goal : goalSchedules) {
@@ -250,13 +251,13 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 					int distance = getDistance(goal, seen);
 					min = Math.min(min, distance);
 				}
-				if(min!=0){
+				if (min != 0) {
 					uncoveredGoals++;
-					if(System.currentTimeMillis()%100==0){
+					if (System.currentTimeMillis() % 100 == 0) {
 						//logger.warn("uncovered :" + min + " || " + goal.toString());
 					}
-				}else{
-					if(System.currentTimeMillis()%100==0){
+				} else {
+					if (System.currentTimeMillis() % 100 == 0) {
 						//logger.warn("covered " + goal.toString());
 					}
 				}
@@ -271,9 +272,10 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 		if (false && concurrentFitness > 0.5) {
 			concurrentFitness = 0.5;
 		}
-		logger.info(fitness + " :: " + concurrentFitness + " :: " + uncoveredGoals + " :: " + getSchedules(4,
-				LockRuntime.threadIDs).size() + " :: " + individual.size());
-		fitness = fitness*10000;
+		logger.info(fitness + " :: " + concurrentFitness + " :: " + uncoveredGoals
+		        + " :: " + getSchedules(4, LockRuntime.threadIDs).size() + " :: "
+		        + individual.size());
+		fitness = fitness * 10000;
 		fitness += concurrentFitness;
 		//assert(fitness<0.1);
 		//System.out.println("kicken it " + fitness);
@@ -304,7 +306,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 	private Set<SchedulingDecisionList> s = null;
 
 	private final Set<SchedulingDecisionList> getSchedules(
-			final int synchPointsToConsider, final Set<Integer> threadIDs) {
+	        final int synchPointsToConsider, final Set<Integer> threadIDs) {
 		assert (synchPointsToConsider > 0);
 		if (s != null)
 			return s;
@@ -334,33 +336,34 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 	}
 
 	private final Set<SchedulingDecisionList> getNextSteps(
-			final SchedulingDecisionList history, final Set<Integer> threadIDs) {
+	        final SchedulingDecisionList history, final Set<Integer> threadIDs) {
 
 		Set<SchedulingDecisionList> result = new HashSet<SchedulingDecisionList>();
-		
+
 		for (SchedulingDecisionTuple nextTuple : getAllTuples()) {
-			
+
 			assert (LockRuntime.fieldAccToConcInstr.containsKey(nextTuple.scheduleID));
-			
+
 			String className = LockRuntime.fieldAccToConcInstr.get(nextTuple.scheduleID).getClassName();
 			String methodName = LockRuntime.fieldAccToConcInstr.get(nextTuple.scheduleID).getMethodName();
 			RawControlFlowGraph completeCFG = CFGPool.getRawCFG(className, methodName);
-			
-			assert(LockRuntime.fieldAccessIDToCFGVertex.containsKey(nextTuple.scheduleID));
 
-			if (!completeCFG.containsVertex(LockRuntime.fieldAccessIDToCFGVertex.get(nextTuple.scheduleID)) || //in this case the two accesses are in different methods
-					isAfter(nextTuple, history, completeCFG)) {
+			assert (LockRuntime.fieldAccessIDToCFGVertex.containsKey(nextTuple.scheduleID));
+
+			if (!completeCFG.containsVertex(LockRuntime.fieldAccessIDToCFGVertex.get(nextTuple.scheduleID))
+			        || //in this case the two accesses are in different methods
+			        isAfter(nextTuple, history, completeCFG)) {
 				SchedulingDecisionList newList = history.clone();
 				newList.add(nextTuple);
 				result.add(newList);
 			}
 
 		}
-		
+
 		if (result.size() == 0) {
 			result.add(history);
 		}
-		
+
 		return result;
 	}
 
@@ -373,7 +376,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 	 * @return
 	 */
 	private boolean isAfter(SchedulingDecisionTuple tuple,
-			SchedulingDecisionList history, final RawControlFlowGraph completeCFG) {
+	        SchedulingDecisionList history, final RawControlFlowGraph completeCFG) {
 		for (int i = (history.size() - 1); i >= 0; i--) {
 			assert (history.size() > i);
 			SchedulingDecisionTuple searchFront = history.get(i);
@@ -399,7 +402,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 	private Set<SchedulingDecisionTuple> getAllTuples() {
 		if (allTuples != null)
 			return allTuples;
-		
+
 		Set<Integer> threadIDs = LockRuntime.threadIDs;
 		Set<Integer> fieldAccessIDs = LockRuntime.fieldAccessIDToCFGBranch.keySet();
 
@@ -410,7 +413,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 				allTuples.add(new SchedulingDecisionTuple(threadID, fieldAccessID));
 			}
 		}
-		
+
 		return allTuples;
 	}
 
@@ -433,7 +436,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 	 * @return
 	 */
 	private final boolean isBefore(final int scheduleID1, final int scheduleID2,
-			RawControlFlowGraph completeCFG) {
+	        RawControlFlowGraph completeCFG) {
 		if (isC.containsKey(scheduleID1)) {
 			if (isC.get(scheduleID1).containsKey(scheduleID2)) {
 				if (isC.get(scheduleID1).get(scheduleID2).containsKey(completeCFG)) {
@@ -441,13 +444,13 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 				}
 			} else {
 				isC.get(scheduleID1).put(scheduleID2,
-						new HashMap<RawControlFlowGraph, Boolean>());
+				                         new HashMap<RawControlFlowGraph, Boolean>());
 			}
 		} else {
 			isC.put(scheduleID1,
-					new HashMap<Integer, Map<RawControlFlowGraph, Boolean>>());
+			        new HashMap<Integer, Map<RawControlFlowGraph, Boolean>>());
 			isC.get(scheduleID1).put(scheduleID2,
-					new HashMap<RawControlFlowGraph, Boolean>());
+			                         new HashMap<RawControlFlowGraph, Boolean>());
 		}
 		assert (LockRuntime.fieldAccessIDToCFGVertex.containsKey(scheduleID1));
 		assert (LockRuntime.fieldAccessIDToCFGVertex.containsKey(scheduleID1));
@@ -496,7 +499,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 	}
 
 	public int getDistance(List<SchedulingDecisionTuple> target,
-			List<SchedulingDecisionTuple> seen) {
+	        List<SchedulingDecisionTuple> seen) {
 		assert (seen != null);
 		assert (target != null);
 
