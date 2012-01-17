@@ -39,7 +39,6 @@ import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.core.dom.Modifier;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.commons.EmptyVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +49,7 @@ import de.unisb.cs.st.evosuite.callgraph.DistanceTransformer;
 import de.unisb.cs.st.evosuite.callgraph.DistanceTransformer.ClassEntry;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
 import de.unisb.cs.st.evosuite.javaagent.CIClassAdapter;
+import de.unisb.cs.st.evosuite.javaagent.EmptyVisitor;
 import de.unisb.cs.st.evosuite.utils.StringUtil;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
