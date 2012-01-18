@@ -58,7 +58,7 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 		Set<TestCase> relevantTests = new HashSet<TestCase>();
 		for (TestCase test : tests) {
 			for (Class<?> clazz : test.getAccessedClasses()) {
-				if (clazz.getName().equals(Properties.TARGET_CLASS)) {
+				if (StaticTestCluster.isTargetClassName(clazz.getName())) {
 					relevantTests.add(test);
 					logger.info("TestCase: " + test.toCode());
 					break;

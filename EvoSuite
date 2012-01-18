@@ -249,8 +249,8 @@ setup_evosuite ()
 		else
 	    	    echo "PROJECT_PREFIX=$PROJECT_PREFIX" > $OUTPUT_DIR/evosuite.properties
 		fi
-	    	echo "CP=\"$SRC:evosuite-files/Stubs/classes\"" >> $OUTPUT_DIR/evosuite.properties
-	    	cat $BASEPATH/src/main/assembly/etc/evosuite.properties >> $OUTPUT_DIR/evosuite.properties
+	    	#echo "CP=\"$SRC:evosuite-files/Stubs/classes\"" >> $OUTPUT_DIR/evosuite.properties
+	    	#cat $BASEPATH/src/main/assembly/etc/evosuite.properties >> $OUTPUT_DIR/evosuite.properties
 	    fi
 	}
     else {

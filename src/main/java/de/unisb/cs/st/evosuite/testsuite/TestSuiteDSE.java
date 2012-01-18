@@ -15,38 +15,21 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.symbolic.BranchCondition;
 import de.unisb.cs.st.evosuite.symbolic.ConcolicExecution;
 import de.unisb.cs.st.evosuite.symbolic.expr.BinaryExpression;
-import de.unisb.cs.st.evosuite.symbolic.expr.Comparator;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
-import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
-import de.unisb.cs.st.evosuite.symbolic.expr.RealComparison;
-import de.unisb.cs.st.evosuite.symbolic.expr.RealConstant;
-import de.unisb.cs.st.evosuite.symbolic.expr.RealConstraint;
-import de.unisb.cs.st.evosuite.symbolic.expr.RealVariable;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
-import de.unisb.cs.st.evosuite.symbolic.search.Changer;
 import de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator;
 import de.unisb.cs.st.evosuite.symbolic.search.Seeker;
-import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
-import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
-import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.MethodStatement;
-import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
-import de.unisb.cs.st.evosuite.testcase.StatementInterface;
-import de.unisb.cs.st.evosuite.testcase.TestCase;
-import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
-import de.unisb.cs.st.evosuite.testcase.TestChromosome;
-import de.unisb.cs.st.evosuite.testcase.VariableReference;
+import de.unisb.cs.st.evosuite.testcase.*;
 
 /**
  * @author Gordon Fraser
@@ -216,7 +199,7 @@ public class TestSuiteDSE {
 	 * @return
 	 */
 	private boolean isUncovered(BranchCondition branch) {
-		if (!branch.ins.getMethodInfo().getClassName().equals(Properties.TARGET_CLASS)) {
+		if (!StaticTestCluster.isTargetClassName(branch.ins.getMethodInfo().getClassName())) {
 			return false;
 		}
 

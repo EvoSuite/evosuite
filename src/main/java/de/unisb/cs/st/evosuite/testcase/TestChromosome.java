@@ -461,7 +461,7 @@ public class TestChromosome extends ExecutableChromosome {
 		boolean mutated = false;
 		List<BranchCondition> targetBranches = new ArrayList<BranchCondition>();
 		for (BranchCondition branch : branches) {
-			if (branch.ins.getMethodInfo().getClassName().equals(Properties.TARGET_CLASS))
+			if (StaticTestCluster.isTargetClassName(branch.ins.getMethodInfo().getClassName()))
 				targetBranches.add(branch);
 		}
 		// Select random branch
