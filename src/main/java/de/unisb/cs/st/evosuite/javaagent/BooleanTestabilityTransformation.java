@@ -187,7 +187,7 @@ public class BooleanTestabilityTransformation {
 	private void insertBranchIdPlaceholder(MethodNode mn, JumpInsnNode jumpNode) {
 		Label label = new Label();
 		LabelNode labelNode = new LabelNode(label);
-		BooleanTestabilityPlaceholderTransformer.addBranchPlaceholder(label, jumpNode);
+		//BooleanTestabilityPlaceholderTransformer.addBranchPlaceholder(label, jumpNode);
 		mn.instructions.insertBefore(jumpNode, labelNode);
 		//mn.instructions.insertBefore(jumpNode, new LdcInsnNode(0));
 		mn.instructions.insertBefore(jumpNode, new LdcInsnNode(getBranchID(mn, jumpNode)));
@@ -197,8 +197,8 @@ public class BooleanTestabilityTransformation {
 	        AbstractInsnNode insnNode) {
 		Label label = new Label();
 		LabelNode labelNode = new LabelNode(label);
-		BooleanTestabilityPlaceholderTransformer.addControlDependencyPlaceholder(label,
-		                                                                         insnNode);
+		//BooleanTestabilityPlaceholderTransformer.addControlDependencyPlaceholder(label,
+		//                                                                         insnNode);
 		mn.instructions.insertBefore(insnNode, labelNode);
 		//instructions.insertBefore(insnNode, new LdcInsnNode(0));
 		//mn.instructions.insertBefore(insnNode, new LdcInsnNode(0));
