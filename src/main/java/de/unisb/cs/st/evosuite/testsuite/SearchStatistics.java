@@ -401,8 +401,15 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		super.searchStarted(algorithm);
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 
-		entry.total_branches = BranchPool.getBranchCountForClass(Properties.TARGET_CLASS);
-		entry.branchless_methods = BranchPool.getBranchlessMethods(Properties.TARGET_CLASS).size();
+		
+		entry.total_branches = Properties.TARGET_CLASS_PREFIX.isEmpty() ?
+				BranchPool.getBranchCountForClass(Properties.TARGET_CLASS) :
+				BranchPool.getBranchCountForPrefix(Properties.TARGET_CLASS_PREFIX);
+					
+		entry.branchless_methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ?
+				BranchPool.getBranchlessMethods(Properties.TARGET_CLASS).size() :
+				BranchPool.getBranchlessMethodsPrefix(Properties.TARGET_CLASS_PREFIX).size();
+
 		entry.total_methods = CFGMethodAdapter.methods.size();
 
 		// TODO in order for this to work even when the criterion is neither

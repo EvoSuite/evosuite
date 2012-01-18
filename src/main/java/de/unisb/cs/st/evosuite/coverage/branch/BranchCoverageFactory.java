@@ -20,7 +20,6 @@ package de.unisb.cs.st.evosuite.coverage.branch;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,23 +51,25 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 
 		String targetMethod = Properties.TARGET_METHOD;
 
-		// Branchless methods
-		String targetClass = Properties.TARGET_CLASS;
-		for (String method : BranchPool.getBranchlessMethods(targetClass)) {
-			if (targetMethod.equals("") || method.endsWith(targetMethod)) {
-				goals.add(createRootBranchTestFitness(targetClass, method));
-			}
-		}
-		// Branches
 		// logger.info("Getting branches");
 		for (String className : BranchPool.knownClasses()) {
-			//if (!targetClass.equals("") && !className.startsWith(targetClass)) {
-			//	continue;
-			//}
-			// TODO: Need to handle multi-class covering properly
-			if (!className.equals(Properties.TARGET_CLASS))
+			boolean classNameMatches = className.equals(Properties.TARGET_CLASS);
+			
+			if (!classNameMatches && !Properties.TARGET_CLASS_PREFIX.isEmpty()) {
+				classNameMatches |= className.startsWith(Properties.TARGET_CLASS_PREFIX);
+			}
+			
+			if (!classNameMatches)
 				continue;
 
+			// Branchless methods
+			for (String method : BranchPool.getBranchlessMethods(className)) {
+				if (targetMethod.equals("") || method.endsWith(targetMethod)) {
+					goals.add(createRootBranchTestFitness(className, method));
+				}
+			}
+			
+			// Branches
 			for (String methodName : BranchPool.knownMethods(className)) {
 				if (!targetMethod.equals("") && !methodName.equals(targetMethod)) {
 					logger.info("Method " + methodName + " does not equal target method "

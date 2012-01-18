@@ -391,6 +391,8 @@ public class Changer {
 			}
 		}
 		
+//		log.warning("whole part: " + realVar);
+		
 		//TODO search in the interval realVar.execute() +-1;
 		if (improvement) {
 			//compute interval
@@ -424,7 +426,7 @@ public class Changer {
 				realVar.setConcreteValue(work);
 				distW = DistanceEstimator.getDistance(cnstr);
 				
-//				log.warning("work: " + work + " distW: " + distW);
+//				log.warning("work: " + work + " distW: " + distW + " cos(work): " + Math.cos(-1.5707963267948966));
 				
 				if (distL > distR) {
 					left = work;
@@ -434,6 +436,8 @@ public class Changer {
 					distR = distW;
 				}
 			}
+			
+			
 		
 //			log.warning("left-right: " + (left-right));
 			backup(realVar, DistanceEstimator.getDistance(cnstr));

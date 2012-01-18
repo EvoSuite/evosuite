@@ -41,21 +41,46 @@ public abstract class DistanceEstimator {
 	public static double getDistance(java.util.List<Constraint<?>> constraints){
 		double result = 0;
 		
+		/*
+		 * Since the min distance that we can have (and is of interest) is 1 
+		 * and the max is Long.MAX_VALUE the following can happen:
+		 * 
+		 * distance normalization dist/Long.MAX_VALUE:
+		 * 
+		 * (double)1L/Long.MAX_VALUE = 1.0842021724855044E-19
+		 * ((double)43432545433L)/(Long.MAX_VALUE) == 4.708966011503397E-9
+		 * 		!= ((double)43432545434L)/(Long.MAX_VALUE) == 4.708966011611818E-9
+		 * (double)Long.MAX_VALUE/Long.MAX_VALUE = 1
+		 * 
+		 * => This works
+		 * 
+		 * distance normalization dist/(1+dist):
+		 * 
+		 * (double)1L/(1+1L) = 0.5
+		 * ((double)43432545433L)/(43432545433L+1L) 
+		 * 		== ((double)43432545434L)/(43432545434L+1L) == 0.9999999999769758
+		 * 
+		 * => for very large (and different) values  this logarithmically-like growing 
+		 * function gives the same output. This means that even if we make a step in the
+		 * right direction we won't be able to tell since the dist is the same
+		 * 
+		 * 
+		 * 
+		 * }=> Use the first 
+		 */
+		
+		
 		try {
 			for (Constraint<?> c : constraints) {
 				if (isStrConstraint(c)) {
-					double strD = (double)getStrDist(c);
-					result += strD/(1.0 + strD);//Long.MAX_VALUE;
+					long strD = getStrDist(c);
+					result += (double)strD/Long.MAX_VALUE; // (1.0 + strD);
 				} else if (isLongConstraint(c)) {
-					double intD = (double)getIntegerDist(c);
-					result += intD/(1.0 + intD);//Long.MAX_VALUE;
+					long intD = getIntegerDist(c);
+					result += (double)intD/Long.MAX_VALUE; //(1.0 + intD);
 				} else if (isRealConstraint(c)) {
-//					log.warning("DistanceEstimator.getDistance(): " +
-//							"got a real constraint: " + c);
-					
 					double realD = getRealDist(c);
-//					log.warning("we are here " + realD);
-					result += realD/(1.0 + realD);//Double.MAX_VALUE;
+					result += realD/Double.MAX_VALUE; //(1.0 + realD);
 				} else {
 					log.warning("DistanceEstimator.getDistance(): " +
 							"got an unknown constraint: " + c);

@@ -183,7 +183,10 @@ public class DescriptorMapping {
 				ClassNode parent = new ClassNode();
 				reader.accept(parent, ClassReader.EXPAND_FRAMES);
 
-				if (!parent.name.startsWith(Properties.PROJECT_PREFIX.replace(".", "/"))) {
+				boolean isInside = parent.name.startsWith(Properties.PROJECT_PREFIX.replace(".", "/")) |
+						parent.name.startsWith(Properties.TARGET_CLASS_PREFIX.replace(".", "/"));
+				
+				if (!isInside) {
 					TestabilityTransformation.logger.info("Checking " + parent.name);
 					for (Object o : parent.methods) {
 						MethodNode mn2 = (MethodNode) o;
@@ -294,7 +297,10 @@ public class DescriptorMapping {
 				ClassNode parent = new ClassNode();
 				reader.accept(parent, ClassReader.EXPAND_FRAMES);
 
-				if (!parent.name.startsWith(Properties.PROJECT_PREFIX.replace(".", "/"))) {
+				boolean isInside = parent.name.startsWith(Properties.PROJECT_PREFIX.replace(".", "/")) |
+						parent.name.startsWith(Properties.TARGET_CLASS_PREFIX.replace(".", "/"));
+				
+				if (!isInside) {
 					for (Object o : parent.fields) {
 						FieldNode mn2 = (FieldNode) o;
 						if (mn2.name.equals(fieldName) && mn2.desc.equals(desc)) {
