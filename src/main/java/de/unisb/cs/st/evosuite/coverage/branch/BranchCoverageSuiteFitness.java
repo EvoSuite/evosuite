@@ -56,17 +56,17 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
 	//	public static final int total_methods = TestCluster.getInstance().num_defined_methods;
-	public static final int total_methods = CFGMethodAdapter.methods.get(Properties.TARGET_CLASS).size();
+	public static final int total_methods = CFGMethodAdapter.getNumMethodsPrefix(Properties.TARGET_CLASS);
 
 	//	public static final int total_branches = BranchPool.getBranchCounter()
 	//	        - LCSAJPool.lcsaj_branches.size();
 
-	public static final int total_branches = BranchPool.getBranchCountForClass(Properties.TARGET_CLASS);
+	public static final int total_branches = BranchPool.getBranchCountForPrefix(Properties.TARGET_CLASS);
 
-	public static final int numBranchlessMethods = BranchPool.getNumBranchlessMethods(Properties.TARGET_CLASS);
+	public static final int numBranchlessMethods = BranchPool.getNumBranchlessMethodsPrefix(Properties.TARGET_CLASS);
 	//	public static final int branchless_methods = BranchPool.getBranchlessMethods().size();
 
-	private static final Set<String> branchlessMethods = BranchPool.getBranchlessMethods(Properties.TARGET_CLASS);
+	private static final Set<String> branchlessMethods = BranchPool.getBranchlessMethodsPrefix(Properties.TARGET_CLASS);
 
 	public static final Set<Integer> lines = LinePool.getLines(Properties.TARGET_CLASS);
 
@@ -87,6 +87,10 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public BranchCoverageSuiteFitness() {
 		logger.info("Total branch coverage goals: " + total_goals);
 		logger.info("Total branches: " + total_branches);
+		logger.info("Total branchless methods: " + numBranchlessMethods);
+		logger.info("Total methods: " + total_methods + ": "
+		        + CFGMethodAdapter.methods.get(Properties.TARGET_CLASS));
+
 		getPublicMethods();
 	}
 
@@ -342,7 +346,8 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		assert (coverage <= total_goals) : "Covered " + coverage + " vs total goals "
 		        + total_goals;
 		suite.setCoverage(coverage / total_goals);
-		assert (fitness != 0.0 || coverage == total_goals);
+		assert (fitness != 0.0 || coverage == total_goals) : "Fitness: " + fitness + ", "
+		        + "coverage: " + coverage + "/" + total_goals;
 		if (coverage / total_goals > 1) {
 			logger.warn("Coverage > 1:");
 			logger.warn("Covered branches: " + num_covered);
