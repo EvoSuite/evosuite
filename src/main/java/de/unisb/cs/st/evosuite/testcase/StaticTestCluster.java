@@ -808,7 +808,8 @@ public class StaticTestCluster extends TestCluster {
 			return false;
 
 		if (c.getDeclaringClass().isMemberClass()
-		        && !Modifier.isStatic(c.getDeclaringClass().getModifiers()))
+		        && !Modifier.isPublic(c.getDeclaringClass().getModifiers()))
+			//		        && !Modifier.isStatic(c.getDeclaringClass().getModifiers()))
 			return false;
 
 		if (c.isSynthetic()) {
