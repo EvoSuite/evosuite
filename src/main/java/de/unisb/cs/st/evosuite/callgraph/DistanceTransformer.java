@@ -128,7 +128,7 @@ public class DistanceTransformer implements ClassFileTransformer {
 		Set<String> supers = getSuper(classfileBuffer);
 		if (traceLock.get()) {
 			classes.add(new ClassEntry(className, supers));
-			if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)) {
+			if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX) || classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX)) {
 				ClassReader cr = new ClassReader(classfileBuffer);
 				ClassWriter cw = new ClassWriter(0);
 				ClassVisitor cv = new DistanceClassAdapter(cw, data,

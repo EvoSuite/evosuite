@@ -3,18 +3,18 @@ package de.unisb.cs.st.evosuite.symbolic.expr;
 public class RealToIntegerCast extends IntegerExpression {
 	private static final long serialVersionUID = 1L;
 
-	protected Long concretValue;
+	protected Long concValue;
 	
 	protected Expression<Double> expr;
 	
-	public RealToIntegerCast(Expression<Double> myExpressionFromJeremeysExpresion,Long concretValue) {
-		this.expr=myExpressionFromJeremeysExpresion;
-		this.concretValue=concretValue;
+	public RealToIntegerCast(Expression<Double> _expr, Long _concValue) {
+		this.expr = _expr;
+		this.concValue = _concValue;
 	}
 
 	@Override
 	public Long getConcreteValue() {
-		return concretValue;
+		return concValue;
 	}
 	
 	@Override
@@ -53,9 +53,8 @@ public class RealToIntegerCast extends IntegerExpression {
 //	}
 
 	@Override
-	public Object execute() {
-		// TODO Auto-generated method stub
-		return null;
+	public Long execute() {
+		return (Long)expr.execute();
 	}
 
 }
