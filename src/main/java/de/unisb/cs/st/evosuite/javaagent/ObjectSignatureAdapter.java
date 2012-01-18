@@ -57,7 +57,7 @@ public class ObjectSignatureAdapter extends ClassVisitor {
 
 		this.className = className.replace('/', '.');
 
-		if (!(this.className.startsWith(Properties.PROJECT_PREFIX))) {
+		if (!(this.className.startsWith(Properties.PROJECT_PREFIX)) && !(this.className.startsWith(Properties.TARGET_CLASS_PREFIX))) {
 			exclude = true;
 		} else {
 			exclude = false;

@@ -27,7 +27,7 @@ public class UnitAssertionGenerator extends AssertionGenerator {
 			while (declaringClass.contains("$"))
 				declaringClass = declaringClass.substring(0, declaringClass.indexOf("$"));
 
-			if (declaringClass.equals(Properties.TARGET_CLASS))
+			if (declaringClass.equals(Properties.TARGET_CLASS) || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && declaringClass.startsWith(Properties.TARGET_CLASS_PREFIX)))
 				return true;
 		}
 		return false;

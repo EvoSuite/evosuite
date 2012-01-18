@@ -67,7 +67,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	}
 
 	public boolean isTargetProject(String className) {
-		return className.startsWith(Properties.PROJECT_PREFIX)
+		return (className.startsWith(Properties.PROJECT_PREFIX) || className.startsWith(Properties.TARGET_CLASS_PREFIX)) 
 		        && !className.startsWith("java.") && !className.startsWith("sun.")
 		        && !className.startsWith("de.unisb.cs.st.evosuite")
 		        && !className.startsWith("javax.")
@@ -192,7 +192,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		}
 
 		//		if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
-		if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)) {
+		if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX) || classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX)) {
 			ClassNode cn = new ClassNode();
 			reader.accept(cn, ClassReader.SKIP_FRAMES); //  | ClassReader.SKIP_DEBUG
 			ComparisonTransformation cmp = new ComparisonTransformation(cn);

@@ -54,22 +54,29 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private static final long serialVersionUID = 2991632394620406243L;
 
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
+	
+	public static final int total_methods;
+	public static final int total_branches;
+	public static final int numBranchlessMethods;
+	public static final Set<Integer> lines;
+	private static final Set<String> branchlessMethods;
 
-	//	public static final int total_methods = TestCluster.getInstance().num_defined_methods;
-	public static final int total_methods = CFGMethodAdapter.getNumMethodsPrefix(Properties.TARGET_CLASS);
+	static {
+		String prefix = Properties.TARGET_CLASS_PREFIX;
+		
+		if (prefix.isEmpty()) {
+			prefix = Properties.TARGET_CLASS;
+		}
+		
+		total_methods = CFGMethodAdapter.getNumMethodsPrefix(prefix);
+		total_branches = BranchPool.getBranchCountForPrefix(prefix);
+		numBranchlessMethods = BranchPool.getNumBranchlessMethodsPrefix(prefix);
+		branchlessMethods = BranchPool.getBranchlessMethodsPrefix(prefix);
 
-	//	public static final int total_branches = BranchPool.getBranchCounter()
-	//	        - LCSAJPool.lcsaj_branches.size();
-
-	public static final int total_branches = BranchPool.getBranchCountForPrefix(Properties.TARGET_CLASS);
-
-	public static final int numBranchlessMethods = BranchPool.getNumBranchlessMethodsPrefix(Properties.TARGET_CLASS);
-	//	public static final int branchless_methods = BranchPool.getBranchlessMethods().size();
-
-	private static final Set<String> branchlessMethods = BranchPool.getBranchlessMethodsPrefix(Properties.TARGET_CLASS);
-
-	public static final Set<Integer> lines = LinePool.getLines(Properties.TARGET_CLASS);
-
+		/* TODO: Would be nice to use a prefix here */
+		lines = LinePool.getLines(Properties.TARGET_CLASS);
+	}
+	
 	public int covered_branches = 0;
 
 	public int covered_methods = 0;
@@ -248,7 +255,12 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		*/
 		//		logger.info("Method calls : "+(total_methods - call_count.size())+"/"+total_methods+" ("+CFGMethodAdapter.methods.size()+")");
 		int missing_methods = 0;
-		for (String e : CFGMethodAdapter.methods.get(Properties.TARGET_CLASS)) {
+		
+		Set<String> methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ?
+				CFGMethodAdapter.getMethods(Properties.TARGET_CLASS) :
+				CFGMethodAdapter.getMethodsPrefix(Properties.TARGET_CLASS_PREFIX);
+		
+		for (String e : methods) {
 			if (!call_count.containsKey(e)) {
 				//logger.debug("Missing method: " + e);
 				fitness += 1.0;
