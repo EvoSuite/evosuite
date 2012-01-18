@@ -68,27 +68,6 @@ public class TestSuiteDSE {
 			if (hasUncoveredBranches(test)) {
 				logger.info("Found uncovered branches in test, applying DSE");
 
-				/* TODO Long variables produce the following Exception
-				 * [Progress:>                             0%] [Cov:========================>          71%]Exception in thread "main" java.lang.NullPointerException
-					at java.lang.String.<init>(String.java:228)
-					at org.objectweb.asm.Type.getInternalName(Unknown Source)
-					at org.objectweb.asm.commons.GeneratorAdapter.invokeInsn(Unknown Source)
-					at org.objectweb.asm.commons.GeneratorAdapter.invokeVirtual(Unknown Source)
-					at de.unisb.cs.st.evosuite.testcase.MethodStatement.getBytecode(MethodStatement.java:353)
-					at de.unisb.cs.st.evosuite.symbolic.ConcolicExecution.getBytecode(ConcolicExecution.java:329)
-					at de.unisb.cs.st.evosuite.symbolic.ConcolicExecution.writeTestCase(ConcolicExecution.java:354)
-					at de.unisb.cs.st.evosuite.symbolic.ConcolicExecution.getSymbolicPath(ConcolicExecution.java:146)
-					at de.unisb.cs.st.evosuite.testsuite.TestSuiteDSE.applyDSE(TestSuiteDSE.java:100)
-					at de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome.applyDSE(TestSuiteChromosome.java:191)
-					at de.unisb.cs.st.evosuite.ga.GeneticAlgorithm.applyDSE(GeneticAlgorithm.java:150)
-					at de.unisb.cs.st.evosuite.ga.SteadyStateGA.generateSolution(SteadyStateGA.java:174)
-					at de.unisb.cs.st.evosuite.TestSuiteGenerator.generateWholeSuite(TestSuiteGenerator.java:389)
-					at de.unisb.cs.st.evosuite.TestSuiteGenerator.generateTests(TestSuiteGenerator.java:228)
-					at de.unisb.cs.st.evosuite.TestSuiteGenerator.generateTestSuite(TestSuiteGenerator.java:181)
-					at de.unisb.cs.st.evosuite.TestSuiteGenerator.main(TestSuiteGenerator.java:1208)
-
-				 */
-				
 				// TODO: Mapping back to original is missing
 				TestCase expandedTest = expandTestCase(test.getTestCase());
 				test.setTestCase(expandedTest);
@@ -263,33 +242,11 @@ public class TestSuiteDSE {
 			logger.info("Reduced constraints from " + size + " to " + constraints.size());
 		}
 
-		int counter = 0;
-		for (Constraint cnstr : constraints ) {
-			logger.warn("Cnstr " + (counter++) + " : " +  cnstr + " dist: " + DistanceEstimator.getDistance(constraints));
-		}
-
-		
-//		RealVariable rVar = new RealVariable("var1", -234234, -Double.MAX_VALUE, Double.MAX_VALUE);
-//		RealConstant rCon = new RealConstant(4.67890);
-//		
-//		RealComparison rComp = new RealComparison(rVar, rCon, (long)-1);
-//		
-//		IntegerConstraint iCnstr = new IntegerConstraint(rComp, Comparator.NE, new IntegerConstant(0));
-//		
-//		
-//		
-//		List<Constraint<?>> lCn = new LinkedList<Constraint<?>>();
-//		lCn.add(iCnstr);
-//		
-//		logger.warn("iCnstr: " + iCnstr + " dist" + DistanceEstimator.getDistance(lCn) );
-//		
-//		Changer chng = new Changer();
-//		
-//		chng.realLocalSearch(rVar, lCn, null);
-//		
-//		System.exit(0);
-		
-		
+//		int counter = 0;
+//		for (Constraint cnstr : constraints ) {
+//			logger.warn("Cnstr " + (counter++) + " : " +  cnstr + 
+//						" dist: " + DistanceEstimator.getDistance(constraints));
+//		}
 		
 		Seeker skr = new Seeker();
 		Map<String, Object> values = skr.getModel(constraints);

@@ -40,7 +40,7 @@ public class RealUnaryExpression extends RealExpression implements
 	
 	@Override
 	public String toString() {
-		return "("+op.toString()+"("+expr+"))";
+		return op.toString()+"("+expr+")";
 	}
 	
 	@Override
@@ -70,11 +70,62 @@ public class RealUnaryExpression extends RealExpression implements
 		double leftVal = ExpressionHelper.getDoubleResult(expr);
 		
 		switch (op) {
-		
-		case NEG:
-			return -leftVal;
+
 		case ABS:
 			return Math.abs(leftVal);
+		case ACOS:
+			return Math.acos(leftVal);
+		case ASIN:
+			return Math.asin(leftVal);
+		case ATAN:
+			return Math.atan(leftVal);
+		case CBRT:
+			return Math.cbrt(leftVal);
+		case CEIL:
+			return Math.ceil(leftVal);
+		case COS:
+			return Math.cos(leftVal);
+		case COSH:
+			return Math.cosh(leftVal);
+		case EXP:
+			return Math.exp(leftVal);
+		case EXPM1:
+			return Math.expm1(leftVal);
+		case FLOOR:
+			return Math.floor(leftVal);
+		case GETEXPONENT:
+			return (double)Math.getExponent(leftVal);
+		case LOG:
+			return Math.log(leftVal);
+		case LOG10:
+			return Math.log10(leftVal);
+		case LOG1P:
+			return Math.log1p(leftVal);
+		case NEG:
+			return -leftVal;
+		case NEXTUP:
+			return Math.nextUp(leftVal);
+		case RINT:
+			return Math.rint(leftVal);
+		case SIGNUM:
+			return Math.signum(leftVal);
+		case SIN:
+			return Math.sin(leftVal);
+		case SINH:
+			return Math.sinh(leftVal);
+		case SQRT:
+			return Math.sqrt(leftVal);
+		case TAN:
+			return Math.tan(leftVal);
+		case TANH:
+			return Math.tanh(leftVal);
+		case TODEGREES:
+			return Math.toDegrees(leftVal);
+		case TORADIANS:
+			return Math.toRadians(leftVal);
+		case ULP:
+			return Math.ulp(leftVal);
+					
 		default:
 			log.warning("IntegerUnaryExpression: unimplemented operator!");
 			return null;
