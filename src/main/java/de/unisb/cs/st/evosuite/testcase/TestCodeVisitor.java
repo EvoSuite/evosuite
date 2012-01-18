@@ -501,8 +501,16 @@ public class TestCodeVisitor implements TestVisitor {
 		List<VariableReference> parameters = statement.getParameterReferences();
 		if (!parameters.isEmpty()) {
 			for (int i = 0; i < parameters.size(); i++) {
-				if (i > 0) {
-					parameter_string += ", ";
+				if (constructor.getDeclaringClass().isMemberClass()
+				        && !Modifier.isStatic(constructor.getDeclaringClass().getModifiers())) {
+					if (i > 1)
+						parameter_string += ", ";
+					else
+						continue;
+				} else {
+					if (i > 0) {
+						parameter_string += ", ";
+					}
 				}
 				Class<?> declaredParamType = constructor.getParameterTypes()[i];
 				Class<?> actualParamType = parameters.get(i).getVariableClass();
@@ -527,9 +535,24 @@ public class TestCodeVisitor implements TestVisitor {
 		} else {
 			result += retval.getSimpleClassName() + " ";
 		}
-		result += getVariableName(retval) + " = new "
-		        + ConstructorStatement.getReturnType(constructor.getDeclaringClass())
-		        + "(" + parameter_string + ");";
+		if (constructor.getDeclaringClass().isMemberClass()
+		        && !Modifier.isStatic(constructor.getDeclaringClass().getModifiers())) {
+			result += getVariableName(retval)
+			        + " = "
+			        + getVariableName(parameters.get(0))
+			        //			        + new GenericClass(
+			        //			                constructor.getDeclaringClass().getEnclosingClass()).getSimpleName()
+			        + ".new "
+			        //+ ConstructorStatement.getReturnType(constructor.getDeclaringClass())
+			        //+ "("
+			        + constructor.getDeclaringClass().getSimpleName() + "("
+			        + parameter_string + ");";
+
+		} else {
+			result += getVariableName(retval) + " = new "
+			        + ConstructorStatement.getReturnType(constructor.getDeclaringClass())
+			        + "(" + parameter_string + ");";
+		}
 
 		if (exception != null) {
 			Class<?> ex = exception.getClass();
