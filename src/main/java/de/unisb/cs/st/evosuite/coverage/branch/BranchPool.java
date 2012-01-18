@@ -372,6 +372,23 @@ public class BranchPool {
 	}
 
 	/**
+	 * Returns the number of known Branches for a given class
+	 * 
+	 * @return The number of currently known Branches inside the given class
+	 */
+	public static int getBranchCountForPrefix(String prefix) {
+		int num = 0;
+		for (String className : branchMap.keySet()) {
+			if (className.startsWith(prefix)) {
+				for (String method : branchMap.get(className).keySet()) {
+					num += branchMap.get(className).get(method).size();
+				}
+			}
+		}
+		return num;
+	}
+
+	/**
 	 * Returns the number of currently known Branches
 	 * 
 	 * @return The number of currently known Branches
@@ -402,6 +419,37 @@ public class BranchPool {
 			return new HashSet<String>();
 
 		return branchlessMethods.get(className);
+	}
+
+	/**
+	 * Returns the number of methods without Branches for class className
+	 * 
+	 * @return The number of methods without Branches.
+	 */
+	public static int getNumBranchlessMethodsPrefix(String className) {
+		int num = 0;
+		for (String name : branchlessMethods.keySet()) {
+			if (name.startsWith(className))
+				num += branchlessMethods.get(name).size();
+		}
+		return num;
+	}
+
+	/**
+	 * Returns a set with all unique methodNames of methods without Branches.
+	 * 
+	 * @return A set with all unique methodNames of methods without Branches.
+	 */
+	public static Set<String> getBranchlessMethodsPrefix(String className) {
+		Set<String> methods = new HashSet<String>();
+
+		for (String name : branchlessMethods.keySet()) {
+			if (name.startsWith(className)) {
+				methods.addAll(branchlessMethods.get(name));
+			}
+		}
+
+		return methods;
 	}
 
 	/**

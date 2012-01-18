@@ -44,6 +44,7 @@ import de.unisb.cs.st.evosuite.cfg.instrumentation.MutationInstrumentation;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.PrimePathInstrumentation;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyInstrumentation;
+import de.unisb.cs.st.evosuite.testcase.StaticTestCluster;
 
 /**
  * Create a minimized control flow graph for the method and store it. In
@@ -109,7 +110,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 		boolean isMainMethod = plain_name.equals("main") && Modifier.isStatic(access);
 
 		List<MethodInstrumentation> instrumentations = new ArrayList<MethodInstrumentation>();
-		if (className.equals(Properties.TARGET_CLASS)) {
+		if (StaticTestCluster.isTargetClassName(className)) {
 			if (Properties.CRITERION == Criterion.CONCURRENCY) {
 				instrumentations.add(new ConcurrencyInstrumentation());
 				instrumentations.add(new BranchInstrumentation());
@@ -161,7 +162,8 @@ public class CFGMethodAdapter extends MethodVisitor {
 		        && (access & Opcodes.ACC_NATIVE) == 0) {
 
 			logger.info("Analyzing method " + methodName + " in class " + className);
-			methods.put(className, new HashSet<String>());
+			if (!methods.containsKey(className))
+				methods.put(className, new HashSet<String>());
 
 			// MethodNode mn = new CFGMethodNode((MethodNode)mv);
 			// System.out.println("Generating CFG for "+ className+"."+mn.name +
@@ -203,20 +205,6 @@ public class CFGMethodAdapter extends MethodVisitor {
 				methods.get(className).add(id);
 				logger.debug("Counting: " + id);
 			}
-			/*
-						if (Properties.TT) {
-							try {
-								BooleanTestabilityPlaceholderTransformer.transform(mn, className);
-							} catch (Throwable t) {
-								logger.info("2 Error: " + t);
-								t.printStackTrace();
-								System.exit(0);
-
-							}
-
-						}
-						*/
-
 		}
 		mn.accept(next);
 	}
@@ -255,4 +243,49 @@ public class CFGMethodAdapter extends MethodVisitor {
 		        && (Properties.USE_DEPRECATED || (access & Opcodes.ACC_DEPRECATED) != Opcodes.ACC_DEPRECATED);
 	}
 
+	/**
+	 * Returns a set with all unique methodNames of methods.
+	 * 
+	 * @return A set with all unique methodNames of methods.
+	 */
+	public static Set<String> getMethods(String className) {
+		if (!methods.containsKey(className))
+			return new HashSet<String>();
+
+		return methods.get(className);
+	}
+
+	/**
+	 * Returns a set with all unique methodNames of methods.
+	 * 
+	 * @return A set with all unique methodNames of methods.
+	 */
+	public static Set<String> getMethodsPrefix(String className) {
+		Set<String> matchingMethods = new HashSet<String>();
+
+		for (String name : methods.keySet()) {
+			if (name.startsWith(className)) {
+				matchingMethods.addAll(methods.get(name));
+			}
+		}
+
+		return matchingMethods;
+	}
+
+	/**
+	 * Returns a set with all unique methodNames of methods.
+	 * 
+	 * @return A set with all unique methodNames of methods.
+	 */
+	public static int getNumMethodsPrefix(String className) {
+		int num = 0;
+
+		for (String name : methods.keySet()) {
+			if (name.startsWith(className)) {
+				num += methods.get(name).size();
+			}
+		}
+
+		return num;
+	}
 }

@@ -45,7 +45,6 @@ public class BytecodeInstructionPool {
 	 */
 	public static List<BytecodeInstruction> registerMethodNode(MethodNode node,
 	        String className, String methodName) {
-		logger.info("REGISTERING " + className + " " + methodName);
 		registerMethodNode(node);
 
 		int lastLineNumber = -1;
