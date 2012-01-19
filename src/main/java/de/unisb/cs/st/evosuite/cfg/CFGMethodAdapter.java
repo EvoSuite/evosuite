@@ -288,4 +288,21 @@ public class CFGMethodAdapter extends MethodVisitor {
 
 		return num;
 	}
+
+	/**
+	 * Returns a set with all unique methodNames of methods.
+	 * 
+	 * @return A set with all unique methodNames of methods.
+	 */
+	public static int getNumMethodsMemberClasses(String className) {
+		int num = 0;
+
+		for (String name : methods.keySet()) {
+			if (name.equals(className) || name.startsWith(className + "$")) {
+				num += methods.get(name).size();
+			}
+		}
+
+		return num;
+	}
 }

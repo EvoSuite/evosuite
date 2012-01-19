@@ -54,7 +54,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private static final long serialVersionUID = 2991632394620406243L;
 
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
-	
+
 	public static final int total_methods;
 	public static final int total_branches;
 	public static final int numBranchlessMethods;
@@ -63,20 +63,24 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	static {
 		String prefix = Properties.TARGET_CLASS_PREFIX;
-		
+
 		if (prefix.isEmpty()) {
 			prefix = Properties.TARGET_CLASS;
+			total_methods = CFGMethodAdapter.getNumMethodsMemberClasses(prefix);
+			total_branches = BranchPool.getBranchCountForMemberClasses(prefix);
+			numBranchlessMethods = BranchPool.getNumBranchlessMethodsMemberClasses(prefix);
+			branchlessMethods = BranchPool.getBranchlessMethodsMemberClasses(prefix);
+		} else {
+			total_methods = CFGMethodAdapter.getNumMethodsPrefix(prefix);
+			total_branches = BranchPool.getBranchCountForPrefix(prefix);
+			numBranchlessMethods = BranchPool.getNumBranchlessMethodsPrefix(prefix);
+			branchlessMethods = BranchPool.getBranchlessMethodsPrefix(prefix);
 		}
-		
-		total_methods = CFGMethodAdapter.getNumMethodsPrefix(prefix);
-		total_branches = BranchPool.getBranchCountForPrefix(prefix);
-		numBranchlessMethods = BranchPool.getNumBranchlessMethodsPrefix(prefix);
-		branchlessMethods = BranchPool.getBranchlessMethodsPrefix(prefix);
 
 		/* TODO: Would be nice to use a prefix here */
 		lines = LinePool.getLines(Properties.TARGET_CLASS);
 	}
-	
+
 	public int covered_branches = 0;
 
 	public int covered_methods = 0;
@@ -255,11 +259,10 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		*/
 		//		logger.info("Method calls : "+(total_methods - call_count.size())+"/"+total_methods+" ("+CFGMethodAdapter.methods.size()+")");
 		int missing_methods = 0;
-		
-		Set<String> methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ?
-				CFGMethodAdapter.getMethods(Properties.TARGET_CLASS) :
-				CFGMethodAdapter.getMethodsPrefix(Properties.TARGET_CLASS_PREFIX);
-		
+
+		Set<String> methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? CFGMethodAdapter.getMethods(Properties.TARGET_CLASS)
+		        : CFGMethodAdapter.getMethodsPrefix(Properties.TARGET_CLASS_PREFIX);
+
 		for (String e : methods) {
 			if (!call_count.containsKey(e)) {
 				//logger.debug("Missing method: " + e);
