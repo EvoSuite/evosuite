@@ -60,7 +60,7 @@ public class IntegerComparison extends IntegerExpression {
 
 	@Override
 	public Object execute() {
-		// TODO Auto-generated method stub
+		// this is never used 
 		return null;
 	}
 
