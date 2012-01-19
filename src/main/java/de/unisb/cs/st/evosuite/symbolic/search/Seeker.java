@@ -21,9 +21,12 @@ import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
 
 import de.unisb.cs.st.evosuite.symbolic.expr.Cast;
+import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerVariable;
+import de.unisb.cs.st.evosuite.symbolic.expr.RealConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.RealVariable;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringVariable;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
@@ -36,10 +39,6 @@ import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
 public class Seeker implements Solver {
 	
 	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.search.Seeker");
-	
-	//TODO figure out what values should be given to these fields
-	private int maxStepsForAll = 3;
-	
 	
 	/* The idea here is to get the expressions and build the constraint 
 	 * dynamically here using Java reflection. This should save us some time
@@ -54,8 +53,9 @@ public class Seeker implements Solver {
 		List<Constraint<?>> constraints = (List<Constraint<?>>) constr;
 		Set<Variable<?>> vars = getVarsOfTarget((List<Constraint<?>>) constraints);
 
+		//try each var #vars-times
 		outerloop:
-		for (int i = 0; i < maxStepsForAll ; i++ ) {
+		for (int i = 0; i < vars.size() ; i++ ) {
 			for (Variable<?> var : vars) {
 
 				Changer changer = new Changer();
@@ -66,10 +66,14 @@ public class Seeker implements Solver {
 						break outerloop;
 					}
 				}
+				
+				/* this makes problems with the intLocalSearchV2
+				 ../EvoSuite -generateSuite -class org.joda.time.base.AbstractDuration -Ddse_rate=5
+				 */
 				// These two are not yet implemented
 				if (var instanceof IntegerVariable) {
 					IntegerVariable intVar = (IntegerVariable) var;
-					if (changer.intLocalSearchV2(intVar, constraints, result)) {
+					if (changer.intLocalSearch(intVar, constraints, result)) {
 						break outerloop;
 					}
 				}
@@ -186,7 +190,14 @@ public class Seeker implements Solver {
 			getVariables(cst.getConcreteObject(), variables);	
 		} else if (expr instanceof Constraint<?>) {
 			// ignore
+		} else if (expr instanceof IntegerConstant
+					|| expr instanceof StringConstant
+					|| expr instanceof RealConstant) {
+				// ignore
 
+		} else {
+			log.warning("Seeker: we schouldn't be here" + expr);
+			System.exit(0);
 		}
 	}
 	

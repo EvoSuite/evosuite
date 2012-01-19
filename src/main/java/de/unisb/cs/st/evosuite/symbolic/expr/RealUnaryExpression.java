@@ -67,7 +67,7 @@ public class RealUnaryExpression extends RealExpression implements
 
 	@Override
 	public Double execute() {
-		double leftVal = ExpressionHelper.getDoubleResult(expr);
+		double leftVal = (Double)expr.execute();
 		
 		switch (op) {
 

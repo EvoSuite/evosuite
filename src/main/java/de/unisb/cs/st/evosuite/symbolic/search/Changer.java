@@ -126,7 +126,6 @@ public class Changer {
 		intVar.setConcreteValue(newVal);
 	}
 	
-	//TODO fix for other expressions that land here e.g. RealExpression
 	public boolean strLocalSearch(StringVariable strVar, 
 			List<Constraint<?>> cnstr, 
 			HashMap<String, Object> varsToChange) {

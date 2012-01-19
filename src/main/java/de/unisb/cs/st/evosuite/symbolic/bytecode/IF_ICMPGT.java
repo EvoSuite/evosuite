@@ -32,7 +32,6 @@ import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
 public class IF_ICMPGT extends gov.nasa.jpf.jvm.bytecode.IF_ICMPGT {
 	public IF_ICMPGT(int targetPc) {
 		super(targetPc);
-		// TODO Auto-generated constructor stub
 	}
 
 	@SuppressWarnings("unchecked")
