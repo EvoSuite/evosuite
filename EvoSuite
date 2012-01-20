@@ -249,6 +249,7 @@ setup_evosuite ()
 		else
 	    	    echo "PROJECT_PREFIX=$PROJECT_PREFIX" > $OUTPUT_DIR/evosuite.properties
 		fi
+		
 	    	#echo "CP=\"$SRC:evosuite-files/Stubs/classes\"" >> $OUTPUT_DIR/evosuite.properties
 	    	#cat $BASEPATH/src/main/assembly/etc/evosuite.properties >> $OUTPUT_DIR/evosuite.properties
 	    fi
@@ -302,7 +303,7 @@ setup ()
 	    first=1
 	    java $java_debug $java_options -ea -cp "$classpath:$CP" -DCP=$CP -DPROJECT_PREFIX=$PROJECT_PREFIX $TEST_CLASS $OBJECT $MOCK $evosuite_scan
 #	    java $java_options -cp "$classpath:$CP" $java_agent=tasks $TEST_CLASS $OBJECT $evosuite_tasks
-	    setup_evosuite $OUTPUT_DIR $PROJECT_PREFIX $CP
+#	    setup_evosuite $OUTPUT_DIR $PROJECT_PREFIX $CP
 	}
     else {
 	    unknown_parameters "setup" "$@"
