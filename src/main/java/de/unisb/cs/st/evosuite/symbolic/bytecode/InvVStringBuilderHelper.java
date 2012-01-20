@@ -69,8 +69,8 @@ public abstract class InvVStringBuilderHelper {
 		String pp = "";
 		if (prevInstr.startsWith("ldc") || prevInstr.startsWith("aload")){
 			pp = ins.getPrev().getPrev().toString();
-		} else if (prevInstr.startsWith("invokevirtual java.lang.String.charAt(I)C") ) {
-			pp = ins.getPrev().getPrev().getPrev().getPrev().toString();
+//		} else if (prevInstr.startsWith("invokevirtual java.lang.String.charAt(I)C") ) {
+//			pp = ins.getPrev().getPrev().getPrev().getPrev().toString();
 		} else {
 			throw_away();
 		}
