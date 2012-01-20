@@ -244,6 +244,61 @@ public class BooleanHelper {
 		return d;
 	}
 
+	/**
+	 * Replacement function for double comparison
+	 * 
+	 * @param d1
+	 * @param d2
+	 * @return
+	 */
+	public static int doubleSub(double d1, double d2) {
+		if (d1 == d2)
+			return 0;
+		else {
+			double diff = d2 - d1;
+			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0 + Math.abs(diff));
+			int d3 = (int) Math.round(Integer.MAX_VALUE * diff2);
+			return d3;
+		}
+	}
+
+	/**
+	 * Replacement function for float comparison
+	 * 
+	 * @param f1
+	 * @param f2
+	 * @return
+	 */
+	public static int floatSub(float f1, float f2) {
+		if (f1 == f2)
+			return 0;
+		else {
+			double diff = f2 - f1;
+			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0F + Math.abs(diff));
+			int d3 = (int) Math.round(Integer.MAX_VALUE * diff2);
+			return d3;
+		}
+	}
+
+	/**
+	 * Replacement function for long comparison
+	 * 
+	 * @param l1
+	 * @param l2
+	 * @return
+	 */
+	public static int longSub(long l1, long l2) {
+		if (l1 == l2)
+			return 0;
+		else {
+			double diff = l2 - l1;
+			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0F + Math.abs(diff));
+			int d3 = (int) Math.round(Integer.MAX_VALUE * diff2);
+			return d3;
+		}
+	}
+
+	@Deprecated
 	public static int fromDouble(double d) {
 		//logger.info("Converting double " + d);
 		/*
@@ -264,6 +319,7 @@ public class BooleanHelper {
 		}
 	}
 
+	@Deprecated
 	public static int fromFloat(float d) {
 		//logger.info("Converting float " + d);
 		/*
@@ -283,6 +339,7 @@ public class BooleanHelper {
 		}
 	}
 
+	@Deprecated
 	public static int fromLong(long d) {
 		/*
 		if (d > Integer.MAX_VALUE)
