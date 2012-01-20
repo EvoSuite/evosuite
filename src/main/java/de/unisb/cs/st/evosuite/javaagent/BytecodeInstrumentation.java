@@ -71,7 +71,10 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		        && !className.startsWith("java.") && !className.startsWith("sun.")
 		        && !className.startsWith("de.unisb.cs.st.evosuite")
 		        && !className.startsWith("javax.")
-		        && !className.startsWith("org.xml.sax");
+		        && !className.startsWith("org.xml.sax")
+		        && !className.startsWith("apple.")
+		        && !className.startsWith("com.apple.")
+		        && !className.startsWith("daikon.");
 	}
 
 	private boolean isTargetClassName(String className) {
@@ -194,7 +197,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		//		if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
 		if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX) || classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX)) {
 			ClassNode cn = new ClassNode();
-			reader.accept(cn, ClassReader.SKIP_FRAMES); //  | ClassReader.SKIP_DEBUG
+			reader.accept(cn, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG); //  | ClassReader.SKIP_DEBUG
 			ComparisonTransformation cmp = new ComparisonTransformation(cn);
 			cn = cmp.transform();
 
@@ -229,7 +232,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			cn.accept(cv);
 
 		} else {
-			reader.accept(cv, ClassReader.SKIP_FRAMES); //  | ClassReader.SKIP_DEBUG
+			reader.accept(cv, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG); //  | ClassReader.SKIP_DEBUG
 		}
 
 		// Print out bytecode if debug is enabled

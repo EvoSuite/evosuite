@@ -30,7 +30,7 @@ import de.unisb.cs.st.evosuite.utils.SimpleCondition;
 public class UITestSuiteGenerator {
 	private static final int TIME_LIMIT_SECONDS = Integer.valueOf(System.getProperty("timelimit", "" + Properties.GLOBAL_TIMEOUT));
 	
-	private static final class MainTrigger implements Trigger, Serializable {
+	public static final class MainTrigger implements Trigger, Serializable {
 		private static final long serialVersionUID = 1L;
 		private String mainClass;
 
@@ -223,13 +223,13 @@ public class UITestSuiteGenerator {
 		}
 	}
 	
-	public static void writeCoverage() {
+	public static synchronized void writeCoverage() {
 		try {
 			Class<?> emmaRT = Class.forName("com.vladium.emma.rt.RT");
 			Method m = emmaRT.getMethod("dumpCoverageData", new Class<?>[] { File.class, boolean.class, boolean.class });
 			m.invoke(null, new File("coverage.ec"), false, false);
 		} catch (Throwable t) {
-			t.printStackTrace();
+			/* No worries */
 		}
 	}
 
