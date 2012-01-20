@@ -34,7 +34,6 @@ import de.unisb.cs.st.evosuite.symbolic.expr.Operator;
 public class IINC extends gov.nasa.jpf.jvm.bytecode.IINC {
 	public IINC(int localVarIndex, int increment) {
 		super(localVarIndex, increment);
-		// TODO Auto-generated constructor stub
 	}
 
 	@SuppressWarnings("unchecked")

@@ -80,7 +80,6 @@ BinaryExpression<String>{
 			}
 			
 			return this.op.equals(other.op) 
-//					&& this.getSize() == other.getSize()
 			        && this.left.equals(other.left) && this.right.equals(other.right)
 			        && other_v_eq;
 		}
@@ -88,23 +87,9 @@ BinaryExpression<String>{
 		return false;
 	}
 
-	protected int size = 0;
-
-//	@Override
-//	public int getSize() {
-//		//TODO fix this
-//		return -1;
-////		if (size == 0) {
-////			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
-////		}
-////		return size;
-//	}
-	
 	@Override
 	public String execute() {
 		String first = (String)left.execute();
-		//Object second = right.execute();		
-		//Object third = other_v.get(0).execute();
 		long secLong, thrdLong;
 		String secStr, thrdStr;
 		
@@ -121,14 +106,7 @@ BinaryExpression<String>{
 		case SUBSTRING:
 			secLong = (Long) ExpressionHelper.getLongResult(right);
 			thrdLong = (Long)  ExpressionHelper.getLongResult(other_v.get(0));
-			String res = "";
-			try {//TODO this should be handled differently
-				res = first.substring((int) secLong, (int) thrdLong);
-			} catch (Exception e) {
-				res = "";
-				//log.warning("StringBinaryExpression: substring out of bounds");
-			}
-			return res;
+			return first.substring((int) secLong, (int) thrdLong);
 		case REPLACEC:
 			secLong = (Long) ExpressionHelper.getLongResult(right);
 			thrdLong = (Long)  ExpressionHelper.getLongResult(other_v.get(0));

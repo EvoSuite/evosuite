@@ -3,24 +3,24 @@
  */
 package de.unisb.cs.st.evosuite.symbolic.bytecode;
 
-import java.util.logging.Logger;
-
-import de.unisb.cs.st.evosuite.symbolic.bytecode.INVOKEVIRTUAL;
-import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
-import de.unisb.cs.st.evosuite.symbolic.expr.IntToStringCast;
-import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstant;
-import de.unisb.cs.st.evosuite.symbolic.expr.IntegerVariable;
-import de.unisb.cs.st.evosuite.symbolic.expr.Operator;
-import de.unisb.cs.st.evosuite.symbolic.expr.RealExpression;
-import de.unisb.cs.st.evosuite.symbolic.expr.StringBinaryExpression;
-import de.unisb.cs.st.evosuite.symbolic.expr.StringBuilderExpression;
-import de.unisb.cs.st.evosuite.symbolic.expr.StringConstant;
-import de.unisb.cs.st.evosuite.symbolic.expr.StringExpression;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.jvm.KernelState;
 import gov.nasa.jpf.jvm.StackFrame;
 import gov.nasa.jpf.jvm.ThreadInfo;
 import gov.nasa.jpf.jvm.bytecode.Instruction;
+
+import java.util.logging.Logger;
+
+import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
+import de.unisb.cs.st.evosuite.symbolic.expr.IntToStringCast;
+import de.unisb.cs.st.evosuite.symbolic.expr.IntegerExpression;
+import de.unisb.cs.st.evosuite.symbolic.expr.Operator;
+import de.unisb.cs.st.evosuite.symbolic.expr.RealExpression;
+import de.unisb.cs.st.evosuite.symbolic.expr.RealToStringCast;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringBinaryExpression;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringBuilderExpression;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringConstant;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringExpression;
 
 /**
  * @author krusev
@@ -31,9 +31,6 @@ public abstract class InvVStringBuilderHelper {
 	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.bytecode.InvVStringBuilderHelper");
 	
 	static StringBuilderExpression strB_expr = null;
-	
-
-	
 	
 	public static Instruction strB_fnc_toString(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins) {
 		StackFrame sf = ti.getTopFrame();
@@ -67,27 +64,34 @@ public abstract class InvVStringBuilderHelper {
 	public static void strB_fnc_append(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins) {
 		boolean unimpl = false;
 		
+		//check if we are in a supported instruction
+		String prevInstr = ins.getPrev().toString();
+		String pp = "";
+		if (prevInstr.startsWith("ldc") || prevInstr.startsWith("aload")){
+			pp = ins.getPrev().getPrev().toString();
+//		} else if (prevInstr.startsWith("invokevirtual java.lang.String.charAt(I)C") ) {
+//			pp = ins.getPrev().getPrev().getPrev().getPrev().toString();
+		} else {
+			throw_away();
+		}
+		
 		StackFrame sf = ti.getTopFrame();
-		String pp = ins.getPrev().getPrev().toString();
 		Expression<?> expr =  (Expression<?>) sf.getOperandAttr(0);
 
 		StringExpression se0 = null;
-		if (expr instanceof StringExpression) {
-			se0 = (StringExpression) expr;
-		} 
+		
+		if (expr != null) {
+			if (expr instanceof StringExpression) {
+				se0 = (StringExpression) expr;
+			}
 
-		if (expr instanceof IntegerConstant) {
-			se0 = new StringConstant(Long.toString(((IntegerConstant)expr).getConcreteValue()));
-		} 
-			
-
-		if (expr instanceof IntegerVariable) {
-			se0 = new IntToStringCast((IntegerVariable)expr);
-		} 
-
-		if (expr instanceof RealExpression) {
-			//TODO see below
-			log.warning("InvVStringBuilderHelper: We haven't implemented realToStringCast yet!");
+			if (expr instanceof IntegerExpression) {
+				se0 = new IntToStringCast((IntegerExpression)expr);
+			} 
+	
+			if (expr instanceof RealExpression) {
+				se0 = new RealToStringCast((RealExpression)expr);
+			}
 		}
 
 		
@@ -109,7 +113,6 @@ public abstract class InvVStringBuilderHelper {
 		String mname = ins.getInvokedMethodName();
 		if (se0 == null) {
 			
-			
 			if (mname.equals("append(Z)Ljava/lang/StringBuilder;")) {
 				int val = sf.peek();
 				se0 = new StringConstant((val > 0) ? "true" : "false");
@@ -120,19 +123,16 @@ public abstract class InvVStringBuilderHelper {
 				
 			} else if (mname.equals("append(D)Ljava/lang/StringBuilder;")) {
 				
-				//TODO fill in 
-				se0 = new StringConstant(" ");
-				unimpl = true;  
+				double val = Double.longBitsToDouble(sf.longPeek());
+				se0 = new StringConstant(Double.toString(val));
 				
 			} else if (mname.equals("append(F)Ljava/lang/StringBuilder;")) {
 
-				//TODO fill in 
-				se0 = new StringConstant(" ");
-				unimpl = true;  
+				float val = Float.intBitsToFloat(sf.peek());
+				se0 = new StringConstant(Float.toString(val));
 				
 			} else if (mname.equals("append(I)Ljava/lang/StringBuilder;")) {
 
-				//TODO fix this for int variables
 				int val = sf.peek();
 				se0 = new StringConstant(Integer.toString(val));
 				
@@ -148,9 +148,6 @@ public abstract class InvVStringBuilderHelper {
 			}
 		}
 		
-
-
-		
 		if ( pp.equals("invokespecial java.lang.StringBuilder.<init>()V") ) {
 			
 			strB_expr = new StringBuilderExpression(se0);
@@ -158,7 +155,8 @@ public abstract class InvVStringBuilderHelper {
 				strB_expr.set_undef_func();
 			}
 			
-		} else if ( pp.startsWith("invokevirtual java.lang.StringBuilder.append(") && !(strB_expr.has_undef_func())) {
+		} else if ( (pp.startsWith("invokevirtual java.lang.StringBuilder.append(") )
+					&& !(strB_expr.has_undef_func())) {
 
 			
 			//StringExpression se1 = (StringExpression) sf.getOperandAttr(2);
@@ -176,10 +174,15 @@ public abstract class InvVStringBuilderHelper {
 			int position = Integer.parseInt(spl_str[1]);
 			
 			int offset = sf.getTopPos() - position;
-			
-			StringBuilderExpression se1 = (StringBuilderExpression) sf.getOperandAttr(offset);	
-			
-			
+			Object opAttr = sf.getOperandAttr(offset);
+			StringBuilderExpression se1 = null;
+			if (opAttr != null) {
+				if (opAttr instanceof StringBuilderExpression ) {
+					se1 = (StringBuilderExpression) opAttr;
+				} else {
+					throw_away();
+				}
+			}
 			//If se1 == null we have a new String Builder 
 			if (se1 != null && !(se1.has_undef_func())) {		
 				String result = ((String)se1.getConcreteValue()) + ((String)se0.getConcreteValue());
@@ -202,14 +205,12 @@ public abstract class InvVStringBuilderHelper {
 		StackFrame sf = ti.getTopFrame();
 		StringBuilderExpression se0 = (StringBuilderExpression) sf.getOperandAttr(0);
 		
-		//TODO talk with Gordon about this
-		//If we had an undefined append we lose everything this should be signaled somehow
-		
 		return (se0 == null) ? !strB_expr.has_undef_func() : !se0.has_undef_func() ;
 	}
 
-	public static void throw_away(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins) {
-		//TODO implement
+	public static void throw_away() {
+		//TODO maybe we should throw some StringBuilderException here
+		throw new NullPointerException();
 	}
 	
 	

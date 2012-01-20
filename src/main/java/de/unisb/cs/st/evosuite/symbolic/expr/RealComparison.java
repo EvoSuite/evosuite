@@ -62,7 +62,7 @@ public class RealComparison extends RealExpression {
 
 	@Override
 	public Double execute() {
-		// TODO Auto-generated method stub
+		// this is never used
 		return null;
 	}
 }

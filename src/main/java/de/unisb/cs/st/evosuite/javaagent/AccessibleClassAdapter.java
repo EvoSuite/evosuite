@@ -88,8 +88,9 @@ public class AccessibleClassAdapter extends ClassVisitor {
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc,
 	        String signature, final String[] exceptions) {
-
-		if (!exclude && (access & Opcodes.ACC_PRIVATE) != Opcodes.ACC_PRIVATE) {
+		int skipMask = Opcodes.ACC_NATIVE | Opcodes.ACC_BRIDGE;
+		
+		if (!exclude && ((access & Opcodes.ACC_PRIVATE) != Opcodes.ACC_PRIVATE) && ((access & skipMask) == 0)) {
 			access = access | Opcodes.ACC_PUBLIC;
 			access = access & ~Opcodes.ACC_PROTECTED;
 		}

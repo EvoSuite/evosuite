@@ -27,9 +27,18 @@ import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
-import de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator;
 import de.unisb.cs.st.evosuite.symbolic.search.Seeker;
-import de.unisb.cs.st.evosuite.testcase.*;
+import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
+import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
+import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
+import de.unisb.cs.st.evosuite.testcase.MethodStatement;
+import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
+import de.unisb.cs.st.evosuite.testcase.StaticTestCluster;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
+import de.unisb.cs.st.evosuite.testcase.TestChromosome;
+import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
  * @author Gordon Fraser
@@ -187,9 +196,6 @@ public class TestSuiteDSE {
 			return false;
 		}
 
-		//TODO double conditions are marked as covered because of a mismatch of the instruction indices
-		//		logger.warn("\njpfName: " +jpfName +"\n\nbranch.ins: " + branch.ins + "\njpfBranchMap.get(jpfName) " + jpfBranchMap.get(jpfName) + "\nbranch.ins.getInstructionIndex(): " + branch.ins.getInstructionIndex());
-
 		if (jpfBranchMap.get(jpfName).contains(branch.ins.getInstructionIndex())) {
 			return true;
 		}
@@ -283,7 +289,6 @@ public class TestSuiteDSE {
 						if (p.getValue().getClass().equals(Character.class))
 							p.setValue((char) Integer.parseInt(val.toString()));
 						else
-							//TODO change for ints or whatever
 							p.setValue(val.toString());
 					} else if (val instanceof Double) {
 						Double value = (Double) val;
@@ -485,7 +490,7 @@ public class TestSuiteDSE {
 			for (VariableReference var : statement.getParameterReferences()) {
 				if (var.isPrimitive() || var.isString()) {
 					if (usedVariables.contains(var)
-					        && test.getStatement(var.getStPosition()) instanceof PrimitiveStatement) {
+					        && test.getStatement(var.getStPosition()) instanceof PrimitiveStatement<?>) {
 						// Duplicate and replace
 						VariableReference varCopy = duplicateStatement(test, var);
 						statement.replaceParameterReference(varCopy, i);
@@ -506,7 +511,7 @@ public class TestSuiteDSE {
 			for (VariableReference var : statement.getParameterReferences()) {
 				if (var.isPrimitive() || var.isString()) {
 					if (usedVariables.contains(var)
-					        && test.getStatement(var.getStPosition()) instanceof PrimitiveStatement) {
+					        && test.getStatement(var.getStPosition()) instanceof PrimitiveStatement<?>) {
 						// Duplicate and replace
 						VariableReference varCopy = duplicateStatement(test, var);
 						statement.replaceParameterReference(varCopy, i);
