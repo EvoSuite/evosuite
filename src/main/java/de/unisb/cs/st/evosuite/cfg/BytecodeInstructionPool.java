@@ -138,8 +138,10 @@ public class BytecodeInstructionPool {
 		}
 
 		logger.debug("unknown instruction " + instructionId + ", have "
-		        + instructionMap.get(className).get(methodName).size()
-		        + " instructions for this method");
+		        + instructionMap.get(className).get(methodName).size());
+		for (int i = 0; i < instructionMap.get(className).get(methodName).size(); i++) {
+			logger.info(instructionMap.get(className).get(methodName).get(i).toString());
+		}
 
 		return null;
 	}

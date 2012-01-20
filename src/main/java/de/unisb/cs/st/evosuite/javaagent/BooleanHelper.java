@@ -155,11 +155,19 @@ public class BooleanHelper {
 		//		System.out.println("Keeping branch id: " + branch.getClassName() + " - "
 		//		        + branchId + " - " + distance);
 		System.out.println("Keeping branch id: " + branchId + " - " + distance);
-		lastDistance.put(branchId, distance);
+		lastDistance.put(branchId, Math.abs(distance));
 	}
 
+	/**
+	 * Retrieve the distance of a predicate with its given approximation level
+	 * 
+	 * @param branchId
+	 * @param approximationLevel
+	 * @param value
+	 * @return
+	 */
 	public static int getDistance(int branchId, int approximationLevel, int value) {
-		int distance = 0;
+		int distance = Integer.MAX_VALUE;
 		//		if (approximationLevel < 0)
 		//			approximationLevel = 0;
 		if (branchId > 0) {
@@ -174,10 +182,11 @@ public class BooleanHelper {
 
 		//		System.out.println("Getting branch id: " + branch.getClassName() + " - "
 		//		        + branchId + " - " + distance);
-		//		double val = (1.0 + normalize(distance)) / Math.pow(2.0, approximationLevel);
-		double val = (1.0 + Math.abs(distance)) / Math.pow(2.0, approximationLevel);
+		double val = (1.0 + normalize(distance)) / Math.pow(2.0, approximationLevel);
+		//double val = (1.0 + Math.abs(distance)) / Math.pow(2.0, approximationLevel);
 
-		int d = (int) Math.ceil(K * val / (val + 1));
+		//		int d = (int) Math.ceil(K * val / (val + 1));
+		int d = (int) Math.ceil(K * val);
 		if (value <= 0)
 			d = -d;
 		System.out.println("Value: " + distance + ", Distance: " + d);

@@ -5,6 +5,7 @@ package de.unisb.cs.st.evosuite.javaagent;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 import org.objectweb.asm.Label;
@@ -66,6 +67,8 @@ public class BooleanTestabilityTransformation {
 
 	private MethodNode currentMethodNode = null;
 
+	private final DescriptorMapping descriptorMapping = DescriptorMapping.getInstance();
+
 	public BooleanTestabilityTransformation(ClassNode cn) {
 		this.cn = cn;
 		this.className = cn.name.replace("/", ".");
@@ -89,7 +92,8 @@ public class BooleanTestabilityTransformation {
 	private void processFields() {
 		List<FieldNode> fields = cn.fields;
 		for (FieldNode field : fields) {
-			field.desc = transformFieldDescriptor(field.desc);
+			if (descriptorMapping.isTransformedField(className, field.name, field.desc))
+				field.desc = transformFieldDescriptor(className, field.name, field.desc);
 		}
 	}
 
@@ -99,7 +103,10 @@ public class BooleanTestabilityTransformation {
 	private void processMethods() {
 		List<MethodNode> methodNodes = cn.methods;
 		for (MethodNode mn : methodNodes) {
-			transformMethodSignature(mn);
+			if (descriptorMapping.isTransformedMethod(className, mn.name, mn.desc)) {
+				logger.info("Transforming signature of method " + mn.name);
+				transformMethodSignature(mn);
+			}
 			transformMethod(mn);
 		}
 	}
@@ -261,7 +268,7 @@ public class BooleanTestabilityTransformation {
 	 * @param list
 	 */
 	private void insertGet(AbstractInsnNode position, InsnList list) {
-
+		logger.info("Inserting get call");
 		// Here, branchId is the first control dependency
 		//list.insertBefore(position,
 		//                  new LdcInsnNode(getControlDependentBranchID(currentMethodNode,
@@ -273,6 +280,46 @@ public class BooleanTestabilityTransformation {
 		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.INT_TYPE,
 		                Type.INT_TYPE, Type.INT_TYPE }));
 		list.insert(position, get);
+	}
+
+	/**
+	 * Insert a call that takes a boolean from the stack, and returns the
+	 * appropriate distance
+	 * 
+	 * @param position
+	 * @param list
+	 */
+	private void insertGetBefore(AbstractInsnNode position, InsnList list) {
+		logger.info("Inserting get call");
+		// Here, branchId is the first control dependency
+		//list.insertBefore(position,
+		//                  new LdcInsnNode(getControlDependentBranchID(currentMethodNode,
+		//                                                              position)));
+		// insertControlDependencyPlaceholder(currentMethodNode, position);
+
+		// branch
+		// approx
+		// value
+
+		Label label = new Label();
+		LabelNode labelNode = new LabelNode(label);
+		//BooleanTestabilityPlaceholderTransformer.addControlDependencyPlaceholder(label,
+		//                                                                         insnNode);
+		currentMethodNode.instructions.insertBefore(position, labelNode);
+		//instructions.insertBefore(insnNode, new LdcInsnNode(0));
+		//mn.instructions.insertBefore(insnNode, new LdcInsnNode(0));
+		currentMethodNode.instructions.insertBefore(position, new LdcInsnNode(
+		        getControlDependentBranchID(currentMethodNode, position)));
+		currentMethodNode.instructions.insertBefore(position, new InsnNode(Opcodes.SWAP));
+		currentMethodNode.instructions.insertBefore(position, new LdcInsnNode(
+		        getApproximationLevel(currentMethodNode, position)));
+		currentMethodNode.instructions.insertBefore(position, new InsnNode(Opcodes.SWAP));
+
+		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
+		        Type.getInternalName(BooleanHelper.class), "getDistance",
+		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.INT_TYPE,
+		                Type.INT_TYPE, Type.INT_TYPE }));
+		list.insertBefore(position, get);
 	}
 
 	private boolean isBooleanOnStack(MethodNode mn, AbstractInsnNode node, int position) {
@@ -303,20 +350,19 @@ public class BooleanTestabilityTransformation {
 		logger.info("Checking for ISTORE after boolean");
 		boolean done = false;
 		while (!done) {
-			/*
+
 			if (node.getOpcode() == Opcodes.PUTFIELD
 			        || node.getOpcode() == Opcodes.PUTSTATIC) {
 				// TODO: Check whether field is static
 				logger.info("Checking field assignment");
 				FieldInsnNode fn = (FieldInsnNode) node;
-				if (mapping.isTransformedOrBooleanField(fn.owner, fn.name, fn.desc)) {
+				if (descriptorMapping.isTransformedOrBooleanField(fn.owner, fn.name,
+				                                                  fn.desc)) {
 					return true;
 				} else {
 					return false;
 				}
-			} else
-			*/
-			if (node.getOpcode() == Opcodes.ISTORE) {
+			} else if (node.getOpcode() == Opcodes.ISTORE) {
 				logger.info("Found ISTORE after boolean");
 
 				VarInsnNode vn = (VarInsnNode) node;
@@ -328,13 +374,16 @@ public class BooleanTestabilityTransformation {
 					logger.info("Variable is not a bool");
 					return false;
 				}
-				/*} else if (node.getOpcode() == Opcodes.IRETURN) {
-					logger.info("Checking return value of method " + cn.name + "." + mn.name);
-					if (mapping.isTransformedOrBooleanMethod(cn.name, mn.name, mn.desc)) {
-						return true;
-					} else {
-						return false;
-					}*/
+			} else if (node.getOpcode() == Opcodes.IRETURN) {
+				logger.info("Checking return value of method " + cn.name + "." + mn.name);
+				if (descriptorMapping.isTransformedOrBooleanMethod(cn.name, mn.name,
+				                                                   mn.desc)) {
+					logger.info("Method returns a bool");
+					return true;
+				} else {
+					logger.info("Method does not return a bool");
+					return false;
+				}
 			} else if (node.getOpcode() == Opcodes.BASTORE) {
 				// We remove all bytes, so BASTORE is only used for booleans
 				AbstractInsnNode start = position.getNext();
@@ -397,53 +446,38 @@ public class BooleanTestabilityTransformation {
 		bytecodeAnalyzer.retrieveCFGGenerator().registerCFGs();
 	}
 
-	private String transformMethodDescriptor(String desc) {
-		String new_desc = "(";
-
-		Type[] types = Type.getArgumentTypes(desc);
-		for (Type type : types) {
-			if (type.equals(Type.BOOLEAN_TYPE)) {
-				new_desc += "I";
-			} else if (type.getDescriptor().equals("[Z")) {
-				new_desc += "[I";
-			} else {
-				new_desc += type.getDescriptor();
-			}
-		}
-		new_desc += ")";
-
-		Type type = Type.getReturnType(desc);
-		if (type.equals(Type.BOOLEAN_TYPE)) {
-			new_desc += "I";
-		} else if (type.getDescriptor().equals("[Z")) {
-			new_desc += "[I";
-		} else {
-			new_desc += type.getDescriptor();
-		}
-
-		return new_desc;
+	/**
+	 * Determine if the signature of the given method needs to be transformed,
+	 * and transform if necessary
+	 * 
+	 * @param owner
+	 * @param name
+	 * @param desc
+	 * @return
+	 */
+	private String transformMethodDescriptor(String owner, String name, String desc) {
+		return descriptorMapping.getMethodDesc(className, name, desc);
 	}
 
-	private String transformFieldDescriptor(String desc) {
-		TestabilityTransformation.logger.info("Transforming field instruction " + desc);
-		if (desc.endsWith("Z")) {
-			// TODO: Check if this is actually transformed or not
-			// TODO: Higher dimensional arrays
-			if (desc.equals("Z"))
-				return "I";
-			else if (desc.equals("[Z"))
-				return "[I";
-			else
-				return desc;
-		} else {
-			return desc;
-		}
+	/**
+	 * Determine if the signature of the given field needs to be transformed,
+	 * and transform if necessary
+	 * 
+	 * @param owner
+	 * @param name
+	 * @param desc
+	 * @return
+	 */
+	private String transformFieldDescriptor(String owner, String name, String desc) {
+		return descriptorMapping.getFieldDesc(className, name, desc);
 	}
 
 	private void transformMethodSignature(MethodNode mn) {
 		// If the method was declared in java.* then don't instrument
 		// Otherwise change signature
-		mn.desc = transformMethodDescriptor(mn.desc);
+		String newDesc = descriptorMapping.getMethodDesc(className, mn.name, mn.desc);
+		logger.info("Changing method descriptor from " + mn.desc + " to " + newDesc);
+		mn.desc = descriptorMapping.getMethodDesc(className, mn.name, mn.desc);
 	}
 
 	/**
@@ -466,11 +500,11 @@ public class BooleanTestabilityTransformation {
 			currentFrames = a.getFrames();
 		} catch (Exception e) {
 			logger.warn("Error during analysis: " + e);
+			e.printStackTrace();
 			// TODO: Handle error
 		}
 		generateCDG(mn);
 		currentMethodNode = mn;
-
 		// First expand ifs without else
 		new ImplicitElseTransformer().transform(mn);
 		try {
@@ -479,8 +513,10 @@ public class BooleanTestabilityTransformation {
 			currentFrames = a.getFrames();
 		} catch (Exception e) {
 			logger.warn("Error during analysis: " + e);
+			e.printStackTrace();
 			// TODO: Handle error
 		}
+
 		//		BytecodeInstructionPool.reRegisterMethodNode(mn, className, mn.name + mn.desc);
 
 		// Transform IFEQ/IFNE to IFLE/IFGT
@@ -512,12 +548,12 @@ public class BooleanTestabilityTransformation {
 		// Replace all boolean return values
 		// new BooleanReturnTransformer().transform(mn);
 
-		// Actually this should be done automatically by the ClassWriter...
-		// +2 because we might do a DUP2
 		CFGPool.clear(className, mn.name + mn.desc);
 		BytecodeInstructionPool.clear(className, mn.name + mn.desc);
 		BranchPool.clear(className, mn.name + mn.desc);
 
+		// Actually this should be done automatically by the ClassWriter...
+		// +2 because we might do a DUP2
 		mn.maxStack += 3;
 	}
 
@@ -535,11 +571,14 @@ public class BooleanTestabilityTransformation {
 		 */
 		@Override
 		protected AbstractInsnNode transformInsnNode(MethodNode mn, InsnNode insnNode) {
-			logger.info("Checking transformation of InsnNode");
+			logger.info("Checking transformation of InsnNode ");
 			if (insnNode.getOpcode() == Opcodes.ICONST_0
 			        && isBooleanAssignment(insnNode, mn)) {
 				insertGet(insnNode, mn.instructions);
 			} else if (insnNode.getOpcode() == Opcodes.ICONST_1
+			        && isBooleanAssignment(insnNode, mn)) {
+				insertGet(insnNode, mn.instructions);
+			} else if (insnNode.getOpcode() == Opcodes.IRETURN
 			        && isBooleanAssignment(insnNode, mn)) {
 				insertGet(insnNode, mn.instructions);
 			}
@@ -561,6 +600,34 @@ public class BooleanTestabilityTransformation {
 			}
 			return varNode;
 		}
+
+		/* (non-Javadoc)
+		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformFieldInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.FieldInsnNode)
+		 */
+		@Override
+		protected AbstractInsnNode transformFieldInsnNode(MethodNode mn,
+		        FieldInsnNode fieldNode) {
+			// This handles the else branch for field assignments
+			if (descriptorMapping.isTransformedOrBooleanField(className, fieldNode.name,
+			                                                  fieldNode.desc)) {
+				if (fieldNode.getNext() instanceof FieldInsnNode) {
+					FieldInsnNode other = (FieldInsnNode) fieldNode.getNext();
+					if (fieldNode.owner.equals(other.owner)
+					        && fieldNode.name.equals(other.name)
+					        && fieldNode.desc.equals(other.desc)) {
+						if (fieldNode.getOpcode() == Opcodes.GETFIELD
+						        && other.getOpcode() == Opcodes.PUTFIELD) {
+							insertGetBefore(other, mn.instructions);
+						} else if (fieldNode.getOpcode() == Opcodes.GETSTATIC
+						        && other.getOpcode() == Opcodes.PUTSTATIC) {
+							insertGetBefore(other, mn.instructions);
+						}
+					}
+				}
+			}
+			return fieldNode;
+		}
+
 	}
 
 	/**
@@ -640,15 +707,24 @@ public class BooleanTestabilityTransformation {
 
 		private final Set<ControlDependency> addedNodes = new HashSet<ControlDependency>();
 
+		/*** Keep track of inserted PUTFIELDs */
+		private final Set<AbstractInsnNode> addedInsns = new HashSet<AbstractInsnNode>();
+
 		private void handleDependency(ControlDependency dependency,
-		        ControlDependenceGraph cdg, MethodNode mn, VarInsnNode varNode,
+		        ControlDependenceGraph cdg, MethodNode mn, FieldInsnNode varNode,
 		        BytecodeInstruction parentLevel) {
+
+			if (addedNodes.contains(dependency))
+				return;
+
+			// Get the basic blocks reachable if the dependency would evaluate different
 			Set<BasicBlock> blocks = cdg.getAlternativeBlocks(dependency);
-			addedNodes.contains(dependency);
+			addedNodes.add(dependency);
 
 			Set<ControlDependency> dependencies = dependency.getBranch().getInstruction().getControlDependencies();
-			if (dependencies.size() == 1) {
-				ControlDependency dep = dependencies.iterator().next();
+			//if (dependencies.size() == 1) {
+			//	ControlDependency dep = dependencies.iterator().next();
+			for (ControlDependency dep : dependencies) {
 				if (!addedNodes.contains(dep) && dep != dependency)
 					handleDependency(dep, cdg, mn, varNode,
 					                 dependency.getBranch().getInstruction());
@@ -660,9 +736,165 @@ public class BooleanTestabilityTransformation {
 			for (BasicBlock block : blocks) {
 				// If this block also assigns a value to the same variable
 				for (BytecodeInstruction instruction : block) {
-					if (instruction.getASMNode().getOpcode() == Opcodes.ILOAD) {
+					if (instruction.getASMNode().getOpcode() == Opcodes.PUTFIELD
+					        || instruction.getASMNode().getOpcode() == Opcodes.PUTSTATIC) {
+						FieldInsnNode otherFieldNode = (FieldInsnNode) instruction.getASMNode();
+						FieldInsnNode thisFieldNode = varNode;
+						if (otherFieldNode.owner.equals(thisFieldNode.owner)
+						        && otherFieldNode.name.equals(thisFieldNode.name)) {
+							hasAssignment = true;
+							break;
+						}
+					}
+				}
+				if (hasAssignment) {
+					break;
+				}
+			}
+
+			// The Flag assignment is is the dependency evaluates to the given value
+			// We thus need to insert the tautoligical assignment either directly after the IF (if the value is true)
+			// or before the jump target (if the value is false)
+
+			if (!hasAssignment) {
+				JumpInsnNode jumpNode = (JumpInsnNode) dependency.getBranch().getInstruction().getASMNode();
+				FieldInsnNode newLoad = new FieldInsnNode(
+				        varNode.getOpcode() == Opcodes.PUTSTATIC ? Opcodes.GETSTATIC
+				                : Opcodes.GETFIELD, varNode.owner, varNode.name,
+				        varNode.desc);
+				FieldInsnNode newStore = new FieldInsnNode(varNode.getOpcode(),
+				        varNode.owner, varNode.name, varNode.desc);
+				AbstractInsnNode newOwnerLoad1 = null;
+				AbstractInsnNode newOwnerLoad2 = null;
+				if (varNode.getOpcode() == Opcodes.PUTFIELD) {
+					// Need to copy the bloody owner
+					// Check for VarInsn
+					//if (varNode.getPrevious().getOpcode() == Opcodes.ALOAD) {
+					newOwnerLoad1 = new VarInsnNode(Opcodes.ALOAD, 0);
+					newOwnerLoad2 = new VarInsnNode(Opcodes.ALOAD, 0);
+					/*
+					} else {
+					// Else use helper function
+					// Insert DUP and
+					logger.info("Wargh");
+					System.exit(0);
+					fieldOwnerId++;
+					InsnNode dupNode = new InsnNode(Opcodes.DUP);
+					mn.instructions.insertBefore(varNode, new LdcInsnNode(
+					        fieldOwnerId));
+					mn.instructions.insertBefore(varNode, dupNode);
+					registerInstruction(mn, varNode, dupNode);
+					MethodInsnNode storeOwner = new MethodInsnNode(
+					        Opcodes.INVOKESTATIC,
+					        "de/unisb/cs/st/evosuite/javaagent/BooleanHelper",
+					        "setFieldOwner", "(ILjava/lang/Object;)V");
+					mn.instructions.insertBefore(varNode, storeOwner);
+					registerInstruction(mn, varNode, storeOwner);
+					newOwnerLoad1 = new MethodInsnNode(Opcodes.INVOKESTATIC,
+					        "de/unisb/cs/st/evosuite/javaagent/BooleanHelper",
+					        "getFieldOwner", "(I)Ljava/lang/Object;");
+					newOwnerLoad2 = new MethodInsnNode(Opcodes.INVOKESTATIC,
+					        "de/unisb/cs/st/evosuite/javaagent/BooleanHelper",
+					        "getFieldOwner", "(I)Ljava/lang/Object;");
+					}
+					*/
+				}
+
+				if (dependency.getBranchExpressionValue()) {
+					logger.info("Inserting after if");
+					// Insert directly after if
+					mn.instructions.insert(jumpNode, newStore);
+					mn.instructions.insert(jumpNode, newLoad);
+					if (newOwnerLoad1 != null) {
+						mn.instructions.insert(jumpNode, newOwnerLoad1);
+						registerInstruction(mn, varNode, newOwnerLoad1);
+					}
+					if (newOwnerLoad2 != null) {
+						mn.instructions.insert(jumpNode, newOwnerLoad2);
+						registerInstruction(mn, varNode, newOwnerLoad2);
+					}
+					registerInstruction(mn, varNode, newStore);
+					registerInstruction(mn, varNode, newLoad);
+
+				} else {
+					logger.info("Inserting as jump target");
+
+					// Insert as jump target
+					LabelNode target = jumpNode.label;
+					LabelNode newTarget = new LabelNode(new Label());
+
+					registerInstruction(mn, target, newStore);
+					registerInstruction(mn, target, newLoad);
+
+					InsnList assignment = new InsnList();
+					assignment.add(new JumpInsnNode(Opcodes.GOTO, target));
+					assignment.add(newTarget);
+					if (newOwnerLoad1 != null) {
+						assignment.add(newOwnerLoad1);
+						registerInstruction(mn, target, newOwnerLoad1);
+					}
+					if (newOwnerLoad2 != null) {
+						assignment.add(newOwnerLoad2);
+						registerInstruction(mn, target, newOwnerLoad2);
+					}
+					assignment.add(newLoad);
+					assignment.add(newStore);
+					jumpNode.label = newTarget;
+
+					mn.instructions.insertBefore(target, assignment);
+				}
+				addedInsns.add(newStore);
+				addedInsns.add(newLoad);
+			}
+
+		}
+
+		private void registerInstruction(MethodNode mn, AbstractInsnNode oldValue,
+		        AbstractInsnNode newValue) {
+			BytecodeInstruction oldInstruction = BytecodeInstructionPool.getInstruction(className,
+			                                                                            mn.name
+			                                                                                    + mn.desc,
+			                                                                            oldValue);
+			BytecodeInstruction instruction = BytecodeInstructionFactory.createBytecodeInstruction(className,
+			                                                                                       mn.name
+			                                                                                               + mn.desc,
+			                                                                                       oldInstruction.getInstructionId(),
+			                                                                                       0,
+			                                                                                       newValue);
+			instruction.setBasicBlock(oldInstruction.getBasicBlock());
+			BytecodeInstructionPool.registerInstruction(instruction);
+		}
+
+		private void handleDependency(ControlDependency dependency,
+		        ControlDependenceGraph cdg, MethodNode mn, VarInsnNode varNode,
+		        BytecodeInstruction parentLevel) {
+
+			if (addedNodes.contains(dependency))
+				return;
+
+			// Get the basic blocks reachable if the dependency would evaluate different
+			Set<BasicBlock> blocks = cdg.getAlternativeBlocks(dependency);
+			addedNodes.add(dependency);
+
+			Set<ControlDependency> dependencies = dependency.getBranch().getInstruction().getControlDependencies();
+			//if (dependencies.size() == 1) {
+			//	ControlDependency dep = dependencies.iterator().next();
+			for (ControlDependency dep : dependencies) {
+				if (!addedNodes.contains(dep) && dep != dependency)
+					handleDependency(dep, cdg, mn, varNode,
+					                 dependency.getBranch().getInstruction());
+			}
+
+			// TODO: Need to check that there is an assignment in every alternative path through CDG
+
+			boolean hasAssignment = false;
+			for (BasicBlock block : blocks) {
+				// If this block also assigns a value to the same variable
+				for (BytecodeInstruction instruction : block) {
+					if (instruction.getASMNode().getOpcode() == Opcodes.ISTORE) {
 						VarInsnNode otherVarNode = (VarInsnNode) instruction.getASMNode();
-						if (otherVarNode.var == varNode.var) {
+						VarInsnNode thisVarNode = varNode;
+						if (otherVarNode.var == thisVarNode.var) {
 							hasAssignment = true;
 							break;
 						}
@@ -685,63 +917,16 @@ public class BooleanTestabilityTransformation {
 					// Insert directly after if
 					mn.instructions.insert(jumpNode, newStore);
 					mn.instructions.insert(jumpNode, newLoad);
-					BytecodeInstruction instruction = BytecodeInstructionFactory.createBytecodeInstruction(className,
-					                                                                                       mn.name
-					                                                                                               + mn.desc,
-					                                                                                       BytecodeInstructionPool.getInstruction(className,
-					                                                                                                                              mn.name
-					                                                                                                                                      + mn.desc,
-					                                                                                                                              jumpNode).getInstructionId(),
-					                                                                                       0,
-					                                                                                       newStore);
-					instruction.setBasicBlock(BytecodeInstructionPool.getInstruction(className,
-					                                                                 mn.name
-					                                                                         + mn.desc,
-					                                                                 varNode).getBasicBlock());
-					BytecodeInstructionPool.registerInstruction(instruction);
-					instruction = BytecodeInstructionFactory.createBytecodeInstruction(className,
-					                                                                   mn.name
-					                                                                           + mn.desc,
-					                                                                   BytecodeInstructionPool.getInstruction(className,
-					                                                                                                          mn.name
-					                                                                                                                  + mn.desc,
-					                                                                                                          jumpNode).getInstructionId(),
-					                                                                   0,
-					                                                                   newLoad);
-					instruction.setBasicBlock(BytecodeInstructionPool.getInstruction(className,
-					                                                                 mn.name
-					                                                                         + mn.desc,
-					                                                                 varNode).getBasicBlock());
-					BytecodeInstructionPool.registerInstruction(instruction);
+					registerInstruction(mn, varNode, newStore);
+					registerInstruction(mn, varNode, newLoad);
 
 				} else {
 					// Insert as jump target
 					LabelNode target = jumpNode.label;
 					LabelNode newTarget = new LabelNode(new Label());
 
-					BytecodeInstruction instruction = BytecodeInstructionFactory.createBytecodeInstruction(className,
-					                                                                                       mn.name
-					                                                                                               + mn.desc,
-					                                                                                       BytecodeInstructionPool.getInstruction(className,
-					                                                                                                                              mn.name
-					                                                                                                                                      + mn.desc,
-					                                                                                                                              target).getInstructionId(),
-					                                                                                       0,
-					                                                                                       newStore);
-					instruction.setBasicBlock(parentLevel.getBasicBlock());
-
-					BytecodeInstructionPool.registerInstruction(instruction);
-					instruction = BytecodeInstructionFactory.createBytecodeInstruction(className,
-					                                                                   mn.name
-					                                                                           + mn.desc,
-					                                                                   BytecodeInstructionPool.getInstruction(className,
-					                                                                                                          mn.name
-					                                                                                                                  + mn.desc,
-					                                                                                                          target).getInstructionId(),
-					                                                                   0,
-					                                                                   newLoad);
-					instruction.setBasicBlock(parentLevel.getBasicBlock());
-					BytecodeInstructionPool.registerInstruction(instruction);
+					registerInstruction(mn, target, newStore);
+					registerInstruction(mn, target, newLoad);
 
 					InsnList assignment = new InsnList();
 					assignment.add(new JumpInsnNode(Opcodes.GOTO, target));
@@ -752,11 +937,84 @@ public class BooleanTestabilityTransformation {
 
 					mn.instructions.insertBefore(target, assignment);
 				}
-
-				//				insertTautologicalElse(mn,
-				//				                       (JumpInsnNode) dependency.getBranch().getInstruction().getASMNode());
 			}
 
+		}
+
+		/* (non-Javadoc)
+		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformFieldInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.FieldInsnNode)
+		 */
+		@Override
+		protected AbstractInsnNode transformFieldInsnNode(MethodNode mn,
+		        FieldInsnNode fieldNode) {
+
+			if ((fieldNode.getOpcode() == Opcodes.PUTFIELD || fieldNode.getOpcode() == Opcodes.PUTSTATIC)
+			        && descriptorMapping.isTransformedOrBooleanField(fieldNode.owner,
+			                                                         fieldNode.name,
+			                                                         fieldNode.desc)) {
+
+				if (addedInsns.contains(fieldNode))
+					return fieldNode;
+
+				// Can only handle cases where the field owner is loaded directly before the field
+				if (fieldNode.getOpcode() == Opcodes.PUTFIELD) {
+					AbstractInsnNode previous = fieldNode.getPrevious();
+					while (previous instanceof LineNumberNode
+					        || previous instanceof FrameNode
+					        || previous.getOpcode() == Opcodes.ICONST_0
+					        || previous.getOpcode() == Opcodes.ICONST_1)
+						previous = previous.getPrevious();
+					if (previous.getOpcode() != Opcodes.ALOAD) {
+						logger.info("Can't handle case of " + previous);
+						return fieldNode;
+					}
+					VarInsnNode varNode = (VarInsnNode) previous;
+					if (varNode.var != 0) {
+						logger.info("Can't handle case of " + previous);
+						return fieldNode;
+					}
+				}
+				logger.info("Handling PUTFIELD case!");
+
+				// Check if ICONST_0 or ICONST_1 are on the stack
+				ControlDependenceGraph cdg = CFGPool.getCDG(className.replace("/", "."),
+				                                            mn.name + mn.desc);
+				int index = mn.instructions.indexOf(fieldNode);
+				logger.info("Getting bytecode instruction for " + fieldNode.name + "/"
+				        + ((FieldInsnNode) mn.instructions.get(index)).name);
+				InsnList nodes = mn.instructions;
+				ListIterator it = nodes.iterator();
+				while (it.hasNext()) {
+					BytecodeInstruction in = new BytecodeInstruction(className, mn.name,
+					        0, 0, (AbstractInsnNode) it.next());
+					logger.info(in.toString());
+				}
+				BytecodeInstruction insn = BytecodeInstructionPool.getInstruction(className.replace("/",
+				                                                                                    "."),
+				                                                                  mn.name
+				                                                                          + mn.desc,
+				                                                                  index);
+				if (insn == null)
+					insn = BytecodeInstructionPool.getInstruction(className.replace("/",
+					                                                                "."),
+					                                              mn.name + mn.desc,
+					                                              fieldNode);
+				//varNode);
+				if (insn.getASMNode().getOpcode() != fieldNode.getOpcode()) {
+					logger.warn("Found wrong bytecode instruction at this index!");
+					BytecodeInstructionPool.getInstruction(className, mn.name + mn.desc,
+					                                       fieldNode);
+				}
+				Set<ControlDependency> dependencies = insn.getControlDependencies();
+				logger.info("Found flag assignment: " + insn + ", checking "
+				        + dependencies.size() + " control dependencies");
+
+				for (ControlDependency dep : dependencies) {
+					if (!addedNodes.contains(dep))
+						handleDependency(dep, cdg, mn, fieldNode, insn);
+				}
+			}
+			return fieldNode;
 		}
 
 		/* (non-Javadoc)
@@ -777,23 +1035,34 @@ public class BooleanTestabilityTransformation {
 				                                                                          + mn.desc,
 				                                                                  index);
 				//varNode);
-				logger.info("Found instruction: " + insn);
 				if (insn.getASMNode().getOpcode() != varNode.getOpcode()) {
 					logger.warn("Found wrong bytecode instruction at this index!");
 					BytecodeInstructionPool.getInstruction(className, mn.name + mn.desc,
 					                                       varNode);
 				}
 				Set<ControlDependency> dependencies = insn.getControlDependencies();
+				logger.info("Found flag assignment: " + insn + ", checking "
+				        + dependencies.size() + " control dependencies");
+
+				for (ControlDependency dep : dependencies) {
+					if (!addedNodes.contains(dep))
+						handleDependency(dep, cdg, mn, varNode, insn);
+				}
+
 				// Only do completion if there's only one dependency
 				// Not sure how other cases would look like
-				if (dependencies.size() > 1)
-					return varNode;
-				else if (dependencies.isEmpty())
-					return varNode;
+				/*
+								//if (dependencies.size() > 1)
+								//	return varNode;
+								//else
+								if (dependencies.isEmpty())
+									return varNode;
 
-				ControlDependency dep = dependencies.iterator().next();
-				if (!addedNodes.contains(dep))
-					handleDependency(dep, cdg, mn, varNode, insn);
+								ControlDependency dep = dependencies.iterator().next();
+								if (!addedNodes.contains(dep))
+									handleDependency(dep, cdg, mn, varNode, insn);
+									*/
+
 			}
 			return varNode;
 		}
@@ -919,7 +1188,8 @@ public class BooleanTestabilityTransformation {
 		@Override
 		protected AbstractInsnNode transformMethodInsnNode(MethodNode mn,
 		        MethodInsnNode methodNode) {
-			methodNode.desc = transformMethodDescriptor(methodNode.desc);
+			methodNode.desc = transformMethodDescriptor(methodNode.owner,
+			                                            methodNode.name, methodNode.desc);
 			// TODO: If this is a method that is not transformed, and it requires a Boolean parameter
 			// then we need to convert this boolean back to an int
 			// For example, we could use flow analysis to determine the point where the value is added to the stack
@@ -934,7 +1204,8 @@ public class BooleanTestabilityTransformation {
 		protected AbstractInsnNode transformFieldInsnNode(MethodNode mn,
 		        FieldInsnNode fieldNode) {
 			// TODO: If the field owner is not transformed, then convert this to a proper Boolean
-			fieldNode.desc = transformFieldDescriptor(fieldNode.desc);
+			fieldNode.desc = transformFieldDescriptor(fieldNode.owner, fieldNode.name,
+			                                          fieldNode.desc);
 			return fieldNode;
 		}
 	}
