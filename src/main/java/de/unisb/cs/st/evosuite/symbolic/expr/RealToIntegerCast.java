@@ -1,6 +1,6 @@
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
-public class RealToIntegerCast extends IntegerExpression {
+public class RealToIntegerCast extends IntegerExpression implements Cast<Double>{
 	private static final long serialVersionUID = 1L;
 
 	protected Long concValue;
@@ -18,12 +18,13 @@ public class RealToIntegerCast extends IntegerExpression {
 	}
 	
 	@Override
+	public Expression<Double> getConcreteObject() {
+		return expr;
+	}
+	
+	@Override
 	public String toString() {
 		return "((INT)"+expr+")";
-	}
-
-	public Expression<Double> getExpression() {
-		return expr;
 	}
 	
 	@Override

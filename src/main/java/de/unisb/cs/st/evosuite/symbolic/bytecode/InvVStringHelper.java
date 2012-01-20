@@ -21,6 +21,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.StringConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleExpression;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringToIntCast;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringUnaryExpression;
 
 /**
@@ -132,8 +133,6 @@ public abstract class InvVStringHelper {
 		}
 		
 		//compute the resulting value and push it on the real stack
-		//TODO this could throw an exception
-		//int result = BooleanHelper.StringStartsWith(firstStr, secondStr, offset);
 		int result = firstStr.startsWith(secondStr, offset) ? 1 : 0;
 		sf.push(result);
 		
@@ -310,8 +309,9 @@ public abstract class InvVStringHelper {
 		sf.push(result);
 
 		//push a StringComparation expression on the fake stack
-		sf.setOperandAttr(
-			new StringBinaryExpression(se1, Operator.COMPARETO, se0, Integer.toString(result)));
+		StringBinaryExpression StrBExpr = 
+			new StringBinaryExpression(se1, Operator.COMPARETO, se0, Integer.toString(result));
+		sf.setOperandAttr(new StringToIntCast(StrBExpr, (long)result));
 		
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
@@ -334,9 +334,11 @@ public abstract class InvVStringHelper {
 		sf.push(result);
 
 		//push a StringComparation expression on the fake stack
-		sf.setOperandAttr(
-			new StringBinaryExpression(se1, Operator.COMPARETOIGNORECASE, se0, Integer.toString(result)));
-		
+
+		StringBinaryExpression StrBExpr = 
+			new StringBinaryExpression(se1, Operator.COMPARETOIGNORECASE, se0, Integer.toString(result));
+		sf.setOperandAttr(new StringToIntCast(StrBExpr, (long)result));
+			
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
 	}
@@ -379,10 +381,6 @@ public abstract class InvVStringHelper {
 			se0 = new IntegerConstant(start);
 		}
 		
-		//TODO offset could be out of range 
-		//substring throws an exception
-		// ask Gordon how EvoSuite could handle this
-		
 		//compute the resulting value and push it on the real stack
 		String result = null;
 		if (case_one) {
@@ -404,7 +402,6 @@ public abstract class InvVStringHelper {
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
 	}
-	
 	
 	public static Instruction strFncReplace(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
 		/* 
@@ -483,7 +480,6 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
-	
 	public static Instruction strFncReplaceAll(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
 
 		StackFrame sf = ti.getTopFrame();
@@ -517,7 +513,6 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
-	
 	public static Instruction strFncReplaceFirst(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
 
 		StackFrame sf = ti.getTopFrame();
@@ -551,7 +546,6 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 	
-	
 	public static Instruction strFncToLowerCase(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
 		StackFrame sf = ti.getTopFrame();
 		
@@ -577,7 +571,6 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
-	
 	public static Instruction strFncToUpperCase(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
 		StackFrame sf = ti.getTopFrame();
 		
@@ -603,7 +596,6 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 	
-	
 	public static Instruction strFncTrim(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
 		StackFrame sf = ti.getTopFrame();
 		
@@ -626,7 +618,6 @@ public abstract class InvVStringHelper {
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
 	}
-	
 	
 	public static Instruction strFncConcat(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
 
@@ -653,7 +644,6 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 	
-	
 	public static Instruction strFncLength(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
 
 		StackFrame sf = ti.getTopFrame();
@@ -668,19 +658,20 @@ public abstract class InvVStringHelper {
 		int result = firstStr.length();
 		sf.push(result);
 
-		//push a StringComparation expression on the fake stack
-		sf.setOperandAttr(
-			new StringUnaryExpression(se1, Operator.LENGTH, Integer.toString(result)));
+		//push a StringExpression expression on the fake stack
+		StringUnaryExpression strUnExpr = 
+			new StringUnaryExpression(se1, Operator.LENGTH, Integer.toString(result));
+		sf.setOperandAttr(new StringToIntCast(strUnExpr, (long)(result)));
 		
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
 	}
 
-	
 	public static Instruction strFncIndexOf(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
 		StackFrame sf = ti.getTopFrame();
 		
 		//declare local expression variables
+		Expression<String> newExpr = null;
 		Expression<?> char_expr = null;
 		Expression<?> indx_expr = null;
 		StringExpression se0 = null;
@@ -733,9 +724,8 @@ public abstract class InvVStringHelper {
 			
 			sf.push(result);
 			
-			sf.setOperandAttr(
-					new StringBinaryExpression(se1, Operator.INDEXOFC, 
-									char_expr, Integer.toString(result)));
+			newExpr = new StringBinaryExpression(se1, Operator.INDEXOFC, 
+									char_expr, Integer.toString(result));
 			break;
 		case TWO:
 			se0 = (StringExpression) sf.getOperandAttr(0);
@@ -748,9 +738,8 @@ public abstract class InvVStringHelper {
 			
 			sf.push(result);
 			
-			sf.setOperandAttr(
-					new StringBinaryExpression(se1, Operator.INDEXOFS, 
-									se0, Integer.toString(result)));
+			newExpr = new StringBinaryExpression(se1, Operator.INDEXOFS, 
+									se0, Integer.toString(result));
 			break;
 		case THREE:
 			indx_expr = (Expression<?>) sf.getOperandAttr(0);
@@ -772,9 +761,8 @@ public abstract class InvVStringHelper {
 			sf.push(result);
 			
 			other.add(indx_expr);
-			sf.setOperandAttr(
-					new StringMultipleExpression(se1, Operator.INDEXOFCI, 
-									char_expr, other, Integer.toString(result)));
+			newExpr = new StringMultipleExpression(se1, Operator.INDEXOFCI, 
+									char_expr, other, Integer.toString(result));
 			break;
 		case FOUR:
 			indx_expr = (Expression<?>) sf.getOperandAttr(0);
@@ -793,14 +781,15 @@ public abstract class InvVStringHelper {
 			sf.push(result);
 			
 			other.add(indx_expr);
-			sf.setOperandAttr(
-					new StringMultipleExpression(se1, Operator.INDEXOFSI, 
-									se0, other, Integer.toString(result)));
+			newExpr = new StringMultipleExpression(se1, Operator.INDEXOFSI, 
+									se0, other, Integer.toString(result));
 			break;
 		default:
 			log.warning("strFncIndexOf: We are in an unknown case.");
 			break;
 		}
+		
+		sf.setOperandAttr(new StringToIntCast(newExpr, (long)result));
 		
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
@@ -822,33 +811,24 @@ public abstract class InvVStringHelper {
 			indx_expr = new IntegerConstant(indx);
 		}
 		
-		
-		//TODO this here throws an exception
-		// ask Gordon how to handle this
 		//compute the resulting value and push it on the real stack
 		char result = firstStr.charAt(indx);
 		sf.push((int) result);
 
 		//push a StringComparation expression on the fake stack
-		sf.setOperandAttr(
-			new StringBinaryExpression(se1, Operator.CHARAT, indx_expr, Character.toString(result)));
+		StringBinaryExpression StrBExpr = 
+			new StringBinaryExpression(se1, Operator.CHARAT, indx_expr, Character.toString(result));
+		sf.setOperandAttr(new StringToIntCast(StrBExpr, (long)result));
 		
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
 	}
-	
-	
-	//TODO see how we can handle this! The function has to give a string Array back. 
-//	public static Instruction strFncSplit(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins){
-//		return null;
-//	}
-	
 
-	/**	To implement?!?
+	/*	To implement?!?
 	 
 	lastIndexOf()
 	matches()
-	 
+	split() 
 	getChars(II[CI)V
 	
 	//this thing here is funny it would not work with 

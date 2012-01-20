@@ -39,7 +39,6 @@ public class LOOKUPSWITCH extends gov.nasa.jpf.jvm.bytecode.LOOKUPSWITCH {
 
 	protected LOOKUPSWITCH(int defaultTarget, int numberOfTargets) {
 		super(defaultTarget, numberOfTargets);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

@@ -88,19 +88,40 @@ public class UIRunner implements InterceptionHandler {
 		// System.out.println("UIRunner::process: window = " + window.getAwtComponent() + ": isVisible = " + window.getAwtComponent().isVisible());
 
 		if (this.finished) return;
-		
-		if (!window.isVisible().isTrue()) {
-			this.finished();
-			return;
-		}
 
 		boolean wasFirstWindow;
 		
 		synchronized (this) {
 			wasFirstWindow = this.firstWindow;
-			this.firstWindow = false;
 		}
 
+		if (!window.isVisible().isTrue()) {
+			int retryCount = 50;
+		
+			while (retryCount > 0) {
+				System.out.println("Waiting for window to turn visible...");
+
+				try {
+					Thread.sleep(1000);
+					retryCount--;
+				} catch (InterruptedException e) { /* OK */ }
+			}
+		
+			if (!window.isVisible().isTrue()) {
+				if (wasFirstWindow) {
+					this.condition = new SimpleCondition();
+					this.condition.awaitUninterruptibly();
+				}
+
+				this.finished();
+				return;
+			}
+		}
+
+		synchronized (this) {
+			this.firstWindow = false;
+		}
+		
 		if (wasFirstWindow) {
 			this.condition = new SimpleCondition();
 			this.condition.awaitUninterruptibly();
