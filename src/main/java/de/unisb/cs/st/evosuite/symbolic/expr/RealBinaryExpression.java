@@ -16,10 +16,10 @@ public class RealBinaryExpression extends RealExpression implements
 	protected Operator op;
 
 	protected Expression<Double> left;
-	protected Expression<Double> right;
+	protected Expression<?> right;
 
 	public RealBinaryExpression(Expression<Double> left2, Operator op2,
-	        Expression<Double> right2, Double con) {
+	        Expression<?> right2, Double con) {
 		this.concretValue = con;
 		this.left = left2;
 		this.right = right2;
@@ -42,7 +42,7 @@ public class RealBinaryExpression extends RealExpression implements
 	}
 
 	@Override
-	public Expression<Double> getRightOperand() {
+	public Expression<?> getRightOperand() {
 		return right;
 	}
 
@@ -79,8 +79,8 @@ public class RealBinaryExpression extends RealExpression implements
 	@Override
 	public Object execute() {
 		
-		double leftVal = ExpressionHelper.getDoubleResult(left);
-		double rightVal = ExpressionHelper.getDoubleResult(right);
+		double leftVal = (Double) left.execute();
+		double rightVal = (Double) right.execute();
 		
 		switch (op) {
 		
@@ -94,6 +94,25 @@ public class RealBinaryExpression extends RealExpression implements
 			return leftVal + rightVal;
 		case REM: 
 			return leftVal % rightVal;	
+		case ATAN2:
+			return Math.atan2(leftVal, rightVal);
+		case COPYSIGN:
+			return Math.copySign(leftVal, rightVal);
+		case HYPOT:
+			return Math.hypot(leftVal, rightVal);
+		case IEEEREMAINDER:
+			return Math.IEEEremainder(leftVal, rightVal);
+		case MAX:
+			return Math.max(leftVal, rightVal);
+		case MIN:
+			return Math.min(leftVal, rightVal);
+		case NEXTAFTER:
+			return Math.nextAfter(leftVal, rightVal);
+		case POW:
+			return Math.pow(leftVal, rightVal);
+		case SCALB:
+			return Math.scalb(leftVal, (int) rightVal);
+		
 		default:
 			log.warning("IntegerBinaryExpression: unimplemented operator!");
 			return null;

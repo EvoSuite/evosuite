@@ -27,9 +27,18 @@ import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
-import de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator;
 import de.unisb.cs.st.evosuite.symbolic.search.Seeker;
-import de.unisb.cs.st.evosuite.testcase.*;
+import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
+import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
+import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
+import de.unisb.cs.st.evosuite.testcase.MethodStatement;
+import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
+import de.unisb.cs.st.evosuite.testcase.StaticTestCluster;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
+import de.unisb.cs.st.evosuite.testcase.TestChromosome;
+import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
  * @author Gordon Fraser
@@ -68,27 +77,6 @@ public class TestSuiteDSE {
 			if (hasUncoveredBranches(test)) {
 				logger.info("Found uncovered branches in test, applying DSE");
 
-				/* TODO Long variables produce the following Exception
-				 * [Progress:>                             0%] [Cov:========================>          71%]Exception in thread "main" java.lang.NullPointerException
-					at java.lang.String.<init>(String.java:228)
-					at org.objectweb.asm.Type.getInternalName(Unknown Source)
-					at org.objectweb.asm.commons.GeneratorAdapter.invokeInsn(Unknown Source)
-					at org.objectweb.asm.commons.GeneratorAdapter.invokeVirtual(Unknown Source)
-					at de.unisb.cs.st.evosuite.testcase.MethodStatement.getBytecode(MethodStatement.java:353)
-					at de.unisb.cs.st.evosuite.symbolic.ConcolicExecution.getBytecode(ConcolicExecution.java:329)
-					at de.unisb.cs.st.evosuite.symbolic.ConcolicExecution.writeTestCase(ConcolicExecution.java:354)
-					at de.unisb.cs.st.evosuite.symbolic.ConcolicExecution.getSymbolicPath(ConcolicExecution.java:146)
-					at de.unisb.cs.st.evosuite.testsuite.TestSuiteDSE.applyDSE(TestSuiteDSE.java:100)
-					at de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome.applyDSE(TestSuiteChromosome.java:191)
-					at de.unisb.cs.st.evosuite.ga.GeneticAlgorithm.applyDSE(GeneticAlgorithm.java:150)
-					at de.unisb.cs.st.evosuite.ga.SteadyStateGA.generateSolution(SteadyStateGA.java:174)
-					at de.unisb.cs.st.evosuite.TestSuiteGenerator.generateWholeSuite(TestSuiteGenerator.java:389)
-					at de.unisb.cs.st.evosuite.TestSuiteGenerator.generateTests(TestSuiteGenerator.java:228)
-					at de.unisb.cs.st.evosuite.TestSuiteGenerator.generateTestSuite(TestSuiteGenerator.java:181)
-					at de.unisb.cs.st.evosuite.TestSuiteGenerator.main(TestSuiteGenerator.java:1208)
-
-				 */
-				
 				// TODO: Mapping back to original is missing
 				TestCase expandedTest = expandTestCase(test.getTestCase());
 				test.setTestCase(expandedTest);
@@ -208,9 +196,6 @@ public class TestSuiteDSE {
 			return false;
 		}
 
-		//TODO double conditions are marked as covered because of a mismatch of the instruction indices
-		//		logger.warn("\njpfName: " +jpfName +"\n\nbranch.ins: " + branch.ins + "\njpfBranchMap.get(jpfName) " + jpfBranchMap.get(jpfName) + "\nbranch.ins.getInstructionIndex(): " + branch.ins.getInstructionIndex());
-
 		if (jpfBranchMap.get(jpfName).contains(branch.ins.getInstructionIndex())) {
 			return true;
 		}
@@ -263,33 +248,11 @@ public class TestSuiteDSE {
 			logger.info("Reduced constraints from " + size + " to " + constraints.size());
 		}
 
-		int counter = 0;
-		for (Constraint cnstr : constraints ) {
-			logger.warn("Cnstr " + (counter++) + " : " +  cnstr + " dist: " + DistanceEstimator.getDistance(constraints));
-		}
-
-		
-//		RealVariable rVar = new RealVariable("var1", -234234, -Double.MAX_VALUE, Double.MAX_VALUE);
-//		RealConstant rCon = new RealConstant(4.67890);
-//		
-//		RealComparison rComp = new RealComparison(rVar, rCon, (long)-1);
-//		
-//		IntegerConstraint iCnstr = new IntegerConstraint(rComp, Comparator.NE, new IntegerConstant(0));
-//		
-//		
-//		
-//		List<Constraint<?>> lCn = new LinkedList<Constraint<?>>();
-//		lCn.add(iCnstr);
-//		
-//		logger.warn("iCnstr: " + iCnstr + " dist" + DistanceEstimator.getDistance(lCn) );
-//		
-//		Changer chng = new Changer();
-//		
-//		chng.realLocalSearch(rVar, lCn, null);
-//		
-//		System.exit(0);
-		
-		
+//		int counter = 0;
+//		for (Constraint cnstr : constraints ) {
+//			logger.warn("Cnstr " + (counter++) + " : " +  cnstr + 
+//						" dist: " + DistanceEstimator.getDistance(constraints));
+//		}
 		
 		Seeker skr = new Seeker();
 		Map<String, Object> values = skr.getModel(constraints);
@@ -326,7 +289,6 @@ public class TestSuiteDSE {
 						if (p.getValue().getClass().equals(Character.class))
 							p.setValue((char) Integer.parseInt(val.toString()));
 						else
-							//TODO change for ints or whatever
 							p.setValue(val.toString());
 					} else if (val instanceof Double) {
 						Double value = (Double) val;
@@ -528,7 +490,7 @@ public class TestSuiteDSE {
 			for (VariableReference var : statement.getParameterReferences()) {
 				if (var.isPrimitive() || var.isString()) {
 					if (usedVariables.contains(var)
-					        && test.getStatement(var.getStPosition()) instanceof PrimitiveStatement) {
+					        && test.getStatement(var.getStPosition()) instanceof PrimitiveStatement<?>) {
 						// Duplicate and replace
 						VariableReference varCopy = duplicateStatement(test, var);
 						statement.replaceParameterReference(varCopy, i);
@@ -549,7 +511,7 @@ public class TestSuiteDSE {
 			for (VariableReference var : statement.getParameterReferences()) {
 				if (var.isPrimitive() || var.isString()) {
 					if (usedVariables.contains(var)
-					        && test.getStatement(var.getStPosition()) instanceof PrimitiveStatement) {
+					        && test.getStatement(var.getStPosition()) instanceof PrimitiveStatement<?>) {
 						// Duplicate and replace
 						VariableReference varCopy = duplicateStatement(test, var);
 						statement.replaceParameterReference(varCopy, i);

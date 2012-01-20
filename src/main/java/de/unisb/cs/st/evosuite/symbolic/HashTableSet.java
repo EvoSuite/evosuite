@@ -39,7 +39,6 @@ public class HashTableSet<E> extends AbstractSet<E> implements Cloneable, Set<E>
 
 	@Override
 	public boolean containsAll(Collection<?> c) {
-		// TODO Auto-generated method stub
 		return super.containsAll(c);
 	}
 

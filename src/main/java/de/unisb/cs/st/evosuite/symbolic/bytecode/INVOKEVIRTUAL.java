@@ -60,118 +60,107 @@ public class INVOKEVIRTUAL extends gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL {
 		//Check if we are in some String function
 		if (cname.equals("java.lang.String")) {
 
-			//Check in which function we are and handle appropriately 
 			//TODO this ugly thing here can also be done with java reflection
-			//	new methods in the helper classes will not have to be added her too
-//			try {
-				if (mname.startsWith("equalsIgnoreCase")) {
-					
-					return InvVStringHelper.strFncEqualsIgnoreCase(ks, ti, this);
-					
-				} else if (mname.startsWith("equals")) {
-
-					return InvVStringHelper.strFncEquals(ks, ti, this);
-					
-				} else if (mname.startsWith("startsWith")) {
-
-					return InvVStringHelper.strFncStartsWith(ks, ti, this);
-					
-				} else if (mname.startsWith("endsWith")) {
-					
-					return InvVStringHelper.strFncEndsWith(ks, ti, this);
-					
-				} else if (mname.startsWith("contains")) {
-					
-					return InvVStringHelper.strFncContains(ks, ti, this);
-					
-				} else if (mname.startsWith("regionMatches")) {
-
-					return InvVStringHelper.strFncRegionMatches(ks, ti, this);
-					
-				} else if (mname.startsWith("substring")) {
-					
-					return InvVStringHelper.strFncSubstring(ks, ti, this);
+			//------====== Just think about it =====------
+			
+			//Check in which function we are and handle appropriately 
+			if (mname.startsWith("equalsIgnoreCase")) {
 				
-				} else if (mname.startsWith("trim")) {
-					
-					return InvVStringHelper.strFncTrim(ks, ti, this);
-
-				} else if (mname.startsWith("toLowerCase")) {
-					
-					return InvVStringHelper.strFncToLowerCase(ks, ti, this);
-								
-				} else if (mname.startsWith("toUpperCase")) {
-					
-					return InvVStringHelper.strFncToUpperCase(ks, ti, this);
-								
-				} else if (mname.startsWith("compareTo(")) {
-					
-					return InvVStringHelper.strFncCompareTo(ks, ti, this);
-								
-				} else if (mname.startsWith("compareToIgnoreCase")) {
-					
-					return InvVStringHelper.strFncCompareToIgnoreCase(ks, ti, this);
-								
-				} else if (mname.startsWith("replace(")) {
-					
-					return InvVStringHelper.strFncReplace(ks, ti, this);
-							
-				} else if (mname.startsWith("replaceAll(")) {
-					
-					return InvVStringHelper.strFncReplaceAll(ks, ti, this);
-						
-				} else if (mname.startsWith("replaceFirst(")) {
-					
-					return InvVStringHelper.strFncReplaceFirst(ks, ti, this);
-						
-				} else if (mname.startsWith("concat(")) {
-					
-					return InvVStringHelper.strFncConcat(ks, ti, this);
+				return InvVStringHelper.strFncEqualsIgnoreCase(ks, ti, this);
 				
-				} else if (mname.startsWith("length(")) {
-					
-					return InvVStringHelper.strFncLength(ks, ti, this);
-						
-				} else if (mname.startsWith("indexOf(")) {
-					
-					return InvVStringHelper.strFncIndexOf(ks, ti, this);
-							
-				} else if (mname.startsWith("charAt(")) {
-					
-					return InvVStringHelper.strFncCharAt(ks, ti, this);
-							
-				} else {
-					InvVFunctionLogger.LogStringFnc("StringFunctions.txt", this);
-				}
+			} else if (mname.startsWith("equals")) {
 
-//			} catch (Exception e) {
-//
-//				log.warning("Exception: " + e.toString());
-//			}
+				return InvVStringHelper.strFncEquals(ks, ti, this);
+				
+			} else if (mname.startsWith("startsWith")) {
+
+				return InvVStringHelper.strFncStartsWith(ks, ti, this);
+				
+			} else if (mname.startsWith("endsWith")) {
+				
+				return InvVStringHelper.strFncEndsWith(ks, ti, this);
+				
+			} else if (mname.startsWith("contains")) {
+				
+				return InvVStringHelper.strFncContains(ks, ti, this);
+				
+			} else if (mname.startsWith("regionMatches")) {
+
+				return InvVStringHelper.strFncRegionMatches(ks, ti, this);
+				
+			} else if (mname.startsWith("substring")) {
+				
+				return InvVStringHelper.strFncSubstring(ks, ti, this);
+			
+			} else if (mname.startsWith("trim")) {
+				
+				return InvVStringHelper.strFncTrim(ks, ti, this);
+
+			} else if (mname.startsWith("toLowerCase")) {
+				
+				return InvVStringHelper.strFncToLowerCase(ks, ti, this);
+							
+			} else if (mname.startsWith("toUpperCase")) {
+				
+				return InvVStringHelper.strFncToUpperCase(ks, ti, this);
+							
+			} else if (mname.startsWith("compareTo(")) {
+				
+				return InvVStringHelper.strFncCompareTo(ks, ti, this);
+							
+			} else if (mname.startsWith("compareToIgnoreCase")) {
+				
+				return InvVStringHelper.strFncCompareToIgnoreCase(ks, ti, this);
+							
+			} else if (mname.startsWith("replace(")) {
+				
+				return InvVStringHelper.strFncReplace(ks, ti, this);
+						
+			} else if (mname.startsWith("replaceAll(")) {
+				
+				return InvVStringHelper.strFncReplaceAll(ks, ti, this);
+					
+			} else if (mname.startsWith("replaceFirst(")) {
+				
+				return InvVStringHelper.strFncReplaceFirst(ks, ti, this);
+					
+			} else if (mname.startsWith("concat(")) {
+				
+				return InvVStringHelper.strFncConcat(ks, ti, this);
+			
+			} else if (mname.startsWith("length(")) {
+				
+				return InvVStringHelper.strFncLength(ks, ti, this);
+					
+			} else if (mname.startsWith("indexOf(")) {
+				
+				return InvVStringHelper.strFncIndexOf(ks, ti, this);
+						
+			} else if (mname.startsWith("charAt(")) {
+				
+				return InvVStringHelper.strFncCharAt(ks, ti, this);
+						
+			} else {
+				log.info("Invokevirtual is in an unknown Str Func: "+mname);
+//				InvVFunctionLogger.LogStringFnc("StringFunctions.txt", this);
+			}
 
 		} else if (cname.equals("java.lang.StringBuilder")) {
 
-			try {
-				//Check in which function we are and handle appropriately 
-				if (mname.startsWith("append(")) {
+			//Check in which function we are and handle appropriately 
+			if (mname.startsWith("append(")) {
 
-					InvVStringBuilderHelper.strB_fnc_append(ks, ti, this);
+				InvVStringBuilderHelper.strB_fnc_append(ks, ti, this);
 
-				} else if (mname.startsWith("toString()")) {
+			} else if (mname.startsWith("toString()")) {
 
-					//This works but only if we have just strings appended 
-					if (InvVStringBuilderHelper.isStrB_all_impl_op(ks, ti, this)) {
-						return InvVStringBuilderHelper.strB_fnc_toString(ks, ti, this);
-					}
-				} else {
-					//TODO if we have some other function here we can throw out the whole thing
-					InvVStringBuilderHelper.throw_away(ks, ti, this);
-
-					InvVFunctionLogger.LogStringFnc("StringBuilderFunctions.txt", this);
+				//This works but only if we have just strings appended 
+				if (InvVStringBuilderHelper.isStrB_all_impl_op(ks, ti, this)) {
+					return InvVStringBuilderHelper.strB_fnc_toString(ks, ti, this);
 				}
-			} catch (Exception e) {
-
-				log.warning("INVOKEVIRTUAL: " + e.toString());
+			} else {
+				
+				InvVStringBuilderHelper.throw_away();
 			}
 		}
 

@@ -106,6 +106,11 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 			return leftVal + rightVal;
 		case REM: 
 			return leftVal % rightVal;	
+		case MAX:
+			return Math.max(leftVal, rightVal);
+		case MIN:
+			return Math.min(leftVal, rightVal);
+		
 		default:
 			log.warning("IntegerBinaryExpression: unimplemented operator!");
 			return null;

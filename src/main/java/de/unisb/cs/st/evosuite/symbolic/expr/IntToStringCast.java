@@ -5,28 +5,25 @@ import java.util.logging.Logger;
 import gov.nasa.jpf.JPF;
 
 public class IntToStringCast extends StringExpression implements Cast<Long>{
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7845864837597413613L;
 	
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.expr.StringUnaryExpression");
-	
-	protected IntegerVariable intVar;
+	private static final long serialVersionUID = 2414222998301630838L;
 
-	public IntToStringCast(IntegerVariable _intVar) {
-		this.intVar = _intVar;
+	static Logger log = JPF.getLogger((IntToStringCast.class).toString());
+	
+	protected Expression<Long> intVar;
+
+	public IntToStringCast(Expression<Long> expr) {
+		this.intVar = expr;
 	}
 	
 	@Override
 	public String execute() {
-		return Long.toString(intVar.execute());
+		return Long.toString((Long)intVar.execute());
 	}
 
 	@Override
 	public String getConcreteValue() {
-		return Long.toString(intVar.getConcreteValue());
+		return Long.toString((Long)intVar.getConcreteValue());
 	}
 	
 	@Override
@@ -42,20 +39,13 @@ public class IntToStringCast extends StringExpression implements Cast<Long>{
 		if (obj instanceof IntToStringCast) {
 			IntToStringCast other = (IntToStringCast) obj;
 			return this.intVar.equals(other.intVar);
-//					 && this.getSize() == other.getSize();
 		}
 
 		return false;
 	}
-	
-//	@Override
-//	public int getSize() {
-//		// TODO Auto-generated method stub
-//		return 0;
-//	}
 
 	@Override
-	public IntegerVariable getConcreteObject() {
+	public Expression<Long> getConcreteObject() {
 		return intVar;
 	}
 }
