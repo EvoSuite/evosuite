@@ -159,7 +159,7 @@ public class INVOKEVIRTUAL extends gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL {
 					return InvVStringBuilderHelper.strB_fnc_toString(ks, ti, this);
 				}
 			} else {
-				
+//				log.warning("InvVStringBuilderHelper.throw_away() " + mname);
 				InvVStringBuilderHelper.throw_away();
 			}
 		}

@@ -62,20 +62,27 @@ public abstract class InvVStringBuilderHelper {
 	 * 		else it can only be aload_? and thus a normal string builder
 	 */
 	public static void strB_fnc_append(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins) {
+		StackFrame sf = ti.getTopFrame();
+		
 		boolean unimpl = false;
+
 		
 		//check if we are in a supported instruction
 		String prevInstr = ins.getPrev().toString();
 		String pp = "";
-		if (prevInstr.startsWith("ldc") || prevInstr.startsWith("aload")){
+		if (prevInstr.startsWith("ldc") || prevInstr.startsWith("aload") || prevInstr.startsWith("bipush")
+				|| prevInstr.startsWith("iload") || prevInstr.startsWith("fload") 
+				|| prevInstr.startsWith("lload") || prevInstr.startsWith("dload")
+				|| prevInstr.startsWith("getfield")){
 			pp = ins.getPrev().getPrev().toString();
 //		} else if (prevInstr.startsWith("invokevirtual java.lang.String.charAt(I)C") ) {
 //			pp = ins.getPrev().getPrev().getPrev().getPrev().toString();
 		} else {
+//			log.warning("prevInstr "+prevInstr);
 			throw_away();
 		}
 		
-		StackFrame sf = ti.getTopFrame();
+
 		Expression<?> expr =  (Expression<?>) sf.getOperandAttr(0);
 
 		StringExpression se0 = null;
