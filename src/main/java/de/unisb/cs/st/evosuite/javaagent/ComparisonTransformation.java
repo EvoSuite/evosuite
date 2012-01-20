@@ -15,7 +15,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
 /**
- * @author fraser
+ * @author Gordon Fraser
  * 
  */
 public class ComparisonTransformation {
@@ -58,28 +58,28 @@ public class ComparisonTransformation {
 	}
 
 	private void insertLongComparison(AbstractInsnNode position, InsnList list) {
-		list.insertBefore(position, new InsnNode(Opcodes.LSUB));
 		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        Type.getInternalName(BooleanHelper.class), "fromLong",
-		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.LONG_TYPE }));
+		        Type.getInternalName(BooleanHelper.class), "longSub",
+		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.LONG_TYPE,
+		                Type.LONG_TYPE }));
 		list.insert(position, get);
 		list.remove(position);
 	}
 
 	private void insertFloatComparison(AbstractInsnNode position, InsnList list) {
-		list.insertBefore(position, new InsnNode(Opcodes.FSUB));
 		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        Type.getInternalName(BooleanHelper.class), "fromFloat",
-		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.FLOAT_TYPE }));
+		        Type.getInternalName(BooleanHelper.class), "floatSub",
+		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.FLOAT_TYPE,
+		                Type.FLOAT_TYPE }));
 		list.insert(position, get);
 		list.remove(position);
 	}
 
 	private void insertDoubleComparison(AbstractInsnNode position, InsnList list) {
-		list.insertBefore(position, new InsnNode(Opcodes.DSUB));
 		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        Type.getInternalName(BooleanHelper.class), "fromDouble",
-		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.DOUBLE_TYPE }));
+		        Type.getInternalName(BooleanHelper.class), "doubleSub",
+		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.DOUBLE_TYPE,
+		                Type.DOUBLE_TYPE }));
 		list.insert(position, get);
 		list.remove(position);
 	}
