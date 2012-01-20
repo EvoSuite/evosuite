@@ -32,6 +32,7 @@ import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.Properties.OutputFormat;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
+import de.unisb.cs.st.evosuite.repair.JUnit4AssertionLogAdapter;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
@@ -292,6 +293,8 @@ public class TestSuiteWriter implements Opcodes {
 			return new JUnit3TestAdapter();
 		else if (Properties.TEST_FORMAT == OutputFormat.JUNIT4)
 			return new JUnit4TestAdapter();
+		else if (Properties.TEST_FORMAT == OutputFormat.JUNIT4_LOG)
+			return new JUnit4AssertionLogAdapter();
 		else
 			throw new RuntimeException("Unknown output format: " + Properties.TEST_FORMAT);
 	}
@@ -407,7 +410,8 @@ public class TestSuiteWriter implements Opcodes {
 				}
 			}
 			builder.append(" {\n");
-			for (String line : testCases.get(id).toCode(result.exceptions).split("\\r?\\n")) {
+			for (String line : adapter.getTestString(id, testCases.get(id),
+			                                         result.exceptions).split("\\r?\\n")) {
 				builder.append("      ");
 				builder.append(line);
 				// builder.append(";\n");

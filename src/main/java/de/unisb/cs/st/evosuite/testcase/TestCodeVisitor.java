@@ -31,13 +31,13 @@ import de.unisb.cs.st.evosuite.utils.NumberFormatter;
  */
 public class TestCodeVisitor implements TestVisitor {
 
-	private String testCode = "";
+	protected String testCode = "";
 
-	private final Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
+	protected final Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
 
-	private TestCase test = null;
+	protected TestCase test = null;
 
-	private final Map<VariableReference, String> variableNames = new HashMap<VariableReference, String>();
+	protected final Map<VariableReference, String> variableNames = new HashMap<VariableReference, String>();
 
 	public String getCode() {
 		return testCode;
@@ -51,14 +51,14 @@ public class TestCodeVisitor implements TestVisitor {
 		exceptions.put(statement.getPosition(), exception);
 	}
 
-	private Throwable getException(StatementInterface statement) {
+	protected Throwable getException(StatementInterface statement) {
 		if (exceptions != null && exceptions.containsKey(statement.getPosition()))
 			return exceptions.get(statement.getPosition());
 
 		return null;
 	}
 
-	private String getVariableName(VariableReference var) {
+	protected String getVariableName(VariableReference var) {
 		if (var instanceof ConstantValue) {
 			return var.getName();
 		} else if (var instanceof FieldReference) {
@@ -113,7 +113,7 @@ public class TestCodeVisitor implements TestVisitor {
 		this.test = test;
 	}
 
-	private void visitPrimitiveAssertion(PrimitiveAssertion assertion) {
+	protected void visitPrimitiveAssertion(PrimitiveAssertion assertion) {
 		VariableReference source = assertion.getSource();
 		Object value = assertion.getValue();
 
@@ -147,7 +147,7 @@ public class TestCodeVisitor implements TestVisitor {
 			        + getVariableName(source) + ");";
 	}
 
-	private void visitPrimitiveFieldAssertion(PrimitiveFieldAssertion assertion) {
+	protected void visitPrimitiveFieldAssertion(PrimitiveFieldAssertion assertion) {
 		VariableReference source = assertion.getSource();
 		Object value = assertion.getValue();
 		Field field = assertion.getField();
@@ -175,7 +175,7 @@ public class TestCodeVisitor implements TestVisitor {
 			        + getVariableName(source) + "." + field.getName() + ");";
 	}
 
-	private void visitInspectorAssertion(InspectorAssertion assertion) {
+	protected void visitInspectorAssertion(InspectorAssertion assertion) {
 		VariableReference source = assertion.getSource();
 		Object value = assertion.getValue();
 		Inspector inspector = assertion.getInspector();
@@ -209,7 +209,7 @@ public class TestCodeVisitor implements TestVisitor {
 			        + inspector.getMethodCall() + "());";
 	}
 
-	private void visitNullAssertion(NullAssertion assertion) {
+	protected void visitNullAssertion(NullAssertion assertion) {
 		VariableReference source = assertion.getSource();
 		Boolean value = (Boolean) assertion.getValue();
 		if (value.booleanValue()) {
@@ -218,7 +218,7 @@ public class TestCodeVisitor implements TestVisitor {
 			testCode += "assertNotNull(" + getVariableName(source) + ");";
 	}
 
-	private void visitCompareAssertion(CompareAssertion assertion) {
+	protected void visitCompareAssertion(CompareAssertion assertion) {
 		VariableReference source = assertion.getSource();
 		VariableReference dest = assertion.getDest();
 		Object value = assertion.getValue();
@@ -240,7 +240,7 @@ public class TestCodeVisitor implements TestVisitor {
 		}
 	}
 
-	private void visitEqualsAssertion(EqualsAssertion assertion) {
+	protected void visitEqualsAssertion(EqualsAssertion assertion) {
 		VariableReference source = assertion.getSource();
 		VariableReference dest = assertion.getDest();
 		Object value = assertion.getValue();
