@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -91,7 +92,10 @@ public class TestCodeVisitor implements TestVisitor {
 					num++;
 			}
 			String variableName = className.substring(0, 1).toLowerCase()
-			        + className.substring(1) + num;
+			        + className.substring(1);
+			if (CharUtils.isAsciiNumeric(variableName.charAt(variableName.length() - 1)))
+				variableName += "_";
+			variableName += num;
 			if (variableName.contains("[]")) {
 				variableName = variableName.replace("[]", "Array");
 			}
