@@ -32,7 +32,6 @@ import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
 public class IF_ICMPLE extends gov.nasa.jpf.jvm.bytecode.IF_ICMPLE {
 	public IF_ICMPLE(int targetPc) {
 		super(targetPc);
-		// TODO Auto-generated constructor stub
 	}
 
 	@SuppressWarnings("unchecked")

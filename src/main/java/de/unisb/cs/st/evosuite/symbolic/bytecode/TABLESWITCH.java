@@ -39,7 +39,6 @@ public class TABLESWITCH extends gov.nasa.jpf.jvm.bytecode.TABLESWITCH {
 
 	public TABLESWITCH(int defaultTarget, int min, int max) {
 		super(defaultTarget, min, max);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
