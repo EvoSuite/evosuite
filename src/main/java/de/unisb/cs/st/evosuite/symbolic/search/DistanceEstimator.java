@@ -82,7 +82,7 @@ public abstract class DistanceEstimator {
 					return Double.MAX_VALUE;
 				}
 			}
-			return result;
+			return Math.abs(result);
 		} catch (Exception e) {
 			return 1;
 		}
@@ -175,7 +175,6 @@ public abstract class DistanceEstimator {
 		}
 	}
 
-	
 	public static long getIntegerDist(Constraint<?> target) {
 
 		long left = ExpressionHelper.getLongResult(target.getLeftOperand());
@@ -232,7 +231,6 @@ public abstract class DistanceEstimator {
 			return Math.min(b, c);
 	}
 
-	
 	public static int editDistance(String s, String t) {
 		int n = s.length(); // length of s
 		int m = t.length(); // length of t
@@ -358,8 +356,4 @@ public abstract class DistanceEstimator {
 		return min_dist;
 	}
 
-
-
-
-	
 }

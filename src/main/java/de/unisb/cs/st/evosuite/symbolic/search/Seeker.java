@@ -66,11 +66,6 @@ public class Seeker implements Solver {
 						break outerloop;
 					}
 				}
-				
-				/* this makes problems with the intLocalSearchV2
-				 ../EvoSuite -generateSuite -class org.joda.time.base.AbstractDuration -Ddse_rate=5
-				 */
-				// These two are not yet implemented
 				if (var instanceof IntegerVariable) {
 					IntegerVariable intVar = (IntegerVariable) var;
 					if (changer.intLocalSearch(intVar, constraints, result)) {
@@ -90,8 +85,6 @@ public class Seeker implements Solver {
 		return result;
 	}
 
-	
-	
 	@SuppressWarnings("unused")
 	private void setupTree(Expression<?> expr) {
 		if (expr instanceof Variable<?>) {

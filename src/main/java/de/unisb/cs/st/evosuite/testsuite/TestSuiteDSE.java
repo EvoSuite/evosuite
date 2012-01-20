@@ -27,9 +27,18 @@ import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
-import de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator;
 import de.unisb.cs.st.evosuite.symbolic.search.Seeker;
-import de.unisb.cs.st.evosuite.testcase.*;
+import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
+import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
+import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
+import de.unisb.cs.st.evosuite.testcase.MethodStatement;
+import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
+import de.unisb.cs.st.evosuite.testcase.StaticTestCluster;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
+import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
+import de.unisb.cs.st.evosuite.testcase.TestChromosome;
+import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
  * @author Gordon Fraser

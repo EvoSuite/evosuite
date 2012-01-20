@@ -220,6 +220,9 @@ public class Changer {
 	
 //	int counter = 0;
 	
+	//generaly a good idea but java cannot detect overflows and checking the 
+	// distance for Long.MAX_VALUE will probably cause one so ... don't use this
+	// ... or think of a better way to do it.  
 	public boolean intLocalSearchV2(IntegerVariable intVar, 
 			List<Constraint<?>> cnstr, 
 			HashMap<String, Object> varsToChange) { 
@@ -392,7 +395,7 @@ public class Changer {
 		
 //		log.warning("whole part: " + realVar);
 		
-		//TODO search in the interval realVar.execute() +-1;
+		//search in the interval realVar.execute() +-1;
 		if (improvement) {
 			//compute interval
 			double left = realVar.getConcreteValue() - 1.0;
@@ -413,6 +416,10 @@ public class Changer {
 			// be done a "little" bit better ...
 			double oldWork = -Double.MAX_VALUE;
 			
+			//since we are going in the same direction with left and right
+			// we will eventually produce the right result
+			// if there is no right result we will arrive at some local min and 
+			// work will stay the same
 			while ( distW != 0.0) {
 				if (oldWork == work) {
 					//unreachable
@@ -425,8 +432,6 @@ public class Changer {
 				realVar.setConcreteValue(work);
 				distW = DistanceEstimator.getDistance(cnstr);
 				
-//				log.warning("work: " + work + " distW: " + distW + " cos(work): " + Math.cos(-1.5707963267948966));
-				
 				if (distL > distR) {
 					left = work;
 					distL = distW;
@@ -435,7 +440,6 @@ public class Changer {
 					distR = distW;
 				}
 			}
-			
 			
 		
 //			log.warning("left-right: " + (left-right));
