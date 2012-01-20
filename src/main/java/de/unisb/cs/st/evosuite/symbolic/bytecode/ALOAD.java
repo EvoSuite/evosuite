@@ -51,7 +51,7 @@ public class ALOAD extends gov.nasa.jpf.jvm.bytecode.ALOAD {
 		    		type = el_inf.getType();
 		    	}
 		    } else {
-		    	log.info("Aload: Trying to load a not ref variable " + this.asString);
+		    	log.info("Aload: Trying to load a not ref variable");
 		    }
 		    
 	    } catch (Exception e) {
