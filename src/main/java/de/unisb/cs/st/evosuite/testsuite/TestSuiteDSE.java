@@ -79,11 +79,13 @@ public class TestSuiteDSE {
 
 				// TODO: Mapping back to original is missing
 				TestCase expandedTest = expandTestCase(test.getTestCase());
+				TestChromosome expandedChromosome = new TestChromosome();
+				expandedChromosome.setTestCase(expandedTest);
 				//test.setTestCase(expandedTest);
 				//test.clearCachedResults();
 
 				// Apply DSE to gather constraints
-				List<BranchCondition> branches = concolicExecution.getSymbolicPath(test);
+				List<BranchCondition> branches = concolicExecution.getSymbolicPath(expandedChromosome);
 
 				// For each uncovered branch
 				for (BranchCondition branch : branches) {
