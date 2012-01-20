@@ -32,6 +32,12 @@ public class ConcolicInstructionFactory extends InstructionFactory implements Cl
 		return this;
 	}
 
+//	@Override
+//	public INVOKESPECIAL invokespecial(String clsDescriptor, 
+//			String methodName, String signature){
+//		return new INVOKESPECIAL(clsDescriptor, methodName, signature);
+//	}
+	
 	@Override
 	public INVOKEVIRTUAL invokevirtual(String clsName, String methodName,
 			String methodSignature){
