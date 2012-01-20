@@ -161,7 +161,7 @@ public class UITestChromosome extends ExecutableChromosome {
 	@Override
 	public Chromosome clone() {
 		return new UITestChromosome((ActionSequence) this.actionSequence.clone(),
-		        this.stateGraph, this.mainMethodTrigger);
+		        this.stateGraph, this.getMainMethodTrigger());
 	}
 
 	@Override
