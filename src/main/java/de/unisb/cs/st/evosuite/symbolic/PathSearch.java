@@ -68,6 +68,7 @@ public class PathSearch extends Search {
 		}
 
 		//vm.forward();
+		//RestorableVMState init_state = vm.getRestorableState();
 		VMState init_state = vm.getState();
 
 		notifySearchStarted();
