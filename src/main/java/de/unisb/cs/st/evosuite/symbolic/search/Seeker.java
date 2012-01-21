@@ -50,7 +50,8 @@ public class Seeker implements Solver {
 	public Map<String, Object> getModel(Collection<Constraint<?>> constr){
 		HashMap<String, Object> result = new HashMap<String, Object>();
 		List<Constraint<?>> constraints = (List<Constraint<?>>) constr;
-		Set<Variable<?>> vars = getVarsOfTarget((List<Constraint<?>>) constraints);
+		
+		Set<Variable<?>> vars = getVarsOfSet((List<Constraint<?>>) constraints);
 		boolean searchSuccsess = false;
 		
 		//try each var #vars-times
@@ -141,12 +142,23 @@ public class Seeker implements Solver {
 		return false;
 	}
 
+	private Set<Variable<?>> getVarsOfSet(List<Constraint<?>> constraints) {
+		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		
+		for (Constraint<?> cnstr : constraints) {
+			getVariables(cnstr.getLeftOperand(), variables);
+			getVariables(cnstr.getRightOperand(), variables);
+		}
+		return variables;
+	}
+	
 	/**
 	 * Determine the set of variable referenced by this constraint
 	 * 
 	 * @param constraint
 	 * @return
 	 */
+	@SuppressWarnings("unused")
 	private Set<Variable<?>> getVarsOfTarget(List<Constraint<?>> constraint) {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
 		
