@@ -127,7 +127,11 @@ public abstract class InvVStringBuilderHelper {
 			} else if (mname.equals("append(C)Ljava/lang/StringBuilder;")) {
 				int val = sf.peek();
 				se0 = new StringConstant( Character.toString((char)val) );
-				
+			
+			} else if (mname.equals("append(Ljava/lang/String;)Ljava/lang/StringBuilder;")) {
+				int val = sf.peek();
+				se0 = new StringConstant( ks.heap.get(val).asString());
+					
 			} else if (mname.equals("append(D)Ljava/lang/StringBuilder;")) {
 				
 				double val = Double.longBitsToDouble(sf.longPeek());

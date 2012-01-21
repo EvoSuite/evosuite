@@ -45,21 +45,6 @@ public class ConcolicInstructionFactory extends InstructionFactory implements Cl
 	}
 	
 	@Override
-	public ASTORE astore(int index) {
-		return new ASTORE(index);
-	}
-	
-	@Override
-	public ALOAD aload(int index) {
-		return new ALOAD(index);
-	}
-	
-	@Override
-	public LDC ldc(String s, boolean isClass) {
-		return new LDC(s, isClass);
-	}
-	
-	@Override
 	public D2F d2f() {
 		return new D2F();
 	}

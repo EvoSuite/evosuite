@@ -76,6 +76,7 @@ BinaryExpression<String>{
 	public String execute() {
 		String first = (String)left.execute();
 		Object second = right.execute();
+		long ch;
 		
 		switch (op) {
 		
@@ -86,10 +87,15 @@ BinaryExpression<String>{
 		case CONCAT:
 			return first.concat((String)second);
 		case INDEXOFC:
-			long ch = ExpressionHelper.getLongResult(right);
+			ch = ExpressionHelper.getLongResult(right);
 			return Integer.toString(first.indexOf((char)ch));
 		case INDEXOFS:
 			return Integer.toString(first.indexOf((String)second));
+		case LASTINDEXOFC:
+			ch = ExpressionHelper.getLongResult(right);
+			return Integer.toString(first.lastIndexOf((char)ch));
+		case LASTINDEXOFS:
+			return Integer.toString(first.lastIndexOf((String)second));
 		case APPEND: 
 			return first + ((String) second);
 		case CHARAT:

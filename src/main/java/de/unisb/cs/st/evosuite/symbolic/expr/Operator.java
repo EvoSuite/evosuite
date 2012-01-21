@@ -110,6 +110,8 @@ public enum Operator {
 	APPEND("append", 2), 
 	INDEXOFC("indexOfC", 2),
 	INDEXOFS("indexOfS", 2),
+	LASTINDEXOFC("lastIndexOfC", 2),
+	LASTINDEXOFS("lastIndexOfS", 2),
 	CHARAT("charAt", 2),
 	
 	REPLACEC("replacec", 3),
@@ -118,6 +120,8 @@ public enum Operator {
 	REPLACEFIRST("replaceFirst", 3),
 	INDEXOFCI("indexOfCI", 3),
 	INDEXOFSI("indexOfSI", 3),
+	LASTINDEXOFCI("lastIndexOfCI", 3),
+	LASTINDEXOFSI("lastIndexOfSI", 3),
 	SUBSTRING("substring", 3);
 
 	private final String str;

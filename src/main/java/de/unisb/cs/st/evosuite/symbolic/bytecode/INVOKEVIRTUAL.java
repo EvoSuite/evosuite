@@ -136,6 +136,10 @@ public class INVOKEVIRTUAL extends gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL {
 				
 				return InvVStringHelper.strFncIndexOf(ks, ti, this);
 						
+			} else if (mname.startsWith("lastIndexOf(")) {
+				
+				return InvVStringHelper.strFncLastIndexOf(ks, ti, this);
+				
 			} else if (mname.startsWith("charAt(")) {
 				
 				return InvVStringHelper.strFncCharAt(ks, ti, this);

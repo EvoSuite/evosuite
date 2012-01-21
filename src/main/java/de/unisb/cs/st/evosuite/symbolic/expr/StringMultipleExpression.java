@@ -103,6 +103,14 @@ BinaryExpression<String>{
 			secStr = (String) right.execute();
 			thrdLong = (Long)  ExpressionHelper.getLongResult(other_v.get(0));
 			return Integer.toString(first.indexOf(secStr, (int)thrdLong));
+		case LASTINDEXOFCI:
+			secLong = (Long) ExpressionHelper.getLongResult(right);
+			thrdLong = (Long)  ExpressionHelper.getLongResult(other_v.get(0));
+			return Integer.toString(first.lastIndexOf((int)secLong, (int)thrdLong));
+		case LASTINDEXOFSI:
+			secStr = (String) right.execute();
+			thrdLong = (Long)  ExpressionHelper.getLongResult(other_v.get(0));
+			return Integer.toString(first.lastIndexOf(secStr, (int)thrdLong));
 		case SUBSTRING:
 			secLong = (Long) ExpressionHelper.getLongResult(right);
 			thrdLong = (Long)  ExpressionHelper.getLongResult(other_v.get(0));
