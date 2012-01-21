@@ -33,6 +33,7 @@ public class SilentReporter extends Reporter {
 
 	public SilentReporter(Config conf, JPF jpf) {
 		super(conf, jpf);
+		//this.publishers = new ArrayList<Publisher>();
 		this.publishers = new Publisher[0];
 	}
 
