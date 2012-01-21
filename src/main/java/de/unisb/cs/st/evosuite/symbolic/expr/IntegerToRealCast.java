@@ -1,6 +1,6 @@
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
-public class IntegerToRealCast extends RealExpression implements Cast<Long>{
+public class IntegerToRealCast extends RealExpression implements Cast<Long> {
 	private static final long serialVersionUID = -3070453617714122236L;
 
 	protected Double concreteValue;
@@ -21,7 +21,7 @@ public class IntegerToRealCast extends RealExpression implements Cast<Long>{
 	public Expression<Long> getConcreteObject() {
 		return expr;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "((REAL)" + expr + ")";
@@ -35,7 +35,7 @@ public class IntegerToRealCast extends RealExpression implements Cast<Long>{
 		if (obj instanceof IntegerToRealCast) {
 			IntegerToRealCast other = (IntegerToRealCast) obj;
 			return this.expr.equals(other.expr);
-//					 && this.getSize() == other.getSize();
+			//					 && this.getSize() == other.getSize();
 		}
 
 		return false;
@@ -43,16 +43,16 @@ public class IntegerToRealCast extends RealExpression implements Cast<Long>{
 
 	protected int size = 0;
 
-//	@Override
-//	public int getSize() {
-//		if (size == 0) {
-//			size = 1 + getExpression().getSize();
-//		}
-//		return size;
-//	}
+	//	@Override
+	//	public int getSize() {
+	//		if (size == 0) {
+	//			size = 1 + getExpression().getSize();
+	//		}
+	//		return size;
+	//	}
 
 	@Override
 	public Double execute() {
-		return (Double)(expr.execute());
+		return ((Number) expr.execute()).doubleValue();
 	}
 }
