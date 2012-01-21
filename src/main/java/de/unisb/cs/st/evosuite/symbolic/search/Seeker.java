@@ -49,40 +49,49 @@ public class Seeker implements Solver {
 	 */
 	public Map<String, Object> getModel(Collection<Constraint<?>> constr){
 		HashMap<String, Object> result = new HashMap<String, Object>();
-		
 		List<Constraint<?>> constraints = (List<Constraint<?>>) constr;
 		Set<Variable<?>> vars = getVarsOfTarget((List<Constraint<?>>) constraints);
-
+		boolean searchSuccsess = false;
+		
 		//try each var #vars-times
 		outerloop:
 		for (int i = 0; i < vars.size() ; i++ ) {
 			for (Variable<?> var : vars) {
 
+				log.info("Variable: " + var);
 				Changer changer = new Changer();
 				
 				if (var instanceof StringVariable) {
+					log.info("searching for string");
 					StringVariable strVar = (StringVariable) var;
 					if (changer.strLocalSearch(strVar, constraints, result)) {
+						searchSuccsess = true;
 						break outerloop;
 					}
 				}
 				if (var instanceof IntegerVariable) {
+					log.info("searching for int");
 					IntegerVariable intVar = (IntegerVariable) var;
 					if (changer.intLocalSearch(intVar, constraints, result)) {
+						searchSuccsess = true;
 						break outerloop;
 					}
 				}
 				if (var instanceof RealVariable) {
+					log.info("searching for real");
 					RealVariable realVar = (RealVariable) var;
 					if (changer.realLocalSearch(realVar, constraints, result)) {
+						searchSuccsess = true;
 						break outerloop;
 					}
 				}				
 			}
 		}
 		
-		
-		return result;
+		if (searchSuccsess)
+			return result;
+		else
+			return null;
 	}
 
 	@SuppressWarnings("unused")
