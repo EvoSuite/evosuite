@@ -1057,7 +1057,8 @@ public abstract class InvVStringHelper {
 		//push a StringComparation expression on the fake stack
 		StringBinaryExpression StrBExpr = 
 			new StringBinaryExpression(str_expr_one, Operator.CHARAT, indx_expr, Character.toString(result));
-		sf.setOperandAttr(new StringToIntCast(StrBExpr, (long)result));
+		//sf.setOperandAttr(new StringToIntCast(StrBExpr, (long)result));
+		sf.setOperandAttr(StrBExpr);
 		
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
