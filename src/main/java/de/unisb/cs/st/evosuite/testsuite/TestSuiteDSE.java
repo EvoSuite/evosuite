@@ -10,11 +10,13 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.symbolic.BranchCondition;
@@ -68,10 +70,16 @@ public class TestSuiteDSE {
 		logger.info("Applying DSE to suite of size " + individual.size());
 		logger.info("Starting with " + uncoveredBranches.size() + " candidate branches");
 
-		List<TestChromosome> tests = new ArrayList<TestChromosome>(
-		        individual.getTestChromosomes());
-		// For each TestChromosome
-		for (TestChromosome test : tests) {
+		Queue<TestChromosome> testsToHandle = new LinkedList<TestChromosome>();
+
+		testsToHandle.addAll(individual.getTestChromosomes());
+		while (!testsToHandle.isEmpty()) {
+			TestChromosome test = testsToHandle.poll();
+
+			if (test.getLastExecutionResult().hasTimeout()) {
+				logger.info("Skipping test with timeout");
+				continue;
+			}
 
 			// Only apply DSE if if makes any sense
 			if (hasUncoveredBranches(test)) {
@@ -84,11 +92,21 @@ public class TestSuiteDSE {
 				//test.setTestCase(expandedTest);
 				//test.clearCachedResults();
 
+				logger.debug("DSE start");
 				// Apply DSE to gather constraints
 				List<BranchCondition> branches = concolicExecution.getSymbolicPath(expandedChromosome);
+				logger.debug("DSE finished");
 
 				// For each uncovered branch
 				for (BranchCondition branch : branches) {
+					String className = branch.ins.getMethodInfo().getClassName();
+
+					// TODO: Need to match prefixes?
+					if (!className.equals(Properties.TARGET_CLASS)
+					        && !className.startsWith(Properties.TARGET_CLASS + "$"))
+						continue;
+
+					//logger.debug("Current branch: " + branch);
 					if (isUncovered(branch)) {
 						logger.info("Trying to cover branch "
 						        + branch.ins.getInstructionIndex());
@@ -98,16 +116,31 @@ public class TestSuiteDSE {
 
 						// If successful, add resulting test to test suite
 						if (newTest != null) {
-							logger.info("Created new test");
+							logger.info("Old test: " + expandedTest.toCode());
+							logger.info("Created new test: " + newTest.toCode());
+							int oldCovered = uncoveredBranches.size();
 							logger.info("-> Remaining " + uncoveredBranches.size()
 							        + " candidate branches");
-							updateTestSuite(individual, newTest);
+							TestChromosome newChromosome = new TestChromosome();
+							newChromosome.setTestCase(newTest);
+							updateTestSuite(individual, newChromosome);
+							testsToHandle.add(newChromosome);
 							//newTests.add(newTest);
 							//setCovered(branch);
+							//assert (uncoveredBranches.size() < oldCovered);
+							if (uncoveredBranches.isEmpty())
+								break;
+
 							logger.info("-> Remaining " + uncoveredBranches.size()
 							        + " candidate branches");
 							logger.info("Resulting suite has size " + individual.size());
+							logger.info("Resulting suite has coverage "
+							        + individual.getCoverage());
 						}
+					} else {
+						logger.info("Already covered branch "
+						        + branch.ins.getInstructionIndex() + ": " + branch);
+
 					}
 				}
 				logger.info("Remaining " + uncoveredBranches.size()
@@ -141,6 +174,14 @@ public class TestSuiteDSE {
 			if (test.getLastExecutionResult() == null) {
 				test.setLastExecutionResult(runTest(test.getTestCase()));
 				test.setChanged(false);
+				for (Integer branchId : test.getLastExecutionResult().getTrace().covered_predicates.keySet()) {
+					logger.info("Distances "
+					        + branchId
+					        + ": "
+					        + test.getLastExecutionResult().getTrace().true_distances.get(branchId)
+					        + "/"
+					        + test.getLastExecutionResult().getTrace().false_distances.get(branchId));
+				}
 			}
 
 			for (Integer branchId : test.getLastExecutionResult().getTrace().covered_predicates.keySet()) {
@@ -154,6 +195,7 @@ public class TestSuiteDSE {
 		for (Integer branchId : coveredTrue) {
 			if (!coveredFalse.contains(branchId)) {
 				Branch b = BranchPool.getBranch(branchId);
+				logger.info("Covered only true: " + b);
 				branches.add(b);
 				addBranch(b);
 				uncoveredBranches.add(branchId);
@@ -162,6 +204,7 @@ public class TestSuiteDSE {
 		for (Integer branchId : coveredFalse) {
 			if (!coveredTrue.contains(branchId)) {
 				Branch b = BranchPool.getBranch(branchId);
+				logger.info("Covered only false: " + b);
 				branches.add(b);
 				addBranch(b);
 				uncoveredBranches.add(branchId);
@@ -175,7 +218,7 @@ public class TestSuiteDSE {
 	 * 
 	 * @param test
 	 */
-	private void updateTestSuite(TestSuiteChromosome suite, TestCase test) {
+	private void updateTestSuite(TestSuiteChromosome suite, TestChromosome test) {
 		suite.addTest(test);
 		clearBranches();
 		determineCoveredBranches(suite);
@@ -214,8 +257,11 @@ public class TestSuiteDSE {
 	 */
 	private boolean hasUncoveredBranches(ExecutableChromosome test) {
 		for (Integer branchId : test.getLastExecutionResult().getTrace().covered_predicates.keySet()) {
-			if (uncoveredBranches.contains(branchId))
+			if (uncoveredBranches.contains(branchId)) {
+				logger.info("Uncovered branch found: " + branchId + ": "
+				        + BranchPool.getBranch(branchId));
 				return true;
+			}
 		}
 		return false;
 	}
@@ -245,17 +291,28 @@ public class TestSuiteDSE {
 		}
 
 		int size = constraints.size();
+		/*
+		int counter = 0;
+		for (Constraint cnstr : constraints) {
+			logger.debug("Cnstr " + (counter++) + " : " + cnstr + " dist: "
+			        + DistanceEstimator.getDistance(constraints));
+		}
+		*/
 		if (size > 0) {
+			logger.debug("Calculating cone of influence for " + size + " constraints");
 			constraints = reduce(constraints);
 			logger.info("Reduced constraints from " + size + " to " + constraints.size());
 		}
 
-		//		int counter = 0;
-		//		for (Constraint cnstr : constraints ) {
-		//			logger.warn("Cnstr " + (counter++) + " : " +  cnstr + 
-		//						" dist: " + DistanceEstimator.getDistance(constraints));
-		//		}
+		int counter = 0;
+		/*
+		for (Constraint cnstr : constraints) {
+			logger.debug("Cnstr " + (counter++) + " : " + cnstr + " dist: "
+			        + DistanceEstimator.getDistance(constraints));
+		}
+		*/
 
+		logger.info("Applying local search");
 		Seeker skr = new Seeker();
 		Map<String, Object> values = skr.getModel(constraints);
 
@@ -263,12 +320,13 @@ public class TestSuiteDSE {
 		//		CVC3Solver solver = new CVC3Solver();
 		//		Map<String, Object> values = solver.getModel(constraints);
 
-		if (values != null) {
+		if (values != null && !values.isEmpty()) {
 			TestCase newTest = test.clone();
 
 			for (Object key : values.keySet()) {
 				Object val = values.get(key);
 				if (val != null) {
+					logger.info("New value: " + key + ": " + val);
 					if (val instanceof Long) {
 						Long value = (Long) val;
 						String name = ((String) key).replace("__SYM", "");
@@ -315,7 +373,7 @@ public class TestSuiteDSE {
 			}
 			return newTest;
 		} else {
-			logger.debug("Got null :-(");
+			logger.debug("Got no model");
 			return null;
 		}
 
@@ -350,7 +408,6 @@ public class TestSuiteDSE {
 		ExecutionResult result = new ExecutionResult(test, null);
 
 		try {
-			logger.debug("Executing test");
 			result = TestCaseExecutor.getInstance().execute(test);
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
@@ -436,6 +493,7 @@ public class TestSuiteDSE {
 			getVariables(sc.getLeftOperand(), variables);
 			getVariables(sc.getRightOperand(), variables);
 		} else if (expr instanceof BinaryExpression<?>) {
+
 			BinaryExpression<?> bin = (BinaryExpression<?>) expr;
 			getVariables(bin.getLeftOperand(), variables);
 			getVariables(bin.getRightOperand(), variables);
@@ -443,9 +501,7 @@ public class TestSuiteDSE {
 			UnaryExpression<?> un = (UnaryExpression<?>) expr;
 			getVariables(un.getOperand(), variables);
 		} else if (expr instanceof Constraint<?>) {
-
 			// ignore
-
 		}
 	}
 
