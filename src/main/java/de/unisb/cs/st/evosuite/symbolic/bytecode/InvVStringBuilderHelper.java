@@ -66,23 +66,8 @@ public abstract class InvVStringBuilderHelper {
 		
 		boolean unimpl = false;
 
+		String pp = getPrevAppend(ins);
 		
-		//check if we are in a supported instruction
-		String prevInstr = ins.getPrev().toString();
-		String pp = "";
-		if (prevInstr.startsWith("ldc") || prevInstr.startsWith("aload") || prevInstr.startsWith("bipush")
-				|| prevInstr.startsWith("iload") || prevInstr.startsWith("fload") 
-				|| prevInstr.startsWith("lload") || prevInstr.startsWith("dload")
-				|| prevInstr.startsWith("getfield")){
-			pp = ins.getPrev().getPrev().toString();
-//		} else if (prevInstr.startsWith("invokevirtual java.lang.String.charAt(I)C") ) {
-//			pp = ins.getPrev().getPrev().getPrev().getPrev().toString();
-		} else {
-//			log.warning("prevInstr "+prevInstr);
-			throw_away();
-		}
-		
-
 		Expression<?> expr =  (Expression<?>) sf.getOperandAttr(0);
 
 		StringExpression se0 = null;
@@ -117,6 +102,7 @@ public abstract class InvVStringBuilderHelper {
 		String			
 		StringBuffer	invokevirtual	#16; //Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
 		*/
+		
 		String mname = ins.getInvokedMethodName();
 		if (se0 == null) {
 			
@@ -210,6 +196,55 @@ public abstract class InvVStringBuilderHelper {
 				sf.setOperandAttr(offset, se1);
 			}
 		}
+	}
+
+	private static String getPrevAppend(INVOKEVIRTUAL ins) {
+		//check if we are in a supported instruction
+		Instruction p = ins.getPrev();
+
+		if (p.toString().matches("(ldc)|(aload.*)|(bipush)|(iload.*)|" +
+										"(fload.*)|(lload.*)|(dload.*)")) {
+			return p.getPrev().toString();
+		} else if (p.toString().startsWith("getfield")) {
+			return p.getPrev().getPrev().toString();
+		} else if (p.toString().startsWith("invokevirtual java.lang.String.charAt(I)C") ) {
+			p = p.getPrev();
+			if (p.toString().matches("(ldc)|(iconst.*)|(bipush)|(iload.*)")) {
+				p = p.getPrev();
+			} else if (p.toString().startsWith("getfield")){
+				p = p.getPrev().getPrev();
+			} else throw_away();
+			if (p.toString().matches("(ldc)|(aload.*)")) {
+				p = p.getPrev();
+			} else if (p.toString().startsWith("getfield")){
+				p = p.getPrev().getPrev();
+			} else throw_away();
+			return p.toString();
+		} else if (p.toString().matches("invokevirtual java.lang.String.((replace)|(replaceAll)|(replaceFirst)).*") ) {
+			p = p.getPrev();
+			if (p.toString().matches("(ldc)|(iconst.*)|(bipush)|(iload.*)|(aload.*)")) {
+				p = p.getPrev();
+			} else if (p.toString().startsWith("getfield")){
+				p = p.getPrev().getPrev();
+			} else throw_away();
+			if (p.toString().matches("(ldc)|(iconst.*)|(bipush)|(iload.*)|(aload.*)")) {
+				p = p.getPrev();
+			} else if (p.toString().startsWith("getfield")){
+				p = p.getPrev().getPrev();
+			} else throw_away();
+			if (p.toString().matches("(ldc)|(aload.*)")) {
+				p = p.getPrev();
+			} else if (p.toString().startsWith("getfield")){
+				p = p.getPrev().getPrev();
+			} else throw_away();
+			return p.toString();	
+		} else {
+//			log.warning("prevInstr "+prevInstr);
+			throw_away();
+			return null;
+		}
+
+
 	}
 
 	public static boolean isStrB_all_impl_op(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins) {

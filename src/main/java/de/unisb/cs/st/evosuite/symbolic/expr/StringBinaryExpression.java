@@ -100,7 +100,7 @@ BinaryExpression<String>{
 			return first + ((String) second);
 		case CHARAT:
 			int indx = (int) ExpressionHelper.getLongResult(right);
-			return Integer.toString(first.charAt(indx));
+			return Character.toString(first.charAt(indx));
 		default:
 			log.warning("StringBinaryExpression: unimplemented operator!");
 			return null;
