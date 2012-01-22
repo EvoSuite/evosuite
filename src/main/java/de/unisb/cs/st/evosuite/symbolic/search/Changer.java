@@ -365,6 +365,10 @@ public class Changer {
 			log.info("Old distance: " + oldDist + ", new distance: " + newDist);
 			if (distImpr(newDist)) {
 				improvement = true;
+				if (newDist == 0.0) {
+					done = true;
+					break;
+				}
 				done = false;
 				backup(realVar, newDist);
 				iterate(realVar, cnstr, 2.0);
@@ -380,6 +384,10 @@ public class Changer {
 				if (distImpr(newDist)) {
 					improvement = true;
 					done = false;
+					if (newDist == 0.0) {
+						done = true;
+						break;
+					}
 					backup(realVar, newDist);
 					iterate(realVar, cnstr, -2.0);
 				} else {
@@ -391,8 +399,10 @@ public class Changer {
 		//		log.warning("whole part: " + realVar);
 
 		//search in the interval realVar.execute() +-1;
-		if (improvement) {
+		if (oldDist > 0) {
+			//		if (improvement) {
 			//compute interval
+			log.warning("Searching after comma");
 			double left = realVar.getConcreteValue() - 1.0;
 			double work = Double.MAX_VALUE;//realVar.getConcreteValue();
 			double right = realVar.getConcreteValue() + 1.0;
@@ -416,6 +426,9 @@ public class Changer {
 			while (distW != 0.0) {
 				if (oldWork == work) {
 					//unreachable
+					log.info("Stopping search as old value is new value: " + work + ", "
+					        + left + " - " + right + ", but distance is " + distW);
+
 					return false;
 				}
 				//				log.warning("oldWork: " + oldWork + " work: " + work);
@@ -445,23 +458,29 @@ public class Changer {
 			if (DistanceEstimator.getDistance(cnstr) == 0) {
 				return true;
 			}
+		} else {
+			log.info("Don't need to consider after comma, we're done");
+			varsToChange.put(realVar.getName(), realVar.getConcreteValue());
+			log.info("Finished long local search with new value " + realVar);
+			return true;
 		}
 
+		log.info("Finished long local search without changing value of " + realVar);
 		return false;
 	}
 
 	private void iterate(RealVariable realVar, List<Constraint<?>> cnstr, double delta) {
 
-		log.info("Trying increment " + delta + " of " + realVar.toString());
+		log.info("[Loop] Trying increment " + delta + " of " + realVar.toString());
 
 		increment(realVar, delta);
 		double newDist = DistanceEstimator.getDistance(cnstr);
-		log.info("Old distance: " + oldDist + ", new distance: " + newDist);
+		log.info("[Loop] Old distance: " + oldDist + ", new distance: " + newDist);
 		while (distImpr(newDist)) {
 			backup(realVar, newDist);
 
 			delta = 2.0 * delta;
-			log.info("Trying increment " + delta + " of " + realVar);
+			log.info("[Loop] Trying increment " + delta + " of " + realVar);
 			increment(realVar, delta);
 			newDist = DistanceEstimator.getDistance(cnstr);
 			//			counter++;
