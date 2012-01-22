@@ -115,103 +115,116 @@ public class TestIntegerSearch {
 
 	@Test
 	public void testEQVariable() {
+		int var1 = 0;
+		int var2 = 1;
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
-		constraints.add(new IntegerConstraint(new IntegerVariable("test1", 0, -1000000,
-		        1000000), Comparator.EQ, new IntegerVariable("test2", 1, -1000000,
-		        1000000)));
+		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1,
+		        -1000000, 1000000), Comparator.EQ, new IntegerVariable("test2", var2,
+		        -1000000, 1000000)));
 
 		Seeker skr = new Seeker();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertNotNull(result.get("test2"));
-		assertEquals(((Number) result.get("test1")).intValue(),
-		             ((Number) result.get("test2")).intValue());
+		if (result.containsKey("test1"))
+			var1 = ((Number) result.get("test1")).intValue();
+		if (result.containsKey("test2"))
+			var2 = ((Number) result.get("test2")).intValue();
+		assertEquals(var1, var2);
 	}
 
 	@Test
 	public void testNEVariable() {
-		// TODO: Currently, the model returned by the search is null if the constraint is already satisfied, 
-		// so in this example the concrete value has to be the target initially
+		int var1 = 1;
+		int var2 = 1;
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
-		constraints.add(new IntegerConstraint(new IntegerVariable("test1", 0, -1000000,
-		        1000000), Comparator.NE, new IntegerVariable("test2", 0, -1000000,
-		        1000000)));
+		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1,
+		        -1000000, 1000000), Comparator.NE, new IntegerVariable("test2", var2,
+		        -1000000, 1000000)));
 
 		Seeker skr = new Seeker();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertNotNull(result.get("test2"));
-		assertTrue(((Number) result.get("test2")).intValue() != ((Number) result.get("test1")).intValue());
+		if (result.containsKey("test1"))
+			var1 = ((Number) result.get("test1")).intValue();
+		if (result.containsKey("test2"))
+			var2 = ((Number) result.get("test2")).intValue();
+		assertTrue(var1 != var2);
 	}
 
 	@Test
 	public void testLEVariable() {
-		// TODO: Currently, the model returned by the search is null if the constraint is already satisfied, 
-		// so in this example the concrete value has to be the target initially
+		int var1 = 2;
+		int var2 = 1;
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
-		constraints.add(new IntegerConstraint(new IntegerVariable("test1", 235086,
-		        -1000000, 1000000), Comparator.LE, new IntegerVariable("test2", 0,
+		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1,
+		        -1000000, 1000000), Comparator.LE, new IntegerVariable("test2", var2,
 		        -1000000, 1000000)));
 
 		Seeker skr = new Seeker();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertNotNull(result.get("test2"));
-		assertTrue(((Number) result.get("test2")).intValue() >= ((Number) result.get("test1")).intValue());
+		if (result.containsKey("test1"))
+			var1 = ((Number) result.get("test1")).intValue();
+		if (result.containsKey("test2"))
+			var2 = ((Number) result.get("test2")).intValue();
+		assertTrue(var1 <= var2);
 	}
 
 	@Test
 	public void testLTVariable() {
-		// TODO: Currently, the model returned by the search is null if the constraint is already satisfied, 
-		// so in this example the concrete value has to be the target initially
+		int var1 = 2;
+		int var2 = 1;
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
-		constraints.add(new IntegerConstraint(new IntegerVariable("test1", 235086,
-		        -1000000, 1000000), Comparator.LT, new IntegerVariable("test2", 0,
+		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1,
+		        -1000000, 1000000), Comparator.LT, new IntegerVariable("test2", var2,
 		        -1000000, 1000000)));
 
 		Seeker skr = new Seeker();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertNotNull(result.get("test2"));
-		assertTrue(((Number) result.get("test2")).intValue() > ((Number) result.get("test1")).intValue());
+		if (result.containsKey("test1"))
+			var1 = ((Number) result.get("test1")).intValue();
+		if (result.containsKey("test2"))
+			var2 = ((Number) result.get("test2")).intValue();
+		assertTrue(var1 < var2);
 	}
 
 	@Test
 	public void testGEVariable() {
-		// TODO: Currently, the model returned by the search is null if the constraint is already satisfied, 
-		// so in this example the concrete value has to be the target initially
+		int var1 = 0;
+		int var2 = 1;
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
-		constraints.add(new IntegerConstraint(new IntegerVariable("test1", 0, -1000000,
-		        1000000), Comparator.GE, new IntegerVariable("test2", 1, -1000000,
-		        1000000)));
+		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1,
+		        -1000000, 1000000), Comparator.GE, new IntegerVariable("test2", var2,
+		        -1000000, 1000000)));
 
 		Seeker skr = new Seeker();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertNotNull(result.get("test2"));
-		assertTrue(((Number) result.get("test2")).intValue() <= ((Number) result.get("test1")).intValue());
+		if (result.containsKey("test1"))
+			var1 = ((Number) result.get("test1")).intValue();
+		if (result.containsKey("test2"))
+			var2 = ((Number) result.get("test2")).intValue();
+		assertTrue(var1 >= var2);
 	}
 
 	@Test
 	public void testGTVariable() {
-		// TODO: Currently, the model returned by the search is null if the constraint is already satisfied, 
-		// so in this example the concrete value has to be the target initially
+		int var1 = 0;
+		int var2 = 1;
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
-		constraints.add(new IntegerConstraint(new IntegerVariable("test1", 0, -1000000,
-		        1000000), Comparator.GT, new IntegerVariable("test2", 0, -1000000,
-		        1000000)));
+		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1,
+		        -1000000, 1000000), Comparator.GT, new IntegerVariable("test2", var2,
+		        -1000000, 1000000)));
 
 		Seeker skr = new Seeker();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertNotNull(result.get("test2"));
-		assertTrue(((Number) result.get("test2")).intValue() < ((Number) result.get("test1")).intValue());
+		if (result.containsKey("test1"))
+			var1 = ((Number) result.get("test1")).intValue();
+		if (result.containsKey("test2"))
+			var2 = ((Number) result.get("test2")).intValue();
+		assertTrue(var1 > var2);
 	}
 
 }
