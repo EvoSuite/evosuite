@@ -3,6 +3,9 @@
  */
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.symbolic.ConstraintTooLongException;
+
 /**
  * @author krusev
  *
@@ -18,6 +21,8 @@ public class StringBuilderExpression extends StringExpression {
 	public StringBuilderExpression(Expression<String> _expr) {
 		this.expr = _expr;
 		this.undef_func = false;
+		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
+			throw new ConstraintTooLongException();
 	}
 
 	public Expression<String> getExpr() {
@@ -48,12 +53,23 @@ public class StringBuilderExpression extends StringExpression {
 		}
 		if (obj instanceof StringBuilderExpression) {
 			StringBuilderExpression other = (StringBuilderExpression) obj;
-			return this.expr.equals(other.expr); 
+			return this.expr.equals(other.expr)
+						&& this.getSize() == other.getSize(); 
 		}
 
 		return false;
 	}
 
+	protected int size = 0;
+
+	@Override
+	public int getSize() {
+		if (size == 0) {
+			size = 1 + expr.getSize();
+		}
+		return size;
+	}
+	
 	@Override
 	public String getConcreteValue() {
 		

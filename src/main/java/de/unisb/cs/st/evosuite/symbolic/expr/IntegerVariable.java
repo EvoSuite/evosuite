@@ -67,10 +67,10 @@ public class IntegerVariable extends IntegerExpression implements Variable<Long>
 		return hash;
 	}
 
-//	@Override
-//	public int getSize() {
-//		return 1;
-//	}
+	@Override
+	public int getSize() {
+		return 1;
+	}
 
 	@Override
 	public Long execute() {

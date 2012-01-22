@@ -3,6 +3,9 @@
  */
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.symbolic.ConstraintTooLongException;
+
 /**
  * @author krusev
  *
@@ -18,6 +21,8 @@ public class StringToIntCast extends IntegerExpression implements Cast<String> {
 	public StringToIntCast(Expression<String> _expr, Long _concValue) {
 		this.expr = _expr;
 		this.concValue = _concValue;
+		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
+			throw new ConstraintTooLongException();
 	}
 
 	@Override
@@ -51,6 +56,16 @@ public class StringToIntCast extends IntegerExpression implements Cast<String> {
 		return false;
 	}
 
+	protected int size=0;
+	@Override
+	public int getSize() {
+		if(size == 0)
+		{
+			size=1 + expr.getSize();
+		}
+		return size;
+	}
+	
 	@Override
 	public Long execute() {
 		return Long.parseLong(((String)expr.execute()));

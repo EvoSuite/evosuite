@@ -28,10 +28,10 @@ public class RealConstant extends RealExpression{
 		return false;
 	}
 
-//	@Override
-//	public int getSize() {
-//		return 1;
-//	}
+	@Override
+	public int getSize() {
+		return 1;
+	}
 
 	@Override
 	public Double execute() {

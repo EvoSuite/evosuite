@@ -15,10 +15,6 @@ public class RealVariable extends RealExpression implements Variable<Double>{
 		this.minValue = minValue;
 		this.maxValue = maxValue;
 	}
-
-//	@Override
-//	public void execute() {
-//	}
 	
 	@Override
 	public Double getConcreteValue() {
@@ -69,10 +65,10 @@ public class RealVariable extends RealExpression implements Variable<Double>{
 		return hash;
 	}
 
-//	@Override
-//	public int getSize() {
-//		return 1;
-//	}
+	@Override
+	public int getSize() {
+		return 1;
+	}
 
 	@Override
 	public Double execute() {

@@ -7,6 +7,9 @@ import gov.nasa.jpf.JPF;
 
 import java.util.logging.Logger;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.symbolic.ConstraintTooLongException;
+
 /**
  * @author krusev
  *
@@ -31,6 +34,8 @@ BinaryExpression<String>{
 		this.left = left2;
 		this.right = right2;
 		this.op = op2;
+		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
+			throw new ConstraintTooLongException();
 	}
 
 	@Override
@@ -66,10 +71,20 @@ BinaryExpression<String>{
 		if (obj instanceof StringBinaryExpression) {
 			StringBinaryExpression other = (StringBinaryExpression) obj;
 			return this.op.equals(other.op) 
+					&& this.getSize() == other.getSize()
 			        && this.left.equals(other.left) && this.right.equals(other.right);
 		}
 
 		return false;
+	}
+	
+	protected int size = 0;
+	@Override
+	public int getSize() {
+		if (size == 0) {
+			size = 1 + left.getSize() + left.getSize();
+		}
+		return size;
 	}
 
 	@Override
