@@ -12,6 +12,6 @@ public abstract interface Expression<T extends Object> extends Serializable{
 	
 	public Object getConcreteValue();
 	
-	//public int getSize();
+	public int getSize();
 
 }

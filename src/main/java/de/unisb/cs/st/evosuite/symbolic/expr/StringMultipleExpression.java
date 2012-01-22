@@ -5,6 +5,9 @@ package de.unisb.cs.st.evosuite.symbolic.expr;
 
 import java.util.ArrayList;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.symbolic.ConstraintTooLongException;
+
 /**
  * @author krusev
  *
@@ -20,6 +23,8 @@ BinaryExpression<String>{
 	        Expression<?> _right, ArrayList<Expression<?>> _other, String con) {
 		super(_left, _op, _right, con);
 		this.other_v = _other;
+		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
+			throw new ConstraintTooLongException();
 	}
 
 	/**
@@ -80,11 +85,21 @@ BinaryExpression<String>{
 			}
 			
 			return this.op.equals(other.op) 
+					&& this.getSize() == other.getSize()
 			        && this.left.equals(other.left) && this.right.equals(other.right)
 			        && other_v_eq;
 		}
 
 		return false;
+	}
+	
+	protected int size = 0;
+	@Override
+	public int getSize() {
+		if (size == 0) {
+			size = 1 + left.getSize() + left.getSize();
+		}
+		return size;
 	}
 
 	@Override

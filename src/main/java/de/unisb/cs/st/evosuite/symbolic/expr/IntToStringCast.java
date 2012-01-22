@@ -2,6 +2,9 @@ package de.unisb.cs.st.evosuite.symbolic.expr;
 
 import java.util.logging.Logger;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.symbolic.ConstraintTooLongException;
+
 import gov.nasa.jpf.JPF;
 
 public class IntToStringCast extends StringExpression implements Cast<Long>{
@@ -14,6 +17,8 @@ public class IntToStringCast extends StringExpression implements Cast<Long>{
 
 	public IntToStringCast(Expression<Long> expr) {
 		this.intVar = expr;
+		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
+			throw new ConstraintTooLongException();
 	}
 	
 	@Override
@@ -42,6 +47,16 @@ public class IntToStringCast extends StringExpression implements Cast<Long>{
 		}
 
 		return false;
+	}
+	
+	protected int size=0;
+	@Override
+	public int getSize() {
+		if(size == 0)
+		{
+			size=1 + intVar.getSize();
+		}
+		return size;
 	}
 
 	@Override

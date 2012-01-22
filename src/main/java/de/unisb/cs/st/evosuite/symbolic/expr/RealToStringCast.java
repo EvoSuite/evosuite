@@ -2,6 +2,9 @@ package de.unisb.cs.st.evosuite.symbolic.expr;
 
 import java.util.logging.Logger;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.symbolic.ConstraintTooLongException;
+
 import gov.nasa.jpf.JPF;
 
 public class RealToStringCast extends StringExpression implements Cast<Double>{
@@ -14,6 +17,8 @@ public class RealToStringCast extends StringExpression implements Cast<Double>{
 
 	public RealToStringCast(Expression<Double> _expr) {
 		this.expr = _expr;
+		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
+			throw new ConstraintTooLongException();
 	}
 	
 	@Override
@@ -38,10 +43,21 @@ public class RealToStringCast extends StringExpression implements Cast<Double>{
 		}
 		if (obj instanceof RealToStringCast) {
 			RealToStringCast other = (RealToStringCast) obj;
-			return this.expr.equals(other.expr);
+			return this.expr.equals(other.expr)
+				&& this.getSize() == other.getSize();
 		}
 
 		return false;
+	}
+	
+	protected int size=0;
+	@Override
+	public int getSize() {
+		if(size == 0)
+		{
+			size=1 + expr.getSize();
+		}
+		return size;
 	}
 
 	@Override

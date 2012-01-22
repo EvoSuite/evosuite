@@ -101,10 +101,10 @@ public class StringVariable extends StringExpression implements Variable<String>
 		return hash;
 	}
 	
-//	@Override
-//	public int getSize() {
-//		return -1;
-//	}
+	@Override
+	public int getSize() {
+		return 1;
+	}
 
 	@Override
 	public String execute() {

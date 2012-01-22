@@ -10,4 +10,6 @@ package de.unisb.cs.st.evosuite.symbolic.expr;
 public abstract interface Cast<T> {
 
 	public Expression<T> getConcreteObject();
+	
+	public int getSize();
 }

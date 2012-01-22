@@ -4,6 +4,9 @@ import gov.nasa.jpf.JPF;
 
 import java.util.logging.Logger;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.symbolic.ConstraintTooLongException;
+
 public class RealUnaryExpression extends RealExpression implements
 		UnaryExpression<Double> {
 
@@ -21,6 +24,8 @@ public class RealUnaryExpression extends RealExpression implements
 		this.expr=e;
 		this.op=op2;
 		this.concretValue=con;
+		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
+			throw new ConstraintTooLongException();
 	}
 
 	@Override
@@ -49,21 +54,21 @@ public class RealUnaryExpression extends RealExpression implements
 		{
 			RealUnaryExpression v=(RealUnaryExpression) obj;
 			return this.op.equals(v.op) 
-//						&& this.getSize()==v.getSize() 
+						&& this.getSize()==v.getSize() 
 						&& this.expr.equals(v.expr);
 		}
 		return false;
 	}
 	
-//	protected int size=0;
-//	@Override
-//	public int getSize() {
-//		if(size == 0)
-//		{
-//			size=1+ getOperand().getSize();
-//		}
-//		return size;
-//	}
+	protected int size=0;
+	@Override
+	public int getSize() {
+		if(size == 0)
+		{
+			size=1 + expr.getSize();
+		}
+		return size;
+	}
 
 	@Override
 	public Double execute() {

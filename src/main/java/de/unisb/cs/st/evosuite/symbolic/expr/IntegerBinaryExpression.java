@@ -4,6 +4,9 @@ import gov.nasa.jpf.JPF;
 
 import java.util.logging.Logger;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.symbolic.ConstraintTooLongException;
+
 public class IntegerBinaryExpression extends IntegerExpression implements
         BinaryExpression<Long> {
 
@@ -24,6 +27,8 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 		this.left = left2;
 		this.right = right2;
 		this.op = op2;
+		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
+			throw new ConstraintTooLongException();
 	}
 
 	@Override
@@ -59,7 +64,7 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 		if (obj instanceof IntegerBinaryExpression) {
 			IntegerBinaryExpression other = (IntegerBinaryExpression) obj;
 			return this.op.equals(other.op) 
-//					&& this.getSize() == other.getSize()
+					&& this.getSize() == other.getSize()
 			        && this.left.equals(other.left) && this.right.equals(other.right);
 		}
 
@@ -67,14 +72,13 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 	}
 
 	protected int size = 0;
-
-//	@Override
-//	public int getSize() {
-//		if (size == 0) {
-//			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
-//		}
-//		return size;
-//	}
+	@Override
+	public int getSize() {
+		if (size == 0) {
+			size = 1 + left.getSize() + right.getSize();
+		}
+		return size;
+	}
 
 	@Override
 	public Long execute() {
