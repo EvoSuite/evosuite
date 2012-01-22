@@ -13,7 +13,7 @@ public class RealBinaryExpression extends RealExpression implements
 	private static final long serialVersionUID = 3095108718393239244L;
 
 	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.expr.IntegerBinaryExpression");
-	
+
 	protected Double concretValue;
 
 	protected Operator op;
@@ -63,8 +63,7 @@ public class RealBinaryExpression extends RealExpression implements
 		}
 		if (obj instanceof RealBinaryExpression) {
 			RealBinaryExpression other = (RealBinaryExpression) obj;
-			return this.op.equals(other.op) 
-					&& this.getSize() == other.getSize()
+			return this.op.equals(other.op) && this.getSize() == other.getSize()
 			        && this.left.equals(other.left) && this.right.equals(other.right);
 		}
 
@@ -76,29 +75,29 @@ public class RealBinaryExpression extends RealExpression implements
 	@Override
 	public int getSize() {
 		if (size == 0) {
-			size = 1 + left.getSize() + left.getSize();
+			size = 1 + left.getSize() + right.getSize();
 		}
 		return size;
 	}
 
 	@Override
 	public Object execute() {
-		
+
 		double leftVal = (Double) left.execute();
 		double rightVal = (Double) right.execute();
-		
+
 		switch (op) {
-		
+
 		case DIV:
 			return leftVal / rightVal;
 		case MUL:
 			return leftVal * rightVal;
 		case MINUS:
 			return leftVal - rightVal;
-		case PLUS: 
+		case PLUS:
 			return leftVal + rightVal;
-		case REM: 
-			return leftVal % rightVal;	
+		case REM:
+			return leftVal % rightVal;
 		case ATAN2:
 			return Math.atan2(leftVal, rightVal);
 		case COPYSIGN:
@@ -117,7 +116,7 @@ public class RealBinaryExpression extends RealExpression implements
 			return Math.pow(leftVal, rightVal);
 		case SCALB:
 			return Math.scalb(leftVal, (int) rightVal);
-		
+
 		default:
 			log.warning("IntegerBinaryExpression: unimplemented operator!");
 			return null;
