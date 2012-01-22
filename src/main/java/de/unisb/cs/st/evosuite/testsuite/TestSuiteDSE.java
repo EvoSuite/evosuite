@@ -29,6 +29,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
+import de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator;
 import de.unisb.cs.st.evosuite.symbolic.search.Seeker;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
@@ -116,11 +117,6 @@ public class TestSuiteDSE {
 
 						// If successful, add resulting test to test suite
 						if (newTest != null) {
-							logger.info("Old test: " + expandedTest.toCode());
-							logger.info("Created new test: " + newTest.toCode());
-							int oldCovered = uncoveredBranches.size();
-							logger.info("-> Remaining " + uncoveredBranches.size()
-							        + " candidate branches");
 							TestChromosome newChromosome = new TestChromosome();
 							newChromosome.setTestCase(newTest);
 							updateTestSuite(individual, newChromosome);
@@ -134,12 +130,10 @@ public class TestSuiteDSE {
 							logger.info("-> Remaining " + uncoveredBranches.size()
 							        + " candidate branches");
 							logger.info("Resulting suite has size " + individual.size());
-							logger.info("Resulting suite has coverage "
-							        + individual.getCoverage());
 						}
 					} else {
-						logger.info("Already covered branch "
-						        + branch.ins.getInstructionIndex() + ": " + branch);
+						logger.debug("Already covered branch "
+						        + branch.ins.getInstructionIndex());// + ": " + branch);
 
 					}
 				}
@@ -305,12 +299,11 @@ public class TestSuiteDSE {
 		}
 
 		int counter = 0;
-		/*
+
 		for (Constraint cnstr : constraints) {
-			logger.debug("Cnstr " + (counter++) + " : " + cnstr + " dist: "
+			logger.info("Cnstr " + (counter++) + " : " + cnstr + " dist: "
 			        + DistanceEstimator.getDistance(constraints));
 		}
-		*/
 
 		logger.info("Applying local search");
 		Seeker skr = new Seeker();
@@ -373,7 +366,7 @@ public class TestSuiteDSE {
 			}
 			return newTest;
 		} else {
-			logger.debug("Got no model");
+			logger.info("Found no solution");
 			return null;
 		}
 
