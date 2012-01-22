@@ -146,7 +146,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * Apply dynamic symbolic execution
 	 */
 	protected void applyDSE() {
-		logger.info("Applying DSE");
+		logger.info("Applying DSE at generation " + currentIteration);
 		getBestIndividual().applyDSE();
 	}
 
