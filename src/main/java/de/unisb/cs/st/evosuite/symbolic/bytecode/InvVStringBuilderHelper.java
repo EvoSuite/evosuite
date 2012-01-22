@@ -11,6 +11,7 @@ import gov.nasa.jpf.jvm.bytecode.Instruction;
 
 import java.util.logging.Logger;
 
+import de.unisb.cs.st.evosuite.symbolic.StringBuilderException;
 import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntToStringCast;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerExpression;
@@ -177,7 +178,7 @@ public abstract class InvVStringBuilderHelper {
 				if (opAttr instanceof StringBuilderExpression ) {
 					se1 = (StringBuilderExpression) opAttr;
 				} else {
-					throw_away();
+					throw_away("no StringBuilder found!");
 				}
 			}
 			//If se1 == null we have a new String Builder 
@@ -213,12 +214,12 @@ public abstract class InvVStringBuilderHelper {
 				p = p.getPrev();
 			} else if (p.toString().startsWith("getfield")){
 				p = p.getPrev().getPrev();
-			} else throw_away();
+			} else throw_away("charAt() second arg: "+p.toString());
 			if (p.toString().matches("(ldc)|(aload.*)")) {
 				p = p.getPrev();
 			} else if (p.toString().startsWith("getfield")){
 				p = p.getPrev().getPrev();
-			} else throw_away();
+			} else throw_away("charAt() first arg: "+p.toString());
 			return p.toString();
 		} else if (p.toString().matches("invokevirtual java.lang.String.((replace)|(replaceAll)|(replaceFirst)).*") ) {
 			p = p.getPrev();
@@ -226,37 +227,37 @@ public abstract class InvVStringBuilderHelper {
 				p = p.getPrev();
 			} else if (p.toString().startsWith("getfield")){
 				p = p.getPrev().getPrev();
-			} else throw_away();
+			} else throw_away("replace() third arg: "+p.toString());
 			if (p.toString().matches("(ldc)|(iconst.*)|(bipush)|(iload.*)|(aload.*)")) {
 				p = p.getPrev();
 			} else if (p.toString().startsWith("getfield")){
 				p = p.getPrev().getPrev();
-			} else throw_away();
+			} else throw_away("replace() second arg: "+p.toString());
 			if (p.toString().matches("(ldc)|(aload.*)")) {
 				p = p.getPrev();
 			} else if (p.toString().startsWith("getfield")){
 				p = p.getPrev().getPrev();
-			} else throw_away();
+			} else throw_away("replace() first arg: "+p.toString());
 			return p.toString();	
 		} else {
 //			log.warning("prevInstr "+prevInstr);
-			throw_away();
+			throw_away(p.toString());
 			return null;
 		}
-
-
 	}
 
-	public static boolean isStrB_all_impl_op(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins) {
+	public static boolean isStrB_all_impl_op(KernelState ks, ThreadInfo ti, 
+														INVOKEVIRTUAL ins) {
 		StackFrame sf = ti.getTopFrame();
-		StringBuilderExpression se0 = (StringBuilderExpression) sf.getOperandAttr(0);
+		StringBuilderExpression se0 = 
+					(StringBuilderExpression) sf.getOperandAttr(0);
 		
-		return (se0 == null) ? !strB_expr.has_undef_func() : !se0.has_undef_func() ;
+		return (se0 == null) ? !strB_expr.has_undef_func() : 
+											!se0.has_undef_func();
 	}
 
-	public static void throw_away() {
-		//TODO maybe we should throw some StringBuilderException here
-		throw new NullPointerException();
+	public static void throw_away(String cause) {
+		throw new StringBuilderException("StringBuilder: unsupported operation: " + cause);
 	}
 	
 	

@@ -164,7 +164,7 @@ public class INVOKEVIRTUAL extends gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL {
 				}
 			} else {
 //				log.warning("InvVStringBuilderHelper.throw_away() " + mname);
-				InvVStringBuilderHelper.throw_away();
+				InvVStringBuilderHelper.throw_away(mname);
 			}
 		}
 
