@@ -365,12 +365,13 @@ public class Changer {
 			log.info("Old distance: " + oldDist + ", new distance: " + newDist);
 			if (distImpr(newDist)) {
 				improvement = true;
-				if (newDist == 0.0) {
-					done = true;
-					break;
-				}
 				done = false;
 				backup(realVar, newDist);
+				
+				if (newDist == 0.0) {
+					break;
+				}
+
 				iterate(realVar, cnstr, 2.0);
 			} else {
 				// restore
@@ -384,11 +385,12 @@ public class Changer {
 				if (distImpr(newDist)) {
 					improvement = true;
 					done = false;
+					backup(realVar, newDist);
+					
 					if (newDist == 0.0) {
-						done = true;
 						break;
 					}
-					backup(realVar, newDist);
+					
 					iterate(realVar, cnstr, -2.0);
 				} else {
 					restore(realVar);
