@@ -360,7 +360,7 @@ public class Changer {
 			// Try increment
 			log.info("Trying to increment " + realVar);
 			increment(realVar, 1.0);
-			//			counter++;
+			//counter++;
 			newDist = DistanceEstimator.getDistance(cnstr);
 			log.info("Old distance: " + oldDist + ", new distance: " + newDist);
 			if (distImpr(newDist)) {
@@ -379,7 +379,7 @@ public class Changer {
 				// Try decrement
 				log.info("Trying to decrement " + realVar);
 				increment(realVar, -1.0);
-				//				counter++;
+				//counter++;
 				newDist = DistanceEstimator.getDistance(cnstr);
 				if (distImpr(newDist)) {
 					improvement = true;
@@ -396,13 +396,13 @@ public class Changer {
 			}
 		}
 
-		//		log.warning("whole part: " + realVar);
+		//log.warning("whole part: " + realVar);
 
 		//search in the interval realVar.execute() +-1;
 		if (oldDist > 0) {
-			//		if (improvement) {
+
 			//compute interval
-			log.warning("Searching after comma");
+			log.info("Searching after comma");
 			double left = realVar.getConcreteValue() - 1.0;
 			double work = Double.MAX_VALUE;//realVar.getConcreteValue();
 			double right = realVar.getConcreteValue() + 1.0;
@@ -423,7 +423,7 @@ public class Changer {
 			// we will eventually produce the right result
 			// if there is no right result we will arrive at some local min and 
 			// work will stay the same
-			while (distW != 0.0) {
+			while (distW > 0.0) {
 				if (oldWork == work) {
 					//unreachable
 					log.info("Stopping search as old value is new value: " + work + ", "
@@ -431,13 +431,24 @@ public class Changer {
 
 					return false;
 				}
-				//				log.warning("oldWork: " + oldWork + " work: " + work);
-				//				counter++;
+				//log.warning("oldWork: " + oldWork + " work: " + work);
+				//counter++;
 				oldWork = work;
 				work = (left + right) / 2.0;
 				realVar.setConcreteValue(work);
 				distW = DistanceEstimator.getDistance(cnstr);
-
+				
+				if (distW < distL || distW < distR) {
+					log.info("improoved");
+					improvement = true;
+					backup(realVar, distW);
+				} else {
+					log.info("restore");
+					restore(realVar);
+					break;
+				}
+				
+				
 				if (distL > distR) {
 					left = work;
 					distL = distW;
@@ -447,22 +458,22 @@ public class Changer {
 				}
 			}
 
-			//			log.warning("left-right: " + (left-right));
-			backup(realVar, DistanceEstimator.getDistance(cnstr));
-
-			//			log.warning("nr: "+counter);
-			//			log.warning("newRealVar: " + realVar);
-
-			varsToChange.put(realVar.getName(), realVar.getConcreteValue());
-			log.info("Finished long local search with new value " + realVar);
-			if (DistanceEstimator.getDistance(cnstr) == 0) {
-				return true;
-			}
+			//log.warning("nr: "+counter);
+			//log.warning("newRealVar: " + realVar);
+			
 		} else {
 			log.info("Don't need to consider after comma, we're done");
 			varsToChange.put(realVar.getName(), realVar.getConcreteValue());
 			log.info("Finished long local search with new value " + realVar);
 			return true;
+		}			
+
+		if (improvement) {
+			varsToChange.put(realVar.getName(), realVar.getConcreteValue());
+			log.info("Finished long local search with new value " + realVar);
+			if (oldDist <= 0) {
+				return true;
+			}
 		}
 
 		log.info("Finished long local search without changing value of " + realVar);
