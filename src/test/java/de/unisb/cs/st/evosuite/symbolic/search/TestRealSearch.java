@@ -319,7 +319,7 @@ public class TestRealSearch {
 		        1000000), Comparator.LT, new RealBinaryExpression(new RealVariable(
 		        "test2", var2, -1000000, 1000000), Operator.PLUS, new RealConstant(1.0),
 		        var2 + 1.0)));
-		constraints.add(new RealConstraint(new RealVariable("test2", var1, -1000000,
+		constraints.add(new RealConstraint(new RealVariable("test2", var2, -1000000,
 		        1000000), Comparator.GT, new RealConstant(0.0)));
 
 		Seeker skr = new Seeker();
