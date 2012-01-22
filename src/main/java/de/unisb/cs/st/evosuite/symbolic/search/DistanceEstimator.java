@@ -32,49 +32,21 @@ public abstract class DistanceEstimator {
 	 */
 	public static double getDistance(java.util.List<Constraint<?>> constraints){
 		double result = 0;
-		
-		/*
-		 * Since the min distance that we can have (and is of interest) is 1 
-		 * and the max is Long.MAX_VALUE the following can happen:
-		 * 
-		 * distance normalization dist/Long.MAX_VALUE:
-		 * 
-		 * (double)1L/Long.MAX_VALUE = 1.0842021724855044E-19
-		 * ((double)43432545433L)/(Long.MAX_VALUE) == 4.708966011503397E-9
-		 * 		!= ((double)43432545434L)/(Long.MAX_VALUE) == 4.708966011611818E-9
-		 * (double)Long.MAX_VALUE/Long.MAX_VALUE = 1
-		 * 
-		 * => This works
-		 * 
-		 * distance normalization dist/(1+dist):
-		 * 
-		 * (double)1L/(1+1L) = 0.5
-		 * ((double)43432545433L)/(43432545433L+1L) 
-		 * 		== ((double)43432545434L)/(43432545434L+1L) == 0.9999999999769758
-		 * 
-		 * => for very large (and different) values  this logarithmically-like growing 
-		 * function gives the same output. This means that even if we make a step in the
-		 * right direction we won't be able to tell since the dist is the same
-		 * 
-		 * 
-		 * 
-		 * }=> Use the first 
-		 */
-		
+		int size = constraints.size();
 		
 		try {
 			for (Constraint<?> c : constraints) {
 				if (isStrConstraint(c)) {
 					long strD = getStrDist(c);
-					result += (double)strD;
+					result += (double)strD/size;
 //					log.warning("str" + strD + " result " + result);
 				} else if (isLongConstraint(c)) {
 					long intD = getIntegerDist(c);
-					result += (double)intD;
+					result += (double)intD/size;
 //					log.warning("int" + intD + " result " + result);
 				} else if (isRealConstraint(c)) {
 					double realD = getRealDist(c);
-					result += realD;
+					result += realD/size;
 //					log.warning("real" + realD + " result " + result);
 				} else {
 					log.warning("DistanceEstimator.getDistance(): " +
@@ -292,7 +264,8 @@ public abstract class DistanceEstimator {
 
 	public static int StrStartsWith(String value, String prefix, int start) {
 		int len = Math.min(prefix.length(), value.length());
-		return StrEquals(value.substring(start, start + len), prefix);
+		int end = (start + len > value.length()) ? value.length() : start + len;
+		return StrEquals(value.substring(start, end), prefix);
 	}
 
 	public static int StrEndsWith(String value, String suffix) {
@@ -332,8 +305,8 @@ public abstract class DistanceEstimator {
 			s1 = s1.toLowerCase();
 			s2 = s2.toLowerCase();
 		}
-
-		return StrEquals(s1.substring(thisStart, length + thisStart), s2.substring(start, length+start));
+		
+		return StrEquals(s1.substring(thisStart, length + thisStart), s2.substring(start, length + start));
 	}
 
 	public static int StrContains(String val, CharSequence subStr) {
