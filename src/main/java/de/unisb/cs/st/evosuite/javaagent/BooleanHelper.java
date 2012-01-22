@@ -252,12 +252,13 @@ public class BooleanHelper {
 	 * @return
 	 */
 	public static int doubleSub(double d1, double d2) {
-		if (d1 == d2)
+		if (d1 == d2) {
 			return 0;
-		else {
+		} else {
 			double diff = d2 - d1;
 			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0 + Math.abs(diff));
-			int d3 = (int) Math.round(Integer.MAX_VALUE * diff2);
+			//			int d3 = (int) Math.round(Integer.MAX_VALUE * diff2);
+			int d3 = (int) Math.ceil(Integer.MAX_VALUE * diff2);
 			return d3;
 		}
 	}
@@ -275,7 +276,7 @@ public class BooleanHelper {
 		else {
 			double diff = f2 - f1;
 			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0F + Math.abs(diff));
-			int d3 = (int) Math.round(Integer.MAX_VALUE * diff2);
+			int d3 = (int) Math.ceil(Integer.MAX_VALUE * diff2);
 			return d3;
 		}
 	}
@@ -293,7 +294,7 @@ public class BooleanHelper {
 		else {
 			double diff = l2 - l1;
 			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0F + Math.abs(diff));
-			int d3 = (int) Math.round(Integer.MAX_VALUE * diff2);
+			int d3 = (int) Math.ceil(Integer.MAX_VALUE * diff2);
 			return d3;
 		}
 	}
