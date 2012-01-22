@@ -66,15 +66,15 @@ public abstract class DistanceEstimator {
 			for (Constraint<?> c : constraints) {
 				if (isStrConstraint(c)) {
 					long strD = getStrDist(c);
-					result += (double)strD/Long.MAX_VALUE; // (1.0 + strD);
+					result += (double)strD;
 //					log.warning("str" + strD + " result " + result);
 				} else if (isLongConstraint(c)) {
 					long intD = getIntegerDist(c);
-					result += (double)intD/Long.MAX_VALUE; //(1.0 + intD);
+					result += (double)intD;
 //					log.warning("int" + intD + " result " + result);
 				} else if (isRealConstraint(c)) {
 					double realD = getRealDist(c);
-					result += realD/Double.MAX_VALUE; //(1.0 + realD);
+					result += realD;
 //					log.warning("real" + realD + " result " + result);
 				} else {
 					log.warning("DistanceEstimator.getDistance(): " +
