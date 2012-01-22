@@ -44,6 +44,7 @@ public class ComparisonTransformation {
 				if (in.getOpcode() == Opcodes.LCMP) {
 					insertLongComparison(in, mn.instructions);
 				} else if (in.getOpcode() == Opcodes.DCMPG) {
+					// TODO: Check treatment of NaN
 					insertDoubleComparison(in, mn.instructions);
 				} else if (in.getOpcode() == Opcodes.DCMPL) {
 					insertDoubleComparison(in, mn.instructions);
