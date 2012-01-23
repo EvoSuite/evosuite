@@ -34,8 +34,9 @@ public class ClientProcess implements SearchListener {
 		if (population_data == null) {
 			// Starting a new search
 			generator = new TestSuiteGenerator();
-			ga = generator.setup();
-			ga.addListener(this);
+			// FIXXME: This needs fixing. Like this, it breaks mutation testing
+			ga = null; //generator.setup();
+			//ga.addListener(this);
 			generator.generateTestSuite(ga);
 		} else {
 			System.out.println("* Resuming search on new JVM");
@@ -52,9 +53,9 @@ public class ClientProcess implements SearchListener {
 		 * != null)
 		 */
 		ga.removeListener(this);
-		
-		ga = generator.getEmployedGeneticAlgorithm(); 
-		
+
+		ga = generator.getEmployedGeneticAlgorithm();
+
 		util.informSearchIsFinished(ga);
 	}
 
