@@ -197,7 +197,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 		//		if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
 		if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
-		        || classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX)) {
+		        || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX))) {
 			ClassNode cn = new ClassNode();
 			reader.accept(cn, ClassReader.SKIP_FRAMES); // | ClassReader.SKIP_DEBUG); //  | ClassReader.SKIP_DEBUG
 			ComparisonTransformation cmp = new ComparisonTransformation(cn);
