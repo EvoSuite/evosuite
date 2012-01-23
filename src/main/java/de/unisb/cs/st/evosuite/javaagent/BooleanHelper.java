@@ -255,10 +255,11 @@ public class BooleanHelper {
 		if (d1 == d2) {
 			return 0;
 		} else {
-			double diff = d2 - d1;
+			double diff = d1 - d2;
 			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0 + Math.abs(diff));
 			//			int d3 = (int) Math.round(Integer.MAX_VALUE * diff2);
-			int d3 = (int) Math.ceil(Integer.MAX_VALUE * diff2);
+			int d3 = (int) (diff2 < 0 ? Math.floor(Integer.MAX_VALUE * diff2)
+			        : Math.ceil(Integer.MAX_VALUE * diff2));
 			return d3;
 		}
 	}
@@ -274,7 +275,7 @@ public class BooleanHelper {
 		if (f1 == f2)
 			return 0;
 		else {
-			double diff = f2 - f1;
+			double diff = f1 - f2;
 			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0F + Math.abs(diff));
 			int d3 = (int) Math.ceil(Integer.MAX_VALUE * diff2);
 			return d3;
@@ -292,7 +293,7 @@ public class BooleanHelper {
 		if (l1 == l2)
 			return 0;
 		else {
-			double diff = l2 - l1;
+			double diff = l1 - l2;
 			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0F + Math.abs(diff));
 			int d3 = (int) Math.ceil(Integer.MAX_VALUE * diff2);
 			return d3;
