@@ -12,8 +12,6 @@ import org.junit.Test;
 
 import de.unisb.cs.st.evosuite.symbolic.expr.Comparator;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
-import de.unisb.cs.st.evosuite.symbolic.expr.Operator;
-import de.unisb.cs.st.evosuite.symbolic.expr.RealBinaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.RealConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.RealConstraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.RealVariable;
@@ -296,40 +294,30 @@ public class TestRealSearch {
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).intValue();
+			var1 = ((Number) result.get("test1")).doubleValue();
 		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).intValue();
+			var2 = ((Number) result.get("test2")).doubleValue();
 		assertEquals(0, var1, 0.0001);
 		assertTrue(var1 < var2);
 	}
 
 	@Test
 	public void testEvosuiteExample2() {
-		double var1 = 0.0;
-		double var2 = 2.9999999995311555E-7;
-
-		// x >= 0
-		// x < y + 1
-		// y > 0
+		double var1 = 355.80758027529504;
+		// var3__SYM(355.80758027529504) >= 0.0 dist: 177.90379013764752
+		// var3__SYM(355.80758027529504) == 0.0 dist: 177.90379013764752
 
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		constraints.add(new RealConstraint(new RealVariable("test1", var1, -1000000,
 		        1000000), Comparator.GE, new RealConstant(0.0)));
 		constraints.add(new RealConstraint(new RealVariable("test1", var1, -1000000,
-		        1000000), Comparator.LT, new RealBinaryExpression(new RealVariable(
-		        "test2", var2, -1000000, 1000000), Operator.PLUS, new RealConstant(1.0),
-		        var2 + 1.0)));
-		constraints.add(new RealConstraint(new RealVariable("test2", var2, -1000000,
-		        1000000), Comparator.GT, new RealConstant(0.0)));
+		        1000000), Comparator.EQ, new RealConstant(0.0)));
 
 		Seeker skr = new Seeker();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).intValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).intValue();
-		//assertEquals(0, var1, 0.0001);
-		//assertTrue(var1 < var2);
+			var1 = ((Number) result.get("test1")).doubleValue();
+		assertEquals(0, var1, 0.0001);
 	}
 }
