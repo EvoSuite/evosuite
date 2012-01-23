@@ -82,7 +82,7 @@ BinaryExpression<String>{
 	@Override
 	public int getSize() {
 		if (size == 0) {
-			size = 1 + left.getSize() + left.getSize();
+			size = 1 + left.getSize() + right.getSize();
 		}
 		return size;
 	}
