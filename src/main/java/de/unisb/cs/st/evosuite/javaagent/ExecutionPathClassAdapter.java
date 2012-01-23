@@ -35,7 +35,9 @@ import de.unisb.cs.st.evosuite.Properties.Criterion;
  */
 public class ExecutionPathClassAdapter extends ClassVisitor {
 
-	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION;
+	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION
+	        || Properties.CRITERION == Criterion.STRONGMUTATION
+	        || Properties.CRITERION == Criterion.WEAKMUTATION;
 
 	private final String className;
 
