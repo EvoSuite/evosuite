@@ -96,6 +96,7 @@ public class TestSuiteDSE {
 				logger.debug("DSE start");
 				// Apply DSE to gather constraints
 				List<BranchCondition> branches = concolicExecution.getSymbolicPath(expandedChromosome);
+
 				logger.debug("DSE finished");
 
 				// For each uncovered branch
@@ -121,11 +122,17 @@ public class TestSuiteDSE {
 							newChromosome.setTestCase(newTest);
 							updateTestSuite(individual, newChromosome);
 							testsToHandle.add(newChromosome);
+							//logger.debug("Old test: " + expandedTest.toCode());
+							//logger.debug("New test: " + newTest.toCode());
 							//newTests.add(newTest);
 							//setCovered(branch);
 							//assert (uncoveredBranches.size() < oldCovered);
 							if (uncoveredBranches.isEmpty())
 								break;
+							if (isUncovered(branch)) {
+								logger.warn("Branch is not covered!");
+								assert (false);
+							}
 
 							logger.info("-> Remaining " + uncoveredBranches.size()
 							        + " candidate branches");
@@ -139,6 +146,8 @@ public class TestSuiteDSE {
 				}
 				logger.info("Remaining " + uncoveredBranches.size()
 				        + " candidate branches");
+			} else {
+				logger.info("Test no uncovered branches");
 			}
 		}
 
@@ -165,16 +174,17 @@ public class TestSuiteDSE {
 		Set<Integer> coveredFalse = new HashSet<Integer>();
 
 		for (TestChromosome test : suite.getTestChromosomes()) {
-			if (test.getLastExecutionResult() == null) {
+			if (test.getLastExecutionResult() == null || test.isChanged()) {
 				test.setLastExecutionResult(runTest(test.getTestCase()));
 				test.setChanged(false);
 				for (Integer branchId : test.getLastExecutionResult().getTrace().covered_predicates.keySet()) {
-					logger.info("Distances "
+					logger.debug("Distances "
 					        + branchId
 					        + ": "
 					        + test.getLastExecutionResult().getTrace().true_distances.get(branchId)
 					        + "/"
 					        + test.getLastExecutionResult().getTrace().false_distances.get(branchId));
+
 				}
 			}
 
