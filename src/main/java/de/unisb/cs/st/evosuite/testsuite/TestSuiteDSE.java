@@ -63,6 +63,7 @@ public class TestSuiteDSE {
 	 * @param individual
 	 */
 	public void applyDSE(TestSuiteChromosome individual) {
+		long dseEndTime = System.currentTimeMillis() + Properties.DSE_SEARCH_TIMEOUT;
 		clearBranches();
 		determineCoveredBranches(individual);
 
@@ -74,7 +75,8 @@ public class TestSuiteDSE {
 		Queue<TestChromosome> testsToHandle = new LinkedList<TestChromosome>();
 
 		testsToHandle.addAll(individual.getTestChromosomes());
-		while (!testsToHandle.isEmpty()) {
+		while (!testsToHandle.isEmpty() 
+				&& System.currentTimeMillis() < dseEndTime) {
 			TestChromosome test = testsToHandle.poll();
 
 			if (test.getLastExecutionResult().hasTimeout()) {
@@ -308,12 +310,11 @@ public class TestSuiteDSE {
 			logger.info("Reduced constraints from " + size + " to " + constraints.size());
 		}
 
-		int counter = 0;
-
-		for (Constraint cnstr : constraints) {
-			logger.info("Cnstr " + (counter++) + " : " + cnstr + " dist: "
-			        + DistanceEstimator.getDistance(constraints));
-		}
+//		int counter = 0;
+//		for (Constraint cnstr : constraints) {
+//			logger.warn("Cnstr " + (counter++) + " : " + cnstr + " dist: "
+//			        + DistanceEstimator.getDistance(constraints));
+//		}
 
 		logger.info("Applying local search");
 		Seeker skr = new Seeker();
@@ -333,7 +334,7 @@ public class TestSuiteDSE {
 					if (val instanceof Long) {
 						Long value = (Long) val;
 						String name = ((String) key).replace("__SYM", "");
-						//						logger.warn("New long value for " + name + " is " + value);
+						//logger.warn("New long value for " + name + " is " + value);
 						PrimitiveStatement p = getStatement(newTest, name);
 						assert (p != null);
 						if (p.getValue().getClass().equals(Character.class))
@@ -347,7 +348,7 @@ public class TestSuiteDSE {
 					} else if (val instanceof String) {
 						String name = ((String) key).replace("__SYM", "");
 						PrimitiveStatement p = getStatement(newTest, name);
-						//						logger.warn("New string value for " + name + " is " + val);
+						//logger.warn("New string value for " + name + " is " + val);
 						assert (p != null);
 						if (p.getValue().getClass().equals(Character.class))
 							p.setValue((char) Integer.parseInt(val.toString()));
@@ -357,7 +358,7 @@ public class TestSuiteDSE {
 						Double value = (Double) val;
 						String name = ((String) key).replace("__SYM", "");
 						PrimitiveStatement p = getStatement(newTest, name);
-						//						logger.warn("New double value for " + name + " is " + value);
+						//logger.warn("New double value for " + name + " is " + value);
 						assert (p != null);
 
 						if (p.getValue().getClass().equals(Double.class))
