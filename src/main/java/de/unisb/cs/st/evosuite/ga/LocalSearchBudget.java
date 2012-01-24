@@ -6,6 +6,7 @@ package de.unisb.cs.st.evosuite.ga;
 import java.io.Serializable;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.Properties.LocalSearchBudgetType;
 
 /**
  * @author Gordon Fraser
@@ -17,12 +18,27 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 
 	protected static int attempts = 0;
 
+	protected static long startTime = 0L;
+
+	protected static long endTime = 0L;
+
 	public static boolean isFinished() {
-		return attempts >= Properties.LOCAL_SEARCH_BUDGET;
+		if (Properties.LOCAL_SEARCH_BUDGET_TYPE == LocalSearchBudgetType.STATEMENTS)
+			return attempts >= Properties.LOCAL_SEARCH_BUDGET;
+		else if (Properties.LOCAL_SEARCH_BUDGET_TYPE == LocalSearchBudgetType.TIME)
+			return System.currentTimeMillis() > endTime;
+		else
+			throw new RuntimeException("Unknown budget type: "
+			        + Properties.LOCAL_SEARCH_BUDGET_TYPE);
 	}
 
 	public static void evaluation() {
 		attempts++;
+	}
+
+	public static void localSearchStarted() {
+		startTime = System.currentTimeMillis();
+		endTime = startTime + Properties.LOCAL_SEARCH_BUDGET;
 	}
 
 	/* (non-Javadoc)

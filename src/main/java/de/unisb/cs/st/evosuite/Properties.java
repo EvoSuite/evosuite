@@ -215,16 +215,23 @@ public class Properties {
 
 	@Parameter(key = "dse_constraint_length", group = "Search Algorithm", description = "Maximal length of the constraints in DSE")
 	public static int DSE_CONSTRAINT_LENGTH = 200;
-	
+
 	@Parameter(key = "dse_search_timeout", group = "Search Algorithm", description = "Milliseconds allowed for dse local search")
 	@IntValue(min = 0)
 	public static int DSE_SEARCH_TIMEOUT = 1000;
-	
+
 	@Parameter(key = "local_search_rate", group = "Search Algorithm", description = "Apply local search at every X generation")
 	public static int LOCAL_SEARCH_RATE = -1;
 
 	@Parameter(key = "local_search_budget", group = "Search Algorithm", description = "Maximum attempts at improving individuals per local search")
-	public static int LOCAL_SEARCH_BUDGET = 100;
+	public static long LOCAL_SEARCH_BUDGET = 100;
+
+	public enum LocalSearchBudgetType {
+		STATEMENTS, TIME
+	}
+
+	@Parameter(key = "local_search_budget_type", group = "Search Algorithm", description = "Interpretation of local_search_budget")
+	public static LocalSearchBudgetType LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.STATEMENTS;
 
 	@Parameter(key = "local_search_probes", group = "Search Algorithm", description = "How many mutations to apply to a string to check whether it improves coverage")
 	public static int LOCAL_SEARCH_PROBES = 10;
