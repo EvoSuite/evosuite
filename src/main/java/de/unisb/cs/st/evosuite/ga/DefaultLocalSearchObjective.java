@@ -45,4 +45,13 @@ public class DefaultLocalSearchObjective implements LocalSearchObjective, Serial
 		return 0;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.LocalSearchObjective#hasNotWorsened(de.unisb.cs.st.evosuite.ga.Chromosome)
+	 */
+	@Override
+	public boolean hasNotWorsened(Chromosome individual) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

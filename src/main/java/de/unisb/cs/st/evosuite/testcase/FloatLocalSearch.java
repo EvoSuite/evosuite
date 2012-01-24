@@ -3,6 +3,9 @@
  */
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,11 +34,42 @@ public class FloatLocalSearch<T extends Number> implements LocalSearch {
 
 		int maxPrecision = p.getValue().getClass().equals(Float.class) ? 7 : 15;
 		for (int precision = 1; precision <= maxPrecision; precision++) {
+			roundPrecision(test, objective, precision, p);
 			logger.debug("Current precision: " + precision);
 			doSearch(test, statement, objective, Math.pow(10.0, -precision), 2, p);
 		}
 
-		logger.info("Finished local search with result " + p.getCode());
+		logger.debug("Finished local search with result " + p.getCode());
+	}
+
+	@SuppressWarnings("unchecked")
+	private boolean roundPrecision(ExecutableChromosome test,
+	        LocalSearchObjective objective, int precision,
+	        NumericalPrimitiveStatement<T> p) {
+		double value = p.getValue().doubleValue();
+		BigDecimal bd = new BigDecimal(value).setScale(precision, RoundingMode.HALF_EVEN);
+		if (bd.doubleValue() == value) {
+			return false;
+		}
+
+		double newValue = bd.doubleValue();
+		if (p.getValue().getClass().equals(Float.class))
+			p.setValue((T) (new Float(newValue)));
+		else
+			p.setValue((T) (new Double(newValue)));
+
+		logger.debug("Trying to chop precision " + precision + ": " + value + " -> "
+		        + newValue);
+		if (objective.hasNotWorsened(test)) {
+			return true;
+		} else {
+			if (p.getValue().getClass().equals(Float.class))
+				p.setValue((T) (new Float(value)));
+			else
+				p.setValue((T) (new Double(value)));
+			return false;
+		}
+
 	}
 
 	private boolean doSearch(ExecutableChromosome test, int statement,
@@ -86,7 +120,7 @@ public class FloatLocalSearch<T extends Number> implements LocalSearch {
 			}
 		}
 
-		logger.info("Finished local search with result " + p.getCode());
+		logger.debug("Finished local search with result " + p.getCode());
 		return changed;
 	}
 
