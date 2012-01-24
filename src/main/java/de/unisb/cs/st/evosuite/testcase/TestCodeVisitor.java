@@ -509,16 +509,18 @@ public class TestCodeVisitor implements TestVisitor {
 				        && !Modifier.isStatic(constructor.getDeclaringClass().getModifiers())) {
 					if (i > 1)
 						parameter_string += ", ";
-					else
+					else if (i < 1)
 						continue;
 				} else {
 					if (i > 0) {
 						parameter_string += ", ";
 					}
 				}
+
 				Class<?> declaredParamType = constructor.getParameterTypes()[i];
 				Class<?> actualParamType = parameters.get(i).getVariableClass();
 				String name = getVariableName(parameters.get(i));
+
 				if ((!declaredParamType.isAssignableFrom(actualParamType) || name.equals("null"))
 				        && !constructor.getParameterTypes()[i].equals(Object.class)
 				        && !constructor.getParameterTypes()[i].equals(Comparable.class)) {
@@ -526,6 +528,7 @@ public class TestCodeVisitor implements TestVisitor {
 					        + new GenericClass(constructor.getParameterTypes()[i]).getSimpleName()
 					        + ") ";
 				}
+				
 				parameter_string += name;
 			}
 
