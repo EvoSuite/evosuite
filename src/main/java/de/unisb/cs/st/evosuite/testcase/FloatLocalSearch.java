@@ -35,8 +35,7 @@ public class FloatLocalSearch<T extends Number> implements LocalSearch {
 			doSearch(test, statement, objective, Math.pow(10.0, -precision), 2, p);
 		}
 
-		logger.info("Finished local search with result " + p.getCode() + ", fitness "
-		        + objective.getFitness(test));
+		logger.info("Finished local search with result " + p.getCode());
 	}
 
 	private boolean doSearch(ExecutableChromosome test, int statement,
