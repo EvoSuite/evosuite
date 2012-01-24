@@ -29,7 +29,6 @@ import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
-import de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator;
 import de.unisb.cs.st.evosuite.symbolic.search.Seeker;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
@@ -75,8 +74,7 @@ public class TestSuiteDSE {
 		Queue<TestChromosome> testsToHandle = new LinkedList<TestChromosome>();
 
 		testsToHandle.addAll(individual.getTestChromosomes());
-		while (!testsToHandle.isEmpty() 
-				&& System.currentTimeMillis() < dseEndTime) {
+		while (!testsToHandle.isEmpty() && System.currentTimeMillis() < dseEndTime) {
 			TestChromosome test = testsToHandle.poll();
 
 			if (test.getLastExecutionResult().hasTimeout()) {
@@ -124,8 +122,6 @@ public class TestSuiteDSE {
 							newChromosome.setTestCase(newTest);
 							updateTestSuite(individual, newChromosome);
 							testsToHandle.add(newChromosome);
-							//logger.debug("Old test: " + expandedTest.toCode());
-							//logger.debug("New test: " + newTest.toCode());
 							//newTests.add(newTest);
 							//setCovered(branch);
 							//assert (uncoveredBranches.size() < oldCovered);
@@ -133,7 +129,13 @@ public class TestSuiteDSE {
 								break;
 							if (isUncovered(branch)) {
 								logger.warn("Branch is not covered!");
-								assert (false);
+								if (!newChromosome.getLastExecutionResult().exceptions.isEmpty()) {
+									logger.info("Test has exception");
+								} else {
+									logger.info("Old test: " + expandedTest.toCode());
+									logger.info("New test: " + newTest.toCode());
+									assert (false);
+								}
 							}
 
 							logger.info("-> Remaining " + uncoveredBranches.size()
@@ -310,11 +312,11 @@ public class TestSuiteDSE {
 			logger.info("Reduced constraints from " + size + " to " + constraints.size());
 		}
 
-//		int counter = 0;
-//		for (Constraint cnstr : constraints) {
-//			logger.warn("Cnstr " + (counter++) + " : " + cnstr + " dist: "
-//			        + DistanceEstimator.getDistance(constraints));
-//		}
+		//		int counter = 0;
+		//		for (Constraint cnstr : constraints) {
+		//			logger.warn("Cnstr " + (counter++) + " : " + cnstr + " dist: "
+		//			        + DistanceEstimator.getDistance(constraints));
+		//		}
 
 		logger.info("Applying local search");
 		Seeker skr = new Seeker();
