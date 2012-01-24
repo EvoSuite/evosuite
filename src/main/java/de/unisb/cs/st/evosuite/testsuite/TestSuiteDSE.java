@@ -4,13 +4,13 @@
 package de.unisb.cs.st.evosuite.testsuite;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -52,6 +52,8 @@ public class TestSuiteDSE {
 
 	private final Set<Integer> uncoveredBranches = new HashSet<Integer>();
 
+	private final Set<Integer> inconvertibleBranches = new HashSet<Integer>();
+	
 	private final Set<Branch> branches = new HashSet<Branch>();
 
 	private final Map<String, Set<Integer>> jpfBranchMap = new HashMap<String, Set<Integer>>();
@@ -71,12 +73,16 @@ public class TestSuiteDSE {
 		logger.info("Applying DSE to suite of size " + individual.size());
 		logger.info("Starting with " + uncoveredBranches.size() + " candidate branches");
 
-		Queue<TestChromosome> testsToHandle = new LinkedList<TestChromosome>();
+		List<TestChromosome> testsToHandle = new LinkedList<TestChromosome>();
 
 		testsToHandle.addAll(individual.getTestChromosomes());
+		Collections.shuffle(testsToHandle);
+		
 		while (!testsToHandle.isEmpty() && System.currentTimeMillis() < dseEndTime) {
-			TestChromosome test = testsToHandle.poll();
-
+			//pop the first element
+			TestChromosome test = testsToHandle.get(0);
+			testsToHandle.remove(0);
+			
 			if (test.getLastExecutionResult().hasTimeout()) {
 				logger.info("Skipping test with timeout");
 				continue;
@@ -109,7 +115,7 @@ public class TestSuiteDSE {
 						continue;
 
 					//logger.debug("Current branch: " + branch);
-					if (isUncovered(branch)) {
+					if (isUncovered(branch) && covertible(branch)) {
 						logger.info("Trying to cover branch "
 						        + branch.ins.getInstructionIndex());
 
@@ -121,21 +127,28 @@ public class TestSuiteDSE {
 							TestChromosome newChromosome = new TestChromosome();
 							newChromosome.setTestCase(newTest);
 							updateTestSuite(individual, newChromosome);
-							testsToHandle.add(newChromosome);
+	
+							//testsToHandle.add(newChromosome);
+							//Collections.shuffle(testsToHandle);
+							
 							//newTests.add(newTest);
 							//setCovered(branch);
 							//assert (uncoveredBranches.size() < oldCovered);
 							if (uncoveredBranches.isEmpty())
 								break;
 							if (isUncovered(branch)) {
-								logger.warn("Branch is not covered!");
+								logger.info("Branch is not covered!");
 								if (!newChromosome.getLastExecutionResult().exceptions.isEmpty()) {
 									logger.info("Test has exception");
 								} else {
 									logger.info("Old test: " + expandedTest.toCode());
 									logger.info("New test: " + newTest.toCode());
-									assert (false);
+									setInconvertible(branch);
+									//assert (false);
 								}
+							} else {
+								testsToHandle.add(newChromosome);
+								Collections.shuffle(testsToHandle);
 							}
 
 							logger.info("-> Remaining " + uncoveredBranches.size()
@@ -143,7 +156,7 @@ public class TestSuiteDSE {
 							logger.info("Resulting suite has size " + individual.size());
 						}
 					} else {
-						logger.debug("Already covered branch "
+						logger.debug("Already covered or incovertible branch "
 						        + branch.ins.getInstructionIndex());// + ": " + branch);
 
 					}
@@ -157,6 +170,14 @@ public class TestSuiteDSE {
 
 		logger.info("Resulting suite has size " + individual.size());
 
+	}
+
+	private boolean covertible(BranchCondition branch) {
+		return !(inconvertibleBranches.contains(branch.ins.getInstructionIndex()));
+	}
+
+	private void setInconvertible(BranchCondition branch) {
+		inconvertibleBranches.add(branch.ins.getInstructionIndex());
 	}
 
 	private void addBranch(Branch b) {
