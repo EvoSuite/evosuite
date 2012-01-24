@@ -53,7 +53,7 @@ public class Seeker implements Solver {
 
 		Set<Variable<?>> vars = getVarsOfSet(constraints);
 		boolean searchSuccsess = false;
-		log.warning("Variables: " + vars.size());
+//		log.warning("Variables: " + vars.size());
 
 		double distance = DistanceEstimator.getDistance(constraints);
 		if (distance == 0.0) {

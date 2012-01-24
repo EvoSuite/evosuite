@@ -20,8 +20,8 @@ public class TestRealSearch {
 	@Test
 	public void testEQConstant() {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
-		constraints.add(new RealConstraint(new RealVariable("test1", 0, -1000000.0,
-		        1000000.0), Comparator.EQ, new RealConstant(2.35082)));
+		constraints.add(new RealConstraint(new RealVariable("test1", 0.675464, -1000000.0,
+				1000000.0), Comparator.EQ, new RealConstant(2.35082)));
 
 		Seeker skr = new Seeker();
 		Map<String, Object> result = skr.getModel(constraints);
@@ -281,14 +281,19 @@ public class TestRealSearch {
 		double var1 = 1;
 		double var2 = 1;
 
+		RealVariable realVar1 = new RealVariable("test1", var1, -1000000,
+		        1000000);
+		RealVariable realVar2 = new RealVariable("test2", var2, -1000000,
+		        1000000);
+		
+		// x <= 0
+		// x < y
+		// x >= 0
+		
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
-		constraints.add(new RealConstraint(new RealVariable("test1", var1, -1000000,
-		        1000000), Comparator.LE, new RealConstant(0)));
-		constraints.add(new RealConstraint(new RealVariable("test1", var1, -1000000,
-		        1000000), Comparator.LT, new RealVariable("test2", var2, -1000000,
-		        1000000)));
-		constraints.add(new RealConstraint(new RealVariable("test1", var1, -1000000,
-		        1000000), Comparator.GE, new RealConstant(0)));
+		constraints.add(new RealConstraint(realVar1, Comparator.LE, new RealConstant(0)));
+		constraints.add(new RealConstraint(realVar1, Comparator.LT, realVar2));
+		constraints.add(new RealConstraint(realVar1, Comparator.GE, new RealConstant(0)));
 
 		Seeker skr = new Seeker();
 		Map<String, Object> result = skr.getModel(constraints);
@@ -307,11 +312,12 @@ public class TestRealSearch {
 		// var3__SYM(355.80758027529504) >= 0.0 dist: 177.90379013764752
 		// var3__SYM(355.80758027529504) == 0.0 dist: 177.90379013764752
 
+		RealVariable realVar = new RealVariable("test1", var1, -1000000,
+		        1000000);
+		
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
-		constraints.add(new RealConstraint(new RealVariable("test1", var1, -1000000,
-		        1000000), Comparator.GE, new RealConstant(0.0)));
-		constraints.add(new RealConstraint(new RealVariable("test1", var1, -1000000,
-		        1000000), Comparator.EQ, new RealConstant(0.0)));
+		constraints.add(new RealConstraint(realVar, Comparator.GE, new RealConstant(0.0)));
+		constraints.add(new RealConstraint(realVar, Comparator.EQ, new RealConstant(0.0)));
 
 		Seeker skr = new Seeker();
 		Map<String, Object> result = skr.getModel(constraints);
