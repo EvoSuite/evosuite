@@ -153,17 +153,26 @@ public abstract class InvVStringBuilderHelper {
 				strB_expr.set_undef_func();
 			}
 			
-		} else if ( (pp.startsWith("invokevirtual java.lang.StringBuilder.append(") )
-					&& !(strB_expr.has_undef_func())) {
-
-			
-			//StringExpression se1 = (StringExpression) sf.getOperandAttr(2);
-			String result = ((String)strB_expr.getConcreteValue()) + ((String)se0.getConcreteValue());
-			if (unimpl) {
-				strB_expr.set_undef_func();
+		} else if ( (pp.startsWith("invokevirtual java.lang.StringBuilder.append(") )) {
+			if (strB_expr != null) {
+				if( !(strB_expr.has_undef_func()) ) {
+					String result = ((String)strB_expr.getConcreteValue())
+							+ ((String)se0.getConcreteValue());
+					if (unimpl) {
+						strB_expr.set_undef_func();
+					} else {
+						strB_expr.setExpr(
+								new StringBinaryExpression(strB_expr.getExpr(), 
+														Operator.APPEND, se0, result));
+					} 
+				} else {
+					throw_away("StringBuilder has an unimplemented function");
+				}
 			} else {
-				strB_expr.setExpr(new StringBinaryExpression(strB_expr.getExpr(), Operator.APPEND, se0, result));
+				throw_away("no StringBuilder found!");
 			}
+			
+
 		} else if (pp.startsWith("aload")) {
 			String[] spl_str = pp.split("_");
 			if (spl_str.length != 2) {
