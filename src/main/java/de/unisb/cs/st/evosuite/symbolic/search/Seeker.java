@@ -3,17 +3,20 @@
  */
 package de.unisb.cs.st.evosuite.symbolic.search;
 
-import gov.nasa.jpf.JPF;
+
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.symbolic.Solver;
 import de.unisb.cs.st.evosuite.symbolic.expr.BinaryExpression;
@@ -37,7 +40,8 @@ import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
  */
 public class Seeker implements Solver {
 
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.search.Seeker");
+	static Logger log = LoggerFactory.getLogger(Seeker.class);
+	//static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.search.Seeker");
 
 	/* The idea here is to get the expressions and build the constraint 
 	 * dynamically here using Java reflection. This should save us some time
@@ -50,56 +54,82 @@ public class Seeker implements Solver {
 	public Map<String, Object> getModel(Collection<Constraint<?>> constr) {
 		HashMap<String, Object> result = new HashMap<String, Object>();
 		List<Constraint<?>> constraints = (List<Constraint<?>>) constr;
-
+//		int budget = 0;
+		
 		Set<Variable<?>> vars = getVarsOfSet(constraints);
+
 		boolean searchSuccsess = false;
 		//		log.warning("Variables: " + vars.size());
 
+		
 		double distance = DistanceEstimator.getDistance(constraints);
 		if (distance == 0.0) {
-			log.warning("Initial distance already is 0.0, skipping search");
+			log.warn("Initial distance already is 0.0, skipping search");
 			return null;
 		}
 		//try each var #vars-times
 
-		boolean done = false;
-		while (!done) {
-			done = true;
-			for (Variable<?> var : vars) {
+		
 
-				log.info("Variable: " + var);
-				Changer changer = new Changer();
-
-				if (var instanceof StringVariable) {
-					log.info("searching for string");
-					StringVariable strVar = (StringVariable) var;
-					if (changer.strLocalSearch(strVar, constraints, result)) {
-						searchSuccsess = true;
-						done = false;
-						//break;
+//		while (budget >= 0) {
+			boolean done = false;
+			while (!done) {
+				done = true;
+				for (Variable<?> var : vars) {
+	
+					log.info("Variable: " + var);
+					Changer changer = new Changer();
+	
+					if (var instanceof StringVariable) {
+						log.info("searching for string");
+						StringVariable strVar = (StringVariable) var;
+						if (changer.strLocalSearch(strVar, constraints, result)) {
+							searchSuccsess = true;
+							done = false;
+							//break;
+						}
+					}
+					if (var instanceof IntegerVariable) {
+						log.info("searching for int");
+						IntegerVariable intVar = (IntegerVariable) var;
+						if (changer.intLocalSearch(intVar, constraints, result)) {
+							searchSuccsess = true;
+							done = false;
+							//break;
+						}
+					}
+					if (var instanceof RealVariable) {
+						log.info("searching for real");
+						RealVariable realVar = (RealVariable) var;
+						if (changer.realLocalSearch(realVar, constraints, result)) {
+							searchSuccsess = true;
+							done = false;
+							//break;
+						}
 					}
 				}
-				if (var instanceof IntegerVariable) {
-					log.info("searching for int");
-					IntegerVariable intVar = (IntegerVariable) var;
-					if (changer.intLocalSearch(intVar, constraints, result)) {
-						searchSuccsess = true;
-						done = false;
-						//break;
-					}
+	
+				if (DistanceEstimator.getDistance(constraints) <= 0) {
+					return result;
 				}
-				if (var instanceof RealVariable) {
-					log.info("searching for real");
-					RealVariable realVar = (RealVariable) var;
-					if (changer.realLocalSearch(realVar, constraints, result)) {
-						searchSuccsess = true;
-						done = false;
-						//break;
-					}
-				}
+				
 			}
-		}
-
+//			budget--;
+//			
+//			if ( budget >= 0 ) {
+//				for (Variable<?> var : vars) {
+//					if (var instanceof IntegerVariable) {
+//						((IntegerVariable) var).setConcreteValue((long) (Math
+//								.random() * Integer.MAX_VALUE));
+//					}
+//					if (var instanceof RealVariable) {
+//						((RealVariable) var)
+//								.setConcreteValue((Math.random() * Float.MAX_VALUE));
+//					}
+//				}
+//			}
+//
+//		}
 		// This will return any improvement, even if it does not cover a new branch
 		if (searchSuccsess)
 			return result;
@@ -222,7 +252,7 @@ public class Seeker implements Solver {
 			// ignore
 
 		} else {
-			log.warning("Seeker: we schouldn't be here" + expr);
+			log.warn("Seeker: we schouldn't be here" + expr);
 			System.exit(0);
 		}
 	}
