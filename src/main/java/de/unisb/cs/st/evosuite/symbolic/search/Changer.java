@@ -60,7 +60,7 @@ public class Changer {
 
 	private void restore(IntegerVariable intVar) {
 		intVar.setConcreteValue(longBackUp);
-		log.info("resoring to: " + intVar + " with dist: " + oldDist);
+		log.debug("resoring to: " + intVar + " with dist: " + oldDist);
 	}
 
 	private void restore(StringVariable var) {
@@ -227,10 +227,10 @@ public class Changer {
 		while (!done) {
 			done = true;
 			// Try increment
-			log.info("Trying to increment " + intVar);
+			log.debug("Trying to increment " + intVar);
 			increment(intVar, 1);
 			newDist = DistanceEstimator.getDistance(cnstr);
-			log.info("newDist: " + newDist + " oldDist: " + oldDist);
+			log.debug("newDist: " + newDist + " oldDist: " + oldDist);
 			if (distImpr(newDist)) {
 				improvement = true;
 				done = false;
@@ -241,10 +241,10 @@ public class Changer {
 				restore(intVar);
 
 				// Try decrement
-				log.info("Trying to decrement " + intVar);
+				log.debug("Trying to decrement " + intVar);
 				increment(intVar, -1);
 				newDist = DistanceEstimator.getDistance(cnstr);
-				log.info("newDist: " + newDist + " oldDist: " + oldDist);
+				log.debug("newDist: " + newDist + " oldDist: " + oldDist);
 				if (distImpr(newDist)) {
 					improvement = true;
 					done = false;
@@ -257,7 +257,7 @@ public class Changer {
 		}
 		if (improvement) {
 			varsToChange.put(intVar.getName(), intVar.getConcreteValue());
-			log.info("Finished long local search with new value " + intVar);
+			log.debug("Finished long local search with new value " + intVar);
 			//if (DistanceEstimator.getDistance(cnstr) == 0) {
 			return true;
 			//}
@@ -302,10 +302,10 @@ public class Changer {
 		while (!done) {
 			done = true;
 			// Try increment
-			log.info("Trying to increment " + realVar + " with: " + delta);
+			log.debug("Trying to increment " + realVar + " with: " + delta);
 			increment(realVar, delta);
 			newDist = DistanceEstimator.getDistance(cnstr);
-			log.info("Old distance: " + oldDist + ", new distance: " + newDist);
+			log.debug("Old distance: " + oldDist + ", new distance: " + newDist);
 			if (distImpr(newDist)) {
 				improvement = true;
 				done = false;
@@ -321,7 +321,7 @@ public class Changer {
 				restore(realVar);
 
 				// Try decrement
-				log.info("Trying to decrement " + realVar + " with: " + delta);
+				log.debug("Trying to decrement " + realVar + " with: " + delta);
 				increment(realVar, -delta);
 				newDist = DistanceEstimator.getDistance(cnstr);
 				if (distImpr(newDist)) {
@@ -349,7 +349,7 @@ public class Changer {
 		int maxPrecision = 15;
 		for (int precision = 1; precision <= maxPrecision; precision++) {
 			//roundPrecision(realVar, cnstr, precision, maxPrecision == 7);
-			log.info("Current precision: " + precision);
+			log.debug("Current precision: " + precision);
 			if (doRealSearch(realVar, cnstr, Math.pow(10.0, -precision), 2))
 				improvement = true;
 			if (oldDist <= 0) {
@@ -365,7 +365,7 @@ public class Changer {
 		boolean improvement = false;
 
 		//compute interval
-		log.info("Searching after comma");
+		log.debug("Searching after comma");
 
 		//		double left = Math.floor(realVar.getConcreteValue());
 		//		double work = Double.MAX_VALUE;//realVar.getConcreteValue();
@@ -419,16 +419,16 @@ public class Changer {
 			distW = DistanceEstimator.getDistance(cnstr);
 
 			if (distW < distL || distW < distR) {
-				log.info("improoved");
+				log.debug("improoved");
 				improvement = true;
 				backup(realVar, distW);
 			} else {
-				log.info("restore");
+				log.debug("restore");
 				restore(realVar);
 				break;
 			}
 
-			log.info("left: " + left + " " + distL + " work: " + work + " " + distW
+			log.debug("left: " + left + " " + distL + " work: " + work + " " + distW
 			        + " right: " + right + " " + distR);
 			if (distL > distR) {
 				left = work;
@@ -461,7 +461,7 @@ public class Changer {
 		else
 			realVar.setConcreteValue((new Double(newValue)));
 
-		log.info("Trying to chop precision " + precision + ": " + value + " -> "
+		log.debug("Trying to chop precision " + precision + ": " + value + " -> "
 		        + newValue);
 		double dist = DistanceEstimator.getDistance(cnstr);
 		if (!distWrsn(dist)) {
@@ -476,46 +476,46 @@ public class Changer {
 	private void iterate(RealVariable realVar, List<Constraint<?>> cnstr, double delta,
 	        double factor) {
 
-		log.info("[Loop] Trying increment " + delta + " of " + realVar.toString());
+		log.debug("[Loop] Trying increment " + delta + " of " + realVar.toString());
 
 		increment(realVar, delta);
 		double newDist = DistanceEstimator.getDistance(cnstr);
-		log.info("[Loop] Old distance: " + oldDist + ", new distance: " + newDist);
+		log.debug("[Loop] Old distance: " + oldDist + ", new distance: " + newDist);
 		while (distImpr(newDist)) {
 			backup(realVar, newDist);
 
 			delta = factor * delta;
-			log.info("[Loop] Trying increment " + delta + " of " + realVar);
+			log.debug("[Loop] Trying increment " + delta + " of " + realVar);
 			increment(realVar, delta);
 			newDist = DistanceEstimator.getDistance(cnstr);
 		}
-		log.info("No improvement on " + realVar);
+		log.debug("No improvement on " + realVar);
 
 		restore(realVar);
 
-		log.info("Final value of this iteration: " + realVar);
+		log.debug("Final value of this iteration: " + realVar);
 	}
 
 	private void iterate(IntegerVariable intVar, List<Constraint<?>> cnstr, long delta) {
 
-		log.info("Trying increment " + delta + " of " + intVar.toString());
+		log.debug("Trying increment " + delta + " of " + intVar.toString());
 
 		increment(intVar, delta);
 		double newDist = DistanceEstimator.getDistance(cnstr);
-		log.info("newDist: " + newDist + " oldDist: " + oldDist);
+		log.debug("newDist: " + newDist + " oldDist: " + oldDist);
 		while (distImpr(newDist)) {
 			backup(intVar, newDist);
 
 			delta = 2 * delta;
-			log.info("Trying increment " + delta + " of " + intVar);
+			log.debug("Trying increment " + delta + " of " + intVar);
 			increment(intVar, delta);
 			newDist = DistanceEstimator.getDistance(cnstr);
-			log.info("newDist: " + newDist + " oldDist: " + oldDist);
+			log.debug("newDist: " + newDist + " oldDist: " + oldDist);
 		}
-		log.info("No improvement on " + intVar);
+		log.debug("No improvement on " + intVar);
 
 		restore(intVar);
 
-		log.info("Final value of this iteration: " + intVar);
+		log.debug("Final value of this iteration: " + intVar);
 	}
 }
