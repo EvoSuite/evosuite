@@ -1,7 +1,10 @@
 package de.unisb.cs.st.evosuite.symbolic.search;
 import gov.nasa.jpf.JPF;
 
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import de.unisb.cs.st.evosuite.symbolic.expr.Comparator;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
@@ -23,7 +26,8 @@ import de.unisb.cs.st.evosuite.symbolic.expr.StringUnaryExpression;
  */
 public abstract class DistanceEstimator {
 	
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator");
+	static Logger log = LoggerFactory.getLogger(Changer.class);
+//	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator");
 
 	/**
 	 * 
@@ -39,17 +43,17 @@ public abstract class DistanceEstimator {
 				if (isStrConstraint(c)) {
 					long strD = getStrDist(c);
 					result += (double)strD/size;
-					//log.warning("C: " + c + " strDist " + strD);
+					log.info("C: " + c + " strDist " + strD);
 				} else if (isLongConstraint(c)) {
 					long intD = getIntegerDist(c);
 					result += (double)intD/size;
-					//log.warning("C: " + c + " intDist " + intD);
+					log.info("C: " + c + " intDist " + intD);
 				} else if (isRealConstraint(c)) {
 					double realD = getRealDist(c);
 					result += realD/size;
-					//log.warning("C: " + c + " realDist " + realD);
+					log.info("C: " + c + " realDist " + realD);
 				} else {
-					log.warning("DistanceEstimator.getDistance(): " +
+					log.warn("DistanceEstimator.getDistance(): " +
 							"got an unknown constraint: " + c);
 					return Double.MAX_VALUE;
 				}
@@ -142,7 +146,7 @@ public abstract class DistanceEstimator {
 			return left - right >= 0 ? 0 : right - left;
 			
 		default:
-			log.warning("getIntegerDist: unimplemented comparator");
+			log.warn("getIntegerDist: unimplemented comparator");
 			return Double.MAX_VALUE;
 		}
 	}
@@ -176,7 +180,7 @@ public abstract class DistanceEstimator {
 			return left - right >= 0 ? 0 : right - left;
 			
 		default:
-			log.warning("getIntegerDist: unimplemented comparator");
+			log.warn("getIntegerDist: unimplemented comparator");
 			return Long.MAX_VALUE;
 		}
 		
