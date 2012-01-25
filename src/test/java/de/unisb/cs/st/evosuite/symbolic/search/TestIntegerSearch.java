@@ -16,6 +16,8 @@ import org.junit.Test;
 
 import de.unisb.cs.st.evosuite.symbolic.expr.Comparator;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringConstant;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringBinaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerBinaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
@@ -448,5 +450,44 @@ public class TestIntegerSearch {
 		IntegerVariable var20 = new IntegerVariable("var20", 17433, Integer.MIN_VALUE,
 		        Integer.MAX_VALUE);
 
+	}
+	
+	@Test
+	public void testEvosuiteExample5() {
+		//Cnstr 0 : var6__SYM(84) != (y charAt 0) dist: 8.0
+		//Cnstr 1 : var6__SYM(84) != 115 dist: 8.0
+		//Cnstr 2 : var6__SYM(84) == 108 dist: 8.0
+
+		int var1 = 84;
+		int const1 = 115;
+		int const2 = 108;
+		String const3 = "y";
+		
+		
+		IntegerConstant iconst1 = new IntegerConstant(const1);
+		IntegerConstant iconst2 = new IntegerConstant(const2);
+		StringConstant strConst = new StringConstant(const3);
+		
+		
+		IntegerVariable ivar1 = new IntegerVariable("test1", var1, Integer.MIN_VALUE,
+		        Integer.MAX_VALUE);
+		StringBinaryExpression sBExpr = 
+			new StringBinaryExpression(strConst, Operator.CHARAT, new IntegerConstant(0), "y");
+
+
+		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		constraints.add(new IntegerConstraint(ivar1, Comparator.NE, sBExpr));
+		constraints.add(new IntegerConstraint(ivar1, Comparator.NE, iconst1));
+		constraints.add(new IntegerConstraint(ivar1, Comparator.EQ, iconst2));
+
+		Seeker skr = new Seeker();
+		Map<String, Object> result = skr.getModel(constraints);
+		
+		assertNotNull(result);
+		assertFalse(result.isEmpty());
+		
+		var1 = ((Number) result.get("test1")).intValue();
+
+		assertTrue(var1 == 108);
 	}
 }

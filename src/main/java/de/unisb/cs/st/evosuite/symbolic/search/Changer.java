@@ -60,6 +60,7 @@ public class Changer {
 
 	private void restore(IntegerVariable intVar) {
 		intVar.setConcreteValue(longBackUp);
+		log.info("resoring to: " + intVar + " with dist: " + oldDist);
 	}
 
 	private void restore(StringVariable var) {
@@ -229,6 +230,7 @@ public class Changer {
 			log.info("Trying to increment " + intVar);
 			increment(intVar, 1);
 			newDist = DistanceEstimator.getDistance(cnstr);
+			log.info("newDist: " + newDist + " oldDist: " + oldDist);
 			if (distImpr(newDist)) {
 				improvement = true;
 				done = false;
@@ -242,6 +244,7 @@ public class Changer {
 				log.info("Trying to decrement " + intVar);
 				increment(intVar, -1);
 				newDist = DistanceEstimator.getDistance(cnstr);
+				log.info("newDist: " + newDist + " oldDist: " + oldDist);
 				if (distImpr(newDist)) {
 					improvement = true;
 					done = false;
@@ -442,6 +445,7 @@ public class Changer {
 		return improvement;
 	}
 
+	@SuppressWarnings("unused")
 	private void roundPrecision(RealVariable realVar, List<Constraint<?>> cnstr,
 	        int precision, boolean isFloat) {
 
@@ -498,6 +502,7 @@ public class Changer {
 
 		increment(intVar, delta);
 		double newDist = DistanceEstimator.getDistance(cnstr);
+		log.info("newDist: " + newDist + " oldDist: " + oldDist);
 		while (distImpr(newDist)) {
 			backup(intVar, newDist);
 
@@ -505,6 +510,7 @@ public class Changer {
 			log.info("Trying increment " + delta + " of " + intVar);
 			increment(intVar, delta);
 			newDist = DistanceEstimator.getDistance(cnstr);
+			log.info("newDist: " + newDist + " oldDist: " + oldDist);
 		}
 		log.info("No improvement on " + intVar);
 
