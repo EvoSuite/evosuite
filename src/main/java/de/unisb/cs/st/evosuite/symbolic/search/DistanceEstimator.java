@@ -26,7 +26,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.StringUnaryExpression;
  */
 public abstract class DistanceEstimator {
 	
-	static Logger log = LoggerFactory.getLogger(Changer.class);
+	static Logger log = LoggerFactory.getLogger(DistanceEstimator.class);
 //	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator");
 
 	/**

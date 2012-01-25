@@ -500,8 +500,11 @@ public class TestIntegerSearch {
 	//	x <= 0
 	//	y <= x
 		
-		int x = -157;
-		int y = 1890;
+//		int x = -157;
+//		int y = 1890;
+		int x = 646751488;
+		int y = 1872810197;
+
 		IntegerVariable ivar1 = new IntegerVariable("test1", x, Integer.MIN_VALUE,
 		        Integer.MAX_VALUE);
 		IntegerVariable ivar2 = new IntegerVariable("test2", y, Integer.MIN_VALUE,
