@@ -54,6 +54,10 @@ public class TestSuiteDSE {
 
 	private final Set<Integer> inconvertibleBranches = new HashSet<Integer>();
 	
+	public static int nrConstraints = 0;
+	public static int nrSolvedConstraints = 0;
+	private int nrCurrConstraints = 0;
+	
 	private final Set<Branch> branches = new HashSet<Branch>();
 
 	private final Map<String, Set<Integer>> jpfBranchMap = new HashMap<String, Set<Integer>>();
@@ -135,6 +139,8 @@ public class TestSuiteDSE {
 							//setCovered(branch);
 							//assert (uncoveredBranches.size() < oldCovered);
 							if (uncoveredBranches.isEmpty()) {
+								nrSolvedConstraints += nrCurrConstraints;
+								nrCurrConstraints = 0;
 								break;
 							}
 							if (isUncovered(branch)) {
@@ -147,15 +153,19 @@ public class TestSuiteDSE {
 									setInconvertible(branch);
 									//assert (false);
 								}
+								nrCurrConstraints = 0;
 							} else {
 								testsToHandle.add(newChromosome);
 								Collections.shuffle(testsToHandle);
+								nrSolvedConstraints += nrCurrConstraints;
+								nrCurrConstraints = 0;
 							}
 
 							logger.info("-> Remaining " + uncoveredBranches.size()
 							        + " candidate branches");
 							logger.info("Resulting suite has size " + individual.size());
 						} else {
+							nrCurrConstraints = 0;
 						}
 					} else {
 						logger.debug("Already covered or incovertible branch "
@@ -335,6 +345,9 @@ public class TestSuiteDSE {
 			logger.info("Reduced constraints from " + size + " to " + constraints.size());
 		}
 		
+
+		nrCurrConstraints = constraints.size();
+		nrConstraints += nrCurrConstraints;
 
 //		int counter = 0;
 //		for (Constraint cnstr : constraints) {
