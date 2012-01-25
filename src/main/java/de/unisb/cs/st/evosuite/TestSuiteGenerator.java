@@ -126,7 +126,6 @@ import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.StatementsPopulationLimit;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosomeFactory;
-import de.unisb.cs.st.evosuite.testsuite.TestSuiteDSE;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunc_to_TestFitnessFactory_Adapter;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
@@ -430,8 +429,6 @@ public class TestSuiteGenerator {
 		}
 
 		ga.printBudget();
-		System.out.println("DSE rate: " + TestSuiteDSE.success + "/"
-		        + (TestSuiteDSE.success + TestSuiteDSE.failed));
 		if (Properties.CRITERION == Criterion.DEFUSE)
 			DefUseCoverageSuiteFitness.printCoverage();
 
