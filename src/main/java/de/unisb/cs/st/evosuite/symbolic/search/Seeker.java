@@ -53,7 +53,7 @@ public class Seeker implements Solver {
 
 		Set<Variable<?>> vars = getVarsOfSet(constraints);
 		boolean searchSuccsess = false;
-//		log.warning("Variables: " + vars.size());
+		//		log.warning("Variables: " + vars.size());
 
 		double distance = DistanceEstimator.getDistance(constraints);
 		if (distance == 0.0) {
@@ -61,7 +61,10 @@ public class Seeker implements Solver {
 			return null;
 		}
 		//try each var #vars-times
-		outerloop: for (int i = 0; i < vars.size(); i++) {
+
+		boolean done = false;
+		while (!done) {
+			done = true;
 			for (Variable<?> var : vars) {
 
 				log.info("Variable: " + var);
@@ -72,7 +75,8 @@ public class Seeker implements Solver {
 					StringVariable strVar = (StringVariable) var;
 					if (changer.strLocalSearch(strVar, constraints, result)) {
 						searchSuccsess = true;
-						break outerloop;
+						done = false;
+						//break;
 					}
 				}
 				if (var instanceof IntegerVariable) {
@@ -80,7 +84,8 @@ public class Seeker implements Solver {
 					IntegerVariable intVar = (IntegerVariable) var;
 					if (changer.intLocalSearch(intVar, constraints, result)) {
 						searchSuccsess = true;
-						break outerloop;
+						done = false;
+						//break;
 					}
 				}
 				if (var instanceof RealVariable) {
@@ -88,12 +93,14 @@ public class Seeker implements Solver {
 					RealVariable realVar = (RealVariable) var;
 					if (changer.realLocalSearch(realVar, constraints, result)) {
 						searchSuccsess = true;
-						break outerloop;
+						done = false;
+						//break;
 					}
 				}
 			}
 		}
 
+		// This will return any improvement, even if it does not cover a new branch
 		if (searchSuccsess)
 			return result;
 		else

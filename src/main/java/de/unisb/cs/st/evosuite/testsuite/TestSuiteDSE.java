@@ -22,6 +22,7 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.symbolic.BranchCondition;
 import de.unisb.cs.st.evosuite.symbolic.ConcolicExecution;
 import de.unisb.cs.st.evosuite.symbolic.expr.BinaryExpression;
+import de.unisb.cs.st.evosuite.symbolic.expr.Comparator;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
@@ -29,6 +30,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
+import de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator;
 import de.unisb.cs.st.evosuite.symbolic.search.Seeker;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
@@ -41,6 +43,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * @author Gordon Fraser
@@ -53,21 +56,139 @@ public class TestSuiteDSE {
 	private final Set<Integer> uncoveredBranches = new HashSet<Integer>();
 
 	private final Set<Integer> inconvertibleBranches = new HashSet<Integer>();
-	
+
 	public static int nrConstraints = 0;
 	public static int nrSolvedConstraints = 0;
 	private int nrCurrConstraints = 0;
-	
+
 	private final Set<Branch> branches = new HashSet<Branch>();
 
 	private final Map<String, Set<Integer>> jpfBranchMap = new HashMap<String, Set<Integer>>();
+
+	public static int success = 0;
+	public static int failed = 0;
+
+	private final TestSuiteFitnessFunction fitness;
+
+	private long startTime;
+
+	private long endTime;
+
+	public TestSuiteDSE(TestSuiteFitnessFunction fitness) {
+		this.fitness = fitness;
+	}
+
+	private void setStart() {
+		startTime = System.currentTimeMillis();
+		endTime = startTime + Properties.DSE_SEARCH_TIMEOUT;
+	}
+
+	private boolean isFinished() {
+		return System.currentTimeMillis() >= endTime;
+	}
+
+	public void applyDSE(TestSuiteChromosome individual) {
+		ConcolicExecution concolicExecution = new ConcolicExecution();
+		setStart();
+
+		Map<String, Map<Integer, Map<Comparator, Set<BranchCondition>>>> solvedConstraints = new HashMap<String, Map<Integer, Map<Comparator, Set<BranchCondition>>>>();
+		Map<BranchCondition, TestCase> expandedTests = new HashMap<BranchCondition, TestCase>();
+
+		List<TestChromosome> tests = new ArrayList<TestChromosome>(
+		        individual.getTestChromosomes());
+		Randomness.shuffle(tests);
+		for (TestChromosome test : tests) {
+			if (isFinished())
+				break;
+			if (test.getLastExecutionResult() == null || test.isChanged()) {
+				test.setLastExecutionResult(runTest(test.getTestCase()));
+				test.setChanged(false);
+			}
+			if (test.getLastExecutionResult().hasTimeout()) {
+				logger.info("Skipping test with timeout");
+				continue;
+			}
+
+			TestCase expandedTest = expandTestCase(test.getTestCase());
+			TestChromosome expandedChromosome = new TestChromosome();
+			expandedChromosome.setTestCase(expandedTest);
+			List<BranchCondition> branches = concolicExecution.getSymbolicPath(expandedChromosome);
+			for (BranchCondition branch : branches) {
+				String index = branch.ins.getMethodInfo().getFullName()
+				        + branch.ins.getInstructionIndex();
+				if (!solvedConstraints.containsKey(index))
+					solvedConstraints.put(index,
+					                      new HashMap<Integer, Map<Comparator, Set<BranchCondition>>>());
+				int localConstraint = 0;
+				for (Constraint c : branch.localConstraints) {
+					if (!solvedConstraints.get(index).containsKey(localConstraint))
+						solvedConstraints.get(index).put(localConstraint,
+						                                 new HashMap<Comparator, Set<BranchCondition>>());
+					if (!solvedConstraints.get(index).get(localConstraint).containsKey(c.getComparator()))
+						solvedConstraints.get(index).get(localConstraint).put(c.getComparator(),
+						                                                      new HashSet<BranchCondition>());
+					solvedConstraints.get(index).get(localConstraint).get(c.getComparator()).add(branch);
+					expandedTests.put(branch, expandedTest);
+					localConstraint++;
+				}
+			}
+		}
+
+		double originalFitness = individual.getFitness();
+		TestSuiteChromosome clone = individual.clone();
+
+		setStart();
+
+		List<Map<Integer, Map<Comparator, Set<BranchCondition>>>> cs = new ArrayList<Map<Integer, Map<Comparator, Set<BranchCondition>>>>();
+		cs.addAll(solvedConstraints.values());
+		Randomness.shuffle(cs);
+		for (Map<Integer, Map<Comparator, Set<BranchCondition>>> branchConstraints : cs) {
+			if (isFinished())
+				break;
+			for (Integer localConstraint : branchConstraints.keySet()) {
+				//			for (Map<Comparator, Set<BranchCondition>> comparatorConstraints : branchConstraints.values()) {
+				Map<Comparator, Set<BranchCondition>> comparatorConstraints = branchConstraints.get(localConstraint);
+				for (Comparator c : comparatorConstraints.keySet()) {
+					Comparator cInverse = c.not();
+					if (!comparatorConstraints.containsKey(cInverse)) {
+						logger.info("Found branch only covered one way - "
+						        + comparatorConstraints.get(c).size()
+						        + " candidate constraints");
+						BranchCondition branch = Randomness.choice(comparatorConstraints.get(c));
+						TestCase newTest = negateCondition(branch,
+						                                   expandedTests.get(branch),
+						                                   localConstraint);
+						if (newTest != null) {
+							logger.info("Found new test!");
+							clone.addTest(newTest);
+							if (fitness.getFitness(clone) < originalFitness) {
+								logger.info("New test improves fitness to "
+								        + clone.getFitness());
+								individual.addTest(newTest);
+								originalFitness = clone.getFitness();
+							} else {
+								logger.info("New test does not improve fitness");
+							}
+							success++;
+						} else {
+							failed++;
+							logger.info("Failed to find new test.");
+						}
+
+					} else {
+						logger.info("Branch is covered both ways: " + c);
+					}
+				}
+			}
+		}
+	}
 
 	/**
 	 * For each uncovered branch try to add a new test
 	 * 
 	 * @param individual
 	 */
-	public void applyDSE(TestSuiteChromosome individual) {
+	public void applyOldDSE(TestSuiteChromosome individual) {
 		long dseEndTime = System.currentTimeMillis() + Properties.DSE_SEARCH_TIMEOUT;
 		clearBranches();
 		determineCoveredBranches(individual);
@@ -81,12 +202,12 @@ public class TestSuiteDSE {
 
 		testsToHandle.addAll(individual.getTestChromosomes());
 		Collections.shuffle(testsToHandle);
-		
+
 		while (!testsToHandle.isEmpty() && System.currentTimeMillis() < dseEndTime) {
 			//pop the first element
 			TestChromosome test = testsToHandle.get(0);
 			testsToHandle.remove(0);
-			
+
 			if (test.getLastExecutionResult().hasTimeout()) {
 				logger.info("Skipping test with timeout");
 				continue;
@@ -103,11 +224,11 @@ public class TestSuiteDSE {
 				//test.setTestCase(expandedTest);
 				//test.clearCachedResults();
 
-				logger.debug("DSE start");
+				logger.info("DSE start");
 				// Apply DSE to gather constraints
 				List<BranchCondition> branches = concolicExecution.getSymbolicPath(expandedChromosome);
 
-				logger.debug("DSE finished");
+				logger.info("DSE finished - found " + branches.size() + " branches");
 
 				// For each uncovered branch
 				for (BranchCondition branch : branches) {
@@ -115,13 +236,15 @@ public class TestSuiteDSE {
 
 					// TODO: Need to match prefixes?
 					if (!className.equals(Properties.TARGET_CLASS)
-					        && !className.startsWith(Properties.TARGET_CLASS + "$"))
+					        && !className.startsWith(Properties.TARGET_CLASS + "$")) {
+						logger.debug("Branch is not in target class: " + className);
 						continue;
+					}
 
 					//logger.debug("Current branch: " + branch);
 					if (isUncovered(branch) && covertible(branch)) {
 						logger.info("Trying to cover branch "
-						        + branch.ins.getInstructionIndex());
+						        + branch.ins.getInstructionIndex() + ": " + branch);
 
 						// Try to solve negated constraint
 						TestCase newTest = negateCondition(branch, expandedTest);
@@ -131,10 +254,10 @@ public class TestSuiteDSE {
 							TestChromosome newChromosome = new TestChromosome();
 							newChromosome.setTestCase(newTest);
 							updateTestSuite(individual, newChromosome);
-	
+
 							//testsToHandle.add(newChromosome);
 							//Collections.shuffle(testsToHandle);
-							
+
 							//newTests.add(newTest);
 							//setCovered(branch);
 							//assert (uncoveredBranches.size() < oldCovered);
@@ -214,6 +337,7 @@ public class TestSuiteDSE {
 			if (test.getLastExecutionResult() == null || test.isChanged()) {
 				test.setLastExecutionResult(runTest(test.getTestCase()));
 				test.setChanged(false);
+				/*
 				for (Integer branchId : test.getLastExecutionResult().getTrace().covered_predicates.keySet()) {
 					logger.debug("Distances "
 					        + branchId
@@ -223,6 +347,7 @@ public class TestSuiteDSE {
 					        + test.getLastExecutionResult().getTrace().false_distances.get(branchId));
 
 				}
+				*/
 			}
 
 			for (Integer branchId : test.getLastExecutionResult().getTrace().covered_predicates.keySet()) {
@@ -230,6 +355,13 @@ public class TestSuiteDSE {
 					coveredTrue.add(branchId);
 				if (test.getLastExecutionResult().getTrace().false_distances.get(branchId) == 0.0)
 					coveredFalse.add(branchId);
+				logger.debug("Distances "
+				        + branchId
+				        + ": "
+				        + test.getLastExecutionResult().getTrace().true_distances.get(branchId)
+				        + "/"
+				        + test.getLastExecutionResult().getTrace().false_distances.get(branchId));
+
 			}
 		}
 
@@ -307,6 +439,10 @@ public class TestSuiteDSE {
 		return false;
 	}
 
+	private TestCase negateCondition(BranchCondition condition, TestCase test) {
+		return negateCondition(condition, test, 0);
+	}
+
 	/**
 	 * Generate new constraint and ask solver for solution
 	 * 
@@ -316,11 +452,25 @@ public class TestSuiteDSE {
 	 */
 	//@SuppressWarnings("rawtypes")
 	@SuppressWarnings("unchecked")
-	private TestCase negateCondition(BranchCondition condition, TestCase test) {
+	private TestCase negateCondition(BranchCondition condition, TestCase test,
+	        int localConstraint) {
 		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
 		constraints.addAll(condition.reachingConstraints);
 		//constraints.addAll(condition.localConstraints);
-		Constraint<Long> c = (Constraint<Long>) condition.localConstraints.iterator().next();
+		Iterator<Constraint<?>> iterator = condition.localConstraints.iterator();
+		int num = 0;
+		Constraint<Long> c = null;
+		while (iterator.hasNext()) {
+			c = (Constraint<Long>) iterator.next();
+			if (num == localConstraint)
+				break;
+			num++;
+		}
+		if (c == null) {
+			logger.warn("Local constraint not found!");
+			return null;
+		}
+		//Constraint<Long> c = (Constraint<Long>) condition.localConstraints.iterator().next();
 		Constraint<Long> targetConstraint = new IntegerConstraint(c.getLeftOperand(),
 		        c.getComparator().not(), c.getRightOperand());
 		constraints.add(targetConstraint);
@@ -332,28 +482,27 @@ public class TestSuiteDSE {
 		}
 
 		int size = constraints.size();
-		/*
+
 		int counter = 0;
 		for (Constraint cnstr : constraints) {
 			logger.debug("Cnstr " + (counter++) + " : " + cnstr + " dist: "
 			        + DistanceEstimator.getDistance(constraints));
 		}
-		*/
+
 		if (size > 0) {
 			logger.debug("Calculating cone of influence for " + size + " constraints");
 			constraints = reduce(constraints);
 			logger.info("Reduced constraints from " + size + " to " + constraints.size());
 		}
-		
 
 		nrCurrConstraints = constraints.size();
 		nrConstraints += nrCurrConstraints;
 
-//		int counter = 0;
-//		for (Constraint cnstr : constraints) {
-//			logger.warn("Cnstr " + (counter++) + " : " + cnstr + " dist: "
-//			     + DistanceEstimator.getDistance(constraints));
-//		}
+		counter = 0;
+		for (Constraint cnstr : constraints) {
+			logger.warn("Cnstr " + (counter++) + " : " + cnstr + " dist: "
+			        + DistanceEstimator.getDistance(constraints));
+		}
 
 		logger.info("Applying local search");
 		Seeker skr = new Seeker();
@@ -383,10 +532,10 @@ public class TestSuiteDSE {
 						else if (p.getValue().getClass().equals(Integer.class))
 							p.setValue(value.intValue());
 						else if (p.getValue().getClass().equals(Boolean.class))
-							p.setValue(value.intValue()>0);
+							p.setValue(value.intValue() > 0);
 						else
-							logger.warn("New value is of an unsupported type: " 
-									+ p.getValue().getClass() + val);
+							logger.warn("New value is of an unsupported type: "
+							        + p.getValue().getClass() + val);
 					} else if (val instanceof String) {
 						String name = ((String) key).replace("__SYM", "");
 						PrimitiveStatement p = getStatement(newTest, name);

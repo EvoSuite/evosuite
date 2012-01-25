@@ -2,6 +2,7 @@ package de.unisb.cs.st.evosuite.ui.genetics;
 
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
 import de.unisb.cs.st.evosuite.testsuite.AbstractTestSuiteChromosome;
 
@@ -28,7 +29,7 @@ public class UITestSuiteChromosome extends AbstractTestSuiteChromosome<UITestChr
 	}
 
 	@Override
-	public void applyDSE() {
+	public void applyDSE(GeneticAlgorithm ga) {
 		throw new UnsupportedOperationException(
 		        "UITestSuiteChromosome doesn't support applyDSE() (yet?)");
 	}

@@ -4,6 +4,7 @@
 package de.unisb.cs.st.evosuite.symbolic.search;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -404,4 +405,48 @@ public class TestIntegerSearch {
 		assertTrue(var1 < var2);
 	}
 
+	@Test
+	public void testEvosuiteExample3() {
+		// (var42__SYM(25721) * (var22__SYM(-1043) - 6860)) == 8275
+		int var1 = 25721;
+		int var2 = -1043;
+		IntegerConstant iconst1 = new IntegerConstant(6860);
+		IntegerConstant iconst2 = new IntegerConstant(8275);
+		IntegerVariable ivar1 = new IntegerVariable("test1", var1, Integer.MIN_VALUE,
+		        Integer.MAX_VALUE);
+		IntegerVariable ivar2 = new IntegerVariable("test2", var2, Integer.MIN_VALUE,
+		        Integer.MAX_VALUE);
+		IntegerBinaryExpression sub = new IntegerBinaryExpression(ivar2, Operator.MINUS,
+		        iconst1, -7903L);
+		IntegerBinaryExpression mul = new IntegerBinaryExpression(ivar1, Operator.MUL,
+		        sub, -203273063L);
+
+		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		constraints.add(new IntegerConstraint(mul, Comparator.EQ, iconst2));
+		Seeker skr = new Seeker();
+		Map<String, Object> result = skr.getModel(constraints);
+		assertNotNull(result);
+		assertFalse(result.isEmpty());
+		if (result.containsKey("test1"))
+			var1 = ((Number) result.get("test1")).intValue();
+		if (result.containsKey("test2"))
+			var2 = ((Number) result.get("test2")).intValue();
+		assertTrue(var1 * (var2 - 6860) == 8275);
+	}
+
+	@Test
+	public void testEvosuiteExample4() {
+		// (((var24__SYM(21458) - (var10__SYM(1172) / var14__SYM(-1903))) * 19072) * ((12089 * var40__SYM(-1819)) - ((var39__SYM(-1819) * 14414) % var20__SYM(17433)))) < 11060
+		IntegerVariable var24 = new IntegerVariable("var24", 21458, Integer.MIN_VALUE,
+		        Integer.MAX_VALUE);
+		IntegerVariable var10 = new IntegerVariable("var10", -1903, Integer.MIN_VALUE,
+		        Integer.MAX_VALUE);
+		IntegerVariable var40 = new IntegerVariable("var40", -1819, Integer.MIN_VALUE,
+		        Integer.MAX_VALUE);
+		IntegerVariable var39 = new IntegerVariable("var39", -1819, Integer.MIN_VALUE,
+		        Integer.MAX_VALUE);
+		IntegerVariable var20 = new IntegerVariable("var20", 17433, Integer.MIN_VALUE,
+		        Integer.MAX_VALUE);
+
+	}
 }
