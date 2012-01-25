@@ -29,6 +29,7 @@ import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationExecutionResult;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.LocalSearchBudget;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
 import de.unisb.cs.st.evosuite.ga.SecondaryObjective;
@@ -531,7 +532,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#applyDSE()
 	 */
 	@Override
-	public void applyDSE() {
+	public void applyDSE(GeneticAlgorithm ga) {
 		// TODO Auto-generated method stub
 	}
 
