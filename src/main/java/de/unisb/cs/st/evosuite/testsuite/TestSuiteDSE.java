@@ -134,8 +134,9 @@ public class TestSuiteDSE {
 							//newTests.add(newTest);
 							//setCovered(branch);
 							//assert (uncoveredBranches.size() < oldCovered);
-							if (uncoveredBranches.isEmpty())
+							if (uncoveredBranches.isEmpty()) {
 								break;
+							}
 							if (isUncovered(branch)) {
 								logger.info("Branch is not covered!");
 								if (!newChromosome.getLastExecutionResult().exceptions.isEmpty()) {
@@ -154,6 +155,7 @@ public class TestSuiteDSE {
 							logger.info("-> Remaining " + uncoveredBranches.size()
 							        + " candidate branches");
 							logger.info("Resulting suite has size " + individual.size());
+						} else {
 						}
 					} else {
 						logger.debug("Already covered or incovertible branch "
@@ -332,12 +334,13 @@ public class TestSuiteDSE {
 			constraints = reduce(constraints);
 			logger.info("Reduced constraints from " + size + " to " + constraints.size());
 		}
+		
 
-		//		int counter = 0;
-		//		for (Constraint cnstr : constraints) {
-		//			logger.warn("Cnstr " + (counter++) + " : " + cnstr + " dist: "
-		//			        + DistanceEstimator.getDistance(constraints));
-		//		}
+//		int counter = 0;
+//		for (Constraint cnstr : constraints) {
+//			logger.warn("Cnstr " + (counter++) + " : " + cnstr + " dist: "
+//			     + DistanceEstimator.getDistance(constraints));
+//		}
 
 		logger.info("Applying local search");
 		Seeker skr = new Seeker();
@@ -366,8 +369,11 @@ public class TestSuiteDSE {
 							p.setValue(value);
 						else if (p.getValue().getClass().equals(Integer.class))
 							p.setValue(value.intValue());
+						else if (p.getValue().getClass().equals(Boolean.class))
+							p.setValue(value.intValue()>0);
 						else
-							logger.warn("New value is of an unsupported type: " + val);
+							logger.warn("New value is of an unsupported type: " 
+									+ p.getValue().getClass() + val);
 					} else if (val instanceof String) {
 						String name = ((String) key).replace("__SYM", "");
 						PrimitiveStatement p = getStatement(newTest, name);
