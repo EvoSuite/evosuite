@@ -508,9 +508,9 @@ public class TestIntegerSearch {
 		        Integer.MAX_VALUE);
 
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
-		constraints.add(new IntegerConstraint(ivar2, Comparator.EQ, new IntegerConstant(0)));
-		constraints.add(new IntegerConstraint(ivar1, Comparator.EQ, new IntegerConstant(0)));
-		constraints.add(new IntegerConstraint(ivar2, Comparator.EQ, ivar1));
+		constraints.add(new IntegerConstraint(ivar2, Comparator.GE, new IntegerConstant(0)));
+		constraints.add(new IntegerConstraint(ivar1, Comparator.LE, new IntegerConstant(0)));
+		constraints.add(new IntegerConstraint(ivar2, Comparator.LE, ivar1));
 		
 		
 		Seeker skr = new Seeker();
