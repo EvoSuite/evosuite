@@ -490,4 +490,39 @@ public class TestIntegerSearch {
 
 		assertTrue(var1 == 108);
 	}
+	
+	@Test
+	public void testEvosuiteExample6() {
+	//Cnstr 0 : var2__SYM(1890) >= 0 dist: 682.3333333333334
+	//Cnstr 1 : var1__SYM(-157) <= 0 dist: 682.3333333333334
+	//Cnstr 2 : var2__SYM(1890) <= var1__SYM(-157) dist: 682.3333333333334
+	//	y >= 0
+	//	x <= 0
+	//	y <= x
+		
+		int x = -157;
+		int y = 1890;
+		IntegerVariable ivar1 = new IntegerVariable("test1", x, Integer.MIN_VALUE,
+		        Integer.MAX_VALUE);
+		IntegerVariable ivar2 = new IntegerVariable("test2", y, Integer.MIN_VALUE,
+		        Integer.MAX_VALUE);
+
+		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		constraints.add(new IntegerConstraint(ivar2, Comparator.GE, new IntegerConstant(0)));
+		constraints.add(new IntegerConstraint(ivar1, Comparator.LE, new IntegerConstant(0)));
+		constraints.add(new IntegerConstraint(ivar2, Comparator.LE, ivar1));
+		
+		
+		Seeker skr = new Seeker();
+		Map<String, Object> result = skr.getModel(constraints);
+		assertNotNull(result);
+		assertFalse(result.isEmpty());
+		if (result.containsKey("test1"))
+			x = ((Number) result.get("test1")).intValue();
+		if (result.containsKey("test2"))
+			y = ((Number) result.get("test2")).intValue();
+		assertTrue(y >= 0);
+		assertTrue(x <= 0);
+		assertTrue(y <= x);
+	}
 }
