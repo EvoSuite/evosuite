@@ -19,6 +19,7 @@
 package de.unisb.cs.st.evosuite.utils;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -123,6 +124,15 @@ public class Randomness implements Serializable {
 		return list.get(position);
 	}
 
+	@SuppressWarnings("unchecked")
+	public static <T> T choice(Collection<T> collection) {
+		if (collection.isEmpty())
+			return null;
+
+		int position = random.nextInt(collection.size());
+		return (T) collection.toArray()[position];
+	}
+	
 	@SuppressWarnings("unchecked")
 	public static <T> T choice(Set<T> set) {
 		if (set.isEmpty())
