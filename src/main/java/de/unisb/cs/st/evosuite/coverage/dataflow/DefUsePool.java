@@ -206,7 +206,7 @@ public class DefUsePool {
 		defuseIdsToDefUses.put(def.getDefUseId(), def);
 		defuseIdsToDefs.put(def.getDefUseId(), def);
 
-		logger.info("Added to DefUsePool as def: " + def.toString());
+		logger.debug("Added to DefUsePool as def: " + def.toString());
 	}
 
 	private static void fillUseMaps(Use use) {
@@ -214,7 +214,7 @@ public class DefUsePool {
 		defuseIdsToDefUses.put(use.getDefUseId(), use);
 		defuseIdsToUses.put(use.getDefUseId(), use);
 
-		logger.info("Added to DefUsePool as use: " + use.toString());
+		logger.debug("Added to DefUsePool as use: " + use.toString());
 	}
 
 	// filling the maps
