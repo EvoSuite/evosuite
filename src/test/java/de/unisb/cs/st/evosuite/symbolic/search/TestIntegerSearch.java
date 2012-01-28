@@ -23,6 +23,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerVariable;
 import de.unisb.cs.st.evosuite.symbolic.expr.Operator;
+import de.unisb.cs.st.evosuite.testsuite.TestSuiteDSE;
 
 /**
  * @author fraser
@@ -454,6 +455,8 @@ public class TestIntegerSearch {
 	
 	@Test
 	public void testEvosuiteExample5() {
+		TestSuiteDSE.setStart();
+		
 		//Cnstr 0 : var6__SYM(84) != (y charAt 0) dist: 8.0
 		//Cnstr 1 : var6__SYM(84) != 115 dist: 8.0
 		//Cnstr 2 : var6__SYM(84) == 108 dist: 8.0
@@ -500,10 +503,13 @@ public class TestIntegerSearch {
 	//	x <= 0
 	//	y <= x
 		
-//		int x = -157;
-//		int y = 1890;
-		int x = 646751488;
-		int y = 1872810197;
+		int x = -157;
+		int y = 1890;
+
+		TestSuiteDSE.setStart();
+		
+//		int x = 879254357;
+//		int y = 1013652704;
 
 		IntegerVariable ivar1 = new IntegerVariable("test1", x, Integer.MIN_VALUE,
 		        Integer.MAX_VALUE);

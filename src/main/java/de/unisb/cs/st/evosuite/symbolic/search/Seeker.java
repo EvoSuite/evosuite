@@ -18,6 +18,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.symbolic.Solver;
 import de.unisb.cs.st.evosuite.symbolic.expr.BinaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Cast;
@@ -33,6 +34,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringVariable;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
+import de.unisb.cs.st.evosuite.testsuite.TestSuiteDSE;
 
 /**
  * @author krusev
@@ -54,7 +56,6 @@ public class Seeker implements Solver {
 	public Map<String, Object> getModel(Collection<Constraint<?>> constr) {
 		HashMap<String, Object> result = new HashMap<String, Object>();
 		List<Constraint<?>> constraints = (List<Constraint<?>>) constr;
-//		int budget = 0;
 		
 		Set<Variable<?>> vars = getVarsOfSet(constraints);
 
@@ -67,11 +68,9 @@ public class Seeker implements Solver {
 			log.warn("Initial distance already is 0.0, skipping search");
 			return null;
 		}
-		//try each var #vars-times
 
-		
-
-//		while (budget >= 0) {
+		resetLoop:
+		for (int i = 0; i <= Properties.DSE_VARIABLE_RESETS; i++) {
 			boolean done = false;
 			while (!done) {
 				done = true;
@@ -90,7 +89,7 @@ public class Seeker implements Solver {
 						}
 					}
 					if (var instanceof IntegerVariable) {
-						log.info("searching for int");
+						log.info("searching for int" + var);
 						IntegerVariable intVar = (IntegerVariable) var;
 						if (changer.intLocalSearch(intVar, constraints, result)) {
 							searchSuccsess = true;
@@ -113,23 +112,28 @@ public class Seeker implements Solver {
 					return result;
 				}
 				
+				if (TestSuiteDSE.isFinished()) {
+					log.info("Out of time");
+					break resetLoop;
+				}
+				
 			}
-//			budget--;
-//			
-//			if ( budget >= 0 ) {
-//				for (Variable<?> var : vars) {
-//					if (var instanceof IntegerVariable) {
-//						((IntegerVariable) var).setConcreteValue((long) (Math
-//								.random() * Integer.MAX_VALUE));
-//					}
-//					if (var instanceof RealVariable) {
-//						((RealVariable) var)
-//								.setConcreteValue((Math.random() * Float.MAX_VALUE));
-//					}
-//				}
-//			}
-//
-//		}
+
+			if ( i != Properties.DSE_VARIABLE_RESETS) {
+				for (Variable<?> var : vars) {
+					if (var instanceof IntegerVariable) {
+						((IntegerVariable) var).setConcreteValue((long) (Math
+								.random() * Integer.MAX_VALUE));
+					}
+					if (var instanceof RealVariable) {
+						((RealVariable) var)
+								.setConcreteValue((Math.random() * Float.MAX_VALUE));
+					}
+					log.info("Reseted var: " + var);
+				}
+			}
+
+		}
 		// This will return any improvement, even if it does not cover a new branch
 		if (searchSuccsess)
 			return result;
