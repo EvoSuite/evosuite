@@ -70,20 +70,20 @@ public class TestSuiteDSE {
 
 	private final TestSuiteFitnessFunction fitness;
 
-	private long startTime;
+	private static long startTime;
 
-	private long endTime;
+	private static long endTime;
 
 	public TestSuiteDSE(TestSuiteFitnessFunction fitness) {
 		this.fitness = fitness;
 	}
 
-	private void setStart() {
+	public static void setStart() {
 		startTime = System.currentTimeMillis();
 		endTime = startTime + Properties.DSE_SEARCH_TIMEOUT;
 	}
 
-	private boolean isFinished() {
+	public static boolean isFinished() {
 		return System.currentTimeMillis() >= endTime;
 	}
 
