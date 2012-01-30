@@ -3,13 +3,10 @@
  */
 package de.unisb.cs.st.evosuite.symbolic.search;
 
-
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +40,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteDSE;
 public class Seeker implements Solver {
 
 	static Logger log = LoggerFactory.getLogger(Seeker.class);
+
 	//static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.search.Seeker");
 
 	/* The idea here is to get the expressions and build the constraint 
@@ -56,33 +54,31 @@ public class Seeker implements Solver {
 	public Map<String, Object> getModel(Collection<Constraint<?>> constr) {
 		HashMap<String, Object> result = new HashMap<String, Object>();
 		List<Constraint<?>> constraints = (List<Constraint<?>>) constr;
-		
+
 		Set<Variable<?>> vars = getVarsOfSet(constraints);
 
 		boolean searchSuccsess = false;
 		//		log.warning("Variables: " + vars.size());
 
-		
 		double distance = DistanceEstimator.getDistance(constraints);
 		if (distance == 0.0) {
 			log.warn("Initial distance already is 0.0, skipping search");
 			return null;
 		}
 
-		resetLoop:
-		for (int i = 0; i <= Properties.DSE_VARIABLE_RESETS; i++) {
+		resetLoop: for (int i = 0; i <= Properties.DSE_VARIABLE_RESETS; i++) {
 			boolean done = false;
 			//TODO since this here is also in a loop maybe we can change 
 			//this back to how it was and increase the DSE_VARIABLE_RESETS
 			while (!done) {
 				done = true;
 				for (Variable<?> var : vars) {
-	
-					log.info("Variable: " + var);
+
+					log.debug("Variable: " + var);
 					Changer changer = new Changer();
-	
+
 					if (var instanceof StringVariable) {
-						log.info("searching for string");
+						log.debug("searching for string");
 						StringVariable strVar = (StringVariable) var;
 						if (changer.strLocalSearch(strVar, constraints, result)) {
 							searchSuccsess = true;
@@ -91,7 +87,7 @@ public class Seeker implements Solver {
 						}
 					}
 					if (var instanceof IntegerVariable) {
-						log.info("searching for int" + var);
+						log.debug("searching for int" + var);
 						IntegerVariable intVar = (IntegerVariable) var;
 						if (changer.intLocalSearch(intVar, constraints, result)) {
 							searchSuccsess = true;
@@ -100,7 +96,7 @@ public class Seeker implements Solver {
 						}
 					}
 					if (var instanceof RealVariable) {
-						log.info("searching for real");
+						log.debug("searching for real");
 						RealVariable realVar = (RealVariable) var;
 						if (changer.realLocalSearch(realVar, constraints, result)) {
 							searchSuccsess = true;
@@ -109,20 +105,20 @@ public class Seeker implements Solver {
 						}
 					}
 				}
-	
+
 				if (DistanceEstimator.getDistance(constraints) <= 0) {
 					return result;
 				}
-				
+
 				if (TestSuiteDSE.isFinished()) {
-					log.info("Out of time");
+					log.debug("Out of time");
 					break resetLoop;
 				}
-				
+
 			}
 
-			if ( i != Properties.DSE_VARIABLE_RESETS) {
-				randomizeVars(vars); 
+			if (i != Properties.DSE_VARIABLE_RESETS) {
+				randomizeVars(vars);
 			}
 
 		}
