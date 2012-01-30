@@ -16,8 +16,6 @@ import org.junit.Test;
 
 import de.unisb.cs.st.evosuite.symbolic.expr.Comparator;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
-import de.unisb.cs.st.evosuite.symbolic.expr.StringConstant;
-import de.unisb.cs.st.evosuite.symbolic.expr.StringBinaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerBinaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
@@ -452,7 +450,7 @@ public class TestIntegerSearch {
 		        Integer.MAX_VALUE);
 
 	}
-	
+
 	@Test
 	public void testEvosuiteExample5() {
 		TestSuiteDSE.setStart();
@@ -465,18 +463,15 @@ public class TestIntegerSearch {
 		int const1 = 115;
 		int const2 = 108;
 		String const3 = "y";
-		
-		
+
 		IntegerConstant iconst1 = new IntegerConstant(const1);
 		IntegerConstant iconst2 = new IntegerConstant(const2);
 		StringConstant strConst = new StringConstant(const3);
-		
-		
+
 		IntegerVariable ivar1 = new IntegerVariable("test1", var1, Integer.MIN_VALUE,
 		        Integer.MAX_VALUE);
-		StringBinaryExpression sBExpr = 
-			new StringBinaryExpression(strConst, Operator.CHARAT, new IntegerConstant(0), "y");
-
+		StringBinaryExpression sBExpr = new StringBinaryExpression(strConst,
+		        Operator.CHARAT, new IntegerConstant(0), "y");
 
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		constraints.add(new IntegerConstraint(ivar1, Comparator.NE, sBExpr));
@@ -485,15 +480,15 @@ public class TestIntegerSearch {
 
 		Seeker skr = new Seeker();
 		Map<String, Object> result = skr.getModel(constraints);
-		
+
 		assertNotNull(result);
 		assertFalse(result.isEmpty());
-		
+
 		var1 = ((Number) result.get("test1")).intValue();
 
 		assertTrue(var1 == 108);
 	}
-	
+
 	@Test
 	public void testEvosuiteExample6() {
 	//Cnstr 0 : var2__SYM(1890) >= 0 dist: 682.3333333333334
@@ -517,11 +512,12 @@ public class TestIntegerSearch {
 		        Integer.MAX_VALUE);
 
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
-		constraints.add(new IntegerConstraint(ivar2, Comparator.GE, new IntegerConstant(0)));
-		constraints.add(new IntegerConstraint(ivar1, Comparator.LE, new IntegerConstant(0)));
+		constraints.add(new IntegerConstraint(ivar2, Comparator.GE,
+		        new IntegerConstant(0)));
+		constraints.add(new IntegerConstraint(ivar1, Comparator.LE,
+		        new IntegerConstant(0)));
 		constraints.add(new IntegerConstraint(ivar2, Comparator.LE, ivar1));
-		
-		
+
 		Seeker skr = new Seeker();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
