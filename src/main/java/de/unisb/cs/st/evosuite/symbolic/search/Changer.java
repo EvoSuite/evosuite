@@ -370,7 +370,7 @@ public class Changer {
 		//		double left = Math.floor(realVar.getConcreteValue());
 		//		double work = Double.MAX_VALUE;//realVar.getConcreteValue();
 		//		double right = Math.ceil(realVar.getConcreteValue());
-		////		log.warning("left: " + left +" conc " + realVar.getConcreteValue() + " right: "+ right);
+		////		log.debuging("left: " + left +" conc " + realVar.getConcreteValue() + " right: "+ right);
 		//		
 		//
 		//		realVar.setConcreteValue(left);
@@ -404,15 +404,15 @@ public class Changer {
 		while (distW > 0.0) {
 			if (oldWork == work) {
 				//unreachable
-				log.warn("Stopping search as old value is new value: " + work + ", "
+				log.debug("Stopping search as old value is new value: " + work + ", "
 				        + left + " - " + right + ", but distance is " + distW);
 
 				return false;
 			}
-			//log.warning("oldWork: " + oldWork + " work: " + work);
+			//log.debuging("oldWork: " + oldWork + " work: " + work);
 			oldWork = work;
 
-			//			log.warning("left: " + left +" conc " + (left + right) + " right: "+ right);
+			//			log.debuging("left: " + left +" conc " + (left + right) + " right: "+ right);
 
 			work = (left + right) / 2.0;
 			realVar.setConcreteValue(work);
@@ -439,7 +439,7 @@ public class Changer {
 			}
 		}
 
-		//log.warning("newRealVar: " + realVar);
+		//log.debuging("newRealVar: " + realVar);
 
 		// TODO Auto-generated method stub
 		return improvement;

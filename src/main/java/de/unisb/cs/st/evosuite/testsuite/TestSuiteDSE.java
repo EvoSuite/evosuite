@@ -55,7 +55,7 @@ public class TestSuiteDSE {
 
 	private final Set<Integer> uncoveredBranches = new HashSet<Integer>();
 
-	private final Set<Integer> inconvertibleBranches = new HashSet<Integer>();
+	private final Set<Integer> uncoverableBranches = new HashSet<Integer>();
 
 	public static int nrConstraints = 0;
 	public static int nrSolvedConstraints = 0;
@@ -242,7 +242,7 @@ public class TestSuiteDSE {
 					}
 
 					//logger.debug("Current branch: " + branch);
-					if (isUncovered(branch) && covertible(branch)) {
+					if (isUncovered(branch) && coverable(branch)) {
 						logger.info("Trying to cover branch "
 						        + branch.ins.getInstructionIndex() + ": " + branch);
 
@@ -273,7 +273,7 @@ public class TestSuiteDSE {
 								} else {
 									logger.info("Old test: " + expandedTest.toCode());
 									logger.info("New test: " + newTest.toCode());
-									setInconvertible(branch);
+									setUncoverable(branch);
 									//assert (false);
 								}
 								nrCurrConstraints = 0;
@@ -291,7 +291,7 @@ public class TestSuiteDSE {
 							nrCurrConstraints = 0;
 						}
 					} else {
-						logger.debug("Already covered or incovertible branch "
+						logger.debug("Already covered or uncoverable branch "
 						        + branch.ins.getInstructionIndex());// + ": " + branch);
 
 					}
@@ -307,12 +307,12 @@ public class TestSuiteDSE {
 
 	}
 
-	private boolean covertible(BranchCondition branch) {
-		return !(inconvertibleBranches.contains(branch.ins.getInstructionIndex()));
+	private boolean coverable(BranchCondition branch) {
+		return !(uncoverableBranches.contains(branch.ins.getInstructionIndex()));
 	}
 
-	private void setInconvertible(BranchCondition branch) {
-		inconvertibleBranches.add(branch.ins.getInstructionIndex());
+	private void setUncoverable(BranchCondition branch) {
+		uncoverableBranches.add(branch.ins.getInstructionIndex());
 	}
 
 	private void addBranch(Branch b) {
@@ -500,7 +500,7 @@ public class TestSuiteDSE {
 
 		counter = 0;
 		for (Constraint cnstr : constraints) {
-			logger.warn("Cnstr " + (counter++) + " : " + cnstr + " dist: "
+			logger.debug("Cnstr " + (counter++) + " : " + cnstr + " dist: "
 			        + DistanceEstimator.getDistance(constraints));
 		}
 
