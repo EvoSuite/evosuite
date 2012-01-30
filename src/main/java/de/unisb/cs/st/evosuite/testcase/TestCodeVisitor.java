@@ -448,7 +448,7 @@ public class TestCodeVisitor implements TestVisitor {
 		if (retval.getType() != Void.TYPE
 		        && retval.getAdditionalVariableReference() == null && !unused) {
 			if (exception != null) {
-//				if (!lastStatement)
+				if (!lastStatement || statement.hasAssertions())
 					result += retval.getSimpleClassName() + " " + getVariableName(retval)
 					        + " = " + retval.getDefaultValueString() + ";\n";
 			} else
