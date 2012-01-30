@@ -307,11 +307,23 @@ public class TestCodeVisitor implements TestVisitor {
 
 	private void addAssertions(StatementInterface statement) {
 		boolean assertionAdded = false;
-		for (Assertion assertion : statement.getAssertions()) {
-			if (assertion != null) {
-				visitAssertion(assertion);
-				testCode += "\n";
-				assertionAdded = true;
+		if (getException(statement) != null) {
+			// Assumption: The statement that throws an exception is the last statement of a test.
+			VariableReference returnValue = statement.getReturnValue();
+			for (Assertion assertion : statement.getAssertions()) {
+				if (assertion != null && !assertion.getReferencedVariables().contains(returnValue)) {
+					visitAssertion(assertion);
+					testCode += "\n";
+					assertionAdded = true;
+				}
+			}
+		} else {			
+			for (Assertion assertion : statement.getAssertions()) {
+				if (assertion != null) {
+					visitAssertion(assertion);
+					testCode += "\n";
+					assertionAdded = true;
+				}
 			}
 		}
 		if (assertionAdded)
