@@ -72,6 +72,8 @@ public class Seeker implements Solver {
 		resetLoop:
 		for (int i = 0; i <= Properties.DSE_VARIABLE_RESETS; i++) {
 			boolean done = false;
+			//TODO since this here is also in a loop maybe we can change 
+			//this back to how it was and increase the DSE_VARIABLE_RESETS
 			while (!done) {
 				done = true;
 				for (Variable<?> var : vars) {
@@ -120,17 +122,7 @@ public class Seeker implements Solver {
 			}
 
 			if ( i != Properties.DSE_VARIABLE_RESETS) {
-				for (Variable<?> var : vars) {
-					if (var instanceof IntegerVariable) {
-						((IntegerVariable) var).setConcreteValue((long) (Math
-								.random() * Integer.MAX_VALUE));
-					}
-					if (var instanceof RealVariable) {
-						((RealVariable) var)
-								.setConcreteValue((Math.random() * Float.MAX_VALUE));
-					}
-					log.info("Reseted var: " + var);
-				}
+				randomizeVars(vars); 
 			}
 
 		}
@@ -139,6 +131,26 @@ public class Seeker implements Solver {
 			return result;
 		else
 			return null;
+	}
+
+	private void randomizeVars(Set<Variable<?>> vars) {
+		for (Variable<?> var : vars) {
+			if (var instanceof IntegerVariable) {
+				IntegerVariable intV = (IntegerVariable) var;
+				if (Math.round(Math.random()) > 0)
+					intV.setConcreteValue((long) (Math.random() * intV.getMaxValue()));
+				else
+					intV.setConcreteValue((long) (Math.random() * intV.getMinValue()));
+			}
+			if (var instanceof RealVariable) {
+				RealVariable realV = (RealVariable) var;
+				if (Math.round(Math.random()) > 0)
+					realV.setConcreteValue((Math.random() * realV.getMaxValue()));
+				else
+					realV.setConcreteValue((Math.random() * realV.getMinValue()));
+			}
+			log.info("Reseted var: " + var);
+		}
 	}
 
 	@SuppressWarnings("unused")
