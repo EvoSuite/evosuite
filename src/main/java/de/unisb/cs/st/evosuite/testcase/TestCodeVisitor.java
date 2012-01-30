@@ -464,8 +464,7 @@ public class TestCodeVisitor implements TestVisitor {
 		}
 
 		String callee_str = "";
-		if (exception == null
-		        && !retval.getVariableClass().isAssignableFrom(method.getReturnType())
+		if (!retval.getVariableClass().isAssignableFrom(method.getReturnType())
 		        && !retval.getVariableClass().isAnonymousClass() && !unused) {
 			String name = retval.getSimpleClassName();
 			if (!name.matches(".*\\.\\d+$")) {
@@ -553,7 +552,7 @@ public class TestCodeVisitor implements TestVisitor {
 					        + new GenericClass(constructor.getParameterTypes()[i]).getSimpleName()
 					        + ") ";
 				}
-				
+
 				parameter_string += name;
 			}
 
