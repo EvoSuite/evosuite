@@ -151,20 +151,27 @@ public class INVOKEVIRTUAL extends gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL {
 
 		} else if (cname.equals("java.lang.StringBuilder")) {
 
-			//Check in which function we are and handle appropriately 
-			if (mname.startsWith("append(")) {
+			try {
+				//Check in which function we are and handle appropriately 
+				if (mname.startsWith("append(")) {
 
-				InvVStringBuilderHelper.strB_fnc_append(ks, ti, this);
+					InvVStringBuilderHelper.strB_fnc_append(ks, ti, this);
 
-			} else if (mname.startsWith("toString()")) {
+				} else if (mname.startsWith("toString()")) {
 
-				//This works but only if we have just strings appended 
-				if (InvVStringBuilderHelper.isStrB_all_impl_op(ks, ti, this)) {
-					return InvVStringBuilderHelper.strB_fnc_toString(ks, ti, this);
-				}
-			} else {
+					//This works but only if we have just strings appended 
+					if (InvVStringBuilderHelper.isStrB_all_impl_op(ks, ti, this)) {
+						return InvVStringBuilderHelper.strB_fnc_toString(ks, ti, this);
+					}
+				} else {
 //				log.warning("InvVStringBuilderHelper.throw_away() " + mname);
-				InvVStringBuilderHelper.throw_away(mname);
+					InvVStringBuilderHelper.throw_away(mname);
+				}
+			} catch (Exception e) {
+				/* we don't support something so don't do anything and 
+				 * let JPF run with concrete values here
+				 */
+				log.info("StringBuilder: " + e);
 			}
 		}
 
