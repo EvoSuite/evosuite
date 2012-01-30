@@ -38,7 +38,7 @@ public class TestCodeVisitor implements TestVisitor {
 	protected TestCase test = null;
 
 	protected final Map<VariableReference, String> variableNames = new HashMap<VariableReference, String>();
-	
+
 	protected final Map<String, Integer> nextIndices = new HashMap<String, Integer>();
 
 	public String getCode() {
@@ -76,12 +76,12 @@ public class TestCodeVisitor implements TestVisitor {
 			return getVariableName(array) + "[" + index + "]";
 		} else if (var instanceof ArrayReference) {
 			String className = var.getSimpleClassName();
-//			int num = 0;
-//			for (VariableReference otherVar : variableNames.keySet()) {
-//				if (!otherVar.equals(var)
-//				        && otherVar.getVariableClass().equals(var.getVariableClass()))
-//					num++;
-//			}
+			//			int num = 0;
+			//			for (VariableReference otherVar : variableNames.keySet()) {
+			//				if (!otherVar.equals(var)
+			//				        && otherVar.getVariableClass().equals(var.getVariableClass()))
+			//					num++;
+			//			}
 			String variableName = className.substring(0, 1).toLowerCase()
 			        + className.substring(1) + "Array";
 			variableName = variableName.replace(".", "_").replace("[]", "");
@@ -89,42 +89,42 @@ public class TestCodeVisitor implements TestVisitor {
 				if (!nextIndices.containsKey(variableName)) {
 					nextIndices.put(variableName, 0);
 				}
-				
+
 				int index = nextIndices.get(variableName);
 				nextIndices.put(variableName, index + 1);
-				
+
 				variableName += index;
-				
+
 				variableNames.put(var, variableName);
 			}
-			
+
 		} else if (!variableNames.containsKey(var)) {
 			String className = var.getSimpleClassName();
-//			int num = 0;
-//			for (VariableReference otherVar : variableNames.keySet()) {
-//				if (otherVar.getVariableClass().equals(var.getVariableClass()))
-//					num++;
-//			}
-			
+			//			int num = 0;
+			//			for (VariableReference otherVar : variableNames.keySet()) {
+			//				if (otherVar.getVariableClass().equals(var.getVariableClass()))
+			//					num++;
+			//			}
+
 			String variableName = className.substring(0, 1).toLowerCase()
 			        + className.substring(1);
 			if (CharUtils.isAsciiNumeric(variableName.charAt(variableName.length() - 1)))
 				variableName += "_";
-			
+
 			if (variableName.contains("[]")) {
 				variableName = variableName.replace("[]", "Array");
 			}
 			variableName = variableName.replace(".", "_");
-			
+
 			if (!nextIndices.containsKey(variableName)) {
 				nextIndices.put(variableName, 0);
 			}
-			
+
 			int index = nextIndices.get(variableName);
 			nextIndices.put(variableName, index + 1);
-			
+
 			variableName += index;
-			
+
 			variableNames.put(var, variableName);
 		}
 		return variableNames.get(var);
@@ -306,6 +306,12 @@ public class TestCodeVisitor implements TestVisitor {
 	}
 
 	private void addAssertions(StatementInterface statement) {
+		Throwable exception = getException(statement);
+
+		// TODO: Some assertions would be useful even with exception
+		if (exception != null)
+			return;
+
 		boolean assertionAdded = false;
 		for (Assertion assertion : statement.getAssertions()) {
 			if (assertion != null) {
@@ -436,7 +442,7 @@ public class TestCodeVisitor implements TestVisitor {
 		if (retval.getType() != Void.TYPE
 		        && retval.getAdditionalVariableReference() == null && !unused) {
 			if (exception != null) {
-//				if (!lastStatement)
+				if (!lastStatement || statement.hasAssertions())
 					result += retval.getSimpleClassName() + " " + getVariableName(retval)
 					        + " = " + retval.getDefaultValueString() + ";\n";
 			} else
@@ -482,9 +488,9 @@ public class TestCodeVisitor implements TestVisitor {
 		if (retval.getType() == Void.TYPE) {
 			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
 		} else {
-//			if (exception == null || !lastStatement)
-				if (!unused)
-					result += getVariableName(retval) + " = ";
+			//			if (exception == null || !lastStatement)
+			if (!unused)
+				result += getVariableName(retval) + " = ";
 
 			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
 		}
