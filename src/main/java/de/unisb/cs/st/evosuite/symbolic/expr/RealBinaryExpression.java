@@ -28,7 +28,7 @@ public class RealBinaryExpression extends RealExpression implements
 		this.right = right2;
 		this.op = op2;
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
-			throw new ConstraintTooLongException();
+			throw new ConstraintTooLongException("Constraint size: "+getSize());
 	}
 
 	@Override
