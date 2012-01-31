@@ -673,7 +673,7 @@ public class TestSuiteDSE {
 	 * @param expr
 	 * @param variables
 	 */
-	private void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
+	public static void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
 		if (expr instanceof Variable<?>) {
 			variables.add((Variable<?>) expr);
 		} else if (expr instanceof StringMultipleComparison) {

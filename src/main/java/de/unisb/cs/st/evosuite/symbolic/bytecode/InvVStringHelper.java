@@ -9,7 +9,6 @@ import gov.nasa.jpf.jvm.KernelState;
 import gov.nasa.jpf.jvm.StackFrame;
 import gov.nasa.jpf.jvm.ThreadInfo;
 import gov.nasa.jpf.jvm.bytecode.Instruction;
-import gov.nasa.jpf.jvm.NamedFields;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;
