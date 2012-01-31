@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.ga.DSEBudget;
 import de.unisb.cs.st.evosuite.symbolic.Solver;
 import de.unisb.cs.st.evosuite.symbolic.expr.BinaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Cast;
@@ -31,7 +32,6 @@ import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringVariable;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
-import de.unisb.cs.st.evosuite.testsuite.TestSuiteDSE;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
@@ -115,7 +115,7 @@ public class Seeker implements Solver {
 					return result;
 				}
 
-				if (TestSuiteDSE.isFinished()) {
+				if (DSEBudget.isFinished()) {
 					log.debug("Out of time");
 					break resetLoop;
 				}
@@ -151,8 +151,7 @@ public class Seeker implements Solver {
 					realV.setConcreteValue(Randomness.nextInt(max)
 					        + Randomness.nextFloat());
 				else
-					realV.setConcreteValue(-1
-					        * Randomness.nextInt(max)
+					realV.setConcreteValue(-1 * Randomness.nextInt(max)
 					        + Randomness.nextFloat());
 			} else if (var instanceof StringVariable) {
 				StringVariable stringV = (StringVariable) var;

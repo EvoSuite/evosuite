@@ -118,7 +118,6 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	public void localSearch(LocalSearchObjective objective) {
 
 		ensureDoubleExecution();
-		LocalSearchBudget.localSearchStarted();
 
 		double fitnessBefore = getFitness();
 		for (int i = 0; i < tests.size(); i++) {

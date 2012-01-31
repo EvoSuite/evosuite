@@ -216,9 +216,16 @@ public class Properties {
 	@Parameter(key = "dse_constraint_length", group = "Search Algorithm", description = "Maximal length of the constraints in DSE")
 	public static int DSE_CONSTRAINT_LENGTH = 100000;
 
-	@Parameter(key = "dse_search_timeout", group = "Search Algorithm", description = "Milliseconds allowed for dse local search")
+	public enum DSEBudgetType {
+		INDIVIDUALS, TIME
+	}
+
+	@Parameter(key = "dse_budget_type", group = "Search Algorithm", description = "Interpretation of dse_budget property")
+	public static DSEBudgetType DSE_BUDGET_TYPE = DSEBudgetType.INDIVIDUALS;
+
+	@Parameter(key = "dse_budget", group = "Search Algorithm", description = "Milliseconds allowed for dse local search")
 	@IntValue(min = 0)
-	public static int DSE_SEARCH_TIMEOUT = 10000;
+	public static long DSE_BUDGET = 1;
 
 	@Parameter(key = "dse_variable_resets", group = "Search Algorithm", description = "Times DSE resets the int and real variables with random values")
 	public static int DSE_VARIABLE_RESETS = 1;
