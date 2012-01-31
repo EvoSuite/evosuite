@@ -31,7 +31,6 @@ import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
-import de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator;
 import de.unisb.cs.st.evosuite.symbolic.search.Seeker;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
@@ -483,13 +482,13 @@ public class TestSuiteDSE {
 		}
 
 		int size = constraints.size();
-
-		int counter = 0;
-		for (Constraint cnstr : constraints) {
-			logger.debug("Cnstr " + (counter++) + " : " + cnstr + " dist: "
-			        + DistanceEstimator.getDistance(constraints));
-		}
-
+		/*
+				int counter = 0;
+				for (Constraint cnstr : constraints) {
+					logger.debug("Cnstr " + (counter++) + " : " + cnstr + " dist: "
+					        + DistanceEstimator.getDistance(constraints));
+				}
+		*/
 		if (size > 0) {
 			logger.debug("Calculating cone of influence for " + size + " constraints");
 			constraints = reduce(constraints);
@@ -498,13 +497,13 @@ public class TestSuiteDSE {
 
 		nrCurrConstraints = constraints.size();
 		nrConstraints += nrCurrConstraints;
-
-		counter = 0;
-		for (Constraint cnstr : constraints) {
-			logger.debug("Cnstr " + (counter++) + " : " + cnstr + " dist: "
-			        + DistanceEstimator.getDistance(constraints));
-		}
-
+		/*
+				counter = 0;
+				for (Constraint cnstr : constraints) {
+					logger.debug("Cnstr " + (counter++) + " : " + cnstr + " dist: "
+					        + DistanceEstimator.getDistance(constraints));
+				}
+		*/
 		logger.info("Applying local search");
 		Seeker skr = new Seeker();
 		Map<String, Object> values = skr.getModel(constraints);
@@ -634,11 +633,11 @@ public class TestSuiteDSE {
 
 		Constraint<?> target = constraints.get(constraints.size() - 1);
 		Set<Variable<?>> dependencies = getVariables(target);
-		
+
 		LinkedList<Constraint<?>> coi = new LinkedList<Constraint<?>>();
 		if (dependencies.size() <= 0)
 			return coi;
-		
+
 		coi.add(target);
 
 		for (int i = constraints.size() - 2; i >= 0; i--) {
@@ -700,7 +699,7 @@ public class TestSuiteDSE {
 			getVariables(un.getOperand(), variables);
 		} else if (expr instanceof Cast<?>) {
 			Cast<?> cst = (Cast<?>) expr;
-			getVariables(cst.getConcreteObject(), variables);	
+			getVariables(cst.getConcreteObject(), variables);
 		} else if (expr instanceof Constraint<?>) {
 			// ignore
 		}
