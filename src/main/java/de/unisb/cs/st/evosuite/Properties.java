@@ -214,7 +214,7 @@ public class Properties {
 	public static int DSE_RATE = -1;
 
 	@Parameter(key = "dse_constraint_length", group = "Search Algorithm", description = "Maximal length of the constraints in DSE")
-	public static int DSE_CONSTRAINT_LENGTH = 1000000;
+	public static int DSE_CONSTRAINT_LENGTH = 100000;
 
 	@Parameter(key = "dse_search_timeout", group = "Search Algorithm", description = "Milliseconds allowed for dse local search")
 	@IntValue(min = 0)
