@@ -95,6 +95,10 @@ public class Randomness implements Serializable {
 		return (short) (random.nextInt(2 * 32767) - 32767);
 	}
 
+	public static long nextLong() {
+		return random.nextLong();
+	}
+
 	public static byte nextByte() {
 		return (byte) (random.nextInt(256) - 128);
 	}
