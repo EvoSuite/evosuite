@@ -52,6 +52,10 @@ public class Seeker implements Solver {
 	 */
 	@Override
 	public Map<String, Object> getModel(Collection<Constraint<?>> constr) {
+		
+		if (constr.size() <= 0)
+			return null;
+		
 		HashMap<String, Object> result = new HashMap<String, Object>();
 		List<Constraint<?>> constraints = (List<Constraint<?>>) constr;
 

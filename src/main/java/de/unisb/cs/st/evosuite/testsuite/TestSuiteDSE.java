@@ -633,8 +633,11 @@ public class TestSuiteDSE {
 
 		Constraint<?> target = constraints.get(constraints.size() - 1);
 		Set<Variable<?>> dependencies = getVariables(target);
-
+		
 		LinkedList<Constraint<?>> coi = new LinkedList<Constraint<?>>();
+		if (dependencies.size() <= 0)
+			return coi;
+		
 		coi.add(target);
 
 		for (int i = constraints.size() - 2; i >= 0; i--) {
