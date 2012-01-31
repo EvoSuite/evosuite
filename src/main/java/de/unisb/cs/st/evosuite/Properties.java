@@ -214,15 +214,15 @@ public class Properties {
 	public static int DSE_RATE = -1;
 
 	@Parameter(key = "dse_constraint_length", group = "Search Algorithm", description = "Maximal length of the constraints in DSE")
-	public static int DSE_CONSTRAINT_LENGTH = 1000;
+	public static int DSE_CONSTRAINT_LENGTH = 1000000;
 
 	@Parameter(key = "dse_search_timeout", group = "Search Algorithm", description = "Milliseconds allowed for dse local search")
 	@IntValue(min = 0)
 	public static int DSE_SEARCH_TIMEOUT = 10000;
 
 	@Parameter(key = "dse_variable_resets", group = "Search Algorithm", description = "Times DSE resets the int and real variables with random values")
-	public static int DSE_VARIABLE_RESETS = 3;
-	
+	public static int DSE_VARIABLE_RESETS = 1;
+
 	@Parameter(key = "local_search_rate", group = "Search Algorithm", description = "Apply local search at every X generation")
 	public static int LOCAL_SEARCH_RATE = -1;
 
