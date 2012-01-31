@@ -22,6 +22,7 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.symbolic.BranchCondition;
 import de.unisb.cs.st.evosuite.symbolic.ConcolicExecution;
 import de.unisb.cs.st.evosuite.symbolic.expr.BinaryExpression;
+import de.unisb.cs.st.evosuite.symbolic.expr.Cast;
 import de.unisb.cs.st.evosuite.symbolic.expr.Comparator;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
@@ -691,13 +692,15 @@ public class TestSuiteDSE {
 			getVariables(sc.getLeftOperand(), variables);
 			getVariables(sc.getRightOperand(), variables);
 		} else if (expr instanceof BinaryExpression<?>) {
-
 			BinaryExpression<?> bin = (BinaryExpression<?>) expr;
 			getVariables(bin.getLeftOperand(), variables);
 			getVariables(bin.getRightOperand(), variables);
 		} else if (expr instanceof UnaryExpression<?>) {
 			UnaryExpression<?> un = (UnaryExpression<?>) expr;
 			getVariables(un.getOperand(), variables);
+		} else if (expr instanceof Cast<?>) {
+			Cast<?> cst = (Cast<?>) expr;
+			getVariables(cst.getConcreteObject(), variables);	
 		} else if (expr instanceof Constraint<?>) {
 			// ignore
 		}
