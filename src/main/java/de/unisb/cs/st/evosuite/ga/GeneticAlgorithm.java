@@ -119,6 +119,8 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 */
 	protected void applyLocalSearch() {
 		logger.debug("Applying local search");
+		LocalSearchBudget.localSearchStarted();
+
 		for (Chromosome individual : population) {
 			if (isFinished())
 				break;
@@ -147,7 +149,17 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 */
 	protected void applyDSE() {
 		logger.info("Applying DSE at generation " + currentIteration);
-		getBestIndividual().applyDSE(this);
+		DSEBudget.DSEStarted();
+
+		for (Chromosome individual : population) {
+			if (isFinished())
+				break;
+
+			if (DSEBudget.isFinished())
+				break;
+
+			individual.applyDSE(this);
+		}
 	}
 
 	/**

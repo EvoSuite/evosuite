@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+import de.unisb.cs.st.evosuite.ga.DSEBudget;
 import de.unisb.cs.st.evosuite.symbolic.BranchCondition;
 import de.unisb.cs.st.evosuite.symbolic.ConcolicExecution;
 import de.unisb.cs.st.evosuite.symbolic.expr.BinaryExpression;
@@ -70,26 +71,12 @@ public class TestSuiteDSE {
 
 	private final TestSuiteFitnessFunction fitness;
 
-	private static long startTime;
-
-	private static long endTime;
-
 	public TestSuiteDSE(TestSuiteFitnessFunction fitness) {
 		this.fitness = fitness;
 	}
 
-	public static void setStart() {
-		startTime = System.currentTimeMillis();
-		endTime = startTime + Properties.DSE_SEARCH_TIMEOUT;
-	}
-
-	public static boolean isFinished() {
-		return System.currentTimeMillis() >= endTime;
-	}
-
 	public void applyDSE(TestSuiteChromosome individual) {
 		ConcolicExecution concolicExecution = new ConcolicExecution();
-		setStart();
 
 		Map<String, Map<Integer, Map<Comparator, Set<BranchCondition>>>> solvedConstraints = new HashMap<String, Map<Integer, Map<Comparator, Set<BranchCondition>>>>();
 		Map<BranchCondition, TestCase> expandedTests = new HashMap<BranchCondition, TestCase>();
@@ -98,8 +85,14 @@ public class TestSuiteDSE {
 		        individual.getTestChromosomes());
 		Randomness.shuffle(tests);
 		for (TestChromosome test : tests) {
-			if (isFinished())
+			if (DSEBudget.isHalfRemaining()) {
+				logger.info("Half the DSE Budget used up, continuing with constraint solving");
 				break;
+			}
+			if (DSEBudget.isFinished()) {
+				logger.info("DSE Budget used up");
+				break;
+			}
 			if (test.getLastExecutionResult() == null || test.isChanged()) {
 				test.setLastExecutionResult(runTest(test.getTestCase()));
 				test.setChanged(false);
@@ -137,14 +130,16 @@ public class TestSuiteDSE {
 		double originalFitness = individual.getFitness();
 		TestSuiteChromosome clone = individual.clone();
 
-		setStart();
+		// DSEBudget.DSEStarted();
 
 		List<Map<Integer, Map<Comparator, Set<BranchCondition>>>> cs = new ArrayList<Map<Integer, Map<Comparator, Set<BranchCondition>>>>();
 		cs.addAll(solvedConstraints.values());
 		Randomness.shuffle(cs);
 		for (Map<Integer, Map<Comparator, Set<BranchCondition>>> branchConstraints : cs) {
-			if (isFinished())
+			if (DSEBudget.isFinished()) {
+				logger.info("DSE Budget used up");
 				break;
+			}
 			for (Integer localConstraint : branchConstraints.keySet()) {
 				//			for (Map<Comparator, Set<BranchCondition>> comparatorConstraints : branchConstraints.values()) {
 				Map<Comparator, Set<BranchCondition>> comparatorConstraints = branchConstraints.get(localConstraint);
@@ -181,6 +176,8 @@ public class TestSuiteDSE {
 				}
 			}
 		}
+
+		DSEBudget.evaluation();
 	}
 
 	/**
@@ -189,7 +186,7 @@ public class TestSuiteDSE {
 	 * @param individual
 	 */
 	public void applyOldDSE(TestSuiteChromosome individual) {
-		long dseEndTime = System.currentTimeMillis() + Properties.DSE_SEARCH_TIMEOUT;
+		long dseEndTime = System.currentTimeMillis() + Properties.DSE_BUDGET;
 		clearBranches();
 		determineCoveredBranches(individual);
 
