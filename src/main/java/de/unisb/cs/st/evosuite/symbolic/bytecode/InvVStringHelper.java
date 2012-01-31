@@ -4,6 +4,7 @@
 package de.unisb.cs.st.evosuite.symbolic.bytecode;
 
 import gov.nasa.jpf.JPF;
+import gov.nasa.jpf.jvm.ElementInfo;
 import gov.nasa.jpf.jvm.KernelState;
 import gov.nasa.jpf.jvm.StackFrame;
 import gov.nasa.jpf.jvm.ThreadInfo;
@@ -47,28 +48,28 @@ public abstract class InvVStringHelper {
 		StringExpression str_expr_two = (StringExpression) sf.getOperandAttr(0);
 		StringExpression str_expr_one = (StringExpression) sf.getOperandAttr(1);
 
-		boolean concrete = str_expr_two==null && str_expr_one==null;
-		
+		boolean concrete = str_expr_two == null && str_expr_one == null;
+
 		//get the Strings using the positions from the stack. Order is crucial here
 		String secondStr = ks.heap.get(sf.pop()).asString();
 		String firstStr = ks.heap.get(sf.pop()).asString();
-		
+
 		//compute the resulting value and push it on the real stack
 		int result = firstStr.equalsIgnoreCase(secondStr) ? 1 : 0;
 		sf.push(result);
-		
+
 		if (!concrete) {
 			//if an expression is == null we make a str constant
 			if (str_expr_two == null)
 				str_expr_two = new StringConstant(secondStr);
 			if (str_expr_one == null)
 				str_expr_one = new StringConstant(firstStr);
-			
+
 			//push a StringComparation expression on the fake stack
-			sf.setOperandAttr(new StringComparison(str_expr_one, Operator.EQUALSIGNORECASE,
-			        str_expr_two, (long) result));
+			sf.setOperandAttr(new StringComparison(str_expr_one,
+			        Operator.EQUALSIGNORECASE, str_expr_two, (long) result));
 		}
-		
+
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
 	}
@@ -82,8 +83,8 @@ public abstract class InvVStringHelper {
 		StringExpression str_expr_two = (StringExpression) sf.getOperandAttr(0);
 		StringExpression str_expr_one = (StringExpression) sf.getOperandAttr(1);
 
-		boolean concrete = str_expr_two==null && str_expr_one==null;
-		
+		boolean concrete = str_expr_two == null && str_expr_one == null;
+
 		//get the Strings using the positions from the stack. Order is crucial here
 		String secondStr = ks.heap.get(sf.pop()).asString();
 		String firstStr = ks.heap.get(sf.pop()).asString();
@@ -98,7 +99,7 @@ public abstract class InvVStringHelper {
 				str_expr_two = new StringConstant(secondStr);
 			if (str_expr_one == null)
 				str_expr_one = new StringConstant(firstStr);
-			
+
 			//push a StringComparation expression on the fake stack
 			sf.setOperandAttr(new StringComparison(str_expr_one, Operator.EQUALS,
 			        str_expr_two, (long) result));
@@ -111,7 +112,7 @@ public abstract class InvVStringHelper {
 	public static Instruction strFncStartsWith(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 		boolean concrete = true;
-		
+
 		/*
 		 * Here we have two cases:
 		 * 	1. with offset: on the stack we have:
@@ -136,15 +137,15 @@ public abstract class InvVStringHelper {
 		Expression<Long> offs_expr;
 		if (case_one) {
 			offs_expr = (Expression<Long>) sf.getOperandAttr(0);
-			concrete = offs_expr==null;
+			concrete = offs_expr == null;
 		} else {
 			offs_expr = new IntegerConstant(0);
 		}
 		StringExpression str_expr_two = (StringExpression) sf.getOperandAttr(0 + sf_offs_int);
 		StringExpression str_expr_one = (StringExpression) sf.getOperandAttr(1 + sf_offs_int);
 
-		concrete = concrete && str_expr_two==null && str_expr_one==null;
-		
+		concrete = concrete && str_expr_two == null && str_expr_one == null;
+
 		//get the Strings using the positions from the stack. Order is crucial here
 		int offset = 0;
 		if (case_one) {
@@ -165,12 +166,12 @@ public abstract class InvVStringHelper {
 				str_expr_two = new StringConstant(secondStr);
 			if (str_expr_one == null)
 				str_expr_one = new StringConstant(firstStr);
-			
+
 			//push a StringComparation expression on the fake stack
 			ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
 			other.add(offs_expr);
-			sf.setOperandAttr(new StringMultipleComparison(str_expr_one, Operator.STARTSWITH,
-			        str_expr_two, other, (long) result));
+			sf.setOperandAttr(new StringMultipleComparison(str_expr_one,
+			        Operator.STARTSWITH, str_expr_two, other, (long) result));
 		}
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
@@ -185,12 +186,12 @@ public abstract class InvVStringHelper {
 		StringExpression str_expr_two = (StringExpression) sf.getOperandAttr(0);
 		StringExpression str_expr_one = (StringExpression) sf.getOperandAttr(1);
 
-		boolean concrete = str_expr_two==null && str_expr_one==null;
-		
+		boolean concrete = str_expr_two == null && str_expr_one == null;
+
 		//get the Strings using the positions from the stack. Order is crucial here
 		String secondStr = ks.heap.get(sf.pop()).asString();
 		String firstStr = ks.heap.get(sf.pop()).asString();
-		
+
 		//compute the resulting value and push it on the real stack
 		int result = firstStr.endsWith(secondStr) ? 1 : 0;
 		sf.push(result);
@@ -207,11 +208,10 @@ public abstract class InvVStringHelper {
 			sf.setOperandAttr(new StringComparison(str_expr_one, Operator.ENDSWITH,
 			        str_expr_two, (long) result));
 		}
-		
+
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
 	}
-	
 
 	public static Instruction strFncContains(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
@@ -222,8 +222,8 @@ public abstract class InvVStringHelper {
 		StringExpression str_expr_two = (StringExpression) sf.getOperandAttr(0);
 		StringExpression str_expr_one = (StringExpression) sf.getOperandAttr(1);
 
-		boolean concrete = str_expr_two==null && str_expr_one==null;
-		
+		boolean concrete = str_expr_two == null && str_expr_one == null;
+
 		//get the Strings using the positions from the stack. Order is crucial here
 		String secondStr = ks.heap.get(sf.pop()).asString();
 		String firstStr = ks.heap.get(sf.pop()).asString();
@@ -238,7 +238,7 @@ public abstract class InvVStringHelper {
 				str_expr_two = new StringConstant(secondStr);
 			if (str_expr_one == null)
 				str_expr_one = new StringConstant(firstStr);
-			
+
 			//push a StringComparation expression on the fake stack
 			sf.setOperandAttr(new StringComparison(str_expr_one, Operator.CONTAINS,
 			        str_expr_two, (long) result));
@@ -251,7 +251,7 @@ public abstract class InvVStringHelper {
 	public static Instruction strFncRegionMatches(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 		boolean concrete = true;
-		
+
 		/*
 		 * Here we have two cases:
 		 * 	1. with Ignore case on the stack we have:
@@ -287,15 +287,15 @@ public abstract class InvVStringHelper {
 		Expression<Long> ign_case;
 		if (case_one) {
 			ign_case = (Expression<Long>) sf.getOperandAttr(4);
-			concrete = ign_case==null;
+			concrete = ign_case == null;
 		} else {
 			ign_case = new IntegerConstant(0);
 		}
 		StringExpression str_one = (StringExpression) sf.getOperandAttr(4 + sf_offs_ign);
 
-		concrete = concrete && str_one==null && offs_one==null 
-					&& str_two==null && offs_two==null && len==null;
-		
+		concrete = concrete && str_one == null && offs_one == null && str_two == null
+		        && offs_two == null && len == null;
+
 		//get the values from the real stack
 		int length = sf.pop();
 		int offset2 = sf.pop();
@@ -312,7 +312,6 @@ public abstract class InvVStringHelper {
 		                                    length) ? 1 : 0;
 		sf.push(result);
 
-		
 		if (!concrete) {
 			//if an expression is == null we make a constant expr
 			if (len == null)
@@ -327,7 +326,7 @@ public abstract class InvVStringHelper {
 				ign_case = new IntegerConstant(ignore_case ? 1 : 0);
 			if (str_one == null)
 				str_one = new StringConstant(firstStr);
-			
+
 			//push a StringComparation expression on the fake stack
 			//		initialize the arraylist of the "other" arguments
 			ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
@@ -341,7 +340,7 @@ public abstract class InvVStringHelper {
 			//		add it to the fake stack
 			sf.setOperandAttr(s);
 		}
-	
+
 		return ins.getNext(ti);
 	}
 
@@ -356,8 +355,8 @@ public abstract class InvVStringHelper {
 		StringExpression str_expr_two = (StringExpression) sf.getOperandAttr(0);
 		StringExpression str_expr_one = (StringExpression) sf.getOperandAttr(1);
 
-		boolean concrete = str_expr_two==null && str_expr_one==null;
-		
+		boolean concrete = str_expr_two == null && str_expr_one == null;
+
 		//get the Strings using the positions from the stack. Order is crucial here
 		String secondStr = ks.heap.get(sf.pop()).asString();
 		String firstStr = ks.heap.get(sf.pop()).asString();
@@ -372,13 +371,13 @@ public abstract class InvVStringHelper {
 				str_expr_two = new StringConstant(secondStr);
 			if (str_expr_one == null)
 				str_expr_one = new StringConstant(firstStr);
-	
+
 			//push a StringComparation expression on the fake stack
 			StringBinaryExpression StrBExpr = new StringBinaryExpression(str_expr_one,
 			        Operator.COMPARETO, str_expr_two, Integer.toString(result));
 			sf.setOperandAttr(new StringToIntCast(StrBExpr, (long) result));
 		}
-		
+
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
 	}
@@ -392,25 +391,25 @@ public abstract class InvVStringHelper {
 		StringExpression str_expr_two = (StringExpression) sf.getOperandAttr(0);
 		StringExpression str_expr_one = (StringExpression) sf.getOperandAttr(1);
 
-		boolean concrete = str_expr_two==null && str_expr_one==null;
-		
+		boolean concrete = str_expr_two == null && str_expr_one == null;
+
 		//get the Strings using the positions from the stack. Order is crucial here
 		String secondStr = ks.heap.get(sf.pop()).asString();
 		String firstStr = ks.heap.get(sf.pop()).asString();
-		
+
 		//compute the resulting value and push it on the real stack
 		int result = firstStr.compareToIgnoreCase(secondStr);
 		sf.push(result);
-		
+
 		if (!concrete) {
 			//if an expression is == null we make a str constant
 			if (str_expr_two == null)
 				str_expr_two = new StringConstant(secondStr);
 			if (str_expr_one == null)
 				str_expr_one = new StringConstant(firstStr);
-	
+
 			//push a StringComparation expression on the fake stack
-	
+
 			StringBinaryExpression StrBExpr = new StringBinaryExpression(str_expr_one,
 			        Operator.COMPARETOIGNORECASE, str_expr_two, Integer.toString(result));
 			sf.setOperandAttr(new StringToIntCast(StrBExpr, (long) result));
@@ -422,7 +421,7 @@ public abstract class InvVStringHelper {
 	public static Instruction strFncSubstring(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 		boolean concrete = true;
-		
+
 		boolean case_one = ins.getInvokedMethodSignature().equals("(I)Ljava/lang/String;");
 		/*
 		 * case one: val.substring(int start);
@@ -437,13 +436,13 @@ public abstract class InvVStringHelper {
 		Expression<?> end_indx_expr = null;
 		if (!case_one) {
 			end_indx_expr = (Expression<?>) sf.getOperandAttr(0);
-			concrete = end_indx_expr==null;
+			concrete = end_indx_expr == null;
 		}
 		Expression<?> start_indx_expr = (Expression<?>) sf.getOperandAttr(0 + offset);
 		StringExpression str_expr_one = (StringExpression) sf.getOperandAttr(1 + offset);
 
-		concrete = concrete && str_expr_one==null && start_indx_expr==null;
-		
+		concrete = concrete && str_expr_one == null && start_indx_expr == null;
+
 		//get the Strings using the positions from the stack. Order is crucial here
 		int end = -1;
 		if (!case_one) {
@@ -484,22 +483,22 @@ public abstract class InvVStringHelper {
 				start_indx_expr = new IntegerConstant(start);
 			if (str_expr_one == null)
 				str_expr_one = new StringConstant(firstStr);
-			
+
 			ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
 			other.add(end_indx_expr);
-	
+
 			//push a StringComparation expression on the fake stack
-			sf.setOperandAttr(new StringMultipleExpression(str_expr_one, Operator.SUBSTRING,
-			        start_indx_expr, other, result));
+			sf.setOperandAttr(new StringMultipleExpression(str_expr_one,
+			        Operator.SUBSTRING, start_indx_expr, other, result));
 		}
-		
+
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
 	}
 
 	public static Instruction strFncReplace(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
-		boolean concrete = false; 
+		boolean concrete = false;
 		/* 
 		 * case one:
 		 * java/lang/String.replace:(CC)Ljava/lang/String;
@@ -527,8 +526,7 @@ public abstract class InvVStringHelper {
 		}
 		StringExpression str_expr = (StringExpression) sf.getOperandAttr(2);
 		concrete = concrete && str_expr == null;
-		
-		
+
 		//get the values from the real stack !!!Don't mix the order of this and the previous one
 		int seq_new = sf.pop();
 		int seq_old = sf.pop();
@@ -578,10 +576,10 @@ public abstract class InvVStringHelper {
 			//push a StringComparation expression on the fake stack
 			if (case_one) {
 				sf.setOperandAttr(new StringMultipleExpression(str_expr,
-						Operator.REPLACEC, char_expr_old, other, result));
+				        Operator.REPLACEC, char_expr_old, other, result));
 			} else {
 				sf.setOperandAttr(new StringMultipleExpression(str_expr,
-						Operator.REPLACECS, str_expr_old, other, result));
+				        Operator.REPLACECS, str_expr_old, other, result));
 			}
 		}
 		//return the next instruction that followed the function call
@@ -599,8 +597,9 @@ public abstract class InvVStringHelper {
 
 		StringExpression str_expr = (StringExpression) sf.getOperandAttr(2);
 
-		boolean concrete = str_expr==null && str_expr_old==null && str_expr_new==null;
-		
+		boolean concrete = str_expr == null && str_expr_old == null
+		        && str_expr_new == null;
+
 		//get the values from the real stack !!!Don't mix the order of this and the previous one
 		String str_new = ks.heap.get(sf.pop()).asString();
 		String str_old = ks.heap.get(sf.pop()).asString();
@@ -613,7 +612,6 @@ public abstract class InvVStringHelper {
 		int pointer = ks.heap.newString(result, ti);
 		sf.push(pointer, true);
 
-		
 		if (!concrete) {
 			//if an expression is == null we make a str constant
 			if (str_expr_new == null)
@@ -622,10 +620,10 @@ public abstract class InvVStringHelper {
 				str_expr_old = new StringConstant(str_old);
 			if (str_expr == null)
 				str_expr = new StringConstant(str);
-			
+
 			ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
 			other.add(str_expr_new);
-	
+
 			sf.setOperandAttr(new StringMultipleExpression(str_expr, Operator.REPLACEALL,
 			        str_expr_old, other, result));
 		}
@@ -643,8 +641,9 @@ public abstract class InvVStringHelper {
 
 		StringExpression str_expr = (StringExpression) sf.getOperandAttr(2);
 
-		boolean concrete = str_expr==null && str_expr_old==null && str_expr_new==null;
-		
+		boolean concrete = str_expr == null && str_expr_old == null
+		        && str_expr_new == null;
+
 		//get the values from the real stack !!!Don't mix the order of this and the previous one
 		String str_new = ks.heap.get(sf.pop()).asString();
 		String str_old = ks.heap.get(sf.pop()).asString();
@@ -657,7 +656,6 @@ public abstract class InvVStringHelper {
 		int pointer = ks.heap.newString(result, ti);
 		sf.push(pointer, true);
 
-		
 		if (!concrete) {
 			//if an expression is == null we make a str constant
 			if (str_expr_new == null)
@@ -666,12 +664,12 @@ public abstract class InvVStringHelper {
 				str_expr_old = new StringConstant(str_old);
 			if (str_expr == null)
 				str_expr = new StringConstant(str);
-			
+
 			ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
 			other.add(str_expr_new);
-	
-			sf.setOperandAttr(new StringMultipleExpression(str_expr, Operator.REPLACEFIRST,
-			        str_expr_old, other, result));
+
+			sf.setOperandAttr(new StringMultipleExpression(str_expr,
+			        Operator.REPLACEFIRST, str_expr_old, other, result));
 		}
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
@@ -680,25 +678,33 @@ public abstract class InvVStringHelper {
 	public static Instruction strFncToLowerCase(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 		StackFrame sf = ti.getTopFrame();
-		
+
 		//get values from the fake stack 
 		StringExpression str_expr_one = (StringExpression) sf.getOperandAttr(0);
-		
+
 		//get the Strings using the positions from the stack. Order is crucial here
-		String value = ks.heap.get(sf.pop()).asString();
+		ElementInfo top = ks.heap.get(sf.pop());
+		String value;
+
+		// Check which version of toUpperCase was called
+		// Ignoring locales for now
+		if (top.getClassInfo().isInstanceOf("java.util.Locale"))
+			value = ks.heap.get(sf.pop()).asString();
+		else
+			value = top.asString();
 
 		//compute the resulting value and push it on the real stack
 		String result = value.toLowerCase();
 
 		int pointer = ks.heap.newString(result, ti);
 		sf.push(pointer, true);
-		
+
 		if (str_expr_one != null) {
 			//push a StringComparation expression on the fake stack
-			sf.setOperandAttr(new StringUnaryExpression(str_expr_one, Operator.TOLOWERCASE,
-			        result));
+			sf.setOperandAttr(new StringUnaryExpression(str_expr_one,
+			        Operator.TOLOWERCASE, result));
 		}
-		
+
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
 	}
@@ -711,7 +717,15 @@ public abstract class InvVStringHelper {
 		StringExpression str_expr_one = (StringExpression) sf.getOperandAttr(0);
 
 		//get the Strings using the positions from the stack. Order is crucial here
-		String value = ks.heap.get(sf.pop()).asString();
+		ElementInfo top = ks.heap.get(sf.pop());
+		String value;
+
+		// Check which version of toUpperCase was called
+		// Ignoring locales for now
+		if (top.getClassInfo().isInstanceOf("java.util.Locale"))
+			value = ks.heap.get(sf.pop()).asString();
+		else
+			value = top.asString();
 
 		//compute the resulting value and push it on the real stack
 		String result = value.toUpperCase();
@@ -721,10 +735,10 @@ public abstract class InvVStringHelper {
 
 		if (str_expr_one != null) {
 			//push a StringComparation expression on the fake stack
-			sf.setOperandAttr(new StringUnaryExpression(str_expr_one, Operator.TOUPPERCASE,
-			        result));
+			sf.setOperandAttr(new StringUnaryExpression(str_expr_one,
+			        Operator.TOUPPERCASE, result));
 		}
-		
+
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
 	}
@@ -746,9 +760,10 @@ public abstract class InvVStringHelper {
 
 		if (str_expr_one != null) {
 			//push a StringComparation expression on the fake stack
-			sf.setOperandAttr(new StringUnaryExpression(str_expr_one, Operator.TRIM, result));
+			sf.setOperandAttr(new StringUnaryExpression(str_expr_one, Operator.TRIM,
+			        result));
 		}
-		
+
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
 	}
@@ -761,9 +776,9 @@ public abstract class InvVStringHelper {
 		//get values from the fake stack 
 		StringExpression str_expr_two = (StringExpression) sf.getOperandAttr(0);
 		StringExpression str_expr_one = (StringExpression) sf.getOperandAttr(1);
-		
-		boolean concrete = str_expr_two==null && str_expr_one==null;
-		
+
+		boolean concrete = str_expr_two == null && str_expr_one == null;
+
 		//get the Strings using the positions from the stack. Order is crucial here
 		String secondStr = ks.heap.get(sf.pop()).asString();
 		String firstStr = ks.heap.get(sf.pop()).asString();
@@ -779,12 +794,12 @@ public abstract class InvVStringHelper {
 				str_expr_two = new StringConstant(secondStr);
 			if (str_expr_one == null)
 				str_expr_one = new StringConstant(firstStr);
-			
+
 			//push a StringComparation expression on the fake stack
 			sf.setOperandAttr(new StringBinaryExpression(str_expr_one, Operator.CONCAT,
 			        str_expr_two, result));
 		}
-		
+
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
 	}
@@ -863,8 +878,8 @@ public abstract class InvVStringHelper {
 			char_expr = (Expression<?>) sf.getOperandAttr(0);
 			str_expr_one = (StringExpression) sf.getOperandAttr(1);
 
-			concrete = char_expr==null && str_expr_one==null;
-			
+			concrete = char_expr == null && str_expr_one == null;
+
 			chr = sf.pop();
 			value = ks.heap.get(sf.pop()).asString();
 
@@ -878,7 +893,7 @@ public abstract class InvVStringHelper {
 					char_expr = new IntegerConstant(chr);
 				if (str_expr_one == null)
 					str_expr_one = new StringConstant(value);
-	
+
 				newExpr = new StringBinaryExpression(str_expr_one, Operator.INDEXOFC,
 				        char_expr, Integer.toString(result));
 				sf.setOperandAttr(new StringToIntCast(newExpr, (long) result));
@@ -888,8 +903,8 @@ public abstract class InvVStringHelper {
 			str_expr_two = (StringExpression) sf.getOperandAttr(0);
 			str_expr_one = (StringExpression) sf.getOperandAttr(1);
 
-			concrete = str_expr_two==null && str_expr_one==null;
-			
+			concrete = str_expr_two == null && str_expr_one == null;
+
 			srch = ks.heap.get(sf.pop()).asString();
 			value = ks.heap.get(sf.pop()).asString();
 
@@ -903,7 +918,7 @@ public abstract class InvVStringHelper {
 					str_expr_two = new StringConstant(srch);
 				if (str_expr_one == null)
 					str_expr_one = new StringConstant(value);
-	
+
 				newExpr = new StringBinaryExpression(str_expr_one, Operator.INDEXOFS,
 				        str_expr_two, Integer.toString(result));
 				sf.setOperandAttr(new StringToIntCast(newExpr, (long) result));
@@ -914,8 +929,8 @@ public abstract class InvVStringHelper {
 			char_expr = (Expression<?>) sf.getOperandAttr(1);
 			str_expr_one = (StringExpression) sf.getOperandAttr(2);
 
-			concrete = indx_expr==null && char_expr==null && str_expr_one==null;
-			
+			concrete = indx_expr == null && char_expr == null && str_expr_one == null;
+
 			indx = sf.pop();
 			chr = sf.pop();
 			value = ks.heap.get(sf.pop()).asString();
@@ -923,7 +938,7 @@ public abstract class InvVStringHelper {
 			result = value.indexOf(chr, indx);
 
 			sf.push(result);
-			
+
 			if (!concrete) {
 				//if an expression is == null we make a str constant
 				if (indx_expr == null)
@@ -932,7 +947,7 @@ public abstract class InvVStringHelper {
 					char_expr = new IntegerConstant(chr);
 				if (str_expr_one == null)
 					str_expr_one = new StringConstant(value);
-	
+
 				other.add(indx_expr);
 				newExpr = new StringMultipleExpression(str_expr_one, Operator.INDEXOFCI,
 				        char_expr, other, Integer.toString(result));
@@ -944,8 +959,8 @@ public abstract class InvVStringHelper {
 			str_expr_two = (StringExpression) sf.getOperandAttr(1);
 			str_expr_one = (StringExpression) sf.getOperandAttr(2);
 
-			concrete = indx_expr==null && str_expr_two==null && str_expr_one==null;
-			
+			concrete = indx_expr == null && str_expr_two == null && str_expr_one == null;
+
 			indx = sf.pop();
 			srch = ks.heap.get(sf.pop()).asString();
 			value = ks.heap.get(sf.pop()).asString();
@@ -962,7 +977,7 @@ public abstract class InvVStringHelper {
 					str_expr_two = new StringConstant(srch);
 				if (str_expr_one == null)
 					str_expr_one = new StringConstant(value);
-				
+
 				other.add(indx_expr);
 				newExpr = new StringMultipleExpression(str_expr_one, Operator.INDEXOFSI,
 				        str_expr_two, other, Integer.toString(result));
@@ -981,7 +996,7 @@ public abstract class InvVStringHelper {
 	public static Instruction strFncLastIndexOf(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 		boolean concrete = false;
-		
+
 		StackFrame sf = ti.getTopFrame();
 
 		//declare local expression variables
@@ -1028,8 +1043,8 @@ public abstract class InvVStringHelper {
 			char_expr = (Expression<?>) sf.getOperandAttr(0);
 			str_expr_one = (StringExpression) sf.getOperandAttr(1);
 
-			concrete = char_expr==null && str_expr_one==null;
-			
+			concrete = char_expr == null && str_expr_one == null;
+
 			chr = sf.pop();
 			value = ks.heap.get(sf.pop()).asString();
 
@@ -1043,7 +1058,7 @@ public abstract class InvVStringHelper {
 					char_expr = new IntegerConstant(chr);
 				if (str_expr_one == null)
 					str_expr_one = new StringConstant(value);
-	
+
 				newExpr = new StringBinaryExpression(str_expr_one, Operator.LASTINDEXOFC,
 				        char_expr, Integer.toString(result));
 				sf.setOperandAttr(new StringToIntCast(newExpr, (long) result));
@@ -1053,22 +1068,22 @@ public abstract class InvVStringHelper {
 			str_expr_two = (StringExpression) sf.getOperandAttr(0);
 			str_expr_one = (StringExpression) sf.getOperandAttr(1);
 
-			concrete = str_expr_two==null && str_expr_one==null;
-			
+			concrete = str_expr_two == null && str_expr_one == null;
+
 			srch = ks.heap.get(sf.pop()).asString();
 			value = ks.heap.get(sf.pop()).asString();
 
 			result = value.lastIndexOf(srch);
 
 			sf.push(result);
-			
+
 			if (!concrete) {
 				//if an expression is == null we make a str constant
 				if (str_expr_two == null)
 					str_expr_two = new StringConstant(srch);
 				if (str_expr_one == null)
 					str_expr_one = new StringConstant(value);
-	
+
 				newExpr = new StringBinaryExpression(str_expr_one, Operator.LASTINDEXOFS,
 				        str_expr_two, Integer.toString(result));
 				sf.setOperandAttr(new StringToIntCast(newExpr, (long) result));
@@ -1079,8 +1094,8 @@ public abstract class InvVStringHelper {
 			char_expr = (Expression<?>) sf.getOperandAttr(1);
 			str_expr_one = (StringExpression) sf.getOperandAttr(2);
 
-			concrete = indx_expr==null && char_expr==null && str_expr_one==null;
-			
+			concrete = indx_expr == null && char_expr == null && str_expr_one == null;
+
 			indx = sf.pop();
 			chr = sf.pop();
 			value = ks.heap.get(sf.pop()).asString();
@@ -1088,7 +1103,7 @@ public abstract class InvVStringHelper {
 			result = value.lastIndexOf(chr, indx);
 
 			sf.push(result);
-			
+
 			if (!concrete) {
 				//if an expression is == null we make a str constant
 				if (indx_expr == null)
@@ -1097,10 +1112,11 @@ public abstract class InvVStringHelper {
 					char_expr = new IntegerConstant(chr);
 				if (str_expr_one == null)
 					str_expr_one = new StringConstant(value);
-	
+
 				other.add(indx_expr);
-				newExpr = new StringMultipleExpression(str_expr_one, Operator.LASTINDEXOFCI,
-				        char_expr, other, Integer.toString(result));
+				newExpr = new StringMultipleExpression(str_expr_one,
+				        Operator.LASTINDEXOFCI, char_expr, other,
+				        Integer.toString(result));
 				sf.setOperandAttr(new StringToIntCast(newExpr, (long) result));
 			}
 			break;
@@ -1109,8 +1125,8 @@ public abstract class InvVStringHelper {
 			str_expr_two = (StringExpression) sf.getOperandAttr(1);
 			str_expr_one = (StringExpression) sf.getOperandAttr(2);
 
-			concrete = indx_expr==null && str_expr_two==null && str_expr_one==null;
-			
+			concrete = indx_expr == null && str_expr_two == null && str_expr_one == null;
+
 			indx = sf.pop();
 			srch = ks.heap.get(sf.pop()).asString();
 			value = ks.heap.get(sf.pop()).asString();
@@ -1118,7 +1134,7 @@ public abstract class InvVStringHelper {
 			result = value.lastIndexOf(srch, indx);
 
 			sf.push(result);
-			
+
 			if (!concrete) {
 				//if an expression is == null we make a str constant
 				if (indx_expr == null)
@@ -1127,10 +1143,11 @@ public abstract class InvVStringHelper {
 					str_expr_two = new StringConstant(srch);
 				if (str_expr_one == null)
 					str_expr_one = new StringConstant(value);
-	
+
 				other.add(indx_expr);
-				newExpr = new StringMultipleExpression(str_expr_one, Operator.LASTINDEXOFSI,
-				        str_expr_two, other, Integer.toString(result));
+				newExpr = new StringMultipleExpression(str_expr_one,
+				        Operator.LASTINDEXOFSI, str_expr_two, other,
+				        Integer.toString(result));
 				sf.setOperandAttr(new StringToIntCast(newExpr, (long) result));
 			}
 			break;
@@ -1151,8 +1168,8 @@ public abstract class InvVStringHelper {
 		Expression<?> indx_expr = (Expression<?>) sf.getOperandAttr(0);
 		StringExpression str_expr_one = (StringExpression) sf.getOperandAttr(1);
 
-		boolean concrete = indx_expr==null && str_expr_one==null;
-		
+		boolean concrete = indx_expr == null && str_expr_one == null;
+
 		//get the Strings using the positions from the stack. Order is crucial here
 		int indx = sf.pop();
 		String firstStr = ks.heap.get(sf.pop()).asString();
@@ -1167,7 +1184,7 @@ public abstract class InvVStringHelper {
 				indx_expr = new IntegerConstant(indx);
 			if (str_expr_one == null)
 				str_expr_one = new StringConstant(firstStr);
-			
+
 			//push a StringComparation expression on the fake stack
 			StringBinaryExpression StrBExpr = new StringBinaryExpression(str_expr_one,
 			        Operator.CHARAT, indx_expr, Character.toString(result));
