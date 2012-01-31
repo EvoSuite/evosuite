@@ -521,7 +521,8 @@ public class TestSuiteDSE {
 						String name = ((String) key).replace("__SYM", "");
 						//logger.warn("New long value for " + name + " is " + value);
 						PrimitiveStatement p = getStatement(newTest, name);
-						assert (p != null);
+						assert (p != null) : "Could not find variable " + name
+						        + " in test: " + newTest.toCode();
 						if (p.getValue().getClass().equals(Character.class))
 							p.setValue((char) value.intValue());
 						else if (p.getValue().getClass().equals(Long.class))
@@ -537,7 +538,8 @@ public class TestSuiteDSE {
 						String name = ((String) key).replace("__SYM", "");
 						PrimitiveStatement p = getStatement(newTest, name);
 						//logger.warn("New string value for " + name + " is " + val);
-						assert (p != null);
+						assert (p != null) : "Could not find variable " + name
+						        + " in test: " + newTest.toCode();
 						if (p.getValue().getClass().equals(Character.class))
 							p.setValue((char) Integer.parseInt(val.toString()));
 						else
@@ -547,7 +549,8 @@ public class TestSuiteDSE {
 						String name = ((String) key).replace("__SYM", "");
 						PrimitiveStatement p = getStatement(newTest, name);
 						//logger.warn("New double value for " + name + " is " + value);
-						assert (p != null);
+						assert (p != null) : "Could not find variable " + name
+						        + " in test: " + newTest.toCode();
 
 						if (p.getValue().getClass().equals(Double.class))
 							p.setValue(value);
