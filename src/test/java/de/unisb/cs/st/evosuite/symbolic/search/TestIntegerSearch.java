@@ -23,7 +23,6 @@ import de.unisb.cs.st.evosuite.symbolic.expr.IntegerVariable;
 import de.unisb.cs.st.evosuite.symbolic.expr.Operator;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringBinaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringConstant;
-import de.unisb.cs.st.evosuite.testsuite.TestSuiteDSE;
 
 /**
  * @author fraser
@@ -455,7 +454,7 @@ public class TestIntegerSearch {
 
 	@Test
 	public void testEvosuiteExample5() {
-		TestSuiteDSE.setStart();
+		// TestSuiteDSE.setStart();
 
 		//Cnstr 0 : var6__SYM(84) != (y charAt 0) dist: 8.0
 		//Cnstr 1 : var6__SYM(84) != 115 dist: 8.0
@@ -503,7 +502,7 @@ public class TestIntegerSearch {
 		int x = -157;
 		int y = 1890;
 
-		TestSuiteDSE.setStart();
+		// TestSuiteDSE.setStart();
 
 		//		int x = 879254357;
 		//		int y = 1013652704;
