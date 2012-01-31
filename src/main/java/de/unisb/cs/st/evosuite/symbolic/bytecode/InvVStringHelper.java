@@ -86,23 +86,30 @@ public abstract class InvVStringHelper {
 		boolean concrete = str_expr_two == null && str_expr_one == null;
 
 		//get the Strings using the positions from the stack. Order is crucial here
-		String secondStr = ks.heap.get(sf.pop()).asString();
-		String firstStr = ks.heap.get(sf.pop()).asString();
+		int comparisonRef = sf.pop();
 
-		//compute the resulting value and push it on the real stack
-		int result = firstStr.equals(secondStr) ? 1 : 0;
-		sf.push(result);
+		// When comparing with null we don't want a NullPointerException but false
+		if (comparisonRef == -1) {
+			sf.push(0);
+		} else {
+			String secondStr = ks.heap.get(comparisonRef).asString();
+			String firstStr = ks.heap.get(sf.pop()).asString();
 
-		if (!concrete) {
-			//if an expression is == null we make a str constant
-			if (str_expr_two == null)
-				str_expr_two = new StringConstant(secondStr);
-			if (str_expr_one == null)
-				str_expr_one = new StringConstant(firstStr);
+			//compute the resulting value and push it on the real stack
+			int result = firstStr.equals(secondStr) ? 1 : 0;
+			sf.push(result);
 
-			//push a StringComparation expression on the fake stack
-			sf.setOperandAttr(new StringComparison(str_expr_one, Operator.EQUALS,
-			        str_expr_two, (long) result));
+			if (!concrete) {
+				//if an expression is == null we make a str constant
+				if (str_expr_two == null)
+					str_expr_two = new StringConstant(secondStr);
+				if (str_expr_one == null)
+					str_expr_one = new StringConstant(firstStr);
+
+				//push a StringComparation expression on the fake stack
+				sf.setOperandAttr(new StringComparison(str_expr_one, Operator.EQUALS,
+				        str_expr_two, (long) result));
+			}
 		}
 		//return the next instruction that followed the function call
 		return ins.getNext(ti);
