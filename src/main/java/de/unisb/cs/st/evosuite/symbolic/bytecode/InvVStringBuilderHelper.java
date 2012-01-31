@@ -9,6 +9,8 @@ import gov.nasa.jpf.jvm.StackFrame;
 import gov.nasa.jpf.jvm.ThreadInfo;
 import gov.nasa.jpf.jvm.bytecode.Instruction;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import de.unisb.cs.st.evosuite.symbolic.StringBuilderException;
@@ -22,6 +24,8 @@ import de.unisb.cs.st.evosuite.symbolic.expr.StringBinaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringBuilderExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringExpression;
+import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
+import de.unisb.cs.st.evosuite.testsuite.TestSuiteDSE;
 
 /**
  * @author krusev
@@ -36,11 +40,17 @@ public abstract class InvVStringBuilderHelper {
 	public static Instruction strB_fnc_toString(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins) {
 		StackFrame sf = ti.getTopFrame();
 		StringBuilderExpression se0 = (StringBuilderExpression) sf.getOperandAttr(0);
-		
+
 		String result;
 		if (se0 == null) {
+			if (!containsVariables(strB_expr))
+				throw_away("Concrete Execution");
+
 			result = (String) strB_expr.getConcreteValue();
 		} else {
+			if (!containsVariables(se0)) 
+				throw_away("Concrete Execution");
+			
 			result = (String) se0.getConcreteValue();
 		}
 		
@@ -63,7 +73,6 @@ public abstract class InvVStringBuilderHelper {
 	 * 		else it can only be aload_? and thus a normal string builder
 	 */
 	public static void strB_fnc_append(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins) {
-		boolean concrete = false;
 		
 		StackFrame sf = ti.getTopFrame();
 		
@@ -108,7 +117,6 @@ public abstract class InvVStringBuilderHelper {
 		
 		String mname = ins.getInvokedMethodName();
 		if (se0 == null) {
-			concrete = true;
 			if (mname.equals("append(Z)Ljava/lang/StringBuilder;")) {
 				int val = sf.peek();
 				se0 = new StringConstant((val > 0) ? "true" : "false");
@@ -148,7 +156,7 @@ public abstract class InvVStringBuilderHelper {
 			}
 		}
 		
-		if ( pp.equals("invokespecial java.lang.StringBuilder.<init>()V")) {// && !concrete 
+		if ( pp.equals("invokespecial java.lang.StringBuilder.<init>()V")) {
 			
 			strB_expr = new StringBuilderExpression(se0);
 			if (unimpl) {
@@ -200,7 +208,7 @@ public abstract class InvVStringBuilderHelper {
 				} else {
 					se1.setExpr(new StringBinaryExpression(se1.getExpr(), Operator.APPEND, se0, result));
 				}
-			} else {//if (!concrete) 
+			} else {
 				se1 = new StringBuilderExpression(se0);
 				if (unimpl) {
 					se1.set_undef_func();
@@ -265,6 +273,13 @@ public abstract class InvVStringBuilderHelper {
 		
 		return (se0 == null) ? !strB_expr.has_undef_func() : 
 											!se0.has_undef_func();
+	}
+	
+	private static boolean containsVariables(Expression<?> expr) {
+		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		TestSuiteDSE.getVariables(expr, variables);
+		log.warning("vars: "+variables);
+		return variables.size() <= 0;
 	}
 
 	public static void throw_away(String cause) {
