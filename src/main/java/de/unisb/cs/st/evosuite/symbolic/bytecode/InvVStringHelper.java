@@ -9,6 +9,7 @@ import gov.nasa.jpf.jvm.KernelState;
 import gov.nasa.jpf.jvm.StackFrame;
 import gov.nasa.jpf.jvm.ThreadInfo;
 import gov.nasa.jpf.jvm.bytecode.Instruction;
+import gov.nasa.jpf.jvm.NamedFields;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -89,7 +90,7 @@ public abstract class InvVStringHelper {
 		int comparisonRef = sf.pop();
 
 		// When comparing with null we don't want a NullPointerException but false
-		if (comparisonRef == -1) {
+		if (comparisonRef == -1 || !ks.heap.get(comparisonRef).isStringObject()) {
 			sf.push(0);
 		} else {
 			String secondStr = ks.heap.get(comparisonRef).asString();
