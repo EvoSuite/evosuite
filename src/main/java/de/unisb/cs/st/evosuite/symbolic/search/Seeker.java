@@ -32,6 +32,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.StringVariable;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Variable;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteDSE;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * @author krusev
@@ -52,10 +53,10 @@ public class Seeker implements Solver {
 	 */
 	@Override
 	public Map<String, Object> getModel(Collection<Constraint<?>> constr) {
-		
+
 		if (constr.size() <= 0)
 			return null;
-		
+
 		HashMap<String, Object> result = new HashMap<String, Object>();
 		List<Constraint<?>> constraints = (List<Constraint<?>>) constr;
 
@@ -137,17 +138,22 @@ public class Seeker implements Solver {
 		for (Variable<?> var : vars) {
 			if (var instanceof IntegerVariable) {
 				IntegerVariable intV = (IntegerVariable) var;
-				if (Math.round(Math.random()) > 0)
-					intV.setConcreteValue((long) (Math.random() * intV.getMaxValue()));
+				if (Randomness.nextBoolean())
+					intV.setConcreteValue((long) Randomness.nextInt(intV.getMaxValue().intValue()));
 				else
-					intV.setConcreteValue((long) (Math.random() * intV.getMinValue()));
-			}
-			if (var instanceof RealVariable) {
+					intV.setConcreteValue((long) (-1 * Randomness.nextInt(Math.abs(intV.getMinValue().intValue()))));
+			} else if (var instanceof RealVariable) {
 				RealVariable realV = (RealVariable) var;
-				if (Math.round(Math.random()) > 0)
-					realV.setConcreteValue((Math.random() * realV.getMaxValue()));
+				if (Randomness.nextBoolean())
+					realV.setConcreteValue(Randomness.nextInt(realV.getMaxValue().intValue())
+					        + Randomness.nextFloat());
 				else
-					realV.setConcreteValue((Math.random() * realV.getMinValue()));
+					realV.setConcreteValue(-1
+					        * Randomness.nextInt(Math.abs(realV.getMinValue().intValue()))
+					        + Randomness.nextFloat());
+			} else if (var instanceof StringVariable) {
+				StringVariable stringV = (StringVariable) var;
+				stringV.setConcreteValue(Randomness.nextString(Randomness.nextInt(Properties.STRING_LENGTH)));
 			}
 			log.info("Reseted var: " + var);
 		}
