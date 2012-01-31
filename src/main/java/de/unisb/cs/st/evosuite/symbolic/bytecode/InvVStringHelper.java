@@ -428,7 +428,7 @@ public abstract class InvVStringHelper {
 
 	public static Instruction strFncSubstring(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
-		boolean concrete = false;
+		boolean concrete = true;
 
 		boolean case_one = ins.getInvokedMethodSignature().equals("(I)Ljava/lang/String;");
 		/*
@@ -449,7 +449,7 @@ public abstract class InvVStringHelper {
 		Expression<?> start_indx_expr = (Expression<?>) sf.getOperandAttr(0 + offset);
 		StringExpression str_expr_one = (StringExpression) sf.getOperandAttr(1 + offset);
 
-		concrete = concrete || str_expr_one == null || start_indx_expr == null;
+		concrete = concrete && str_expr_one == null && start_indx_expr == null;
 
 		//get the Strings using the positions from the stack. Order is crucial here
 		int end = -1;
@@ -485,7 +485,7 @@ public abstract class InvVStringHelper {
 
 		if (!concrete) {
 			//if an expression is == null we make a constant expr
-			if (!case_one && end_indx_expr == null)
+			if (end_indx_expr == null)
 				end_indx_expr = new IntegerConstant(end);
 			if (start_indx_expr == null)
 				start_indx_expr = new IntegerConstant(start);
