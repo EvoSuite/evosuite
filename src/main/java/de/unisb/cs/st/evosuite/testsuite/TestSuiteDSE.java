@@ -523,7 +523,7 @@ public class TestSuiteDSE {
 						PrimitiveStatement p = getStatement(newTest, name);
 						assert (p != null) : "Could not find variable " + name
 						        + " in test: " + newTest.toCode() + " / Orig test: "
-						        + test.toCode();
+						        + test.toCode() + ", seed: " + Randomness.getSeed();
 						if (p.getValue().getClass().equals(Character.class))
 							p.setValue((char) value.intValue());
 						else if (p.getValue().getClass().equals(Long.class))
@@ -541,7 +541,7 @@ public class TestSuiteDSE {
 						//logger.warn("New string value for " + name + " is " + val);
 						assert (p != null) : "Could not find variable " + name
 						        + " in test: " + newTest.toCode() + " / Orig test: "
-						        + test.toCode();
+						        + test.toCode() + ", seed: " + Randomness.getSeed();
 						if (p.getValue().getClass().equals(Character.class))
 							p.setValue((char) Integer.parseInt(val.toString()));
 						else
@@ -553,7 +553,7 @@ public class TestSuiteDSE {
 						//logger.warn("New double value for " + name + " is " + value);
 						assert (p != null) : "Could not find variable " + name
 						        + " in test: " + newTest.toCode() + " / Orig test: "
-						        + test.toCode();
+						        + test.toCode() + ", seed: " + Randomness.getSeed();
 
 						if (p.getValue().getClass().equals(Double.class))
 							p.setValue(value);
