@@ -138,19 +138,21 @@ public class Seeker implements Solver {
 		for (Variable<?> var : vars) {
 			if (var instanceof IntegerVariable) {
 				IntegerVariable intV = (IntegerVariable) var;
+				int max = (int) Math.min(Integer.MAX_VALUE, intV.getMaxValue());
 				if (Randomness.nextBoolean())
-					intV.setConcreteValue((long) Randomness.nextInt(intV.getMaxValue().intValue()));
+					intV.setConcreteValue((long) Randomness.nextInt(max));
 				else {
-					intV.setConcreteValue((long) (-1 * Randomness.nextInt(Math.abs(intV.getMaxValue().intValue()))));
+					intV.setConcreteValue((long) (-1 * Randomness.nextInt(max)));
 				}
 			} else if (var instanceof RealVariable) {
 				RealVariable realV = (RealVariable) var;
+				int max = (int) Math.min(Integer.MAX_VALUE, realV.getMaxValue());
 				if (Randomness.nextBoolean())
-					realV.setConcreteValue(Randomness.nextInt(realV.getMaxValue().intValue())
+					realV.setConcreteValue(Randomness.nextInt(max)
 					        + Randomness.nextFloat());
 				else
 					realV.setConcreteValue(-1
-					        * Randomness.nextInt(Math.abs(realV.getMaxValue().intValue()))
+					        * Randomness.nextInt(max)
 					        + Randomness.nextFloat());
 			} else if (var instanceof StringVariable) {
 				StringVariable stringV = (StringVariable) var;
