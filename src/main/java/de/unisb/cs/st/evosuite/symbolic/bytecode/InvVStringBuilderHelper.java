@@ -63,6 +63,8 @@ public abstract class InvVStringBuilderHelper {
 	 * 		else it can only be aload_? and thus a normal string builder
 	 */
 	public static void strB_fnc_append(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins) {
+		boolean concrete = false;
+		
 		StackFrame sf = ti.getTopFrame();
 		
 		boolean unimpl = false;
@@ -106,7 +108,7 @@ public abstract class InvVStringBuilderHelper {
 		
 		String mname = ins.getInvokedMethodName();
 		if (se0 == null) {
-			
+			concrete = true;
 			if (mname.equals("append(Z)Ljava/lang/StringBuilder;")) {
 				int val = sf.peek();
 				se0 = new StringConstant((val > 0) ? "true" : "false");
@@ -146,7 +148,7 @@ public abstract class InvVStringBuilderHelper {
 			}
 		}
 		
-		if ( pp.equals("invokespecial java.lang.StringBuilder.<init>()V") ) {
+		if ( pp.equals("invokespecial java.lang.StringBuilder.<init>()V")) {// && !concrete 
 			
 			strB_expr = new StringBuilderExpression(se0);
 			if (unimpl) {
@@ -198,7 +200,7 @@ public abstract class InvVStringBuilderHelper {
 				} else {
 					se1.setExpr(new StringBinaryExpression(se1.getExpr(), Operator.APPEND, se0, result));
 				}
-			} else {
+			} else {//if (!concrete) 
 				se1 = new StringBuilderExpression(se0);
 				if (unimpl) {
 					se1.set_undef_func();
