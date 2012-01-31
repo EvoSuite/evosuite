@@ -67,7 +67,7 @@ public class Seeker implements Solver {
 
 		double distance = DistanceEstimator.getDistance(constraints);
 		if (distance == 0.0) {
-			log.warn("Initial distance already is 0.0, skipping search");
+			log.info("Initial distance already is 0.0, skipping search");
 			return null;
 		}
 
