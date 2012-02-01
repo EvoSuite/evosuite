@@ -66,8 +66,20 @@ public class ConcolicExecution {
 
 	private PathConstraintCollector pcg;
 
-	protected static String dirName = System.getProperty("java.io.tmpdir")
-	        + "/TempClasses";
+	private static File tempDir;
+	static {
+		try {
+			tempDir = File.createTempFile("temp", Long.toString(System.nanoTime()));
+		} catch (IOException e) {
+			tempDir = new File(System.getProperty("java.io.tmpdir") + "/TempClasses");
+		}
+		tempDir.delete();
+		tempDir = new File(tempDir.getPath() + ".d");
+		tempDir.mkdir();
+		logger.info("Created temporary dir for DSE: " + tempDir.getAbsolutePath());
+	}
+
+	protected static String dirName = tempDir.getAbsolutePath();
 
 	protected static String className = "TestCase";
 	//	        + Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.indexOf("."),
@@ -130,6 +142,9 @@ public class ConcolicExecution {
 		logger.debug("Conditions collected: " + pcg.conditions.size());
 
 		this.errors = jpf.getSearch().getErrors();
+
+		File file = new File(dirName + "/", className + ".class");
+		file.deleteOnExit();
 
 		return pcg.conditions;
 	}
@@ -344,14 +359,14 @@ public class ConcolicExecution {
 	//	@SuppressWarnings("rawtypes") 
 	@SuppressWarnings("unchecked")
 	public void writeTestCase(List<PrimitiveStatement> statements, TestChromosome test) {
-		File dir = new File(dirName);
-		dir.mkdir();
+		//File dir = new File(dirName);
+		//dir.mkdir();
 		File file = new File(dirName + "/", className + ".class");
 		try {
 			FileOutputStream stream = new FileOutputStream(file);
 			byte[] bytecode = getBytecode(statements, test);
 			stream.write(bytecode);
-			//			logger.info(dirName);
+			// logger.info(dirName);
 			//			logger.warn(test.getTestCase().toCode());
 			//			System.exit(0);
 		} catch (FileNotFoundException e) {
