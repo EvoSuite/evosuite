@@ -52,10 +52,11 @@ public class ClientProcess implements SearchListener {
 		 * inside generateTestSuite, and anyway listener here does not do anything (ga si always
 		 * != null)
 		 */
-		ga.removeListener(this);
+		if (ga != null) {
+			ga.removeListener(this);
 
-		ga = generator.getEmployedGeneticAlgorithm();
-
+			ga = generator.getEmployedGeneticAlgorithm();
+		}
 		util.informSearchIsFinished(ga);
 	}
 
