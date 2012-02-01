@@ -27,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -68,13 +69,9 @@ public class ConcolicExecution {
 
 	private static File tempDir;
 	static {
-		try {
-			tempDir = File.createTempFile("temp", Long.toString(System.nanoTime()));
-		} catch (IOException e) {
-			tempDir = new File(System.getProperty("java.io.tmpdir") + "/TempClasses");
-		}
-		tempDir.delete();
-		tempDir = new File(tempDir.getPath() + ".d");
+		tempDir = new File(System.getProperty("java.io.tmpdir") + "/"
+		        + ManagementFactory.getRuntimeMXBean().getName() + "_"
+		        + Long.toString(System.nanoTime()));
 		tempDir.mkdir();
 		logger.info("Created temporary dir for DSE: " + tempDir.getAbsolutePath());
 	}
@@ -329,6 +326,7 @@ public class ConcolicExecution {
 			logger.debug("Current statement: {}", statement.getCode());
 			if (target.contains(statement)) {
 				PrimitiveStatement<?> p = (PrimitiveStatement<?>) statement;
+				logger.debug("Marking variable: {}", p);
 				getPrimitiveValue(mg, locals, p); // TODO: Possibly cast?
 				mg.push(p.getReturnValue().getName());
 				//mg.invokeStatic(Type.getType("Ljpf/mytest/primitive/ConcolicMarker;"),
