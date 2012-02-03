@@ -274,6 +274,7 @@ public class BranchPool {
 			branchMap.put(className, new HashMap<String, List<Branch>>());
 		if (!branchMap.get(className).containsKey(methodName))
 			branchMap.get(className).put(methodName, new ArrayList<Branch>());
+		logger.warn("BRANCH IN CLASS " + className);
 		branchMap.get(className).get(methodName).add(b);
 	}
 
@@ -522,6 +523,7 @@ public class BranchPool {
 	public static Set<String> knownClasses() {
 		Set<String> r = new HashSet<String>();
 		r.addAll(branchMap.keySet());
+		r.addAll(branchlessMethods.keySet());
 		return r;
 	}
 
