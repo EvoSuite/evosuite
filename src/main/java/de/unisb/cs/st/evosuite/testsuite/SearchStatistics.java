@@ -343,6 +343,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 
 		entry.covered_branches = num_covered; // + covered branchless methods?
 		entry.covered_methods = covered_methods.size();
+		System.out.println(covered_methods);
 
 		// DONE make this work for other criteria too. this will only work for
 		// branch coverage - see searchStarted()/Finished()
@@ -401,16 +402,14 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		super.searchStarted(algorithm);
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 
-		
-		entry.total_branches = Properties.TARGET_CLASS_PREFIX.isEmpty() ?
-				BranchPool.getBranchCountForClass(Properties.TARGET_CLASS) :
-				BranchPool.getBranchCountForPrefix(Properties.TARGET_CLASS_PREFIX);
-					
-		entry.branchless_methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ?
-				BranchPool.getBranchlessMethods(Properties.TARGET_CLASS).size() :
-				BranchPool.getBranchlessMethodsPrefix(Properties.TARGET_CLASS_PREFIX).size();
+		entry.total_branches = Properties.TARGET_CLASS_PREFIX.isEmpty() ? BranchPool.getBranchCountForClass(Properties.TARGET_CLASS)
+		        : BranchPool.getBranchCountForPrefix(Properties.TARGET_CLASS_PREFIX);
 
-		entry.total_methods = CFGMethodAdapter.methods.size();
+		entry.branchless_methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? BranchPool.getBranchlessMethods(Properties.TARGET_CLASS).size()
+		        : BranchPool.getBranchlessMethodsPrefix(Properties.TARGET_CLASS_PREFIX).size();
+
+		entry.total_methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? CFGMethodAdapter.getNumMethodsPrefix(Properties.TARGET_CLASS)
+		        : CFGMethodAdapter.getNumMethodsPrefix(Properties.TARGET_CLASS_PREFIX);
 
 		// TODO in order for this to work even when the criterion is neither
 		// defuse nor analyze we might need to ensure that du-goal-computation
@@ -446,6 +445,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			entry.tests_executed.add(MaxTestsStoppingCondition.getNumExecutedTests());
 			entry.statements_executed.add(MaxStatementsStoppingCondition.getNumExecutedStatements());
 			entry.fitness_evaluations.add(MaxFitnessEvaluationsStoppingCondition.getNumFitnessEvaluations());
+			entry.timeStamps.add(System.currentTimeMillis() - entry.creationTime);
 		}
 	}
 
