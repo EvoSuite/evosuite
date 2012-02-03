@@ -31,6 +31,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -42,6 +43,7 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
+import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.utils.ReportGenerator;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
@@ -367,6 +369,21 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		 * logger.debug("Covered method: " + method); }
 		 */
 		// }
+
+		BranchCoverageFactory factory = new BranchCoverageFactory();
+		entry.goalCoverage = "";
+		for (TestFitnessFunction fitness : factory.getCoverageGoals()) {
+			boolean covered = false;
+			for (TestChromosome test : best.tests) {
+				if (fitness.isCovered(test)) {
+					covered = true;
+					entry.goalCoverage += "1";
+					break;
+				}
+			}
+			if (!covered)
+				entry.goalCoverage += "0";
+		}
 
 	}
 

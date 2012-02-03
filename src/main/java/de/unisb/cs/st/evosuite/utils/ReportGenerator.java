@@ -200,6 +200,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public int intraDUGoalCount;
 
+		public String goalCoverage;
+
 		public String getCSVHeader() {
 			StringBuilder r = new StringBuilder();
 			r.append("Class,Predicates,Total Branches,Covered Branches,Total Methods,Branchless Methods,Covered Methods,");
@@ -294,7 +296,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append(pstats.getNumOtherPermission() + ",");
 			r.append(pstats.getMaxThreads() + ",");
 			r.append(JUnitTestChromosomeFactory.getNumTests() + ",");
+
 			r.append(mutationScore + ",");
+			r.append(goalCoverage + ",");
 			r.append(getCSVFilepath());
 
 			return r.toString();
