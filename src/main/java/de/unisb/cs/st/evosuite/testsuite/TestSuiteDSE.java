@@ -28,6 +28,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.Comparator;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringBuilderExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.UnaryExpression;
@@ -689,6 +690,9 @@ public class TestSuiteDSE {
 				Expression<?> element = itr.next();
 				getVariables(element, variables);
 			}
+		} else if (expr instanceof StringBuilderExpression) {
+			StringBuilderExpression sB = (StringBuilderExpression) expr;
+			getVariables(sB.getExpr(), variables);
 		} else if (expr instanceof StringComparison) {
 			StringComparison sc = (StringComparison) expr;
 			getVariables(sc.getLeftOperand(), variables);

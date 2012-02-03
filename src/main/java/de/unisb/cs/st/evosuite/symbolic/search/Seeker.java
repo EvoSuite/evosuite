@@ -26,6 +26,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerVariable;
 import de.unisb.cs.st.evosuite.symbolic.expr.RealConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.RealVariable;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringBuilderExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringComparison;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison;
@@ -255,6 +256,9 @@ public class Seeker implements Solver {
 				Expression<?> element = itr.next();
 				getVariables(element, variables);
 			}
+		} else if (expr instanceof StringBuilderExpression) {
+			StringBuilderExpression sB = (StringBuilderExpression) expr;
+			getVariables(sB.getExpr(), variables);
 		} else if (expr instanceof StringComparison) {
 			StringComparison sc = (StringComparison) expr;
 			getVariables(sc.getLeftOperand(), variables);

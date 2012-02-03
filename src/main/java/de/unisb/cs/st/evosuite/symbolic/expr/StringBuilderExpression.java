@@ -33,6 +33,39 @@ public class StringBuilderExpression extends StringExpression {
 		expr = _expr;
 	}
 	
+	public void append(Expression<String> _expr) {
+		if (expr == null)
+			expr = _expr;
+		else {
+			if (_expr instanceof StringConstant) {
+				if (expr instanceof StringConstant) {
+					expr = new StringConstant(
+							((String)expr.getConcreteValue()) 
+						+	((String)_expr.getConcreteValue()));
+					return;
+				} else if (expr instanceof StringBinaryExpression) {
+					StringBinaryExpression sBin = (StringBinaryExpression)expr;
+					if (sBin.getRightOperand() instanceof StringConstant) {
+						StringConstant strConst = new StringConstant(
+										sBin.getRightOperand().getConcreteValue()
+									+	((String)_expr.getConcreteValue()));
+						expr = new StringBinaryExpression(sBin.getLeftOperand(),
+											Operator.APPEND, strConst, 
+											sBin.getConcreteValue()
+												+((String)_expr.getConcreteValue()));
+						return;
+					}
+				}
+					
+			}
+			
+			expr = new StringBinaryExpression(expr,
+    			Operator.APPEND, 
+    			_expr, 
+    			((String)expr.getConcreteValue()) + ((String)_expr.getConcreteValue()));
+		}
+	}
+	
 	public boolean has_undef_func() {
 		return undef_func;
 	}
@@ -43,7 +76,7 @@ public class StringBuilderExpression extends StringExpression {
 
 	@Override
 	public String toString() {
-		return expr.toString();
+		return "StringBuilder(" + expr.toString() + ")";
 	}
 
 	@Override
@@ -64,8 +97,11 @@ public class StringBuilderExpression extends StringExpression {
 
 	@Override
 	public int getSize() {
+		int expr_size = 0;
+		if (expr!=null)
+			expr_size = expr.getSize();
 		if (size == 0) {
-			size = 1 + expr.getSize();
+			size = 1 + expr_size;
 		}
 		return size;
 	}

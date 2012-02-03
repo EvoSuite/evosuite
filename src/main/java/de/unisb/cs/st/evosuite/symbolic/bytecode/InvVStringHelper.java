@@ -1181,6 +1181,11 @@ public abstract class InvVStringHelper {
 		int indx = sf.pop();
 		String firstStr = ks.heap.get(sf.pop()).asString();
 
+		
+		if (indx < 0 || indx >= firstStr.length())
+			return ti.createAndThrowException("java.lang.StringIndexOutOfBoundsException",
+			                                  "String index out of range: " + indx);
+		
 		//compute the resulting value and push it on the real stack
 		char result = firstStr.charAt(indx);
 		sf.push(result);
