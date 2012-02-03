@@ -143,8 +143,14 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		/** History of best test length */
 		public List<Long> statements_executed = new ArrayList<Long>();
 
+		/** History of the time stamps for generations */
+		public List<Long> timeStamps = new ArrayList<Long>();
+
 		/** History of best test length */
 		public List<Long> fitness_evaluations = new ArrayList<Long>();
+
+		/** Time at which this entry was created */
+		public final long creationTime = System.currentTimeMillis();
 
 		/** Number of tests after GA */
 		public int size_final = 0;
@@ -412,7 +418,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
 			int length = Integer.MAX_VALUE;
 
-			out.write("Generation,Fitness,Coverage,Size,Length,AverageLength,Evaluations,Tests,Statements\n");
+			out.write("Generation,Fitness,Coverage,Size,Length,AverageLength,Evaluations,Tests,Statements,Time\n");
 			for (List<?> d : data) {
 				length = Math.min(length, d.size());
 			}
@@ -784,7 +790,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		writeCSVData(entry.getCSVFilepath(), entry.fitness_history,
 		             entry.coverage_history, entry.size_history, entry.length_history,
 		             entry.average_length_history, entry.fitness_evaluations,
-		             entry.tests_executed, entry.statements_executed);
+		             entry.tests_executed, entry.statements_executed, entry.timeStamps);
 
 	}
 
