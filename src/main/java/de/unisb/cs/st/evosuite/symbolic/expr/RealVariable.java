@@ -4,21 +4,28 @@ public class RealVariable extends RealExpression implements Variable<Double>{
 	private static final long serialVersionUID = 1L;
 	
 	protected String name;
+	protected double concreteValue;
 	protected double minValue;
 	protected double maxValue;
 	
-	public RealVariable(String name, double minValue, double maxValue) {
+	public RealVariable(String name, double conV, double minValue, double maxValue) {
 		super();
 		this.name = name;
+		this.concreteValue = conV;
 		this.minValue = minValue;
 		this.maxValue = maxValue;
 	}
-
+	
 	@Override
 	public Double getConcreteValue() {
-		return null;
+		return concreteValue;
 	}
 
+
+	public void setConcreteValue(double conV) {
+		this.concreteValue = conV;
+	}
+	
 	@Override
 	public String getName() {
 		return name;
@@ -36,7 +43,7 @@ public class RealVariable extends RealExpression implements Variable<Double>{
 
 	@Override
 	public String toString() {
-		return this.name;
+		return this.name + "(" + concreteValue + ")";
 	}
 
 	@Override
@@ -61,6 +68,11 @@ public class RealVariable extends RealExpression implements Variable<Double>{
 	@Override
 	public int getSize() {
 		return 1;
+	}
+
+	@Override
+	public Double execute() {
+		return concreteValue;
 	}
 	
 	

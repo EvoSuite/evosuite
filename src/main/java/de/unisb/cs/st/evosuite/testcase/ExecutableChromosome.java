@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
+import de.unisb.cs.st.evosuite.coverage.mutation.MutationExecutionResult;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 
@@ -12,7 +13,7 @@ public abstract class ExecutableChromosome extends Chromosome {
 
 	protected transient ExecutionResult lastExecutionResult = null;
 
-	protected transient Map<Mutation, ExecutionResult> lastMutationResult = new HashMap<Mutation, ExecutionResult>();
+	protected transient Map<Mutation, MutationExecutionResult> lastMutationResult = new HashMap<Mutation, MutationExecutionResult>();
 
 	public ExecutableChromosome() {
 		super();
@@ -26,17 +27,12 @@ public abstract class ExecutableChromosome extends Chromosome {
 		return lastExecutionResult;
 	}
 
-	public void setLastExecutionResult(ExecutionResult lastExecutionResult,
+	public void setLastExecutionResult(MutationExecutionResult lastExecutionResult,
 	        Mutation mutation) {
-		if (mutation == null)
-			this.lastExecutionResult = lastExecutionResult;
-		else
-			this.lastMutationResult.put(mutation, lastExecutionResult);
+		this.lastMutationResult.put(mutation, lastExecutionResult);
 	}
 
-	public ExecutionResult getLastExecutionResult(Mutation mutation) {
-		if (mutation == null)
-			return lastExecutionResult;
+	public MutationExecutionResult getLastExecutionResult(Mutation mutation) {
 		return lastMutationResult.get(mutation);
 	}
 

@@ -2,9 +2,11 @@ package de.unisb.cs.st.evosuite.cfg;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * @see cfg.ActualControlFlowGraph
  * @author Andre Mis
  */
-public class BasicBlock implements Serializable {
+public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 
 	private static final long serialVersionUID = -3465486470017841484L;
 
@@ -208,6 +210,14 @@ public class BasicBlock implements Serializable {
 		return instructions.contains(instruction);
 	}
 
+	public boolean constainsInstruction(AbstractInsnNode insnNode) {
+		for (BytecodeInstruction instruction : instructions) {
+			if (instruction.getASMNode().equals(instruction))
+				return true;
+		}
+		return false;
+	}
+
 	public BytecodeInstruction getFirstInstruction() {
 		if (instructions.isEmpty())
 			return null;
@@ -347,5 +357,13 @@ public class BasicBlock implements Serializable {
 
 	public boolean isExitBlock() {
 		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Iterable#iterator()
+	 */
+	@Override
+	public Iterator<BytecodeInstruction> iterator() {
+		return instructions.iterator();
 	}
 }

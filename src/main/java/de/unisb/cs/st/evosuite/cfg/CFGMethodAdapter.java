@@ -21,11 +21,12 @@ package de.unisb.cs.st.evosuite.cfg;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodNode;
@@ -43,6 +44,7 @@ import de.unisb.cs.st.evosuite.cfg.instrumentation.MutationInstrumentation;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.PrimePathInstrumentation;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyInstrumentation;
+import de.unisb.cs.st.evosuite.testcase.StaticTestCluster;
 
 /**
  * Create a minimized control flow graph for the method and store it. In
@@ -55,7 +57,7 @@ import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyInstrumentation;
  * @author Gordon Fraser
  * 
  */
-public class CFGMethodAdapter extends MethodAdapter {
+public class CFGMethodAdapter extends MethodVisitor {
 
 	private static Logger logger = LoggerFactory.getLogger(CFGMethodAdapter.class);
 
@@ -71,7 +73,7 @@ public class CFGMethodAdapter extends MethodAdapter {
 	 * The set of all methods which can be used during test case generation This
 	 * excludes e.g. synthetic, initializers, private and deprecated methods
 	 */
-	public static Set<String> methods = new HashSet<String>();
+	public static Map<String, Set<String>> methods = new HashMap<String, Set<String>>();
 
 	/**
 	 * This is the name + the description of the method. It is more like the
@@ -92,7 +94,7 @@ public class CFGMethodAdapter extends MethodAdapter {
 		// className,
 		// name.replace('/', '.'), null, desc);
 
-		super(new MethodNode(access, name, desc, signature, exceptions));
+		super(Opcodes.ASM4, new MethodNode(access, name, desc, signature, exceptions));
 
 		this.next = mv;
 		this.className = className; // .replace('/', '.');
@@ -108,31 +110,36 @@ public class CFGMethodAdapter extends MethodAdapter {
 		boolean isMainMethod = plain_name.equals("main") && Modifier.isStatic(access);
 
 		List<MethodInstrumentation> instrumentations = new ArrayList<MethodInstrumentation>();
-
-		if (Properties.CRITERION == Criterion.CONCURRENCY) {
-			instrumentations.add(new ConcurrencyInstrumentation());
-			instrumentations.add(new BranchInstrumentation());
-		} else if (Properties.CRITERION == Criterion.LCSAJ) {
-			instrumentations.add(new LCSAJsInstrumentation());
-			instrumentations.add(new BranchInstrumentation());
-		} else if (Properties.CRITERION == Criterion.DEFUSE
-		        || Properties.CRITERION == Criterion.ALLDEFS) {
-			instrumentations.add(new BranchInstrumentation());
-			instrumentations.add(new DefUseInstrumentation());
-		} else if (Properties.CRITERION == Criterion.ANALYZE) {
-			instrumentations.add(new BranchInstrumentation());
-			instrumentations.add(new DefUseInstrumentation());
-		} else if (Properties.CRITERION == Criterion.PATH) {
-			instrumentations.add(new PrimePathInstrumentation());
-			instrumentations.add(new BranchInstrumentation());
-		} else if (Properties.CRITERION == Criterion.MUTATION) {
-			instrumentations.add(new BranchInstrumentation());
-			instrumentations.add(new MutationInstrumentation());
-		} else if (Properties.CRITERION == Criterion.COMP_LCSAJ_BRANCH) {
-			instrumentations.add(new LCSAJsInstrumentation());
-			instrumentations.add(new BranchInstrumentation());
+		if (StaticTestCluster.isTargetClassName(className)) {
+			if (Properties.CRITERION == Criterion.CONCURRENCY) {
+				instrumentations.add(new ConcurrencyInstrumentation());
+				instrumentations.add(new BranchInstrumentation());
+			} else if (Properties.CRITERION == Criterion.LCSAJ) {
+				instrumentations.add(new LCSAJsInstrumentation());
+				instrumentations.add(new BranchInstrumentation());
+			} else if (Properties.CRITERION == Criterion.DEFUSE
+			        || Properties.CRITERION == Criterion.ALLDEFS) {
+				instrumentations.add(new BranchInstrumentation());
+				instrumentations.add(new DefUseInstrumentation());
+			} else if (Properties.CRITERION == Criterion.ANALYZE) {
+				instrumentations.add(new BranchInstrumentation());
+				instrumentations.add(new DefUseInstrumentation());
+			} else if (Properties.CRITERION == Criterion.PATH) {
+				instrumentations.add(new PrimePathInstrumentation());
+				instrumentations.add(new BranchInstrumentation());
+			} else if (Properties.CRITERION == Criterion.MUTATION
+			        || Properties.CRITERION == Criterion.WEAKMUTATION
+			        || Properties.CRITERION == Criterion.STRONGMUTATION) {
+				instrumentations.add(new BranchInstrumentation());
+				instrumentations.add(new MutationInstrumentation());
+			} else if (Properties.CRITERION == Criterion.COMP_LCSAJ_BRANCH) {
+				instrumentations.add(new LCSAJsInstrumentation());
+				instrumentations.add(new BranchInstrumentation());
+			} else {
+				instrumentations.add(new BranchInstrumentation());
+			}
 		} else {
-			instrumentations.add(new BranchInstrumentation());
+			//instrumentations.add(new BranchInstrumentation());
 		}
 
 		boolean executeOnMain = false;
@@ -154,11 +161,14 @@ public class CFGMethodAdapter extends MethodAdapter {
 		        && (access & Opcodes.ACC_ABSTRACT) == 0
 		        && (access & Opcodes.ACC_NATIVE) == 0) {
 
-			logger.info("Analyzing method " + methodName+" in class "+className);
+			logger.info("Analyzing method " + methodName + " in class " + className);
+			if (!methods.containsKey(className))
+				methods.put(className, new HashSet<String>());
 
 			// MethodNode mn = new CFGMethodNode((MethodNode)mv);
 			// System.out.println("Generating CFG for "+ className+"."+mn.name +
 			// " ("+mn.desc +")");
+
 			BytecodeAnalyzer bytecodeAnalyzer = new BytecodeAnalyzer();
 			logger.info("Generating CFG for method " + methodName);
 
@@ -184,7 +194,7 @@ public class CFGMethodAdapter extends MethodAdapter {
 			logger.info("Created CFG for method " + methodName);
 
 			// add the actual instrumentation
-			logger.info("Instrumenting method " + methodName+" in class "+className);
+			logger.info("Instrumenting method " + methodName + " in class " + className);
 			for (MethodInstrumentation instrumentation : instrumentations)
 				instrumentation.analyze(mn, className, methodName, access);
 
@@ -192,10 +202,9 @@ public class CFGMethodAdapter extends MethodAdapter {
 
 			String id = className + "." + methodName;
 			if (isUsable()) {
-				methods.add(id);
+				methods.get(className).add(id);
 				logger.debug("Counting: " + id);
 			}
-
 		}
 		mn.accept(next);
 	}
@@ -216,7 +225,7 @@ public class CFGMethodAdapter extends MethodAdapter {
 		if (BranchPool.getBranchCountForMethod(className, methodName) == 0) {
 			if (isUsable()) {
 				logger.debug("Method has no branches: " + id);
-				BranchPool.addBranchlessMethod(id);
+				BranchPool.addBranchlessMethod(className, id);
 			}
 		}
 	}
@@ -234,4 +243,66 @@ public class CFGMethodAdapter extends MethodAdapter {
 		        && (Properties.USE_DEPRECATED || (access & Opcodes.ACC_DEPRECATED) != Opcodes.ACC_DEPRECATED);
 	}
 
+	/**
+	 * Returns a set with all unique methodNames of methods.
+	 * 
+	 * @return A set with all unique methodNames of methods.
+	 */
+	public static Set<String> getMethods(String className) {
+		if (!methods.containsKey(className))
+			return new HashSet<String>();
+
+		return methods.get(className);
+	}
+
+	/**
+	 * Returns a set with all unique methodNames of methods.
+	 * 
+	 * @return A set with all unique methodNames of methods.
+	 */
+	public static Set<String> getMethodsPrefix(String className) {
+		Set<String> matchingMethods = new HashSet<String>();
+
+		for (String name : methods.keySet()) {
+			if (name.startsWith(className)) {
+				matchingMethods.addAll(methods.get(name));
+			}
+		}
+
+		return matchingMethods;
+	}
+
+	/**
+	 * Returns a set with all unique methodNames of methods.
+	 * 
+	 * @return A set with all unique methodNames of methods.
+	 */
+	public static int getNumMethodsPrefix(String className) {
+		int num = 0;
+
+		for (String name : methods.keySet()) {
+			if (name.startsWith(className)) {
+				num += methods.get(name).size();
+			}
+		}
+
+		return num;
+	}
+
+	/**
+	 * Returns a set with all unique methodNames of methods.
+	 * 
+	 * @return A set with all unique methodNames of methods.
+	 */
+	public static int getNumMethodsMemberClasses(String className) {
+		int num = 0;
+
+		for (String name : methods.keySet()) {
+			if (name.equals(className) || name.startsWith(className + "$")) {
+				num += methods.get(name).size();
+			}
+		}
+
+		return num;
+	}
 }

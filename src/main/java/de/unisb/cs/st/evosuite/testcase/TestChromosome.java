@@ -26,8 +26,10 @@ import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
 import de.unisb.cs.st.evosuite.coverage.concurrency.Schedule;
 import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
+import de.unisb.cs.st.evosuite.coverage.mutation.MutationExecutionResult;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.LocalSearchBudget;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
 import de.unisb.cs.st.evosuite.ga.SecondaryObjective;
@@ -109,8 +111,8 @@ public class TestChromosome extends ExecutableChromosome {
 
 		if (other.lastMutationResult != null) {
 			for (Mutation mutation : other.lastMutationResult.keySet()) {
-				ExecutionResult copy = other.lastMutationResult.get(mutation); //.clone();
-				copy.test = test;
+				MutationExecutionResult copy = other.lastMutationResult.get(mutation); //.clone();
+				//copy.test = test;
 				this.lastMutationResult.put(mutation, copy);
 			}
 		}
@@ -248,22 +250,24 @@ public class TestChromosome extends ExecutableChromosome {
 			P = 1d / 3d;
 		}
 
-		int which = Randomness.nextInt(3);
-		switch (which) {
-		case 0:
-			logger.debug("Mutation: delete");
+		logger.debug("Mutation: delete");
+		// Delete
+		if (Randomness.nextDouble() <= Properties.P_TEST_DELETE) {
 			changed = mutationDelete();
-			break;
-		case 1:
-			logger.debug("Mutation: change");
+		}
+
+		logger.debug("Mutation: change");
+		// Change
+		if (Randomness.nextDouble() <= Properties.P_TEST_CHANGE) {
 			if (mutationChange())
 				changed = true;
-			break;
-		case 2:
-			logger.debug("Mutation: insert");
+		}
+
+		logger.debug("Mutation: insert");
+		// Insert
+		if (Randomness.nextDouble() <= Properties.P_TEST_INSERT) {
 			if (mutationInsert())
 				changed = true;
-			break;
 		}
 
 		if (changed) {
@@ -424,7 +428,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 */
 	private boolean mutationInsert() {
 		boolean changed = false;
-		final double ALPHA = 0.5;
+		final double ALPHA = Properties.P_STATEMENT_INSERTION; //0.5;
 		int count = 0;
 		DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
 
@@ -458,7 +462,7 @@ public class TestChromosome extends ExecutableChromosome {
 		boolean mutated = false;
 		List<BranchCondition> targetBranches = new ArrayList<BranchCondition>();
 		for (BranchCondition branch : branches) {
-			if (branch.ins.getMethodInfo().getClassName().equals(Properties.TARGET_CLASS))
+			if (StaticTestCluster.isTargetClassName(branch.ins.getMethodInfo().getClassName()))
 				targetBranches.add(branch);
 		}
 		// Select random branch
@@ -528,7 +532,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#applyDSE()
 	 */
 	@Override
-	public void applyDSE() {
+	public void applyDSE(GeneticAlgorithm ga) {
 		// TODO Auto-generated method stub
 	}
 

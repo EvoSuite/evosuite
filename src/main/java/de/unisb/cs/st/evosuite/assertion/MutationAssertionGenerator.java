@@ -274,13 +274,20 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		List<Mutation> executedMutants = new ArrayList<Mutation>();
 
 		for (Integer mutationId : origResult.getTrace().touchedMutants) {
-			executedMutants.add(mutants.get(mutationId));
+			if (!mutants.containsKey(mutationId)) {
+				logger.warn("Mutation ID unknown: " + mutationId);
+				logger.warn(mutants.keySet().toString());
+			} else
+				executedMutants.add(mutants.get(mutationId));
 		}
 		logger.info("Running test " + test.hashCode() + " on " + executedMutants.size()
 		        + "/" + mutants.size() + " mutants");
 
 		for (Mutation m : executedMutants) {
 
+			if (m == null) {
+				assert (false);
+			}
 			if (timedOutMutations.containsKey(m)) {
 				if (timedOutMutations.get(m) >= Properties.MUTATION_TIMEOUTS) {
 					logger.info("Skipping timed out mutant");

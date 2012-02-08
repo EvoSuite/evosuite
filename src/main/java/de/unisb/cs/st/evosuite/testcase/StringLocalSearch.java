@@ -51,11 +51,16 @@ public class StringLocalSearch implements LocalSearch {
 		logger.info("Probing string " + p.getCode());
 		for (int i = 0; i < Properties.LOCAL_SEARCH_PROBES; i++) {
 			p.increment();
-			if (objective.hasImproved(test)) {
-				affected = true;
+			int result = objective.hasChanged(test);
+			if (result < 0) {
 				backup(test, p);
 			} else {
 				restore(test, p);
+			}
+			if (result != 0) {
+				affected = true;
+				logger.info("String affects fitness");
+				break;
 			}
 		}
 
@@ -82,8 +87,8 @@ public class StringLocalSearch implements LocalSearch {
 		}
 	}
 
-	private boolean removeCharacters(LocalSearchObjective objective, ExecutableChromosome test,
-			StringPrimitiveStatement p, int statement) {
+	private boolean removeCharacters(LocalSearchObjective objective,
+	        ExecutableChromosome test, StringPrimitiveStatement p, int statement) {
 
 		boolean improvement = false;
 		backup(test, p);
@@ -91,12 +96,14 @@ public class StringLocalSearch implements LocalSearch {
 		for (int i = oldValue.length() - 1; i >= 0; i--) {
 			String newString = oldValue.substring(0, i) + oldValue.substring(i + 1);
 			p.setValue(newString);
-			//logger.info(" " + i + " " + oldValue + "/" + oldValue.length() + " -> "
-			//        + newString + "/" + newString.length());
+			logger.info(" " + i + " " + oldValue + "/" + oldValue.length() + " -> "
+			        + newString + "/" + newString.length());
 			if (objective.hasImproved(test)) {
+				logger.info("Has improved");
 				backup(test, p);
 				improvement = true;
 			} else {
+				logger.info("Has not improved");
 				restore(test, p);
 			}
 		}
@@ -136,8 +143,8 @@ public class StringLocalSearch implements LocalSearch {
 		return improvement;
 	}
 
-	private boolean addCharacters(LocalSearchObjective objective, ExecutableChromosome test,
-			StringPrimitiveStatement p, int statement) {
+	private boolean addCharacters(LocalSearchObjective objective,
+	        ExecutableChromosome test, StringPrimitiveStatement p, int statement) {
 
 		boolean improvement = false;
 		backup(test, p);

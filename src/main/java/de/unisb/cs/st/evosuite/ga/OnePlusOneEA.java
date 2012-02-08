@@ -27,7 +27,7 @@ package de.unisb.cs.st.evosuite.ga;
 public class OnePlusOneEA extends GeneticAlgorithm {
 
 	private static final long serialVersionUID = 5229089847512798127L;
-	
+
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OnePlusOneEA.class);
 
 	/**
@@ -84,7 +84,7 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 		while (!isFinished()) {
 			if ((selectionFunction.isMaximize() && getBestIndividual().getFitness() > fitness)
 			        || (!selectionFunction.isMaximize() && getBestIndividual().getFitness() < fitness)) {
-				logger.info("Current population: " + getAge());
+				logger.info("Current generation: " + getAge());
 				logger.info("Best fitness: " + getBestIndividual().getFitness());
 				fitness = population.get(0).getFitness();
 			}

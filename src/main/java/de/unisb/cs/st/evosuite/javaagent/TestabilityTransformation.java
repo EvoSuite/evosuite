@@ -34,6 +34,10 @@ import org.objectweb.asm.tree.analysis.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.cfg.ActualControlFlowGraph;
+import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.cfg.CFGPool;
+
 /**
  * @author Gordon Fraser
  * 
@@ -73,6 +77,8 @@ public class TestabilityTransformation {
 
 	private static Set<JumpInsnNode> flagUses = new HashSet<JumpInsnNode>();
 
+	private ActualControlFlowGraph currentCfg = null;
+
 	public TestabilityTransformation(ClassNode cn) {
 		this.cn = cn;
 	}
@@ -106,6 +112,19 @@ public class TestabilityTransformation {
 		}
 	}
 
+	private static void dumpByteCode(MethodNode mn) {
+		logger.info("Dumping method " + mn.name);
+		AbstractInsnNode node = mn.instructions.getFirst();
+		int num = 0;
+		while (node != mn.instructions.getLast()) {
+			BytecodeInstruction instruction = new BytecodeInstruction("ClassName",
+			        mn.name, num, num, node);
+			logger.info(instruction.toString());
+			num++;
+			node = node.getNext();
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private void processMethods() {
 		List<MethodNode> methodNodes = cn.methods;
@@ -123,6 +142,8 @@ public class TestabilityTransformation {
 			// Actually this should be done automatically by the ClassWriter...
 			// +2 because we might do a DUP2
 			mn.maxStack += 3;
+
+			this.currentCfg = CFGPool.getActualCFG(cn.name, mn.name + mn.desc);
 
 			count += transformMethod(mn);
 
@@ -245,6 +266,7 @@ public class TestabilityTransformation {
 		list.insertBefore(position, new InsnNode(Opcodes.DUP));
 		//list.insertBefore(position, new InsnNode(Opcodes.SWAP));
 		//list.insertBefore(position, new InsnNode(Opcodes.ISUB));
+
 		MethodInsnNode push = new MethodInsnNode(Opcodes.INVOKESTATIC,
 		        Type.getInternalName(BooleanHelper.class), "pushPredicate",
 		        Type.getMethodDescriptor(Type.VOID_TYPE, new Type[] { Type.INT_TYPE }));
@@ -692,8 +714,14 @@ public class TestabilityTransformation {
 		}
 	}
 
+	/**
+	 * Replace instanceof instructions with call to custom function that returns
+	 * +/-K
+	 * 
+	 * @param mn
+	 */
 	private void transformInstanceOf(MethodNode mn) {
-		logger.info("Transforming calls");
+		logger.info("Transforming instanceof calls");
 
 		AbstractInsnNode node = mn.instructions.getFirst();
 		while (node != mn.instructions.getLast()) {
@@ -795,6 +823,12 @@ public class TestabilityTransformation {
 		}
 	}
 
+	/**
+	 * This transformation handles all definitions of Boolean variables, and
+	 * changes them to integers
+	 * 
+	 * @param mn
+	 */
 	private void transformBooleanAssignments(MethodNode mn) {
 		logger.info("Transforming boolean assignments");
 
@@ -802,6 +836,8 @@ public class TestabilityTransformation {
 		while (node != mn.instructions.getLast()) {
 
 			if (node instanceof InsnNode) {
+				// First case: Definition of a Boolean constant
+
 				// TODO: Only transform if this is a proper flag assignment
 				// -> Which is either an ISTORE, a field assignment, or a return
 				InsnNode in = (InsnNode) node;
@@ -813,6 +849,7 @@ public class TestabilityTransformation {
 					insertGet(node, mn.instructions);
 					flagDefs.add(node);
 				}
+
 			} else if (node instanceof VarInsnNode) {
 				// Special case for implicit else branch
 				VarInsnNode vn1 = (VarInsnNode) node;
@@ -846,119 +883,6 @@ public class TestabilityTransformation {
 			}
 
 			node = node.getNext();
-		}
-	}
-
-	// TODO: Do we need to transform the IF expression after this (probably not)
-	@SuppressWarnings("unused")
-	private void transformComparisons(MethodNode mn) {
-		logger.info("Transforming comparisons");
-
-		// Transform IFNE / IFEQ following transformed booleans
-
-		AbstractInsnNode node = mn.instructions.getFirst();
-		while (node != mn.instructions.getLast()) {
-			AbstractInsnNode next = node.getNext();
-			if (node instanceof InsnNode) {
-				InsnNode in = (InsnNode) node;
-				if (in.getOpcode() == Opcodes.LCMP) {
-					insertLongComparison(in, mn.instructions);
-				} else if (in.getOpcode() == Opcodes.DCMPG) {
-					insertDoubleComparison(in, mn.instructions);
-				} else if (in.getOpcode() == Opcodes.DCMPL) {
-					insertDoubleComparison(in, mn.instructions);
-				} else if (in.getOpcode() == Opcodes.FCMPG) {
-					insertFloatComparison(in, mn.instructions);
-				} else if (in.getOpcode() == Opcodes.FCMPL) {
-					insertFloatComparison(in, mn.instructions);
-				}
-			}
-			node = next;
-		}
-	}
-
-	/**
-	 * Replace boolean-returning method calls on String classes
-	 * 
-	 * @param mn
-	 */
-	@SuppressWarnings("unchecked")
-	private void transformStrings(MethodNode mn) {
-		ListIterator<AbstractInsnNode> iterator = mn.instructions.iterator();
-		while (iterator.hasNext()) {
-			AbstractInsnNode node = iterator.next();
-			if (node instanceof MethodInsnNode) {
-				MethodInsnNode min = (MethodInsnNode) node;
-				if (min.owner.equals("java/lang/String")) {
-					if (min.name.equals("equals")) {
-						MethodInsnNode equalCheck = new MethodInsnNode(
-						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
-						        "StringEquals",
-						        Type.getMethodDescriptor(Type.INT_TYPE,
-						                                 new Type[] {
-						                                         Type.getType(String.class),
-						                                         Type.getType(Object.class) }));
-						mn.instructions.insertBefore(node, equalCheck);
-						mn.instructions.remove(node);
-
-					} else if (min.name.equals("equalsIgnoreCase")) {
-						MethodInsnNode equalCheck = new MethodInsnNode(
-						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
-						        "StringEqualsIgnoreCase",
-						        Type.getMethodDescriptor(Type.INT_TYPE,
-						                                 new Type[] {
-						                                         Type.getType(String.class),
-						                                         Type.getType(String.class) }));
-						mn.instructions.insertBefore(node, equalCheck);
-						mn.instructions.remove(node);
-
-					} else if (min.name.equals("startsWith")) {
-						if (min.desc.equals("(Ljava/lang/String;)Z")) {
-							mn.instructions.insertBefore(node, new InsnNode(
-							        Opcodes.ICONST_0));
-						}
-						MethodInsnNode equalCheck = new MethodInsnNode(
-						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
-						        "StringStartsWith",
-						        Type.getMethodDescriptor(Type.INT_TYPE,
-						                                 new Type[] {
-						                                         Type.getType(String.class),
-						                                         Type.getType(String.class),
-						                                         Type.INT_TYPE }));
-						mn.instructions.insertBefore(node, equalCheck);
-						mn.instructions.remove(node);
-
-					} else if (min.name.equals("endsWith")) {
-						MethodInsnNode equalCheck = new MethodInsnNode(
-						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
-						        "StringEndsWith",
-						        Type.getMethodDescriptor(Type.INT_TYPE,
-						                                 new Type[] {
-						                                         Type.getType(String.class),
-						                                         Type.getType(String.class) }));
-						mn.instructions.insertBefore(node, equalCheck);
-						mn.instructions.remove(node);
-
-					} else if (min.name.equals("isEmpty")) {
-						MethodInsnNode equalCheck = new MethodInsnNode(
-						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
-						        "StringIsEmpty",
-						        Type.getMethodDescriptor(Type.INT_TYPE,
-						                                 new Type[] { Type.getType(String.class) }));
-						mn.instructions.insertBefore(node, equalCheck);
-						mn.instructions.remove(node);
-
-					} else if (min.name.equals("regionMatches")) {
-						// TODO
-					}
-
-				}
-			}
 		}
 	}
 
@@ -1488,33 +1412,50 @@ public class TestabilityTransformation {
 		transformImplicitElse(mn);
 		transformImplicitElseField(mn);
 		transformImplicitElseStaticField(mn);
-		// Change comparisons of non-int values to distance functions
-		//		transformComparisons(mn); // Done in ComparisonTransformation
-		transformStrings(mn);
+		dumpByteCode(mn);
 
 		// Remove flag definitions
+		logger.info("Transforming boolean assignments");
 		transformBooleanAssignments(mn);
+		dumpByteCode(mn);
 
+		// Replace instanceof calls with helper method
+		logger.info("Transforming instanceof");
 		transformInstanceOf(mn);
+		dumpByteCode(mn);
 
 		// Insert distance function between Boolean variable and jump
+		logger.info("Transforming flag usage");
 		transformFlagUsage(mn);
+		dumpByteCode(mn);
 
 		// Change IFNE/IFEQ for flags
+		logger.info("Transforming boolean predicates");
 		transformBooleanPredicates(mn);
+		dumpByteCode(mn);
 
 		// Change signatures of fields and methods with Booleans
+		logger.info("Transforming calls");
 		transformCalls(mn);
+		dumpByteCode(mn);
 
+		logger.info("Transforming bitwise operators");
 		transformBitwiseOperators(mn);
+		dumpByteCode(mn);
 
+		logger.info("Transforming boolean returns");
 		transformBooleanReturns(mn);
+		dumpByteCode(mn);
 
 		// Convert information about local variables (only needed for debugging really)
+		logger.info("Transforming local variables");
 		transformLocalVariables(mn);
+		dumpByteCode(mn);
 
 		// Convert boolean arrays to integer arrays
+		logger.info("Transforming arrays");
 		transformArrays(mn);
+		dumpByteCode(mn);
 
 		return flagUses.size() - before;
 	}

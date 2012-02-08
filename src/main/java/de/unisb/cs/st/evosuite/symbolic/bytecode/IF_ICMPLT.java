@@ -32,7 +32,6 @@ import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
 public class IF_ICMPLT extends gov.nasa.jpf.jvm.bytecode.IF_ICMPLT {
 	public IF_ICMPLT(int targetPc) {
 		super(targetPc);
-		// TODO Auto-generated constructor stub
 	}
 
 	@SuppressWarnings("unchecked")

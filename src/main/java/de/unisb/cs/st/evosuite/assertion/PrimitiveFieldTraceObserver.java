@@ -64,7 +64,8 @@ public class PrimitiveFieldTraceObserver extends
 				trace.addEntry(position, var, entry);
 			}
 		} catch (CodeUnderTestException e) {
-			throw new UnsupportedOperationException();
+			logger.info("Error: " + e);
+			//throw new UnsupportedOperationException();
 		}
 	}
 

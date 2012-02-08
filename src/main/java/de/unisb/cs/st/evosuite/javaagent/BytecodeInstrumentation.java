@@ -29,7 +29,6 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +48,7 @@ import de.unisb.cs.st.evosuite.testcase.StaticTestCluster;
 public class BytecodeInstrumentation implements ClassFileTransformer {
 
 	private static Logger logger = LoggerFactory.getLogger(BytecodeInstrumentation.class);
-	
+
 	private static List<ClassAdapterFactory> externalPreVisitors = new ArrayList<ClassAdapterFactory>();
 
 	private static List<ClassAdapterFactory> externalPostVisitors = new ArrayList<ClassAdapterFactory>();
@@ -68,18 +67,22 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	}
 
 	public boolean isTargetProject(String className) {
-		return className.startsWith(Properties.PROJECT_PREFIX)
-		        && !className.startsWith("java.") && !className.startsWith("sun.")
+		return (className.startsWith(Properties.PROJECT_PREFIX) || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && className.startsWith(Properties.TARGET_CLASS_PREFIX)))
+		        && !className.startsWith("java.")
+		        && !className.startsWith("sun.")
 		        && !className.startsWith("de.unisb.cs.st.evosuite")
 		        && !className.startsWith("javax.")
-		        && !className.startsWith("org.xml.sax");
+		        && !className.startsWith("org.xml.sax")
+		        && !className.startsWith("apple.")
+		        && !className.startsWith("com.apple.")
+		        && !className.startsWith("daikon.");
 	}
 
 	private boolean isTargetClassName(String className) {
 		// TODO: Need to replace this in the long term
 		return StaticTestCluster.isTargetClassName(className);
 	}
-	
+
 	static {
 		logger.info("Loading bytecode transformer for " + Properties.PROJECT_PREFIX);
 	}
@@ -94,8 +97,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	 */
 	@Override
 	public byte[] transform(ClassLoader loader, String className,
-			Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-			byte[] classfileBuffer) throws IllegalClassFormatException {
+	        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+	        byte[] classfileBuffer) throws IllegalClassFormatException {
 		if (className == null) {
 			return classfileBuffer;
 		}
@@ -103,8 +106,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 		// Some packages we shouldn't touch - hard-coded
 		if (!isTargetProject(classNameWithDots)
-				&& (classNameWithDots.startsWith("java")
-						|| classNameWithDots.startsWith("sun")
+		        && (classNameWithDots.startsWith("java")
+		                || classNameWithDots.startsWith("sun")
 		                || classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
 			return classfileBuffer;
 		}
@@ -143,9 +146,18 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		if (logger.isDebugEnabled())
 			cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 
+		/*
+		if (Properties.TT && classNameWithDots.startsWith(Properties.CLASS_PREFIX)) {
+			ClassNode cn = new ClassNode();
+			reader.accept(cn, ClassReader.SKIP_FRAMES); //  | ClassReader.SKIP_DEBUG
+			BooleanTestabilityPlaceholderTransformer.transform(cn);
+			cv = cn;
+		}
+		*/
 		// Apply transformations to class under test and its owned
 		// classes
 		if (isTargetClassName(classNameWithDots)) {
+			logger.debug("Applying target transformation");
 			// Print out bytecode if debug is enabled
 			cv = new AccessibleClassAdapter(cv, className);
 			// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
@@ -161,9 +173,17 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 				cv = factory.getVisitor(cv, className);
 			}
 
-		} else if (Properties.MAKE_ACCESSIBLE) {
-			// Convert protected/default access to public access
-			cv = new AccessibleClassAdapter(cv, className);
+		} else {
+			logger.debug("Not applying target transformation");
+			cv = new YieldAtLineNumberClassAdapter(cv);
+
+			if (Properties.MAKE_ACCESSIBLE) {
+				// Convert protected/default access to public access
+				cv = new AccessibleClassAdapter(cv, className);
+			}
+			if (Properties.TT && classNameWithDots.startsWith(Properties.CLASS_PREFIX)) {
+				cv = new CFGClassAdapter(cv, className);
+			}
 		}
 
 		// Collect constant values for the value pool
@@ -175,31 +195,46 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			cv = new StaticInitializationClassAdapter(cv, className);
 		}
 
-		if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
+		//		if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
+		if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
+		        || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX))) {
 			ClassNode cn = new ClassNode();
-			reader.accept(cn, ClassReader.SKIP_FRAMES); //  | ClassReader.SKIP_DEBUG
+			reader.accept(cn, ClassReader.SKIP_FRAMES); // | ClassReader.SKIP_DEBUG); //  | ClassReader.SKIP_DEBUG
 			ComparisonTransformation cmp = new ComparisonTransformation(cn);
 			cn = cmp.transform();
 
 			if (Properties.STRING_REPLACEMENT) {
 				StringTransformation st = new StringTransformation(cn);
 				cn = st.transform();
-			}
 
-			cn.accept(cv);
+				//ContainerTransformation ct = new ContainerTransformation(cn);
+				//cn = ct.transform();
+			}
 
 			if (Properties.TT) {
 				logger.info("Testability Transforming " + className);
-				TestabilityTransformation tt = new TestabilityTransformation(cn);
+				//TestabilityTransformation tt = new TestabilityTransformation(cn);
+				BooleanTestabilityTransformation tt = new BooleanTestabilityTransformation(
+				        cn);
 				// cv = new TraceClassVisitor(writer, new
 				// PrintWriter(System.out));
 				cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
-				cv = new CheckClassAdapter(cv);
-				tt.transform().accept(cv);
+				//cv = new CheckClassAdapter(cv);
+				try {
+					//tt.transform().accept(cv);
+					cn = tt.transform();
+				} catch (Throwable t) {
+					logger.info("1 Error: " + t);
+					t.printStackTrace();
+					System.exit(0);
+				}
+
+				logger.info("Testability Transformation done: " + className);
 			}
+			cn.accept(cv);
 
 		} else {
-			reader.accept(cv, ClassReader.SKIP_FRAMES); //  | ClassReader.SKIP_DEBUG
+			reader.accept(cv, ClassReader.SKIP_FRAMES); // | ClassReader.SKIP_DEBUG); //  | ClassReader.SKIP_DEBUG
 		}
 
 		// Print out bytecode if debug is enabled

@@ -31,7 +31,6 @@ import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
 public class IFGT extends gov.nasa.jpf.jvm.bytecode.IFGT {
 	public IFGT(int targetPc) {
 		super(targetPc);
-		// TODO Auto-generated constructor stub
 	}
 
 	@SuppressWarnings("unchecked")

@@ -112,6 +112,9 @@ public class TestRunnable implements InterfaceTestRunnable {
 					if (breakOnException) {
 						break;
 					}
+					if (Thread.interrupted()) {
+						break;
+					}
 
 					/*
 					 * #TODO this is a penalty for test cases which contain a statement that throws an undeclared exception.
@@ -134,9 +137,11 @@ public class TestRunnable implements InterfaceTestRunnable {
 				}
 				if (logger.isDebugEnabled())
 					logger.debug("Done statement " + s.getCode());
+				//ExecutionTracer.disable();
 				for (ExecutionObserver observer : observers) {
 					observer.statement(s, scope, exceptionThrown);
 				}
+				//ExecutionTracer.enable();
 				num++;
 			}
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());

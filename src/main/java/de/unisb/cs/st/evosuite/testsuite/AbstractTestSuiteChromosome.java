@@ -107,7 +107,6 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		return tests.hashCode();
 	}
 
-	
 	/**
 	 * Apply mutation on test suite level
 	 */
@@ -128,7 +127,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		}
 
 		// Add new test cases
-		final double ALPHA = 0.1;
+		final double ALPHA = Properties.P_TEST_INSERTION; //0.1;
 
 		for (int count = 1; Randomness.nextDouble() <= Math.pow(ALPHA, count)
 		        && size() < Properties.MAX_SIZE; count++) {

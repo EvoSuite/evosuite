@@ -14,34 +14,66 @@ public class StringVariable extends StringExpression implements Variable<String>
 	protected String name;
 
 	protected String minValue;
+	
+	protected String concValue;
 
 	protected String maxValue;
 
-	public StringVariable(String name, String minValue, String maxValue) {
+	public StringVariable(String name, String concVal, String minValue, String maxValue) {
 		super();
 		this.name = name;
+		this.concValue = concVal;
 		this.minValue = minValue;
 		this.maxValue = maxValue;
 	}	
+
 	
+	/**
+	 * @return the concValue
+	 */
 	@Override
 	public String getConcreteValue() {
-		return null;
+		return concValue;
 	}
 	
-	//TODO getMax and getMin are only here to ... the convention from variable
-	//they should maybe be removed from there since it makes no sense having 
-	//them for objects
+
+	/**
+	 * @param concValue the concValue to set
+	 */
+	public void setConcreteValue(String concValue) {
+		this.concValue = concValue;
+	}
+	
+	/*
+	 * store the better value here
+	 */
 	@Override
 	public String getMaxValue() {
 		return maxValue;
 	}
 
+	/**
+	 * @param maxValue the maxValue to set
+	 */
+	public void setMaxValue(String maxValue) {
+		this.maxValue = maxValue;
+	}
+	
+	/*
+	 * store the working value here
+	 */
 	@Override
 	public String getMinValue() {
 		return minValue;
 	}
 
+	/**
+	 * @param minValue the minValue to set
+	 */
+	public void setMinValue(String minValue) {
+		this.minValue = minValue;
+	}
+	
 	@Override
 	public String getName() {
 		return name;
@@ -49,7 +81,7 @@ public class StringVariable extends StringExpression implements Variable<String>
 	
 	@Override
 	public String toString() {
-		return name;
+		return name + "(" + minValue + ")";
 	}
 	
 	@Override
@@ -71,7 +103,13 @@ public class StringVariable extends StringExpression implements Variable<String>
 	
 	@Override
 	public int getSize() {
-		return -1;
+		return 1;
+	}
+
+	@Override
+	public String execute() {
+		return minValue;
+		
 	}
 
 }

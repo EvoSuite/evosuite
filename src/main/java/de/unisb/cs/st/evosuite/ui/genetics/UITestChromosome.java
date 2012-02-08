@@ -14,6 +14,7 @@ import org.uispec4j.Trigger;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -161,7 +162,7 @@ public class UITestChromosome extends ExecutableChromosome {
 	@Override
 	public Chromosome clone() {
 		return new UITestChromosome((ActionSequence) this.actionSequence.clone(),
-		        this.stateGraph, this.mainMethodTrigger);
+		        this.stateGraph, this.getMainMethodTrigger());
 	}
 
 	@Override
@@ -195,7 +196,7 @@ public class UITestChromosome extends ExecutableChromosome {
 	}
 
 	@Override
-	public void applyDSE() {
+	public void applyDSE(GeneticAlgorithm ga) {
 		throw new UnsupportedOperationException(
 		        "UITestChromosome doesn't support applyDSE() (yet?)");
 	}

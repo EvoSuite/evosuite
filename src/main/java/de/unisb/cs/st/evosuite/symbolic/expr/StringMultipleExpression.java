@@ -5,30 +5,26 @@ package de.unisb.cs.st.evosuite.symbolic.expr;
 
 import java.util.ArrayList;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.symbolic.ConstraintTooLongException;
+
 /**
  * @author krusev
- *
+ * 
  */
-public class StringMultipleExpression extends StringExpression implements
-BinaryExpression<String>{
+public class StringMultipleExpression extends StringBinaryExpression implements
+        BinaryExpression<String> {
 
 	private static final long serialVersionUID = 7172041118401792672L;
 
-	protected String concretValue;
-
-	protected Operator op;
-
-	protected Expression<String> left;
-	protected Expression<?> right;
 	protected ArrayList<Expression<?>> other_v;
 
 	public StringMultipleExpression(Expression<String> _left, Operator _op,
 	        Expression<?> _right, ArrayList<Expression<?>> _other, String con) {
-		this.concretValue = con;
-		this.left = _left;
-		this.right = _right;
-		this.op = _op;
+		super(_left, _op, _right, con);
 		this.other_v = _other;
+		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
+			throw new ConstraintTooLongException();
 	}
 
 	/**
@@ -40,22 +36,22 @@ BinaryExpression<String>{
 
 	@Override
 	public String getConcreteValue() {
-		return concretValue;
+		return super.getConcreteValue();
 	}
 
 	@Override
 	public Operator getOperator() {
-		return op;
+		return super.getOperator();
 	}
 
 	@Override
 	public Expression<String> getLeftOperand() {
-		return left;
+		return super.getLeftOperand();
 	}
 
 	@Override
 	public Expression<?> getRightOperand() {
-		return right;
+		return super.getRightOperand();
 	}
 
 	@Override
@@ -64,8 +60,9 @@ BinaryExpression<String>{
 		for (int i = 0; i < this.other_v.size(); i++) {
 			str_other_v += " " + this.other_v.get(i).toString();
 		}
-		
-		return "(" + left + op.toString() + right + str_other_v + ")";
+
+		return "(" + left + op.toString() + (right == null ? "" : right) + str_other_v
+		        + ")";
 	}
 
 	@Override
@@ -75,19 +72,19 @@ BinaryExpression<String>{
 		}
 		if (obj instanceof StringMultipleExpression) {
 			StringMultipleExpression other = (StringMultipleExpression) obj;
-			
+
 			boolean other_v_eq = true;
-			
+
 			if (other.other_v.size() == this.other_v.size()) {
 				for (int i = 0; i < other.other_v.size(); i++) {
-					if ( !( other.other_v.get(i).equals(this.other_v.get(i)) ) ) {
+					if (!(other.other_v.get(i).equals(this.other_v.get(i)))) {
 						other_v_eq = false;
 					}
 				}
 			} else {
 				other_v_eq = false;
 			}
-			
+
 			return this.op.equals(other.op) && this.getSize() == other.getSize()
 			        && this.left.equals(other.left) && this.right.equals(other.right)
 			        && other_v_eq;
@@ -100,12 +97,60 @@ BinaryExpression<String>{
 
 	@Override
 	public int getSize() {
-		//TODO fix this
-		return -1;
-//		if (size == 0) {
-//			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
-//		}
-//		return size;
+		if (size == 0) {
+			size = 1 + left.getSize() + right.getSize();
+		}
+		return size;
+	}
+
+	@Override
+	public String execute() {
+		String first = (String) left.execute();
+		long secLong, thrdLong;
+		String secStr, thrdStr;
+
+		switch (op) {
+
+		case INDEXOFCI:
+			secLong = ExpressionHelper.getLongResult(right);
+			thrdLong = ExpressionHelper.getLongResult(other_v.get(0));
+			return Integer.toString(first.indexOf((int) secLong, (int) thrdLong));
+		case INDEXOFSI:
+			secStr = (String) right.execute();
+			thrdLong = ExpressionHelper.getLongResult(other_v.get(0));
+			return Integer.toString(first.indexOf(secStr, (int) thrdLong));
+		case LASTINDEXOFCI:
+			secLong = ExpressionHelper.getLongResult(right);
+			thrdLong = ExpressionHelper.getLongResult(other_v.get(0));
+			return Integer.toString(first.lastIndexOf((int) secLong, (int) thrdLong));
+		case LASTINDEXOFSI:
+			secStr = (String) right.execute();
+			thrdLong = ExpressionHelper.getLongResult(other_v.get(0));
+			return Integer.toString(first.lastIndexOf(secStr, (int) thrdLong));
+		case SUBSTRING:
+			secLong = ExpressionHelper.getLongResult(right);
+			thrdLong = ExpressionHelper.getLongResult(other_v.get(0));
+			return first.substring((int) secLong, (int) thrdLong);
+		case REPLACEC:
+			secLong = ExpressionHelper.getLongResult(right);
+			thrdLong = ExpressionHelper.getLongResult(other_v.get(0));
+			return first.replace((char) secLong, (char) thrdLong);
+		case REPLACECS:
+			secStr = (String) right.execute();
+			thrdStr = (String) other_v.get(0).execute();
+			return first.replace(secStr, thrdStr);
+		case REPLACEALL:
+			secStr = (String) right.execute();
+			thrdStr = (String) other_v.get(0).execute();
+			return first.replaceAll(secStr, thrdStr);
+		case REPLACEFIRST:
+			secStr = (String) right.execute();
+			thrdStr = (String) other_v.get(0).execute();
+			return first.replaceFirst(secStr, thrdStr);
+		default:
+			log.warning("StringBinaryExpression: unimplemented operator!");
+			return null;
+		}
 	}
 
 }

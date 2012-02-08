@@ -32,4 +32,9 @@ public class RealConstant extends RealExpression{
 	public int getSize() {
 		return 1;
 	}
+
+	@Override
+	public Double execute() {
+		return value;
+	}
 }

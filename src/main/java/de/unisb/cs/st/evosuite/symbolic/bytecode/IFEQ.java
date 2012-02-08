@@ -42,6 +42,7 @@ public class IFEQ extends gov.nasa.jpf.jvm.bytecode.IFEQ {
 		super(targetPc);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean popConditionValue(ThreadInfo ti) {
 		Expression<Long> sym = (Expression<Long>) ti.getOperandAttr();

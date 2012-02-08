@@ -119,6 +119,8 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 */
 	protected void applyLocalSearch() {
 		logger.debug("Applying local search");
+		LocalSearchBudget.localSearchStarted();
+
 		for (Chromosome individual : population) {
 			if (isFinished())
 				break;
@@ -146,8 +148,18 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * Apply dynamic symbolic execution
 	 */
 	protected void applyDSE() {
-		logger.info("Applying DSE");
-		getBestIndividual().applyDSE();
+		logger.info("Applying DSE at generation " + currentIteration);
+		DSEBudget.DSEStarted();
+
+		for (Chromosome individual : population) {
+			if (isFinished())
+				break;
+
+			if (DSEBudget.isFinished())
+				break;
+
+			individual.applyDSE(this);
+		}
 	}
 
 	/**
@@ -252,7 +264,12 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	protected void generateRandomPopulation(int population_size) {
 		logger.debug("Creating random population");
 		for (int i = 0; i < population_size; i++) {
-			population.add(chromosomeFactory.getChromosome());
+			Chromosome individual = chromosomeFactory.getChromosome();
+			if (!fitnessFunction.isMaximizationFunction())
+				individual.setFitness(Double.MAX_VALUE);
+			else
+				individual.setFitness(0.0);
+			population.add(individual);
 			if (isFinished())
 				break;
 		}
@@ -349,9 +366,16 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	protected void calculateFitness() {
 		logger.debug("Calculating fitness for " + population.size() + " individuals");
 
-		for (Chromosome c : population) {
-			fitnessFunction.getFitness(c);
-			notifyEvaluation(c);
+		Iterator<Chromosome> iterator = population.iterator();
+		while (iterator.hasNext()) {
+			Chromosome c = iterator.next();
+			if (isFinished()) {
+				if (c.isChanged())
+					iterator.remove();
+			} else {
+				fitnessFunction.getFitness(c);
+				notifyEvaluation(c);
+			}
 		}
 
 		// Sort population

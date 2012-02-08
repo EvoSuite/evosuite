@@ -136,19 +136,22 @@ public class TestCaseExecutor implements ThreadFactory {
 	}
 
 	public void addObserver(ExecutionObserver observer) {
-		if (!observers.contains(observer))
+		if (!observers.contains(observer)) {
 			logger.debug("Adding observer " + observer);
+			observers.add(observer);
+		}
 		// FIXXME: Find proper solution for this
 		//for (ExecutionObserver o : observers)
 		//	if (o.getClass().equals(observer.getClass()))
 		//		return;
-		observers.add(observer);
+
 	}
 
 	public void removeObserver(ExecutionObserver observer) {
-		if (observers.contains(observer))
+		if (observers.contains(observer)) {
 			logger.debug("Removing observer " + observer);
-		observers.remove(observer);
+			observers.remove(observer);
+		}
 	}
 
 	public void newObservers() {
@@ -204,6 +207,13 @@ public class TestCaseExecutor implements ThreadFactory {
 			timeExecuted += endTime - startTime;
 			testsExecuted++;
 
+			if (!result.exceptions.isEmpty()) {
+				Throwable e = result.exceptions.values().iterator().next();
+				if (e instanceof ThreadDeath) {
+					logger.warn("THREAD DEATH!");
+				}
+			}
+
 			return result;
 		} catch (ThreadDeath t) {
 			logger.warn("Caught ThreadDeath during test execution");
@@ -252,14 +262,31 @@ public class TestCaseExecutor implements ThreadFactory {
 			}
 			logger.info("TimeoutException, need to stop runner", e1);
 			ExecutionTracer.setKillSwitch(true);
-			ExecutionTracer.disable();
+			try {
+				handler.getLastTask().get(Properties.SHUTDOWN_TIMEOUT,
+				                          TimeUnit.MILLISECONDS);
+			} catch (InterruptedException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			} catch (ExecutionException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			} catch (TimeoutException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
 			//task.cancel(true);
-			handler.getLastTask().cancel(true);
 
 			if (!callable.isRunFinished()) {
+				logger.info("Cancelling thread:");
+				for (StackTraceElement elem : currentThread.getStackTrace()) {
+					logger.info(elem.toString());
+				}
+				handler.getLastTask().cancel(true);
 				logger.info("Run not finished, waiting...");
 				try {
-					executor.awaitTermination(Properties.TIMEOUT, TimeUnit.MILLISECONDS);
+					executor.awaitTermination(Properties.SHUTDOWN_TIMEOUT,
+					                          TimeUnit.MILLISECONDS);
 				} catch (InterruptedException e) {
 					logger.info("Interrupted");
 					e.printStackTrace();
@@ -273,6 +300,10 @@ public class TestCaseExecutor implements ThreadFactory {
 							for (StackTraceElement element : currentThread.getStackTrace()) {
 								logger.info(element.toString());
 							}
+							logger.info("Killing thread:");
+							for (StackTraceElement elem : currentThread.getStackTrace()) {
+								logger.info(elem.toString());
+							}
 							currentThread.stop();
 						}
 					} catch (ThreadDeath t) {
@@ -280,9 +311,16 @@ public class TestCaseExecutor implements ThreadFactory {
 					} catch (Throwable t) {
 						logger.info("Throwable: " + t);
 					}
+					ExecutionTracer.disable();
 					executor = Executors.newSingleThreadExecutor(this);
 				}
+			} else {
+				logger.info("Run is finished - " + currentThread.isAlive() + ": "
+				        + getNumStalledThreads());
+
 			}
+			ExecutionTracer.disable();
+
 			ExecutionResult result = new ExecutionResult(tc, null);
 			result.exceptions = callable.getExceptionsThrown();
 			result.exceptions.put(tc.size(), new TestCaseExecutor.TimeoutExceeded());
@@ -315,7 +353,9 @@ public class TestCaseExecutor implements ThreadFactory {
 		if (currentThread != null && currentThread.isAlive()) {
 			currentThread.setPriority(Thread.MIN_PRIORITY);
 			stalledThreads.add(currentThread);
-			logger.info("Current number of stalled threads: " + stalledThreads.size());
+			logger.info("Current number of stalled threads: " + getNumStalledThreads());
+		} else {
+			logger.info("No stalled threads");
 		}
 
 		if (threadGroup != null) {

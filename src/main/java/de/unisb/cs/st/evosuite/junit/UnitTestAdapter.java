@@ -4,6 +4,9 @@
 package de.unisb.cs.st.evosuite.junit;
 
 import java.util.List;
+import java.util.Map;
+
+import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 /**
  * @author fraser
@@ -41,4 +44,13 @@ public interface UnitTestAdapter {
 	 * @return
 	 */
 	public String getSuite(List<String> tests);
+
+	/**
+	 * Return the sequence of method calls for a test
+	 * 
+	 * @param test
+	 * @param exceptions
+	 * @return
+	 */
+	public String getTestString(int id, TestCase test, Map<Integer, Throwable> exceptions);
 }

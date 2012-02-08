@@ -19,11 +19,11 @@ package de.unisb.cs.st.evosuite.callgraph;
 
 import java.util.Set;
 
-import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
-public class DistanceClassAdapter extends ClassAdapter {
+public class DistanceClassAdapter extends ClassVisitor {
 
 	private String className;
 	private final ConnectionData connectionData;
@@ -31,7 +31,7 @@ public class DistanceClassAdapter extends ClassAdapter {
 
 	public DistanceClassAdapter(ClassVisitor cv, ConnectionData connectionData,
 	        Set<String> packageClasses) {
-		super(cv);
+		super(Opcodes.ASM4, cv);
 		this.connectionData = connectionData;
 		this.packageClasses = packageClasses;
 	}

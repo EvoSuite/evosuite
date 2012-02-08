@@ -299,6 +299,8 @@ public class ExecutionTrace {
 	public void branchPassed(int branch, int bytecode_id, double true_distance,
 	        double false_distance) {
 
+		assert (true_distance >= 0.0);
+		assert (false_distance >= 0.0);
 		updateTopStackMethodCall(branch, bytecode_id, true_distance, false_distance);
 
 		if (trace_coverage) {
@@ -404,6 +406,8 @@ public class ExecutionTrace {
 		knownCallerObjects = new HashMap<Integer, Object>();
 		true_distances = new HashMap<Integer, Double>();
 		false_distances = new HashMap<Integer, Double>();
+		mutant_distances = new HashMap<Integer, Double>();
+		touchedMutants = new HashSet<Integer>();
 		covered_methods = new HashMap<String, Integer>();
 		covered_predicates = new HashMap<Integer, Integer>();
 		covered_true = new HashMap<Integer, Integer>();
@@ -599,7 +603,7 @@ public class ExecutionTrace {
 		}
 	}
 
-	public void finishCalls() {
+	public synchronized void finishCalls() {
 		logger.debug("At the end, we have " + stack.size() + " calls left on stack");
 		while (!stack.isEmpty()) {
 			finished_calls.add(stack.pop());
@@ -783,6 +787,7 @@ public class ExecutionTrace {
 	}
 
 	public void mutationPassed(int mutationId, double distance) {
+
 		touchedMutants.add(mutationId);
 		if (!mutant_distances.containsKey(mutationId)) {
 			mutant_distances.put(mutationId, distance);
