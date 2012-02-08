@@ -100,7 +100,7 @@ public class Properties {
 	public static boolean MAKE_ACCESSIBLE = true;
 
 	@Parameter(key = "string_replacement", group = "Test Creation", description = "Replace string.equals with levenshtein distance")
-	public static boolean STRING_REPLACEMENT = false;
+	public static boolean STRING_REPLACEMENT = true;
 
 	@Parameter(key = "static_hack", group = "Test Creation", description = "Call static constructors after each test execution")
 	public static boolean STATIC_HACK = false;
@@ -140,6 +140,9 @@ public class Properties {
 	@Parameter(key = "max_delta", group = "Test Creation", description = "Maximum size of delta for numbers during mutation")
 	public static int MAX_DELTA = 20;
 
+	@Parameter(key = "random_perturbation", group = "Test Creation", description = "Probability to replace a primitive with a random new value rather than adding a delta")
+	public static double RANDOM_PERTURBATION = 0.2;
+
 	@Parameter(key = "max_array", group = "Test Creation", description = "Maximum length of randomly generated arrays")
 	public static int MAX_ARRAY = 10;
 
@@ -174,6 +177,15 @@ public class Properties {
 	@Parameter(key = "generate_objects", group = "Test Creation", description = "Generate .object files that allow adapting method signatures")
 	public static boolean GENERATE_OBJECTS = false;
 
+	@Parameter(key = "insertion_score_uut", group = "Test Creation", description = "Score for selection of insertion of UUT calls")
+	public static int INSERTION_SCORE_UUT = 1;
+
+	@Parameter(key = "insertion_score_object", group = "Test Creation", description = "Score for selection of insertion of call on existing object")
+	public static int INSERTION_SCORE_OBJECT = 1;
+
+	@Parameter(key = "insertion_score_parameter", group = "Test Creation", description = "Score for selection of insertion call with existing object")
+	public static int INSERTION_SCORE_PARAMETER = 1;
+
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
@@ -201,11 +213,35 @@ public class Properties {
 	@Parameter(key = "dse_rate", group = "Search Algorithm", description = "Apply DSE at every X generation")
 	public static int DSE_RATE = -1;
 
+	@Parameter(key = "dse_constraint_length", group = "Search Algorithm", description = "Maximal length of the constraints in DSE")
+	public static int DSE_CONSTRAINT_LENGTH = 100000;
+
+	public enum DSEBudgetType {
+		INDIVIDUALS, TIME
+	}
+
+	@Parameter(key = "dse_budget_type", group = "Search Algorithm", description = "Interpretation of dse_budget property")
+	public static DSEBudgetType DSE_BUDGET_TYPE = DSEBudgetType.INDIVIDUALS;
+
+	@Parameter(key = "dse_budget", group = "Search Algorithm", description = "Milliseconds allowed for dse local search")
+	@IntValue(min = 0)
+	public static long DSE_BUDGET = 1;
+
+	@Parameter(key = "dse_variable_resets", group = "Search Algorithm", description = "Times DSE resets the int and real variables with random values")
+	public static int DSE_VARIABLE_RESETS = 1;
+
 	@Parameter(key = "local_search_rate", group = "Search Algorithm", description = "Apply local search at every X generation")
 	public static int LOCAL_SEARCH_RATE = -1;
 
 	@Parameter(key = "local_search_budget", group = "Search Algorithm", description = "Maximum attempts at improving individuals per local search")
-	public static int LOCAL_SEARCH_BUDGET = 100;
+	public static long LOCAL_SEARCH_BUDGET = 100;
+
+	public enum LocalSearchBudgetType {
+		STATEMENTS, TIME
+	}
+
+	@Parameter(key = "local_search_budget_type", group = "Search Algorithm", description = "Interpretation of local_search_budget")
+	public static LocalSearchBudgetType LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.STATEMENTS;
 
 	@Parameter(key = "local_search_probes", group = "Search Algorithm", description = "How many mutations to apply to a string to check whether it improves coverage")
 	public static int LOCAL_SEARCH_PROBES = 10;
@@ -213,6 +249,24 @@ public class Properties {
 	@Parameter(key = "crossover_rate", group = "Search Algorithm", description = "Probability of crossover")
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double CROSSOVER_RATE = 0.75;
+
+	@Parameter(key = "number_of_mutations", group = "Search Algorithm", description = "Number of single mutations applied on an individual when a mutation event occurs")
+	public static int NUMBER_OF_MUTATIONS = 1;
+
+	@Parameter(key = "p_test_insertion", group = "Search Algorithm", description = "Initial probability of inserting a new test in a test suite")
+	public static double P_TEST_INSERTION = 0.1;
+
+	@Parameter(key = "p_statement_insertion", group = "Search Algorithm", description = "Initial probability of inserting a new statement in a test case")
+	public static double P_STATEMENT_INSERTION = 0.5;
+
+	@Parameter(key = "p_test_delete", group = "Search Algorithm", description = "Probability of deleting statements during mutation")
+	public static double P_TEST_DELETE = 1d / 3d;
+
+	@Parameter(key = "p_test_change", group = "Search Algorithm", description = "Probability of changing statements during mutation")
+	public static double P_TEST_CHANGE = 1d / 3d;
+
+	@Parameter(key = "p_test_insert", group = "Search Algorithm", description = "Probability of inserting new statements during mutation")
+	public static double P_TEST_INSERT = 1d / 3d;
 
 	@Parameter(key = "kincompensation", group = "Search Algorithm", description = "Penalty for duplicate individuals")
 	@DoubleValue(min = 0.0, max = 1.0)
@@ -311,7 +365,7 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Output
 	public enum OutputFormat {
-		JUNIT3, JUNIT4, TESTNG
+		JUNIT3, JUNIT4, JUNIT4_LOG, TESTNG
 	}
 
 	@Parameter(key = "test_format", group = "Output", description = "Format of the resulting test cases")
@@ -478,8 +532,14 @@ public class Properties {
 	@Parameter(key = "timeout", group = "Test Execution", description = "Milliseconds allowed per test")
 	public static int TIMEOUT = 5000;
 
+	@Parameter(key = "shutdown_timeout", group = "Test Execution", description = "Milliseconds grace time to shut down test cleanly")
+	public static int SHUTDOWN_TIMEOUT = 1000;
+
 	@Parameter(key = "mutation_timeouts", group = "Test Execution", description = "Number of timeouts before we consider a mutant killed")
 	public static int MUTATION_TIMEOUTS = 3;
+
+	@Parameter(key = "max_mutants", group = "Test Execution", description = "Maximum number of mutants to target at the same time")
+	public static int MAX_MUTANTS = 100;
 
 	// ---------------------------------------------------------------
 	// TODO: Fix description
@@ -520,37 +580,28 @@ public class Properties {
 
 	//---------------------------------------------------------------
 	// Manual algorithm
-	@Parameter(key = "ma_min_delta_coverage", group = "Manual algorithm", description = "Minimum coverage delta")
-	public static double MA_MIN_DELTA_COVERAGE = 0.01;
+	@Parameter(key = "min_delta_coverage", group = "Manual algorithm", description = "Minimum coverage delta")
+	public static double MIN_DELTA_COVERAGE = 0.01;
 
-	@Parameter(key = "ma_max_iterations", group = "Manual algorithm", description = "how much itteration with MIN_DELTA_COVERAGE possible with out MA")
-	public static int MA_MAX_ITERATIONS = 50;
+	@Parameter(key = "max_iteration", group = "Manual algorithm", description = "how much itteration with MIN_DELTA_COVERAGE possible with out MA")
+	public static int MAX_ITERATION = 50;
 
 	@Parameter(key = "ma_active", group = "Manual algorithm", description = "MA active")
 	public static boolean MA_ACTIVE = false;
-	
+
 	@Parameter(key = "ma_wide_gui", group = "Manual algorithm", description = "Activate wide GUI")
 	public static boolean MA_WIDE_GUI = false;
-	
-	@Parameter(key = "ma_target_coverage", group = "Manual algorithm", description = "run Editor at spec. coverage's level")
-	public static int MA_TARGET_COVERAGE = 101;
-	
-	@Parameter(key = "ma_branches_calc", group = "Manual algorithm", description = "run expensive branchcalculations")
-	public static boolean MA_BRANCHES_CALC = false;
-	
 
 	// ---------------------------------------------------------------
 	// UI Test generation parameters
 	@Parameter(key = "UI_BACKGROUND_COVERAGE_DELAY", group = "EXSYST", description = "How often to write out coverage information in the background (in ms). -1 to disable.")
 	public static int UI_BACKGROUND_COVERAGE_DELAY = -1;
-	
-	
-	
+
 	// ---------------------------------------------------------------
 	// Runtime parameters
 
 	public enum Criterion {
-		CONCURRENCY, LCSAJ, DEFUSE, ALLDEFS, PATH, BRANCH, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT, ANALYZE, DATA
+		CONCURRENCY, LCSAJ, DEFUSE, ALLDEFS, PATH, BRANCH, STRONGMUTATION, WEAKMUTATION, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT, ANALYZE, DATA
 	}
 
 	/** Cache target class */

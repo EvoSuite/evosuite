@@ -1,4 +1,4 @@
-package de.unisb.cs.st.evosuite.testcase;
+package com.examples.with.different.packagename;
 
 public class IF_CMP_Test {
 

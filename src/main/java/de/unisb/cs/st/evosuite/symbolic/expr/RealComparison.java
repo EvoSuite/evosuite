@@ -1,6 +1,9 @@
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
-public class RealComparison extends IntegerExpression {
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.symbolic.ConstraintTooLongException;
+
+public class RealComparison extends RealExpression {
 	private static final long serialVersionUID = 1L;
 
 	public RealComparison(Expression<Double> left, Expression<Double> right,
@@ -9,6 +12,8 @@ public class RealComparison extends IntegerExpression {
 		this.left = left;
 		this.right = right;
 		this.con = con;
+		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
+			throw new ConstraintTooLongException();
 	}
 
 	private Long con;
@@ -29,7 +34,9 @@ public class RealComparison extends IntegerExpression {
 		if(obj instanceof RealComparison)
 		{
 			RealComparison other=(RealComparison) obj;
-			return  this.con.equals(other.con) &&this.getSize()==other.getSize()&&this.left.equals(other.left)&&this.right.equals(other.right);
+			return  this.con.equals(other.con) 
+					&& this.getSize()==other.getSize() 
+					&& this.left.equals(other.left) && this.right.equals(other.right);
 		}
 
 		return false;
@@ -53,8 +60,14 @@ public class RealComparison extends IntegerExpression {
 	public int getSize() {
 		if(size==0)
 		{
-			size=1+getLeftOperant().getSize()+getRightOperant().getSize();
+			size=1+left.getSize()+right.getSize();
 		}
 		return size;
+	}
+
+	@Override
+	public Double execute() {
+		// this is never used
+		return null;
 	}
 }

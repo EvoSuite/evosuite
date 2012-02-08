@@ -87,6 +87,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		currentRecursion.clear();
 	}
 
+	/*
 	public void insertRandomCallOnObject(TestCase test, int position) {
 		// add call on existing object
 		VariableReference object = test.getRandomObject(position);
@@ -99,6 +100,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			}
 		}
 	}
+	*/
 
 	private VariableReference selectVariableForCall(TestCase test, int position) {
 		if (test.isEmpty() || position == 0)
@@ -130,6 +132,71 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		}
 	}
 
+	private void insertRandomCallOnObject(TestCase test, int position) {
+		// Select a random variable
+		VariableReference var = selectVariableForCall(test, position);
+		if (var != null)
+			logger.debug("Inserting call at position " + position + ", chosen var: "
+			        + var.getName() + ", distance: " + var.getDistance() + ", class: "
+			        + var.getClassName());
+		// Add call for this variable at random position
+		if (var != null) {
+			logger.debug("Chosen object: " + var.getName());
+			if (var instanceof ArrayReference) {
+				logger.debug("Chosen object is array ");
+				ArrayReference array = (ArrayReference) var;
+				if (array.getArrayLength() > 0) {
+					int index = Randomness.nextInt(array.getArrayLength());
+					try {
+						assignArray(test, var, index, position);
+					} catch (ConstructionFailedException e) {
+						// logger.info("Failed!");
+					}
+				}
+			} else {
+				logger.debug("Getting calls for object " + var.toString());
+				List<AccessibleObject> calls = testCluster.getCallsFor(var.getVariableClass());
+				if (!calls.isEmpty()) {
+					AccessibleObject call = calls.get(Randomness.nextInt(calls.size()));
+					logger.debug("Chosen call " + call);
+					addCallFor(test, var, call, position);
+					logger.debug("Done adding call " + call);
+				}
+
+			}
+		} else {
+			logger.debug("Adding new call on UUT");
+			insertRandomCall(test, position);
+		}
+	}
+
+	private void insertRandomCallWithObject(TestCase test, int position) {
+		// add call that uses existing object as parameter (consider all
+		// possible calls)
+		VariableReference object = test.getRandomObject(position);
+		boolean mutated = false;
+		if (object != null) {
+			if (object instanceof ArrayIndex) {
+				List<AccessibleObject> calls = testCluster.getTestCallsWith(object.getType());
+				if (!calls.isEmpty()) {
+					AccessibleObject call = calls.get(Randomness.nextInt(calls.size()));
+					addCallWith(test, object, call, position);
+					mutated = true;
+				}
+			} else {
+				List<AccessibleObject> calls = testCluster.getTestCallsWith(object.getType());
+				if (!calls.isEmpty()) {
+					AccessibleObject call = calls.get(Randomness.nextInt(calls.size()));
+					addCallWith(test, object, call, position);
+					mutated = true;
+				}
+			}
+		}
+		if (!mutated)
+			insertRandomCall(test, position);
+
+	}
+
 	/**
 	 * Insert a random statement at a random position in the test
 	 * 
@@ -137,7 +204,13 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	 */
 	@Override
 	public void insertRandomStatement(TestCase test) {
-		final double P = 1d / 3d;
+		//final double P = 1d / 3d;
+
+		final double P = Properties.INSERTION_SCORE_UUT
+		        + Properties.INSERTION_SCORE_OBJECT
+		        + Properties.INSERTION_SCORE_PARAMETER;
+		final double P_UUT = Properties.INSERTION_SCORE_UUT / P;
+		final double P_OBJECT = P_UUT + Properties.INSERTION_SCORE_OBJECT / P;
 
 		double r = Randomness.nextDouble();
 		int position = Randomness.nextInt(test.size() + 1);
@@ -147,72 +220,16 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			        + test.getStatement(i).getReturnValue().getDistance());
 		}
 
-		if (r <= P) {
+		if (r <= P_UUT) {
 			// add new call of the UUT - only declared in UUT!
 			logger.debug("Adding new call on UUT");
 			insertRandomCall(test, position);
-
-		} else if (r <= 2 * P) {
-			// Select a random variable
-			VariableReference var = selectVariableForCall(test, position);
-			if (var != null)
-				logger.debug("Inserting call at position " + position + ", chosen var: "
-				        + var.getName() + ", distance: " + var.getDistance()
-				        + ", class: " + var.getClassName());
-			// Add call for this variable at random position
-			if (var != null) {
-				logger.debug("Chosen object: " + var.getName());
-				if (var instanceof ArrayReference) {
-					logger.debug("Chosen object is array ");
-					ArrayReference array = (ArrayReference) var;
-					if (array.getArrayLength() > 0) {
-						int index = Randomness.nextInt(array.getArrayLength());
-						try {
-							assignArray(test, var, index, position);
-						} catch (ConstructionFailedException e) {
-							// logger.info("Failed!");
-						}
-					}
-				} else {
-					logger.debug("Getting calls for object " + var.toString());
-					List<AccessibleObject> calls = testCluster.getCallsFor(var.getVariableClass());
-					if (!calls.isEmpty()) {
-						AccessibleObject call = calls.get(Randomness.nextInt(calls.size()));
-						logger.debug("Chosen call " + call);
-						addCallFor(test, var, call, position);
-						logger.debug("Done adding call " + call);
-					}
-
-				}
-			} else {
-				logger.debug("Adding new call on UUT");
-				insertRandomCall(test, position);
-			}
-		} else // FIXME - not used
-		{
-			// add call that uses existing object as parameter (consider all
-			// possible calls)
-			VariableReference object = test.getRandomObject(position);
-			boolean mutated = false;
-			if (object != null) {
-				if (object instanceof ArrayIndex) {
-					List<AccessibleObject> calls = testCluster.getTestCallsWith(object.getType());
-					if (!calls.isEmpty()) {
-						AccessibleObject call = calls.get(Randomness.nextInt(calls.size()));
-						addCallWith(test, object, call, position);
-						mutated = true;
-					}
-				} else {
-					List<AccessibleObject> calls = testCluster.getTestCallsWith(object.getType());
-					if (!calls.isEmpty()) {
-						AccessibleObject call = calls.get(Randomness.nextInt(calls.size()));
-						addCallWith(test, object, call, position);
-						mutated = true;
-					}
-				}
-			}
-			if (!mutated)
-				insertRandomCall(test, position);
+		} else if (r <= P_OBJECT) {
+			logger.debug("Adding new call on existing object");
+			insertRandomCallOnObject(test, position);
+		} else {
+			logger.debug("Adding new call with existing object as parameter");
+			insertRandomCallWithObject(test, position);
 		}
 	}
 
@@ -723,6 +740,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 					iterator.remove();
 			}
 		}
+		objects.remove(statement.retval);
 		logger.debug("Found assignable objects: " + objects.size());
 		for (int i = 0; i < statement.size(); i++) {
 			logger.debug("Assigning array index " + i);

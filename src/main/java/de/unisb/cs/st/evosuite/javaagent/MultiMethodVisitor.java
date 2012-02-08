@@ -25,6 +25,7 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 /**
  * MethodVisitor that acts as a proxy to two other visitors
@@ -32,7 +33,7 @@ import org.objectweb.asm.MethodVisitor;
  * @author Gordon Fraser
  * 
  */
-public class MultiMethodVisitor implements MethodVisitor {
+public class MultiMethodVisitor extends MethodVisitor {
 
 	MethodVisitor mv1;
 	MethodVisitor mv2;
@@ -40,6 +41,7 @@ public class MultiMethodVisitor implements MethodVisitor {
 	Map<Label, Label> label_mapping = new HashMap<Label, Label>();
 
 	public MultiMethodVisitor(MethodVisitor mv1, MethodVisitor mv2) {
+		super(Opcodes.ASM4);
 		this.mv1 = mv1;
 		this.mv2 = mv2;
 	}

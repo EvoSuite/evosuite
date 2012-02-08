@@ -28,12 +28,15 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 
 	private double lastFitness;
 
+	private double lastCoverage;
+
 	public TestSuiteLocalSearchObjective(TestSuiteFitnessFunction fitness,
 	        TestSuiteChromosome suite, int index) {
 		this.fitness = fitness;
 		this.suite = suite;
 		this.testIndex = index;
 		this.lastFitness = suite.getFitness();
+		this.lastCoverage = suite.getCoverage();
 
 		/*
 		for (TestChromosome test : suite.getTestChromosomes()) {
@@ -59,11 +62,62 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 			logger.info("Local search improved fitness from " + lastFitness + " to "
 			        + newFitness);
 			lastFitness = newFitness;
+			lastCoverage = suite.getCoverage();
 			suite.setFitness(lastFitness);
 			return true;
 		} else {
 			suite.setFitness(lastFitness);
+			suite.setCoverage(lastCoverage);
 			return false;
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.LocalSearchObjective#hasNotWorsened(de.unisb.cs.st.evosuite.ga.Chromosome)
+	 */
+	@Override
+	public boolean hasNotWorsened(Chromosome individual) {
+		individual.setChanged(true);
+		suite.setTestChromosome(testIndex, (TestChromosome) individual);
+		LocalSearchBudget.evaluation();
+		double newFitness = fitness.getFitness(suite);
+		if (newFitness <= lastFitness) { // TODO: Maximize
+			logger.info("Local search has not increased fitness from " + lastFitness
+			        + " to " + newFitness);
+			lastFitness = newFitness;
+			lastCoverage = suite.getCoverage();
+			suite.setFitness(lastFitness);
+			return true;
+		} else {
+			suite.setFitness(lastFitness);
+			suite.setCoverage(lastCoverage);
+			return false;
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.ga.LocalSearchObjective#hasChanged(de.unisb.cs.st.evosuite.ga.Chromosome)
+	 */
+	@Override
+	public int hasChanged(Chromosome individual) {
+		individual.setChanged(true);
+		suite.setTestChromosome(testIndex, (TestChromosome) individual);
+		LocalSearchBudget.evaluation();
+		double newFitness = fitness.getFitness(suite);
+		if (newFitness < lastFitness) { // TODO: Maximize
+			logger.info("Local search improved fitness from " + lastFitness + " to "
+			        + newFitness);
+			lastFitness = newFitness;
+			lastCoverage = suite.getCoverage();
+			suite.setFitness(lastFitness);
+			return -1;
+		} else if (newFitness > lastFitness) {
+			suite.setFitness(lastFitness);
+			suite.setCoverage(lastCoverage);
+			return 1;
+		} else {
+			lastCoverage = suite.getCoverage();
+			return 0;
 		}
 	}
 

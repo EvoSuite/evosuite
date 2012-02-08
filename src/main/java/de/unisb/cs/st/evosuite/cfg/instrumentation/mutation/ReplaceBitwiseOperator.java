@@ -11,8 +11,12 @@ import java.util.Set;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
 
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
@@ -31,6 +35,8 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 	private static Set<Integer> opcodesLong = new HashSet<Integer>();
 
 	private static Set<Integer> opcodesLongShift = new HashSet<Integer>();
+
+	private int numVariable = 0;
 
 	static {
 		opcodesInt.addAll(Arrays.asList(new Integer[] { Opcodes.IAND, Opcodes.IOR,
@@ -52,6 +58,8 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 	@Override
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
 	        BytecodeInstruction instruction) {
+
+		numVariable = ReplaceArithmeticOperator.getNextIndex(mn);
 
 		// TODO: Check if this operator is applicable at all first
 		// Should we do this via a method defined in the interface?
@@ -75,14 +83,171 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 			// insert mutation into pool
 			Mutation mutationObject = MutationPool.addMutation(className,
 			                                                   methodName,
-			                                                   "ReplaceBitwiseOperator",
+			                                                   "ReplaceBitwiseOperator "
+			                                                           + getOp(node.getOpcode())
+			                                                           + " -> "
+			                                                           + getOp(opcode),
 			                                                   instruction,
 			                                                   mutation,
-			                                                   Mutation.getDefaultInfectionDistance());
+			                                                   getInfectionDistance(node.getOpcode(),
+			                                                                        opcode));
 			mutations.add(mutationObject);
 		}
 
 		return mutations;
+	}
+
+	private String getOp(int opcode) {
+		switch (opcode) {
+		case Opcodes.IAND:
+		case Opcodes.LAND:
+			return "&";
+		case Opcodes.IOR:
+		case Opcodes.LOR:
+			return "|";
+		case Opcodes.IXOR:
+		case Opcodes.LXOR:
+			return "^";
+		case Opcodes.ISHR:
+		case Opcodes.LSHR:
+			return ">>";
+		case Opcodes.ISHL:
+		case Opcodes.LSHL:
+			return "<<";
+		case Opcodes.IUSHR:
+		case Opcodes.LUSHR:
+			return ">>>";
+		}
+		throw new RuntimeException("Unknown opcode: " + opcode);
+	}
+
+	public InsnList getInfectionDistance(int opcodeOrig, int opcodeNew) {
+		InsnList distance = new InsnList();
+
+		if (opcodesInt.contains(opcodeOrig)) {
+			distance.add(new InsnNode(Opcodes.DUP2));
+			distance.add(new LdcInsnNode(opcodeOrig));
+			distance.add(new LdcInsnNode(opcodeNew));
+			distance.add(new MethodInsnNode(
+			        Opcodes.INVOKESTATIC,
+			        "de/unisb/cs/st/evosuite/cfg/instrumentation/mutation/ReplaceBitwiseOperator",
+			        "getInfectionDistanceInt", "(IIII)D"));
+		} else if (opcodesIntShift.contains(opcodeOrig)) {
+			distance.add(new InsnNode(Opcodes.DUP2));
+			distance.add(new LdcInsnNode(opcodeOrig));
+			distance.add(new LdcInsnNode(opcodeNew));
+			distance.add(new MethodInsnNode(
+			        Opcodes.INVOKESTATIC,
+			        "de/unisb/cs/st/evosuite/cfg/instrumentation/mutation/ReplaceBitwiseOperator",
+			        "getInfectionDistanceInt", "(IIII)D"));
+		} else if (opcodesLong.contains(opcodeOrig)) {
+
+			distance.add(new VarInsnNode(Opcodes.LSTORE, numVariable));
+			distance.add(new InsnNode(Opcodes.DUP2));
+			distance.add(new VarInsnNode(Opcodes.LLOAD, numVariable));
+			distance.add(new InsnNode(Opcodes.DUP2_X2));
+			distance.add(new LdcInsnNode(opcodeOrig));
+			distance.add(new LdcInsnNode(opcodeNew));
+			distance.add(new MethodInsnNode(
+			        Opcodes.INVOKESTATIC,
+			        "de/unisb/cs/st/evosuite/cfg/instrumentation/mutation/ReplaceBitwiseOperator",
+			        "getInfectionDistanceLong", "(JJII)D"));
+			numVariable += 2;
+
+		} else if (opcodesLongShift.contains(opcodeOrig)) {
+			distance.add(new VarInsnNode(Opcodes.ISTORE, numVariable));
+			distance.add(new InsnNode(Opcodes.DUP2));
+			distance.add(new VarInsnNode(Opcodes.ILOAD, numVariable));
+			distance.add(new InsnNode(Opcodes.DUP_X2));
+			distance.add(new LdcInsnNode(opcodeOrig));
+			distance.add(new LdcInsnNode(opcodeNew));
+			distance.add(new MethodInsnNode(
+			        Opcodes.INVOKESTATIC,
+			        "de/unisb/cs/st/evosuite/cfg/instrumentation/mutation/ReplaceBitwiseOperator",
+			        "getInfectionDistanceLong", "(JIII)D"));
+			numVariable += 1;
+		}
+
+		return distance;
+	}
+
+	public static double getInfectionDistanceInt(int x, int y, int opcodeOrig,
+	        int opcodeNew) {
+		if (opcodeOrig == Opcodes.ISHR && opcodeNew == Opcodes.IUSHR) {
+			if (x < 0 && y != 0) {
+				int origValue = calculate(x, y, opcodeOrig);
+				int newValue = calculate(x, y, opcodeNew);
+				assert (origValue != newValue);
+
+				return 0.0;
+			} else
+				// TODO x >= 0?
+				return y != 0 && x > 0 ? x + 1 : 1.0;
+		}
+		int origValue = calculate(x, y, opcodeOrig);
+		int newValue = calculate(x, y, opcodeNew);
+		return origValue == newValue ? 1.0 : 0.0;
+	}
+
+	public static double getInfectionDistanceLong(long x, int y, int opcodeOrig,
+	        int opcodeNew) {
+		if (opcodeOrig == Opcodes.LSHR && opcodeNew == Opcodes.LUSHR) {
+			if (x < 0 && y != 0) {
+				long origValue = calculate(x, y, opcodeOrig);
+				long newValue = calculate(x, y, opcodeNew);
+				assert (origValue != newValue);
+
+				return 0.0;
+			} else
+				return y != 0 && x > 0 ? x + 1 : 1.0;
+		}
+		long origValue = calculate(x, y, opcodeOrig);
+		long newValue = calculate(x, y, opcodeNew);
+		return origValue == newValue ? 1.0 : 0.0;
+	}
+
+	public static double getInfectionDistanceLong(long x, long y, int opcodeOrig,
+	        int opcodeNew) {
+
+		long origValue = calculate(x, y, opcodeOrig);
+		long newValue = calculate(x, y, opcodeNew);
+		return origValue == newValue ? 1.0 : 0.0;
+	}
+
+	public static int calculate(int x, int y, int opcode) {
+		switch (opcode) {
+		case Opcodes.IAND:
+			return x & y;
+		case Opcodes.IOR:
+			return x | y;
+		case Opcodes.IXOR:
+			return x ^ y;
+		case Opcodes.ISHL:
+			return x << y;
+		case Opcodes.ISHR:
+			return x >> y;
+		case Opcodes.IUSHR:
+			return x >>> y;
+		}
+		throw new RuntimeException("Unknown integer opcode: " + opcode);
+	}
+
+	public static long calculate(long x, long y, int opcode) {
+		switch (opcode) {
+		case Opcodes.LAND:
+			return x & y;
+		case Opcodes.LOR:
+			return x | y;
+		case Opcodes.LXOR:
+			return x ^ y;
+		case Opcodes.LSHL:
+			return x << y;
+		case Opcodes.LSHR:
+			return x >> y;
+		case Opcodes.LUSHR:
+			return x >>> y;
+		}
+		throw new RuntimeException("Unknown long opcode: " + opcode);
 	}
 
 	/* (non-Javadoc)
@@ -94,7 +259,11 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 		int opcode = node.getOpcode();
 		if (opcodesInt.contains(opcode))
 			return true;
+		else if (opcodesIntShift.contains(opcode))
+			return true;
 		else if (opcodesLong.contains(opcode))
+			return true;
+		else if (opcodesLongShift.contains(opcode))
 			return true;
 
 		return false;

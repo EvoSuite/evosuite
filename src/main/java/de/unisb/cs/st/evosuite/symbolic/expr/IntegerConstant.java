@@ -34,4 +34,9 @@ public class IntegerConstant extends IntegerExpression {
 		return 1;
 	}
 
+	@Override
+	public Long execute() {
+		return value;
+	}
+
 }

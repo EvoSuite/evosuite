@@ -27,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,8 +67,16 @@ public class ConcolicExecution {
 
 	private PathConstraintCollector pcg;
 
-	protected static String dirName = System.getProperty("java.io.tmpdir")
-	        + "/TempClasses";
+	private static File tempDir;
+	static {
+		tempDir = new File(System.getProperty("java.io.tmpdir") + "/"
+		        + ManagementFactory.getRuntimeMXBean().getName() + "_"
+		        + Long.toString(System.nanoTime()));
+		tempDir.mkdir();
+		logger.info("Created temporary dir for DSE: " + tempDir.getAbsolutePath());
+	}
+
+	protected static String dirName = tempDir.getAbsolutePath();
 
 	protected static String className = "TestCase";
 	//	        + Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.indexOf("."),
@@ -84,8 +93,10 @@ public class ConcolicExecution {
 		config.setProperty("classpath", config.getProperty("classpath") + "," + classPath);
 		config.setTarget(targetName);
 
+		//		config.setProperty("vm.insn_factory.class",
+		//		                   "de.unisb.cs.st.evosuite.symbolic.bytecode.IntegerConcolicInstructionFactory");
 		config.setProperty("vm.insn_factory.class",
-		                   "de.unisb.cs.st.evosuite.symbolic.bytecode.IntegerConcolicInstructionFactory");
+		                   "de.unisb.cs.st.evosuite.symbolic.bytecode.ConcolicInstructionFactory");
 		config.setProperty("peer_packages",
 		                   "de.unisb.cs.st.evosuite.symbolic.nativepeer,gov.nasa.jpf.jvm");
 		//		                           + config.getProperty("peer_packages"));
@@ -96,6 +107,7 @@ public class ConcolicExecution {
 		                   "de.unisb.cs.st.evosuite.symbolic.SilentReporter");
 
 		config.setProperty("log.level", "warning");
+		//config.setProperty("log.level", "info");
 
 		//Configure the search class;
 		config.setProperty("search.class", "de.unisb.cs.st.evosuite.symbolic.PathSearch");
@@ -116,7 +128,9 @@ public class ConcolicExecution {
 		try {
 			jpf.run();
 		} catch (Throwable t) {
-			logger.warn("Exception while executing test: " + classPath + " " + targetName);
+			logger.warn("Exception while executing test: " + classPath + " " + targetName
+			        + ": " + t);
+			t.printStackTrace();
 		} finally {
 			System.setOut(old_out);
 			System.setErr(old_err);
@@ -126,11 +140,14 @@ public class ConcolicExecution {
 
 		this.errors = jpf.getSearch().getErrors();
 
+		File file = new File(dirName + "/", className + ".class");
+		file.deleteOnExit();
+
 		return pcg.conditions;
 	}
 
 	/**
-	 * Retrieve the path condition for a given test cae
+	 * Retrieve the path condition for a given test case
 	 * 
 	 * @param test
 	 * @return
@@ -151,7 +168,7 @@ public class ConcolicExecution {
 	 * @return
 	 */
 	private Method getMarkMethod(PrimitiveStatement<?> statement) {
-		logger.info("Statement: " + statement.getCode());
+		logger.debug("Statement: " + statement.getCode());
 		Class<?> clazz = statement.getReturnValue().getVariableClass();
 		if (clazz.equals(Boolean.class) || clazz.equals(boolean.class))
 			return org.objectweb.asm.commons.Method.getMethod("boolean mark(boolean,String)");
@@ -200,10 +217,13 @@ public class ConcolicExecution {
 		return result;
 	}
 
-	@SuppressWarnings("rawtypes")
+	//	@SuppressWarnings("rawtypes")
+	@SuppressWarnings("unchecked")
 	public List<PrimitiveStatement> getPrimitives(TestCase test) {
+
 		List<PrimitiveStatement> p = new ArrayList<PrimitiveStatement>();
 		for (StatementInterface s : test) {
+
 			if (s instanceof PrimitiveStatement) {
 				PrimitiveStatement ps = (PrimitiveStatement) s;
 				Class<?> t = ps.getReturnClass();
@@ -219,6 +239,12 @@ public class ConcolicExecution {
 					p.add(ps);
 				} else if (t.equals(Character.class) || t.equals(char.class)) {
 					p.add(ps);
+					//==========-------- XXX added for real search
+				} else if (t.equals(Float.class) || t.equals(float.class)) {
+					p.add(ps);
+				} else if (t.equals(Double.class) || t.equals(double.class)) {
+					p.add(ps);
+					//==========--------
 				} else if (t.equals(String.class)) {
 					p.add(ps);
 				}
@@ -242,7 +268,6 @@ public class ConcolicExecution {
 			mg.cast(org.objectweb.asm.Type.getType(clazz),
 			        org.objectweb.asm.Type.getType(statement.getReturnValue().getVariableClass()));
 		}
-
 		if (clazz.equals(Boolean.class) || clazz.equals(boolean.class))
 			mg.push(((Boolean) statement.getValue()).booleanValue());
 		else if (clazz.equals(Character.class) || clazz.equals(char.class))
@@ -259,9 +284,9 @@ public class ConcolicExecution {
 			mg.push(((Double) statement.getValue()).doubleValue());
 		else if (clazz.equals(Byte.class) || clazz.equals(byte.class))
 			mg.push(((Byte) statement.getValue()).byteValue());
-		else if (clazz.equals(String.class))
+		else if (clazz.equals(String.class)) {
 			mg.push(((String) statement.getValue()));
-		else
+		} else
 			logger.error("Found primitive of unknown type: " + clazz.getName());
 	}
 
@@ -273,9 +298,9 @@ public class ConcolicExecution {
 	 * @param test
 	 * @return
 	 */
-	private byte[] getBytecode(
-	        @SuppressWarnings("rawtypes") List<PrimitiveStatement> target,
-	        TestChromosome test) {
+	//	@SuppressWarnings("rawtypes") 
+	@SuppressWarnings("unchecked")
+	private byte[] getBytecode(List<PrimitiveStatement> target, TestChromosome test) {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, className, null,
 		         "java/lang/Object", null);
@@ -301,10 +326,12 @@ public class ConcolicExecution {
 			logger.debug("Current statement: {}", statement.getCode());
 			if (target.contains(statement)) {
 				PrimitiveStatement<?> p = (PrimitiveStatement<?>) statement;
+				logger.debug("Marking variable: {}", p);
 				getPrimitiveValue(mg, locals, p); // TODO: Possibly cast?
 				mg.push(p.getReturnValue().getName());
 				//mg.invokeStatic(Type.getType("Ljpf/mytest/primitive/ConcolicMarker;"),
 				//                getMarkMethod(p));
+
 				mg.invokeStatic(Type.getType("Lde/unisb/cs/st/evosuite/symbolic/nativepeer/ConcolicMarker;"),
 				                getMarkMethod(p));
 				p.getReturnValue().storeBytecode(mg, locals);
@@ -327,18 +354,19 @@ public class ConcolicExecution {
 	 * @param statements
 	 * @param test
 	 */
-	@SuppressWarnings("rawtypes")
+	//	@SuppressWarnings("rawtypes") 
+	@SuppressWarnings("unchecked")
 	public void writeTestCase(List<PrimitiveStatement> statements, TestChromosome test) {
-		File dir = new File(dirName);
-		dir.mkdir();
+		//File dir = new File(dirName);
+		//dir.mkdir();
 		File file = new File(dirName + "/", className + ".class");
 		try {
 			FileOutputStream stream = new FileOutputStream(file);
 			byte[] bytecode = getBytecode(statements, test);
 			stream.write(bytecode);
-			//logger.info(dirName);
-			//logger.info(test.getTestCase().toCode());
-			//System.exit(0);
+			// logger.info(dirName);
+			//			logger.warn(test.getTestCase().toCode());
+			//			System.exit(0);
 		} catch (FileNotFoundException e) {
 		} catch (IOException e) {
 		}

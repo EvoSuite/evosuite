@@ -179,9 +179,9 @@ public class EvoSuite {
 		//cmdLine.add("-Dminimize_values=true");
 		cmdLine.addAll(args);
 		if (wholeSuite)
-			cmdLine.add("-DSTRATEGY=EvoSuite");
+			cmdLine.add("-Dstrategy=EvoSuite");
 		else
-			cmdLine.add("-DSTRATEGY=OneBranch");
+			cmdLine.add("-Dstrategy=OneBranch");
 		cmdLine.add("-DTARGET_CLASS=" + target);
 		if (Properties.PROJECT_PREFIX != null)
 			cmdLine.add("-DPROJECT_PREFIX=" + Properties.PROJECT_PREFIX);

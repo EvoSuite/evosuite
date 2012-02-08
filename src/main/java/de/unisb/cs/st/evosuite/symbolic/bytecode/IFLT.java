@@ -31,7 +31,6 @@ import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
 public class IFLT extends gov.nasa.jpf.jvm.bytecode.IFLT {
 	public IFLT(int targetPc) {
 		super(targetPc);
-		// TODO Auto-generated constructor stub
 	}
 
 	@SuppressWarnings("unchecked")

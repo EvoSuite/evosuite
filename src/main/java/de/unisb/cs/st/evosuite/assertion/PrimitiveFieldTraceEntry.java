@@ -43,8 +43,14 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 		if (other instanceof PrimitiveFieldTraceEntry) {
 			PrimitiveFieldTraceEntry otherEntry = (PrimitiveFieldTraceEntry) other;
 			for (Field field : fieldMap.keySet()) {
-				if (!otherEntry.fieldMap.get(field).equals(fieldMap.get(field)))
-					return true;
+				if (otherEntry.fieldMap.containsKey(field)) {
+					Object o1 = fieldMap.get(field);
+					Object o2 = otherEntry.fieldMap.get(field);
+					if (o1 == null)
+						return o2 != null;
+					else
+						return !o1.equals(o2);
+				}
 			}
 
 		}

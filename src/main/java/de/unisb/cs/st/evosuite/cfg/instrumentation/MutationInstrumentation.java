@@ -50,13 +50,19 @@ public class MutationInstrumentation implements MethodInstrumentation {
 
 	public MutationInstrumentation() {
 		mutationOperators = new ArrayList<MutationOperator>();
-		mutationOperators.add(new ReplaceConstant());
-		mutationOperators.add(new ReplaceVariable());
+
+		// FIXME: Don't include > < >= <= for boolean comparisons
 		mutationOperators.add(new ReplaceComparisonOperator());
 		mutationOperators.add(new ReplaceBitwiseOperator());
 		mutationOperators.add(new ReplaceArithmeticOperator());
+		mutationOperators.add(new ReplaceVariable());
+
+		mutationOperators.add(new ReplaceConstant());
 		mutationOperators.add(new NegateCondition());
+		// FIXME: Don't apply to boolean values!
 		mutationOperators.add(new InsertUnaryOperator());
+
+		// FIXME: Can't check return types because of side effects
 		mutationOperators.add(new DeleteStatement());
 		mutationOperators.add(new DeleteField());
 		// TODO: Replace iinc?
@@ -72,9 +78,21 @@ public class MutationInstrumentation implements MethodInstrumentation {
 		RawControlFlowGraph graph = CFGPool.getRawCFG(className, methodName);
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
 
+		boolean constructorInvoked = false;
+		if (!methodName.startsWith("<init>"))
+			constructorInvoked = true;
+
 		logger.info("Applying mutation operators ");
 		while (j.hasNext()) {
 			AbstractInsnNode in = j.next();
+			if (!constructorInvoked) {
+				if (in.getOpcode() == Opcodes.INVOKESPECIAL) {
+					constructorInvoked = true;
+				} else {
+					continue;
+				}
+			}
+
 			for (BytecodeInstruction v : graph.vertexSet()) {
 
 				// If this is in the CFG
@@ -137,12 +155,12 @@ public class MutationInstrumentation implements MethodInstrumentation {
 		// call mutationTouched(mutationObject.getId());
 		// TODO: All mutations in the id are touched, not just one!
 		for (Mutation mutation : mutations) {
-			instructions.add(new LdcInsnNode(mutation.getId()));
 			instructions.add(mutation.getInfectionDistance());
+			instructions.add(new LdcInsnNode(mutation.getId()));
 			MethodInsnNode touched = new MethodInsnNode(Opcodes.INVOKESTATIC,
 			        Type.getInternalName(ExecutionTracer.class), "passedMutation",
-			        Type.getMethodDescriptor(Type.VOID_TYPE, new Type[] { Type.INT_TYPE,
-			                Type.DOUBLE_TYPE }));
+			        Type.getMethodDescriptor(Type.VOID_TYPE, new Type[] {
+			                Type.DOUBLE_TYPE, Type.INT_TYPE }));
 			instructions.add(touched);
 		}
 

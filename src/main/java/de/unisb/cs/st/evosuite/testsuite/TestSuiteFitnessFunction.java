@@ -28,6 +28,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.AllDefsCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.mutation.MutationSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.statement.StatementCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
@@ -143,6 +144,10 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 			return BranchCoverageSuiteFitness.mostCoveredGoals;
 		case ALLDEFS:
 			return AllDefsCoverageSuiteFitness.mostCoveredGoals;
+		case MUTATION:
+		case WEAKMUTATION:
+		case STRONGMUTATION:
+			return MutationSuiteFitness.mostCoveredGoals;
 		default:
 			return -1; // to indicate value is missing
 		}

@@ -3,34 +3,34 @@
  */
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
+import gov.nasa.jpf.JPF;
+
 import java.util.ArrayList;
+import java.util.logging.Logger;
+
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.symbolic.ConstraintTooLongException;
+import de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator;
 
 /**
  * @author krusev
  *
  */
-public class StringMultipleComparison extends StringExpression implements
+public class StringMultipleComparison extends StringComparison implements
 BinaryExpression<String>{
-
 
 	private static final long serialVersionUID = -3844726361666119758L;
 
-	protected Long concretValue;
-
-	protected Operator op;
-
-	protected Expression<String> left;
-	protected Expression<?> right;
+	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison");
+	
 	protected ArrayList<Expression<?>> other_v;
 
 	public StringMultipleComparison(Expression<String> _left, Operator _op,
 	        Expression<?> _right, ArrayList<Expression<?>> _other, Long con) {
-		super();
-		this.concretValue = con;
-		this.left = _left;
-		this.right = _right;
-		this.op = _op;
+		super(_left, _op, _right, con);
 		this.other_v = _other;
+		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
+			throw new ConstraintTooLongException();
 	}
 
 	/**
@@ -42,7 +42,7 @@ BinaryExpression<String>{
 
 	@Override
 	public Long getConcreteValue() {
-		return concretValue;
+		return conVal;
 	}
 
 	@Override
@@ -67,7 +67,7 @@ BinaryExpression<String>{
 			str_other_v += " " + this.other_v.get(i).toString();
 		}
 		
-		return "(" + left + op.toString() + right + str_other_v + ")";
+		return "(" + left + op.toString() + (right==null ? "" : right) + str_other_v + ")";
 	}
 
 	@Override
@@ -90,7 +90,8 @@ BinaryExpression<String>{
 				other_v_eq = false;
 			}
 			
-			return this.op.equals(other.op) && this.getSize() == other.getSize()
+			return this.op.equals(other.op) 
+					&& this.getSize() == other.getSize()
 			        && this.left.equals(other.left) && this.right.equals(other.right)
 			        && other_v_eq;
 		}
@@ -102,12 +103,40 @@ BinaryExpression<String>{
 
 	@Override
 	public int getSize() {
-		//TODO fix this
-		return -1;
-//		if (size == 0) {
-//			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
-//		}
-//		return size;
+		if (size == 0) {
+			size = 1 + left.getSize() + right.getSize();
+		}
+		return size;
+	}
+	
+	
+
+	@Override
+	public Long execute() {
+		try {
+			String first = (String)left.execute();
+			String second = (String)right.execute();
+			
+			switch (op) {
+			case STARTSWITH:
+				long start = (Long) other_v.get(0).execute();
+
+				return (long)DistanceEstimator.StrStartsWith(first, second, (int) start);
+			case REGIONMATCHES:
+				long frstStart = (Long) other_v.get(0).execute();			
+				long secStart = (Long) other_v.get(1).execute();
+				long length = (Long) other_v.get(2).execute();
+				long ignoreCase = (Long) other_v.get(3).execute();
+
+				return (long)DistanceEstimator.StrRegionMatches(first, (int) frstStart, 
+						second, (int) secStart, (int) length, ignoreCase != 0);
+			default:
+				log.warning("StringMultipleComparison: unimplemented operator!");
+				return null;
+			}
+		} catch (Exception e) {
+			return Long.MAX_VALUE;
+		}		
 	}
 
 }

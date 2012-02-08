@@ -31,7 +31,6 @@ import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
 public class IFNE extends gov.nasa.jpf.jvm.bytecode.IFNE {
 	public IFNE(int targetPc) {
 		super(targetPc);
-		// TODO Auto-generated constructor stub
 	}
 
 	@SuppressWarnings("unchecked")

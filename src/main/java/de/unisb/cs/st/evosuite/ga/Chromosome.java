@@ -158,7 +158,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	/**
 	 * Apply DSE
 	 */
-	public abstract void applyDSE();
+	public abstract void applyDSE(GeneticAlgorithm algorithm);
 
 	/**
 	 * Return length of individual

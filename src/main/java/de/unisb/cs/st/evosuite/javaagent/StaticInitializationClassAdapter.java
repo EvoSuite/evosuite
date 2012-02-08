@@ -21,7 +21,6 @@ package de.unisb.cs.st.evosuite.javaagent;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -38,7 +37,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCluster;
  * @author Gordon Fraser
  * 
  */
-public class StaticInitializationClassAdapter extends ClassAdapter {
+public class StaticInitializationClassAdapter extends ClassVisitor {
 
 	private final String className;
 
@@ -51,7 +50,7 @@ public class StaticInitializationClassAdapter extends ClassAdapter {
 	private final List<String> finalFields = new ArrayList<String>();
 
 	public StaticInitializationClassAdapter(ClassVisitor visitor, String className) {
-		super(visitor);
+		super(Opcodes.ASM4, visitor);
 		this.className = className;
 	}
 

@@ -18,7 +18,6 @@
 
 package de.unisb.cs.st.evosuite.javaagent;
 
-import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -34,7 +33,7 @@ import de.unisb.cs.st.evosuite.Properties;
  * @author Gordon Fraser
  * 
  */
-public class AccessibleClassAdapter extends ClassAdapter {
+public class AccessibleClassAdapter extends ClassVisitor {
 
 	private boolean exclude = false;
 
@@ -43,7 +42,7 @@ public class AccessibleClassAdapter extends ClassAdapter {
 	 *            class visitor
 	 */
 	public AccessibleClassAdapter(ClassVisitor cv, String className) {
-		super(cv);
+		super(Opcodes.ASM4, cv);
 		className = className.replace('/', '.');
 		String packageName = "";
 		if (className.contains("."))
@@ -89,8 +88,9 @@ public class AccessibleClassAdapter extends ClassAdapter {
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc,
 	        String signature, final String[] exceptions) {
-
-		if (!exclude && (access & Opcodes.ACC_PRIVATE) != Opcodes.ACC_PRIVATE) {
+		int skipMask = Opcodes.ACC_NATIVE | Opcodes.ACC_BRIDGE;
+		
+		if (!exclude && ((access & Opcodes.ACC_PRIVATE) != Opcodes.ACC_PRIVATE) && ((access & skipMask) == 0)) {
 			access = access | Opcodes.ACC_PUBLIC;
 			access = access & ~Opcodes.ACC_PROTECTED;
 		}

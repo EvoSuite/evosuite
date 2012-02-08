@@ -5,7 +5,6 @@ import java.lang.reflect.Modifier;
 import mockit.external.asm.Type;
 
 import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -17,12 +16,12 @@ import org.objectweb.asm.Opcodes;
  * @author Gordon Fraser
  * 
  */
-public class InheritanceClassAdapter extends ClassAdapter {
+public class InheritanceClassAdapter extends ClassVisitor {
 
 	private String className = null;
 
 	public InheritanceClassAdapter(ClassVisitor cv) {
-		super(cv);
+		super(Opcodes.ASM4, cv);
 	}
 
 	/* (non-Javadoc)

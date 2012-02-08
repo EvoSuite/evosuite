@@ -1,10 +1,19 @@
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
+import gov.nasa.jpf.JPF;
+
+import java.util.logging.Logger;
+
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.symbolic.ConstraintTooLongException;
+
 public class IntegerBinaryExpression extends IntegerExpression implements
         BinaryExpression<Long> {
 
 	private static final long serialVersionUID = -986689442489666986L;
 
+	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.expr.IntegerBinaryExpression");
+	
 	protected Long concretValue;
 
 	protected Operator op;
@@ -18,6 +27,8 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 		this.left = left2;
 		this.right = right2;
 		this.op = op2;
+		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
+			throw new ConstraintTooLongException();
 	}
 
 	@Override
@@ -52,7 +63,8 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 		}
 		if (obj instanceof IntegerBinaryExpression) {
 			IntegerBinaryExpression other = (IntegerBinaryExpression) obj;
-			return this.op.equals(other.op) && this.getSize() == other.getSize()
+			return this.op.equals(other.op) 
+					&& this.getSize() == other.getSize()
 			        && this.left.equals(other.left) && this.right.equals(other.right);
 		}
 
@@ -60,13 +72,53 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 	}
 
 	protected int size = 0;
-
 	@Override
 	public int getSize() {
 		if (size == 0) {
-			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
+			size = 1 + left.getSize() + right.getSize();
 		}
 		return size;
+	}
+
+	@Override
+	public Long execute() {
+		long leftVal = ExpressionHelper.getLongResult(left);
+		long rightVal = ExpressionHelper.getLongResult(right);
+		
+		switch (op) {
+		
+		case SHL:
+			return leftVal << rightVal;
+		case SHR:
+			return leftVal >> rightVal;
+		case AND:
+		case IAND:
+			return leftVal & rightVal;
+		case OR:
+		case IOR:
+			return leftVal | rightVal;
+		case XOR:
+		case IXOR:
+			return leftVal ^ rightVal;
+		case DIV:
+			return leftVal / rightVal;
+		case MUL:
+			return leftVal * rightVal;
+		case MINUS:
+			return leftVal - rightVal;
+		case PLUS: 
+			return leftVal + rightVal;
+		case REM: 
+			return leftVal % rightVal;	
+		case MAX:
+			return Math.max(leftVal, rightVal);
+		case MIN:
+			return Math.min(leftVal, rightVal);
+		
+		default:
+			log.warning("IntegerBinaryExpression: unimplemented operator!");
+			return null;
+		}
 	}
 
 }

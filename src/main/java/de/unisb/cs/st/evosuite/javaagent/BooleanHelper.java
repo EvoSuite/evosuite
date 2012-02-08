@@ -3,6 +3,9 @@
  */
 package de.unisb.cs.st.evosuite.javaagent;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
 import org.objectweb.asm.Opcodes;
@@ -22,6 +25,11 @@ public class BooleanHelper {
 	private static final int MAX_STACK = Properties.TT_stack;
 
 	public static final int K = Integer.MAX_VALUE - 2;
+	//public static final int K = 1000;
+
+	private static final int TRUE = K;
+
+	private static final int FALSE = -K;
 
 	public static void clearPredicates() {
 		distanceStack.clear();
@@ -45,6 +53,144 @@ public class BooleanHelper {
 			stackStack.clear();
 		if (distanceStack != null)
 			distanceStack.clear();
+		lastDistance.clear();
+	}
+
+	/**
+	 * Helper function that is called instead of Object.equals
+	 * 
+	 * @param obj1
+	 * @param obj2
+	 * @return
+	 */
+	public static int objectEquals(Object obj1, Object obj2) {
+		return obj1.equals(obj2) ? TRUE : FALSE;
+	}
+
+	/**
+	 * Helper function that is called instead of Collection.isEmpty
+	 * 
+	 * @param c
+	 * @return
+	 */
+	public static int collectionIsEmpty(Collection<?> c) {
+		return c.isEmpty() ? TRUE : -c.size();
+	}
+
+	/**
+	 * Helper function that is called instead of Collection.contains
+	 * 
+	 * @param c
+	 * @param o1
+	 * @return
+	 */
+	public static int collectionContains(Collection<?> c, Object o1) {
+		int matching = 0;
+		for (Object o2 : c) {
+			if (o2.equals(o1))
+				matching++;
+		}
+		return matching > 0 ? matching : -c.size();
+	}
+
+	/**
+	 * Helper function that is called instead of Collection.containsAll
+	 * 
+	 * @param c
+	 * @param o1
+	 * @return
+	 */
+	public static int collectionContainsAll(Collection<?> c, Collection<?> c2) {
+		int mismatch = 0;
+		for (Object o : c2) {
+			if (c.contains(o))
+				mismatch++;
+		}
+		return mismatch > 0 ? -mismatch : c2.size();
+	}
+
+	/**
+	 * Helper function that is called instead of Map.containsKey
+	 * 
+	 * @param c
+	 * @param o1
+	 * @return
+	 */
+	public static int mapContainsKey(Map<?, ?> m, Object o1) {
+		return collectionContains(m.keySet(), o1);
+	}
+
+	/**
+	 * Helper function that is called instead of Map.containsValue
+	 * 
+	 * @param c
+	 * @param o1
+	 * @return
+	 */
+	public static int mapContainsValue(Map<?, ?> m, Object o1) {
+		return collectionContains(m.values(), o1);
+	}
+
+	/**
+	 * Helper function that is called instead of Map.isEmpty
+	 * 
+	 * @param c
+	 * @return
+	 */
+	public static int mapIsEmpty(Map<?, ?> m) {
+		return m.isEmpty() ? TRUE : -m.size();
+	}
+
+	static Map<Integer, Integer> lastDistance = new HashMap<Integer, Integer>();
+
+	/**
+	 * Keep track of the distance for this predicate
+	 * 
+	 * @param branchId
+	 * @param distance
+	 */
+	public static void pushPredicate(int distance, int branchId) {
+		//		Branch branch = BranchPool.getBranch(branchId);
+		//		//if (branch.getClassName().equals(Properties.TARGET_CLASS))
+		//		System.out.println("Keeping branch id: " + branch.getClassName() + " - "
+		//		        + branchId + " - " + distance);
+		System.out.println("Keeping branch id: " + branchId + " - " + distance);
+		lastDistance.put(branchId, Math.abs(distance));
+	}
+
+	/**
+	 * Retrieve the distance of a predicate with its given approximation level
+	 * 
+	 * @param branchId
+	 * @param approximationLevel
+	 * @param value
+	 * @return
+	 */
+	public static int getDistance(int branchId, int approximationLevel, int value) {
+		int distance = Integer.MAX_VALUE;
+		//		if (approximationLevel < 0)
+		//			approximationLevel = 0;
+		if (branchId > 0) {
+			if (lastDistance.containsKey(branchId)) {
+				distance = lastDistance.get(branchId);
+			}
+		}
+		//		Branch branch = BranchPool.getBranch(branchId);
+		//if (branch.getClassName().equals(Properties.TARGET_CLASS))
+		System.out.println("Getting branch id: " + approximationLevel + "/" + branchId
+		        + "/" + value + " - " + distance);
+
+		//		System.out.println("Getting branch id: " + branch.getClassName() + " - "
+		//		        + branchId + " - " + distance);
+		double val = (1.0 + normalize(distance)) / Math.pow(2.0, approximationLevel);
+		//double val = (1.0 + Math.abs(distance)) / Math.pow(2.0, approximationLevel);
+
+		//		int d = (int) Math.ceil(K * val / (val + 1));
+		int d = (int) Math.ceil(K * val);
+		if (value <= 0)
+			d = -d;
+		System.out.println("Value: " + distance + ", Distance: " + d);
+		return d;
 	}
 
 	public static void pushPredicate(int distance) {
@@ -98,6 +244,63 @@ public class BooleanHelper {
 		return d;
 	}
 
+	/**
+	 * Replacement function for double comparison
+	 * 
+	 * @param d1
+	 * @param d2
+	 * @return
+	 */
+	public static int doubleSub(double d1, double d2) {
+		if (d1 == d2) {
+			return 0;
+		} else {
+			double diff = d1 - d2;
+			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0 + Math.abs(diff));
+			//			int d3 = (int) Math.round(Integer.MAX_VALUE * diff2);
+			int d3 = (int) (diff2 < 0 ? Math.floor(Integer.MAX_VALUE * diff2)
+			        : Math.ceil(Integer.MAX_VALUE * diff2));
+			return d3;
+		}
+	}
+
+	/**
+	 * Replacement function for float comparison
+	 * 
+	 * @param f1
+	 * @param f2
+	 * @return
+	 */
+	public static int floatSub(float f1, float f2) {
+		if (f1 == f2)
+			return 0;
+		else {
+			double diff = f1 - f2;
+			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0F + Math.abs(diff));
+			int d3 = (int) Math.ceil(Integer.MAX_VALUE * diff2);
+			return d3;
+		}
+	}
+
+	/**
+	 * Replacement function for long comparison
+	 * 
+	 * @param l1
+	 * @param l2
+	 * @return
+	 */
+	public static int longSub(long l1, long l2) {
+		if (l1 == l2)
+			return 0;
+		else {
+			double diff = l1 - l2;
+			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0F + Math.abs(diff));
+			int d3 = (int) Math.ceil(Integer.MAX_VALUE * diff2);
+			return d3;
+		}
+	}
+
+	@Deprecated
 	public static int fromDouble(double d) {
 		//logger.info("Converting double " + d);
 		/*
@@ -118,6 +321,7 @@ public class BooleanHelper {
 		}
 	}
 
+	@Deprecated
 	public static int fromFloat(float d) {
 		//logger.info("Converting float " + d);
 		/*
@@ -137,6 +341,7 @@ public class BooleanHelper {
 		}
 	}
 
+	@Deprecated
 	public static int fromLong(long d) {
 		/*
 		if (d > Integer.MAX_VALUE)
@@ -171,7 +376,7 @@ public class BooleanHelper {
 			return Math.min(b, c);
 	}
 
-	public static int editDistance(String s, String t) {
+	public static int editDistance_old(String s, String t) {
 		int d[][]; // matrix
 		int n; // length of s
 		int m; // length of t
@@ -239,20 +444,131 @@ public class BooleanHelper {
 		return d[n][m];
 	}
 
+	public static int editDistance(String s, String t) {
+		//if (s == null || t == null) {
+		//	throw new IllegalArgumentException("Strings must not be null");
+		//}
+
+		/*
+		    The difference between this impl. and the previous is that, rather 
+		     than creating and retaining a matrix of size s.length()+1 by t.length()+1, 
+		     we maintain two single-dimensional arrays of length s.length()+1.  The first, d,
+		     is the 'current working' distance array that maintains the newest distance cost
+		     counts as we iterate through the characters of String s.  Each time we increment
+		     the index of String t we are comparing, d is copied to p, the second int[].  Doing so
+		     allows us to retain the previous cost counts as required by the algorithm (taking 
+		     the minimum of the cost count to the left, up one, and diagonally up and to the left
+		     of the current cost count being calculated).  (Note that the arrays aren't really 
+		     copied anymore, just switched...this is clearly much better than cloning an array 
+		     or doing a System.arraycopy() each time  through the outer loop.)
+
+		     Effectively, the difference between the two implementations is this one does not 
+		     cause an out of memory condition when calculating the LD over two very large strings.  		
+		 */
+
+		int n = s.length(); // length of s
+		int m = t.length(); // length of t
+
+		if (n == 0) {
+			return m;
+		} else if (m == 0) {
+			return n;
+		}
+
+		int p[] = new int[n + 1]; //'previous' cost array, horizontally
+		int d[] = new int[n + 1]; // cost array, horizontally
+		int _d[]; //placeholder to assist in swapping p and d
+
+		// indexes into strings s and t
+		int i; // iterates through s
+		int j; // iterates through t
+
+		char t_j; // jth character of t
+
+		int cost; // cost
+
+		for (i = 0; i <= n; i++) {
+			p[i] = i;
+		}
+
+		for (j = 1; j <= m; j++) {
+			t_j = t.charAt(j - 1);
+			d[0] = j;
+
+			for (i = 1; i <= n; i++) {
+				cost = s.charAt(i - 1) == t_j ? 0 : 1;
+				// minimum of cell to the left+1, to the top+1, diagonally left and up +cost				
+				d[i] = Math.min(Math.min(d[i - 1] + 1, p[i] + 1), p[i - 1] + cost);
+			}
+
+			// copy current distance counts to 'previous row' distance counts
+			_d = p;
+			p = d;
+			d = _d;
+		}
+
+		// our last action in the above loop was to switch d and p, so p now 
+		// actually has the most recent cost counts
+		return p[n];
+	}
+
+	/*
+	 * Return a positive number if the 2 strings are equal, or a <=0 value representing
+	 * how different they are
+	 */
 	public static int StringEquals(String first, Object second) {
+		if(first==null){
+			throw new IllegalArgumentException("StringEquals is not supposed to work on a null caller");
+		}
+		
 		if (first.equals(second))
 			return K; // Identical
-		else {
-			return -editDistance(first, second.toString());
+		else if(second == null){
+			return -(first.length()+K);
+		} else {
+			//System.out.println("Edit distance between " + first + " and " + second
+			//       + " is " + -editDistance(first, second.toString()) + " / "
+			//      + getLevenshteinDistance(first, (String) second));
+			//return -editDistance(first, second.toString());
+			//return -getLevenshteinDistance(first, (String) second);
+			return -getDistanceBasedOnLeftAlignment(first,second.toString());
 		}
 	}
 
+	public static int getDistanceBasedOnLeftAlignment(String a, String b){
+		if(a==b){return K;}
+		else if(a==null && b!=null){
+			return b.length() + 1; // +1 is important to handle the empty string "" 
+		} else if (a!=null && b==null){
+			return a.length() + 1;
+		} else {
+			int differences = 0;
+			int min = Math.min(a.length(), b.length());
+			int max =  Math.max(a.length(), b.length());
+			differences += (max - min);
+			for(int i=0; i<min; i++){
+				/*
+				 * Note: instead of just checking for mismatches, we could use something more sophisticated.
+				 * Eg, "a" is closer to "e" than "!". But maybe, considering the type of local search
+				 * we do, we don't need to do it
+				 */
+				if(a.charAt(i) != b.charAt(i)){
+					differences++;
+				}
+			}
+			return differences;
+		}
+	}
+	
 	public static int StringEqualsIgnoreCase(String first, String second) {
 		return StringEquals(first.toLowerCase(), second.toLowerCase());
 	}
 
 	public static int StringStartsWith(String value, String prefix, int start) {
 		int len = Math.min(prefix.length(), value.length());
+		//System.out.println("StartsWith: " + start + ": " + value + " / " + prefix + ": "
+		//        + value.substring(start, start + len) + " / " + prefix + " = "
+		//        + StringEquals(value.substring(start, start + len), prefix));
 		return StringEquals(value.substring(start, start + len), prefix);
 	}
 
@@ -294,28 +610,37 @@ public class BooleanHelper {
 			s2 = s2.toLowerCase();
 		}
 
-		return StringEquals(s1.substring(thisStart, length), s2.substring(start, length));
+		return StringEquals(s1.substring(thisStart, length + thisStart),
+		                    s2.substring(start, length + start));
 	}
 
+	/**
+	 * Replacement function for the Java instanceof instruction, which returns a
+	 * distance integer
+	 * 
+	 * @param o
+	 * @param c
+	 * @return
+	 */
 	public static int instanceOf(Object o, Class<?> c) {
 		if (o == null)
-			return -K;
-		//logger.info("Checking whether " + o.getClass().getName() + " can be assigned to "
-		//        + c.getName());
-		if (c.isAssignableFrom(o.getClass())) {
-			//logger.info("Yes");
-			return K;
-		} else {
-			//logger.info("No");
-			return -K;
-		}
+			return FALSE;
+		return c.isAssignableFrom(o.getClass()) ? TRUE : FALSE;
 	}
 
+	/**
+	 * Replacement function for the Java IFNULL instruction, returning a
+	 * distance integer
+	 * 
+	 * @param o
+	 * @param opcode
+	 * @return
+	 */
 	public static int isNull(Object o, int opcode) {
 		if (opcode == Opcodes.IFNULL)
-			return o == null ? K : -K;
+			return o == null ? TRUE : FALSE;
 		else
-			return o != null ? K : -K;
+			return o != null ? TRUE : FALSE;
 	}
 
 	public static int IOR(int a, int b) {

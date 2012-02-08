@@ -280,7 +280,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 		T oldVal = value;
 		// TODO: Should not be hardcoded
 		while (value == oldVal && value != null) {
-			if (Randomness.nextDouble() <= 0.2)
+			if (Randomness.nextDouble() <= Properties.RANDOM_PERTURBATION)
 				randomize();
 			else
 				delta();

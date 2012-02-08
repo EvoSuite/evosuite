@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -115,10 +116,35 @@ public class InspectorManager {
 		return instance;
 	}
 
+	private void determineInspectors(Class<?> clazz) {
+		List<Inspector> inspectorList = new ArrayList<Inspector>();
+		for (Method method : clazz.getMethods()) {
+			if (!Modifier.isProtected(method.getModifiers())
+			        && !Modifier.isPrivate(method.getModifiers())
+			        && (method.getReturnType().isPrimitive()
+			                || method.getReturnType().equals(String.class) || method.getReturnType().isEnum())
+			        && !method.getReturnType().equals(void.class)
+			        && method.getParameterTypes().length == 0
+			        && !method.getName().equals("hashCode")
+			        && !method.getDeclaringClass().equals(Object.class)
+			        && !method.getName().equals("pop")) { // FIXXME
+				logger.info("Inspector for class " + clazz.getSimpleName() + ": "
+				        + method.getName());
+				inspectorList.add(new Inspector(clazz, method));
+			}
+		}
+		inspectors.put(clazz, inspectorList);
+	}
+
 	public List<Inspector> getInspectors(Class<?> clazz) {
-		if (inspectors.containsKey(clazz))
-			return inspectors.get(clazz);
-		else
-			return new ArrayList<Inspector>();
+		if (!inspectors.containsKey(clazz))
+			determineInspectors(clazz);
+		return inspectors.get(clazz);
+	}
+
+	public void removeInspector(Class<?> clazz, Inspector inspector) {
+		if (inspectors.containsKey(clazz)) {
+			inspectors.get(clazz).remove(inspector);
+		}
 	}
 }

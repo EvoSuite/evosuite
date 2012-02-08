@@ -6,20 +6,27 @@ public class IntegerVariable extends IntegerExpression implements Variable<Long>
 
 	protected String name;
 
+	protected long concreteValue;
+	
 	protected long minValue;
 
 	protected long maxValue;
 
-	public IntegerVariable(String name, long minValue, long maxValue) {
+	public IntegerVariable(String name, long conV, long minValue, long maxValue) {
 		super();
 		this.name = name;
+		this.concreteValue = conV;
 		this.minValue = minValue;
 		this.maxValue = maxValue;
 	}
 
 	@Override
 	public Long getConcreteValue() {
-		return null;
+		return concreteValue;
+	}
+	
+	public void setConcreteValue(Long con) {
+		concreteValue = con;
 	}
 
 	@Override
@@ -39,7 +46,7 @@ public class IntegerVariable extends IntegerExpression implements Variable<Long>
 
 	@Override
 	public String toString() {
-		return this.name;
+		return this.name + "(" + concreteValue + ")";
 	}
 
 	@SuppressWarnings("unchecked")
@@ -63,6 +70,11 @@ public class IntegerVariable extends IntegerExpression implements Variable<Long>
 	@Override
 	public int getSize() {
 		return 1;
+	}
+
+	@Override
+	public Long execute() {
+		return concreteValue;
 	}
 
 }
