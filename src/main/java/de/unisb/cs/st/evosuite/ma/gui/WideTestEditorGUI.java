@@ -38,7 +38,7 @@ public class WideTestEditorGUI implements ActionListener, TestEditorGUI {
 
 	public final JFrame mainFrame = new JFrame("MA Editor");
 
-	private final JButton btnSaveTestCaseButton = new JButton("Save");
+	private final JButton btnParseTestCaseButton = new JButton("Parse");
 
 	private final TitledBorder editorTitledBorder = new TitledBorder(null, "Test Editor", TitledBorder.LEADING,
 			TitledBorder.TOP, null, null);
@@ -172,14 +172,14 @@ public class WideTestEditorGUI implements ActionListener, TestEditorGUI {
 		btnCloneTestButton.setBounds(274, 43, 119, 25);
 		controlPanel.add(btnCloneTestButton);
 
-		btnSaveTestCaseButton.addMouseListener(new MouseAdapter() {
+		btnParseTestCaseButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				saveTest();
+				parseTest();
 			}
 		});
-		btnSaveTestCaseButton.setBounds(405, 12, 119, 25);
-		controlPanel.add(btnSaveTestCaseButton);
+		btnParseTestCaseButton.setBounds(405, 12, 119, 25);
+		controlPanel.add(btnParseTestCaseButton);
 
 		JButton btnQuitButton = new JButton("Quit");
 		btnQuitButton.addMouseListener(new MouseAdapter() {
@@ -220,6 +220,16 @@ public class WideTestEditorGUI implements ActionListener, TestEditorGUI {
 		});
 		btnReset.setBounds(588, 12, 90, 25);
 		controlPanel.add(btnReset);
+		
+		JButton btnLoad = new JButton("Load");
+		btnLoad.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				loadFile();
+			}
+		});
+		btnLoad.setBounds(14, 43, 117, 25);
+		controlPanel.add(btnLoad);
 
 		JMenuBar menuBar = new JMenuBar();
 		mainFrame.setJMenuBar(menuBar);
@@ -254,11 +264,11 @@ public class WideTestEditorGUI implements ActionListener, TestEditorGUI {
 		mntmCloneTest.setAccelerator(ctrlLKeyStroke);
 		mnTestCaseEditor.add(mntmCloneTest);
 
-		JMenuItem mntmSaveTest = new JMenuItem("Save", KeyEvent.VK_S);
-		mntmSaveTest.addActionListener(this);
+		JMenuItem mntmParseTest = new JMenuItem("Parse", KeyEvent.VK_S);
+		mntmParseTest.addActionListener(this);
 		KeyStroke ctrlSKeyStroke = KeyStroke.getKeyStroke("control S");
-		mntmSaveTest.setAccelerator(ctrlSKeyStroke);
-		mnTestCaseEditor.add(mntmSaveTest);
+		mntmParseTest.setAccelerator(ctrlSKeyStroke);
+		mnTestCaseEditor.add(mntmParseTest);
 
 		mnTestCaseEditor.addSeparator();
 
@@ -323,11 +333,11 @@ public class WideTestEditorGUI implements ActionListener, TestEditorGUI {
 	}
 
 	private void setTestCaseChanged() {
-		btnSaveTestCaseButton.setText("Save*");
+		btnParseTestCaseButton.setText("Parse*");
 	}
 
 	private void setTestCaseUnchanged() {
-		btnSaveTestCaseButton.setText("Save");
+		btnParseTestCaseButton.setText("Parse");
 	}
 
 	private void updateTitle() {
@@ -377,8 +387,8 @@ public class WideTestEditorGUI implements ActionListener, TestEditorGUI {
 		updateTitle();
 	}
 
-	private void saveTest() {
-		if (editor.saveTest(origTestEditorPane.getText())) {
+	private void parseTest() {
+		if (editor.parseTest(origTestEditorPane.getText())) {
 			editor.sguiSC.printSourceCode();
 			origTestEditorPane.setText(editor.getCurrOrigTCCode());
 			esTestEditorPane.setText(editor.getCurrESTCCode());
@@ -386,9 +396,18 @@ public class WideTestEditorGUI implements ActionListener, TestEditorGUI {
 			updateTitle();
 		}
 	}
+	
+	private void loadFile() {
+		editor.readFromFile();
+		editor.sguiSC.printSourceCode();
+		origTestEditorPane.setText(editor.getCurrOrigTCCode());
+		esTestEditorPane.setText(editor.getCurrESTCCode());
+		setTestCaseUnchanged();
+		updateTitle();
+	}
 
 	private void unDo() {
-		editor.undo();
+		editor.unDo();
 		editor.sguiSC.printSourceCode();
 		origTestEditorPane.setText(editor.getCurrOrigTCCode());
 		esTestEditorPane.setText(editor.getCurrESTCCode());
@@ -397,7 +416,7 @@ public class WideTestEditorGUI implements ActionListener, TestEditorGUI {
 	}
 
 	private void reDo() {
-		editor.redo();
+		editor.reDo();
 		editor.sguiSC.printSourceCode();
 		origTestEditorPane.setText(editor.getCurrOrigTCCode());
 		esTestEditorPane.setText(editor.getCurrESTCCode());
@@ -434,8 +453,8 @@ public class WideTestEditorGUI implements ActionListener, TestEditorGUI {
 			newTest();
 		} else if (actionEvent.getActionCommand().equals("Clone test")) {
 			cloneTest();
-		} else if (actionEvent.getActionCommand().equals("Save")) {
-			saveTest();
+		} else if (actionEvent.getActionCommand().equals("Parse")) {
+			parseTest();
 		} else if (actionEvent.getActionCommand().equals("Quit")) {
 			quit();
 		} else if (actionEvent.getActionCommand().equals("Settings")) {
@@ -443,12 +462,13 @@ public class WideTestEditorGUI implements ActionListener, TestEditorGUI {
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unisb.cs.st.evosuite.ma.gui.TestEditorGUI#getMainFrame()
 	 */
 	@Override
 	public JFrame getMainFrame() {
 		return mainFrame;
 	}
-
 }

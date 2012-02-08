@@ -98,8 +98,8 @@ public class SettingsGUI extends JDialog implements ActionListener {
 		}
 
 		chckbxManualEditorActive.setSelected(Properties.MA_ACTIVE);
-		deltaField.setText(String.valueOf(Properties.MIN_DELTA_COVERAGE));
-		iterField.setText(String.valueOf(Properties.MAX_ITERATION));
+		deltaField.setText(String.valueOf(Properties.MA_MIN_DELTA_COVERAGE));
+		iterField.setText(String.valueOf(Properties.MA_MAX_ITERATIONS));
 
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setVisible(true);
@@ -110,8 +110,8 @@ public class SettingsGUI extends JDialog implements ActionListener {
 			String delta = deltaField.getText();
 			String iter = iterField.getText();
 			if (delta != "" && iter != "") {
-				Properties.MIN_DELTA_COVERAGE = Double.parseDouble(delta);
-				Properties.MAX_ITERATION = Integer.parseInt(iter);
+				Properties.MA_MIN_DELTA_COVERAGE = Double.parseDouble(delta);
+				Properties.MA_MAX_ITERATIONS = Integer.parseInt(iter);
 				Properties.MA_ACTIVE = chckbxManualEditorActive.isSelected();
 				setVisible(false);
 				dispose();

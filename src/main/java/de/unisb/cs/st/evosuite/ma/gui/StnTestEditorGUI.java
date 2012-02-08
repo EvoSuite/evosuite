@@ -359,7 +359,7 @@ public class StnTestEditorGUI implements ActionListener, TestEditorGUI {
 	}
 
 	private void saveTest() {
-		if (editor.saveTest(testEditorPane.getText())) {
+		if (editor.parseTest(testEditorPane.getText())) {
 			editor.sguiSC.printSourceCode();
 			testEditorPane.setText(editor.getCurrESTCCode());
 			setTestCaseUnchanged();
@@ -368,7 +368,7 @@ public class StnTestEditorGUI implements ActionListener, TestEditorGUI {
 	}
 
 	private void unDo() {
-		editor.undo();
+		editor.unDo();
 		editor.sguiSC.printSourceCode();
 		testEditorPane.setText(editor.getCurrESTCCode());
 		setTestCaseUnchanged();
@@ -376,7 +376,7 @@ public class StnTestEditorGUI implements ActionListener, TestEditorGUI {
 	}
 
 	private void reDo() {
-		editor.redo();
+		editor.reDo();
 		editor.sguiSC.printSourceCode();
 		testEditorPane.setText(editor.getCurrESTCCode());
 		setTestCaseUnchanged();

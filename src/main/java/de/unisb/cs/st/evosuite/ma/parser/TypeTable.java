@@ -1,8 +1,6 @@
 package de.unisb.cs.st.evosuite.ma.parser;
 
 import japa.parser.ParseException;
-import japa.parser.ast.expr.Expression;
-import japa.parser.ast.expr.NameExpr;
 import japa.parser.ast.type.Type;
 
 import java.util.ArrayList;

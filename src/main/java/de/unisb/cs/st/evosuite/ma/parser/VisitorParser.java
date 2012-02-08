@@ -69,13 +69,15 @@ import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 
 /**
- * @author Yury Pavlov All visit method, where statement for EvoSuite created,
- *         must add it in new TestCase
+ * Visitor parser. If there is a error during parsing then {@code valid} will be
+ * false, but it's still possible to get {@link TestCase} without invalid
+ * instructions.
+ * 
+ * @author Yury Pavlov
  */
-public class TestVisitor extends
-		GenericVisitorAdapter<AbstractStatement, Object> {
+public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Object> {
 
-	private static Logger logger = LoggerFactory.getLogger(TestParser.class);
+	private static Logger logger = LoggerFactory.getLogger(VisitorParser.class);
 
 	private TestCase newTC = new DefaultTestCase();
 
@@ -87,14 +89,14 @@ public class TestVisitor extends
 
 	private final ArrayList<String> parsErrors = new ArrayList<String>();
 
-	// if we use it from GUI
+	// call from GUI
 	private boolean guiActive = false;
 
-	public TestVisitor() {
+	public VisitorParser() {
 		// to use it without GUI
 	}
 
-	public TestVisitor(boolean guiActive) {
+	public VisitorParser(boolean guiActive) {
 		this.guiActive = guiActive;
 	}
 
@@ -108,11 +110,6 @@ public class TestVisitor extends
 		return separator(init, n.getType(), name);
 	}
 
-	/**
-	 * @param n
-	 * @param init
-	 * @return
-	 */
 	private AbstractStatement separator(Expression init, Object arg, String name) {
 		AbstractStatement res = null;
 		if (init instanceof IntegerLiteralExpr) {
@@ -169,24 +166,19 @@ public class TestVisitor extends
 			try {
 				switch (primType.getType()) {
 				case Byte:
-					res = new BytePrimitiveStatement(newTC,
-							Byte.parseByte(init));
+					res = new BytePrimitiveStatement(newTC, Byte.parseByte(init));
 					break;
 				case Short:
-					res = new ShortPrimitiveStatement(newTC,
-							Short.parseShort(init));
+					res = new ShortPrimitiveStatement(newTC, Short.parseShort(init));
 					break;
 				case Int:
-					res = new IntPrimitiveStatement(newTC,
-							Integer.parseInt(init));
+					res = new IntPrimitiveStatement(newTC, Integer.parseInt(init));
 					break;
 				default:
-					res = new IntPrimitiveStatement(newTC,
-							Integer.parseInt(init));
+					res = new IntPrimitiveStatement(newTC, Integer.parseInt(init));
 				}
 			} catch (NumberFormatException e) {
-				addParsError(
-						"Primitive is assigned a var, not implemented yet.", n);
+				addParsError("Primitive is assigned a var, not implemented yet.", n);
 			}
 		} else {
 			res = new IntPrimitiveStatement(newTC, Integer.parseInt(init));
@@ -215,8 +207,7 @@ public class TestVisitor extends
 		logger.debug("i'm here LongLiteralExpr");
 		String init = n.getValue();
 		try {
-			res = new LongPrimitiveStatement(newTC, Long.parseLong(init
-					.replace("L", "")));
+			res = new LongPrimitiveStatement(newTC, Long.parseLong(init.replace("L", "")));
 		} catch (NumberFormatException e) {
 			addParsError("Primitive is assigned a var, not implemented yet.", n);
 		}
@@ -234,24 +225,19 @@ public class TestVisitor extends
 			try {
 				switch (primType.getType()) {
 				case Float:
-					res = new FloatPrimitiveStatement(newTC,
-							Float.parseFloat(init.replace("F", "")));
+					res = new FloatPrimitiveStatement(newTC, Float.parseFloat(init.replace("F", "")));
 					break;
 				case Double:
-					res = new DoublePrimitiveStatement(newTC,
-							Double.parseDouble(init.replace("D", "")));
+					res = new DoublePrimitiveStatement(newTC, Double.parseDouble(init.replace("D", "")));
 					break;
 				default:
-					res = new DoublePrimitiveStatement(newTC,
-							Double.parseDouble(init.replace("D", "")));
+					res = new DoublePrimitiveStatement(newTC, Double.parseDouble(init.replace("D", "")));
 				}
 			} catch (NumberFormatException e) {
-				addParsError(
-						"Primitive is assigned a var, not implemented yet.", n);
+				addParsError("Primitive is assigned a var, not implemented yet.", n);
 			}
 		} else {
-			res = new DoublePrimitiveStatement(newTC, Double.parseDouble(init
-					.replace("D", "")));
+			res = new DoublePrimitiveStatement(newTC, Double.parseDouble(init.replace("D", "")));
 		}
 		checkedAddNewSttm(n, res);
 		return res;
@@ -307,8 +293,7 @@ public class TestVisitor extends
 			for (Class<?> class1 : paramClasses) {
 				logger.debug("Params clazzs loaded: " + class1);
 			}
-			Constructor<?> constructor = getConstructor(clazz,
-					paramClasses.toArray(new Class<?>[paramClasses.size()]));
+			Constructor<?> constructor = getConstructor(clazz, paramClasses.toArray(new Class<?>[paramClasses.size()]));
 			res = new ConstructorStatement(newTC, constructor, clazz, params);
 		} catch (ParseException e) {
 			addParsError(e.getMessage(), n);
@@ -332,8 +317,7 @@ public class TestVisitor extends
 					// dynamic field
 					source = tt.getVarReference(scope);
 				}
-				if (!(Modifier.isStatic(field.getModifiers()))
-						&& source == null) {
+				if (!(Modifier.isStatic(field.getModifiers())) && source == null) {
 					addParsError("Can't load dynamic field in static way.", n);
 				}
 				res = new FieldStatement(newTC, field, source, type);
@@ -375,8 +359,7 @@ public class TestVisitor extends
 		return createMultiDimArray(n, sizes);
 	}
 
-	private AbstractStatement createMultiDimArray(ArrayCreationExpr n,
-			int[] sizes) {
+	private AbstractStatement createMultiDimArray(ArrayCreationExpr n, int[] sizes) {
 		AbstractStatement res = null;
 		Class<?> clazz = null;
 		try {
@@ -416,12 +399,10 @@ public class TestVisitor extends
 					for (int k = 0; k < sizes[i]; k++) {
 						// logger.debug("Add array: " +
 						// lowArrays.remove());
-						VariableReference haElRef = new ArrayIndex(newTC,
-								(ArrayReference) currentDim.get(j)
-										.getReturnValue(), k);
-						AbstractStatement tmpAs = new AssignmentStatement(
-								newTC, haElRef, prevDim.remove()
-										.getReturnValue());
+						VariableReference haElRef = new ArrayIndex(newTC, (ArrayReference) currentDim.get(j)
+								.getReturnValue(), k);
+						AbstractStatement tmpAs = new AssignmentStatement(newTC, haElRef, prevDim.remove()
+								.getReturnValue());
 						checkedAddNewSttm(n, tmpAs);
 					}
 					logger.debug("Switch to the next ha");
@@ -450,7 +431,7 @@ public class TestVisitor extends
 		logger.debug("AssignExpr.getValue(): " + value);
 		try {
 			lhs = getVarRef(target);
- 		} catch (ParseException e) {
+		} catch (ParseException e) {
 			// try to create var for this value
 			logger.debug("Try create new RHS");
 			AbstractStatement lhsSttm = separator(value, null,
@@ -486,8 +467,7 @@ public class TestVisitor extends
 			Class<?>[] paramClasses = getVarClasses(paramReferences);
 			Method method = getMethod(n, paramClasses);
 			VariableReference callee = getVarRef(n.getScope());
-			res = new MethodStatement(newTC, method, callee,
-					method.getReturnType(), paramReferences);
+			res = new MethodStatement(newTC, method, callee, method.getReturnType(), paramReferences);
 		} catch (ParseException e) {
 			addParsError(e.getMessage(), n);
 		}
@@ -501,8 +481,7 @@ public class TestVisitor extends
 		Operator op = n.getOperator();
 		logger.debug("i'm here UnaryExpr");
 		logger.debug(n.getOperator().toString());
-		res = separator(expr, arg,
-				"tEmPoRaLvArIaBlE" + n.getBeginLine() + n.getBeginColumn());
+		res = separator(expr, arg, "tEmPoRaLvArIaBlE" + n.getBeginLine() + n.getBeginColumn());
 		if (res != null) {
 			if (op == Operator.negative || op == Operator.not) {
 				res.negate();
@@ -541,8 +520,7 @@ public class TestVisitor extends
 			// find ref of var -> find pos. of ref's sttm & get sttm it
 			// self for manipulation
 			VariableReference refRHS = getVarRef(n);
-			AbstractStatement rhs = (AbstractStatement) newTC
-					.getStatement(refRHS.getStPosition());
+			AbstractStatement rhs = (AbstractStatement) newTC.getStatement(refRHS.getStPosition());
 			// TODO must be inserted in TT??? check
 			AbstractStatement lhs = (AbstractStatement) rhs.clone(newTC);
 			checkedAddNewSttm(n, lhs);
@@ -564,8 +542,7 @@ public class TestVisitor extends
 
 	private void addParsError(String msg, Expression n) {
 		if (n != null) {
-			parsErrors.add("Expression: " + n + ".\nIn line: "
-					+ n.getBeginLine() + ".\nSay: " + msg);
+			parsErrors.add("Expression: " + n + ".\nIn line: " + n.getBeginLine() + ".\nSay: " + msg);
 		} else {
 			parsErrors.add(msg);
 		}
@@ -624,8 +601,7 @@ public class TestVisitor extends
 				String className = null;
 
 				// choosing part
-				Collection<String> allClasses = testCluster
-						.getMatchingClasses(name);
+				Collection<String> allClasses = testCluster.getMatchingClasses(name);
 				String[] choices = new String[allClasses.size()];
 				allClasses.toArray(choices);
 				if (choices.length == 0) {
@@ -633,7 +609,7 @@ public class TestVisitor extends
 					choices[0] = "Nothing to choose :p";
 				}
 				while ((className = Editor.chooseClassName(choices, name)) != null) {
-					System.out.println("ClassDialog return: " + className);
+					logger.debug("ClassDialog return: " + className);
 					{
 						try {
 							return testCluster.importClass(className);
@@ -655,12 +631,10 @@ public class TestVisitor extends
 				}
 			}
 		}
-		System.out.println("Rrrrr throw now.");
 		throw new ParseException(null, "Can't load class: " + name);
 	}
 
-	private Class<?>[] getVarClasses(List<VariableReference> args)
-			throws ParseException {
+	private Class<?>[] getVarClasses(List<VariableReference> args) throws ParseException {
 		List<Class<?>> res = new ArrayList<Class<?>>();
 
 		if (args != null) {
@@ -673,8 +647,7 @@ public class TestVisitor extends
 		return res.toArray(new Class<?>[res.size()]);
 	}
 
-	private List<VariableReference> getVarRefs(List<Expression> args)
-			throws ParseException {
+	private List<VariableReference> getVarRefs(List<Expression> args) throws ParseException {
 		List<VariableReference> res = new ArrayList<VariableReference>();
 		if (args != null) {
 			for (Expression expr : args) {
@@ -715,19 +688,14 @@ public class TestVisitor extends
 			VariableReference avRef = getVarRef(arrayAccExpr.getName());
 			ArrayReference arrayRef = null;
 			if (avRef instanceof ArrayReference) {
-				logger.debug("2) Have array's variable of type: "
-						+ avRef.getVariableClass());
+				logger.debug("2) Have array's variable of type: " + avRef.getVariableClass());
 				arrayRef = (ArrayReference) avRef;
 			} else {
-				logger.debug("1) Have array variable of type: "
-						+ avRef.getVariableClass() + " / "
+				logger.debug("1) Have array variable of type: " + avRef.getVariableClass() + " / "
 						+ avRef.getComponentType());
-				int size = ((ArrayStatement) newTC.getStatement(avRef
-						.getStPosition())).size();
-				AbstractStatement newArray = new ArrayStatement(newTC,
-						avRef.getVariableClass(), size);
-				AbstractStatement assign = new AssignmentStatement(newTC,
-						newArray.getReturnValue(), avRef);
+				int size = ((ArrayStatement) newTC.getStatement(avRef.getStPosition())).size();
+				AbstractStatement newArray = new ArrayStatement(newTC, avRef.getVariableClass(), size);
+				AbstractStatement assign = new AssignmentStatement(newTC, newArray.getReturnValue(), avRef);
 				newTC.addStatement(newArray);
 				arrayRef = (ArrayReference) newTC.addStatement(assign);
 			}
@@ -747,9 +715,7 @@ public class TestVisitor extends
 			return visit((MethodCallExpr) expr, null).getReturnValue();
 		} else if (expr instanceof LiteralExpr) {
 			logger.debug("create Ref for literal");
-			return separator(expr, null,
-					"tEmPoRaLvArIaBlE" + expr.getBeginColumn())
-					.getReturnValue();
+			return separator(expr, null, "tEmPoRaLvArIaBlE" + expr.getBeginColumn()).getReturnValue();
 		} else if (expr instanceof UnaryExpr) {
 			return parse((UnaryExpr) expr, null).getReturnValue();
 		} else if (expr instanceof BinaryExpr) {
@@ -759,20 +725,16 @@ public class TestVisitor extends
 			return getVarRef(((EnclosedExpr) expr).getInner());
 		} else if (expr instanceof ObjectCreationExpr) {
 			logger.debug("create Ref for objectCreat");
-			return separator((ObjectCreationExpr) expr, null,
-					"tEmPoRaLvArIaBlE" + expr.getBeginColumn())
+			return separator((ObjectCreationExpr) expr, null, "tEmPoRaLvArIaBlE" + expr.getBeginColumn())
 					.getReturnValue();
 		} else if (expr instanceof ArrayCreationExpr) {
-			return separator((ArrayCreationExpr) expr, null,
-					"tEmPoRaLvArIaBlE" + expr.getBeginColumn())
+			return separator((ArrayCreationExpr) expr, null, "tEmPoRaLvArIaBlE" + expr.getBeginColumn())
 					.getReturnValue();
 		}
-		throw new ParseException(null, "Can't find reference for variable: "
-				+ expr);
+		throw new ParseException(null, "Can't find reference for variable: " + expr);
 	}
 
-	private Constructor<?> getConstructor(Class<?> clazz,
-			Class<?>[] paramClasses) throws ParseException {
+	private Constructor<?> getConstructor(Class<?> clazz, Class<?>[] paramClasses) throws ParseException {
 		try {
 			return clazz.getConstructor(paramClasses);
 		} catch (SecurityException e) {
@@ -782,9 +744,7 @@ public class TestVisitor extends
 				if (constr.getParameterTypes().length == paramClasses.length) {
 					Class<?>[] constrParams = constr.getParameterTypes();
 					for (int i = 0; i < constrParams.length; i++) {
-						if (paramClasses[i] == null
-								|| constrParams[i]
-										.isAssignableFrom(paramClasses[i])) {
+						if (paramClasses[i] == null || constrParams[i].isAssignableFrom(paramClasses[i])) {
 							if (i == constrParams.length - 1) {
 								return constr;
 							}
@@ -795,8 +755,8 @@ public class TestVisitor extends
 				}
 			}
 		}
-		throw new ParseException(null, "No such constructor in class "
-				+ clazz.getName() + ": " + Arrays.asList(paramClasses));
+		throw new ParseException(null, "No such constructor in class " + clazz.getName() + ": "
+				+ Arrays.asList(paramClasses));
 	}
 
 	private Field getField(FieldAccessExpr expr) throws ParseException {
@@ -815,54 +775,53 @@ public class TestVisitor extends
 		return null;
 	}
 
-	private Method getMethod(MethodCallExpr expr, Class<?>[] paramClasses)
-			throws ParseException {
+	private Method getMethod(MethodCallExpr expr, Class<?>[] paramClasses) throws ParseException {
 		Expression scope = expr.getScope();
-		System.out.println("getMethod(MethodCallExpr expr: " + expr);
-		System.out.println("Method's scope: " + scope);
-		Class<?> clazz = getClass(scope.toString());
-		System.out.println("Clazz for method is loaded: " + clazz);
+		logger.debug("getMethod(MethodCallExpr expr: " + expr);
+		logger.debug("Method's scope: " + scope);
+		Class<?> clazz = null;
+		// jUnit assert and other
+		if (scope != null) {
+			clazz = getClass(scope.toString());
+			logger.debug("Clazz for method is loaded: " + clazz);
 
-		String methodName = expr.getName();
-		StringBuilder classNames = new StringBuilder();
-		try {
-			return clazz.getMethod(methodName, paramClasses);
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			logger.debug("Looking for method " + methodName + " in class "
-					+ clazz.getName() + " with parameters "
-					+ Arrays.asList(paramClasses));
-			for (Method meth : TestCluster.getMethods(clazz)) {
-				if (meth.getName().equals(methodName)) {
-					if (meth.getParameterTypes().length == paramClasses.length) {
-						Class<?>[] methParams = meth.getParameterTypes();
-						logger.debug("Checking " + Arrays.asList(methParams));
-						for (int i = 0; i < methParams.length; i++) {
-							if (paramClasses[i] == null
-									|| methParams[i]
-											.isAssignableFrom(paramClasses[i])
-									|| (methParams[i].equals(int.class) && paramClasses[i]
-											.equals(char.class))) {
-								logger.debug("Parameter " + i + " matches");
-								if (i == methParams.length - 1) {
-									return meth;
+			String methodName = expr.getName();
+			StringBuilder classNames = new StringBuilder();
+			try {
+				return clazz.getMethod(methodName, paramClasses);
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				logger.debug("Looking for method " + methodName + " in class " + clazz.getName() + " with parameters "
+						+ Arrays.asList(paramClasses));
+				for (Method meth : TestCluster.getMethods(clazz)) {
+					if (meth.getName().equals(methodName)) {
+						if (meth.getParameterTypes().length == paramClasses.length) {
+							Class<?>[] methParams = meth.getParameterTypes();
+							logger.debug("Checking " + Arrays.asList(methParams));
+							for (int i = 0; i < methParams.length; i++) {
+								if (paramClasses[i] == null || methParams[i].isAssignableFrom(paramClasses[i])
+										|| (methParams[i].equals(int.class) && paramClasses[i].equals(char.class))) {
+									logger.debug("Parameter " + i + " matches");
+									if (i == methParams.length - 1) {
+										return meth;
+									}
+								} else {
+									logger.debug("Parameter " + i + " does not match");
+									break;
 								}
-							} else {
-								logger.debug("Parameter " + i
-										+ " does not match");
-								break;
 							}
 						}
 					}
 				}
+				for (Class<?> paramType : paramClasses) {
+					classNames.append(paramType.getName() + "; ");
+				}
 			}
-			for (Class<?> paramType : paramClasses) {
-				classNames.append(paramType.getName() + "; ");
-			}
+			throw new ParseException(null, "Can not find the method: \"" + methodName + "\", with parameter(s): "
+					+ classNames);
 		}
-		throw new ParseException(null, "Can not find the method: \""
-				+ methodName + "\", with parameter(s): " + classNames);
+		return null;
 	}
 
 }
