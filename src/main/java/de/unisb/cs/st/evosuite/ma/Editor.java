@@ -22,7 +22,7 @@ import de.unisb.cs.st.evosuite.ma.gui.SourceCodeGUI;
 import de.unisb.cs.st.evosuite.ma.gui.StnTestEditorGUI;
 import de.unisb.cs.st.evosuite.ma.gui.TestEditorGUI;
 import de.unisb.cs.st.evosuite.ma.gui.WideTestEditorGUI;
-import de.unisb.cs.st.evosuite.ma.parser.SEParser;
+import de.unisb.cs.st.evosuite.ma.parser.ParserConnector;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
@@ -36,44 +36,60 @@ import de.unisb.cs.st.evosuite.utils.HtmlAnalyzer;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
- * @author Yury Pavlov
+ * The <code>Editor</code> is the main class of the manual editor. It creates
+ * {@link Transaction} instance, {@link TestEditorGUI}, {@link SourceCodeGUI}
+ * and {@link ParserConnector}.
  * 
+ * @author Yury Pavlov
  */
 public class Editor implements UserFeedback {
 
 	private static Logger logger = LoggerFactory.getLogger(Editor.class);
 
+	// The dummy object for a synchronization of the manual editor with EvoSuite
 	public final Object lock = new Object();
 
+	// To retrieve coverage from EvoSuite
 	private final SearchStatistics statistics = SearchStatistics.getInstance();
 
-	private ArrayList<TCTuple> tcTuples = new ArrayList<TCTuple>();
+	// The current test suite of the manual editor
+	private List<TCTuple> tcTuples = new ArrayList<TCTuple>();
 
+	// The test suite of EvoSuite and co.
 	private final TestSuiteChromosome testSuiteChr;
 
+	// To get and insert a test suite from/into EvoSuite
 	private final GeneticAlgorithm gaInstance;
 
+	// A source code of the class under test
 	private Iterable<String> sourceCode;
 
 	public final TestEditorGUI sguiTE;
 
 	public final SourceCodeGUI sguiSC = new SourceCodeGUI();
 
+	// The current test case to deal
 	private TCTuple currTCTuple;
 
-	private final SEParser sep = new SEParser(this);
+	private final ParserConnector sep = new ParserConnector(this, true);
 
 	private final Transactions transactions;
 
+	// To check if a new coverage is smaller
 	private int prevSuiteCoverage;
 
-	// private TestParser testParser;
+	// Uncovered branches
+	private Set<TestFitnessFunction> uncGoals = new HashSet<TestFitnessFunction>();
+
+	// To get a new coverage of the test suite after changes
+	private TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
 	/**
-	 * Create instance of manual editor.
+	 * Create an instance of the manual editor, fill all GUIs and set fields.
+	 * Lock the EvoSuite's thread until the manual editor is not finished.
 	 * 
-	 * @param sa
-	 *            - SearchAlgorihm as parameter
+	 * @param ga
+	 *            - {@link GeneticAlgorithm}
 	 */
 	public Editor(GeneticAlgorithm ga) {
 		gaInstance = ga;
@@ -83,8 +99,6 @@ public class Editor implements UserFeedback {
 
 		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(TestSuiteGenerator.getFitnessFactory());
 		minimizer.minimize(testSuiteChr);
-
-		Set<TestFitnessFunction> originalGoals = testSuiteChr.getCoveredGoals();
 
 		List<TestCase> tests = testSuiteChr.getTests();
 		HtmlAnalyzer html_analyzer = new HtmlAnalyzer();
@@ -103,16 +117,21 @@ public class Editor implements UserFeedback {
 			sguiTE = new StnTestEditorGUI();
 		}
 		sguiTE.createMainWindow(this);
-		// see message from html_analyzer.getClassContent(...) to check this
+		// See message from html_analyzer.getClassContent(...) to check this
 		if (sourceCode.toString().equals("[No source found for " + Properties.TARGET_CLASS + "]")) {
 			File srcFile = chooseTargetFile(Properties.TARGET_CLASS);
-			sourceCode = Utils.readFile(srcFile);
+			if (srcFile != null) {
+				sourceCode = Utils.readFile(srcFile);
+			}
 		}
 		sguiSC.createWindow(this);
-		transactions = new Transactions(tcTuples, currTCTuple);
-		// testParser = new TestParser(this);
+		transactions = new Transactions(tcTuples);
+		if (Properties.MA_BRANCHES_CALC) {
+			retrieveAllUncovGoals();
+		}
+		printUncGoals();
 
-		// here is gui active
+		// Here is GUI active
 		synchronized (lock) {
 			while (sguiTE.getMainFrame().isVisible())
 				try {
@@ -122,14 +141,14 @@ public class Editor implements UserFeedback {
 				}
 		}
 
-		// resuming part
+		// Resuming part
 		// Insert result into population
 		ga.getFitnessFunction().getFitness(testSuiteChr);
 
-		// Fitness might decrease, because we only keep what is _covered_ during minimization
+		// Fitness might decrease, because we only keep what is _covered_ during
+		// Minimization
 		if (testSuiteChr.getFitness() > originalFitness) {
-			logger.debug("Fitness has increased from " + originalFitness + " to "
-			        + testSuiteChr.getFitness());
+			logger.debug("Fitness has increased from " + originalFitness + " to " + testSuiteChr.getFitness());
 			double lastFitness = testSuiteChr.getFitness();
 
 			TestSuiteChromosome original = (TestSuiteChromosome) ga.getBestIndividual();
@@ -146,42 +165,57 @@ public class Editor implements UserFeedback {
 		ga.getPopulation().set(0, testSuiteChr);
 		logger.info("Resulting individual: " + ga.getBestIndividual().toString());
 
-		// when work is done reset time
+		// When work is done reset time
 		ga.resumeGlobalTimeStoppingCondition();
 	}
 
 	/**
-	 * Pars a testCase from Editor to EvoSuite's instructions and insert in
+	 * Retrieve all branches, which are covered by this TestSuite. It's very
+	 * expensive operation.
+	 */
+	public void retrieveAllUncovGoals() {
+		// Use it only after minimize
+		if (Properties.MA_BRANCHES_CALC) {
+			List<TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals();
+			Set<TestFitnessFunction> res = new HashSet<TestFitnessFunction>(TestSuiteGenerator.getFitnessFactory()
+					.getCoverageGoals());
+			List<TestCase> testSuite = getTests();
+			for (TestFitnessFunction goal : goals) {
+				for (TestCase testCase : testSuite) {
+					if (goal.isCovered(testCase)) {
+						res.remove(goal);
+						break;
+					}
+				}
+			}
+			uncGoals = res;
+		}
+	}
+
+	/**
+	 * @return uncGoals Set<{@link TestFitnessFunction}>
+	 */
+	public Set<TestFitnessFunction> getUncGoals() {
+		return uncGoals;
+	}
+
+	/**
+	 * Parse a testCase from Editor to EvoSuite's instructions and insert in
 	 * EvoSuite's population. Create coverage for the new TestCase.
 	 * 
 	 * @param testSource
 	 * @throws IOException
 	 */
-	public boolean saveTest(String testCode) {
-		TestCase currentTestCase = currTCTuple.getTestCase();
-
+	public boolean parseTest(String testCode) {
 		try {
 			TestCase newTestCase;
-			// newTestCase = testParser.parseTest(testCode);
 			newTestCase = sep.parseTest(testCode);
-
 			if (newTestCase != null) {
-				// EvoSuite stuff
-				TestCaseExecutor executor = TestCaseExecutor.getInstance();
-				executor.execute(newTestCase);
-
-				// If we change already existed testCase, remove old version
-				testSuiteChr.deleteTest(currentTestCase);
+				testSuiteChr.deleteTest(currTCTuple.getTestCase());
 				tcTuples.remove(currTCTuple);
-				testSuiteChr.addTest(newTestCase);
-
-				// MA stuff
-				Set<Integer> testCaseCoverega = retrieveCoverage(newTestCase);
-				TCTuple newTestCaseTuple = new TCTuple(newTestCase, testCaseCoverega, testCode);
-				currTCTuple = newTestCaseTuple;
-				// testParser = new TestParser(this);
-				tcTuples.add(newTestCaseTuple);
-				writeTransaction();
+				addTestCase(testCode, newTestCase);
+				writeRecord();
+				printUncGoals();
 				return true;
 			}
 		} catch (IOException e) {
@@ -190,6 +224,36 @@ public class Editor implements UserFeedback {
 			showParseException(e.getMessage());
 		}
 		return false;
+	}
+
+	private void printUncGoals() {
+		if (Properties.MA_BRANCHES_CALC) {
+			System.out.println("=========== BREANCHES ===========");
+			for (TestFitnessFunction tff : uncGoals) {
+				System.out.println(tff);
+			}
+			System.out.println("=========== " + uncGoals.size() + " ===========");
+		}
+	}
+
+	/**
+	 * @param testCode
+	 * @param currentTestCase
+	 * @param newTestCase
+	 */
+	private void addTestCase(String testCode, TestCase newTestCase) {
+		// EvoSuite stuff
+		executor.execute(newTestCase);
+		testSuiteChr.addTest(newTestCase);
+
+		// MA stuff
+		Set<Integer> testCaseCoverega = retrieveCoverage(newTestCase);
+		TCTuple newTestCaseTuple = new TCTuple(newTestCase, testCaseCoverega, testCode);
+		currTCTuple = newTestCaseTuple;
+		tcTuples.add(newTestCaseTuple);
+
+		// Branches calc.
+		retrieveAllUncovGoals();
 	}
 
 	/**
@@ -225,16 +289,16 @@ public class Editor implements UserFeedback {
 	public String getCurrESTCCode() {
 		return currTCTuple.getTestCase().toCode();
 	}
-	
+
 	/**
-	 * Return the manual source code of test case
+	 * Returns a source code of the current test case.
 	 */
 	public String getCurrOrigTCCode() {
 		return currTCTuple.getOrigSourceCode();
 	}
 
 	/**
-	 * Set currentTestCaseTuple to the next.
+	 * Set {@code currentTestCaseTuple} to the next.
 	 */
 	public void nextTCT() {
 		if (currTCTuple == null && tcTuples.size() > 0) {
@@ -258,7 +322,7 @@ public class Editor implements UserFeedback {
 	}
 
 	/**
-	 * Set currentTestCaseTuple to previous.
+	 * Set {@code currentTestCaseTuple} to previous.
 	 */
 	public void prevTCT() {
 		if (currTCTuple == null && tcTuples.size() > 0) {
@@ -282,17 +346,16 @@ public class Editor implements UserFeedback {
 	}
 
 	/**
-	 * Return source code of class.
+	 * Returns the source code of the class.
 	 * 
-	 * @return Iterable of String
+	 * @return <code>Iterable<{@code String}></code>
 	 */
 	public Iterable<String> getSourceCode() {
 		return sourceCode;
 	}
 
 	/**
-	 * Create new TestCase that can be insert in population. Without coverage
-	 * information. Set current TestCase to this.
+	 * Creates new TestCase which can be inserted in population.
 	 * 
 	 */
 	public void createNewTCT() {
@@ -301,23 +364,26 @@ public class Editor implements UserFeedback {
 	}
 
 	/**
-	 * Delete from testSuiteChromosome currentTestCase. Set current TestCase to
-	 * the next.
+	 * Deletes the {@code currentTestCase} from the {@code testSuiteChromosome}.
 	 */
 	public void delCurrTCT() {
 		TestCase testCaseForDeleting = currTCTuple.getTestCase();
 		testSuiteChr.deleteTest(testCaseForDeleting);
 		tcTuples.remove(currTCTuple);
 		nextTCT();
-		writeTransaction();
+		writeRecord();
+		if (Properties.MA_BRANCHES_CALC) {
+			retrieveAllUncovGoals();
+		}
 	}
 
 	/**
-	 * Retrieve the covered lines from EvoSuite (slow). Executed only 1 time at
-	 * init.
+	 * Retrieves covered lines of the {@link TestCase} from EvoSuite
+	 * (expensive).
 	 * 
 	 * @param testCase
-	 * @return Set of Integers
+	 *            {@link TestCase}
+	 * @return <code>Set<{@code Integer}></code>
 	 */
 	private Set<Integer> retrieveCoverage(TestCase testCase) {
 		ExecutionTrace trace = statistics.executeTest(testCase, Properties.TARGET_CLASS);
@@ -327,18 +393,18 @@ public class Editor implements UserFeedback {
 	}
 
 	/**
-	 * Return the coverage of the current TestCase.
+	 * Gets covered lines of the current test case.
 	 * 
-	 * @return Set of Integers
+	 * @return <code>Set<{@code Integer}></code>
 	 */
 	public Set<Integer> getCurrCoverage() {
 		return currTCTuple.getCoverage();
 	}
 
 	/**
-	 * Return covered lines of the whole TestSuite.
+	 * Returns covered lines of the test suite.
 	 * 
-	 * @return Set of Integers
+	 * @return <code>Set<{@code Integer}></code>
 	 */
 	public Set<Integer> getSuiteCoveredLines() {
 		Set<Integer> res = new HashSet<Integer>();
@@ -349,9 +415,9 @@ public class Editor implements UserFeedback {
 	}
 
 	/**
-	 * Return testSuit's coverage value.
+	 * Returns absolute suit's coverage value.
 	 * 
-	 * @return int
+	 * @return <code>int</code>
 	 */
 	public int getSuiteCoveratgeVal() {
 		gaInstance.getFitnessFunction().getFitness(testSuiteChr);
@@ -365,11 +431,25 @@ public class Editor implements UserFeedback {
 		return newValue;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.ma.UserFeedback#showParseException(java.lang.
+	 * String)
+	 */
 	@Override
 	public void showParseException(String message) {
 		JOptionPane.showMessageDialog(sguiTE.getMainFrame(), message, "Parsing error", JOptionPane.ERROR_MESSAGE);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.ma.UserFeedback#chooseTargetFile(java.lang.String
+	 * )
+	 */
 	@Override
 	public File chooseTargetFile(String fileName) {
 		final JFileChooser fc = new JFileChooser();
@@ -383,48 +463,106 @@ public class Editor implements UserFeedback {
 		return null;
 	}
 
+	/**
+	 * The dialog to enter a full path of a class.
+	 * 
+	 * @param className
+	 *            {@code String}
+	 * @return {@code String} a class path from a user
+	 */
 	public static String enterClassName(String className) {
 		return JOptionPane.showInputDialog(null, "Where is class " + className + "?", "Please enter full name",
 				JOptionPane.QUESTION_MESSAGE);
 	}
 
+	/**
+	 * The Dialog to choose right class from many.
+	 * 
+	 * @param choices
+	 *            {@code String[]} possible choice
+	 * @param className
+	 *            {@code String}
+	 * @return {@code String} choice of a user
+	 */
 	public static String chooseClassName(String[] choices, String className) {
 		return (String) JOptionPane.showInputDialog(null, "Choose now... " + className, "The Choice of a Lifetime",
 				JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]);
 	}
 
+	/**
+	 * To show some warning message.
+	 * 
+	 * @param message
+	 *            {@code String}
+	 */
 	public static void showWarning(String message) {
 		JOptionPane.showMessageDialog(null, message, "Warning", JOptionPane.ERROR_MESSAGE);
 	}
 
-	private void writeTransaction() {
-		transactions.push(tcTuples, currTCTuple);
+	/**
+	 * Write a new {@link Record} in the {@link Transactions}.
+	 */
+	private void writeRecord() {
+		transactions.push(tcTuples);
 	}
 
-	public void undo() {
+	/**
+	 * Sets the manual editor back to the last record.
+	 */
+	public void unDo() {
 		updateAfterTransaction(transactions.prev());
 	}
 
-	public void redo() {
+	/**
+	 * Reverts the last {@code unDo}.
+	 */
+	public void reDo() {
 		updateAfterTransaction(transactions.next());
 	}
 
+	/**
+	 * Back to the first {@link Record}.
+	 */
 	public void reset() {
 		updateAfterTransaction(transactions.reset());
 	}
 
-	private void updateAfterTransaction(ArrayList<TCTuple> trns) {
+	/**
+	 * Updates the editor state after {@link Transactions} operation.
+	 * 
+	 * @param trns
+	 *            <code>List<{@link TCTuple}></code> - to exchange current test
+	 *            suite with a deep copy
+	 */
+	private void updateAfterTransaction(List<TCTuple> trns) {
 		tcTuples = trns;
 		nextTCT();
 		testSuiteChr.restoreTests(getTests());
 	}
 
+	/**
+	 * Returns a new instance <code>ArrayList<{@link TestCase}></code> of the
+	 * test suite.
+	 * 
+	 * @return <code>ArrayList<{@link TestCase}></code>
+	 */
 	private ArrayList<TestCase> getTests() {
 		ArrayList<TestCase> res = new ArrayList<TestCase>();
 		for (TCTuple tcTupel : tcTuples) {
 			res.add(tcTupel.getTestCase());
 		}
 		return res;
+	}
+
+	/**
+	 * To load test cases from a file.
+	 */
+	public void readFromFile() {
+		for (TestCase tc : sep.parseFile(chooseTargetFile("Choose file..."), "test\\d*")) {
+			addTestCase(tc.toCode(), tc);
+		}
+		writeRecord();
+		printUncGoals();
 	}
 
 }
