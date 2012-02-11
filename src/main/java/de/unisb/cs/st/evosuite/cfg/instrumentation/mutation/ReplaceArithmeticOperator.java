@@ -99,7 +99,52 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 				next = max + Type.getType(var.desc).getSize();
 			}
 		}
+		if (next == 0)
+			next = getNextIndexFromLoad(mn);
 		return next;
+	}
+
+	@SuppressWarnings("rawtypes")
+	private static int getNextIndexFromLoad(MethodNode mn) {
+		Iterator it = mn.instructions.iterator();
+		int index = 0;
+		while (it.hasNext()) {
+			AbstractInsnNode node = (AbstractInsnNode) it.next();
+			if (node instanceof VarInsnNode) {
+				VarInsnNode varNode = (VarInsnNode) node;
+				int varIndex = varNode.var;
+				switch (varNode.getOpcode()) {
+				case Opcodes.ALOAD:
+				case Opcodes.ILOAD:
+				case Opcodes.FLOAD:
+				case Opcodes.IALOAD:
+				case Opcodes.BALOAD:
+				case Opcodes.CALOAD:
+				case Opcodes.AALOAD:
+				case Opcodes.ASTORE:
+				case Opcodes.ISTORE:
+				case Opcodes.FSTORE:
+				case Opcodes.IASTORE:
+				case Opcodes.BASTORE:
+				case Opcodes.CASTORE:
+				case Opcodes.AASTORE:
+					index = Math.max(index, varIndex + 1);
+					break;
+				case Opcodes.DLOAD:
+				case Opcodes.DSTORE:
+				case Opcodes.LLOAD:
+				case Opcodes.LSTORE:
+				case Opcodes.DALOAD:
+				case Opcodes.DASTORE:
+				case Opcodes.LALOAD:
+				case Opcodes.LASTORE:
+					index = Math.max(index, varIndex + 2);
+					break;
+				}
+			}
+		}
+
+		return index;
 	}
 
 	/* (non-Javadoc)
