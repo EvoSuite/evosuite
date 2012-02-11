@@ -195,8 +195,8 @@ public class DescriptorMapping {
 
 				boolean isInside = parent.name.startsWith(Properties.PROJECT_PREFIX.replace(".",
 				                                                                            "/"))
-				        | parent.name.startsWith(Properties.TARGET_CLASS_PREFIX.replace(".",
-				                                                                        "/"));
+				        || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && parent.name.startsWith(Properties.TARGET_CLASS_PREFIX.replace(".",
+				                                                                                                                       "/")));
 
 				if (!isInside) {
 					TestabilityTransformation.logger.info("Checking " + parent.name);
@@ -405,11 +405,11 @@ public class DescriptorMapping {
 
 			if (!descriptorMapping.containsKey(old)) {
 				if (isOutsideMethod(className, methodName, desc)) {
-					logger.info("Is outside method: " + methodName);
+					logger.info("Is outside method: " + className + "." + methodName);
 					descriptorMapping.put(old, desc);
 					nameMapping.put(old, methodName);
 				} else {
-					logger.info("Is inside method: " + methodName);
+					logger.info("Is inside method: " + className + "." + methodName);
 					String newDesc = transformMethodDescriptor(desc);
 					String newName = transformMethodName(className, methodName, desc,
 					                                     newDesc);
