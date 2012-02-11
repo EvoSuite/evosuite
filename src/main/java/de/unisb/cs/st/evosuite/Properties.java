@@ -527,6 +527,13 @@ public class Properties {
 	@Parameter(key = "TT", description = "Testability transformation")
 	public static boolean TT = false;
 
+	public enum TransformationScope {
+		TARGET, PREFIX, ALL
+	}
+
+	@Parameter(key = "tt_scope", description = "Testability transformation")
+	public static TransformationScope TT_SCOPE = TransformationScope.ALL;
+
 	// ---------------------------------------------------------------
 	// Test Execution
 	@Parameter(key = "timeout", group = "Test Execution", description = "Milliseconds allowed per test")
