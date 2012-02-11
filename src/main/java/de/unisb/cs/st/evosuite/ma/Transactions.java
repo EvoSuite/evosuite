@@ -1,48 +1,51 @@
-/**
- * 
- */
 package de.unisb.cs.st.evosuite.ma;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
- * @author Yury Pavlov
+ * The <code>Transactions</code> class implements the whole logic to manage
+ * {@link Record}s of the manual editor.
  * 
+ * @author Yury Pavlov
  */
 public class Transactions {
 
-	private ArrayList<Record> records = new ArrayList<Record>();
-	
-	private ArrayList<Record> alternativeRecords = new ArrayList<Record>();
+	// To save old states of the manual editor (for reDo)
+	private List<Record> records = new ArrayList<Record>();
+
+	// For unDo
+	private List<Record> alternativeRecords = new ArrayList<Record>();
 
 	/**
-	 * Create instance with unchangeable init values
+	 * Creates instance with initial and unmodifiable test suite.
 	 * 
 	 * @param testCases
-	 * @param currentTC
+	 *            <code>List<{@link TCTupel}></code>
 	 */
-	public Transactions(ArrayList<TCTuple> testCases, TCTuple currentTC) {
-		// work here only with deep copy
+	public Transactions(List<TCTuple> testCases) {
+		// We work here only with deep copy
 		records.add(new Record(testCases));
 	}
 
 	/**
-	 * Push new value in transactions and clear alternative records
+	 * Push new test suite in the transaction instance and clear alternative
+	 * records.
 	 * 
 	 * @param testCases
-	 * @param currTCTuple
+	 *            <code>List<{@link TCTupel}></code>
 	 */
-	public void push(ArrayList<TCTuple> testCases, TCTuple currTCTuple) {
+	public void push(List<TCTuple> testCases) {
 		records.add(new Record(testCases));
 		alternativeRecords.clear();
 	}
 
 	/**
-	 * Get prev (last) from the records and add it to alternativeRecords
+	 * Returns and removes last record and adds to alternativeRecords
 	 * 
-	 * @return
+	 * @return <code>List<{@link TCTupel}></code>
 	 */
-	public ArrayList<TCTuple> prev() {
+	public List<TCTuple> prev() {
 		Record res = null;
 		if (records.size() > 1) {
 			// current record to alternative records
@@ -57,29 +60,27 @@ public class Transactions {
 	}
 
 	/**
-	 * If alternativeRecords is't leer, then return last element to records and
-	 * so on
+	 * If the {@code alternativeRecords} is't empty, then return a last
+	 * {@link Record} from it to {@code records}.
 	 * 
-	 * @return
+	 * @return <code>List<{@link TCTupel}></code>
 	 */
-	public ArrayList<TCTuple> next() {
+	public List<TCTuple> next() {
 		if (alternativeRecords.size() > 0) {
 			// return alternative last record to current and restore it state
-			Record res = alternativeRecords
-					.remove(alternativeRecords.size() - 1);
+			Record res = alternativeRecords.remove(alternativeRecords.size() - 1);
 			records.add(res);
 		}
 		return records.get(records.size() - 1).getTestCases();
 	}
 
 	/**
-	 * Reset records to init values. Can be undone.
+	 * Reset records to initial {@link Record}.
 	 * 
-	 * @return
+	 * @return <code>List<{@link TCTupel}></code> - first {@link Record}
 	 */
-	public ArrayList<TCTuple> reset() {
-		alternativeRecords = new ArrayList<Record>(records.subList(1,
-				records.size()));
+	public List<TCTuple> reset() {
+		alternativeRecords = new ArrayList<Record>(records.subList(1, records.size()));
 		records = new ArrayList<Record>(records.subList(0, 1));
 		return records.get(0).getTestCases();
 	}
@@ -104,5 +105,5 @@ public class Transactions {
 		}
 		return res.toString();
 	}
-	
+
 }

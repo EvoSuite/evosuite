@@ -322,7 +322,7 @@ public class StnTestEditorGUI implements ActionListener, TestEditorGUI {
 	}
 
 	private void prevTest() {
-		editor.prevTest();
+		editor.prevTCT();
 		editor.sguiSC.printSourceCode();
 		testEditorPane.setText(editor.getCurrESTCCode());
 		setTestCaseUnchanged();
@@ -330,7 +330,7 @@ public class StnTestEditorGUI implements ActionListener, TestEditorGUI {
 	}
 
 	private void nextTest() {
-		editor.nextTest();
+		editor.nextTCT();
 		editor.sguiSC.printSourceCode();
 		testEditorPane.setText(editor.getCurrESTCCode());
 		setTestCaseUnchanged();
@@ -338,7 +338,7 @@ public class StnTestEditorGUI implements ActionListener, TestEditorGUI {
 	}
 
 	private void deleteTest() {
-		editor.delCurrTC();
+		editor.delCurrTCT();
 		editor.sguiSC.printSourceCode();
 		testEditorPane.setText(editor.getCurrESTCCode());
 		setTestCaseUnchanged();
@@ -346,20 +346,20 @@ public class StnTestEditorGUI implements ActionListener, TestEditorGUI {
 	}
 
 	private void newTest() {
-		editor.createNewTestCase();
+		editor.createNewTCT();
 		testEditorPane.setText("");
 		setTestCaseChanged();
 		updateTitle();
 	}
 
 	private void cloneTest() {
-		editor.createNewTestCase();
+		editor.createNewTCT();
 		setTestCaseChanged();
 		updateTitle();
 	}
 
 	private void saveTest() {
-		if (editor.saveTest(testEditorPane.getText())) {
+		if (editor.parseTest(testEditorPane.getText())) {
 			editor.sguiSC.printSourceCode();
 			testEditorPane.setText(editor.getCurrESTCCode());
 			setTestCaseUnchanged();
@@ -368,7 +368,7 @@ public class StnTestEditorGUI implements ActionListener, TestEditorGUI {
 	}
 
 	private void unDo() {
-		editor.undo();
+		editor.unDo();
 		editor.sguiSC.printSourceCode();
 		testEditorPane.setText(editor.getCurrESTCCode());
 		setTestCaseUnchanged();
@@ -376,7 +376,7 @@ public class StnTestEditorGUI implements ActionListener, TestEditorGUI {
 	}
 
 	private void reDo() {
-		editor.redo();
+		editor.reDo();
 		editor.sguiSC.printSourceCode();
 		testEditorPane.setText(editor.getCurrESTCCode());
 		setTestCaseUnchanged();
