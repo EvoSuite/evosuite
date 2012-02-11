@@ -274,7 +274,6 @@ public class BranchPool {
 			branchMap.put(className, new HashMap<String, List<Branch>>());
 		if (!branchMap.get(className).containsKey(methodName))
 			branchMap.get(className).put(methodName, new ArrayList<Branch>());
-		logger.warn("BRANCH IN CLASS " + className);
 		branchMap.get(className).get(methodName).add(b);
 	}
 
