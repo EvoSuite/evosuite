@@ -587,17 +587,23 @@ public class Properties {
 
 	//---------------------------------------------------------------
 	// Manual algorithm
-	@Parameter(key = "min_delta_coverage", group = "Manual algorithm", description = "Minimum coverage delta")
-	public static double MIN_DELTA_COVERAGE = 0.01;
+	@Parameter(key = "ma_min_delta_coverage", group = "Manual algorithm", description = "Minimum coverage delta")
+	public static double MA_MIN_DELTA_COVERAGE = 0.01;
 
-	@Parameter(key = "max_iteration", group = "Manual algorithm", description = "how much itteration with MIN_DELTA_COVERAGE possible with out MA")
-	public static int MAX_ITERATION = 50;
+	@Parameter(key = "ma_max_iterations", group = "Manual algorithm", description = "how much itteration with MIN_DELTA_COVERAGE possible with out MA")
+	public static int MA_MAX_ITERATIONS = 50;
 
 	@Parameter(key = "ma_active", group = "Manual algorithm", description = "MA active")
 	public static boolean MA_ACTIVE = false;
-
+	
 	@Parameter(key = "ma_wide_gui", group = "Manual algorithm", description = "Activate wide GUI")
 	public static boolean MA_WIDE_GUI = false;
+	
+	@Parameter(key = "ma_target_coverage", group = "Manual algorithm", description = "run Editor at spec. coverage's level")
+	public static int MA_TARGET_COVERAGE = 101;
+	
+	@Parameter(key = "ma_branches_calc", group = "Manual algorithm", description = "run expensive branchcalculations")
+	public static boolean MA_BRANCHES_CALC = false;
 
 	// ---------------------------------------------------------------
 	// UI Test generation parameters

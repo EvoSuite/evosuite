@@ -10,8 +10,17 @@ public class ExceptionTestClass {
 
 	private int field;
 	public int publicField = 0;
-	public static boolean staticField = true; 
+	public static boolean staticField = true;
+	
+	public enum Day {
+	    SUNDAY, MONDAY, TUESDAY, WEDNESDAY,
+	    THURSDAY, FRIDAY, SATURDAY 
+	}
 
+	public Day enexamp(Day test) {
+		return test;
+	}
+	
 	public ExceptionTestClass(int anInt) {
 		field = anInt;
 	}
