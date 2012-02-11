@@ -78,6 +78,24 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		        && !className.startsWith("daikon.");
 	}
 
+	public boolean shouldTransform(String className) {
+		if (!Properties.TT)
+			return false;
+		switch (Properties.TT_SCOPE) {
+		case ALL:
+			return true;
+		case TARGET:
+			if (className.equals(Properties.TARGET_CLASS)
+			        || className.startsWith(Properties.TARGET_CLASS + "$"))
+				return true;
+		case PREFIX:
+			if (className.startsWith(Properties.PROJECT_PREFIX))
+				return true;
+
+		}
+		return false;
+	}
+
 	private boolean isTargetClassName(String className) {
 		// TODO: Need to replace this in the long term
 		return StaticTestCluster.isTargetClassName(className);
@@ -138,6 +156,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		// + classNameWithDots);
 		// classfileBuffer = systemExitTransformer
 		// .transformBytecode(classfileBuffer);
+		TransformationStatistics.reset();
 
 		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
@@ -201,27 +220,34 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			ClassNode cn = new ClassNode();
 			reader.accept(cn, ClassReader.SKIP_FRAMES); // | ClassReader.SKIP_DEBUG); //  | ClassReader.SKIP_DEBUG
 			ComparisonTransformation cmp = new ComparisonTransformation(cn);
-			cn = cmp.transform();
+			if (isTargetClassName(classNameWithDots)
+			        || shouldTransform(classNameWithDots))
+				cn = cmp.transform();
 
 			if (Properties.STRING_REPLACEMENT) {
 				StringTransformation st = new StringTransformation(cn);
-				cn = st.transform();
+				if (isTargetClassName(classNameWithDots)
+				        || shouldTransform(classNameWithDots))
+					cn = st.transform();
 
-				//ContainerTransformation ct = new ContainerTransformation(cn);
-				//cn = ct.transform();
 			}
 
-			if (Properties.TT) {
+			if (shouldTransform(classNameWithDots)) {
 				logger.info("Testability Transforming " + className);
+				ContainerTransformation ct = new ContainerTransformation(cn);
+				//if (isTargetClassName(classNameWithDots))
+				cn = ct.transform();
+
 				//TestabilityTransformation tt = new TestabilityTransformation(cn);
 				BooleanTestabilityTransformation tt = new BooleanTestabilityTransformation(
 				        cn);
 				// cv = new TraceClassVisitor(writer, new
 				// PrintWriter(System.out));
-				cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+				//cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 				//cv = new CheckClassAdapter(cv);
 				try {
 					//tt.transform().accept(cv);
+					//if (isTargetClassName(classNameWithDots))
 					cn = tt.transform();
 				} catch (Throwable t) {
 					logger.info("1 Error: " + t);
