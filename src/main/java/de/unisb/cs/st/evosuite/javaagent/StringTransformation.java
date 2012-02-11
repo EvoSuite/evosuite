@@ -71,6 +71,7 @@ public class StringTransformation {
 						                                         Type.getType(Object.class) }));
 						mn.instructions.insertBefore(node, equalCheck);
 						mn.instructions.remove(node);
+						TransformationStatistics.transformedStringComparison();
 
 					} else if (min.name.equals("equalsIgnoreCase")) {
 						changed = true;
@@ -84,6 +85,7 @@ public class StringTransformation {
 						                                         Type.getType(String.class) }));
 						mn.instructions.insertBefore(node, equalCheck);
 						mn.instructions.remove(node);
+						TransformationStatistics.transformedStringComparison();
 
 					} else if (min.name.equals("startsWith")) {
 						changed = true;
@@ -102,6 +104,7 @@ public class StringTransformation {
 						                                         Type.INT_TYPE }));
 						mn.instructions.insertBefore(node, equalCheck);
 						mn.instructions.remove(node);
+						TransformationStatistics.transformedStringComparison();
 
 					} else if (min.name.equals("endsWith")) {
 						changed = true;
@@ -115,6 +118,7 @@ public class StringTransformation {
 						                                         Type.getType(String.class) }));
 						mn.instructions.insertBefore(node, equalCheck);
 						mn.instructions.remove(node);
+						TransformationStatistics.transformedStringComparison();
 
 					} else if (min.name.equals("isEmpty")) {
 						changed = true;
@@ -126,6 +130,7 @@ public class StringTransformation {
 						                                 new Type[] { Type.getType(String.class) }));
 						mn.instructions.insertBefore(node, equalCheck);
 						mn.instructions.remove(node);
+						TransformationStatistics.transformedStringComparison();
 
 					} else if (min.name.equals("regionMatches")) {
 						// TODO

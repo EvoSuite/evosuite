@@ -3,6 +3,7 @@
  */
 package de.unisb.cs.st.evosuite.javaagent;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
@@ -33,6 +34,7 @@ import org.objectweb.asm.tree.analysis.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.cfg.BasicBlock;
 import de.unisb.cs.st.evosuite.cfg.BytecodeAnalyzer;
 import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
@@ -80,8 +82,12 @@ public class BooleanTestabilityTransformation {
 	 * @return
 	 */
 	public ClassNode transform() {
+
 		processFields();
 		processMethods();
+		if (className.equals(Properties.TARGET_CLASS)
+		        || className.startsWith(Properties.TARGET_CLASS + "$"))
+			TransformationStatistics.writeStatistics(className);
 
 		return cn;
 	}
@@ -213,6 +219,9 @@ public class BooleanTestabilityTransformation {
 		        getControlDependentBranchID(mn, insnNode)));
 		mn.instructions.insertBefore(insnNode,
 		                             new LdcInsnNode(getApproximationLevel(mn, insnNode)));
+		logger.info("Control dependent branch id: "
+		        + getControlDependentBranchID(mn, insnNode));
+		logger.info("Approximation level: " + getApproximationLevel(mn, insnNode));
 	}
 
 	/**
@@ -290,7 +299,7 @@ public class BooleanTestabilityTransformation {
 	 * @param list
 	 */
 	private void insertGetBefore(AbstractInsnNode position, InsnList list) {
-		logger.info("Inserting get call");
+		logger.info("Inserting get call before");
 		// Here, branchId is the first control dependency
 		//list.insertBefore(position,
 		//                  new LdcInsnNode(getControlDependentBranchID(currentMethodNode,
@@ -456,7 +465,7 @@ public class BooleanTestabilityTransformation {
 	 * @return
 	 */
 	private String transformMethodDescriptor(String owner, String name, String desc) {
-		return descriptorMapping.getMethodDesc(className, name, desc);
+		return descriptorMapping.getMethodDesc(owner, name, desc);
 	}
 
 	/**
@@ -476,6 +485,12 @@ public class BooleanTestabilityTransformation {
 		// If the method was declared in java.* then don't instrument
 		// Otherwise change signature
 		String newDesc = descriptorMapping.getMethodDesc(className, mn.name, mn.desc);
+		if (Type.getReturnType(mn.desc) == Type.BOOLEAN_TYPE
+		        && Type.getReturnType(newDesc) == Type.INT_TYPE)
+			TransformationStatistics.transformBooleanReturnValue();
+		if (Arrays.asList(Type.getArgumentTypes(mn.desc)).contains(Type.BOOLEAN_TYPE)
+		        && !Arrays.asList(Type.getArgumentTypes(newDesc)).contains(Type.BOOLEAN_TYPE))
+			TransformationStatistics.transformBooleanParameter();
 		logger.info("Changing method descriptor from " + mn.desc + " to " + newDesc);
 		mn.desc = descriptorMapping.getMethodDesc(className, mn.name, mn.desc);
 	}
@@ -574,12 +589,15 @@ public class BooleanTestabilityTransformation {
 			logger.info("Checking transformation of InsnNode ");
 			if (insnNode.getOpcode() == Opcodes.ICONST_0
 			        && isBooleanAssignment(insnNode, mn)) {
+				TransformationStatistics.insertedGet();
 				insertGet(insnNode, mn.instructions);
 			} else if (insnNode.getOpcode() == Opcodes.ICONST_1
 			        && isBooleanAssignment(insnNode, mn)) {
+				TransformationStatistics.insertedGet();
 				insertGet(insnNode, mn.instructions);
 			} else if (insnNode.getOpcode() == Opcodes.IRETURN
 			        && isBooleanAssignment(insnNode, mn)) {
+				TransformationStatistics.insertedGet();
 				insertGet(insnNode, mn.instructions);
 			}
 			return insnNode;
@@ -649,6 +667,7 @@ public class BooleanTestabilityTransformation {
 			case Opcodes.IFGE:
 			case Opcodes.IFGT:
 			case Opcodes.IFLE:
+				TransformationStatistics.insertPush(jumpNode.getOpcode());
 				insertPush(jumpNode.getOpcode(), jumpNode, mn.instructions);
 				break;
 			case Opcodes.IF_ICMPEQ:
@@ -657,14 +676,17 @@ public class BooleanTestabilityTransformation {
 			case Opcodes.IF_ICMPGE:
 			case Opcodes.IF_ICMPGT:
 			case Opcodes.IF_ICMPLE:
+				TransformationStatistics.insertPush(jumpNode.getOpcode());
 				insertPush2(jumpNode.getOpcode(), jumpNode, mn.instructions);
 				break;
 			case Opcodes.IFNULL:
 			case Opcodes.IFNONNULL:
+				TransformationStatistics.insertPush(jumpNode.getOpcode());
 				insertPushNull(jumpNode.getOpcode(), jumpNode, mn.instructions);
 				break;
 			case Opcodes.IF_ACMPEQ:
 			case Opcodes.IF_ACMPNE:
+				TransformationStatistics.insertPush(jumpNode.getOpcode());
 				insertPushEquals(jumpNode.getOpcode(), jumpNode, mn.instructions);
 				break;
 			default:
@@ -687,11 +709,13 @@ public class BooleanTestabilityTransformation {
 		        JumpInsnNode jumpNode) {
 			if (jumpNode.getOpcode() == Opcodes.IFNE) {
 				if (isBooleanOnStack(mn, jumpNode, 0)) {
+					TransformationStatistics.transformedBooleanComparison();
 					logger.info("Changing IFNE");
 					jumpNode.setOpcode(Opcodes.IFGT);
 				}
 			} else if (jumpNode.getOpcode() == Opcodes.IFEQ) {
 				if (isBooleanOnStack(mn, jumpNode, 0)) {
+					TransformationStatistics.transformedBooleanComparison();
 					logger.info("Changing IFEQ");
 					jumpNode.setOpcode(Opcodes.IFLE);
 				}
@@ -757,6 +781,8 @@ public class BooleanTestabilityTransformation {
 			// or before the jump target (if the value is false)
 
 			if (!hasAssignment) {
+				TransformationStatistics.transformedImplicitElse();
+
 				JumpInsnNode jumpNode = (JumpInsnNode) dependency.getBranch().getInstruction().getASMNode();
 				FieldInsnNode newLoad = new FieldInsnNode(
 				        varNode.getOpcode() == Opcodes.PUTSTATIC ? Opcodes.GETSTATIC
@@ -910,10 +936,13 @@ public class BooleanTestabilityTransformation {
 			// or before the jump target (if the value is false)
 
 			if (!hasAssignment) {
+				TransformationStatistics.transformedImplicitElse();
+
 				JumpInsnNode jumpNode = (JumpInsnNode) dependency.getBranch().getInstruction().getASMNode();
 				VarInsnNode newStore = new VarInsnNode(Opcodes.ISTORE, varNode.var);
 				VarInsnNode newLoad = new VarInsnNode(Opcodes.ILOAD, varNode.var);
 				if (dependency.getBranchExpressionValue()) {
+					logger.info("Inserting else branch directly after if");
 					// Insert directly after if
 					mn.instructions.insert(jumpNode, newStore);
 					mn.instructions.insert(jumpNode, newLoad);
@@ -921,12 +950,14 @@ public class BooleanTestabilityTransformation {
 					registerInstruction(mn, varNode, newLoad);
 
 				} else {
+					logger.info("Inserting else branch as jump target");
 					// Insert as jump target
 					LabelNode target = jumpNode.label;
 					LabelNode newTarget = new LabelNode(new Label());
 
-					registerInstruction(mn, target, newStore);
-					registerInstruction(mn, target, newLoad);
+					// jumpNode or target?
+					registerInstruction(mn, jumpNode.getNext(), newStore);
+					registerInstruction(mn, jumpNode.getNext(), newLoad);
 
 					InsnList assignment = new InsnList();
 					assignment.add(new JumpInsnNode(Opcodes.GOTO, target));
@@ -1080,6 +1111,8 @@ public class BooleanTestabilityTransformation {
 		protected AbstractInsnNode transformTypeInsnNode(MethodNode mn,
 		        TypeInsnNode typeNode) {
 			if (typeNode.getOpcode() == Opcodes.INSTANCEOF) {
+				TransformationStatistics.transformInstanceOf();
+
 				// Depending on the class version we need a String or a Class
 				if (cn.version > 49) {
 					LdcInsnNode lin = new LdcInsnNode(Type.getType("L" + typeNode.desc

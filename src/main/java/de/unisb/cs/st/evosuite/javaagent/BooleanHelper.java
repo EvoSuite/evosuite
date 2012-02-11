@@ -86,11 +86,32 @@ public class BooleanHelper {
 	 */
 	public static int collectionContains(Collection<?> c, Object o1) {
 		int matching = 0;
+		double min_distance = Double.MAX_VALUE;
 		for (Object o2 : c) {
 			if (o2.equals(o1))
 				matching++;
+			else {
+				if (o2 != null && o1 != null) {
+					if (o2.getClass().equals(o1.getClass()) && o1 instanceof Number) {
+						Number n1 = (Number) o1;
+						Number n2 = (Number) o2;
+						min_distance = Math.min(min_distance,
+						                        Math.abs(n1.doubleValue()
+						                                - n2.doubleValue()));
+					}
+				}
+			}
 		}
-		return matching > 0 ? matching : -c.size();
+		if (matching > 0)
+			return matching;
+		else {
+			if (min_distance == Double.MAX_VALUE)
+				return -c.size() - 1;
+			else {
+				return -1 * (int) Math.ceil(K * min_distance / (min_distance + 1.0));
+			}
+
+		}
 	}
 
 	/**
@@ -517,49 +538,51 @@ public class BooleanHelper {
 	 * how different they are
 	 */
 	public static int StringEquals(String first, Object second) {
-		if(first==null){
-			throw new IllegalArgumentException("StringEquals is not supposed to work on a null caller");
+		if (first == null) {
+			throw new IllegalArgumentException(
+			        "StringEquals is not supposed to work on a null caller");
 		}
-		
+
 		if (first.equals(second))
 			return K; // Identical
-		else if(second == null){
-			return -(first.length()+K);
+		else if (second == null) {
+			return -(first.length() + K);
 		} else {
 			//System.out.println("Edit distance between " + first + " and " + second
 			//       + " is " + -editDistance(first, second.toString()) + " / "
 			//      + getLevenshteinDistance(first, (String) second));
 			//return -editDistance(first, second.toString());
 			//return -getLevenshteinDistance(first, (String) second);
-			return -getDistanceBasedOnLeftAlignment(first,second.toString());
+			return -getDistanceBasedOnLeftAlignment(first, second.toString());
 		}
 	}
 
-	public static int getDistanceBasedOnLeftAlignment(String a, String b){
-		if(a==b){return K;}
-		else if(a==null && b!=null){
+	public static int getDistanceBasedOnLeftAlignment(String a, String b) {
+		if (a == b) {
+			return K;
+		} else if (a == null && b != null) {
 			return b.length() + 1; // +1 is important to handle the empty string "" 
-		} else if (a!=null && b==null){
+		} else if (a != null && b == null) {
 			return a.length() + 1;
 		} else {
 			int differences = 0;
 			int min = Math.min(a.length(), b.length());
-			int max =  Math.max(a.length(), b.length());
+			int max = Math.max(a.length(), b.length());
 			differences += (max - min);
-			for(int i=0; i<min; i++){
+			for (int i = 0; i < min; i++) {
 				/*
 				 * Note: instead of just checking for mismatches, we could use something more sophisticated.
 				 * Eg, "a" is closer to "e" than "!". But maybe, considering the type of local search
 				 * we do, we don't need to do it
 				 */
-				if(a.charAt(i) != b.charAt(i)){
+				if (a.charAt(i) != b.charAt(i)) {
 					differences++;
 				}
 			}
 			return differences;
 		}
 	}
-	
+
 	public static int StringEqualsIgnoreCase(String first, String second) {
 		return StringEquals(first.toLowerCase(), second.toLowerCase());
 	}
