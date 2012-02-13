@@ -520,7 +520,7 @@ public class BooleanTestabilityTransformation {
 		}
 		generateCDG(mn);
 		currentMethodNode = mn;
-		// First expand ifs without else
+		// First expand ifs without else/*
 		new ImplicitElseTransformer().transform(mn);
 		try {
 			Analyzer a = new Analyzer(new BooleanValueInterpreter());
@@ -533,6 +533,9 @@ public class BooleanTestabilityTransformation {
 		}
 
 		//		BytecodeInstructionPool.reRegisterMethodNode(mn, className, mn.name + mn.desc);
+		// Replace all bitwise operators
+		logger.info("Transforming Boolean bitwise operators");
+		new BitwiseOperatorTransformer().transform(mn);
 
 		// Transform IFEQ/IFNE to IFLE/IFGT
 		logger.info("Transforming Boolean IFs");
@@ -555,10 +558,6 @@ public class BooleanTestabilityTransformation {
 
 		// Replace all boolean arrays
 		// new BooleanArrayTransformer().transform(mn);
-
-		// Replace all bitwise operators
-		logger.info("Transforming Boolean bitwise operators");
-		new BitwiseOperatorTransformer().transform(mn);
 
 		// Replace all boolean return values
 		// new BooleanReturnTransformer().transform(mn);
@@ -1164,6 +1163,7 @@ public class BooleanTestabilityTransformation {
 						                Type.INT_TYPE, Type.INT_TYPE }));
 						mn.instructions.insertBefore(insnNode, push);
 						mn.instructions.remove(insnNode);
+						return push;
 					} else if (insnNode.getOpcode() == Opcodes.IAND) {
 						MethodInsnNode push = new MethodInsnNode(Opcodes.INVOKESTATIC,
 						        Type.getInternalName(BooleanHelper.class), "IAND",
@@ -1171,6 +1171,7 @@ public class BooleanTestabilityTransformation {
 						                Type.INT_TYPE, Type.INT_TYPE }));
 						mn.instructions.insertBefore(insnNode, push);
 						mn.instructions.remove(insnNode);
+						return push;
 
 					} else if (insnNode.getOpcode() == Opcodes.IXOR) {
 						MethodInsnNode push = new MethodInsnNode(Opcodes.INVOKESTATIC,
@@ -1179,6 +1180,7 @@ public class BooleanTestabilityTransformation {
 						                Type.INT_TYPE, Type.INT_TYPE }));
 						mn.instructions.insertBefore(insnNode, push);
 						mn.instructions.remove(insnNode);
+						return push;
 					}
 				}
 			}
