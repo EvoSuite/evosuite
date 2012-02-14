@@ -110,8 +110,9 @@ public class BooleanTestabilityTransformation {
 		List<MethodNode> methodNodes = cn.methods;
 		for (MethodNode mn : methodNodes) {
 			if (descriptorMapping.isTransformedMethod(className, mn.name, mn.desc)) {
-				logger.info("Transforming signature of method " + mn.name);
+				logger.info("Transforming signature of method " + mn.name + mn.desc);
 				transformMethodSignature(mn);
+				logger.info("Transformed signature to " + mn.name + mn.desc);
 			}
 			transformMethod(mn);
 		}
@@ -491,8 +492,12 @@ public class BooleanTestabilityTransformation {
 		if (Arrays.asList(Type.getArgumentTypes(mn.desc)).contains(Type.BOOLEAN_TYPE)
 		        && !Arrays.asList(Type.getArgumentTypes(newDesc)).contains(Type.BOOLEAN_TYPE))
 			TransformationStatistics.transformBooleanParameter();
-		logger.info("Changing method descriptor from " + mn.desc + " to " + newDesc);
+		String newName = descriptorMapping.getMethodName(className, mn.name, mn.desc);
+		logger.info("Changing method descriptor from " + mn.name + "." + mn.desc + " to "
+		        + descriptorMapping.getMethodName(className, mn.name, mn.desc) + "."
+		        + newDesc);
 		mn.desc = descriptorMapping.getMethodDesc(className, mn.name, mn.desc);
+		mn.name = newName;
 	}
 
 	/**
@@ -733,6 +738,22 @@ public class BooleanTestabilityTransformation {
 		/*** Keep track of inserted PUTFIELDs */
 		private final Set<AbstractInsnNode> addedInsns = new HashSet<AbstractInsnNode>();
 
+		private boolean isDefinedBefore(MethodNode mn, VarInsnNode var,
+		        AbstractInsnNode position) {
+			AbstractInsnNode pos = position.getPrevious();
+			while (pos != mn.instructions.getFirst()) {
+				if (pos instanceof VarInsnNode) {
+					VarInsnNode vn = (VarInsnNode) pos;
+					if (var.var == vn.var) {
+						return true;
+					}
+				}
+				pos = pos.getPrevious();
+			}
+
+			return false;
+		}
+
 		private void handleDependency(ControlDependency dependency,
 		        ControlDependenceGraph cdg, MethodNode mn, FieldInsnNode varNode,
 		        BytecodeInstruction parentLevel) {
@@ -943,10 +964,12 @@ public class BooleanTestabilityTransformation {
 				if (dependency.getBranchExpressionValue()) {
 					logger.info("Inserting else branch directly after if");
 					// Insert directly after if
-					mn.instructions.insert(jumpNode, newStore);
-					mn.instructions.insert(jumpNode, newLoad);
-					registerInstruction(mn, varNode, newStore);
-					registerInstruction(mn, varNode, newLoad);
+					if (isDefinedBefore(mn, varNode, jumpNode)) {
+						mn.instructions.insert(jumpNode, newStore);
+						mn.instructions.insert(jumpNode, newLoad);
+						registerInstruction(mn, varNode, newStore);
+						registerInstruction(mn, varNode, newLoad);
+					}
 
 				} else {
 					logger.info("Inserting else branch as jump target");
@@ -1225,6 +1248,9 @@ public class BooleanTestabilityTransformation {
 		        MethodInsnNode methodNode) {
 			methodNode.desc = transformMethodDescriptor(methodNode.owner,
 			                                            methodNode.name, methodNode.desc);
+			methodNode.name = descriptorMapping.getMethodName(className, methodNode.name,
+			                                                  methodNode.desc);
+
 			// TODO: If this is a method that is not transformed, and it requires a Boolean parameter
 			// then we need to convert this boolean back to an int
 			// For example, we could use flow analysis to determine the point where the value is added to the stack
