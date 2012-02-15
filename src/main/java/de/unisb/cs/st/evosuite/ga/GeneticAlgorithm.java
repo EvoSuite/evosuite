@@ -442,7 +442,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 		if (!unique) {
 			logger.debug("Applying kin compensation");
-			if (selectionFunction.maximize)
+			if (fitnessFunction.isMaximizationFunction())
 				individual.setFitness(individual.getFitness()
 				        * Properties.KINCOMPENSATION);
 			else
@@ -641,7 +641,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	}
 
 	protected boolean isBetterOrEqual(Chromosome chromosome1, Chromosome chromosome2) {
-		if (selectionFunction.isMaximize()) {
+		if (fitnessFunction.isMaximizationFunction()) {
 			return chromosome1.compareTo(chromosome2) >= 0;
 		} else {
 			return chromosome1.compareTo(chromosome2) <= 0;
