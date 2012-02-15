@@ -1173,9 +1173,15 @@ public class BooleanTestabilityTransformation {
 
 				// Depending on the class version we need a String or a Class
 				if (cn.version > 49) {
-					LdcInsnNode lin = new LdcInsnNode(Type.getType("L" + typeNode.desc
-					        + ";"));
-					mn.instructions.insertBefore(typeNode, lin);
+					if (!typeNode.desc.startsWith("[")) {
+						LdcInsnNode lin = new LdcInsnNode(Type.getType("L"
+						        + typeNode.desc + ";"));
+						mn.instructions.insertBefore(typeNode, lin);
+					} else {
+						LdcInsnNode lin = new LdcInsnNode(Type.getType(typeNode.desc
+						        + ";"));
+						mn.instructions.insertBefore(typeNode, lin);
+					}
 				} else {
 					LdcInsnNode lin = new LdcInsnNode(typeNode.desc.replace("/", "."));
 					mn.instructions.insertBefore(typeNode, lin);
