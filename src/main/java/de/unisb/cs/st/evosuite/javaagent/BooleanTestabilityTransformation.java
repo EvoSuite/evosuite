@@ -817,6 +817,11 @@ public class BooleanTestabilityTransformation {
 			// or before the jump target (if the value is false)
 
 			if (!hasAssignment) {
+				if (dependency.getBranch().getInstruction().isSwitch()) {
+					logger.warn("Don't know how to handle Switches yet");
+					return;
+				}
+
 				TransformationStatistics.transformedImplicitElse();
 
 				JumpInsnNode jumpNode = (JumpInsnNode) dependency.getBranch().getInstruction().getASMNode();
