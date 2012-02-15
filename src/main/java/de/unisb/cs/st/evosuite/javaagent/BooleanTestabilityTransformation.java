@@ -580,7 +580,7 @@ public class BooleanTestabilityTransformation {
 		new BooleanArrayIndexTransformer(getArrayFrames(mn)).transform(mn);
 
 		// Replace all boolean return values
-		// new BooleanReturnTransformer().transform(mn);
+		new BooleanReturnTransformer().transform(mn);
 
 		CFGPool.clear(className, mn.name + mn.desc);
 		BytecodeInstructionPool.clear(className, mn.name + mn.desc);
@@ -1339,6 +1339,7 @@ public class BooleanTestabilityTransformation {
 	private class BooleanArrayIndexTransformer extends MethodNodeTransformer {
 		private final Frame[] frames;
 
+		// TODO: Use currentFrames
 		public BooleanArrayIndexTransformer(Frame[] frames) {
 			this.frames = frames;
 		}
@@ -1410,8 +1411,18 @@ public class BooleanTestabilityTransformation {
 		 */
 		@Override
 		protected AbstractInsnNode transformInsnNode(MethodNode mn, InsnNode insnNode) {
+			String desc = descriptorMapping.getMethodDesc(className, mn.name, mn.desc);
+			Type returnType = Type.getReturnType(desc);
+			if (!returnType.equals(Type.BOOLEAN_TYPE))
+				return insnNode;
+
 			if (insnNode.getOpcode() == Opcodes.IRETURN) {
 				// If this function cannot be transformed, add a call to convert the value to a proper Boolean
+				MethodInsnNode n = new MethodInsnNode(Opcodes.INVOKESTATIC,
+				        Type.getInternalName(BooleanHelper.class), "intToBoolean",
+				        Type.getMethodDescriptor(Type.BOOLEAN_TYPE,
+				                                 new Type[] { Type.INT_TYPE }));
+				mn.instructions.insertBefore(insnNode, n);
 			}
 
 			return insnNode;
