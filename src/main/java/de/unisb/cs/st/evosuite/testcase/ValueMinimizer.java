@@ -121,7 +121,7 @@ public class ValueMinimizer implements TestVisitor {
 		T max = statement.getValue();
 		T min = zero.getValue();
 		boolean positive = statement.isPositive();
-
+		T lastValue = null;
 		boolean done = false;
 		while (!done) {
 			T oldValue = statement.getValue();
@@ -130,6 +130,10 @@ public class ValueMinimizer implements TestVisitor {
 			if (oldValue.equals(newValue)) {
 				break;
 			}
+			if (lastValue != null && lastValue.equals(newValue)) {
+				break;
+			}
+			lastValue = newValue;
 			logger.info("Trying " + statement.getValue() + " " + min + "/" + max + " - "
 			        + statement.getClass());
 
