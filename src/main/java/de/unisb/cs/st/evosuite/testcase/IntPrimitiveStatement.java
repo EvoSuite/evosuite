@@ -91,7 +91,7 @@ public class IntPrimitiveStatement extends NumericalPrimitiveStatement<Integer> 
 	 */
 	@Override
 	public void setMid(Integer min, Integer max) {
-		value = (int) (min + ((max - min) / 2));
+		value = (int) Math.floor(min + ((max - min) / 2));
 	}
 
 	/* (non-Javadoc)
@@ -109,12 +109,12 @@ public class IntPrimitiveStatement extends NumericalPrimitiveStatement<Integer> 
 	public boolean isPositive() {
 		return value >= 0;
 	}
-	
+
 	@Override
 	public void negate() {
 		value = -value;
 	}
-	
+
 	@Override
 	public Integer getValue() {
 		return value;
