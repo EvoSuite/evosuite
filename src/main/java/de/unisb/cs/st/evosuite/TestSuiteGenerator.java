@@ -243,8 +243,7 @@ public class TestSuiteGenerator {
 		if (Properties.ASSERTIONS) {
 			System.out.println("* Generating assertions");
 			if (Properties.CRITERION == Criterion.MUTATION
-			        || Properties.CRITERION == Criterion.STRONGMUTATION
-			        || Properties.CRITERION == Criterion.WEAKMUTATION) {
+			        || Properties.CRITERION == Criterion.STRONGMUTATION) {
 				handleMutations(tests);
 			} else {
 				// If we're not using mutation testing, we need to re-instrument
@@ -287,7 +286,9 @@ public class TestSuiteGenerator {
 
 		if (Properties.ASSERTION_STRATEGY == AssertionStrategy.MUTATION) {
 			Criterion oldCriterion = Properties.CRITERION;
-			if (Properties.CRITERION != Criterion.MUTATION) {
+			if (Properties.CRITERION != Criterion.MUTATION
+			        && Properties.CRITERION != Criterion.WEAKMUTATION
+			        && Properties.CRITERION != Criterion.STRONGMUTATION) {
 				Properties.CRITERION = Criterion.MUTATION;
 
 				TestCluster.getInstance().resetCluster();
