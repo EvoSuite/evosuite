@@ -79,22 +79,22 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 				continue;
 			BasicBlock next = getEdgeTarget(e);
 			blocks.add(next);
-			blocks.addAll(getReachableBasicBlocks(next));
+			getReachableBasicBlocks(blocks, next);
+			//			blocks.addAll(getReachableBasicBlocks(next));
 		}
 		return blocks;
 	}
 
-	private Set<BasicBlock> getReachableBasicBlocks(BasicBlock start) {
-		Set<BasicBlock> blocks = new HashSet<BasicBlock>();
-
+	private void getReachableBasicBlocks(Set<BasicBlock> blocks, BasicBlock start) {
 		for (ControlFlowEdge e : outgoingEdgesOf(start)) {
 			BasicBlock next = getEdgeTarget(e);
 			if (!blocks.contains(next)) {
 				blocks.add(next);
-				blocks.addAll(getReachableBasicBlocks(next));
+				getReachableBasicBlocks(blocks, next);
+				//				blocks.addAll(getReachableBasicBlocks(next));
 			}
 		}
-		return blocks;
+		//		return blocks;
 	}
 
 	/**
