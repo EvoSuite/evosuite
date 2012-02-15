@@ -91,7 +91,7 @@ public class IntPrimitiveStatement extends NumericalPrimitiveStatement<Integer> 
 	 */
 	@Override
 	public void setMid(Integer min, Integer max) {
-		value = (int) Math.floor(min + ((max - min) / 2));
+		value = (int) (min + ((max - min) / 2));
 	}
 
 	/* (non-Javadoc)
