@@ -740,15 +740,31 @@ public class BooleanTestabilityTransformation {
 
 		private boolean isDefinedBefore(MethodNode mn, VarInsnNode var,
 		        AbstractInsnNode position) {
-			AbstractInsnNode pos = position.getPrevious();
-			while (pos != mn.instructions.getFirst()) {
-				if (pos instanceof VarInsnNode) {
-					VarInsnNode vn = (VarInsnNode) pos;
-					if (var.var == vn.var) {
-						return true;
+			// TODO: Iterate over local variables and check if local is defined here
+			List<LocalVariableNode> localVar = mn.localVariables;
+			if (localVar.isEmpty()) {
+				// If we have no debug information, try to guess
+				AbstractInsnNode pos = position.getPrevious();
+				while (pos != mn.instructions.getFirst()) {
+					if (pos instanceof VarInsnNode) {
+						VarInsnNode vn = (VarInsnNode) pos;
+						if (var.var == vn.var) {
+							return true;
+						}
+					}
+					pos = pos.getPrevious();
+				}
+			} else {
+
+				int current = mn.instructions.indexOf(position);
+				for (LocalVariableNode local : localVar) {
+					if (local.index == var.var) {
+						int start = mn.instructions.indexOf(local.start);
+						int end = mn.instructions.indexOf(local.end);
+						if (current >= start && current <= end)
+							return true;
 					}
 				}
-				pos = pos.getPrevious();
 			}
 
 			return false;
@@ -974,21 +990,24 @@ public class BooleanTestabilityTransformation {
 				} else {
 					logger.info("Inserting else branch as jump target");
 					// Insert as jump target
-					LabelNode target = jumpNode.label;
-					LabelNode newTarget = new LabelNode(new Label());
+					if (isDefinedBefore(mn, varNode, jumpNode)) {
 
-					// jumpNode or target?
-					registerInstruction(mn, jumpNode.getNext(), newStore);
-					registerInstruction(mn, jumpNode.getNext(), newLoad);
+						LabelNode target = jumpNode.label;
+						LabelNode newTarget = new LabelNode(new Label());
 
-					InsnList assignment = new InsnList();
-					assignment.add(new JumpInsnNode(Opcodes.GOTO, target));
-					assignment.add(newTarget);
-					assignment.add(newLoad);
-					assignment.add(newStore);
-					jumpNode.label = newTarget;
+						// jumpNode or target?
+						registerInstruction(mn, jumpNode.getNext(), newStore);
+						registerInstruction(mn, jumpNode.getNext(), newLoad);
 
-					mn.instructions.insertBefore(target, assignment);
+						InsnList assignment = new InsnList();
+						assignment.add(new JumpInsnNode(Opcodes.GOTO, target));
+						assignment.add(newTarget);
+						assignment.add(newLoad);
+						assignment.add(newStore);
+						jumpNode.label = newTarget;
+
+						mn.instructions.insertBefore(target, assignment);
+					}
 				}
 			}
 
