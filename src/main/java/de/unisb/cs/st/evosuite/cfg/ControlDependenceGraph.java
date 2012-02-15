@@ -75,7 +75,9 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 
 		BasicBlock block = branch.getInstruction().getBasicBlock();
 		for (ControlFlowEdge e : outgoingEdgesOf(block)) {
-			if (e.getControlDependency().equals(dependency))
+			// TODO: Why can this be null?
+			if (e.getControlDependency() == null
+			        || e.getControlDependency().equals(dependency))
 				continue;
 			BasicBlock next = getEdgeTarget(e);
 			blocks.add(next);

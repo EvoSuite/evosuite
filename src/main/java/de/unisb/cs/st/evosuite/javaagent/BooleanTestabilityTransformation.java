@@ -973,7 +973,10 @@ public class BooleanTestabilityTransformation {
 
 			if (!hasAssignment) {
 				TransformationStatistics.transformedImplicitElse();
-
+				if (dependency.getBranch().getInstruction().isSwitch()) {
+					logger.warn("Don't know how to handle Switches yet");
+					return;
+				}
 				JumpInsnNode jumpNode = (JumpInsnNode) dependency.getBranch().getInstruction().getASMNode();
 				VarInsnNode newStore = new VarInsnNode(Opcodes.ISTORE, varNode.var);
 				VarInsnNode newLoad = new VarInsnNode(Opcodes.ILOAD, varNode.var);
@@ -1072,10 +1075,19 @@ public class BooleanTestabilityTransformation {
 					                                              mn.name + mn.desc,
 					                                              fieldNode);
 				//varNode);
+				if (insn == null) {
+					// TODO: Find out why
+					logger.warn("ERROR: Could not find node");
+					return fieldNode;
+				}
 				if (insn.getASMNode().getOpcode() != fieldNode.getOpcode()) {
 					logger.warn("Found wrong bytecode instruction at this index!");
 					BytecodeInstructionPool.getInstruction(className, mn.name + mn.desc,
 					                                       fieldNode);
+				}
+				if (insn.getBasicBlock() == null) {
+					logger.warn("ERROR: Problematic node found");
+					return fieldNode;
 				}
 				Set<ControlDependency> dependencies = insn.getControlDependencies();
 				logger.info("Found flag assignment: " + insn + ", checking "
@@ -1107,6 +1119,11 @@ public class BooleanTestabilityTransformation {
 				                                                                          + mn.desc,
 				                                                                  index);
 				//varNode);
+				if (insn == null) {
+					// TODO: Debug this on org.exolab.jms.net.uri.URI
+					logger.warn("WARNING: Instruction not found!");
+					return varNode;
+				}
 				if (insn.getASMNode().getOpcode() != varNode.getOpcode()) {
 					logger.warn("Found wrong bytecode instruction at this index!");
 					BytecodeInstructionPool.getInstruction(className, mn.name + mn.desc,
