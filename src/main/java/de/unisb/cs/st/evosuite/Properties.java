@@ -437,6 +437,13 @@ public class Properties {
 
 	@Parameter(key = "serialize_result", group = "Output", description = "Serialize result of search to main process")
 	public static boolean SERIALIZE_RESULT = false;
+	
+	public enum OutputGranularity {
+		MERGED, TESTCASE
+	}
+	
+	@Parameter(key = "output_granularity", group = "Output", description = "Write all test cases for a class into a single file or to separate files.")
+	public static OutputGranularity OUTPUT_GRANULARITY = OutputGranularity.MERGED;
 
 	//---------------------------------------------------------------
 	// Sandbox
