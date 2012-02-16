@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.Properties.OutputFormat;
+import de.unisb.cs.st.evosuite.Properties.OutputGranularity;
 import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import de.unisb.cs.st.evosuite.repair.JUnit4AssertionLogAdapter;
@@ -204,10 +205,8 @@ public class TestSuiteWriter implements Opcodes {
 	protected String getImports(List<ExecutionResult> results) {
 		StringBuilder builder = new StringBuilder();
 		Set<Class<?>> imports = new HashSet<Class<?>>();
-		for (TestCase test : testCases) {
-			imports.addAll(test.getAccessedClasses());
-		}
 		for (ExecutionResult result : results) {
+			imports.addAll(result.test.getAccessedClasses());
 			for (Throwable t : result.exceptions.values()) {
 				imports.add(t.getClass());
 			}
@@ -370,6 +369,26 @@ public class TestSuiteWriter implements Opcodes {
 	}
 
 	/**
+	 * Create JUnit file for given class name
+	 * 
+	 * @param name
+	 *            Name of the class file
+	 * @return String representation of JUnit test file
+	 */
+	public String getUnitTest(String name, int testId) {
+		List<ExecutionResult> results = new ArrayList<ExecutionResult>();
+		results.add(runTest(testCases.get(testId)));
+
+		StringBuilder builder = new StringBuilder();
+
+		builder.append(getHeader(name + "_" + testId, results));
+		builder.append(testToString(testId, results.get(0)));
+		builder.append(getFooter());
+
+		return builder.toString();
+	}
+
+	/**
 	 * Convert one test case to a Java method
 	 * 
 	 * @param id
@@ -468,9 +487,18 @@ public class TestSuiteWriter implements Opcodes {
 	 */
 	public void writeTestSuite(String name, String directory) {
 		String dir = makeDirectory(directory);
-		File file = new File(dir + "/" + name + ".java");
-		executor.newObservers();
-		Utils.writeFile(getUnitTest(name), file);
+		
+		if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
+			File file = new File(dir + "/" + name + ".java");
+			executor.newObservers();
+			Utils.writeFile(getUnitTest(name), file);
+		} else {
+			for (int i = 0; i < testCases.size(); i++) {
+				File file = new File(dir + "/" + name + "_" + i + ".java");
+				executor.newObservers();
+				Utils.writeFile(getUnitTest(name, i), file);
+			}
+		}
 	}
 
 	private void testToBytecode(TestCase test, GeneratorAdapter mg,
