@@ -51,9 +51,6 @@ public class DescriptorMapping {
 	public boolean isTransformedMethod(String className, String methodName, String desc) {
 		logger.info("Initiating transformation of " + methodName);
 		getMethodDesc(className, methodName, desc);
-		logger.info("Contains transformed version? "
-		        + (descriptorMapping.containsKey(className.replace(".", "/") + "/"
-		                + methodName + desc)) + " - " + originalDesc.keySet());
 		//		return originalDesc.containsKey(className.replace(".", "/") + "/" + methodName
 		//		        + desc);
 		return descriptorMapping.containsKey(className.replace(".", "/") + "/"

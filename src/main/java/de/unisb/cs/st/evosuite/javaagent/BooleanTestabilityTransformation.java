@@ -73,7 +73,7 @@ public class BooleanTestabilityTransformation {
 
 	private MethodNode currentMethodNode = null;
 
-	private final DescriptorMapping descriptorMapping = DescriptorMapping.getInstance();
+	private static final DescriptorMapping descriptorMapping = DescriptorMapping.getInstance();
 
 	public BooleanTestabilityTransformation(ClassNode cn) {
 		this.cn = cn;
@@ -121,6 +121,19 @@ public class BooleanTestabilityTransformation {
 				logger.info("Transformed signature to " + mn.name + mn.desc);
 			}
 			transformMethod(mn);
+		}
+	}
+
+	public static String getOriginalNameDesc(String className, String methodName,
+	        String desc) {
+		String key = className.replace(".", "/") + "/" + methodName + desc;
+		if (descriptorMapping.originalDesc.containsKey(key)) {
+			logger.debug("Descriptor mapping contains original for " + key);
+			return descriptorMapping.getOriginalName(className, methodName, desc)
+			        + descriptorMapping.originalDesc.get(key);
+		} else {
+			logger.debug("Descriptor mapping does not contain original for " + key);
+			return methodName + desc;
 		}
 	}
 
