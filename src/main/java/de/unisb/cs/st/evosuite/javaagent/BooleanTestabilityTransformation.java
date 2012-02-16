@@ -3,12 +3,14 @@
  */
 package de.unisb.cs.st.evosuite.javaagent;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -19,6 +21,7 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LdcInsnNode;
@@ -26,6 +29,7 @@ import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.MultiANewArrayInsnNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.tree.analysis.Analyzer;
@@ -109,6 +113,8 @@ public class BooleanTestabilityTransformation {
 	private void processMethods() {
 		List<MethodNode> methodNodes = cn.methods;
 		for (MethodNode mn : methodNodes) {
+			if ((mn.access & Opcodes.ACC_NATIVE) == Opcodes.ACC_NATIVE)
+				continue;
 			if (descriptorMapping.isTransformedMethod(className, mn.name, mn.desc)) {
 				logger.info("Transforming signature of method " + mn.name + mn.desc);
 				transformMethodSignature(mn);
@@ -500,6 +506,17 @@ public class BooleanTestabilityTransformation {
 		mn.name = newName;
 	}
 
+	private Frame[] getArrayFrames(MethodNode mn) {
+		try {
+			Analyzer a = new Analyzer(new BooleanArrayInterpreter());
+			a.analyze(cn.name, mn);
+			return a.getFrames();
+		} catch (Exception e) {
+			logger.warn("Error during analysis: " + e);
+			return null;
+		}
+	}
+
 	/**
 	 * Apply testability transformation to an individual method
 	 * 
@@ -562,10 +579,12 @@ public class BooleanTestabilityTransformation {
 		new BooleanDistanceTransformer().transform(mn);
 
 		// Replace all boolean arrays
-		// new BooleanArrayTransformer().transform(mn);
+		new BooleanArrayTransformer().transform(mn);
+
+		new BooleanArrayIndexTransformer(getArrayFrames(mn)).transform(mn);
 
 		// Replace all boolean return values
-		// new BooleanReturnTransformer().transform(mn);
+		new BooleanReturnTransformer().transform(mn);
 
 		CFGPool.clear(className, mn.name + mn.desc);
 		BytecodeInstructionPool.clear(className, mn.name + mn.desc);
@@ -817,6 +836,11 @@ public class BooleanTestabilityTransformation {
 			// or before the jump target (if the value is false)
 
 			if (!hasAssignment) {
+				if (dependency.getBranch().getInstruction().isSwitch()) {
+					logger.warn("Don't know how to handle Switches yet");
+					return;
+				}
+
 				TransformationStatistics.transformedImplicitElse();
 
 				JumpInsnNode jumpNode = (JumpInsnNode) dependency.getBranch().getInstruction().getASMNode();
@@ -1172,10 +1196,29 @@ public class BooleanTestabilityTransformation {
 				TransformationStatistics.transformInstanceOf();
 
 				// Depending on the class version we need a String or a Class
-				if (cn.version > 49) {
-					LdcInsnNode lin = new LdcInsnNode(Type.getType("L" + typeNode.desc
-					        + ";"));
-					mn.instructions.insertBefore(typeNode, lin);
+				// TODO: This needs to be class version of the class that's loaded, not cn!
+				ClassReader reader;
+				int version = 49;
+				String name = typeNode.desc.replace("/", ".");
+				try {
+					reader = new ClassReader(name);
+					ClassNode parent = new ClassNode();
+					reader.accept(parent, ClassReader.SKIP_CODE);
+					version = parent.version;
+				} catch (IOException e) {
+					TestabilityTransformation.logger.info("Error reading class " + name);
+				}
+
+				if (version >= 49) {
+					if (!typeNode.desc.startsWith("[")) {
+						LdcInsnNode lin = new LdcInsnNode(Type.getType("L"
+						        + typeNode.desc + ";"));
+						mn.instructions.insertBefore(typeNode, lin);
+					} else {
+						LdcInsnNode lin = new LdcInsnNode(Type.getType(typeNode.desc
+						        + ";"));
+						mn.instructions.insertBefore(typeNode, lin);
+					}
 				} else {
 					LdcInsnNode lin = new LdcInsnNode(typeNode.desc.replace("/", "."));
 					mn.instructions.insertBefore(typeNode, lin);
@@ -1251,7 +1294,128 @@ public class BooleanTestabilityTransformation {
 	 * Make sure arrays of booleans are also transformed
 	 */
 	private class BooleanArrayTransformer extends MethodNodeTransformer {
+		/* (non-Javadoc)
+		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformIntInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.IntInsnNode)
+		 */
+		@Override
+		protected AbstractInsnNode transformIntInsnNode(MethodNode mn,
+		        IntInsnNode intInsnNode) {
+			if (intInsnNode.operand == Opcodes.T_BOOLEAN) {
+				intInsnNode.operand = Opcodes.T_INT;
+			}
+			return intInsnNode;
+		}
 
+		/* (non-Javadoc)
+		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformMultiANewArrayInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.MultiANewArrayInsnNode)
+		 */
+		@Override
+		protected AbstractInsnNode transformMultiANewArrayInsnNode(MethodNode mn,
+		        MultiANewArrayInsnNode arrayInsnNode) {
+			String new_desc = "";
+			Type t = Type.getType(arrayInsnNode.desc);
+			while (t.equals(Type.ARRAY)) {
+				new_desc += "[";
+				t = t.getElementType();
+			}
+			if (t.equals(Type.BOOLEAN_TYPE))
+				new_desc += "I";
+			else
+				new_desc += t.getDescriptor();
+			arrayInsnNode.desc = new_desc;
+			return arrayInsnNode;
+		}
+
+		/* (non-Javadoc)
+		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformTypeInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.TypeInsnNode)
+		 */
+		@Override
+		protected AbstractInsnNode transformTypeInsnNode(MethodNode mn,
+		        TypeInsnNode typeNode) {
+			String new_desc = "";
+			int pos = 0;
+			while (pos < typeNode.desc.length() && typeNode.desc.charAt(pos) == '[') {
+				new_desc += "[";
+				pos++;
+			}
+			String d = typeNode.desc.substring(pos);
+			logger.info("Unfolded arrays to: " + d);
+			if (d.equals("Z"))
+				//if (t.equals(Type.BOOLEAN_TYPE))
+				new_desc += "I";
+			else
+				new_desc += d; //t.getInternalName();
+			typeNode.desc = new_desc;
+			return typeNode;
+		}
+	}
+
+	/**
+	 * Make sure array accesses of boolean arrays are also transformed
+	 */
+	private class BooleanArrayIndexTransformer extends MethodNodeTransformer {
+		private final Frame[] frames;
+
+		// TODO: Use currentFrames
+		public BooleanArrayIndexTransformer(Frame[] frames) {
+			this.frames = frames;
+		}
+
+		/* (non-Javadoc)
+		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.InsnNode)
+		 */
+		@Override
+		protected AbstractInsnNode transformInsnNode(MethodNode mn, InsnNode insnNode) {
+			if (frames == null) {
+				return insnNode;
+			}
+
+			if (insnNode.getOpcode() == Opcodes.BALOAD) {
+				Frame current = frames[mn.instructions.indexOf(insnNode)];
+				int size = current.getStackSize();
+				if (current.getStack(size - 2) == BooleanArrayInterpreter.INT_ARRAY) {
+					logger.info("Array is of boolean type, changing BALOAD to IALOAD");
+					InsnNode replacement = new InsnNode(Opcodes.IALOAD);
+					mn.instructions.insertBefore(insnNode, replacement);
+					mn.instructions.remove(insnNode);
+					return replacement;
+				}
+			} else if (insnNode.getOpcode() == Opcodes.BASTORE) {
+				Frame current = frames[mn.instructions.indexOf(insnNode)];
+				int size = current.getStackSize();
+				if (current.getStack(size - 3) == BooleanArrayInterpreter.INT_ARRAY) {
+					logger.info("Array is of boolean type, changing BASTORE to IASTORE");
+					InsnNode replacement = new InsnNode(Opcodes.IASTORE);
+					mn.instructions.insertBefore(insnNode, replacement);
+					mn.instructions.remove(insnNode);
+					return replacement;
+				}
+			}
+			return insnNode;
+		}
+
+		/* (non-Javadoc)
+		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformTypeInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.TypeInsnNode)
+		 */
+		@Override
+		protected AbstractInsnNode transformTypeInsnNode(MethodNode mn,
+		        TypeInsnNode typeNode) {
+			if (frames == null)
+				return typeNode;
+
+			if (typeNode.getOpcode() == Opcodes.CHECKCAST) {
+				Frame current = frames[mn.instructions.indexOf(typeNode)];
+				int size = current.getStackSize();
+				if (current.getStack(size - 1) == BooleanArrayInterpreter.INT_ARRAY) {
+					logger.info("Array is of boolean type, changing CHECKCAST to [I");
+					TypeInsnNode replacement = new TypeInsnNode(Opcodes.CHECKCAST, "[I");
+					mn.instructions.insertBefore(typeNode, replacement);
+					mn.instructions.remove(typeNode);
+					return replacement;
+				}
+			}
+			return typeNode;
+		}
 	}
 
 	/**
@@ -1264,8 +1428,18 @@ public class BooleanTestabilityTransformation {
 		 */
 		@Override
 		protected AbstractInsnNode transformInsnNode(MethodNode mn, InsnNode insnNode) {
+			String desc = descriptorMapping.getMethodDesc(className, mn.name, mn.desc);
+			Type returnType = Type.getReturnType(desc);
+			if (!returnType.equals(Type.BOOLEAN_TYPE))
+				return insnNode;
+
 			if (insnNode.getOpcode() == Opcodes.IRETURN) {
 				// If this function cannot be transformed, add a call to convert the value to a proper Boolean
+				MethodInsnNode n = new MethodInsnNode(Opcodes.INVOKESTATIC,
+				        Type.getInternalName(BooleanHelper.class), "intToBoolean",
+				        Type.getMethodDescriptor(Type.BOOLEAN_TYPE,
+				                                 new Type[] { Type.INT_TYPE }));
+				mn.instructions.insertBefore(insnNode, n);
 			}
 
 			return insnNode;
