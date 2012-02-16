@@ -3,12 +3,14 @@
  */
 package de.unisb.cs.st.evosuite.javaagent;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -111,6 +113,8 @@ public class BooleanTestabilityTransformation {
 	private void processMethods() {
 		List<MethodNode> methodNodes = cn.methods;
 		for (MethodNode mn : methodNodes) {
+			if ((mn.access & Opcodes.ACC_NATIVE) == Opcodes.ACC_NATIVE)
+				continue;
 			if (descriptorMapping.isTransformedMethod(className, mn.name, mn.desc)) {
 				logger.info("Transforming signature of method " + mn.name + mn.desc);
 				transformMethodSignature(mn);
@@ -1192,7 +1196,20 @@ public class BooleanTestabilityTransformation {
 				TransformationStatistics.transformInstanceOf();
 
 				// Depending on the class version we need a String or a Class
-				if (cn.version > 49) {
+				// TODO: This needs to be class version of the class that's loaded, not cn!
+				ClassReader reader;
+				int version = 49;
+				String name = typeNode.desc.replace("/", ".");
+				try {
+					reader = new ClassReader(name);
+					ClassNode parent = new ClassNode();
+					reader.accept(parent, ClassReader.SKIP_CODE);
+					version = parent.version;
+				} catch (IOException e) {
+					TestabilityTransformation.logger.info("Error reading class " + name);
+				}
+
+				if (version >= 49) {
 					if (!typeNode.desc.startsWith("[")) {
 						LdcInsnNode lin = new LdcInsnNode(Type.getType("L"
 						        + typeNode.desc + ";"));
