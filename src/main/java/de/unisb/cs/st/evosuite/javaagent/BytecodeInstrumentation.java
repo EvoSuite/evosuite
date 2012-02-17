@@ -88,6 +88,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			if (className.equals(Properties.TARGET_CLASS)
 			        || className.startsWith(Properties.TARGET_CLASS + "$"))
 				return true;
+			break;
 		case PREFIX:
 			if (className.startsWith(Properties.PROJECT_PREFIX))
 				return true;

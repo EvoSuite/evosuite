@@ -9,10 +9,12 @@ import java.util.Set;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.MultiANewArrayInsnNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
@@ -49,6 +51,10 @@ public class MethodNodeTransformer {
 				node = transformJumpInsnNode(mn, (JumpInsnNode) node);
 			} else if (node instanceof LabelNode) {
 				node = transformLabelNode(mn, (LabelNode) node);
+			} else if (node instanceof IntInsnNode) {
+				node = transformIntInsnNode(mn, (IntInsnNode) node);
+			} else if (node instanceof MultiANewArrayInsnNode) {
+				node = transformMultiANewArrayInsnNode(mn, (MultiANewArrayInsnNode) node);
 			}
 
 			node = node.getNext();
@@ -83,5 +89,14 @@ public class MethodNodeTransformer {
 
 	protected AbstractInsnNode transformLabelNode(MethodNode mn, LabelNode labelNode) {
 		return labelNode;
+	}
+
+	protected AbstractInsnNode transformIntInsnNode(MethodNode mn, IntInsnNode intInsnNode) {
+		return intInsnNode;
+	}
+
+	protected AbstractInsnNode transformMultiANewArrayInsnNode(MethodNode mn,
+	        MultiANewArrayInsnNode arrayInsnNode) {
+		return arrayInsnNode;
 	}
 }
