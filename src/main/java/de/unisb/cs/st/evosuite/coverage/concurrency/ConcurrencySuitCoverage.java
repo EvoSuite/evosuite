@@ -31,13 +31,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
-import de.unisb.cs.st.evosuite.cfg.CFGPool;
-import de.unisb.cs.st.evosuite.cfg.ControlFlowEdge;
-import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.graphs.GraphPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.graphs.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.graphs.cfg.ControlFlowEdge;
+import de.unisb.cs.st.evosuite.graphs.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -346,7 +346,7 @@ public class ConcurrencySuitCoverage extends TestSuiteFitnessFunction {
 
 			String className = LockRuntime.fieldAccToConcInstr.get(nextTuple.scheduleID).getClassName();
 			String methodName = LockRuntime.fieldAccToConcInstr.get(nextTuple.scheduleID).getMethodName();
-			RawControlFlowGraph completeCFG = CFGPool.getRawCFG(className, methodName);
+			RawControlFlowGraph completeCFG = GraphPool.getRawCFG(className, methodName);
 
 			assert (LockRuntime.fieldAccessIDToCFGVertex.containsKey(nextTuple.scheduleID));
 

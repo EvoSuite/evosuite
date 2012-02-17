@@ -17,10 +17,10 @@ import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import de.unisb.cs.st.evosuite.cfg.CFGPool;
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.MethodInstrumentation;
+import de.unisb.cs.st.evosuite.graphs.GraphPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.graphs.cfg.RawControlFlowGraph;
 
 /**
  * @author Sebastian Steenbuck
@@ -52,7 +52,7 @@ public class ConcurrencyInstrumentation implements MethodInstrumentation{
 		this.className=className;
 		this.methodName=methodName;
 		
-		RawControlFlowGraph completeCFG = CFGPool.getRawCFG(className, methodName);
+		RawControlFlowGraph completeCFG = GraphPool.getRawCFG(className, methodName);
 		Iterator<AbstractInsnNode> instructions = mn.instructions.iterator();
 		while (instructions.hasNext()) {
 			AbstractInsnNode instruction = instructions.next();
