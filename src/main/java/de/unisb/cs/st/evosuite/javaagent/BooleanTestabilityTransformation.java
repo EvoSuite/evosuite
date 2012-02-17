@@ -386,6 +386,11 @@ public class BooleanTestabilityTransformation {
 
 	private boolean isBooleanOnStack(MethodNode mn, AbstractInsnNode node, int position) {
 		int insnPosition = mn.instructions.indexOf(node);
+		if (insnPosition > currentFrames.length) {
+			logger.warn("Trying to access frame out of scope: " + insnPosition + "/"
+			        + currentFrames.length);
+			return false;
+		}
 		Frame frame = currentFrames[insnPosition];
 		return frame.getStack(position) == BooleanValueInterpreter.BOOLEAN_VALUE;
 	}
@@ -1173,7 +1178,7 @@ public class BooleanTestabilityTransformation {
 
 				// Check if ICONST_0 or ICONST_1 are on the stack
 				ControlDependenceGraph cdg = GraphPool.getCDG(className.replace("/", "."),
-				                                            mn.name + mn.desc);
+				                                              mn.name + mn.desc);
 				int index = mn.instructions.indexOf(fieldNode);
 				logger.info("Getting bytecode instruction for " + fieldNode.name + "/"
 				        + ((FieldInsnNode) mn.instructions.get(index)).name);
@@ -1231,7 +1236,7 @@ public class BooleanTestabilityTransformation {
 
 				// Check if ICONST_0 or ICONST_1 are on the stack
 				ControlDependenceGraph cdg = GraphPool.getCDG(className.replace("/", "."),
-				                                            mn.name + mn.desc);
+				                                              mn.name + mn.desc);
 				int index = mn.instructions.indexOf(varNode);
 				BytecodeInstruction insn = BytecodeInstructionPool.getInstruction(className.replace("/",
 				                                                                                    "."),
