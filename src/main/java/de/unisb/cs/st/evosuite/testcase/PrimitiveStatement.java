@@ -33,6 +33,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 import com.googlecode.gentyref.GenericTypeReflector;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.javaagent.BooleanTestabilityTransformation;
 import de.unisb.cs.st.evosuite.primitives.PrimitivePool;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
@@ -272,17 +273,37 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 		return getCode();
 	}
 
+	private void mutateTransformedBoolean(TestCase test) {
+		for (StatementInterface s : test) {
+			if (s instanceof MethodStatement) {
+				MethodStatement ms = (MethodStatement) s;
+				if (BooleanTestabilityTransformation.hasTransformedParameters(ms.getMethod().getDeclaringClass().getName(),
+				                                                              ms.getMethod().getName(),
+				                                                              org.objectweb.asm.Type.getMethodDescriptor(ms.getMethod()))) {
+
+					((IntPrimitiveStatement) this).negate();
+					return;
+
+				}
+			}
+		}
+	}
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#mutate(de.unisb.cs.st.evosuite.testcase.TestCase)
 	 */
 	@Override
 	public boolean mutate(TestCase test, AbstractTestFactory factory) {
 		T oldVal = value;
-		// TODO: Should not be hardcoded
+
 		while (value == oldVal && value != null) {
-			if (Randomness.nextDouble() <= Properties.RANDOM_PERTURBATION)
-				randomize();
-			else
+			if (Randomness.nextDouble() <= Properties.RANDOM_PERTURBATION) {
+				if (Properties.TT && getClass().equals(IntPrimitiveStatement.class)) {
+					mutateTransformedBoolean(test);
+				} else {
+					randomize();
+				}
+			} else
 				delta();
 		}
 		return true;
