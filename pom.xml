@@ -112,9 +112,9 @@
 			<version>1.1.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.jgrapht</groupId>
-			<artifactId>jgrapht-jdk1.5</artifactId>
-			<version>0.7.3</version>
+  			<groupId>org.jgrapht</groupId>
+  			<artifactId>jgrapht-jdk1.6</artifactId>
+  			<version>0.8.3</version>
 		</dependency>
 		<dependency>
 			<groupId>com.panayotis</groupId>

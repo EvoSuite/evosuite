@@ -34,9 +34,9 @@ import org.objectweb.asm.tree.analysis.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.evosuite.cfg.ActualControlFlowGraph;
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.cfg.CFGPool;
+import de.unisb.cs.st.evosuite.graphs.GraphPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.ActualControlFlowGraph;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
 
 /**
  * @author Gordon Fraser
@@ -143,7 +143,7 @@ public class TestabilityTransformation {
 			// +2 because we might do a DUP2
 			mn.maxStack += 3;
 
-			this.currentCfg = CFGPool.getActualCFG(cn.name, mn.name + mn.desc);
+			this.currentCfg = GraphPool.getActualCFG(cn.name, mn.name + mn.desc);
 
 			count += transformMethod(mn);
 
