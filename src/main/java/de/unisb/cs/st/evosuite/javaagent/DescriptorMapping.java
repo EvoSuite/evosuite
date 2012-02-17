@@ -181,6 +181,24 @@ public class DescriptorMapping {
 		return false;
 	}
 
+	private boolean isInside(String className) {
+		switch (Properties.TT_SCOPE) {
+		case ALL:
+			if (!className.startsWith("java") && !className.startsWith("sun"))
+				return true;
+		case TARGET:
+			if (className.equals(Properties.TARGET_CLASS)
+			        || className.startsWith(Properties.TARGET_CLASS + "$"))
+				return true;
+			break;
+		case PREFIX:
+			if (className.startsWith(Properties.PROJECT_PREFIX))
+				return true;
+
+		}
+		return false;
+	}
+
 	private boolean isBooleanField(String desc) {
 		TestabilityTransformation.logger.info("Checkign type of field " + desc);
 		return desc.endsWith("Z");
@@ -208,10 +226,12 @@ public class DescriptorMapping {
 				ClassNode parent = new ClassNode();
 				reader.accept(parent, ClassReader.EXPAND_FRAMES);
 
-				boolean isInside = parent.name.startsWith(Properties.PROJECT_PREFIX.replace(".",
-				                                                                            "/"))
-				        || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && parent.name.startsWith(Properties.TARGET_CLASS_PREFIX.replace(".",
-				                                                                                                                       "/")));
+				boolean isInside = isInside(parent.name);
+
+				//boolean isInside = parent.name.startsWith(Properties.PROJECT_PREFIX.replace(".",
+				//                                                                            "/"))
+				//        || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && parent.name.startsWith(Properties.TARGET_CLASS_PREFIX.replace(".",
+				//				                                                                                                                       "/")));
 
 				if (!isInside) {
 					TestabilityTransformation.logger.info("Checking " + parent.name);
@@ -324,10 +344,12 @@ public class DescriptorMapping {
 				ClassNode parent = new ClassNode();
 				reader.accept(parent, ClassReader.EXPAND_FRAMES);
 
-				boolean isInside = parent.name.startsWith(Properties.PROJECT_PREFIX.replace(".",
-				                                                                            "/"))
-				        | parent.name.startsWith(Properties.TARGET_CLASS_PREFIX.replace(".",
-				                                                                        "/"));
+				boolean isInside = isInside(parent.name);
+
+				//				boolean isInside = parent.name.startsWith(Properties.PROJECT_PREFIX.replace(".",
+				//				                                                                            "/"))
+				//				        | parent.name.startsWith(Properties.TARGET_CLASS_PREFIX.replace(".",
+				//				                                                                        "/"));
 
 				if (!isInside) {
 					for (Object o : parent.fields) {

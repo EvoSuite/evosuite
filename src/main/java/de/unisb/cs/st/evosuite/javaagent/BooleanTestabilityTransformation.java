@@ -3,7 +3,6 @@
  */
 package de.unisb.cs.st.evosuite.javaagent;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -102,8 +101,13 @@ public class BooleanTestabilityTransformation {
 	private void processFields() {
 		List<FieldNode> fields = cn.fields;
 		for (FieldNode field : fields) {
-			if (descriptorMapping.isTransformedField(className, field.name, field.desc))
-				field.desc = transformFieldDescriptor(className, field.name, field.desc);
+			if (descriptorMapping.isTransformedField(className, field.name, field.desc)) {
+				String newDesc = transformFieldDescriptor(className, field.name,
+				                                          field.desc);
+				logger.info("Transforming field " + field.name + " from " + field.desc
+				        + " to " + newDesc);
+				field.desc = newDesc;
+			}
 		}
 	}
 
@@ -135,6 +139,35 @@ public class BooleanTestabilityTransformation {
 			logger.debug("Descriptor mapping does not contain original for " + key);
 			return methodName + desc;
 		}
+	}
+
+	public static String getOriginalDesc(String className, String methodName, String desc) {
+		String key = className.replace(".", "/") + "/" + methodName + desc;
+		if (descriptorMapping.originalDesc.containsKey(key)) {
+			logger.debug("Descriptor mapping contains original for " + key);
+			return descriptorMapping.originalDesc.get(key);
+		} else {
+			logger.debug("Descriptor mapping does not contain original for " + key);
+			return desc;
+		}
+	}
+
+	public static boolean hasTransformedParameters(String className, String methodName,
+	        String desc) {
+		String key = className.replace(".", "/") + "/" + methodName + desc;
+		if (descriptorMapping.originalDesc.containsKey(key)) {
+			for (Type type : Type.getArgumentTypes(descriptorMapping.originalDesc.get(key))) {
+				if (type.equals(Type.BOOLEAN_TYPE))
+					return true;
+			}
+		}
+
+		return false;
+	}
+
+	public static boolean isTransformedField(String className, String fieldName,
+	        String desc) {
+		return descriptorMapping.isTransformedField(className, fieldName, desc);
 	}
 
 	/**
@@ -543,8 +576,11 @@ public class BooleanTestabilityTransformation {
 		if ((mn.access & Opcodes.ACC_ABSTRACT) == Opcodes.ACC_ABSTRACT)
 			return;
 
+		String origDesc = getOriginalDesc(className, mn.name, mn.desc);
+
 		try {
-			Analyzer a = new Analyzer(new BooleanValueInterpreter());
+			Analyzer a = new Analyzer(new BooleanValueInterpreter(origDesc,
+			        (mn.access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC));
 			a.analyze(className, mn);
 			currentFrames = a.getFrames();
 		} catch (Exception e) {
@@ -557,7 +593,8 @@ public class BooleanTestabilityTransformation {
 		// First expand ifs without else/*
 		new ImplicitElseTransformer().transform(mn);
 		try {
-			Analyzer a = new Analyzer(new BooleanValueInterpreter());
+			Analyzer a = new Analyzer(new BooleanValueInterpreter(origDesc,
+			        (mn.access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC));
 			a.analyze(className, mn);
 			currentFrames = a.getFrames();
 		} catch (Exception e) {
@@ -753,6 +790,53 @@ public class BooleanTestabilityTransformation {
 					TransformationStatistics.transformedBooleanComparison();
 					logger.info("Changing IFEQ");
 					jumpNode.setOpcode(Opcodes.IFLE);
+				} else {
+					int insnPosition = mn.instructions.indexOf(jumpNode);
+					Frame frame = currentFrames[insnPosition];
+					logger.info("Not changing IFEQ, no Boolean on stack: "
+					        + frame.getStack(0));
+				}
+			} else if (jumpNode.getOpcode() == Opcodes.IF_ICMPEQ) {
+				if (isBooleanOnStack(mn, jumpNode, 0)) {
+					InsnList convert = new InsnList();
+					convert.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+					        Type.getInternalName(BooleanHelper.class), "pushParameter",
+					        Type.getMethodDescriptor(Type.VOID_TYPE,
+					                                 new Type[] { Type.INT_TYPE })));
+					convert.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+					        Type.getInternalName(BooleanHelper.class), "pushParameter",
+					        Type.getMethodDescriptor(Type.VOID_TYPE,
+					                                 new Type[] { Type.INT_TYPE })));
+					convert.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+					        Type.getInternalName(BooleanHelper.class),
+					        "popParameterBooleanFromInt",
+					        Type.getMethodDescriptor(Type.BOOLEAN_TYPE, new Type[] {})));
+					convert.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+					        Type.getInternalName(BooleanHelper.class),
+					        "popParameterBooleanFromInt",
+					        Type.getMethodDescriptor(Type.BOOLEAN_TYPE, new Type[] {})));
+					mn.instructions.insertBefore(jumpNode, convert);
+				}
+			} else if (jumpNode.getOpcode() == Opcodes.IF_ICMPNE) {
+				if (isBooleanOnStack(mn, jumpNode, 0)) {
+					InsnList convert = new InsnList();
+					convert.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+					        Type.getInternalName(BooleanHelper.class), "pushParameter",
+					        Type.getMethodDescriptor(Type.VOID_TYPE,
+					                                 new Type[] { Type.INT_TYPE })));
+					convert.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+					        Type.getInternalName(BooleanHelper.class), "pushParameter",
+					        Type.getMethodDescriptor(Type.VOID_TYPE,
+					                                 new Type[] { Type.INT_TYPE })));
+					convert.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+					        Type.getInternalName(BooleanHelper.class),
+					        "popParameterBooleanFromInt",
+					        Type.getMethodDescriptor(Type.BOOLEAN_TYPE, new Type[] {})));
+					convert.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+					        Type.getInternalName(BooleanHelper.class),
+					        "popParameterBooleanFromInt",
+					        Type.getMethodDescriptor(Type.BOOLEAN_TYPE, new Type[] {})));
+					mn.instructions.insertBefore(jumpNode, convert);
 				}
 			}
 			return jumpNode;
@@ -1210,7 +1294,8 @@ public class BooleanTestabilityTransformation {
 				// Depending on the class version we need a String or a Class
 				// TODO: This needs to be class version of the class that's loaded, not cn!
 				ClassReader reader;
-				int version = 49;
+				int version = 48;
+				/*
 				String name = typeNode.desc.replace("/", ".");
 				try {
 					reader = new ClassReader(name);
@@ -1220,7 +1305,7 @@ public class BooleanTestabilityTransformation {
 				} catch (IOException e) {
 					TestabilityTransformation.logger.info("Error reading class " + name);
 				}
-
+				*/
 				if (version >= 49) {
 					if (!typeNode.desc.startsWith("[")) {
 						LdcInsnNode lin = new LdcInsnNode(Type.getType("L"
@@ -1468,6 +1553,9 @@ public class BooleanTestabilityTransformation {
 		@Override
 		protected AbstractInsnNode transformMethodInsnNode(MethodNode mn,
 		        MethodInsnNode methodNode) {
+			if (methodNode.owner.equals(Type.getInternalName(BooleanHelper.class)))
+				return methodNode;
+
 			methodNode.desc = transformMethodDescriptor(methodNode.owner,
 			                                            methodNode.name, methodNode.desc);
 			methodNode.name = descriptorMapping.getMethodName(className, methodNode.name,
@@ -1481,6 +1569,7 @@ public class BooleanTestabilityTransformation {
 						if (types[i].getDescriptor().equals("Z")) {
 							if (firstBooleanParameterIndex == -1) {
 								firstBooleanParameterIndex = i;
+								break;
 							}
 						}
 					}
@@ -1622,6 +1711,7 @@ public class BooleanTestabilityTransformation {
 										        types[i].getInternalName());
 										insnlist.add(tin);
 									}
+									/*
 									if (types[i].getDescriptor().equals("Z")
 									        || types[i].getDescriptor().equals(Type.getDescriptor(Boolean.class))) {
 										MethodInsnNode booleanHelperCast = new MethodInsnNode(
@@ -1632,6 +1722,7 @@ public class BooleanTestabilityTransformation {
 										                                 new Type[] { Type.INT_TYPE }));
 										insnlist.add(booleanHelperCast);
 									}
+									*/
 								}
 
 							}
