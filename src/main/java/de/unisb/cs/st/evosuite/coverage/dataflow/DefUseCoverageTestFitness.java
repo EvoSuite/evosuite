@@ -23,11 +23,11 @@ import java.util.Set;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.cfg.CFGPool;
-import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.statement.StatementCoverageTestFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.graphs.GraphPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.graphs.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
@@ -414,7 +414,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * Look at ControlFlowGraph.getLaterInstructionInMethod() for details
 	 */
 	public Set<BytecodeInstruction> getInstructionsAfterGoalDefinition() {
-		RawControlFlowGraph cfg = CFGPool.getRawCFG(goalDefinition.getClassName(),
+		RawControlFlowGraph cfg = GraphPool.getRawCFG(goalDefinition.getClassName(),
 		                                                       goalDefinition.getMethodName());
 		BytecodeInstruction defVertex = cfg.getInstruction(goalDefinition.getInstructionId());
 		Set<BytecodeInstruction> r = cfg.getLaterInstructionsInMethod(defVertex);
@@ -432,7 +432,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * Look at ControlFlowGraph.getPreviousInstructionInMethod() for details
 	 */
 	public Set<BytecodeInstruction> getInstructionsBeforeGoalUse() {
-		RawControlFlowGraph cfg = CFGPool.getRawCFG(goalUse.getClassName(),
+		RawControlFlowGraph cfg = GraphPool.getRawCFG(goalUse.getClassName(),
 		                                                       goalUse.getMethodName());
 		BytecodeInstruction useVertex = cfg.getInstruction(goalUse.getInstructionId());
 		Set<BytecodeInstruction> r = cfg.getPreviousInstructionsInMethod(useVertex);

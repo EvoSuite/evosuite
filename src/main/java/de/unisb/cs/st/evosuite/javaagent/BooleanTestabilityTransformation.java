@@ -35,16 +35,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.cfg.BasicBlock;
-import de.unisb.cs.st.evosuite.cfg.BytecodeAnalyzer;
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstructionFactory;
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstructionPool;
-import de.unisb.cs.st.evosuite.cfg.CFGPool;
-import de.unisb.cs.st.evosuite.cfg.ControlDependenceGraph;
-import de.unisb.cs.st.evosuite.cfg.ControlDependency;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+import de.unisb.cs.st.evosuite.graphs.GraphPool;
+import de.unisb.cs.st.evosuite.graphs.cdg.ControlDependenceGraph;
+import de.unisb.cs.st.evosuite.graphs.cfg.BasicBlock;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeAnalyzer;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstructionFactory;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstructionPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.ControlDependency;
 
 /**
  * Transform everything Boolean to ints.
@@ -452,7 +452,7 @@ public class BooleanTestabilityTransformation {
 			e.printStackTrace();
 		}
 
-		// compute Raw and ActualCFG and put both into CFGPool
+		// compute Raw and ActualCFG and put both into GraphPool
 		bytecodeAnalyzer.retrieveCFGGenerator().registerCFGs();
 	}
 
@@ -508,7 +508,7 @@ public class BooleanTestabilityTransformation {
 	private void transformMethod(MethodNode mn) {
 		logger.info("Transforming method " + mn.name + mn.desc);
 
-		//currentCFG = CFGPool.getActualCFG(className, mn.name + mn.desc);
+		//currentCFG = GraphPool.getActualCFG(className, mn.name + mn.desc);
 
 		// TODO: Skipping interfaces for now, but will need to handle Booleans in interfaces!
 		if ((mn.access & Opcodes.ACC_ABSTRACT) == Opcodes.ACC_ABSTRACT)
@@ -567,7 +567,7 @@ public class BooleanTestabilityTransformation {
 		// Replace all boolean return values
 		// new BooleanReturnTransformer().transform(mn);
 
-		CFGPool.clear(className, mn.name + mn.desc);
+		GraphPool.clear(className, mn.name + mn.desc);
 		BytecodeInstructionPool.clear(className, mn.name + mn.desc);
 		BranchPool.clear(className, mn.name + mn.desc);
 
@@ -1052,7 +1052,7 @@ public class BooleanTestabilityTransformation {
 				logger.info("Handling PUTFIELD case!");
 
 				// Check if ICONST_0 or ICONST_1 are on the stack
-				ControlDependenceGraph cdg = CFGPool.getCDG(className.replace("/", "."),
+				ControlDependenceGraph cdg = GraphPool.getCDG(className.replace("/", "."),
 				                                            mn.name + mn.desc);
 				int index = mn.instructions.indexOf(fieldNode);
 				logger.info("Getting bytecode instruction for " + fieldNode.name + "/"
@@ -1110,7 +1110,7 @@ public class BooleanTestabilityTransformation {
 			        && isBooleanVariable(varNode.var, mn)) {
 
 				// Check if ICONST_0 or ICONST_1 are on the stack
-				ControlDependenceGraph cdg = CFGPool.getCDG(className.replace("/", "."),
+				ControlDependenceGraph cdg = GraphPool.getCDG(className.replace("/", "."),
 				                                            mn.name + mn.desc);
 				int index = mn.instructions.indexOf(varNode);
 				BytecodeInstruction insn = BytecodeInstructionPool.getInstruction(className.replace("/",
